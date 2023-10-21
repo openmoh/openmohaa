@@ -213,34 +213,58 @@ void Sentient::WeaponKnockedFromHands(void)
 
 bool Sentient::CanSee(Entity *ent, float fov, float vision_distance, bool bNoEnts)
 {
-    float delta[2];
+    vec2_t delta;
+    int mask;
 
-    delta[0] = ent->centroid[0] - centroid[0];
-    delta[1] = ent->centroid[1] - centroid[1];
+    VectorSub2D(ent->centroid, centroid, delta);
 
-    if ((vision_distance <= 0.0f) || VectorLength2DSquared(delta) <= (vision_distance * vision_distance)) {
-        if (gi.AreasConnected(edict->r.areanum, ent->edict->r.areanum)
-            && ((fov <= 0.0f || fov >= 360.0f) || (FovCheck(delta, cos(fov * (0.5 * M_PI / 180.0)))))) {
-            //
-            // Parent checking for subclass is absolute non-sense...
-            //
-            if (ent->IsSubclassOfPlayer()) {
-                Player *p = (Player *)ent;
-
-                Vector vStart = EyePosition();
-                Vector vEnd   = p->EyePosition();
-
-                return G_SightTrace(vStart, vec_zero, vec_zero, vEnd, this, ent, MASK_CANSEE, 0, "Sentient::CanSee 1");
-            } else {
-                Vector vStart = EyePosition();
-                Vector vEnd   = ent->centroid;
-
-                return G_SightTrace(vStart, vec_zero, vec_zero, vEnd, this, ent, MASK_CANSEE, 0, "Sentient::CanSee 2");
-            }
-        }
+    if (vision_distance >= 0 && Square(vision_distance) < VectorLength2DSquared(delta)) {
+        return false;
     }
 
-    return false;
+    if (!AreasConnected(ent)) {
+        return false;
+    }
+
+    if (fov > 0 && fov < 360 && !FovCheck(delta, cos(DEG2RAD(fov / 2.f)))) {
+        return false;
+    }
+
+    if (bNoEnts) {
+        mask = MASK_CANSEE_NOENTS;
+    } else {
+        mask = MASK_CANSEE;
+    }
+
+    if (ent->IsSubclassOfSentient()) {
+        return G_SightTrace(EyePosition(), vec_zero, vec_zero, static_cast<Sentient*>(ent)->EyePosition(), this, ent, mask, qfalse, "Sentient::CanSee 1");
+    } else {
+        return G_SightTrace(EyePosition(), vec_zero, vec_zero, ent->centroid, this, ent, mask, qfalse, "Sentient::CanSee 2");
+    }
+}
+
+bool Sentient::CanSee(const Vector& org, float fov, float vision_distance, bool bNoEnts)
+{
+    vec2_t delta;
+    int mask;
+
+    VectorSub2D(org, centroid, delta);
+
+    if (vision_distance >= 0 && Square(vision_distance) < VectorLength2DSquared(delta)) {
+        return false;
+    }
+
+    if (fov > 0 && fov < 360 && !FovCheck(delta, cos(DEG2RAD(fov / 2.f)))) {
+        return false;
+    }
+
+    if (bNoEnts) {
+        mask = MASK_CANSEE_NOENTS;
+    } else {
+        mask = MASK_CANSEE;
+    }
+
+    return G_SightTrace(EyePosition(), vec_zero, vec_zero, org, this, NULL, mask, qfalse, "Sentient::CanSee");
 }
 
 Vector Sentient::GunPosition(void)

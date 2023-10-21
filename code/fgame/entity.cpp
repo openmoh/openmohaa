@@ -2891,39 +2891,54 @@ qboolean Entity::FovCheck(float *delta, float fovdot)
 
 bool Entity::CanSee(Entity *ent, float fov, float vision_distance, bool bNoEnts)
 {
-    float delta[2];
+    vec2_t delta;
+    int mask;
 
-    delta[0] = ent->centroid[0] - centroid[0];
-    delta[1] = ent->centroid[1] - centroid[1];
+    VectorSub2D(ent->centroid, centroid, delta);
 
-    if ((vision_distance <= 0.0f)
-        || (delta[0] * delta[0] + delta[1] * delta[1]) <= (vision_distance * vision_distance)) {
-        if (gi.AreasConnected(edict->r.areanum, ent->edict->r.areanum)
-            && ((fov <= 0.0f || fov >= 360.0f) || (FovCheck(delta, cos(fov * (0.5 * M_PI / 180.0)))))) {
-            return G_SightTrace(
-                centroid, vec_zero, vec_zero, ent->centroid, this, ent, MASK_CANSEE, 0, "Entity::CanSee"
-            );
-        }
+    if (vision_distance >= 0 && Square(vision_distance) < VectorLength2DSquared(delta)) {
+        return false;
     }
 
-    return false;
+    if (!AreasConnected(ent)) {
+        return false;
+    }
+
+    if (fov > 0 && fov < 360 && !FovCheck(delta, cos(DEG2RAD(fov / 2.f)))) {
+        return false;
+    }
+
+    if (bNoEnts) {
+        mask = MASK_CANSEE_NOENTS;
+    } else {
+        mask = MASK_CANSEE;
+    }
+
+    return G_SightTrace(centroid, vec_zero, vec_zero, ent->centroid, this, ent, mask, qfalse, "Sentient::CanSee");
 }
 
 bool Entity::CanSee(const Vector& org, float fov, float vision_distance, bool bNoEnts)
 {
-    float delta[2];
+    vec2_t delta;
+    int mask;
 
-    delta[0] = org[0] - centroid[0];
-    delta[1] = org[1] - centroid[1];
+    VectorSub2D(org, centroid, delta);
 
-    if ((vision_distance <= 0.0f)
-        || (delta[0] * delta[0] + delta[1] * delta[1]) <= (vision_distance * vision_distance)) {
-        if ((fov <= 0.0f || fov >= 360.0f) || (FovCheck(delta, cos(fov * (0.5 * M_PI / 180.0))))) {
-            return G_SightTrace(centroid, vec_zero, vec_zero, org, this, NULL, MASK_CANSEE, 0, "Entity::CanSee");
-        }
+    if (vision_distance >= 0 && Square(vision_distance) < VectorLength2DSquared(delta)) {
+        return false;
     }
 
-    return false;
+    if (fov > 0 && fov < 360 && !FovCheck(delta, cos(DEG2RAD(fov / 2.f)))) {
+        return false;
+    }
+
+    if (bNoEnts) {
+        mask = MASK_CANSEE_NOENTS;
+    } else {
+        mask = MASK_CANSEE;
+    }
+
+    return G_SightTrace(centroid, vec_zero, vec_zero, org, this, NULL, mask, qfalse, "Sentient::CanSee");
 }
 
 void Entity::FadeNoRemove(Event *ev)

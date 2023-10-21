@@ -234,6 +234,7 @@ public:
     void           SetMinViewVariation(const Vector          &vVariation);
     void           SetHolsteredByCode(bool holstered);
     bool           CanSee(Entity *ent, float fov, float vision_distance, bool bNoEnts) override;
+    bool           CanSee(const Vector& org, float fov, float vision_distance, bool bNoEnts) override;
     virtual Vector GunPosition(void);
     virtual Vector GunTarget(bool bNoCollision = false, const vec3_t position = NULL, const vec3_t forward = NULL);
     void           ReloadWeapon(Event *ev);
