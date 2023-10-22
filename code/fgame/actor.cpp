@@ -5010,7 +5010,7 @@ void Actor::HandleKilled(Event *ev, bool bPlayDeathAnim)
     if (bPlayDeathAnim) {
         Event event(EV_Listener_ExecuteScript);
         event.AddConstString(STRING_GLOBAL_KILLED_SCR);
-        for (int i = 1; i < ev->NumArgs(); i++) {
+        for (int i = 1; i <= ev->NumArgs(); i++) {
             event.AddValue(ev->GetValue(i));
         }
         ExecuteScript(&event);
@@ -6544,7 +6544,7 @@ void Actor::EventSetAnim(Event *ev)
     int       slot   = 0;
     int       anim;
     const_str flagVal;
-    qboolean  flagged;
+    qboolean  flagged = qfalse;
 
     switch (ev->NumArgs()) {
     case 4:
