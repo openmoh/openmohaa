@@ -2563,7 +2563,7 @@ void Vehicle::SetDriverAngles(Vector angles)
 {
     int i;
 
-    if (!driver.ent) {
+    if (!driver.ent || !driver.ent->client) {
         return;
     }
 
