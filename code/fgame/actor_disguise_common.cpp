@@ -31,26 +31,27 @@ void Actor::InitDisguiseNone(GlobalFuncs_t *func)
 
 void Actor::State_Disguise_Wait(void)
 {
-    vec2_t vDelta;
     float  fDistSquared;
+    vec2_t vDelta;
+
     VectorSub2D(origin, m_Enemy->origin, vDelta);
-
-    m_eNextAnimMode    = ANIM_MODE_NORMAL;
-    m_csNextAnimString = STRING_ANIM_DISGUISE_WAIT_SCR;
-    m_bNextForceStart  = false;
-
     fDistSquared = VectorLength2DSquared(vDelta);
 
-    if (m_fMaxDisguiseDistSquared > fDistSquared * 4) {
-        TransitionState(ACTOR_STATE_DISGUISE_PAPERS, 0);
+    DesiredAnimation(ANIM_MODE_NORMAL, STRING_ANIM_DISGUISE_WAIT_SCR);
+
+    if (fDistSquared * 4 < m_fMaxDisguiseDistSquared) {
+        TransitionState(ACTOR_STATE_DISGUISE_PAPERS);
+        return;
+    }
+
+    if (level.inttime <= m_iStateTime + 3000) {
+        return;
+    }
+
+    if (fDistSquared > Square(256)) {
+        SetThinkState(THINKSTATE_IDLE, THINKLEVEL_IDLE);
     } else {
-        if (level.inttime > m_iStateTime + 3000) {
-            if (fDistSquared <= 65536) {
-                TransitionState(ACTOR_STATE_DISGUISE_PAPERS, 0);
-            } else {
-                SetThinkState(THINKSTATE_IDLE, THINKLEVEL_IDLE);
-            }
-        }
+        TransitionState(ACTOR_STATE_DISGUISE_PAPERS);
     }
 }
 
@@ -58,28 +59,26 @@ void Actor::State_Disguise_Papers(void)
 {
     vec2_t vDelta;
 
-    m_csNextAnimString = STRING_ANIM_DISGUISE_PAPERS_SCR;
-    m_eNextAnimMode    = ANIM_MODE_NORMAL;
-    m_bNextForceStart  = false;
-    if (m_iEnemyShowPapersTime < m_Enemy->m_ShowPapersTime) {
-        if (level.m_iPapersLevel < m_iDisguiseLevel) {
-            m_State = ACTOR_STATE_DISGUISE_DENY;
-        } else {
-            if (m_DisguiseAcceptThread.IsSet()) {
-                m_DisguiseAcceptThread.Execute(this);
-            }
-            TransitionState(ACTOR_STATE_DISGUISE_ACCEPT, 0);
-        }
-    } else {
+    DesiredAnimation(ANIM_MODE_NORMAL, STRING_ANIM_DISGUISE_PAPERS_SCR);
+
+    if (m_iEnemyShowPapersTime >= m_Enemy->m_ShowPapersTime) {
         if (level.inttime > m_iStateTime + 12000) {
-            TransitionState(ACTOR_STATE_DISGUISE_ENEMY, 0);
+            TransitionState(ACTOR_STATE_DISGUISE_ENEMY);
         } else {
             VectorSub2D(origin, m_Enemy->origin, vDelta);
 
-            if (VectorLength2DSquared(vDelta) > 65536) {
+            if (VectorLength2DSquared(vDelta) > Square(256)) {
                 TransitionState(ACTOR_STATE_DISGUISE_HALT, 0);
             }
         }
+    } else if (level.m_iPapersLevel < m_iDisguiseLevel) {
+        TransitionState(ACTOR_STATE_DISGUISE_DENY);
+    } else {
+        if (m_DisguiseAcceptThread.IsSet()) {
+            m_DisguiseAcceptThread.Execute(this);
+        }
+
+        TransitionState(ACTOR_STATE_DISGUISE_ACCEPT);
     }
 }
 
@@ -87,47 +86,41 @@ void Actor::State_Disguise_Fake_Papers(void)
 {
     vec2_t vDelta;
 
-    m_csNextAnimString = STRING_ANIM_DISGUISE_PAPERS_SCR;
-    m_eNextAnimMode    = ANIM_MODE_NORMAL;
-    m_bNextForceStart  = false;
-    if (m_iEnemyShowPapersTime < m_Enemy->m_ShowPapersTime || level.inttime > m_iStateTime + 12000) {
-        TransitionState(ACTOR_STATE_DISGUISE_ENEMY, 0);
-    } else {
-        VectorSub2D(origin, m_Enemy->origin, vDelta);
+    DesiredAnimation(ANIM_MODE_NORMAL, STRING_ANIM_DISGUISE_PAPERS_SCR);
 
-        if (VectorLength2DSquared(vDelta) > 65536) {
-            TransitionState(ACTOR_STATE_DISGUISE_HALT, 0);
-        }
+    if (m_iEnemyShowPapersTime < m_Enemy->m_ShowPapersTime || level.inttime > m_iStateTime + 12000) {
+        TransitionState(ACTOR_STATE_DISGUISE_ENEMY);
+        return;
+    }
+
+    VectorSub2D(origin, m_Enemy->origin, vDelta);
+
+    if (VectorLength2DSquared(vDelta) > Square(256)) {
+        TransitionState(ACTOR_STATE_DISGUISE_HALT, 0);
     }
 }
 
 void Actor::State_Disguise_Enemy(void)
 {
-    m_eNextAnimMode    = ANIM_MODE_NORMAL;
-    m_csNextAnimString = STRING_ANIM_DISGUISE_ENEMY_SCR;
-    m_bNextForceStart  = false;
+    DesiredAnimation(ANIM_MODE_NORMAL, STRING_ANIM_DISGUISE_ENEMY_SCR);
 
-    if (level.inttime > m_iStateTime + 3000 && !m_Enemy->IsSubclassOfActor()) {
+    if (level.inttime > m_iStateTime + 3000 && !(m_Enemy->flags & FL_NOTARGET)) {
         SetThinkState(THINKSTATE_ATTACK, THINKLEVEL_IDLE);
     }
 }
 
 void Actor::State_Disguise_Halt(void)
 {
-    m_eNextAnimMode    = ANIM_MODE_NORMAL;
-    m_csNextAnimString = STRING_ANIM_DISGUISE_HALT_SCR;
-    m_bNextForceStart  = false;
+    DesiredAnimation(ANIM_MODE_NORMAL, STRING_ANIM_DISGUISE_HALT_SCR);
 
-    if (level.inttime > m_iStateTime + 1500 && !m_Enemy->IsSubclassOfActor()) {
+    if (level.inttime > m_iStateTime + 1500 && !(m_Enemy->flags & FL_NOTARGET)) {
         SetThinkState(THINKSTATE_ATTACK, THINKLEVEL_IDLE);
     }
 }
 
 void Actor::State_Disguise_Accept(void)
 {
-    m_eNextAnimMode    = ANIM_MODE_NORMAL;
-    m_csNextAnimString = STRING_ANIM_DISGUISE_ACCEPT_SCR;
-    m_bNextForceStart  = false;
+    DesiredAnimation(ANIM_MODE_NORMAL, STRING_ANIM_DISGUISE_ACCEPT_SCR);
 
     if (level.inttime > m_iStateTime + 3000) {
         SetThinkState(THINKSTATE_IDLE, THINKLEVEL_IDLE);
@@ -137,9 +130,7 @@ void Actor::State_Disguise_Accept(void)
 
 void Actor::State_Disguise_Deny(void)
 {
-    m_eNextAnimMode    = ANIM_MODE_NORMAL;
-    m_csNextAnimString = STRING_ANIM_DISGUISE_DENY_SCR;
-    m_bNextForceStart  = false;
+    DesiredAnimation(ANIM_MODE_NORMAL, STRING_ANIM_DISGUISE_DENY_SCR);
 
     if (level.inttime > m_iStateTime + 3000) {
         SetThinkState(THINKSTATE_IDLE, THINKLEVEL_IDLE);

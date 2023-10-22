@@ -37,31 +37,24 @@ void Actor::InitDisguiseRover(GlobalFuncs_t *func)
 
 void Actor::Begin_DisguiseRover(void)
 {
-    vec2_t vDelta;
     m_csMood = STRING_BORED;
     assert(m_Enemy);
 
-    if (m_Enemy) {
-        if ((EnemyIsDisguised() || m_Enemy->IsSubclassOfActor()) && !level.m_bAlarm) {
-            VectorSub2D(m_Enemy->origin, origin, vDelta);
-
-            if (vDelta[0] != 0 || vDelta[1] != 0) {
-                SetDesiredYawDir(vDelta);
-            }
-
-            SetDesiredLookDir(m_Enemy->origin - origin);
-
-            m_eNextAnimMode    = ANIM_MODE_NORMAL;
-            m_csNextAnimString = STRING_ANIM_DISGUISE_PAPERS_SCR;
-            m_bNextForceStart  = false;
-
-            m_iEnemyShowPapersTime = m_Enemy->m_ShowPapersTime;
-            TransitionState(ACTOR_STATE_DISGUISE_PAPERS, 0);
-        } else {
-            SetThinkState(THINKSTATE_ATTACK, THINKLEVEL_IDLE);
-        }
-    } else {
+    if (!m_Enemy) {
         SetThinkState(THINKSTATE_IDLE, THINKLEVEL_IDLE);
+        return;
+    }
+
+    if ((EnemyIsDisguised() || (m_Enemy->flags & FL_NOTARGET)) && level.m_bAlarm != qtrue) {
+        SetDesiredYawDest(m_Enemy->origin);
+        SetDesiredLookDir(m_Enemy->origin - origin);
+
+        DesiredAnimation(ANIM_MODE_NORMAL, STRING_ANIM_DISGUISE_PAPERS_SCR);
+        m_iEnemyShowPapersTime = m_Enemy->m_ShowPapersTime;
+
+        TransitionState(ACTOR_STATE_DISGUISE_PAPERS);
+    } else {
+        SetThinkState(THINKSTATE_ATTACK, THINKLEVEL_IDLE);
     }
 }
 
@@ -85,58 +78,62 @@ void Actor::Think_DisguiseRover(void)
     if (!RequireThink()) {
         return;
     }
+
     UpdateEyeOrigin();
     NoPoint();
     ContinueAnimation();
     UpdateEnemy(1500);
 
-    assert(m_Enemy != NULL);
+    assert(m_Enemy);
 
     if (!m_Enemy) {
         SetThinkState(THINKSTATE_IDLE, THINKLEVEL_IDLE);
         return;
     }
 
-    if (!EnemyIsDisguised() && !m_Enemy->IsSubclassOfActor() && m_State != ACTOR_STATE_DISGUISE_ENEMY) {
+    if (!EnemyIsDisguised() && !(m_Enemy->flags & FL_NOTARGET) && m_State != ACTOR_STATE_DISGUISE_ENEMY) {
         TransitionState(ACTOR_STATE_DISGUISE_ENEMY, 0);
     }
 
-    if (level.m_bAlarm) {
+    if (level.m_bAlarm == qtrue) {
         SetThinkState(THINKSTATE_ATTACK, THINKLEVEL_IDLE);
         return;
     }
 
-    {
-        vec2_t facedir;
-        facedir[0] = m_Enemy->origin[0] - origin[0];
-        facedir[1] = m_Enemy->origin[1] - origin[1];
-        if (facedir[0] != 0 || facedir[1] != 0) {
-            SetDesiredYawDir(facedir);
-        }
-    }
-
+    SetDesiredYawDest(m_Enemy->origin);
     SetDesiredLookDir(m_Enemy->origin - origin);
 
-    if (m_State == ACTOR_STATE_DISGUISE_ACCEPT) {
+    switch (m_State) {
+    case ACTOR_STATE_DISGUISE_ACCEPT:
         m_pszDebugState = "accept";
         State_Disguise_Accept();
-    } else if (m_State > ACTOR_STATE_DISGUISE_ACCEPT) {
-        if (m_State == ACTOR_STATE_DISGUISE_ENEMY) {
-            m_pszDebugState = "enemy";
-            State_Disguise_Enemy();
-        } else if (m_State == ACTOR_STATE_DISGUISE_HALT) {
-            m_pszDebugState = "halt";
-            State_Disguise_Halt();
-        } else {
-            assert(!"invalid think state");
-        }
-    } else if (m_State == ACTOR_STATE_DISGUISE_PAPERS) {
+        break;
+    case ACTOR_STATE_DISGUISE_ENEMY:
+        m_pszDebugState = "enemy";
+        State_Disguise_Enemy();
+        break;
+    case ACTOR_STATE_DISGUISE_HALT:
+        m_pszDebugState = "halt";
+        State_Disguise_Halt();
+        break;
+    case ACTOR_STATE_DISGUISE_PAPERS:
         m_pszDebugState = "papers";
-        State_Disguise_Papers();
-    } else {
-        assert(!"invalid think state");
+        State_Disguise_Fake_Papers();
+        break;
+    default:
+        {
+            Com_Printf("Actor::Think_DisguiseOfficer: invalid think state %i\n", m_State);
+            char assertStr[16317] = {0};
+            strcpy(assertStr, "\"invalid think state\"\n\tMessage: ");
+            Q_strcat(assertStr, sizeof(assertStr), DumpCallTrace("thinkstate = %i", m_State));
+            assert(!assertStr);
+        }
+        break;
     }
 
-    CheckForTransition(THINKSTATE_GRENADE, THINKLEVEL_IDLE);
+    if (!CheckForTransition(THINKSTATE_GRENADE, THINKLEVEL_IDLE)) {
+        CheckForTransition(THINKSTATE_GRENADE, THINKLEVEL_IDLE);
+    }
+
     PostThink(true);
 }
