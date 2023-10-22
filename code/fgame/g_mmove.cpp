@@ -43,7 +43,7 @@ void MM_ClipVelocity(float *in, float *normal, float *out, float overbounce)
     float dir_z;
     float normal2[3];
 
-    if (normal[2] >= 0.70f) {
+    if (normal[2] >= MIN_WALK_NORMAL) {
         if (in[0] == 0.0f && in[1] == 0.0f) {
             VectorClear(out);
             return;
@@ -95,6 +95,10 @@ qboolean MM_AddTouchEnt(int entityNum)
         } else if (ent->IsSubclassOfDoor()) {
             mm->hit_temp_obstacle |= 2;
         }
+    }
+
+    if (mm->numtouch == MAXTOUCH) {
+        return blockEnt;
     }
 
     // see if it is already added
@@ -363,7 +367,9 @@ void MM_StepSlideMove(void)
     VectorCopy(mm->obstacle_normal, start_wall_normal);
 
     if (MM_SlideMove(qtrue) == 0) {
-        if (!mml.validGroundTrace) {
+        if (mml.validGroundTrace) {
+            MM_GroundTraceInternal();
+        } else {
             MM_GroundTrace();
         }
 
@@ -377,10 +383,10 @@ void MM_StepSlideMove(void)
 
     // never step up when you still have up velocity
     if (mm->velocity[2] > 0 && (trace.fraction == 1.0f || DotProduct(trace.plane.normal, up) < MIN_WALK_NORMAL)) {
-        if (!mml.validGroundTrace) {
-            MM_GroundTrace();
-        } else {
+        if (mml.validGroundTrace) {
             MM_GroundTraceInternal();
+        } else {
+            MM_GroundTrace();
         }
 
         return;
@@ -392,6 +398,7 @@ void MM_StepSlideMove(void)
         bWasOnGoodGround = qfalse;
     }
 
+    start_o[2] += 18;
     VectorCopy(mm->origin, nostep_o);
     VectorCopy(mm->velocity, nostep_v);
     memcpy(&nostep_groundTrace, &mml.groundTrace, sizeof(trace_t));
@@ -412,8 +419,8 @@ void MM_StepSlideMove(void)
     down[2] -= STEPSIZE * 2;
 
     // test the player position if they were a stepheight higher
-    gi.trace(&trace, up, mm->mins, mm->maxs, up, mm->entityNum, mm->tracemask, qtrue, qfalse);
-    if (trace.entityNum > ENTITYNUM_NONE) {
+    gi.trace(&trace, start_o, mm->mins, mm->maxs, down, mm->entityNum, mm->tracemask, qtrue, qfalse);
+    if (trace.entityNum != ENTITYNUM_WORLD && trace.entityNum != ENTITYNUM_NONE) {
         VectorCopy(nostep_o, mm->origin);
         VectorCopy(nostep_v, mm->velocity);
         memcpy(&mml.groundTrace, &nostep_groundTrace, sizeof(mml.groundTrace));
@@ -421,10 +428,10 @@ void MM_StepSlideMove(void)
         VectorCopy(first_hit_origin, mm->hit_origin);
         VectorCopy(first_wall_normal, mm->obstacle_normal);
 
-        if (!mml.validGroundTrace) {
-            MM_GroundTrace();
-        } else {
+        if (mml.validGroundTrace) {
             MM_GroundTraceInternal();
+        } else {
+            MM_GroundTrace();
         }
 
         return;
@@ -434,7 +441,7 @@ void MM_StepSlideMove(void)
         memcpy(&mml.groundTrace, &trace, sizeof(mml.groundTrace));
         mml.validGroundTrace = qtrue;
 
-        if (bWasOnGoodGround && trace.fraction && trace.plane.normal[2] < MIN_WALK_NORMAL) {
+        if (bWasOnGoodGround && trace.fraction < 1 && trace.plane.normal[2] < MIN_WALK_NORMAL) {
             VectorCopy(nostep_o, mm->origin);
             VectorCopy(nostep_v, mm->velocity);
 
@@ -451,14 +458,14 @@ void MM_StepSlideMove(void)
         VectorCopy(trace.endpos, mm->origin);
     }
 
-    if (trace.fraction < 1.0f) {
+    if (trace.fraction < 1) {
         MM_ClipVelocity(mm->velocity, trace.plane.normal, mm->velocity, OVERCLIP);
     }
 
-    if (!mml.validGroundTrace) {
-        MM_GroundTrace();
-    } else {
+    if (mml.validGroundTrace) {
         MM_GroundTraceInternal();
+    } else {
+        MM_GroundTrace();
     }
 }
 
@@ -468,7 +475,7 @@ void MM_ClipVelocity2D(float *in, float *normal, float *out, float overbounce)
     float dir_z;
     float normal2[3];
 
-    if (normal[2] >= 0.70f) {
+    if (normal[2] >= MIN_WALK_NORMAL) {
         if (in[0] == 0.0f && in[1] == 0.0f) {
             VectorClear(out);
             return;
@@ -484,7 +491,7 @@ void MM_ClipVelocity2D(float *in, float *normal, float *out, float overbounce)
 
         out[0] = in[0];
         out[1] = in[1];
-        out[2] = DotProduct2D(in, normal2) / -normal2[2];
+        out[2] = DotProduct2D(in, normal2) / dir_z;
     } else {
         backoff = DotProduct2D(in, normal);
 
@@ -507,45 +514,46 @@ void MmoveSingle(mmove_t *mmove)
 
     mm = mmove;
 
-    mmove->hit_obstacle = false;
-    mmove->numtouch     = false;
-    VectorCopy(vec_origin, mmove->obstacle_normal);
-    mmove->hit_temp_obstacle = false;
+    mmove->numtouch  = 0;
+    mm->hit_obstacle = false;
+    VectorCopy(vec3_origin, mm->obstacle_normal);
+    mm->hit_temp_obstacle = false;
 
     memset(&mml, 0, sizeof(mml_t));
 
-    VectorCopy(mmove->origin, mml.previous_origin);
-    VectorCopy(mmove->velocity, mml.previous_velocity);
+    VectorCopy(mm->origin, mml.previous_origin);
+    VectorCopy(mm->velocity, mml.previous_velocity);
 
-    if (mmove->walking) {
-        if (mmove->desired_speed < 1.0f) {
+    if (mm->walking) {
+        if (mm->desired_speed < 1.0f) {
+            VectorClear2D(mm->velocity);
             MM_GroundTrace();
             return;
         }
 
-        float wishdir[3];
+        vec3_t wishdir;
 
         MM_ClipVelocity2D(mm->desired_dir, mm->groundPlaneNormal, wishdir, OVERCLIP);
         VectorNormalize(wishdir);
 
         mm->velocity[0] = mm->desired_speed * wishdir[0];
         mm->velocity[1] = mm->desired_speed * wishdir[1];
-    } else if (mmove->groundPlane) {
-        MM_ClipVelocity(mmove->velocity, mmove->groundPlaneNormal, mmove->velocity, OVERCLIP);
+    } else if (mm->groundPlane) {
+        MM_ClipVelocity(mm->velocity, mm->groundPlaneNormal, mm->velocity, OVERCLIP);
     }
 
     MM_StepSlideMove();
 
     if (!mm->walking && mml.previous_velocity[2] >= 0.0f && mm->velocity[2] <= 0.0f) {
-        point[0] = mmove->origin[0];
-        point[1] = mmove->origin[1];
-        point[2] = mmove->origin[2] - 18.0f;
+        point[0] = mm->origin[0];
+        point[1] = mm->origin[1];
+        point[2] = mm->origin[2] - 18.0f;
 
         gi.trace(&trace, mm->origin, mm->mins, mm->maxs, point, mm->entityNum, mm->tracemask, qtrue, qfalse);
 
         if (trace.fraction < 1.0f && !trace.allsolid) {
+            VectorCopy(trace.endpos, mm->origin);
             MM_GroundTrace();
-            return;
         }
     }
 }
