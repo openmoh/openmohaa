@@ -147,6 +147,12 @@ public:
 	bool			CheckTeams( void );
 };
 
+inline void Projectile::SetMartyr(int entnum)
+{
+	owner = entnum;
+	m_bHurtOwnerOnly = true;
+}
+
 inline void Projectile::Archive
 	(
 	Archiver &arc
