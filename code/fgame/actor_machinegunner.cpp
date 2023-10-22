@@ -45,38 +45,40 @@ void Actor::Begin_MachineGunner(void)
     m_csMood     = STRING_ALERT;
     m_csIdleMood = STRING_NERVOUS;
 
-    if (m_pTurret) {
-        Sentient *pOwner;
-        m_pTurret->m_bHadOwner = true;
-        pOwner                 = m_pTurret->GetOwner();
-        if (pOwner) {
-            Com_Printf(
-                "^~^~^ Actor (entnum %d, radnum %d, targetname '%s') cannot use turret (entnum %d, radnum %d, "
-                "targetname '%s')"
-                " since it is already being used by Actor (entnum %d, radnum %d, targetname '%s')\n",
-                entnum,
-                radnum,
-                targetname.c_str(),
-                m_pTurret->entnum,
-                m_pTurret->radnum,
-                m_pTurret->TargetName().c_str(),
-                pOwner->entnum,
-                pOwner->radnum,
-                pOwner->TargetName().c_str()
-            );
-        } else {
-            Holster();
-
-            m_pTurret->TurretBeginUsed(this);
-            TransitionState(1200, 0);
-        }
-    } else {
+    if (!m_pTurret) {
         Com_Printf(
             "^~^~^ Actor (entnum %d, radnum %d, targetname '%s') has no turret specified\n",
             entnum,
             radnum,
             targetname.c_str()
         );
+
+        return;
+    }
+
+    Sentient *pOwner;
+    m_pTurret->m_bHadOwner = true;
+    pOwner                 = m_pTurret->GetOwner();
+    if (m_pTurret->GetOwner()) {
+        Com_Printf(
+            "^~^~^ Actor (entnum %d, radnum %d, targetname '%s') cannot use turret (entnum %d, radnum %d, "
+            "targetname '%s')"
+            " since it is already being used by Actor (entnum %d, radnum %d, targetname '%s')\n",
+            entnum,
+            radnum,
+            targetname.c_str(),
+            m_pTurret->entnum,
+            m_pTurret->radnum,
+            m_pTurret->targetname.c_str(),
+            m_pTurret->GetOwner()->entnum,
+            m_pTurret->GetOwner()->radnum,
+            m_pTurret->GetOwner()->targetname.c_str()
+        );
+    } else {
+        Holster();
+
+        m_pTurret->TurretBeginUsed(this);
+        TransitionState(ACTOR_STATE_MACHINE_GUNNER_READY);
     }
 }
 
@@ -87,91 +89,86 @@ void Actor::End_MachineGunner(void)
     }
 
     Unholster();
-    if (m_pTurret) {
-        if (m_pTurret->GetOwner() == this) {
-            m_pTurret->TurretEndUsed();
-        }
+    if (m_pTurret && m_pTurret->GetOwner() == this) {
+        m_pTurret->TurretEndUsed();
     }
 }
 
 void Actor::ThinkHoldGun_TurretGun(void)
 {
-    Vector  end;
-    trace_t trace;
-    float   temp;
-    float   temp2;
-    float   machine_gunner_hands_up_stand;
-    float   heightDiff;
+    Vector  vForward;
+    vec3_t  new_angles;
+    vec3_t  offset;
+    vec3_t  newOrigin;
     float   right;
-    //vec3_t newOrigin;
-    Vector offset;
-    Vector start;
-    //vec3_t new_angles;
-    Vector vForward;
+    float   heightDiff;
+    float   machine_gunner_hands_up_stand;
+    float   temp;
+    trace_t trace;
+    Vector  end;
 
-    UpdateEyeOrigin();
-    m_pszDebugState = "";
-    if (m_State == 1200) {
-        if (m_pTurret->IsFiring()) {
-            if (m_pTurret->aim_target == G_GetEntity(0)) {
-                m_bNoSurprise = true;
-            }
-            m_csNextAnimString = STRING_ANIM_MG42_SHOOT_SCR;
-        } else {
-            m_csNextAnimString = STRING_ANIM_MG42_IDLE_SCR;
+    if (m_State != ACTOR_STATE_MACHINE_GUNNER_READY) {
+        DesiredAnimation(ANIM_MODE_FROZEN, STRING_ANIM_MG42_RELOAD_SCR);
+        m_bAnimScriptSet = false;
+    } else if (m_pTurret->IsFiring()) {
+        if (m_pTurret->aim_target == G_GetEntity(0)) {
+            m_bNoSurprise = true;
         }
+
+        DesiredAnimation(ANIM_MODE_FROZEN, STRING_ANIM_MG42_SHOOT_SCR);
     } else {
-        m_csNextAnimString = STRING_ANIM_MG42_RELOAD_SCR;
-        m_bAnimScriptSet   = false;
+        DesiredAnimation(ANIM_MODE_FROZEN, STRING_ANIM_MG42_IDLE_SCR);
     }
-    m_eNextAnimMode   = ANIM_MODE_FROZEN;
-    m_bNextForceStart = false;
 
     CheckUnregister();
-
     StopTurning();
 
-    setAngles(Vector(0, m_pTurret->angles[1], 0));
+    VectorSet(new_angles, 0, m_pTurret->angles[1], 0);
+    setAngles(new_angles);
 
-    vForward = Vector(m_pTurret->orientation[0]) * -39 + m_pTurret->origin;
+    VectorScale(m_pTurret->orientation[0], -39, offset);
+    VectorAdd(m_pTurret->origin, offset, newOrigin);
 
-    if (m_State == 1201) {
+    if (m_State == ACTOR_STATE_MACHINE_GUNNER_RELOADING) {
         heightDiff = 71.6f;
     } else {
         heightDiff = 71.8f;
     }
 
-    machine_gunner_hands_up_stand = origin[2] - (m_pTurret->origin[2] - heightDiff);
+    newOrigin[2] -= heightDiff;
+    machine_gunner_hands_up_stand = origin[2] - newOrigin[2];
 
     if (machine_gunner_hands_up_stand < 0) {
-        if (m_State == 1201) {
-            temp = (machine_gunner_hands_up_stand - m_pTurret->origin[2]) / 39;
+        if (m_State == ACTOR_STATE_MACHINE_GUNNER_RELOADING) {
+            m_fCrouchWeight = 0;
+
+            temp = (origin[2] + 71.6f - m_pTurret->origin[2]) / 39.f;
             if (temp >= -1.0 && temp <= 1.0) {
-                right = atan2(temp / sqrt(temp * -temp + 1), 1) * 180 / M_PI;
-                m_pTurret->setAngles(Vector(right, m_pTurret->angles[1], m_pTurret->angles[2]));
+                m_pTurret->angles[0] = RAD2DEG(atan(temp / sqrt(temp * -temp + 1)));
+                m_pTurret->setAngles(m_pTurret->angles);
             }
         } else {
-            m_fCrouchWeight = machine_gunner_hands_up_stand / 17.1;
+            m_fCrouchWeight = machine_gunner_hands_up_stand / 17.1f;
             if (m_fCrouchWeight < -1.0) {
                 m_fCrouchWeight = -1.0;
             }
         }
-        temp2    = m_fCrouchWeight * 2.6;
-        offset.x = (-(-9.3 * m_fCrouchWeight + 23.4)) * orientation[0][0] + vForward.x;
-        offset.y = (-(-9.3 * m_fCrouchWeight + 23.4)) * orientation[0][0] + vForward.y;
+
+        VectorScale2D(orientation[0], m_fCrouchWeight * -9.3f + 23.4f, offset);
+        VectorAdd2D(newOrigin, offset, newOrigin);
+        VectorScale2D(orientation[1], m_fCrouchWeight * 2.6f + 10.3f, offset);
+        VectorAdd2D(newOrigin, offset, newOrigin);
     } else {
-        m_fCrouchWeight = machine_gunner_hands_up_stand / (heightDiff - 38.7);
+        m_fCrouchWeight = machine_gunner_hands_up_stand / (heightDiff - 38.7f);
         if (m_fCrouchWeight > 1.0) {
             m_fCrouchWeight = 1.0;
         }
 
-        temp2    = m_fCrouchWeight * -1.6;
-        offset.x = (-(-3 * m_fCrouchWeight + 23.4)) * orientation[0][0] + vForward.x;
-        offset.y = (-(-3 * m_fCrouchWeight + 23.4)) * orientation[0][0] + vForward.y;
+        VectorScale2D(orientation[0], m_fCrouchWeight * -3.f + 23.4f, offset);
+        VectorAdd2D(newOrigin, offset, newOrigin);
+        VectorScale2D(orientation[1], m_fCrouchWeight * -1.6f + 10.3f, offset);
+        VectorAdd2D(newOrigin, offset, newOrigin);
     }
-
-    start.x = (temp2 + 10.3) * orientation[1][0] + offset.x;
-    start.y = (temp2 + 10.3) * orientation[1][1] + offset.y;
 
     if (m_fCrouchWeight >= 0.5) {
         m_csCurrentPosition = STRING_CROUCH;
@@ -181,91 +178,97 @@ void Actor::ThinkHoldGun_TurretGun(void)
 
     UpdateAimMotion();
     UpdateAnim();
-    start.z = origin.z + 18.0;
 
-    end   = start;
-    end.z = origin.z - 94.0;
-
-    trace = G_Trace(start, MINS, MAXS, end, this, 1107437825, qfalse, "Actor::ThinkHoldGun_TurretGun");
+    end[0] = newOrigin[0];
+    end[1] = newOrigin[1];
+    end[2] = newOrigin[2] - 94;
+    trace  = G_Trace(newOrigin, MINS, MAXS, end, this, MASK_PATHSOLID, qfalse, "Actor::ThinkHoldGun_TurretGun");
 
     if (trace.fraction != 1.0 && !trace.startsolid && !trace.allsolid && trace.ent) {
         SafeSetOrigin(trace.endpos);
     }
 
-    velocity = vec_zero;
-
+    VectorClear(velocity);
     UpdateBoneControllers();
     UpdateFootsteps();
 }
 
 void Actor::Think_MachineGunner_TurretGun(void)
 {
-    // FIXME: unimplemented
+    if (!m_bEnableEnemy) {
+        ThinkHoldGun_TurretGun();
+        return;
+    }
+
+    if (level.inttime < m_iEnemyCheckTime + 200) {
+        ThinkHoldGun_TurretGun();
+        return;
+    }
+
+    UpdateEnemyInternal();
+
+    if (m_pTurret->AI_CanTarget(G_GetEntity(0)->centroid)) {
+        ThinkHoldGun_TurretGun();
+        return;
+    }
+
+    if (m_pGrenade && rand() / 21474836.f <= m_fGrenadeAwareness) {
+        BecomeTurretGuy();
+        return;
+    }
+
+    if (!G_SightTrace(
+            EyePosition(),
+            vec_zero,
+            vec_zero,
+            static_cast<Sentient *>(G_GetEntity(0))->EyePosition(),
+            this,
+            G_GetEntity(0),
+            MASK_CANSEE,
+            qfalse,
+            "Actor::Think_MachineGunner"
+        )) {
+        ThinkHoldGun_TurretGun();
+        return;
+    }
+
+    if (m_ThinkStates[THINKLEVEL_IDLE] != THINKSTATE_IDLE) {
+        BecomeTurretGuy();
+        return;
+    }
+
+    if (m_Enemy && !(m_Enemy->flags & FL_NOTARGET) && !EnemyIsDisguised() && m_PotentialEnemies.IsEnemyConfirmed()) {
+        BecomeTurretGuy();
+        return;
+    }
+
+    if (m_Enemy && m_iCuriousTime || (m_Enemy && !EnemyIsDisguised() && !m_PotentialEnemies.IsEnemyConfirmed())) {
+        m_iCuriousAnimHint = 6;
+        BecomeTurretGuy();
+        return;
+    }
+
+    ThinkHoldGun_TurretGun();
 }
 
 void Actor::Think_MachineGunner(void)
 {
-    if (RequireThink()) {
-        if (m_pTurret && m_pTurret->GetOwner() == this && !m_bNoPlayerCollision) {
-            if (!m_bEnableEnemy) {
-                ThinkHoldGun_TurretGun();
-                return;
-            }
+    if (!RequireThink()) {
+        return;
+    }
 
-            if (level.inttime < m_iEnemyCheckTime + 200) {
-                ThinkHoldGun_TurretGun();
-                return;
-            }
-
-            m_iEnemyCheckTime = level.inttime;
-
-            if (m_pTurret->AI_CanTarget(G_GetEntity(0)->centroid)) {
-                ThinkHoldGun_TurretGun();
-                return;
-            }
-            if (!m_pGrenade || m_fGrenadeAwareness < rand() * 0.000000046566129) {
-                if (!G_SightTrace(
-                        EyePosition(),
-                        vec_zero,
-                        vec_zero,
-                        G_GetEntity(0)->centroid,
-                        this,
-                        G_GetEntity(0),
-                        33819417,
-                        qfalse,
-                        "Actor::Think_MachineGunner"
-                    )) {
-                    ThinkHoldGun_TurretGun();
-                    return;
-                }
-                if (m_ThinkStates[THINKLEVEL_IDLE] != THINKSTATE_IDLE) {
-                    BecomeTurretGuy();
-                    return;
-                }
-
-                if (m_Enemy && !m_Enemy->IsSubclassOfActor() && !EnemyIsDisguised()
-                    && m_PotentialEnemies.GetCurrentVisibility() >= 1) {
-                    BecomeTurretGuy();
-                    return;
-                }
-
-                if (!m_Enemy || !m_Enemy->IsSubclassOfActor() || EnemyIsDisguised()
-                    || m_PotentialEnemies.GetCurrentVisibility() > 1) {
-                    ThinkHoldGun_TurretGun();
-                    return;
-                }
-
-                SetCuriousAnimHint(6);
-            }
-        }
+    if (m_pTurret && m_pTurret->GetOwner() == this && !m_bNoPlayerCollision) {
+        UpdateEyeOrigin();
+        Think_MachineGunner_TurretGun();
+    } else {
         BecomeTurretGuy();
     }
 }
 
 void Actor::FinishedAnimation_MachineGunner(void)
 {
-    if (!m_bAnimScriptSet && m_State == 1201) {
-        TransitionState(1200, 0);
+    if (!m_bAnimScriptSet && m_State == ACTOR_STATE_MACHINE_GUNNER_RELOADING) {
+        TransitionState(ACTOR_STATE_MACHINE_GUNNER_READY, 0);
         Unregister(STRING_ANIMDONE);
     }
 }
