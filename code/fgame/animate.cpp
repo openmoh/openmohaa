@@ -169,9 +169,11 @@ Animate::Animate()
 {
     entflags |= EF_ANIMATE;
 
+    syncTime = 0.0f;
+    syncRate = 1.0f;
+
     pauseSyncTime = 0.0f;
-    syncTime      = 0.0f;
-    syncRate      = 1.0f;
+    is_paused     = false;
 
     frame_delta   = vec_zero;
     angular_delta = 0;
