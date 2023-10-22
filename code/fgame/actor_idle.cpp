@@ -34,7 +34,6 @@ void Actor::InitIdle(GlobalFuncs_t *func)
 
 void Actor::Begin_Idle(void)
 {
-    glbs.Printf("Begin_Idle\n");
     m_csMood = m_csIdleMood;
     ClearPath();
 }
@@ -43,19 +42,21 @@ void Actor::IdleThink(void)
 {
     IdlePoint();
     IdleLook();
+
     if (PathExists() && PathComplete()) {
         ClearPath();
     }
+
     if (m_bAutoAvoidPlayer && !PathExists()) {
-        SetPathToNotBlockSentient((Sentient *)G_GetEntity(0));
+        SetPathToNotBlockSentient(static_cast<Sentient *>(G_GetEntity(0)));
     }
 
     if (PathExists()) {
-        Anim_WalkTo(2);
-        if (PathDist() <= 128.0) {
-            IdleTurn();
-        } else {
+        Anim_WalkTo(ANIM_MODE_PATH);
+        if (PathDist() > 128.0) {
             FaceMotion();
+        } else {
+            IdleTurn();
         }
     } else {
         Anim_Idle();
@@ -67,10 +68,13 @@ void Actor::IdleThink(void)
 
 void Actor::Think_Idle(void)
 {
-    if (RequireThink()) {
-        UpdateEyeOrigin();
-        m_pszDebugState = "";
-        CheckForThinkStateTransition();
-        IdleThink();
+    if (!RequireThink()) {
+        return;
     }
+
+    UpdateEyeOrigin();
+    m_pszDebugState = "";
+
+    CheckForThinkStateTransition();
+    IdleThink();
 }
