@@ -32,14 +32,12 @@ void Actor::InitNoClip(GlobalFuncs_t *func)
 
 void Actor::Think_NoClip(void)
 {
-    //FIXME: not sure of naming
-    bool   done      = false;
-    Vector newOrigin = vec_zero;
-    Vector total_offset;
-    Vector total_offset_unit;
+    float  frame_dist;
+    vec3_t frame_offset;
     float  total_dist;
-    //vec3_t frame_offset;
-    float frame_dist;
+    vec3_t total_offset;
+    Vector newOrigin;
+    bool   done = false;
 
     m_pszDebugState = "";
 
@@ -49,30 +47,31 @@ void Actor::Think_NoClip(void)
     UpdateAngles();
     UpdateAnim();
 
-    total_offset = m_NoClipDest - origin;
-    total_dist   = VectorNormalize2(total_offset, total_offset_unit);
+    VectorSubtract(m_NoClipDest, origin, total_offset);
+    total_dist = VectorNormalize2(total_offset, frame_offset);
+    frame_dist = VectorLength(frame_delta);
 
-    frame_dist = level.frametime * m_maxspeed;
-
-    if (frame_dist >= frame_delta.lengthSquared()) {
-        frame_dist = frame_delta.lengthSquared();
+    if (frame_dist > m_maxspeed * level.frametime) {
+        frame_dist = m_maxspeed * level.frametime;
     }
 
     if (frame_dist < total_dist) {
-        newOrigin = total_offset_unit * frame_dist + origin;
-
+        VectorScale(frame_offset, frame_dist, frame_offset);
+        VectorAdd(origin, frame_offset, newOrigin);
     } else {
-        done      = true;
-        newOrigin = m_NoClipDest;
+        VectorCopy(m_NoClipDest, newOrigin);
+        done = true;
     }
 
     SafeSetOrigin(newOrigin);
 
-    velocity = total_offset_unit / level.frametime;
+    velocity[0] = frame_offset[0] / level.frametime;
+    velocity[1] = frame_offset[1] / level.frametime;
+    velocity[2] = frame_offset[2] / level.frametime;
 
-    if (velocity.lengthSquared() < 1) {
-        done     = true;
-        velocity = vec_zero;
+    if (VectorLengthSquared(velocity) < 1) {
+        VectorClear(velocity);
+        done = true;
     }
     groundentity = NULL;
 
