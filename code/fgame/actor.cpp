@@ -5273,10 +5273,9 @@ void Actor::MovePath(float fMoveSpeed)
 
         G_DebugLine(pos, dest, 1, 0, 0, 1);
 
-        for (current_path = m_Path.CurrentNode(); current_path != m_Path.LastNode(); current_path = m_Path.NextNode()) {
+        for (current_path = m_Path.CurrentNode(); current_path != m_Path.LastNode(); current_path--) {
             pos = current_path->point;
-            current_path--;
-            dest = current_path->point;
+            dest = (current_path - 1)->point;
 
             G_DebugLine(pos + Vector(0, 0, 32), dest + Vector(0, 0, 32), 0, 1, 0, 1);
         }
