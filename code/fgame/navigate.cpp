@@ -1398,7 +1398,7 @@ PathNode *PathSearch::NearestStartNode
 			vMins,
 			vMaxs,
 			ent->m_vNearestNodePos,
-			(gentity_t*)ent,
+			ent->edict,
 			(gentity_t*)NULL,
 			1073883393, //FIXME: macro
 			qtrue,
