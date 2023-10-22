@@ -48,39 +48,42 @@ void Actor::End_Runner(void)
     parm.movefail = true;
 }
 
-void Actor::Resume_Runner(void)
-{
-}
+void Actor::Resume_Runner(void) {}
 
 void Actor::Think_Runner(void)
 {
-    if (RequireThink()) {
-        parm.movefail = false;
+    bool bMoveInRadius;
 
-        UpdateEyeOrigin();
-        NoPoint();
-        m_pszDebugState = "";
+    if (!RequireThink()) {
+        return;
+    }
 
-        CheckForThinkStateTransition();
+    parm.movefail = false;
 
-        if (m_patrolCurrentNode) {
-            if (!MoveToPatrolCurrentNode()) {
-                Unregister(STRING_MOVE);
-                PostThink(true);
-                return;
-            }
-        } else {
-            SetThinkIdle(THINK_IDLE);
-            m_bScriptGoalValid = false;
-        }
+    UpdateEyeOrigin();
+    NoPoint();
+    m_pszDebugState = "";
+
+    bMoveInRadius = MoveToPatrolCurrentNode();
+    CheckForThinkStateTransition();
+
+    if (!m_patrolCurrentNode) {
+        SetThinkIdle(THINK_IDLE);
+        m_bScriptGoalValid = false;
 
         parm.movedone = true;
         Unregister(STRING_MOVEDONE);
+    } else if (bMoveInRadius) {
+        ClearPatrolCurrentNode();
+        SetThinkIdle(THINK_IDLE);
 
-        Unregister(STRING_MOVE);
-        PostThink(true);
-        return;
+        parm.movedone = true;
+        Unregister(STRING_MOVEDONE);
     }
+
+    Unregister(STRING_MOVE);
+
+    PostThink(true);
 }
 
 void Actor::ShowInfo_Runner(void)
