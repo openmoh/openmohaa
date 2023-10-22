@@ -39,32 +39,34 @@ void Actor::InitKilled(GlobalFuncs_t *func)
 
 void Actor::Begin_Killed(void)
 {
-    Event e1(EV_Actor_DeathEmbalm); // ebx
-
     ClearPath();
     ResetBoneControllers();
 
-    PostEvent(e1, 0.05f);
-    TransitionState(700, 0);
+    PostEvent(EV_Actor_DeathEmbalm, 0.05f);
+    TransitionState(ACTOR_STATE_KILLED_BEGIN, 0);
 }
 
 void Actor::Think_Killed(void)
 {
     Unregister(STRING_ANIMDONE);
-    if (m_State == 700) {
-        m_pszDebugState = "begin";
-        NoPoint();
-        m_bHasDesiredLookAngles = false;
-        StopTurning();
-        Anim_Killed();
-        PostThink(false);
-    } else {
+
+    if (m_State != ACTOR_STATE_KILLED_BEGIN) {
         m_pszDebugState = "end";
+        return;
     }
+
+    m_pszDebugState = "begin";
+
+    NoPoint();
+    ForwardLook();
+    StopTurning();
+
+    Anim_Killed();
+    PostThink(false);
 }
 
 void Actor::FinishedAnimation_Killed(void)
 {
     BecomeCorpse();
-    TransitionState(701, 0);
+    TransitionState(ACTOR_STATE_KILLED_END);
 }

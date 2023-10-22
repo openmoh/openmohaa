@@ -517,6 +517,8 @@ enum eActorState_BalconyAlarm {
 //
 enum eActorState_Killed {
     ACTOR_STATE_KILLED_START = ACTOR_STATE_KILLED,
+    ACTOR_STATE_KILLED_BEGIN = ACTOR_STATE_KILLED_START,
+    ACTOR_STATE_KILLED_END
 };
 
 //
