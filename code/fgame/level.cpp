@@ -2584,7 +2584,7 @@ void Level::Archive(Archiver& arc)
 }
 
 void WriteStatS(FILE* pFile, const char* value) {
-    fprintf(pFile, value);
+    fprintf(pFile, "%s", value);
 }
 
 void WriteStatI(FILE* pFile, int value) {
