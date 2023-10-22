@@ -34,31 +34,30 @@ void Actor::InitPain(GlobalFuncs_t *func)
 
 void Actor::Begin_Pain(void)
 {
-    m_PainState = 500;
+    m_PainState = ACTOR_STATE_PAIN_INITIAL;
 }
 
 void Actor::Think_Pain(void)
 {
     NoPoint();
-
-    m_bHasDesiredLookAngles = false;
-
+    ForwardLook();
     UpdateEyeOrigin();
 
-    if (m_PainState == 500) {
+    if (m_PainState == ACTOR_STATE_PAIN_INITIAL) {
         m_pszDebugState = "initial";
         Anim_StartPain();
-        m_PainState = 501;
-    } else if (m_PainState == 501) {
+        m_PainState = ACTOR_STATE_PAIN_MAIN;
+    } else if (m_PainState == ACTOR_STATE_PAIN_MAIN) {
         m_pszDebugState = "main";
         Anim_Pain();
     }
+
     PostThink(false);
 }
 
 void Actor::FinishedAnimation_Pain(void)
 {
-    if (m_PainState != 500) {
+    if (m_PainState != ACTOR_STATE_PAIN_START) {
         EndCurrentThinkState();
     }
 }

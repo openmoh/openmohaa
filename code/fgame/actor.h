@@ -420,6 +420,7 @@ enum eActorState {
     ACTOR_STATE_TURRET         = 100,
     ACTOR_STATE_BALCONY_ATTACK = 200,
     ACTOR_STATE_COVER          = 300,
+    ACTOR_STATE_PAIN           = 500,
     ACTOR_STATE_ALARM          = 600,
     ACTOR_STATE_KILLED         = 700,
     ACTOR_STATE_BALCONY_KILLED = 800,
@@ -504,9 +505,18 @@ enum eActorState_Cover {
 };
 
 //
-// Balcony alarm think state
+// Pain think state
 //
-enum eActorState_BalconyAlarm {
+enum eActorState_Pain {
+    ACTOR_STATE_PAIN_START = ACTOR_STATE_PAIN,
+    ACTOR_STATE_PAIN_INITIAL = ACTOR_STATE_PAIN_START,
+    ACTOR_STATE_PAIN_MAIN
+};
+
+//
+// Alarm think state
+//
+enum eActorState_Alarm {
     ACTOR_STATE_ALARM_START = ACTOR_STATE_ALARM,
     ACTOR_STATE_ALARM_IDLE  = ACTOR_STATE_ALARM_START,
     ACTOR_STATE_ALARM_MOVE
