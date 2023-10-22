@@ -473,7 +473,7 @@ LOOPBACK BUFFERS FOR LOCAL PLAYER
 
 // there needs to be enough loopback messages to hold a complete
 // gamestate of maximum size
-#define	MAX_LOOPBACK	16
+#define	MAX_LOOPBACK	32
 
 typedef struct {
 	byte	data[MAX_PACKETLEN];
