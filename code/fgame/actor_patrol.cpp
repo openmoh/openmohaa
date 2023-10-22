@@ -47,42 +47,46 @@ void Actor::End_Patrol(void)
     parm.movefail = true;
 }
 
-void Actor::Resume_Patrol(void)
-{
-}
+void Actor::Resume_Patrol(void) {}
 
 void Actor::Think_Patrol(void)
 {
-    if (Actor::RequireThink()) {
-        parm.movefail = false;
+    bool bMoveInRadius;
 
-        UpdateEyeOrigin();
-        NoPoint();
-
-        m_pszDebugState       = "";
-        m_csPatrolCurrentAnim = STRING_ANIM_PATROL_SCR;
-
-        if (m_fLookAroundFov > 1.0) {
-            LookAround(m_fLookAroundFov);
-        }
-
-        CheckForThinkStateTransition();
-        if (m_patrolCurrentNode) {
-            if (!MoveToPatrolCurrentNode()) {
-                PostThink(true);
-                return;
-            }
-        } else {
-            SetThinkIdle(THINK_IDLE);
-            m_bScriptGoalValid = false;
-        }
-        parm.movedone = true;
-
-        Unregister(STRING_MOVEDONE);
-
-        PostThink(true);
+    if (!RequireThink()) {
         return;
     }
+
+    parm.movefail = false;
+
+    UpdateEyeOrigin();
+    NoPoint();
+
+    m_pszDebugState       = "";
+    m_csPatrolCurrentAnim = STRING_ANIM_PATROL_SCR;
+    bMoveInRadius         = MoveToPatrolCurrentNode();
+
+    if (m_fLookAroundFov > 1.0) {
+        LookAround(m_fLookAroundFov);
+    }
+
+    CheckForThinkStateTransition();
+
+    if (!m_patrolCurrentNode) {
+        SetThinkIdle(THINK_IDLE);
+        m_bScriptGoalValid = false;
+
+        parm.movedone = true;
+        Unregister(STRING_MOVEDONE);
+    } else if (bMoveInRadius) {
+        ClearPatrolCurrentNode();
+        SetThinkIdle(THINK_IDLE);
+
+        parm.movedone = true;
+        Unregister(STRING_MOVEDONE);
+    }
+
+    PostThink(true);
 }
 
 void Actor::ShowInfo_Patrol(void)
