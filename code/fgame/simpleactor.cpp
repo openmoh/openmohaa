@@ -460,7 +460,7 @@ retry:
         if (pBuddy->IsSubclassOfActor()) {
             Actor* pBuddyActor = static_cast<Actor*>(pBuddy);
             if (pBuddyActor->PathExists()) {
-                vBuddyPos = PathGoal();
+                vBuddyPos = pBuddyActor->PathGoal();
             }
         }
 
@@ -620,7 +620,9 @@ void SimpleActor::ChangeActionAnim(void)
         m_AnimActionHigh = !m_AnimActionHigh; // toggle
     }
 
-    slot = GetActionSlot(0);
+    firstActionSlot = GetActionSlot(0);
+    lastActionSlot = firstActionSlot + 3;
+
     for (slot = firstActionSlot; slot < lastActionSlot; slot++) {
         StopAnimating(slot);
     }
