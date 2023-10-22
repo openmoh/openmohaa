@@ -639,8 +639,6 @@ public:
     const char *m_pszDebugState;
     /* currently animating ( used in G_RunFrame ) */
     bool m_bAnimating;
-    /* Am I a doggo ? */
-    bool m_bDog;
     /* 2.0: ignore bad place? */
     bool m_bIgnoreBadPlace;
     /* 2.0: bad place index? (0=none) */
