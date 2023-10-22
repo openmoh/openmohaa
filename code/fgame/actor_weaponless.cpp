@@ -46,16 +46,16 @@ void Actor::Begin_Weaponless(void)
         if (AttackEntryAnimation()) {
             m_bLockThinkState = true;
 
-            TransitionState(902, 0);
+            TransitionState(ACTOR_STATE_WEAPONLESS_LOOP, 0);
         }
     }
-    TransitionState(900, 0);
+    TransitionState(ACTOR_STATE_WEAPONLESS_START, 0);
 }
 
 void Actor::Suspend_Weaponless(void)
 {
-    if (m_State <= 902) {
-        TransitionState(900, 0);
+    if (m_State == ACTOR_STATE_WEAPONLESS_GRENADE || m_State == ACTOR_STATE_WEAPONLESS_LOOP) {
+        TransitionState(ACTOR_STATE_WEAPONLESS_START, 0);
     }
 }
 
@@ -65,74 +65,83 @@ void Actor::State_Weaponless_Normal(void)
     if (m_bScriptGoalValid) {
         SetPath(m_vScriptGoal, NULL, 0, NULL, 0);
     }
+
     if (PathExists() && !PathComplete()) {
         FaceMotion();
-        Anim_RunToDanger(3);
+        Anim_RunToDanger(ANIM_MODE_PATH_GOAL);
+        return;
+    }
+
+    m_bScriptGoalValid = false;
+
+    AimAtTargetPos();
+    Anim_Stand();
+
+    if (level.inttime < m_iStateTime) {
+        return;
+    }
+
+    if (DecideToThrowGrenade(m_Enemy->origin + m_Enemy->velocity, &m_vGrenadeVel, &m_eGrenadeMode, false)) {
+        SetDesiredYawDir(m_vGrenadeVel);
+        DesiredAnimation(
+            ANIM_MODE_NORMAL,
+            m_eGrenadeMode == AI_GREN_TOSS_ROLL ? STRING_ANIM_GRENADETOSS_SCR : STRING_ANIM_GRENADETHROW_SCR
+        );
+        TransitionState(ACTOR_STATE_WEAPONLESS_GRENADE);
     } else {
-        m_bScriptGoalValid = false;
-
-        AimAtTargetPos();
-
-        Anim_Stand();
-        if (level.inttime >= m_iStateTime) {
-            if (DecideToThrowGrenade(m_Enemy->velocity + m_Enemy->origin, &m_vGrenadeVel, &m_eGrenadeMode, false)) {
-                SetDesiredYawDir(m_vGrenadeVel);
-
-                m_State           = 901;
-                m_eNextAnimMode   = ANIM_MODE_NORMAL;
-                m_bNextForceStart = false;
-                m_csNextAnimString =
-                    (m_eGrenadeMode == AI_GREN_TOSS_ROLL) ? STRING_ANIM_GRENADETOSS_SCR : STRING_ANIM_GRENADETHROW_SCR;
-                iStateTime = level.inttime;
-            } else {
-                m_State    = 900;
-                iStateTime = level.inttime + 1000;
-            }
-            m_iStateTime = iStateTime;
-        }
+        TransitionState(ACTOR_STATE_WEAPONLESS_START, 1000);
     }
 }
 
 void Actor::Think_Weaponless(void)
 {
-    if (RequireThink()) {
-        UpdateEyeOrigin();
-        NoPoint();
-        UpdateEnemy(500);
+    if (!RequireThink()) {
+        return;
+    }
 
-        if (m_State == 902) {
-            ContinueAnimation();
+    UpdateEyeOrigin();
+    NoPoint();
+    UpdateEnemy(500);
+
+    if (m_State == ACTOR_STATE_WEAPONLESS_LOOP) {
+        ContinueAnimation();
+    } else {
+        m_bLockThinkState = false;
+
+        if (!m_Enemy) {
+            SetThinkState(THINKSTATE_IDLE, THINKLEVEL_IDLE);
+            IdleThink();
+            return;
+        }
+
+        if (m_State == ACTOR_STATE_WEAPONLESS_START) {
+            State_Weaponless_Normal();
+        } else if (m_State == ACTOR_STATE_WEAPONLESS_GRENADE) {
+            State_Weaponless_Grenade();
         } else {
-            m_bLockThinkState = false;
-            if (!m_Enemy) {
-                SetThinkState(THINKSTATE_IDLE, THINKLEVEL_IDLE);
-                IdleThink();
-                return;
-            }
-            if (m_State == 900) {
-                State_Weaponless_Normal();
-            } else if (m_State == 901) {
-                State_Weaponless_Grenade();
-            } else {
-                Com_Printf("Think_Weaponless: invalid think state %i\n", m_State);
-                char assertStr[16317] = {0};
-                strcpy(assertStr, "\"invalid think state\"\n\tMessage: ");
-                Q_strcat(assertStr, sizeof(assertStr), DumpCallTrace("thinkstate = %i", m_State));
-                assert(!assertStr);
-            }
+            Com_Printf("Think_Weaponless: invalid think state %i\n", m_State);
+            char assertStr[16317] = {0};
+            strcpy(assertStr, "\"invalid think state\"\n\tMessage: ");
+            Q_strcat(assertStr, sizeof(assertStr), DumpCallTrace("thinkstate = %i", m_State));
+            assert(!assertStr);
+        }
+
+        if (!CheckForTransition(THINKSTATE_GRENADE, THINKLEVEL_IDLE)) {
             CheckForTransition(THINKSTATE_GRENADE, THINKLEVEL_IDLE);
         }
-        PostThink(true);
-        if (GetWeapon(WEAPON_MAIN)) {
-            SetThink(THINKSTATE_ATTACK, THINK_TURRET);
-        }
+    }
+
+    PostThink(true);
+
+    if (GetWeapon(WEAPON_MAIN)) {
+        SetThink(THINKSTATE_ATTACK, THINK_TURRET);
     }
 }
 
 void Actor::FinishedAnimation_Weaponless(void)
 {
-    if (m_State <= 902) {
-        TransitionState(900, 4000);
+    if (m_State == ACTOR_STATE_WEAPONLESS_GRENADE || m_State == ACTOR_STATE_WEAPONLESS_LOOP) {
+        TransitionState(ACTOR_STATE_WEAPONLESS_NORMAL, 4000);
     }
 }
 
