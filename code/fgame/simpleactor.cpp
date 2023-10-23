@@ -458,7 +458,7 @@ retry:
 
         vBuddyPos = pBuddy->origin;
         if (pBuddy->IsSubclassOfActor()) {
-            Actor* pBuddyActor = static_cast<Actor*>(pBuddy);
+            Actor *pBuddyActor = static_cast<Actor *>(pBuddy);
             if (pBuddyActor->PathExists()) {
                 vBuddyPos = pBuddyActor->PathGoal();
             }
@@ -621,7 +621,7 @@ void SimpleActor::ChangeActionAnim(void)
     }
 
     firstActionSlot = GetActionSlot(0);
-    lastActionSlot = firstActionSlot + 3;
+    lastActionSlot  = firstActionSlot + 3;
 
     for (slot = firstActionSlot; slot < lastActionSlot; slot++) {
         StopAnimating(slot);
@@ -726,19 +726,19 @@ void SimpleActor::EventGetCrossblendTime(Event *ev)
 
 void SimpleActor::StartCrossBlendAnimSlot(int slot)
 {
-    if (!m_weightType[slot]) {
+    if (m_weightType[slot] == ANIM_WEIGHT_NONE) {
         return;
     }
 
     switch (m_weightType[slot]) {
-    case ANIM_WEIGHT_AIM:
-        m_weightType[slot] = 4;
+    case ANIM_WEIGHT_MOTION:
+        m_weightType[slot] = ANIM_WEIGHT_CROSSBLEND_2;
         break;
     case ANIM_WEIGHT_SAY:
-        m_weightType[slot] = 5;
+        m_weightType[slot] = ANIM_WEIGHT_CROSSBLEND_DIALOG;
         break;
     default:
-        m_weightType[slot] = 3;
+        m_weightType[slot] = ANIM_WEIGHT_CROSSBLEND_1;
         break;
     }
 
@@ -750,7 +750,7 @@ void SimpleActor::StartMotionAnimSlot(int slot, int anim, float weight)
 {
     slot = GetMotionSlot(slot);
 
-    m_weightType[slot]       = ANIM_WEIGHT_AIM;
+    m_weightType[slot]       = ANIM_WEIGHT_MOTION;
     m_weightCrossBlend[slot] = 0.0;
     m_weightBase[slot]       = weight;
     NewAnim(anim, slot, 1.0);
@@ -764,7 +764,7 @@ void SimpleActor::StartAimMotionAnimSlot(int slot, int anim)
 {
     slot = GetMotionSlot(slot);
 
-    m_weightType[slot]       = ANIM_WEIGHT_AIM;
+    m_weightType[slot]       = ANIM_WEIGHT_MOTION;
     m_weightCrossBlend[slot] = 0.0;
     NewAnim(anim, slot, 1.0);
 
@@ -820,7 +820,7 @@ void SimpleActor::SetBlendedWeight(int slot)
     if (m_weightCrossBlend[slot] < 1.0) {
         float w;
 
-        w = (3.0 - m_weightCrossBlend[slot] * 2) * Square(m_weightCrossBlend[slot]);
+        w = (3.0 - m_weightCrossBlend[slot] - m_weightCrossBlend[slot]) * Square(m_weightCrossBlend[slot]);
         SetWeight(slot, m_weightBase[slot] * w);
     } else {
         m_weightCrossBlend[slot] = 1.0;
@@ -1279,12 +1279,15 @@ bool SimpleActor::UpdateSelectedAnimation(void)
     if (m_csNextAnimString != STRING_NULL) {
         if (!m_bNextForceStart && m_pAnimThread && m_eAnimMode == m_eNextAnimMode
             && (m_fPathGoalTime > level.time || m_Anim.IsFile(m_csNextAnimString))) {
+            // Clear the next animation
             m_eNextAnimMode = -1;
+
             if (!m_bStartPathGoalEndAnim) {
                 return false;
             }
             m_bStartPathGoalEndAnim = false;
-            if (!m_Anim.IsFile(m_csPathGoalEndAnimScript)) {
+
+            if (m_Anim.IsFile(m_csPathGoalEndAnimScript)) {
                 return false;
             }
 
@@ -1295,7 +1298,7 @@ bool SimpleActor::UpdateSelectedAnimation(void)
         m_Anim.TrySetScript(m_csNextAnimString);
     } else {
         if (!m_bNextForceStart && m_pAnimThread && m_eAnimMode == m_eNextAnimMode && m_Anim == m_NextAnimLabel) {
-            m_bStartPathGoalEndAnim = true;
+            m_bStartPathGoalEndAnim = false;
             m_eNextAnimMode         = -1;
             return false;
         }
@@ -1304,6 +1307,7 @@ bool SimpleActor::UpdateSelectedAnimation(void)
     }
 
     m_eAnimMode = m_eNextAnimMode;
+
     if (m_eAnimMode != ANIM_MODE_PATH_GOAL) {
         m_csPathGoalEndAnimScript = STRING_EMPTY;
     }
