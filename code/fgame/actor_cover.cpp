@@ -89,7 +89,8 @@ bool Actor::Cover_SetPath(PathNode *node)
     enemy_origin = m_Enemy->origin;
     VectorSub2D(enemy_origin, origin, vDelta);
 
-    if (VectorLength2DSquared(vDelta) * 0.64f > Square(192)) {
+    origin_ratio = VectorLength2DSquared(vDelta) * 0.64f;
+    if (origin_ratio > Square(192)) {
         origin_ratio = Square(192);
     }
 
