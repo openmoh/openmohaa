@@ -2358,8 +2358,11 @@ void ScriptThread::ScriptExecute(ScriptVariable *data, int dataSize, ScriptVaria
 
 void ScriptThread::ScriptExecuteInternal(ScriptVariable *data, int dataSize)
 {
-    SafePtr<ScriptThread> currentThread  = Director.m_CurrentThread;
-    SafePtr<ScriptThread> previousThread = Director.m_PreviousThread;
+    SafePtr<ScriptThread> currentThread;
+    SafePtr<ScriptThread> previousThread;
+
+    currentThread = Director.CurrentThread();
+    previousThread = this;
 
     Director.m_PreviousThread = currentThread;
     Director.m_CurrentThread  = this;
