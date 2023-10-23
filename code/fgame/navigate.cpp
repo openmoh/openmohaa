@@ -3042,10 +3042,7 @@ int PathSearch::NearestNodeSetup(vec3_t pos, MapCell *cell, int *nodes, vec3_t *
             continue;
         }
 
-        delta[0] = node->origin[0] - pos[0];
-        delta[1] = node->origin[1] - pos[1];
-        delta[2] = node->origin[2] - pos[2];
-
+        VectorSubtract(node->origin, pos, delta);
         VectorCopy(delta, deltas[i]);
 
         dist = VectorLengthSquared(delta);
