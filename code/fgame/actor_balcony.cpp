@@ -348,7 +348,7 @@ void Actor::Think_BalconyKilled(void)
 
         m_bMotionAnimSet = true;
         m_iMotionSlot = GetMotionSlot(0);
-        m_weightType[m_iMotionSlot] = 1;
+        m_weightType[m_iMotionSlot] = ANIM_WEIGHT_MOTION;
         m_weightCrossBlend[m_iMotionSlot] = 0.0;
         m_weightBase[m_iMotionSlot] = 1.0;
 
