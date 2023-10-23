@@ -647,10 +647,8 @@ void Animate::PostAnimate(void)
     total_angular_delta = 0;
 
     for (int i = 0; i < MAX_FRAMEINFOS; i++) {
-        if (edict->s.frameInfo[i].weight > 0.0f) {
-            if (!(animFlags[i] & ANIM_NOACTION)) {
-                hasAction = true;
-            }
+        if (edict->s.frameInfo[i].weight > 0.0f && !(animFlags[i] & ANIM_NOACTION)) {
+            hasAction = true;
         }
 
         if (animFlags[i] & ANIM_PAUSED) {
@@ -670,87 +668,88 @@ void Animate::PostAnimate(void)
             animFlags[i] |= ANIM_FINISHED;
             RestartAnimSlot(i);
         } else {
-            if (!(animFlags[i] & ANIM_NODELTA)) {
-                if (gi.Anim_HasDelta(edict->tiki, edict->s.frameInfo[i].index)) {
-                    float vDelta[3];
-                    float angleDelta;
+            if (!(animFlags[i] & ANIM_NODELTA) && gi.Anim_HasDelta(edict->tiki, edict->s.frameInfo[i].index)) {
+                vec3_t vDelta;
+                float  angleDelta;
 
-                    //
-                    // Get the animation's delta position from start time
-                    //
-                    gi.Anim_DeltaOverTime(
-                        edict->tiki, edict->s.frameInfo[i].index, startTime, edict->s.frameInfo[i].time, vDelta
-                    );
-                    vFrameDelta += Vector(vDelta) * edict->s.frameInfo[i].weight;
-                    total_weight += edict->s.frameInfo[i].weight;
+                //
+                // Get the animation's delta position from start time
+                //
+                gi.Anim_DeltaOverTime(
+                    edict->tiki, edict->s.frameInfo[i].index, startTime, edict->s.frameInfo[i].time, vDelta
+                );
+                VectorScale(vDelta, edict->s.frameInfo[i].weight, vDelta);
+                vFrameDelta += vDelta;
+                total_weight += edict->s.frameInfo[i].weight;
 
-                    //
-                    // Get the animation's delta angle from start time
-                    //
-                    gi.Anim_AngularDeltaOverTime(
-                        edict->tiki, edict->s.frameInfo[i].index, startTime, edict->s.frameInfo[i].time, &angleDelta
-                    );
-                    total_angular_delta += angleDelta * edict->s.frameInfo[i].weight;
-                }
+                //
+                // Get the animation's delta angle from start time
+                //
+                gi.Anim_AngularDeltaOverTime(
+                    edict->tiki, edict->s.frameInfo[i].index, startTime, edict->s.frameInfo[i].time, &angleDelta
+                );
+                angleDelta *= edict->s.frameInfo[i].weight;
+                total_angular_delta += angleDelta;
             }
 
             animFlags[i] &= ~ANIM_NODELTA;
 
-            float animTime;
             if (animFlags[i] & ANIM_SYNC) {
-                animTime = animtimes[i];
+                if (edict->s.frameInfo[i].time < animtimes[i]) {
+                    continue;
+                }
             } else {
-                animTime = animtimes[i] - 0.01f;
-            }
-
-            if (edict->s.frameInfo[i].time >= animTime) {
-                if (animFlags[i] & ANIM_LOOP) {
-                    animFlags[i] |= ANIM_FINISHED;
-
-                    do {
-                        edict->s.frameInfo[i].time -= animtimes[i];
-                    } while (edict->s.frameInfo[i].time >= animtimes[i]);
-
-                    if (edict->s.frameInfo[i].time < 0) {
-                        edict->s.frameInfo[i].time = 0;
-                    }
-
-                } else {
-                    if (startTime != animtimes[i]) {
-                        animFlags[i] |= ANIM_FINISHED;
-                    }
-
-                    edict->s.frameInfo[i].time = animtimes[i];
+                if (edict->s.frameInfo[i].time < (animtimes[i] - 0.01f)) {
+                    continue;
                 }
             }
-        }
 
-        if (total_weight) {
-            vFrameDelta *= 1.f / total_weight;
-            total_angular_delta *= 1.f / total_weight;
-        }
+            if (IsRepeatType(i)) {
+                animFlags[i] |= ANIM_FINISHED;
 
-        MatrixTransformVector(vFrameDelta, orientation, frame_delta);
-        angular_delta = total_angular_delta;
+                do {
+                    edict->s.frameInfo[i].time -= animtimes[i];
+                } while (edict->s.frameInfo[i].time >= animtimes[i]);
 
-        while (syncTime > 1.0f) {
-            syncTime -= 1.0f;
-        }
+                if (edict->s.frameInfo[i].time < 0) {
+                    edict->s.frameInfo[i].time = 0;
+                }
 
-        total_weight = level.frametime * 4.0f;
+            } else {
+                if (startTime != animtimes[i]) {
+                    animFlags[i] |= ANIM_FINISHED;
+                }
 
-        if (hasAction) {
-            edict->s.actionWeight += total_weight;
-
-            if (edict->s.actionWeight > 1.0f) {
-                edict->s.actionWeight = 1.0f;
+                edict->s.frameInfo[i].time = animtimes[i];
             }
-        } else {
-            edict->s.actionWeight -= total_weight;
+        }
+    }
 
-            if (edict->s.actionWeight < 0.0f) {
-                edict->s.actionWeight = 0.0f;
-            }
+    if (total_weight) {
+        vFrameDelta *= 1.f / total_weight;
+        total_angular_delta *= 1.f / total_weight;
+    }
+
+    MatrixTransformVector(vFrameDelta, orientation, frame_delta);
+    angular_delta = total_angular_delta;
+
+    while (syncTime >= 1.0f) {
+        syncTime -= 1.0f;
+    }
+
+    total_weight = level.frametime * 4.0f;
+
+    if (hasAction) {
+        edict->s.actionWeight += total_weight;
+
+        if (edict->s.actionWeight > 1.0f) {
+            edict->s.actionWeight = 1.0f;
+        }
+    } else {
+        edict->s.actionWeight -= total_weight;
+
+        if (edict->s.actionWeight < 0.0f) {
+            edict->s.actionWeight = 0.0f;
         }
     }
 }
