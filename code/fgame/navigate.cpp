@@ -2880,30 +2880,43 @@ int PathSearch::FindPotentialCover(
     SimpleActor *pEnt, Vector& vPos, Entity *pEnemy, PathNode **ppFoundNodes, int iMaxFind
 )
 {
-    Actor    *pSelf = (Actor *)pEnt;
-    PathNode *pNode;
-    Vector    delta;
-    int       nNodes = 0;
-    nodeinfo  nodes[MAX_PATHNODES];
+    nodeinfo nodes[MAX_PATHNODES];
+    int nNodes = 0;
+    int i;
+    Vector delta;
+    PathNode* node;
 
-    for (int i = 0; i < nodecount; i++) {
-        pNode = pathnodes[i];
-        if (pNode && pNode->nodeflags & AI_SNIPER) {
-            if (pNode->pLastClaimer == pSelf || (pNode->iAvailableTime && level.inttime >= pNode->iAvailableTime)
-                || (pNode->pLastClaimer == NULL)) {
-                delta = pNode->origin - pSelf->m_vHome;
-                if (delta.lengthSquared() <= pSelf->m_fLeashSquared) {
-                    delta = pNode->origin - pEnemy->origin;
-                    if (delta.lengthSquared() >= pSelf->m_fMinDistanceSquared
-                        && delta.lengthSquared() <= pSelf->m_fMaxDistanceSquared) {
-                        delta                      = pNode->origin - pSelf->origin;
-                        nodes[nNodes].pNode        = pNode;
-                        nodes[nNodes].fDistSquared = delta.lengthSquared();
-                        nNodes++;
-                    }
-                }
-            }
+    Actor* pActor = static_cast<Actor*>(pEnt);
+
+    for (i = 0; i < nodecount; i++) {
+        node = pathnodes[i];
+        if (!node) {
+            continue;
         }
+
+        if (!(node->nodeflags & AI_SNIPER)) {
+            continue;
+        }
+
+        if (node->IsClaimedByOther(static_cast<Entity*>(pEnt))) {
+            continue;
+        }
+
+        delta = node->origin - pActor->m_vHome;
+        if (delta.lengthSquared() > pActor->m_fLeashSquared) {
+            continue;
+        }
+
+        delta = node->origin - pEnemy->origin;
+        if (delta.lengthSquared() < pActor->m_fMinDistanceSquared
+            || delta.lengthSquared() > pActor->m_fMaxDistanceSquared) {
+            continue;
+        }
+
+        delta = node->origin - pEnt->origin;
+        nodes[nNodes].pNode = node;
+        nodes[nNodes].fDistSquared = delta.lengthSquared();
+        nNodes++;
     }
 
     if (nNodes) {
@@ -2913,13 +2926,8 @@ int PathSearch::FindPotentialCover(
             nNodes = iMaxFind;
         }
 
-        if (nNodes > 0) {
-            pNode = ppFoundNodes[nNodes - 1];
-
-            for (int i = 0; i < nNodes; i++) {
-                pNode = nodes[i].pNode;
-                pNode--;
-            }
+        for (i = 0; i < nNodes; i++) {
+            ppFoundNodes[nNodes - i - 1] = nodes[i].pNode;
         }
     }
     return nNodes;
