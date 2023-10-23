@@ -7017,6 +7017,8 @@ void Actor::ChangeAnim(void)
 
         m_pAnimThread->AbortRegistration(STRING_EMPTY, this);
         delete m_pAnimThread->GetScriptClass();
+        // The animation thread must be deleted afterwards
+        assert(!m_pAnimThread);
     }
 
     switch (m_ThinkState) {
