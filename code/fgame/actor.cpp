@@ -4951,7 +4951,8 @@ void Actor::HandlePain(Event *ev)
         //FIXME: macro
         SetCuriousAnimHint(7);
 
-        if (m_bEnableEnemy && m_ThinkStates[THINKLEVEL_IDLE] == THINKSTATE_IDLE) {
+        // m_bIsCurious check: Added in 2.30
+        if (m_bEnableEnemy && m_ThinkStates[THINKLEVEL_IDLE] == THINKSTATE_IDLE && m_bIsCurious) {
             SetEnemyPos(attacker->origin);
             m_pszDebugState = "from_pain";
             SetThinkState(THINKSTATE_CURIOUS, THINKLEVEL_IDLE);
@@ -5274,7 +5275,7 @@ void Actor::MovePath(float fMoveSpeed)
         G_DebugLine(pos, dest, 1, 0, 0, 1);
 
         for (current_path = m_Path.CurrentNode(); current_path != m_Path.LastNode(); current_path--) {
-            pos = current_path->point;
+            pos  = current_path->point;
             dest = (current_path - 1)->point;
 
             G_DebugLine(pos + Vector(0, 0, 32), dest + Vector(0, 0, 32), 0, 1, 0, 1);
@@ -6438,21 +6439,21 @@ void Actor::DetectSmokeGrenades(void)
         return;
     }
 
-    const Vector eyePos = VirtualEyePosition();
-    const float fDistSquared = (sprite->origin - eyePos).lengthSquared();
+    const Vector eyePos       = VirtualEyePosition();
+    const float  fDistSquared = (sprite->origin - eyePos).lengthSquared();
 
     if (fDistSquared > Square(256) || InFOV(sprite->origin)) {
         if (G_SightTrace(
-            eyePos,
-            vec_zero,
-            vec_zero,
-            sprite->origin,
-            this,
-            NULL,
-            MASK_CANSEE,
-            qfalse,
-            "Actor::DetectSmokeGrenades"
-        )) {
+                eyePos,
+                vec_zero,
+                vec_zero,
+                sprite->origin,
+                this,
+                NULL,
+                MASK_CANSEE,
+                qfalse,
+                "Actor::DetectSmokeGrenades"
+            )) {
             m_PotentialEnemies.ConfirmEnemy(this, sprite->owner);
         }
     }
@@ -8213,6 +8214,11 @@ Should actor transition think state to grenade ?
 */
 bool Actor::PassesTransitionConditions_Grenade(void)
 {
+    if (!m_bIsCurious) {
+        // Added in 2.30
+        return false;
+    }
+
     if (m_bLockThinkState || !m_bEnableEnemy) {
         return false;
     }
@@ -9848,6 +9854,7 @@ void Actor::Grenade_EventFire(Event *ev)
     speed = dir.normalize();
 
     if (g_protocol >= PROTOCOL_MOHTA_MIN) {
+        // Added in 2.30
         switch (m_iNationality) {
         case ACTOR_NATIONALITY_ITALIAN:
             strGrenade = "models/projectiles/Bomba_ai.tik";
