@@ -2896,7 +2896,7 @@ bool Entity::CanSee(Entity *ent, float fov, float vision_distance, bool bNoEnts)
 
     VectorSub2D(ent->centroid, centroid, delta);
 
-    if (vision_distance >= 0 && Square(vision_distance) < VectorLength2DSquared(delta)) {
+    if (vision_distance > 0 && Square(vision_distance) < VectorLength2DSquared(delta)) {
         return false;
     }
 
@@ -2924,7 +2924,7 @@ bool Entity::CanSee(const Vector& org, float fov, float vision_distance, bool bN
 
     VectorSub2D(org, centroid, delta);
 
-    if (vision_distance >= 0 && Square(vision_distance) < VectorLength2DSquared(delta)) {
+    if (vision_distance > 0 && Square(vision_distance) < VectorLength2DSquared(delta)) {
         return false;
     }
 
