@@ -5271,8 +5271,8 @@ void Actor::MovePath(float fMoveSpeed)
         pos = origin;
         pos.z += 32;
 
-        dest = m_Path.CurrentDelta() + origin;
-        dest.z += 32;
+        VectorAdd2D(origin, m_Path.CurrentDelta(), dest);
+        dest[2] = origin[2] + 32;
 
         G_DebugLine(pos, dest, 1, 0, 0, 1);
 
