@@ -253,7 +253,7 @@ const char *ScriptMaster::ConstStrings[] = {
     "anim/idle.scr",
     "anim/surprise.scr",
     "anim/standshock.scr",
-    "anim/standidentify",
+    "anim/standidentify.scr",
     "anim/standflinch.scr",
     "anim/dog_idle.scr",
     "anim/dog_attack.scr",
