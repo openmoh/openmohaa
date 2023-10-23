@@ -991,14 +991,38 @@ void Level::ResetEdicts(void)
 
 qboolean Level::inhibitEntity(int spawnflags)
 {
-    if (!developer->integer && (spawnflags & SPAWNFLAG_DEVELOPMENT)) {
-        return qtrue;
-    }
-
     if (!detail->integer && (spawnflags & SPAWNFLAG_DETAIL)) {
         return qtrue;
     }
 
+    if (g_gametype->integer != GT_SINGLE_PLAYER) {
+        return (spawnflags & SPAWNFLAG_NOT_DEATHMATCH) ? qtrue : qfalse;
+    }
+
+    if (!developer->integer && (spawnflags & SPAWNFLAG_DEVELOPMENT)) {
+        return qtrue;
+    }
+
+    if (!Q_stricmp(mapname, "t3l2")) {
+        // Added in 2.0.
+        //   FIXME: there should be a better way to handle
+        //   specific maps
+        return (spawnflags & SPAWNFLAG_NOT_EASY) ? qtrue : qfalse;
+    }
+
+    switch (skill->integer) {
+    case 0:
+        return (spawnflags & SPAWNFLAG_NOT_EASY) != 0;
+
+    case 1:
+        return (spawnflags & SPAWNFLAG_NOT_MEDIUM) != 0;
+
+    case 2:
+    case 3:
+        return (spawnflags & SPAWNFLAG_NOT_HARD);
+    }
+
+    /*
 #ifdef _CONSOLE
     if (spawnflags & SPAWNFLAG_NOCONSOLE)
 #else
@@ -1007,29 +1031,7 @@ qboolean Level::inhibitEntity(int spawnflags)
     {
         return qtrue;
     }
-
-    if (g_gametype->integer) {
-        if (spawnflags & SPAWNFLAG_NOT_DEATHMATCH) {
-            return qtrue;
-        }
-
-        return qfalse;
-    }
-
-    switch (skill->integer) {
-    case 0:
-        return (spawnflags & SPAWNFLAG_NOT_EASY) != 0;
-        break;
-
-    case 1:
-        return (spawnflags & SPAWNFLAG_NOT_MEDIUM) != 0;
-        break;
-
-    case 2:
-    case 3:
-        return (spawnflags & SPAWNFLAG_NOT_HARD);
-        break;
-    }
+    */
 
     return qfalse;
 }
@@ -1112,9 +1114,12 @@ void Level::SpawnEntities(char *entities, int svsTime)
         if (value) {
             spawnflags = atoi(value);
 
-            if (inhibitEntity(spawnflags)) {
-                inhibit++;
-                continue;
+            value = args.getArg("classname");
+            if (!value || (Q_stricmp(value, "info_pathnode") && Q_stricmp(value, "info_patharea"))) {
+                if (inhibitEntity(spawnflags)) {
+                    inhibit++;
+                    continue;
+                }
             }
         }
 
