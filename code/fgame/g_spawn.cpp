@@ -385,7 +385,12 @@ Listener *SpawnArgs::SpawnInternal(void)
         return NULL;
     }
 
-    obj = (Listener *)cls->newInstance();
+    if (checkInheritance(PathNode::classinfostatic(), cls)) {
+        // use the existing node that was loaded
+        obj = PathManager.GetSpawnNode(cls);
+    } else {
+        obj = (Listener *)cls->newInstance();
+    }
 
     for (int i = g_spawnlist.NumObjects(); i > 0; i--) {
         if (g_spawnlist.ObjectAt(i) == NULL) {
