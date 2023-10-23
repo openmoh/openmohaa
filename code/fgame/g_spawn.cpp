@@ -22,7 +22,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // g_spawn.cpp : spawner for scripts.
 
-#include "glb_local.h"
+#include "g_local.h"
 #include "g_spawn.h"
 #include "../script/scriptvariable.h"
 #include "object.h"
@@ -82,7 +82,7 @@ char *SpawnArgs::Parse(char *data, bool bAllowUtils)
     }
 
     if (com_token[0] != '{') {
-        glbs.Error(ERR_DROP, "SpawnArgs::Parse : found %s when expecting {", com_token);
+        gi.Error(ERR_DROP, "SpawnArgs::Parse : found %s when expecting {", com_token);
     }
 
     // go through all the dictionary pairs
@@ -94,7 +94,7 @@ char *SpawnArgs::Parse(char *data, bool bAllowUtils)
         }
 
         if (!data) {
-            glbs.Error(ERR_DROP, "SpawnArgs::Parse : EOF without closing brace");
+            gi.Error(ERR_DROP, "SpawnArgs::Parse : EOF without closing brace");
         }
 
         keyname = com_token;
@@ -102,11 +102,11 @@ char *SpawnArgs::Parse(char *data, bool bAllowUtils)
         // parse value
         com_token = COM_Parse(&data);
         if (!data) {
-            glbs.Error(ERR_DROP, "SpawnArgs::Parse : EOF without closing brace");
+            gi.Error(ERR_DROP, "SpawnArgs::Parse : EOF without closing brace");
         }
 
         if (com_token[0] == '}') {
-            glbs.Error(ERR_DROP, "SpawnArgs::Parse : closing brace without data");
+            gi.Error(ERR_DROP, "SpawnArgs::Parse : closing brace without data");
         }
 
         // keynames with a leading underscore are used for utility comments,
@@ -283,22 +283,22 @@ ClassDef *SpawnArgs::getClassDef(qboolean *tikiWasStatic)
                     }
 
                     if (i == a->num_server_initcmds) {
-                        glbs.DPrintf(
+                        gi.DPrintf(
                             "Classname %s used, but 'classname' was not found in Initialization commands, using "
                             "Object.\n",
                             classname
                         );
                     }
                 } else {
-                    glbs.DPrintf(
+                    gi.DPrintf(
                         "Classname %s used, but TIKI had no Initialization commands, using Object.\n", classname
                     );
                 }
             } else {
-                glbs.DPrintf("Classname %s used, but model was not a TIKI, using Object.\n", classname);
+                gi.DPrintf("Classname %s used, but model was not a TIKI, using Object.\n", classname);
             }
         } else {
-            glbs.DPrintf("Classname %s' used, but no model was set, using Object.\n", classname);
+            gi.DPrintf("Classname %s' used, but no model was set, using Object.\n", classname);
         }
     }
 
@@ -375,10 +375,10 @@ Listener *SpawnArgs::SpawnInternal(void)
 
     if (!cls) {
         if (!tikiWasStatic) {
-            glbs.DPrintf("%s doesn't have a spawn function\n", classname.c_str());
+            gi.DPrintf("%s doesn't have a spawn function\n", classname.c_str());
 
             if (g_scriptcheck->integer) {
-                glbs.Error(ERR_DROP, "Script check failed");
+                gi.Error(ERR_DROP, "Script check failed");
             }
         }
 
@@ -489,7 +489,7 @@ Listener *SpawnArgs::SpawnInternal(void)
                     break;
                 }
                 if (strchr(token, ':')) {
-                    glbs.DPrintf("Label %s imbedded inside editor script for %s.\n", token, classname.c_str());
+                    gi.DPrintf("Label %s imbedded inside editor script for %s.\n", token, classname.c_str());
                 } else {
                     ev = new Event(token);
                     while (1) {
@@ -533,7 +533,7 @@ Listener *SpawnArgs::SpawnInternal(void)
     }
 
     if (!obj) {
-        glbs.DPrintf("%s failed on newInstance\n", classname.c_str());
+        gi.DPrintf("%s failed on newInstance\n", classname.c_str());
         return NULL;
     }
 
