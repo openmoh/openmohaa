@@ -1247,7 +1247,7 @@ PathNode *PathSearch::NearestEndNode(float *pos)
         }
     }
 
-    return pathnodes[cell->nodes[nodes[0]]];
+    return NULL;
 }
 
 int PathSearch::DebugNearestNodeList(float *pos, PathNode **nodelist, int iMaxNodes)
@@ -2122,45 +2122,44 @@ int PathSearch::FindPath(
         return 0;
     }
 
-    total_dist = 9e+11f;
+    total_dist = 1e+12;
 
     if (!maxPath) {
-        maxPath = 9e+11f;
+        maxPath = 1e+12;
     }
 
     findFrame++;
     open = NULL;
 
-    path_startdir[0] = Node->origin[0] - start[0];
-    path_startdir[1] = Node->origin[1] - start[1];
-
+    VectorSub2D(Node->origin, start, path_startdir);
     Node->g = VectorNormalize2D(path_startdir);
 
-    path_totaldir[0] = end[0] - start[0];
-    path_totaldir[1] = end[1] - start[1];
-
+    VectorSub2D(end, start, path_totaldir);
     Node->h         = VectorNormalize2D(path_totaldir);
-    Node->inopen    = true;
+    
     Node->Parent    = NULL;
     Node->m_Depth   = 3;
-    Node->m_PathPos = start;
     Node->findCount = findFrame;
+    Node->inopen    = true;
     Node->PrevNode  = NULL;
     Node->NextNode  = NULL;
+    Node->m_PathPos = start;
 
     open = Node;
 
-    while (1) {
+    while (open) {
         Node         = open;
         Node->inopen = false;
-
         open = Node->NextNode;
+
         if (open) {
             open->PrevNode = NULL;
         }
 
         if (Node == to) {
-            break;
+            path_start = start;
+            path_end = end;
+            return Node->m_Depth;
         }
 
         for (i = Node->numChildren - 1; i >= 0; i--) {
@@ -2171,100 +2170,93 @@ int PathSearch::FindPath(
             NewNode = pathnodes[pathway->node];
 
             if (vLeashHome) {
-                vDist[0] = pathway->pos2[0] - vLeashHome[0];
-                vDist[1] = pathway->pos2[1] - vLeashHome[1];
+                VectorSub2D(pathway->pos2, vLeashHome, vDist);
+                if (VectorLength2DSquared(vDist) > fLeashDistSquared) {
+                    continue;
+                }
             }
 
-            if (!vLeashHome || VectorLength2DSquared(vDist) <= fLeashDistSquared) {
-                g = (int)(pathway->dist + Node->g + 1.0f);
+            g = (int)(pathway->dist + Node->g + 1.0f);
 
-                if (NewNode->findCount == findFrame) {
-                    if (g >= NewNode->g) {
-                        continue;
-                    }
-
-                    if (NewNode->inopen) {
-                        NewNode->inopen = false;
-                        next            = NewNode->NextNode;
-                        prev            = NewNode->PrevNode;
-
-                        if (next) {
-                            next->PrevNode = prev;
-                        }
-
-                        if (prev) {
-                            prev->NextNode = next;
-                        } else {
-                            open = next;
-                        }
-                    }
+            if (NewNode->findCount == findFrame) {
+                if (NewNode->g <= g) {
+                    continue;
                 }
 
-                delta[0] = end[0] - pathway->pos2[0];
-                delta[1] = end[1] - pathway->pos2[1];
+                if (NewNode->inopen) {
+                    NewNode->inopen = false;
+                    next = NewNode->NextNode;
+                    prev = NewNode->PrevNode;
 
-                NewNode->h = VectorLength2D(delta);
-
-                f = (int)((float)g + NewNode->h);
-
-                if (f >= maxPath) {
-                    last_error = "specified path distance exceeded";
-                    return 0;
-                }
-
-                if (pathway->fallheight <= fallheight) {
-                    NewNode->f         = f;
-                    NewNode->pathway   = i;
-                    NewNode->g         = g;
-                    NewNode->Parent    = Node;
-                    NewNode->m_Depth   = Node->m_Depth + 1;
-                    NewNode->inopen    = true;
-                    NewNode->m_PathPos = pathway->pos2;
-                    NewNode->findCount = findFrame;
-
-                    if (!open) {
-                        NewNode->NextNode = NULL;
-                        NewNode->PrevNode = NULL;
-                        open              = NewNode;
-                        continue;
-                    }
-
-                    if (open->f >= f) {
-                        NewNode->PrevNode = NULL;
-                        NewNode->NextNode = open;
-
-                        open->PrevNode = NewNode;
-                        open           = NewNode;
-                        continue;
-                    }
-
-                    prev = open;
-                    next = open->NextNode;
-                    while (next && next->f < f) {
-                        prev = next;
-                        next = next->NextNode;
-                    }
-
-                    NewNode->NextNode = next;
                     if (next) {
-                        next->PrevNode = NewNode;
+                        next->PrevNode = prev;
                     }
-                    prev->NextNode    = NewNode;
-                    NewNode->PrevNode = prev;
+
+                    if (prev) {
+                        prev->NextNode = next;
+                    }
+                    else {
+                        open = next;
+                    }
                 }
             }
-        }
 
-        if (!open) {
-            last_error = "unreachable path";
-            return 0;
+            VectorSub2D(end, pathway->pos2, delta);
+            NewNode->h = VectorLength2D(delta);
+
+            f = (int)((float)g + NewNode->h);
+
+            if (f >= maxPath) {
+                last_error = "specified path distance exceeded";
+                return 0;
+            }
+
+            if (pathway->fallheight <= fallheight) {
+                NewNode->m_Depth = Node->m_Depth + 1;
+                NewNode->Parent = Node;
+                NewNode->pathway = i;
+                NewNode->g = (float)g;
+                NewNode->f = (float)f;
+                NewNode->m_PathPos = pathway->pos2;
+                NewNode->findCount = findFrame;
+                NewNode->inopen = 1;
+
+                if (!open) {
+                    NewNode->NextNode = NULL;
+                    NewNode->PrevNode = NULL;
+                    open = NewNode;
+                    continue;
+                }
+
+                if (open->f >= f) {
+                    NewNode->NextNode = open;
+                    NewNode->PrevNode = NULL;
+
+                    open->PrevNode = NewNode;
+                    open = NewNode;
+                    continue;
+                }
+
+                prev = open;
+                for (next = open->NextNode; next; next = next->NextNode) {
+                    if (next->f >= f) {
+                        break;
+                    }
+                    prev = next;
+                }
+
+                NewNode->NextNode = next;
+                if (next) {
+                    next->PrevNode = NewNode;
+                }
+                prev->NextNode = NewNode;
+                NewNode->PrevNode = prev;
+            }
         }
     }
 
-    path_start = start;
-    path_end   = end;
-
-    return Node->m_Depth;
+    last_error = "unreachable path";
+    return 0;
 }
 
 int PathSearch::FindPathAway(
@@ -2631,9 +2623,12 @@ int node_compare(const void *pe1, const void *pe2)
 
 PathNode *PathSearch::FindCornerNodeForWall(float *start, float *end, SimpleActor *ent, float maxPath, float *plane)
 {
-    PathNode *ParentNode;
-    PathNode *OpenNode;
-    int       i;
+    int i, g;
+    PathNode* NewNode;
+    pathway_t* pathway;
+    PathNode* prev, * next;
+    int f;
+    vec2_t delta;
 
     Node = NearestStartNode(start, ent);
     if (!Node) {
@@ -2676,7 +2671,6 @@ PathNode *PathSearch::FindCornerNodeForWall(float *start, float *end, SimpleActo
     Node->PrevNode  = 0;
     Node->NextNode  = 0;
 
-    OpenNode = Node;
     open     = Node;
 
     if (!open) {
@@ -2685,88 +2679,84 @@ PathNode *PathSearch::FindCornerNodeForWall(float *start, float *end, SimpleActo
     }
 
     while (true) {
-        Node = OpenNode;
-
+        Node = open;
         Node->inopen = false;
-
         open = Node->NextNode;
+
         if (open) {
             open->PrevNode = NULL;
         }
 
-        ParentNode = Node->Parent;
-
-        if (ParentNode && DotProduct(plane, Node->m_PathPos) - plane[3] < 0.0) {
-            vec2_t delta;
-            VectorSub2D(ParentNode->m_PathPos, start, delta);
+        if (Node->Parent && DotProduct(plane, Node->m_PathPos) - plane[3] < 0.0) {
+            VectorSub2D(Node->Parent->m_PathPos, start, delta);
             if (VectorLength2DSquared(delta) < Square(16)) {
-                ParentNode = Node;
+                return Node;
             }
-            return ParentNode;
+            return Node->Parent;
         }
 
         i = Node->numChildren;
         if (i) {
             break;
         }
+
     weird_lbl:
-        OpenNode = open;
-        if (!OpenNode) {
+        if (!open) {
             last_error = "unreachable path";
             return NULL;
         }
     }
 
-    int f, g, h;
     while (true) {
-        pathway_t *pathway   = &Node->Child[--i];
-        PathNode  *pSomeNode = PathSearch::pathnodes[pathway->node];
-        g                    = (pathway->dist + Node->g + 1.0);
-        if (pSomeNode->findCount == PathSearch::findFrame) {
-            if (g >= pSomeNode->g) {
+        pathway = &Node->Child[--i];
+        NewNode = PathSearch::pathnodes[pathway->node];
+        g = (pathway->dist + Node->g + 1.0);
+
+        if (NewNode->findCount == PathSearch::findFrame) {
+            if (g >= NewNode->g) {
                 if (i == 0) {
                     goto weird_lbl;
                 }
 
                 continue;
             }
-            if (pSomeNode->inopen) {
-                pSomeNode->inopen = false;
+            if (NewNode->inopen) {
+                NewNode->inopen = false;
 
-                if (pSomeNode->NextNode) {
-                    pSomeNode->NextNode->PrevNode = pSomeNode->PrevNode;
+                if (NewNode->NextNode) {
+                    NewNode->NextNode->PrevNode = NewNode->PrevNode;
                 }
-                if (pSomeNode->PrevNode) {
-                    pSomeNode->PrevNode->NextNode = pSomeNode->NextNode;
+                if (NewNode->PrevNode) {
+                    NewNode->PrevNode->NextNode = NewNode->NextNode;
                 } else {
-                    PathSearch::open = pSomeNode->NextNode;
+                    PathSearch::open = NewNode->NextNode;
                 }
             }
         }
 
         vec2_t vDelta2;
-        VectorSub2D(end, pathway->pos1, vDelta2);
-        pSomeNode->h = h = VectorLength2D(vDelta2);
+        VectorSub2D(end, pathway->pos2, vDelta2);
+        NewNode->h = VectorLength2D(vDelta2);
 
-        f = (h + g);
+        f = (NewNode->h + g);
 
         if (f >= maxPath) {
             break;
         }
-
-        pSomeNode->f         = f;
-        pSomeNode->pathway   = i;
-        pSomeNode->g         = g;
-        pSomeNode->Parent    = Node;
-        pSomeNode->inopen    = true;
-        pSomeNode->m_PathPos = pathway->pos2;
-        pSomeNode->findCount = PathSearch::findFrame;
-        pSomeNode->m_Depth   = Node->m_Depth + 1;
+        
+        NewNode->m_Depth   = Node->m_Depth + 1;
+        NewNode->Parent    = Node;
+        NewNode->pathway   = i;
+        NewNode->f         = f;
+        NewNode->g         = g;
+        NewNode->m_PathPos = pathway->pos2;
+        NewNode->findCount = PathSearch::findFrame;
+        NewNode->inopen    = true;
 
         if (!PathSearch::open) {
-            pSomeNode->NextNode = NULL;
-            pSomeNode->PrevNode = NULL;
-            PathSearch::open    = pSomeNode;
+            NewNode->NextNode = NULL;
+            NewNode->PrevNode = NULL;
+            PathSearch::open    = NewNode;
             if (i == 0) {
                 goto weird_lbl;
             }
@@ -2774,43 +2764,43 @@ PathNode *PathSearch::FindCornerNodeForWall(float *start, float *end, SimpleActo
             continue;
         }
 
-        if (PathSearch::open->f == f) {
-            pSomeNode->PrevNode        = NULL;
-            pSomeNode->NextNode        = PathSearch::open;
-            PathSearch::open->PrevNode = pSomeNode;
-            PathSearch::open           = pSomeNode;
+        if (f <= open->f) {
+            NewNode->NextNode        = PathSearch::open;
+            NewNode->PrevNode        = NULL;
+            open->PrevNode = NewNode;
+            open           = NewNode;
             if (i == 0) {
                 goto weird_lbl;
             }
 
             continue;
         }
-        PathNode *pNextOpenNode = PathSearch::open->NextNode;
-        if (pNextOpenNode) {
-            if (f > pNextOpenNode->f) {
-                do {
-                    pNextOpenNode = pNextOpenNode->NextNode;
-                    if (!pNextOpenNode) {
-                        break;
-                    }
 
-                } while (f > pNextOpenNode->f);
+        prev = open;
+
+        PathNode* pNextOpenNode;
+        for (pNextOpenNode = open->NextNode; pNextOpenNode; pNextOpenNode = pNextOpenNode->NextNode) {
+            if (pNextOpenNode->f >= f) {
+                break;
             }
+
+            prev = pNextOpenNode;
         }
 
-        pSomeNode->NextNode = pNextOpenNode;
+        NewNode->NextNode = pNextOpenNode;
 
         if (pNextOpenNode) {
-            pNextOpenNode->PrevNode = pSomeNode;
+            pNextOpenNode->PrevNode = NewNode;
         }
 
-        pNextOpenNode->NextNode = pSomeNode;
-        pSomeNode->PrevNode     = pNextOpenNode;
+        prev->NextNode = NewNode;
+        NewNode->PrevNode = prev;
 
         if (i == 0) {
             goto weird_lbl;
         }
     }
+
     PathSearch::last_error = "specified path distance exceeded";
     return NULL;
 }
