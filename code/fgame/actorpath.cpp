@@ -91,7 +91,6 @@ float ActorPath::PathLookAhead(float total_area, Vector& end, float *origin)
         normal[0] = current_path->point[1] - pos[1];
         normal[1] = pos[0] - current_path->point[0];
         VectorNormalize2D(normal);
-
         VectorSub2D(current_path->point, origin, delta);
 
         t = fabs(DotProduct2D(delta, normal)) * current_path->dist;
@@ -107,9 +106,9 @@ float ActorPath::PathLookAhead(float total_area, Vector& end, float *origin)
     t = area / t;
     s = 1.0f - t;
 
-    end[0] = current_path->point[0] * t + pos[0] * s;
-    end[1] = current_path->point[1] * t + pos[1] * s;
-    end[2] = current_path->point[2] * t + pos[2] * s;
+    end[0] = pos[0] * s + current_path->point[0] * t;
+    end[1] = pos[1] * s + current_path->point[1] * t;
+    end[2] = pos[2] * s + current_path->point[2] * t;
 
     m_HasCompleteLookahead = false;
     return 0;
@@ -283,22 +282,22 @@ void ActorPath::UpdatePos(float *origin, float fNodeRadius)
         VectorSub2D(end, origin, m_delta);
         VectorNormalize2D2(m_delta, dir);
     } else if (m_fLookAhead >= 4096.0f) {
-        if (PathLookAhead(m_fLookAhead, end, origin) > m_fLookAhead - 4096.0f
-            || !G_SightTrace(
+        if (PathLookAhead(m_fLookAhead, end, origin) <= (m_fLookAhead - 4096.0f)
+            || G_SightTrace(
                 origin + Vector(0, 0, 32),
                 Vector(-15, -15, 0),
                 Vector(15, 15, 60),
                 end + Vector(0, 0, 32),
-                (gentity_t *)NULL, // g_entities[ 0 ].entity
-                0,
-                MASK_PLAYERSOLID,
+                g_entities[0].entity,
+                NULL,
+                MASK_ACTORPATH,
                 false,
                 "Actor::UpdatePos 2"
             )) {
             m_fLookAhead += 1024.0f;
 
-            if (m_fLookAhead > 65536.0f) {
-                m_fLookAhead = 65536.0f;
+            if (m_fLookAhead > Square(256)) {
+                m_fLookAhead = Square(256);
             }
 
             m_bChangeLookAhead = true;
@@ -314,7 +313,7 @@ void ActorPath::UpdatePos(float *origin, float fNodeRadius)
                 m_fLookAhead = 4096.0f;
             }
 
-            PathLookAhead(4096.0f, end, origin);
+            PathLookAhead(m_fLookAhead, end, origin);
         }
 
         VectorSub2D(end, origin, m_delta);
@@ -323,13 +322,13 @@ void ActorPath::UpdatePos(float *origin, float fNodeRadius)
         PathLookAhead(m_fLookAhead, end2, origin);
 
         if (!G_SightTrace(
-                pos = origin + Vector(0, 0, 32),
+                origin + Vector(0, 0, 32),
                 Vector(-15, -15, 0),
                 Vector(15, 15, 60),
                 end2 + Vector(0, 0, 32),
-                (gentity_t *)NULL,
+                g_entities[0].entity,
                 0,
-                MASK_MONSTERSOLID,
+                MASK_ACTORPATH,
                 false,
                 "Actor::UpdatePos 1"
             )) {
@@ -355,10 +354,11 @@ void ActorPath::UpdatePos(float *origin, float fNodeRadius)
         VectorNormalize2D2(m_delta, dir);
 
         if (DotProduct2D(dir, dir2) > 0.7f) {
-            m_delta[0] = delta[0];
-            m_delta[1] = delta[1];
+            VectorCopy2D(delta, m_delta);
             VectorCopy2D(dir2, dir);
         }
+
+        m_bChangeLookAhead = true;
     } else {
         m_fLookAhead -= 1024.0f;
 
@@ -368,13 +368,13 @@ void ActorPath::UpdatePos(float *origin, float fNodeRadius)
 
         VectorSub2D(end, origin, m_delta);
         VectorNormalize2D2(m_delta, dir);
+
+        m_bChangeLookAhead = true;
     }
 
-    m_bChangeLookAhead = true;
-
-    current_path = m_pathpos;
-
-    for (;;) {
+    // Check added in OPM.
+    //  Make sure to stop if it's the last node
+    for (current_path = m_pathpos; current_path >= LastNode(); current_path--) {
         VectorSub2D(current_path->point, origin, delta2);
         //current_dot = DotProduct2D(delta2, dir) - fNodeRadius;
         // Removed in 2.0
@@ -386,13 +386,6 @@ void ActorPath::UpdatePos(float *origin, float fNodeRadius)
         }
 
         previous_dot = current_dot;
-
-        // Added in OPM.
-        //  Make sure to stop if it's the last node
-        if (current_path == LastNode()) {
-            break;
-        }
-        current_path--;
     }
 
     if (current_path != m_pathpos) {
