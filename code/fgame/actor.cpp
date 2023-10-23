@@ -3149,7 +3149,7 @@ void Actor::GetMoveInfo(mmove_t *mm)
             );
 
             DoFailSafeMove(trace.endpos);
-        } else if (mm->hit_temp_obstacle & 1) {
+        } else if (mm->hit_temp_obstacle && (mm->hit_temp_obstacle & 1)) {
             Player *p;
 
             p = static_cast<Player *>(G_GetEntity(0));
@@ -3216,14 +3216,16 @@ void Actor::GetMoveInfo(mmove_t *mm)
             m_Path.ReFindPath(origin, this);
         }
         break;
+    default:
+        break;
     }
 
     setOrigin(mm->origin);
 
     if (VectorLengthSquared(mm->velocity) < 1) {
-        velocity = vec_zero;
+        VectorClear(velocity);
     } else {
-        velocity = mm->velocity;
+        VectorCopy(mm->velocity, velocity);
     }
 }
 
@@ -6070,7 +6072,7 @@ bool Actor::MoveToPatrolCurrentNode(void)
 {
     UpdatePatrolCurrentNode();
 
-    if (!m_patrolCurrentNode) {
+    if (!m_patrolCurrentNode || m_bPatrolWaitTrigger) {
         IdleLook();
         Anim_Idle();
         return false;
@@ -7232,7 +7234,7 @@ void Actor::UpdateAnim(void)
 
         UseSyncTime(slot, 1);
         fAnimTime   = AnimTime(slot);
-        fAnimWeight = edict->s.frameInfo[slot].weight;
+        fAnimWeight = GetWeight(slot);
         time += fAnimTime * fAnimWeight;
 
         if (!isfinite(time)) {
@@ -7253,7 +7255,7 @@ void Actor::UpdateAnim(void)
         float rate;
 
         rate = time / total_weight;
-        if (m_Team) {
+        if (m_Team != TEAM_GERMAN) {
             rate /= 1.45f;
         }
 
@@ -10012,8 +10014,8 @@ void Actor::EventSetSuppressChance(Event *ev)
 
 void Actor::EventAnimScript(Event *ev)
 {
-    m_bAnimScriptSet = true;
     m_csAnimScript   = ev->GetConstString(1);
+    m_bAnimScriptSet = true;
     m_AnimMode       = ANIM_MODE_NORMAL;
 
     SetThinkIdle(THINK_ANIM);
