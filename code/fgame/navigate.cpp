@@ -1489,9 +1489,8 @@ bool PathSearch::ArchiveDynamic(Archiver& arc)
 void PathSearch::ArchiveLoadNodes(void)
 {
     Archiver arc;
-    qboolean success;
 
-    success = qfalse;
+    m_LoadIndex = 0;
     if (arc.Read(level.m_pathfile, false)) {
         int file_version;
         str maptime;
@@ -1817,9 +1816,9 @@ void PathSearch::ResetNodes(void)
     int i;
     int x;
     int y;
-
-    m_LoadIndex    = -1;
+    
     m_bNodesloaded = false;
+    m_LoadIndex    = -1;
 
     if (!startBulkNavMemory) {
         for (x = PATHMAP_GRIDSIZE - 1; x >= 0; x--) {
