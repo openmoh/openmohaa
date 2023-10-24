@@ -364,6 +364,7 @@ void Actor::Begin_Grenade(void)
         float  fDistSquared;
         bool   bHasThrowTarget;
 
+        bHasThrowTarget = true;
         if (!m_Enemy) {
             Sentient *pEnemy = static_cast<Sentient *>(G_GetEntity(m_pGrenade->edict->r.ownerNum));
 
