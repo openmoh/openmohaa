@@ -265,11 +265,10 @@ void Animate::NewAnim(int animnum, int slot, float weight)
     animFlags[slot] = ANIM_LOOP | ANIM_NODELTA | ANIM_NOEXIT;
 
     if (!(gi.Anim_FlagsSkel(edict->tiki, animnum) & ANIM_LOOP)) {
-        animFlags[slot] &= ~ANIM_LOOP;
+        SetOnceType(slot);
     }
 
-    edict->s.frameInfo[slot].weight = weight;
-
+    SetWeight(slot, weight);
     animtimes[slot]  = gi.Anim_Time(edict->tiki, animnum);
     frametimes[slot] = gi.Anim_Frametime(edict->tiki, animnum);
 
