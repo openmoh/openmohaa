@@ -1532,12 +1532,230 @@ CM_SightTraceThroughBrush
 */
 qboolean CM_SightTraceThroughBrush( traceWork_t *tw, cbrush_t *brush )
 {
-	// They redid the fonction in mohaa
-	CM_TraceThroughBrush( tw, brush );
+	int				i;
+	cplane_t		*plane;
+	float			dist;
+	float			enterFrac, leaveFrac, leaveFrac2;
+	float			d1, d2;
+	qboolean		startout;
+	float			f;
+	cbrushside_t	*side, *leadside, *leadside2;
+	float			t;
 
-	if( tw->trace.allsolid || tw->trace.startsolid || tw->trace.fraction < 1 ) {
-		return qfalse;
+	if( !brush->numsides ) {
+		return qtrue;
 	}
+
+	enterFrac = -1.0;
+	leaveFrac = 1.0;
+
+	c_brush_traces++;
+
+	startout = qfalse;
+
+	leadside = NULL;
+	if( !( brush->contents & CONTENTS_FENCE ) || !tw->isPoint ) {
+		if( sphere.use ) {
+			//
+			// compare the trace against all planes of the brush
+			// find the latest time the trace crosses a plane towards the interior
+			// and the earliest time the trace crosses a plane towards the exterior
+			//
+			for( i = 0; i < brush->numsides; i++ ) {
+				side = brush->sides + i;
+				plane = side->plane;
+
+				// find the closest point on the capsule to the plane
+				t = DotProduct( plane->normal, sphere.offset );
+				if( t < 0 )
+				{
+					t = -t;
+				}
+
+				// adjust the plane distance apropriately for radius
+				dist = t + plane->dist + sphere.radius;
+
+				d1 = DotProduct( tw->start, plane->normal ) - dist;
+				d2 = DotProduct( tw->end, plane->normal ) - dist;
+
+				// if it doesn't cross the plane, the plane isn't relevent
+				if( d1 <= 0 && d2 <= 0 ) {
+					continue;
+				}
+
+				if( d1 > 0 ) {
+					startout = qtrue;
+				}
+
+				// if completely in front of face, no intersection with the entire brush
+				if( d1 > 0 && ( d2 >= SURFACE_CLIP_EPSILON || d2 >= d1 ) ) {
+					return qtrue;
+				}
+
+				// crosses face
+				if( d1 > d2 ) {	// enter
+					f = ( d1 - SURFACE_CLIP_EPSILON ) / ( d1 - d2 );
+					if( f < 0 ) {
+						f = 0;
+					}
+					if( f > enterFrac ) {
+						enterFrac = f;
+						leadside = side;
+					}
+				}
+				else {	// leave
+					f = ( d1 + SURFACE_CLIP_EPSILON ) / ( d1 - d2 );
+					if( f > 1 ) {
+						f = 1;
+					}
+					if( f < leaveFrac ) {
+						leaveFrac = f;
+					}
+				}
+			}
+		} else {
+			//
+			// compare the trace against all planes of the brush
+			// find the latest time the trace crosses a plane towards the interior
+			// and the earliest time the trace crosses a plane towards the exterior
+			//
+			for( i = 0; i < brush->numsides; i++ ) {
+				side = brush->sides + i;
+				plane = side->plane;
+
+				// adjust the plane distance apropriately for mins/maxs
+				dist = plane->dist - DotProduct( tw->offsets[ plane->signbits ], plane->normal );
+
+				d1 = DotProduct( tw->start, plane->normal ) - dist;
+				d2 = DotProduct( tw->end, plane->normal ) - dist;
+
+				// if it doesn't cross the plane, the plane isn't relevent
+				if( d1 <= 0 && d2 <= 0 ) {
+					continue;
+				}
+
+				if( d1 > 0 ) {
+					startout = qtrue;
+
+					// if completely in front of face, no intersection with the entire brush
+					if( d2 >= SURFACE_CLIP_EPSILON || d2 >= d1 ) {
+						return qtrue;
+					}
+				}
+
+				// crosses face
+				if( d1 > d2 ) { // enter
+					f = ( d1 - SURFACE_CLIP_EPSILON ) / ( d1 - d2 );
+					if( f < 0 ) {
+						f = 0;
+					}
+					if( f > enterFrac ) {
+						enterFrac = f;
+						leadside = side;
+					}
+				} else { // leave
+					f = ( d1 + SURFACE_CLIP_EPSILON ) / ( d1 - d2 );
+					if( f > 1 ) {
+						f = 1;
+					}
+					if( f < leaveFrac ) {
+						leaveFrac = f;
+					}
+				}
+			}
+		}
+
+		//
+		// all planes have been checked, and the trace was not
+		// completely outside the brush
+		//
+		if( !startout ) {	// original point was inside brush
+			return qfalse;
+		}
+
+		if( enterFrac <= leaveFrac ) {
+			if( enterFrac > -1 ) {
+				return qfalse;
+			}
+		}
+	} else {
+		leaveFrac2 = 1.0;
+		leadside2 = NULL;
+		//
+		// compare the trace against all planes of the brush
+		// find the latest time the trace crosses a plane towards the interior
+		// and the earliest time the trace crosses a plane towards the exterior
+		//
+		for( i = 0; i < brush->numsides; i++ ) {
+			side = brush->sides + i;
+			plane = side->plane;
+
+			// adjust the plane distance apropriately for mins/maxs
+			dist = plane->dist - DotProduct( tw->offsets[ plane->signbits ], plane->normal );
+
+			d1 = DotProduct( tw->start, plane->normal ) - dist;
+			d2 = DotProduct( tw->end, plane->normal ) - dist;
+
+			// if it doesn't cross the plane, the plane isn't relevent
+			if( d1 <= 0 && d2 <= 0 ) {
+				continue;
+			}
+
+			if( d1 > 0 ) {
+				// if completely in front of face, no intersection with the entire brush
+				if( d2 >= SURFACE_CLIP_EPSILON || d2 >= d1 ) {
+					return qtrue;
+				}
+			}
+
+			// crosses face
+			if( d1 > d2 ) {	// enter
+				f = ( d1 - SURFACE_CLIP_EPSILON ) / ( d1 - d2 );
+				if( f < 0 ) {
+					f = 0;
+				}
+				if( f > enterFrac ) {
+					enterFrac = f;
+					leadside = side;
+				}
+			} else {	// leave
+				f = ( d1 + SURFACE_CLIP_EPSILON ) / ( d1 - d2 );
+				if( f > 1 ) {
+					f = 1;
+				}
+				if( f < leaveFrac ) {
+					leaveFrac = f;
+					leadside2 = side;
+					leaveFrac2 = ( d1 - SURFACE_CLIP_EPSILON ) / ( d1 - d2 );
+				}
+			}
+		}
+
+		//
+		// all planes have been checked, and the trace was not
+		// completely outside the brush
+		//
+		if( enterFrac <= leaveFrac ) {
+			if( enterFrac > -1 && enterFrac < tw->trace.fraction ) {
+				if( enterFrac < 0 ) {
+					enterFrac = 0;
+				}
+
+				if( CM_TraceThroughFence( tw, brush, leadside, enterFrac ) ) {
+					return qfalse;
+				}
+			}
+		}
+
+		if( ( leaveFrac2 < 1.0 ) && ( leadside2->surfaceFlags & SURF_BACKSIDE ) ) {
+			if( leaveFrac2 < tw->trace.fraction ) {
+				if( CM_TraceThroughFence( tw, brush, leadside2, leaveFrac ) ) {
+					return qfalse;
+				}
+			}
+		}
+	}
+
 	return qtrue;
 }
 
