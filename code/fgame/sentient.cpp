@@ -2763,6 +2763,8 @@ void Sentient::DisbandSquadMate(Sentient *pExFriendly)
     Sentient *pPrev;
     Sentient *pNext;
 
+    AssertValidSquad();
+
     pPrev = pExFriendly->m_pPrevSquadMate;
     pNext = pExFriendly->m_pNextSquadMate;
 
@@ -2771,6 +2773,9 @@ void Sentient::DisbandSquadMate(Sentient *pExFriendly)
 
     pExFriendly->m_pPrevSquadMate = pExFriendly;
     pExFriendly->m_pNextSquadMate = pExFriendly;
+
+    AssertValidSquad();
+    pNext->AssertValidSquad();
 }
 
 bool Sentient::IsSquadMate(Sentient *pFriendly)
