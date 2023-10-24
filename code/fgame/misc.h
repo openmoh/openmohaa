@@ -321,12 +321,18 @@ class Waypoint : public SimpleArchivedEntity
 {
 public:
     CLASS_PROTOTYPE(Waypoint);
+
+public:
+    Waypoint();
 };
 
 class TempWaypoint : public SimpleArchivedEntity
 {
 public:
     CLASS_PROTOTYPE(TempWaypoint);
+
+public:
+    TempWaypoint();
 };
 
 class VehiclePoint : public Waypoint
@@ -335,6 +341,8 @@ public:
     unsigned int spawnflags;
 
     CLASS_PROTOTYPE(VehiclePoint);
+
+    VehiclePoint();
 
     void SetSpawnFlags(Event *ev);
     void Archive(Archiver& arc) override;

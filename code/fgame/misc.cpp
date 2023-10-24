@@ -1957,9 +1957,19 @@ CLASS_DECLARATION(SimpleArchivedEntity, Waypoint, "info_waypoint") {
     {NULL, NULL}
 };
 
+Waypoint::Waypoint()
+{
+    entflags |= EF_WAYPOINT;
+}
+
 CLASS_DECLARATION(SimpleArchivedEntity, TempWaypoint, NULL) {
     {NULL, NULL}
 };
+
+TempWaypoint::TempWaypoint()
+{
+    entflags |= EF_TEMPWAYPOINT;
+}
 
 /*****************************************************************************/
 /*QUAKED info_vehiclepoint (0.15 0.5 0.25) (-8 -8 -8) (8 8 8) START_STOPPING START_SKIDDING STOP_SKIDDING
@@ -1974,6 +1984,12 @@ CLASS_DECLARATION(Waypoint, VehiclePoint, "info_vehiclepoint") {
     {&EV_VehiclePoint_SetSpawnFlags, &VehiclePoint::SetSpawnFlags},
     {NULL,                           NULL                        }
 };
+
+VehiclePoint::VehiclePoint()
+{
+    entflags |= EF_VEHICLEPOINT;
+    spawnflags = 0;
+}
 
 void VehiclePoint::SetSpawnFlags(Event *ev)
 {
