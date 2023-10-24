@@ -85,6 +85,7 @@ public:
 
 typedef struct {
     byte      numBlockers;
+    byte      badPlaceTeam[2];
     short int node;
     short int fallheight;
     float     dist;

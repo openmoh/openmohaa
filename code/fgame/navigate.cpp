@@ -492,6 +492,10 @@ void PathNode::ArchiveStatic(Archiver& arc)
 
         if (arc.Loading()) {
             Child[i].numBlockers = 0;
+
+            for (int j = 0; j < ARRAY_LEN(Child[i].badPlaceTeam); j++) {
+                Child[i].badPlaceTeam[j] = 0;
+            }
         }
     }
 }
@@ -1086,6 +1090,7 @@ PathNode *PathSearch::DebugNearestStartNode(float *pos, Entity *ent)
     vec3_t    deltas[128];
     vec3_t    start;
     vec3_t    end;
+    int       node_count;
 
     cell = GetNodesInCell(pos);
 
@@ -1093,7 +1098,7 @@ PathNode *PathSearch::DebugNearestStartNode(float *pos, Entity *ent)
         return NULL;
     }
 
-    int node_count = NearestNodeSetup(pos, cell, nodes, deltas);
+    node_count = NearestNodeSetup(pos, cell, nodes, deltas);
 
     if (!node_count) {
         return NULL;
@@ -1108,13 +1113,16 @@ PathNode *PathSearch::DebugNearestStartNode(float *pos, Entity *ent)
         VectorCopy(start, end);
         VectorAdd(end, deltas[nodes[i]], end);
 
-        Vector vStart = start;
-        Vector vMins  = Vector(-15, -15, 0);
-        Vector vMaxs  = Vector(15, 15, 62);
-        Vector vEnd   = end;
-
         if (G_SightTrace(
-                vStart, vMins, vMaxs, vEnd, ent, NULL, MASK_TARGETPATH, qtrue, "PathSearch::DebugNearestStartNode"
+                start,
+                Vector(-15, -15, 0),
+                Vector(15, 15, 62),
+                end,
+                ent,
+                NULL,
+                MASK_TARGETPATH,
+                qtrue,
+                "PathSearch::DebugNearestStartNode"
             )) {
             return node;
         }
@@ -1132,6 +1140,7 @@ PathNode *PathSearch::NearestStartNode(float *pos, SimpleActor *ent)
     vec3_t    deltas[128];
     vec3_t    start;
     vec3_t    end;
+    int       node_count;
 
     cell = GetNodesInCell(pos);
 
@@ -1139,60 +1148,54 @@ PathNode *PathSearch::NearestStartNode(float *pos, SimpleActor *ent)
         return NULL;
     }
 
-    int node_count = NearestNodeSetup(pos, cell, nodes, deltas);
-    int n          = 0;
-    int j          = 0;
+    node_count = NearestNodeSetup(pos, cell, nodes, deltas);
 
     VectorCopy(pos, start);
     start[2] += 32.0f;
-
-    Vector vMins = Vector(-15, -15, 0);
-    Vector vMaxs = Vector(15, 15, 62);
 
     for (i = 0; i < node_count; i++) {
         node = pathnodes[cell->nodes[nodes[i]]];
 
         VectorAdd(start, deltas[nodes[i]], end);
 
-        Vector vStart = start;
-        Vector vEnd   = end;
-
         if (G_SightTrace(
-                vStart,
-                vMins,
-                vMaxs,
-                vEnd,
-                (gentity_t *)NULL,
-                (gentity_t *)NULL,
-                1107437825, //FIXME: macro
+                start,
+                Vector(-15, -15, 0),
+                Vector(15, 15, 62),
+                end,
+                ent,
+                NULL,
+                MASK_PATHSOLID,
                 qtrue,
                 "PathSearch::NearestStartNode 1"
             )) {
-            ent->m_NearestNode     = node;
-            ent->m_vNearestNodePos = end;
+            ent->m_NearestNode = node;
+            VectorCopy(end, ent->m_vNearestNodePos);
             return node;
         }
     }
 
-    if ((ent->m_NearestNode
-         && (G_SightTrace(
-             Vector(start),
-             vMins,
-             vMaxs,
-             ent->m_vNearestNodePos,
-             ent->edict,
-             (gentity_t *)NULL,
-             1073883393, //FIXME: macro
-             qtrue,
-             "PathSearch::NearestStartNode 2"
-         )))
-        || node_count <= 0) {
-        node = ent->m_NearestNode;
-    } else {
-        node = pathnodes[cell->nodes[nodes[0]]];
+    if (ent->m_NearestNode) {
+        if (G_SightTrace(
+                start,
+                Vector(-15, -15, 0),
+                Vector(15, 15, 62),
+                ent->m_vNearestNodePos,
+                ent,
+                NULL,
+                MASK_TARGETPATH,
+                qtrue,
+                "PathSearch::NearestStartNode 2"
+            )) {
+            return ent->m_NearestNode;
+        }
     }
 
-    return node;
+    if (node_count <= 0) {
+        return ent->m_NearestNode;
+    }
+
+    return pathnodes[cell->nodes[nodes[0]]];
 }
 
 PathNode *PathSearch::NearestEndNode(float *pos)
@@ -1204,6 +1207,7 @@ PathNode *PathSearch::NearestEndNode(float *pos)
     vec3_t    deltas[128];
     vec3_t    start;
     vec3_t    end;
+    int       node_count;
 
     cell = GetNodesInCell(pos);
 
@@ -1211,9 +1215,7 @@ PathNode *PathSearch::NearestEndNode(float *pos)
         return NULL;
     }
 
-    int node_count = NearestNodeSetup(pos, cell, nodes, deltas);
-    int n          = 0;
-    int j          = 0;
+    node_count = NearestNodeSetup(pos, cell, nodes, deltas);
 
     if (!node_count) {
         return NULL;
@@ -1227,18 +1229,13 @@ PathNode *PathSearch::NearestEndNode(float *pos)
 
         VectorAdd(start, deltas[nodes[i]], end);
 
-        Vector vStart = start;
-        Vector vMins  = Vector(-15, -15, 0);
-        Vector vMaxs  = Vector(15, 15, 62);
-        Vector vEnd   = end;
-
         if (G_SightTrace(
-                vStart,
-                vMins,
-                vMaxs,
-                vEnd,
-                (gentity_t *)NULL,
-                (gentity_t *)NULL,
+                start,
+                Vector(-15, -15, 0),
+                Vector(15, 15, 62),
+                end,
+                (Entity *)nullptr,
+                (Entity *)nullptr,
                 MASK_TARGETPATH,
                 qtrue,
                 "PathSearch::NearestEndNode"
@@ -1816,7 +1813,7 @@ void PathSearch::ResetNodes(void)
     int i;
     int x;
     int y;
-    
+
     m_bNodesloaded = false;
     m_LoadIndex    = -1;
 
@@ -1872,8 +1869,8 @@ void PathSearch::UpdatePathwaysForBadPlace(const Vector& origin, float radius, i
             pathway_t& pathway = node->Child[j - 1];
             if (PointToSegmentDistanceSquared(origin, pathway.pos1, pathway.pos2) < radiusSqr) {
                 for (k = 0; k < 2; k++) {
-                    if ((1 << i) & team) {
-                        pathway.numBlockers += dir;
+                    if ((1 << k) & team) {
+                        pathway.badPlaceTeam[k] += dir;
                     }
                 }
             }
@@ -2122,10 +2119,10 @@ int PathSearch::FindPath(
         return 0;
     }
 
-    total_dist = 1e+12;
+    total_dist = 1e+12f;
 
     if (!maxPath) {
-        maxPath = 1e+12;
+        maxPath = 1e+12f;
     }
 
     findFrame++;
@@ -2135,8 +2132,8 @@ int PathSearch::FindPath(
     Node->g = VectorNormalize2D(path_startdir);
 
     VectorSub2D(end, start, path_totaldir);
-    Node->h         = VectorNormalize2D(path_totaldir);
-    
+    Node->h = VectorNormalize2D(path_totaldir);
+
     Node->Parent    = NULL;
     Node->m_Depth   = 3;
     Node->findCount = findFrame;
@@ -2150,7 +2147,7 @@ int PathSearch::FindPath(
     while (open) {
         Node         = open;
         Node->inopen = false;
-        open = Node->NextNode;
+        open         = Node->NextNode;
 
         if (open) {
             open->PrevNode = NULL;
@@ -2158,7 +2155,7 @@ int PathSearch::FindPath(
 
         if (Node == to) {
             path_start = start;
-            path_end = end;
+            path_end   = end;
             return Node->m_Depth;
         }
 
@@ -2185,8 +2182,8 @@ int PathSearch::FindPath(
 
                 if (NewNode->inopen) {
                     NewNode->inopen = false;
-                    next = NewNode->NextNode;
-                    prev = NewNode->PrevNode;
+                    next            = NewNode->NextNode;
+                    prev            = NewNode->PrevNode;
 
                     if (next) {
                         next->PrevNode = prev;
@@ -2194,8 +2191,7 @@ int PathSearch::FindPath(
 
                     if (prev) {
                         prev->NextNode = next;
-                    }
-                    else {
+                    } else {
                         open = next;
                     }
                 }
@@ -2212,19 +2208,19 @@ int PathSearch::FindPath(
             }
 
             if (pathway->fallheight <= fallheight) {
-                NewNode->m_Depth = Node->m_Depth + 1;
-                NewNode->Parent = Node;
-                NewNode->pathway = i;
-                NewNode->g = (float)g;
-                NewNode->f = (float)f;
+                NewNode->m_Depth   = Node->m_Depth + 1;
+                NewNode->Parent    = Node;
+                NewNode->pathway   = i;
+                NewNode->g         = (float)g;
+                NewNode->f         = (float)f;
                 NewNode->m_PathPos = pathway->pos2;
                 NewNode->findCount = findFrame;
-                NewNode->inopen = 1;
+                NewNode->inopen    = 1;
 
                 if (!open) {
                     NewNode->NextNode = NULL;
                     NewNode->PrevNode = NULL;
-                    open = NewNode;
+                    open              = NewNode;
                     continue;
                 }
 
@@ -2233,7 +2229,7 @@ int PathSearch::FindPath(
                     NewNode->PrevNode = NULL;
 
                     open->PrevNode = NewNode;
-                    open = NewNode;
+                    open           = NewNode;
                     continue;
                 }
 
@@ -2249,7 +2245,7 @@ int PathSearch::FindPath(
                 if (next) {
                     next->PrevNode = NewNode;
                 }
-                prev->NextNode = NewNode;
+                prev->NextNode    = NewNode;
                 NewNode->PrevNode = prev;
             }
         }
@@ -2623,12 +2619,12 @@ int node_compare(const void *pe1, const void *pe2)
 
 PathNode *PathSearch::FindCornerNodeForWall(float *start, float *end, SimpleActor *ent, float maxPath, float *plane)
 {
-    int i, g;
-    PathNode* NewNode;
-    pathway_t* pathway;
-    PathNode* prev, * next;
-    int f;
-    vec2_t delta;
+    int        i, g;
+    PathNode  *NewNode;
+    pathway_t *pathway;
+    PathNode  *prev, *next;
+    int        f;
+    vec2_t     delta;
 
     Node = NearestStartNode(start, ent);
     if (!Node) {
@@ -2671,7 +2667,7 @@ PathNode *PathSearch::FindCornerNodeForWall(float *start, float *end, SimpleActo
     Node->PrevNode  = 0;
     Node->NextNode  = 0;
 
-    open     = Node;
+    open = Node;
 
     if (!open) {
         last_error = "unreachable path";
@@ -2679,9 +2675,9 @@ PathNode *PathSearch::FindCornerNodeForWall(float *start, float *end, SimpleActo
     }
 
     while (true) {
-        Node = open;
+        Node         = open;
         Node->inopen = false;
-        open = Node->NextNode;
+        open         = Node->NextNode;
 
         if (open) {
             open->PrevNode = NULL;
@@ -2710,7 +2706,7 @@ PathNode *PathSearch::FindCornerNodeForWall(float *start, float *end, SimpleActo
     while (true) {
         pathway = &Node->Child[--i];
         NewNode = PathSearch::pathnodes[pathway->node];
-        g = (pathway->dist + Node->g + 1.0);
+        g       = (pathway->dist + Node->g + 1.0);
 
         if (NewNode->findCount == PathSearch::findFrame) {
             if (g >= NewNode->g) {
@@ -2743,7 +2739,7 @@ PathNode *PathSearch::FindCornerNodeForWall(float *start, float *end, SimpleActo
         if (f >= maxPath) {
             break;
         }
-        
+
         NewNode->m_Depth   = Node->m_Depth + 1;
         NewNode->Parent    = Node;
         NewNode->pathway   = i;
@@ -2756,7 +2752,7 @@ PathNode *PathSearch::FindCornerNodeForWall(float *start, float *end, SimpleActo
         if (!PathSearch::open) {
             NewNode->NextNode = NULL;
             NewNode->PrevNode = NULL;
-            PathSearch::open    = NewNode;
+            PathSearch::open  = NewNode;
             if (i == 0) {
                 goto weird_lbl;
             }
@@ -2765,10 +2761,10 @@ PathNode *PathSearch::FindCornerNodeForWall(float *start, float *end, SimpleActo
         }
 
         if (f <= open->f) {
-            NewNode->NextNode        = PathSearch::open;
-            NewNode->PrevNode        = NULL;
-            open->PrevNode = NewNode;
-            open           = NewNode;
+            NewNode->NextNode = PathSearch::open;
+            NewNode->PrevNode = NULL;
+            open->PrevNode    = NewNode;
+            open              = NewNode;
             if (i == 0) {
                 goto weird_lbl;
             }
@@ -2778,7 +2774,7 @@ PathNode *PathSearch::FindCornerNodeForWall(float *start, float *end, SimpleActo
 
         prev = open;
 
-        PathNode* pNextOpenNode;
+        PathNode *pNextOpenNode;
         for (pNextOpenNode = open->NextNode; pNextOpenNode; pNextOpenNode = pNextOpenNode->NextNode) {
             if (pNextOpenNode->f >= f) {
                 break;
@@ -2793,7 +2789,7 @@ PathNode *PathSearch::FindCornerNodeForWall(float *start, float *end, SimpleActo
             pNextOpenNode->PrevNode = NewNode;
         }
 
-        prev->NextNode = NewNode;
+        prev->NextNode    = NewNode;
         NewNode->PrevNode = prev;
 
         if (i == 0) {
@@ -2870,13 +2866,13 @@ int PathSearch::FindPotentialCover(
     SimpleActor *pEnt, Vector& vPos, Entity *pEnemy, PathNode **ppFoundNodes, int iMaxFind
 )
 {
-    nodeinfo nodes[MAX_PATHNODES];
-    int nNodes = 0;
-    int i;
-    Vector delta;
-    PathNode* node;
+    nodeinfo  nodes[MAX_PATHNODES];
+    int       nNodes = 0;
+    int       i;
+    Vector    delta;
+    PathNode *node;
 
-    Actor* pActor = static_cast<Actor*>(pEnt);
+    Actor *pActor = static_cast<Actor *>(pEnt);
 
     for (i = 0; i < nodecount; i++) {
         node = pathnodes[i];
@@ -2888,7 +2884,7 @@ int PathSearch::FindPotentialCover(
             continue;
         }
 
-        if (node->IsClaimedByOther(static_cast<Entity*>(pEnt))) {
+        if (node->IsClaimedByOther(static_cast<Entity *>(pEnt))) {
             continue;
         }
 
@@ -2903,8 +2899,8 @@ int PathSearch::FindPotentialCover(
             continue;
         }
 
-        delta = node->origin - pEnt->origin;
-        nodes[nNodes].pNode = node;
+        delta                      = node->origin - pEnt->origin;
+        nodes[nNodes].pNode        = node;
         nodes[nNodes].fDistSquared = delta.lengthSquared();
         nNodes++;
     }
@@ -3038,7 +3034,7 @@ int PathSearch::NearestNodeSetup(vec3_t pos, MapCell *cell, int *nodes, vec3_t *
             continue;
         }
 
-        if (node->origin[2] > pos[2] + 94.0f) {
+        if (pos[2] + 94.0f < node->origin[2]) {
             continue;
         }
 
