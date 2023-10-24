@@ -708,11 +708,15 @@ void ScriptMaster::ExecuteRunning(void)
         cmdCount  = 0;
         startTime = level.svsTime;
 
-        while ((m_CurrentThread = (ScriptThread *)timerList.GetNextElement(i))) {
-            level.setTime(level.svsStartTime + i);
+        try {
+            while ((m_CurrentThread = (ScriptThread *)timerList.GetNextElement(i))) {
+                level.setTime(level.svsStartTime + i);
 
-            m_CurrentThread->m_ScriptVM->m_ThreadState = THREAD_RUNNING;
-            m_CurrentThread->m_ScriptVM->Execute();
+                m_CurrentThread->m_ScriptVM->m_ThreadState = THREAD_RUNNING;
+                m_CurrentThread->m_ScriptVM->Execute();
+            }
+        } catch (const ScriptException& e) {
+            gi.Error(ERR_DROP, "%s", e.string.c_str());
         }
 
         level.setTime(startTime);
@@ -1152,9 +1156,9 @@ void ScriptMaster::PrintThread(int iThreadNum)
     if (!vm->m_Thread->m_WaitForList) {
         status += "(none)\n";
     } else {
-        con_set_enum<const_str, ConList> en = *vm->m_Thread->m_WaitForList;
+        con_set_enum<const_str, ConList>    en = *vm->m_Thread->m_WaitForList;
         con_set<const_str, ConList>::Entry *entry;
-        int                              i = 0;
+        int                                 i = 0;
 
         for (entry = en.NextElement(); entry != NULL; entry = en.NextElement()) {
             str& name = Director.GetString(entry->key);
