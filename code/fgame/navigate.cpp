@@ -1100,10 +1100,6 @@ PathNode *PathSearch::DebugNearestStartNode(float *pos, Entity *ent)
 
     node_count = NearestNodeSetup(pos, cell, nodes, deltas);
 
-    if (!node_count) {
-        return NULL;
-    }
-
     VectorCopy(pos, start);
     start[2] += 32.0f;
 
@@ -1128,7 +1124,11 @@ PathNode *PathSearch::DebugNearestStartNode(float *pos, Entity *ent)
         }
     }
 
-    return pathnodes[cell->nodes[nodes[0]]];
+    if (node_count > 0) {
+        return pathnodes[cell->nodes[nodes[0]]];
+    }
+
+    return NULL;
 }
 
 PathNode *PathSearch::NearestStartNode(float *pos, SimpleActor *ent)
@@ -1191,11 +1191,11 @@ PathNode *PathSearch::NearestStartNode(float *pos, SimpleActor *ent)
         }
     }
 
-    if (node_count <= 0) {
-        return ent->m_NearestNode;
+    if (node_count > 0) {
+        return pathnodes[cell->nodes[nodes[0]]];
     }
 
-    return pathnodes[cell->nodes[nodes[0]]];
+    return ent->m_NearestNode;
 }
 
 PathNode *PathSearch::NearestEndNode(float *pos)
@@ -1216,10 +1216,6 @@ PathNode *PathSearch::NearestEndNode(float *pos)
     }
 
     node_count = NearestNodeSetup(pos, cell, nodes, deltas);
-
-    if (!node_count) {
-        return NULL;
-    }
 
     VectorCopy(pos, start);
     start[2] += 32.0f;
