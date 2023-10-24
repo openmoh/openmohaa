@@ -7869,8 +7869,7 @@ void Actor::EndState(int level)
 {
     GlobalFuncs_t *think;
 
-    m_Think[m_ThinkLevel] = m_ThinkMap[m_ThinkState];
-    think                 = &GlobalFuncs[m_Think[m_ThinkLevel]];
+    think                 = &GlobalFuncs[m_Think[level]];
     m_Think[level]        = THINK_VOID;
 
     if (think->EndState) {
