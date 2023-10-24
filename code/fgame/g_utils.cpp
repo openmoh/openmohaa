@@ -335,7 +335,7 @@ bool G_SightTrace(
         entnum2 = ent2->s.number;
     }
 
-    result = gi.SightTrace(start, mins, maxs, end, entnum, entnum2, contentmask, cylinder) ? true : false;
+    result = gi.SightTrace(start, mins, maxs, end, entnum, entnum2, contentmask, cylinder);
 
     if (sv_traceinfo->integer > 1) {
         G_ShowSightTrace(ent, ent2, reason);
@@ -347,7 +347,7 @@ bool G_SightTrace(
         G_DebugLine(start, end, 1, 1, 0, 1);
     }
 
-    return result;
+    return result == true;
 }
 
 void G_PMDrawTrace(
