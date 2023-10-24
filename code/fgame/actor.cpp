@@ -6651,7 +6651,7 @@ void Actor::EventSetMotionAnim(Event *ev)
 
         // start the animation
         m_bMotionAnimSet = true;
-        StartMotionAnimSlot(0, anim, 1.0);
+        StartMotionAnimSlot(0, anim, 2.0);
         // set the slot
         m_iMotionSlot = GetMotionSlot(0);
 
@@ -7024,7 +7024,6 @@ void Actor::ChangeAnim(void)
     switch (m_ThinkState) {
     case THINKSTATE_PAIN:
     case THINKSTATE_KILLED:
-    case THINKSTATE_ATTACK:
         if (m_bMotionAnimSet) {
             AnimFinished(m_iMotionSlot, true);
         }
@@ -7035,6 +7034,7 @@ void Actor::ChangeAnim(void)
             AnimFinished(m_iSaySlot, true);
         }
         break;
+    case THINKSTATE_ATTACK:
     case THINKSTATE_GRENADE:
         if (m_bMotionAnimSet) {
             AnimFinished(m_iMotionSlot, true);
