@@ -36,15 +36,19 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //#define	LOCALSTACK_SIZE		255		// pre-allocated localstack size for each VM
 #define MAX_SCRIPTCYCLES 9999 // max cmds
 
-#define STATE_RUNNING    0 // Running
-#define STATE_SUSPENDED  1 // Suspended
-#define STATE_WAITING    2 // Waiting for something
-#define STATE_EXECUTION  3 // Resume to execution
-#define STATE_DESTROYED  4 // Pending deletion
+enum eVMState {
+    STATE_RUNNING, // Running
+    STATE_SUSPENDED, // Suspended
+    STATE_WAITING, // Waiting for something
+    STATE_EXECUTION, // Resume to execution
+    STATE_DESTROYED // Pending deletion
+};
 
-#define THREAD_RUNNING   0 // Running
-#define THREAD_WAITING   1 // Waiting
-#define THREAD_SUSPENDED 2 // Suspended
+enum eThreadState {
+    THREAD_RUNNING,
+    THREAD_WAITING,
+    THREAD_SUSPENDED
+};
 
 class ScriptException;
 class ScriptThread;

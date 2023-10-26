@@ -2265,17 +2265,27 @@ ScriptThread::ScriptThread(ScriptClass *scriptClass, unsigned char *pCodePos)
     m_ScriptVM = new ScriptVM(scriptClass, pCodePos, this);
 
     m_ScriptVM->m_ThreadState = THREAD_RUNNING;
+
+    if (g_scripttrace->integer && CanScriptTracePrint()) {
+        gi.DPrintf2("+++Constructor THREAD: %p %p\n", this, scriptClass);
+    }
 }
 
 ScriptThread::~ScriptThread()
 {
-    ScriptVM *vm = m_ScriptVM;
-    assert(vm);
-    if (!vm) {
+    ScriptVM* vm;
+
+    if (g_scripttrace->integer && CanScriptTracePrint()) {
+        gi.DPrintf2("---Destructor THREAD: %p\n\n", this);
+    }
+
+    assert(m_ScriptVM);
+    if (!m_ScriptVM) {
         // should never happen
         throw ScriptException("Attempting to delete a dead thread.");
     }
 
+    vm = m_ScriptVM;
     m_ScriptVM = NULL;
     if (vm->ThreadState() == THREAD_WAITING) {
         vm->m_ThreadState = THREAD_RUNNING;

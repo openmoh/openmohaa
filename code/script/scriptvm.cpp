@@ -271,6 +271,10 @@ ScriptVM::ScriptVM(ScriptClass *scriptClass, unsigned char *pCodePos, ScriptThre
     m_StackPos   = NULL;
 
     m_ScriptClass->AddThread(this);
+
+    if (g_scripttrace->integer && CanScriptTracePrint()) {
+        gi.DPrintf2("+++THREAD: %p %p\n", this, m_ScriptClass);
+    }
 }
 
 /*
@@ -1798,6 +1802,10 @@ NotifyDelete
 */
 void ScriptVM::NotifyDelete(void)
 {
+    if (g_scripttrace->integer && CanScriptTracePrint()) {
+        gi.DPrintf2("---THREAD: %p\n\n", this);
+    }
+
     switch (state) {
     case STATE_DESTROYED:
         ScriptError("Attempting to delete a dead thread.");
