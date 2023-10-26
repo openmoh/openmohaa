@@ -1807,10 +1807,6 @@ void ScriptVM::NotifyDelete(void)
     }
 
     switch (state) {
-    case STATE_DESTROYED:
-        ScriptError("Attempting to delete a dead thread.");
-        break;
-
     case STATE_RUNNING:
     case STATE_SUSPENDED:
     case STATE_WAITING:
@@ -1831,6 +1827,16 @@ void ScriptVM::NotifyDelete(void)
 
         delete this;
 
+        break;
+
+    case STATE_DESTROYED:
+        ScriptError("Attempting to delete a dead thread.");
+
+        state = STATE_DESTROYED;
+
+        if (m_ScriptClass) {
+            m_ScriptClass->RemoveThread(this);
+        }
         break;
     }
 }
