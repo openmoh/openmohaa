@@ -4053,10 +4053,11 @@ ScriptThread *Listener::CreateScriptInternal(const ScriptVariable& label)
 
     if (label.GetType() == VARIABLE_STRING || label.GetType() == VARIABLE_CONSTSTRING) {
         if (label.GetType() == VARIABLE_CONSTSTRING) {
-            thread = Director.CreateScriptThread(Director.GetGameScript(label.stringValue()), this, "");
+            scr = Director.GetGameScript(label.constStringValue());
         } else {
-            thread = Director.CreateScriptThread(Director.GetGameScript(label.constStringValue()), this, "");
+            scr = Director.GetGameScript(label.stringValue());
         }
+        thread = Director.CreateScriptThread(scr, this, "");
     } else if (label.GetType() == VARIABLE_CONSTARRAY && label.arraysize() > 1) {
         ScriptVariable *script    = label[1];
         ScriptVariable *labelname = label[2];
@@ -4088,10 +4089,11 @@ ScriptThread *Listener::CreateThreadInternal(const ScriptVariable& label)
 {
     GameScript   *scr;
     ScriptThread *thread = NULL;
+    ScriptClass* scriptClass;
 
     if (label.GetType() == VARIABLE_STRING || label.GetType() == VARIABLE_CONSTSTRING) {
-        ScriptClass *scriptClass = Director.CurrentScriptClass();
-        scr                      = scriptClass->GetScript();
+        scriptClass = Director.CurrentScriptClass();
+        scr = scriptClass->GetScript();
 
         if (label.GetType() == VARIABLE_CONSTSTRING) {
             thread = Director.CreateScriptThread(scr, this, label.constStringValue());
@@ -4114,7 +4116,7 @@ ScriptThread *Listener::CreateThreadInternal(const ScriptVariable& label)
             thread = Director.CreateScriptThread(scr, this, labelname->stringValue());
         }
     } else {
-        ScriptError("ScriptClass::CreateThreadInternal: bad argument format");
+        ScriptError("Listener::CreateThreadInternal: bad argument format");
     }
 
     return thread;
