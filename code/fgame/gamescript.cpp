@@ -815,12 +815,30 @@ ScriptThreadLabel::ScriptThreadLabel()
 
 ScriptThread *ScriptThreadLabel::Create(Listener *listener)
 {
+    ScriptClass  *scriptClass;
+    ScriptThread *thread;
+
     if (!m_Script) {
         return NULL;
     }
 
-    ScriptClass  *scriptClass = new ScriptClass(m_Script, listener);
-    ScriptThread *thread      = new ScriptThread(scriptClass, m_Script->m_State.FindLabel(m_Label));
+    scriptClass = NULL;
+    thread      = NULL;
+
+    try {
+        scriptClass = new ScriptClass(m_Script, listener);
+        thread      = new ScriptThread(scriptClass, m_Script->m_State.FindLabel(m_Label));
+    } catch (...) {
+        if (scriptClass) {
+            delete scriptClass;
+        }
+
+        if (thread) {
+            delete thread;
+        }
+
+        throw;
+    }
 
     return thread;
 }

@@ -22,8 +22,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // gamescript.h: Subclass of script that preprocesses labels
 
-#ifndef __GAMESCRIPT_H__
-#define __GAMESCRIPT_H__
+#pragma once
 
 #include "class.h"
 #include "script.h"
@@ -191,5 +190,3 @@ inline bool operator==(const ScriptThreadLabel& a, const ScriptThreadLabel& b)
 {
     return a.m_Label == b.m_Label && a.m_Script == b.m_Script;
 }
-
-#endif
