@@ -792,8 +792,8 @@ void Animate::Pause(int slot, int pause)
     if (pause) {
         animFlags[slot] |= ANIM_PAUSED;
     } else {
-        if ((animFlags[slot] & ANIM_PAUSED)) {
-            if ((animFlags[slot] & ANIM_SYNC)) {
+        if (animFlags[slot] & ANIM_PAUSED) {
+            if (animFlags[slot] & ANIM_SYNC) {
                 SlotChanged(animFlags[slot]);
             }
 
@@ -805,14 +805,14 @@ void Animate::Pause(int slot, int pause)
 void Animate::UseSyncTime(int slot, int sync)
 {
     if (sync) {
-        if (animFlags[slot] & ANIM_SYNC) {
-            return;
+        if (!(animFlags[slot] & ANIM_SYNC)) {
+            animFlags[slot] |= ANIM_SYNC;
+            SlotChanged(slot);
         }
-
-        animFlags[slot] = (animFlags[slot] | (ANIM_SYNC | ANIM_NODELTA)) & ~ANIM_FINISHED;
     } else {
         if (animFlags[slot] & ANIM_SYNC) {
-            animFlags[slot] = (animFlags[slot] | ANIM_NODELTA) & ~(ANIM_FINISHED | ANIM_SYNC);
+            animFlags[slot] &= ~ANIM_SYNC;
+            SlotChanged(slot);
         }
     }
 }
