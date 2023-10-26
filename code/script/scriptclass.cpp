@@ -160,13 +160,10 @@ ScriptThread *ScriptClass::CreateThreadInternal(const ScriptVariable& label)
     ScriptThread *thread = NULL;
 
     if (label.GetType() == VARIABLE_STRING || label.GetType() == VARIABLE_CONSTSTRING) {
-        ScriptClass *scriptClass = Director.CurrentScriptClass();
-        scr                      = scriptClass->GetScript();
-
         if (label.GetType() == VARIABLE_CONSTSTRING) {
-            thread = Director.CreateScriptThread(scr, m_Self, label.constStringValue());
+            thread = Director.CreateScriptThread(this, label.constStringValue());
         } else {
-            thread = Director.CreateScriptThread(scr, m_Self, label.stringValue());
+            thread = Director.CreateScriptThread(this, label.stringValue());
         }
     } else if (label.GetType() == VARIABLE_CONSTARRAY && label.arraysize() > 1) {
         ScriptVariable *script    = label[1];
@@ -179,9 +176,9 @@ ScriptThread *ScriptClass::CreateThreadInternal(const ScriptVariable& label)
         }
 
         if (labelname->GetType() == VARIABLE_CONSTSTRING) {
-            thread = Director.CreateScriptThread(scr, m_Self, labelname->constStringValue());
+            thread = Director.CreateScriptThread(scr, GetSelf(), labelname->constStringValue());
         } else {
-            thread = Director.CreateScriptThread(scr, m_Self, labelname->stringValue());
+            thread = Director.CreateScriptThread(scr, GetSelf(), labelname->stringValue());
         }
     } else {
         ScriptError("ScriptClass::CreateThreadInternal: bad argument format");
@@ -202,10 +199,11 @@ ScriptThread *ScriptClass::CreateScriptInternal(const ScriptVariable& label)
 
     if (label.GetType() == VARIABLE_STRING || label.GetType() == VARIABLE_CONSTSTRING) {
         if (label.GetType() == VARIABLE_CONSTSTRING) {
-            thread = Director.CreateScriptThread(Director.GetGameScript(label.stringValue()), m_Self, "");
+            scr = Director.GetGameScript(label.constStringValue());
         } else {
-            thread = Director.CreateScriptThread(Director.GetGameScript(label.constStringValue()), m_Self, "");
+            scr = Director.GetGameScript(label.stringValue());
         }
+        thread = Director.CreateScriptThread(scr, GetSelf(), "");
     } else if (label.GetType() == VARIABLE_CONSTARRAY && label.arraysize() > 1) {
         ScriptVariable *script    = label[1];
         ScriptVariable *labelname = label[2];
@@ -217,9 +215,9 @@ ScriptThread *ScriptClass::CreateScriptInternal(const ScriptVariable& label)
         }
 
         if (labelname->GetType() == VARIABLE_CONSTSTRING) {
-            thread = Director.CreateScriptThread(scr, m_Self, labelname->constStringValue());
+            thread = Director.CreateScriptThread(scr, GetSelf(), labelname->constStringValue());
         } else {
-            thread = Director.CreateScriptThread(scr, m_Self, labelname->stringValue());
+            thread = Director.CreateScriptThread(scr, GetSelf(), labelname->stringValue());
         }
     } else {
         ScriptError("ScriptClass::CreateScriptInternal: bad label type '%s'", label.GetTypeName());
@@ -246,22 +244,22 @@ KillThreads
 */
 void ScriptClass::KillThreads()
 {
+    ScriptVM *thread;
+    ScriptVM *next;
+
     if (!m_Threads) {
         return;
     }
 
-    ScriptVM *m_current;
-    ScriptVM *m_next;
+    for (thread = m_Threads; thread; thread = next) {
+        if (g_scripttrace->integer && thread->CanScriptTracePrint()) {
+            gi.DPrintf2("---KILLTHREADS THREAD: %p\n", thread);
+        }
 
-    m_current = m_Threads;
-
-    do {
-        m_current->m_ScriptClass = NULL;
-
-        m_next = m_current->next;
-        delete m_current->m_Thread;
-
-    } while ((m_current = m_next) != nullptr);
+        thread->m_ScriptClass = NULL;
+        next                  = thread->next;
+        delete thread->m_Thread;
+    }
 
     m_Threads = NULL;
 }
