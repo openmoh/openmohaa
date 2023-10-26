@@ -231,10 +231,10 @@ ScriptThread *ScriptClass::CreateScriptInternal(const ScriptVariable& label)
 AddThread
 ====================
 */
-void ScriptClass::AddThread(ScriptVM *m_ScriptVM)
+void ScriptClass::AddThread(ScriptVM *thread)
 {
-    m_ScriptVM->next = m_Threads;
-    m_Threads        = m_ScriptVM;
+    thread->next = m_Threads;
+    m_Threads    = thread;
 }
 
 /*
@@ -269,23 +269,24 @@ void ScriptClass::KillThreads()
 RemoveThread
 ====================
 */
-void ScriptClass::RemoveThread(ScriptVM *m_ScriptVM)
+void ScriptClass::RemoveThread(ScriptVM *thread)
 {
-    if (m_Threads == m_ScriptVM) {
-        m_Threads = m_ScriptVM->next;
+    ScriptVM *current;
+    ScriptVM *next;
 
-        if (m_Threads == NULL) {
+    if (m_Threads == thread) {
+        m_Threads = thread->next;
+
+        if (!m_Threads) {
             delete this;
         }
     } else {
-        ScriptVM *m_current = m_Threads;
-        ScriptVM *i;
-
-        for (i = m_Threads->next; i != m_ScriptVM; i = i->next) {
-            m_current = i;
+        next = m_Threads;
+        for (current = m_Threads->next; current != thread; current = current->next) {
+            next = current;
         }
 
-        m_current->next = i->next;
+        next->next = current->next;
     }
 }
 
