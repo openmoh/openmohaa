@@ -64,9 +64,9 @@ public:
     ScriptThread *CreateThreadInternal(const ScriptVariable& label) override;
     ScriptThread *CreateScriptInternal(const ScriptVariable& label) override;
 
-    void AddThread(ScriptVM *m_ScriptVM);
+    void AddThread(ScriptVM *thread);
     void KillThreads(void);
-    void RemoveThread(ScriptVM *m_ScriptVM);
+    void RemoveThread(ScriptVM *thread);
 
     str            Filename();
     unsigned char *FindLabel(str label);
