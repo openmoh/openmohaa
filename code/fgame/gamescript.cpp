@@ -84,6 +84,17 @@ bool AbstractScript::GetSourceAt(size_t sourcePos, str *sourceLine, int& column,
     return true;
 }
 
+bool AbstractScript::GetSourceAt(const unsigned char *sourcePos, str *sourceLine, int& column, int& line)
+{
+    const sourceinfo_t *codePos = m_ProgToSource->findKeyValue(sourcePos);
+
+    if (!codePos) {
+        return false;
+    }
+
+    return GetSourceAt(codePos->sourcePos, sourceLine, column, line);
+}
+
 void AbstractScript::PrintSourcePos(sourceinfo_t *sourcePos, bool dev)
 {
     int line;

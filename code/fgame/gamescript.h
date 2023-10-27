@@ -54,7 +54,7 @@ public:
     size_t    m_SourceLength;
 
     // Developper variable
-    con_set<uchar *, sourceinfo_t> *m_ProgToSource;
+    con_set<const uchar *, sourceinfo_t> *m_ProgToSource;
 
 public:
     AbstractScript();
@@ -62,6 +62,7 @@ public:
     str     & Filename(void);
     const_str ConstFilename(void);
     bool      GetSourceAt(size_t sourcePos, str *sourceLine, int     &column, int     &line);
+    bool      GetSourceAt(const unsigned char *sourcePos, str *sourceLine, int     &column, int     &line);
     void      PrintSourcePos(sourceinfo_t *sourcePos, bool dev);
     void      PrintSourcePos(size_t sourcePos, bool dev);
     void      PrintSourcePos(unsigned char *m_pCodePos, bool dev);
