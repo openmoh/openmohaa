@@ -91,6 +91,8 @@ public:
     str(const int num);
     str(const float num);
     str(const unsigned num);
+    str(const int64_t num);
+    str(const uint64_t num);
 
     size_t      length(void) const;
     const char *c_str(void) const;
@@ -316,6 +318,32 @@ inline str::str(const unsigned num)
     size_t len;
 
     sprintf(text, "%u", num);
+    len = strlen(text);
+    EnsureAlloced(len + 1);
+    strcpy(m_data->data, text);
+    m_data->len = len;
+}
+
+inline str::str(const int64_t num)
+    : m_data(NULL)
+{
+    char   text[64];
+    size_t len;
+
+    sprintf(text, "%lld", num);
+    len = strlen(text);
+    EnsureAlloced(len + 1);
+    strcpy(m_data->data, text);
+    m_data->len = len;
+}
+
+inline str::str(const uint64_t num)
+    : m_data(NULL)
+{
+    char   text[64];
+    size_t len;
+
+    sprintf(text, "%llu", num);
     len = strlen(text);
     EnsureAlloced(len + 1);
     strcpy(m_data->data, text);
