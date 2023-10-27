@@ -82,7 +82,8 @@ CLASS_DECLARATION(Class, ScriptEvent, NULL) {
 //
 // world stuff
 //
-Event EV_SetTiki(
+Event EV_SetTiki
+(
     "settiki",
     EV_DEFAULT,
     NULL,
@@ -698,32 +699,54 @@ void ScriptMaster::ExecuteRunning(void)
 {
     int i;
     int startTime;
+    int startMs;
+    str fileName;
+    str sourcePosString;
 
     if (stackCount) {
         return;
     }
 
-    if (timerList.IsDirty()) {
-        cmdTime   = 0;
-        cmdCount  = 0;
-        startTime = level.svsTime;
-
-        try {
-            while ((m_CurrentThread = (ScriptThread *)timerList.GetNextElement(i))) {
-                level.setTime(level.svsStartTime + i);
-
-                m_CurrentThread->m_ScriptVM->m_ThreadState = THREAD_RUNNING;
-                m_CurrentThread->m_ScriptVM->Execute();
-            }
-        } catch (const ScriptException& e) {
-            gi.Error(ERR_DROP, "%s", e.string.c_str());
-        }
-
-        level.setTime(startTime);
-        level.m_LoopProtection = true;
+    if (!timerList.IsDirty()) {
+        return;
     }
 
-    startTime = gi.Milliseconds();
+    cmdTime   = 0;
+    cmdCount  = 0;
+    startTime = level.svsTime;
+
+    try {
+        while ((m_CurrentThread = (ScriptThread *)timerList.GetNextElement(i))) {
+            if (g_timescripts->integer) {
+                fileName        = m_CurrentThread->FileName();
+                sourcePosString = m_CurrentThread->m_ScriptVM->GetSourcePos();
+                startMs         = gi.Milliseconds();
+            }
+
+            level.setTime(level.svsStartTime + i);
+
+            m_CurrentThread->m_ScriptVM->m_ThreadState = THREAD_RUNNING;
+            m_CurrentThread->m_ScriptVM->Execute();
+
+            if (g_timescripts->integer) {
+                str string;
+
+                string = "Execute Running: ";
+                string += str(gi.Milliseconds() - startMs / 1000.f);
+                string += " file: ";
+                string += fileName;
+                string += " codepos: ";
+                string += sourcePosString;
+
+                gi.DebugPrintf("%s\n", string.c_str());
+            }
+        }
+    } catch (const ScriptException& e) {
+        gi.Error(ERR_DROP, "%s", e.string.c_str());
+    }
+
+    level.setTime(startTime);
+    level.m_LoopProtection = true;
 }
 
 void ScriptMaster::SetTime(int time)
