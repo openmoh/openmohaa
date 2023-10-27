@@ -1544,7 +1544,7 @@ size_t ScriptCompiler::Compile(GameScript *gameScript, unsigned char *progBuffer
     code_ptr = progBuffer;
     prog_ptr = progBuffer;
 
-    gameScript->m_ProgToSource = new con_set<unsigned char *, sourceinfo_t>;
+    gameScript->m_ProgToSource = new con_set<const unsigned char *, sourceinfo_t>;
 
     compileSuccess = true;
 
