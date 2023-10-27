@@ -53,6 +53,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #endif
 
+static const ScriptVM *currentScriptFile;
+static unsigned int    currentScriptLine;
+
 class ScriptCommandEvent : public Event
 {
 public:
@@ -751,6 +754,67 @@ Returns the current program buffer
 unsigned char *ScriptVM::ProgBuffer(void)
 {
     return m_CodePos;
+}
+
+/*
+====================
+ScriptTrace1
+====================
+*/
+void ScriptVM::ScriptTrace1() const
+{
+    GameScript *scr;
+    str         sourceLine;
+    int         column;
+    int         line;
+
+    scr = GetScript();
+
+    if (!scr->GetSourceAt(m_CodePos, &sourceLine, column, line)) {
+        return;
+    }
+
+    if (currentScriptFile == this && line == currentScriptLine) {
+        return;
+    }
+
+    currentScriptFile = this;
+    currentScriptLine = line;
+
+    gi.DPrintf2("%s (%s, %d, %p, %d)\n", sourceLine.c_str(), Filename().c_str(), line, this, m_VMStack.GetIndex());
+}
+
+/*
+====================
+ScriptTrace2
+====================
+*/
+void ScriptVM::ScriptTrace2() const
+{
+    gi.DPrintf2("%s, %p, %d\n", OpcodeName(*m_CodePos), this, m_VMStack.GetIndex());
+    GetScript()->PrintSourcePos(m_CodePos, true);
+}
+
+/*
+====================
+GetSourcePos
+====================
+*/
+const char *ScriptVM::GetSourcePos() const
+{
+    static str debugLine;
+    str        sourceLine;
+    int        column;
+    int        line;
+
+    debugLine =
+        str(OpcodeName(*m_CodePos)) + " @" + str(m_CodePos - GetScript()->m_ProgBuffer) + " in " + Filename() + "\n";
+
+    if (GetScript()->GetSourceAt(m_CodePos, &sourceLine, column, line)) {
+        debugLine += str(" (") + str(line) + str(")\n");
+    }
+
+    return debugLine.c_str();
 }
 
 /*
@@ -1900,7 +1964,7 @@ bool ScriptVM::Switch(StateScript *stateScript, ScriptVariable& var)
 Filename
 ====================
 */
-str ScriptVM::Filename(void)
+str ScriptVM::Filename(void) const
 {
     return m_ScriptClass->Filename();
 }
@@ -1910,7 +1974,7 @@ str ScriptVM::Filename(void)
 Label
 ====================
 */
-str ScriptVM::Label(void)
+str ScriptVM::Label(void) const
 {
     const_str label = m_ScriptClass->NearestLabel(m_CodePos);
 
@@ -1926,9 +1990,19 @@ str ScriptVM::Label(void)
 GetScriptClass
 ====================
 */
-ScriptClass *ScriptVM::GetScriptClass(void)
+ScriptClass *ScriptVM::GetScriptClass(void) const
 {
     return m_ScriptClass;
+}
+
+/*
+====================
+GetScript
+====================
+*/
+GameScript *ScriptVM::GetScript() const
+{
+    return m_ScriptClass->GetScript();
 }
 
 /*

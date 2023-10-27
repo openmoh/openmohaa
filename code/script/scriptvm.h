@@ -37,11 +37,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define MAX_SCRIPTCYCLES 9999 // max cmds
 
 enum eVMState {
-    STATE_RUNNING, // Running
+    STATE_RUNNING,   // Running
     STATE_SUSPENDED, // Suspended
-    STATE_WAITING, // Waiting for something
+    STATE_WAITING,   // Waiting for something
     STATE_EXECUTION, // Resume to execution
-    STATE_DESTROYED // Pending deletion
+    STATE_DESTROYED  // Pending deletion
 };
 
 enum eThreadState {
@@ -203,9 +203,10 @@ public:
     void Resume(qboolean bForce = false);
     void Suspend(void);
 
-    str          Filename(void);
-    str          Label(void);
-    ScriptClass *GetScriptClass(void);
+    str          Filename(void) const;
+    str          Label(void) const;
+    ScriptClass *GetScriptClass(void) const;
+    GameScript  *GetScript() const;
 
     bool IsSuspended(void);
     int  State(void);
@@ -214,7 +215,10 @@ public:
     void EventGoto(Event *ev);
     bool EventThrow(Event *ev);
 
-    bool CanScriptTracePrint(void);
+    bool        CanScriptTracePrint(void);
+    void        ScriptTrace1() const;
+    void        ScriptTrace2() const;
+    const char *GetSourcePos() const;
 
 private:
     void jump(unsigned int offset);
