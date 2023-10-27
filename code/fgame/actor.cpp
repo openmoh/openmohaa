@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2023 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -7771,6 +7771,7 @@ void Actor::InitThinkStates(void)
     for (size_t i = 0; i < NUM_THINKSTATES; i++) {
         m_ThinkMap[i] = THINK_VOID;
     }
+
     for (size_t i = 0; i < NUM_THINKLEVELS; i++) {
         m_Think[i]       = THINK_VOID;
         m_ThinkStates[i] = THINKSTATE_VOID;
@@ -7814,7 +7815,7 @@ Suspend current think state.
 */
 void Actor::SuspendState(void)
 {
-    GlobalFuncs_t *think = &GlobalFuncs[m_Think[m_ThinkLevel]];
+    GlobalFuncs_t *think = &GlobalFuncs[CurrentThink()];
 
     if (think->SuspendState) {
         (this->*think->SuspendState)();
@@ -7830,7 +7831,7 @@ Resume current think state.
 */
 void Actor::ResumeState(void)
 {
-    GlobalFuncs_t *think = &GlobalFuncs[m_Think[m_ThinkLevel]];
+    GlobalFuncs_t *think = &GlobalFuncs[CurrentThink()];
 
     if (think->ResumeState) {
         (this->*think->ResumeState)();
@@ -7849,7 +7850,7 @@ void Actor::BeginState(void)
     GlobalFuncs_t *think;
 
     m_Think[m_ThinkLevel] = m_ThinkMap[m_ThinkState];
-    think                 = &GlobalFuncs[m_Think[m_ThinkLevel]];
+    think                 = &GlobalFuncs[CurrentThink()];
 
     if (think->BeginState) {
         (this->*think->BeginState)();
@@ -7890,7 +7891,7 @@ Restart current think state.
 */
 void Actor::RestartState(void)
 {
-    GlobalFuncs_t *think = &GlobalFuncs[m_Think[m_ThinkLevel]];
+    GlobalFuncs_t *think = &GlobalFuncs[CurrentThink()];
 
     if (think->RestartState) {
         (this->*think->RestartState)();
