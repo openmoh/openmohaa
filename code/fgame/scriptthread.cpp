@@ -2336,17 +2336,13 @@ void ScriptThread::StoppedWaitFor(const_str name, bool bDeleting)
 
     if (m_ScriptVM->m_ThreadState == THREAD_SUSPENDED) {
         if (name != 0) {
-            if (m_ScriptVM->state == STATE_EXECUTION) {
+            if (m_ScriptVM->IsSuspended()) {
                 Execute();
             } else {
                 m_ScriptVM->Resume();
             }
         } else {
-            m_ScriptVM->m_ThreadState = THREAD_RUNNING;
-            CancelWaitingAll();
-            m_ScriptVM->m_ThreadState = THREAD_WAITING;
-
-            Director.AddTiming(this, 0.0f);
+            StartTiming();
         }
     }
 }
@@ -2434,7 +2430,11 @@ ScriptThread *ScriptThread::CreateScriptInternal(const ScriptVariable& label)
 
 void ScriptThread::StartTiming(void)
 {
-    StartTiming(0);
+    Stop();
+
+    m_ScriptVM->m_ThreadState = THREAD_WAITING;
+
+    Director.AddTiming(this, 0);
 }
 
 void ScriptThread::StartTiming(float time)
@@ -2630,7 +2630,7 @@ void ScriptThread::EventGoto(Event *ev)
 {
     m_ScriptVM->EventGoto(ev);
 
-    if (m_ScriptVM->State() == STATE_EXECUTION) {
+    if (m_ScriptVM->IsSuspended()) {
         ScriptExecuteInternal();
     } else {
         Stop();
@@ -2645,11 +2645,10 @@ void ScriptThread::EventThrow(Event *ev)
     }
 
     if (m_ScriptVM->EventThrow(ev)) {
-        if (m_ScriptVM->State() == STATE_EXECUTION) {
+        if (m_ScriptVM->IsSuspended()) {
             ScriptExecuteInternal();
         } else {
             Stop();
-
             m_ScriptVM->Resume();
         }
     } else {
@@ -2658,7 +2657,7 @@ void ScriptThread::EventThrow(Event *ev)
 
         Stop();
 
-        if (!BroadcastEvent("", *ev)) {
+        if (!BroadcastEvent(0, *ev)) {
             m_ScriptVM->GetScriptClass()->EventThrow(ev);
         }
 
@@ -2676,11 +2675,10 @@ void ScriptThread::EventDelayThrow(Event *ev)
     }
 
     if (m_ScriptVM->EventThrow(ev)) {
-        if (m_ScriptVM->State() == STATE_EXECUTION) {
-            Wait(0);
+        if (m_ScriptVM->IsSuspended()) {
+            StartTiming();
         } else {
             Stop();
-
             m_ScriptVM->Resume();
         }
     } else {

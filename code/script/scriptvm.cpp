@@ -2012,7 +2012,7 @@ IsSuspended
 */
 bool ScriptVM::IsSuspended(void)
 {
-    return state == STATE_SUSPENDED;
+    return state == STATE_EXECUTION;
 }
 
 /*
