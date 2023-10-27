@@ -116,7 +116,7 @@ public:
 
     void SetTime(int time);
 
-    void      AddTiming(ScriptThread *thread, float time);
+    void      AddTiming(ScriptThread *thread, int time);
     void      RemoveTiming(ScriptThread *thread);
     const_str AddString(const char *s);
     const_str AddString(str& s);

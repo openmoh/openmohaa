@@ -755,9 +755,9 @@ void ScriptMaster::SetTime(int time)
     timerList.SetDirty();
 }
 
-void ScriptMaster::AddTiming(ScriptThread *thread, float time)
+void ScriptMaster::AddTiming(ScriptThread *thread, int time)
 {
-    timerList.AddElement(thread, level.inttime + (int)(time * 1000.0f + 0.5f));
+    timerList.AddElement(thread, time);
 }
 
 void ScriptMaster::RemoveTiming(ScriptThread *thread)

@@ -2131,7 +2131,7 @@ void Level::AddEarthquake(earthquake_t *e)
 {
     if (num_earthquakes == MAX_EARTHQUAKES) {
         if (earthquakes[0].m_Thread) {
-            earthquakes[0].m_Thread->Wait((float)(e->endtime - inttime) / 1000.0f - 0.5f);
+            earthquakes[0].m_Thread->Wait(e->endtime - inttime);
         }
 
         num_earthquakes--;

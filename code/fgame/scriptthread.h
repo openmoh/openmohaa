@@ -201,7 +201,7 @@ public:
     void                  ScriptExecuteInternal(ScriptVariable *data = NULL, int dataSize = 0);
     void                  EventThrow(Event *ev);
     void                  StartWaiting();
-    void                  StartTiming(float time);
+    void                  StartTiming(int time);
     void                  StartTiming(void);
     void                  Stop(void);
     virtual void          StartedWaitFor(void) override;

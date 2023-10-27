@@ -2434,17 +2434,17 @@ void ScriptThread::StartTiming(void)
 
     m_ScriptVM->m_ThreadState = THREAD_WAITING;
 
-    Director.AddTiming(this, 0);
+    Director.AddTiming(this, level.inttime);
 }
 
-void ScriptThread::StartTiming(float time)
+void ScriptThread::StartTiming(int time)
 {
     Stop();
 
     m_ScriptVM->m_ThreadState = THREAD_WAITING;
 
-    if (time < 0) {
-        time = 0;
+    if (time < level.inttime) {
+        time = level.inttime;
     }
 
     Director.AddTiming(this, time);
@@ -2468,7 +2468,7 @@ void ScriptThread::Stop(void)
 
 void ScriptThread::Wait(float time)
 {
-    StartTiming(time);
+    StartTiming(level.inttime + time);
     m_ScriptVM->Suspend();
 }
 
@@ -2699,12 +2699,12 @@ void ScriptThread::EventDelayThrow(Event *ev)
 
 void ScriptThread::EventWait(Event *ev)
 {
-    Wait(ev->GetFloat(1));
+    Wait((int)(ev->GetFloat(1) * 1000.0f + 0.5f));
 }
 
 void ScriptThread::EventWaitFrame(Event *ev)
 {
-    Wait(level.frametime);
+    Wait((int)(level.frametime * 1000.0f + 0.5f));
 }
 
 void ScriptThread::EventResume(Event *ev)
