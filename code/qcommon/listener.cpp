@@ -3397,13 +3397,11 @@ void Listener::Unregister(const_str name)
         }
     }
 
-    if (!DisableListenerNotify) {
-        for (int i = stoppedListeners.NumObjects(); i > 0; i--) {
-            Listener *listener = stoppedListeners.ObjectAt(i);
+    for (int i = stoppedListeners.NumObjects(); i > 0; i--) {
+        Listener* listener = stoppedListeners.ObjectAt(i);
 
-            if (listener) {
-                listener->StoppedWaitFor(name, false);
-            }
+        if (listener && !DisableListenerNotify) {
+            listener->StoppedWaitFor(name, false);
         }
     }
 }
@@ -3427,16 +3425,12 @@ Unregister a specified listener with the specified label
 */
 void Listener::Unregister(const_str name, Listener *listener)
 {
-    if (UnregisterSource(name, listener)) {
-        if (!DisableListenerNotify) {
-            StoppedNotify();
-        }
+    if (UnregisterSource(name, listener) && !DisableListenerNotify) {
+        StoppedNotify();
     }
 
-    if (listener->UnregisterTarget(name, this)) {
-        if (!DisableListenerNotify) {
-            listener->StoppedWaitFor(name, false);
-        }
+    if (listener->UnregisterTarget(name, this) && !DisableListenerNotify) {
+        listener->StoppedWaitFor(name, false);
     }
 }
 
@@ -3479,10 +3473,8 @@ void Listener::UnregisterAll(void)
     for (int i = stoppedListeners.NumObjects(); i > 0; i--) {
         Listener *listener = stoppedListeners.ObjectAt(i);
 
-        if (listener) {
-            if (!DisableListenerNotify) {
-                listener->StoppedWaitFor(stoppedNames.ObjectAt(i), true);
-            }
+        if (listener && !DisableListenerNotify) {
+            listener->StoppedWaitFor(stoppedNames.ObjectAt(i), true);
         }
     }
 }
@@ -3494,34 +3486,35 @@ UnregisterSource
 */
 bool Listener::UnregisterSource(const_str name, Listener *listener)
 {
+    ConList* list;
+
     if (!m_NotifyList) {
         return false;
     }
 
-    ConList *list  = m_NotifyList->findKeyValue(name);
-    bool     found = false;
+    list = m_NotifyList->findKeyValue(name);
 
     if (!list) {
         return false;
     }
 
-    for (int i = list->NumObjects(); i > 0; i--) {
-        if (list->ObjectAt(i) == listener) {
-            list->RemoveObjectAt(i);
-            found = true;
-        }
+    list->RemoveObject(listener);
+
+    if (list->NumObjects()) {
+        return false;
     }
 
-    if (list->NumObjects() == 0) {
-        m_NotifyList->remove(name);
+    m_NotifyList->remove(name);
 
-        if (m_NotifyList->isEmpty()) {
-            delete m_NotifyList;
-            m_NotifyList = NULL;
-        }
+    if (!m_NotifyList->isEmpty()) {
+        // still has objects in it
+        return false;
     }
 
-    return found;
+    delete m_NotifyList;
+    m_NotifyList = NULL;
+
+    return true;
 }
 
 /*
@@ -3531,34 +3524,29 @@ UnregisterTarget
 */
 bool Listener::UnregisterTarget(const_str name, Listener *listener)
 {
+    ConList* list;
+
     if (!m_WaitForList) {
         return false;
     }
 
-    ConList *list  = m_WaitForList->findKeyValue(name);
-    bool     found = false;
+    list = m_WaitForList->findKeyValue(name);
 
     if (!list) {
         return false;
     }
 
-    for (int i = list->NumObjects(); i > 0; i--) {
-        if (list->ObjectAt(i) == listener) {
-            list->RemoveObjectAt(i);
-            found = true;
-        }
+    list->RemoveObject(listener);
+
+    if (!m_WaitForList->isEmpty()) {
+        // still has objects in it
+        return false;
     }
 
-    if (list->NumObjects() == 0) {
-        m_WaitForList->remove(name);
+    delete m_WaitForList;
+    m_WaitForList = NULL;
 
-        if (m_WaitForList->isEmpty()) {
-            delete m_WaitForList;
-            m_WaitForList = NULL;
-        }
-    }
-
-    return found;
+    return true;
 }
 
 /*
@@ -3988,13 +3976,9 @@ ExecuteScriptInternal
 */
 void Listener::ExecuteScriptInternal(Event *ev, ScriptVariable& returnValue)
 {
-    SafePtr<ScriptThread> thread = CreateScriptInternal(ev->GetValue(1));
-    ScriptThread         *currentThread;
-    bool                  fReturn = returnValue.GetType() != VARIABLE_NONE;
+    ScriptThread* thread = CreateScriptInternal(ev->GetValue(1));
 
     thread->ScriptExecute(&ev->data[1], ev->dataSize - 1, returnValue);
-
-    currentThread = Director.m_CurrentThread;
 }
 
 /*
@@ -4004,13 +3988,9 @@ ExecuteThreadInternal
 */
 void Listener::ExecuteThreadInternal(Event *ev, ScriptVariable& returnValue)
 {
-    SafePtr<ScriptThread> thread = CreateThreadInternal(ev->GetValue(1));
-    ScriptThread         *currentThread;
-    bool                  fReturn = returnValue.GetType() != VARIABLE_NONE;
+    ScriptThread* thread = CreateThreadInternal(ev->GetValue(1));
 
     thread->ScriptExecute(&ev->data[1], ev->dataSize - 1, returnValue);
-
-    currentThread = Director.m_CurrentThread;
 }
 
 /*
