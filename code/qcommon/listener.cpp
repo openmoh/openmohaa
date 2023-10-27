@@ -3035,11 +3035,13 @@ BroadcastEvent
 */
 bool Listener::BroadcastEvent(const_str name, Event& event)
 {
+    ConList* listeners;
+
     if (!m_NotifyList) {
         return false;
     }
 
-    ConList *listeners = m_NotifyList->findKeyValue(name);
+    listeners = m_NotifyList->findKeyValue(name);
 
     if (!listeners) {
         return false;
@@ -3057,7 +3059,10 @@ Broadcast an event to the notify list
 */
 bool Listener::BroadcastEvent(Event& event, ConList *listeners)
 {
+    Listener* listener;
     int num = listeners->NumObjects();
+    int i;
+    bool found;
 
     if (!num) {
         return false;
@@ -3068,16 +3073,26 @@ bool Listener::BroadcastEvent(Event& event, ConList *listeners)
 
         if (listener) {
             listener->ProcessEvent(event);
+            return true;
         }
 
         return false;
     }
 
-    ConList listenersCopy = *listeners;
-    bool    found         = false;
+    ConList listenersCopy;
+    found = false;
 
-    for (int i = listenersCopy.NumObjects(); i > 0; i--) {
-        Listener *listener = listenersCopy.ObjectAt(i);
+    listenersCopy.Resize(num);
+
+    for (i = num; i > 0; i--) {
+        listener = listeners->ObjectAt(i);
+        if (listener) {
+            listenersCopy.AddObject(listener);
+        }
+    }
+
+    for (i = listenersCopy.NumObjects(); i > 0; i--) {
+        listener = listenersCopy.ObjectAt(i);
 
         if (listener) {
             listener->ProcessEvent(event);
@@ -3105,17 +3120,19 @@ CancelWaiting
 */
 void Listener::CancelWaiting(const_str name)
 {
+    ConList* list;
+
     if (!m_WaitForList) {
         return;
     }
 
-    ConList *list = m_WaitForList->findKeyValue(name);
-    ConList  stoppedListeners;
+    list = m_WaitForList->findKeyValue(name);
 
     if (!list) {
         return;
     }
 
+    ConList stoppedListeners;
     CancelWaitingSources(name, *list, stoppedListeners);
 
     m_WaitForList->remove(name);
@@ -3132,10 +3149,8 @@ void Listener::CancelWaiting(const_str name)
     for (int i = stoppedListeners.NumObjects(); i > 0; i--) {
         Listener *listener = stoppedListeners.ObjectAt(i);
 
-        if (listener) {
-            if (!DisableListenerNotify) {
-                listener->StoppedNotify();
-            }
+        if (listener && !DisableListenerNotify) {
+            listener->StoppedNotify();
         }
     }
 }
@@ -3171,10 +3186,8 @@ void Listener::CancelWaitingAll()
     for (int i = stoppedListeners.NumObjects(); i > 0; i--) {
         Listener *listener = stoppedListeners.ObjectAt(i);
 
-        if (listener) {
-            if (!DisableListenerNotify) {
-                listener->StoppedNotify();
-            }
+        if (listener && !DisableListenerNotify) {
+            listener->StoppedNotify();
         }
     }
 }
@@ -3537,6 +3550,12 @@ bool Listener::UnregisterTarget(const_str name, Listener *listener)
     }
 
     list->RemoveObject(listener);
+
+    if (list->NumObjects()) {
+        return false;
+    }
+
+    m_WaitForList->remove(name);
 
     if (!m_WaitForList->isEmpty()) {
         // still has objects in it
