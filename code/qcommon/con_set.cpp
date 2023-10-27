@@ -73,6 +73,12 @@ int HashCode<unsigned char *>(unsigned char *const& key)
 }
 
 template<>
+int HashCode<const unsigned char*>(const unsigned char* const& key)
+{
+    return (int)(size_t)key;
+}
+
+template<>
 int HashCode<short>(const short& key)
 {
     return key;
