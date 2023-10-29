@@ -41,6 +41,14 @@ qboolean TIKI_Frame_Commands_Server( dtiki_t *pmdl, int animnum, int framenum, t
 	qboolean found;
 	int i;
 
+	if (!pmdl || !pmdl->a) {
+		return qfalse;
+	}
+
+	if (animnum >= pmdl->a->num_anims || animnum < 0) {
+		return qfalse;
+	}
+
 	tiki_cmd->num_cmds = 0;
 	panimdef = pmdl->a->animdefs[ animnum ];
 	found = false;
@@ -79,6 +87,14 @@ qboolean TIKI_Frame_Commands_Client( dtiki_t *pmdl, int animnum, int framenum, t
 	dtikianimdef_t *panimdef;
 	qboolean found;
 	int i;
+
+    if (!pmdl || !pmdl->a) {
+        return qfalse;
+    }
+
+    if (animnum >= pmdl->a->num_anims || animnum < 0) {
+        return qfalse;
+    }
 
 	tiki_cmd->num_cmds = 0;
 	panimdef = pmdl->a->animdefs[ animnum ];
@@ -119,6 +135,14 @@ qboolean TIKI_Frame_Commands_ClientTime( dtiki_t *pmdl, int animnum, float start
 	qboolean found;
 	int i;
 	float cmdTime;
+
+    if (!pmdl || !pmdl->a) {
+        return qfalse;
+    }
+
+    if (animnum >= pmdl->a->num_anims || animnum < 0) {
+        return qfalse;
+    }
 
 	tiki_cmd->num_cmds = 0;
 	panimdef = pmdl->a->animdefs[ animnum ];
