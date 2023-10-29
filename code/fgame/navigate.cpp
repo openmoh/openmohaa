@@ -2876,7 +2876,7 @@ int PathSearch::FindPotentialCover(
             continue;
         }
 
-        if (!(node->nodeflags & AI_SNIPER)) {
+        if (!(node->nodeflags & AI_COVER_MASK)) {
             continue;
         }
 
