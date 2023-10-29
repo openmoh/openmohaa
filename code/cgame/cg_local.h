@@ -400,6 +400,16 @@ extern "C" {
         char       mapname[MAX_QPATH];
 
         //
+        // vote
+        //
+        int voteTime;
+        int numVotesYes;
+        int numVotesNo;
+        int numUndecidedVotes;
+        qboolean voteRefreshed;
+        char voteString[1024];
+
+        //
         // locally derived information from gamestate
         //
         qhandle_t   model_draw[MAX_MODELS];
@@ -491,7 +501,7 @@ extern "C" {
     //
     // cg_main.c
     //
-    void        CG_ProcessConfigString(int num);
+    void        CG_ProcessConfigString(int num, qboolean modelOnly);
     const char *CG_ConfigString(int index);
     void        CG_AddToTeamChat(const char *str);
     void        CG_NewClientinfo(int clientNum);

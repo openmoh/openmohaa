@@ -682,7 +682,7 @@ void CG_DrawObjectives()
 
     iTotalNumLines = 0;
     for (i = CS_OBJECTIVES; i < CS_OBJECTIVES + MAX_OBJECTIVES; ++i) {
-        CG_ProcessConfigString(i);
+        CG_ProcessConfigString(i, qfalse);
     }
 
     iCurrentObjective = atoi(CG_ConfigString(CS_CURRENT_OBJECTIVE));

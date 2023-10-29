@@ -238,90 +238,17 @@ void CG_RegisterSounds(void)
 CG_ProcessConfigString
 ================
 */
-void CG_ProcessConfigString(int num)
+void CG_ProcessConfigString(int num, qboolean modelOnly)
 {
-    const char *str = CG_ConfigString(num);
-    int         i;
+    const char* str;
+    int i;
 
-    switch (num) {
-    case CS_RAIN_DENSITY:
-        cg.rain.density = atof(str);
-        return;
-    case CS_RAIN_SPEED:
-        cg.rain.speed = atof(str);
-        return;
-    case CS_RAIN_SPEEDVARY:
-        cg.rain.speed_vary = atoi(str);
-        return;
-    case CS_RAIN_SLANT:
-        cg.rain.slant = atoi(str);
-        return;
-    case CS_RAIN_LENGTH:
-        cg.rain.length = atof(str);
-        return;
-    case CS_RAIN_MINDIST:
-        cg.rain.min_dist = atof(str);
-        return;
-    case CS_RAIN_WIDTH:
-        cg.rain.width = atof(str);
-        return;
-    case CS_RAIN_SHADER:
-        if (cg.rain.numshaders) {
-            for (i = 0; i < cg.rain.numshaders; i++) {
-                sprintf(cg.rain.shader[i], "%s%i", str, i);
-            }
-        } else {
-            strcpy(cg.rain.shader[0], str);
-        }
-        return;
-    case CS_RAIN_NUMSHADERS:
-        cg.rain.numshaders = atoi(str);
-        if (cg.rain.numshaders) {
-            for (i = 0; i < cg.rain.numshaders; i++) {
-                sprintf(cg.rain.shader[i], "%s%i", str, i);
-            }
-        }
-        return;
-    }
-
-    if (num >= CS_OBJECTIVES && num < CS_OBJECTIVES + MAX_OBJECTIVES) {
-        cobjective_t *objective = &cg.Objectives[num - CS_OBJECTIVES];
-        objective->flags        = atoi(Info_ValueForKey(str, "flags"));
-        strcpy(objective->text, Info_ValueForKey(str, "text"));
-    }
-
-    switch (num) {
-    case CS_MUSIC:
-        cgi.MUSIC_NewSoundtrack(str);
-        return;
-    case CS_WARMUP:
-        cg.matchStartTime = atoi(str);
-        return;
-    case CS_FOGINFO:
-        cg.farclipOverride = 0;
-        cg.farplaneColorOverride[0] = -1;
-        cg.farplaneColorOverride[1] = -1;
-        cg.farplaneColorOverride[2] = -1;
-        CG_ParseFogInfo(str);
-        return;
-    case CS_SKYINFO:
-        sscanf(str, "%f %d", &cg.sky_alpha, &cg.sky_portal);
-        return;
-    case CS_SERVERINFO:
-        CG_ParseServerinfo();
-        return;
-    case CS_LEVEL_START_TIME:
-        cgs.levelStartTime = atoi(str);
-        return;
-    case CS_MATCHEND:
-        cgs.matchEndTime = atoi(str);
-        return;
-    }
+    str = CG_ConfigString(num);
 
     if (num >= CS_MODELS && num < CS_MODELS + MAX_MODELS) {
         qhandle_t hOldModel = cgs.model_draw[num - CS_MODELS];
 
-        if (str && str[0]) {
+        if (str && str[0] && !modelOnly) {
             qhandle_t hModel = cgi.R_RegisterServerModel(str);
             dtiki_t  *tiki;
 
@@ -343,38 +270,136 @@ void CG_ProcessConfigString(int num)
             }
             cgs.model_draw[num - CS_MODELS] = 0;
         }
-    } else if (num >= CS_SOUNDS && num < CS_SOUNDS + MAX_SOUNDS) {
-        size_t len = strlen(str);
-        if (len) {
-            qboolean streamed;
-            char     buf[1024];
-            strcpy(buf, str);
+    }
 
-            streamed     = buf[len - 1] != '0';
-            buf[len - 1] = 0;
-            if (buf[0] != '*') {
-                cgs.sound_precache[num - CS_SOUNDS] = cgi.S_RegisterSound(buf, streamed);
+    if (!modelOnly) {
+        switch (num) {
+        case CS_RAIN_DENSITY:
+            cg.rain.density = atof(str);
+            return;
+        case CS_RAIN_SPEED:
+            cg.rain.speed = atof(str);
+            return;
+        case CS_RAIN_SPEEDVARY:
+            cg.rain.speed_vary = atoi(str);
+            return;
+        case CS_RAIN_SLANT:
+            cg.rain.slant = atoi(str);
+            return;
+        case CS_RAIN_LENGTH:
+            cg.rain.length = atof(str);
+            return;
+        case CS_RAIN_MINDIST:
+            cg.rain.min_dist = atof(str);
+            return;
+        case CS_RAIN_WIDTH:
+            cg.rain.width = atof(str);
+            return;
+        case CS_RAIN_SHADER:
+            if (cg.rain.numshaders) {
+                for (i = 0; i < cg.rain.numshaders; i++) {
+                    sprintf(cg.rain.shader[i], "%s%i", str, i);
+                }
+            } else {
+                strcpy(cg.rain.shader[0], str);
             }
-        }
-    } else if (num >= CS_LIGHTSTYLES && num < CS_LIGHTSTYLES + MAX_LIGHTSTYLES) {
-        CG_SetLightStyle(num - CS_LIGHTSTYLES, str);
-    } else if (num >= CS_PLAYERS && num < CS_PLAYERS + MAX_CLIENTS) {
-        const char *value;
-
-        value = Info_ValueForKey(str, "name");
-        if (value) {
-            strncpy(cg.clientinfo[num - CS_PLAYERS].name, value, sizeof(cg.clientinfo[num - CS_PLAYERS].name));
-        } else {
-            strncpy(
-                cg.clientinfo[num - CS_PLAYERS].name, "UnnamedSoldier", sizeof(cg.clientinfo[num - CS_PLAYERS].name)
-            );
+            return;
+        case CS_RAIN_NUMSHADERS:
+            cg.rain.numshaders = atoi(str);
+            if (cg.rain.numshaders) {
+                for (i = 0; i < cg.rain.numshaders; i++) {
+                    sprintf(cg.rain.shader[i], "%s%i", str, i);
+                }
+            }
+            return;
         }
 
-        value = Info_ValueForKey(str, "team");
-        if (value) {
-            cg.clientinfo[num - CS_PLAYERS].team = atoi(value);
-        } else {
-            cg.clientinfo[num - CS_PLAYERS].team = TEAM_NONE;
+        if (num >= CS_OBJECTIVES && num < CS_OBJECTIVES + MAX_OBJECTIVES) {
+            cobjective_t *objective = &cg.Objectives[num - CS_OBJECTIVES];
+            objective->flags        = atoi(Info_ValueForKey(str, "flags"));
+            strcpy(objective->text, Info_ValueForKey(str, "text"));
+        }
+
+        switch (num) {
+        case CS_MUSIC:
+            cgi.MUSIC_NewSoundtrack(str);
+            return;
+        case CS_WARMUP:
+            cg.matchStartTime = atoi(str);
+            return;
+        case CS_FOGINFO:
+            cg.farclipOverride = 0;
+            cg.farplaneColorOverride[0] = -1;
+            cg.farplaneColorOverride[1] = -1;
+            cg.farplaneColorOverride[2] = -1;
+            CG_ParseFogInfo(str);
+            return;
+        case CS_SKYINFO:
+            sscanf(str, "%f %d", &cg.sky_alpha, &cg.sky_portal);
+            return;
+        case CS_SERVERINFO:
+            CG_ParseServerinfo();
+            return;
+        case CS_LEVEL_START_TIME:
+            cgs.levelStartTime = atoi(str);
+            return;
+        case CS_VOTE_TIME:
+            cgs.voteTime = atoi(str);
+            cgs.voteRefreshed = qtrue;
+            break;
+        case CS_VOTE_STRING:
+            Q_strncpyz(cgs.voteString, str, sizeof(cgs.voteString));
+            break;
+        case CS_VOTE_YES:
+            cgs.numVotesYes = atoi(str);
+            cgs.voteRefreshed = qtrue;
+            break;
+        case CS_VOTE_NO:
+            cgs.numVotesNo = atoi(str);
+            cgs.voteRefreshed = qtrue;
+            break;
+        case CS_VOTE_UNDECIDED:
+            cgs.numUndecidedVotes = atoi(str);
+            cgs.voteRefreshed = qtrue;
+            break;
+        case CS_MATCHEND:
+            cgs.matchEndTime = atoi(str);
+            return;
+        }
+
+        if (num >= CS_SOUNDS && num < CS_SOUNDS + MAX_SOUNDS) {
+            size_t len = strlen(str);
+            if (len) {
+                qboolean streamed;
+                char     buf[1024];
+                strcpy(buf, str);
+        
+                streamed     = buf[len - 1] != '0';
+                buf[len - 1] = 0;
+                if (buf[0] != '*') {
+                    cgs.sound_precache[num - CS_SOUNDS] = cgi.S_RegisterSound(buf, streamed);
+                }
+            }
+        } else if (num >= CS_LIGHTSTYLES && num < CS_LIGHTSTYLES + MAX_LIGHTSTYLES) {
+            CG_SetLightStyle(num - CS_LIGHTSTYLES, str);
+        } else if (num >= CS_PLAYERS && num < CS_PLAYERS + MAX_CLIENTS) {
+            const char *value;
+        
+            value = Info_ValueForKey(str, "name");
+            if (value) {
+                strncpy(cg.clientinfo[num - CS_PLAYERS].name, value, sizeof(cg.clientinfo[num - CS_PLAYERS].name));
+            } else {
+                strncpy(
+                    cg.clientinfo[num - CS_PLAYERS].name, "UnnamedSoldier", sizeof(cg.clientinfo[num - CS_PLAYERS].name)
+                );
+            }
+        
+            value = Info_ValueForKey(str, "team");
+            if (value) {
+                cg.clientinfo[num - CS_PLAYERS].team = atoi(value);
+            } else {
+                cg.clientinfo[num - CS_PLAYERS].team = TEAM_NONE;
+            }
         }
     }
 }
@@ -434,7 +459,7 @@ void CG_PrepRefresh(void)
 
     // go through all the configstrings and process them
     for (i = CS_SYSTEMINFO + 1; i < MAX_CONFIGSTRINGS; i++) {
-        CG_ProcessConfigString(i);
+        CG_ProcessConfigString(i, qfalse);
     }
 }
 

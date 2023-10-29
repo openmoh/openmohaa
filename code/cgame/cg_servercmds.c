@@ -192,17 +192,13 @@ CG_ConfigStringModified
 
 ================
 */
-static void CG_ConfigStringModified(void)
+static void CG_ConfigStringModified(int num, qboolean modelOnly)
 {
-    int num;
-
-    num = atoi(cgi.Argv(1));
-
     // get the gamestate from the client system, which will have the
     // new configstring already integrated
     cgi.GetGameState(&cgs.gameState);
 
-    CG_ProcessConfigString(num);
+    CG_ProcessConfigString(num, modelOnly);
 }
 
 /*
@@ -283,7 +279,7 @@ The string has been tokenized and can be retrieved with
 Cmd_Argc() / Cmd_Argv()
 =================
 */
-static void CG_ServerCommand(void)
+static void CG_ServerCommand(qboolean modelOnly)
 {
     const char *cmd;
 
@@ -295,7 +291,7 @@ static void CG_ServerCommand(void)
     }
 
     if (!strcmp(cmd, "cs")) {
-        CG_ConfigStringModified();
+        CG_ConfigStringModified(atoi(cgi.Argv(1)), modelOnly);
         return;
     }
 
@@ -385,9 +381,20 @@ with this this snapshot.
 */
 void CG_ExecuteNewServerCommands(int latestSequence, qboolean differentServer)
 {
+    int lastServerCommandSequence;
+
+    lastServerCommandSequence = cgs.serverCommandSequence;
+
     while (cgs.serverCommandSequence < latestSequence) {
         if (cgi.GetServerCommand(++cgs.serverCommandSequence, differentServer)) {
-            CG_ServerCommand();
+            CG_ServerCommand(qtrue);
+        }
+    }
+
+    cgs.serverCommandSequence = lastServerCommandSequence;
+    while (cgs.serverCommandSequence < latestSequence) {
+        if (cgi.GetServerCommand(++cgs.serverCommandSequence, differentServer)) {
+            CG_ServerCommand(qfalse);
         }
     }
 }
