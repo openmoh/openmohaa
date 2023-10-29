@@ -235,6 +235,32 @@ void CG_RegisterSounds(void)
 
 /*
 ================
+CG_IsHandleUnique
+
+Check if the model handle is unique
+================
+*/
+static qboolean CG_IsHandleUnique(int num) {
+    qhandle_t handle;
+    int i;
+    int numRef;
+
+    numRef = 0;
+    handle = cgs.model_draw[num];
+    for (i = 0; i < MAX_MODELS; i++) {
+        if (cgs.model_draw[i] == handle) {
+            numRef++;
+            if (numRef >= 2) {
+                return qfalse;
+            }
+        }
+    }
+
+    return qtrue;
+}
+
+/*
+================
 CG_ProcessConfigString
 ================
 */
@@ -265,7 +291,8 @@ void CG_ProcessConfigString(int num, qboolean modelOnly)
             }
         } else {
             // clear out the model
-            if (hOldModel) {
+            if (hOldModel && CG_IsHandleUnique(hOldModel)) {
+                // Handle uniqueness added in OPM
                 cgi.R_UnregisterServerModel(hOldModel);
             }
             cgs.model_draw[num - CS_MODELS] = 0;
