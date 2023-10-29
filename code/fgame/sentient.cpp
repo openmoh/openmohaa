@@ -1574,7 +1574,7 @@ SetOffsetColor( damage_red, damage_green, 0, damage_time );
 
     if (health > 0) {
         // Send pain event
-        event = new Event(EV_Pain);
+        event = new Event(EV_Pain, 10);
         event->AddEntity(attacker);
         event->AddFloat(damage);
         event->AddEntity(inflictor);
@@ -1594,7 +1594,7 @@ SetOffsetColor( damage_red, damage_green, 0, damage_time );
 
         health = 0;
 
-        event = new Event(EV_Killed);
+        event = new Event(EV_Killed, 10);
         event->AddEntity(attacker);
         event->AddFloat(damage);
         event->AddEntity(inflictor);

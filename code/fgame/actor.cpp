@@ -5011,7 +5011,7 @@ void Actor::HandleKilled(Event *ev, bool bPlayDeathAnim)
     health   = 0.0;
 
     if (bPlayDeathAnim) {
-        Event event(EV_Listener_ExecuteScript);
+        Event event(EV_Listener_ExecuteScript, ev->NumArgs() + 1);
         event.AddConstString(STRING_GLOBAL_KILLED_SCR);
         for (int i = 1; i <= ev->NumArgs(); i++) {
             event.AddValue(ev->GetValue(i));
@@ -7490,7 +7490,7 @@ void Actor::SetThinkIdle(eThinkNum think_idle)
         break;
     case THINK_DOG_IDLE:
         think_curious = THINK_DOG_CURIOUS;
-        SetThink(THINKSTATE_GRENADE, think_curious);
+        SetThink(THINKSTATE_GRENADE, THINK_DOG_CURIOUS);
         break;
     case THINK_ANIM:
         think_curious = THINK_ANIM_CURIOUS;
@@ -7536,13 +7536,16 @@ Set thinkstate.
 */
 void Actor::SetThinkState(eThinkState state, eThinkLevel level)
 {
-    if (state == THINKSTATE_ATTACK) {
-        int map;
+    eThinkNum map;
 
+    if (state == THINKSTATE_ATTACK) {
         m_csIdleMood = STRING_NERVOUS;
         map          = m_ThinkMap[THINKSTATE_ATTACK];
 
-        if (map != THINK_ALARM && map != THINK_WEAPONLESS && map != THINK_DOG_ATTACK && !GetWeapon(WEAPON_MAIN)) {
+        if (map != THINK_ALARM
+            && map != THINK_WEAPONLESS
+            && map != THINK_DOG_ATTACK
+            && !GetWeapon(WEAPON_MAIN)) {
             Com_Printf(
                 "^~^~^ LD ERROR: (entnum %i, radnum %i, targetname '%s'):    forcing weaponless attack state.\n"
                 "^~^~^ Level designers should specify 'type_attack weaponless' for this guy.\n",
@@ -7583,7 +7586,7 @@ Clear all thinkstates.
 */
 void Actor::ClearThinkStates(void)
 {
-    for (int i = 0; i <= NUM_THINKLEVELS - 1; i++) {
+    for (int i = 0; i < NUM_THINKLEVELS; i++) {
         SetThinkState(THINKSTATE_VOID, (eThinkLevel)i);
     }
 }
@@ -11664,7 +11667,7 @@ void Actor::BecomeTurretGuy(void)
     SetThink(THINKSTATE_DISGUISE, THINK_DISGUISE_SALUTE);
     SetThink(THINKSTATE_GRENADE, THINK_GRENADE);
 
-    if (CurrentThink() == THINK_IDLE && Turret_DecideToSelectState()) {
+    if (CurrentThink() == THINK_TURRET && Turret_DecideToSelectState()) {
         TransitionState(ACTOR_STATE_TURRET_COMBAT, 0);
     }
 }
