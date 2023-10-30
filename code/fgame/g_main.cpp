@@ -476,13 +476,14 @@ void G_RunFrame(int levelTime, int frameTime)
         }
 
         g_bBeforeThinks  = true;
-        Director.iPaused = -1;
+        Director.AllowPause(false);
 
         // Process most of the events before the physics are run
         // so that we can affect the physics immediately
         L_ProcessPendingEvents();
 
-        Director.iPaused = 1;
+        Director.AllowPause(true);
+        Director.Pause();
         Director.SetTime(level.inttime);
 
         //
@@ -620,13 +621,16 @@ void G_RunFrame(int levelTime, int frameTime)
             }
         }
 
-        level.framenum++;
-
         // reset out count of the number of game traces
         sv_numtraces   = 0;
         sv_numpmtraces = 0;
 
-        G_ClientDrawBoundingBoxes();
+        level.framenum++;
+
+        if (developer->integer) {
+            G_ClientDrawBoundingBoxes();
+            G_ClientDrawTags();
+        }
 
         G_UpdateMatchEndTime();
         G_CheckExitRules();
@@ -634,7 +638,7 @@ void G_RunFrame(int levelTime, int frameTime)
 
         gi.setConfigstring(CS_WARMUP, va("%.0f", dmManager.GetMatchStartTime()));
 
-        if (g_gametype->integer) {
+        if (g_gametype->integer != GT_SINGLE_PLAYER) {
             level.CheckVote();
         }
 
@@ -648,6 +652,47 @@ void G_RunFrame(int levelTime, int frameTime)
             }
         }
 
+        if (g_shownpc->integer) {
+            if (g_shownpc->integer > 1) {
+                g_shownpc->integer--;
+            } else {
+                int numActiveAllies = 0;
+                int numActiveAxis = 0;
+                int numAllies = 0;
+                int numAxis = 0;
+
+                for (edict = active_edicts.next; edict != &active_edicts; edict = edict->next) {
+                    Actor* actor;
+
+                    if (edict->entity->IsSubclassOfActor()) {
+                        actor = static_cast<Actor*>(edict->entity);
+                        
+                        if (actor->health) {
+                            continue;
+                        }
+
+                        if (actor->m_Team == TEAM_AMERICAN) {
+                            numAllies++;
+                            if (actor->m_bDoAI) {
+                                numActiveAllies++;
+                            }
+                        } else {
+                            numAxis++;
+                            if (actor->m_bDoAI) {
+                                numActiveAxis++;
+                            }
+                        }
+                    }
+                }
+
+                gi.locationprintf(&g_entities[0], 94, 28, va("NPCS: Allies %d(%d) Axis %d(%d)", numActiveAllies, numAllies, numActiveAxis, numAxis));
+                g_shownpc->integer = 60;
+            }
+        }
+
+        //
+        // Added in OPM
+        //
         // Add or delete bots that were added using addbot/removebot
         G_SpawnBots();
     }
@@ -685,6 +730,15 @@ void G_ClientDrawBoundingBoxes(void)
             }
         }
     }
+}
+
+/*
+=================
+G_ClientDrawTags
+=================
+*/
+void G_ClientDrawTags(void) {
+    // FIXME: unimplemented
 }
 
 // Used to tell the server about the edict pose, such as the player pose
