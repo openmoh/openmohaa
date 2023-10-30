@@ -53,5 +53,6 @@ void G_ExitWithError(const char *error);
 void G_AllocGameData(void);
 void G_DeAllocGameData(void);
 void G_ClientDrawBoundingBoxes(void);
+void G_ClientDrawTags(void);
 
 #endif /* g_main.h */
