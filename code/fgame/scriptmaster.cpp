@@ -752,7 +752,6 @@ void ScriptMaster::ExecuteRunning(void)
 void ScriptMaster::SetTime(int time)
 {
     timerList.SetTime(time);
-    timerList.SetDirty();
 }
 
 void ScriptMaster::AddTiming(ScriptThread *thread, int time)
