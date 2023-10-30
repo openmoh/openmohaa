@@ -23,14 +23,28 @@ public:
 
     Class *GetNextElement(int& foundTime);
 
-    void SetDirty(void) { m_bDirty = true; };
-
-    bool IsDirty(void) { return m_bDirty; };
-
-    void SetTime(int inttime) { m_inttime = inttime; };
+    void SetDirty(void);
+    bool IsDirty(void);
+    void SetTime(int inttime);
 
 #if defined(ARCHIVE_SUPPORTED)
     static void ArchiveElement(class Archiver& arc, Element *e);
     void        Archive(class Archiver       &arc) override;
 #endif
 };
+
+inline void con_timer::SetDirty(void)
+{
+    m_bDirty = true;
+};
+
+inline bool con_timer::IsDirty(void)
+{
+    return m_bDirty;
+};
+
+inline void con_timer::SetTime(int inttime)
+{
+    m_inttime = inttime;
+    m_bDirty  = true;
+}
