@@ -152,7 +152,7 @@ void Actor::Think_Curious(void)
         return;
     }
 
-    if (!m_Enemy || CanSeeEnemy(100)) {
+    if (m_Enemy && CanSeeEnemy(100)) {
         ClearPath();
         Anim_Stand();
         LookAtCuriosity();
@@ -183,7 +183,6 @@ void Actor::Think_Curious(void)
                 PostThink(true);
                 return;
             }
-            return;
         }
     } else if ((PathGoal() - origin).lengthSquared() < Square(48)) {
         ClearPath();
@@ -225,7 +224,7 @@ void Actor::LookAtCuriosity(void)
     float        fLookScale;
     vec3_t       vAngles;
 
-    if (m_Enemy && EnemyIsDisguised()) {
+    if (m_Enemy && !EnemyIsDisguised()) {
         SetDesiredLookDir(m_Enemy->origin - origin);
         fLookScale = 0.25;
     } else {
