@@ -4019,9 +4019,10 @@ WaitExecuteScriptInternal
 */
 void Listener::WaitExecuteScriptInternal(Event *ev, ScriptVariable& returnValue)
 {
+    ScriptThread *currentThread = Director.CurrentScriptThread();
     ScriptThread *thread = CreateScriptInternal(ev->GetValue(1));
 
-    thread->GetScriptClass()->Register(0, Director.CurrentThread());
+    thread->GetScriptClass()->Register(0, currentThread);
 
     thread->ScriptExecute(&ev->data[1], ev->dataSize - 1, returnValue);
 }
@@ -4033,9 +4034,10 @@ WaitExecuteThreadInternal
 */
 void Listener::WaitExecuteThreadInternal(Event *ev, ScriptVariable& returnValue)
 {
+    ScriptThread *currentThread = Director.CurrentScriptThread();
     ScriptThread *thread = CreateThreadInternal(ev->GetValue(1));
 
-    thread->GetScriptClass()->Register(0, Director.CurrentThread());
+    thread->Register(0, currentThread);
 
     thread->ScriptExecute(&ev->data[1], ev->dataSize - 1, returnValue);
 }
