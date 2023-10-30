@@ -577,7 +577,8 @@ public:
     // Scripting functions
     //
     void CommandDelay(Event *ev);
-    void EventDelete(Event *ev);
+    void Remove(Event *ev);
+    void ScriptRemove(Event *ev);
     void EventInheritsFrom(Event *ev);
     void EventIsInheritedBy(Event *ev);
     void GetClassname(Event *ev);

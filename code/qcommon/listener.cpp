@@ -349,9 +349,9 @@ Event EV_Listener_WaitTillAnyTimeout
 
 CLASS_DECLARATION(Class, Listener, NULL) {
     {&EV_Listener_CommandDelay,            &Listener::CommandDelay           },
-    {&EV_Delete,                           &Listener::EventDelete            },
-    {&EV_Remove,                           &Listener::EventDelete            },
-    {&EV_ScriptRemove,                     &Listener::EventDelete            },
+    {&EV_Remove,                           &Listener::Remove                 },
+    {&EV_Delete,                           &Listener::ScriptRemove           },
+    {&EV_ScriptRemove,                     &Listener::ScriptRemove           },
     {&EV_Listener_Classname,               &Listener::GetClassname           },
     {&EV_Listener_InheritsFrom,            &Listener::EventInheritsFrom      },
     {&EV_Listener_IsInheritedBy,           &Listener::EventIsInheritedBy     },
@@ -3734,16 +3734,26 @@ qboolean Listener::ValidEvent(str name) const
 
 /*
 =======================
-EventDelete
+Remove
 =======================
 */
-void Listener::EventDelete(Event *ev)
+void Listener::Remove(Event *ev)
 {
     if (ev->NumArgs()) {
         ScriptError("Arguments not allowed.");
     }
 
     delete this;
+}
+
+/*
+=======================
+ScriptRemove
+=======================
+*/
+void Listener::ScriptRemove(Event *ev)
+{
+    PostEvent(EV_Remove, 0);
 }
 
 /*
