@@ -1,24 +1,25 @@
 /*
 ===========================================================================
-Copyright (C) 1999-2005 Id Software, Inc.
+Copyright (C) 2023 the OpenMoHAA team
 
-This file is part of Quake III Arena source code.
+This file is part of OpenMoHAA source code.
 
-Quake III Arena source code is free software; you can redistribute it
+OpenMoHAA source code is free software; you can redistribute it
 and/or modify it under the terms of the GNU General Public License as
 published by the Free Software Foundation; either version 2 of the License,
 or (at your option) any later version.
 
-Quake III Arena source code is distributed in the hope that it will be
+OpenMoHAA source code is distributed in the hope that it will be
 useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with Quake III Arena source code; if not, write to the Free Software
+along with OpenMoHAA source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
+
 //
 
 #include "g_local.h"
@@ -475,7 +476,7 @@ void G_RunFrame(int levelTime, int frameTime)
             gi.DPrintf2("====SERVER FRAME==========================================================================\n");
         }
 
-        g_bBeforeThinks  = true;
+        g_bBeforeThinks = true;
         Director.AllowPause(false);
 
         // Process most of the events before the physics are run
@@ -657,35 +658,38 @@ void G_RunFrame(int levelTime, int frameTime)
                 g_shownpc->integer--;
             } else {
                 int numActiveAllies = 0;
-                int numActiveAxis = 0;
-                int numAllies = 0;
-                int numAxis = 0;
+                int numActiveAxis   = 0;
+                int numAllies       = 0;
+                int numAxis         = 0;
 
                 for (edict = active_edicts.next; edict != &active_edicts; edict = edict->next) {
-                    Actor* actor;
+                    Actor *actor;
 
                     if (edict->entity->IsSubclassOfActor()) {
-                        actor = static_cast<Actor*>(edict->entity);
-                        
-                        if (actor->health) {
-                            continue;
-                        }
+                        actor = static_cast<Actor *>(edict->entity);
 
-                        if (actor->m_Team == TEAM_AMERICAN) {
-                            numAllies++;
-                            if (actor->m_bDoAI) {
-                                numActiveAllies++;
-                            }
-                        } else {
-                            numAxis++;
-                            if (actor->m_bDoAI) {
-                                numActiveAxis++;
+                        if (actor->health > 0) {
+                            if (actor->m_Team == TEAM_AMERICAN) {
+                                numAllies++;
+                                if (actor->m_bDoAI) {
+                                    numActiveAllies++;
+                                }
+                            } else {
+                                numAxis++;
+                                if (actor->m_bDoAI) {
+                                    numActiveAxis++;
+                                }
                             }
                         }
                     }
                 }
 
-                gi.locationprintf(&g_entities[0], 94, 28, va("NPCS: Allies %d(%d) Axis %d(%d)", numActiveAllies, numAllies, numActiveAxis, numAxis));
+                gi.locationprintf(
+                    &g_entities[0],
+                    94,
+                    28,
+                    va("NPCS: Allies %d(%d) Axis %d(%d)", numActiveAllies, numAllies, numActiveAxis, numAxis)
+                );
                 g_shownpc->integer = 60;
             }
         }
@@ -737,7 +741,8 @@ void G_ClientDrawBoundingBoxes(void)
 G_ClientDrawTags
 =================
 */
-void G_ClientDrawTags(void) {
+void G_ClientDrawTags(void)
+{
     // FIXME: unimplemented
 }
 
@@ -1336,7 +1341,7 @@ qboolean G_ArchiveLevel(const char *filename, qboolean autosave, qboolean loadin
             arc.ArchiveObject(world);
 
             for (i = 0; i < globals.num_entities; i++) {
-				edict = &g_entities[i];
+                edict = &g_entities[i];
                 if (edict->inuse && edict->entity && !(edict->entity->flags & FL_DONTSAVE)) {
                     arc.ArchiveObject(edict->entity);
                 }
@@ -1709,12 +1714,11 @@ void G_ExitLevel(void)
             // Stay on the same map since no nextmap was set
             Com_sprintf(command, sizeof(command), "restart\n");
             gi.SendConsoleCommand(command);
-        }
-        else if (level.nextmap == level.mapname) {
+        } else if (level.nextmap == level.mapname) {
             // Stay on the same map if it's the same as the current map
             Com_sprintf(command, sizeof(command), "restart\n");
             gi.SendConsoleCommand(command);
-        } else if (!Q_stricmpn(level.nextmap, "vstr", 4) ) {
+        } else if (!Q_stricmpn(level.nextmap, "vstr", 4)) {
             // alias on another map
             strcpy(command, level.nextmap);
             gi.SendConsoleCommand(command);
