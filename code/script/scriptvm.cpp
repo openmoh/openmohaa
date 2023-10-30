@@ -1926,7 +1926,7 @@ void ScriptVM::Suspend()
 {
     if (state == STATE_DESTROYED) {
         ScriptError("Cannot suspend a dead thread.");
-    } else if (!state) {
+    } else if (state == STATE_RUNNING) {
         state = STATE_SUSPENDED;
     }
 }
