@@ -2311,8 +2311,7 @@ str ScriptThread::FileName(void)
 void ScriptThread::StartedWaitFor(void)
 {
     Stop();
-
-    m_ScriptVM->m_ThreadState = THREAD_SUSPENDED;
+    StartWaiting();
     m_ScriptVM->Suspend();
 }
 
@@ -2416,6 +2415,15 @@ void ScriptThread::Execute(Event *ev)
 void ScriptThread::Execute(ScriptVariable *data, int dataSize)
 {
     ScriptExecuteInternal(data, dataSize);
+}
+
+void ScriptThread::Execute()
+{
+    if (Director.iPaused > 0) {
+        StartTiming();
+    } else {
+        ScriptExecuteInternal(NULL, 0);
+    }
 }
 
 ScriptThread *ScriptThread::CreateThreadInternal(const ScriptVariable& label)

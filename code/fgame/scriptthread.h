@@ -193,7 +193,8 @@ public:
     virtual ~ScriptThread();
 
     void                  Execute(Event                 &ev);
-    void                  Execute(Event *ev = NULL);
+    void                  Execute(Event *ev);
+    void                  Execute();
     void                  Execute(ScriptVariable *data, int dataSize);
     void                  Wait(float time);
     void                  Pause(void);
