@@ -5040,9 +5040,8 @@ void Actor::DispatchEventKilled(Event *ev, bool bPlayDeathAnim)
 {
     GlobalFuncs_t *func = &GlobalFuncs[CurrentThink()];
 
-    if (func->Killed) {
-        (this->*func->Killed)(ev, bPlayDeathAnim);
-    }
+    assert(func->Killed);
+    (this->*func->Killed)(ev, bPlayDeathAnim);
 
     SetEnemy(NULL, false);
 
@@ -7061,15 +7060,14 @@ void Actor::ChangeAnim(void)
 
     m_fCrossblendTime = 0.5f;
     m_pAnimThread     = m_Anim.Create(this);
+    assert(m_pAnimThread);
 
-    if (m_pAnimThread) {
-        if (g_scripttrace->integer && m_pAnimThread->CanScriptTracePrint()) {
-            Com_Printf("+++ Change Anim\n");
-        }
-
-        m_pAnimThread->Register(STRING_EMPTY, this);
-        m_pAnimThread->StartTiming();
+    if (g_scripttrace->integer && m_pAnimThread->CanScriptTracePrint()) {
+        Com_Printf("+++ Change Anim\n");
     }
+
+    m_pAnimThread->Register(STRING_EMPTY, this);
+    m_pAnimThread->StartTiming();
 }
 
 /*
@@ -8908,9 +8906,13 @@ void Actor::WeaponSound(int iType, vec3_t sound_origin, float fDistSquared, floa
 
     Sentient *pEnemy;
 
-    pEnemy = pOwner->m_Enemy;
+    pEnemy = pOwner;
 
-    if (pOwner->m_Team == m_Team && !pOwner->m_Enemy && pOwner->IsSubclassOfActor()
+    if (pOwner->m_Team == m_Team) {
+        pEnemy = pOwner->m_Enemy;
+    }
+
+    if (pOwner->m_Team == m_Team && !pEnemy && pOwner->IsSubclassOfActor()
         && originator->IsSubclassOfWeapon()) {
         Actor  *pActor  = static_cast<Actor *>(pOwner);
         Weapon *pWeapon = static_cast<Weapon *>(originator);
