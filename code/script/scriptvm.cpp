@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2023 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -943,7 +943,8 @@ void ScriptVM::Execute(ScriptVariable *data, int dataSize, str label)
     ScriptVariable *b;
     ScriptVariable *c;
 
-    int index;
+    int       index;
+    op_name_t fieldNameIndex;
 
     Listener *listener;
 
@@ -1363,7 +1364,8 @@ void ScriptVM::Execute(ScriptVariable *data, int dataSize, str label)
                     listener = a->listenerValue();
 
                     if (listener == NULL) {
-                        value = Director.GetString(*reinterpret_cast<int *>(m_CodePos));
+                        fieldNameIndex = fetchActualOpcodeValue<op_name_t>();
+                        value          = Director.GetString(fieldNameIndex);
                         ScriptError("Field '%s' applied to NULL listener", value.c_str());
                     } else {
                         eventCalled = true;
@@ -1514,7 +1516,8 @@ void ScriptVM::Execute(ScriptVariable *data, int dataSize, str label)
                         Listener *listener = m_VMStack.GetTop().listenerValue();
 
                         if (listener == nullptr) {
-                            const op_name_t fieldName = fetchActualOpcodeValue<op_name_t>();
+                            fieldNameIndex = fetchActualOpcodeValue<op_name_t>();
+                            value          = Director.GetString(fieldNameIndex);
                             skipField();
                             ScriptError("Field '%s' applied to NULL listener", value.c_str());
                         } else {
@@ -1538,6 +1541,8 @@ void ScriptVM::Execute(ScriptVariable *data, int dataSize, str label)
                     Listener *listener = m_VMStack.GetTop().listenerValue();
 
                     if (listener == nullptr) {
+                        fieldNameIndex = fetchActualOpcodeValue<op_name_t>();
+                        value          = Director.GetString(fieldNameIndex);
                         ScriptError("Field '%s' applied to NULL listener", value.c_str());
                     } else {
                         storeTop<true>(listener);
