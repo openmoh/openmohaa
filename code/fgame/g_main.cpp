@@ -490,14 +490,14 @@ void G_RunFrame(int levelTime, int frameTime)
         //
         // treat each object in turn
         //
-        for (edict = active_edicts.next, num = 0; edict != &active_edicts; edict = edict->next, num++) {
+        for (edict = active_edicts.next; edict != &active_edicts; edict = edict->next) {
             assert(edict);
             assert(edict->inuse);
             assert(edict->entity);
 
-            Actor *actor = (Actor *)edict->entity;
+            Actor *actor = static_cast<Actor*>(edict->entity);
             if (actor->IsSubclassOfActor()) {
-                actor->m_bUpdateAnimDoneFlags = 0;
+                actor->m_bUpdateAnimDoneFlags = false;
                 if (actor->m_bAnimating) {
                     actor->PreAnimate();
                 }
@@ -519,7 +519,7 @@ void G_RunFrame(int levelTime, int frameTime)
 
         PathManager.ShowNodes();
 
-        showentnums = (sv_showentnums->integer && (!g_gametype->integer || sv_cheats->integer));
+        showentnums = (sv_showentnums->integer && (g_gametype->integer == GT_SINGLE_PLAYER || sv_cheats->integer));
 
         g_iInThinks++;
 
@@ -551,21 +551,13 @@ void G_RunFrame(int levelTime, int frameTime)
         }
 
         for (edict = active_edicts.next; edict != &active_edicts; edict = edict->next) {
-            num = edict->s.parent;
-
-            if (num != ENTITYNUM_NONE) {
-                while (1) {
-                    if (processed[num] == processedFrameID) {
-                        break;
-                    }
-
-                    processed[num] = processedFrameID;
-                    G_AddGEntity(edict, showentnums);
-
-                    if (edict->s.parent == ENTITYNUM_NONE) {
-                        break;
-                    }
+            for (num = edict->s.parent; num != ENTITYNUM_NONE; num = g_entities[num].s.parent) {
+                if (processed[num] == processedFrameID) {
+                    break;
                 }
+
+                processed[num] = processedFrameID;
+                G_AddGEntity(&g_entities[num], showentnums);
             }
 
             if (processed[edict - g_entities] != processedFrameID) {
