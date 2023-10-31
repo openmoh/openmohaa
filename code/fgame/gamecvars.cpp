@@ -363,7 +363,7 @@ void CVAR_Init(void)
 
     g_showmem         = gi.Cvar_Get("g_showmem", "0", 0);
     g_timeents        = gi.Cvar_Get("g_timeents", "0", 0);
-    g_timescripts     = gi.Cvar_Get("g_timesripts", "0", 0);
+    g_timescripts     = gi.Cvar_Get("g_timescripts", "0", 0);
     g_showaxis        = gi.Cvar_Get("g_showaxis", "0", 0);
     g_showplayerstate = gi.Cvar_Get("g_showplayerstate", "0", 0);
     g_showplayeranim  = gi.Cvar_Get("g_showplayeranim", "0", 0);
