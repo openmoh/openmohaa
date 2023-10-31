@@ -1057,7 +1057,8 @@ void ScriptMaster::Pause()
 
 void ScriptMaster::Unpause()
 {
-    if (iPaused-- == 1) {
+    iPaused--;
+    if (iPaused == 0) {
         ExecuteRunning();
     }
 }
