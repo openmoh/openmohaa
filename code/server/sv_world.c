@@ -772,7 +772,7 @@ qboolean SV_HitEntity(gentity_t* pEnt, gentity_t* pOther)
 {
 	clipHandle_t handle = SV_ClipHandleForEntity(pOther);
 
-	return CM_TransformedBoxSightTrace(
+	return !CM_TransformedBoxSightTrace(
 		pEnt->s.origin,
 		pEnt->s.origin,
 		pEnt->r.mins,
