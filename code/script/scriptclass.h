@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2023 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -56,6 +56,7 @@ public:
     ScriptClass();
     ~ScriptClass();
 
+    void        StoppedNotify() override;
     void        Archive(Archiver       &arc) override;
     void        ArchiveInternal(Archiver       &arc);
     static void ArchiveScript(Archiver& arc, ScriptClass **obj);

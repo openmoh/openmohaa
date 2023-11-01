@@ -78,6 +78,16 @@ ScriptClass::~ScriptClass()
 
 /*
 ====================
+StoppedNotify
+====================
+*/
+void ScriptClass::StoppedNotify()
+{
+    delete this;
+}
+
+/*
+====================
 Archive
 ====================
 */
