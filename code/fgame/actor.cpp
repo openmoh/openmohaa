@@ -7324,10 +7324,8 @@ void Actor::Think(void)
     }
 
     parm.movefail = false;
-    if (m_bBecomeRunner) {
-        if (m_ThinkMap[THINKSTATE_IDLE] != THINK_RUNNER || m_ThinkMap[THINKSTATE_IDLE] != THINK_PATROL) {
-            parm.movefail = true;
-        }
+    if (m_bBecomeRunner && m_ThinkMap[THINKSTATE_IDLE] != THINK_RUNNER && m_ThinkMap[THINKSTATE_IDLE] != THINK_PATROL) {
+        parm.movefail = true;
     }
 
     if (m_bDirtyThinkState) {
