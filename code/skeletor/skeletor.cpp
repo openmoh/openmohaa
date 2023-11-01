@@ -391,7 +391,7 @@ void skeletor_c::SetPose( const frameInfo_t *frameInfo, const int *contIndices, 
 		for( i = 0; i < 5; i++ )
 		{
 			contNum = contIndices[ i ];
-			if( contNum != -1 )
+			if( contNum >= 0 && contNum < m_Tiki->m_boneList.NumChannels() )
 			{
 				cutoff_weight = ( contValues[ i ][ 3 ] - 1.0 ) * ( contValues[ i ][ 3 ] - 1.0 );
 				if( cutoff_weight >= EPSILON )
