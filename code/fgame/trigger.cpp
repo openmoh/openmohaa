@@ -358,11 +358,14 @@ void Trigger::StartThread(Event *ev)
 {
     SafePtr<Trigger> This = this;
 
-    parm.other = ev->GetEntity(1);
+    parm.other = NULL;
 
-    if (ev->NumArgs() > 1) {
-        parm.owner = ev->GetEntity(2);
+    if (ev->NumArgs() > 0) {
+        parm.other = ev->GetEntity(1);
     }
+
+    parm.other = ev->NumArgs() > 0 ? ev->GetEntity(1) : NULL;
+    parm.owner = ev->NumArgs() > 1 ? ev->GetEntity(2) : NULL;
 
     Unregister(STRING_TRIGGER);
 
@@ -376,8 +379,8 @@ qboolean Trigger::respondTo(Entity *other)
 {
     return (
         ((respondto & TRIGGER_PLAYERS) && other->isClient())
-        || ((respondto & TRIGGER_MONSTERS) && other->isSubclassOf(Actor))
-        || ((respondto & TRIGGER_PROJECTILES) && other->isSubclassOf(Projectile))
+        || ((respondto & TRIGGER_MONSTERS) && other->IsSubclassOfActor())
+        || ((respondto & TRIGGER_PROJECTILES) && other->IsSubclassOfProjectile())
     );
 }
 
@@ -396,6 +399,11 @@ void Trigger::TriggerStuff(Event *ev)
 
     // if trigger is shut off return immediately
     if (!triggerable) {
+        return;
+    }
+
+    if (isSubclassOf(TriggerUse) && *ev != EV_Use) {
+        Com_Printf("^~^~^  Attempting to trigger TriggerUse with non-use trigger\n");
         return;
     }
 
@@ -418,9 +426,13 @@ void Trigger::TriggerStuff(Event *ev)
 
     assert(other != this);
 
+    if (other == this) {
+        ScriptError("trigger '%s' triggered by self", TargetName().c_str());
+    }
+
     // Always respond to activate messages from the world since they're probably from
     // the "trigger" command
-    if (!respondTo(other) && !((other == world) && (*ev == EV_Activate)) && (!other || !other->isSubclassOf(Camera))) {
+    if (!respondTo(other) && (other != world || *ev != EV_Activate) && (!other || (!other->isSubclassOf(Camera) && !other->isSubclassOf(BarrelObject)))) {
         return;
     }
 
@@ -476,7 +488,9 @@ void Trigger::TriggerStuff(Event *ev)
         whatToTrigger = 0;
     }
 
-    trigger_time = level.time + wait;
+    if (takedamage == DAMAGE_NO) {
+        trigger_time = level.time + wait;
+    }
 
     if (!whatToTrigger) {
         event = new Event(EV_Trigger_Effect);
@@ -493,10 +507,14 @@ void Trigger::TriggerStuff(Event *ev)
     PostEvent(event, delay);
 
     // don't trigger the thread if we were triggered by the world touching us
-    if ((activator != world) || (ev->eventnum != EV_Touch.eventnum)) {
+    if ((activator != world) || (*ev != EV_Touch)) {
         event = new Event(EV_Trigger_StartThread);
         if (activator) {
             event->AddEntity(activator);
+        }
+        if (activator->IsSubclassOfProjectile()) {
+            Projectile* proj = static_cast<Projectile*>(activator);
+            event->AddEntity(G_GetEntity(proj->owner));
         }
         PostEvent(event, delay);
     }
