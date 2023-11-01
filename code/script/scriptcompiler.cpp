@@ -252,6 +252,7 @@ void ScriptCompiler::EmitAssignmentStatement(sval_t lhs, unsigned int sourcePos)
     unsigned int index;
     sval_t       listener_val;
     const char  *name = lhs.node[2].stringValue;
+    str name_lowered;
 
     if (lhs.node[0].type != ENUM_field) {
         if (lhs.node[0].type == ENUM_array_expr) {
@@ -264,8 +265,10 @@ void ScriptCompiler::EmitAssignmentStatement(sval_t lhs, unsigned int sourcePos)
         return;
     }
 
-    index    = Director.AddString(name);
-    eventnum = Event::FindSetterEventNum(name);
+    name_lowered = name;
+    name_lowered.tolower();
+    index    = Director.AddString(name_lowered);
+    eventnum = Event::FindSetterEventNum(name_lowered);
 
     listener_val = lhs.node[1];
 
@@ -474,6 +477,7 @@ void ScriptCompiler::EmitField(sval_t listener_val, sval_t field_val, unsigned i
     unsigned int eventnum = 0;
     unsigned int index    = -1;
     unsigned int prev_index;
+    str name_lowered;
 
     /*
     if (field_val.node[0].stringValue) {
@@ -490,8 +494,10 @@ void ScriptCompiler::EmitField(sval_t listener_val, sval_t field_val, unsigned i
     }
     */
 
-    index    = Director.AddString(field_val.stringValue);
-    eventnum = Event::FindGetterEventNum(field_val.stringValue);
+    name_lowered = field_val.stringValue;
+    name_lowered.tolower();
+    index    = Director.AddString(name_lowered);
+    eventnum = Event::FindGetterEventNum(name_lowered);
 
     prev_index = GetOpcodeValue<unsigned int>(sizeof(unsigned int), sizeof(unsigned int));
 
