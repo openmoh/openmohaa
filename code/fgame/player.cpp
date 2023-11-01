@@ -4034,8 +4034,7 @@ void Player::TurretMove(usercmd_t *ucmd)
 
     client->ps.gravity = gravity * sv_gravity->value;
 
-    if (!m_pTurret->IsSubclassOfTurretGun()
-        || (m_pTurret->IsSubclassOfTurretGun() && m_pTurret->UserAim(current_ucmd))) {
+    if (!m_pTurret->IsSubclassOfTurretGun() || !m_pTurret->UserAim(current_ucmd)) {
         ClientMove(ucmd);
     } else {
         client->ps.commandTime = ucmd->serverTime;
