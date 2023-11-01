@@ -264,7 +264,7 @@ ScriptVM::ScriptVM(ScriptClass *scriptClass, unsigned char *pCodePos, ScriptThre
     m_PrevCodePos = NULL;
     m_CodePos     = pCodePos;
 
-    state         = STATE_RUNNING;
+    state         = STATE_EXECUTION;
     m_ThreadState = THREAD_RUNNING;
 
     m_pOldData    = NULL;
@@ -935,15 +935,11 @@ Executes a program
 void ScriptVM::Execute(ScriptVariable *data, int dataSize, str label)
 {
     unsigned char *opcode;
-    bool           doneProcessing = false;
-    bool           deleteThread   = false;
-    bool           eventCalled    = false;
 
     ScriptVariable *a;
     ScriptVariable *b;
     ScriptVariable *c;
 
-    int       index;
     op_name_t fieldNameIndex;
 
     Listener *listener;
@@ -951,25 +947,29 @@ void ScriptVM::Execute(ScriptVariable *data, int dataSize, str label)
     Event           ev;
     ScriptVariable *var = NULL;
 
-    static str str_null = "";
-    str      & value    = str_null;
-
     ConSimple *targetList;
-
-    if (label != "") {
-        // Throw if label is not found
-        if (!(m_CodePos = m_ScriptClass->FindLabel(label))) {
-            ScriptError("ScriptVM::Execute: label '%s' does not exist in '%s'.", label.c_str(), Filename().c_str());
-        }
-    }
 
     if (Director.stackCount >= MAX_STACK_DEPTH) {
         state = STATE_EXECUTION;
 
         ScriptException::next_abort = -1;
-        ScriptException exc("stack overflow");
+        throw ScriptException("stack overflow");
+    }
 
-        throw exc;
+    if (label.length()) {
+        // Throw if label is not found
+        m_CodePos = m_ScriptClass->FindLabel(label);
+        if (!m_CodePos) {
+            ScriptError("ScriptVM::Execute: label '%s' does not exist in '%s'.", label.c_str(), Filename().c_str());
+        }
+    }
+
+    if (g_scripttrace->integer && CanScriptTracePrint()) {
+        gi.DPrintf2(
+            "+++FRAME: %i (%p) +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n",
+            Director.stackCount,
+            this
+        );
     }
 
     Director.stackCount++;
@@ -983,7 +983,20 @@ void ScriptVM::Execute(ScriptVariable *data, int dataSize, str label)
     Director.cmdTime  = glbs.Milliseconds();
     Director.cmdCount = 0;
 
-    while (!doneProcessing && state == STATE_RUNNING) {
+    while (state == STATE_RUNNING) {
+        if (g_scripttrace->integer && CanScriptTracePrint()) {
+            switch (g_scripttrace->integer) {
+            case 1:
+            case 3:
+                ScriptTrace1();
+                break;
+            case 2:
+            case 4:
+                ScriptTrace2();
+                break;
+            }
+        }
+
         m_PrevCodePos = m_CodePos;
 
         Director.cmdCount++;
@@ -993,8 +1006,10 @@ void ScriptVM::Execute(ScriptVariable *data, int dataSize, str label)
                 if (level.m_LoopProtection) {
                     Director.cmdTime = glbs.Milliseconds();
 
-                    deleteThread = true;
-                    state        = STATE_EXECUTION;
+                    GetScript()->PrintSourcePos(m_CodePos, true);
+                    gi.DPrintf2("\n");
+
+                    state = STATE_EXECUTION;
 
                     if (level.m_LoopDrop) {
                         ScriptException::next_abort = -1;
@@ -1032,9 +1047,6 @@ void ScriptVM::Execute(ScriptVariable *data, int dataSize, str label)
 				}
 				*/
             }
-
-            index       = 0;
-            eventCalled = false;
 
             opcode = m_CodePos++;
             switch (*opcode) {
@@ -1364,20 +1376,13 @@ void ScriptVM::Execute(ScriptVariable *data, int dataSize, str label)
                     listener = a->listenerValue();
 
                     if (listener == NULL) {
-                        fieldNameIndex = fetchActualOpcodeValue<op_name_t>();
-                        value          = Director.GetString(fieldNameIndex);
-                        ScriptError("Field '%s' applied to NULL listener", value.c_str());
+                        fieldNameIndex = fetchOpcodeValue<op_name_t>();
+                        ScriptError("Field '%s' applied to NULL listener", Director.GetString(fieldNameIndex).c_str());
                     } else {
-                        eventCalled = true;
                         loadTop(listener);
                     }
                 } catch (ScriptException& exc) {
                     m_VMStack.Pop();
-
-                    if (!eventCalled) {
-                        m_CodePos += sizeof(unsigned int);
-                    }
-
                     throw exc;
                 }
 
@@ -1517,9 +1522,10 @@ void ScriptVM::Execute(ScriptVariable *data, int dataSize, str label)
 
                         if (listener == nullptr) {
                             fieldNameIndex = fetchActualOpcodeValue<op_name_t>();
-                            value          = Director.GetString(fieldNameIndex);
                             skipField();
-                            ScriptError("Field '%s' applied to NULL listener", value.c_str());
+                            ScriptError(
+                                "Field '%s' applied to NULL listener", Director.GetString(fieldNameIndex).c_str()
+                            );
                         } else {
                             ScriptVariable *const listenerVar = storeTop<true>(listener);
 
@@ -1542,8 +1548,7 @@ void ScriptVM::Execute(ScriptVariable *data, int dataSize, str label)
 
                     if (listener == nullptr) {
                         fieldNameIndex = fetchActualOpcodeValue<op_name_t>();
-                        value          = Director.GetString(fieldNameIndex);
-                        ScriptError("Field '%s' applied to NULL listener", value.c_str());
+                        ScriptError("Field '%s' applied to NULL listener", Director.GetString(fieldNameIndex).c_str());
                     } else {
                         storeTop<true>(listener);
                     }
@@ -1782,14 +1787,25 @@ void ScriptVM::Execute(ScriptVariable *data, int dataSize, str label)
 
     Director.stackCount--;
 
-    if (deleteThread || state == STATE_WAITING) {
-        delete m_Thread;
-    } else if (state == STATE_SUSPENDED) {
-        state = STATE_EXECUTION;
+    if (g_scripttrace->integer && CanScriptTracePrint()) {
+        gi.DPrintf2(
+            "---FRAME: %i (%p) -------------------------------------------------------------------\n",
+            Director.stackCount,
+            this
+        );
     }
 
-    if (state == STATE_DESTROYED) {
+    switch (state) {
+    case STATE_WAITING:
+        delete m_Thread;
         delete this;
+        break;
+    case STATE_SUSPENDED:
+        state = STATE_EXECUTION;
+        break;
+    case STATE_DESTROYED:
+        delete this;
+        break;
     }
 }
 
@@ -1872,7 +1888,7 @@ NotifyDelete
 void ScriptVM::NotifyDelete(void)
 {
     if (g_scripttrace->integer && CanScriptTracePrint()) {
-        gi.DPrintf2("---THREAD: %p\n\n", this);
+        gi.DPrintf2("---THREAD: %p\n", this);
     }
 
     switch (state) {
