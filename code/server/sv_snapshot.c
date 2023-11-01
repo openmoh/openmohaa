@@ -452,6 +452,7 @@ static void SV_AddEntToSnapshot( svEntity_t *svEnt, gentity_t *gEnt, snapshotEnt
 		return;
 	}
 
+	gEnt->r.lastNetTime = svs.time - svs.startTime;
 	eNums->snapshotEntities[ eNums->numSnapshotEntities ] = gEnt->s.number;
 	eNums->numSnapshotEntities++;
 }
