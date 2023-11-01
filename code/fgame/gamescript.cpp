@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2023 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -68,7 +68,7 @@ bool AbstractScript::GetSourceAt(size_t sourcePos, str *sourceLine, int& column,
         }
     }
 
-    while (*p != '\0' && *p != '\n') {
+    while (*p != '\0' && (*p != '\r' && *p != '\n')) {
         p++;
     }
 
