@@ -1819,13 +1819,42 @@ Event EV_ScriptModel_SetAnim
     "Sets the script model's animation",
     EV_NORMAL
 );
+Event EV_ScriptModel_AnimDone
+(
+    "animdone",
+    EV_ZERO,
+    NULL,
+    NULL,
+    "Script model animation has finished.",
+    EV_NORMAL
+);
+Event EV_ScriptModel_MoveAnim
+(
+    "moveanim",
+    EV_DEFAULT,
+    "s",
+    "animName",
+    "Makes the script model play an animation and move with the deltas contained in the animation",
+    EV_NORMAL
+);
+Event EV_ScriptModel_MovingAnim
+(
+    "moving_from_anim",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "The script model is moving based on an animation",
+    EV_NORMAL
+);
 
 CLASS_DECLARATION(ScriptSlave, ScriptModel, "script_model") {
-    {&EV_Gib,                 &ScriptModel::GibEvent     },
-    {&EV_SetAngle,            &ScriptModel::SetAngleEvent},
-    {&EV_ScriptModel_SetAnim, &ScriptModel::SetAnimEvent },
-    {&EV_Model,               &ScriptModel::SetModelEvent},
-    {NULL,                    NULL                       },
+    {&EV_SetAngle,               &ScriptModel::SetAngleEvent      },
+    {&EV_ScriptModel_SetAnim,    &ScriptModel::SetAnimEvent       },
+    {&EV_Model,                  &ScriptModel::SetModelEvent      },
+    {&EV_ScriptModel_AnimDone,   &ScriptModel::AnimDoneEvent      },
+    {&EV_ScriptModel_MoveAnim,   &ScriptModel::MoveAnimEvent      },
+    {&EV_ScriptModel_MovingAnim, &ScriptModel::MovingFromAnimEvent},
+    {NULL,                       NULL                             },
 };
 
 ScriptModel::ScriptModel()
@@ -1837,7 +1866,6 @@ ScriptModel::ScriptModel()
 }
 
 void ScriptModel::SetModelEvent(Event *ev)
-
 {
     ScriptSlave::SetModelEvent(ev);
 
@@ -1861,8 +1889,50 @@ void ScriptModel::SetAnimEvent(Event *ev)
     }
 }
 
-void ScriptModel::SetAngleEvent(Event *ev)
+void ScriptModel::AnimDoneEvent(Event *ev)
+{
+    CancelEventsOfType(EV_ScriptModel_MovingAnim);
+    Unregister(STRING_ANIMDONE);
+}
 
+void ScriptModel::MoveAnimEvent(Event *ev)
+{
+    str animName;
+    int animNum;
+
+    animName = ev->GetString(1);
+
+    if (!animName.length()) {
+        return;
+    }
+
+    animNum = gi.Anim_NumForName(edict->tiki, animName.c_str());
+    if (animNum < 0) {
+        ScriptError("ScriptModel could not find animation %s.", animName.c_str());
+    }
+
+    NewAnim(animNum, EV_ScriptModel_AnimDone);
+    RestartAnimSlot(0);
+    PostEvent(EV_ScriptModel_MovingAnim, 0);
+}
+
+void ScriptModel::MovingFromAnimEvent(Event *ev)
+{
+    Vector newOrigin;
+    Vector newAngles;
+
+    // calculate velocity
+    newOrigin = origin + frame_delta;
+    velocity  = (newOrigin - origin) / level.frametime;
+
+    // calculate angular velocity
+    newAngles = angles + Vector(0, angular_delta, 0);
+    avelocity = (newAngles - angles) / level.frametime;
+
+    PostEvent(EV_ScriptModel_MovingAnim, level.frametime);
+}
+
+void ScriptModel::SetAngleEvent(Event *ev)
 {
     float angle;
 
@@ -1882,7 +1952,6 @@ void ScriptModel::SetAngleEvent(Event *ev)
 }
 
 void ScriptModel::GibEvent(Event *ev)
-
 {
     int   num, power;
     float scale;

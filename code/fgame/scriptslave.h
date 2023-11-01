@@ -234,6 +234,9 @@ public:
     void SetAngleEvent(Event *ev);
     void SetModelEvent(Event *ev);
     void SetAnimEvent(Event *ev);
+    void AnimDoneEvent(Event* ev);
+    void MoveAnimEvent(Event* ev);
+    void MovingFromAnimEvent(Event* ev);
 };
 
 class ScriptOrigin : public ScriptSlave
