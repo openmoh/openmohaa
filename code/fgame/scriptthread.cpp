@@ -2276,7 +2276,7 @@ ScriptThread::~ScriptThread()
     ScriptVM* vm;
 
     if (g_scripttrace->integer && CanScriptTracePrint()) {
-        gi.DPrintf2("---Destructor THREAD: %p\n\n", this);
+        gi.DPrintf2("---Destructor THREAD: %p\n", this);
     }
 
     assert(m_ScriptVM);
@@ -2300,7 +2300,7 @@ ScriptThread::~ScriptThread()
 
 ScriptClass *ScriptThread::GetScriptClass(void)
 {
-    return m_ScriptVM->m_ScriptClass;
+    return m_ScriptVM->GetScriptClass();
 }
 
 str ScriptThread::FileName(void)
@@ -2369,7 +2369,7 @@ void ScriptThread::ScriptExecuteInternal(ScriptVariable *data, int dataSize)
     currentThread = Director.CurrentThread();
     previousThread = this;
 
-    Director.m_PreviousThread = currentThread;
+    Director.m_PreviousThread = Director.CurrentThread();
     Director.m_CurrentThread  = this;
 
     Stop();
@@ -2428,12 +2428,12 @@ void ScriptThread::Execute()
 
 ScriptThread *ScriptThread::CreateThreadInternal(const ScriptVariable& label)
 {
-    return m_ScriptVM->GetScriptClass()->CreateThreadInternal(label);
+    return GetScriptClass()->CreateThreadInternal(label);
 }
 
 ScriptThread *ScriptThread::CreateScriptInternal(const ScriptVariable& label)
 {
-    return m_ScriptVM->GetScriptClass()->CreateScriptInternal(label);
+    return GetScriptClass()->CreateScriptInternal(label);
 }
 
 void ScriptThread::StartTiming(void)
