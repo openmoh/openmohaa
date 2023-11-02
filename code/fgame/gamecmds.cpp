@@ -444,22 +444,52 @@ qboolean G_ShowVarCmd(gentity_t *ent)
 
 qboolean G_ScriptCmd(gentity_t *ent)
 {
-    if (gi.Argc() > 1) {
-        const char *script    = gi.Argv(1);
-        int         recompile = false;
+    const char   *script;
+    const char   *name;
+    Entity       *scriptEnt;
+    ConsoleEvent *event;
+    int           numArgs;
+    int           i;
+    bool          recompile;
 
-        if (gi.Argc() > 2) {
-            sscanf(gi.Argv(2), "%d", &recompile);
-        }
+    numArgs = gi.Argc();
 
-        Director.GetScript(script, recompile);
-        Director.ExecuteThread(script);
-
-        return qtrue;
-    } else {
+    if (numArgs <= 1) {
         gi.Printf("Usage: script [filename] ([recompile])\n");
-        return qfalse;
+        return qtrue;
     }
+
+    if (!sv_cheats->integer) {
+        gi.Printf("command not available\n");
+        return qtrue;
+    }
+
+    script = gi.Argv(1);
+    if (*script == '*') {
+        scriptEnt = static_cast<Entity *>(G_GetEntity(atoi(script + 1)));
+    } else {
+        scriptEnt = static_cast<Entity *>(G_FindTarget(0, script));
+    }
+
+    if (!scriptEnt) {
+        gi.Printf("Could not find entity %s\n", script);
+        return qtrue;
+    }
+
+    name = gi.Argv(2);
+    if (!Event::Exists(name)) {
+        gi.Printf("Unknown command '%s'.\n", name);
+        return qtrue;
+    }
+
+    event = new ConsoleEvent(name);
+    event->SetConsoleEdict(ent);
+
+    for (i = 3; i < numArgs; i++) {
+        event->AddToken(gi.Argv(i));
+    }
+
+    return scriptEnt->ProcessEvent(event);
 }
 
 void PrintVariableList(ScriptVariableList *list) {}
