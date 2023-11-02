@@ -57,9 +57,10 @@ consolecmd_t G_ConsoleCmds[] = {
     {"cam",             G_CameraCmd,          qfalse},
     {"snd",             G_SoundCmd,           qfalse},
     {"showvar",         G_ShowVarCmd,         qfalse},
-    {"script",          G_ScriptCmd,          qfalse},
     {"levelvars",       G_LevelVarsCmd,       qfalse},
     {"gamevars",        G_GameVarsCmd,        qfalse},
+    {"script",          G_ScriptCmd,          qfalse},
+    {"reloadmap",       G_ReloadMap,          qfalse},
     {"compilescript",   G_CompileScript,      qfalse},
     {"addbot",          G_AddBotCommand,      qfalse},
     {"removebot",       G_RemoveBotCommand,   qfalse},
@@ -442,6 +443,26 @@ qboolean G_ShowVarCmd(gentity_t *ent)
     return qtrue;
 }
 
+void PrintVariableList(ScriptVariableList *list) {}
+
+qboolean G_LevelVarsCmd(gentity_t *ent)
+
+{
+    gi.Printf("Level Variables\n");
+    PrintVariableList(level.vars);
+
+    return qtrue;
+}
+
+qboolean G_GameVarsCmd(gentity_t *ent)
+
+{
+    gi.Printf("Game Variables\n");
+    PrintVariableList(game.vars);
+
+    return qtrue;
+}
+
 qboolean G_ScriptCmd(gentity_t *ent)
 {
     const char   *script;
@@ -492,22 +513,11 @@ qboolean G_ScriptCmd(gentity_t *ent)
     return scriptEnt->ProcessEvent(event);
 }
 
-void PrintVariableList(ScriptVariableList *list) {}
+qboolean G_ReloadMap(gentity_t* ent) {
+    char name[256];
 
-qboolean G_LevelVarsCmd(gentity_t *ent)
-
-{
-    gi.Printf("Level Variables\n");
-    PrintVariableList(level.vars);
-
-    return qtrue;
-}
-
-qboolean G_GameVarsCmd(gentity_t *ent)
-
-{
-    gi.Printf("Game Variables\n");
-    PrintVariableList(game.vars);
+    Com_sprintf(name, sizeof(name), "gamemap \"%s\"\n", level.mapname.c_str());
+    gi.SendConsoleCommand(name);
 
     return qtrue;
 }
