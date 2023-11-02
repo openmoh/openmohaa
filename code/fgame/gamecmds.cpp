@@ -84,6 +84,24 @@ void G_InitConsoleCommands(void)
     gi.AddCommand("noclip", NULL);
     gi.AddCommand("kill", NULL);
     gi.AddCommand("script", NULL);
+    gi.AddCommand("ready", NULL);
+    gi.AddCommand("notready", NULL);
+    gi.AddCommand("invprev", NULL);
+    gi.AddCommand("invnext", NULL);
+    gi.AddCommand("weapprev", NULL);
+    gi.AddCommand("weapnext", NULL);
+    gi.AddCommand("reload", NULL);
+    gi.AddCommand("gameversion", NULL);
+    gi.AddCommand("fov", NULL);
+    gi.AddCommand("holster", NULL);
+    gi.AddCommand("safeholster", NULL);
+    gi.AddCommand("safezoom", NULL);
+    gi.AddCommand("zoomoff", NULL);
+    gi.AddCommand("join_team", NULL);
+    gi.AddCommand("spectator", NULL);
+    gi.AddCommand("primarydmweapon", NULL);
+    gi.AddCommand("secondarydmweapon", NULL);
+    gi.AddCommand("dmmessage", NULL);
 
     for (cmds = G_ConsoleCmds; cmds->command != NULL; cmds++) {
         gi.AddCommand(cmds->command, NULL);
