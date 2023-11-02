@@ -282,7 +282,7 @@ void ActorPath::UpdatePos(float *origin, float fNodeRadius)
         VectorSub2D(end, origin, m_delta);
         VectorNormalize2D2(m_delta, dir);
     } else if (m_fLookAhead >= 4096.0f) {
-        if (PathLookAhead(m_fLookAhead, end, origin) <= (m_fLookAhead - 4096.0f)
+        if (PathLookAhead(m_fLookAhead, end, origin) > (m_fLookAhead - 4096.0f)
             || G_SightTrace(
                 origin + Vector(0, 0, 32),
                 Vector(-15, -15, 0),
