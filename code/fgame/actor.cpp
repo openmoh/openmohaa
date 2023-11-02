@@ -7060,14 +7060,14 @@ void Actor::ChangeAnim(void)
 
     m_fCrossblendTime = 0.5f;
     m_pAnimThread     = m_Anim.Create(this);
-    assert(m_pAnimThread);
+    if (m_pAnimThread) {
+        if (g_scripttrace->integer && m_pAnimThread->CanScriptTracePrint()) {
+            Com_Printf("+++ Change Anim\n");
+        }
 
-    if (g_scripttrace->integer && m_pAnimThread->CanScriptTracePrint()) {
-        Com_Printf("+++ Change Anim\n");
+        m_pAnimThread->Register(STRING_EMPTY, this);
+        m_pAnimThread->StartTiming();
     }
-
-    m_pAnimThread->Register(STRING_EMPTY, this);
-    m_pAnimThread->StartTiming();
 }
 
 /*
