@@ -487,11 +487,7 @@ void ScriptVM::executeCommandInternal<true>(
     }
 
     ScriptVariable& pTop = m_VMStack.GetTop();
-    if (ev.NumArgs() > iParamCount) {
-        pTop = std::move(ev.GetLastValue());
-    } else {
-        pTop.Clear();
-    }
+    pTop = std::move(ev.GetValue());
 }
 
 template<>
@@ -512,7 +508,7 @@ template<>
 void ScriptVM::executeCommand<false, true>(Listener *listener, op_parmNum_t iParamCount, op_evName_t eventnum)
 {
     ScriptCommandEvent ev =
-        iParamCount ? ScriptCommandEvent(eventnum, iParamCount + 1) : ScriptCommandEvent(eventnum, 1);
+        iParamCount ? ScriptCommandEvent(eventnum, iParamCount) : ScriptCommandEvent(eventnum);
     return executeCommandInternal<true>(ev, listener, m_VMStack.GetTopArray(), iParamCount);
 }
 
@@ -520,15 +516,13 @@ template<>
 void ScriptVM::executeCommand<true, true>(Listener *listener, op_parmNum_t iParamCount, op_evName_t eventnum)
 {
     ScriptCommandEvent ev =
-        iParamCount ? ScriptCommandEvent(eventnum, iParamCount + 1) : ScriptCommandEvent(eventnum, 1);
+        iParamCount ? ScriptCommandEvent(eventnum, iParamCount) : ScriptCommandEvent(eventnum);
     return executeCommandInternal<true>(ev, listener, m_VMStack.GetTopArray(), iParamCount);
 }
 
 void ScriptVM::transferVarsToEvent(Event& ev, ScriptVariable *fromVar, op_parmNum_t count)
 {
-    for (uint16_t i = 0; i < count; i++) {
-        ev.AddValue(fromVar[i]);
-    }
+    ev.CopyValues(fromVar, count);
 }
 
 bool ScriptVM::executeGetter(Listener *listener, op_evName_t eventName)
@@ -541,11 +535,7 @@ bool ScriptVM::executeGetter(Listener *listener, op_evName_t eventName)
         listener->ProcessScriptEvent(ev);
 
         ScriptVariable& pTop = m_VMStack.GetTop();
-        if (ev.NumArgs() > 0) {
-            pTop = std::move(ev.GetLastValue());
-        } else {
-            pTop.Clear();
-        }
+        pTop = std::move(ev.GetValue());
 
         return true;
     } else {
@@ -567,7 +557,7 @@ bool ScriptVM::executeSetter(Listener *listener, op_evName_t eventName)
         ScriptCommandEvent ev(eventNum, 1);
 
         ScriptVariable& pTop = m_VMStack.GetTop();
-        ev.AddValue(pTop);
+        ev.CopyValues(&pTop, 1);
 
         listener->ProcessScriptEvent(ev);
 

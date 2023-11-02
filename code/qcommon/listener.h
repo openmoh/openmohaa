@@ -377,6 +377,7 @@ public:
     void AddTokens(int argc, const char **argv);
     void AddValue(const ScriptVariable& value);
     void AddVector(const Vector& vector);
+    void CopyValues(const ScriptVariable* values, size_t count);
 
     void Clear(void);
 
@@ -402,7 +403,6 @@ public:
     str             GetToken(int pos);
     ScriptVariable& GetValue(int pos);
     ScriptVariable& GetValue(void);
-    ScriptVariable& GetLastValue();
     Vector          GetVector(int pos);
 
     class Waypoint *GetWaypoint(int pos);

@@ -2041,6 +2041,22 @@ void Event::AddVector(const Vector& vector)
 
 /*
 =======================
+SetValue
+=======================
+*/
+void Event::CopyValues(const ScriptVariable* values, size_t count)
+{
+    assert(count <= maxDataSize);
+   
+    for (size_t i = 0; i < count; i++) {
+        data[i] = values[i];
+    }
+
+    dataSize = count;
+}
+
+/*
+=======================
 Clear
 =======================
 */
@@ -2206,14 +2222,29 @@ GetValue
 */
 ScriptVariable& Event::GetValue(void)
 {
-    if (dataSize == maxDataSize) {
-        ScriptVariable *tmp = data;
+    ScriptVariable* tmp;
+    int i;
 
-        maxDataSize++;
+    if (fromScript) {
+        // an event method will emit the return value
+        // to the first index of the array
+        // so there is no reallocation
+        if (!data) {
+            data = new ScriptVariable[1];
+            dataSize = 1;
+            maxDataSize = 1;
+        }
+        return data[0];
+    }
+
+    if (dataSize == maxDataSize) {
+        tmp = data;
+
+        maxDataSize += 3;
         data = new ScriptVariable[maxDataSize];
 
         if (tmp != NULL) {
-            for (int i = 0; i < dataSize; i++) {
+            for (i = 0; i < dataSize; i++) {
                 data[i] = std::move(tmp[i]);
             }
 
@@ -2224,11 +2255,6 @@ ScriptVariable& Event::GetValue(void)
     dataSize++;
 
     return data[dataSize - 1];
-}
-
-ScriptVariable& Event::GetLastValue()
-{
-    return GetValue(NumArgs());
 }
 
 /*
