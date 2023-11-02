@@ -3447,7 +3447,7 @@ void ScriptThread::CameraCommand(Event *ev)
     }
 
     cmd = ev->GetString(1);
-    if (Event::FindEventNum(cmd)) {
+    if (Event::Exists(cmd)) {
         e = new ConsoleEvent(cmd);
 
         n = ev->NumArgs();

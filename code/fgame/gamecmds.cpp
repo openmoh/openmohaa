@@ -160,7 +160,7 @@ qboolean G_ProcessClientCommand(gentity_t *ent)
         }
     }
 
-    if (Event::FindEventNum(cmd)) {
+    if (Event::Exists(cmd)) {
         ev = new ConsoleEvent(cmd);
         ev->SetConsoleEdict(ent);
 
@@ -266,7 +266,7 @@ qboolean G_CameraCmd(gentity_t *ent)
     }
 
     cmd = gi.Argv(1);
-    if (Event::GetEvent(cmd)) {
+    if (Event::Exists(cmd)) {
         ev = new Event(cmd);
 
         for (i = 2; i < n; i++) {
@@ -282,7 +282,6 @@ qboolean G_CameraCmd(gentity_t *ent)
 }
 
 qboolean G_SoundCmd(gentity_t *ent)
-
 {
     Event      *ev;
     const char *cmd;
@@ -296,7 +295,7 @@ qboolean G_SoundCmd(gentity_t *ent)
     }
 
     cmd = gi.Argv(1);
-    if (Event::GetEvent(cmd)) {
+    if (Event::Exists(cmd)) {
         ev = new Event(cmd);
 
         for (i = 2; i < n; i++) {
