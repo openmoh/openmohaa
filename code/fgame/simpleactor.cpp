@@ -348,14 +348,15 @@ bool SimpleActor::PathAvoidsSquadMates(void) const
         return true;
     }
 
-    VectorCopy(vMins, CurrentPathNode()->point);
-    VectorCopy(vMaxs, CurrentPathNode()->point);
+    pNode = CurrentPathNode();
+    VectorCopy(pNode->point, vMins);
+    VectorCopy(pNode->point, vMaxs);
 
     fDistCap   = (ai_pathchecktime->value * 250.0);
     fDistSoFar = 0;
 
     for (pNode = CurrentPathNode() - 1; pNode >= LastPathNode(); pNode--) {
-        if (fDistSoFar <= fDistCap) {
+        if (fDistSoFar >= fDistCap) {
             break;
         }
 
