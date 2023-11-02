@@ -310,6 +310,7 @@ public:
 
     virtual void ErrorInternal(Listener *l, str text) const;
 
+    static bool Exists(const char* command);
     static unsigned int FindEventNum(const char *s);
     static unsigned int FindNormalEventNum(const_str s);
     static unsigned int FindNormalEventNum(str s);

@@ -1322,6 +1322,11 @@ void Event::PendingEvents(const char *mask)
     EVENT_Printf("%d pending events as of %.2f\n", num, EVENT_time);
 }
 
+bool Event::Exists(const char* command)
+{
+    return FindEventNum(command) != 0;
+}
+
 #ifdef WITH_SCRIPT_ENGINE
 
 /*
