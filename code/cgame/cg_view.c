@@ -643,7 +643,9 @@ static int CG_CalcViewValues(void)
     // Set the aural axis of the player
     VectorCopy(cg.refdefViewAngles, SoundAngles);
     // yaw is purposely inverted because of the miles sound system
-    SoundAngles[YAW] = -SoundAngles[YAW];
+    // Commented out in OPM
+    //  Useless as SDL audio/AL is used
+    //SoundAngles[YAW] = -SoundAngles[YAW];
     AnglesToAxis(SoundAngles, cg.SoundAxis);
 
     // decide on third person view
