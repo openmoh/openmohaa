@@ -117,6 +117,14 @@ extern "C" {
     void CG_VoteOptions_StartReadFromServer(const char *string);
     void CG_VoteOptions_ContinueReadFromServer(const char *string);
     void CG_VoteOptions_FinishReadFromServer(const char *string);
+    void CG_PushCallVote_f();
+    void CG_PushCallVoteSubList_f();
+    void CG_PushCallVoteSubText_f();
+    void CG_PushCallVoteSubInteger_f();
+    void CG_PushCallVoteSubFloat_f();
+    void CG_PushCallVoteSubClient_f();
+    void CG_PushVote_f();
+    void CG_CallEntryVote_f();
 #endif
 
 #ifdef __cplusplus

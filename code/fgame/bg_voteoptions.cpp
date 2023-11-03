@@ -24,17 +24,21 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../qcommon/script.h"
 
 #if defined(GAME_DLL)
-#    define VO_FS_FreeFile           gi.FS_FreeFile
-#    define VO_FS_ReadFile(a, b)     gi.FS_ReadFile(a, b, true)
-#    define VO_SendRemoteCommand(s)  // ?
-#    define VO_ExecuteCommand(s)     gi.Cmd_Execute(EXEC_NOW, s)
-#    define VO_Cvar_Set(name, value) gi.cvar_set(name, value)
+#    define VO_FS_FreeFile                  gi.FS_FreeFile
+#    define VO_FS_ReadFile(a, b)            gi.FS_ReadFile(a, b, true)
+#    define VO_SendRemoteCommand(s)         // ?
+#    define VO_ExecuteCommand(s)            gi.Cmd_Execute(EXEC_NOW, s)
+#    define VO_Cvar_Set(name, value)        gi.cvar_set(name, value)
+#    define VO_Cvar_Get(name, value, flags) gi.Cvar_Get(name, value, flags)
+#    define VO_LV_ConvertString(s)          gi.LV_ConvertString(s)
 #elif defined(CGAME_DLL)
-#    define VO_FS_FreeFile           cgi.FS_FreeFile
-#    define VO_FS_ReadFile(a, b)     cgi.FS_ReadFile(a, b, qtrue)
-#    define VO_SendRemoteCommand(s)  cgi.SendClientCommand(s)
-#    define VO_ExecuteCommand(s)     cgi.Cmd_Execute(EXEC_NOW, s)
-#    define VO_Cvar_Set(name, value) cgi.Cvar_Set(name, value)
+#    define VO_FS_FreeFile                  cgi.FS_FreeFile
+#    define VO_FS_ReadFile(a, b)            cgi.FS_ReadFile(a, b, qtrue)
+#    define VO_SendRemoteCommand(s)         cgi.SendClientCommand(s)
+#    define VO_ExecuteCommand(s)            cgi.Cmd_Execute(EXEC_NOW, s)
+#    define VO_Cvar_Set(name, value)        cgi.Cvar_Set(name, value)
+#    define VO_Cvar_Get(name, value, flags) cgi.Cvar_Get(name, value, flags)
+#    define VO_LV_ConvertString(s)          cgi.LV_ConvertString(s)
 #else
 #    pragma error("VoteOptions can must be used with fgame or cgame")
 #endif
@@ -93,7 +97,7 @@ void VoteOptions::SetupVoteOptions(const char *configFileName)
     int   compressedLength;
     long  length;
 
-    length = VO_FS_ReadFile(configFileName, (void **)&buffer, qtrue);
+    length = VO_FS_ReadFile(configFileName, (void **)&buffer);
     if (length == -1 || !length) {
         Com_Printf("WARNING: Couldn't find voting options file: %s\n", configFileName);
         return;
@@ -458,13 +462,165 @@ void CG_VoteOptions_FinishReadFromServer(const char *string)
     g_voteOptions.SetupMainOptionsList();
 }
 
+void CG_PushCallVote_f()
+{
+    g_voteOptions.SetupMainOptionsList();
+}
+
+void CG_PushCallVoteSubList_f()
+{
+    g_voteOptions.SetupSubOptionsList(atoi(cgi.Argv(1)));
+}
+
+void CG_PushCallVoteSubText_f()
+{
+    str              command;
+    str              name;
+    voteoptiontype_t type;
+
+    if (!g_voteOptions.GetVoteOptionsMain(atoi(cgi.Argv(1)), &command, &type)) {
+        return;
+    }
+
+    if (type != voteoptiontype_t::VOTE_OPTION_TEXT) {
+        return;
+    }
+
+    g_voteOptions.GetVoteOptionMainName(atoi(cgi.Argv(1)), &name);
+    VO_ExecuteCommand("forcemenu votesubtext\n");
+    VO_Cvar_Set("ui_votesubtitle", name.c_str());
+    VO_Cvar_Set("ui_votestringentry", "");
+}
+
+void CG_PushCallVoteSubInteger_f()
+{
+    str              command;
+    str              name;
+    voteoptiontype_t type;
+
+    if (!g_voteOptions.GetVoteOptionsMain(atoi(cgi.Argv(1)), &command, &type)) {
+        return;
+    }
+
+    if (type != voteoptiontype_t::VOTE_OPTION_INTEGER) {
+        return;
+    }
+
+    g_voteOptions.GetVoteOptionMainName(atoi(cgi.Argv(1)), &name);
+    VO_ExecuteCommand("forcemenu votesubinteger\n");
+    VO_Cvar_Set("ui_votesubtitle", name.c_str());
+    VO_Cvar_Set("ui_votestringentry", "");
+}
+
+void CG_PushCallVoteSubFloat_f()
+{
+    str              command;
+    str              name;
+    voteoptiontype_t type;
+
+    if (!g_voteOptions.GetVoteOptionsMain(atoi(cgi.Argv(1)), &command, &type)) {
+        return;
+    }
+
+    if (type != voteoptiontype_t::VOTE_OPTION_FLOAT) {
+        return;
+    }
+
+    g_voteOptions.GetVoteOptionMainName(atoi(cgi.Argv(1)), &name);
+    VO_ExecuteCommand("forcemenu votesubfloat\n");
+    VO_Cvar_Set("ui_votesubtitle", name.c_str());
+    VO_Cvar_Set("ui_votestringentry", "");
+}
+
+void CG_PushCallVoteSubClient_f()
+{
+    str              command;
+    str              name;
+    int              index;
+    int              i;
+    voteoptiontype_t type;
+
+    index = atoi(cgi.Argv(1));
+
+    if (!g_voteOptions.GetVoteOptionsMain(index, &command, &type)) {
+        return;
+    }
+
+    if (type != voteoptiontype_t::VOTE_OPTION_CLIENT && type != voteoptiontype_t::VOTE_OPTION_CLIENT_NOT_SELF) {
+        return;
+    }
+
+    g_voteOptions.GetVoteOptionMainName(index, &name);
+    VO_ExecuteCommand("forcemenu votesubclient\n");
+    VO_Cvar_Set("ui_votesubtitle", name.c_str());
+    VO_ExecuteCommand("globalwidgetcommand voteclientlist deleteallitems\n");
+
+    for (i = 0; i < cgs.maxclients; i++) {
+        if (type == VOTE_OPTION_CLIENT_NOT_SELF && cg.snap && i == cg.snap->ps.clientNum) {
+            continue;
+        }
+
+        if (!strlen(cg.clientinfo[i].name)) {
+            continue;
+        }
+
+        VO_ExecuteCommand(
+            va("globalwidgetcommand voteclientlist additem \"%i: %s\" \"callvote %i %i;popmenu 0\"\n",
+               i,
+               cg.clientinfo[i],
+               index,
+               i)
+        );
+    }
+
+    VO_ExecuteCommand(
+        va("globalwidgetcommand voteclientlist additem \"%s\" \"popmenu 0\"\n", VO_LV_ConvertString("[Cancel Vote]"))
+    );
+}
+
+void CG_PushVote_f()
+{
+    VO_Cvar_Set("ui_votesubtitle", cgs.voteString);
+    VO_ExecuteCommand("forcemenu votecast\n");
+}
+
+void CG_CallEntryVote_f()
+{
+    str              command;
+    str              name;
+    const char      *entry;
+    int              index;
+    voteoptiontype_t type;
+
+    index = VO_Cvar_Get("ui_votetype", "0", 0)->integer;
+
+    if (!g_voteOptions.GetVoteOptionsMain(index, &command, &type)) {
+        return;
+    }
+
+    if (type != voteoptiontype_t::VOTE_OPTION_TEXT && type != voteoptiontype_t::VOTE_OPTION_INTEGER
+        && type != voteoptiontype_t::VOTE_OPTION_FLOAT) {
+        return;
+    }
+
+    entry = VO_Cvar_Get("ui_votestringentry", "", 0)->string;
+    VO_ExecuteCommand(va("callvote %i \"%s\"\n", index, entry));
+}
+
 void VoteOptions::SetupMainOptionsList()
 {
+    VO_ExecuteCommand("forcemenu votemain\n");
+    VO_ExecuteCommand("globalwidgetcommand votelistmain deleteallitems\n");
+
     // FIXME: unimplemented
 }
 
 void VoteOptions::SetupSubOptionsList(int index)
 {
+    if (index < 1) {
+        return;
+    }
+
     // FIXME: unimplemented
 }
 #endif
