@@ -1250,9 +1250,10 @@ UI_PrintConsole
 */
 void UI_PrintConsole(const char *msg)
 {
-    UColor *pColor = NULL;
-    char    szString[1024];
-    char    szBlah[1024];
+    UColor  *pColor = NULL;
+    char     szString[1024];
+    char     szBlah[1024];
+    qboolean bPrintedDMBox = qfalse;
 
     memcpy(szString, msg, sizeof(szString));
 
@@ -1305,18 +1306,18 @@ void UI_PrintConsole(const char *msg)
             if (bDMMessage) {
                 *szString = MESSAGE_CHAT_WHITE;
                 dmbox->Print(szString);
-                return;
+                bPrintedDMBox = qtrue;
             } else if (bDeathMessage) {
                 dmbox->Print(szString);
-                *szString = MESSAGE_CHAT_RED;
-                return;
+                *szString     = MESSAGE_CHAT_RED;
+                bPrintedDMBox = qtrue;
             }
         }
 
         //
         // print to the game message box
         //
-        if (gmbox) {
+        if (gmbox && !bPrintedDMBox) {
             if (bBold) {
                 *szString = MESSAGE_WHITE;
                 gmbox->Print(szString);
