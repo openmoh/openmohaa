@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2023 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -10472,7 +10472,7 @@ void Player::EventDMMessage(Event *ev)
     }
 }
 
-const char *Player::GetBattleLanguageCondition() const
+str Player::GetBattleLanguageCondition() const
 {
     int healthRatio;
 
@@ -10500,7 +10500,7 @@ const char *Player::GetBattleLanguageCondition() const
     }
 }
 
-const char *Player::GetBattleLanguageDirection() const
+str Player::GetBattleLanguageDirection() const
 {
     int dir = ((m_vViewAng.y - world->m_fNorth) + 22.5f + 360.f) / 45.f;
     switch (dir % 8) {
@@ -10525,12 +10525,12 @@ const char *Player::GetBattleLanguageDirection() const
     }
 }
 
-const char *Player::GetBattleLanguageLocation() const
+str Player::GetBattleLanguageLocation() const
 {
     return gi.CL_LV_ConvertString(level.GetDMLocation(m_vViewPos).c_str());
 }
 
-const char *Player::GetBattleLanguageLocalFolks()
+str Player::GetBattleLanguageLocalFolks()
 {
     static char buf[256];
     char       *p;
@@ -10589,12 +10589,12 @@ const char *Player::GetBattleLanguageLocalFolks()
     return buf;
 }
 
-const char *Player::GetBattleLanguageWeapon() const
+str Player::GetBattleLanguageWeapon() const
 {
     return GetCurrentDMWeaponType().c_str();
 }
 
-const char *Player::GetBattleLanguageDistance() const
+str Player::GetBattleLanguageDistance() const
 {
     Vector  vStart, vEnd;
     Vector  vForward;
@@ -10626,7 +10626,7 @@ const char *Player::GetBattleLanguageDistance() const
     }
 }
 
-const char *Player::GetBattleLanguageDistanceMeters(float dist) const
+str Player::GetBattleLanguageDistanceMeters(float dist) const
 {
     int meters;
 
@@ -10644,7 +10644,7 @@ const char *Player::GetBattleLanguageDistanceMeters(float dist) const
     return va("%d meters", meters);
 }
 
-const char *Player::GetBattleLanguageDistanceFeet(float dist) const
+str Player::GetBattleLanguageDistanceFeet(float dist) const
 {
     int ft;
 
@@ -10662,7 +10662,7 @@ const char *Player::GetBattleLanguageDistanceFeet(float dist) const
     return va("%d feet", ft);
 }
 
-const char *Player::GetBattleLanguageTarget() const
+str Player::GetBattleLanguageTarget() const
 {
     Vector  vStart, vEnd;
     Vector  vForward;
@@ -10704,10 +10704,10 @@ const char *Player::GetBattleLanguageTarget() const
     return "something";
 }
 
-const char *Player::TranslateBattleLanguageTokens(const char *string)
+str Player::TranslateBattleLanguageTokens(const char *string)
 {
-    const char *token;
-    int         type;
+    str token;
+    int type;
 
     if (!g_chat_expansions->integer) {
         return string;

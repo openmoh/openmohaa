@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2023 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -769,16 +769,16 @@ public:
     void EventDMMessage(Event *ev);
     //====
     // Added in 2.30
-    const char *GetBattleLanguageCondition() const;
-    const char *GetBattleLanguageDirection() const;
-    const char *GetBattleLanguageLocation() const;
-    const char *GetBattleLanguageLocalFolks();
-    const char *GetBattleLanguageWeapon() const;
-    const char *GetBattleLanguageDistance() const;
-    const char *GetBattleLanguageDistanceMeters(float dist) const;
-    const char *GetBattleLanguageDistanceFeet(float dist) const;
-    const char *GetBattleLanguageTarget() const;
-    const char *TranslateBattleLanguageTokens(const char *string);
+    str GetBattleLanguageCondition() const;
+    str GetBattleLanguageDirection() const;
+    str GetBattleLanguageLocation() const;
+    str GetBattleLanguageLocalFolks();
+    str GetBattleLanguageWeapon() const;
+    str GetBattleLanguageDistance() const;
+    str GetBattleLanguageDistanceMeters(float dist) const;
+    str GetBattleLanguageDistanceFeet(float dist) const;
+    str GetBattleLanguageTarget() const;
+    str TranslateBattleLanguageTokens(const char *string);
     //====
     void       EventIPrint(Event *ev);
     void       EventGetUseHeld(Event *ev);
