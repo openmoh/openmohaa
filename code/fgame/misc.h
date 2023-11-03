@@ -28,8 +28,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // own file to my mother pot roast recipes.
 //
 
-#ifndef __MISC_H__
-#define __MISC_H__
+#pragma once
 
 #include "g_local.h"
 #include "entity.h"
@@ -567,4 +566,18 @@ public:
     void EnsureForwardOffLadder(Entity *pUser);
 };
 
-#endif /* misc.h */
+class InfoLandmark : public Listener
+{
+private:
+    str    m_sName;
+    Vector m_vOrigin;
+    bool   m_bNameSet;
+    bool   m_bOriginSet;
+
+public:
+    CLASS_PROTOTYPE(InfoLandmark);
+
+    InfoLandmark();
+    void SetLandmarkName(Event *ev);
+    void SetOrigin(Event *ev);
+};

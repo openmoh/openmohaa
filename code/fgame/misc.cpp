@@ -27,7 +27,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // own file to my mother's pot roast recipes.
 //
 
-#include "glb_local.h"
+#include "g_local.h"
 #include "entity.h"
 #include "trigger.h"
 #include "explosion.h"
@@ -38,6 +38,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "weaputils.h"
 #include "g_spawn.h"
 #include "g_phys.h"
+#include "../script/scriptexception.h"
 
 /*****************************************************************************/
 /*QUAKED detail (0.5 0 1.0) ?
@@ -2869,4 +2870,52 @@ void FuncLadder::EnsureForwardOffLadder(Entity *pUser)
     }
 
     pUser->setOrigin(trace.endpos);
+}
+
+Event EV_InfoLandmark_Name("landmark_name", EV_DEFAULT, "s", "name", "Set the name of this landmark", EV_NORMAL);
+Event EV_InfoLandmark_SetOrigin("origin", EV_DEFAULT, "v", "origin", "Set the origin of the landmark.", EV_NORMAL);
+
+CLASS_DECLARATION(Listener, InfoLandmark, "info_landmark") {
+    {&EV_InfoLandmark_Name,      &InfoLandmark::SetLandmarkName},
+    {&EV_InfoLandmark_SetOrigin, &InfoLandmark::SetOrigin      },
+    {NULL,                       NULL                          }
+};
+
+InfoLandmark::InfoLandmark()
+{
+    m_bNameSet   = false;
+    m_bOriginSet = false;
+}
+
+void InfoLandmark::SetLandmarkName(Event *ev)
+{
+    m_sName    = ev->GetString(1);
+    m_bNameSet = true;
+
+    if (m_bOriginSet) {
+        level.AddLandmarkName(m_sName, m_vOrigin);
+        PostEvent(EV_Remove, EV_REMOVE);
+    }
+}
+
+void InfoLandmark::SetOrigin(Event *ev)
+{
+    m_vOrigin = ev->GetVector(1);
+
+    if (m_vOrigin == Vector(99999, 99999, 99999)) {
+        ScriptError(
+            "Illegal location (%f, %f, %f) for Landmark. Please place in valid XYZ coordinates\n",
+            m_vOrigin[0],
+            m_vOrigin[1],
+            m_vOrigin[2]
+        );
+    }
+
+    level.AddLandmarkOrigin(m_vOrigin);
+    m_bOriginSet = true;
+
+    if (m_bNameSet) {
+        level.AddLandmarkName(m_sName, m_vOrigin);
+        PostEvent(EV_Remove, EV_REMOVE);
+    }
 }
