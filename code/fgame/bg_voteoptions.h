@@ -25,6 +25,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "listener.h"
 #include "g_public.h"
 
+#ifdef __cplusplus
+
 static const unsigned long MAX_VOTEOPTIONS_UPLOAD_BUFFER_LENGTH = 2024;
 static const unsigned long MAX_VOTEOPTIONS_BUFFER_LENGTH        = 0x100000;
 
@@ -84,6 +86,8 @@ public:
     VoteOptions();
     ~VoteOptions();
 
+    bool IsSetup() const;
+
     void        ClearOptions();
     void        SetupVoteOptions(const char *configFileName);
     void        SetupVoteOptions(const char *configFileName, int length, const char *buffer);
@@ -93,4 +97,28 @@ public:
     bool        GetVoteOptionSub(int index, int listIndex, str *outCommand) const;
     bool        GetVoteOptionMainName(int index, str *outVoteName) const;
     bool        GetVoteOptionSubName(int index, int listIndex, str *outName) const;
+
+    void SetupMainOptionsList();
+    void SetupSubOptionsList(int index);
 };
+
+inline bool VoteOptions::IsSetup() const
+{
+    return m_pHeadOption != NULL;
+}
+
+#endif
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#if defined(CGAME_DLL)
+    void CG_VoteOptions_StartReadFromServer(const char *string);
+    void CG_VoteOptions_ContinueReadFromServer(const char *string);
+    void CG_VoteOptions_FinishReadFromServer(const char *string);
+#endif
+
+#ifdef __cplusplus
+}
+#endif

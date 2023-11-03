@@ -18,7 +18,7 @@ set(SOURCES_SHARED
 	"../script/scriptvariable.cpp"
 )
 
-file(GLOB_RECURSE SOURCES_BG "../fgame/bg_misc.cpp" "../fgame/bg_pmove.cpp" "../fgame/bg_slidemove.cpp")
+file(GLOB_RECURSE SOURCES_BG "../fgame/bg_misc.cpp" "../fgame/bg_pmove.cpp" "../fgame/bg_slidemove.cpp" "../fgame/bg_voteoptions.cpp")
 file(GLOB_RECURSE SOURCES_CGAME "./*.c" "./*.cpp")
 
 add_library(cgame SHARED ${SOURCES_CGAME} ${SOURCES_BG})

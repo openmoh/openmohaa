@@ -23,6 +23,22 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "bg_voteoptions.h"
 #include "../qcommon/script.h"
 
+#if defined(GAME_DLL)
+#    define VO_FS_FreeFile           gi.FS_FreeFile
+#    define VO_FS_ReadFile(a, b)     gi.FS_ReadFile(a, b, true)
+#    define VO_SendRemoteCommand(s)  // ?
+#    define VO_ExecuteCommand(s)     gi.Cmd_Execute(EXEC_NOW, s)
+#    define VO_Cvar_Set(name, value) gi.cvar_set(name, value)
+#elif defined(CGAME_DLL)
+#    define VO_FS_FreeFile           cgi.FS_FreeFile
+#    define VO_FS_ReadFile(a, b)     cgi.FS_ReadFile(a, b, qtrue)
+#    define VO_SendRemoteCommand(s)  cgi.SendClientCommand(s)
+#    define VO_ExecuteCommand(s)     cgi.Cmd_Execute(EXEC_NOW, s)
+#    define VO_Cvar_Set(name, value) cgi.Cvar_Set(name, value)
+#else
+#    pragma error("VoteOptions can must be used with fgame or cgame")
+#endif
+
 CLASS_DECLARATION(Class, VoteOptions, NULL) {
     {NULL, NULL}
 };
@@ -77,7 +93,7 @@ void VoteOptions::SetupVoteOptions(const char *configFileName)
     int   compressedLength;
     long  length;
 
-    length = gi.FS_ReadFile(configFileName, (void**)&buffer, qtrue);
+    length = VO_FS_ReadFile(configFileName, (void **)&buffer, qtrue);
     if (length == -1 || !length) {
         Com_Printf("WARNING: Couldn't find voting options file: %s\n", configFileName);
         return;
@@ -86,7 +102,7 @@ void VoteOptions::SetupVoteOptions(const char *configFileName)
     // compress the buffer before setting up
     compressedLength = COM_Compress(buffer);
     SetupVoteOptions(configFileName, compressedLength, buffer);
-    gi.FS_FreeFile(buffer);
+    VO_FS_FreeFile(buffer);
 }
 
 void VoteOptions::SetupVoteOptions(const char *configFileName, int length, const char *buffer)
@@ -397,3 +413,58 @@ bool VoteOptions::GetVoteOptionSubName(int index, int listIndex, str *outName) c
 
     return true;
 }
+
+#if defined(CGAME_DLL)
+
+static str         g_sVoteString;
+static VoteOptions g_voteOptions;
+
+void CG_VoteOptions_StartReadFromServer(const char *string)
+{
+    g_sVoteString = string;
+}
+
+void CG_VoteOptions_ContinueReadFromServer(const char *string)
+{
+    if (g_sVoteString.length() >= MAX_VOTEOPTIONS_BUFFER_LENGTH) {
+        return;
+    }
+
+    g_sVoteString += string;
+}
+
+void CG_VoteOptions_FinishReadFromServer(const char *string)
+{
+    int i;
+
+    if (g_sVoteString.length() >= MAX_VOTEOPTIONS_BUFFER_LENGTH) {
+        return;
+    }
+
+    g_sVoteString += va("%s\n", string);
+    if (!str::cmp(g_sVoteString, "\n")) {
+        VO_SendRemoteCommand("wait 250;gvo\n");
+        return;
+    }
+
+    for (i = 0; i < g_sVoteString.length(); i++) {
+        if (g_sVoteString[i] == 1) {
+            g_sVoteString[i] = '"';
+        }
+    }
+
+    g_voteOptions.SetupVoteOptions("ServerVoteOptions", g_sVoteString.length(), g_sVoteString.c_str());
+    g_sVoteString = "";
+    g_voteOptions.SetupMainOptionsList();
+}
+
+void VoteOptions::SetupMainOptionsList()
+{
+    // FIXME: unimplemented
+}
+
+void VoteOptions::SetupSubOptionsList(int index)
+{
+    // FIXME: unimplemented
+}
+#endif

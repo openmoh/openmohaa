@@ -372,6 +372,28 @@ static void CG_ServerCommand(qboolean modelOnly)
         return;
     }
 
+    if (!strcmp(cmd, "voteresult")) {
+        cmd = cgi.Argv(1);
+        if (*cmd) {
+            strcmp(cmd, "passed");
+        }
+    }
+
+    if (!strcmp(cmd, "vo0")) {
+        CG_VoteOptions_StartReadFromServer(cgi.Argv(1));
+        return;
+    }
+
+    if (!strcmp(cmd, "vo1")) {
+        CG_VoteOptions_ContinueReadFromServer(cgi.Argv(1));
+        return;
+    }
+
+    if (!strcmp(cmd, "vo2")) {
+        CG_VoteOptions_FinishReadFromServer(cgi.Argv(1));
+        return;
+    }
+
     cgi.Printf("Unknown client game command: %s\n", cmd);
 }
 
