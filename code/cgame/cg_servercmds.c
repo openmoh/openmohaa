@@ -295,6 +295,10 @@ static void CG_ServerCommand(qboolean modelOnly)
         return;
     }
 
+    if (modelOnly) {
+        return;
+    }
+
     if (!strcmp(cmd, "print") || !strcmp(cmd, "hudprint")) {
         cgi.Printf("%s", cgi.Argv(1));
         if (!strcmp(cmd, "hudprint")) {
