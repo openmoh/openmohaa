@@ -23,13 +23,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // str.cpp: Simple, DLL portable string class
 //
 
-#ifndef __STR_H__
-#define __STR_H__
+#pragma once
 
 #include <cassert>
 #include <cstring>
 #include <cstdio>
 #include <cstdint>
+#include <cinttypes>
 
 #ifdef _WIN32
 #    pragma warning(disable : 4710) // function 'blah' not inlined
@@ -330,7 +330,7 @@ inline str::str(const int64_t num)
     char   text[64];
     size_t len;
 
-    sprintf(text, "%lld", num);
+    sprintf(text, "%" PRId64 "", num);
     len = strlen(text);
     EnsureAlloced(len + 1);
     strcpy(m_data->data, text);
@@ -343,7 +343,7 @@ inline str::str(const uint64_t num)
     char   text[64];
     size_t len;
 
-    sprintf(text, "%llu", num);
+    sprintf(text, "%" PRIu64 "", num);
     len = strlen(text);
     EnsureAlloced(len + 1);
     strcpy(m_data->data, text);
@@ -645,5 +645,3 @@ inline str::operator const char *(void) const
 {
     return c_str();
 }
-
-#endif
