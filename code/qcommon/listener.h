@@ -89,7 +89,7 @@ class EventQueueNode;
 // commands take place, while unused entities must be removed before the spawnargs
 // are parsed.
 
-#define EV_REMOVE              -12.0f // remove any unused entities before spawnargs are parsed
+#define EV_REMOVE              -9.0f // remove any unused entities before spawnargs are parsed
 #define EV_LINKBEAMS           -9.0f  // for finding out the endpoints of beams
 #define EV_VEHICLE             -9.0f
 #define EV_PRIORITY_SPAWNARG   -8.0f // for priority spawn args passed in by the bsp file
