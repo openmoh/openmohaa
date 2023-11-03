@@ -10252,7 +10252,7 @@ void Player::EventDMMessage(Event *ev)
 
                 gi.SendServerCommand(
                     edict - g_entities,
-                    "print \"" HUD_MESSAGE_CHAT_WHITE "%s: %s.\"",
+                    "print \"" HUD_MESSAGE_CHAT_WHITE "%s: %s.\n\"",
                     errorString.c_str(),
                     reasonString.c_str()
                 );
@@ -10273,7 +10273,7 @@ void Player::EventDMMessage(Event *ev)
 
                 gi.SendServerCommand(
                     edict - g_entities,
-                    "print \"" HUD_MESSAGE_CHAT_WHITE "%s: %s.\"",
+                    "print \"" HUD_MESSAGE_CHAT_WHITE "%s: %s.\n\"",
                     errorString.c_str(),
                     reasonString.c_str()
                 );
@@ -10442,7 +10442,7 @@ void Player::EventDMMessage(Event *ev)
 
             gi.SendServerCommand(
                 edict - g_entities,
-                "print \"" HUD_MESSAGE_CHAT_WHITE "%s: %i %s.\"",
+                "print \"" HUD_MESSAGE_CHAT_WHITE "%s: %i %s.\n\"",
                 errorString.c_str(),
                 iMode,
                 reasonString.c_str()
@@ -10455,7 +10455,7 @@ void Player::EventDMMessage(Event *ev)
         if (ent->entity != this) {
             gi.SendServerCommand(
                 edict - g_entities,
-                "print \"" HUD_MESSAGE_CHAT_WHITE "%s %i:\"",
+                "print \"" HUD_MESSAGE_CHAT_WHITE "%s %i:\n\"",
                 gi.LV_ConvertString("Message to player"),
                 iMode
             );
@@ -10467,7 +10467,7 @@ void Player::EventDMMessage(Event *ev)
 
         gi.SendServerCommand(
             edict - g_entities,
-            "print \"" HUD_MESSAGE_CHAT_WHITE "%s: %i %s.\"",
+            "print \"" HUD_MESSAGE_CHAT_WHITE "%s: %i %s.\n\"",
             errorString.c_str(),
             iMode,
             reasonString.c_str()
