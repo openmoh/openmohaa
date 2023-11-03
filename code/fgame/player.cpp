@@ -58,6 +58,78 @@ const Vector power_color(0.0, 1.0, 0.0);
 const Vector acolor(1.0, 1.0, 1.0);
 const Vector bcolor(1.0, 0.0, 0.0);
 
+//
+// mohaas 2.0 and above
+//
+const char *pInstantMsgEng[6][9] = {
+    {"Good job team!",
+     "Alright!", "We've done it!",
+     "Wooohoo!", "Objective achieved.",
+     "We've completed an objective.", "We've lost an objective!",
+     "The enemy has overrun our objective!", NULL},
+    {"Squad, move in!",
+     "Squad, fall back!", "Squad, attack right flank!",
+     "Squad, attack left flank!", "Squad, hold this position!",
+     "Squad, covering fire!", "Squad, regroup!",
+     "Squad, split up!", NULL},
+    {"Cover me!",
+     "I'll cover you!", "Follow me!",
+     "You take point.", "Taking Fire!  Need some help!",
+     "Get ready to move in on my signal.", "Attack!",
+     "Open fire!", NULL},
+    {"Yes sir!",
+     "No sir!", "Enemy Spotted.",
+     "Sniper!", "Grenade! Take Cover!",
+     "Area Clear.", "Thanks.",
+     "I owe you one.", NULL},
+    {"Who wants more?!",
+     "Never send boys to do a man's job.", "This is too easy!",
+     "You mess with the best, you die like the rest.", "Watch that friendly fire!",
+     "Hey!  I'm on your team!", "Come on out you cowards!",
+     "Where are you hiding?", NULL},
+    //
+    // Added in 2.30
+    //
+    {"Guard our jail!",
+     "Capture the enemy jail!", "I'm defending our jail!",
+     "I'm attacking the enemy jail!", "Rescue the Prisoners!",
+     "The enemy is attacking our jail!"}
+};
+
+//
+// for mohaa version 1.11 and below
+//
+const char *pInstantMsgEng_ver6[5][9] = {
+    {"Squad, move in!",
+     "Squad, fall back!", "Squad, attack right flank!",
+     "Squad, attack left flank!", "Squad, hold this position!",
+     "Squad, covering fire!", "Squad, regroup!",
+     "", ""},
+    {
+     "Cover me!", "I'll cover you!",
+     "Follow me!", "You take point.",
+     "You take the lead.", "Taking Fire!  Need some help!",
+     "Charge!", "Attack!",
+     "Open fire!", },
+    {
+     "Yes sir!", "No sir!",
+     "Enemy Spotted.", "Sniper!",
+     "Grenade! Take Cover!", "Area Clear.",
+     "Great Shot!", "Thanks.",
+     "I owe you one.", },
+    {
+     "Is that all you've got?", "I think they are all out of real men!",
+     "Go on and run, you yellow-bellies!", "They're a bunch of cowards!",
+     "Come back when you've had some target practice!", "Come prepared next time!",
+     "Try again!", "I've seen French school girls shoot better!",
+     "That made a mess.", },
+    {"He's going to get us killed!",
+     "A lot of good men are going to die because of his poor leadership", "Good riddance!",
+     "That guy is going to get us all killed!", "Hey buddy, get down!",
+     "Stay out of my foxhole, pal!", "Find your own hiding place!",
+     "Get out of my way!", ""}
+};
+
 qboolean TryPush(int entnum, vec3_t move_origin, vec3_t move_end);
 
 Event EV_Player_DumpState
@@ -3166,9 +3238,9 @@ void Player::SetStopwatch(int iDuration, stopWatchType_t type)
 
 void Player::KilledPlayerInDeathmatch(Player *killed)
 {
-	DM_Team* pDMTeam;
+    DM_Team *pDMTeam;
 
-	pDMTeam = killed->GetDM_Team();
+    pDMTeam = killed->GetDM_Team();
 
     if (killed == this) {
         pDMTeam->AddKills(this, -1);
@@ -3322,7 +3394,7 @@ void Player::DoUse(Event *ev)
             continue;
         }
 
-        Event* event = new Event(EV_Use);
+        Event *event = new Event(EV_Use);
         event->AddListener(this);
 
         hit->entity->ProcessEvent(event);
@@ -3332,8 +3404,7 @@ void Player::DoUse(Event *ev)
         }
     }
 
-    if (i < num && m_pVehicle)
-    {
+    if (i < num && m_pVehicle) {
         //
         // Added in 2.30
         //  Make the vehicle also invincible if the player is invincible
@@ -3523,20 +3594,20 @@ void Player::SetMoveInfo(pmove_t *pm, usercmd_t *ucmd)
             pm->alwaysAllowLean = qfalse;
         }
 
-        pm->leanMax = 45.f;
-        pm->leanAdd = 6.f;
+        pm->leanMax          = 45.f;
+        pm->leanAdd          = 6.f;
         pm->leanRecoverSpeed = 8.5f;
-        pm->leanSpeed = 2.f;
+        pm->leanSpeed        = 2.f;
     } else {
         pm->alwaysAllowLean = qtrue;
 
-        pm->leanMax = 40.f;
-        pm->leanAdd = 10.f;
+        pm->leanMax          = 40.f;
+        pm->leanAdd          = 10.f;
         pm->leanRecoverSpeed = 15.f;
-        pm->leanSpeed = 4.f;
+        pm->leanSpeed        = 4.f;
     }
 
-	pm->protocol = g_protocol;
+    pm->protocol = g_protocol;
 }
 
 pmtype_t Player::GetMovePlayerMoveType(void)
@@ -3834,7 +3905,7 @@ void Player::ClientMove(usercmd_t *ucmd)
         client->ps.pm_flags |= PMF_VIEW_JUMP_START;
     }
     */
-    if (maxs.z == 54.0f ||maxs.z == 60.0f) {
+    if (maxs.z == 54.0f || maxs.z == 60.0f) {
         client->ps.pm_flags |= PMF_DUCKED;
     } else if (viewheight == 52) {
         client->ps.pm_flags |= PMF_VIEW_JUMP_START;
@@ -4179,7 +4250,7 @@ void Player::UpdateEnemies(void)
     float  fMaxDist;
     float  fMaxCosSquared;
     Vector vLookDir;
-    
+
     if (g_gametype->integer != GT_SINGLE_PLAYER) {
         return;
     }
@@ -4554,11 +4625,11 @@ void Player::Think(void)
                     SetPlayerSpectateRandom();
                 } else {
                     gentity_t *ent = g_entities + m_iPlayerSpectating - 1;
-                    
+
                     if (!ent->inuse || !ent->entity) {
                         // Invalid spectate entity
                         SetPlayerSpectateRandom();
-                    } else if (ent->entity->deadflag >= DEAD_DEAD || static_cast<Player*>(ent->entity)->IsSpectator() || IsValidSpectatePlayer(static_cast<Player*>(ent->entity))) {
+                    } else if (ent->entity->deadflag >= DEAD_DEAD || static_cast<Player *>(ent->entity)->IsSpectator() || IsValidSpectatePlayer(static_cast<Player *>(ent->entity))) {
                         SetPlayerSpectateRandom();
                     }
                 }
@@ -4577,11 +4648,11 @@ void Player::Think(void)
 
                 if (m_iPlayerSpectating) {
                     gentity_t *ent = g_entities + m_iPlayerSpectating - 1;
-                    
+
                     if (!ent->inuse || !ent->entity) {
                         // Invalid spectate entity
                         SetPlayerSpectateRandom();
-                    } else if (ent->entity->deadflag >= DEAD_DEAD || static_cast<Player*>(ent->entity)->IsSpectator() || IsValidSpectatePlayer(static_cast<Player*>(ent->entity))) {
+                    } else if (ent->entity->deadflag >= DEAD_DEAD || static_cast<Player *>(ent->entity)->IsSpectator() || IsValidSpectatePlayer(static_cast<Player *>(ent->entity))) {
                         SetPlayerSpectateRandom();
                     } else if (g_gametype->integer >= GT_TEAM && GetTeam() > TEAM_FREEFORALL && static_cast<Player*>(ent->entity)->GetTeam() != GetTeam()) {
                         SetPlayerSpectateRandom();
@@ -6182,7 +6253,7 @@ void Player::SetPlayerView(
 )
 {
     VectorCopy(ang, client->ps.viewangles);
-    client->ps.viewheight    = cameraoffset;
+    client->ps.viewheight = cameraoffset;
 
     VectorCopy(position, client->ps.origin);
     VectorCopy(vel, client->ps.velocity);
@@ -6221,7 +6292,7 @@ void Player::SetPlayerView(
 
             if (camera->IsSubclassOfPlayer()) {
                 Vector  vPos;
-                Player* pPlayer = (Player*)camera;
+                Player *pPlayer = (Player *)camera;
 
                 GetSpectateFollowOrientation(pPlayer, vPos, vVec);
 
@@ -6721,9 +6792,9 @@ PlayerAngles
 void Player::PlayerAngles(void)
 {
     if (getMoveType() == MOVETYPE_PORTABLE_TURRET) {
-        PortableTurret* portableTurret = static_cast<PortableTurret*>(m_pTurret.Pointer());
-        angles[0] = portableTurret->GetGroundPitch();
-        angles[1] = portableTurret->GetStartYaw();
+        PortableTurret *portableTurret = static_cast<PortableTurret *>(m_pTurret.Pointer());
+        angles[0]                      = portableTurret->GetGroundPitch();
+        angles[1]                      = portableTurret->GetStartYaw();
     }
 
     PmoveAdjustAngleSettings(v_angle, angles, &client->ps, &edict->s);
@@ -7665,10 +7736,10 @@ void Player::ExitVehicle(Event *ev)
 
 void Player::EnterTurret(TurretGun *ent)
 {
-    flags      |= FL_PARTIAL_IMMOBILE;
-    viewheight  = DEFAULT_VIEWHEIGHT;
-    velocity    = vec_zero;
-    m_pTurret   = ent;
+    flags |= FL_PARTIAL_IMMOBILE;
+    viewheight = DEFAULT_VIEWHEIGHT;
+    velocity   = vec_zero;
+    m_pTurret  = ent;
 
     if (ent->inheritsFrom(PortableTurret::classinfostatic())) {
         // carryable turret
@@ -7711,7 +7782,7 @@ void Player::ExitTurret(void)
 
     SafeHolster(qfalse);
 
-    new_buttons = 0;
+    new_buttons        = 0;
     server_new_buttons = 0;
 }
 
@@ -7945,7 +8016,7 @@ void Player::ModifyHeight(Event *ev)
         m_bHasJumped = false;
     } else if (!height.icmp("jumpstart")) {
         //viewheight = JUMP_START_VIEWHEIGHT;
-        maxs.z     = 94.0f;
+        maxs.z = 94.0f;
     } else if (!height.icmp("duck")) {
         viewheight = CROUCH_VIEWHEIGHT;
         maxs.z     = 54.0f;
@@ -8843,7 +8914,7 @@ void Player::SetPlayerSpectate(bool bNext)
         m_iPlayerSpectating = 0;
     }
 
-    for(i = num; i < game.maxclients && i >= 0; i+= dir) {
+    for (i = num; i < game.maxclients && i >= 0; i += dir) {
         ent = &g_entities[i];
         if (!ent->inuse || !ent->entity) {
             continue;
@@ -9260,7 +9331,7 @@ void Player::Disconnect(void)
     }
 }
 
-void Player::CallVote(Event* ev)
+void Player::CallVote(Event *ev)
 {
     str arg1;
     str arg2;
@@ -9289,7 +9360,12 @@ void Player::CallVote(Event* ev)
         }
 
         if (votecount >= MAX_VOTE_COUNT) {
-            HUDPrint(va("%s %d %s.\n", gi.LV_ConvertString("You cannot call another vote for"), (unsigned int)(m_fLastVoteTime - level.time + 1), gi.LV_ConvertString("seconds")));
+            HUDPrint(
+                va("%s %d %s.\n",
+                   gi.LV_ConvertString("You cannot call another vote for"),
+                   (unsigned int)(m_fLastVoteTime - level.time + 1),
+                   gi.LV_ConvertString("seconds"))
+            );
             return;
         }
     }
@@ -9314,11 +9390,11 @@ void Player::CallVote(Event* ev)
             && Q_stricmp(arg1.c_str(), "g_gametype") && Q_stricmp(arg1.c_str(), "kick")
             && Q_stricmp(arg1.c_str(), "clientkick") && Q_stricmp(arg1.c_str(), "fraglimit")) {
             HUDPrint(gi.LV_ConvertString("Invalid vote string."));
-            HUDPrint(
-                va("%s restart, nextmap, map <mapname>, g_gametype <n>, fraglimit <n>, timelimit <n>, kick <player>, and "
-                    "clientkick <player #>.",
-                    gi.LV_ConvertString("Vote commands are:"))
-            );
+            HUDPrint(va(
+                "%s restart, nextmap, map <mapname>, g_gametype <n>, fraglimit <n>, timelimit <n>, kick <player>, and "
+                "clientkick <player #>.",
+                gi.LV_ConvertString("Vote commands are:")
+            ));
 
             return;
         }
@@ -9327,7 +9403,7 @@ void Player::CallVote(Event* ev)
             //
             // check for a valid player
             //
-            gentity_t* ent;
+            gentity_t *ent;
             int        i;
 
             for (i = 0; i < game.maxclients; i++) {
@@ -9349,14 +9425,13 @@ void Player::CallVote(Event* ev)
             }
 
             if (i == game.maxclients) {
-                HUDPrint(va("%s %s", ent->client->pers.netname, gi.LV_ConvertString("is not a valid player name to kick."))
+                HUDPrint(
+                    va("%s %s", ent->client->pers.netname, gi.LV_ConvertString("is not a valid player name to kick."))
                 );
             }
-        }
-        else if (!Q_stricmp(arg1.c_str(), "map") && *sv_nextmap->string) {
+        } else if (!Q_stricmp(arg1.c_str(), "map") && *sv_nextmap->string) {
             level.m_voteString = va("%s %s; set next map \"%s\"", arg1.c_str(), arg2.c_str(), arg2.c_str());
-        }
-        else {
+        } else {
             level.m_voteString = va("%s %s", arg1.c_str(), arg2.c_str());
         }
 
@@ -9400,35 +9475,34 @@ void Player::CallVote(Event* ev)
                 HUDPrint(va("%s %s %d", gi.LV_ConvertString("Game Type"), arg1.c_str(), gametypeNum));
                 return;
             }
-        }
-        else if (!Q_stricmp(arg1.c_str(), "map")) {
+        } else if (!Q_stricmp(arg1.c_str(), "map")) {
             if (*sv_nextmap->string) {
                 level.m_voteString = va("%s %s; set nextmap \"%s\"", arg1.c_str(), arg2.c_str(), sv_nextmap->string);
-            }
-            else {
+            } else {
                 level.m_voteString = va("%s %s", arg1.c_str(), arg2.c_str());
             }
 
             level.m_voteName = va("Map %s", arg2.c_str());
-        }
-        else {
+        } else {
             level.m_voteString = va("%s %s", arg1.c_str(), arg2.c_str());
-            level.m_voteName = level.m_voteString;
+            level.m_voteName   = level.m_voteString;
         }
     } else {
-        int voteIndex;
-        int subListIndex;
-        str voteOptionCommand;
-        str voteOptionSubCommand;
-        str voteOptionName;
-        str voteOptionSubName;
+        int              voteIndex;
+        int              subListIndex;
+        str              voteOptionCommand;
+        str              voteOptionSubCommand;
+        str              voteOptionName;
+        str              voteOptionSubName;
         voteoptiontype_t optionType;
+
         union {
-            int optionInteger;
+            int   optionInteger;
             float optionFloat;
-            int optionClientNum;
+            int   optionClientNum;
         };
-        gentity_t* ent;
+
+        gentity_t *ent;
 
         char buffer[64];
 
@@ -9443,20 +9517,28 @@ void Player::CallVote(Event* ev)
         switch (optionType) {
         case VOTE_NO_CHOICES:
             level.m_voteString = voteOptionCommand;
-            level.m_voteName = voteOptionName;
+            level.m_voteName   = voteOptionName;
             break;
         case VOTE_OPTION_LIST:
             subListIndex = atoi(arg2.c_str());
 
             if (!level.GetVoteOptionSub(voteIndex, subListIndex, &voteOptionSubCommand)) {
-                HUDPrint(va("%s %i %s \"%s\".\n", gi.LV_ConvertString("Invalid vote choice"), subListIndex, gi.LV_ConvertString("for vote option"), voteOptionName.c_str()));
+                HUDPrint(
+                    va("%s %i %s \"%s\".\n",
+                       gi.LV_ConvertString("Invalid vote choice"),
+                       subListIndex,
+                       gi.LV_ConvertString("for vote option"),
+                       voteOptionName.c_str())
+                );
                 return;
             }
 
             level.m_voteString = va("%s %s", voteOptionCommand.c_str(), voteOptionSubCommand.c_str());
             // get the sub-option name
             level.GetVoteOptionSubName(voteIndex, subListIndex, &voteOptionSubName);
-            level.m_voteName = va("%s %s", gi.LV_ConvertString(voteOptionName.c_str()), gi.LV_ConvertString(voteOptionSubName.c_str()));
+            level.m_voteName =
+                va("%s %s", gi.LV_ConvertString(voteOptionName.c_str()), gi.LV_ConvertString(voteOptionSubName.c_str())
+                );
             break;
         case VOTE_OPTION_TEXT:
             if (strchr(arg2.c_str(), ';')) {
@@ -9465,7 +9547,7 @@ void Player::CallVote(Event* ev)
             }
 
             level.m_voteString = va("%s %s", voteOptionCommand.c_str(), arg2.c_str());
-            level.m_voteName = va("%s %s", gi.LV_ConvertString(voteOptionName.c_str()), arg2.c_str());
+            level.m_voteName   = va("%s %s", gi.LV_ConvertString(voteOptionName.c_str()), arg2.c_str());
             break;
         case VOTE_OPTION_INTEGER:
             optionInteger = atoi(arg2.c_str());
@@ -9477,7 +9559,7 @@ void Player::CallVote(Event* ev)
             }
 
             level.m_voteString = va("%s %i", voteOptionCommand.c_str(), optionInteger);
-            level.m_voteName = va("%s %i", gi.LV_ConvertString(voteOptionName.c_str()), optionInteger);
+            level.m_voteName   = va("%s %i", gi.LV_ConvertString(voteOptionName.c_str()), optionInteger);
             break;
         case VOTE_OPTION_FLOAT:
             optionFloat = atof(arg2.c_str());
@@ -9489,7 +9571,7 @@ void Player::CallVote(Event* ev)
             }
 
             level.m_voteString = va("%s %g", voteOptionCommand.c_str(), optionFloat);
-            level.m_voteName = va("%s %g", gi.LV_ConvertString(voteOptionName.c_str()), optionFloat);
+            level.m_voteName   = va("%s %g", gi.LV_ConvertString(voteOptionName.c_str()), optionFloat);
             break;
         case VOTE_OPTION_CLIENT:
         case VOTE_OPTION_CLIENT_NOT_SELF:
@@ -9506,11 +9588,17 @@ void Player::CallVote(Event* ev)
             }
 
             level.m_voteString = va("%s %i", voteOptionCommand.c_str(), optionClientNum);
-            level.m_voteName = va("%s #%i: %s", gi.LV_ConvertString(voteOptionName.c_str()), optionClientNum, ent->client->pers.netname);
+            level.m_voteName =
+                va("%s #%i: %s", gi.LV_ConvertString(voteOptionName.c_str()), optionClientNum, ent->client->pers.netname
+                );
             break;
         default:
             level.GetVoteOptionMainName(voteIndex, &voteOptionName);
-            gi.Printf("ERROR: Vote option (\"%s\" \"%s\") with unknown vote option type\n", voteOptionName.c_str(), voteOptionCommand.c_str());
+            gi.Printf(
+                "ERROR: Vote option (\"%s\" \"%s\") with unknown vote option type\n",
+                voteOptionName.c_str(),
+                voteOptionCommand.c_str()
+            );
             return;
         }
     }
@@ -9518,28 +9606,28 @@ void Player::CallVote(Event* ev)
     G_PrintToAllClients(va("%s %s.\n", client->pers.netname, gi.LV_ConvertString("called a vote")));
 
     level.m_voteTime = (level.svsFloatTime - level.svsStartFloatTime) * 1000;
-    level.m_voteYes = 1;
-    level.m_voteNo = 0;
+    level.m_voteYes  = 1;
+    level.m_voteNo   = 0;
 
     // Reset all player's vote
     numVoters = 0;
 
     for (int i = 0; i < game.maxclients; i++) {
-        gentity_t* ent = &g_entities[i];
+        gentity_t *ent = &g_entities[i];
 
         if (!ent->client || !ent->inuse) {
             continue;
         }
 
-        Player* p = (Player*)ent->entity;
-        p->voted = false;
+        Player *p = (Player *)ent->entity;
+        p->voted  = false;
 
         numVoters++;
     }
 
     level.m_numVoters = numVoters;
-    client->ps.voted = true;
-    voted = true;
+    client->ps.voted  = true;
+    voted             = true;
     votecount++;
 
     m_fLastVoteTime = level.time + 60;
@@ -9578,7 +9666,7 @@ void Player::Vote(Event *ev)
     HUDPrint(gi.LV_ConvertString("Vote cast."));
     client->ps.voted = true;
 
-    arg1 = ev->GetString(1);
+    arg1  = ev->GetString(1);
     voted = (arg1[0] == 'y') || (arg1[0] == 'Y') || (arg1[0] == '1');
 }
 
@@ -9949,29 +10037,84 @@ void Player::GetTeamDialogPrefix(str& outPrefix)
         outPrefix = "allied_";
     }
 
-    switch (m_voiceType) {
-    case PVT_ALLIED_AMERICAN:
-        outPrefix += "american_";
-        break;
-    case PVT_ALLIED_BRITISH:
-        outPrefix += "british_";
-        break;
-    case PVT_ALLIED_RUSSIAN:
-        outPrefix += "russian_";
-        break;
-    case PVT_AXIS_START:
-        outPrefix += "german_";
-        break;
-    case PVT_AXIS_ITALIAN:
-        outPrefix += "italian_";
-        break;
-    default:
-        if (GetTeam() == TEAM_AXIS) {
-            outPrefix += "german_";
-        } else {
+    if (g_protocol >= protocol_e::PROTOCOL_MOHTA_MIN) {
+        switch (m_voiceType) {
+        case PVT_ALLIED_AMERICAN:
             outPrefix += "american_";
+            break;
+        case PVT_ALLIED_BRITISH:
+            outPrefix += "british_";
+            break;
+        case PVT_ALLIED_RUSSIAN:
+            outPrefix += "russian_";
+            break;
+        case PVT_AXIS_START:
+            outPrefix += "german_";
+            break;
+        case PVT_AXIS_ITALIAN:
+            outPrefix += "italian_";
+            break;
+        default:
+            if (GetTeam() == TEAM_AXIS) {
+                outPrefix += "german_";
+            } else {
+                outPrefix += "american_";
+            }
+            break;
         }
-        break;
+    } else {
+        switch (m_voiceType) {
+        case PVT_ALLIED_AIRBORNE:
+            outPrefix += "airborne_";
+            break;
+
+        case PVT_ALLIED_MANON:
+            outPrefix += "manon_";
+            break;
+
+        case PVT_ALLIED_SAS:
+            outPrefix += "sas_";
+            break;
+
+        case PVT_ALLIED_PILOT:
+            outPrefix += "pilot_";
+            break;
+
+        case PVT_ALLIED_ARMY:
+            outPrefix += "army_";
+            break;
+
+        case PVT_ALLIED_RANGER:
+            outPrefix += "ranger_";
+            break;
+
+        case PVT_AXIS_AXIS1:
+            outPrefix += "axis1_";
+            break;
+
+        case PVT_AXIS_AXIS2:
+            outPrefix += "axis2_";
+            break;
+
+        case PVT_AXIS_AXIS3:
+            outPrefix += "axis3_";
+            break;
+
+        case PVT_AXIS_AXIS4:
+            outPrefix += "axis4_";
+            break;
+
+        case PVT_AXIS_AXIS5:
+            outPrefix += "axis5_";
+            break;
+
+        default:
+            if (dm_team != TEAM_AXIS) {
+                outPrefix += "army_";
+            } else {
+                outPrefix += "axis4_";
+            }
+        }
     }
 }
 
@@ -10001,193 +10144,209 @@ void Player::PlayInstantMessageSound(const char *name)
 
 void Player::EventDMMessage(Event *ev)
 {
-    int              mode;
-    str              stuffstrings;
-    str              convertedstuff;
-    str              string;
-    str              voiceName;
-    str              soundName;
-    AliasListNode_t *list          = NULL;
-    const char      *prefix        = NULL;
-    qboolean         bInstaMessage = qfalse;
-    qboolean         met_comment   = false;
+    int              i;
+    int              iStringLength;
+    int              iMode = 0;
+    str              sToken;
+    char             szPrintString[MAX_SAY_TEXT]; // it's MAX_STRING_CHARS in mohaa
+    const char      *pTmpInstantMsg = "";
+    qboolean         bInstaMessage  = qfalse;
+    AliasListNode_t *pSoundAlias    = NULL;
+    const char      *pszAliasname   = NULL;
+    str              sAliasName;
+    str              sRandomAlias;
+    gentity_t       *ent;
 
     if (g_gametype->integer == GT_SINGLE_PLAYER) {
         return;
     }
 
-    mode = ev->GetInteger(1);
-
     if (ev->NumArgs() <= 1) {
         return;
     }
 
-    string = ev->GetString(2);
+    sToken = ev->GetString(2);
 
     // Check for taunts
-    if (string.length() == 3 && *string == '*') {
-        char num1 = string[1];
-        char num2 = string[2];
+    if (sToken.length() == 3 && *sToken == '*' && sToken[1] > '0' && sToken[1] <= '9' && sToken[2] > '0'
+        && sToken[2] <= '9') {
+        unsigned int n1, n2;
 
-        if (num1 > '0' && num1 <= '9' && num2 > '0' && num2 <= '9') {
-            if (IsSpectator() || IsDead()) {
+        if (IsSpectator() || IsDead()) {
+            // spectators or death players can't talk
+            return;
+        }
+
+        GetTeamDialogPrefix(sAliasName);
+        sAliasName += va("%c%c", (sToken[1] + '0'), (sToken[2] + '0'));
+        sRandomAlias = GetRandomAlias(sAliasName, &pSoundAlias);
+
+        // find a random alias
+        if (sRandomAlias.length() > 0) {
+            pszAliasname = sRandomAlias.c_str();
+        }
+
+        if (!pszAliasname) {
+            pszAliasname = gi.GlobalAlias_FindRandom(sAliasName, &pSoundAlias);
+        }
+
+        if (!pszAliasname || !pSoundAlias) {
+            return;
+        }
+
+        n1 = sToken[1] - '1';
+        n2 = sToken[2] - '1';
+
+        if (g_protocol >= PROTOCOL_MOHTA_MIN) {
+            if (n1 >= ARRAY_LEN(pInstantMsgEng) || n2 >= ARRAY_LEN(pInstantMsgEng[0])) {
                 return;
             }
 
-            if (dm_team == TEAM_AXIS) {
-                voiceName = "axis_";
-            } else {
-                voiceName = "allied_";
+            pTmpInstantMsg = pInstantMsgEng[n1][n2];
+        } else {
+            if (n1 >= ARRAY_LEN(pInstantMsgEng_ver6) || n2 >= ARRAY_LEN(pInstantMsgEng_ver6[0])) {
+                return;
             }
+
+            // fallback to old version
+            pTmpInstantMsg = pInstantMsgEng_ver6[n1][n2];
         }
 
-        switch (m_voiceType) {
-        case PVT_ALLIED_AIRBORNE:
-            voiceName += "airborne_";
-            break;
+        bInstaMessage = qtrue;
 
-        case PVT_ALLIED_MANON:
-            voiceName += "manon_";
-            break;
-
-        case PVT_ALLIED_SAS:
-            voiceName += "sas_";
-            break;
-
-        case PVT_ALLIED_PILOT:
-            voiceName += "pilot_";
-            break;
-
-        case PVT_ALLIED_ARMY:
-            voiceName += "army_";
-            break;
-
-        case PVT_ALLIED_RANGER:
-            voiceName += "ranger_";
-            break;
-
-        case PVT_AXIS_AXIS1:
-            voiceName += "axis1_";
-            break;
-
-        case PVT_AXIS_AXIS2:
-            voiceName += "axis2_";
-            break;
-
-        case PVT_AXIS_AXIS3:
-            voiceName += "axis3_";
-            break;
-
-        case PVT_AXIS_AXIS4:
-            voiceName += "axis4_";
-            break;
-
-        case PVT_AXIS_AXIS5:
-            voiceName += "axis5_";
-            break;
-
-        default:
-            if (dm_team != TEAM_AXIS) {
-                voiceName += "army_";
+        if (g_gametype->integer == GT_FFA) {
+            iMode = 0;
+        } else {
+            if (n1 == 4) {
+                iMode = 0;
             } else {
-                voiceName += "axis4_";
+                iMode = -1;
             }
-        }
 
-        voiceName += va("%c%c", num1 + '0', num2 + '0');
-
-        FindAlias(soundName, voiceName, &list);
-
-        if (list) {
-            bInstaMessage = qtrue;
+            if (g_voiceChatTime->value > 0) {
+                m_fTalkTime = g_voiceChatTime->value + level.time;
+            }
         }
     }
 
     if (!bInstaMessage) {
-        for (int i = 2; i <= ev->NumArgs(); i++) {
-            string = ev->GetString(i);
+        iMode = ev->GetInteger(1);
+        if (g_textChatTime->value > 0) {
+            m_fTalkTime = g_textChatTime->value + level.time;
+        }
+    }
 
-            if (strstr(string, "/*")) {
+    strcpy(szPrintString, "print \"" HUD_MESSAGE_CHAT_WHITE);
+
+    if (m_bSpectator) {
+        if (iMode <= 0) {
+            strcat(szPrintString, "(spectator)");
+            strcat(szPrintString, " ");
+        } else if (iMode <= game.maxclients) {
+            ent = &g_entities[iMode - 1];
+
+            if (ent->inuse && ent->entity && !static_cast<Player *>(ent->entity)->IsSpectator()) {
+                str errorString = gi.LV_ConvertString("Message Error");
+                str reasonString =
+                    gi.LV_ConvertString("Spectators are not allowed to send private messages to non-spectators");
+
+                gi.SendServerCommand(
+                    edict - g_entities,
+                    "print \"" HUD_MESSAGE_CHAT_WHITE "%s: %s.\"",
+                    errorString.c_str(),
+                    reasonString.c_str()
+                );
+                return;
+            }
+        }
+    } else if (IsDead() || m_bTempSpectator) {
+        if (iMode <= 0) {
+            strcat(szPrintString, "(dead)");
+            strcat(szPrintString, " ");
+        } else if (iMode <= game.maxclients) {
+            ent = &g_entities[iMode - 1];
+
+            if (ent->inuse && ent->entity && !static_cast<Player *>(ent->entity)->IsSpectator()) {
+                str errorString = gi.LV_ConvertString("Message Error");
+                str reasonString =
+                    gi.LV_ConvertString("Dead players are not allowed to send private messages to active players");
+
+                gi.SendServerCommand(
+                    edict - g_entities,
+                    "print \"" HUD_MESSAGE_CHAT_WHITE "%s: %s.\"",
+                    errorString.c_str(),
+                    reasonString.c_str()
+                );
+                return;
+            }
+        }
+    } else if (iMode < 0) {
+        strcat(szPrintString, "(team)");
+        strcat(szPrintString, " ");
+    } else if (iMode > 0) {
+        strcat(szPrintString, "(private)");
+        strcat(szPrintString, " ");
+    }
+
+    strcat(szPrintString, client->pers.netname);
+
+    if (bInstaMessage) {
+        strcat(szPrintString, ": ");
+        strcat(szPrintString, gi.LV_ConvertString(pTmpInstantMsg));
+    } else {
+        bool met_comment;
+
+        strcat(szPrintString, ":");
+        iStringLength = strlen(szPrintString);
+
+        for (i = 2; i <= ev->NumArgs(); i++) {
+            sToken = ev->GetString(i);
+            // Added in 2.40
+            //  Special battle language tokens
+            //  So players can easily tell their position, health, etc.
+            sToken = TranslateBattleLanguageTokens(sToken);
+
+            if (iStringLength + sToken.length() > (ARRAY_LEN(szPrintString) - 1)) {
+                break;
+            }
+
+            // Added in OPM.
+            //  Checks for comments in string (as COM_Parse will parse them)
+            if (strstr(sToken, "/*")) {
                 met_comment = true;
             }
 
-            if (strstr(string, "*/") && met_comment) {
-                G_WarnPlayer(this, "Line comments ('/*' and '*/') are not allowed in messages.\n");
+            if (strstr(sToken, "*/") && met_comment) {
+                // ignore messages containing comments
                 return;
             }
 
-            stuffstrings += " " + string;
-            convertedstuff += gi.LV_ConvertString(string);
+            strcat(szPrintString, " ");
+            strcat(szPrintString, gi.LV_ConvertString(sToken));
         }
-    } else {
-        stuffstrings = " " + str(list->subtitle);
     }
 
-    stuffstrings += "\n";
+    strcat(szPrintString, "\n");
 
-    // Protect again buffer overflow exploit
-    if (stuffstrings.length() >= MAX_STRING_CHARS) {
-        HUDPrint("The message you entered is too long.\n");
+    // ignore names containing comments
+    if (strstr(client->pers.netname, "//")
+        || (strstr(client->pers.netname, "/*") && strstr(client->pers.netname, "*/"))) {
         return;
     }
 
-    if (convertedstuff.length() >= MAX_STRING_CHARS) {
-        HUDPrint("The message you entered is too long.\n");
-        return;
-    }
+    if (iMode == 0) {
+        //
+        // team message
+        //
+        if (!IsSpectator() || g_spectate_allow_full_chat->integer) {
+            for (i = 0; i < game.maxclients; i++) {
+                ent = &g_entities[i];
 
-    // Prevent the comment glitch
-    // ley: The problem seems to be an issue with COM_Parse, which skips all C comments
-    if (strstr(client->pers.netname, "/*")) {
-        met_comment = true;
-    }
-
-    if (strstr(client->pers.netname, "//") || strstr(client->pers.netname, "*/")) {
-        HUDPrint("C comments ('//', '/*' and '*/') are not allowed in names.\n");
-        return;
-    }
-
-    if (IsSpectator()) {
-        if (mode > 0 && mode <= game.maxclients) {
-            const char *error =
-                "Message Error: Spectators are not allowed to send private messages to non-spectators.\n";
-
-            gi.SendServerCommand(client->ps.clientNum, "print \"" HUD_MESSAGE_CHAT_WHITE "%s\"", error);
-            return;
-        }
-
-        prefix = gi.LV_ConvertString("(spectator) ");
-        string = prefix + str(client->pers.netname) + ":" + str(stuffstrings);
-    } else if (IsDead()) {
-        if (mode > 0 && mode <= game.maxclients) {
-            const char *error =
-                "Message Error: Dead players are not allowed to send private messages to active players.\n";
-
-            gi.SendServerCommand(client->ps.clientNum, "print \"" HUD_MESSAGE_CHAT_WHITE "%s\"", error);
-            return;
-        }
-
-        prefix = gi.LV_ConvertString("(dead) ");
-        string = prefix + str(client->pers.netname) + ":" + str(stuffstrings);
-    } else {
-        if (mode == -1) {
-            string = "(team) " + str(client->pers.netname) + ":" + str(stuffstrings);
-        } else {
-            string = str(client->pers.netname) + ":" + str(stuffstrings);
-        }
-    }
-
-    if (voiceName.length()) {
-        if (!IsDead() && (!IsSpectator() || g_spectate_allow_full_chat->integer)) {
-            gentity_t *ent;
-            int        i;
-
-            for (i = 0, ent = g_entities; i < game.maxclients; i++, ent++) {
                 if (!ent->inuse || !ent->entity) {
                     continue;
                 }
 
-                gi.SendServerCommand(i, "print \"" HUD_MESSAGE_CHAT_WHITE "%s\"", string.c_str());
+                gi.SendServerCommand(i, "%s", szPrintString);
 
                 if (bInstaMessage) {
                     gi.MSG_SetClient(i);
@@ -10195,50 +10354,122 @@ void Player::EventDMMessage(Event *ev)
                     gi.MSG_WriteCoord(m_vViewPos[0]);
                     gi.MSG_WriteCoord(m_vViewPos[1]);
                     gi.MSG_WriteCoord(m_vViewPos[2]);
-                    gi.MSG_WriteBits(1, 1);
+                    gi.MSG_WriteBits(qtrue, 1);
                     gi.MSG_WriteBits(edict - g_entities, 6);
-                    gi.MSG_WriteString(voiceName.c_str());
+                    gi.MSG_WriteString(sAliasName.c_str());
                     gi.MSG_EndCGM();
                 }
             }
+        } else {
+            //
+            // send a message to spectators
+            //
+            for (i = 0; i < game.maxclients; i++) {
+                ent = &g_entities[i];
 
-            return;
+                if (!ent->inuse || !ent->entity) {
+                    continue;
+                }
+
+                if (!static_cast<Player *>(ent->entity)->IsSpectator()) {
+                    continue;
+                }
+
+                gi.SendServerCommand(i, "%s", szPrintString);
+            }
         }
-    }
-
-    if (mode == -1) {
-        int        i;
-        gentity_t *ent;
-        Player    *p;
-
+    } else if (iMode < 0) {
+        //
         // team message
-        for (i = 0, ent = g_entities; i < game.maxclients; i++, ent++) {
-            if (!ent->inuse || !ent->entity) {
-                continue;
+        //
+        if (IsSpectator()) {
+            for (i = 0; i < game.maxclients; i++) {
+                ent = &g_entities[i];
+
+                if (!ent->inuse || !ent->entity) {
+                    continue;
+                }
+
+                if (!static_cast<Player *>(ent->entity)->IsSpectator()) {
+                    continue;
+                }
+
+                gi.SendServerCommand(i, "%s", szPrintString);
             }
+        } else {
+            for (i = 0; i < game.maxclients; i++) {
+                ent = &g_entities[i];
 
-            p = (Player *)ent->entity;
+                if (!ent->inuse || !ent->entity) {
+                    continue;
+                }
 
-            if (p->GetTeam() == GetTeam()) {
-                gi.SendServerCommand(i, "print \"" HUD_MESSAGE_CHAT_WHITE "%s\"", string.c_str());
+                if (static_cast<Player *>(ent->entity)->GetTeam() != GetTeam()) {
+                    gi.MSG_SetClient(i);
+                    gi.MSG_StartCGM(BG_MapCGMToProtocol(g_protocol, CGM_VOICE_CHAT));
+                    gi.MSG_WriteCoord(m_vViewPos[0]);
+                    gi.MSG_WriteCoord(m_vViewPos[1]);
+                    gi.MSG_WriteCoord(m_vViewPos[2]);
+                    gi.MSG_WriteBits(qtrue, 1);
+                    gi.MSG_WriteBits(edict - g_entities, 6);
+                    gi.MSG_WriteString(sAliasName.c_str());
+                    gi.MSG_EndCGM();
+
+                    continue;
+                }
+
+                gi.SendServerCommand(i, "%s", szPrintString);
+
+                if (bInstaMessage) {
+                    gi.MSG_SetClient(i);
+                    gi.MSG_StartCGM(BG_MapCGMToProtocol(g_protocol, CGM_VOICE_CHAT));
+                    gi.MSG_WriteCoord(m_vViewPos[0]);
+                    gi.MSG_WriteCoord(m_vViewPos[1]);
+                    gi.MSG_WriteCoord(m_vViewPos[2]);
+                    gi.MSG_WriteBits(qfalse, 1);
+                    gi.MSG_WriteBits(edict - g_entities, 6);
+                    gi.MSG_WriteString(sAliasName.c_str());
+                    gi.MSG_EndCGM();
+                }
             }
         }
-    } else if (mode > 0) {
-        gentity_t *ent = g_entities + mode;
+    } else if (iMode <= game.maxclients) {
+        ent = &g_entities[iMode - 1];
 
-        if (mode > game.maxclients || !ent->inuse || !ent->entity) {
+        if (!ent->inuse || !ent->entity) {
+            str errorString  = gi.LV_ConvertString("Message Error");
+            str reasonString = gi.LV_ConvertString("is not a connected client");
+
             gi.SendServerCommand(
-                client->ps.clientNum,
-                "print \"" HUD_MESSAGE_CHAT_WHITE "Message Error: %d is a bad client number\n\"",
-                mode
+                edict - g_entities,
+                "print \"" HUD_MESSAGE_CHAT_WHITE "%s: %i %s.\"",
+                errorString.c_str(),
+                iMode,
+                reasonString.c_str()
             );
             return;
         }
 
-        gi.SendServerCommand(client->ps.clientNum, "print \"" HUD_MESSAGE_CHAT_WHITE "%s\"", string.c_str());
-    }
+        gi.SendServerCommand(
+            edict - g_entities,
+            "print \"" HUD_MESSAGE_CHAT_WHITE "%s %i:\"",
+            gi.LV_ConvertString("Message to player"),
+            iMode
+        );
+        gi.SendServerCommand(edict - g_entities, "%s", szPrintString);
+    } else {
+        str errorString  = gi.LV_ConvertString("Message Error");
+        str reasonString = gi.LV_ConvertString("is a bad client number");
 
-    gi.SendServerCommand(mode - 1, "print \"" HUD_MESSAGE_CHAT_WHITE "%s\"", string.c_str());
+        gi.SendServerCommand(
+            edict - g_entities,
+            "print \"" HUD_MESSAGE_CHAT_WHITE "%s: %i %s.\"",
+            errorString.c_str(),
+            iMode,
+            reasonString.c_str()
+        );
+        return;
+    }
 }
 
 const char *Player::GetBattleLanguageCondition() const
@@ -10296,7 +10527,7 @@ const char *Player::GetBattleLanguageDirection() const
 
 const char *Player::GetBattleLanguageLocation() const
 {
-    return level.GetDMLocation(m_vViewPos).c_str();
+    return gi.CL_LV_ConvertString(level.GetDMLocation(m_vViewPos).c_str());
 }
 
 const char *Player::GetBattleLanguageLocalFolks()
@@ -10809,10 +11040,10 @@ qboolean Player::ViewModelAnim(str anim, qboolean force_restart, qboolean bFullA
 
     if (!anim.length()) {
         anim = "";
-	}
+    }
 
-	// Copy the item prefix and the anim name
-	weapon = GetActiveWeapon(WEAPON_MAIN);
+    // Copy the item prefix and the anim name
+    weapon = GetActiveWeapon(WEAPON_MAIN);
 
     if (!Q_stricmp(anim, "charge")) {
         viewModelAnim = VM_ANIM_CHARGE;
