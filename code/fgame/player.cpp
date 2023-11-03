@@ -10240,7 +10240,7 @@ void Player::EventDMMessage(Event *ev)
 
     if (m_bSpectator) {
         if (iMode <= 0) {
-            strcat(szPrintString, "(spectator)");
+            strcat(szPrintString, gi.CL_LV_ConvertString("(spectator)"));
             strcat(szPrintString, " ");
         } else if (iMode <= game.maxclients) {
             ent = &g_entities[iMode - 1];
@@ -10261,7 +10261,7 @@ void Player::EventDMMessage(Event *ev)
         }
     } else if (IsDead() || m_bTempSpectator) {
         if (iMode <= 0) {
-            strcat(szPrintString, "(dead)");
+            strcat(szPrintString, gi.CL_LV_ConvertString("(dead)"));
             strcat(szPrintString, " ");
         } else if (iMode <= game.maxclients) {
             ent = &g_entities[iMode - 1];
@@ -10281,10 +10281,10 @@ void Player::EventDMMessage(Event *ev)
             }
         }
     } else if (iMode < 0) {
-        strcat(szPrintString, "(team)");
+        strcat(szPrintString, gi.CL_LV_ConvertString("(team)"));
         strcat(szPrintString, " ");
     } else if (iMode > 0) {
-        strcat(szPrintString, "(private)");
+        strcat(szPrintString, gi.CL_LV_ConvertString("(private)"));
         strcat(szPrintString, " ");
     }
 
