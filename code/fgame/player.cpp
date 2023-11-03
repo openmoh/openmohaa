@@ -10450,13 +10450,17 @@ void Player::EventDMMessage(Event *ev)
             return;
         }
 
-        gi.SendServerCommand(
-            edict - g_entities,
-            "print \"" HUD_MESSAGE_CHAT_WHITE "%s %i:\"",
-            gi.LV_ConvertString("Message to player"),
-            iMode
-        );
-        gi.SendServerCommand(edict - g_entities, "%s", szPrintString);
+        gi.SendServerCommand(iMode - 1, "%s", szPrintString);
+
+        if (ent->entity != this) {
+            gi.SendServerCommand(
+                edict - g_entities,
+                "print \"" HUD_MESSAGE_CHAT_WHITE "%s %i:\"",
+                gi.LV_ConvertString("Message to player"),
+                iMode
+            );
+            gi.SendServerCommand(edict - g_entities, "%s", szPrintString);
+        }
     } else {
         str errorString  = gi.LV_ConvertString("Message Error");
         str reasonString = gi.LV_ConvertString("is a bad client number");
