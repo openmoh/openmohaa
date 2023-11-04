@@ -11116,7 +11116,7 @@ qboolean Player::ViewModelAnim(str anim, qboolean force_restart, qboolean bFullA
     playerState->iViewModelAnim = viewModelAnim;
 
     if (m_fpsTiki && gi.Anim_NumForName(m_fpsTiki, m_sVMAcurrent) < 0) {
-        gi.DPrintf("WARNING: Invalid view model anim \"%s\"\n", m_sVMAcurrent.c_str());
+        //gi.DPrintf("WARNING: Invalid view model anim \"%s\"\n", m_sVMAcurrent.c_str());
     }
 
     animDoneVM = false;
