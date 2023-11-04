@@ -189,7 +189,7 @@ void CG_InstaMessageGroupE_f(void)
 
 void CG_HudPrint_f(void)
 {
-    cgi.Printf("\x1%s", cgi.Argv(0));
+    cgi.Printf("\x1%s", cgi.Argv(1));
 }
 
 int CG_CheckCaptureKey(int key, qboolean down, unsigned int time)
