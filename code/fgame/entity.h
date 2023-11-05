@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2023 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -43,8 +43,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // not be ignored at any cost).
 //
 
-#ifndef __ENTITY_H__
-#define __ENTITY_H__
+#pragma once
 
 #include "g_local.h"
 #include "class.h"
@@ -68,6 +67,22 @@ typedef enum {
     legs,
     torso,
 } bodypart_t;
+
+enum eAIEvent {
+    AI_EVENT_NONE,
+    AI_EVENT_WEAPON_FIRE,
+    AI_EVENT_WEAPON_IMPACT,
+    AI_EVENT_EXPLOSION,
+    AI_EVENT_AMERICAN_VOICE,
+    AI_EVENT_GERMAN_VOICE,
+    AI_EVENT_AMERICAN_URGENT,
+    AI_EVENT_GERMAN_URGENT,
+    AI_EVENT_MISC,
+    AI_EVENT_MISC_LOUD,
+    AI_EVENT_FOOTSTEP,
+    AI_EVENT_GRENADE,
+    AI_EVENT_BADPLACE // Added in 2.0
+};
 
 //deadflag
 #define DEAD_NO          0
@@ -481,7 +496,7 @@ public:
     void RenderEffects(Event *ev);
     void SVFlags(Event *ev);
 
-    void         BroadcastAIEvent(int iType = 8, float rad = SOUND_RADIUS);
+    void         BroadcastAIEvent(int iType = AI_EVENT_MISC, float rad = SOUND_RADIUS);
     void         BroadcastAIEvent(Event *ev);
     void         Kill(Event *ev);
     void         Killed(Event *ev);
@@ -628,13 +643,9 @@ public:
     void PlayNonPvsSound(const str& soundName, float volume = 1);
 };
 
-inline void Entity::PreAnimate(void)
-{
-}
+inline void Entity::PreAnimate(void) {}
 
-inline void Entity::PostAnimate(void)
-{
-}
+inline void Entity::PostAnimate(void) {}
 
 inline bool Entity::HasVehicle(void) const
 {
@@ -830,11 +841,9 @@ inline str Entity::GetRandomAlias(str name, AliasListNode_t **ret)
     return realname;
 }
 
-inline bool Entity::AreasConnected(const Entity* other)
+inline bool Entity::AreasConnected(const Entity *other)
 {
     return gi.AreasConnected(edict->r.areanum, other->edict->r.areanum) != 0;
 }
 
 #include "worldspawn.h"
-
-#endif
