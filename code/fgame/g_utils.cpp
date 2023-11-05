@@ -511,9 +511,10 @@ void G_TraceEntities(
     }
 }
 
-float G_VisualObfuscation(const Vector& start, const Vector& end) {
+float G_VisualObfuscation(const Vector& start, const Vector& end)
+{
     float alpha;
-    
+
     if (start == end) {
         // no obfuscation
         return 0;
@@ -1660,6 +1661,7 @@ void G_BroadcastAIEvent(Entity *originator, Vector origin, char *pszType)
 void G_BroadcastAIEvent(Entity *originator, Vector origin, int iType, float radius)
 {
     Sentient *ent;
+    Actor    *act;
     Vector    delta;
     str       name;
     float     r2;
@@ -1668,8 +1670,8 @@ void G_BroadcastAIEvent(Entity *originator, Vector origin, int iType, float radi
     int       iNumSentients;
     int       iAreaNum;
 
-    if (iType < AI_EVENT_FOOTSTEP) {
-        ent = (Sentient *)G_GetEntity(0);
+    if (iType == AI_EVENT_MISC || iType == AI_EVENT_MISC_LOUD) {
+        ent = static_cast<Sentient *>(G_GetEntity(0));
 
         if (ent && ent->m_bIsDisguised) {
             return;
@@ -1681,48 +1683,57 @@ void G_BroadcastAIEvent(Entity *originator, Vector origin, int iType, float radi
     }
 
     assert(originator);
-    if (originator && !(originator->flags & FL_NOTARGET)) {
-        r2            = Square(radius);
-        iNumSentients = SentientList.NumObjects();
-        for (i = 1; i <= iNumSentients; i++) {
-            ent = SentientList.ObjectAt(i);
-            if ((ent == originator) || ent->deadflag) {
+
+    r2            = Square(radius);
+    iNumSentients = SentientList.NumObjects();
+    for (i = 1; i <= iNumSentients; i++) {
+        ent = SentientList.ObjectAt(i);
+        if ((ent == originator) || ent->deadflag) {
+            continue;
+        }
+
+        if (!ent->IsSubclassOfActor() && !ent->IsSubclassOfBot()) {
+            continue;
+        }
+
+        if (ent->IsSubclassOfActor()) {
+            act = static_cast<Actor *>(ent);
+            if (act->IgnoreSound(iType)) {
                 continue;
-            }
-
-            delta = origin - ent->centroid;
-
-            // dot product returns length squared
-            dist2 = Square(delta);
-
-            if (originator) {
-                iAreaNum = originator->edict->r.areanum;
-            } else {
-                iAreaNum = gi.AreaForPoint(origin);
-            }
-
-            if ((dist2 <= r2)
-                && ((iAreaNum == ent->edict->r.areanum) || (gi.AreasConnected(iAreaNum, ent->edict->r.areanum))))
-
-            {
-                if (ent->IsSubclassOfActor()) {
-                    Actor *act = (Actor *)ent;
-
-                    if (!act->IgnoreSound(iType)) {
-                        act->ReceiveAIEvent(origin, iType, originator, dist2, r2);
-                    }
-                } else if (ent->IsSubclassOfBot()) {
-                    PlayerBot *bot = (PlayerBot *)ent;
-
-                    bot->NoticeEvent(origin, iType, originator, dist2, r2);
-                }
             }
         }
 
-#if 0
-		gi.DPrintf( "Broadcast event %s to %d entities\n", ev->getName(), count );
-#endif
+        delta = origin - ent->centroid;
+
+        // dot product returns length squared
+        dist2 = Square(delta);
+
+        if (originator) {
+            iAreaNum = originator->edict->r.areanum;
+        } else {
+            iAreaNum = gi.AreaForPoint(origin);
+        }
+
+        if (dist2 > r2) {
+            continue;
+        }
+
+        if (iAreaNum != ent->edict->r.areanum && !gi.AreasConnected(iAreaNum, ent->edict->r.areanum)) {
+            continue;
+        }
+
+        if (ent->IsSubclassOfActor()) {
+            act->ReceiveAIEvent(origin, iType, originator, dist2, r2);
+        } else if (ent->IsSubclassOfBot()) {
+            PlayerBot *bot = static_cast<PlayerBot *>(ent);
+
+            bot->NoticeEvent(origin, iType, originator, dist2, r2);
+        }
     }
+
+#if 0
+    gi.DPrintf("Broadcast event %s to %d entities\n", ev->getName(), count);
+#endif
 }
 
 void CloneEntity(Entity *dest, Entity *src)
@@ -2153,9 +2164,9 @@ void G_PrintDeathMessage(
             pPlayer = static_cast<Player *>(ent->entity);
 
             if ((pPlayer->GetTeam() == TEAM_ALLIES || pPlayer->GetTeam() == TEAM_AXIS)
-                && pPlayer->GetTeam() == victim->GetTeam()
+                    && pPlayer->GetTeam() == victim->GetTeam()
                 || pPlayer->GetTeam() != TEAM_ALLIES && pPlayer->GetTeam() != TEAM_AXIS
-                && victim->GetTeam() == TEAM_ALLIES) {
+                       && victim->GetTeam() == TEAM_ALLIES) {
                 gi.SendServerCommand(
                     ent - g_entities,
                     "printdeathmsg \"%s\"\"%s\"\"%s\"\"%s\" %c",
