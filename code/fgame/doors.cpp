@@ -865,23 +865,23 @@ void Door::FieldTouched(Event *ev)
         }
 
         dist = VectorLength2D(other->velocity) * 0.25f;
-        if (absmin[0] > absmax[0] + dist) {
+        if (other->absmin[0] > absmax[0] + dist) {
             return;
         }
-        if (absmin[1] > absmax[1] + dist) {
+        if (other->absmin[1] > absmax[1] + dist) {
             return;
         }
-        if (absmin[2] > absmax[2] + dist) {
+        if (other->absmin[2] > absmax[2]) {
             return;
         }
 
-        if (absmin[0] - dist <= absmax[0]) {
+        if (other->absmax[0] < absmin[0] - dist) {
             return;
         }
-        if (absmin[1] - dist <= absmax[1]) {
+        if (other->absmax[1] < absmin[1] - dist) {
             return;
         }
-        if (absmin[2] - dist <= absmax[2]) {
+        if (other->absmax[2] < absmin[2]) {
             return;
         }
     } else if ((state != STATE_OPEN) && !(spawnflags & DOOR_AUTO_OPEN) && !other->isSubclassOf(Actor)) {
