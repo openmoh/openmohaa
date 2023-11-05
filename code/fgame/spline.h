@@ -36,6 +36,8 @@ public:
     float m_vPoints[cPoints][cGrids];
     int   m_iPointFlags[cPoints];
 
+    cSpline();
+
     void   Reset(void);
     int    Add(float *fAdd, int flags);
     void   Modify(int, float *, int);
@@ -49,6 +51,12 @@ public:
 
     void Archive(Archiver& arc);
 };
+
+template<unsigned int cGrids, unsigned int cPoints>
+cSpline<cGrids, cPoints>::cSpline()
+{
+    m_iPoints = 0;
+}
 
 template<unsigned int cGrids, unsigned int cPoints>
 void cSpline<cGrids, cPoints>::Archive(Archiver& arc)
@@ -169,7 +177,7 @@ float *cSpline<cGrids, cPoints>::Get(float x, int *flags)
             *flags = m_iPointFlags[0];
         }
 
-        for (i = 0; i < 4; i++) {
+        for (i = 0; i < cGrids; i++) {
             r[i] = m_vPoints[0][i];
         }
     }
