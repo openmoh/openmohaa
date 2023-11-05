@@ -1383,11 +1383,11 @@ void Vehicle::SetWheelCorners(Event *ev)
     Vector size;
     Vector offset;
 
-    size                  = ev->GetVector(1);
-    offset                = ev->GetVector(2);
+    size   = ev->GetVector(1);
+    offset = ev->GetVector(2);
 
     m_vOriginCornerOffset = offset;
-    maxtracedist = size[2];
+    maxtracedist          = size[2];
 
     Corners[0][0] = -(size[0] / 2);
     Corners[0][1] = (size[1] / 2);
@@ -3146,9 +3146,9 @@ void Vehicle::AutoPilot(void)
 
             vTmp             = m_pCurPath->GetByNode(m_iCurNode - (1.0 - fCoef), NULL);
             fCurPathPosition = vTmp[0];
-            vTmp          = m_pCurPath->Get(fCurPathPosition + m_fLookAhead, NULL);
-            vWishPosition = vTmp + 1;
-            fDistToCurPos = Vector(origin[0] - vWishPosition[0], origin[1] - vWishPosition[1], 0).length();
+            vTmp             = m_pCurPath->Get(fCurPathPosition + m_fLookAhead, NULL);
+            vWishPosition    = vTmp + 1;
+            fDistToCurPos    = Vector(origin[0] - vWishPosition[0], origin[1] - vWishPosition[1], 0).length();
 
             if (fCoef > 1 && !m_bBounceBackwards) {
                 m_iCurNode++;
@@ -3462,7 +3462,7 @@ void Vehicle::SetupPath(cVehicleSpline *pPath, SimpleEntity *se)
             VectorCopy(ent->origin, vTmp + 1);
 
             if (ent->IsSubclassOfVehiclePoint()) {
-                pPath->Add(vTmp, static_cast<VehiclePoint*>(ent)->spawnflags);
+                pPath->Add(vTmp, static_cast<VehiclePoint *>(ent)->spawnflags);
             } else {
                 pPath->Add(vTmp, 0);
             }
@@ -3712,8 +3712,8 @@ void Vehicle::DriverUse(Event *ev)
             DetachTurretSlot(slot, vec_zero, NULL);
         }
     } else if (ent->IsSubclassOfSentient()) {
-        Sentient* sent = static_cast<Sentient*>(ent);
-        TurretGun* sentTurret = sent->GetTurret();
+        Sentient  *sent       = static_cast<Sentient *>(ent);
+        TurretGun *sentTurret = sent->GetTurret();
 
         if (sentTurret) {
             slot = FindTurretSlotByEntity(sent->GetTurret());
@@ -3798,7 +3798,7 @@ void Vehicle::DriverUse(Event *ev)
         dist = pos - ent->origin;
 
         length = dist.length();
-        if(ent->IsSubclassOfPlayer()) {
+        if (ent->IsSubclassOfPlayer()) {
             length /= 2.0;
         }
 
@@ -5804,7 +5804,7 @@ void Vehicle::UpdateNormals(void)
 
     angles.AngleVectorsLeft(&i, &j, NULL);
 
-    j = vec_zero - j;
+    j             = vec_zero - j;
     m_vNormalSum  = vec_zero;
     m_iNumNormals = 0;
 
@@ -6045,8 +6045,8 @@ void Vehicle::EventStopAtEnd(Event *ev)
 
     m_fStopStartDistance = GetPathPosition(m_pCurPath, m_iCurNode);
     m_fStopStartSpeed    = moveimpulse;
-    m_fStopEndDistance   = *m_pCurPath->GetByNode(m_pCurPath->m_vPoints[0][0], NULL);
-    m_bStopEnabled       = 1;
+    m_fStopEndDistance   = *m_pCurPath->GetByNode(m_pCurPath->m_iPoints, NULL);
+    m_bStopEnabled       = true;
 }
 
 /*
@@ -6057,40 +6057,40 @@ Vehicle::GetPathPosition
 float Vehicle::GetPathPosition(cVehicleSpline *pPath, int iNode)
 {
     float *vTmp;
-    float  vPrev[3];
-    float  vCur[3];
-    float  vTotal[3];
+    vec3_t vPrev;
+    vec3_t vCur;
+    vec3_t vTotal;
     Vector vDelta;
     float  fTotal;
     float  fCoef;
 
     vTmp = pPath->GetByNode(iNode, NULL);
-    VectorCopy(vCur, vTmp + 1);
+    VectorCopy(vTmp + 1, vCur);
 
     if (g_showvehiclemovedebug->integer) {
-        G_DebugString(Vector(vTmp[1], vTmp[2], vTmp[3]), 3.0f, 1.0f, 1.0f, 1.0f, "%f", vTmp[0]);
+        G_DebugString(vCur, 3.0f, 1.0f, 1.0f, 1.0f, "%f", vTmp[0]);
     }
 
     vTmp = pPath->GetByNode(iNode - 1, NULL);
-    VectorCopy(vPrev, vTmp + 1);
+    VectorCopy(vTmp + 1, vPrev);
 
     if (g_showvehiclemovedebug->integer) {
-        G_DebugString(Vector(vTmp[1], vTmp[2], vTmp[3]), 3.0f, 1.0f, 1.0f, 1.0f, "%f", vTmp[0]);
+        G_DebugString(vPrev, 3.0f, 1.0f, 1.0f, 1.0f, "%f", vTmp[0]);
     }
 
-    VectorCopy(Vector(vCur) - Vector(vPrev), vTotal);
+    VectorSubtract(vCur, vPrev, vTotal);
+    fTotal      = VectorLength(vTotal);
     m_vIdealDir = vTotal;
-    fTotal      = m_vIdealDir.length();
     VectorNormalize(m_vIdealDir);
     angles.AngleVectorsLeft(&vDelta, NULL, NULL);
 
     fCoef = ProjectLineOnPlane(vDelta, DotProduct(vDelta, origin), vPrev, vCur, NULL);
 
     if (g_showvehiclemovedebug->integer) {
-        G_DebugBBox(vPrev, Vector(-32.0f, -32.0f, -32.0f), Vector(32.0f, 32.0f, 32.0f), 0, 1.0f, 1.0f, 1.0f);
-        G_DebugBBox(vCur, Vector(-32.0f, -32.0f, -32.0f), Vector(32.0f, 32.0f, 32.0f), 1.0f, 1.0f, 0, 1.0f);
-        G_DebugArrow(vCur, m_vIdealDir * -1.0f, (1.0 - fCoef) * fTotal, 0, 1.0f, 0, 1.0f);
-        G_DebugArrow(vPrev, m_vIdealDir, fCoef * fTotal, 0, 0, 1.0f, 1.0f);
+        G_DebugBBox(vPrev, Vector(-32, -32, -32), Vector(32, 32, 32), 0, 1, 1, 1);
+        G_DebugBBox(vCur, Vector(-32, -32, -32), Vector(32, 32, 32), 1, 1, 0, 1);
+        G_DebugArrow(vCur, m_vIdealDir * -1.0, (1.0 - fCoef) * fTotal, 0, 1, 0, 1);
+        G_DebugArrow(vPrev, m_vIdealDir, fCoef * fTotal, 0, 0, 1, 1);
     }
 
     return *pPath->GetByNode(iNode - (1.0 - fCoef), NULL);
