@@ -1145,6 +1145,16 @@ Event EV_TriggerSave_SaveName(
     "Sets the name which is appended to the world.message for this specific autosave"
 );
 
+TriggerSave::TriggerSave()
+{
+    if (LoadingSavegame) {
+        return;
+    }
+
+    m_sSaveName = "";
+    SetTargetName("autosave");
+}
+
 void TriggerSave::SaveGame(Event *ev)
 {
     gi.setConfigstring(CS_SAVENAME, m_sSaveName);

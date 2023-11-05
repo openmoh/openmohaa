@@ -191,13 +191,15 @@ public:
     TriggerOnce();
 };
 
-class TriggerSave : public Trigger
+class TriggerSave : public TriggerOnce
 {
 private:
     str m_sSaveName;
 
 public:
     CLASS_PROTOTYPE(TriggerSave);
+
+    TriggerSave();
 
     void SaveGame(Event *ev);
     void EventSaveName(Event *ev);
