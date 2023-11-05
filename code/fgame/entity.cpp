@@ -4098,6 +4098,10 @@ void Entity::SVFlags(Event *ev)
 
 void Entity::BroadcastAIEvent(int iType, float rad)
 {
+    if (flags & FL_NOTARGET) {
+        return;
+    }
+
     G_BroadcastAIEvent(this, origin, iType, rad);
 }
 
