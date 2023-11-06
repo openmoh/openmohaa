@@ -129,7 +129,7 @@ void R_RegisterShaders( model_t *mod ) {
 	{
 		psurface = &tiki->surfaces[ i ];
 
-		assert( psurface->numskins < MAX_TIKI_SHADER );
+		assert( psurface->numskins <= MAX_TIKI_SHADER );
 		for( j = 0; j < psurface->numskins; j++ )
 		{
 			if( psurface->shader[ j ][ 0 ] ) {
