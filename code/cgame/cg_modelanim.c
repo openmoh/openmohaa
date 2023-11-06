@@ -580,10 +580,12 @@ void CG_AttachEntity(
     orientation_t or ;
     vec3_t tempAxis[3];
     vec3_t vOrigin;
+    vec3_t vDeltaLightOrg;
 
     or = cgi.TIKI_Orientation(parent, tagnum);
     //cgi.Printf( "th = %d %.2f %.2f %.2f\n", tikihandle, or.origin[ 0 ], or.origin[ 1 ], or.origin[ 2 ] );
 
+    VectorSubtract(entity->lightingOrigin, entity->origin, vDeltaLightOrg);
     VectorCopy(parent->origin, entity->origin);
 
     for (i = 0; i < 3; i++) {
@@ -601,14 +603,14 @@ void CG_AttachEntity(
     VectorCopy(entity->origin, entity->oldorigin);
 
     if (use_angles) {
-        MatrixMultiply(entity->axis, parent->axis, tempAxis);
-        MatrixMultiply(or.axis, tempAxis, entity->axis);
+        MatrixMultiply(entity->axis, or.axis, tempAxis);
+        MatrixMultiply(tempAxis, parent->axis, entity->axis);
     }
 
     entity->scale *= parent->scale;
     entity->renderfx |= (parent->renderfx & ~(RF_FLAGS_NOT_INHERITED | RF_LIGHTING_ORIGIN));
 
-    MatrixTransformVectorRight(entity->axis, entity->lightingOrigin, vOrigin);
+    MatrixTransformVectorRight(entity->axis, vDeltaLightOrg, vOrigin);
     VectorAdd(entity->origin, vOrigin, entity->lightingOrigin);
 }
 
