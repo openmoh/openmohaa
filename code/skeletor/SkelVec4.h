@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2023 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -22,51 +22,51 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // SkelVec4.h : Skeletor Vec4
 
-#ifndef __SKELVEC4_H__
-#define __SKELVEC4_H__
+#pragma once
 
 #ifdef __cplusplus
 
-class SkelVec4 {
+class SkelVec4
+{
 public:
-	union {
-		float val[ 4 ];
-		struct {
-			float x;
-			float y;
-			float z;
-			float w;
-		} xyzw;
-	};
+    union {
+        float val[4];
+
+        struct {
+            float x;
+            float y;
+            float z;
+            float w;
+        } xyzw;
+    };
 
 protected:
-	void copy( class SkelVec4 const & );
+    void copy(const SkelVec4&);
 
 public:
-	SkelVec4( float x, float y, float z, float w );
-	SkelVec4( const SkelVec3& vec3, float w );
-	SkelVec4( const float *vec4 );
+    SkelVec4(float x, float y, float z, float w);
+    SkelVec4(const SkelVec3& vec3, float w);
+    SkelVec4(const float *vec4);
 
-	operator float *( );
-	operator float *( ) const;
+    operator float *();
+    operator float *() const;
 
-	void set( float x, float y, float z, float w );
+    void set(float x, float y, float z, float w);
 };
 
 #else
 
 typedef struct {
-	union {
-		float val[ 4 ];
-		struct {
-			float x;
-			float y;
-			float z;
-			float w;
-		};
-	};
+    union {
+        float val[4];
+
+        struct {
+            float x;
+            float y;
+            float z;
+            float w;
+        };
+    };
 } SkelVec4;
 
 #endif
-
-#endif // __SKELVEC4_H__

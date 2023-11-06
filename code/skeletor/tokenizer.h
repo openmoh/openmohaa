@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2023 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -22,47 +22,46 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // tokenizer.h : Tokenizer
 
-#ifndef __TOKENIZER_H__
-#define __TOKENIZER_H__
+#pragma once
 
-class Tokenizer {
-	char *pBuffer;
-	char *pEnd;
-	int iLength;
-	char *pCurrent;
-	int iLine;
-	int iError;
-	bool fTokenReady;
-	char szToken[ 256 ];
+class Tokenizer
+{
+    char *pBuffer;
+    char *pEnd;
+    int   iLength;
+    char *pCurrent;
+    int   iLine;
+    int   iError;
+    bool  fTokenReady;
+    char  szToken[256];
+
 public:
-	Tokenizer();
-	Tokenizer( const char *pInputBuffer , int iBufferLength );
+    Tokenizer();
+    Tokenizer(const char *pInputBuffer, int iBufferLength);
 
-	void	SetBuffer( const char *pInputBuffer, int iBufferLength);
-	void	Reset();
-	int		GetLineNumber();
-	bool	HasError();
-	int		GetError();
-	bool	SkipToEOL();
-	bool	CheckOverflow();
-	bool	SkipWhiteSpace( bool fCrossLine );
-	bool	AtComment();
-	void	SkipNonToken( bool fCrossLine );
-	bool	TokenAvailable( bool fCrossLine );
-	bool	CommentAvailable( bool fCrossLine );
-	void	UnGetToken();
-	bool	AtString( bool fCrossLine );
-	char	*GetToken( bool fCrossLine );
-	char	*GetLine( bool fCrossLine );
-	char	*GetRaw();
-	char	*GetString( bool fCrossLine );
-	bool	GetSpecific( const char *szString );
-	int		GetInteger( bool fCrossLine );
-	double	GetDouble( bool fCrossLine );
-	float	GetFloat( bool fCrossLine );
-	int		LinesInFile();
-	char	*Token();
-	char	*GetCurrentPointer();
+    void   SetBuffer(const char *pInputBuffer, int iBufferLength);
+    void   Reset();
+    int    GetLineNumber();
+    bool   HasError();
+    int    GetError();
+    bool   SkipToEOL();
+    bool   CheckOverflow();
+    bool   SkipWhiteSpace(bool fCrossLine);
+    bool   AtComment();
+    void   SkipNonToken(bool fCrossLine);
+    bool   TokenAvailable(bool fCrossLine);
+    bool   CommentAvailable(bool fCrossLine);
+    void   UnGetToken();
+    bool   AtString(bool fCrossLine);
+    char  *GetToken(bool fCrossLine);
+    char  *GetLine(bool fCrossLine);
+    char  *GetRaw();
+    char  *GetString(bool fCrossLine);
+    bool   GetSpecific(const char *szString);
+    int    GetInteger(bool fCrossLine);
+    double GetDouble(bool fCrossLine);
+    float  GetFloat(bool fCrossLine);
+    int    LinesInFile();
+    char  *Token();
+    char  *GetCurrentPointer();
 };
-
-#endif // __TOKENIZER_H__

@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2023 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -26,38 +26,38 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "qcommon.h"
 #include "skeletor.h"
 
-void Skel_DPrintf( const char *fmt, ... )
+void Skel_DPrintf(const char *fmt, ...)
 {
-	char msg[ 4096 ];
-	va_list va;
+    char    msg[4096];
+    va_list va;
 
-	va_start( va, fmt );
-	vsprintf( msg, fmt, va );
-	va_end( va );
+    va_start(va, fmt);
+    vsprintf(msg, fmt, va);
+    va_end(va);
 
-	Com_DPrintf( "%s", msg );
+    Com_DPrintf("%s", msg);
 }
 
 #ifndef _DEBUG_MEM
 
-void Skel_Free( void *ptr )
+void Skel_Free(void *ptr)
 {
-	Z_Free( ptr );
+    Z_Free(ptr);
 }
 
-void *Skel_Alloc( size_t size )
+void *Skel_Alloc(size_t size)
 {
-	return Z_TagMalloc( size, TAG_SKEL );
+    return Z_TagMalloc(size, TAG_SKEL);
 }
 
 #endif
 
-void Skel_FreeFile( void *buffer )
+void Skel_FreeFile(void *buffer)
 {
-	FS_FreeFile( buffer );
+    FS_FreeFile(buffer);
 }
 
-int Skel_ReadFileEx( const char *qpath, void **buffer, qboolean quiet )
+int Skel_ReadFileEx(const char *qpath, void **buffer, qboolean quiet)
 {
-	return FS_ReadFileEx( qpath, buffer, quiet );
+    return FS_ReadFileEx(qpath, buffer, quiet);
 }

@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2023 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -28,42 +28,43 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define MAX_CHANNEL_NAME      32
 
 typedef struct ChannelName_s {
-	char		name[ MAX_CHANNEL_NAME ];
-	short		channelNum;
+    char  name[MAX_CHANNEL_NAME];
+    short channelNum;
 } ChannelName_t;
 
 #ifdef __cplusplus
 
-class ChannelNameTable {
-	short int m_iNumChannels;
-	ChannelName_t m_Channels[MAX_SKELETOR_CHANNELS];
-	short int m_lookup[MAX_SKELETOR_CHANNELS];
+class ChannelNameTable
+{
+    short int     m_iNumChannels;
+    ChannelName_t m_Channels[MAX_SKELETOR_CHANNELS];
+    short int     m_lookup[MAX_SKELETOR_CHANNELS];
 
 public:
-	ChannelNameTable();
+    ChannelNameTable();
 
-	int				RegisterChannel( const char *name );
-	int				FindNameLookup( const char *name );
-	void			PrintContents();
-	const char		*FindName( int index );
-	int				NumChannels() const;
+    int         RegisterChannel(const char *name);
+    int         FindNameLookup(const char *name);
+    void        PrintContents();
+    const char *FindName(int index);
+    int         NumChannels() const;
 
 private:
-	const char		*FindNameFromLookup( int index );
-	bool			FindIndexFromName( const char *name, int *indexPtr );
-	void			SortIntoTable( int index );
-	void			CopyChannel( ChannelName_t *dest, const ChannelName_t *source );
-	void			SetChannelName( ChannelName_t *channel, const char *newName );
+    const char *FindNameFromLookup(int index);
+    bool        FindIndexFromName(const char *name, int *indexPtr);
+    void        SortIntoTable(int index);
+    void        CopyChannel(ChannelName_t *dest, const ChannelName_t *source);
+    void        SetChannelName(ChannelName_t *channel, const char *newName);
 };
 
-int GetChannelTypeFromName( const char *name );
+int GetChannelTypeFromName(const char *name);
 
 #else
 
 typedef struct {
-	short int m_iNumChannels;
-	ChannelName_t m_Channels[MAX_SKELETOR_CHANNELS];
-	short int m_lookup[MAX_SKELETOR_CHANNELS];
+    short int     m_iNumChannels;
+    ChannelName_t m_Channels[MAX_SKELETOR_CHANNELS];
+    short int     m_lookup[MAX_SKELETOR_CHANNELS];
 } ChannelNameTable;
 
 #endif

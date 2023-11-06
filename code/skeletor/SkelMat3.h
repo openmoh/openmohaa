@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2023 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -22,199 +22,175 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // SkelMat3.h : Skeletor
 
-#ifndef __SKELMAT3_H__
-#define __SKELMAT3_H__
+#pragma once
 
 #ifdef __cplusplus
 
-class SkelMat3 {
+class SkelMat3
+{
 public:
-	float val[ 3 ][ 3 ];
+    float val[3][3];
 
 protected:
-	void			copy( const SkelMat3& m );
+    void copy(const SkelMat3& m);
 
 public:
-	void			MakeZero();
-	void			MakeIdentity();
+    void MakeZero();
+    void MakeIdentity();
 
-	SkelMat3( const SkelVec3& x, const SkelVec3& y, const SkelVec3& z );
-	SkelMat3( const float *mat[ 3 ] );
-	SkelMat3();
+    SkelMat3(const SkelVec3& x, const SkelVec3& y, const SkelVec3& z);
+    SkelMat3(const float *mat[3]);
+    SkelMat3();
 
-	SkelVec3			*XAxis();
-	SkelVec3			*YAxis();
-	SkelVec3			*ZAxis();
+    SkelVec3 *XAxis();
+    SkelVec3 *YAxis();
+    SkelVec3 *ZAxis();
 
-	operator float *( );
-	operator float *( ) const;
+    operator float *();
+    operator float *() const;
 
-	float		*operator[]( int index );
-	float		*operator[]( int index ) const;
+    float *operator[](int index);
+    float *operator[](int index) const;
 
-	void			GetEulerAngles( float *vec ) const;
-	void			GetScale( float *vec ) const;
-	bool			IsOrthonormal() const;
-	bool			IsValid() const;
+    void GetEulerAngles(float *vec) const;
+    void GetScale(float *vec) const;
+    bool IsOrthonormal() const;
+    bool IsValid() const;
 
-	void			Multiply( const float mat1[ 3 ][ 3 ], const float mat2[ 3 ][ 3 ] );
-	float			det() const;
-	float			trace() const;
-	SkelVec3		TransformVector( const SkelVec3 *skel );
-	void			Transpose();
+    void     Multiply(const float mat1[3][3], const float mat2[3][3]);
+    float    det() const;
+    float    trace() const;
+    SkelVec3 TransformVector(const SkelVec3 *skel);
+    void     Transpose();
 };
 
-inline
-SkelMat3::SkelMat3( const SkelVec3& x, const SkelVec3& y, const SkelVec3& z )
+inline SkelMat3::SkelMat3(const SkelVec3& x, const SkelVec3& y, const SkelVec3& z)
 {
-	VectorCopy( x, val[ 0 ] );
-	VectorCopy( y, val[ 1 ] );
-	VectorCopy( z, val[ 2 ] );
+    VectorCopy(x, val[0]);
+    VectorCopy(y, val[1]);
+    VectorCopy(z, val[2]);
 }
 
-inline
-SkelMat3::SkelMat3( const float *mat[ 3 ] )
+inline SkelMat3::SkelMat3(const float *mat[3])
 {
-	memcpy( &val, mat, sizeof( val ) );
+    memcpy(&val, mat, sizeof(val));
 }
 
-inline
-SkelMat3::SkelMat3()
+inline SkelMat3::SkelMat3()
 {
-	MakeIdentity();
+    MakeIdentity();
 }
 
-inline
-void SkelMat3::copy( const SkelMat3& m )
+inline void SkelMat3::copy(const SkelMat3& m)
 {
-	AxisCopy( m.val, val );
+    AxisCopy(m.val, val);
 }
 
-inline
-void SkelMat3::MakeZero()
+inline void SkelMat3::MakeZero()
 {
-	AxisClear( val );
+    AxisClear(val);
 }
 
-inline
-void SkelMat3::MakeIdentity()
+inline void SkelMat3::MakeIdentity()
 {
-	MakeZero();
-	val[ 0 ][ 0 ] = 1.0f;
-	val[ 1 ][ 1 ] = 1.0f;
-	val[ 2 ][ 2 ] = 1.0f;
+    MakeZero();
+    val[0][0] = 1.0f;
+    val[1][1] = 1.0f;
+    val[2][2] = 1.0f;
 }
 
-inline
-SkelVec3 *SkelMat3::XAxis()
+inline SkelVec3 *SkelMat3::XAxis()
 {
-	return ( SkelVec3 * )&val[ 0 ];
+    return (SkelVec3 *)&val[0];
 }
 
-inline
-SkelVec3 *SkelMat3::YAxis()
+inline SkelVec3 *SkelMat3::YAxis()
 {
-	return ( SkelVec3 * )&val[ 1 ];
+    return (SkelVec3 *)&val[1];
 }
 
-inline
-SkelVec3 *SkelMat3::ZAxis()
+inline SkelVec3 *SkelMat3::ZAxis()
 {
-	return ( SkelVec3 * )&val[ 2 ];
+    return (SkelVec3 *)&val[2];
 }
 
-inline
-SkelMat3::operator float *( )
+inline SkelMat3::operator float *()
 {
-	return &val[ 0 ][ 0 ];
+    return &val[0][0];
 }
 
-inline
-SkelMat3::operator float *( ) const
+inline SkelMat3::operator float *() const
 {
-	return ( float * )&val[ 0 ][ 0 ];
+    return (float *)&val[0][0];
 }
 
-inline
-float *SkelMat3::operator[]( int index )
+inline float *SkelMat3::operator[](int index)
 {
-	return val[ index ];
+    return val[index];
 }
 
-inline
-float *SkelMat3::operator[]( int index ) const
+inline float *SkelMat3::operator[](int index) const
 {
-	return ( float * )val[ index ];
+    return (float *)val[index];
 }
 
-inline
-void SkelMat3::GetEulerAngles( float *vec ) const
+inline void SkelMat3::GetEulerAngles(float *vec) const
 {
-	MatrixToEulerAngles( val, vec );
+    MatrixToEulerAngles(val, vec);
 }
 
-inline
-void SkelMat3::GetScale( float *vec ) const
+inline void SkelMat3::GetScale(float *vec) const
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-inline
-bool SkelMat3::IsOrthonormal() const
+inline bool SkelMat3::IsOrthonormal() const
 {
-	// FIXME: stub
-	return false;
+    // FIXME: stub
+    return false;
 }
 
-inline
-bool SkelMat3::IsValid() const
+inline bool SkelMat3::IsValid() const
 {
-	// FIXME: stub
-	return false;
+    // FIXME: stub
+    return false;
 }
 
-inline
-void SkelMat3::Multiply( const float mat1[ 3 ][ 3 ], const float mat2[ 3 ][ 3 ] )
+inline void SkelMat3::Multiply(const float mat1[3][3], const float mat2[3][3])
 {
-	MatrixMultiply( mat1, mat2, val );
+    MatrixMultiply(mat1, mat2, val);
 }
 
-inline
-float SkelMat3::det() const
+inline float SkelMat3::det() const
 {
-	return	( val[ 2 ][ 1 ] * val[ 1 ][ 0 ] - val[ 2 ][ 0 ] * val[ 1 ][ 1 ] ) * val[ 0 ][ 2 ]
-		  + ( val[ 1 ][ 1 ] * val[ 2 ][ 2 ] - val[ 1 ][ 2 ] * val[ 2 ][ 1 ] ) * val[ 0 ][ 0 ]
-		  - ( val[ 2 ][ 2 ] * val[ 1 ][ 0 ] - val[ 1 ][ 2 ] * val[ 2 ][ 0 ] ) * val[ 0 ][ 1 ];
+    return (val[2][1] * val[1][0] - val[2][0] * val[1][1]) * val[0][2]
+         + (val[1][1] * val[2][2] - val[1][2] * val[2][1]) * val[0][0]
+         - (val[2][2] * val[1][0] - val[1][2] * val[2][0]) * val[0][1];
 }
 
-inline
-float SkelMat3::trace() const
+inline float SkelMat3::trace() const
 {
-	return val[ 0 ][ 0 ] + val[ 1 ][ 1 ] + val[ 2 ][ 2 ];
+    return val[0][0] + val[1][1] + val[2][2];
 }
 
-inline
-SkelVec3 SkelMat3::TransformVector( const SkelVec3 *skel )
+inline SkelVec3 SkelMat3::TransformVector(const SkelVec3 *skel)
 {
-	SkelVec3 out;
-	MatrixTransformVector( *skel, val, out );
-	return out;
+    SkelVec3 out;
+    MatrixTransformVector(*skel, val, out);
+    return out;
 }
 
-inline
-void SkelMat3::Transpose()
+inline void SkelMat3::Transpose()
 {
-	SkelMat3 out;
-	TransposeMatrix( val, out.val );
-	memcpy( val, out, sizeof( SkelMat3 ) );
+    SkelMat3 out;
+    TransposeMatrix(val, out.val);
+    memcpy(val, out, sizeof(SkelMat3));
 }
 
 #else
 
 typedef struct {
-	float val[ 3 ][ 3 ];
+    float val[3][3];
 } SkelMat3;
 
 #endif
-
-#endif // __SKELMAT3_H__
