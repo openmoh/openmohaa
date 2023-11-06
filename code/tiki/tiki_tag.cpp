@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2023 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -33,9 +33,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 TIKI_Tag_NameToNum
 ===============
 */
-int TIKI_Tag_NameToNum(dtiki_t* pmdl, const char* name)
+int TIKI_Tag_NameToNum(dtiki_t *pmdl, const char *name)
 {
-	return pmdl->GetBoneNumFromName(name);
+    return pmdl->GetBoneNumFromName(name);
 }
 
 /*
@@ -43,9 +43,9 @@ int TIKI_Tag_NameToNum(dtiki_t* pmdl, const char* name)
 TIKI_Tag_NumToName
 ===============
 */
-const char* TIKI_Tag_NumToName(dtiki_t* pmdl, int iTagNum)
+const char *TIKI_Tag_NumToName(dtiki_t *pmdl, int iTagNum)
 {
-	return pmdl->GetBoneNameFromNum(iTagNum);
+    return pmdl->GetBoneNameFromNum(iTagNum);
 }
 
 /*
@@ -53,16 +53,16 @@ const char* TIKI_Tag_NumToName(dtiki_t* pmdl, int iTagNum)
 TIKI_TransformInternal
 ===============
 */
-SkelMat4* TIKI_TransformInternal(dtiki_t* tiki, int entnum, int tagnum)
+SkelMat4 *TIKI_TransformInternal(dtiki_t *tiki, int entnum, int tagnum)
 {
-    skeletor_c* skeletor;
+    skeletor_c *skeletor;
 
     if (tagnum < 0 || !tiki || tagnum >= tiki->m_boneList.NumChannels()) {
         return NULL;
     }
 
-	skeletor = (skeletor_c*)TIKI_GetSkeletor(tiki, entnum);
-	return &skeletor->GetBoneFrame(tagnum);
+    skeletor = (skeletor_c *)TIKI_GetSkeletor(tiki, entnum);
+    return &skeletor->GetBoneFrame(tagnum);
 }
 
 /*
@@ -70,16 +70,16 @@ SkelMat4* TIKI_TransformInternal(dtiki_t* tiki, int entnum, int tagnum)
 TIKI_IsOnGroundInternal
 ===============
 */
-qboolean TIKI_IsOnGroundInternal(dtiki_t* tiki, int entnum, int tagnum, float threshold)
+qboolean TIKI_IsOnGroundInternal(dtiki_t *tiki, int entnum, int tagnum, float threshold)
 {
-	skeletor_c* skeletor;
+    skeletor_c *skeletor;
 
     if (tagnum < 0 || !tiki || tagnum >= tiki->m_boneList.NumChannels()) {
-		return qfalse;
+        return qfalse;
     }
 
-	skeletor = (skeletor_c*)TIKI_GetSkeletor(tiki, entnum);
-	return skeletor->IsBoneOnGround(tagnum, threshold);
+    skeletor = (skeletor_c *)TIKI_GetSkeletor(tiki, entnum);
+    return skeletor->IsBoneOnGround(tagnum, threshold);
 }
 
 /*
@@ -87,22 +87,22 @@ qboolean TIKI_IsOnGroundInternal(dtiki_t* tiki, int entnum, int tagnum, float th
 TIKI_OrientationInternal
 ===============
 */
-orientation_t TIKI_OrientationInternal(dtiki_t* tiki, int entnum, int tagnum, float scale)
+orientation_t TIKI_OrientationInternal(dtiki_t *tiki, int entnum, int tagnum, float scale)
 {
-	if (tagnum < 0 || !tiki || tagnum >= tiki->m_boneList.NumChannels()) {
-		return orientation_t{};
-	}
+    if (tagnum < 0 || !tiki || tagnum >= tiki->m_boneList.NumChannels()) {
+        return orientation_t {};
+    }
 
-	const skeletor_c* skeletor = (skeletor_c*)TIKI_GetSkeletor(tiki, entnum);
-	const SkelMat4& pTransform = skeletor->GetBoneFrame(tagnum);
+    const skeletor_c *skeletor   = (skeletor_c *)TIKI_GetSkeletor(tiki, entnum);
+    const SkelMat4  & pTransform = skeletor->GetBoneFrame(tagnum);
 
-	orientation_t orient;
-	orient.origin[0] = (pTransform.val[3][0] + tiki->load_origin[0]) * (scale * tiki->load_scale);
-	orient.origin[1] = (pTransform.val[3][1] + tiki->load_origin[1]) * (scale * tiki->load_scale);
-	orient.origin[2] = (pTransform.val[3][2] + tiki->load_origin[2]) * (scale * tiki->load_scale);
-	memcpy(orient.axis, pTransform.val, sizeof(orient.axis));
+    orientation_t orient;
+    orient.origin[0] = (pTransform.val[3][0] + tiki->load_origin[0]) * (scale * tiki->load_scale);
+    orient.origin[1] = (pTransform.val[3][1] + tiki->load_origin[1]) * (scale * tiki->load_scale);
+    orient.origin[2] = (pTransform.val[3][2] + tiki->load_origin[2]) * (scale * tiki->load_scale);
+    memcpy(orient.axis, pTransform.val, sizeof(orient.axis));
 
-	return orient;
+    return orient;
 }
 
 /*
@@ -110,10 +110,12 @@ orientation_t TIKI_OrientationInternal(dtiki_t* tiki, int entnum, int tagnum, fl
 TIKI_SetPoseInternal
 ===============
 */
-void TIKI_SetPoseInternal(void* skeletor, const frameInfo_t* frameInfo, const int* bone_tag, const vec4_t* bone_quat, float actionWeight)
+void TIKI_SetPoseInternal(
+    void *skeletor, const frameInfo_t *frameInfo, const int *bone_tag, const vec4_t *bone_quat, float actionWeight
+)
 {
-	skeletor_c* skel = (skeletor_c*)skeletor;
-	skel->SetPose(frameInfo, bone_tag, bone_quat, actionWeight);
+    skeletor_c *skel = (skeletor_c *)skeletor;
+    skel->SetPose(frameInfo, bone_tag, bone_quat, actionWeight);
 }
 
 /*
@@ -121,10 +123,10 @@ void TIKI_SetPoseInternal(void* skeletor, const frameInfo_t* frameInfo, const in
 TIKI_GetRadiusInternal
 ===============
 */
-float TIKI_GetRadiusInternal(dtiki_t* tiki, int entnum, float scale)
+float TIKI_GetRadiusInternal(dtiki_t *tiki, int entnum, float scale)
 {
-	skeletor_c* skeletor = (skeletor_c*)TIKI_GetSkeletor(tiki, entnum);
-	return skeletor->GetRadius() * tiki->load_scale * scale;
+    skeletor_c *skeletor = (skeletor_c *)TIKI_GetSkeletor(tiki, entnum);
+    return skeletor->GetRadius() * tiki->load_scale * scale;
 }
 
 /*
@@ -132,10 +134,10 @@ float TIKI_GetRadiusInternal(dtiki_t* tiki, int entnum, float scale)
 TIKI_GetCentroidRadiusInternal
 ===============
 */
-float TIKI_GetCentroidRadiusInternal(dtiki_t* tiki, int entnum, float scale, float* centroid)
+float TIKI_GetCentroidRadiusInternal(dtiki_t *tiki, int entnum, float scale, float *centroid)
 {
-	skeletor_c* skeletor = (skeletor_c*)TIKI_GetSkeletor(tiki, entnum);
-	return skeletor->GetCentroidRadius(centroid) * tiki->load_scale * scale;
+    skeletor_c *skeletor = (skeletor_c *)TIKI_GetSkeletor(tiki, entnum);
+    return skeletor->GetCentroidRadius(centroid) * tiki->load_scale * scale;
 }
 
 /*
@@ -143,10 +145,10 @@ float TIKI_GetCentroidRadiusInternal(dtiki_t* tiki, int entnum, float scale, flo
 TIKI_GetFrameInternal
 ===============
 */
-void TIKI_GetFrameInternal(dtiki_t* tiki, int entnum, skelAnimFrame_t* newFrame)
+void TIKI_GetFrameInternal(dtiki_t *tiki, int entnum, skelAnimFrame_t *newFrame)
 {
-	skeletor_c* skeletor = (skeletor_c*)TIKI_GetSkeletor(tiki, entnum);
-	skeletor->GetFrame(newFrame);
+    skeletor_c *skeletor = (skeletor_c *)TIKI_GetSkeletor(tiki, entnum);
+    skeletor->GetFrame(newFrame);
 }
 
 /*
@@ -154,8 +156,8 @@ void TIKI_GetFrameInternal(dtiki_t* tiki, int entnum, skelAnimFrame_t* newFrame)
 TIKI_SetEyeTargetPos
 ===============
 */
-void TIKI_SetEyeTargetPos(dtiki_t* tiki, int entnum, vec3_t pos)
+void TIKI_SetEyeTargetPos(dtiki_t *tiki, int entnum, vec3_t pos)
 {
-	skeletor_c* skeletor = (skeletor_c*)TIKI_GetSkeletor(tiki, entnum);
-	skeletor->SetEyeTargetPos(pos);
+    skeletor_c *skeletor = (skeletor_c *)TIKI_GetSkeletor(tiki, entnum);
+    skeletor->SetEyeTargetPos(pos);
 }

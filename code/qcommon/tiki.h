@@ -1,7 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2008 Leszek Godlewski
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2023 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -21,8 +20,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-#ifndef __TIKI_H__
-#define __TIKI_H__
+#pragma once
 
 #include "q_shared.h"
 
@@ -30,86 +28,86 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #ifdef __cplusplus
 class Archiver;
-#include "../qcommon/mem_blockalloc.h"
-#include "../qcommon/con_set.h"
-#include "../qcommon/str.h"
+#    include "../qcommon/mem_blockalloc.h"
+#    include "../qcommon/con_set.h"
+#    include "../qcommon/str.h"
 #endif
 
-typedef struct AliasList_s AliasList_t;
+typedef struct AliasList_s     AliasList_t;
 typedef struct AliasListNode_s AliasListNode_t;
-typedef struct msg_s msg_t;
+typedef struct msg_s           msg_t;
 
 typedef struct {
-	int indexes[ 3 ];
+    int indexes[3];
 } tikiTriangle_t;
 
 typedef struct {
-	float st[ 2 ];
+    float st[2];
 } tikiSt_t;
 
 typedef struct {
-	short unsigned int xyz[ 3 ];
-	short int normal;
+    short unsigned int xyz[3];
+    short int          normal;
 } tikiXyzNormal_t;
 
 typedef struct {
-	float origin[ 3 ];
-	float axis[ 3 ][ 3 ];
+    float origin[3];
+    float axis[3][3];
 } tikiTagData_t;
 
 typedef struct {
-	char name[ 64 ];
+    char name[64];
 } tikiTag_t;
 
 typedef struct {
-	qboolean valid;
-	int surface;
-	vec3_t position;
-	vec3_t normal;
-	float damage_multiplier;
+    qboolean valid;
+    int      surface;
+    vec3_t   position;
+    vec3_t   normal;
+    float    damage_multiplier;
 } tikimdl_intersection_t;
 
 typedef struct {
-	int indexes[ 3 ];
+    int indexes[3];
 } skelTriangle_t;
 
 typedef struct dtikicmd_s {
-	int frame_num;
-	int num_args;
-	char **args;
+    int    frame_num;
+    int    num_args;
+    char **args;
 } dtikicmd_t;
 
 typedef struct {
-	int frame_num;
-	int num_args;
-	char **args;
-	char location[ 256 ];
+    int    frame_num;
+    int    num_args;
+    char **args;
+    char   location[256];
 } dloadframecmd_t;
 
 typedef struct {
-	int num_args;
-	char **args;
+    int    num_args;
+    char **args;
 } dloadinitcmd_t;
 
 typedef struct {
-	char name[ 32 ];
-	char shader[ 4 ][ 64 ];
-	int numskins;
-	int flags;
-	float damage_multiplier;
+    char  name[32];
+    char  shader[4][64];
+    int   numskins;
+    int   flags;
+    float damage_multiplier;
 } dloadsurface_t;
 
 typedef struct {
-	char *alias;
-	char name[ 128 ];
-	char location[ 256 ];
-	float weight;
-	float blendtime;
-	int flags;
-	int num_client_cmds;
-	int num_server_cmds;
-	dloadframecmd_t *loadservercmds[ 32 ];
-	dloadframecmd_t *loadclientcmds[ 128 ];
+    char            *alias;
+    char             name[128];
+    char             location[256];
+    float            weight;
+    float            blendtime;
+    int              flags;
+    int              num_client_cmds;
+    int              num_server_cmds;
+    dloadframecmd_t *loadservercmds[32];
+    dloadframecmd_t *loadclientcmds[128];
 } dloadanim_t;
 
 typedef struct dloaddef_s dloaddef_t;
@@ -119,26 +117,26 @@ typedef struct dloaddef_s dloaddef_t;
 #ifdef __cplusplus
 
 typedef struct dloaddef_s {
-	const char			*path;
-	class TikiScript	tikiFile;
+    const char      *path;
+    class TikiScript tikiFile;
 
-	dloadanim_t			*loadanims[ 4095 ];
-	dloadinitcmd_t		*loadserverinitcmds[ 160 ];
-	dloadinitcmd_t		*loadclientinitcmds[ 160 ];
+    dloadanim_t    *loadanims[4095];
+    dloadinitcmd_t *loadserverinitcmds[160];
+    dloadinitcmd_t *loadclientinitcmds[160];
 
-	int		skelIndex_ld[ 12 ];
-	int		numanims;
-	int		numserverinitcmds;
-	int		numclientinitcmds;
+    int skelIndex_ld[12];
+    int numanims;
+    int numserverinitcmds;
+    int numclientinitcmds;
 
-	char		headmodels[ 4096 ];
-	char		headskins[ 4096 ];
-	qboolean	bIsCharacter;
+    char     headmodels[4096];
+    char     headskins[4096];
+    qboolean bIsCharacter;
 
-	struct msg_s	*modelBuf;
-	unsigned char	modelData[ 8192 ];
+    struct msg_s *modelBuf;
+    unsigned char modelData[8192];
 
-	qboolean bInIncludesSection;
+    qboolean bInIncludesSection;
 } dloaddef_t;
 
 #endif
@@ -158,5 +156,3 @@ typedef struct dloaddef_s {
 #include "../tiki/tiki_frame.h"
 #include "../tiki/tiki_surface.h"
 #include "../tiki/tiki_mesh.h"
-
-#endif // __TIKI_H__

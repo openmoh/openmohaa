@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2023 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -31,21 +31,23 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "tiki_skel.h"
 
 struct pchar {
-	const char *m_Value;
+    const char *m_Value;
 
-	pchar() { m_Value = NULL; }
-	pchar( const char *value ) { m_Value = value; }
-	friend bool operator==( const pchar& l, const pchar& r ) { return !strcmp( l.m_Value, r.m_Value ); }
+    pchar() { m_Value = NULL; }
+
+    pchar(const char *value) { m_Value = value; }
+
+    friend bool operator==(const pchar& l, const pchar& r) { return !strcmp(l.m_Value, r.m_Value); }
 };
 
-con_map< pchar, dtikianim_t * >	*tikianimcache;
-con_map< pchar, dtiki_t * >		*tikicache;
-static skeletor_c				*skel_entity_cache[ 1024 ];
+con_map<pchar, dtikianim_t *> *tikianimcache;
+con_map<pchar, dtiki_t *>     *tikicache;
+static skeletor_c             *skel_entity_cache[1024];
 
 template<>
-int HashCode< pchar >( const pchar& key )
+int HashCode<pchar>(const pchar& key)
 {
-	return HashCode< const char * >( key.m_Value );
+    return HashCode<const char *>(key.m_Value);
 }
 
 /*
@@ -53,21 +55,20 @@ int HashCode< pchar >( const pchar& key )
 TIKI_FindTikiAnim
 ===============
 */
-dtikianim_t *TIKI_FindTikiAnim( const char *path )
+dtikianim_t *TIKI_FindTikiAnim(const char *path)
 {
-	char filename[ 1024 ];
+    char filename[1024];
 
-	if( tikianimcache )
-	{
-		dtikianim_t **t;
+    if (tikianimcache) {
+        dtikianim_t **t;
 
-		t = tikianimcache->find( filename );
-		if( t ) {
-			return *t;
-		}
-	}
+        t = tikianimcache->find(filename);
+        if (t) {
+            return *t;
+        }
+    }
 
-	return NULL;
+    return NULL;
 }
 
 /*
@@ -75,21 +76,20 @@ dtikianim_t *TIKI_FindTikiAnim( const char *path )
 TIKI_FindTiki
 ===============
 */
-dtiki_t *TIKI_FindTiki( const char *path )
+dtiki_t *TIKI_FindTiki(const char *path)
 {
-	char filename[ 1024 ];
+    char filename[1024];
 
-	if( tikicache )
-	{
-		dtiki_t **t;
+    if (tikicache) {
+        dtiki_t **t;
 
-		t = tikicache->find( filename );
-		if( t ) {
-			return *t;
-		}
-	}
+        t = tikicache->find(filename);
+        if (t) {
+            return *t;
+        }
+    }
 
-	return NULL;
+    return NULL;
 }
 
 /*
@@ -97,41 +97,36 @@ dtiki_t *TIKI_FindTiki( const char *path )
 TIKI_RegisterTikiAnimFlags
 ===============
 */
-dtikianim_t *TIKI_RegisterTikiAnimFlags( const char *path, qboolean use )
+dtikianim_t *TIKI_RegisterTikiAnimFlags(const char *path, qboolean use)
 {
-	dtikianim_t *tiki;
-	char filename[ 1024 ];
+    dtikianim_t *tiki;
+    char         filename[1024];
 
-	strcpy( filename, path );
-	FS_CanonicalFilename( filename );
+    strcpy(filename, path);
+    FS_CanonicalFilename(filename);
 
-	if( tikianimcache )
-	{
-		dtikianim_t **t;
+    if (tikianimcache) {
+        dtikianim_t **t;
 
-		t = tikianimcache->find( filename );
-		if( t ) {
-			return *t;
-		}
-	}
-	else
-	{
-		tikianimcache = new con_map < pchar, dtikianim_t * > ;
-	}
+        t = tikianimcache->find(filename);
+        if (t) {
+            return *t;
+        }
+    } else {
+        tikianimcache = new con_map<pchar, dtikianim_t *>;
+    }
 
-	tiki = TIKI_LoadTikiAnim( filename );
-	if( tiki )
-	{
-		if( use )
-		{
-			Com_Printf( "^~^~^ Add the following line to the *_precache.scr map script:\n" );
-			Com_Printf( "cache %s\n", filename );
-		}
+    tiki = TIKI_LoadTikiAnim(filename);
+    if (tiki) {
+        if (use) {
+            Com_Printf("^~^~^ Add the following line to the *_precache.scr map script:\n");
+            Com_Printf("cache %s\n", filename);
+        }
 
-		( *tikianimcache )[ tiki->name ] = tiki;
-	}
+        (*tikianimcache)[tiki->name] = tiki;
+    }
 
-	return tiki;
+    return tiki;
 }
 
 /*
@@ -139,9 +134,9 @@ dtikianim_t *TIKI_RegisterTikiAnimFlags( const char *path, qboolean use )
 TIKI_RegisterTikiAnim
 ===============
 */
-dtikianim_t *TIKI_RegisterTikiAnim( const char *path )
+dtikianim_t *TIKI_RegisterTikiAnim(const char *path)
 {
-	return TIKI_RegisterTikiAnimFlags( path, qfalse );
+    return TIKI_RegisterTikiAnimFlags(path, qfalse);
 }
 
 /*
@@ -149,75 +144,69 @@ dtikianim_t *TIKI_RegisterTikiAnim( const char *path )
 TIKI_RegisterTikiFlags
 ===============
 */
-dtiki_t *TIKI_RegisterTikiFlags( const char *path, qboolean use )
+dtiki_t *TIKI_RegisterTikiFlags(const char *path, qboolean use)
 {
-	dtiki_t *tiki = NULL;
-	dtikianim_t* tikianim = NULL;
-	con_map< str, str > keyValues;
-	const char *next_path;
-	str key;
-	str value;
-	const char *name;
-	char filename[ 1024 ];
-	char full_filename[ 1024 ];
+    dtiki_t          *tiki     = NULL;
+    dtikianim_t      *tikianim = NULL;
+    con_map<str, str> keyValues;
+    const char       *next_path;
+    str               key;
+    str               value;
+    const char       *name;
+    char              filename[1024];
+    char              full_filename[1024];
 
-	full_filename[ 0 ] = 0;
+    full_filename[0] = 0;
 
-	name = path;
-	for(next_path = strstr(name, "|"); next_path; next_path = strstr(name, "|"))
-	{
-		key = name;
-		key[next_path - name] = 0;
+    name = path;
+    for (next_path = strstr(name, "|"); next_path; next_path = strstr(name, "|")) {
+        key                   = name;
+        key[next_path - name] = 0;
 
-		name = next_path + 1;
-		next_path = strstr(name, "|" );
-		if( !next_path ) {
-			break;
-		}
+        name      = next_path + 1;
+        next_path = strstr(name, "|");
+        if (!next_path) {
+            break;
+        }
 
-		value = name;
-		value[next_path - name] = 0;
-		name = next_path + 1;
+        value                   = name;
+        value[next_path - name] = 0;
+        name                    = next_path + 1;
 
-		// add it to the entry
-		keyValues[key] = value;
+        // add it to the entry
+        keyValues[key] = value;
 
-		strcat(full_filename, key.c_str());
-		strcat(full_filename, "|");
-		strcat(full_filename, value.c_str());
-		strcat(full_filename, "|");
-	}
+        strcat(full_filename, key.c_str());
+        strcat(full_filename, "|");
+        strcat(full_filename, value.c_str());
+        strcat(full_filename, "|");
+    }
 
-	strcpy(filename, name);
-	FS_CanonicalFilename(filename);
-	strcat(full_filename, filename);
+    strcpy(filename, name);
+    FS_CanonicalFilename(filename);
+    strcat(full_filename, filename);
 
-	if (!tikicache)
-	{
-		tikicache = new con_map<pchar, dtiki_t*>;
-	}
-	else
-	{
-		dtiki_t **t;
+    if (!tikicache) {
+        tikicache = new con_map<pchar, dtiki_t *>;
+    } else {
+        dtiki_t **t;
 
-		t = tikicache->find(full_filename);
-		if (t) {
-			return *t;
-		}
-	}
+        t = tikicache->find(full_filename);
+        if (t) {
+            return *t;
+        }
+    }
 
-	tikianim = TIKI_RegisterTikiAnimFlags(filename, use);
-	if (tikianim)
-	{
-		tiki = TIKI_LoadTikiModel(tikianim, full_filename, &keyValues);
-		if (tiki)
-		{
-			// cache the tiki
-			(*tikicache)[tiki->name] = tiki;
-		}
-	}
+    tikianim = TIKI_RegisterTikiAnimFlags(filename, use);
+    if (tikianim) {
+        tiki = TIKI_LoadTikiModel(tikianim, full_filename, &keyValues);
+        if (tiki) {
+            // cache the tiki
+            (*tikicache)[tiki->name] = tiki;
+        }
+    }
 
-	return tiki;
+    return tiki;
 }
 
 /*
@@ -225,9 +214,9 @@ dtiki_t *TIKI_RegisterTikiFlags( const char *path, qboolean use )
 TIKI_RegisterTiki
 ===============
 */
-dtiki_t *TIKI_RegisterTiki( const char *path )
+dtiki_t *TIKI_RegisterTiki(const char *path)
 {
-	return TIKI_RegisterTikiFlags( path, qfalse );
+    return TIKI_RegisterTikiFlags(path, qfalse);
 }
 
 /*
@@ -237,28 +226,26 @@ TIKI_FreeAll
 */
 void TIKI_FreeAll()
 {
-	dtiki_t **entry;
-	dtikianim_t **entryanim;
-	dtiki_t *tiki;
-	dtikianim_t *tikianim;
-	int i;
+    dtiki_t     **entry;
+    dtikianim_t **entryanim;
+    dtiki_t      *tiki;
+    dtikianim_t  *tikianim;
+    int           i;
 
-	if( tikicache )
-	{
-		con_map_enum< pchar, dtiki_t * > en = *tikicache;
+    if (tikicache) {
+        con_map_enum<pchar, dtiki_t *> en = *tikicache;
 
-		for( entry = en.NextValue(); entry != NULL; entry = en.NextValue() )
-		{
-			skeletor_c *skeletor;
+        for (entry = en.NextValue(); entry != NULL; entry = en.NextValue()) {
+            skeletor_c *skeletor;
 
-			tiki = *entry;
-			skeletor = ( skeletor_c * )tiki->skeletor;
-			if( skeletor ) {
-				delete skeletor;
-			}
+            tiki     = *entry;
+            skeletor = (skeletor_c *)tiki->skeletor;
+            if (skeletor) {
+                delete skeletor;
+            }
 
-			tiki->m_boneList.CleanUpChannels();
-			/*
+            tiki->m_boneList.CleanUpChannels();
+            /*
 			if( tiki->a->m_aliases )
 			{
 				TIKI_Free( tiki->a->m_aliases );
@@ -267,46 +254,40 @@ void TIKI_FreeAll()
 			}
 			*/
 
-			TIKI_Free( tiki );
-		}
+            TIKI_Free(tiki);
+        }
 
-		tikicache->clear();
-	}
+        tikicache->clear();
+    }
 
-	if( tikianimcache )
-	{
-		con_map_enum< pchar, dtikianim_t * > en = *tikianimcache;
+    if (tikianimcache) {
+        con_map_enum<pchar, dtikianim_t *> en = *tikianimcache;
 
-		for( entryanim = en.NextValue(); entryanim != NULL; entryanim = en.NextValue() )
-		{
-			tikianim = *entryanim;
+        for (entryanim = en.NextValue(); entryanim != NULL; entryanim = en.NextValue()) {
+            tikianim = *entryanim;
 
-			TIKI_RemoveTiki( tikianim );
+            TIKI_RemoveTiki(tikianim);
 
-			if( tikianim->m_aliases )
-			{
-				TIKI_Free( tikianim->m_aliases );
-				tikianim->m_aliases = NULL;
-				tikianim->num_anims = 0;
-			}
+            if (tikianim->m_aliases) {
+                TIKI_Free(tikianim->m_aliases);
+                tikianim->m_aliases = NULL;
+                tikianim->num_anims = 0;
+            }
 
-			TIKI_Free( tikianim );
-		}
+            TIKI_Free(tikianim);
+        }
 
-		tikianimcache->clear();
-	}
+        tikianimcache->clear();
+    }
 
-	tiki_loading = true;
-	if( skelcache )
-	{
-		for( i = 0; i < cache_maxskel; i++ )
-		{
-			if (skelcache->skel)
-			{
-				TIKI_FreeSkel(i);
-			}
-		}
-	}
+    tiki_loading = true;
+    if (skelcache) {
+        for (i = 0; i < cache_maxskel; i++) {
+            if (skelcache->skel) {
+                TIKI_FreeSkel(i);
+            }
+        }
+    }
 }
 
 /*
@@ -315,32 +296,31 @@ TIKI_GetSkeletor
 ===============
 */
 static qboolean tiki_started;
-void *TIKI_GetSkeletor( dtiki_t *tiki, int entnum )
+
+void *TIKI_GetSkeletor(dtiki_t *tiki, int entnum)
 {
-	skeletor_c *skel;
+    skeletor_c *skel;
 
-	if( entnum == ENTITYNUM_NONE )
-	{
-		if( !tiki->skeletor ) tiki->skeletor = new skeletor_c( tiki );
-		skel = ( skeletor_c * )tiki->skeletor;
-	}
-	else
-	{
-		skel = skel_entity_cache[ entnum ];
-		if( skel )
-		{
-			if( skel->m_Tiki == tiki ) {
-				return skel_entity_cache[ entnum ];
-			}
+    if (entnum == ENTITYNUM_NONE) {
+        if (!tiki->skeletor) {
+            tiki->skeletor = new skeletor_c(tiki);
+        }
+        skel = (skeletor_c *)tiki->skeletor;
+    } else {
+        skel = skel_entity_cache[entnum];
+        if (skel) {
+            if (skel->m_Tiki == tiki) {
+                return skel_entity_cache[entnum];
+            }
 
-			delete skel;
-		}
+            delete skel;
+        }
 
-		skel = new skeletor_c( tiki );
-		skel_entity_cache[ entnum ] = skel;
-	}
+        skel                      = new skeletor_c(tiki);
+        skel_entity_cache[entnum] = skel;
+    }
 
-	return skel;
+    return skel;
 }
 
 /*
@@ -348,21 +328,19 @@ void *TIKI_GetSkeletor( dtiki_t *tiki, int entnum )
 TIKI_DeleteSkeletor
 ===============
 */
-static void TIKI_DeleteSkeletor( int entnum )
+static void TIKI_DeleteSkeletor(int entnum)
 {
-	skeletor_c *skel;
+    skeletor_c *skel;
 
-	if( entnum == ENTITYNUM_NONE )
-	{
-		return;
-	}
+    if (entnum == ENTITYNUM_NONE) {
+        return;
+    }
 
-	skel = skel_entity_cache[ entnum ];
-	if( skel )
-	{
-		delete skel;
-		skel_entity_cache[ entnum ] = 0;
-	}
+    skel = skel_entity_cache[entnum];
+    if (skel) {
+        delete skel;
+        skel_entity_cache[entnum] = 0;
+    }
 }
 
 /*
@@ -370,14 +348,15 @@ static void TIKI_DeleteSkeletor( int entnum )
 TIKI_Begin
 ===============
 */
-void TIKI_Begin( void )
+void TIKI_Begin(void)
 {
-	int i;
+    int i;
 
-	for( i = 0; i < TIKI_MAX_SKELCACHE; i++ )
-		skel_entity_cache[ i ] = 0;
+    for (i = 0; i < TIKI_MAX_SKELCACHE; i++) {
+        skel_entity_cache[i] = 0;
+    }
 
-	tiki_started = true;
+    tiki_started = true;
 }
 
 /*
@@ -385,14 +364,15 @@ void TIKI_Begin( void )
 TIKI_End
 ===============
 */
-void TIKI_End( void )
+void TIKI_End(void)
 {
-	int i;
+    int i;
 
-	for( i = 0; i < TIKI_MAX_SKELCACHE; i++ )
-		TIKI_DeleteSkeletor( i );
+    for (i = 0; i < TIKI_MAX_SKELCACHE; i++) {
+        TIKI_DeleteSkeletor(i);
+    }
 
-	tiki_started = false;
+    tiki_started = false;
 }
 
 /*
@@ -400,32 +380,28 @@ void TIKI_End( void )
 TIKI_FinishLoad
 ===============
 */
-void TIKI_FinishLoad( void )
+void TIKI_FinishLoad(void)
 {
-	con_map_enum< pchar, dtikianim_t * > en;
-	dtikianim_t **entry;
+    con_map_enum<pchar, dtikianim_t *> en;
+    dtikianim_t                      **entry;
 
-	if( !tiki_loading )
-	{
-		return;
-	}
+    if (!tiki_loading) {
+        return;
+    }
 
-	tiki_loading = false;
-	SkeletorCacheCleanCache();
+    tiki_loading = false;
+    SkeletorCacheCleanCache();
 
-	if( !low_anim_memory || !low_anim_memory->integer )
-	{
-		return;
-	}
+    if (!low_anim_memory || !low_anim_memory->integer) {
+        return;
+    }
 
-	if( tikianimcache )
-	{
-		en = *tikianimcache;
-		for( entry = en.NextValue(); entry != NULL; entry = en.NextValue() )
-		{
-			TIKI_LoadAnim( *entry );
-		}
-	}
+    if (tikianimcache) {
+        en = *tikianimcache;
+        for (entry = en.NextValue(); entry != NULL; entry = en.NextValue()) {
+            TIKI_LoadAnim(*entry);
+        }
+    }
 }
 
 /*
@@ -433,33 +409,29 @@ void TIKI_FinishLoad( void )
 TIKI_FreeImages
 ===============
 */
-void TIKI_FreeImages( void )
+void TIKI_FreeImages(void)
 {
-	dtikisurface_t *dsurf;
-	dtiki_t *tiki;
-	int j, k;
-	dtiki_t **entry;
-	con_map_enum< pchar, dtiki_t * > en;
+    dtikisurface_t                *dsurf;
+    dtiki_t                       *tiki;
+    int                            j, k;
+    dtiki_t                      **entry;
+    con_map_enum<pchar, dtiki_t *> en;
 
-	if( !tikicache )
-	{
-		return;
-	}
+    if (!tikicache) {
+        return;
+    }
 
-	en = *tikicache;
-	for( entry = en.NextValue(); entry != NULL; entry = en.NextValue() )
-	{
-		tiki = *entry;
-		for( k = 0; k < tiki->num_surfaces; k++ )
-		{
-			dsurf = &tiki->surfaces[ k ];
+    en = *tikicache;
+    for (entry = en.NextValue(); entry != NULL; entry = en.NextValue()) {
+        tiki = *entry;
+        for (k = 0; k < tiki->num_surfaces; k++) {
+            dsurf = &tiki->surfaces[k];
 
-			for( j = 0; j < dsurf->numskins; j++ )
-			{
-				dsurf->hShader[ j ] = 0;
-			}
-		}
-	}
+            for (j = 0; j < dsurf->numskins; j++) {
+                dsurf->hShader[j] = 0;
+            }
+        }
+    }
 }
 
 /*
@@ -467,20 +439,18 @@ void TIKI_FreeImages( void )
 TIKI_TikiAnimList_f
 ===============
 */
-void TIKI_TikiAnimList_f( void )
+void TIKI_TikiAnimList_f(void)
 {
-	con_map_enum< pchar, dtikianim_t * > en;
-	dtikianim_t **entry;
+    con_map_enum<pchar, dtikianim_t *> en;
+    dtikianim_t                      **entry;
 
-	Com_Printf( "\ntikianimlist:\n" );
-	if( tikicache )
-	{
-		en = *tikianimcache;
-		for( entry = en.NextValue(); entry != NULL; entry = en.NextValue() )
-		{
-			Com_Printf( "%s\n", ( *entry )->name );
-		}
-	}
+    Com_Printf("\ntikianimlist:\n");
+    if (tikicache) {
+        en = *tikianimcache;
+        for (entry = en.NextValue(); entry != NULL; entry = en.NextValue()) {
+            Com_Printf("%s\n", (*entry)->name);
+        }
+    }
 }
 
 /*
@@ -488,18 +458,16 @@ void TIKI_TikiAnimList_f( void )
 TIKI_TikiList_f
 ===============
 */
-void TIKI_TikiList_f( void )
+void TIKI_TikiList_f(void)
 {
-	con_map_enum< pchar, dtiki_t * > en;
-	dtiki_t **entry;
+    con_map_enum<pchar, dtiki_t *> en;
+    dtiki_t                      **entry;
 
-	Com_Printf( "\ntikilist:\n" );
-	if( tikicache )
-	{
-		en = *tikicache;
-		for( entry = en.NextValue(); entry != NULL; entry = en.NextValue() )
-		{
-			Com_Printf( "%s\n", ( *entry )->name );
-		}
-	}
+    Com_Printf("\ntikilist:\n");
+    if (tikicache) {
+        en = *tikicache;
+        for (entry = en.NextValue(); entry != NULL; entry = en.NextValue()) {
+            Com_Printf("%s\n", (*entry)->name);
+        }
+    }
 }

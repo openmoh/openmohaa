@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2023 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -22,30 +22,27 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // tiki_skel.h : TIKI Skeletor
 
-#ifndef __TIKI_SKEL_H__
-#define __TIKI_SKEL_H__
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-void TIKI_CacheFileSkel( skelHeader_t *pHeader, skelcache_t *cache, int length );
-void TIKI_CalcLodConsts( lodControl_t *LOD );
-qboolean TIKI_LoadSKB( const char *path, skelcache_t *cache );
-qboolean TIKI_LoadSKD( const char *path, skelcache_t *cache );
-skelHeaderGame_t *TIKI_GetSkel( int index );
-int TIKI_GetSkelCache( skelHeaderGame_t *pSkel );
-void TIKI_FreeSkel( int index );
-void TIKI_FreeSkelCache( skelcache_t *cache );
-skelcache_t *TIKI_FindSkel( const char *path );
-skelcache_t *TIKI_FindFreeSkel( void );
-int TIKI_RegisterSkel( const char *path, dtiki_t *tiki );
+    void              TIKI_CacheFileSkel(skelHeader_t *pHeader, skelcache_t *cache, int length);
+    void              TIKI_CalcLodConsts(lodControl_t *LOD);
+    qboolean          TIKI_LoadSKB(const char *path, skelcache_t *cache);
+    qboolean          TIKI_LoadSKD(const char *path, skelcache_t *cache);
+    skelHeaderGame_t *TIKI_GetSkel(int index);
+    int               TIKI_GetSkelCache(skelHeaderGame_t *pSkel);
+    void              TIKI_FreeSkel(int index);
+    void              TIKI_FreeSkelCache(skelcache_t *cache);
+    skelcache_t      *TIKI_FindSkel(const char *path);
+    skelcache_t      *TIKI_FindFreeSkel(void);
+    int               TIKI_RegisterSkel(const char *path, dtiki_t *tiki);
 
-void SaveLODFile( const char *path, lodControl_t *LOD );
-void GetLODFile( skelcache_t *cache );
+    void SaveLODFile(const char *path, lodControl_t *LOD);
+    void GetLODFile(skelcache_t *cache);
 
 #ifdef __cplusplus
 }
 #endif
-
-#endif // __TIKI_SKEL_H__

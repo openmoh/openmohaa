@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2023 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -32,16 +32,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 TIKI_Name
 ===============
 */
-const char *TIKI_Name( dtiki_t *pmdl )
+const char *TIKI_Name(dtiki_t *pmdl)
 {
-	if( pmdl )
-	{
-		return pmdl->a->name;
-	}
-	else
-	{
-		return 0;
-	}
+    if (pmdl) {
+        return pmdl->a->name;
+    } else {
+        return 0;
+    }
 }
 
 /*
@@ -49,16 +46,13 @@ const char *TIKI_Name( dtiki_t *pmdl )
 TIKI_NumAnims
 ===============
 */
-int TIKI_NumAnims( dtiki_t *pmdl )
+int TIKI_NumAnims(dtiki_t *pmdl)
 {
-	if( pmdl )
-	{
-		return pmdl->a->num_anims;
-	}
-	else
-	{
-		return 0;
-	}
+    if (pmdl) {
+        return pmdl->a->num_anims;
+    } else {
+        return 0;
+    }
 }
 
 /*
@@ -66,16 +60,13 @@ int TIKI_NumAnims( dtiki_t *pmdl )
 TIKI_NumSurfaces
 ===============
 */
-int TIKI_NumSurfaces( dtiki_t *pmdl )
+int TIKI_NumSurfaces(dtiki_t *pmdl)
 {
-	if( pmdl )
-	{
-		return pmdl->num_surfaces;
-	}
-	else
-	{
-		return 0;
-	}
+    if (pmdl) {
+        return pmdl->num_surfaces;
+    } else {
+        return 0;
+    }
 }
 
 /*
@@ -83,9 +74,9 @@ int TIKI_NumSurfaces( dtiki_t *pmdl )
 TIKI_NumTags
 ===============
 */
-int TIKI_NumTags( dtiki_t *pmdl )
+int TIKI_NumTags(dtiki_t *pmdl)
 {
-	return pmdl->m_boneList.NumChannels();
+    return pmdl->m_boneList.NumChannels();
 }
 
 /*
@@ -93,15 +84,14 @@ int TIKI_NumTags( dtiki_t *pmdl )
 TIKI_CalculateBounds
 ===============
 */
-void TIKI_CalculateBounds( dtiki_t *pmdl, float scale, vec3_t mins, vec3_t maxs )
+void TIKI_CalculateBounds(dtiki_t *pmdl, float scale, vec3_t mins, vec3_t maxs)
 {
-	int j;
+    int j;
 
-	for( j = 0; j < 3; j++ )
-	{
-		mins[ j ] = pmdl->a->mins[ j ] * pmdl->load_scale * scale;
-		maxs[ j ] = pmdl->a->maxs[ j ] * pmdl->load_scale * scale;
-	}
+    for (j = 0; j < 3; j++) {
+        mins[j] = pmdl->a->mins[j] * pmdl->load_scale * scale;
+        maxs[j] = pmdl->a->maxs[j] * pmdl->load_scale * scale;
+    }
 }
 
 /*
@@ -109,9 +99,9 @@ void TIKI_CalculateBounds( dtiki_t *pmdl, float scale, vec3_t mins, vec3_t maxs 
 TIKI_GlobalRadius
 ===============
 */
-float TIKI_GlobalRadius( dtiki_t *pmdl )
+float TIKI_GlobalRadius(dtiki_t *pmdl)
 {
-	return pmdl->radius;
+    return pmdl->radius;
 }
 
 /*
@@ -119,22 +109,21 @@ float TIKI_GlobalRadius( dtiki_t *pmdl )
 TIKI_NumHeadModels
 ===============
 */
-int TIKI_NumHeadModels( dtikianim_t *tiki )
+int TIKI_NumHeadModels(dtikianim_t *tiki)
 {
-	int numheadmodels = 0;
-	const char *s = tiki->headmodels;
+    int         numheadmodels = 0;
+    const char *s             = tiki->headmodels;
 
-	while( 1 )
-	{
-		s = strstr( s, "\n" );
-		if( !s ) {
-			break;
-		}
-		numheadmodels++;
-		s++;
-	}
+    while (1) {
+        s = strstr(s, "\n");
+        if (!s) {
+            break;
+        }
+        numheadmodels++;
+        s++;
+    }
 
-	return numheadmodels;
+    return numheadmodels;
 }
 
 /*
@@ -142,38 +131,32 @@ int TIKI_NumHeadModels( dtikianim_t *tiki )
 TIKI_GetHeadModel
 ===============
 */
-void TIKI_GetHeadModel( dtikianim_t *tiki, int num, char *name )
+void TIKI_GetHeadModel(dtikianim_t *tiki, int num, char *name)
 {
-	const char *s, *t;
+    const char *s, *t;
 
-	if( tiki->headmodels == ( char * )1 )
-	{
-		*name = 0;
-		return;
-	}
+    if (tiki->headmodels == (char *)1) {
+        *name = 0;
+        return;
+    }
 
-	s = tiki->headmodels;
-	for( num = num - 1; num >= 0; num-- )
-	{
-		s = strstr( s, "\n" );
-		if( !s )
-		{
-			*name = 0;
-			return;
-		}
-		s++;
-	}
+    s = tiki->headmodels;
+    for (num = num - 1; num >= 0; num--) {
+        s = strstr(s, "\n");
+        if (!s) {
+            *name = 0;
+            return;
+        }
+        s++;
+    }
 
-	t = strstr( s, "\n" );
-	if( t )
-	{
-		strncpy( name, s, t - s );
-		name[ t - s ] = 0;
-	}
-	else
-	{
-		*name = 0;
-	}
+    t = strstr(s, "\n");
+    if (t) {
+        strncpy(name, s, t - s);
+        name[t - s] = 0;
+    } else {
+        *name = 0;
+    }
 }
 
 /*
@@ -181,22 +164,21 @@ void TIKI_GetHeadModel( dtikianim_t *tiki, int num, char *name )
 TIKI_NumHeadSkins
 ===============
 */
-int TIKI_NumHeadSkins( dtikianim_t *tiki )
+int TIKI_NumHeadSkins(dtikianim_t *tiki)
 {
-	int numheadskins = 0;
-	const char *s = tiki->headskins;
+    int         numheadskins = 0;
+    const char *s            = tiki->headskins;
 
-	while( 1 )
-	{
-		s = strstr( s, "\n" );
-		if( !s ) {
-			break;
-		}
-		numheadskins++;
-		s++;
-	}
+    while (1) {
+        s = strstr(s, "\n");
+        if (!s) {
+            break;
+        }
+        numheadskins++;
+        s++;
+    }
 
-	return numheadskins;
+    return numheadskins;
 }
 
 /*
@@ -204,36 +186,30 @@ int TIKI_NumHeadSkins( dtikianim_t *tiki )
 TIKI_GetHeadSkin
 ===============
 */
-void TIKI_GetHeadSkin( dtikianim_t *tiki, int num, char *name )
+void TIKI_GetHeadSkin(dtikianim_t *tiki, int num, char *name)
 {
-	const char *s, *t;
+    const char *s, *t;
 
-	if( tiki->headskins == ( char * )1 )
-	{
-		*name = 0;
-		return;
-	}
+    if (tiki->headskins == (char *)1) {
+        *name = 0;
+        return;
+    }
 
-	s = tiki->headskins;
-	for( num = num - 1; num >= 0; num-- )
-	{
-		s = strstr( s, "\n" );
-		if( !s )
-		{
-			*name = 0;
-			return;
-		}
-		s++;
-	}
+    s = tiki->headskins;
+    for (num = num - 1; num >= 0; num--) {
+        s = strstr(s, "\n");
+        if (!s) {
+            *name = 0;
+            return;
+        }
+        s++;
+    }
 
-	t = strstr( s, "\n" );
-	if( t )
-	{
-		strncpy( name, s, t - s );
-		name[ t - s ] = 0;
-	}
-	else
-	{
-		*name = 0;
-	}
+    t = strstr(s, "\n");
+    if (t) {
+        strncpy(name, s, t - s);
+        name[t - s] = 0;
+    } else {
+        *name = 0;
+    }
 }

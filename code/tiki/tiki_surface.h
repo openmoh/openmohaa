@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2023 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -22,18 +22,15 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // tiki_surface.h : TIKI Surface
 
-#ifndef __TIKI_SURFACE_H__
-#define __TIKI_SURFACE_H__
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-int TIKI_Surface_NameToNum( dtiki_t *pmdl, const char *name );
-const char *TIKI_Surface_NumToName( dtiki_t *pmdl, int num );
+    int         TIKI_Surface_NameToNum(dtiki_t *pmdl, const char *name);
+    const char *TIKI_Surface_NumToName(dtiki_t *pmdl, int num);
 
 #ifdef __cplusplus
 }
 #endif
-
-#endif // __TIKI_IMPORTS_H__

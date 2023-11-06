@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2023 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -22,17 +22,14 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // tiki_commands.h : TIKI Commands
 
-#ifndef __TIKI_COMMANDS_H__
-#define __TIKI_COMMANDS_H__
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-void TIKI_ModelInfo( dtiki_t *tiki );
+    void TIKI_ModelInfo(dtiki_t *tiki);
 
 #ifdef __cplusplus
 }
 #endif
-
-#endif // __TIKI_COMMANDS_H__

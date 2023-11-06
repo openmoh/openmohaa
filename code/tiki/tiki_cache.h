@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2023 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -22,31 +22,28 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // tiki_cache.h : TIKI Cache
 
-#ifndef __TIKI_CACHE_H__
-#define __TIKI_CACHE_H__
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-dtikianim_t *TIKI_FindTikiAnim( const char *path );
-dtiki_t *TIKI_FindTiki( const char *path );
-dtikianim_t *TIKI_RegisterTikiAnimFlags( const char *path, qboolean use );
-dtikianim_t *TIKI_RegisterTikiAnim( const char *path );
-dtiki_t *TIKI_RegisterTikiFlags( const char *path, qboolean use );
-dtiki_t *TIKI_RegisterTiki( const char *path );
-void TIKI_FreeAll();
-void *TIKI_GetSkeletor( dtiki_t *tiki, int entnum );
-static void TIKI_DeleteSkeletor( int entnum );
-void TIKI_Begin( void );
-void TIKI_End( void );
-void TIKI_FinishLoad( void );
-void TIKI_FreeImages( void );
-void TIKI_TikiAnimList_f( void );
-void TIKI_TikiList_f( void );
+    dtikianim_t *TIKI_FindTikiAnim(const char *path);
+    dtiki_t     *TIKI_FindTiki(const char *path);
+    dtikianim_t *TIKI_RegisterTikiAnimFlags(const char *path, qboolean use);
+    dtikianim_t *TIKI_RegisterTikiAnim(const char *path);
+    dtiki_t     *TIKI_RegisterTikiFlags(const char *path, qboolean use);
+    dtiki_t     *TIKI_RegisterTiki(const char *path);
+    void         TIKI_FreeAll();
+    void        *TIKI_GetSkeletor(dtiki_t *tiki, int entnum);
+    static void  TIKI_DeleteSkeletor(int entnum);
+    void         TIKI_Begin(void);
+    void         TIKI_End(void);
+    void         TIKI_FinishLoad(void);
+    void         TIKI_FreeImages(void);
+    void         TIKI_TikiAnimList_f(void);
+    void         TIKI_TikiList_f(void);
 
 #ifdef __cplusplus
 }
 #endif
-
-#endif // __TIKI_CACHE_H__

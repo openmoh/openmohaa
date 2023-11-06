@@ -24,13 +24,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "tiki.h"
 
-int TIKI_Skel_Bones_Index;
-int skeletorMorphCacheIndex;
+int             TIKI_Skel_Bones_Index;
+int             skeletorMorphCacheIndex;
 skelBoneCache_t TIKI_Skel_Bones[MAX_SKELBONES];
-int skeletorMorphCache[MAX_SKELMORPH];
+int             skeletorMorphCache[MAX_SKELMORPH];
 
 void TIKI_Reset_Caches()
 {
-    TIKI_Skel_Bones_Index = 0;
+    TIKI_Skel_Bones_Index   = 0;
     skeletorMorphCacheIndex = 0;
 }

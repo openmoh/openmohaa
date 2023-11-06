@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2023 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -26,34 +26,34 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "qcommon.h"
 #include "tiki_imports.h"
 
-void TIKI_DPrintf( const char *fmt, ... )
+void TIKI_DPrintf(const char *fmt, ...)
 {
-	char msg[ 4096 ];
-	va_list va;
+    char    msg[4096];
+    va_list va;
 
-	va_start( va, fmt );
-	vsprintf( msg, fmt, va );
-	va_end( va );
+    va_start(va, fmt);
+    vsprintf(msg, fmt, va);
+    va_end(va);
 
-	Com_DPrintf( "%s", msg );
+    Com_DPrintf("%s", msg);
 }
 
-void TIKI_Free( void *ptr )
+void TIKI_Free(void *ptr)
 {
-	Z_Free( ptr );
+    Z_Free(ptr);
 }
 
-void *TIKI_Alloc( size_t size )
+void *TIKI_Alloc(size_t size)
 {
-	return Z_TagMalloc( size, TAG_TIKI );
+    return Z_TagMalloc(size, TAG_TIKI);
 }
 
-void TIKI_FreeFile( void *buffer )
+void TIKI_FreeFile(void *buffer)
 {
-	FS_FreeFile( buffer );
+    FS_FreeFile(buffer);
 }
 
-int TIKI_ReadFileEx( const char *qpath, void **buffer, qboolean quiet )
+int TIKI_ReadFileEx(const char *qpath, void **buffer, qboolean quiet)
 {
-	return FS_ReadFileEx( qpath, buffer, quiet );
+    return FS_ReadFileEx(qpath, buffer, quiet);
 }

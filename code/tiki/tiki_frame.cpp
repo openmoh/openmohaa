@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2023 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -34,46 +34,48 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 TIKI_Frame_Commands_Server
 ===============
 */
-qboolean TIKI_Frame_Commands_Server( dtiki_t *pmdl, int animnum, int framenum, tiki_cmd_t *tiki_cmd )
+qboolean TIKI_Frame_Commands_Server(dtiki_t *pmdl, int animnum, int framenum, tiki_cmd_t *tiki_cmd)
 {
-	dtikicmd_t *pcmd;
-	dtikianimdef_t *panimdef;
-	qboolean found;
-	int i;
+    dtikicmd_t     *pcmd;
+    dtikianimdef_t *panimdef;
+    qboolean        found;
+    int             i;
 
-	if (!pmdl || !pmdl->a) {
-		return qfalse;
-	}
+    if (!pmdl || !pmdl->a) {
+        return qfalse;
+    }
 
-	if (animnum >= pmdl->a->num_anims || animnum < 0) {
-		return qfalse;
-	}
+    if (animnum >= pmdl->a->num_anims || animnum < 0) {
+        return qfalse;
+    }
 
-	tiki_cmd->num_cmds = 0;
-	panimdef = pmdl->a->animdefs[ animnum ];
-	found = false;
+    tiki_cmd->num_cmds = 0;
+    panimdef           = pmdl->a->animdefs[animnum];
+    found              = false;
 
-	for( i = 0; i < panimdef->num_server_cmds; i++ )
-	{
-		pcmd = &panimdef->server_cmds[ i ];
+    for (i = 0; i < panimdef->num_server_cmds; i++) {
+        pcmd = &panimdef->server_cmds[i];
 
-		if( ( pcmd->frame_num == framenum ) || ( pcmd->frame_num == TIKI_FRAME_EVERY && framenum >= 0 ) )
-		{
-			if( tiki_cmd->num_cmds >= TIKI_MAX_COMMANDS )
-			{
-				TIKI_Error( "TIKI_Frame_Commands_Client: Too many cmds for anim %d frame %d for %s.\n", animnum, framenum, pmdl->a->name );
-				return false;
-			}
+        if ((pcmd->frame_num == framenum) || (pcmd->frame_num == TIKI_FRAME_EVERY && framenum >= 0)) {
+            if (tiki_cmd->num_cmds >= TIKI_MAX_COMMANDS) {
+                TIKI_Error(
+                    "TIKI_Frame_Commands_Client: Too many cmds for anim %d frame %d for %s.\n",
+                    animnum,
+                    framenum,
+                    pmdl->a->name
+                );
+                return false;
+            }
 
-			tiki_cmd->cmds[ tiki_cmd->num_cmds ].num_args = pcmd->num_args;
-			tiki_cmd->cmds[ tiki_cmd->num_cmds ].args = pcmd->args;
-			tiki_cmd->num_cmds++;
+            tiki_cmd->cmds[tiki_cmd->num_cmds].num_args = pcmd->num_args;
+            tiki_cmd->cmds[tiki_cmd->num_cmds].args     = pcmd->args;
+            tiki_cmd->num_cmds++;
 
-			found = true;
-		}
-	}
+            found = true;
+        }
+    }
 
-	return found;
+    return found;
 }
 
 /*
@@ -81,12 +83,12 @@ qboolean TIKI_Frame_Commands_Server( dtiki_t *pmdl, int animnum, int framenum, t
 TIKI_Frame_Commands_Client
 ===============
 */
-qboolean TIKI_Frame_Commands_Client( dtiki_t *pmdl, int animnum, int framenum, tiki_cmd_t *tiki_cmd )
+qboolean TIKI_Frame_Commands_Client(dtiki_t *pmdl, int animnum, int framenum, tiki_cmd_t *tiki_cmd)
 {
-	dtikicmd_t *pcmd;
-	dtikianimdef_t *panimdef;
-	qboolean found;
-	int i;
+    dtikicmd_t     *pcmd;
+    dtikianimdef_t *panimdef;
+    qboolean        found;
+    int             i;
 
     if (!pmdl || !pmdl->a) {
         return qfalse;
@@ -96,31 +98,33 @@ qboolean TIKI_Frame_Commands_Client( dtiki_t *pmdl, int animnum, int framenum, t
         return qfalse;
     }
 
-	tiki_cmd->num_cmds = 0;
-	panimdef = pmdl->a->animdefs[ animnum ];
-	found = false;
+    tiki_cmd->num_cmds = 0;
+    panimdef           = pmdl->a->animdefs[animnum];
+    found              = false;
 
-	for( i = 0; i < panimdef->num_client_cmds; i++ )
-	{
-		pcmd = &panimdef->client_cmds[ i ];
+    for (i = 0; i < panimdef->num_client_cmds; i++) {
+        pcmd = &panimdef->client_cmds[i];
 
-		if( ( pcmd->frame_num == framenum ) || ( pcmd->frame_num == TIKI_FRAME_EVERY && framenum >= 0 ) )
-		{
-			if( tiki_cmd->num_cmds >= TIKI_MAX_COMMANDS )
-			{
-				TIKI_Error( "TIKI_Frame_Commands_Client: Too many cmds for anim %d frame %d for %s.\n", animnum, framenum, pmdl->a->name );
-				return false;
-			}
+        if ((pcmd->frame_num == framenum) || (pcmd->frame_num == TIKI_FRAME_EVERY && framenum >= 0)) {
+            if (tiki_cmd->num_cmds >= TIKI_MAX_COMMANDS) {
+                TIKI_Error(
+                    "TIKI_Frame_Commands_Client: Too many cmds for anim %d frame %d for %s.\n",
+                    animnum,
+                    framenum,
+                    pmdl->a->name
+                );
+                return false;
+            }
 
-			tiki_cmd->cmds[ tiki_cmd->num_cmds ].num_args = pcmd->num_args;
-			tiki_cmd->cmds[ tiki_cmd->num_cmds ].args = pcmd->args;
-			tiki_cmd->num_cmds++;
+            tiki_cmd->cmds[tiki_cmd->num_cmds].num_args = pcmd->num_args;
+            tiki_cmd->cmds[tiki_cmd->num_cmds].args     = pcmd->args;
+            tiki_cmd->num_cmds++;
 
-			found = true;
-		}
-	}
+            found = true;
+        }
+    }
 
-	return found;
+    return found;
 }
 
 /*
@@ -128,13 +132,13 @@ qboolean TIKI_Frame_Commands_Client( dtiki_t *pmdl, int animnum, int framenum, t
 TIKI_Frame_Commands_ClientTime
 ===============
 */
-qboolean TIKI_Frame_Commands_ClientTime( dtiki_t *pmdl, int animnum, float start, float end, tiki_cmd_t *tiki_cmd )
+qboolean TIKI_Frame_Commands_ClientTime(dtiki_t *pmdl, int animnum, float start, float end, tiki_cmd_t *tiki_cmd)
 {
-	dtikicmd_t *pcmd;
-	dtikianimdef_t *panimdef;
-	qboolean found;
-	int i;
-	float cmdTime;
+    dtikicmd_t     *pcmd;
+    dtikianimdef_t *panimdef;
+    qboolean        found;
+    int             i;
+    float           cmdTime;
 
     if (!pmdl || !pmdl->a) {
         return qfalse;
@@ -144,30 +148,33 @@ qboolean TIKI_Frame_Commands_ClientTime( dtiki_t *pmdl, int animnum, float start
         return qfalse;
     }
 
-	tiki_cmd->num_cmds = 0;
-	panimdef = pmdl->a->animdefs[ animnum ];
-	found = false;
+    tiki_cmd->num_cmds = 0;
+    panimdef           = pmdl->a->animdefs[animnum];
+    found              = false;
 
-	for( i = 0; i < panimdef->num_client_cmds; i++ )
-	{
-		pcmd = &panimdef->client_cmds[ i ];
-		cmdTime = pcmd->frame_num / 1000.0f;
+    for (i = 0; i < panimdef->num_client_cmds; i++) {
+        pcmd    = &panimdef->client_cmds[i];
+        cmdTime = pcmd->frame_num / 1000.0f;
 
-		if( cmdTime >= start && cmdTime <= end )
-		{
-			if( tiki_cmd->num_cmds >= TIKI_MAX_COMMANDS )
-			{
-				TIKI_Error( "TIKI_Frame_Commands_Client: Too many cmds for anim %d times %f %f for %s.\n", animnum, start, end, pmdl->a->name );
-				return false;
-			}
+        if (cmdTime >= start && cmdTime <= end) {
+            if (tiki_cmd->num_cmds >= TIKI_MAX_COMMANDS) {
+                TIKI_Error(
+                    "TIKI_Frame_Commands_Client: Too many cmds for anim %d times %f %f for %s.\n",
+                    animnum,
+                    start,
+                    end,
+                    pmdl->a->name
+                );
+                return false;
+            }
 
-			tiki_cmd->cmds[ tiki_cmd->num_cmds ].num_args = pcmd->num_args;
-			tiki_cmd->cmds[ tiki_cmd->num_cmds ].args = pcmd->args;
-			tiki_cmd->num_cmds++;
+            tiki_cmd->cmds[tiki_cmd->num_cmds].num_args = pcmd->num_args;
+            tiki_cmd->cmds[tiki_cmd->num_cmds].args     = pcmd->args;
+            tiki_cmd->num_cmds++;
 
-			found = true;
-		}
-	}
+            found = true;
+        }
+    }
 
-	return true;
+    return true;
 }

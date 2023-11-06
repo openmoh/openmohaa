@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2023 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -28,13 +28,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 extern "C" {
 #endif
 
-void TIKI_DPrintf( const char *fmt, ... );
+    void TIKI_DPrintf(const char *fmt, ...);
 
-void TIKI_Free( void *ptr );
-void *TIKI_Alloc( size_t size );
+    void  TIKI_Free(void *ptr);
+    void *TIKI_Alloc(size_t size);
 
-void TIKI_FreeFile( void *buffer );
-int TIKI_ReadFileEx( const char *qpath, void **buffer, qboolean quiet );
+    void TIKI_FreeFile(void *buffer);
+    int  TIKI_ReadFileEx(const char *qpath, void **buffer, qboolean quiet);
 
 #ifdef __cplusplus
 }

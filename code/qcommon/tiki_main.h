@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2023 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -22,27 +22,25 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // tiki_main.h : TIKI main
 
-#ifndef __TIKI_MAIN_H__
-#define __TIKI_MAIN_H__
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-extern int cache_numskel;
-extern int cache_maxskel;
-extern skelcache_t skelcache[];
+    extern int         cache_numskel;
+    extern int         cache_maxskel;
+    extern skelcache_t skelcache[];
 
-void TIKI_AddPointToBounds( float *v, float *mins, float *maxs );
-void TIKI_Message( const char *fmt, ... );
-void TIKI_Warning( const char *fmt, ... );
-void TIKI_Error( const char *fmt, ... );
-void TIKI_SetupIndividualSurface( const char *filename, dtikisurface_t *surf, const char *name, dloadsurface_t *loadsurf );
-size_t TIKI_CalcAnimDefSize( dloaddef_t *ld );
-dtikianim_t *TIKI_FillTIKIStructureSkel( dloaddef_t *ld );
+    void TIKI_AddPointToBounds(float *v, float *mins, float *maxs);
+    void TIKI_Message(const char *fmt, ...);
+    void TIKI_Warning(const char *fmt, ...);
+    void TIKI_Error(const char *fmt, ...);
+    void
+    TIKI_SetupIndividualSurface(const char *filename, dtikisurface_t *surf, const char *name, dloadsurface_t *loadsurf);
+    size_t       TIKI_CalcAnimDefSize(dloaddef_t *ld);
+    dtikianim_t *TIKI_FillTIKIStructureSkel(dloaddef_t *ld);
 
 #ifdef __cplusplus
 }
 #endif
-
-#endif // __TIKI_MAIN_H__

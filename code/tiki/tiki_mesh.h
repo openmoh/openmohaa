@@ -26,15 +26,15 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 extern "C" {
 #endif
 
-#define MAX_SKELBONES		20000
-#define MAX_SKELMORPH		12800
+#define MAX_SKELBONES 20000
+#define MAX_SKELMORPH 12800
 
-extern int TIKI_Skel_Bones_Index;
-extern int skeletorMorphCacheIndex;
-extern skelBoneCache_t TIKI_Skel_Bones[];
-extern int skeletorMorphCache[];
+    extern int             TIKI_Skel_Bones_Index;
+    extern int             skeletorMorphCacheIndex;
+    extern skelBoneCache_t TIKI_Skel_Bones[];
+    extern int             skeletorMorphCache[];
 
-void TIKI_Reset_Caches();
+    void TIKI_Reset_Caches();
 
 #ifdef __cplusplus
 }

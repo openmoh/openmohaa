@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2023 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -32,8 +32,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 TIKI_ModelInfo
 ===============
 */
-void TIKI_ModelInfo( dtiki_t *tiki )
+void TIKI_ModelInfo(dtiki_t *tiki)
 {
-	// fixme: wtf ? what should it do
-	Com_Printf( "This function is broken. So sorry... KDT\n" );
+    // fixme: wtf ? what should it do
+    Com_Printf("This function is broken. So sorry... KDT\n");
 }
