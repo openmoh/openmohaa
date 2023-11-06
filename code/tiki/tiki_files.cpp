@@ -53,8 +53,8 @@ public:
     InitSkelCache();
 };
 
-static int                  m_cachedDataLookup[4095];
-static skeletorCacheEntry_t m_cachedData[4095];
+static int                  m_cachedDataLookup[MAX_TIKI_ALIASES];
+static skeletorCacheEntry_t m_cachedData[MAX_TIKI_ALIASES];
 InitSkelCache               InitSkelCache::init;
 MEM_TempAlloc               TIKI_allocator;
 
@@ -67,7 +67,7 @@ InitSkelCache::InitSkelCache()
 {
     int i;
 
-    for (i = 0; i < 4095; i++) {
+    for (i = 0; i < MAX_TIKI_ALIASES; i++) {
         m_cachedData[i].lookup = -1;
     }
 }
@@ -571,7 +571,7 @@ bool SkeletorCacheLoadData(const char *path, bool precache, int newIndex)
     skelAnimDataGameHeader_t *data;
     int                       lookup;
 
-    if (m_numInCache >= 4095) {
+    if (m_numInCache >= MAX_TIKI_ALIASES) {
         Com_Printf("Skeletor CacheData, Cache full, can't load %s\n", path);
         return false;
     }
@@ -590,7 +590,7 @@ bool SkeletorCacheLoadData(const char *path, bool precache, int newIndex)
         data = 0;
     }
 
-    for (lookup = 0; lookup < 4095; lookup++) {
+    for (lookup = 0; lookup < MAX_TIKI_ALIASES; lookup++) {
         if (m_cachedData[lookup].lookup == -1) {
             break;
         }
@@ -698,7 +698,7 @@ void TIKI_AnimList_f()
         }
     }
 
-    for (; i < 4095; i++) {
+    for (; i < MAX_TIKI_ALIASES; i++) {
         if (m_cachedData[m_cachedDataLookup[i]].path[0]) {
             Com_Printf("*** CORRUPTED ENTRY\n");
         }
@@ -778,8 +778,8 @@ dtikianim_t *TIKI_InitTiki(dloaddef_t *ld, size_t defsize)
     bool                      bPrecache;
     int                       index;
     char                      tempName[257];
-    int                       order[4095];
-    short                     temp_aliases[4095];
+    int                       order[MAX_TIKI_ALIASES];
+    short                     temp_aliases[MAX_TIKI_ALIASES];
 
     panim = (dtikianim_t *)TIKI_Alloc(defsize);
 
