@@ -343,22 +343,22 @@ void skeletor_c::SetPose(
 {
     skelAnimDataGameHeader_t *animData;
     short int                *aliases;
-    //int boneNum;
-    int blendNum;
-    int i;
-    int blendFrame;
-    int movementBlendFrame;
-    int actionBlendFrame;
-    //int realAnimIndex;
-    int            beforeFrame;
-    int            afterFrame;
-    float          beforeWeight;
-    float          afterWeight;
-    int            numFramesAdded;
-    float          cutoff_weight;
-    int            contNum;
-    float          animWeight;
-    skanBlendInfo *frame1, *frame2;
+    int                       boneNum;
+    int                       blendNum;
+    int                       i;
+    int                       blendFrame;
+    int                       movementBlendFrame;
+    int                       actionBlendFrame;
+    int                       realAnimIndex;
+    int                       beforeFrame;
+    int                       afterFrame;
+    float                     beforeWeight;
+    float                     afterWeight;
+    int                       numFramesAdded;
+    float                     cutoff_weight;
+    int                       contNum;
+    float                     animWeight;
+    skanBlendInfo            *frame1, *frame2;
 
     for (i = 0; i < m_Tiki->m_boneList.NumChannels(); i++) {
         m_bone[i]->m_controller = NULL;
@@ -366,13 +366,17 @@ void skeletor_c::SetPose(
     }
 
     if (contIndices && contValues) {
-        for (i = 0; i < 5; i++) {
-            contNum = contIndices[i];
-            if (contNum >= 0 && contNum < m_Tiki->m_boneList.NumChannels()) {
-                cutoff_weight = (contValues[i][3] - 1.0) * (contValues[i][3] - 1.0);
-                if (cutoff_weight >= EPSILON) {
-                    m_bone[contNum]->m_controller = (float *)contValues[i];
-                }
+        for (contNum = 0; contNum < 5; contNum++) {
+            boneNum = contIndices[contNum];
+            // Added in 2.0.
+            //  Make sure the bone is a valid channel
+            if (boneNum < 0 || boneNum >= m_Tiki->m_boneList.NumChannels()) {
+                continue;
+            }
+
+            cutoff_weight = (contValues[contNum][3] - 1.0) * (contValues[contNum][3] - 1.0);
+            if (cutoff_weight >= EPSILON) {
+                m_bone[boneNum]->m_controller = (float *)contValues[contNum];
             }
         }
     }
@@ -388,62 +392,84 @@ void skeletor_c::SetPose(
     actionBlendFrame   = 32;
     aliases            = m_Tiki->a->m_aliases;
 
-    for (i = 0; i < MAX_FRAMEINFOS; i++) {
-        if (animWeight < frameInfo[i].weight) {
-            animWeight = frameInfo[i].weight;
+    for (blendNum = 0; blendNum < MAX_FRAMEINFOS; blendNum++) {
+        const frameInfo_t& currentFrame = frameInfo[blendNum];
+
+        if (animWeight < currentFrame.weight) {
+            animWeight = currentFrame.weight;
         }
     }
 
     cutoff_weight = animWeight * 0.01f;
 
-    for (i = 0; i < MAX_FRAMEINFOS; i++) {
-        if (frameInfo[i].weight > cutoff_weight) {
-            animData = SkeletorCacheGetData(aliases[frameInfo[i].index]);
-            if (animData->bHasDelta) {
-                blendFrame = movementBlendFrame;
-            } else {
-                blendFrame = actionBlendFrame;
-            }
+    for (blendNum = 0; blendNum < MAX_FRAMEINFOS; blendNum++) {
+        const frameInfo_t& currentFrame = frameInfo[blendNum];
 
-            beforeWeight = 0.0;
-            afterWeight  = 0.0;
-            beforeFrame  = 0.0;
-            afterFrame   = 0.0;
+        if (currentFrame.weight <= cutoff_weight) {
+            continue;
+        }
 
-            numFramesAdded = animData->GetFrameNums(
-                frameInfo[i].time, 0.01f, &beforeFrame, &afterFrame, &beforeWeight, &afterWeight
-            );
+        // Added in 2.0.
+        //  Validate the index number
+        if (currentFrame.index < 0 || currentFrame.index > m_Tiki->a->num_anims) {
+            continue;
+        }
 
-            frame1                 = &m_frameList.m_blendInfo[blendFrame];
-            frame1->frame          = beforeFrame;
-            frame1->pAnimationData = animData;
-            frame1->weight         = beforeWeight * frameInfo[i].weight;
+        realAnimIndex = aliases[currentFrame.index];
+        // Added in 2.0.
+        //  Check if the alias is within bounds
+        if (realAnimIndex < 0 || realAnimIndex >= MAX_TIKI_ALIASES) {
+            continue;
+        }
 
+        animData = SkeletorCacheGetData(realAnimIndex);
+        // Added in 2.0.
+        //  Make sure the anim data is valid
+        if (!animData) {
+            continue;
+        }
+
+        if (animData->bHasDelta) {
+            blendFrame = movementBlendFrame;
+        } else {
+            blendFrame = actionBlendFrame;
+        }
+
+        beforeWeight = 0.0;
+        afterWeight  = 0.0;
+        beforeFrame  = 0.0;
+        afterFrame   = 0.0;
+
+        numFramesAdded =
+            animData->GetFrameNums(currentFrame.time, 0.01f, &beforeFrame, &afterFrame, &beforeWeight, &afterWeight);
+
+        frame1                 = &m_frameList.m_blendInfo[blendFrame];
+        frame1->frame          = beforeFrame;
+        frame1->pAnimationData = animData;
+        frame1->weight         = beforeWeight * currentFrame.weight;
+
+        AddToBounds(m_frameBounds, animData->bounds);
+
+        if (frame1->pAnimationData->m_frame[frame1->frame].radius > m_frameRadius) {
+            m_frameRadius = frame1->pAnimationData->m_frame[frame1->frame].radius;
+        }
+
+        if (numFramesAdded == 2) {
+            frame2                 = &m_frameList.m_blendInfo[blendFrame + 1];
+            frame2->frame          = afterFrame;
+            frame2->pAnimationData = animData;
+            frame2->weight         = afterWeight * currentFrame.weight;
             AddToBounds(m_frameBounds, animData->bounds);
 
-            if (frame1->pAnimationData->m_frame[frame1->frame].radius > m_frameRadius) {
-                m_frameRadius = frame1->pAnimationData->m_frame[frame1->frame].radius;
+            if (frame2->pAnimationData->m_frame[frame2->frame].radius > m_frameRadius) {
+                m_frameRadius = frame2->pAnimationData->m_frame[frame2->frame].radius;
             }
+        }
 
-            if (numFramesAdded == 2) {
-                frame2                 = &m_frameList.m_blendInfo[blendFrame + 1];
-                frame2->frame          = afterFrame;
-                frame2->pAnimationData = animData;
-                frame2->weight         = afterWeight * frameInfo[i].weight;
-                AddToBounds(m_frameBounds, animData->bounds);
-
-                if (frame2->pAnimationData->m_frame[frame2->frame].radius > m_frameRadius) {
-                    m_frameRadius = frame2->pAnimationData->m_frame[frame2->frame].radius;
-                }
-            }
-
-            blendNum = blendFrame + numFramesAdded;
-
-            if (animData->bHasDelta) {
-                movementBlendFrame = blendNum;
-            } else {
-                actionBlendFrame = blendNum;
-            }
+        if (animData->bHasDelta) {
+            movementBlendFrame = blendFrame + numFramesAdded;
+        } else {
+            actionBlendFrame = blendFrame + numFramesAdded;
         }
     }
 
