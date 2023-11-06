@@ -375,6 +375,8 @@ CLASS_DECLARATION(Weapon, TurretGun, NULL) {
     {&EV_Turret_EventDoJitter,        &TurretGun::P_EventDoJitter            },
     {&EV_Turret_AI_BurstFireSettings, &TurretGun::AI_EventBurstFireSettings  },
     {&EV_Turret_P_SetThread,          &TurretGun::EventSetThread             },
+    {&EV_Turret_SetMaxUseAngle,       &TurretGun::P_SetMaxUseAngle           },
+    {&EV_Turret_SetStartYaw,          &TurretGun::P_SetStartYaw              },
     {&EV_Turret_P_SetViewAngles,      &TurretGun::P_SetViewAnglesForTurret   },
     {&EV_SetViewangles,               &TurretGun::P_SetViewangles            },
     {&EV_GetViewangles,               &TurretGun::P_GetViewangles            },
