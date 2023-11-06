@@ -65,7 +65,17 @@ TIKI_Anim_NameForNum
 */
 const char *TIKI_Anim_NameForNum(dtiki_t *pmdl, int animnum)
 {
-    dtikianimdef_t *panimdef = pmdl->a->animdefs[animnum];
+    dtikianimdef_t *panimdef;
+
+    if (!pmdl || !pmdl->a) {
+        return NULL;
+    }
+
+    if (animnum < 0 || animnum >= pmdl->a->num_anims) {
+        return NULL;
+    }
+
+    panimdef = pmdl->a->animdefs[animnum];
     return panimdef->alias;
 }
 
