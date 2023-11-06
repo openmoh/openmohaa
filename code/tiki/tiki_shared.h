@@ -153,8 +153,8 @@ typedef struct dtikianim_s {
     struct dtikicmd_s     *server_initcmds;
     byte                  *modelData;
     size_t                 modelDataSize;
-    float                  mins[3];
-    float                  maxs[3];
+    vec3_t                 mins;
+    vec3_t                 maxs;
     short int             *m_aliases;
     char                  *headmodels;
     char                  *headskins;
@@ -171,8 +171,8 @@ typedef struct dtiki_s {
     float                  load_scale;
     float                  lod_scale;
     float                  lod_bias;
-    float                  light_offset[3];
-    float                  load_origin[3];
+    vec3_t                 light_offset;
+    vec3_t                 load_origin;
     float                  radius;
     skelChannelList_c      m_boneList;
     int                    numMeshes;
@@ -367,23 +367,23 @@ typedef struct {
 } skelBone_t;
 
 typedef struct {
-    float      bounds[2][3];
+    vec3_t     bounds[2];
     float      radius;
-    float      delta[3];
+    vec3_t     delta;
     skelBone_t bones[1];
 } skelFrame_t;
 
 typedef struct {
-    int   ident;
-    int   version;
-    char  name[64];
-    int   type;
-    int   numFrames;
-    int   numbones;
-    float totaltime;
-    float frametime;
-    float totaldelta[3];
-    int   ofsFrames;
+    int    ident;
+    int    version;
+    char   name[64];
+    int    type;
+    int    numFrames;
+    int    numbones;
+    float  totaltime;
+    float  frametime;
+    vec3_t totaldelta;
+    int    ofsFrames;
 } skelAnimHeader_t;
 
 typedef struct {
