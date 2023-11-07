@@ -1200,6 +1200,7 @@ void CG_DrawCrosshair()
     if (cgs.gametype != GT_FFA) {
         AngleVectorsLeft(cg.refdefViewAngles, forward, NULL, NULL);
 
+        VectorMA(cg.refdef.vieworg, 8192, forward, end);
         VectorClear(mins);
         VectorClear(maxs);
 
