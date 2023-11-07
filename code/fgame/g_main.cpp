@@ -940,9 +940,6 @@ qboolean G_Command_ProcessFile(const char *filename, qboolean quiet)
 
 qboolean G_AllowPaused(void)
 {
-#ifdef _DEBUG
-    return false;
-#endif
     return (!level.exitintermission) && (level.intermissiontime == 0.0f) && (!level.died_already);
 }
 
