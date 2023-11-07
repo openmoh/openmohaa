@@ -722,6 +722,7 @@ qboolean SV_CheckPaused( void ) {
 	}
 
 	if( !ge->AllowPaused() ) {
+		Com_Unpause();
 		return qfalse;
 	}
 
@@ -919,7 +920,7 @@ void Com_Pause()
 		return;
 	}
 
-	if( paused->integer ) {
+	if( paused->integer == 1 ) {
 		return;
 	}
 
