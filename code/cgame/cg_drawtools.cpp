@@ -1205,11 +1205,9 @@ void CG_DrawCrosshair()
 
         CG_Trace(&trace, cg.refdef.vieworg, mins, maxs, end, 9999, MASK_SOLID, qfalse, qtrue, "CG_DrawCrosshair");
 
-        if (trace.entityNum != ENTITYNUM_NONE && trace.entityNum != cg.snap->ps.clientNum) {
-            if (cg.snap->ps.stats[STAT_CROSSHAIR]) {
-                shader = cgi.R_RegisterShader(cg_crosshair->string);
-            }
-        } else {
+        // ENTITYNUM_WORLD check added in OPM
+        if ((trace.entityNum != ENTITYNUM_NONE && trace.entityNum != ENTITYNUM_WORLD)
+            && trace.entityNum != cg.snap->ps.clientNum) {
             int myFlags;
 
             friendEnt = &cg_entities[trace.entityNum];
@@ -1221,8 +1219,8 @@ void CG_DrawCrosshair()
                 myFlags = EF_ALLIES;
             }
 
-            if ((myFlags & EF_ALLIES) == (friendEnt->currentState.eFlags & EF_ALLIES)
-                || (myFlags & EF_AXIS) == (friendEnt->currentState.eFlags & EF_AXIS)) {
+            if (((myFlags & EF_ALLIES) && (friendEnt->currentState.eFlags & EF_ALLIES))
+                || ((myFlags & EF_AXIS) && (friendEnt->currentState.eFlags & EF_AXIS))) {
                 // friend
                 if (cg.snap->ps.stats[STAT_CROSSHAIR]) {
                     shader = cgi.R_RegisterShader(cg_crosshair_friend->string);
@@ -1232,6 +1230,10 @@ void CG_DrawCrosshair()
                 if (cg.snap->ps.stats[STAT_CROSSHAIR]) {
                     shader = cgi.R_RegisterShader(cg_crosshair->string);
                 }
+            }
+        } else {
+            if (cg.snap->ps.stats[STAT_CROSSHAIR]) {
+                shader = cgi.R_RegisterShader(cg_crosshair->string);
             }
         }
     } else {
