@@ -323,8 +323,12 @@ static void CG_DrawPauseIcon()
     }
     w = cgi.R_GetShaderWidth(handle);
     h = cgi.R_GetShaderHeight(handle);
-    x = w / 4;
-    y = cgs.glconfig.vidHeight - (1.25f * h);
+    if (cg.snap && cg.snap->ps.blend[3] > 0) {
+        y = cgs.glconfig.vidHeight * 0.45f - h / 2.f;
+    } else {
+        y = cgs.glconfig.vidHeight * 0.75f - h / 2.f;
+    }
+    x = (cgs.glconfig.vidWidth - w) / 2.f;
 
     cgi.R_SetColor(colorWhite);
     cgi.R_DrawStretchPic(x, y, w, h, 0, 0, 1, 1, handle);
