@@ -689,8 +689,8 @@ void CG_DrawObjectives()
         CG_ProcessConfigString(i, qfalse);
     }
 
-    iCurrentObjective = atoi(CG_ConfigString(CS_CURRENT_OBJECTIVE));
-    fTimeDelta        = cg.ObjectivesAlphaTime - cg.time;
+    iCurrentObjective         = atoi(CG_ConfigString(CS_CURRENT_OBJECTIVE));
+    fTimeDelta                = cg.ObjectivesAlphaTime - cg.time;
     cg.ObjectivesCurrentAlpha = cg.ObjectivesDesiredAlpha;
     if (fTimeDelta > 0) {
         cg.ObjectivesCurrentAlpha =
@@ -1087,7 +1087,7 @@ void CG_DrawSpectatorView_ver_15()
         iClientNum = cg.snap->ps.stats[STAT_INFOCLIENT];
         sprintf(buf, "%s : %i", cg.clientinfo[iClientNum].name, cg.snap->ps.stats[STAT_INFOCLIENT_HEALTH]);
 
-        hShader = 0;
+        hShader  = 0;
         color[0] = 0.5;
         color[1] = 1.0;
         color[2] = 0.5;
@@ -1169,6 +1169,153 @@ void CG_DrawSpectatorView()
     }
 }
 
+void CG_DrawCrosshair()
+{
+    centity_t *friendEnt;
+    qhandle_t  shader;
+    vec3_t     forward;
+    vec3_t     end;
+    vec3_t     mins, maxs;
+    trace_t    trace;
+    float      x, y;
+    float      width, height;
+
+    if (!cg_hud->integer || !ui_crosshair->integer) {
+        return;
+    }
+
+    if (!cg.snap) {
+        return;
+    }
+
+    if ((cg.snap->ps.pm_flags & PMF_NO_LEAN) || (cg.snap->ps.pm_flags & PMF_INTERMISSION)) {
+        return;
+    }
+
+    if (!cg.snap->ps.stats[STAT_CROSSHAIR]
+        && (!cg.snap->ps.stats[STAT_INZOOM] || cg.snap->ps.stats[STAT_INZOOM] > 30)) {
+        return;
+    }
+
+    if (cgs.gametype != GT_FFA) {
+        AngleVectorsLeft(cg.refdefViewAngles, forward, NULL, NULL);
+
+        VectorClear(mins);
+        VectorClear(maxs);
+
+        CG_Trace(&trace, cg.refdef.vieworg, mins, maxs, end, 9999, MASK_SOLID, qfalse, qtrue, "CG_DrawCrosshair");
+
+        if (trace.entityNum != ENTITYNUM_NONE && trace.entityNum != cg.snap->ps.clientNum) {
+            if (cg.snap->ps.stats[STAT_CROSSHAIR]) {
+                shader = cgi.R_RegisterShader(cg_crosshair->string);
+            }
+        } else {
+            int myFlags;
+
+            friendEnt = &cg_entities[trace.entityNum];
+            if (cgs.gametype != GT_SINGLE_PLAYER) {
+                myFlags = cg_entities[cg.snap->ps.clientNum].currentState.eFlags & EF_ANY_TEAM;
+            } else {
+                // the player will always be considered as an allied
+                // in single-player
+                myFlags = EF_ALLIES;
+            }
+
+            if ((myFlags & EF_ALLIES) == (friendEnt->currentState.eFlags & EF_ALLIES)
+                || (myFlags & EF_AXIS) == (friendEnt->currentState.eFlags & EF_AXIS)) {
+                // friend
+                if (cg.snap->ps.stats[STAT_CROSSHAIR]) {
+                    shader = cgi.R_RegisterShader(cg_crosshair_friend->string);
+                }
+            } else {
+                // enemy
+                if (cg.snap->ps.stats[STAT_CROSSHAIR]) {
+                    shader = cgi.R_RegisterShader(cg_crosshair->string);
+                }
+            }
+        }
+    } else {
+        // FFA
+        if (cg.snap->ps.stats[STAT_CROSSHAIR]) {
+            shader = cgi.R_RegisterShader(cg_crosshair->string);
+        }
+    }
+
+    if (shader) {
+        width  = cgi.R_GetShaderWidth(shader);
+        height = cgi.R_GetShaderHeight(shader);
+        x      = (cgs.glconfig.vidWidth - width) * 0.5f;
+        y      = (cgs.glconfig.vidHeight - height) * 0.5f;
+
+        cgi.R_SetColor(NULL);
+        cgi.R_DrawStretchPic(x, y, width, height, 0, 0, 1, 1, shader);
+    }
+}
+
+void CG_DrawVote()
+{
+    const char *text;
+    int         seconds;
+    int         percentYes;
+    int         percentNo;
+    int         percentUndecided;
+    float       x, y;
+    vec4_t      col;
+
+    if (!cgs.voteTime) {
+        return;
+    }
+
+    if (cgs.voteRefreshed) {
+        cgs.voteRefreshed = qfalse;
+    }
+
+    seconds = (30000 - (cg.time - cgs.voteTime)) / 1000 + 1;
+    if (seconds < 0) {
+        seconds = 0;
+    }
+
+    percentYes       = cgs.numVotesYes * 100 / (cgs.numUndecidedVotes + cgs.numVotesNo + cgs.numVotesYes);
+    percentNo        = cgs.numVotesNo * 100 / (cgs.numUndecidedVotes + cgs.numVotesNo + cgs.numVotesYes);
+    percentUndecided = cgs.numUndecidedVotes * 100 / (cgs.numUndecidedVotes + cgs.numVotesNo + cgs.numVotesYes);
+
+    x = 8;
+    y = (cgs.glconfig.vidHeight > 480) ? (cgs.glconfig.vidHeight * 0.725f) : (cgs.glconfig.vidHeight * 0.75f);
+
+    cgi.R_SetColor(NULL);
+
+    text = va("%s: %s", cgi.LV_ConvertString("Vote Running"), cgs.voteString);
+    cgi.R_DrawString(cgs.media.attackerFont, text, x, y, -1, qfalse);
+
+    y += 12;
+    text =
+        va("%s: %isec  %s: %i%%  %s: %i%%  %s: %i%%",
+           cgi.LV_ConvertString("Time"),
+           seconds,
+           cgi.LV_ConvertString("Yes"),
+           percentYes,
+           cgi.LV_ConvertString("No"),
+           percentNo,
+           cgi.LV_ConvertString("Undecided"),
+           percentUndecided);
+    cgi.R_DrawString(cgs.media.attackerFont, text, x, y, -1, qfalse);
+
+    if (cg.snap && !cg.snap->ps.voted) {
+        col[0] = 0.5;
+        col[1] = 1.0;
+        col[2] = 0.5;
+        col[3] = 1.0;
+        cgi.R_SetColor(col);
+
+        text = cgi.LV_ConvertString("Vote now, it's your patriotic duty!");
+        cgi.R_DrawString(cgs.media.attackerFont, text, x, y, -1, qfalse);
+
+        text = cgi.LV_ConvertString("To vote Yes, press F1. To vote No, press F2.");
+        cgi.R_DrawString(cgs.media.attackerFont, text, x, y, -1, qfalse);
+        cgi.R_SetColor(NULL);
+    }
+}
+
 /*
 ==============
 CG_Draw2D
@@ -1187,5 +1334,7 @@ void CG_Draw2D(void)
     CG_DrawPlayerTeam();
     CG_DrawPlayerEntInfo();
     CG_UpdateAttackerDisplay();
+    CG_DrawVote();
     CG_DrawInstantMessageMenu();
+    CG_DrawCrosshair();
 }
