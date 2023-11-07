@@ -4938,7 +4938,9 @@ void CL_ShutdownUI(void)
         hudList.RemoveObjectAt(i);
     }
 
-    crosshairhud       = menuManager.FindMenu("crosshair");
+    // Removed in 2.0
+    //  Crosshair is now handled by the cgame module
+    //crosshairhud       = menuManager.FindMenu("crosshair");
     hud_weapons        = menuManager.FindMenu("hud_weapons");
     hud_items          = menuManager.FindMenu("hud_items");
     hud_health         = menuManager.FindMenu("hud_health");
@@ -5226,7 +5228,9 @@ void CL_InitializeUI(void)
     uWinMan.CreateMenus();
 
     // find the crosshair
-    crosshairhud = menuManager.FindMenu("crosshair");
+    // Removed in 2.0
+    //  Crosshair is now handled by the cgame module
+    //crosshairhud = menuManager.FindMenu("crosshair");
     // find weapons hud
     hud_weapons = menuManager.FindMenu("hud_weapons");
     // find items hud
