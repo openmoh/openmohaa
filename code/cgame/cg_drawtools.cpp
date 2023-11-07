@@ -1290,6 +1290,7 @@ void CG_DrawVote()
     cgi.R_DrawString(cgs.media.attackerFont, text, x, y, -1, qfalse);
 
     y += 12;
+
     text =
         va("%s: %isec  %s: %i%%  %s: %i%%  %s: %i%%",
            cgi.LV_ConvertString("Time"),
@@ -1308,6 +1309,8 @@ void CG_DrawVote()
         col[2] = 0.5;
         col[3] = 1.0;
         cgi.R_SetColor(col);
+
+        y += 12;
 
         text = cgi.LV_ConvertString("Vote now, it's your patriotic duty!");
         cgi.R_DrawString(cgs.media.attackerFont, text, x, y, -1, qfalse);
