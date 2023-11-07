@@ -1316,6 +1316,8 @@ void CG_DrawVote()
         text = cgi.LV_ConvertString("Vote now, it's your patriotic duty!");
         cgi.R_DrawString(cgs.media.attackerFont, text, x, y, -1, qfalse);
 
+        y += 12;
+
         text = cgi.LV_ConvertString("To vote Yes, press F1. To vote No, press F2.");
         cgi.R_DrawString(cgs.media.attackerFont, text, x, y, -1, qfalse);
         cgi.R_SetColor(NULL);
