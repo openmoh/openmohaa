@@ -36,6 +36,7 @@ static int Cover_HideTime(int iTeam)
 bool Actor::Cover_IsValid(PathNode *node)
 {
     Vector sight_origin = node->origin + eyeposition;
+
     if (node->IsClaimedByOther(this)) {
         return false;
     }
@@ -129,7 +130,8 @@ void Actor::Cover_FindCover(bool bCheckAll)
     }
 
     if (!m_iPotentialCoverCount) {
-        m_iPotentialCoverCount = PathManager.FindPotentialCover(this, origin, m_Enemy, m_pPotentialCoverNode, 16);
+        m_iPotentialCoverCount =
+            PathManager.FindPotentialCover(this, origin, m_Enemy, m_pPotentialCoverNode, MAX_COVER_NODES);
     }
 
     if (!m_iPotentialCoverCount) {
@@ -181,7 +183,7 @@ void Actor::Begin_Cover(void)
         return;
     }
 
-    TransitionState(ACTOR_STATE_COVER_START, 0);
+    TransitionState(ACTOR_STATE_COVER_NEW_ENEMY, 0);
 
     if (level.inttime < m_iEnemyChangeTime + 200) {
         SetLeashHome(origin);
@@ -279,6 +281,11 @@ void Actor::State_Cover_FinishReloading(void)
 
     if (pWeapon && eFireType != FT_PROJECTILE && eFireType != FT_SPECIAL_PROJECTILE
         && (m_csSpecialAttack = m_pCoverNode->GetSpecialAttack(this)) != 0) {
+        SetDesiredYaw(m_pCoverNode->angles.yaw());
+        SafeSetOrigin(m_pCoverNode->origin);
+        DesiredAnimation(ANIM_MODE_NORMAL, m_csSpecialAttack);
+        TransitionState(ACTOR_STATE_COVER_SPECIAL_ATTACK, 0);
+    } else {
         if (m_pCoverNode->nodeflags & AI_DUCK) {
             Anim_Crouch();
         } else {
@@ -289,11 +296,6 @@ void Actor::State_Cover_FinishReloading(void)
 
         Anim_Aim();
         AimAtTargetPos();
-    } else {
-        SetDesiredYaw(m_pCoverNode->angles.yaw());
-        SafeSetOrigin(m_pCoverNode->origin);
-        DesiredAnimation(ANIM_MODE_NORMAL, m_csSpecialAttack);
-        TransitionState(ACTOR_STATE_COVER_SPECIAL_ATTACK, 0);
     }
 }
 
@@ -310,7 +312,7 @@ void Actor::State_Cover_Target(void)
     Anim_Aim();
     AimAtTargetPos();
 
-    if (level.inttime < m_iStateTime + 300) {
+    if (level.inttime <= m_iStateTime + 300) {
         return;
     }
 
@@ -474,6 +476,7 @@ void Actor::State_Cover_Shoot(void)
     Anim_Shoot();
     AimAtTargetPos();
 
+    // FIXME: debug build only?
     if (level.inttime > m_iStateTime + 10000) {
         gi.cvar_set("g_monitornum", va("%i", entnum));
         assert(!"anim/shoot.scr took over 10 seconds");
@@ -628,7 +631,7 @@ void Actor::Think_Cover(void)
         m_bLockThinkState = false;
         if (m_Enemy) {
             if (m_State == ACTOR_STATE_COVER_FAKE_ENEMY) {
-                TransitionState(ACTOR_STATE_COVER_START, 0);
+                TransitionState(ACTOR_STATE_COVER_NEW_ENEMY, 0);
             }
         } else {
             if (m_State != ACTOR_STATE_COVER_FAKE_ENEMY) {
