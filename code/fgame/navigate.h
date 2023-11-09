@@ -159,7 +159,7 @@ public:
     PathNode       *PrevNode;
     PathNode       *NextNode;
     short int       pathway;
-    vec_t          *m_PathPos;
+    const vec_t    *m_PathPos;
     float           dist;
     float           dir[2];
     int             nodeflags;
@@ -278,13 +278,13 @@ public:
     static void UpdateNode(PathNode *node);
 
     static MapCell *GetNodesInCell(int x, int y);
-    static MapCell *GetNodesInCell(float *pos);
+    static MapCell *GetNodesInCell(const vec3_t pos);
 
-    static class PathNode *DebugNearestStartNode(float *pos, Entity *ent = NULL);
-    static class PathNode *NearestStartNode(float *pos, class SimpleActor *ent);
-    static class PathNode *NearestEndNode(float *pos);
-    static int             DebugNearestNodeList(float *pos, PathNode **nodelist, int iMaxNodes);
-    static int             DebugNearestNodeList2(float *pos, PathNode **nodelist, int iMaxNodes);
+    static class PathNode *DebugNearestStartNode(const vec3_t pos, Entity *ent = NULL);
+    static class PathNode *NearestStartNode(const vec3_t pos, class SimpleActor *ent);
+    static class PathNode *NearestEndNode(const vec3_t pos);
+    static int             DebugNearestNodeList(const vec3_t pos, PathNode **nodelist, int iMaxNodes);
+    static int             DebugNearestNodeList2(const vec3_t pos, PathNode **nodelist, int iMaxNodes);
 
     static void  ShowNodes(void);
     static void  LoadNodes(void);
@@ -301,30 +301,37 @@ public:
     static class PathNode *GetSpawnNode(ClassDef *cls);
 
     static int FindPath(
-        float *start, float *end, Entity *ent, float maxPath, float *vLeashHome, float fLeashDistSquared, int fallheight
+        const vec3_t start,
+        const vec3_t end,
+        Entity      *ent,
+        float        maxPath,
+        const vec3_t vLeashHome,
+        float        fLeashDistSquared,
+        int          fallheight
     );
     static int FindPathAway(
-        float  *start,
-        float  *avoid,
-        float  *vPreferredDir,
-        Entity *ent,
-        float   fMinSafeDist,
-        float  *vLeashHome,
-        float   fLeashDistSquared,
-        int     fallheight
+        const vec3_t start,
+        const vec3_t avoid,
+        const vec3_t vPreferredDir,
+        Entity      *ent,
+        float        fMinSafeDist,
+        const vec3_t vLeashHome,
+        float        fLeashDistSquared,
+        int          fallheight
     );
     static int FindPathNear(
-        float  *start,
-        float  *end,
-        Entity *ent,
-        float   maxPath,
-        float   fRadiusSquared,
-        float  *vLeashHome,
-        float   fLeashDistSquared,
-        int     fallheight
+        const vec3_t start,
+        const vec3_t end,
+        Entity      *ent,
+        float        maxPath,
+        float        fRadiusSquared,
+        const vec3_t vLeashHome,
+        float        fLeashDistSquared,
+        int          fallheight
     );
-    static class PathNode *
-    FindCornerNodeForWall(float *start, float *end, class SimpleActor *ent, float maxPath, float *plane);
+    static class PathNode *FindCornerNodeForWall(
+        const vec3_t start, const vec3_t end, class SimpleActor *ent, float maxPath, const vec4_t plane
+    );
     static class PathNode *FindCornerNodeForExactPath(class SimpleActor *self, Sentient *enemy, float fMaxPath);
     static int
     FindPotentialCover(class SimpleActor *pEnt, Vector& vPos, Entity *pEnemy, PathNode **ppFoundNodes, int iMaxFind);
@@ -333,7 +340,7 @@ public:
     static class PathNode *FindNearestSniperNode(class SimpleActor *pEnt, Vector& vPos, Entity *pEnemy);
 
 private:
-    static int NearestNodeSetup(vec3_t pos, MapCell *cell, int *nodes, vec3_t *deltas);
+    static int NearestNodeSetup(const vec3_t pos, MapCell *cell, int *nodes, vec3_t *deltas);
 };
 
 inline MapCell::~MapCell()

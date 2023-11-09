@@ -46,12 +46,12 @@ cvar_t *ai_debugpath;
 cvar_t *ai_pathchecktime;
 cvar_t *ai_pathcheckdist;
 
-static float    *path_start;
-static float    *path_end;
-static PathNode *Node;
-static float     path_totaldir[2];
-static float     path_p[3];
-static float     path_startdir[2];
+static const vec_t *path_start;
+static const vec_t *path_end;
+static PathNode    *Node;
+static vec2_t       path_totaldir;
+static vec3_t       path_p;
+static vec2_t       path_startdir;
 
 static Entity *IgnoreObjects[MAX_GENTITIES];
 static int     NumIgnoreObjects;
@@ -295,7 +295,13 @@ PathInfo *PathSearch::GeneratePathAway(PathInfo *path)
 }
 
 int PathSearch::FindPath(
-    float *start, float *end, Entity *ent, float maxPath, float *vLeashHome, float fLeashDistSquared, int fallheight
+    const vec3_t start,
+    const vec3_t end,
+    Entity      *ent,
+    float        maxPath,
+    const vec3_t vLeashHome,
+    float        fLeashDistSquared,
+    int          fallheight
 )
 {
     int        i;
@@ -466,14 +472,14 @@ int PathSearch::FindPath(
 }
 
 int PathSearch::FindPathNear(
-    float  *start,
-    float  *end,
-    Entity *ent,
-    float   maxPath,
-    float   fRadiusSquared,
-    float  *vLeashHome,
-    float   fLeashDistSquared,
-    int     fallheight
+    const vec3_t start,
+    const vec3_t end,
+    Entity      *ent,
+    float        maxPath,
+    float        fRadiusSquared,
+    const vec3_t vLeashHome,
+    float        fLeashDistSquared,
+    int          fallheight
 )
 {
     int        i;
@@ -638,14 +644,14 @@ int PathSearch::FindPathNear(
 }
 
 int PathSearch::FindPathAway(
-    float  *start,
-    float  *avoid,
-    float  *vPreferredDir,
-    Entity *ent,
-    float   fMinSafeDist,
-    float  *vLeashHome,
-    float   fLeashDistSquared,
-    int     fallheight
+    const vec3_t start,
+    const vec3_t avoid,
+    const vec3_t vPreferredDir,
+    Entity      *ent,
+    float        fMinSafeDist,
+    const vec3_t vLeashHome,
+    float        fLeashDistSquared,
+    int          fallheight
 )
 {
     int        i;
@@ -811,7 +817,9 @@ int PathSearch::FindPathAway(
     return Node->m_Depth;
 }
 
-PathNode *PathSearch::FindCornerNodeForWall(float *start, float *end, SimpleActor *ent, float maxPath, float *plane)
+PathNode *PathSearch::FindCornerNodeForWall(
+    const vec3_t start, const vec3_t end, SimpleActor *ent, float maxPath, const vec4_t plane
+)
 {
     int        i, g;
     PathNode  *NewNode;
@@ -1729,7 +1737,7 @@ MapCell *PathSearch::GetNodesInCell(int x, int y)
     return &PathMap[x][y];
 }
 
-MapCell *PathSearch::GetNodesInCell(float *pos)
+MapCell *PathSearch::GetNodesInCell(const vec3_t pos)
 {
     int x;
     int y;
@@ -1740,7 +1748,7 @@ MapCell *PathSearch::GetNodesInCell(float *pos)
     return GetNodesInCell(x, y);
 }
 
-int PathSearch::DebugNearestNodeList(float *pos, PathNode **nodelist, int iMaxNodes)
+int PathSearch::DebugNearestNodeList(const vec3_t pos, PathNode **nodelist, int iMaxNodes)
 {
     PathNode *node;
     int       i;
@@ -1799,7 +1807,7 @@ int PathSearch::DebugNearestNodeList(float *pos, PathNode **nodelist, int iMaxNo
     return 0;
 }
 
-int PathSearch::DebugNearestNodeList2(float *pos, PathNode **nodelist, int iMaxNodes)
+int PathSearch::DebugNearestNodeList2(const vec3_t pos, PathNode **nodelist, int iMaxNodes)
 {
     vec3_t       delta;
     PathNode    *node;
@@ -1846,7 +1854,7 @@ int PathSearch::DebugNearestNodeList2(float *pos, PathNode **nodelist, int iMaxN
     return n;
 }
 
-PathNode *PathSearch::DebugNearestStartNode(float *pos, Entity *ent)
+PathNode *PathSearch::DebugNearestStartNode(const vec3_t pos, Entity *ent)
 {
     PathNode *node = NULL;
     int       i;
@@ -1896,7 +1904,7 @@ PathNode *PathSearch::DebugNearestStartNode(float *pos, Entity *ent)
     return NULL;
 }
 
-PathNode *PathSearch::NearestStartNode(float *pos, SimpleActor *ent)
+PathNode *PathSearch::NearestStartNode(const vec3_t pos, SimpleActor *ent)
 {
     PathNode *node = NULL;
     int       i;
@@ -1963,7 +1971,7 @@ PathNode *PathSearch::NearestStartNode(float *pos, SimpleActor *ent)
     return ent->m_NearestNode;
 }
 
-PathNode *PathSearch::NearestEndNode(float *pos)
+PathNode *PathSearch::NearestEndNode(const vec3_t pos)
 {
     PathNode *node = NULL;
     int       i;
@@ -3042,7 +3050,7 @@ void PathNode::ArchiveDynamic(Archiver& arc)
     }
 }
 
-int PathSearch::NearestNodeSetup(vec3_t pos, MapCell *cell, int *nodes, vec3_t *deltas)
+int PathSearch::NearestNodeSetup(const vec3_t pos, MapCell *cell, int *nodes, vec3_t *deltas)
 {
     vec3_t    delta;
     PathNode *node;
