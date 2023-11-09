@@ -120,14 +120,16 @@ typedef enum {
     IN_CLOSED
 } pathlist_t;
 
-#define PATH_DONT_LINK       1
-#define AI_DUCK              2
-#define AI_COVER             4
-#define AI_CONCEALMENT       8
-#define AI_CORNER_LEFT       16
-#define AI_CORNER_RIGHT      32
-#define AI_SNIPER            64
-#define AI_CRATE             128
+#define PATH_DONT_LINK  1
+#define AI_DUCK         2
+#define AI_COVER        4
+#define AI_CONCEALMENT  8
+#define AI_CORNER_LEFT  16
+#define AI_CORNER_RIGHT 32
+#define AI_SNIPER       64
+#define AI_CRATE        128
+// Added in 2.0
+#define AI_LOW_WALL_ARC      256
 
 #define AI_COVERFLAGS        (AI_CRATE | AI_SNIPER | AI_CORNER_RIGHT | AI_CORNER_LEFT | AI_CONCEALMENT | AI_COVER)
 #define AI_COVERFLAGS2       (AI_SNIPER | AI_CORNER_RIGHT | AI_CORNER_LEFT | AI_CONCEALMENT)
@@ -165,6 +167,7 @@ public:
     int             iAvailableTime;
     int             nodenum;
     short int       m_Depth;
+    float           m_fLowWallArc;
 
     friend class PathSearch;
     friend void DrawAllConnections(void);
@@ -172,16 +175,17 @@ public:
 private:
     void ConnectTo(PathNode *node);
     void SetNodeFlags(Event *ev);
+    void SetLowWallArc(Event *ev); // Added in 2.0
     void Remove(Event *ev);
 
 public:
     CLASS_PROTOTYPE(PathNode);
 
-    void *operator new(size_t size);
-    void  operator delete(void *ptr);
-
     PathNode();
     virtual ~PathNode();
+
+    void *operator new(size_t size);
+    void  operator delete(void *ptr);
 
     void Archive(Archiver& arc) override;
     void ArchiveDynamic(Archiver& arc);
@@ -206,13 +210,6 @@ public:
 };
 
 typedef SafePtr<PathNode> PathNodePtr;
-
-class nodeinfo
-{
-public:
-    PathNode *pNode;
-    float     fDistSquared;
-};
 
 #define PATHMAP_CELLSIZE 256
 #define PATHMAP_GRIDSIZE (MAX_MAP_BOUNDS * 2 / PATHMAP_CELLSIZE)
@@ -272,33 +269,40 @@ public:
     PathSearch();
     virtual ~PathSearch();
 
-    static void            ArchiveStaticLoad(Archiver           &arc);
-    static void            ArchiveStaticSave(Archiver           &arc);
-    static bool            ArchiveDynamic(Archiver           &arc);
-    static void            AddNode(PathNode *node);
-    static void            Connect(PathNode *node);
-    static void            UpdateNode(PathNode *node);
-    static MapCell        *GetNodesInCell(int x, int y);
-    static MapCell        *GetNodesInCell(float *pos);
+    static void ArchiveStaticLoad(Archiver& arc);
+    static void ArchiveStaticSave(Archiver& arc);
+    static bool ArchiveDynamic(Archiver& arc);
+
+    static void AddNode(PathNode *node);
+    static void Connect(PathNode *node);
+    static void UpdateNode(PathNode *node);
+
+    static MapCell *GetNodesInCell(int x, int y);
+    static MapCell *GetNodesInCell(float *pos);
+
     static class PathNode *DebugNearestStartNode(float *pos, Entity *ent = NULL);
     static class PathNode *NearestStartNode(float *pos, class SimpleActor *ent);
     static class PathNode *NearestEndNode(float *pos);
     static int             DebugNearestNodeList(float *pos, PathNode **nodelist, int iMaxNodes);
     static int             DebugNearestNodeList2(float *pos, PathNode **nodelist, int iMaxNodes);
-    static void            ShowNodes(void);
-    static void            LoadNodes(void);
-    static void            CreatePaths(void);
-    static void           *AllocPathNode(void);
-    static void            FreePathNode(void *);
-    static void            ResetNodes(void);
-    static void            UpdatePathwaysForBadPlace(const Vector           &origin, float radius, int dir, int team);
-    static PathInfo       *GeneratePath(PathInfo *path);
-    static PathInfo       *GeneratePathNear(PathInfo *path);
-    static PathInfo       *GeneratePathAway(PathInfo *path);
+
+    static void  ShowNodes(void);
+    static void  LoadNodes(void);
+    static void  CreatePaths(void);
+    static void *AllocPathNode(void);
+    static void  FreePathNode(void *);
+    static void  ResetNodes(void);
+
+    static void      UpdatePathwaysForBadPlace(const Vector     &origin, float radius, int dir, int team);
+    static PathInfo *GeneratePath(PathInfo *path);
+    static PathInfo *GeneratePathNear(PathInfo *path);
+    static PathInfo *GeneratePathAway(PathInfo *path);
+
     static class PathNode *GetSpawnNode(ClassDef *cls);
-    static int             FindPath(
-                    float *start, float *end, Entity *ent, float maxPath, float *vLeashHome, float fLeashDistSquared, int fallheight
-                );
+
+    static int FindPath(
+        float *start, float *end, Entity *ent, float maxPath, float *vLeashHome, float fLeashDistSquared, int fallheight
+    );
     static int FindPathAway(
         float  *start,
         float  *avoid,
@@ -332,7 +336,17 @@ private:
     static int NearestNodeSetup(vec3_t pos, MapCell *cell, int *nodes, vec3_t *deltas);
 };
 
+inline MapCell::~MapCell()
+{
+    numnodes = 0;
+    nodes    = NULL;
+}
+
 extern PathSearch PathManager;
+
+//===============
+// Added in OPM
+//===============
 
 PathNode *AI_FindNode(const char *name);
 void      AI_AddNode(PathNode *node);

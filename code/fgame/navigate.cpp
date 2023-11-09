@@ -114,6 +114,1034 @@ PathSearch PathManager;
 
 int path_checksthisframe;
 
+PathInfo *PathSearch::GeneratePath(PathInfo *path)
+{
+    PathNode  *ParentNode;
+    pathway_t *pathway;
+    float      dist;
+    float      dir[2];
+    PathInfo  *current_path;
+
+    current_path = path;
+
+    dir[0] = path_end[0] - Node->m_PathPos[0];
+    dir[1] = path_end[1] - Node->m_PathPos[1];
+
+    dist = VectorNormalize2D(dir);
+
+    total_dist = dist + Node->g;
+
+    path->point[0] = path_end[0];
+    path->point[1] = path_end[1];
+    path->point[2] = path_end[2];
+
+    ParentNode = Node->Parent;
+    if (ParentNode) {
+        pathway = &ParentNode->Child[Node->pathway];
+
+        path->dir[0] = path_end[0] - pathway->pos2[0];
+        path->dir[1] = path_end[1] - pathway->pos2[1];
+        path->dist   = VectorNormalize2D(path->dir);
+
+        if (path->dist) {
+            path->bAccurate = false;
+            current_path    = path + 1;
+        }
+
+        if (pathway->dist) {
+            VectorCopy(pathway->pos2, current_path->point);
+            current_path->dir[0]    = pathway->dir[0];
+            current_path->dir[1]    = pathway->dir[1];
+            current_path->dist      = pathway->dist;
+            current_path->bAccurate = true;
+            current_path++;
+        }
+
+        for (Node = ParentNode, ParentNode = ParentNode->Parent; ParentNode != NULL;
+             Node = ParentNode, ParentNode = ParentNode->Parent) {
+            pathway = &ParentNode->Child[Node->pathway];
+            if (pathway->dist) {
+                VectorCopy(pathway->pos2, current_path->point);
+                current_path->dir[0]    = pathway->dir[0];
+                current_path->dir[1]    = pathway->dir[1];
+                current_path->dist      = pathway->dist;
+                current_path->bAccurate = true;
+                current_path++;
+            }
+        }
+
+        VectorCopy(pathway->pos1, current_path->point);
+        current_path->dir[0] = path_startdir[0];
+        current_path->dir[1] = path_startdir[1];
+        current_path->dist   = Node->g;
+    } else {
+        path->dir[0] = path_totaldir[0];
+        path->dir[1] = path_totaldir[1];
+        path->dist   = Node->h;
+    }
+
+    if (current_path->dist) {
+        current_path->bAccurate = false;
+        current_path++;
+
+        VectorCopy(path_start, current_path->point);
+        current_path->dist = 0;
+        VectorClear2D(current_path->dir);
+    }
+
+    current_path->bAccurate = false;
+    return current_path;
+}
+
+PathInfo *PathSearch::GeneratePathNear(PathInfo *path)
+{
+    PathInfo  *current_path = path;
+    pathway_t *pathway;
+    PathNode  *ParentNode;
+
+    total_dist = Node->g;
+    VectorCopy(Node->m_PathPos, path->point);
+
+    ParentNode = Node->Parent;
+    if (ParentNode) {
+        pathway = &ParentNode->Child[Node->pathway];
+
+        if (pathway->dist) {
+            VectorCopy(pathway->pos2, path->point);
+            path->dir[0] = pathway->dir[0];
+            path->dir[1] = pathway->dir[1];
+            path->dist   = pathway->dist;
+
+            current_path->bAccurate = true;
+            current_path++;
+        }
+
+        for (Node = ParentNode, ParentNode = ParentNode->Parent; ParentNode != NULL;
+             Node = ParentNode, ParentNode = ParentNode->Parent) {
+            pathway = &ParentNode->Child[Node->pathway];
+            if (pathway->dist) {
+                VectorCopy(pathway->pos2, current_path->point);
+                current_path->dir[0]    = pathway->dir[0];
+                current_path->dir[1]    = pathway->dir[1];
+                current_path->dist      = pathway->dist;
+                current_path->bAccurate = true;
+                current_path++;
+            }
+        }
+
+        VectorCopy(pathway->pos1, current_path->point);
+        current_path->dir[0] = path_startdir[0];
+        current_path->dir[1] = path_startdir[1];
+
+        current_path->dist = Node->g;
+    } else {
+        path->dir[0] = path_totaldir[0];
+        path->dir[1] = path_totaldir[1];
+        path->dist   = Node->h;
+    }
+
+    if (current_path->dist) {
+        current_path->bAccurate = false;
+        current_path++;
+
+        VectorCopy(path_start, current_path->point);
+        current_path->dist = 0;
+        VectorClear2D(current_path->dir);
+    }
+
+    current_path->bAccurate = false;
+    return current_path;
+}
+
+PathInfo *PathSearch::GeneratePathAway(PathInfo *path)
+{
+    PathInfo  *current_path = path;
+    pathway_t *pathway;
+    PathNode  *ParentNode;
+
+    VectorCopy(Node->m_PathPos, path->point);
+
+    ParentNode = Node->Parent;
+    if (ParentNode) {
+        pathway = &ParentNode->Child[Node->pathway];
+
+        if (pathway->dist) {
+            VectorCopy(pathway->pos2, path->point);
+            path->dir[0] = pathway->dir[0];
+            path->dir[1] = pathway->dir[1];
+            path->dist   = pathway->dist;
+
+            current_path->bAccurate = true;
+            current_path++;
+        }
+
+        for (Node = ParentNode, ParentNode = ParentNode->Parent; ParentNode != NULL;
+             Node = ParentNode, ParentNode = ParentNode->Parent) {
+            pathway = &ParentNode->Child[Node->pathway];
+            if (pathway->dist) {
+                VectorCopy(pathway->pos2, current_path->point);
+                current_path->dir[0]    = pathway->dir[0];
+                current_path->dir[1]    = pathway->dir[1];
+                current_path->dist      = pathway->dist;
+                current_path->bAccurate = true;
+                current_path++;
+            }
+        }
+
+        VectorCopy(pathway->pos1, current_path->point);
+        current_path->dir[0] = path_startdir[0];
+        current_path->dir[1] = path_startdir[1];
+
+        current_path->dist = Node->g;
+
+        if (Node->g) {
+            current_path->bAccurate = false;
+            current_path++;
+            VectorCopy(path_start, current_path->point);
+            current_path->dist = 0;
+            VectorClear2D(current_path->dir);
+        }
+    } else {
+        VectorClear2D(path->dir);
+        path->dist = 0;
+    }
+
+    current_path->bAccurate = false;
+    return current_path;
+}
+
+int PathSearch::FindPath(
+    float *start, float *end, Entity *ent, float maxPath, float *vLeashHome, float fLeashDistSquared, int fallheight
+)
+{
+    int        i;
+    int        g;
+    PathNode  *NewNode;
+    pathway_t *pathway;
+    PathNode  *prev;
+    PathNode  *next;
+    int        f;
+    vec2_t     delta;
+    PathNode  *to;
+
+    if (ent) {
+        if (ent->IsSubclassOfActor()) {
+            Node = NearestStartNode(start, (SimpleActor *)ent);
+        } else {
+            Node = DebugNearestStartNode(start, ent);
+        }
+    } else {
+        Node = DebugNearestStartNode(start);
+    }
+
+    if (!Node) {
+        last_error = "couldn't find start node";
+        return 0;
+    }
+
+    to = NearestEndNode(end);
+    if (!to) {
+        last_error = "couldn't find end node";
+        return 0;
+    }
+
+    total_dist = 1e+12f;
+
+    if (!maxPath) {
+        maxPath = 1e+12f;
+    }
+
+    findFrame++;
+    open = NULL;
+
+    VectorSub2D(Node->origin, start, path_startdir);
+    Node->g = VectorNormalize2D(path_startdir);
+
+    VectorSub2D(end, start, path_totaldir);
+    Node->h = VectorNormalize2D(path_totaldir);
+
+    Node->Parent    = NULL;
+    Node->m_Depth   = 3;
+    Node->findCount = findFrame;
+    Node->inopen    = true;
+    Node->PrevNode  = NULL;
+    Node->NextNode  = NULL;
+    Node->m_PathPos = start;
+
+    open = Node;
+
+    while (open) {
+        Node         = open;
+        Node->inopen = false;
+        open         = Node->NextNode;
+
+        if (open) {
+            open->PrevNode = NULL;
+        }
+
+        if (Node == to) {
+            path_start = start;
+            path_end   = end;
+            return Node->m_Depth;
+        }
+
+        for (i = Node->numChildren - 1; i >= 0; i--) {
+            vec2_t vDist;
+
+            pathway = &Node->Child[i];
+
+            NewNode = pathnodes[pathway->node];
+
+            if (vLeashHome) {
+                VectorSub2D(pathway->pos2, vLeashHome, vDist);
+                if (VectorLength2DSquared(vDist) > fLeashDistSquared) {
+                    continue;
+                }
+            }
+
+            g = (int)(pathway->dist + Node->g + 1.0f);
+
+            if (NewNode->findCount == findFrame) {
+                if (NewNode->g <= g) {
+                    continue;
+                }
+
+                if (NewNode->inopen) {
+                    NewNode->inopen = false;
+                    next            = NewNode->NextNode;
+                    prev            = NewNode->PrevNode;
+
+                    if (next) {
+                        next->PrevNode = prev;
+                    }
+
+                    if (prev) {
+                        prev->NextNode = next;
+                    } else {
+                        open = next;
+                    }
+                }
+            }
+
+            VectorSub2D(end, pathway->pos2, delta);
+            NewNode->h = VectorLength2D(delta);
+
+            f = (int)((float)g + NewNode->h);
+
+            if (f >= maxPath) {
+                last_error = "specified path distance exceeded";
+                return 0;
+            }
+
+            if (pathway->fallheight <= fallheight) {
+                NewNode->m_Depth   = Node->m_Depth + 1;
+                NewNode->Parent    = Node;
+                NewNode->pathway   = i;
+                NewNode->g         = (float)g;
+                NewNode->f         = (float)f;
+                NewNode->m_PathPos = pathway->pos2;
+                NewNode->findCount = findFrame;
+                NewNode->inopen    = 1;
+
+                if (!open) {
+                    NewNode->NextNode = NULL;
+                    NewNode->PrevNode = NULL;
+                    open              = NewNode;
+                    continue;
+                }
+
+                if (open->f >= f) {
+                    NewNode->NextNode = open;
+                    NewNode->PrevNode = NULL;
+
+                    open->PrevNode = NewNode;
+                    open           = NewNode;
+                    continue;
+                }
+
+                prev = open;
+                for (next = open->NextNode; next; next = next->NextNode) {
+                    if (next->f >= f) {
+                        break;
+                    }
+                    prev = next;
+                }
+
+                NewNode->NextNode = next;
+                if (next) {
+                    next->PrevNode = NewNode;
+                }
+                prev->NextNode    = NewNode;
+                NewNode->PrevNode = prev;
+            }
+        }
+    }
+
+    last_error = "unreachable path";
+    return 0;
+}
+
+int PathSearch::FindPathNear(
+    float  *start,
+    float  *end,
+    Entity *ent,
+    float   maxPath,
+    float   fRadiusSquared,
+    float  *vLeashHome,
+    float   fLeashDistSquared,
+    int     fallheight
+)
+{
+    int        i;
+    int        g;
+    PathNode  *NewNode;
+    pathway_t *pathway;
+    PathNode  *prev;
+    PathNode  *next;
+    int        f;
+    vec2_t     dir;
+    vec2_t     delta;
+
+    if (ent) {
+        if (ent->IsSubclassOfActor()) {
+            Node = NearestStartNode(start, (SimpleActor *)ent);
+        } else {
+            Node = DebugNearestStartNode(start, ent);
+        }
+    } else {
+        Node = DebugNearestStartNode(start);
+    }
+
+    if (!Node) {
+        last_error = "no start node";
+        return 0;
+    }
+
+    total_dist = 9e11f;
+
+    if (!maxPath) {
+        maxPath = 9e11f;
+    }
+
+    findFrame++;
+    open = NULL;
+
+    path_startdir[0] = Node->origin[0] - start[0];
+    path_startdir[1] = Node->origin[1] - start[1];
+
+    dir[0] = end[0] - start[0];
+    dir[1] = end[1] - start[1];
+
+    Node->inopen    = true;
+    Node->g         = VectorNormalize2D(path_startdir);
+    Node->h         = VectorNormalize2D(delta);
+    Node->Parent    = NULL;
+    Node->m_Depth   = 3;
+    Node->findCount = findFrame;
+    Node->PrevNode  = NULL;
+    Node->NextNode  = NULL;
+    Node->m_PathPos = start;
+
+    open = Node;
+
+    while (1) {
+        Node         = open;
+        Node->inopen = false;
+
+        open = Node->NextNode;
+
+        if (open) {
+            open->PrevNode = NULL;
+        }
+
+        delta[0] = end[0] - Node->m_PathPos[0];
+        delta[1] = end[1] - Node->m_PathPos[1];
+
+        if (fRadiusSquared >= VectorLength2DSquared(delta)) {
+            break;
+        }
+
+        for (i = Node->numChildren - 1; i >= 0; i--) {
+            pathway = &Node->Child[i];
+            NewNode = pathnodes[pathway->node];
+
+            g = (int)(pathway->dist + Node->g + 1.0f);
+
+            if (NewNode->findCount == findFrame) {
+                if (g >= NewNode->g) {
+                    continue;
+                }
+
+                if (NewNode->inopen) {
+                    NewNode->inopen = false;
+                    next            = NewNode->NextNode;
+                    prev            = NewNode->PrevNode;
+
+                    if (next) {
+                        next->PrevNode = prev;
+                    }
+
+                    if (prev) {
+                        prev->NextNode = next;
+                    } else {
+                        open = next;
+                    }
+                }
+            }
+
+            delta[0] = end[0] - pathway->pos2[0];
+            delta[1] = end[1] - pathway->pos2[1];
+
+            NewNode->h = VectorLength2D(delta);
+            f          = (int)((float)g + NewNode->h);
+
+            if (f >= maxPath) {
+                last_error = "specified path distance exceeded";
+                return 0;
+            }
+
+            if (pathway->fallheight <= fallheight) {
+                NewNode->f         = f;
+                NewNode->pathway   = i;
+                NewNode->g         = g;
+                NewNode->Parent    = Node;
+                NewNode->m_Depth   = Node->m_Depth + 1;
+                NewNode->inopen    = true;
+                NewNode->m_PathPos = pathway->pos2;
+                NewNode->findCount = findFrame;
+
+                if (!open) {
+                    NewNode->NextNode = NULL;
+                    NewNode->PrevNode = NULL;
+                    open              = NewNode;
+                    continue;
+                }
+
+                if (open->f >= f) {
+                    NewNode->PrevNode = NULL;
+                    NewNode->NextNode = open;
+
+                    open->PrevNode = NewNode;
+                    open           = NewNode;
+                    continue;
+                }
+
+                prev = open;
+                next = open->NextNode;
+                while (next && next->f < f) {
+                    prev = next;
+                    next = next->NextNode;
+                }
+
+                NewNode->NextNode = next;
+                if (next) {
+                    next->PrevNode = NewNode;
+                }
+                prev->NextNode    = NewNode;
+                NewNode->PrevNode = prev;
+            }
+        }
+
+        if (!open) {
+            last_error = "unreachable path";
+            return 0;
+        }
+    }
+
+    path_start = start;
+    path_end   = end;
+    return Node->m_Depth;
+}
+
+int PathSearch::FindPathAway(
+    float  *start,
+    float  *avoid,
+    float  *vPreferredDir,
+    Entity *ent,
+    float   fMinSafeDist,
+    float  *vLeashHome,
+    float   fLeashDistSquared,
+    int     fallheight
+)
+{
+    int        i;
+    int        g;
+    PathNode  *NewNode;
+    pathway_t *pathway;
+    PathNode  *prev;
+    PathNode  *next;
+    int        f;
+    float      fBias;
+    vec2_t     delta;
+    float      fMinSafeDistSquared = fMinSafeDist * fMinSafeDist;
+
+    if (ent) {
+        if (ent->IsSubclassOfActor()) {
+            Node = NearestStartNode(start, (SimpleActor *)ent);
+        } else {
+            Node = DebugNearestStartNode(start, ent);
+        }
+    } else {
+        Node = DebugNearestStartNode(start);
+    }
+
+    if (!Node) {
+        last_error = "couldn't find start node";
+        return 0;
+    }
+
+    findFrame++;
+    open = NULL;
+
+    path_startdir[0] = Node->origin[0] - start[0];
+    path_startdir[1] = Node->origin[1] - start[1];
+
+    delta[0] = start[0] - avoid[0];
+    delta[1] = start[1] - avoid[1];
+
+    fBias = VectorLength2D(vPreferredDir);
+
+    Node->inopen = true;
+    Node->g      = VectorNormalize2D(path_startdir);
+    Node->h      = fMinSafeDist - VectorNormalize2D(delta);
+    Node->h += fBias - DotProduct2D(vPreferredDir, delta);
+    Node->Parent    = NULL;
+    Node->m_Depth   = 2;
+    Node->findCount = findFrame;
+    Node->PrevNode  = NULL;
+    Node->NextNode  = NULL;
+    Node->m_PathPos = start;
+
+    open = Node;
+
+    while (1) {
+        Node         = open;
+        Node->inopen = false;
+
+        open = Node->NextNode;
+
+        if (open) {
+            open->PrevNode = NULL;
+        }
+
+        delta[0] = Node->m_PathPos[0] - avoid[0];
+        delta[1] = Node->m_PathPos[1] - avoid[1];
+
+        if (VectorLength2DSquared(delta) >= fMinSafeDistSquared) {
+            break;
+        }
+
+        for (i = Node->numChildren - 1; i >= 0; i--) {
+            vec2_t vDist;
+
+            pathway = &Node->Child[i];
+            NewNode = pathnodes[pathway->node];
+
+            if (vLeashHome) {
+                vDist[0] = pathway->pos2[0] - vLeashHome[0];
+                vDist[1] = pathway->pos2[1] - vLeashHome[1];
+            }
+
+            if (!vLeashHome || VectorLength2DSquared(vDist) <= fLeashDistSquared) {
+                g = (int)(pathway->dist + Node->g + 1.0f);
+
+                if (NewNode->findCount == findFrame) {
+                    if (g >= NewNode->g) {
+                        continue;
+                    }
+
+                    if (NewNode->inopen) {
+                        NewNode->inopen = false;
+                        next            = NewNode->NextNode;
+                        prev            = NewNode->PrevNode;
+
+                        if (next) {
+                            next->PrevNode = prev;
+                        }
+
+                        if (prev) {
+                            prev->NextNode = next;
+                        } else {
+                            open = next;
+                        }
+                    }
+                }
+
+                delta[0] = pathway->pos2[0] - avoid[0];
+                delta[1] = pathway->pos2[1] - avoid[1];
+
+                NewNode->h = fMinSafeDist - VectorNormalize2D(delta);
+                f          = NewNode->h + fBias - DotProduct2D(vPreferredDir, delta);
+                NewNode->h += f;
+
+                if (pathway->fallheight <= fallheight) {
+                    NewNode->Parent    = Node;
+                    NewNode->m_Depth   = Node->m_Depth + 1;
+                    NewNode->g         = g;
+                    NewNode->pathway   = i;
+                    NewNode->inopen    = true;
+                    NewNode->m_PathPos = pathway->pos2;
+                    NewNode->findCount = findFrame;
+                    NewNode->f         = f;
+
+                    if (!open) {
+                        NewNode->NextNode = NULL;
+                        NewNode->PrevNode = NULL;
+                        open              = NewNode;
+                        continue;
+                    }
+
+                    if (open->f >= f) {
+                        NewNode->PrevNode = NULL;
+                        NewNode->NextNode = open;
+
+                        open->PrevNode = NewNode;
+                        open           = NewNode;
+                        continue;
+                    }
+
+                    prev = open;
+                    next = open->NextNode;
+                    while (next && next->f < f) {
+                        prev = next;
+                        next = next->NextNode;
+                    }
+
+                    NewNode->NextNode = next;
+                    if (next) {
+                        next->PrevNode = NewNode;
+                    }
+                    prev->NextNode    = NewNode;
+                    NewNode->PrevNode = prev;
+                }
+            }
+        }
+
+        if (!open) {
+            last_error = "unreachable path";
+            return 0;
+        }
+    }
+
+    path_start = start;
+    return Node->m_Depth;
+}
+
+PathNode *PathSearch::FindCornerNodeForWall(float *start, float *end, SimpleActor *ent, float maxPath, float *plane)
+{
+    int        i, g;
+    PathNode  *NewNode;
+    pathway_t *pathway;
+    PathNode  *prev, *next;
+    int        f;
+    vec2_t     delta;
+
+    Node = NearestStartNode(start, ent);
+    if (!Node) {
+        last_error = "couldn't find start node";
+        return NULL;
+    }
+
+    if (DotProduct(start, plane) - plane[3] < 0.0) {
+        last_error = "starting point is already behind the wall";
+        return NULL;
+    }
+
+    if (DotProduct(plane, end) - plane[3] > 0.0) {
+        last_error = "end point is in front of the wall";
+        return NULL;
+    }
+
+    total_dist = 1.0e12f;
+
+    if (maxPath == 0.0) {
+        maxPath = 1.0e12f;
+    }
+
+    findFrame++;
+    open = NULL;
+
+    VectorSub2D(Node->origin, start, path_startdir);
+    Node->g = VectorNormalize2D(path_startdir);
+
+    VectorSub2D(end, start, path_totaldir);
+    Node->h = VectorNormalize2D(path_totaldir);
+
+    Node->inopen = true;
+
+    Node->Parent = NULL;
+
+    Node->m_Depth   = 3;
+    Node->m_PathPos = start;
+    Node->findCount = findFrame;
+    Node->PrevNode  = 0;
+    Node->NextNode  = 0;
+
+    open = Node;
+
+    if (!open) {
+        last_error = "unreachable path";
+        return NULL;
+    }
+
+    while (true) {
+        Node         = open;
+        Node->inopen = false;
+        open         = Node->NextNode;
+
+        if (open) {
+            open->PrevNode = NULL;
+        }
+
+        if (Node->Parent && DotProduct(plane, Node->m_PathPos) - plane[3] < 0.0) {
+            VectorSub2D(Node->Parent->m_PathPos, start, delta);
+            if (VectorLength2DSquared(delta) < Square(16)) {
+                return Node;
+            }
+            return Node->Parent;
+        }
+
+        i = Node->numChildren;
+        if (i) {
+            break;
+        }
+
+    weird_lbl:
+        if (!open) {
+            last_error = "unreachable path";
+            return NULL;
+        }
+    }
+
+    while (true) {
+        pathway = &Node->Child[--i];
+        NewNode = PathSearch::pathnodes[pathway->node];
+        g       = (pathway->dist + Node->g + 1.0);
+
+        if (NewNode->findCount == PathSearch::findFrame) {
+            if (g >= NewNode->g) {
+                if (i == 0) {
+                    goto weird_lbl;
+                }
+
+                continue;
+            }
+            if (NewNode->inopen) {
+                NewNode->inopen = false;
+
+                if (NewNode->NextNode) {
+                    NewNode->NextNode->PrevNode = NewNode->PrevNode;
+                }
+                if (NewNode->PrevNode) {
+                    NewNode->PrevNode->NextNode = NewNode->NextNode;
+                } else {
+                    PathSearch::open = NewNode->NextNode;
+                }
+            }
+        }
+
+        vec2_t vDelta2;
+        VectorSub2D(end, pathway->pos2, vDelta2);
+        NewNode->h = VectorLength2D(vDelta2);
+
+        f = (NewNode->h + g);
+
+        if (f >= maxPath) {
+            break;
+        }
+
+        NewNode->m_Depth   = Node->m_Depth + 1;
+        NewNode->Parent    = Node;
+        NewNode->pathway   = i;
+        NewNode->f         = f;
+        NewNode->g         = g;
+        NewNode->m_PathPos = pathway->pos2;
+        NewNode->findCount = PathSearch::findFrame;
+        NewNode->inopen    = true;
+
+        if (!PathSearch::open) {
+            NewNode->NextNode = NULL;
+            NewNode->PrevNode = NULL;
+            PathSearch::open  = NewNode;
+            if (i == 0) {
+                goto weird_lbl;
+            }
+
+            continue;
+        }
+
+        if (f <= open->f) {
+            NewNode->NextNode = PathSearch::open;
+            NewNode->PrevNode = NULL;
+            open->PrevNode    = NewNode;
+            open              = NewNode;
+            if (i == 0) {
+                goto weird_lbl;
+            }
+
+            continue;
+        }
+
+        prev = open;
+
+        PathNode *pNextOpenNode;
+        for (pNextOpenNode = open->NextNode; pNextOpenNode; pNextOpenNode = pNextOpenNode->NextNode) {
+            if (pNextOpenNode->f >= f) {
+                break;
+            }
+
+            prev = pNextOpenNode;
+        }
+
+        NewNode->NextNode = pNextOpenNode;
+
+        if (pNextOpenNode) {
+            pNextOpenNode->PrevNode = NewNode;
+        }
+
+        prev->NextNode    = NewNode;
+        NewNode->PrevNode = prev;
+
+        if (i == 0) {
+            goto weird_lbl;
+        }
+    }
+
+    PathSearch::last_error = "specified path distance exceeded";
+    return NULL;
+}
+
+PathNode *PathSearch::FindCornerNodeForExactPath(SimpleActor *pSelf, Sentient *enemy, float fMaxPath)
+{
+    PathNode *pPathNode[4096];
+    PathNode *pParentNode;
+    size_t    i, iDepth, index;
+
+    if (!PathSearch::FindPath(enemy->origin, pSelf->origin, pSelf, fMaxPath, 0, 0.0, 100)) {
+        return NULL;
+    }
+
+    for (pParentNode = Node->Parent, i = 0; pParentNode; pParentNode = pParentNode->Parent, i++) {
+        pPathNode[i] = pParentNode;
+    }
+
+    iDepth = i;
+    if (!iDepth) {
+        return NULL;
+    }
+
+    Node = pPathNode[iDepth - 1];
+
+    for (i = 1; i < iDepth; i += 2) {
+        if (!G_SightTrace(
+                pSelf->EyePosition(),
+                vec_zero,
+                vec_zero,
+                pSelf->EyePosition() - pSelf->origin + pPathNode[i]->m_PathPos,
+                pSelf,
+                enemy,
+                0x2040B19,
+                0,
+                "FindCornerNodeFoExactPath 1"
+            )) {
+            break;
+        }
+    }
+
+    index = i - 1;
+    if (index < iDepth) {
+        if (index) {
+            if (!G_SightTrace(
+                    pSelf->EyePosition(),
+                    vec_zero,
+                    vec_zero,
+                    pSelf->EyePosition() - pSelf->origin + pPathNode[index]->m_PathPos,
+                    pSelf,
+                    enemy,
+                    0x2040B19,
+                    0,
+                    "FindCornerNodeFoExactPath 2"
+                )) {
+                index--;
+            }
+        }
+    } else {
+        index = iDepth - 1;
+    }
+
+    return pPathNode[index];
+}
+
+void PathSearch::ResetNodes(void)
+{
+    int i;
+    int x;
+    int y;
+
+    m_bNodesloaded = false;
+    m_LoadIndex    = -1;
+
+    if (!startBulkNavMemory) {
+        for (x = PATHMAP_GRIDSIZE - 1; x >= 0; x--) {
+            for (y = PATHMAP_GRIDSIZE - 1; y >= 0; y--) {
+                if (PathMap[x][y].nodes) {
+                    gi.Free(PathMap[x][y].nodes);
+                }
+            }
+        }
+
+        for (i = 0; i < nodecount; i++) {
+            if (pathnodes[i]->Child) {
+                gi.Free(pathnodes[i]->Child);
+            }
+        }
+    }
+
+    for (x = PATHMAP_GRIDSIZE - 1; x >= 0; x--) {
+        for (y = PATHMAP_GRIDSIZE - 1; y >= 0; y--) {
+            PathMap[x][y].numnodes = 0;
+            PathMap[x][y].nodes    = NULL;
+        }
+    }
+
+    for (i = 0; i < nodecount; i++) {
+        delete pathnodes[i];
+        pathnodes[i] = NULL;
+    }
+
+    nodecount = 0;
+
+    // Free the bulk nav' memory
+    if (startBulkNavMemory) {
+        gi.Free(startBulkNavMemory);
+        bulkNavMemory      = NULL;
+        startBulkNavMemory = NULL;
+    }
+}
+
+void PathSearch::UpdatePathwaysForBadPlace(const Vector& origin, float radius, int dir, int team)
+{
+    float radiusSqr;
+    int   i, j, k;
+
+    radiusSqr = radius * radius;
+
+    for (i = 0; i < nodecount; i++) {
+        PathNode *node = pathnodes[i];
+
+        for (j = node->virtualNumChildren; j > 0; j--) {
+            pathway_t& pathway = node->Child[j - 1];
+            if (PointToSegmentDistanceSquared(origin, pathway.pos1, pathway.pos2) < radiusSqr) {
+                for (k = 0; k < 2; k++) {
+                    if ((1 << k) & team) {
+                        pathway.badPlaceTeam[k] += dir;
+                    }
+                }
+            }
+        }
+    }
+}
+
 void AI_AddNode(PathNode *node)
 {
     int i = PathSearch::nodecount;
@@ -133,116 +1161,6 @@ void AI_AddNode(PathNode *node)
     gi.Error(ERR_DROP, "Exceeded MAX_PATHNODES!\n");
 }
 
-qboolean CheckMove(Vector& origin, Vector& pos, short int *path_fallheight, float size)
-{
-    mmove_t mm;
-    int     i;
-    float   air_z;
-    float   fallheight;
-    float   test_fallheight;
-    float   error;
-    trace_t trace;
-    vec3_t  dir;
-    vec3_t  end;
-
-    memset(&mm, 0, sizeof(mmove_t));
-
-    VectorClear(mm.velocity);
-    VectorCopy(origin, mm.origin);
-    mm.desired_speed  = 150.0f;
-    mm.entityNum      = ENTITYNUM_NONE;
-    mm.tracemask      = MASK_PATHSOLID;
-    mm.frametime      = 0.1f;
-    mm.desired_dir[0] = pos[0] - origin[0];
-    mm.desired_dir[1] = pos[1] - origin[1];
-    VectorNormalize2D(mm.desired_dir);
-
-    mm.groundPlane = qfalse;
-    mm.walking     = qfalse;
-
-    mm.mins[0] = -size;
-    mm.mins[1] = -size;
-    mm.mins[2] = 0;
-    mm.maxs[0] = size;
-    mm.maxs[1] = size;
-    mm.maxs[2] = 94.0f;
-
-    testcount  = 0;
-    fallheight = 0.0f;
-    air_z      = mm.origin[2];
-
-    for (i = 200; i != 1; i--) {
-        testpos[i - 1] = mm.origin;
-        testcount++;
-
-        MmoveSingle(&mm);
-
-        if (mm.groundPlane) {
-            test_fallheight = air_z - mm.origin[2];
-
-            if (test_fallheight > fallheight) {
-                if (test_fallheight > 1024.0f) {
-                    return false;
-                }
-
-                fallheight = test_fallheight;
-            }
-
-            air_z = mm.origin[2];
-        }
-
-        dir[0] = pos[0] - mm.origin[0];
-        dir[1] = pos[1] - mm.origin[1];
-
-        if (DotProduct2D(dir, mm.desired_dir) <= 0.1f) {
-            error = mm.origin[2] - pos[2];
-
-            gi.Printf("error = %f\n", error);
-
-            *path_fallheight = (short)fallheight;
-            if (fabs(error) > 94.0f) {
-                if (mm.groundPlane) {
-                    return false;
-                }
-
-                mm.desired_dir[0] = dir[0];
-                mm.desired_dir[1] = dir[1];
-                VectorNormalize2D(mm.desired_dir);
-            } else if (error > 0.0f && !mm.groundPlane) {
-                end[0] = mm.origin[0];
-                end[1] = mm.origin[1];
-                end[2] = pos[2];
-
-                trace = G_Trace(mm.origin, mm.mins, mm.maxs, end, NULL, MASK_PATHSOLID, true, "CheckMove");
-
-                test_fallheight = mm.origin[2] - trace.endpos[2];
-
-                if (test_fallheight <= 18.0f) {
-                    *path_fallheight = (short)test_fallheight + fallheight;
-                    return test_fallheight + fallheight <= 1024.0f;
-                }
-
-                if (mm.groundPlane) {
-                    return false;
-                }
-
-                mm.desired_dir[0] = dir[0];
-                mm.desired_dir[1] = dir[1];
-                VectorNormalize2D(mm.desired_dir);
-            } else {
-                return true;
-            }
-        }
-
-        if (mm.hit_obstacle) {
-            gi.DPrintf("obstacle hit\n");
-            return false;
-        }
-    }
-
-    return false;
-}
-
 /*****************************************************************************/
 /*QUAKED info_pathnode (1 0 0) (-24 -24 0) (24 24 32) FLEE DUCK COVER DOOR JUMP LADDER
 
@@ -259,14 +1177,33 @@ JUMP marks the node as one to jump from when going to the node specified by targ
 
 ******************************************************************************/
 
-Event EV_Path_SetNodeFlags("spawnflags", EV_DEFAULT, "i", "node_flags", "Sets the path nodes flags.", EV_NORMAL);
+Event EV_Path_SetNodeFlags
+(
+    "spawnflags",
+    EV_DEFAULT,
+    "i",
+    "node_flags",
+    "Sets the path nodes flags.",
+    EV_NORMAL
+);
+
+// Added in 2.0
+Event EV_Path_SetLowWallArc
+(
+    "low_wall_arc",
+    EV_DEFAULT,
+    "f",
+    "arc_half_angle",
+    "Marks this node as good for low-wall behavior, and gives the arc"
+);
 
 CLASS_DECLARATION(SimpleEntity, PathNode, "info_pathnode") {
-    {&EV_Path_SetNodeFlags, &PathNode::SetNodeFlags},
-    {&EV_IsTouching,        &PathNode::IsTouching  },
-    {&EV_Delete,            &PathNode::Remove      },
-    {&EV_Remove,            &PathNode::Remove      },
-    {NULL,                  NULL                   }
+    {&EV_Path_SetNodeFlags,  &PathNode::SetNodeFlags },
+    {&EV_IsTouching,         &PathNode::IsTouching   },
+    {&EV_Delete,             &PathNode::Remove       },
+    {&EV_Remove,             &PathNode::Remove       },
+    {&EV_Path_SetLowWallArc, &PathNode::SetLowWallArc},
+    {NULL,                   NULL                    }
 };
 
 static Vector pathNodesChecksum;
@@ -287,6 +1224,7 @@ PathNode::PathNode()
 {
     entflags |= EF_PATHNODE;
     findCount      = 0;
+    pLastClaimer   = NULL;
     numChildren    = 0;
     iAvailableTime = -1;
 
@@ -294,8 +1232,10 @@ PathNode::PathNode()
         // our archive function will take care of this stuff
         AI_AddNode(this);
         nodeflags          = 0;
-        virtualNumChildren = 0;
+        m_fLowWallArc      = 0;
+        pLastClaimer       = NULL;
         iAvailableTime     = -1;
+        virtualNumChildren = 0;
         Child              = NULL;
     }
 }
@@ -305,113 +1245,10 @@ PathNode::~PathNode()
     entflags &= ~EF_PATHNODE;
 }
 
-void PathNode::Claim(Entity *pClaimer)
+void PathNode::Remove(Event *ev)
 {
-    pLastClaimer   = pClaimer;
-    iAvailableTime = 0;
-}
-
-const_str PathNode::GetSpecialAttack(Actor *pActor)
-{
-    int       iSpecialAttack;
-    const_str csAnimation;
-    float     fRangeSquared;
-    float     vDelta[2];
-    float     fMinAngle;
-    float     fMaxAngle;
-
-    if (nodeflags & AI_CORNER_LEFT) {
-        iSpecialAttack = 0;
-        csAnimation    = STRING_ANIM_CORNERLEFT_SCR;
-    } else if (nodeflags & AI_CORNER_RIGHT) {
-        iSpecialAttack = 1;
-        csAnimation    = STRING_ANIM_CORNERRIGHT_SCR;
-    } else {
-        if (nodeflags >= 0) {
-            return STRING_NULL;
-        }
-
-        iSpecialAttack = 2;
-        csAnimation    = STRING_ANIM_OVERATTACK_SCR;
-    }
-
-    if (pActor->m_Enemy) {
-        vDelta[0] = pActor->m_Enemy->origin[0] - origin[0];
-        vDelta[1] = pActor->m_Enemy->origin[1] - origin[1];
-    } else {
-        vDelta[0] = pActor->m_vLastEnemyPos[0] - origin[0];
-        vDelta[1] = pActor->m_vLastEnemyPos[1] - origin[1];
-    }
-
-    fRangeSquared = vDelta[0] * vDelta[0] + vDelta[1] * vDelta[1];
-
-    if (fRangeSquared < g_AttackParms[iSpecialAttack].fMinRangeSquared
-        || fRangeSquared > g_AttackParms[iSpecialAttack].fMaxRangeSquared) {
-        return STRING_NULL;
-    }
-
-    fMinAngle = atan2(vDelta[0], vDelta[1]) * (180.0f / M_PI) - angles[1];
-
-    if (fMinAngle > -360.0f) {
-        if (fMinAngle >= 0.0f) {
-            if (fMinAngle >= 720.0f) {
-                fMaxAngle = fMinAngle - 720.0f;
-            } else if (fMinAngle >= 360.0f) {
-                fMaxAngle = fMinAngle - 360.0f;
-            } else {
-                fMaxAngle = fMinAngle;
-            }
-        } else {
-            fMaxAngle = fMinAngle + 360.0f;
-        }
-    } else {
-        fMaxAngle = fMinAngle + 720.0f;
-    }
-
-    if (g_AttackParms[iSpecialAttack].fMinAngle <= g_AttackParms[iSpecialAttack].fMaxAngle) {
-        if (g_AttackParms[iSpecialAttack].fMinAngle > fMaxAngle) {
-            return STRING_NULL;
-        }
-    } else {
-        if (g_AttackParms[iSpecialAttack].fMinAngle <= fMaxAngle) {
-            return STRING_NULL;
-        }
-    }
-
-    if (fMaxAngle > g_AttackParms[iSpecialAttack].fMaxAngle) {
-        return STRING_NULL;
-    }
-
-    return csAnimation;
-}
-
-Entity *PathNode::GetClaimHolder(void) const
-{
-    if (iAvailableTime) {
-        return NULL;
-    } else {
-        return pLastClaimer;
-    }
-}
-
-bool PathNode::IsClaimedByOther(Entity *pPossibleClaimer) const
-{
-    if (pLastClaimer == pPossibleClaimer) {
-        return false;
-    }
-
-    if (iAvailableTime) {
-        return (level.inttime < iAvailableTime);
-    } else {
-        return (pLastClaimer != NULL);
-    }
-}
-
-qboolean PathNode::IsTouching(Entity *e1)
-{
-    return e1->absmin[0] <= origin[0] + 15.5f && e1->absmin[1] <= origin[1] + 15.5f
-        && e1->absmin[0] <= origin[2] + 94.0f && origin[0] - 15.5f <= e1->absmax[0]
-        && origin[1] - 15.5f <= e1->absmax[1] && origin[2] + 0.0f <= e1->absmax[2];
+    // Pathnodes mustn't be removed
+    ScriptError("Not allowed to delete a path node");
 }
 
 void PathNode::SetNodeFlags(Event *ev)
@@ -419,85 +1256,30 @@ void PathNode::SetNodeFlags(Event *ev)
     nodeflags = ev->GetInteger(1);
 }
 
-void PathNode::IsTouching(Event *ev)
+void PathNode::SetLowWallArc(Event *ev)
 {
-    Entity *ent = ev->GetEntity(1);
-
-    if (!ent) {
-        ScriptError("IsTouching used with a NULL entity.\n");
+    float value = ev->GetFloat(1);
+    if (value < 0 || value >= 180) {
+        ScriptError("low_wall_arc must be >= 0 and < 180");
     }
 
-    ev->AddInteger(IsTouching(ev->GetEntity(1)));
-}
+    m_fLowWallArc = value;
 
-void PathNode::Remove(Event *ev)
-{
-    // Pathnodes mustn't be removed
-    ScriptError("Not allowed to delete a path node");
-}
-
-void PathNode::setOriginEvent(Vector org)
-{
-    if (!PathManager.m_bNodesloaded) {
-        origin   = org;
-        centroid = org;
+    if (!value) {
+        nodeflags &= ~AI_LOW_WALL_ARC;
+    } else {
+        nodeflags |= AI_LOW_WALL_ARC;
     }
 }
 
-void PathNode::Archive(Archiver& arc) {}
-
-void PathNode::ArchiveDynamic(Archiver& arc)
+void PathNode::ConnectTo(PathNode *node)
 {
-    SimpleEntity::SimpleArchive(arc);
-
-    arc.ArchiveObjectPosition(this);
-    arc.ArchiveSafePointer(&pLastClaimer);
-    arc.ArchiveInteger(&iAvailableTime);
-    arc.ArchiveInteger(&numChildren);
-
-    if (numChildren != virtualNumChildren) {
-        for (int i = 0; i < virtualNumChildren; i++) {
-            arc.ArchiveByte(&Child[i].numBlockers);
-            arc.ArchiveShort(&Child[i].node);
-            arc.ArchiveShort(&Child[i].fallheight);
-            arc.ArchiveFloat(&Child[i].dist);
-            arc.ArchiveVec2(Child[i].dir);
-            arc.ArchiveVec3(Child[i].pos1);
-            arc.ArchiveVec3(Child[i].pos2);
-        }
-    }
-}
-
-void PathNode::ArchiveStatic(Archiver& arc)
-{
-    arc.ArchiveVector(&origin);
-    arc.ArchiveVector(&centroid);
-    arc.ArchiveInteger(&nodeflags);
-    arc.ArchiveInteger(&virtualNumChildren);
-
-    numChildren = virtualNumChildren;
-
-    if (arc.Loading()) {
-        bulkNavMemory -= virtualNumChildren * sizeof(pathway_t) * sizeof(pathway_t *);
-        Child = virtualNumChildren ? (pathway_t *)bulkNavMemory : NULL;
-    }
-
-    for (int i = 0; i < virtualNumChildren; i++) {
-        arc.ArchiveShort(&Child[i].node);
-        arc.ArchiveShort(&Child[i].fallheight);
-        arc.ArchiveFloat(&Child[i].dist);
-        arc.ArchiveVec2(Child[i].dir);
-        arc.ArchiveVec3(Child[i].pos1);
-        arc.ArchiveVec3(Child[i].pos2);
-
-        if (arc.Loading()) {
-            Child[i].numBlockers = 0;
-
-            for (int j = 0; j < ARRAY_LEN(Child[i].badPlaceTeam); j++) {
-                Child[i].badPlaceTeam[j] = 0;
-            }
-        }
-    }
+    Child[virtualNumChildren].node            = nodenum;
+    Child[virtualNumChildren].numBlockers     = 0;
+    Child[virtualNumChildren].badPlaceTeam[0] = 0;
+    Child[virtualNumChildren].badPlaceTeam[1] = 0;
+    virtualNumChildren++;
+    numChildren++;
 }
 
 void PathNode::ConnectChild(int i)
@@ -526,85 +1308,30 @@ void PathNode::DisconnectChild(int i)
     Child[numChildren] = child;
 }
 
-void PathNode::ConnectTo(PathNode *node)
+qboolean PathNode::IsTouching(Entity *e1)
 {
-    Child[virtualNumChildren].node        = nodenum;
-    Child[virtualNumChildren].numBlockers = 0;
-    virtualNumChildren++;
-    numChildren++;
+    return e1->absmin[0] <= origin[0] + 15.5f && e1->absmin[1] <= origin[1] + 15.5f
+        && e1->absmin[0] <= origin[2] + 94.0f && origin[0] - 15.5f <= e1->absmax[0]
+        && origin[1] - 15.5f <= e1->absmax[1] && origin[2] + 0.0f <= e1->absmax[2];
 }
 
-bool PathNode::CheckPathTo(PathNode *node)
+void PathNode::IsTouching(Event *ev)
 {
-    if (virtualNumChildren < NUM_PATHSPERNODE) {
-        CheckPathToDefault(node, &Child[virtualNumChildren]);
-        return true;
-    } else {
-        Com_Printf(
-            "^~^~^ %d paths per node at (%.2f %.2f %.2f) exceeded\n - use DONT_LINK on some nodes to conserve cpu and "
-            "memory usage\n",
-            NUM_PATHSPERNODE,
-            node->origin[0],
-            node->origin[1],
-            node->origin[2]
-        );
-        PathSearch::m_NodeCheckFailed = true;
-        return false;
-    }
-}
+    Entity *ent = ev->GetEntity(1);
 
-void PathNode::CheckPathToDefault(PathNode *node, pathway_t *pathway)
-{
-    float  dist;
-    float  delta[2];
-    Vector start;
-    Vector end;
-
-    delta[0] = node->origin[0] - origin[0];
-    delta[1] = node->origin[1] - origin[1];
-
-    dist = VectorNormalize2D(delta);
-
-    if (dist >= 384.0f) {
-        return;
+    if (!ent) {
+        ScriptError("IsTouching used with a NULL entity.\n");
     }
 
-    start = origin + Vector(0, 0, 36.0f);
-    end   = start - Vector(0, 0, 2048.0f);
+    ev->AddInteger(IsTouching(ev->GetEntity(1)));
+}
 
-    trace_t trace = G_Trace(start, PLAYER_BASE_MIN, PLAYER_BASE_MAX, end, NULL, MASK_PATHSOLID, qfalse, "droptofloor");
-
-    start = node->origin + Vector(0, 0, 36.0f);
-    end   = start - Vector(0, 0, 2048.0f);
-
-    trace_t trace2 = G_Trace(start, PLAYER_BASE_MIN, PLAYER_BASE_MAX, end, NULL, MASK_PATHSOLID, qfalse, "droptofloor");
-
-    start = trace.endpos;
-    end   = trace2.endpos;
-
-    if (CheckMove(start, end, &pathway->fallheight, 15.5f)) {
-        pathway->dist   = dist;
-        pathway->dir[0] = delta[0];
-        pathway->dir[1] = delta[1];
-        VectorCopy(start, pathway->pos1);
-        VectorCopy(end, pathway->pos2);
-        Child[virtualNumChildren].node        = node->nodenum;
-        Child[virtualNumChildren].numBlockers = 0;
-
-        virtualNumChildren++;
-        numChildren++;
+void PathNode::setOriginEvent(Vector org)
+{
+    if (!PathManager.m_bNodesloaded) {
+        origin   = org;
+        centroid = org;
     }
-}
-
-void PathNode::MarkTemporarilyBad(void)
-{
-    iAvailableTime = level.inttime + 5000;
-    pLastClaimer   = NULL;
-}
-
-void PathNode::Relinquish(void)
-{
-    iAvailableTime = level.inttime + 4000;
 }
 
 void PathNode::DrawConnections(void)
@@ -884,20 +1611,6 @@ MapCell::MapCell()
     nodes    = NULL;
 }
 
-MapCell::~MapCell()
-{
-    numnodes = 0;
-    nodes    = NULL;
-}
-
-qboolean MapCell::AddNode(PathNode *node)
-{
-    nodes[numnodes] = (short)node->nodenum;
-    numnodes++;
-
-    return true;
-}
-
 int MapCell::NumNodes(void)
 {
     return numnodes;
@@ -964,7 +1677,7 @@ PathSearch::~PathSearch()
     ResetNodes();
 }
 
-void PathSearch::AddToGrid(PathNode *node, int x, int y)
+void PathSearch::LoadAddToGrid(int x, int y)
 {
     MapCell *cell;
 
@@ -974,14 +1687,8 @@ void PathSearch::AddToGrid(PathNode *node, int x, int y)
         cell = &PathMap[x][y];
     }
 
-    if (!cell) {
-        return;
-    }
-
-    if (cell->NumNodes() >= PATHMAP_NODES) {
-        Com_Printf("^~^~^ PathSearch::AddToGrid: Node overflow at ( %d, %d )\n", x, y);
-    } else {
-        cell->AddNode(node);
+    if (cell) {
+        cell->numnodes++;
     }
 }
 
@@ -1015,52 +1722,6 @@ int PathSearch::GridCoordinate(float coord)
     return (int)c >> 8;
 }
 
-void PathSearch::AddNode(PathNode *node)
-{
-    int x;
-    int y;
-
-    assert(node);
-
-    x = NodeCoordinate(node->origin[0]);
-    y = NodeCoordinate(node->origin[1]);
-
-    AddToGrid(node, x, y);
-    AddToGrid(node, x + 1, y);
-    AddToGrid(node, x, y + 1);
-    AddToGrid(node, x + 1, y + 1);
-}
-
-void PathSearch::LoadAddToGrid(int x, int y)
-{
-    MapCell *cell;
-
-    if (x > PATHMAP_GRIDSIZE || y > PATHMAP_GRIDSIZE) {
-        cell = NULL;
-    } else {
-        cell = &PathMap[x][y];
-    }
-
-    if (cell) {
-        cell->numnodes++;
-    }
-}
-
-void PathSearch::LoadAddToGrid2(PathNode *node, int x, int y)
-{
-    MapCell *cell;
-
-    if (x > PATHMAP_GRIDSIZE || y > PATHMAP_GRIDSIZE) {
-        cell = NULL;
-    } else {
-        cell = &PathMap[x][y];
-    }
-
-    if (cell) {
-        cell->AddNode(node);
-    }
-}
-
 MapCell *PathSearch::GetNodesInCell(int x, int y)
 {
     if ((x < 0) || (x >= PATHMAP_GRIDSIZE) || (y < 0) || (y >= PATHMAP_GRIDSIZE)) {
@@ -1079,6 +1740,112 @@ MapCell *PathSearch::GetNodesInCell(float *pos)
     y = GridCoordinate(pos[1]);
 
     return GetNodesInCell(x, y);
+}
+
+int PathSearch::DebugNearestNodeList(float *pos, PathNode **nodelist, int iMaxNodes)
+{
+    PathNode *node;
+    int       i;
+    MapCell  *cell;
+    int       nodes[128];
+    vec3_t    deltas[128];
+    vec3_t    start;
+    vec3_t    end;
+
+    cell = GetNodesInCell(pos);
+
+    if (!cell) {
+        return 0;
+    }
+
+    int node_count = NearestNodeSetup(pos, cell, nodes, deltas);
+    int n          = 0;
+    int j          = 0;
+
+    for (i = 0; i < node_count && j < iMaxNodes; i++) {
+        node = pathnodes[cell->nodes[nodes[i]]];
+
+        VectorCopy(pos, start);
+        VectorCopy(pos, end);
+
+        VectorAdd(end, deltas[i], end);
+
+        Vector vStart = start;
+        Vector vMins  = Vector(-15, -15, 0);
+        Vector vMaxs  = Vector(15, 15, 62);
+        Vector vEnd   = end;
+
+        if (G_SightTrace(
+                vStart,
+                vMins,
+                vMaxs,
+                vEnd,
+                (gentity_t *)NULL,
+                (gentity_t *)NULL,
+                MASK_PATHSOLID,
+                qtrue,
+                "PathSearch::DebugNearestNodeList"
+            )) {
+            nodelist[n] = node;
+            n++;
+        }
+    }
+
+    if (!n && node_count) {
+        nodelist[0] = pathnodes[cell->nodes[nodes[0]]];
+        return 1;
+    } else {
+        return n;
+    }
+
+    return 0;
+}
+
+int PathSearch::DebugNearestNodeList2(float *pos, PathNode **nodelist, int iMaxNodes)
+{
+    vec3_t       delta;
+    PathNode    *node;
+    float        dist;
+    int          n = 0;
+    int          i;
+    int          j;
+    static float node_dist[MAX_PATHNODES];
+    int          node_count;
+
+    node_count = nodecount;
+
+    for (i = 0; i < node_count; i++) {
+        node = pathnodes[i];
+
+        if (pos[2] > node->origin[2] + 94.0f) {
+            continue;
+        }
+
+        if (node->origin[2] > pos[2] + 94.0f) {
+            continue;
+        }
+
+        delta[0] = node->origin[0] - pos[0];
+        delta[1] = node->origin[1] - pos[1];
+        delta[2] = node->origin[2] - pos[2];
+
+        dist = VectorLengthSquared(delta);
+
+        for (j = n; j > 0; j--) {
+            if (dist >= node_dist[j - 1]) {
+                break;
+            }
+
+            node_dist[j] = node_dist[j - 1];
+            nodelist[j]  = nodelist[j - 1];
+        }
+
+        n++;
+        nodelist[j]  = node;
+        node_dist[j] = dist;
+    }
+
+    return n;
 }
 
 PathNode *PathSearch::DebugNearestStartNode(float *pos, Entity *ent)
@@ -1243,360 +2010,6 @@ PathNode *PathSearch::NearestEndNode(float *pos)
     return NULL;
 }
 
-int PathSearch::DebugNearestNodeList(float *pos, PathNode **nodelist, int iMaxNodes)
-{
-    PathNode *node;
-    int       i;
-    MapCell  *cell;
-    int       nodes[128];
-    vec3_t    deltas[128];
-    vec3_t    start;
-    vec3_t    end;
-
-    cell = GetNodesInCell(pos);
-
-    if (!cell) {
-        return 0;
-    }
-
-    int node_count = NearestNodeSetup(pos, cell, nodes, deltas);
-    int n          = 0;
-    int j          = 0;
-
-    for (i = 0; i < node_count && j < iMaxNodes; i++) {
-        node = pathnodes[cell->nodes[nodes[i]]];
-
-        VectorCopy(pos, start);
-        VectorCopy(pos, end);
-
-        VectorAdd(end, deltas[i], end);
-
-        Vector vStart = start;
-        Vector vMins  = Vector(-15, -15, 0);
-        Vector vMaxs  = Vector(15, 15, 62);
-        Vector vEnd   = end;
-
-        if (G_SightTrace(
-                vStart,
-                vMins,
-                vMaxs,
-                vEnd,
-                (gentity_t *)NULL,
-                (gentity_t *)NULL,
-                MASK_PATHSOLID,
-                qtrue,
-                "PathSearch::DebugNearestNodeList"
-            )) {
-            nodelist[n] = node;
-            n++;
-        }
-    }
-
-    if (!n && node_count) {
-        nodelist[0] = pathnodes[cell->nodes[nodes[0]]];
-        return 1;
-    } else {
-        return n;
-    }
-
-    return 0;
-}
-
-int PathSearch::DebugNearestNodeList2(float *pos, PathNode **nodelist, int iMaxNodes)
-{
-    vec3_t       delta;
-    PathNode    *node;
-    float        dist;
-    int          n = 0;
-    int          i;
-    int          j;
-    static float node_dist[MAX_PATHNODES];
-    int          node_count;
-
-    node_count = nodecount;
-
-    for (i = 0; i < node_count; i++) {
-        node = pathnodes[i];
-
-        if (pos[2] > node->origin[2] + 94.0f) {
-            continue;
-        }
-
-        if (node->origin[2] > pos[2] + 94.0f) {
-            continue;
-        }
-
-        delta[0] = node->origin[0] - pos[0];
-        delta[1] = node->origin[1] - pos[1];
-        delta[2] = node->origin[2] - pos[2];
-
-        dist = VectorLengthSquared(delta);
-
-        for (j = n; j > 0; j--) {
-            if (dist >= node_dist[j - 1]) {
-                break;
-            }
-
-            node_dist[j] = node_dist[j - 1];
-            nodelist[j]  = nodelist[j - 1];
-        }
-
-        n++;
-        nodelist[j]  = node;
-        node_dist[j] = dist;
-    }
-
-    return n;
-}
-
-void PathSearch::ArchiveStaticLoad(Archiver& arc)
-{
-    int       i;
-    PathNode *node;
-    int       total_nodes;
-    int       total_children;
-    int       x;
-    int       y;
-    int       size;
-
-    loadingarchive = true;
-
-    arc.ArchiveInteger(&nodecount);
-    arc.ArchiveInteger(&total_nodes);
-    arc.ArchiveInteger(&total_children);
-
-    size = total_nodes + total_children * (sizeof(pathway_t) * 2) + nodecount * (sizeof(PathNode) / 2);
-    size *= sizeof(void *) / 2;
-
-    gi.DPrintf("%d memory allocated for navigation.\n", size);
-
-    if (size) {
-        startBulkNavMemory = (byte *)gi.Malloc(size);
-    } else {
-        startBulkNavMemory = NULL;
-    }
-
-    bulkNavMemory = startBulkNavMemory + size;
-
-    for (i = 0; i < nodecount; i++) {
-        node = new PathNode;
-
-        arc.ArchiveObjectPosition(node);
-        node->ArchiveStatic(arc);
-        node->nodenum = i;
-
-        pathnodes[i] = node;
-
-        if (!(node->nodeflags & PATH_DONT_LINK)) {
-            x = NodeCoordinate(node->origin[0]);
-            y = NodeCoordinate(node->origin[1]);
-
-            LoadAddToGrid(x, y);
-            LoadAddToGrid(x + 1, y);
-            LoadAddToGrid(x, y + 1);
-            LoadAddToGrid(x + 1, y + 1);
-        }
-    }
-
-    for (x = 0; x < PATHMAP_GRIDSIZE; x++) {
-        for (y = 0; y < PATHMAP_GRIDSIZE; y++) {
-            bulkNavMemory -= PathMap[x][y].numnodes * sizeof(short);
-
-            PathMap[x][y].nodes    = PathMap[x][y].numnodes ? (short *)bulkNavMemory : NULL;
-            PathMap[x][y].numnodes = 0;
-        }
-    }
-
-    for (i = 0; i < nodecount; i++) {
-        node = pathnodes[i];
-
-        if (!(node->nodeflags & PATH_DONT_LINK)) {
-            x = NodeCoordinate(node->origin[0]);
-            y = NodeCoordinate(node->origin[1]);
-
-            LoadAddToGrid2(node, x, y);
-            LoadAddToGrid2(node, x + 1, y);
-            LoadAddToGrid2(node, x, y + 1);
-            LoadAddToGrid2(node, x + 1, y + 1);
-        }
-    }
-
-    loadingarchive = false;
-}
-
-void PathSearch::ArchiveStaticSave(Archiver& arc)
-{
-    int       i;
-    PathNode *node;
-    int       total_nodes    = 0;
-    int       total_children = 0;
-    int       x              = 0;
-    int       y              = 0;
-
-    for (x = 0; x < PATHMAP_GRIDSIZE; x++) {
-        for (y = 0; y < PATHMAP_GRIDSIZE; y++) {
-            total_nodes += PathMap[x][y].NumNodes();
-        }
-    }
-
-    for (i = 0; i < nodecount; i++) {
-        node = pathnodes[i];
-        total_children += node->virtualNumChildren;
-    }
-
-    arc.ArchiveInteger(&nodecount);
-    arc.ArchiveInteger(&total_nodes);
-    arc.ArchiveInteger(&total_children);
-
-    for (i = 0; i < nodecount; i++) {
-        node = pathnodes[i];
-        arc.ArchiveObjectPosition(node);
-        node->ArchiveStatic(arc);
-    }
-}
-
-bool PathSearch::ArchiveDynamic(Archiver& arc)
-{
-    PathNode *node;
-    int       i;
-    int       count;
-
-    if (arc.Loading()) {
-        arc.ArchiveInteger(&count);
-        if (count != nodecount) {
-            Com_Printf("Path file invalid - cannot load save game\n");
-            return false;
-        }
-    } else {
-        arc.ArchiveInteger(&nodecount);
-    }
-
-    for (i = 0; i < nodecount; i++) {
-        node = PathSearch::pathnodes[i];
-        node->ArchiveDynamic(arc);
-    }
-
-    return true;
-}
-
-void PathSearch::ArchiveLoadNodes(void)
-{
-    Archiver arc;
-
-    m_LoadIndex = 0;
-    if (arc.Read(level.m_pathfile, false)) {
-        int file_version;
-        str maptime;
-
-        // get file values
-        arc.ArchiveInteger(&file_version);
-        if (file_version != PATHFILE_VERSION) {
-            Com_Printf("Expecting version %d path file.  Path file is version %d.\n", PATHFILE_VERSION, file_version);
-            arc.Close();
-            return;
-        }
-
-        arc.ArchiveString(&maptime);
-        if (gi.MapTime() == maptime && gi.FS_FileNewer(level.m_mapfile.c_str(), level.m_pathfile.c_str()) <= 0) {
-            arc.ArchiveInteger(&m_NodeCheckFailed);
-
-            if (!g_nodecheck->integer || !m_NodeCheckFailed) {
-                ArchiveStaticLoad(arc);
-                m_bNodesloaded = arc.NoErrors();
-            } else {
-                gi.Printf("Rebuilding pathnodes to view node errors.\n");
-            }
-        } else {
-            gi.Printf("Pathnodes have changed, rebuilding.\n");
-        }
-    }
-
-    arc.Close();
-}
-
-qboolean PathSearch::ArchiveSaveNodes(void)
-{
-    Archiver arc;
-    str      maptime;
-    int      tempInt;
-
-    arc.Create(level.m_pathfile);
-    tempInt = PATHFILE_VERSION;
-    arc.ArchiveInteger(&tempInt);
-    maptime = gi.MapTime();
-    arc.ArchiveString(&maptime);
-    arc.ArchiveInteger(&m_NodeCheckFailed);
-    ArchiveStaticSave(arc);
-    arc.Close();
-
-    return true;
-}
-
-void PathSearch::Connect(PathNode *node)
-{
-    int x;
-    int y;
-
-    findFrame++;
-    node->findCount = findFrame;
-
-    x = NodeCoordinate(node->origin[0]);
-    y = NodeCoordinate(node->origin[1]);
-
-    if (Connect(node, x - 1, y - 1)) {
-        if (Connect(node, x - 1, y)) {
-            if (Connect(node, x - 1, y + 1)) {
-                if (Connect(node, x, y - 1)) {
-                    if (Connect(node, x, y)) {
-                        if (Connect(node, x, y + 1)) {
-                            if (Connect(node, x + 1, y - 1)) {
-                                if (Connect(node, x + 1, y)) {
-                                    Connect(node, x + 1, y + 1);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
-bool PathSearch::Connect(PathNode *node, int x, int y)
-{
-    MapCell  *cell;
-    int       i;
-    PathNode *node2;
-
-    if (x > PATHMAP_GRIDSIZE || y > PATHMAP_GRIDSIZE) {
-        cell = NULL;
-    } else {
-        cell = &PathMap[x][y];
-    }
-
-    if (!cell) {
-        return true;
-    }
-
-    if (cell->numnodes <= 0) {
-        return true;
-    }
-
-    for (i = 0; i < cell->numnodes; i++) {
-        node2 = pathnodes[cell->nodes[i]];
-
-        if (node2->findCount != findFrame) {
-            node2->findCount = findFrame;
-
-            if (!node->CheckPathTo(node2)) {
-                return false;
-            }
-        }
-    }
-
-    return true;
-}
-
 void PathSearch::ShowNodes(void)
 {
     if (g_entities->client) {
@@ -1649,6 +2062,269 @@ void PathSearch::ShowNodes(void)
                 G_DebugLine(vStart, vEnd, 1, 0, 0, 1);
             }
         }
+    }
+}
+
+qboolean PathSearch::ArchiveSaveNodes(void)
+{
+    Archiver arc;
+    str      maptime;
+    int      tempInt;
+
+    arc.Create(level.m_pathfile);
+    tempInt = PATHFILE_VERSION;
+    arc.ArchiveInteger(&tempInt);
+    maptime = gi.MapTime();
+    arc.ArchiveString(&maptime);
+    arc.ArchiveInteger(&m_NodeCheckFailed);
+    ArchiveStaticSave(arc);
+    arc.Close();
+
+    return true;
+}
+
+void PathSearch::ArchiveLoadNodes(void)
+{
+    Archiver arc;
+
+    m_LoadIndex = 0;
+    if (arc.Read(level.m_pathfile, false)) {
+        int file_version;
+        str maptime;
+
+        // get file values
+        arc.ArchiveInteger(&file_version);
+        if (file_version != PATHFILE_VERSION) {
+            Com_Printf("Expecting version %d path file.  Path file is version %d.\n", PATHFILE_VERSION, file_version);
+            arc.Close();
+            return;
+        }
+
+        arc.ArchiveString(&maptime);
+        if (gi.MapTime() == maptime && gi.FS_FileNewer(level.m_mapfile.c_str(), level.m_pathfile.c_str()) <= 0) {
+            arc.ArchiveInteger(&m_NodeCheckFailed);
+
+            if (!g_nodecheck->integer || !m_NodeCheckFailed) {
+                ArchiveStaticLoad(arc);
+                m_bNodesloaded = arc.NoErrors();
+            } else {
+                gi.Printf("Rebuilding pathnodes to view node errors.\n");
+            }
+        } else {
+            gi.Printf("Pathnodes have changed, rebuilding.\n");
+        }
+    }
+
+    arc.Close();
+}
+
+void PathSearch::Init(void)
+{
+    ai_showroutes          = gi.Cvar_Get("ai_showroutes", "0", 0);
+    ai_showroutes_distance = gi.Cvar_Get("ai_showroutes_distance", "1000", 0);
+    ai_shownodenums        = gi.Cvar_Get("ai_shownodenums", "0", 0);
+    ai_shownode            = gi.Cvar_Get("ai_shownode", "0", 0);
+    ai_showallnode         = gi.Cvar_Get("ai_showallnode", "0", 0);
+    ai_showpath            = gi.Cvar_Get("ai_showpath", "0", 0);
+    ai_fallheight          = gi.Cvar_Get("ai_fallheight", "96", 0);
+    ai_debugpath           = gi.Cvar_Get("ai_debugpath", "0", 0);
+    ai_pathchecktime       = gi.Cvar_Get("ai_pathchecktime", "1.5", CVAR_CHEAT);
+    ai_pathcheckdist       = gi.Cvar_Get("ai_pathcheckdist", "4096", CVAR_CHEAT);
+}
+
+void *PathSearch::AllocPathNode(void)
+{
+    if (bulkNavMemory && !m_bNodesloaded) {
+        bulkNavMemory -= sizeof(PathNode);
+        return bulkNavMemory;
+    } else {
+        return gi.Malloc(sizeof(PathNode));
+    }
+}
+
+void PathSearch::FreePathNode(void *ptr)
+{
+    if (!bulkNavMemory || m_bNodesloaded) {
+        gi.Free(ptr);
+    }
+}
+
+void PathSearch::PlayerCover(Player *pPlayer)
+{
+    int       i;
+    PathNode *node;
+    Vector    delta;
+    Entity   *pOwner;
+
+    for (i = 0; i < nodecount; i++) {
+        node = pathnodes[i];
+
+        if (!node || !(node->nodeflags & AI_COVERFLAGS)) {
+            continue;
+        }
+
+        pOwner = node->GetClaimHolder();
+
+        delta = node->origin - pPlayer->origin;
+
+        // Check if we need to cover
+        if (VectorLengthSquared(delta) > 2304.0f) {
+            if (pOwner == pPlayer) {
+                node->Relinquish();
+            }
+
+            continue;
+        }
+
+        if (pOwner != pPlayer) {
+            if (pOwner) {
+                pOwner->PathnodeClaimRevoked(node);
+            }
+
+            // Player claim the node
+            node->Claim(pPlayer);
+        }
+    }
+}
+
+class nodeinfo
+{
+public:
+    PathNode *pNode;
+    float     fDistSquared;
+};
+
+int node_compare(const void *pe1, const void *pe2)
+{
+    nodeinfo *Pe1 = (nodeinfo *)pe1;
+    nodeinfo *Pe2 = (nodeinfo *)pe2;
+    int       iConcealment;
+
+    iConcealment = (Pe1->pNode->nodeflags & 0xB0) != 0;
+    if (Pe2->pNode->nodeflags & 0xB0) {
+        --iConcealment;
+    }
+    return (
+        (Pe1->fDistSquared) + (iConcealment << 23) + (((Pe1->pNode->nodeflags & 8) - (Pe2->pNode->nodeflags & 8)) << 21)
+        - (Pe2->fDistSquared)
+    );
+}
+
+int PathSearch::FindPotentialCover(
+    SimpleActor *pEnt, Vector& vPos, Entity *pEnemy, PathNode **ppFoundNodes, int iMaxFind
+)
+{
+    nodeinfo  nodes[MAX_PATHNODES];
+    int       nNodes = 0;
+    int       i;
+    Vector    delta;
+    PathNode *node;
+
+    Actor *pActor = static_cast<Actor *>(pEnt);
+
+    for (i = 0; i < nodecount; i++) {
+        node = pathnodes[i];
+        if (!node) {
+            continue;
+        }
+
+        if (!(node->nodeflags & AI_COVER_MASK)) {
+            continue;
+        }
+
+        if (node->IsClaimedByOther(static_cast<Entity *>(pEnt))) {
+            continue;
+        }
+
+        delta = node->origin - pActor->m_vHome;
+        if (delta.lengthSquared() > pActor->m_fLeashSquared) {
+            continue;
+        }
+
+        delta = node->origin - pEnemy->origin;
+        if (delta.lengthSquared() < pActor->m_fMinDistanceSquared
+            || delta.lengthSquared() > pActor->m_fMaxDistanceSquared) {
+            continue;
+        }
+
+        delta                      = node->origin - pEnt->origin;
+        nodes[nNodes].pNode        = node;
+        nodes[nNodes].fDistSquared = delta.lengthSquared();
+        nNodes++;
+    }
+
+    if (nNodes) {
+        qsort(nodes, nNodes, sizeof(nodeinfo), node_compare);
+
+        if (nNodes > iMaxFind) {
+            nNodes = iMaxFind;
+        }
+
+        for (i = 0; i < nNodes; i++) {
+            ppFoundNodes[nNodes - i - 1] = nodes[i].pNode;
+        }
+    }
+    return nNodes;
+}
+
+PathNode *PathSearch::FindNearestSniperNode(SimpleActor *pEnt, Vector& vPos, Entity *pEnemy)
+{
+    Actor    *pSelf = (Actor *)pEnt;
+    PathNode *pNode;
+    Vector    delta;
+    int       nNodes = 0;
+    nodeinfo  nodes[MAX_PATHNODES];
+
+    for (int i = 0; i < nodecount; i++) {
+        pNode = pathnodes[i];
+        if (pNode && pNode->nodeflags & AI_SNIPER) {
+            if (pNode->pLastClaimer == pSelf || (pNode->iAvailableTime && level.inttime >= pNode->iAvailableTime)
+                || (pNode->pLastClaimer == NULL)) {
+                delta = pNode->origin - pSelf->m_vHome;
+                if (delta.lengthSquared() <= pSelf->m_fLeashSquared) {
+                    delta = pNode->origin - pEnemy->origin;
+                    if (delta.lengthSquared() >= pSelf->m_fMinDistanceSquared
+                        && delta.lengthSquared() <= pSelf->m_fMaxDistanceSquared) {
+                        delta                      = pNode->origin - pSelf->origin;
+                        nodes[nNodes].pNode        = pNode;
+                        nodes[nNodes].fDistSquared = delta.lengthSquared();
+                        nNodes++;
+                    }
+                }
+            }
+        }
+    }
+
+    if (nNodes == 0) {
+        return NULL;
+    }
+
+    qsort(nodes, nNodes, sizeof(nodeinfo), node_compare);
+
+    if (nNodes <= 0) {
+        return NULL;
+    }
+
+    for (int i = 0; i < nNodes; i++) {
+        pNode = nodes[i].pNode;
+        if (pSelf->CanSeeFrom(pSelf->EyePosition() + pNode->origin, pEnemy)) {
+            return pNode;
+        }
+
+        pNode->iAvailableTime = level.inttime + 5000;
+        pNode->pLastClaimer   = NULL;
+    }
+
+    return NULL;
+}
+
+PathNode *PathSearch::GetSpawnNode(ClassDef *cls)
+{
+    if (m_bNodesloaded) {
+        return pathnodes[m_LoadIndex++];
+    } else {
+        // Otherwise create a new node
+        return (PathNode *)cls->newInstance();
     }
 }
 
@@ -1787,1227 +2463,600 @@ void PathSearch::CreatePaths(void)
     }
 }
 
-void *PathSearch::AllocPathNode(void)
+void PathSearch::LoadAddToGrid2(PathNode *node, int x, int y)
 {
-    if (bulkNavMemory && !m_bNodesloaded) {
-        bulkNavMemory -= sizeof(PathNode);
-        return bulkNavMemory;
+    MapCell *cell;
+
+    if (x > PATHMAP_GRIDSIZE || y > PATHMAP_GRIDSIZE) {
+        cell = NULL;
     } else {
-        return gi.Malloc(sizeof(PathNode));
+        cell = &PathMap[x][y];
+    }
+
+    if (cell) {
+        cell->AddNode(node);
     }
 }
 
-void PathSearch::FreePathNode(void *ptr)
+void PathSearch::ArchiveStaticLoad(Archiver& arc)
 {
-    if (!bulkNavMemory || m_bNodesloaded) {
-        gi.Free(ptr);
+    int       i;
+    PathNode *node;
+    int       total_nodes;
+    int       total_children;
+    int       x;
+    int       y;
+    int       size;
+
+    loadingarchive = true;
+
+    arc.ArchiveInteger(&nodecount);
+    arc.ArchiveInteger(&total_nodes);
+    arc.ArchiveInteger(&total_children);
+
+    size = total_nodes + total_children * (sizeof(pathway_t) * 2) + nodecount * (sizeof(PathNode) / 2);
+    size *= sizeof(void *) / 2;
+
+    gi.DPrintf("%d memory allocated for navigation.\n", size);
+
+    if (size) {
+        startBulkNavMemory = (byte *)gi.Malloc(size);
+    } else {
+        startBulkNavMemory = NULL;
+    }
+
+    bulkNavMemory = startBulkNavMemory + size;
+
+    for (i = 0; i < nodecount; i++) {
+        node = new PathNode;
+
+        arc.ArchiveObjectPosition(node);
+        node->ArchiveStatic(arc);
+        node->nodenum = i;
+
+        pathnodes[i] = node;
+
+        if (!(node->nodeflags & PATH_DONT_LINK)) {
+            x = NodeCoordinate(node->origin[0]);
+            y = NodeCoordinate(node->origin[1]);
+
+            LoadAddToGrid(x, y);
+            LoadAddToGrid(x + 1, y);
+            LoadAddToGrid(x, y + 1);
+            LoadAddToGrid(x + 1, y + 1);
+        }
+    }
+
+    for (x = 0; x < PATHMAP_GRIDSIZE; x++) {
+        for (y = 0; y < PATHMAP_GRIDSIZE; y++) {
+            bulkNavMemory -= PathMap[x][y].numnodes * sizeof(short);
+
+            PathMap[x][y].nodes    = PathMap[x][y].numnodes ? (short *)bulkNavMemory : NULL;
+            PathMap[x][y].numnodes = 0;
+        }
+    }
+
+    for (i = 0; i < nodecount; i++) {
+        node = pathnodes[i];
+
+        if (!(node->nodeflags & PATH_DONT_LINK)) {
+            x = NodeCoordinate(node->origin[0]);
+            y = NodeCoordinate(node->origin[1]);
+
+            LoadAddToGrid2(node, x, y);
+            LoadAddToGrid2(node, x + 1, y);
+            LoadAddToGrid2(node, x, y + 1);
+            LoadAddToGrid2(node, x + 1, y + 1);
+        }
+    }
+
+    loadingarchive = false;
+}
+
+void PathSearch::ArchiveStaticSave(Archiver& arc)
+{
+    int       i;
+    PathNode *node;
+    int       total_nodes    = 0;
+    int       total_children = 0;
+    int       x              = 0;
+    int       y              = 0;
+
+    for (x = 0; x < PATHMAP_GRIDSIZE; x++) {
+        for (y = 0; y < PATHMAP_GRIDSIZE; y++) {
+            total_nodes += PathMap[x][y].NumNodes();
+        }
+    }
+
+    for (i = 0; i < nodecount; i++) {
+        node = pathnodes[i];
+        total_children += node->virtualNumChildren;
+    }
+
+    arc.ArchiveInteger(&nodecount);
+    arc.ArchiveInteger(&total_nodes);
+    arc.ArchiveInteger(&total_children);
+
+    for (i = 0; i < nodecount; i++) {
+        node = pathnodes[i];
+        arc.ArchiveObjectPosition(node);
+        node->ArchiveStatic(arc);
     }
 }
 
-void PathSearch::ResetNodes(void)
+bool PathSearch::ArchiveDynamic(Archiver& arc)
 {
-    int i;
+    PathNode *node;
+    int       i;
+    int       count;
+
+    if (arc.Loading()) {
+        arc.ArchiveInteger(&count);
+        if (count != nodecount) {
+            Com_Printf("Path file invalid - cannot load save game\n");
+            return false;
+        }
+    } else {
+        arc.ArchiveInteger(&nodecount);
+    }
+
+    for (i = 0; i < nodecount; i++) {
+        node = PathSearch::pathnodes[i];
+        node->ArchiveDynamic(arc);
+    }
+
+    return true;
+}
+
+void PathSearch::AddToGrid(PathNode *node, int x, int y)
+{
+    MapCell *cell;
+
+    if (x > PATHMAP_GRIDSIZE || y > PATHMAP_GRIDSIZE) {
+        cell = NULL;
+    } else {
+        cell = &PathMap[x][y];
+    }
+
+    if (!cell) {
+        return;
+    }
+
+    if (cell->NumNodes() >= PATHMAP_NODES) {
+        Com_Printf("^~^~^ PathSearch::AddToGrid: Node overflow at ( %d, %d )\n", x, y);
+    } else {
+        cell->AddNode(node);
+    }
+}
+
+bool PathSearch::Connect(PathNode *node, int x, int y)
+{
+    MapCell  *cell;
+    int       i;
+    PathNode *node2;
+
+    if (x > PATHMAP_GRIDSIZE || y > PATHMAP_GRIDSIZE) {
+        cell = NULL;
+    } else {
+        cell = &PathMap[x][y];
+    }
+
+    if (!cell) {
+        return true;
+    }
+
+    if (cell->numnodes <= 0) {
+        return true;
+    }
+
+    for (i = 0; i < cell->numnodes; i++) {
+        node2 = pathnodes[cell->nodes[i]];
+
+        if (node2->findCount != findFrame) {
+            node2->findCount = findFrame;
+
+            if (!node->CheckPathTo(node2)) {
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+
+bool PathNode::CheckPathTo(PathNode *node)
+{
+    if (virtualNumChildren < NUM_PATHSPERNODE) {
+        CheckPathToDefault(node, &Child[virtualNumChildren]);
+        return true;
+    } else {
+        Com_Printf(
+            "^~^~^ %d paths per node at (%.2f %.2f %.2f) exceeded\n - use DONT_LINK on some nodes to conserve cpu and "
+            "memory usage\n",
+            NUM_PATHSPERNODE,
+            node->origin[0],
+            node->origin[1],
+            node->origin[2]
+        );
+        PathSearch::m_NodeCheckFailed = true;
+        return false;
+    }
+}
+
+qboolean CheckMove(Vector& origin, Vector& pos, short int *path_fallheight, float size)
+{
+    mmove_t mm;
+    int     i;
+    float   air_z;
+    float   fallheight;
+    float   test_fallheight;
+    float   error;
+    trace_t trace;
+    vec3_t  dir;
+    vec3_t  end;
+
+    memset(&mm, 0, sizeof(mmove_t));
+
+    VectorClear(mm.velocity);
+    VectorCopy(origin, mm.origin);
+    mm.desired_speed  = 150.0f;
+    mm.entityNum      = ENTITYNUM_NONE;
+    mm.tracemask      = MASK_PATHSOLID;
+    mm.frametime      = 0.1f;
+    mm.desired_dir[0] = pos[0] - origin[0];
+    mm.desired_dir[1] = pos[1] - origin[1];
+    VectorNormalize2D(mm.desired_dir);
+
+    mm.groundPlane = qfalse;
+    mm.walking     = qfalse;
+
+    mm.mins[0] = -size;
+    mm.mins[1] = -size;
+    mm.mins[2] = 0;
+    mm.maxs[0] = size;
+    mm.maxs[1] = size;
+    mm.maxs[2] = 94.0f;
+
+    testcount  = 0;
+    fallheight = 0.0f;
+    air_z      = mm.origin[2];
+
+    for (i = 200; i != 1; i--) {
+        testpos[i - 1] = mm.origin;
+        testcount++;
+
+        MmoveSingle(&mm);
+
+        if (mm.groundPlane) {
+            test_fallheight = air_z - mm.origin[2];
+
+            if (test_fallheight > fallheight) {
+                if (test_fallheight > 1024.0f) {
+                    return false;
+                }
+
+                fallheight = test_fallheight;
+            }
+
+            air_z = mm.origin[2];
+        }
+
+        dir[0] = pos[0] - mm.origin[0];
+        dir[1] = pos[1] - mm.origin[1];
+
+        if (DotProduct2D(dir, mm.desired_dir) <= 0.1f) {
+            error = mm.origin[2] - pos[2];
+
+            gi.Printf("error = %f\n", error);
+
+            *path_fallheight = (short)fallheight;
+            if (fabs(error) > 94.0f) {
+                if (mm.groundPlane) {
+                    return false;
+                }
+
+                mm.desired_dir[0] = dir[0];
+                mm.desired_dir[1] = dir[1];
+                VectorNormalize2D(mm.desired_dir);
+            } else if (error > 0.0f && !mm.groundPlane) {
+                end[0] = mm.origin[0];
+                end[1] = mm.origin[1];
+                end[2] = pos[2];
+
+                trace = G_Trace(mm.origin, mm.mins, mm.maxs, end, NULL, MASK_PATHSOLID, true, "CheckMove");
+
+                test_fallheight = mm.origin[2] - trace.endpos[2];
+
+                if (test_fallheight <= 18.0f) {
+                    *path_fallheight = (short)test_fallheight + fallheight;
+                    return test_fallheight + fallheight <= 1024.0f;
+                }
+
+                if (mm.groundPlane) {
+                    return false;
+                }
+
+                mm.desired_dir[0] = dir[0];
+                mm.desired_dir[1] = dir[1];
+                VectorNormalize2D(mm.desired_dir);
+            } else {
+                return true;
+            }
+        }
+
+        if (mm.hit_obstacle) {
+            gi.DPrintf("obstacle hit\n");
+            return false;
+        }
+    }
+
+    return false;
+}
+
+void PathNode::CheckPathToDefault(PathNode *node, pathway_t *pathway)
+{
+    float  dist;
+    float  delta[2];
+    Vector start;
+    Vector end;
+
+    delta[0] = node->origin[0] - origin[0];
+    delta[1] = node->origin[1] - origin[1];
+
+    dist = VectorNormalize2D(delta);
+
+    if (dist >= 384.0f) {
+        return;
+    }
+
+    start = origin + Vector(0, 0, 36.0f);
+    end   = start - Vector(0, 0, 2048.0f);
+
+    trace_t trace = G_Trace(start, PLAYER_BASE_MIN, PLAYER_BASE_MAX, end, NULL, MASK_PATHSOLID, qfalse, "droptofloor");
+
+    start = node->origin + Vector(0, 0, 36.0f);
+    end   = start - Vector(0, 0, 2048.0f);
+
+    trace_t trace2 = G_Trace(start, PLAYER_BASE_MIN, PLAYER_BASE_MAX, end, NULL, MASK_PATHSOLID, qfalse, "droptofloor");
+
+    start = trace.endpos;
+    end   = trace2.endpos;
+
+    if (CheckMove(start, end, &pathway->fallheight, 15.5f)) {
+        pathway->dist   = dist;
+        pathway->dir[0] = delta[0];
+        pathway->dir[1] = delta[1];
+        VectorCopy(start, pathway->pos1);
+        VectorCopy(end, pathway->pos2);
+        Child[virtualNumChildren].node        = node->nodenum;
+        Child[virtualNumChildren].numBlockers = 0;
+
+        virtualNumChildren++;
+        numChildren++;
+    }
+}
+
+qboolean MapCell::AddNode(PathNode *node)
+{
+    nodes[numnodes] = (short)node->nodenum;
+    numnodes++;
+
+    return true;
+}
+
+void PathSearch::AddNode(PathNode *node)
+{
     int x;
     int y;
 
-    m_bNodesloaded = false;
-    m_LoadIndex    = -1;
+    assert(node);
 
-    if (!startBulkNavMemory) {
-        for (x = PATHMAP_GRIDSIZE - 1; x >= 0; x--) {
-            for (y = PATHMAP_GRIDSIZE - 1; y >= 0; y--) {
-                if (PathMap[x][y].nodes) {
-                    gi.Free(PathMap[x][y].nodes);
-                }
-            }
-        }
+    x = NodeCoordinate(node->origin[0]);
+    y = NodeCoordinate(node->origin[1]);
 
-        for (i = 0; i < nodecount; i++) {
-            if (pathnodes[i]->Child) {
-                gi.Free(pathnodes[i]->Child);
-            }
-        }
-    }
-
-    for (x = PATHMAP_GRIDSIZE - 1; x >= 0; x--) {
-        for (y = PATHMAP_GRIDSIZE - 1; y >= 0; y--) {
-            PathMap[x][y].numnodes = 0;
-            PathMap[x][y].nodes    = NULL;
-        }
-    }
-
-    for (i = 0; i < nodecount; i++) {
-        delete pathnodes[i];
-        pathnodes[i] = NULL;
-    }
-
-    nodecount = 0;
-
-    // Free the bulk nav' memory
-    if (startBulkNavMemory) {
-        gi.Free(startBulkNavMemory);
-        bulkNavMemory      = NULL;
-        startBulkNavMemory = NULL;
-    }
+    AddToGrid(node, x, y);
+    AddToGrid(node, x + 1, y);
+    AddToGrid(node, x, y + 1);
+    AddToGrid(node, x + 1, y + 1);
 }
 
-void PathSearch::UpdatePathwaysForBadPlace(const Vector& origin, float radius, int dir, int team)
+void PathSearch::Connect(PathNode *node)
 {
-    float radiusSqr;
-    int   i, j, k;
-
-    radiusSqr = radius * radius;
-
-    for (i = 0; i < nodecount; i++) {
-        PathNode *node = pathnodes[i];
-
-        for (j = node->virtualNumChildren; j > 0; j--) {
-            pathway_t& pathway = node->Child[j - 1];
-            if (PointToSegmentDistanceSquared(origin, pathway.pos1, pathway.pos2) < radiusSqr) {
-                for (k = 0; k < 2; k++) {
-                    if ((1 << k) & team) {
-                        pathway.badPlaceTeam[k] += dir;
-                    }
-                }
-            }
-        }
-    }
-}
-
-PathInfo *PathSearch::GeneratePath(PathInfo *path)
-{
-    PathNode  *ParentNode;
-    pathway_t *pathway;
-    float      dist;
-    float      dir[2];
-    PathInfo  *current_path;
-
-    current_path = path;
-
-    dir[0] = path_end[0] - Node->m_PathPos[0];
-    dir[1] = path_end[1] - Node->m_PathPos[1];
-
-    dist = VectorNormalize2D(dir);
-
-    total_dist = dist + Node->g;
-
-    path->point[0] = path_end[0];
-    path->point[1] = path_end[1];
-    path->point[2] = path_end[2];
-
-    ParentNode = Node->Parent;
-    if (ParentNode) {
-        pathway = &ParentNode->Child[Node->pathway];
-
-        path->dir[0] = path_end[0] - pathway->pos2[0];
-        path->dir[1] = path_end[1] - pathway->pos2[1];
-        path->dist   = VectorNormalize2D(path->dir);
-
-        if (path->dist) {
-            path->bAccurate = false;
-            current_path    = path + 1;
-        }
-
-        if (pathway->dist) {
-            VectorCopy(pathway->pos2, current_path->point);
-            current_path->dir[0]    = pathway->dir[0];
-            current_path->dir[1]    = pathway->dir[1];
-            current_path->dist      = pathway->dist;
-            current_path->bAccurate = true;
-            current_path++;
-        }
-
-        for (Node = ParentNode, ParentNode = ParentNode->Parent; ParentNode != NULL;
-             Node = ParentNode, ParentNode = ParentNode->Parent) {
-            pathway = &ParentNode->Child[Node->pathway];
-            if (pathway->dist) {
-                VectorCopy(pathway->pos2, current_path->point);
-                current_path->dir[0]    = pathway->dir[0];
-                current_path->dir[1]    = pathway->dir[1];
-                current_path->dist      = pathway->dist;
-                current_path->bAccurate = true;
-                current_path++;
-            }
-        }
-
-        VectorCopy(pathway->pos1, current_path->point);
-        current_path->dir[0] = path_startdir[0];
-        current_path->dir[1] = path_startdir[1];
-        current_path->dist   = Node->g;
-    } else {
-        path->dir[0] = path_totaldir[0];
-        path->dir[1] = path_totaldir[1];
-        path->dist   = Node->h;
-    }
-
-    if (current_path->dist) {
-        current_path->bAccurate = false;
-        current_path++;
-
-        VectorCopy(path_start, current_path->point);
-        current_path->dist = 0;
-        VectorClear2D(current_path->dir);
-    }
-
-    current_path->bAccurate = false;
-    return current_path;
-}
-
-PathInfo *PathSearch::GeneratePathNear(PathInfo *path)
-{
-    PathInfo  *current_path = path;
-    pathway_t *pathway;
-    PathNode  *ParentNode;
-
-    total_dist = Node->g;
-    VectorCopy(Node->m_PathPos, path->point);
-
-    ParentNode = Node->Parent;
-    if (ParentNode) {
-        pathway = &ParentNode->Child[Node->pathway];
-
-        if (pathway->dist) {
-            VectorCopy(pathway->pos2, path->point);
-            path->dir[0] = pathway->dir[0];
-            path->dir[1] = pathway->dir[1];
-            path->dist   = pathway->dist;
-
-            current_path->bAccurate = true;
-            current_path++;
-        }
-
-        for (Node = ParentNode, ParentNode = ParentNode->Parent; ParentNode != NULL;
-             Node = ParentNode, ParentNode = ParentNode->Parent) {
-            pathway = &ParentNode->Child[Node->pathway];
-            if (pathway->dist) {
-                VectorCopy(pathway->pos2, current_path->point);
-                current_path->dir[0]    = pathway->dir[0];
-                current_path->dir[1]    = pathway->dir[1];
-                current_path->dist      = pathway->dist;
-                current_path->bAccurate = true;
-                current_path++;
-            }
-        }
-
-        VectorCopy(pathway->pos1, current_path->point);
-        current_path->dir[0] = path_startdir[0];
-        current_path->dir[1] = path_startdir[1];
-
-        current_path->dist = Node->g;
-    } else {
-        path->dir[0] = path_totaldir[0];
-        path->dir[1] = path_totaldir[1];
-        path->dist   = Node->h;
-    }
-
-    if (current_path->dist) {
-        current_path->bAccurate = false;
-        current_path++;
-
-        VectorCopy(path_start, current_path->point);
-        current_path->dist = 0;
-        VectorClear2D(current_path->dir);
-    }
-
-    current_path->bAccurate = false;
-    return current_path;
-}
-
-PathInfo *PathSearch::GeneratePathAway(PathInfo *path)
-{
-    PathInfo  *current_path = path;
-    pathway_t *pathway;
-    PathNode  *ParentNode;
-
-    VectorCopy(Node->m_PathPos, path->point);
-
-    ParentNode = Node->Parent;
-    if (ParentNode) {
-        pathway = &ParentNode->Child[Node->pathway];
-
-        if (pathway->dist) {
-            VectorCopy(pathway->pos2, path->point);
-            path->dir[0] = pathway->dir[0];
-            path->dir[1] = pathway->dir[1];
-            path->dist   = pathway->dist;
-
-            current_path->bAccurate = true;
-            current_path++;
-        }
-
-        for (Node = ParentNode, ParentNode = ParentNode->Parent; ParentNode != NULL;
-             Node = ParentNode, ParentNode = ParentNode->Parent) {
-            pathway = &ParentNode->Child[Node->pathway];
-            if (pathway->dist) {
-                VectorCopy(pathway->pos2, current_path->point);
-                current_path->dir[0]    = pathway->dir[0];
-                current_path->dir[1]    = pathway->dir[1];
-                current_path->dist      = pathway->dist;
-                current_path->bAccurate = true;
-                current_path++;
-            }
-        }
-
-        VectorCopy(pathway->pos1, current_path->point);
-        current_path->dir[0] = path_startdir[0];
-        current_path->dir[1] = path_startdir[1];
-
-        current_path->dist = Node->g;
-
-        if (Node->g) {
-            current_path->bAccurate = false;
-            current_path++;
-            VectorCopy(path_start, current_path->point);
-            current_path->dist = 0;
-            VectorClear2D(current_path->dir);
-        }
-    } else {
-        VectorClear2D(path->dir);
-        path->dist = 0;
-    }
-
-    current_path->bAccurate = false;
-    return current_path;
-}
-
-PathNode *PathSearch::GetSpawnNode(ClassDef *cls)
-{
-    if (m_bNodesloaded) {
-        return pathnodes[m_LoadIndex++];
-    } else {
-        // Otherwise create a new node
-        return (PathNode *)cls->newInstance();
-    }
-}
-
-int PathSearch::FindPath(
-    float *start, float *end, Entity *ent, float maxPath, float *vLeashHome, float fLeashDistSquared, int fallheight
-)
-{
-    int        i;
-    int        g;
-    PathNode  *NewNode;
-    pathway_t *pathway;
-    PathNode  *prev;
-    PathNode  *next;
-    int        f;
-    vec2_t     delta;
-    PathNode  *to;
-
-    if (ent) {
-        if (ent->IsSubclassOfActor()) {
-            Node = NearestStartNode(start, (SimpleActor *)ent);
-        } else {
-            Node = DebugNearestStartNode(start, ent);
-        }
-    } else {
-        Node = DebugNearestStartNode(start);
-    }
-
-    if (!Node) {
-        last_error = "couldn't find start node";
-        return 0;
-    }
-
-    to = NearestEndNode(end);
-    if (!to) {
-        last_error = "couldn't find end node";
-        return 0;
-    }
-
-    total_dist = 1e+12f;
-
-    if (!maxPath) {
-        maxPath = 1e+12f;
-    }
+    int x;
+    int y;
 
     findFrame++;
-    open = NULL;
+    node->findCount = findFrame;
 
-    VectorSub2D(Node->origin, start, path_startdir);
-    Node->g = VectorNormalize2D(path_startdir);
+    x = NodeCoordinate(node->origin[0]);
+    y = NodeCoordinate(node->origin[1]);
 
-    VectorSub2D(end, start, path_totaldir);
-    Node->h = VectorNormalize2D(path_totaldir);
-
-    Node->Parent    = NULL;
-    Node->m_Depth   = 3;
-    Node->findCount = findFrame;
-    Node->inopen    = true;
-    Node->PrevNode  = NULL;
-    Node->NextNode  = NULL;
-    Node->m_PathPos = start;
-
-    open = Node;
-
-    while (open) {
-        Node         = open;
-        Node->inopen = false;
-        open         = Node->NextNode;
-
-        if (open) {
-            open->PrevNode = NULL;
-        }
-
-        if (Node == to) {
-            path_start = start;
-            path_end   = end;
-            return Node->m_Depth;
-        }
-
-        for (i = Node->numChildren - 1; i >= 0; i--) {
-            vec2_t vDist;
-
-            pathway = &Node->Child[i];
-
-            NewNode = pathnodes[pathway->node];
-
-            if (vLeashHome) {
-                VectorSub2D(pathway->pos2, vLeashHome, vDist);
-                if (VectorLength2DSquared(vDist) > fLeashDistSquared) {
-                    continue;
-                }
-            }
-
-            g = (int)(pathway->dist + Node->g + 1.0f);
-
-            if (NewNode->findCount == findFrame) {
-                if (NewNode->g <= g) {
-                    continue;
-                }
-
-                if (NewNode->inopen) {
-                    NewNode->inopen = false;
-                    next            = NewNode->NextNode;
-                    prev            = NewNode->PrevNode;
-
-                    if (next) {
-                        next->PrevNode = prev;
-                    }
-
-                    if (prev) {
-                        prev->NextNode = next;
-                    } else {
-                        open = next;
-                    }
-                }
-            }
-
-            VectorSub2D(end, pathway->pos2, delta);
-            NewNode->h = VectorLength2D(delta);
-
-            f = (int)((float)g + NewNode->h);
-
-            if (f >= maxPath) {
-                last_error = "specified path distance exceeded";
-                return 0;
-            }
-
-            if (pathway->fallheight <= fallheight) {
-                NewNode->m_Depth   = Node->m_Depth + 1;
-                NewNode->Parent    = Node;
-                NewNode->pathway   = i;
-                NewNode->g         = (float)g;
-                NewNode->f         = (float)f;
-                NewNode->m_PathPos = pathway->pos2;
-                NewNode->findCount = findFrame;
-                NewNode->inopen    = 1;
-
-                if (!open) {
-                    NewNode->NextNode = NULL;
-                    NewNode->PrevNode = NULL;
-                    open              = NewNode;
-                    continue;
-                }
-
-                if (open->f >= f) {
-                    NewNode->NextNode = open;
-                    NewNode->PrevNode = NULL;
-
-                    open->PrevNode = NewNode;
-                    open           = NewNode;
-                    continue;
-                }
-
-                prev = open;
-                for (next = open->NextNode; next; next = next->NextNode) {
-                    if (next->f >= f) {
-                        break;
-                    }
-                    prev = next;
-                }
-
-                NewNode->NextNode = next;
-                if (next) {
-                    next->PrevNode = NewNode;
-                }
-                prev->NextNode    = NewNode;
-                NewNode->PrevNode = prev;
-            }
-        }
-    }
-
-    last_error = "unreachable path";
-    return 0;
-}
-
-int PathSearch::FindPathAway(
-    float  *start,
-    float  *avoid,
-    float  *vPreferredDir,
-    Entity *ent,
-    float   fMinSafeDist,
-    float  *vLeashHome,
-    float   fLeashDistSquared,
-    int     fallheight
-)
-{
-    int        i;
-    int        g;
-    PathNode  *NewNode;
-    pathway_t *pathway;
-    PathNode  *prev;
-    PathNode  *next;
-    int        f;
-    float      fBias;
-    vec2_t     delta;
-    float      fMinSafeDistSquared = fMinSafeDist * fMinSafeDist;
-
-    if (ent) {
-        if (ent->IsSubclassOfActor()) {
-            Node = NearestStartNode(start, (SimpleActor *)ent);
-        } else {
-            Node = DebugNearestStartNode(start, ent);
-        }
-    } else {
-        Node = DebugNearestStartNode(start);
-    }
-
-    if (!Node) {
-        last_error = "couldn't find start node";
-        return 0;
-    }
-
-    findFrame++;
-    open = NULL;
-
-    path_startdir[0] = Node->origin[0] - start[0];
-    path_startdir[1] = Node->origin[1] - start[1];
-
-    delta[0] = start[0] - avoid[0];
-    delta[1] = start[1] - avoid[1];
-
-    fBias = VectorLength2D(vPreferredDir);
-
-    Node->inopen = true;
-    Node->g      = VectorNormalize2D(path_startdir);
-    Node->h      = fMinSafeDist - VectorNormalize2D(delta);
-    Node->h += fBias - DotProduct2D(vPreferredDir, delta);
-    Node->Parent    = NULL;
-    Node->m_Depth   = 2;
-    Node->findCount = findFrame;
-    Node->PrevNode  = NULL;
-    Node->NextNode  = NULL;
-    Node->m_PathPos = start;
-
-    open = Node;
-
-    while (1) {
-        Node         = open;
-        Node->inopen = false;
-
-        open = Node->NextNode;
-
-        if (open) {
-            open->PrevNode = NULL;
-        }
-
-        delta[0] = Node->m_PathPos[0] - avoid[0];
-        delta[1] = Node->m_PathPos[1] - avoid[1];
-
-        if (VectorLength2DSquared(delta) >= fMinSafeDistSquared) {
-            break;
-        }
-
-        for (i = Node->numChildren - 1; i >= 0; i--) {
-            vec2_t vDist;
-
-            pathway = &Node->Child[i];
-            NewNode = pathnodes[pathway->node];
-
-            if (vLeashHome) {
-                vDist[0] = pathway->pos2[0] - vLeashHome[0];
-                vDist[1] = pathway->pos2[1] - vLeashHome[1];
-            }
-
-            if (!vLeashHome || VectorLength2DSquared(vDist) <= fLeashDistSquared) {
-                g = (int)(pathway->dist + Node->g + 1.0f);
-
-                if (NewNode->findCount == findFrame) {
-                    if (g >= NewNode->g) {
-                        continue;
-                    }
-
-                    if (NewNode->inopen) {
-                        NewNode->inopen = false;
-                        next            = NewNode->NextNode;
-                        prev            = NewNode->PrevNode;
-
-                        if (next) {
-                            next->PrevNode = prev;
-                        }
-
-                        if (prev) {
-                            prev->NextNode = next;
-                        } else {
-                            open = next;
+    if (Connect(node, x - 1, y - 1)) {
+        if (Connect(node, x - 1, y)) {
+            if (Connect(node, x - 1, y + 1)) {
+                if (Connect(node, x, y - 1)) {
+                    if (Connect(node, x, y)) {
+                        if (Connect(node, x, y + 1)) {
+                            if (Connect(node, x + 1, y - 1)) {
+                                if (Connect(node, x + 1, y)) {
+                                    Connect(node, x + 1, y + 1);
+                                }
+                            }
                         }
                     }
                 }
-
-                delta[0] = pathway->pos2[0] - avoid[0];
-                delta[1] = pathway->pos2[1] - avoid[1];
-
-                NewNode->h = fMinSafeDist - VectorNormalize2D(delta);
-                f          = NewNode->h + fBias - DotProduct2D(vPreferredDir, delta);
-                NewNode->h += f;
-
-                if (pathway->fallheight <= fallheight) {
-                    NewNode->Parent    = Node;
-                    NewNode->m_Depth   = Node->m_Depth + 1;
-                    NewNode->g         = g;
-                    NewNode->pathway   = i;
-                    NewNode->inopen    = true;
-                    NewNode->m_PathPos = pathway->pos2;
-                    NewNode->findCount = findFrame;
-                    NewNode->f         = f;
-
-                    if (!open) {
-                        NewNode->NextNode = NULL;
-                        NewNode->PrevNode = NULL;
-                        open              = NewNode;
-                        continue;
-                    }
-
-                    if (open->f >= f) {
-                        NewNode->PrevNode = NULL;
-                        NewNode->NextNode = open;
-
-                        open->PrevNode = NewNode;
-                        open           = NewNode;
-                        continue;
-                    }
-
-                    prev = open;
-                    next = open->NextNode;
-                    while (next && next->f < f) {
-                        prev = next;
-                        next = next->NextNode;
-                    }
-
-                    NewNode->NextNode = next;
-                    if (next) {
-                        next->PrevNode = NewNode;
-                    }
-                    prev->NextNode    = NewNode;
-                    NewNode->PrevNode = prev;
-                }
             }
         }
-
-        if (!open) {
-            last_error = "unreachable path";
-            return 0;
-        }
     }
-
-    path_start = start;
-    return Node->m_Depth;
 }
 
-int PathSearch::FindPathNear(
-    float  *start,
-    float  *end,
-    Entity *ent,
-    float   maxPath,
-    float   fRadiusSquared,
-    float  *vLeashHome,
-    float   fLeashDistSquared,
-    int     fallheight
-)
+const_str PathNode::GetSpecialAttack(Actor *pActor)
 {
-    int        i;
-    int        g;
-    PathNode  *NewNode;
-    pathway_t *pathway;
-    PathNode  *prev;
-    PathNode  *next;
-    int        f;
-    vec2_t     dir;
-    vec2_t     delta;
+    int       iSpecialAttack;
+    const_str csAnimation;
+    float     fRangeSquared;
+    float     vDelta[2];
+    float     fMinAngle;
+    float     fMaxAngle;
 
-    if (ent) {
-        if (ent->IsSubclassOfActor()) {
-            Node = NearestStartNode(start, (SimpleActor *)ent);
+    if (nodeflags & AI_CORNER_LEFT) {
+        iSpecialAttack = 0;
+        csAnimation    = STRING_ANIM_CORNERLEFT_SCR;
+    } else if (nodeflags & AI_CORNER_RIGHT) {
+        iSpecialAttack = 1;
+        csAnimation    = STRING_ANIM_CORNERRIGHT_SCR;
+    } else {
+        if (nodeflags >= 0) {
+            return STRING_NULL;
+        }
+
+        iSpecialAttack = 2;
+        csAnimation    = STRING_ANIM_OVERATTACK_SCR;
+    }
+
+    if (pActor->m_Enemy) {
+        vDelta[0] = pActor->m_Enemy->origin[0] - origin[0];
+        vDelta[1] = pActor->m_Enemy->origin[1] - origin[1];
+    } else {
+        vDelta[0] = pActor->m_vLastEnemyPos[0] - origin[0];
+        vDelta[1] = pActor->m_vLastEnemyPos[1] - origin[1];
+    }
+
+    fRangeSquared = vDelta[0] * vDelta[0] + vDelta[1] * vDelta[1];
+
+    if (fRangeSquared < g_AttackParms[iSpecialAttack].fMinRangeSquared
+        || fRangeSquared > g_AttackParms[iSpecialAttack].fMaxRangeSquared) {
+        return STRING_NULL;
+    }
+
+    fMinAngle = atan2(vDelta[0], vDelta[1]) * (180.0f / M_PI) - angles[1];
+
+    if (fMinAngle > -360.0f) {
+        if (fMinAngle >= 0.0f) {
+            if (fMinAngle >= 720.0f) {
+                fMaxAngle = fMinAngle - 720.0f;
+            } else if (fMinAngle >= 360.0f) {
+                fMaxAngle = fMinAngle - 360.0f;
+            } else {
+                fMaxAngle = fMinAngle;
+            }
         } else {
-            Node = DebugNearestStartNode(start, ent);
+            fMaxAngle = fMinAngle + 360.0f;
         }
     } else {
-        Node = DebugNearestStartNode(start);
+        fMaxAngle = fMinAngle + 720.0f;
     }
 
-    if (!Node) {
-        last_error = "no start node";
-        return 0;
-    }
-
-    total_dist = 9e11f;
-
-    if (!maxPath) {
-        maxPath = 9e11f;
-    }
-
-    findFrame++;
-    open = NULL;
-
-    path_startdir[0] = Node->origin[0] - start[0];
-    path_startdir[1] = Node->origin[1] - start[1];
-
-    dir[0] = end[0] - start[0];
-    dir[1] = end[1] - start[1];
-
-    Node->inopen    = true;
-    Node->g         = VectorNormalize2D(path_startdir);
-    Node->h         = VectorNormalize2D(delta);
-    Node->Parent    = NULL;
-    Node->m_Depth   = 3;
-    Node->findCount = findFrame;
-    Node->PrevNode  = NULL;
-    Node->NextNode  = NULL;
-    Node->m_PathPos = start;
-
-    open = Node;
-
-    while (1) {
-        Node         = open;
-        Node->inopen = false;
-
-        open = Node->NextNode;
-
-        if (open) {
-            open->PrevNode = NULL;
-        }
-
-        delta[0] = end[0] - Node->m_PathPos[0];
-        delta[1] = end[1] - Node->m_PathPos[1];
-
-        if (fRadiusSquared >= VectorLength2DSquared(delta)) {
-            break;
-        }
-
-        for (i = Node->numChildren - 1; i >= 0; i--) {
-            pathway = &Node->Child[i];
-            NewNode = pathnodes[pathway->node];
-
-            g = (int)(pathway->dist + Node->g + 1.0f);
-
-            if (NewNode->findCount == findFrame) {
-                if (g >= NewNode->g) {
-                    continue;
-                }
-
-                if (NewNode->inopen) {
-                    NewNode->inopen = false;
-                    next            = NewNode->NextNode;
-                    prev            = NewNode->PrevNode;
-
-                    if (next) {
-                        next->PrevNode = prev;
-                    }
-
-                    if (prev) {
-                        prev->NextNode = next;
-                    } else {
-                        open = next;
-                    }
-                }
-            }
-
-            delta[0] = end[0] - pathway->pos2[0];
-            delta[1] = end[1] - pathway->pos2[1];
-
-            NewNode->h = VectorLength2D(delta);
-            f          = (int)((float)g + NewNode->h);
-
-            if (f >= maxPath) {
-                last_error = "specified path distance exceeded";
-                return 0;
-            }
-
-            if (pathway->fallheight <= fallheight) {
-                NewNode->f         = f;
-                NewNode->pathway   = i;
-                NewNode->g         = g;
-                NewNode->Parent    = Node;
-                NewNode->m_Depth   = Node->m_Depth + 1;
-                NewNode->inopen    = true;
-                NewNode->m_PathPos = pathway->pos2;
-                NewNode->findCount = findFrame;
-
-                if (!open) {
-                    NewNode->NextNode = NULL;
-                    NewNode->PrevNode = NULL;
-                    open              = NewNode;
-                    continue;
-                }
-
-                if (open->f >= f) {
-                    NewNode->PrevNode = NULL;
-                    NewNode->NextNode = open;
-
-                    open->PrevNode = NewNode;
-                    open           = NewNode;
-                    continue;
-                }
-
-                prev = open;
-                next = open->NextNode;
-                while (next && next->f < f) {
-                    prev = next;
-                    next = next->NextNode;
-                }
-
-                NewNode->NextNode = next;
-                if (next) {
-                    next->PrevNode = NewNode;
-                }
-                prev->NextNode    = NewNode;
-                NewNode->PrevNode = prev;
-            }
-        }
-
-        if (!open) {
-            last_error = "unreachable path";
-            return 0;
-        }
-    }
-
-    path_start = start;
-    path_end   = end;
-    return Node->m_Depth;
-}
-
-int node_compare(const void *pe1, const void *pe2)
-{
-    nodeinfo *Pe1 = (nodeinfo *)pe1;
-    nodeinfo *Pe2 = (nodeinfo *)pe2;
-    int       iConcealment;
-
-    iConcealment = (Pe1->pNode->nodeflags & 0xB0) != 0;
-    if (Pe2->pNode->nodeflags & 0xB0) {
-        --iConcealment;
-    }
-    return (
-        (Pe1->fDistSquared) + (iConcealment << 23) + (((Pe1->pNode->nodeflags & 8) - (Pe2->pNode->nodeflags & 8)) << 21)
-        - (Pe2->fDistSquared)
-    );
-}
-
-PathNode *PathSearch::FindCornerNodeForWall(float *start, float *end, SimpleActor *ent, float maxPath, float *plane)
-{
-    int        i, g;
-    PathNode  *NewNode;
-    pathway_t *pathway;
-    PathNode  *prev, *next;
-    int        f;
-    vec2_t     delta;
-
-    Node = NearestStartNode(start, ent);
-    if (!Node) {
-        last_error = "couldn't find start node";
-        return NULL;
-    }
-
-    if (DotProduct(start, plane) - plane[3] < 0.0) {
-        last_error = "starting point is already behind the wall";
-        return NULL;
-    }
-
-    if (DotProduct(plane, end) - plane[3] > 0.0) {
-        last_error = "end point is in front of the wall";
-        return NULL;
-    }
-
-    total_dist = 1.0e12f;
-
-    if (maxPath == 0.0) {
-        maxPath = 1.0e12f;
-    }
-
-    findFrame++;
-    open = NULL;
-
-    VectorSub2D(Node->origin, start, path_startdir);
-    Node->g = VectorNormalize2D(path_startdir);
-
-    VectorSub2D(end, start, path_totaldir);
-    Node->h = VectorNormalize2D(path_totaldir);
-
-    Node->inopen = true;
-
-    Node->Parent = NULL;
-
-    Node->m_Depth   = 3;
-    Node->m_PathPos = start;
-    Node->findCount = findFrame;
-    Node->PrevNode  = 0;
-    Node->NextNode  = 0;
-
-    open = Node;
-
-    if (!open) {
-        last_error = "unreachable path";
-        return NULL;
-    }
-
-    while (true) {
-        Node         = open;
-        Node->inopen = false;
-        open         = Node->NextNode;
-
-        if (open) {
-            open->PrevNode = NULL;
-        }
-
-        if (Node->Parent && DotProduct(plane, Node->m_PathPos) - plane[3] < 0.0) {
-            VectorSub2D(Node->Parent->m_PathPos, start, delta);
-            if (VectorLength2DSquared(delta) < Square(16)) {
-                return Node;
-            }
-            return Node->Parent;
-        }
-
-        i = Node->numChildren;
-        if (i) {
-            break;
-        }
-
-    weird_lbl:
-        if (!open) {
-            last_error = "unreachable path";
-            return NULL;
-        }
-    }
-
-    while (true) {
-        pathway = &Node->Child[--i];
-        NewNode = PathSearch::pathnodes[pathway->node];
-        g       = (pathway->dist + Node->g + 1.0);
-
-        if (NewNode->findCount == PathSearch::findFrame) {
-            if (g >= NewNode->g) {
-                if (i == 0) {
-                    goto weird_lbl;
-                }
-
-                continue;
-            }
-            if (NewNode->inopen) {
-                NewNode->inopen = false;
-
-                if (NewNode->NextNode) {
-                    NewNode->NextNode->PrevNode = NewNode->PrevNode;
-                }
-                if (NewNode->PrevNode) {
-                    NewNode->PrevNode->NextNode = NewNode->NextNode;
-                } else {
-                    PathSearch::open = NewNode->NextNode;
-                }
-            }
-        }
-
-        vec2_t vDelta2;
-        VectorSub2D(end, pathway->pos2, vDelta2);
-        NewNode->h = VectorLength2D(vDelta2);
-
-        f = (NewNode->h + g);
-
-        if (f >= maxPath) {
-            break;
-        }
-
-        NewNode->m_Depth   = Node->m_Depth + 1;
-        NewNode->Parent    = Node;
-        NewNode->pathway   = i;
-        NewNode->f         = f;
-        NewNode->g         = g;
-        NewNode->m_PathPos = pathway->pos2;
-        NewNode->findCount = PathSearch::findFrame;
-        NewNode->inopen    = true;
-
-        if (!PathSearch::open) {
-            NewNode->NextNode = NULL;
-            NewNode->PrevNode = NULL;
-            PathSearch::open  = NewNode;
-            if (i == 0) {
-                goto weird_lbl;
-            }
-
-            continue;
-        }
-
-        if (f <= open->f) {
-            NewNode->NextNode = PathSearch::open;
-            NewNode->PrevNode = NULL;
-            open->PrevNode    = NewNode;
-            open              = NewNode;
-            if (i == 0) {
-                goto weird_lbl;
-            }
-
-            continue;
-        }
-
-        prev = open;
-
-        PathNode *pNextOpenNode;
-        for (pNextOpenNode = open->NextNode; pNextOpenNode; pNextOpenNode = pNextOpenNode->NextNode) {
-            if (pNextOpenNode->f >= f) {
-                break;
-            }
-
-            prev = pNextOpenNode;
-        }
-
-        NewNode->NextNode = pNextOpenNode;
-
-        if (pNextOpenNode) {
-            pNextOpenNode->PrevNode = NewNode;
-        }
-
-        prev->NextNode    = NewNode;
-        NewNode->PrevNode = prev;
-
-        if (i == 0) {
-            goto weird_lbl;
-        }
-    }
-
-    PathSearch::last_error = "specified path distance exceeded";
-    return NULL;
-}
-
-PathNode *PathSearch::FindCornerNodeForExactPath(SimpleActor *pSelf, Sentient *enemy, float fMaxPath)
-{
-    PathNode *pPathNode[4096];
-    PathNode *pParentNode;
-    size_t    i, iDepth, index;
-
-    if (!PathSearch::FindPath(enemy->origin, pSelf->origin, pSelf, fMaxPath, 0, 0.0, 100)) {
-        return NULL;
-    }
-
-    for (pParentNode = Node->Parent, i = 0; pParentNode; pParentNode = pParentNode->Parent, i++) {
-        pPathNode[i] = pParentNode;
-    }
-
-    iDepth = i;
-    if (!iDepth) {
-        return NULL;
-    }
-
-    Node = pPathNode[iDepth - 1];
-
-    for (i = 1; i < iDepth; i += 2) {
-        if (!G_SightTrace(
-                pSelf->EyePosition(),
-                vec_zero,
-                vec_zero,
-                pSelf->EyePosition() - pSelf->origin + pPathNode[i]->m_PathPos,
-                pSelf,
-                enemy,
-                0x2040B19,
-                0,
-                "FindCornerNodeFoExactPath 1"
-            )) {
-            break;
-        }
-    }
-
-    index = i - 1;
-    if (index < iDepth) {
-        if (index) {
-            if (!G_SightTrace(
-                    pSelf->EyePosition(),
-                    vec_zero,
-                    vec_zero,
-                    pSelf->EyePosition() - pSelf->origin + pPathNode[index]->m_PathPos,
-                    pSelf,
-                    enemy,
-                    0x2040B19,
-                    0,
-                    "FindCornerNodeFoExactPath 2"
-                )) {
-                index--;
-            }
+    if (g_AttackParms[iSpecialAttack].fMinAngle <= g_AttackParms[iSpecialAttack].fMaxAngle) {
+        if (g_AttackParms[iSpecialAttack].fMinAngle > fMaxAngle) {
+            return STRING_NULL;
         }
     } else {
-        index = iDepth - 1;
+        if (g_AttackParms[iSpecialAttack].fMinAngle <= fMaxAngle) {
+            return STRING_NULL;
+        }
     }
 
-    return pPathNode[index];
+    if (fMaxAngle > g_AttackParms[iSpecialAttack].fMaxAngle) {
+        return STRING_NULL;
+    }
+
+    return csAnimation;
 }
 
-int PathSearch::FindPotentialCover(
-    SimpleActor *pEnt, Vector& vPos, Entity *pEnemy, PathNode **ppFoundNodes, int iMaxFind
-)
+void PathNode::Claim(Entity *pClaimer)
 {
-    nodeinfo  nodes[MAX_PATHNODES];
-    int       nNodes = 0;
-    int       i;
-    Vector    delta;
-    PathNode *node;
-
-    Actor *pActor = static_cast<Actor *>(pEnt);
-
-    for (i = 0; i < nodecount; i++) {
-        node = pathnodes[i];
-        if (!node) {
-            continue;
-        }
-
-        if (!(node->nodeflags & AI_COVER_MASK)) {
-            continue;
-        }
-
-        if (node->IsClaimedByOther(static_cast<Entity *>(pEnt))) {
-            continue;
-        }
-
-        delta = node->origin - pActor->m_vHome;
-        if (delta.lengthSquared() > pActor->m_fLeashSquared) {
-            continue;
-        }
-
-        delta = node->origin - pEnemy->origin;
-        if (delta.lengthSquared() < pActor->m_fMinDistanceSquared
-            || delta.lengthSquared() > pActor->m_fMaxDistanceSquared) {
-            continue;
-        }
-
-        delta                      = node->origin - pEnt->origin;
-        nodes[nNodes].pNode        = node;
-        nodes[nNodes].fDistSquared = delta.lengthSquared();
-        nNodes++;
-    }
-
-    if (nNodes) {
-        qsort(nodes, nNodes, sizeof(nodeinfo), node_compare);
-
-        if (nNodes > iMaxFind) {
-            nNodes = iMaxFind;
-        }
-
-        for (i = 0; i < nNodes; i++) {
-            ppFoundNodes[nNodes - i - 1] = nodes[i].pNode;
-        }
-    }
-    return nNodes;
+    pLastClaimer   = pClaimer;
+    iAvailableTime = 0;
 }
 
-void PathSearch::PlayerCover(Player *pPlayer)
+Entity *PathNode::GetClaimHolder(void) const
 {
-    int       i;
-    PathNode *node;
-    Vector    delta;
-    Entity   *pOwner;
-
-    for (i = 0; i < nodecount; i++) {
-        node = pathnodes[i];
-
-        if (!node || !(node->nodeflags & AI_COVERFLAGS)) {
-            continue;
-        }
-
-        pOwner = node->GetClaimHolder();
-
-        delta = node->origin - pPlayer->origin;
-
-        // Check if we need to cover
-        if (VectorLengthSquared(delta) > 2304.0f) {
-            if (pOwner == pPlayer) {
-                node->Relinquish();
-            }
-
-            continue;
-        }
-
-        if (pOwner != pPlayer) {
-            if (pOwner) {
-                pOwner->PathnodeClaimRevoked(node);
-            }
-
-            // Player claim the node
-            node->Claim(pPlayer);
-        }
-    }
-}
-
-PathNode *PathSearch::FindNearestCover(SimpleActor *pEnt, Vector& vPos, Entity *pEnemy)
-{
-    // not found in ida
-    return NULL;
-}
-
-PathNode *PathSearch::FindNearestSniperNode(SimpleActor *pEnt, Vector& vPos, Entity *pEnemy)
-{
-    Actor    *pSelf = (Actor *)pEnt;
-    PathNode *pNode;
-    Vector    delta;
-    int       nNodes = 0;
-    nodeinfo  nodes[MAX_PATHNODES];
-
-    for (int i = 0; i < nodecount; i++) {
-        pNode = pathnodes[i];
-        if (pNode && pNode->nodeflags & AI_SNIPER) {
-            if (pNode->pLastClaimer == pSelf || (pNode->iAvailableTime && level.inttime >= pNode->iAvailableTime)
-                || (pNode->pLastClaimer == NULL)) {
-                delta = pNode->origin - pSelf->m_vHome;
-                if (delta.lengthSquared() <= pSelf->m_fLeashSquared) {
-                    delta = pNode->origin - pEnemy->origin;
-                    if (delta.lengthSquared() >= pSelf->m_fMinDistanceSquared
-                        && delta.lengthSquared() <= pSelf->m_fMaxDistanceSquared) {
-                        delta                      = pNode->origin - pSelf->origin;
-                        nodes[nNodes].pNode        = pNode;
-                        nodes[nNodes].fDistSquared = delta.lengthSquared();
-                        nNodes++;
-                    }
-                }
-            }
-        }
-    }
-
-    if (nNodes == 0) {
+    if (iAvailableTime) {
         return NULL;
+    } else {
+        return pLastClaimer;
+    }
+}
+
+void PathNode::Relinquish(void)
+{
+    iAvailableTime = level.inttime + 4000;
+}
+
+bool PathNode::IsClaimedByOther(Entity *pPossibleClaimer) const
+{
+    if (pLastClaimer == pPossibleClaimer) {
+        return false;
     }
 
-    qsort(nodes, nNodes, sizeof(nodeinfo), node_compare);
+    if (iAvailableTime) {
+        return (level.inttime < iAvailableTime);
+    } else {
+        return (pLastClaimer != NULL);
+    }
+}
 
-    if (nNodes <= 0) {
-        return NULL;
+void PathNode::MarkTemporarilyBad(void)
+{
+    iAvailableTime = level.inttime + 5000;
+    pLastClaimer   = NULL;
+}
+
+void PathNode::Archive(Archiver& arc) {}
+
+void PathNode::ArchiveStatic(Archiver& arc)
+{
+    arc.ArchiveVector(&origin);
+    arc.ArchiveVector(&centroid);
+    arc.ArchiveInteger(&nodeflags);
+    arc.ArchiveInteger(&virtualNumChildren);
+
+    numChildren = virtualNumChildren;
+
+    if (arc.Loading()) {
+        bulkNavMemory -= virtualNumChildren * sizeof(pathway_t) * sizeof(pathway_t *);
+        Child = virtualNumChildren ? (pathway_t *)bulkNavMemory : NULL;
     }
 
-    for (int i = 0; i < nNodes; i++) {
-        pNode = nodes[i].pNode;
-        if (pSelf->CanSeeFrom(pSelf->EyePosition() + pNode->origin, pEnemy)) {
-            return pNode;
+    for (int i = 0; i < virtualNumChildren; i++) {
+        arc.ArchiveShort(&Child[i].node);
+        arc.ArchiveShort(&Child[i].fallheight);
+        arc.ArchiveFloat(&Child[i].dist);
+        arc.ArchiveVec2(Child[i].dir);
+        arc.ArchiveVec3(Child[i].pos1);
+        arc.ArchiveVec3(Child[i].pos2);
+
+        if (arc.Loading()) {
+            Child[i].numBlockers = 0;
+
+            for (int j = 0; j < ARRAY_LEN(Child[i].badPlaceTeam); j++) {
+                Child[i].badPlaceTeam[j] = 0;
+            }
         }
-
-        pNode->iAvailableTime = level.inttime + 5000;
-        pNode->pLastClaimer   = NULL;
     }
+}
 
-    return NULL;
+void PathNode::ArchiveDynamic(Archiver& arc)
+{
+    SimpleEntity::SimpleArchive(arc);
+
+    arc.ArchiveObjectPosition(this);
+    arc.ArchiveSafePointer(&pLastClaimer);
+    arc.ArchiveInteger(&iAvailableTime);
+    arc.ArchiveInteger(&numChildren);
+
+    if (numChildren != virtualNumChildren) {
+        for (int i = 0; i < virtualNumChildren; i++) {
+            arc.ArchiveByte(&Child[i].numBlockers);
+            arc.ArchiveShort(&Child[i].node);
+            arc.ArchiveShort(&Child[i].fallheight);
+            arc.ArchiveFloat(&Child[i].dist);
+            arc.ArchiveVec2(Child[i].dir);
+            arc.ArchiveVec3(Child[i].pos1);
+            arc.ArchiveVec3(Child[i].pos2);
+        }
+    }
 }
 
 int PathSearch::NearestNodeSetup(vec3_t pos, MapCell *cell, int *nodes, vec3_t *deltas)
@@ -3056,28 +3105,44 @@ int PathSearch::NearestNodeSetup(vec3_t pos, MapCell *cell, int *nodes, vec3_t *
     return n;
 }
 
-void PathSearch::Init(void)
+PathNode *PathSearch::FindNearestCover(SimpleActor *pEnt, Vector& vPos, Entity *pEnemy)
 {
-    ai_showroutes          = gi.Cvar_Get("ai_showroutes", "0", 0);
-    ai_showroutes_distance = gi.Cvar_Get("ai_showroutes_distance", "1000", 0);
-    ai_shownodenums        = gi.Cvar_Get("ai_shownodenums", "0", 0);
-    ai_shownode            = gi.Cvar_Get("ai_shownode", "0", 0);
-    ai_showallnode         = gi.Cvar_Get("ai_showallnode", "0", 0);
-    ai_showpath            = gi.Cvar_Get("ai_showpath", "0", 0);
-    ai_fallheight          = gi.Cvar_Get("ai_fallheight", "96", 0);
-    ai_debugpath           = gi.Cvar_Get("ai_debugpath", "0", 0);
-    ai_pathchecktime       = gi.Cvar_Get("ai_pathchecktime", "1.5", CVAR_CHEAT);
-    ai_pathcheckdist       = gi.Cvar_Get("ai_pathcheckdist", "4096", CVAR_CHEAT);
+    // not found in ida
+    return NULL;
 }
 
-Event EV_AttractiveNode_GetPriority("priority", EV_DEFAULT, NULL, NULL, "Get the node priority", EV_GETTER);
+Event EV_AttractiveNode_GetPriority
+(
+    "priority",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Get the node priority",
+    EV_GETTER
+);
 
-Event EV_AttractiveNode_SetPriority("priority", EV_DEFAULT, "i", "priority", "Set the node priority", EV_SETTER);
+Event EV_AttractiveNode_SetPriority
+(
+    "priority",
+    EV_DEFAULT,
+    "i",
+    "priority",
+    "Set the node priority",
+    EV_SETTER
+);
 
-Event
-    EV_AttractiveNode_GetDistance("max_dist", EV_DEFAULT, NULL, NULL, "Get the max distance for this node", EV_GETTER);
+Event EV_AttractiveNode_GetDistance
+(
+    "max_dist",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Get the max distance for this node",
+    EV_GETTER
+);
 
-Event EV_AttractiveNode_SetDistance(
+Event EV_AttractiveNode_SetDistance
+(
     "max_dist",
     EV_DEFAULT,
     "f",
@@ -3086,15 +3151,28 @@ Event EV_AttractiveNode_SetDistance(
     EV_SETTER
 );
 
-Event EV_AttractiveNode_GetStayTime(
-    "stay_time", EV_DEFAULT, NULL, NULL, "Get the max stay time for this node", EV_GETTER
+Event EV_AttractiveNode_GetStayTime
+(
+    "stay_time",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Get the max stay time for this node",
+    EV_GETTER
 );
 
-Event EV_AttractiveNode_SetStayTime(
-    "stay_time", EV_DEFAULT, "f", "stay_time", "Set the maximum stay time AI will stay on this node", EV_SETTER
+Event EV_AttractiveNode_SetStayTime
+(
+    "stay_time",
+    EV_DEFAULT,
+    "f",
+    "stay_time",
+    "Set the maximum stay time AI will stay on this node",
+    EV_SETTER
 );
 
-Event EV_AttractiveNode_GetRespawnTime(
+Event EV_AttractiveNode_GetRespawnTime
+(
     "respawn_time",
     EV_DEFAULT,
     NULL,
@@ -3103,7 +3181,8 @@ Event EV_AttractiveNode_GetRespawnTime(
     EV_GETTER
 );
 
-Event EV_AttractiveNode_SetRespawnTime(
+Event EV_AttractiveNode_SetRespawnTime
+(
     "respawn_time",
     EV_DEFAULT,
     "f",
@@ -3113,12 +3192,24 @@ Event EV_AttractiveNode_SetRespawnTime(
     EV_SETTER
 );
 
-Event EV_AttractiveNode_GetTeam(
-    "team", EV_DEFAULT, NULL, NULL, "Get the attractive node team. 'none' for no team.", EV_GETTER
+Event EV_AttractiveNode_GetTeam
+(
+    "team",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Get the attractive node team. 'none' for no team.",
+    EV_GETTER
 );
 
-Event EV_AttractiveNode_SetTeam(
-    "team", EV_DEFAULT, "s", "team", "Set the attractive node team. 'none' for no team.", EV_SETTER
+Event EV_AttractiveNode_SetTeam
+(
+    "team",
+    EV_DEFAULT,
+    "s",
+    "team",
+    "Set the attractive node team. 'none' for no team.",
+    EV_SETTER
 );
 
 Event EV_AttractiveNode_SetUse("setuse", EV_DEFAULT, "b", "use", "Set if AI should use or not");
