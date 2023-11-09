@@ -733,6 +733,8 @@ movement on the server game.
 #define MASK_AI_CANSEE                                                                                    \
     (CONTENTS_SOLID | CONTENTS_LAVA | CONTENTS_SLIME | CONTENTS_BBOX | CONTENTS_UNKNOWN2 | CONTENTS_FENCE \
      | CONTENTS_WEAPONCLIP)
+#define MASK_CORNER_NODE \
+    (CONTENTS_SOLID | CONTENTS_LAVA | CONTENTS_SLIME | CONTENTS_UNKNOWN2 | CONTENTS_WEAPONCLIP | CONTENTS_BODY)
 
     // mohaa mask
     /*
