@@ -131,27 +131,22 @@ PathInfo *PathSearch::GeneratePath(PathInfo *path)
 
     total_dist = dist + Node->g;
 
-    path->point[0] = path_end[0];
-    path->point[1] = path_end[1];
-    path->point[2] = path_end[2];
+    VectorCopy(path_end, current_path->point);
 
     ParentNode = Node->Parent;
     if (ParentNode) {
         pathway = &ParentNode->Child[Node->pathway];
-
-        path->dir[0] = path_end[0] - pathway->pos2[0];
-        path->dir[1] = path_end[1] - pathway->pos2[1];
-        path->dist   = VectorNormalize2D(path->dir);
+        VectorSub2D(path_end, pathway->pos2, current_path->dir);
+        current_path->dist = VectorNormalize2D(current_path->dir);
 
         if (path->dist) {
             path->bAccurate = false;
-            current_path    = path + 1;
+            current_path++;
         }
 
         if (pathway->dist) {
             VectorCopy(pathway->pos2, current_path->point);
-            current_path->dir[0]    = pathway->dir[0];
-            current_path->dir[1]    = pathway->dir[1];
+            VectorCopy2D(pathway->dir, current_path->dir);
             current_path->dist      = pathway->dist;
             current_path->bAccurate = true;
             current_path++;
@@ -162,8 +157,7 @@ PathInfo *PathSearch::GeneratePath(PathInfo *path)
             pathway = &ParentNode->Child[Node->pathway];
             if (pathway->dist) {
                 VectorCopy(pathway->pos2, current_path->point);
-                current_path->dir[0]    = pathway->dir[0];
-                current_path->dir[1]    = pathway->dir[1];
+                VectorCopy2D(pathway->dir, current_path->dir);
                 current_path->dist      = pathway->dist;
                 current_path->bAccurate = true;
                 current_path++;
@@ -171,13 +165,11 @@ PathInfo *PathSearch::GeneratePath(PathInfo *path)
         }
 
         VectorCopy(pathway->pos1, current_path->point);
-        current_path->dir[0] = path_startdir[0];
-        current_path->dir[1] = path_startdir[1];
-        current_path->dist   = Node->g;
+        VectorCopy2D(path_startdir, current_path->dir);
+        current_path->dist = Node->g;
     } else {
-        path->dir[0] = path_totaldir[0];
-        path->dir[1] = path_totaldir[1];
-        path->dist   = Node->h;
+        VectorCopy(path_totaldir, current_path->dir);
+        path->dist = Node->h;
     }
 
     if (current_path->dist) {
@@ -208,9 +200,8 @@ PathInfo *PathSearch::GeneratePathNear(PathInfo *path)
 
         if (pathway->dist) {
             VectorCopy(pathway->pos2, path->point);
-            path->dir[0] = pathway->dir[0];
-            path->dir[1] = pathway->dir[1];
-            path->dist   = pathway->dist;
+            VectorCopy2D(pathway->dir, path->dir);
+            path->dist = pathway->dist;
 
             current_path->bAccurate = true;
             current_path++;
@@ -221,8 +212,7 @@ PathInfo *PathSearch::GeneratePathNear(PathInfo *path)
             pathway = &ParentNode->Child[Node->pathway];
             if (pathway->dist) {
                 VectorCopy(pathway->pos2, current_path->point);
-                current_path->dir[0]    = pathway->dir[0];
-                current_path->dir[1]    = pathway->dir[1];
+                VectorCopy2D(pathway->dir, current_path->dir);
                 current_path->dist      = pathway->dist;
                 current_path->bAccurate = true;
                 current_path++;
@@ -230,14 +220,11 @@ PathInfo *PathSearch::GeneratePathNear(PathInfo *path)
         }
 
         VectorCopy(pathway->pos1, current_path->point);
-        current_path->dir[0] = path_startdir[0];
-        current_path->dir[1] = path_startdir[1];
-
+        VectorCopy2D(path_startdir, current_path->dir);
         current_path->dist = Node->g;
     } else {
-        path->dir[0] = path_totaldir[0];
-        path->dir[1] = path_totaldir[1];
-        path->dist   = Node->h;
+        VectorCopy2D(path_totaldir, current_path->dir);
+        path->dist = Node->h;
     }
 
     if (current_path->dist) {
@@ -245,8 +232,8 @@ PathInfo *PathSearch::GeneratePathNear(PathInfo *path)
         current_path++;
 
         VectorCopy(path_start, current_path->point);
-        current_path->dist = 0;
         VectorClear2D(current_path->dir);
+        current_path->dist = 0;
     }
 
     current_path->bAccurate = false;
@@ -267,9 +254,8 @@ PathInfo *PathSearch::GeneratePathAway(PathInfo *path)
 
         if (pathway->dist) {
             VectorCopy(pathway->pos2, path->point);
-            path->dir[0] = pathway->dir[0];
-            path->dir[1] = pathway->dir[1];
-            path->dist   = pathway->dist;
+            VectorCopy2D(pathway->dir, path->dir);
+            path->dist = pathway->dist;
 
             current_path->bAccurate = true;
             current_path++;
@@ -280,8 +266,7 @@ PathInfo *PathSearch::GeneratePathAway(PathInfo *path)
             pathway = &ParentNode->Child[Node->pathway];
             if (pathway->dist) {
                 VectorCopy(pathway->pos2, current_path->point);
-                current_path->dir[0]    = pathway->dir[0];
-                current_path->dir[1]    = pathway->dir[1];
+                VectorCopy2D(pathway->dir, current_path->dir);
                 current_path->dist      = pathway->dist;
                 current_path->bAccurate = true;
                 current_path++;
@@ -289,8 +274,7 @@ PathInfo *PathSearch::GeneratePathAway(PathInfo *path)
         }
 
         VectorCopy(pathway->pos1, current_path->point);
-        current_path->dir[0] = path_startdir[0];
-        current_path->dir[1] = path_startdir[1];
+        VectorCopy2D(pathway->pos1, current_path->point);
 
         current_path->dist = Node->g;
 
@@ -298,8 +282,8 @@ PathInfo *PathSearch::GeneratePathAway(PathInfo *path)
             current_path->bAccurate = false;
             current_path++;
             VectorCopy(path_start, current_path->point);
-            current_path->dist = 0;
             VectorClear2D(current_path->dir);
+            current_path->dist = 0;
         }
     } else {
         VectorClear2D(path->dir);
@@ -1348,8 +1332,9 @@ void PathNode::DrawConnections(void)
     }
 }
 
-static void droptofloor(Vector& vec, PathNode* node) {
-    Vector start, end;
+static void droptofloor(Vector& vec, PathNode *node)
+{
+    Vector  start, end;
     trace_t trace;
 
     start = vec;
@@ -2821,7 +2806,7 @@ void PathNode::CheckPathToDefault(PathNode *node, pathway_t *pathway)
     }
 
     start = origin;
-    end = node->origin;
+    end   = node->origin;
 
     droptofloor(start, this);
     droptofloor(end, node);
