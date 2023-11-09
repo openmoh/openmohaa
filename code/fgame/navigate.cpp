@@ -102,12 +102,11 @@ struct {
     float fMaxRangeSquared;
     float fMinAngle;
     float fMaxAngle;
-}
-
-g_AttackParms[] = {
-    {64 * 64, 2048 * 2048, 150.0f, 210.0f},
-    {64 * 64, 2048 * 2048, 150.0f, 210.0f},
-    {96 * 96, 2048 * 2048, 320.0f, 40.0f },
+} g_AttackParms[] = {
+    {Square(64), Square(2048), 150.0f, 210.0f},
+    {Square(64), Square(2048), 150.0f, 210.0f},
+    {Square(96), Square(2048), 320.0f, 40.0f },
+    {Square(96), Square(4096), 0.0f,   0.0f  },
 };
 
 PathSearch PathManager;
@@ -2098,6 +2097,7 @@ void *PathSearch::AllocPathNode(void)
     }
 
     bulkNavMemory -= sizeof(PathNode);
+    return bulkNavMemory;
 }
 
 void PathSearch::FreePathNode(void *ptr)
@@ -2338,11 +2338,13 @@ void PathSearch::CreatePaths(void)
         "***********************************\n"
     );
 
+    gi.ClearResource();
+
     t1 = gi.Milliseconds();
 
     for (i = 0, ent = g_entities; i < game.maxentities; i++, ent++) {
         if (ent->entity && ent->entity->IsSubclassOfDoor()) {
-            gi.unlinkentity(ent);
+            ent->entity->unlink();
         }
     }
 
@@ -2359,32 +2361,30 @@ void PathSearch::CreatePaths(void)
     for (i = 0; i < nodecount; i++) {
         node = pathnodes[i];
 
-        start = node->origin + Vector(0, 0, 36.0f);
-        end   = node->origin - Vector(0, 0, 2048.0f);
-
         droptofloor(node->origin, node);
-
         node->centroid = node->origin;
 
+        if (node->nodeflags & PATH_DONT_LINK) {
+            continue;
+        }
+
+        for (j = i - 1; j >= 0; j--) {
+            PathNode *node2 = pathnodes[j];
+
+            if (node->origin == node2->origin) {
+                Com_Printf(
+                    "^~^~^ Duplicate node at (%.2f %.2f %.2f) not linked\n",
+                    node->origin[0],
+                    node->origin[1],
+                    node->origin[2]
+                );
+                node->nodeflags |= PATH_DONT_LINK;
+                break;
+            }
+        }
+
         if (!(node->nodeflags & PATH_DONT_LINK)) {
-            for (j = i - 1; j >= 0; j--) {
-                PathNode *node2 = pathnodes[j];
-
-                if (node2->origin == node->origin) {
-                    Com_Printf(
-                        "^~^~^ Duplicate node at (%.2f %.2f %.2f) not linked\n",
-                        node->origin[0],
-                        node->origin[1],
-                        node->origin[2]
-                    );
-                    node->nodeflags |= PATH_DONT_LINK;
-                    break;
-                }
-            }
-
-            if (!(node->nodeflags & PATH_DONT_LINK)) {
-                node->Child = (pathway_t *)gi.Malloc(sizeof(pathway_t) * PATHMAP_NODES);
-            }
+            node->Child = (pathway_t *)gi.Malloc(sizeof(pathway_t) * PATHMAP_NODES);
         }
     }
 
@@ -2434,11 +2434,7 @@ void PathSearch::LoadAddToGrid2(PathNode *node, int x, int y)
 {
     MapCell *cell;
 
-    if (x > PATHMAP_GRIDSIZE || y > PATHMAP_GRIDSIZE) {
-        cell = NULL;
-    } else {
-        cell = &PathMap[x][y];
-    }
+    cell = GetNodesInCell(x, y);
 
     if (cell) {
         cell->AddNode(node);
@@ -2557,14 +2553,14 @@ bool PathSearch::ArchiveDynamic(Archiver& arc)
     int       i;
     int       count;
 
-    if (arc.Loading()) {
+    if (arc.Saving()) {
+        arc.ArchiveInteger(&nodecount);
+    } else {
         arc.ArchiveInteger(&count);
         if (count != nodecount) {
             Com_Printf("Path file invalid - cannot load save game\n");
             return false;
         }
-    } else {
-        arc.ArchiveInteger(&nodecount);
     }
 
     for (i = 0; i < nodecount; i++) {
@@ -2579,11 +2575,7 @@ void PathSearch::AddToGrid(PathNode *node, int x, int y)
 {
     MapCell *cell;
 
-    if (x > PATHMAP_GRIDSIZE || y > PATHMAP_GRIDSIZE) {
-        cell = NULL;
-    } else {
-        cell = &PathMap[x][y];
-    }
+    cell = GetNodesInCell(x, y);
 
     if (!cell) {
         return;
@@ -2591,9 +2583,10 @@ void PathSearch::AddToGrid(PathNode *node, int x, int y)
 
     if (cell->NumNodes() >= PATHMAP_NODES) {
         Com_Printf("^~^~^ PathSearch::AddToGrid: Node overflow at ( %d, %d )\n", x, y);
-    } else {
-        cell->AddNode(node);
+        return;
     }
+
+    cell->AddNode(node);
 }
 
 bool PathSearch::Connect(PathNode *node, int x, int y)
@@ -2602,17 +2595,9 @@ bool PathSearch::Connect(PathNode *node, int x, int y)
     int       i;
     PathNode *node2;
 
-    if (x > PATHMAP_GRIDSIZE || y > PATHMAP_GRIDSIZE) {
-        cell = NULL;
-    } else {
-        cell = &PathMap[x][y];
-    }
+    cell = GetNodesInCell(x, y);
 
     if (!cell) {
-        return true;
-    }
-
-    if (cell->numnodes <= 0) {
         return true;
     }
 
@@ -2633,10 +2618,7 @@ bool PathSearch::Connect(PathNode *node, int x, int y)
 
 bool PathNode::CheckPathTo(PathNode *node)
 {
-    if (virtualNumChildren < NUM_PATHSPERNODE) {
-        CheckPathToDefault(node, &Child[virtualNumChildren]);
-        return true;
-    } else {
+    if (virtualNumChildren >= NUM_PATHSPERNODE) {
         Com_Printf(
             "^~^~^ %d paths per node at (%.2f %.2f %.2f) exceeded\n - use DONT_LINK on some nodes to conserve cpu and "
             "memory usage\n",
@@ -2648,6 +2630,9 @@ bool PathNode::CheckPathTo(PathNode *node)
         PathSearch::m_NodeCheckFailed = true;
         return false;
     }
+
+    CheckPathToDefault(node, &Child[virtualNumChildren]);
+    return true;
 }
 
 qboolean CheckMove(Vector& origin, Vector& pos, short int *path_fallheight, float size)
@@ -2708,8 +2693,7 @@ qboolean CheckMove(Vector& origin, Vector& pos, short int *path_fallheight, floa
             air_z = mm.origin[2];
         }
 
-        dir[0] = pos[0] - mm.origin[0];
-        dir[1] = pos[1] - mm.origin[1];
+        VectorSub2D(pos, mm.origin, dir);
 
         if (DotProduct2D(dir, mm.desired_dir) <= 0.1f) {
             error = mm.origin[2] - pos[2];
@@ -2717,15 +2701,11 @@ qboolean CheckMove(Vector& origin, Vector& pos, short int *path_fallheight, floa
             gi.Printf("error = %f\n", error);
 
             *path_fallheight = (short)fallheight;
-            if (fabs(error) > 94.0f) {
-                if (mm.groundPlane) {
-                    return false;
+            if (fabs(error) <= 94.0f) {
+                if (error <= 0.0f || mm.groundPlane) {
+                    return true;
                 }
 
-                mm.desired_dir[0] = dir[0];
-                mm.desired_dir[1] = dir[1];
-                VectorNormalize2D(mm.desired_dir);
-            } else if (error > 0.0f && !mm.groundPlane) {
                 end[0] = mm.origin[0];
                 end[1] = mm.origin[1];
                 end[2] = pos[2];
@@ -2738,22 +2718,20 @@ qboolean CheckMove(Vector& origin, Vector& pos, short int *path_fallheight, floa
                     *path_fallheight = (short)test_fallheight + fallheight;
                     return test_fallheight + fallheight <= 1024.0f;
                 }
-
-                if (mm.groundPlane) {
-                    return false;
-                }
-
-                mm.desired_dir[0] = dir[0];
-                mm.desired_dir[1] = dir[1];
-                VectorNormalize2D(mm.desired_dir);
             } else {
                 return true;
             }
+
+            if (mm.groundPlane) {
+                return false;
+            }
+
+            VectorCopy2D(dir, mm.desired_dir);
+            VectorNormalize2D(mm.desired_dir);
         }
 
         if (mm.hit_obstacle) {
-            gi.DPrintf("obstacle hit\n");
-            return false;
+            break;
         }
     }
 
@@ -2763,13 +2741,11 @@ qboolean CheckMove(Vector& origin, Vector& pos, short int *path_fallheight, floa
 void PathNode::CheckPathToDefault(PathNode *node, pathway_t *pathway)
 {
     float  dist;
-    float  delta[2];
+    vec2_t delta;
     Vector start;
     Vector end;
 
-    delta[0] = node->origin[0] - origin[0];
-    delta[1] = node->origin[1] - origin[1];
-
+    VectorSub2D(node->origin, origin, delta);
     dist = VectorNormalize2D(delta);
 
     if (dist >= 384.0f) {
@@ -2783,19 +2759,18 @@ void PathNode::CheckPathToDefault(PathNode *node, pathway_t *pathway)
     droptofloor(end, node);
 
     if (CheckMove(start, end, &pathway->fallheight, 15.5f)) {
-        pathway->dist   = dist;
-        pathway->dir[0] = delta[0];
-        pathway->dir[1] = delta[1];
+        pathway->dist = dist;
+        VectorCopy2D(delta, pathway->dir);
+        start.copyTo(pathway->pos1);
+        end.copyTo(pathway->pos2);
         ConnectTo(node);
     }
 }
 
-qboolean MapCell::AddNode(PathNode *node)
+void MapCell::AddNode(PathNode *node)
 {
-    nodes[numnodes] = (short)node->nodenum;
+    nodes[numnodes] = node->nodenum;
     numnodes++;
-
-    return true;
 }
 
 void PathSearch::AddNode(PathNode *node)
@@ -2822,26 +2797,42 @@ void PathSearch::Connect(PathNode *node)
     findFrame++;
     node->findCount = findFrame;
 
-    x = NodeCoordinate(node->origin[0]);
-    y = NodeCoordinate(node->origin[1]);
+    x = GridCoordinate(node->origin[0]);
+    y = GridCoordinate(node->origin[1]);
 
-    if (Connect(node, x - 1, y - 1)) {
-        if (Connect(node, x - 1, y)) {
-            if (Connect(node, x - 1, y + 1)) {
-                if (Connect(node, x, y - 1)) {
-                    if (Connect(node, x, y)) {
-                        if (Connect(node, x, y + 1)) {
-                            if (Connect(node, x + 1, y - 1)) {
-                                if (Connect(node, x + 1, y)) {
-                                    Connect(node, x + 1, y + 1);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
+    if (!Connect(node, x - 1, y - 1)) {
+        return;
     }
+
+    if (!Connect(node, x - 1, y)) {
+        return;
+    }
+
+    if (!Connect(node, x - 1, y + 1)) {
+        return;
+    }
+
+    if (!Connect(node, x, y - 1)) {
+        return;
+    }
+
+    if (!Connect(node, x, y)) {
+        return;
+    }
+
+    if (!Connect(node, x, y + 1)) {
+        return;
+    }
+
+    if (!Connect(node, x + 1, y - 1)) {
+        return;
+    }
+
+    if (!Connect(node, x + 1, y)) {
+        return;
+    }
+
+    Connect(node, x + 1, y + 1);
 }
 
 const_str PathNode::GetSpecialAttack(Actor *pActor)
@@ -2849,70 +2840,84 @@ const_str PathNode::GetSpecialAttack(Actor *pActor)
     int       iSpecialAttack;
     const_str csAnimation;
     float     fRangeSquared;
-    float     vDelta[2];
+    vec2_t    vDelta;
+    float     fAngle;
+    float     fMinRangeSquared;
+    float     fMaxRangeSquared;
     float     fMinAngle;
     float     fMaxAngle;
 
     if (nodeflags & AI_CORNER_LEFT) {
-        iSpecialAttack = 0;
-        csAnimation    = STRING_ANIM_CORNERLEFT_SCR;
+        iSpecialAttack   = 0;
+        csAnimation      = STRING_ANIM_CORNERLEFT_SCR;
+        fMinRangeSquared = g_AttackParms[iSpecialAttack].fMinRangeSquared;
+        fMaxRangeSquared = g_AttackParms[iSpecialAttack].fMaxRangeSquared;
+        fMinAngle        = g_AttackParms[iSpecialAttack].fMinAngle;
+        fMaxAngle        = g_AttackParms[iSpecialAttack].fMaxAngle;
     } else if (nodeflags & AI_CORNER_RIGHT) {
-        iSpecialAttack = 1;
-        csAnimation    = STRING_ANIM_CORNERRIGHT_SCR;
-    } else {
-        if (nodeflags >= 0) {
-            return STRING_NULL;
+        iSpecialAttack   = 1;
+        csAnimation      = STRING_ANIM_CORNERRIGHT_SCR;
+        fMinRangeSquared = g_AttackParms[iSpecialAttack].fMinRangeSquared;
+        fMaxRangeSquared = g_AttackParms[iSpecialAttack].fMaxRangeSquared;
+        fMinAngle        = g_AttackParms[iSpecialAttack].fMinAngle;
+        fMaxAngle        = g_AttackParms[iSpecialAttack].fMaxAngle;
+    } else if (nodeflags & AI_CRATE) {
+        iSpecialAttack   = 2;
+        csAnimation      = STRING_ANIM_OVERATTACK_SCR;
+        fMinRangeSquared = g_AttackParms[iSpecialAttack].fMinRangeSquared;
+        fMaxRangeSquared = g_AttackParms[iSpecialAttack].fMaxRangeSquared;
+        fMinAngle        = g_AttackParms[iSpecialAttack].fMinAngle;
+        fMaxAngle        = g_AttackParms[iSpecialAttack].fMaxAngle;
+    } else if (nodeflags & AI_LOW_WALL_ARC) {
+        if (nodeflags & AI_DUCK) {
+            csAnimation = STRING_ANIM_LOWWALL_SCR;
+        } else {
+            csAnimation = STRING_ANIM_HIGHWALL_SCR;
         }
 
-        iSpecialAttack = 2;
-        csAnimation    = STRING_ANIM_OVERATTACK_SCR;
+        iSpecialAttack   = 3;
+        fMinRangeSquared = g_AttackParms[iSpecialAttack].fMinRangeSquared;
+        fMaxRangeSquared = g_AttackParms[iSpecialAttack].fMaxRangeSquared;
+        fMinAngle        = 360 - m_fLowWallArc;
+        fMaxAngle        = m_fLowWallArc;
+    } else {
+        return STRING_NULL;
     }
 
     if (pActor->m_Enemy) {
-        vDelta[0] = pActor->m_Enemy->origin[0] - origin[0];
-        vDelta[1] = pActor->m_Enemy->origin[1] - origin[1];
+        VectorSub2D(pActor->m_Enemy->centroid, origin, vDelta);
     } else {
-        vDelta[0] = pActor->m_vLastEnemyPos[0] - origin[0];
-        vDelta[1] = pActor->m_vLastEnemyPos[1] - origin[1];
+        VectorSub2D(pActor->m_vLastEnemyPos, origin, vDelta);
     }
 
-    fRangeSquared = vDelta[0] * vDelta[0] + vDelta[1] * vDelta[1];
+    fRangeSquared = VectorLength2DSquared(vDelta);
 
-    if (fRangeSquared < g_AttackParms[iSpecialAttack].fMinRangeSquared
-        || fRangeSquared > g_AttackParms[iSpecialAttack].fMaxRangeSquared) {
+    if (fRangeSquared < fMinRangeSquared || fRangeSquared > fMaxRangeSquared) {
         return STRING_NULL;
     }
 
-    fMinAngle = atan2(vDelta[0], vDelta[1]) * (180.0f / M_PI) - angles[1];
+    fAngle = RAD2DEG(atan2(vDelta[1], vDelta[0])) - angles[1];
 
-    if (fMinAngle > -360.0f) {
-        if (fMinAngle >= 0.0f) {
-            if (fMinAngle >= 720.0f) {
-                fMaxAngle = fMinAngle - 720.0f;
-            } else if (fMinAngle >= 360.0f) {
-                fMaxAngle = fMinAngle - 360.0f;
-            } else {
-                fMaxAngle = fMinAngle;
-            }
-        } else {
-            fMaxAngle = fMinAngle + 360.0f;
-        }
+    if (fAngle <= -360) {
+        fAngle = fAngle + 720.0f;
+    } else if (fAngle < 0) {
+        fAngle = fAngle + 360.0f;
+    } else if (fAngle >= 720) {
+        fAngle = fAngle - 720.0f;
+    } else if (fAngle >= 360) {
+        fAngle = fAngle - 360.0f;
     } else {
-        fMaxAngle = fMinAngle + 720.0f;
+        fAngle = fAngle;
     }
 
-    if (g_AttackParms[iSpecialAttack].fMinAngle <= g_AttackParms[iSpecialAttack].fMaxAngle) {
-        if (g_AttackParms[iSpecialAttack].fMinAngle > fMaxAngle) {
+    if (fMinAngle > fMaxAngle) {
+        if (fAngle < fMinAngle && fAngle > fMaxAngle) {
             return STRING_NULL;
         }
     } else {
-        if (g_AttackParms[iSpecialAttack].fMinAngle <= fMaxAngle) {
+        if (fAngle < fMinAngle || fAngle > fMaxAngle) {
             return STRING_NULL;
         }
-    }
-
-    if (fMaxAngle > g_AttackParms[iSpecialAttack].fMaxAngle) {
-        return STRING_NULL;
     }
 
     return csAnimation;

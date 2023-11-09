@@ -89,18 +89,18 @@ typedef struct {
     short int node;
     short int fallheight;
     float     dist;
-    float     dir[2];
-    float     pos1[3];
-    float     pos2[3];
+    vec2_t    dir;
+    vec3_t    pos1;
+    vec3_t    pos2;
 } pathway_t;
 
 class PathInfo
 {
 public:
-    bool  bAccurate;
-    float point[3];
-    float dist;
-    float dir[2];
+    bool   bAccurate;
+    vec3_t point;
+    float  dist;
+    vec2_t dir;
 
 public:
     void Archive(Archiver& arc);
@@ -129,9 +129,10 @@ typedef enum {
 #define AI_SNIPER       64
 #define AI_CRATE        128
 // Added in 2.0
-#define AI_LOW_WALL_ARC      256
+#define AI_LOW_WALL_ARC 256
 
-#define AI_COVERFLAGS        (AI_CRATE | AI_SNIPER | AI_CORNER_RIGHT | AI_CORNER_LEFT | AI_CONCEALMENT | AI_COVER | AI_LOW_WALL_ARC)
+#define AI_COVERFLAGS \
+    (AI_CRATE | AI_SNIPER | AI_CORNER_RIGHT | AI_CORNER_LEFT | AI_CONCEALMENT | AI_COVER | AI_LOW_WALL_ARC)
 #define AI_COVERFLAGS2       (AI_SNIPER | AI_CORNER_RIGHT | AI_CORNER_LEFT | AI_CONCEALMENT)
 #define AI_COVERFLAGS3       (AI_SNIPER | AI_CORNER_RIGHT | AI_CORNER_LEFT | AI_CONCEALMENT | AI_DUCK | AI_CONCEALMENT)
 #define AI_SNIPERFLAGS       (AI_SNIPER | AI_CORNER_RIGHT | AI_CORNER_LEFT | AI_COVER)
@@ -162,7 +163,7 @@ public:
     short int       pathway;
     const vec_t    *m_PathPos;
     float           dist;
-    float           dir[2];
+    vec2_t          dir;
     int             nodeflags;
     SafePtr<Entity> pLastClaimer;
     int             iAvailableTime;
@@ -231,8 +232,8 @@ public:
     MapCell();
     ~MapCell();
 
-    qboolean AddNode(PathNode *node);
-    int      NumNodes(void);
+    void AddNode(PathNode *node);
+    int  NumNodes(void);
 };
 
 class PathSearch : public Listener
