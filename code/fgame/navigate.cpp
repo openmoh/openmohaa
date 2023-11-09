@@ -1348,6 +1348,19 @@ void PathNode::DrawConnections(void)
     }
 }
 
+static void droptofloor(Vector& vec, PathNode* node) {
+    Vector start, end;
+    trace_t trace;
+
+    start = vec;
+    start[2] += 36;
+    end = start;
+    end[2] -= 2048;
+
+    trace = G_Trace(start, PLAYER_BASE_MIN, PLAYER_BASE_MAX, end, NULL, MASK_PATHSOLID, qfalse, "droptofloor");
+    vec.z = trace.endpos[2];
+}
+
 static bool IsValidPathnode(int spawnflags)
 {
     if ((spawnflags & AI_DUCK) && (spawnflags & AI_COVERFLAGS2)) {
@@ -2393,11 +2406,9 @@ void PathSearch::CreatePaths(void)
         start = node->origin + Vector(0, 0, 36.0f);
         end   = node->origin - Vector(0, 0, 2048.0f);
 
-        trace_t trace =
-            G_Trace(start, PLAYER_BASE_MIN, PLAYER_BASE_MAX, end, NULL, MASK_PATHSOLID, qfalse, "droptofloor");
+        droptofloor(node->origin, node);
 
-        node->origin   = trace.endpos;
-        node->centroid = trace.endpos;
+        node->centroid = node->origin;
 
         if (!(node->nodeflags & PATH_DONT_LINK)) {
             for (j = i - 1; j >= 0; j--) {
@@ -2809,30 +2820,17 @@ void PathNode::CheckPathToDefault(PathNode *node, pathway_t *pathway)
         return;
     }
 
-    start = origin + Vector(0, 0, 36.0f);
-    end   = start - Vector(0, 0, 2048.0f);
+    start = origin;
+    end = node->origin;
 
-    trace_t trace = G_Trace(start, PLAYER_BASE_MIN, PLAYER_BASE_MAX, end, NULL, MASK_PATHSOLID, qfalse, "droptofloor");
-
-    start = node->origin + Vector(0, 0, 36.0f);
-    end   = start - Vector(0, 0, 2048.0f);
-
-    trace_t trace2 = G_Trace(start, PLAYER_BASE_MIN, PLAYER_BASE_MAX, end, NULL, MASK_PATHSOLID, qfalse, "droptofloor");
-
-    start = trace.endpos;
-    end   = trace2.endpos;
+    droptofloor(start, this);
+    droptofloor(end, node);
 
     if (CheckMove(start, end, &pathway->fallheight, 15.5f)) {
         pathway->dist   = dist;
         pathway->dir[0] = delta[0];
         pathway->dir[1] = delta[1];
-        VectorCopy(start, pathway->pos1);
-        VectorCopy(end, pathway->pos2);
-        Child[virtualNumChildren].node        = node->nodenum;
-        Child[virtualNumChildren].numBlockers = 0;
-
-        virtualNumChildren++;
-        numChildren++;
+        ConnectTo(node);
     }
 }
 
