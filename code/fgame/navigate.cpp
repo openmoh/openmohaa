@@ -2231,26 +2231,38 @@ PathNode *PathSearch::FindNearestSniperNode(SimpleActor *pEnt, Vector& vPos, Ent
     PathNode *pNode;
     Vector    delta;
     int       nNodes = 0;
+    int       i;
     nodeinfo  nodes[MAX_PATHNODES];
 
-    for (int i = 0; i < nodecount; i++) {
+    for (i = 0; i < nodecount; i++) {
         pNode = pathnodes[i];
-        if (pNode && pNode->nodeflags & AI_SNIPER) {
-            if (pNode->pLastClaimer == pSelf || (pNode->iAvailableTime && level.inttime >= pNode->iAvailableTime)
-                || (pNode->pLastClaimer == NULL)) {
-                delta = pNode->origin - pSelf->m_vHome;
-                if (delta.lengthSquared() <= pSelf->m_fLeashSquared) {
-                    delta = pNode->origin - pEnemy->origin;
-                    if (delta.lengthSquared() >= pSelf->m_fMinDistanceSquared
-                        && delta.lengthSquared() <= pSelf->m_fMaxDistanceSquared) {
-                        delta                      = pNode->origin - pSelf->origin;
-                        nodes[nNodes].pNode        = pNode;
-                        nodes[nNodes].fDistSquared = delta.lengthSquared();
-                        nNodes++;
-                    }
-                }
-            }
+        if (!pNode) {
+            continue;
         }
+
+        if (!(pNode->nodeflags & AI_SNIPER)) {
+            continue;
+        }
+        if (pNode->IsClaimedByOther(pEnt)) {
+            continue;
+        }
+
+        delta = pNode->origin - pSelf->m_vHome;
+
+        if (delta.lengthSquared() > pSelf->m_fLeashSquared) {
+            continue;
+        }
+
+        delta = pNode->origin - pEnemy->origin;
+        if (delta.lengthSquared() < pSelf->m_fMinDistanceSquared
+            || delta.lengthSquared() > pSelf->m_fMaxDistanceSquared) {
+            continue;
+        }
+
+        delta                      = pNode->origin - pSelf->origin;
+        nodes[nNodes].fDistSquared = delta.lengthSquared();
+        nodes[nNodes].pNode        = pNode;
+        nNodes++;
     }
 
     if (nNodes == 0) {
@@ -2263,14 +2275,13 @@ PathNode *PathSearch::FindNearestSniperNode(SimpleActor *pEnt, Vector& vPos, Ent
         return NULL;
     }
 
-    for (int i = 0; i < nNodes; i++) {
+    for (i = 0; i < nNodes; i++) {
         pNode = nodes[i].pNode;
-        if (pSelf->CanSeeFrom(pSelf->EyePosition() + pNode->origin, pEnemy)) {
+        if (pSelf->CanSeeFrom(pSelf->eyeposition + pNode->origin, pEnemy)) {
             return pNode;
         }
 
-        pNode->iAvailableTime = level.inttime + 5000;
-        pNode->pLastClaimer   = NULL;
+        pNode->MarkTemporarilyBad();
     }
 
     return NULL;
@@ -2282,7 +2293,7 @@ PathNode *PathSearch::GetSpawnNode(ClassDef *cls)
         return pathnodes[m_LoadIndex++];
     } else {
         // Otherwise create a new node
-        return (PathNode *)cls->newInstance();
+        return static_cast<PathNode *>(cls->newInstance());
     }
 }
 
