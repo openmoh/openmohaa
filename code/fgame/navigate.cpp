@@ -2025,11 +2025,16 @@ qboolean PathSearch::ArchiveSaveNodes(void)
     str      maptime;
     int      tempInt;
 
-    arc.Create(level.m_pathfile);
+    if (!arc.Create(level.m_pathfile)) {
+        return qfalse;
+    }
+
     tempInt = PATHFILE_VERSION;
     arc.ArchiveInteger(&tempInt);
+
     maptime = gi.MapTime();
     arc.ArchiveString(&maptime);
+
     arc.ArchiveInteger(&m_NodeCheckFailed);
     ArchiveStaticSave(arc);
     arc.Close();
@@ -2088,17 +2093,16 @@ void PathSearch::Init(void)
 
 void *PathSearch::AllocPathNode(void)
 {
-    if (bulkNavMemory && !m_bNodesloaded) {
-        bulkNavMemory -= sizeof(PathNode);
-        return bulkNavMemory;
-    } else {
+    if (!bulkNavMemory) {
         return gi.Malloc(sizeof(PathNode));
     }
+
+    bulkNavMemory -= sizeof(PathNode);
 }
 
 void PathSearch::FreePathNode(void *ptr)
 {
-    if (!bulkNavMemory || m_bNodesloaded) {
+    if (!bulkNavMemory) {
         gi.Free(ptr);
     }
 }
@@ -2122,11 +2126,10 @@ void PathSearch::PlayerCover(Player *pPlayer)
         delta = node->origin - pPlayer->origin;
 
         // Check if we need to cover
-        if (VectorLengthSquared(delta) > 2304.0f) {
+        if (VectorLengthSquared(delta) > Square(48)) {
             if (pOwner == pPlayer) {
                 node->Relinquish();
             }
-
             continue;
         }
 
@@ -2134,7 +2137,6 @@ void PathSearch::PlayerCover(Player *pPlayer)
             if (pOwner) {
                 pOwner->PathnodeClaimRevoked(node);
             }
-
             // Player claim the node
             node->Claim(pPlayer);
         }
@@ -2154,12 +2156,14 @@ int node_compare(const void *pe1, const void *pe2)
     nodeinfo *Pe2 = (nodeinfo *)pe2;
     int       iConcealment;
 
-    iConcealment = (Pe1->pNode->nodeflags & 0xB0) != 0;
-    if (Pe2->pNode->nodeflags & 0xB0) {
+    iConcealment = (Pe1->pNode->nodeflags & AI_CONCEALMENT_MASK) != 0;
+    if (Pe2->pNode->nodeflags & AI_CONCEALMENT_MASK) {
         --iConcealment;
     }
+
     return (
-        (Pe1->fDistSquared) + (iConcealment << 23) + (((Pe1->pNode->nodeflags & 8) - (Pe2->pNode->nodeflags & 8)) << 21)
+        (Pe1->fDistSquared) + (iConcealment << 23)
+        + (((Pe1->pNode->nodeflags & AI_CONCEALMENT) - (Pe2->pNode->nodeflags & AI_CONCEALMENT)) << 21)
         - (Pe2->fDistSquared)
     );
 }
