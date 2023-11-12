@@ -75,6 +75,8 @@ void UIList::Draw
 	)
 
 {
+	UpdateUIElement();
+
 	// draw the item text
 	if (m_currentItem)
 	{
@@ -197,11 +199,14 @@ void UIList::Pressed
 	float mouse_ypos = ev->GetFloat(2);
 	int buttons = ev->GetInteger(3); // unused
 
+	FrameInitialized();
+
 	// previous arrow is clicked
 	if (m_prev_arrow_region->contains(mouse_xpos, mouse_ypos))
 	{
 		m_prev_arrow_depressed = qtrue;
 		ScrollPrev();
+		UpdateData();
 		return;
 	}
 
@@ -210,6 +215,7 @@ void UIList::Pressed
 	{
 		m_next_arrow_depressed = qtrue;
 		ScrollNext();
+		UpdateData();
 	}
 }
 
@@ -305,6 +311,7 @@ void UIList::UpdateUIElement
 	if (!cvarstring)
 	{
 		m_currentItem = 1;
+		UpdateData();
 		return;
 	}
 
