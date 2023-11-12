@@ -919,7 +919,7 @@ void VehicleTurretGun::UpdateOwner(Sentient *pOwner)
     }
 
     if (owner) {
-        m_vUserViewAng[1] = jitter[1];
+        jitter[1] = m_vUserViewAng[1];
     }
 
     m_pUserCamera->setOrigin(position);
@@ -1251,9 +1251,10 @@ void VehicleTurretGun::UpdateAndMoveOwner()
 
     fDiff = AngleSubtract(m_vUserViewAng[1], m_fStartYaw);
     fDiff = Q_clamp_float(fDiff, -(m_fMaxYawOffset + MAX_VT_YAW_OFFSET), m_fMaxYawOffset + MAX_VT_YAW_OFFSET);
+    m_vUserViewAng[1] = m_fStartYaw + fDiff;
 
     owner->SetViewAngles(m_vUserViewAng + m_vBaseAngles);
-    delta = owner->GunTarget() - origin;
+    delta = owner->GunTarget(true) - origin;
 
     if (m_bBOIsSet) {
         dir[0] = m_mBaseOrientation[0] * delta;
