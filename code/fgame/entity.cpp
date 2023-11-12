@@ -1713,7 +1713,7 @@ Entity::Entity()
     groundcontents  = 0;
     velocity        = vec_zero;
     avelocity       = vec_zero;
-    edict->clipmask = MASK_USABLE;
+    edict->clipmask = MASK_SOLID;
 
     m_iNumGlues   = 0;
     m_bGlueAngles = true;
