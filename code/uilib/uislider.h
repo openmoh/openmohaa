@@ -34,7 +34,7 @@ class UISlider : public UIWidget {
 	int m_arrow_width;
 	float m_value;
 	float m_oldvalue;
-	float m_sliderwidth;
+	float m_sliderwidth; // Note: this is actually the width of only the thumb, not the whole slider
 	UIRect2D m_sliderregion;
 	UIRect2D m_prev_arrow_region;
 	UIRect2D m_next_arrow_region;
@@ -63,10 +63,8 @@ private:
 	void	AutoIncrement( Event *ev );
 	void	AutoDecrement( Event *ev );
 	void	MouseExited( Event *ev );
-	void	MouseDragged( Event *ev );
 	void	MouseEntered( Event *ev );
-	void	UpdateData( void ) override;
-	void	UpdateUIElement() override;
+	void	MouseDragged( Event *ev );
 	void	LayoutSetRange( Event *ev );
 	void	LayoutSetType( Event *ev );
 	void	LayoutSetStep( Event *ev );
@@ -78,10 +76,12 @@ private:
 public:
 	UISlider();
 
-	void		FrameInitialized( void ) override;
 	void		Draw( void ) override;
-	void		setType( slidertype_t type );
+	void		FrameInitialized( void ) override;
 	qboolean	KeyEvent( int key, unsigned int time ) override;
+	void		UpdateData( void ) override;
+	void		UpdateUIElement( void ) override;
+	void		setType( slidertype_t type );
 	void		setRange( float min, float max );
 	void		setStep( float value );
 };
