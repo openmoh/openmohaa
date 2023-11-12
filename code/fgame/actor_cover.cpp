@@ -41,7 +41,7 @@ bool Actor::Cover_IsValid(PathNode *node)
         return false;
     }
 
-    if (node->nodeflags & AI_CONCEALMENT) {
+    if (node->nodeflags & (AI_CONCEALMENT | AI_LOW_WALL_ARC)) {
         return true;
     }
 
@@ -79,7 +79,7 @@ bool Actor::Cover_SetPath(PathNode *node)
     fPathDist       = PathDist();
     fMinDistSquared = Square(fPathDist);
 
-    if (fMinDistSquared >= (node->origin - origin).lengthSquared() * 4.0f && fPathDist > 128.0f) {
+    if ((node->origin - origin).lengthSquared() <= fMinDistSquared * 4.0f && fPathDist > 128.0f) {
         return false;
     }
 
@@ -239,13 +239,15 @@ void Actor::State_Cover_FindCover(void)
     AimAtTargetPos();
     Cover_FindCover(false);
 
-    if (!m_pCoverNode && !m_iPotentialCoverCount) {
+    if (m_pCoverNode) {
+        if (PathExists() && !PathComplete()) {
+            Anim_RunToCover(ANIM_MODE_PATH_GOAL);
+            TransitionState(ACTOR_STATE_COVER_TAKE_COVER, 0);
+        } else {
+            TransitionState(ACTOR_STATE_COVER_TARGET, 0);
+        }
+    } else if (!m_iPotentialCoverCount) {
         SetThink(THINKSTATE_ATTACK, THINK_TURRET);
-    } else if (PathExists() && !PathComplete()) {
-        Anim_RunToCover(ANIM_MODE_PATH_GOAL);
-        TransitionState(ACTOR_STATE_COVER_TAKE_COVER, 0);
-    } else {
-        TransitionState(ACTOR_STATE_COVER_TARGET, 0);
     }
 }
 
