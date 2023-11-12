@@ -17,7 +17,7 @@
 
 ## Current State
 
-OpenMoHAA is still under development. The single-player campaign is not yet functional due to AI not being fully implemented, and due to the script engine having a few issues. But the `training` map can be played from start to end. The current focus is on multiplayer.
+OpenMoHAA is still under development. The single-player campaign is not yet functional due to AI not being fully stable. But the `training` map can be played from start to end. The current focus is on multiplayer.
 
 ## Intro
 
