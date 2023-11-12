@@ -157,8 +157,8 @@ void Menu::ShowMenu
 		{
 			wid->setShow( true );
 			wid->ResetMotion( MOTION_IN );
-			wid->UpdateData();
 			wid->UpdateUIElement();
+			wid->UpdateData();
 			wid->ExecuteShowCommands();
 		}
 	}
