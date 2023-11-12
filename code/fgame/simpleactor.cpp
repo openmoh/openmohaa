@@ -173,13 +173,8 @@ void SimpleActor::SetPath(
 )
 {
     if (PathExists()) {
-        if (level.inttime < iMaxDirtyTime + m_Path.Time()) {
+        if (level.inttime < iMaxDirtyTime + m_Path.Time() && !m_Path.Complete(origin)) {
             // Too soon
-            return;
-        }
-
-        if (!m_Path.Complete(origin)) {
-            // The current path has not complete yet
             return;
         }
 
