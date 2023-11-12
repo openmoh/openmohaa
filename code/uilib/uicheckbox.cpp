@@ -84,6 +84,8 @@ UICheckBox::UICheckBox()
 
 void UICheckBox::Draw()
 {
+	UpdateData();
+
 	if (!m_depressed)
 	{
 		Draw3DBox(0.0f, 0.0f, m_frame.size.width, m_frame.size.height, 0, m_border_color, m_local_alpha);
