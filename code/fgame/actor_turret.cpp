@@ -241,7 +241,7 @@ void Actor::Turret_NextRetarget(void)
     vec2_t vDelta;
 
     m_State++;
-    if (m_State < 122) {
+    if (m_State < ACTOR_STATE_TURRET_NUM_STATES) {
         TransitionState(m_State);
         return;
     }
@@ -597,7 +597,7 @@ void Actor::State_Turret_Wait(void)
 {
     PathNode *pNode;
 
-    if (CanSeeEnemy(500) || CanSeeEnemy(500)) {
+    if (CanSeeEnemy(500) || CanShootEnemy(500)) {
         if (Turret_TryToBecomeCoverGuy()) {
             m_pszDebugState = "Wait->CoverInstead";
             ContinueAnimation();
@@ -610,7 +610,8 @@ void Actor::State_Turret_Wait(void)
     }
 
     if (level.inttime >= m_iLastEnemyVisibleTime + 25000) {
-        m_vLastEnemyPos = m_Enemy->origin;
+        m_iLastEnemyVisibleTime = level.inttime;
+        m_vLastEnemyPos         = m_Enemy->origin;
         Turret_BeginRetarget();
     }
 
@@ -823,11 +824,12 @@ void Actor::ReceiveAIEvent_Turret(
     vec3_t event_origin, int iType, Entity *originator, float fDistSquared, float fMaxDistSquared
 )
 {
-    if (iType != AI_EVENT_WEAPON_IMPACT) {
-        DefaultReceiveAIEvent(origin, iType, originator, fDistSquared, fMaxDistSquared);
-    } else if (m_Enemy && fDistSquared <= Square(128)) {
+    if (iType == AI_EVENT_WEAPON_IMPACT && m_Enemy && fDistSquared <= Square(128)) {
         Turret_TryToBecomeCoverGuy();
+        return;
     }
+
+    DefaultReceiveAIEvent(origin, iType, originator, fDistSquared, fMaxDistSquared);
 }
 
 bool Actor::Turret_TryToBecomeCoverGuy(void)
