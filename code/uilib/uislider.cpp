@@ -672,11 +672,11 @@ qboolean UISlider::KeyEvent
 	)
 
 {
-	if (key == 135) // what is this, joypad?
+	if (key == K_RIGHTARROW)
 	{
 		Increment();
 	}
-	else if (key == 134)
+	else if (key == K_LEFTARROW)
 	{
 		Decrement();
 	}
