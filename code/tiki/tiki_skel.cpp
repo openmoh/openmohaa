@@ -317,8 +317,11 @@ void TIKI_CacheFileSkel(skelHeader_t *pHeader, skelcache_t *cache, int length)
         gs_ptr               = (byte *)PADP(gs_ptr, sizeof(void *));
         pGameSurf->pCollapse = (skelIndex_t *)gs_ptr;
         gs_ptr += sizeof(*pGameSurf->pCollapse) * numVerts;
-        pGameSurf->pCollapseIndex = (skelIndex_t *)gs_ptr;
-        gs_ptr += sizeof(*pGameSurf->pCollapseIndex) * numVerts;
+        if (version > TIKI_SKB_HEADER_VER_3) {
+            pGameSurf->pCollapseIndex = (skelIndex_t*)gs_ptr;
+            gs_ptr += sizeof(*pGameSurf->pCollapseIndex) * numVerts;
+        }
+
         memcpy(pGameSurf->name, pSurf->name, sizeof(pGameSurf->name));
 
         if (pGameSurf->numTriangles) {
@@ -353,7 +356,7 @@ void TIKI_CacheFileSkel(skelHeader_t *pHeader, skelcache_t *cache, int length)
                 // copy morphs
                 skeletorMorph_t *pMorph    = (skeletorMorph_t *)((byte *)pVert + sizeof(skeletorVertex_t));
                 skeletorMorph_t *skelMorph = (skeletorMorph_t *)((byte *)skelVert + sizeof(skeletorVertex_t));
-                for (k = 0; k < pVert->numMorphs; k++, pMorph++, skelMorph++) {
+                for (k = 0; k < numMorphs; k++, pMorph++, skelMorph++) {
                     skelMorph->morphIndex = LittleLongPtr(pMorph->morphIndex);
                     skelMorph->offset[0]  = LittleFloatPtr(pMorph->offset[0]);
                     skelMorph->offset[1]  = LittleFloatPtr(pMorph->offset[1]);
@@ -362,7 +365,7 @@ void TIKI_CacheFileSkel(skelHeader_t *pHeader, skelcache_t *cache, int length)
 
                 skelWeight_t *pWeight    = (skelWeight_t *)((byte *)pMorph);
                 skelWeight_t *skelWeight = (skelWeight_t *)((byte *)skelMorph);
-                for (k = 0; k < pVert->numWeights; k++, skelWeight++, pWeight++) {
+                for (k = 0; k < numWeights; k++, skelWeight++, pWeight++) {
                     skelWeight->boneIndex  = LittleLongPtr(pWeight->boneIndex);
                     skelWeight->boneWeight = LittleFloatPtr(pWeight->boneWeight);
                     skelWeight->offset[0]  = LittleFloatPtr(pWeight->offset[0]);
