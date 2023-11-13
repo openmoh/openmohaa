@@ -150,19 +150,69 @@ void TOWObjectiveMan::TakeOverObjective(eController controller, eController cont
 //---------------------------------------------------------------------------------------------
 */
 
-Event EV_SetController("ControlledBy", EV_DEFAULT, "i", "ControlledBy", "Sets the team controlling the objective");
-Event EV_TakeOver(
-    "TakeOver", EV_DEFAULT, "i", "TeamNum", "Sets the team controlling the objective. 0 = Axis, 1 = Allies"
+Event EV_SetController
+(
+    "ControlledBy",
+    EV_DEFAULT,
+    "i",
+    "ControlledBy",
+    "Sets the team controlling the objective",
+    EV_NORMAL
 );
-Event EV_SetAxisObjNum("AxisObjNum", EV_DEFAULT, "i", "AxisObjNum", "Sets the objective number for the axis team");
-Event EV_SetAlliesObjNum(
-    "AlliesObjNum", EV_DEFAULT, "i", "AlliesObjNum", "Sets the objective number for the allies team"
+Event EV_TakeOver
+(
+    "TakeOver",
+    EV_DEFAULT,
+    "i",
+    "TeamNum",
+    "Sets the team controlling the objective. 0 = Axis, 1 = Allies",
+    EV_NORMAL
 );
-static Event EV_Initialize("initialize", EV_DEFAULT, 0, 0, "Initialize object");
-static Event EV_SetCurrent(
-    "SetCurrent", EV_DEFAULT, "i", "TeamNum", "Set this objective as the current objective for the specified team."
+Event EV_SetAxisObjNum
+(
+    "AxisObjNum",
+    EV_DEFAULT,
+    "i",
+    "AxisObjNum",
+    "Sets the objective number for the axis team",
+    EV_NORMAL
 );
-Event EV_GetController("ControlledBy", EV_DEFAULT, 0, 0, "Objective controller", EV_GETTER);
+Event EV_SetAlliesObjNum
+(
+    "AlliesObjNum",
+    EV_DEFAULT,
+    "i",
+    "AlliesObjNum",
+    "Sets the objective number for the allies team",
+    EV_NORMAL
+);
+static Event EV_Initialize
+(
+    "initialize",
+    EV_DEFAULT,
+    0,
+    0,
+    "Initialize object",
+    EV_NORMAL
+);
+static Event EV_SetCurrent
+(
+    "SetCurrent",
+    EV_DEFAULT,
+    "i",
+    "TeamNum",
+    "Set this objective as the current objective for the specified team.",
+    EV_NORMAL
+);
+Event EV_GetController
+(
+    "ControlledBy",
+    EV_DEFAULT,
+    0,
+    0,
+    "Objective controller",
+    EV_GETTER
+);
 
 CLASS_DECLARATION(Objective, TOWObjective, "func_towobjective") {
     {&EV_SetController,   &TOWObjective::SetController  },
@@ -231,6 +281,7 @@ void TOWObjective::TakeOver(Event *ev)
     }
 
     g_TOWObjectiveMan.TakeOverObjective(m_eController, controller);
+    m_eController = controller;
 
     if (m_bNoRespawnForLeading) {
         //
@@ -252,8 +303,8 @@ void TOWObjective::SetAxisObjNum(Event *ev)
 
 void TOWObjective::OnInitialize(Event *ev)
 {
-	m_sAlliesObjName = "tow_allied_obj" + str(m_iAlliesObjNum);
-	m_sAxisObjName = "tow_allied_obj" + str(m_iAxisObjNum);
+    m_sAlliesObjName = "tow_allied_obj" + str(m_iAlliesObjNum);
+    m_sAxisObjName   = "tow_axis_obj" + str(m_iAxisObjNum);
 
     switch (m_eController) {
     case CONTROLLER_ALLIES:
