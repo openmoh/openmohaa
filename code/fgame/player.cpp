@@ -8645,7 +8645,7 @@ void Player::EquipWeapons()
             break;
         case NA_ITALIAN:
             giveItem("weapons/It_W_Breda.tik");
-            event->AddString("MP40");
+            event->AddString("Breda");
             break;
         default:
             giveItem("weapons/bar.tik");
