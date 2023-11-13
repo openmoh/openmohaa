@@ -24,6 +24,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // cg_servercmds.c -- text commands sent by the server
 
 #include "cg_local.h"
+#include "../fgame/bg_voteoptions.h"
 
 static const char *IsWeaponAllowed(int dmFlags, int flags)
 {
@@ -136,9 +137,13 @@ void CG_ParseServerinfo(void)
     cgi.Cvar_Set("cg_obj_alliedtext1", Info_ValueForKey(info, "g_obj_alliedtext1"));
     cgi.Cvar_Set("cg_obj_alliedtext2", Info_ValueForKey(info, "g_obj_alliedtext2"));
     cgi.Cvar_Set("cg_obj_alliedtext3", Info_ValueForKey(info, "g_obj_alliedtext3"));
-    cgi.Cvar_Set("cg_obj_axistext1", Info_ValueForKey(info, "cg_obj_axistext1"));
-    cgi.Cvar_Set("cg_obj_axistext2", Info_ValueForKey(info, "cg_obj_axistext2"));
-    cgi.Cvar_Set("cg_obj_axistext3", Info_ValueForKey(info, "cg_obj_axistext3"));
+    cgi.Cvar_Set("cg_obj_alliedtext4", Info_ValueForKey(info, "g_obj_alliedtext4"));
+    cgi.Cvar_Set("cg_obj_alliedtext5", Info_ValueForKey(info, "g_obj_alliedtext5"));
+    cgi.Cvar_Set("cg_obj_axistext1", Info_ValueForKey(info, "g_obj_axistext1"));
+    cgi.Cvar_Set("cg_obj_axistext2", Info_ValueForKey(info, "g_obj_axistext2"));
+    cgi.Cvar_Set("cg_obj_axistext3", Info_ValueForKey(info, "g_obj_axistext3"));
+    cgi.Cvar_Set("cg_obj_axistext4", Info_ValueForKey(info, "g_obj_axistext4"));
+    cgi.Cvar_Set("cg_obj_axistext5", Info_ValueForKey(info, "g_obj_axistext5"));
     cgi.Cvar_Set("cg_scoreboardpic", Info_ValueForKey(info, "g_scoreboardpic"));
     cgi.Cvar_Set("cg_scoreboardpicover", Info_ValueForKey(info, "g_scoreboardpicover"));
     mapChecksumStr = Info_ValueForKey(info, "sv_mapChecksum");
