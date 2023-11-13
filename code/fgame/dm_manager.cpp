@@ -1076,13 +1076,15 @@ void DM_Manager::InitGame(void)
         }
     }
 
-    if (g_gametype->integer < GT_SINGLE_PLAYER && g_gametype->integer < GT_MAX_GAME_TYPE) {
-        m_teams.ClearObjectList();
-        m_teams.AddObject(&m_team_spectator);
-        m_teams.AddObject(&m_team_allies);
-        m_teams.AddObject(&m_team_axis);
-    } else {
-        Com_Printf("Unknown game mode");
+    if (g_gametype->integer > GT_SINGLE_PLAYER) {
+        if (g_gametype->integer < GT_MAX_GAME_TYPE) {
+            m_teams.ClearObjectList();
+            m_teams.AddObject(&m_team_spectator);
+            m_teams.AddObject(&m_team_allies);
+            m_teams.AddObject(&m_team_axis);
+        } else {
+            Com_Printf("Unknown game mode");
+        }
     }
 
     m_fRoundTime            = 0;
