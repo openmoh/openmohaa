@@ -2935,6 +2935,7 @@ Actor::Actor()
     m_iCurrentHistory = 0;
     m_bAnimating      = false;
     m_bIgnoreBadPlace = false;
+    m_iBadPlaceIndex  = 0;
     m_bBecomeRunner   = false;
     m_bEnemySwitch    = true;
     m_iNationality    = ACTOR_NATIONALITY_DEFAULT;
