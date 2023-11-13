@@ -861,7 +861,7 @@ void Level::CleanUp(qboolean samemap, qboolean resetConfigStrings)
     //
     // Remove all archived entities
     //
-    for (i = 1; i <= m_SimpleArchivedEntities.NumObjects(); i++) {
+    for (i = m_SimpleArchivedEntities.NumObjects(); i > 0; i--) {
         delete m_SimpleArchivedEntities.ObjectAt(i);
     }
 
