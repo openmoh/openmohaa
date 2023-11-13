@@ -3691,8 +3691,11 @@ void Vehicle::DriverUse(Event *ev)
     if (slot >= 0) {
         DetachDriverSlot(slot, vec_zero, NULL);
 
-        if (IsSubclassOfVehicleTank() && Turrets[0].ent->IsSubclassOfVehicleTurretGun()) {
-            DetachRemoteOwner();
+        if (IsSubclassOfVehicleTank()) {
+            // Added check to see if the turret is valid in OPM
+            if (Turrets[0].ent && Turrets[0].ent->IsSubclassOfVehicleTurretGun()) {
+                DetachRemoteOwner();
+            }
         }
 
         return;
