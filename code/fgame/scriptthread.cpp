@@ -4110,7 +4110,7 @@ void ScriptThread::EventTeamWin(Event *ev)
     const_str team;
     int       teamnum;
 
-    if (g_gametype->integer != GT_OBJECTIVE) {
+    if (g_gametype->integer < GT_OBJECTIVE) {
         throw ScriptException("'teamwin' only valid for objective-based DM games");
     }
 
