@@ -1512,7 +1512,6 @@ void ScriptVM::Execute(ScriptVariable *data, int dataSize, str label)
 
                         if (listener == nullptr) {
                             fieldNameIndex = fetchActualOpcodeValue<op_name_t>();
-                            skipField();
                             ScriptError(
                                 "Field '%s' applied to NULL listener", Director.GetString(fieldNameIndex).c_str()
                             );
@@ -1527,6 +1526,7 @@ void ScriptVM::Execute(ScriptVariable *data, int dataSize, str label)
                     } catch (...) {
                         ScriptVariable *const pTop = m_VMStack.GetTopPtr();
                         pTop->setRefValue(pTop);
+                        skipField();
                         throw;
                     }
                     break;
