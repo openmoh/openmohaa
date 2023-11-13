@@ -297,7 +297,7 @@ public:
 
     ScriptSimpleStrafingGunfire();
 
-    void Archive(Archiver& arc);
+    void Archive(Archiver& arc) override;
 
 protected:
     void GunFire(Event *ev);
@@ -379,7 +379,7 @@ public:
 
     ScriptAimedStrafingGunfire();
 
-    void Archive(Archiver& arc);
+    void Archive(Archiver& arc) override;
 
     void GunFire(Event *ev);
     void SetAimTarget(Event *ev);
