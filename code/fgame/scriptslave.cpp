@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2023 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -1977,6 +1977,27 @@ void ScriptModel::GibEvent(Event *ev)
     }
 
     PostEvent(EV_Remove, 0);
+}
+
+/*****************************************************************************/
+/*QUAKED script_model_realdamage (0 0.5 1) (0 0 0) (0 0 0) NOT_SOLID ALWAYS_DRAW
+
+******************************************************************************/
+/*****************************************************************************/
+
+CLASS_DECLARATION(ScriptModel, ScriptModelRealDamage, "script_model_realdamage") {
+    {&EV_Damage, &ScriptModelRealDamage::EventDamage},
+    {NULL,       NULL                               }
+};
+
+ScriptModelRealDamage::ScriptModelRealDamage()
+{
+    RemoveWaitTill(STRING_DAMAGE);
+}
+
+void ScriptModelRealDamage::EventDamage(Event *ev)
+{
+    Entity::DamageEvent(ev);
 }
 
 /*****************************************************************************/

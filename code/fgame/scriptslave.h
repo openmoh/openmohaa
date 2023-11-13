@@ -234,10 +234,33 @@ public:
     void SetAngleEvent(Event *ev);
     void SetModelEvent(Event *ev);
     void SetAnimEvent(Event *ev);
-    void AnimDoneEvent(Event* ev);
-    void MoveAnimEvent(Event* ev);
-    void MovingFromAnimEvent(Event* ev);
+    void AnimDoneEvent(Event *ev);
+    void MoveAnimEvent(Event *ev);
+    void MovingFromAnimEvent(Event *ev);
+
+    void Archive(Archiver& arc) override;
 };
+
+inline void ScriptModel::Archive(Archiver& arc)
+{
+    ScriptSlave::Archive(arc);
+}
+
+class ScriptModelRealDamage : public ScriptModel
+{
+public:
+    CLASS_PROTOTYPE(ScriptModelRealDamage);
+
+    ScriptModelRealDamage();
+    void EventDamage(Event *ev);
+
+    void Archive(Archiver& arc) override;
+};
+
+inline void ScriptModelRealDamage::Archive(Archiver& arc)
+{
+    ScriptModel::Archive(arc);
+}
 
 class ScriptOrigin : public ScriptSlave
 {
