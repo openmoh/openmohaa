@@ -1551,45 +1551,32 @@ void ScriptVM::Execute(ScriptVariable *data, int dataSize, str label)
 
             case OP_STORE_FLOAT:
                 m_VMStack.Push();
-                m_VMStack.GetTop().setFloatValue(*reinterpret_cast<float *>(m_CodePos));
-
-                m_CodePos += sizeof(float);
-
+                m_VMStack.GetTop().setFloatValue(fetchOpcodeValue<float>());
                 break;
 
             case OP_STORE_INT0:
                 m_VMStack.Push();
                 m_VMStack.GetTop().setIntValue(0);
-
                 break;
 
             case OP_STORE_INT1:
                 m_VMStack.Push();
-                m_VMStack.GetTop().setIntValue(*m_CodePos++);
-
+                m_VMStack.GetTop().setIntValue(fetchOpcodeValue<byte>());
                 break;
 
             case OP_STORE_INT2:
                 m_VMStack.Push();
-                m_VMStack.GetTop().setIntValue(*reinterpret_cast<short *>(m_CodePos));
-
-                m_CodePos += sizeof(short);
-
+                m_VMStack.GetTop().setIntValue(fetchOpcodeValue<short>());
                 break;
 
             case OP_STORE_INT3:
                 m_VMStack.Push();
-                m_VMStack.GetTop().setIntValue(*reinterpret_cast<short3 *>(m_CodePos));
-
-                m_CodePos += sizeof(short3);
+                m_VMStack.GetTop().setIntValue(fetchOpcodeValue<short3>());
                 break;
 
             case OP_STORE_INT4:
                 m_VMStack.Push();
-                m_VMStack.GetTop().setIntValue(*reinterpret_cast<int *>(m_CodePos));
-
-                m_CodePos += sizeof(int);
-
+                m_VMStack.GetTop().setIntValue(fetchOpcodeValue<int>());
                 break;
 
             case OP_STORE_GAME_VAR:
