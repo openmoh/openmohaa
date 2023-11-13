@@ -32,6 +32,11 @@ obfuscation_t* CM_SetupObfuscationMapping() {
 	int i;
 	
 	list = (obfuscation_t*)Hunk_AllocateTempMemory(sizeof(obfuscation_t) * MAX_OBFUSCATIONS);
+	for (i = 0; i < MAX_OBFUSCATIONS; i++) {
+		list[i].name[0] = 0;
+		list[i].heightDensity = 0;
+		list[i].widthDensity = 0;
+	}
 	// FIXME: unimplemented
 	return list;
 }
