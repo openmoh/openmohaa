@@ -22,7 +22,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #pragma once
 
-#include "listener.h"
+#ifdef __cplusplus
+#  include "listener.h"
+#endif
+
 #include "g_public.h"
 
 #ifdef __cplusplus
