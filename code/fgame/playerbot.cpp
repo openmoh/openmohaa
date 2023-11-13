@@ -325,8 +325,10 @@ void PlayerBot::CheckJump(void)
     dir = m_Path.CurrentDelta();
     VectorNormalizeFast(dir);
 
-    G_DebugLine(origin + Vector(0, 0, STEPSIZE), origin + Vector(0, 0, STEPSIZE) + dir * 32, 1, 0, 1, 1);
-    G_DebugLine(origin + Vector(0, 0, 56), origin + Vector(0, 0, 56) + dir * 32, 1, 0, 1, 1);
+    if (ai_debugpath->integer) {
+        G_DebugLine(origin + Vector(0, 0, STEPSIZE), origin + Vector(0, 0, STEPSIZE) + dir * 32, 1, 0, 1, 1);
+        G_DebugLine(origin + Vector(0, 0, 56), origin + Vector(0, 0, 56) + dir * 32, 1, 0, 1, 1);
+    }
 
     Vector vStart = origin + Vector(0, 0, STEPSIZE);
     Vector vEnd   = origin + Vector(0, 0, STEPSIZE) + dir * 4;
