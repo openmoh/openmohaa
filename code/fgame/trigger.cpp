@@ -110,7 +110,7 @@ Event EV_Trigger_SetSound
 Event EV_Trigger_SetThread
 (
     "setthread",
-    EV_DEFAULT, 
+    EV_DEFAULT,
     "s",
     "thread",
     "Set the thread to execute when this trigger is activated",
@@ -190,6 +190,15 @@ Event EV_Trigger_SetTriggerCone
     "Sets the cone in which directed triggers will trigger.",
     EV_NORMAL
 );
+Event EV_Trigger_GetActivator
+(
+    "activator",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Get's entity who last activated this trigger.",
+    EV_GETTER
+);
 
 #define MULTI_ACTIVATE      1
 #define INVISIBLE           2
@@ -251,6 +260,7 @@ CLASS_DECLARATION(Animate, Trigger, "trigger_multiple") {
     {&EV_Trigger_SetMultiFaceted,   &Trigger::SetMultiFaceted  },
     {&EV_Trigger_SetEdgeTriggered,  &Trigger::SetEdgeTriggered },
     {&EV_Trigger_SetTriggerCone,    &Trigger::SetTriggerCone   },
+    {&EV_Trigger_GetActivator,      &Trigger::EventGetActivator},
     {NULL,                          NULL                       }
 };
 
@@ -432,7 +442,8 @@ void Trigger::TriggerStuff(Event *ev)
 
     // Always respond to activate messages from the world since they're probably from
     // the "trigger" command
-    if (!respondTo(other) && (other != world || *ev != EV_Activate) && (!other || (!other->isSubclassOf(Camera) && !other->isSubclassOf(BarrelObject)))) {
+    if (!respondTo(other) && (other != world || *ev != EV_Activate)
+        && (!other || (!other->isSubclassOf(Camera) && !other->isSubclassOf(BarrelObject)))) {
         return;
     }
 
@@ -513,7 +524,7 @@ void Trigger::TriggerStuff(Event *ev)
             event->AddEntity(activator);
         }
         if (activator->IsSubclassOfProjectile()) {
-            Projectile* proj = static_cast<Projectile*>(activator);
+            Projectile *proj = static_cast<Projectile *>(activator);
             event->AddEntity(G_GetEntity(proj->owner));
         }
         PostEvent(event, delay);
@@ -649,6 +660,7 @@ void Trigger::EventSetThread(Event *ev)
         m_Thread.Set(ev->GetString(1));
     }
 }
+
 void Trigger::EventSetCount(Event *ev)
 
 {
@@ -739,6 +751,49 @@ void Trigger::SetTriggerable(Event *ev)
 void Trigger::SetNotTriggerable(Event *ev)
 {
     triggerable = qfalse;
+}
+
+void Trigger::DamageEvent(Event *ev)
+{
+    Entity *attacker;
+    int     damage;
+    Vector  dir;
+    Vector  momentum;
+
+    if (Immune(ev->GetInteger(9))) {
+        // trigger is immune
+        return;
+    }
+
+    attacker = ev->GetEntity(1);
+    if (!attacker) {
+        ScriptError("attacker is NULL");
+    }
+
+    if (max_health) {
+        if (health <= 0) {
+            return;
+        }
+
+        damage = ev->GetInteger(2);
+        health -= damage;
+    }
+
+    if (health <= 0) {
+        Event *event;
+
+        event = new Event(EV_Activate, 1);
+        event->AddEntity(attacker);
+        ProcessEvent(event);
+    }
+
+    // notify scripts about the damage
+    Unregister(STRING_DAMAGE);
+}
+
+void Trigger::EventGetActivator(Event *ev)
+{
+    ev->AddEntity(activator);
 }
 
 void Trigger::Archive(Archiver& arc)
@@ -1168,8 +1223,8 @@ void TriggerSave::EventSaveName(Event *ev)
 
 void TriggerSave::Archive(Archiver& arc)
 {
-	Trigger::Archive(arc);
-	arc.ArchiveString(&m_sSaveName);
+    Trigger::Archive(arc);
+    arc.ArchiveString(&m_sSaveName);
 }
 
 CLASS_DECLARATION(Trigger, TriggerSave, "trigger_save") {
@@ -1247,7 +1302,7 @@ void TriggerSecret::FoundSecret(Event *ev)
     // secret from the script, the player still gets credit for finding
     // it.  This is to prevent a secret from becoming undiscoverable.
     //
-    level.found_secrets++;  
+    level.found_secrets++;
 }
 
 /*****************************************************************************/
@@ -1336,7 +1391,7 @@ TriggerPush::TriggerPush()
         // Archive function will setup all necessary data
         return;
     }
-    speed     = 1000;
+    speed = 1000;
 }
 
 /*****************************************************************************/
@@ -1379,7 +1434,7 @@ TriggerPushAny::TriggerPushAny()
         // Archive function will setup all necessary data
         return;
     }
-    speed     = 1000;
+    speed = 1000;
 }
 
 void TriggerPushAny::Push(Event *ev)
@@ -1883,9 +1938,7 @@ CLASS_DECLARATION(Trigger, TriggerUse, "trigger_use") {
     {NULL,      NULL                     }
 };
 
-TriggerUse::TriggerUse()
-{
-}
+TriggerUse::TriggerUse() {}
 
 /*****************************************************************************/
 /*QUAKED trigger_useonce (1 0 0) ? x x NOT_PLAYERS MONSTERS
@@ -2033,12 +2086,12 @@ TriggerDamageTargets::TriggerDamageTargets()
         return;
     }
 
-    damage    = 0;
+    damage = 0;
 
     if (spawnflags & 1) {
         health     = 60;
         max_health = health;
-        deadflag = DEAD_NO;
+        deadflag   = DEAD_NO;
         takedamage = DAMAGE_YES;
         setSolidType(SOLID_BBOX);
     } else {
@@ -2240,7 +2293,7 @@ CLASS_DECLARATION(Trigger, TriggerExit, "trigger_exit") {
 
 TriggerExit::TriggerExit()
 {
-    wait      = 1;
+    wait = 1;
 }
 
 void TriggerExit::TurnExitSignOff(Event *ev)
@@ -2290,7 +2343,8 @@ Event EV_TriggerBox_SetMins
     EV_DEFAULT,
     "v",
     "mins",
-    "Sets the minimum bounds of the trigger box.", EV_NORMAL
+    "Sets the minimum bounds of the trigger box.",
+    EV_NORMAL
 );
 Event EV_TriggerBox_SetMaxs
 (
@@ -2445,7 +2499,7 @@ TriggerMusic::TriggerMusic()
 
     SetOneShot(false);
 
-    noise    = STRING_EMPTY;
+    noise = STRING_EMPTY;
 
     current  = STRING_NORMAL;
     fallback = STRING_NORMAL;
@@ -2527,13 +2581,13 @@ void TriggerMusic::SetOneShot(Event *ev)
 
 void TriggerMusic::Archive(Archiver& arc)
 {
-	Trigger::Archive(arc);
+    Trigger::Archive(arc);
 
-	arc.ArchiveBoolean(&oneshot);
-	Director.ArchiveString(arc, current);
-	Director.ArchiveString(arc, fallback);
-	Director.ArchiveString(arc, altcurrent);
-	Director.ArchiveString(arc, altfallback);
+    arc.ArchiveBoolean(&oneshot);
+    Director.ArchiveString(arc, current);
+    Director.ArchiveString(arc, fallback);
+    Director.ArchiveString(arc, altcurrent);
+    Director.ArchiveString(arc, altfallback);
 }
 
 /*****************************************************************************/
@@ -2653,7 +2707,7 @@ TriggerReverb::TriggerReverb()
 
     SetOneShot(false);
 
-    noise     = STRING_EMPTY;
+    noise = STRING_EMPTY;
 
     reverbtype     = 0;
     altreverbtype  = 0;
@@ -2797,34 +2851,22 @@ Entity *TriggerByPushObject::getActivator(Entity *other)
 
 void TriggerByPushObject::Archive(Archiver& arc)
 {
-	TriggerOnce::Archive(arc);
+    TriggerOnce::Archive(arc);
 
-	Director.ArchiveString(arc, triggername);
+    Director.ArchiveString(arc, triggername);
 }
 
-Event EV_TriggerGivePowerup_OneShot
-(
-    "oneshot",
-    EV_DEFAULT,
-    NULL,
-    NULL,
-    "Make this a one time trigger."
-);
+Event EV_TriggerGivePowerup_OneShot("oneshot", EV_DEFAULT, NULL, NULL, "Make this a one time trigger.");
 
-Event EV_TriggerGivePowerup_PowerupName
-(
-    "powerupname",
-    EV_DEFAULT,
-    "s",
-    "powerup_name",
-    "Specifies the powerup to give to the sentient."
+Event EV_TriggerGivePowerup_PowerupName(
+    "powerupname", EV_DEFAULT, "s", "powerup_name", "Specifies the powerup to give to the sentient."
 );
 
 CLASS_DECLARATION(Trigger, TriggerGivePowerup, "trigger_givepowerup") {
-    {&EV_TriggerGivePowerup_OneShot,      &TriggerGivePowerup::SetOneShot    },
-    {&EV_TriggerGivePowerup_PowerupName,  &TriggerGivePowerup::SetPowerupName},
-    {&EV_Trigger_Effect,                  &TriggerGivePowerup::GivePowerup   },
-    {NULL,                                NULL                               }
+    {&EV_TriggerGivePowerup_OneShot,     &TriggerGivePowerup::SetOneShot    },
+    {&EV_TriggerGivePowerup_PowerupName, &TriggerGivePowerup::SetPowerupName},
+    {&EV_Trigger_Effect,                 &TriggerGivePowerup::GivePowerup   },
+    {NULL,                               NULL                               }
 };
 
 TriggerGivePowerup::TriggerGivePowerup()
@@ -2852,37 +2894,37 @@ TriggerGivePowerup::TriggerGivePowerup()
 
     trigger_time = (float)0;
 
-    oneshot      = false;
+    oneshot = false;
 
     count        = -1;
     noise        = STRING_EMPTY;
     powerup_name = STRING_EMPTY;
 }
 
-void TriggerGivePowerup::SetOneShot(Event* ev)
+void TriggerGivePowerup::SetOneShot(Event *ev)
 {
     trigger_time = 0.f;
     oneshot      = true;
     count        = 1;
 }
 
-void TriggerGivePowerup::SetPowerupName(Event* ev)
+void TriggerGivePowerup::SetPowerupName(Event *ev)
 {
     powerup_name = ev->GetConstString(1);
 }
 
-void TriggerGivePowerup::GivePowerup(Event* ev)
+void TriggerGivePowerup::GivePowerup(Event *ev)
 {
-    Entity* other = ev->GetEntity(1);
-    Sentient* sen;
-    str powerup_name_str;
+    Entity   *other = ev->GetEntity(1);
+    Sentient *sen;
+    str       powerup_name_str;
 
     if (!other->IsSubclassOfSentient()) {
         // ignore non-sentient entities
         return;
     }
 
-    sen = static_cast<Sentient*>(other);
+    sen              = static_cast<Sentient *>(other);
     powerup_name_str = Director.GetString(powerup_name);
     if (sen->FindItem(powerup_name_str)) {
         // sentient already has that item, so ignore
@@ -2902,10 +2944,10 @@ void TriggerGivePowerup::GivePowerup(Event* ev)
 
 void TriggerGivePowerup::Archive(Archiver& arc)
 {
-	Trigger::Archive(arc);
+    Trigger::Archive(arc);
 
-	arc.ArchiveBoolean(&oneshot);
-	Director.ArchiveString(arc, powerup_name);
+    arc.ArchiveBoolean(&oneshot);
+    Director.ArchiveString(arc, powerup_name);
 }
 
 /*****************************************************************************

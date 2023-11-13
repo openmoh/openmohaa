@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2023 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -23,8 +23,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // trigger.h: Environment based triggers.
 //
 
-#ifndef __TRIGGER_H__
-#define __TRIGGER_H__
+#pragma once
 
 #include "glb_local.h"
 #include "animate.h"
@@ -56,8 +55,8 @@ protected:
     float             trigger_time;
     qboolean          triggerActivated;
     int               count;
-	const_str         noise;
-	const_str         message;
+    const_str         noise;
+    const_str         message;
     ScriptThreadLabel m_Thread;
     EntityPtr         activator;
     int               respondto;
@@ -116,6 +115,8 @@ public:
     void StartThread(Event *ev);
     void TriggerStuff(Event *ev);
     void ActivateTargets(Event *ev);
+    void DamageEvent(Event *ev) override;
+    void EventGetActivator(Event *ev); // Added in 2.30
     void Archive(Archiver& arc) override;
 };
 
@@ -633,5 +634,3 @@ inline void TriggerLandmine::Archive(Archiver& arc)
 
     arc.ArchiveInteger(&team);
 }
-
-#endif /* trigger.h */
