@@ -346,7 +346,7 @@ void Trigger::SetModelEvent(Event *ev)
 {
     Animate::SetModelEvent(ev);
     if (spawnflags & TRIGGER_DAMAGE) {
-        setContents(CONTENTS_TRIGGER);
+        setContents(CONTENTS_CLAYPIDGEON);
     } else {
         setContents(0);
     }
