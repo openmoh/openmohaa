@@ -87,9 +87,7 @@ const char *pInstantMsgEng[6][9] = {
      "You mess with the best, you die like the rest.", "Watch that friendly fire!",
      "Hey!  I'm on your team!", "Come on out you cowards!",
      "Where are you hiding?", NULL},
-    //
-    // Added in 2.30
-    //
+ // Added in 2.30
     {"Guard our jail!",
      "Capture the enemy jail!", "I'm defending our jail!",
      "I'm attacking the enemy jail!", "Rescue the Prisoners!",
@@ -8275,6 +8273,8 @@ nationality_t GetAlliedType(const char* name)
 }
 */
 
+// Commented out in OPM. See the other comment below.
+/*
 nationality_t GetPlayerTeamType(const char *name)
 {
     if (!Q_stricmpn(name, "american", 8)) {
@@ -8295,6 +8295,42 @@ nationality_t GetPlayerTeamType(const char *name)
         return NA_ITALIAN;
     } else {
         return NA_NONE;
+    }
+}
+*/
+
+// Fixed in OPM.
+//  This fixes the issue where the player can equip weapons
+//  from the other team
+nationality_t GetPlayerAxisTeamType(const char *name)
+{
+    if (!Q_stricmpn(name, "german", 6)) {
+        return NA_GERMAN;
+    } else if (!Q_stricmpn(name, "it", 2)) {
+        return NA_ITALIAN;
+    } else if (!Q_stricmpn(name, "sc", 2)) {
+        return NA_ITALIAN;
+    } else {
+        // fallback to german
+        return NA_GERMAN;
+    }
+}
+
+nationality_t GetPlayerAlliedTeamType(const char *name)
+{
+    if (!Q_stricmpn(name, "american", 8)) {
+        return NA_AMERICAN;
+    } else if (!Q_stricmpn(name, "allied_russian", 14)) {
+        return NA_RUSSIAN;
+    } else if (!Q_stricmpn(name, "allied_british", 14)) {
+        return NA_BRITISH;
+    } else if (!Q_stricmpn(name, "allied_sas", 10)) {
+        return NA_BRITISH;
+    } else if (!Q_stricmpn(name, "allied", 6)) {
+        return NA_AMERICAN;
+    } else {
+        // fallback to american
+        return NA_AMERICAN;
     }
 }
 
@@ -8527,9 +8563,9 @@ void Player::EquipWeapons()
     }
 
     if (GetTeam() == TEAM_AXIS) {
-        nationality = GetPlayerTeamType(client->pers.dm_playergermanmodel);
+        nationality = GetPlayerAxisTeamType(client->pers.dm_playergermanmodel);
     } else {
-        nationality = GetPlayerTeamType(client->pers.dm_playermodel);
+        nationality = GetPlayerAlliedTeamType(client->pers.dm_playermodel);
     }
 
     event = new Event(EV_Sentient_UseItem);
@@ -9684,7 +9720,13 @@ void Player::RetrieveVoteOptions(Event *ev)
 void Player::EventPrimaryDMWeapon(Event *ev)
 {
     str  dm_weapon = ev->GetString(1);
-    bool bIsBanned;
+    bool bIsBanned = false;
+
+    if (!dm_weapon.length()) {
+        // Added in OPM.
+        //  Prevent the player from cheating by going into spectator
+        return;
+    }
 
     if (!str::icmp(dm_weapon, "shotgun")) {
         bIsBanned = (dmflags->integer & DF_WEAPON_NO_SHOTGUN);
@@ -9823,9 +9865,9 @@ void Player::GetNationalityPrefix(Event *ev)
     nationality_t nationality;
 
     if (GetTeam() == TEAM_AXIS) {
-        nationality = GetPlayerTeamType(client->pers.dm_playergermanmodel);
+        nationality = GetPlayerAxisTeamType(client->pers.dm_playergermanmodel);
     } else {
-        nationality = GetPlayerTeamType(client->pers.dm_playermodel);
+        nationality = GetPlayerAlliedTeamType(client->pers.dm_playermodel);
     }
 
     switch (nationality) {
@@ -11365,9 +11407,9 @@ void Player::UserSelectWeapon(bool bWait)
     }
 
     if (GetTeam() == TEAM_AXIS) {
-        nationality = GetPlayerTeamType(client->pers.dm_playergermanmodel);
+        nationality = GetPlayerAxisTeamType(client->pers.dm_playergermanmodel);
     } else {
-        nationality = GetPlayerTeamType(client->pers.dm_playermodel);
+        nationality = GetPlayerAlliedTeamType(client->pers.dm_playermodel);
     }
 
     if (bWait) {
