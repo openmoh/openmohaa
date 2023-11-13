@@ -813,6 +813,9 @@ void G_RegisterSounds(void)
 void G_Restart(void)
 {
     G_InitWorldSession();
+
+    // Added in 2.0
+    G_ResetSmokeSprites();
 }
 
 void G_SetFrameNumber(int framenum)
