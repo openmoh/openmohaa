@@ -275,3 +275,117 @@ public:
     CLASS_PROTOTYPE(ScriptSkyOrigin);
     ScriptSkyOrigin();
 };
+
+class ScriptSimpleStrafingGunfire : public ScriptSlave
+{
+protected:
+    qboolean isOn;
+    float    fireDelay;
+    float    range;
+    Vector   spread;
+    float    damage;
+    float    knockback;
+    float    throughWood;
+    float    throughMetal;
+    int      bulletCount;
+    int      tracerCount;
+    int      tracerFrequency;
+    str      projectileModel;
+
+public:
+    CLASS_PROTOTYPE(ScriptSimpleStrafingGunfire);
+
+    ScriptSimpleStrafingGunfire();
+
+    void Archive(Archiver& arc);
+
+protected:
+    void GunFire(Event *ev);
+
+private:
+    void GunOn(Event *ev);
+    void GunOff(Event *ev);
+    void SetFireDelay(Event *ev);
+    void SetRange(Event *ev);
+    void SetSpread(Event *ev);
+    void SetDamage(Event *ev);
+    void SetKnockback(Event *ev);
+    void SetThroughWood(Event *ev);
+    void SetThroughMetal(Event *ev);
+    void SetBulletCount(Event *ev);
+    void SetTracerFreq(Event *ev);
+    void SetProjectileModel(Event *ev);
+};
+
+inline void ScriptSimpleStrafingGunfire::SetFireDelay(Event *ev)
+{
+    fireDelay = ev->GetFloat(1);
+}
+
+inline void ScriptSimpleStrafingGunfire::SetRange(Event *ev)
+{
+    range = ev->GetFloat(1);
+}
+
+inline void ScriptSimpleStrafingGunfire::SetSpread(Event *ev)
+{
+    spread.x = ev->GetFloat(1);
+    spread.y = ev->GetFloat(2);
+}
+
+inline void ScriptSimpleStrafingGunfire::SetDamage(Event *ev)
+{
+    damage = ev->GetFloat(1);
+}
+
+inline void ScriptSimpleStrafingGunfire::SetKnockback(Event *ev)
+{
+    knockback = ev->GetFloat(1);
+}
+
+inline void ScriptSimpleStrafingGunfire::SetThroughWood(Event *ev)
+{
+    throughWood = ev->GetFloat(1);
+}
+
+inline void ScriptSimpleStrafingGunfire::SetThroughMetal(Event *ev)
+{
+    throughMetal = ev->GetFloat(1);
+}
+
+inline void ScriptSimpleStrafingGunfire::SetBulletCount(Event *ev)
+{
+    bulletCount = ev->GetInteger(1);
+}
+
+inline void ScriptSimpleStrafingGunfire::SetTracerFreq(Event *ev)
+{
+    tracerFrequency = ev->GetInteger(1);
+    tracerCount     = 0;
+}
+
+inline void ScriptSimpleStrafingGunfire::SetProjectileModel(Event *ev)
+{
+    projectileModel = ev->GetString(1);
+}
+
+class ScriptAimedStrafingGunfire : public ScriptSimpleStrafingGunfire
+{
+private:
+    Entity *aimTarget;
+
+public:
+    CLASS_PROTOTYPE(ScriptAimedStrafingGunfire);
+
+    ScriptAimedStrafingGunfire();
+
+    void Archive(Archiver& arc);
+
+    void GunFire(Event *ev);
+    void SetAimTarget(Event *ev);
+};
+
+inline void ScriptAimedStrafingGunfire::SetAimTarget(Event *ev)
+{
+    aimTarget = ev->GetEntity(1);
+}

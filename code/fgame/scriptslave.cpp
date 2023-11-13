@@ -43,6 +43,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "explosion.h"
 #include "game.h"
 #include "debuglines.h"
+#include "weaputils.h"
 
 /*****************************************************************************/
 /*QUAKED script_object (0 0.5 1) ? NOT_SOLID
@@ -2033,4 +2034,188 @@ ScriptSkyOrigin::ScriptSkyOrigin()
     edict->s.renderfx |= RF_SKYORIGIN;
     setContents(0);
     setSolidType(SOLID_NOT);
+}
+
+Event EV_ScriptSimpleStrafingGunfire_On
+(
+    "on",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Turn the gunfire on.",
+    EV_NORMAL
+);
+Event EV_ScriptSimpleStrafingGunfire_Off
+(
+    "off",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Turn the gunfire off.",
+    EV_NORMAL
+);
+Event EV_ScriptSimpleStrafingGunfire_Fire
+(
+    "fire",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Fire.",
+    EV_NORMAL
+);
+Event EV_ScriptSimpleStrafingGunfire_TracerFreq
+(
+    "tracerfreq",
+    EV_DEFAULT,
+    "f",
+    NULL,
+    "Set the frequency of the tracers",
+    EV_NORMAL
+);
+Event EV_ScriptSimpleStrafingGunfire_ProjectileModel
+(
+    "projectile",
+    EV_DEFAULT,
+    "s",
+    NULL,
+    "Set the projectile model",
+    EV_NORMAL
+);
+
+CLASS_DECLARATION(ScriptSlave, ScriptSimpleStrafingGunfire, "script_simplestrafinggunfire") {
+    {&EV_ScriptSimpleStrafingGunfire_On,              &ScriptSimpleStrafingGunfire::GunOn             },
+    {&EV_ScriptSimpleStrafingGunfire_Off,             &ScriptSimpleStrafingGunfire::GunOff            },
+    {&EV_ScriptSimpleStrafingGunfire_Fire,            &ScriptSimpleStrafingGunfire::GunFire           },
+    {&EV_Weapon_FireDelay,                            &ScriptSimpleStrafingGunfire::SetFireDelay      },
+    {&EV_Weapon_SetBulletRange,                       &ScriptSimpleStrafingGunfire::SetRange          },
+    {&EV_Weapon_SetBulletSpread,                      &ScriptSimpleStrafingGunfire::SetSpread         },
+    {&EV_Weapon_SetBulletDamage,                      &ScriptSimpleStrafingGunfire::SetDamage         },
+    {&EV_Weapon_SetBulletKnockback,                   &ScriptSimpleStrafingGunfire::SetKnockback      },
+    {&EV_Weapon_SetBulletThroughWood,                 &ScriptSimpleStrafingGunfire::SetThroughWood    },
+    {&EV_Weapon_SetBulletThroughMetal,                &ScriptSimpleStrafingGunfire::SetThroughMetal   },
+    {&EV_Weapon_SetBulletCount,                       &ScriptSimpleStrafingGunfire::SetBulletCount    },
+    {&EV_ScriptSimpleStrafingGunfire_TracerFreq,      &ScriptSimpleStrafingGunfire::SetTracerFreq     },
+    {&EV_ScriptSimpleStrafingGunfire_ProjectileModel, &ScriptSimpleStrafingGunfire::SetProjectileModel},
+    {NULL,                                            NULL                                            }
+};
+
+ScriptSimpleStrafingGunfire::ScriptSimpleStrafingGunfire()
+{
+    isOn            = false;
+    fireDelay       = 0.05f;
+    range           = 4000;
+    spread          = Vector(100, 100, 0);
+    damage          = 100;
+    knockback       = 0;
+    throughWood     = 0;
+    throughMetal    = 0;
+    bulletCount     = 1;
+    tracerCount     = 0;
+    tracerFrequency = 0;
+    projectileModel = "models/projectiles/stukaround.tik";
+}
+
+void ScriptSimpleStrafingGunfire::GunOn(Event *ev)
+{
+    isOn = true;
+
+    CancelEventsOfType(&EV_ScriptSimpleStrafingGunfire_Fire);
+    PostEvent(EV_ScriptSimpleStrafingGunfire_Fire, 0.05f);
+}
+
+void ScriptSimpleStrafingGunfire::GunOff(Event *ev)
+{
+    isOn = false;
+
+    CancelEventsOfType(&EV_ScriptSimpleStrafingGunfire_Fire);
+}
+
+void ScriptSimpleStrafingGunfire::GunFire(Event *ev)
+{
+    Vector dir, right, up;
+    Vector horzAngles;
+
+    AngleVectors(angles, NULL, NULL, up);
+    dir = -1 * up;
+
+    VectorToAngles(dir, horzAngles);
+    AngleVectors(horzAngles, NULL, right, up);
+
+    dir = dir * range + right * grandom() * spread.x;
+    dir += up * grandom() * spread.y;
+    dir.normalize();
+
+    ProjectileAttack(origin, dir, this, projectileModel, 1, 0, NULL);
+    // continue firing
+    PostEvent(EV_ScriptSimpleStrafingGunfire_Fire, fireDelay);
+}
+
+void ScriptSimpleStrafingGunfire::Archive(Archiver& arc)
+{
+    ScriptSlave::Archive(arc);
+
+    arc.ArchiveBoolean(&isOn);
+    arc.ArchiveFloat(&fireDelay);
+    arc.ArchiveFloat(&range);
+    arc.ArchiveVector(&spread);
+    arc.ArchiveFloat(&damage);
+    arc.ArchiveFloat(&knockback);
+    arc.ArchiveFloat(&throughWood);
+    arc.ArchiveFloat(&throughMetal);
+    arc.ArchiveInteger(&bulletCount);
+    arc.ArchiveInteger(&tracerCount);
+    arc.ArchiveInteger(&tracerFrequency);
+    arc.ArchiveString(&projectileModel);
+}
+
+Event EV_ScriptAimedStrafingGunfire_AimTarget
+(
+    "aimtarget",
+    EV_DEFAULT,
+    "e",
+    NULL,
+    "Set the aim target.",
+    EV_NORMAL
+);
+
+CLASS_DECLARATION(ScriptSimpleStrafingGunfire, ScriptAimedStrafingGunfire, "script_aimedstrafinggunfire") {
+    {&EV_ScriptSimpleStrafingGunfire_Fire, &ScriptAimedStrafingGunfire::GunFire},
+    {NULL,                                 NULL                                }
+};
+
+ScriptAimedStrafingGunfire::ScriptAimedStrafingGunfire()
+{
+    aimTarget = NULL;
+}
+
+void ScriptAimedStrafingGunfire::GunFire(Event *ev)
+{
+    if (!aimTarget) {
+        ScriptSimpleStrafingGunfire::GunFire(ev);
+        return;
+    }
+
+    Vector dir, right, up;
+    Vector horzAngles;
+
+    AngleVectors(angles, NULL, NULL, up);
+    dir = -1 * up;
+
+    VectorToAngles(dir, horzAngles);
+    AngleVectors(horzAngles, NULL, right, up);
+
+    dir = dir * range + right * grandom() * spread.x;
+    dir += up * grandom() * spread.y;
+    dir.normalize();
+
+    ProjectileAttack(origin, dir, this, projectileModel, 1, 0, NULL);
+    // continue firing
+    PostEvent(EV_ScriptSimpleStrafingGunfire_Fire, fireDelay);
+}
+
+void ScriptAimedStrafingGunfire::Archive(Archiver& arc)
+{
+    ScriptSimpleStrafingGunfire::Archive(arc);
+
+    arc.ArchiveObjectPointer((Class **)&aimTarget);
 }
