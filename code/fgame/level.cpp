@@ -1158,13 +1158,14 @@ void Level::SpawnEntities(char *entities, int svsTime)
 
     gi.LoadResource("*148");
 
-    if (g_gametype->integer) {
+    if (g_gametype->integer != GT_SINGLE_PLAYER) {
         dmManager.InitGame();
     }
 
     gi.LoadResource("*148a");
 
-    if (game.maxclients == 1) {
+    // Single-player check added in OPM
+    if (game.maxclients == 1 && g_gametype->integer == GT_SINGLE_PLAYER) {
         spawn_entnum = 0;
         new Player;
     }
