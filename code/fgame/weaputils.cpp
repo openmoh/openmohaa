@@ -2163,8 +2163,8 @@ float BulletAttack(
                     );
 
                     if (!(tracethrough.surfaceFlags & (SURF_FOLIAGE | SURF_GLASS | SURF_PUDDLE | SURF_PAPER))
-                        && (!(tracethrough.surfaceFlags & SURF_WOOD) || bulletthroughwood)
-                        && (!(tracethrough.surfaceFlags & (SURF_GRILL | SURF_METAL)) || bulletthroughmetal)) {
+                        && (!(tracethrough.surfaceFlags & SURF_WOOD) || !bulletthroughwood)
+                        && (!(tracethrough.surfaceFlags & (SURF_GRILL | SURF_METAL)) || !bulletthroughmetal)) {
                         vTmpEnd        = vTraceStart + vDir * -4;
                         trace.fraction = 1.f;
                         bBulletDone    = qtrue;
