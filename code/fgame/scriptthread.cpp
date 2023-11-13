@@ -4119,8 +4119,10 @@ void ScriptThread::EventTeamWin(Event *ev)
         teamnum = TEAM_ALLIES;
     } else if (team == STRING_AXIS) {
         teamnum = TEAM_AXIS;
+    } else if (team == STRING_DISGUISE_NONE) {
+        teamnum = TEAM_NONE;
     } else {
-        throw ScriptException("'teamwin' must be called with 'axis' or 'allies' as its argument");
+        throw ScriptException("'teamwin' must be called with 'axis', 'allies' or 'none' as its argument");
     }
 
     dmManager.TeamWin(teamnum);
