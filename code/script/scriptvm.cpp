@@ -487,7 +487,7 @@ void ScriptVM::executeCommandInternal<true>(
     }
 
     ScriptVariable& pTop = m_VMStack.GetTop();
-    pTop = std::move(ev.GetValue());
+    pTop                 = std::move(ev.GetValue());
 }
 
 template<>
@@ -507,16 +507,14 @@ void ScriptVM::executeCommand<true, false>(Listener *listener, op_parmNum_t iPar
 template<>
 void ScriptVM::executeCommand<false, true>(Listener *listener, op_parmNum_t iParamCount, op_evName_t eventnum)
 {
-    ScriptCommandEvent ev =
-        iParamCount ? ScriptCommandEvent(eventnum, iParamCount) : ScriptCommandEvent(eventnum);
+    ScriptCommandEvent ev = iParamCount ? ScriptCommandEvent(eventnum, iParamCount) : ScriptCommandEvent(eventnum);
     return executeCommandInternal<true>(ev, listener, m_VMStack.GetTopArray(), iParamCount);
 }
 
 template<>
 void ScriptVM::executeCommand<true, true>(Listener *listener, op_parmNum_t iParamCount, op_evName_t eventnum)
 {
-    ScriptCommandEvent ev =
-        iParamCount ? ScriptCommandEvent(eventnum, iParamCount) : ScriptCommandEvent(eventnum);
+    ScriptCommandEvent ev = iParamCount ? ScriptCommandEvent(eventnum, iParamCount) : ScriptCommandEvent(eventnum);
     return executeCommandInternal<true>(ev, listener, m_VMStack.GetTopArray(), iParamCount);
 }
 
@@ -535,7 +533,7 @@ bool ScriptVM::executeGetter(Listener *listener, op_evName_t eventName)
         listener->ProcessScriptEvent(ev);
 
         ScriptVariable& pTop = m_VMStack.GetTop();
-        pTop = std::move(ev.GetValue());
+        pTop                 = std::move(ev.GetValue());
 
         return true;
     } else {
@@ -1363,17 +1361,24 @@ void ScriptVM::Execute(ScriptVariable *data, int dataSize, str label)
                 a = &m_VMStack.Pop();
 
                 try {
-                    listener = a->listenerValue();
+                    try {
+                        listener = a->listenerValue();
 
-                    if (listener == NULL) {
-                        fieldNameIndex = fetchOpcodeValue<op_name_t>();
-                        ScriptError("Field '%s' applied to NULL listener", Director.GetString(fieldNameIndex).c_str());
-                    } else {
-                        loadTop(listener);
+                        if (listener == NULL) {
+                            fieldNameIndex = fetchActualOpcodeValue<op_name_t>();
+                            ScriptError(
+                                "Field '%s' applied to NULL listener", Director.GetString(fieldNameIndex).c_str()
+                            );
+                        }
+                    } catch (...) {
+                        skipField();
+                        throw;
                     }
-                } catch (ScriptException& exc) {
+
+                    loadTop(listener);
+                } catch (...) {
                     m_VMStack.Pop();
-                    throw exc;
+                    throw;
                 }
 
                 break;
@@ -1506,47 +1511,48 @@ void ScriptVM::Execute(ScriptVariable *data, int dataSize, str label)
                 break;
 
             case OP_STORE_FIELD_REF:
-                {
+                try {
                     try {
-                        Listener *listener = m_VMStack.GetTop().listenerValue();
+                        listener = m_VMStack.GetTop().listenerValue();
 
                         if (listener == nullptr) {
                             fieldNameIndex = fetchActualOpcodeValue<op_name_t>();
                             ScriptError(
                                 "Field '%s' applied to NULL listener", Director.GetString(fieldNameIndex).c_str()
                             );
-                        } else {
-                            ScriptVariable *const listenerVar = storeTop<true>(listener);
-
-                            if (listenerVar) {
-                                // having a listener variable means the variable was just created
-                                m_VMStack.GetTop().setRefValue(listenerVar);
-                            }
                         }
                     } catch (...) {
-                        ScriptVariable *const pTop = m_VMStack.GetTopPtr();
-                        pTop->setRefValue(pTop);
                         skipField();
                         throw;
                     }
+
+                    ScriptVariable *const listenerVar = storeTop<true>(listener);
+
+                    if (listenerVar) {
+                        // having a listener variable means the variable was just created
+                        m_VMStack.GetTop().setRefValue(listenerVar);
+                    }
                     break;
+                } catch (...) {
+                    ScriptVariable *const pTop = m_VMStack.GetTopPtr();
+                    pTop->setRefValue(pTop);
+                    throw;
                 }
 
             case OP_STORE_FIELD:
                 try {
-                    Listener *listener = m_VMStack.GetTop().listenerValue();
+                    listener = m_VMStack.GetTop().listenerValue();
 
                     if (listener == nullptr) {
                         fieldNameIndex = fetchActualOpcodeValue<op_name_t>();
                         ScriptError("Field '%s' applied to NULL listener", Director.GetString(fieldNameIndex).c_str());
-                    } else {
-                        storeTop<true>(listener);
                     }
-                    break;
                 } catch (...) {
                     skipField();
                     throw;
                 }
+
+                storeTop<true>(listener);
                 break;
 
             case OP_STORE_FLOAT:
