@@ -226,10 +226,8 @@ void PlayerBot::MoveThink
 	{
 		m_Path.UpdatePos( origin, 8 );
 
-		if( m_bDeltaMove )
-			m_vCurrentGoal = origin + m_Path.CurrentDelta();
-		else
-			m_vCurrentGoal = m_Path.CurrentNode()->point;
+		m_vCurrentGoal = origin;
+		VectorAdd2D(m_vCurrentGoal, m_Path.CurrentDelta(), m_vCurrentGoal);
 
 		if( m_Path.Complete( origin ) )
 		{
@@ -267,7 +265,7 @@ void PlayerBot::MoveThink
 
 		if( GetMoveResult() >= MOVERESULT_BLOCKED || velocity.lengthSquared() <= 8 * 8 )
 		{
-			gi.DPrintf( "Updating path for bot client %i\n", edict - g_entities );
+			gi.DPrintf2( "Updating path for bot client %i\n", edict - g_entities );
 
 			m_bTempAway = true;
 			m_bDeltaMove = false;
@@ -308,10 +306,12 @@ void PlayerBot::MoveThink
 		ClearMove();
 	}
 
-	vDir = m_vCurrentGoal - centroid;
+	//vDir = m_vCurrentGoal - centroid;
 
 	// Rotate the dir
-	//vDir = m_Path.CurrentDelta();
+	vDir[0] = m_Path.CurrentDelta()[0];
+	vDir[1] = m_Path.CurrentDelta()[1];
+	vDir[2] = 0;
 	VectorNormalize( vDir );
 	vAngles = vDir.toAngles() - angles;
 	vAngles.AngleVectorsLeft( &vWishDir );
@@ -862,7 +862,7 @@ bool PlayerBot::MoveDone
 	void
 	)
 {
-	return m_Path.Complete( origin );
+	return !m_Path.LastNode() || m_Path.Complete( origin );
 }
 
 /*
