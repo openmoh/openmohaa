@@ -2549,13 +2549,17 @@ void Player::InitMaxAmmo(void)
 }
 
 void Player::InitWeapons(void)
-
 {
     // Don't do anything if we're loading a server game.
     // This is either a loadgame or a restart
     if (LoadingSavegame) {
         return;
     }
+
+    // Added in OPM
+    //  This fixes a bug where player can charge then go to spectator or respawn.
+    //  The grenade would immediately explode when firing
+    charge_start_time = 0;
 }
 
 void Player::InitInventory(void) {}
