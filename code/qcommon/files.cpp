@@ -4181,8 +4181,8 @@ void	FS_FilenameCompletion( const char *dir, const char *ext,
 
 const char *FS_GetCurrentGameDir(void)
 {
-	if(fs_gamedirvar->string[0])
-		return fs_gamedirvar->string;
+	if(fs_gamedir[0])
+		return fs_gamedir;
 
 	return com_basegame->string;
 }
