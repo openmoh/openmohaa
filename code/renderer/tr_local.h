@@ -2129,6 +2129,9 @@ TIKI
 
 =============================================================
 */
+struct skelHeaderGame_s;
+struct skelAnimFrame_s;
+
 void R_InitStaticModels(void);
 void RE_FreeModels(void);
 qhandle_t RE_SpawnEffectModel(const char* szModel, vec3_t vPos, vec3_t* axis);
