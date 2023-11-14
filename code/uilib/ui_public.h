@@ -65,6 +65,11 @@ typedef enum {
 #define SORT_GAME			3
 #define SORT_PING			4
 
+#ifndef __cplusplus
+struct Event;
+struct Listener;
+#endif
+
 typedef struct uiimport_s {
 	uihandle_t( *Rend_RegisterMaterial )( const char *name );
 	uihandle_t( *Rend_RefreshMaterial )( const char *name );
