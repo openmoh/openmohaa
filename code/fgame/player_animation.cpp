@@ -32,8 +32,8 @@ extern Event EV_Player_AnimLoop_Legs;
 void Player::EndAnim_Legs(Event *ev)
 {
     animdone_Legs = true;
-
-    if ((animFlags[m_iPartSlot[legs]] & ANIM_LOOP)) {
+    
+    if (IsRepeatType(m_iPartSlot[legs])) {
         SetAnimDoneEvent(EV_Player_AnimLoop_Legs, m_iPartSlot[legs]);
     }
 
@@ -44,7 +44,7 @@ void Player::EndAnim_Torso(Event *ev)
 {
     animdone_Torso = true;
 
-    if ((animFlags[m_iPartSlot[torso]] & ANIM_LOOP)) {
+    if (IsRepeatType(m_iPartSlot[torso])) {
         SetAnimDoneEvent(EV_Player_AnimLoop_Torso, m_iPartSlot[torso]);
     }
 
