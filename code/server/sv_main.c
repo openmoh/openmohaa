@@ -74,7 +74,13 @@ cvar_t	*sv_gamespy;
 //cvar_t	*sv_debug_gamepsy;
 //cvar_t	*sv_gamespy;
 cvar_t	*sv_lanForceRate; // dedicated 1 (LAN) server forces local client rates to 99999 (bug #491)
+#ifndef STANDALONE
 cvar_t	*sv_strictAuth;
+#endif
+cvar_t	*sv_banFile;
+
+serverBan_t serverBans[SERVER_MAXBANS];
+int serverBansCount = 0;
 
 /*
 =============================================================================

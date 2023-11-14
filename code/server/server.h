@@ -278,6 +278,17 @@ typedef struct {
 #endif
 } serverStatic_t;
 
+#define SERVER_MAXBANS	1024
+// Structure for managing bans
+typedef struct
+{
+	netadr_t ip;
+	// For a CIDR-Notation type suffix
+	int subnet;
+	
+	qboolean isexception;
+} serverBan_t;
+
 //=============================================================================
 
 extern cvar_t	*sv_mapname;
@@ -327,12 +338,18 @@ extern cvar_t	*sv_location;
 extern cvar_t	*sv_debug_gamespy;
 extern cvar_t	*sv_gamespy;
 extern cvar_t	*sv_lanForceRate; // dedicated 1 (LAN) server forces local client rates to 99999 (bug #491)
-extern cvar_t	*sv_strictAuth;
+#ifndef STANDALONE
+extern	cvar_t	*sv_strictAuth;
+#endif
+extern	cvar_t	*sv_banFile;
 
-extern debugline_t *DebugLines;
-extern int numDebugLines;
-extern debugstring_t *DebugStrings;
-extern int numDebugStrings;
+extern	serverBan_t serverBans[SERVER_MAXBANS];
+extern	int serverBansCount;
+
+#ifdef USE_VOIP
+extern	cvar_t	*sv_voip;
+extern	cvar_t	*sv_voipProtocol;
+#endif
 
 //===========================================================
 
@@ -466,6 +483,11 @@ qboolean SV_IsValidSnapshotClient(client_t* client);
 //
 // sv_game.c
 //
+extern debugline_t* DebugLines;
+extern int numDebugLines;
+extern debugstring_t* DebugStrings;
+extern int numDebugStrings;
+
 void SV_ClearModelUserCounts( void );
 int	SV_NumForGentity( gentity_t *ent );
 gentity_t *SV_GentityNum( int num );
