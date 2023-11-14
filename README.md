@@ -144,7 +144,7 @@ Append `-DFLEX_EXECUTABLE=...\win_flex.exe -DBISON_EXECUTABLE=...\win_bison.exe`
 | ![](docs/images/v0.60.0-x86_64/flughafen_1.png)                                   | ![](docs/images/v0.60.0-x86_64/flughafen_2.png)                            |
 | ![](docs/images/v0.60.0-x86_64/mohdm2_1.png "Playing Freeze-Tag mode with bots")  | ![](docs/images/v0.60.0-x86_64/training_3.png "Single-Player training")    |
 
-*More screenshots [here](docs/images/v0.60.0-x86_64)*
+*More screenshots [here](docs/images)*
 
 ## Features
 
@@ -156,6 +156,13 @@ Append `-DFLEX_EXECUTABLE=...\win_flex.exe -DBISON_EXECUTABLE=...\win_bison.exe`
 - Spectate players in first-person
 - Demo recording
 - More script commands for mods
+- Non-PVS optimization
+
+##### Non-PVS optimization
+
+For each client, the server optimizes by only sending them information about other players that they can see. Clients won't see other players they can't see.
+
+Enable this feature with `set sv_netoptimize 2`.
 
 #### Client-side and server-side
 
