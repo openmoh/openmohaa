@@ -52,7 +52,7 @@ size_t       totalmemallocated = 0;
 unsigned int numclassesallocated = 0;
 
 void DisplayMemoryUsage() {
-    LIGHTCLASS_Printf("Classes %-5d Class memory used: %d\n", numclassesallocated, totalmemallocated);
+    LIGHTCLASS_Printf("Classes %-5d Class memory used: %zu\n", numclassesallocated, totalmemallocated);
 }
 
 #ifndef _DEBUG_MEM
