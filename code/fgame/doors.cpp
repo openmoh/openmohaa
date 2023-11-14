@@ -1190,7 +1190,7 @@ qboolean Door::AIDontFace(void) const
     return (locked || state == STATE_OPEN);
 }
 
-static char* stateString[4] =
+static const char* stateString[4] =
 {
     "open",
     "opening",
