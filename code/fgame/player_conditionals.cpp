@@ -59,40 +59,40 @@ static Vector max4x4x8(4, 4, 8);
 
 qboolean Player::CondTrue(Conditional& condition)
 {
-	return true;
+    return true;
 }
 
 qboolean Player::CondChance(Conditional& condition)
 
 {
-	float percent_chance;
+    float percent_chance;
 
-	percent_chance = atof(condition.getParm(1));
+    percent_chance = atof(condition.getParm(1));
 
-	return (G_Random() < percent_chance);
+    return (G_Random() < percent_chance);
 }
 
 qboolean Player::CondHealth(Conditional& condition)
 
 {
-	return health < atoi(condition.getParm(1));
+    return health < atoi(condition.getParm(1));
 }
 
 qboolean Player::CondBlocked(Conditional& condition)
 {
-	int test_moveresult;
+    int test_moveresult;
 
-	test_moveresult = moveresult;
+    test_moveresult = moveresult;
 
-	if (flags & FL_IMMOBILE) {
-		test_moveresult = MOVERESULT_BLOCKED;
-	}
+    if (flags & FL_IMMOBILE) {
+        test_moveresult = MOVERESULT_BLOCKED;
+    }
 
-	if (condition.numParms()) {
-		return test_moveresult >= atoi(condition.getParm(1));
-	}
+    if (condition.numParms()) {
+        return test_moveresult >= atoi(condition.getParm(1));
+    }
 
-	return test_moveresult >= MOVERESULT_BLOCKED;
+    return test_moveresult >= MOVERESULT_BLOCKED;
 }
 
 qboolean Player::CondPain(Conditional& condition)
@@ -103,45 +103,43 @@ qboolean Player::CondPain(Conditional& condition)
 
 qboolean Player::CondOnGround(Conditional& condition)
 {
-	if (groundentity || client->ps.walking) {
-		falling = 0;
-		return qtrue;
-	}
-	else {
-		return qfalse;
-	}
+    if (groundentity || client->ps.walking) {
+        falling = 0;
+        return qtrue;
+    } else {
+        return qfalse;
+    }
 }
 
 qboolean Player::CondHasWeapon(Conditional& condition)
 
 {
-	return WeaponsOut();
+    return WeaponsOut();
 }
 
 qboolean Player::CondNewWeapon(Conditional& condition)
 
 {
-	Weapon* weapon;
+    Weapon *weapon;
 
-	weapon = GetNewActiveWeapon();
+    weapon = GetNewActiveWeapon();
 
-	if (weapon) {
-		return true;
-	}
-	else {
-		return false;
-	}
+    if (weapon) {
+        return true;
+    } else {
+        return false;
+    }
 }
 
 qboolean Player::CondImmediateSwitch(Conditional& condition)
 {
-	static cvar_t* g_immediateswitch = NULL;
+    static cvar_t *g_immediateswitch = NULL;
 
-	if (!g_immediateswitch) {
-		g_immediateswitch = gi.Cvar_Get("g_immediateswitch", "0", 0);
-	}
+    if (!g_immediateswitch) {
+        g_immediateswitch = gi.Cvar_Get("g_immediateswitch", "0", 0);
+    }
 
-	return (g_gametype->integer && g_immediateswitch->integer);
+    return (g_gametype->integer && g_immediateswitch->integer);
 }
 
 // Check to see if a weapon has been raised
@@ -321,6 +319,7 @@ qboolean Player::CondWeaponClassReadyToFire(Conditional& condition)
     str          weaponClass = "None";
     weaponhand_t hand;
     qboolean     ready;
+    Weapon      *weapon;
 
     if (level.playerfrozen || m_bFrozen || (flags & FL_IMMOBILE)) {
         return false;
@@ -336,7 +335,7 @@ qboolean Player::CondWeaponClassReadyToFire(Conditional& condition)
         return false;
     }
 
-    Weapon *weapon = GetActiveWeapon(hand);
+    weapon = GetActiveWeapon(hand);
 
     // Weapon there check
     if (!weapon) {
@@ -348,6 +347,10 @@ qboolean Player::CondWeaponClassReadyToFire(Conditional& condition)
         if (!(G_WeaponClassNameToNum(weaponClass) & weapon->GetWeaponClass())) {
             return qfalse;
         }
+
+        if (condition.numParms() > 2) {
+            mode = WeaponModeNameToNum(condition.getParm(3));
+        }
     }
 
     // Ammo check
@@ -357,38 +360,37 @@ qboolean Player::CondWeaponClassReadyToFire(Conditional& condition)
 
 qboolean Player::CondUsingVehicle(Conditional& condition)
 {
-	return (m_pVehicle != NULL);
+    return (m_pVehicle != NULL);
 }
 
 qboolean Player::CondVehicleType(Conditional& condition)
 {
-	str sType = condition.getParm(1);
-	if (m_pVehicle && m_pVehicle->IsSubclassOfVehicle()) {
-		return !str::cmp(sType, "vehicle");
-	}
-	else {
-		return !str::cmp(sType, "none");
-	}
+    str sType = condition.getParm(1);
+    if (m_pVehicle && m_pVehicle->IsSubclassOfVehicle()) {
+        return !str::cmp(sType, "vehicle");
+    } else {
+        return !str::cmp(sType, "none");
+    }
 }
 
 qboolean Player::CondIsPassenger(Conditional& condition)
 {
-	return m_pVehicle && m_pVehicle->IsSubclassOfVehicle() && m_pVehicle->FindPassengerSlotByEntity(this);
+    return m_pVehicle && m_pVehicle->IsSubclassOfVehicle() && m_pVehicle->FindPassengerSlotByEntity(this);
 }
 
 qboolean Player::CondIsDriver(Conditional& condition)
 {
-	return m_pVehicle && m_pVehicle->IsSubclassOfVehicle() && m_pVehicle->FindDriverSlotByEntity(this);
+    return m_pVehicle && m_pVehicle->IsSubclassOfVehicle() && m_pVehicle->FindDriverSlotByEntity(this);
 }
 
 qboolean Player::CondUsingTurret(Conditional& condition)
 {
-	return (m_pTurret != NULL);
+    return (m_pTurret != NULL);
 }
 
 qboolean Player::CondIsEscaping(Conditional& condition)
 {
-	return m_jailstate == JAILSTATE_ESCAPE;
+    return m_jailstate == JAILSTATE_ESCAPE;
 }
 
 qboolean Player::CondAbleToDefuse(Conditional& condition)
@@ -447,14 +449,13 @@ qboolean Player::CondIsAssistingEscape(Conditional& condition)
 
 qboolean Player::CondTurretType(Conditional& condition)
 {
-	str name = condition.getParm(1);
+    str name = condition.getParm(1);
 
-	if (m_pTurret) {
-		return m_pTurret->getName() == name;
-	}
-	else {
-		return name == "none";
-	}
+    if (m_pTurret) {
+        return m_pTurret->getName() == name;
+    } else {
+        return name == "none";
+    }
 }
 
 qboolean Player::CondWeaponReadyToFireNoSound(Conditional& condition)
@@ -499,125 +500,119 @@ qboolean Player::CondWeaponReadyToFireNoSound(Conditional& condition)
 
 qboolean Player::CondPutAwayMain(Conditional& condition)
 {
-	Weapon* weapon = GetActiveWeapon(WEAPON_MAIN);
+    Weapon *weapon = GetActiveWeapon(WEAPON_MAIN);
 
-	return weapon && weapon->GetPutaway();
+    return weapon && weapon->GetPutaway();
 }
 
 // Check to see if any of the active weapons need to be put away
 qboolean Player::CondPutAwayOffHand(Conditional& condition)
 
 {
-	Weapon* weapon = GetActiveWeapon(WEAPON_OFFHAND);
+    Weapon *weapon = GetActiveWeapon(WEAPON_OFFHAND);
 
-	return weapon && weapon->GetPutaway();
+    return weapon && weapon->GetPutaway();
 }
 
 // Checks to see if any weapon is active in the specified hand
 qboolean Player::CondAnyWeaponActive(Conditional& condition)
 
 {
-	weaponhand_t hand;
-	Weapon* weap;
+    weaponhand_t hand;
+    Weapon      *weap;
 
-	hand = WeaponHandNameToNum(condition.getParm(1));
+    hand = WeaponHandNameToNum(condition.getParm(1));
 
-	if (hand == WEAPON_ERROR) {
-		return false;
-	}
+    if (hand == WEAPON_ERROR) {
+        return false;
+    }
 
-	weap = GetActiveWeapon(hand);
-	return (weap != NULL);
+    weap = GetActiveWeapon(hand);
+    return (weap != NULL);
 }
 
 qboolean Player::CondAttackBlocked(Conditional& condition)
 
 {
-	if (attack_blocked) {
-		attack_blocked = qfalse;
-		return true;
-	}
-	else {
-		return false;
-	}
+    if (attack_blocked) {
+        attack_blocked = qfalse;
+        return true;
+    } else {
+        return false;
+    }
 }
 
 qboolean Player::CondSemiAuto(Conditional& condition)
 {
-	firemode_t   mode = FIRE_PRIMARY;
-	str          handname;
-	weaponhand_t hand;
+    firemode_t   mode = FIRE_PRIMARY;
+    str          handname;
+    weaponhand_t hand;
 
-	handname = condition.getParm(1);
+    handname = condition.getParm(1);
 
-	hand = WeaponHandNameToNum(handname);
+    hand = WeaponHandNameToNum(handname);
 
-	if (hand != WEAPON_ERROR) {
-		return GetActiveWeapon(hand)->m_bSemiAuto;
-	}
-	else {
-		return qfalse;
-	}
+    if (hand != WEAPON_ERROR) {
+        return GetActiveWeapon(hand)->m_bSemiAuto;
+    } else {
+        return qfalse;
+    }
 }
 
 qboolean Player::CondMinChargeTime(Conditional& condition)
 {
-	const char* handname;
-	weaponhand_t hand;
-	Weapon* weap;
+    const char  *handname;
+    weaponhand_t hand;
+    Weapon      *weap;
 
-	handname = condition.getParm(1);
-	hand = WeaponHandNameToNum(handname);
+    handname = condition.getParm(1);
+    hand     = WeaponHandNameToNum(handname);
 
-	if (hand != WEAPON_ERROR) {
-		weap = GetActiveWeapon(hand);
-		if (weap) {
-			float charge_time = weap->GetMinChargeTime(FIRE_PRIMARY);
-			if (charge_time) {
-				if (charge_start_time) {
-					return level.time - charge_start_time >= charge_time;
-				}
-				else {
-					return qfalse;
-				}
-			}
-			else {
-				return qtrue;
-			}
-		}
-	}
+    if (hand != WEAPON_ERROR) {
+        weap = GetActiveWeapon(hand);
+        if (weap) {
+            float charge_time = weap->GetMinChargeTime(FIRE_PRIMARY);
+            if (charge_time) {
+                if (charge_start_time) {
+                    return level.time - charge_start_time >= charge_time;
+                } else {
+                    return qfalse;
+                }
+            } else {
+                return qtrue;
+            }
+        }
+    }
 
-	return qfalse;
+    return qfalse;
 }
 
 qboolean Player::CondMaxChargeTime(Conditional& condition)
 {
-	const char* handname;
-	weaponhand_t hand;
-	Weapon* weap;
+    const char  *handname;
+    weaponhand_t hand;
+    Weapon      *weap;
 
-	handname = condition.getParm(1);
-	hand = WeaponHandNameToNum(handname);
+    handname = condition.getParm(1);
+    hand     = WeaponHandNameToNum(handname);
 
-	if (hand != WEAPON_ERROR) {
-		weap = GetActiveWeapon(hand);
-		if (weap) {
-			float charge_time = weap->GetMaxChargeTime(FIRE_PRIMARY);
-			if (charge_time) {
-				if (charge_start_time) {
-					return level.time - charge_start_time >= charge_time;
-				}
-				else {
-					return qfalse;
-				}
-			}
-			else {
-				return qtrue;
-			}
-		}
-	}
+    if (hand != WEAPON_ERROR) {
+        weap = GetActiveWeapon(hand);
+        if (weap) {
+            float charge_time = weap->GetMaxChargeTime(FIRE_PRIMARY);
+            if (charge_time) {
+                if (charge_start_time) {
+                    return level.time - charge_start_time >= charge_time;
+                } else {
+                    return qfalse;
+                }
+            } else {
+                return qtrue;
+            }
+        }
+    }
 
-	return qfalse;
+    return qfalse;
 }
 
 qboolean Player::CondBlockDelay(Conditional& condition)
@@ -646,89 +641,86 @@ qboolean Player::CondMuzzleClear(Conditional& condition)
 qboolean Player::CondWeaponHasAmmo(Conditional& condition)
 
 {
-	weaponhand_t hand;
-	Weapon* weap;
-	firemode_t   mode = FIRE_PRIMARY;
+    weaponhand_t hand;
+    Weapon      *weap;
+    firemode_t   mode = FIRE_PRIMARY;
 
-	hand = WeaponHandNameToNum(condition.getParm(1));
+    hand = WeaponHandNameToNum(condition.getParm(1));
 
-	if (condition.numParms() > 1) {
-		mode = WeaponModeNameToNum(condition.getParm(2));
-	}
+    if (condition.numParms() > 1) {
+        mode = WeaponModeNameToNum(condition.getParm(2));
+    }
 
-	if (hand == WEAPON_ERROR) {
-		return false;
-	}
+    if (hand == WEAPON_ERROR) {
+        return false;
+    }
 
-	weap = GetActiveWeapon(hand);
+    weap = GetActiveWeapon(hand);
 
-	if (!weap) {
-		return false;
-	}
-	else {
-		return (weap->HasAmmo(mode));
-	}
+    if (!weap) {
+        return false;
+    } else {
+        return (weap->HasAmmo(mode));
+    }
 }
 
 qboolean Player::CondWeaponHasAmmoInClip(Conditional& condition)
 {
-	weaponhand_t hand;
-	Weapon* weap;
-	firemode_t   mode = FIRE_PRIMARY;
+    weaponhand_t hand;
+    Weapon      *weap;
+    firemode_t   mode = FIRE_PRIMARY;
 
-	hand = WeaponHandNameToNum(condition.getParm(1));
+    hand = WeaponHandNameToNum(condition.getParm(1));
 
-	if (condition.numParms() > 1) {
-		mode = WeaponModeNameToNum(condition.getParm(2));
-	}
+    if (condition.numParms() > 1) {
+        mode = WeaponModeNameToNum(condition.getParm(2));
+    }
 
-	if (hand == WEAPON_ERROR) {
-		return false;
-	}
+    if (hand == WEAPON_ERROR) {
+        return false;
+    }
 
-	weap = GetActiveWeapon(hand);
+    weap = GetActiveWeapon(hand);
 
-	if (!weap) {
-		return false;
-	}
-	else {
-		return (weap->HasAmmoInClip(mode));
-	}
+    if (!weap) {
+        return false;
+    } else {
+        return (weap->HasAmmoInClip(mode));
+    }
 }
 
 qboolean Player::CondReload(Conditional& condition)
 {
-	Weapon* weapon;
-	weaponhand_t hand = WEAPON_MAIN;
+    Weapon      *weapon;
+    weaponhand_t hand = WEAPON_MAIN;
 
-	if (condition.numParms() > 0) {
-		hand = WeaponHandNameToNum(condition.getParm(1));
-		if (hand == WEAPON_ERROR) {
-			return qfalse;
-		}
-	}
+    if (condition.numParms() > 0) {
+        hand = WeaponHandNameToNum(condition.getParm(1));
+        if (hand == WEAPON_ERROR) {
+            return qfalse;
+        }
+    }
 
-	weapon = GetActiveWeapon(WEAPON_MAIN);
+    weapon = GetActiveWeapon(WEAPON_MAIN);
 
-	if (!weapon) {
-		return qfalse;
-	}
+    if (!weapon) {
+        return qfalse;
+    }
 
-	if (weapon->ShouldReload() && weapon->HasAmmo(FIRE_PRIMARY)) {
-		return qtrue;
-	}
+    if (weapon->ShouldReload() && weapon->HasAmmo(FIRE_PRIMARY)) {
+        return qtrue;
+    }
 
-	return qfalse;
+    return qfalse;
 }
 
 qboolean Player::CondWeaponsHolstered(Conditional& condition)
 {
-	if (holsteredWeapon) {
-		return qtrue;
-	}
-	else {
-		return qfalse;
-	}
+    if (holsteredWeapon) {
+        return qtrue;
+    } else {
+        return qfalse;
+    }
 }
 
 qboolean Player::CondWeaponIsItem(Conditional& condition)
@@ -798,7 +790,7 @@ qboolean Player::CondJump(Conditional& condition)
 
 qboolean Player::CondCrouch(Conditional& condition)
 {
-	return (last_ucmd.upmove) < 0;
+    return (last_ucmd.upmove) < 0;
 }
 
 qboolean Player::CondJumpFlip(Conditional& condition)
@@ -821,11 +813,11 @@ qboolean Player::CondAttackPrimary(Conditional& condition)
 {
     if (level.playerfrozen || m_bFrozen || (flags & FL_IMMOBILE)) {
         return false;
-	}
+    }
 
-	if (g_gametype->integer != GT_SINGLE_PLAYER && !m_bAllowFighting) {
-		return false;
-	}
+    if (g_gametype->integer != GT_SINGLE_PLAYER && !m_bAllowFighting) {
+        return false;
+    }
 
     if (last_ucmd.buttons & BUTTON_ATTACKLEFT) {
         Weapon *weapon;
@@ -848,11 +840,11 @@ qboolean Player::CondAttackButtonPrimary(Conditional& condition)
 {
     if (level.playerfrozen || m_bFrozen || (flags & FL_IMMOBILE)) {
         return false;
-	}
+    }
 
-	if (g_gametype->integer != GT_SINGLE_PLAYER && !m_bAllowFighting) {
-		return false;
-	}
+    if (g_gametype->integer != GT_SINGLE_PLAYER && !m_bAllowFighting) {
+        return false;
+    }
 
     return (last_ucmd.buttons & BUTTON_ATTACKLEFT);
 }
@@ -888,11 +880,11 @@ qboolean Player::CondAttackButtonSecondary(Conditional& condition)
 {
     if (level.playerfrozen || m_bFrozen || (flags & FL_IMMOBILE)) {
         return false;
-	}
+    }
 
-	if (g_gametype->integer != GT_SINGLE_PLAYER && !m_bAllowFighting) {
-		return false;
-	}
+    if (g_gametype->integer != GT_SINGLE_PLAYER && !m_bAllowFighting) {
+        return false;
+    }
 
     return (last_ucmd.buttons & BUTTON_ATTACKRIGHT);
 }
@@ -1139,7 +1131,7 @@ qboolean Player::CondGroundEntity(Conditional& condition)
 
 qboolean Player::CondMediumImpact(Conditional& condition)
 {
-	return mediumimpact;
+    return mediumimpact;
 }
 
 qboolean Player::CondHardImpact(Conditional& condition)
@@ -1149,7 +1141,7 @@ qboolean Player::CondHardImpact(Conditional& condition)
 
 qboolean Player::CondCanFall(Conditional& condition)
 {
-	return canfall;
+    return canfall;
 }
 
 qboolean Player::CondAtDoor(Conditional& condition)
@@ -1421,7 +1413,7 @@ qboolean Player::CondTopOfLadder(Conditional& condition)
 
 qboolean Player::CondOnLadder(Conditional& condition)
 {
-	return m_pLadder != NULL;
+    return m_pLadder != NULL;
 }
 
 qboolean Player::CondCanClimbUpLadder(Conditional& condition)
@@ -1536,15 +1528,15 @@ qboolean Player::CondCanStand(Conditional& condition)
 
 qboolean Player::CondSolidForward(Conditional& condition)
 {
-	// Trace out forward to see if there is a solid ahead
-	float  dist = atof(condition.getParm(1));
-	Vector end(centroid + yaw_forward * dist);
-	Vector vMins(mins.x, mins.y, -8);
-	Vector vMaxs(maxs.x, maxs.y, 8);
+    // Trace out forward to see if there is a solid ahead
+    float  dist = atof(condition.getParm(1));
+    Vector end(centroid + yaw_forward * dist);
+    Vector vMins(mins.x, mins.y, -8);
+    Vector vMaxs(maxs.x, maxs.y, 8);
 
-	trace_t trace = G_Trace(centroid, vMins, vMaxs, end, this, MASK_SOLID, true, "Player::CondSolidforward");
+    trace_t trace = G_Trace(centroid, vMins, vMaxs, end, this, MASK_SOLID, true, "Player::CondSolidforward");
 
-	return (trace.fraction < 0.7f);
+    return (trace.fraction < 0.7f);
 }
 
 qboolean Player::CondCheckHeight(Conditional& condition)
@@ -1593,16 +1585,16 @@ qboolean Player::CondViewInWater(Conditional& condition)
 
 qboolean Player::CondDuckedViewInWater(Conditional& condition)
 {
-	Vector vPos = origin;
-	vPos[2] += 48.0f;
+    Vector vPos = origin;
+    vPos[2] += 48.0f;
 
-	return (gi.pointcontents(vPos, 0) & MASK_WATER) != 0;
+    return (gi.pointcontents(vPos, 0) & MASK_WATER) != 0;
 }
 
 qboolean Player::CondCheckMovementSpeed(Conditional& condition)
 {
     weaponhand_t hand;
-    Weapon* weapon;
+    Weapon      *weapon;
 
     hand = WeaponHandNameToNum(condition.getParm(1));
     if (hand == WEAPON_ERROR) {
@@ -1973,10 +1965,10 @@ Condition<Player> Player::Conditions[] = {
     {"ABLE_TO_DEFUSE",                  &Player::CondAbleToDefuse            },
     {"CAN_PLACE_LANDMINE",              &Player::CondCanPlaceLandmine        },
     {"IS_USING_TURRET",                 &Player::CondUsingTurret             },
-    {"ATTACK_PRIMARY",
-     &Player::CondAttackPrimary                                              }, // Checks to see if there is an active weapon as well as the button being pressed
-    {"ATTACK_SECONDARY",
-     &Player::CondAttackSecondary                                            }, // Checks to see if there is an active weapon as well as the button being pressed
+    {"ATTACK_PRIMARY",                  &Player::CondAttackPrimary
+    }, // Checks to see if there is an active weapon as well as the button being pressed
+    {"ATTACK_SECONDARY",                &Player::CondAttackSecondary
+    }, // Checks to see if there is an active weapon as well as the button being pressed
     {"ATTACK_PRIMARY_BUTTON",           &Player::CondAttackButtonPrimary     }, // Checks to see if the left attack button is pressed
     {"ATTACK_SECONDARY_BUTTON",         &Player::CondAttackButtonSecondary   },
     {"CHECK_MOVEMENT_SPEED",            &Player::CondCheckMovementSpeed      },
