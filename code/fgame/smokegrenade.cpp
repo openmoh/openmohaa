@@ -33,7 +33,6 @@ Event EV_SmokeGrenade_SetSpawnRate
     "rate",
     "sets how many smoke volumes are spawned per second"
 );
-
 Event EV_SmokeGrenade_SetBouncefactor
 (
     "bouncefactor",
@@ -42,7 +41,6 @@ Event EV_SmokeGrenade_SetBouncefactor
     "factor",
     "sets how far smoke volumes bounce when they collide with something"
 );
-
 Event EV_SmokeGrenade_SetLife
 (
     "life",
@@ -51,7 +49,6 @@ Event EV_SmokeGrenade_SetLife
     "life",
     "sets how long the smoke emitter lives"
 );
-
 Event EV_SmokeGrenade_SetSpawnLife
 (
     "spawnlife",
@@ -60,7 +57,6 @@ Event EV_SmokeGrenade_SetSpawnLife
     "life",
     "sets how long each smoke volume lives"
 );
-
 Event EV_SmokeGrenade_SetScalerate
 (
     "scalerate",
@@ -69,7 +65,6 @@ Event EV_SmokeGrenade_SetScalerate
     "rate",
     "sets how fast the smoke volume grows"
 );
-
 Event EV_SmokeGrenade_SetVelocity
 (
     "velocity",
@@ -78,16 +73,14 @@ Event EV_SmokeGrenade_SetVelocity
     "vel_x vel_y vel_z",
     "sets how fast the smoke volume moves away, with x forward and z up"
 );
-
 Event EV_SmokeGrenade_SetSpin
 (
-    "spawnrate",
+    "spin",
     EV_DEFAULT,
     "f",
     "avel",
     "sets the number of rotations per second for this entity around its z axis"
 );
-
 Event EV_SmokeGrenade_SetOffset
 (
     "offset",
@@ -96,7 +89,6 @@ Event EV_SmokeGrenade_SetOffset
     "offset_x offset_y offset_z",
     "sets offset of the smoke volume from the entity"
 );
-
 Event EV_SmokeGrenade_SetScale
 (
     "scale",
@@ -105,7 +97,6 @@ Event EV_SmokeGrenade_SetScale
     "scale",
     "sets initial scale of each smoke volume"
 );
-
 Event EV_SmokeGrenade_SetFadein
 (
     "fadein",
@@ -114,7 +105,6 @@ Event EV_SmokeGrenade_SetFadein
     "time",
     "sets fadein time from 0 alpha to 1 alpha, in seconds"
 );
-
 Event EV_SmokeGrenade_SetFadedelay
 (
     "fadedelay",
@@ -123,7 +113,6 @@ Event EV_SmokeGrenade_SetFadedelay
     "time",
     "sets how long the entity waits until fading out from 1 alpha to 0 alpha, in seconds"
 );
-
 Event EV_SmokeGrenade_SetMaxAlpha
 (
     "maxalpha",
