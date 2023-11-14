@@ -46,6 +46,7 @@ Extract the archive to your MOHAA server installation directory. Then proceed li
 - `.\omohaaded.exe +exec server.cfg` on Windows
 - `./omohaaded +exec server.cfg` on Linux
 
+Only `omohaaded*` and `game*` binaries are required for the server version, other binaries can be omitted.
 
 ### Config file
 
