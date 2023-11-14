@@ -167,7 +167,7 @@ PathInfo *PathSearch::GeneratePath(PathInfo *path)
         VectorCopy2D(path_startdir, current_path->dir);
         current_path->dist = Node->g;
     } else {
-        VectorCopy(path_totaldir, current_path->dir);
+        VectorCopy2D(path_totaldir, current_path->dir);
         path->dist = Node->h;
     }
 
@@ -754,7 +754,7 @@ int PathSearch::FindPathAway(
 
             VectorSub2D(pathway->pos2, avoid, dir);
             NewNode->h = VectorNormalize2D(dir);
-            NewNode->h += fBias - DotProduct(dir, vPreferredDir);
+            NewNode->h += fBias - DotProduct2D(dir, vPreferredDir);
 
             f = (int)((float)g + NewNode->h);
 
