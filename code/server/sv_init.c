@@ -1000,6 +1000,9 @@ void SV_Init( void ) {
 	// systeminfo
 	Cvar_Get( "cheats", "1", CVAR_LATCH | CVAR_SYSTEMINFO );
 	sv_serverid = Cvar_Get ("sv_serverid", "0", CVAR_SYSTEMINFO | CVAR_ROM );
+    // wombat: pure only makes problems at current stage
+    // sv_pure is disabled by default in mohaa
+	// the problem is because of difference in pak files between languages
 	sv_pure = Cvar_Get ("sv_pure", "0", CVAR_SYSTEMINFO );
 	#ifdef USE_VOIP
 	sv_voip = Cvar_Get("sv_voip", "1", CVAR_LATCH);
