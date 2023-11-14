@@ -21,9 +21,17 @@ OpenMoHAA is still under development. The single-player campaign is not yet func
 
 ## Intro
 
-The main goal of OpenMoHAA is to ensure the future and continuity of **Medal of Honor: Allied Assault**. It has always been a dream in the community to provide patches and security fixes for the game. Thanks to the ioquake3 project, F.A.K.K SDK and other quality tools, OpenMoHAA has already reached more than half of its goal: to create an open-source version of MoH:AA (version 2.40) that is fully compatible with the original game (in terms of protocol, assets, and scripts).
+The main goal of OpenMoHAA is to ensure the future and continuity of **Medal of Honor: Allied Assault**. It has always been a dream in the community to provide patches and security fixes for the game. Thanks to the ioquake3 project, F.A.K.K SDK and other quality tools, OpenMoHAA has already reached more than half of its goal: to create an open-source version of MoH:AA (based on version 2.40) that is fully compatible with the original game (in terms of protocol, assets, and scripts).
 
 ## Running
+
+Ensure that you download the binaries compatible with your platform.
+
+### Requirements
+
+You may need to install Microsoft Visual C++ 2015/2017/2019/2022 Redistributable from https://learn.microsoft.com/en-US/cpp/windows/latest-supported-vc-redist?view=msvc-170
+
+### Client
 
 a) extract archive to your MOHAA installation directory.
 
@@ -31,9 +39,13 @@ a) extract archive to your MOHAA installation directory.
 
 b) extract archive somewhere on your hard drive, create a shortcut to openmohaa (or omohaaded), and set the start directory to your MOHAA installation directory.
 
-If you have problems running the game :
+### Server
 
-You may need to install Microsoft Visual C++ 2015/2017/2019/2022 Redistributable from https://learn.microsoft.com/en-US/cpp/windows/latest-supported-vc-redist?view=msvc-170
+Extract the archive to your MOHAA server installation directory. Then proceed like you would do with mohaa server:
+
+- `.\omohaaded.exe +exec server.cfg` on Windows
+- `./omohaaded +exec server.cfg` on Linux
+
 
 ### Config file
 
