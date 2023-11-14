@@ -293,7 +293,7 @@ void SV_DirectConnect( netadr_t from ) {
 	// Check whether this client is banned.
 	if(SV_IsBanned(&from, qfalse))
 	{
-		NET_OutOfBandPrint(NS_SERVER, from, "print\nYou are banned from this server.\n");
+		NET_OutOfBandPrint(NS_SERVER, from, "droperror\nYou are banned from this server.\n");
 		return;
 	}
 
@@ -308,7 +308,7 @@ void SV_DirectConnect( netadr_t from ) {
 	{
 		if(version != com_protocol->integer)
 		{
-			NET_OutOfBandPrint(NS_SERVER, from, "print\nServer uses protocol version %i "
+			NET_OutOfBandPrint(NS_SERVER, from, "droperror\nServer uses protocol version %i "
 					   "(yours is %i).\n", com_protocol->integer, version);
 			Com_DPrintf("    rejected connect from version %i\n", version);
 			return;
@@ -342,7 +342,7 @@ void SV_DirectConnect( netadr_t from ) {
 		ip = (char *)NET_AdrToString( from );
 	if( ( strlen( ip ) + strlen( userinfo ) + 4 ) >= MAX_INFO_STRING ) {
 		NET_OutOfBandPrint( NS_SERVER, from,
-			"print\nUserinfo string length exceeded.  "
+			"droperror\nUserinfo string length exceeded.  "
 			"Try removing setu cvars from your config.\n" );
 		return;
 	}
@@ -360,7 +360,7 @@ void SV_DirectConnect( netadr_t from ) {
 			}
 		}
 		if (i == MAX_CHALLENGES) {
-			NET_OutOfBandPrint( NS_SERVER, from, "print\nNo or bad challenge for address.\n" );
+			NET_OutOfBandPrint( NS_SERVER, from, "droperror\nNo or bad challenge for address.\n" );
 			return;
 		}
 
@@ -372,7 +372,7 @@ void SV_DirectConnect( netadr_t from ) {
 		if ( !Sys_IsLANAddress( from ) ) {
 			if ( sv_minPing->value && ping < sv_minPing->value ) {
 				// don't let them keep trying until they get a big delay
-				NET_OutOfBandPrint( NS_SERVER, from, "print\nServer is for high pings only\n" );
+				NET_OutOfBandPrint( NS_SERVER, from, "droperror\nServer is for high pings only\n" );
 				Com_DPrintf ("Client %i rejected on a too low ping\n", i);
 				// reset the address otherwise their ping will keep increasing
 				// with each connect message and they'd eventually be able to connect
@@ -380,7 +380,7 @@ void SV_DirectConnect( netadr_t from ) {
 				return;
 			}
 			if ( sv_maxPing->value && ping > sv_maxPing->value ) {
-				NET_OutOfBandPrint( NS_SERVER, from, "print\nServer is for low pings only\n" );
+				NET_OutOfBandPrint( NS_SERVER, from, "droperror\nServer is for low pings only\n" );
 				Com_DPrintf ("Client %i rejected on a too high ping\n", i);
 				return;
 			}
@@ -459,7 +459,7 @@ void SV_DirectConnect( netadr_t from ) {
 			}
 		}
 		else {
-			NET_OutOfBandPrint( NS_SERVER, from, "print\nServer is full.\n" );
+			NET_OutOfBandPrint( NS_SERVER, from, "droperror\nServer is full.\n" );
 			Com_DPrintf ("Rejected a connection.\n");
 			return;
 		}
@@ -499,7 +499,7 @@ gotnewcl:
 	denied = ge->ClientConnect( clientNum, qtrue );
 
 	if ( denied ) {
-		NET_OutOfBandPrint( NS_SERVER, from, "print\n%s\n", denied );
+		NET_OutOfBandPrint( NS_SERVER, from, "droperror\n%s\n", denied );
 		Com_DPrintf( "Game rejected a connection: %s.\n", denied );
 		return;
 	}
