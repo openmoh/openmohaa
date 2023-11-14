@@ -2455,8 +2455,12 @@ float BulletAttack(
             if (tracerspeed == 1.f) {
                 gi.MSG_WriteBits(0, 1);
             } else {
+                int speed;
+
+                speed = tracerspeed * (1 << 9);
+
                 gi.MSG_WriteBits(1, 1);
-                gi.MSG_WriteBits(Q_clamp(tracerspeed, 1, 1023), 10);
+                gi.MSG_WriteBits(Q_clamp(speed, 1, 1023), 10);
             }
         }
     } else {
