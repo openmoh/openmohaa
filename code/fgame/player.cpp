@@ -2508,6 +2508,10 @@ void Player::InitPhysics(void)
     memset(&last_ucmd, 0, sizeof(last_ucmd));
 
     client->ps.groundTrace.fraction = 1.0f;
+
+    // Added in OPM
+    //  Prevent the player from being stuck
+    flags &= ~FL_PARTIAL_IMMOBILE;
 }
 
 void Player::InitPowerups(void)
