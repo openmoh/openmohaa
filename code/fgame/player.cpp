@@ -7268,10 +7268,10 @@ void Player::UpdateStats(void)
                     weapon->SetItemSlot(0);
                 } else {
                     client->ps.activeItems[iItem + 2] = weapon->getIndex();
-                    weapon->SetItemSlot(256 << iItem);
+                    weapon->SetItemSlot(WEAPON_CLASS_ITEM1 << iItem);
 
                     if (activeweap && weapon == activeweap) {
-                        client->ps.stats[STAT_EQUIPPED_WEAPON] = 256 << iItem;
+                        client->ps.stats[STAT_EQUIPPED_WEAPON] = WEAPON_CLASS_ITEM1 << iItem;
                     }
 
                     iItem++;
