@@ -37,6 +37,7 @@ typedef struct {
     vec3_t  *i_vEnd;
     int      i_iNumBullets;
     qboolean iLarge;
+    float    alpha;
     int      iTracerVisible;
     qboolean bIgnoreEntities;
 } bullet_tracer_t;
@@ -60,21 +61,22 @@ static vec3_t          flesh_impact_pos[MAX_IMPACTS];
 static vec3_t          flesh_impact_norm[MAX_IMPACTS];
 static int             flesh_impact_large[MAX_IMPACTS];
 
-void CG_MakeBulletHoleSound(const vec3_t i_vPos, const vec3_t i_vNorm, int iLarge, trace_t* pPreTrace) {
-
-    int iSurfType;
-    float fVolume;
-    str sSoundName;
-    vec3_t vFrom, vDest;
+void CG_MakeBulletHoleSound(const vec3_t i_vPos, const vec3_t i_vNorm, int iLarge, trace_t *pPreTrace)
+{
+    int     iSurfType;
+    float   fVolume;
+    str     sSoundName;
+    vec3_t  vFrom, vDest;
     trace_t trace;
 
     if (pPreTrace) {
         trace = *pPreTrace;
-    }
-    else {
+    } else {
         VectorMA(i_vPos, 2.0f, i_vNorm, vFrom);
         VectorMA(i_vPos, -4.0f, i_vNorm, vDest);
-        CG_Trace(&trace, vFrom, vec_zero, vec_zero, vDest, ENTITYNUM_NONE, MASK_SHOT, qfalse, qtrue, "CG_MakeBulletHole");
+        CG_Trace(
+            &trace, vFrom, vec_zero, vec_zero, vDest, ENTITYNUM_NONE, MASK_SHOT, qfalse, qtrue, "CG_MakeBulletHole"
+        );
     }
 
     iSurfType = trace.surfaceFlags & MASK_SURF_TYPE;
@@ -149,9 +151,12 @@ void CG_MakeBulletHoleSound(const vec3_t i_vPos, const vec3_t i_vNorm, int iLarg
     commandManager.PlaySound(sSoundName, vFrom, -1, fVolume, -1.f, -1.f, 1);
 }
 
-static void CG_MakeBulletHoleType(const vec3_t i_vPos, const vec3_t i_vNorm, int iLarge, int iEffectNum, float fRadius, qboolean bMakeSound) {
+static void CG_MakeBulletHoleType(
+    const vec3_t i_vPos, const vec3_t i_vNorm, int iLarge, int iEffectNum, float fRadius, qboolean bMakeSound
+)
+{
     if (bMakeSound) {
-        str sBulletHole = "snd_bh_";
+        str   sBulletHole = "snd_bh_";
         float fVolume;
 
         switch (iEffectNum) {
@@ -221,14 +226,15 @@ static void CG_MakeBulletHoleType(const vec3_t i_vPos, const vec3_t i_vNorm, int
     sfxManager.MakeEffect_Normal(iEffectNum, i_vPos, i_vNorm);
 }
 
-static void CG_MakeBulletHole(const vec3_t i_vPos, const vec3_t i_vNorm, int iLarge, trace_t *pPreTrace, qboolean bMakeSound)
+static void
+CG_MakeBulletHole(const vec3_t i_vPos, const vec3_t i_vNorm, int iLarge, trace_t *pPreTrace, qboolean bMakeSound)
 {
-    int iSurfType;
-    int iEffect;
-    float fRadius;
-    str sEffectModel;
-    str sBulletHole;
-    vec3_t vFrom, vDest;
+    int     iSurfType;
+    int     iEffect;
+    float   fRadius;
+    str     sEffectModel;
+    str     sBulletHole;
+    vec3_t  vFrom, vDest;
     trace_t trace;
 
     if (pPreTrace) {
@@ -236,7 +242,9 @@ static void CG_MakeBulletHole(const vec3_t i_vPos, const vec3_t i_vNorm, int iLa
     } else {
         VectorMA(i_vPos, 2.0f, i_vNorm, vFrom);
         VectorMA(i_vPos, -4.0f, i_vNorm, vDest);
-        CG_Trace(&trace, vFrom, vec_zero, vec_zero, vDest, ENTITYNUM_NONE, MASK_SHOT, qfalse, qtrue, "CG_MakeBulletHole");
+        CG_Trace(
+            &trace, vFrom, vec_zero, vec_zero, vDest, ENTITYNUM_NONE, MASK_SHOT, qfalse, qtrue, "CG_MakeBulletHole"
+        );
     }
 
     iSurfType = trace.surfaceFlags & MASK_SURF_TYPE;
@@ -249,7 +257,7 @@ static void CG_MakeBulletHole(const vec3_t i_vPos, const vec3_t i_vNorm, int iLa
     }
 
     VectorAdd(trace.endpos, trace.plane.normal, vFrom);
-    fRadius = 2.0f;
+    fRadius     = 2.0f;
     sBulletHole = "bhole_";
 
     switch (iSurfType) {
@@ -347,36 +355,48 @@ static void CG_MakeBubbleTrail(const vec3_t i_vStart, const vec3_t i_vEnd, int i
 {
     vec3_t vDir;
     vec3_t vPos;
-    float fDist;
-    float fMove;
+    float  fDist;
+    float  fMove;
 
     VectorSubtract(i_vEnd, i_vStart, vDir);
     fDist = VectorNormalize(vDir);
     VectorCopy(i_vStart, vPos);
 
-    fMove = random() * 8.f;
+    fMove = random() * 8.f * alpha;
     fDist -= fMove;
     while (fDist > 0.f) {
         VectorMA(vPos, fMove, vDir, vPos);
         sfxManager.MakeEffect_Angles(32, vPos, vec_zero);
 
-        fMove = 16.f + crandom() * 8.f;
+        fMove = 16.f + crandom() * 8.f * alpha;
         fDist -= fMove;
     }
 }
 
-static void CG_BulletTracerEffect(const vec3_t i_vStart, const vec3_t i_vEnd)
+static void CG_BulletTracerEffect(const vec3_t i_vStart, const vec3_t i_vEnd, int iLarge, float alpha)
 {
-    int iLife;
-    int iTracerLength;
-    float fLength, fDist;
+    int    iLife;
+    int    iTracerLength;
+    float  fLength, fDist;
     vec4_t fTracerColor;
     vec3_t vDir, vNewStart;
+    float  alphaMult;
+    float  scale;
 
     iTracerLength = 450.0f + random() * 150.f;
     VectorSubtract(i_vEnd, i_vStart, vDir);
     fLength = VectorNormalize(vDir);
+
+    if (iLarge > 1) {
+        alphaMult = random() * 0.2f + 0.9f;
+        scale     = iLarge * 2;
+    } else {
+        alphaMult = 1;
+        scale     = 1;
+    }
+
     fDist = 450.0f + random() * 150.f;
+
     if (fLength < fDist + 150.f) {
         float fFrac;
 
@@ -384,13 +404,15 @@ static void CG_BulletTracerEffect(const vec3_t i_vStart, const vec3_t i_vEnd)
             return;
         }
 
-        fFrac = fLength / (fDist + 150.0);
+        fFrac         = fLength / (fDist + 150.0);
         iTracerLength = (int)((float)iTracerLength * fFrac + 0.5f);
         fDist *= fFrac;
     }
 
-    iLife = (int)((fLength - fDist) / 12000.f * 1000.f);
-    if (iLife < 20) iLife = 20;
+    iLife = (int)((fLength - fDist) / 12000.f * 1000.f / (alpha * alphaMult));
+    if (iLife < 20) {
+        iLife = 20;
+    }
 
     VectorMA(i_vStart, fDist, vDir, vNewStart);
     fTracerColor[0] = 1.f;
@@ -427,53 +449,54 @@ static void CG_BulletTracerEffect(const vec3_t i_vStart, const vec3_t i_vEnd)
 }
 
 static void CG_MakeBulletTracerInternal(
-    const vec3_t   i_vBarrel,
-    const vec3_t   i_vStart,
-    const vec3_t  *i_vEnd,
-    int            i_iNumBullets,
-    qboolean       iLarge,
-    int            iTracerVisible,
-    qboolean       bIgnoreEntities
+    const vec3_t  i_vBarrel,
+    const vec3_t  i_vStart,
+    const vec3_t *i_vEnd,
+    int           i_iNumBullets,
+    qboolean      iLarge,
+    int           iTracerVisible,
+    qboolean      bIgnoreEntities,
+    float         alpha
 )
 {
-    vec3_t vPos;
-    int iBullet;
-    int iContinueCount;
-    int iDist;
-    int iHeadDist;
-    int iTravelDist;
-    float fLen, fDist;
-    trace_t trace;
-    qboolean bStartInWater, bInWater;
-    qboolean bBulletDone;
-    qboolean bMadeTracer;
-    vec3_t vDir;
-    vec3_t vTrailStart;
-    vec3_t vTraceStart;
-    vec3_t vTraceEnd;
-    vec3_t vTmp;
-    int iNumImpacts;
-    trace_t tImpacts[128];
-    float fImpSndDistRA;
+    vec3_t       vPos;
+    int          iBullet;
+    int          iContinueCount;
+    int          iDist;
+    int          iHeadDist;
+    int          iTravelDist;
+    float        fLen, fDist;
+    trace_t      trace;
+    qboolean     bStartInWater, bInWater;
+    qboolean     bBulletDone;
+    qboolean     bMadeTracer;
+    vec3_t       vDir;
+    vec3_t       vTrailStart;
+    vec3_t       vTraceStart;
+    vec3_t       vTraceEnd;
+    vec3_t       vTmp;
+    int          iNumImpacts;
+    trace_t      tImpacts[128];
+    float        fImpSndDistRA;
     static float fImpSndDistLA;
-    float fImpSndDistRB;
-    float fImpSndDistLB;
-    int iImpSndIndexRA;
-    int iImpSndIndexRB;
-    int iImpSndIndexLB;
-    float fVolume;
-    float fPitch;
-    float fZingDistA, fZingDistB, fZingDistC;
-    vec3_t vZingPosA, vZingPosB, vZingPosC;
+    float        fImpSndDistRB;
+    float        fImpSndDistLB;
+    int          iImpSndIndexRA;
+    int          iImpSndIndexRB;
+    int          iImpSndIndexLB;
+    float        fVolume;
+    float        fPitch;
+    float        fZingDistA, fZingDistB, fZingDistC;
+    vec3_t       vZingPosA, vZingPosB, vZingPosC;
 
-    fZingDistB = 9999.0;
-    fZingDistA = 9999.0;
-    fZingDistC = 9999.0;
+    fZingDistB  = 9999.0;
+    fZingDistA  = 9999.0;
+    fZingDistC  = 9999.0;
     iNumImpacts = 0;
 
     // check to see if it starts in water
     bStartInWater = (cgi.CM_PointContents(i_vStart, 0) & CONTENTS_FLUID) != 0;
-    
+
     for (iBullet = 0; iBullet < i_iNumBullets; iBullet++) {
         bInWater = bStartInWater;
         VectorCopy(i_vBarrel, vTrailStart);
@@ -481,8 +504,8 @@ static void CG_MakeBulletTracerInternal(
         fLen = VectorNormalize(vDir);
 
         trace.fraction = 0;
-        iDist = (int)fLen + 32;
-        bBulletDone = qfalse;
+        iDist          = (int)fLen + 32;
+        bBulletDone    = qfalse;
         iContinueCount = 0;
 
         if (bStartInWater) {
@@ -501,8 +524,7 @@ static void CG_MakeBulletTracerInternal(
                 if (iDist > BULLET_TRAVEL_DIST) {
                     iTravelDist += BULLET_TRAVEL_DIST;
                     iDist -= BULLET_TRAVEL_DIST;
-                }
-                else {
+                } else {
                     iTravelDist += iDist;
                     iDist = 0;
                 }
@@ -513,16 +535,7 @@ static void CG_MakeBulletTracerInternal(
 
                 while (trace.fraction < 1) {
                     if (bIgnoreEntities) {
-                        cgi.CM_BoxTrace(
-                            &trace,
-                            vTraceStart,
-                            vTraceEnd,
-                            vec_zero,
-                            vec_zero,
-                            0,
-                            MASK_SHOT,
-                            qfalse
-                        );
+                        cgi.CM_BoxTrace(&trace, vTraceStart, vTraceEnd, vec_zero, vec_zero, 0, MASK_SHOT, qfalse);
 
                         if (trace.fraction == 1.0f) {
                             trace.entityNum = ENTITYNUM_NONE;
@@ -533,8 +546,7 @@ static void CG_MakeBulletTracerInternal(
                         if (trace.startsolid) {
                             trace.entityNum = ENTITYNUM_WORLD;
                         }
-                    }
-                    else {
+                    } else {
                         CG_Trace(
                             &trace,
                             vTraceStart,
@@ -556,35 +568,29 @@ static void CG_MakeBulletTracerInternal(
                         VectorNormalizeFast(trace.plane.normal);
                     }
 
-                    if (!bInWater && trace.fraction < 1.0f && iNumImpacts <= 127)
-                    {
+                    if (!bInWater && trace.fraction < 1.0f && iNumImpacts <= 127) {
                         memcpy(&tImpacts[iNumImpacts], &trace, sizeof(trace_t));
                         iNumImpacts++;
                     }
 
-                    if (iTracerVisible && !bMadeTracer)
-                    {
-                        CG_BulletTracerEffect(vTrailStart, trace.endpos);
+                    if (iTracerVisible && !bMadeTracer) {
+                        CG_BulletTracerEffect(vTrailStart, trace.endpos, iLarge, alpha);
                         bMadeTracer = qtrue;
                     }
 
                     if (trace.fraction < 1.0f) {
-                        if (((trace.surfaceFlags & (SURF_HINT | SURF_NODLIGHT | SURF_SNOW | SURF_FOLIAGE | SURF_DIRT)) || (trace.contents & CONTENTS_WATER))
-                            && iContinueCount < 5)
-                        {
-                            if (bInWater)
-                            {
+                        if (((trace.surfaceFlags & (SURF_HINT | SURF_NODLIGHT | SURF_SNOW | SURF_FOLIAGE | SURF_DIRT))
+                             || (trace.contents & CONTENTS_WATER))
+                            && iContinueCount < 5) {
+                            if (bInWater) {
                                 VectorSubtract(trace.endpos, vDir, vTmp);
-                                if (!(trace.contents & CONTENTS_FLUID)
-                                    && !(trace.surfaceFlags & SURF_PUDDLE)
-                                    && !(cgi.CM_PointContents(vTmp, 0) & CONTENTS_FLUID))
-                                {
-                                    CG_MakeBubbleTrail(vTrailStart, trace.endpos, iLarge);
+                                if (!(trace.contents & CONTENTS_FLUID) && !(trace.surfaceFlags & SURF_PUDDLE)
+                                    && !(cgi.CM_PointContents(vTmp, 0) & CONTENTS_FLUID)) {
+                                    CG_MakeBubbleTrail(vTrailStart, trace.endpos, iLarge, alpha);
                                     VectorCopy(trace.endpos, vTrailStart);
                                     bInWater = qfalse;
                                 }
-                            }
-                            else if ((trace.contents & CONTENTS_FLUID) || (trace.surfaceFlags & SURF_PUDDLE)) {
+                            } else if ((trace.contents & CONTENTS_FLUID) || (trace.surfaceFlags & SURF_PUDDLE)) {
                                 VectorCopy(trace.endpos, vTrailStart);
                                 bInWater = qtrue;
                             }
@@ -593,11 +599,9 @@ static void CG_MakeBulletTracerInternal(
                             VectorAdd(vTraceStart, vTraceStart, trace.endpos);
 
                             iContinueCount++;
-                        }
-                        else
-                        {
+                        } else {
                             trace.fraction = 1.0f;
-                            bBulletDone = qtrue;
+                            bBulletDone    = qtrue;
                         }
                     }
                 }
@@ -605,14 +609,14 @@ static void CG_MakeBulletTracerInternal(
         }
 
         if (bInWater) {
-            CG_MakeBubbleTrail(vTraceStart, trace.endpos, iLarge);
+            CG_MakeBubbleTrail(vTraceStart, trace.endpos, iLarge, alpha);
         }
 
         if (iTracerVisible) {
             iTracerVisible--;
         }
 
-        fLen = ProjectPointOnLine(i_vStart, i_vEnd[iBullet], cg.SoundOrg, vPos);
+        fLen      = ProjectPointOnLine(i_vStart, i_vEnd[iBullet], cg.SoundOrg, vPos);
         iHeadDist = (int)Distance(vPos, cg.SoundOrg);
         if (iHeadDist > 255) {
             continue;
@@ -629,7 +633,7 @@ static void CG_MakeBulletTracerInternal(
 
         if (fLen < 0.f) {
             VectorCopy(i_vStart, vPos);
-        } else if(fDist >= fLen) {
+        } else if (fDist >= fLen) {
             VectorCopy(i_vEnd[iBullet], vPos);
         }
 
@@ -652,11 +656,11 @@ static void CG_MakeBulletTracerInternal(
     }
 
     if (iNumImpacts > 2) {
-        fImpSndDistRA = 9999.0f;
-        fImpSndDistRB = 9999.0f;
+        fImpSndDistRA  = 9999.0f;
+        fImpSndDistRB  = 9999.0f;
         iImpSndIndexRA = 0;
         iImpSndIndexRB = 0;
-        fImpSndDistLB = 9999.0f;
+        fImpSndDistLB  = 9999.0f;
         iImpSndIndexLB = 0;
 
         for (iBullet = 0; iBullet < iNumImpacts; iBullet++) {
@@ -671,27 +675,23 @@ static void CG_MakeBulletTracerInternal(
             VectorSubtract(tImpacts[iImpSndIndexLB].endpos, cg.SoundOrg, vTmp);
             iHeadDist = VectorLength(vTmp);
 
-            if (DotProduct(vTmp, cg.SoundAxis[1]) <= 0.f)
-            {
+            if (DotProduct(vTmp, cg.SoundAxis[1]) <= 0.f) {
                 if (iHeadDist < 9999.0f || iHeadDist < fImpSndDistLB) {
                     if (iHeadDist < 9999.0f) {
-                        fImpSndDistRA = iHeadDist;
-                        fImpSndDistLB = 9999.0;
+                        fImpSndDistRA  = iHeadDist;
+                        fImpSndDistLB  = 9999.0;
                         iImpSndIndexRA = iBullet;
                     } else if (iHeadDist < fImpSndDistLB) {
                         fImpSndDistLB = iHeadDist;
                     }
                 }
-            }
-            else
-            {
-                if (iHeadDist < fImpSndDistRA || iHeadDist < fImpSndDistRB)
-                {
+            } else {
+                if (iHeadDist < fImpSndDistRA || iHeadDist < fImpSndDistRB) {
                     if (iHeadDist < fImpSndDistRA) {
                         iImpSndIndexRB = iImpSndIndexRA;
                         iImpSndIndexRA = iBullet;
                     } else if (iHeadDist < fImpSndDistRB) {
-                        fImpSndDistRB = iHeadDist;
+                        fImpSndDistRB  = iHeadDist;
                         iImpSndIndexRB = iBullet;
                     }
                 }
@@ -720,11 +720,7 @@ static void CG_MakeBulletTracerInternal(
     } else {
         for (iBullet = 0; iBullet < iNumImpacts; iBullet++) {
             CG_MakeBulletHole(
-                tImpacts[iBullet].endpos,
-                tImpacts[iBullet].plane.normal,
-                iNumImpacts,
-                &tImpacts[iBullet],
-                qtrue
+                tImpacts[iBullet].endpos, tImpacts[iBullet].plane.normal, iNumImpacts, &tImpacts[iBullet], qtrue
             );
         }
     }
@@ -732,10 +728,10 @@ static void CG_MakeBulletTracerInternal(
     if (fZingDistA < 9999.0f) {
         if (iLarge) {
             fVolume = 1.0f;
-            fPitch = 0.8f;
+            fPitch  = 0.8f;
         } else {
             fVolume = 0.8f;
-            fPitch = 1.0f;
+            fPitch  = 1.0f;
         }
 
         commandManager.PlaySound("snd_b_zing", vZingPosA, -1, fVolume, -1.0f, fPitch, 1);
@@ -774,13 +770,14 @@ static void CG_MakeBulletTracer(
     bullet_tracer->i_vEnd        = &bullet_tracer_bullets[bullet_tracers_count];
     bullet_tracer->i_iNumBullets = i_iNumBullets;
 
-    for (i = 0; i < i_iNumBullets; ++i) {
-        bullet_tracer_bullets[bullet_tracers_count][0]   = i_vEnd[i][0];
-        bullet_tracer_bullets[bullet_tracers_count][1]   = i_vEnd[i][1];
-        bullet_tracer_bullets[bullet_tracers_count++][2] = i_vEnd[i][2];
+    for (i = 0; i < i_iNumBullets; i++, bullet_tracers_count++) {
+        bullet_tracer_bullets[bullet_tracers_count][0] = i_vEnd[i][0];
+        bullet_tracer_bullets[bullet_tracers_count][1] = i_vEnd[i][1];
+        bullet_tracer_bullets[bullet_tracers_count][2] = i_vEnd[i][2];
     }
 
     bullet_tracer->iLarge          = iLarge;
+    bullet_tracer->alpha           = alpha;
     bullet_tracer->iTracerVisible  = iTracerVisible;
     bullet_tracer->bIgnoreEntities = bIgnoreEntities;
 }
@@ -797,7 +794,8 @@ void CG_AddBulletTracers()
             bullet_tracers[i].i_iNumBullets,
             bullet_tracers[i].iLarge,
             bullet_tracers[i].iTracerVisible,
-            bullet_tracers[i].bIgnoreEntities
+            bullet_tracers[i].bIgnoreEntities,
+            bullet_tracers[i].alpha
         );
     }
 
@@ -807,26 +805,24 @@ void CG_AddBulletTracers()
 
 void CG_AddBulletImpacts()
 {
-    int i;
-    int iHeadDist;
-    float fVolume;
-    float fImpSndDistRA;
+    int          i;
+    int          iHeadDist;
+    float        fVolume;
+    float        fImpSndDistRA;
     static float fImpSndDistLA = 9999.f;
-    float fImpSndDistRB;
-    float fImpSndDistLB;
-    int iImpSndIndexRA;
-    int iImpSndIndexRB;
-    int iImpSndIndexLB;
-    vec3_t vTmp;
-    str sSoundName;
+    float        fImpSndDistRB;
+    float        fImpSndDistLB;
+    int          iImpSndIndexRA;
+    int          iImpSndIndexRB;
+    int          iImpSndIndexLB;
+    vec3_t       vTmp;
+    str          sSoundName;
 
-    if (wall_impact_count)
-    {
-        if (wall_impact_count > 4)
-        {
-            fImpSndDistRA = fImpSndDistLA;
-            fImpSndDistRB = fImpSndDistLA;
-            fImpSndDistLB = fImpSndDistLA;
+    if (wall_impact_count) {
+        if (wall_impact_count > 4) {
+            fImpSndDistRA  = fImpSndDistLA;
+            fImpSndDistRB  = fImpSndDistLA;
+            fImpSndDistLB  = fImpSndDistLA;
             iImpSndIndexRA = 0;
             iImpSndIndexRB = 0;
             iImpSndIndexLB = 0;
@@ -834,33 +830,28 @@ void CG_AddBulletImpacts()
             for (i = 0; i < wall_impact_count; i++) {
                 VectorSubtract(wall_impact_pos[i], cg.SoundOrg, vTmp);
                 iHeadDist = VectorLength(vTmp);
-                
-                if (DotProduct(vTmp, cg.SoundAxis[1]) > 0.f)
-                {
-                    if (iHeadDist < fImpSndDistRA || iHeadDist < fImpSndDistRB)
-                    {
+
+                if (DotProduct(vTmp, cg.SoundAxis[1]) > 0.f) {
+                    if (iHeadDist < fImpSndDistRA || iHeadDist < fImpSndDistRB) {
                         if (iHeadDist < fImpSndDistRA) {
-                            fImpSndDistRB = fImpSndDistRA;
-                            fImpSndDistRA = iHeadDist;
+                            fImpSndDistRB  = fImpSndDistRA;
+                            fImpSndDistRA  = iHeadDist;
                             iImpSndIndexRB = iImpSndIndexRA;
                             iImpSndIndexRA = i;
                         } else if (iHeadDist < fImpSndDistRB) {
-                            fImpSndDistRB = iHeadDist;
+                            fImpSndDistRB  = iHeadDist;
                             iImpSndIndexRB = i;
                         }
                     }
-                }
-                else
-                {
-                    if (iHeadDist < fImpSndDistLA || iHeadDist < fImpSndDistLB)
-                    {
+                } else {
+                    if (iHeadDist < fImpSndDistLA || iHeadDist < fImpSndDistLB) {
                         if (iHeadDist < fImpSndDistLA) {
-                            fImpSndDistRA = iHeadDist;
-                            fImpSndDistLB = fImpSndDistLA;
+                            fImpSndDistRA  = iHeadDist;
+                            fImpSndDistLB  = fImpSndDistLA;
                             iImpSndIndexLB = 0;
                             iImpSndIndexRA = i;
                         } else if (iHeadDist < fImpSndDistLB) {
-                            fImpSndDistLB = iHeadDist;
+                            fImpSndDistLB  = iHeadDist;
                             iImpSndIndexLB = i;
                         }
                     }
@@ -908,8 +899,7 @@ void CG_AddBulletImpacts()
 
                         if (wall_impact_type[iImpSndIndexRB] == 2 || wall_impact_type[iImpSndIndexRB] == 3) {
                             sSoundName = "snd_bh_metal";
-                        }
-                        else {
+                        } else {
                             sSoundName = "snd_bh_wood";
                         }
 
@@ -942,26 +932,15 @@ void CG_AddBulletImpacts()
 
                     if (wall_impact_type[0] == 2 || wall_impact_type[0] == 3) {
                         sSoundName = "snd_bh_metal";
-                    }
-                    else {
+                    } else {
                         sSoundName = "snd_bh_wood";
                     }
 
                     commandManager.PlaySound(sSoundName, wall_impact_pos[0], -1, fVolume, -1, -1, 1);
 
-                    sfxManager.MakeEffect_Normal(
-                        wall_impact_type[0],
-                        wall_impact_pos[0],
-                        wall_impact_norm[0]
-                    );
+                    sfxManager.MakeEffect_Normal(wall_impact_type[0], wall_impact_pos[0], wall_impact_norm[0]);
                 } else {
-                    CG_MakeBulletHole(
-                        wall_impact_pos[0],
-                        wall_impact_norm[0],
-                        wall_impact_large[0],
-                        NULL,
-                        qtrue
-                    );
+                    CG_MakeBulletHole(wall_impact_pos[0], wall_impact_norm[0], wall_impact_large[0], NULL, qtrue);
                 }
             }
 
@@ -969,15 +948,13 @@ void CG_AddBulletImpacts()
                 if (wall_impact_type[iImpSndIndexLB]) {
                     if (wall_impact_large[iImpSndIndexLB]) {
                         fVolume = 1.f;
-                    }
-                    else {
+                    } else {
                         fVolume = 0.75f;
                     }
 
                     if (wall_impact_type[iImpSndIndexLB] == 2 || wall_impact_type[iImpSndIndexLB] == 3) {
                         sSoundName = "snd_bh_metal";
-                    }
-                    else {
+                    } else {
                         sSoundName = "snd_bh_wood";
                     }
 
@@ -998,45 +975,31 @@ void CG_AddBulletImpacts()
                     );
                 }
             }
-        }
-        else
-        {
+        } else {
             for (i = 0; i < wall_impact_count; i++) {
-                CG_MakeBulletHole(
-                    wall_impact_pos[i],
-                    wall_impact_norm[i],
-                    wall_impact_large[i],
-                    NULL,
-                    qtrue
-                );
+                CG_MakeBulletHole(wall_impact_pos[i], wall_impact_norm[i], wall_impact_large[i], NULL, qtrue);
             }
         }
 
         wall_impact_count = 0;
     }
 
-    if (flesh_impact_count)
-    {
-        if (flesh_impact_count > 1)
-        {
-            fImpSndDistRA = 9999.0;
+    if (flesh_impact_count) {
+        if (flesh_impact_count > 1) {
+            fImpSndDistRA  = 9999.0;
             iImpSndIndexRA = 0;
 
             for (i = 0; i < flesh_impact_count; i++) {
                 VectorSubtract(wall_impact_pos[i], cg.SoundOrg, vTmp);
                 iHeadDist = VectorLength(vTmp);
-                
-                if (DotProduct(vTmp, cg.SoundAxis[1]) > 0.f)
-                {
-                    if (iHeadDist < fImpSndDistRA)
-                    {
-                        fImpSndDistRA = iHeadDist;
+
+                if (DotProduct(vTmp, cg.SoundAxis[1]) > 0.f) {
+                    if (iHeadDist < fImpSndDistRA) {
+                        fImpSndDistRA  = iHeadDist;
                         iImpSndIndexRA = i;
                     }
-                }
-                else if (iHeadDist < fImpSndDistLA)
-                {
-                    fImpSndDistRA = iHeadDist;
+                } else if (iHeadDist < fImpSndDistLA) {
+                    fImpSndDistRA  = iHeadDist;
                     iImpSndIndexRA = i;
                 }
             }
@@ -1105,8 +1068,7 @@ void CG_MakeExplosionEffect(const vec3_t vPos, int iType)
         fRadius     = 0;
         break;
     case SURF_SNOW:
-        switch (iBaseEffect)
-        {
+        switch (iBaseEffect) {
         case SFX_EXP_TANK_BASE:
             iSurfEffect = SFX_EXP_TANK_SNOW;
             break;
@@ -1122,7 +1084,7 @@ void CG_MakeExplosionEffect(const vec3_t vPos, int iType)
             iBaseEffect = -1;
             break;
         }
-        fRadius     = 0;
+        fRadius = 0;
         break;
     case SURF_CARPET:
         iSurfEffect = SFX_EXP_GREN_CARPET;
@@ -1147,8 +1109,7 @@ void CG_MakeExplosionEffect(const vec3_t vPos, int iType)
         fRadius     = 0;
         break;
     case SURF_DIRT:
-        switch (iBaseEffect)
-        {
+        switch (iBaseEffect) {
         case SFX_EXP_TANK_BASE:
             iSurfEffect = SFX_EXP_TANK_DIRT;
             break;
@@ -1164,15 +1125,14 @@ void CG_MakeExplosionEffect(const vec3_t vPos, int iType)
             iBaseEffect = -1;
             break;
         }
-        fRadius     = 0;
+        fRadius = 0;
         break;
     case SURF_GRILL:
         iSurfEffect = SFX_EXP_GREN_GRILL;
         fRadius     = 0;
         break;
     case SURF_GRASS:
-        switch (iBaseEffect)
-        {
+        switch (iBaseEffect) {
         case SFX_EXP_TANK_BASE:
             iSurfEffect = SFX_EXP_TANK_DIRT;
             break;
@@ -1190,8 +1150,7 @@ void CG_MakeExplosionEffect(const vec3_t vPos, int iType)
         fRadius = 0;
         break;
     case SURF_ROCK:
-        switch (iBaseEffect)
-        {
+        switch (iBaseEffect) {
         case SFX_EXP_TANK_BASE:
             iSurfEffect = SFX_EXP_TANK_STONE;
             break;
