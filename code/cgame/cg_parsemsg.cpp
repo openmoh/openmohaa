@@ -775,9 +775,9 @@ static void CG_MakeBulletTracer(
     bullet_tracer->i_iNumBullets = i_iNumBullets;
 
     for (i = 0; i < i_iNumBullets; ++i) {
-        bullet_tracer_bullets[bullet_tracers_count][0]   = (*i_vEnd)[i];
-        bullet_tracer_bullets[bullet_tracers_count][1]   = (*i_vEnd)[i + 1];
-        bullet_tracer_bullets[bullet_tracers_count++][2] = (*i_vEnd)[i + 2];
+        bullet_tracer_bullets[bullet_tracers_count][0]   = i_vEnd[i][0];
+        bullet_tracer_bullets[bullet_tracers_count][1]   = i_vEnd[i][1];
+        bullet_tracer_bullets[bullet_tracers_count++][2] = i_vEnd[i][2];
     }
 
     bullet_tracer->iLarge          = iLarge;
