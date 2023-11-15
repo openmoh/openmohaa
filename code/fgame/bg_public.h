@@ -27,31 +27,23 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #pragma once
 
-#define GAME_VERSION          "mohaa-base-1"
+#define GAME_VERSION "mohaa-base-1"
 
-#define DEFAULT_GRAVITY       800
+static const unsigned int MINS_X = -15;
+static const unsigned int MINS_Y = -15;
+static const unsigned int MINS_Z = 0; // IneQuation: bounding box and viewheights to match MoHAA
+static const unsigned int MAXS_X = 15;
+static const unsigned int MAXS_Y = 15;
+static const unsigned int MAXS_Z = 96;
 
-#define SCORE_NOT_PRESENT     -9999 // for the CS_SCORES[12] when only one player is present
-
-#define VOTE_TIME             30000 // 30 seconds before vote times out
-
-#define MINS_Z                0
-#define MINS_X                -15
-#define MINS_Y                -15
-#define MAXS_X                15
-#define MAXS_Y                15
-
-#define MINS_Z                0 // IneQuation: bounding box and viewheights to match MoHAA
-#define MAXS_Z                96
-
-#define DEAD_MINS_Z           32
-#define CROUCH_MAXS_Z         49
-#define DEFAULT_VIEWHEIGHT    82
-#define CROUCH_RUN_VIEWHEIGHT 64
-#define JUMP_START_VIEWHEIGHT 52
-#define CROUCH_VIEWHEIGHT     48
-#define PRONE_VIEWHEIGHT      16
-#define DEAD_VIEWHEIGHT       8
+static const unsigned int DEAD_MINS_Z           = 32;
+static const unsigned int CROUCH_MAXS_Z         = 49;
+static const unsigned int DEFAULT_VIEWHEIGHT    = 82;
+static const unsigned int CROUCH_RUN_VIEWHEIGHT = 64;
+static const unsigned int JUMP_START_VIEWHEIGHT = 52;
+static const unsigned int CROUCH_VIEWHEIGHT     = 48;
+static const unsigned int PRONE_VIEWHEIGHT      = 16;
+static const unsigned int DEAD_VIEWHEIGHT       = 8;
 
 //
 // config strings are a general means of communicating variable length strings
@@ -139,10 +131,10 @@ extern "C" {
         GT_MAX_GAME_TYPE
     } gametype_t;
 
-//
-// scale to use when evaluating entityState_t::constantLight scale
-//
-#define CONSTANTLIGHT_RADIUS_SCALE 8
+    //
+    // scale to use when evaluating entityState_t::constantLight scale
+    //
+    static const float CONSTANTLIGHT_RADIUS_SCALE = 8;
 
     typedef enum {
         GENDER_MALE,
@@ -150,30 +142,31 @@ extern "C" {
         GENDER_NEUTER
     } gender_t;
 
-    // su44: vma indexes are sent as 4 bits
-    // see playerState_t::iViewModelAnim
-    typedef enum {
-        VMA_IDLE,
-        VMA_CHARGE,
-        VMA_FIRE,
-        VMA_FIRE_SECONDARY,
-        VMA_RECHAMBER,
-        VMA_RELOAD,
-        VMA_RELOAD_SINGLE,
-        VMA_RELOAD_END,
-        VMA_PULLOUT,
-        VMA_PUTAWAY,
-        VMA_LADDERSTEP,
-        VMA_ENABLE,
-        VMA_CUSTOMANIMATION,
-        VMA_NUMANIMATIONS
-    } viewmodelanim_t;
+    enum vmAnim_e {
+        VM_ANIM_DISABLED,
+        VM_ANIM_IDLE,
+        VM_ANIM_CHARGE,
+        VM_ANIM_FIRE,
+        VM_ANIM_FIRE_SECONDARY,
+        VM_ANIM_RECHAMBER,
+        VM_ANIM_RELOAD,
+        VM_ANIM_RELOAD_SINGLE,
+        VM_ANIM_RELOAD_END,
+        VM_ANIM_PULLOUT,
+        VM_ANIM_PUTAWAY,
+        VM_ANIM_LADDERSTEP,
+        VM_ANIM_IDLE_0,
+        VM_ANIM_IDLE_1,
+        VM_ANIM_IDLE_2,
+    };
 
-// su44: playerState_t::activeItems[8] slots
-// they are sent as 16 bits
-// TODO: find out rest of them
-#define ITEM_AMMO   0 // current ammo
-#define ITEM_WEAPON 1 // current mainhand weapon
+    // su44: playerState_t::activeItems[8] slots
+    // they are sent as 16 bits
+    // TODO: find out rest of them
+    enum itemtype_e {
+        ITEM_AMMO,
+        ITEM_WEAPON
+    };
 
     /*
 ===================================================================================
@@ -186,17 +179,12 @@ movement on the server game.
 ===================================================================================
 */
 
-#define MAX_CLIP_PLANES         5
-#define MIN_WALK_NORMAL         0.7f // can't walk on very steep slopes
+    static const unsigned int MAX_CLIP_PLANES = 5;
+    static const float        MIN_WALK_NORMAL = 0.7f; // can't walk on very steep slopes
 
-#define STEPSIZE                18
+    static const float STEPSIZE = 18;
 
-#define WATER_TURBO_SPEED       1.35f
-#define WATER_TURBO_TIME        1200
-#define MINIMUM_RUNNING_TIME    800
-#define MINIMUM_WATER_FOR_TURBO 90
-
-#define OVERCLIP                1.001f
+    static const float OVERCLIP = 1.001f;
 
     // su44: our pmtype_t enum must be the same
     // as in MoHAA, because playerState_t::pm_type
@@ -272,22 +260,25 @@ movement on the server game.
 #define PMF_UNKNOWN         (1 << 14)
 #define PMF_NO_LEAN         (1 << 15)
 
-// moveposflags
-#define MPF_POSITION_STANDING  (1 << 0)
-#define MPF_POSITION_CROUCHING (1 << 1)
-#define MPF_POSITION_PRONE     (1 << 2)
-#define MPF_POSITION_OFFGROUND (1 << 3)
+    // moveposflags
+    enum moveposflags_e {
+        MPF_POSITION_STANDING  = (1 << 0),
+        MPF_POSITION_CROUCHING = (1 << 1),
+        MPF_POSITION_PRONE     = (1 << 2),
+        MPF_POSITION_OFFGROUND = (1 << 3),
+        MPF_MOVEMENT_WALKING   = (1 << 4),
+        MPF_MOVEMENT_RUNNING   = (1 << 5),
+        MPF_MOVEMENT_FALLING   = (1 << 6),
+    };
 
-#define MPF_MOVEMENT_WALKING   (1 << 4)
-#define MPF_MOVEMENT_RUNNING   (1 << 5)
-#define MPF_MOVEMENT_FALLING   (1 << 6)
+#define MAXTOUCH 32
 
-#define MAXTOUCH               32
-
-#define MOVERESULT_NONE        0 // nothing blocking
-#define MOVERESULT_TURNED      1 // move blocked, but player turned to avoid it
-#define MOVERESULT_BLOCKED     2 // move blocked by slope or wall
-#define MOVERESULT_HITWALL     3 // player ran into wall
+    enum moveresult_e {
+        MOVERESULT_NONE,    // nothing blocking
+        MOVERESULT_TURNED,  // move blocked, but player turned to avoid it
+        MOVERESULT_BLOCKED, // move blocked by slope or wall
+        MOVERESULT_HITWALL  // player ran into wall
+    };
 
     typedef struct {
         // state (in / out)
@@ -359,36 +350,33 @@ movement on the server game.
 
     //===================================================================================
 
-#define MAX_LETTERBOX_SIZE   0x7fff
+    static const unsigned int MAX_LETTERBOX_SIZE = 0x7fff;
 
-#define ITEM_NAME_AMMO       0
-#define ITEM_NAME_WEAPON     1
-
-#define WEAPON_CLASS_PISTOL  (1 << 0)
-#define WEAPON_CLASS_RIFLE   (1 << 1)
-#define WEAPON_CLASS_SMG     (1 << 2)
-#define WEAPON_CLASS_MG      (1 << 3)
-#define WEAPON_CLASS_GRENADE (1 << 4)
-#define WEAPON_CLASS_HEAVY   (1 << 5)
-#define WEAPON_CLASS_CANNON  (1 << 6)
-#define WEAPON_CLASS_ITEM    (1 << 7)
-#define WEAPON_CLASS_ITEM1   (1 << 8)
-#define WEAPON_CLASS_ITEM2   (1 << 9)
-#define WEAPON_CLASS_ITEM3   (1 << 10)
-#define WEAPON_CLASS_ITEM4   (1 << 11)
-#define WEAPON_CLASS_ANY_ITEM \
-    (WEAPON_CLASS_ITEM | WEAPON_CLASS_ITEM1 | WEAPON_CLASS_ITEM2 | WEAPON_CLASS_ITEM3 | WEAPON_CLASS_ITEM4)
-#define WEAPON_CLASS_ITEM_SLOT_BITS (WEAPON_CLASS_ITEM1 | WEAPON_CLASS_ITEM2 | WEAPON_CLASS_ITEM3 | WEAPON_CLASS_ITEM4)
-
-#define WEAPON_CLASS_PRIMARY        (!(WEAPON_CLASS_PISTOL | WEAPON_CLASS_GRENADE))
-#define WEAPON_CLASS_SECONDARY      (WEAPON_CLASS_PISTOL | WEAPON_CLASS_GRENADE)
-#define WEAPON_CLASS_THROWABLE      (WEAPON_CLASS_GRENADE | WEAPON_CLASS_ITEM)
-#define WEAPON_CLASS_MISC                                                                                   \
-    (WEAPON_CLASS_CANNON | WEAPON_CLASS_ITEM | WEAPON_CLASS_ITEM1 | WEAPON_CLASS_ITEM2 | WEAPON_CLASS_ITEM3 \
-     | WEAPON_CLASS_ITEM4)
-#define WEAPON_CLASS_ITEMINDEX (WEAPON_CLASS_ITEM1 | WEAPON_CLASS_ITEM2 | WEAPON_CLASS_ITEM3 | WEAPON_CLASS_ITEM4)
-
-#define STAT_DEAD_YAW          5 // su44: Is there a DEAD_YAW stat in MoHAA?
+    enum weaponclass_e {
+        WEAPON_CLASS_PISTOL  = (1 << 0),
+        WEAPON_CLASS_RIFLE   = (1 << 1),
+        WEAPON_CLASS_SMG     = (1 << 2),
+        WEAPON_CLASS_MG      = (1 << 3),
+        WEAPON_CLASS_GRENADE = (1 << 4),
+        WEAPON_CLASS_HEAVY   = (1 << 5),
+        WEAPON_CLASS_CANNON  = (1 << 6),
+        WEAPON_CLASS_ITEM    = (1 << 7),
+        WEAPON_CLASS_ITEM1   = (1 << 8),
+        WEAPON_CLASS_ITEM2   = (1 << 9),
+        WEAPON_CLASS_ITEM3   = (1 << 10),
+        WEAPON_CLASS_ITEM4   = (1 << 11),
+        WEAPON_CLASS_ANY_ITEM =
+            (WEAPON_CLASS_ITEM | WEAPON_CLASS_ITEM1 | WEAPON_CLASS_ITEM2 | WEAPON_CLASS_ITEM3 | WEAPON_CLASS_ITEM4),
+        WEAPON_CLASS_ITEM_SLOT_BITS =
+            (WEAPON_CLASS_ITEM1 | WEAPON_CLASS_ITEM2 | WEAPON_CLASS_ITEM3 | WEAPON_CLASS_ITEM4),
+        WEAPON_CLASS_PRIMARY   = (!(WEAPON_CLASS_PISTOL | WEAPON_CLASS_GRENADE)),
+        WEAPON_CLASS_SECONDARY = (WEAPON_CLASS_PISTOL | WEAPON_CLASS_GRENADE),
+        WEAPON_CLASS_THROWABLE = (WEAPON_CLASS_GRENADE | WEAPON_CLASS_ITEM),
+        WEAPON_CLASS_MISC =
+            (WEAPON_CLASS_CANNON | WEAPON_CLASS_ITEM | WEAPON_CLASS_ITEM1 | WEAPON_CLASS_ITEM2 | WEAPON_CLASS_ITEM3
+             | WEAPON_CLASS_ITEM4),
+        WEAPON_CLASS_ITEMINDEX = (WEAPON_CLASS_ITEM1 | WEAPON_CLASS_ITEM2 | WEAPON_CLASS_ITEM3 | WEAPON_CLASS_ITEM4)
+    };
 
     // player_state->persistant[] indexes
     // these fields are the only part of player_state that isn't
@@ -438,28 +426,7 @@ movement on the server game.
 #define EF_ANTISBJUICE           0x00200000 // anti sucknblow juice
 #define EF_DONT_PROCESS_COMMANDS 0x00400000 // don't process client commands for this entity
 
-// these defines could be deleted sometime when code/game/ is cleared of Q3A stuff
-#define TEAM_FREE      0
-#define TEAM_RED       4
-#define TEAM_BLUE      3
-#define TEAM_NUM_TEAMS 5
-
 //===================================================================================
-
-// flip the togglebit every time an animation
-// changes so a restart of the same anim can be detected
-#define ANIM_TOGGLEBIT (1 << 9)
-#define ANIM_BLEND     (1 << 10)
-#define ANIM_NUMBITS   11
-
-// server side anim bits
-#define ANIM_SERVER_EXITCOMMANDS_PROCESSED (1 << 12)
-
-#define ANIM_MASK                          (~(ANIM_TOGGLEBIT | ANIM_BLEND | ANIM_SERVER_EXITCOMMANDS_PROCESSED))
-
-// if FRAME_EXPLICIT is set, don't auto animate
-#define FRAME_EXPLICIT 512
-#define FRAME_MASK     (~FRAME_EXPLICIT)
 
 //
 // Tag specific flags
@@ -601,9 +568,6 @@ movement on the server game.
         SWT_FUSE_WET
     } stopWatchType_t;
 
-// How many players on the overlay
-#define TEAM_MAXOVERLAY 32
-
 //---------------------------------------------------------
 
 // g_dmflags->integer flags
@@ -638,7 +602,7 @@ movement on the server game.
 #define DF_WEAPON_NO_SHOTGUN      (1 << 27)
 #define DF_WEAPON_NO_LANDMINE     (1 << 28)
 
-#define DM_FLAG(flag)             (g_gametype->integer && ((int)dmflags->integer & (flag)))
+#define DM_FLAG(flag)             (g_gametype->integer != GT_SINGLE_PLAYER && ((int)dmflags->integer & (flag)))
 
 // content masks
 #define MASK_ALL (-1)
@@ -736,49 +700,10 @@ movement on the server game.
 #define MASK_CORNER_NODE \
     (CONTENTS_SOLID | CONTENTS_LAVA | CONTENTS_SLIME | CONTENTS_UNKNOWN2 | CONTENTS_WEAPONCLIP | CONTENTS_BODY)
 
-    // mohaa mask
-    /*
-#define MASK_ALL							-1
-#define MASK_SOLID							1
-
-#define MASK_COLLISION						0x26000B21
-#define MASK_PERMANENTMARK					0x40000001
-#define MASK_AUTOCALCLIFE					0x40002021
-#define MASK_EXPLOSION						0x40040001
-#define MASK_TREADMARK						0x42012B01
-#define MASK_THIRDPERSON					0x42012B39
-#define MASK_FOOTSTEP						0x42022901
-#define MASK_BEAM							0x42042B01
-#define MASK_VISIBLE						0x42042B01
-#define MASK_VEHICLE						0x42042B01
-#define MASK_BULLET							0x42042B21
-#define MASK_SHOT							0x42042BA1
-#define MASK_CROSSHAIRSHADER				0x42092B01
-#define MASK_TRACER							0x42142B21
-*/
-
     void BG_EvaluateTrajectoryDelta(const trajectory_t *tr, int atTime, vec3_t result);
 
     void BG_PlayerStateToEntityState(playerState_t *ps, entityState_t *s, qboolean snap);
     void BG_PlayerStateToEntityStateExtraPolate(playerState_t *ps, entityState_t *s, int time, qboolean snap);
-
-    enum vmAnim_e {
-        VM_ANIM_DISABLED,
-        VM_ANIM_IDLE,
-        VM_ANIM_CHARGE,
-        VM_ANIM_FIRE,
-        VM_ANIM_FIRE_SECONDARY,
-        VM_ANIM_RECHAMBER,
-        VM_ANIM_RELOAD,
-        VM_ANIM_RELOAD_SINGLE,
-        VM_ANIM_RELOAD_END,
-        VM_ANIM_PULLOUT,
-        VM_ANIM_PUTAWAY,
-        VM_ANIM_LADDERSTEP,
-        VM_ANIM_IDLE_0,
-        VM_ANIM_IDLE_1,
-        VM_ANIM_IDLE_2,
-    };
 
     enum cg_message_ver_15_e {
         CGM_NONE,
