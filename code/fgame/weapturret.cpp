@@ -501,8 +501,25 @@ TurretGun::~TurretGun()
     //  Remove the user camera if any.
     //
     if (m_pUserCamera) {
-        m_pUserCamera->PostEvent(EV_Remove, 0);
-        m_pUserCamera = NULL;
+        RemoveUserCamera();
+    }
+
+    //
+    // Added in OPM:
+    //  Remove the view model.
+    //
+    if (m_pViewModel) {
+        m_pViewModel->Delete();
+        m_pViewModel = NULL;
+    }
+
+    //
+    // Added in OPM:
+    //  Detach the owner from the turret.
+    //
+    if (owner && owner->IsSubclassOfPlayer()) {
+        Player *player = static_cast<Player *>(owner.Pointer());
+        player->ExitTurret();
     }
 
     entflags &= ~EF_TURRET;
