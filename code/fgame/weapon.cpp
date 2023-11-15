@@ -4373,7 +4373,7 @@ const_str Weapon::GetWeaponGroup(void) const
 //======================
 void Weapon::SetItemSlot(int slot)
 {
-    weapon_class &= WEAPON_CLASS_ITEM_SLOT_BITS;
+    weapon_class &= ~WEAPON_CLASS_ITEM_SLOT_BITS;
     weapon_class |= slot & WEAPON_CLASS_ITEM_SLOT_BITS;
 }
 
