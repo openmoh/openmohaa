@@ -2496,7 +2496,7 @@ float BulletAttack(
 
         gi.MSG_WriteBits(count, 6);
 
-        for (int i = count; i > 0; i--) {
+        for (int i = 0; i < count; i++) {
             gi.MSG_WriteCoord(vEndArray[i][0]);
             gi.MSG_WriteCoord(vEndArray[i][1]);
             gi.MSG_WriteCoord(vEndArray[i][2]);
