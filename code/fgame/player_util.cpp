@@ -95,7 +95,7 @@ void Player::WhatIs(Event *ev)
 
         animname = NULL;
         if (gi.modeltiki(ent->model)) {
-            animname = gi.Anim_NameForNum(ent->edict->tiki, ent->edict->s.frameInfo[0].index & ANIM_MASK);
+            animname = gi.Anim_NameForNum(ent->edict->tiki, ent->edict->s.frameInfo[0].index);
         }
 
         if (!animname) {
