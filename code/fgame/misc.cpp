@@ -1960,7 +1960,7 @@ CLASS_DECLARATION(SimpleArchivedEntity, Waypoint, "info_waypoint") {
 
 Waypoint::Waypoint()
 {
-    entflags |= EF_WAYPOINT;
+    entflags |= ECF_WAYPOINT;
 }
 
 CLASS_DECLARATION(SimpleArchivedEntity, TempWaypoint, NULL) {
@@ -1969,7 +1969,7 @@ CLASS_DECLARATION(SimpleArchivedEntity, TempWaypoint, NULL) {
 
 TempWaypoint::TempWaypoint()
 {
-    entflags |= EF_TEMPWAYPOINT;
+    entflags |= ECF_TEMPWAYPOINT;
 }
 
 /*****************************************************************************/
@@ -1988,7 +1988,7 @@ CLASS_DECLARATION(Waypoint, VehiclePoint, "info_vehiclepoint") {
 
 VehiclePoint::VehiclePoint()
 {
-    entflags |= EF_VEHICLEPOINT;
+    entflags |= ECF_VEHICLEPOINT;
     spawnflags = 0;
 }
 

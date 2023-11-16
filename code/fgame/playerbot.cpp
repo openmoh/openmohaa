@@ -44,7 +44,7 @@ PlayerBot::botfunc_t PlayerBot::botfuncs[MAX_BOT_FUNCTIONS];
 
 PlayerBot::PlayerBot()
 {
-    entflags |= EF_BOT;
+    entflags |= ECF_BOT;
 
     if (LoadingSavegame) {
         return;

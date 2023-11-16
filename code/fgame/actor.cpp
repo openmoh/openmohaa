@@ -2710,7 +2710,7 @@ Constructor
 Actor::Actor()
     : mVoiceType(-1)
 {
-    entflags |= EF_ACTOR;
+    entflags |= ECF_ACTOR;
 
     m_pszDebugState = "";
     m_pFallPath     = NULL;
@@ -2963,7 +2963,7 @@ Actor::~Actor()
     ClearPointEntity();
     ClearTurnEntity();
 
-    entflags &= ~EF_ACTOR;
+    entflags &= ~ECF_ACTOR;
 }
 
 /*

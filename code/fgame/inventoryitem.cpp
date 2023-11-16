@@ -53,7 +53,7 @@ CLASS_DECLARATION( Weapon, InventoryItem, NULL )
 
 InventoryItem::InventoryItem()
 {
-	entflags |= EF_INVENTORYITEM;
+	entflags |= ECF_INVENTORYITEM;
 
 	if ( LoadingSavegame )
 	{
@@ -65,7 +65,7 @@ InventoryItem::InventoryItem()
 
 InventoryItem::~InventoryItem()
 {
-	entflags &= ~EF_INVENTORYITEM;
+	entflags &= ~ECF_INVENTORYITEM;
 }
 
 void InventoryItem::ActivateItem

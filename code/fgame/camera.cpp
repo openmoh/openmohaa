@@ -702,7 +702,7 @@ Camera::Camera()
 {
     Vector ang;
 
-    entflags |= EF_CAMERA;
+    entflags |= ECF_CAMERA;
 
     AddWaitTill(STRING_START);
     AddWaitTill(STRING_TRIGGER);

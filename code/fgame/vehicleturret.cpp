@@ -210,7 +210,7 @@ CLASS_DECLARATION(TurretGun, VehicleTurretGun, NULL) {
 
 VehicleTurretGun::VehicleTurretGun()
 {
-    entflags |= EF_VEHICLETURRET;
+    entflags |= ECF_VEHICLETURRET;
 
     AddWaitTill(STRING_DEATH);
 
@@ -300,7 +300,7 @@ VehicleTurretGun::~VehicleTurretGun()
         m_pCollisionEntity->PostEvent(EV_Remove, 0);
     }
 
-    entflags &= ~EF_VEHICLETURRET;
+    entflags &= ~ECF_VEHICLETURRET;
 }
 
 void VehicleTurretGun::Think(void)

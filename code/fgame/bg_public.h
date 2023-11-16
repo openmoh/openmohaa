@@ -389,6 +389,7 @@ movement on the server game.
 
 // entityState_t->eFlags
 // su44: eFlags used in MoHAA
+#define EF_EVERYFRAME 0x00000008
 #define EF_CLIMBWALL  0x00000010
 #define EF_UNARMED    0x00000020 // su44: this player has his weapon holstered
 #define EF_LINKANGLES 0x00000040
@@ -422,7 +423,6 @@ movement on the server game.
 #define EF_AWARD_ASSIST          0x00020000 // draw a assist sprite
 #define EF_AWARD_DENIED          0x00040000 // denied
 #define EF_TEAMVOTED             0x00080000 // already cast a team vote
-#define EF_EVERYFRAME            0x00100000 // def commands will be run every client frame
 #define EF_ANTISBJUICE           0x00200000 // anti sucknblow juice
 #define EF_DONT_PROCESS_COMMANDS 0x00400000 // don't process client commands for this entity
 

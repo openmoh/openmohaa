@@ -1686,7 +1686,7 @@ Entity::Entity()
     entnum = edict->s.number;
     radnum = -1;
 
-    entflags |= EF_ENTITY;
+    entflags |= ECF_ENTITY;
 
     AddWaitTill(STRING_DAMAGE);
     AddWaitTill(STRING_SPAWN);
@@ -1852,7 +1852,7 @@ Entity::~Entity()
 
     level.FreeEdict(edict);
 
-    entflags &= ~EF_ENTITY;
+    entflags &= ~ECF_ENTITY;
 }
 
 void Entity::ClassnameEvent(Event *ev)

@@ -542,7 +542,7 @@ CLASS_DECLARATION(Entity, SplinePath, "info_splinepath") {
 
 SplinePath::SplinePath()
 {
-    entflags |= EF_SPLINEPATH;
+    entflags |= ECF_SPLINEPATH;
 
     AddWaitTill(STRING_REACH);
 

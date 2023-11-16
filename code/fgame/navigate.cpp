@@ -1166,7 +1166,7 @@ void PathNode::operator delete(void *ptr)
 
 PathNode::PathNode()
 {
-    entflags |= EF_PATHNODE;
+    entflags |= ECF_PATHNODE;
     findCount      = 0;
     pLastClaimer   = NULL;
     numChildren    = 0;
@@ -1186,7 +1186,7 @@ PathNode::PathNode()
 
 PathNode::~PathNode()
 {
-    entflags &= ~EF_PATHNODE;
+    entflags &= ~ECF_PATHNODE;
 }
 
 void PathNode::Remove(Event *ev)

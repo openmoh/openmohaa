@@ -595,7 +595,7 @@ CLASS_DECLARATION(Animate, Projectile, NULL) {
 
 Projectile::Projectile()
 {
-    entflags |= EF_PROJECTILE;
+    entflags |= ECF_PROJECTILE;
 
     if (LoadingSavegame) {
         // Archive function will setup all necessary data

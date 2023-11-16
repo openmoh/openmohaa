@@ -101,7 +101,7 @@ CLASS_DECLARATION(Entity, CrateObject, "func_crate") {
 
 CrateObject::CrateObject()
 {
-    entflags |= EF_CRATEOBJECT;
+    entflags |= ECF_CRATEOBJECT;
 
     AddWaitTill(STRING_DEATH);
 

@@ -167,7 +167,7 @@ static size_t GetLongestClientCmdAllFramesLength(dtiki_t *tiki, int animnum, int
 
 Animate::Animate()
 {
-    entflags |= EF_ANIMATE;
+    entflags |= ECF_ANIMATE;
 
     syncTime = 0.0f;
     syncRate = 1.0f;
@@ -198,7 +198,7 @@ Animate::Animate()
 
 Animate::~Animate()
 {
-    entflags &= ~EF_ANIMATE;
+    entflags &= ~ECF_ANIMATE;
 }
 
 void Animate::ForwardExec(Event *ev)

@@ -1950,7 +1950,7 @@ Player::Player()
     //
     // set the entity type
     //
-    entflags |= EF_PLAYER;
+    entflags |= ECF_PLAYER;
 
     mCurTrailOrigin   = 0;
     mLastTrailTime    = 0;
@@ -2171,7 +2171,7 @@ Player::~Player()
     legs_conditionals.FreeObjectList();
     torso_conditionals.FreeObjectList();
 
-    entflags &= ~EF_PLAYER;
+    entflags &= ~ECF_PLAYER;
 }
 
 static qboolean logfile_started = qfalse;

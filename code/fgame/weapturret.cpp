@@ -394,7 +394,7 @@ CLASS_DECLARATION(Weapon, TurretGun, NULL) {
 
 TurretGun::TurretGun()
 {
-    entflags |= EF_TURRET;
+    entflags |= ECF_TURRET;
 
     AddWaitTill(STRING_ONTARGET);
 
@@ -522,7 +522,7 @@ TurretGun::~TurretGun()
         player->ExitTurret();
     }
 
-    entflags &= ~EF_TURRET;
+    entflags &= ~ECF_TURRET;
 }
 
 void TurretGun::PlaceTurret(Event *ev)

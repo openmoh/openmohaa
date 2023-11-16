@@ -341,7 +341,7 @@ Item::Item()
 {
     str fullname;
 
-    entflags |= EF_ITEM;
+    entflags |= ECF_ITEM;
 
     AddWaitTill(STRING_PICKUP);
 
@@ -403,7 +403,7 @@ Item::~Item()
         owner = NULL;
     }
 
-    entflags &= ~EF_ITEM;
+    entflags &= ~ECF_ITEM;
 }
 
 void Item::RemoveFromOwner(void)

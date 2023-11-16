@@ -253,112 +253,112 @@ SimpleEntity::~SimpleEntity()
 
 int SimpleEntity::IsSubclassOfEntity(void) const
 {
-    return (entflags & EF_ENTITY);
+    return (entflags & ECF_ENTITY);
 }
 
 int SimpleEntity::IsSubclassOfAnimate(void) const
 {
-    return (entflags & EF_ANIMATE);
+    return (entflags & ECF_ANIMATE);
 }
 
 int SimpleEntity::IsSubclassOfSentient(void) const
 {
-    return (entflags & EF_SENTIENT);
+    return (entflags & ECF_SENTIENT);
 }
 
 int SimpleEntity::IsSubclassOfPlayer(void) const
 {
-    return (entflags & EF_PLAYER);
+    return (entflags & ECF_PLAYER);
 }
 
 int SimpleEntity::IsSubclassOfActor(void) const
 {
-    return (entflags & EF_ACTOR);
+    return (entflags & ECF_ACTOR);
 }
 
 int SimpleEntity::IsSubclassOfItem(void) const
 {
-    return (entflags & EF_ITEM);
+    return (entflags & ECF_ITEM);
 }
 
 int SimpleEntity::IsSubclassOfInventoryItem(void) const
 {
-    return (entflags & EF_INVENTORYITEM);
+    return (entflags & ECF_INVENTORYITEM);
 }
 
 int SimpleEntity::IsSubclassOfWeapon(void) const
 {
-    return (entflags & EF_WEAPON);
+    return (entflags & ECF_WEAPON);
 }
 
 int SimpleEntity::IsSubclassOfProjectile(void) const
 {
-    return (entflags & EF_PROJECTILE);
+    return (entflags & ECF_PROJECTILE);
 }
 
 int SimpleEntity::IsSubclassOfDoor(void) const
 {
-    return (entflags & EF_DOOR);
+    return (entflags & ECF_DOOR);
 }
 
 int SimpleEntity::IsSubclassOfCamera(void) const
 {
-    return (entflags & EF_CAMERA);
+    return (entflags & ECF_CAMERA);
 }
 
 int SimpleEntity::IsSubclassOfVehicle(void) const
 {
-    return (entflags & EF_VEHICLE);
+    return (entflags & ECF_VEHICLE);
 }
 
 int SimpleEntity::IsSubclassOfVehicleTank(void) const
 {
-    return (entflags & EF_VEHICLETANK);
+    return (entflags & ECF_VEHICLETANK);
 }
 
 int SimpleEntity::IsSubclassOfVehicleTurretGun(void) const
 {
-    return (entflags & EF_VEHICLETURRET);
+    return (entflags & ECF_VEHICLETURRET);
 }
 
 int SimpleEntity::IsSubclassOfTurretGun(void) const
 {
-    return (entflags & EF_TURRET);
+    return (entflags & ECF_TURRET);
 }
 
 int SimpleEntity::IsSubclassOfPathNode(void) const
 {
-    return (entflags & EF_PATHNODE);
+    return (entflags & ECF_PATHNODE);
 }
 
 int SimpleEntity::IsSubclassOfWaypoint(void) const
 {
-    return (entflags & EF_WAYPOINT);
+    return (entflags & ECF_WAYPOINT);
 }
 
 int SimpleEntity::IsSubclassOfTempWaypoint(void) const
 {
-    return (entflags & EF_TEMPWAYPOINT);
+    return (entflags & ECF_TEMPWAYPOINT);
 }
 
 int SimpleEntity::IsSubclassOfVehiclePoint(void) const
 {
-    return (entflags & EF_VEHICLEPOINT);
+    return (entflags & ECF_VEHICLEPOINT);
 }
 
 int SimpleEntity::IsSubclassOfSplinePath(void) const
 {
-    return (entflags & EF_SPLINEPATH);
+    return (entflags & ECF_SPLINEPATH);
 }
 
 int SimpleEntity::IsSubclassOfCrateObject(void) const
 {
-    return (entflags & EF_CRATEOBJECT);
+    return (entflags & ECF_CRATEOBJECT);
 }
 
 int SimpleEntity::IsSubclassOfBot(void) const
 {
-    return (entflags & EF_BOT);
+    return (entflags & ECF_BOT);
 }
 
 void SimpleEntity::SetTargetName(str targetname)

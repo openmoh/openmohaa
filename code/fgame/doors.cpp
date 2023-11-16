@@ -321,7 +321,7 @@ Door::Door()
 {
     float t;
 
-    entflags |= EF_DOOR;
+    entflags |= ECF_DOOR;
     if (LoadingSavegame) {
         return;
     }

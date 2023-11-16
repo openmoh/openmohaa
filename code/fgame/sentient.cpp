@@ -693,7 +693,7 @@ Sentient::Sentient()
     : m_bIsAnimal(false)
 {
     SentientList.AddObject((Sentient *)this);
-    entflags |= EF_SENTIENT;
+    entflags |= ECF_SENTIENT;
 
     m_bOvercookDied = false;
 
@@ -824,7 +824,7 @@ Sentient::~Sentient()
     SentientList.RemoveObject((Sentient *)this);
     FreeInventory();
 
-    entflags &= ~EF_SENTIENT;
+    entflags &= ~ECF_SENTIENT;
 }
 
 void Sentient::Link()

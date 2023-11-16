@@ -960,7 +960,7 @@ Vehicle::Vehicle()
 {
     int i;
 
-    entflags |= EF_VEHICLE;
+    entflags |= ECF_VEHICLE;
 
     AddWaitTill(STRING_DRIVE);
     AddWaitTill(STRING_VEHICLEANIMDONE);
@@ -1204,7 +1204,7 @@ Vehicle::~Vehicle()
         m_pCollisionEntity->ProcessEvent(EV_Remove);
     }
 
-    entflags &= ~EF_VEHICLE;
+    entflags &= ~ECF_VEHICLE;
 }
 
 /*

@@ -974,7 +974,7 @@ CLASS_DECLARATION(Item, Weapon, NULL) {
 //======================
 Weapon::Weapon()
 {
-    entflags |= EF_WEAPON;
+    entflags |= ECF_WEAPON;
 
     mAIRange = RANGE_SHORT;
 
@@ -1192,7 +1192,7 @@ Weapon::~Weapon()
         RemoveFromOwner();
     }
 
-    entflags &= ~EF_WEAPON;
+    entflags &= ~ECF_WEAPON;
 }
 
 //======================
