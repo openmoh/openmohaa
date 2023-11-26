@@ -62,6 +62,8 @@ WindowObject::WindowObject()
 
 void WindowObject::Archive(Archiver& arc)
 {
+    Entity::Archive(arc);
+
     arc.ArchiveInteger(&m_iDebrisType);
     arc.ArchiveString(&m_sBrokenModel);
 }

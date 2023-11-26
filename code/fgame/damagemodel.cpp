@@ -310,6 +310,8 @@ void DamageModel::EventSetKillThread(Event *ev)
 
 void DamageModel::Archive(Archiver& arc)
 {
+    Animate::Archive(arc);
+
     label.Archive(arc);
     arc.ArchiveSafePointer(&boundingBoxEnt);
 }
