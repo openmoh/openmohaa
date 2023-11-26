@@ -5783,8 +5783,13 @@ void Entity::Archive(Archiver& arc)
     arc.ArchiveInteger(&spawnflags);
 
     arc.ArchiveString(&model);
-    if (arc.Loading() && model.length()) {
-        setModel(model);
+    if (arc.Loading() && AutoArchiveModel()) {
+        if (model.length() && model[0] == '*') {
+            // set the brush model
+            edict->s.modelindex = atoi(model.c_str() + 1);
+        } else {
+            setModel(model);
+        }
     }
 
     arc.ArchiveVector(&mins);
