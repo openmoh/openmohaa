@@ -23,29 +23,31 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // windows.h: Window class
 //
 
+#pragma once
+
 #include "entity.h"
 
-#define WINDOW_BROKEN_BLOCK			1
+#define WINDOW_BROKEN_BLOCK 1
 
-enum
-{
-	WINDOW_GLASS
+enum {
+    WINDOW_GLASS
 };
 
-class WindowObject : public Entity {
+class WindowObject : public Entity
+{
 private:
-	int			m_iDebrisType;
-	str			m_sBrokenModel;
+    int m_iDebrisType;
+    str m_sBrokenModel;
 
 public:
-	CLASS_PROTOTYPE( WindowObject );
+    CLASS_PROTOTYPE(WindowObject);
 
-	WindowObject();
+    WindowObject();
 
-	void Archive( Archiver& arc ) override;
+    void Archive(Archiver& arc) override;
 
-	void				WindowSetup( Event *ev );
-	void				WindowDebrisType( Event *ev );
-	void				WindowDamaged( Event *ev );
-	void				WindowKilled( Event *ev );
+    void WindowSetup(Event *ev);
+    void WindowDebrisType(Event *ev);
+    void WindowDamaged(Event *ev);
+    void WindowKilled(Event *ev);
 };
