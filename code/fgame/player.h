@@ -514,6 +514,7 @@ public:
     void InitWeapons(void);
     void InitView(void);
     void InitModel(void);
+    void InitModelFps(void); // Added in openmohaa
     void InitState(void);
     void InitHealth(void);
     void InitInventory(void);
@@ -1157,6 +1158,7 @@ inline void Player::Archive(Archiver& arc)
 
     if (arc.Loading()) {
         UpdateWeapons();
+        InitModelFps();
     }
 }
 

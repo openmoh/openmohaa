@@ -2480,6 +2480,11 @@ void Player::InitModel(void)
         }
     }
 
+    InitModelFps();
+}
+
+void Player::InitModelFps(void)
+{
     char  model_name[MAX_STRING_TOKENS];
     char *model_replace;
 
