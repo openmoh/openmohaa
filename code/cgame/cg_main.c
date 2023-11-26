@@ -689,11 +689,14 @@ Called before every level change or subsystem restart
 void CG_Shutdown(void)
 {
     L_ShutdownEvents();
+    // Shutdown radar
+    cgi.CL_InitRadar(NULL, NULL, -1);
+
     // some mods may need to do cleanup work here,
     // like closing files or archiving session data
 
     // hide the stats screen
-    cgi.UI_HideMenu("StatsScreen", 1);
+    cgi.UI_HideMenu("StatsScreen", qtrue);
 
     // reset the scoreboard
     CG_PrepScoreBoardInfo();
