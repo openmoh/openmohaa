@@ -3576,13 +3576,20 @@ void ScriptThread::Angles_PointAt(Event *ev)
 
 void ScriptThread::EventIsAlive(Event *ev)
 {
-    Entity *ent = ev->GetEntity(1);
+    Entity* ent;
 
-    if (ent) {
-        ev->AddInteger(!ent->IsDead());
-    } else {
-        ev->AddInteger(0);
+    if (!ev->IsEntityAt(1)) {
+        ev->AddInteger(false);
+        return;
     }
+
+    ent = ev->GetEntity(1);
+    if (!ent) {
+        ev->AddInteger(false);
+        return;
+    }
+
+    ev->AddInteger(ent->health > 0);
 }
 
 void ScriptThread::EventPopmenu(Event *ev)
