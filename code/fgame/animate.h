@@ -169,22 +169,24 @@ inline void Animate::PauseSyncTime(int pause)
 
 inline void Animate::Archive(Archiver& arc)
 {
+    int i;
+
     Entity::Archive(arc);
 
-    for (int i = MAX_FRAMEINFOS - 1; i >= 0; i--) {
+    for (i = 0; i < MAX_FRAMEINFOS; i++) {
         arc.ArchiveInteger(&animFlags[i]);
     }
     arc.ArchiveFloat(&syncTime);
     arc.ArchiveFloat(&syncRate);
     arc.ArchiveInteger(&pauseSyncTime);
     arc.ArchiveBool(&is_paused);
-    for (int i = MAX_FRAMEINFOS - 1; i >= 0; i--) {
+    for (i = 0; i < MAX_FRAMEINFOS; i++) {
         arc.ArchiveEventPointer(&doneEvents[i]);
     }
-    for (int i = MAX_FRAMEINFOS - 1; i >= 0; i--) {
+    for (i = 0; i < MAX_FRAMEINFOS; i++) {
         arc.ArchiveFloat(&animtimes[i]);
     }
-    for (int i = MAX_FRAMEINFOS - 1; i >= 0; i--) {
+    for (i = 0; i < MAX_FRAMEINFOS; i++) {
         arc.ArchiveFloat(&frametimes[i]);
     }
     arc.ArchiveVector(&frame_delta);
