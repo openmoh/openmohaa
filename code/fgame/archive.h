@@ -279,6 +279,7 @@ void con_set<key, value>::Archive(Archiver& arc)
     Entry *e;
     int    hash;
     int    i;
+    int    total;
 
     arc.ArchiveUnsigned(&tableLength);
     arc.ArchiveUnsigned(&threshold);
@@ -301,11 +302,15 @@ void con_set<key, value>::Archive(Archiver& arc)
             table[hash] = e;
         }
     } else {
-        for (i = tableLength - 1; i >= 0; i--) {
+        total = 0;
+
+        for (i = 0; i < tableLength; i++) {
             for (e = table[i]; e != NULL; e = e->next) {
                 e->Archive(arc);
+                total++;
             }
         }
+        assert(total == count);
     }
 }
 
