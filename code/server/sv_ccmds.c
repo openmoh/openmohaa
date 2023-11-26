@@ -1884,7 +1884,7 @@ qboolean SV_ArchiveLevelFile(qboolean loading, qboolean autosave)
         if (f)
         {
             FS_Read(&save, sizeof(savegamestruct_t), f);
-            if (save.version != 4)
+            if (save.version != SAVEGAME_STRUCT_VERSION)
             {
                 FS_FCloseFile(f);
                 return qfalse;
@@ -1986,7 +1986,7 @@ qboolean SV_ArchiveServerFile( qboolean loading, qboolean autosave )
 
 		SV_SetConfigstring( CS_SAVENAME, "" );
 
-		save.version = 3;
+		save.version = SAVEGAME_STRUCT_VERSION;
 		save.time = aclock;
 		strncpy( save.mapName, svs.mapName, sizeof( save.mapName ) );
 		strncpy( save.saveName, svs.gameName, sizeof( save.saveName ) );
@@ -2010,8 +2010,8 @@ qboolean SV_ArchiveServerFile( qboolean loading, qboolean autosave )
 			return qfalse;
 		}
 
-		FS_Read( &save, sizeof( savegamestruct_t ), f );
-		if( save.version != 3 )
+        FS_Read(&save, sizeof(savegamestruct_t), f);
+        if (save.version != SAVEGAME_STRUCT_VERSION)
 		{
 			Com_Printf("Invalid or Old Server SaveGame Version\n");
 			return qfalse;

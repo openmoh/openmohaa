@@ -1453,6 +1453,8 @@ typedef struct {
 // trace->entityNum can also be 0 to (MAX_GENTITIES-1)
 // or ENTITYNUM_NONE, ENTITYNUM_WORLD
 
+#define SAVEGAME_STRUCT_VERSION 4
+
 typedef struct {
 	int version;
 	int time;
