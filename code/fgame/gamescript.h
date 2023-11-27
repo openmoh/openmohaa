@@ -165,6 +165,7 @@ public:
     void          Execute(Listener *listener, Event *ev);
     void          Execute(const SafePtr<Listener>         &listener, const SafePtr<Listener>         &param);
 
+    void Clear();
     void Set(const char *label);
     void Set(const_str label);
     void SetScript(const ScriptVariable& label);

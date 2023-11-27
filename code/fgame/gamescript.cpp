@@ -904,6 +904,12 @@ void ScriptThreadLabel::Execute(const SafePtr<Listener>& listener, const SafePtr
     }
 }
 
+void ScriptThreadLabel::Clear()
+{
+    m_Script = NULL;
+    m_Label  = STRING_EMPTY;
+}
+
 void ScriptThreadLabel::Set(const char *label)
 {
     str   script;
