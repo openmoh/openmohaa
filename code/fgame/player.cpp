@@ -1992,6 +1992,16 @@ Player::Player()
     m_iInvulnerableTimeRemaining = 0;
     m_fLastVoteTime              = 0;
 
+    //
+    // Openmohaa additions
+    //====
+    m_bShowingHint      = false;
+    disable_spectate    = false;
+    disable_team_change = false;
+    m_fpsTiki           = NULL;
+    m_bConnected        = false;
+    //====
+
     if (LoadingSavegame) {
         return;
     }
@@ -2134,21 +2144,15 @@ Player::Player()
 
     //
     // Openmohaa additions
-    //
-    m_bShowingHint      = false;
-    disable_spectate    = false;
-    disable_team_change = false;
+    //====
     m_bFrozen           = false;
     animDoneVM          = true;
     m_fVMAtime          = 0;
-    m_fpsTiki           = NULL;
+    //====
 
     for (int i = 0; i < MAX_SPEED_MULTIPLIERS; i++) {
         speed_multiplier[i] = 1.0f;
     }
-
-    m_pKilledEvent = NULL;
-    m_bConnected   = false;
 }
 
 Player::~Player()
@@ -3041,18 +3045,19 @@ void Player::Killed(Event *ev)
     Entity *inflictor;
     int     meansofdeath;
     int     location;
-    Event  *event;
+    Event   *event;
 
     //
     // This one is openmohaa-specific
     //  Custom killed event will do the job
     //
-    if (m_pKilledEvent) {
-        event = new Event(*m_pKilledEvent);
+    if (m_killedLabel.IsSet()) {
+        event = new Event(0, ev->NumArgs());
         for (int i = 1; i <= ev->NumArgs(); i++) {
             event->AddValue(ev->GetValue(i));
         }
-        ProcessEvent(event);
+        m_killedLabel.Execute(this, event);
+        delete event;
 
         Unregister(STRING_DEATH);
         return;
@@ -3082,7 +3087,7 @@ void Player::Killed(Event *ev)
     deadflag = DEAD_DYING;
     health   = 0;
 
-    event = new Event(EV_Pain);
+    event = new Event(EV_Pain, 10);
 
     event->AddEntity(attacker);
     event->AddFloat(ev->GetFloat(2));
@@ -3150,7 +3155,7 @@ void Player::Killed(Event *ev)
     //
     // Openmohaa scripted events
     //
-    event = new Event;
+    event = new Event(0, 11);
 
     event->AddEntity(ev->GetEntity(1));
     event->AddFloat(ev->GetFloat(2));
@@ -11747,8 +11752,8 @@ void Player::GetDeaths(Event *ev)
 
 void Player::GetKillHandler(Event *ev)
 {
-    if (m_pKilledEvent) {
-        ev->AddValue(m_pKilledEvent->GetValue(1));
+    if (m_killedLabel.IsSet()) {
+        m_killedLabel.GetScriptValue(&ev->GetValue());
     } else {
         ev->AddNil();
     }
@@ -12034,13 +12039,9 @@ void Player::SetEntityShader(Event *ev)
 void Player::SetKillHandler(Event *ev)
 {
     if (ev->IsNilAt(1) || (ev->IsStringAt(1) && !ev->GetString(1).icmp("none"))) {
-        if (m_pKilledEvent != NULL) {
-            delete m_pKilledEvent;
-            m_pKilledEvent = NULL;
-        }
+        m_killedLabel.Clear();
     } else {
-        m_pKilledEvent = new Event(EV_Listener_ExecuteScript);
-        m_pKilledEvent->AddValue(ev->GetValue(1));
+        m_killedLabel.SetScript(ev->GetValue(1));
     }
 }
 

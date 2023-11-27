@@ -350,7 +350,7 @@ public:
     bool                m_bFrozen; // if player is frozen
     bool                animDoneVM;
     float               speed_multiplier[MAX_SPEED_MULTIPLIERS];
-    Event              *m_pKilledEvent;
+    ScriptThreadLabel   m_killedLabel;
     con_map<str, vma_t> vmalist;
     str                 m_sVMAcurrent;
     str                 m_sVMcurrent;
@@ -1015,6 +1015,7 @@ inline void Player::Archive(Archiver& arc)
 
     arc.ArchiveInteger(&buttons);
     arc.ArchiveInteger(&new_buttons);
+    arc.ArchiveInteger(&server_new_buttons);
     arc.ArchiveFloat(&respawn_time);
 
     arc.ArchiveInteger(&last_attack_button);
@@ -1162,16 +1163,25 @@ inline void Player::Archive(Archiver& arc)
         UpdateWeapons();
         InitModelFps();
     }
+
+    //
+    // Openmohaa additions
+    //
+    arc.ArchiveBool(&m_bFrozen);
+    arc.ArchiveBool(&animDoneVM);
+    arc.ArchiveFloat(&m_fVMAtime);
+
+    for (int i = 0; i < MAX_SPEED_MULTIPLIERS; i++) {
+        arc.ArchiveFloat(&speed_multiplier[i]);
+    }
 }
 
 inline Camera *Player::CurrentCamera(void)
-
 {
     return camera;
 }
 
 inline void Player::CameraCut(void)
-
 {
     //
     // toggle the camera cut bit
@@ -1181,7 +1191,6 @@ inline void Player::CameraCut(void)
 }
 
 inline void Player::CameraCut(Camera *ent)
-
 {
     if (ent == camera) {
         // if the camera we are currently looking through cut, than toggle the cut bits
