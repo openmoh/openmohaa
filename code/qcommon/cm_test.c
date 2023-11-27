@@ -479,7 +479,7 @@ CM_WritePortalState
 void	CM_WritePortalState( fileHandle_t f )
 {
 	FS_Write( &cm.numAreas, sizeof( int ), f );
-	FS_Write( &cm.areaPortals, cm.numAreas * cm.numAreas * sizeof( *cm.areaPortals ), f );
+	FS_Write( cm.areaPortals, cm.numAreas * cm.numAreas * sizeof( *cm.areaPortals ), f );
 }
 
 /*
