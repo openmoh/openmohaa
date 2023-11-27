@@ -285,10 +285,13 @@ public:
     // immune list
     Container<int> immunities;
 
+    //
+    // Openmohaa additions
+    //====
     // miscellaneous
-    qboolean m_bBindChilds;
     bool     m_bHintRequiresLookAt;
     str      m_HintString;
+    //====
 
     Entity();
     virtual ~Entity();
@@ -538,7 +541,7 @@ public:
     void         joinTeam(Entity *teammember);
     void         quitTeam(void);
     qboolean     isBoundTo(Entity *master);
-    virtual void bind(Entity *master, qboolean use_my_angles = qfalse, qboolean bBindChilds = qfalse);
+    virtual void bind(Entity *master, qboolean use_my_angles = qfalse);
     virtual void unbind(void);
     virtual void glue(Entity *master, qboolean use_my_angles = qtrue, qboolean can_duck = qfalse);
     virtual void unglue(void);

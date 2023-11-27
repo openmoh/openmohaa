@@ -1780,9 +1780,6 @@ Entity::Entity()
     m_BlockedPaths       = NULL;
 
     m_bHintRequiresLookAt = true;
-
-    // Misc
-    m_bBindChilds = false;
 }
 
 Entity::~Entity()
@@ -4704,7 +4701,7 @@ qboolean Entity::isBoundTo(Entity *master)
     return false;
 }
 
-void Entity::bind(Entity *master, qboolean use_my_angles, qboolean bBindChilds)
+void Entity::bind(Entity *master, qboolean use_my_angles)
 {
     float  mat[3][3];
     float  local[3][3];
@@ -4720,8 +4717,6 @@ void Entity::bind(Entity *master, qboolean use_my_angles, qboolean bBindChilds)
         warning("bind", "Trying to bind to oneself.");
         return;
     }
-
-    m_bBindChilds = bBindChilds;
 
     // unbind myself from my master
     unbind();
@@ -4885,17 +4880,10 @@ void Entity::EventUnbind(Event *ev)
 void Entity::BindEvent(Event *ev)
 {
     Entity *ent;
-    bool    bBindChilds;
 
     ent = ev->GetEntity(1);
     if (ent) {
-        if (ev->NumArgs() > 1) {
-            bBindChilds = ev->GetBoolean(2);
-        } else {
-            bBindChilds = false;
-        }
-
-        bind(ent, false, bBindChilds);
+        bind(ent, false);
     }
 }
 
@@ -5854,6 +5842,11 @@ void Entity::Archive(Archiver& arc)
 
     ArchiveEnum(takedamage, damage_t);
 
+    arc.ArchiveSafePointer(&enemy);
+    arc.ArchiveFloat(&pain_finished);
+    arc.ArchiveFloat(&damage_debounce_time);
+    arc.ArchiveInteger(&damage_type);
+
     arc.ArchiveInteger(&m_iNumGlues);
 
     for (i = 0; i < MAX_GLUE_CHILDREN; i++) {
@@ -5863,6 +5856,7 @@ void Entity::Archive(Archiver& arc)
 
     arc.ArchiveObjectPointer((Class **)&m_pGlueMaster);
     arc.ArchiveBool(&m_bGlueAngles);
+    arc.ArchiveBool(&m_bGlueDuckable);
     arc.ArchiveBoolean(&detach_at_death);
 
     arc.ArchiveFloat(&stealthMovementScale);
