@@ -64,7 +64,7 @@ void cSpline<cGrids, cPoints>::Archive(Archiver& arc)
     arc.ArchiveInteger(&m_iPoints);
 
     for (int i = 0; i < cPoints; i++) {
-        for (int j = 0; i < cGrids; i++) {
+        for (int j = 0; j < cGrids; j++) {
             arc.ArchiveFloat(&m_vPoints[i][j]);
         }
 
