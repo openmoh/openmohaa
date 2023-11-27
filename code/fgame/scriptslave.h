@@ -220,6 +220,15 @@ inline void ScriptSlave::Archive(Archiver& arc)
             m_pCurPath = NULL;
         }
     }
+
+    arc.ArchiveInteger(&m_iCurNode);
+    arc.ArchiveFloat(&m_fCurSpeed);
+    arc.ArchiveFloat(&m_fIdealSpeed);
+    arc.ArchiveVector(&m_vIdealPosition);
+    arc.ArchiveVector(&m_vIdealDir);
+    arc.ArchiveFloat(&m_fIdealAccel);
+    arc.ArchiveFloat(&m_fIdealDistance);
+    arc.ArchiveFloat(&m_fLookAhead);
 }
 
 class ScriptModel : public ScriptSlave
