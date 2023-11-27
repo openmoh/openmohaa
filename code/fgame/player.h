@@ -1054,6 +1054,8 @@ inline void Player::Archive(Archiver& arc)
     arc.ArchiveBool(&take_pain);
     arc.ArchiveInteger(&nextpaintime);
 
+    arc.ArchiveFloat(&m_fHealRate);
+
     arc.ArchiveBool(&knockdown);
     arc.ArchiveBool(&canfall);
     arc.ArchiveBool(&falling);
