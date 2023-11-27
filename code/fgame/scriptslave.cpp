@@ -593,6 +593,16 @@ Event EV_ScriptSlave_ModifyFlyPath
     EV_NORMAL
 );
 
+Event EV_ScriptSlave_NormalAngles
+(
+    "normalangles",
+    EV_DEFAULT,
+    "b",
+    "bUseNormalAngles",
+    "Sets the object to use normal angles when travelling on a spline path",
+    EV_NORMAL
+);
+
 CLASS_DECLARATION(Mover, ScriptSlave, "script_object") {
     {&EV_Bind,                               &ScriptSlave::BindEvent            },
     {&EV_Unbind,                             &ScriptSlave::EventUnbind          },
@@ -658,7 +668,7 @@ CLASS_DECLARATION(Mover, ScriptSlave, "script_object") {
     {&EV_ScriptSlave_PhysicsVelocity,        &ScriptSlave::PhysicsVelocity      },
     {&EV_ScriptSlave_FlyPath,                &ScriptSlave::EventFlyPath         },
     {&EV_ScriptSlave_ModifyFlyPath,          &ScriptSlave::EventModifyFlyPath   },
-
+    {&EV_ScriptSlave_NormalAngles,           &ScriptSlave::EventNormalAngles    },
     {NULL,                                   NULL                               }
 };
 
@@ -1737,6 +1747,12 @@ void ScriptSlave::EventModifyFlyPath(Event *ev)
     if (ev->NumArgs() > 2) {
         m_fLookAhead = ev->GetFloat(3);
     }
+}
+
+void ScriptSlave::EventNormalAngles(Event *ev)
+{
+    splineangles = !ev->GetBoolean(1);
+    ignoreangles = false;
 }
 
 void ScriptSlave::SetupPath(cSpline<4, 512> *pPath, SimpleEntity *se)

@@ -139,7 +139,7 @@ protected:
     void SetDamage(Event *ev);
     void SetMeansOfDeath(Event *ev);
     void FollowPath(Event *ev);
-    void FollowPathRelativeYaw(Event *ev);
+    void FollowPathRelativeYaw(Event *ev); // Added in 2.0
     void EndPath(Event *ev);
     void FollowingPath(Event *ev);
     void CreatePath(SplinePath *path, splinetype_t type);
@@ -153,6 +153,7 @@ protected:
     void DamageFunc(Event *ev);
     void EventFlyPath(Event *ev);
     void EventModifyFlyPath(Event *ev);
+    void EventNormalAngles(Event *ev); // Added in 2.0
     void SetupPath(cSpline<4, 512> *pPath, SimpleEntity *se);
 
     void Archive(Archiver& arc) override;
@@ -231,6 +232,7 @@ inline void ScriptSlave::Archive(Archiver& arc)
     arc.ArchiveFloat(&m_fIdealAccel);
     arc.ArchiveFloat(&m_fIdealDistance);
     arc.ArchiveFloat(&m_fLookAhead);
+    arc.ArchiveFloat(&m_fFollowRelativeYaw);
 }
 
 class ScriptModel : public ScriptSlave
