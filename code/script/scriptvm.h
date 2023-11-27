@@ -98,7 +98,7 @@ public:
     ScriptVariable *GetTopPtr(size_t offset) const;
     ScriptVariable *GetTopArray(size_t offset = 0) const;
     uintptr_t       GetIndex() const;
-    void            MoveTop(ScriptVariable           &&other);
+    void            MoveTop(ScriptVariable&& other);
 
     /** Pop and return the previous value. */
     ScriptVariable& Pop();
@@ -110,6 +110,12 @@ public:
     ScriptVariable& Push(size_t offset);
     ScriptVariable& PushAndGet();
     ScriptVariable& PushAndGet(size_t offset);
+
+    void Archive(Archiver& arc);
+
+private:
+    void Allocate(size_t stackSize);
+    void Free();
 
 private:
     /** The VM's local stack. */
@@ -181,12 +187,13 @@ private:
     bool Switch(StateScript *stateScript, ScriptVariable& var);
 
     unsigned char *ProgBuffer();
-    void           HandleScriptException(ScriptException          &exc);
+    void           HandleScriptException(ScriptException& exc);
 
 public:
     void *operator new(size_t size);
     void  operator delete(void *ptr);
 
+    ScriptVM();
     ScriptVM(ScriptClass *scriptClass, unsigned char *pCodePos, ScriptThread *thread);
     ~ScriptVM();
 

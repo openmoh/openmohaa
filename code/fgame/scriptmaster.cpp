@@ -925,44 +925,59 @@ void ScriptMaster::ArchiveString(Archiver& arc, const_str& s)
 
 void ScriptMaster::Archive(Archiver& arc)
 {
-    ScriptClass  *scr;
-    ScriptVM     *m_current;
-    ScriptThread *m_thread;
-    int           numClasses;
-    int           numThreads;
-    int           i, j;
+    int          count;
+    int          i, j;
+    ScriptClass *c;
+    int          num;
+    ScriptVM    *scriptVM;
+    ScriptVM    *prevScriptVM;
 
     if (arc.Saving()) {
-        numClasses = (int)ScriptClass_allocator.Count();
-        arc.ArchiveInteger(&numClasses);
+        count = (int)ScriptClass_allocator.Count();
+        arc.ArchiveInteger(&count);
 
         MEM_BlockAlloc_enum<ScriptClass> en = ScriptClass_allocator;
-        for (scr = en.NextElement(); scr != NULL; scr = en.NextElement()) {
-            scr->ArchiveInternal(arc);
+        for (c = en.NextElement(); c != NULL; c = en.NextElement()) {
+            c->ArchiveInternal(arc);
 
-            numThreads = 0;
-            for (m_current = scr->m_Threads; m_current != NULL; m_current = m_current->next) {
-                numThreads++;
+            num = 0;
+            for (scriptVM = c->m_Threads; scriptVM != NULL; scriptVM = scriptVM->next) {
+                num++;
             }
 
-            arc.ArchiveInteger(&numThreads);
+            arc.ArchiveInteger(&num);
 
-            for (m_current = scr->m_Threads; m_current != NULL; m_current = m_current->next) {
-                m_current->m_Thread->ArchiveInternal(arc);
+            for (scriptVM = c->m_Threads; scriptVM != NULL; scriptVM = scriptVM->next) {
+                scriptVM->m_Thread->ArchiveInternal(arc);
             }
         }
     } else {
-        arc.ArchiveInteger(&numClasses);
+        arc.ArchiveInteger(&count);
 
-        for (i = 0; i < numClasses; i++) {
-            scr = new ScriptClass();
-            scr->ArchiveInternal(arc);
+        for (i = 0; i < count; i++) {
+            c = new ScriptClass();
+            c->ArchiveInternal(arc);
 
-            arc.ArchiveInteger(&numThreads);
+            arc.ArchiveInteger(&num);
 
-            for (j = 0; j < numThreads; j++) {
-                m_thread = new ScriptThread(scr, NULL);
-                m_thread->ArchiveInternal(arc);
+            c->m_Threads = NULL;
+            prevScriptVM = NULL;
+
+            for (j = 0; j < num; j++) {
+                scriptVM                       = new ScriptVM;
+                scriptVM->m_Thread             = new ScriptThread;
+                scriptVM->m_Thread->m_ScriptVM = scriptVM;
+                scriptVM->m_ScriptClass        = c;
+                scriptVM->next                 = NULL;
+
+                if (prevScriptVM) {
+                    prevScriptVM->next = scriptVM;
+                } else {
+                    c->m_Threads = scriptVM;
+                }
+
+                prevScriptVM = scriptVM;
+                scriptVM->m_Thread->ArchiveInternal(arc);
             }
         }
     }

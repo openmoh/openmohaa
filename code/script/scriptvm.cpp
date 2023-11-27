@@ -82,18 +82,9 @@ ScriptVMStack::ScriptVMStack()
 {}
 
 ScriptVMStack::ScriptVMStack(size_t stackSize)
+    : ScriptVMStack()
 {
-    if (!stackSize) {
-        stackSize = 1;
-    }
-
-    // allocate at once
-    uint8_t *data = (uint8_t *)gi.Malloc((sizeof(ScriptVariable) + sizeof(ScriptVariable *)) * stackSize);
-    localStack    = new (data) ScriptVariable[stackSize];
-    data += sizeof(ScriptVariable) * stackSize;
-
-    pTop        = localStack;
-    stackBottom = localStack + stackSize;
+    Allocate(stackSize);
 }
 
 ScriptVMStack::ScriptVMStack(ScriptVMStack&& other)
@@ -117,6 +108,31 @@ ScriptVMStack& ScriptVMStack::operator=(ScriptVMStack&& other)
 }
 
 ScriptVMStack::~ScriptVMStack()
+{
+    Free();
+}
+
+void ScriptVMStack::Allocate(size_t stackSize)
+{
+    if (localStack) {
+        // free the current local stack
+        Free();
+    }
+
+    if (!stackSize) {
+        stackSize = 1;
+    }
+
+    // allocate at once
+    uint8_t *data = (uint8_t *)gi.Malloc((sizeof(ScriptVariable) + sizeof(ScriptVariable *)) * stackSize);
+    localStack    = new (data) ScriptVariable[stackSize];
+    data += sizeof(ScriptVariable) * stackSize;
+
+    pTop        = localStack;
+    stackBottom = localStack + stackSize;
+}
+
+void ScriptVMStack::Free()
 {
     const size_t localStackSize = GetStackSize();
     for (uintptr_t i = 0; i < localStackSize; ++i) {
@@ -215,6 +231,33 @@ ScriptVariable& ScriptVMStack::PushAndGet(size_t offset)
     return *pTop;
 }
 
+void ScriptVMStack::Archive(Archiver& arc)
+{
+    unsigned int size;
+    unsigned int offset;
+    unsigned int i;
+
+    if (arc.Saving()) {
+        size   = stackBottom - localStack;
+        offset = pTop - localStack;
+
+        arc.ArchiveUnsigned(&size);
+        arc.ArchiveUnsigned(&offset);
+    } else {
+        arc.ArchiveUnsigned(&size);
+        arc.ArchiveUnsigned(&offset);
+
+        Allocate(size);
+        pTop = localStack + offset;
+    }
+
+    if (localStack) {
+        for (i = 0; i < size; i++) {
+            localStack[i].ArchiveInternal(arc);
+        }
+    }
+}
+
 void ScriptVMStack::MoveTop(ScriptVariable&& other)
 {
     *pTop = std::move(other);
@@ -244,6 +287,23 @@ delete ptr
 void ScriptVM::operator delete(void *ptr)
 {
     ScriptVM_allocator.Free(ptr);
+}
+
+/*
+====================
+ScriptVM
+====================
+*/
+ScriptVM::ScriptVM()
+{
+    m_Stack = NULL;
+
+    m_PrevCodePos = NULL;
+    m_pOldData    = NULL;
+    m_OldDataSize = 0;
+
+    m_bMarkStack = false;
+    m_StackPos   = NULL;
 }
 
 /*
@@ -318,6 +378,8 @@ void ScriptVM::Archive(Archiver& arc)
             m_Stack          = new ScriptStack;
             m_Stack->m_Array = new ScriptVariable[stack];
             m_Stack->m_Count = stack;
+        } else {
+            m_Stack = NULL;
         }
     }
 
@@ -330,6 +392,8 @@ void ScriptVM::Archive(Archiver& arc)
     m_ScriptClass->ArchiveCodePos(arc, &m_CodePos);
     arc.ArchiveByte(&state);
     arc.ArchiveByte(&m_ThreadState);
+
+    m_VMStack.Archive(arc);
 }
 
 /*
