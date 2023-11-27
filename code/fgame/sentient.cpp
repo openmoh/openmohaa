@@ -2128,6 +2128,11 @@ void Sentient::Archive(Archiver& arc)
             Holster(true);
         }
     }
+
+    //
+    // Openmohaa additions
+    //
+    arc.ArchiveInteger(&iNextLandTime);
 }
 
 static bool IsItemName(const char *name)

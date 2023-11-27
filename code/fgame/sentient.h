@@ -219,6 +219,9 @@ public:
 
     bool m_bFootOnGround_Right;
     bool m_bFootOnGround_Left;
+    //
+    // Openmohaa additions
+    //
     int  iNextLandTime;
 
     CLASS_PROTOTYPE(Sentient);
