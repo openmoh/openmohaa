@@ -590,6 +590,7 @@ inline void Weapon::Archive(Archiver& arc)
 
     ArchiveEnum(firemodeindex, firemode_t);
 
+    arc.ArchiveInteger(&weapon_class);
     Director.ArchiveString(arc, m_csWeaponGroup);
     arc.ArchiveFloat(&m_fMovementSpeed);
     arc.ArchiveFloat(&m_fMaxFireMovement);
