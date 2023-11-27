@@ -77,6 +77,7 @@ public:
     qboolean splineangles;
     qboolean ignoreangles;
     qboolean ignorevelocity;
+    float    m_fFollowRelativeYaw;
     qboolean moving; // is the script object currently moving?
 
 protected:
@@ -138,6 +139,7 @@ protected:
     void SetDamage(Event *ev);
     void SetMeansOfDeath(Event *ev);
     void FollowPath(Event *ev);
+    void FollowPathRelativeYaw(Event *ev);
     void EndPath(Event *ev);
     void FollowingPath(Event *ev);
     void CreatePath(SplinePath *path, splinetype_t type);

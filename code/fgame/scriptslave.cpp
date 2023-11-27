@@ -465,6 +465,15 @@ Event EV_ScriptSlave_FollowPath
     "normalangles, loop, and a number specifying the start time.",
     EV_NORMAL
 );
+Event EV_ScriptSlave_FollowPath_RelativeYaw(
+    "path_relativeyaw",
+    EV_DEFAULT,
+    "f"
+    "f",
+    "relativeYaw",
+    "Makes the script slave follow the specified path with a yaw offset,",
+    EV_NORMAL
+);
 Event EV_ScriptSlave_EndPath
 (
     "endpath",
@@ -585,71 +594,72 @@ Event EV_ScriptSlave_ModifyFlyPath
 );
 
 CLASS_DECLARATION(Mover, ScriptSlave, "script_object") {
-    {&EV_Bind,                         &ScriptSlave::BindEvent         },
-    {&EV_Unbind,                       &ScriptSlave::EventUnbind       },
-    {&EV_ScriptSlave_DoMove,           &ScriptSlave::DoMove            },
-    {&EV_ScriptSlave_WaitMove,         &ScriptSlave::WaitMove          },
-    {&EV_ScriptSlave_Angles,           &ScriptSlave::SetAnglesEvent    },
-    {&EV_SetAngle,                     &ScriptSlave::SetAngleEvent     },
-    {&EV_Model,                        &ScriptSlave::SetModelEvent     },
-    {&EV_ScriptSlave_Trigger,          &ScriptSlave::TriggerEvent      },
-    {&EV_ScriptSlave_Next,             &ScriptSlave::GotoNextWaypoint  },
-    {&EV_ScriptSlave_JumpTo,           &ScriptSlave::JumpTo            },
-    {&EV_ScriptSlave_MoveTo,           &ScriptSlave::MoveToEvent       },
-    {&EV_ScriptSlave_Speed,            &ScriptSlave::SetSpeed          },
-    {&EV_ScriptSlave_Time,             &ScriptSlave::SetTime           },
-    {&EV_ScriptSlave_MoveUp,           &ScriptSlave::MoveUp            },
-    {&EV_ScriptSlave_MoveDown,         &ScriptSlave::MoveDown          },
-    {&EV_ScriptSlave_MoveNorth,        &ScriptSlave::MoveNorth         },
-    {&EV_ScriptSlave_MoveSouth,        &ScriptSlave::MoveSouth         },
-    {&EV_ScriptSlave_MoveEast,         &ScriptSlave::MoveEast          },
-    {&EV_ScriptSlave_MoveWest,         &ScriptSlave::MoveWest          },
-    {&EV_ScriptSlave_MoveForward,      &ScriptSlave::MoveForward       },
-    {&EV_ScriptSlave_MoveBackward,     &ScriptSlave::MoveBackward      },
-    {&EV_ScriptSlave_MoveLeft,         &ScriptSlave::MoveLeft          },
-    {&EV_ScriptSlave_MoveRight,        &ScriptSlave::MoveRight         },
-    {&EV_ScriptSlave_RotateXDownTo,    &ScriptSlave::RotateXdownto     },
-    {&EV_ScriptSlave_RotateYDownTo,    &ScriptSlave::RotateYdownto     },
-    {&EV_ScriptSlave_RotateZDownTo,    &ScriptSlave::RotateZdownto     },
-    {&EV_ScriptSlave_RotateXUpTo,      &ScriptSlave::RotateXupto       },
-    {&EV_ScriptSlave_RotateYUpTo,      &ScriptSlave::RotateYupto       },
-    {&EV_ScriptSlave_RotateZUpTo,      &ScriptSlave::RotateZupto       },
-    {&EV_ScriptSlave_RotateXDown,      &ScriptSlave::RotateXdown       },
-    {&EV_ScriptSlave_RotateYDown,      &ScriptSlave::RotateYdown       },
-    {&EV_ScriptSlave_RotateZDown,      &ScriptSlave::RotateZdown       },
-    {&EV_ScriptSlave_RotateXUp,        &ScriptSlave::RotateXup         },
-    {&EV_ScriptSlave_RotateYUp,        &ScriptSlave::RotateYup         },
-    {&EV_ScriptSlave_RotateZUp,        &ScriptSlave::RotateZup         },
-    {&EV_ScriptSlave_RotateX,          &ScriptSlave::RotateX           },
-    {&EV_ScriptSlave_RotateY,          &ScriptSlave::RotateY           },
-    {&EV_ScriptSlave_RotateZ,          &ScriptSlave::RotateZ           },
-    {&EV_ScriptSlave_RotateAxisDownTo, &ScriptSlave::RotateAxisdownto  },
-    {&EV_ScriptSlave_RotateAxisUpTo,   &ScriptSlave::RotateAxisupto    },
-    {&EV_ScriptSlave_RotateAxisDown,   &ScriptSlave::RotateAxisdown    },
-    {&EV_ScriptSlave_RotateAxisUp,     &ScriptSlave::RotateAxisup      },
-    {&EV_ScriptSlave_RotateAxis,       &ScriptSlave::RotateZ           },
-    {&EV_ScriptSlave_SetDamage,        &ScriptSlave::SetDamage         },
-    {&EV_ScriptSlave_SetMeansOfDeath,  &ScriptSlave::SetMeansOfDeath   },
-    {&EV_ScriptSlave_SetDamageSpawn,   &ScriptSlave::SetDamage         },
-    {&EV_ScriptSlave_FollowPath,       &ScriptSlave::FollowPath        },
-    {&EV_ScriptSlave_EndPath,          &ScriptSlave::EndPath           },
-    {&EV_ScriptSlave_FollowingPath,    &ScriptSlave::FollowingPath     },
-    {&EV_ScriptSlave_MoveDone,         &ScriptSlave::MoveEnd           },
-    {&EV_Damage,                       &ScriptSlave::DamageFunc        },
-    {&EV_ScriptSlave_RotateDownTo,     &ScriptSlave::Rotatedownto      },
-    {&EV_ScriptSlave_RotateUpTo,       &ScriptSlave::Rotateupto        },
-    {&EV_ScriptSlave_RotateTo,         &ScriptSlave::Rotateto          },
-    {&EV_ScriptSlave_Explode,          &ScriptSlave::Explode           },
-    {&EV_ScriptSlave_NotShootable,     &ScriptSlave::NotShootable      },
-    {&EV_ScriptSlave_OpenAreaPortal,   &ScriptSlave::OpenPortal        },
-    {&EV_ScriptSlave_CloseAreaPortal,  &ScriptSlave::ClosePortal       },
-    {&EV_ScriptSlave_PhysicsOn,        &ScriptSlave::PhysicsOn         },
-    {&EV_ScriptSlave_PhysicsOff,       &ScriptSlave::PhysicsOff        },
-    {&EV_ScriptSlave_PhysicsVelocity,  &ScriptSlave::PhysicsVelocity   },
-    {&EV_ScriptSlave_FlyPath,          &ScriptSlave::EventFlyPath      },
-    {&EV_ScriptSlave_ModifyFlyPath,    &ScriptSlave::EventModifyFlyPath},
+    {&EV_Bind,                               &ScriptSlave::BindEvent            },
+    {&EV_Unbind,                             &ScriptSlave::EventUnbind          },
+    {&EV_ScriptSlave_DoMove,                 &ScriptSlave::DoMove               },
+    {&EV_ScriptSlave_WaitMove,               &ScriptSlave::WaitMove             },
+    {&EV_ScriptSlave_Angles,                 &ScriptSlave::SetAnglesEvent       },
+    {&EV_SetAngle,                           &ScriptSlave::SetAngleEvent        },
+    {&EV_Model,                              &ScriptSlave::SetModelEvent        },
+    {&EV_ScriptSlave_Trigger,                &ScriptSlave::TriggerEvent         },
+    {&EV_ScriptSlave_Next,                   &ScriptSlave::GotoNextWaypoint     },
+    {&EV_ScriptSlave_JumpTo,                 &ScriptSlave::JumpTo               },
+    {&EV_ScriptSlave_MoveTo,                 &ScriptSlave::MoveToEvent          },
+    {&EV_ScriptSlave_Speed,                  &ScriptSlave::SetSpeed             },
+    {&EV_ScriptSlave_Time,                   &ScriptSlave::SetTime              },
+    {&EV_ScriptSlave_MoveUp,                 &ScriptSlave::MoveUp               },
+    {&EV_ScriptSlave_MoveDown,               &ScriptSlave::MoveDown             },
+    {&EV_ScriptSlave_MoveNorth,              &ScriptSlave::MoveNorth            },
+    {&EV_ScriptSlave_MoveSouth,              &ScriptSlave::MoveSouth            },
+    {&EV_ScriptSlave_MoveEast,               &ScriptSlave::MoveEast             },
+    {&EV_ScriptSlave_MoveWest,               &ScriptSlave::MoveWest             },
+    {&EV_ScriptSlave_MoveForward,            &ScriptSlave::MoveForward          },
+    {&EV_ScriptSlave_MoveBackward,           &ScriptSlave::MoveBackward         },
+    {&EV_ScriptSlave_MoveLeft,               &ScriptSlave::MoveLeft             },
+    {&EV_ScriptSlave_MoveRight,              &ScriptSlave::MoveRight            },
+    {&EV_ScriptSlave_RotateXDownTo,          &ScriptSlave::RotateXdownto        },
+    {&EV_ScriptSlave_RotateYDownTo,          &ScriptSlave::RotateYdownto        },
+    {&EV_ScriptSlave_RotateZDownTo,          &ScriptSlave::RotateZdownto        },
+    {&EV_ScriptSlave_RotateXUpTo,            &ScriptSlave::RotateXupto          },
+    {&EV_ScriptSlave_RotateYUpTo,            &ScriptSlave::RotateYupto          },
+    {&EV_ScriptSlave_RotateZUpTo,            &ScriptSlave::RotateZupto          },
+    {&EV_ScriptSlave_RotateXDown,            &ScriptSlave::RotateXdown          },
+    {&EV_ScriptSlave_RotateYDown,            &ScriptSlave::RotateYdown          },
+    {&EV_ScriptSlave_RotateZDown,            &ScriptSlave::RotateZdown          },
+    {&EV_ScriptSlave_RotateXUp,              &ScriptSlave::RotateXup            },
+    {&EV_ScriptSlave_RotateYUp,              &ScriptSlave::RotateYup            },
+    {&EV_ScriptSlave_RotateZUp,              &ScriptSlave::RotateZup            },
+    {&EV_ScriptSlave_RotateX,                &ScriptSlave::RotateX              },
+    {&EV_ScriptSlave_RotateY,                &ScriptSlave::RotateY              },
+    {&EV_ScriptSlave_RotateZ,                &ScriptSlave::RotateZ              },
+    {&EV_ScriptSlave_RotateAxisDownTo,       &ScriptSlave::RotateAxisdownto     },
+    {&EV_ScriptSlave_RotateAxisUpTo,         &ScriptSlave::RotateAxisupto       },
+    {&EV_ScriptSlave_RotateAxisDown,         &ScriptSlave::RotateAxisdown       },
+    {&EV_ScriptSlave_RotateAxisUp,           &ScriptSlave::RotateAxisup         },
+    {&EV_ScriptSlave_RotateAxis,             &ScriptSlave::RotateZ              },
+    {&EV_ScriptSlave_SetDamage,              &ScriptSlave::SetDamage            },
+    {&EV_ScriptSlave_SetMeansOfDeath,        &ScriptSlave::SetMeansOfDeath      },
+    {&EV_ScriptSlave_SetDamageSpawn,         &ScriptSlave::SetDamage            },
+    {&EV_ScriptSlave_FollowPath,             &ScriptSlave::FollowPath           },
+    {&EV_ScriptSlave_FollowPath_RelativeYaw, &ScriptSlave::FollowPathRelativeYaw},
+    {&EV_ScriptSlave_EndPath,                &ScriptSlave::EndPath              },
+    {&EV_ScriptSlave_FollowingPath,          &ScriptSlave::FollowingPath        },
+    {&EV_ScriptSlave_MoveDone,               &ScriptSlave::MoveEnd              },
+    {&EV_Damage,                             &ScriptSlave::DamageFunc           },
+    {&EV_ScriptSlave_RotateDownTo,           &ScriptSlave::Rotatedownto         },
+    {&EV_ScriptSlave_RotateUpTo,             &ScriptSlave::Rotateupto           },
+    {&EV_ScriptSlave_RotateTo,               &ScriptSlave::Rotateto             },
+    {&EV_ScriptSlave_Explode,                &ScriptSlave::Explode              },
+    {&EV_ScriptSlave_NotShootable,           &ScriptSlave::NotShootable         },
+    {&EV_ScriptSlave_OpenAreaPortal,         &ScriptSlave::OpenPortal           },
+    {&EV_ScriptSlave_CloseAreaPortal,        &ScriptSlave::ClosePortal          },
+    {&EV_ScriptSlave_PhysicsOn,              &ScriptSlave::PhysicsOn            },
+    {&EV_ScriptSlave_PhysicsOff,             &ScriptSlave::PhysicsOff           },
+    {&EV_ScriptSlave_PhysicsVelocity,        &ScriptSlave::PhysicsVelocity      },
+    {&EV_ScriptSlave_FlyPath,                &ScriptSlave::EventFlyPath         },
+    {&EV_ScriptSlave_ModifyFlyPath,          &ScriptSlave::EventModifyFlyPath   },
 
-    {NULL,                             NULL                            }
+    {NULL,                                   NULL                               }
 };
 
 cvar_t *g_showflypath;
@@ -689,16 +699,17 @@ ScriptSlave::ScriptSlave()
         edict->s.renderfx = RF_ALWAYSDRAW;
     }
 
-    splinePath       = NULL;
-    m_pCurPath       = NULL;
-    m_iCurNode       = 0;
-    m_fLookAhead     = 0;
-    m_fCurSpeed      = 0;
-    m_fIdealSpeed    = 0;
-    m_fIdealAccel    = 0;
-    m_fIdealDistance = 100;
-    splineangles     = false;
-    attack_finished  = 0;
+    splinePath           = NULL;
+    m_pCurPath           = NULL;
+    m_iCurNode           = 0;
+    m_fLookAhead         = 0;
+    m_fCurSpeed          = 0;
+    m_fIdealSpeed        = 0;
+    m_fIdealAccel        = 0;
+    m_fIdealDistance     = 100;
+    splineangles         = false;
+    m_fFollowRelativeYaw = 0;
+    attack_finished      = 0;
 
     setSolidType(SOLID_NOT);
 
@@ -1365,6 +1376,11 @@ void ScriptSlave::FollowPath(Event *ev)
         }
         velocity = vec_zero;
     }
+}
+
+void ScriptSlave::FollowPathRelativeYaw(Event *ev)
+{
+    m_fFollowRelativeYaw = ev->GetFloat(1);
 }
 
 void ScriptSlave::EndPath(Event *ev)
