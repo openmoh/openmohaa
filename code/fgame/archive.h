@@ -276,7 +276,7 @@ void Container<Type>::Archive(Archiver& arc)
 template<typename key, typename value>
 void con_set<key, value>::Archive(Archiver& arc)
 {
-    Entry *e;
+    Entry *e = NULL;
     int    hash;
     int    i;
 
@@ -300,6 +300,8 @@ void con_set<key, value>::Archive(Archiver& arc)
             e->next     = table[hash];
             table[hash] = e;
         }
+
+        defaultEntry = e;
     } else {
 #ifndef NDEBUG
         int total;
