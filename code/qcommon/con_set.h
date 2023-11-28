@@ -285,28 +285,25 @@ template<typename k, typename v>
 typename con_set<k, v>::Entry *con_set<k, v>::addNewKeyEntry(const k& key)
 {
     Entry *entry;
-    int    index;
+    int    hash;
 
     if (count >= threshold) {
         resize();
     }
 
-    index = HashCode<k>(key) % tableLength;
-
     count++;
 
     entry = new Entry;
-
+    entry->SetKey(key);
+    hash = HashCode<k>(entry->GetKey()) % tableLength;
+   
     if (defaultEntry == NULL) {
         defaultEntry = entry;
         entry->next  = NULL;
     } else {
-        entry->next = table[index];
+        entry->next = table[hash];
     }
-
-    entry->SetKey(key);
-
-    table[index] = entry;
+    table[hash] = entry;
 
     return entry;
 }
@@ -321,8 +318,9 @@ template<typename k, typename v>
 bool con_set<k, v>::remove(const k& key)
 {
     int    hash;
+    int    i;
     Entry *prev  = NULL;
-    Entry *entry;
+    Entry *entry, *e;
 
     hash = HashCode<k>(key) % tableLength;
 
@@ -334,7 +332,15 @@ bool con_set<k, v>::remove(const k& key)
         }
 
         if (defaultEntry == entry) {
-            defaultEntry = prev;
+            defaultEntry = prev ? prev : table[hash];
+            // find a default entry
+            for (i = 0; i < tableLength && !defaultEntry; i++) {
+                for (e = table[i]; e; e = e->next) {
+                    if (e == entry) { continue; }
+                    defaultEntry = e;
+                    break;
+                }
+            }
         }
 
         if (prev) {
