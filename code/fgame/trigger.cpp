@@ -810,6 +810,7 @@ void Trigger::Archive(Archiver& arc)
         SetNoise(Director.GetString(noise).c_str());
     }
     Director.ArchiveString(arc, message);
+    m_Thread.Archive(arc);
     arc.ArchiveSafePointer(&activator);
     arc.ArchiveInteger(&respondto);
     arc.ArchiveBoolean(&useTriggerDir);
