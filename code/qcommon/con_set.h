@@ -29,6 +29,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 class Class;
 class Archiver;
 
+template<typename k, typename v>
+class con_set;
+
 template<typename key, typename value>
 class con_map;
 
@@ -48,36 +51,51 @@ struct con_set_is_pointer<T *> {
     static const bool con_value = true;
 };
 
+/**
+ * This class was originally inside con_set (con_set::Entry).
+ * But because GCC is being extremely annoying and is moaning
+ * because of specialization after instantiation,
+ * the class is now laying there.
+ */
+template<typename k, typename v>
+class con_set_Entry
+{
+    friend con_set<k, v>;
+    friend con_set_enum<k, v>;
+
+private:
+    con_set_Entry *next;
+    k              key;
+
+public:
+    v value;
+
+public:
+    void *operator new(size_t size) { return con_set<k, v>::NewEntry(size); }
+
+    void operator delete(void *ptr) { con_set<k, v>::DeleteEntry(ptr); }
+
+    con_set_Entry()
+        : key(k())
+        , value(v())
+        , next(NULL)
+    {}
+
+#ifdef ARCHIVE_SUPPORTED
+    void Archive(Archiver& arc);
+#endif
+    k& GetKey() { return key; }
+
+    void SetKey(const k& newKey) { key = newKey; }
+};
+
 template<typename k, typename v>
 class con_set
 {
     friend class con_set_enum<k, v>;
 
 public:
-    class Entry
-    {
-        friend con_set<k, v>;
-        friend con_set_enum<k, v>;
-
-    private:
-        Entry* next;
-        k key;
-
-    public:
-        v value;
-
-    public:
-        void *operator new(size_t size);
-        void  operator delete(void *ptr);
-
-        Entry();
-
-#ifdef ARCHIVE_SUPPORTED
-        void Archive(Archiver& arc);
-#endif
-        k& GetKey();
-        void SetKey(const k& newKey);
-    };
+    using Entry = con_set_Entry<k, v>;
 
 public:
     static MEM_BlockAlloc<Entry> Entry_allocator;
@@ -94,6 +112,10 @@ protected:
     Entry *findKeyEntry(const k& key) const;
     Entry *addKeyEntry(const k& key);
     Entry *addNewKeyEntry(const k& key);
+
+public:
+    static void *NewEntry(size_t size);
+    static void  DeleteEntry(void *entry);
 
 public:
     con_set();
@@ -122,41 +144,20 @@ public:
 template<typename k, typename v>
 MEM_BlockAlloc<typename con_set<k, v>::Entry> con_set<k, v>::Entry_allocator;
 
-template<typename k>
-int HashCode(const k& key);
-
 template<typename k, typename v>
-void *con_set<k, v>::Entry::operator new(size_t size)
+void *con_set<k, v>::NewEntry(size_t size)
 {
     return Entry_allocator.Alloc();
 }
 
 template<typename k, typename v>
-void con_set<k, v>::Entry::operator delete(void *ptr)
+void con_set<k, v>::DeleteEntry(void *entry)
 {
-    Entry_allocator.Free(ptr);
+    Entry_allocator.Free(entry);
 }
 
-template<typename k, typename v>
-con_set<k, v>::Entry::Entry()
-{
-    this->key   = k();
-    this->value = v();
-
-    next = NULL;
-}
-
-template<typename k, typename v>
-void con_set<k, v>::Entry::SetKey(const k& newKey)
-{
-    key = newKey;
-}
-
-template<typename k, typename v>
-k& con_set<k, v>::Entry::GetKey()
-{
-    return key;
-}
+template<typename k>
+int HashCode(const k& key);
 
 template<typename key, typename value>
 con_set<key, value>::con_set()
@@ -296,7 +297,7 @@ typename con_set<k, v>::Entry *con_set<k, v>::addNewKeyEntry(const k& key)
     entry = new Entry;
     entry->SetKey(key);
     hash = HashCode<k>(entry->GetKey()) % tableLength;
-   
+
     if (defaultEntry == NULL) {
         defaultEntry = entry;
         entry->next  = NULL;
@@ -319,7 +320,7 @@ bool con_set<k, v>::remove(const k& key)
 {
     int    hash;
     int    i;
-    Entry *prev  = NULL;
+    Entry *prev = NULL;
     Entry *entry, *e;
 
     hash = HashCode<k>(key) % tableLength;
@@ -336,7 +337,9 @@ bool con_set<k, v>::remove(const k& key)
             // find a default entry
             for (i = 0; i < tableLength && !defaultEntry; i++) {
                 for (e = table[i]; e; e = e->next) {
-                    if (e == entry) { continue; }
+                    if (e == entry) {
+                        continue;
+                    }
                     defaultEntry = e;
                     break;
                 }
@@ -520,7 +523,7 @@ public:
     value& operator[](const key& index);
 
     value *find(const key& index);
-    bool   remove(const key  &index);
+    bool   remove(const key& index);
 
     unsigned int size();
 };

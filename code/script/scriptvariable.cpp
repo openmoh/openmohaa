@@ -1500,10 +1500,9 @@ void ScriptVariable::operator+=(const ScriptVariable& value)
     case VARIABLE_STRING
         + VARIABLE_LISTENER *VARIABLE_MAX: // ( string )			+		( listener )
     case VARIABLE_CONSTSTRING
-        + VARIABLE_LISTENER                *VARIABLE_MAX: // ( const string )		+		( listener )
-    case VARIABLE_STRING + VARIABLE_VECTOR *VARIABLE_MAX: // ( string )			+		( vector )
-    case VARIABLE_CONSTSTRING
-        + VARIABLE_VECTOR *VARIABLE_MAX: // ( const string )		+		( vector )
+        + VARIABLE_LISTENER                     *VARIABLE_MAX: // ( const string )		+		( listener )
+    case VARIABLE_STRING + VARIABLE_VECTOR      *VARIABLE_MAX: // ( string )			+		( vector )
+    case VARIABLE_CONSTSTRING + VARIABLE_VECTOR *VARIABLE_MAX: // ( const string )		+		( vector )
         setStringValue(stringValue() + value.stringValue());
         break;
 
@@ -1961,9 +1960,8 @@ bool ScriptVariable::operator==(const ScriptVariable& value)
         + VARIABLE_STRING                 *VARIABLE_MAX: // ( int )				==		( string )
     case VARIABLE_FLOAT + VARIABLE_STRING *VARIABLE_MAX: // ( float )			==		( string )
     case VARIABLE_CHAR
-        + VARIABLE_STRING *VARIABLE_MAX: // ( char )				==		( string )
-    case VARIABLE_CONSTSTRING
-        + VARIABLE_STRING *VARIABLE_MAX: // ( const string )		==		( string )
+        + VARIABLE_STRING                       *VARIABLE_MAX: // ( char )				==		( string )
+    case VARIABLE_CONSTSTRING + VARIABLE_STRING *VARIABLE_MAX: // ( const string )		==		( string )
     case VARIABLE_LISTENER
         + VARIABLE_STRING                  *VARIABLE_MAX: // ( listener )			==		( string )
     case VARIABLE_VECTOR + VARIABLE_STRING *VARIABLE_MAX: // ( vector )			==		( string )
@@ -1987,10 +1985,9 @@ bool ScriptVariable::operator==(const ScriptVariable& value)
     case VARIABLE_CONSTSTRING + VARIABLE_CHAR    *VARIABLE_MAX: // ( const string )		==		( char )
     case VARIABLE_STRING + VARIABLE_LISTENER     *VARIABLE_MAX: // ( string )			==		( listener )
     case VARIABLE_CONSTSTRING
-        + VARIABLE_LISTENER                *VARIABLE_MAX: // ( const string )		==		( listener )
-    case VARIABLE_STRING + VARIABLE_VECTOR *VARIABLE_MAX: // ( string )			==		( vector )
-    case VARIABLE_CONSTSTRING
-        + VARIABLE_VECTOR *VARIABLE_MAX: // ( const string )		==		( vector )
+        + VARIABLE_LISTENER                     *VARIABLE_MAX: // ( const string )		==		( listener )
+    case VARIABLE_STRING + VARIABLE_VECTOR      *VARIABLE_MAX: // ( string )			==		( vector )
+    case VARIABLE_CONSTSTRING + VARIABLE_VECTOR *VARIABLE_MAX: // ( const string )		==		( vector )
         {
             str lval = stringValue();
             str rval = value.stringValue();
@@ -2445,24 +2442,6 @@ ScriptVariable ScriptVariable::operator--(int)
 }
 
 #ifdef WITH_SCRIPT_ENGINE
-
-template<>
-class con_set<short3, ScriptVariable>::Entry
-{
-    friend con_set<short3, ScriptVariable>;
-    friend con_set_enum<short3, ScriptVariable>;
-
-private:
-    Entry         *next;
-    ScriptVariable value;
-
-public:
-#    ifdef ARCHIVE_SUPPORTED
-    void Archive(Archiver& arc) { value.Archive(arc); }
-#    endif
-    short3& GetKey() { return value.GetKey(); }
-    void SetKey(const short3& newKey) { value.SetKey(newKey); }
-};
 
 ScriptVariableList::ScriptVariableList() {}
 

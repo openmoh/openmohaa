@@ -285,6 +285,29 @@ public:
 
 #ifdef WITH_SCRIPT_ENGINE
 
+template<>
+class con_set_Entry<short3, ScriptVariable>
+{
+    friend con_set<short3, ScriptVariable>;
+    friend con_set_enum<short3, ScriptVariable>;
+
+private:
+    con_set_Entry *next;
+    ScriptVariable value;
+
+public:
+    void *operator new(size_t size) { return con_set<short3, ScriptVariable>::NewEntry(size); }
+
+    void operator delete(void *ptr) { con_set<short3, ScriptVariable>::DeleteEntry(ptr); }
+
+#    ifdef ARCHIVE_SUPPORTED
+    void Archive(Archiver& arc) { value.Archive(arc); }
+#    endif
+    short3& GetKey() { return value.GetKey(); }
+
+    void SetKey(const short3& newKey) { value.SetKey(newKey); }
+};
+
 class ScriptVariableList : public Class
 {
 private:
