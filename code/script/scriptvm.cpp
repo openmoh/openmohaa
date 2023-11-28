@@ -235,24 +235,27 @@ void ScriptVMStack::Archive(Archiver& arc)
 {
     unsigned int size;
     unsigned int offset;
+    unsigned int numVars;
     unsigned int i;
 
     if (arc.Saving()) {
         size   = stackBottom - localStack;
         offset = pTop - localStack;
+        numVars = offset + 1;
 
         arc.ArchiveUnsigned(&size);
         arc.ArchiveUnsigned(&offset);
     } else {
         arc.ArchiveUnsigned(&size);
         arc.ArchiveUnsigned(&offset);
+        numVars = offset + 1;
 
         Allocate(size);
         pTop = localStack + offset;
     }
 
     if (localStack) {
-        for (i = 0; i < size; i++) {
+        for (i = 0; i < numVars; i++) {
             localStack[i].ArchiveInternal(arc);
         }
     }
