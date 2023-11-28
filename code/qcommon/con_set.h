@@ -30,6 +30,9 @@ class Class;
 class Archiver;
 
 template<typename key, typename value>
+class con_map;
+
+template<typename key, typename value>
 class con_map_enum;
 
 template<typename key, typename value>
@@ -53,11 +56,15 @@ class con_set
 public:
     class Entry
     {
-    public:
-        k key;
-        v value;
+        friend con_set<k, v>;
+        friend con_set_enum<k, v>;
 
-        Entry *next;
+    private:
+        Entry* next;
+        k key;
+
+    public:
+        v value;
 
     public:
         void *operator new(size_t size);
@@ -68,6 +75,8 @@ public:
 #ifdef ARCHIVE_SUPPORTED
         void Archive(Archiver& arc);
 #endif
+        k& GetKey();
+        void SetKey(const k& newKey);
     };
 
 public:
@@ -135,6 +144,18 @@ con_set<k, v>::Entry::Entry()
     this->value = v();
 
     next = NULL;
+}
+
+template<typename k, typename v>
+void con_set<k, v>::Entry::SetKey(const k& newKey)
+{
+    key = newKey;
+}
+
+template<typename k, typename v>
+k& con_set<k, v>::Entry::GetKey()
+{
+    return key;
 }
 
 template<typename key, typename value>
@@ -217,7 +238,7 @@ void con_set<key, value>::resize(int count)
             old = e->next;
 
             // insert the old entry to the table hashindex
-            index = HashCode<key>(e->key) % tableLength;
+            index = HashCode<key>(e->GetKey()) % tableLength;
 
             e->next      = table[index];
             table[index] = e;
@@ -238,7 +259,7 @@ typename con_set<k, v>::Entry *con_set<k, v>::findKeyEntry(const k& key) const
     entry = table[HashCode<k>(key) % tableLength];
 
     for (; entry != NULL; entry = entry->next) {
-        if (entry->key == key) {
+        if (entry->GetKey() == key) {
             return entry;
         }
     }
@@ -283,7 +304,7 @@ typename con_set<k, v>::Entry *con_set<k, v>::addNewKeyEntry(const k& key)
         entry->next = table[index];
     }
 
-    entry->key = key;
+    entry->SetKey(key);
 
     table[index] = entry;
 
@@ -299,13 +320,15 @@ bool con_set<key, value>::isEmpty(void)
 template<typename k, typename v>
 bool con_set<k, v>::remove(const k& key)
 {
-    int    index = HashCode<k>(key) % tableLength;
+    int    hash;
     Entry *prev  = NULL;
     Entry *entry;
 
-    for (entry = table[index]; entry != NULL; entry = entry->next) {
-        // just to make sure we're using the correct overloaded operator
-        if (!(entry->key == key)) {
+    hash = HashCode<k>(key) % tableLength;
+
+    for (entry = table[hash]; entry != NULL; entry = entry->next) {
+        // just to make sure we're using the correct overloaded operator for the key
+        if (!(entry->GetKey() == key)) {
             prev = entry;
             continue;
         }
@@ -317,7 +340,7 @@ bool con_set<k, v>::remove(const k& key)
         if (prev) {
             prev->next = entry->next;
         } else {
-            table[index] = entry->next;
+            table[hash] = entry->next;
         }
 
         count--;
@@ -345,7 +368,7 @@ template<typename key, typename value>
 key *con_set<key, value>::firstKeyValue(void)
 {
     if (defaultEntry) {
-        return &defaultEntry->key;
+        return &defaultEntry->GetKey();
     } else {
         return NULL;
     }
@@ -373,7 +396,7 @@ bool con_set<k, v>::keyExists(const k& key)
     Entry *entry;
 
     for (entry = table; entry != NULL; entry = entry->next) {
-        if (entry->key == key) {
+        if (entry->GetKey() == key) {
             return true;
         }
     }
@@ -582,7 +605,7 @@ key *con_map_enum<key, value>::CurrentKey(void)
     Entry *entry = m_Set_Enum.CurrentElement();
 
     if (entry) {
-        return &entry->key;
+        return &entry->GetKey();
     } else {
         return NULL;
     }
@@ -606,7 +629,7 @@ key *con_map_enum<key, value>::NextKey(void)
     Entry *entry = m_Set_Enum.NextElement();
 
     if (entry) {
-        return &entry->key;
+        return &entry->GetKey();
     } else {
         return NULL;
     }

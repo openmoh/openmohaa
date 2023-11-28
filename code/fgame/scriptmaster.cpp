@@ -1199,7 +1199,7 @@ void ScriptMaster::PrintThread(int iThreadNum)
         int                                 i = 0;
 
         for (entry = en.NextElement(); entry != NULL; entry = en.NextElement()) {
-            str& name = Director.GetString(entry->key);
+            str& name = Director.GetString(entry->GetKey());
 
             if (i > 0) {
                 status += ", ";

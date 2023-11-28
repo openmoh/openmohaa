@@ -279,7 +279,6 @@ void con_set<key, value>::Archive(Archiver& arc)
     Entry *e;
     int    hash;
     int    i;
-    int    total;
 
     arc.ArchiveUnsigned(&tableLength);
     arc.ArchiveUnsigned(&threshold);
@@ -296,12 +295,15 @@ void con_set<key, value>::Archive(Archiver& arc)
             e = new Entry;
             e->Archive(arc);
 
-            hash = HashCode<key>(e->key) % tableLength;
+            hash = HashCode<key>(e->GetKey()) % tableLength;
 
             e->next     = table[hash];
             table[hash] = e;
         }
     } else {
+#ifndef NDEBUG
+        int total;
+
         total = 0;
 
         for (i = 0; i < tableLength; i++) {
@@ -310,7 +312,15 @@ void con_set<key, value>::Archive(Archiver& arc)
                 total++;
             }
         }
+        // it must match the number of elements
         assert(total == count);
+#else
+        for (i = 0; i < tableLength; i++) {
+            for (e = table[i]; e != NULL; e = e->next) {
+                e->Archive(arc);
+            }
+        }
+#endif
     }
 }
 

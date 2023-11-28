@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2023 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -64,7 +64,8 @@ static const char *typenames[] = {
     "array",
     "pointer",
     "vector",
-    "double"};
+    "double"
+};
 
 class ScriptArrayHolder;
 class ScriptConstArrayHolder;
@@ -110,9 +111,9 @@ public:
 
     ~ScriptVariable();
 
-    void        Archive(Archiver       &arc);
+    void        Archive(Archiver& arc);
     static void Archive(Archiver& arc, ScriptVariable **obj);
-    void        ArchiveInternal(Archiver       &arc);
+    void        ArchiveInternal(Archiver& arc);
 
     void CastBoolean(void);
     void CastConstArrayValue(void);
@@ -152,7 +153,7 @@ public:
     str& getName(void);
 
     short3& GetKey();
-    void    SetKey(const short3   &key);
+    void    SetKey(const short3& key);
 #endif
 
     Entity *entityValue(void);
@@ -201,7 +202,7 @@ public:
 #endif
 
     Vector vectorValue(void) const;
-    void   setVectorValue(const Vector  &newvector);
+    void   setVectorValue(const Vector& newvector);
 
     class PathNode *pathNodeValue(void) const;
     class Waypoint *waypointValue(void) const;
@@ -218,16 +219,16 @@ public:
     ScriptVariable& operator[](ScriptVariable& index);
     ScriptVariable *operator[](unsigned index) const;
     ScriptVariable *operator*();
-    void            operator+=(const ScriptVariable           &value);
-    void            operator-=(const ScriptVariable           &value);
-    void            operator*=(const ScriptVariable           &value);
-    void            operator/=(const ScriptVariable           &value);
-    void            operator%=(const ScriptVariable           &value);
-    void            operator&=(const ScriptVariable           &value);
-    void            operator^=(const ScriptVariable           &value);
-    void            operator|=(const ScriptVariable           &value);
-    void            operator<<=(const ScriptVariable           &value);
-    void            operator>>=(const ScriptVariable           &value);
+    void            operator+=(const ScriptVariable& value);
+    void            operator-=(const ScriptVariable& value);
+    void            operator*=(const ScriptVariable& value);
+    void            operator/=(const ScriptVariable& value);
+    void            operator%=(const ScriptVariable& value);
+    void            operator&=(const ScriptVariable& value);
+    void            operator^=(const ScriptVariable& value);
+    void            operator|=(const ScriptVariable& value);
+    void            operator<<=(const ScriptVariable& value);
+    void            operator>>=(const ScriptVariable& value);
 
     bool operator!=(const ScriptVariable& value);
     bool operator==(const ScriptVariable& value);
@@ -245,7 +246,7 @@ public:
 public:
     ScriptArrayHolder();
 
-    void        Archive(Archiver       &arc);
+    void        Archive(Archiver& arc);
     static void Archive(Archiver& arc, ScriptArrayHolder *& arrayValue);
 };
 
@@ -257,7 +258,7 @@ public:
     unsigned int    size;
 
 public:
-    void        Archive(Archiver       &arc);
+    void        Archive(Archiver& arc);
     static void Archive(Archiver& arc, ScriptConstArrayHolder *& constArrayValue);
 
     ScriptConstArrayHolder(ScriptVariable *pVar, unsigned int size);
@@ -272,7 +273,7 @@ public:
     Container<ScriptVariable *> list;
 
 public:
-    void        Archive(Archiver       &arc);
+    void        Archive(Archiver& arc);
     static void Archive(Archiver& arc, ScriptPointer *& pointerValue);
 
     void Clear();

@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2023 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -25,6 +25,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "scriptvariable.h"
 #include "scriptexception.h"
 #include "../qcommon/str.h"
+#include "../qcommon/con_set.h"
 
 #ifdef GAME_DLL
 #    include "../fgame/archive.h"
@@ -75,19 +76,6 @@ void con_set<ScriptVariable, ScriptVariable>::Entry::Archive(Archiver& arc)
 {
     key.ArchiveInternal(arc);
     value.ArchiveInternal(arc);
-}
-
-template<>
-void con_set<short3, ScriptVariable>::Entry::Archive(Archiver& arc)
-{
-    if (arc.Loading()) {
-        value.Archive(arc);
-#    ifdef WITH_SCRIPT_ENGINE
-        key = value.GetKey();
-#    endif
-    } else {
-        value.Archive(arc);
-    }
 }
 
 void ScriptArrayHolder::Archive(Archiver& arc)
@@ -1512,9 +1500,10 @@ void ScriptVariable::operator+=(const ScriptVariable& value)
     case VARIABLE_STRING
         + VARIABLE_LISTENER *VARIABLE_MAX: // ( string )			+		( listener )
     case VARIABLE_CONSTSTRING
-        + VARIABLE_LISTENER                     *VARIABLE_MAX: // ( const string )		+		( listener )
-    case VARIABLE_STRING + VARIABLE_VECTOR      *VARIABLE_MAX: // ( string )			+		( vector )
-    case VARIABLE_CONSTSTRING + VARIABLE_VECTOR *VARIABLE_MAX: // ( const string )		+		( vector )
+        + VARIABLE_LISTENER                *VARIABLE_MAX: // ( const string )		+		( listener )
+    case VARIABLE_STRING + VARIABLE_VECTOR *VARIABLE_MAX: // ( string )			+		( vector )
+    case VARIABLE_CONSTSTRING
+        + VARIABLE_VECTOR *VARIABLE_MAX: // ( const string )		+		( vector )
         setStringValue(stringValue() + value.stringValue());
         break;
 
@@ -1972,8 +1961,9 @@ bool ScriptVariable::operator==(const ScriptVariable& value)
         + VARIABLE_STRING                 *VARIABLE_MAX: // ( int )				==		( string )
     case VARIABLE_FLOAT + VARIABLE_STRING *VARIABLE_MAX: // ( float )			==		( string )
     case VARIABLE_CHAR
-        + VARIABLE_STRING                       *VARIABLE_MAX: // ( char )				==		( string )
-    case VARIABLE_CONSTSTRING + VARIABLE_STRING *VARIABLE_MAX: // ( const string )		==		( string )
+        + VARIABLE_STRING *VARIABLE_MAX: // ( char )				==		( string )
+    case VARIABLE_CONSTSTRING
+        + VARIABLE_STRING *VARIABLE_MAX: // ( const string )		==		( string )
     case VARIABLE_LISTENER
         + VARIABLE_STRING                  *VARIABLE_MAX: // ( listener )			==		( string )
     case VARIABLE_VECTOR + VARIABLE_STRING *VARIABLE_MAX: // ( vector )			==		( string )
@@ -1997,9 +1987,10 @@ bool ScriptVariable::operator==(const ScriptVariable& value)
     case VARIABLE_CONSTSTRING + VARIABLE_CHAR    *VARIABLE_MAX: // ( const string )		==		( char )
     case VARIABLE_STRING + VARIABLE_LISTENER     *VARIABLE_MAX: // ( string )			==		( listener )
     case VARIABLE_CONSTSTRING
-        + VARIABLE_LISTENER                     *VARIABLE_MAX: // ( const string )		==		( listener )
-    case VARIABLE_STRING + VARIABLE_VECTOR      *VARIABLE_MAX: // ( string )			==		( vector )
-    case VARIABLE_CONSTSTRING + VARIABLE_VECTOR *VARIABLE_MAX: // ( const string )		==		( vector )
+        + VARIABLE_LISTENER                *VARIABLE_MAX: // ( const string )		==		( listener )
+    case VARIABLE_STRING + VARIABLE_VECTOR *VARIABLE_MAX: // ( string )			==		( vector )
+    case VARIABLE_CONSTSTRING
+        + VARIABLE_VECTOR *VARIABLE_MAX: // ( const string )		==		( vector )
         {
             str lval = stringValue();
             str rval = value.stringValue();
@@ -2454,6 +2445,24 @@ ScriptVariable ScriptVariable::operator--(int)
 }
 
 #ifdef WITH_SCRIPT_ENGINE
+
+template<>
+class con_set<short3, ScriptVariable>::Entry
+{
+    friend con_set<short3, ScriptVariable>;
+    friend con_set_enum<short3, ScriptVariable>;
+
+private:
+    Entry         *next;
+    ScriptVariable value;
+
+public:
+#    ifdef ARCHIVE_SUPPORTED
+    void Archive(Archiver& arc) { value.Archive(arc); }
+#    endif
+    short3& GetKey() { return value.GetKey(); }
+    void SetKey(const short3& newKey) { value.SetKey(newKey); }
+};
 
 ScriptVariableList::ScriptVariableList() {}
 

@@ -3204,7 +3204,7 @@ void Listener::CancelWaitingAll()
     ConList                             stoppedListeners;
 
     for (e = en.NextElement(); e != NULL; e = en.NextElement()) {
-        CancelWaitingSources(e->key, e->value, stoppedListeners);
+        CancelWaitingSources(e->GetKey(), e->value, stoppedListeners);
     }
 
     delete m_WaitForList;
@@ -3504,7 +3504,7 @@ void Listener::UnregisterAll(void)
     en = *m_NotifyList;
 
     for (e = en.NextElement(); e != NULL; e = en.NextElement()) {
-        UnregisterTargets(e->key, e->value, stoppedListeners, stoppedNames);
+        UnregisterTargets(e->GetKey(), e->value, stoppedListeners, stoppedNames);
     }
 
     delete m_NotifyList;
