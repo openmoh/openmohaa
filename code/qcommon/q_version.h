@@ -32,7 +32,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // These values are the only one that must be set for the version
 #define PRODUCT_VERSION_MAJOR			0
 #define PRODUCT_VERSION_MINOR			60
-#define PRODUCT_VERSION_PATCH			1
+#define PRODUCT_VERSION_PATCH			2
 #define PRODUCT_VERSION_SUFFIX			"alpha"
 
 //
