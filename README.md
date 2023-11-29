@@ -59,6 +59,8 @@ This has two advantages:
 - On a multi-user system, each user will have their own configuration file
 - It doesn't overwrite the existing MOHAA configuration in the MOHAA installation directory.
 
+Note that the configuration file isn't created nor written automatically on a dedicated server (**omohaaded**).
+
 ### Game selection
 
 **Medal of Honor: Allied Assault Spearhead** and **Medal of Honor: Allied Assault Breakthrough** are supported in OpenMoHAA using the `com_target_game` variable. To play an expansion, append the following command-line arguments to the executable:
