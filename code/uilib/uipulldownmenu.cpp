@@ -74,8 +74,6 @@ static UIPopupMenu* MenuFromPoint(UIPoint2D& p)
 
 UIPulldownMenu::UIPulldownMenu()
 {
-	m_desc = Container<uipull_describe *>{};
-
 	m_listener = NULL;
 	m_submenu = -1;
 	m_highlightBGColor.r = 0.02f;
