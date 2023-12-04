@@ -33,6 +33,7 @@ public:
 	CLASS_PROTOTYPE( UIPulldownMenuContainer );
 
 	UIPulldownMenuContainer();
+	~UIPulldownMenuContainer();
 
 protected:
 	void	FrameInitialized( void ) override;
@@ -53,6 +54,17 @@ protected:
 public:
 	void	AddPopup( Event *ev );
 };
+
+extern Event EV_UIPulldownMenuContainer_AddPopup;
+extern Event EV_UIPulldownMenuContainer_MenuShader;
+extern Event EV_UIPulldownMenuContainer_SelectedMenuShader;
+extern Event EV_UIPulldownMenuContainer_PopupHighlightFGColor;
+extern Event EV_UIPulldownMenuContainer_HighlightBGColor;
+extern Event EV_UIPulldownMenuContainer_HighlightFGColor;
+extern Event EV_UIPulldownMenuContainer_PopupHighlightBGColor;
+extern Event EV_UIPulldownMenuContainer_PopupFGColor;
+extern Event EV_UIPulldownMenuContainer_PopupBGColor;
+extern Event EV_Layout_VirtualRes;
 
 #endif
 

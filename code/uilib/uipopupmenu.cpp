@@ -27,6 +27,28 @@ CLASS_DECLARATION( UIWidget, UIPopupMenu, NULL )
 	{ NULL, NULL }
 };
 
+uipopup_type UI_PopupTypeStringToInt(str type)
+{
+	if (type == "event_string")
+	{
+		return UIP_EVENT_STRING;
+	}
+	else if (type == "command")
+	{
+		return UIP_CMD;
+	}
+	else if (type == "cvar")
+	{
+		return UIP_CVAR;
+	}
+	else if (type == "separator")
+	{
+		return UIP_SEPARATOR;
+	}
+
+	return UIP_NONE;
+}
+
 UIPopupMenu::UIPopupMenu()
 {
 	// FIXME: stub

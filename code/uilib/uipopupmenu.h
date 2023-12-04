@@ -109,5 +109,7 @@ public:
 	void				getPulldown( str title );
 };
 
+uipopup_type UI_PopupTypeStringToInt(str type);
+
 #endif
 
