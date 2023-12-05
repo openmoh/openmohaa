@@ -33,6 +33,7 @@ public:
 	CLASS_PROTOTYPE( UIPulldownMenuContainer );
 
 	UIPulldownMenuContainer();
+	~UIPulldownMenuContainer();
 
 protected:
 	void	FrameInitialized( void ) override;
