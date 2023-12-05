@@ -154,6 +154,8 @@ UIPulldownMenuContainer::~UIPulldownMenuContainer()
 		m_dataContainer.RemoveObjectAt(i);
 		delete data;
 	}
+
+	// FIXME: m_menu isn't deleted, possible memory leak!
 }
 
 void UIPulldownMenuContainer::FrameInitialized
