@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2023 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -82,6 +82,7 @@ protected:
 
 public:
 	UIPulldownMenu();
+	~UIPulldownMenu();
 
 	void	Create( UIWidget *parent, Listener *listener, const UIRect2D& rect );
 	void	CreateAligned( UIWidget *parent, Listener *listener );

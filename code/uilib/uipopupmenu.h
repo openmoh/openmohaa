@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2023 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -63,6 +63,7 @@ uipopup_describe::uipopup_describe
 }
 
 class UIPopupMenu : public UIWidget {
+	friend class UIPulldownMenu; // so that m_submenuptr, m_submenu and m_parentMenu can be accessed
 protected:
 	Container<uipopup_describe *> *m_describe;
 	int m_selected;
