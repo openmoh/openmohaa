@@ -16,8 +16,17 @@ set(CMAKE_DEBUG_POSTFIX "-dbg")
 
 if(MSVC)
 	add_definitions(-D_CRT_SECURE_NO_WARNINGS -D_CRT_NONSTDC_NO_DEPRECATE)
-elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+	# Treat no return type as error
+	add_compile_options(/we4715)
+endif()
+
+if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 	add_compile_options(-Wno-comment)
+	# Treat no return type as error
+	add_compile_options(-Werror=return-type)
+endif()
+
+if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 	# Ignore warnings for code like 'assert("Assert string")'
 	add_compile_options(-Wno-pointer-bool-conversion)
 endif()
