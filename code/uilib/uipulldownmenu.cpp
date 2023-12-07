@@ -185,6 +185,8 @@ uipull_describe *UIPulldownMenu::getPulldown
 			return pd;
 		}
 	}
+
+	return NULL;
 }
 
 void UIPulldownMenu::HighlightBGColor
