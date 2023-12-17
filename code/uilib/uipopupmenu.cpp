@@ -285,7 +285,7 @@ void UIPopupMenu::Create
 
 		if (place.x < totalSize.width)
 		{
-			place.x = std::max(0.0f, uid.vidWidth - totalSize.width);
+			place.x = std::fmax(0.0f, uid.vidWidth - totalSize.width);
 		}
 		else
 		{
@@ -300,7 +300,7 @@ void UIPopupMenu::Create
 
 		if (place.y < totalSize.height)
 		{
-			place.y = std::max(0.0f, uid.vidHeight - totalSize.height);
+			place.y = std::fmax(0.0f, uid.vidHeight - totalSize.height);
 		}
 		else
 		{
