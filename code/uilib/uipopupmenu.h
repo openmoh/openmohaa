@@ -88,6 +88,7 @@ protected:
 
 public:
 	UIPopupMenu();
+	~UIPopupMenu();
 
 	void				Create( Container<uipopup_describe*> *describe, Listener *listener, const UIPoint2D& where );
 	void				Create( Container<uipopup_describe*> *describe, Listener *listener, const UIRect2D& createRect, uipopup_where where, qboolean bVirtualSize, float width );

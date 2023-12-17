@@ -352,7 +352,14 @@ void UIPulldownMenuContainer::AddPopup
 	str d = ev->GetString(4);
 
 	uipopup_type type = UI_PopupTypeStringToInt(t);
-	void *data = (void*)d.c_str();
+
+	// Make sure to create a duplicate of the original string,
+	// otherwise `data` will point to junk when `d` is destroyed.
+	// This only seems to run for each popup menu during game startup,
+	// so it doesn't appear to leak memory continuously,
+	// thus not needing manual cleanup.
+	void* data = strdup(d);
+
 	uipopup_describe* uipd = new uipopup_describe(title, type, data, NULL);
 	m_popups.AddObject(uipd);
 	m_menu->AddUIPopupDescribe(menu, uipd);
