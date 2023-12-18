@@ -44,5 +44,6 @@ profile
 *.suo
 
 .vs
-out
 code_unfinished/*
+thirdparties/
+code/parser/generated/*
