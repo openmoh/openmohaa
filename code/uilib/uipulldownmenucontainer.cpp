@@ -143,9 +143,16 @@ UIPulldownMenuContainer::~UIPulldownMenuContainer()
 {
 	for (int i = m_popups.NumObjects(); i > 0; i--)
 	{
-		uipopup_describe* uid = m_popups.ObjectAt(i);
+		uipopup_describe* uipd = m_popups.ObjectAt(i);
 		m_popups.RemoveObjectAt(i);
-		delete uid;
+		if (uipd->data)
+		{
+			// clean up strdup'd C-string from memory
+			free(uipd->data);
+			uipd->data = NULL;
+		}
+
+		delete uipd;
 	}
 
 	for (int i = m_dataContainer.NumObjects(); i > 0; i--)
