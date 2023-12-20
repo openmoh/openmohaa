@@ -143,9 +143,9 @@ UIPulldownMenuContainer::~UIPulldownMenuContainer()
 {
 	for (int i = m_popups.NumObjects(); i > 0; i--)
 	{
-		uipopup_describe* uid = m_popups.ObjectAt(i);
+		uipopup_describe* uipd = m_popups.ObjectAt(i);
 		m_popups.RemoveObjectAt(i);
-		delete uid;
+		delete uipd;
 	}
 
 	for (int i = m_dataContainer.NumObjects(); i > 0; i--)
@@ -357,7 +357,7 @@ void UIPulldownMenuContainer::AddPopup
 	// otherwise `data` will point to junk when `d` is destroyed.
 	// This only seems to run for each popup menu during game startup,
 	// so it doesn't appear to leak memory continuously,
-	// thus not needing manual cleanup.
+	// but it's being cleaned up in uipopup_describe's dtor anyway.
 	void* data = strdup(d);
 
 	uipopup_describe* uipd = new uipopup_describe(title, type, data, NULL);

@@ -260,7 +260,7 @@ void UILabel::Draw(void)
 
                 ret = FindLinkString(val);
                 if (ret) {
-                    string = m_linkstrings.ObjectAt(ret)->value;
+                    string = m_linkstrings.ObjectAt(ret)->string;
                 }
             }
         }

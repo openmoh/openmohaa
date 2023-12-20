@@ -35,6 +35,7 @@ public:
 
 	uipopup_describe();
 	uipopup_describe( str title, uipopup_type type, void *data, UIReggedMaterial *material );
+	~uipopup_describe();
 };
 
 inline
@@ -60,6 +61,19 @@ uipopup_describe::uipopup_describe
 	this->type = type;
 	this->data = data;
 	this->material = material;
+}
+
+// NOTE: this is not part of the original game!
+// Added in OPM to properly clean up memory.
+inline
+uipopup_describe::~uipopup_describe()
+{
+	if (this->data)
+	{
+		// clean up strdup'd C-string from memory
+		free(this->data);
+		this->data = NULL;
+	}
 }
 
 class UIPopupMenu : public UIWidget {
