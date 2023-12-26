@@ -19,9 +19,11 @@
 
 ### Multiplayer
 
-Multiplayer is almost fully stable. Server admins can already try to use OpenMoHAA to host a mohaa server, and report any bug by creating an [issue](https://github.com/openmoh/openmohaa/issues) on the OpenMoHAA GitHub project.
+The Multiplayer part is almost fully stable.
 
-All game modes including Tug-of-War from Medal of Honor: Spearhead, and Liberation from Medal of Honor: Breakthrough are implemented and are working as intended. Mods like Freeze-Tag are working as well.
+Server admins can use OpenMoHAA to [host](#server) a mohaa/mohaas/mohaab server, and report any bug by creating an [issue](https://github.com/openmoh/openmohaa/issues) on the OpenMoHAA GitHub project. Players can use OpenMoHAA to [play](#client) on a mohaa/mohaas/mohaab server.
+
+All game modes including `Tug-of-War` from Medal of Honor: Spearhead, and `Liberation` from Medal of Honor: Breakthrough are implemented and are working as intended. Mods like `Freeze-Tag` are working as well.
 
 ### Single-player
 
