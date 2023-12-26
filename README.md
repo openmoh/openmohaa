@@ -17,7 +17,15 @@
 
 ## Current State
 
-OpenMoHAA is still under development. The single-player campaign is not yet functional due to AI not being fully stable. But the `training` map can be played from start to end. The current focus is on multiplayer.
+### Multiplayer
+
+Multiplayer is almost fully stable. Server admins can already try to use OpenMoHAA to host a mohaa server, and report any bug by creating an [issue](https://github.com/openmoh/openmohaa/issues) on the OpenMoHAA GitHub project.
+
+All game modes including Tug-of-War from Medal of Honor: Spearhead, and Liberation from Medal of Honor: Breakthrough are implemented and are working as intended. Mods like Freeze-Tag are working as well.
+
+### Single-player
+
+The `training` map can be played from start to end. The single-player campaign is not fully functional, but at least AI can breathe, talk, run, and shoot.
 
 ## Intro
 
