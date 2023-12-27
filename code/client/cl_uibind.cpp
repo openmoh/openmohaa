@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2023 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -24,281 +24,162 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 bind_t::bind_t()
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
 bind_t::~bind_t()
 {
-	Clear();
+    Clear();
 }
 
-void bind_t::Clear
-	(
-	void
-	)
-
+void bind_t::Clear(void)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-CLASS_DECLARATION( Listener, bindlistener, NULL )
-{
-	{ NULL, NULL }
+CLASS_DECLARATION(Listener, bindlistener, NULL) {
+    {NULL, NULL}
 };
 
-bindlistener::bindlistener()
+bindlistener::bindlistener() {}
+
+bindlistener::bindlistener(bind_t *b)
 {
+    bind = b;
 }
 
-bindlistener::bindlistener
-	(
-	bind_t *b
-	)
-
+void bindlistener::Header(Event *ev)
 {
-	bind = b;
+    // FIXME: stub
 }
 
-bool bindlistener::Load
-	(
-	Script& script
-	)
-
+void bindlistener::ChangeSound(Event *ev)
 {
-	// FIXME: stub
-	return false;
+    // FIXME: stub
 }
 
-void bindlistener::Header
-	(
-	Event *ev
-	)
-
+void bindlistener::ActiveSound(Event *ev)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void bindlistener::Width
-	(
-	Event *ev
-	)
-
+void bindlistener::EnterSound(Event *ev)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void bindlistener::FillWidth
-	(
-	Event *ev
-	)
-
+void bindlistener::SelectForegroundColor(Event *ev)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void bindlistener::Height
-	(
-	Event *ev
-	)
-
+void bindlistener::SelectBackgroundColor(Event *ev)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void bindlistener::CommandWidth
-	(
-	Event *ev
-	)
-
+void bindlistener::TitleForegroundColor(Event *ev)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void bindlistener::CommandHeight
-	(
-	Event *ev
-	)
-
+void bindlistener::TitleBackgroundColor(Event *ev)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void bindlistener::PrimaryKeyWidth
-	(
-	Event *ev
-	)
-
+void bindlistener::ActiveBorderColor(Event *ev)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void bindlistener::PrimaryKeyHeight
-	(
-	Event *ev
-	)
-
+void bindlistener::ActiveForegroundColor(Event *ev)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void bindlistener::AlternateKeyWidth
-	(
-	Event *ev
-	)
-
+void bindlistener::ActiveBackgroundColor(Event *ev)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void bindlistener::AlternateKeyHeight
-	(
-	Event *ev
-	)
-
+void bindlistener::InactiveForegroundColor(Event *ev)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void bindlistener::NewItem
-	(
-	Event *ev
-	)
-
+void bindlistener::InactiveBackgroundColor(Event *ev)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void bindlistener::Align
-	(
-	Event *ev
-	)
-
+void bindlistener::HighlightForegroundColor(Event *ev)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void bindlistener::TitleForegroundColor
-	(
-	Event *ev
-	)
-
+void bindlistener::HighlightBackgroundColor(Event *ev)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void bindlistener::TitleBackgroundColor
-	(
-	Event *ev
-	)
-
+void bindlistener::Align(Event *ev)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void bindlistener::InactiveForegroundColor
-	(
-	Event *ev
-	)
-
+void bindlistener::NewItem(Event *ev)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void bindlistener::InactiveBackgroundColor
-	(
-	Event *ev
-	)
-
+void bindlistener::Width(Event *ev)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void bindlistener::ActiveForegroundColor
-	(
-	Event *ev
-	)
-
+void bindlistener::Height(Event *ev)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void bindlistener::ActiveBackgroundColor
-	(
-	Event *ev
-	)
-
+void bindlistener::FillWidth(Event *ev)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void bindlistener::ActiveBorderColor
-	(
-	Event *ev
-	)
-
+void bindlistener::CommandWidth(Event *ev)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void bindlistener::HighlightForegroundColor
-	(
-	Event *ev
-	)
-
+void bindlistener::CommandHeight(Event *ev)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void bindlistener::HighlightBackgroundColor
-	(
-	Event *ev
-	)
-
+void bindlistener::PrimaryKeyWidth(Event *ev)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void bindlistener::SelectForegroundColor
-	(
-	Event *ev
-	)
-
+void bindlistener::PrimaryKeyHeight(Event *ev)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void bindlistener::SelectBackgroundColor
-	(
-	Event *ev
-	)
-
+void bindlistener::AlternateKeyWidth(Event *ev)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void bindlistener::ChangeSound
-	(
-	Event *ev
-	)
-
+void bindlistener::AlternateKeyHeight(Event *ev)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void bindlistener::ActiveSound
-	(
-	Event *ev
-	)
-
+bool bindlistener::Load(Script& script)
 {
-	// FIXME: stub
-}
-
-void bindlistener::EnterSound
-	(
-	Event *ev
-	)
-
-{
-	// FIXME: stub
+    // FIXME: stub
+    return false;
 }

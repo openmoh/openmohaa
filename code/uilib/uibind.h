@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2023 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -20,36 +20,33 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-#ifndef __UIBIND_H__
-#define __UIBIND_H__
+#pragma once
 
-class UIBindButton : public UIButton {
-	str m_bindcommand;
-	int m_bindindex;
-	qboolean m_getkey;
-	qboolean m_alternate;
-	str m_entersound;
-	str m_activesound;
-	str m_last_keyname;
-	UIReggedMaterial *m_mat;
-
-public:
-	CLASS_PROTOTYPE( UIBindButton );
+class UIBindButton : public UIButton
+{
+    str               m_bindcommand;
+    int               m_bindindex;
+    qboolean          m_getkey;
+    qboolean          m_alternate;
+    str               m_entersound;
+    str               m_activesound;
+    str               m_last_keyname;
+    UIReggedMaterial *m_mat;
 
 public:
-	UIBindButton();
-	UIBindButton( str entersound, str activesound );
+    CLASS_PROTOTYPE(UIBindButton);
 
-	void		Pressed( Event *ev );
-	void		Pressed( void );
-	void		SetCommand( Event *ev );
-	void		SetCommand( str s );
-	void		DrawUnpressed( void ) override;
-	void		DrawPressed( void ) override;
-	void		Clear( void );
-	qboolean	KeyEvent( int key, unsigned int time ) override;
-	void		SetAlternate( qboolean a );
+public:
+    UIBindButton();
+    UIBindButton(str entersound, str activesound);
+
+    void     Pressed(Event *ev);
+    void     Pressed(void);
+    void     SetCommand(Event *ev);
+    void     SetCommand(str s);
+    void     DrawUnpressed(void) override;
+    void     DrawPressed(void) override;
+    void     Clear(void);
+    qboolean KeyEvent(int key, unsigned int time) override;
+    void     SetAlternate(qboolean a);
 };
-
-#endif
-

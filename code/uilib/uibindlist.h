@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2023 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -20,63 +20,62 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-#ifndef __UIBINDLIST_H__
-#define __UIBINDLIST_H__
+#pragma once
 
-class UIFakkBindList : public UIWidget {
-	bool m_created;
-	UIVertScroll *m_scroll;
-	UIReggedMaterial *m_presskey_mat;
-	UILabel *m_presskey_wid;
-	Container<UIWidget *> m_widgetlist;
-	Container<UIWidget *> m_miscwidgets;
-	int m_activerow;
-	int m_activeitem;
-	bind_t *m_bind;
+class UIFakkBindList : public UIWidget
+{
+    bool                  m_created;
+    UIVertScroll         *m_scroll;
+    UIReggedMaterial     *m_presskey_mat;
+    UILabel              *m_presskey_wid;
+    Container<UIWidget *> m_widgetlist;
+    Container<UIWidget *> m_miscwidgets;
+    int                   m_activerow;
+    int                   m_activeitem;
+    bind_t               *m_bind;
 
 public:
-	CLASS_PROTOTYPE( UIFakkBindList );
+    CLASS_PROTOTYPE(UIFakkBindList);
 
 private:
-	void		CreateBindWidgets( void );
-	void		DestroyBindWidgets( void );
-	void		RepositionBindWidgets( void );
-	void		DrawPressKey( UIRect2D frame );
+    void CreateBindWidgets(void);
+    void DestroyBindWidgets(void);
+    void RepositionBindWidgets(void);
+    void DrawPressKey(UIRect2D frame);
 
 protected:
-	void		FrameInitialized( void ) override;
-	void		Filename( Event *ev );
-	void		StopBind( Event *ev );
+    void FrameInitialized(void) override;
+    void Filename(Event *ev);
+    void StopBind(Event *ev);
 
 public:
-	UIFakkBindList();
+    UIFakkBindList();
+    ~UIFakkBindList();
 
-	void		setBind( bind_t *b );
-	void		Draw( void ) override;
-	bool		isDying( void );
-	qboolean	KeyEvent( int key, unsigned int time ) override;
-	void		Highlight( UIWidget *wid );
-	void		PlayEnterSound( void );
-	qboolean	SetActiveRow( UIWidget *w );
-	void		Realign( void ) override;
+    void     setBind(bind_t *b);
+    void     Draw(void) override;
+    bool     isDying(void);
+    qboolean KeyEvent(int key, unsigned int time) override;
+    void     Highlight(UIWidget *wid);
+    void     PlayEnterSound(void);
+    qboolean SetActiveRow(UIWidget *w);
+    void     Realign(void) override;
 };
 
-class UIFakkBindListLabel : public UILabel {
-	UIFakkBindList *m_list;
+class UIFakkBindListLabel : public UILabel
+{
+    UIFakkBindList *m_list;
 
 public:
-	CLASS_PROTOTYPE( UIFakkBindListLabel );
+    CLASS_PROTOTYPE(UIFakkBindListLabel);
 
 public:
-	UIFakkBindListLabel();
-	UIFakkBindListLabel( UIFakkBindList *list );
+    UIFakkBindListLabel();
+    UIFakkBindListLabel(UIFakkBindList *list);
 
-	void	Pressed( Event *ev );
-	void	Draw( void ) override;
+    void Pressed(Event *ev);
+    void Draw(void) override;
 };
 
 extern Event EV_UIFakkBindList_Filename;
 extern Event EV_UIFakkBindList_StopBind;
-
-#endif
-

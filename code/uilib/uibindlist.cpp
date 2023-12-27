@@ -22,209 +22,124 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "ui_local.h"
 
-Event EV_UIFakkBindList_Filename
-	(
-	"filename",
-	EV_DEFAULT,
-	"s",
-	"filename",
-	"Filename that holds bind definitions"
-	);
+Event EV_UIFakkBindList_Filename("filename", EV_DEFAULT, "s", "filename", "Filename that holds bind definitions");
 
-Event EV_UIFakkBindList_StopBind
-	(
-	"stopbind",
-	EV_DEFAULT,
-	NULL,
-	NULL,
-	"stops trying to bind a key to a command"
-	);
+Event EV_UIFakkBindList_StopBind("stopbind", EV_DEFAULT, NULL, NULL, "stops trying to bind a key to a command");
 
-CLASS_DECLARATION( UIWidget, UIFakkBindList, NULL )
-{
-	{ &EV_UIFakkBindList_Filename,		&UIFakkBindList::Filename },
-	{ &EV_UIFakkBindList_StopBind,		&UIFakkBindList::StopBind },
-	{ NULL, NULL }
+CLASS_DECLARATION(UIWidget, UIFakkBindList, NULL) {
+    {&EV_UIFakkBindList_Filename, &UIFakkBindList::Filename},
+    {&EV_UIFakkBindList_StopBind, &UIFakkBindList::StopBind},
+    {NULL,                        NULL                     }
 };
-
 
 UIFakkBindList::UIFakkBindList()
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void UIFakkBindList::CreateBindWidgets
-	(
-	void
-	)
-
+UIFakkBindList::~UIFakkBindList()
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void UIFakkBindList::DestroyBindWidgets
-	(
-	void
-	)
-
+void UIFakkBindList::Filename(Event *ev)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void UIFakkBindList::RepositionBindWidgets
-	(
-	void
-	)
-
+void UIFakkBindList::StopBind(Event *ev)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void UIFakkBindList::DrawPressKey
-	(
-	UIRect2D frame
-	)
-
+void UIFakkBindList::FrameInitialized(void)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void UIFakkBindList::FrameInitialized
-	(
-	void
-	)
-
+void UIFakkBindList::CreateBindWidgets(void)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void UIFakkBindList::Filename
-	(
-	Event *ev
-	)
-
+void UIFakkBindList::DestroyBindWidgets(void)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void UIFakkBindList::StopBind
-	(
-	Event *ev
-	)
-
+void UIFakkBindList::RepositionBindWidgets(void)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void UIFakkBindList::setBind
-	(
-	bind_t *b
-	)
-
+qboolean UIFakkBindList::KeyEvent(int key, unsigned int time)
 {
-	// FIXME: stub
+    // FIXME: stub
+    return qfalse;
 }
 
-void UIFakkBindList::Draw
-	(
-	void
-	)
-
+void UIFakkBindList::DrawPressKey(UIRect2D frame)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-bool UIFakkBindList::isDying
-	(
-	void
-	)
-
+void UIFakkBindList::Highlight(UIWidget *wid)
 {
-	// FIXME: stub
-	return false;
+    // FIXME: stub
 }
 
-qboolean UIFakkBindList::KeyEvent
-	(
-	int key,
-	unsigned int time
-	)
-
+qboolean UIFakkBindList::SetActiveRow(UIWidget *w)
 {
-	// FIXME: stub
-	return qfalse;
+    // FIXME: stub
+    return qfalse;
 }
 
-void UIFakkBindList::Highlight
-	(
-	UIWidget *wid
-	)
-
+void UIFakkBindList::Draw(void)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void UIFakkBindList::PlayEnterSound
-	(
-	void
-	)
-
+void UIFakkBindList::Realign(void)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-qboolean UIFakkBindList::SetActiveRow
-	(
-	UIWidget *w
-	)
-
+void UIFakkBindList::setBind(bind_t *b)
 {
-	// FIXME: stub
-	return qfalse;
+    // FIXME: stub
 }
 
-void UIFakkBindList::Realign
-	(
-	void
-	)
-
+bool UIFakkBindList::isDying(void)
 {
-	// FIXME: stub
+    // FIXME: stub
+    return false;
 }
 
-CLASS_DECLARATION( UILabel, UIFakkBindListLabel, NULL )
+void UIFakkBindList::PlayEnterSound(void)
 {
-	{ NULL, NULL }
+    // FIXME: stub
+}
+
+CLASS_DECLARATION(UILabel, UIFakkBindListLabel, NULL) {
+    {NULL, NULL}
 };
 
 UIFakkBindListLabel::UIFakkBindListLabel()
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-UIFakkBindListLabel::UIFakkBindListLabel
-	(
-	UIFakkBindList *list
-	)
-
+UIFakkBindListLabel::UIFakkBindListLabel(UIFakkBindList *list)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void UIFakkBindListLabel::Pressed
-	(
-	Event *ev
-	)
-
+void UIFakkBindListLabel::Pressed(Event *ev)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void UIFakkBindListLabel::Draw
-	(
-	void
-	)
-
+void UIFakkBindListLabel::Draw(void)
 {
-	// FIXME: stub
+    // FIXME: stub
 }

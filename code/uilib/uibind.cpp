@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2023 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -22,106 +22,59 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "ui_local.h"
 
-CLASS_DECLARATION( UIButton, UIBindButton, NULL )
-{
-	{ NULL, NULL }
+CLASS_DECLARATION(UIButton, UIBindButton, NULL) {
+    {NULL, NULL}
 };
 
-UIBindButton::UIBindButton()
-{
+UIBindButton::UIBindButton() {}
 
+UIBindButton::UIBindButton(str entersound, str activesound)
+{
+    // FIXME: stub
 }
 
-UIBindButton::UIBindButton
-	(
-	str entersound,
-	str activesound
-	)
-
+void UIBindButton::SetAlternate(qboolean a)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void UIBindButton::Pressed
-	(
-	Event *ev
-	)
-
+void UIBindButton::SetCommand(Event *ev)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void UIBindButton::Pressed
-	(
-	void
-	)
-
+void UIBindButton::SetCommand(str s)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void UIBindButton::SetCommand
-	(
-	Event *ev
-	)
-
+void UIBindButton::Pressed(void)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void UIBindButton::SetCommand
-	(
-	str s
-	)
-
+void UIBindButton::Pressed(Event *ev)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void UIBindButton::DrawUnpressed
-	(
-	void
-	)
-
+qboolean UIBindButton::KeyEvent(int key, unsigned int time)
 {
-	// FIXME: stub
+    // FIXME: stub
+    return qfalse;
 }
 
-void UIBindButton::DrawPressed
-	(
-	void
-	)
-
+void UIBindButton::DrawPressed(void)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void UIBindButton::Clear
-	(
-	void
-	)
-
+void UIBindButton::Clear(void)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-qboolean UIBindButton::KeyEvent
-	(
-	int key,
-	unsigned int time
-	)
-
+void UIBindButton::DrawUnpressed(void)
 {
-	// FIXME: stub
-	return qfalse;
+    // FIXME: stub
 }
-
-void UIBindButton::SetAlternate
-	(
-	qboolean a
-	)
-
-{
-	// FIXME: stub
-}
-
