@@ -21,79 +21,61 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 // player_combat.cpp: Player combat system and combat utility functions
-// 
+//
 
 #include "player.h"
 #include "weaputils.h"
 
-static Entity *FindClosestEntityInRadius
-   (
-   Vector origin,
-   Vector forward,
-   float  fov,
-   float  maxdist
-   )
+static Entity *FindClosestEntityInRadius(Vector origin, Vector forward, float fov, float maxdist)
+{
+    float    dist, dot;
+    float    fovdot = cos(fov * 0.5 * M_PI / 180.0);
+    Entity  *ent;
+    Entity  *bestent  = NULL;
+    int      bestdist = 999999;
+    qboolean valid_entity;
 
-   {
-   float    dist,dot;
-   float    fovdot = cos( fov * 0.5 * M_PI / 180.0 );
-   Entity   *ent;
-   Entity   *bestent=NULL;
-   int      bestdist = 999999;
-	qboolean valid_entity;
+    // Find closest enemy in radius
+    ent = findradius(NULL, origin, maxdist);
 
-   // Find closest enemy in radius
-   ent = findradius( NULL, origin, maxdist ); 
+    while (ent) {
+        valid_entity = false;
 
-   while( ent )
-      {      
-		valid_entity = false;
+        if (ent->flags & FL_AUTOAIM) {
+            valid_entity = true;
+        }
 
-		if( ent->flags & FL_AUTOAIM )
-         {
-         valid_entity = true;
-         }
+        if (valid_entity) {
+            // Check to see if the enemy is closest to us
+            Vector delta = (ent->centroid) - origin;
 
-		if ( valid_entity )
-         {
-         // Check to see if the enemy is closest to us
-      	Vector delta = ( ent->centroid ) - origin;
+            dist = delta.length();
 
-      	dist = delta.length();
+            if (dist < bestdist) {
+                delta.normalize();
 
-         if ( dist < bestdist )
-            {
-            delta.normalize();
+                // It's close, now check to see if it's in our FOV.
+                dot = DotProduct(forward, delta);
 
-            // It's close, now check to see if it's in our FOV.
-	         dot = DotProduct( forward, delta );
-      
-            if ( dot > fovdot )
-               {
-               trace_t trace;
-               // Do a trace to see if we can get to it
-               trace = G_Trace( origin,
-                                 vec_zero,
-                                 vec_zero,
-                                 ent->centroid,
-                                 NULL,
-                                 MASK_OPAQUE,
-                                 false, 
-                                 "FindClosestEntityInRadius" );
-               
-               if ( ( trace.ent && trace.entityNum == ent->entnum ) || ( trace.fraction == 1 ) )
-                  {
-                  // dir = delta;
-                  bestent  = ent;
-                  bestdist = dist;
-                  }
-               }
+                if (dot > fovdot) {
+                    trace_t trace;
+                    // Do a trace to see if we can get to it
+                    trace = G_Trace(
+                        origin, vec_zero, vec_zero, ent->centroid, NULL, MASK_OPAQUE, false, "FindClosestEntityInRadius"
+                    );
+
+                    if ((trace.ent && trace.entityNum == ent->entnum) || (trace.fraction == 1)) {
+                        // dir = delta;
+                        bestent  = ent;
+                        bestdist = dist;
+                    }
+                }
             }
-         }
-      ent = findradius( ent, origin, maxdist );
-      }
-   return bestent;
-   }
+        }
+        ent = findradius(ent, origin, maxdist);
+    }
+    return bestent;
+}
 
 Vector Player::GunTarget(bool bNoCollision, const vec3_t position, const vec3_t forward)
 {
