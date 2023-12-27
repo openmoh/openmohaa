@@ -1250,20 +1250,22 @@ UI_PrintConsole
 */
 void UI_PrintConsole(const char *msg)
 {
-    UColor  *pColor = NULL;
-    char     szString[1024];
-    char     szBlah[1024];
-    qboolean bPrintedDMBox = qfalse;
+    UColor     *pColor = NULL;
+    const char *pszString;
+    char        szString[1024];
+    char        szBlah[1024];
+    qboolean    bPrintedDMBox = qfalse;
 
-    memcpy(szString, msg, sizeof(szString));
+    pszString = msg;
+    strncpy(szString, msg, 1024);
 
-    if (*szString < MESSAGE_MAX) {
+    if (*pszString < MESSAGE_MAX) {
         qboolean bNormalMessage = qfalse;
         qboolean bDMMessage     = qfalse;
         qboolean bBold          = qfalse;
         qboolean bDeathMessage  = qfalse;
 
-        switch (*szString) {
+        switch (*pszString) {
         case MESSAGE_YELLOW:
             bNormalMessage = qtrue;
             pColor         = &UHudColor;
@@ -1277,16 +1279,16 @@ void UI_PrintConsole(const char *msg)
             pColor = &UWhite;
             break;
         case MESSAGE_CHAT_RED:
-            bDeathMessage = qtrue;
+            bDeathMessage = MESSAGE_CHAT_RED;
             pColor        = &ULightRed;
             break;
         case MESSAGE_CHAT_GREEN:
-            bDeathMessage = qtrue;
+            bDeathMessage = MESSAGE_CHAT_GREEN;
             pColor        = &UGreen;
             break;
         }
 
-        msg++;
+        pszString++;
 
         //
         // print to the deathmatch console
@@ -1306,10 +1308,11 @@ void UI_PrintConsole(const char *msg)
             if (bDMMessage) {
                 *szString = MESSAGE_CHAT_WHITE;
                 dmbox->Print(szString);
+                pszString     = msg + 1;
                 bPrintedDMBox = qtrue;
             } else if (bDeathMessage) {
                 dmbox->Print(szString);
-                *szString     = MESSAGE_CHAT_RED;
+                *szString     = bDeathMessage;
                 bPrintedDMBox = qtrue;
             }
         }
@@ -1322,6 +1325,7 @@ void UI_PrintConsole(const char *msg)
                 *szString = MESSAGE_WHITE;
                 gmbox->Print(szString);
                 uii.Snd_PlaySound("objective_text");
+                pszString = msg + 1;
             } else {
                 gmbox->Print(szString + 1);
             }
@@ -1330,15 +1334,18 @@ void UI_PrintConsole(const char *msg)
                 return;
             }
 
-            memcpy(szBlah, "Game Message: ", 15);
-            Q_strcat(szBlah, sizeof(szBlah), szString + 1);
+            if (!bDMMessage) {
+                memcpy(szBlah, "Game Message: ", 15);
+                Q_strcat(szBlah, sizeof(szBlah), pszString);
+                pszString = szBlah;
+            }
         }
     }
 
-    if (*msg == 7) {
-        msg++;
+    if (*pszString == '\a') {
+        pszString++;
         if (mini_console) {
-            mini_console->Print(msg + 1);
+            mini_console->Print(pszString);
             return;
         }
     }
@@ -1350,10 +1357,10 @@ void UI_PrintConsole(const char *msg)
             s_intermediateconsole = NULL;
         }
 
-        fakk_console->AddText(msg, pColor);
+        fakk_console->AddText(pszString, pColor);
 
         if (mini_console) {
-            mini_console->Print(msg);
+            mini_console->Print(pszString);
         }
     } else {
         if (!s_intermediateconsole) {
@@ -4178,7 +4185,7 @@ public:
     virtual griditemtype_t getListItemType(int which) const;
     virtual str            getListItemString(int i) const;
     virtual int            getListItemValue(int which) const;
-    virtual void           DrawListItem(int iColumn, const UIRect2D          &drawRect, bool bSelected, UIFont *pFont);
+    virtual void           DrawListItem(int iColumn, const UIRect2D& drawRect, bool bSelected, UIFont *pFont);
     virtual qboolean       IsHeaderEntry(void) const;
 };
 
@@ -4342,8 +4349,8 @@ public:
     virtual griditemtype_t getListItemType(int which) const;
     virtual str            getListItemString(int i) const;
     virtual int            getListItemValue(int which) const;
-    virtual void           DrawListItem(int iColumn, const UIRect2D          &drawRect, bool bSelected, UIFont *pFont);
-    void                   SetColors(const UColor                  &newTextColor, const UColor                  &newBackColor);
+    virtual void           DrawListItem(int iColumn, const UIRect2D& drawRect, bool bSelected, UIFont *pFont);
+    void                   SetColors(const UColor& newTextColor, const UColor& newBackColor);
     void                   ClearColors(void);
     void                   SetTitleItem(qboolean bSet);
     virtual qboolean       IsHeaderEntry(void) const;
