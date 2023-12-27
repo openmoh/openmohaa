@@ -711,7 +711,7 @@ void Sentient::DeactivateWeapon(weaponhand_t hand)
 
     activeWeaponList[hand]->AttachToHolster(hand);
     activeWeaponList[hand]->SetPutAway(false);
-    activeWeaponList[hand]->NewAnim("putaway");
+    activeWeaponList[hand]->SetWeaponAnim("putaway");
 
     // Check the player's inventory and detach any weapons that are already attached to that spot
     if (activeWeaponList[hand]->GetCurrentAttachToTag().length() > 0) {
@@ -800,7 +800,7 @@ void Sentient::ActivateWeapon(Weapon *weapon, weaponhand_t hand)
         }
     }
     weapon->AttachToOwner(hand);
-    weapon->NewAnim("raise");
+    weapon->SetWeaponAnim("raise");
 
     if (weapon == holsteredWeapon) {
         holsteredWeapon = NULL;
@@ -1197,7 +1197,7 @@ void Sentient::PutawayWeapon(Event *ev)
     weapon = GetActiveWeapon(hand);
 
     if (weapon->IsSubclassOfWeapon()) {
-        weapon->NewAnim("putaway");
+        weapon->SetWeaponAnim("putaway");
     }
 }
 
