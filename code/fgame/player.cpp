@@ -5445,7 +5445,14 @@ void Player::SelectPreviousWeapon(Event *ev)
 
         if (g_gametype->integer != GT_SINGLE_PLAYER) {
             while (weapon && weapon != activeWeapon && weapon->IsSubclassOfInventoryItem()) {
-                weapon = PreviousWeapon(weapon);
+                Weapon* prev = PreviousWeapon(weapon);
+                // Added in OPM
+                //  Fixes the bug that cause infinite loop when the last weapon has no ammo
+                //  and the only weapon is an inventory item
+                if (prev == weapon) {
+                    break;
+                }
+                weapon = prev;
             }
         }
     } else {
@@ -5471,7 +5478,14 @@ void Player::SelectNextWeapon(Event *ev)
 
         if (g_gametype->integer != GT_SINGLE_PLAYER) {
             while (weapon && weapon != activeWeapon && weapon->IsSubclassOfInventoryItem()) {
-                weapon = NextWeapon(weapon);
+                Weapon* next = NextWeapon(weapon);
+                // Added in OPM
+                //  Fixes the bug that cause infinite loop when the last weapon has no ammo
+                //  and the only weapon is an inventory item
+                if (next == weapon) {
+                    break;
+                }
+                weapon = next;
             }
         }
     } else {
