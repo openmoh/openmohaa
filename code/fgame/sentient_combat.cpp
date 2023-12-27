@@ -703,6 +703,12 @@ void Sentient::DeactivateWeapon(weaponhand_t hand)
         return;
     }
 
+    if (!(activeWeaponList[hand]->GetWeaponClass() & WEAPON_CLASS_ANY_ITEM)) {
+        // Set the last active weapon only if the weapon is not an item
+        lastActiveWeapon.weapon = activeWeaponList[hand];
+        lastActiveWeapon.hand   = hand;
+    }
+
     activeWeaponList[hand]->AttachToHolster(hand);
     activeWeaponList[hand]->SetPutAway(false);
     activeWeaponList[hand]->NewAnim("putaway");
@@ -723,9 +729,7 @@ void Sentient::DeactivateWeapon(weaponhand_t hand)
         }
     }
 
-    lastActiveWeapon.weapon = activeWeaponList[hand];
-    lastActiveWeapon.hand   = hand;
-    activeWeaponList[hand]  = NULL;
+    activeWeaponList[hand] = NULL;
 }
 
 void Sentient::DeactivateWeapon(Weapon *weapon)
@@ -734,6 +738,12 @@ void Sentient::DeactivateWeapon(Weapon *weapon)
 
     for (i = 0; i < MAX_ACTIVE_WEAPONS; i++) {
         if (activeWeaponList[i] == weapon) {
+            if (activeWeaponList[i] && !(activeWeaponList[i]->GetWeaponClass() & WEAPON_CLASS_ANY_ITEM)) {
+                // Set the last active weapon only if the weapon is not an item
+                lastActiveWeapon.weapon = activeWeaponList[i];
+                lastActiveWeapon.hand   = (weaponhand_t)i;
+            }
+
             activeWeaponList[i]->DetachFromOwner();
             activeWeaponList[i]->SetPutAway(false);
             activeWeaponList[i] = NULL;
@@ -761,6 +771,7 @@ void Sentient::EventDeactivateWeapon(Event *ev)
 
 void Sentient::ActivateWeapon(Weapon *weapon, weaponhand_t hand)
 {
+    str holsterTag;
     int i;
 
     if (hand == WEAPON_ERROR) {
@@ -769,9 +780,12 @@ void Sentient::ActivateWeapon(Weapon *weapon, weaponhand_t hand)
     }
 
     activeWeaponList[hand] = weapon;
-    str holsterTag         = weapon->GetHolsterTag();
 
-    if (str::cmp(holsterTag, "")) {
+    if (hand == WEAPON_MAIN) {
+        holsterTag = weapon->GetHolsterTag();
+    }
+
+    if (holsterTag.length() > 0) {
         // Check the player's inventory and detach any weapons that are currently attached to that tag.
         for (i = 1; i <= inventory.NumObjects(); i++) {
             Item *item = (Item *)G_GetEntity(inventory.ObjectAt(i));
