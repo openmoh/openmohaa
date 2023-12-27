@@ -290,7 +290,12 @@ void SV_SendConfigstring(client_t *client, int index)
 				denormalized, buf );
 
 			sent += (maxChunkSize - 1);
-			remaining -= (maxChunkSize - 1);
+			if (remaining > maxChunkSize - 1) {
+				remaining -= (maxChunkSize - 1);
+			} else {
+				// Make sure to not go negative
+				remaining = 0;
+			}
 		}
 	} else {
 		// standard cs, just send it
