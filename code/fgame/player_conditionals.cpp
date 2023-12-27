@@ -570,6 +570,8 @@ qboolean Player::CondMinChargeTime(Conditional& condition)
 
     if (hand != WEAPON_ERROR) {
         weap = GetActiveWeapon(hand);
+        // Fixed in 2.0.
+        //  Make sure the active weapon is valid
         if (weap) {
             float charge_time = weap->GetMinChargeTime(FIRE_PRIMARY);
             if (charge_time) {
