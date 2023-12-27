@@ -163,7 +163,7 @@ void Player::EventCorrectWeaponAttachments(Event *ev)
     iTagLeft     = gi.Tag_NumForName(edict->tiki, "tag_weapon_left");
     iNumChildren = numchildren;
 
-    for (int i = 0; i < iNumChildren; i++) {
+    for (int i = 0; i < MAX_MODEL_CHILDREN && iNumChildren; i++) {
         iChild = children[i];
 
         if (iChild == ENTITYNUM_NONE) {
@@ -176,18 +176,17 @@ void Player::EventCorrectWeaponAttachments(Event *ev)
         }
 
         if (pChild->edict->s.tag_num == iTagLeft || pChild->edict->s.tag_num == iTagRight) {
-            if (pChild->IsSubclassOfWeapon()) {
-                if (pChild->edict->s.tag_num == iTagLeft) {
-                    iUseAngles = edict->s.attach_use_angles;
-                    vOffset    = edict->s.attach_offset;
-
-                    // reattach to the right tag
-                    detach();
-                    attach(entnum, iTagRight, iUseAngles, vOffset);
-                }
-            } else {
+            if (!pChild->IsSubclassOfWeapon()) {
                 // Remove entities like ammoclip
                 pChild->PostEvent(EV_Remove, 0);
+                iNumChildren--;
+            } else if (pChild->edict->s.tag_num == iTagLeft) {
+                iUseAngles = edict->s.attach_use_angles;
+                vOffset    = edict->s.attach_offset;
+
+                // reattach to the right tag
+                pChild->detach();
+                pChild->attach(entnum, iTagRight, iUseAngles, vOffset);
             }
         }
     }
