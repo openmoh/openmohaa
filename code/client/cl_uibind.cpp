@@ -303,3 +303,14 @@ bool bindlistener::Load(Script& script)
 
     return true;
 }
+
+bool CL_LoadBind(const char* filename, bind_t* bind) {
+    Script script;
+
+    bind->Clear();
+
+    bindlistener listener(bind);
+    script.LoadFile(filename);
+    // Load the bind file
+    return listener.Load(script);
+}
