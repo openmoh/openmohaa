@@ -323,7 +323,7 @@ void Sentient::ChargeWeapon(weaponhand_t hand, firemode_t mode)
         return;
     }
 
-    if (hand > MAX_ACTIVE_WEAPONS) {
+    if (hand >= MAX_ACTIVE_WEAPONS) {
         warning(
             "Sentient::ChargeWeapon",
             "Weapon hand number \"%d\" is out of bounds of 0 to MAX_ACTIVE_WEAPONS:%d\n",
@@ -494,7 +494,7 @@ void Sentient::StopFireWeapon(Event *ev)
         number = WeaponHandNameToNum(side);
     }
 
-    if ((number > MAX_ACTIVE_WEAPONS) || (number < 0)) {
+    if ((number >= MAX_ACTIVE_WEAPONS) || (number < 0)) {
         warning(
             "Sentient::StopFireWeapon",
             "Weapon number \"%d\" is out of bounds of 0 to MAX_ACTIVE_WEAPONS:%d\n",
@@ -521,7 +521,7 @@ void Sentient::ReleaseFireWeapon(int number, firemode_t mode)
 
     charge_start_time = 0;
 
-    if ((number > MAX_ACTIVE_WEAPONS) || (number < 0)) {
+    if ((number >= MAX_ACTIVE_WEAPONS) || (number < 0)) {
         warning(
             "Sentient::FireWeapon",
             "Weapon number \"%d\" is out of bounds of 0 to MAX_ACTIVE_WEAPONS:%d\n",
@@ -664,7 +664,7 @@ int Sentient::NumWeapons(void)
 
 void Sentient::ChangeWeapon(Weapon *weapon, weaponhand_t hand)
 {
-    if ((hand > MAX_ACTIVE_WEAPONS) || (hand < 0)) {
+    if ((hand >= MAX_ACTIVE_WEAPONS) || (hand < 0)) {
         warning(
             "Sentient::ChangeWeapon",
             "Weapon hand number \"%d\" is out of bounds of 0 to MAX_ACTIVE_WEAPONS:%d\n",
@@ -993,7 +993,7 @@ Weapon *Sentient::PreviousWeapon(Weapon *weapon)
 Weapon *Sentient::GetActiveWeapon(weaponhand_t hand) const
 
 {
-    if ((hand > MAX_ACTIVE_WEAPONS) || (hand < 0)) {
+    if ((hand >= MAX_ACTIVE_WEAPONS) || (hand < 0)) {
         warning(
             "Sentient::GetActiveWeapon",
             "Weapon hand number \"%d\" is out of bounds of 0 to MAX_ACTIVE_WEAPONS:%d\n",
