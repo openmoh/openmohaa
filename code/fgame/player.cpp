@@ -9112,7 +9112,8 @@ void Player::Spectator(Event *ev)
 
 void Player::Leave_DM_Team(Event *ev)
 {
-    // FIXME: should it stays disabled ?
+    // Fixed in OPM
+    //  FIXME: should it be permanently disabled ?
 #if 0
     if (current_team)
     {
@@ -9494,8 +9495,9 @@ void Player::CallVote(Event *ev)
 
             if (i == game.maxclients) {
                 HUDPrint(
-                    va("%s %s", ent->client->pers.netname, gi.LV_ConvertString("is not a valid player name to kick."))
+                    va("%s %s", arg2.c_str(), gi.LV_ConvertString("is not a valid player name to kick."))
                 );
+                return;
             }
         } else if (!Q_stricmp(arg1.c_str(), "map") && *sv_nextmap->string) {
             level.m_voteString = va("%s %s; set next map \"%s\"", arg1.c_str(), arg2.c_str(), arg2.c_str());
