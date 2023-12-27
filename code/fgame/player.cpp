@@ -9411,12 +9411,12 @@ void Player::CallVote(Event *ev)
     }
 
     if (!g_allowvote->integer) {
-        HUDPrint(gi.LV_ConvertString("Voting not allowed here."));
+        HUDPrint(va("%s\n", gi.LV_ConvertString("Voting not allowed here.")));
         return;
     }
 
     if (level.m_voteTime != 0.0f) {
-        HUDPrint(gi.LV_ConvertString("A vote is already in progress."));
+        HUDPrint(va("%s\n", gi.LV_ConvertString("A vote is already in progress.")));
         return;
     }
 
@@ -9440,7 +9440,7 @@ void Player::CallVote(Event *ev)
     }
 
     if (IsSpectator() || IsDead()) {
-        HUDPrint(gi.LV_ConvertString("You are not allowed to call a vote as a spectator."));
+        HUDPrint(va("%s\n", gi.LV_ConvertString("You are not allowed to call a vote as a spectator.")));
         return;
     }
 
@@ -9451,17 +9451,17 @@ void Player::CallVote(Event *ev)
 
     if (!atoi(arg1.c_str())) {
         if (strchr(arg1.c_str(), ';') || strchr(arg2.c_str(), ';')) {
-            HUDPrint(gi.LV_ConvertString("Invalid vote string."));
+            HUDPrint(va("%s\n", gi.LV_ConvertString("Invalid vote string.")));
             return;
         }
 
         if (Q_stricmp(arg1.c_str(), "restart") && Q_stricmp(arg1.c_str(), "nextmap") && Q_stricmp(arg1.c_str(), "map")
             && Q_stricmp(arg1.c_str(), "g_gametype") && Q_stricmp(arg1.c_str(), "kick")
             && Q_stricmp(arg1.c_str(), "clientkick") && Q_stricmp(arg1.c_str(), "fraglimit")) {
-            HUDPrint(gi.LV_ConvertString("Invalid vote string."));
+            HUDPrint(va("%s\n", gi.LV_ConvertString("Invalid vote string.")));
             HUDPrint(va(
                 "%s restart, nextmap, map <mapname>, g_gametype <n>, fraglimit <n>, timelimit <n>, kick <player>, and "
-                "clientkick <player #>.",
+                "clientkick <player #>.\n",
                 gi.LV_ConvertString("Vote commands are:")
             ));
 
@@ -9485,7 +9485,7 @@ void Player::CallVote(Event *ev)
                 if (!Q_stricmp(ent->client->pers.netname, arg2.c_str())) {
                     // Prevent the player from kicking himself out
                     if (ent->entity == this) {
-                        HUDPrint(gi.LV_ConvertString("You are not allowed to kick yourself."));
+                        HUDPrint(va("%s\n", gi.LV_ConvertString("You are not allowed to kick yourself.")));
                         return;
                     }
 
@@ -9495,7 +9495,7 @@ void Player::CallVote(Event *ev)
 
             if (i == game.maxclients) {
                 HUDPrint(
-                    va("%s %s", arg2.c_str(), gi.LV_ConvertString("is not a valid player name to kick."))
+                    va("%s %s\n", arg2.c_str(), gi.LV_ConvertString("is not a valid player name to kick."))
                 );
                 return;
             }
@@ -9516,7 +9516,7 @@ void Player::CallVote(Event *ev)
             // get the gametype number
             gametypeNum = atoi(arg2.c_str());
             if (gametypeNum <= GT_SINGLE_PLAYER || gametypeNum >= GT_MAX_GAME_TYPE) {
-                HUDPrint(va("%s", gi.LV_ConvertString("Invalid gametype for a vote.")));
+                HUDPrint(va("%s\n", gi.LV_ConvertString("Invalid gametype for a vote.")));
                 return;
             }
 
@@ -9542,7 +9542,7 @@ void Player::CallVote(Event *ev)
                 level.m_voteName = "Game Type Liberation";
                 break;
             default:
-                HUDPrint(va("%s %s %d", gi.LV_ConvertString("Game Type"), arg1.c_str(), gametypeNum));
+                HUDPrint(va("%s %s %d\n", gi.LV_ConvertString("Game Type"), arg1.c_str(), gametypeNum));
                 return;
             }
         } else if (!Q_stricmp(arg1.c_str(), "map")) {
@@ -9578,7 +9578,7 @@ void Player::CallVote(Event *ev)
 
         voteIndex = atoi(arg1.c_str());
         if (!level.GetVoteOptionMain(voteIndex, &voteOptionCommand, &optionType)) {
-            HUDPrint(va("%s", gi.LV_ConvertString("Invalid vote option.")));
+            HUDPrint(va("%s\n", gi.LV_ConvertString("Invalid vote option.")));
             return;
         }
 
