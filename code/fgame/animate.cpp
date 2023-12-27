@@ -629,6 +629,7 @@ void Animate::PostAnimate(void)
     float  deltaSyncTime;
     float  total_weight;
     float  total_angular_delta;
+    float  beforeFrameTime;
     Vector vFrameDelta;
     bool   hasAction = false;
 
@@ -636,7 +637,8 @@ void Animate::PostAnimate(void)
         return;
     }
 
-    deltaSyncTime = syncTime;
+    deltaSyncTime   = syncTime;
+    beforeFrameTime = level.frametime / 10.f;
 
     if (!pauseSyncTime) {
         syncTime = 1.0f / syncRate * level.frametime + deltaSyncTime;
@@ -698,7 +700,11 @@ void Animate::PostAnimate(void)
                     continue;
                 }
             } else {
-                if (edict->s.frameInfo[i].time < (animtimes[i] - 0.01f)) {
+                // Fixed in OPM
+                //  Previously, beforeFrameTime was a constant of 0.01.
+                //  It caused issues when the number of server frames per second
+                //  was higher. Some animation events were not executing properly.
+                if (edict->s.frameInfo[i].time < (animtimes[i] - beforeFrameTime)) {
                     continue;
                 }
             }
