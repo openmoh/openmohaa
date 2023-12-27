@@ -395,8 +395,8 @@ Set up argc/argv for the given command
 ===================
 */
 qboolean CL_GetServerCommand( int serverCommandNumber, qboolean differentServer ) {
-	char	*s;
-	char	*cmd;
+	char		*s;
+	char		*cmd;
 	static char bigConfigString[BIG_INFO_STRING];
 
 	// if we have irretrievably lost a reliable command, drop the connection
@@ -421,8 +421,38 @@ qboolean CL_GetServerCommand( int serverCommandNumber, qboolean differentServer 
 		Com_DPrintf( "serverCommand: %i : %s\n", serverCommandNumber, s );
 	}
 
-	Cmd_TokenizeString( s );
+	Cmd_TokenizeString(s);
 	cmd = Cmd_Argv(0);
+
+	// Readded in OPM (from ioquake)
+	// Configstring big buffer
+	if (!strcmp(cmd, "bcs0")) {
+		Com_sprintf(bigConfigString, BIG_INFO_STRING, "cs %s \"%s", Cmd_Argv(1), Cmd_Argv(2));
+		return qfalse;
+	}
+
+	if (!strcmp(cmd, "bcs1")) {
+		s = Cmd_Argv(2);
+		if (strlen(bigConfigString) + strlen(s) >= BIG_INFO_STRING) {
+			Com_Error(ERR_DROP, "bcs exceeded BIG_INFO_STRING");
+		}
+		strcat(bigConfigString, s);
+		return qfalse;
+	}
+
+	if (!strcmp(cmd, "bcs2")) {
+		s = Cmd_Argv(2);
+		if (strlen(bigConfigString) + strlen(s) + 1 >= BIG_INFO_STRING) {
+			Com_Error(ERR_DROP, "bcs exceeded BIG_INFO_STRING");
+		}
+		strcat(bigConfigString, s);
+		strcat(bigConfigString, "\"");
+		s = bigConfigString;
+
+		// reparse
+		Cmd_TokenizeString(s);
+		cmd = Cmd_Argv(0);
+	}
 
 	return CL_ProcessServerCommand(s, cmd, differentServer);
 }
