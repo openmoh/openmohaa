@@ -214,7 +214,7 @@ void Sentient::WeaponKnockedFromHands(void)
 bool Sentient::CanSee(Entity *ent, float fov, float vision_distance, bool bNoEnts)
 {
     vec2_t delta;
-    int mask;
+    int    mask;
 
     VectorSub2D(ent->centroid, centroid, delta);
 
@@ -237,16 +237,28 @@ bool Sentient::CanSee(Entity *ent, float fov, float vision_distance, bool bNoEnt
     }
 
     if (ent->IsSubclassOfSentient()) {
-        return G_SightTrace(EyePosition(), vec_zero, vec_zero, static_cast<Sentient*>(ent)->EyePosition(), this, ent, mask, qfalse, "Sentient::CanSee 1");
+        return G_SightTrace(
+            EyePosition(),
+            vec_zero,
+            vec_zero,
+            static_cast<Sentient *>(ent)->EyePosition(),
+            this,
+            ent,
+            mask,
+            qfalse,
+            "Sentient::CanSee 1"
+        );
     } else {
-        return G_SightTrace(EyePosition(), vec_zero, vec_zero, ent->centroid, this, ent, mask, qfalse, "Sentient::CanSee 2");
+        return G_SightTrace(
+            EyePosition(), vec_zero, vec_zero, ent->centroid, this, ent, mask, qfalse, "Sentient::CanSee 2"
+        );
     }
 }
 
 bool Sentient::CanSee(const Vector& org, float fov, float vision_distance, bool bNoEnts)
 {
     vec2_t delta;
-    int mask;
+    int    mask;
 
     VectorSub2D(org, centroid, delta);
 
@@ -696,15 +708,17 @@ void Sentient::DeactivateWeapon(weaponhand_t hand)
     activeWeaponList[hand]->NewAnim("putaway");
 
     // Check the player's inventory and detach any weapons that are already attached to that spot
-    for (i = 1; i <= inventory.NumObjects(); i++) {
-        Item *item = (Item *)G_GetEntity(inventory.ObjectAt(i));
+    if (activeWeaponList[hand]->GetCurrentAttachToTag().length() > 0) {
+        for (i = 1; i <= inventory.NumObjects(); i++) {
+            Item *item = (Item *)G_GetEntity(inventory.ObjectAt(i));
 
-        if (item->IsSubclassOfWeapon()) {
-            Weapon *weap = (Weapon *)item;
+            if (item->IsSubclassOfWeapon()) {
+                Weapon *weap = (Weapon *)item;
 
-            if ((weap != activeWeaponList[hand])
-                && (!str::cmp(weap->GetCurrentAttachToTag(), activeWeaponList[hand]->GetCurrentAttachToTag()))) {
-                weap->DetachFromOwner();
+                if ((weap != activeWeaponList[hand])
+                    && (!str::icmp(weap->GetCurrentAttachToTag(), activeWeaponList[hand]->GetCurrentAttachToTag()))) {
+                    weap->DetachFromOwner();
+                }
             }
         }
     }
@@ -760,10 +774,10 @@ void Sentient::ActivateWeapon(Weapon *weapon, weaponhand_t hand)
     if (str::cmp(holsterTag, "")) {
         // Check the player's inventory and detach any weapons that are currently attached to that tag.
         for (i = 1; i <= inventory.NumObjects(); i++) {
-            Item* item = (Item*)G_GetEntity(inventory.ObjectAt(i));
+            Item *item = (Item *)G_GetEntity(inventory.ObjectAt(i));
 
             if (item->IsSubclassOfWeapon()) {
-                Weapon* weap = (Weapon*)item;
+                Weapon *weap = (Weapon *)item;
 
                 if ((!str::cmp(holsterTag, weap->GetCurrentAttachToTag()))) {
                     weap->DetachFromOwner();
