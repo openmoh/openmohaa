@@ -171,34 +171,35 @@ Append `-DFLEX_EXECUTABLE=...\win_flex.exe -DBISON_EXECUTABLE=...\win_bison.exe`
 
 *More screenshots [here](docs/images)*
 
-## Features
+## Features and fixes
 
-### Features added and not present in MOH:AA
+A lot of bugs and exploits from MOH:AA were fixed in OpenMoHAA (BOF exploit, grenade crash bug, command overflow...).
 
-#### Server-side
+### Server-side
 
 - Bots
 - Spectate players in first-person
 - Demo recording
 - More script commands for mods
 - Non-PVS optimization
+- Support for higher `sv_fps` value (tickrate)
 
-##### Non-PVS optimization
+#### Non-PVS optimization
 
 For each client, the server optimizes by only sending them information about other players that they can see. Clients won't see other players they can't see.
 
 Enable this feature with `set sv_netoptimize 2`.
 
-#### Client-side and server-side
+### Client-side and server-side
 
 - Security fixes and features from ioquake3
 - IPv6 support (from ioquake3)
 
-### Objectives / planned features
+## Planned features
 
 This is a non-exhaustive list of objectives and planned features.
 
-#### Server-side
+### Server-side
 
 - 100% compatibility with mohaa content
 - More feature for mods
