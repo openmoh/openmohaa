@@ -623,7 +623,7 @@ void Sentient::AttachAllActiveWeapons(void)
         }
     }
 
-    if (this->isSubclassOf(Player)) {
+    if (this->IsSubclassOfPlayer()) {
         Player *player = (Player *)this;
         player->UpdateWeapons();
     }
@@ -909,7 +909,7 @@ Weapon *Sentient::NextWeapon(Weapon *weapon)
 
         assert(item);
 
-        if (item->isSubclassOf(Weapon)) {
+        if (item->IsSubclassOfWeapon()) {
             choice = (Weapon *)item;
             if ((!choice->HasAmmo(FIRE_PRIMARY) && !choice->GetUseNoAmmo()) || !choice->AutoChange()) {
                 continue;
@@ -964,7 +964,7 @@ Weapon *Sentient::PreviousWeapon(Weapon *weapon)
 
         assert(item);
 
-        if (item->isSubclassOf(Weapon)) {
+        if (item->IsSubclassOfWeapon()) {
             choice = (Weapon *)item;
             if ((!choice->HasAmmo(FIRE_PRIMARY) && !choice->GetUseNoAmmo()) || !choice->AutoChange()) {
                 continue;
@@ -1168,7 +1168,7 @@ void Sentient::PutawayWeapon(Event *ev)
 
     weapon = GetActiveWeapon(hand);
 
-    if (weapon->isSubclassOf(Weapon)) {
+    if (weapon->IsSubclassOfWeapon()) {
         weapon->NewAnim("putaway");
     }
 }
