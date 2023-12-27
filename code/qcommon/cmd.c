@@ -25,7 +25,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "qcommon.h"
 
 #define	MAX_CMD_BUFFER  128*1024
-#define	MAX_CMD_LINE	1024
+#define	MAX_CMD_LINE	8192 // was increased for testing purposes
 #define MAX_ALIAS_NAME	32
 #define MAX_ALIAS_COUNT	16
 
