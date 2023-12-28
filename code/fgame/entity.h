@@ -286,7 +286,7 @@ public:
     Container<int> immunities;
 
     //
-    // Openmohaa additions
+    // Added in OPM
     //====
     // miscellaneous
     bool     m_bHintRequiresLookAt;

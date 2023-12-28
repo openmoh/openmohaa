@@ -1165,7 +1165,7 @@ inline void Player::Archive(Archiver& arc)
     }
 
     //
-    // Openmohaa additions
+    // Added in OPM
     //
     arc.ArchiveBool(&m_bFrozen);
     arc.ArchiveBool(&animDoneVM);

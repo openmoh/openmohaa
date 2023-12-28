@@ -372,8 +372,8 @@ void ActorPath::UpdatePos(float *origin, float fNodeRadius)
         m_bChangeLookAhead = true;
     }
 
-    // Check added in OPM.
-    //  Make sure to stop if it's the last node
+    // Added in OPM.
+	//  The check was added to make sure to stop if it's the last node
     for (current_path = m_pathpos; current_path >= LastNode(); current_path--) {
         VectorSub2D(current_path->point, origin, delta2);
         //current_dot = DotProduct2D(delta2, dir) - fNodeRadius;

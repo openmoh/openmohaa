@@ -220,7 +220,7 @@ public:
     bool m_bFootOnGround_Right;
     bool m_bFootOnGround_Left;
     //
-    // Openmohaa additions
+    // Added in OPM
     //
     int  iNextLandTime;
 

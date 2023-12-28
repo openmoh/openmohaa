@@ -1249,7 +1249,7 @@ Event EV_Player_GetVehicle // Added in 2.30
 
 ////////////////////////////
 //
-// Openmohaa additions
+// Added in OPM
 //
 ////////////////////////////
 Event EV_Player_AddDeaths
@@ -1993,7 +1993,7 @@ Player::Player()
     m_fLastVoteTime              = 0;
 
     //
-    // Openmohaa additions
+    // Added in OPM
     //====
     m_bShowingHint      = false;
     disable_spectate    = false;
@@ -2143,7 +2143,7 @@ Player::Player()
     m_vViewPos = vec_zero;
 
     //
-    // Openmohaa additions
+    // Added in OPM
     //====
     m_bFrozen           = false;
     animDoneVM          = true;
@@ -2217,7 +2217,7 @@ void Player::Init(void)
     level.Unregister(STRING_PLAYERSPAWN);
 
     //
-    // Added for openmohaa
+    // Added in OPM
     //
     if (!m_bConnected) {
         m_bConnected = true;
@@ -2677,7 +2677,7 @@ void Player::Respawn(Event *ev)
     }
 
     //
-    // Added in openmohaa
+    // Added in OPM
     //
     Unregister(STRING_RESPAWN);
 }
@@ -3048,6 +3048,7 @@ void Player::Killed(Event *ev)
     Event   *event;
 
     //
+    // Added in OPM
     // This one is openmohaa-specific
     //  Custom killed event will do the job
     //
@@ -3153,7 +3154,8 @@ void Player::Killed(Event *ev)
     }
 
     //
-    // Openmohaa scripted events
+    // Added in OPM
+    //  Scripted events
     //
     event = new Event(0, 11);
 
@@ -3523,7 +3525,7 @@ void Player::GetMoveInfo(pmove_t *pm)
         }
 
         //
-        // Openmohaa fix
+        // Fixed in OPM
         //  Disable predictions when the groundentity is moving up/down, looks like shaky otherwise
         if (groundentity->entity && groundentity->entity != this && groundentity->entity->velocity[2] != 0) {
             pm->ps->pm_flags |= PMF_NO_PREDICTION;
@@ -3980,7 +3982,7 @@ void Player::ClientMove(usercmd_t *ucmd)
     }
 
     //====
-    // Openmohaa addition
+    // Added in OPM
     for (int i = 0; i < MAX_SPEED_MULTIPLIERS; i++) {
         client->ps.speed = (int)((float)client->ps.speed * speed_multiplier[i]);
     }
@@ -4816,7 +4818,7 @@ void Player::Think(void)
     }
 
     //
-    // Openmohaa additions
+    // Added in OPM
     //
     if (!animDoneVM) {
         int    index;
@@ -6985,8 +6987,8 @@ void Player::UpdateStats(void)
 
     if (g_spectatefollow_firstperson->integer && IsSpectator() && m_iPlayerSpectating != 0) {
         //
-        // Openmohaa addition
-        // First-person spectate
+        // Added in OPM
+        //  First-person spectate
         //
         gentity_t *ent = g_entities + (m_iPlayerSpectating - 1);
 
@@ -8055,8 +8057,8 @@ void Player::ModifyHeight(Event *ev)
         maxs.z     = 60.0f;
     } else if (!height.icmp("prone")) {
         //
-        // Prone was added in openmohaa
-        //
+        // Added in OPM
+        //  (prone)
         viewheight = PRONE_VIEWHEIGHT;
         maxs.z     = 20.0f;
     } else {

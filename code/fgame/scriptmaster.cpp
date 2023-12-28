@@ -403,7 +403,7 @@ const char *ScriptMaster::ConstStrings[] = {
     "both",
     "runandshoot",
     //
-    // Openmohaa additions
+    // Added in OPM
     //
     "respawn",
     "viewmodelanim_done"

@@ -1164,7 +1164,8 @@ void Level::SpawnEntities(char *entities, int svsTime)
 
     gi.LoadResource("*148a");
 
-    // Single-player check added in OPM
+    // Added in OPM
+	//  Check for single-player before pre-creating a player instance
     if (game.maxclients == 1 && g_gametype->integer == GT_SINGLE_PLAYER) {
         spawn_entnum = 0;
         new Player;

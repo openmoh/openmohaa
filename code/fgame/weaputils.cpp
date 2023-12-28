@@ -1306,8 +1306,9 @@ void Projectile::SetOwner(Entity *owner)
         if (owner->IsSubclassOfPlayer()) {
             Player *p = (Player *)owner;
             m_iTeam   = p->GetTeam();
-            // this was added in openmohaa to prevent glitches
-            // like when the player disconnects or when the player spectates
+			// Added in OPM
+            //  this was added to prevent glitches, like when the player
+            //  disconnects or when the player spectates
             m_bHadPlayerOwner = true;
         }
 

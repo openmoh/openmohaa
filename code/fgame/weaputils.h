@@ -142,7 +142,7 @@ public:
 	void			BecomeBomb(Event* ev);
 	void			DieInWater(Event* ev);
 	//
-	// Openmohaa additions
+	// Added in OPM
 	//
 	bool			CheckTeams( void );
 };

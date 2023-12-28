@@ -1173,7 +1173,7 @@ Event EV_ScriptThread_RegisterCommand
 );
 
 //
-// Openmohaa additions
+// Added in OPM
 //
 Event EV_ScriptThread_CancelWaiting
 (

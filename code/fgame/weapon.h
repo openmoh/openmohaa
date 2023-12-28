@@ -450,7 +450,7 @@ public:
     void Archive(Archiver& arc) override;
 
     //
-    // Added in openmohaa
+    // Added in OPM
     //
     Listener  *GetScriptOwner(void) override;
     float      GetBulletRange(firemode_t firemode);

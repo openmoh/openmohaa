@@ -567,7 +567,7 @@ Event EV_Sentient_GetForceDropWeapon
 );
 
 //
-// Openmohaa additions
+// Added in OPM
 //
 Event EV_Sentient_GetNewActiveWeap
 (
@@ -2130,7 +2130,7 @@ void Sentient::Archive(Archiver& arc)
     }
 
     //
-    // Openmohaa additions
+    // Added in OPM
     //
     arc.ArchiveInteger(&iNextLandTime);
 }
