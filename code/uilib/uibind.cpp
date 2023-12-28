@@ -118,13 +118,13 @@ qboolean UIBindButton::KeyEvent(int key, unsigned int time)
         return qfalse;
     }
 
-    if (key == K_ESCAPE) {
-        m_getkey = false;
-        uWinMan.SetBindActive(NULL);
-        uii.Snd_PlaySound(m_entersound);
-    } else {
+    if (key != K_ESCAPE) {
         uWinMan.BindKeyToCommand(m_bindcommand, key, m_bindindex, m_alternate);
     }
+
+    m_getkey = false;
+    uWinMan.SetBindActive(NULL);
+    uii.Snd_PlaySound(m_entersound);
 
     return qtrue;
 }
@@ -194,7 +194,7 @@ void UIBindButton::DrawUnpressed(void)
     }
 
     m_font->PrintJustified(
-        UIRect2D(clientFrame.size.width, clientFrame.size.height, clientFrame.pos.x + 1, clientFrame.pos.y + 1),
+        UIRect2D(clientFrame.pos.x + 1, clientFrame.pos.y + 1, clientFrame.size.width, clientFrame.size.height),
         m_iFontAlignmentHorizontal,
         m_iFontAlignmentVertical,
         Sys_LV_CL_ConvertString(s),
