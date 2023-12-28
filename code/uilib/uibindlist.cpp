@@ -634,7 +634,7 @@ qboolean UIFakkBindList::SetActiveRow(UIWidget *w)
     qboolean ret1, ret2;
     int      new_activerow = -1, new_activeitem = -1;
 
-    for (i = 0; i < m_bind->binds.NumObjects(); i++) {
+    for (i = 0; i < m_bind->binds.NumObjects(); i++, row++) {
         for (k = 1; k <= 3; k++) {
             if (m_widgetlist.ObjectAt(k + i * 3) == w) {
                 new_activerow  = row;
@@ -692,14 +692,12 @@ void UIFakkBindList::Draw(void)
     for (i = 0, row = 0; i < m_bind->binds.NumObjects(); i++, row++) {
         if (m_activerow == row) {
             for (k = 1; k <= 3; k++) {
-                UIWidget *hwid = m_widgetlist.ObjectAt(m_activerow + k * 3);
+                UIWidget *hwid = m_widgetlist.ObjectAt(k + m_activerow * 3);
 
                 hwid->setForegroundColor(m_bind->highlightfgcolor);
                 hwid->setBackgroundColor(m_bind->highlightbgcolor, true);
 
                 if (m_activeitem != k) {
-                    hwid->setForegroundColor(m_bind->inactivefgcolor);
-                    hwid->setBackgroundColor(m_bind->inactivebgcolor, true);
                     hwid->setBorderColor(m_bind->inactivebgcolor);
                 } else if (!uWinMan.BindActive()) {
                     hwid->setForegroundColor(m_bind->selectfgcolor);
