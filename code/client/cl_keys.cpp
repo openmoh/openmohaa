@@ -1132,120 +1132,122 @@ void CL_KeyEvent(int key, qboolean down, unsigned time)
         }
     }
 
-    if (key == K_MOUSE1 || key == K_MOUSE2 || key == K_MOUSE3 || key == K_MOUSE4 || key == K_MOUSE5) {
+    if (key >= K_MOUSE1 && key <= K_MOUSE5) {
         if (down) {
             cl.mouseButtons |= (1 << (key + (256 - K_MOUSE1)));
         } else {
             cl.mouseButtons &= ~(1 << (key + (256 - K_MOUSE1)));
         }
+
+        if (in_guimouse) {
+            return;
+        }
     }
 
-    if (!in_guimouse || key <= K_MWHEELUP || key > K_JOY1) {
-        // keys can still be used for bound actions
-        if (down && (key <= K_BACKSPACE || key == K_MOUSE4) && (clc.demoplaying || clc.state == CA_CINEMATIC)
-            && Key_GetCatcher() == 0) {
-            Cvar_Set("nextdemo", "");
-            key = K_ESCAPE;
-        }
+    // keys can still be used for bound actions
+    if (down && (key <= K_BACKSPACE || key == K_MOUSE4) && (clc.demoplaying || clc.state == CA_CINEMATIC)
+        && Key_GetCatcher() == 0) {
+        Cvar_Set("nextdemo", "");
+        key = K_ESCAPE;
+    }
 
-        // escape is always handled special
-        if (key == K_ESCAPE) {
-            if (down) {
-                qboolean wasup = UI_MenuUp();
-                UI_DeactiveFloatingWindows();
+    // escape is always handled special
+    if (key == K_ESCAPE) {
+        if (down) {
+            qboolean wasup = UI_MenuUp();
+            UI_DeactiveFloatingWindows();
 
-                if (clc.state == CA_CINEMATIC) {
-                    SCR_StopCinematic();
-                    return;
-                }
-
-                if (cls.realFrametime - last_escape_time <= 1000) {
-                    UI_MenuEscape("main");
-                    return;
-                }
-
-                if (wasup) {
-                    UI_MenuEscape("main");
-                    return;
-                }
-
-                if (cl.snap.ps.stats[STAT_CINEMATIC] & 1 && clc.state == CA_ACTIVE) {
-                    Cbuf_AddText("skipcinematic\n");
-                    return;
-                }
-
-                if (clc.state <= CA_DISCONNECTED || clc.state == CA_ACTIVE) {
-                    UI_MenuEscape("main");
-                }
+            if (clc.state == CA_CINEMATIC) {
+                SCR_StopCinematic();
                 return;
             }
-        } else if (down) {
-            if ((Key_GetCatcher() & KEYCATCH_UI && !menubound[key]) || UI_BindActive()) {
-                UI_KeyEvent(key, time);
-            } else if (cls.loading & KEYCATCH_MESSAGE) {
-                Message_Key(key);
-            } else if (clc.state != CA_DISCONNECTED || menubound[key]) {
-                // send the bound action
-                kb = altkeys[key].binding;
-                if (!kb || !altkeys[key].down) {
-                    kb = ctrlkeys[key].binding;
-                    if (!kb || !ctrlkeys[key].down) {
-                        kb = keys[key].binding;
-                    }
-                }
-                if (!kb) {
-                    if (key >= 200) {
-                        Com_Printf("%s is unbound, use controls menu to set.\n", Key_KeynumToString(key));
-                    }
-                } else if (kb[0] == '+') {
-                    int  i;
-                    char button[1024], *buttonPtr;
-                    buttonPtr = button;
-                    for (i = 0;; i++) {
-                        if (kb[i] == ';' || !kb[i]) {
-                            *buttonPtr = '\0';
-                            if (button[0] == '+') {
-                                // button commands add keynum and time as parms so that multiple
-                                // sources can be discriminated and subframe corrected
-                                Com_sprintf(cmd, sizeof(cmd), "%s %i %i\n", button, key, time);
-                                Cbuf_AddText(cmd);
-                            } else {
-                                // down-only command
-                                Cbuf_AddText(button);
-                                Cbuf_AddText("\n");
-                            }
-                            buttonPtr = button;
-                            while ((kb[i] <= ' ' || kb[i] == ';') && kb[i] != 0) {
-                                i++;
-                            }
-                        }
-                        *buttonPtr++ = kb[i];
-                        if (!kb[i]) {
-                            break;
-                        }
-                    }
-                } else {
-                    // down-only command
-                    Cbuf_AddText(kb);
-                    Cbuf_AddText("\n");
-                }
+
+            if (cls.realFrametime - last_escape_time <= 1000) {
+                UI_MenuEscape("main");
+                return;
+            }
+
+            if (wasup) {
+                UI_MenuEscape("main");
+                return;
+            }
+
+            if (cl.snap.ps.stats[STAT_CINEMATIC] & 1 && clc.state == CA_ACTIVE) {
+                Cbuf_AddText("skipcinematic\n");
+                return;
+            }
+
+            if (clc.state <= CA_DISCONNECTED || clc.state == CA_ACTIVE) {
+                UI_MenuEscape("main");
             }
             return;
         }
-
-        if (altkeys[key].down) {
-            kb                = altkeys[key].binding;
-            altkeys[key].down = false;
-            CL_AddKeyUpCommands(key, kb, time);
+    } else if (down) {
+        if ((Key_GetCatcher() & KEYCATCH_UI && !menubound[key]) || UI_BindActive()) {
+            UI_KeyEvent(key, time);
+        } else if (cls.loading & KEYCATCH_MESSAGE) {
+            Message_Key(key);
+        } else if (clc.state != CA_DISCONNECTED || menubound[key]) {
+            // send the bound action
+            kb = altkeys[key].binding;
+            if (!kb || !altkeys[key].down) {
+                kb = ctrlkeys[key].binding;
+                if (!kb || !ctrlkeys[key].down) {
+                    kb = keys[key].binding;
+                }
+            }
+            if (!kb) {
+                if (key >= 200) {
+                    Com_Printf("%s is unbound, use controls menu to set.\n", Key_KeynumToString(key));
+                }
+            } else if (kb[0] == '+') {
+                int  i;
+                char button[1024], *buttonPtr;
+                buttonPtr = button;
+                for (i = 0;; i++) {
+                    if (kb[i] == ';' || !kb[i]) {
+                        *buttonPtr = '\0';
+                        if (button[0] == '+') {
+                            // button commands add keynum and time as parms so that multiple
+                            // sources can be discriminated and subframe corrected
+                            Com_sprintf(cmd, sizeof(cmd), "%s %i %i\n", button, key, time);
+                            Cbuf_AddText(cmd);
+                        } else {
+                            // down-only command
+                            Cbuf_AddText(button);
+                            Cbuf_AddText("\n");
+                        }
+                        buttonPtr = button;
+                        while ((kb[i] <= ' ' || kb[i] == ';') && kb[i] != 0) {
+                            i++;
+                        }
+                    }
+                    *buttonPtr++ = kb[i];
+                    if (!kb[i]) {
+                        break;
+                    }
+                }
+            } else {
+                // down-only command
+                Cbuf_AddText(kb);
+                Cbuf_AddText("\n");
+            }
         }
-        if (ctrlkeys[key].down) {
-            kb                 = ctrlkeys[key].binding;
-            ctrlkeys[key].down = false;
-            CL_AddKeyUpCommands(key, kb, time);
-        }
-
-        CL_AddKeyUpCommands(key, keys[key].binding, time);
+        return;
     }
+
+    if (altkeys[key].down) {
+        kb                = altkeys[key].binding;
+        altkeys[key].down = false;
+        CL_AddKeyUpCommands(key, kb, time);
+    }
+    if (ctrlkeys[key].down) {
+        kb                 = ctrlkeys[key].binding;
+        ctrlkeys[key].down = false;
+        CL_AddKeyUpCommands(key, kb, time);
+    }
+
+    CL_AddKeyUpCommands(key, keys[key].binding, time);
 }
 
 /*
