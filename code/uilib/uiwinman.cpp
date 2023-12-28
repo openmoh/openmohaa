@@ -433,17 +433,10 @@ UIWidget *UIWindowManager::getFirstResponder
 	)
 
 {
-	SafePtr<UIWidget> b = m_firstResponder;
-	m_firstResponder = NULL;
-
-	if( b == this )
-	{
-		return NULL;
+	if (m_firstResponder != this) {
+		return m_firstResponder;
 	}
-	else
-	{
-		return b;
-	}
+	return NULL;
 }
 
 UIWidget *UIWindowManager::ActiveControl
