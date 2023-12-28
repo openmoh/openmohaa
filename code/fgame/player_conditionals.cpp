@@ -403,7 +403,7 @@ qboolean Player::CondAbleToDefuse(Conditional& condition)
     }
 
     Vector vForward, vRight, vUp;
-    AngleVectors(m_vViewPos, vForward, vRight, vUp);
+    AngleVectors(m_vViewAng, vForward, vRight, vUp);
 
     maxrange = weapon->GetMaxRange();
 

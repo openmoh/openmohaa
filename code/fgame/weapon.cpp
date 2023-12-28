@@ -1821,7 +1821,7 @@ void Weapon::Shoot(Event *ev)
             PlaceLandmine(pos, owner, projectileModel[mode], this);
             break;
         case FT_DEFUSE:
-            DefuseObject(right, owner, bulletrange[mode]);
+            DefuseObject(forward, owner, bulletrange[mode]);
             break;
         case FT_BULLET:
             {
