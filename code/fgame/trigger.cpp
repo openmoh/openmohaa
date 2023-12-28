@@ -3108,9 +3108,9 @@ void TriggerLandmine::EventIsAbandoned(Event *ev)
     weapontype = p->GetCurrentDMWeaponType();
 
     if (!str::icmp(weapontype, "landmine")) {
-        ev->AddInteger(1);
-    } else {
         ev->AddInteger(0);
+    } else {
+        ev->AddInteger(1);
     }
 }
 
