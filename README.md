@@ -30,7 +30,7 @@ The main goal of OpenMoHAA is to ensure the future and continuity of **Medal of 
 
 The Multiplayer part is almost fully stable.
 
-Server admins can use OpenMoHAA to [host](#server) a mohaa/mohaas/mohaab server. Bugs must be reported by creating a new [issue](https://github.com/openmoh/openmohaa/issues) on the OpenMoHAA GitHub project. Players can use OpenMoHAA to [play](#client) on a mohaa/mohaas/mohaab server.
+Server admins can use OpenMoHAA to [host](docs/getting_started_installation.md#server) a mohaa/mohaas/mohaab server. Bugs must be reported by creating a new [issue](https://github.com/openmoh/openmohaa/issues) on the OpenMoHAA GitHub project. Players can use OpenMoHAA to [play](docs/getting_started_installation.md#client) on a mohaa/mohaas/mohaab server.
 
 All game modes including `Tug-of-War` from Medal of Honor: Spearhead, and `Liberation` from Medal of Honor: Breakthrough are implemented and are working as intended. Mods like `Freeze-Tag` are working as well.
 
