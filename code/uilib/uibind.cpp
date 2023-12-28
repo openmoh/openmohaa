@@ -118,7 +118,7 @@ qboolean UIBindButton::KeyEvent(int key, unsigned int time)
         return qfalse;
     }
 
-    if (key != K_ESCAPE) {
+    if (key != K_ESCAPE && key != K_PAUSE && key != 0) {
         uWinMan.BindKeyToCommand(m_bindcommand, key, m_bindindex, m_alternate);
     }
 
