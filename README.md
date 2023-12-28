@@ -48,7 +48,7 @@ This feature is a great way to test the gameplay and mods.
 
 - [What's working and what's not](docs/features_implementation.md)
 - [New features](docs/features.md)
-- [Scripting commands](docs/features_g_allclasses.html)
+- [Scripting commands](https://htmlpreview.github.io/?https://github.com/openmoh/openmohaa/blob/main/docs/features_g_allclasses.html)
 
 ## Compiling
 
