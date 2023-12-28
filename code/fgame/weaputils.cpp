@@ -1779,8 +1779,9 @@ void PlaceLandmine(const Vector& origin, Entity *owner, const str& model, Weapon
     }
 
     trigger->setOrigin(origin);
+    VectorCopy(trigger->origin, trigger->edict->s.origin2);
 
-    if (owner->inheritsFrom(&Player::ClassInfo)) {
+    if (owner->isSubclassOf(Player)) {
         if (g_gametype->integer >= GT_TEAM) {
             Player *p = static_cast<Player *>(owner);
             trigger->SetTeam(p->GetTeam());
@@ -1805,8 +1806,8 @@ void PlaceLandmine(const Vector& origin, Entity *owner, const str& model, Weapon
 
             if (owner) {
                 if (owner->IsSubclassOfPlayer() && weap->IsSubclassOfTurretGun()) {
-                    TurretGun *turret = static_cast<TurretGun *>(weap);
-                    // FIXME: find what to increment
+                    Player* p = static_cast<Player*>(owner);
+                    p->m_iNumShotsFired++;
                 }
             }
         }
