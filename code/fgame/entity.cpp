@@ -2619,13 +2619,10 @@ qboolean Entity::droptofloor(float maxfall)
 
     trace = G_Trace(start, mins, maxs, end, this, edict->clipmask, false, "Entity::droptofloor");
     if (trace.fraction == 1 || trace.startsolid || trace.allsolid || !trace.ent) {
-        groundentity = world->edict;
         return false;
     }
 
     setOrigin(trace.endpos);
-
-    groundentity = trace.ent;
 
     return true;
 }
