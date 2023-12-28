@@ -1070,7 +1070,7 @@ void UIWindowManager::BindKeyToCommand
 
 			if( bind->key2 == key )
 			{
-				uii.Key_SetBinding( key, "" );
+				uii.Key_SetBinding( bind->key1, "" );
 				uii.Key_SetBinding( bind->key2, "" );
 				bind->key1 = key;
 				bind->key2 = -1;
@@ -1096,11 +1096,11 @@ void UIWindowManager::BindKeyToCommand
 
 			if( bind->key1 == key )
 			{
-				uii.Key_SetBinding( key, "" );
+				uii.Key_SetBinding( bind->key2, "" );
 			}
 			else
 			{
-				uii.Key_SetBinding( bind->key1, "" );
+				uii.Key_SetBinding( bind->key2, "" );
 				bind->key2 = key;
 
 				if( !command.length() )
