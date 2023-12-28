@@ -240,7 +240,7 @@ void UIFakkBindList::CreateBindWidgets(void)
         //
         // Label
         //
-        listlabel = new UIFakkBindListLabel();
+        listlabel = new UIFakkBindListLabel(this);
         bi        = m_bind->binds.ObjectAt(i);
 
         if (m_bVirtual) {
@@ -615,7 +615,7 @@ void UIFakkBindList::Highlight(UIWidget *wid)
     int i, j;
     int row = 0;
 
-    for (i = 0; i < m_bind->binds.NumObjects(); i++) {
+    for (i = 0; i < m_bind->binds.NumObjects(); i++, row++) {
         for (j = 1; j <= 3; j++) {
             if (m_widgetlist.ObjectAt(j + i * 3) == wid) {
                 m_activerow  = row;
@@ -783,7 +783,8 @@ void UIFakkBindList::PlayEnterSound(void)
 }
 
 CLASS_DECLARATION(UILabel, UIFakkBindListLabel, NULL) {
-    {NULL, NULL}
+    {&W_LeftMouseDown, &UIFakkBindListLabel::Pressed},
+    {NULL,             NULL                         }
 };
 
 UIFakkBindListLabel::UIFakkBindListLabel()
