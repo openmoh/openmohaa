@@ -426,11 +426,13 @@ void Trigger::TriggerStuff(Event *ev)
         return;
     }
 
+    /*
     health = max_health;
     if (health && (*ev != EV_Killed) && (*ev != EV_Activate)) {
         // if health is set, we only respond to killed and activate messages
         return;
     }
+    */
 
     other = ev->GetEntity(1);
 
