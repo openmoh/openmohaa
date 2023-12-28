@@ -1793,22 +1793,18 @@ void PlaceLandmine(const Vector& origin, Entity *owner, const str& model, Weapon
     trigger->NewAnim("idle");
 
     if (g_gametype->integer == GT_SINGLE_PLAYER) {
-        if (owner) {
-            if (owner->IsDead()) {
-                weap = NULL;
-            }
-        } else {
+        if (!owner) {
+            weap = NULL;
+        } else if (owner->IsDead() || owner == world) {
             weap = NULL;
         }
 
         if (weap) {
             weap->m_iNumShotsFired++;
 
-            if (owner) {
-                if (owner->IsSubclassOfPlayer() && weap->IsSubclassOfTurretGun()) {
-                    Player* p = static_cast<Player*>(owner);
-                    p->m_iNumShotsFired++;
-                }
+            if (owner && owner->IsSubclassOfPlayer() && weap->IsSubclassOfTurretGun()) {
+                Player* p = static_cast<Player*>(owner);
+                p->m_iNumShotsFired++;
             }
         }
     }
