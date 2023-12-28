@@ -59,8 +59,243 @@ void bind_t::Clear(void)
     }
 }
 
+Event EV_Bind_Header
+(
+    "header",
+    EV_DEFAULT,
+    "iss",
+    "column_num name material",
+    "Set the header of each column"
+);
+Event EV_Bind_Width
+(
+    "bind_width",
+    EV_DEFAULT,
+    "i",
+    "width",
+    "Width of the bind menu"
+);
+Event EV_Bind_Height
+(
+    "bind_height",
+    EV_DEFAULT,
+    "i",
+    "height",
+    "Height of the bind menu"
+);
+Event EV_Bind_FillWidth
+(
+    "bind_fillwidth",
+    EV_DEFAULT,
+    "iS",
+    "width material",
+    "Width of the filling between widgets"
+);
+Event EV_Bind_CommandWidth
+(
+    "bind_commandwidth",
+    EV_DEFAULT,
+    "i",
+    "width",
+    "Width of the command item"
+);
+Event EV_Bind_CommandHeight
+(
+    "bind_commandheight",
+    EV_DEFAULT,
+    "i",
+    "height",
+    "Height of the command item"
+);
+Event EV_Bind_PrimaryKeyWidth
+(
+    "bind_primarykeywidth",
+    EV_DEFAULT,
+    "i",
+    "width",
+    "Width of the primary key item"
+);
+Event EV_Bind_PrimaryKeyHeight
+(
+    "bind_primarykeyheight",
+    EV_DEFAULT,
+    "i",
+    "height",
+    "Height of the primary key item"
+);
+Event EV_Bind_AlternateKeyWidth
+(
+    "bind_alternatekeywidth",
+    EV_DEFAULT,
+    "i",
+    "width",
+    "Width of the alternate key item"
+);
+Event EV_Bind_AlternateKeyHeight
+(
+    "bind_alternatekeyheight",
+    EV_DEFAULT,
+    "i",
+    "height",
+    "Height of the alternate key item"
+);
+Event EV_Bind_NewItem
+(
+    "binditem",
+    EV_DEFAULT,
+    "ss",
+    "name command",
+    "Create a new bind item in the interface"
+);
+Event EV_Bind_Align
+(
+    "align",
+    EV_DEFAULT,
+    "sSSSSS",
+    "arg1 arg2 arg3 arg4 arg5 arg6",
+    "Set the alignment on the bind menu"
+);
+Event EV_Bind_TitleForegroundColor
+(
+    "titleforegroundcolor",
+    EV_DEFAULT,
+    "ffff",
+    "r g b a",
+    "Set the color for the title foreground"
+);
+Event EV_Bind_TitleBackgroundColor
+(
+    "titlebackgroundcolor",
+    EV_DEFAULT,
+    "ffff",
+    "r g b a",
+    "Set the color for the title background"
+);
+Event EV_Bind_InactiveForegroundColor
+(
+    "inactiveforegroundcolor",
+    EV_DEFAULT,
+    "ffff",
+    "r g b a",
+    "Set the color for the inactive button foreground"
+);
+Event EV_Bind_InactiveBackgroundColor
+(
+    "inactivebackgroundcolor",
+    EV_DEFAULT,
+    "ffff",
+    "r g b a",
+    "Set the color for the inactive button background"
+);
+Event EV_Bind_ActiveForegroundColor
+(
+    "activeforegroundcolor",
+    EV_DEFAULT,
+    "ffff",
+    "r g b a",
+    "Set the color for the active button foreground"
+);
+Event EV_Bind_ActiveBackgroundColor
+(
+    "activebackgroundcolor",
+    EV_DEFAULT,
+    "ffff",
+    "r g b a",
+    "Set the color for the active button background"
+);
+Event EV_Bind_ActiveBorderColor
+(
+    "activebordercolor",
+    EV_DEFAULT,
+    "ffff",
+    "r g b a",
+    "Set the color for the active button border"
+);
+Event EV_Bind_HighlightForegroundColor
+(
+    "highlightforegroundcolor",
+    EV_DEFAULT,
+    "ffff",
+    "r g b a",
+    "Set the color for the highlighted button foreground"
+);
+Event EV_Bind_HighlightBackgroundColor
+(
+    "highlightbackgroundcolor",
+    EV_DEFAULT,
+    "ffff",
+    "r g b a",
+    "Set the color for the highlighted button background"
+);
+Event EV_Bind_SelectForegroundColor
+(
+    "selectforegroundcolor",
+    EV_DEFAULT,
+    "ffff",
+    "r g b a",
+    "Set the color for the selected button foreground"
+);
+Event EV_Bind_SelectBackgroundColor
+(
+    "selectbackgroundcolor",
+    EV_DEFAULT,
+    "ffff",
+    "r g b a",
+    "Set the color for the selected button background"
+);
+Event EV_Bind_ChangeSound
+(
+    "changesound",
+    EV_DEFAULT,
+    "s",
+    "soundname",
+    "Set the name of the sound to play when the highlighted item changes"
+);
+Event EV_Bind_ActiveSound
+(
+    "activesound",
+    EV_DEFAULT,
+    "s",
+    "soundname",
+    "Set the name of the sound to play when the item is made active"
+);
+Event EV_Bind_EnterSound
+(
+    "entersound",
+    EV_DEFAULT,
+    "s",
+    "soundname",
+    "Set the name of the sound to play when the key is entered"
+);
+
 CLASS_DECLARATION(Listener, bindlistener, NULL) {
-    {NULL, NULL}
+    {&EV_Bind_Width,                    &bindlistener::Width                   },
+    {&EV_Bind_Height,                   &bindlistener::Height                  },
+    {&EV_Bind_FillWidth,                &bindlistener::FillWidth               },
+    {&EV_Bind_CommandWidth,             &bindlistener::CommandWidth            },
+    {&EV_Bind_CommandHeight,            &bindlistener::CommandHeight           },
+    {&EV_Bind_PrimaryKeyWidth,          &bindlistener::PrimaryKeyWidth         },
+    {&EV_Bind_PrimaryKeyHeight,         &bindlistener::PrimaryKeyHeight        },
+    {&EV_Bind_AlternateKeyWidth,        &bindlistener::AlternateKeyWidth       },
+    {&EV_Bind_AlternateKeyHeight,       &bindlistener::AlternateKeyHeight      },
+    {&EV_Bind_Header,                   &bindlistener::Header                  },
+    {&EV_Bind_NewItem,                  &bindlistener::NewItem                 },
+    {&EV_Bind_Align,                    &bindlistener::Align                   },
+    {&EV_Bind_TitleForegroundColor,     &bindlistener::TitleForegroundColor    },
+    {&EV_Bind_TitleBackgroundColor,     &bindlistener::TitleBackgroundColor    },
+    {&EV_Bind_InactiveForegroundColor,  &bindlistener::InactiveForegroundColor },
+    {&EV_Bind_InactiveBackgroundColor,  &bindlistener::InactiveBackgroundColor },
+    {&EV_Bind_ActiveForegroundColor,    &bindlistener::ActiveForegroundColor   },
+    {&EV_Bind_ActiveBackgroundColor,    &bindlistener::ActiveBackgroundColor   },
+    {&EV_Bind_ActiveBorderColor,        &bindlistener::ActiveBorderColor       },
+    {&EV_Bind_HighlightForegroundColor, &bindlistener::HighlightForegroundColor},
+    {&EV_Bind_HighlightBackgroundColor, &bindlistener::HighlightBackgroundColor},
+    {&EV_Bind_SelectForegroundColor,    &bindlistener::SelectForegroundColor   },
+    {&EV_Bind_SelectBackgroundColor,    &bindlistener::SelectBackgroundColor   },
+    {&EV_Bind_ChangeSound,              &bindlistener::ChangeSound             },
+    {&EV_Bind_ActiveSound,              &bindlistener::ActiveSound             },
+    {&EV_Bind_EnterSound,               &bindlistener::EnterSound              },
+    {NULL,                              NULL                                   }
 };
 
 bindlistener::bindlistener() {}
@@ -304,7 +539,8 @@ bool bindlistener::Load(Script& script)
     return true;
 }
 
-bool CL_LoadBind(const char* filename, bind_t* bind) {
+bool CL_LoadBind(const char *filename, bind_t *bind)
+{
     Script script;
 
     bind->Clear();
