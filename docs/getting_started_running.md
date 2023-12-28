@@ -26,3 +26,9 @@ This has two advantages:
 - It doesn't overwrite the existing MOHAA configuration in the MOHAA installation directory.
 
 Note that the configuration file isn't created nor written automatically on a dedicated server (**omohaaded**).
+
+## Playing with bots
+
+OpenMoHAA has a basic bot system that emulates real players. The maximum number of bots is defined by the `sv_maxbots` variable, and the number of initial bots is defined by the `sv_numbots` variable. Bots can also be added or removed using the `addbot` and `removebot` commands.
+
+This feature is a great way to test the gameplay and mods.

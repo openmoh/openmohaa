@@ -15,6 +15,15 @@
           |_|
 ```
 
+## Intro
+
+The main goal of OpenMoHAA is to ensure the future and continuity of **Medal of Honor: Allied Assault**. It has always been a dream in the community to provide patches and security fixes for the game. Thanks to the ioquake3 project, F.A.K.K SDK and other quality tools, OpenMoHAA has already reached more than half of its goal: to create an open-source version of MoH:AA (based on version 2.40) that is fully compatible with the original game (in terms of protocol, assets, and scripts).
+
+## Getting started
+
+- [Installing OpenMoHAA](docs/getting_started_installation.md)
+- [Running OpenMoHAA and using expansion assets](docs/getting_started_running.md)
+
 ## Current state
 
 ### Multiplayer
@@ -28,21 +37,6 @@ All game modes including `Tug-of-War` from Medal of Honor: Spearhead, and `Liber
 ### Single-player
 
 The `training` map can be played from start to end. The single-player campaign is not fully functional, but at least AI can breathe, talk, run, and shoot.
-
-## Intro
-
-The main goal of OpenMoHAA is to ensure the future and continuity of **Medal of Honor: Allied Assault**. It has always been a dream in the community to provide patches and security fixes for the game. Thanks to the ioquake3 project, F.A.K.K SDK and other quality tools, OpenMoHAA has already reached more than half of its goal: to create an open-source version of MoH:AA (based on version 2.40) that is fully compatible with the original game (in terms of protocol, assets, and scripts).
-
-## Getting started
-
-- [Installing OpenMoHAA](docs/getting_started_installation.md)
-- [Running OpenMoHAA and using expansion assets](docs/getting_started_running.md)
-
-### Playing with bots
-
-OpenMoHAA has a basic bot system that emulates real players. The maximum number of bots is defined by the `sv_maxbots` variable, and the number of initial bots is defined by the `sv_numbots` variable. Bots can also be added or removed using the `addbot` and `removebot` commands.
-
-This feature is a great way to test the gameplay and mods.
 
 ## Features
 
