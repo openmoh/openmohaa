@@ -1691,7 +1691,7 @@ void DefuseObject(const Vector& dir, Entity *owner, float maxdist)
 
     ScriptThreadLabel label;
     label.Set(defuseThreadName);
-    label.Execute(defusableObj, ListenerPtr());
+    label.Execute(defusableObj, owner, ListenerPtr());
 }
 
 qboolean CanPlaceLandmine(const Vector& origin, Entity *owner)

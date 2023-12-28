@@ -163,7 +163,7 @@ public:
     void          Execute(Listener *listener = NULL);
     void          Execute(Listener *listener, Event         &ev);
     void          Execute(Listener *listener, Event *ev);
-    void          Execute(const SafePtr<Listener>         &listener, const SafePtr<Listener>         &param);
+    void          Execute(Listener* pSelf, const SafePtr<Listener>         &listener, const SafePtr<Listener>         &param);
 
     void Clear();
     void Set(const char *label);

@@ -380,7 +380,11 @@ void Trigger::StartThread(Event *ev)
     Unregister(STRING_TRIGGER);
 
     if (This) {
-        m_Thread.Execute(this);
+        //m_Thread.Execute(this);
+        // Changed in 2.30
+        //  First parameter of the thread label is parm.other
+        //  Second parameter of the thread label is parm.owner
+        m_Thread.Execute(This, parm.other, parm.owner);
     }
 }
 

@@ -885,7 +885,7 @@ void ScriptThreadLabel::Execute(Listener *listener, Event *ev)
     }
 }
 
-void ScriptThreadLabel::Execute(const SafePtr<Listener>& listener, const SafePtr<Listener>& param)
+void ScriptThreadLabel::Execute(Listener* pSelf, const SafePtr<Listener>& listener, const SafePtr<Listener>& param)
 {
     if (!m_Script) {
         return;
@@ -896,7 +896,7 @@ void ScriptThreadLabel::Execute(const SafePtr<Listener>& listener, const SafePtr
     params[0].setListenerValue(listener);
     params[1].setListenerValue(param);
 
-    ScriptClass  *scriptClass = new ScriptClass(m_Script, listener);
+    ScriptClass  *scriptClass = new ScriptClass(m_Script, pSelf);
     ScriptThread *thread      = Director.CreateScriptThread(scriptClass, m_Label);
 
     if (thread) {
