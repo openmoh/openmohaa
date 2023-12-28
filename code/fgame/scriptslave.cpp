@@ -465,10 +465,10 @@ Event EV_ScriptSlave_FollowPath
     "normalangles, loop, and a number specifying the start time.",
     EV_NORMAL
 );
-Event EV_ScriptSlave_FollowPath_RelativeYaw(
+Event EV_ScriptSlave_FollowPath_RelativeYaw
+(
     "path_relativeyaw",
     EV_DEFAULT,
-    "f"
     "f",
     "relativeYaw",
     "Makes the script slave follow the specified path with a yaw offset,",

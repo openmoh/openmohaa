@@ -190,8 +190,8 @@ Event EV_Turret_EventDoJitter
 (
     "dojitter",
     EV_DEFAULT,
-    "f",
-    "(optional) jitter amount",
+    "F",
+    "jitterAmount",
     "Apply the jitter without firing",
     EV_NORMAL
 );
@@ -236,7 +236,8 @@ Event EV_Turret_AI_SetTargetType
     "targettype",
     EV_DEFAULT,
     "s",
-    "value Sets the target type to be none, any, or player",
+    "value",
+    "Sets the target type to be none, any, or player",
     EV_NORMAL
 );
 Event EV_Turret_AI_SetTargetType2

@@ -1607,8 +1607,8 @@ Event EV_Actor_Holster
     "holster",
     EV_DEFAULT,
     "i",
-    "if non-zero, affects offhand",
-    "Holster weapon",
+    "holster",
+    "If non-zero, affects offhand. Holster weapon",
     EV_NORMAL
 );
 Event EV_Actor_Unholster
@@ -1616,8 +1616,8 @@ Event EV_Actor_Unholster
     "unholster",
     EV_DEFAULT,
     "i",
-    "if non-zero, affects offhand",
-    "Unholster weapon",
+    "holster",
+    "If non-zero, affects offhand. Unholster weapon",
     EV_NORMAL
 );
 Event EV_Actor_IsEnemyVisible

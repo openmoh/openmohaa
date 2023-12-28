@@ -841,7 +841,7 @@ Event EV_ScriptThread_PlayMovie // Added in 2.0
 (
     "PlayMovie",
     EV_DEFAULT,
-    "sI",
+    "s",
     "name",
     "Play a Movie..."
 );

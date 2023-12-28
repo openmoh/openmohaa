@@ -1571,8 +1571,8 @@ Event EV_SetTriggered
     "triggered",
     EV_DEFAULT,
     "i",
-    "0 or 1",
-    "Set the triggered status",
+    "triggered",
+    "Set the triggered status (0 or 1)",
     EV_NORMAL
 );
 Event EV_SetExplosionEffect
@@ -1580,7 +1580,7 @@ Event EV_SetExplosionEffect
     "explosioneffect",
     EV_DEFAULT,
     "s",
-    "effect model",
+    "effectModel",
     "Set the explosion effect model",
     EV_NORMAL
 );
@@ -1589,7 +1589,7 @@ Event EV_SetExplosionOffset
     "explosionoffset",
     EV_DEFAULT,
     "v",
-    "offset vector",
+    "offset",
     "Set the explosion offset",
     EV_NORMAL
 );

@@ -1385,7 +1385,7 @@ Event EV_Entity_SinglePlayerCommand
     "sp",
     EV_DEFAULT,
     "sSSS",
-    "command parms",
+    "command parm1 parm2 ...",
     "Makes a command be executed only in single player",
     EV_NORMAL
 );
@@ -1394,7 +1394,7 @@ Event EV_Entity_MultiPlayerCommand
     "dm",
     EV_DEFAULT,
     "sSSS",
-    "command parms",
+    "command parm1 parm2 ...",
     "Makes a command be executed only in multiplayer",
     EV_NORMAL
 );
@@ -1403,7 +1403,7 @@ Event EV_Entity_RealismModeCommand
     "realism",
     EV_DEFAULT,
     "sSSS",
-    "command parms",
+    "command parm1 parm2 ...",
     "Makes a command be executed only in realism mode",
     EV_NORMAL
 );
@@ -1412,7 +1412,7 @@ Event EV_Entity_SPRealismModeCommand
     "sprealism",
     EV_DEFAULT,
     "sSSS",
-    "command parms",
+    "command parm1 parm2 ...",
     "Makes a command be executed only in single player realism mode",
     EV_NORMAL
 );
@@ -1421,7 +1421,7 @@ Event EV_Entity_DMRealismModeCommand
     "dmrealism",
     EV_DEFAULT,
     "sSSS",
-    "command parms",
+    "command parm1 parm2 ...",
     "Makes a command be executed only in multiplayer realism mode",
     EV_NORMAL
 );

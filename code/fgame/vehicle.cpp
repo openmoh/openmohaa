@@ -392,8 +392,8 @@ Event EV_Vehicle_BounceForwardsVelocity
 (
     "BounceForwardsVelocity",
     EV_DEFAULT,
-    "NULL",
-    "NULL",
+    NULL,
+    NULL,
     "For vehicles on rails that are moving forwards, reverse our velocity.",
     EV_NORMAL
 );
@@ -412,8 +412,8 @@ Event EV_Vehicle_StopForwardsVelocity
 (
     "StopForwardsVelocity",
     EV_DEFAULT,
-    "NULL",
-    "NULL",
+    NULL,
+    NULL,
     "Stops any forward motion for vehicles on rails.",
     EV_NORMAL
 );
@@ -421,8 +421,8 @@ Event EV_Vehicle_StopBackwardsVelocity
 (
     "StopBackwardsVelocity",
     EV_DEFAULT,
-    "NULL",
-    "NULL",
+    NULL,
+    NULL,
     "Stops any backwards motion for vehicles on rails.",
     EV_NORMAL
 );
@@ -754,7 +754,7 @@ Event EV_Vehicle_VehicleAnim
 (
     "vehicleanim",
     EV_DEFAULT,
-    "sFI",
+    "sF",
     "anim_name weight",
     "Sets an animation to use in the LD Animation slot. \nWeight defaults to 1.0",
     EV_NORMAL
