@@ -456,7 +456,7 @@ void Menu::RestoreCVars
 
 		if( wid->m_cvarname.length() )
 		{
-			uii.Cvar_Set( wid->m_cvarvalue, "" );
+			uii.Cvar_Set( wid->m_cvarname, wid->m_cvarvalue );
 		}
 	}
 }
