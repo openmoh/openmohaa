@@ -173,6 +173,9 @@ void UIWindowManager::ViewEvent
 	if (!view) {
 		// use the first responder instead
 		view = m_firstResponder;
+		if (!view) {
+			return;
+		}
 	}
 
 	if (!view->isEnabled()) {
