@@ -181,8 +181,8 @@ void Player::EventCorrectWeaponAttachments(Event *ev)
                 pChild->PostEvent(EV_Remove, 0);
                 iNumChildren--;
             } else if (pChild->edict->s.tag_num == iTagLeft) {
-                iUseAngles = edict->s.attach_use_angles;
-                vOffset    = edict->s.attach_offset;
+                iUseAngles = pChild->edict->s.attach_use_angles;
+                vOffset    = pChild->edict->s.attach_offset;
 
                 // reattach to the right tag
                 pChild->detach();
