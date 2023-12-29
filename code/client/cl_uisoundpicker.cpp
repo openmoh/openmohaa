@@ -28,15 +28,36 @@ CLASS_DECLARATION(FilePickerClass, SoundPickerClass, NULL) {
 
 SoundPickerClass::SoundPickerClass()
 {
-    // FIXME: stub
+    str         soundpath;
+    str         currentpath;
+    const char *varValue;
+    int         i;
+
+    soundpath = "sound";
+
+    varValue = UI_GetCvarString("ui_pickedsound", NULL);
+    if (varValue && *varValue) {
+        currentpath = varValue;
+
+        for (i = currentpath.length(); i > 0; i--) {
+            if (currentpath[i] == '/') {
+                break;
+            }
+        }
+
+        currentpath = str(currentpath, 0, i + 1);
+    } else {
+        currentpath = soundpath;
+    }
 }
 
 void SoundPickerClass::FileSelected(const str& currentDirectory, const str& partialName, const str& fullname)
 {
-    // FIXME: stub
+    uii.Snd_PlaySound(fullname);
 }
 
 void SoundPickerClass::FileChosen(const str& currentDirectory, const str& partialName, const str& fullname)
 {
-    // FIXME: stub
+    uii.Cvar_Set("ui_pickedsound", fullname);
+    CloseWindow();
 }
