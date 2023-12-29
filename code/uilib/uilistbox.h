@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2023 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -26,71 +26,77 @@ extern Event EV_Layout_AddListItem;
 extern Event EV_UIListBase_ItemDoubleClicked;
 extern Event EV_UIListBase_ItemSelected;
 
-class UIListBase : public UIWidget {
+class UIListBase : public UIWidget
+{
 protected:
-	int m_currentItem;
-	class UIVertScroll *m_vertscroll;
-	qboolean m_bUseVertScroll;
-public:
-	CLASS_PROTOTYPE( UIListBase );
-
-protected:
-	virtual void		TrySelectItem( int which );
-	qboolean			KeyEvent( int key, unsigned int time ) override;
+    int                 m_currentItem;
+    class UIVertScroll *m_vertscroll;
+    qboolean            m_bUseVertScroll;
 
 public:
-	UIListBase();
+    CLASS_PROTOTYPE(UIListBase);
 
-	void			FrameInitialized( void ) override;
-	int				getCurrentItem( void );
-	virtual int		getNumItems( void );
-	virtual void	DeleteAllItems( void );
-	virtual void	DeleteItem( int which );
-	UIVertScroll	*GetScrollBar( void );
-	void			SetUseScrollBar( qboolean bUse );
+protected:
+    virtual void TrySelectItem(int which);
+    qboolean     KeyEvent(int key, unsigned int time) override;
+
+public:
+    UIListBase();
+
+    void          FrameInitialized(void) override;
+    int           getCurrentItem(void);
+    virtual int   getNumItems(void);
+    virtual void  DeleteAllItems(void);
+    virtual void  DeleteItem(int which);
+    UIVertScroll *GetScrollBar(void);
+    void          SetUseScrollBar(qboolean bUse);
 };
 typedef class UIListBase UIListBase;
-class ListItem : public Class {
+
+class ListItem : public Class
+{
 public:
-	str string;
-	str command;
-	int index;
+    str string;
+    str command;
+    int index;
 
 public:
-	ListItem();
-	ListItem( str string, int index, str command );
+    ListItem();
+    ListItem(str string, int index, str command);
 };
 
-class UIListBox : public UIListBase {
+class UIListBox : public UIListBase
+{
 protected:
-	Container<ListItem *> m_itemlist;
-	struct {
-		int time;
-		int selected;
-		UIPoint2D point;
-	} m_clickState;
+    Container<ListItem *> m_itemlist;
+
+    struct {
+        int       time;
+        int       selected;
+        UIPoint2D point;
+    } m_clickState;
 
 public:
-	CLASS_PROTOTYPE( UIListBox );
+    CLASS_PROTOTYPE(UIListBox);
 
 protected:
-	void			Draw( void ) override;
-	void			MousePressed( Event *ev );
-	void			MouseReleased( Event *ev );
-	void			DeleteAllItems( Event *ev );
-	void			SetListFont( Event *ev );
-	void			TrySelectItem( int which ) override;
+    void Draw(void) override;
+    void MousePressed(Event *ev);
+    void MouseReleased(Event *ev);
+    void DeleteAllItems(Event *ev);
+    void SetListFont(Event *ev);
+    void TrySelectItem(int which) override;
 
 public:
-	UIListBox();
+    UIListBox();
 
-	void			AddItem( const char *item, const char *command );
-	void			AddItem( int index, const char *command );
-	void			FrameInitialized( void ) override;
-	void			LayoutAddListItem( Event *ev );
-	void			LayoutAddConfigstringListItem( Event *ev );
-	str				getItemText( int which );
-	int				getNumItems( void ) override;
-	void			DeleteAllItems( void ) override;
-	void			DeleteItem( int which ) override;
+    void AddItem(const char *item, const char *command);
+    void AddItem(int index, const char *command);
+    void FrameInitialized(void) override;
+    void LayoutAddListItem(Event *ev);
+    void LayoutAddConfigstringListItem(Event *ev);
+    str  getItemText(int which);
+    int  getNumItems(void) override;
+    void DeleteAllItems(void) override;
+    void DeleteItem(int which) override;
 };

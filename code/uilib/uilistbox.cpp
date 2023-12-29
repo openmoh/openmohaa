@@ -22,133 +22,120 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "ui_local.h"
 
-CLASS_DECLARATION( UIWidget, UIListBase, NULL )
-{
-	{ NULL, NULL }
+CLASS_DECLARATION(UIWidget, UIListBase, NULL) {
+    {NULL, NULL}
 };
 
 UIListBase::UIListBase()
 {
-	m_currentItem = 0;
-	m_vertscroll = 0;
-	m_bUseVertScroll = 1;
-	AllowActivate(true);
+    m_currentItem    = 0;
+    m_vertscroll     = 0;
+    m_bUseVertScroll = 1;
+    AllowActivate(true);
 }
 
-void UIListBase::TrySelectItem
-	(
-	int which
-	)
+void UIListBase::TrySelectItem(int which)
 
 {
-	int numitems;
+    int numitems;
 
-	numitems = getNumItems();
-	if (!numitems) {
-		m_currentItem = 0;
-		return;
-	}
+    numitems = getNumItems();
+    if (!numitems) {
+        m_currentItem = 0;
+        return;
+    }
 
-	if (m_currentItem != which)
-	{
-		int previous = m_currentItem;
+    if (m_currentItem != which) {
+        int previous = m_currentItem;
 
-		m_currentItem = which;
-		if (which > numitems) {
-			m_currentItem = numitems;
-		}
+        m_currentItem = which;
+        if (which > numitems) {
+            m_currentItem = numitems;
+        }
 
-		if (m_currentItem <= 0) {
-			m_currentItem = 1;
-		}
+        if (m_currentItem <= 0) {
+            m_currentItem = 1;
+        }
 
-		if (previous != m_currentItem) {
-			Event ev(EV_UIListBase_ItemSelected);
-			ev.AddInteger(m_currentItem);
-			SendSignal(ev);
-		}
-	}
+        if (previous != m_currentItem) {
+            Event ev(EV_UIListBase_ItemSelected);
+            ev.AddInteger(m_currentItem);
+            SendSignal(ev);
+        }
+    }
 
-	if (m_vertscroll)
-	{
-		if (m_currentItem < m_vertscroll->getTopItem() + 1) {
-			if (m_currentItem - 1 >= 0) {
-				m_vertscroll->setTopItem(m_currentItem - 1);
-			} else {
-				m_vertscroll->setTopItem(0);
-			}
-		}
+    if (m_vertscroll) {
+        if (m_currentItem < m_vertscroll->getTopItem() + 1) {
+            if (m_currentItem - 1 >= 0) {
+                m_vertscroll->setTopItem(m_currentItem - 1);
+            } else {
+                m_vertscroll->setTopItem(0);
+            }
+        }
 
-		if (m_currentItem >= m_vertscroll->getTopItem() + m_vertscroll->getPageHeight() + 1) {
-			if (m_currentItem - m_vertscroll->getPageHeight() >= 0) {
+        if (m_currentItem >= m_vertscroll->getTopItem() + m_vertscroll->getPageHeight() + 1) {
+            if (m_currentItem - m_vertscroll->getPageHeight() >= 0) {
                 m_vertscroll->setTopItem(m_currentItem - m_vertscroll->getPageHeight());
-			} else {
-				m_vertscroll->setTopItem(0);
-			}
-		}
-	}
+            } else {
+                m_vertscroll->setTopItem(0);
+            }
+        }
+    }
 }
 
-qboolean UIListBase::KeyEvent
-	(
-	int key,
-	unsigned int time
-	)
+qboolean UIListBase::KeyEvent(int key, unsigned int time)
 
 {
-	int offsetitem;
-	qboolean key_rec;
-	int itemindex;
+    int      offsetitem;
+    qboolean key_rec;
+    int      itemindex;
 
-	offsetitem = 0;
-	key_rec = qfalse;
+    offsetitem = 0;
+    key_rec    = qfalse;
 
-	switch (key)
-	{
-	case K_UPARROW:
-	case K_LEFTARROW:
+    switch (key) {
+    case K_UPARROW:
+    case K_LEFTARROW:
         offsetitem = -1;
-        key_rec = qtrue;
-		break;
-	case K_DOWNARROW:
-	case K_RIGHTARROW:
+        key_rec    = qtrue;
+        break;
+    case K_DOWNARROW:
+    case K_RIGHTARROW:
         offsetitem = 1;
-        key_rec = qtrue;
-		break;
-	case K_PGDN:
-		if (GetScrollBar())
-		{
-			itemindex = GetScrollBar()->getTopItem() + GetScrollBar()->getPageHeight();
-			if (getCurrentItem() == itemindex) {
+        key_rec    = qtrue;
+        break;
+    case K_PGDN:
+        if (GetScrollBar()) {
+            itemindex = GetScrollBar()->getTopItem() + GetScrollBar()->getPageHeight();
+            if (getCurrentItem() == itemindex) {
                 offsetitem = GetScrollBar()->getPageHeight();
-			} else {
-				TrySelectItem(itemindex);
-			}
+            } else {
+                TrySelectItem(itemindex);
+            }
         }
         key_rec = qtrue;
-		break;
-	case K_PGUP:
-		if (GetScrollBar())
-		{
-			if (getCurrentItem() - 1 == GetScrollBar()->getTopItem()) {
-				offsetitem = -GetScrollBar()->getPageHeight();
-			} else {
-				TrySelectItem(GetScrollBar()->getTopItem() + 1);
-			}
+        break;
+    case K_PGUP:
+        if (GetScrollBar()) {
+            if (getCurrentItem() - 1 == GetScrollBar()->getTopItem()) {
+                offsetitem = -GetScrollBar()->getPageHeight();
+            } else {
+                TrySelectItem(GetScrollBar()->getTopItem() + 1);
+            }
         }
         key_rec = qtrue;
-		break;
-	case K_HOME:
-		TrySelectItem(1);
-		key_rec = qtrue;
-		break;
-	case K_END:
-		TrySelectItem(getNumItems());
-		key_rec = qtrue;
-		break;
-	case K_MWHEELDOWN:
-		if (GetScrollBar()) {
-			GetScrollBar()->AttemptScrollTo(GetScrollBar()->getTopItem() + 2);
+        break;
+    case K_HOME:
+        TrySelectItem(1);
+        key_rec = qtrue;
+        break;
+    case K_END:
+        TrySelectItem(getNumItems());
+        key_rec = qtrue;
+        break;
+    case K_MWHEELDOWN:
+        if (GetScrollBar()) {
+            GetScrollBar()->AttemptScrollTo(GetScrollBar()->getTopItem() + 2);
         }
         key_rec = qtrue;
         break;
@@ -158,404 +145,284 @@ qboolean UIListBase::KeyEvent
         }
         key_rec = qtrue;
         break;
-	default:
-		break;
-	}
+    default:
+        break;
+    }
 
-	if (offsetitem) {
-		TrySelectItem(getCurrentItem() + offsetitem);
-	}
+    if (offsetitem) {
+        TrySelectItem(getCurrentItem() + offsetitem);
+    }
 
-	return key_rec;
+    return key_rec;
 }
 
-void UIListBase::FrameInitialized
-	(
-	void
-	)
+void UIListBase::FrameInitialized(void)
 
 {
-	if (m_vertscroll) {
-		delete m_vertscroll;
-	}
+    if (m_vertscroll) {
+        delete m_vertscroll;
+    }
 
-	m_vertscroll = new UIVertScroll();
-	m_vertscroll->InitFrame(this, m_frame.size.width - 16.0, 0.0, 16.0, m_frame.size.height, -1);
-	m_vertscroll->setTopItem(0);
+    m_vertscroll = new UIVertScroll();
+    m_vertscroll->InitFrame(this, m_frame.size.width - 16.0, 0.0, 16.0, m_frame.size.height, -1);
+    m_vertscroll->setTopItem(0);
 }
 
-int UIListBase::getCurrentItem
-	(
-	void
-	)
+int UIListBase::getCurrentItem(void)
 
 {
-	return m_currentItem;
+    return m_currentItem;
 }
 
-int UIListBase::getNumItems
-	(
-	void
-	)
+int UIListBase::getNumItems(void)
 
 {
-	return -1;
+    return -1;
 }
 
-void  UIListBase::DeleteAllItems
-	(
-	void
-	)
+void UIListBase::DeleteAllItems(void) {}
+
+void UIListBase::DeleteItem(int which) {}
+
+UIVertScroll *UIListBase::GetScrollBar(void)
 
 {
+    return m_vertscroll;
 }
 
-void UIListBase::DeleteItem
-	(
-	int which
-	)
+void UIListBase::SetUseScrollBar(qboolean bUse)
 
 {
-}
+    m_bUseVertScroll = bUse;
 
-UIVertScroll *UIListBase::GetScrollBar
-	(
-	void
-	)
+    if (bUse) {
+        if (!m_vertscroll) {
+            m_vertscroll = new UIVertScroll();
+        }
 
-{
-	return m_vertscroll;
-}
-
-void UIListBase::SetUseScrollBar
-	(
-	qboolean bUse
-	)
-
-{
-	m_bUseVertScroll = bUse;
-
-	if (bUse)
-	{
-		if (!m_vertscroll) {
-			m_vertscroll = new UIVertScroll();
-		}
-
-		m_vertscroll->InitFrame(this, m_frame.size.width - 16.0, 0.0, 16.0, m_frame.size.height, -1);
-	}
-	else
-	{
-		if (m_vertscroll) {
-			delete m_vertscroll;
-			m_vertscroll = NULL;
-		}
-	}
+        m_vertscroll->InitFrame(this, m_frame.size.width - 16.0, 0.0, 16.0, m_frame.size.height, -1);
+    } else {
+        if (m_vertscroll) {
+            delete m_vertscroll;
+            m_vertscroll = NULL;
+        }
+    }
 }
 
 ListItem::ListItem()
 {
-	index = -1;
+    index = -1;
 }
 
-ListItem::ListItem
-	(
-	str string,
-	int index,
-	str command
-	)
+ListItem::ListItem(str string, int index, str command)
 
 {
-	this->string = string;
-	this->index = index;
-	this->command = command;
+    this->string  = string;
+    this->index   = index;
+    this->command = command;
 }
 
-Event EV_UIListBase_ItemSelected
-(
-	"listbase_item_selected",
-	EV_DEFAULT,
-	"i",
-	"index",
-	"Signaled when an item is selected"
+Event
+    EV_UIListBase_ItemSelected("listbase_item_selected", EV_DEFAULT, "i", "index", "Signaled when an item is selected");
+
+Event EV_UIListBase_ItemDoubleClicked(
+    "listbase_item_doubleclicked", EV_DEFAULT, "i", "index", "Signaled when an item is double clicked"
 );
 
-Event EV_UIListBase_ItemDoubleClicked
-(
-	"listbase_item_doubleclicked",
-	EV_DEFAULT,
-	"i",
-	"index",
-	"Signaled when an item is double clicked"
+Event EV_Layout_AddListItem("additem", EV_DEFAULT, "sS", "itemname command", "Add an item to the list");
+
+Event EV_Layout_AddConfigstringListItem(
+    "addconfigstringitem", EV_DEFAULT, "iS", "index command", "Add an item to the list that uses a configstring"
 );
 
-Event EV_Layout_AddListItem
-(
-	"additem",
-	EV_DEFAULT,
-	"sS",
-	"itemname command",
-	"Add an item to the list"
-);
+Event EV_UIListBox_DeleteAllItems("deleteallitems", EV_DEFAULT, NULL, NULL, "Delete all the items from the widget");
 
-Event EV_Layout_AddConfigstringListItem
-(
-	"addconfigstringitem",
-	EV_DEFAULT,
-	"iS",
-	"index command",
-	"Add an item to the list that uses a configstring"
-);
-
-Event EV_UIListBox_DeleteAllItems
-(
-	"deleteallitems",
-	EV_DEFAULT,
-	NULL,
-	NULL,
-	"Delete all the items from the widget"
-);
-
-CLASS_DECLARATION( UIListBase, UIListBox, NULL )
-{
-	{ &W_LeftMouseDown,							&UIListBox::MousePressed },
-	{ &W_LeftMouseUp,							&UIListBox::MouseReleased },
-	{ &EV_Layout_AddListItem,					&UIListBox::LayoutAddListItem },
-	{ &EV_Layout_AddConfigstringListItem,		&UIListBox::LayoutAddConfigstringListItem },
-	{ &EV_UIListBox_DeleteAllItems,				&UIListBox::DeleteAllItems },
-	{ &EV_Layout_Font,							&UIListBox::SetListFont },
-	{ NULL, NULL }
+CLASS_DECLARATION(UIListBase, UIListBox, NULL) {
+    {&W_LeftMouseDown,                   &UIListBox::MousePressed                 },
+    {&W_LeftMouseUp,                     &UIListBox::MouseReleased                },
+    {&EV_Layout_AddListItem,             &UIListBox::LayoutAddListItem            },
+    {&EV_Layout_AddConfigstringListItem, &UIListBox::LayoutAddConfigstringListItem},
+    {&EV_UIListBox_DeleteAllItems,       &UIListBox::DeleteAllItems               },
+    {&EV_Layout_Font,                    &UIListBox::SetListFont                  },
+    {NULL,                               NULL                                     }
 };
 
 UIListBox::UIListBox()
 {
-	m_clickState.point.x = 0.0;
-	m_clickState.point.y = 0.0;
+    m_clickState.point.x = 0.0;
+    m_clickState.point.y = 0.0;
 }
 
-void UIListBox::Draw
-	(
-	void
-	)
+void UIListBox::Draw(void)
 
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void UIListBox::MousePressed
-	(
-	Event *ev
-	)
+void UIListBox::MousePressed(Event *ev)
 
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void UIListBox::MouseReleased
-	(
-	Event *ev
-	)
+void UIListBox::MouseReleased(Event *ev) {}
+
+void UIListBox::DeleteAllItems(Event *ev)
 
 {
+    m_itemlist.ClearObjectList();
+    m_currentItem = 0;
+
+    if (m_vertscroll) {
+        m_vertscroll->setNumItems(0);
+        m_vertscroll->setTopItem(0);
+    }
 }
 
-void UIListBox::DeleteAllItems
-	(
-	Event *ev
-	)
+void UIListBox::SetListFont(Event *ev)
 
 {
-	m_itemlist.ClearObjectList();
-	m_currentItem = 0;
+    LayoutFont(ev);
 
-	if (m_vertscroll)
-	{
-		m_vertscroll->setNumItems(0);
-		m_vertscroll->setTopItem(0);
-	}
+    if (m_vertscroll) {
+        m_vertscroll->setPageHeight(m_frame.size.height / m_font->getHeight(m_bVirtual));
+    }
+
+    FrameInitialized();
 }
 
-void UIListBox::SetListFont
-	(
-	Event *ev
-	)
+void UIListBox::TrySelectItem(int which)
 
 {
-	LayoutFont(ev);
+    UIListBase::TrySelectItem(which);
 
-	if (m_vertscroll) {
-		m_vertscroll->setPageHeight(m_frame.size.height / m_font->getHeight(m_bVirtual));
-	}
+    if (!getNumItems()) {
+        return;
+    }
 
-	FrameInitialized();
+    if (m_cvarname.length()) {
+        uii.Cvar_Set(m_cvarname.c_str(), m_itemlist.ObjectAt(m_currentItem)->string.c_str());
+    }
 }
 
-void UIListBox::TrySelectItem
-	(
-	int which
-	)
+void UIListBox::AddItem(const char *item, const char *command)
 
 {
-	UIListBase::TrySelectItem(which);
+    ListItem *li;
 
-	if (!getNumItems()) {
-		return;
-	}
+    li = new ListItem();
+    if (!li) {
+        uii.Sys_Error(ERR_DROP, "Couldn't create list item\n");
+    }
 
-	if (m_cvarname.length())
-	{
-		uii.Cvar_Set(m_cvarname.c_str(), m_itemlist.ObjectAt(m_currentItem)->string.c_str());
-	}
+    li->string = item;
+    if (command) {
+        li->command = command;
+    }
+
+    m_itemlist.AddObject(li);
+
+    if (!m_currentItem) {
+        m_currentItem = 1;
+    }
+
+    if (m_vertscroll) {
+        m_vertscroll->setNumItems(m_itemlist.NumObjects());
+    }
 }
 
-void UIListBox::AddItem
-	(
-	const char *item,
-	const char *command
-	)
+void UIListBox::AddItem(int index, const char *command)
 
 {
-	ListItem* li;
+    ListItem *li;
 
-	li = new ListItem();
-	if (!li) {
-		uii.Sys_Error(ERR_DROP, "Couldn't create list item\n");
-	}
+    li = new ListItem();
+    if (!li) {
+        uii.Sys_Error(ERR_DROP, "Couldn't create list item\n");
+    }
 
-	li->string = item;
-	if (command) {
-		li->command = command;
-	}
+    li->index = index;
+    if (command) {
+        li->command = command;
+    }
 
-	m_itemlist.AddObject(li);
+    m_itemlist.AddObject(li);
 
-	if (!m_currentItem) {
-		m_currentItem = 1;
-	}
+    if (!m_currentItem) {
+        m_currentItem = 1;
+    }
 
-	if (m_vertscroll) {
-		m_vertscroll->setNumItems(m_itemlist.NumObjects());
-	}
+    if (m_vertscroll) {
+        m_vertscroll->setNumItems(m_itemlist.NumObjects());
+    }
 }
 
-void UIListBox::AddItem
-	(
-	int index,
-	const char *command
-	)
+void UIListBox::FrameInitialized(void)
 
 {
-	ListItem* li;
+    UIListBase::FrameInitialized();
 
-	li = new ListItem();
-	if (!li) {
-		uii.Sys_Error(ERR_DROP, "Couldn't create list item\n");
-	}
-
-	li->index = index;
-	if (command) {
-		li->command = command;
-	}
-
-	m_itemlist.AddObject(li);
-
-	if (!m_currentItem) {
-		m_currentItem = 1;
-	}
-
-	if (m_vertscroll) {
-		m_vertscroll->setNumItems(m_itemlist.NumObjects());
-	}
+    if (m_vertscroll) {
+        m_vertscroll->setPageHeight(m_frame.size.height / m_font->getHeight(m_bVirtual));
+        m_vertscroll->setNumItems(m_itemlist.NumObjects());
+    }
 }
 
-void UIListBox::FrameInitialized
-	(
-	void
-	)
+void UIListBox::LayoutAddListItem(Event *ev)
 
 {
-	UIListBase::FrameInitialized();
+    if (ev->NumArgs() != 2) {
+        AddItem(ev->GetString(1), NULL);
+        return;
+    }
 
-	if (m_vertscroll) {
-		m_vertscroll->setPageHeight(m_frame.size.height / m_font->getHeight(m_bVirtual));
-		m_vertscroll->setNumItems(m_itemlist.NumObjects());
-	}
+    AddItem(ev->GetString(1), ev->GetString(2).c_str());
 }
 
-void UIListBox::LayoutAddListItem
-	(
-	Event *ev
-	)
+void UIListBox::LayoutAddConfigstringListItem(Event *ev)
 
 {
-	if (ev->NumArgs() != 2) {
-		AddItem(ev->GetString(1), NULL);
-		return;
-	}
+    if (ev->NumArgs() != 2) {
+        AddItem(ev->GetInteger(1), NULL);
+        return;
+    }
 
-	AddItem(ev->GetString(1), ev->GetString(2).c_str());
+    AddItem(ev->GetInteger(1), ev->GetString(2).c_str());
 }
 
-void UIListBox::LayoutAddConfigstringListItem
-	(
-	Event *ev
-	)
+str UIListBox::getItemText(int which)
 
 {
-	if (ev->NumArgs() != 2) {
-		AddItem(ev->GetInteger(1), NULL);
-		return;
-	}
-
-	AddItem(ev->GetInteger(1), ev->GetString(2).c_str());
+    return m_itemlist.ObjectAt(which)->string;
 }
 
-str UIListBox::getItemText
-	(
-	int which
-	)
+int UIListBox::getNumItems(void)
 
 {
-	return m_itemlist.ObjectAt(which)->string;
+    return m_itemlist.NumObjects();
 }
 
-int UIListBox::getNumItems
-	(
-	void
-	)
+void UIListBox::DeleteAllItems(void)
 
 {
-	return m_itemlist.NumObjects();
+    m_itemlist.ClearObjectList();
+    m_currentItem = 0;
+
+    if (m_vertscroll) {
+        m_vertscroll->setNumItems(0);
+        m_vertscroll->setTopItem(0);
+    }
 }
 
-void UIListBox::DeleteAllItems
-	(
-	void
-	)
-
+void UIListBox::DeleteItem(int which)
 {
-	m_itemlist.ClearObjectList();
-	m_currentItem = 0;
+    m_itemlist.RemoveObjectAt(which);
 
-	if (m_vertscroll)
-	{
-		m_vertscroll->setNumItems(0);
-		m_vertscroll->setTopItem(0);
-	}
-}
+    if (m_vertscroll) {
+        m_vertscroll->setNumItems(m_itemlist.NumObjects());
+    }
 
-void UIListBox::DeleteItem
-	(
-	int which
-	)
-
-{
-	m_itemlist.RemoveObjectAt(which);
-
-	if (m_vertscroll) {
-		m_vertscroll->setNumItems(m_itemlist.NumObjects());
-	}
-
-	if (m_currentItem > getNumItems()) {
-		TrySelectItem(getNumItems());
-	}
+    if (m_currentItem > getNumItems()) {
+        TrySelectItem(getNumItems());
+    }
 }
