@@ -195,7 +195,7 @@ public:
 
 	virtual void		Shutdown( void );
 	virtual void		InitFrame( UIWidget *parentview, float x, float y, float width, float height, int border = -1, const char *fontname = "verdana-12" );
-	void				InitFrame( UIWidget *parentview, const UIRect2D& r, int border, const char *fontname );
+	void				InitFrame( UIWidget *parentview, const UIRect2D& r, int border, const char *fontname = "verdana-12" );
 	void				LayoutSize( Event *ev );
 	void				LayoutRect( Event *ev );
 	void				LayoutName( Event *ev );
