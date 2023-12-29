@@ -27,6 +27,7 @@ class FilePickerItem : public UIListCtrlItem
     str strings[3];
 
 public:
+    FilePickerItem(const str& fileName, const str& date, const str& size);
     int            getListItemValue(int which) const override;
     griditemtype_t getListItemType(int which) const override;
     str            getListItemString(int which) const override;
@@ -43,94 +44,232 @@ CLASS_DECLARATION(USignal, FilePickerClass, NULL) {
 
 FilePickerClass::FilePickerClass()
 {
-    // FIXME: stub
+    window = new UIFloatingWindow();
+    window->Create(
+        NULL,
+        UIRect2D((cls.glconfig.vidWidth - 400) / 2, (cls.glconfig.vidHeight - 300) / 2, 400, 300),
+        "File Picker",
+        UColor(0.15f, 0.195f, 0.278f),
+        UHudColor
+    );
+    window->Connect(this, W_Deactivated, W_Deactivated);
+    listbox = new UIListCtrl();
+    listbox->InitFrame(window->getChildSpace(), window->getChildSpace()->getClientFrame(), 0);
+    listbox->setBackgroundColor(UColor(0.02f, 0.07f, 0.005f), true);
+    listbox->setForegroundColor(UHudColor);
+    listbox->AddColumn("File Name", 0, 175, false, false);
+    listbox->AddColumn("Date", 1, 125, false, false);
+    listbox->AddColumn("Size", 2, 100, true, false);
+
+    listbox->Connect(this, EV_UIListBase_ItemDoubleClicked, EV_UIListBase_ItemDoubleClicked);
+    listbox->Connect(this, EV_UIListBase_ItemSelected, EV_UIListBase_ItemSelected);
+    listbox->AllowActivate(true);
+
+    // Added in 2.0
+    //  Don't localize elements
+    listbox->SetDontLocalize();
 }
 
 FilePickerClass::~FilePickerClass()
 {
-    // FIXME: stub
+    if (listbox) {
+        delete listbox;
+        listbox = NULL;
+    }
+
+    if (window) {
+        delete window;
+        window = NULL;
+    }
 }
 
-void FilePickerClass::Setup(const char *root_directory, const char *current_directory, const char *ext)
+void FilePickerClass::Setup(
+    const char *root_directory, const char *current_directory, const char *ext, const char *ignore_files
+)
 {
-    // FIXME: stub
+    Initialize(root_directory, current_directory, ext, ignore_files);
 }
 
-void FilePickerClass::Initialize(const char *root_directory, const char *current_directory, const char *ext)
+void FilePickerClass::Initialize(
+    const char *root_directory, const char *current_directory, const char *ext, const char *ignore_files
+)
 {
-    // FIXME: stub
+    rootDirectory = root_directory;
+    if (rootDirectory.length() > 1 && rootDirectory[rootDirectory.length() - 1] != '/') {
+        rootDirectory += "/";
+    }
+
+    currentDirectory = current_directory;
+    if (currentDirectory.length() > 1 && currentDirectory[currentDirectory.length() - 1] != '/') {
+        currentDirectory += "/";
+    }
+
+    extension    = ext;
+    ignoredFiles = ignore_files;
+
+    SetupFiles();
 }
 
 void FilePickerClass::GotoParentDirectory(void)
 {
-    // FIXME: stub
+    int i;
+
+    if (currentDirectory == rootDirectory) {
+        return;
+    }
+
+    for (i = currentDirectory.length() - 2; i > 0; i--) {
+        if (currentDirectory[i] == '/') {
+            break;
+        }
+    }
+
+    if (currentDirectory[i] == '/') {
+        i++;
+    }
+
+    currentDirectory = str(currentDirectory, 0, i);
+
+    // refresh files
+    SetupFiles();
 }
 
 void FilePickerClass::GotoSubDirectory(str subdir)
 {
-    // FIXME: stub
+    currentDirectory += subdir + "/";
+
+    // refresh files
+    SetupFiles();
 }
 
 void FilePickerClass::SetupFiles(void)
 {
-    // FIXME: stub
+    str    mappath;
+    str    work;
+    char **filenames;
+    int    numfiles;
+    int    i;
+    char   date[128];
+    char   size[128];
+
+    listbox->DeleteAllItems();
+
+    if (currentDirectory != rootDirectory) {
+        // create the parent directory item
+        listbox->AddItem(new FilePickerItem("..", "", ""));
+    }
+
+    // retrieve directories
+    filenames = FS_ListFiles(currentDirectory, "/", qfalse, &numfiles);
+
+    for (i = 0; i < numfiles; i++) {
+        const char *filename = filenames[i];
+
+        if (filename[0] == '.' || !strlen(filename)) {
+            continue;
+        }
+
+        work = "[";
+        work += filename;
+        work += "]";
+
+        FS_FileTime(currentDirectory + filename, date, size);
+
+        listbox->AddItem(new FilePickerItem(work, date, size));
+    }
+
+    FS_FreeFileList(filenames);
+
+    filenames = FS_ListFiles(currentDirectory, extension, qfalse, &numfiles);
+
+    for (i = 0; i < numfiles; i++) {
+        const char *filename = filenames[i];
+
+        if (ignoredFiles.length() && strstr(filename, ignoredFiles)) {
+            // Added in 2.0
+            //  Check for ignored files
+            continue;
+        }
+
+        work = filename;
+
+        FS_FileTime(currentDirectory + work, date, size);
+
+        listbox->AddItem(new FilePickerItem(work, date, size));
+    }
+
+    FS_FreeFileList(filenames);
+
+    window->setTitle(currentDirectory);
 }
 
-void FilePickerClass::FileSelected(str& currentDirectory, str& partialName, str& fullname)
-{
-    // FIXME: stub
-}
-
-void FilePickerClass::FileChosen(str& currentDirectory, str& partialName, str& fullname)
-{
-    // FIXME: stub
-}
+void FilePickerClass::FileSelected(str& currentDirectory, str& partialName, str& fullname) {}
 
 void FilePickerClass::FileSelected(Event *ev)
 {
-    // FIXME: stub
+    str name = listbox->GetItem(listbox->getCurrentItem())->getListItemString(0);
+
+    if (*name != '[' && *name != '.') {
+        FileSelected(currentDirectory, name, currentDirectory + name);
+    }
+
+    uii.Snd_PlaySound("sound/menu/scroll.wav");
 }
+
+void FilePickerClass::FileChosen(str& currentDirectory, str& partialName, str& fullname) {}
 
 void FilePickerClass::FileChosen(Event *ev)
 {
-    // FIXME: stub
+    str filename = listbox->GetItem(listbox->getCurrentItem())->getListItemString(0);
+
+    if (*filename == '[') {
+        uii.Snd_PlaySound("sound/menu/scroll.wav");
+
+        GotoSubDirectory(str(filename, 1, filename.length() - 1));
+    } else if (*filename == '.') {
+        GotoParentDirectory();
+    } else {
+        uii.Snd_PlaySound("sound/menu/apply.wav");
+
+        FileChosen(currentDirectory, filename, currentDirectory + filename);
+    }
 }
 
 void FilePickerClass::CloseWindow(void)
 {
-    // FIXME: stub
+    PostEvent(EV_Remove, 0);
 }
 
 void FilePickerClass::OnDeactivated(Event *ev)
 {
-    // FIXME: stub
+    CloseWindow();
+}
+
+FilePickerItem::FilePickerItem(const str& fileName, const str& date, const str& size)
+{
+    strings[0] = fileName;
+    strings[1] = date;
+    strings[2] = size;
 }
 
 int FilePickerItem::getListItemValue(int which) const
 {
-    // FIXME: stub
-    return 0;
+    return atoi(strings[which]);
 }
 
 griditemtype_t FilePickerItem::getListItemType(int which) const
 {
-    // FIXME: stub
     return griditemtype_t::TYPE_STRING;
 }
 
 str FilePickerItem::getListItemString(int which) const
 {
-    // FIXME: stub
-    return str();
+    return strings[which];
 }
 
-void FilePickerItem::DrawListItem(int iColumn, const UIRect2D& drawRect, bool bSelected, UIFont *pFont)
-{
-    // FIXME: stub
-}
+void FilePickerItem::DrawListItem(int iColumn, const UIRect2D& drawRect, bool bSelected, UIFont *pFont) {}
 
 qboolean FilePickerItem::IsHeaderEntry() const
 {
-    // FIXME: stub
     return qfalse;
 }

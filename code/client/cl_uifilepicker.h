@@ -31,6 +31,8 @@ class FilePickerClass : public USignal
     str               currentDirectory;
     str               rootDirectory;
     str               extension;
+    // Added in 2.0
+    str               ignoredFiles;
 
 public:
     CLASS_PROTOTYPE(FilePickerClass);
@@ -39,7 +41,8 @@ private:
     void SetupFiles(void);
     void GotoParentDirectory(void);
     void GotoSubDirectory(str subdir);
-    void Initialize(const char *root_directory, const char *current_directory, const char *ext);
+    // ignore_files parameter, added in 2.0
+    void Initialize(const char *root_directory, const char *current_directory, const char *ext, const char* ignore_files);
 
 protected:
     void         CloseWindow(void);
@@ -53,5 +56,5 @@ public:
     FilePickerClass();
     ~FilePickerClass();
 
-    void Setup(const char *root_directory, const char *current_directory, const char *ext);
+    void Setup(const char *root_directory, const char *current_directory, const char *ext, const char* ignore_files = NULL);
 };
