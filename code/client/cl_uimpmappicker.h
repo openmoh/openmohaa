@@ -30,27 +30,30 @@ class MpMapPickerClass : public USignal
     UIListCtrl       *listbox;
     str               currentDirectory;
     str               rootDirectory;
+    str               gameType;
 
 public:
     CLASS_PROTOTYPE(MpMapPickerClass);
 
 private:
     void SetupFiles(void);
+    void SetupSecondaryFiles(const char *path, bool bTugOfWar, bool bObjective, bool bLiberation);
     void GotoParentDirectory(void);
     void GotoSubDirectory(str subdir);
-    void Initialize(const char *root_directory, const char *current_directory);
+    void Initialize(const char *root_directory, const char *current_directory, const char *game_type);
 
 protected:
     void         CloseWindow(void);
     void         FileSelected(Event *ev);
-    virtual void FileSelected(str& currentDirectory, str& partialName, str& fullname);
+    virtual void FileSelected(const str& currentDirectory, const str& partialName, const str& fullname);
     void         FileChosen(Event *ev);
-    virtual void FileChosen(str& currentDirectory, str& partialName, str& fullname);
+    virtual void FileChosen(const str& currentDirectory, const str& partialName, const str& fullname);
     void         OnDeactivated(Event *ev);
 
 public:
     MpMapPickerClass();
     ~MpMapPickerClass();
 
-    void Setup(const char *root_directory, const char *current_directory);
+    // game_type was added in 2.0
+    void Setup(const char *root_directory, const char *current_directory, const char *game_type = NULL);
 };
