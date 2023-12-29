@@ -2996,7 +2996,7 @@ void UI_MapList_f(void)
     }
 
     MapRunnerClass *map = new MapRunnerClass;
-    map->Setup("maps", mappath, ".bsp");
+    map->Setup("maps", mappath, ".bsp", "_sml");
 
     CL_SetMousePos(cls.glconfig.vidWidth / 2, cls.glconfig.vidHeight / 2);
 }
