@@ -54,6 +54,9 @@ public:
 
     CLASS_PROTOTYPE(UIPickFileClass);
 
+    UIPickFileClass();
+    ~UIPickFileClass();
+
     void FileChosen(str& currentDirectory, str& partialName, str& fullname) override;
 };
 

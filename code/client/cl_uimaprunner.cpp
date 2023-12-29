@@ -28,21 +28,73 @@ CLASS_DECLARATION(FilePickerClass, MapRunnerClass, NULL) {
 
 void MapRunnerClass::FileChosen(str& currentDirectory, str& partialName, str& fullname)
 {
-    // FIXME: stub
+    str newName;
+
+    newName = "spmap " + str(fullname, 5, fullname.length() - 4) + "\n";
+    // insert the command
+    Cbuf_AddText(newName);
+
+    CloseWindow();
 }
 
 CLASS_DECLARATION(FilePickerClass, UIPickFileClass, NULL) {
     {NULL, NULL}
 };
 
+UIPickFileClass::UIPickFileClass()
+{
+    retobj   = NULL;
+    retevent = NULL;
+}
+
+UIPickFileClass::~UIPickFileClass()
+{
+    if (retevent) {
+        delete retevent;
+    }
+}
+
 void UIPickFileClass::FileChosen(str& currentDirectory, str& partialName, str& fullname)
 {
-    // FIXME: stub
+    if (!retobj || !retevent) {
+        CloseWindow();
+        return;
+    }
+
+    retevent->AddString(fullname);
+    retobj->ProcessEvent(retevent);
+
+    retevent = NULL;
+    retobj   = NULL;
+
+    CloseWindow();
 }
 
 void PickFile(const char *name, Listener *obj, Event& event)
 {
-    // FIXME: stub
+    UIPickFileClass *picker;
+    str              currentpath;
+    int              i;
+
+    picker           = new UIPickFileClass();
+    picker->retevent = new Event(event);
+    picker->retobj   = obj;
+
+    if (name && *name && strchr(name, '/')) {
+        currentpath = name;
+
+        for (i = currentpath.length(); i > 0; i--) {
+            if (currentpath[i] == '/') {
+                break;
+            }
+        }
+
+        currentpath = str(currentpath, 0, i + 1);
+    } else {
+        currentpath = "";
+    }
+
+    picker->Setup("", currentpath, ".*");
 }
 
 CLASS_DECLARATION(FilePickerClass, ViewSpawnerClass, NULL) {
@@ -51,7 +103,13 @@ CLASS_DECLARATION(FilePickerClass, ViewSpawnerClass, NULL) {
 
 void ViewSpawnerClass::FileChosen(str& currentDirectory, str& partialName, str& fullname)
 {
-    // FIXME: stub
+    str newName;
+
+    newName = "viewspawn " + fullname + "\n";
+    // insert the command
+    Cbuf_AddText(newName);
+
+    CloseWindow();
 }
 
 CLASS_DECLARATION(FilePickerClass, LODSpawnerClass, NULL) {
@@ -60,5 +118,11 @@ CLASS_DECLARATION(FilePickerClass, LODSpawnerClass, NULL) {
 
 void LODSpawnerClass::FileChosen(str& currentDirectory, str& partialName, str& fullname)
 {
-    // FIXME: stub
+    str newName;
+
+    newName = "lod_spawn " + fullname + "\n";
+    // insert the command
+    Cbuf_AddText(newName);
+
+    CloseWindow();
 }
