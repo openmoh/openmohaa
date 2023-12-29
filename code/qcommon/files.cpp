@@ -2350,7 +2350,9 @@ static int FS_ReturnPath( const char *zname, char *zpath, int *depth ) {
 	{
 		if (zname[at]=='/' || zname[at]=='\\') {
 			len = at;
-			newdep++;
+			if (zname[at + 1]) {
+				newdep++;
+			}
 		}
 		at++;
 	}
@@ -2404,6 +2406,9 @@ char **FS_ListFilteredFiles( const char *path, const char *extension, const char
 	fileInPack_t	*buildBuffer;
 	char			zpath[MAX_ZPATH];
 	qboolean		bDirSearch;
+	const char		*pExtToken;
+	const char		*pExtension;
+	char			currentExtension[MAX_ZPATH];
 
 	if ( !fs_searchpaths ) {
 		Com_Error( ERR_FATAL, "Filesystem call made without initialization" );
@@ -2413,99 +2418,124 @@ char **FS_ListFilteredFiles( const char *path, const char *extension, const char
 		*numfiles = 0;
 		return NULL;
 	}
-	if ( !extension ) {
-		extension = "";
-	}
-	bDirSearch = qfalse;
-	if (extension[0] == '/') {
-		bDirSearch = extension[1] == 0;
+	pExtension = extension;
+	if ( !pExtension ) {
+		pExtension = "";
 	}
 
 	pathLength = strlen( path );
-	if ( path[pathLength-1] == '\\' || path[pathLength-1] == '/' ) {
-		pathLength--;
-	}
 	extensionLength = strlen( extension );
 	nfiles = 0;
 	FS_ReturnPath(path, zpath, &pathDepth);
 
-	//
-	// search through the path, one element at a time, adding to list
-	//
-	for (search = fs_searchpaths ; search ; search = search->next) {
-		// is the element a pak file?
-		if (search->pack) {
+	do {
+		// enumerate extensions
+		pExtToken = strstr(pExtension, ";");
+		if (pExtToken) {
+			extensionLength = pExtToken - pExtension;
+			strncpy(currentExtension, pExtension, extensionLength);
+			currentExtension[extensionLength] = 0;
+			pExtToken++;
+		}
+		else {
+			strcpy(currentExtension, pExtension);
+			extensionLength = strlen(currentExtension);
+		}
 
-			//ZOID:  If we are pure, don't search for files on paks that
-			// aren't on the pure list
-			if ( !FS_PakIsPure(search->pack) ) {
-				continue;
-			}
+		bDirSearch = qfalse;
+		if (currentExtension[0] == '/') {
+			bDirSearch = extension[1] == 0;
+		}
 
-			// look through all the pak file elements
-			pak = search->pack;
-			buildBuffer = pak->buildBuffer;
-			for (i = 0; i < pak->numfiles; i++) {
-				char	*name;
-				int		zpathLen, depth;
+		//
+		// search through the path, one element at a time, adding to list
+		//
+		for (search = fs_searchpaths ; search ; search = search->next) {
+			// is the element a pak file?
+			if (search->pack) {
 
-				// check for directory match
-				name = buildBuffer[i].name;
-				//
-				if (filter) {
-					// case insensitive
-					if (!Com_FilterPath( filter, name, qfalse ))
-						continue;
-					// unique the match
-					nfiles = FS_AddFileToList( name, list, nfiles );
+				//ZOID:  If we are pure, don't search for files on paks that
+				// aren't on the pure list
+				if ( !FS_PakIsPure(search->pack) ) {
+					continue;
 				}
-				else {
 
+				// look through all the pak file elements
+				pak = search->pack;
+				buildBuffer = pak->buildBuffer;
+				for (i = 0; i < pak->numfiles; i++) {
+					char	*name;
+					int		zpathLen, depth;
+
+					// check for directory match
+					name = buildBuffer[i].name;
+					
 					zpathLen = FS_ReturnPath(name, zpath, &depth);
 
-					if ( (depth-pathDepth)>2 || pathLength > zpathLen || Q_stricmpn( name, path, pathLength ) || (!wantSubs || bDirSearch) && pathDepth != depth - 1 ) {
+					if ( pathLength > (zpathLen + 1) || Q_stricmpn( name, path, pathLength ) || ((!wantSubs || bDirSearch) && depth - pathDepth != 1) ) {
 						continue;
 					}
 
-					// check for extension match
-					length = strlen( name );
-					if ( length < extensionLength ) {
-						continue;
+					//
+					if (filter) {
+						if (zpathLen) {
+							strcpy(zpath, name + pathLength + 1);
+						}
+						else {
+							strcpy(zpath, name);
+						}
+						// case insensitive
+						if (!Com_FilterPath( filter, zpath, qfalse ))
+							continue;
+						// unique the match
+						nfiles = FS_AddFileToList( zpath, list, nfiles );
 					}
+					else {
+						// check for extension match
+						length = strlen( name );
+						if ( length < extensionLength ) {
+							continue;
+						}
 
-					if ( Q_stricmp( name + length - extensionLength, extension ) ) {
-						continue;
-					}
-					// unique the match
+						if ( Q_stricmp( name + length - extensionLength, extension ) ) {
+							continue;
+						}
+						// unique the match
 
-					temp = pathLength;
-					if (pathLength) {
-						temp++; // include the '/'
+						if (bDirSearch) {
+							strcpy(zpath, name + pathLength);
+							zpath[length - pathLength - 1] = 0;
+							nfiles = FS_AddFileToList(zpath, list, nfiles);
+						}
+						else {
+							nfiles = FS_AddFileToList(name + pathLength, list, nfiles);
+						}
 					}
-					nfiles = FS_AddFileToList( name + temp, list, nfiles );
 				}
-			}
-		} else if (search->dir) { // scan for files in the filesystem
-			char	*netpath;
-			int		numSysFiles;
-			char	**sysFiles;
-			char	*name;
+			} else if (search->dir) { // scan for files in the filesystem
+				char	*netpath;
+				int		numSysFiles;
+				char	**sysFiles;
+				char	*name;
 
-			// don't scan directories for files if we are pure or restricted
-			if ( fs_numServerPaks && !allowNonPureFilesOnDisk ) {
-				continue;
-			} else {
-				netpath = FS_BuildOSPath( search->dir->path, search->dir->gamedir, path );
-				sysFiles = Sys_ListFiles( netpath, extension, filter, &numSysFiles, qfalse );
-				for ( i = 0 ; i < numSysFiles ; i++ ) {
-					// unique the match
-					name = sysFiles[i];
-					nfiles = FS_AddFileToList( name, list, nfiles );
+				// don't scan directories for files if we are pure or restricted
+				if ( fs_numServerPaks && !allowNonPureFilesOnDisk ) {
+					continue;
+				} else {
+					netpath = FS_BuildOSPath( search->dir->path, search->dir->gamedir, path );
+					sysFiles = Sys_ListFiles( netpath, extension, filter, &numSysFiles, wantSubs );
+					for ( i = 0 ; i < numSysFiles ; i++ ) {
+						// unique the match
+						name = sysFiles[i];
+						nfiles = FS_AddFileToList( name, list, nfiles );
+					}
+					Sys_FreeFileList( sysFiles );
 				}
-				Sys_FreeFileList( sysFiles );
 			}
 		}
-	}
+
+		pExtension = pExtToken;
+	} while (pExtToken);
 
 	// return a copy of the list
 	*numfiles = nfiles;
