@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2023 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -20,17 +20,15 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-#ifndef __CL_UISOUNDPICKER_H__
-#define __CL_UISOUNDPICKER_H__
+#pragma once
 
-class SoundPickerClass : public FilePickerClass {
+class SoundPickerClass : public FilePickerClass
+{
 public:
-	CLASS_PROTOTYPE( SoundPickerClass );
+    CLASS_PROTOTYPE(SoundPickerClass);
 
-	SoundPickerClass();
+    SoundPickerClass();
 
-	void	FileSelected( str &currentDirectory, str &partialName, str &fullname ) override;
-	void	FileChosen( str &currentDirectory, str &partialName, str &fullname ) override;
+    void FileSelected(str& currentDirectory, str& partialName, str& fullname) override;
+    void FileChosen(str& currentDirectory, str& partialName, str& fullname) override;
 };
-
-#endif /* __CL_UISOUNDPICKER_H__ */

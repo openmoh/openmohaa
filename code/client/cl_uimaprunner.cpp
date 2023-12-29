@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2023 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -22,47 +22,43 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "cl_ui.h"
 
-CLASS_DECLARATION( FilePickerClass, MapRunnerClass, NULL )
-{
-	{ NULL, NULL }
+CLASS_DECLARATION(FilePickerClass, MapRunnerClass, NULL) {
+    {NULL, NULL}
 };
 
-void MapRunnerClass::FileChosen( str &currentDirectory, str &partialName, str &fullname )
+void MapRunnerClass::FileChosen(str& currentDirectory, str& partialName, str& fullname)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-CLASS_DECLARATION( FilePickerClass, ViewSpawnerClass, NULL )
-{
-	{ NULL, NULL }
+CLASS_DECLARATION(FilePickerClass, UIPickFileClass, NULL) {
+    {NULL, NULL}
 };
 
-void ViewSpawnerClass::FileChosen( str &currentDirectory, str &partialName, str &fullname )
+void UIPickFileClass::FileChosen(str& currentDirectory, str& partialName, str& fullname)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-CLASS_DECLARATION( FilePickerClass, LODSpawnerClass, NULL )
+void PickFile(const char *name, Listener *obj, Event& event)
 {
-	{ NULL, NULL }
+    // FIXME: stub
+}
+
+CLASS_DECLARATION(FilePickerClass, ViewSpawnerClass, NULL) {
+    {NULL, NULL}
 };
 
-void LODSpawnerClass::FileChosen( str &currentDirectory, str &partialName, str &fullname )
+void ViewSpawnerClass::FileChosen(str& currentDirectory, str& partialName, str& fullname)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-CLASS_DECLARATION( FilePickerClass, UIPickFileClass, NULL )
-{
-	{ NULL, NULL }
+CLASS_DECLARATION(FilePickerClass, LODSpawnerClass, NULL) {
+    {NULL, NULL}
 };
 
-void UIPickFileClass::FileChosen( str &currentDirectory, str &partialName, str &fullname )
+void LODSpawnerClass::FileChosen(str& currentDirectory, str& partialName, str& fullname)
 {
-	// FIXME: stub
-}
-
-void PickFile( const char *name, Listener *obj, Event& event  )
-{
-	// FIXME: stub
+    // FIXME: stub
 }

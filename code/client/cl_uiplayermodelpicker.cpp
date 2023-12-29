@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2023 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -22,62 +22,108 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "cl_ui.h"
 
-CLASS_DECLARATION( USignal, PlayerModelPickerClass, NULL )
+class PMPickerItem : public UIListCtrlItem
 {
-	{ NULL, NULL }
+    str m_string;
+
+public:
+    int            getListItemValue(int which) const override;
+    griditemtype_t getListItemType(int which) const override;
+    str            getListItemString(int which) const override;
+    void           DrawListItem(int iColumn, const UIRect2D& drawRect, bool bSelected, UIFont *pFont) override;
+    qboolean       IsHeaderEntry() const override;
+};
+
+CLASS_DECLARATION(USignal, PlayerModelPickerClass, NULL) {
+    {&EV_UIListBase_ItemSelected,       &PlayerModelPickerClass::FileSelected },
+    {&EV_UIListBase_ItemDoubleClicked,  &PlayerModelPickerClass::FileChosen   },
+    {&UIFloatingWindow::W_ClosePressed, &PlayerModelPickerClass::OnDeactivated},
+    {&W_Deactivated,                    &PlayerModelPickerClass::OnDeactivated},
+    {NULL,                              NULL                                  }
 };
 
 PlayerModelPickerClass::PlayerModelPickerClass()
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
 PlayerModelPickerClass::~PlayerModelPickerClass()
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void PlayerModelPickerClass::SetupFiles( void )
+void PlayerModelPickerClass::Setup(const char *root_directory, const char *current_directory, qboolean bGermanModels)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void PlayerModelPickerClass::Initialize( const char *root_directory, const char *current_directory, qboolean bGermanModels )
+void PlayerModelPickerClass::Initialize(
+    const char *root_directory, const char *current_directory, qboolean bGermanModels
+)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void PlayerModelPickerClass::CloseWindow( void )
+void PlayerModelPickerClass::SetupFiles(void)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void PlayerModelPickerClass::FileSelected( Event *ev )
+void PlayerModelPickerClass::FileSelected(str& currentDirectory, str& partialName, str& fullname)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void PlayerModelPickerClass::FileSelected( str& currentDirectory, str& partialName, str& fullname )
+void PlayerModelPickerClass::FileChosen(str& currentDirectory, str& partialName, str& fullname)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void PlayerModelPickerClass::FileChosen( Event *ev )
+void PlayerModelPickerClass::FileSelected(Event *ev)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void PlayerModelPickerClass::FileChosen( str& currentDirectory, str& partialName, str& fullname )
+void PlayerModelPickerClass::FileChosen(Event *ev)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void PlayerModelPickerClass::OnDeactivated( Event *ev )
+void PlayerModelPickerClass::CloseWindow(void)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void PlayerModelPickerClass::Setup( const char *root_directory, const char *current_directory, qboolean bGermanModels )
+void PlayerModelPickerClass::OnDeactivated(Event *ev)
 {
-	// FIXME: stub
+    // FIXME: stub
+}
+
+int PMPickerItem::getListItemValue(int which) const
+{
+    // FIXME: stub
+    return 0;
+}
+
+griditemtype_t PMPickerItem::getListItemType(int which) const
+{
+    // FIXME: stub
+    return griditemtype_t::TYPE_STRING;
+}
+
+str PMPickerItem::getListItemString(int which) const
+{
+    // FIXME: stub
+    return str();
+}
+
+void PMPickerItem::DrawListItem(int iColumn, const UIRect2D& drawRect, bool bSelected, UIFont *pFont)
+{
+    // FIXME: stub
+}
+
+qboolean PMPickerItem::IsHeaderEntry() const
+{
+    // FIXME: stub
+    return qfalse;
 }

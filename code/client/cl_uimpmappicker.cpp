@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2023 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -22,72 +22,115 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "cl_ui.h"
 
-CLASS_DECLARATION( USignal, MpMapPickerClass, NULL )
+class MpMapPickerItem : public UIListCtrlItem
 {
-	{ NULL, NULL }
+    str m_string;
+
+public:
+    int            getListItemValue(int which) const override;
+    griditemtype_t getListItemType(int which) const override;
+    str            getListItemString(int which) const override;
+    void           DrawListItem(int iColumn, const UIRect2D& drawRect, bool bSelected, UIFont *pFont) override;
+    qboolean       IsHeaderEntry() const override;
+};
+
+CLASS_DECLARATION(USignal, MpMapPickerClass, NULL) {
+    {&EV_UIListBase_ItemSelected,      &MpMapPickerClass::FileSelected },
+    {&EV_UIListBase_ItemDoubleClicked, &MpMapPickerClass::FileChosen   },
+    {&W_Deactivated,                   &MpMapPickerClass::OnDeactivated},
+    {NULL,                             NULL                            }
 };
 
 MpMapPickerClass::MpMapPickerClass()
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
 MpMapPickerClass::~MpMapPickerClass()
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void MpMapPickerClass::SetupFiles( void )
+void MpMapPickerClass::Setup(const char *root_directory, const char *current_directory)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void MpMapPickerClass::GotoParentDirectory( void )
+void MpMapPickerClass::Initialize(const char *root_directory, const char *current_directory)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void MpMapPickerClass::GotoSubDirectory( str subdir )
+void MpMapPickerClass::GotoParentDirectory(void)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void MpMapPickerClass::Initialize( const char *root_directory, const char *current_directory )
+void MpMapPickerClass::GotoSubDirectory(str subdir)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void MpMapPickerClass::CloseWindow( void )
+void MpMapPickerClass::SetupFiles(void)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void MpMapPickerClass::FileSelected( Event *ev )
+void MpMapPickerClass::FileSelected(str& currentDirectory, str& partialName, str& fullname)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void MpMapPickerClass::FileSelected( str& currentDirectory, str& partialName, str& fullname )
+void MpMapPickerClass::FileSelected(Event *ev)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void MpMapPickerClass::FileChosen( Event *ev )
+void MpMapPickerClass::FileChosen(str& currentDirectory, str& partialName, str& fullname)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void MpMapPickerClass::FileChosen( str& currentDirectory, str& partialName, str& fullname )
+void MpMapPickerClass::FileChosen(Event *ev)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void MpMapPickerClass::OnDeactivated( Event *ev )
+void MpMapPickerClass::CloseWindow(void)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void MpMapPickerClass::Setup( const char *root_directory, const char *current_directory )
+void MpMapPickerClass::OnDeactivated(Event *ev)
 {
-	// FIXME: stub
+    // FIXME: stub
+}
+
+int MpMapPickerItem::getListItemValue(int which) const
+{
+    // FIXME: stub
+    return 0;
+}
+
+griditemtype_t MpMapPickerItem::getListItemType(int which) const
+{
+    // FIXME: stub
+    return griditemtype_t::TYPE_STRING;
+}
+
+str MpMapPickerItem::getListItemString(int which) const
+{
+    // FIXME: stub
+    return str();
+}
+
+void MpMapPickerItem::DrawListItem(int iColumn, const UIRect2D& drawRect, bool bSelected, UIFont *pFont)
+{
+    // FIXME: stub
+}
+
+qboolean MpMapPickerItem::IsHeaderEntry() const
+{
+    // FIXME: stub
+    return qfalse;
 }

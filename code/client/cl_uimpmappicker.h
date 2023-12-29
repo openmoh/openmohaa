@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2023 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -20,39 +20,37 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-#ifndef __CL_UIMPMAPPICKER_H__
-#define __CL_UIMPMAPPICKER_H__
+#pragma once
 
 class UIFloatingWindow;
 
-class MpMapPickerClass : public USignal {
-	UIFloatingWindow *window;
-	UIListCtrl *listbox;
-	str currentDirectory;
-	str rootDirectory;
+class MpMapPickerClass : public USignal
+{
+    UIFloatingWindow *window;
+    UIListCtrl       *listbox;
+    str               currentDirectory;
+    str               rootDirectory;
 
 public:
-	CLASS_PROTOTYPE( MpMapPickerClass );
+    CLASS_PROTOTYPE(MpMapPickerClass);
 
 private:
-	void		SetupFiles( void );
-	void		GotoParentDirectory( void );
-	void		GotoSubDirectory( str subdir );
-	void		Initialize( const char *root_directory, const char *current_directory );
+    void SetupFiles(void);
+    void GotoParentDirectory(void);
+    void GotoSubDirectory(str subdir);
+    void Initialize(const char *root_directory, const char *current_directory);
 
 protected:
-	void			CloseWindow( void );
-	void			FileSelected( Event *ev );
-	virtual void	FileSelected( str& currentDirectory, str& partialName, str& fullname );
-	void			FileChosen( Event *ev );
-	virtual void	FileChosen( str& currentDirectory, str& partialName, str& fullname );
-	void			OnDeactivated( Event *ev );
+    void         CloseWindow(void);
+    void         FileSelected(Event *ev);
+    virtual void FileSelected(str& currentDirectory, str& partialName, str& fullname);
+    void         FileChosen(Event *ev);
+    virtual void FileChosen(str& currentDirectory, str& partialName, str& fullname);
+    void         OnDeactivated(Event *ev);
 
 public:
-	MpMapPickerClass();
-	~MpMapPickerClass();
+    MpMapPickerClass();
+    ~MpMapPickerClass();
 
-	void		Setup( const char *root_directory, const char *current_directory );
+    void Setup(const char *root_directory, const char *current_directory);
 };
-
-#endif /* __CL_UIMPMAPPICKER_H__ */

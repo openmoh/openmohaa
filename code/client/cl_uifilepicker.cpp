@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2023 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -22,72 +22,115 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "cl_ui.h"
 
-CLASS_DECLARATION( USignal, FilePickerClass, NULL )
+class FilePickerItem : public UIListCtrlItem
 {
-	{ NULL, NULL }
+    str strings[3];
+
+public:
+    int            getListItemValue(int which) const override;
+    griditemtype_t getListItemType(int which) const override;
+    str            getListItemString(int which) const override;
+    void           DrawListItem(int iColumn, const UIRect2D& drawRect, bool bSelected, UIFont *pFont) override;
+    qboolean       IsHeaderEntry() const override;
+};
+
+CLASS_DECLARATION(USignal, FilePickerClass, NULL) {
+    {&EV_UIListBase_ItemSelected,      &FilePickerClass::FileSelected },
+    {&EV_UIListBase_ItemDoubleClicked, &FilePickerClass::FileChosen   },
+    {&W_Deactivated,                   &FilePickerClass::OnDeactivated},
+    {NULL,                             NULL                           }
 };
 
 FilePickerClass::FilePickerClass()
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
 FilePickerClass::~FilePickerClass()
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void FilePickerClass::SetupFiles( void )
+void FilePickerClass::Setup(const char *root_directory, const char *current_directory, const char *ext)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void FilePickerClass::GotoParentDirectory( void )
+void FilePickerClass::Initialize(const char *root_directory, const char *current_directory, const char *ext)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void FilePickerClass::GotoSubDirectory( str subdir )
+void FilePickerClass::GotoParentDirectory(void)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void FilePickerClass::Initialize( const char *root_directory, const char *current_directory, const char *ext )
+void FilePickerClass::GotoSubDirectory(str subdir)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void FilePickerClass::CloseWindow( void )
+void FilePickerClass::SetupFiles(void)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void FilePickerClass::FileSelected( Event *ev )
+void FilePickerClass::FileSelected(str& currentDirectory, str& partialName, str& fullname)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void FilePickerClass::FileSelected( str &currentDirectory, str &partialName, str &fullname )
+void FilePickerClass::FileChosen(str& currentDirectory, str& partialName, str& fullname)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void FilePickerClass::FileChosen( Event *ev )
+void FilePickerClass::FileSelected(Event *ev)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void FilePickerClass::FileChosen( str &currentDirectory, str &partialName, str &fullname )
+void FilePickerClass::FileChosen(Event *ev)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void FilePickerClass::OnDeactivated( Event  *ev )
+void FilePickerClass::CloseWindow(void)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void FilePickerClass::Setup( const char *root_directory, const char *current_directory, const char *ext )
+void FilePickerClass::OnDeactivated(Event *ev)
 {
-	// FIXME: stub
+    // FIXME: stub
+}
+
+int FilePickerItem::getListItemValue(int which) const
+{
+    // FIXME: stub
+    return 0;
+}
+
+griditemtype_t FilePickerItem::getListItemType(int which) const
+{
+    // FIXME: stub
+    return griditemtype_t::TYPE_STRING;
+}
+
+str FilePickerItem::getListItemString(int which) const
+{
+    // FIXME: stub
+    return str();
+}
+
+void FilePickerItem::DrawListItem(int iColumn, const UIRect2D& drawRect, bool bSelected, UIFont *pFont)
+{
+    // FIXME: stub
+}
+
+qboolean FilePickerItem::IsHeaderEntry() const
+{
+    // FIXME: stub
+    return qfalse;
 }

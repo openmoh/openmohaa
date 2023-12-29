@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2023 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -20,40 +20,41 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-#ifndef __CL_UIMAPRUNNER_H__
-#define __CL_UIMAPRUNNER_H__
+#pragma once
 
-class MapRunnerClass : public FilePickerClass {
+class MapRunnerClass : public FilePickerClass
+{
 public:
-	CLASS_PROTOTYPE( MapRunnerClass );
+    CLASS_PROTOTYPE(MapRunnerClass);
 
-	void	FileChosen( str &currentDirectory, str &partialName, str &fullname ) override;
+    void FileChosen(str& currentDirectory, str& partialName, str& fullname) override;
 };
 
-class ViewSpawnerClass : public FilePickerClass {
+class ViewSpawnerClass : public FilePickerClass
+{
 public:
-	CLASS_PROTOTYPE( ViewSpawnerClass );
+    CLASS_PROTOTYPE(ViewSpawnerClass);
 
-	void	FileChosen( str &currentDirectory, str &partialName, str &fullname ) override;
+    void FileChosen(str& currentDirectory, str& partialName, str& fullname) override;
 };
 
-class LODSpawnerClass : public FilePickerClass {
+class LODSpawnerClass : public FilePickerClass
+{
 public:
-	CLASS_PROTOTYPE( LODSpawnerClass );
+    CLASS_PROTOTYPE(LODSpawnerClass);
 
-	void	FileChosen( str &currentDirectory, str &partialName, str &fullname ) override;
+    void FileChosen(str& currentDirectory, str& partialName, str& fullname) override;
 };
 
-class UIPickFileClass : public FilePickerClass {
+class UIPickFileClass : public FilePickerClass
+{
 public:
-	Listener *retobj;
-	Event *retevent;
+    Listener *retobj;
+    Event    *retevent;
 
-	CLASS_PROTOTYPE( UIPickFileClass );
+    CLASS_PROTOTYPE(UIPickFileClass);
 
-	void	FileChosen( str &currentDirectory, str &partialName, str &fullname ) override;
+    void FileChosen(str& currentDirectory, str& partialName, str& fullname) override;
 };
 
-void PickFile( const char *name, Listener *obj, Event& event );
-
-#endif /* __CL_UIMAPRUNNER_H__ */
+void PickFile(const char *name, Listener *obj, Event& event);
