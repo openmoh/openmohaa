@@ -3009,20 +3009,35 @@ UI_DMMapSelect_f
 void UI_DMMapSelect_f(void)
 {
     str basepath = "maps";
-    str mappath  = "maps";
+    str mappath;
+    str gametype;
 
-    if (Cmd_Argc() > 1) {
-        mappath += "/";
-        mappath += Cmd_Argv(1);
-    }
+    if (Cmd_Argc() > 1)
+    {
+        const char* path;
 
-    if (Cmd_Argc() > 2) {
-        basepath += "/";
-        basepath += Cmd_Argv(2);
+        path = Cmd_Argv(1);
+
+        if (strcmp(path, ".")) {
+            basepath += "/";
+            basepath += path;
+        }
+
+        if (Cmd_Argc() > 2) {
+            path = Cmd_Argv(2);
+            if (strcmp(path, ".")) {
+                mappath += "maps/";
+                mappath += path;
+            }
+        }
+
+        if (Cmd_Argc() > 3) {
+            gametype = Cmd_Argv(3);
+        }
     }
 
     MpMapPickerClass *map = new MpMapPickerClass;
-    map->Setup(basepath, mappath);
+    map->Setup(basepath, mappath, gametype);
 
     CL_SetMousePos(cls.glconfig.vidWidth / 2, cls.glconfig.vidHeight / 2);
 }
