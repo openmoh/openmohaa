@@ -2379,6 +2379,12 @@ qboolean Com_ShiftedStrStr(const char* shifted, const char* name, int offset) {
 }
 
 qboolean COM_IsMapValid(const char* name) {
+	// FIXME: Not sure where this method comes from
+	//  this function is present only in the BT 2.40 Mac build
+	//  it is not present on the BT 2.40 Win32 build
+	return qtrue;
+
+	/*
 	char lowered[MAX_QPATH];
 
 	strcpy(lowered, name);
@@ -2387,6 +2393,7 @@ qboolean COM_IsMapValid(const char* name) {
 	return Com_ShiftedStrStr("adSUbn]cS`]V", lowered, 12)
 		|| Com_ShiftedStrStr("RUDUFQJWRTDTGO", lowered, 27)
 		|| Com_ShiftedStrStr("etgfkvu", lowered, -2);
+	*/
 }
 
 //------------------------------------------------------------------------
