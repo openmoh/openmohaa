@@ -825,6 +825,8 @@ void	FS_FilenameCompletion( const char *dir, const char *ext,
 const char* FS_GetCurrentGameDir();
 void	FS_GetRelativeFilename( const char *currentDirectory, const char *absoluteFilename, char *out, size_t destlen );
 
+void FS_FileTime(const char* filename, char* date, char* size);
+
 extern cvar_t* fs_debug;
 extern cvar_t* fs_mapdir;
 

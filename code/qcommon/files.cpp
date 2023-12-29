@@ -4362,3 +4362,14 @@ void FS_CanonicalFilename(char* filename)
         p++;
     }
 }
+
+void FS_FileTime(const char* filename, char* date, char* size) {
+	const char* ospath;
+
+	date[0] = 0;
+	size[0] = 0;
+
+	ospath = FS_BuildOSPath(fs_homepath->string, fs_gamedir, filename);
+
+	// FIXME: unimplemented
+}
