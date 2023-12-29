@@ -26,7 +26,7 @@ CLASS_DECLARATION(FilePickerClass, MapRunnerClass, NULL) {
     {NULL, NULL}
 };
 
-void MapRunnerClass::FileChosen(str& currentDirectory, str& partialName, str& fullname)
+void MapRunnerClass::FileChosen(const str& currentDirectory, const str& partialName, const str& fullname)
 {
     str newName;
 
@@ -54,7 +54,7 @@ UIPickFileClass::~UIPickFileClass()
     }
 }
 
-void UIPickFileClass::FileChosen(str& currentDirectory, str& partialName, str& fullname)
+void UIPickFileClass::FileChosen(const str& currentDirectory, const str& partialName, const str& fullname)
 {
     if (!retobj || !retevent) {
         CloseWindow();
@@ -101,7 +101,7 @@ CLASS_DECLARATION(FilePickerClass, ViewSpawnerClass, NULL) {
     {NULL, NULL}
 };
 
-void ViewSpawnerClass::FileChosen(str& currentDirectory, str& partialName, str& fullname)
+void ViewSpawnerClass::FileChosen(const str& currentDirectory, const str& partialName, const str& fullname)
 {
     str newName;
 
@@ -116,7 +116,7 @@ CLASS_DECLARATION(FilePickerClass, LODSpawnerClass, NULL) {
     {NULL, NULL}
 };
 
-void LODSpawnerClass::FileChosen(str& currentDirectory, str& partialName, str& fullname)
+void LODSpawnerClass::FileChosen(const str& currentDirectory, const str& partialName, const str& fullname)
 {
     str newName;
 

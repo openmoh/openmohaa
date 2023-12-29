@@ -31,12 +31,12 @@ SoundPickerClass::SoundPickerClass()
     // FIXME: stub
 }
 
-void SoundPickerClass::FileSelected(str& currentDirectory, str& partialName, str& fullname)
+void SoundPickerClass::FileSelected(const str& currentDirectory, const str& partialName, const str& fullname)
 {
     // FIXME: stub
 }
 
-void SoundPickerClass::FileChosen(str& currentDirectory, str& partialName, str& fullname)
+void SoundPickerClass::FileChosen(const str& currentDirectory, const str& partialName, const str& fullname)
 {
     // FIXME: stub
 }

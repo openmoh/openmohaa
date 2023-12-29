@@ -203,7 +203,7 @@ void FilePickerClass::SetupFiles(void)
     window->setTitle(currentDirectory);
 }
 
-void FilePickerClass::FileSelected(str& currentDirectory, str& partialName, str& fullname) {}
+void FilePickerClass::FileSelected(const str& currentDirectory, const str& partialName, const str& fullname) {}
 
 void FilePickerClass::FileSelected(Event *ev)
 {
@@ -216,7 +216,7 @@ void FilePickerClass::FileSelected(Event *ev)
     uii.Snd_PlaySound("sound/menu/scroll.wav");
 }
 
-void FilePickerClass::FileChosen(str& currentDirectory, str& partialName, str& fullname) {}
+void FilePickerClass::FileChosen(const str& currentDirectory, const str& partialName, const str& fullname) {}
 
 void FilePickerClass::FileChosen(Event *ev)
 {

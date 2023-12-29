@@ -29,6 +29,6 @@ public:
 
     SoundPickerClass();
 
-    void FileSelected(str& currentDirectory, str& partialName, str& fullname) override;
-    void FileChosen(str& currentDirectory, str& partialName, str& fullname) override;
+    void FileSelected(const str& currentDirectory, const str& partialName, const str& fullname) override;
+    void FileChosen(const str& currentDirectory, const str& partialName, const str& fullname) override;
 };

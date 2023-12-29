@@ -47,9 +47,9 @@ private:
 protected:
     void         CloseWindow(void);
     void         FileSelected(Event *ev);
-    virtual void FileSelected(str& currentDirectory, str& partialName, str& fullname);
+    virtual void FileSelected(const str& currentDirectory, const str& partialName, const str& fullname);
     void         FileChosen(Event *ev);
-    virtual void FileChosen(str& currentDirectory, str& partialName, str& fullname);
+    virtual void FileChosen(const str& currentDirectory, const str& partialName, const str& fullname);
     void         OnDeactivated(Event *ev);
 
 public:
