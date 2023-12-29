@@ -2366,6 +2366,29 @@ void Com_WipeSavegame( const char *savename )
 	FS_DeleteFile( Com_GetArchiveFileName( savename, "tga" ) );
 }
 
+qboolean Com_ShiftedStrStr(const char* shifted, const char* name, int offset) {
+	char string[1024];
+	int i;
+
+	for (i = 0; name[i]; i++) {
+		string[i] = name[i] - offset;
+	}
+	string[i] = 0;
+
+	return strstr(string, shifted) != NULL;
+}
+
+qboolean COM_IsMapValid(const char* name) {
+	char lowered[MAX_QPATH];
+
+	strcpy(lowered, name);
+	strlwr(lowered);
+
+	return Com_ShiftedStrStr("adSUbn]cS`]V", lowered, 12)
+		|| Com_ShiftedStrStr("RUDUFQJWRTDTGO", lowered, 27)
+		|| Com_ShiftedStrStr("etgfkvu", lowered, -2);
+}
+
 //------------------------------------------------------------------------
 
 

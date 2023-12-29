@@ -1091,6 +1091,8 @@ qboolean Com_SanitizeName( const char *pszOldName, char *pszNewName );
 const char *Com_GetArchiveFileName( const char *filename, const char *extension );
 const char *Com_GetArchiveFolder();
 void Com_WipeSavegame( const char *savename );
+qboolean Com_ShiftedStrStr(const char* shifted, const char* name, int offset);
+qboolean COM_IsMapValid(const char* name);
 
 
 /*
