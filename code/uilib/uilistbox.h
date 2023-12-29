@@ -99,4 +99,6 @@ public:
     int  getNumItems(void) override;
     void DeleteAllItems(void) override;
     void DeleteItem(int which) override;
+    void InsertItem(const char *string, int which, const char *command = NULL);
+    void setCurrentItem(int which);
 };

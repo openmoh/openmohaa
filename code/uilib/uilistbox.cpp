@@ -426,3 +426,45 @@ void UIListBox::DeleteItem(int which)
         TrySelectItem(getNumItems());
     }
 }
+
+void UIListBox::InsertItem(const char *string, int which, const char *command)
+{
+    ListItem *item;
+    int       i;
+
+    item = new ListItem();
+    if (!item) {
+        Com_Error(ERR_DROP, "Couldn't create list item\n");
+    }
+
+    item->string = string;
+    if (command) {
+        item->command = command;
+    }
+
+    if (which >= 1 && which <= m_itemlist.NumObjects()) {
+        m_itemlist.AddObject({});
+        for (i = m_itemlist.NumObjects(); i > which; i--) {
+            m_itemlist.SetObjectAt(i, m_itemlist.ObjectAt(i - 1));
+        }
+
+        m_itemlist.SetObjectAt(which, item);
+    } else {
+        m_itemlist.AddObject(item);
+    }
+
+    if (m_vertscroll) {
+        m_vertscroll->setNumItems(m_itemlist.NumObjects());
+    }
+}
+
+void UIListBox::setCurrentItem(int which)
+{
+    if (which < 1) {
+        m_currentItem = 0;
+    } else if (which > m_itemlist.NumObjects()) {
+        m_currentItem = m_itemlist.NumObjects();
+    } else {
+        m_currentItem = which;
+    }
+}
