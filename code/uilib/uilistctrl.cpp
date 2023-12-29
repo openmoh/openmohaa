@@ -644,7 +644,7 @@ void UIListCtrl::SortByColumn
 	for (i = 1; i <= m_columnlist.NumObjects(); i++) {
 		columndef_t& def = m_columnlist.ObjectAt(i);
 
-		if (def.name == i) {
+		if (def.name == column) {
 			numeric = def.numeric;
 			reverse = def.reverse_sort;
 			exists = true;
