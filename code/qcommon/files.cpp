@@ -2403,6 +2403,7 @@ char **FS_ListFilteredFiles( const char *path, const char *extension, const char
 	pack_t			*pak;
 	fileInPack_t	*buildBuffer;
 	char			zpath[MAX_ZPATH];
+	qboolean		bDirSearch;
 
 	if ( !fs_searchpaths ) {
 		Com_Error( ERR_FATAL, "Filesystem call made without initialization" );
@@ -2414,6 +2415,10 @@ char **FS_ListFilteredFiles( const char *path, const char *extension, const char
 	}
 	if ( !extension ) {
 		extension = "";
+	}
+	bDirSearch = qfalse;
+	if (extension[0] == '/') {
+		bDirSearch = extension[1] == 0;
 	}
 
 	pathLength = strlen( path );
@@ -2458,7 +2463,7 @@ char **FS_ListFilteredFiles( const char *path, const char *extension, const char
 
 					zpathLen = FS_ReturnPath(name, zpath, &depth);
 
-					if ( (depth-pathDepth)>2 || pathLength > zpathLen || Q_stricmpn( name, path, pathLength ) ) {
+					if ( (depth-pathDepth)>2 || pathLength > zpathLen || Q_stricmpn( name, path, pathLength ) || (!wantSubs || bDirSearch) && pathDepth != depth - 1 ) {
 						continue;
 					}
 
