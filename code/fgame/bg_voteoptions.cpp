@@ -255,6 +255,7 @@ void VoteOptions::ParseVoteOptions()
                     newOption->m_pListItem = newListItem;
                 }
                 listItem = newListItem;
+                newListItem->m_sItemName = token;
 
                 if (!script.TokenAvailable(false)) {
                     Com_Error(
