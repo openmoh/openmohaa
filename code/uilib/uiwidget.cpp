@@ -2617,7 +2617,10 @@ void UIWidget::ExecuteShowCommands
 {
 	for( int i = 1; i <= m_showcommands.NumObjects(); i++ )
 	{
-		uii.Cmd_Stuff( m_showcommands.ObjectAt( i )->c_str() );
+		//uii.Cmd_Stuff( m_showcommands.ObjectAt( i )->c_str() );
+		// Fixed in 2.0
+		Event event(m_showcommands.ObjectAt(i)->c_str());
+		ProcessEvent(event);
 	}
 }
 
@@ -2629,7 +2632,10 @@ void UIWidget::ExecuteHideCommands
 {
 	for( int i = 1; i <= m_hidecommands.NumObjects(); i++ )
 	{
-		uii.Cmd_Stuff( m_hidecommands.ObjectAt( i )->c_str() );
+		//uii.Cmd_Stuff( m_hidecommands.ObjectAt( i )->c_str() );
+		// Fixed in 2.0
+		Event event(m_hidecommands.ObjectAt(i)->c_str());
+		ProcessEvent(event);
 	}
 }
 
