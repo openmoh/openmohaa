@@ -1981,7 +1981,7 @@ qboolean SV_ArchiveServerFile( qboolean loading, qboolean autosave )
 		if( strstr( name, "quick.ssv" ) ) {
 			Com_sprintf( save.comment, sizeof( save.comment ), "QuickSave - %s", comment );
 		} else {
-			strcpy( save.comment, name );
+			strcpy( save.comment, comment );
 		}
 
 		SV_SetConfigstring( CS_SAVENAME, "" );
