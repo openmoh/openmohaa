@@ -39,13 +39,46 @@ public:
 
 static UIFAKKLoadGameClass *loadgame_ui = NULL;
 
-Event EV_FAKKLoadGame_LoadGame("loadgame", -1, 0, 0, "Load the currently selected game");
-
-Event EV_FAKKLoadGame_RemoveGame("removegame", -1, 0, 0, "Delete the currently selected game");
-
-Event EV_FAKKLoadGame_DeleteGame("deletegame", -1, 0, 0, "Delete the currently selected game... for real");
-Event EV_FAKKLoadGame_NoDeleteGame("nodeletegame", -1, 0, 0, "Delete the currently selected game... for real");
-Event EV_FAKKLoadGame_SaveGame("savegame", -1, 0, 0, "Save the currently selected game");
+Event EV_FAKKLoadGame_LoadGame
+(
+    "loadgame",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Load the currently selected game"
+);
+Event EV_FAKKLoadGame_RemoveGame
+(
+    "removegame",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Delete the currently selected game"
+);
+Event EV_FAKKLoadGame_DeleteGame
+(
+    "deletegame",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Delete the currently selected game... for real"
+);
+Event EV_FAKKLoadGame_NoDeleteGame
+(
+    "nodeletegame",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Delete the currently selected game... for real"
+);
+Event EV_FAKKLoadGame_SaveGame
+(
+    "savegame",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Save the currently selected game"
+);
 
 CLASS_DECLARATION(UIListCtrl, UIFAKKLoadGameClass, NULL) {
     {&EV_UIListBase_ItemSelected,      &UIFAKKLoadGameClass::SelectGame  },
