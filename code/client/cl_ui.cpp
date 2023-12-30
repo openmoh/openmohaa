@@ -149,6 +149,7 @@ static str               ui_sCurrentLoadingMenu;
 static Container<Menu *> hudList;
 
 void UI_MultiplayerMenuWidgetsUpdate(void);
+void UI_MultiplayerMainMenuWidgetsUpdate(void);
 void UI_MainMenuWidgetsUpdate(void);
 
 static UIRect2D getDefaultGMBoxRectangle(void);
@@ -1799,6 +1800,8 @@ void UI_Update(void)
 
     if (currentMenu == menuManager.FindMenu("main")) {
         UI_MainMenuWidgetsUpdate();
+    } else if (currentMenu == menuManager.FindMenu("dm_main")) {
+        UI_MultiplayerMainMenuWidgetsUpdate();
     }
 
     // don't care about the intro
@@ -2391,6 +2394,45 @@ void UI_MainMenuWidgetsUpdate(void)
 
 /*
 ====================
+UI_MultiplayerMainMenuWidgetsUpdate
+====================
+*/
+// Added in 2.0
+void UI_MultiplayerMainMenuWidgetsUpdate(void)
+{
+    static const cvar_t *cg_allowvote = Cvar_Get("cg_allowvote", "1", 0);
+
+    if (cg_allowvote->integer) {
+        menuManager.PassEventToWidget("cantvote", new Event(EV_Widget_Disable));
+        menuManager.PassEventToWidget("callvotebutton", new Event(EV_Widget_Disable));
+
+        if (atoi(CL_ConfigString(CS_VOTE_TIME))) {
+            menuManager.PassEventToWidget("callvotebutton", new Event(EV_Widget_Disable));
+
+            if (cl.snap.ps.voted) {
+                menuManager.PassEventToWidget("votebutton", new Event(EV_Widget_Disable));
+                menuManager.PassEventToWidget("alreadyvoted", new Event(EV_Widget_Enable));
+            } else {
+                menuManager.PassEventToWidget("votebutton", new Event(EV_Widget_Enable));
+                menuManager.PassEventToWidget("alreadyvoted", new Event(EV_Widget_Disable));
+            }
+        } else {
+            menuManager.PassEventToWidget("callvotebutton", new Event(EV_Widget_Enable));
+            menuManager.PassEventToWidget("votebutton", new Event(EV_Widget_Disable));
+            menuManager.PassEventToWidget("alreadyvoted", new Event(EV_Widget_Disable));
+        }
+    } else {
+        menuManager.PassEventToWidget("callvotebutton", new Event(EV_Widget_Disable));
+        menuManager.PassEventToWidget("votebutton", new Event(EV_Widget_Disable));
+        menuManager.PassEventToWidget("alreadyvoted", new Event(EV_Widget_Disable));
+        menuManager.PassEventToWidget("cantvote", new Event(EV_Widget_Enable));
+    }
+
+    UI_UpdateContinueGame();
+}
+
+/*
+====================
 UI_ToggleMenu
 
 Toggle a menu
@@ -2453,9 +2495,11 @@ void UI_PopMenu(qboolean restore_cvars)
     menu = menuManager.CurrentMenu();
 
     if (menu) {
-        if (!memcmp(menu->m_name.c_str(), "main", 5)) {
+        if (!str::cmp(menu->m_name, "main")) {
             UI_MainMenuWidgetsUpdate();
-        } else if (!memcmp(menu->m_name.c_str(), "multiplayer", 12)) {
+        } else if (!str::cmp(menu->m_name, "dm_main")) {
+            UI_MultiplayerMainMenuWidgetsUpdate();
+        } else if (!str::cmp(menu->m_name, "multiplayer")) {
             UI_MultiplayerMenuWidgetsUpdate();
         }
     }
@@ -2491,9 +2535,11 @@ void UI_PushMenu(const char *name)
 
     UI_FocusMenuIfExists();
 
-    if (!memcmp(name, "main", 5)) {
+    if (!str::cmp(name, "main")) {
         UI_MainMenuWidgetsUpdate();
-    } else if (!memcmp(name, "multiplayer", 12)) {
+    } else if (!str::cmp(name, "dm_main")) {
+        UI_MultiplayerMainMenuWidgetsUpdate();
+    } else if (!str::cmp(name, "multiplayer")) {
         UI_MultiplayerMenuWidgetsUpdate();
     }
 }
@@ -2826,9 +2872,11 @@ qboolean UI_PushReturnMenu()
         return qfalse;
     }
 
-    if (!memcmp(sMenuName.c_str(), "main", 5)) {
+    if (!str::cmp(sMenuName, "main")) {
         UI_MainMenuWidgetsUpdate();
-    } else if (!memcmp(sMenuName.c_str(), "multiplayer", 12)) {
+    } else if (!str::cmp(sMenuName, "dm_main")) {
+        UI_MultiplayerMainMenuWidgetsUpdate();
+    } else if (!str::cmp(sMenuName, "multiplayer")) {
         UI_MultiplayerMenuWidgetsUpdate();
     }
 
@@ -2858,33 +2906,44 @@ void UI_MenuEscape(const char *name)
 
     if (uWinMan.BindActive()) {
         UI_KeyEvent(K_ESCAPE, qfalse);
-    } else if (menuManager.CurrentMenu() != mainmenu || clc.state != CA_DISCONNECTED) {
-        if (uWinMan.DialogExists()) {
-            uWinMan.RemoveAllDialogBoxes();
-        } else {
-            if (menuManager.CurrentMenu()) {
-                menuManager.PopMenu(qtrue);
-            } else if (!Q_stricmp(name, "main") && clc.state > CA_PRIMED && cg_gametype->integer > 0) {
-                UI_PushMenu("dm_main");
+        return;
+    }
+
+    if (menuManager.CurrentMenu() == mainmenu && clc.state == CA_DISCONNECTED) {
+        if (developer->integer) {
+            if (UI_ConsoleIsVisible()) {
+                UI_CloseConsole();
             } else {
-                UI_PushMenu(name);
-            }
-
-            UI_FocusMenuIfExists();
-
-            if (menuManager.CurrentMenu()) {
-                if (!memcmp(name, "main", 5)) {
-                    UI_MainMenuWidgetsUpdate();
-                } else if (!memcmp(name, "multiplayer", 12)) {
-                    UI_MultiplayerMenuWidgetsUpdate();
-                }
+                UI_OpenConsole();
             }
         }
-    } else if (developer->integer) {
-        if (UI_ConsoleIsVisible()) {
-            UI_CloseConsole();
-        } else {
-            UI_OpenConsole();
+        return;
+    }
+
+    if (uWinMan.DialogExists()) {
+        uWinMan.RemoveAllDialogBoxes();
+        return;
+    }
+
+    if (menuManager.CurrentMenu()) {
+        menuManager.PopMenu(qtrue);
+    } else if (!Q_stricmp(name, "main") && clc.state > CA_PRIMED && cg_gametype->integer > 0) {
+        // multiplayer
+        UI_PushMenu("dm_main");
+    } else {
+        // single-player
+        UI_PushMenu(name);
+    }
+
+    UI_FocusMenuIfExists();
+
+    if (menuManager.CurrentMenu()) {
+        if (!str::cmp(name, "main")) {
+            UI_MainMenuWidgetsUpdate();
+        } else if (!str::cmp(name, "dm_main")) {
+            UI_MultiplayerMainMenuWidgetsUpdate();
+        } else if (!str::cmp(name, "multiplayer")) {
+            UI_MultiplayerMenuWidgetsUpdate();
         }
     }
 }
@@ -3012,9 +3071,8 @@ void UI_DMMapSelect_f(void)
     str mappath;
     str gametype;
 
-    if (Cmd_Argc() > 1)
-    {
-        const char* path;
+    if (Cmd_Argc() > 1) {
+        const char *path;
 
         path = Cmd_Argv(1);
 
@@ -3234,7 +3292,7 @@ UI_ApplyPlayerModel_f
 void UI_ApplyPlayerModel_f(void)
 {
     const char *pszUIPlayerModel;
-    char donotshowssindeorfr[64];
+    char        donotshowssindeorfr[64];
 
     pszUIPlayerModel = CvarGetForUI("ui_dm_playermodel_set", "american_army");
     Cvar_Set("dm_playermodel", pszUIPlayerModel);
@@ -3246,7 +3304,7 @@ void UI_ApplyPlayerModel_f(void)
     } else {
         Cvar_Set("dm_playergermanmodel", pszUIPlayerModel);
     }
-    
+
     Cvar_Set("name", CvarGetForUI("ui_name", "UnnamedSoldier"));
 }
 
@@ -3258,7 +3316,7 @@ UI_GetPlayerModel_f
 void UI_GetPlayerModel_f(void)
 {
     const char *pszUIPlayerModel;
-    char donotshowssindeorfr[64];
+    char        donotshowssindeorfr[64];
 
     //
     // Allies
