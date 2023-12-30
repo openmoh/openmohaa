@@ -675,6 +675,7 @@ void UIWindowManager::DeactivateCurrentSmart(void)
 {
     UIWidget *toset;
     UIWidget *checking;
+    UIWidget *sibling;
 
     toset = NULL;
 
@@ -682,39 +683,36 @@ void UIWindowManager::DeactivateCurrentSmart(void)
         return;
     }
 
-    checking = m_activeControl;
-    while (1) {
-        if (checking->getParent() && (!checking->getParent() || !checking->getParent()->IsDying())) {
-            UIWidget *sib = checking->getPrevSibling();
-            while (sib && !toset) {
-                if (sib->CanActivate()) {
-                    toset = sib;
-                }
-                sib = sib->getPrevSibling();
-            }
-
-            if (toset) {
-                break;
-            }
-
-            sib = checking->getLastSibling();
-            while (sib && sib != checking && !toset) {
-                if (sib->CanActivate()) {
-                    toset = sib;
-                }
-                sib = sib->getPrevSibling();
-            }
-
-            if (toset) {
-                break;
+    for (checking = m_activeControl; checking; checking = checking->getParent()) {
+        if (!checking->getParent() || (checking->getParent() && checking->getParent()->IsDying())) {
+            continue;
+        }
+        
+        for (sibling = checking->getPrevSibling(); sibling && !toset; sibling = sibling->getPrevSibling()) {
+            if (sibling->CanActivate()) {
+                toset = sibling;
             }
         }
 
-        checking = checking->getParent();
-        if (!checking) {
-            uWinMan.DeactivateCurrentControl();
-            return;
+        if (toset) {
+            break;
         }
+
+        for (sibling = checking->getLastSibling(); sibling && sibling != checking && !toset;
+             sibling = sibling->getPrevSibling()) {
+            if (sibling->CanActivate()) {
+                toset = sibling;
+            }
+        }
+
+        if (toset) {
+            break;
+        }
+    }
+
+    if (!toset) {
+        uWinMan.DeactivateCurrentControl();
+        return;
     }
 
     if (toset == &uWinMan) {
