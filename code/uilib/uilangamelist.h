@@ -61,6 +61,7 @@ protected:
 
 public:
     UILanGameList();
+    ~UILanGameList();
 
     bool     isDying(void);
     void     Draw() override;
