@@ -2017,13 +2017,8 @@ void CL_MotdPacket( netadr_t from ) {
 CL_InitServerInfo
 ===================
 */
-void CL_InitServerInfo( serverInfo_t *server, serverAddress_t *address ) {
-	server->adr.type  = NA_IP;
-	server->adr.ip[0] = address->ip[0];
-	server->adr.ip[1] = address->ip[1];
-	server->adr.ip[2] = address->ip[2];
-	server->adr.ip[3] = address->ip[3];
-	server->adr.port  = address->port;
+void CL_InitServerInfo( serverInfo_t *server, netadr_t *address ) {
+	server->adr = *address;
 	server->clients = 0;
 	server->hostName[0] = '\0';
 	server->mapName[0] = '\0';
@@ -2043,14 +2038,14 @@ void CL_InitServerInfo( serverInfo_t *server, serverAddress_t *address ) {
 CL_ServersResponsePacket
 ===================
 */
-void CL_ServersResponsePacket( netadr_t from, msg_t *msg ) {
-	int				i, count, max, total;
-	serverAddress_t addresses[MAX_SERVERSPERPACKET];
+void CL_ServersResponsePacket( const netadr_t* from, msg_t *msg, qboolean extended ) {
+	int				i, j, count, total;
+	netadr_t addresses[MAX_SERVERSPERPACKET];
 	int				numservers;
 	byte*			buffptr;
 	byte*			buffend;
-
-	Com_Printf("CL_ServersResponsePacket\n");
+	
+	Com_Printf("CL_ServersResponsePacket from %s\n", NET_AdrToStringwPort(*from));
 
 	if (cls.numglobalservers == -1) {
 		// state to detect lack of servers or lack of response
@@ -2058,71 +2053,84 @@ void CL_ServersResponsePacket( netadr_t from, msg_t *msg ) {
 		cls.numGlobalServerAddresses = 0;
 	}
 
-	if (cls.nummplayerservers == -1) {
-		cls.nummplayerservers = 0;
-	}
-
 	// parse through server response string
 	numservers = 0;
 	buffptr    = msg->data;
 	buffend    = buffptr + msg->cursize;
-	while (buffptr+1 < buffend) {
-		// advance to initial token
-		do {
-			if (*buffptr++ == '\\')
-				break;
-		}
-		while (buffptr < buffend);
 
-		if ( buffptr >= buffend - 6 ) {
+	// advance to initial token
+	do
+	{
+		if(*buffptr == '\\' || (extended && *buffptr == '/'))
 			break;
+		
+		buffptr++;
+	} while (buffptr < buffend);
+
+	while (buffptr + 1 < buffend)
+	{
+		// IPv4 address
+		if (*buffptr == '\\')
+		{
+			buffptr++;
+
+			if (buffend - buffptr < sizeof(addresses[numservers].ip) + sizeof(addresses[numservers].port) + 1)
+				break;
+
+			for(i = 0; i < sizeof(addresses[numservers].ip); i++)
+				addresses[numservers].ip[i] = *buffptr++;
+
+			addresses[numservers].type = NA_IP;
 		}
+		// IPv6 address, if it's an extended response
+		else if (extended && *buffptr == '/')
+		{
+			buffptr++;
 
-		// parse out ip
-		addresses[numservers].ip[0] = *buffptr++;
-		addresses[numservers].ip[1] = *buffptr++;
-		addresses[numservers].ip[2] = *buffptr++;
-		addresses[numservers].ip[3] = *buffptr++;
-
+			if (buffend - buffptr < sizeof(addresses[numservers].ip6) + sizeof(addresses[numservers].port) + 1)
+				break;
+			
+			for(i = 0; i < sizeof(addresses[numservers].ip6); i++)
+				addresses[numservers].ip6[i] = *buffptr++;
+			
+			addresses[numservers].type = NA_IP6;
+			addresses[numservers].scope_id = from->scope_id;
+		}
+		else
+			// syntax error!
+			break;
+			
 		// parse out port
-		addresses[numservers].port = (*buffptr++)<<8;
+		addresses[numservers].port = (*buffptr++) << 8;
 		addresses[numservers].port += *buffptr++;
 		addresses[numservers].port = BigShort( addresses[numservers].port );
 
 		// syntax check
-		if (*buffptr != '\\') {
+		if (*buffptr != '\\' && *buffptr != '/')
 			break;
-		}
-
-		Com_DPrintf( "server: %d ip: %d.%d.%d.%d:%d\n",numservers,
-				addresses[numservers].ip[0],
-				addresses[numservers].ip[1],
-				addresses[numservers].ip[2],
-				addresses[numservers].ip[3],
-				addresses[numservers].port );
-
+	
 		numservers++;
-		if (numservers >= MAX_SERVERSPERPACKET) {
+		if (numservers >= MAX_SERVERSPERPACKET)
 			break;
-		}
-
-		// parse out EOT
-		if (buffptr[1] == 'E' && buffptr[2] == 'O' && buffptr[3] == 'T') {
-			break;
-		}
 	}
 
-	if (cls.masterNum == 0) {
-		count = cls.numglobalservers;
-		max = MAX_GLOBAL_SERVERS;
-	} else {
-		count = cls.nummplayerservers;
-		max = MAX_OTHER_SERVERS;
-	}
+	count = cls.numglobalservers;
 
-	for (i = 0; i < numservers && count < max; i++) {
+	for (i = 0; i < numservers && count < MAX_GLOBAL_SERVERS; i++) {
 		// build net address
-		serverInfo_t *server = (cls.masterNum == 0) ? &cls.globalServers[count] : &cls.mplayerServers[count];
+		serverInfo_t *server = &cls.globalServers[count];
+
+		// Tequila: It's possible to have sent many master server requests. Then
+		// we may receive many times the same addresses from the master server.
+		// We just avoid to add a server if it is still in the global servers list.
+		for (j = 0; j < count; j++)
+		{
+			if (NET_CompareAdr(cls.globalServers[j].adr, addresses[i]))
+				break;
+		}
+
+		if (j < count)
+			continue;
 
 		CL_InitServerInfo( server, &addresses[i] );
 		// advance to next slot
@@ -2130,29 +2138,18 @@ void CL_ServersResponsePacket( netadr_t from, msg_t *msg ) {
 	}
 
 	// if getting the global list
-	if (cls.masterNum == 0) {
-		if ( cls.numGlobalServerAddresses < MAX_GLOBAL_SERVERS ) {
-			// if we couldn't store the servers in the main list anymore
-			for (; i < numservers && count >= max; i++) {
-				serverAddress_t *addr;
-				// just store the addresses in an additional list
-				addr = &cls.globalServerAddresses[cls.numGlobalServerAddresses++];
-				addr->ip[0] = addresses[i].ip[0];
-				addr->ip[1] = addresses[i].ip[1];
-				addr->ip[2] = addresses[i].ip[2];
-				addr->ip[3] = addresses[i].ip[3];
-				addr->port  = addresses[i].port;
-			}
+	if ( count >= MAX_GLOBAL_SERVERS && cls.numGlobalServerAddresses < MAX_GLOBAL_SERVERS )
+	{
+		// if we couldn't store the servers in the main list anymore
+		for (; i < numservers && cls.numGlobalServerAddresses < MAX_GLOBAL_SERVERS; i++)
+		{
+			// just store the addresses in an additional list
+			cls.globalServerAddresses[cls.numGlobalServerAddresses++] = addresses[i];
 		}
 	}
 
-	if (cls.masterNum == 0) {
-		cls.numglobalservers = count;
-		total = count + cls.numGlobalServerAddresses;
-	} else {
-		cls.nummplayerservers = count;
-		total = count;
-	}
+	cls.numglobalservers = count;
+	total = count + cls.numGlobalServerAddresses;
 
 	Com_Printf("%d servers parsed (total %d)\n", numservers, total);
 }
@@ -2280,7 +2277,7 @@ void CL_ConnectionlessPacket( netadr_t from, msg_t *msg ) {
 
 	// echo request from server
 	if ( !Q_strncmp(c, "getserversResponse", 18) ) {
-		CL_ServersResponsePacket( from, msg );
+		CL_ServersResponsePacket( &from, msg, qfalse );
 		return;
 	}
 
@@ -3523,15 +3520,39 @@ CL_ServerInfoPacket
 void CL_ServerInfoPacket( netadr_t from, msg_t *msg ) {
 	int		i, type;
 	char	info[MAX_INFO_STRING];
-	const char*	str;
 	char	*infoString;
 	int		prot;
+	char	*gamename;
+	qboolean gameMismatch;
 
 	infoString = MSG_ReadString( msg );
 
+	// if this isn't the correct gamename, ignore it
+	gamename = Info_ValueForKey( infoString, "gamename" );
+
+#ifdef LEGACY_PROTOCOL
+	// gamename is optional for legacy protocol
+	if (com_legacyprotocol->integer && !*gamename)
+		gameMismatch = qfalse;
+	else
+#endif
+		gameMismatch = !*gamename || strcmp(gamename, com_gamename->string) != 0;
+
+	if (gameMismatch)
+	{
+		Com_DPrintf( "Game mismatch in info packet: %s\n", infoString );
+		return;
+	}
+
 	// if this isn't the correct protocol version, ignore it
 	prot = atoi( Info_ValueForKey( infoString, "protocol" ) );
-	if ( prot != PROTOCOL_VERSION ) {
+
+	if(prot != com_protocol->integer
+#ifdef LEGACY_PROTOCOL
+	   && prot != com_legacyprotocol->integer
+#endif
+	  )
+	{
 		Com_DPrintf( "Different protocol info packet: %s\n", infoString );
 		return;
 	}
@@ -3542,7 +3563,7 @@ void CL_ServerInfoPacket( netadr_t from, msg_t *msg ) {
 		if ( cl_pinglist[i].adr.port && !cl_pinglist[i].time && NET_CompareAdr( from, cl_pinglist[i].adr ) )
 		{
 			// calc ping time
-			cl_pinglist[i].time = cls.realtime - cl_pinglist[i].start + 1;
+			cl_pinglist[i].time = Sys_Milliseconds() - cl_pinglist[i].start;
 			Com_DPrintf( "ping time %dms from %s\n", cl_pinglist[i].time, NET_AdrToString( from ) );
 
 			// save of info
@@ -3554,12 +3575,12 @@ void CL_ServerInfoPacket( netadr_t from, msg_t *msg ) {
 			{
 				case NA_BROADCAST:
 				case NA_IP:
-					str = "udp";
 					type = 1;
 					break;
-
+				case NA_IP6:
+					type = 2;
+					break;
 				default:
-					str = "???";
 					type = 0;
 					break;
 			}
@@ -3595,24 +3616,15 @@ void CL_ServerInfoPacket( netadr_t from, msg_t *msg ) {
 	// add this to the list
 	cls.numlocalservers = i+1;
 	cls.bNewLocalServerInfo = true;
-	cls.localServers[i].adr = from;
-	cls.localServers[i].clients = 0;
-	cls.localServers[i].hostName[0] = '\0';
-	cls.localServers[i].mapName[0] = '\0';
-	cls.localServers[i].maxClients = 0;
-	cls.localServers[i].maxPing = 0;
-	cls.localServers[i].minPing = 0;
-	cls.localServers[i].ping = -1;
-	cls.localServers[i].game[0] = '\0';
-	cls.localServers[i].gameType = 0;
-	cls.localServers[i].netType = from.type;
+	CL_InitServerInfo( &cls.localServers[i], &from );
+	CL_SetServerInfo( &cls.localServers[i], infoString, 0 );
 
 	Q_strncpyz( info, MSG_ReadString( msg ), MAX_INFO_STRING );
 	if (strlen(info)) {
 		if (info[strlen(info)-1] != '\n') {
-			strncat(info, "\n", sizeof(info) - 1);
+			Q_strcat(info, sizeof(info), "\n");
 		}
-		Com_Printf( "%s: %s", NET_AdrToString( from ), info );
+		Com_Printf( "%s: %s", NET_AdrToStringwPort( from ), info );
 	}
 }
 
@@ -3622,10 +3634,8 @@ CL_GetServerStatus
 ===================
 */
 serverStatus_t *CL_GetServerStatus( netadr_t from ) {
-	serverStatus_t *serverStatus;
 	int i, oldest, oldestTime;
 
-	serverStatus = NULL;
 	for (i = 0; i < MAX_SERVERSTATUSREQUESTS; i++) {
 		if ( NET_CompareAdr( from, cl_serverStatusList[i].address ) ) {
 			return &cl_serverStatusList[i];
@@ -3644,11 +3654,7 @@ serverStatus_t *CL_GetServerStatus( netadr_t from ) {
 			oldestTime = cl_serverStatusList[i].startTime;
 		}
 	}
-	if (oldest != -1) {
-		return &cl_serverStatusList[oldest];
-	}
-	serverStatusCount++;
-	return &cl_serverStatusList[serverStatusCount & (MAX_SERVERSTATUSREQUESTS-1)];
+	return &cl_serverStatusList[oldest];
 }
 
 /*
@@ -3670,7 +3676,7 @@ int CL_ServerStatus( const char *serverAddress, char *serverStatusString, int ma
 		return qfalse;
 	}
 	// get the address
-	if ( !NET_StringToAdr( serverAddress, &to, NA_IP ) ) {
+	if ( !NET_StringToAdr( serverAddress, &to, NA_UNSPEC) ) {
 		return qfalse;
 	}
 	serverStatus = CL_GetServerStatus( to );
@@ -3682,7 +3688,7 @@ int CL_ServerStatus( const char *serverAddress, char *serverStatusString, int ma
 
 	// if this server status request has the same address
 	if ( NET_CompareAdr( to, serverStatus->address) ) {
-		// if we recieved an response for this server status request
+		// if we received a response for this server status request
 		if (!serverStatus->pending) {
 			Q_strncpyz(serverStatusString, serverStatus->string, maxLen);
 			serverStatus->retrieved = qtrue;
@@ -3720,10 +3726,10 @@ CL_ServerStatusResponse
 ===================
 */
 void CL_ServerStatusResponse( netadr_t from, msg_t *msg ) {
-	const char	*s;
+	char	*s;
 	char	info[MAX_INFO_STRING];
 	int		i, l, score, ping;
-	size_t	len;
+	int		len;
 	serverStatus_t *serverStatus;
 
 	serverStatus = NULL;
@@ -3846,6 +3852,9 @@ void CL_LocalServers_f( void ) {
 			to.port = BigShort( (short)(PORT_SERVER + j) );
 
 			to.type = NA_BROADCAST;
+			NET_SendPacket( NS_CLIENT, strlen( message ), message, to );
+			// Added in OPM (from ioquake3)
+			to.type = NA_MULTICAST6;
 			NET_SendPacket( NS_CLIENT, strlen( message ), message, to );
 		}
 	}
@@ -3974,47 +3983,101 @@ void CL_GamespyServers_f( void ) {
 /*
 ==================
 CL_GlobalServers_f
+
+Originally master 0 was Internet and master 1 was MPlayer.
+ioquake3 2008; added support for requesting five separate master servers using 0-4.
+ioquake3 2017; made master 0 fetch all master servers and 1-5 request a single master server.
 ==================
 */
 void CL_GlobalServers_f( void ) {
 	netadr_t	to;
-	int			i;
-	int			count;
-	char		*buffptr;
-	char		command[1024];
+	int			count, i, masterNum;
+	char		command[1024], *masteraddress;
+	
+	if ((count = Cmd_Argc()) < 3 || (masterNum = atoi(Cmd_Argv(1))) < 0 || masterNum > MAX_MASTER_SERVERS)
+	{
+		Com_Printf("usage: globalservers <master# 0-%d> <protocol> [keywords]\n", MAX_MASTER_SERVERS);
+		return;	
+	}
 
-	if ( Cmd_Argc() < 3) {
-		Com_Printf( "usage: globalservers <master# 0-1> <protocol> [keywords]\n");
+	// request from all master servers
+	if ( masterNum == 0 ) {
+		int numAddress = 0;
+
+		for ( i = 1; i <= MAX_MASTER_SERVERS; i++ ) {
+			sprintf(command, "sv_master%d", i);
+			masteraddress = Cvar_VariableString(command);
+
+			if(!*masteraddress)
+				continue;
+
+			numAddress++;
+
+			Com_sprintf(command, sizeof(command), "globalservers %d %s %s\n", i, Cmd_Argv(2), Cmd_ArgsFrom(3));
+			Cbuf_AddText(command);
+		}
+
+		if ( !numAddress ) {
+			Com_Printf( "CL_GlobalServers_f: Error: No master server addresses.\n");
+		}
 		return;
 	}
 
-	cls.masterNum = atoi( Cmd_Argv(1) );
-
-	Com_Printf( "Requesting servers from the master...\n");
+	sprintf(command, "sv_master%d", masterNum);
+	masteraddress = Cvar_VariableString(command);
+	
+	if(!*masteraddress)
+	{
+		Com_Printf( "CL_GlobalServers_f: Error: No master server address given.\n");
+		return;	
+	}
 
 	// reset the list, waiting for response
 	// -1 is used to distinguish a "no response"
 
-	NET_StringToAdr( cl_master->string, &to, NA_IP );
-
-	if( cls.masterNum == 1 ) {
-		cls.nummplayerservers = -1;
-		cls.pingUpdateSource = AS_MPLAYER;
+	i = NET_StringToAdr(masteraddress, &to, NA_UNSPEC);
+	
+	if(!i)
+	{
+		Com_Printf( "CL_GlobalServers_f: Error: could not resolve address of master %s\n", masteraddress);
+		return;	
 	}
-	else {
-		cls.numglobalservers = -1;
-		cls.pingUpdateSource = AS_GLOBAL;
+	else if(i == 2)
+		to.port = BigShort(PORT_MASTER);
+
+	Com_Printf("Requesting servers from %s (%s)...\n", masteraddress, NET_AdrToStringwPort(to));
+
+	cls.numglobalservers = -1;
+	cls.pingUpdateSource = AS_GLOBAL;
+
+	// Use the extended query for IPv6 masters
+	if (to.type == NA_IP6 || to.type == NA_MULTICAST6)
+	{
+		int v4enabled = Cvar_VariableIntegerValue("net_enabled") & NET_ENABLEV4;
+		
+		if(v4enabled)
+		{
+			Com_sprintf(command, sizeof(command), "getserversExt %s %s",
+				com_gamename->string, Cmd_Argv(2));
+		}
+		else
+		{
+			Com_sprintf(command, sizeof(command), "getserversExt %s %s ipv6",
+				com_gamename->string, Cmd_Argv(2));
+		}
 	}
-	to.type = NA_IP;
-	to.port = BigShort(PORT_MASTER);
+	//else if ( !Q_stricmp( com_gamename->string, LEGACY_MASTER_GAMENAME ) )
+	//	Com_sprintf(command, sizeof(command), "getservers %s",
+	//		Cmd_Argv(2));
+	else
+		Com_sprintf(command, sizeof(command), "getservers %s %s",
+			com_gamename->string, Cmd_Argv(2));
 
-	sprintf( command, "getservers %s", Cmd_Argv(2) );
-
-	// tack on keywords
-	buffptr = command + strlen( command );
-	count   = Cmd_Argc();
-	for (i=3; i<count; i++)
-		buffptr += sprintf( buffptr, " %s", Cmd_Argv(i) );
+	for (i=3; i < count; i++)
+	{
+		Q_strcat(command, sizeof(command), " ");
+		Q_strcat(command, sizeof(command), Cmd_Argv(i));
+	}
 
 	NET_OutOfBandPrint( NS_SERVER, to, "%s", command );
 }
@@ -4031,22 +4094,22 @@ void CL_GetPing( int n, char *buf, int buflen, int *pingtime )
 	int		time;
 	int		maxPing;
 
-	if (!cl_pinglist[n].adr.port)
+	if (n < 0 || n >= MAX_PINGREQUESTS || !cl_pinglist[n].adr.port)
 	{
-		// empty slot
+		// empty or invalid slot
 		buf[0]    = '\0';
 		*pingtime = 0;
 		return;
 	}
 
-	str = NET_AdrToString( cl_pinglist[n].adr );
+	str = NET_AdrToStringwPort( cl_pinglist[n].adr );
 	Q_strncpyz( buf, str, buflen );
 
 	time = cl_pinglist[n].time;
 	if (!time)
 	{
 		// check for timeout
-		time = cls.realtime - cl_pinglist[n].start;
+		time = Sys_Milliseconds() - cl_pinglist[n].start;
 		maxPing = Cvar_VariableIntegerValue( "cl_maxPing" );
 		if( maxPing < 100 ) {
 			maxPing = 100;
@@ -4085,9 +4148,9 @@ CL_GetPingInfo
 */
 void CL_GetPingInfo( int n, char *buf, int buflen )
 {
-	if (!cl_pinglist[n].adr.port)
+	if (n < 0 || n >= MAX_PINGREQUESTS || !cl_pinglist[n].adr.port)
 	{
-		// empty slot
+		// empty or invalid slot
 		if (buflen)
 			buf[0] = '\0';
 		return;
@@ -4140,7 +4203,7 @@ CL_GetFreePing
 ping_t* CL_GetFreePing( void )
 {
 	ping_t*	pingptr;
-	ping_t*	best;
+	ping_t*	best;	
 	int		oldest;
 	int		i;
 	int		time;
@@ -4153,7 +4216,7 @@ ping_t* CL_GetFreePing( void )
 		{
 			if (!pingptr->time)
 			{
-				if (cls.realtime - pingptr->start < 500)
+				if (Sys_Milliseconds() - pingptr->start < 500)
 				{
 					// still waiting for response
 					continue;
@@ -4178,7 +4241,7 @@ ping_t* CL_GetFreePing( void )
 	for (i=0; i<MAX_PINGREQUESTS; i++, pingptr++ )
 	{
 		// scan for oldest
-		time = cls.realtime - pingptr->start;
+		time = Sys_Milliseconds() - pingptr->start;
 		if (time > oldest)
 		{
 			oldest = time;
@@ -4198,29 +4261,45 @@ void CL_Ping_f( void ) {
 	netadr_t	to;
 	ping_t*		pingptr;
 	char*		server;
+	int			argc;
+	netadrtype_t	family = NA_UNSPEC;
 
-	if ( Cmd_Argc() != 2 ) {
-		Com_Printf( "usage: ping [server]\n");
-		return;
+	argc = Cmd_Argc();
+
+	if ( argc != 2 && argc != 3 ) {
+		Com_Printf( "usage: ping [-4|-6] server\n");
+		return;	
+	}
+	
+	if(argc == 2)
+		server = Cmd_Argv(1);
+	else
+	{
+		if(!strcmp(Cmd_Argv(1), "-4"))
+			family = NA_IP;
+		else if(!strcmp(Cmd_Argv(1), "-6"))
+			family = NA_IP6;
+		else
+			Com_Printf( "warning: only -4 or -6 as address type understood.\n");
+		
+		server = Cmd_Argv(2);
 	}
 
 	Com_Memset( &to, 0, sizeof(netadr_t) );
 
-	server = Cmd_Argv(1);
-
-	if ( !NET_StringToAdr( server, &to, NA_IP ) ) {
+	if ( !NET_StringToAdr( server, &to, family ) ) {
 		return;
 	}
 
 	pingptr = CL_GetFreePing();
 
 	memcpy( &pingptr->adr, &to, sizeof (netadr_t) );
-	pingptr->start = cls.realtime;
+	pingptr->start = Sys_Milliseconds();
 	pingptr->time  = 0;
 
 	CL_SetServerInfoByAddress(pingptr->adr, NULL, 0);
-
-	NET_OutOfBandPrint( NS_CLIENT, to, "\x02getinfo" );
+		
+	NET_OutOfBandPrint( NS_CLIENT, to, "\x02getinfo xxx" );
 }
 
 /*
@@ -4344,15 +4423,10 @@ qboolean CL_UpdateVisiblePings_f(int source) {
 	if (slots < MAX_PINGREQUESTS) {
 		serverInfo_t *server = NULL;
 
-		max = (source == AS_GLOBAL) ? MAX_GLOBAL_SERVERS : MAX_OTHER_SERVERS;
 		switch (source) {
 			case AS_LOCAL :
 				server = &cls.localServers[0];
 				max = cls.numlocalservers;
-			break;
-			case AS_MPLAYER :
-				server = &cls.mplayerServers[0];
-				max = cls.nummplayerservers;
 			break;
 			case AS_GLOBAL :
 				server = &cls.globalServers[0];
@@ -4362,6 +4436,8 @@ qboolean CL_UpdateVisiblePings_f(int source) {
 				server = &cls.favoriteServers[0];
 				max = cls.numfavoriteservers;
 			break;
+			default:
+				return qfalse;
 		}
 		for (i = 0; i < max; i++) {
 			if (server[i].visible) {
@@ -4388,7 +4464,7 @@ qboolean CL_UpdateVisiblePings_f(int source) {
 							}
 						}
 						memcpy(&cl_pinglist[j].adr, &server[i].adr, sizeof(netadr_t));
-						cl_pinglist[j].start = cls.realtime;
+						cl_pinglist[j].start = Sys_Milliseconds();
 						cl_pinglist[j].time = 0;
 						NET_OutOfBandPrint( NS_CLIENT, cl_pinglist[j].adr, "getinfo xxx" );
 						slots++;
@@ -4410,7 +4486,7 @@ qboolean CL_UpdateVisiblePings_f(int source) {
 				}
 			}
 		}
-	}
+	} 
 
 	if (slots) {
 		status = qtrue;
@@ -4435,32 +4511,53 @@ CL_ServerStatus_f
 ==================
 */
 void CL_ServerStatus_f(void) {
-	netadr_t	to;
+	netadr_t	to, *toptr = NULL;
 	char		*server;
 	serverStatus_t *serverStatus;
+	int			argc;
+	netadrtype_t	family = NA_UNSPEC;
 
-	Com_Memset( &to, 0, sizeof(netadr_t) );
+	argc = Cmd_Argc();
 
-	if ( Cmd_Argc() != 2 ) {
-		if ( clc.state != CA_ACTIVE || clc.demoplaying ) {
+	if ( argc != 2 && argc != 3 )
+	{
+		if (clc.state != CA_ACTIVE || clc.demoplaying)
+		{
 			Com_Printf ("Not connected to a server.\n");
-			Com_Printf( "Usage: serverstatus [server]\n");
+			Com_Printf( "usage: serverstatus [-4|-6] server\n");
 			return;
 		}
-		server = cls.servername;
+
+		toptr = &clc.serverAddress;
 	}
-	else {
-		server = Cmd_Argv(1);
+	
+	if(!toptr)
+	{
+		Com_Memset( &to, 0, sizeof(netadr_t) );
+	
+		if(argc == 2)
+			server = Cmd_Argv(1);
+		else
+		{
+			if(!strcmp(Cmd_Argv(1), "-4"))
+				family = NA_IP;
+			else if(!strcmp(Cmd_Argv(1), "-6"))
+				family = NA_IP6;
+			else
+				Com_Printf( "warning: only -4 or -6 as address type understood.\n");
+		
+			server = Cmd_Argv(2);
+		}
+
+		toptr = &to;
+		if ( !NET_StringToAdr( server, toptr, family ) )
+			return;
 	}
 
-	if ( !NET_StringToAdr( server, &to, NA_IP ) ) {
-		return;
-	}
+	NET_OutOfBandPrint( NS_CLIENT, *toptr, "getstatus" );
 
-	NET_OutOfBandPrint( NS_CLIENT, to, "getstatus" );
-
-	serverStatus = CL_GetServerStatus( to );
-	serverStatus->address = to;
+	serverStatus = CL_GetServerStatus( *toptr );
+	serverStatus->address = *toptr;
 	serverStatus->print = qtrue;
 	serverStatus->pending = qtrue;
 }
