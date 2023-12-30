@@ -462,17 +462,17 @@ void CG_VoteOptions_FinishReadFromServer(const char *string)
     g_voteOptions.SetupMainOptionsList();
 }
 
-void CG_PushCallVote_f()
+void CG_PushCallVote_f(void)
 {
     g_voteOptions.SetupMainOptionsList();
 }
 
-void CG_PushCallVoteSubList_f()
+void CG_PushCallVoteSubList_f(void)
 {
     g_voteOptions.SetupSubOptionsList(atoi(cgi.Argv(1)));
 }
 
-void CG_PushCallVoteSubText_f()
+void CG_PushCallVoteSubText_f(void)
 {
     str              command;
     str              name;
@@ -492,7 +492,7 @@ void CG_PushCallVoteSubText_f()
     VO_Cvar_Set("ui_votestringentry", "");
 }
 
-void CG_PushCallVoteSubInteger_f()
+void CG_PushCallVoteSubInteger_f(void)
 {
     str              command;
     str              name;
@@ -512,7 +512,7 @@ void CG_PushCallVoteSubInteger_f()
     VO_Cvar_Set("ui_votestringentry", "");
 }
 
-void CG_PushCallVoteSubFloat_f()
+void CG_PushCallVoteSubFloat_f(void)
 {
     str              command;
     str              name;
@@ -532,7 +532,7 @@ void CG_PushCallVoteSubFloat_f()
     VO_Cvar_Set("ui_votestringentry", "");
 }
 
-void CG_PushCallVoteSubClient_f()
+void CG_PushCallVoteSubClient_f(void)
 {
     str              command;
     str              name;
@@ -578,13 +578,13 @@ void CG_PushCallVoteSubClient_f()
     );
 }
 
-void CG_PushVote_f()
+void CG_PushVote_f(void)
 {
     VO_Cvar_Set("ui_votesubtitle", cgs.voteString);
     VO_ExecuteCommand("forcemenu votecast\n");
 }
 
-void CG_CallEntryVote_f()
+void CG_CallEntryVote_f(void)
 {
     str              command;
     str              name;
@@ -607,7 +607,7 @@ void CG_CallEntryVote_f()
     VO_ExecuteCommand(va("callvote %i \"%s\"\n", index, entry));
 }
 
-void VoteOptions::SetupMainOptionsList()
+void VoteOptions::SetupMainOptionsList(void)
 {
     SingleVoteOption *option;
     int               count;

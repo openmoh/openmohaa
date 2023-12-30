@@ -120,14 +120,14 @@ extern "C" {
     void CG_VoteOptions_StartReadFromServer(const char *string);
     void CG_VoteOptions_ContinueReadFromServer(const char *string);
     void CG_VoteOptions_FinishReadFromServer(const char *string);
-    void CG_PushCallVote_f();
-    void CG_PushCallVoteSubList_f();
-    void CG_PushCallVoteSubText_f();
-    void CG_PushCallVoteSubInteger_f();
-    void CG_PushCallVoteSubFloat_f();
-    void CG_PushCallVoteSubClient_f();
-    void CG_PushVote_f();
-    void CG_CallEntryVote_f();
+    void CG_PushCallVote_f(void);
+    void CG_PushCallVoteSubList_f(void);
+    void CG_PushCallVoteSubText_f(void);
+    void CG_PushCallVoteSubInteger_f(void);
+    void CG_PushCallVoteSubFloat_f(void);
+    void CG_PushCallVoteSubClient_f(void);
+    void CG_PushVote_f(void);
+    void CG_CallEntryVote_f(void);
 #endif
 
 #ifdef __cplusplus
