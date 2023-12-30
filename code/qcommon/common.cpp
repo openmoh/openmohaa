@@ -115,6 +115,7 @@ cvar_t	*com_minimized;
 cvar_t	*com_maxfpsMinimized;
 cvar_t	*com_abnormalExit;
 cvar_t	*com_standalone;
+cvar_t	*com_gamename;
 cvar_t	*com_protocol;
 #ifdef LEGACY_PROTOCOL
 cvar_t	*com_legacyprotocol;
@@ -1795,6 +1796,7 @@ void Com_Init( char *commandLine ) {
 
 	s = va( "%s %s (Medal of Honor: %s) %s %s", PRODUCT_NAME, PRODUCT_VERSION_FULL, Cvar_VariableString("com_target_extension"), PLATFORM_STRING, PRODUCT_VERSION_DATE);
 	com_version = Cvar_Get( "version", s, CVAR_ROM | CVAR_SERVERINFO );
+	com_gamename = Cvar_Get("com_gamename", "", CVAR_SERVERINFO | CVAR_INIT);
 	com_shortversion = Cvar_Get( "shortversion", PRODUCT_VERSION, CVAR_ROM );
 	com_protocol = Cvar_Get("com_protocol", va("%i", PROTOCOL_VERSION), CVAR_INIT);
 #ifdef LEGACY_PROTOCOL
@@ -2855,6 +2857,7 @@ void Com_InitTargetGameWithType(target_game_e target_game)
         Cvar_Set("com_legacyprotocol", va("%i", protocol_e::PROTOCOL_MOH));
 		Cvar_Set("com_target_version", TARGET_GAME_VERSION_MOH);
 		Cvar_Set("com_target_extension", PRODUCT_EXTENSION_MOH);
+		Cvar_Set("com_gamename", TARGET_GAME_NAME_MOH);
 		// "main" is already used as first argument of FS_Startup
 		Cvar_Set("fs_basegame", "");
         break;
@@ -2864,6 +2867,7 @@ void Com_InitTargetGameWithType(target_game_e target_game)
         Cvar_Set("com_legacyprotocol", va("%i", protocol_e::PROTOCOL_MOHTA));
 		Cvar_Set("com_target_version", TARGET_GAME_VERSION_MOHTA);
 		Cvar_Set("com_target_extension", PRODUCT_EXTENSION_MOHTA);
+		Cvar_Set("com_gamename", TARGET_GAME_NAME_MOHTA);
         Cvar_Set("fs_basegame", "mainta");
         break;
 
@@ -2873,6 +2877,7 @@ void Com_InitTargetGameWithType(target_game_e target_game)
         Cvar_Set("com_legacyprotocol", va("%i", protocol_e::PROTOCOL_MOHTA));
 		Cvar_Set("com_target_version", TARGET_GAME_VERSION_MOHTT);
 		Cvar_Set("com_target_extension", PRODUCT_EXTENSION_MOHTT);
+		Cvar_Set("com_gamename", TARGET_GAME_NAME_MOHTT);
         Cvar_Set("fs_basegame", "maintt");
         break;
 

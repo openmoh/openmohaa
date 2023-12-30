@@ -974,6 +974,7 @@ extern	cvar_t	*com_minimized;
 extern	cvar_t	*com_maxfpsMinimized;
 extern	cvar_t	*com_altivec;
 extern	cvar_t	*com_standalone;
+extern	cvar_t	*com_gamename;
 extern	cvar_t	*com_basegame;
 extern	cvar_t	*com_homepath;
 extern	cvar_t	*com_altivec;
