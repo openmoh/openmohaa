@@ -730,6 +730,14 @@ void UIFAKKServerList::UpdateServer( Event *ev )
 
     FAKKServerListItem* item = (FAKKServerListItem*)GetItem(getCurrentItem());
     ServerListAuxUpdate(m_serverList[0], item->m_sIP.c_str(), item->m_iGameSpyPort, true, GQueryType::qt_status);
+
+    if (com_target_game->integer >= target_game_e::TG_MOHTT) {
+        const cvar_t* dm_omit_spearhead = Cvar_Get("dm_omit_spearhead", "0", CVAR_ARCHIVE);
+        // check for Spearhead
+        if (!dm_omit_spearhead->integer) {
+            ServerListAuxUpdate(m_serverList[1], item->m_sIP.c_str(), item->m_iGameSpyPort, true, GQueryType::qt_status);
+        }
+    }
 }
 
 int UIFAKKServerList::ServerCompareFunction( const UIListCtrlItem *i1, const UIListCtrlItem *i2, int columnname )
@@ -1019,23 +1027,36 @@ void UpdateServerListCallBack(GServerList serverlist, int msg, void* instance, v
         str sServerName;
         str sPlayers;
         const char* pszGameVer;
+        const char* pszGameVerNumber;
 
         pszHostName = ServerGetStringValue(server, "hostname", "(NONE)");
         bDiffVersion = false;
         pszGameVer = ServerGetStringValue(server, "gamever", "1.00");
+        pszGameVerNumber = pszGameVer;
+
+        if (pszGameVerNumber[0] == 'd') {
+            // demo server
+            pszGameVerNumber++;
+        }
 
         if (com_target_game->integer >= target_game_e::TG_MOHTT) {
             if (iServerType == target_game_e::TG_MOHTT) {
-                if (fabs(atof(pszGameVer) - com_target_version->value) > 0.1f) {
+                //if (fabs(atof(pszGameVerNumber) - com_target_version->value) > 0.1f) {
+                //    bDiffVersion = true;
+                //}
+                if (fabs(atof(pszGameVerNumber)) < 2.3f) {
                     bDiffVersion = true;
                 }
             } else {
-                if (fabs(atof(pszGameVer) - com_target_version->value) > 0.3f) {
+                //if (fabs(atof(pszGameVerNumber) - com_target_version->value) > 0.3f) {
+                //    bDiffVersion = true;
+                //}
+                if (fabs(atof(pszGameVerNumber)) < 2.1f) {
                     bDiffVersion = true;
                 }
             }
         } else {
-            if (fabs(atof(pszGameVer) - com_target_version->value) > 0.1f) {
+            if (fabs(atof(pszGameVerNumber) - com_target_version->value) > 0.1f) {
                 bDiffVersion = true;
             }
         }
