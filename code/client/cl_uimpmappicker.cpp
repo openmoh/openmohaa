@@ -278,9 +278,11 @@ void MpMapPickerClass::FileSelected(Event *ev)
 
     uii.Snd_PlaySound("sound/menu/apply.wav");
 
-    str name = listbox->GetItem(listbox->getCurrentItem())->getListItemString(0);
+    UIListCtrlItem* item = listbox->GetItem(listbox->getCurrentItem());
+    str name = item->getListItemString(0);
+    str directory = item->getListItemString(1);
 
-    FileSelected(currentDirectory, name, currentDirectory + name);
+    FileSelected(directory, name, directory + name);
 }
 
 void MpMapPickerClass::FileChosen(const str& currentDirectory, const str& partialName, const str& fullname)
@@ -303,9 +305,11 @@ void MpMapPickerClass::FileChosen(Event *ev)
 
     uii.Snd_PlaySound("sound/menu/apply.wav");
 
-    str name = listbox->GetItem(listbox->getCurrentItem())->getListItemString(0);
+    UIListCtrlItem* item = listbox->GetItem(listbox->getCurrentItem());
+    str name = item->getListItemString(0);
+    str directory = item->getListItemString(1);
 
-    FileChosen(currentDirectory, name, currentDirectory + name);
+    FileSelected(directory, name, directory + name);
 }
 
 void MpMapPickerClass::CloseWindow(void)
@@ -336,7 +340,13 @@ griditemtype_t MpMapPickerItem::getListItemType(int which) const
 
 str MpMapPickerItem::getListItemString(int which) const
 {
-    return m_string;
+    switch (which) {
+    default:
+    case 0:
+        return m_string;
+    case 1:
+        return m_directory;
+    }
 }
 
 void MpMapPickerItem::DrawListItem(int iColumn, const UIRect2D& drawRect, bool bSelected, UIFont *pFont) {}
