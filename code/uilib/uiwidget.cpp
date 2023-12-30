@@ -610,6 +610,7 @@ UIReggedMaterial::UIReggedMaterial()
 
 uihandle_t UIReggedMaterial::GetMaterial()
 {
+	ReregisterMaterial();
 	return hMat;
 }
 
