@@ -41,6 +41,7 @@ protected:
 
 public:
     UIFAKKLoadGameClass();
+    ~UIFAKKLoadGameClass();
 
     void SetupFiles(void);
 };

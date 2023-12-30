@@ -21,63 +21,319 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "cl_ui.h"
+#include "../qcommon/localization.h"
+
+class FAKKLoadGameItem : public UIListCtrlItem
+{
+    str strings[4];
+
+public:
+    FAKKLoadGameItem(const str& missionName, const str& elapsedTime, const str& dateTime, const str& fileName);
+
+    int            getListItemValue(int which) const override;
+    griditemtype_t getListItemType(int which) const override;
+    str            getListItemString(int which) const override;
+    void           DrawListItem(int iColumn, const UIRect2D& drawRect, bool bSelected, UIFont *pFont) override;
+    qboolean       IsHeaderEntry() const override;
+};
+
+static UIFAKKLoadGameClass *loadgame_ui = NULL;
+
+Event EV_FAKKLoadGame_LoadGame("loadgame", -1, 0, 0, "Load the currently selected game");
+
+Event EV_FAKKLoadGame_RemoveGame("removegame", -1, 0, 0, "Delete the currently selected game");
+
+Event EV_FAKKLoadGame_DeleteGame("deletegame", -1, 0, 0, "Delete the currently selected game... for real");
+Event EV_FAKKLoadGame_NoDeleteGame("nodeletegame", -1, 0, 0, "Delete the currently selected game... for real");
+Event EV_FAKKLoadGame_SaveGame("savegame", -1, 0, 0, "Save the currently selected game");
 
 CLASS_DECLARATION(UIListCtrl, UIFAKKLoadGameClass, NULL) {
-    {NULL, NULL}
+    {&EV_UIListBase_ItemSelected,      &UIFAKKLoadGameClass::SelectGame  },
+    {&EV_UIListBase_ItemDoubleClicked, &UIFAKKLoadGameClass::LoadGame    },
+    {&EV_FAKKLoadGame_RemoveGame,      &UIFAKKLoadGameClass::RemoveGame  },
+    {&EV_FAKKLoadGame_DeleteGame,      &UIFAKKLoadGameClass::DeleteGame  },
+    {&EV_FAKKLoadGame_NoDeleteGame,    &UIFAKKLoadGameClass::NoDeleteGame},
+    {&EV_FAKKLoadGame_LoadGame,        &UIFAKKLoadGameClass::LoadGame    },
+    {&EV_FAKKLoadGame_SaveGame,        &UIFAKKLoadGameClass::SaveGame    },
+    {NULL,                             NULL                              }
 };
 
 UIFAKKLoadGameClass::UIFAKKLoadGameClass()
 {
-    // FIXME: stub
+    Connect(this, EV_UIListBase_ItemDoubleClicked, EV_UIListBase_ItemDoubleClicked);
+    Connect(this, EV_UIListBase_ItemSelected, EV_UIListBase_ItemSelected);
+    AllowActivate(false);
+    m_bRemovePending = false;
+
+    setHeaderFont("facfont-20");
+    loadgame_ui = this;
+}
+
+UIFAKKLoadGameClass::~UIFAKKLoadGameClass()
+{
+    loadgame_ui = NULL;
 }
 
 void UIFAKKLoadGameClass::UpdateUIElement(void)
 {
-    // FIXME: stub
+    float width;
+
+    RemoveAllColumns();
+
+    width = getClientFrame().size.width;
+    AddColumn(Sys_LV_CL_ConvertString("Mission"), 0, width * 0.555, false, false);
+    AddColumn(Sys_LV_CL_ConvertString("Elapsed Time"), 1, width * 0.17f, true, true);
+    AddColumn(Sys_LV_CL_ConvertString("Date & Time Logged"), 2, width * 0.275f, true, true);
+
+    uWinMan.ActivateControl(this);
+
+    SetupFiles();
 }
 
 void UIFAKKLoadGameClass::SetupFiles(void)
 {
-    // FIXME: stub
+    char      **filenames;
+    int         numfiles;
+    int         i;
+    const char *searchFolder = Com_GetArchiveFolder();
+
+    // cleanup
+    DeleteAllItems();
+
+    filenames = FS_ListFiles(searchFolder, "ssv", qfalse, &numfiles);
+
+    for (i = 0; i < numfiles; i++) {
+        const char      *filename;
+        str              work;
+        str              gametime;
+        str              date;
+        fileHandle_t     f;
+        savegamestruct_t save;
+
+        filename = filenames[i];
+        work     = searchFolder;
+        work += "/";
+        work += filename;
+
+        FS_FOpenFileRead(work, &f, qfalse, qtrue);
+        if (!f) {
+            continue;
+        }
+
+        FS_Read(&save, sizeof(savegamestruct_t), f);
+        FS_FCloseFile(f);
+
+        if (save.version != SAVEGAME_STRUCT_VERSION) {
+            // wrong save game version
+            continue;
+        }
+
+        gametime = (save.mapTime / 1000);
+        date     = save.time;
+
+        AddItem(new FAKKLoadGameItem(save.comment, gametime, date, save.saveName));
+    }
+
+    FS_FreeFileList(filenames);
+
+    // sort by date
+    SortByColumn(2);
+
+    // select the first item
+    TrySelectItem(1);
+    SelectGame(NULL);
 }
 
 void UIFAKKLoadGameClass::SelectGame(Event *ev)
 {
-    // FIXME: stub
+    UIWidget   *wid;
+    const char *shotName;
+
+    if (getCurrentItem() > 0) {
+        shotName = Com_GetArchiveFileName(GetItem(getCurrentItem())->getListItemString(3), "tga");
+    } else {
+        shotName = "textures/menu/no_saved_games.tga";
+    }
+
+    wid = findSibling("LoadSaveShot");
+    if (!wid) {
+        return;
+    }
+
+    wid->setMaterial(uWinMan.RefreshShader(shotName));
 }
 
 void UIFAKKLoadGameClass::RemoveGame(Event *ev)
 {
-    // FIXME: stub
+    if (m_bRemovePending || getCurrentItem() <= 0) {
+        return;
+    }
+
+    Cbuf_ExecuteText(
+        EXEC_NOW,
+        "dialog \"\" \"\" \"widgetcommand LoadSaveList deletegame\" \"widgetcommand LoadSaveList nodeletegame\" 256 64 "
+        "confirm_delete menu_button_trans menu_button_trans\n"
+    );
+    m_bRemovePending = true;
 }
 
 void UIFAKKLoadGameClass::NoDeleteGame(Event *ev)
 {
-    // FIXME: stub
+    m_bRemovePending = false;
 }
 
 void UIFAKKLoadGameClass::DeleteGame(Event *ev)
 {
-    // FIXME: stub
+    str     name;
+    cvar_t *var;
+    m_bRemovePending = false;
+
+    if (getCurrentItem() <= 0) {
+        return;
+    }
+
+    name = GetItem(getCurrentItem())->getListItemString(3);
+    var  = Cvar_Get("g_lastsave", "", 0);
+
+    if (!strcmp(name, var->string)) {
+        // Make sure the last save is not the save being deleted
+        Cvar_Set("g_lastsave", "");
+    }
+
+    Com_WipeSavegame(name);
+    SetupFiles();
 }
 
 void UIFAKKLoadGameClass::LoadGame(Event *ev)
 {
-    // FIXME: stub
+    char cmdString[266];
+    str  name;
+
+    if (getCurrentItem() <= 0) {
+        return;
+    }
+
+    name = GetItem(getCurrentItem())->getListItemString(3);
+    // Execute the command
+    Com_sprintf(cmdString, sizeof(cmdString), "loadgame %s\n", name.c_str());
+    Cbuf_AddText(cmdString);
 }
 
 void UIFAKKLoadGameClass::SaveGame(Event *ev)
 {
-    // FIXME: stub
+    Cbuf_ExecuteText(EXEC_NOW, "savegame");
 }
 
 qboolean UIFAKKLoadGameClass::KeyEvent(int key, unsigned int time)
 {
-    // FIXME: stub
+    switch (key) {
+    case K_DEL:
+        RemoveGame(NULL);
+        return qtrue;
+    case K_ENTER:
+    case K_KP_ENTER:
+        LoadGame(NULL);
+        return qtrue;
+    case K_UPARROW:
+        if (getCurrentItem() > 1) {
+            TrySelectItem(getCurrentItem() - 1);
+            SelectGame(NULL);
+            return qtrue;
+        }
+        break;
+    case K_DOWNARROW:
+        if (getCurrentItem() < getNumItems()) {
+            TrySelectItem(getCurrentItem() + 1);
+            SelectGame(NULL);
+            return qtrue;
+        }
+        break;
+    default:
+        return UIListBase::KeyEvent(key, time);
+    }
+
     return qfalse;
 }
 
 void UI_SetupFiles(void)
 {
-    // FIXME: stub
+    if (loadgame_ui && loadgame_ui->getShow()) {
+        loadgame_ui->SetupFiles();
+    }
+}
+
+FAKKLoadGameItem::FAKKLoadGameItem(
+    const str& missionName, const str& elapsedTime, const str& dateTime, const str& fileName
+)
+{
+    strings[0] = missionName;
+    strings[1] = elapsedTime;
+    strings[2] = dateTime;
+    strings[3] = fileName;
+}
+
+int FAKKLoadGameItem::getListItemValue(int which) const
+{
+    return atoi(strings[which]);
+}
+
+griditemtype_t FAKKLoadGameItem::getListItemType(int which) const
+{
+    return griditemtype_t::TYPE_STRING;
+}
+
+str FAKKLoadGameItem::getListItemString(int which) const
+{
+    str itemstring;
+
+    switch (which) {
+    case 0:
+    case 3:
+        itemstring = strings[which];
+        break;
+    case 1:
+        {
+            int numseconds;
+            int numseconds_hours;
+
+            // hours
+            numseconds = atol(strings[1]);
+            itemstring += (numseconds / 3600);
+            itemstring += ":";
+
+            // minutes
+            numseconds_hours = numseconds % 3600;
+            if (numseconds_hours / 60 <= 9) {
+                itemstring += "0";
+            }
+            itemstring += (numseconds_hours / 60);
+            itemstring += ":";
+
+            // seconds
+            if (numseconds_hours / 60 <= 9) {
+                itemstring += "0";
+            }
+            itemstring += (numseconds_hours % 60);
+        }
+        break;
+    case 2:
+        {
+            time_t time;
+            char   buffer[2048];
+
+            time = atol(strings[2]);
+            strftime(buffer, sizeof(buffer), "%a %b %d %H:%M:%S %Y", localtime(&time));
+            itemstring = buffer;
+        }
+        break;
+    }
+
+    return itemstring;
+}
+
+void FAKKLoadGameItem::DrawListItem(int iColumn, const UIRect2D& drawRect, bool bSelected, UIFont *pFont) {}
+
+qboolean FAKKLoadGameItem::IsHeaderEntry() const
+{
+    return qfalse;
 }
