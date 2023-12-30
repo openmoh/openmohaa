@@ -55,3 +55,6 @@ public:
 
     void Setup(const char *root_directory, const char *current_directory, qboolean bGermanModels);
 };
+
+const char* PM_FilenameToDisplayname(const char* fileName);
+const char* PM_DisplaynameToFilename(const char* displayName);

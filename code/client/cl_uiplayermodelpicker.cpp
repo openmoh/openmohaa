@@ -112,7 +112,7 @@ static const PMPickerModel_t pickerModels[] = {
     {NULL,                                      NULL                             }
 };
 
-static const char *PM_FilenameToDisplayname(const char *fileName)
+const char *PM_FilenameToDisplayname(const char *fileName)
 {
     int i;
 
@@ -127,7 +127,7 @@ static const char *PM_FilenameToDisplayname(const char *fileName)
     return fileName;
 }
 
-static const char *PM_DisplaynameToFilename(const char *displayName)
+const char *PM_DisplaynameToFilename(const char *displayName)
 {
     int i;
 
@@ -268,7 +268,7 @@ void PlayerModelPickerClass::SetupFiles(void)
 
         // strip the extension
         work[strlen(work) - 4] = 0;
-        displayName = PM_FilenameToDisplayname(work);
+        displayName            = PM_FilenameToDisplayname(work);
 
         listbox->AddItem(new PMPickerItem(displayName));
     }
