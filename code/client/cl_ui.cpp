@@ -1827,7 +1827,7 @@ void UI_Update(void)
             }
         }
 
-        if (clc.connectTime >= cls.realtime - 1000 * cl_connect_timeout->integer) {
+        if (clc.connectStartTime >= cls.realtime - 1000 * cl_connect_timeout->integer) {
             if (currentMenu != ui_pConnectingMenu) {
                 UI_ForceMenuOff(true);
                 UI_DeactiveFloatingWindows();
