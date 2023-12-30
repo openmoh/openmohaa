@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2023 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -22,43 +22,42 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "cl_ui.h"
 
-CLASS_DECLARATION( UIListCtrl, UILANGameClass, NULL )
-{
-	{ NULL, NULL }
+CLASS_DECLARATION(UIListCtrl, UILANGameClass, NULL) {
+    {NULL, NULL}
 };
 
 UILANGameClass::UILANGameClass()
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void UILANGameClass::SetupServers( void )
+void UILANGameClass::Draw(void)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void UILANGameClass::Draw( void )
+void UILANGameClass::UpdateUIElement(void)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void UILANGameClass::SelectServer( Event *ev )
+void UILANGameClass::SetupServers(void)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void UILANGameClass::JoinServer( Event *ev )
+void UILANGameClass::SelectServer(Event *ev)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-qboolean UILANGameClass::KeyEvent( int key, unsigned int time )
+void UILANGameClass::JoinServer(Event *ev)
 {
-	// FIXME: stub
-	return qfalse;
+    // FIXME: stub
 }
 
-void UILANGameClass::UpdateUIElement( void )
+qboolean UILANGameClass::KeyEvent(int key, unsigned int time)
 {
-	// FIXME: stub
+    // FIXME: stub
+    return qfalse;
 }

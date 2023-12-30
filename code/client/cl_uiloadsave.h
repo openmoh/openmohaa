@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2023 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -22,23 +22,25 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #pragma once
 
-class UIFAKKLoadGameClass : public UIListCtrl { 
-	bool m_bRemovePending; 
+class UIFAKKLoadGameClass : public UIListCtrl
+{
+    bool m_bRemovePending;
 
 public:
-	CLASS_PROTOTYPE( UIFAKKLoadGameClass );
+    CLASS_PROTOTYPE(UIFAKKLoadGameClass);
 
 protected:
-	void		SelectGame( Event *ev );
-	void		LoadGame( Event *ev );
-	void		SaveGame( Event *ev );
-	void		RemoveGame( Event *ev );
-	void		DeleteGame( Event *ev );
-	void		NoDeleteGame( Event *ev );
-	qboolean	KeyEvent( int key, unsigned int time ) override;
-	void		UpdateUIElement( void ) override;
-public:
-	UIFAKKLoadGameClass();
+    void     SelectGame(Event *ev);
+    void     LoadGame(Event *ev);
+    void     SaveGame(Event *ev);
+    void     RemoveGame(Event *ev);
+    void     DeleteGame(Event *ev);
+    void     NoDeleteGame(Event *ev);
+    qboolean KeyEvent(int key, unsigned int time) override;
+    void     UpdateUIElement(void) override;
 
-	void	SetupFiles( void );
+public:
+    UIFAKKLoadGameClass();
+
+    void SetupFiles(void);
 };

@@ -20,18 +20,15 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-#ifndef __UIGLOBALGAMELIST_H__
-#define __UIGLOBALGAMELIST_H__
+#pragma once
 
 #include "uilangamelist.h"
 
-class UIGlobalGameList : public UILanGameList {
+class UIGlobalGameList : public UILanGameList
+{
 public:
-	CLASS_PROTOTYPE( UIGlobalGameList );
+    CLASS_PROTOTYPE(UIGlobalGameList);
 
 public:
-	virtual void UpdateServers() override;
+    virtual void UpdateServers() override;
 };
-
-#endif
-

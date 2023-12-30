@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2023 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -22,228 +22,143 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "ui_local.h"
 
-CLASS_DECLARATION( UIWidget, UILanGameList, NULL )
-{
-	{ NULL, NULL }
+CLASS_DECLARATION(UIWidget, UILanGameList, NULL) {
+    {NULL, NULL}
 };
 
 UILanGameList::UILanGameList()
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void UILanGameList::CreateServerWidgets
-	(
-	void
-	)
-
+void UILanGameList::FrameInitialized(void)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void UILanGameList::DestroyServerWidgets
-	(
-	void
-	)
-
+void UILanGameList::AddColumn(str sName, UIReggedMaterial *pMaterial, int iWidth, Container<str> *csEntries)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void UILanGameList::RepositionServerWidgets
-	(
-	void
-	)
-
+void UILanGameList::AddNoServer(void)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void UILanGameList::DrawNoServers
-	(
-	UIRect2D frame
-	)
-
+void UILanGameList::CreateServerWidgets(void)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void UILanGameList::AddColumn
-	(
-	str sName,
-	UIReggedMaterial *pMaterial,
-	int iWidth,
-	Container<str> *csEntries
-	)
-
+void UILanGameList::DestroyServerWidgets(void)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void UILanGameList::AddNoServer
-	(
-	void
-	)
-
+void UILanGameList::RepositionServerWidgets(void)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void UILanGameList::UpdateServers
-	(
-	void
-	)
-
+qboolean UILanGameList::KeyEvent(int key, unsigned int time)
 {
-	// FIXME: stub
+    // FIXME: stub
+    return qfalse;
 }
 
-
-void UILanGameList::FrameInitialized
-	(
-	void
-	)
-
+void UILanGameList::DrawNoServers(UIRect2D frame)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void UILanGameList::EventScanNetwork
-	(
-	Event *ev
-	)
-
+void UILanGameList::Highlight(UIWidget *wid)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void UILanGameList::EventScaningNetwork
-	(
-	Event *ev
-	)
-
+void UILanGameList::Connect(void)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-bool UILanGameList::isDying
-	(
-	void
-	)
-
+void UILanGameList::EventConnect(Event *ev)
 {
-	// FIXME: stub
-	return false;
+    // FIXME: stub
 }
 
-void UILanGameList::Draw
-	(
-	void
-	)
-
+qboolean UILanGameList::SetActiveRow(UIWidget *w)
 {
-	// FIXME: stub
+    // FIXME: stub
+    return qfalse;
 }
 
-qboolean UILanGameList::KeyEvent
-	(
-	int key,
-	unsigned int time
-	)
-
+void UILanGameList::UpdateServers(void)
 {
-	// FIXME: stub
-	return qfalse;
+    // FIXME: stub
 }
 
-void UILanGameList::Highlight
-	(
-	UIWidget *wid
-	)
-
+void UILanGameList::Draw(void)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void UILanGameList::Connect
-	(
-	void
-	)
-
+void UILanGameList::Realign(void)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void UILanGameList::EventConnect
-	(
-	Event *ev
-	)
-
+void UILanGameList::EventScanNetwork(Event *ev)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void UILanGameList::PlayEnterSound
-	(
-	void
-	)
-
+void UILanGameList::EventScaningNetwork(Event *ev)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-qboolean UILanGameList::SetActiveRow
-	(
-	UIWidget *w
-	)
-
+bool UILanGameList::isDying(void)
 {
-	// FIXME: stub
-	return qfalse;
+    // FIXME: stub
+    return false;
 }
 
-void UILanGameList::Realign
-	(
-	void
-	)
-
+void UILanGameList::PlayEnterSound(void)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-CLASS_DECLARATION( UILabel, UILanGameListLabel, NULL )
-{
-	{ NULL, NULL }
+CLASS_DECLARATION(UILabel, UILanGameListLabel, NULL) {
+    {NULL, NULL}
 };
 
 UILanGameListLabel::UILanGameListLabel()
 {
-
+    m_list             = NULL;
+    m_iLastPressedTime = 0;
 }
 
-UILanGameListLabel::UILanGameListLabel
-	(
-	UILanGameList *list
-	)
-
+UILanGameListLabel::UILanGameListLabel(UILanGameList *list)
 {
-
+    m_list             = list;
+    m_iLastPressedTime = 0;
 }
 
-void UILanGameListLabel::Pressed
-	(
-	Event *ev
-	)
-
+void UILanGameListLabel::Pressed(Event *ev)
 {
+    if (m_list) {
+        m_list->Highlight(this);
 
+        if (uii.Sys_Milliseconds() - m_iLastPressedTime < 200) {
+            m_list->Connect();
+        }
+    }
 }
 
-void UILanGameListLabel::Unpressed
-	(
-	Event *ev
-	)
-
+void UILanGameListLabel::Unpressed(Event *ev)
 {
-
+    if (m_list) {
+        m_iLastPressedTime = uii.Sys_Milliseconds();
+    }
 }

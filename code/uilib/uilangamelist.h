@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2023 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -20,71 +20,69 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-#ifndef __UILANGAMELIST_H__
-#define __UILANGAMELIST_H__
+#pragma once
 
-class UILanGameList : public UIWidget {
-	bool m_created;
-	UIVertScroll *m_Vscroll;
-	class UIHorizScroll *m_Hscroll;
-	UIReggedMaterial *m_noservers_mat;
-	UILabel *m_noservers_wid;
-	UIReggedMaterial *m_fill_mat;
-	Container<UIWidget *> m_widgetlist;
-	Container<UIWidget *> m_titlewidgets;
-	Container<UIWidget *> m_miscwidgets;
-	int m_activerow;
-	int m_activeitem;
-	Container<serverInfo_t *> m_servers;
-	int m_iNumColumns;
-	int m_iPrevNumServers;
-	int m_iCurrNumServers;
-	float m_fCurColumnWidth;
+class UILanGameList : public UIWidget
+{
+    bool                      m_created;
+    UIVertScroll             *m_Vscroll;
+    class UIHorizScroll      *m_Hscroll;
+    UIReggedMaterial         *m_noservers_mat;
+    UILabel                  *m_noservers_wid;
+    UIReggedMaterial         *m_fill_mat;
+    Container<UIWidget *>     m_widgetlist;
+    Container<UIWidget *>     m_titlewidgets;
+    Container<UIWidget *>     m_miscwidgets;
+    int                       m_activerow;
+    int                       m_activeitem;
+    Container<serverInfo_t *> m_servers;
+    int                       m_iNumColumns;
+    int                       m_iPrevNumServers;
+    int                       m_iCurrNumServers;
+    float                     m_fCurColumnWidth;
 
 public:
-	CLASS_PROTOTYPE( UILanGameList );
+    CLASS_PROTOTYPE(UILanGameList);
 
 private:
-	void				CreateServerWidgets( void );
-	void				DestroyServerWidgets( void );
-	void				RepositionServerWidgets( void );
-	void				DrawNoServers( UIRect2D frame );
-	void				AddColumn( str sName, UIReggedMaterial *pMaterial, int iWidth, Container<str> *csEntries );
-	void				AddNoServer( void );
-	virtual void		UpdateServers( void );
+    void         CreateServerWidgets(void);
+    void         DestroyServerWidgets(void);
+    void         RepositionServerWidgets(void);
+    void         DrawNoServers(UIRect2D frame);
+    void         AddColumn(str sName, UIReggedMaterial *pMaterial, int iWidth, Container<str> *csEntries);
+    void         AddNoServer(void);
+    virtual void UpdateServers(void);
 
 protected:
-	void	FrameInitialized( void ) override;
-	void	EventScanNetwork( Event *ev );
-	void	EventScaningNetwork( Event *ev );
+    void FrameInitialized(void) override;
+    void EventScanNetwork(Event *ev);
+    void EventScaningNetwork(Event *ev);
 
 public:
-	UILanGameList();
+    UILanGameList();
 
-	bool		isDying( void );
-	void		Draw() override;
-	qboolean	KeyEvent( int key, unsigned int time ) override;
-	void		Highlight( UIWidget *wid );
-	void		Connect( void );
-	void		EventConnect( Event *ev );
-	void		PlayEnterSound( void );
-	qboolean	SetActiveRow( UIWidget *w );
-	void		Realign( void ) override;
+    bool     isDying(void);
+    void     Draw() override;
+    qboolean KeyEvent(int key, unsigned int time) override;
+    void     Highlight(UIWidget *wid);
+    void     Connect(void);
+    void     EventConnect(Event *ev);
+    void     PlayEnterSound(void);
+    qboolean SetActiveRow(UIWidget *w);
+    void     Realign(void) override;
 };
 
-class UILanGameListLabel : public UILabel {
-	int m_iLastPressedTime;
-	UILanGameList *m_list;
+class UILanGameListLabel : public UILabel
+{
+    int            m_iLastPressedTime;
+    UILanGameList *m_list;
 
 public:
-	CLASS_PROTOTYPE( UILanGameListLabel );
+    CLASS_PROTOTYPE(UILanGameListLabel);
 
-	UILanGameListLabel();
-	UILanGameListLabel( UILanGameList *list );
+    UILanGameListLabel();
+    UILanGameListLabel(UILanGameList *list);
 
-	void	Pressed( Event *ev );
-	void	Unpressed( Event *ev );
+    void Pressed(Event *ev);
+    void Unpressed(Event *ev);
 };
-
-#endif
-

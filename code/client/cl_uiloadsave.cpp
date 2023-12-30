@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2023 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -22,62 +22,62 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "cl_ui.h"
 
-CLASS_DECLARATION( UIListCtrl, UIFAKKLoadGameClass, NULL )
-{
-	{ NULL, NULL }
+CLASS_DECLARATION(UIListCtrl, UIFAKKLoadGameClass, NULL) {
+    {NULL, NULL}
 };
 
 UIFAKKLoadGameClass::UIFAKKLoadGameClass()
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void UIFAKKLoadGameClass::SelectGame( Event *ev )
+void UIFAKKLoadGameClass::UpdateUIElement(void)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void UIFAKKLoadGameClass::LoadGame( Event *ev )
+void UIFAKKLoadGameClass::SetupFiles(void)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void UIFAKKLoadGameClass::SaveGame( Event *ev )
+void UIFAKKLoadGameClass::SelectGame(Event *ev)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void UIFAKKLoadGameClass::RemoveGame( Event *ev )
+void UIFAKKLoadGameClass::RemoveGame(Event *ev)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void UIFAKKLoadGameClass::DeleteGame( Event *ev )
+void UIFAKKLoadGameClass::NoDeleteGame(Event *ev)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void UIFAKKLoadGameClass::NoDeleteGame( Event *ev )
+void UIFAKKLoadGameClass::DeleteGame(Event *ev)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-qboolean UIFAKKLoadGameClass::KeyEvent( int key, unsigned int time )
+void UIFAKKLoadGameClass::LoadGame(Event *ev)
 {
-	// FIXME: stub
-	return qfalse;
+    // FIXME: stub
 }
 
-void UIFAKKLoadGameClass::UpdateUIElement( void )
+void UIFAKKLoadGameClass::SaveGame(Event *ev)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void UIFAKKLoadGameClass::SetupFiles( void )
+qboolean UIFAKKLoadGameClass::KeyEvent(int key, unsigned int time)
 {
-	// FIXME: stub
+    // FIXME: stub
+    return qfalse;
 }
 
-void UI_SetupFiles( void ) {
-	// FIXME: stub
+void UI_SetupFiles(void)
+{
+    // FIXME: stub
 }

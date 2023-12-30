@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2023 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -20,29 +20,27 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-#ifndef __CL_UILANGAME_H__
-#define __CL_UILANGAME_H__
+#pragma once
 
-class UILANGameClass : public UIListCtrl {
+class UILANGameClass : public UIListCtrl
+{
 protected:
-	int m_iLastUpdateTime;
-	UIReggedMaterial *m_noservers_mat;
+    int               m_iLastUpdateTime;
+    UIReggedMaterial *m_noservers_mat;
 
 public:
-	CLASS_PROTOTYPE( UILANGameClass );
+    CLASS_PROTOTYPE(UILANGameClass);
 
 private:
-	void		SetupServers( void );
+    void SetupServers(void);
 
 protected:
-	void		Draw( void ) override;
-	void		SelectServer( Event *ev );
-	void		JoinServer( Event *ev );
-	qboolean	KeyEvent( int key, unsigned int time ) override;
-	void		UpdateUIElement( void ) override;
+    void     Draw(void) override;
+    void     SelectServer(Event *ev);
+    void     JoinServer(Event *ev);
+    qboolean KeyEvent(int key, unsigned int time) override;
+    void     UpdateUIElement(void) override;
 
 public:
-	UILANGameClass();
+    UILANGameClass();
 };
-
-#endif /* __CL_UILANGAME_H__ */

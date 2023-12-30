@@ -22,16 +22,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "ui_local.h"
 
-CLASS_DECLARATION( UILanGameList, UIGlobalGameList, NULL )
-{
-	{ NULL, NULL }
+CLASS_DECLARATION(UILanGameList, UIGlobalGameList, NULL) {
+    {NULL, NULL}
 };
 
-void UIGlobalGameList::UpdateServers
-	(
-	void
-	)
-
+void UIGlobalGameList::UpdateServers(void)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
