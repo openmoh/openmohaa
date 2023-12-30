@@ -3594,6 +3594,7 @@ void CL_ServerInfoPacket( netadr_t from, msg_t *msg ) {
 
 	// add this to the list
 	cls.numlocalservers = i+1;
+	cls.bNewLocalServerInfo = true;
 	cls.localServers[i].adr = from;
 	cls.localServers[i].clients = 0;
 	cls.localServers[i].hostName[0] = '\0';
@@ -3821,6 +3822,7 @@ void CL_LocalServers_f( void ) {
 
 	// reset the list, waiting for response
 	cls.numlocalservers = 0;
+	cls.bNewLocalServerInfo = true;
 	cls.pingUpdateSource = AS_LOCAL;
 
 	for (i = 0; i < MAX_OTHER_SERVERS; i++) {
