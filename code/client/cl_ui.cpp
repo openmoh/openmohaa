@@ -3222,6 +3222,8 @@ void UI_PlayerModel_f(void)
 
     PlayerModelPickerClass *picker = new PlayerModelPickerClass;
     picker->Setup("models/player", modelpath, bGermanModel);
+
+    CL_SetMousePos(cls.glconfig.vidWidth / 2, cls.glconfig.vidHeight / 2);
 }
 
 /*
