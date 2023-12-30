@@ -28,5 +28,31 @@ CLASS_DECLARATION(UILanGameList, UIGlobalGameList, NULL) {
 
 void UIGlobalGameList::UpdateServers(void)
 {
-    // FIXME: stub
+    int i;
+
+    if (!m_noservers_wid) {
+        AddNoServer();
+    }
+
+    setShow(false);
+
+    if (m_iPrevNumServers != cls.numglobalservers && cls.numglobalservers >= 0) {
+        m_iPrevNumServers = cls.numglobalservers;
+        DestroyServerWidgets();
+
+        for (i = 0; i < cls.numglobalservers; i++) {
+            m_servers.AddUniqueObject(&cls.globalServers[i]);
+        }
+
+        m_Vscroll->setPageHeight((getSize().height - 16) / 16.f);
+        m_Vscroll->setNumItems(m_servers.NumObjects());
+        m_Vscroll->InitFrameAlignRight(this, 0, 0);
+        CreateServerWidgets();
+
+        m_Hscroll->setPageWidth(1);
+        m_Hscroll->setNumItems(m_iNumColumns);
+        m_Hscroll->InitFrameAlignRight(this);
+    } else if (!cls.numlocalservers) {
+        DrawNoServers(getFrame());
+    }
 }
