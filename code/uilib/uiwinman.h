@@ -20,73 +20,74 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-#ifndef __UIWINMAN_H__
-#define __UIWINMAN_H__
+#pragma once
 
-class Binding {
+class Binding
+{
 public:
-	str binding;
-	int key1;
-	int key2;
+    str binding;
+    int key1;
+    int key2;
 };
 
-class UIWindowManager : public UIWidget {
-	unsigned int m_lastbuttons;
-	UIPoint2D m_oldpos;
-	SafePtr<UIWidget> m_oldview;
-	SafePtr<UIWidget> m_firstResponder;
-	class UIWidget *m_activeControl;
-	class UIWidget *m_backgroundwidget;
-	class UIReggedMaterial *m_cursor;
-	str m_cursorname;
-	bool m_showcursor;
-	Container<UIReggedMaterial *> m_materiallist;
-	bool m_amidead;
-	class UIWidget *m_bindactive;
-	Container<Binding *> bindings;
+class UIWindowManager : public UIWidget
+{
+    unsigned int                  m_lastbuttons;
+    UIPoint2D                     m_oldpos;
+    SafePtr<UIWidget>             m_oldview;
+    SafePtr<UIWidget>             m_firstResponder;
+    class UIWidget               *m_activeControl;
+    class UIWidget               *m_backgroundwidget;
+    class UIReggedMaterial       *m_cursor;
+    str                           m_cursorname;
+    bool                          m_showcursor;
+    Container<UIReggedMaterial *> m_materiallist;
+    bool                          m_amidead;
+    class UIWidget               *m_bindactive;
+    Container<Binding *>          bindings;
 
 public:
-	CLASS_PROTOTYPE( UIWindowManager );
+    CLASS_PROTOTYPE(UIWindowManager);
 
 private:
-	void			ViewEvent( UIWidget *view, Event& event, UIPoint2D& pos, int buttons );
-	UIWidget		*getResponder( UIPoint2D& pos );
+    void      ViewEvent(UIWidget *view, Event& event, UIPoint2D& pos, int buttons);
+    UIWidget *getResponder(UIPoint2D& pos);
 
 public:
-	UIWindowManager();
-	~UIWindowManager();
+    UIWindowManager();
+    ~UIWindowManager();
 
-	void				Init( const UIRect2D& frame, const char *fontname );
-	void				setBackgroundWidget( UIWidget *widget );
-	void				UpdateViews( void );
-	void				ServiceEvents( void );
-	void				setFirstResponder( UIWidget *responder );
-	UIWidget			*getFirstResponder( void );
-	UIWidget			*ActiveControl( void );
-	void				ActivateControl( UIWidget *control );
-	void				DeactivateCurrentControl( void );
-	UIWidget			*FindNextControl( UIWidget *control );
-	UIWidget			*FindPrevControl( UIWidget *control );
-	void				setCursor( const char *string );
-	void				showCursor( bool show );
-	virtual void		CharEvent( int ch ) override;
-	virtual qboolean	KeyEvent( int key, unsigned int time ) override;
-	void				CreateMenus( void );
-	UIReggedMaterial	*RegisterShader( const str& name );
-	UIReggedMaterial	*RefreshShader( const str& name );
-	void				CleanupShadersFromList( void );
-	void				RefreshShadersFromList( void );
-	void				DeactivateCurrentSmart( void );
-	bool				IsDead( void );
-	int					AddBinding( str binding );
-	str					GetKeyStringForCommand( str command, int index, qboolean alternate, int *key1, int *key2 );
-	void				BindKeyToCommand( str command, int key, int index, qboolean alternate );
-	UIWidget			*BindActive( void );
-	void				SetBindActive( UIWidget *w );
-	virtual void		Shutdown( void ) override;
-	void				DeactiveFloatingWindows( void );
-	bool				DialogExists( void );
-	void				RemoveAllDialogBoxes( void );
+    void              Init(const UIRect2D& frame, const char *fontname);
+    void              setBackgroundWidget(UIWidget *widget);
+    void              UpdateViews(void);
+    void              ServiceEvents(void);
+    void              setFirstResponder(UIWidget *responder);
+    UIWidget         *getFirstResponder(void);
+    UIWidget         *ActiveControl(void);
+    void              ActivateControl(UIWidget *control);
+    void              DeactivateCurrentControl(void);
+    UIWidget         *FindNextControl(UIWidget *control);
+    UIWidget         *FindPrevControl(UIWidget *control);
+    void              setCursor(const char *string);
+    void              showCursor(bool show);
+    virtual void      CharEvent(int ch) override;
+    virtual qboolean  KeyEvent(int key, unsigned int time) override;
+    void              CreateMenus(void);
+    UIReggedMaterial *RegisterShader(const str& name);
+    UIReggedMaterial *RefreshShader(const str& name);
+    void              CleanupShadersFromList(void);
+    void              RefreshShadersFromList(void);
+    void              DeactivateCurrentSmart(void);
+    bool              IsDead(void);
+    int               AddBinding(str binding);
+    str               GetKeyStringForCommand(str command, int index, qboolean alternate, int *key1, int *key2);
+    void              BindKeyToCommand(str command, int key, int index, qboolean alternate);
+    UIWidget         *BindActive(void);
+    void              SetBindActive(UIWidget *w);
+    virtual void      Shutdown(void) override;
+    void              DeactiveFloatingWindows(void);
+    bool              DialogExists(void);
+    void              RemoveAllDialogBoxes(void);
 };
 
 extern Event W_MouseExited;
@@ -105,5 +106,3 @@ extern Event W_AnyMouseDown;
 extern Event W_AnyMouseUp;
 
 extern UIWindowManager uWinMan;
-
-#endif
