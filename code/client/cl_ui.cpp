@@ -3234,14 +3234,20 @@ UI_ApplyPlayerModel_f
 void UI_ApplyPlayerModel_f(void)
 {
     const char *pszUIPlayerModel;
+    char donotshowssindeorfr[64];
 
-    pszUIPlayerModel = CvarGetForUI("ui_dm_playermodel", "american_army");
+    pszUIPlayerModel = CvarGetForUI("ui_dm_playermodel_set", "american_army");
     Cvar_Set("dm_playermodel", pszUIPlayerModel);
 
-    pszUIPlayerModel = CvarGetForUI("ui_dm_playergermanmodel", "german_wehrmacht_soldier");
-    Cvar_Set("ui_dm_playergermanmodel", pszUIPlayerModel);
-
-    Cvar_Set("name", CvarGetForUI("ui_name", "*** Blank Name ***"));
+    pszUIPlayerModel = CvarGetForUI("ui_dm_playergermanmodel_set", "german_wehrmacht_soldier");
+    if (!Q_stricmpn(pszUIPlayerModel, "german_waffen", 14)) {
+        Q_strcat(donotshowssindeorfr, sizeof(donotshowssindeorfr), pszUIPlayerModel + 14);
+        Cvar_Set("dm_playergermanmodel", donotshowssindeorfr);
+    } else {
+        Cvar_Set("dm_playergermanmodel", pszUIPlayerModel);
+    }
+    
+    Cvar_Set("name", CvarGetForUI("ui_name", "UnnamedSoldier"));
 }
 
 /*
@@ -3252,26 +3258,31 @@ UI_GetPlayerModel_f
 void UI_GetPlayerModel_f(void)
 {
     const char *pszUIPlayerModel;
-    char        donotshowssindeorfr[64];
+    char donotshowssindeorfr[64];
 
+    //
+    // Allies
+    //
     pszUIPlayerModel = CvarGetForUI("dm_playermodel", "american_army");
-    Cvar_Set("ui_dm_playermodel", pszUIPlayerModel);
-
+    Cvar_Set("ui_dm_playermodel", PM_FilenameToDisplayname(pszUIPlayerModel));
+    Cvar_Set("ui_dm_playermodel_set", pszUIPlayerModel);
     Cvar_Set("ui_disp_playermodel", va("models/player/%s.tik", pszUIPlayerModel));
 
+    //
+    // Axis
+    //
     pszUIPlayerModel = CvarGetForUI("dm_playergermanmodel", "german_wehrmacht_soldier");
-    Cvar_Set("ui_dm_playergermanmodel", pszUIPlayerModel);
+    Cvar_Set("ui_dm_playergermanmodel", PM_FilenameToDisplayname(pszUIPlayerModel));
+    Cvar_Set("ui_dm_playergermanmodel_set", pszUIPlayerModel);
 
     if (!strncmp(pszUIPlayerModel, "german_waffen_", 14)) {
-        memcpy(donotshowssindeorfr, "german_waffenss_", 17);
-        strncat(donotshowssindeorfr, pszUIPlayerModel + 14, 48);
+        Q_strcat(donotshowssindeorfr, sizeof(donotshowssindeorfr), pszUIPlayerModel + 14);
+        Cvar_Set("ui_disp_playergermanmodel", va("models/player/%s.tik", donotshowssindeorfr));
     } else {
-        strncpy(donotshowssindeorfr, pszUIPlayerModel, sizeof(donotshowssindeorfr));
+        Cvar_Set("ui_disp_playergermanmodel", va("models/player/%s.tik", pszUIPlayerModel));
     }
 
-    Cvar_Set("ui_disp_playergermanmodel", va("models/player/%s.tik", donotshowssindeorfr));
-
-    Cvar_Set("ui_name", CvarGetForUI("name", "*** Blank Name ***"));
+    Cvar_Set("ui_name", CvarGetForUI("name", "UnnamedSoldier"));
 }
 
 /*
