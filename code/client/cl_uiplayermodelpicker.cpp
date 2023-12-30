@@ -27,6 +27,8 @@ class PMPickerItem : public UIListCtrlItem
     str m_string;
 
 public:
+    PMPickerItem(const str& string);
+
     int            getListItemValue(int which) const override;
     griditemtype_t getListItemType(int which) const override;
     str            getListItemString(int which) const override;
@@ -150,63 +152,211 @@ CLASS_DECLARATION(USignal, PlayerModelPickerClass, NULL) {
 
 PlayerModelPickerClass::PlayerModelPickerClass()
 {
-    // FIXME: unimplemented
+    window = new UIFloatingWindow();
+    window->Create(
+        NULL,
+        UIRect2D((cls.glconfig.vidWidth - 400) / 2, (cls.glconfig.vidHeight - 300) / 2, 400, 300),
+        "Player Model Select...",
+        UColor(0.15f, 0.195f, 0.278f),
+        UHudColor
+    );
+    window->setFont("facfont-20");
+    window->PassEventToWidget("closebutton", new Event(EV_Widget_Disable));
+    window->PassEventToWidget("minimizebutton", new Event(EV_Widget_Disable));
+    window->Connect(this, W_Deactivated, W_Deactivated);
+
+    listbox = new UIListCtrl();
+    listbox->InitFrame(window->getChildSpace(), window->getChildSpace()->getClientFrame(), 0);
+    listbox->SetDrawHeader(false);
+    listbox->setFont("facfont-20");
+    listbox->FrameInitialized();
+    listbox->AddColumn("Player Model", 0, 400, false, false);
+
+    listbox->Connect(this, EV_UIListBase_ItemDoubleClicked, EV_UIListBase_ItemDoubleClicked);
+    listbox->Connect(this, EV_UIListBase_ItemSelected, EV_UIListBase_ItemSelected);
+    listbox->AllowActivate(true);
+
+    // Added in 2.0
+    //  Don't localize elements
+    listbox->SetDontLocalize();
+
+    m_bGermanModels = false;
 }
 
 PlayerModelPickerClass::~PlayerModelPickerClass()
 {
-    // FIXME: unimplemented
+    if (listbox) {
+        delete listbox;
+        listbox = NULL;
+    }
+
+    if (window) {
+        delete window;
+        window = NULL;
+    }
 }
 
 void PlayerModelPickerClass::Setup(const char *root_directory, const char *current_directory, qboolean bGermanModels)
 {
-    // FIXME: unimplemented
+    Initialize(root_directory, current_directory, bGermanModels);
 }
 
 void PlayerModelPickerClass::Initialize(
     const char *root_directory, const char *current_directory, qboolean bGermanModels
 )
 {
-    // FIXME: unimplemented
+    rootDirectory   = root_directory;
+    m_bGermanModels = bGermanModels;
+    if (rootDirectory.length() > 1 && rootDirectory[rootDirectory.length() - 1] != '/') {
+        rootDirectory += "/";
+    }
+
+    currentDirectory = current_directory;
+    if (currentDirectory.length() > 1 && currentDirectory[currentDirectory.length() - 1] != '/') {
+        currentDirectory += "/";
+    }
+
+    SetupFiles();
 }
 
 void PlayerModelPickerClass::SetupFiles(void)
 {
-    // FIXME: unimplemented
+    str         mappath;
+    char        work[128];
+    char      **filenames;
+    const char *displayName;
+    int         numfiles;
+    int         i;
+    int         iLen;
+    qboolean    bIsGerman;
+
+    // cleanup
+    listbox->DeleteAllItems();
+
+    if (m_bGermanModels) {
+        window->setTitle("Select Your Axis Player Model");
+    } else {
+        window->setTitle("Select Your Allied Player Model");
+    }
+
+    filenames = FS_ListFiles(currentDirectory, ".tik", qfalse, &numfiles);
+
+    for (i = 0; i < numfiles; i++) {
+        Q_strncpyz(work, filenames[i], sizeof(work));
+
+        if (strstr(work, "_fps")) {
+            // ignore view models
+            continue;
+        }
+
+        if (work[0] == '_') {
+            // ignore hidden models
+            continue;
+        }
+
+        // allied_manon readded in OPM
+        //if (!Q_stricmpn(work, "allied_manon")) {
+        //    continue;
+        //}
+
+        bIsGerman = !Q_stricmpn(work, "german", 6u) || !Q_stricmpn(work, "axis", 4u) || !Q_stricmpn(work, "it", 2u)
+                 || !Q_stricmpn(work, "sc", 2u);
+
+        if (m_bGermanModels != bIsGerman) {
+            continue;
+        }
+
+        // strip the extension
+        work[strlen(work) - 4] = 0;
+        displayName = PM_FilenameToDisplayname(work);
+
+        listbox->AddItem(new PMPickerItem(displayName));
+    }
+
+    FS_FreeFileList(filenames);
+
+    listbox->SortByColumn(0);
 }
 
 void PlayerModelPickerClass::FileSelected(
     const str& name, const str& currentDirectory, const str& partialName, const str& fullname
 )
 {
-    // FIXME: unimplemented
+    FileChosen(name, currentDirectory, partialName, fullname);
 }
 
 void PlayerModelPickerClass::FileSelected(Event *ev)
 {
-    // FIXME: unimplemented
+    str  name;
+    char donotshowssindeorfr[64];
+    str  fullname;
+
+    name     = listbox->GetItem(listbox->getCurrentItem())->getListItemString(0);
+    fullname = PM_DisplaynameToFilename(name);
+
+    if (!Q_stricmpn(fullname, "german_waffen_", 14)) {
+        Q_strncpyz(donotshowssindeorfr, "german_waffen_", sizeof(donotshowssindeorfr));
+        Q_strcat(donotshowssindeorfr, sizeof(donotshowssindeorfr), fullname.c_str() + 14);
+    } else {
+        Q_strncpyz(donotshowssindeorfr, fullname, sizeof(donotshowssindeorfr));
+    }
+
+    FileSelected(name, currentDirectory, fullname, currentDirectory + donotshowssindeorfr);
 }
 
 void PlayerModelPickerClass::FileChosen(
     const str& name, const str& currentDirectory, const str& partialName, const str& fullname
 )
 {
-    // FIXME: unimplemented
+    str sCommand;
+
+    if (m_bGermanModels) {
+        sCommand += "ui_dm_playergermanmodel \"" + name;
+        sCommand += "\" ; ui_dm_playergermanmodel_set " + partialName;
+        sCommand += " ; ui_disp_playergermanmodel " + fullname + ".tik";
+    } else {
+        sCommand += "ui_dm_playermodel \"" + name;
+        sCommand += "\" ; ui_dm_playermodel_set " + partialName;
+        sCommand += " ; ui_disp_playermodel " + fullname + ".tik";
+    }
+    sCommand += "\n";
+
+    Cbuf_AddText(sCommand);
+    CloseWindow();
 }
 
 void PlayerModelPickerClass::FileChosen(Event *ev)
 {
-    // FIXME: unimplemented
+    str  name;
+    char donotshowssindeorfr[64];
+    str  fullname;
+
+    name     = listbox->GetItem(listbox->getCurrentItem())->getListItemString(0);
+    fullname = PM_DisplaynameToFilename(name);
+
+    if (!Q_stricmpn(fullname, "german_waffen_", 14)) {
+        Q_strncpyz(donotshowssindeorfr, "german_waffen_", sizeof(donotshowssindeorfr));
+        Q_strcat(donotshowssindeorfr, sizeof(donotshowssindeorfr), fullname.c_str() + 14);
+    } else {
+        Q_strncpyz(donotshowssindeorfr, fullname, sizeof(donotshowssindeorfr));
+    }
+
+    FileChosen(name, currentDirectory, fullname, currentDirectory + donotshowssindeorfr);
 }
 
 void PlayerModelPickerClass::CloseWindow(void)
 {
-    // FIXME: unimplemented
+    PostEvent(EV_Remove, 0);
 }
 
 void PlayerModelPickerClass::OnDeactivated(Event *ev)
 {
-    // FIXME: unimplemented
+    CloseWindow();
+}
+
+PMPickerItem::PMPickerItem(const str& string)
+{
+    m_string = string;
 }
 
 int PMPickerItem::getListItemValue(int which) const
