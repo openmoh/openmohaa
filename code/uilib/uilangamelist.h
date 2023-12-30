@@ -24,6 +24,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 class UILanGameList : public UIWidget
 {
+protected:
     bool                      m_created;
     UIVertScroll             *m_Vscroll;
     class UIHorizScroll      *m_Hscroll;
@@ -44,7 +45,7 @@ class UILanGameList : public UIWidget
 public:
     CLASS_PROTOTYPE(UILanGameList);
 
-private:
+protected:
     void         CreateServerWidgets(void);
     void         DestroyServerWidgets(void);
     void         RepositionServerWidgets(void);
