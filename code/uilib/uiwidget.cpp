@@ -720,16 +720,18 @@ UIWidget::~UIWidget()
 
 	m_dying = true;
 
-	if( IsActive() )
+	if( IsActive() ) {
 		uWinMan.DeactivateCurrentSmart();
+	}
 
 	//for( i = m_children.NumObjects(); i > 0; i-- ) {
 	//
 	//}
 
 	// remove this child from our parent
-	if( m_parent )
+	if( m_parent ) {
 		m_parent->removeChild( this );
+	}
 
 	// delete font
 	if (m_font)
@@ -3076,25 +3078,24 @@ bool UIWidget::PassEventToWidget
 	int i;
 	int n;
 
-	if( m_enabledCvar.length() )
-	{
-		if( !UI_GetCvarInt( m_cvarname, 0 ) )
-			return false;
+	if (!isEnabled()) {
+		return false;
 	}
 
-	if( name.length() )
+	if (!str::cmp(name, m_name)) {
+		ProcessEvent(ev);
+		return true;
+	}
+
+	n = m_children.NumObjects();
+	for (i = 1; i <= n; i++)
 	{
-		n = m_children.NumObjects();
-		for( i = 1; i <= n; i++ )
-		{
-			if( m_children.ObjectAt( i )->PassEventToWidget( name, ev ) )
-				return true;
+		if (m_children.ObjectAt(i)->PassEventToWidget(name, ev)) {
+			return true;
 		}
 	}
 
-	ProcessEvent( ev );
-
-	return true;
+	return false;
 }
 
 void UIWidget::SetEnabledCvar
