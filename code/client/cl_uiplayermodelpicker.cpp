@@ -44,86 +44,83 @@ CLASS_DECLARATION(USignal, PlayerModelPickerClass, NULL) {
 
 PlayerModelPickerClass::PlayerModelPickerClass()
 {
-    // FIXME: stub
+    // FIXME: unimplemented
 }
 
 PlayerModelPickerClass::~PlayerModelPickerClass()
 {
-    // FIXME: stub
+    // FIXME: unimplemented
 }
 
 void PlayerModelPickerClass::Setup(const char *root_directory, const char *current_directory, qboolean bGermanModels)
 {
-    // FIXME: stub
+    // FIXME: unimplemented
 }
 
 void PlayerModelPickerClass::Initialize(
     const char *root_directory, const char *current_directory, qboolean bGermanModels
 )
 {
-    // FIXME: stub
+    // FIXME: unimplemented
 }
 
 void PlayerModelPickerClass::SetupFiles(void)
 {
-    // FIXME: stub
+    // FIXME: unimplemented
 }
 
-void PlayerModelPickerClass::FileSelected(str& currentDirectory, str& partialName, str& fullname)
+void PlayerModelPickerClass::FileSelected(
+    const str& name, const str& currentDirectory, const str& partialName, const str& fullname
+)
 {
-    // FIXME: stub
-}
-
-void PlayerModelPickerClass::FileChosen(str& currentDirectory, str& partialName, str& fullname)
-{
-    // FIXME: stub
+    // FIXME: unimplemented
 }
 
 void PlayerModelPickerClass::FileSelected(Event *ev)
 {
-    // FIXME: stub
+    // FIXME: unimplemented
+}
+
+void PlayerModelPickerClass::FileChosen(
+    const str& name, const str& currentDirectory, const str& partialName, const str& fullname
+)
+{
+    // FIXME: unimplemented
 }
 
 void PlayerModelPickerClass::FileChosen(Event *ev)
 {
-    // FIXME: stub
+    // FIXME: unimplemented
 }
 
 void PlayerModelPickerClass::CloseWindow(void)
 {
-    // FIXME: stub
+    // FIXME: unimplemented
 }
 
 void PlayerModelPickerClass::OnDeactivated(Event *ev)
 {
-    // FIXME: stub
+    // FIXME: unimplemented
 }
 
 int PMPickerItem::getListItemValue(int which) const
 {
-    // FIXME: stub
-    return 0;
+    return atoi(m_string);
 }
 
 griditemtype_t PMPickerItem::getListItemType(int which) const
 {
-    // FIXME: stub
     return griditemtype_t::TYPE_STRING;
 }
 
 str PMPickerItem::getListItemString(int which) const
 {
-    // FIXME: stub
-    return str();
+    return m_string;
 }
 
-void PMPickerItem::DrawListItem(int iColumn, const UIRect2D& drawRect, bool bSelected, UIFont *pFont)
-{
-    // FIXME: stub
-}
+void PMPickerItem::DrawListItem(int iColumn, const UIRect2D& drawRect, bool bSelected, UIFont *pFont) {}
 
 qboolean PMPickerItem::IsHeaderEntry() const
 {
-    // FIXME: stub
     return qfalse;
 }

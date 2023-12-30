@@ -42,9 +42,11 @@ private:
 protected:
     void         CloseWindow(void);
     void         FileSelected(Event *ev);
-    virtual void FileSelected(str& currentDirectory, str& partialName, str& fullname);
+    // The name parameter was added in 2.0.
+    virtual void FileSelected(const str& name, const str& currentDirectory, const str& partialName, const str& fullname);
     void         FileChosen(Event *ev);
-    virtual void FileChosen(str& currentDirectory, str& partialName, str& fullname);
+    // The name parameter was added in 2.0.
+    virtual void FileChosen(const str& name, const str& currentDirectory, const str& partialName, const str& fullname);
     void         OnDeactivated(Event *ev);
 
 public:
