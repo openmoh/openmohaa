@@ -34,6 +34,112 @@ public:
     qboolean       IsHeaderEntry() const override;
 };
 
+typedef struct {
+    const char *fileName;
+    const char *displayName;
+} PMPickerModel_t;
+
+static const PMPickerModel_t pickerModels[] = {
+  // 2.0 skins
+    {"allied_101st_captain",                    "US - 101st Airborne Captain"    },
+    {"allied_101st_infantry",                   "US - 101st Airborne Private 1"  },
+    {"allied_101st_scout",                      "US - 101st Airborne Private 2"  },
+    {"allied_501st_pir_scout",                  "US - 501st Paratrooper 1"       },
+    {"allied_501st_pir_soldier",                "US - 501st Paratrooper 2"       },
+ // 1.0 skins
+    {"allied_airborne",                         "US - 501st Paratrooper 3"       },
+ // Readded in OPM (was removed in 2.0)
+    {"allied_manon",                            "US - Manon"                     },
+ // 2.0 skins
+    {"allied_british_6th_airborne_captain",     "UK - 6th Airborne Captain"      },
+    {"allied_british_6th_airborne_paratrooper", "UK - 6th Airborne Paratrooper"  },
+ // 1.0 skins
+    {"allied_pilot",                            "US - Army Pilot"                },
+ // 2.0 skins
+    {"allied_russian_corporal",                 "RA - Corporal"                  },
+    {"allied_russian_crazy_boris",              "RA - Crazy Boris"               },
+    {"allied_russian_recon_scout",              "RA - Junior Lieutenant"         },
+    {"allied_russian_recon_soldier",            "RA - Black Sea Petty Officer"   },
+ // 1.0 skins
+    {"allied_sas",                              "UK - SAS Officer"               },
+    {"american_army",                           "US - Soldier"                   },
+    {"american_ranger",                         "US - Ranger"                    },
+ // 1.0 skins
+    {"german_afrika_officer",                   "DE - Afrika Officer"            },
+    {"german_afrika_private",                   "DE - Afrika Private"            },
+ // 2.0 skins
+    {"german_ardennes_artillery_commander",     "DE - Artillery Commander"       },
+    {"german_dday_colonel",                     "DE - Normandy Colonel"          },
+ // 1.0 skins
+    {"german_elite_officer",                    "DE - Elite Officer"             },
+    {"german_elite_sentry",                     "DE - Elite Sentry"              },
+    {"german_kradshutzen",                      "DE - Kradshutzen"               },
+    {"german_panzer_grenadier",                 "DE - Panzer Grenadier"          },
+    {"german_panzer_obershutze",                "DE - Panzer Obershutze"         },
+    {"german_panzer_shutze",                    "DE - Panzer Shutze"             },
+    {"german_panzer_tankcommander",             "DE - Panzer Tank Commander"     },
+    {"german_scientist",                        "DE - German Scientist"          },
+ // Those skins were superseded by german_waffenss
+    {"german_waffen_officer",                   "DE - Waffen Officer"            },
+    {"german_waffen_shutze",                    "DE - Waffen Shutze"             },
+ // 1.0 skins
+    {"german_waffenss_officer",                 "DE - Waffen Officer"            },
+    {"german_waffenss_shutze",                  "DE - Waffen Shutze"             },
+    {"german_wehrmacht_officer",                "DE - Wehrmacht Officer"         },
+    {"german_wehrmacht_soldier",                "DE - Wehrmacht Soldier"         },
+    {"german_winter_1",                         "DE - Winter Infantry 1"         },
+    {"german_winter_2",                         "DE - Winter Infantry 2"         },
+    {"german_worker",                           "DE - German Mechanic"           },
+ // 2.11 skins
+    {"allied_british_tank_corporal",            "UK - 6th Royal Tank Regiment"   },
+    {"allied_russian_seaman",                   "RA - Red Navy Seaman"           },
+    {"german_Panzer_Corporal",                  "DE - 1st Panzer Regiment"       },
+    {"allied_technician",                       "US - Air Force Technician"      },
+    {"german_stukageschwader",                  "DE - Stukageschwader"           },
+ // 2.30 skins
+    {"It_AX_Ital_Vol",                          "IT - 10th Army XXI Corps"       },
+    {"SC_AX_Ital_Inf",                          "IT - 6th Army 202nd Coastal Div"},
+    {"SC_AX_Ital_Inf2",                         "IT - 114th Inf Regiment"        },
+    {"SC_AX_ITAL_PARA",                         "IT - Paracadutista Militare"    },
+ // 2.40 skins
+    {"allied_Wheathers",                        "US - General Wheathers"         },
+    {"allied_US_Tank",                          "US - II Corps Tank Commander"   },
+    {"allied_US_Mask",                          "US - II Corps Infantry"         },
+    {"allied_british_Cmd",                      "UK - 10th Corps"                },
+    {"allied_british_Tank",                     "UK - 8th Army"                  },
+    {NULL,                                      NULL                             }
+};
+
+static const char *PM_FilenameToDisplayname(const char *fileName)
+{
+    int i;
+
+    for (i = 0; pickerModels[i].fileName; i++) {
+        const PMPickerModel_t& model = pickerModels[i];
+
+        if (!Q_stricmp(model.fileName, fileName)) {
+            return model.displayName;
+        }
+    }
+
+    return fileName;
+}
+
+static const char *PM_DisplaynameToFilename(const char *displayName)
+{
+    int i;
+
+    for (i = 0; pickerModels[i].fileName; i++) {
+        const PMPickerModel_t& model = pickerModels[i];
+
+        if (!Q_stricmp(model.displayName, displayName)) {
+            return model.fileName;
+        }
+    }
+
+    return displayName;
+}
+
 CLASS_DECLARATION(USignal, PlayerModelPickerClass, NULL) {
     {&EV_UIListBase_ItemSelected,       &PlayerModelPickerClass::FileSelected },
     {&EV_UIListBase_ItemDoubleClicked,  &PlayerModelPickerClass::FileChosen   },
