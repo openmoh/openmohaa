@@ -22,4 +22,4 @@ The current operational status for each component is as follow:
 | Renderer                |      | x      |      |       |     |             | Missing ghost, marks, sphere lights, sky portal, sun flare, swipe |
 | Server                  |      | x      |      |       |     |             | Probably a few bugs remaining                                     |
 | Server module (fgame)   |      | x      |      |       |     |             | Actor, and few gameplay bugs                                      |
-| UI                      |      | x      |      |       |     |             | Dialog, field, and a few bugs to fix                              |
+| UI                      |      | x      |      |       |     |             | A few bugs to fix                                                 |
