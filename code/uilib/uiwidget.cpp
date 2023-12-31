@@ -3099,6 +3099,16 @@ bool UIWidget::PassEventToWidget
 	return false;
 }
 
+bool UIWidget::isVirtual() const
+{
+	return m_bVirtual;
+}
+
+const vec2_t& UIWidget::getVirtualScale() const
+{
+	return m_vVirtualScale;
+}
+
 void UIWidget::SetEnabledCvar
 (
     Event* ev

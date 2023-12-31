@@ -326,6 +326,9 @@ public:
 	void				setConfigstringIndex( int cs );
 	int					getConfigstringIndex( void );
 	bool				PassEventToWidget( str name, Event *ev );
+	// Added in OPM
+	bool				isVirtual() const;
+	const vec2_t&		getVirtualScale() const;
 };
 
 class UIWidgetContainer : public UIWidget {
