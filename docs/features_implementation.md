@@ -16,10 +16,10 @@ The current operational status for each component is as follow:
 |-------------------------|------|--------|------|-------|-----|-------------|-------------------------------------------------------------------|
 | Audio                   |      |        |      |       | x   |             | Very basic implementation from Quake III                          |
 | CG Module               |      | x      |      |       |     |             | Missing FX, Marks and decals                                      |
-| Client                  |      | x      |      |       |     |             | Missing GameSpy, server list, binds, map picker, ...              |
+| Client                  | x    |        |      |       |     |             |                                                                   |
 | Collision               | x    |        |      |       |     |             |                                                                   |
 | Model/TIKI/Skeletor     | x    |        |      |       |     |             |                                                                   |
 | Renderer                |      | x      |      |       |     |             | Missing ghost, marks, sphere lights, sky portal, sun flare, swipe |
 | Server                  |      | x      |      |       |     |             | Probably a few bugs remaining                                     |
 | Server module (fgame)   |      | x      |      |       |     |             | Actor, and few gameplay bugs                                      |
-| UI                      |      |        | x    |       |     |             | Has core features only (menu, widgets, console, hud, urc loading) |
+| UI                      |      | x      |      |       |     |             | Dialog, field, and a few bugs to fix                              |
