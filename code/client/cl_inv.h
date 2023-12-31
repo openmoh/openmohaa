@@ -29,6 +29,11 @@ typedef enum {
 } inv_move_type;
 
 typedef enum {
+    INV_ALIGN_LEFT,
+    INV_ALIGN_RIGHT
+} inv_align_type;
+
+typedef enum {
     INV_CASCADE_LEFT,
     INV_CASCADE_RIGHT
 } inv_cascade_type;
@@ -111,14 +116,19 @@ public:
     int                           typeheight;
     int                           horizoffset;
     int                           vertoffset;
-    int                           align;
+    inv_align_type                align;
     inv_cascade_type              cascade;
     str                           selectsound;
     str                           rejectsound;
     str                           changesound;
     Container<inventory_type_t *> types;
 
-    void Clear() { types.ClearObjectList(); }
+public:
+    inventory_t();
+    ~inventory_t();
+    inventory_t(const inventory_t& other);
+    inventory_t& operator=(const inventory_t& other);
+    void Clear();
 };
 
 class invlistener : public Listener

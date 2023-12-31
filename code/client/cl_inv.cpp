@@ -22,6 +22,20 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "cl_ui.h"
 
+typedef struct {
+    char *string;
+    int   value;
+} equipment_event_table_t;
+
+static equipment_event_table_t s_equipTable[] = {
+    {"left",  1 },
+    {"right", 2 },
+    {"dual",  4 },
+    {"use",   8 },
+    {"none",  16},
+    {NULL,    0 }
+};
+
 Event evi_inv_changesound
 (
     "inv_changesound",
@@ -485,309 +499,682 @@ CLASS_DECLARATION(Listener, invlistener, NULL) {
 
 invlistener::invlistener(inventory_t *i)
 {
-    // FIXME: stub
+    inv     = i;
+    curtype = 0;
 }
 
-invlistener::invlistener()
-{
-    // FIXME: stub
-}
+invlistener::invlistener() {}
 
 void invlistener::verify_curitem(void)
 {
-    // FIXME: stub
+    if (!curitem) {
+        throw "no current item";
+    }
 }
 
 void invlistener::verify_curtype(void)
 {
-    // FIXME: stub
+    if (!curtype) {
+        throw "no current type";
+    }
 }
 
 void invlistener::verify_one_arg(Event *ev)
 {
-    // FIXME: stub
+    if (ev->NumArgs() != 1) {
+        throw "bad arg count";
+    }
 }
 
 bool invlistener::Load(Script& script)
 {
-    // FIXME: stub
-    return false;
+    str token;
+    str errortext;
+
+    while (script.TokenAvailable(true)) {
+        token = script.GetToken(true);
+
+        if (!token.length() || !ValidEvent(token)) {
+            throw "invalid token";
+        }
+
+        Event *event = new Event(token);
+
+        while (script.TokenAvailable(false)) {
+            event->AddToken(script.GetToken(false));
+        }
+
+        ProcessEvent(event);
+    }
+
+    return true;
 }
 
 bool CL_LoadInventory(const char *filename, inventory_t *inv)
 {
-    // FIXME: stub
-    return false;
+    Script script;
+
+    Com_Printf("Loading inventory...\n");
+
+    inv->Clear();
+    invlistener listener(inv);
+
+    // Load the inventory file
+    script.LoadFile(filename);
+    return listener.Load(script);
+}
+
+inventory_t::inventory_t()
+{
+    typewidth   = 64;
+    typeheight  = 64;
+    horizoffset = 0;
+    vertoffset  = 0;
+    align       = INV_ALIGN_RIGHT;
+    cascade     = INV_CASCADE_LEFT;
+}
+
+inventory_t::~inventory_t()
+{
+    Clear();
+}
+
+inventory_t::inventory_t(const inventory_t& other)
+{
+    typewidth   = other.typewidth;
+    typeheight  = other.typeheight;
+    horizoffset = other.horizoffset;
+    vertoffset  = other.vertoffset;
+    align       = other.align;
+    cascade     = other.cascade;
+    rejectsound = other.rejectsound;
+    selectsound = other.selectsound;
+    changesound = other.changesound;
+    types       = other.types;
+}
+
+inventory_t& inventory_t::operator=(const inventory_t& other)
+{
+    Clear();
+
+    typewidth   = other.typewidth;
+    typeheight  = other.typeheight;
+    horizoffset = other.horizoffset;
+    vertoffset  = other.vertoffset;
+    align       = other.align;
+    cascade     = other.cascade;
+    rejectsound = other.rejectsound;
+    selectsound = other.selectsound;
+    changesound = other.changesound;
+    types       = other.types;
+
+    return *this;
+}
+
+void inventory_t::Clear()
+{
+    types.ClearObjectList();
 }
 
 void invlistener::InvAlign(Event *ev)
 {
-    // FIXME: stub
+    str side;
+
+    verify_one_arg(ev);
+
+    side = ev->GetString(1);
+
+    if (!str::icmp(side, "left")) {
+        inv->align = INV_ALIGN_LEFT;
+    } else if (!str::icmp(side, "right")) {
+        inv->align = INV_ALIGN_RIGHT;
+    } else {
+        warning(__FUNCTION__, "Invalid align side '%s'\n", side.c_str());
+    }
 }
 
 void invlistener::InvCascade(Event *ev)
 {
-    // FIXME: stub
+    str side;
+
+    verify_one_arg(ev);
+
+    side = ev->GetString(1);
+
+    if (!str::icmp(side, "left")) {
+        inv->cascade = INV_CASCADE_LEFT;
+    } else if (!str::icmp(side, "right")) {
+        inv->cascade = INV_CASCADE_RIGHT;
+    } else {
+        warning(__FUNCTION__, "Invalid cascade side '%s'\n", side.c_str());
+    }
 }
 
 void invlistener::InvWidth(Event *ev)
 {
-    // FIXME: stub
+    verify_one_arg(ev);
+
+    inv->typewidth = ev->GetInteger(1);
 }
 
 void invlistener::InvHeight(Event *ev)
 {
-    // FIXME: stub
+    verify_one_arg(ev);
+
+    inv->typeheight = ev->GetInteger(1);
 }
 
 void invlistener::InvVertOffset(Event *ev)
 {
-    // FIXME: stub
+    verify_one_arg(ev);
+
+    inv->vertoffset = ev->GetInteger(1);
 }
 
 void invlistener::InvHorizOffset(Event *ev)
 {
-    // FIXME: stub
+    verify_one_arg(ev);
+
+    inv->horizoffset = ev->GetInteger(1);
 }
 
 void invlistener::InvSelectSound(Event *ev)
 {
-    // FIXME: stub
+    verify_one_arg(ev);
+
+    inv->selectsound = ev->GetString(1);
 }
 
 void invlistener::InvRejectSound(Event *ev)
 {
-    // FIXME: stub
+    verify_one_arg(ev);
+
+    inv->rejectsound = ev->GetString(1);
 }
 
 void invlistener::InvChangeSound(Event *ev)
 {
-    // FIXME: stub
+    verify_one_arg(ev);
+
+    inv->changesound = ev->GetString(1);
 }
 
 void invlistener::Typedef(Event *ev)
 {
-    // FIXME: stub
+    str               type;
+    inventory_type_t *t;
+
+    verify_one_arg(ev);
+
+    type = ev->GetString(1);
+
+    t          = new inventory_type_t();
+    t->name    = type;
+    t->bg_tile = false;
+
+    curtype           = t;
+    curitem           = NULL;
+    defaultWidth      = 0;
+    defaultHeight     = 0;
+    defaultBarWidth   = 0;
+    defaultBarHeight  = 0;
+    defaultBarOffsetX = 0;
+    defaultBarOffsetY = 0;
+
+    inv->types.AddObject(t);
 }
 
-void invlistener::OpenBrace(Event *ev)
-{
-    // FIXME: stub
-}
+void invlistener::OpenBrace(Event *ev) {}
 
-void invlistener::CloseBrace(Event *ev)
-{
-    // FIXME: stub
-}
+void invlistener::CloseBrace(Event *ev) {}
 
 void invlistener::ButtonShader(Event *ev)
 {
-    // FIXME: stub
+    verify_one_arg(ev);
+    verify_curtype();
+
+    curtype->texture = uWinMan.RegisterShader(ev->GetString(1));
 }
 
 void invlistener::HoverShader(Event *ev)
 {
-    // FIXME: stub
+    verify_one_arg(ev);
+    verify_curtype();
+
+    curtype->hoverTexture = uWinMan.RegisterShader(ev->GetString(1));
 }
 
 void invlistener::SelShader(Event *ev)
 {
-    // FIXME: stub
+    verify_one_arg(ev);
+    verify_curtype();
+
+    curtype->selTexture = uWinMan.RegisterShader(ev->GetString(1));
 }
 
 void invlistener::Background(Event *ev)
 {
-    // FIXME: stub
+    verify_one_arg(ev);
+    verify_curtype();
+
+    curtype->bg = uWinMan.RegisterShader(ev->GetString(1));
 }
 
 void invlistener::BackgroundTile(Event *ev)
 {
-    // FIXME: stub
+    verify_one_arg(ev);
+    verify_curtype();
+
+    curtype->bg      = uWinMan.RegisterShader(ev->GetString(1));
+    curtype->bg_tile = true;
 }
 
 void invlistener::BGShader(Event *ev)
 {
-    // FIXME: stub
+    verify_one_arg(ev);
+    verify_curitem();
+
+    curitem->bgshader = uWinMan.RegisterShader(ev->GetString(1));
 }
 
 void invlistener::SelItemShader(Event *ev)
 {
-    // FIXME: stub
+    verify_one_arg(ev);
+    verify_curitem();
+
+    curitem->selshader = uWinMan.RegisterShader(ev->GetString(1));
 }
 
 void invlistener::SelItemShaderOnTop(Event *ev)
 {
-    // FIXME: stub
+    verify_curitem();
+
+    curitem->selShaderOnTop = true;
 }
 
 void invlistener::BarShader(Event *ev)
 {
-    // FIXME: stub
+    verify_one_arg(ev);
+    verify_curitem();
+
+    curitem->barshader = uWinMan.RegisterShader(ev->GetString(1));
 }
 
 void invlistener::Width(Event *ev)
 {
-    // FIXME: stub
+    verify_one_arg(ev);
+
+    if (curitem) {
+        curitem->width = ev->GetInteger(1);
+    } else {
+        defaultWidth = ev->GetInteger(1);
+    }
 }
 
 void invlistener::Height(Event *ev)
 {
-    // FIXME: stub
+    verify_one_arg(ev);
+
+    if (curitem) {
+        curitem->height = ev->GetInteger(1);
+    } else {
+        defaultHeight = ev->GetInteger(1);
+    }
 }
 
 void invlistener::BarWidth(Event *ev)
 {
-    // FIXME: stub
+    verify_one_arg(ev);
+
+    if (curitem) {
+        curitem->barwidth = ev->GetInteger(1);
+    } else {
+        defaultBarWidth = ev->GetInteger(1);
+    }
 }
 
 void invlistener::BarHeight(Event *ev)
 {
-    // FIXME: stub
+    verify_one_arg(ev);
+
+    if (curitem) {
+        curitem->barheight = ev->GetInteger(1);
+    } else {
+        defaultBarHeight = ev->GetInteger(1);
+    }
 }
 
 void invlistener::BarOffsetY(Event *ev)
 {
-    // FIXME: stub
+    verify_one_arg(ev);
+
+    if (curitem) {
+        curitem->baroffsetY = ev->GetInteger(1);
+    } else {
+        defaultBarOffsetY = ev->GetInteger(1);
+    }
 }
 
 void invlistener::BarOffsetX(Event *ev)
 {
-    // FIXME: stub
+    verify_one_arg(ev);
+
+    if (curitem) {
+        curitem->baroffsetX = ev->GetInteger(1);
+    } else {
+        defaultBarOffsetX = ev->GetInteger(1);
+    }
 }
 
 void invlistener::Item(Event *ev)
 {
-    // FIXME: stub
+    str               type;
+    inventory_item_t *item;
+
+    verify_one_arg(ev);
+    verify_curtype();
+
+    item       = new inventory_item_t();
+    item->name = ev->GetString(1);
+
+    item->width      = defaultWidth;
+    item->height     = defaultHeight;
+    item->barwidth   = defaultBarWidth;
+    item->barheight  = defaultBarHeight;
+    item->baroffsetX = defaultBarOffsetX;
+    item->baroffsetY = defaultBarOffsetY;
+    item->equip      = 8;
+
+    curtype->items.AddObject(item);
+    curitem = curtype->items.ObjectAt(curtype->items.NumObjects());
 }
 
 void invlistener::Ammo(Event *ev)
 {
-    // FIXME: stub
+    verify_one_arg(ev);
+    verify_curitem();
+
+    curitem->ammoname = ev->GetString(1);
 }
 
 void invlistener::RotateOffset(Event *ev)
 {
-    // FIXME: stub
+    verify_one_arg(ev);
+    verify_curitem();
+
+    curitem->invprops.rotateoffset = ev->GetVector(1);
 }
 
 void invlistener::HudRotateOffset(Event *ev)
 {
-    // FIXME: stub
+    verify_one_arg(ev);
+    verify_curitem();
+
+    curitem->hudprops.rotateoffset = ev->GetVector(1);
 }
 
 void invlistener::Offset(Event *ev)
 {
-    // FIXME: stub
+    verify_one_arg(ev);
+    verify_curitem();
+
+    curitem->invprops.offset = ev->GetVector(1);
 }
 
 void invlistener::HudOffset(Event *ev)
 {
-    // FIXME: stub
+    verify_one_arg(ev);
+    verify_curitem();
+
+    curitem->hudprops.offset = ev->GetVector(1);
 }
 
 void invlistener::Command(Event *ev)
 {
-    // FIXME: stub
+    verify_curitem();
+
+    if (ev->NumArgs() <= 0) {
+        throw "command needs one or more args";
+    }
+
+    curitem->command = ev->GetString(1);
 }
 
 void invlistener::CheckAmmo(Event *ev)
 {
-    // FIXME: stub
+    verify_one_arg(ev);
+
+    curitem->checkammo = ev->GetBoolean(1);
 }
 
 void invlistener::Equip(Event *ev)
 {
-    // FIXME: stub
+    int i;
+
+    verify_curitem();
+
+    if (ev->NumArgs() <= 0) {
+        throw "command needs one or more args";
+    }
+
+    curitem->equip = 0;
+
+    for (i = 1; i <= ev->NumArgs(); i++) {
+        str equipstr = ev->GetString(i);
+        int tab;
+
+        for (tab = 0; s_equipTable[tab].string; tab++) {
+            if (equipstr == s_equipTable[tab].string) {
+                curitem->equip |= s_equipTable[tab].value;
+                break;
+            }
+        }
+
+        if (!s_equipTable[tab].string) {
+            throw "bad equip arguments";
+        }
+    }
 }
 
 void invlistener::Model(Event *ev)
 {
-    // FIXME: stub
+    verify_one_arg(ev);
+    verify_curitem();
+
+    curitem->invprops.model = ev->GetString(1);
 }
 
 void invlistener::ModelWindow(Event *ev)
 {
-    // FIXME: stub
+    if (ev->NumArgs() != 4) {
+        throw "ModelWindow: bad arg count";
+    }
+
+    verify_curitem();
+
+    curitem->modelWindowX      = ev->GetFloat(1);
+    curitem->modelWindowY      = ev->GetFloat(2);
+    curitem->modelWindowWidth  = ev->GetFloat(3);
+    curitem->modelWindowHeight = ev->GetFloat(4);
 }
 
 void invlistener::HudModel(Event *ev)
 {
-    // FIXME: stub
+    verify_one_arg(ev);
+
+    verify_one_arg(ev);
+    verify_curitem();
+
+    curitem->hudprops.model = ev->GetString(1);
 }
 
 void invlistener::Anim(Event *ev)
 {
-    // FIXME: stub
+    verify_one_arg(ev);
+    verify_curitem();
+
+    curitem->invprops.anim = ev->GetString(1);
 }
 
 void invlistener::HudAnim(Event *ev)
 {
-    // FIXME: stub
+    verify_one_arg(ev);
+    verify_curitem();
+
+    curitem->hudprops.anim = ev->GetString(1);
 }
 
 void invlistener::Scale(Event *ev)
 {
-    // FIXME: stub
+    verify_one_arg(ev);
+    verify_curitem();
+
+    curitem->invprops.scale = ev->GetFloat(1);
 }
 
 void invlistener::HudScale(Event *ev)
 {
-    // FIXME: stub
+    verify_one_arg(ev);
+    verify_curitem();
+
+    curitem->hudprops.scale = ev->GetFloat(1);
 }
 
 void invlistener::Angles(Event *ev)
 {
-    // FIXME: stub
+    verify_one_arg(ev);
+    verify_curitem();
+
+    curitem->invprops.angles = ev->GetVector(1);
 }
 
 void invlistener::HudAngles(Event *ev)
 {
-    // FIXME: stub
+    verify_one_arg(ev);
+    verify_curitem();
+
+    curitem->hudprops.angles = ev->GetVector(1);
 }
 
 void invlistener::AngleDeltas(Event *ev)
 {
-    // FIXME: stub
+    verify_one_arg(ev);
+    verify_curitem();
+
+    curitem->invprops.angledeltas = ev->GetVector(1);
 }
 
 void invlistener::HudAngleDeltas(Event *ev)
 {
-    // FIXME: stub
+    verify_one_arg(ev);
+    verify_curitem();
+
+    curitem->hudprops.angledeltas = ev->GetVector(1);
 }
 
 void invlistener::Move(Event *ev)
 {
-    // FIXME: stub
+    verify_one_arg(ev);
+    verify_curitem();
+
+    str arg = ev->GetString(1);
+
+    if (arg == "bob") {
+        curitem->invprops.move = INV_MOVE_BOB;
+    } else if (arg == "spin") {
+        curitem->invprops.move = INV_MOVE_SPIN;
+    } else {
+        throw "bad move arguments";
+    }
 }
 
 void invlistener::HudMove(Event *ev)
 {
-    // FIXME: stub
+    verify_one_arg(ev);
+    verify_curitem();
+
+    str arg = ev->GetString(1);
+
+    if (arg == "bob") {
+        curitem->hudprops.move = INV_MOVE_BOB;
+    } else if (arg == "spin") {
+        curitem->hudprops.move = INV_MOVE_SPIN;
+    } else {
+        throw "bad move arguments";
+    }
 }
 
 void invlistener::HudCompassAngles(Event *ev)
 {
-    // FIXME: stub
+    verify_curitem();
+
+    curitem->anglesType = INV_HUDANGLES_COMPASS;
 }
 
 void invlistener::HudCompassNeedleAngles(Event *ev)
 {
-    // FIXME: stub
+    verify_curitem();
+
+    curitem->anglesType = INV_HUDANGLES_COMPASS_NEEDLE;
 }
 
 inventory_item_t *CL_GetInvItemByName(inventory_t *inv, const char *name)
 {
-    // FIXME: stub
+    if (!inv) {
+        return NULL;
+    }
+
+    for (int i = 1; i <= inv->types.NumObjects(); i++) {
+        const inventory_type_t *type = inv->types.ObjectAt(i);
+
+        for (int ii = 1; ii <= type->items.NumObjects(); ii++) {
+            inventory_item_t *item = type->items.ObjectAt(i);
+
+            if (!item) {
+                return NULL;
+            }
+
+            if (!str::icmp(item->name, name)) {
+                return item;
+            }
+        }
+    }
+
     return NULL;
 }
 
 qboolean CL_HasInventoryItem(const char *name)
 {
-    // FIXME: stub
-    return qfalse;
+    int i;
+
+    for (i = 2; i < 6; i++) {
+        int index = cl.snap.ps.activeItems[i];
+
+        if (index > 0) {
+            if (!str::icmp(name, CL_ConfigString(CS_WEAPONS + index))) {
+                return true;
+            }
+        }
+    }
+
+    return false;
 }
 
 void CL_AmmoCount(const char *name, int *ammo_count, int *max_ammo_count)
 {
-    // FIXME: stub
+    int i;
+
+    *ammo_count     = 0;
+    *max_ammo_count = 0;
+
+    for (i = 0; i < ARRAY_LEN(cl.snap.ps.ammo_name_index); i++) {
+        int index = cl.snap.ps.ammo_name_index[i];
+        if (index) {
+            if (!str::icmp(name, CL_ConfigString(CS_WEAPONS + index))) {
+                *ammo_count     = cl.snap.ps.ammo_amount[i];
+                *max_ammo_count = cl.snap.ps.max_ammo_amount[i];
+                break;
+            }
+        }
+    }
 }
