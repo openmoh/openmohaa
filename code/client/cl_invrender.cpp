@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2023 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -22,203 +22,269 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "cl_ui.h"
 
-CLASS_DECLARATION( UIWidget, FakkItemList, NULL )
+void CL_Draw3DModel(
+    float     x,
+    float     y,
+    float     w,
+    float     h,
+    qhandle_t model,
+    vec3_t    origin,
+    vec3_t    rotateoffset,
+    vec3_t    offset,
+    vec3_t    angle,
+    vec3_t    color,
+    str       anim
+)
 {
-	{ NULL, NULL }
+    // FIXME: stub
+}
+
+bool CL_DoIHaveThisItem__FPCc(const char *name)
+{
+    // FIXME: stub
+    return false;
+}
+
+static void ProcessType(inventory_type_t *type)
+{
+    // FIXME: stub
+}
+
+static void ProcessInventory()
+{
+    // FIXME: stub
+}
+
+void UI_NextInventory()
+{
+    // FIXME: stub
+}
+
+void UI_PrevInventory()
+{
+    // FIXME: stub
+}
+
+void UI_WarpInventory()
+{
+    // FIXME: stub
+}
+
+void UI_DoInventory_f()
+{
+    // FIXME: stub
+}
+
+void UI_DoInventory(qboolean activate_mouse)
+{
+    // FIXME: stub
+}
+
+qboolean UI_CloseInventory()
+{
+    // FIXME/ stub
+    return qfalse;
+}
+
+Event FakkInventory_Timeout("_timeout", EV_DEFAULT, NULL, NULL, "Timeout of the menu from inactivity");
+
+CLASS_DECLARATION(UIWidget, FakkInventory, NULL) {
+    {&W_MouseMoved,          &FakkInventory::OnMouseMove },
+    {&W_MouseEntered,        &FakkInventory::OnMouseEnter},
+    {&W_MouseExited,         &FakkInventory::OnMouseLeave},
+    {&W_LeftMouseDown,       &FakkInventory::OnMouseDown },
+    {&W_RightMouseDown,      &FakkInventory::OnMouseDown },
+    {&FakkInventory_Timeout, &FakkInventory::Timeout     },
+    {NULL,                   NULL                        }
 };
-
-FakkItemList::FakkItemList()
-{
-	// FIXME: stub
-}
-
-FakkItemList::~FakkItemList()
-{
-	// FIXME: stub
-}
-
-void FakkItemList::VerifyItemUp( inventory_item_t *item, qboolean warpmouse )
-{
-	// FIXME: stub
-}
-
-void FakkItemList::setType( inventory_type_t *t )
-{
-	// FIXME: stub
-}
-
-void FakkItemList::Create( float x, float y, FakkInventory *parent )
-{
-	// FIXME: stub
-}
-
-bool FakkItemList::HasAnyItems( void )
-{
-	// FIXME: stub
-	return false;
-}
-
-void FakkItemList::Draw( void )
-{
-	// FIXME: stub
-}
-
-void FakkItemList::OnLeftMouseDown( Event *ev )
-{
-	// FIXME: stub
-}
-
-void FakkItemList::OnRightMouseDown( Event *ev )
-{
-	// FIXME: stub
-}
-
-void FakkItemList::OnLeftMouseUp( Event *ev )
-{
-	// FIXME: stub
-}
-
-void FakkItemList::OnRightMouseUp( Event *ev )
-{
-	// FIXME: stub
-}
-
-void FakkItemList::OnMouseMove( Event *ev )
-{
-	// FIXME: stub
-}
-
-void FakkItemList::OnMouseEnter( Event *ev )
-{
-	// FIXME: stub
-}
-
-void FakkItemList::OnMouseLeave( Event *ev )
-{
-	// FIXME: stub
-}
-
-void FakkItemList::OnMenuKilled( Event *ev )
-{
-	// FIXME: stub
-}
-
-void FakkItemList::EquipItem( Event *ev )
-{
-	// FIXME: stub
-}
-
-CLASS_DECLARATION( UIWidget, FakkInventory, NULL )
-{
-	{ NULL, NULL }
-};
-
 
 FakkInventory::FakkInventory()
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
 FakkInventory::~FakkInventory()
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void FakkInventory::VerifyItemUp( inventory_item_t *item, qboolean warpmouse )
+int FakkInventory::FindFirstItem(int itemindex, int sign)
 {
-	// FIXME: stub
+    // FIXME: stub
+    return 0;
 }
 
-void FakkInventory::setInventory( inventory_t *i )
+void FakkInventory::ChangeItem(int sign)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void FakkInventory::Draw( void )
+void FakkInventory::NextItem(void)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void FakkInventory::OnMouseMove( Event *ev )
+void FakkInventory::PrevItem(void)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void FakkInventory::OnMouseLeave( Event *ev )
+void FakkInventory::Timeout(Event *ev)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void FakkInventory::OnMouseEnter( Event *ev )
+void FakkInventory::PlaySound(invsound_t type)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void FakkInventory::OnMouseDown( Event *ev )
+void FakkInventory::Draw(void)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void FakkInventory::WarpTo( const char *name )
+void FakkInventory::OnMouseDown(Event *ev)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void FakkInventory::WarpTo( int slotnum )
+void FakkInventory::OnMouseMove(Event *ev)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void FakkInventory::NextItem( void )
+void FakkInventory::OnMouseLeave(Event *ev)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void FakkInventory::PrevItem( void )
+void FakkInventory::OnMouseEnter(Event *ev)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-qboolean FakkInventory::isDying( void )
+void FakkInventory::VerifyItemUp(inventory_item_t *item, qboolean warpmouse)
 {
-	// FIXME: stub
-	return qfalse;
+    // FIXME: stub
 }
 
-qboolean FakkInventory::KeyEvent( int key, unsigned int time )
+void FakkInventory::WarpTo(const char *name)
 {
-	// FIXME: stub
-	return qfalse;
+    // FIXME: stub
 }
 
-void FakkInventory::PlaySound( invsound_t type )
+void FakkInventory::WarpTo(int slotnum)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void FakkInventory::Timeout( Event *ev )
+void FakkInventory::setInventory(inventory_t *i)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void FakkInventory::ChangeItem( int sign )
+qboolean FakkInventory::KeyEvent(int key, unsigned int time)
 {
-	// FIXME: stub
+    // FIXME: stub
+    return qfalse;
 }
 
-int FakkInventory::FindFirstItem( int itemindex, int sign )
+qboolean FakkInventory::isDying(void)
 {
-	// FIXME: stub
-	return 0;
+    // FIXME: stub
+    return qfalse;
 }
 
-void CL_Draw3DModel( float x, float y, float w, float h, qhandle_t model, vec3_t origin, vec3_t rotateoffset, vec3_t offset, vec3_t angle, vec3_t color, str anim )
+CLASS_DECLARATION(UIWidget, FakkItemList, NULL) {
+    {&W_LeftMouseDown,  &FakkItemList::OnLeftMouseDown },
+    {&W_RightMouseDown, &FakkItemList::OnRightMouseDown},
+    {&W_LeftMouseUp,    &FakkItemList::OnLeftMouseUp   },
+    {&W_RightMouseUp,   &FakkItemList::OnRightMouseUp  },
+    {&W_MouseMoved,     &FakkItemList::OnMouseMove     },
+    {&W_MouseEntered,   &FakkItemList::OnMouseEnter    },
+    {&W_MouseExited,    &FakkItemList::OnMouseLeave    },
+    {&W_Destroyed,      &FakkItemList::OnMenuKilled    },
+    {NULL,              NULL                           }
+};
+
+FakkItemList::FakkItemList()
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-qboolean UI_CloseInventory( void )
+FakkItemList::~FakkItemList()
 {
-	// FIXME/ stub
-	return qfalse;
+    // FIXME: stub
+}
+
+void FakkItemList::Create(float x, float y, FakkInventory *parent)
+{
+    // FIXME: stub
+}
+
+bool FakkItemList::HasAnyItems(void)
+{
+    // FIXME: stub
+    return false;
+}
+
+void FakkItemList::Draw(void)
+{
+    // FIXME: stub
+}
+
+void FakkItemList::OnMouseEnter(Event *ev)
+{
+    // FIXME: stub
+}
+
+void FakkItemList::OnLeftMouseDown(Event *ev)
+{
+    // FIXME: stub
+}
+
+void FakkItemList::OnRightMouseDown(Event *ev)
+{
+    // FIXME: stub
+}
+
+void FakkItemList::OnLeftMouseUp(Event *ev)
+{
+    // FIXME: stub
+}
+
+void FakkItemList::OnRightMouseUp(Event *ev)
+{
+    // FIXME: stub
+}
+
+void FakkItemList::OnMouseLeave(Event *ev)
+{
+    // FIXME: stub
+}
+
+void FakkItemList::VerifyItemUp(inventory_item_t *item, qboolean warpmouse)
+{
+    // FIXME: stub
+}
+
+void FakkItemList::OnMouseMove(Event *ev)
+{
+    // FIXME: stub
+}
+
+void FakkItemList::OnMenuKilled(Event *ev)
+{
+    // FIXME: stub
+}
+
+void FakkItemList::setType(inventory_type_t *t)
+{
+    // FIXME: stub
+}
+
+void FakkItemList::EquipItem(Event *ev)
+{
+    // FIXME: stub
 }
