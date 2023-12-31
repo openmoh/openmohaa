@@ -29,6 +29,7 @@ typedef enum {
 } inv_move_type;
 
 typedef enum {
+    INV_ALIGN_NONE,
     INV_ALIGN_LEFT,
     INV_ALIGN_RIGHT
 } inv_align_type;
