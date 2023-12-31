@@ -2404,7 +2404,6 @@ void UI_MultiplayerMainMenuWidgetsUpdate(void)
 
     if (cg_allowvote->integer) {
         menuManager.PassEventToWidget("cantvote", new Event(EV_Widget_Disable));
-        menuManager.PassEventToWidget("callvotebutton", new Event(EV_Widget_Disable));
 
         if (atoi(CL_ConfigString(CS_VOTE_TIME))) {
             menuManager.PassEventToWidget("callvotebutton", new Event(EV_Widget_Disable));
