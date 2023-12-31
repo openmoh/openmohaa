@@ -3865,7 +3865,7 @@ void UI_CreateDialog(
     dlg->Create(NULL, rect, title, bgColor, UHudColor);
     dlg->LinkCvar(cvarname);
     dlg->SetOKCommand(command);
-    dlg->SetCancelCommand(command);
+    dlg->SetCancelCommand(cancelCommand);
     dlg->SetLabelMaterial(uWinMan.RegisterShader(shader));
     dlg->SetOkMaterial(uWinMan.RegisterShader(okshader));
 
