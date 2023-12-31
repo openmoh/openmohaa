@@ -79,6 +79,7 @@ struct ServerListInstance {
 };
 
 class FAKKServerListItem : public UIListCtrlItem {
+    UIFAKKServerList* m_parent; // Added in OPM
     str m_strings[6];
     str m_sVersion;
     bool m_bDifferentVersion;
@@ -94,7 +95,7 @@ public:
     int m_iGameSpyPort;
 
 public:
-    FAKKServerListItem(str string1, str string2, str string3, str string4, str string5, str string6, str ver);
+    FAKKServerListItem(UIFAKKServerList* parent, str string1, str string2, str string3, str string4, str string5, str string6, str ver);
 
     griditemtype_t getListItemType(int index) const override;
     int getListItemValue(int i) const override;
@@ -125,8 +126,9 @@ ServerListInstance g_ServerListInst[2];
 void UpdateServerListCallBack(GServerList serverlist, int msg, void* instance, void* param1, void* param2);
 static void AddFilter(char* filter, const char* value);
 
-FAKKServerListItem::FAKKServerListItem(str string1, str string2, str string3, str string4, str string5, str string6, str ver)
+FAKKServerListItem::FAKKServerListItem(UIFAKKServerList* parent, str string1, str string2, str string3, str string4, str string5, str string6, str ver)
 {
+    m_parent = parent;
     m_strings[0] = string1;
     m_strings[1] = string2;
     m_strings[2] = string3;
@@ -164,84 +166,95 @@ void FAKKServerListItem::setListItemString(int i, str sNewString)
 void FAKKServerListItem::DrawListItem(int iColumn, const UIRect2D& drawRect, bool bSelected, UIFont* pFont)
 {
     static cvar_t *pColoringType = Cvar_Get("cl_browserdetailedcolors", "0", CVAR_ARCHIVE);
+    UIRect2D newRect = drawRect;
+    vec2_t virtualScale = { 1.f, 1.f };
+
+    /*
+    if (m_parent->isVirtual()) {
+        virtualScale[0] = uid.vidWidth / 640.f;
+        virtualScale[1] = uid.vidHeight / 480.f;
+        newRect.size.width *= uid.vidWidth / 1024;
+        newRect.size.height *= uid.vidHeight / 768;
+    }
+    */
     
     if (!pColoringType->integer) {
         if (IfQueryFailed() || (IsDifferentVersion() && IsQueried())) {
             if (bSelected) {
-                DrawBox(drawRect, UColor(0.2f, 0.0f, 0.0f), 1.0);
+                DrawBox(newRect, UColor(0.2f, 0.0f, 0.0f), 1.0);
                 pFont->setColor(UColor(0.9f, 0.0f, 0.0f));
             } else {
-                DrawBox(drawRect, UColor(0.1f, 0.0f, 0.0f), 1.0);
+                DrawBox(newRect, UColor(0.1f, 0.0f, 0.0f), 1.0);
                 pFont->setColor(UColor(0.55f, 0.0f, 0.0f));
             }
         } else if (IsQueried()) {
             if (bSelected) {
-                DrawBox(drawRect, UColor(0.2f, 0.18f, 0.015f), 1.0);
+                DrawBox(newRect, UColor(0.2f, 0.18f, 0.015f), 1.0);
                 pFont->setColor(UColor(0.9f, 0.8f, 0.6f));
             } else {
-                DrawBox(drawRect, UColor(0.02f, 0.07f, 0.004f), 1.0);
+                DrawBox(newRect, UColor(0.02f, 0.07f, 0.004f), 1.0);
                 pFont->setColor(UHudColor);
             }
         } else {
             if (bSelected) {
-                DrawBox(drawRect, UColor(0.15f, 0.18f, 0.18f), 1.0);
+                DrawBox(newRect, UColor(0.15f, 0.18f, 0.18f), 1.0);
                 pFont->setColor(UColor(0.6f, 0.7f, 0.8f));
             } else {
-                DrawBox(drawRect, UColor(0.005f, 0.07f, 0.02f), 1.0);
+                DrawBox(newRect, UColor(0.005f, 0.07f, 0.02f), 1.0);
                 pFont->setColor(UColor(0.05f, 0.5f, 0.6f));
             }
         }
 
         pFont->Print(
-            drawRect.pos.x + 1.0,
-            drawRect.pos.y,
+            newRect.pos.x / virtualScale[0] + 1.0,
+            newRect.pos.y / virtualScale[1],
             getListItemString(iColumn).c_str(),
             -1,
-            qfalse
+            false //m_parent->isVirtual()
         );
     } else {
         if (IsDifferentVersion()) {
             if (IsQueried()) {
                 if (bSelected) {
-                    DrawBox(drawRect, UColor(0.25f, 0.0f, 0.0f), 1.0);
+                    DrawBox(newRect, UColor(0.25f, 0.0f, 0.0f), 1.0);
                     pFont->setColor(UColor(0.0f, 0.5f, 0.0f));
                 } else {
-                    DrawBox(drawRect, UColor(0.005f, 0.07f, 0.02f), 1.0);
+                    DrawBox(newRect, UColor(0.005f, 0.07f, 0.02f), 1.0);
                     pFont->setColor(UColor(0.0f, 0.35f, 0.0f));
                 }
             } else {
                 if (bSelected) {
-                    DrawBox(drawRect, UColor(0.25f, 0.0f, 0.0f), 1.0);
+                    DrawBox(newRect, UColor(0.25f, 0.0f, 0.0f), 1.0);
                     pFont->setColor(UColor(0.5f, 0.6f, 0.7f));
                 } else {
-                    DrawBox(drawRect, UColor(0.15f, 0.0f, 0.0f), 1.0);
+                    DrawBox(newRect, UColor(0.15f, 0.0f, 0.0f), 1.0);
                     pFont->setColor(UColor(0.05f, 0.4f, 0.5f));
                 }
             }
         } else if (IsQueried()) {
             if (bSelected) {
-                DrawBox(drawRect, UColor(0.2f, 0.18f, 0.015f), 1.0);
+                DrawBox(newRect, UColor(0.2f, 0.18f, 0.015f), 1.0);
                 pFont->setColor(UColor(0.9f, 0.8f, 0.6f));
             } else {
-                DrawBox(drawRect, UColor(0.02f, 0.07f, 0.005f), 1.0);
+                DrawBox(newRect, UColor(0.02f, 0.07f, 0.005f), 1.0);
                 pFont->setColor(UHudColor);
             }
         } else {
             if (bSelected) {
-                DrawBox(drawRect, UColor(0.15f, 0.18f, 0.18f), 1.0);
+                DrawBox(newRect, UColor(0.15f, 0.18f, 0.18f), 1.0);
                 pFont->setColor(UColor(0.6f, 0.7f, 0.8f));
             } else {
-                DrawBox(drawRect, UColor(0.005f, 0.07f, 0.02f), 1.0);
+                DrawBox(newRect, UColor(0.005f, 0.07f, 0.02f), 1.0);
                 pFont->setColor(UColor(0.05f, 0.5f, 0.6f));
             }
 
             if (IfQueryFailed()) {
                 DrawBox(
                     UIRect2D(
-                        drawRect.pos.x,
-                        drawRect.pos.y + drawRect.size.height * 0.5 - 1.0 + drawRect.pos.y,
-                        drawRect.size.width,
-                        drawRect.size.height * 0.5 - 1.0 + drawRect.pos.y
+                        newRect.pos.x,
+                        newRect.pos.y + newRect.size.height * 0.5 - 1.0 + newRect.pos.y,
+                        newRect.size.width,
+                        newRect.size.height * 0.5 - 1.0 + newRect.pos.y
                     ),
                     URed,
                     0.3f
@@ -249,19 +262,19 @@ void FAKKServerListItem::DrawListItem(int iColumn, const UIRect2D& drawRect, boo
             }
 
             pFont->Print(
-                drawRect.pos.x + 1.0,
-                drawRect.pos.y,
+                newRect.pos.x / virtualScale[0] + 1.0,
+                newRect.pos.y / virtualScale[1],
                 getListItemString(iColumn).c_str(),
                 -1,
-                qfalse
+                false //m_parent->isVirtual()
             );
 
             if (IsDifferentVersion()) {
                 DrawBox(
                     UIRect2D(
-                        drawRect.pos.x,
-                        drawRect.pos.y + drawRect.size.height * 0.5 - 1.0 + drawRect.pos.y,
-                        drawRect.size.width,
+                        newRect.pos.x,
+                        newRect.pos.y + newRect.size.height * 0.5 - 1.0 + newRect.pos.y,
+                        newRect.size.width,
                         1.0
                     ),
                     URed,
@@ -1077,7 +1090,7 @@ void UpdateServerListCallBack(GServerList serverlist, int msg, void* instance, v
         }
 
         if (i > uiServerList->getNumItems() || !pNewServerItem) {
-            pNewServerItem = new FAKKServerListItem("?", sAddress, "?", "?/?", "?", "?", "?");
+            pNewServerItem = new FAKKServerListItem(uiServerList, "?", sAddress, "?", "?/?", "?", "?", "?");
             pNewServerItem->m_sIP = ServerGetAddress(server);
             pNewServerItem->m_uiRealIP = iRealIP;
             pNewServerItem->m_iGameSpyPort = iGameSpyPort;
@@ -1175,7 +1188,7 @@ void UpdateServerListCallBack(GServerList serverlist, int msg, void* instance, v
                 continue;
             }
 
-            pNewServerItem = new FAKKServerListItem("?", sAddress, "?", "?/?", "?", "?", "?");
+            pNewServerItem = new FAKKServerListItem(uiServerList, "?", sAddress, "?", "?/?", "?", "?", "?");
             pNewServerItem->m_sIP = ServerGetAddress(arrayServer);
             pNewServerItem->m_uiRealIP = iRealIP;
             pNewServerItem->m_iPort = PORT_SERVER;
