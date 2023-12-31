@@ -1294,40 +1294,16 @@ void UIFakkLabel::Draw(void)
 {
     if (m_stat_alpha != -1) {
         float frac;
-        
+
         frac = (cl.snap.ps.stats[m_stat_alpha] + 1) / 100.0;
         frac = Q_clamp_float(frac, 0, 1);
-  
+
         m_alpha = frac;
     }
 
-    if (m_stat == -1 && m_itemindex == -1 && m_inventoryrendermodelindex == -1) {
-        if (m_stat_configstring != -1) {
-            m_font->setColor(m_foreground_color);
-
-            if (m_bOutlinedText) {
-                m_font->PrintOutlinedJustified(
-                    getClientFrame(),
-                    m_iFontAlignmentHorizontal,
-                    m_iFontAlignmentVertical,
-                    Sys_LV_CL_ConvertString(va("%s", CL_ConfigString(cl.snap.ps.stats[m_stat_configstring]))),
-                    UBlack,
-                    m_bVirtual ? m_vVirtualScale : NULL
-                );
-            } else {
-                m_font->PrintJustified(
-                    getClientFrame(),
-                    m_iFontAlignmentHorizontal,
-                    m_iFontAlignmentVertical,
-                    Sys_LV_CL_ConvertString(va("%s", CL_ConfigString(cl.snap.ps.stats[m_stat_configstring]))),
-                    m_bVirtual ? m_vVirtualScale : NULL
-                );
-            }
-
-            return;
-        }
-
-        if (!m_rendermodel && m_statbar_or == L_STATBAR_NONE && !m_sDrawModelName.length()) {
+    if (m_stat == -1 && m_itemindex == -1 && m_inventoryrendermodelindex == -1 && m_stat_configstring == -1
+        && !m_rendermodel && m_statbar_or == L_STATBAR_NONE) {
+        if (!m_sDrawModelName.length()) {
             UILabel::Draw();
             return;
         }
@@ -1354,28 +1330,13 @@ void UIFakkLabel::Draw(void)
                 m_bVirtual ? m_vVirtualScale : NULL
             );
         }
-
         return;
     }
 
-    if (m_stat == -1) {
-        float     scale;
-        qhandle_t handle;
-        vec3_t    origin;
-        vec3_t    mins;
-        vec3_t    maxs;
-        vec3_t    angles;
-        vec3_t    offset;
-        vec3_t    rotateoffset;
-        vec4_t    color;
-        str       sAnimName;
-        float     height;
+    if (m_stat != -1) {
+        int delta = cl.snap.ps.stats[m_stat];
 
-        if (m_itemindex != -1) {
-            if (m_itemindex < 0) {
-                return;
-            }
-
+        if (m_statbar_or == L_STATBAR_NONE) {
             m_font->setColor(m_foreground_color);
 
             if (m_bOutlinedText) {
@@ -1383,7 +1344,7 @@ void UIFakkLabel::Draw(void)
                     getClientFrame(),
                     m_iFontAlignmentHorizontal,
                     m_iFontAlignmentVertical,
-                    Sys_LV_CL_ConvertString(va("%s", CL_ConfigString(CS_WEAPONS + cl.snap.ps.activeItems[m_itemindex]))),
+                    va("%d", delta),
                     UBlack,
                     m_bVirtual ? m_vVirtualScale : NULL
                 );
@@ -1392,143 +1353,13 @@ void UIFakkLabel::Draw(void)
                     getClientFrame(),
                     m_iFontAlignmentHorizontal,
                     m_iFontAlignmentVertical,
-                    Sys_LV_CL_ConvertString(va("%s", CL_ConfigString(CS_WEAPONS + cl.snap.ps.activeItems[m_itemindex]))),
+                    va("%d", delta),
                     m_bVirtual ? m_vVirtualScale : NULL
                 );
             }
-
             return;
         }
 
-        if (m_inventoryrendermodelindex == -1 && !m_sDrawModelName.length() || !m_rendermodel) {
-            float frac = 0.0;
-
-            if (m_statbar_or == L_STATBAR_NONE) {
-                return;
-            }
-
-            if (m_cvarname.length()) {
-                frac = Cvar_VariableValue(m_cvarname) / (m_statbar_max - m_statbar_min);
-            }
-
-            if (frac > 1.0) {
-                frac = 1.0;
-            }
-            if (frac < 0.0) {
-                frac = 0.0;
-            }
-
-            DrawStatbar(frac);
-            return;
-        }
-
-        VectorSet4(color, 255, 255, 255, 255);
-
-        if (m_rendermodel) {
-            if (!m_cvarname.length()) {
-                return;
-            }
-
-            handle = re.RegisterModel(Cvar_VariableString(m_cvarname));
-            if (!handle) {
-                return;
-            }
-
-            VectorCopy(m_angles, angles);
-            VectorCopy(m_rotateoffset, rotateoffset);
-            VectorCopy(m_offset, offset);
-            scale     = m_scale;
-            sAnimName = m_anim;
-        } else if (m_sDrawModelName.length()) {
-            if (m_lastitemindex != cl.snap.ps.activeItems[m_inventoryrendermodelindex]) {
-                if (!m_lastitem) {
-                    m_lastitem = CL_GetInvItemByName(&client_inv, m_sDrawModelName);
-                }
-            }
-
-        _shitlabel01:
-            if (!m_lastitem) {
-                return;
-            }
-
-            VectorCopy(m_lastitem->hudprops.rotateoffset, rotateoffset);
-            VectorCopy(m_lastitem->hudprops.offset, offset);
-
-            handle = re.RegisterModel(m_lastitem->hudprops.model);
-
-            VectorCopy(m_lastitem->hudprops.angledeltas, angles);
-
-            if (m_lastitem->hudprops.move == INV_MOVE_BOB) {
-                float frac = uid.time / 600.0;
-                angles[0] += sin(frac) * m_lastitem->hudprops.angledeltas[0];
-                angles[1] += sin(frac) * m_lastitem->hudprops.angledeltas[1];
-                angles[2] += sin(frac) * m_lastitem->hudprops.angledeltas[2];
-            } else if (m_lastitem->hudprops.model == INV_MOVE_SPIN) {
-                float frac = uid.time / 600.0;
-                angles[0] += frac * m_lastitem->hudprops.angledeltas[0];
-                angles[1] += frac * m_lastitem->hudprops.angledeltas[1];
-                angles[2] += frac * m_lastitem->hudprops.angledeltas[2];
-            }
-
-            if (m_rendermodel) {
-                VectorSet(mins, -16, -16, 0);
-                VectorSet(maxs, 16, 16, 96);
-            } else {
-                re.ModelBounds(handle, mins, maxs);
-            }
-
-            origin[1] = (mins[1] + maxs[1]) * 0.5;
-            origin[2] = (mins[1] + maxs[1]) * -0.5;
-
-            height = maxs[2] - mins[2];
-
-            if (height < maxs[1] - mins[1]) {
-                height = maxs[1] - mins[1];
-            }
-
-            if (height <= maxs[0] - mins[0]) {
-                height = maxs[0] - mins[0];
-            }
-
-            origin[0] = height * scale * 0.5 / 0.268f;
-
-            CL_Draw3DModel(
-                m_screenframe.pos.x,
-                m_screenframe.pos.y,
-                m_screenframe.size.width,
-                m_screenframe.size.height,
-                handle,
-                origin,
-                rotateoffset,
-                offset,
-                angles,
-                color,
-                sAnimName
-            );
-            return;
-        }
-
-        if (m_lastitemindex == cl.snap.ps.activeItems[m_inventoryrendermodelindex]) {
-            goto _shitlabel01;
-        }
-
-        if (m_lastitem
-            == CL_GetInvItemByName(
-                &client_inv, CL_ConfigString(CS_WEAPONS + cl.snap.ps.activeItems[m_inventoryrendermodelindex])
-            )) {
-            m_lastitemindex = cl.snap.ps.activeItems[m_inventoryrendermodelindex];
-            goto _shitlabel01;
-        }
-
-        m_lastitem = CL_GetInvItemByName(
-            &client_inv, CL_ConfigString(CS_WEAPONS + cl.snap.ps.activeItems[m_inventoryrendermodelindex])
-        );
-        goto _shitlabel01;
-    }
-
-    int delta = cl.snap.ps.stats[m_stat];
-
-    if (m_statbar_or) {
         if (m_statbar_or == L_STATBAR_VERTICAL_STAGGER_EVEN || m_statbar_or == L_STATBAR_VERTICAL_STAGGER_ODD) {
             int stat;
 
@@ -1574,28 +1405,174 @@ void UIFakkLabel::Draw(void)
         }
 
         DrawStatbar(frac);
+        return;
+    }
+
+    float     scale;
+    qhandle_t handle;
+    vec3_t    origin;
+    vec3_t    mins;
+    vec3_t    maxs;
+    vec3_t    angles;
+    vec3_t    offset;
+    vec3_t    rotateoffset;
+    vec4_t    color;
+    str       sAnimName;
+    float     height;
+
+    if (m_itemindex != -1) {
+        if (m_itemindex < 0) {
+            return;
+        }
+
+        m_font->setColor(m_foreground_color);
+
+        if (m_bOutlinedText) {
+            m_font->PrintOutlinedJustified(
+                getClientFrame(),
+                m_iFontAlignmentHorizontal,
+                m_iFontAlignmentVertical,
+                Sys_LV_CL_ConvertString(va("%s", CL_ConfigString(CS_WEAPONS + cl.snap.ps.activeItems[m_itemindex]))),
+                UBlack,
+                m_bVirtual ? m_vVirtualScale : NULL
+            );
+        } else {
+            m_font->PrintJustified(
+                getClientFrame(),
+                m_iFontAlignmentHorizontal,
+                m_iFontAlignmentVertical,
+                Sys_LV_CL_ConvertString(va("%s", CL_ConfigString(CS_WEAPONS + cl.snap.ps.activeItems[m_itemindex]))),
+                m_bVirtual ? m_vVirtualScale : NULL
+            );
+        }
 
         return;
     }
 
-    m_font->setColor(m_foreground_color);
+    if (m_inventoryrendermodelindex == -1 && !m_sDrawModelName.length() && !m_rendermodel) {
+        float frac = 0.0;
 
-    if (m_bOutlinedText) {
-        m_font->PrintOutlinedJustified(
-            getClientFrame(),
-            m_iFontAlignmentHorizontal,
-            m_iFontAlignmentVertical,
-            va("%d", delta),
-            UBlack,
-            m_bVirtual ? m_vVirtualScale : NULL
-        );
-    } else {
-        m_font->PrintJustified(
-            getClientFrame(),
-            m_iFontAlignmentHorizontal,
-            m_iFontAlignmentVertical,
-            va("%d", delta),
-            m_bVirtual ? m_vVirtualScale : NULL
-        );
+        if (m_statbar_or == L_STATBAR_NONE) {
+            return;
+        }
+
+        if (m_cvarname.length()) {
+            frac = Cvar_VariableValue(m_cvarname) / (m_statbar_max - m_statbar_min);
+        }
+
+        if (frac > 1.0) {
+            frac = 1.0;
+        }
+        if (frac < 0.0) {
+            frac = 0.0;
+        }
+
+        DrawStatbar(frac);
+        return;
     }
+
+    VectorSet4(color, 255, 255, 255, 255);
+
+    if (m_rendermodel) {
+        if (!m_cvarname.length()) {
+            return;
+        }
+
+        handle = re.RegisterModel(Cvar_VariableString(m_cvarname));
+        if (!handle) {
+            return;
+        }
+
+        VectorCopy(m_angles, angles);
+        VectorCopy(m_rotateoffset, rotateoffset);
+        VectorCopy(m_offset, offset);
+        scale     = m_scale;
+        sAnimName = m_anim;
+
+        // Added in 2.11
+        //  Tunak easter egg
+        if (Cvar_Get("tunak", "0", 0)->integer) {
+            // Since 2.15, those animations start has 'zz' prefix
+            if (strstr(m_anim, "american")) {
+                sAnimName = "zzamericanspecialidle";
+            } else {
+                // Added in 2.15
+                sAnimName = "zzgermanspecialidle";
+            }
+        }
+    } else {
+        if (m_sDrawModelName.length()) {
+            if (!m_lastitem) {
+                m_lastitem = CL_GetInvItemByName(&client_inv, m_sDrawModelName);
+            }
+        } else {
+            if (m_inventoryrendermodelindex >= 0
+                && m_lastitemindex != cl.snap.ps.activeItems[m_inventoryrendermodelindex]) {
+                m_lastitem = CL_GetInvItemByName(
+                    &client_inv, CL_ConfigString(CS_WEAPONS + cl.snap.ps.activeItems[m_inventoryrendermodelindex])
+                );
+                m_lastitemindex = cl.snap.ps.activeItems[m_inventoryrendermodelindex];
+            }
+        }
+
+        if (!m_lastitem) {
+            return;
+        }
+
+        VectorCopy(m_lastitem->hudprops.rotateoffset, rotateoffset);
+        VectorCopy(m_lastitem->hudprops.offset, offset);
+        scale  = m_lastitem->hudprops.scale;
+        handle = re.RegisterModel(m_lastitem->hudprops.model);
+        VectorCopy(m_lastitem->hudprops.angledeltas, angles);
+
+        if (m_lastitem->hudprops.move == INV_MOVE_BOB) {
+            float frac = uid.time / 600.0;
+            angles[0] += sin(frac) * m_lastitem->hudprops.angledeltas[0];
+            angles[1] += sin(frac) * m_lastitem->hudprops.angledeltas[1];
+            angles[2] += sin(frac) * m_lastitem->hudprops.angledeltas[2];
+        } else if (m_lastitem->hudprops.model == INV_MOVE_SPIN) {
+            float frac = uid.time / 600.0;
+            angles[0] += frac * m_lastitem->hudprops.angledeltas[0];
+            angles[1] += frac * m_lastitem->hudprops.angledeltas[1];
+            angles[2] += frac * m_lastitem->hudprops.angledeltas[2];
+        }
+    }
+
+    if (m_rendermodel) {
+        VectorSet(mins, -16, -16, 0);
+        VectorSet(maxs, 16, 16, 96);
+    } else {
+        re.ModelBounds(handle, mins, maxs);
+    }
+
+    origin[1] = (mins[1] + maxs[1]) * 0.5;
+    origin[2] = (mins[2] + maxs[2]) * -0.5;
+
+    height = maxs[2] - mins[2];
+
+    if (height < maxs[1] - mins[1]) {
+        height = maxs[1] - mins[1];
+    }
+
+    if (height < maxs[0] - mins[0]) {
+        height = maxs[0] - mins[0];
+    }
+
+    origin[0] = height * scale * 0.5 / 0.268f;
+
+    CL_Draw3DModel(
+        m_screenframe.pos.x,
+        m_screenframe.pos.y,
+        m_screenframe.size.width,
+        m_screenframe.size.height,
+        handle,
+        origin,
+        rotateoffset,
+        offset,
+        angles,
+        color,
+        sAnimName
+    );
+
+    set2D();
 }
