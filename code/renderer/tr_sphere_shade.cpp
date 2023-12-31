@@ -1153,7 +1153,14 @@ void RB_Grid_SetupStaticModel()
 
 void RB_Light_Fullbright(unsigned char *colors)
 {
-    memset((void *)colors, 0xFF, tess.numVertexes);
+    int i;
+
+    for (i = 0; i < tess.numVertexes; i++) {
+        colors[i * 4]     = 0xFF;
+        colors[i * 4 + 1] = 0xFF;
+        colors[i * 4 + 2] = 0xFF;
+        colors[i * 4 + 3] = 0xFF;
+    }
 }
 
 void R_Sphere_InitLights()
