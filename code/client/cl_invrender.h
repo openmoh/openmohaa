@@ -60,6 +60,8 @@ public:
     void OnMouseLeave(Event *ev);
     void OnMenuKilled(Event *ev);
     void EquipItem(Event *ev);
+
+    inventory_item_t *getHoverItem() const;
 };
 
 class FakkInventory : public UIWidget
@@ -73,8 +75,11 @@ protected:
 public:
     CLASS_PROTOTYPE(FakkInventory);
 
+public:
+    qboolean m_mouse_active;
+
 protected:
-    void VerifyItemUp(inventory_item_t *item, qboolean warpmouse);
+    void VerifyTypeUp(inventory_type_t *t, qboolean warpmouse);
 
 public:
     FakkInventory();
@@ -111,4 +116,6 @@ void CL_Draw3DModel(
     vec3_t    color,
     str       anim
 );
+
+void     UI_DoInventory(qboolean activate_mouse);
 qboolean UI_CloseInventory(void);
