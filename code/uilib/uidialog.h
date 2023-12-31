@@ -20,28 +20,26 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-#ifndef __UIDIALOG_H__
-#define __UIDIALOG_H__
+#pragma once
 
-class UIDialog : public UIFloatingWindow {
+class UIDialog : public UIFloatingWindow
+{
 public:
-	UILabel *m_label;
-	UIButton *m_ok;
-	UIButton *m_cancel;
+    UILabel  *m_label;
+    UIButton *m_ok;
+    UIButton *m_cancel;
 
 public:
-	CLASS_PROTOTYPE( UIDialog );
+    CLASS_PROTOTYPE(UIDialog);
 
-	UIDialog();
+    UIDialog();
+    ~UIDialog();
 
-	void	FrameInitialized( void ) override;
-	void	LinkCvar( str cvarname ) override;
-	void	SetOKCommand( str command );
-	void	SetCancelCommand( str command );
-	void	SetLabelMaterial( UIReggedMaterial *mat );
-	void	SetOkMaterial( UIReggedMaterial *mat );
-	void	SetCancelMaterial( UIReggedMaterial *mat );
+    void FrameInitialized(void) override;
+    void LinkCvar(str cvarname) override;
+    void SetOKCommand(str command);
+    void SetCancelCommand(str command);
+    void SetLabelMaterial(UIReggedMaterial *mat);
+    void SetOkMaterial(UIReggedMaterial *mat);
+    void SetCancelMaterial(UIReggedMaterial *mat);
 };
-
-#endif
-

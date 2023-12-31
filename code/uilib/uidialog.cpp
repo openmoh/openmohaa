@@ -22,75 +22,127 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "ui_local.h"
 
-CLASS_DECLARATION( UIFloatingWindow, UIDialog, NULL )
-{
-	{ NULL, NULL }
+CLASS_DECLARATION(UIFloatingWindow, UIDialog, NULL) {
+    {NULL, NULL}
 };
 
 UIDialog::UIDialog()
 {
-	// FIXME: stub
+    m_label  = NULL;
+    m_ok     = NULL;
+    m_cancel = NULL;
 }
 
-void UIDialog::FrameInitialized
-	(
-	void
-	)
-
+UIDialog::~UIDialog()
 {
-	// FIXME: stub
+    if (m_label) {
+        delete m_label;
+    }
+    if (m_ok) {
+        delete m_ok;
+    }
+    if (m_cancel) {
+        delete m_cancel;
+    }
 }
 
-void UIDialog::LinkCvar
-	(
-	str cvarname
-	)
-
+void UIDialog::FrameInitialized(void)
 {
-	// FIXME: stub
+    UIRect2D rect;
+
+    UIFloatingWindow::FrameInitialized();
+
+    rect = getChildSpace()->getClientFrame();
+
+    m_label = new UILabel();
+    m_label->InitFrame(getChildSpace(), rect, 0);
+
+    m_cancel = new UIButton();
+    m_cancel->setTitle("Cancel");
+    m_cancel->setBackgroundAlpha(0);
+    m_cancel->InitFrame(getChildSpace(), rect.size.width - 60 - 48, rect.size.height - 24 - 6, 60, 24, 0);
+    m_cancel->Connect(this, W_Button_Pressed, UIFloatingWindow::W_ClosePressed);
+
+    m_ok = new UIButton();
+    m_ok->setTitle("Ok");
+    m_ok->setBackgroundAlpha(0);
+    m_ok->InitFrame(getChildSpace(), 48, rect.size.height - 24 - 6, 60, 24, 0);
+    m_ok->Connect(this, W_Button_Pressed, UIFloatingWindow::W_ClosePressed);
+
+    m_minimizeButton->ProcessEvent(new Event("hide"));
+    m_closeButton->ProcessEvent(new Event("hide"));
 }
 
-void UIDialog::SetOKCommand
-	(
-	str cvarname
-	)
-
+void UIDialog::LinkCvar(str cvarname)
 {
-	// FIXME: stub
+    cvar_t *cvar;
+    str     formatted;
+    char   *ptr;
+    char   *nextptr;
+    char    dialog[256];
+
+    if (!m_label) {
+        return;
+    }
+
+    cvar = UI_FindCvar(cvarname);
+    if (!cvar) {
+        return;
+    }
+
+    Q_strncpyz(dialog, cvar->string, sizeof(dialog));
+    ptr = dialog;
+
+    for (ptr = dialog; ptr; ptr = nextptr + 1) {
+        nextptr = strchr(ptr, '$');
+        if (nextptr) {
+            *nextptr = 0;
+        }
+
+        if (strlen(ptr)) {
+            formatted += ptr;
+        }
+
+        formatted += '\n';
+
+        if (!nextptr) {
+            break;
+        }
+
+        *nextptr = '$';
+    }
+
+    m_label->SetLabel(formatted);
 }
 
-void UIDialog::SetCancelCommand
-	(
-	str cvarname
-	)
-
+void UIDialog::SetOKCommand(str cvarname)
 {
-	// FIXME: stub
+    if (m_ok) {
+        m_ok->LinkCommand(cvarname);
+    }
 }
 
-void UIDialog::SetLabelMaterial
-	(
-	UIReggedMaterial *mat
-	)
-
+void UIDialog::SetCancelCommand(str cvarname)
 {
-	// FIXME: stub
+    if (m_cancel) {
+        m_cancel->LinkCommand(cvarname);
+    }
 }
 
-void UIDialog::SetOkMaterial
-	(
-	UIReggedMaterial *mat
-	)
-
+void UIDialog::SetLabelMaterial(UIReggedMaterial *mat)
 {
-	// FIXME: stub
+    m_label->setMaterial(mat);
+    m_label->setTitle(str());
 }
 
-void UIDialog::SetCancelMaterial
-	(
-	UIReggedMaterial *mat
-	)
-
+void UIDialog::SetOkMaterial(UIReggedMaterial *mat)
 {
-	// FIXME: stub
+    m_ok->setMaterial(mat);
+    m_ok->setTitle(str());
+}
+
+void UIDialog::SetCancelMaterial(UIReggedMaterial *mat)
+{
+    m_cancel->setMaterial(mat);
+    m_cancel->setTitle(str());
 }
