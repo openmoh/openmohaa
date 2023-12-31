@@ -206,7 +206,10 @@ static void SV_Map_f( void ) {
 	}
 
 	Cvar_Get( "g_gametype", "0", CVAR_LATCH | CVAR_SERVERINFO );
-	Cvar_Get( "sv_maxclients", "1", CVAR_LATCH | CVAR_SERVERINFO );
+	// FIXME
+	// Commenting out this line below as this sets sv_maxclients
+	//  before actually allocating clients
+	//Cvar_Get( "sv_maxclients", "1", CVAR_LATCH | CVAR_SERVERINFO );
 
 	if( !Q_stricmpn( map, "dm/", 3 ) && g_gametype->integer == GT_OBJECTIVE )
 	{
