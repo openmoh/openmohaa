@@ -1252,6 +1252,33 @@ void CL_KeyEvent(int key, qboolean down, unsigned time)
 
 /*
 ===================
+CL_Key_ForceCommand
+===================
+*/
+void CL_Key_ForceCommand(int key, unsigned int time)
+{
+    const char *kb;
+    char        cmd[1024];
+
+    if (clc.state == CA_DISCONNECTED) {
+        return;
+    }
+
+    kb = keys[key].binding;
+    if (kb) {
+        if (*kb == '+') {
+            Com_sprintf(cmd, sizeof(cmd), "%s %i %i\n", kb, key, time);
+        } else {
+            Cbuf_AddText(keys[key].binding);
+            Cbuf_AddText("\n");
+        }
+    } else if (key > K_JOY12) {
+        Com_Printf("%s is unbound, use controls menu to set.\n", Key_KeynumToString(key));
+    }
+}
+
+/*
+===================
 CL_CharEvent
 
 Normal keyboard characters, already shifted / capslocked / etc
