@@ -51,17 +51,125 @@ View3D::View3D()
     m_locationprint = qfalse;
 }
 
-void View3D::Draw(void)
+void View3D::UpdateLocationPrint(int x, int y, const char *s, float alpha)
 {
-    if (clc.state != CA_DISCONNECTED) {
-        SCR_DrawScreenField();
+    m_printstring   = s;
+    m_printalpha    = alpha;
+    m_printfadetime = 4000.0;
+    m_x_coord       = x;
+    m_y_coord       = y;
+    m_locationprint = qtrue;
+}
+
+void View3D::UpdateCenterPrint(const char *s, float alpha)
+{
+    m_printstring = s;
+
+    if (s[0] == '@') {
+        m_print_mat = uWinMan.RegisterShader(s + 1);
+    } else {
+        m_print_mat = NULL;
     }
 
-    set2D();
+    m_printalpha    = alpha;
+    m_printfadetime = 4000.0;
+    m_locationprint = qfalse;
+}
 
-    re.SavePerformanceCounters();
+void View3D::PrintSound(int channel, const char *name, float vol, int rvol, float pitch, float base, int& line)
+{
+    // FIXME: unimplemented
+}
 
-    Draw2D();
+void View3D::Pressed(Event *ev)
+{
+    IN_MouseOff();
+    OnActivate(ev);
+}
+
+void View3D::OnDeactivate(Event *ev)
+{
+    cls.keyCatchers |= KEYCATCH_UI;
+}
+
+void View3D::OnActivate(Event *ev)
+{
+    UIWidget         *wid;
+    UList<UIWidget *> widgets;
+
+    UI_CloseInventory();
+    cls.keyCatchers &= ~KEYCATCH_UI;
+
+    for (wid = getParent()->getFirstChild(); wid; wid = getParent()->getNextChild(wid)) {
+        if (wid->getAlwaysOnBottom() && wid != this) {
+            widgets.AddTail(wid);
+        }
+    }
+
+    widgets.IterateFromHead();
+    while (widgets.IsCurrentValid()) {
+        widgets.getCurrent()->BringToFrontPropogated();
+        widgets.IterateNext();
+    }
+}
+
+void View3D::LocationPrint(void)
+{
+    // FIXME: unimplemented
+}
+
+qboolean View3D::LetterboxActive(void)
+{
+    return m_letterbox_active;
+}
+
+float avWidth = 0.0;
+
+void View3D::InitSubtitle(void)
+{
+    float totalWidth;
+
+    for (int i = 0; i < 4; i++) {
+        subs[i]  = Cvar_Get(va("subtitle%d", i), "", 0);
+        teams[i] = Cvar_Get(va("subteam%d", i), "0", 0);
+        strcpy(oldStrings[i], subs[i]->string);
+        fadeTime[i] = 4000.0;
+        subLife[i]  = 4000.0;
+    }
+
+    totalWidth = 0.0;
+    for (char j = 'A'; j <= 'Z'; j++) {
+        totalWidth += m_font->getCharWidth(j);
+    }
+
+    avWidth = totalWidth / 26.0;
+}
+
+void View3D::FrameInitialized(void)
+{
+    Connect(this, W_Activated, W_Activated);
+    Connect(this, W_Deactivated, W_Deactivated);
+}
+
+void View3D::DrawSubtitleOverlay(void)
+{
+    // FIXME: unimplemented
+}
+
+void View3D::DrawSoundOverlay(void)
+{
+    setFont("verdana-14");
+    m_font->setColor(UWhite);
+
+    if (sound_overlay->integer) {
+        Com_Printf("sound_overlay isn't supported with OpenAL/SDL right now.\n");
+        Cvar_Set("sound_overlay", "0");
+    }
+}
+
+void View3D::DrawProf(void)
+{
+    // Normal empty function
 }
 
 void View3D::DrawLetterbox(void)
@@ -98,39 +206,6 @@ void View3D::DrawFades(void)
         } else {
             re.DrawBox(0.0, 0.0, m_screenframe.size.width, m_screenframe.size.height);
         }
-    }
-}
-
-void View3D::Draw2D(void)
-{
-    if (!cls.no_menus) {
-        DrawFades();
-    }
-
-    DrawLetterbox();
-
-    if ((cl_debuggraph->integer || cl_timegraph->integer) && !cls.no_menus) {
-        SCR_DrawDebugGraph();
-    } else if (!cls.no_menus) {
-        if (cge) {
-            cge->CG_Draw2D();
-        }
-
-        if (m_locationprint) {
-            LocationPrint();
-        } else {
-            CenterPrint();
-        }
-
-        if (!cls.no_menus) {
-            DrawSoundOverlay();
-            DrawSubtitleOverlay();
-        }
-    }
-
-    if (fps->integer && !cls.no_menus) {
-        DrawFPS();
-        DrawProf();
     }
 }
 
@@ -201,66 +276,50 @@ void View3D::DrawFPS(void)
     m_font->setColor(UBlack);
 }
 
-void View3D::DrawProf(void)
+void View3D::Draw2D(void)
 {
-    // Normal empty function
-}
-
-void View3D::PrintSound(int channel, const char *name, float vol, int rvol, float pitch, float base, int& line)
-{
-    // FIXME: unimplemented
-}
-
-void View3D::DrawSoundOverlay(void)
-{
-    setFont("verdana-14");
-    m_font->setColor(UWhite);
-
-    if (sound_overlay->integer) {
-        Com_Printf("sound_overlay isn't supported with OpenAL/SDL right now.\n");
-        Cvar_Set("sound_overlay", "0");
+    if (!cls.no_menus) {
+        DrawFades();
     }
-}
 
-void View3D::CenterPrint(void)
-{
-    // FIXME: unimplemented
-}
+    DrawLetterbox();
 
-void View3D::LocationPrint(void)
-{
-    // FIXME: unimplemented
-}
+    if ((cl_debuggraph->integer || cl_timegraph->integer) && !cls.no_menus) {
+        SCR_DrawDebugGraph();
+    } else if (!cls.no_menus) {
+        if (cge) {
+            cge->CG_Draw2D();
+        }
 
-void View3D::OnActivate(Event *ev)
-{
-    UIWidget         *wid;
-    UList<UIWidget *> widgets;
+        if (m_locationprint) {
+            LocationPrint();
+        } else {
+            CenterPrint();
+        }
 
-    UI_CloseInventory();
-    cls.keyCatchers &= ~KEYCATCH_UI;
-
-    for (wid = getParent()->getFirstChild(); wid; wid = getParent()->getNextChild(wid)) {
-        if (wid->getAlwaysOnBottom() && wid != this) {
-            widgets.AddTail(wid);
+        if (!cls.no_menus) {
+            DrawSoundOverlay();
+            DrawSubtitleOverlay();
         }
     }
 
-    widgets.IterateFromHead();
-    while (widgets.IsCurrentValid()) {
-        widgets.getCurrent()->BringToFrontPropogated();
-        widgets.IterateNext();
+    if (fps->integer && !cls.no_menus) {
+        DrawFPS();
+        DrawProf();
     }
 }
 
-void View3D::OnDeactivate(Event *ev)
+void View3D::Draw(void)
 {
-    cls.keyCatchers |= KEYCATCH_UI;
-}
+    if (clc.state != CA_DISCONNECTED) {
+        SCR_DrawScreenField();
+    }
 
-void View3D::DrawSubtitleOverlay(void)
-{
-    // FIXME: unimplemented
+    set2D();
+
+    re.SavePerformanceCounters();
+
+    Draw2D();
 }
 
 void View3D::ClearCenterPrint(void)
@@ -268,75 +327,13 @@ void View3D::ClearCenterPrint(void)
     m_printfadetime = 0.0;
 }
 
-void View3D::UpdateCenterPrint(const char *s, float alpha)
+void View3D::CenterPrint(void)
 {
-    m_printstring = s;
-
-    if (s[0] == '@') {
-        m_print_mat = uWinMan.RegisterShader(s + 1);
-    } else {
-        m_print_mat = NULL;
-    }
-
-    m_printalpha    = alpha;
-    m_printfadetime = 4000.0;
-    m_locationprint = qfalse;
-}
-
-void View3D::UpdateLocationPrint(int x, int y, const char *s, float alpha)
-{
-    m_printstring   = s;
-    m_printalpha    = alpha;
-    m_printfadetime = 4000.0;
-    m_x_coord       = x;
-    m_y_coord       = y;
-    m_locationprint = qtrue;
-}
-
-qboolean View3D::LetterboxActive(void)
-{
-    return m_letterbox_active;
-}
-
-float avWidth = 0.0;
-
-void View3D::InitSubtitle(void)
-{
-    float totalWidth;
-
-    for (int i = 0; i < 4; i++) {
-        subs[i]  = Cvar_Get(va("subtitle%d", i), "", 0);
-        teams[i] = Cvar_Get(va("subteam%d", i), "0", 0);
-        strcpy(oldStrings[i], subs[i]->string);
-        fadeTime[i] = 4000.0;
-        subLife[i]  = 4000.0;
-    }
-
-    totalWidth = 0.0;
-    for (char j = 'A'; j <= 'Z'; j++) {
-        totalWidth += m_font->getCharWidth(j);
-    }
-
-    avWidth = totalWidth / 26.0;
-}
-
-void View3D::FrameInitialized(void)
-{
-    Connect(this, W_Activated, W_Activated);
-    Connect(this, W_Deactivated, W_Deactivated);
-}
-
-void View3D::Pressed(Event *ev)
-{
-    IN_MouseOff();
-    OnActivate(ev);
+    // FIXME: unimplemented
 }
 
 CLASS_DECLARATION(UIWidget, ConsoleView, NULL) {
     {NULL, NULL}
 };
 
-void ConsoleView::Draw(void)
-{
-    // FIXME: unimplemented
-}
+void ConsoleView::Draw(void) {}

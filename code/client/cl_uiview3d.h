@@ -20,55 +20,54 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-#ifndef __CL_UIVIEW3D__
-#define __CL_UIVIEW3D__
+#pragma once
 
-class View3D : public UIWidget {
-	float m_printfadetime;
-	float m_printalpha;
-	str m_printstring;
-	UIReggedMaterial *m_print_mat;
-	qboolean m_locationprint;
-	int m_x_coord;
-	int m_y_coord;
-	qboolean m_letterbox_active;
+class View3D : public UIWidget
+{
+    float             m_printfadetime;
+    float             m_printalpha;
+    str               m_printstring;
+    UIReggedMaterial *m_print_mat;
+    qboolean          m_locationprint;
+    int               m_x_coord;
+    int               m_y_coord;
+    qboolean          m_letterbox_active;
 
 public:
-	CLASS_PROTOTYPE( View3D );
+    CLASS_PROTOTYPE(View3D);
 
 protected:
-	void		Draw( void ) override;
-	void		DrawLetterbox( void );
-	void		DrawFades( void );
-	void		Draw2D( void );
-	void		DrawFPS( void );
-	void		DrawProf( void );
-	void		PrintSound( int channel, const char *name, float vol, int rvol, float pitch, float base, int& line );
-	void		DrawSoundOverlay( void );
-	void		CenterPrint( void );
-	void		LocationPrint( void );
-	void		OnActivate( Event *ev );
-	void		OnDeactivate( Event *ev );
-	void		DrawSubtitleOverlay( void );
+    void Draw(void) override;
+    void DrawLetterbox(void);
+    void DrawFades(void);
+    void Draw2D(void);
+    void DrawFPS(void);
+    void DrawProf(void);
+    void PrintSound(int channel, const char *name, float vol, int rvol, float pitch, float base, int& line);
+    void DrawSoundOverlay(void);
+    void CenterPrint(void);
+    void LocationPrint(void);
+    void OnActivate(Event *ev);
+    void OnDeactivate(Event *ev);
+    void DrawSubtitleOverlay(void);
 
 public:
-	View3D();
+    View3D();
 
-	void			ClearCenterPrint( void );
-	void			UpdateCenterPrint( const char *s, float alpha );
-	void			UpdateLocationPrint( int x, int y, const char *s, float alpha );
-	qboolean		LetterboxActive( void );
-	void			InitSubtitle( void );
-	void			FrameInitialized( void ) override;
-	virtual void	Pressed( Event *ev );
+    void         ClearCenterPrint(void);
+    void         UpdateCenterPrint(const char *s, float alpha);
+    void         UpdateLocationPrint(int x, int y, const char *s, float alpha);
+    qboolean     LetterboxActive(void);
+    void         InitSubtitle(void);
+    void         FrameInitialized(void) override;
+    virtual void Pressed(Event *ev);
 };
 
-class ConsoleView : public UIWidget {
+class ConsoleView : public UIWidget
+{
 public:
-	CLASS_PROTOTYPE( ConsoleView );
+    CLASS_PROTOTYPE(ConsoleView);
 
 protected:
-	void Draw( void ) override;
+    void Draw(void) override;
 };
-
-#endif /* __CL_UIVIEW3D__ */
