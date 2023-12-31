@@ -37,6 +37,8 @@ typedef enum {
     L_STATBAR_HEADING_SPINNER
 } statbar_orientation_t;
 
+extern Event EV_ClearInvItemReference;
+
 class UIFakkLabel : public UILabel
 {
 protected:
