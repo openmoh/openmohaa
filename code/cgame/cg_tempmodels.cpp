@@ -1182,10 +1182,9 @@ void ClientGameCommandManager::SpawnTempModel(int mcount)
             cosa   = cos(fAngle);
 
             p->cgd.origin = start + vForward * fHeight;
-            p->cgd.origin += start + vLeft * (cosa * fRadius);
-            p->cgd.origin += start + vUp * (sina * fRadius);
-        } else if (m_spawnthing->sphereRadius != 0) // Offset in a spherical pattern
-        {
+            p->cgd.origin += vLeft * (cosa * fRadius);
+            p->cgd.origin += vUp * (sina * fRadius);
+        } else if (m_spawnthing->sphereRadius != 0) { // Offset in a spherical pattern
             Vector dir, end;
 
             dir = Vector(crandom(), crandom(), crandom());
