@@ -21,6 +21,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "cl_ui.h"
+#include "../qcommon/localization.h"
 
 CLASS_DECLARATION(UIWidget, View3D, NULL) {
     {&W_Activated,     &View3D::OnActivate  },
@@ -78,7 +79,39 @@ void View3D::UpdateCenterPrint(const char *s, float alpha)
 
 void View3D::PrintSound(int channel, const char *name, float vol, int rvol, float pitch, float base, int& line)
 {
-    // FIXME: unimplemented
+    char  buf[255];
+    float x;
+    float xStep;
+    float height;
+
+    height = m_font->getHeight(false);
+    xStep  = height;
+
+    x = 0;
+    sprintf(buf, "%d", channel);
+    m_font->Print(x, height * line + m_frame.pos.y, buf, -1, false);
+
+    x += xStep + xStep;
+    sprintf(buf, "%s", name);
+    m_font->Print(x, height * line + m_frame.pos.y, buf, -1, false);
+
+    x += xStep * 30.0;
+    sprintf(buf, "vol:%.2f", vol);
+    m_font->Print(x, height * line + m_frame.pos.y, buf, -1, false);
+
+    x += xStep * 8;
+    sprintf(buf, "rvol:%.2f", (float)(rvol / 128.f));
+    m_font->Print(x, height * line + m_frame.pos.y, buf, -1, false);
+
+    x += xStep * 5;
+    sprintf(buf, "pit:%.2f", pitch);
+    m_font->Print(x, height * line + m_frame.pos.y, buf, -1, false);
+
+    x += xStep * 5;
+    sprintf(buf, "base:%d", (int)base);
+    m_font->Print(x, height * line + m_frame.pos.y, buf, -1, false);
+
+    line++;
 }
 
 void View3D::Pressed(Event *ev)
@@ -115,7 +148,72 @@ void View3D::OnActivate(Event *ev)
 
 void View3D::LocationPrint(void)
 {
-    // FIXME: unimplemented
+    fonthorzjustify_t horiz;
+    fontvertjustify_t vert;
+    int               x, y;
+    const char       *p;
+    float             alpha;
+    UIRect2D          frame;
+
+    if (!m_printfadetime) {
+        m_locationprint = false;
+        return;
+    }
+
+    horiz = FONT_JUSTHORZ_LEFT;
+    vert  = FONT_JUSTVERT_TOP;
+
+    p = Sys_LV_CL_ConvertString(m_printstring);
+    if (m_printfadetime > 3250) {
+        alpha = 1.f - (m_printfadetime - 3250.f) / 750.f * m_printalpha;
+    } else if (m_printfadetime >= 750) {
+        alpha = 1.f;
+    } else {
+        alpha = m_printfadetime / 750.f * m_printalpha;
+    }
+
+    alpha = Q_clamp_float(alpha, 0, 1);
+
+    x = m_x_coord / 640.f * m_screenframe.size.width;
+    y = (480 - m_font->getHeight(false) - m_y_coord) / 480.f * m_screenframe.size.height;
+
+    if (m_x_coord == -1) {
+        horiz = FONT_JUSTHORZ_CENTER;
+        x     = 0;
+    }
+    if (m_y_coord == -1) {
+        vert = FONT_JUSTVERT_CENTER;
+        y    = 0;
+    }
+
+    m_font->setColor(UColor(0, 0, 0, alpha));
+    frame = getClientFrame();
+
+    m_font->PrintJustified(
+        UIRect2D(frame.pos.x + x + 1, frame.pos.y + y + 1, frame.size.width, frame.size.height),
+        horiz,
+        vert,
+        p,
+        m_bVirtual ? m_vVirtualScale : false
+    );
+
+    m_font->setColor(UColor(1, 1, 1, alpha));
+    frame = getClientFrame();
+
+    m_font->PrintJustified(
+        UIRect2D(frame.pos.x + x, frame.pos.y + y, frame.size.width, frame.size.height),
+        horiz,
+        vert,
+        p,
+        m_bVirtual ? m_vVirtualScale : false
+    );
+
+    m_font->setColor(UBlack);
+    m_printfadetime -= cls.frametime;
+
+    if (m_printfadetime < 0) {
+        m_printfadetime = 0;
+    }
 }
 
 qboolean View3D::LetterboxActive(void)
@@ -153,7 +251,103 @@ void View3D::FrameInitialized(void)
 
 void View3D::DrawSubtitleOverlay(void)
 {
-    // FIXME: unimplemented
+    cvar_t *subAlpha;
+    int     i;
+    float   minX, maxY;
+    int     line;
+
+    subAlpha = Cvar_Get("subAlpha", "0.5", 0);
+
+    setFont("facfont-20");
+    m_font->setColor(URed);
+
+    for (i = 0; i < MAX_SUBTITLES; i++) {
+        if (strcmp(oldStrings[i], subs[i]->string)) {
+            fadeTime[i] = 2500 * ((strlen(subs[i]->string) / 68) + 1.f) + 1500;
+            subLife[i]  = fadeTime[i];
+            Q_strncpyz(oldStrings[i], subs[i]->string, sizeof(oldStrings[i]));
+        }
+
+        if (fadeTime[i] > subLife[i] - 750.f) {
+            alpha[i] = 1.f - (fadeTime[i] - (subLife[i] - 750.f)) / 750.f;
+        } else if (fadeTime[i] < 750) {
+            alpha[i] = fadeTime[i] / 750.f;
+        } else {
+            alpha[i] = 1.f;
+        }
+
+        fadeTime[i] -= cls.frametime;
+        if (fadeTime[i] < 0) {
+            // Clear the subtitle
+            fadeTime[i]      = 0;
+            oldStrings[i][0] = 0;
+            Cvar_Set(va("subtitle%d", i), "");
+        }
+    }
+
+    minX = m_screenframe.size.height - m_font->getHeight(false) * 10;
+    maxY = (m_frame.pos.x + m_frame.size.width) - (m_frame.pos.x + m_frame.size.width) * 0.2f;
+    line = 0;
+
+    for (i = 0; i < MAX_SUBTITLES; i++) {
+        if (m_font->getWidth(subs[i]->string, sizeof(oldStrings[i])) > maxY) {
+            char  buf[2048];
+            char *c;
+            char *end;
+            char *start;
+            float total;
+            int   blockcount;
+
+            c = buf;
+            strcpy(buf, subs[i]->string);
+
+            total = 0;
+            end   = NULL;
+            start = buf;
+            while (*c) {
+                blockcount = m_font->DBCSGetWordBlockCount(c, -1);
+                if (!blockcount) {
+                    break;
+                }
+
+                total += m_font->getWidth(c, blockcount);
+                c += blockcount;
+
+                if (total > maxY) {
+                    total = 0;
+                    if (end < start) {
+                        Com_Printf("ERROR - word longer than possible line\n");
+                        break;
+                    }
+
+                    m_font->setColor(UColor(0, 0, 0, alpha[i] * subAlpha->value));
+                    m_font->Print(18, m_font->getHeight(false) * line + minX + 1.f, start, -1, false);
+
+                    m_font->setColor(UColor(1, 1, 1, alpha[i] * subAlpha->value));
+                    m_font->Print(20, m_font->getHeight(false) * line + minX, start, -1, false);
+
+                    start = end + 1;
+                    c     = end + 1;
+                    line++;
+                }
+            }
+
+            m_font->setColor(UColor(0, 0, 0, alpha[i] * subAlpha->value));
+            m_font->Print(18, m_font->getHeight(false) * line + minX + 1.f, start, -1, qfalse);
+
+            m_font->setColor(UColor(1, 1, 1, alpha[i] * subAlpha->value));
+            m_font->Print(20, m_font->getHeight(false) * line + minX, start, -1, qfalse);
+            line++;
+        } else {
+            m_font->setColor(UColor(0, 0, 0, alpha[i] * subAlpha->value));
+            m_font->Print(18, m_font->getHeight(false) * line + minX + 1.f, subs[i]->string, -1, qfalse);
+
+            m_font->setColor(UColor(1, 1, 1, alpha[i] * subAlpha->value));
+            m_font->Print(20, m_font->getHeight(false) * line + minX, subs[i]->string, -1, qfalse);
+
+            line++;
+        }
+    }
 }
 
 void View3D::DrawSoundOverlay(void)
@@ -161,6 +355,7 @@ void View3D::DrawSoundOverlay(void)
     setFont("verdana-14");
     m_font->setColor(UWhite);
 
+    // FIXME: TODO
     if (sound_overlay->integer) {
         Com_Printf("sound_overlay isn't supported with OpenAL/SDL right now.\n");
         Cvar_Set("sound_overlay", "0");
@@ -329,7 +524,68 @@ void View3D::ClearCenterPrint(void)
 
 void View3D::CenterPrint(void)
 {
-    // FIXME: unimplemented
+    float       alpha;
+    const char *p;
+    qhandle_t   mat;
+    float       x, y;
+    float       w, h;
+
+    if (!m_printfadetime) {
+        return;
+    }
+
+    p = Sys_LV_CL_ConvertString(m_printstring);
+    if (m_printfadetime > 3250) {
+        alpha = 1.f - (m_printfadetime - 3250.f) / 750.f * m_printalpha;
+    } else if (m_printfadetime >= 750) {
+        alpha = 1.f;
+    } else {
+        alpha = m_printfadetime / 750.f * m_printalpha;
+    }
+
+    alpha = Q_clamp_float(alpha, 0, 1);
+
+    if (!m_print_mat) {
+        UIRect2D frame;
+        m_font->setColor(UColor(0, 0, 0, alpha));
+
+        frame = getClientFrame();
+
+        m_font->PrintJustified(
+            UIRect2D(frame.pos.x + 1, frame.pos.y + 1, frame.size.width, frame.size.height),
+            m_iFontAlignmentHorizontal,
+            m_iFontAlignmentVertical,
+            p,
+            m_bVirtual ? m_vVirtualScale : false
+        );
+
+        m_font->setColor(UColor(1, 1, 1, alpha));
+
+        frame = getClientFrame();
+
+        m_font->PrintJustified(
+            frame, m_iFontAlignmentHorizontal, m_iFontAlignmentVertical, p, m_bVirtual ? m_vVirtualScale : false
+        );
+
+        m_font->setColor(UBlack);
+    } else if ((mat = m_print_mat->GetMaterial())) {
+        vec4_t col {alpha, alpha, alpha, alpha};
+
+        re.SetColor(col);
+
+        w = re.GetShaderWidth(mat);
+        h = re.GetShaderHeight(mat);
+        x = (m_frame.pos.x + m_frame.size.width - w) * 0.5f;
+        y = (m_frame.pos.y + m_frame.size.height - h) * 0.5f;
+
+        re.DrawStretchPic(x, y, w, h, 0, 0, 1, 1, mat);
+    }
+
+    m_printfadetime -= cls.frametime;
+
+    if (m_printfadetime < 0) {
+        m_printfadetime = 0;
+    }
 }
 
 CLASS_DECLARATION(UIWidget, ConsoleView, NULL) {
