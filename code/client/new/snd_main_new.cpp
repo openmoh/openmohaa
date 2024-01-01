@@ -26,6 +26,10 @@ void S_Init2()
 {
     S_Init();
     SND_setup();
+
+    // HACK: S_RegisterSound returns 0 when unsuccessful, or it returns the the sfx handle
+    // But the first sfx handle is also 0...
+    S_RegisterSound("sound/null.wav", qfalse);
 }
 
 /*
@@ -91,7 +95,13 @@ S_StartLocalSoundChannel
 */
 void S_StartLocalSound(const char* sound_name, qboolean force_load)
 {
-    // FIXME: unimplemented
+    sfxHandle_t h;
+
+    h = S_RegisterSound(sound_name, qfalse);
+
+    if (h) {
+        S_StartLocalSound(h, CHAN_LOCAL_SOUND);
+    }
 }
 
 /*

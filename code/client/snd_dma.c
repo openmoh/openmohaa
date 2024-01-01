@@ -1581,7 +1581,9 @@ qboolean S_Base_Init( soundInterface_t *si ) {
 
 	if ( r ) {
 		s_soundStarted = 1;
-		s_soundMuted = 1;
+// Fixed in OPM
+//  The UI must be able to play sounds
+//		s_soundMuted = 1;
 //		s_numSfx = 0;
 
 		Com_Memset(sfxHash, 0, sizeof(sfx_t *)*LOOP_HASH);
