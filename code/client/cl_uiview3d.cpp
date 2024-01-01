@@ -194,7 +194,7 @@ void View3D::LocationPrint(void)
         horiz,
         vert,
         p,
-        m_bVirtual ? m_vVirtualScale : false
+        m_bVirtual ? m_vVirtualScale : NULL
     );
 
     m_font->setColor(UColor(1, 1, 1, alpha));
@@ -205,7 +205,7 @@ void View3D::LocationPrint(void)
         horiz,
         vert,
         p,
-        m_bVirtual ? m_vVirtualScale : false
+        m_bVirtual ? m_vVirtualScale : NULL
     );
 
     m_font->setColor(UBlack);
@@ -556,7 +556,7 @@ void View3D::CenterPrint(void)
             m_iFontAlignmentHorizontal,
             m_iFontAlignmentVertical,
             p,
-            m_bVirtual ? m_vVirtualScale : false
+            m_bVirtual ? m_vVirtualScale : NULL
         );
 
         m_font->setColor(UColor(1, 1, 1, alpha));
@@ -564,7 +564,7 @@ void View3D::CenterPrint(void)
         frame = getClientFrame();
 
         m_font->PrintJustified(
-            frame, m_iFontAlignmentHorizontal, m_iFontAlignmentVertical, p, m_bVirtual ? m_vVirtualScale : false
+            frame, m_iFontAlignmentHorizontal, m_iFontAlignmentVertical, p, m_bVirtual ? m_vVirtualScale : NULL
         );
 
         m_font->setColor(UBlack);
