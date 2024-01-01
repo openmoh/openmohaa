@@ -616,67 +616,93 @@ Event EV_Level_IgnoreClock
     EV_NORMAL
 );
 
+//
+// Added in OPM
+//
+Event EV_Level_SetForceTeamObjectiveLocation
+(
+    "force_team_objective",
+    EV_DEFAULT,
+    "i",
+    "force",
+    "Whether or not to force using a separate objective location for each team.\n"
+    "1 (forced on TOW/Liberation match): different location for each team\n"
+    "0 (default): teams use same location on non-TOW/non-Liberation match\n",
+    EV_SETTER
+);
+Event EV_Level_GetForceTeamObjectiveLocation
+(
+    "force_team_objective",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Return 1 if each team has a separate objective location",
+    EV_GETTER
+);
+
 extern Event EV_Entity_Start;
 
 CLASS_DECLARATION(Listener, Level, NULL) {
-    {&EV_Level_GetTime,              &Level::GetTime                 },
-    {&EV_Level_GetTotalSecrets,      &Level::GetTotalSecrets         },
-    {&EV_Level_GetFoundSecrets,      &Level::GetFoundSecrets         },
-    {&EV_Level_PreSpawnSentient,     &Level::PreSpawnSentient        },
-    {&EV_Level_GetAlarm,             &Level::GetAlarm                },
-    {&EV_Level_SetAlarm,             &Level::SetAlarm                },
-    {&EV_Level_SetNoDropHealth,      &Level::SetNoDropHealth         },
-    {&EV_Level_SetNoDropWeapons,     &Level::SetNoDropWeapons        },
-    {&EV_Level_GetRoundStarted,      &Level::EventGetRoundStarted    },
-    {&EV_Level_GetLoopProtection,    &Level::GetLoopProtection       },
-    {&EV_Level_SetLoopProtection,    &Level::SetLoopProtection       },
-    {&EV_Level_GetPapersLevel,       &Level::GetPapersLevel          },
-    {&EV_Level_SetPapersLevel,       &Level::SetPapersLevel          },
-    {&EV_Level_GetDMRespawning,      &Level::EventGetDMRespawning    },
-    {&EV_Level_SetDMRespawning,      &Level::EventSetDMRespawning    },
-    {&EV_Level_SetDMRespawning2,     &Level::EventSetDMRespawning    },
-    {&EV_Level_GetDMRoundLimit,      &Level::EventGetDMRoundLimit    },
-    {&EV_Level_SetDMRoundLimit,      &Level::EventSetDMRoundLimit    },
-    {&EV_Level_SetDMRoundLimit2,     &Level::EventSetDMRoundLimit    },
-    {&EV_Level_GetClockSide,         &Level::EventGetClockSide       },
-    {&EV_Level_SetClockSide,         &Level::EventSetClockSide       },
-    {&EV_Level_SetClockSide2,        &Level::EventSetClockSide       },
-    {&EV_Level_GetBombPlantTeam,     &Level::EventGetBombPlantTeam   },
-    {&EV_Level_SetBombPlantTeam,     &Level::EventSetBombPlantTeam   },
-    {&EV_Level_SetBombPlantTeam2,    &Level::EventSetBombPlantTeam   },
-    {&EV_Level_GetTargetsToDestroy,  &Level::EventGetTargetsToDestroy},
-    {&EV_Level_SetTargetsToDestroy,  &Level::EventSetTargetsToDestroy},
-    {&EV_Level_SetTargetsToDestroy2, &Level::EventSetTargetsToDestroy},
-    {&EV_Level_GetTargetsDestroyed,  &Level::EventGetTargetsDestroyed},
-    {&EV_Level_SetTargetsDestroyed,  &Level::EventSetTargetsDestroyed},
-    {&EV_Level_SetTargetsDestroyed2, &Level::EventSetTargetsDestroyed},
-    {&EV_Level_GetBombsPlanted,      &Level::EventGetBombsPlanted    },
-    {&EV_Level_SetBombsPlanted,      &Level::EventSetBombsPlanted    },
-    {&EV_Level_SetBombsPlanted2,     &Level::EventSetBombsPlanted    },
-    {&EV_Level_GetRoundBased,        &Level::EventGetRoundBased      },
-    {&EV_Level_GetObjectiveBased,    &Level::EventGetObjectiveBased  },
-    {&EV_Level_Rain_Density_Set,     &Level::EventRainDensitySet     },
-    {&EV_Level_Rain_Density_Get,     &Level::EventRainDensityGet     },
-    {&EV_Level_Rain_Speed_Set,       &Level::EventRainSpeedSet       },
-    {&EV_Level_Rain_Speed_Get,       &Level::EventRainSpeedGet       },
-    {&EV_Level_Rain_Speed_Vary_Set,  &Level::EventRainSpeedVarySet   },
-    {&EV_Level_Rain_Speed_Vary_Get,  &Level::EventRainSpeedVaryGet   },
-    {&EV_Level_Rain_Slant_Set,       &Level::EventRainSlantSet       },
-    {&EV_Level_Rain_Slant_Get,       &Level::EventRainSlantGet       },
-    {&EV_Level_Rain_Length_Set,      &Level::EventRainLengthSet      },
-    {&EV_Level_Rain_Length_Get,      &Level::EventRainLengthGet      },
-    {&EV_Level_Rain_Min_Dist_Set,    &Level::EventRainMin_DistSet    },
-    {&EV_Level_Rain_Min_Dist_Get,    &Level::EventRainMin_DistGet    },
-    {&EV_Level_Rain_Width_Set,       &Level::EventRainWidthSet       },
-    {&EV_Level_Rain_Width_Get,       &Level::EventRainWidthGet       },
-    {&EV_Level_Rain_Shader_Set,      &Level::EventRainShaderSet      },
-    {&EV_Level_Rain_Shader_Get,      &Level::EventRainShaderGet      },
-    {&EV_Level_Rain_NumShaders_Set,  &Level::EventRainShaderSet      },
-    {&EV_Level_Rain_NumShaders_Get,  &Level::EventRainShaderGet      },
-    {&EV_Level_AddBadPlace,          &Level::EventAddBadPlace        },
-    {&EV_Level_RemoveBadPlace,       &Level::EventRemoveBadPlace     },
-    {&EV_Level_IgnoreClock,          &Level::EventIgnoreClock        },
-    {NULL,                           NULL                            }
+    {&EV_Level_GetTime,                       &Level::GetTime                      },
+    {&EV_Level_GetTotalSecrets,               &Level::GetTotalSecrets              },
+    {&EV_Level_GetFoundSecrets,               &Level::GetFoundSecrets              },
+    {&EV_Level_PreSpawnSentient,              &Level::PreSpawnSentient             },
+    {&EV_Level_GetAlarm,                      &Level::GetAlarm                     },
+    {&EV_Level_SetAlarm,                      &Level::SetAlarm                     },
+    {&EV_Level_SetNoDropHealth,               &Level::SetNoDropHealth              },
+    {&EV_Level_SetNoDropWeapons,              &Level::SetNoDropWeapons             },
+    {&EV_Level_GetRoundStarted,               &Level::EventGetRoundStarted         },
+    {&EV_Level_GetLoopProtection,             &Level::GetLoopProtection            },
+    {&EV_Level_SetLoopProtection,             &Level::SetLoopProtection            },
+    {&EV_Level_GetPapersLevel,                &Level::GetPapersLevel               },
+    {&EV_Level_SetPapersLevel,                &Level::SetPapersLevel               },
+    {&EV_Level_GetDMRespawning,               &Level::EventGetDMRespawning         },
+    {&EV_Level_SetDMRespawning,               &Level::EventSetDMRespawning         },
+    {&EV_Level_SetDMRespawning2,              &Level::EventSetDMRespawning         },
+    {&EV_Level_GetDMRoundLimit,               &Level::EventGetDMRoundLimit         },
+    {&EV_Level_SetDMRoundLimit,               &Level::EventSetDMRoundLimit         },
+    {&EV_Level_SetDMRoundLimit2,              &Level::EventSetDMRoundLimit         },
+    {&EV_Level_GetClockSide,                  &Level::EventGetClockSide            },
+    {&EV_Level_SetClockSide,                  &Level::EventSetClockSide            },
+    {&EV_Level_SetClockSide2,                 &Level::EventSetClockSide            },
+    {&EV_Level_GetBombPlantTeam,              &Level::EventGetBombPlantTeam        },
+    {&EV_Level_SetBombPlantTeam,              &Level::EventSetBombPlantTeam        },
+    {&EV_Level_SetBombPlantTeam2,             &Level::EventSetBombPlantTeam        },
+    {&EV_Level_GetTargetsToDestroy,           &Level::EventGetTargetsToDestroy     },
+    {&EV_Level_SetTargetsToDestroy,           &Level::EventSetTargetsToDestroy     },
+    {&EV_Level_SetTargetsToDestroy2,          &Level::EventSetTargetsToDestroy     },
+    {&EV_Level_GetTargetsDestroyed,           &Level::EventGetTargetsDestroyed     },
+    {&EV_Level_SetTargetsDestroyed,           &Level::EventSetTargetsDestroyed     },
+    {&EV_Level_SetTargetsDestroyed2,          &Level::EventSetTargetsDestroyed     },
+    {&EV_Level_GetBombsPlanted,               &Level::EventGetBombsPlanted         },
+    {&EV_Level_SetBombsPlanted,               &Level::EventSetBombsPlanted         },
+    {&EV_Level_SetBombsPlanted2,              &Level::EventSetBombsPlanted         },
+    {&EV_Level_GetRoundBased,                 &Level::EventGetRoundBased           },
+    {&EV_Level_GetObjectiveBased,             &Level::EventGetObjectiveBased       },
+    {&EV_Level_Rain_Density_Set,              &Level::EventRainDensitySet          },
+    {&EV_Level_Rain_Density_Get,              &Level::EventRainDensityGet          },
+    {&EV_Level_Rain_Speed_Set,                &Level::EventRainSpeedSet            },
+    {&EV_Level_Rain_Speed_Get,                &Level::EventRainSpeedGet            },
+    {&EV_Level_Rain_Speed_Vary_Set,           &Level::EventRainSpeedVarySet        },
+    {&EV_Level_Rain_Speed_Vary_Get,           &Level::EventRainSpeedVaryGet        },
+    {&EV_Level_Rain_Slant_Set,                &Level::EventRainSlantSet            },
+    {&EV_Level_Rain_Slant_Get,                &Level::EventRainSlantGet            },
+    {&EV_Level_Rain_Length_Set,               &Level::EventRainLengthSet           },
+    {&EV_Level_Rain_Length_Get,               &Level::EventRainLengthGet           },
+    {&EV_Level_Rain_Min_Dist_Set,             &Level::EventRainMin_DistSet         },
+    {&EV_Level_Rain_Min_Dist_Get,             &Level::EventRainMin_DistGet         },
+    {&EV_Level_Rain_Width_Set,                &Level::EventRainWidthSet            },
+    {&EV_Level_Rain_Width_Get,                &Level::EventRainWidthGet            },
+    {&EV_Level_Rain_Shader_Set,               &Level::EventRainShaderSet           },
+    {&EV_Level_Rain_Shader_Get,               &Level::EventRainShaderGet           },
+    {&EV_Level_Rain_NumShaders_Set,           &Level::EventRainShaderSet           },
+    {&EV_Level_Rain_NumShaders_Get,           &Level::EventRainShaderGet           },
+    {&EV_Level_AddBadPlace,                   &Level::EventAddBadPlace             },
+    {&EV_Level_RemoveBadPlace,                &Level::EventRemoveBadPlace          },
+    {&EV_Level_IgnoreClock,                   &Level::EventIgnoreClock             },
+    {&EV_Level_SetForceTeamObjectiveLocation, &Level::SetForceTeamObjectiveLocation},
+    {&EV_Level_GetForceTeamObjectiveLocation, &Level::GetForceTeamObjectiveLocation},
+    {NULL,                                    NULL                                 }
 };
 
 void Level::GetTime(Event *ev)
@@ -779,9 +805,10 @@ void Level::Init(void)
 
     m_letterbox_time = -1.0f;
 
-    m_vObjectiveLocation       = vec_zero;
-    m_vAlliedObjectiveLocation = vec_zero;
-    m_vAxisObjectiveLocation   = vec_zero;
+    m_vObjectiveLocation          = vec_zero;
+    m_vAlliedObjectiveLocation    = vec_zero;
+    m_vAxisObjectiveLocation      = vec_zero;
+    m_bForceTeamObjectiveLocation = false;
 
     svsEndTime = 0;
 
@@ -1165,7 +1192,7 @@ void Level::SpawnEntities(char *entities, int svsTime)
     gi.LoadResource("*148a");
 
     // Added in OPM
-	//  Check for single-player before pre-creating a player instance
+    //  Check for single-player before pre-creating a player instance
     if (game.maxclients == 1 && g_gametype->integer == GT_SINGLE_PLAYER) {
         spawn_entnum = 0;
         new Player;
@@ -2590,15 +2617,18 @@ void Level::Archive(Archiver& arc)
     arc.ArchiveFloat(&m_fLandmarkXDistMax);
 }
 
-void WriteStatS(FILE* pFile, const char* value) {
+void WriteStatS(FILE *pFile, const char *value)
+{
     fprintf(pFile, "%s", value);
 }
 
-void WriteStatI(FILE* pFile, int value) {
+void WriteStatI(FILE *pFile, int value)
+{
     fprintf(pFile, "%d", value);
 }
 
-void WriteStatF(FILE* pFile, float value) {
+void WriteStatF(FILE *pFile, float value)
+{
     fprintf(pFile, "%.2f", value);
 }
 
@@ -2610,22 +2640,26 @@ void Level::OpenActorStats()
         return;
     }
 
-    filename = "aistats_" + mapname + ".csv";
+    filename   = "aistats_" + mapname + ".csv";
     m_pAIStats = fopen(filename, "wt");
 
     if (m_pAIStats) {
-        fprintf((FILE*)m_pAIStats, "targetname,weapon,grenade ammo,health,accuracy,hearing,sight,fov,mindist,maxdist,leash,sound awareness,noticescale,enemyshare,grenade aware,model\n");
+        fprintf(
+            (FILE *)m_pAIStats,
+            "targetname,weapon,grenade ammo,health,accuracy,hearing,sight,fov,mindist,maxdist,leash,sound "
+            "awareness,noticescale,enemyshare,grenade aware,model\n"
+        );
     }
 }
 
-void Level::WriteActorStats(Actor* actor)
+void Level::WriteActorStats(Actor *actor)
 {
-    const char* name;
-    str itemName;
-    Weapon* weapon;
-    Ammo* ammo;
-    int ammoAmount;
-    FILE* pFile;
+    const char *name;
+    str         itemName;
+    Weapon     *weapon;
+    Ammo       *ammo;
+    int         ammoAmount;
+    FILE       *pFile;
 
     if (!g_aistats->integer) {
         return;
@@ -2635,12 +2669,12 @@ void Level::WriteActorStats(Actor* actor)
         OpenActorStats();
     }
 
-    pFile = (FILE*)m_pAIStats;
+    pFile = (FILE *)m_pAIStats;
     if (!pFile) {
         return;
     }
 
-    name = actor->TargetName().c_str();
+    name     = actor->TargetName().c_str();
     itemName = "none";
 
     weapon = actor->GetActiveWeapon(WEAPON_MAIN);
@@ -2649,7 +2683,7 @@ void Level::WriteActorStats(Actor* actor)
     }
 
     ammoAmount = 0;
-    ammo = actor->FindAmmoByName("grenade");
+    ammo       = actor->FindAmmoByName("grenade");
     if (ammo) {
         ammoAmount = ammo->getAmount();
     }
@@ -2673,6 +2707,16 @@ void Level::WriteActorStats(Actor* actor)
     WriteStatS(pFile, actor->model);
 
     fprintf(pFile, "\n");
+}
+
+void Level::SetForceTeamObjectiveLocation(Event *ev)
+{
+    m_bForceTeamObjectiveLocation = ev->GetBoolean(1);
+}
+
+void Level::GetForceTeamObjectiveLocation(Event *ev)
+{
+    ev->AddInteger(g_gametype->integer >= GT_TOW || m_bForceTeamObjectiveLocation);
 }
 
 badplace_t::badplace_t()

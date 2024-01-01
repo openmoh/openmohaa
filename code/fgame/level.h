@@ -195,11 +195,11 @@ public:
     int m_numArenas;
 
     // Voting variables
-    int   m_voteTime;
-    int   m_nextVoteTime;
-    int   m_voteYes;
-    int   m_voteNo;
-    int   m_numVoters;
+    int m_voteTime;
+    int m_nextVoteTime;
+    int m_voteYes;
+    int m_voteNo;
+    int m_numVoters;
     // Added in 2.0
     str         m_voteString;
     str         m_voteName;
@@ -228,6 +228,10 @@ public:
     Vector m_vObjectiveLocation;
     Vector m_vAlliedObjectiveLocation; // Added in 2.0
     Vector m_vAxisObjectiveLocation;   // Added in 2.0
+    // Added in OPM
+    //  Forces axis/allied objectives location to be used
+    //  even if the gametype is not TOW
+    bool m_bForceTeamObjectiveLocation;
 
     // Current level state
     bool spawning;
@@ -280,8 +284,8 @@ public:
     void AddLandmarkOrigin(const Vector& origin);
     void AddLandmarkName(const str& name, const Vector& origin);
     void FreeLandmarks();
-    str  GetDynamicDMLocations(const Vector &origin);
-    str  GetDMLocation(const Vector &origin);
+    str  GetDynamicDMLocations(const Vector& origin);
+    str  GetDMLocation(const Vector& origin);
     //====
     void     PreSpawnSentient(Event *ev);
     void     ServerSpawned();
@@ -354,11 +358,11 @@ public:
     void EventRainNumShadersGet(Event *ev);
     //====
     // Added in 2.0
-    void        EventAddBadPlace(Event *ev);
-    void        EventRemoveBadPlace(Event *ev);
-    void        EventIgnoreClock(Event *ev);
-    void        UpdateBadPlaces();
-    int         GetNearestBadPlace(const Vector& org, float radius, int team) const;
+    void EventAddBadPlace(Event *ev);
+    void EventRemoveBadPlace(Event *ev);
+    void EventIgnoreClock(Event *ev);
+    void UpdateBadPlaces();
+    int  GetNearestBadPlace(const Vector& org, float radius, int team) const;
     //====
     str GetRandomHeadModel(const char *model);
     str GetRandomHeadSkin(const char *model);
@@ -371,7 +375,13 @@ public:
     void DoEarthquakes(void);
 
     void OpenActorStats();
-    void WriteActorStats(Actor* actor);
+    void WriteActorStats(Actor *actor);
+
+    //====
+    // Added in OPM
+    void SetForceTeamObjectiveLocation(Event *ev);
+    void GetForceTeamObjectiveLocation(Event *ev);
+    //====
 
     void Archive(Archiver& arc) override;
 };
