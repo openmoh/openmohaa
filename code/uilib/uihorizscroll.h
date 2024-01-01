@@ -20,58 +20,63 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-#ifndef __UIHORIZSCROLL_H__
-#define __UIHORIZSCROLL_H__
+#pragma once
 
-typedef enum { VS_NONE, VS_UP_ARROW, VS_DOWN_ARROW, VS_THUMB, VS_PAGE_DOWN, VS_PAGE_UP } whatspressed;
+typedef enum {
+    VS_NONE,
+    VS_UP_ARROW,
+    VS_DOWN_ARROW,
+    VS_THUMB,
+    VS_PAGE_DOWN,
+    VS_PAGE_UP
+} whatspressed;
 
-class UIHorizScroll : public UIWidget {
+class UIHorizScroll : public UIWidget
+{
 protected:
-	int m_numitems;
-	int m_pagewidth;
-	int m_topitem;
-	UIFont m_marlett;
-	whatspressed m_pressed;
-	UIRect2D thumbRect;
+    int          m_numitems;
+    int          m_pagewidth;
+    int          m_topitem;
+    UIFont       m_marlett;
+    whatspressed m_pressed;
+    UIRect2D     thumbRect;
 
-	struct {
-		int itemOffset;
-		int orgItem;
-	} m_dragThumbState;
+    struct {
+        int itemOffset;
+        int orgItem;
+    } m_dragThumbState;
 
-	bool m_frameinitted;
-	UColor m_thumbcolor;
-	UColor m_solidbordercolor;
+    bool   m_frameinitted;
+    UColor m_thumbcolor;
+    UColor m_solidbordercolor;
+
 public:
-	CLASS_PROTOTYPE( UIHorizScroll );
+    CLASS_PROTOTYPE(UIHorizScroll);
 
 protected:
-	int			getItemFromWidth( float height );
-	bool		isEnoughItems( void );
+    int  getItemFromWidth(float height);
+    bool isEnoughItems(void);
 
 public:
-	UIHorizScroll();
+    UIHorizScroll();
 
-	void		Draw( void ) override;
-	void		DrawArrow( float top, const char *text, bool pressed );
-	void		DrawThumb();
-	void		MouseDown( Event *ev );
-	void		MouseUp( Event *ev );
-	void		MouseDragged( Event *ev );
-	void		MouseEnter( Event *ev );
-	void		MouseLeave( Event *ev );
-	void		Scroll( Event *ev );
-	bool		AttemptScrollTo( int to );
-	void		setNumItems( int i );
-	void		setPageWidth( int i );
-	void		setTopItem( int i );
-	int			getTopItem( void );
-	int			getPageWidth( void );
-	int			getNumItems( void );
-	void		setThumbColor( const UColor& thumb );
-	void		setSolidBorderColor( const UColor& col );
-	void		InitFrameAlignRight( UIWidget *parent );
+    void Draw(void) override;
+    void DrawArrow(float top, const char *text, bool pressed);
+    void DrawThumb();
+    void MouseDown(Event *ev);
+    void MouseUp(Event *ev);
+    void MouseDragged(Event *ev);
+    void MouseEnter(Event *ev);
+    void MouseLeave(Event *ev);
+    void Scroll(Event *ev);
+    bool AttemptScrollTo(int to);
+    void setNumItems(int i);
+    void setPageWidth(int i);
+    void setTopItem(int i);
+    int  getTopItem(void);
+    int  getPageWidth(void);
+    int  getNumItems(void);
+    void setThumbColor(const UColor& thumb);
+    void setSolidBorderColor(const UColor& col);
+    void InitFrameAlignRight(UIWidget *parent);
 };
-
-#endif
-

@@ -22,209 +22,146 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "ui_local.h"
 
-CLASS_DECLARATION( UIWidget, UIHorizScroll, NULL )
-{
-	{ NULL, NULL }
+Event W_HScrollbar_Positioned
+(
+	"hscrollbar_positioned",
+	EV_DEFAULT,
+	"i",
+	"new_position",
+	"Signaled when the user scrolls the view"
+);
+Event EV_HScrollbar_Scroll
+(
+	"_hscrollbar_scroll",
+	EV_DEFAULT,
+	"ii",
+	"scrollrate autorepeat",
+	"scroll the scrollbar, at the specified rate.\n"
+	"The autorepeat is used for autoscrolling with the mouse button held down"
+);
+
+CLASS_DECLARATION(UIWidget, UIHorizScroll, NULL) {
+    {&W_LeftMouseDown,      &UIHorizScroll::MouseDown   },
+    {&W_LeftMouseUp,        &UIHorizScroll::MouseUp     },
+    {&W_LeftMouseDragged,   &UIHorizScroll::MouseDragged},
+    {&W_MouseEntered,       &UIHorizScroll::MouseEnter  },
+    {&W_MouseExited,        &UIHorizScroll::MouseLeave  },
+    {&EV_HScrollbar_Scroll, &UIHorizScroll::Scroll      },
+    {NULL,                  NULL                        }
 };
 
 UIHorizScroll::UIHorizScroll()
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-int UIHorizScroll::getItemFromWidth
-	(
-	float height
-	)
-
+void UIHorizScroll::DrawArrow(float top, const char *text, bool pressed)
 {
-	// FIXME: stub
-	return 0;
+    // FIXME: stub
 }
 
-bool UIHorizScroll::isEnoughItems
-	(
-	void
-	)
-
+void UIHorizScroll::DrawThumb(void)
 {
-	// FIXME: stub
-	return false;
+    // FIXME: stub
 }
 
-void UIHorizScroll::Draw
-	(
-	void
-	)
-
+void UIHorizScroll::Draw(void)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void UIHorizScroll::DrawArrow
-	(
-	float top,
-	const char *text,
-	bool pressed
-	)
-
+void UIHorizScroll::Scroll(Event *ev)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void UIHorizScroll::DrawThumb
-	(
-	void
-	)
-
+bool UIHorizScroll::AttemptScrollTo(int to)
 {
-	// FIXME: stub
+    // FIXME: stub
+    return false;
 }
 
-void UIHorizScroll::MouseDown
-	(
-	Event *ev
-	)
-
+void UIHorizScroll::MouseDown(Event *ev)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void UIHorizScroll::MouseUp
-	(
-	Event *ev
-	)
-
+int UIHorizScroll::getItemFromWidth(float height)
 {
-	// FIXME: stub
+    // FIXME: stub
+    return 0;
 }
 
-void UIHorizScroll::MouseDragged
-	(
-	Event *ev
-	)
-
+void UIHorizScroll::MouseUp(Event *ev)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void UIHorizScroll::MouseEnter
-	(
-	Event *ev
-	)
-
+void UIHorizScroll::MouseDragged(Event *ev)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void UIHorizScroll::MouseLeave
-	(
-	Event *ev
-	)
-
+void UIHorizScroll::InitFrameAlignRight(UIWidget *parent)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void UIHorizScroll::Scroll
-	(
-	Event *ev
-	)
-
+void UIHorizScroll::MouseEnter(Event *ev)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-bool UIHorizScroll::AttemptScrollTo
-	(
-	int to
-	)
-
+void UIHorizScroll::MouseLeave(Event *ev)
 {
-	// FIXME: stub
-	return false;
+    // FIXME: stub
 }
 
-void UIHorizScroll::setNumItems
-	(
-	int i
-	)
-
+bool UIHorizScroll::isEnoughItems(void)
 {
-	// FIXME: stub
+    // FIXME: stub
+    return false;
 }
 
-void UIHorizScroll::setPageWidth
-	(
-	int i
-	)
-
+void UIHorizScroll::setNumItems(int i)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void UIHorizScroll::setTopItem
-	(
-	int i
-	)
-
+void UIHorizScroll::setPageWidth(int i)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-int UIHorizScroll::getTopItem
-	(
-	void
-	)
-
+void UIHorizScroll::setTopItem(int i)
 {
-	// FIXME: stub
-	return 0;
+    // FIXME: stub
 }
 
-int UIHorizScroll::getPageWidth
-	(
-	void
-	)
-
+int UIHorizScroll::getTopItem(void)
 {
-	// FIXME: stub
-	return 0;
+    // FIXME: stub
+    return 0;
 }
 
-int UIHorizScroll::getNumItems
-	(
-	void
-	)
-
+int UIHorizScroll::getPageWidth(void)
 {
-	// FIXME: stub
-	return 0;
+    // FIXME: stub
+    return 0;
 }
 
-void UIHorizScroll::setThumbColor
-	(
-	const UColor& thumb
-	)
-
+int UIHorizScroll::getNumItems(void)
 {
-	// FIXME: stub
+    // FIXME: stub
+    return 0;
 }
 
-void UIHorizScroll::setSolidBorderColor
-	(
-	const UColor& col
-	)
-
+void UIHorizScroll::setThumbColor(const UColor& thumb)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void UIHorizScroll::InitFrameAlignRight
-	(
-	UIWidget *parent
-	)
-
+void UIHorizScroll::setSolidBorderColor(const UColor& col)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
