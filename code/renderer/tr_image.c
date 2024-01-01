@@ -2735,7 +2735,10 @@ void R_CreateBuiltinImages(void) {
 
 	Com_Memset(lightmap_buffer, 0xFFFFFFFF, sizeof(lightmap_buffer));
 	for (i = 0; i < 15; i++) {
-		tr.dlightImages[i] = R_CreateImage("*lightmapD%i", lightmap_buffer, LIGHTMAP_SIZE, LIGHTMAP_SIZE, 0, 1, qfalse, qfalse, qfalse, 0, GL_CLAMP, GL_CLAMP);
+		char filename[64];
+
+		Com_sprintf(filename, sizeof(filename), "*lightmapD%i", i);
+		tr.dlightImages[i] = R_CreateImage(filename, lightmap_buffer, LIGHTMAP_SIZE, LIGHTMAP_SIZE, 0, 1, qfalse, qfalse, qfalse, 0, GL_CLAMP, GL_CLAMP);
 		tr.dlightImages[i]->r_sequence = -1;
 	}
 
