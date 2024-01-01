@@ -65,7 +65,39 @@ void FakkMiniconsole::VerifyBoxOut(void)
 
 void FakkMiniconsole::Print(const char *text)
 {
-    // FIXME: stub
+    str        *lastline;
+    const char *p;
+
+    if (!m_lines.NumObjects()) {
+        m_lines.AddObject({});
+    }
+
+    lastline = &m_lines.ObjectAt(m_lines.NumObjects());
+
+    if (*text) {
+        for (p = text; *p; p++) {
+            if (*p != '\n') {
+                *lastline += *p;
+            } else {
+                m_lines.AddObject({});
+                lastline = &m_lines.ObjectAt(m_lines.NumObjects());
+            }
+        }
+    }
+
+    if (lastline && lastline->length() > 128) {
+        Print("\n");
+    }
+
+    if (m_maxlines < 0) {
+        m_maxlines = 1;
+    }
+
+    while (m_lines.NumObjects() > this->m_maxlines) {
+        m_lines.RemoveObjectAt(1);
+    }
+
+    VerifyBoxOut();
 }
 
 void FakkMiniconsole::PostMoveinEvent(void)
@@ -90,17 +122,71 @@ void FakkMiniconsole::MoveInEvent(Event *ev)
 
 void FakkMiniconsole::HandleBoxMoving(void)
 {
-    // FIXME: stub
+    int      delta;
+    UIRect2D newRect;
+
+    if (m_boxstate == boxstate_t::box_out || m_boxstate == boxstate_t::box_in) {
+        return;
+    }
+
+    delta     = m_movespeed * (uid.time - m_boxtime) / 1000;
+    m_boxtime = 1000 * delta / m_movespeed + m_boxtime;
+
+    switch (m_boxstate) {
+    case boxstate_t::box_moving_in:
+        newRect = UIRect2D(delta + m_frame.pos.x, m_frame.pos.y, m_frame.size.width, m_frame.size.height);
+        if (newRect.pos.x >= uid.vidWidth) {
+            newRect.pos.x = uid.vidWidth;
+            ChangeBoxState(boxstate_t::box_in);
+        }
+        break;
+    case boxstate_t::box_moving_out:
+        newRect = UIRect2D(-delta + m_frame.pos.x, m_frame.pos.y, m_frame.size.width, m_frame.size.height);
+        if (newRect.pos.x <= uid.vidWidth - newRect.size.width) {
+            newRect.pos.x = uid.vidWidth - newRect.size.width;
+            ChangeBoxState(boxstate_t::box_out);
+        }
+        break;
+    default:
+        ChangeBoxState(boxstate_t::box_in);
+        break;
+    }
+
+    setFrame(newRect);
 }
 
 void FakkMiniconsole::Draw(void)
 {
-    // FIXME: stub
+    float aty;
+    int   i;
+
+    HandleBoxMoving();
+
+    m_font->setColor(m_foreground_color);
+    aty = m_frame.size.height - m_font->getHeight(false);
+    for (i = m_lines.NumObjects(); i > 0; i--) {
+        if (-m_font->getHeight(false) >= aty) {
+            break;
+        }
+
+        m_font->Print(0, aty, m_lines.ObjectAt(i), -1, false);
+        aty -= m_font->getHeight(false);
+    }
 }
 
 void FakkMiniconsole::Create(const UISize2D& size, const UColor& fore, const UColor& back, float alpha)
 {
-    // FIXME: stub
+    InitFrame(NULL, uid.vidWidth, 0, size.width, size.height, 0);
+
+    setBackgroundColor(back, true);
+    setForegroundColor(fore);
+    setBackgroundAlpha(alpha);
+    Connect(this, W_SizeChanged, W_SizeChanged);
+    OnSizeChanged(NULL);
+
+    m_movespeed = size.width * 3;
+
+    setShowState();
 }
 
 void FakkMiniconsole::ChangeBoxState(boxstate_t state)

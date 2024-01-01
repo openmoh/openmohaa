@@ -22,33 +22,34 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #pragma once
 
-class FakkMiniconsole : public UIWidget {
+class FakkMiniconsole : public UIWidget
+{
 protected:
-	Container<str> m_lines;
-	int m_maxlines;
-	bool m_reallyshown;
-	bool m_boxmovingout;
-	boxstate_t m_boxstate;
-	int m_boxtime;
-	int m_movespeed;
+    Container<str> m_lines;
+    int            m_maxlines;
+    bool           m_reallyshown;
+    bool           m_boxmovingout;
+    boxstate_t     m_boxstate;
+    int            m_boxtime;
+    int            m_movespeed;
 
 public:
-	CLASS_PROTOTYPE( FakkMiniconsole );
+    CLASS_PROTOTYPE(FakkMiniconsole);
 
 protected:
-	void		VerifyBoxOut( void );
-	void		ChangeBoxState( boxstate_t state );
-	void		HandleBoxMoving( void );
-	void		PostMoveinEvent( void );
-	void		setShowState( void );
+    void VerifyBoxOut(void);
+    void ChangeBoxState(boxstate_t state);
+    void HandleBoxMoving(void);
+    void PostMoveinEvent(void);
+    void setShowState(void);
 
 public:
-	FakkMiniconsole();
+    FakkMiniconsole();
 
-	void			OnSizeChanged( Event *ev );
-	void			Print( const char *text );
-	void			Create( const UISize2D& size, const UColor& fore, const UColor& back, float alpha );
-	void			MoveInEvent( Event *ev );
-	void			Draw( void ) override;
-	void			setRealShow( bool b );
+    void OnSizeChanged(Event *ev);
+    void Print(const char *text);
+    void Create(const UISize2D& size, const UColor& fore, const UColor& back, float alpha);
+    void MoveInEvent(Event *ev);
+    void Draw(void) override;
+    void setRealShow(bool b);
 };
