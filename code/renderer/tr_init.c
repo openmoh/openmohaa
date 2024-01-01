@@ -24,6 +24,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "tr_local.h"
 
 glconfig_t	glConfig;
+qboolean    textureFilterAnisotropic = qfalse;
+int         maxAnisotropy = 0;
+float       displayAspect = 0;
+qboolean    haveClampToEdge;
 glstate_t	glState;
 int r_sequencenumber;
 
@@ -87,6 +91,7 @@ cvar_t	*r_ext_texture_env_add;
 
 cvar_t	*r_ext_texture_env_combine;
 cvar_t	*r_ext_aniso_filter;
+cvar_t	*r_ext_max_anisotropy;
 cvar_t	*r_forceClampToEdge;
 cvar_t	*r_geForce3WorkAround;
 cvar_t	*r_reset_tc_array;
@@ -257,11 +262,6 @@ cvar_t* r_ext_multisample;
 cvar_t* r_noborder;
 cvar_t* r_ext_texture_filter_anisotropic;
 cvar_t* r_stereoEnabled;
-
-qboolean  textureFilterAnisotropic = qtrue;
-int       maxAnisotropy = 16;
-float     displayAspect = 16.f / 9.f;
-qboolean  haveClampToEdge = qtrue;
 
 static void AssertCvarRange( cvar_t *cv, float minVal, float maxVal, qboolean shouldBeIntegral )
 {
@@ -1004,6 +1004,7 @@ void R_Register( void )
 #endif
 	r_ext_texture_env_combine = ri.Cvar_Get("r_ext_texture_env_combine", "0", CVAR_ARCHIVE | CVAR_LATCH);
     r_ext_aniso_filter = ri.Cvar_Get("r_ext_aniso_filter", "0", CVAR_ARCHIVE | CVAR_LATCH);
+	r_ext_max_anisotropy = ri.Cvar_Get("r_ext_max_anisotropy", "2", CVAR_ARCHIVE | CVAR_LATCH);
     r_forceClampToEdge = ri.Cvar_Get("r_forceClampToEdge", "0", CVAR_ARCHIVE | CVAR_LATCH);
     r_geForce3WorkAround = ri.Cvar_Get("r_geForce3WorkAround", "1", CVAR_ARCHIVE);
     r_reset_tc_array = ri.Cvar_Get("r_reset_tc_array", "1", CVAR_ARCHIVE);
