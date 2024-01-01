@@ -53,7 +53,7 @@ public:
 
 protected:
     void FrameInitialized(void) override;
-    void PointToSelectionPoint(UIPoint2D& p, selectionpoint_t& sel);
+    void PointToSelectionPoint(const UIPoint2D& p, selectionpoint_t& sel);
     str& LineFromLineNumber(int num, bool resetpos);
     void EnsureSelectionPointVisible(selectionpoint_t& point);
     void BoundSelectionPoint(selectionpoint_t& point);

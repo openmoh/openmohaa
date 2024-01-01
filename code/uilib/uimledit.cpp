@@ -316,7 +316,7 @@ str& UIMultiLineEdit::LineFromLineNumber(int num, bool resetpos)
     return emptyLine;
 }
 
-void UIMultiLineEdit::PointToSelectionPoint(UIPoint2D& p, selectionpoint_t& sel)
+void UIMultiLineEdit::PointToSelectionPoint(const UIPoint2D& p, selectionpoint_t& sel)
 {
     int   clickedLine;
     int   i;
