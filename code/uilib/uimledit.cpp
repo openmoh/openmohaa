@@ -21,6 +21,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "ui_local.h"
+#include "../qcommon/localization.h"
 
 Event EV_Time_Dragged
 (
@@ -60,147 +61,672 @@ CLASS_DECLARATION(UIWidget, UIMultiLineEdit, NULL) {
 
 UIMultiLineEdit::UIMultiLineEdit()
 {
-    // FIXME: stub
+    m_vertscroll      = NULL;
+    m_mouseState      = M_NONE;
+    m_shiftForcedDown = 0;
+    m_edit            = true;
+    Empty();
 }
 
 void UIMultiLineEdit::Empty(void)
 {
-    // FIXME: stub
+    m_lines.RemoveAllItems();
+    m_lines.AddTail(str());
+
+    m_selection.begin = {};
+    m_selection.end   = {};
+
+    if (m_vertscroll) {
+        m_vertscroll->setNumItems(1);
+        m_vertscroll->setTopItem(0);
+    }
+
+    m_changed = false;
 }
 
 void UIMultiLineEdit::SetEdit(Event *ev)
 {
-    // FIXME: stub
+    m_edit = ev->GetBoolean(1);
 }
 
 void UIMultiLineEdit::setData(const char *data)
 {
-    // FIXME: stub
+    str         toadd;
+    char        s[2] {};
+    const char *p;
+
+    m_lines.RemoveAllItems();
+
+    for (p = data; *p; p++) {
+        if (*p == '\n') {
+            m_lines.AddTail(toadd);
+            toadd = "";
+        } else if (*p == '\r') {
+            continue;
+        }
+
+        s[0] = *p;
+        toadd += s;
+    }
+
+    m_lines.AddTail(toadd);
+    m_selection.begin = {};
+    m_selection.end   = {};
+
+    if (m_vertscroll) {
+        m_vertscroll->setNumItems(m_lines.getCount());
+        m_vertscroll->setTopItem(0);
+    }
+
+    m_changed = false;
 }
 
 void UIMultiLineEdit::getData(str& data)
 {
-    // FIXME: stub
+    int i;
+
+    data = "";
+
+    for (i = 0, m_lines.IterateFromHead(); m_lines.IsCurrentValid(); i++, m_lines.IterateNext()) {
+        data += m_lines.getCurrent();
+
+        if (i != m_lines.getCount() - 1) {
+            data += "\n";
+        }
+    }
 }
 
 void UIMultiLineEdit::FrameInitialized(void)
 {
-    // FIXME: stub
+    delete m_vertscroll;
+    m_vertscroll = new UIVertScroll();
+    m_vertscroll->setPageHeight(m_frame.size.height / m_font->getHeight(false));
+    m_vertscroll->setTopItem(0);
+    m_vertscroll->setNumItems(m_lines.getCount());
+    m_vertscroll->InitFrameAlignRight(this, 0, 0);
+
+    Connect(this, W_SizeChanged, W_SizeChanged);
+    AllowActivate(false);
 }
 
 void UIMultiLineEdit::SizeChanged(Event *ev)
 {
-    // FIXME: stub
+    m_vertscroll->setPageHeight(m_frame.size.height / m_font->getHeight(m_bVirtual));
+    m_vertscroll->InitFrameAlignRight(this, 0, 0);
 }
 
 void UIMultiLineEdit::SortSelection(selectionpoint_t **topsel, selectionpoint_t **botsel)
 {
-    // FIXME: stub
+    if (m_selection.begin.line < m_selection.end.line) {
+        *topsel = &m_selection.begin;
+        *botsel = &m_selection.end;
+    } else if (m_selection.begin.line <= m_selection.end.line && m_selection.begin.column <= m_selection.end.column) {
+        *topsel = &m_selection.begin;
+        *botsel = &m_selection.end;
+    } else {
+        *topsel = &m_selection.end;
+        *botsel = &m_selection.begin;
+    }
 }
 
 void UIMultiLineEdit::UpdateCvarEvent(Event *ev)
 {
-    // FIXME: stub
+    if (m_cvarname.length()) {
+        const char *s = uii.Cvar_GetString(m_cvarname, "");
+        if (s) {
+            setData(s);
+        }
+    }
 }
 
 void UIMultiLineEdit::Draw(void)
 {
-    // FIXME: stub
-}
+    float             aty;
+    int               i;
+    UColor            selectionColor(UWhite);
+    UColor            selectionBG(0, 0, 0.5f, 1);
+    selectionpoint_t *topsel = NULL;
+    selectionpoint_t *botsel = NULL;
 
-static str str_null = "";
+    SortSelection(&topsel, &botsel);
+
+    m_lines.IterateFromHead();
+    for (i = 0; i < m_vertscroll->getTopItem(); i++) {
+        m_lines.IterateNext();
+    }
+
+    for (i = m_vertscroll->getTopItem(), aty = 0; m_lines.IsCurrentValid() && aty < m_frame.size.height;
+         m_lines.IterateNext(), i++) {
+        str& cur   = m_lines.getCurrent();
+        int  caret = 0;
+
+        if (i < topsel->line || i > botsel->line) {
+            m_font->setColor(m_foreground_color);
+            m_font->Print(0, aty, cur, -1, m_bVirtual);
+        } else {
+            float linewidth = m_font->getWidth(cur, -1);
+
+            if (i > topsel->line && i < botsel->line) {
+                DrawBox(0, aty, linewidth, m_font->getHeight(m_bVirtual), selectionBG, 1.f);
+                m_font->setColor(selectionColor);
+                m_font->Print(0, aty, Sys_LV_CL_ConvertString(cur), -1, m_bVirtual);
+            } else if (i != topsel->line) {
+                if (i == botsel->line) {
+                    int toplen = m_font->getWidth(cur, botsel->column);
+                    if (toplen) {
+                        m_font->setColor(selectionColor);
+                        DrawBox(0, aty, toplen, m_font->getHeight(m_bVirtual), selectionBG, 1.f);
+                        m_font->Print(0, aty, cur, botsel->column, m_bVirtual);
+                    }
+
+                    if (toplen < linewidth) {
+                        m_font->setColor(m_foreground_color);
+                        m_font->Print(toplen, aty, &cur[botsel->column], -1, m_bVirtual);
+                    }
+
+                    if (botsel == &m_selection.end) {
+                        caret = toplen;
+                    }
+                }
+            } else if (i != botsel->line) {
+                int toplen = m_font->getWidth(cur, topsel->column);
+                if (topsel->column) {
+                    m_font->setColor(m_foreground_color);
+                    m_font->Print(0, aty, cur, topsel->column, m_bVirtual);
+                }
+
+                if (toplen < linewidth) {
+                    m_font->setColor(selectionColor);
+                    DrawBox(toplen, aty, linewidth - toplen, m_font->getHeight(m_bVirtual), selectionBG, 1.f);
+                    m_font->Print(toplen, aty, &cur[topsel->column], -1, m_bVirtual);
+                }
+
+                if (topsel == &m_selection.end) {
+                    caret = toplen;
+                }
+            } else {
+                if (topsel->column == botsel->column) {
+                    caret = m_font->getWidth(cur, topsel->column);
+                    m_font->setColor(m_foreground_color);
+                    m_font->Print(0, aty, Sys_LV_CL_ConvertString(cur), -1, m_bVirtual);
+                } else {
+                    int toplen = m_font->getWidth(cur, topsel->column);
+                    int botlen = toplen + m_font->getWidth(&cur[topsel->column], botsel->column - topsel->column);
+
+                    if (toplen) {
+                        m_font->setColor(m_foreground_color);
+                        m_font->Print(0, aty, cur, topsel->column, m_bVirtual);
+                    }
+
+                    if (botlen != toplen) {
+                        DrawBox(toplen, aty, botlen - toplen, m_font->getHeight(m_bVirtual), selectionBG, 1.f);
+                        m_font->setColor(selectionColor);
+                        m_font->Print(toplen, aty, &cur[topsel->column], botsel->column - topsel->column, m_bVirtual);
+                    }
+
+                    if (cur.length() != botsel->column) {
+                        m_font->setColor(m_foreground_color);
+                        m_font->Print(botlen, aty, &cur[botsel->column], m_bVirtual, false);
+                    }
+
+                    caret = botlen;
+                    if (topsel == &m_selection.end) {
+                        caret = toplen;
+                    }
+                }
+
+                m_font->getWidth(cur, botsel->column);
+                m_font->getWidth(cur, topsel->column);
+            }
+        }
+
+        if (m_selection.end.line == i && (uid.time % 750) > 374 && IsActive()) {
+            DrawBox(caret, aty, 2.f, m_font->getHeight(m_bVirtual), UBlack, 1.f);
+        }
+
+        aty += m_font->getHeight(m_bVirtual);
+    }
+}
 
 str& UIMultiLineEdit::LineFromLineNumber(int num, bool resetpos)
 {
-    // FIXME: stub
-    return str_null;
+    static str emptyLine;
+    void      *pos;
+    int        i;
+
+    pos = m_lines.getPosition();
+
+    for (i = 0, m_lines.IterateFromHead(); i < num && m_lines.IsCurrentValid(); i++) {
+        m_lines.IterateNext();
+    }
+
+    if (m_lines.IsCurrentValid()) {
+        str& ret = m_lines.getCurrent();
+        if (resetpos) {
+            m_lines.setPosition(pos);
+        }
+
+        return ret;
+    }
+
+    if (resetpos) {
+        m_lines.setPosition(pos);
+    }
+
+    return emptyLine;
 }
 
 void UIMultiLineEdit::PointToSelectionPoint(UIPoint2D& p, selectionpoint_t& sel)
 {
-    // FIXME: stub
+    int   clickedLine;
+    int   i;
+    float totalWidth = 0;
+    float lastWidth  = 0;
+
+    clickedLine = m_vertscroll->getTopItem() + p.y / m_font->getHeight(m_bVirtual);
+    if (clickedLine >= m_lines.getCount()) {
+        clickedLine = m_lines.getCount() - 1;
+    }
+
+    if (clickedLine < 0) {
+        sel.line   = 0;
+        sel.column = 0;
+        return;
+    }
+
+    str& line = LineFromLineNumber(clickedLine, true);
+    for (i = 0; line[i] && totalWidth < p.x; i++) {
+        lastWidth = m_font->getCharWidth(line[i]);
+        totalWidth += lastWidth;
+    }
+
+    if (line[i] && i) {
+        lastWidth *= 0.5f;
+        if (totalWidth - lastWidth >= p.x) {
+            i--;
+        }
+    }
+
+    sel.line   = clickedLine;
+    sel.column = i;
 }
 
 void UIMultiLineEdit::MouseDown(Event *ev)
 {
-    // FIXME: stub
+    PointToSelectionPoint(MouseEventToClientPoint(ev), m_selection.begin);
+    m_selection.end = m_selection.begin;
+    EnsureSelectionPointVisible(m_selection.end);
+    m_mouseState = M_DRAGGING;
+    uWinMan.setFirstResponder(this);
 }
 
 void UIMultiLineEdit::MouseUp(Event *ev)
 {
-    // FIXME: stub
+    CancelEventsOfType(EV_Time_Dragged);
+
+    if (uWinMan.getFirstResponder() == this) {
+        uWinMan.setFirstResponder(NULL);
+    }
+
+    if (m_mouseState == M_DRAGGING) {
+        EnsureSelectionPointVisible(m_selection.end);
+    }
+
+    m_mouseState = M_NONE;
 }
 
 void UIMultiLineEdit::MouseDragged(Event *ev)
 {
-    // FIXME: stub
+    m_dragState.lastPos = MouseEventToClientPoint(ev);
+    PointToSelectionPoint(m_dragState.lastPos, m_selection.end);
+
+    if (!EventPending(EV_Time_Dragged)) {
+        PostEvent(new Event(EV_Time_Dragged), 0);
+    }
 }
 
 void UIMultiLineEdit::DragTimer(Event *ev)
 {
-    // FIXME: stub
+    int oldtop;
+
+    PointToSelectionPoint(m_dragState.lastPos, m_selection.end);
+
+    oldtop = m_vertscroll->getTopItem();
+    EnsureSelectionPointVisible(m_selection.end);
+
+    if (m_vertscroll->getTopItem() != oldtop) {
+        PostEvent(new Event(EV_Time_Dragged), 0.25f);
+    }
 }
 
 void UIMultiLineEdit::EnsureSelectionPointVisible(selectionpoint_t& point)
 {
-    // FIXME: stub
+    int newtop;
+
+    if (point.line > m_vertscroll->getTopItem()
+        && point.line < m_vertscroll->getPageHeight() + m_vertscroll->getTopItem()) {
+        return;
+    }
+
+    if (m_vertscroll->getTopItem() > point.line) {
+        newtop = point.line;
+    } else {
+        newtop = point.line - m_vertscroll->getPageHeight() + 1;
+    }
+
+    if (newtop < 0) {
+        newtop = 0;
+    }
+
+    m_vertscroll->setTopItem(newtop);
 }
 
 void UIMultiLineEdit::BoundSelectionPoint(selectionpoint_t& point)
 {
-    // FIXME: stub
+    point.line = Q_clamp_int(point.line, 0, m_lines.getCount());
+
+    str& line    = LineFromLineNumber(point.line, true);
+    point.column = Q_clamp_int(point.column, 0, line.length());
 }
 
 qboolean UIMultiLineEdit::KeyEvent(int key, unsigned int time)
 {
-    // FIXME: stub
-    return qfalse;
+    bool     caret_moved = false;
+    qboolean key_rec     = false;
+
+    switch (key) {
+    case K_UPARROW:
+        m_selection.end.line--;
+        caret_moved = true;
+        break;
+    case K_DOWNARROW:
+        m_selection.end.line++;
+        caret_moved = true;
+        break;
+    case K_LEFTARROW:
+        m_selection.end.column--;
+        if (m_selection.end.column < 0) {
+            m_selection.end.column = 999999;
+            m_selection.end.line--;
+        }
+        if (m_selection.end.line < 0) {
+            m_selection.end.column = 0;
+        }
+
+        caret_moved = true;
+        key_rec     = true;
+        break;
+    case K_RIGHTARROW:
+        {
+            int oldcol = m_selection.end.column;
+
+            m_selection.end.column++;
+            BoundSelectionPoint(m_selection.end);
+            if (m_selection.end.column == oldcol) {
+                m_selection.end.column = 0;
+                m_selection.end.line++;
+                if (m_selection.end.line >= m_lines.getCount()) {
+                    m_selection.end.line--;
+                    m_selection.end.column = 999999;
+                }
+            }
+
+            caret_moved = true;
+            key_rec     = true;
+            break;
+        }
+    case K_INS:
+        if (!IsSelectionEmpty()) {
+            if (uii.Sys_IsKeyDown(K_CTRL)) {
+                CopySelection();
+            } else if (uii.Sys_IsKeyDown(K_SHIFT)) {
+                PasteSelection();
+            }
+        }
+        break;
+    case K_DEL:
+        if (IsSelectionEmpty()) {
+            m_shiftForcedDown = true;
+            KeyEvent(K_RIGHTARROW, 0);
+            m_shiftForcedDown = false;
+        } else if (uii.Sys_IsKeyDown(K_SHIFT)) {
+            CopySelection();
+            DeleteSelection();
+        } else {
+            DeleteSelection();
+        }
+        break;
+    case K_PGDN:
+        if (m_selection.end.line == (m_vertscroll->getTopItem() + m_vertscroll->getPageHeight() - 1)) {
+            m_selection.end.line = m_vertscroll->getPageHeight() + m_selection.end.line;
+        } else {
+            m_selection.end.line = m_vertscroll->getTopItem() + m_vertscroll->getPageHeight() - 1;
+        }
+
+        caret_moved = true;
+        key_rec     = true;
+        break;
+    case K_PGUP:
+        if (m_selection.end.line == m_vertscroll->getTopItem()) {
+            m_selection.end.line -= m_vertscroll->getPageHeight();
+        } else {
+            m_selection.end.line = m_vertscroll->getTopItem();
+        }
+
+        caret_moved = true;
+        key_rec     = true;
+        break;
+    case K_HOME:
+        if (uii.Sys_IsKeyDown(K_CTRL)) {
+            m_selection.end.column = 0;
+            m_selection.end.line   = 0;
+        } else {
+            m_selection.end.column = 0;
+        }
+
+        caret_moved = true;
+        key_rec     = true;
+        break;
+    case K_END:
+        if (uii.Sys_IsKeyDown(K_CTRL)) {
+            m_selection.end.column = 999999;
+            m_selection.end.line   = m_lines.getCount();
+        } else {
+            m_selection.end.column = 999999;
+        }
+
+        caret_moved = true;
+        key_rec     = true;
+        break;
+    case K_MWHEELDOWN:
+        m_vertscroll->AttemptScrollTo(m_vertscroll->getTopItem() + 2);
+        key_rec = true;
+        break;
+    case K_MWHEELUP:
+        m_vertscroll->AttemptScrollTo(m_vertscroll->getTopItem() - 2);
+        key_rec = true;
+        break;
+    }
+
+    if (caret_moved) {
+        BoundSelectionPoint(m_selection.end);
+        if (!uii.Sys_IsKeyDown(K_SHIFT) && !m_shiftForcedDown) {
+            m_selection.begin.line   = m_selection.end.line;
+            m_selection.begin.column = m_selection.end.column;
+        }
+        EnsureSelectionPointVisible(m_selection.end);
+    }
+
+    return key_rec;
 }
 
 void UIMultiLineEdit::DeleteSelection(void)
 {
-    // FIXME: stub
+    selectionpoint_t *topsel;
+    selectionpoint_t *botsel;
+    int               i;
+
+    if (IsSelectionEmpty()) {
+        return;
+    }
+
+    m_changed = true;
+    SortSelection(&topsel, &botsel);
+
+    if (topsel->line == botsel->line) {
+        str&     line   = LineFromLineNumber(topsel->line, true);
+        intptr_t newlen = line.length() - (botsel->column - topsel->column);
+
+        for (i = topsel->column; i < newlen; i++) {
+            line[i] = line[i + botsel->column - topsel->column];
+        }
+
+        line.CapLength(newlen);
+        *botsel = *topsel;
+        EnsureSelectionPointVisible(*topsel);
+    } else if (botsel->line - topsel->line > 1) {
+        for (i = 0, m_lines.IterateFromHead(); m_lines.IsCurrentValid() && i < topsel->line;
+             i++, m_lines.IterateNext()) {
+            if (i > topsel->line) {
+                m_lines.RemoveCurrentSetPrev();
+                i--;
+                botsel->line--;
+            }
+        }
+    }
+
+    for (i = 0, m_lines.IterateFromHead(); m_lines.IsCurrentValid() && i < topsel->line; i++, m_lines.IterateNext()) {}
+
+    str& topline = m_lines.getCurrent();
+    topline.CapLength(topsel->column);
+    m_lines.IterateNext();
+    str& line = m_lines.getCurrent();
+
+    topline += &line[botsel->column];
+    m_lines.RemoveCurrentSetPrev();
+    *botsel = *topsel;
+    m_vertscroll->setNumItems(m_lines.getCount());
+    EnsureSelectionPointVisible(*topsel);
 }
 
 void UIMultiLineEdit::CharEvent(int ch)
 {
-    // FIXME: stub
+    intptr_t i;
+
+    if (!m_edit) {
+        return;
+    }
+
+    if (ch >= ' ' || ch == '\t') {
+        DeleteSelection();
+        m_changed = true;
+
+        str& line = LineFromLineNumber(m_selection.begin.line, true);
+        line += " ";
+
+        for (i = line.length() - 1; i > m_selection.begin.column; i--) {
+            line[i] = line[i - 1];
+        }
+        line[m_selection.begin.column] = ch;
+        m_selection.begin.column++;
+        m_selection.end.column++;
+    } else if (ch == '\b') {
+        if (IsSelectionEmpty()) {
+            m_shiftForcedDown = true;
+            KeyEvent(K_LEFTARROW, 0);
+            m_shiftForcedDown = false;
+        }
+        DeleteSelection();
+    } else if (ch == '\r') {
+        DeleteSelection();
+        m_changed = true;
+
+        str& line      = LineFromLineNumber(m_selection.begin.line, false);
+        str  otherline = &line[m_selection.begin.column];
+        otherline.CapLength(m_selection.begin.column);
+
+        if (m_lines.IsCurrentValid()) {
+            m_lines.InsertAfterCurrent(otherline);
+        } else {
+            m_lines.AddTail(otherline);
+        }
+
+        m_selection.begin.column = 0;
+        m_selection.begin.line++;
+        m_selection.end.column = m_selection.begin.column;
+        m_selection.end.line   = m_selection.begin.line;
+        m_vertscroll->setNumItems(m_lines.getCount());
+
+        EnsureSelectionPointVisible(m_selection.end);
+    }
 }
 
 bool UIMultiLineEdit::IsSelectionEmpty(void)
 {
-    // FIXME: stub
-    return false;
+    return m_selection.begin.column == m_selection.end.column && m_selection.begin.line == m_selection.end.line;
 }
 
 void UIMultiLineEdit::CopySelection(void)
 {
-    // FIXME: stub
+    selectionpoint_t *topsel;
+    selectionpoint_t *botsel;
+    str               line;
+    str               clipText;
+
+    if (IsSelectionEmpty()) {
+        return;
+    }
+
+    SortSelection(&topsel, &botsel);
+
+    line = LineFromLineNumber(topsel->line, true);
+
+    clipText += &line[topsel->column];
+
+    if (topsel->line == botsel->line) {
+        clipText.CapLength(botsel->column - topsel->column);
+    } else {
+        for (int i = topsel->line + 1; i < botsel->line; ++i) {
+            clipText += LineFromLineNumber(i, 1);
+        }
+
+        line = LineFromLineNumber(botsel->line, true);
+        line.CapLength(botsel->column);
+        clipText += "\n" + line;
+    }
 }
 
 void UIMultiLineEdit::PasteSelection(void)
 {
-    // FIXME: stub
+    str sel;
+    int i;
+
+    sel = uii.Sys_GetClipboard();
+
+    DeleteSelection();
+
+    for (i = 0; i < sel.length(); i++) {
+        if (sel[i] == '\n') {
+            CharEvent('\r');
+        } else {
+            CharEvent(sel[i]);
+        }
+    }
 }
 
 UIPoint2D UIMultiLineEdit::getEndSelPoint(void)
 {
-    // FIXME: stub
-    return UIPoint2D();
+    return UIPoint2D(m_selection.end.column, m_selection.end.line);
 }
 
 void UIMultiLineEdit::setChanged(bool b)
 {
-    // FIXME: stub
+    m_changed = b;
 }
 
 bool UIMultiLineEdit::IsChanged(void)
 {
-    // FIXME: stub
-    return false;
+    return m_changed;
 }
 
-void UIMultiLineEdit::Scroll(Event *ev)
-{
-    // FIXME: stub
-}
+void UIMultiLineEdit::Scroll(Event *ev) {}
