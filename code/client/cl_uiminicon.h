@@ -20,8 +20,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-#ifndef __CL_UIMINICON_H__
-#define __CL_UIMINICON_H__
+#pragma once
 
 class FakkMiniconsole : public UIWidget {
 protected:
@@ -53,5 +52,3 @@ public:
 	void			Draw( void ) override;
 	void			setRealShow( bool b );
 };
-
-#endif

@@ -22,68 +22,93 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "cl_ui.h"
 
-CLASS_DECLARATION( UIWidget, FakkMiniconsole, NULL )
-{
-	{ NULL, NULL }
+Event EV_Minicon_Goin("_minicon_goin", EV_DEFAULT, NULL, NULL, "Event to make the miniconsole disappear");
+
+CLASS_DECLARATION(UIWidget, FakkMiniconsole, NULL) {
+    {&W_SizeChanged,   &FakkMiniconsole::OnSizeChanged},
+    {&EV_Minicon_Goin, &FakkMiniconsole::MoveInEvent  },
+    {NULL,             NULL                           }
 };
 
 FakkMiniconsole::FakkMiniconsole()
 {
-	// FIXME: stub
+    m_maxlines    = 0;
+    m_reallyshown = true;
+    m_boxstate    = boxstate_t::box_in;
+    m_boxtime     = uid.time;
+    m_movespeed   = 500;
 }
 
-
-void FakkMiniconsole::VerifyBoxOut( void )
+void FakkMiniconsole::setShowState(void)
 {
-	// FIXME: stub
+    if (m_reallyshown) {
+        setShow(m_boxstate != boxstate_t::box_in);
+    } else {
+        setShow(false);
+    }
 }
 
-void FakkMiniconsole::ChangeBoxState( boxstate_t state )
+void FakkMiniconsole::setRealShow(bool b)
 {
-	// FIXME: stub
+    m_reallyshown = b;
+    setShowState();
 }
 
-void FakkMiniconsole::HandleBoxMoving( void )
+void FakkMiniconsole::VerifyBoxOut(void)
 {
-	// FIXME: stub
+    PostMoveinEvent();
+
+    if (m_boxstate && m_boxstate != boxstate_t::box_out) {
+        ChangeBoxState(box_moving_out);
+    }
 }
 
-void FakkMiniconsole::PostMoveinEvent( void )
+void FakkMiniconsole::Print(const char *text)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void FakkMiniconsole::setShowState( void )
+void FakkMiniconsole::PostMoveinEvent(void)
 {
-	// FIXME: stub
+    if (m_boxstate != boxstate_t::box_out) {
+        return;
+    }
+
+    CancelEventsOfType(EV_Minicon_Goin);
+    PostEvent(new Event(EV_Minicon_Goin), 5.f);
 }
 
-void FakkMiniconsole::OnSizeChanged( Event *ev )
+void FakkMiniconsole::OnSizeChanged(Event *ev)
 {
-	// FIXME: stub
+    m_maxlines = m_frame.size.height / m_font->getHeight(false);
 }
 
-void FakkMiniconsole::Print( const char *text )
+void FakkMiniconsole::MoveInEvent(Event *ev)
 {
-	// FIXME: stub
+    ChangeBoxState(boxstate_t::box_moving_in);
 }
 
-void FakkMiniconsole::Create( const UISize2D& size, const UColor& fore, const UColor& back, float alpha )
+void FakkMiniconsole::HandleBoxMoving(void)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void FakkMiniconsole::MoveInEvent( Event *ev )
+void FakkMiniconsole::Draw(void)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void FakkMiniconsole::Draw( void )
+void FakkMiniconsole::Create(const UISize2D& size, const UColor& fore, const UColor& back, float alpha)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void FakkMiniconsole::setRealShow( bool b )
+void FakkMiniconsole::ChangeBoxState(boxstate_t state)
 {
-	// FIXME: stub
+    m_boxstate = state;
+    m_boxtime  = uid.time;
+    setShowState();
+    if (state == boxstate_t::box_out) {
+        PostMoveinEvent();
+    }
 }
