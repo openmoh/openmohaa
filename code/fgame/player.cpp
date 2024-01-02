@@ -128,8 +128,6 @@ const char *pInstantMsgEng_ver6[5][9] = {
      "Get out of my way!", ""}
 };
 
-qboolean TryPush(int entnum, vec3_t move_origin, vec3_t move_end);
-
 Event EV_Player_DumpState
 (
     "state",
@@ -1764,6 +1762,8 @@ Event EV_Player_VisionSetNaked
     "an empty string, it will revert to the current global vision.",
     EV_NORMAL
 );
+
+qboolean TryPush(int entnum, vec3_t move_origin, vec3_t move_end);
 
 /*
 ==============================================================================
@@ -8376,20 +8376,37 @@ nationality_t GetPlayerTeamType(const char *name)
 //  from the other team
 nationality_t GetPlayerAxisTeamType(const char *name)
 {
+    if (g_target_game < target_game_e::TG_MOHTA) {
+        // Only american and german are supported on older versions of the game
+        return NA_GERMAN;
+    }
+
     if (!Q_stricmpn(name, "german", 6)) {
         return NA_GERMAN;
-    } else if (!Q_stricmpn(name, "it", 2)) {
+    }
+
+    if (g_target_game < target_game_e::TG_MOHTT) {
+        // Italian skins are supported only in mohaab
+        return NA_GERMAN;
+    }
+
+    if (!Q_stricmpn(name, "it", 2)) {
         return NA_ITALIAN;
     } else if (!Q_stricmpn(name, "sc", 2)) {
         return NA_ITALIAN;
-    } else {
-        // fallback to german
-        return NA_GERMAN;
     }
+
+    // fallback to german
+    return NA_GERMAN;
 }
 
 nationality_t GetPlayerAlliedTeamType(const char *name)
 {
+    if (g_target_game < target_game_e::TG_MOHTA) {
+        // Only american and german are supported on older versions of the game
+        return NA_AMERICAN;
+    }
+
     if (!Q_stricmpn(name, "american", 8)) {
         return NA_AMERICAN;
     } else if (!Q_stricmpn(name, "allied_russian", 14)) {
@@ -8400,10 +8417,10 @@ nationality_t GetPlayerAlliedTeamType(const char *name)
         return NA_BRITISH;
     } else if (!Q_stricmpn(name, "allied", 6)) {
         return NA_AMERICAN;
-    } else {
-        // fallback to american
-        return NA_AMERICAN;
     }
+
+    // fallback to american
+    return NA_AMERICAN;
 }
 
 void Player::InitDeathmatch(void)
@@ -8497,66 +8514,70 @@ bool Player::QueryLandminesAllowed() const
 {
     const char *mapname;
 
+    if (g_target_game < target_game_e::TG_MOHTT) {
+        return false;
+    }
+
     if (dmflags->integer & DF_WEAPON_NO_LANDMINE) {
-        return qfalse;
+        return false;
     }
 
     if (dmflags->integer & DF_WEAPON_LANDMINE_ALWAYS) {
-        return qtrue;
+        return true;
     }
 
     mapname = level.mapname.c_str();
 
     if (!Q_stricmpn(mapname, "obj/obj_", 8u)) {
-        return qfalse;
+        return false;
     }
     if (!Q_stricmpn(mapname, "dm/mohdm", 8u)) {
-        return qfalse;
+        return false;
     }
     if (!Q_stricmp(mapname, "DM/MP_Bahnhof_DM")) {
-        return qfalse;
+        return false;
     }
     if (!Q_stricmp(mapname, "obj/MP_Ardennes_TOW")) {
-        return qfalse;
+        return false;
     }
     if (!Q_stricmp(mapname, "DM/MP_Bazaar_DM")) {
-        return qfalse;
+        return false;
     }
     if (!Q_stricmp(mapname, "obj/MP_Berlin_TOW")) {
-        return qfalse;
+        return false;
     }
     if (!Q_stricmp(mapname, "DM/MP_Brest_DM")) {
-        return qfalse;
+        return false;
     }
     if (!Q_stricmp(mapname, "obj/MP_Druckkammern_TOW")) {
-        return qfalse;
+        return false;
     }
     if (!Q_stricmp(mapname, "DM/MP_Gewitter_DM")) {
-        return qfalse;
+        return false;
     }
     if (!Q_stricmp(mapname, "obj/MP_Flughafen_TOW")) {
-        return qfalse;
+        return false;
     }
     if (!Q_stricmp(mapname, "DM/MP_Holland_DM")) {
-        return qfalse;
+        return false;
     }
     if (!Q_stricmp(mapname, "DM/MP_Malta_DM")) {
-        return qfalse;
+        return false;
     }
     if (!Q_stricmp(mapname, "DM/MP_Stadt_DM")) {
-        return qfalse;
+        return false;
     }
     if (!Q_stricmp(mapname, "DM/MP_Unterseite_DM")) {
-        return qfalse;
+        return false;
     }
     if (!Q_stricmp(mapname, "DM/MP_Verschneit_DM")) {
-        return qfalse;
+        return false;
     }
     if (!Q_stricmp(mapname, "lib/mp_ship_lib")) {
-        return qfalse;
+        return false;
     }
 
-    return qtrue;
+    return true;
 }
 
 void Player::EnsurePlayerHasAllowedWeapons()
@@ -8634,6 +8655,8 @@ void Player::EquipWeapons()
         return;
     }
 
+    // Fixed in OPM
+    //  Old behavior was calling GetPlayerTeamType() regardless of the team
     if (GetTeam() == TEAM_AXIS) {
         nationality = GetPlayerAxisTeamType(client->pers.dm_playergermanmodel);
     } else {
@@ -8652,11 +8675,17 @@ void Player::EquipWeapons()
     if (!Q_stricmp(client->pers.dm_primary, "sniper") && !(dmflags->integer & DF_WEAPON_NO_SNIPER)) {
         switch (nationality) {
         case NA_BRITISH:
-            giveItem("weapons/Uk_W_L42A1.tik");
-            event->AddString("Enfield L42A1");
+            if (g_target_game < target_game_e::TG_MOHTT) {
+                giveItem("weapons/springfield.tik");
+                event->AddString("Springfield '03 Sniper");
+            } else {
+                giveItem("weapons/Uk_W_L42A1.tik");
+                event->AddString("Enfield L42A1");
+            }
             break;
         case NA_RUSSIAN:
-            if (dmflags->integer & DF_OLD_SNIPER) {
+            if (g_target_game < target_game_e::TG_MOHTA || dmflags->integer & DF_OLD_SNIPER) {
+                // Old snipers are forced older versions of the game
                 giveItem("weapons/springfield.tik");
                 event->AddString("Springfield '03 Sniper");
             } else {
@@ -8665,7 +8694,8 @@ void Player::EquipWeapons()
             }
             break;
         case NA_GERMAN:
-            if (dmflags->integer & DF_OLD_SNIPER) {
+            if (g_target_game < target_game_e::TG_MOHTA || dmflags->integer & DF_OLD_SNIPER) {
+                // Old snipers are forced older versions of the game
                 giveItem("weapons/kar98sniper.tik");
                 event->AddString("KAR98 - Sniper");
             } else {
@@ -8677,9 +8707,10 @@ void Player::EquipWeapons()
             giveItem("weapons/kar98sniper.tik");
             event->AddString("KAR98 - Sniper");
             break;
+        case NA_AMERICAN:
         default:
-            giveItem("weapons/kar98sniper.tik");
-            event->AddString("KAR98 - Sniper");
+            giveItem("weapons/springfield.tik");
+            event->AddString("Springfield '03 Sniper");
             break;
         }
     } else if (!Q_stricmp(client->pers.dm_primary, "smg") && !(dmflags->integer & DF_WEAPON_NO_SMG)) {
@@ -8700,6 +8731,7 @@ void Player::EquipWeapons()
             giveItem("weapons/it_w_moschetto.tik");
             event->AddString("Moschetto");
             break;
+        case NA_AMERICAN:
         default:
             giveItem("weapons/thompsonsmg.tik");
             event->AddString("Thompson");
@@ -8708,8 +8740,14 @@ void Player::EquipWeapons()
     } else if (!Q_stricmp(client->pers.dm_primary, "mg") && !(dmflags->integer & DF_WEAPON_NO_MG)) {
         switch (nationality) {
         case NA_BRITISH:
-            giveItem("weapons/Uk_W_Vickers.tik");
-            event->AddString("Vickers-Berthier");
+            if (g_target_game < target_game_e::TG_MOHTT) {
+                giveItem("weapons/bar.tik");
+                event->AddString("BAR");
+                break;
+            } else {
+                giveItem("weapons/Uk_W_Vickers.tik");
+                event->AddString("Vickers-Berthier");
+            }
             break;
         case NA_GERMAN:
             giveItem("weapons/mp44.tik");
@@ -8719,6 +8757,7 @@ void Player::EquipWeapons()
             giveItem("weapons/It_W_Breda.tik");
             event->AddString("Breda");
             break;
+        case NA_AMERICAN:
         default:
             giveItem("weapons/bar.tik");
             event->AddString("BAR");
@@ -8732,9 +8771,15 @@ void Player::EquipWeapons()
             event->AddString("Panzerschreck");
             break;
         case NA_BRITISH:
-            giveItem("weapons/Uk_W_Piat.tik");
-            event->AddString("PIAT");
+            if (g_target_game < target_game_e::TG_MOHTT) {
+                giveItem("weapons/bazooka.tik");
+                event->AddString("Bazooka");
+            } else {
+                giveItem("weapons/Uk_W_Piat.tik");
+                event->AddString("PIAT");
+            }
             break;
+        case NA_AMERICAN:
         default:
             giveItem("weapons/bazooka.tik");
             event->AddString("Bazooka");
@@ -8743,12 +8788,18 @@ void Player::EquipWeapons()
     } else if (!Q_stricmp(client->pers.dm_primary, "shotgun") && !(dmflags->integer & DF_WEAPON_NO_SHOTGUN)) {
         switch (nationality) {
         case NA_BRITISH:
-            giveItem("weapons/DeLisle.tik");
-            event->AddString("DeLisle");
+            if (g_target_game < target_game_e::TG_MOHTT) {
+                giveItem("weapons/shotgun.tik");
+                event->AddString("Shotgun");
+            } else {
+                giveItem("weapons/DeLisle.tik");
+                event->AddString("DeLisle");
+            }
             break;
         case NA_GERMAN:
-            if (dmflags->integer & DF_DISALLOW_KAR98_MORTAR) {
+            if (g_target_game < target_game_e::TG_MOHTA || dmflags->integer & DF_DISALLOW_KAR98_MORTAR) {
                 // Fallback to shotgun
+                // The shotgun is forced on older versions of the game
                 giveItem("weapons/shotgun.tik");
                 event->AddString("Shotgun");
             } else {
@@ -8756,6 +8807,7 @@ void Player::EquipWeapons()
                 event->AddString("Gewehrgranate");
             }
             break;
+        case NA_AMERICAN:
         default:
             giveItem("weapons/shotgun.tik");
             event->AddString("Shotgun");
@@ -8801,6 +8853,7 @@ void Player::EquipWeapons()
                 GiveAmmo("pistol", 16);
             }
             break;
+        case NA_AMERICAN:
         default:
             giveItem("weapons/US_W_Minedetector.tik");
             event->AddString("Minedetector");
@@ -8832,6 +8885,7 @@ void Player::EquipWeapons()
             giveItem("weapons/it_w_carcano.tik");
             event->AddString("Carcano");
             break;
+        case NA_AMERICAN:
         default:
             giveItem("weapons/m1_garand.tik");
             event->AddString("M1 Garand");
