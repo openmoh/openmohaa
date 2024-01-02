@@ -63,11 +63,12 @@ gentity_t free_edicts;
 int sv_numtraces   = 0;
 int sv_numpmtraces = 0;
 
-int          g_protocol = 0;
-gentity_t   *g_entities;
-qboolean     g_iInThinks     = 0;
-qboolean     g_bBeforeThinks = qfalse;
-static float g_fMsecPerClock = 0;
+int             g_protocol = 0;
+target_game_e   g_target_game = target_game_e::TG_INVALID;
+gentity_t      *g_entities;
+qboolean        g_iInThinks     = 0;
+qboolean        g_bBeforeThinks = qfalse;
+static float    g_fMsecPerClock = 0;
 
 usercmd_t  *current_ucmd;
 usereyes_t *current_eyeinfo;
@@ -240,6 +241,7 @@ void G_InitGame(int levelTime, int randomSeed)
     G_Printf("gamedate: %s\n", __DATE__);
 
     g_protocol = gi.Cvar_Get("com_protocol", "", 0)->integer;
+    g_target_game = (target_game_e)gi.Cvar_Get("com_target_game", "0", 0)->integer;
 
     srand(randomSeed);
 
