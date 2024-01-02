@@ -264,6 +264,7 @@ cvar_t *sv_scriptfiles;
 
 cvar_t *sv_maxbots;
 cvar_t *sv_numbots;
+cvar_t *sv_minPlayers;
 cvar_t *g_rankedserver;
 cvar_t *g_spectatefollow_firstperson;
 
@@ -600,6 +601,7 @@ void CVAR_Init(void)
     sv_scriptfiles               = gi.Cvar_Get("sv_scriptfiles", "0", 0);
     sv_maxbots                   = gi.Cvar_Get("sv_maxbots", "0", CVAR_LATCH);
     sv_numbots                   = gi.Cvar_Get("sv_numbots", "0", CVAR_LATCH);
+    sv_minPlayers                = gi.Cvar_Get("sv_minPlayers", "0", 0);
     g_rankedserver               = gi.Cvar_Get("g_rankedserver", "0", 0);
     g_spectatefollow_firstperson = gi.Cvar_Get("g_spectatefollow_firstperson", "0", 0);
 
