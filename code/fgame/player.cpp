@@ -8085,7 +8085,9 @@ void Player::ModifyHeight(Event *ev)
         maxs.z       = 94.0f;
         m_bHasJumped = false;
     } else if (!height.icmp("jumpstart")) {
-        //viewheight = JUMP_START_VIEWHEIGHT;
+        if (g_protocol < protocol_e::PROTOCOL_MOHTA_MIN) {
+            viewheight = JUMP_START_VIEWHEIGHT;
+        }
         maxs.z = 94.0f;
     } else if (!height.icmp("duck")) {
         viewheight = CROUCH_VIEWHEIGHT;
