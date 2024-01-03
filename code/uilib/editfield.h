@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2015-2023 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -23,9 +23,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef __EDITFIELD_H__
 #define __EDITFIELD_H__
 
+#define EDITFIELD_BUFSIZE 256
+
 class EditField {
 public:
-	char m_buffer[ 256 ];
+	char m_buffer[ EDITFIELD_BUFSIZE ];
 	int m_cursor;
 
 	EditField();
