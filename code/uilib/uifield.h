@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2015-2023 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -20,27 +20,25 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-#ifndef __UIFIELD_H__
-#define __UIFIELD_H__
+#pragma once
 
-class UIField : public UIWidget {
-	EditField m_edit;
-	int m_iPreStep;
+class UIField : public UIWidget
+{
+    EditField m_edit;
+    // Index of the first currently visible character in the textfield
+    int m_iPreStep;
 
 public:
-	CLASS_PROTOTYPE( UIField );
+    CLASS_PROTOTYPE(UIField);
 
 private:
-	void		Draw( void ) override;
-	qboolean	KeyEvent( int key, unsigned int time ) override;
-	void		CharEvent( int ch ) override;
+    void     Draw(void) override;
+    qboolean KeyEvent(int key, unsigned int time) override;
+    void     CharEvent(int ch) override;
 
 public:
-	UIField();
+    UIField();
 
-	void		UpdateData( void ) override;
-	void		Pressed( Event *ev );
+    void UpdateData(void) override;
+    void Pressed(Event *ev);
 };
-
-#endif
-
