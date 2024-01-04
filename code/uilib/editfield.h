@@ -20,25 +20,21 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-#ifndef __EDITFIELD_H__
-#define __EDITFIELD_H__
+#pragma once
 
 #define EDITFIELD_BUFSIZE 256
 
-class EditField {
+class EditField
+{
 public:
-	char m_buffer[ EDITFIELD_BUFSIZE ];
-	int m_cursor;
+    char m_buffer[EDITFIELD_BUFSIZE];
+    int  m_cursor;
 
-	EditField();
+    EditField();
 };
 
-inline
-EditField::EditField()
+inline EditField::EditField()
 {
-	m_buffer[ 0 ] = 0;
-	m_cursor = 0;
+    m_buffer[0] = 0;
+    m_cursor    = 0;
 }
-
-#endif
-
