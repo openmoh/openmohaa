@@ -20,7 +20,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
+#pragma once
+
 #include "qal.h"
+
+#undef OPENAL
 
 typedef int          S32;
 typedef unsigned int U32;
@@ -127,3 +131,40 @@ struct openal_internal_t {
     char                tm_filename[64];
     int                 tm_loopcount;
 };
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+qboolean S_OPENAL_Init();
+void     S_OPENAL_StartSound(
+        float      *vOrigin,
+        int         iEntNum,
+        int         iEntChannel,
+        sfxHandle_t sfxHandle,
+        float       fVolume,
+        float       fMinDist,
+        float       fPitch,
+        float       fMaxDist,
+        qboolean    bStreamed
+    );
+void S_OPENAL_AddLoopingSound(
+    const vec3_t vOrigin,
+    const vec3_t vVelocity,
+    sfxHandle_t  sfxHandle,
+    float        fVolume,
+    float        fMinDist,
+    float        fMaxDist,
+    float        fPitch,
+    int          iFlags
+);
+void S_OPENAL_ClearLoopingSounds();
+void S_OPENAL_StopSound(int iEntNum);
+void S_OPENAL_StopAllSounds(qboolean bStopMusic);
+void S_OPENAL_Respatialize(int iEntNum, const vec3_t vHeadPos, const vec3_t vAxis[3]);
+void S_OPENAL_SetReverb(int iType, float fLevel);
+void S_OPENAL_Update();
+
+#ifdef __cplusplus
+}
+#endif

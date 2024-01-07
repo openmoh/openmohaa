@@ -223,7 +223,7 @@ static qboolean S_OPENAL_ShouldPlay(sfx_t *pSfx)
     return qfalse;
 }
 
-static qboolean S_OPENAL_ShouldStart(float *vOrigin, float fMinDist, float fMaxDist)
+static qboolean S_OPENAL_ShouldStart(const vec3_t vOrigin, float fMinDist, float fMaxDist)
 {
     // FIXME: unimplemented
     return qfalse;
@@ -259,14 +259,14 @@ void callbackServer(int entnum, int channel_number, const char *name)
 }
 
 static void S_OPENAL_Start2DSound(
-    float *vOrigin,
-    int    iEntNum,
-    int    iEntChannel,
-    sfx_t *pSfx,
-    float  fVolume,
-    float  fMinDistance,
-    float  fPitch,
-    float  fMaxDistance
+    const vec3_t vOrigin,
+    int          iEntNum,
+    int          iEntChannel,
+    sfx_t       *pSfx,
+    float        fVolume,
+    float        fMinDistance,
+    float        fPitch,
+    float        fMaxDistance
 )
 {
     // FIXME: unimplemented
@@ -288,14 +288,14 @@ void S_OPENAL_StartSound(
 }
 
 void S_OPENAL_AddLoopingSound(
-    float      *vOrigin,
-    float      *vVelocity,
-    sfxHandle_t sfxHandle,
-    float       fVolume,
-    float       fMinDist,
-    float       fMaxDist,
-    float       fPitch,
-    int         iFlags
+    const vec3_t vOrigin,
+    const vec3_t vVelocity,
+    sfxHandle_t  sfxHandle,
+    float        fVolume,
+    float        fMinDist,
+    float        fMaxDist,
+    float        fPitch,
+    int          iFlags
 )
 {
     // FIXME: unimplemented
@@ -327,7 +327,7 @@ void S_OPENAL_StopAllSounds(qboolean bStopMusic)
 }
 
 static int S_OPENAL_Start2DLoopSound(
-    openal_loop_sound_t *pLoopSound, float fVolume, float fVolumeToPlay, float fMinDistance, float *vLoopOrigin
+    openal_loop_sound_t *pLoopSound, float fVolume, float fVolumeToPlay, float fMinDistance, const vec3_t vLoopOrigin
 )
 {
     // FIXME: unimplemented
@@ -361,17 +361,17 @@ static bool S_OPENAL_UpdateLoopSound(
     return false;
 }
 
-void S_OPENAL_AddLoopSounds(float *vTempAxis)
+void S_OPENAL_AddLoopSounds(const vec3_t vTempAxis)
 {
     // FIXME: unimplemented
 }
 
-void S_OPENAL_Respatialize(int iEntNum, float *vHeadPos, float (*vAxis)[3])
+void S_OPENAL_Respatialize(int iEntNum, const vec3_t vHeadPos, const vec3_t vAxis[3])
 {
     // FIXME: unimplemented
 }
 
-static int S_OPENAL_SpatializeStereoSound(float *listener_origin, float *listener_left, float *origin)
+static int S_OPENAL_SpatializeStereoSound(const vec3_t listener_origin, const vec3_t listener_left, const vec3_t origin)
 {
     // FIXME: unimplemented
     return 0;
