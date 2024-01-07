@@ -27,6 +27,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../qcommon/qcommon.h"
 #include "snd_public.h"
 
+#if !defined(USE_SOUND_NEW) || !USE_SOUND_NEW
+
 #define	PAINTBUFFER_SIZE		4096					// this is in samples
 
 #define SND_CHUNK_SIZE			1024					// samples
@@ -280,4 +282,8 @@ void S_PaintChannelFrom16_altivec( portable_samplepair_t paintbuffer[PAINTBUFFER
 
 #ifdef __cplusplus
 }
+#endif
+
+#else
+#  include "snd_local_new.h"
 #endif

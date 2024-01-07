@@ -22,6 +22,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "../snd_local.h"
 
+#if !defined(USE_SOUND_NEW) || !USE_SOUND_NEW
+
 void S_Init2()
 {
     S_Init();
@@ -448,3 +450,5 @@ void S_LoadData(soundsystemsavegame_t* pSave) {
 void S_SaveData(soundsystemsavegame_t* pSave) {
     // FIXME: unimplemented
 }
+
+#endif

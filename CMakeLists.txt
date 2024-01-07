@@ -128,15 +128,6 @@ if (NOT BUILD_NO_CLIENT)
 	set_target_properties(openmohaa PROPERTIES DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX})
 
 	target_link_libraries(openmohaa PRIVATE jpeg8)
-	if (USE_OPENAL)
-		# Try to use OpenAL
-		find_package(OpenAL)
-		if (OPENAL_FOUND)
-			target_compile_definitions(openmohaa PRIVATE USE_OPENAL=1)
-			target_include_directories(openmohaa PRIVATE ${OPENAL_INCLUDE_DIR})
-			target_link_libraries(openmohaa PRIVATE ${OPENAL_LIBRARY})
-		endif()
-	endif()
 
 	if (MSVC)
 		target_link_options(openmohaa PRIVATE "/MANIFEST:NO")

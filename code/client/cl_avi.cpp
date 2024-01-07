@@ -334,6 +334,9 @@ writing the actual data can begin
 */
 qboolean CL_OpenAVIForWriting( const char *fileName )
 {
+    return qfalse;
+    // Removed in OPM
+#if 0
   if( afd.fileOpen )
     return qfalse;
 
@@ -425,6 +428,7 @@ qboolean CL_OpenAVIForWriting( const char *fileName )
   afd.fileOpen = qtrue;
 
   return qtrue;
+#endif
 }
 
 /*

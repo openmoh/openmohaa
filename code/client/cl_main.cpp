@@ -769,7 +769,9 @@ void CL_ShutdownAll(qboolean shutdownRef) {
 	CL_cURL_Shutdown();
 #endif
 	// clear sounds
+#if !defined(USE_SOUND_NEW) || !USE_SOUND_NEW
 	S_DisableSounds();
+#endif
 	// shutdown CGame
 	CL_ShutdownCGame();
 	// shutdown UI
@@ -1547,7 +1549,11 @@ void CL_Vid_Restart_f( void ) {
 
 	SV_FinishSvsTimeFixups();
 
+#if !defined(USE_SOUND_NEW) || !USE_SOUND_NEW
 	S_Init();
+#else
+	S_Init(qtrue);
+#endif
 
 	if (clc.state > CA_CONNECTED && clc.state != CA_CINEMATIC)
 	{
@@ -1569,8 +1575,13 @@ handles will be invalid
 =================
 */
 void CL_Snd_Restart_f( void ) {
+#if !defined(USE_SOUND_NEW) || !USE_SOUND_NEW
 	S_Shutdown();
 	S_Init();
+#else
+	S_Shutdown(qfalse);
+	S_Init(qfalse);
+#endif
 
 	CL_Vid_Restart_f();
 }
@@ -3387,7 +3398,9 @@ void CL_Init( void ) {
 
 	Cvar_Set( "cl_running", "1" );
 
+#if !defined(USE_SOUND_NEW) || !USE_SOUND_NEW
 	S_Init2();
+#endif
 
 	// fixme: should we leave it?
 	CL_GenerateQKey();
@@ -3428,7 +3441,11 @@ void CL_Shutdown(const char* finalmsg, qboolean disconnect, qboolean quit) {
 	if(disconnect)
 		CL_Disconnect();
 
+#if !defined(USE_SOUND_NEW) || !USE_SOUND_NEW
 	S_Shutdown();
+#else
+	S_Shutdown(qtrue);
+#endif
 	CL_ShutdownRef();
 
 	CL_ShutdownUI();

@@ -1091,6 +1091,8 @@ static void RoQReset( void ) {
 
 static void RoQInterrupt(void)
 {
+	// Removed in OPM
+#if 0
 	byte				*framedata;
         short		sbuf[32768];
         int		ssize;
@@ -1214,6 +1216,7 @@ redump:
 //	assert(cinTable[currentHandle].RoQFrameSize <= 65536);
 //	r = FS_Read( cin.file, cinTable[currentHandle].RoQFrameSize+8, cinTable[currentHandle].iFile );
 	cinTable[currentHandle].RoQPlayed	+= cinTable[currentHandle].RoQFrameSize+8;
+#endif
 }
 
 /******************************************************************************
@@ -1397,6 +1400,9 @@ CIN_PlayCinematic
 ==================
 */
 int CIN_PlayCinematic( const char *arg, int x, int y, int w, int h, int systemBits ) {
+	return 0;
+	// Removed in OPM
+#if 0
 	unsigned short RoQID;
 	char	name[MAX_OSPATH];
 	int		i;
@@ -1478,6 +1484,7 @@ int CIN_PlayCinematic( const char *arg, int x, int y, int w, int h, int systemBi
 
 	RoQShutdown();
 	return -1;
+#endif
 }
 
 void CIN_SetExtents (int handle, int x, int y, int w, int h) {
