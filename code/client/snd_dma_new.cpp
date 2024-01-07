@@ -22,7 +22,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #if USE_SOUND_NEW
 
-#    include "snd_local.h"
+#include "snd_local.h"
+#include "snd_openal_new.h"
 
 typedef struct {
     vec3_t origin;

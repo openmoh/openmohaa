@@ -20,6 +20,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
+#pragma once
+
 #include "../qcommon/q_shared.h"
 #include "../qcommon/qcommon.h"
 
@@ -128,6 +130,10 @@ typedef struct {
     channelbasesavegame_t Channels[96];
 } soundsystemsavegame_t;
 
+// The current sound driver.
+// Currently OPENAL
+#define SOUND_DRIVER OPENAL
+
 sfx_t *S_FindName(const char *name, int sequenceNumber);
 void   S_DefaultSound(sfx_t *sfx);
 
@@ -136,6 +142,22 @@ void S_SaveData(soundsystemsavegame_t *pSave);
 void S_ClearSoundBuffer();
 
 #define S_StopAllSounds2 S_StopAllSounds
+
+//
+// Driver-specific functions
+//
+#define S_Call_SndDriver(driver, func)  S_##driver##_##func
+#define S_Call_SndDriverX(driver, func) S_Call_SndDriver(driver, func)
+
+#define S_Driver_Init                   S_Call_SndDriverX(SOUND_DRIVER, Init)
+#define S_Driver_StartSound             S_Call_SndDriverX(SOUND_DRIVER, StartSound)
+#define S_Driver_AddLoopingSound        S_Call_SndDriverX(SOUND_DRIVER, AddLoopingSound)
+#define S_Driver_ClearLoopingSounds     S_Call_SndDriverX(SOUND_DRIVER, ClearLoopingSounds)
+#define S_Driver_StopSound              S_Call_SndDriverX(SOUND_DRIVER, StopSound)
+#define S_Driver_StopAllSounds          S_Call_SndDriverX(SOUND_DRIVER, StopAllSounds)
+#define S_Driver_Respatialize           S_Call_SndDriverX(SOUND_DRIVER, Respatialize)
+#define S_Driver_SetReverb              S_Call_SndDriverX(SOUND_DRIVER, SetReverb)
+#define S_Driver_Update                 S_Call_SndDriverX(SOUND_DRIVER, Update)
 
 #ifdef __cplusplus
 }
