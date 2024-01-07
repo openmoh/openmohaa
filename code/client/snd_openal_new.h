@@ -138,15 +138,15 @@ extern "C" {
 
 qboolean S_OPENAL_Init();
 void     S_OPENAL_StartSound(
-        float      *vOrigin,
-        int         iEntNum,
-        int         iEntChannel,
-        sfxHandle_t sfxHandle,
-        float       fVolume,
-        float       fMinDist,
-        float       fPitch,
-        float       fMaxDist,
-        qboolean    bStreamed
+        const vec3_t vOrigin,
+        int          iEntNum,
+        int          iEntChannel,
+        sfxHandle_t  sfxHandle,
+        float        fVolume,
+        float        fMinDist,
+        float        fPitch,
+        float        fMaxDist,
+        qboolean     bStreamed
     );
 void S_OPENAL_AddLoopingSound(
     const vec3_t vOrigin,

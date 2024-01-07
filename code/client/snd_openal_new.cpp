@@ -273,15 +273,15 @@ static void S_OPENAL_Start2DSound(
 }
 
 void S_OPENAL_StartSound(
-    float      *vOrigin,
-    int         iEntNum,
-    int         iEntChannel,
-    sfxHandle_t sfxHandle,
-    float       fVolume,
-    float       fMinDist,
-    float       fPitch,
-    float       fMaxDist,
-    qboolean    bStreamed
+    const vec3_t vOrigin,
+    int          iEntNum,
+    int          iEntChannel,
+    sfxHandle_t  sfxHandle,
+    float        fVolume,
+    float        fMinDist,
+    float        fPitch,
+    float        fMaxDist,
+    qboolean     bStreamed
 )
 {
     // FIXME: unimplemented
@@ -339,8 +339,8 @@ static int S_OPENAL_Start3DLoopSound(
     float                fVolumeToPlay,
     float                fMinDistance,
     float                fMaxDistance,
-    float               *vLoopOrigin,
-    float               *vListenerOrigin
+    const vec3_t         vLoopOrigin,
+    const vec3_t         vListenerOrigin
 )
 {
     // FIXME: unimplemented
@@ -352,9 +352,9 @@ static bool S_OPENAL_UpdateLoopSound(
     float                fVolumeToPlay,
     float                fMinDistance,
     float                fMaxDistance,
-    float               *vListenerOrigin,
-    float               *vTempAxis,
-    float               *vLoopOrigin
+    const vec3_t         vListenerOrigin,
+    const vec3_t         vTempAxis,
+    const vec3_t         vLoopOrigin
 )
 {
     // FIXME: unimplemented
