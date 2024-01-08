@@ -3433,12 +3433,14 @@ void Player::DoUse(Event *ev)
         return;
     }
 
-    if ((buttons & BUTTON_ATTACKLEFT) || (buttons & BUTTON_ATTACKRIGHT)) {
-        //
-        // Added in 2.0
-        //  Only allow use if the player isn't holding attack buttons
-        //
-        return;
+    if (g_protocol >= protocol_e::PROTOCOL_MOHTA_MIN) {
+        if ((buttons & BUTTON_ATTACKLEFT) || (buttons & BUTTON_ATTACKRIGHT)) {
+            //
+            // Added in 2.0
+            //  Only allow use if the player isn't holding attack buttons
+            //
+            return;
+        }
     }
 
     num = getUseableEntities(touch, MAX_GENTITIES, true);
