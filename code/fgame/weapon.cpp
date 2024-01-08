@@ -4149,6 +4149,11 @@ void Weapon::FallingAngleAdjust(Event *ev)
 //======================
 qboolean Weapon::GetUseCrosshair() const
 {
+    if (g_protocol < protocol_e::PROTOCOL_MOHTA_MIN) {
+        // Always show the crosshair in 1.11 and below
+        return qtrue;
+    }
+
     if (m_fMaxFireMovement >= 1.f) {
         return crosshair;
     }
