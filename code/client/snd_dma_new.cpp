@@ -34,10 +34,6 @@ typedef struct {
     int    mergeFrame;
 } loopSound_t;
 
-#    define MAX_SFX         1400
-#    define MAX_SFX_INFOS   1000
-#    define MAX_LOOP_SOUNDS 64
-
 qboolean s_bLastInitSound  = qfalse;
 qboolean s_bSoundStarted   = qfalse;
 qboolean s_bSoundPaused    = qfalse;

@@ -139,6 +139,13 @@ enum sfx_flags_t {
     SFX_FLAG_NO_OFFSET     = 8,
 };
 
+#define MAX_SFX         1400
+#define MAX_SFX_INFOS   1000
+#define MAX_LOOP_SOUNDS 64
+
+extern int        number_of_sfx_infos;
+extern sfx_info_t sfx_infos[];
+
 // The current sound driver.
 // Currently OPENAL
 #define SOUND_DRIVER OPENAL
