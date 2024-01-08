@@ -22,7 +22,7 @@ set(archdetect_c_code "
 #elif defined __arm__ || defined (_M_ARM)
 #  error cmake_ARCH arm
 #elif defined(__aarch64__) || defined(__ARM64__) || defined(_M_ARM64)
-#  error cmake_ARCH aarch64
+#  error cmake_ARCH arm64
 #elif defined __cris__
 #  error cmake_ARCH cris
 #elif defined __hppa__

@@ -22,7 +22,7 @@ jobs:
         architecture: [
           {name: 'amd64',   triple: 'x86_64-linux-gnu'},
           {name: 'i686',    triple: 'i686-linux-gnu'},
-          {name: 'aarch64', triple: 'aarch64-linux-gnu'},
+          {name: 'arm64',   triple: 'aarch64-linux-gnu'},
           {name: 'armhf',   triple: 'arm-linux-gnueabihf'}
         ]
 
