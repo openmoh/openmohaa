@@ -29,6 +29,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 extern "C" {
 #endif
 
+extern cvar_t *s_khz;
+
 typedef struct {
     int   format;
     float rate;
@@ -131,7 +133,10 @@ typedef struct {
 } soundsystemsavegame_t;
 
 enum sfx_flags_t {
-    SFX_FLAG_DEFAULT_SOUND = 1
+    SFX_FLAG_DEFAULT_SOUND = 1,
+    SFX_FLAG_MP3           = 2,
+    SFX_FLAG_NO_DATA       = 4,
+    SFX_FLAG_NO_OFFSET     = 8,
 };
 
 // The current sound driver.
