@@ -137,6 +137,7 @@ extern "C" {
 #endif
 
 qboolean S_OPENAL_Init();
+void     S_OPENAL_Shutdown();
 void     S_OPENAL_StartSound(
         const vec3_t vOrigin,
         int          iEntNum,
@@ -159,7 +160,7 @@ void S_OPENAL_AddLoopingSound(
     int          iFlags
 );
 void S_OPENAL_ClearLoopingSounds();
-void S_OPENAL_StopSound(int iEntNum);
+void S_OPENAL_StopSound(int iEntNum, int iEntChannel);
 void S_OPENAL_StopAllSounds(qboolean bStopMusic);
 void S_OPENAL_Respatialize(int iEntNum, const vec3_t vHeadPos, const vec3_t vAxis[3]);
 void S_OPENAL_SetReverb(int iType, float fLevel);

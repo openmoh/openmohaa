@@ -130,9 +130,17 @@ typedef struct {
     channelbasesavegame_t Channels[96];
 } soundsystemsavegame_t;
 
+enum sfx_flags_t {
+    SFX_FLAG_DEFAULT_SOUND = 1
+};
+
 // The current sound driver.
 // Currently OPENAL
 #define SOUND_DRIVER OPENAL
+
+//
+// snd_dma_new.cpp
+//
 
 sfx_t *S_FindName(const char *name, int sequenceNumber);
 void   S_DefaultSound(sfx_t *sfx);
@@ -140,6 +148,11 @@ void   S_DefaultSound(sfx_t *sfx);
 void S_LoadData(soundsystemsavegame_t *pSave);
 void S_SaveData(soundsystemsavegame_t *pSave);
 void S_ClearSoundBuffer();
+
+//
+// snd_mem.c
+//
+qboolean S_LoadSound(const char *fileName, sfx_t *sfx, int streamed, qboolean force_load);
 
 #define S_StopAllSounds2 S_StopAllSounds
 
@@ -150,6 +163,7 @@ void S_ClearSoundBuffer();
 #define S_Call_SndDriverX(driver, func) S_Call_SndDriver(driver, func)
 
 #define S_Driver_Init                   S_Call_SndDriverX(SOUND_DRIVER, Init)
+#define S_Driver_Shutdown               S_Call_SndDriverX(SOUND_DRIVER, Shutdown)
 #define S_Driver_StartSound             S_Call_SndDriverX(SOUND_DRIVER, StartSound)
 #define S_Driver_AddLoopingSound        S_Call_SndDriverX(SOUND_DRIVER, AddLoopingSound)
 #define S_Driver_ClearLoopingSounds     S_Call_SndDriverX(SOUND_DRIVER, ClearLoopingSounds)
@@ -158,6 +172,11 @@ void S_ClearSoundBuffer();
 #define S_Driver_Respatialize           S_Call_SndDriverX(SOUND_DRIVER, Respatialize)
 #define S_Driver_SetReverb              S_Call_SndDriverX(SOUND_DRIVER, SetReverb)
 #define S_Driver_Update                 S_Call_SndDriverX(SOUND_DRIVER, Update)
+
+void S_PrintInfo();
+void S_DumpInfo();
+
+extern cvar_t *s_show_sounds;
 
 #ifdef __cplusplus
 }

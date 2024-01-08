@@ -316,7 +316,7 @@ void S_OPENAL_StopLoopingSounds()
     // FIXME: unimplemented
 }
 
-void S_OPENAL_StopSound(int iEntNum)
+void S_OPENAL_StopSound(int iEntNum, int iEntChannel)
 {
     // FIXME: unimplemented
 }
