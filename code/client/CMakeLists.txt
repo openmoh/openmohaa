@@ -31,6 +31,8 @@ if (USE_SOUND_NEW)
 	endif()
 
 	list(FILTER SOURCES_CLIENT EXCLUDE REGEX "./snd_([a-zA-Z0-9_]+)\.c$")
+	file(GLOB_RECURSE SOURCES_CLIENT_SND "./snd_*_new.c*")
+	list(APPEND SOURCES_CLIENT ${SOURCES_CLIENT_SND})
 endif()
 
 if (USE_OPENAL)
