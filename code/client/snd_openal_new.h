@@ -29,6 +29,19 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 typedef int          S32;
 typedef unsigned int U32;
 
+#define MAX_OPENAL_CHANNELS_3D        32
+#define MAX_OPENAL_CHANNELS_2D        32
+#define MAX_OPENAL_CHANNELS_2D_STREAM 32
+#define MAX_OPENAL_SONGS              2
+#define MAX_OPENAL_CHANNELS \
+    (MAX_OPENAL_CHANNELS_3D + MAX_OPENAL_CHANNELS_2D + MAX_OPENAL_CHANNELS_2D_STREAM + MAX_OPENAL_SONGS + 3)
+#define MAX_OPENAL_LOOP_SOUNDS 64
+
+#define OPENAL_CHANNEL_MP3_ID \
+    (MAX_OPENAL_CHANNELS_3D + MAX_OPENAL_CHANNELS_2D + MAX_OPENAL_CHANNELS_2D_STREAM + MAX_OPENAL_SONGS)
+#define OPENAL_CHANNEL_TRIGGER_MUSIC_ID (OPENAL_CHANNEL_MP3_ID + 1)
+#define OPENAL_CHANNEL_MOVIE_ID         (OPENAL_CHANNEL_TRIGGER_MUSIC_ID + 1)
+
 typedef enum {
     FADE_NONE,
     FADE_IN,
@@ -36,46 +49,56 @@ typedef enum {
 } fade_t;
 
 typedef struct {
-    vec3_t   vOrigin;
-    vec3_t   vRelativeOrigin;
-    vec3_t   vVelocity;
+    vec3_t vOrigin;
+    vec3_t vRelativeOrigin;
+    vec3_t vVelocity;
+
     sfx_t   *pSfx;
     qboolean bPlaying;
-    int      iChannel;
-    float    fVolume;
-    float    fPitch;
+
+    int   iChannel;
+    float fVolume;
+    float fPitch;
+
     int      iStartTime;
     qboolean bInUse;
     qboolean bCombine;
-    float    fBaseVolume;
-    float    fMinDist;
-    float    fMaxDist;
-    int      iFlags;
+
+    float fBaseVolume;
+    float fMinDist;
+    float fMaxDist;
+    int   iFlags;
 } openal_loop_sound_t;
 
 struct openal_channel {
-    sfx_t   *pSfx;
-    int      iEntNum;
-    int      iEntChannel;
-    vec3_t   vOrigin;
-    float    fVolume;
-    int      iBaseRate;
-    float    fNewPitchMult;
-    float    fMinDist;
-    float    fMaxDist;
-    int      iStartTime;
-    int      iTime;
-    int      iEndTime;
-    int      iFlags;
-    int      iPausedOffset;
-    int      song_number;
-    fade_t   fading;
-    int      fade_time;
-    int      fade_start_time;
+    sfx_t *pSfx;
+    int    iEntNum;
+    int    iEntChannel;
+    vec3_t vOrigin;
+
+    float fVolume;
+    int   iBaseRate;
+    float fNewPitchMult;
+    float fMinDist;
+    float fMaxDist;
+
+    int iStartTime;
+    int iTime;
+    int iEndTime;
+    int iFlags;
+    int iPausedOffset;
+
+    int song_number;
+
+    fade_t fading;
+    int    fade_time;
+    int    fade_start_time;
+
     ALuint   source;
     ALuint   buffer;
     ALubyte *bufferdata;
 
+public:
     void play();
     void stop();
     void pause();
@@ -117,19 +140,24 @@ struct openal_channel {
 };
 
 struct openal_internal_t {
-    openal_channel      chan_3D[32];
-    openal_channel      chan_2D[32];
-    openal_channel      chan_2D_stream[32];
-    openal_channel      chan_song[2];
-    openal_channel      chan_mp3;
-    openal_channel      chan_trig_music;
-    openal_channel      chan_movie;
-    openal_channel     *channel[101];
-    openal_loop_sound_t loop_sounds[64];
-    openal_channel      movieChannel;
-    sfx_t               movieSFX;
-    char                tm_filename[64];
-    int                 tm_loopcount;
+    openal_channel chan_3D[MAX_OPENAL_CHANNELS_3D];
+    openal_channel chan_2D[MAX_OPENAL_CHANNELS_2D];
+    openal_channel chan_2D_stream[MAX_OPENAL_CHANNELS_2D_STREAM];
+    openal_channel chan_song[MAX_OPENAL_SONGS];
+    openal_channel chan_mp3;
+    openal_channel chan_trig_music;
+    openal_channel chan_movie;
+
+    // Pointers to channels
+    openal_channel *channel[MAX_OPENAL_CHANNELS];
+
+    openal_loop_sound_t loop_sounds[MAX_OPENAL_LOOP_SOUNDS];
+
+    openal_channel movieChannel;
+    sfx_t          movieSFX;
+
+    char tm_filename[MAX_RES_NAME];
+    int  tm_loopcount;
 };
 
 #ifdef __cplusplus
