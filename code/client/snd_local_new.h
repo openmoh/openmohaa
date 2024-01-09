@@ -29,6 +29,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 extern "C" {
 #endif
 
+extern cvar_t *s_volume;
 extern cvar_t *s_khz;
 
 typedef struct {
@@ -145,10 +146,17 @@ enum sfx_flags_t {
 
 extern int        number_of_sfx_infos;
 extern sfx_info_t sfx_infos[];
+extern sfx_t      s_knownSfx[];
+extern int        s_numSfx;
 
 // The current sound driver.
 // Currently OPENAL
 #define SOUND_DRIVER OPENAL
+
+//
+// snd_info.cpp
+//
+void load_sfx_info();
 
 //
 // snd_dma_new.cpp
