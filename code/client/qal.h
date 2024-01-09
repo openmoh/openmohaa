@@ -55,6 +55,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #  define ALC_ALL_DEVICES_SPECIFIER                0x1013
 #endif
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifdef USE_OPENAL_DLOPEN
 extern LPALENABLE qalEnable;
 extern LPALDISABLE qalDisable;
@@ -247,5 +251,9 @@ extern LPALCCAPTURESAMPLES qalcCaptureSamples;
 
 qboolean QAL_Init(const char *libname);
 void QAL_Shutdown( void );
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif	// __QAL_H__
