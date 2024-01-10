@@ -31,6 +31,7 @@ extern "C" {
 
 extern cvar_t *s_volume;
 extern cvar_t *s_khz;
+extern cvar_t *s_loadas8bit;
 
 typedef struct {
     int   format;
@@ -134,10 +135,13 @@ typedef struct {
 } soundsystemsavegame_t;
 
 enum sfx_flags_t {
-    SFX_FLAG_DEFAULT_SOUND = 1,
-    SFX_FLAG_MP3           = 2,
-    SFX_FLAG_NO_DATA       = 4,
-    SFX_FLAG_NO_OFFSET     = 8,
+    SFX_FLAG_DEFAULT_SOUND  = 1,
+    SFX_FLAG_MP3            = 2,
+    SFX_FLAG_NO_DATA        = 4,
+    SFX_FLAG_NO_OFFSET      = 8,
+    SFX_FLAG_LOCAL_LISTENER = 16,
+    SFX_FLAG_NO_ENTITY      = 32,
+    SFX_FLAG_PAUSED         = 64,
 };
 
 #define MAX_SFX         1400
@@ -148,6 +152,7 @@ extern qboolean   s_bLastInitSound;
 extern qboolean   s_bSoundStarted;
 extern qboolean   s_bSoundPaused;
 extern qboolean   s_bTryUnpause;
+extern int        s_iListenerNumber;
 extern int        number_of_sfx_infos;
 extern sfx_info_t sfx_infos[];
 extern sfx_t      s_knownSfx[];
