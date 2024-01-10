@@ -144,6 +144,10 @@ enum sfx_flags_t {
 #define MAX_SFX_INFOS   1000
 #define MAX_LOOP_SOUNDS 64
 
+extern qboolean   s_bLastInitSound;
+extern qboolean   s_bSoundStarted;
+extern qboolean   s_bSoundPaused;
+extern qboolean   s_bTryUnpause;
 extern int        number_of_sfx_infos;
 extern sfx_info_t sfx_infos[];
 extern sfx_t      s_knownSfx[];
