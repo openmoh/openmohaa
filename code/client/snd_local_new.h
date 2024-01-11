@@ -134,14 +134,23 @@ typedef struct {
     channelbasesavegame_t Channels[96];
 } soundsystemsavegame_t;
 
+enum channel_flags_t {
+    CHANNEL_FLAG_PLAYABLE       = 1,
+    CHANNEL_FLAG_LOCAL_LISTENER = 16,
+    CHANNEL_FLAG_NO_ENTITY      = 32,
+    CHANNEL_FLAG_PAUSED         = 64,
+    CHANNEL_FLAG_LOOPING        = 128,
+};
+
 enum sfx_flags_t {
-    SFX_FLAG_DEFAULT_SOUND  = 1,
-    SFX_FLAG_MP3            = 2,
-    SFX_FLAG_NO_DATA        = 4,
-    SFX_FLAG_NO_OFFSET      = 8,
-    SFX_FLAG_LOCAL_LISTENER = 16,
-    SFX_FLAG_NO_ENTITY      = 32,
-    SFX_FLAG_PAUSED         = 64,
+    SFX_FLAG_DEFAULT_SOUND = 1,
+    SFX_FLAG_MP3           = 2,
+    SFX_FLAG_NO_DATA       = 4,
+    SFX_FLAG_NO_OFFSET     = 8,
+};
+
+enum loopsound_flags_t {
+    LOOPSOUND_FLAG_NO_PAN = 1
 };
 
 #define MAX_SFX         1400
