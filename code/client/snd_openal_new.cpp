@@ -97,10 +97,17 @@ static char       current_soundtrack[128];
 static void S_OPENAL_PlayMP3();
 static void S_OPENAL_StopMP3();
 static void S_OPENAL_Pitch();
+static int
+S_OPENAL_SpatializeStereoSound(const vec3_t listener_origin, const vec3_t listener_left, const vec3_t origin);
 static void S_OPENAL_reverb(int iChannel, int iReverbType, float fReverbLevel);
 
 #    define alDieIfError() __alDieIfError(__FILE__, __LINE__)
 
+/*
+==============
+__alDieIfError
+==============
+*/
 static void __alDieIfError(const char *file, int line)
 {
     ALint alErr = qalGetError();
@@ -109,6 +116,11 @@ static void __alDieIfError(const char *file, int line)
     }
 }
 
+/*
+==============
+S_OPENAL_NukeSource
+==============
+*/
 static void S_OPENAL_NukeSource(ALuint *srcptr)
 {
     ALuint source;
@@ -135,6 +147,11 @@ static void S_OPENAL_NukeSource(ALuint *srcptr)
     *srcptr = 0;
 }
 
+/*
+==============
+S_OPENAL_NukeBuffer
+==============
+*/
 static void S_OPENAL_NukeBuffer(ALuint *bufptr)
 {
     if (!*bufptr) {
@@ -150,9 +167,13 @@ static void S_OPENAL_NukeBuffer(ALuint *bufptr)
 
     alDieIfError();
     *bufptr = 0;
-    // FIXME: unimplemented
 }
 
+/*
+==============
+S_OPENAL_NukeChannel
+==============
+*/
 static void S_OPENAL_NukeChannel(openal_channel *channel)
 {
     if (!channel) {
@@ -167,6 +188,11 @@ static void S_OPENAL_NukeChannel(openal_channel *channel)
     }
 }
 
+/*
+==============
+S_OPENAL_NukeContext
+==============
+*/
 static void S_OPENAL_NukeContext()
 {
     int i;
@@ -206,6 +232,11 @@ static void S_OPENAL_NukeContext()
     }
 }
 
+/*
+==============
+S_OPENAL_InitContext
+==============
+*/
 static bool S_OPENAL_InitContext()
 {
     const char *dev;
@@ -278,6 +309,11 @@ static bool S_OPENAL_InitContext()
     return true;
 }
 
+/*
+==============
+S_OPENAL_InitExtensions
+==============
+*/
 static bool S_OPENAL_InitExtensions()
 {
     extensions_table_t extensions_table[4] = {
@@ -317,6 +353,11 @@ static bool S_OPENAL_InitExtensions()
     return true;
 }
 
+/*
+==============
+S_OPENAL_InitChannel
+==============
+*/
 static bool S_OPENAL_InitChannel(int idx, openal_channel *chan)
 {
     openal.channel[idx]   = chan;
@@ -352,6 +393,11 @@ static bool S_OPENAL_InitChannel(int idx, openal_channel *chan)
     return true;
 }
 
+/*
+==============
+S_OPENAL_Init
+==============
+*/
 qboolean S_OPENAL_Init()
 {
     int i;
@@ -461,6 +507,11 @@ qboolean S_OPENAL_Init()
     return true;
 }
 
+/*
+==============
+S_OPENAL_Shutdown
+==============
+*/
 void S_OPENAL_Shutdown()
 {
     if (!al_initialized) {
@@ -485,6 +536,11 @@ void S_OPENAL_Shutdown()
     al_initialized         = false;
 }
 
+/*
+==============
+S_FadeSound
+==============
+*/
 void S_FadeSound(float fTime)
 {
     Com_Printf("Called FadeSound with: %f\n", fTime);
@@ -500,16 +556,31 @@ void S_FadeSound(float fTime)
     }
 }
 
+/*
+==============
+S_GetBaseVolume
+==============
+*/
 float S_GetBaseVolume()
 {
     return s_volume->value * s_fFadeVolume;
 }
 
+/*
+==============
+S_NeedFullRestart
+==============
+*/
 qboolean S_NeedFullRestart()
 {
     return Cvar_Get("s_initsound", "1", 0)->integer != s_bLastInitSound;
 }
 
+/*
+==============
+S_PrintInfo
+==============
+*/
 void S_PrintInfo()
 {
     const char *dev;
@@ -542,6 +613,11 @@ void S_PrintInfo()
     Com_Printf("----------------------\n");
 }
 
+/*
+==============
+S_DumpStatus
+==============
+*/
 static void S_DumpStatus(const char *pszChanName, int iChanNum, openal_channel *channel)
 {
     sfx_t *sfx;
@@ -567,6 +643,11 @@ static void S_DumpStatus(const char *pszChanName, int iChanNum, openal_channel *
     }
 }
 
+/*
+==============
+S_DumpInfo
+==============
+*/
 void S_DumpInfo()
 {
     int i;
@@ -592,11 +673,21 @@ void S_DumpInfo()
     }
 }
 
+/*
+==============
+S_OPENAL_Pitch
+==============
+*/
 static void S_OPENAL_Pitch()
 {
     Com_Printf("S_OPENAL_Pitch() needs to be implemented!\n");
 }
 
+/*
+==============
+S_OPENAL_LoadMP3
+==============
+*/
 static bool S_OPENAL_LoadMP3(const char *_path, openal_channel *chan)
 {
     char   path[MAX_QPATH];
@@ -662,6 +753,11 @@ static bool S_OPENAL_LoadMP3(const char *_path, openal_channel *chan)
     return true;
 }
 
+/*
+==============
+S_OPENAL_PlayMP3
+==============
+*/
 static void S_OPENAL_PlayMP3()
 {
     const char *path;
@@ -681,11 +777,21 @@ static void S_OPENAL_PlayMP3()
     Com_Printf("Playing mp3 - %s\n", path);
 }
 
+/*
+==============
+S_OPENAL_StopMP3
+==============
+*/
 static void S_OPENAL_StopMP3()
 {
     S_OPENAL_NukeChannel(&openal.chan_mp3);
 }
 
+/*
+==============
+MUSIC_Pause
+==============
+*/
 void MUSIC_Pause()
 {
     int i;
@@ -695,6 +801,11 @@ void MUSIC_Pause()
     }
 }
 
+/*
+==============
+MUSIC_Unpause
+==============
+*/
 void MUSIC_Unpause()
 {
     int i;
@@ -706,6 +817,11 @@ void MUSIC_Unpause()
     }
 }
 
+/*
+==============
+S_PauseSound
+==============
+*/
 void S_PauseSound()
 {
     int i;
@@ -741,6 +857,11 @@ void S_PauseSound()
     S_TriggeredMusic_Pause();
 }
 
+/*
+==============
+S_UnpauseSound
+==============
+*/
 void S_UnpauseSound()
 {
     int i;
@@ -774,6 +895,11 @@ void S_UnpauseSound()
     s_bSoundPaused = false;
 }
 
+/*
+==============
+S_OPENAL_ShouldPlay
+==============
+*/
 static qboolean S_OPENAL_ShouldPlay(sfx_t *pSfx)
 {
     if (sfx_infos[pSfx->sfx_info_index].max_number_playing <= 0) {
@@ -802,6 +928,11 @@ static qboolean S_OPENAL_ShouldPlay(sfx_t *pSfx)
     return qtrue;
 }
 
+/*
+==============
+S_OPENAL_ShouldStart
+==============
+*/
 static qboolean S_OPENAL_ShouldStart(const vec3_t vOrigin, float fMinDist, float fMaxDist)
 {
     vec3_t vDir;
@@ -820,6 +951,11 @@ static qboolean S_OPENAL_ShouldStart(const vec3_t vOrigin, float fMinDist, float
     return Square(fMaxDist) > VectorLengthSquared(vDir);
 }
 
+/*
+==============
+S_OPENAL_PickChannelBase
+==============
+*/
 static int S_OPENAL_PickChannelBase(int iEntNum, int iEntChannel, int iFirstChannel, int iLastChannel)
 {
     int             i;
@@ -907,11 +1043,21 @@ static int S_OPENAL_PickChannelBase(int iEntNum, int iEntChannel, int iFirstChan
     return iBestChannel;
 }
 
+/*
+==============
+S_OPENAL_PickChannel3D
+==============
+*/
 static int S_OPENAL_PickChannel3D(int iEntNum, int iEntChannel)
 {
     return S_OPENAL_PickChannelBase(iEntNum, iEntChannel, 0, MAX_OPENAL_CHANNELS_3D - 1);
 }
 
+/*
+==============
+S_OPENAL_PickChannel2D
+==============
+*/
 static int S_OPENAL_PickChannel2D(int iEntNum, int iEntChannel)
 {
     return S_OPENAL_PickChannelBase(
@@ -919,6 +1065,11 @@ static int S_OPENAL_PickChannel2D(int iEntNum, int iEntChannel)
     );
 }
 
+/*
+==============
+S_OPENAL_PickChannel2DStreamed
+==============
+*/
 static int S_OPENAL_PickChannel2DStreamed(int iEntNum, int iEntChannel)
 {
     return S_OPENAL_PickChannelBase(
@@ -929,6 +1080,11 @@ static int S_OPENAL_PickChannel2DStreamed(int iEntNum, int iEntChannel)
     );
 }
 
+/*
+==============
+callbackServer
+==============
+*/
 void callbackServer(int entnum, int channel_number, const char *name)
 {
     if (!com_sv_running->integer) {
@@ -938,6 +1094,11 @@ void callbackServer(int entnum, int channel_number, const char *name)
     SV_SoundCallback(entnum, channel_number, name);
 }
 
+/*
+==============
+S_OPENAL_Start2DSound
+==============
+*/
 static void S_OPENAL_Start2DSound(
     const vec3_t vOrigin,
     int          iEntNum,
@@ -1028,7 +1189,7 @@ static void S_OPENAL_Start2DSound(
             pChannel->vOrigin[2] = -vOrigin[1];
 
             bSupportWaitTillSoundDone = cl.serverTime - 1 < 0;
-            pChannel->iTime = cl.serverTime - 1;
+            pChannel->iTime           = cl.serverTime - 1;
             if (bSupportWaitTillSoundDone) {
                 pChannel->iTime = 0;
             }
@@ -1074,6 +1235,11 @@ static void S_OPENAL_Start2DSound(
     }
 }
 
+/*
+==============
+S_OPENAL_StartSound
+==============
+*/
 void S_OPENAL_StartSound(
     const vec3_t vOrigin,
     int          iEntNum,
@@ -1086,28 +1252,27 @@ void S_OPENAL_StartSound(
     qboolean     bStreamed
 )
 {
-    int iChannel;
-    openal_channel* pChannel;
-    sfx_info_t* pSfxInfo;
-    sfx_t* pSfx;
-    ALint state;
-    bool bOnlyUpdate;
-    bool bSupportWaitTillSoundDone;
+    int             iChannel;
+    openal_channel *pChannel;
+    sfx_info_t     *pSfxInfo;
+    sfx_t          *pSfx;
+    ALint           state;
+    bool            bOnlyUpdate;
+    bool            bSupportWaitTillSoundDone;
 
     bOnlyUpdate = false;
-    pSfx = &s_knownSfx[sfxHandle];
+    pSfx        = &s_knownSfx[sfxHandle];
     if (bStreamed) {
         pSfx->iFlags |= SFX_FLAG_NO_DATA;
     }
 
-    if (!S_OPENAL_ShouldPlay(pSfx))
-    {
+    if (!S_OPENAL_ShouldPlay(pSfx)) {
         Com_DPrintf("^~^~^ Not playing sound '%s'\n", pSfx->name);
         return;
     }
 
-    if ((pSfx->iFlags & (SFX_FLAG_NO_OFFSET | SFX_FLAG_NO_DATA | SFX_FLAG_MP3)) || iEntChannel == CHAN_MENU || iEntChannel == CHAN_LOCAL)
-    {
+    if ((pSfx->iFlags & (SFX_FLAG_NO_OFFSET | SFX_FLAG_NO_DATA | SFX_FLAG_MP3)) || iEntChannel == CHAN_MENU
+        || iEntChannel == CHAN_LOCAL) {
         S_OPENAL_Start2DSound(vOrigin, iEntNum, iEntChannel, pSfx, fVolume, fMinDist, fPitch, fMaxDist);
         return;
     }
@@ -1122,9 +1287,14 @@ void S_OPENAL_StartSound(
     }
 
     iChannel = S_OPENAL_PickChannel3D(iEntNum, iEntChannel);
-    if (iChannel < 0)
-    {
-        Com_DPrintf("Couldn't play %s sound '%s' for entity %i on channel %s\n", (pSfx->iFlags & SFX_FLAG_NO_DATA) ? "3Dstreamed" : "3D", pSfx->name, iEntNum, S_ChannelNumToName(iEntChannel));
+    if (iChannel < 0) {
+        Com_DPrintf(
+            "Couldn't play %s sound '%s' for entity %i on channel %s\n",
+            (pSfx->iFlags & SFX_FLAG_NO_DATA) ? "3Dstreamed" : "3D",
+            pSfx->name,
+            iEntNum,
+            S_ChannelNumToName(iEntChannel)
+        );
         return;
     }
 
@@ -1132,9 +1302,9 @@ void S_OPENAL_StartSound(
         callbackServer(iEntNum, iChannel, pSfx->name);
     }
 
-    pChannel = &openal.chan_3D[iChannel];
+    pChannel                = &openal.chan_3D[iChannel];
     pChannel->fNewPitchMult = fPitch;
-    pChannel->iEntChannel = iEntChannel;
+    pChannel->iEntChannel   = iEntChannel;
     pChannel->iFlags &= ~(CHANNEL_FLAG_PAUSED | CHANNEL_FLAG_LOCAL_LISTENER);
     state = pChannel->get_state();
 
@@ -1149,8 +1319,7 @@ void S_OPENAL_StartSound(
         }
     }
 
-    if (fMinDist < 0.0)
-    {
+    if (fMinDist < 0.0) {
         fMinDist = 200.0;
         fMaxDist = 12800.0;
     }
@@ -1172,7 +1341,8 @@ void S_OPENAL_StartSound(
             pSfx->name,
             pChannel->fVolume,
             fMinDist,
-            fMaxDist);
+            fMaxDist
+        );
     }
 
     pChannel->set_velocity(0, 0, 0);
@@ -1188,17 +1358,19 @@ void S_OPENAL_StartSound(
             VectorClear(pChannel->vOrigin);
         }
 
-        pChannel->set_position(pChannel->vOrigin[0] / 52.49f, pChannel->vOrigin[1] / 52.49f, pChannel->vOrigin[2] / 52.49f);
+        pChannel->set_position(
+            pChannel->vOrigin[0] / 52.49f, pChannel->vOrigin[1] / 52.49f, pChannel->vOrigin[2] / 52.49f
+        );
         pChannel->iFlags |= CHANNEL_FLAG_NO_ENTITY;
         pChannel->iEntNum = 0;
     } else {
         pChannel->iEntNum = iEntNum;
         if (vOrigin) {
-            pChannel->vOrigin[0] = -*vOrigin;
-            pChannel->vOrigin[1] = vOrigin[2];
-            pChannel->vOrigin[2] = -vOrigin[1];
+            pChannel->vOrigin[0]      = -*vOrigin;
+            pChannel->vOrigin[1]      = vOrigin[2];
+            pChannel->vOrigin[2]      = -vOrigin[1];
             bSupportWaitTillSoundDone = cl.serverTime - 1 < 0;
-            pChannel->iTime = cl.serverTime - 1;
+            pChannel->iTime           = cl.serverTime - 1;
             if (bSupportWaitTillSoundDone) {
                 pChannel->iTime = 0;
             }
@@ -1220,15 +1392,19 @@ void S_OPENAL_StartSound(
         pChannel->set_sample_loop_count(1);
     }
 
-    if (!bOnlyUpdate && S_OPENAL_ShouldStart(pChannel->vOrigin, pChannel->fMinDist, pChannel->fMaxDist))
-    {
+    if (!bOnlyUpdate && S_OPENAL_ShouldStart(pChannel->vOrigin, pChannel->fMinDist, pChannel->fMaxDist)) {
         pChannel->play();
-        pChannel->iEndTime = cl.serverTime + (int)pChannel->pSfx->time_length + 250;
-        pChannel->iBaseRate = pChannel->sample_playback_rate();
+        pChannel->iEndTime   = cl.serverTime + (int)pChannel->pSfx->time_length + 250;
+        pChannel->iBaseRate  = pChannel->sample_playback_rate();
         pChannel->iStartTime = cl.serverTime;
     }
 }
 
+/*
+==============
+S_OPENAL_AddLoopingSound
+==============
+*/
 void S_OPENAL_AddLoopingSound(
     const vec3_t vOrigin,
     const vec3_t vVelocity,
@@ -1240,13 +1416,13 @@ void S_OPENAL_AddLoopingSound(
     int          iFlags
 )
 {
-    int i;
-    int iFreeLoopSound;
-    sfx_t* pSfx;
-    openal_loop_sound_t* pLoopSound;
+    int                  i;
+    int                  iFreeLoopSound;
+    sfx_t               *pSfx;
+    openal_loop_sound_t *pLoopSound;
 
     iFreeLoopSound = -1;
-    pSfx = &s_knownSfx[sfxHandle];
+    pSfx           = &s_knownSfx[sfxHandle];
     if (!pSfx) {
         return;
     }
@@ -1257,14 +1433,13 @@ void S_OPENAL_AddLoopingSound(
             iFreeLoopSound = i;
             break;
         }
-
     }
 
     if (iFreeLoopSound < 0) {
         for (i = 0; i < (MAX_OPENAL_CHANNELS_3D + MAX_OPENAL_CHANNELS_2D); i++) {
             pLoopSound = &openal.loop_sounds[i];
             if (!pLoopSound->pSfx && !pLoopSound->bInUse) {
-                iFreeLoopSound = i;
+                iFreeLoopSound       = i;
                 pLoopSound->bPlaying = false;
                 break;
             }
@@ -1279,22 +1454,22 @@ void S_OPENAL_AddLoopingSound(
         return;
     }
 
-    pLoopSound = &openal.loop_sounds[iFreeLoopSound];
-    pLoopSound->vOrigin[0] = -vOrigin[0];
-    pLoopSound->vOrigin[1] = vOrigin[2];
-    pLoopSound->vOrigin[2] = -vOrigin[1];
+    pLoopSound               = &openal.loop_sounds[iFreeLoopSound];
+    pLoopSound->vOrigin[0]   = -vOrigin[0];
+    pLoopSound->vOrigin[1]   = vOrigin[2];
+    pLoopSound->vOrigin[2]   = -vOrigin[1];
     pLoopSound->vVelocity[0] = -vVelocity[0] / 52.49f / 500.f;
     pLoopSound->vVelocity[1] = vVelocity[2] / 52.49f / 500.f;
     pLoopSound->vVelocity[2] = -vVelocity[1] / 52.49f / 500.f;
-    pLoopSound->pSfx = pSfx;
-    pLoopSound->bInUse = true;
-    pLoopSound->iStartTime = cls.realtime;
-    pLoopSound->fBaseVolume = fVolume;
-    pLoopSound->fMinDist = fMinDist;
-    pLoopSound->fMaxDist = fMaxDist;
-    pLoopSound->fPitch = fPitch;
-    pLoopSound->iFlags = iFlags;
-    pLoopSound->bCombine = VectorCompare(vVelocity, vec_zero) == 0;
+    pLoopSound->pSfx         = pSfx;
+    pLoopSound->bInUse       = true;
+    pLoopSound->iStartTime   = cls.realtime;
+    pLoopSound->fBaseVolume  = fVolume;
+    pLoopSound->fMinDist     = fMinDist;
+    pLoopSound->fMaxDist     = fMaxDist;
+    pLoopSound->fPitch       = fPitch;
+    pLoopSound->iFlags       = iFlags;
+    pLoopSound->bCombine     = VectorCompare(vVelocity, vec_zero) == 0;
 
     if (pLoopSound->bCombine) {
         for (i = 0; i < (MAX_OPENAL_CHANNELS_3D + MAX_OPENAL_CHANNELS_2D); i++) {
@@ -1309,11 +1484,16 @@ void S_OPENAL_AddLoopingSound(
     }
 }
 
+/*
+==============
+S_OPENAL_StopLoopingSound
+==============
+*/
 void S_OPENAL_StopLoopingSound(openal_loop_sound_t *pLoopSound)
 {
-    bool bMayStop;
-    int i;
-    openal_channel* pChannel;
+    bool            bMayStop;
+    int             i;
+    openal_channel *pChannel;
 
     if (!pLoopSound->bPlaying) {
         return;
@@ -1331,24 +1511,33 @@ void S_OPENAL_StopLoopingSound(openal_loop_sound_t *pLoopSound)
 
     if (bMayStop) {
         if (s_show_sounds->integer > 0) {
-            Com_DPrintf("%d (#%i) - stopped loop - %s\n", cl.serverTime, pLoopSound->iChannel, openal.channel[pLoopSound->iChannel]->pSfx->name);
+            Com_DPrintf(
+                "%d (#%i) - stopped loop - %s\n",
+                cl.serverTime,
+                pLoopSound->iChannel,
+                openal.channel[pLoopSound->iChannel]->pSfx->name
+            );
         }
         openal.channel[pLoopSound->iChannel]->force_free();
     }
-    pLoopSound->pSfx = NULL;
+    pLoopSound->pSfx     = NULL;
     pLoopSound->bPlaying = false;
 
     if (pLoopSound->bCombine) {
         for (i = 0; i < (MAX_OPENAL_CHANNELS_3D + MAX_OPENAL_CHANNELS_2D); i++) {
-            if (openal.loop_sounds[i].pSfx == pLoopSound->pSfx)
-            {
+            if (openal.loop_sounds[i].pSfx == pLoopSound->pSfx) {
                 openal.loop_sounds[i].bPlaying = false;
-                openal.loop_sounds[i].pSfx = NULL;
+                openal.loop_sounds[i].pSfx     = NULL;
             }
         }
     }
 }
 
+/*
+==============
+S_OPENAL_ClearLoopingSounds
+==============
+*/
 void S_OPENAL_ClearLoopingSounds()
 {
     int i;
@@ -1358,6 +1547,11 @@ void S_OPENAL_ClearLoopingSounds()
     }
 }
 
+/*
+==============
+S_OPENAL_StopLoopingSounds
+==============
+*/
 void S_OPENAL_StopLoopingSounds()
 {
     int i;
@@ -1368,12 +1562,17 @@ void S_OPENAL_StopLoopingSounds()
     }
 }
 
+/*
+==============
+S_OPENAL_StopSound
+==============
+*/
 void S_OPENAL_StopSound(int iEntNum, int iEntChannel)
 {
     int i;
 
     for (i = 0; i < MAX_OPENAL_POSITION_CHANNELS; i++) {
-        openal_channel* pChannel = openal.channel[i];
+        openal_channel *pChannel = openal.channel[i];
         if (!pChannel->is_free() && pChannel->iEntNum == iEntNum && pChannel->iEntChannel == iEntChannel) {
             pChannel->end_sample();
             break;
@@ -1381,6 +1580,11 @@ void S_OPENAL_StopSound(int iEntNum, int iEntChannel)
     }
 }
 
+/*
+==============
+S_OPENAL_StopAllSounds
+==============
+*/
 void S_OPENAL_StopAllSounds(qboolean bStopMusic)
 {
     int i;
@@ -1390,7 +1594,7 @@ void S_OPENAL_StopAllSounds(qboolean bStopMusic)
     }
 
     for (i = 0; i < MAX_OPENAL_POSITION_CHANNELS; i++) {
-        openal_channel* pChannel = openal.channel[i];
+        openal_channel *pChannel = openal.channel[i];
         if (pChannel) {
             pChannel->force_free();
         }
@@ -1400,21 +1604,24 @@ void S_OPENAL_StopAllSounds(qboolean bStopMusic)
         MUSIC_FreeAllSongs();
         S_TriggeredMusic_Stop();
     }
-    // FIXME: unimplemented
 }
 
+/*
+==============
+S_OPENAL_Start2DLoopSound
+==============
+*/
 static int S_OPENAL_Start2DLoopSound(
     openal_loop_sound_t *pLoopSound, float fVolume, float fVolumeToPlay, float fMinDistance, const vec3_t vLoopOrigin
 )
 {
-    int iChannel;
-    int iSoundOFfset;
-    openal_channel* pChannel;
+    int             iChannel;
+    int             iSoundOFfset;
+    openal_channel *pChannel;
 
     if (pLoopSound->pSfx->iFlags & SFX_FLAG_NO_DATA) {
         iChannel = S_OPENAL_PickChannel2DStreamed(0, 0);
-    }
-    else {
+    } else {
         iChannel = S_OPENAL_PickChannel2D(0, 0);
     }
 
@@ -1440,17 +1647,17 @@ static int S_OPENAL_Start2DLoopSound(
         return -1;
     }
 
-    pChannel->iEntNum = 0;
+    pChannel->iEntNum     = 0;
     pChannel->iEntChannel = 0;
-    pChannel->pSfx = pLoopSound->pSfx;
+    pChannel->pSfx        = pLoopSound->pSfx;
     pChannel->iFlags |= CHANNEL_FLAG_PAUSED | CHANNEL_FLAG_NO_ENTITY;
     pChannel->iBaseRate = pChannel->sample_playback_rate();
     VectorCopy(vLoopOrigin, pChannel->vOrigin);
-    pChannel->set_sample_offset((int)(pLoopSound->pSfx->info.width
-        * pLoopSound->pSfx->info.rate
-        * (float)(cls.realtime - pLoopSound->iStartTime)
-        / 1000.0)
-        % pLoopSound->pSfx->length);
+    pChannel->set_sample_offset(
+        (int)(pLoopSound->pSfx->info.width * pLoopSound->pSfx->info.rate
+              * (float)(cls.realtime - pLoopSound->iStartTime) / 1000.0)
+        % pLoopSound->pSfx->length
+    );
 
     pChannel->set_sample_loop_count(0);
     pChannel->fVolume = fVolumeToPlay;
@@ -1463,6 +1670,11 @@ static int S_OPENAL_Start2DLoopSound(
     return iChannel;
 }
 
+/*
+==============
+S_OPENAL_Start3DLoopSound
+==============
+*/
 static int S_OPENAL_Start3DLoopSound(
     openal_loop_sound_t *pLoopSound,
     float                fVolumeToPlay,
@@ -1472,25 +1684,24 @@ static int S_OPENAL_Start3DLoopSound(
     const vec3_t         vListenerOrigin
 )
 {
-    int iChannel;
-    vec3_t vDir;
-    int iSoundOffset;
-    openal_channel* pChan3D;
+    int             iChannel;
+    vec3_t          vDir;
+    int             iSoundOffset;
+    openal_channel *pChan3D;
 
     if (pLoopSound->pSfx->iFlags & SFX_FLAG_NO_DATA) {
         return -1;
     }
 
     iChannel = S_OPENAL_PickChannel3D(0, 0);
-    if (iChannel < 0)
-    {
+    if (iChannel < 0) {
         Com_DPrintf("Could not find a free channel\n");
         return iChannel;
     }
 
     pChan3D = &openal.chan_3D[iChannel];
     pChan3D->force_free();
-    pChan3D->iEntNum = 0;
+    pChan3D->iEntNum     = 0;
     pChan3D->iEntChannel = 0;
     pChan3D->set_3d();
 
@@ -1500,16 +1711,16 @@ static int S_OPENAL_Start3DLoopSound(
     }
 
     pChan3D->set_position(vLoopOrigin[0] / 52.49f, pLoopSound->vVelocity[1] / 52.49f, vLoopOrigin[2] / 52.49f);
-    pChan3D->set_velocity(pLoopSound->vVelocity[0] / 52.49f, vLoopOrigin[1] / 52.49f, pLoopSound->vVelocity[2] / 52.49f);
+    pChan3D->set_velocity(
+        pLoopSound->vVelocity[0] / 52.49f, vLoopOrigin[1] / 52.49f, pLoopSound->vVelocity[2] / 52.49f
+    );
     pChan3D->pSfx = pLoopSound->pSfx;
     pChan3D->iFlags |= CHANNEL_FLAG_PAUSED | CHANNEL_FLAG_NO_ENTITY;
     pChan3D->iBaseRate = pChan3D->sample_playback_rate();
 
-    iSoundOffset = (int)((int)pLoopSound->pSfx->info.width
-        * pLoopSound->pSfx->info.rate
-        * (float)(cls.realtime - pLoopSound->iStartTime)
-        / 1000.0)
-        % pLoopSound->pSfx->length;
+    iSoundOffset = (int)((int)pLoopSound->pSfx->info.width * pLoopSound->pSfx->info.rate
+                         * (float)(cls.realtime - pLoopSound->iStartTime) / 1000.0)
+                 % pLoopSound->pSfx->length;
     pChan3D->set_sample_offset(iSoundOffset);
     pChan3D->set_sample_loop_count(0);
     pChan3D->fVolume = fVolumeToPlay;
@@ -1521,6 +1732,11 @@ static int S_OPENAL_Start3DLoopSound(
     return iChannel;
 }
 
+/*
+==============
+S_OPENAL_UpdateLoopSound
+==============
+*/
 static bool S_OPENAL_UpdateLoopSound(
     openal_loop_sound_t *pLoopSound,
     float                fVolumeToPlay,
@@ -1531,400 +1747,2133 @@ static bool S_OPENAL_UpdateLoopSound(
     const vec3_t         vLoopOrigin
 )
 {
-    // FIXME: unimplemented
-    return false;
+    openal_channel *pChannel;
+    float           fVolume;
+    float           fMaxVolume;
+    vec3_t          vDir;
+    float           fDistance;
+
+    pChannel = openal.channel[pLoopSound->iChannel];
+    if (!pChannel) {
+        return false;
+    }
+
+    if (pChannel->pSfx != pLoopSound->pSfx) {
+        pLoopSound->bPlaying = 0;
+        return false;
+    }
+
+    pChannel->iStartTime = cl.serverTime;
+
+    if (pLoopSound->pSfx->iFlags & (SFX_FLAG_NO_OFFSET | SFX_FLAG_NO_DATA | SFX_FLAG_MP3)
+        || (pLoopSound->iFlags & LOOPSOUND_FLAG_NO_PAN)) {
+        vec3_t vOrigin;
+        int    iPan;
+
+        pChannel->fVolume = fVolumeToPlay / 84.0;
+        fVolume           = S_GetBaseVolume() * pChannel->fVolume;
+        fMaxVolume        = fVolume;
+
+        if (pLoopSound->iFlags & LOOPSOUND_FLAG_NO_PAN) {
+            // Center the sound
+            iPan = 64;
+        } else {
+            VectorCopy(vLoopOrigin, vOrigin);
+            iPan = S_OPENAL_SpatializeStereoSound(vListenerOrigin, vTempAxis, vOrigin);
+
+            VectorSubtract(vListenerOrigin, vOrigin, vDir);
+            // Clamp the volume by distance
+            fDistance = VectorLength(vDir);
+            if (pChannel->fMinDist >= fDistance) {
+                fVolume = fMaxVolume;
+            } else {
+                fVolume = pChannel->fMinDist / fDistance * fMaxVolume;
+            }
+        }
+
+        pChannel->set_gain(fVolume);
+        pChannel->set_sample_pan(iPan);
+    } else {
+        pChannel->set_position(vLoopOrigin[0] / 52.49f, vLoopOrigin[1] / 52.49f, vLoopOrigin[2] / 52.49f);
+        pChannel->fVolume = fVolumeToPlay;
+        pChannel->set_gain(fVolumeToPlay);
+    }
+
+    if (s_bReverbChanged) {
+        // Make sure to update the reverb
+        S_OPENAL_reverb(pLoopSound->iChannel, s_iReverbType, s_fReverbLevel);
+    }
+
+    return true;
 }
 
+/*
+==============
+S_OPENAL_AddLoopSounds
+==============
+*/
 void S_OPENAL_AddLoopSounds(const vec3_t vTempAxis)
 {
-    // FIXME: unimplemented
+    int                  i, j;
+    static int           iLoopFrame = 0;
+    float                fDistance;
+    int                  iChannel;
+    vec3_t               vListenerOrigin;
+    vec3_t               vLoopOrigin;
+    openal_loop_sound_t *pLoopSound;
+    float                fTotalVolume;
+    float                fVolumeToPlay;
+    float                fMinDistance, fMaxDistance;
+    float                fVolume;
+    float                fPitch;
+    float                fMaxVolume, fMaxFactor;
+    openal_channel      *pChannel;
+    bool                 bAlreadyAdded[MAX_OPENAL_LOOP_SOUNDS] = {false};
+    vec3_t               alvec;
+
+    qalGetListenerfv(AL_POSITION, alvec);
+    VectorScale(alvec, 52.49f, vListenerOrigin);
+
+    for (i = 0; i < MAX_OPENAL_LOOP_SOUNDS; i++) {
+        vec3_t vDir;
+
+        if (bAlreadyAdded[i]) {
+            continue;
+        }
+
+        pLoopSound = &openal.loop_sounds[i];
+        if (!pLoopSound->pSfx) {
+            continue;
+        }
+        pChannel = openal.channel[pLoopSound->iChannel];
+
+        fMinDistance = pLoopSound->fMinDist;
+        if (fMinDistance < 0) {
+            fMinDistance = 200;
+        }
+
+        fMaxDistance = pLoopSound->fMaxDist;
+        if (fMaxDistance < 0) {
+            fMaxDistance = fMinDistance * 64;
+        }
+
+        fVolume = pLoopSound->fBaseVolume;
+        if (fVolume < 0) {
+            fVolume = 1;
+        }
+        fVolume = fVolume * s_fAmbientVolume;
+
+        fTotalVolume = 0.0;
+        fMaxVolume   = 0.0;
+
+        if (pLoopSound->bPlaying) {
+            pChannel->fNewPitchMult = pLoopSound->fPitch;
+        }
+
+        if (pLoopSound->bCombine) {
+            for (j = 0; j < MAX_LOOP_SOUNDS; j++) {
+                openal_loop_sound_t *pLoopSound2 = &openal.loop_sounds[j];
+
+                if (pLoopSound2->pSfx == pLoopSound->pSfx) {
+                    VectorSubtract(pLoopSound2->vOrigin, vListenerOrigin, vDir);
+                    VectorCopy(vDir, pLoopSound2->vRelativeOrigin);
+                    fDistance = VectorLength(pLoopSound2->vRelativeOrigin);
+
+                    if (fDistance <= fMinDistance) {
+                        fVolumeToPlay = fVolume;
+                    } else if (fDistance >= fMaxDistance) {
+                        fVolumeToPlay = 0;
+                    } else {
+                        fVolumeToPlay = fMinDistance * fMinDistance * fVolume / (fDistance * fDistance);
+                    }
+
+                    if (fMaxVolume < fVolumeToPlay) {
+                        fMaxVolume = fVolumeToPlay;
+                    }
+                    fTotalVolume += fVolumeToPlay;
+                    bAlreadyAdded[j] = true;
+                }
+            }
+        } else {
+            VectorSubtract(pLoopSound->vOrigin, vListenerOrigin, vDir);
+            VectorCopy(vDir, pLoopSound->vRelativeOrigin);
+            fDistance = VectorLength(pLoopSound->vRelativeOrigin);
+
+            if (fDistance <= fMinDistance) {
+                fTotalVolume = fVolume;
+            } else if (fDistance >= fMaxDistance) {
+                fTotalVolume = 0;
+            } else {
+                fTotalVolume = fMinDistance * fMinDistance * fVolume / (fDistance * fDistance);
+            }
+            pLoopSound->fVolume = fTotalVolume;
+            fMaxVolume          = fTotalVolume;
+        }
+
+        fMaxFactor = sfx_infos[pLoopSound->pSfx->sfx_info_index].max_factor;
+        if (fMaxFactor >= 1 && fMaxVolume * fMaxFactor < fTotalVolume) {
+            fTotalVolume = fMaxVolume * fMaxFactor;
+        }
+
+        if (fTotalVolume <= 0 && !(pLoopSound->iFlags & LOOPSOUND_FLAG_NO_PAN)) {
+            if (pLoopSound->bPlaying) {
+                if (s_show_sounds->integer > 0) {
+                    Com_DPrintf(
+                        "%d (#%i) - stopped loop - %s\n",
+                        cl.serverTime,
+                        pLoopSound->iChannel,
+                        openal.channel[pLoopSound->iChannel]->pSfx->name
+                    );
+                }
+
+                pChannel->stop();
+                pLoopSound->bPlaying = false;
+                if (pLoopSound->bCombine) {
+                    for (j = 0; j < MAX_LOOP_SOUNDS; j++) {
+                        openal_loop_sound_t *pLoopSound2 = &openal.loop_sounds[j];
+
+                        if (pLoopSound2->pSfx == pLoopSound->pSfx) {
+                            pLoopSound2->bPlaying = false;
+                        }
+                    }
+                }
+            }
+
+            continue;
+        }
+
+        VectorClear(vLoopOrigin);
+
+        if (pLoopSound->bCombine) {
+            for (j = 0; j < MAX_LOOP_SOUNDS; j++) {
+                openal_loop_sound_t *pLoopSound2 = &openal.loop_sounds[j];
+
+                if (pLoopSound2->pSfx == pLoopSound->pSfx) {
+                    VectorNormalize(pLoopSound2->vRelativeOrigin);
+
+                    VectorScale(
+                        pLoopSound2->vRelativeOrigin, pLoopSound2->fVolume / fTotalVolume, pLoopSound2->vRelativeOrigin
+                    );
+                    VectorAdd(pLoopSound2->vRelativeOrigin, vLoopOrigin, vLoopOrigin);
+                }
+            }
+
+            VectorNormalize(vLoopOrigin);
+            VectorMA(vListenerOrigin, fMinDistance * 0.5f, vLoopOrigin, vLoopOrigin);
+        } else {
+            VectorCopy(pLoopSound->vOrigin, vLoopOrigin);
+        }
+
+        if (pLoopSound->bPlaying) {
+            S_OPENAL_UpdateLoopSound(
+                pLoopSound,
+                S_GetBaseVolume() * 84.0 * fTotalVolume,
+                fMinDistance,
+                fMaxDistance,
+                vListenerOrigin,
+                vTempAxis,
+                vLoopOrigin
+            );
+
+            continue;
+        }
+
+        if (s_show_sounds->integer > 0) {
+            Com_DPrintf("%d (#%i) - started loop - %s\n", cl.serverTime, pLoopSound->iChannel, pLoopSound->pSfx->name);
+        }
+
+        if (pLoopSound->pSfx->iFlags & (SFX_FLAG_NO_OFFSET | SFX_FLAG_NO_DATA | SFX_FLAG_MP3)
+            || (pLoopSound->iFlags & LOOPSOUND_FLAG_NO_PAN)) {
+            iChannel = S_OPENAL_Start2DLoopSound(
+                pLoopSound, fVolume, S_GetBaseVolume() * 84.0 * fTotalVolume, fMinDistance, vLoopOrigin
+            );
+        } else {
+            iChannel = S_OPENAL_Start3DLoopSound(
+                pLoopSound,
+                S_GetBaseVolume() * 84.0 * fTotalVolume,
+                fMinDistance,
+                fMaxDistance,
+                vLoopOrigin,
+                vListenerOrigin
+            );
+        }
+
+        if (iChannel < 0) {
+            continue;
+        }
+
+        pLoopSound->bPlaying = 1;
+        pLoopSound->iChannel = iChannel;
+
+        if (pLoopSound->bCombine) {
+            for (j = 0; j < MAX_LOOP_SOUNDS; j++) {
+                openal_loop_sound_t *pLoopSound2 = &openal.loop_sounds[j];
+
+                if (pLoopSound2->pSfx == pLoopSound->pSfx) {
+                    pLoopSound2->bPlaying = true;
+                    pLoopSound2->iChannel = iChannel;
+                }
+            }
+        }
+    }
 }
 
+/*
+==============
+S_OPENAL_Respatialize
+==============
+*/
 void S_OPENAL_Respatialize(int iEntNum, const vec3_t vHeadPos, const vec3_t vAxis[3])
 {
-    // FIXME: unimplemented
+    int             i;
+    vec3_t          vOrigin;
+    vec3_t          vVelocity;
+    vec3_t          vEntOrigin;
+    vec3_t          vEntVelocity;
+    vec3_t          vDir;
+    vec3_t          vUp;
+    vec3_t          vListenerOrigin;
+    int             iPan;
+    vec3_t          vTempAxis;
+    float           fMaxVolume;
+    float           fVolume;
+    float           fDist;
+    openal_channel *pChannel;
+    vec3_t          alvec {0};
+    vec3_t          alorientation[2];
+
+    if (cls.no_menus) {
+        return;
+    }
+
+    s_iListenerNumber = iEntNum;
+
+    //
+    // Velocity
+    //
+    qalListenerfv(AL_VELOCITY, alvec);
+    alDieIfError();
+
+    //
+    // Position
+    //
+    alvec[0] = -vHeadPos[0] / 52.49f;
+    alvec[1] = vHeadPos[2] / 52.49f;
+    alvec[2] = -vHeadPos[1] / 52.49f;
+    VectorCopy(alvec, vListenerOrigin);
+    qalListenerfv(AL_POSITION, alvec);
+    alDieIfError();
+
+    //
+    // Orientation
+    //
+    alorientation[0][0] = -vAxis[0][0];
+    alorientation[0][1] = vAxis[2][0];
+    alorientation[0][2] = -vAxis[1][0];
+    alorientation[1][0] = -vAxis[0][2];
+    alorientation[1][1] = vAxis[2][2];
+    alorientation[1][2] = -vAxis[1][2];
+    qalListenerfv(AL_ORIENTATION, (const ALfloat *)alorientation);
+    alDieIfError();
+
+    vTempAxis[0] = -vAxis[0][1];
+    vTempAxis[1] = vAxis[2][1];
+    vTempAxis[2] = -vAxis[1][1];
+
+    fVolume = 1;
+    iPan    = 64;
+
+    for (i = 0; i < MAX_OPENAL_POSITION_CHANNELS; i++) {
+        pChannel   = openal.channel[i];
+        fMaxVolume = S_GetBaseVolume() * pChannel->fVolume;
+
+        if (!pChannel) {
+            continue;
+        }
+
+        if (!pChannel->is_playing()) {
+            continue;
+        }
+
+        if (pChannel->iFlags & CHANNEL_FLAG_PAUSED) {
+            continue;
+        }
+
+        if (pChannel->iFlags & CHANNEL_FLAG_NO_ENTITY) {
+            VectorCopy(pChannel->vOrigin, vOrigin);
+
+            if (pChannel->iFlags & CHANNEL_FLAG_LOCAL_LISTENER) {
+                VectorCopy(vListenerOrigin, vOrigin);
+                if (i >= MAX_OPENAL_CHANNELS_3D) {
+                    fVolume = fMaxVolume;
+                    iPan    = 64;
+                } else {
+                    pChannel->set_position(vOrigin[0] / 52.49f, vOrigin[1] / 52.49f, vOrigin[2] / 52.49f);
+                }
+            } else {
+                if (i >= MAX_OPENAL_CHANNELS_3D) {
+                    iPan = S_OPENAL_SpatializeStereoSound(vListenerOrigin, vTempAxis, vOrigin);
+                    VectorSubtract(vListenerOrigin, vOrigin, vDir);
+
+                    fDist = VectorLength(vDir);
+                    if (fDist <= pChannel->fMinDist + 0.001f) {
+                        fVolume = fMaxVolume;
+                    } else if (fDist >= pChannel->fMaxDist - 0.001f) {
+                        fVolume = 0;
+                    } else {
+                        fVolume = (1.0 - (fDist - pChannel->fMinDist) / (pChannel->fMaxDist - pChannel->fMinDist))
+                                * fMaxVolume;
+                    }
+                } else {
+                    pChannel->set_position(vOrigin[0] / 52.49f, vOrigin[1] / 52.49f, vOrigin[2] / 52.49f);
+                }
+            }
+        } else if (pChannel->iFlags & CHANNEL_FLAG_LOCAL_LISTENER) {
+            VectorCopy(vListenerOrigin, vOrigin);
+            if (i >= MAX_OPENAL_CHANNELS_3D) {
+                fVolume = fMaxVolume;
+                iPan    = 64;
+            } else {
+                pChannel->set_position(vOrigin[0] / 52.49f, vOrigin[1] / 52.49f, vOrigin[2] / 52.49f);
+            }
+        } else {
+            if (s_entity[pChannel->iEntNum].time < pChannel->iTime) {
+                VectorCopy(pChannel->vOrigin, vOrigin);
+                if (!(pChannel->iFlags & CHANNEL_FLAG_LOOPING)) {
+                    pChannel->end_sample();
+                    continue;
+                }
+            } else {
+                VectorCopy(s_entity[pChannel->iEntNum].position, vEntOrigin);
+                vOrigin[1] = vEntOrigin[2];
+                vOrigin[0] = -vEntOrigin[0];
+                vOrigin[2] = -vEntOrigin[1];
+                VectorCopy(vOrigin, pChannel->vOrigin);
+                pChannel->iTime = s_entity[pChannel->iEntNum].time;
+            }
+
+            if (s_entity[pChannel->iEntNum].use_listener) {
+                VectorCopy(vListenerOrigin, vOrigin);
+            }
+
+            if (pChannel->iEntNum == s_iListenerNumber) {
+                if (vListenerOrigin[0] == vOrigin[0] && vListenerOrigin[2] == vOrigin[2]) {
+                    float fDelta = vListenerOrigin[1] - vOrigin[1];
+
+                    if (fDelta > 89.9f && fDelta < 90.09f) {
+                        VectorCopy(vListenerOrigin, vOrigin);
+                    }
+                }
+            }
+
+            if (i >= MAX_OPENAL_CHANNELS_3D) {
+                iPan = S_OPENAL_SpatializeStereoSound(vListenerOrigin, vTempAxis, vOrigin);
+                VectorSubtract(vListenerOrigin, vOrigin, vDir);
+                fDist = VectorLength(vDir);
+                if (fDist <= pChannel->fMinDist + 0.001f) {
+                    fVolume = fMaxVolume;
+                } else if (fDist >= pChannel->fMaxDist - 0.001f) {
+                    fVolume = 0;
+                } else {
+                    fVolume =
+                        (1.0 - (fDist - pChannel->fMinDist) / (pChannel->fMaxDist - pChannel->fMinDist)) * fMaxVolume;
+                }
+            } else {
+                pChannel->set_position(vOrigin[0] / 52.49f, vOrigin[1] / 52.49f, vOrigin[2] / 52.49f);
+                VectorCopy(s_entity[pChannel->iEntNum].velocity, vEntVelocity);
+
+                vVelocity[0] = -vEntVelocity[0] / 52.49f / 500.f;
+                vVelocity[1] = vEntVelocity[2] / 52.49f / 500.f;
+                vVelocity[2] = -vEntVelocity[1] / 52.49f / 500.f;
+                pChannel->set_velocity(vVelocity[0] / 52.49f, vVelocity[1] / 52.49f, vVelocity[2] / 52.49f);
+            }
+        }
+
+        if (i >= MAX_OPENAL_CHANNELS_3D) {
+            pChannel->set_gain(fVolume);
+            pChannel->set_sample_pan(iPan);
+        }
+
+        if (s_bReverbChanged) {
+            S_OPENAL_reverb(i, s_iReverbType, s_fReverbLevel);
+        }
+    }
+
+    S_OPENAL_AddLoopSounds(vTempAxis);
+    s_bReverbChanged = false;
 }
 
+/*
+==============
+S_OPENAL_SpatializeStereoSound
+==============
+*/
 static int S_OPENAL_SpatializeStereoSound(const vec3_t listener_origin, const vec3_t listener_left, const vec3_t origin)
 {
-    // FIXME: unimplemented
-    return 0;
+    float  lscale, rscale;
+    vec3_t source_vec;
+    int    pan;
+
+    VectorSubtract(origin, listener_origin, source_vec);
+    VectorNormalize(source_vec);
+
+    pan = s_separation->value + (1.f - s_separation->value) * -DotProduct(listener_left, source_vec);
+
+    if (pan < 0) {
+        pan = 0;
+    }
+
+    return pan * 128.f;
 }
 
+/*
+==============
+S_OPENAL_reverb
+==============
+*/
 static void S_OPENAL_reverb(int iChannel, int iReverbType, float fReverbLevel)
 {
-    // FIXME: unimplemented
+    // No reverb.
 }
 
+/*
+==============
+S_OPENAL_SetReverb
+==============
+*/
 void S_OPENAL_SetReverb(int iType, float fLevel)
 {
-    // FIXME: unimplemented
+    s_fReverbLevel = fLevel;
+    s_iReverbType  = iType;
+    if (al_use_reverb) {
+        s_bReverbChanged = true;
+    }
 }
 
+/*
+==============
+S_OPENAL_Update
+==============
+*/
 void S_OPENAL_Update()
 {
-    // FIXME: unimplemented
+    int             i;
+    openal_channel *pChannel;
+
+    if (cl.snap.ps.stats[STAT_CINEMATIC]) {
+        S_SetGlobalAmbientVolumeLevel(0.5f);
+    } else {
+        S_SetGlobalAmbientVolumeLevel(1.f);
+    }
+
+    if (paused->integer && !s_bSoundPaused) {
+        S_PauseSound();
+    } else if (!paused->integer && s_bSoundPaused) {
+        S_UnpauseSound();
+    }
+
+    if (s_bFading) {
+        s_fFadeVolume = 1.f - (cls.realtime - s_fFadeStartTime) / (s_fFadeStopTime - s_fFadeStartTime);
+        if (s_fFadeVolume < 0) {
+            s_fFadeVolume = 0;
+        }
+        music_volume_changed = true;
+    }
+
+    if (s_volume->modified) {
+        if (s_volume->value > 1) {
+            Cvar_Set("s_volume", "1.0");
+        } else if (s_volume->value < 0) {
+            Cvar_Set("s_volume", "0.0");
+        }
+
+        music_volume_changed = true;
+        s_volume->modified   = 0;
+        al_current_volume    = Square(s_volume->value * s_volume->value);
+        qalListenerf(AL_GAIN, al_current_volume);
+        alDieIfError();
+    }
+
+    for (i = 0; i < MAX_OPENAL_POSITION_CHANNELS; i++) {
+        pChannel = openal.channel[i];
+        if (!pChannel) {
+            continue;
+        }
+
+        if (!pChannel->is_playing()) {
+            continue;
+        }
+
+        if (pChannel->fNewPitchMult <= 0) {
+            continue;
+        }
+
+        pChannel->set_sample_playback_rate(pChannel->iBaseRate * pChannel->fNewPitchMult);
+        pChannel->fNewPitchMult = 0;
+    }
+
+    if (s_speaker_type->modified) {
+        if (s_speaker_type->integer) {
+            Com_Printf("FIXME: Allow different speaker types in OpenAL code.\n");
+            Cvar_Set("s_speaker_type", "0");
+        }
+        s_speaker_type->modified = false;
+    }
+
+    if (s_reverb->modified) {
+        s_reverb->modified = false;
+        Com_Printf("FIXME: Allow reverb toggle at runtime in OpenAL code.\n");
+    }
+
+    if (s_show_num_active_sounds->integer == 1) {
+        int num = 0;
+
+        for (i = 0; i < MAX_OPENAL_POSITION_CHANNELS; i++) {
+            pChannel = openal.channel[i];
+            if (pChannel && pChannel->is_playing()) {
+                ++num;
+            }
+        }
+        Com_DPrintf("Number of active sounds = %d\n", num);
+    }
+
+    Music_Update();
+
+    for (i = 0; i < MAX_LOOP_SOUNDS; i++) {
+        if (!openal.loop_sounds[i].bInUse) {
+            S_OPENAL_StopLoopingSound(&openal.loop_sounds[i]);
+        }
+    }
 }
 
+/*
+==============
+S_IsSoundPlaying
+==============
+*/
 qboolean S_IsSoundPlaying(int channel_number, const char *sfxName)
 {
-    // FIXME: unimplemented
-    return qfalse;
+    openal_channel *pChannel = openal.channel[channel_number];
+    if (!pChannel) {
+        return false;
+    }
+
+    if (s_bSoundPaused) {
+        return false;
+    }
+
+    if (!pChannel->is_playing()) {
+        return false;
+    }
+
+    if (!pChannel->pSfx || pChannel->pSfx == (sfx_t *)-16) {
+        return false;
+    }
+
+    return !strcmp(sfxName, pChannel->pSfx->name);
 }
 
+/*
+==============
+S_StoreBase
+==============
+*/
 static void S_StoreBase(channelbasesavegame_t *pBase, openal_channel *pChannel)
 {
-    // FIXME: unimplemented
+    if (!pChannel) {
+        return;
+    }
+
+    if (pChannel->iEntChannel == CHAN_MENU || pChannel->is_free()) {
+        pBase->bPlaying      = false;
+        pBase->iOffset       = 0;
+        pBase->iLoopCount    = 0;
+        pBase->sfx.szName[0] = 0;
+        pBase->sfx.iFlags    = 0;
+        pBase->fNewPitchMult = 1.f;
+        pBase->iBaseRate     = pChannel->iBaseRate;
+        pBase->iStatus       = 0;
+    } else {
+        pBase->bPlaying   = true;
+        pBase->iOffset    = pChannel->sample_offset();
+        pBase->iLoopCount = pChannel->sample_loop_count();
+        memcpy(pBase->sfx.szName, pChannel->pSfx->name, sizeof(pBase->sfx.szName));
+        pBase->sfx.iFlags    = pChannel->pSfx->iFlags;
+        pBase->iBaseRate     = pChannel->iBaseRate;
+        pBase->iStatus       = 0;
+        pBase->fNewPitchMult = (float)pBase->iBaseRate / (float)pChannel->sample_playback_rate();
+    }
+
+    pBase->iStartTime                = pChannel->iStartTime - cl.serverTime;
+    pBase->iEndTime                  = pChannel->iEndTime - cl.serverTime;
+    pBase->iEntChannel               = pChannel->iEntChannel;
+    pBase->iEntNum                   = pChannel->iEntNum;
+    pBase->iFlags                    = pChannel->iFlags;
+    pBase->fMaxDist                  = pChannel->fMaxDist;
+    pBase->fMinDist                  = pChannel->fMinDist;
+    pBase->iNextCheckObstructionTime = 0;
+    VectorCopy(pChannel->vOrigin, pBase->vOrigin);
+    pBase->iTime   = pChannel->iTime - cl.serverTime;
+    pBase->fVolume = pChannel->fVolume;
 }
 
+/*
+==============
+S_StartSoundFromBase
+==============
+*/
 static void
 S_StartSoundFromBase(channelbasesavegame_t *pBase, openal_channel *pChannel, sfx_t *pSfx, bool bStartUnpaused)
 {
-    // FIXME: unimplemented
+    if (!pChannel->set_sfx(pSfx)) {
+        Com_DPrintf("Set sample error - %s\n", pSfx->name);
+        pChannel->iFlags &= ~CHANNEL_FLAG_PLAYABLE;
+        return;
+    }
+
+    pChannel->iBaseRate = pChannel->sample_playback_rate();
+    pChannel->set_gain(pChannel->fVolume);
+    pChannel->set_sample_offset(pBase->iOffset);
+    pChannel->set_sample_playback_rate(pChannel->iBaseRate * pBase->fNewPitchMult);
+
+    if (sfx_infos[pSfx->sfx_info_index].loop_start != -1) {
+        pChannel->set_sample_loop_block(
+            sfx_infos[pSfx->sfx_info_index].loop_start, sfx_infos[pSfx->sfx_info_index].loop_end
+        );
+        pChannel->set_sample_loop_count(1);
+        pChannel->iFlags |= CHANNEL_FLAG_LOOPING;
+        if (s_show_sounds->integer > 0) {
+            Com_DPrintf(
+                "loopblock - %d to %d\n",
+                sfx_infos[pSfx->sfx_info_index].loop_start,
+                sfx_infos[pSfx->sfx_info_index].loop_end
+            );
+        }
+    } else {
+        pChannel->set_sample_loop_count(1);
+    }
+
+    if (bStartUnpaused) {
+        pChannel->resume_sample();
+    } else {
+        pChannel->iFlags |= CHANNEL_FLAG_PLAYABLE;
+    }
 }
 
+/*
+==============
+S_LoadBase
+==============
+*/
 static void S_LoadBase(channelbasesavegame_t *pBase, openal_channel *pChannel, bool bStartUnpaused)
 {
-    // FIXME: unimplemented
+    sfxHandle_t handle;
+
+    if (!pChannel) {
+        return;
+    }
+
+    if (!pBase->bPlaying) {
+        return;
+    }
+
+    if (strstr(pBase->sfx.szName, "null.wav")) {
+        return;
+    }
+
+    handle = S_RegisterSound(pBase->sfx.szName, (pBase->sfx.iFlags & SFX_FLAG_DEFAULT_SOUND), false);
+
+    pChannel->iBaseRate     = pBase->iBaseRate;
+    pChannel->iStartTime    = pBase->iStartTime;
+    pChannel->iEndTime      = pBase->iEndTime;
+    pChannel->iEntChannel   = pBase->iEntChannel;
+    pChannel->iEntNum       = pBase->iEntNum;
+    pChannel->iFlags        = pBase->iFlags;
+    pChannel->fMaxDist      = pBase->fMaxDist;
+    pChannel->fMinDist      = pBase->fMinDist;
+    pChannel->fNewPitchMult = pBase->fNewPitchMult;
+    VectorCopy(pBase->vOrigin, pChannel->vOrigin);
+    pChannel->iTime   = pBase->iTime;
+    pChannel->fVolume = pBase->fVolume;
+    pChannel->pSfx    = &s_knownSfx[handle];
+
+    S_StartSoundFromBase(pBase, pChannel, &s_knownSfx[handle], bStartUnpaused);
 }
 
+/*
+==============
+S_SaveData
+==============
+*/
 void S_SaveData(soundsystemsavegame_t *pSave)
 {
-    // FIXME: unimplemented
+    int  i;
+    bool bSoundWasUnpaused;
+
+    bSoundWasUnpaused = !s_bSoundPaused;
+    if (!s_bSoundPaused) {
+        S_PauseSound();
+    }
+
+    for (i = 0; i < MAX_OPENAL_POSITION_CHANNELS; i++) {
+        S_StoreBase(&pSave->Channels[i], openal.channel[i]);
+    }
+
+    if (bSoundWasUnpaused) {
+        S_UnpauseSound();
+    }
 }
 
+/*
+==============
+S_ReLoad
+==============
+*/
 void S_ReLoad(soundsystemsavegame_t *pSave)
 {
-    // FIXME: unimplemented
+    int  i;
+    bool bSoundWasUnpaused;
+
+    bSoundWasUnpaused = !s_bSoundPaused;
+    if (!s_bSoundPaused) {
+        S_PauseSound();
+    }
+
+    for (i = 0; i < MAX_OPENAL_POSITION_CHANNELS; i++) {
+        S_LoadBase(&pSave->Channels[i], openal.channel[i], bSoundWasUnpaused);
+    }
+
+    if (bSoundWasUnpaused) {
+        S_UnpauseSound();
+    }
 }
 
+/*
+==============
+S_InitBase
+==============
+*/
 static void S_InitBase(channelbasesavegame_t *pBase)
 {
-    // FIXME: unimplemented
+    if (!pBase->bPlaying) {
+        return;
+    }
+
+    if (strstr(pBase->sfx.szName, "null.wav")) {
+        return;
+    }
+
+    SV_AddSvsTimeFixup(&pBase->iStartTime);
+    SV_AddSvsTimeFixup(&pBase->iEndTime);
+    SV_AddSvsTimeFixup(&pBase->iTime);
 }
 
+/*
+==============
+S_LoadData
+==============
+*/
 void S_LoadData(soundsystemsavegame_t *pSave)
 {
-    // FIXME: unimplemented
+    int i;
+
+    for (i = 0; i < MAX_OPENAL_POSITION_CHANNELS; i++) {
+        S_InitBase(&pSave->Channels[i]);
+    }
 }
 
+/*
+==============
+openal_channel::set_velocity
+==============
+*/
 void openal_channel::set_velocity(float v0, float v1, float v2)
 {
-    // FIXME: unimplemented
+    qalSource3f(source, AL_VELOCITY, v0, v1, v2);
+    alDieIfError();
 }
 
+/*
+==============
+openal_channel::set_position
+==============
+*/
 void openal_channel::set_position(float v0, float v1, float v2)
 {
-    // FIXME: unimplemented
+    qalSource3f(source, AL_POSITION, v0, v1, v2);
+    alDieIfError();
 }
 
+/*
+==============
+openal_channel::set_gain
+==============
+*/
 void openal_channel::set_gain(float gain)
 {
-    // FIXME: unimplemented
+    qalSourcef(source, AL_GAIN, gain);
+    alDieIfError();
 }
 
+/*
+==============
+openal_channel::set_no_3d
+==============
+*/
 void openal_channel::set_no_3d()
 {
-    // FIXME: unimplemented
+    qalSource3f(source, AL_POSITION, 0, 0, 0);
+    alDieIfError();
+    qalSource3f(source, AL_VELOCITY, 0, 0, 0);
+    alDieIfError();
+    qalSourcei(source, AL_SOURCE_RELATIVE, true);
+    alDieIfError();
+    qalSourcei(source, AL_LOOPING, false);
+    alDieIfError();
+    qalSourcei(source, AL_ROLLOFF_FACTOR, 0);
+    alDieIfError();
+    qalSourcef(source, AL_GAIN, S_GetBaseVolume());
+    alDieIfError();
 }
 
+/*
+==============
+openal_channel::set_3d
+==============
+*/
 void openal_channel::set_3d()
 {
-    // FIXME: unimplemented
+    qalSourcei(source, AL_SOURCE_RELATIVE, true);
+    alDieIfError();
+    qalSourcei(source, AL_LOOPING, false);
+    alDieIfError();
+    qalSourcef(source, AL_ROLLOFF_FACTOR, 1.f);
+    alDieIfError();
+    qalSourcef(source, AL_GAIN, S_GetBaseVolume());
+    alDieIfError();
 }
 
+/*
+==============
+openal_channel::play
+==============
+*/
 void openal_channel::play()
 {
-    // FIXME: unimplemented
+    qalSourcePlay(source);
+    alDieIfError();
 }
 
+/*
+==============
+openal_channel::pause
+==============
+*/
 void openal_channel::pause()
 {
-    // FIXME: unimplemented
+    qalSourcePause(source);
+    alDieIfError();
 }
 
+/*
+==============
+openal_channel::stop
+==============
+*/
 void openal_channel::stop()
 {
-    // FIXME: unimplemented
+    qalSourceStop(source);
+    alDieIfError();
 }
 
+/*
+==============
+openal_channel::get_state
+==============
+*/
 ALint openal_channel::get_state()
 {
-    // FIXME: unimplemented
-    return 0;
+    ALint retval;
+
+    qalGetSourcei(source, AL_SOURCE_STATE, &retval);
+    alDieIfError();
+
+    return retval;
 }
 
+/*
+==============
+openal_channel::is_free
+==============
+*/
 bool openal_channel::is_free()
 {
-    // FIXME: unimplemented
-    return false;
+    ALint state = get_state();
+
+    return state == AL_INITIAL || state == AL_STOPPED;
 }
 
+/*
+==============
+openal_channel::is_paused
+==============
+*/
 bool openal_channel::is_paused()
 {
-    // FIXME: unimplemented
-    return false;
+    ALint state = get_state();
+
+    return state == AL_PAUSED;
 }
 
+/*
+==============
+openal_channel::is_playing
+==============
+*/
 bool openal_channel::is_playing()
 {
-    // FIXME: unimplemented
-    return false;
+    ALint state = get_state();
+
+    return state == AL_PLAYING;
 }
 
+/*
+==============
+openal_channel::force_free
+==============
+*/
 void openal_channel::force_free()
 {
-    // FIXME: unimplemented
+    stop();
 }
 
+/*
+==============
+openal_channel::set_sfx
+==============
+*/
 bool openal_channel::set_sfx(sfx_t *pSfx)
 {
-    // FIXME: unimplemented
-    return false;
+    ALfloat freq;
+
+    this->pSfx = pSfx;
+    if (!pSfx->buffer || !qalIsBuffer(pSfx->buffer)) {
+        if (pSfx->iFlags & SFX_FLAG_MP3) {
+            qalGenBuffers(1, &pSfx->buffer);
+            alDieIfError();
+
+            if (!_alutLoadMP3_LOKI(pSfx->buffer, pSfx->data, pSfx->length)) {
+                qalDeleteBuffers(1, &pSfx->buffer);
+                alDieIfError();
+
+                Com_Printf("OpenAL: Failed to load MP3.\n");
+                return false;
+            }
+
+            alDieIfError();
+        } else {
+            ALenum fmt = 0;
+
+            if (pSfx->info.channels == 1) {
+                if (pSfx->info.width == 1) {
+                    fmt = AL_FORMAT_MONO8;
+                } else if (pSfx->info.width == 2) {
+                    fmt = AL_FORMAT_MONO16;
+                }
+            } else if (pSfx->info.channels == 2) {
+                if (pSfx->info.width == 1) {
+                    fmt = AL_FORMAT_STEREO8;
+                } else if (pSfx->info.width == 2) {
+                    fmt = AL_FORMAT_STEREO16;
+                }
+            }
+
+            if (!fmt) {
+                Com_Printf(
+                    "OpenAL: Bad Wave file (%d channels, %d bits) [%s].\n",
+                    pSfx->info.channels,
+                    (int)(pSfx->info.width * 8.f),
+                    pSfx->name
+                );
+                return false;
+            }
+
+            qalGenBuffers(1, &pSfx->buffer);
+            alDieIfError();
+
+            qalBufferData(
+                pSfx->buffer,
+                fmt,
+                &pSfx->data[pSfx->info.dataofs],
+                pSfx->info.samples * pSfx->info.width,
+                pSfx->info.rate
+            );
+            alDieIfError();
+        }
+    }
+
+    qalSourceStop(source);
+    alDieIfError();
+
+    qalSourcei(source, AL_BUFFER, pSfx->buffer);
+    alDieIfError();
+
+    // Get the base frequency
+    qalGetBufferfv(pSfx->buffer, AL_FREQUENCY, &freq);
+    alDieIfError();
+
+    iBaseRate = freq;
+
+    return true;
 }
 
+/*
+==============
+openal_channel::start_sample
+==============
+*/
 void openal_channel::start_sample()
 {
-    // FIXME: unimplemented
+    play();
 }
 
+/*
+==============
+openal_channel::stop_sample
+==============
+*/
 void openal_channel::stop_sample()
 {
-    // FIXME: unimplemented
+    pause();
 }
 
+/*
+==============
+openal_channel::resume_sample
+==============
+*/
 void openal_channel::resume_sample()
 {
-    // FIXME: unimplemented
+    play();
 }
 
+/*
+==============
+openal_channel::end_sample
+==============
+*/
 void openal_channel::end_sample()
 {
-    // FIXME: unimplemented
+    stop();
 }
 
-void openal_channel::set_sample_pan(S32 pan)
-{
-    // FIXME: unimplemented
-}
+/*
+==============
+openal_channel::set_sample_pan
+==============
+*/
+void openal_channel::set_sample_pan(S32 pan) {}
 
-void openal_channel::set_sample_playback_rate(S32 rate)
-{
-    // FIXME: unimplemented
-}
+/*
+==============
+openal_channel::set_sample_playback_rate
+==============
+*/
+void openal_channel::set_sample_playback_rate(S32 rate) {}
 
+/*
+==============
+openal_channel::sample_playback_rate
+==============
+*/
 S32 openal_channel::sample_playback_rate()
 {
-    // FIXME: unimplemented
-    return 0;
+    return 22050;
 }
 
+/*
+==============
+openal_channel::sample_volume
+==============
+*/
 S32 openal_channel::sample_volume()
 {
-    // FIXME: unimplemented
-    return 0;
+    STUB_DESC("sample_volume");
+    return 127;
 }
 
+/*
+==============
+openal_channel::sample_offset
+==============
+*/
 U32 openal_channel::sample_offset()
 {
-    // FIXME: unimplemented
-    return 0;
+    STUB_DESC("sample_offset");
+    return 127;
 }
 
+/*
+==============
+openal_channel::sample_ms_offset
+==============
+*/
 U32 openal_channel::sample_ms_offset()
 {
-    // FIXME: unimplemented
-    return 0;
+    STUB_DESC("sample_ms_offset");
+    return 127;
 }
 
+/*
+==============
+openal_channel::sample_loop_count
+==============
+*/
 U32 openal_channel::sample_loop_count()
 {
-    // FIXME: unimplemented
-    return 0;
+    ALuint queued;
+    ALuint processed;
+    S32    left;
+
+    qalGetSourceiv(source, AL_BUFFERS_QUEUED, (ALint *)&queued);
+    alDieIfError();
+    qalGetSourcei(source, AL_BUFFERS_PROCESSED, (ALint *)&processed);
+    alDieIfError();
+
+    left = queued + ~processed;
+    if (left < 0) {
+        left = 0;
+    }
+    return left;
 }
 
+/*
+==============
+openal_channel::set_sample_offset
+==============
+*/
 void openal_channel::set_sample_offset(U32 offset)
 {
-    // FIXME: unimplemented
+    STUB_DESC("sample_offset");
 }
 
+/*
+==============
+openal_channel::set_sample_ms_offset
+==============
+*/
 void openal_channel::set_sample_ms_offset(U32 offset)
 {
-    // FIXME: unimplemented
+    STUB_DESC("sample_ms_offset");
 }
 
+/*
+==============
+openal_channel::set_sample_loop_count
+==============
+*/
 void openal_channel::set_sample_loop_count(S32 count)
 {
-    // FIXME: unimplemented
+    ALuint processed;
+
+    stop();
+
+    qalGetSourceiv(source, AL_BUFFERS_PROCESSED, (ALint *)&processed);
+    alDieIfError();
+
+    for (ALuint i = 0; i < processed; i++) {
+        ALuint bufName;
+
+        qalSourceUnqueueBuffers(source, 1, &bufName);
+        alDieIfError();
+    }
+
+    for (S32 i = 0; i < count; i++) {
+        qalSourceQueueBuffers(source, 1, &buffer);
+        alDieIfError();
+    }
 }
 
+/*
+==============
+openal_channel::set_sample_loop_block
+==============
+*/
 void openal_channel::set_sample_loop_block(S32 start_offset, S32 end_offset)
 {
-    // FIXME: unimplemented
+    STUB_DESC("sample_loop_block");
 }
 
+/*
+==============
+openal_channel::sample_status
+==============
+*/
 U32 openal_channel::sample_status()
 {
-    // FIXME: unimplemented
-    return 0;
+    STUB_DESC("sample_status");
+    return 127;
 }
 
+/*
+==============
+MUSIC_LoadSoundtrackFile
+==============
+*/
 qboolean MUSIC_LoadSoundtrackFile(const char *filename)
 {
-    // FIXME: unimplemented
-    return qfalse;
+    song_t *psong = NULL;
+    char    args[MAX_MUSIC_SONGS][MAX_RES_NAME];
+    int     numargs;
+    char    com_token[MAX_STRING_CHARS];
+    char    alias[128];
+    char    file[128];
+    char    load_path[128];
+    char   *buffer;
+    char    path[MAX_RES_NAME];
+    int     i;
+    byte   *data;
+
+    if (strrchr(filename, '.')) {
+        Com_sprintf(path, sizeof(path), "%s", filename);
+    } else {
+        Com_sprintf(path, sizeof(path), "%s.mus", filename);
+    }
+
+    FS_ReadFile(path, (void **)&data);
+    if (!data) {
+        Com_DPrintf("Couldn't load %s\n", path);
+        return false;
+    }
+    Com_DPrintf("SOUNDTRACK: Loading %s\n", path);
+
+    MUSIC_StopAllSongs();
+    music_numsongs = 0;
+
+    buffer       = (char *)data;
+    load_path[0] = 0;
+
+    while (1) {
+        strcpy(com_token, COM_GetToken(&buffer, true));
+        if (!com_token[0]) {
+            break;
+        }
+
+        if (strlen(com_token) >= MAX_RES_NAME) {
+            Com_Printf("MUSIC_LoadSoundtrackFile: argument too long, truncating in %s\n", path);
+            com_token[MAX_RES_NAME - 1] = 0;
+        }
+
+        numargs = 1;
+        strcpy(args[0], com_token);
+
+        while (1) {
+            strcpy(com_token, COM_GetToken(&buffer, false));
+            if (!com_token[0]) {
+                break;
+            }
+
+            if (strlen(com_token) >= MAX_RES_NAME) {
+                Com_Printf("MUSIC_LoadSoundtrackFile: argument too long, truncating in %s\n", path);
+                com_token[MAX_RES_NAME - 1] = 0;
+            }
+
+            strcpy(args[numargs], com_token);
+            numargs++;
+        }
+
+        if (!Q_stricmp(args[0], "path")) {
+            strcpy(load_path, args[1]);
+            if (load_path[strlen(load_path) - 1] != '/' && load_path[strlen(load_path) - 1] != '\\') {
+                strcat(load_path, "/");
+            }
+        } else if (args[0][0] == '!') {
+            for (i = 0; i < music_numsongs; i++) {
+                psong = &music_songs[i];
+                if (!Q_stricmp(psong->alias, &args[0][1])) {
+                    break;
+                }
+            }
+
+            if (i == music_numsongs) {
+                Com_Printf("MUSIC_LoadSoundtrackFile: song %s not found, command skipped in %s.\n", &args[0][1], path);
+                continue;
+            }
+
+            if (!Q_stricmp(args[1], "volume")) {
+                psong->volume = atoi(args[2]);
+            } else if (!Q_stricmp(args[1], "fadetime")) {
+                psong->fadetime = atoi(args[2]);
+            } else if (!Q_stricmp(args[1], "loop")) {
+                psong->flags |= 1;
+            } else if (!Q_stricmp(args[1], "restart")) {
+                psong->flags |= 2;
+            } else if (!Q_stricmp(args[1], "interrupt")) {
+                psong->fadetime = 0;
+                psong->flags |= 4 | 2;
+            } else {
+                Com_Printf(
+                    "MUSIC_LoadSoundtrackFile: unknown command %s for song %s in %s.\n", args[1], &args[0][1], path
+                );
+            }
+        } else if (numargs > 1) {
+            strcpy(alias, args[0]);
+            strcpy(file, load_path);
+            strcat(file, args[1]);
+        } else {
+            strcpy(file, load_path);
+            strcat(file, args[1]);
+
+            strncpy(alias, args[0], strlen(args[0]) - 4);
+            file[strlen(args[0]) + MAX_RES_NAME * 2 - 4] = 0;
+
+            if (music_numsongs >= MAX_MUSIC_SONGS) {
+                Com_Printf("MUSIC_LoadSoundtrackFile: Too many songs in %s, skipping %s.\n", path, alias);
+                continue;
+            }
+
+            psong = &music_songs[music_numsongs];
+            strcpy(psong->alias, alias);
+            strcpy(psong->path, file);
+            music_songs[music_numsongs].fadetime    = 1.0;
+            music_songs[music_numsongs].volume      = 1.0;
+            music_songs[music_numsongs].flags       = 0;
+            music_songs[music_numsongs].current_pos = 0;
+            music_songs[music_numsongs].mood_num    = MusicMood_NameToNum(alias);
+            music_numsongs++;
+        }
+    }
+
+    if (!music_numsongs) {
+        Com_Printf("MUSIC_LoadSoundtrackFile: could not load %s, no songs defined.\n", path);
+        FS_FreeFile(data);
+        return false;
+    }
+
+    music_currentsong = -1;
+    FS_FreeFile(data);
+
+    if (music_current_mood == mood_none) {
+        MUSIC_UpdateMood(mood_normal, mood_normal);
+    }
+
+    return true;
 }
 
+/*
+==============
+MUSIC_SongValid
+==============
+*/
 qboolean MUSIC_SongValid(const char *mood)
 {
-    // FIXME: unimplemented
-    return qfalse;
+    return MUSIC_FindSong(mood) != -1;
 }
 
+/*
+==============
+MUSIC_Loaded
+==============
+*/
 qboolean MUSIC_Loaded()
 {
-    // FIXME: unimplemented
-    return qfalse;
+    return music_loaded;
 }
 
+/*
+==============
+Music_Update
+==============
+*/
 void Music_Update()
 {
-    // FIXME: unimplemented
+    int currentsong;
+
+    if (!s_bSoundStarted) {
+        return;
+    }
+
+    if (!music_active) {
+        return;
+    }
+
+    if (s_bSoundPaused) {
+        return;
+    }
+
+    MUSIC_CheckForStoppedSongs();
+
+    if (!MUSIC_Loaded() && music_active && strlen(current_soundtrack)) {
+        MUSIC_LoadSoundtrackFile(current_soundtrack);
+        music_loaded = true;
+    }
+
+    if (music_currentsong >= 0) {
+        currentsong = music_songs[music_currentsong].mood_num;
+    } else {
+        currentsong = -1;
+    }
+
+    if (!music_current_mood) {
+        if (MUSIC_Playing()) {
+            MUSIC_StopAllSongs();
+        }
+    } else if (music_current_mood != currentsong) {
+        const char *mood = MusicMood_NumToName(music_current_mood);
+        if (MUSIC_SongValid(mood) && MUSIC_Loaded() && strlen(current_soundtrack)) {
+            Com_DebugPrintf("Playing %s.\n", mood);
+            MUSIC_PlaySong(mood);
+        }
+    }
+
+    if (new_music_volume != music_volume) {
+        if (music_volume_fade_time > 0) {
+            if (music_volume_direction == 0) {
+                music_volume = (cls.realtime - music_volume_start_time) * (new_music_volume - old_music_volume)
+                                 / (music_volume_fade_time * 1000.f)
+                             + old_music_volume;
+
+                if (music_volume > new_music_volume) {
+                    music_volume         = new_music_volume;
+                    music_volume_changed = 1;
+                } else {
+                    music_volume_changed = 1;
+                }
+            } else if (music_volume_direction == 1) {
+                music_volume = 1.0
+                             - (cls.realtime - music_volume_start_time) * (old_music_volume - new_music_volume)
+                                   / (music_volume_fade_time * 1000.f);
+
+                if (music_volume >= new_music_volume) {
+                    music_volume_changed = true;
+                } else {
+                    music_volume         = new_music_volume;
+                    music_volume_changed = true;
+                }
+            } else {
+                music_volume_changed = true;
+            }
+        } else {
+            music_volume         = new_music_volume;
+            music_volume_changed = true;
+        }
+    }
+
+    MUSIC_UpdateMusicVolumes();
 }
 
+/*
+==============
+MUSIC_SongEnded
+==============
+*/
 void MUSIC_SongEnded()
 {
-    // FIXME: unimplemented
+    Com_DPrintf(
+        "MUSIC: Song ended, changing from [ %s ] to [ %s ]\n",
+        MusicMood_NumToName(music_current_mood),
+        MusicMood_NumToName(music_fallback_mood)
+    );
+    music_current_mood = music_fallback_mood;
 }
 
+/*
+==============
+MUSIC_NewSoundtrack
+==============
+*/
 void MUSIC_NewSoundtrack(const char *name)
 {
-    // FIXME: unimplemented
+    if (!s_bSoundStarted) {
+        return;
+    }
+
+    if (!Q_stricmp(name, current_soundtrack)) {
+        return;
+    }
+
+    // Fixed in OPM
+    //  Make sure to not get past the end of the buffer
+    //strcpy(current_soundtrack, name);
+    Q_strncpyz(current_soundtrack, name, sizeof(current_soundtrack));
+
+    if (!Q_stricmp(current_soundtrack, "none") || !Q_stricmp(current_soundtrack, "")) {
+        music_active = qfalse;
+        if (MUSIC_Playing()) {
+            MUSIC_StopAllSongs();
+        } else {
+            music_active = qtrue;
+            MUSIC_LoadSoundtrackFile(name);
+            music_loaded = qtrue;
+        }
+    }
 }
 
+/*
+==============
+MUSIC_UpdateMood
+==============
+*/
 void MUSIC_UpdateMood(int current, int fallback)
 {
-    // FIXME: unimplemented
+    static int last_current_mood  = -1;
+    static int last_fallback_mood = -1;
+    static int current_mood       = -1;
+    static int fallback_mood      = -1;
+    qboolean   was_action;
+
+    if (current == current_mood && fallback == fallback_mood) {
+        return;
+    }
+
+    was_action          = current == last_current_mood && fallback == last_fallback_mood && current_mood == mood_action;
+    last_current_mood   = current_mood;
+    last_fallback_mood  = fallback_mood;
+    current_mood        = current;
+    music_current_mood  = current;
+    fallback_mood       = fallback;
+    music_fallback_mood = fallback;
+    music_active        = qtrue;
+
+    Com_DPrintf(
+        "MUSIC: changing from [ %s | %s ] to [ %s | %s ]\n",
+        MusicMood_NumToName(last_current_mood),
+        MusicMood_NumToName(last_fallback_mood),
+        MusicMood_NumToName(current_mood),
+        MusicMood_NumToName(fallback)
+    );
+
+    if (was_action) {
+        int songnum = MUSIC_FindSong(MusicMood_NumToName(current_mood));
+
+        if (songnum != -1 && (music_songs[songnum].flags & 4)) {
+            Com_DPrintf(
+                "MUSIC: restoring music from action state, skipping [ %s ] for [ %s ]\n",
+                MusicMood_NumToName(current_mood),
+                MusicMood_NumToName(fallback_mood)
+            );
+            music_current_mood = music_fallback_mood;
+        }
+    }
 }
 
+/*
+==============
+MUSIC_UpdateVolume
+==============
+*/
 void MUSIC_UpdateVolume(float volume, float fade_time)
 {
-    // FIXME: unimplemented
+    if (new_music_volume == volume && music_volume_fade_time == fade_time) {
+        return;
+    }
+
+    old_music_volume        = music_volume;
+    new_music_volume        = volume;
+    music_volume_fade_time  = fade_time;
+    music_volume_start_time = cls.realtime;
+
+    if (volume > music_volume) {
+        music_volume_direction = 0;
+    } else if (volume < music_volume) {
+        music_volume_direction = 1;
+    }
 }
 
+/*
+==============
+MUSIC_StopAllSongs
+==============
+*/
 void MUSIC_StopAllSongs()
 {
-    // FIXME: unimplemented
+    for (int i = 0; i < MAX_OPENAL_SONGS; i++) {
+        MUSIC_StopChannel(i);
+    }
+
+    music_currentsong = -1;
 }
 
+/*
+==============
+MUSIC_FreeAllSongs
+==============
+*/
 void MUSIC_FreeAllSongs()
 {
-    // FIXME: unimplemented
+    MUSIC_StopAllSongs();
+    MUSIC_UpdateMood(mood_none, mood_none);
+    current_soundtrack[0] = 0;
+    music_loaded          = false;
 }
 
+/*
+==============
+MUSIC_Playing
+==============
+*/
 qboolean MUSIC_Playing()
 {
-    // FIXME: unimplemented
-    return qfalse;
+    return MUSIC_CurrentSongChannel() != -1;
 }
 
+/*
+==============
+MUSIC_FindSong
+==============
+*/
 int MUSIC_FindSong(const char *name)
 {
-    // FIXME: unimplemented
-    return 0;
+    int i;
+
+    for (i = 0; i < music_numsongs; i++) {
+        if (!Q_stricmp(music_songs[i].alias, name)) {
+            return i;
+        }
+    }
+
+    return -1;
 }
 
+/*
+==============
+S_loadsoundtrack
+==============
+*/
 void S_loadsoundtrack()
 {
-    // FIXME: unimplemented
+    if (Cmd_Argc() != 2) {
+        Com_Printf("loadsoundtrack <sound track file>\n");
+        return;
+    }
+
+    MUSIC_LoadSoundtrackFile(Cmd_Argv(1));
+    music_loaded = true;
+    Q_strncpyz(current_soundtrack, Cmd_Argv(1), sizeof(current_soundtrack));
 }
 
+/*
+==============
+S_CurrentSoundtrack
+==============
+*/
 const char *S_CurrentSoundtrack()
 {
-    // FIXME: unimplemented
-    return NULL;
+    return current_soundtrack;
 }
 
+/*
+==============
+S_PlaySong
+==============
+*/
 void S_PlaySong()
 {
-    // FIXME: unimplemented
+    if (Cmd_Argc() != 2) {
+        Com_Printf("playsong <song alias>\n");
+        return;
+    }
+
+    MUSIC_PlaySong(Cmd_Argv(1));
+    music_active = true;
 }
 
+/*
+==============
+MUSIC_CurrentSongChannel
+==============
+*/
 int MUSIC_CurrentSongChannel()
 {
-    // FIXME: unimplemented
-    return 0;
+    int channel_number = -1;
+    int ch_idx         = 0;
+
+    for (ch_idx = 0; ch_idx < MAX_OPENAL_SONGS; ch_idx++) {
+        if (openal.chan_song[ch_idx].is_playing() && openal.chan_song[ch_idx].song_number == music_currentsong) {
+            channel_number = ch_idx;
+        }
+    }
+
+    return channel_number;
 }
 
+/*
+==============
+MUSIC_StopChannel
+==============
+*/
 void MUSIC_StopChannel(int channel_number)
 {
-    // FIXME: unimplemented
+    openal_channel *channel = &openal.chan_song[channel_number];
+
+    channel->pause();
+    if (music_songs[channel->song_number].flags & 2) {
+        music_songs[channel->song_number].current_pos = 0;
+    } else {
+        music_songs[channel->song_number].current_pos = channel->sample_ms_offset();
+    }
+
+    channel->stop();
 }
 
+/*
+==============
+MUSIC_PlaySong
+==============
+*/
 qboolean MUSIC_PlaySong(const char *alias)
 {
-    // FIXME: unimplemented
-    return qfalse;
+    int             channel_number;
+    song_t         *song;
+    int             songnum;
+    int             channel_to_play_on;
+    int             fading_song;
+    openal_channel *song_channel;
+    unsigned int    loop_start;
+    int             rate;
+
+    fading_song = 0;
+    songnum     = MUSIC_FindSong(alias);
+
+    if (songnum == -1) {
+        return true;
+    }
+
+    song = &music_songs[songnum];
+
+    if (MUSIC_Playing() && songnum == music_currentsong) {
+        return true;
+    }
+
+    channel_number    = MUSIC_CurrentSongChannel();
+    music_currentsong = songnum;
+
+    if (channel_number != -1) {
+        if (song->flags & 4) {
+            MUSIC_StopChannel(channel_number);
+        } else {
+            song_channel                  = &openal.chan_song[channel_number];
+            song_channel->fading          = FADE_OUT;
+            song_channel->fade_time       = (int)song->fadetime;
+            song_channel->fade_start_time = cls.realtime;
+            fading_song                   = true;
+        }
+    }
+    channel_to_play_on = (fading_song != 0) && (channel_number == 0);
+    song_channel       = &openal.chan_song[channel_to_play_on];
+
+    if (song_channel->is_playing() || song_channel->is_paused()) {
+        MUSIC_StopChannel(channel_to_play_on);
+    }
+
+    if (!S_OPENAL_LoadMP3(FS_BuildOSPath(Cvar_VariableString("fs_basepath"), FS_Gamedir(), song->path), song_channel)) {
+        Com_DPrintf("Could not start music file '%s'!", song->path);
+        return false;
+    }
+
+    rate = song_channel->sample_playback_rate();
+
+    song_channel->song_number = songnum;
+    if (song->current_pos) {
+        song_channel->set_sample_ms_offset(song->current_pos);
+    } else {
+        song_channel->set_sample_offset(rate * 0.063f);
+    }
+
+    if (song->flags & 1) {
+        song_channel->set_sample_loop_count(0);
+        song_channel->set_sample_loop_block(rate * 0.063f, -1);
+    } else {
+        song_channel->set_sample_loop_count(1);
+    }
+
+    if (fading_song) {
+        song_channel->fading    = FADE_IN;
+        song_channel->fade_time = (int)song->fadetime;
+        song_channel->set_gain(0.0);
+        song_channel->fade_start_time = cls.realtime;
+    } else {
+        song_channel->fading = FADE_NONE;
+        song_channel->set_gain(S_GetBaseVolume() * (song->volume * s_ambientVolume->value) * 84.f);
+    }
+
+    song_channel->play();
+
+    return true;
 }
 
+/*
+==============
+MUSIC_UpdateMusicVolumes
+==============
+*/
 void MUSIC_UpdateMusicVolumes()
 {
-    // FIXME: unimplemented
+    int          i;
+    unsigned int current_time;
+    float        new_volume, max_volume;
+
+    if (s_ambientVolume->modified || music_volume_changed) {
+        s_ambientVolume->modified = false;
+
+        for (i = 0; i < MAX_OPENAL_SONGS; i++) {
+            if (!openal.chan_song[i].is_playing() && !openal.chan_song[i].is_paused()) {
+                continue;
+            }
+
+            if (openal.chan_song[i].fading != FADE_NONE) {
+                continue;
+            }
+
+            openal.chan_song[i].set_gain(
+                S_GetBaseVolume() * (music_songs[openal.chan_song[i].song_number].volume * s_ambientVolume->value)
+                * 84.0 * music_volume
+            );
+        }
+    }
+
+    for (i = 0; i < MAX_OPENAL_SONGS; i++) {
+        if (!openal.chan_song[i].is_playing() && !openal.chan_song[i].is_paused()) {
+            continue;
+        }
+
+        switch (openal.chan_song[i].fading) {
+        case fade_t::FADE_IN:
+            max_volume = music_songs[openal.chan_song[i].song_number].volume * s_ambientVolume->value;
+            new_volume = (unsigned int)(cls.realtime - openal.chan_song[i].fade_start_time)
+                       / (openal.chan_song[i].fade_time * 1000.f) * max_volume;
+
+            if (new_volume > max_volume) {
+                openal.chan_song[i].set_gain(S_GetBaseVolume() * (max_volume * 84.f * music_volume));
+                openal.chan_song[i].fading = FADE_NONE;
+            } else {
+                openal.chan_song[i].set_gain(S_GetBaseVolume() * (new_volume * 84.f * music_volume));
+            }
+            break;
+        case fade_t::FADE_OUT:
+            max_volume = music_songs[openal.chan_song[i].song_number].volume * s_ambientVolume->value;
+            new_volume = (unsigned int)(cls.realtime - openal.chan_song[i].fade_start_time)
+                       / (openal.chan_song[i].fade_time * 1000.f) * max_volume;
+
+            if (new_volume > 0) {
+                openal.chan_song[i].set_gain(S_GetBaseVolume() * (new_volume * 84.f * music_volume));
+            } else {
+                MUSIC_StopChannel(i);
+            }
+            break;
+        default:
+            break;
+        }
+    }
+
+    if (s_musicVolume->modified || music_volume_changed) {
+        s_musicVolume->modified = false;
+        if (openal.chan_trig_music.is_playing() || openal.chan_trig_music.is_paused()) {
+            openal.chan_trig_music.set_gain(
+                S_GetBaseVolume() * (openal.chan_trig_music.fVolume * s_musicVolume->value) * 84.f
+            );
+        }
+    }
+
+    music_volume_changed = false;
 }
 
+/*
+==============
+MUSIC_CheckForStoppedSongs
+==============
+*/
 void MUSIC_CheckForStoppedSongs()
 {
-    // FIXME: unimplemented
+    int i;
+
+    for (i = 0; i < MAX_OPENAL_SONGS; i++) {
+        if (!openal.chan_song[i].is_playing()) {
+            continue;
+        }
+
+        if (openal.chan_song[i].sample_loop_count()) {
+            continue;
+        }
+
+        MUSIC_FindSong(MusicMood_NumToName(music_fallback_mood));
+        if (!openal.chan_song[i].is_playing() && !openal.chan_song[i].is_paused()) {
+            MUSIC_SongEnded();
+        }
+    }
 }
 
+/*
+==============
+S_TriggeredMusic_SetupHandle
+==============
+*/
 void S_TriggeredMusic_SetupHandle(const char *pszName, int iLoopCount, int iOffset, qboolean autostart)
 {
-    // FIXME: unimplemented
+    char            *pszFilename;
+    const char      *pszRealName;
+    float            fVolume     = 1.0;
+    AliasListNode_t *pSoundAlias = NULL;
+
+    if (!s_bSoundStarted) {
+        return;
+    }
+
+    if (openal.chan_trig_music.is_playing() || openal.chan_trig_music.is_paused()) {
+        Com_DPrintf("Didn't start new triggered music because some was already playing\n");
+        return;
+    }
+
+    openal.chan_trig_music.stop();
+    // Fixed in OPM
+    //  Use strncpy instead
+    //strcpy(openal.tm_filename, pszName);
+    Q_strncpyz(openal.tm_filename, pszName, sizeof(openal.tm_filename));
+
+    openal.tm_loopcount = iLoopCount;
+    openal.chan_trig_music.set_sample_loop_count(iLoopCount);
+    pszRealName = Alias_FindRandom(pszName, &pSoundAlias);
+
+    if (!pszRealName) {
+        pszRealName = pszName;
+    } else if (pSoundAlias) {
+        fVolume = random() * pSoundAlias->volumeMod + pSoundAlias->volume;
+    }
+
+    pszFilename = FS_BuildOSPath(Cvar_VariableString("fs_basepath"), FS_Gamedir(), pszRealName);
+
+    if (!S_OPENAL_LoadMP3(pszFilename, &openal.chan_trig_music)) {
+        S_OPENAL_InitChannel(OPENAL_CHANNEL_TRIGGER_MUSIC_ID, &openal.chan_trig_music);
+        Com_DPrintf("Could not start triggered music '%s'\n", pszName);
+        return;
+    }
+
+    openal.chan_trig_music.fVolume = fVolume;
+    openal.chan_trig_music.set_gain(S_GetBaseVolume() * (fVolume * s_musicVolume->value) * 84.f);
+    openal.chan_trig_music.set_sample_loop_count(iLoopCount);
+    openal.chan_trig_music.set_sample_offset(iOffset);
+
+    if (autostart) {
+        openal.chan_trig_music.play();
+    }
 }
 
+/*
+==============
+S_TriggeredMusic_Start
+==============
+*/
 void S_TriggeredMusic_Start()
 {
-    // FIXME: unimplemented
+    if (Cmd_Argc() != 2) {
+        Com_Printf("tmstart <sound file>\n");
+        return;
+    }
+
+    S_TriggeredMusic_SetupHandle(Cmd_Argv(1), 1, 0, true);
 }
 
+/*
+==============
+S_TriggeredMusic_StartLoop
+==============
+*/
 void S_TriggeredMusic_StartLoop()
 {
-    // FIXME: unimplemented
+    if (Cmd_Argc() != 2) {
+        Com_Printf("tmstartloop <sound file>\n");
+        return;
+    }
+
+    S_TriggeredMusic_SetupHandle(Cmd_Argv(1), 0, 0, true);
 }
 
+/*
+==============
+S_TriggeredMusic_Stop
+==============
+*/
 void S_TriggeredMusic_Stop()
 {
-    // FIXME: unimplemented
+    if (!s_bSoundStarted) {
+        return;
+    }
+
+    openal.chan_trig_music.stop();
 }
 
+/*
+==============
+S_TriggeredMusic_Pause
+==============
+*/
 void S_TriggeredMusic_Pause()
 {
-    // FIXME: unimplemented
+    if (!s_bSoundStarted) {
+        return;
+    }
+
+    if (openal.chan_trig_music.is_playing()) {
+        openal.chan_trig_music.pause();
+    }
 }
 
+/*
+==============
+S_TriggeredMusic_Unpause
+==============
+*/
 void S_TriggeredMusic_Unpause()
 {
-    // FIXME: unimplemented
+    if (!s_bSoundStarted) {
+        return;
+    }
+
+    if (openal.chan_trig_music.is_paused()) {
+        openal.chan_trig_music.play();
+    }
+
+    openal.chan_trig_music.set_gain(S_GetBaseVolume() * (openal.chan_trig_music.fVolume * s_musicVolume->value) * 84.f);
 }
 
+/*
+==============
+S_TriggeredMusic_PlayIntroMusic
+==============
+*/
 void S_TriggeredMusic_PlayIntroMusic()
 {
-    // FIXME: unimplemented
+    S_TriggeredMusic_SetupHandle("sound/music/mus_MainTheme.mp3", 0, 0, true);
 }
 
+/*
+==============
+S_StopMovieAudio
+==============
+*/
 void S_StopMovieAudio()
 {
-    // FIXME: unimplemented
+    STUB_DESC("sound stuff.");
 }
 
+/*
+==============
+S_SetupMovieAudio
+==============
+*/
 void S_SetupMovieAudio(const char *pszMovieName)
 {
-    // FIXME: unimplemented
+    STUB_DESC("sound stuff");
 }
 
+/*
+==============
+S_CurrentMoviePosition
+==============
+*/
 int S_CurrentMoviePosition()
 {
-    // FIXME: unimplemented
+    STUB_DESC("sound stuff");
     return 0;
 }
 
