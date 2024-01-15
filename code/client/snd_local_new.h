@@ -32,6 +32,9 @@ extern "C" {
 extern cvar_t *s_volume;
 extern cvar_t *s_khz;
 extern cvar_t *s_loadas8bit;
+extern cvar_t *s_separation;
+extern cvar_t *s_musicVolume;
+extern cvar_t *s_ambientVolume;
 
 typedef struct {
     int   format;
@@ -162,10 +165,12 @@ extern qboolean   s_bSoundStarted;
 extern qboolean   s_bSoundPaused;
 extern qboolean   s_bTryUnpause;
 extern int        s_iListenerNumber;
+extern float      s_fAmbientVolume;
 extern int        number_of_sfx_infos;
 extern sfx_info_t sfx_infos[];
 extern sfx_t      s_knownSfx[];
 extern int        s_numSfx;
+extern s_entity_t s_entity[];
 
 // The current sound driver.
 // Currently OPENAL
