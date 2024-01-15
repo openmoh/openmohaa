@@ -66,6 +66,7 @@ LPALGETSOURCEF qalGetSourcef;
 LPALGETSOURCE3F qalGetSource3f;
 LPALGETSOURCEFV qalGetSourcefv;
 LPALGETSOURCEI qalGetSourcei;
+LPALGETSOURCEIV qalGetSourceiv;
 LPALSOURCEPLAYV qalSourcePlayv;
 LPALSOURCESTOPV qalSourceStopv;
 LPALSOURCEREWINDV qalSourceRewindv;
@@ -81,6 +82,7 @@ LPALDELETEBUFFERS qalDeleteBuffers;
 LPALISBUFFER qalIsBuffer;
 LPALBUFFERDATA qalBufferData;
 LPALGETBUFFERF qalGetBufferf;
+LPALGETBUFFERFV qalGetBufferfv;
 LPALGETBUFFERI qalGetBufferi;
 LPALDOPPLERFACTOR qalDopplerFactor;
 LPALSPEEDOFSOUND qalSpeedOfSound;
@@ -184,6 +186,7 @@ qboolean QAL_Init(const char *libname)
 	qalGetSource3f = GPA("alGetSource3f");
 	qalGetSourcefv = GPA("alGetSourcefv");
 	qalGetSourcei = GPA("alGetSourcei");
+	qalGetSourceiv = GPA("alGetSourceiv");
 	qalSourcePlayv = GPA("alSourcePlayv");
 	qalSourceStopv = GPA("alSourceStopv");
 	qalSourceRewindv = GPA("alSourceRewindv");
@@ -199,6 +202,7 @@ qboolean QAL_Init(const char *libname)
 	qalIsBuffer = GPA("alIsBuffer");
 	qalBufferData = GPA("alBufferData");
 	qalGetBufferf = GPA("alGetBufferf");
+	qalGetBufferfv = GPA("alGetBufferfv");
 	qalGetBufferi = GPA("alGetBufferi");
 	qalDopplerFactor = GPA("alDopplerFactor");
 	qalSpeedOfSound = GPA("alSpeedOfSound");
@@ -283,6 +287,7 @@ void QAL_Shutdown( void )
 	qalGetSource3f = NULL;
 	qalGetSourcefv = NULL;
 	qalGetSourcei = NULL;
+	qalGetSourceiv = NULL;
 	qalSourcePlayv = NULL;
 	qalSourceStopv = NULL;
 	qalSourceRewindv = NULL;
@@ -298,6 +303,7 @@ void QAL_Shutdown( void )
 	qalIsBuffer = NULL;
 	qalBufferData = NULL;
 	qalGetBufferf = NULL;
+	qalGetBufferfv = NULL;
 	qalGetBufferi = NULL;
 	qalDopplerFactor = NULL;
 	qalSpeedOfSound = NULL;
