@@ -26,8 +26,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #    include "snd_openal_new.h"
 #    include "client.h"
 #    include "../server/server.h"
-
-#    include <sys/stat.h>
+#    include "snd_codec.h"
 
 typedef struct {
     char  *funcname;
@@ -53,6 +52,8 @@ cvar_t *s_show_sounds;
 cvar_t *s_speaker_type;
 cvar_t *s_obstruction_cal_time;
 cvar_t *s_lastSoundTime;
+// Added in OPM
+cvar_t *s_openaldriver;
 
 static float reverb_table[] = {
     0.5f,   0.25f,        0.417f, 0.653f,      0.208f,      0.5f,   0.403f, 0.5f,   0.5f,
@@ -100,8 +101,21 @@ static void S_OPENAL_Pitch();
 static int
 S_OPENAL_SpatializeStereoSound(const vec3_t listener_origin, const vec3_t listener_left, const vec3_t origin);
 static void S_OPENAL_reverb(int iChannel, int iReverbType, float fReverbLevel);
+static bool S_OPENAL_LoadMP3_Codec(const char* _path, openal_channel* chan);
 
 #    define alDieIfError() __alDieIfError(__FILE__, __LINE__)
+
+#if defined(_WIN64)
+#define ALDRIVER_DEFAULT "OpenAL64.dll"
+#elif defined(_WIN32)
+#define ALDRIVER_DEFAULT "OpenAL32.dll"
+#elif defined(__APPLE__)
+#define ALDRIVER_DEFAULT "/System/Library/Frameworks/OpenAL.framework/OpenAL"
+#elif defined(__OpenBSD__)
+#define ALDRIVER_DEFAULT "libopenal.so"
+#else
+#define ALDRIVER_DEFAULT "libopenal.so.1"
+#endif
 
 /*
 ==============
@@ -242,7 +256,7 @@ static bool S_OPENAL_InitContext()
     const char *dev;
     int         attrlist[6];
 
-    dev = 0;
+    dev = NULL;
     if (s_openaldevice) {
         dev = s_openaldevice->string;
     }
@@ -316,15 +330,18 @@ S_OPENAL_InitExtensions
 */
 static bool S_OPENAL_InitExtensions()
 {
+    Com_Printf("AL extensions ignored\n");
+    return true;
+
     extensions_table_t extensions_table[4] = {
         "alutLoadMP3_LOKI",
-        (void **)_alutLoadMP3_LOKI,
+        (void **)&_alutLoadMP3_LOKI,
         true,
         "alReverbScale_LOKI",
-        (void **)_alReverbScale_LOKI,
+        (void **)&_alReverbScale_LOKI,
         true,
         "alReverbDelay_LOKI",
-        (void **)_alReverbDelay_LOKI,
+        (void **)&_alReverbDelay_LOKI,
         true
     };
     extensions_table_t *i;
@@ -387,7 +404,7 @@ static bool S_OPENAL_InitChannel(int idx, openal_channel *chan)
 
     qalGenSources(1, &chan->source);
     alDieIfError();
-    qalSourcei(chan->source, 514, 1);
+    qalSourcei(chan->source, AL_SOURCE_RELATIVE, 1);
     alDieIfError();
 
     return true;
@@ -423,6 +440,17 @@ qboolean S_OPENAL_Init()
     s_show_sounds            = Cvar_Get("s_show_sounds", "0", 0);
     s_speaker_type           = Cvar_Get("s_speaker_type", "0", CVAR_ARCHIVE);
     s_obstruction_cal_time   = Cvar_Get("s_obstruction_cal_time", "500", CVAR_ARCHIVE);
+    //
+    // Added in OPM
+    //  Initialize the AL driver DLL
+    s_openaldriver           = Cvar_Get("s_openaldriver", ALDRIVER_DEFAULT, CVAR_ARCHIVE | CVAR_LATCH | CVAR_PROTECTED);
+
+    if (!QAL_Init(s_openaldriver->string)) {
+        Com_Printf("Failed to load library: \"%s\".\n", s_openaldriver->string);
+        if (!Q_stricmp(s_openaldriver->string, ALDRIVER_DEFAULT) || !QAL_Init(ALDRIVER_DEFAULT)) {
+            return qfalse;
+        }
+    }
 
     if (!Cvar_Get("s_initsound", "1", 0)->integer) {
         Com_Printf("OpenAL: s_initsound set to zero...disabling audio.\n");
@@ -461,19 +489,19 @@ qboolean S_OPENAL_Init()
     }
 
     for (i = 0; i < MAX_OPENAL_CHANNELS_2D; i++) {
-        if (!S_OPENAL_InitChannel(i, &openal.chan_2D[i])) {
+        if (!S_OPENAL_InitChannel(i + MAX_OPENAL_CHANNELS_3D, &openal.chan_2D[i])) {
             return false;
         }
     }
 
     for (i = 0; i < MAX_OPENAL_CHANNELS_2D_STREAM; i++) {
-        if (!S_OPENAL_InitChannel(i, &openal.chan_2D_stream[i])) {
+        if (!S_OPENAL_InitChannel(i + MAX_OPENAL_CHANNELS_3D + MAX_OPENAL_CHANNELS_2D, &openal.chan_2D_stream[i])) {
             return false;
         }
     }
 
     for (i = 0; i < MAX_OPENAL_SONGS; i++) {
-        if (!S_OPENAL_InitChannel(i, &openal.chan_song[i])) {
+        if (!S_OPENAL_InitChannel(i + MAX_OPENAL_CHANNELS_3D + MAX_OPENAL_CHANNELS_2D + MAX_OPENAL_CHANNELS_2D_STREAM, &openal.chan_song[i])) {
             return false;
         }
     }
@@ -482,11 +510,11 @@ qboolean S_OPENAL_Init()
         return false;
     }
 
-    if (!S_OPENAL_InitChannel(OPENAL_CHANNEL_TRIGGER_MUSIC_ID, &openal.chan_mp3)) {
+    if (!S_OPENAL_InitChannel(OPENAL_CHANNEL_TRIGGER_MUSIC_ID, &openal.chan_trig_music)) {
         return false;
     }
 
-    if (!S_OPENAL_InitChannel(OPENAL_CHANNEL_MOVIE_ID, &openal.chan_mp3)) {
+    if (!S_OPENAL_InitChannel(OPENAL_CHANNEL_MOVIE_ID, &openal.chan_movie)) {
         return false;
     }
 
@@ -503,6 +531,9 @@ qboolean S_OPENAL_Init()
     load_sfx_info();
     s_bProvidersEmunerated = true;
     al_initialized         = true;
+
+    // Added in OPM
+    S_CodecInit();
 
     return true;
 }
@@ -690,6 +721,8 @@ S_OPENAL_LoadMP3
 */
 static bool S_OPENAL_LoadMP3(const char *_path, openal_channel *chan)
 {
+    return S_OPENAL_LoadMP3_Codec(_path, chan);
+
     char   path[MAX_QPATH];
     FILE  *in;
     size_t len;
@@ -2754,7 +2787,7 @@ openal_channel::set_sfx
 */
 bool openal_channel::set_sfx(sfx_t *pSfx)
 {
-    ALfloat freq;
+    ALfloat freq = 0;
 
     this->pSfx = pSfx;
     if (!pSfx->buffer || !qalIsBuffer(pSfx->buffer)) {
@@ -2974,7 +3007,7 @@ openal_channel::set_sample_loop_count
 */
 void openal_channel::set_sample_loop_count(S32 count)
 {
-    ALuint processed;
+    ALuint processed = 0;
 
     stop();
 
@@ -3116,16 +3149,18 @@ qboolean MUSIC_LoadSoundtrackFile(const char *filename)
                     "MUSIC_LoadSoundtrackFile: unknown command %s for song %s in %s.\n", args[1], &args[0][1], path
                 );
             }
-        } else if (numargs > 1) {
-            strcpy(alias, args[0]);
-            strcpy(file, load_path);
-            strcat(file, args[1]);
         } else {
-            strcpy(file, load_path);
-            strcat(file, args[1]);
+            if (numargs > 1) {
+                strcpy(alias, args[0]);
+                strcpy(file, load_path);
+                strcat(file, args[1]);
+            } else {
+                strcpy(file, load_path);
+                strcat(file, args[1]);
 
-            strncpy(alias, args[0], strlen(args[0]) - 4);
-            file[strlen(args[0]) + MAX_RES_NAME * 2 - 4] = 0;
+                strncpy(alias, args[0], strlen(args[0]) - 4);
+                file[strlen(args[0]) + MAX_RES_NAME * 2 - 4] = 0;
+            }
 
             if (music_numsongs >= MAX_MUSIC_SONGS) {
                 Com_Printf("MUSIC_LoadSoundtrackFile: Too many songs in %s, skipping %s.\n", path, alias);
@@ -3301,11 +3336,11 @@ void MUSIC_NewSoundtrack(const char *name)
         music_active = qfalse;
         if (MUSIC_Playing()) {
             MUSIC_StopAllSongs();
-        } else {
-            music_active = qtrue;
-            MUSIC_LoadSoundtrackFile(name);
-            music_loaded = qtrue;
         }
+    } else {
+        music_active = qtrue;
+        MUSIC_LoadSoundtrackFile(name);
+        music_loaded = qtrue;
     }
 }
 
@@ -3742,7 +3777,8 @@ void S_TriggeredMusic_SetupHandle(const char *pszName, int iLoopCount, int iOffs
 
     pszFilename = FS_BuildOSPath(Cvar_VariableString("fs_basepath"), FS_Gamedir(), pszRealName);
 
-    if (!S_OPENAL_LoadMP3(pszFilename, &openal.chan_trig_music)) {
+    //if (!S_OPENAL_LoadMP3(pszFilename, &openal.chan_trig_music)) {
+    if (!S_OPENAL_LoadMP3(pszRealName, &openal.chan_trig_music)) {
         S_OPENAL_InitChannel(OPENAL_CHANNEL_TRIGGER_MUSIC_ID, &openal.chan_trig_music);
         Com_DPrintf("Could not start triggered music '%s'\n", pszName);
         return;
@@ -3875,6 +3911,82 @@ int S_CurrentMoviePosition()
 {
     STUB_DESC("sound stuff");
     return 0;
+}
+
+
+/*
+=================
+S_AL_Format
+=================
+*/
+static ALuint S_OPENAL_Format(int width, int channels)
+{
+    ALuint format = AL_FORMAT_MONO16;
+
+    // Work out format
+    if (width == 1)
+    {
+        if (channels == 1)
+            format = AL_FORMAT_MONO8;
+        else if (channels == 2)
+            format = AL_FORMAT_STEREO8;
+    }
+    else if (width == 2)
+    {
+        if (channels == 1)
+            format = AL_FORMAT_MONO16;
+        else if (channels == 2)
+            format = AL_FORMAT_STEREO16;
+    }
+
+    return format;
+}
+
+/*
+==============
+S_OPENAL_LoadMP3_Codec
+==============
+*/
+static bool S_OPENAL_LoadMP3_Codec(const char* _path, openal_channel* chan) {
+    void* data;
+    snd_info_t info;
+    ALuint format;
+
+    // Try to load
+    data = S_CodecLoad(_path, &info);
+    if (!data) {
+        return false;
+    }
+
+    format = S_OPENAL_Format(info.width, info.channels);
+
+    // Create a buffer
+    qalGenBuffers(1, &chan->buffer);
+    alDieIfError();
+
+    // Fill the buffer
+    if (info.size == 0)
+    {
+        // We have no data to buffer, so buffer silence
+        byte dummyData[2] = { 0 };
+
+        qalBufferData(chan->buffer, AL_FORMAT_MONO16, (void*)dummyData, 2, 22050);
+    }
+    else {
+        qalBufferData(chan->buffer, format, data, info.size, info.rate);
+    }
+
+    alDieIfError();
+
+    // Free the memory
+    Hunk_FreeTempMemory(data);
+
+    qalSourcei(chan->source, AL_BUFFER, chan->buffer);
+    alDieIfError();
+
+    chan->set_no_3d();
+
+    return true;
 }
 
 #endif
