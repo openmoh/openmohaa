@@ -1549,22 +1549,20 @@ void RestoreMusicVolume(float fade_time)
 }
 
 void ChangeSoundtrack(const char *soundtrack)
-
 {
     level.saved_soundtrack   = level.current_soundtrack;
     level.current_soundtrack = soundtrack;
 
-    gi.setConfigstring(CS_SOUNDTRACK, soundtrack);
+    gi.setConfigstring(CS_MUSIC, soundtrack);
     gi.DPrintf("soundtrack switched to %s.\n", soundtrack);
 }
 
 void RestoreSoundtrack(void)
-
 {
     if (level.saved_soundtrack.length()) {
         level.current_soundtrack = level.saved_soundtrack;
         level.saved_soundtrack   = "";
-        gi.setConfigstring(CS_SOUNDTRACK, level.current_soundtrack.c_str());
+        gi.setConfigstring(CS_MUSIC, level.current_soundtrack.c_str());
         gi.DPrintf("soundtrack restored %s.\n", level.current_soundtrack.c_str());
     }
 }
