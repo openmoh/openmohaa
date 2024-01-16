@@ -1579,8 +1579,44 @@ void CL_Snd_Restart_f( void ) {
 	S_Shutdown();
 	S_Init();
 #else
+	qboolean full;
+	soundsystemsavegame_t save;
+	char tm_filename[MAX_RES_NAME];
+	int tm_loopcount;
+	int tm_offset;
+	char current_soundtrack[128];
+
+	full = S_NeedFullRestart();
+
+	//
+	// FIXME: there is a stub function
+	tm_loopcount = 0;
+	tm_offset = 0;
+	//
+
+	SV_ClearSvsTimeFixups();
+
+	S_SaveData(&save);
+	strcpy(current_soundtrack, S_CurrentSoundtrack());
+
 	S_Shutdown(qfalse);
 	S_Init(qfalse);
+
+	s_bSoundPaused = true;
+
+	S_LoadData(&save);
+
+	SV_FinishSvsTimeFixups();
+	S_ReLoad(&save);
+
+	if (tm_filename[0]) {
+		S_TriggeredMusic_SetupHandle(tm_filename, tm_loopcount, tm_offset, 0);
+	}
+
+	MUSIC_NewSoundtrack(current_soundtrack);
+	if (full) {
+		CL_Vid_Restart_f();
+	}
 #endif
 
 	CL_Vid_Restart_f();
@@ -2486,6 +2522,7 @@ void CL_Frame ( int msec ) {
 		&& !com_sv_running->integer ) {
 		// if disconnected, bring up the menu
 		S_StopAllSounds2( qtrue );
+		S_TriggeredMusic_PlayIntroMusic();
 		UI_MenuEscape( "main" );
 	}
 
@@ -3400,6 +3437,8 @@ void CL_Init( void ) {
 
 #if !defined(USE_SOUND_NEW) || !USE_SOUND_NEW
 	S_Init2();
+#else
+	S_Init(qtrue);
 #endif
 
 	// fixme: should we leave it?
