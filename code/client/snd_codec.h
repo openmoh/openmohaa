@@ -27,6 +27,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../qcommon/q_shared.h"
 #include "../qcommon/qcommon.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct snd_info_s
 {
 	int rate;
@@ -112,5 +116,9 @@ snd_stream_t *S_OggOpus_CodecOpenStream(const char *filename);
 void S_OggOpus_CodecCloseStream(snd_stream_t *stream);
 int S_OggOpus_CodecReadStream(snd_stream_t *stream, int bytes, void *buffer);
 #endif // USE_CODEC_OPUS
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // !_SND_CODEC_H_
