@@ -45,11 +45,11 @@ short int GetLittleShort()
     } val;
 
 #    ifdef Q3_LITTLE_ENDIAN
-    val.bytes[1] = data_p[0];
-    val.bytes[0] = data_p[1];
-#    else
     val.bytes[0] = data_p[0];
     val.bytes[1] = data_p[1];
+#    else
+    val.bytes[0] = data_p[1];
+    val.bytes[1] = data_p[0];
 #    endif
 
     data_p += sizeof(short);
@@ -69,15 +69,15 @@ int GetLittleLong()
     } val;
 
 #    ifdef Q3_LITTLE_ENDIAN
-    val.bytes[3] = data_p[0];
-    val.bytes[2] = data_p[1];
-    val.bytes[1] = data_p[2];
-    val.bytes[0] = data_p[3];
-#    else
     val.bytes[0] = data_p[0];
     val.bytes[1] = data_p[1];
     val.bytes[2] = data_p[2];
     val.bytes[3] = data_p[3];
+#    else
+    val.bytes[0] = data_p[3];
+    val.bytes[1] = data_p[2];
+    val.bytes[2] = data_p[1];
+    val.bytes[3] = data_p[0];
 #    endif
 
     data_p += sizeof(int);
@@ -99,11 +99,11 @@ void SetLittleShort(int i)
     val.value = i;
 
 #    ifdef Q3_LITTLE_ENDIAN
-    data_p[0] = val.bytes[1];
-    data_p[1] = val.bytes[0];
-#    else
     data_p[0] = val.bytes[0];
     data_p[1] = val.bytes[1];
+#    else
+    data_p[0] = val.bytes[1];
+    data_p[1] = val.bytes[0];
 #    endif
 
     data_p += sizeof(short);
@@ -124,15 +124,15 @@ void SetLittleLong(int i)
     val.value = i;
 
 #    ifdef Q3_LITTLE_ENDIAN
-    data_p[0] = val.bytes[3];
-    data_p[1] = val.bytes[2];
-    data_p[2] = val.bytes[1];
-    data_p[3] = val.bytes[0];
-#    else
     data_p[0] = val.bytes[0];
     data_p[1] = val.bytes[1];
     data_p[2] = val.bytes[2];
     data_p[3] = val.bytes[3];
+#    else
+    data_p[0] = val.bytes[3];
+    data_p[1] = val.bytes[2];
+    data_p[2] = val.bytes[1];
+    data_p[3] = val.bytes[0];
 #    endif
 
     data_p += sizeof(int);
@@ -166,7 +166,7 @@ void FindNextChunk(const char *name)
         value++;
         value &= ~1;
 
-        last_chunk = data_p + value * 8;
+        last_chunk = data_p + value + 8;
         if (!strncmp((const char *)data_p, name, 4u)) {
             return;
         }
