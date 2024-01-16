@@ -218,6 +218,8 @@ qboolean S_LoadSound(const char *fileName, sfx_t *sfx, int streamed, qboolean fo
 
 void S_PrintInfo();
 void S_DumpInfo();
+qboolean S_NeedFullRestart();
+void S_ReLoad(soundsystemsavegame_t* pSave);
 
 extern cvar_t *s_show_sounds;
 
