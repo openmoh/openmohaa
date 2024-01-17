@@ -2707,12 +2707,12 @@ void ScriptThread::EventDelayThrow(Event *ev)
 
 void ScriptThread::EventWait(Event *ev)
 {
-    Wait((int)(ev->GetFloat(1) * 1000.0f + 0.5f));
+    Wait((int)roundf(ev->GetFloat(1) * 1000.0f));
 }
 
 void ScriptThread::EventWaitFrame(Event *ev)
 {
-    Wait((int)(level.frametime * 1000.0f + 0.5f));
+    Wait((int)roundf(level.frametime * 1000.0f));
 }
 
 void ScriptThread::EventResume(Event *ev)
@@ -4022,7 +4022,7 @@ void ScriptThread::EventDebugInt3(Event *ev)
 
 void ScriptThread::EventTimeout(Event *ev)
 {
-    Director.maxTime = ev->GetFloat(1) * 1000.0f + 0.5f;
+    Director.maxTime = roundf(ev->GetFloat(1) * 1000.0f);
 }
 
 void ScriptThread::EventLandmineDamage(Event *ev)
@@ -4139,7 +4139,7 @@ void ScriptThread::EventEarthquake(Event *ev)
 {
     earthquake_t e;
 
-    e.duration = (int)(ev->GetFloat(1) * 1000.0f + 0.5f);
+    e.duration = (int)roundf(ev->GetFloat(1) * 1000.0f);
     if (e.duration <= 0) {
         return;
     }
