@@ -101,21 +101,21 @@ static void S_OPENAL_Pitch();
 static int
 S_OPENAL_SpatializeStereoSound(const vec3_t listener_origin, const vec3_t listener_left, const vec3_t origin);
 static void S_OPENAL_reverb(int iChannel, int iReverbType, float fReverbLevel);
-static bool S_OPENAL_LoadMP3_Codec(const char* _path, openal_channel* chan);
+static bool S_OPENAL_LoadMP3_Codec(const char *_path, openal_channel *chan);
 
 #    define alDieIfError() __alDieIfError(__FILE__, __LINE__)
 
-#if defined(_WIN64)
-#define ALDRIVER_DEFAULT "OpenAL64.dll"
-#elif defined(_WIN32)
-#define ALDRIVER_DEFAULT "OpenAL32.dll"
-#elif defined(__APPLE__)
-#define ALDRIVER_DEFAULT "/System/Library/Frameworks/OpenAL.framework/OpenAL"
-#elif defined(__OpenBSD__)
-#define ALDRIVER_DEFAULT "libopenal.so"
-#else
-#define ALDRIVER_DEFAULT "libopenal.so.1"
-#endif
+#    if defined(_WIN64)
+#        define ALDRIVER_DEFAULT "OpenAL64.dll"
+#    elif defined(_WIN32)
+#        define ALDRIVER_DEFAULT "OpenAL32.dll"
+#    elif defined(__APPLE__)
+#        define ALDRIVER_DEFAULT "/System/Library/Frameworks/OpenAL.framework/OpenAL"
+#    elif defined(__OpenBSD__)
+#        define ALDRIVER_DEFAULT "libopenal.so"
+#    else
+#        define ALDRIVER_DEFAULT "libopenal.so.1"
+#    endif
 
 /*
 ==============
@@ -404,7 +404,7 @@ static bool S_OPENAL_InitChannel(int idx, openal_channel *chan)
 
     qalGenSources(1, &chan->source);
     alDieIfError();
-    qalSourcei(chan->source, AL_SOURCE_RELATIVE, 1);
+    qalSourcei(chan->source, AL_SOURCE_RELATIVE, true);
     alDieIfError();
 
     return true;
@@ -443,7 +443,7 @@ qboolean S_OPENAL_Init()
     //
     // Added in OPM
     //  Initialize the AL driver DLL
-    s_openaldriver           = Cvar_Get("s_openaldriver", ALDRIVER_DEFAULT, CVAR_ARCHIVE | CVAR_LATCH | CVAR_PROTECTED);
+    s_openaldriver = Cvar_Get("s_openaldriver", ALDRIVER_DEFAULT, CVAR_ARCHIVE | CVAR_LATCH | CVAR_PROTECTED);
 
     if (!QAL_Init(s_openaldriver->string)) {
         Com_Printf("Failed to load library: \"%s\".\n", s_openaldriver->string);
@@ -501,7 +501,10 @@ qboolean S_OPENAL_Init()
     }
 
     for (i = 0; i < MAX_OPENAL_SONGS; i++) {
-        if (!S_OPENAL_InitChannel(i + MAX_OPENAL_CHANNELS_3D + MAX_OPENAL_CHANNELS_2D + MAX_OPENAL_CHANNELS_2D_STREAM, &openal.chan_song[i])) {
+        if (!S_OPENAL_InitChannel(
+                i + MAX_OPENAL_CHANNELS_3D + MAX_OPENAL_CHANNELS_2D + MAX_OPENAL_CHANNELS_2D_STREAM,
+                &openal.chan_song[i]
+            )) {
             return false;
         }
     }
@@ -978,7 +981,8 @@ static qboolean S_OPENAL_ShouldStart(const vec3_t vOrigin, float fMinDist, float
 
     qalGetListenerfv(AL_POSITION, alvec);
 
-    VectorScale(alvec, 52.49f, vListenerOrigin);
+    //VectorScale(alvec, 52.49f, vListenerOrigin);
+    VectorCopy(alvec, vListenerOrigin);
     VectorSubtract(vOrigin, vListenerOrigin, vDir);
 
     return Square(fMaxDist) > VectorLengthSquared(vDir);
@@ -1340,6 +1344,9 @@ void S_OPENAL_StartSound(
     pChannel->iEntChannel   = iEntChannel;
     pChannel->iFlags &= ~(CHANNEL_FLAG_PAUSED | CHANNEL_FLAG_LOCAL_LISTENER);
     state = pChannel->get_state();
+    // Fixed in OPM
+    //  Setup the channel for 3D
+    pChannel->set_3d();
 
     if (pChannel->iEntNum == iEntNum && (state == AL_PLAYING || state == AL_PAUSED) && pChannel->pSfx == pSfx) {
         bOnlyUpdate = true;
@@ -1381,9 +1388,10 @@ void S_OPENAL_StartSound(
     pChannel->set_velocity(0, 0, 0);
     if (iEntNum == ENTITYNUM_NONE) {
         if (vOrigin) {
-            pChannel->vOrigin[0] = -vOrigin[0];
-            pChannel->vOrigin[1] = vOrigin[2];
-            pChannel->vOrigin[2] = -vOrigin[1];
+            //pChannel->vOrigin[0] = -vOrigin[0];
+            //pChannel->vOrigin[1] = vOrigin[2];
+            //pChannel->vOrigin[2] = -vOrigin[1];
+            VectorCopy(vOrigin, pChannel->vOrigin);
         } else {
             //VectorClear(vOrigin);
             // Fixed in OPM
@@ -1391,17 +1399,22 @@ void S_OPENAL_StartSound(
             VectorClear(pChannel->vOrigin);
         }
 
+        /*
         pChannel->set_position(
             pChannel->vOrigin[0] / 52.49f, pChannel->vOrigin[1] / 52.49f, pChannel->vOrigin[2] / 52.49f
         );
+        */
+        pChannel->set_position(pChannel->vOrigin[0], pChannel->vOrigin[1], pChannel->vOrigin[2]);
         pChannel->iFlags |= CHANNEL_FLAG_NO_ENTITY;
         pChannel->iEntNum = 0;
     } else {
         pChannel->iEntNum = iEntNum;
         if (vOrigin) {
-            pChannel->vOrigin[0]      = -*vOrigin;
-            pChannel->vOrigin[1]      = vOrigin[2];
-            pChannel->vOrigin[2]      = -vOrigin[1];
+            //pChannel->vOrigin[0] = -vOrigin[0];
+            //pChannel->vOrigin[1] = vOrigin[2];
+            //pChannel->vOrigin[2] = -vOrigin[1];
+            VectorCopy(vOrigin, pChannel->vOrigin);
+
             bSupportWaitTillSoundDone = cl.serverTime - 1 < 0;
             pChannel->iTime           = cl.serverTime - 1;
             if (bSupportWaitTillSoundDone) {
@@ -1411,6 +1424,7 @@ void S_OPENAL_StartSound(
             VectorClear(pChannel->vOrigin);
             pChannel->iTime = 0;
         }
+        pChannel->set_position(pChannel->vOrigin[0], pChannel->vOrigin[1], pChannel->vOrigin[2]);
     }
 
     if (pSfxInfo->loop_start != -1) {
@@ -1487,22 +1501,23 @@ void S_OPENAL_AddLoopingSound(
         return;
     }
 
-    pLoopSound               = &openal.loop_sounds[iFreeLoopSound];
-    pLoopSound->vOrigin[0]   = -vOrigin[0];
-    pLoopSound->vOrigin[1]   = vOrigin[2];
-    pLoopSound->vOrigin[2]   = -vOrigin[1];
-    pLoopSound->vVelocity[0] = -vVelocity[0] / 52.49f / 500.f;
-    pLoopSound->vVelocity[1] = vVelocity[2] / 52.49f / 500.f;
-    pLoopSound->vVelocity[2] = -vVelocity[1] / 52.49f / 500.f;
-    pLoopSound->pSfx         = pSfx;
-    pLoopSound->bInUse       = true;
-    pLoopSound->iStartTime   = cls.realtime;
-    pLoopSound->fBaseVolume  = fVolume;
-    pLoopSound->fMinDist     = fMinDist;
-    pLoopSound->fMaxDist     = fMaxDist;
-    pLoopSound->fPitch       = fPitch;
-    pLoopSound->iFlags       = iFlags;
-    pLoopSound->bCombine     = VectorCompare(vVelocity, vec_zero) == 0;
+    pLoopSound             = &openal.loop_sounds[iFreeLoopSound];
+    pLoopSound->vOrigin[0] = -vOrigin[0];
+    pLoopSound->vOrigin[1] = vOrigin[2];
+    pLoopSound->vOrigin[2] = -vOrigin[1];
+    //pLoopSound->vVelocity[0] = -vVelocity[0] / 52.49f / 500.f;
+    //pLoopSound->vVelocity[1] = vVelocity[2] / 52.49f / 500.f;
+    //pLoopSound->vVelocity[2] = -vVelocity[1] / 52.49f / 500.f;
+    VectorCopy(vVelocity, pLoopSound->vVelocity);
+    pLoopSound->pSfx        = pSfx;
+    pLoopSound->bInUse      = true;
+    pLoopSound->iStartTime  = cls.realtime;
+    pLoopSound->fBaseVolume = fVolume;
+    pLoopSound->fMinDist    = fMinDist;
+    pLoopSound->fMaxDist    = fMaxDist;
+    pLoopSound->fPitch      = fPitch;
+    pLoopSound->iFlags      = iFlags;
+    pLoopSound->bCombine    = VectorCompare(vVelocity, vec_zero) == 0;
 
     if (pLoopSound->bCombine) {
         for (i = 0; i < (MAX_OPENAL_CHANNELS_3D + MAX_OPENAL_CHANNELS_2D); i++) {
@@ -1743,10 +1758,14 @@ static int S_OPENAL_Start3DLoopSound(
         return -1;
     }
 
+    /*
     pChan3D->set_position(vLoopOrigin[0] / 52.49f, pLoopSound->vVelocity[1] / 52.49f, vLoopOrigin[2] / 52.49f);
     pChan3D->set_velocity(
         pLoopSound->vVelocity[0] / 52.49f, vLoopOrigin[1] / 52.49f, pLoopSound->vVelocity[2] / 52.49f
     );
+    */
+    pChan3D->set_position(vLoopOrigin[0], pLoopSound->vVelocity[1], vLoopOrigin[2]);
+    pChan3D->set_velocity(pLoopSound->vVelocity[0], vLoopOrigin[1], pLoopSound->vVelocity[2]);
     pChan3D->pSfx = pLoopSound->pSfx;
     pChan3D->iFlags |= CHANNEL_FLAG_PAUSED | CHANNEL_FLAG_NO_ENTITY;
     pChan3D->iBaseRate = pChan3D->sample_playback_rate();
@@ -1827,7 +1846,8 @@ static bool S_OPENAL_UpdateLoopSound(
         pChannel->set_gain(fVolume);
         pChannel->set_sample_pan(iPan);
     } else {
-        pChannel->set_position(vLoopOrigin[0] / 52.49f, vLoopOrigin[1] / 52.49f, vLoopOrigin[2] / 52.49f);
+        //pChannel->set_position(vLoopOrigin[0] / 52.49f, vLoopOrigin[1] / 52.49f, vLoopOrigin[2] / 52.49f);
+        pChannel->set_position(vLoopOrigin[0], vLoopOrigin[1], vLoopOrigin[2]);
         pChannel->fVolume = fVolumeToPlay;
         pChannel->set_gain(fVolumeToPlay);
     }
@@ -1865,7 +1885,7 @@ void S_OPENAL_AddLoopSounds(const vec3_t vTempAxis)
     vec3_t               alvec;
 
     qalGetListenerfv(AL_POSITION, alvec);
-    VectorScale(alvec, 52.49f, vListenerOrigin);
+    //VectorScale(alvec, 52.49f, vListenerOrigin);
 
     for (i = 0; i < MAX_OPENAL_LOOP_SOUNDS; i++) {
         vec3_t vDir;
@@ -2090,9 +2110,10 @@ void S_OPENAL_Respatialize(int iEntNum, const vec3_t vHeadPos, const vec3_t vAxi
     //
     // Position
     //
-    alvec[0] = -vHeadPos[0] / 52.49f;
-    alvec[1] = vHeadPos[2] / 52.49f;
-    alvec[2] = -vHeadPos[1] / 52.49f;
+    //alvec[0] = -vHeadPos[0] / 52.49f;
+    //alvec[1] = vHeadPos[2] / 52.49f;
+    //alvec[2] = -vHeadPos[1] / 52.49f;
+    VectorCopy(vHeadPos, alvec);
     VectorCopy(alvec, vListenerOrigin);
     qalListenerfv(AL_POSITION, alvec);
     alDieIfError();
@@ -2100,18 +2121,27 @@ void S_OPENAL_Respatialize(int iEntNum, const vec3_t vHeadPos, const vec3_t vAxi
     //
     // Orientation
     //
+    /*
     alorientation[0][0] = -vAxis[0][0];
     alorientation[0][1] = vAxis[2][0];
     alorientation[0][2] = -vAxis[1][0];
     alorientation[1][0] = -vAxis[0][2];
     alorientation[1][1] = vAxis[2][2];
     alorientation[1][2] = -vAxis[1][2];
+    */
+    alorientation[0][0] = vAxis[0][0];
+    alorientation[0][1] = vAxis[0][1];
+    alorientation[0][2] = vAxis[0][2];
+    alorientation[1][0] = vAxis[2][0];
+    alorientation[1][1] = vAxis[2][1];
+    alorientation[1][2] = vAxis[2][2];
     qalListenerfv(AL_ORIENTATION, (const ALfloat *)alorientation);
     alDieIfError();
 
-    vTempAxis[0] = -vAxis[0][1];
-    vTempAxis[1] = vAxis[2][1];
-    vTempAxis[2] = -vAxis[1][1];
+    //vTempAxis[0] = -vAxis[0][1];
+    //vTempAxis[1] = vAxis[2][1];
+    //vTempAxis[2] = -vAxis[1][1];
+    VectorCopy(vAxis[0], vTempAxis);
 
     fVolume = 1;
     iPan    = 64;
@@ -2141,7 +2171,8 @@ void S_OPENAL_Respatialize(int iEntNum, const vec3_t vHeadPos, const vec3_t vAxi
                     fVolume = fMaxVolume;
                     iPan    = 64;
                 } else {
-                    pChannel->set_position(vOrigin[0] / 52.49f, vOrigin[1] / 52.49f, vOrigin[2] / 52.49f);
+                    //pChannel->set_position(vOrigin[0] / 52.49f, vOrigin[1] / 52.49f, vOrigin[2] / 52.49f);
+                    pChannel->set_position(vOrigin[0], vOrigin[1], vOrigin[2]);
                 }
             } else {
                 if (i >= MAX_OPENAL_CHANNELS_3D) {
@@ -2158,7 +2189,8 @@ void S_OPENAL_Respatialize(int iEntNum, const vec3_t vHeadPos, const vec3_t vAxi
                                 * fMaxVolume;
                     }
                 } else {
-                    pChannel->set_position(vOrigin[0] / 52.49f, vOrigin[1] / 52.49f, vOrigin[2] / 52.49f);
+                    //pChannel->set_position(vOrigin[0] / 52.49f, vOrigin[1] / 52.49f, vOrigin[2] / 52.49f);
+                    pChannel->set_position(vOrigin[0], vOrigin[1], vOrigin[2]);
                 }
             }
         } else if (pChannel->iFlags & CHANNEL_FLAG_LOCAL_LISTENER) {
@@ -2167,7 +2199,8 @@ void S_OPENAL_Respatialize(int iEntNum, const vec3_t vHeadPos, const vec3_t vAxi
                 fVolume = fMaxVolume;
                 iPan    = 64;
             } else {
-                pChannel->set_position(vOrigin[0] / 52.49f, vOrigin[1] / 52.49f, vOrigin[2] / 52.49f);
+                //pChannel->set_position(vOrigin[0] / 52.49f, vOrigin[1] / 52.49f, vOrigin[2] / 52.49f);
+                pChannel->set_position(vOrigin[0], vOrigin[1], vOrigin[2]);
             }
         } else {
             if (s_entity[pChannel->iEntNum].time < pChannel->iTime) {
@@ -2178,9 +2211,10 @@ void S_OPENAL_Respatialize(int iEntNum, const vec3_t vHeadPos, const vec3_t vAxi
                 }
             } else {
                 VectorCopy(s_entity[pChannel->iEntNum].position, vEntOrigin);
-                vOrigin[1] = vEntOrigin[2];
-                vOrigin[0] = -vEntOrigin[0];
-                vOrigin[2] = -vEntOrigin[1];
+                //vOrigin[1] = vEntOrigin[2] / 52.49f;
+                //vOrigin[0] = -vEntOrigin[0] / 52.49f;
+                //vOrigin[2] = -vEntOrigin[1] / 52.49f;
+                VectorCopy(vEntOrigin, vOrigin);
                 VectorCopy(vOrigin, pChannel->vOrigin);
                 pChannel->iTime = s_entity[pChannel->iEntNum].time;
             }
@@ -2212,13 +2246,16 @@ void S_OPENAL_Respatialize(int iEntNum, const vec3_t vHeadPos, const vec3_t vAxi
                         (1.0 - (fDist - pChannel->fMinDist) / (pChannel->fMaxDist - pChannel->fMinDist)) * fMaxVolume;
                 }
             } else {
-                pChannel->set_position(vOrigin[0] / 52.49f, vOrigin[1] / 52.49f, vOrigin[2] / 52.49f);
+                //pChannel->set_position(vOrigin[0] / 52.49f, vOrigin[1] / 52.49f, vOrigin[2] / 52.49f);
+                pChannel->set_position(vOrigin[0], vOrigin[1], vOrigin[2]);
                 VectorCopy(s_entity[pChannel->iEntNum].velocity, vEntVelocity);
 
-                vVelocity[0] = -vEntVelocity[0] / 52.49f / 500.f;
-                vVelocity[1] = vEntVelocity[2] / 52.49f / 500.f;
-                vVelocity[2] = -vEntVelocity[1] / 52.49f / 500.f;
-                pChannel->set_velocity(vVelocity[0] / 52.49f, vVelocity[1] / 52.49f, vVelocity[2] / 52.49f);
+                //vVelocity[0] = -vEntVelocity[0] / 52.49f / 500.f;
+                //vVelocity[1] = vEntVelocity[2] / 52.49f / 500.f;
+                //vVelocity[2] = -vEntVelocity[1] / 52.49f / 500.f;
+                VectorCopy(vEntVelocity, vVelocity);
+                //pChannel->set_velocity(vVelocity[0] / 52.49f, vVelocity[1] / 52.49f, vVelocity[2] / 52.49f);
+                pChannel->set_velocity(vVelocity[0], vVelocity[1], vVelocity[2]);
             }
         }
 
@@ -2676,11 +2713,11 @@ openal_channel::set_3d
 */
 void openal_channel::set_3d()
 {
-    qalSourcei(source, AL_SOURCE_RELATIVE, true);
+    qalSourcei(source, AL_SOURCE_RELATIVE, false);
     alDieIfError();
     qalSourcei(source, AL_LOOPING, false);
     alDieIfError();
-    qalSourcef(source, AL_ROLLOFF_FACTOR, 1.f);
+    qalSourcef(source, AL_ROLLOFF_FACTOR, 0.019f);
     alDieIfError();
     qalSourcef(source, AL_GAIN, S_GetBaseVolume());
     alDieIfError();
@@ -3249,7 +3286,7 @@ void Music_Update()
         currentsong = -1;
     }
 
-    if (!music_current_mood) {
+    if (music_current_mood == mood_none) {
         if (MUSIC_Playing()) {
             MUSIC_StopAllSongs();
         }
@@ -3601,7 +3638,8 @@ qboolean MUSIC_PlaySong(const char *alias)
         MUSIC_StopChannel(channel_to_play_on);
     }
 
-    if (!S_OPENAL_LoadMP3(FS_BuildOSPath(Cvar_VariableString("fs_basepath"), FS_Gamedir(), song->path), song_channel)) {
+    //if (!S_OPENAL_LoadMP3(FS_BuildOSPath(Cvar_VariableString("fs_basepath"), FS_Gamedir(), song->path), song_channel)) {
+    if (!S_OPENAL_LoadMP3(song->path, song_channel)) {
         Com_DPrintf("Could not start music file '%s'!", song->path);
         return false;
     }
@@ -3913,7 +3951,6 @@ int S_CurrentMoviePosition()
     return 0;
 }
 
-
 /*
 =================
 S_AL_Format
@@ -3924,19 +3961,18 @@ static ALuint S_OPENAL_Format(int width, int channels)
     ALuint format = AL_FORMAT_MONO16;
 
     // Work out format
-    if (width == 1)
-    {
-        if (channels == 1)
+    if (width == 1) {
+        if (channels == 1) {
             format = AL_FORMAT_MONO8;
-        else if (channels == 2)
+        } else if (channels == 2) {
             format = AL_FORMAT_STEREO8;
-    }
-    else if (width == 2)
-    {
-        if (channels == 1)
+        }
+    } else if (width == 2) {
+        if (channels == 1) {
             format = AL_FORMAT_MONO16;
-        else if (channels == 2)
+        } else if (channels == 2) {
             format = AL_FORMAT_STEREO16;
+        }
     }
 
     return format;
@@ -3947,10 +3983,11 @@ static ALuint S_OPENAL_Format(int width, int channels)
 S_OPENAL_LoadMP3_Codec
 ==============
 */
-static bool S_OPENAL_LoadMP3_Codec(const char* _path, openal_channel* chan) {
-    void* data;
+static bool S_OPENAL_LoadMP3_Codec(const char *_path, openal_channel *chan)
+{
+    void      *data;
     snd_info_t info;
-    ALuint format;
+    ALuint     format;
 
     // Try to load
     data = S_CodecLoad(_path, &info);
@@ -3965,14 +4002,12 @@ static bool S_OPENAL_LoadMP3_Codec(const char* _path, openal_channel* chan) {
     alDieIfError();
 
     // Fill the buffer
-    if (info.size == 0)
-    {
+    if (info.size == 0) {
         // We have no data to buffer, so buffer silence
-        byte dummyData[2] = { 0 };
+        byte dummyData[2] = {0};
 
-        qalBufferData(chan->buffer, AL_FORMAT_MONO16, (void*)dummyData, 2, 22050);
-    }
-    else {
+        qalBufferData(chan->buffer, AL_FORMAT_MONO16, (void *)dummyData, 2, 22050);
+    } else {
         qalBufferData(chan->buffer, format, data, info.size, info.rate);
     }
 
