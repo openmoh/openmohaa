@@ -431,7 +431,7 @@ qboolean S_LoadSound(const char *fileName, sfx_t *sfx, int streamed, qboolean fo
     char tempName[MAX_RES_NAME + 1];
     int realKhz;
 
-    sfx->buffer = NULL;
+    sfx->buffer = 0;
 
     if (fileName[0] == '*') {
         return qfalse;
