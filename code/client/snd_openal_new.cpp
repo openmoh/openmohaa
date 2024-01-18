@@ -1166,14 +1166,14 @@ static void S_OPENAL_Start2DSound(
             "Couldn't play %s sound '%s' for entity %i on channel %s\n",
             (pSfx->iFlags & SFX_FLAG_NO_DATA) ? "2Dstreamed" : "2D",
             pSfx->name,
-            iEntNum & ~S_FLAG_DO_CALLBACK,
+            iRealEntNum,
             S_ChannelNumToName(iEntChannel)
         );
         return;
     }
 
     if (iEntNum & S_FLAG_DO_CALLBACK) {
-        callbackServer(iEntNum, iFreeChannel, pSfx->name);
+        callbackServer(iRealEntNum, iFreeChannel, pSfx->name);
     }
 
     pChannel = openal.channel[iFreeChannel];
@@ -1207,7 +1207,7 @@ static void S_OPENAL_Start2DSound(
     pChannel->pSfx          = pSfx;
     pChannel->iEntNum       = iRealEntNum;
     pChannel->iEntChannel   = iEntChannel;
-    if (iEntNum == ENTITYNUM_NONE) {
+    if (iRealEntNum == ENTITYNUM_NONE) {
         VectorClear(pChannel->vOrigin);
         pChannel->iFlags |= CHANNEL_FLAG_NO_ENTITY;
         pChannel->iEntNum = 0;
