@@ -578,6 +578,10 @@ Chooses a player start, deathmatch start, etc
 PlayerStart *SelectSpawnPoint(Player *player)
 {
     PlayerStart *spot = NULL;
+    PlayerStart *spawnpoint;
+    const char  *classID;
+    int          i;
+    int          nFound;
 
     switch (g_gametype->integer) {
     case GT_SINGLE_PLAYER:
@@ -602,15 +606,38 @@ PlayerStart *SelectSpawnPoint(Player *player)
 
     // find a single player start spot
     if (!spot) {
-        while ((spot = (PlayerStart *)G_FindArchivedClass(spot, "info_player_start")) != NULL) {
-            if (level.spawnpoint.icmp(spot->TargetName()) == 0) {
-                break;
+        for (i = 1; i <= level.m_SimpleArchivedEntities.NumObjects(); i++) {
+            SimpleArchivedEntity *arc = level.m_SimpleArchivedEntities.ObjectAt(i);
+
+            classID = arc->classinfo()->classID;
+            if (!Q_stricmp(classID, "info_player_start")) {
+                spawnpoint = static_cast<PlayerStart *>(arc);
+                if (!str::icmp(level.spawnpoint, spawnpoint->TargetName())) {
+                    spot = spawnpoint;
+                    break;
+                }
             }
         }
 
         if (!spot && !level.spawnpoint.length()) {
-            // there wasn't a spawnpoint without a target, so use any
-            spot = (PlayerStart *)G_FindArchivedClass(NULL, "info_player_start");
+            nFound = 0;
+
+            for (i = 1; i <= level.m_SimpleArchivedEntities.NumObjects(); i++) {
+                SimpleArchivedEntity *arc = level.m_SimpleArchivedEntities.ObjectAt(i);
+
+                classID = arc->classinfo()->classID;
+                if (!Q_stricmp(classID, "info_player_start")) {
+                    int randVal;
+
+                    spawnpoint = static_cast<PlayerStart *>(arc);
+                    nFound++;
+
+                    randVal = rand();
+                    if (randVal == randVal / nFound * nFound) {
+                        spot = spawnpoint;
+                    }
+                }
+            }
         }
 
         if (!spot) {
@@ -786,7 +813,7 @@ void G_ClientUserinfoChanged(gentity_t *ent, const char *u)
     Q_strncpyz(client->pers.userinfo, u, sizeof(client->pers.userinfo));
 }
 
-void G_BotConnect(int clientNum, const char* userinfo)
+void G_BotConnect(int clientNum, const char *userinfo)
 {
     gclient_t *client;
     gentity_t *ent;
