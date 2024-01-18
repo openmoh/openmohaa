@@ -848,7 +848,11 @@ void S_Base_AddRealLoopingSound( int entityNum, const vec3_t origin, const vec3_
 	}
 
 	if ( !sfx->soundLength ) {
-		Com_Error( ERR_DROP, "%s has length 0", sfx->soundName );
+		// Fixed in OPM
+		//  Why should it crash???
+		//Com_Error( ERR_DROP, "%s has length 0", sfx->soundName );
+		Com_Printf( "%s has length 0", sfx->soundName );
+		return;
 	}
 	VectorCopy( origin, loopSounds[entityNum].origin );
 	VectorCopy( velocity, loopSounds[entityNum].velocity );
