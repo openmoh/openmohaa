@@ -298,13 +298,6 @@ void PM_StepSlideMove( qboolean gravity )
 	down[ 2 ] -= STEPSIZE;
 
 	pm->trace( &trace, pm->ps->origin, pm->mins, pm->maxs, down, pm->ps->clientNum, pm->tracemask, qtrue, qfalse );
-	if (trace.startsolid) {
-		// Fixed in OPM
-		VectorCopy(nostep_o, pm->ps->origin);
-		VectorCopy(nostep_v, pm->ps->velocity);
-		return;
-	}
-	
 	if( !trace.allsolid )
 	{
 		if( bWasOnGoodGround && trace.fraction < 1.0 && trace.plane.normal[ 2 ] < MIN_WALK_NORMAL )
