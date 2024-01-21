@@ -49,7 +49,6 @@ qboolean	PM_SlideMove( qboolean gravity )
 	float		d;
 	int			numplanes;
 	vec3_t		planes[ MAX_CLIP_PLANES ];
-	vec3_t		primal_velocity;
 	vec3_t		clipVelocity;
 	int			i, j, k;
 	trace_t	trace;
@@ -61,13 +60,11 @@ qboolean	PM_SlideMove( qboolean gravity )
 
 	numbumps = 4;
 
-	VectorCopy( pm->ps->velocity, primal_velocity );
+	VectorCopy( pm->ps->velocity, endVelocity );
 
 	if( gravity ) {
-		VectorCopy( pm->ps->velocity, endVelocity );
 		endVelocity[ 2 ] -= pm->ps->gravity * pml.frametime;
 		pm->ps->velocity[ 2 ] = ( pm->ps->velocity[ 2 ] + endVelocity[ 2 ] ) * 0.5;
-		primal_velocity[ 2 ] = endVelocity[ 2 ];
 		if( pml.groundPlane ) {
 			// slide along the ground plane
 			PM_ClipVelocity( pm->ps->velocity, pml.groundTrace.plane.normal,
@@ -113,7 +110,7 @@ qboolean	PM_SlideMove( qboolean gravity )
 			break;		// moved the entire distance
 		}
 
-		if( ( trace.plane.normal[ 2 ] < MIN_WALK_NORMAL ) && ( trace.plane.normal[ 2 ] > 0 ) )
+		if( ( trace.plane.normal[ 2 ] < MIN_WALK_NORMAL ) && ( trace.plane.normal[ 2 ] > 0 ) && DotProduct(trace.plane.normal, pm->ps->velocity) <= 0 )
 		{
 			// treat steep walls as vertical
 			trace.plane.normal[ 2 ] = 0;
@@ -301,6 +298,13 @@ void PM_StepSlideMove( qboolean gravity )
 	down[ 2 ] -= STEPSIZE;
 
 	pm->trace( &trace, pm->ps->origin, pm->mins, pm->maxs, down, pm->ps->clientNum, pm->tracemask, qtrue, qfalse );
+	if (trace.startsolid) {
+		// Fixed in OPM
+		VectorCopy(nostep_o, pm->ps->origin);
+		VectorCopy(nostep_v, pm->ps->velocity);
+		return;
+	}
+	
 	if( !trace.allsolid )
 	{
 		if( bWasOnGoodGround && trace.fraction < 1.0 && trace.plane.normal[ 2 ] < MIN_WALK_NORMAL )
