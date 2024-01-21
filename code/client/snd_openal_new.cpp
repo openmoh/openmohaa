@@ -126,7 +126,9 @@ static void __alDieIfError(const char *file, int line)
 {
     ALint alErr = qalGetError();
     if (alErr) {
-        Com_DPrintf("OpenAL error, %s, line %i: [%s].\n", file, line, qalGetString(alErr));
+        if (s_show_sounds->integer) {
+            Com_DPrintf("OpenAL error, %s, line %i: [%s].\n", file, line, qalGetString(alErr));
+        }
     }
 }
 
