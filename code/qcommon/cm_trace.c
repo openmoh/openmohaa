@@ -183,7 +183,7 @@ void CM_TestBoxInBrush( traceWork_t *tw, cbrush_t *brush ) {
 			t = DotProduct( plane->normal, sphere.offset );
 
 			// adjust the plane distance apropriately for radius
-			dist = t + plane->dist + sphere.radius;
+			dist = fabs(t) + plane->dist + sphere.radius;
 
 			d1 = DotProduct( tw->start, plane->normal ) - dist;
 			// if completely in front of face, no intersection
