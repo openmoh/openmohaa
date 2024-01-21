@@ -261,6 +261,7 @@ sfx_t *S_FindName(const char *name, int sequenceNumber)
             Com_Error(ERR_FATAL, "S_FindName: out of sfx_t");
         }
 
+        sfx = &s_knownSfx[s_numSfx];
         s_numSfx++;
     }
 
