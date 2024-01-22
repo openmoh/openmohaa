@@ -3949,24 +3949,25 @@ void Player::ClientMove(usercmd_t *ucmd)
         client->ps.pm_flags |= PMF_NO_PREDICTION;
         client->ps.pm_flags |= PMF_NO_MOVE;
     }
-
-    /*
-    if (maxs.z == 60.0f) {
-        client->ps.pm_flags |= PMF_DUCKED;
-    } else if (maxs.z == 54.0f) {
-        client->ps.pm_flags |= PMF_DUCKED | PMF_VIEW_PRONE;
-    } else if (maxs.z == 20.0f) {
-        client->ps.pm_flags |= PMF_VIEW_PRONE;
-    } else if (maxs.z == 53.0f) {
-        client->ps.pm_flags |= PMF_VIEW_DUCK_RUN;
-    } else if (viewheight == 52) {
-        client->ps.pm_flags |= PMF_VIEW_JUMP_START;
-    }
-    */
-    if (maxs.z == 54.0f || maxs.z == 60.0f) {
-        client->ps.pm_flags |= PMF_DUCKED;
-    } else if (viewheight == 52) {
-        client->ps.pm_flags |= PMF_VIEW_JUMP_START;
+    
+    if (g_protocol >= protocol_e::PROTOCOL_MOHTA_MIN) {
+        if (maxs.z == 54.0f || maxs.z == 60.0f) {
+            client->ps.pm_flags |= PMF_DUCKED;
+        } else if (viewheight == JUMP_START_VIEWHEIGHT) {
+            client->ps.pm_flags |= PMF_VIEW_JUMP_START;
+        }
+    } else {
+        if (maxs.z == 60.0f) {
+            client->ps.pm_flags |= PMF_DUCKED;
+        } else if (maxs.z == 54.0f) {
+            client->ps.pm_flags |= PMF_DUCKED | PMF_VIEW_PRONE;
+        } else if (maxs.z == 20.0f) {
+            client->ps.pm_flags |= PMF_VIEW_PRONE;
+        } else if (maxs.z == 53.0f) {
+            client->ps.pm_flags |= PMF_VIEW_DUCK_RUN;
+        } else if (viewheight == JUMP_START_VIEWHEIGHT) {
+            client->ps.pm_flags |= PMF_VIEW_JUMP_START;
+        }
     }
 
     switch (movecontrol) {
