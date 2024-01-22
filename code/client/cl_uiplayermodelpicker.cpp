@@ -295,7 +295,7 @@ void PlayerModelPickerClass::FileSelected(Event *ev)
     fullname = PM_DisplaynameToFilename(name);
 
     if (!Q_stricmpn(fullname, "german_waffen_", 14)) {
-        Q_strncpyz(donotshowssindeorfr, "german_waffen_", sizeof(donotshowssindeorfr));
+        Q_strncpyz(donotshowssindeorfr, "german_waffenss_", sizeof(donotshowssindeorfr));
         Q_strcat(donotshowssindeorfr, sizeof(donotshowssindeorfr), fullname.c_str() + 14);
     } else {
         Q_strncpyz(donotshowssindeorfr, fullname, sizeof(donotshowssindeorfr));
