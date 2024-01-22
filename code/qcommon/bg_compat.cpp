@@ -54,7 +54,7 @@ static uint32_t CPT_NormalizePlayerStateFlags_ver_6(uint32_t flags) {
 
     // Convert AA PlayerMove flags to SH/BT flags
     normalizedFlags |= flags & (1 << 0);
-    for (size_t i = 2; i < 32; ++i)
+    for (size_t i = 1; i < 32; ++i)
     {
         if (flags & (1 << (i + 2))) {
             normalizedFlags |= (1 << i);
@@ -70,7 +70,7 @@ static uint32_t CPT_DenormalizePlayerStateFlags_ver_6(uint32_t flags) {
 
     // Convert AA PlayerMove flags to SH/BT flags
     normalizedFlags |= flags & (1 << 0);
-    for (size_t i = 2; i < 32; ++i)
+    for (size_t i = 1; i < 32; ++i)
     {
 		if (flags & (1 << i)) {
             normalizedFlags |= (1 << (i + 2));
