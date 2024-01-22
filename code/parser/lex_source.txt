@@ -286,7 +286,7 @@ varname		[a-zA-Z0-9_\"]+
 "&="							{ YYLEX( TOKEN_AND_EQUALS ); }
 "^="							{ YYLEX( TOKEN_EXCL_OR_EQUALS ); }
 "|="							{ YYLEX( TOKEN_OR_EQUALS ); }
-"$"								{ BEGIN( VARIABLES ); YYLEX( TOKEN_DOLLAR ); }
+[$]+							{ BEGIN( VARIABLES ); YYLEX( TOKEN_DOLLAR ); }
 "!"								{ YYLEX( TOKEN_NOT ); }
 "~"								{ YYLEX( TOKEN_COMPLEMENT ); }
 
