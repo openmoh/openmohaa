@@ -180,12 +180,14 @@ void MpMapPickerClass::SetupFiles(void)
         FS_FreeFileList(filenames);
     }
 
-    if (currentDirectory.length()) {
-        if (currentDirectory == "maps/-/") {
-            SetupSecondaryFiles(currentDirectory, bTugOfWar, bObjective, bLiberation);
-        } else {
-            SetupSecondaryFiles("maps/obj/", bTugOfWar, bObjective, bLiberation);
-            SetupSecondaryFiles("maps/lib/", bTugOfWar, bObjective, bLiberation);
+    if (com_target_game->integer > target_game_e::TG_MOH) {
+        if (currentDirectory.length()) {
+            if (currentDirectory == "maps/-/") {
+                SetupSecondaryFiles(currentDirectory, bTugOfWar, bObjective, bLiberation);
+            } else {
+                SetupSecondaryFiles("maps/obj/", bTugOfWar, bObjective, bLiberation);
+                SetupSecondaryFiles("maps/lib/", bTugOfWar, bObjective, bLiberation);
+            }
         }
     }
 
@@ -278,9 +280,9 @@ void MpMapPickerClass::FileSelected(Event *ev)
 
     uii.Snd_PlaySound("sound/menu/apply.wav");
 
-    UIListCtrlItem* item = listbox->GetItem(listbox->getCurrentItem());
-    str name = item->getListItemString(0);
-    str directory = item->getListItemString(1);
+    UIListCtrlItem *item      = listbox->GetItem(listbox->getCurrentItem());
+    str             name      = item->getListItemString(0);
+    str             directory = item->getListItemString(1);
 
     FileSelected(directory, name, directory + name);
 }
@@ -305,9 +307,9 @@ void MpMapPickerClass::FileChosen(Event *ev)
 
     uii.Snd_PlaySound("sound/menu/apply.wav");
 
-    UIListCtrlItem* item = listbox->GetItem(listbox->getCurrentItem());
-    str name = item->getListItemString(0);
-    str directory = item->getListItemString(1);
+    UIListCtrlItem *item      = listbox->GetItem(listbox->getCurrentItem());
+    str             name      = item->getListItemString(0);
+    str             directory = item->getListItemString(1);
 
     FileSelected(directory, name, directory + name);
 }
