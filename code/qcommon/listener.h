@@ -90,7 +90,7 @@ class EventQueueNode;
 // are parsed.
 
 #define EV_REMOVE              -9.0f // remove any unused entities before spawnargs are parsed
-#define EV_LINKBEAMS           -9.0f  // for finding out the endpoints of beams
+#define EV_LINKBEAMS           -9.0f // for finding out the endpoints of beams
 #define EV_VEHICLE             -9.0f
 #define EV_PRIORITY_SPAWNARG   -8.0f // for priority spawn args passed in by the bsp file
 #define EV_SETUP_ROPEPIECE     -8.0f
@@ -310,7 +310,7 @@ public:
 
     virtual void ErrorInternal(Listener *l, str text) const;
 
-    static bool Exists(const char* command);
+    static bool         Exists(const char *command);
     static unsigned int FindEventNum(const char *s);
     static unsigned int FindNormalEventNum(const_str s);
     static unsigned int FindNormalEventNum(str s);
@@ -378,7 +378,7 @@ public:
     void AddTokens(int argc, const char **argv);
     void AddValue(const ScriptVariable& value);
     void AddVector(const Vector& vector);
-    void CopyValues(const ScriptVariable* values, size_t count);
+    void CopyValues(const ScriptVariable *values, size_t count);
 
     void Clear(void);
 
@@ -438,13 +438,17 @@ public:
     EventQueueNode *next;
 
 #ifdef _DEBUG
-    str name;
+    const char *name;
 #endif
 
     EventQueueNode()
     {
         prev = this;
         next = this;
+
+#ifdef _DEBUG
+        name = NULL;
+#endif
     }
 
     Listener *GetSourceObject(void) { return m_sourceobject; }
@@ -514,9 +518,9 @@ public:
     qboolean PostponeAllEvents(float time);
     qboolean PostponeEvent(Event& ev, float time);
 
-    bool            ProcessEvent(const Event           &ev);
+    bool            ProcessEvent(const Event& ev);
     bool            ProcessEvent(Event *ev);
-    bool            ProcessEvent(Event           &ev);
+    bool            ProcessEvent(Event& ev);
     ScriptVariable& ProcessEventReturn(Event *ev);
 
     void ProcessContainerEvent(const Container<Event *>& conev);

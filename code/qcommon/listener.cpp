@@ -396,7 +396,7 @@ int HashCode<Event *>(Event *const& key)
 template<>
 int HashCode<command_t>(const command_t& key)
 {
-    const char* p;
+    const char *p;
     int         hash = 0;
 
     for (p = key.command; *p; p++) {
@@ -1322,7 +1322,7 @@ void Event::PendingEvents(const char *mask)
     EVENT_Printf("%d pending events as of %.2f\n", num, EVENT_time);
 }
 
-bool Event::Exists(const char* command)
+bool Event::Exists(const char *command)
 {
     return FindEventNum(command) != 0;
 }
@@ -1641,6 +1641,10 @@ Event::Event()
     data        = NULL;
     dataSize    = 0;
     maxDataSize = 0;
+
+#ifdef _DEBUG
+    name = NULL;
+#endif
 }
 
 /*
@@ -1676,6 +1680,10 @@ Event::Event(
     maxDataSize = 0;
     data        = NULL;
     eventnum    = 0;
+
+#ifdef _DEBUG
+    name = NULL;
+#endif
 }
 
 /*
@@ -1737,10 +1745,18 @@ Event::Event(Event&& ev)
     maxDataSize = ev.maxDataSize;
     data        = ev.data;
 
+#ifdef _DEBUG
+    name = ev.name;
+#endif
+
     ev.data        = NULL;
     ev.dataSize    = 0;
     ev.maxDataSize = 0;
     ev.eventnum    = 0;
+
+#ifdef _DEBUG
+    ev.name = NULL;
+#endif
 }
 
 /*
@@ -1881,10 +1897,18 @@ Event& Event::operator=(Event&& ev)
     maxDataSize = ev.maxDataSize;
     data        = ev.data;
 
+#ifdef _DEBUG
+    name = ev.name;
+#endif
+
     ev.data        = NULL;
     ev.dataSize    = 0;
     ev.maxDataSize = 0;
     ev.eventnum    = 0;
+
+#ifdef _DEBUG
+    ev.name = NULL;
+#endif
 
     return *this;
 }
@@ -2049,10 +2073,10 @@ void Event::AddVector(const Vector& vector)
 SetValue
 =======================
 */
-void Event::CopyValues(const ScriptVariable* values, size_t count)
+void Event::CopyValues(const ScriptVariable *values, size_t count)
 {
     assert(count <= maxDataSize);
-   
+
     for (size_t i = 0; i < count; i++) {
         data[i] = values[i];
     }
@@ -2227,16 +2251,16 @@ GetValue
 */
 ScriptVariable& Event::GetValue(void)
 {
-    ScriptVariable* tmp;
-    int i;
+    ScriptVariable *tmp;
+    int             i;
 
     if (fromScript) {
         // an event method will emit the return value
         // to the first index of the array
         // so there is no reallocation
         if (!data) {
-            data = new ScriptVariable[1];
-            dataSize = 1;
+            data        = new ScriptVariable[1];
+            dataSize    = 1;
             maxDataSize = 1;
         }
         return data[0];
@@ -3066,7 +3090,7 @@ BroadcastEvent
 */
 bool Listener::BroadcastEvent(const_str name, Event& event)
 {
-    ConList* listeners;
+    ConList *listeners;
 
     if (!m_NotifyList) {
         return false;
@@ -3090,10 +3114,10 @@ Broadcast an event to the notify list
 */
 bool Listener::BroadcastEvent(Event& event, ConList *listeners)
 {
-    Listener* listener;
-    int num = listeners->NumObjects();
-    int i;
-    bool found;
+    Listener *listener;
+    int       num = listeners->NumObjects();
+    int       i;
+    bool      found;
 
     if (!num) {
         return false;
@@ -3151,7 +3175,7 @@ CancelWaiting
 */
 void Listener::CancelWaiting(const_str name)
 {
-    ConList* list;
+    ConList *list;
 
     if (!m_WaitForList) {
         return;
@@ -3442,7 +3466,7 @@ void Listener::Unregister(const_str name)
     }
 
     for (int i = stoppedListeners.NumObjects(); i > 0; i--) {
-        Listener* listener = stoppedListeners.ObjectAt(i);
+        Listener *listener = stoppedListeners.ObjectAt(i);
 
         if (listener && !DisableListenerNotify) {
             listener->StoppedWaitFor(name, false);
@@ -3530,7 +3554,7 @@ UnregisterSource
 */
 bool Listener::UnregisterSource(const_str name, Listener *listener)
 {
-    ConList* list;
+    ConList *list;
 
     if (!m_NotifyList) {
         return false;
@@ -3568,7 +3592,7 @@ UnregisterTarget
 */
 bool Listener::UnregisterTarget(const_str name, Listener *listener)
 {
-    ConList* list;
+    ConList *list;
 
     if (!m_WaitForList) {
         return false;
@@ -4036,7 +4060,7 @@ ExecuteScriptInternal
 */
 void Listener::ExecuteScriptInternal(Event *ev, ScriptVariable& returnValue)
 {
-    ScriptThread* thread = CreateScriptInternal(ev->GetValue(1));
+    ScriptThread *thread = CreateScriptInternal(ev->GetValue(1));
 
     thread->ScriptExecute(&ev->data[1], ev->dataSize - 1, returnValue);
 }
@@ -4048,7 +4072,7 @@ ExecuteThreadInternal
 */
 void Listener::ExecuteThreadInternal(Event *ev, ScriptVariable& returnValue)
 {
-    ScriptThread* thread = CreateThreadInternal(ev->GetValue(1));
+    ScriptThread *thread = CreateThreadInternal(ev->GetValue(1));
 
     thread->ScriptExecute(&ev->data[1], ev->dataSize - 1, returnValue);
 }
@@ -4061,7 +4085,7 @@ WaitExecuteScriptInternal
 void Listener::WaitExecuteScriptInternal(Event *ev, ScriptVariable& returnValue)
 {
     ScriptThread *currentThread = Director.CurrentScriptThread();
-    ScriptThread *thread = CreateScriptInternal(ev->GetValue(1));
+    ScriptThread *thread        = CreateScriptInternal(ev->GetValue(1));
 
     thread->GetScriptClass()->Register(0, currentThread);
 
@@ -4076,7 +4100,7 @@ WaitExecuteThreadInternal
 void Listener::WaitExecuteThreadInternal(Event *ev, ScriptVariable& returnValue)
 {
     ScriptThread *currentThread = Director.CurrentScriptThread();
-    ScriptThread *thread = CreateThreadInternal(ev->GetValue(1));
+    ScriptThread *thread        = CreateThreadInternal(ev->GetValue(1));
 
     thread->Register(0, currentThread);
 
@@ -4131,11 +4155,11 @@ ScriptThread *Listener::CreateThreadInternal(const ScriptVariable& label)
 {
     GameScript   *scr;
     ScriptThread *thread = NULL;
-    ScriptClass* scriptClass;
+    ScriptClass  *scriptClass;
 
     if (label.GetType() == VARIABLE_STRING || label.GetType() == VARIABLE_CONSTSTRING) {
         scriptClass = Director.CurrentScriptClass();
-        scr = scriptClass->GetScript();
+        scr         = scriptClass->GetScript();
 
         if (label.GetType() == VARIABLE_CONSTSTRING) {
             thread = Director.CreateScriptThread(scr, this, label.constStringValue());
