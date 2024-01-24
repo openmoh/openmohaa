@@ -222,6 +222,7 @@ static void SV_WriteSnapshotToClient( client_t *client, msg_t *msg ) {
 			MSG_WriteShort( msg, client->XOffset );
 			MSG_WriteShort( msg, client->YOffset );
 			MSG_WriteScrambledString( msg, client->stringToPrint );
+			client->locprint = qfalse;
 		}
 		else {
 			MSG_WriteSVC( msg, svc_centerprint );
