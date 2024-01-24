@@ -258,7 +258,7 @@ cvar_t *g_no_seasick;
 
 cvar_t *g_aistats;
 
-cvar_t* g_obituarylocation;
+cvar_t *g_obituarylocation;
 
 cvar_t *sv_scriptfiles;
 
@@ -332,7 +332,7 @@ void CVAR_Init(void)
     sv_waterspeed    = gi.Cvar_Get("sv_waterspeed", "400", 0);
 
     sv_cheats    = gi.Cvar_Get("cheats", "0", CVAR_USERINFO | CVAR_SERVERINFO | CVAR_LATCH);
-    sv_fps       = gi.Cvar_Get("sv_fps", "20",  CVAR_SAVEGAME);
+    sv_fps       = gi.Cvar_Get("sv_fps", "20", CVAR_SAVEGAME);
     sv_cinematic = gi.Cvar_Get("sv_cinematic", "0", CVAR_ROM);
 
     sv_maplist = gi.Cvar_Get("sv_maplist", "", CVAR_ARCHIVE | CVAR_SERVERINFO);
@@ -348,8 +348,8 @@ void CVAR_Init(void)
     sv_sprinttime_dm = gi.Cvar_Get("sv_sprinttime_dm", "5.0", 0);
     sv_sprintmult_dm = gi.Cvar_Get("sv_sprintmult_dm", "1.20", 0);
 
-	if (g_protocol >= protocol_e::PROTOCOL_MOHTA_MIN) {
-		sv_sprinton = gi.Cvar_Get("sv_sprinton", "1", 0);
+    if (g_target_game >= target_game_e::TG_MOHTA) {
+        sv_sprinton = gi.Cvar_Get("sv_sprinton", "1", 0);
     } else {
         // mohaa doesn't have sprint support
         sv_sprinton = gi.Cvar_Get("sv_sprinton", "0", 0);
@@ -359,8 +359,13 @@ void CVAR_Init(void)
         gi.cvar_set("sv_runspeed", "250");
     }
 
-    sv_invulnerabletime    = gi.Cvar_Get("sv_invulnerabletime", "3.0", CVAR_ARCHIVE | CVAR_SERVERINFO);
-    sv_team_spawn_interval = gi.Cvar_Get("sv_team_spawn_interval", "15", CVAR_ARCHIVE | CVAR_SERVERINFO);
+    if (g_target_game >= target_game_e::TG_MOHTA) {
+        sv_invulnerabletime    = gi.Cvar_Get("sv_invulnerabletime", "3.0", CVAR_ARCHIVE | CVAR_SERVERINFO);
+        sv_team_spawn_interval = gi.Cvar_Get("sv_team_spawn_interval", "15", CVAR_ARCHIVE | CVAR_SERVERINFO);
+    } else {
+        sv_invulnerabletime    = gi.Cvar_Get("sv_invulnerabletime", "0", CVAR_ARCHIVE | CVAR_SERVERINFO);
+        sv_team_spawn_interval = gi.Cvar_Get("sv_team_spawn_interval", "0", CVAR_ARCHIVE | CVAR_SERVERINFO);
+    }
 
     g_showmem         = gi.Cvar_Get("g_showmem", "0", 0);
     g_timeents        = gi.Cvar_Get("g_timeents", "0", 0);
@@ -461,7 +466,7 @@ void CVAR_Init(void)
         gi.cvar_set("deathmatch", "1");
     }
 
-    if (g_protocol >= PROTOCOL_MOHTA_MIN) {
+    if (g_protocol >= protocol_e::PROTOCOL_MOHTA_MIN) {
         if (gi.Cvar_Get("com_target_game", "", 0)->integer == target_game_e::TG_MOHTT) {
             // Set the server type to mohaab
             gi.cvar_set("g_servertype", va("%d", target_game_e::TG_MOHTT));
@@ -591,11 +596,11 @@ void CVAR_Init(void)
     g_rifles_for_sweepers     = gi.Cvar_Get("g_rifles_for_sweepers", "0", 0);
     g_no_seasick              = gi.Cvar_Get("g_no_seasick", "0", 0);
 
-	if (g_protocol >= protocol_e::PROTOCOL_MOHTA_MIN) {
-		g_obituarylocation = gi.Cvar_Get("g_obituarylocation", "0", 0);
+    if (g_target_game >= target_game_e::TG_MOHTA) {
+        g_obituarylocation = gi.Cvar_Get("g_obituarylocation", "0", 0);
     } else {
         // Defaults to 1 on vanilla mohaa
-		g_obituarylocation = gi.Cvar_Get("g_obituarylocation", "1", 0);
+        g_obituarylocation = gi.Cvar_Get("g_obituarylocation", "1", 0);
     }
 
     sv_scriptfiles               = gi.Cvar_Get("sv_scriptfiles", "0", 0);
