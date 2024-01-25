@@ -85,7 +85,7 @@ int cSpline<cGrids, cPoints>::Add(float *fAdd, int flags)
     int ii;
     int insertIndex;
 
-    if (m_iPoints + 1 > 512) {
+    if (m_iPoints + 1 > cPoints) {
         return -1;
     }
 
@@ -115,8 +115,8 @@ void cSpline<cGrids, cPoints>::UniformAdd(float *pos)
     int i;
     int ii;
 
-    for (i = m_iPoints; i > 0; i--) {
-        for (ii = 0; ii <= cGrids; ii++) {
+    for (i = 0; i < m_iPoints; i++) {
+        for (ii = 0; ii < cGrids; ii++) {
             m_vPoints[i][ii] += pos[ii];
         }
     }
@@ -221,11 +221,11 @@ float *cSpline<cGrids, cPoints>::GetByNode(float x, int *flags)
         }
     } else {
         if (flags) {
-            *flags = m_iPointFlags[rp - 1];
+            *flags = m_iPointFlags[m_iPoints - 1];
         }
 
         for (i = 0; i < cGrids; i++) {
-            r[i] = m_vPoints[rp - 1][i];
+            r[i] = m_vPoints[m_iPoints - 1][i];
         }
     }
 
@@ -240,7 +240,7 @@ int cSpline<cGrids, cPoints>::Append(cSpline<cGrids, cPoints> *pNew)
     float  fIndexAdd;
     int    i;
     int    ii;
-    int    iFlags;
+    int    iFlags = 0;
 
     if (!pNew || pNew->m_iPoints == 0) {
         return -1;
