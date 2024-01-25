@@ -138,15 +138,15 @@ void VehicleSoundEntity::DoSoundStuff(void)
     pitch *= m_pVehicle->m_fSoundMinPitch + (m_pVehicle->m_fSoundMaxPitch - m_pVehicle->m_fSoundMinPitch);
 
     if (m_iTraceSurfaceFlags & SURF_DIRT) {
-        LoopSound(m_pVehicle->m_sSoundSet + "treat_snd_dirt", -1.0f, -1.0f, -1.0f, pitch);
+        LoopSound(m_pVehicle->m_sSoundSet + "tread_snd_dirt", -1.0f, -1.0f, -1.0f, pitch);
     } else if (m_iTraceSurfaceFlags & SURF_GRASS) {
-        LoopSound(m_pVehicle->m_sSoundSet + "treat_snd_grass", -1.0f, -1.0f, -1.0f, pitch);
+        LoopSound(m_pVehicle->m_sSoundSet + "tread_snd_grass", -1.0f, -1.0f, -1.0f, pitch);
     } else if (m_iTraceSurfaceFlags & SURF_WOOD) {
-        LoopSound(m_pVehicle->m_sSoundSet + "treat_snd_wood", -1.0f, -1.0f, -1.0f, pitch);
+        LoopSound(m_pVehicle->m_sSoundSet + "tread_snd_wood", -1.0f, -1.0f, -1.0f, pitch);
     } else if (m_iTraceSurfaceFlags & SURF_MUD) {
-        LoopSound(m_pVehicle->m_sSoundSet + "treat_snd_mud", -1.0f, -1.0f, -1.0f, pitch);
-    } else if (m_iTraceSurfaceFlags & (SURF_GRAVEL | SURF_ROCK)) {
-        LoopSound(m_pVehicle->m_sSoundSet + "treat_snd_stone", -1.0f, -1.0f, -1.0f, pitch);
+        LoopSound(m_pVehicle->m_sSoundSet + "tread_snd_mud", -1.0f, -1.0f, -1.0f, pitch);
+    } else if (m_iTraceSurfaceFlags & (SURF_GRAVEL | SURF_ROCK) || m_iTraceSurfaceFlags == 0) {
+        LoopSound(m_pVehicle->m_sSoundSet + "tread_snd_stone", -1.0f, -1.0f, -1.0f, pitch);
     } else {
         StopLoopSound();
     }
