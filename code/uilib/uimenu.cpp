@@ -697,7 +697,7 @@ bool MenuManager::PushMenu
 
 	if( head )
 	{
-		maxouttime = m->GetMaxMotionTime();
+		maxouttime = head->GetMaxMotionTime();
 		head->ProcessEvent( Event( "hidemenu" ) );
 	}
 
