@@ -426,7 +426,11 @@ void R_AddBrushModelSurfaces ( trRefEntity_t *ent ) {
 
 void R_GetInlineModelBounds(int iIndex, vec3_t vMins, vec3_t vMaxs)
 {
-	// FIXME: unimplemented
+	bmodel_t* bmodel;
+
+	bmodel = &tr.world->bmodels[iIndex];
+	VectorCopy(bmodel->bounds[0], vMins);
+	VectorCopy(bmodel->bounds[1], vMaxs);
 }
 
 
