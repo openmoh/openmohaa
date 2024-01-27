@@ -191,7 +191,7 @@ int CG_GetMarkFragments(
         }
 
         iNewPoints = 0;
-        for (j = 0, pFragment = pCurrFragment; j < iNewPoints; j++, pFragment++) {
+        for (j = 0, pFragment = pCurrFragment; j < iNewFragments; j++, pFragment++) {
             pFragment->firstPoint += iCurrPoints;
             pFragment->iIndex = -pEnt->number;
             iNewPoints += pFragment->numPoints;
@@ -219,10 +219,11 @@ static qboolean CG_GetMarkInlineModelOrientation(int iIndex) {
     }
 
     pCEnt = &cg_entities[-iIndex];
-    if (pCEnt->currentValid && pCEnt->currentState.modelindex < cgs.inlineDrawModel[ENTITYNUM_NONE])
+    if (pCEnt->currentValid && pCEnt->currentState.modelindex < cgs.numInlineModels)
     {
         VectorCopy(pCEnt->lerpAngles, cg_vEntAngles);
         VectorCopy(pCEnt->lerpOrigin, cg_vEntOrigin);
+        cg_bLastEntValid = qtrue;
 
         if (cg_vEntAngles[0] || cg_vEntAngles[1] || cg_vEntAngles[2]) {
             AngleVectorsLeft(cg_vEntAngles, cg_fEntAxis[0], cg_fEntAxis[1], cg_fEntAxis[2]);
@@ -937,13 +938,13 @@ void CG_AddMarks(void)
         }
 
         if (pMark->markPolys->iIndex < 0) {
-            if (CG_FrustumCullSphere(pMark->pos, pMark->radius)) {
-                continue;
-            }
-        } else {
             vec3_t vWorldPos;
             CG_FragmentPosToWorldPos(pMark->pos, vWorldPos);
             if (CG_FrustumCullSphere(vWorldPos, pMark->radius)) {
+                continue;
+            }
+        } else {
+            if (CG_FrustumCullSphere(pMark->pos, pMark->radius)) {
                 continue;
             }
         }
