@@ -2423,7 +2423,7 @@ void UIWidget::Display
 		if( !m_enabledCvar.length() && !IsVisible() )
 			return;
 
-		if (m_direction || m_fadetime > 0.0) {
+		if (m_direction || m_fadetime || m_fadeSequenceState != fadesequence_t::SEQUENCE_NONE) {
 			Motion();
 		}
 
