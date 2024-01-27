@@ -2161,6 +2161,11 @@ void Com_Frame( void ) {
 		if ( !com_dedicated->integer ) {
 			SV_Shutdown( "dedicated set to 0" );
 			CL_FlushMemory();
+		} else {
+			CL_Shutdown("dedicated set to 1", qtrue, qtrue);
+			Sys_CloseMutex();
+			Sys_ShowConsole(0, 0);
+			NET_Init();
 		}
 	}
 
