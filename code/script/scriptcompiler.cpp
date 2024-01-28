@@ -910,14 +910,18 @@ void ScriptCompiler::EmitOpcode(int opcode, unsigned int sourcePos)
 
 void ScriptCompiler::EmitParameter(sval_t lhs, unsigned int sourcePos)
 {
+    str name_lowered;
+
     if (lhs.node[0].type != ENUM_field) {
         CompileError(sourcePos, "bad parameter lvalue: %d (expecting field)", lhs.node[0].type);
     }
 
     sval_u      listener_val = lhs.node[1];
     const char *name         = lhs.node[2].stringValue;
+    name_lowered = name;
+    name_lowered.tolower();
 
-    int eventnum = Event::FindSetterEventNum(name);
+    int eventnum = Event::FindSetterEventNum(name_lowered);
 
     if (listener_val.node[0].type != ENUM_listener
         || (eventnum && BuiltinWriteVariable(sourcePos, listener_val.node[1].byteValue, eventnum))) {
@@ -926,7 +930,7 @@ void ScriptCompiler::EmitParameter(sval_t lhs, unsigned int sourcePos)
         EmitOpcode(OP_STORE_PARAM, sourcePos);
         EmitOpcode(OP_LOAD_GAME_VAR + listener_val.node[1].byteValue, sourcePos);
 
-        unsigned int index = Director.AddString(name);
+        unsigned int index = Director.AddString(name_lowered);
         EmitOpcodeValue(index, sizeof(unsigned int));
     }
 }
