@@ -551,7 +551,7 @@ static void WriteLodBias(dloaddef_t *ld, float lod_bias)
 WriteSkelmodel
 ===============
 */
-static void WriteSkelmodel(dloaddef_t *ld, const char *name)
+void WriteSkelmodel(dloaddef_t *ld, const char *name)
 {
     MSG_WriteByte(ld->modelBuf, 3);
     MSG_WriteString(ld->modelBuf, name);

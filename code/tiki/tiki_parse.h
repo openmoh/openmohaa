@@ -76,3 +76,5 @@ extern "C" {
 #ifdef __cplusplus
 }
 #endif
+
+void WriteSkelmodel(dloaddef_t* ld, const char* name);
