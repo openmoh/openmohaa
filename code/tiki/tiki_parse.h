@@ -26,15 +26,16 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 extern "C" {
 #endif
 
-    const char *TIKI_FileExtension(const char *in);
-    void        TIKI_ParseFrameCommands(dloaddef_t *ld, dloadframecmd_t **cmdlist, int maxcmds, int *numcmds);
-    void        TIKI_ParseAnimationCommands(dloaddef_t *ld, dloadanim_t *anim);
-    void        TIKI_ParseAnimationFlags(dloaddef_t *ld, dloadanim_t *anim);
-    void        TIKI_ParseAnimationsFail(dloaddef_t *ld);
-    qboolean    TIKI_ParseIncludes(dloaddef_t *ld);
-    void        TIKI_ParseAnimations(dloaddef_t *ld);
-    int         TIKI_ParseSurfaceFlag(const char *token);
-    void        TIKI_InitSetup(dloaddef_t *ld);
+    const char  *TIKI_FileExtension(const char *in);
+    void         TIKI_ParseFrameCommands(dloaddef_t *ld, dloadframecmd_t **cmdlist, int maxcmds, int *numcmds);
+    void         TIKI_ParseAnimationCommands(dloaddef_t *ld, dloadanim_t *anim);
+    void         TIKI_ParseAnimationFlags(dloaddef_t *ld, dloadanim_t *anim);
+    void         TIKI_ParseAnimationsFail(dloaddef_t *ld);
+    qboolean     TIKI_ParseIncludes(dloaddef_t *ld);
+    void         TIKI_ParseAnimations(dloaddef_t *ld);
+    int          TIKI_ParseSurfaceFlag(const char *token);
+    void         TIKI_InitSetup(dloaddef_t *ld);
+    dloadanim_t *TIKI_AllocAnim(dloaddef_t *ld);
 
 #ifdef __cplusplus
     qboolean TIKI_LoadSetupCaseHeader(

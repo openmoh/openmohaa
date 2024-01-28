@@ -353,6 +353,22 @@ qboolean TIKI_ParseIncludes(dloaddef_t *ld)
     return false;
 }
 
+dloadanim_t *TIKI_AllocAnim(dloaddef_t *ld)
+{
+    dloadanim_t *panim;
+
+    panim                         = static_cast<dloadanim_t *>(TIKI_AllocateLoadData(sizeof(dloadanim_t)));
+    panim->weight                 = 1.f;
+    panim->location[0]            = 0;
+    panim->num_client_cmds        = 0;
+    panim->num_server_cmds        = 0;
+    panim->flags                  = 0;
+    panim->blendtime              = 0.2f;
+    ld->loadanims[ld->numanims++] = panim;
+
+    return panim;
+}
+
 /*
 ===============
 TIKI_ParseAnimations
