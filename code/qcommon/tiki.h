@@ -33,6 +33,19 @@ class Archiver;
 #    include "../qcommon/str.h"
 #endif
 
+#define MAX_TIKI_LOAD_ANIMS                 4095
+#define MAX_TIKI_LOAD_SKEL_INDEX            12
+#define MAX_TIKI_LOAD_SERVER_INIT_COMMANDS  160
+#define MAX_TIKI_LOAD_CLIENT_INIT_COMMANDS  180
+#define MAX_TIKI_LOAD_HEADMODELS_LENGTH     4096
+#define MAX_TIKI_LOAD_HEADSKINS_LENGTH      4096
+#define MAX_TIKI_LOAD_MODEL_BUFFER          8192
+
+#define MAX_TIKI_LOAD_FRAME_SERVER_COMMANDS 32
+#define MAX_TIKI_LOAD_FRAME_CLIENT_COMMANDS 128
+
+#define MAX_TIKI_LOAD_SHADERS               4
+
 typedef struct AliasList_s     AliasList_t;
 typedef struct AliasListNode_s AliasListNode_t;
 typedef struct msg_s           msg_t;
@@ -42,7 +55,7 @@ typedef struct {
 } tikiTriangle_t;
 
 typedef struct {
-    float st[2];
+    vec2_t st;
 } tikiSt_t;
 
 typedef struct {
@@ -51,8 +64,8 @@ typedef struct {
 } tikiXyzNormal_t;
 
 typedef struct {
-    float origin[3];
-    float axis[3][3];
+    vec3_t origin;
+    vec3_t axis[3];
 } tikiTagData_t;
 
 typedef struct {
@@ -81,7 +94,7 @@ typedef struct {
     int    frame_num;
     int    num_args;
     char **args;
-    char   location[256];
+    char   location[MAX_QPATH];
 } dloadframecmd_t;
 
 typedef struct {
@@ -90,8 +103,8 @@ typedef struct {
 } dloadinitcmd_t;
 
 typedef struct {
-    char  name[32];
-    char  shader[4][64];
+    char  name[MAX_NAME_LENGTH];
+    char  shader[MAX_TIKI_LOAD_SHADERS][MAX_RES_NAME];
     int   numskins;
     int   flags;
     float damage_multiplier;
@@ -99,15 +112,15 @@ typedef struct {
 
 typedef struct {
     char            *alias;
-    char             name[128];
-    char             location[256];
+    char             name[MAX_QPATH];
+    char             location[MAX_QPATH];
     float            weight;
     float            blendtime;
     int              flags;
     int              num_client_cmds;
     int              num_server_cmds;
-    dloadframecmd_t *loadservercmds[32];
-    dloadframecmd_t *loadclientcmds[128];
+    dloadframecmd_t *loadservercmds[MAX_TIKI_LOAD_FRAME_SERVER_COMMANDS];
+    dloadframecmd_t *loadclientcmds[MAX_TIKI_LOAD_FRAME_CLIENT_COMMANDS];
 } dloadanim_t;
 
 typedef struct dloaddef_s dloaddef_t;
@@ -120,21 +133,21 @@ typedef struct dloaddef_s {
     const char      *path;
     class TikiScript tikiFile;
 
-    dloadanim_t    *loadanims[4095];
-    dloadinitcmd_t *loadserverinitcmds[160];
-    dloadinitcmd_t *loadclientinitcmds[160];
+    dloadanim_t    *loadanims[MAX_TIKI_LOAD_ANIMS];
+    dloadinitcmd_t *loadserverinitcmds[MAX_TIKI_LOAD_SERVER_INIT_COMMANDS];
+    dloadinitcmd_t *loadclientinitcmds[MAX_TIKI_LOAD_CLIENT_INIT_COMMANDS];
 
-    int skelIndex_ld[12];
+    int skelIndex_ld[MAX_TIKI_LOAD_SKEL_INDEX];
     int numanims;
     int numserverinitcmds;
     int numclientinitcmds;
 
-    char     headmodels[4096];
-    char     headskins[4096];
+    char     headmodels[MAX_TIKI_LOAD_HEADMODELS_LENGTH];
+    char     headskins[MAX_TIKI_LOAD_HEADSKINS_LENGTH];
     qboolean bIsCharacter;
 
     struct msg_s *modelBuf;
-    unsigned char modelData[8192];
+    unsigned char modelData[MAX_TIKI_LOAD_MODEL_BUFFER];
 
     qboolean bInIncludesSection;
 } dloaddef_t;
