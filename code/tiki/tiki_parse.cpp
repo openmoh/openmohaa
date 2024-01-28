@@ -555,6 +555,9 @@ static void WriteSkelmodel(dloaddef_t *ld, const char *name)
 {
     MSG_WriteByte(ld->modelBuf, 3);
     MSG_WriteString(ld->modelBuf, name);
+
+    Q_strncpyz(ld->idleSkel, name, sizeof(ld->idleSkel));
+    ld->numskels++;
 }
 
 /*
