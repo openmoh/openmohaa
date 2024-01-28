@@ -430,7 +430,8 @@ Event EV_ScriptThread_KillEnt
 );
 Event EV_ScriptThread_IsAlive
 (
-    "IsAlive", EV_DEFAULT,
+    "IsAlive",
+    EV_DEFAULT,
     "e",
     "ent",
     "Returns true if the specified entity exists and has health > 0.",
@@ -707,7 +708,8 @@ Event EV_ScriptThread_Vector_Normalize
 );
 Event EV_ScriptThread_Vector_Add
 (
-    "vector_add", EV_DEFAULT,
+    "vector_add",
+    EV_DEFAULT,
     "vv",
     "vector1 vector2",
     "Returns vector1 + vector2.",
@@ -724,7 +726,8 @@ Event EV_ScriptThread_Vector_Subtract
 );
 Event EV_ScriptThread_Vector_Scale
 (
-    "vector_scale", EV_DEFAULT,
+    "vector_scale",
+    EV_DEFAULT,
     "vf",
     "vector1 scale_factor",
     "Returns vector1 * scale_factor.",
@@ -732,7 +735,8 @@ Event EV_ScriptThread_Vector_Scale
 );
 Event EV_ScriptThread_Vector_DotProduct
 (
-    "vector_dot", EV_DEFAULT,
+    "vector_dot",
+    EV_DEFAULT,
     "vv",
     "vector1 vector2",
     "Returns vector1 * vector2.",
@@ -2273,7 +2277,7 @@ ScriptThread::ScriptThread(ScriptClass *scriptClass, unsigned char *pCodePos)
 
 ScriptThread::~ScriptThread()
 {
-    ScriptVM* vm;
+    ScriptVM *vm;
 
     if (g_scripttrace->integer && CanScriptTracePrint()) {
         gi.DPrintf2("---Destructor THREAD: %p\n", this);
@@ -2285,7 +2289,7 @@ ScriptThread::~ScriptThread()
         throw ScriptException("Attempting to delete a dead thread.");
     }
 
-    vm = m_ScriptVM;
+    vm         = m_ScriptVM;
     m_ScriptVM = NULL;
     if (vm->ThreadState() == THREAD_WAITING) {
         vm->m_ThreadState = THREAD_RUNNING;
@@ -2366,7 +2370,7 @@ void ScriptThread::ScriptExecuteInternal(ScriptVariable *data, int dataSize)
     SafePtr<ScriptThread> currentThread;
     SafePtr<ScriptThread> previousThread;
 
-    currentThread = Director.CurrentThread();
+    currentThread  = Director.CurrentThread();
     previousThread = this;
 
     Director.m_PreviousThread = Director.CurrentThread();
@@ -2489,7 +2493,7 @@ void ScriptThread::Pause()
 void ScriptThread::Getcvar(Event *ev)
 {
     str varName = ev->GetString(1);
-    str s = gi.Cvar_Get(varName.c_str(), "", 0)->string;
+    str s       = gi.Cvar_Get(varName.c_str(), "", 0)->string;
 
     if (strstr(s.c_str(), ".")) {
         for (int i = s.length() - 1; i >= 0; i--) {
@@ -2906,7 +2910,8 @@ void ScriptThread::TriggerEvent(Event *ev)
 void ScriptThread::RegisterAliasAndCache(Event *ev)
 {
     //assert(!"ScriptThread::RegisterAliasAndCache needs to be implemented like ClientGameCommandManager::AliasCache");
-    gi.DPrintf("ScriptThread::RegisterAliasAndCache needs to be implemented like ClientGameCommandManager::AliasCache\n");
+    gi.DPrintf("ScriptThread::RegisterAliasAndCache needs to be implemented like ClientGameCommandManager::AliasCache\n"
+    );
 }
 
 void ScriptThread::CacheResourceEvent(Event *ev)
@@ -3591,7 +3596,7 @@ void ScriptThread::Angles_PointAt(Event *ev)
 
 void ScriptThread::EventIsAlive(Event *ev)
 {
-    Entity* ent;
+    Entity *ent;
 
     if (!ev->IsEntityAt(1)) {
         ev->AddInteger(false);
@@ -4289,27 +4294,20 @@ void ScriptThread::SetCurrentObjective(int iObjective, int iTeam)
     gi.setConfigstring(CS_CURRENT_OBJECTIVE, va("%i", iObjective));
 
     if (iObjective == -1) {
-        level.m_vObjectiveLocation = vec_zero;
+        level.m_vObjectiveLocation       = vec_zero;
         level.m_vAlliedObjectiveLocation = vec_zero;
-        level.m_vAxisObjectiveLocation = vec_zero;
+        level.m_vAxisObjectiveLocation   = vec_zero;
     } else {
         const char *s   = gi.getConfigstring(CS_OBJECTIVES + iObjective);
         const char *loc = Info_ValueForKey(s, "loc");
-        Vector v;
+        Vector      v;
 
-        sscanf(
-            loc,
-            "%f %f %f",
-            &v[0],
-            &v[1],
-            &v[2]
-        );
+        sscanf(loc, "%f %f %f", &v[0], &v[1], &v[2]);
 
         //
         // Since 2.0, allow objective location per team
         //
-        switch (iTeam)
-        {
+        switch (iTeam) {
         case TEAM_NONE:
         default:
             level.m_vObjectiveLocation = v;
@@ -4390,14 +4388,13 @@ void ScriptThread::EventSetScoreboardToggle(Event *ev)
 void ScriptThread::EventSetCurrentObjective(Event *ev)
 {
     int iObjective = ev->GetInteger(1);
-    int iTeam = 0;
+    int iTeam      = 0;
 
     if (iObjective > MAX_OBJECTIVES) {
         ScriptError("Index Out Of Range");
     }
 
-    if (ev->NumArgs() >= 2)
-    {
+    if (ev->NumArgs() >= 2) {
         const_str teamStr = ev->GetConstString(2);
         if (teamStr == STRING_ALLIES) {
             iTeam = TEAM_ALLIES;

@@ -131,14 +131,14 @@ protected:
     void GetRandomFloat(Event *ev);
     void GetRandomInt(Event *ev);
 
-	void GetAbs(Event* ev);
+    void GetAbs(Event *ev);
     //////////
     // Added in 2.30
-	void EventCos(Event* ev);
-	void EventSin(Event* ev);
-	void EventTan(Event* ev);
-	void EventATan(Event* ev);
-	void EventSqrt(Event* ev);
+    void EventCos(Event *ev);
+    void EventSin(Event *ev);
+    void EventTan(Event *ev);
+    void EventATan(Event *ev);
+    void EventSqrt(Event *ev);
     //////////
     void GetSelf(Event *ev);
     void Vector_Length(Event *ev);
@@ -192,13 +192,13 @@ public:
     ScriptThread(ScriptClass *scriptClass, unsigned char *pCodePos);
     virtual ~ScriptThread();
 
-    void                  Execute(Event                 &ev);
+    void                  Execute(Event& ev);
     void                  Execute(Event *ev);
     void                  Execute();
     void                  Execute(ScriptVariable *data, int dataSize);
     void                  Wait(float time);
     void                  Pause(void);
-    void                  ScriptExecute(ScriptVariable *data, int dataSize, ScriptVariable                 &returnValue);
+    void                  ScriptExecute(ScriptVariable *data, int dataSize, ScriptVariable& returnValue);
     void                  ScriptExecuteInternal(ScriptVariable *data = NULL, int dataSize = 0);
     void                  EventThrow(Event *ev);
     void                  StartWaiting();
@@ -225,22 +225,22 @@ public:
     //
     static void AddObjective(int index, int status, str text, Vector location);
     static void SetCurrentObjective(int iObjective, int iTeam);
-    void SendObjective();
-    void SendObjectives();
-    void ClearObjectives();
-    void EventAddObjective(Event *ev);
-    void EventSetScoreboardToggle(Event *ev); // Added in 2.30
-    void EventSetCurrentObjective(Event *ev);
-    void EventClearObjectives(Event *ev);
-    void SetObjectiveLocation(Vector vLocation);
-    void SetObjectiveLocation(Event *ev);
-    void ClearObjectiveLocation(void);
-    void ClearObjectiveLocation(Event *ev);
+    void        SendObjective();
+    void        SendObjectives();
+    void        ClearObjectives();
+    void        EventAddObjective(Event *ev);
+    void        EventSetScoreboardToggle(Event *ev); // Added in 2.30
+    void        EventSetCurrentObjective(Event *ev);
+    void        EventClearObjectives(Event *ev);
+    void        SetObjectiveLocation(Vector vLocation);
+    void        SetObjectiveLocation(Event *ev);
+    void        ClearObjectiveLocation(void);
+    void        ClearObjectiveLocation(Event *ev);
 
     void EventDrawHud(Event *ev);
 
     virtual void Archive(Archiver& arc) override;
-    void         ArchiveInternal(Archiver        &arc);
+    void         ArchiveInternal(Archiver& arc);
 
     //
     // Openmohaa addition
