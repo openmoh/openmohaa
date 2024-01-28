@@ -956,6 +956,7 @@ int ScriptCompiler::EmitParameterList(sval_t event_parameter_list)
 void ScriptCompiler::EmitRef(sval_t val, unsigned int sourcePos)
 {
     unsigned int index;
+    str name_lowered;
 
     if (val.node[0].type != ENUM_field) {
         if (val.node[0].type == ENUM_array_expr) {
@@ -968,7 +969,9 @@ void ScriptCompiler::EmitRef(sval_t val, unsigned int sourcePos)
         return;
     }
 
-    index = Director.AddString(val.node[2].stringValue);
+    name_lowered = val.node[2].stringValue;
+    name_lowered.tolower();
+    index = Director.AddString(name_lowered);
 
     EmitValue(val.node[1]);
     EmitOpcode(OP_STORE_FIELD_REF, sourcePos);
