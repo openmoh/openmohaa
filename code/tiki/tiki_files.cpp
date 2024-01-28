@@ -248,7 +248,7 @@ dtikianim_t *TIKI_LoadTikiAnim(const char *path)
 
         ext = strstr(path, ".");
         if (!ext) {
-            return false;
+            return NULL;
         }
 
         Q_strncpyz(tempName, path, ext - path + 1);
