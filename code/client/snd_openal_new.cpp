@@ -2834,7 +2834,8 @@ bool openal_channel::set_sfx(sfx_t *pSfx)
             qalGenBuffers(1, &pSfx->buffer);
             alDieIfError();
 
-            if (!_alutLoadMP3_LOKI(pSfx->buffer, pSfx->data, pSfx->length)) {
+            //if (!_alutLoadMP3_LOKI(pSfx->buffer, pSfx->data, pSfx->length)) {
+            if (!S_OPENAL_LoadMP3_Codec(pSfx->name, this)) {
                 qalDeleteBuffers(1, &pSfx->buffer);
                 alDieIfError();
 
