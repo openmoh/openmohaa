@@ -41,6 +41,8 @@ extern "C" {
 
     void         TIKI_FreeStorage(dloaddef_t *ld);
     void        *TIKI_AllocateLoadData(size_t length);
+    qboolean     TIKI_AliasExists(dloaddef_t* ld, const char* name);
+    void         TIKI_AddDefaultIdleAnim(dloaddef_t* ld);
     char        *TIKI_CopyString(const char *s);
     dtikianim_t *TIKI_LoadTikiAnim(const char *path);
 

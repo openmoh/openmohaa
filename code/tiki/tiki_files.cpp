@@ -95,6 +95,52 @@ void *TIKI_AllocateLoadData(size_t length)
 
 /*
 ===============
+TIKI_AliasExists
+===============
+*/
+qboolean TIKI_AliasExists(dloaddef_t* ld, const char* name) {
+    int i;
+
+    for (i = 0; i < ld->numanims; i++) {
+        if (!Q_stricmp(ld->loadanims[i]->alias, name)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+/*
+===============
+TIKI_AddDefaultIdleAnim
+===============
+*/
+void TIKI_AddDefaultIdleAnim(dloaddef_t* ld) {
+    const char* ext;
+    dloadanim_t* panim;
+
+    if (ld->numskels != 1) {
+        return;
+    }
+
+    ext = strstr(ld->idleSkel, ".");
+    if (!ext) {
+        return;
+    }
+
+    if (TIKI_AliasExists(ld, "idle")) {
+        return;
+    }
+
+    panim = TIKI_AllocAnim(ld);
+    panim->alias = TIKI_CopyString("idle");
+    Q_strncpyz(panim->name, ld->idleSkel, ext - ld->idleSkel);
+    panim->name[ext - ld->idleSkel] = 0;
+    Q_strcat(panim->name, sizeof(panim->name), ".skc");
+}
+
+/*
+===============
 TIKI_CopyString
 ===============
 */
@@ -190,6 +236,7 @@ dtikianim_t *TIKI_LoadTikiAnim(const char *path)
             TIKI_Error("TIKI_LoadTIKIfile: Include section in %s did not terminate\n", loaddef.tikiFile.Filename());
         }
 
+        TIKI_AddDefaultIdleAnim(&loaddef);
         if (loaddef.numanims) {
             sprintf(tempName, "a%s", path);
             UI_LoadResource(tempName);
