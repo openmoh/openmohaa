@@ -1289,7 +1289,9 @@ void UI_PrintConsole(const char *msg)
             break;
         }
 
-        pszString++;
+        if (*pszString != 0) {
+            pszString++;
+        }
 
         //
         // print to the deathmatch console
