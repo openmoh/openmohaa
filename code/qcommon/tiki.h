@@ -36,7 +36,7 @@ class Archiver;
 #define MAX_TIKI_LOAD_ANIMS                 4095
 #define MAX_TIKI_LOAD_SKEL_INDEX            12
 #define MAX_TIKI_LOAD_SERVER_INIT_COMMANDS  160
-#define MAX_TIKI_LOAD_CLIENT_INIT_COMMANDS  180
+#define MAX_TIKI_LOAD_CLIENT_INIT_COMMANDS  180 // 2.30: Increased from 160 to 180
 #define MAX_TIKI_LOAD_HEADMODELS_LENGTH     4096
 #define MAX_TIKI_LOAD_HEADSKINS_LENGTH      4096
 #define MAX_TIKI_LOAD_MODEL_BUFFER          8192
@@ -150,6 +150,13 @@ typedef struct dloaddef_s {
     unsigned char modelData[MAX_TIKI_LOAD_MODEL_BUFFER];
 
     qboolean bInIncludesSection;
+
+    // Added in 2.0
+    //====
+    char     idleSkel[MAX_QPATH];
+    int      numskels;
+    qboolean hasSkel;
+    //====
 } dloaddef_t;
 
 #endif
