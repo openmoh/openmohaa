@@ -3523,31 +3523,46 @@ void ScriptThread::Vector_CrossProduct(Event *ev)
 
 void ScriptThread::Vector_ToAngles(Event *ev)
 {
-    ev->AddVector(ev->GetVector(1).toAngles());
+    Vector v1;
+    Vector v3;
+
+    v1 = ev->GetVector(1);
+    vectoangles(v1, v3);
+
+    ev->AddVector(v3);
 }
 
 void ScriptThread::Angles_ToForward(Event *ev)
 {
-    Vector fwd;
+    Vector v1;
+    Vector v3;
 
-    ev->GetVector(1).AngleVectors(&fwd);
-    ev->AddVector(fwd);
+    v1 = ev->GetVector(1);
+
+    AngleVectors(v1, v3, NULL, NULL);
+    ev->AddVector(v3);
 }
 
 void ScriptThread::Angles_ToLeft(Event *ev)
 {
-    Vector left;
+    Vector v1;
+    Vector v3;
 
-    ev->GetVector(1).AngleVectors(NULL, &left);
-    ev->AddVector(left);
+    v1 = ev->GetVector(1);
+
+    AngleVectors(v1, NULL, v3, NULL);
+    ev->AddVector(v3);
 }
 
 void ScriptThread::Angles_ToUp(Event *ev)
 {
-    Vector up;
+    Vector v1;
+    Vector v3;
 
-    ev->GetVector(1).AngleVectors(NULL, NULL, &up);
-    ev->AddVector(up);
+    v1 = ev->GetVector(1);
+
+    AngleVectors(v1, NULL, NULL, v3);
+    ev->AddVector(v3);
 }
 
 void ScriptThread::Angles_PointAt(Event *ev)
