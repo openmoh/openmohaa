@@ -98,7 +98,8 @@ void *TIKI_AllocateLoadData(size_t length)
 TIKI_AliasExists
 ===============
 */
-qboolean TIKI_AliasExists(dloaddef_t* ld, const char* name) {
+qboolean TIKI_AliasExists(dloaddef_t *ld, const char *name)
+{
     int i;
 
     for (i = 0; i < ld->numanims; i++) {
@@ -115,9 +116,10 @@ qboolean TIKI_AliasExists(dloaddef_t* ld, const char* name) {
 TIKI_AddDefaultIdleAnim
 ===============
 */
-void TIKI_AddDefaultIdleAnim(dloaddef_t* ld) {
-    const char* ext;
-    dloadanim_t* panim;
+void TIKI_AddDefaultIdleAnim(dloaddef_t *ld)
+{
+    const char  *ext;
+    dloadanim_t *panim;
 
     if (ld->numskels != 1) {
         return;
@@ -132,9 +134,9 @@ void TIKI_AddDefaultIdleAnim(dloaddef_t* ld) {
         return;
     }
 
-    panim = TIKI_AllocAnim(ld);
+    panim        = TIKI_AllocAnim(ld);
     panim->alias = TIKI_CopyString("idle");
-    Q_strncpyz(panim->name, ld->idleSkel, ext - ld->idleSkel);
+    Q_strncpyz(panim->name, ld->idleSkel, ext - ld->idleSkel + 1);
     panim->name[ext - ld->idleSkel] = 0;
     Q_strcat(panim->name, sizeof(panim->name), ".skc");
 }
@@ -167,11 +169,17 @@ dtikianim_t *TIKI_LoadTikiAnim(const char *path)
     msg_t        modelBuf;
     str          s;
     char         tempName[257];
+    const char  *ext;
 
     memset(&loaddef, 0, sizeof(dloaddef_t));
     loaddef.modelBuf = &modelBuf;
 
     TIKI_InitSetup(&loaddef);
+
+    loaddef.path = path;
+    loaddef.numanims = 0;
+    loaddef.numserverinitcmds = 0;
+    loaddef.numclientinitcmds = 0;
 
     if (loaddef.tikiFile.LoadFile(path, qfalse)) {
         loaddef.path = path;
@@ -235,37 +243,49 @@ dtikianim_t *TIKI_LoadTikiAnim(const char *path)
         if (loaddef.bInIncludesSection) {
             TIKI_Error("TIKI_LoadTIKIfile: Include section in %s did not terminate\n", loaddef.tikiFile.Filename());
         }
+    } else {
+        loaddef.tikiFile.Close();
 
-        TIKI_AddDefaultIdleAnim(&loaddef);
-        if (loaddef.numanims) {
-            sprintf(tempName, "a%s", path);
+        ext = strstr(path, ".");
+        if (!ext) {
+            return false;
+        }
+
+        Q_strncpyz(tempName, path, ext - path + 1);
+        tempName[ext - path] = 0;
+        Q_strcat(tempName, sizeof(tempName), ".skd");
+        WriteSkelmodel(&loaddef, tempName);
+
+        loaddef.hasSkel = true;
+    }
+
+    TIKI_AddDefaultIdleAnim(&loaddef);
+    if (loaddef.numanims) {
+        sprintf(tempName, "a%s", path);
+        UI_LoadResource(tempName);
+
+        tiki = TIKI_FillTIKIStructureSkel(&loaddef);
+        if (tiki) {
+            sprintf(tempName, "b%s", path);
+            UI_LoadResource(tempName);
+            sprintf(tempName, "c%s", path);
             UI_LoadResource(tempName);
 
-            tiki = TIKI_FillTIKIStructureSkel(&loaddef);
-            if (tiki) {
-                sprintf(tempName, "b%s", path);
-                UI_LoadResource(tempName);
-                sprintf(tempName, "c%s", path);
-                UI_LoadResource(tempName);
-
-                VectorSubtract(tiki->maxs, tiki->mins, tempVec);
-                if (VectorLength(tempVec) > 100000.0f) {
-                    VectorSet(tiki->mins, -4.0f, -4.0f, -4.0f);
-                    VectorSet(tiki->maxs, 4.0f, 4.0f, 4.0f);
-                }
-
-                TIKI_FreeStorage(&loaddef);
-                sprintf(tempName, "d%s", path);
-                UI_LoadResource(tempName);
-            } else {
-                TIKI_FreeStorage(&loaddef);
+            VectorSubtract(tiki->maxs, tiki->mins, tempVec);
+            if (VectorLength(tempVec) > 100000.0f) {
+                VectorSet(tiki->mins, -4.0f, -4.0f, -4.0f);
+                VectorSet(tiki->maxs, 4.0f, 4.0f, 4.0f);
             }
+
+            TIKI_FreeStorage(&loaddef);
+            sprintf(tempName, "d%s", path);
+            UI_LoadResource(tempName);
         } else {
-            TIKI_Error("TIKI_LoadTIKIfile: No valid animations found in %s.\n", loaddef.tikiFile.Filename());
             TIKI_FreeStorage(&loaddef);
         }
     } else {
-        loaddef.tikiFile.Close();
+        TIKI_Error("TIKI_LoadTIKIfile: No valid animations found in %s.\n", loaddef.tikiFile.Filename());
+        TIKI_FreeStorage(&loaddef);
     }
 
     return tiki;
