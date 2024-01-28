@@ -4374,23 +4374,41 @@ FS_CanonicalFilename
 */
 void FS_CanonicalFilename(char* filename)
 {
-    char* p = filename;
+	char* source;
+	char* dest;
 
-    while (*p)
+	dest = filename;
+
+    for(source = filename; *source; source++)
     {
-        if (p[0] == '/' && p[1] == '/')
-        {
-            char* p2 = p + 1;
+		switch (*source) {
+		case '\t':
+		case ' ':
+			break;
+		case '\n':
+		case '\r':
+			*filename = 0;
+			break;
+		case '/':
+		case '\\':
+			if (dest == filename) {
+				*filename = 0;
+				return;
+			}
 
-            while (*p2)
-            {
-                p2[0] = p2[1];
-                p2++;
-            }
-        }
-
-        p++;
+			if (*(dest - 1) != '/') {
+				*dest = '/';
+				dest++;
+			}
+			break;
+		default:
+			*dest = tolower(*source);
+			dest++;
+			break;
+		}
     }
+
+	*dest = 0;
 }
 
 void FS_FileTime(const char* filename, char* date, char* size) {
