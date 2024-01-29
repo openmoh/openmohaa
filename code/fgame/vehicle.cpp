@@ -4516,6 +4516,8 @@ void Vehicle::MoveVehicle(void)
     }
 
     if (bDoGravity) {
+        velocity[2] -= sv_gravity->value * level.frametime;
+
         tr = G_Trace(
             origin,
             mins,
