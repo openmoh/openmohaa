@@ -1593,7 +1593,7 @@ void SV_AddOperatorCommands(void) {
 		Cmd_AddCommand("say", SV_ConSay_f);
 		Cmd_AddCommand("tell", SV_ConTell_f);
 		Cmd_AddCommand("sayto", SV_ConSayto_f);
-		Cmd_SetCommandCompletionFunc("sayto", SV_CompletePlayerName);
+		Cmd_SetCommandCompletionFunc("sayto", (completionFunc_t)SV_CompletePlayerName);
     }
 
 	Cmd_AddCommand("rehashbans", SV_RehashBans_f);
