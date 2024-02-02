@@ -82,7 +82,7 @@ void cMoveGrid::CalculateBoxPoints(void)
             for (z = 0; z < m_iZRes; z++) {
                 gridpoint_t *gridPoint = GetGridPoint(x, y, z);
 
-                gridPoint->origin = Vector(xdelta - rx, ydelta - ry, zdelta + rz / 2);
+                gridPoint->origin = Vector(xdelta - rx, ydelta - ry, zdelta + rz / 2.f);
                 zdelta += rz;
             }
             zdelta = 0;
@@ -107,18 +107,18 @@ void cMoveGrid::CalculateBoxPoints(void)
                 if (rx >= ry) {
                     Vector vec;
 
-                    vec = Vector(-ry / 2, -ry / 2, -rz / 2);
+                    vec = Vector(-ry / 2.f, -ry / 2.f, -rz / 2.f);
                     vec.copyTo(gridPoint->vm.mins);
 
-                    vec = Vector(ry / 2, ry / 2, rz / 2);
+                    vec = Vector(ry / 2.f, ry / 2.f, rz / 2.f);
                     vec.copyTo(gridPoint->vm.maxs);
                 } else {
                     Vector vec;
 
-                    vec = Vector(-rx / 2, -rx / 2, -rz / 2);
+                    vec = Vector(-rx / 2.f, -rx / 2.f, -rz / 2.f);
                     vec.copyTo(gridPoint->vm.mins);
 
-                    vec = Vector(rx / 2, rx / 2, rz / 2);
+                    vec = Vector(rx / 2.f, rx / 2.f, rz / 2.f);
                     vec.copyTo(gridPoint->vm.maxs);
                 }
             }
