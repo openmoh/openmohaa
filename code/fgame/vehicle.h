@@ -485,7 +485,7 @@ public:
     virtual qboolean ShowWeapon(void);
     Entity          *Driver(void);
     virtual qboolean IsDrivable(void);
-    void             Archive(Archiver            &arc) override;
+    void             Archive(Archiver& arc) override;
     str              GetSoundSet(void);
     virtual float    QuerySpeed(void);
     virtual int      QueryFreePassengerSlot(void);
@@ -503,7 +503,7 @@ public:
     virtual Entity  *QueryPassengerSlotEntity(int slot);
     virtual Entity  *QueryDriverSlotEntity(int slot);
     virtual Entity  *QueryTurretSlotEntity(int slot);
-    bool             FindExitPosition(Entity *pEnt, const Vector            &vOrigin, const Vector *vAngles); // added in 2.0
+    bool             FindExitPosition(Entity *pEnt, const Vector& vOrigin, const Vector *vAngles); // added in 2.0
     virtual void     AttachPassengerSlot(int slot, Entity *ent, Vector vExitPosition);
     virtual void     AttachDriverSlot(int slot, Entity *ent, Vector vExitPosition);
     virtual void     AttachTurretSlot(int slot, Entity *ent, Vector vExitPosition, Vector *vExitAngles);
@@ -519,7 +519,7 @@ public:
     qboolean         isLocked(void);
     void             Lock(void);
     void             UnLock(void);
-    const str      & getName() const; // added in 2.0
+    const str&       getName() const; // added in 2.0
     VehicleCollisionEntity *GetCollisionEntity(void);
     // Added in 2.30
     //====
@@ -592,7 +592,7 @@ public:
     virtual void     CalculateOriginOffset() override;
     void             UpdateSound() override;
     //void             AttachDriverSlot(Event* ev) override;
-    void     AttachDriverSlot(int slot, Entity* ent, Vector vExitPosition) override;
+    void AttachDriverSlot(int slot, Entity *ent, Vector vExitPosition) override;
 };
 
 class VehicleHalfTrack : public DrivableVehicle

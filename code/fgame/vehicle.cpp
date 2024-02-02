@@ -4411,12 +4411,8 @@ void Vehicle::MoveVehicle(void)
                     "Vehicle::MoveVehicle"
                 );
 
-                if (tr.fraction != 1.0f || tr.plane.normal[2] < 0.7f || tr.allsolid) {
+                if ((tr.fraction != 1.0f && tr.plane.normal[2] < 0.7f) || tr.allsolid) {
                     flMoveFrac = 0.0f;
-                }
-
-                if (tr.fraction == 1.0f && !tr.allsolid && !tr.startsolid) {
-                    break;
                 }
 
                 if (!tr.ent || !tr.ent->entity || tr.ent->entity == world) {
