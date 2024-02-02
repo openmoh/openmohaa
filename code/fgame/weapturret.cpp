@@ -1267,10 +1267,12 @@ void TurretGun::AI_ThinkActive()
 
 void TurretGun::Think(void)
 {
-    if (owner || (!m_bHadOwner && aim_target)) {
+    if (!owner && (m_bHadOwner || !aim_target)) {
+        ThinkIdle();
+    } else if (owner && owner->IsSubclassOfPlayer()) {
         P_ThinkActive();
     } else {
-        ThinkIdle();
+        AI_ThinkActive();
     }
 }
 
