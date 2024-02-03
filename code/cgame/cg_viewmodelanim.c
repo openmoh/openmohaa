@@ -308,6 +308,9 @@ int CG_GetVMAnimPrefixIndex()
         if (!Q_stricmp(szWeaponName, "Panzerschreck")) {
             return WPREFIX_PANZERSCHRECK;
         }
+        if (!Q_stricmp(szWeaponName, "Gewehrgranate")) {
+            return WPREFIX_KAR98_MORTAR;
+        }
         if (!Q_stricmp(szWeaponName, "Shotgun")) {
             return WPREFIX_SHOTGUN;
         }
