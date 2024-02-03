@@ -3725,13 +3725,6 @@ void ScriptThread::EventHideMouse(Event *ev)
 {
     gentity_t *ent;
     int        i;
-    str        name;
-
-    if (game.maxclients <= 0) {
-        return;
-    }
-
-    name = ev->GetString(1);
 
     for (i = 0, ent = g_entities; i < game.maxclients; i++, ent++) {
         if (!ent->inuse || !ent->client) {
