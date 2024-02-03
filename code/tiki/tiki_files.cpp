@@ -176,8 +176,8 @@ dtikianim_t *TIKI_LoadTikiAnim(const char *path)
 
     TIKI_InitSetup(&loaddef);
 
-    loaddef.path = path;
-    loaddef.numanims = 0;
+    loaddef.path              = path;
+    loaddef.numanims          = 0;
     loaddef.numserverinitcmds = 0;
     loaddef.numclientinitcmds = 0;
 
@@ -448,6 +448,33 @@ dtiki_t *TIKI_LoadTikiModel(dtikianim_t *tikianim, const char *name, con_map<str
                 loadsurf->name,
                 tikianim->name
             );
+        }
+    }
+
+    // Added in 2.0
+    //  For surfaces without shader
+    //  assign them the shader with the same name
+    surfOffset = 0;
+    for (i = 0; i < temp.tiki.numMeshes; i++, surfOffset += skelmodel->numSurfaces) {
+        skelmodel = TIKI_GetSkel(temp.tiki.mesh[i]);
+
+        surf = skelmodel->pSurfaces;
+
+        for (j = 0; j < skelmodel->numSurfaces; j++, surf = surf->pNext) {
+            tikiSurf = &tiki->surfaces[surfOffset + j];
+
+            if (tikiSurf->numskins) {
+                // Skip surfaces with skins
+                continue;
+            }
+
+            Q_strncpyz(tikiSurf->name, surf->name, sizeof(tikiSurf->name));
+
+            if (strlen(surf->name) != 9 || !Q_strncmp(surf->name, "material", 8)) {
+                Q_strncpyz(tikiSurf->shader[0], surf->name, sizeof(tikiSurf->shader[0]));
+            }
+
+            tikiSurf->numskins = 1;
         }
     }
 
