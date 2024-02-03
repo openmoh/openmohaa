@@ -2586,17 +2586,21 @@ void Player::InitMaxAmmo(void)
     GiveAmmo("heavy", 0, 5);
     GiveAmmo("shotgun", 0, 50);
 
-    //
-    // Team tactics ammunition
-    //
-    GiveAmmo("landmine", 0, 5);
+    if (g_target_game >= target_game_e::TG_MOHTT) {
+        //
+        // Team tactics ammunition
+        //
+        GiveAmmo("landmine", 0, 5);
+    }
 
-    //
-    // Team assault ammunition
-    //
-    GiveAmmo("smokegrenade", 0, 5);
-    GiveAmmo("asmokegrenade", 0, 5);
-    GiveAmmo("riflegrenade", 0, 3);
+    if (g_target_game >= target_game_e::TG_MOHTA) {
+        //
+        // Team assault ammunition
+        //
+        GiveAmmo("smokegrenade", 0, 5);
+        GiveAmmo("asmokegrenade", 0, 5);
+        GiveAmmo("riflegrenade", 0, 3);
+    }
 }
 
 void Player::InitWeapons(void)
@@ -8907,27 +8911,37 @@ void Player::EquipWeapons()
     switch (nationality) {
     case NA_BRITISH:
         giveItem("weapons/mills_grenade.tik");
-        giveItem("weapons/M18_smoke_grenade.tik");
+        if (g_target_game >= target_game_e::TG_MOHTA) {
+            giveItem("weapons/M18_smoke_grenade.tik");
+        }
         giveItem("weapons/Webley_Revolver.tik");
         break;
     case NA_RUSSIAN:
         giveItem("weapons/Russian_F1_grenade.tik");
-        giveItem("weapons/RDG-1_Smoke_grenade.tik");
+        if (g_target_game >= target_game_e::TG_MOHTA) {
+            giveItem("weapons/RDG-1_Smoke_grenade.tik");
+        }
         giveItem("weapons/Nagant_revolver.tik");
         break;
     case NA_GERMAN:
         giveItem("weapons/steilhandgranate.tik");
-        giveItem("weapons/nebelhandgranate.tik");
+        if (g_target_game >= target_game_e::TG_MOHTA) {
+            giveItem("weapons/nebelhandgranate.tik");
+        }
         giveItem("weapons/p38.tik");
         break;
     case NA_ITALIAN:
         giveItem("weapons/it_w_bomba.tik");
-        giveItem("weapons/it_w_bombabreda.tik");
+        if (g_target_game >= target_game_e::TG_MOHTA) {
+            giveItem("weapons/it_w_bombabreda.tik");
+        }
         giveItem("weapons/it_w_beretta.tik");
         break;
     default:
         giveItem("weapons/m2frag_grenade.tik");
-        giveItem("weapons/M18_smoke_grenade.tik");
+        if (g_target_game >= target_game_e::TG_MOHTA) {
+            giveItem("weapons/M18_smoke_grenade.tik");
+        }
         giveItem("weapons/colt45.tik");
         break;
     }
