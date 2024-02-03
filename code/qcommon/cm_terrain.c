@@ -216,6 +216,7 @@ void CM_PickTerrainSquareMode(terrainCollideSquare_t *square, vec3_t vTest, int 
         }
     } else if (square->eMode == 5 || square->eMode == 6) {
         VectorCopy(square->plane[1], square->plane[0]);
+        square->plane[0][3] = square->plane[1][3];
     }
 }
 
