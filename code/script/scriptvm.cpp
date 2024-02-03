@@ -682,7 +682,7 @@ void ScriptVM::execCmdMethodCommon(op_parmNum_t param)
             array.CastConstArrayValue();
 
             for (uintptr_t i = array.arraysize(); i > 0; i--) {
-                Listener *const listener = array[i]->listenerAt(i);
+                Listener *const listener = array.listenerAt(i);
                 if (listener) {
                     executeCommand<true>(listener, param, eventNum);
                 }
