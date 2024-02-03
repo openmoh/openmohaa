@@ -28,45 +28,43 @@ void CM_TraceThroughTerPatchCollide(traceWork_t *tw, const struct terPatchCollid
 qboolean CM_PositionTestInTerPatchCollide(traceWork_t *tw, const struct terPatchCollide_s *tc);
 */
 
-#ifndef CM_TERRAIN_H
-#define CM_TERRAIN_H
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#define TER_QUADS_PER_ROW	8
-#define TER_TRIS_PER_PATCH	(TER_QUADS_PER_ROW * TER_QUADS_PER_ROW * 2)
-#define TER_PLANES_PER_TRI	5
+#define TER_QUADS_PER_ROW  8
+#define TER_TRIS_PER_PATCH (TER_QUADS_PER_ROW * TER_QUADS_PER_ROW * 2)
+#define TER_PLANES_PER_TRI 5
 
-typedef struct terTriangle_s {
-	cplane_t		planes[TER_PLANES_PER_TRI];	// 0 is the surface plane, 3 border planes follow and a cap to give it some finite volume
-} terTriangle_t;
+    typedef struct terTriangle_s {
+        cplane_t planes
+            [TER_PLANES_PER_TRI]; // 0 is the surface plane, 3 border planes follow and a cap to give it some finite volume
+    } terTriangle_t;
 
-typedef struct terPatchCollide_s {
-	vec3_t			bounds[2];
+    typedef struct terPatchCollide_s {
+        vec3_t bounds[2];
 
-	baseshader_t	*shader;
+        baseshader_t *shader;
 
-	terTriangle_t	tris[TER_TRIS_PER_PATCH];
-} terPatchCollide_t;
+        terTriangle_t tris[TER_TRIS_PER_PATCH];
+    } terPatchCollide_t;
 
-typedef struct terrainCollideSquare_s {
-	vec4_t plane[ 2 ];
-	int eMode;
-} terrainCollideSquare_t;
+    typedef struct terrainCollideSquare_s {
+        vec4_t plane[2];
+        int    eMode;
+    } terrainCollideSquare_t;
 
-typedef struct terrainCollide_s {
-	vec3_t vBounds[ 2 ];
-	terrainCollideSquare_t squares[ 8 ][ 8 ];
-} terrainCollide_t;
+    typedef struct terrainCollide_s {
+        vec3_t                 vBounds[2];
+        terrainCollideSquare_t squares[8][8];
+    } terrainCollide_t;
 
-void CM_PrepareGenerateTerrainCollide( void );
-void CM_GenerateTerrainCollide( cTerraPatch_t *patch, terrainCollide_t *tc );
-int CM_TerrainSquareType( int iTerrainPatch, int i, int j );
+    void CM_PrepareGenerateTerrainCollide(void);
+    void CM_GenerateTerrainCollide(cTerraPatch_t *patch, terrainCollide_t *tc);
+    int  CM_TerrainSquareType(int iTerrainPatch, int i, int j);
 
 #ifdef __cplusplus
 }
 #endif
-
-#endif // CM_TERRAIN_H
