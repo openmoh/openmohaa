@@ -2954,6 +2954,7 @@ void Weapon::PickupWeapon(Event *ev)
 
         sen->GiveAmmo(sAmmoType, iGiveAmmo);
 
+        /*
         if (!g_gametype->integer && other->IsSubclassOfPlayer()) {
             if (!sAmmoType.icmp("agrenade")) {
                 if (iGiveAmmo == 1) {
@@ -2963,8 +2964,9 @@ void Weapon::PickupWeapon(Event *ev)
                 }
             }
         }
+        */
 
-        if (!sAmmoType.icmp("grenade")) {
+        if (!sAmmoType.icmp("grenade") || !sAmmoType.icmp("agrenade")) {
             if (iGiveAmmo == 1) {
                 sMessage = gi.LV_ConvertString("Got 1 Grenade");
             } else {
@@ -2986,6 +2988,7 @@ void Weapon::PickupWeapon(Event *ev)
 
             sen->GiveAmmo(sAmmoType, iGiveAmmo);
 
+            /*
             if (!g_gametype->integer && other->IsSubclassOfPlayer()) {
                 if (!sAmmoType.icmp("agrenade")) {
                     if (iGiveAmmo == 1) {
@@ -2995,8 +2998,9 @@ void Weapon::PickupWeapon(Event *ev)
                     }
                 }
             }
+            */
 
-            if (!sAmmoType.icmp("grenade")) {
+            if (!sAmmoType.icmp("grenade") || !sAmmoType.icmp("agrenade")) {
                 if (iGiveAmmo == 1) {
                     sMessage = gi.LV_ConvertString("Got 1 Grenade");
                 } else {
