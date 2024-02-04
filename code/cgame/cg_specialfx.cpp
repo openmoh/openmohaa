@@ -234,9 +234,15 @@ void ClientSpecialEffectsManager::LoadEffects()
             szEffectModel = "models/fx/bazookaexp_base.tik";
             break;
         case SFX_EXP_HEAVYSHELL_BASE:
+            if (cg_protocol < protocol_e::PROTOCOL_MOHTA_MIN) {
+                continue;
+            }
             szEffectModel = "models/fx/heavyshellexp_base.tik";
             break;
         case SFX_EXP_TANK_BASE:
+            if (cg_protocol < protocol_e::PROTOCOL_MOHTA_MIN) {
+                continue;
+            }
             szEffectModel = "models/fx/tankexp_base.tik";
             break;
         case SFX_EXP_GREN_PAPER:
@@ -285,30 +291,57 @@ void ClientSpecialEffectsManager::LoadEffects()
             szEffectModel = "models/fx/grenexp_carpet.tik";
             break;
         case SFX_EXP_HEAVYSHELL_DIRT:
+            if (cg_protocol < protocol_e::PROTOCOL_MOHTA_MIN) {
+                continue;
+            }
             szEffectModel = "models/fx/heavyshellexp_dirt.tik";
             break;
         case SFX_EXP_HEAVYSHELL_STONE:
+            if (cg_protocol < protocol_e::PROTOCOL_MOHTA_MIN) {
+                continue;
+            }
             szEffectModel = "models/fx/heavyshellexp_stone.tik";
             break;
         case SFX_EXP_HEAVYSHELL_SNOW:
+            if (cg_protocol < protocol_e::PROTOCOL_MOHTA_MIN) {
+                continue;
+            }
             szEffectModel = "models/fx/heavyshellexp_snow.tik";
             break;
         case SFX_EXP_TANK_DIRT:
+            if (cg_protocol < protocol_e::PROTOCOL_MOHTA_MIN) {
+                continue;
+            }
             szEffectModel = "models/fx/tankexp_dirt.tik";
             break;
         case SFX_EXP_TANK_STONE:
+            if (cg_protocol < protocol_e::PROTOCOL_MOHTA_MIN) {
+                continue;
+            }
             szEffectModel = "models/fx/tankexp_stone.tik";
             break;
         case SFX_EXP_TANK_SNOW:
+            if (cg_protocol < protocol_e::PROTOCOL_MOHTA_MIN) {
+                continue;
+            }
             szEffectModel = "models/fx/tankexp_snow.tik";
             break;
         case SFX_EXP_BAZOOKA_DIRT:
+            if (cg_protocol < protocol_e::PROTOCOL_MOHTA_MIN) {
+                continue;
+            }
             szEffectModel = "models/fx/bazookaexp_dirt.tik";
             break;
         case SFX_EXP_BAZOOKA_STONE:
+            if (cg_protocol < protocol_e::PROTOCOL_MOHTA_MIN) {
+                continue;
+            }
             szEffectModel = "models/fx/bazookaexp_stone.tik";
             break;
         case SFX_EXP_BAZOOKA_SNOW:
+            if (cg_protocol < protocol_e::PROTOCOL_MOHTA_MIN) {
+                continue;
+            }
             szEffectModel = "models/fx/bazookaexp_snow.tik";
             break;
         case SFX_WATER_RIPPLE_STILL:
