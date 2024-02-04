@@ -4385,6 +4385,7 @@ void Entity::AttachModelEvent(Event *ev)
         }
     } else {
         warning("AttachModelEvent", "Tag %s not found", bone.c_str());
+        obj->NewAnim("idle");
     }
 }
 
