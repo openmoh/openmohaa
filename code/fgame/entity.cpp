@@ -4380,7 +4380,12 @@ void Entity::AttachModelEvent(Event *ev)
         if (obj->attach(this->entnum, tagnum, true, offset)) {
             obj->NewAnim("idle");
         } else {
-            delete obj;
+            warning("AttachModelEvent", "Could not attach model %s to tag \"%s\" on entnum #%d (targetname = %s)", modelname.c_str(), bone.c_str(), entnum, targetname.c_str());
+            if (g_iInThinks) {
+                PostEvent(EV_Remove, 0);
+            } else {
+                delete obj;
+            }
             return;
         }
     } else {
