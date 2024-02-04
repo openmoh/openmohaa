@@ -6161,143 +6161,145 @@ void Player::DamageFeedback(void)
         damage_blend += (damage_blood / realcount) * bcolor;
     }
 
-    //
-    // Since 2.0: Try to find and play pain animation
-    //
-    if (getMoveType() == MOVETYPE_PORTABLE_TURRET) {
-        // use mg42 pain animation
-        painAnim = "mg42_tripod_";
-    } else {
-        Weapon     *pWeap;
-        const char *itemName;
-        // try to find an animation
+    if (g_target_game >= target_game_e::TG_MOHTA) {
+        //
+        // Since 2.0: Try to find and play pain animation
+        //
+        if (getMoveType() == MOVETYPE_PORTABLE_TURRET) {
+            // use mg42 pain animation
+            painAnim = "mg42_tripod_";
+        } else {
+            Weapon     *pWeap;
+            const char *itemName;
+            // try to find an animation
 
-        pWeap = GetActiveWeapon(WEAPON_MAIN);
-        if (pWeap) {
-            int weapon_class;
+            pWeap = GetActiveWeapon(WEAPON_MAIN);
+            if (pWeap) {
+                int weapon_class;
 
-            weapon_class = pWeap->GetWeaponClass();
-            if (weapon_class & WEAPON_CLASS_PISTOL) {
-                painAnim = "pistol_";
-            } else if (weapon_class & WEAPON_CLASS_RIFLE) {
-                painAnim = "rifle_";
-            } else if (weapon_class & WEAPON_CLASS_SMG) {
-                // get the animation name from the item name
-                itemName = pWeap->GetItemName();
+                weapon_class = pWeap->GetWeaponClass();
+                if (weapon_class & WEAPON_CLASS_PISTOL) {
+                    painAnim = "pistol_";
+                } else if (weapon_class & WEAPON_CLASS_RIFLE) {
+                    painAnim = "rifle_";
+                } else if (weapon_class & WEAPON_CLASS_SMG) {
+                    // get the animation name from the item name
+                    itemName = pWeap->GetItemName();
 
-                if (!Q_stricmp(itemName, "MP40")) {
-                    painAnim = "mp40_";
-                } else if (!Q_stricmp(itemName, "Sten Mark II")) {
-                    painAnim = "sten_";
+                    if (!Q_stricmp(itemName, "MP40")) {
+                        painAnim = "mp40_";
+                    } else if (!Q_stricmp(itemName, "Sten Mark II")) {
+                        painAnim = "sten_";
+                    } else {
+                        painAnim = "smg_";
+                    }
+                } else if (weapon_class & WEAPON_CLASS_MG) {
+                    itemName = pWeap->GetItemName();
+
+                    if (!Q_stricmp(itemName, "StG 44")) {
+                        painAnim = "mp44_";
+                    } else {
+                        painAnim = "mg_";
+                    }
+                } else if (weapon_class & WEAPON_CLASS_GRENADE) {
+                    itemName = pWeap->GetItemName();
+
+                    // 2.30: use landmine animations
+                    if (!Q_stricmp(itemName, "Minedetector")) {
+                        painAnim = "minedetector_";
+                    } else if (!Q_stricmp(itemName, "Minensuchgerat")) {
+                        painAnim = "minedetectoraxis_";
+                    } else if (!Q_stricmp(itemName, "LandmineAllies")) {
+                        painAnim = "mine_";
+                    } else if (!Q_stricmp(itemName, "LandmineAxis")) {
+                        painAnim = "mine_";
+                    } else if (!Q_stricmp(itemName, "LandmineAxis")) {
+                        painAnim = "grenade_";
+                    }
+                } else if (weapon_class & WEAPON_CLASS_HEAVY) {
+                    itemName = pWeap->GetItemName();
+
+                    if (!Q_stricmp(itemName, "Shotgun")) {
+                        painAnim = "shotgun_";
+                    } else {
+                        // Defaults to bazooka
+                        painAnim = "bazooka_";
+                    }
                 } else {
-                    painAnim = "smg_";
-                }
-            } else if (weapon_class & WEAPON_CLASS_MG) {
-                itemName = pWeap->GetItemName();
+                    itemName = pWeap->GetItemName();
 
-                if (!Q_stricmp(itemName, "StG 44")) {
-                    painAnim = "mp44_";
-                } else {
-                    painAnim = "mg_";
-                }
-            } else if (weapon_class & WEAPON_CLASS_GRENADE) {
-                itemName = pWeap->GetItemName();
-
-                // 2.30: use landmine animations
-                if (!Q_stricmp(itemName, "Minedetector")) {
-                    painAnim = "minedetector_";
-                } else if (!Q_stricmp(itemName, "Minensuchgerat")) {
-                    painAnim = "minedetectoraxis_";
-                } else if (!Q_stricmp(itemName, "LandmineAllies")) {
-                    painAnim = "mine_";
-                } else if (!Q_stricmp(itemName, "LandmineAxis")) {
-                    painAnim = "mine_";
-                } else if (!Q_stricmp(itemName, "LandmineAxis")) {
-                    painAnim = "grenade_";
-                }
-            } else if (weapon_class & WEAPON_CLASS_HEAVY) {
-                itemName = pWeap->GetItemName();
-
-                if (!Q_stricmp(itemName, "Shotgun")) {
-                    painAnim = "shotgun_";
-                } else {
-                    // Defaults to bazooka
-                    painAnim = "bazooka_";
+                    if (!Q_stricmp(itemName, "Packed MG42 Turret")) {
+                        painAnim = "mg42_";
+                    } else {
+                        // Default animation if not found
+                        painAnim = "unarmed_";
+                    }
                 }
             } else {
-                itemName = pWeap->GetItemName();
-
-                if (!Q_stricmp(itemName, "Packed MG42 Turret")) {
-                    painAnim = "mg42_";
-                } else {
-                    // Default animation if not found
-                    painAnim = "unarmed_";
-                }
+                painAnim = "unarmed_";
             }
+
+            // use the animation based on the movement
+            if (m_iMovePosFlags & MPF_POSITION_CROUCHING) {
+                painAnim += "crouch_";
+            } else {
+                painAnim += "stand_";
+            }
+        }
+
+        painAnim += "hit_";
+
+        if (pain_dir == PAIN_REAR || pain_location == HITLOC_TORSO_MID || HITLOC_TORSO_LOWER) {
+            painAnim += "back";
         } else {
-            painAnim = "unarmed_";
+            switch (pain_location) {
+            case HITLOC_HEAD:
+            case HITLOC_HELMET:
+            case HITLOC_NECK:
+                painAnim += "head";
+                break;
+            case HITLOC_TORSO_UPPER:
+            case HITLOC_TORSO_MID:
+                painAnim += "uppertorso";
+                break;
+            case HITLOC_TORSO_LOWER:
+            case HITLOC_PELVIS:
+                painAnim += "lowertorso";
+                break;
+            case HITLOC_R_ARM_UPPER:
+            case HITLOC_R_ARM_LOWER:
+            case HITLOC_R_HAND:
+                painAnim += "rarm";
+                break;
+            case HITLOC_L_ARM_UPPER:
+            case HITLOC_L_ARM_LOWER:
+            case HITLOC_L_HAND:
+                painAnim += "larm";
+                break;
+            case HITLOC_R_LEG_UPPER:
+            case HITLOC_L_LEG_UPPER:
+            case HITLOC_R_LEG_LOWER:
+            case HITLOC_L_LEG_LOWER:
+            case HITLOC_R_FOOT:
+            case HITLOC_L_FOOT:
+                painAnim += "leg";
+                break;
+            default:
+                painAnim += "uppertorso";
+                break;
+            }
         }
 
-        // use the animation based on the movement
-        if (m_iMovePosFlags & MPF_POSITION_CROUCHING) {
-            painAnim += "crouch_";
+        animnum = gi.Anim_NumForName(edict->tiki, painAnim.c_str());
+        if (animnum == -1) {
+            gi.DPrintf("WARNING: Could not find player pain animation '%s'\n", painAnim.c_str());
         } else {
-            painAnim += "stand_";
+            NewAnim(animnum, EV_Player_AnimLoop_Pain, ANIMSLOT_PAIN);
+            RestartAnimSlot(ANIMSLOT_PAIN);
+            m_sPainAnim   = painAnim;
+            m_fPainBlend  = 1.f;
+            animdone_Pain = false;
         }
-    }
-
-    painAnim += "hit_";
-
-    if (pain_dir == PAIN_REAR || pain_location == HITLOC_TORSO_MID || HITLOC_TORSO_LOWER) {
-        painAnim += "back";
-    } else {
-        switch (pain_location) {
-        case HITLOC_HEAD:
-        case HITLOC_HELMET:
-        case HITLOC_NECK:
-            painAnim += "head";
-            break;
-        case HITLOC_TORSO_UPPER:
-        case HITLOC_TORSO_MID:
-            painAnim += "uppertorso";
-            break;
-        case HITLOC_TORSO_LOWER:
-        case HITLOC_PELVIS:
-            painAnim += "lowertorso";
-            break;
-        case HITLOC_R_ARM_UPPER:
-        case HITLOC_R_ARM_LOWER:
-        case HITLOC_R_HAND:
-            painAnim += "rarm";
-            break;
-        case HITLOC_L_ARM_UPPER:
-        case HITLOC_L_ARM_LOWER:
-        case HITLOC_L_HAND:
-            painAnim += "larm";
-            break;
-        case HITLOC_R_LEG_UPPER:
-        case HITLOC_L_LEG_UPPER:
-        case HITLOC_R_LEG_LOWER:
-        case HITLOC_L_LEG_LOWER:
-        case HITLOC_R_FOOT:
-        case HITLOC_L_FOOT:
-            painAnim += "leg";
-            break;
-        default:
-            painAnim += "uppertorso";
-            break;
-        }
-    }
-
-    animnum = gi.Anim_NumForName(edict->tiki, painAnim.c_str());
-    if (animnum == -1) {
-        gi.DPrintf("WARNING: Could not find player pain animation '%s'\n", painAnim.c_str());
-    } else {
-        NewAnim(animnum, EV_Player_AnimLoop_Pain, ANIMSLOT_PAIN);
-        RestartAnimSlot(ANIMSLOT_PAIN);
-        m_sPainAnim   = painAnim;
-        m_fPainBlend  = 1.f;
-        animdone_Pain = false;
     }
 
     //
