@@ -340,6 +340,7 @@ extern "C" {
         float        ObjectivesBaseAlpha;
         float        ObjectivesDesiredAlpha;
         float        ObjectivesCurrentAlpha;
+        int          ObjectivesCurrentIndex;
 
         // misc
         crain_t      rain;

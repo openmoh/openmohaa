@@ -351,6 +351,9 @@ void CG_ProcessConfigString(int num, qboolean modelOnly)
                 }
             }
             return;
+        case CS_CURRENT_OBJECTIVE:
+            cg.ObjectivesCurrentIndex = atoi(str);
+            break;
         }
 
         if (num >= CS_OBJECTIVES && num < CS_OBJECTIVES + MAX_OBJECTIVES) {
