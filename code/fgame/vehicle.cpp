@@ -1194,11 +1194,7 @@ Vehicle::~Vehicle
 */
 Vehicle::~Vehicle()
 {
-    for (int i = 0; i < MAX_CORNERS; i++) {
-        if (m_pVehicleSoundEntities[i]) {
-            m_pVehicleSoundEntities[i]->PostEvent(EV_Remove, EV_LINKDOORS);
-        }
-    }
+    RemoveVehicleSoundEntities();
 
     if (m_pCollisionEntity) {
         m_pCollisionEntity->ProcessEvent(EV_Remove);
