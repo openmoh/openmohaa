@@ -335,25 +335,25 @@ void CG_ProcessConfigString(int num, qboolean modelOnly)
             cg.rain.width = atof(str);
             return;
         case CS_RAIN_SHADER:
-            if (cg.rain.numshaders) {
-                for (i = 0; i < cg.rain.numshaders; i++) {
-                    sprintf(cg.rain.shader[i], "%s%i", str, i);
-                }
-            } else {
-                strcpy(cg.rain.shader[0], str);
+            Q_strncpyz(cg.rain.currentShader, str, sizeof(cg.rain.currentShader));
+            for (i = 0; i < cg.rain.numshaders; ++i) {
+                Com_sprintf(cg.rain.shader[i], sizeof(cg.rain.shader[i]), "%s%i", cg.rain.currentShader, i);
+            }
+            if (!cg.rain.numshaders) {
+                Q_strncpyz(cg.rain.shader[0], cg.rain.currentShader, sizeof(cg.rain.shader[0]));
             }
             return;
         case CS_RAIN_NUMSHADERS:
             cg.rain.numshaders = atoi(str);
             if (cg.rain.numshaders) {
                 for (i = 0; i < cg.rain.numshaders; i++) {
-                    sprintf(cg.rain.shader[i], "%s%i", str, i);
+                    Com_sprintf(cg.rain.shader[i], sizeof(cg.rain.shader[i]), "%s%i", cg.rain.currentShader, i);
                 }
             }
             return;
         case CS_CURRENT_OBJECTIVE:
             cg.ObjectivesCurrentIndex = atoi(str);
-            break;
+            return;
         }
 
         if (num >= CS_OBJECTIVES && num < CS_OBJECTIVES + MAX_OBJECTIVES) {

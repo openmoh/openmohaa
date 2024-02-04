@@ -187,6 +187,7 @@ extern "C" {
         float min_dist;
         float width;
         char  shader[MAX_RAIN_SHADERS][MAX_STRING_CHARS];
+        char  currentShader[MAX_STRING_CHARS];
         int   numshaders;
     } crain_t;
 
