@@ -1131,10 +1131,37 @@ static void CM_PatchCollideFromGrid( cGrid_t *grid, patchCollide_t *pf ) {
 	// copy the results out
 	pf->numPlanes = numPlanes;
     pf->numFacets = numFacets;
-    pf->facets = Hunk_Alloc(numFacets * sizeof(*pf->facets), h_dontcare);
-    Com_Memcpy(pf->facets, facets, numFacets * sizeof(*pf->facets));
-    pf->planes = Hunk_Alloc(numPlanes * sizeof(*pf->planes), h_dontcare);
-    Com_Memcpy(pf->planes, planes, numPlanes * sizeof(*pf->planes));
+	if (numPlanes >= 1) {
+		pf->facets = Hunk_Alloc(numFacets * sizeof(*pf->facets), h_dontcare);
+		Com_Memcpy(pf->facets, facets, numFacets * sizeof(*pf->facets));
+	} else {
+        pf->numPlanes = 0;
+        pf->planes = NULL;
+        Com_DPrintf(
+            "WARNING: CM_PatchCollideFromGrid: Degenerate patch - no planes (%i %i %i)-(%i %i %i)\n",
+            pf->bounds[0][0],
+            pf->bounds[0][1],
+            pf->bounds[0][2],
+            pf->bounds[1][0],
+            pf->bounds[1][1],
+            pf->bounds[1][2]);
+	}
+
+	if (numFacets >= 1) {
+		pf->planes = Hunk_Alloc(numPlanes * sizeof(*pf->planes), h_dontcare);
+		Com_Memcpy(pf->planes, planes, numPlanes * sizeof(*pf->planes));
+	} else {
+        pf->numFacets = 0;
+        pf->facets = NULL;
+        Com_DPrintf(
+            "WARNING: CM_PatchCollideFromGrid: Degenerate patch - no facets (%i %i %i)-(%i %i %i)\n",
+            pf->bounds[0][0],
+            pf->bounds[0][1],
+            pf->bounds[0][2],
+            pf->bounds[1][0],
+            pf->bounds[1][1],
+            pf->bounds[1][2]);
+	}
 }
 
 
@@ -1436,11 +1463,8 @@ void CM_TraceThroughPatchCollide( traceWork_t *tw, const struct patchCollide_s *
 		//never clip against the back side
 		if (hitnum == facet->numBorders - 1) continue;
 
-		if (enterFrac < leaveFrac && enterFrac >= 0) {
+		if (enterFrac <= leaveFrac && enterFrac >= 0) {
 			if (enterFrac < tw->trace.fraction) {
-				if (enterFrac < 0) {
-					enterFrac = 0;
-				}
 #ifndef BSPC
 				if (!cv) {
 					cv = Cvar_Get( "r_debugSurfaceUpdate", "1", 0 );
