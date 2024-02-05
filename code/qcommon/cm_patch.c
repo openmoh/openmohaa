@@ -1498,84 +1498,52 @@ CM_PositionTestInPatchCollide
 ====================
 */
 qboolean CM_PositionTestInPatchCollide( traceWork_t *tw, const struct patchCollide_s *pc ) {
+    byte cross[4096];
+    patchPlane_t* planes;
+    facet_t* facet;
 	int i, j;
-	float offset, t;
-	patchPlane_t *planes;
-	facet_t	*facet;
-	float plane[4];
-	vec3_t startp;
+	float offset, d;
 
-	if (tw->isPoint) {
-		return qfalse;
+    // Check if it's within the patch bounds
+    for (i = 0; i < 3; i++) {
+        if (tw->bounds[0][i] > pc->bounds[1][i] || tw->bounds[1][i] < pc->bounds[0][i]) {
+            return qfalse;
+        }
 	}
-	//
+
+    // Check for planes that are crossing
+	for (i = 0; i < pc->numPlanes; i++) {
+		planes = &pc->planes[i];
+
+		offset = fabs(DotProduct(tw->offsets[planes->signbits], planes->plane));
+		d = DotProduct(tw->start, planes->plane) - planes->plane[3];
+
+		if (-offset > d) {
+			cross[i] = 0;
+		} else if (offset < d) {
+			cross[i] = 1;
+		} else {
+			cross[i] = 2;
+		}
+	}
+
+	j = 0;
 	facet = pc->facets;
-	for ( i = 0 ; i < pc->numFacets ; i++, facet++ ) {
-		planes = &pc->planes[ facet->surfacePlane ];
-		VectorCopy(planes->plane, plane);
-		plane[3] = planes->plane[3];
-		if ( sphere.use ) {
-			// adjust the plane distance apropriately for radius
-			plane[3] += sphere.radius;
-
-			// find the closest point on the capsule to the plane
-			t = DotProduct( plane, sphere.offset );
-			if ( t > 0 ) {
-				VectorSubtract( tw->start, sphere.offset, startp );
-			}
-			else {
-				VectorAdd( tw->start, sphere.offset, startp );
-			}
-		}
-		else {
-			offset = DotProduct( tw->offsets[ planes->signbits ], plane);
-			plane[3] -= offset;
-			VectorCopy( tw->start, startp );
-		}
-
-		if ( DotProduct( plane, startp ) - plane[3] > 0.0f ) {
-			continue;
-		}
-
-		for ( j = 0; j < facet->numBorders; j++ ) {
-			planes = &pc->planes[ facet->borderPlanes[j] ];
-			if (facet->borderInward[j]) {
-				VectorNegate(planes->plane, plane);
-				plane[3] = -planes->plane[3];
-			}
-			else {
-				VectorCopy(planes->plane, plane);
-				plane[3] = planes->plane[3];
-			}
-			if ( sphere.use ) {
-				// adjust the plane distance apropriately for radius
-				plane[3] += sphere.radius;
-
-				// find the closest point on the capsule to the plane
-				t = DotProduct( plane, sphere.offset );
-				if ( t > 0.0f ) {
-					VectorSubtract( tw->start, sphere.offset, startp );
-				}
-				else {
-					VectorAdd( tw->start, sphere.offset, startp );
+	for (i = 0; i < pc->numFacets; i++, facet++) {
+		if (cross[facet->surfacePlane] == 2) {
+			for (j = 0; j < facet->numBorders; j++) {
+				if (cross[facet->borderPlanes[j]] != 2 && cross[facet->borderPlanes[j]] != (uint8_t)facet->borderInward[j]) {
+					break;
 				}
 			}
-			else {
-				// NOTE: this works even though the plane might be flipped because the bbox is centered
-				offset = DotProduct( tw->offsets[ planes->signbits ], plane);
-				plane[3] += fabs(offset);
-				VectorCopy( tw->start, startp );
+
+			if (j < facet->numBorders) {
+				continue;
 			}
 
-			if ( DotProduct( plane, startp ) - plane[3] > 0.0f ) {
-				break;
-			}
+			// inside this patch facet
+			return qtrue;
 		}
-		if (j < facet->numBorders) {
-			continue;
-		}
-		// inside this patch facet
-		return qtrue;
 	}
 	return qfalse;
 }
