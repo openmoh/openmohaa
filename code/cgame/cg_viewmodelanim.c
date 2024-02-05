@@ -28,6 +28,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 static const char *AnimPrefixList[] = {
     "",
+    "unarmed",
     "papers",
     "colt45",
     "p38",
@@ -45,7 +46,6 @@ static const char *AnimPrefixList[] = {
     "bazooka",
     "panzerschreck",
     "shotgun",
-    "unarmed",
     //
     // Team Assault and Team Tactics weapons
     "mg42portable",
@@ -82,6 +82,7 @@ static const char *AnimPrefixList[] = {
 
 enum animPrefix_e {
     WPREFIX_NONE,
+    WPREFIX_UNARMED,
     WPREFIX_PAPERS,
     WPREFIX_COLT45,
     WPREFIX_P38,
@@ -99,7 +100,6 @@ enum animPrefix_e {
     WPREFIX_BAZOOKA,
     WPREFIX_PANZERSCHRECK,
     WPREFIX_SHOTGUN,
-    WPREFIX_UNARMED,
     //
     // Team Assault and Team Tactics weapons
     WPREFIX_MG42_PORTABLE,
@@ -338,9 +338,11 @@ void CG_ViewModelAnimation(refEntity_t *pModel)
     char        szAnimName[MAX_QPATH];
     dtiki_t    *pTiki;
     qboolean    bAnimChanged;
+    qboolean    bWeaponChanged;
 
     fCrossblendFrac = 0.0;
-    bAnimChanged    = 0;
+    bAnimChanged    = qfalse;
+    bWeaponChanged  = qfalse; // Added in OPM
     pTiki           = pModel->tiki;
 
     if (cgi.anim->g_iLastEquippedWeaponStat == cg.snap->ps.stats[STAT_EQUIPPED_WEAPON]
@@ -351,7 +353,9 @@ void CG_ViewModelAnimation(refEntity_t *pModel)
         cgi.anim->g_iLastEquippedWeaponStat = cg.snap->ps.stats[STAT_EQUIPPED_WEAPON];
         strcpy(cgi.anim->g_szLastActiveItem, CG_ConfigString(CS_WEAPONS + cg.snap->ps.activeItems[1]));
         cgi.anim->g_iLastAnimPrefixIndex = iAnimPrefixIndex;
-        bAnimChanged                     = qtrue;
+
+        bAnimChanged   = qtrue;
+        bWeaponChanged = qtrue;
     }
 
     if (cgi.anim->g_iLastVMAnim == -1) {
@@ -425,20 +429,27 @@ void CG_ViewModelAnimation(refEntity_t *pModel)
         }
 
         sprintf(szAnimName, "%s_%s", AnimPrefixList[iAnimPrefixIndex], pszAnimSuffix);
-        fCrossblendTime = cgi.Anim_CrossblendTime(pTiki, cgi.anim->g_VMFrameInfo[cgi.anim->g_iCurrentVMAnimSlot].index);
-        fCrossblendAmount = cgi.anim->g_iCurrentVMDuration / 1000.0;
+        if (!bWeaponChanged) {
+            fCrossblendTime =
+                cgi.Anim_CrossblendTime(pTiki, cgi.anim->g_VMFrameInfo[cgi.anim->g_iCurrentVMAnimSlot].index);
+            fCrossblendAmount = cgi.anim->g_iCurrentVMDuration / 1000.0;
 
-        if (fCrossblendAmount < fCrossblendTime && fCrossblendAmount > 0.0) {
-            fCrossblendFrac = fCrossblendAmount / fCrossblendTime;
-            for (i = 0; i < MAX_FRAMEINFOS; ++i) {
-                if (cgi.anim->g_VMFrameInfo[i].weight) {
-                    if (i == cgi.anim->g_iCurrentVMAnimSlot) {
-                        cgi.anim->g_VMFrameInfo[i].weight = fCrossblendFrac;
-                    } else {
-                        cgi.anim->g_VMFrameInfo[i].weight *= (1.0 - fCrossblendFrac);
+            if (fCrossblendAmount < fCrossblendTime && fCrossblendAmount > 0.0) {
+                fCrossblendFrac = fCrossblendAmount / fCrossblendTime;
+                for (i = 0; i < MAX_FRAMEINFOS; ++i) {
+                    if (cgi.anim->g_VMFrameInfo[i].weight) {
+                        if (i == cgi.anim->g_iCurrentVMAnimSlot) {
+                            cgi.anim->g_VMFrameInfo[i].weight = fCrossblendFrac;
+                        } else {
+                            cgi.anim->g_VMFrameInfo[i].weight *= (1.0 - fCrossblendFrac);
+                        }
                     }
                 }
             }
+        } else {
+            fCrossblendTime   = 0;
+            fCrossblendAmount = 0;
+            fCrossblendFrac   = 0;
         }
 
         cgi.anim->g_iCurrentVMAnimSlot = (cgi.anim->g_iCurrentVMAnimSlot + 1) % MAX_FRAMEINFOS;
@@ -453,17 +464,31 @@ void CG_ViewModelAnimation(refEntity_t *pModel)
         cgi.anim->g_VMFrameInfo[cgi.anim->g_iCurrentVMAnimSlot].weight = 1.0;
         cgi.anim->g_iCurrentVMDuration                                 = 0;
 
-        fCrossblendTime = cgi.Anim_CrossblendTime(pTiki, cgi.anim->g_VMFrameInfo[cgi.anim->g_iCurrentVMAnimSlot].index);
-        if (!fCrossblendTime) {
+        if (!bWeaponChanged) {
+            fCrossblendTime =
+                cgi.Anim_CrossblendTime(pTiki, cgi.anim->g_VMFrameInfo[cgi.anim->g_iCurrentVMAnimSlot].index);
+            if (!fCrossblendTime) {
+                for (i = 0; i < MAX_FRAMEINFOS; ++i) {
+                    if (i != cgi.anim->g_iCurrentVMAnimSlot) {
+                        cgi.anim->g_VMFrameInfo[i].weight = 0.0;
+                    }
+                }
+
+                cgi.anim->g_bCrossblending = qfalse;
+            } else {
+                cgi.anim->g_bCrossblending = qtrue;
+            }
+        } else {
+            // Added in OPM
+            //  If there is a new weapon, don't do any crossblend
+            cgi.anim->g_bCrossblending = qfalse;
+
+            // clear crossblend values
             for (i = 0; i < MAX_FRAMEINFOS; ++i) {
                 if (i != cgi.anim->g_iCurrentVMAnimSlot) {
                     cgi.anim->g_VMFrameInfo[i].weight = 0.0;
                 }
             }
-
-            cgi.anim->g_bCrossblending = qfalse;
-        } else {
-            cgi.anim->g_bCrossblending = qtrue;
         }
     }
 
