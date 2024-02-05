@@ -271,7 +271,8 @@ void DM_Team::AddKills(Player *player, int numKills)
     if (m_teamnumber > TEAM_FREEFORALL) {
         m_iKills += numKills;
 
-        if ((g_gametype->integer >= GT_TEAM_ROUNDS && g_gametype->integer <= GT_TOW) || g_gametype->integer == GT_LIBERATION) {
+        if ((g_gametype->integer >= GT_TEAM_ROUNDS && g_gametype->integer <= GT_TOW)
+            || g_gametype->integer == GT_LIBERATION) {
             player->AddDeaths(numKills);
         } else {
             m_teamwins += numKills;
@@ -285,7 +286,8 @@ void DM_Team::AddDeaths(Player *player, int numDeaths)
         return;
     }
 
-    if ((g_gametype->integer >= GT_TEAM_ROUNDS && g_gametype->integer <= GT_TOW) || g_gametype->integer == GT_LIBERATION) {
+    if ((g_gametype->integer >= GT_TEAM_ROUNDS && g_gametype->integer <= GT_TOW)
+        || g_gametype->integer == GT_LIBERATION) {
         return;
     }
 
@@ -626,7 +628,11 @@ Event EV_DM_Manager_DoRoundTransition
 );
 Event EV_DM_Manager_FinishRoundTransition
 (
-    "finishroundtransition", EV_DEFAULT, NULL, NULL, "delayed function call to do the actual restart for the next round"
+    "finishroundtransition",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "delayed function call to do the actual restart for the next round"
 );
 
 CLASS_DECLARATION(Listener, DM_Manager, NULL) {
@@ -667,7 +673,7 @@ DM_Manager::DM_Manager()
     m_csTeamBombPlantSide  = STRING_DRAW;
     m_iNumTargetsToDestroy = 1;
     m_iNumTargetsDestroyed = 0;
-    m_iNumBombsPlanted     = 0; 
+    m_iNumBombsPlanted     = 0;
     m_bAllowAxisRespawn    = true;
     m_bAllowAlliedRespawn  = true;
     m_bRoundActive         = false;
@@ -1048,11 +1054,11 @@ void DM_Manager::InitGame(void)
     }
 
     for (i = 1; i <= level.m_SimpleArchivedEntities.NumObjects(); i++) {
-        SimpleArchivedEntity* const ent = level.m_SimpleArchivedEntities.ObjectAt(i);
-        const char* const classname = ent->getClassID();
+        SimpleArchivedEntity *const ent       = level.m_SimpleArchivedEntities.ObjectAt(i);
+        const char *const           classname = ent->getClassID();
 
         if (!Q_stricmp(classname, "info_player_deathmatch")) {
-            PlayerStart* const spawnpoint = static_cast<PlayerStart*>(ent);
+            PlayerStart *const spawnpoint = static_cast<PlayerStart *>(ent);
             m_team_spectator.m_spawnpoints.AddObject(spawnpoint);
             m_team_freeforall.m_spawnpoints.AddObject(spawnpoint);
 
@@ -1062,16 +1068,16 @@ void DM_Manager::InitGame(void)
             }
         } else if (!Q_stricmp(classname, "info_player_allied")) {
             if (g_gametype->integer >= GT_TEAM) {
-                PlayerStart* const spawnpoint = static_cast<PlayerStart*>(ent);
+                PlayerStart *const spawnpoint = static_cast<PlayerStart *>(ent);
                 m_team_allies.m_spawnpoints.AddObject(spawnpoint);
             }
         } else if (!Q_stricmp(classname, "info_player_axis")) {
             if (g_gametype->integer >= GT_TEAM) {
-                PlayerStart* const spawnpoint = static_cast<PlayerStart*>(ent);
+                PlayerStart *const spawnpoint = static_cast<PlayerStart *>(ent);
                 m_team_axis.m_spawnpoints.AddObject(spawnpoint);
             }
         } else if (!Q_stricmp(classname, "info_player_intermission")) {
-            PlayerStart* const spawnpoint = static_cast<PlayerStart*>(ent);
+            PlayerStart *const spawnpoint = static_cast<PlayerStart *>(ent);
             m_team_freeforall.m_spawnpoints.AddObject(spawnpoint);
         }
     }
@@ -1100,10 +1106,10 @@ void DM_Manager::InitGame(void)
             m_bRoundBasedGame = false;
         } else {
             if (g_gametype->integer == GT_TOW || g_gametype->integer == GT_LIBERATION) {
-                m_bAllowRespawns = true;
+                m_bAllowRespawns  = true;
                 m_bRoundBasedGame = true;
             } else {
-                m_bAllowRespawns = false;
+                m_bAllowRespawns  = false;
                 m_bRoundBasedGame = true;
             }
 
@@ -1534,7 +1540,7 @@ void DM_Manager::StartRound(void)
     }
 
     m_fRoundEndTime = 0.0f;
-    m_bRoundActive = true;
+    m_bRoundActive  = true;
 
     // respawn all players
     for (i = 0, ent = g_entities; i < game.maxclients; i++, ent++) {
@@ -1620,7 +1626,8 @@ float DM_Manager::GetMatchStartTime(void)
         return m_fRoundTime;
     }
 
-    if (g_gametype->integer == GT_TEAM_ROUNDS || g_gametype->integer == GT_OBJECTIVE || g_gametype->integer == GT_LIBERATION) {
+    if (g_gametype->integer == GT_TEAM_ROUNDS || g_gametype->integer == GT_OBJECTIVE
+        || g_gametype->integer == GT_LIBERATION) {
         if (m_fRoundTime > 0 && (m_team_allies.IsEmpty() || m_team_allies.IsEmpty())) {
             m_fRoundTime = 0;
             return -1;
@@ -1796,15 +1803,15 @@ void DM_Manager::InsertEntry(const char *entry)
     }
 }
 
-void DM_Manager::InsertEntryNoCount(const char* entry)
+void DM_Manager::InsertEntryNoCount(const char *entry)
 {
-	size_t len = strlen(entry);
+    size_t len = strlen(entry);
 
-	if (scoreLength + len < MAX_STRING_CHARS) {
-		strcpy(scoreString + scoreLength, entry);
+    if (scoreLength + len < MAX_STRING_CHARS) {
+        strcpy(scoreString + scoreLength, entry);
 
-		scoreLength += len;
-	}
+        scoreLength += len;
+    }
 }
 
 void DM_Manager::InsertEmpty(void)
@@ -1916,7 +1923,7 @@ void DM_Manager::BuildTeamInfo_ver15(DM_Team *dmTeam)
                 iPing
             );
         } else {
-            Com_sprintf(entry, sizeof(entry), "%i %i \"\" \"\" \"\" \"\" \"\" ", -1, dmTeam->m_teamnumber);
+            Com_sprintf(entry, sizeof(entry), "%i %i \"\" \"\" \"\" \"\" ", -1, dmTeam->m_teamnumber);
         }
     } else {
         Com_sprintf(entry, sizeof(entry), "%i \"\" \"\" \"\" \"\" ", -1 - dmTeam->m_teamnumber);
@@ -1977,7 +1984,8 @@ void DM_Manager::BuildPlayerTeamInfo(DM_Team *dmTeam, int *iPlayerList, DM_Team 
 
 bool DM_Manager::IsAlivePlayer(Player *player) const
 {
-    return !player->IsDead() && !player->IsSpectator() && !player->IsInJail() || player->GetDM_Team() == &m_team_spectator;
+    return !player->IsDead() && !player->IsSpectator() && !player->IsInJail()
+        || player->GetDM_Team() == &m_team_spectator;
 }
 
 CTeamSpawnClock::CTeamSpawnClock()
