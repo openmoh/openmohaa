@@ -1188,7 +1188,7 @@ void RB_CalcTransformTexCoords( const texModInfo_t *tmi, float *st  )
 /*
 ** RB_CalcRotateTexCoords
 */
-void RB_CalcRotateTexCoords( float degsPerSecond, float *st )
+void RB_CalcRotateTexCoords(float degsPerSecond, float degsPerSecondCoef, float* st, float start)
 {
 	float timeScale = tess.shaderTime;
 	float degs;
@@ -1196,7 +1196,16 @@ void RB_CalcRotateTexCoords( float degsPerSecond, float *st )
 	float sinValue, cosValue;
 	texModInfo_t tmi;
 
-	degs = -degsPerSecond * timeScale;
+    if (degsPerSecond != 1234567) {
+		degs = -degsPerSecond * degsPerSecondCoef * tess.shaderTime - start;
+	} else if (backEnd.currentEntity) {
+		degs = -backEnd.currentEntity->e.shader_data[0] * degsPerSecondCoef * tess.shaderTime - start;
+	} else {
+		degs = r_static_shaderdata0->value;
+	}
+	if (!backEnd.currentEntity) {
+		degs *= r_static_shadermultiplier0->value;
+	}
 	index = degs * ( FUNCTABLE_SIZE / 360.0f );
 
 	sinValue = tr.sinTable[ index & FUNCTABLE_MASK ];

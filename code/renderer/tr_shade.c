@@ -1381,7 +1381,9 @@ static void ComputeTexCoords( shaderStage_t *pStage ) {
 
 			case TMOD_ROTATE:
 				RB_CalcRotateTexCoords( pStage->bundle[b].texMods[tm].rotateSpeed,
-										( float * ) tess.svars.texcoords[b] );
+										pStage->bundle[b].texMods[tm].rotateCoef,
+										( float * ) tess.svars.texcoords[b],
+										pStage->bundle[b].texMods[tm].rotateStart );
 				break;
 
 			default:
