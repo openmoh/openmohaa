@@ -459,6 +459,8 @@ static void ParseTexMod( char *_text, shaderStage_t *stage, int cntBundle )
 		tmi->wave.frequency = atof( token );
 
 		tmi->type = TMOD_TURBULENT;
+
+		shader.flags |= 2;
 	}
 	//
 	// scale
@@ -493,62 +495,103 @@ static void ParseTexMod( char *_text, shaderStage_t *stage, int cntBundle )
 			ri.Printf( PRINT_WARNING, "WARNING: missing scale scroll parms in shader '%s'\n", shader.name );
 			return;
 		}
-		tmi->scroll[0] = atof( token );
+		if (!Q_stricmp(token, "fromEntity")) {
+			tmi->scroll[0] = 1234567;
+		} else {
+			tmi->scroll[0] = atof(token);
+		}
+
 		token = COM_ParseExt( text, qfalse );
 		if ( token[0] == 0 )
 		{
 			ri.Printf( PRINT_WARNING, "WARNING: missing scale scroll parms in shader '%s'\n", shader.name );
 			return;
 		}
-		tmi->scroll[1] = atof( token );
+		if (!Q_stricmp(token, "fromEntity")) {
+			tmi->scroll[1] = 1234567;
+		} else {
+			tmi->scroll[1] = atof(token);
+		}
+
+        token = COM_ParseExt(text, qfalse);
+		if (token[0]) {
+			if (atof(token) < 0) {
+				tmi->scroll[0] -= (rand() % (int)(atof(token) * 1000.0)) / 1000.0;
+			} else if (atof(token) > 0) {
+				tmi->scroll[0] += (rand() % (int)(atof(token) * 1000.0)) / 1000.0;
+			}
+		}
+
+        token = COM_ParseExt(text, qfalse);
+		if (token[0]) {
+			if (atof(token) < 0) {
+				tmi->scroll[1] -= (rand() % (int)(atof(token) * 1000.0)) / 1000.0;
+			} else if (atof(token) > 0) {
+				tmi->scroll[1] += (rand() % (int)(atof(token) * 1000.0)) / 1000.0;
+			}
+		}
+
 		tmi->type = TMOD_SCROLL;
+
+		shader.flags |= 2;
 	}
 	//
 	// stretch
 	//
 	else if ( !Q_stricmp( token, "stretch" ) )
 	{
-		token = COM_ParseExt( text, qfalse );
-		if ( token[0] == 0 )
-		{
-			ri.Printf( PRINT_WARNING, "WARNING: missing stretch parms in shader '%s'\n", shader.name );
-			return;
-		}
-		tmi->wave.func = NameToGenFunc( token );
-
-		token = COM_ParseExt( text, qfalse );
-		if ( token[0] == 0 )
-		{
-			ri.Printf( PRINT_WARNING, "WARNING: missing stretch parms in shader '%s'\n", shader.name );
-			return;
-		}
-		tmi->wave.base = atof( token );
-
-		token = COM_ParseExt( text, qfalse );
-		if ( token[0] == 0 )
-		{
-			ri.Printf( PRINT_WARNING, "WARNING: missing stretch parms in shader '%s'\n", shader.name );
-			return;
-		}
-		tmi->wave.amplitude = atof( token );
-
-		token = COM_ParseExt( text, qfalse );
-		if ( token[0] == 0 )
-		{
-			ri.Printf( PRINT_WARNING, "WARNING: missing stretch parms in shader '%s'\n", shader.name );
-			return;
-		}
-		tmi->wave.phase = atof( token );
-
-		token = COM_ParseExt( text, qfalse );
-		if ( token[0] == 0 )
-		{
-			ri.Printf( PRINT_WARNING, "WARNING: missing stretch parms in shader '%s'\n", shader.name );
-			return;
-		}
-		tmi->wave.frequency = atof( token );
-		
+		ParseWaveForm(text, &tmi->wave);
 		tmi->type = TMOD_STRETCH;
+		shader.flags |= 2;
+	}
+	else if ( !Q_stricmp( token, "wavetrans" ) )
+    {
+		ParseWaveForm(text, &tmi->wave);
+		tmi->type = TMOD_WAVETRANS;
+		shader.flags |= 2;
+	}
+	else if ( !Q_stricmp( token, "wavetrant" ) )
+    {
+        ParseWaveForm(text, &tmi->wave);
+        tmi->type = TMOD_WAVETRANT;
+        shader.flags |= 2;
+	}
+	else if ( !Q_stricmp( token, "bulge" ) )
+	{
+		token = COM_ParseExt(text, qfalse);
+		if (token[0] == 0) {
+			ri.Printf(PRINT_WARNING, "WARNING: missing tcMod bulge parms in shader '%s'\n", shader.name);
+			return;
+		}
+
+        tmi->wave.base = atof(token);
+
+        token = COM_ParseExt(text, qfalse);
+        if (token[0] == 0) {
+            ri.Printf(PRINT_WARNING, "WARNING: missing tcMod bulge parms in shader '%s'\n", shader.name);
+            return;
+        }
+
+		tmi->wave.amplitude = atof(token);
+
+        token = COM_ParseExt(text, qfalse);
+        if (token[0] == 0) {
+            ri.Printf(PRINT_WARNING, "WARNING: missing tcMod bulge parms in shader '%s'\n", shader.name);
+            return;
+        }
+
+		tmi->wave.frequency = atof(token);
+
+        token = COM_ParseExt(text, qfalse);
+        if (token[0] == 0) {
+            ri.Printf(PRINT_WARNING, "WARNING: missing tcMod bulge parms in shader '%s'\n", shader.name);
+            return;
+        }
+
+		tmi->wave.phase = atof(token);
+
+		tmi->type = TMOD_BULGETRANS;
+		shader.flags |= 2;
 	}
 	//
 	// transform
@@ -643,12 +686,97 @@ static void ParseTexMod( char *_text, shaderStage_t *stage, int cntBundle )
 
 		tmi->type = TMOD_ROTATE;
 	}
+    else if (!Q_stricmp(token, "offset")) {
+        token = COM_ParseExt(text, qfalse);
+        if (token[0] == 0) {
+            ri.Printf(PRINT_WARNING, "WARNING: missing offset parms in shader '%s'\n", shader.name);
+            return;
+		}
+
+		if (!Q_stricmp(token, "fromEntity")) {
+			tmi->scroll[0] = 1234567;
+		} else {
+			tmi->scroll[0] = atof(token);
+		}
+
+        token = COM_ParseExt(text, qfalse);
+        if (token[0] == 0) {
+            ri.Printf(PRINT_WARNING, "WARNING: missing offset parms in shader '%s'\n", shader.name);
+            return;
+		}
+
+		if (!Q_stricmp(token, "fromEntity")) {
+			tmi->scroll[1] = 1234567;
+		} else {
+			tmi->scroll[1] = atof(token);
+        }
+
+        token = COM_ParseExt(text, qfalse);
+		if (token[0]) {
+			if (atof(token) < 0) {
+				tmi->scroll[0] -= (rand() % (int)(atof(token) * 1000.0 + 1.0)) / 1000.0;
+			} else if (atof(token) > 0) {
+				tmi->scroll[0] += (rand() % (int)(atof(token) * 1000.0 + 1.0)) / 1000.0;
+			}
+		}
+
+        token = COM_ParseExt(text, qfalse);
+		if (token[0]) {
+			if (atof(token) < 0) {
+				tmi->scroll[1] -= (rand() % (int)(atof(token) * 1000.0 + 1.0)) / 1000.0;
+			} else if (atof(token) > 0) {
+				tmi->scroll[1] += (rand() % (int)(atof(token) * 1000.0 + 1.0)) / 1000.0;
+			}
+		}
+
+		tmi->type = TMOD_OFFSET;
+	}
 	//
 	// entityTranslate
 	//
 	else if ( !Q_stricmp( token, "entityTranslate" ) )
 	{
 		tmi->type = TMOD_ENTITY_TRANSLATE;
+	}
+	else if ( !Q_stricmp( token, "parallax" ) )
+    {
+        token = COM_ParseExt(text, qfalse);
+        if (token[0] == 0) {
+            ri.Printf(PRINT_WARNING, "WARNING: missing rate parms in shader '%s'\n", shader.name);
+            return;
+		}
+
+		tmi->rate[0] = atof(token);
+
+        token = COM_ParseExt(text, qfalse);
+        if (token[0] == 0) {
+            ri.Printf(PRINT_WARNING, "WARNING: missing rate parms in shader '%s'\n", shader.name);
+            return;
+		}
+
+		tmi->rate[1] = atof(token);
+		tmi->type = TMOD_PARALLAX;
+	}
+	else if ( !Q_stricmp( token, "macro" ) )
+    {
+        token = COM_ParseExt(text, qfalse);
+        if (token[0] == 0) {
+            ri.Printf(PRINT_WARNING, "WARNING: missing scale parms in shader '%s' for macro definition\n", shader.name);
+            return;
+        }
+
+		tmi->scale[0] = 1.0 / atof(token);
+
+        token = COM_ParseExt(text, qfalse);
+        if (token[0] == 0) {
+            ri.Printf(PRINT_WARNING, "WARNING: missing scale parms in shader '%s' for macro definition\n", shader.name);
+            return;
+        }
+
+		tmi->scale[1] = 1.0 / atof(token);
+
+		tmi->type = TMOD_MACRO;
+		shader.needsNormal = qtrue;
 	}
 	else
 	{
