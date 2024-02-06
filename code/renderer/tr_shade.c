@@ -1327,7 +1327,7 @@ static void ComputeTexCoords( shaderStage_t *pStage ) {
             RB_CalcEnvironmentTexCoords2((float*)tess.svars.texcoords[b]);
             break;
 		case TCGEN_SUN_REFLECTION:
-			// FIXME: unimplemented
+			RB_CalcSunReflectionTexCoords(tess.svars.texcoords[b][0]);
 			break;
         default:
             ri.Printf(

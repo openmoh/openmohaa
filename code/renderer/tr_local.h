@@ -2227,6 +2227,7 @@ void	RB_DeformTessGeometry( void );
 
 void	RB_CalcEnvironmentTexCoords( float *dstTexCoords );
 void	RB_CalcEnvironmentTexCoords2( float *dstTexCoords );
+void	RB_CalcSunReflectionTexCoords( float *dstTexCoords );
 void	RB_CalcOffsetTexCoords(const float* offset, float* st);
 void	RB_CalcParallaxTexCoords(const float* rate, float* st);
 void	RB_TextureAxisFromPlane(const vec3_t normal, vec3_t xv, vec3_t yv);

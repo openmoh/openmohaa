@@ -1169,6 +1169,51 @@ void RB_CalcEnvironmentTexCoords2(float* st)
 }
 
 /*
+** RB_CalcSunReflectionTexCoords
+*/
+void RB_CalcSunReflectionTexCoords(float* st) {
+	int i;
+	vec3_t viewer;
+	vec3_t reflected;
+	vec3_t sunReflected;
+	float d;
+	float* v;
+	float* normal;
+	vec3_t sunAxis[3];
+
+    v = tess.xyz[0];
+    normal = tess.normal[0];
+    sunAxis[0][0] = tr.sunDirection[0];
+    sunAxis[0][1] = tr.sunDirection[1];
+    sunAxis[0][2] = tr.sunDirection[2];
+    sunAxis[1][0] = tr.sunDirection[1];
+    sunAxis[1][1] = -tr.sunDirection[0];
+    sunAxis[1][2] = 0.0;
+    VectorNormalizeFast(sunAxis[1]);
+    CrossProduct(sunAxis, sunAxis[1], sunAxis[2]);
+
+	for (i = 0; i < tess.numVertexes; i++, v += 4, normal += 4, st += 2) {
+		VectorSubtract(v, backEnd.ori.viewOrigin, viewer);
+		VectorNormalizeFast(viewer);
+
+		d = DotProduct(viewer, normal);
+		if (d > 0) {
+			VectorCopy(viewer, reflected);
+		} else {
+			d *= -2;
+			VectorMA(viewer, d, normal, reflected);
+		}
+
+		VectorScale(sunAxis[0], reflected[0], sunReflected);
+		VectorMA(sunReflected, reflected[2], sunAxis[1], sunReflected);
+		VectorMA(sunReflected, -reflected[1], sunAxis[2], sunReflected);
+
+		st[0] = sunReflected[1] + 0.5;
+		st[1] = sunReflected[2] + 0.5;
+	}
+}
+
+/*
 ** RB_CalcTurbulentTexCoords
 */
 void RB_CalcTurbulentTexCoords( const waveForm_t *wf, float *st )
