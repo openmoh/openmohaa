@@ -102,6 +102,64 @@ void RB_CalcStretchTexCoords( const waveForm_t *wf, float *st )
 }
 
 /*
+========================
+RB_CalcTransWaveTexCoords
+
+========================
+*/
+void RB_CalcTransWaveTexCoords(const waveForm_t* wf, float* st)
+{
+	float p;
+	int i;
+
+    p = EvalWaveForm(wf);
+    for (i = 0; i < tess.numVertexes; i++, st += 2) {
+        st[0] += p;
+    }
+}
+
+/*
+========================
+RB_CalcTransWaveTexCoordsT
+
+========================
+*/
+void RB_CalcTransWaveTexCoordsT(const waveForm_t* wf, float* st)
+{
+    float p;
+    int i;
+
+    p = EvalWaveForm(wf);
+    for (i = 0; i < tess.numVertexes; i++, st += 2) {
+        st[1] += p;
+    }
+}
+
+/*
+========================
+RB_CalcBulgeTexCoords
+
+========================
+*/
+void RB_CalcBulgeTexCoords(const waveForm_t* wf, float* st)
+{
+	int i;
+	int off;
+	float offset;
+	float now;
+	float amplitude;
+	float width;
+
+    amplitude = wf->amplitude;
+    width = wf->base;
+    now = backEnd.refdef.time / 1000.0 * wf->frequency + wf->phase;
+
+	for (i = 0; i < tess.numVertexes; i++, st += 2) {
+		offset = tr.sinTable[(int)((now + st[0] * width) * FUNCTABLE_SIZE) & FUNCTABLE_MASK] * amplitude;
+	}
+}
+
+/*
 ====================================================================
 
 DEFORMATIONS
@@ -1141,6 +1199,132 @@ void RB_CalcScaleTexCoords( const float scale[2], float *st )
 	{
 		st[0] *= scale[0];
 		st[1] *= scale[1];
+	}
+}
+
+/*
+** RB_CalcOffsetTexCoords
+*/
+void RB_CalcOffsetTexCoords( const float *offset, float *st )
+{
+	int i;
+	float offsetS, offsetT;
+
+	if (offset[0] != 1234567) {
+		offsetS = offset[0];
+	} else if (backEnd.currentEntity) {
+        offsetS = backEnd.currentEntity->e.shader_data[0];
+    } else {
+        offsetS = r_static_shaderdata0->value;
+    }
+
+	if (offset[0] != 1234567) {
+		offsetT = offset[1];
+	} else if (backEnd.currentEntity) {
+		offsetT = backEnd.currentEntity->e.shader_data[1];
+    } else {
+		offsetT = r_static_shaderdata1->value;
+    }
+
+    if (!backEnd.currentEntity) {
+        offsetS = offsetS * r_static_shadermultiplier0->value;
+        offsetT = offsetT * r_static_shadermultiplier1->value;
+    }
+
+	for (i = 0; i < tess.numVertexes; i++, st += 2) {
+		float s, t;
+
+		s = st[0];
+		t = st[1];
+
+		st[0] = s + offsetS;
+		st[1] = t + offsetT;
+	}
+}
+
+/*
+** RB_CalcParallaxTexCoords
+*/
+void RB_CalcParallaxTexCoords( const float *rate, float *st )
+{
+	int i;
+	float offsetS, offsetT;
+
+    offsetS = tr.refdef.vieworg[0] * rate[0];
+    offsetT = tr.refdef.vieworg[1] * rate[1];
+    for (i = 0; i < tess.numVertexes; i++, st += 2) {
+		st[0] += offsetS;
+		st[1] += offsetT;
+    }
+}
+
+static vec3_t rb_baseaxis[18];
+
+
+void RB_TextureAxisFromPlane(const vec3_t normal, vec3_t xv, vec3_t yv)
+{
+	int bestaxis;
+	vec_t dot;
+	vec_t best;
+	int i;
+
+	if (normal[0] == 1) {
+		bestaxis = 2;
+	} else if (normal[0] == -1) {
+		bestaxis = 3;
+	} else if (normal[1] == 1) {
+		bestaxis = 4;
+	} else if (normal[1] == -1) {
+		bestaxis = 5;
+	} else if (normal[2] == 1) {
+		bestaxis = 0;
+	} else if (normal[2] == -1) {
+		bestaxis = 1;
+	} else {
+		best = 0;
+		bestaxis = 0;
+
+		for (i = 0; i < 6; i++) {
+			dot = DotProduct(rb_baseaxis[i * 3], normal);
+			if (dot > best) {
+				best = dot;
+				bestaxis = i;
+			}
+		}
+	}
+
+	VectorCopy(rb_baseaxis[bestaxis * 3 + 1], xv);
+	VectorCopy(rb_baseaxis[bestaxis * 3 + 2], yv);
+}
+
+void RB_QuakeTextureVecs(const vec3_t normal, const vec2_t scale, vec3_t mappingVecs[2])
+{
+	RB_TextureAxisFromPlane(normal, mappingVecs[0], mappingVecs[1]);
+
+	VectorScale(mappingVecs[0], scale[0], mappingVecs[0]);
+	VectorScale(mappingVecs[1], scale[1], mappingVecs[1]);
+}
+
+/*
+** RB_CalcMacroTexCoords
+*/
+void RB_CalcMacroTexCoords( const  float* rate, float *st )
+{
+	int i;
+	vec3_t vecs[2];
+	vec_t* v;
+	vec_t* normal;
+	float width, height;
+    v = tess.xyz[0];
+
+    normal = tess.normal[0];
+    width = (float)tess.shader->unfoggedStages[0]->bundle[0].image[0]->uploadWidth;
+    height = (float)tess.shader->unfoggedStages[0]->bundle[0].image[0]->uploadHeight;
+
+	for (i = 0; i < tess.numVertexes; i++, v += 4, normal += 4, st += 2) {
+		RB_QuakeTextureVecs(normal, rate, vecs);
+		st[0] = DotProduct(vecs[0], v) / width;
+		st[1] = DotProduct(vecs[1], v) / height;
 	}
 }
 

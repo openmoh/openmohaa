@@ -1386,8 +1386,32 @@ static void ComputeTexCoords( shaderStage_t *pStage ) {
 										pStage->bundle[b].texMods[tm].rotateStart );
 				break;
 
+			case TMOD_OFFSET:
+				RB_CalcOffsetTexCoords(pStage->bundle[b].texMods[tm].scroll, tess.svars.texcoords[b][0]);
+				break;
+
+            case TMOD_PARALLAX:
+				RB_CalcParallaxTexCoords(pStage->bundle[b].texMods[tm].rate, tess.svars.texcoords[b][0]);
+                break;
+
+            case TMOD_MACRO:
+				RB_CalcMacroTexCoords(pStage->bundle[b].texMods[tm].scale, tess.svars.texcoords[b][0]);
+                break;
+
+            case TMOD_WAVETRANS:
+				RB_CalcTransWaveTexCoords(&pStage->bundle[b].texMods[tm].wave, tess.svars.texcoords[b][0]);
+                break;
+
+            case TMOD_WAVETRANT:
+				RB_CalcTransWaveTexCoordsT(&pStage->bundle[b].texMods[tm].wave, tess.svars.texcoords[b][0]);
+                break;
+
+            case TMOD_BULGETRANS:
+				RB_CalcBulgeTexCoords(&pStage->bundle[b].texMods[tm].wave, tess.svars.texcoords[b][0]);
+                break;
+
 			default:
-				ri.Error( ERR_DROP, "ERROR: unknown texmod '%d' in shader '%s'\n", pStage->bundle[b].texMods[tm].type, tess.shader->name );
+				ri.Printf(PRINT_WARNING, "WARNING: invalid tcMod '%d' specified for shader '%s'\n", pStage->bundle[b].texMods[tm].type, tess.shader->name );
 				break;
 			}
 		}

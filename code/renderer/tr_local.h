@@ -2227,6 +2227,11 @@ void	RB_DeformTessGeometry( void );
 
 void	RB_CalcEnvironmentTexCoords( float *dstTexCoords );
 void	RB_CalcEnvironmentTexCoords2( float *dstTexCoords );
+void	RB_CalcOffsetTexCoords(const float* offset, float* st);
+void	RB_CalcParallaxTexCoords(const float* rate, float* st);
+void	RB_TextureAxisFromPlane(const vec3_t normal, vec3_t xv, vec3_t yv);
+void	RB_QuakeTextureVecs(const vec3_t normal, const vec2_t scale, vec3_t mappingVecs[2]);
+void	RB_CalcMacroTexCoords(const  float* rate, float* st);
 void	RB_CalcScrollTexCoords( const float scroll[2], float *dstTexCoords );
 void	RB_CalcRotateTexCoords( float degsPerSecond, float degsPerSecondCoef, float* st, float start );
 void	RB_CalcScaleTexCoords( const float scale[2], float *dstTexCoords );
@@ -2253,6 +2258,11 @@ void	RB_CalcLightGridColor(unsigned char* colors);
 void	RB_CalcAlphaFromDotView(unsigned char* colors, float alphaMin, float alphaMax);
 void	RB_CalcAlphaFromOneMinusDotView(unsigned char* colors, float alphaMin, float alphaMax);
 void	RB_CalcDiffuseColor( unsigned char *colors );
+
+void	RB_CalcStretchTexCoords(const waveForm_t* wf, float* st);
+void	RB_CalcTransWaveTexCoords(const waveForm_t* wf, float* st);
+void	RB_CalcTransWaveTexCoordsT(const waveForm_t* wf, float* st);
+void	RB_CalcBulgeTexCoords(const waveForm_t* wf, float* st);
 
 /*
 =============================================================
