@@ -729,6 +729,7 @@ qboolean G_Push
 	pushed_t	*pusher_p;
 	float       radius;
 	int         i, num;
+	int			j;
 	int         touch[ MAX_GENTITIES ];
 	Event		*ev;
 
@@ -860,12 +861,12 @@ qboolean G_Push
 		move2 = move;
 
 		// FIXME: doesn't rotate monsters?
-		/*if( check->client && amove[ YAW ] )
+		if( check->client && amove[ YAW ] )
 		{
 			Sentient *sent = ( Sentient * )check;
 			Vector a = sent->GetViewAngles() + Vector( 0, amove[ YAW ], 0 );
 			sent->SetViewAngles( a );
-		}*/
+		}
 
 		// get the radius of the entity
 		if( check->size.x > check->size.z )
@@ -917,7 +918,7 @@ qboolean G_Push
 
 			end = check->origin + fwd * ( length + 64.0f );
 
-			if( check->IsSubclassOfPlayer() )
+			if( check->IsSubclassOfSentient() )
 			{
 				trace = G_Trace( check->origin, check->mins, check->maxs, end, check, check->edict->clipmask, true, "G_Push" );
 			}
@@ -928,7 +929,7 @@ qboolean G_Push
 
 			if( !trace.allsolid )
 			{
-				if( check->IsSubclassOfPlayer() )
+				if( check->IsSubclassOfSentient() )
 				{
 					trace = G_Trace( Vector( trace.endpos ), check->mins, check->maxs, neworg, check, check->edict->clipmask, true, "G_Push" );
 				}
@@ -948,6 +949,26 @@ qboolean G_Push
 		{
 			if( check->groundentity != pusher->edict )
 				check->groundentity = NULL;
+		}
+		else
+		{
+			move2 *= 1.f / level.frametime;
+
+			for (j = 0; j < 3; j++) {
+				if (!move2[j]) {
+					continue;
+				}
+
+				if (move2[j] < 0) {
+                    if (check->velocity[j] > move2[j]) {
+                        check->velocity[j] = move2[j];
+                    }
+				} else {
+					if (check->velocity[j] < move2[j]) {
+						check->velocity[j] = move2[j];
+					}
+				}
+			}
 		}
 
 		block = G_TestEntityPosition( check, check->origin );
