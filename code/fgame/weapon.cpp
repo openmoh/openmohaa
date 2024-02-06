@@ -1133,6 +1133,7 @@ Weapon::Weapon()
     INITIALIZE_WEAPONMODE_VAR(meansofdeath, MOD_NONE);
 
     // Set the stats
+    m_iNumShotsFired    = 0;
     m_iNumHits          = 0;
     m_iNumGroinShots    = 0;
     m_iNumHeadShots     = 0;
