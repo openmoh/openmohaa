@@ -428,6 +428,9 @@ typedef struct {
 	float			scale[2];			// s *= scale[0]
 	                                    // t *= scale[1]
 
+	// used for TMOD_PARALLAX
+	float			rate[2];
+
 	// used for TMOD_SCROLL
 	float			scroll[2];			// s' = s + scroll[0] * time
 										// t' = t + scroll[1] * time
