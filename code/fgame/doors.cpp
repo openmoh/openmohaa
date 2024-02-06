@@ -1311,8 +1311,6 @@ void RotatingDoor::DoOpen(Event *ev)
         } else {
             diropened = 0 - init_door_direction;
         }
-    } else {
-        diropened = -init_door_direction;
     }
 
     if (diropened < 0.0f) {
@@ -1321,7 +1319,16 @@ void RotatingDoor::DoOpen(Event *ev)
         ang = startangle - Vector(0.0f, angle, 0.0f);
     }
 
+    if (localangles.yaw() + 360 <= ang.yaw()) {
+        localangles.setYaw(localangles.yaw() + 360);
+    } else if (localangles.yaw() - 360 >= ang.yaw()) {
+        localangles.setYaw(localangles.yaw() - 360);
+    }
+
     MoveTo(origin, ang, fabs(speed * angle), EV_Door_OpenEnd);
+
+    setContents(CONTENTS_SOLID);
+    setSolidType(SOLID_BSP);
 }
 
 void RotatingDoor::DoClose(Event *ev)
