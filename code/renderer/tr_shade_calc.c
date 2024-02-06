@@ -155,7 +155,8 @@ void RB_CalcBulgeTexCoords(const waveForm_t* wf, float* st)
     now = backEnd.refdef.time / 1000.0 * wf->frequency + wf->phase;
 
 	for (i = 0; i < tess.numVertexes; i++, st += 2) {
-		offset = tr.sinTable[(int)((now + st[0] * width) * FUNCTABLE_SIZE) & FUNCTABLE_MASK] * amplitude;
+		off = (now + st[0] * width) * FUNCTABLE_SIZE;
+		offset = tr.sinTable[off & FUNCTABLE_MASK] * amplitude;
 	}
 }
 
@@ -936,16 +937,66 @@ void RB_CalcColorFromConstant(unsigned char* dstColors, unsigned char* constantC
 	}
 }
 
+/*
+** RB_CalcRGBFromDot
+*/
 void RB_CalcRGBFromDot(unsigned char* colors, float alphaMin, float alphaMax)
 {
-	// FIXME: unimplemented
+	int i;
+	vec3_t viewInModel;
+
+	for (i = 0; i < tess.numVertexes; i++, colors += 4) {
+		union {
+			float f;
+			int i;
+		} u;
+
+		VectorSubtract(backEnd.ori.viewOrigin, tess.xyz[i], viewInModel);
+		VectorNormalizeFast(viewInModel);
+
+        u.f = DotProduct(tess.normal[i], viewInModel);
+        u.f *= u.f;
+        u.f = ((alphaMax - alphaMin) * u.f + alphaMin) * 255.0;
+        u.f = u.f - (float)(~((int)(u.f - 255.0) >> 31) & (int)(u.f - 255.0));
+
+		u.i &= ~(u.i >> 31);
+		colors[0] = colors[1] = colors[2] = u.i;
+	}
 }
 
+/*
+** RB_CalcRGBFromOneMinusDot
+*/
 void RB_CalcRGBFromOneMinusDot(unsigned char* colors, float alphaMin, float alphaMax)
 {
-	// FIXME: unimplemented
+	int i;
+	vec3_t viewInModel;
+	float dot;
+
+	for (i = 0; i < tess.numVertexes; i++, colors += 4) {
+		union {
+			float f;
+			int i;
+		} u;
+
+		VectorSubtract(backEnd.ori.viewOrigin, tess.xyz[i], viewInModel);
+		VectorNormalizeFast(viewInModel);
+
+        dot = DotProduct(tess.normal[i], viewInModel);
+		dot *= dot;
+
+        u.f = 1.0 - dot;
+        u.f = ((alphaMax - alphaMin) * u.f + alphaMin) * 255.0;
+        u.f = u.f - (long double)(~((int)(u.f - 255.0) >> 31) & (int)(u.f - 255.0));
+
+		u.i &= ~(u.i >> 31);
+		colors[0] = colors[1] = colors[2] = u.i;
+	}
 }
 
+/*
+** RB_CalcAlphaFromConstant
+*/
 void RB_CalcAlphaFromConstant(unsigned char* dstColors, int constantAlpha)
 {
 	int i;
@@ -955,11 +1006,36 @@ void RB_CalcAlphaFromConstant(unsigned char* dstColors, int constantAlpha)
 	}
 }
 
+/*
+** RB_CalcAlphaFromDot
+*/
 void RB_CalcAlphaFromDot(unsigned char* colors, float alphaMin, float alphaMax)
 {
-	// FIXME: unimplemented
+	int i;
+	vec3_t viewInModel;
+
+	for (i = 0; i < tess.numVertexes; i++, colors += 4) {
+		union {
+			float f;
+			int i;
+		} u;
+
+		VectorSubtract(backEnd.ori.viewOrigin, tess.xyz[i], viewInModel);
+		VectorNormalizeFast(viewInModel);
+
+        u.f = DotProduct(tess.normal[i], viewInModel);
+        u.f *= u.f;
+        u.f = ((alphaMax - alphaMin) * u.f + alphaMin) * 255.0;
+        u.f = u.f - (float)(~((int)(u.f - 255.0) >> 31) & (int)(u.f - 255.0));
+
+		u.i &= ~(u.i >> 31);
+		colors[0] = colors[1] = colors[2] = u.i;
+	}
 }
 
+/*
+** RB_CalcAlphaFromHeightFade
+*/
 void RB_CalcAlphaFromHeightFade(unsigned char* colors, float alphaMin, float alphaMax)
 {
 	int i;
@@ -975,19 +1051,72 @@ void RB_CalcAlphaFromHeightFade(unsigned char* colors, float alphaMin, float alp
 	}
 }
 
+/*
+** RB_CalcAlphaFromOneMinusDot
+*/
 void RB_CalcAlphaFromOneMinusDot(unsigned char* colors, float alphaMin, float alphaMax)
 {
-	// FIXME: unimplemented
+	int i;
+	vec3_t viewInModel;
+	float dot;
+
+	for (i = 0; i < tess.numVertexes; i++, colors += 4) {
+		union {
+			float f;
+			int i;
+		} u;
+
+		VectorSubtract(backEnd.ori.viewOrigin, tess.xyz[i], viewInModel);
+		VectorNormalizeFast(viewInModel);
+
+        dot = DotProduct(tess.normal[i], viewInModel);
+		dot *= dot;
+
+        u.f = 1.0 - dot;
+        u.f = ((alphaMax - alphaMin) * u.f + alphaMin) * 255.0;
+        u.f = u.f - (float)(~((int)(u.f - 255.0) >> 31) & (int)(u.f - 255.0));
+
+		u.i &= ~(u.i >> 31);
+		colors[0] = colors[1] = colors[2] = u.i;
+	}
 }
 
+/*
+** RB_CalcAlphaFromTexCoords
+*/
 void RB_CalcAlphaFromTexCoords(unsigned char* colors, float alphaMin, float alphaMax, int alphaMinCap, int alphaCap, float sWeight, float tWeight, float* st)
 {
-	// FIXME: unimplemented
+	int i;
+
+	for (i = 0; i < tess.numVertexes; i++, colors += 4, st += 2) {
+		float f;
+
+        f = sWeight * tess.texCoords[i][0][0] + tWeight * tess.texCoords[i][0][1];
+        f = ((alphaMax - alphaMin) * f + alphaMin) * 255.0;
+        f = f - (float)(~((int)(f - (float)(byte)alphaCap) >> 31) & (int)(f - (float)(byte)alphaCap));
+        f = (float)((~((int)(f - (float)(byte)alphaMinCap) >> 31) & (int)(f - (float)(byte)alphaMinCap)) + (byte)alphaMinCap);
+	
+		colors[3] = f;
+	}
 }
 
+/*
+** RB_CalcRGBFromTexCoords
+*/
 void RB_CalcRGBFromTexCoords(unsigned char* colors, float alphaMin, float alphaMax, int alphaMinCap, int alphaCap, float sWeight, float tWeight, float* st)
 {
-	// FIXME: unimplemented
+	int i;
+
+	for (i = 0; i < tess.numVertexes; i++, colors += 4, st += 2) {
+		float f;
+
+        f = sWeight * tess.texCoords[i][0][0] + tWeight * tess.texCoords[i][0][1];
+        f = ((alphaMax - alphaMin) * f + alphaMin) * 255.0;
+        f = f - (float)(~((int)(f - (float)(byte)alphaCap) >> 31) & (int)(f - (float)(byte)alphaCap));
+        f = (float)((~((int)(f - (float)(byte)alphaMinCap) >> 31) & (int)(f - (float)(byte)alphaMinCap)) + (byte)alphaMinCap);
+
+		colors[0] = colors[1] = colors[2] = f;
+	}
 }
 
 /*
@@ -1190,7 +1319,7 @@ void RB_CalcSunReflectionTexCoords(float* st) {
     sunAxis[1][1] = -tr.sunDirection[0];
     sunAxis[1][2] = 0.0;
     VectorNormalizeFast(sunAxis[1]);
-    CrossProduct(sunAxis, sunAxis[1], sunAxis[2]);
+    CrossProduct(sunAxis[0], sunAxis[1], sunAxis[2]);
 
 	for (i = 0; i < tess.numVertexes; i++, v += 4, normal += 4, st += 2) {
 		VectorSubtract(v, backEnd.ori.viewOrigin, viewer);
@@ -1562,12 +1691,55 @@ void RB_CalcLightGridColor(unsigned char* colors)
 
 void RB_CalcAlphaFromDotView(unsigned char* colors, float alphaMin, float alphaMax)
 {
-	// FIXME/ unimplemented
+	int i;
+	vec3_t viewInModel;
+
+    for (i = 0; i < tess.numVertexes; i++, colors += 4) {
+        union {
+            float f;
+            int i;
+        } u;
+
+		VectorCopy(tr.refdef.viewaxis[0], viewInModel);
+		VectorNormalizeFast(viewInModel);
+
+        u.f = DotProduct(viewInModel, tess.normal[i]);
+        u.f = fabs(u.f);
+        Com_Printf("normal: %f %f %f  dot: %f  i %d\n", tess.normal[i][0], tess.normal[i][1], tess.normal[i][2], u.f, i);
+
+		u.f = ((alphaMax - alphaMin) * u.f + alphaMin) * 255.0;
+        u.f = u.f - (float)(~((int)(u.f - 255.0) >> 31) & (int)(u.f - 255.0));
+
+        u.i &= ~(u.i >> 31);
+		colors[3] = u.i;
+	}
 }
 
 void RB_CalcAlphaFromOneMinusDotView(unsigned char* colors, float alphaMin, float alphaMax)
 {
-	// FIXME/ unimplemented
+	int i;
+	vec3_t viewInModel;
+
+    for (i = 0; i < tess.numVertexes; i++, colors += 4) {
+        union {
+            float f;
+            int i;
+        } u;
+
+		VectorCopy(tr.refdef.viewaxis[0], viewInModel);
+		VectorNormalizeFast(viewInModel);
+
+        u.f = DotProduct(viewInModel, tess.normal[i]);
+        u.f = fabs(u.f);
+		u.f = 1.0 - u.f;
+        Com_Printf("normal: %f %f %f  dot: %f  i %d\n", tess.normal[i][0], tess.normal[i][1], tess.normal[i][2], u.f, i);
+        
+        u.f = ((alphaMax - alphaMin) * u.f + alphaMin) * 255.0;
+        u.f = u.f - (long double)(~((int)(u.f - 255.0) >> 31) & (int)(u.f - 255.0));
+
+        u.i &= ~(u.i >> 31);
+		colors[3] = u.i;
+	}
 }
 
 /*
