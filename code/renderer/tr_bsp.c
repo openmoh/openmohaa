@@ -763,8 +763,14 @@ static void ParseMesh ( dsurface_t *ds, drawVert_t *verts, msurface_t *surf ) {
 		R_ColorShiftLightingBytesAlpha( verts[i].color, points[i].color );
 	}
 
-	// pre-tesseleate
-	grid = R_SubdividePatchToGrid( width, height, points );
+    // pre-tesseleate
+	if (ds->subdivisions) {
+		grid = R_SubdividePatchToGrid(width, height, ds->subdivisions * (r_subdivisions->value / 10.0), points);
+    } else if (surf->shader->subdivisions) {
+        grid = R_SubdividePatchToGrid(width, height, surf->shader->subdivisions * (r_subdivisions->value / 10.0), points);
+    } else {
+        grid = R_SubdividePatchToGrid(width, height, r_subdivisions->value, points);
+    }
 	surf->data = (surfaceType_t *)grid;
 
 	if (tr.numLightmaps && lightmapNum != -1 && surf->shader->lightmapIndex >= 0)

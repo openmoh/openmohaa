@@ -357,7 +357,7 @@ void R_FreeSurfaceGridMesh( srfGridMesh_t *grid ) {
 R_SubdividePatchToGrid
 =================
 */
-srfGridMesh_t *R_SubdividePatchToGrid( int width, int height,
+srfGridMesh_t *R_SubdividePatchToGrid( int width, int height, float subdivide,
 								drawVert_t points[MAX_PATCH_SIZE*MAX_PATCH_SIZE] ) {
 	int			i, j, k, l;
 	drawVert_t	prev, next, mid;
@@ -431,7 +431,7 @@ srfGridMesh_t *R_SubdividePatchToGrid( int width, int height,
 				continue;	// can't subdivide any more
 			}
 
-			if ( maxLen <= r_subdivisions->value ) {
+			if ( maxLen <= subdivide ) {
 				errorTable[dir][j+1] = 1.0f/maxLen;
 				continue;	// didn't need subdivision
 			}
