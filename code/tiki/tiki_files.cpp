@@ -470,7 +470,7 @@ dtiki_t *TIKI_LoadTikiModel(dtikianim_t *tikianim, const char *name, con_map<str
 
             Q_strncpyz(tikiSurf->name, surf->name, sizeof(tikiSurf->name));
 
-            if (strlen(surf->name) != 9 || !Q_strncmp(surf->name, "material", 8)) {
+            if (strlen(surf->name) != 9 || Q_strncmp(surf->name, "material", 8)) {
                 Q_strncpyz(tikiSurf->shader[0], surf->name, sizeof(tikiSurf->shader[0]));
             }
 
