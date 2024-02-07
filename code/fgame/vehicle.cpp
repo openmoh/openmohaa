@@ -1213,7 +1213,7 @@ void Vehicle::ResetSlots(void)
     driver.ent                 = NULL;
     driver.boneindex           = -1;
     driver.enter_boneindex     = -1;
-    driver.flags               = SLOT_UNUSED;
+    driver.flags               = 0;
     lastdriver.ent             = NULL;
     lastdriver.boneindex       = -1;
     lastdriver.enter_boneindex = -1;
