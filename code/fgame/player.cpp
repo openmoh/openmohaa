@@ -7216,7 +7216,7 @@ void Player::UpdateStats(void)
     healthfrac = (health / max_health * 100.0f);
 
     if (m_pVehicle && !m_pTurret) {
-        if (m_pVehicle->isSubclassOf(FixedTurret)) {
+        if (!m_pVehicle->isSubclassOf(FixedTurret)) {
             healthfrac = (m_pVehicle->health / m_pVehicle->max_health * 100.f);
         }
     }
