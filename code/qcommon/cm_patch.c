@@ -1132,8 +1132,8 @@ static void CM_PatchCollideFromGrid( cGrid_t *grid, patchCollide_t *pf ) {
 	pf->numPlanes = numPlanes;
     pf->numFacets = numFacets;
 	if (numPlanes >= 1) {
-		pf->facets = Hunk_Alloc(numFacets * sizeof(*pf->facets), h_dontcare);
-		Com_Memcpy(pf->facets, facets, numFacets * sizeof(*pf->facets));
+		pf->planes = Hunk_Alloc(numPlanes * sizeof(*pf->planes), h_dontcare);
+		Com_Memcpy(pf->planes, planes, numPlanes * sizeof(*pf->planes));
 	} else {
         pf->numPlanes = 0;
         pf->planes = NULL;
@@ -1148,8 +1148,8 @@ static void CM_PatchCollideFromGrid( cGrid_t *grid, patchCollide_t *pf ) {
 	}
 
 	if (numFacets >= 1) {
-		pf->planes = Hunk_Alloc(numPlanes * sizeof(*pf->planes), h_dontcare);
-		Com_Memcpy(pf->planes, planes, numPlanes * sizeof(*pf->planes));
+		pf->facets = Hunk_Alloc(numFacets * sizeof(*pf->facets), h_dontcare);
+		Com_Memcpy(pf->facets, facets, numFacets * sizeof(*pf->facets));
 	} else {
         pf->numFacets = 0;
         pf->facets = NULL;
