@@ -1329,8 +1329,8 @@ void G_Physics_Toss
 
 		if (ent->movetype == MOVETYPE_BOUNCE) {
 			// Reduce the velocity when bouncing
-			ent->velocity[0] -= level.frametime * 1.75f;
-			ent->velocity[1] -= level.frametime * 1.75f;
+			ent->velocity[0] -= ent->velocity[0] * level.frametime * 1.75f;
+			ent->velocity[1] -= ent->velocity[1] * level.frametime * 1.75f;
 		}
 
 		// stop if on ground
