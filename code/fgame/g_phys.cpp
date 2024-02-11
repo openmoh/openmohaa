@@ -1311,11 +1311,11 @@ void G_Physics_Toss
 	{
 		if( ent->movetype == MOVETYPE_BOUNCE )
 		{
-			backoff = 1.4;
+			backoff = 1.4f;
 		}
 		else if ( ent->movetype == MOVETYPE_GIB )
 		{
-			backoff = 1.6;
+			backoff = 1.6f;
 		}
 		else
 		{
@@ -1335,20 +1335,22 @@ void G_Physics_Toss
 		// stop if on ground
 		if( trace.plane.normal[ 2 ] > 0.7 )
 		{
-			if( ( ent->velocity[ 2 ] < 60 || ( ent->movetype != MOVETYPE_BOUNCE && ent->movetype != MOVETYPE_GIB ) ) &&
+			ent->groundentity = trace.ent;
+			ent->groundplane = trace.plane;
+			ent->groundcontents = trace.contents;
+
+			if( ( ( ent->movetype == MOVETYPE_GIB && ent->velocity[ 2 ] < 60 ) || ( ent->movetype == MOVETYPE_BOUNCE && ent->velocity.length() < 40 ) ) &&
 				( ent->movetype != MOVETYPE_SLIDE ) )
 			{
-				ent->groundentity = trace.ent;
-				ent->groundplane = trace.plane;
-				ent->groundcontents = trace.contents;
 				ent->velocity = vec_zero;
 				ent->avelocity = vec_zero;
 				ent->ProcessEvent( EV_Stop );
 			}
-			else if( ent->movetype == MOVETYPE_GIB )
+			else if( ent->movetype == MOVETYPE_TOSS || ent->movetype == MOVETYPE_GIB )
 			{
 				// Stop spinning after we bounce on the ground
 				ent->avelocity = vec_zero;
+				ent->ProcessEvent( EV_Stop );
 			}
 		}
 	}
