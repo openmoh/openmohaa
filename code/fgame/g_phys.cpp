@@ -1309,9 +1309,13 @@ void G_Physics_Toss
 
 	if( trace.fraction < 1 )
 	{
-		if( ent->movetype == MOVETYPE_BOUNCE || ent->movetype == MOVETYPE_GIB )
+		if( ent->movetype == MOVETYPE_BOUNCE )
 		{
-			backoff = 1.5;
+			backoff = 1.4;
+		}
+		else if ( ent->movetype == MOVETYPE_GIB )
+		{
+			backoff = 1.6;
 		}
 		else
 		{
