@@ -28,6 +28,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "sentient.h"
 #include "actor.h"
 #include "player.h"
+#include "debuglines.h"
 
 /*
 
@@ -1398,6 +1399,10 @@ void G_Physics_Toss
 	if( ent->flags & FL_TOUCH_TRIGGERS )
 	{
 		G_TouchTriggers( ent );
+	}
+
+	if (ai_debug_grenades->integer && ent->movetype == MOVETYPE_BOUNCE) {
+		G_DebugLine(origin2, ent->origin, 1, 1, 0, 1);
 	}
 }
 
