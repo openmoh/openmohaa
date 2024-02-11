@@ -2272,7 +2272,7 @@ float BulletAttack(
                     if (ent->edict->solid == SOLID_BBOX && !(trace.contents & CONTENTS_CLAYPIDGEON)) {
                         if (trace.surfaceFlags & MASK_SURF_TYPE) {
                             gi.SetBroadcastVisible(vTmpEnd, NULL);
-                            gi.MSG_StartCGM(CGM_BULLET_6);
+                            gi.MSG_StartCGM(BG_MapCGMToProtocol(g_protocol, CGM_BULLET_6));
                             gi.MSG_WriteCoord(vTmpEnd[0]);
                             gi.MSG_WriteCoord(vTmpEnd[1]);
                             gi.MSG_WriteCoord(vTmpEnd[2]);
@@ -2281,7 +2281,7 @@ float BulletAttack(
                             gi.MSG_EndCGM();
                         } else if (trace.location >= 0 && ent->IsSubclassOfPlayer()) {
                             gi.SetBroadcastVisible(vTmpEnd, NULL);
-                            gi.MSG_StartCGM(CGM_BULLET_8);
+                            gi.MSG_StartCGM(BG_MapCGMToProtocol(g_protocol, CGM_BULLET_8));
                             gi.MSG_WriteCoord(vTmpEnd[0]);
                             gi.MSG_WriteCoord(vTmpEnd[1]);
                             gi.MSG_WriteCoord(vTmpEnd[2]);
@@ -2290,7 +2290,7 @@ float BulletAttack(
                             gi.MSG_EndCGM();
                         } else if (ent->edict->r.contents & CONTENTS_SOLID) {
                             gi.SetBroadcastVisible(vTmpEnd, NULL);
-                            gi.MSG_StartCGM(CGM_BULLET_7);
+                            gi.MSG_StartCGM(BG_MapCGMToProtocol(g_protocol, CGM_BULLET_7));
                             gi.MSG_WriteCoord(vTmpEnd[0]);
                             gi.MSG_WriteCoord(vTmpEnd[1]);
                             gi.MSG_WriteCoord(vTmpEnd[2]);
@@ -2300,7 +2300,7 @@ float BulletAttack(
                         }
                     } else if (ent->edict->solid == SOLID_BSP && !(trace.contents & CONTENTS_CLAYPIDGEON)) {
                         gi.SetBroadcastVisible(vTmpEnd, NULL);
-                        gi.MSG_StartCGM(CGM_BULLET_6);
+                        gi.MSG_StartCGM(BG_MapCGMToProtocol(g_protocol, CGM_BULLET_6));
                         gi.MSG_WriteCoord(vTmpEnd[0]);
                         gi.MSG_WriteCoord(vTmpEnd[1]);
                         gi.MSG_WriteCoord(vTmpEnd[2]);
@@ -2432,13 +2432,13 @@ float BulletAttack(
 
     if (count == 1) {
         if (iTracerCount) {
-            gi.MSG_StartCGM(CGM_BULLET_1);
+            gi.MSG_StartCGM(BG_MapCGMToProtocol(g_protocol, CGM_BULLET_1));
 
             gi.MSG_WriteCoord(vBarrel[0]);
             gi.MSG_WriteCoord(vBarrel[1]);
             gi.MSG_WriteCoord(vBarrel[2]);
         } else {
-            gi.MSG_StartCGM(CGM_BULLET_2);
+            gi.MSG_StartCGM(BG_MapCGMToProtocol(g_protocol, CGM_BULLET_2));
         }
 
         gi.MSG_WriteCoord(start[0]);
@@ -2463,7 +2463,7 @@ float BulletAttack(
         }
     } else {
         if (iTracerCount) {
-            gi.MSG_StartCGM(CGM_BULLET_3);
+            gi.MSG_StartCGM(BG_MapCGMToProtocol(g_protocol, CGM_BULLET_3));
 
             gi.MSG_WriteCoord(vBarrel[0]);
             gi.MSG_WriteCoord(vBarrel[1]);
@@ -2475,7 +2475,7 @@ float BulletAttack(
 
             gi.MSG_WriteBits(Q_min(iTracerCount, 63), 6);
         } else {
-            gi.MSG_StartCGM(CGM_BULLET_4);
+            gi.MSG_StartCGM(BG_MapCGMToProtocol(g_protocol, CGM_BULLET_4));
         }
 
         gi.MSG_WriteCoord(start[0]);
