@@ -1258,8 +1258,10 @@ void G_Physics_Toss
 		G_AddGravity( ent );
 	}
 
-	// move angles
-	ent->setAngles( ent->angles + ent->avelocity * level.frametime );
+	if (ent->avelocity.lengthSquared()) {
+		// move angles
+		ent->setAngles(ent->angles + ent->avelocity * level.frametime);
+	}
 
 	// move origin
 	move = ( ent->velocity + basevel ) * level.frametime;
