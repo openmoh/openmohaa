@@ -160,49 +160,49 @@ static void CG_MakeBulletHoleType(
         float fVolume;
 
         switch (iEffectNum) {
-        case 0:
+        case SFX_BHIT_PAPER_LITE:
             sBulletHole += "paper";
             break;
-        case 2:
+        case SFX_BHIT_WOOD_LITE:
             sBulletHole += "wood";
             break;
-        case 4:
+        case SFX_BHIT_METAL_LITE:
             sBulletHole += "metal";
             break;
-        case 6:
+        case SFX_BHIT_STONE_LITE:
             sBulletHole += "stone";
             break;
-        case 8:
+        case SFX_BHIT_DIRT_LITE:
             sBulletHole += "dirt";
             break;
-        case 10:
+        case SFX_BHIT_GRILL_LITE:
             sBulletHole += "grill";
             break;
-        case 12:
+        case SFX_BHIT_GRASS_LITE:
             sBulletHole += "grass";
             break;
-        case 14:
+        case SFX_BHIT_MUD_LITE:
             sBulletHole += "mud";
             break;
-        case 16:
+        case SFX_BHIT_PUDDLE_LITE:
             sBulletHole += "puddle";
             break;
-        case 18:
+        case SFX_BHIT_GLASS_LITE:
             sBulletHole += "glass";
             break;
-        case 20:
+        case SFX_BHIT_GRAVEL_LITE:
             sBulletHole += "gravel";
             break;
-        case 22:
+        case SFX_BHIT_SAND_LITE:
             sBulletHole += "sand";
             break;
-        case 24:
+        case SFX_BHIT_FOLIAGE_LITE:
             sBulletHole += "foliage";
             break;
-        case 26:
+        case SFX_BHIT_SNOW_LITE:
             sBulletHole += "snow";
             break;
-        case 28:
+        case SFX_BHIT_CARPET_LITE:
             sBulletHole += "carpet";
             break;
         default:
@@ -366,7 +366,7 @@ static void CG_MakeBubbleTrail(const vec3_t i_vStart, const vec3_t i_vEnd, int i
     fDist -= fMove;
     while (fDist > 0.f) {
         VectorMA(vPos, fMove, vDir, vPos);
-        sfxManager.MakeEffect_Angles(32, vPos, vec_zero);
+        sfxManager.MakeEffect_Angles(SFX_WATER_TRAIL_BUBBLE, vPos, vec_zero);
 
         fMove = 16.f + crandom() * 8.f * alpha;
         fDist -= fMove;
@@ -535,7 +535,7 @@ static void CG_MakeBulletTracerInternal(
 
                 while (trace.fraction < 1) {
                     if (bIgnoreEntities) {
-                        cgi.CM_BoxTrace(&trace, vTraceStart, vTraceEnd, vec_zero, vec_zero, 0, MASK_SHOT, qfalse);
+                        cgi.CM_BoxTrace(&trace, vTraceStart, vTraceEnd, vec_zero, vec_zero, 0, MASK_SHOT_FLUID, qfalse);
 
                         if (trace.fraction == 1.0f) {
                             trace.entityNum = ENTITYNUM_NONE;
@@ -564,11 +564,11 @@ static void CG_MakeBulletTracerInternal(
                     if (trace.contents & CONTENTS_FLUID) {
                         fDist = DotProduct(vDir, trace.plane.normal) * -2.0f;
                         VectorMA(vDir, fDist, trace.plane.normal, vTmp);
-                        VectorAdd(vTmp, vTmp, trace.plane.normal);
+                        VectorMA(trace.plane.normal, 2.0, vTmp, trace.plane.normal);
                         VectorNormalizeFast(trace.plane.normal);
                     }
 
-                    if (!bInWater && trace.fraction < 1.0f && iNumImpacts <= 127) {
+                    if (!bInWater && trace.fraction < 1.0f && iNumImpacts < ARRAY_LEN(tImpacts)) {
                         memcpy(&tImpacts[iNumImpacts], &trace, sizeof(trace_t));
                         iNumImpacts++;
                     }
