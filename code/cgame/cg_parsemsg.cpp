@@ -283,7 +283,7 @@ CG_MakeBulletHole(const vec3_t i_vPos, const vec3_t i_vNorm, int iLarge, trace_t
         break;
     case SURF_GLASS:
         sBulletHole += "glass";
-        iEffect = SFX_BHIT_GRASS_LITE;
+        iEffect = SFX_BHIT_GLASS_LITE;
         break;
     case SURF_GRAVEL:
         fRadius = 0.f;
@@ -554,7 +554,7 @@ static void CG_MakeBulletTracerInternal(
                             vec_zero,
                             vTraceStart,
                             ENTITYNUM_NONE,
-                            MASK_SHOT,
+                            MASK_SHOT_FLUID,
                             qfalse,
                             qfalse,
                             "CG_MakeBulletTracerInternal"
