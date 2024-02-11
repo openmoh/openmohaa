@@ -630,6 +630,9 @@ movement on the server game.
 #define MASK_SHOT_TRIG                                                                                               \
     (CONTENTS_SOLID | CONTENTS_CLAYPIDGEON | CONTENTS_WATER | CONTENTS_BBOX | CONTENTS_NOBOTCLIP | CONTENTS_UNKNOWN2 \
      | CONTENTS_FENCE | CONTENTS_WEAPONCLIP | CONTENTS_BODY | CONTENTS_TRIGGER)
+#define MASK_SHOT_FLUID                                                                                             \
+    (CONTENTS_SOLID | CONTENTS_WATER | CONTENTS_BBOX | CONTENTS_NOBOTCLIP | CONTENTS_UNKNOWN2 | CONTENTS_FENCE \
+     | CONTENTS_WEAPONCLIP | CONTENTS_SHOOTONLY | CONTENTS_BODY | CONTENTS_TRIGGER)
 #define MASK_PROJECTILE                                                                                           \
     (CONTENTS_SOLID | CONTENTS_BODY | CONTENTS_TRIGGER | CONTENTS_FENCE | CONTENTS_WEAPONCLIP | CONTENTS_UNKNOWN2 \
      | CONTENTS_NOBOTCLIP | CONTENTS_BBOX)
