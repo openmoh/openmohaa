@@ -1291,13 +1291,13 @@ void G_Physics_Toss
 		trace = G_PushEntity( ent, move );
 	}
 
-	if( ( trace.fraction == 0 ) && ( ent->movetype == MOVETYPE_SLIDE ) )
+	if( ( trace.fraction == 0 ) && ( ent->movetype == MOVETYPE_SLIDE || ent->movetype == MOVETYPE_BOUNCE ) )
 	{
 		// Check for slide by removing the downward velocity
 		Vector slide;
 
-		slide[ 0 ] = move[ 0 ] * 0.7f;
-		slide[ 1 ] = move[ 1 ] * 0.7f;
+		slide[ 0 ] = move[ 0 ] * level.frametime * 15;
+		slide[ 1 ] = move[ 1 ] * level.frametime * 15;
 		slide[ 2 ] = 0;
 		G_PushEntity( ent, slide );
 	}
