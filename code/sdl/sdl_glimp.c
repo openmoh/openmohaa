@@ -293,6 +293,9 @@ static qboolean GLimp_GetProcAddresses( qboolean fixedFunction ) {
 		} else {
 			Com_Error( ERR_FATAL, "Unsupported OpenGL Version (%s), OpenGL 1.1 is required", version );
 		}
+		if ( QGL_VERSION_ATLEAST( 1, 3 ) ) {
+			QGL_1_3_PROCS;
+		}
 	} else {
 		if ( QGL_VERSION_ATLEAST( 2, 0 ) ) {
 			QGL_1_1_PROCS;
