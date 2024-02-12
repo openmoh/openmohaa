@@ -468,11 +468,11 @@ qboolean CM_GenerateFenceMask( const char *szName, cfencemask_t **pMask )
 
 	for( i = 0; i < iImageSize; i++, pCurrImage += sizeof( unsigned int ) )
 	{
-		if( *pCurrImage >= 0 )
+		if( *pCurrImage & 0x80 )
 		{
-			bHasTrans = qtrue;
-		} else {
 			bHasOpaque = qtrue;
+		} else {
+			bHasTrans = qtrue;
 		}
 
 		if( bHasOpaque && bHasTrans ) {
