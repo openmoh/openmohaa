@@ -798,6 +798,7 @@ static qboolean ParseStage(shaderStage_t* stage, char** text)
 	int cntBundle = 0;
 	int depthTestBits = 0;
 	int fogBits = 0;
+	qboolean shouldProcess = qtrue;
 
 	stage->active = qtrue;
 	stage->noMipMaps = shader_noMipMaps;
@@ -815,6 +816,13 @@ static qboolean ParseStage(shaderStage_t* stage, char** text)
 
 		if (token[0] == '}')
 		{
+			// Added in 2.0
+			//  Ignore vars that didn't met with 'ifCvar' / 'ifCvarnot'
+			if (!shouldProcess) {
+				stage->active = qfalse;
+				stage->rgbGen = CGEN_BAD;
+				return qtrue;
+			}
 			break;
 		}
 		// no picmip adjustment
@@ -1628,6 +1636,43 @@ static qboolean ParseStage(shaderStage_t* stage, char** text)
 			}
             continue;
         }
+		//
+		// Added in 2.0
+		//
+		else if (!Q_stricmp(token, "ifCvar") || !Q_stricmp(token, "ifCvarnot"))
+		{
+			cvar_t* var;
+			qboolean isNot = token[6] != 0;
+			qboolean evaluatedValue;
+
+			token = COM_ParseExt(text, qfalse);
+			if (!token[0]) {
+				ri.Printf(PRINT_WARNING, "WARNING: missing cvar name in %s", isNot ? "ifCvarnot" : "ifCvar");
+				return qfalse;
+			}
+
+			var = ri.Cvar_Get(token, "0", 0);
+
+			token = COM_ParseExt(text, qfalse);
+			if (!token[0]) {
+				ri.Printf(PRINT_WARNING, "WARNING: missing cvar value in %s", isNot ? "ifCvarnot" : "ifCvar");
+				return qfalse;
+			}
+
+			if (atof(token) != var->value) {
+				evaluatedValue = qfalse;
+			} else if (var->value) {
+				evaluatedValue = qtrue;
+			} else if (token[0] == '0' || (token[0] == '.' && token[1] == '0')) {
+				evaluatedValue = qtrue;
+			} else if (!Q_stricmp(var->string, token)) {
+				evaluatedValue = qtrue;
+			} else {
+				return qfalse;
+			}
+
+			shouldProcess &= evaluatedValue ^ isNot;
+		}
 		else
 		{
 			ri.Printf( PRINT_WARNING, "WARNING: unknown parameter '%s' in shader '%s'\n", token, shader.name );
