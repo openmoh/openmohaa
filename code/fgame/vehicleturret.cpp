@@ -949,7 +949,7 @@ void VehicleTurretGun::UpdateOwner(Sentient *pOwner)
 
 void VehicleTurretGun::TurretHasBeenMounted()
 {
-    m_fLastFireTime = level.time + m_fWarmupDelay + fire_delay[FIRE_PRIMARY];
+    m_fLastFireTime = (level.time + m_fWarmupDelay) - fire_delay[FIRE_PRIMARY];
     if (m_fWarmupDelay > 0.25) {
         Sound(m_sSoundSet + "snd_warmup");
     }
