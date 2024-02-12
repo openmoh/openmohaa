@@ -448,19 +448,19 @@ void GL_State( unsigned long stateBits )
 		if (r_forceClampToEdge->value)
 		{
 			if (stateBits & GLS_CLAMP_EDGE) {
-				clampValue = 33071.0;
+				clampValue = GL_CLAMP_TO_EDGE;
 			}
 			else {
-				clampValue = 10497.0;
+				clampValue = GL_REPEAT;
 			}
 		}
 		else
 		{
 			if (stateBits & GLS_CLAMP_EDGE) {
-				clampValue = 10496.0;
+				clampValue = GL_CLAMP;
 			}
 			else {
-				clampValue = 10497.0;
+				clampValue = GL_REPEAT;
 			}
 		}
 
