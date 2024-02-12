@@ -677,6 +677,11 @@ void CM_TraceThroughBrush( traceWork_t *tw, cbrush_t *brush ) {
 		leaveFrac2 = 1.0;
 		clipplane2 = NULL;
 		leadside2 = NULL;
+
+		if (!(tw->contents & CONTENTS_FENCE)) {
+			return;
+		}
+
 		//
 		// compare the trace against all planes of the brush
 		// find the latest time the trace crosses a plane towards the interior
