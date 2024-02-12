@@ -236,6 +236,7 @@ typedef struct image_s {
     int			wrapClampModeX;
     int			wrapClampModeY;
 	int			r_sequence;
+	int			UseCount;
 
 	struct image_s*	next;
 } image_t;
