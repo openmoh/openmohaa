@@ -1504,6 +1504,14 @@ void ScriptSlave::FollowingPath(Event *ev)
         if (vWishAngles.length() > 0.0f) {
             VectorNormalize(vWishAngles);
             VectorToAngles(vWishAngles, vNextWishAngles);
+
+            //
+            // Added in 2.0
+            //  Relative yaw
+            vNextWishAngles[1] += m_fFollowRelativeYaw;
+            if (m_fFollowRelativeYaw == 180) {
+                vNextWishAngles[0] *= -1;
+            }
         } else {
             AngleVectorsLeft(angles, vWishAngles, NULL, NULL);
             vNextWishAngles = angles;
