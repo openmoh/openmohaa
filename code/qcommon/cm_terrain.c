@@ -595,22 +595,10 @@ float CM_CheckTerrainTriSphere(float x0, float y0, int iPlane)
 
     switch (eMode) {
     case 3:
-        if (d1 > 64) {
-            bFitsX = qfalse;
-        } else {
-            bFitsX = qtrue;
-        }
-        if (d2 > 64) {
-            bFitsY = qfalse;
-        } else {
-            bFitsY = qtrue;
-        }
+        bFitsX = d1 <= 64;
+        bFitsY = d2 <= 64;
+        bFitsDiag = d1 >= 64 - d2;
 
-        if (d1 < 64 - d2) {
-            bFitsDiag = qfalse;
-        } else {
-            bFitsDiag = qtrue;
-        }
         iX[0] = 1;
         iX[1] = 0;
         iX[2] = 1;
@@ -619,22 +607,10 @@ float CM_CheckTerrainTriSphere(float x0, float y0, int iPlane)
         iY[2] = 0;
         break;
     case 4:
-        if (d1 < 0) {
-            bFitsX = qfalse;
-        } else {
-            bFitsX = qtrue;
-        }
-        if (d2 > 64) {
-            bFitsY = qfalse;
-        } else {
-            bFitsY = qtrue;
-        }
+        bFitsX = d1 >= 0;
+        bFitsY = d2 <= 64;
+        bFitsDiag = d1 <= d2;
 
-        if (d1 > d2) {
-            bFitsDiag = qfalse;
-        } else {
-            bFitsDiag = qtrue;
-        }
         iX[0] = 0;
         iX[1] = 1;
         iX[2] = 0;
@@ -643,22 +619,10 @@ float CM_CheckTerrainTriSphere(float x0, float y0, int iPlane)
         iY[2] = 0;
         break;
     case 5:
-        if (d1 > 64) {
-            bFitsX = qfalse;
-        } else {
-            bFitsX = qtrue;
-        }
-        if (d2 < 0) {
-            bFitsY = qfalse;
-        } else {
-            bFitsY = qtrue;
-        }
+        bFitsX = d1 <= 64;
+        bFitsY = d2 >= 0;
+        bFitsDiag = d1 >= d2;
 
-        if (d1 < d2) {
-            bFitsDiag = qfalse;
-        } else {
-            bFitsDiag = qtrue;
-        }
         iX[0] = 1;
         iX[1] = 0;
         iX[2] = 1;
@@ -667,22 +631,10 @@ float CM_CheckTerrainTriSphere(float x0, float y0, int iPlane)
         iY[2] = 1;
         break;
     case 6:
-        if (d1 < 0) {
-            bFitsX = qfalse;
-        } else {
-            bFitsX = qtrue;
-        }
-        if (d2 < 0) {
-            bFitsY = qfalse;
-        } else {
-            bFitsY = qtrue;
-        }
+        bFitsX = d1 >= 0;
+        bFitsY = d2 >= 0;
+        bFitsDiag = d1 <= 64 - d2;
 
-        if (d1 > 64 - d2) {
-            bFitsDiag = qfalse;
-        } else {
-            bFitsDiag = qtrue;
-        }
         iX[0] = 0;
         iX[1] = 1;
         iX[2] = 0;
@@ -694,31 +646,37 @@ float CM_CheckTerrainTriSphere(float x0, float y0, int iPlane)
         return 0;
     }
 
-    if (bFitsX) {
-        if (bFitsY) {
-            if (bFitsDiag) {
-                return fSpherePlane;
-            } else {
-                return CM_CheckTerrainTriSphereEdge(plane, x0, y0, iX[1], iY[1], iX[2], iY[2]);
-            }
-        } else if (bFitsDiag) {
-            return CM_CheckTerrainTriSphereEdge(plane, x0, y0, iX[0], iY[0], iX[1], iY[1]);
-        } else {
-            return CM_CheckTerrainTriSphereCorner(plane, x0, y0, iX[1], iY[1]);
+    if (bFitsX && bFitsY) {
+        if (bFitsDiag) {
+            return fSpherePlane;
         }
-    } else if (bFitsY) {
+
+        return CM_CheckTerrainTriSphereEdge(plane, x0, y0, iX[1], iY[1], iX[2], iY[2]);
+    }
+    
+    if (bFitsX && !bFitsY) {
+        if (bFitsDiag) {
+            return CM_CheckTerrainTriSphereEdge(plane, x0, y0, iX[0], iY[0], iX[1], iY[1]);
+        }
+
+        return CM_CheckTerrainTriSphereCorner(plane, x0, y0, iX[1], iY[1]);
+    }
+
+    if (!bFitsX && bFitsY) {
         if (bFitsDiag) {
             return CM_CheckTerrainTriSphereEdge(plane, x0, y0, iX[0], iY[0], iX[2], iY[2]);
-        } else {
-            return CM_CheckTerrainTriSphereCorner(plane, x0, y0, iX[2], iY[2]);
         }
-    } else {
+
+        return CM_CheckTerrainTriSphereCorner(plane, x0, y0, iX[2], iY[2]);
+    }
+
+    if (!bFitsX && !bFitsY) {
         if (bFitsDiag) {
             return CM_CheckTerrainTriSphereCorner(plane, x0, y0, iX[0], iY[0]);
-        } else {
-            return g_trace.tw->trace.fraction;
         }
     }
+
+    return g_trace.tw->trace.fraction;
 }
 
 /*
