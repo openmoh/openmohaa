@@ -519,7 +519,8 @@ static void Upload32(
 		scaled_height >>= 1;
 	}
 
-	scaledBuffer = ri.Hunk_AllocateTempMemory( sizeof( unsigned ) * scaled_width * scaled_height );
+	//scaledBuffer = ri.Hunk_AllocateTempMemory( 4 * scaled_width * scaled_height );
+	scaledBuffer = data;
 
 	//
 	// scan the texture for each channel's max values
@@ -622,10 +623,11 @@ static void Upload32(
 			*pUploadWidth = scaled_width;
 			*pUploadHeight = scaled_height;
 			*format = internalFormat;
+			*bytesUsed = samples * scaled_width * scaled_height;
 
 			goto done;
 		}
-		Com_Memcpy (scaledBuffer, data, width*height*4);
+		//Com_Memcpy (scaledBuffer, data, width*height*4);
 	}
 	else
 	{
@@ -641,7 +643,7 @@ static void Upload32(
 				height = 1;
 			}
 		}
-		Com_Memcpy( scaledBuffer, data, width * height * 4 );
+		//Com_Memcpy( scaledBuffer, data, width * height * 4 );
 	}
 
 	R_LightScaleTexture (scaledBuffer, scaled_width, scaled_height, !numMipmaps);
@@ -651,6 +653,8 @@ static void Upload32(
 	*format = internalFormat;
 
 	qglTexImage2D (GL_TEXTURE_2D, 0, internalFormat, scaled_width, scaled_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, scaledBuffer );
+
+	*bytesUsed = samples * scaled_width * scaled_height;
 
 	if (numMipmaps)
 	{
@@ -697,13 +701,12 @@ done:
 
 	GL_CheckErrors();
 
-	if ( scaledBuffer != 0 )
-		ri.Hunk_FreeTempMemory( scaledBuffer );
+	//if ( scaledBuffer != 0 )
+	//	ri.Hunk_FreeTempMemory( scaledBuffer );
 	if ( resampledBuffer != 0 )
 		ri.Hunk_FreeTempMemory( resampledBuffer );
 }
 
-/*
 static void UploadCompressed(
 	byte* data,
 	int width,
@@ -813,7 +816,7 @@ static void UploadCompressed(
 			size = blockSize * w * h;
 			if (w > 1 && h > 1) *pBytesUsed += size;
 			
-			qglCompressedTexImage2DARB(3553, i - iStartImage, glCompressMode, scaled_width, scaled_height, 0, size, data);
+			qglCompressedTexImage2D(GL_TEXTURE_2D, i - iStartImage, glCompressMode, scaled_width, scaled_height, 0, size, data);
 			GL_CheckErrors();
 
 			if (i < iMipmapsAvailable)
@@ -858,7 +861,6 @@ static void UploadCompressed(
 
 	GL_CheckErrors();
 }
-*/
 
 /*
 ================
@@ -943,21 +945,38 @@ image_t* R_CreateImage(
 
 	GL_Bind(image);
 
-    Upload32(
-        (unsigned*)pic,
-        image->width,
-        image->height,
-        image->numMipmaps,
-        allowPicmip,
-        image->dynamicallyUpdated,
-        force32bit,
-        hasAlpha,
-        &image->internalFormat,
-        &image->uploadWidth,
-        &image->uploadHeight,
-        &image->bytesUsed,
-        isLightmap
-    );
+	if (glCompressMode) {
+		UploadCompressed(
+			(unsigned*)pic,
+			image->width,
+			image->height,
+			image->numMipmaps,
+			iMipmapsAvailable,
+			allowPicmip,
+			glCompressMode,
+			&image->internalFormat,
+			&image->uploadWidth,
+			&image->uploadHeight,
+			&image->bytesUsed
+		);
+	}
+	else {
+		Upload32(
+			(unsigned*)pic,
+			image->width,
+			image->height,
+			image->numMipmaps,
+			allowPicmip,
+			image->dynamicallyUpdated,
+			force32bit,
+			hasAlpha,
+			&image->internalFormat,
+			&image->uploadWidth,
+			&image->uploadHeight,
+			&image->bytesUsed,
+			isLightmap
+		);
+	}
 
 	qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, glWrapClampModeX );
 	qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, glWrapClampModeY );
@@ -1488,16 +1507,19 @@ typedef enum DXGI_FORMAT {
 
 
 static void LoadDDS(const char* name, byte** pic, int* width, int* height, qboolean* hasAlpha, int* glCompressMode, int* numMipmaps, int* piMipmapsAvailable) {
-	union {
-		byte* b;
-		void* v;
-	} buffer;
 	int len;
-	ddsHeader_t* ddsHeader = NULL;
+	unsigned int signature;
+	ddsHeader_t ddsHeader;
 	ddsHeaderDxt10_t* ddsHeaderDxt10 = NULL;
+	fileHandle_t handle;
 	byte* data;
+	int w, h;
+	int minWidth, minHeight;
+	int numMips = 0;
+	int size;
+	int intSize;
 
-	*pic = 0;
+	*pic = NULL;
 	*piMipmapsAvailable = 0;
 
 	if (width)
@@ -1505,126 +1527,113 @@ static void LoadDDS(const char* name, byte** pic, int* width, int* height, qbool
 	if (height)
 		*height = 0;
 
-	*pic = NULL;
-
 	//
 	// load the file
 	//
-	len = ri.FS_ReadFile((char*)name, &buffer.v);
-	if (!buffer.b || len < 0) {
+	len = ri.FS_OpenFile((char*)name, &handle, qtrue, qtrue);
+	if (len < 0) {
 		return;
 	}
 
 	//
 	// reject files that are too small to hold even a header
 	//
-	if (len < 4 + sizeof(*ddsHeader))
+	if (len < 4 + sizeof(ddsHeader))
 	{
 		ri.Printf(PRINT_ALL, "File %s is too small to be a DDS file.\n", name);
-		ri.FS_FreeFile(buffer.v);
+		ri.FS_CloseFile(handle);
 		return;
 	}
 
 	//
 	// reject files that don't start with "DDS "
 	//
-	if (*((ui32_t*)(buffer.b)) != EncodeFourCC("DDS "))
+	ri.FS_Read(&signature, sizeof(signature), handle);
+	if (signature != EncodeFourCC("DDS "))
 	{
 		ri.Printf(PRINT_ALL, "File %s is not a DDS file.\n", name);
-		ri.FS_FreeFile(buffer.v);
+		ri.FS_CloseFile(handle);
 		return;
 	}
 
-	//
-	// parse header and dx10 header if available
-	//
-	ddsHeader = (ddsHeader_t*)(buffer.b + 4);
-	if ((ddsHeader->pixelFormatFlags & DDSPF_FOURCC) && ddsHeader->fourCC == EncodeFourCC("DX10"))
-	{
-		if (len < 4 + sizeof(*ddsHeader) + sizeof(*ddsHeaderDxt10))
-		{
-			ri.Printf(PRINT_ALL, "File %s indicates a DX10 header it is too small to contain.\n", name);
-			ri.FS_FreeFile(buffer.v);
-			return;
-		}
-
-		ddsHeaderDxt10 = (ddsHeaderDxt10_t*)(buffer.b + 4 + sizeof(ddsHeader_t));
-		data = buffer.b + 4 + sizeof(*ddsHeader) + sizeof(*ddsHeaderDxt10);
-		len -= 4 + sizeof(*ddsHeader) + sizeof(*ddsHeaderDxt10);
-	}
-	else
-	{
-		data = buffer.b + 4 + sizeof(*ddsHeader);
-		len -= 4 + sizeof(*ddsHeader);
-	}
-
-	if (width)
-		*width = ddsHeader->width;
-	if (height)
-		*height = ddsHeader->height;
-
-	if (piMipmapsAvailable)
-	{
-		if (ddsHeader->flags & _DDSFLAGS_MIPMAPCOUNT)
-			*piMipmapsAvailable = ddsHeader->numMips;
-		else
-			*piMipmapsAvailable = 1;
-	}
-
-	// FIXME: handle cube map
-	//if ((ddsHeader->caps2 & DDSCAPS2_CUBEMAP) == DDSCAPS2_CUBEMAP)
+	ri.FS_Read(&ddsHeader, sizeof(ddsHeader), handle);
 
 	//
 	// Convert DXGI format/FourCC into OpenGL format
 	//
-	if (ddsHeaderDxt10)
-	{
-		ri.Printf(PRINT_ALL, "DDS File %s has unsupported DXGI format %d.", name, ddsHeaderDxt10->dxgiFormat);
-		ri.FS_FreeFile(buffer.v);
+	if (ddsHeader.fourCC == EncodeFourCC("DXT1")) {
+		intSize = 2;
+		*glCompressMode = GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
+	} else if (ddsHeader.fourCC == EncodeFourCC("DXT2")) {
+		intSize = 4;
+		*glCompressMode = GL_COMPRESSED_RGBA_S3TC_DXT3_EXT;
+	} else if (ddsHeader.fourCC == EncodeFourCC("DXT3")) {
+		intSize = 4;
+		*glCompressMode = GL_COMPRESSED_RGBA_S3TC_DXT3_EXT;
+	} else if (ddsHeader.fourCC == EncodeFourCC("DXT4")) {
+		intSize = 4;
+		*glCompressMode = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
+	} else if (ddsHeader.fourCC == EncodeFourCC("DXT5")) {
+		intSize = 4;
+		*glCompressMode = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
+	} else {
+		ri.FS_CloseFile(handle);
 		return;
 	}
-	else
-	{
-		if (ddsHeader->pixelFormatFlags & DDSPF_FOURCC)
-		{
-			if (ddsHeader->fourCC == EncodeFourCC("DXT1"))
-				*glCompressMode = GL_COMPRESSED_RGB_S3TC_DXT1_EXT;
-			else if (ddsHeader->fourCC == EncodeFourCC("DXT2"))
-				*glCompressMode = GL_COMPRESSED_RGBA_S3TC_DXT3_EXT;
-			else if (ddsHeader->fourCC == EncodeFourCC("DXT3"))
-				*glCompressMode = GL_COMPRESSED_RGBA_S3TC_DXT3_EXT;
-			else if (ddsHeader->fourCC == EncodeFourCC("DXT4"))
-				*glCompressMode = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
-			else if (ddsHeader->fourCC == EncodeFourCC("DXT5"))
-				*glCompressMode = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
-			else
-			{
-				ri.Printf(PRINT_ALL, "DDS File %s has unsupported FourCC.", name);
-				ri.FS_FreeFile(buffer.v);
-				return;
-			}
+
+	minWidth = ddsHeader.width;
+	for (w = 1; w < ddsHeader.width; w *= 2) {}
+
+	minHeight = ddsHeader.height;
+	for (h = 1; h < ddsHeader.height; h *= 2) {}
+
+	if (w != ddsHeader.width || h != ddsHeader.height) {
+		ri.FS_CloseFile(handle);
+		if (w == ddsHeader.width) {
+			ri.Printf(PRINT_DEVELOPER, "LoadDDS: Image %s - height not a power of 2\n", name);
+		} else if (h == ddsHeader.height) {
+			ri.Printf(PRINT_DEVELOPER, "LoadDDS: Image %s - width not a power of 2\n", name);
+		} else {
+			ri.Printf(PRINT_DEVELOPER, "LoadDDS: Image %s - width and height not a powers of 2\n", name);
 		}
-		else if (ddsHeader->pixelFormatFlags == (DDSPF_RGB | DDSPF_ALPHAPIXELS)
-			&& ddsHeader->rgbBitCount == 32
-			&& ddsHeader->rBitMask == 0x000000ff
-			&& ddsHeader->gBitMask == 0x0000ff00
-			&& ddsHeader->bBitMask == 0x00ff0000
-			&& ddsHeader->aBitMask == 0xff000000)
-		{
-			*glCompressMode = GL_RGBA8;
-		}
-		else
-		{
-			ri.Printf(PRINT_ALL, "DDS File %s has unsupported RGBA format.", name);
-			ri.FS_FreeFile(buffer.v);
-			return;
-		}
+
+		return;
 	}
 
-	*pic = ri.Malloc(len);
-	Com_Memcpy(*pic, data, len);
+	//
+	// Parse width and height
+	//
+	if (!minWidth) {
+		minWidth = 1;
+	}
+	*width = minWidth;
 
-	ri.FS_FreeFile(buffer.v);
+	if (!minHeight) {
+		minHeight = 1;
+	}
+	*height = minHeight;
+
+	*hasAlpha = ddsHeader.fourCC != EncodeFourCC("DXT1");
+
+	numMips = ddsHeader.numMips;
+	if (!numMips) {
+		numMips = 1;
+	}
+
+	*piMipmapsAvailable = numMips;
+	if (*numMipmaps) {
+		*numMipmaps = numMips;
+	}
+
+	size = ddsHeader.pitchOrFirstMipSize;
+	if (*piMipmapsAvailable > 1) {
+		size = intSize * ddsHeader.pitchOrFirstMipSize;
+	}
+
+	*pic = ri.Malloc(size);
+	ri.FS_Read(*pic, size, handle);
+
+	ri.FS_CloseFile(handle);
 }
 
 /*
@@ -2430,7 +2439,7 @@ static void R_LoadImage(const char* name, byte** pic, int* width, int* height, q
 
 	strcpy(altname, name);
 	len = strlen(altname);
-	if (glConfig.textureCompression == 1)
+	if (glConfig.textureCompression == TC_S3TC || glConfig.textureCompression == TC_S3TC_ARB)
 	{
 		len = strlen(altname);
 		altname[len - 3] = 'd';
