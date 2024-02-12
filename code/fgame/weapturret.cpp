@@ -573,7 +573,12 @@ void TurretGun::ThinkIdle(void)
 
     m_fIdlePitchSpeed -= level.frametime * 300.0f;
 
-    vNewAngles = Vector(angles[0] + level.frametime * m_fIdlePitchSpeed, angles[1], angles[2]);
+    vNewAngles = Vector(
+        Q_max(angles[0] + level.frametime * m_fIdlePitchSpeed, m_fMaxIdlePitch),
+        angles[1],
+        angles[2]
+    );
+
     vNewAngles.AngleVectorsLeft(&vDir);
     vEnd = origin + vDir * m_vIdleCheckOffset[0];
 
