@@ -612,9 +612,9 @@ float CM_CheckTerrainTriSphere(float x0, float y0, int iPlane)
             bFitsDiag = qtrue;
         }
         iX[0] = 1;
-        iX[1] = 1;
+        iX[1] = 0;
         iX[2] = 1;
-        iY[0] = 0;
+        iY[0] = 1;
         iY[1] = 1;
         iY[2] = 0;
         break;
@@ -637,9 +637,9 @@ float CM_CheckTerrainTriSphere(float x0, float y0, int iPlane)
         }
         iX[0] = 0;
         iX[1] = 1;
-        iX[2] = 1;
+        iX[2] = 0;
         iY[0] = 1;
-        iY[1] = 0;
+        iY[1] = 1;
         iY[2] = 0;
         break;
     case 5:
@@ -661,9 +661,9 @@ float CM_CheckTerrainTriSphere(float x0, float y0, int iPlane)
         }
         iX[0] = 1;
         iX[1] = 0;
-        iX[2] = 0;
+        iX[2] = 1;
         iY[0] = 0;
-        iY[1] = 1;
+        iY[1] = 0;
         iY[2] = 1;
         break;
     case 6:
@@ -684,9 +684,9 @@ float CM_CheckTerrainTriSphere(float x0, float y0, int iPlane)
             bFitsDiag = qtrue;
         }
         iX[0] = 0;
-        iX[1] = 0;
+        iX[1] = 1;
         iX[2] = 0;
-        iY[0] = 1;
+        iY[0] = 0;
         iY[1] = 0;
         iY[2] = 1;
         break;
@@ -699,22 +699,22 @@ float CM_CheckTerrainTriSphere(float x0, float y0, int iPlane)
             if (bFitsDiag) {
                 return fSpherePlane;
             } else {
-                return CM_CheckTerrainTriSphereEdge(plane, x0, y0, iY[0], iX[1], iY[1], iY[2]);
+                return CM_CheckTerrainTriSphereEdge(plane, x0, y0, iX[1], iY[1], iX[2], iY[2]);
             }
         } else if (bFitsDiag) {
-            return CM_CheckTerrainTriSphereEdge(plane, x0, y0, iX[0], iX[2], iY[0], iX[1]);
+            return CM_CheckTerrainTriSphereEdge(plane, x0, y0, iX[0], iY[0], iX[1], iY[1]);
         } else {
-            return CM_CheckTerrainTriSphereCorner(plane, x0, y0, iY[0], iX[1]);
+            return CM_CheckTerrainTriSphereCorner(plane, x0, y0, iX[1], iY[1]);
         }
     } else if (bFitsY) {
         if (bFitsDiag) {
-            return CM_CheckTerrainTriSphereEdge(plane, x0, y0, iX[0], iX[2], iY[1], iY[2]);
+            return CM_CheckTerrainTriSphereEdge(plane, x0, y0, iX[0], iY[0], iX[2], iY[2]);
         } else {
-            return CM_CheckTerrainTriSphereCorner(plane, x0, y0, iY[1], iY[2]);
+            return CM_CheckTerrainTriSphereCorner(plane, x0, y0, iX[2], iY[2]);
         }
     } else {
         if (bFitsDiag) {
-            return CM_CheckTerrainTriSphereCorner(plane, x0, y0, iX[0], iX[2]);
+            return CM_CheckTerrainTriSphereCorner(plane, x0, y0, iX[0], iY[0]);
         } else {
             return g_trace.tw->trace.fraction;
         }
