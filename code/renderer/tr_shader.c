@@ -2175,7 +2175,17 @@ static qboolean ParseShader( char **text )
 			{
 				return qfalse;
 			}
-			unfoggedStages[s].active = qtrue;
+			if (unfoggedStages[s].rgbGen != CGEN_BAD) {
+				unfoggedStages[s].active = qtrue;
+				if (s > 0) {
+					if (!(unfoggedStages[s].stateBits & (GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS))) {
+						ri.Printf(PRINT_WARNING, "WARNING: shader '%s' has opaque maps defined after stage 0!!!\n", shader.name);
+					}
+					if (unfoggedStages[s].stateBits & GLS_DEPTHMASK_TRUE) {
+						ri.Printf(PRINT_WARNING, "WARNING: shader '%s' has depthmask enabled after stage 0!!!\n", shader.name);
+					}
+				}
+			}
 			s++;
 			continue;
 		}
