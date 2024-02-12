@@ -1502,7 +1502,7 @@ void VehicleTurretGun::UpdateCollisionEntity()
         vec3_t axis[3];
         vec3_t mat[3];
 
-        AnglesToAxis(m_vLocalAngles, mat);
+        AnglesToAxis(m_vLocalAngles, axis);
         MatrixMultiply(axis, m_mBaseOrientation, mat);
         MatrixToEulerAngles(mat, newAngles);
     } else {
