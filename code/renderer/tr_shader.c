@@ -1684,10 +1684,11 @@ static qboolean ParseStage(shaderStage_t* stage, char** text)
 	// if cgen isn't explicitly specified, use either identity or identitylighting
 	//
 	if ( stage->rgbGen == CGEN_BAD ) {
-		if ( (!cntBundle && !stage->bundle[0].isLightmap) ||
-			blendSrcBits == 0 ||
-			blendSrcBits == GLS_SRCBLEND_ONE || 
-			blendSrcBits == GLS_SRCBLEND_SRC_ALPHA ) {
+		if (cntBundle || stage->bundle[0].isLightmap) {
+			stage->rgbGen = CGEN_IDENTITY;
+		} else if (blendSrcBits == 0 ||
+			blendSrcBits == GLS_SRCBLEND_ONE ||
+			blendSrcBits == GLS_SRCBLEND_SRC_ALPHA) {
 			stage->rgbGen = CGEN_IDENTITY_LIGHTING;
 		} else {
 			stage->rgbGen = CGEN_IDENTITY;
@@ -1709,7 +1710,7 @@ static qboolean ParseStage(shaderStage_t* stage, char** text)
 	}
 
 	// decide which agens we can skip
-	if ( stage->alphaGen == CGEN_IDENTITY ) {
+	if ( stage->alphaGen == AGEN_IDENTITY ) {
 		if ( stage->rgbGen == CGEN_IDENTITY
 			|| stage->rgbGen == CGEN_LIGHTING_GRID
 			|| stage->rgbGen == CGEN_LIGHTING_SPHERICAL ) {
