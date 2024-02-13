@@ -31,7 +31,7 @@ void Actor::InitCurious(GlobalFuncs_t *func)
     func->EndState                   = &Actor::End_Curious;
     func->ResumeState                = &Actor::Resume_Curious;
     func->SuspendState               = &Actor::Suspend_Curious;
-    func->FinishedAnimation          = &Actor::FinishedAnimation_Cover;
+    func->FinishedAnimation          = &Actor::FinishedAnimation_Curious;
     func->PassesTransitionConditions = &Actor::PassesTransitionConditions_Curious;
     func->IsState                    = &Actor::IsCuriousState;
 }
