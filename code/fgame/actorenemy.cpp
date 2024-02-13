@@ -389,7 +389,7 @@ void ActorEnemySet::CheckEnemies(Actor *pSelf)
                     "ent #%3i: enemy #%i: awareness = %5.1f%%, threat = %i\n",
                     pSelf->entnum,
                     pActorEnemy->GetEnemy()->entnum,
-                    (fVisibility * 100.0),
+                    (int)(fVisibility * 100.0),
                     0
                 );
             }
