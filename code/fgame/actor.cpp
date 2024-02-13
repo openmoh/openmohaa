@@ -5400,8 +5400,6 @@ void Actor::MovePath(float fMoveSpeed)
             } else {
                 m_iWallDodgeTimeout = level.inttime + 1000;
             }
-
-            GetMoveInfo(&mm);
         } else {
             if (m_WallDir >= 0) {
                 mm.desired_dir[0] = mm.obstacle_normal[1];
@@ -5418,6 +5416,8 @@ void Actor::MovePath(float fMoveSpeed)
                 m_iWallDodgeTimeout = 0;
             }
         }
+
+        GetMoveInfo(&mm);
     }
 }
 
