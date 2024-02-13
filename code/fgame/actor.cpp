@@ -2792,7 +2792,7 @@ Actor::Actor()
     m_fMaxDistance        = 1024;
     m_fMaxDistanceSquared = Square(m_fMaxDistanceSquared);
     m_fLeash              = 512;
-    m_fLeashSquared       = Square(m_fLeashSquared);
+    m_fLeashSquared       = Square(m_fLeash);
 
     m_iEyeUpdateTime = level.inttime;
     if (m_iEyeUpdateTime < 1000) {
