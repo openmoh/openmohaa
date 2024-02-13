@@ -105,6 +105,7 @@ SkelVec3 skelAnimDataGameHeader_s::GetDeltaOverTime(float time1, float time2)
 
     if (frameNum1 < frameNum2) {
         delta = m_frame[frameNum1 % numFrames].delta;
+        VectorScale(delta, d, delta);
 
         for (currFrame = frameNum1 + 1; currFrame < frameNum2; currFrame++) {
             delta += m_frame[currFrame % numFrames].delta;
