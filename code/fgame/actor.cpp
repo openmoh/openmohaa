@@ -9823,7 +9823,7 @@ void Actor::GenericGrenadeTossThink(void)
     eGrenadeTossMode eGrenadeMode;
 
     if (m_Enemy && level.inttime >= m_iStateTime + 200) {
-        if (CanGetGrenadeFromAToB(origin, m_Enemy->velocity - m_Enemy->origin, false, &vGrenadeVel, &eGrenadeMode)) {
+        if (CanGetGrenadeFromAToB(origin, m_Enemy->origin + m_Enemy->velocity, false, &vGrenadeVel, &eGrenadeMode)) {
             m_vGrenadeVel  = vGrenadeVel;
             m_eGrenadeMode = eGrenadeMode;
         }
@@ -10924,15 +10924,9 @@ void Actor::DontFaceWall(void)
 
     VectorSub2D(m_vDfwPos, origin, vDelta);
 
-    if (Square(fErrorLerp * -14.0 + 16.0) > VectorLength2DSquared(vDelta)) {
-        if (AvoidingFacingWall()) {
-            SetDesiredYaw(m_fDfwDerivedYaw);
-        }
-        return;
-    }
-
-    if (fabs(AngleNormalize180(m_fDfwRequestedYaw - m_DesiredYaw)) <= fErrorLerp * -29.0 + 30.0
-        && fabs(AngleNormalize180(m_fDfwRequestedYaw - m_DesiredYaw)) <= fErrorLerp * -29.0 + 30.0) {
+    if (Square(fErrorLerp * -14.0 + 16.0) > VectorLength2DSquared(vDelta) &&
+        (fabs(AngleNormalize180(m_fDfwRequestedYaw - m_DesiredYaw)) <= fErrorLerp * -29.0 + 30.0
+            || fabs(AngleNormalize180(m_fDfwDerivedYaw - m_DesiredYaw)) <= fErrorLerp * -29.0 + 30.0)) {
         if (AvoidingFacingWall()) {
             SetDesiredYaw(m_fDfwDerivedYaw);
         }
