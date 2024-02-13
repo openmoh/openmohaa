@@ -3879,6 +3879,7 @@ bool Actor::CanShoot(Entity *ent)
     Vector vGunPos;
 
     if (FriendlyInLineOfFire(ent)) {
+        // This check was added in 2.0
         bCanShoot = false;
     } else if (ent->IsSubclassOfSentient()) {
         Sentient *sen = static_cast<Sentient *>(ent);
