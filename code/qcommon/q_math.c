@@ -1108,7 +1108,11 @@ void AnglesSubtract( vec3_t v1, vec3_t v2, vec3_t v3 ) {
 
 
 float	AngleMod(float a) {
-	a = (360.0/65536) * ((int)(a*(65536/360.0)) & 65535);
+	if (a >= 360) {
+		return a - 360 * (int)(a / 360.0);
+	} else if (a < 0) {
+		return 360 * ((int)(-a / 360) + 1) + a;
+	}
 	return a;
 }
 
