@@ -788,7 +788,7 @@ void S_Base_AddLoopingSound( int entityNum, const vec3_t origin, const vec3_t ve
 		// Fixed in OPM
 		//  Why should it crash???
 		//Com_Error( ERR_DROP, "%s has length 0", sfx->soundName );
-		Com_Printf( "%s has length 0", sfx->soundName );
+		Com_Printf( "%s has length 0\n", sfx->soundName );
 		return;
 	}
 
