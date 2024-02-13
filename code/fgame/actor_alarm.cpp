@@ -120,6 +120,8 @@ void Actor::Think_Alarm(void)
         Com_Printf("Actor::Think_Alarm: invalid think state %i\n", m_State);
         break;
     }
+
+    PostThink(true);
 }
 
 void Actor::FinishedAnimation_Alarm(void)
