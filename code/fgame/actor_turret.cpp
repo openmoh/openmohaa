@@ -233,7 +233,9 @@ void Actor::Turret_BeginRetarget(void)
     SetEnemyPos(m_Enemy->origin);
     AimAtEnemyBehavior();
 
-    // Was ACTOR_STATE_TURRET_RETARGET_SNIPER_NODE before 2.0
+    // Replaced in 2.0
+    //  Use the Retarget_Suppress state instead of the Retarget_Sniper_Node state
+    //TransitionState(ACTOR_STATE_TURRET_RETARGET_SNIPER_NODE, 0);
     TransitionState(ACTOR_STATE_TURRET_RETARGET_SUPPRESS, 0);
 }
 
