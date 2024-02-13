@@ -233,6 +233,7 @@ void Actor::Turret_BeginRetarget(void)
     SetEnemyPos(m_Enemy->origin);
     AimAtEnemyBehavior();
 
+    // Was ACTOR_STATE_TURRET_RETARGET_SNIPER_NODE before 2.0
     TransitionState(ACTOR_STATE_TURRET_RETARGET_SUPPRESS, 0);
 }
 
@@ -307,7 +308,9 @@ void Actor::State_Turret_Shoot(void)
     }
 
     AimAtTargetPos();
-    Anim_Suppress();
+    if (g_target_game >= target_game_e::TG_MOHTA) {
+        Anim_Suppress();
+    }
 
     if (level.inttime >= m_iStateTime + 15000) {
         Turret_SelectState();
