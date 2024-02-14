@@ -10076,11 +10076,8 @@ bool Actor::CanMovePathWithLeash(void) const
     }
 
     VectorSub2D(origin, m_vHome, delta);
-    if (VectorLength2DSquared(delta) >= m_fLeashSquared) {
-        return true;
-    }
-
-    if (DotProduct2D(m_Path.CurrentDelta(), delta) >= 0) {
+    if (VectorLength2DSquared(delta) >= m_fLeashSquared
+        && DotProduct2D(m_Path.CurrentDelta(), delta) >= 0) {
         return false;
     }
 
