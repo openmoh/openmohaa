@@ -358,7 +358,9 @@ qboolean CL_ProcessServerCommand(const char* origString, const char* cmd, qboole
 		// because this function might be called from a module that would be unloaded
 		// inside Com_Error
         UI_ForceMenuOff(1);
-        Cbuf_AddText("disconnect;pushmenu disconnected");
+		// Fixed in OPM
+		//  Added a newline for next commands
+        Cbuf_AddText("disconnect;pushmenu disconnected\n");
         return qtrue;
     }
 
