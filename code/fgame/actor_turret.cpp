@@ -235,8 +235,11 @@ void Actor::Turret_BeginRetarget(void)
 
     // Replaced in 2.0
     //  Use the Retarget_Suppress state instead of the Retarget_Sniper_Node state
-    //TransitionState(ACTOR_STATE_TURRET_RETARGET_SNIPER_NODE, 0);
-    TransitionState(ACTOR_STATE_TURRET_RETARGET_SUPPRESS, 0);
+    if (g_target_game >= target_game_e::TG_MOHTA) {
+        TransitionState(ACTOR_STATE_TURRET_RETARGET_SUPPRESS, 0);
+    } else {
+        TransitionState(ACTOR_STATE_TURRET_RETARGET_SNIPER_NODE, 0);
+    }
 }
 
 void Actor::Turret_NextRetarget(void)
@@ -290,28 +293,29 @@ void Actor::Turret_SideStep(int iStepSize, vec3_t vDir)
     AimAtEnemyBehavior();
     StrafeToAttack(iStepSize, vDir);
 
-    if (!PathExists() || PathComplete() || !PathAvoidsSquadMates()) {
-        StrafeToAttack(-iStepSize, vDir);
+    if (PathExists() && !PathComplete() && PathAvoidsSquadMates()) {
+        TransitionState(ACTOR_STATE_TURRET_REACQUIRE);
+        return;
     }
+
+    StrafeToAttack(-iStepSize, vDir);
 
     if (PathExists() && !PathComplete() && PathAvoidsSquadMates()) {
         TransitionState(ACTOR_STATE_TURRET_REACQUIRE);
-    } else {
-        Turret_NextRetarget();
+        return;
     }
+
+    Turret_NextRetarget();
 }
 
 void Actor::State_Turret_Shoot(void)
 {
+    assert(g_target_game > target_game_e::TG_MOH);
+
     if (CanSeeEnemy(200) || FriendlyInLineOfFire(m_Enemy)) {
         TransitionState(ACTOR_STATE_TURRET_COMBAT);
         State_Turret_Combat();
         return;
-    }
-
-    AimAtTargetPos();
-    if (g_target_game >= target_game_e::TG_MOHTA) {
-        Anim_Suppress();
     }
 
     if (level.inttime >= m_iStateTime + 15000) {
@@ -325,6 +329,8 @@ void Actor::State_Turret_Shoot(void)
 void Actor::State_Turret_Retarget_Suppress(void)
 {
     trace_t trace;
+
+    assert(g_target_game > target_game_e::TG_MOH);
 
     if (rand() % 100 >= m_iSuppressChance) {
         AimAtEnemyBehavior();
