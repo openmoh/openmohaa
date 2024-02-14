@@ -4009,6 +4009,10 @@ bool Actor::FriendlyInLineOfFire(Entity *other)
     Vector delta;
     float  inverseDot;
 
+    if (g_target_game <= target_game_e::TG_MOH) {
+        return false;
+    }
+
     delta      = other->origin - origin;
     inverseDot = 1.0 / (delta * delta);
 
@@ -4022,7 +4026,7 @@ bool Actor::FriendlyInLineOfFire(Entity *other)
             Vector org;
 
             org = squadDot * inverseDot * delta - squadDelta;
-            if (org * org >= 4096) {
+            if (org * org >= Square(64)) {
                 return true;
             }
         }
