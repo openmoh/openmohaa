@@ -79,7 +79,7 @@ bool Actor::Cover_SetPath(PathNode *node)
     fPathDist       = PathDist();
     fMinDistSquared = Square(fPathDist);
 
-    if ((node->origin - origin).lengthSquared() <= fMinDistSquared * 4.0f && fPathDist > 128.0f) {
+    if ((node->origin - origin).lengthSquared() * 4 <= fMinDistSquared && fPathDist > 128.0f) {
         return false;
     }
 
@@ -343,7 +343,7 @@ void Actor::State_Cover_Hide(void)
     bool      bCanShoot, bCanSee;
 
     if (m_Enemy) {
-        SetEnemyPos(origin);
+        SetEnemyPos(m_Enemy->origin);
     }
 
     if (!m_pCoverNode) {
