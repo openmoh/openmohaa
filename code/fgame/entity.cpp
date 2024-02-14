@@ -5467,7 +5467,7 @@ void Entity::MPrintf(const char *fmt, ...)
     va_list argptr;
     char    msg[MAXPRINTMSG];
 
-    if (g_monitorNum->integer == entnum || g_monitor->string == targetname) {
+    if (g_monitorNum->integer == entnum || g_monitor->string[0] && g_monitor->string == targetname) {
         va_start(argptr, fmt);
         Q_vsnprintf(msg, sizeof(msg), fmt, argptr);
         va_end(argptr);
