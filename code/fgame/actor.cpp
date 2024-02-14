@@ -8448,11 +8448,14 @@ void Actor::FaceEnemyOrMotion(int iTimeIntoMove)
         return;
     }
 
-    if (vDelta[0] >= 15 || vDelta[0] <= -15 || vDelta[1] >= 15 || vDelta[1] <= -15) {
-        vDelta[0] = -vDelta[0];
-        vDelta[1] = -vDelta[1];
-        FaceDirectionDuringMotion(vDelta);
+    if (vDelta[0] < 15 && vDelta[0] > -15 && vDelta[1] < 15 && vDelta[1] > -15) {
+        FaceMotion();
+        return;
     }
+
+    vDelta[0] = -vDelta[0];
+    vDelta[1] = -vDelta[1];
+    FaceDirectionDuringMotion(vDelta);
 }
 
 /*
@@ -8547,9 +8550,11 @@ void Actor::FaceMotion(void)
         VectorCopy2D(velocity, dir);
         VectorSub2D(origin, m_vOriginHistory[m_iCurrentHistory], vDelta);
 
-        if (VectorLength2DSquared(vDelta) >= 1 && DotProduct2D(velocity, vDelta) > 0) {
+        if (VectorLength2DSquared(vDelta) >= 1 && DotProduct2D(vDelta, dir) > 0) {
             VectorCopy2D(vDelta, dir);
         }
+
+        dir[2] = 0;
 
         if (m_ThinkState == THINKSTATE_IDLE) {
             IdleLook(dir);
