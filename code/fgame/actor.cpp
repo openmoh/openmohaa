@@ -2790,7 +2790,7 @@ Actor::Actor()
     m_fMinDistance        = 128;
     m_fMinDistanceSquared = Square(m_fMinDistance);
     m_fMaxDistance        = 1024;
-    m_fMaxDistanceSquared = Square(m_fMaxDistanceSquared);
+    m_fMaxDistanceSquared = Square(m_fMaxDistance);
     m_fLeash              = 512;
     m_fLeashSquared       = Square(m_fLeash);
 
@@ -2848,7 +2848,7 @@ Actor::Actor()
 
     m_iNextDisguiseTime       = 1;
     m_iDisguisePeriod         = 30000;
-    m_fMaxDisguiseDistSquared = 256 * 256;
+    m_fMaxDisguiseDistSquared = Square(256);
     m_iDisguiseLevel          = 1;
 
     m_patrolCurrentNode   = NULL;
