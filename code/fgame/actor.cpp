@@ -10150,12 +10150,14 @@ Vector Actor::GunTarget(bool bNoCollision, const vec3_t position, const vec3_t f
     Vector dir = mTargetPos - EyePosition();
     dir.normalize();
 
-    if (DotProduct2D(forward, dir) < aiMaxDeviation->value) {
-        Vector vOut;
+    if (g_target_game > target_game_e::TG_MOH) {
+        if (DotProduct2D(forward, dir) < aiMaxDeviation->value) {
+            Vector vOut;
 
-        VectorMA(position, 2048, forward, vOut);
+            VectorMA(position, 2048, forward, vOut);
 
-        return vOut;
+            return vOut;
+        }
     }
 
     if (mTargetPos == vec_zero) {
