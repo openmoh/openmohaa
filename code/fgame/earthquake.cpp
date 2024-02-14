@@ -133,7 +133,7 @@ ViewJitter::ViewJitter()
 
 	m_fDuration = 0;
 
-	m_bDoneDeath = qfalse;
+	m_bDoneDeath = false;
 }
 
 ViewJitter::ViewJitter( Vector vOrigin, float fRadius, float fEdgeEffect, Vector vStrength, float fDuration, Vector vTimeDecay, float fStartDecay )
@@ -154,7 +154,7 @@ ViewJitter::ViewJitter( Vector vOrigin, float fRadius, float fEdgeEffect, Vector
 
 	m_fDuration = fDuration;
 
-	m_bDoneDeath = false;
+	m_bDoneDeath = true;
 	m_fTimeRunning = 0;
 
 	PostEvent( EV_ViewJitter_Think, fStartDecay );
