@@ -469,7 +469,7 @@ inline void SimpleActor::SetDesiredYawDest(const vec3_t vec)
     vec2_t facedir;
     VectorSub2D(vec, origin, facedir);
 
-    if (!facedir[0] || !facedir[1]) {
+    if (facedir[0] || facedir[1]) {
         SetDesiredYawDir(facedir);
     }
 }
