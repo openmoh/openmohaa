@@ -6923,7 +6923,7 @@ void DrivableVehicle::Killed(Event *ev)
     if (name && strcmp(name, "")) {
         for (ent = G_FindTarget(NULL, name); ent; ent = G_FindTarget(ent, name)) {
             event = new Event(EV_Activate);
-            event->AddEntity(ent);
+            event->AddEntity(attacker);
             ent->ProcessEvent(event);
         }
     }
