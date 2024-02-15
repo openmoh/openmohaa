@@ -8004,8 +8004,8 @@ void Actor::FixAIParameters(void)
     if (m_pTetherEnt) {
         fMinLeash = 64;
         if (m_pTetherEnt->IsSubclassOfEntity()) {
-            fMinLeash =
-                m_pTetherEnt->angles.y - m_pTetherEnt->origin.y + m_pTetherEnt->angles.z + m_pTetherEnt->origin.z;
+            Entity* pEnt = static_cast<Entity*>(m_pTetherEnt.Pointer());
+            fMinLeash = pEnt->maxs[0] - pEnt->mins[1] + pEnt->maxs[1] - pEnt->mins[1];
         }
 
         if (m_fLeash < fMinLeash) {
