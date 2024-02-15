@@ -35,7 +35,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "mover.h"
 #include "animate.h"
 
-class InfoNull : public Entity
+class InfoNull : public Listener
 {
 public:
     CLASS_PROTOTYPE(InfoNull);

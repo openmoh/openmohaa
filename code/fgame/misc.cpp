@@ -91,7 +91,7 @@ Used as a positional target for spotlights, etc.
 
 ******************************************************************************/
 
-CLASS_DECLARATION(Entity, InfoNull, "info_null") {
+CLASS_DECLARATION(Listener, InfoNull, "info_null") {
     {NULL, NULL}
 };
 
