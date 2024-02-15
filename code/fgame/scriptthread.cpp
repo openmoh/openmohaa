@@ -3759,7 +3759,7 @@ void ScriptThread::EventTrace(Event *ev)
         mins = ev->GetVector(4);
     case 3:
         if (ev->GetInteger(3)) {
-            content_mask = MASK_SOLID;
+            content_mask &= ~MASK_SCRIPT_SLAVE;
         }
     case 2:
         end = ev->GetVector(2);
