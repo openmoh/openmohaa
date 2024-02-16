@@ -1041,8 +1041,8 @@ void PathSearch::ResetNodes(void)
         }
     }
 
-    for (x = PATHMAP_GRIDSIZE - 1; x >= 0; x--) {
-        for (y = PATHMAP_GRIDSIZE - 1; y >= 0; y--) {
+    for (x = 0; x < PATHMAP_GRIDSIZE; x++){
+        for (y = 0; y < PATHMAP_GRIDSIZE; y++) {
             PathMap[x][y].numnodes = 0;
             PathMap[x][y].nodes    = NULL;
         }
