@@ -55,6 +55,10 @@ Health::Health()
 
     setAmount(20);
 
+    // Added in 2.0
+    //  Set the targetname to health by default
+    SetTargetName("health");
+
     PostEvent(EV_Health_PostSpawn, EV_POSTSPAWN);
 }
 
