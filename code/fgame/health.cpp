@@ -44,12 +44,18 @@ SafePtr<Health> Health::mHealthQueue[MAX_HEALTH_QUEUE];
 
 Health::Health()
 {
+    if (LoadingSavegame) {
+        return;
+    }
+
     if (DM_FLAG(DF_NO_HEALTH)) {
         PostEvent(EV_Remove, EV_REMOVE);
         return;
     }
 
     setAmount(20);
+
+    PostEvent(EV_Health_PostSpawn, EV_POSTSPAWN);
 }
 
 void Health::PickupHealth(Event *ev)
