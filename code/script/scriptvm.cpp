@@ -1794,12 +1794,13 @@ void ScriptVM::Execute(ScriptVariable *data, int dataSize, str label)
                 targetList = world->GetExistingTargetList(m_VMStack.GetTop().constStringValue());
 
                 if (!targetList || !targetList->NumObjects()) {
+                    str targetname = m_VMStack.GetTop().stringValue();
                     // the target name was not found
                     m_VMStack.GetTop().setListenerValue(NULL);
 
                     if ((*m_CodePos >= OP_BIN_EQUALITY && *m_CodePos <= OP_BIN_GREATER_THAN_OR_EQUAL)
                         || (*m_CodePos >= OP_BOOL_UN_NOT && *m_CodePos <= OP_UN_CAST_BOOLEAN)) {
-                        ScriptError("Targetname '%s' does not exist.", m_VMStack.GetTop().stringValue().c_str());
+                        ScriptError("Targetname '%s' does not exist.", targetname.c_str());
                     }
                 } else if (targetList->NumObjects() == 1) {
                     // single listener
