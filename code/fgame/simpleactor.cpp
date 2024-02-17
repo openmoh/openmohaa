@@ -187,30 +187,42 @@ void SimpleActor::SetPath(
     m_Path.FindPath(origin, vDestPos, this, 0.0, vLeashHome, fLeashDistSquared);
 
     if (!PathExists()) {
-        if (g_patherror->integer && description
-            && (g_patherror->integer
-                || g_patherror->integer == 2
-                       && (static_cast<Actor *>(this)->m_ThinkState == THINKSTATE_IDLE
-                           || static_cast<Actor *>(this)->m_ThinkState == THINKSTATE_CURIOUS)
-                       && m_bPathErrorTime + 5000 < level.inttime)) {
-            m_bPathErrorTime = level.inttime;
-
-            Com_Printf(
-                "^~^~^ Path not found in '%s' for (entnum %d, radnum %d, targetname '%s') from (%f %f "
-                "%f) to (%f %f %f)\n",
-                description,
-                entnum,
-                radnum,
-                targetname.c_str(),
-                origin.x,
-                origin.y,
-                origin.z,
-                vDestPos.x,
-                vDestPos.y,
-                vDestPos.z
-            );
-            Com_Printf("Reason: %s\n", PathSearch::last_error);
+        if (!g_patherror->integer || !description) {
+            return;
         }
+
+        if (g_patherror->integer != 1 && g_patherror->integer != 2) {
+            return;
+        }
+
+        if (g_patherror->integer == 2) {
+            int thinkState = static_cast<Actor*>(this)->m_ThinkState;
+            if (thinkState != THINKSTATE_IDLE && thinkState != THINKSTATE_CURIOUS) {
+                return;
+            }
+        }
+
+        if (m_bPathErrorTime + 5000 >= level.inttime) {
+            return;
+        }
+
+        m_bPathErrorTime = level.inttime;
+
+        Com_Printf(
+            "^~^~^ Path not found in '%s' for (entnum %d, radnum %d, targetname '%s') from (%f %f "
+            "%f) to (%f %f %f)\n",
+            description,
+            entnum,
+            radnum,
+            targetname.c_str(),
+            origin.x,
+            origin.y,
+            origin.z,
+            vDestPos.x,
+            vDestPos.y,
+            vDestPos.z
+        );
+        Com_Printf("Reason: %s\n", PathSearch::last_error);
     }
 }
 
