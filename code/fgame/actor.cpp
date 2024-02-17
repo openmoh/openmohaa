@@ -2685,7 +2685,12 @@ const_str            Actor::m_csThinkNames[NUM_THINKS] = {
     STRING_BALCONY_KILLED,
     STRING_WEAPONLESS,
     STRING_NOCLIP,
-    STRING_DEAD};
+    STRING_DEAD,
+    // Added in 2.0
+    STRING_BADPLACE,
+    // Added in 2.30
+    STRING_RUNANDSHOOT
+};
 const_str Actor::m_csThinkStateNames[NUM_THINKSTATES] = {
     STRING_VOID,
     STRING_IDLE,
@@ -2695,7 +2700,9 @@ const_str Actor::m_csThinkStateNames[NUM_THINKSTATES] = {
     STRING_CURIOUS,
     STRING_DISGUISE,
     STRING_GRENADE,
-    STRING_NOCLIP};
+    STRING_BADPLACE, // Added in 2.0
+    STRING_NOCLIP
+};
 
 SafePtr<Actor> Actor::mBodyQueue[MAX_BODYQUEUE];
 int            Actor::mCurBody;
@@ -4080,7 +4087,7 @@ void Actor::ShowInfo(void)
 {
     Com_Printf("-------------------------------------------------------------------------------\n");
     Com_Printf("Info for Actor:\n");
-    Com_Printf("Current think type: %s %s\n", ThinkName().c_str(), ThinkStateName().c_str());
+    Com_Printf("Current think type: %s %s\n", ThinkStateName().c_str(), ThinkName().c_str());
     Com_Printf("leash: %f\n", m_fLeash);
     Com_Printf("mindist: %f\n", m_fMinDistance);
     Com_Printf("maxdist: %f\n", m_fMaxDistance);
