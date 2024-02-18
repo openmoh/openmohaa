@@ -6471,6 +6471,7 @@ void Vehicle::Archive(Archiver& arc)
     arc.ArchiveVector(&Corners[3]);
 
     arc.ArchiveBoolean(&drivable);
+    arc.ArchiveBoolean(&pathDrivable); // Added in 2.30
     arc.ArchiveBoolean(&locked);
     arc.ArchiveBoolean(&hasweapon);
     arc.ArchiveBoolean(&showweapon);
@@ -6478,6 +6479,11 @@ void Vehicle::Archive(Archiver& arc)
     arc.ArchiveBoolean(&jumpable);
 
     arc.ArchiveBoolean(&m_bMovementLocked);
+    arc.ArchiveBoolean(&m_bAnimMove); // Added in 2.0
+    arc.ArchiveBoolean(&m_bDamageSounds); // Added in 2.0
+    arc.ArchiveBoolean(&m_bRunSounds); // Added in 2.0
+    arc.ArchiveInteger(&m_iProjectileHitsRemaining); // Added in 2.30
+
     driver.Archive(arc);
     lastdriver.Archive(arc);
 
@@ -6714,6 +6720,8 @@ void Vehicle::Archive(Archiver& arc)
     m_sMoveGrid->Archive(arc);
 
     arc.ArchiveFloat(&m_fIdealSpeed);
+    arc.ArchiveFloat(&m_fMaxSpeed); // Added in 2.30
+    arc.ArchiveBool(&m_bBounceBackwards); // Added in 2.30
     arc.ArchiveVector(&m_vIdealPosition);
     arc.ArchiveVector(&m_vIdealDir);
     arc.ArchiveFloat(&m_fIdealAccel);
@@ -6727,6 +6735,10 @@ void Vehicle::Archive(Archiver& arc)
     arc.ArchiveSafePointer(&m_pVehicleSoundEntities[1]);
     arc.ArchiveSafePointer(&m_pVehicleSoundEntities[2]);
     arc.ArchiveSafePointer(&m_pVehicleSoundEntities[3]);
+
+    // Added in 2.30
+    arc.ArchiveFloat(&m_fMaxUseAngle);
+    arc.ArchiveBool(&m_bBounceStayFullSpeed);
 }
 
 /*
