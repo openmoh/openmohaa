@@ -3375,7 +3375,7 @@ void Vehicle::EventDriveInternal(Event *ev, bool wait)
     m_fLookAhead     = 256;
     m_fIdealAccel    = 35;
     m_fIdealSpeed    = 250;
-    m_fMaxSpeed      = 250;
+    m_fMaxSpeed      = 250; // Added in 2.30
 
     switch (ev->NumArgs()) {
     case 6:
@@ -3388,6 +3388,7 @@ void Vehicle::EventDriveInternal(Event *ev, bool wait)
         m_fIdealAccel = ev->GetFloat(3);
     case 2:
         m_fIdealSpeed = ev->GetFloat(2);
+        m_fMaxSpeed = m_fIdealSpeed;// Added in 2.30
     case 1:
         path = ev->GetSimpleEntity(1);
         if (!path) {
@@ -4088,21 +4089,22 @@ void Vehicle::SlidePush(Vector vPush)
             if (j == i && other->entity) {
                 other->entity->CheckGround();
 
-                if (other->entity->groundentity
-                    && (other->entity->groundentity == edict || other->entity == m_pCollisionEntity)) {
-                    // save the entity
-                    pSkippedEntities[iNumSkipped]  = other->entity;
-                    iContentsEntities[iNumSkipped] = other->r.contents;
-                    solidEntities[iNumSkipped]     = other->solid;
-                    iNumSkipped++;
+                if (other->entity->groundentity) {
+                    if (other->entity->groundentity == edict || m_pCollisionEntity && other->entity->groundentity->entity == m_pCollisionEntity) {
+                        // save the entity
+                        pSkippedEntities[iNumSkipped] = other->entity;
+                        iContentsEntities[iNumSkipped] = other->r.contents;
+                        solidEntities[iNumSkipped] = other->solid;
+                        iNumSkipped++;
 
-                    if (iNumSkipped >= MAX_SKIPPED_ENTITIES) {
-                        gi.Error(ERR_DROP, "MAX_SKIPPED_ENTITIES hit in VehicleMove.\n");
-                        return;
+                        if (iNumSkipped >= MAX_SKIPPED_ENTITIES) {
+                            gi.Error(ERR_DROP, "MAX_SKIPPED_ENTITIES hit in VehicleMove.\n");
+                            return;
+                        }
+
+                        other->entity->setSolidType(SOLID_NOT);
+                        iNumSkippedEntities++;
                     }
-
-                    other->entity->setSolidType(SOLID_NOT);
-                    iNumSkippedEntities++;
                 }
 
                 if (g_showvehiclemovedebug->integer) {
