@@ -1096,6 +1096,7 @@ Vehicle::Vehicle()
 
     m_bAutoPilot       = qfalse;
     m_fIdealSpeed      = 0;
+    m_fMaxSpeed        = 0;
     m_fIdealAccel      = 0;
     m_fIdealDistance   = 100;
     m_bBounceBackwards = false;
