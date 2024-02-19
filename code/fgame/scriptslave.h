@@ -201,6 +201,7 @@ inline void ScriptSlave::Archive(Archiver& arc)
     arc.ArchiveFloat(&splineTime);
     arc.ArchiveBoolean(&splineangles);
     arc.ArchiveBoolean(&ignoreangles);
+    arc.ArchiveBoolean(&ignorevelocity);
     arc.ArchiveBoolean(&moving);
 
     if (arc.Saving()) {
