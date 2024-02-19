@@ -133,7 +133,7 @@ public:
     virtual void Teleport(Event *ev);
     virtual void StopTeleport(Event *ev);
     void         SetThread(Event *ev);
-    void         Archive(Archiver        &arc) override;
+    void         Archive(Archiver& arc) override;
 };
 
 inline void Teleporter::Archive(Archiver& arc)
@@ -488,7 +488,7 @@ private:
     Entity *SetNextBounceDir(void);
     void    SetBounceSound(str sound);
     void    SetBounceSound(Event *ev);
-    void    Archive(Archiver   &arc) override;
+    void    Archive(Archiver& arc) override;
 
 public:
     CLASS_PROTOTYPE(FallingRock);
@@ -564,7 +564,17 @@ public:
 
     void EnsureOverLadder(Entity *pUser);
     void EnsureForwardOffLadder(Entity *pUser);
+
+    void Archive(Archiver& arc);
 };
+
+inline void FuncLadder::Archive(Archiver& arc)
+{
+    Entity::Archive(arc);
+
+    arc.ArchiveVector(&m_vFacingAngles);
+    arc.ArchiveVector(&m_vFacingDir);
+}
 
 class InfoLandmark : public Listener
 {

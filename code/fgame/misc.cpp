@@ -144,15 +144,62 @@ If PROJECTILES is set, the trigger will respond to projectiles (rockets, grenade
 #define ACCUMULATIVE (1 << 6)
 #define TWOSTAGE     (1 << 7)
 
-Event EV_ExplodingWall_StopRotating("stoprotating", EV_DEFAULT, NULL, NULL, "Stop rotating the wall.", EV_NORMAL);
-Event EV_ExplodingWall_OnGround(
-    "checkonground", EV_DEFAULT, NULL, NULL, "Check if exploding wall is on ground.", EV_NORMAL
+Event EV_ExplodingWall_StopRotating
+(
+    "stoprotating",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Stop rotating the wall.",
+    EV_NORMAL
 );
-Event EV_ExplodingWall_AngleSpeed("anglespeed", EV_DEFAULT, "f", "speed", "Set the angle speed.", EV_NORMAL);
-Event EV_ExplodingWall_LandRadius("land_radius", EV_DEFAULT, "f", "radius", "Set the land radius.", EV_NORMAL);
-Event EV_ExplodingWall_LandAngles("land_angles", EV_DEFAULT, "v", "angles", "Set the land angles.", EV_NORMAL);
-Event EV_ExplodingWall_BaseVelocity("base_velocity", EV_DEFAULT, "v", "velocity", "Set the base velocity.", EV_NORMAL);
-Event EV_ExplodingWall_RandomVelocity(
+Event EV_ExplodingWall_OnGround
+(
+    "checkonground",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Check if exploding wall is on ground.",
+    EV_NORMAL
+);
+Event EV_ExplodingWall_AngleSpeed
+(
+    "anglespeed",
+    EV_DEFAULT,
+    "f",
+    "speed",
+    "Set the angle speed.",
+    EV_NORMAL
+);
+Event EV_ExplodingWall_LandRadius
+(
+    "land_radius",
+    EV_DEFAULT,
+    "f",
+    "radius",
+    "Set the land radius.",
+    EV_NORMAL
+);
+Event EV_ExplodingWall_LandAngles
+(
+    "land_angles",
+    EV_DEFAULT,
+    "v",
+    "angles",
+    "Set the land angles.",
+    EV_NORMAL
+);
+Event EV_ExplodingWall_BaseVelocity
+(
+    "base_velocity",
+    EV_DEFAULT,
+    "v",
+    "velocity",
+    "Set the base velocity.",
+    EV_NORMAL
+);
+Event EV_ExplodingWall_RandomVelocity
+(
     "random_velocity",
     EV_DEFAULT,
     "v",
@@ -160,11 +207,33 @@ Event EV_ExplodingWall_RandomVelocity(
     "Set the amount of random variation of the base velocity.",
     EV_NORMAL
 );
-Event EV_ExplodingWall_SetDmg("dmg", EV_DEFAULT, "i", "dmg", "Set the damage from the exploding wall.", EV_NORMAL);
-Event EV_ExplodingWall_SetExplosions(
-    "explosions", EV_DEFAULT, "i", "explosions", "Set the number of explosions.", EV_NORMAL
+Event EV_ExplodingWall_SetDmg
+(
+    "dmg",
+    EV_DEFAULT,
+    "i",
+    "dmg",
+    "Set the damage from the exploding wall.",
+    EV_NORMAL
 );
-Event EV_ExplodingWall_Setup("setup", EV_CODEONLY, NULL, NULL, "Initializes the exploding wall.", EV_NORMAL);
+Event EV_ExplodingWall_SetExplosions
+(
+    "explosions",
+    EV_DEFAULT,
+    "i",
+    "explosions",
+    "Set the number of explosions.",
+    EV_NORMAL
+);
+Event EV_ExplodingWall_Setup
+(
+    "setup",
+    EV_CODEONLY,
+    NULL,
+    NULL,
+    "Initializes the exploding wall.",
+    EV_NORMAL
+);
 
 CLASS_DECLARATION(Trigger, ExplodingWall, "func_explodingwall") {
     {&EV_ExplodingWall_Setup,          &ExplodingWall::Setup         },
@@ -564,13 +633,26 @@ If NO_EFFECTS is set, the special effect will not happen and the teleport will b
 
 #define NO_EFFECTS (1 << 5)
 
-Event EV_Teleporter_Teleport("teleport", EV_CODEONLY, "e", "entity", "Teleports the entity to destination.", EV_NORMAL);
-
-Event EV_Teleporter_StopTeleport(
-    "stopteleport", EV_CODEONLY, "e", "entity", "Releases the entity at the end of the teleport.", EV_NORMAL
+Event EV_Teleporter_Teleport
+(
+    "teleport",
+    EV_CODEONLY,
+    "e",
+    "entity",
+    "Teleports the entity to destination.",
+    EV_NORMAL
 );
-
-Event EV_Teleporter_SetThread(
+Event EV_Teleporter_StopTeleport
+(
+    "stopteleport",
+    EV_CODEONLY,
+    "e",
+    "entity",
+    "Releases the entity at the end of the teleport.",
+    EV_NORMAL
+);
+Event EV_Teleporter_SetThread
+(
     "teleportthread",
     EV_CODEONLY,
     "s",
@@ -884,19 +966,35 @@ it waits until the player has left the trigger field.
 
 ******************************************************************************/
 
-Event EV_UseAnim_Reset(
-    "_reset", EV_CODEONLY, NULL, NULL, "Reset's the Use Anim after it has no longer been touched.", EV_NORMAL
+Event EV_UseAnim_Reset
+(
+    "_reset",
+    EV_CODEONLY,
+    NULL,
+    NULL,
+    "Reset's the Use Anim after it has no longer been touched.",
+    EV_NORMAL
 );
-
-Event EV_UseAnim_Thread(
-    "setthread", EV_DEFAULT, "s", "label", "Sets which thread to use when this UseAnim is triggered.", EV_NORMAL
+Event EV_UseAnim_Thread
+(
+    "setthread",
+    EV_DEFAULT,
+    "s",
+    "label",
+    "Sets which thread to use when this UseAnim is triggered.",
+    EV_NORMAL
 );
-
-Event EV_UseAnim_Count(
-    "count", EV_DEFAULT, "i", "newCount", "Sets how many times the UseAnim can be triggered.", EV_NORMAL
+Event EV_UseAnim_Count
+(
+    "count",
+    EV_DEFAULT,
+    "i",
+    "newCount",
+    "Sets how many times the UseAnim can be triggered.",
+    EV_NORMAL
 );
-
-Event EV_UseAnim_TriggerTarget(
+Event EV_UseAnim_TriggerTarget
+(
     "triggertarget",
     EV_DEFAULT,
     "s",
@@ -904,16 +1002,35 @@ Event EV_UseAnim_TriggerTarget(
     "Sets what should be triggered, when this UseAnim is triggered.",
     EV_NORMAL
 );
-
-Event EV_UseAnim_SetAnim("anim", EV_DEFAULT, "s", "animName", "set the animation to use for player.", EV_NORMAL);
-
-Event EV_UseAnim_SetKey(
-    "key", EV_DEFAULT, "s", "keyName", "set the key needed to make this UseAnim function.", EV_NORMAL
+Event EV_UseAnim_SetAnim
+(
+    "anim",
+    EV_DEFAULT,
+    "s",
+    "animName",
+    "set the animation to use for player.",
+    EV_NORMAL
 );
-
-Event EV_UseAnim_SetState("state", EV_CHEAT, "s", "stateName", "set the state to use for the player.", EV_NORMAL);
-
-Event EV_UseAnim_SetCamera(
+Event EV_UseAnim_SetKey
+(
+    "key",
+    EV_DEFAULT,
+    "s",
+    "keyName",
+    "set the key needed to make this UseAnim function.",
+    EV_NORMAL
+);
+Event EV_UseAnim_SetState
+(
+    "state",
+    EV_CHEAT,
+    "s",
+    "stateName",
+    "set the state to use for the player.",
+    EV_NORMAL
+);
+Event EV_UseAnim_SetCamera
+(
     "camera",
     EV_DEFAULT,
     "s",
@@ -922,12 +1039,17 @@ Event EV_UseAnim_SetCamera(
     "topdown, behind, front, side, behind_fixed, side_left, side_right",
     EV_NORMAL
 );
-
-Event EV_UseAnim_SetNumLoops(
-    "num_loops", EV_DEFAULT, "i", "loopCount", "set the number of times to loop an animation per use.", EV_NORMAL
+Event EV_UseAnim_SetNumLoops
+(
+    "num_loops",
+    EV_DEFAULT,
+    "i",
+    "loopCount",
+    "set the number of times to loop an animation per use.",
+    EV_NORMAL
 );
-
-Event EV_UseAnim_SetDelay(
+Event EV_UseAnim_SetDelay
+(
     "delay",
     EV_DEFAULT,
     "f",
@@ -1379,7 +1501,8 @@ int UseAnimDestination::GetNumLoops(void)
     return num_loops;
 }
 
-Event EV_UseObject_MoveThread(
+Event EV_UseObject_MoveThread
+(
     "move_thread",
     EV_DEFAULT,
     "s",
@@ -1387,38 +1510,80 @@ Event EV_UseObject_MoveThread(
     "Sets which move thread to use when this UseObject has finshed looping.",
     EV_NORMAL
 );
-
-Event EV_UseObject_StopThread(
-    "stop_thread", EV_DEFAULT, "s", "label", "Sets which stop thread to use when this UseObject is finished.", EV_NORMAL
+Event EV_UseObject_StopThread
+(
+    "stop_thread",
+    EV_DEFAULT,
+    "s",
+    "label",
+    "Sets which stop thread to use when this UseObject is finished.",
+    EV_NORMAL
 );
-
-Event EV_UseObject_ResetThread(
-    "reset_thread", EV_DEFAULT, "s", "label", "Sets which thread to call when resetting.", EV_NORMAL
+Event EV_UseObject_ResetThread
+(
+    "reset_thread",
+    EV_DEFAULT,
+    "s",
+    "label",
+    "Sets which thread to call when resetting.",
+    EV_NORMAL
 );
-
-Event EV_UseObject_Count(
-    "count", EV_DEFAULT, "i", "newCount", "Sets how many times the UseObject can be triggered.", EV_NORMAL
+Event EV_UseObject_Count
+(
+    "count",
+    EV_DEFAULT,
+    "i",
+    "newCount",
+    "Sets how many times the UseObject can be triggered.",
+    EV_NORMAL
 );
-
-Event EV_UseObject_Cone(
-    "cone", EV_DEFAULT, "f", "newCone", "Sets the cone in angles of where the Useobject can be used.", EV_NORMAL
+Event EV_UseObject_Cone
+(
+    "cone",
+    EV_DEFAULT,
+    "f",
+    "newCone",
+    "Sets the cone in angles of where the Useobject can be used.",
+    EV_NORMAL
 );
-
-Event EV_UseObject_Offset(
-    "offset", EV_DEFAULT, "v", "newOffset", "Sets the offset to use for this UseObject.", EV_NORMAL
+Event EV_UseObject_Offset
+(
+    "offset",
+    EV_DEFAULT,
+    "v",
+    "newOffset",
+    "Sets the offset to use for this UseObject.",
+    EV_NORMAL
 );
-
-Event EV_UseObject_YawOffset(
-    "yaw_offset", EV_DEFAULT, "f", "newYawOffset", "Sets the yaw offset to use for this UseObject.", EV_NORMAL
+Event EV_UseObject_YawOffset
+(
+    "yaw_offset",
+    EV_DEFAULT,
+    "f",
+    "newYawOffset",
+    "Sets the yaw offset to use for this UseObject.",
+    EV_NORMAL
 );
-
-Event EV_UseObject_State("state", EV_DEFAULT, "s", "newState", "Sets the state to use for this UseObject.", EV_NORMAL);
-
-Event EV_UseObject_StateBackwards(
-    "state_backwards", EV_DEFAULT, "s", "newState", "Sets the backward state to use for this UseObject.", EV_NORMAL
+Event EV_UseObject_State
+(
+    "state",
+    EV_DEFAULT,
+    "s",
+    "newState",
+    "Sets the state to use for this UseObject.",
+    EV_NORMAL
 );
-
-Event EV_UseObject_TriggerTarget(
+Event EV_UseObject_StateBackwards
+(
+    "state_backwards",
+    EV_DEFAULT,
+    "s",
+    "newState",
+    "Sets the backward state to use for this UseObject.",
+    EV_NORMAL
+);
+Event EV_UseObject_TriggerTarget
+(
     "triggertarget",
     EV_DEFAULT,
     "s",
@@ -1426,8 +1591,8 @@ Event EV_UseObject_TriggerTarget(
     "Sets what should be triggered, when this UseObject is triggered.",
     EV_NORMAL
 );
-
-Event EV_UseObject_ResetTime(
+Event EV_UseObject_ResetTime
+(
     "reset_time",
     EV_DEFAULT,
     "f",
@@ -1435,8 +1600,8 @@ Event EV_UseObject_ResetTime(
     "Sets the time it takes for the UseObject to reset itself.",
     EV_NORMAL
 );
-
-Event EV_UseObject_DamageType(
+Event EV_UseObject_DamageType
+(
     "damage_type",
     EV_DEFAULT,
     "s",
@@ -1444,8 +1609,8 @@ Event EV_UseObject_DamageType(
     "Sets what kind of damage is needed to activate the trigger.",
     EV_NORMAL
 );
-
-Event EV_UseObject_Reset(
+Event EV_UseObject_Reset
+(
     "_useobject_reset",
     EV_DEFAULT,
     NULL,
@@ -1453,12 +1618,17 @@ Event EV_UseObject_Reset(
     "Resets the useobject to the start state after a certain amount of time.",
     EV_NORMAL
 );
-
-Event EV_UseObject_Resetting(
-    "_useobject_resetting", EV_DEFAULT, NULL, NULL, "Intermediate function for useobject reset.", EV_NORMAL
+Event EV_UseObject_Resetting
+(
+    "_useobject_resetting",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Intermediate function for useobject reset.",
+    EV_NORMAL
 );
-
-Event EV_UseObject_DamageTriggered(
+Event EV_UseObject_DamageTriggered
+(
     "_useobject_damagetriggered",
     EV_DEFAULT,
     "e",
@@ -1466,18 +1636,41 @@ Event EV_UseObject_DamageTriggered(
     "Intermediate function for when the useobject was triggered by damage.",
     EV_NORMAL
 );
-
-Event EV_UseObject_Activate("activate", EV_DEFAULT, NULL, NULL, "Allow the useobject to be used.", EV_NORMAL);
-
-Event
-    EV_UseObject_Deactivate("deactivate", EV_DEFAULT, NULL, NULL, "Do not allow the useobject to be used.", EV_NORMAL);
-
-Event EV_UseObject_UseMaterial(
-    "usematerial", EV_DEFAULT, "s", "nameOfUseMaterial", "the name of the material that glows when active.", EV_NORMAL
+Event EV_UseObject_Activate
+(
+    "activate",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Allow the useobject to be used.",
+    EV_NORMAL
 );
-
-Event EV_UseObject_SetActiveState(
-    "_setactivestate", EV_DEFAULT, NULL, NULL, "event that sets up the proper skin for the useobject.", EV_NORMAL
+Event EV_UseObject_Deactivate
+(
+    "deactivate",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Do not allow the useobject to be used.",
+    EV_NORMAL
+);
+Event EV_UseObject_UseMaterial
+(
+    "usematerial",
+    EV_DEFAULT,
+    "s",
+    "nameOfUseMaterial",
+    "the name of the material that glows when active.",
+    EV_NORMAL
+);
+Event EV_UseObject_SetActiveState
+(
+    "_setactivestate",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "event that sets up the proper skin for the useobject.",
+    EV_NORMAL
 );
 
 #define MULTI_STATE (1 << 0)
@@ -1979,7 +2172,14 @@ Like info_waypoints, but with spawnflags for vehicles.
 
 ******************************************************************************/
 
-Event EV_VehiclePoint_SetSpawnFlags("spawnflags", EV_DEFAULT, "i", "spawn_flags", "Sets the spawn flags.");
+Event EV_VehiclePoint_SetSpawnFlags
+(
+    "spawnflags",
+    EV_DEFAULT,
+    "i",
+    "spawn_flags",
+    "Sets the spawn flags."
+);
 
 CLASS_DECLARATION(Waypoint, VehiclePoint, "info_vehiclepoint") {
     {&EV_VehiclePoint_SetSpawnFlags, &VehiclePoint::SetSpawnFlags},
@@ -2061,11 +2261,16 @@ void HorizontalPipe::SetAngleEvent(Event *ev)
 // TossObject
 /*****************************************************************************/
 
-Event EV_TossObject_SetBounceSound(
-    "bouncesound", EV_DEFAULT, "s", "sound", "When bouncing, what sound to play on impact", EV_NORMAL
+Event EV_TossObject_SetBounceSound
+(
+    "bouncesound", EV_DEFAULT,
+    "s",
+    "sound",
+    "When bouncing, what sound to play on impact",
+    EV_NORMAL
 );
-
-Event EV_TossObject_SetBounceSoundChance(
+Event EV_TossObject_SetBounceSoundChance
+(
     "bouncesoundchance",
     EV_DEFAULT,
     "f[0,1]",
@@ -2206,11 +2411,35 @@ Pushable object
 
 ******************************************************************************/
 
-Event EV_PushObject_Start("start", EV_DEFAULT, NULL, NULL, "Sets up the pushobject.", EV_NORMAL);
+Event EV_PushObject_Start
+(
+    "start",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Sets up the pushobject.",
+    EV_NORMAL
+);
 
-Event EV_PushObject_SetDamage("dmg", EV_DEFAULT, "i", "damage", "Set the damage.", EV_NORMAL);
+Event EV_PushObject_SetDamage
+(
+    "dmg",
+    EV_DEFAULT,
+    "i",
+    "damage",
+    "Set the damage.",
+    EV_NORMAL
+);
 
-Event EV_PushObject_SetPushSound("pushsound", EV_DEFAULT, "s", "sound", "Set the pushing sound", EV_NORMAL);
+Event EV_PushObject_SetPushSound
+(
+    "pushsound",
+    EV_DEFAULT,
+    "s",
+    "sound",
+    "Set the pushing sound",
+    EV_NORMAL
+);
 
 CLASS_DECLARATION(Entity, PushObject, "func_pushobject") {
     {&EV_PushObject_Start,        &PushObject::Start       },
@@ -2341,21 +2570,68 @@ REMOVE_ON_GROUND - remove the rocks when done
 
 ******************************************************************************/
 
-Event EV_FallingRock_Bounce("bounce", EV_DEFAULT, NULL, NULL, "sent to entity when touched.", EV_NORMAL);
-
-Event EV_FallingRock_Rotate("rotate", EV_DEFAULT, NULL, NULL, "rotates the falling rock.", EV_NORMAL);
-
-Event
-    EV_FallingRock_SetWait("wait", EV_DEFAULT, "f", "wait", "How long to wait before rock starts falling.", EV_NORMAL);
-
-Event EV_FallingRock_Start("start", EV_DEFAULT, NULL, NULL, "Starts rock falling.", EV_NORMAL);
-
-Event EV_FallingRock_SetDmg("dmg", EV_DEFAULT, "i", "dmg", "Set the damage from the rock.", EV_NORMAL);
-
-Event EV_FallingRock_SetSpeed("speed", EV_DEFAULT, "f", "speed", "Set the speed that the rock moves at.", EV_NORMAL);
-
-Event EV_FallingRock_SetBounceSound(
-    "noise", EV_DEFAULT, "s", "sound", "Set the sound to play when the rock bounces", EV_NORMAL
+Event EV_FallingRock_Bounce
+(
+    "bounce",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "sent to entity when touched.",
+    EV_NORMAL
+);
+Event EV_FallingRock_Rotate
+(
+    "rotate",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "rotates the falling rock.",
+    EV_NORMAL
+);
+Event EV_FallingRock_SetWait
+(
+    "wait",
+    EV_DEFAULT,
+    "f",
+    "wait",
+    "How long to wait before rock starts falling.",
+    EV_NORMAL
+);
+Event EV_FallingRock_Start
+(
+    "start",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Starts rock falling.",
+    EV_NORMAL
+);
+Event EV_FallingRock_SetDmg
+(
+    "dmg",
+    EV_DEFAULT,
+    "i",
+    "dmg",
+    "Set the damage from the rock.",
+    EV_NORMAL
+);
+Event EV_FallingRock_SetSpeed
+(
+    "speed",
+    EV_DEFAULT,
+    "f",
+    "speed",
+    "Set the speed that the rock moves at.",
+    EV_NORMAL
+);
+Event EV_FallingRock_SetBounceSound
+(
+    "noise",
+    EV_DEFAULT,
+    "s",
+    "sound",
+    "Set the sound to play when the rock bounces",
+    EV_NORMAL
 );
 
 CLASS_DECLARATION(Entity, FallingRock, "func_fallingrock") {
@@ -2622,7 +2898,14 @@ Ladder trigger volume
 
 ******************************************************************************/
 
-Event EV_LadderSetup("_ladder_setup", EV_CODEONLY, NULL, NULL, "Does the post spawn setup of the ladder");
+Event EV_LadderSetup
+(
+    "_ladder_setup",
+    EV_CODEONLY,
+    NULL,
+    NULL,
+    "Does the post spawn setup of the ladder"
+);
 
 CLASS_DECLARATION(Entity, FuncLadder, "func_ladder") {
     {&EV_Use,         NULL                        },
@@ -2650,6 +2933,14 @@ void FuncLadder::LadderSetup(Event *ev)
 
     // never send to clients
     edict->r.svFlags |= SVF_NOCLIENT;
+}
+
+void FuncLadder::SetLadderFacing(Event *ev)
+{
+    m_vFacingAngles    = vec_zero;
+    m_vFacingAngles[1] = AngleMod(ev->GetFloat(1));
+
+    AngleVectorsLeft(m_vFacingAngles, m_vFacingDir, NULL, NULL);
 }
 
 qboolean FuncLadder::CanUseLadder(Entity *pUser)
@@ -2764,14 +3055,6 @@ void FuncLadder::PositionOnLadder(Entity *pUser)
     pUser->setAngles(m_vFacingAngles);
 }
 
-void FuncLadder::SetLadderFacing(Event *ev)
-{
-    m_vFacingAngles    = vec_zero;
-    m_vFacingAngles[1] = AngleMod(ev->GetFloat(1));
-
-    AngleVectorsLeft(m_vFacingAngles, m_vFacingDir, NULL, NULL);
-}
-
 void FuncLadder::AdjustPositionOnLadder(Entity *pUser)
 {
     float   fHeight;
@@ -2872,8 +3155,24 @@ void FuncLadder::EnsureForwardOffLadder(Entity *pUser)
     pUser->setOrigin(trace.endpos);
 }
 
-Event EV_InfoLandmark_Name("landmark_name", EV_DEFAULT, "s", "name", "Set the name of this landmark", EV_NORMAL);
-Event EV_InfoLandmark_SetOrigin("origin", EV_DEFAULT, "v", "origin", "Set the origin of the landmark.", EV_NORMAL);
+Event EV_InfoLandmark_Name
+(
+    "landmark_name",
+    EV_DEFAULT,
+    "s",
+    "name",
+    "Set the name of this landmark",
+    EV_NORMAL
+);
+Event EV_InfoLandmark_SetOrigin
+(
+    "origin",
+    EV_DEFAULT,
+    "v",
+    "origin",
+    "Set the origin of the landmark.",
+    EV_NORMAL
+);
 
 CLASS_DECLARATION(Listener, InfoLandmark, "info_landmark") {
     {&EV_InfoLandmark_Name,      &InfoLandmark::SetLandmarkName},
