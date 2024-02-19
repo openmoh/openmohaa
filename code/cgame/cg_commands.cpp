@@ -2157,7 +2157,9 @@ void ClientGameCommandManager::SetInwardSphere(Event *ev)
     }
 
     m_spawnthing->cgd.flags |= T_INWARDSPHERE;
-    m_spawnthing->sphereRadius = ev->GetFloat(1);
+    if (ev->NumArgs() > 0) {
+        m_spawnthing->sphereRadius = ev->GetFloat(1);
+    }
 }
 
 //=============
