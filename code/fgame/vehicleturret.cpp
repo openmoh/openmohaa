@@ -386,7 +386,9 @@ void VehicleTurretGun::P_UserAim(usercmd_t *ucmd)
         Entity *slotEnt;
 
         slotEnt = pVehicle->QueryTurretSlotEntity(newSlot);
-        if (slotEnt->IsSubclassOfVehicleTurretGun()) {
+        // slotEnt check:
+        //  Added in OPM
+        if (slotEnt && slotEnt->IsSubclassOfVehicleTurretGun()) {
             VehicleTurretGun *existing;
             Vector            newAng;
             bool              wasThisLocked, wasExistingLocked;
