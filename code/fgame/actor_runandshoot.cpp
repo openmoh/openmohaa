@@ -125,7 +125,7 @@ bool Actor::RunAndShoot_MoveToPatrolCurrentNode(void)
 {
     UpdatePatrolCurrentNode();
 
-    if (!m_patrolCurrentNode && m_bPatrolWaitTrigger) {
+    if (!m_patrolCurrentNode || m_bPatrolWaitTrigger) {
         IdleLook();
         Anim_Idle();
         return false;
