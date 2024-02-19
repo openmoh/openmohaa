@@ -1357,7 +1357,28 @@ qboolean G_ArchiveLevel(const char *filename, qboolean autosave, qboolean loadin
             }
         }
 
+        //
+        // simple archived entities
+        //
+        if (!arc.Loading()) {
+            num = level.m_SimpleArchivedEntities.NumObjects();
+        }
+        arc.ArchiveInteger(&num);
+
+        if (arc.Saving()) {
+            for (i = 1; i <= num; i++) {
+                arc.ArchiveObject(level.m_SimpleArchivedEntities.ObjectAt(i));
+            }
+        } else {
+            for (i = 1; i <= num; i++) {
+                arc.ReadObject();
+            }
+        }
+
         ArchiveAliases(arc);
+
+        // Added in 2.0
+        G_ArchiveSmokeSprites(arc);
 
         currentArc = &arc;
         gi.ArchiveLevel(arc.Loading());
