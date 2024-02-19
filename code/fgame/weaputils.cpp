@@ -1306,7 +1306,7 @@ void Projectile::SetOwner(Entity *owner)
         if (owner->IsSubclassOfPlayer()) {
             Player *p = (Player *)owner;
             m_iTeam   = p->GetTeam();
-			// Added in OPM
+            // Added in OPM
             //  this was added to prevent glitches, like when the player
             //  disconnects or when the player spectates
             m_bHadPlayerOwner = true;
@@ -1804,7 +1804,7 @@ void PlaceLandmine(const Vector& origin, Entity *owner, const str& model, Weapon
             weap->m_iNumShotsFired++;
 
             if (owner && owner->IsSubclassOfPlayer() && weap->IsSubclassOfTurretGun()) {
-                Player* p = static_cast<Player*>(owner);
+                Player *p = static_cast<Player *>(owner);
                 p->m_iNumShotsFired++;
             }
         }
@@ -2585,30 +2585,37 @@ void FakeBulletAttack(
 
 void ClickItemAttack(Vector vStart, Vector vForward, float fRange, Entity *pOwner)
 {
+    Event  *ev;
     Vector  vEnd;
     trace_t trace;
 
     vEnd = vStart + vForward * fRange;
 
-    trace = G_Trace(vStart, vec_zero, vec_zero, vEnd, pOwner, MASK_ALL, qfalse, "ClickItemAttack");
+    trace = G_Trace(vStart, vec_zero, vec_zero, vEnd, pOwner, MASK_CLICKITEM, qfalse, "ClickItemAttack");
 
     if (g_showbullettrace->integer) {
-        G_DebugLine(vStart, vEnd, 1, 1, 1, 1);
+        //G_DebugLine(vStart, vEnd, 1, 1, 1, 1);
+        // Added in OPM
+        //  White line between start and end trace position
+        G_DebugLine(vStart, trace.endpos, 1, 1, 1, 1);
+        G_DebugLine(trace.endpos, vEnd, 1, 0, 0, 1);
     }
 
-    if (trace.entityNum != ENTITYNUM_NONE && trace.ent && trace.ent->entity
-        && trace.ent->entity->isSubclassOf(TriggerClickItem)) {
-        Event *ev = new Event(EV_Activate);
-        ev->AddEntity(pOwner);
-        trace.ent->entity->PostEvent(ev, 0);
-    } else {
+    if (trace.entityNum == ENTITYNUM_WORLD || !trace.ent || !trace.ent->entity
+        || !trace.ent->entity->isSubclassOf(TriggerClickItem)) {
         ScriptThreadLabel failThread;
 
         // Try to execute a fail thread
         if (failThread.TrySet("clickitem_fail")) {
             failThread.Execute();
         }
+
+        return;
     }
+
+    ev = new Event(EV_Activate);
+    ev->AddEntity(pOwner);
+    trace.ent->entity->PostEvent(ev, 0);
 }
 
 Projectile *HeavyAttack(Vector start, Vector dir, str projectileModel, float real_speed, Entity *owner, Weapon *weap)
