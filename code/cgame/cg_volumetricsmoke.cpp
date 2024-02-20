@@ -80,54 +80,55 @@ void VSS_AddRepulsion(cvssource_t *pA, cvssource_t *pB)
 
     VectorSubtract(pA->newOrigin, pB->newOrigin, vPush);
 
-    if (vPush[0] || vPush[1] || vPush[2]) {
-        fDist = VectorNormalize(vPush);
-        f     = fDist - pB->newRadius;
-
-        if (f > 0.0) {
-            f *= pA->ooRadius;
-            if (f > 1.49) {
-                f = 0.0;
-            } else {
-                f = f * (f * 0.0161 + -0.3104) + 1.2887;
-            }
-
-            if (f < 0.0) {
-                f = f * 1.1;
-            }
-
-            fForce = f;
-        } else {
-            fForce = 1.0;
-        }
-
-        f = fDist - pA->newRadius;
-        if (f > 0.0) {
-            f *= pB->ooRadius;
-            if (f > 1.49) {
-                f = 0.0;
-            } else {
-                f = f * (f * 0.0161 + -0.3104) + 1.2887;
-            }
-
-            if (f < 0.0) {
-                f = f * 1.1;
-            }
-
-            fForce += f;
-        } else {
-            fForce += 1.0;
-        }
-
-        if (fForce <= -0.05 && fForce >= 0.05) {
-            fForce = (pA->newRadius + pB->newRadius) * 0.03 * fForce;
-            VectorScale(vPush, fForce, vPush);
-
-            VectorAdd(pA->repulsion, vPush, pA->repulsion);
-            VectorSubtract(pB->repulsion, vPush, pB->repulsion);
-        }
-    } else {
+    if (!vPush[0] && !vPush[1] && !vPush[2]) {
         VectorSet(vPush, crandom(), crandom(), crandom());
+        VectorAdd(pA->repulsion, vPush, pA->repulsion);
+        VectorSubtract(pB->repulsion, vPush, pB->repulsion);
+        return;
+    }
+
+    fDist = VectorNormalize(vPush);
+    f     = fDist - pB->newRadius;
+
+    if (f > 0.0f) {
+        f *= pA->ooRadius;
+        if (f > 1.49f) {
+            f = 0.0f;
+        } else {
+            f = f * (f * 0.0161f + -0.3104f) + 1.2887f;
+        }
+
+        if (f < 0.0) {
+            f *= 1.1f;
+        }
+
+        fForce = f;
+    } else {
+        fForce = 1.0;
+    }
+
+    f = fDist - pA->newRadius;
+    if (f > 0.0) {
+        f *= pB->ooRadius;
+        if (f > 1.49f) {
+            f = 0.0f;
+        } else {
+            f = f * (f * 0.0161f + -0.3104f) + 1.2887f;
+        }
+
+        if (f < 0.0) {
+            f *= 1.1f;
+        }
+
+        fForce += f;
+    } else {
+        fForce += 1.0f;
+    }
+
+    if (fForce <= -0.05f || fForce >= 0.05f) {
+        fForce = (pA->newRadius + pB->newRadius) * 0.03f * fForce;
+        VectorScale(vPush, fForce, vPush);
+
         VectorAdd(pA->repulsion, vPush, pA->repulsion);
         VectorSubtract(pB->repulsion, vPush, pB->repulsion);
     }
@@ -931,14 +932,13 @@ void VSS_CalcRepulsionForces(cvssource_t *pActiveSources)
             pComp    = vss_sorttable[pCurrent->stindex];
         }
 
-        while (pComp) {
+        for(; pComp; pComp = pComp->stnext) {
             VSS_AddRepulsion(pCurrent, pComp);
             if (!pSTLatch && pComp->stnext == pCurrent) {
                 pSTLatch = pComp;
+                // skip current
                 pComp    = pComp->stnext;
             }
-
-            pComp = pComp->stnext;
         }
 
         iX = ((int)floor(pCurrent->newOrigin[0] + 8192.0 + 0.5) / 96) % 32;
@@ -946,13 +946,13 @@ void VSS_CalcRepulsionForces(cvssource_t *pActiveSources)
         iZ = (((int)floor(pCurrent->newOrigin[2] + 8192.0 + 0.5) / 96) % 16) << 10;
 
         fOfs  = pCurrent->newRadius + 1.49 + 48.0;
-        iMaxX = ((int)floor(pCurrent->newOrigin[0] + 8192.0 + 0.5 + fOfs) / 96) % 32;
-        iMaxY = (((int)floor(pCurrent->newOrigin[1] + 8192.0 + 0.5 + fOfs) / 96) % 32) << 5;
-        iMaxZ = (((int)floor(pCurrent->newOrigin[2] + 8192.0 + 0.5 + fOfs) / 96) % 16) << 10;
+        iMaxX = ((int)floor(pCurrent->newOrigin[0] + fOfs + 8192.0 + 0.5) / 96) % 32;
+        iMaxY = (((int)floor(pCurrent->newOrigin[1] + fOfs + 8192.0 + 0.5) / 96) % 32) << 5;
+        iMaxZ = (((int)floor(pCurrent->newOrigin[2] + fOfs + 8192.0 + 0.5) / 96) % 16) << 10;
 
-        iMinX = ((int)floor(pCurrent->newOrigin[0] + 8192.0 + 0.5 - fOfs) / 96) % 32;
-        iMinY = (((int)floor(pCurrent->newOrigin[1] + 8192.0 + 0.5 - fOfs) / 96) % 32) << 5;
-        iMinZ = (((int)floor(pCurrent->newOrigin[2] + 8192.0 + 0.5 - fOfs) / 96) % 16) << 10;
+        iMinX = ((int)floor(pCurrent->newOrigin[0] - fOfs + 8192.0 + 0.5) / 96) % 32;
+        iMinY = (((int)floor(pCurrent->newOrigin[1] - fOfs + 8192.0 + 0.5) / 96) % 32) << 5;
+        iMinZ = (((int)floor(pCurrent->newOrigin[2] - fOfs + 8192.0 + 0.5) / 96) % 16) << 10;
 
         bXUp   = (iMaxX | (pCurrent->stindex & 0xFFFFFFE0)) != pCurrent->stindex;
         bXDown = (iMinX | (pCurrent->stindex & 0xFFFFFFE0)) != pCurrent->stindex;
