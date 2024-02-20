@@ -8936,7 +8936,7 @@ void Actor::WeaponSound(int iType, vec3_t sound_origin, float fDistSquared, floa
         if (pActor->m_Think[THINKLEVEL_IDLE] == THINK_MACHINEGUNNER && pWeapon->aim_target) {
             if (pWeapon->aim_target->IsSubclassOfSentient()) {
                 Sentient *pTarget = static_cast<Sentient *>(pWeapon->aim_target.Pointer());
-                if (pTarget->m_Team = m_Team) {
+                if (pTarget->m_Team == m_Team) {
                     pEnemy = pTarget;
                 }
             } else if (!m_Team) {
