@@ -52,6 +52,10 @@ S_AddLoopingSound
 */
 void S_AddLoopingSound(const vec3_t origin, const vec3_t velocity, sfxHandle_t sfxHandle, float volume, float minDist, float maxDist, float pitch, int flags)
 {
+    if (!sfxHandle) {
+        return;
+    }
+
     // FIXME: unimplemented
     S_AddLoopingSound(ENTITYNUM_WORLD, origin, velocity, sfxHandle);
 }
