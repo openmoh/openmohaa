@@ -230,7 +230,7 @@ const char *ScriptMaster::ConstStrings[] = {
     "anim/shoot.scr",
     "anim/mg42_shoot.scr",
     "anim/mg42_idle.scr",
-    "anim_mg42_reload.scr",
+    "anim/mg42_reload.scr",
     "drive",
     "global/weapon.scr",
     "global/moveto.scr",
