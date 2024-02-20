@@ -337,6 +337,8 @@ qboolean VSS_SourcePhysics(cvssource_t *pSource, float ftime)
             float  fDot;
             vec3_t vNorm;
 
+            VectorCopy(trace.plane.normal, vNorm);
+
             VectorAdd(trace.endpos, trace.plane.normal, pSource->newOrigin);
             fDot = DotProduct(vNorm, pSource->velocity);
             VectorMA(pSource->velocity, fDot, vNorm, pSource->velocity);
