@@ -42,7 +42,9 @@ const char *cg_vsstypes[] = {
     "debris"
 };
 
-cvssource_t *vss_sorttable[16384];
+#define MAX_VSS_SORTS 16384
+
+cvssource_t *vss_sorttable[MAX_VSS_SORTS];
 
 static int             lastVSSFrameTime;
 static constexpr float MAX_VSS_COORDS            = 8096.0;
@@ -890,251 +892,250 @@ void VSS_CalcRepulsionForces(cvssource_t *pActiveSources)
 {
     cvssource_t *pCurrent;
     cvssource_t *pComp;
+    qboolean     bXUp, bXDown;
+    qboolean     bYUp, bYDown;
+    qboolean     bZDown;
+    int          i;
+    int          iIndex;
+    int          iX, iY, iZ;
+    int          iMinX, iMinY, iMinZ;
+    int          iMaxX, iMaxY, iMaxZ;
+    float        fOfs;
+    cvssource_t *pSTLatch;
 
     pCurrent = pActiveSources->prev;
-    if (pCurrent != pActiveSources) {
-        qboolean     bXUp, bXDown;
-        qboolean     bYUp, bYDown;
-        qboolean     bZDown;
-        int          i;
-        int          iIndex;
-        int          iX, iY, iZ;
-        int          iMinX, iMinY, iMinZ;
-        int          iMaxX, iMaxY, iMaxZ;
-        float        fOfs;
-        cvssource_t *pSTLatch;
+    if (pCurrent == pActiveSources) {
+        return;
+    }
 
-        memset(vss_sorttable, 0, sizeof(vss_sorttable));
+    memset(vss_sorttable, 0, sizeof(vss_sorttable));
 
-        while (pCurrent != pActiveSources) {
-            VectorClear(pCurrent->repulsion);
+    for (pCurrent = pActiveSources->prev; pCurrent != pActiveSources; pCurrent = pCurrent->prev) {
+        VectorClear(pCurrent->repulsion);
 
-            iIndex = ((int)floor(pCurrent->newOrigin[0] + 8192.0 + 0.5) / 96) % 32;
-            iIndex |= ((int)floor(pCurrent->newOrigin[1] + 8192.0 + 0.5) / 96) % 32;
-            iIndex |= (((int)floor(pCurrent->newOrigin[2] + 8192.0 + 0.5) / 96) % 16) << 10;
+        iIndex = ((int)floor(pCurrent->newOrigin[0] + 8192.0 + 0.5) / 96) % 32;
+        iIndex |= (((int)floor(pCurrent->newOrigin[1] + 8192.0 + 0.5) / 96) % 32) << 5;
+        iIndex |= (((int)floor(pCurrent->newOrigin[2] + 8192.0 + 0.5) / 96) % 16) << 10;
 
-            pCurrent->stnext      = vss_sorttable[iIndex];
-            vss_sorttable[iIndex] = pCurrent;
-            pCurrent->stindex     = iIndex;
-            pCurrent              = pCurrent->prev;
+        pCurrent->stnext      = vss_sorttable[iIndex];
+        vss_sorttable[iIndex] = pCurrent;
+        pCurrent->stindex     = iIndex;
+    }
+
+    for (pCurrent = pActiveSources->prev; pCurrent != pActiveSources; pCurrent = pCurrent->prev) {
+        if (vss_sorttable[pCurrent->stindex] == pCurrent) {
+            pSTLatch = (cvssource_t *)-1;
+            pComp    = pCurrent->stnext;
+        } else {
+            pSTLatch = 0;
+            pComp    = vss_sorttable[pCurrent->stindex];
         }
 
-        for (pCurrent = pActiveSources->prev; pCurrent != pActiveSources; pCurrent = pCurrent->prev) {
-            if (vss_sorttable[pCurrent->stindex] == pCurrent) {
-                pSTLatch = (cvssource_t *)-1;
-                pComp    = pCurrent->stnext;
-            } else {
-                pSTLatch = 0;
-                pComp    = vss_sorttable[pCurrent->stindex];
+        while (pComp) {
+            VSS_AddRepulsion(pCurrent, pComp);
+            if (!pSTLatch && pComp->stnext == pCurrent) {
+                pSTLatch = pComp;
+                pComp    = pComp->stnext;
             }
 
-            while (pComp) {
+            pComp = pComp->stnext;
+        }
+
+        iX = ((int)floor(pCurrent->newOrigin[0] + 8192.0 + 0.5) / 96) % 32;
+        iY = (((int)floor(pCurrent->newOrigin[1] + 8192.0 + 0.5) / 96) % 32) << 5;
+        iZ = (((int)floor(pCurrent->newOrigin[2] + 8192.0 + 0.5) / 96) % 16) << 10;
+
+        fOfs  = pCurrent->newRadius + 1.49 + 48.0;
+        iMaxX = ((int)floor(pCurrent->newOrigin[0] + 8192.0 + 0.5 + fOfs) / 96) % 32;
+        iMaxY = (((int)floor(pCurrent->newOrigin[1] + 8192.0 + 0.5 + fOfs) / 96) % 32) << 5;
+        iMaxZ = (((int)floor(pCurrent->newOrigin[2] + 8192.0 + 0.5 + fOfs) / 96) % 16) << 10;
+
+        iMinX = ((int)floor(pCurrent->newOrigin[0] + 8192.0 + 0.5 - fOfs) / 96) % 32;
+        iMinY = (((int)floor(pCurrent->newOrigin[1] + 8192.0 + 0.5 - fOfs) / 96) % 32) << 5;
+        iMinZ = (((int)floor(pCurrent->newOrigin[2] + 8192.0 + 0.5 - fOfs) / 96) % 16) << 10;
+
+        bXUp   = (iMaxX | (pCurrent->stindex & 0xFFFFFFE0)) != pCurrent->stindex;
+        bXDown = (iMinX | (pCurrent->stindex & 0xFFFFFFE0)) != pCurrent->stindex;
+        bYUp   = (iMaxY | (pCurrent->stindex & 0xFFFFFC1F)) != pCurrent->stindex;
+        bYDown = (iMinY | (pCurrent->stindex & 0xFFFFFC1F)) != pCurrent->stindex;
+
+        iIndex = iMinZ | (pCurrent->stindex & 0xFFFFC3FF);
+        bZDown = iIndex != pCurrent->stindex;
+
+        if (iIndex == pCurrent->stindex) {
+            iIndex = iMaxY | (pCurrent->stindex & 0xFFFFFC1F);
+
+            i = 9;
+        } else {
+            i = 0;
+        }
+
+        for (; i < (bZDown ? 26 : 17); i++) {
+            switch (i) {
+            case 0:
+                iIndex = iMaxZ | (pCurrent->stindex & 0xFFFFC3FF);
+                break;
+            case 1:
+                iIndex = iMaxX | (iIndex & 0xFFFFFFE0);
+                if (bXUp) {
+                    break;
+                }
+                continue;
+            case 2:
+                iIndex = iMaxY | (iIndex & 0xFFFFFC1F);
+                if (bXUp && bYUp) {
+                    break;
+                }
+                continue;
+            case 3:
+                iIndex = iMinY | (iIndex & 0xFFFFFC1F);
+                if (bXUp && bYDown) {
+                    break;
+                }
+                continue;
+            case 4:
+                iIndex = iMinY | (iIndex & 0xFFFFFFE0);
+                if (bYDown) {
+                    break;
+                }
+                continue;
+            case 5:
+                iIndex = iMinX | (iIndex & 0xFFFFFFE0);
+                if (bXDown && bYDown) {
+                    break;
+                }
+                continue;
+            case 6:
+                iIndex = iY | (iIndex & 0xFFFFFC1F);
+                if (bXDown) {
+                    break;
+                }
+                continue;
+            case 7:
+                iIndex = iMaxY | (iIndex & 0xFFFFFC1F);
+                if (bXDown && bYUp) {
+                    break;
+                }
+                continue;
+            case 8:
+                iIndex = iX | (iIndex & 0xFFFFFFE0);
+                if (bYUp) {
+                    break;
+                }
+                continue;
+            case 9:
+                iIndex = iZ | (iIndex & 0xFFFFFFC3);
+                if (bYUp) {
+                    break;
+                }
+                continue;
+            case 10:
+                iIndex = iMaxX | (iIndex & 0xFFFFFFE0);
+                if (bXUp && bYUp) {
+                    break;
+                }
+                continue;
+            case 11:
+                iIndex = iMinX | (iIndex & 0xFFFFFFE0);
+                if (bXDown && bYUp) {
+                    break;
+                }
+                continue;
+            case 12:
+                iIndex = iY | (iIndex & 0xFFFFFC1F);
+                if (bXDown) {
+                    break;
+                }
+                continue;
+            case 13:
+                iIndex = iMinY | (iIndex & 0xFFFFFC1F);
+                if (bXDown && bYDown) {
+                    break;
+                }
+                continue;
+            case 14:
+                iIndex = iX | (iIndex & 0xFFFFFFE0);
+                if (bYDown) {
+                    break;
+                }
+                continue;
+            case 15:
+                iIndex = iMaxX | (iIndex & 0xFFFFFFE0);
+                if (bXUp && bYDown) {
+                    break;
+                }
+                continue;
+            case 16:
+                iIndex = iY | (iIndex & 0xFFFFFC1F);
+                if (bXUp) {
+                    break;
+                }
+                continue;
+            case 17:
+                iIndex = iMinZ | (iIndex & 0xFFFFFCC3);
+                if (bXUp) {
+                    break;
+                }
+                continue;
+            case 18:
+                iIndex = iMaxY | (iIndex & 0xFFFFFC1F);
+                if (bXUp && bYUp) {
+                    break;
+                }
+                continue;
+            case 19:
+                iIndex = iMinY | (iIndex & 0xFFFFFC1F);
+                if (bXUp && bYDown) {
+                    break;
+                }
+                continue;
+            case 20:
+                iIndex = iX | (iIndex & 0xFFFFFFE0);
+                if (bYDown) {
+                    break;
+                }
+                continue;
+            case 21:
+                iIndex = iMinX | (iIndex & 0xFFFFFFE0);
+                if (bXDown && bYDown) {
+                    break;
+                }
+                continue;
+            case 22:
+                iIndex = iY | (iIndex & 0xFFFFFC1F);
+                if (bXDown) {
+                    break;
+                }
+                continue;
+            case 23:
+                iIndex = iMaxY | (iIndex & 0xFFFFFC1F);
+                if (bXDown && bYUp) {
+                    break;
+                }
+                continue;
+            case 24:
+                iIndex = iX | (iIndex & 0xFFFFFFE0);
+                if (bYUp) {
+                    break;
+                }
+                continue;
+            case 25:
+                iIndex = iY | (iIndex & 0xFFFFFC1F);
+                break;
+            default:
+                assert(0); // This can't happen
+                break;
+            }
+
+            for (pComp = vss_sorttable[iIndex]; pComp; pComp = pComp->stnext) {
                 VSS_AddRepulsion(pCurrent, pComp);
-                if (!pSTLatch && pComp->stnext == pCurrent) {
-                    pSTLatch = pComp;
-                    pComp    = pComp->stnext;
-                }
-
-                pComp = pComp->stnext;
             }
-            iX = ((int)floor(pCurrent->newOrigin[0] + 8192.0 + 0.5) / 96) % 32;
-            iY = ((int)floor(pCurrent->newOrigin[1] + 8192.0 + 0.5) / 96) % 32;
-            iY *= 2;
-            iZ = ((int)floor(pCurrent->newOrigin[2] + 8192.0 + 0.5) / 96) % 16;
-            iZ <<= 10;
+        }
 
-            fOfs  = pCurrent->newRadius + 1.49 + 48.0;
-            iMaxX = ((int)floor(pCurrent->newOrigin[0] + 8192.0 + 0.5 + fOfs) / 96) % 32;
-            iMaxY = ((int)floor(pCurrent->newOrigin[1] + 8192.0 + 0.5 + fOfs) / 96) % 32;
-            iMaxY *= 2;
-            iMaxZ = ((int)floor(pCurrent->newOrigin[2] + 8192.0 + 0.5 + fOfs) / 96) % 16;
-            iMaxZ <<= 10;
-
-            iMinX = ((int)floor(pCurrent->newOrigin[0] + 8192.0 + 0.5 - fOfs) / 96) % 32;
-            iMinY = ((int)floor(pCurrent->newOrigin[1] + 8192.0 + 0.5 - fOfs) / 96) % 32;
-            iMinY *= 2;
-            iMinZ = ((int)floor(pCurrent->newOrigin[2] + 8192.0 + 0.5 - fOfs) / 96) % 16;
-            iMinZ <<= 10;
-
-            bXUp   = (iMaxX | (pCurrent->stindex & 0xFFFFFFE0)) != pCurrent->stindex;
-            bXDown = (iMinX | (pCurrent->stindex & 0xFFFFFFE0)) != pCurrent->stindex;
-            bYUp   = (iMaxY | (pCurrent->stindex & 0xFFFFFC1F)) != pCurrent->stindex;
-            bYDown = (iMinY | (pCurrent->stindex & 0xFFFFFC1F)) != pCurrent->stindex;
-
-            iIndex = iMinZ | (pCurrent->stindex & 0xFFFFFCC3);
-            bZDown = iIndex != pCurrent->stindex;
-
-            if (iIndex == pCurrent->stindex) {
-                iIndex = iMaxY | pCurrent->stindex & 0xFFFFFC1F;
-                i      = 9;
-            } else {
-                i = 0;
-            }
-
-            for(; i < (bZDown ? 26 : 17); i++) {
-                switch (i) {
-                case 0:
-                    iIndex = iMaxZ | (pCurrent->stindex & 0xFFFFFCC3);
-                    break;
-                case 1:
-                    iIndex = iMaxX | (iIndex & 0xFFFFFFE0);
-                    if (bXUp) {
-                        break;
-                    }
-                    continue;
-                case 2:
-                    iIndex = iMaxY | (iIndex & 0xFFFFFC1F);
-                    if (bXUp && bYUp) {
-                        break;
-                    }
-                    continue;
-                case 3:
-                    iIndex = iMinY | (iIndex & 0xFFFFFC1F);
-                    if (bXUp && bYDown) {
-                        break;
-                    }
-                    continue;
-                case 4:
-                    iIndex = iMinY | (iIndex & 0xFFFFFFE0);
-                    if (bYDown) {
-                        break;
-                    }
-                    continue;
-                case 5:
-                    iIndex = iMinX | (iIndex & 0xFFFFFFE0);
-                    if (bXDown && bYDown) {
-                        break;
-                    }
-                    continue;
-                case 6:
-                    iIndex = iY | (iIndex & 0xFFFFFC1F);
-                    if (bXDown) {
-                        break;
-                    }
-                    continue;
-                case 7:
-                    iIndex = iMaxY | (iIndex & 0xFFFFFC1F);
-                    if (bXDown && bYUp) {
-                        break;
-                    }
-                    continue;
-                case 8:
-                    iIndex = iX | (iIndex & 0xFFFFFFE0);
-                    if (bYUp) {
-                        break;
-                    }
-                    continue;
-                case 9:
-                    iIndex = iZ | (iIndex & 0xFFFFFFC3);
-                    if (bYUp) {
-                        break;
-                    }
-                    continue;
-                case 10:
-                    iIndex = iMaxX | (iIndex & 0xFFFFFFE0);
-                    if (bXUp && bYUp) {
-                        break;
-                    }
-                    continue;
-                case 11:
-                    iIndex = iMinX | (iIndex & 0xFFFFFFE0);
-                    if (bXDown && bYUp) {
-                        break;
-                    }
-                    continue;
-                case 12:
-                    iIndex = iY | (iIndex & 0xFFFFFC1F);
-                    if (bXDown) {
-                        break;
-                    }
-                    continue;
-                case 13:
-                    iIndex = iMinY | (iIndex & 0xFFFFFC1F);
-                    if (bXDown && bYDown) {
-                        break;
-                    }
-                    continue;
-                case 14:
-                    iIndex = iX | (iIndex & 0xFFFFFFE0);
-                    if (bYDown) {
-                        break;
-                    }
-                    continue;
-                case 15:
-                    iIndex = iMaxX | (iIndex & 0xFFFFFFE0);
-                    if (bXUp && bYDown) {
-                        break;
-                    }
-                    continue;
-                case 16:
-                    iIndex = iY | (iIndex & 0xFFFFFC1F);
-                    if (bXUp) {
-                        break;
-                    }
-                    continue;
-                case 17:
-                    iIndex = iMinZ | (iIndex & 0xFFFFFCC3);
-                    if (bXUp) {
-                        break;
-                    }
-                    continue;
-                case 18:
-                    iIndex = iMaxY | (iIndex & 0xFFFFFC1F);
-                    if (bXUp && bYUp) {
-                        break;
-                    }
-                    continue;
-                case 19:
-                    iIndex = iMinY | (iIndex & 0xFFFFFC1F);
-                    if (bXUp && bYDown) {
-                        break;
-                    }
-                    continue;
-                case 20:
-                    iIndex = iX | (iIndex & 0xFFFFFFE0);
-                    if (bYDown) {
-                        break;
-                    }
-                    continue;
-                case 21:
-                    iIndex = iMinX | (iIndex & 0xFFFFFFE0);
-                    if (bXDown && bYDown) {
-                        break;
-                    }
-                    continue;
-                case 22:
-                    iIndex = iY | (iIndex & 0xFFFFFC1F);
-                    if (bXDown) {
-                        break;
-                    }
-                    continue;
-                case 23:
-                    iIndex = iMaxY | (iIndex & 0xFFFFFC1F);
-                    if (bXDown && bYUp) {
-                        break;
-                    }
-                    continue;
-                case 24:
-                    iIndex = iX | (iIndex & 0xFFFFFFE0);
-                    if (bYUp) {
-                        break;
-                    }
-                    continue;
-                case 25:
-                    iIndex = iY | (iIndex & 0xFFFFFC1F);
-                    break;
-                }
-
-                for (pComp = vss_sorttable[iIndex]; pComp; pComp = pComp->stnext) {
-                    VSS_AddRepulsion(pCurrent, pComp);
-                }
-            }
-
-            if (pSTLatch == (cvssource_t *)-1) {
-                vss_sorttable[pCurrent->stindex] = pCurrent->stnext;
-            } else {
-                pSTLatch->stnext = pCurrent->stnext;
-            }
+        if (pSTLatch == (cvssource_t *)-1) {
+            vss_sorttable[pCurrent->stindex] = pCurrent->stnext;
+        } else {
+            pSTLatch->stnext = pCurrent->stnext;
         }
     }
 }
