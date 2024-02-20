@@ -373,7 +373,7 @@ void TIKI_Begin(void)
 {
     int i;
 
-    for (i = 0; i < MAX_GENTITIES; i++) {
+    for (i = 0; i < TIKI_MAX_ENTITY_CACHE; i++) {
         skel_entity_cache[i] = 0;
     }
 
