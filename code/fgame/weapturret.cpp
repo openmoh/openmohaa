@@ -1266,6 +1266,10 @@ void TurretGun::AI_DoFiring()
 
 void TurretGun::AI_ThinkActive()
 {
+    if (!g_ai->integer) {
+        return;
+    }
+
     AI_DoAiming();
     AI_DoFiring();
 }
@@ -1917,16 +1921,18 @@ void TurretGun::StopWeaponAnim(void)
 
 float TurretGun::FireDelay(firemode_t mode)
 {
-    if (owner && owner->IsSubclassOfPlayer()) {
-        return 0.06f;
-    } else {
-        return Weapon::FireDelay(mode);
-    }
+    return fire_delay[FIRE_PRIMARY];
 }
 
 void TurretGun::SetFireDelay(Event *ev)
 {
     fire_delay[FIRE_PRIMARY] = ev->GetFloat(1);
+    if (!m_fMaxBurstTime) {
+        // Added in OPM
+        //  default values if not set
+        m_fMaxBurstTime = m_fMinBurstTime = 0.001f;
+        m_fMaxBurstDelay = m_fMinBurstDelay = fire_delay[FIRE_PRIMARY];
+    }
 }
 
 void TurretGun::ShowInfo(float fDot, float fDist)

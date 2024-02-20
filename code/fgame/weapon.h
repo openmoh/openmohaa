@@ -399,12 +399,12 @@ public:
     virtual void GetMuzzlePosition(
         vec3_t position, vec3_t vBarrelPos = NULL, vec3_t forward = NULL, vec3_t right = NULL, vec3_t up = NULL
     );
-    qboolean AutoChange(void);
-    int      ClipAmmo(firemode_t mode);
-    qboolean IsDroppable(void);
-    float    FireDelay(firemode_t mode);
-    void     SetFireDelay(Event *ev);
-    void     SetDMFireDelay(Event *ev);
+    qboolean         AutoChange(void);
+    int              ClipAmmo(firemode_t mode);
+    qboolean         IsDroppable(void);
+    virtual float    FireDelay(firemode_t mode);
+    virtual void     SetFireDelay(Event *ev);
+    void             SetDMFireDelay(Event *ev);
 
     weaponstate_t GetState(void);
     void          ForceState(weaponstate_t state);
