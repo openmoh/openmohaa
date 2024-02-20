@@ -42,7 +42,7 @@ struct pchar {
 
 con_map<pchar, dtikianim_t *> *tikianimcache;
 con_map<pchar, dtiki_t *>     *tikicache;
-static skeletor_c             *skel_entity_cache[1024];
+static skeletor_c             *skel_entity_cache[TIKI_MAX_ENTITY_CACHE];
 
 template<>
 int HashCode<pchar>(const pchar& key)
@@ -300,6 +300,8 @@ static qboolean tiki_started;
 void *TIKI_GetSkeletor(dtiki_t *tiki, int entnum)
 {
     skeletor_c *skel;
+    int i;
+    int index;
 
     if (entnum == ENTITYNUM_NONE) {
         if (!tiki->skeletor) {
@@ -307,17 +309,34 @@ void *TIKI_GetSkeletor(dtiki_t *tiki, int entnum)
         }
         skel = (skeletor_c *)tiki->skeletor;
     } else {
-        skel = skel_entity_cache[entnum];
-        if (skel) {
-            if (skel->m_Tiki == tiki) {
-                return skel_entity_cache[entnum];
+        // Added in 2.30
+        //  Multiple caches per entity
+        for (i = 0; i < TIKI_MAX_ENTITY_CACHE_PER_ENT; i++) {
+            index = ((entnum % TIKI_MAX_ENTITIES) * TIKI_MAX_ENTITY_CACHE_PER_ENT) + i;
+
+            skel = skel_entity_cache[index];
+            if (!skel) {
+                break;
             }
 
+            if (skel->m_Tiki == tiki) {
+                return skel;
+            }
+        }
+
+        if (i == TIKI_MAX_ENTITY_CACHE_PER_ENT) {
+            i = 0;
+        }
+
+        index = ((entnum % TIKI_MAX_ENTITIES) * TIKI_MAX_ENTITY_CACHE_PER_ENT) + i;
+        skel = skel_entity_cache[index];
+
+        if (skel) {
             delete skel;
         }
 
         skel                      = new skeletor_c(tiki);
-        skel_entity_cache[entnum] = skel;
+        skel_entity_cache[index] = skel;
     }
 
     return skel;
@@ -331,15 +350,17 @@ TIKI_DeleteSkeletor
 static void TIKI_DeleteSkeletor(int entnum)
 {
     skeletor_c *skel;
+    int i;
 
     if (entnum == ENTITYNUM_NONE) {
         return;
     }
 
-    skel = skel_entity_cache[entnum];
-    if (skel) {
-        delete skel;
-        skel_entity_cache[entnum] = 0;
+    for (i = 0; i < TIKI_MAX_ENTITY_CACHE_PER_ENT; i++) {
+        skel = skel_entity_cache[entnum * TIKI_MAX_ENTITY_CACHE_PER_ENT + i];
+        if (skel) {
+            delete skel;
+        }
     }
 }
 
@@ -352,7 +373,7 @@ void TIKI_Begin(void)
 {
     int i;
 
-    for (i = 0; i < TIKI_MAX_SKELCACHE; i++) {
+    for (i = 0; i < MAX_GENTITIES; i++) {
         skel_entity_cache[i] = 0;
     }
 
@@ -368,7 +389,7 @@ void TIKI_End(void)
 {
     int i;
 
-    for (i = 0; i < TIKI_MAX_SKELCACHE; i++) {
+    for (i = 0; i < MAX_GENTITIES; i++) {
         TIKI_DeleteSkeletor(i);
     }
 

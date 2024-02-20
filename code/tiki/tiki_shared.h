@@ -77,6 +77,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define TIKI_MAX_SKELCACHE 1024
 #define TIKI_MAX_COMMANDS  128
 
+#define TIKI_MAX_ENTITIES              2048
+#define TIKI_MAX_ENTITY_CACHE_PER_ENT  2
+#define TIKI_MAX_ENTITY_CACHE          (TIKI_MAX_ENTITIES*TIKI_MAX_ENTITY_CACHE_PER_ENT)
+
 // tiki surface flags
 #define TIKI_SURF_SKIN1     (1 << 0)
 #define TIKI_SURF_SKIN2     (1 << 1)
