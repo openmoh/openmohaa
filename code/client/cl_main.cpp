@@ -1486,7 +1486,7 @@ void CL_SendPureChecksums( void ) {
 	Q_strcat(cMsg, sizeof(cMsg), va("%d ", cl.serverId) );
 	Q_strcat(cMsg, sizeof(cMsg), pChecksums);
 	for (i = 0; i < 2; i++) {
-		cMsg[i] += 10;
+		cMsg[i] += '\n';
 	}
 	CL_AddReliableCommand( cMsg, qfalse );
 }
