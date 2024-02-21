@@ -1871,7 +1871,7 @@ void DM_Manager::BuildTeamInfo_ver6(DM_Team *dmTeam)
             Com_sprintf(entry, sizeof(entry), "%i %i \"\" \"\" \"\" \"\" ", -1, dmTeam->m_teamnumber);
         }
     } else {
-        Com_sprintf(entry, sizeof(entry), "%i \"\" \"\" \"\" \"\" \"\" ", -1 - dmTeam->m_teamnumber);
+        Com_sprintf(entry, sizeof(entry), "%i \"\" \"\" \"\" \"\" ", -1 - dmTeam->m_teamnumber);
     }
 
     InsertEntry(entry);
