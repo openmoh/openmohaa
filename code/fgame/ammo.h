@@ -22,8 +22,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // ammo.h: Base class for all ammunition for entities derived from the Weapon class.
 
-#ifndef __AMMO_H__
-#define __AMMO_H__
+#pragma once
 
 #include "g_local.h"
 #include "item.h"
@@ -35,6 +34,7 @@ public:
 
     AmmoEntity();
     Item *ItemPickup(Entity *other, qboolean add_to_inventory) override;
+    void  EventPostSpawn(Event *ev);
 };
 
 class Ammo : public Class
@@ -61,7 +61,6 @@ public:
 };
 
 inline void Ammo::Archive(Archiver& arc)
-
 {
     Class::Archive(arc);
 
@@ -75,5 +74,3 @@ inline void Ammo::Archive(Archiver& arc)
         setName(name);
     }
 }
-
-#endif /* ammo.h */

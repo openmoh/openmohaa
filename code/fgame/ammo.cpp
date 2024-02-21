@@ -30,13 +30,23 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "ammo.h"
 #include "player.h"
+#include "g_phys.h"
+
+Event EV_AmmoEntity_PostSpawn
+(
+    "ammoentity_postspawn",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Ammo Entity Post Spawn"
+);
 
 CLASS_DECLARATION(Item, AmmoEntity, NULL) {
-    {NULL, NULL}
+    {&EV_AmmoEntity_PostSpawn, &AmmoEntity::EventPostSpawn},
+    {NULL,                     NULL                       }
 };
 
 AmmoEntity::AmmoEntity()
-
 {
     if (LoadingSavegame) {
         // all data will be setup by the archive function
@@ -44,13 +54,14 @@ AmmoEntity::AmmoEntity()
     }
     setName("UnknownAmmo");
     amount = 0;
+
+    PostEvent(EV_AmmoEntity_PostSpawn, EV_POSTSPAWN);
 }
 
 Item *AmmoEntity::ItemPickup(Entity *other, qboolean add_to_inventory)
-
 {
     Sentient *player;
-    Weapon* pWeap;
+    Weapon   *pWeap;
 
     if (!other->IsSubclassOfPlayer()) {
         return NULL;
@@ -86,7 +97,11 @@ Item *AmmoEntity::ItemPickup(Entity *other, qboolean add_to_inventory)
     Unregister(STRING_PICKUP);
 
     // Tell the player about the ammo being picked
-    gi.SendServerCommand(other->edict - g_entities, "print \"" HUD_MESSAGE_YELLOW "%s\"", gi.LV_ConvertString(va("Got %d %s Rounds", amount, item_name.c_str())));
+    gi.SendServerCommand(
+        other->edict - g_entities,
+        "print \"" HUD_MESSAGE_YELLOW "%s\"",
+        gi.LV_ConvertString(va("Got %d %s Rounds", amount, item_name.c_str()))
+    );
 
     // Give the ammo to the player
     player->GiveAmmo(item_name, amount);
@@ -98,6 +113,21 @@ Item *AmmoEntity::ItemPickup(Entity *other, qboolean add_to_inventory)
     }
 
     return NULL; // This doesn't create any items
+}
+
+void AmmoEntity::EventPostSpawn(Event *ev)
+{
+    vec3_t fullmins;
+    vec3_t fullmaxs;
+
+    setMoveType(MOVETYPE_TOSS);
+    if (edict->tiki) {
+        gi.TIKI_CalculateBounds(edict->tiki, edict->s.scale, fullmins, fullmaxs);
+        setSize(fullmins, fullmaxs);
+        link();
+    }
+
+    droptofloor(256);
 }
 
 // This is the Class that is used to keep track of ammo in the player's inventory.
