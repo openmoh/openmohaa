@@ -154,9 +154,9 @@ void CG_RegisterCvars(void)
     cg_shadowdebug                = cgi.Cvar_Get("cg_shadowdebug", "0", 0);
     developer                     = cgi.Cvar_Get("developer", "0", 0);
     dm_playermodel                = cgi.Cvar_Get("dm_playermodel", "american_army", 3);
-    dm_playergermanmodel          = cgi.Cvar_Get("dm_playergermanmodel", "german_wehrmacht_soldier", 3);
+    dm_playergermanmodel          = cgi.Cvar_Get("dm_playergermanmodel", "german_wehrmacht_soldier", CVAR_ARCHIVE | CVAR_USERINFO);
     cg_forceModel                 = cgi.Cvar_Get("cg_forceModel", "0", CVAR_ARCHIVE);
-    cg_animationviewmodel         = cgi.Cvar_Get("cg_animationviewmodel", "0", 8);
+    cg_animationviewmodel         = cgi.Cvar_Get("cg_animationviewmodel", "0", CVAR_SYSTEMINFO);
     cg_hitmessages                = cgi.Cvar_Get("cg_hitmessages", "1", CVAR_ARCHIVE);
     cg_acidtrip                   = cgi.Cvar_Get("cg_acidtrip", "0", CVAR_CHEAT);
     cg_hud                        = cgi.Cvar_Get("cg_hud", "0", 0);
