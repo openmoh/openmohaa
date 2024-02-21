@@ -854,7 +854,7 @@ void SV_SpawnServer( const char *server, qboolean loadgame, qboolean restart, qb
 		Cvar_Set( "sv_referencedPakNames", p );
 
 		// save systeminfo and serverinfo strings
-		Q_strncpyz( systemInfo, Cvar_InfoString( CVAR_SYSTEMINFO ), sizeof( systemInfo ) );
+		Q_strncpyz( systemInfo, Cvar_InfoString_Big( CVAR_SYSTEMINFO ), sizeof( systemInfo ) );
 		cvar_modifiedFlags &= ~CVAR_SYSTEMINFO;
 		SV_SetConfigstring( CS_SYSTEMINFO, systemInfo );
 
