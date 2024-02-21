@@ -1411,9 +1411,16 @@ char *Cvar_InfoString(int bit)
 
 	info[0] = 0;
 
+	// start with read-only variable so they appear first
+	for (var = cvar_vars; var; var = var->next)
+	{
+		if (var->name && (var->flags & bit) && (var->flags & CVAR_ROM))
+			Info_SetValueForKey(info, var->name, var->string);
+	}
+
 	for(var = cvar_vars; var; var = var->next)
 	{
-		if(var->name && (var->flags & bit))
+		if (var->name && (var->flags & bit) && !(var->flags & CVAR_ROM))
 			Info_SetValueForKey (info, var->name, var->string);
 	}
 
@@ -1434,9 +1441,16 @@ char *Cvar_InfoString_Big(int bit)
 
 	info[0] = 0;
 
+	// start with read-only variable so they appear first
 	for (var = cvar_vars; var; var = var->next)
 	{
-		if(var->name && (var->flags & bit))
+		if (var->name && (var->flags & bit) && (var->flags & CVAR_ROM))
+			Info_SetValueForKey(info, var->name, var->string);
+	}
+
+	for (var = cvar_vars; var; var = var->next)
+	{
+		if (var->name && (var->flags & bit) && !(var->flags & CVAR_ROM))
 			Info_SetValueForKey_Big (info, var->name, var->string);
 	}
 	return info;
