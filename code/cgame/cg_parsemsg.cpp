@@ -267,7 +267,7 @@ CG_MakeBulletHole(const vec3_t i_vPos, const vec3_t i_vNorm, int iLarge, trace_t
         break;
     case SURF_SNOW:
         sBulletHole += "snow";
-        iEffect = SFX_BHIT_FOLIAGE_LITE;
+        iEffect = SFX_BHIT_SNOW_LITE;
         break;
     case SURF_CARPET:
         sBulletHole += "carpet";
