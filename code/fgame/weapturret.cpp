@@ -1243,11 +1243,26 @@ void TurretGun::AI_DoAiming()
 
 void TurretGun::AI_DoFiring()
 {
+    float minBurstTime, maxBurstTime;
+    float minBurstDelay, maxBurstDelay;
+
+    minBurstTime = m_fMinBurstTime;
+    maxBurstTime = m_fMaxBurstTime;
+    minBurstDelay = m_fMinBurstDelay;
+    maxBurstDelay = m_fMaxBurstDelay;
+
+    if (!maxBurstTime) {
+        // Added in OPM
+        //  default values if not set
+        maxBurstTime = minBurstTime = 0.001f;
+        maxBurstDelay = minBurstDelay = fire_delay[FIRE_PRIMARY];
+    }
+
     if (m_iFiring == 1) {
-        if (m_fMaxBurstTime > 0) {
+        if (maxBurstTime > 0) {
             if (m_fFireToggleTime < level.time) {
                 m_iFiring         = 4;
-                m_fFireToggleTime = level.time + m_fMinBurstTime + (m_fMaxBurstTime - m_fMinBurstTime) * random();
+                m_fFireToggleTime = level.time + minBurstTime + (maxBurstTime - minBurstTime) * random();
             }
         } else {
             m_iFiring = 4;
@@ -1255,10 +1270,10 @@ void TurretGun::AI_DoFiring()
     } else if (m_iFiring == 4) {
         Fire(FIRE_PRIMARY);
 
-        if (m_fMaxBurstTime > 0) {
+        if (maxBurstTime > 0) {
             if (m_fFireToggleTime < level.time) {
                 m_iFiring         = 1;
-                m_fFireToggleTime = level.time + m_fMinBurstDelay + (m_fMaxBurstDelay - m_fMinBurstDelay) * random();
+                m_fFireToggleTime = level.time + minBurstDelay + (maxBurstDelay - minBurstDelay) * random();
             }
         }
     }
@@ -1927,12 +1942,6 @@ float TurretGun::FireDelay(firemode_t mode)
 void TurretGun::SetFireDelay(Event *ev)
 {
     fire_delay[FIRE_PRIMARY] = ev->GetFloat(1);
-    if (!m_fMaxBurstTime) {
-        // Added in OPM
-        //  default values if not set
-        m_fMaxBurstTime = m_fMinBurstTime = 0.001f;
-        m_fMaxBurstDelay = m_fMinBurstDelay = fire_delay[FIRE_PRIMARY];
-    }
 }
 
 void TurretGun::ShowInfo(float fDot, float fDist)
