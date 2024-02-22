@@ -2515,6 +2515,11 @@ void Sentient::EventGerman(Event *ev)
     if (bRejoinSquads) {
         JoinNearbySquads(1024.0f);
     }
+
+    // Added in 2.0
+    //  Tell clients about sentient team
+    edict->s.eFlags &= ~EF_ALLIES;
+    edict->s.eFlags |= EF_AXIS;
 }
 
 void Sentient::EventAmerican(Event *ev)
@@ -2546,6 +2551,11 @@ void Sentient::EventAmerican(Event *ev)
         pActor->m_csMood     = STRING_NERVOUS;
         pActor->m_csIdleMood = STRING_NERVOUS;
     }
+
+    // Added in 2.0
+    //  Tell clients about sentient team
+    edict->s.eFlags &= ~EF_AXIS;
+    edict->s.eFlags |= EF_ALLIES;
 }
 
 void Sentient::EventGetTeam(Event *ev)
