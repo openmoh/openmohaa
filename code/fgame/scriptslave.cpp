@@ -692,14 +692,23 @@ ScriptSlave::ScriptSlave()
     // this is a normal entity
     edict->s.eType = ET_GENERAL;
 
+    splineTime = 0;
+
+    ignoreangles   = false;
+    ignorevelocity = false;
+    moving         = false;
+
     speed           = 100;
     takedamage      = DAMAGE_YES;
     waypoint        = NULL;
-    NewAngles       = localangles;
-    NewPos          = localorigin;
     traveltime      = 0;
     commandswaiting = false;
 
+    splinePath           = NULL;
+    splineangles         = false;
+    m_fFollowRelativeYaw = 0;
+
+    attack_finished    = 0;
     dmg                = 2;
     dmg_means_of_death = MOD_CRUSH;
 
@@ -709,19 +718,15 @@ ScriptSlave::ScriptSlave()
         edict->s.renderfx = RF_ALWAYSDRAW;
     }
 
-    splinePath           = NULL;
-    m_pCurPath           = NULL;
-    m_iCurNode           = 0;
-    m_fLookAhead         = 0;
-    m_fCurSpeed          = 0;
-    m_fIdealSpeed        = 0;
-    m_fIdealAccel        = 0;
-    m_fIdealDistance     = 100;
-    splineangles         = false;
-    m_fFollowRelativeYaw = 0;
-    attack_finished      = 0;
-
     setSolidType(SOLID_NOT);
+
+    m_pCurPath       = NULL;
+    m_iCurNode       = 0;
+    m_fCurSpeed      = 0;
+    m_fLookAhead     = 0;
+    m_fIdealSpeed    = 0;
+    m_fIdealAccel    = 0;
+    m_fIdealDistance = 100;
 
     if (spawnflags & 1) {
         PostEvent(EV_BecomeNonSolid, EV_POSTSPAWN);
