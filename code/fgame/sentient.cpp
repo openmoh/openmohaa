@@ -1962,17 +1962,49 @@ void Sentient::DropInventoryItems(void)
     int   i;
     Item *item;
 
+    if (m_bForceDropHealth) {
+        giveItem("ITEMS/item_25_healthbox.tik", 25);
+    } else if (skill->integer != 2 && !level.mbNoDropHealth) {
+        static cvar_t *ai_health_kar  = gi.Cvar_Get("ai_health_kar", "6", CVAR_CHEAT);
+        static cvar_t *ai_health_mp40 = gi.Cvar_Get("ai_health_mp40points", "2", CVAR_CHEAT);
+
+        Weapon *weapon = GetActiveWeapon(WEAPON_MAIN);
+        if (weapon) {
+            if (!Q_stricmp("rifle", Director.GetString(weapon->GetWeaponGroup()))) {
+                level.mHealthPopCount++;
+            } else {
+                level.mHealthPopCount += ai_health_mp40->integer;
+            }
+
+            if (level.mHealthPopCount >= ai_health_kar->integer) {
+                giveItem("ITEMS/item_25_healthbox.tik", 25);
+                level.mHealthPopCount -= ai_health_kar->integer;
+            }
+        }
+    }
+
     // Drop any inventory items
     num = inventory.NumObjects();
     for (i = num; i >= 1; i--) {
         item = (Item *)G_GetEntity(inventory.ObjectAt(i));
-        if (item->isSubclassOf(InventoryItem)) {
-            if (m_bDontDropWeapons && item->IsSubclassOfWeapon()) {
-                item->Delete();
-            } else {
-                item->Drop();
-            }
+        // Added in 2.30
+        //  Force drop the item when specified
+        if (m_bForceDropWeapon && item->IsSubclassOfWeapon()) {
+            item->Drop();
+            continue;
         }
+
+        if (!m_bDontDropWeapons && !level.mbNoDropWeapons) {
+            item->Drop();
+            continue;
+        }
+
+        if (!item->IsSubclassOfWeapon()) {
+            item->Drop();
+            continue;
+        }
+
+        item->Delete();
     }
 }
 
@@ -2537,7 +2569,6 @@ void Sentient::EventAmerican(Event *ev)
         DisbandSquadMate(this);
     }
 
-
     Unlink();
     m_Team = TEAM_AMERICAN;
     Link();
@@ -2955,26 +2986,27 @@ void Sentient::SetMinViewVariation(const Vector& vVariation)
     m_vViewVariation.z = Q_min(m_vViewVariation.z, vVariation.z);
 }
 
-void Sentient::SetHolsteredByCode(bool holstered) {
+void Sentient::SetHolsteredByCode(bool holstered)
+{
     weapons_holstered_by_code = holstered;
 }
 
-Vehicle* Sentient::GetVehicle() const
+Vehicle *Sentient::GetVehicle() const
 {
     return m_pVehicle;
 }
 
-void Sentient::SetVehicle(Vehicle* pVehicle)
+void Sentient::SetVehicle(Vehicle *pVehicle)
 {
     m_pVehicle = NULL;
 }
 
-TurretGun* Sentient::GetTurret() const
+TurretGun *Sentient::GetTurret() const
 {
     return m_pTurret;
 }
 
-void Sentient::SetTurret(TurretGun* pTurret)
+void Sentient::SetTurret(TurretGun *pTurret)
 {
     m_pTurret = pTurret;
 }
@@ -2982,15 +3014,15 @@ void Sentient::SetTurret(TurretGun* pTurret)
 #define GROUND_DISTANCE        8
 #define WATER_NO_SPLASH_HEIGHT 16
 
-void Sentient::EventClientLanding(Event* ev)
+void Sentient::EventClientLanding(Event *ev)
 {
-    float fVolume = ev->NumArgs() >= 1 ? ev->GetFloat(1) : 1;
-    int iEquipment = ev->NumArgs() >= 2 ? ev->GetInteger(2) : 1;
+    float fVolume    = ev->NumArgs() >= 1 ? ev->GetFloat(1) : 1;
+    int   iEquipment = ev->NumArgs() >= 2 ? ev->GetInteger(2) : 1;
 
     LandingSound(fVolume, iEquipment);
 }
 
-void Sentient::FootstepMain(trace_t* trace, int iRunning, int iEquipment)
+void Sentient::FootstepMain(trace_t *trace, int iRunning, int iEquipment)
 {
     int    contents;
     int    surftype;
@@ -3010,12 +3042,10 @@ void Sentient::FootstepMain(trace_t* trace, int iRunning, int iEquipment)
         contents = gi.pointcontents(midlegs, -1);
         if (contents & MASK_WATER) {
             sSoundName += "wade";
-        }
-        else {
+        } else {
             sSoundName += "puddle";
         }
-    }
-    else {
+    } else {
         surftype = trace->surfaceFlags & MASK_SURF_TYPE;
         switch (surftype) {
         case SURF_FOLIAGE:
@@ -3075,8 +3105,7 @@ void Sentient::FootstepMain(trace_t* trace, int iRunning, int iEquipment)
         } else {
             fVolume = 1.0;
         }
-    }
-    else {
+    } else {
         fVolume = 0.25;
     }
 
@@ -3092,7 +3121,7 @@ void Sentient::FootstepMain(trace_t* trace, int iRunning, int iEquipment)
     }
 }
 
-void Sentient::Footstep(const char* szTagName, int iRunning, int iEquipment)
+void Sentient::Footstep(const char *szTagName, int iRunning, int iEquipment)
 {
     int           i;
     int           iTagNum;
@@ -3125,8 +3154,7 @@ void Sentient::Footstep(const char* szTagName, int iRunning, int iEquipment)
 
         VectorSet(vMins, -2, -2, -8);
         VectorSet(vMaxs, 2, 2, 8);
-    }
-    else {
+    } else {
         VectorSet(vMins, -4, -4, 0);
         VectorSet(vMaxs, 4, 4, 2);
 
@@ -3137,28 +3165,9 @@ void Sentient::Footstep(const char* szTagName, int iRunning, int iEquipment)
     }
 
     if (IsSubclassOfPlayer()) {
-        trace = G_Trace(
-            vStart,
-            vMins,
-            vMaxs,
-            vEnd,
-            edict,
-            MASK_PLAYERSOLID,
-            qtrue,
-            "Player Footsteps"
-        );
-    }
-    else {
-        trace = G_Trace(
-            vStart,
-            vMins,
-            vMaxs,
-            vEnd,
-            edict,
-            MASK_MONSTERSOLID,
-            qfalse,
-            "Monster Footsteps"
-        );
+        trace = G_Trace(vStart, vMins, vMaxs, vEnd, edict, MASK_PLAYERSOLID, qtrue, "Player Footsteps");
+    } else {
+        trace = G_Trace(vStart, vMins, vMaxs, vEnd, edict, MASK_MONSTERSOLID, qfalse, "Monster Footsteps");
     }
 
     if (trace.fraction == 1.0f) {
@@ -3170,14 +3179,14 @@ void Sentient::Footstep(const char* szTagName, int iRunning, int iEquipment)
 
 void Sentient::LandingSound(float volume, int iEquipment)
 {
-    int     contents;
-    int     surftype;
-    vec3_t  vStart, vEnd;
-    vec3_t  midlegs;
-    str     sSoundName;
-    trace_t trace;
-    static vec3_t g_vFootstepMins = { -4, -4, 0 };
-    static vec3_t g_vFootstepMaxs = { 4, 4, 2 };
+    int           contents;
+    int           surftype;
+    vec3_t        vStart, vEnd;
+    vec3_t        midlegs;
+    str           sSoundName;
+    trace_t       trace;
+    static vec3_t g_vFootstepMins = {-4, -4, 0};
+    static vec3_t g_vFootstepMaxs = {4, 4, 2};
 
     if (this->iNextLandTime > level.inttime) {
         this->iNextLandTime = level.inttime + 200;
@@ -3192,26 +3201,11 @@ void Sentient::LandingSound(float volume, int iEquipment)
     vEnd[2] -= 64.0;
 
     if (IsSubclassOfPlayer()) {
-        trace = G_Trace(
-            vStart,
-            g_vFootstepMins,
-            g_vFootstepMaxs,
-            vEnd,
-            edict,
-            MASK_PLAYERSOLID,
-            qtrue,
-            "Player Footsteps"
-        );
+        trace =
+            G_Trace(vStart, g_vFootstepMins, g_vFootstepMaxs, vEnd, edict, MASK_PLAYERSOLID, qtrue, "Player Footsteps");
     } else {
         trace = G_Trace(
-            vStart,
-            g_vFootstepMins,
-            g_vFootstepMaxs,
-            vEnd,
-            edict,
-            MASK_MONSTERSOLID,
-            qfalse,
-            "Monster Footsteps"
+            vStart, g_vFootstepMins, g_vFootstepMaxs, vEnd, edict, MASK_MONSTERSOLID, qfalse, "Monster Footsteps"
         );
     }
 
