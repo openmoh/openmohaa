@@ -4879,10 +4879,6 @@ void Vehicle::VehicleTouched(Event *ev)
         return;
     }
 
-    if (drivable && !driver.ent) {
-        return;
-    }
-
     delta = other->origin - last_origin;
     delta.normalize();
 
