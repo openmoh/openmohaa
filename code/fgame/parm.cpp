@@ -30,63 +30,135 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 Parm parm;
 
-Event EV_Parm_GetOther
-(
-	"other",
-	EV_DEFAULT,
-	NULL,
-	NULL,
-	"other",
-	EV_GETTER
-);
-
-Event EV_Parm_GetOwner
-(
-	"owner",
-	EV_DEFAULT,
-	NULL,
-	NULL,
-	"owner",
-	EV_GETTER
-);
-
 Event EV_Parm_GetPreviousThread
 (
-	"previousthread",
-	EV_DEFAULT,
-	NULL,
-	NULL,
-	"previousthread",
-	EV_GETTER
+    "previousthread",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "previousthread",
+    EV_GETTER
+);
+Event EV_Parm_GetOther
+(
+    "other",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "other",
+    EV_GETTER
+);
+Event EV_Parm_GetOwner
+(
+    "owner",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "owner",
+    EV_GETTER
+);
+Event EV_Parm_Movedone
+(
+    "movedone",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "movedone",
+    EV_GETTER
+);
+Event EV_Parm_Movefail
+(
+    "movefail",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "movefail",
+    EV_GETTER
+);
+Event EV_Parm_Motionfail
+(
+    "motionfail",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "motionfail",
+    EV_GETTER
+);
+Event EV_Parm_Upperfail
+(
+    "upperfail",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "upperfail",
+    EV_GETTER
+);
+Event EV_Parm_Sayfail
+(
+    "sayfail",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "sayfail",
+    EV_GETTER
 );
 
-void Parm::Archive( Archiver& arc )
+void Parm::Archive(Archiver& arc)
 {
-	Listener::Archive( arc );
+    Listener::Archive(arc);
 
-	arc.ArchiveSafePointer( &other );
-	arc.ArchiveSafePointer( &owner );
+    arc.ArchiveSafePointer(&other);
+    arc.ArchiveSafePointer(&owner);
 }
 
-void Parm::GetOther( Event *ev )
+void Parm::GetMotionFail(Event *ev)
 {
-	ev->AddListener( other );
+    ev->AddInteger(motionfail);
 }
 
-void Parm::GetOwner( Event *ev )
+void Parm::GetMovedone(Event *ev)
 {
-	ev->AddListener( owner );
+    ev->AddInteger(movedone);
 }
 
-void Parm::GetPreviousThread( Event *ev )
+void Parm::GetMovefail(Event *ev)
 {
-	ev->AddListener( Director.PreviousThread() );
+    ev->AddInteger(movefail);
 }
 
-CLASS_DECLARATION( Listener, Parm, NULL )
+void Parm::GetOther(Event *ev)
 {
-	{ &EV_Parm_GetOther,				&Parm::GetOther },
-	{ &EV_Parm_GetOwner,				&Parm::GetOwner },
-	{ &EV_Parm_GetPreviousThread,		&Parm::GetPreviousThread },
-	{ NULL, NULL }
+    ev->AddListener(other);
+}
+
+void Parm::GetOwner(Event *ev)
+{
+    ev->AddListener(owner);
+}
+
+void Parm::GetPreviousThread(Event *ev)
+{
+    ev->AddListener(Director.PreviousThread());
+}
+
+void Parm::GetSayFail(Event *ev)
+{
+    ev->AddInteger(sayfail);
+}
+
+void Parm::GetUpperFail(Event *ev)
+{
+    ev->AddInteger(upperfail);
+}
+
+CLASS_DECLARATION(Listener, Parm, NULL) {
+    {&EV_Parm_GetPreviousThread, &Parm::GetPreviousThread},
+    {&EV_Parm_GetOther,          &Parm::GetOther         },
+    {&EV_Parm_GetOwner,          &Parm::GetOwner         },
+    {&EV_Parm_Movedone,          &Parm::GetMovedone      },
+    {&EV_Parm_Movefail,          &Parm::GetMovefail      },
+    {&EV_Parm_Motionfail,        &Parm::GetMotionFail    },
+    {&EV_Parm_Upperfail,         &Parm::GetUpperFail     },
+    {&EV_Parm_Sayfail,           &Parm::GetSayFail       },
+    {NULL,                       NULL                    }
 };

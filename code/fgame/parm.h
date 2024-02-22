@@ -22,34 +22,38 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // parm.h: Event parameters
 
-#ifndef __PARM_H__
-#define __PARM_H__
+#pragma once
 
 #include "listener.h"
 
-class Parm : public Listener {
+class Parm : public Listener
+{
 public:
-	// General trigger variables
-	SafePtr< Listener > other;
-	SafePtr< Listener > owner;
+    // General trigger variables
+    SafePtr<Listener> other;
+    SafePtr<Listener> owner;
 
-	// Failure variables
-	qboolean	movedone;
-	qboolean	movefail;
-	qboolean	motionfail;
-	qboolean	upperfail;
-	qboolean	sayfail;
+    // Failure variables
+    qboolean movedone;
+    qboolean movefail;
+    qboolean motionfail;
+    qboolean upperfail;
+    qboolean sayfail;
 
 public:
-	CLASS_PROTOTYPE( Parm );
+    CLASS_PROTOTYPE(Parm);
 
-	void Archive( Archiver& arc ) override;
+    void GetPreviousThread(Event *ev);
+    void GetOther(Event *ev);
+    void GetOwner(Event *ev);
+    void GetPath(Event *ev);
+    void GetMovedone(Event *ev);
+    void GetMovefail(Event *ev);
+    void GetMotionFail(Event *ev);
+    void GetUpperFail(Event *ev);
+    void GetSayFail(Event *ev);
 
-	void				GetOther( Event *ev );
-	void				GetOwner( Event *ev );
-	void				GetPreviousThread( Event *ev );
+    void Archive(Archiver& arc) override;
 };
 
 extern Parm parm;
-
-#endif /* __PARM_H__ */
