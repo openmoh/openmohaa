@@ -3574,6 +3574,10 @@ void Player::GetMoveInfo(pmove_t *pm)
         if (groundentity->entity && groundentity->entity != this && groundentity->entity->velocity[2] != 0) {
             pm->ps->pm_flags |= PMF_NO_PREDICTION;
         }
+    } else if (m_pGlueMaster) {
+        // Added in OPM
+        //  Use the glue master for the ground entity to make the viewmodel will stay still
+        pm->ps->groundEntityNum = m_pGlueMaster->entnum;
     }
 
     velocity = Vector(pm->ps->velocity[0], pm->ps->velocity[1], pm->ps->velocity[2]);
