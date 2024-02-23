@@ -424,6 +424,8 @@ static void R_ForceSplit(terraInt iTri)
 	terraTri_t* pBase = &g_pTris[iBase];
 	if (iBase && pBase->lod != pTri->lod)
 	{
+		assert(g_pTris[pBase->iBase].iBase != iTri);
+
 		R_ForceSplit(iBase);
 		iBase = pTri->iBase;
 		pBase = &g_pTris[iBase];
