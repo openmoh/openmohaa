@@ -725,6 +725,7 @@ Camera::Camera()
     fadeTime       = 2.0f;
     fovFadeTime    = 1.0f;
     followFadeTime = 1.0f;
+    watchFadeTime  = 1.0f;
     m_bShowquakes  = false;
 
     setSolidType(SOLID_NOT);
