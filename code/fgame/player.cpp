@@ -3670,6 +3670,10 @@ void Player::SetMoveInfo(pmove_t *pm, usercmd_t *ucmd)
     }
 
     pm->protocol = g_protocol;
+
+    // Added in OPM
+    //  Initialize the ground entity
+    pm->ps->groundEntityNum = ENTITYNUM_NONE;
 }
 
 pmtype_t Player::GetMovePlayerMoveType(void)
