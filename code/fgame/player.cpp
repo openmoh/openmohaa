@@ -2304,7 +2304,6 @@ void Player::InitEdict(void)
 }
 
 void Player::InitSound(void)
-
 {
     //
     // reset the music
@@ -2390,7 +2389,6 @@ void Player::InitState(void)
 }
 
 void Player::InitHealth(void)
-
 {
     static cvar_t *pMaxHealth = gi.Cvar_Get("g_maxplayerhealth", "250", 0);
     static cvar_t *pDMHealth  = gi.Cvar_Get("g_playerdmhealth", "100", 0);
@@ -2562,7 +2560,6 @@ void Player::InitPhysics(void)
 }
 
 void Player::InitPowerups(void)
-
 {
     // powerups
     poweruptimer = 0;
@@ -2667,7 +2664,6 @@ void Player::ChooseSpawnPoint(void)
 }
 
 void Player::EndLevel(Event *ev)
-
 {
     InitPowerups();
     if (health > max_health) {
@@ -2725,7 +2721,6 @@ void Player::Respawn(Event *ev)
 }
 
 void Player::SetDeltaAngles(void)
-
 {
     int i;
 
@@ -3751,7 +3746,6 @@ qboolean Player::AnimMove(Vector& move, Vector *endpos)
 }
 
 qboolean Player::TestMove(Vector& move, Vector *endpos)
-
 {
     trace_t trace;
     Vector  pos(origin + move);
@@ -3804,7 +3798,6 @@ qboolean Player::TestMove(Vector& move, Vector *endpos)
 }
 
 float Player::TestMoveDist(Vector& move)
-
 {
     Vector endpos;
 
@@ -3890,7 +3883,6 @@ qboolean Player::CheckMove(Vector& move, Vector *endpos)
 }
 
 float Player::CheckMoveDist(Vector& move)
-
 {
     Vector endpos;
 
@@ -4988,7 +4980,6 @@ void Player::ResetState(Event *ev)
 }
 
 void Player::StartPush(void)
-
 {
     trace_t trace;
     Vector  end(origin + yaw_forward * 64.0f);
@@ -5004,7 +4995,6 @@ void Player::StartPush(void)
 }
 
 void Player::StartClimbLadder(void)
-
 {
     trace_t trace;
     Vector  end(origin + yaw_forward * 20.0f);
@@ -5081,13 +5071,11 @@ void Player::StartUseAnim(void)
 }
 
 void Player::StartLoopUseAnim(void)
-
 {
     useanim_numloops--;
 }
 
 void Player::FinishUseAnim(Event *ev)
-
 {
     UseAnim *ua;
 
@@ -5101,7 +5089,6 @@ void Player::FinishUseAnim(Event *ev)
 }
 
 void Player::SetupUseObject(void)
-
 {
     UseObject *uo;
     Vector     neworg;
@@ -5151,7 +5138,6 @@ void Player::SetupUseObject(void)
 }
 
 void Player::StartUseObject(Event *ev)
-
 {
     UseObject *uo;
 
@@ -5164,7 +5150,6 @@ void Player::StartUseObject(Event *ev)
 }
 
 void Player::FinishUseObject(Event *ev)
-
 {
     UseObject *uo;
 
@@ -5178,7 +5163,6 @@ void Player::FinishUseObject(Event *ev)
 }
 
 void Player::Turn(Event *ev)
-
 {
     float  yaw;
     Vector oldang(v_angle);
@@ -5202,7 +5186,6 @@ void Player::Turn(Event *ev)
 }
 
 void Player::TurnUpdate(Event *ev)
-
 {
     float  yaw;
     float  timeleft;
@@ -5231,7 +5214,6 @@ void Player::TurnUpdate(Event *ev)
 }
 
 void Player::TurnLegs(Event *ev)
-
 {
     float yaw;
 
@@ -5611,13 +5593,11 @@ void Player::DropCurrentWeapon(Event *ev)
 }
 
 void Player::GiveWeaponCheat(Event *ev)
-
 {
     giveItem(ev->GetString(1));
 }
 
 void Player::GiveCheat(Event *ev)
-
 {
     str name;
 
@@ -5806,7 +5786,6 @@ void Player::NoclipCheat(Event *ev)
 }
 
 void Player::GameVersion(Event *ev)
-
 {
     gi.SendServerCommand(edict - g_entities, "print \"%s : %s\n\"", GAMEVERSION, __DATE__);
 }
@@ -5865,7 +5844,6 @@ CalcRoll
 ===============
 */
 float Player::CalcRoll(void)
-
 {
     float  sign;
     float  side;
@@ -5976,7 +5954,6 @@ AddBlend
 =============
 */
 void Player::AddBlend(float r, float g, float b, float a)
-
 {
     float a2;
     float a3;
@@ -6003,7 +5980,6 @@ CalcBlend
 =============
 */
 void Player::CalcBlend(void)
-
 {
     int    contents;
     Vector vieworg;
@@ -6763,7 +6739,6 @@ void Player::SetupView(void)
 }
 
 Vector Player::GetAngleToTarget(Entity *ent, str tag, float yawclamp, float pitchclamp, Vector baseangles)
-
 {
     assert(ent);
 
@@ -6808,7 +6783,6 @@ Vector Player::GetAngleToTarget(Entity *ent, str tag, float yawclamp, float pitc
 }
 
 void Player::DebugWeaponTags(int controller_tag, Weapon *weapon, str weapon_tagname)
-
 {
     int           i;
     orientation_t bone_or, tag_weapon_or, barrel_or, final_barrel_or;
@@ -7506,14 +7480,12 @@ void Player::UpdateMusic(void)
 }
 
 void Player::SetReverb(int type, float level)
-
 {
     reverb_type  = type;
     reverb_level = level;
 }
 
 void Player::SetReverb(str type, float level)
-
 {
     reverb_type  = EAXMode_NameToNum(type);
     reverb_level = level;
@@ -7591,7 +7563,6 @@ void Player::EndFrame(void)
 }
 
 void Player::GotKill(Event *ev)
-
 {
     /*
     Entity *victim;
@@ -7614,7 +7585,6 @@ void Player::GotKill(Event *ev)
 }
 
 void Player::SetPowerupTimer(Event *ev)
-
 {
     Event *event;
 
@@ -7625,7 +7595,6 @@ void Player::SetPowerupTimer(Event *ev)
 }
 
 void Player::UpdatePowerupTimer(Event *ev)
-
 {
     poweruptimer -= 1;
     if (poweruptimer > 0) {
@@ -7663,7 +7632,6 @@ void Player::ChangeMusic(const char *current, const char *fallback, qboolean for
 }
 
 void Player::ChangeMusicVolume(float volume, float fade_time)
-
 {
     music_volume_fade_time = fade_time;
     music_saved_volume     = music_current_volume;
@@ -7671,7 +7639,6 @@ void Player::ChangeMusicVolume(float volume, float fade_time)
 }
 
 void Player::RestoreMusicVolume(float fade_time)
-
 {
     music_volume_fade_time = fade_time;
     music_current_volume   = music_saved_volume;
@@ -7688,7 +7655,6 @@ void Player::addOrigin(Vector org)
 }
 
 void Player::Jump(Event *ev)
-
 {
     float maxheight;
 
@@ -7750,7 +7716,6 @@ void Player::SetTargetViewAngles(Vector angles)
 }
 
 void Player::DumpState(Event *ev)
-
 {
     gi.DPrintf(
         "Legs: %s Torso: %s\n", currentState_Legs ? currentState_Legs->getName() : "NULL", currentState_Torso->getName()
@@ -7904,7 +7869,6 @@ void Player::Holster(Event *ev)
 }
 
 void Player::WatchActor(Event *ev)
-
 {
     if (camera || currentState_Torso->getCameraType() != CAMERA_BEHIND) {
         return;
@@ -7914,7 +7878,6 @@ void Player::WatchActor(Event *ev)
 }
 
 void Player::StopWatchingActor(Event *ev)
-
 {
     Actor *old_actor;
 
@@ -7937,7 +7900,6 @@ void Player::setAngles(Vector ang)
 }
 
 painDirection_t Player::Pain_string_to_int(str pain)
-
 {
     if (!pain.icmp(pain, "Front")) {
         return PAIN_FRONT;
@@ -11203,7 +11165,6 @@ void Player::EventSetPerferredWeapon(Event *ev)
 }
 
 void Player::SetMouthAngle(Event *ev)
-
 {
     int    tag_num;
     float  angle_percent;
