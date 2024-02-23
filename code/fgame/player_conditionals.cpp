@@ -63,7 +63,6 @@ qboolean Player::CondTrue(Conditional& condition)
 }
 
 qboolean Player::CondChance(Conditional& condition)
-
 {
     float percent_chance;
 
@@ -73,7 +72,6 @@ qboolean Player::CondChance(Conditional& condition)
 }
 
 qboolean Player::CondHealth(Conditional& condition)
-
 {
     return health < atoi(condition.getParm(1));
 }
@@ -96,7 +94,6 @@ qboolean Player::CondBlocked(Conditional& condition)
 }
 
 qboolean Player::CondPain(Conditional& condition)
-
 {
     return (pain != 0 || knockdown != 0);
 }
@@ -112,13 +109,11 @@ qboolean Player::CondOnGround(Conditional& condition)
 }
 
 qboolean Player::CondHasWeapon(Conditional& condition)
-
 {
     return WeaponsOut();
 }
 
 qboolean Player::CondNewWeapon(Conditional& condition)
-
 {
     Weapon *weapon;
 
@@ -144,7 +139,6 @@ qboolean Player::CondImmediateSwitch(Conditional& condition)
 
 // Check to see if a weapon has been raised
 qboolean Player::CondUseWeapon(Conditional& condition)
-
 {
     const char *weaponName;
     const char *parm;
@@ -507,7 +501,6 @@ qboolean Player::CondPutAwayMain(Conditional& condition)
 
 // Check to see if any of the active weapons need to be put away
 qboolean Player::CondPutAwayOffHand(Conditional& condition)
-
 {
     Weapon *weapon = GetActiveWeapon(WEAPON_OFFHAND);
 
@@ -516,7 +509,6 @@ qboolean Player::CondPutAwayOffHand(Conditional& condition)
 
 // Checks to see if any weapon is active in the specified hand
 qboolean Player::CondAnyWeaponActive(Conditional& condition)
-
 {
     weaponhand_t hand;
     Weapon      *weap;
@@ -532,7 +524,6 @@ qboolean Player::CondAnyWeaponActive(Conditional& condition)
 }
 
 qboolean Player::CondAttackBlocked(Conditional& condition)
-
 {
     if (attack_blocked) {
         attack_blocked = qfalse;
@@ -618,14 +609,12 @@ qboolean Player::CondMaxChargeTime(Conditional& condition)
 }
 
 qboolean Player::CondBlockDelay(Conditional& condition)
-
 {
     float t = atof(condition.getParm(1));
     return (level.time > (attack_blocked_time + t));
 }
 
 qboolean Player::CondMuzzleClear(Conditional& condition)
-
 {
     weaponhand_t hand;
 
@@ -641,7 +630,6 @@ qboolean Player::CondMuzzleClear(Conditional& condition)
 
 // Checks to see if any weapon is active in the specified hand
 qboolean Player::CondWeaponHasAmmo(Conditional& condition)
-
 {
     weaponhand_t hand;
     Weapon      *weap;
@@ -779,24 +767,35 @@ qboolean Player::CondStrafeLeft(Conditional& condition)
 }
 
 qboolean Player::CondStrafeRight(Conditional& condition)
-
 {
     return last_ucmd.rightmove > 0;
 }
 
 qboolean Player::CondJump(Conditional& condition)
-
 {
+    if (client->ps.pm_flags & PMF_NO_MOVE) {
+        return false;
+    }
+
     return last_ucmd.upmove > 0;
 }
 
 qboolean Player::CondCrouch(Conditional& condition)
 {
+    // Added in 2.0
+    //  Don't crouch if the player is not moving
+    if (client->ps.pm_flags & PMF_NO_MOVE) {
+        // Added in 2.30
+        //  Allow ducking if specified
+        if (!m_pGlueMaster || !m_bGlueDuckable) {
+            return viewheight != DEFAULT_VIEWHEIGHT;
+        }
+    }
+
     return (last_ucmd.upmove) < 0;
 }
 
 qboolean Player::CondJumpFlip(Conditional& condition)
-
 {
     return velocity.z < (sv_gravity->value * 0.5f);
 }
@@ -813,6 +812,8 @@ qboolean Player::CondAnimDoneTorso(Conditional& condition)
 
 qboolean Player::CondAttackPrimary(Conditional& condition)
 {
+    Weapon* weapon;
+
     if (level.playerfrozen || m_bFrozen || (flags & FL_IMMOBILE)) {
         return false;
     }
@@ -821,21 +822,19 @@ qboolean Player::CondAttackPrimary(Conditional& condition)
         return false;
     }
 
-    if (last_ucmd.buttons & BUTTON_ATTACKLEFT) {
-        Weapon *weapon;
-
-        last_attack_button = BUTTON_ATTACKLEFT;
-
-        weapon = GetActiveWeapon(WEAPON_MAIN);
-        if (weapon) {
-            return true;
-        }
-
-        // No ammo
-        return false;
-    } else {
+    if (!(last_ucmd.buttons & BUTTON_ATTACKLEFT)) {
         return false;
     }
+
+    last_attack_button = BUTTON_ATTACKLEFT;
+
+    weapon = GetActiveWeapon(WEAPON_MAIN);
+    if (weapon) {
+        return true;
+    }
+
+    // No ammo
+    return false;
 }
 
 qboolean Player::CondAttackButtonPrimary(Conditional& condition)
@@ -853,6 +852,8 @@ qboolean Player::CondAttackButtonPrimary(Conditional& condition)
 
 qboolean Player::CondAttackSecondary(Conditional& condition)
 {
+    Weapon* weapon;
+
     if (level.playerfrozen || m_bFrozen || (flags & FL_IMMOBILE)) {
         return false;
     }
@@ -861,21 +862,19 @@ qboolean Player::CondAttackSecondary(Conditional& condition)
         return false;
     }
 
-    if (last_ucmd.buttons & BUTTON_ATTACKRIGHT) {
-        Weapon *weapon;
-
-        last_attack_button = BUTTON_ATTACKRIGHT;
-
-        weapon = GetActiveWeapon(WEAPON_MAIN);
-        if (weapon) {
-            return true;
-        }
-
-        // No ammo
-        return false;
-    } else {
+    if (!(last_ucmd.buttons & BUTTON_ATTACKRIGHT)) {
         return false;
     }
+
+    last_attack_button = BUTTON_ATTACKRIGHT;
+
+    weapon = GetActiveWeapon(WEAPON_MAIN);
+    if (weapon) {
+        return true;
+    }
+
+    // No ammo
+    return false;
 }
 
 qboolean Player::CondAttackButtonSecondary(Conditional& condition)
@@ -935,13 +934,11 @@ qboolean Player::CondRun(Conditional& condition)
 }
 
 qboolean Player::CondUse(Conditional& condition)
-
 {
     return (last_ucmd.buttons & BUTTON_USE) != 0;
 }
 
 qboolean Player::CondCanTurn(Conditional& condition)
-
 {
     float    yaw;
     Vector   oldang(v_angle);
@@ -1042,7 +1039,6 @@ qboolean Player::CondHasVelocity(Conditional& condition)
 }
 
 qboolean Player::Cond22DegreeSlope(Conditional& condition)
-
 {
     if (client->ps.walking && client->ps.groundPlane && (client->ps.groundTrace.plane.normal[2] < SLOPE_22_MAX)
         && (client->ps.groundTrace.plane.normal[2] >= SLOPE_22_MIN)) {
@@ -1053,7 +1049,6 @@ qboolean Player::Cond22DegreeSlope(Conditional& condition)
 }
 
 qboolean Player::Cond45DegreeSlope(Conditional& condition)
-
 {
     if (client->ps.walking && client->ps.groundPlane && (client->ps.groundTrace.plane.normal[2] < SLOPE_45_MAX)
         && (client->ps.groundTrace.plane.normal[2] >= SLOPE_45_MIN)) {
@@ -1064,7 +1059,6 @@ qboolean Player::Cond45DegreeSlope(Conditional& condition)
 }
 
 qboolean Player::CondRightLegHigh(Conditional& condition)
-
 {
     float groundyaw;
     float yawdelta;
@@ -1078,7 +1072,6 @@ qboolean Player::CondRightLegHigh(Conditional& condition)
 }
 
 qboolean Player::CondLeftLegHigh(Conditional& condition)
-
 {
     float groundyaw;
     float yawdelta;
@@ -1092,7 +1085,6 @@ qboolean Player::CondLeftLegHigh(Conditional& condition)
 }
 
 qboolean Player::CondFacingUpSlope(Conditional& condition)
-
 {
     float groundyaw;
     float yawdelta;
@@ -1106,7 +1098,6 @@ qboolean Player::CondFacingUpSlope(Conditional& condition)
 }
 
 qboolean Player::CondFacingDownSlope(Conditional& condition)
-
 {
     float groundyaw;
     float yawdelta;
@@ -1120,13 +1111,11 @@ qboolean Player::CondFacingDownSlope(Conditional& condition)
 }
 
 qboolean Player::CondFalling(Conditional& condition)
-
 {
     return falling;
 }
 
 qboolean Player::CondGroundEntity(Conditional& condition)
-
 {
     return (groundentity != NULL);
 }
@@ -1147,14 +1136,12 @@ qboolean Player::CondCanFall(Conditional& condition)
 }
 
 qboolean Player::CondAtDoor(Conditional& condition)
-
 {
     // Check if the player is at a door
     return (atobject && atobject->isSubclassOf(Door));
 }
 
 qboolean Player::CondAtUseAnim(Conditional& condition)
-
 {
     // Check if the player is at a useanim
     if (atobject && atobject->isSubclassOf(UseAnim)) {
@@ -1165,7 +1152,6 @@ qboolean Player::CondAtUseAnim(Conditional& condition)
 }
 
 qboolean Player::CondTouchUseAnim(Conditional& condition)
-
 {
     if (toucheduseanim) {
         return ((UseAnim *)(Entity *)toucheduseanim)->canBeUsed(this);
@@ -1175,13 +1161,11 @@ qboolean Player::CondTouchUseAnim(Conditional& condition)
 }
 
 qboolean Player::CondUseAnimFinished(Conditional& condition)
-
 {
     return (useanim_numloops <= 0);
 }
 
 qboolean Player::CondAtUseObject(Conditional& condition)
-
 {
     // Check if the player is at a useanim
     if (atobject && atobject->isSubclassOf(UseObject)) {
@@ -1192,7 +1176,6 @@ qboolean Player::CondAtUseObject(Conditional& condition)
 }
 
 qboolean Player::CondLoopUseObject(Conditional& condition)
-
 {
     // Check if the player is at a useanim
     if (useitem_in_use && useitem_in_use->isSubclassOf(UseObject)) {
@@ -1203,13 +1186,11 @@ qboolean Player::CondLoopUseObject(Conditional& condition)
 }
 
 qboolean Player::CondDead(Conditional& condition)
-
 {
     return (deadflag);
 }
 
 qboolean Player::CondKnockDown(Conditional& condition)
-
 {
     if (knockdown) {
         knockdown = false;
@@ -1294,7 +1275,6 @@ qboolean Player::CondPainLocation(Conditional& condition)
 }
 
 qboolean Player::CondPainThreshold(Conditional& condition)
-
 {
     float threshold = atof(condition.getParm(1));
 
@@ -1307,7 +1287,6 @@ qboolean Player::CondPainThreshold(Conditional& condition)
 }
 
 qboolean Player::CondLegsState(Conditional& condition)
-
 {
     if (currentState_Legs) {
         str current = currentState_Legs->getName();
@@ -1322,7 +1301,6 @@ qboolean Player::CondLegsState(Conditional& condition)
 }
 
 qboolean Player::CondTorsoState(Conditional& condition)
-
 {
     if (currentState_Torso) {
         str current = currentState_Torso->getName();
@@ -1337,7 +1315,6 @@ qboolean Player::CondTorsoState(Conditional& condition)
 }
 
 qboolean Player::CondStateName(Conditional& condition)
-
 {
     str part      = condition.getParm(1);
     str statename = condition.getParm(2);
@@ -1352,7 +1329,6 @@ qboolean Player::CondStateName(Conditional& condition)
 }
 
 qboolean Player::CondPush(Conditional& condition)
-
 {
     // Check if the player is at a pushobject
     if (atobject && atobject->isSubclassOf(PushObject) && (atobject_dist < (PUSH_OBJECT_DISTANCE + 15.0f))) {
@@ -1366,7 +1342,6 @@ qboolean Player::CondPush(Conditional& condition)
 }
 
 qboolean Player::CondPull(Conditional& condition)
-
 {
     // Check if the player is at a pushobject
     if (atobject && atobject->isSubclassOf(PushObject) && (atobject_dist < (PUSH_OBJECT_DISTANCE + 15.0f))) {
@@ -1511,7 +1486,6 @@ qboolean Player::CondLookingUp(Conditional& condition)
 }
 
 qboolean Player::CondCanStand(Conditional& condition)
-
 {
     Vector  newmins(mins);
     Vector  newmaxs(maxs);
