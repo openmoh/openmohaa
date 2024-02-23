@@ -2399,22 +2399,16 @@ void Player::InitHealth(void)
         return;
     }
 
-    if (g_gametype->integer != GT_SINGLE_PLAYER) {
-        if (pDMHealth->integer > 0) {
-            max_health = pDMHealth->integer;
-        } else {
-            max_health = 100.f;
-        }
-
-        health = max_health;
-    } else if (!g_realismmode->integer) {
+    if (g_gametype->integer == GT_SINGLE_PLAYER && !g_realismmode->integer) {
         max_health = pMaxHealth->integer;
-        health     = max_health;
+    } else if (g_gametype->integer != GT_SINGLE_PLAYER && pDMHealth->integer > 0) {
+        max_health = pDMHealth->integer;
     } else {
         // reset the health values
-        health     = 100;
-        max_health = health;
+        max_health = 100;
     }
+
+    health = max_health;
 
     // 2.0:
     //  Make sure to clear the heal rate and the dead flag when respawning
