@@ -6084,7 +6084,7 @@ void Entity::EventGetRotatedBbox(Event *ev)
 void Entity::EventSinglePlayerCommand(Event *ev)
 {
     if (g_gametype->integer == GT_SINGLE_PLAYER && !g_realismmode->integer) {
-        Event *newev = new Event(ev->GetToken(1));
+        Event *newev = new Event(ev->GetToken(1), ev->NumArgs() - 1);
 
         for (int i = 2; i <= ev->NumArgs(); i++) {
             newev->AddToken(ev->GetToken(i));
@@ -6097,7 +6097,7 @@ void Entity::EventSinglePlayerCommand(Event *ev)
 void Entity::EventMultiPlayerCommand(Event *ev)
 {
     if (g_gametype->integer != GT_SINGLE_PLAYER && !g_realismmode->integer) {
-        Event *newev = new Event(ev->GetToken(1));
+        Event *newev = new Event(ev->GetToken(1), ev->NumArgs() - 1);
 
         for (int i = 2; i <= ev->NumArgs(); i++) {
             newev->AddToken(ev->GetToken(i));
@@ -6110,7 +6110,7 @@ void Entity::EventMultiPlayerCommand(Event *ev)
 void Entity::EventRealismModeCommand(Event *ev)
 {
     if (g_realismmode->integer) {
-        Event *newev = new Event(ev->GetToken(1));
+        Event *newev = new Event(ev->GetToken(1), ev->NumArgs() - 1);
 
         for (int i = 2; i <= ev->NumArgs(); i++) {
             newev->AddToken(ev->GetToken(i));
@@ -6122,8 +6122,8 @@ void Entity::EventRealismModeCommand(Event *ev)
 
 void Entity::EventSPRealismModeCommand(Event *ev)
 {
-    if (g_realismmode->integer && g_gametype->integer == GT_SINGLE_PLAYER) {
-        Event *newev = new Event(ev->GetToken(1));
+    if (g_gametype->integer == GT_SINGLE_PLAYER && g_realismmode->integer) {
+        Event *newev = new Event(ev->GetToken(1), ev->NumArgs() - 1);
 
         for (int i = 2; i <= ev->NumArgs(); i++) {
             newev->AddToken(ev->GetToken(i));
@@ -6135,8 +6135,8 @@ void Entity::EventSPRealismModeCommand(Event *ev)
 
 void Entity::EventDMRealismModeCommand(Event *ev)
 {
-    if (g_realismmode->integer && g_gametype->integer != GT_SINGLE_PLAYER) {
-        Event *newev = new Event(ev->GetToken(1));
+    if (g_gametype->integer != GT_SINGLE_PLAYER && g_realismmode->integer) {
+        Event *newev = new Event(ev->GetToken(1), ev->NumArgs() - 1);
 
         for (int i = 2; i <= ev->NumArgs(); i++) {
             newev->AddToken(ev->GetToken(i));
