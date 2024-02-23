@@ -9979,6 +9979,10 @@ void Player::EventGetCurrentDMWeaponType(Event *ev)
 
 void Player::PhysicsOff(Event *ev)
 {
+    // Added in 2.0
+    //  Reset the state to STAND before disabling physics
+    EvaluateState(statemap_Torso->FindState("STAND"), statemap_Legs->FindState("STAND"));
+
     flags |= FL_IMMOBILE;
 }
 
