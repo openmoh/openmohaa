@@ -6308,6 +6308,11 @@ void Entity::PlayNonPvsSound(const str& soundName, float volume)
     AliasListNode_t* ret;
     str name;
 
+    if (g_gametype->integer == GT_SINGLE_PLAYER) {
+        // Ignore in single-player
+        return;
+    }
+
     if (edict->r.num_nonpvs_sounds >= MAX_NONPVS_SOUNDS) {
         return;
     }
