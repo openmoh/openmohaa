@@ -2004,7 +2004,7 @@ void Weapon::Shoot(Event *ev)
             break;
         }
 
-        if (!quiet[firemodeindex]) {
+        if (!quiet[mode]) {
             if (next_noise_time <= level.time) {
                 BroadcastAIEvent(AI_EVENT_WEAPON_FIRE);
                 next_noise_time = level.time + 1;
