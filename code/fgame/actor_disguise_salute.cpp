@@ -51,7 +51,7 @@ void Actor::Begin_DisguiseSalute(void)
         SetDesiredYawDest(m_Enemy->origin);
         SetDesiredLookDir(m_Enemy->origin - origin);
 
-        DesiredAnimation(ANIM_MODE_NORMAL, STRING_ANIM_DISGUISE_PAPERS_SCR);
+        DesiredAnimation(ANIM_MODE_NORMAL, STRING_ANIM_DISGUISE_SALUTE_SCR);
     } else {
         SetThinkState(THINKSTATE_ATTACK, THINKLEVEL_IDLE);
     }
@@ -85,7 +85,12 @@ void Actor::Think_DisguiseSalute(void)
         return;
     }
 
-    if ((!EnemyIsDisguised() && !(m_Enemy->flags & FL_NOTARGET)) || level.m_bAlarm != qtrue) {
+    if (!EnemyIsDisguised() && !(m_Enemy->flags & FL_NOTARGET)) {
+        SetThinkState(THINKSTATE_ATTACK, THINKLEVEL_IDLE);
+        return;
+    }
+
+    if (level.m_bAlarm == qtrue) {
         SetThinkState(THINKSTATE_ATTACK, THINKLEVEL_IDLE);
         return;
     }
