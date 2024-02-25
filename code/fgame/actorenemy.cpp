@@ -353,7 +353,7 @@ void ActorEnemySet::CheckEnemies(Actor *pSelf)
         pActorEnemy = &m_Enemies[i - 1];
         if (!pActorEnemy->GetEnemy() || pActorEnemy->GetEnemy()->m_Team == pSelf->m_Team
             || pActorEnemy->GetEnemy()->IsDead() || level.inttime > pActorEnemy->m_iAddTime + 10000
-            || pActorEnemy->GetEnemy()->m_iThreatBias == THREATBIAS_IGNOREME) {
+            || pActorEnemy->GetEnemy()->m_iThreatBias == THREATBIAS_IGNOREME || pActorEnemy->GetEnemy()->IsDisabled()) {
             m_Enemies.RemoveObjectAt(i);
         } else {
             i++;
