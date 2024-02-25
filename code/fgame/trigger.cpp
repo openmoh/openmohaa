@@ -839,7 +839,7 @@ CLASS_DECLARATION(Trigger, TriggerVehicle, "trigger_vehicle") {
 
 qboolean TriggerVehicle::respondTo(Entity *other)
 {
-    if ((other->IsSubclassOfVehicle()) || isSubclassOf(VehicleCollisionEntity)) {
+    if ((other->IsSubclassOfVehicle()) || other->isSubclassOf(VehicleCollisionEntity)) {
         return qtrue;
     } else {
         return qfalse;
