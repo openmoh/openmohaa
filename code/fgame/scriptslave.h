@@ -136,6 +136,11 @@ protected:
     void RotateY(Event *ev);
     void RotateZ(Event *ev);
     void RotateAxis(Event *ev);
+    void TouchFunc(Event *ev);
+    void BlockFunc(Event *ev);
+    void TriggerFunc(Event *ev);
+    void UseFunc(Event *ev);
+    void DamageFunc(Event *ev);
     void SetDamage(Event *ev);
     void SetMeansOfDeath(Event *ev);
     void FollowPath(Event *ev);
@@ -150,7 +155,6 @@ protected:
     void PhysicsOn(Event *ev);
     void PhysicsOff(Event *ev);
     void PhysicsVelocity(Event *ev);
-    void DamageFunc(Event *ev);
     void EventFlyPath(Event *ev);
     void EventModifyFlyPath(Event *ev);
     void EventNormalAngles(Event *ev); // Added in 2.0

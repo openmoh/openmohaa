@@ -44,6 +44,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "game.h"
 #include "debuglines.h"
 #include "weaputils.h"
+#include "parm.h"
 
 /*****************************************************************************/
 /*QUAKED script_object (0 0.5 1) ? NOT_SOLID
@@ -654,6 +655,10 @@ CLASS_DECLARATION(Mover, ScriptSlave, "script_object") {
     {&EV_ScriptSlave_FollowPath_RelativeYaw, &ScriptSlave::FollowPathRelativeYaw},
     {&EV_ScriptSlave_EndPath,                &ScriptSlave::EndPath              },
     {&EV_ScriptSlave_FollowingPath,          &ScriptSlave::FollowingPath        },
+    {&EV_Touch,                              &ScriptSlave::TouchFunc            },
+    {&EV_Blocked,                            &ScriptSlave::BlockFunc            },
+    {&EV_Activate,                           &ScriptSlave::TriggerFunc          },
+    {&EV_Use,                                &ScriptSlave::UseFunc              },
     {&EV_ScriptSlave_MoveDone,               &ScriptSlave::MoveEnd              },
     {&EV_Damage,                             &ScriptSlave::DamageFunc           },
     {&EV_ScriptSlave_RotateDownTo,           &ScriptSlave::Rotatedownto         },
@@ -784,7 +789,6 @@ void ScriptSlave::NewMove(void)
 }
 
 void ScriptSlave::BindEvent(Event *ev)
-
 {
     Entity *ent;
 
@@ -799,7 +803,6 @@ void ScriptSlave::BindEvent(Event *ev)
 }
 
 void ScriptSlave::EventUnbind(Event *ev)
-
 {
     unbind();
 
@@ -825,7 +828,6 @@ void ScriptSlave::MoveEnd(Event *ev)
 }
 
 void ScriptSlave::SetAnglesEvent(Event *ev)
-
 {
     commandswaiting = true;
     SetAngles(ev);
@@ -833,7 +835,6 @@ void ScriptSlave::SetAnglesEvent(Event *ev)
 }
 
 void ScriptSlave::SetAngleEvent(Event *ev)
-
 {
     float angle;
 
@@ -885,7 +886,6 @@ void ScriptSlave::SetModelEvent(Event *ev)
 }
 
 void ScriptSlave::TriggerEvent(Event *ev)
-
 {
     Entity *ent;
     Event  *e;
@@ -903,7 +903,6 @@ void ScriptSlave::TriggerEvent(Event *ev)
 }
 
 void ScriptSlave::GotoNextWaypoint(Event *ev)
-
 {
     commandswaiting = true;
 
@@ -961,7 +960,6 @@ void ScriptSlave::JumpTo(Event *ev)
 }
 
 void ScriptSlave::MoveToEvent(Event *ev)
-
 {
     commandswaiting = true;
 
@@ -979,14 +977,12 @@ void ScriptSlave::MoveToEvent(Event *ev)
 }
 
 void ScriptSlave::SetSpeed(Event *ev)
-
 {
     speed      = ev->GetFloat(1);
     traveltime = 0;
 }
 
 void ScriptSlave::SetTime(Event *ev)
-
 {
     traveltime = ev->GetFloat(1);
 }
@@ -1281,30 +1277,64 @@ void ScriptSlave::RotateAxisup(Event *ev)
 }
 
 void ScriptSlave::RotateX(Event *ev)
-
 {
     avelocity[0] = ev->GetFloat(1);
 }
 
 void ScriptSlave::RotateY(Event *ev)
-
 {
     avelocity[1] = ev->GetFloat(1);
 }
 
 void ScriptSlave::RotateZ(Event *ev)
-
 {
     avelocity[2] = ev->GetFloat(1);
 }
 
 void ScriptSlave::RotateAxis(Event *ev)
-
 {
     int axis;
 
     axis            = ev->GetInteger(1);
     avelocity[axis] = ev->GetFloat(2);
+}
+
+void ScriptSlave::TouchFunc(Event* ev)
+{
+    parm.other = ev->GetEntity(1);
+    parm.owner = parm.other;
+    Unregister(STRING_TOUCH);
+}
+
+void ScriptSlave::BlockFunc(Event* ev)
+{
+    Entity* other;
+
+    other = ev->GetEntity(1);
+    if (level.time >= attack_finished) {
+        attack_finished = level.time + 0.5;
+        if (dmg) {
+            other->Damage(this, this, dmg, origin, vec_zero, vec_zero, 0, 0, dmg_means_of_death);
+        }
+    }
+
+    parm.other = ev->GetEntity(1);
+    parm.owner = parm.other;
+    Unregister(STRING_BLOCK);
+}
+
+void ScriptSlave::TriggerFunc(Event* ev)
+{
+    parm.other = ev->GetEntity(1);
+    parm.owner = parm.other;
+    Unregister(STRING_TRIGGER);
+}
+
+void ScriptSlave::UseFunc(Event* ev)
+{
+    parm.other = ev->GetEntity(1);
+    parm.owner = parm.other;
+    Unregister(STRING_USE);
 }
 
 void ScriptSlave::DamageFunc(Event *ev)
@@ -1313,19 +1343,16 @@ void ScriptSlave::DamageFunc(Event *ev)
 }
 
 void ScriptSlave::SetDamage(Event *ev)
-
 {
     dmg = ev->GetInteger(1);
 }
 
 void ScriptSlave::SetMeansOfDeath(Event *ev)
-
 {
     dmg_means_of_death = MOD_string_to_int(ev->GetString(1));
 }
 
 void ScriptSlave::CreatePath(SplinePath *path, splinetype_t type)
-
 {
     SplinePath *node;
 
@@ -1641,7 +1668,6 @@ void ScriptSlave::FollowingPath(Event *ev)
 }
 
 void ScriptSlave::Explode(Event *ev)
-
 {
     float damage;
 
