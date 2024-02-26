@@ -123,10 +123,14 @@ qboolean CM_LoadTGA( const char *name, byte **pic, int *width, int *height )
 	if(targa_header.colormap_type!=0)
 		Com_Error (ERR_DROP, "LoadTGA: colormaps not supported\n");
 
-	if (targa_header.colormap_type !=0 
-		|| (targa_header.pixel_size!=32 && targa_header.pixel_size!=24))
-		Com_Error (ERR_DROP, "LoadTGA: Only 32 or 24 bit images supported (no colormaps)\n");
+	if (targa_header.pixel_size != 32) {
+        if (targa_header.pixel_size != 24 && targa_header.image_type != 3) {
+            Com_Error(ERR_DROP, "LoadTGA: Only 32 or 24 bit images supported (no colormaps)\n");
+		}
 
+		FS_FreeFile(buffer);
+		return qfalse;
+	}
 	columns = targa_header.width;
 	rows = targa_header.height;
 	numPixels = columns * rows;
