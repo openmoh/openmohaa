@@ -31,6 +31,7 @@ void Actor::InitDisguiseSalute(GlobalFuncs_t *func)
     func->EndState                   = &Actor::End_DisguiseSalute;
     func->ResumeState                = &Actor::Resume_DisguiseSalute;
     func->SuspendState               = &Actor::Suspend_DisguiseSalute;
+    func->FinishedAnimation          = &Actor::FinishedAnimation_DisguiseSalute;
     func->PassesTransitionConditions = &Actor::PassesTransitionConditions_Disguise;
     func->IsState                    = &Actor::IsDisguiseState;
 }
