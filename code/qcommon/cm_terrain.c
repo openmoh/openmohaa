@@ -1149,10 +1149,16 @@ void CM_TraceThroughTerrainCollide(traceWork_t *tw, terrainCollide_t *tc)
 {
     int i;
 
-    if (tw->bounds[0][0] >= tc->vBounds[1][0] || tw->bounds[0][1] >= tc->vBounds[1][1]
-        || tw->bounds[0][2] >= tc->vBounds[1][2] || tw->bounds[1][0] <= tc->vBounds[0][0]
-        || tw->bounds[1][1] <= tc->vBounds[0][1] || tw->bounds[1][2] <= tc->vBounds[0][2]) {
-        return;
+    if (tw->bounds[0][0] >= tc->vBounds[1][0] || tw->bounds[1][0] <= tc->vBounds[0][0]) {
+        return qfalse;
+    }
+
+    if (tw->bounds[0][1] >= tc->vBounds[1][1] || tw->bounds[1][1] <= tc->vBounds[0][1]) {
+        return qfalse;
+    }
+
+    if (tw->bounds[0][2] >= tc->vBounds[1][2] || tw->bounds[1][2] <= tc->vBounds[0][2]) {
+        return qfalse;
     }
 
     g_trace.tw = tw;
@@ -1202,9 +1208,15 @@ qboolean CM_PositionTestInTerrainCollide(traceWork_t *tw, terrainCollide_t *tc)
 {
     int i;
 
-    if (tw->bounds[0][0] >= tc->vBounds[1][0] || tw->bounds[0][1] >= tc->vBounds[1][1]
-        || tw->bounds[0][2] >= tc->vBounds[1][2] || tw->bounds[1][0] <= tc->vBounds[0][0]
-        || tw->bounds[1][1] <= tc->vBounds[0][1] || tw->bounds[1][2] <= tc->vBounds[0][2]) {
+    if (tw->bounds[0][0] >= tc->vBounds[1][0] || tw->bounds[1][0] <= tc->vBounds[0][0]) {
+        return qfalse;
+    }
+
+    if (tw->bounds[0][1] >= tc->vBounds[1][1] || tw->bounds[1][1] <= tc->vBounds[0][1]) {
+        return qfalse;
+    }
+
+    if (tw->bounds[0][2] >= tc->vBounds[1][2] || tw->bounds[1][2] <= tc->vBounds[0][2]) {
         return qfalse;
     }
 
@@ -1414,10 +1426,16 @@ qboolean CM_SightTraceThroughTerrainCollide(traceWork_t *tw, terrainCollide_t *t
 {
     int i;
 
-    if (tw->bounds[0][0] >= tc->vBounds[1][0] || tw->bounds[0][1] >= tc->vBounds[1][1]
-        || tw->bounds[0][2] >= tc->vBounds[1][2] || tw->bounds[1][0] <= tc->vBounds[0][0]
-        || tw->bounds[1][1] <= tc->vBounds[0][1] || tw->bounds[1][2] <= tc->vBounds[0][2]) {
-        return qtrue;
+    if (tw->bounds[0][0] >= tc->vBounds[1][0] || tw->bounds[1][0] <= tc->vBounds[0][0]) {
+        return qfalse;
+    }
+
+    if (tw->bounds[0][1] >= tc->vBounds[1][1] || tw->bounds[1][1] <= tc->vBounds[0][1]) {
+        return qfalse;
+    }
+
+    if (tw->bounds[0][2] >= tc->vBounds[1][2] || tw->bounds[1][2] <= tc->vBounds[0][2]) {
+        return qfalse;
     }
 
     g_trace.tw = tw;
