@@ -295,6 +295,68 @@ void G_DebugBBox(Vector org, Vector mins, Vector maxs, float r, float g, float b
     }
 }
 
+void G_DebugRotatedBBox(Vector org, Vector ang, Vector mins, Vector maxs, float r, float g, float b, float alpha) {
+    int i;
+    Vector tmp;
+    Vector points[8];
+    vec3_t axis[3];
+
+    AnglesToAxis(ang, axis);
+
+    /*
+	** compute a full bounding box
+	*/
+    for (i = 0; i < 8; i++) {
+        Vector tmp;
+
+        if (i & 1) {
+            tmp[0] = mins[0];
+        } else {
+            tmp[0] = maxs[0];
+        }
+
+        if (i & 2) {
+            tmp[1] = mins[1];
+        } else {
+            tmp[1] = maxs[1];
+        }
+
+        if (i & 4) {
+            tmp[2] = mins[2];
+        } else {
+            tmp[2] = maxs[2];
+        }
+
+        MatrixTransformVector(tmp, axis, points[i]);
+        points[i] += org;
+    }
+
+    G_Color4f(r, g, b, alpha);
+
+    G_BeginLine();
+    G_Vertex(points[0]);
+    G_Vertex(points[1]);
+    G_Vertex(points[3]);
+    G_Vertex(points[2]);
+    G_Vertex(points[0]);
+    G_EndLine();
+
+    G_BeginLine();
+    G_Vertex(points[4]);
+    G_Vertex(points[5]);
+    G_Vertex(points[7]);
+    G_Vertex(points[6]);
+    G_Vertex(points[4]);
+    G_EndLine();
+
+    for (i = 0; i < 4; i++) {
+        G_BeginLine();
+        G_Vertex(points[i]);
+        G_Vertex(points[4 + i]);
+        G_EndLine();
+    }
+}
+
 //
 // LED style digits
 //
