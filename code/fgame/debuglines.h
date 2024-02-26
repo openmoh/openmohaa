@@ -22,8 +22,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // debuglines.h:
 
-#ifndef __DEBUGLINES_H__
-#define __DEBUGLINES_H__
+#pragma once
 
 #include "g_local.h"
 
@@ -67,5 +66,3 @@ void G_DebugHighlightFacet( Vector org, Vector mins, Vector maxs, facet_t facet,
 
 extern debugline_t *DebugLines;
 extern debugstring_t *DebugStrings;
-
-#endif /* !__DEBUGLINES_H__ */
