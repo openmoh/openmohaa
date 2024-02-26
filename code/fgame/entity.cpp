@@ -5933,7 +5933,7 @@ void Entity::DrawBoundingBox(int showbboxes)
     switch (showbboxes) {
     case 1:
         if (edict->s.solid) {
-            G_DebugBBox(origin, mins, maxs, 1, 1, 0, 1);
+            G_DebugRotatedBBox(origin, angles, mins, maxs, 1, 1, 0, 1);
         }
         break;
     case 2:
@@ -5943,13 +5943,48 @@ void Entity::DrawBoundingBox(int showbboxes)
         break;
     case 3:
         if (edict->tiki && !(edict->s.renderfx & RF_DONTDRAW)) {
-            G_DebugBBox(origin, mins, maxs, 1, 1, 0, 1);
+            G_DebugRotatedBBox(origin, angles, mins, maxs, 1, 1, 0, 1);
         }
         break;
     case 4:
-        G_DebugBBox(origin, mins, maxs, 1, 1, 0, 1);
+        G_DebugRotatedBBox(origin, angles, mins, maxs, 1, 1, 0, 1);
         break;
-    case 5:
+    case 7:
+        if (edict->tiki && !(edict->s.renderfx & RF_DONTDRAW)) {
+            Vector vMins, vMaxs;
+
+            gi.TIKI_CalculateBounds(edict->tiki, edict->s.scale, vMins, vMaxs);
+            if (!VectorCompare(vMins, vec_zero) || !VectorCompare(vMaxs, vec_zero)) {
+                if (edict->s.parent != ENTITYNUM_NONE && edict->s.tag_num >= 0) {
+                    int i;
+                    Vector vAng;
+                    orientation_t oTag, oBox;
+                    Entity* pParent;
+
+                    pParent = G_GetEntity(edict->s.parent);
+                    AnglesToAxis(pParent->angles, pParent->orientation);
+                    oTag = G_TIKI_Orientation(pParent->edict, edict->s.tag_num & TAG_MASK);
+
+                    VectorCopy(pParent->origin, oBox.origin);
+                    for (i = 0; i < 3; i++) {
+                        VectorMA(oBox.origin, oTag.origin[i], pParent->orientation[i], oBox.origin);
+                    }
+
+                    MatrixMultiply(oTag.axis, pParent->orientation, oBox.axis);
+                    MatrixToEulerAngles(oBox.axis, vAng);
+                    G_DebugRotatedBBox(oBox.origin, vAng, vMins, vMaxs, 0, 1, 1, 1);
+                } else {
+                    G_DebugRotatedBBox(origin, angles, vMins, vMaxs, 0, 1, 1, 1);
+                }
+            }
+        }
+        break;
+    case 8:
+        if (edict->tiki && !(edict->s.renderfx & RF_DONTDRAW)) {
+            G_DebugRotatedBBox(origin, angles, mins, maxs, 1, 1, 0, 1);
+            G_DebugBBox(origin, Vector(-4, -4, -4), Vector(4, 4, 4), 0, 1, 1, 1);
+        }
+        break;
     default:
         if (IsSubclassOfAnimate() && edict->tiki) {
             Animate *anim;
@@ -5963,6 +5998,8 @@ void Entity::DrawBoundingBox(int showbboxes)
         }
         break;
     }
+
+    // FIXME: not implemented (implement the rest...)
 }
 
 qboolean Entity::IsDead(void) const
