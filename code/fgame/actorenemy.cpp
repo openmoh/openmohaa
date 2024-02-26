@@ -389,7 +389,7 @@ void ActorEnemySet::CheckEnemies(Actor *pSelf)
                     "ent #%3i: enemy #%i: awareness = %5.1f%%, threat = %i\n",
                     pSelf->entnum,
                     pActorEnemy->GetEnemy()->entnum,
-                    (int)(fVisibility * 100.0),
+                    (fVisibility * 100.0),
                     0
                 );
             }
@@ -420,7 +420,7 @@ void ActorEnemySet::CheckEnemies(Actor *pSelf)
     m_iCurrentThreat = 0;
     fRangeSquared    = 1e37f;
 
-    if (m_fCurrentVisibility >= 1) {
+    if (m_fCurrentVisibility >= 0.999f) {
         iThreat = 0;
 
         for (i = 1; i <= m_Enemies.NumObjects(); i++) {
