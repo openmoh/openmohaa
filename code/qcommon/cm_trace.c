@@ -753,17 +753,17 @@ void CM_TraceThroughBrush( traceWork_t *tw, cbrush_t *brush ) {
 					return;
 				}
 			}
-		}
 
-		if( ( leaveFrac2 < 1.0 ) && ( leadside2->surfaceFlags & SURF_BACKSIDE ) ) {
-			if( leaveFrac2 < tw->trace.fraction ) {
-				if( CM_TraceThroughFence( tw, brush, leadside2, leaveFrac ) ) {
-					tw->trace.fraction = leaveFrac2;
-					tw->trace.plane = *clipplane2;
-					tw->trace.surfaceFlags = leadside2->surfaceFlags;
-					tw->trace.shaderNum = leadside2->shaderNum;
-					tw->trace.contents = brush->contents;
-					return;
+			if( ( leaveFrac2 < 1.0 ) && ( leadside2->surfaceFlags & SURF_BACKSIDE ) ) {
+				if( leaveFrac2 < tw->trace.fraction ) {
+					if( CM_TraceThroughFence( tw, brush, leadside2, leaveFrac ) ) {
+						tw->trace.fraction = leaveFrac2;
+						tw->trace.plane = *clipplane2;
+						tw->trace.surfaceFlags = leadside2->surfaceFlags;
+						tw->trace.shaderNum = leadside2->shaderNum;
+						tw->trace.contents = brush->contents;
+						return;
+					}
 				}
 			}
 		}
@@ -1754,12 +1754,12 @@ qboolean CM_SightTraceThroughBrush( traceWork_t *tw, cbrush_t *brush )
 					return qfalse;
 				}
 			}
-		}
 
-		if( ( leaveFrac2 < 1.0 ) && ( leadside2->surfaceFlags & SURF_BACKSIDE ) ) {
-			if( leaveFrac2 < tw->trace.fraction ) {
-				if( CM_TraceThroughFence( tw, brush, leadside2, leaveFrac ) ) {
-					return qfalse;
+			if( ( leaveFrac2 < 1.0 ) && ( leadside2->surfaceFlags & SURF_BACKSIDE ) ) {
+				if( leaveFrac2 < tw->trace.fraction ) {
+					if( CM_TraceThroughFence( tw, brush, leadside2, leaveFrac ) ) {
+						return qfalse;
+					}
 				}
 			}
 		}
