@@ -12441,7 +12441,7 @@ int Player::getUseableEntities(int *touch, int maxcount, bool requiresLookAt)
             end[2] = start[2] + (offset[2] * 88.f);
         }
 
-        trace = G_Trace(start, min, max, end, this, MASK_SOLID, false, "Player::getUseableEntity");
+        trace = G_Trace(start, min, max, end, this, MASK_USE, false, "Player::getUseableEntity");
 
         offset = trace.endpos;
 
