@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2023 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -39,10 +39,16 @@ public:
 public:
     CLASS_PROTOTYPE(Game);
 
-    void Archive(Archiver& arc) override;
+protected:
+    void GetSkill(Event *ev);
+    void GetDetail(Event *ev);
 
+public:
     Game();
     ~Game();
+
+    void Init();
+    void Archive(Archiver& arc) override;
 };
 
 class SimpleArchivedEntity;

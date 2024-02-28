@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2023 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -31,18 +31,66 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "player.h"
 #include "dm_manager.h"
 
+Event EV_Game_Detail
+(
+    "skill",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "game.skill"
+);
+
+Event EV_Game_Skill
+(
+    "detail",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "game.detail"
+);
+
 Game game;
+
+void Game::GetSkill(Event *ev)
+{
+    switch (skill->integer) {
+    case 0:
+    case 1:
+        ev->AddString("easy");
+        break;
+    case 2:
+        ev->AddString("hard");
+        break;
+    default:
+        ev->AddString("unknown");
+        break;
+    }
+}
+
+void Game::GetDetail(Event *ev)
+{
+    ev->AddFloat(detail->value);
+}
+
+void Game::Init()
+{
+    clients     = NULL;
+    autosaved   = qfalse;
+    maxentities = 0;
+    maxclients  = 0;
+}
+
+void Game::Archive(Archiver& arc) {}
 
 Game::Game()
 {
-    clients    = NULL;
-    maxclients = 0;
+    Init();
 }
 
 Game::~Game() {}
 
-void Game::Archive(Archiver& arc) {}
-
 CLASS_DECLARATION(Listener, Game, NULL) {
-    {NULL, NULL}
+    {&EV_Game_Skill,  &Game::GetSkill },
+    {&EV_Game_Detail, &Game::GetDetail},
+    {NULL,            NULL            }
 };
