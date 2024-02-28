@@ -2394,7 +2394,10 @@ qboolean Weapon::Drop(void)
     // Remove this from the owner's item list
     RemoveFromOwner();
 
-    PostEvent(EV_Remove, g_droppeditemlife->value);
+    if (g_droppeditemlife->value > 0) {
+        PostEvent(EV_Remove, g_droppeditemlife->value);
+    }
+
     PostEvent(EV_Weapon_FallingAngleAdjust, level.frametime);
     return true;
 }
