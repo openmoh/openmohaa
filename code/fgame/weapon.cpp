@@ -2777,10 +2777,7 @@ void Weapon::GiveStartingAmmoToOwner(Event *ev)
     int mode;
     int i;
 
-    assert(owner);
-
     if (!owner) {
-        warning("Weapon::GiveStartingAmmoToOwner", "Owner not found\n");
         return;
     }
 
