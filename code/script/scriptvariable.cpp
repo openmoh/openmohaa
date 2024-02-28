@@ -281,6 +281,19 @@ void ScriptVariable::ArchiveInternal(Archiver& arc)
         break;
     }
 }
+
+void ScriptVariable::MakePrimitive()
+{
+    switch (type) {
+    case VARIABLE_LISTENER:
+    case VARIABLE_REF:
+    case VARIABLE_CONTAINER:
+    case VARIABLE_SAFECONTAINER:
+        Com_Error(ERR_DROP, "^~^~^ game.%s cannot be archived since it is of type '%s'.", getName().c_str(), GetTypeName());
+        Clear();
+        break;
+    }
+}
 #endif
 
 ScriptArrayHolder::ScriptArrayHolder()
@@ -2566,6 +2579,15 @@ void ScriptVariableList::Archive(Archiver& arc)
 {
     Class::Archive(arc);
     list.Archive(arc);
+}
+
+void ScriptVariableList::MakePrimitive()
+{
+    con_set_enum<short3, ScriptVariable> en = list;
+
+    for (con_set_enum<short3, ScriptVariable>::Entry *entry = en.NextElement(); entry; entry = en.NextElement()) {
+        entry->value.MakePrimitive();
+    }
 }
 
 CLASS_DECLARATION(Class, ScriptVariableList, NULL) {

@@ -111,10 +111,6 @@ public:
 
     ~ScriptVariable();
 
-    void        Archive(Archiver& arc);
-    static void Archive(Archiver& arc, ScriptVariable **obj);
-    void        ArchiveInternal(Archiver& arc);
-
     void CastBoolean(void);
     void CastConstArrayValue(void);
     void CastEntity(void);
@@ -235,6 +231,12 @@ public:
 
     ScriptVariable operator++(int);
     ScriptVariable operator--(int);
+
+    void        Archive(Archiver& arc);
+    static void Archive(Archiver& arc, ScriptVariable** obj);
+    void        ArchiveInternal(Archiver& arc);
+
+    void MakePrimitive();
 };
 
 class ScriptArrayHolder : public LightClass
@@ -293,6 +295,8 @@ class con_set_Entry<short3, ScriptVariable>
 
 private:
     con_set_Entry *next;
+
+public:
     ScriptVariable value;
 
 public:
@@ -318,8 +322,6 @@ public:
 
     ScriptVariableList();
 
-    void Archive(Archiver& arc) override;
-
     void ClearList(void);
 
     ScriptVariable *GetOrCreateVariable(str name);
@@ -338,6 +340,9 @@ public:
     ScriptVariable *SetVariable(const char *name, ScriptVariable& value);
     ScriptVariable *SetVariable(unsigned int name, ScriptVariable& value);
     ScriptVariable *SetVariable(unsigned int name, ScriptVariable&& value);
+
+    void Archive(Archiver& arc) override;
+    void MakePrimitive();
 };
 
 #endif
