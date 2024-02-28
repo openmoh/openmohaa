@@ -2980,7 +2980,7 @@ void Weapon::PickupWeapon(Event *ev)
         gi.SendServerCommand(other->edict - g_entities, "print \"" HUD_MESSAGE_YELLOW "%s\n\"", sMessage.c_str());
     }
 
-    if (ammo_type[FIRE_SECONDARY] != ammo_type[FIRE_PRIMARY]) {
+    if (ammo_type[FIRE_SECONDARY] != ammo_type[FIRE_PRIMARY] && str::icmp(ammo_type[FIRE_SECONDARY], "none")) {
         if (startammo[FIRE_SECONDARY] && ammo_type[FIRE_SECONDARY].length() && other->isClient()) {
             str        sMessage;
             const str& sAmmoType = ammo_type[FIRE_PRIMARY];
