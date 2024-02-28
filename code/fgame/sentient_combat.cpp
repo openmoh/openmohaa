@@ -446,7 +446,7 @@ void Sentient::FireWeapon(int number, firemode_t mode)
 {
     Weapon *activeWeapon = activeWeaponList[number];
 
-    if (activeWeapon) {
+    if (activeWeapon && activeWeapon->ReadyToFire(mode)) {
         if (mode == FIRE_SECONDARY && activeWeapon->GetZoom() && !activeWeapon->GetAutoZoom() && IsSubclassOfPlayer()) {
             Player *p = (Player *)this;
             p->ToggleZoom(activeWeapon->GetZoom());
