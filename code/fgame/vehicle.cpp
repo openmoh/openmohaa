@@ -3134,19 +3134,26 @@ void Vehicle::AutoPilot(void)
             fCoef = ProjectLineOnPlane(vDelta, DotProduct(origin, vDelta), vPrev, vCur, NULL);
 
             if (g_showvehiclemovedebug->integer) {
-                Vector vColor;
-                G_DebugBBox(vColor, Vector(-32, -32, -32), Vector(32, 32, 32), 0, 1, 1, 1);
-                G_DebugBBox(vColor, Vector(-32, -32, -32), Vector(32, 32, 32), 1, 1, 0, 1);
-                G_DebugArrow(vColor, m_vIdealDir * -1, (1 - fCoef) * fTotal, 0, 1, 0, 1);
-                G_DebugArrow(vColor, m_vIdealDir * 1, fCoef * fTotal, 0, 0, 1, 1);
+                G_DebugBBox(vPrev, Vector(-32, -32, -32), Vector(32, 32, 32), 0, 1, 1, 1);
+                G_DebugBBox(vCur, Vector(-32, -32, -32), Vector(32, 32, 32), 1, 1, 0, 1);
+                G_DebugArrow(vCur, m_vIdealDir * -1, (1 - fCoef) * fTotal, 0, 1, 0, 1);
+                G_DebugArrow(vPrev, m_vIdealDir * 1, fCoef * fTotal, 0, 0, 1, 1);
             }
 
             vTmp             = m_pCurPath->GetByNode(m_iCurNode - (1.0 - fCoef), NULL);
             fCurPathPosition = vTmp[0];
-            vTmp             = m_pCurPath->Get(fCurPathPosition + m_fLookAhead, NULL);
-            vWishPosition    = vTmp + 1;
-            fDistToCurPos    = Vector(origin[0] - vWishPosition[0], origin[1] - vWishPosition[1], 0).length();
+            // Added in 2.30
+            //  Check if vehicle bounces backwards
+            if (m_bBounceBackwards) {
+                vTmp = m_pCurPath->Get(fCurPathPosition - m_fLookAhead, NULL);
+            } else {
+                vTmp = m_pCurPath->Get(fCurPathPosition + m_fLookAhead, NULL);
+            }
+            vWishPosition = vTmp + 1;
+            fDistToCurPos = Vector(origin[0] - vWishPosition[0], origin[1] - vWishPosition[1], 0).length();
 
+            // Added in 2.30
+            //  Check if vehicle bounces backwards
             if (fCoef > 1 && !m_bBounceBackwards) {
                 m_iCurNode++;
                 if (m_iCurNode >= m_pCurPath->m_iPoints) {
@@ -3254,7 +3261,8 @@ void Vehicle::AutoPilot(void)
             vDeltaSave[2] = 0;
 
             if (fDistToCurPos > 1) {
-                if (moveimpulse >= 0 && !m_bBounceBackwards) { // 2.30: checks if it doesn't bounce backwards
+                // Added 2.30: checks if it doesn't bounce backwards
+                if (moveimpulse >= 0 && !m_bBounceBackwards) {
                     vectoangles(vDelta, vDeltaAngles);
                     turnimpulse = angledist(vDeltaAngles.y - angles.y);
                 } else {
@@ -3307,13 +3315,19 @@ void Vehicle::AutoPilot(void)
 
             if (m_iNextPathStartNode >= 0 && m_pNextPath && m_pNextPath->m_iPoints
                 && m_iCurNode > m_iNextPathStartNode + 2) {
-                cVehicleSpline *spline = m_pCurPath;
-                m_pCurPath             = m_pNextPath;
-                m_pNextPath            = spline;
-                m_iCurNode             = 2;
+                cVehicleSpline *spline;
+
+                spline      = m_pCurPath;
+                m_pCurPath  = m_pNextPath;
+                m_pNextPath = spline;
+
+                m_iCurNode = 2;
                 m_pNextPath->Reset();
                 m_iNextPathStartNode = -1;
+
+                // notify scripts that the drive has finished
                 Unregister(STRING_DRIVE);
+
                 m_bStopEnabled    = false;
                 m_bEnableSkidding = false;
             }
@@ -3389,7 +3403,7 @@ void Vehicle::EventDriveInternal(Event *ev, bool wait)
         m_fIdealAccel = ev->GetFloat(3);
     case 2:
         m_fIdealSpeed = ev->GetFloat(2);
-        m_fMaxSpeed = m_fIdealSpeed;// Added in 2.30
+        m_fMaxSpeed   = m_fIdealSpeed; // Added in 2.30
     case 1:
         path = ev->GetSimpleEntity(1);
         if (!path) {
@@ -4091,11 +4105,12 @@ void Vehicle::SlidePush(Vector vPush)
                 other->entity->CheckGround();
 
                 if (other->entity->groundentity) {
-                    if (other->entity->groundentity == edict || m_pCollisionEntity && other->entity->groundentity->entity == m_pCollisionEntity) {
+                    if (other->entity->groundentity == edict
+                        || m_pCollisionEntity && other->entity->groundentity->entity == m_pCollisionEntity) {
                         // save the entity
-                        pSkippedEntities[iNumSkipped] = other->entity;
+                        pSkippedEntities[iNumSkipped]  = other->entity;
                         iContentsEntities[iNumSkipped] = other->r.contents;
-                        solidEntities[iNumSkipped] = other->solid;
+                        solidEntities[iNumSkipped]     = other->solid;
                         iNumSkipped++;
 
                         if (iNumSkipped >= MAX_SKIPPED_ENTITIES) {
@@ -5849,15 +5864,20 @@ void Vehicle::UpdateNormals(void)
     }
 
     if (m_iNumNormals > 1) {
+        float x, z;
+
         temp = m_vNormalSum / m_iNumNormals;
         i    = temp.CrossProduct(temp, j);
 
-        pitch     = i;
-        angles[0] = pitch.toPitch();
+        pitch = i;
+        x     = pitch.toPitch();
 
-        temp      = m_vNormalSum / m_iNumNormals;
-        pitch     = temp.CrossProduct(temp, i);
-        angles[2] = pitch.toPitch();
+        temp  = m_vNormalSum / m_iNumNormals;
+        pitch = temp.CrossProduct(temp, i);
+        z     = pitch.toPitch();
+
+        angles[0] = x;
+        angles[2] = z;
     }
 }
 
@@ -6475,9 +6495,9 @@ void Vehicle::Archive(Archiver& arc)
     arc.ArchiveBoolean(&jumpable);
 
     arc.ArchiveBoolean(&m_bMovementLocked);
-    arc.ArchiveBoolean(&m_bAnimMove); // Added in 2.0
-    arc.ArchiveBoolean(&m_bDamageSounds); // Added in 2.0
-    arc.ArchiveBoolean(&m_bRunSounds); // Added in 2.0
+    arc.ArchiveBoolean(&m_bAnimMove);                // Added in 2.0
+    arc.ArchiveBoolean(&m_bDamageSounds);            // Added in 2.0
+    arc.ArchiveBoolean(&m_bRunSounds);               // Added in 2.0
     arc.ArchiveInteger(&m_iProjectileHitsRemaining); // Added in 2.30
 
     driver.Archive(arc);
@@ -6716,7 +6736,7 @@ void Vehicle::Archive(Archiver& arc)
     m_sMoveGrid->Archive(arc);
 
     arc.ArchiveFloat(&m_fIdealSpeed);
-    arc.ArchiveFloat(&m_fMaxSpeed); // Added in 2.30
+    arc.ArchiveFloat(&m_fMaxSpeed);       // Added in 2.30
     arc.ArchiveBool(&m_bBounceBackwards); // Added in 2.30
     arc.ArchiveVector(&m_vIdealPosition);
     arc.ArchiveVector(&m_vIdealDir);
