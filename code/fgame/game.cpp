@@ -80,7 +80,48 @@ void Game::Init()
     maxclients  = 0;
 }
 
-void Game::Archive(Archiver& arc) {}
+void Game::Archive(Archiver& arc)
+{
+    static cvar_t *g_maxplayerhealth = gi.Cvar_Get("g_maxplayerhealth", "250", 0);
+    int            i;
+
+    if (arc.Saving()) {
+        Vars()->MakePrimitive();
+    }
+
+    Listener::Archive(arc);
+
+    if (arc.Saving()) {
+        float fTmp;
+        int   iTmp;
+
+        fTmp = skill->value;
+        arc.ArchiveFloat(&fTmp);
+
+        iTmp = g_maxplayerhealth->integer;
+        arc.ArchiveInteger(&iTmp);
+    } else {
+        float fTmp;
+        int   iTmp;
+
+        arc.ArchiveFloat(&fTmp);
+        gi.cvar_set("skill", va("%f", fTmp));
+        arc.ArchiveInteger(&iTmp);
+        gi.cvar_set("g_maxplayerhealth", va("%d", iTmp));
+    }
+
+    arc.ArchiveBoolean(&autosaved);
+    arc.ArchiveInteger(&maxentities);
+    arc.ArchiveInteger(&maxclients);
+
+    if (arc.Loading()) {
+        G_AllocGameData();
+    }
+
+    for (i = 0; i < maxclients; i++) {
+        arc.ArchiveRaw(&clients[i], sizeof(gclient_t));
+    }
+}
 
 Game::Game()
 {
