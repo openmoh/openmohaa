@@ -884,8 +884,20 @@ void R_GetLightingGridValueFast(const vec3_t vPos, vec3_t vLight)
 
 void R_GetLightingForDecal(vec3_t vLight, const vec3_t vFacing, const vec3_t vOrigin)
 {
-    // FIXME: unimplemented
-    VectorSet(vLight, 1.f, 1.f, 1.f);
+    float fMax;
+
+    R_GetLightingGridValue(vOrigin, vLight);
+
+    if (!tr.overbrightShift) {
+        return;
+    }
+
+    VectorScale(vLight, tr.overbrightMult, vLight);
+
+    if (vLight[0] > 255.0 || vLight[1] > 255.0 || vLight[2] > 255.0) {
+        float scale = 255.0 / fmin(vLight[0], fmin(vLight[1], vLight[2]));
+        VectorScale(vLight, scale, vLight);
+    }
 }
 
 void R_GetLightingForSmoke(vec3_t vLight, const vec3_t vOrigin)
