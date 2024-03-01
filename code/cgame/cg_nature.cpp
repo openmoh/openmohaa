@@ -58,7 +58,7 @@ void ClientGameCommandManager::InitializeRainCvars()
 {
     int i;
 
-    cg_rain = cgi.Cvar_Get("cg_rain", "0", CVAR_ARCHIVE);
+    cg_rain = cgi.Cvar_Get("cg_rain", "1", CVAR_ARCHIVE);
     cg_rain_drawcoverage =
         cgi.Cvar_Get("cg_rain_drawcoverage", "0", CVAR_SAVEGAME | CVAR_SERVER_CREATED | CVAR_SYSTEMINFO);
 
