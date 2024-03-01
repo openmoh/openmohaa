@@ -932,7 +932,7 @@ static int RB_GetEntityGridLighting()
 	}
 
 	// normalize
-	if (vLight[0] < 255.0 || vLight[1] < 255.0 || vLight[2] < 255.0) {
+	if (vLight[0] > 255.0 || vLight[1] > 255.0 || vLight[2] > 255.0) {
 		float scale = 255.0 / fmin(vLight[0], fmin(vLight[1], vLight[2]));
 		VectorScale(vLight, scale, vLight);
 	}
