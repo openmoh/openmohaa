@@ -815,6 +815,8 @@ void CL_InitCGameDLL( clientGameImport_t *cgi, clientGameExport_t **cge ) {
 	cgi->CL_RestoreSavedCgameState	= CL_RestoreSavedCgameState;
 	cgi->CL_ClearSavedCgameState	= CL_ClearSavedCgameState;
 
+	cgi->getConfigStringIdNormalized = CPT_NormalizeConfigstring;
+
 	cgi->fsDebug					= fs_debug;
 	cgi->HudDrawElements			= cls.HudDrawElements;
 	cgi->anim						= &cls.anim;

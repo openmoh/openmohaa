@@ -296,7 +296,7 @@ static void CG_ServerCommand(qboolean modelOnly)
     }
 
     if (!strcmp(cmd, "cs")) {
-        CG_ConfigStringModified(atoi(cgi.Argv(1)), modelOnly);
+        CG_ConfigStringModified(cgi.getConfigStringIdNormalized(atoi(cgi.Argv(1))), modelOnly);
         return;
     }
 

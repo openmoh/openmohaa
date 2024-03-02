@@ -430,6 +430,8 @@ functions exported to the main executable
         void (*CL_RestoreSavedCgameState)();
         void (*CL_ClearSavedCgameState)();
 
+        size_t (*getConfigStringIdNormalized)(size_t num);
+
         cvar_t       *fsDebug;
         hdelement_t  *HudDrawElements;
         clientAnim_t *anim;
