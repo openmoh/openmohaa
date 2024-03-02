@@ -468,7 +468,8 @@ qboolean CM_GenerateFenceMask(const char *szName, cfencemask_t **pMask)
     pCurrImage = pImage + 3;
 
     for (i = 0; i < iImageSize; i++, pCurrImage += sizeof(unsigned int)) {
-        if (*pCurrImage & 0x80) {
+        if (*pCurrImage >= 128) {
+            // Treat pixels with > 128 alpha value as opaque
             bHasOpaque = qtrue;
         } else {
             bHasTrans = qtrue;
@@ -485,12 +486,12 @@ qboolean CM_GenerateFenceMask(const char *szName, cfencemask_t **pMask)
         strcpy((*pMask)->name, szName);
         (*pMask)->iWidth  = iWidth;
         (*pMask)->iHeight = iHeight;
-        (*pMask)->pData   = (byte *)((char *)*pMask + sizeof(cfencemask_t));
+        (*pMask)->pData   = (byte *)((byte *)*pMask + sizeof(**pMask));
 
         pCurrMask  = (*pMask)->pData;
         pCurrImage = pImage + 3;
         for (i = 0; i < iImageSize; i++, pCurrImage += sizeof(unsigned int)) {
-            if (*pCurrImage < 0) {
+            if (*pCurrImage >= 128) {
                 pCurrMask[i >> 3] |= 1 << (i & 7);
             }
         }
