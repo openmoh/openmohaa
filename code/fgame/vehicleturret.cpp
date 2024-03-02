@@ -756,7 +756,7 @@ void VehicleTurretGun::EventDamage(Event *ev)
             break;
         }
 
-        DamageEvent(ev);
+        Entity::DamageEvent(ev);
         return;
     }
 
