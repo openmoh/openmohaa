@@ -336,6 +336,14 @@ void CG_ProcessConfigString(int num, qboolean modelOnly)
             return;
         case CS_RAIN_SHADER:
             Q_strncpyz(cg.rain.currentShader, str, sizeof(cg.rain.currentShader));
+            if (cg.rain.numshaders) {
+                // Fixed in OPM
+                //  not sure why some maps set a digit at the end...
+                int len = strlen(cg.rain.currentShader);
+                if (isdigit(cg.rain.currentShader[len - 1])) {
+                    cg.rain.currentShader[len - 1] = 0;
+                }
+            }
             for (i = 0; i < cg.rain.numshaders; ++i) {
                 Com_sprintf(cg.rain.shader[i], sizeof(cg.rain.shader[i]), "%s%i", cg.rain.currentShader, i);
             }
