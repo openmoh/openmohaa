@@ -788,6 +788,10 @@ void Trigger::DamageEvent(Event *ev)
     if (health <= 0) {
         Event *event;
 
+        if (max_health) {
+            deadflag = DEAD_DEAD;
+        }
+
         event = new Event(EV_Activate, 1);
         event->AddEntity(attacker);
         ProcessEvent(event);
