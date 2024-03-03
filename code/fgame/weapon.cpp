@@ -2889,69 +2889,97 @@ void Weapon::PickupWeapon(Event *ev)
                 "print \"" HUD_MESSAGE_YELLOW "%s\n\"",
                 gi.LV_ConvertString(va("Picked Up %s", item_name.c_str()))
             );
-
-            if (!(spawnflags & DROPPED_PLAYER_ITEM) && !(spawnflags & DROPPED_ITEM)) {
-                ItemPickup(other);
-                return;
-            }
-
-            if (Pickupable(other)) {
-                setMoveType(MOVETYPE_NONE);
-                setSolidType(SOLID_NOT);
-
-                hideModel();
-
-                velocity  = vec_zero;
-                avelocity = vec_zero;
-
-                CancelEventsOfType(EV_Remove);
-                CancelEventsOfType(EV_Weapon_FallingAngleAdjust);
-
-                DetachFromOwner();
-                current_attachToTag        = "";
-                lastValid                  = qfalse;
-                edict->s.tag_num           = -1;
-                edict->s.attach_use_angles = qfalse;
-                VectorClear(edict->s.attach_offset);
-
-                setOrigin(vec_zero);
-                setAngles(vec_zero);
-                SetOwner(sen);
-
-                sen->AddItem(this);
-                sen->ReceivedItem(this);
-
-                Sound(sPickupSound);
-            }
         }
+
+        if (!(spawnflags & DROPPED_PLAYER_ITEM) && !(spawnflags & DROPPED_ITEM)) {
+            ItemPickup(other);
+            return;
+        }
+
+        if (!Pickupable(other)) {
+            return;
+        }
+
+        setMoveType(MOVETYPE_NONE);
+        setSolidType(SOLID_NOT);
+
+        hideModel();
+
+        velocity = vec_zero;
+        avelocity = vec_zero;
+
+        CancelEventsOfType(EV_Remove);
+        CancelEventsOfType(EV_Weapon_FallingAngleAdjust);
+
+        DetachFromOwner();
+        current_attachToTag = "";
+        lastValid = qfalse;
+        edict->s.tag_num = -1;
+        edict->s.attach_use_angles = qfalse;
+        VectorClear(edict->s.attach_offset);
+
+        setOrigin(vec_zero);
+        setAngles(vec_zero);
+        SetOwner(sen);
+
+        sen->AddItem(this);
+        sen->ReceivedItem(this);
+
+        iGiveAmmo = startammo[FIRE_PRIMARY];
+
+        Sound(sPickupSound);
     } else {
-        str sAmmoName = ammo_type[FIRE_PRIMARY];
+        bool bSameAmmo[MAX_FIREMODES] = { false };
 
-        if (sen->AmmoCount(sAmmoName) != sen->MaxAmmoCount(sAmmoName)) {
-            setSolidType(SOLID_NOT);
-            hideModel();
-
-            CancelEventsOfType(EV_Item_DropToFloor);
-            CancelEventsOfType(EV_Item_Respawn);
-            CancelEventsOfType(EV_FadeOut);
-            CancelEventsOfType(EV_Remove);
-            CancelEventsOfType(EV_Weapon_FallingAngleAdjust);
-
-            if (Respawnable()) {
-                PostEvent(EV_Item_Respawn, 0);
-            } else {
-                PostEvent(EV_Remove, 0);
+        if (sen->AmmoCount(ammo_type[FIRE_PRIMARY]) == sen->MaxAmmoCount(ammo_type[FIRE_PRIMARY])) {
+            bSameAmmo[FIRE_PRIMARY] = true;
+            if (ammo_type[0] == ammo_type[1]) {
+                bSameAmmo[FIRE_SECONDARY] = true;
             }
-
-            Sound(m_sAmmoPickupSound);
         }
+
+        if (!bSameAmmo[FIRE_SECONDARY]) {
+            if (sen->AmmoCount(ammo_type[FIRE_SECONDARY]) == sen->MaxAmmoCount(ammo_type[FIRE_SECONDARY])) {
+                bSameAmmo[FIRE_SECONDARY] = true;
+            }
+        }
+
+        if (bSameAmmo[FIRE_PRIMARY] && bSameAmmo[FIRE_SECONDARY]) {
+            return;
+        }
+
+        if (bSameAmmo[FIRE_PRIMARY]) {
+            startammo[FIRE_PRIMARY] = 0;
+        }
+
+        if (bSameAmmo[FIRE_SECONDARY]) {
+            startammo[FIRE_SECONDARY] = 0;
+        }
+
+        setSolidType(SOLID_NOT);
+        hideModel();
+
+        CancelEventsOfType(EV_Item_DropToFloor);
+        CancelEventsOfType(EV_Item_Respawn);
+        CancelEventsOfType(EV_FadeOut);
+        CancelEventsOfType(EV_Remove);
+        CancelEventsOfType(EV_Weapon_FallingAngleAdjust);
+
+        if (Respawnable()) {
+            PostEvent(EV_Item_Respawn, 0);
+        }
+        else {
+            PostEvent(EV_Remove, 0);
+        }
+
+        iGiveAmmo = ammo_in_clip[FIRE_PRIMARY] + startammo[FIRE_PRIMARY];
+
+        Sound(m_sAmmoPickupSound);
     }
 
     if (startammo[FIRE_PRIMARY] && ammo_type[FIRE_PRIMARY].length() && other->isClient()) {
         str        sMessage;
         const str& sAmmoType = ammo_type[FIRE_PRIMARY];
-
-        iGiveAmmo = startammo[FIRE_PRIMARY];
 
         sen->GiveAmmo(sAmmoType, iGiveAmmo);
 
