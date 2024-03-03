@@ -99,6 +99,8 @@ static terraInt R_AllocateVert(cTerraPatchUnpacked_t* patch)
 
 	patch->drawinfo.iVertHead = iVert;
 	patch->drawinfo.nVerts++;
+
+	assert(g_vert.nFree > 0);
 	g_vert.nFree--;
 
 	g_pVert[iVert].nRef = 0;
@@ -170,6 +172,7 @@ terraInt R_AllocateTri(cTerraPatchUnpacked_t* patch, qboolean check)
 	}
 
 	patch->drawinfo.nTris++;
+	assert(g_tri.nFree > 0);
 	g_tri.nFree--;
 
 	g_pTris[iTri].byConstChecks = check ? 0 : 4;
@@ -424,9 +427,13 @@ static void R_ForceSplit(terraInt iTri)
 	terraTri_t* pBase = &g_pTris[iBase];
 	if (iBase && pBase->lod != pTri->lod)
 	{
-		assert(g_pTris[pBase->iBase].iBase != iTri);
+        assert(g_pTris[pTri->iBase].iBase != iTri);
+        assert(g_tri.nFree >= 8);
 
 		R_ForceSplit(iBase);
+
+		assert(g_tri.nFree >= 4);
+
 		iBase = pTri->iBase;
 		pBase = &g_pTris[iBase];
 	}
@@ -1158,7 +1165,7 @@ void R_TessellateTerrain()
 	R_DoTriSplitting();
 	// Morph geometry according to the view
 	R_DoGeomorphs();
-	// Split vertices
+	// Merge vertices
 	R_DoTriMerging();
 }
 
