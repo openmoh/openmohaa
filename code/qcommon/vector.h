@@ -975,15 +975,15 @@ inline void Vector::AngleVectorsLeft(Vector *forward, Vector *left, Vector *up) 
     float        angle;
     static float sr, sp, sy, cr, cp, cy; // static to help MS compiler fp bugs
 
-    angle = yaw() * (M_PI * 2.0f / 360.0f);
+    angle = yaw() * (M_PI * 2 / 360);
     sy    = sin(angle);
     cy    = cos(angle);
 
-    angle = pitch() * (M_PI * 2.0f / 360.0f);
+    angle = pitch() * (M_PI * 2 / 360);
     sp    = sin(angle);
     cp    = cos(angle);
 
-    angle = roll() * (M_PI * 2.0f / 360.0f);
+    angle = roll() * (M_PI * 2 / 360);
     sr    = sin(angle);
     cr    = cos(angle);
 
