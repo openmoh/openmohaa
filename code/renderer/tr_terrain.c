@@ -516,7 +516,7 @@ static void R_ForceMerge(terraInt iTri)
 	{
 		terraInt iLeft = g_pTris[pTri->iLeftChild].iBase;
 
-		g_pTris[iTri].iLeft = iLeft;
+		pTri->iLeft = iLeft;
 		if (iLeft)
 		{
 			if (g_pTris[iLeft].lod == pTri->lod)
@@ -538,7 +538,8 @@ static void R_ForceMerge(terraInt iTri)
 	if (pTri->iRightChild)
 	{
 		terraInt iRight = g_pTris[pTri->iRightChild].iBase;
-		g_pTris[iTri].iRight = iRight;
+
+		pTri->iRight = iRight;
 		if (iRight)
 		{
 			if (g_pTris[iRight].lod == pTri->lod)
@@ -585,44 +586,40 @@ static void R_ForceMerge(terraInt iTri)
 
 static int R_TerraTriNeighbor(cTerraPatchUnpacked_t* terraPatches, int iPatch, int dir)
 {
-	if (iPatch >= 0)
-	{
-		int iNeighbor = 2 * iPatch + 1;
+	int iNeighbor;
 
-		if (dir == 1)
-		{
-			if (terraPatches[iPatch].flags & 0x80)
-			{
-				return iNeighbor;
-			}
-			else
-			{
-				return iNeighbor + 1;
-			}
-		}
-		else if (dir > 1)
-		{
-			if (dir == 2)
-			{
-				return 2 * iPatch + 2;
-			}
-			if (dir == 3)
-			{
-				if (terraPatches[iPatch].flags & 0x80)
-				{
-					return iNeighbor + 1;
-				}
-				else
-				{
-					return iNeighbor;
-				}
-			}
-		}
-		else if (!dir)
-		{
-			return 2 * iPatch + 1;
-		}
+	if (iPatch < 0) {
+		return 0;
 	}
+
+    iNeighbor = 2 * iPatch + 1;
+
+    switch (dir) {
+    case 0:
+        return iNeighbor;
+    case 1:
+        if (terraPatches[iPatch].flags & 0x80)
+        {
+            return iNeighbor;
+        }
+        else
+        {
+            return iNeighbor + 1;
+        }
+        break;
+    case 2:
+        return iNeighbor + 1;
+    case 3:
+        if (terraPatches[iPatch].flags & 0x80)
+        {
+            return iNeighbor + 1;
+        }
+        else
+        {
+            return iNeighbor;
+        }
+        break;
+    }
 
 	return 0;
 }
@@ -1178,6 +1175,10 @@ void R_TerrainPrepareFrame()
 	float fDistBound;
 
 	if (ter_lock->integer) {
+		return;
+	}
+
+	if (tr.viewParms.isPortalSky) {
 		return;
 	}
 
