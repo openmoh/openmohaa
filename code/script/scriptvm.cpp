@@ -1590,6 +1590,7 @@ void ScriptVM::Execute(ScriptVariable *data, int dataSize, str label)
                         }
                     } catch (...) {
                         skipField();
+                        m_VMStack.GetTop().Clear();
                         throw;
                     }
 
@@ -1616,6 +1617,7 @@ void ScriptVM::Execute(ScriptVariable *data, int dataSize, str label)
                     }
                 } catch (...) {
                     skipField();
+                    m_VMStack.GetTop().Clear();
                     throw;
                 }
 
