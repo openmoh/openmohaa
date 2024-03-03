@@ -3465,22 +3465,23 @@ void Vehicle::SetupPath(cVehicleSpline *pPath, SimpleEntity *se)
         Vector vDelta = vLastOrigin - ent->origin;
         float  vTmp[4];
 
-        if (vDelta.length() == 0.0f && i > 1) {
+        if (vDelta.length() == 0 && i > 1) {
             Com_Printf("^~^~^Warning: Vehicle Driving with a Path that contains 2 equal points\n");
-        } else {
-            fCurLength += vDelta.length();
-
-            vTmp[0] = fCurLength;
-            VectorCopy(ent->origin, vTmp + 1);
-
-            if (ent->IsSubclassOfVehiclePoint()) {
-                pPath->Add(vTmp, static_cast<VehiclePoint *>(ent)->spawnflags);
-            } else {
-                pPath->Add(vTmp, 0);
-            }
-
-            vLastOrigin = ent->origin;
+            continue;
         }
+
+        fCurLength += vDelta.length();
+
+        vTmp[0] = fCurLength;
+        VectorCopy(ent->origin, vTmp + 1);
+
+        if (ent->IsSubclassOfVehiclePoint()) {
+            pPath->Add(vTmp, static_cast<VehiclePoint*>(ent)->spawnflags);
+        } else {
+            pPath->Add(vTmp, 0);
+        }
+
+        vLastOrigin = ent->origin;
 
         if (ent == se && i > 1) {
             break;
