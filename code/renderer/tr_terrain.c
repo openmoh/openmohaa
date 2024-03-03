@@ -934,7 +934,7 @@ static void R_DoGeomorphs()
                 patch->byDirty = qtrue;
                 while (g_vert.iCur) {
                     terrainVert_t *pVert = &g_pVert[g_vert.iCur];
-                    pVert->xyz[2]        = pVert->fHgtAvg + pVert->fHgtAdd;
+                    pVert->xyz[2]        = pVert->fHgtAvg;
                     g_vert.iCur          = pVert->iNext;
                 }
             }
