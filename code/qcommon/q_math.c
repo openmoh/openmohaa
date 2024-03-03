@@ -36,6 +36,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define Z 2
 #define W 3
 
+#ifndef FLT_EPSILON
+#define FLT_EPSILON 1.19209290E-07F
+#endif
+
 vec3_t	vec3_origin = {0,0,0};
 vec3_t	axisDefault[3] = { { 1, 0, 0 }, { 0, 1, 0 }, { 0, 0, 1 } };
 matrix_t matrixIdentity = {	1, 0, 0, 0,
@@ -1827,13 +1831,13 @@ vec_t VectorNormalize( vec3_t v ) {
 	float	length, ilength;
 
 	length = v[0]*v[0] + v[1]*v[1] + v[2]*v[2];
-	length = sqrt (length);
+    if (length > FLT_EPSILON) {
+        length = sqrt(length);
 
-	if ( length ) {
-		ilength = 1/length;
-		v[0] *= ilength;
-		v[1] *= ilength;
-		v[2] *= ilength;
+        ilength = 1 / length;
+        v[0] *= ilength;
+        v[1] *= ilength;
+        v[2] *= ilength;
 	}
 		
 	return length;
@@ -2921,9 +2925,6 @@ void MatrixMultiplyShear(matrix_t m, vec_t x, vec_t y)
 	Matrix4x4Multiply(tmp, shear, m);
 }
 
-#ifndef FLT_EPSILON
-#define FLT_EPSILON 1.19209290E-07F
-#endif
 void MatrixToAngles(const matrix_t m, vec3_t angles)
 {
 #if 1
