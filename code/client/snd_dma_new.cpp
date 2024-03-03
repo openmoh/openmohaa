@@ -568,7 +568,7 @@ void S_StartLocalSoundChannel(const char *sound_name, qboolean force_load, sound
 {
     sfxHandle_t      sfxHandle;
     const char      *name;
-    AliasListNode_t *pSoundAlias;
+    AliasListNode_t *pSoundAlias = NULL;
 
     if (!s_bSoundStarted) {
         return;
