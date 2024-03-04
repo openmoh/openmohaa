@@ -604,17 +604,7 @@ inline float Vector::lengthXYSquared() const
 //----------------------------------------------------------------
 inline float Vector::normalize(void)
 {
-    float length, ilength;
-
-    length = this->length();
-    if (length) {
-        ilength = 1.0f / length;
-        x *= ilength;
-        y *= ilength;
-        z *= ilength;
-    }
-
-    return length;
+    return VectorNormalize(*this);
 }
 
 //----------------------------------------------------------------
@@ -927,7 +917,7 @@ inline float Vector::toPitch(void) const
     float pitch;
 
     forward = (float)sqrt((x * x) + (y * y));
-    pitch = (float)((int)(atan2(z, forward) * 180.0f / M_PI));
+    pitch = (float)((int)(atan2(z, forward) * 180 / M_PI));
     if (pitch < 0.0f) {
         pitch += 360.0f;
     }
