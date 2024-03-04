@@ -154,6 +154,7 @@ public:
 
     void ArchiveRaw(void *data, size_t size);
     void ArchiveObject(Class *obj);
+    void ArchiveObject(SafePtrBase* obj); // Added in OPM
 
     qboolean ObjectPositionExists(void *obj);
 

@@ -938,6 +938,11 @@ void Archiver::ArchiveObject(Class *obj)
     }
 }
 
+void Archiver::ArchiveObject(SafePtrBase* obj)
+{
+    ArchiveSafePointer(obj);
+}
+
 void Archiver::ArchiveObjectPosition(LightClass *obj)
 {
     int index = 0;
