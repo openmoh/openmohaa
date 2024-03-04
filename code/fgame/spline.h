@@ -197,7 +197,7 @@ float *cSpline<cGrids, cPoints>::GetByNode(float x, int *flags)
     static float r[cGrids];
     double       delta[cGrids];
 
-    rp = (int)(floor(x) + 1.0f);
+    rp = (int)(floor(x) + 1.0);
 
     if (rp <= 0) {
         if (flags) {
