@@ -39,6 +39,25 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 typedef Container<SafePtr<SimpleEntity>> ConSimple;
 
+class TargetList : public Class {
+public:
+    CLASS_PROTOTYPE(TargetList);
+
+public:
+    ConSimple list;
+    str targetname;
+
+public:
+    TargetList();
+    TargetList(const str& tname);
+
+    void AddEntity(Listener* ent);
+    void AddEntityAt(Listener* ent, int i);
+    int GetEntityIndex(Listener* ent);
+    void RemoveEntity(Listener* ent);
+    SimpleEntity* GetNextEntity(SimpleEntity* ent);
+};
+
 class World : public Entity
 {
     con_set<const_str, ConSimple> m_targetList; // moh could have used con_set instead of TargetList

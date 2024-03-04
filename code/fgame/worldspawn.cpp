@@ -1197,3 +1197,49 @@ bool WithinFarplaneDistance(const Vector& org)
 
     return org.lengthSquared() < (Square(distance) * Square(0.828f));
 }
+
+CLASS_DECLARATION(Class, TargetList, NULL) {
+    {NULL, NULL}
+};
+
+TargetList::TargetList() {}
+
+TargetList::TargetList(const str& tname)
+    : targetname(tname)
+{}
+
+void TargetList::AddEntity(Listener *ent)
+{
+    list.AddObject(static_cast<SimpleEntity *>(ent));
+}
+
+void TargetList::AddEntityAt(Listener *ent, int i)
+{
+    list.AddObjectAt(i, static_cast<SimpleEntity *>(ent));
+}
+
+int TargetList::GetEntityIndex(Listener *ent)
+{
+    return list.IndexOfObject(static_cast<SimpleEntity *>(ent));
+}
+
+void TargetList::RemoveEntity(Listener *ent)
+{
+    list.RemoveObject(static_cast<SimpleEntity *>(ent));
+}
+
+SimpleEntity *TargetList::GetNextEntity(SimpleEntity *ent)
+{
+    int index;
+
+    for (index = list.IndexOfObject(ent); index <= list.NumObjects(); index++) {
+        Listener *objptr;
+
+        objptr = list.ObjectAt(index);
+        if (objptr->isSubclassOf(SimpleEntity)) {
+            return static_cast<SimpleEntity *>(objptr);
+        }
+    }
+
+    return NULL;
+}
