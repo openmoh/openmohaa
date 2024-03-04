@@ -179,18 +179,16 @@ qboolean VM_SlideMove(qboolean gravity)
             break;
         }
 
-        if (trace.plane.normal[2] >= 0.7f) {
+        if (trace.plane.normal[2] >= MIN_WALK_NORMAL) {
             memcpy(&vm->vs->groundTrace, &trace, sizeof(vm->vs->groundTrace));
             vml.validGroundTrace = qtrue;
-        } else if (trace.plane.normal[2] > -0.999f) {
-            if (vm->vs->groundPlane) {
-                if (!vm->vs->hit_obstacle) {
-                    vm->vs->hit_obstacle = qtrue;
-                    VectorCopy(vm->vs->origin, vm->vs->hit_origin);
-                }
-
-                VectorAdd(vm->vs->obstacle_normal, trace.plane.normal, vm->vs->obstacle_normal);
+        } else if (trace.plane.normal[2] > -0.999f && vm->vs->groundPlane) {
+            if (!vm->vs->hit_obstacle) {
+                vm->vs->hit_obstacle = qtrue;
+                VectorCopy(vm->vs->origin, vm->vs->hit_origin);
             }
+
+            VectorAdd(vm->vs->obstacle_normal, trace.plane.normal, vm->vs->obstacle_normal);
         }
 
         // save entity for contact
@@ -439,11 +437,14 @@ void VM_StepSlideMove(void)
         bWasOnGoodGround = qfalse;
     }
 
+    VectorCopy(start_o, up);
+    up[2] += STEPSIZE;
+
     VectorCopy(vm->vs->origin, nostep_o);
     VectorCopy(vm->vs->velocity, nostep_v);
     memcpy(&nostep_groundTrace, &vm->vs->groundTrace, sizeof(trace_t));
 
-    VectorCopy(start_o, vm->vs->origin);
+    VectorCopy(up, vm->vs->origin);
     VectorCopy(start_v, vm->vs->velocity);
 
     first_hit_wall = vm->vs->hit_obstacle;
@@ -453,7 +454,7 @@ void VM_StepSlideMove(void)
     vm->vs->hit_obstacle = start_hit_wall;
     VectorCopy(start_hit_origin, vm->vs->hit_origin);
     VectorCopy(start_wall_normal, vm->vs->obstacle_normal);
-    VM_SlideMove(qtrue);
+    VM_SlideMove(vm->vs->useGravity);
 
     VectorCopy(vm->vs->origin, down);
     down[2] -= STEPSIZE * 2;
