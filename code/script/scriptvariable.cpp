@@ -104,7 +104,7 @@ void ScriptArrayHolder::Archive(Archiver& arc, ScriptArrayHolder *& arrayValue)
         arrayValue->Archive(arc);
         return;
     } else {
-        arc.ArchiveObjectPointer((Class **)&arrayValue);
+        arc.ArchiveObjectPointer((LightClass **)&arrayValue);
     }
 }
 
@@ -142,7 +142,7 @@ void ScriptConstArrayHolder::Archive(Archiver& arc, ScriptConstArrayHolder *& co
         constArrayValue->Archive(arc);
         return;
     } else {
-        arc.ArchiveObjectPointer((Class **)&constArrayValue);
+        arc.ArchiveObjectPointer((LightClass **)&constArrayValue);
     }
 }
 
@@ -171,7 +171,7 @@ void ScriptPointer::Archive(Archiver& arc, ScriptPointer *& pointerValue)
         pointerValue->Archive(arc);
         return;
     } else {
-        arc.ArchiveObjectPointer((Class **)&pointerValue);
+        arc.ArchiveObjectPointer((LightClass **)&pointerValue);
     }
 }
 
@@ -194,7 +194,7 @@ void ScriptVariable::Archive(Archiver& arc)
 
 void ScriptVariable::Archive(Archiver& arc, ScriptVariable **obj)
 {
-    arc.ArchiveObjectPointer((Class **)obj);
+    arc.ArchiveObjectPointer((LightClass **)obj);
 }
 
 void ScriptVariable::ArchiveInternal(Archiver& arc)
@@ -254,7 +254,7 @@ void ScriptVariable::ArchiveInternal(Archiver& arc)
 
     case VARIABLE_REF:
     case VARIABLE_CONTAINER:
-        arc.ArchiveObjectPointer((Class **)&m_data.refValue);
+        arc.ArchiveObjectPointer((LightClass **)&m_data.refValue);
         break;
 
     case VARIABLE_SAFECONTAINER:
