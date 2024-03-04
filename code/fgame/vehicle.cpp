@@ -3301,12 +3301,12 @@ void Vehicle::AutoPilot(void)
                         moveimpulse = -m_fIdealSpeed;
                     }
                 }
-            } else if (m_fIdealSpeed > moveimpulse) {
+            } else if (moveimpulse < m_fIdealSpeed) {
                 moveimpulse += m_fIdealAccel * level.frametime;
                 if (moveimpulse > m_fIdealSpeed) {
                     moveimpulse = m_fIdealSpeed;
                 }
-            } else if (m_fIdealSpeed < moveimpulse) {
+            } else if (moveimpulse > m_fIdealSpeed) {
                 moveimpulse -= m_fIdealAccel * level.frametime;
                 if (moveimpulse < m_fIdealSpeed) {
                     moveimpulse = m_fIdealSpeed;
@@ -3849,15 +3849,15 @@ void Vehicle::SetMoveInfo(vmove_t *vm)
 {
     memset(vm, 0, sizeof(vmove_t));
 
-    VectorCopy(origin, vs.origin);
+    origin.copyTo(vs.origin);
     vs.useGravity = false;
     vs.entityNum  = entnum;
 
     vm->vs        = &vs;
     vm->frametime = level.frametime;
     vm->tracemask = edict->clipmask;
-    VectorCopy(mins, vm->mins);
-    VectorCopy(maxs, vm->maxs);
+    mins.copyTo(vm->mins);
+    maxs.copyTo(vm->maxs);
 
     vs.entityNum      = edict->s.number;
     vs.desired_dir[0] = velocity[0];
@@ -3894,14 +3894,17 @@ Vehicle::SetCEMoveInfo
 */
 void Vehicle::SetCEMoveInfo(vmove_t *vm)
 {
+    Vector mins, maxs;
+
     SetMoveInfo(vm);
 
-    vm->mins[0] = m_pCollisionEntity->mins[0] - 24.0f;
-    vm->mins[1] = m_pCollisionEntity->mins[1] - 24.0f;
-    vm->mins[2] = m_pCollisionEntity->mins[2];
-    vm->maxs[0] = m_pCollisionEntity->maxs[0] + 24.0f;
-    vm->maxs[1] = m_pCollisionEntity->maxs[1] + 24.0f;
-    vm->maxs[2] = m_pCollisionEntity->maxs[2];
+    mins = m_pCollisionEntity->mins;
+    maxs = m_pCollisionEntity->maxs;
+    mins -= Vector(24, 24, 0);
+    maxs += Vector(24, 24, 0);
+
+    mins.copyTo(vm->mins);
+    maxs.copyTo(vm->maxs);
 }
 
 /*
@@ -4688,8 +4691,8 @@ void Vehicle::Postthink(void)
     velocity.z = drivespeed * jumpimpulse;
     avelocity *= 0.05f;
 
-    if (steerinplace && drivespeed < 350.0f) {
-        drivespeed = 350.0f;
+    if (steerinplace && drivespeed < 350) {
+        drivespeed = 350;
     }
 
     avelocity.y += turn * drivespeed;
