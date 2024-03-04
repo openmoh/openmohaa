@@ -237,8 +237,8 @@ qboolean VM_SlideMove(qboolean gravity)
                     }
 
                     // slide along the plane
-                    VM_ClipVelocity(vm->vs->velocity, planes[j], clipVelocity, OVERCLIP);
-                    VM_ClipVelocity(endVelocity, planes[j], endClipVelocity, OVERCLIP);
+                    VM_ClipVelocity(clipVelocity, planes[j], clipVelocity, OVERCLIP);
+                    VM_ClipVelocity(endClipVelocity, planes[j], endClipVelocity, OVERCLIP);
 
                     if (DotProduct(clipVelocity, planes[j]) >= 0.0f) {
                         continue; // move doesn't interact with the plane
