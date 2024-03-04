@@ -1129,7 +1129,12 @@ returns angle normalized to the range [0 <= angle < 360]
 =================
 */
 float AngleNormalize360 ( float angle ) {
-	return (360.0 / 65536) * ((int)(angle * (65536 / 360.0)) & 65535);
+	if (angle >= 360) {
+		return angle - 360 * (int)(angle / 360.0);
+	} else if (angle < 0) {
+		return 360 * ((int)(-angle / 360) + 1) + angle;
+    }
+    return angle;
 }
 
 
