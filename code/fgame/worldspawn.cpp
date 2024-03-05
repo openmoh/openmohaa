@@ -542,43 +542,6 @@ CLASS_DECLARATION(Entity, World, "worldspawn") {
     {NULL,                               NULL                            }
 };
 
-template<>
-class con_set_Entry<const_str, ConSimple>
-{
-    friend con_set<const_str, ConSimple>;
-    friend con_set_enum<const_str, ConSimple>;
-
-private:
-    con_set_Entry *next;
-
-public:
-    const_str key;
-    ConSimple value;
-
-public:
-    void *operator new(size_t size) { return con_set<const_str, ConSimple>::NewEntry(size); }
-
-    void operator delete(void *ptr) { con_set<const_str, ConSimple>::DeleteEntry(ptr); }
-
-    void Archive(Archiver& arc) {
-        int num;
-
-        arc.ArchiveUnsigned(&key);
-        arc.ArchiveObjectPosition((LightClass*)&value);
-
-        if (arc.Loading()) {
-            arc.ArchiveInteger(&num);
-            value.Resize(num);
-        } else {
-            num = value.NumObjects();
-            arc.ArchiveInteger(&num);
-        }
-    }
-    const_str& GetKey() { return key; }
-
-    void SetKey(const const_str& newKey) { key = newKey; }
-};
-
 World::World()
 {
     world       = this;
