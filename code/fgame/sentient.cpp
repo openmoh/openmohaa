@@ -2214,11 +2214,25 @@ void Sentient::ArchivePersistantData(Archiver& arc)
                 error("ArchivePersistantData", "Non Item in inventory\n");
             }
         }
+
         arc.ArchiveString(&name);
         arc.ArchiveInteger(&amount);
         if (arc.Loading()) {
             item = giveItem(name, amount);
+        }
+
+        if (item && item->IsSubclassOfWeapon()) {
+            Weapon* pWeap = static_cast<Weapon*>(item);
+
             item->CancelEventsOfType(EV_Weapon_GiveStartingAmmo);
+            if (arc.Saving()) {
+                amount = pWeap->ClipAmmo(FIRE_PRIMARY);
+            }
+            arc.ArchiveInteger(&amount);
+
+            if (arc.Loading()) {
+                pWeap->SetAmmoAmount(amount, FIRE_PRIMARY);
+            }
         }
     }
 
