@@ -2184,11 +2184,27 @@ static bool IsItemName(const char *name)
 
 void Sentient::ArchivePersistantData(Archiver& arc)
 {
-    int i;
-    int num;
+    int     i;
+    int     num;
+    str     name;
+    int     amount;
+    Item   *item;
+    Entity *ent;
 
     // archive the inventory
     if (arc.Saving()) {
+        // remove all special items before persistence
+        for (i = inventory.NumObjects(); i > 0; i--) {
+            int index;
+
+            index = inventory.ObjectAt(i);
+            ent   = G_GetEntity(index);
+            name  = ent->model;
+
+            if (IsItemName(name)) {
+                ent->Delete();
+            }
+        }
         // count up the total number
         num = inventory.NumObjects();
     } else {
@@ -2198,10 +2214,6 @@ void Sentient::ArchivePersistantData(Archiver& arc)
     arc.ArchiveInteger(&num);
     // archive each item
     for (i = 1; i <= num; i++) {
-        str   name;
-        int   amount;
-        Item *item;
-
         if (arc.Saving()) {
             Entity *ent;
 
@@ -2217,12 +2229,13 @@ void Sentient::ArchivePersistantData(Archiver& arc)
 
         arc.ArchiveString(&name);
         arc.ArchiveInteger(&amount);
+
         if (arc.Loading()) {
             item = giveItem(name, amount);
         }
 
         if (item && item->IsSubclassOfWeapon()) {
-            Weapon* pWeap = static_cast<Weapon*>(item);
+            Weapon *pWeap = static_cast<Weapon *>(item);
 
             item->CancelEventsOfType(EV_Weapon_GiveStartingAmmo);
             if (arc.Saving()) {
@@ -2258,16 +2271,17 @@ void Sentient::ArchivePersistantData(Archiver& arc)
             amount    = ptr->getAmount();
             maxamount = ptr->getMaxAmount();
         }
+
         arc.ArchiveString(&name);
         arc.ArchiveInteger(&amount);
         arc.ArchiveInteger(&maxamount);
+
         if (arc.Loading()) {
             GiveAmmo(name, amount, maxamount);
         }
     }
 
     for (i = 0; i < MAX_ACTIVE_WEAPONS; i++) {
-        str name;
         if (arc.Saving()) {
             if (activeWeaponList[i]) {
                 name = activeWeaponList[i]->getName();
@@ -2275,14 +2289,15 @@ void Sentient::ArchivePersistantData(Archiver& arc)
                 name = "none";
             }
         }
+
         arc.ArchiveString(&name);
-        if (arc.Loading()) {
-            if (name != "none") {
-                Weapon *weapon;
-                weapon = (Weapon *)FindItem(name);
-                if (weapon) {
-                    ChangeWeapon(weapon, (weaponhand_t)i);
-                }
+
+        if (arc.Loading() && name != "none") {
+            Weapon *weapon;
+
+            weapon = (Weapon *)FindItem(name);
+            if (weapon) {
+                ChangeWeapon(weapon, (weaponhand_t)i);
             }
         }
     }
