@@ -159,9 +159,9 @@ void SV_AddServerCommand( client_t *client, const char *cmd ) {
 
 	// this is very ugly but it's also a waste to for instance send multiple config string updates
 	// for the same config string index in one snapshot
-//	if ( SV_ReplacePendingServerCommands( client, cmd ) ) {
-//		return;
-//	}
+	if ( !strncmp(cmd, "cs ", 3) && SV_ReplacePendingServerCommands(client, cmd) ) {
+		return;
+	}
 
 	// do not send commands until the gamestate has been sent
 	if( client->state < CS_PRIMED )
