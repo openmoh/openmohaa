@@ -74,7 +74,6 @@ void Sentient::EventGiveAmmo(Event *ev)
 }
 
 int Sentient::AmmoIndex(str type)
-
 {
     Ammo *ammo;
 
@@ -146,7 +145,6 @@ void Sentient::GiveAmmo(str type, int amount, int maxamount)
 }
 
 int Sentient::UseAmmo(str type, int amount)
-
 {
     int count, i;
 
@@ -154,7 +152,7 @@ int Sentient::UseAmmo(str type, int amount)
 
     for (i = 1; i <= count; i++) {
         Ammo *ammo = ammo_inventory.ObjectAt(i);
-        if (type == ammo->getName()) {
+        if (!str::icmp(type, ammo->getName())) {
             int ammo_amount = ammo->getAmount();
 
             // Less ammo than what we specified to use
@@ -180,7 +178,9 @@ void Sentient::AmmoAmountInClipChanged(str type, int amount_in_clip)
 
     for (i = 1; i <= count; i++) {
         Ammo *ammo = ammo_inventory.ObjectAt(i);
-        if (type == ammo->getName()) {
+        // Fixed in OPM
+        //  Original uses strcmp
+        if (!str::icmp(type, ammo->getName())) {
             AmmoAmountChanged(ammo, amount_in_clip);
         }
     }
@@ -1035,7 +1035,6 @@ Weapon *Sentient::GetActiveWeapon(weaponhand_t hand) const
 }
 
 qboolean Sentient::IsActiveWeapon(Weapon *weapon)
-
 {
     int i;
 
@@ -1246,7 +1245,7 @@ Ammo *Sentient::FindAmmoByName(str name)
 
     for (i = 1; i <= count; i++) {
         Ammo *ammo = ammo_inventory.ObjectAt(i);
-        if (name == ammo->getName()) {
+        if (!str::icmp(name, ammo->getName())) {
             return ammo;
         }
     }
