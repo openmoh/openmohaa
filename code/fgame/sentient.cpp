@@ -2287,6 +2287,12 @@ void Sentient::ArchivePersistantData(Archiver& arc)
         }
     }
 
+    if (GetActiveWeapon(WEAPON_MAIN)) {
+        edict->s.eFlags &= ~EF_UNARMED;
+    } else {
+        edict->s.eFlags |= EF_UNARMED;
+    }
+
     arc.ArchiveFloat(&health);
     arc.ArchiveFloat(&max_health);
 }
