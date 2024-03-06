@@ -7911,6 +7911,7 @@ painDirection_t Player::Pain_string_to_int(str pain)
 void Player::ArchivePersistantData(Archiver& arc)
 {
     str model_name;
+    str name;
 
     Sentient::ArchivePersistantData(arc);
 
@@ -7922,11 +7923,9 @@ void Player::ArchivePersistantData(Archiver& arc)
         // set the cvar
         gi.cvar_set("g_playermodel", model_name.c_str());
 
-        model_name += ".tik";
-        setModel(model_name.c_str());
+        setModel("models/player/" + model_name + ".tik");
     }
 
-    str name;
     if (arc.Saving()) {
         if (holsteredWeapon) {
             name = holsteredWeapon->getName();
@@ -7934,11 +7933,10 @@ void Player::ArchivePersistantData(Archiver& arc)
             name = "none";
         }
     }
+
     arc.ArchiveString(&name);
-    if (arc.Loading()) {
-        if (name != "none") {
-            holsteredWeapon = (Weapon *)FindItem(name);
-        }
+    if (arc.Loading() && name != "none") {
+        holsteredWeapon = (Weapon*)FindItem(name);
     }
 
     UpdateWeapons();
