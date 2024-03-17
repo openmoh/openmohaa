@@ -1377,12 +1377,12 @@ void R_InitTerrain()
 {
     int i;
 
-    ter_maxlod         = ri.Cvar_Get("ter_maxlod", "3", CVAR_ARCHIVE | CVAR_TERRAIN_LATCH);
+    ter_maxlod         = ri.Cvar_Get("ter_maxlod", "6", CVAR_ARCHIVE | CVAR_TERRAIN_LATCH);
     ter_cull           = ri.Cvar_Get("ter_cull", "1", 0);
     ter_lock           = ri.Cvar_Get("ter_lock", "0", 0);
-    ter_error          = ri.Cvar_Get("ter_error", "10", CVAR_ARCHIVE);
+    ter_error          = ri.Cvar_Get("ter_error", "4", CVAR_ARCHIVE);
     ter_cautiousframes = ri.Cvar_Get("ter_cautiousframes", "1", CVAR_ARCHIVE);
-    ter_maxtris        = ri.Cvar_Get("ter_maxtris", "16384", CVAR_TERRAIN_LATCH);
+    ter_maxtris        = ri.Cvar_Get("ter_maxtris", "24576", CVAR_TERRAIN_LATCH);
     ter_count          = ri.Cvar_Get("ter_count", "0", 0);
 
     Cmd_AddCommand("ter_restart", R_TerrainRestart_f);
