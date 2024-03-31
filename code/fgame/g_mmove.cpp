@@ -404,12 +404,14 @@ void MM_StepSlideMove(void)
         bWasOnGoodGround = qfalse;
     }
 
-    start_o[2] += 18;
+    VectorCopy(start_o, up);
+    up[2] += 18;
+
     VectorCopy(mm->origin, nostep_o);
     VectorCopy(mm->velocity, nostep_v);
     memcpy(&nostep_groundTrace, &mml.groundTrace, sizeof(trace_t));
 
-    VectorCopy(start_o, mm->origin);
+    VectorCopy(up, mm->origin);
     VectorCopy(start_v, mm->velocity);
 
     first_hit_wall = mm->hit_obstacle;
@@ -425,7 +427,7 @@ void MM_StepSlideMove(void)
     down[2] -= STEPSIZE * 2;
 
     // test the player position if they were a stepheight higher
-    gi.trace(&trace, start_o, mm->mins, mm->maxs, down, mm->entityNum, mm->tracemask, qtrue, qfalse);
+    gi.trace(&trace, mm->origin, mm->mins, mm->maxs, down, mm->entityNum, mm->tracemask, qtrue, qfalse);
     if (trace.entityNum != ENTITYNUM_WORLD && trace.entityNum != ENTITYNUM_NONE) {
         VectorCopy(nostep_o, mm->origin);
         VectorCopy(nostep_v, mm->velocity);
