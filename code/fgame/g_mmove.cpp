@@ -211,6 +211,8 @@ qboolean MM_SlideMove(qboolean gravity)
             //
             // modify velocity so it parallels all of the clip planes
             //
+            VectorCopy(trace.plane.normal, planes[numplanes]);
+            numplanes++;
 
             // find a plane that it enters
             for (i = 0; i < numplanes; i++) {
@@ -227,10 +229,14 @@ qboolean MM_SlideMove(qboolean gravity)
                         continue;
                     }
 
-                    // slide along the plane
-                    MM_ClipVelocity(mm->velocity, planes[j], clipVelocity, OVERCLIP);
+                    if (DotProduct(clipVelocity, planes[j]) >= 0.1) { 
+                        continue; // move doesn't interact with the plane
+                    }
 
-                    if (DotProduct(clipVelocity, planes[j]) >= 0.0f) {
+                    // slide along the plane
+                    MM_ClipVelocity(clipVelocity, planes[j], clipVelocity, OVERCLIP);
+
+                    if (DotProduct(clipVelocity, planes[i]) >= 0) {
                         continue; // move doesn't interact with the plane
                     }
 
@@ -246,7 +252,7 @@ qboolean MM_SlideMove(qboolean gravity)
                             continue;
                         }
 
-                        if (DotProduct(clipVelocity, planes[k]) >= 0.1f) {
+                        if (DotProduct(clipVelocity, planes[k]) >= 0.1) {
                             continue; // move doesn't interact with the plane
                         }
 
