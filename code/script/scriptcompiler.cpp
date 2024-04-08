@@ -1497,7 +1497,7 @@ int yyerror(const char *msg)
     return 1;
 }
 
-size_t ScriptCompiler::Parse(GameScript *gameScript, char *sourceBuffer, const char *type)
+bool ScriptCompiler::Parse(GameScript *gameScript, char *sourceBuffer, const char *type, size_t& outLength)
 {
     parsedata = yyparsedata();
 
@@ -1515,6 +1515,8 @@ size_t ScriptCompiler::Parse(GameScript *gameScript, char *sourceBuffer, const c
     script      = gameScript;
     stateScript = &gameScript->m_State;
 
+    outLength = 0;
+
     yy_init_script();
     parsetree_init();
 
@@ -1531,22 +1533,23 @@ size_t ScriptCompiler::Parse(GameScript *gameScript, char *sourceBuffer, const c
             }
 
             yylex_destroy();
-            return 0;
+            return false;
         }
     } catch (ScriptException& exc) {
         yylex_destroy();
         exc;
-        return 0;
+        return false;
     }
 
     yylex_destroy();
 
-    return parsedata.total_length;
+    outLength = parsedata.total_length;
+    return true;
 }
 
-size_t ScriptCompiler::Compile(GameScript *gameScript, unsigned char *progBuffer)
+bool ScriptCompiler::Compile(GameScript *gameScript, unsigned char *progBuffer, size_t& outLength)
 {
-    size_t length;
+    bool success = false;
 
     if (progBuffer == NULL) {
         glbs.DPrintf("Invalid program buffer\n");
@@ -1570,21 +1573,22 @@ size_t ScriptCompiler::Compile(GameScript *gameScript, unsigned char *progBuffer
         if (compileSuccess) {
             stateScript->AddLabel("", code_ptr);
 
-            length = code_pos - code_ptr;
+            outLength = code_pos - code_ptr;
+            success = true;
         } else {
-            length = 0;
+            outLength = 0;
         }
 
         prog_end_ptr = code_pos;
     } catch (ScriptException& exc) {
         exc;
-        length       = 0;
+        outLength = 0;
         prog_end_ptr = code_pos;
     }
 
     parsetree_freeall();
 
-    return length;
+    return success;
 }
 
 str ScriptCompiler::GetLine(str content, int line)

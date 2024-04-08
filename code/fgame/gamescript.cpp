@@ -104,7 +104,7 @@ void AbstractScript::PrintSourcePos(sourceinfo_t *sourcePos, bool dev)
     if (GetSourceAt(sourcePos->sourcePos, &sourceLine, column, line)) {
         PrintSourcePos(sourceLine, column, line, dev);
     } else {
-        glbs.DPrintf(
+        gi.DPrintf(
             "file '%s', source pos %d line %d column %d:\n",
             Filename().c_str(),
             sourcePos->sourcePos,
@@ -123,7 +123,7 @@ void AbstractScript::PrintSourcePos(size_t sourcePos, bool dev)
     if (GetSourceAt(sourcePos, &sourceLine, column, line)) {
         PrintSourcePos(sourceLine, column, line, dev);
     } else {
-        glbs.DPrintf("file '%s', source pos %d:\n", Filename().c_str(), sourcePos);
+        gi.DPrintf("file '%s', source pos %d:\n", Filename().c_str(), sourcePos);
     }
 }
 
@@ -153,7 +153,7 @@ void AbstractScript::PrintSourcePos(str sourceLine, int column, int line, bool d
 
     markerLine.append("^");
 
-    glbs.DPrintf("(%s, %d):\n%s\n%s\n", Filename().c_str(), line, sourceLine.c_str(), markerLine.c_str());
+    gi.DPrintf("(%s, %d):\n%s\n%s\n", Filename().c_str(), line, sourceLine.c_str(), markerLine.c_str());
 }
 
 AbstractScript::AbstractScript()
@@ -493,7 +493,7 @@ void GameScript::Archive(Archiver& arc)
 	}
 	else
 	{
-		m_ProgBuffer = ( unsigned char * )glbs.Malloc( m_ProgLength );
+		m_ProgBuffer = ( unsigned char * )gi.Malloc( m_ProgLength );
 		code_pos = m_ProgBuffer;
 		code_end = m_ProgBuffer + m_ProgLength;
 
@@ -591,14 +591,14 @@ void GameScript::Archive(Archiver& arc)
 	{
 		fileHandle_t filehandle = NULL;
 
-		m_SourceLength = glbs.FS_ReadFile( Filename().c_str(), ( void ** )&m_SourceBuffer, true );
+		m_SourceLength = gi.FS_ReadFile( Filename().c_str(), ( void ** )&m_SourceBuffer, true );
 
 		if( m_SourceLength > 0 )
 		{
-			m_SourceBuffer = ( char * )glbs.Malloc( m_SourceLength );
+			m_SourceBuffer = ( char * )gi.Malloc( m_SourceLength );
 
-			glbs.FS_Read( m_SourceBuffer, m_SourceLength, filehandle );
-			glbs.FS_FCloseFile( filehandle );
+			gi.FS_Read( m_SourceBuffer, m_SourceLength, filehandle );
+			gi.FS_FCloseFile( filehandle );
 		}
 	}
 
@@ -661,12 +661,12 @@ void GameScript::Close(void)
     }
 
     if (m_ProgBuffer) {
-        glbs.Free(m_ProgBuffer);
+        gi.Free(m_ProgBuffer);
         m_ProgBuffer = NULL;
     }
 
     if (m_SourceBuffer) {
-        glbs.Free(m_SourceBuffer);
+        gi.Free(m_SourceBuffer);
         m_SourceBuffer = NULL;
     }
 
@@ -680,7 +680,7 @@ void GameScript::Load(const void *sourceBuffer, size_t sourceLength)
     size_t nodeLength;
     char  *m_PreprocessedBuffer;
 
-    m_SourceBuffer = (char *)glbs.Malloc(sourceLength + 2);
+    m_SourceBuffer = (char *)gi.Malloc(sourceLength + 2);
     m_SourceLength = sourceLength;
 
     // Original mohaa doesn't reallocate the input string to append a newline
@@ -694,19 +694,24 @@ void GameScript::Load(const void *sourceBuffer, size_t sourceLength)
     Compiler.Reset();
 
     m_PreprocessedBuffer = Compiler.Preprocess(m_SourceBuffer);
-    nodeLength           = Compiler.Parse(this, m_PreprocessedBuffer, "script");
-    Compiler.Preclean(m_PreprocessedBuffer);
-
-    if (!nodeLength) {
-        glbs.DPrintf2("^~^~^ Script file compile error:  Couldn't parse '%s'\n", Filename().c_str());
+    if (!Compiler.Parse(this, m_PreprocessedBuffer, "script", nodeLength)) {
+        gi.DPrintf2("^~^~^ Script file compile error:  Couldn't parse '%s'\n", Filename().c_str());
         return Close();
     }
 
-    m_ProgBuffer = (unsigned char *)glbs.Malloc(nodeLength);
-    m_ProgLength = Compiler.Compile(this, m_ProgBuffer);
+    if (nodeLength == 0) {
+        // No code, assume success
+        requiredStackSize = 0;
+        successCompile = true;
+        return;
+    }
 
-    if (!m_ProgLength) {
-        glbs.DPrintf2("^~^~^ Script file compile error:  Couldn't compile '%s'\n", Filename().c_str());
+    Compiler.Preclean(m_PreprocessedBuffer);
+
+    m_ProgBuffer = (unsigned char *)gi.Malloc(nodeLength);
+
+    if (!Compiler.Compile(this, m_ProgBuffer, m_ProgLength)) {
+        gi.DPrintf2("^~^~^ Script file compile error:  Couldn't compile '%s'\n", Filename().c_str());
         return Close();
     }
 
