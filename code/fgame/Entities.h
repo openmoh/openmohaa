@@ -26,19 +26,19 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "animate.h"
 
 typedef enum {
-	CONTROLLER_ALLIES,
-	CONTROLLER_AXIS,
+    CONTROLLER_ALLIES,
+    CONTROLLER_AXIS,
     CONTROLLER_DRAW
 } eController;
 
-#define PT_SPAWNFLAG_PLAY_FIRE_SOUND    1
-#define PT_SPAWNFLAG_PLAY_MOTION_SOUND  2
-#define PT_SPAWNFLAG_TARGET_RANDOM      4
-#define PT_SPAWNFLAG_TURN_ON            8
-#define PT_SPAWNFLAG_ROTATE_YAW         16
-#define PT_SPAWNFLAG_ROTATE_ROLL        32
-#define PT_SPAWNFLAG_TARGET_PLAYER      64
-#define PT_SPAWNFLAG_HIDDEN             128
+#define PT_SPAWNFLAG_PLAY_FIRE_SOUND   1
+#define PT_SPAWNFLAG_PLAY_MOTION_SOUND 2
+#define PT_SPAWNFLAG_TARGET_RANDOM     4
+#define PT_SPAWNFLAG_TURN_ON           8
+#define PT_SPAWNFLAG_ROTATE_YAW        16
+#define PT_SPAWNFLAG_ROTATE_ROLL       32
+#define PT_SPAWNFLAG_TARGET_PLAYER     64
+#define PT_SPAWNFLAG_HIDDEN            128
 
 void ClearProjectileTargets();
 
@@ -53,7 +53,7 @@ public:
     ProjectileTarget();
 
     void EventSetId(Event *ev);
-    int GetTarget() const;
+    int  GetTarget() const;
 };
 
 #define MAX_PROJECTILE_GENERATOR_TARGETS 16
@@ -106,16 +106,16 @@ public:
     bool ShouldRotateYaw() const;
     bool ShouldRotateRoll() const;
 
-    void EventIsTurnedOn(Event *ev);
-    void EventGetTargetEntity(Event *ev);
-    void EventLaunchSound(Event *ev);
-    void SetTarget(Event *ev);
-    void SetTarget(Entity* ent);
-    void OnInitialize(Event *ev);
-    void TurnOff(Event *ev);
-    void TurnOn(Event *ev);
-    bool ShouldTargetRandom() const;
-    Entity* ChooseTarget();
+    void    EventIsTurnedOn(Event *ev);
+    void    EventGetTargetEntity(Event *ev);
+    void    EventLaunchSound(Event *ev);
+    void    SetTarget(Event *ev);
+    void    SetTarget(Entity *ent);
+    void    OnInitialize(Event *ev);
+    void    TurnOff(Event *ev);
+    void    TurnOn(Event *ev);
+    bool    ShouldTargetRandom() const;
+    Entity *ChooseTarget();
 
     void         GetLocalTargets();
     bool         ShouldTargetPlayer() const;
@@ -123,7 +123,7 @@ public:
     void         GetMuzzlePos(Vector& pos);
     void         Fire();
     void         TryLaunchSound();
-    void         SetWeaponAnim(const char* name, Event* ev);
+    void         SetWeaponAnim(const char *name, Event *ev);
     void         EventAccuracy(Event *ev);
     void         EventMaxDelay(Event *ev);
     void         EventMinDelay(Event *ev);
@@ -134,11 +134,11 @@ public:
     void         EventMaxDuration(Event *ev);
     void         EventMinDuration(Event *ev);
     void         SetWeaponModel(Event *ev);
-	void         EventSetId(Event* ev);
-	void         EventmaxDonut(Event* ev);
-	void         EventminDonut(Event* ev);
-	void         EventarcDonut(Event* ev);
-	void         EventisDonut(Event* ev);
+    void         EventSetId(Event *ev);
+    void         EventmaxDonut(Event *ev);
+    void         EventminDonut(Event *ev);
+    void         EventarcDonut(Event *ev);
+    void         EventisDonut(Event *ev);
     virtual bool Attack(int count);
 
     void Archive(Archiver& arc) override;
@@ -164,8 +164,8 @@ public:
     void SetProjectileModel(Event *ev);
 
     float EstimateImpactTime(const Vector& targetOrigin, const Vector& fromOrigin, float speed) const;
-    bool Attack(int count) override;
-    void Archive(Archiver& arc) override;
+    bool  Attack(int count) override;
+    void  Archive(Archiver& arc) override;
 };
 
 class ProjectileGenerator_Gun : public ProjectileGenerator
@@ -306,6 +306,8 @@ private:
 public:
     CLASS_PROTOTYPE(ThrobbingBox_Stickybomb);
 
+    ThrobbingBox_Stickybomb();
+
     void OnStickyBombWet(Event *ev);
     void OnStickyBombUse(Event *ev);
 
@@ -325,7 +327,7 @@ public:
 
     Objective();
 
-    void   Archive(Archiver  &arc) override;
+    void   Archive(Archiver& arc) override;
     void   TurnOn(Event *ev);
     void   TurnOff(Event *ev);
     void   Complete(Event *ev);

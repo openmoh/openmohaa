@@ -1988,6 +1988,26 @@ CLASS_DECLARATION(ThrobbingBox_Explosive, ThrobbingBox_Stickybomb, "ThrobbingBox
     {NULL,              NULL                                     }
 };
 
+ThrobbingBox_Stickybomb::ThrobbingBox_Stickybomb()
+{
+    if (LoadingSavegame) {
+        return;
+    }
+
+    setModel("items/pulse_stickybomb.tik");
+    m_sUsedModel = "items/stickybomb.tik";
+    m_sSound = "explode_flak88";
+    m_sActivateSound = "stickybomb_plant";
+    m_sTickSound = "stickybomb_fuse";
+
+    health = 10;
+    m_fStopwatchStartTime = 0;
+
+    setSolidType(SOLID_BBOX);
+    takedamage = DAMAGE_NO;
+    setContents(CONTENTS_WEAPONCLIP);
+}
+
 void ThrobbingBox_Stickybomb::OnStickyBombWet(Event *ev)
 {
     Player *player;
