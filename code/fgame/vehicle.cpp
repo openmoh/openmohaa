@@ -3735,14 +3735,12 @@ void Vehicle::DriverUse(Event *ev)
             slot = FindTurretSlotByEntity(sent->GetTurret());
 
             if (slot >= 0) {
-                if (bHasExitPosition) {
-                    if (bHasExitAngles) {
-                        AttachTurretSlot(slot, sentTurret, vExitPosition, &vExitAngles);
-                    } else {
-                        AttachTurretSlot(slot, sentTurret, vExitPosition, NULL);
-                    }
+                if (!bHasExitPosition) {
+                    AttachTurretSlot(slot, sent, vec_zero, NULL);
+                } else if (!bHasExitAngles) {
+                    AttachTurretSlot(slot, sent, vExitPosition, NULL);
                 } else {
-                    AttachTurretSlot(slot, sentTurret, vec_zero, NULL);
+                    AttachTurretSlot(slot, sent, vExitPosition, &vExitAngles);
                 }
 
                 sent->SetVehicle(NULL);
@@ -3753,7 +3751,7 @@ void Vehicle::DriverUse(Event *ev)
 
     // Check for passengers slots
     for (slot = 0; slot < MAX_PASSENGERS; slot++) {
-        if (!(Passengers[0].flags & SLOT_FREE)) {
+        if (!(Passengers[slot].flags & SLOT_FREE)) {
             continue;
         }
 
@@ -3771,7 +3769,7 @@ void Vehicle::DriverUse(Event *ev)
     // Check for turrets slots
     if (ent->IsSubclassOfWeapon()) {
         for (slot = 0; slot < MAX_TURRETS; slot++) {
-            if (!(Turrets[0].flags & SLOT_FREE)) {
+            if (!(Turrets[slot].flags & SLOT_FREE)) {
                 continue;
             }
 
@@ -3787,7 +3785,7 @@ void Vehicle::DriverUse(Event *ev)
         }
     } else {
         for (slot = 0; slot < MAX_TURRETS; slot++) {
-            if (!(Turrets[0].flags & SLOT_BUSY)) {
+            if (!(Turrets[slot].flags & SLOT_BUSY)) {
                 continue;
             }
 
@@ -6507,11 +6505,11 @@ void Vehicle::Archive(Archiver& arc)
     driver.Archive(arc);
     lastdriver.Archive(arc);
 
-    for (int i = MAX_PASSENGERS - 1; i >= 0; i--) {
+    for (int i = 0; i < MAX_PASSENGERS; i++) {
         Passengers[i].Archive(arc);
     }
 
-    for (int i = MAX_TURRETS - 1; i >= 0; i--) {
+    for (int i = 0; i < MAX_TURRETS; i++) {
         Turrets[i].Archive(arc);
     }
 
