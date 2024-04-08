@@ -492,6 +492,7 @@ void ProjectileGenerator::TurnOn(Event *ev)
     if (!m_bIsTurnedOn) {
         CancelEventsOfType(EV_PG_BeginCycle);
         CancelEventsOfType(EV_TickCycle);
+        SetupNextCycle();
         m_bIsTurnedOn = true;
     }
 }
@@ -519,6 +520,7 @@ void ProjectileGenerator::SetupNextCycle()
 
     // get a random delay
     m_fShotsPerSec = numShots / m_fCycleTime;
+    delay = 0.01f;
     if (m_bIsTurnedOn || !m_bFireOnStartUp) {
         delay = G_Random(m_fMaxDelay - m_fMinDelay) + m_fMinDelay;
     }
