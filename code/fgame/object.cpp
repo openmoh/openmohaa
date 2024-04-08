@@ -213,7 +213,7 @@ Event EV_ThrowObject_ThrowSound
     EV_NORMAL
 );
 
-CLASS_DECLARATION(Object, ThrowObject, "func_throwobject") {
+CLASS_DECLARATION(Animate, ThrowObject, "func_throwobject") {
     {&EV_Touch,                    &ThrowObject::Touch       },
     {&EV_ThrowObject_Pickup,       &ThrowObject::Pickup      },
     {&EV_ThrowObject_Throw,        &ThrowObject::Throw       },
@@ -385,7 +385,7 @@ void ThrowObject::Pickup(Event *ev)
 
 void ThrowObject::Archive(Archiver& arc)
 {
-    Object::Archive(arc);
+    Animate::Archive(arc);
 
     arc.ArchiveInteger(&owner);
     arc.ArchiveVector(&pickup_offset);

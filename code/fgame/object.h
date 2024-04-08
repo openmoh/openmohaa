@@ -56,7 +56,10 @@ public:
 extern Event EV_ThrowObject_Pickup;
 extern Event EV_ThrowObject_Throw;
 
-class ThrowObject : public Object
+// Fixed in 2.0
+//  Before 2.0, ThrowObject was inheriting from Object.
+//  This caused issue when spawning the ThrowObject from script.
+class ThrowObject : public Animate
 {
 private:
     int    owner;
