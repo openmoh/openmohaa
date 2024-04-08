@@ -1957,6 +1957,7 @@ void ScriptModel::SetAnimEvent(Event *ev)
         animnum = gi.Anim_NumForName(edict->tiki, animname);
         if (animnum >= 0) {
             NewAnim(animnum, EV_ScriptModel_AnimDone);
+            RestartAnimSlot(0);
         }
     }
 }
