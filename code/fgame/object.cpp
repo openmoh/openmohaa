@@ -31,6 +31,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "specialfx.h"
 #include "g_phys.h"
 #include "game.h"
+#include "../script/scriptexception.h"
 
 Event EV_Object_HandleSetModel
 (
@@ -46,7 +47,14 @@ CLASS_DECLARATION(Animate, Object, NULL) {
     {NULL, NULL}
 };
 
-Event EV_InteractObject_Setup("_setup", EV_DEFAULT, NULL, NULL, "Sets up an object.");
+Event EV_InteractObject_Setup
+(
+    "_setup",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Sets up an object."
+);
 
 Event EV_InteractObject_KilledEffect
 (
@@ -118,10 +126,10 @@ void InteractObject::Damaged(Event *ev)
 
 void InteractObject::Killed(Event *ev)
 {
-    Entity       *ent;
-    Entity       *attacker;
-    Vector        dir;
-    const char   *name;
+    Entity     *ent;
+    Entity     *attacker;
+    Vector      dir;
+    const char *name;
 
     takedamage = DAMAGE_NO;
     deadflag   = DEAD_NO;
@@ -242,7 +250,6 @@ void ThrowObject::ThrowSound(Event *ev)
 }
 
 void ThrowObject::Touch(Event *ev)
-
 {
     Entity *other;
 
@@ -283,7 +290,6 @@ void ThrowObject::Touch(Event *ev)
 }
 
 void ThrowObject::Throw(Event *ev)
-
 {
     Entity   *owner;
     Sentient *targetent;
@@ -300,6 +306,7 @@ void ThrowObject::Throw(Event *ev)
     assert(owner);
 
     if (!owner) {
+        ScriptError("owner == NULL");
         return;
     }
 
@@ -311,6 +318,7 @@ void ThrowObject::Throw(Event *ev)
     targetent = (Sentient *)ev->GetEntity(3);
     assert(targetent);
     if (!targetent) {
+        ScriptError("targetent == NULL");
         return;
     }
 
@@ -328,8 +336,12 @@ void ThrowObject::Throw(Event *ev)
 
     gravity = grav;
 
-    target = targetent->origin;
-    target.z += targetent->viewheight;
+    if (targetent->IsSubclassOfSentient()) {
+        target = targetent->origin;
+        target.z += targetent->viewheight;
+    } else {
+        target = targetent->centroid;
+    }
 
     setMoveType(MOVETYPE_BOUNCE);
     setSolidType(SOLID_BBOX);
@@ -359,7 +371,6 @@ void ThrowObject::Throw(Event *ev)
 }
 
 void ThrowObject::Pickup(Event *ev)
-
 {
     Entity *ent;
     Event  *e;
