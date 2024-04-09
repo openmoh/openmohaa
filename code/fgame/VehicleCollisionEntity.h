@@ -21,40 +21,34 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 // VehicleCollisionEntity.h : MOHAA vehicle collision
 
-#ifndef __VEHICLECOLLISIONENTITY_H__
-#define __VEHICLECOLLISIONENTITY_H__
+#pragma once
 
 #include "entity.h"
 
 class VehicleCollisionEntity : public Entity
 {
 private:
-	EntityPtr m_pOwner;
+    EntityPtr m_pOwner;
 
 private:
-	void			EventDamage( Event *ev );
+    void EventDamage(Event *ev);
 
 public:
-	CLASS_PROTOTYPE( VehicleCollisionEntity );
+    CLASS_PROTOTYPE(VehicleCollisionEntity);
 
-	VehicleCollisionEntity( Entity *ent );
-	VehicleCollisionEntity();
+    VehicleCollisionEntity(Entity *ent);
+    VehicleCollisionEntity();
 
-	void Archive( Archiver& arc ) override;
+    void Archive(Archiver& arc) override;
 
-	void		Solid( void );
-	void		NotSolid( void );
+    void    Solid(void);
+    void    NotSolid(void);
+    Entity *GetOwner() const;
 };
 
-inline
-void VehicleCollisionEntity::Archive
-	(
-	Archiver& arc
-	)
+inline void VehicleCollisionEntity::Archive(Archiver& arc)
 {
-	Entity::Archive( arc );
+    Entity::Archive(arc);
 
-	arc.ArchiveSafePointer( &m_pOwner );
+    arc.ArchiveSafePointer(&m_pOwner);
 }
-
-#endif // __VEHICLECOLLISIONENTITY_H__

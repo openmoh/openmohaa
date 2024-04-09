@@ -24,69 +24,56 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "VehicleCollisionEntity.h"
 #include "g_phys.h"
 
-CLASS_DECLARATION( Entity, VehicleCollisionEntity, NULL )
-{
-	{ &EV_Damage,			&VehicleCollisionEntity::EventDamage },
-	{ NULL, NULL }
+CLASS_DECLARATION(Entity, VehicleCollisionEntity, NULL) {
+    {&EV_Damage, &VehicleCollisionEntity::EventDamage},
+    {NULL,       NULL                                }
 };
 
-VehicleCollisionEntity::VehicleCollisionEntity
-	(
-	Entity *ent
-	)
+VehicleCollisionEntity::VehicleCollisionEntity(Entity *ent)
 {
-	if( LoadingSavegame )
-	{
-		return;
-	}
+    if (LoadingSavegame) {
+        return;
+    }
 
-	edict->s.eType = ET_GENERAL;
+    edict->s.eType = ET_GENERAL;
 
-	m_pOwner = ent;
-	takedamage = DAMAGE_YES;
+    m_pOwner   = ent;
+    takedamage = DAMAGE_YES;
 
-	showModel();
-	setMoveType( MOVETYPE_PUSH );
-	setSolidType(SOLID_NOT);
+    showModel();
+    setMoveType(MOVETYPE_PUSH);
+    setSolidType(SOLID_NOT);
 
-	edict->clipmask |= MASK_VEHICLE;
-	edict->s.eFlags |= EF_LINKANGLES;
+    edict->clipmask |= MASK_VEHICLE;
+    edict->s.eFlags |= EF_LINKANGLES;
 }
 
-VehicleCollisionEntity::VehicleCollisionEntity
-	(
-	void
-	)
+VehicleCollisionEntity::VehicleCollisionEntity(void)
 {
-	if( LoadingSavegame )
-	{
-		return;
-	}
+    if (LoadingSavegame) {
+        return;
+    }
 
-	gi.Error( ERR_DROP, "VehicleCollisionEntity Created with no parameters!\n" );
+    gi.Error(ERR_DROP, "VehicleCollisionEntity Created with no parameters!\n");
 }
 
-void VehicleCollisionEntity::EventDamage
-	(
-	Event *ev
-	)
+void VehicleCollisionEntity::EventDamage(Event *ev)
 {
-	m_pOwner->ProcessEvent(*ev);
+    m_pOwner->ProcessEvent(*ev);
 }
 
-void VehicleCollisionEntity::Solid
-	(
-	void
-	)
+void VehicleCollisionEntity::Solid(void)
 {
-	setContents( CONTENTS_SOLID );
-	setSolidType( SOLID_BSP );
+    setContents(CONTENTS_SOLID);
+    setSolidType(SOLID_BSP);
 }
 
-void VehicleCollisionEntity::NotSolid
-	(
-	void
-	)
+void VehicleCollisionEntity::NotSolid(void)
 {
-	setSolidType( SOLID_NOT );
+    setSolidType(SOLID_NOT);
+}
+
+Entity *VehicleCollisionEntity::GetOwner() const
+{
+    return m_pOwner;
 }
