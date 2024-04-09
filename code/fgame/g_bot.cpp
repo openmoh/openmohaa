@@ -172,11 +172,11 @@ void G_AddBot(unsigned int num, saved_bot_t* saved)
 
 void G_RemoveBot(unsigned int num)
 {
-	num = Q_min(atoi(gi.Argv(1)), sv_maxbots->integer);
+	num = Q_min(num, sv_maxbots->integer);
 
 	for( int n = 0; n < num; n++ )
 	{
-		gentity_t *e = &g_entities[ game.maxclients - 1 - n ];
+		gentity_t *e = &g_entities[maxclients->integer + n];
 		if( e->inuse && e->client )
 		{
 			G_ClientDisconnect( e );
@@ -230,6 +230,27 @@ void G_RestoreBots() {
 	saved_bots = NULL;
 }
 
+int G_CountClients() {
+	gentity_t* other;
+	unsigned int n;
+	unsigned int count = 0;
+
+	for (n = 0; n < maxclients->integer; n++) {
+		other = &g_entities[n];
+		if (other->inuse && other->client) {
+			Player* p = static_cast<Player*>(other->entity);
+			if (p->GetTeam() == teamtype_t::TEAM_NONE || p->GetTeam() == teamtype_t::TEAM_SPECTATOR) {
+				// ignore spectators
+				continue;
+			}
+
+			count++;
+		}
+	}
+
+	return count;
+}
+
 void G_ResetBots() {
 	G_SaveBots();
 
@@ -237,13 +258,29 @@ void G_ResetBots() {
 }
 
 void G_SpawnBots() {
+	unsigned int numClients;
+	unsigned int numBotsToSpawn;
+
 	if (saved_bots) {
 		G_RestoreBots();
 	}
 
-	if (sv_numbots->integer > current_bot_count) {
-		G_AddBot(sv_numbots->integer - current_bot_count);
-	} else if (sv_numbots->integer < current_bot_count) {
-		G_RemoveBot(current_bot_count - sv_numbots->integer);
+	//
+	// Check the minimum bot count
+	//
+	numClients = G_CountClients() + sv_numbots->integer;
+	if (numClients < sv_minPlayers->integer) {
+		numBotsToSpawn = sv_minPlayers->integer - numClients;
+	} else {
+		numBotsToSpawn = sv_numbots->integer;
+	}
+
+	//
+	// Spawn bots
+	//
+	if (numBotsToSpawn > current_bot_count) {
+		G_AddBot(numBotsToSpawn - current_bot_count);
+	} else if (numBotsToSpawn < current_bot_count) {
+		G_RemoveBot(current_bot_count - numBotsToSpawn);
 	}
 }
