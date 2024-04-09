@@ -101,6 +101,18 @@ enum parseStage_e {
     PS_BODY_END
 };
 
+enum {
+    method_game,
+    method_level,
+    method_local,
+    method_parm,
+    method_self,
+    method_group,
+    method_owner,
+    method_field,
+    method_array,
+};
+
 void   parsetree_freeall();
 void   parsetree_init();
 size_t parsetree_length();
@@ -124,6 +136,7 @@ sval_u node3(int type, sval_u val1, sval_u val2, sval_u val3);
 sval_u node4(int type, sval_u val1, sval_u val2, sval_u val3, sval_u val4);
 sval_u node5(int type, sval_u val1, sval_u val2, sval_u val3, sval_u val4, sval_u val5);
 sval_u node6(int type, sval_u val1, sval_u val2, sval_u val3, sval_u val4, sval_u val5, sval_u val6);
+sval_u node_listener(sval_u val1, sval_u val2);
 
 typedef struct parse_pos_s {
     int sourcePos;

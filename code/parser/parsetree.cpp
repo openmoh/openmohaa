@@ -342,3 +342,12 @@ sval_u node6(int type, sval_u val1, sval_u val2, sval_u val3, sval_u val4, sval_
 
     return val;
 }
+
+sval_u node_listener(sval_u val1, sval_u val2)
+{
+    if (!str::icmp(val1.stringValue, "self")) {
+        return node2(ENUM_listener, node1_(method_self), val2);
+    } else {
+        return node2(ENUM_string, val1, val2);
+    }
+}

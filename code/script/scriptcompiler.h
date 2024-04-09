@@ -32,18 +32,6 @@ class ScriptVariable;
 
 typedef void (*ScriptDisplayTokenFunc)(const char *type, const char *name);
 
-enum {
-    method_game,
-    method_level,
-    method_local,
-    method_parm,
-    method_self,
-    method_group,
-    method_owner,
-    method_field,
-    method_array,
-};
-
 typedef struct scriptmacro {
     str name;
     str parameters;
