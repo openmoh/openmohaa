@@ -1231,8 +1231,8 @@ void Projectile::Touch(Event *ev)
             weap->m_iNumTorsoShots++;
 
             if (weap->IsSubclassOfVehicleTurretGun()) {
-                VehicleTurretGun *t = (VehicleTurretGun *)weap.Pointer();
-                Player           *p = (Player *)t->GetRemoteOwner().Pointer();
+                VehicleTurretGun* t = (VehicleTurretGun*)weap.Pointer();
+                Player* p = (Player*)t->GetRemoteOwner().Pointer();
 
                 if (p && p->IsSubclassOfPlayer()) {
                     p->m_iNumHits++;
@@ -1260,10 +1260,33 @@ void Projectile::Touch(Event *ev)
     PostEvent(EV_Remove, 0);
 
     // Call the explosion event
-    Event *explEv;
+    Event* explEv;
     explEv = new Event(EV_Projectile_Explode);
     explEv->AddEntity(other);
     ProcessEvent(explEv);
+
+    Vehicle* pVehicle = NULL;
+
+    // Added in 2.30
+    if (other->IsSubclassOfVehicle()) {
+        pVehicle = static_cast<Vehicle*>(other);
+    } else if (other->IsSubclassOfVehicleTurretGun()) {
+        VehicleTurretGun* pTurret = static_cast<VehicleTurretGun*>(other);
+        Entity* pEnt = pTurret->GetVehicle();
+        if (pEnt->IsSubclassOfVehicle()) {
+            pVehicle = static_cast<Vehicle*>(pEnt);
+        }
+    } else if (other->isSubclassOf(VehicleCollisionEntity)) {
+        VehicleCollisionEntity* pCollision = static_cast<VehicleCollisionEntity*>(other);
+
+        if (pCollision && pCollision->GetOwner()->IsSubclassOfVehicle()) {
+            pVehicle = static_cast<Vehicle*>(pCollision->GetOwner());
+        }
+    }
+
+    if (pVehicle && pVehicle->GetProjectileHitsRemaining() > 0) {
+        pVehicle->DoProjectileVulnerability(this, owner, meansofdeath);
+    }
 }
 
 void Projectile::SetCanHitOwner(Event *ev)
