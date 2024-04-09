@@ -502,7 +502,7 @@ public:
     void         BroadcastAIEvent(int iType = AI_EVENT_MISC, float rad = SOUND_RADIUS);
     void         BroadcastAIEvent(Event *ev);
     void         Kill(Event *ev);
-    void         Killed(Event *ev);
+    virtual void Killed(Event *ev);
     void         SurfaceModelEvent(Event *ev);
     void         SurfaceCommand(const char *surf_name, const char *token);
     virtual void Postthink(void);
