@@ -342,6 +342,10 @@ class FencePost : public Entity
 {
 public:
     CLASS_PROTOTYPE(FencePost);
+
+    FencePost();
+
+    void Killed(Event* ev) override;
 };
 
 class AISpawnPoint : public SimpleArchivedEntity

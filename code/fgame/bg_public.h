@@ -753,7 +753,7 @@ movement on the server game.
         CGM_NOTIFY_KILL,
         CGM_NOTIFY_HIT,
         CGM_VOICE_CHAT,
-        CGM_UNKNOWN_1,
+        CGM_FENCEPOST,
     };
 
     enum cg_message_ver_6_e {

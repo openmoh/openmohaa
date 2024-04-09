@@ -80,7 +80,8 @@ Event EV_PG_MaxDuration
     "Sets the maximum duration of bursts(in seconds)\nDefault=3",
     EV_NORMAL
 );
-Event EV_PG_MinNumShots(
+Event EV_PG_MinNumShots
+(
     "MinNumShots",
     EV_DEFAULT,
     "i",
@@ -88,7 +89,8 @@ Event EV_PG_MinNumShots(
     "Sets the minimum # of shots to fire in a cycle\nDefault=1",
     EV_NORMAL
 );
-Event EV_PG_MaxNumShots(
+Event EV_PG_MaxNumShots
+(
     "MaxNumShots",
     EV_DEFAULT,
     "i",
@@ -275,7 +277,8 @@ Event EV_PG_SetPreImpactSoundTime
     "Set the time before impact to play the preimpact sound.",
     EV_NORMAL
 );
-Event EV_PG_SetPreImpactSoundProbability(
+Event EV_PG_SetPreImpactSoundProbability
+(
     "preimpactsoundprob",
     EV_DEFAULT,
     "f",
@@ -520,7 +523,7 @@ void ProjectileGenerator::SetupNextCycle()
 
     // get a random delay
     m_fShotsPerSec = numShots / m_fCycleTime;
-    delay = 0.01f;
+    delay          = 0.01f;
     if (m_bIsTurnedOn || !m_bFireOnStartUp) {
         delay = G_Random(m_fMaxDelay - m_fMinDelay) + m_fMinDelay;
     }
@@ -1995,12 +1998,12 @@ ThrobbingBox_Stickybomb::ThrobbingBox_Stickybomb()
     }
 
     setModel("items/pulse_stickybomb.tik");
-    m_sUsedModel = "items/stickybomb.tik";
-    m_sSound = "explode_flak88";
+    m_sUsedModel     = "items/stickybomb.tik";
+    m_sSound         = "explode_flak88";
     m_sActivateSound = "stickybomb_plant";
-    m_sTickSound = "stickybomb_fuse";
+    m_sTickSound     = "stickybomb_fuse";
 
-    health = 10;
+    health                = 10;
     m_fStopwatchStartTime = 0;
 
     setSolidType(SOLID_BBOX);
@@ -2215,9 +2218,109 @@ int Objective::GetObjectiveIndex() const
 */
 
 CLASS_DECLARATION(Entity, FencePost, "func_fencepost") {
-    {&EV_Killed, NULL},
-    {NULL,       NULL}
+    {&EV_Killed, &FencePost::Killed},
+    {NULL,       NULL              }
 };
+
+FencePost::FencePost()
+{
+    max_health  = 20;
+    health      = 20;
+    damage_type = MOD_AAGUN;
+
+    if (!LoadingSavegame) {
+        PostEvent(EV_BecomeSolid, EV_POSTSPAWN);
+    }
+
+    takedamage = DAMAGE_YES;
+}
+
+void FencePost::Killed(Event *ev)
+{
+    Vector vMins, vMaxs;
+    Vector vStart, vEnd;
+    Vector vCenter;
+    float  fHalf;
+
+    vCenter = mins - maxs;
+    vCenter *= 0.5;
+
+    if (size.x > size.y) {
+        if (size.x > size.z) {
+            if (size.y > size.z) {
+                fHalf = size.y / 2.f;
+            } else {
+                fHalf = size.z / 2.f;
+            }
+
+            vMins[0] = mins[0];
+            vMaxs[0] = maxs[0];
+            vMins[1] = vCenter[1];
+            vMaxs[1] = vCenter[1];
+            vMins[2] = vCenter[2];
+            vMaxs[2] = vCenter[2];
+        } else {
+            fHalf = size.x / 2.f;
+
+            vMins[2] = mins[2];
+            vMaxs[2] = maxs[2];
+            vMins[1] = vCenter[1];
+            vMaxs[1] = vCenter[1];
+            vMins[0] = vCenter[0];
+            vMaxs[0] = vCenter[0];
+        }
+    } else {
+        if (size.y > size.z) {
+            if (size.x > size.z) {
+                fHalf = size.x / 2.f;
+            } else {
+                fHalf = size.z / 2.f;
+            }
+
+            vMins[1] = mins[1];
+            vMaxs[1] = maxs[1];
+            vMins[0] = vCenter[0];
+            vMaxs[0] = vCenter[0];
+            vMins[2] = vCenter[2];
+            vMaxs[2] = vCenter[2];
+        } else {
+            fHalf = size.y / 2.f;
+
+            vMins[2] = mins[2];
+            vMaxs[2] = maxs[2];
+            vMins[1] = vCenter[1];
+            vMaxs[1] = vCenter[1];
+            vMins[0] = vCenter[0];
+            vMaxs[0] = vCenter[0];
+        }
+    }
+
+    MatrixTransformVector(vMins, orientation, vStart);
+    MatrixTransformVector(vMaxs, orientation, vEnd);
+
+    vStart += origin;
+    vEnd += origin;
+
+    if (fHalf > 255) {
+        fHalf = 255;
+    }
+
+    gi.SetBroadcastVisible(vStart, vEnd);
+    gi.MSG_StartCGM(CGM_FENCEPOST);
+    gi.MSG_WriteCoord(vStart[0]);
+    gi.MSG_WriteCoord(vStart[1]);
+    gi.MSG_WriteCoord(vStart[2]);
+    gi.MSG_WriteCoord(vEnd[0]);
+    gi.MSG_WriteCoord(vEnd[1]);
+    gi.MSG_WriteCoord(vEnd[2]);
+    gi.MSG_WriteByte((int)fHalf);
+    gi.MSG_WriteByte(0);
+    gi.MSG_EndCGM();
+
+    deadflag = DEAD_DEAD;
+
+    PostEvent(EV_Remove, 0);
+}
 
 Event EV_SetEnemyName
 (
