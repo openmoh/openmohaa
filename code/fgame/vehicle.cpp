@@ -6459,6 +6459,10 @@ void Vehicle::EventCanUse(Event *ev)
     }
 }
 
+int Vehicle::GetProjectileHitsRemaining() const {
+    return m_iProjectileHitsRemaining;
+}
+
 /*
 ====================
 Vehicle::Archive

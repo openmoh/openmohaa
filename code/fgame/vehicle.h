@@ -326,11 +326,6 @@ protected:
     virtual void VehicleStart(Event *ev);
     virtual void VehicleTouched(Event *ev);
     virtual void VehicleBlocked(Event *ev);
-    // Added in 2.30
-    //====
-    void SetProjectileVulnerable(Event *ev);
-    void DoProjectileVulnerability(Entity *pProjectile, Entity *pOwner, meansOfDeath_t meansOfDeath);
-    //====
     void         Think(void) override;
     void         Postthink(void) override;
     virtual void Drivable(Event *ev);
@@ -525,6 +520,9 @@ public:
     //====
     void EventSetMaxUseAngle(Event *ev);
     void EventCanUse(Event *ev);
+    int GetProjectileHitsRemaining() const;
+    void SetProjectileVulnerable(Event* ev);
+    void DoProjectileVulnerability(Entity* pProjectile, Entity* pOwner, meansOfDeath_t meansOfDeath);
     //====
 };
 
