@@ -457,7 +457,7 @@ void Trigger::TriggerStuff(Event *ev)
     // if we setup an angle for this trigger, only trigger if other is within ~60 degrees of the triggers origin
     // only test for this case if we were touched, activating or killed should never go through this code
     //
-    if (useTriggerDir && (*ev == EV_Touch)) {
+    if (useTriggerDir && (*ev == EV_Touch || (*ev == EV_Use && isSubclassOf(TriggerSidedUse)))) {
         Vector norm;
         float  dot;
 
@@ -1950,6 +1950,27 @@ CLASS_DECLARATION(Trigger, TriggerUse, "trigger_use") {
 };
 
 TriggerUse::TriggerUse() {}
+
+/*****************************************************************************/
+/*QUAKED trigger_sideduse (1 0 0) ? x x NOT_PLAYERS MONSTERS
+
+Activates targets when 'used' by an entity. It is usable only within specific degrees.
+"setthread" name of thread to trigger.  This can be in a different script file as well\
+by using the '::' notation.
+
+"triggerable" turn trigger on
+"nottriggerable" turn trigger off
+
+If NOT_PLAYERS is set, the trigger does not respond to players
+If MONSTERS is set, the trigger will respond to monsters
+
+******************************************************************************/
+
+CLASS_DECLARATION(TriggerUse, TriggerSidedUse, "trigger_sideduse") {
+    {NULL, NULL}
+};
+
+TriggerSidedUse::TriggerSidedUse() {}
 
 /*****************************************************************************/
 /*QUAKED trigger_useonce (1 0 0) ? x x NOT_PLAYERS MONSTERS

@@ -401,6 +401,17 @@ public:
     TriggerUse();
 };
 
+//
+// Added in 2.30
+//  Can only be triggered if within specific degrees
+class TriggerSidedUse : public TriggerUse
+{
+public:
+    CLASS_PROTOTYPE(TriggerSidedUse);
+
+    TriggerSidedUse();
+};
+
 class TriggerUseOnce : public TriggerUse
 {
 public:
