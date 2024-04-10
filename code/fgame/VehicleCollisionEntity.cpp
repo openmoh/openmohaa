@@ -24,8 +24,19 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "VehicleCollisionEntity.h"
 #include "g_phys.h"
 
+Event EV_Owner
+(
+    "owner",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "owner",
+    EV_GETTER
+);
+
 CLASS_DECLARATION(Entity, VehicleCollisionEntity, NULL) {
     {&EV_Damage, &VehicleCollisionEntity::EventDamage},
+    {&EV_Owner,  &VehicleCollisionEntity::GetOwner   },
     {NULL,       NULL                                }
 };
 
@@ -57,9 +68,9 @@ VehicleCollisionEntity::VehicleCollisionEntity(void)
     gi.Error(ERR_DROP, "VehicleCollisionEntity Created with no parameters!\n");
 }
 
-void VehicleCollisionEntity::EventDamage(Event *ev)
+void VehicleCollisionEntity::GetOwner(Event *ev)
 {
-    m_pOwner->ProcessEvent(*ev);
+    ev->AddListener(m_pOwner);
 }
 
 void VehicleCollisionEntity::Solid(void)
@@ -71,6 +82,16 @@ void VehicleCollisionEntity::Solid(void)
 void VehicleCollisionEntity::NotSolid(void)
 {
     setSolidType(SOLID_NOT);
+}
+
+void VehicleCollisionEntity::EventDamage(Event *ev)
+{
+    m_pOwner->ProcessEvent(*ev);
+}
+
+void VehicleCollisionEntity::Used(Event *ev)
+{
+    m_pOwner->ProcessEvent(*ev);
 }
 
 Entity *VehicleCollisionEntity::GetOwner() const

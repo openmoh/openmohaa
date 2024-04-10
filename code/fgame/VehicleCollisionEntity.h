@@ -32,6 +32,8 @@ private:
 
 private:
     void EventDamage(Event *ev);
+    void GetOwner(Event *ev);
+    void Used(Event *ev);
 
 public:
     CLASS_PROTOTYPE(VehicleCollisionEntity);
