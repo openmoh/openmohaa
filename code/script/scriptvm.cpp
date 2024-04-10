@@ -1800,8 +1800,8 @@ void ScriptVM::Execute(ScriptVariable *data, int dataSize, str label)
                     // the target name was not found
                     m_VMStack.GetTop().setListenerValue(NULL);
 
-                    if ((*m_CodePos >= OP_BIN_EQUALITY && *m_CodePos <= OP_BIN_GREATER_THAN_OR_EQUAL)
-                        || (*m_CodePos >= OP_BOOL_UN_NOT && *m_CodePos <= OP_UN_CAST_BOOLEAN)) {
+                    if ((*m_PrevCodePos >= OP_BIN_EQUALITY && *m_PrevCodePos <= OP_BIN_GREATER_THAN_OR_EQUAL)
+                        || (*m_PrevCodePos >= OP_BOOL_UN_NOT && *m_PrevCodePos <= OP_UN_CAST_BOOLEAN)) {
                         ScriptError("Targetname '%s' does not exist.", targetname.c_str());
                     }
                 } else if (targetList->NumObjects() == 1) {
