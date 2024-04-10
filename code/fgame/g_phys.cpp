@@ -190,15 +190,10 @@ void G_Impact
 	trace_t *trace
 	)
 {
-	gentity_t   *e2;
-	Event		   *ev;
-	SafePtr< Entity > safe1;
-	SafePtr< Entity > safe2;
+	gentity_t *e2;
+	Event *ev;
 
 	e2 = trace->ent;
-
-	safe1 = e1;
-	safe2 = e2->entity;
 
 	level.impact_trace = *trace;
 
@@ -208,10 +203,6 @@ void G_Impact
 		ev = new Event( EV_Touch );
 		ev->AddEntity( e2->entity );
 		e1->ProcessEvent( ev );
-
-		if( safe1 ) {
-			safe1->Unregister( "touch" );
-		}
 	}
 
 	// entity could have been removed, so check if he's in use before sending the event
@@ -225,10 +216,6 @@ void G_Impact
 		ev = new Event( EV_Touch );
 		ev->AddEntity( e1 );
 		e2->entity->ProcessEvent( ev );
-
-		if( safe2 ) {
-			safe2->Unregister( "touch" );
-		}
 	}
 
 	memset( &level.impact_trace, 0, sizeof( level.impact_trace ) );
