@@ -174,7 +174,7 @@ public:
 
     void Spawned(void) override;
 
-    void Killed(Event *ev);
+    void Killed(Event *ev) override;
     void GotKill(Event *ev);
     void EventStuffText(Event *ev);
 };

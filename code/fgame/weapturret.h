@@ -200,8 +200,8 @@ public:
     void     StopWeaponAnim() override;
 
     bool          AI_CanTarget(const vec3_t org);
-    virtual float FireDelay(firemode_t mode);
-    virtual void  SetFireDelay(Event *ev); // added in 2.0
+    virtual float FireDelay(firemode_t mode) override;
+    virtual void  SetFireDelay(Event *ev) override; // added in 2.0
     void          ShowInfo(float fDot, float fDist) override;
 
     // added in 2.0

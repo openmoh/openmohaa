@@ -539,7 +539,7 @@ public:
 
     void DoUse(Event *ev);
     void Obituary(Entity *attacker, Entity *inflictor, int meansofdeath, int iLocation);
-    void Killed(Event *ev);
+    void Killed(Event *ev) override;
     void Dead(Event *ev);
     void Pain(Event *ev);
 

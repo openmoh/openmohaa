@@ -565,7 +565,7 @@ public:
     void EnsureOverLadder(Entity *pUser);
     void EnsureForwardOffLadder(Entity *pUser);
 
-    void Archive(Archiver& arc);
+    void Archive(Archiver& arc) override;
 };
 
 inline void FuncLadder::Archive(Archiver& arc)

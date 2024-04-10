@@ -241,7 +241,7 @@ protected:
     Vector       CalculatePosition(void);
     Vector       CalculateOrientation(void);
     float        CalculateFov(void);
-    virtual void bind(Entity *master, qboolean use_my_angles = false);
+    virtual void bind(Entity *master, qboolean use_my_angles = false) override;
     void         unbind(void) override;
 
 public:

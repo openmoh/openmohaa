@@ -533,7 +533,7 @@ public:
 
     DrivableVehicle(void);
 
-    virtual void Killed(Event *ev);
+    virtual void Killed(Event *ev) override;
 };
 
 class VehicleWheelsX4 : public DrivableVehicle

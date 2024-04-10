@@ -46,7 +46,7 @@ public:
 
     InteractObject();
     void Damaged(Event *ev);
-    void Killed(Event *ev);
+    void Killed(Event *ev) override;
     void Setup(Event *ev);
     void EventHitEffect(Event *ev);
     void EventKilledEffect(Event *ev);
