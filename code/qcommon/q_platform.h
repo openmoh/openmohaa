@@ -107,9 +107,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define PATH_SEP '\\'
 
 #if defined(_WIN64) || defined( __WIN64__ ) 
-#define ARCH_STRING "x86_64"
+#if defined(__x86_64) || defined(__x86_64__) || defined(__amd64) || defined(_M_X64)
+#  define ARCH_STRING "x86_64"
+#elif defined(__aarch64__) || defined(__ARM64__) || defined (_M_ARM64)
+#  define ARCH_STRING "arm64"
+#endif
 #elif defined _M_ALPHA
-#define ARCH_STRING "AXP"
+#  define ARCH_STRING "AXP"
 #endif
 
 #define Q3_LITTLE_ENDIAN
