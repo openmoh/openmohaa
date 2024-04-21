@@ -4183,12 +4183,16 @@ void ScriptThread::EventAIsCloserThanBToC(Event *ev)
 void ScriptThread::EventPointsWithinDist(Event *ev)
 {
     Vector delta;
-    float  dist = ev->GetFloat(3);
-
-    delta = ev->GetVector(1) - ev->GetVector(2);
+    Vector v1, v2;
+    float fDistance;
+   
+    v1 = ev->GetVector(1);
+    v2 = ev->GetVector(2);
+    fDistance = ev->GetFloat(3);
+    delta = v1 - v2;
 
     // check squared distance
-    ev->AddInteger(((delta * delta) < (dist * dist)));
+    ev->AddInteger(delta.lengthSquared() < Square(fDistance));
 }
 
 bool ScriptThread::CanScriptTracePrint(void)
