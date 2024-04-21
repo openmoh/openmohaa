@@ -3625,7 +3625,9 @@ void Actor::SafeSetOrigin(vec3_t newOrigin)
     if (!m_bNoPlayerCollision) {
         Player *p = (Player *)G_GetEntity(0);
 
-        if (p && IsTouching(p)) {
+        // Solidity check added in 2.30
+        //  If the Actor is already nonsolid the player won't get stuck
+        if (p && IsTouching(p) && getSolidType() != SOLID_NOT) {
             Com_Printf("(entnum %d, radnum %d) is going not solid to not get stuck in the player\n", entnum, radnum);
             m_bNoPlayerCollision = true;
             setSolidType(SOLID_NOT);
