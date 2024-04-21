@@ -892,11 +892,13 @@ void Projectile::Explode(Event *ev)
         // Move the projectile back off the surface a bit so we can see
         // explosion effects.
         Vector dir, v;
-        v = velocity;
-        v.normalize();
-        dir = v;
-        v   = origin - v * 36;
-        setOrigin(v);
+        dir = velocity;
+        if (dir.normalize() == 0) {
+            vec3_t forward;
+            AngleVectors(angles, forward, NULL, NULL);
+            dir = forward;
+        }
+        v = origin;
 
         ExplosionAttack(v, owner, explosionmodel, dir, ignoreEnt, 1.0f, weap, m_bHurtOwnerOnly);
     }
