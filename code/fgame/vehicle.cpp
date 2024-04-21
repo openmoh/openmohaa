@@ -6453,9 +6453,9 @@ void Vehicle::EventCanUse(Event *ev)
     VectorNormalize(vDir);
 
     if (fabs(GetAngleBetweenVectors2D(vForward, vDir)) > m_fMaxUseAngle) {
-        ev->AddInteger(1);
+        ev->AddInteger(false);
     } else {
-        ev->AddInteger(0);
+        ev->AddInteger(true);
     }
 }
 
