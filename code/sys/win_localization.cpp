@@ -228,20 +228,20 @@ static int bjb_strnscmp( const char *a, const char *b, size_t n )
 {
 	while( 1 )
 	{
-		while( isspace( *a ) )
+		while( isspace( (unsigned char)*a ) )
 			a++;
-		while( isspace( *b ) )
+		while( isspace( (unsigned char)*b ) )
 			b++;
 		while( *a && *a == *b )
 			a++, b++;
-		if( isspace( *a ) )
+		if( isspace( (unsigned char)*a ) )
 		{
-			if( isalnum( a[ -1 ] ) && isalnum( *b ) )
+			if( isalnum( (unsigned char)a[ -1 ] ) && isalnum( (unsigned char)*b ) )
 				break;
 		}
-		else if( isspace( *b ) )
+		else if( isspace( (unsigned char)*b ) )
 		{
-			if( isalnum( b[ -1 ] ) && isalnum( *a ) )
+			if( isalnum( (unsigned char)b[ -1 ] ) && isalnum( (unsigned char)*a ) )
 				break;
 		}
 		else
