@@ -3674,6 +3674,7 @@ void Actor::DoMove(void)
         MoveDest(frame_delta.length() / level.frametime);
         break;
     case ANIM_MODE_SCRIPTED:
+        setAngles(angles + Vector(0, angular_delta, 0));
         trace = G_Trace(
             origin, mins, maxs, origin + frame_delta, this, edict->clipmask & ~MASK_SCRIPT_SLAVE, qtrue, "Actor"
         );
@@ -3681,6 +3682,7 @@ void Actor::DoMove(void)
         velocity = frame_delta / level.frametime;
         break;
     case ANIM_MODE_NOCLIP:
+        setAngles(angles + Vector(0, angular_delta, 0));
         SafeSetOrigin(origin + frame_delta);
         velocity = frame_delta / level.frametime;
         break;
