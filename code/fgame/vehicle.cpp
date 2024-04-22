@@ -3678,6 +3678,23 @@ void Vehicle::DriverUse(Event *ev)
         return;
     }
 
+    // Added in 2.30
+    //  Check use angle
+    if (!driver.ent && m_fMaxUseAngle && ent && Turrets[0].ent) {
+        Vector vForward;
+        Vector vDir;
+
+        AngleVectors(Turrets[0].ent->angles, vForward, NULL, NULL);
+
+        vDir = Turrets[0].ent->origin - ent->origin;
+        VectorNormalize(vDir);
+
+        if (fabs(GetAngleBetweenVectors2D(vForward, vDir)) > m_fMaxUseAngle) {
+            // Not usable
+            return;
+        }
+    }
+
     if (ev->NumArgs() == 2) {
         if (ev->IsVectorAt(2)) {
             vExitPosition    = ev->GetVector(2);
