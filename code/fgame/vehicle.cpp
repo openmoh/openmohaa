@@ -1503,6 +1503,9 @@ void Vehicle::QueryTurretSlotPosition(int slot, float *pos)
     if (Turrets[slot].enter_boneindex >= 0) {
         GetTagPositionAndOrientation(Turrets[slot].enter_boneindex, &orient);
         VectorCopy(orient.origin, pos);
+    } else if (Turrets[slot].boneindex >= 0) {
+        GetTagPositionAndOrientation(Turrets[slot].boneindex, &orient);
+        VectorCopy(orient.origin, pos);
     } else {
         VectorCopy(origin, pos);
     }
