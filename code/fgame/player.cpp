@@ -10087,7 +10087,9 @@ void Player::Stats(Event *ev)
         }
     }
 
-    szPreferredWeapon = m_sPerferredWeaponOverride;
+    if (m_sPerferredWeaponOverride.length()) {
+        szPreferredWeapon = m_sPerferredWeaponOverride;
+    }
 
     if (iNumHits) {
         Com_sprintf(
