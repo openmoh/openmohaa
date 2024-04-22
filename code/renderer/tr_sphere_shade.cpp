@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2023 the OpenMoHAA team
+Copyright (C) 2024 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -1047,7 +1047,8 @@ static void RB_Sphere_BuildStaticLights()
     if (tr.world->vis) {
         int cntarea;
 
-        for (curleaf = 0, leaf = backEnd.currentSphere->leaves[curleaf]; curleaf < 8 && leaf; curleaf++, leaf++) {
+        for (curleaf = 0, leaf = backEnd.currentSphere->leaves[curleaf]; curleaf < 8 && leaf;
+             curleaf++, leaf   = backEnd.currentSphere->leaves[curleaf]) {
             cntarea = leaf->numlights;
 
             if (cntarea) {
