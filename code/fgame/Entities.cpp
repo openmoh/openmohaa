@@ -2338,7 +2338,7 @@ Event EV_SetEnemyName2
     "s",
     "enemyname",
     "",
-    EV_GETTER
+    EV_SETTER
 );
 Event EV_GetEnemyName
 (
@@ -2347,7 +2347,7 @@ Event EV_GetEnemyName
     "s",
     "enemyname",
     "",
-    EV_SETTER
+    EV_GETTER
 );
 Event EV_Sentient_GetDontDropWeapons
 (
@@ -2663,12 +2663,12 @@ void AISpawnPoint::SetFov(Event *ev)
 
 void AISpawnPoint::SetSight(Event *ev)
 {
-    ev->AddFloat(m_fSight);
+    m_fSight = ev->GetFloat(1);
 }
 
 void AISpawnPoint::GetSight(Event *ev)
 {
-    m_fSight = ev->GetFloat(1);
+    ev->AddFloat(m_fSight);
 }
 
 void AISpawnPoint::GetHearing(Event *ev)
