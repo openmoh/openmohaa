@@ -196,7 +196,8 @@ Event EV_Client_SetColorVelocity
     "rVel gVel bVel",
     "Set the color velocity of the spawned dlight tempmodel"
 );
-Event EV_Client_SetRandomVelocity(
+Event EV_Client_SetRandomVelocity
+(
     "randvel",
     EV_DEFAULT,
     "SfFSfFSfF",
@@ -210,7 +211,8 @@ Event EV_Client_SetRandomVelocity(
     "without randomness.\n"
     "This velocity is applied using the world axis"
 );
-Event EV_Client_SetRandomVelocityAlongAxis(
+Event EV_Client_SetRandomVelocityAlongAxis
+(
     "randvelaxis",
     EV_DEFAULT,
     "SfFSfFSfF",
@@ -224,6 +226,14 @@ Event EV_Client_SetRandomVelocityAlongAxis(
     "If no keyword is explicitly specified, then the component will just be added on\n"
     "without randomness.\n"
     "This velocity is applied using the parent axis"
+);
+Event EV_Client_NoTagAxis
+(
+    "notagaxis",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Forces the effect to use the model's orientation for randvelaxis and offsetalongaxis"
 );
 Event EV_Client_SetAccel
 (
@@ -1221,6 +1231,7 @@ CLASS_DECLARATION(Listener, ClientGameCommandManager, NULL) {
     {&EV_Client_SetColorVelocity,           &ClientGameCommandManager::SetAngularVelocity        },
     {&EV_Client_SetRandomVelocity,          &ClientGameCommandManager::SetRandomVelocity         },
     {&EV_Client_SetRandomVelocityAlongAxis, &ClientGameCommandManager::SetRandomVelocityAlongAxis},
+    {&EV_Client_NoTagAxis,                  &ClientGameCommandManager::SetNoTagAxis              },
     {&EV_Client_SetAccel,                   &ClientGameCommandManager::SetAccel                  },
     {&EV_Client_SetFriction,                &ClientGameCommandManager::SetFriction               },
     {&EV_Client_SetSpin,                    &ClientGameCommandManager::SetSpin                   },
@@ -2666,6 +2677,15 @@ void ClientGameCommandManager::SetRandomVelocityAlongAxis(Event *ev)
 
     m_spawnthing->cgd.flags |= T_RANDVELAXIS;
     SetRandomVelocity(ev);
+}
+
+void ClientGameCommandManager::SetNoTagAxis(Event* ev)
+{
+    if (!m_spawnthing) {
+        return;
+    }
+
+    m_spawnthing->cgd.flags2 |= T2_NOTAGAXIS;
 }
 
 void ClientGameCommandManager::SetRadialVelocity(Event *ev)

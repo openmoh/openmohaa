@@ -113,6 +113,7 @@ TIKI file, similar to ScriptMaster in the server game dll.
 #define T2_VARYCOLOR          (1 << 20)
 #define T2_SPIN               (1 << 21)
 #define T2_RELATIVEANGLES     (1 << 22)
+#define T2_NOTAGAXIS          (1 << 23)
 
 class spawnthing_t;
 class specialeffect_t;
@@ -788,6 +789,7 @@ private:
     void          SetScaleRate(Event *ev);
     void          SetRandomVelocity(Event *ev);
     void          SetRandomVelocityAlongAxis(Event *ev);
+    void          SetNoTagAxis(Event *ev); // Added in 2.0
     void          SetAccel(Event *ev);
     void          SetFriction(Event *ev);
     void          SetSpin(Event *ev);
