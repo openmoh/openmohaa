@@ -541,7 +541,10 @@ void ScriptMaster::InitConstStrings(void)
         eventDef    = en.CurrentValue();
         eventnum    = (*en.CurrentKey())->eventnum;
         str command = eventDef->command.c_str();
-        command.tolower();
+
+        if (eventDef->type == EV_NORMAL || eventDef->type == EV_RETURN) {
+            command.tolower();
+        }
 
         name = AddString(command);
 

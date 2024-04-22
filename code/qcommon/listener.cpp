@@ -399,8 +399,14 @@ int HashCode<command_t>(const command_t& key)
     const char *p;
     int         hash = 0;
 
-    for (p = key.command; *p; p++) {
-        hash = tolower(*p) + 31 * hash;
+    if (key.type == EV_NORMAL || key.type == EV_RETURN) {
+        for (p = key.command; *p; p++) {
+            hash = tolower(*p) + 31 * hash;
+        }
+    } else {
+        for (p = key.command; *p; p++) {
+            hash = *p + 31 * hash;
+        }
     }
 
     return hash;
@@ -1424,7 +1430,6 @@ FindSetterEventNum
 */
 unsigned int Event::FindSetterEventNum(str s)
 {
-    s.tolower();
     return FindSetterEventNum(Director.AddString(s));
 }
 
@@ -1435,7 +1440,6 @@ FindGetterEventNum
 */
 unsigned int Event::FindGetterEventNum(str s)
 {
-    s.tolower();
     return FindGetterEventNum(Director.AddString(s));
 }
 
@@ -1452,8 +1456,10 @@ int Event::GetEventWithFlags(str name, int flags, uchar type)
     con_map<const_str, unsigned int> *cmdList;
 
     if (type == EV_NORMAL) {
+        name.tolower();
         cmdList = &normalCommandList;
     } else if (type == EV_RETURN) {
+        name.tolower();
         cmdList = &returnCommandList;
     } else if (type == EV_GETTER) {
         cmdList = &getterCommandList;
@@ -1462,8 +1468,6 @@ int Event::GetEventWithFlags(str name, int flags, uchar type)
     } else {
         return 0;
     }
-
-    name.tolower();
 
     index = cmdList->find(Director.GetString(name));
 
@@ -4352,3 +4356,24 @@ command_t::command_t(const char *name, byte t)
     : command(name)
     , type(t)
 {}
+
+bool operator==(const char* name, const command_t& command)
+{
+    if (command.type == EV_NORMAL || command.type == EV_RETURN) {
+        return !str::icmp(name, command.command);
+    } else {
+        return !str::cmp(name, command.command);
+    }
+}
+
+#ifdef WITH_SCRIPT_ENGINE
+bool operator==(const command_t& cmd1, const command_t& cmd2)
+{
+    return (!str::icmp(cmd1.command, cmd2.command) && (cmd2.type == (uchar)-1 || cmd2.type == cmd1.type));
+}
+#else
+bool operator==(const command_t& cmd1, const command_t& cmd2)
+{
+    return (!str::icmp(cmd1.command, cmd2.command));
+}
+#endif

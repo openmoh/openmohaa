@@ -242,23 +242,6 @@ public:
     friend bool operator==(const command_t& cmd1, const command_t& cmd2);
 };
 
-inline bool operator==(const char *name, const command_t& command)
-{
-    return !str::icmp(name, command.command);
-}
-
-#ifdef WITH_SCRIPT_ENGINE
-inline bool operator==(const command_t& cmd1, const command_t& cmd2)
-{
-    return (!str::icmp(cmd1.command, cmd2.command) && (cmd2.type == (uchar)-1 || cmd2.type == cmd1.type));
-}
-#else
-inline bool operator==(const command_t& cmd1, const command_t& cmd2)
-{
-    return (!str::icmp(cmd1.command, cmd2.command));
-}
-#endif
-
 class Event : public Class
 {
 public:
