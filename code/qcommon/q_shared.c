@@ -86,7 +86,7 @@ float vectoyaw(const vec3_t vec)
 	}
 	else {
 		//if (vec[PITCH]) {
-		yaw = (atan2(vec[YAW], vec[PITCH]) * 180 / M_PI);
+		yaw = (int)(atan2(vec[YAW], vec[PITCH]) * 180 / M_PI);
 		//} else if (vec[YAW] > 0) {
 		//	yaw = 90;
 		//} else {
