@@ -89,8 +89,11 @@ void Actor::End_MachineGunner(void)
     }
 
     Unholster();
-    if (m_pTurret && m_pTurret->GetOwner() == this) {
-        m_pTurret->TurretEndUsed();
+    if (m_pTurret) {
+        m_pTurret->m_bHadOwner = true;
+        if (m_pTurret->GetOwner() == this) {
+            m_pTurret->TurretEndUsed();
+        }
     }
 }
 
@@ -206,6 +209,12 @@ void Actor::Think_MachineGunner_TurretGun(void)
     }
 
     UpdateEnemyInternal();
+
+    if (m_Team == TEAM_AMERICAN) {
+        // Added in 2.30
+        ThinkHoldGun_TurretGun();
+        return;
+    }
 
     if (m_pTurret->AI_CanTarget(G_GetEntity(0)->centroid)) {
         ThinkHoldGun_TurretGun();
