@@ -1463,17 +1463,17 @@ void ScriptSlave::FollowingPath(Event *ev)
         if (g_showflypath && g_showflypath->integer) {
             for (int i = 0; i < m_pCurPath->m_iPoints; i++) {
                 vTmp = m_pCurPath->GetByNode(i, NULL);
-                G_DebugBBox((vTmp + 1), Vector(-32, -32, -32), Vector(32, 32, 32), 0.0f, 1.0f, 1.0f, 1.0f);
+                VectorCopy((vTmp + 1), vCur);
+
+                G_DebugBBox(vCur, Vector(-32, -32, -32), Vector(32, 32, 32), 0, 1, 1, 1);
 
                 for (int ii = 0; ii <= 8; ii++) {
-                    G_DebugLine(
-                        (m_pCurPath->GetByNode((ii / 10.0f + (i + 1)), NULL) + 1),
-                        (m_pCurPath->GetByNode(m_fLookAhead + (ii / 10.0f + (i + 1)), NULL) + 1),
-                        0.0f,
-                        1.0f,
-                        1.0f,
-                        1.0f
-                    );
+                    vTmp = m_pCurPath->GetByNode(i + ii / 10.0, NULL);
+                    VectorCopy((vTmp + 1), vPrev);
+                    vTmp = m_pCurPath->GetByNode(i + ii / 10.0 + m_fLookAhead, NULL);
+                    VectorCopy((vTmp + 1), vCur);
+
+                    G_DebugLine(vPrev, vCur, 0, 1, 0, 1);
                 }
             }
         }
