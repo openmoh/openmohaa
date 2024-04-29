@@ -1479,19 +1479,22 @@ void ScriptSlave::FollowingPath(Event *ev)
         }
 
         if (m_iCurNode > 0) {
+            // Get previous node
             vTmp  = m_pCurPath->GetByNode(m_iCurNode - 1, NULL);
             vPrev = (vTmp + 1);
-            vTmp  = m_pCurPath->GetByNode(m_iCurNode, NULL);
-            vCur  = (vTmp + 1);
+            // Get current node
+            vTmp = m_pCurPath->GetByNode(m_iCurNode, NULL);
+            vCur = (vTmp + 1);
 
-            m_vIdealDir = vCur - vPrev;
+            vDelta = vCur - vPrev;
+            m_vIdealDir = vDelta;
             VectorNormalize(m_vIdealDir);
             angles.AngleVectorsLeft(&vWishAngles);
 
             fCoef = ProjectLineOnPlane(vWishAngles, DotProduct(origin, vWishAngles), vPrev, vCur, NULL);
             
-            vTmp          = m_pCurPath->GetByNode((m_iCurNode - (1.0f - fCoef)), NULL);
-            vTmp          = m_pCurPath->Get(vTmp[0] + m_fLookAhead, NULL);
+            vTmp = m_pCurPath->GetByNode(m_iCurNode - (1.0 - fCoef), NULL);
+            vTmp = m_pCurPath->Get(vTmp[0] + m_fLookAhead, NULL);
             vWishPosition = (vTmp + 1);
 
             if (fCoef > 1.0f) {
@@ -1505,6 +1508,7 @@ void ScriptSlave::FollowingPath(Event *ev)
                     m_pCurPath = NULL;
                     m_iCurNode = 0;
                     moving     = false;
+
                     ProcessEvent(EV_ScriptSlave_MoveDone);
                     return;
                 }
@@ -1800,7 +1804,7 @@ void ScriptSlave::SetupPath(cSpline<4, 512> *pPath, SimpleEntity *se)
     int                     iObjNum = 0;
     Vector                  vLastOrigin;
     SimpleEntity           *ent;
-    int                     i;
+    int                     i = 1;
     static cSpline<4, 512> *pTmpPath = new cSpline<4, 512>;
 
     if (!pPath) {
@@ -1815,8 +1819,6 @@ void ScriptSlave::SetupPath(cSpline<4, 512> *pPath, SimpleEntity *se)
     name = se->Target();
 
     if (name.length()) {
-        i = 0;
-
         for(ent = se; ent; ent = ent->Next()) {
             Vector vDelta;
             vec4_t vTmp;
