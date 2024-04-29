@@ -1478,27 +1478,7 @@ void ScriptSlave::FollowingPath(Event *ev)
             }
         }
 
-        if (m_iCurNode <= 0) {
-            vTmp          = m_pCurPath->GetByNode(m_iCurNode, NULL);
-            vWishPosition = (vTmp + 1);
-            vDelta        = vWishPosition - origin;
-
-            if (vDelta.length() <= 32.0f) {
-                m_iCurNode++;
-
-                if (m_iCurNode >= m_pCurPath->m_iPoints) {
-                    velocity  = vec_zero;
-                    avelocity = vec_zero;
-
-                    delete m_pCurPath;
-                    m_pCurPath = NULL;
-                    m_iCurNode = 0;
-                    moving     = false;
-                    ProcessEvent(EV_ScriptSlave_MoveDone);
-                    return;
-                }
-            }
-        } else {
+        if (m_iCurNode > 0) {
             vTmp  = m_pCurPath->GetByNode(m_iCurNode - 1, NULL);
             vPrev = (vTmp + 1);
             vTmp  = m_pCurPath->GetByNode(m_iCurNode, NULL);
@@ -1509,7 +1489,7 @@ void ScriptSlave::FollowingPath(Event *ev)
             angles.AngleVectorsLeft(&vWishAngles);
 
             fCoef = ProjectLineOnPlane(vWishAngles, DotProduct(origin, vWishAngles), vPrev, vCur, NULL);
-
+            
             vTmp          = m_pCurPath->GetByNode((m_iCurNode - (1.0f - fCoef)), NULL);
             vTmp          = m_pCurPath->Get(vTmp[0] + m_fLookAhead, NULL);
             vWishPosition = (vTmp + 1);
@@ -1529,13 +1509,33 @@ void ScriptSlave::FollowingPath(Event *ev)
                     return;
                 }
             }
+        } else {
+            vTmp          = m_pCurPath->GetByNode(m_iCurNode, NULL);
+            vWishPosition = (vTmp + 1);
+            vDelta        = vWishPosition - origin;
+
+            if (vDelta.length() <= 32.0f) {
+                m_iCurNode++;
+
+                if (m_iCurNode >= m_pCurPath->m_iPoints) {
+                    velocity  = vec_zero;
+                    avelocity = vec_zero;
+
+                    delete m_pCurPath;
+                    m_pCurPath = NULL;
+                    m_iCurNode = 0;
+                    moving     = false;
+                    ProcessEvent(EV_ScriptSlave_MoveDone);
+                    return;
+                }
+            }
         }
 
-        vWishAngles = vWishPosition - origin;
+        vDelta = vWishPosition - origin;
 
-        if (vWishAngles.length() > 0.0f) {
-            VectorNormalize(vWishAngles);
-            VectorToAngles(vWishAngles, vNextWishAngles);
+        if (vDelta.length() > 0.0f) {
+            vDelta.normalize();
+            VectorToAngles(vDelta, vNextWishAngles);
 
             //
             // Added in 2.0
@@ -1545,33 +1545,33 @@ void ScriptSlave::FollowingPath(Event *ev)
                 vNextWishAngles[0] *= -1;
             }
         } else {
-            AngleVectorsLeft(angles, vWishAngles, NULL, NULL);
             vNextWishAngles = angles;
+            AngleVectorsLeft(angles, vDelta, NULL, NULL);
         }
 
         vAngles = angles;
 
         for (int i = 0; i < 3; i++) {
+            float change, error;
+
             n_angles[i] = vNextWishAngles[i] - angles[i];
 
-            if (n_angles[i] <= 180.0f) {
-                if (n_angles[i] < -180.0f) {
-                    n_angles[i] += 360.0f;
-                }
-            } else {
-                n_angles[i] -= 360.0f;
+            if (n_angles[i] > 180) {
+                n_angles[i] -= 360;
+            } else if (n_angles[i] < -180) {
+                n_angles[i] += 360;
             }
 
-            float change = level.frametime * 360.0f;
-            float error  = 0.33f * n_angles[i];
+            change = level.frametime * 360.0f;
+            error  = 0.33f * n_angles[i];
 
-            if (-change > error) {
+            if (error < -change) {
                 error = -change;
-            } else if (error <= change) {
-                change = error;
+            } else if (error > change) {
+                error = change;
             }
 
-            primal_angles[i] = change + angles[i];
+            primal_angles[i] = angles[i] + error;
         }
 
         setAngles(primal_angles);
@@ -1603,15 +1603,15 @@ void ScriptSlave::FollowingPath(Event *ev)
         }
 
         avelocity = vDeltaAngles;
-        velocity  = vWishAngles * m_fCurSpeed;
+        velocity  = vDelta * m_fCurSpeed;
 
-        if (m_fCurSpeed < m_fIdealSpeed) {
+        if (m_fIdealSpeed > m_fCurSpeed) {
             m_fCurSpeed += m_fIdealAccel * level.frametime;
 
             if (m_fCurSpeed > m_fIdealSpeed) {
                 m_fCurSpeed = m_fIdealSpeed;
             }
-        } else if (m_fCurSpeed > m_fIdealSpeed) {
+        } else if (m_fIdealSpeed < m_fCurSpeed) {
             m_fCurSpeed -= m_fIdealAccel * level.frametime;
 
             if (m_fCurSpeed < m_fIdealSpeed) {
@@ -1797,15 +1797,11 @@ void ScriptSlave::EventNormalAngles(Event *ev)
 void ScriptSlave::SetupPath(cSpline<4, 512> *pPath, SimpleEntity *se)
 {
     str name;
-    //int iObjNum;
+    int                     iObjNum = 0;
     Vector                  vLastOrigin;
     SimpleEntity           *ent;
     int                     i;
-    static cSpline<4, 512> *pTmpPath = NULL;
-
-    if (!pTmpPath) {
-        pTmpPath = new cSpline<4, 512>;
-    }
+    static cSpline<4, 512> *pTmpPath = new cSpline<4, 512>;
 
     if (!pPath) {
         return;
@@ -1818,25 +1814,24 @@ void ScriptSlave::SetupPath(cSpline<4, 512> *pPath, SimpleEntity *se)
 
     name = se->Target();
 
-    if (name.c_str()) {
-        Vector vDelta;
-        vec4_t origin;
-        float  fCurLength;
+    if (name.length()) {
+        i = 0;
 
-        i          = 0;
-        fCurLength = 0;
-        ent        = se;
-        while (ent) {
-            if (vLastOrigin.length() == 0.0f && i > 1) {
+        for(ent = se; ent; ent = ent->Next()) {
+            Vector vDelta;
+            vec4_t vTmp;
+
+            vDelta = vLastOrigin - ent->origin;
+
+            if (vDelta.length() == 0 && i > 1) {
                 Com_Printf("^~^~^Warning: ScriptSlave Flying with a Path that contains 2 equal points\n");
             } else {
-                origin[0] = fCurLength;
-                origin[1] = ent->origin[0];
-                origin[2] = ent->origin[1];
-                origin[3] = ent->origin[2];
-                pTmpPath->Add(origin, 0);
+                vTmp[0] = iObjNum++;
+                vTmp[1] = ent->origin[0];
+                vTmp[2] = ent->origin[1];
+                vTmp[3] = ent->origin[2];
+                pTmpPath->Add(vTmp, 0);
                 vLastOrigin = ent->origin;
-                fCurLength++;
             }
 
             if (ent == se && i > 1) {
@@ -1844,35 +1839,38 @@ void ScriptSlave::SetupPath(cSpline<4, 512> *pPath, SimpleEntity *se)
             }
 
             i++;
-            ent = ent->Next();
         }
+    }
 
-        if (pTmpPath->m_iPoints > 2) {
-            float *vTmp;
+    if (pTmpPath->m_iPoints > 2) {
+        float* vTmp;
+        float fCurLength = 0;
+        vec3_t vLastOrigin;
+        vec3_t origin;
+        vec3_t vDelta;
 
-            pPath->Reset();
-            vTmp = pTmpPath->GetByNode(0.0f, 0);
+        pPath->Reset();
 
-            vLastOrigin[0] = vTmp[1];
-            vLastOrigin[1] = vTmp[2];
-            vLastOrigin[2] = vTmp[3];
+        vTmp = pTmpPath->GetByNode(0, NULL);
+        VectorCopy((vTmp + 1), vLastOrigin);
+        VectorCopy((vTmp + 1), origin);
 
-            fCurLength = 0;
+        for (i = 0; i < pTmpPath->m_iPoints; i++) {
+            vec4_t vTmp2;
 
-            for (i = 0; i < pTmpPath->m_iPoints; i++) {
-                vTmp = pTmpPath->GetByNode(i, 0);
+            vTmp = pTmpPath->GetByNode(i, NULL);
 
-                vDelta = (vTmp + 1) - vLastOrigin;
+            VectorCopy((vTmp + 1), vLastOrigin);
+            VectorSubtract(vLastOrigin, origin, vDelta);
 
-                fCurLength += vDelta.length();
-                origin[0] = fCurLength;
-                origin[1] = vTmp[1];
-                origin[2] = vTmp[2];
-                origin[3] = vTmp[3];
+            fCurLength += VectorLength(vDelta);
+            vTmp2[0] = fCurLength;
+            vTmp2[1] = vLastOrigin[0];
+            vTmp2[2] = vLastOrigin[1];
+            vTmp2[3] = vLastOrigin[2];
 
-                pPath->Add(origin, 0);
-                vLastOrigin = (vTmp + 1);
-            }
+            pPath->Add(vTmp2, 0);
+            VectorCopy(vLastOrigin, origin);
         }
     }
 }
