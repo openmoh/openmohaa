@@ -766,6 +766,10 @@ void Trigger::DamageEvent(Event *ev)
     Vector  dir;
     Vector  momentum;
 
+    if (!takedamage) {
+        return;
+    }
+
     if (Immune(ev->GetInteger(9))) {
         // trigger is immune
         return;
