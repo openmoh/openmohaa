@@ -8,7 +8,7 @@
 // Windows:          _WIN32
 // Xbox:             _WIN32 + _XBOX
 // Xbox360:          _WIN32 + _XBOX + _X360
-// MacOSX:           _MACOSX + _UNIX
+// MacOSX:           _MACOSX + _UNIX + __APPLE__
 // Linux:            _LINUX + _UNIX
 // Nintendo DS:      _NITRO
 // PSP:              _PSP
@@ -34,7 +34,7 @@
 	#endif
 #endif
 
-#if defined(_LINUX) || defined(_MACOSX)
+#if defined(_LINUX) || defined(_MACOSX) || defined(__APPLE__)
 	#define _UNIX
 #endif
 
