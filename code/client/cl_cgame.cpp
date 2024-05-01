@@ -211,20 +211,20 @@ qboolean	CL_GetSnapshot( int snapshotNumber, snapshot_t *snapshot ) {
 	}
 
 	snapshot->numEntities = 0;
-	for ( i = 0 ; i < count ; i++ ) {
+	for(i = 0; i < MAX_ENTITIES_IN_SNAPSHOT; i++) {
+		parents[i] = -1;
+	}
+
+	for (i = 0; i < count; i++) {
 		s1 = &cl.parseEntities[(clSnap->parseEntitiesNum + i) & (MAX_PARSE_ENTITIES - 1)];
 		pnum = s1->parent;
 
 		if (pnum == ENTITYNUM_NONE) {
 			parents[s1->number] = -2;
-		}
-		else
-		{
+		} else {
 			if (parents[pnum] == -2) {
 				parents[s1->number] = -2;
-			}
-			else
-			{
+			} else {
 				// add it later
 				parents[s1->number] = pnum;
 				continue;
@@ -234,20 +234,20 @@ qboolean	CL_GetSnapshot( int snapshotNumber, snapshot_t *snapshot ) {
 		snapshot->entities[snapshot->numEntities++] = *s1;
 	}
 
-	for(pcount = 0; pcount < 8 && snapshot->numEntities != count; pcount++)
-	{
-		for (i = 0; i < count; i++)
-		{
+	for(pcount = 0; pcount < 8 && snapshot->numEntities != count; pcount++) {
+		for (i = 0; i < count; i++) {
 			s1 = &cl.parseEntities[(clSnap->parseEntitiesNum + i) & (MAX_PARSE_ENTITIES - 1)];
 			pnum = parents[s1->number];
 			if (pnum >= 0 && parents[pnum] == -2) {
+				parents[s1->number] = -2;
 				snapshot->entities[snapshot->numEntities++] = *s1;
 			}
 		}
 	}
 
-	if (pcount >= 8)
-	{
+	if (snapshot->numEntities != count) {
+		Com_DPrintf("CL_GetSnapshot: Not all children could find their parents.\n");
+
 		for (i = count; i < snapshot->numEntities; i++)
 		{
 			s1 = &cl.parseEntities[(clSnap->parseEntitiesNum + i) & (MAX_PARSE_ENTITIES - 1)];
@@ -261,6 +261,8 @@ qboolean	CL_GetSnapshot( int snapshotNumber, snapshot_t *snapshot ) {
 					s1->origin[1],
 					s1->origin[2]
 				);
+
+				parents[s1->number] = -2;
 			}
 		}
 	}
