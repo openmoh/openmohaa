@@ -2251,8 +2251,9 @@ Event EV_ScriptAimedStrafingGunfire_AimTarget
 );
 
 CLASS_DECLARATION(ScriptSimpleStrafingGunfire, ScriptAimedStrafingGunfire, "script_aimedstrafinggunfire") {
-    {&EV_ScriptSimpleStrafingGunfire_Fire, &ScriptAimedStrafingGunfire::GunFire},
-    {NULL,                                 NULL                                }
+    {&EV_ScriptAimedStrafingGunfire_AimTarget, &ScriptAimedStrafingGunfire::SetAimTarget},
+    {&EV_ScriptSimpleStrafingGunfire_Fire,     &ScriptAimedStrafingGunfire::GunFire     },
+    {NULL,                                 NULL                                         }
 };
 
 ScriptAimedStrafingGunfire::ScriptAimedStrafingGunfire()
@@ -2270,8 +2271,8 @@ void ScriptAimedStrafingGunfire::GunFire(Event *ev)
     Vector dir, right, up;
     Vector horzAngles;
 
-    AngleVectors(angles, NULL, NULL, up);
-    dir = -1 * up;
+    dir = aimTarget->origin - origin;
+    dir.normalize();
 
     VectorToAngles(dir, horzAngles);
     AngleVectors(horzAngles, NULL, right, up);
