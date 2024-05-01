@@ -900,10 +900,30 @@ void ScriptVariable::SetKey(const short3& key)
 
 #endif
 
-Entity *ScriptVariable::entityValue(void)
+Entity* ScriptVariable::entityValue(void)
 {
 #if defined(GAME_DLL)
-    return (Entity *)listenerValue();
+    Entity* ent;
+
+    switch (type) {
+    case VARIABLE_CONSTSTRING:
+        ent = static_cast<Entity*>(world->GetScriptTarget(Director.GetString(m_data.intValue)));
+        break;
+    case VARIABLE_STRING:
+        ent = static_cast<Entity*>(world->GetScriptTarget(stringValue()));
+        break;
+    case VARIABLE_LISTENER:
+        ent = static_cast<Entity*>(m_data.listenerValue->Pointer());
+        break;
+    default:
+        throw ScriptException("Cannot cast '%s' to entity", typenames[type]);
+    }
+
+    if (ent && !ent->isSubclassOf(Entity)) {
+        ScriptError("Cannot cast '%s' to entity", ent->getClassname());
+    }
+
+    return ent;
 #else
     return NULL;
 #endif
