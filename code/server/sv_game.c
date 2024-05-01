@@ -446,10 +446,16 @@ void MSG_SetBroadcastVisible( const vec_t *vPos, const vec_t *vPosB)
 	pCGM = g_CGMessages;
 	pClient = svs.clients;
 	for(i = 0; i < svs.iNumClients; i++,pCGM++,pClient++) {
-		if(pClient->state != CS_ACTIVE) {
+		if (!pClient->gentity || !pClient->gentity->inuse) {
+			// The entity can be null on map load
+			continue;
+		}
+
+		if(pClient->state == CS_FREE) {
 			g_CGMRecieve[i] = qfalse;
 			continue;
 		}
+
 		leafnum = CM_PointLeafnum(pClient->gentity->s.origin);
 		clientcluster = CM_LeafCluster(leafnum);
 		clientarea = CM_LeafArea(leafnum);
