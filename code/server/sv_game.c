@@ -113,7 +113,8 @@ void SV_ClearCGMessage (int iClient)
 		g_CGMessages[iClient].datatypes = 0;
 	}
 	g_CGMRecieve[iClient] = 0;
-} 
+}
+
 void SV_ClearAllCGMessages ()
 {
 	cgm_t *pCGM;
@@ -133,8 +134,10 @@ void SV_ClearAllCGMessages ()
 		g_CGMRecieve[i] = 0;
 	}
 }
+
 #define CGM_DATA_SIZE 4096
 #define CGM_DATATYPES_SIZE 8192
+
 void SV_InitCGMessage (int iClient)
 {
 	cgm_t *pCGM;
@@ -211,6 +214,7 @@ static void MSG_WriteCGMBits (cgm_t *pCGM, int value, int bits)
 	pCGM->datatypes[pCGM->dtindex] = bits;
 	pCGM->dtindex++;
 }
+
 void PF_MSG_WriteBits (int value, int bits)
 {
 	cgm_t *pCGM;
@@ -234,7 +238,8 @@ void PF_MSG_WriteChar (int c)
 		// write 8 bit character
 		MSG_WriteCGMBits(pCGM,c,8);
 	}
-} 
+}
+
 void PF_MSG_WriteByte (int c)
 {
 	cgm_t *pCGM;
@@ -247,6 +252,7 @@ void PF_MSG_WriteByte (int c)
 		MSG_WriteCGMBits(pCGM,c,8);
 	}
 }
+
 void PF_MSG_WriteSVC (int c)
 {
 	cgm_t *pCGM;
@@ -258,6 +264,7 @@ void PF_MSG_WriteSVC (int c)
 		MSG_WriteCGMBits(pCGM,c,8);
 	}
 }
+
 void PF_MSG_WriteShort (int c)
 {
 	cgm_t *pCGM;
@@ -269,6 +276,7 @@ void PF_MSG_WriteShort (int c)
 		MSG_WriteCGMBits(pCGM,c,16);
 	}
 }
+
 void PF_MSG_WriteLong (int c)
 {
  	cgm_t *pCGM;
@@ -280,6 +288,7 @@ void PF_MSG_WriteLong (int c)
 		MSG_WriteCGMBits(pCGM,c,32);
 	}
 }
+
 void PF_MSG_WriteFloat (float f)
 {
 	union {
@@ -296,6 +305,7 @@ void PF_MSG_WriteFloat (float f)
 		MSG_WriteCGMBits(pCGM,dat.l,32);
 	}
 }
+
 void PF_MSG_WriteString (const char *s)
 {
  	cgm_t *pCGM;
@@ -312,6 +322,7 @@ void PF_MSG_WriteString (const char *s)
 		}
 	}
 }
+
 void PF_MSG_WriteAngle8 (float f)
 {
  	cgm_t *pCGM;
@@ -323,6 +334,7 @@ void PF_MSG_WriteAngle8 (float f)
 		MSG_WriteCGMBits(pCGM,f * 256.0 / 360.0,8);
 	}
 }
+
 void PF_MSG_WriteAngle16 (float f)
 {
  	cgm_t *pCGM;
@@ -334,6 +346,7 @@ void PF_MSG_WriteAngle16 (float f)
 		MSG_WriteCGMBits(pCGM,ANGLE2SHORT(f),16);
 	}
 }
+
 void PF_MSG_WriteCoord (float f)
 {
  	cgm_t *pCGM;
@@ -354,6 +367,7 @@ void PF_MSG_WriteCoord (float f)
 		MSG_WriteCGMBits(pCGM, write, 19);
 	}
 }
+
 void PF_MSG_WriteDir (vec_t *dir)
 {
  	cgm_t *pCGM;
@@ -367,6 +381,7 @@ void PF_MSG_WriteDir (vec_t *dir)
 		MSG_WriteCGMBits(pCGM,b,8);
 	}
 }
+
 void PF_MSG_StartCGM (int type)
 {
     cgm_t *pCGM;
@@ -387,10 +402,12 @@ void PF_MSG_StartCGM (int type)
 		MSG_WriteCGMBits(pCGM, type, 6);
 	}
 }
+
 void PF_MSG_EndCGM ()
 {
 	memset(g_CGMRecieve,0,sizeof(g_CGMRecieve));
 }
+
 void PF_MSG_SetClient (int iClient)
 {
 	memset(g_CGMRecieve,0,sizeof(g_CGMRecieve));
@@ -400,7 +417,7 @@ void PF_MSG_SetClient (int iClient)
 	}
 }
 
-void MSG_SetBroadcastAll ()
+void MSG_SetBroadcastAll()
 {
 	cgm_t *pCGM;
 	client_t* client;
@@ -410,16 +427,24 @@ void MSG_SetBroadcastAll ()
 	for(i = 0; i < svs.iNumClients; i++,pCGM++) {
 		client = &svs.clients[i];
 
-		if (client->gentity && client->gentity->inuse && client->state != CS_FREE) {
-			if (pCGM->data && pCGM->cursize < 3968) {
-				g_CGMRecieve[i] = qtrue;
-			} else {
-				MSG_HandleCGMBufferOverflow(pCGM, 0);
-			}
+		if (!client->gentity || !client->gentity->inuse) {
+			continue;
 		}
+
+		if (client->state == CS_FREE) {
+			continue;
+		}
+
+		if (!pCGM->data || pCGM->cursize >= 3968) {
+			MSG_HandleCGMBufferOverflow(pCGM, qfalse);
+			continue;
+		}
+
+		g_CGMRecieve[i] = qtrue;
 	}
 }
-void MSG_SetBroadcastVisible( const vec_t *vPos, const vec_t *vPosB)
+
+void MSG_SetBroadcastVisible(const vec_t* vPos, const vec_t* vPosB)
 {
     byte *clientpvs;
     int posBcluster;
@@ -435,16 +460,22 @@ void MSG_SetBroadcastVisible( const vec_t *vPos, const vec_t *vPosB)
     int i;
 	cgm_t *pCGM;
 
-#if 0
-	MSG_SetBroadcastAll();
-#else
-	// dont check the same pos twice
-	if(vPosB && VectorCompare(vPos,vPosB)) {
-		vPosB = 0;
+	posleaf = CM_PointLeafnum(vPos);
+	posarea = CM_LeafArea(posleaf);
+	poscluster = CM_LeafCluster(posleaf);
+
+	if (vPosB) {
+		posBleaf = CM_PointLeafnum(vPosB);
+		posBarea = CM_LeafArea(posBleaf);
+		posBcluster = CM_LeafCluster(posBleaf);
+	} else {
+		posBarea = 0;
+		posBcluster = 0;
 	}
 
 	pCGM = g_CGMessages;
 	pClient = svs.clients;
+
 	for(i = 0; i < svs.iNumClients; i++,pCGM++,pClient++) {
 		if (!pClient->gentity || !pClient->gentity->inuse) {
 			// The entity can be null on map load
@@ -452,40 +483,29 @@ void MSG_SetBroadcastVisible( const vec_t *vPos, const vec_t *vPosB)
 		}
 
 		if(pClient->state == CS_FREE) {
-			g_CGMRecieve[i] = qfalse;
 			continue;
 		}
 
 		leafnum = CM_PointLeafnum(pClient->gentity->s.origin);
-		clientcluster = CM_LeafCluster(leafnum);
 		clientarea = CM_LeafArea(leafnum);
+		clientcluster = CM_LeafCluster(leafnum);
 		clientpvs = CM_ClusterPVS(clientcluster);
 
-		posleaf = CM_PointLeafnum(vPos);
-		poscluster = CM_LeafCluster(posleaf);
-		posarea = CM_LeafArea(posleaf);
-
-		if ( clientpvs[poscluster >> 3] & (1 << (poscluster&7) ) ) {
-			// visible.
-			g_CGMRecieve[i] = qtrue;
+		if (CM_AreasConnected(clientarea, posarea) && (!vPosB || !CM_AreasConnected(clientarea, posBarea))) {
 			continue;
 		}
-	
-		if(vPosB) {
-			posBleaf = CM_PointLeafnum(vPosB);
-			posBcluster = CM_LeafCluster(posBleaf);
-			posBarea = CM_LeafArea(posBleaf);
 
-			if ( clientpvs[posBcluster >> 3] & (1 << (posBcluster&7) ) ) {
-				// visible.
-				g_CGMRecieve[i] = qtrue;
-				continue;
-			}
+		if (!(clientpvs[poscluster >> 3] & (1 << (poscluster & 7))) && (!vPosB || !(clientpvs[posBcluster >> 3] & (1 << (posBcluster & 7))))) {
+			continue;
 		}
-		// not visible
-		g_CGMRecieve[i] = qfalse;
+
+		if (!pCGM->data || pCGM->cursize >= 3968) {
+			MSG_HandleCGMBufferOverflow(pCGM, qfalse);
+			continue;
+		}
+
+		g_CGMRecieve[i] = qtrue;
 	}
-#endif
 }
 void MSG_SetBroadcastHearable ( const vec_t *vPos, const vec_t *vPosB)
 {
