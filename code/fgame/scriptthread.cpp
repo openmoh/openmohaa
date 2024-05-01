@@ -3778,7 +3778,7 @@ void ScriptThread::EventTrace(Event *ev)
 
 void ScriptThread::EventSightTrace(Event *ev)
 {
-    int    content_mask = MASK_LINE;
+    int    content_mask = MASK_SOLID;
     Vector start;
     Vector mins;
     Vector maxs;
@@ -3794,7 +3794,7 @@ void ScriptThread::EventSightTrace(Event *ev)
         mins = ev->GetVector(4);
     case 3:
         if (ev->GetInteger(3)) {
-            content_mask = MASK_SOLID;
+            content_mask &= ~MASK_IGNORE_ENTS;
         }
     case 2:
         end = ev->GetVector(2);
