@@ -800,15 +800,15 @@ GameScript *ScriptMaster::GetGameScriptInternal(str& filename)
         gi.Error(ERR_DROP, "Script filename '%s' exceeds maximum length of %d\n", filename.c_str(), MAX_QPATH);
     }
 
+    strcpy(filepath, filename.c_str());
+    gi.FS_CanonicalFilename(filepath);
+    filename = filepath;
+
     scr = m_GameScripts[StringDict.findKeyIndex(filename)];
 
     if (scr != NULL) {
         return scr;
     }
-
-    strcpy(filepath, filename.c_str());
-    gi.FS_CanonicalFilename(filepath);
-    filename = filepath;
 
     scr = new GameScript(filename);
 
