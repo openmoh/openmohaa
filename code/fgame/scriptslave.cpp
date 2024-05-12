@@ -969,9 +969,18 @@ void ScriptSlave::MoveToEvent(Event *ev)
     if (ev->IsVectorAt(1)) {
         NewPos = ev->GetVector(1);
     } else {
-        waypoint = (Waypoint *)ev->GetEntity(1);
-        if (waypoint) {
-            NewPos = waypoint->origin;
+        SimpleEntity* ent;
+
+        ent = ev->GetSimpleEntity(1);
+        if (ent) {
+            //
+            // see if it is a waypoint
+            //
+            if (ent->IsSubclassOfWaypoint()) {
+                waypoint = static_cast<Waypoint*>(ent);
+            }
+            // use the entity's origin
+            NewPos = ent->origin;
         }
     }
 }
