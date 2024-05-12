@@ -33,7 +33,7 @@ ActiveWeapon::ActiveWeapon()
 
 void ActiveWeapon::Archive(Archiver& arc)
 {
-    arc.ArchiveObjectPointer((Class **)&weapon);
+    arc.ArchiveSafePointer(&weapon);
     ArchiveEnum(hand, weaponhand_t);
 }
 
