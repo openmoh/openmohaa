@@ -1058,7 +1058,7 @@ void RB_SkelMesh( skelSurfaceGame_t *sf ) {
     skelHeaderGame_t* skelmodel;
     skelSurfaceGame_t* psurface;
     qboolean bFound;
-    short collapse[1000];
+    short collapse[TIKI_MAX_VERTEXES];
 
 	if (!r_drawentitypoly->integer) {
 		return;
@@ -1185,15 +1185,22 @@ void RB_SkelMesh( skelSurfaceGame_t *sf ) {
 	}
 	else
     {
+		assert(sf->numVerts < TIKI_MAX_VERTEXES);
+
         for (i = 0; i < render_count; i++) {
             collapse[i] = i;
         }
+
         for (i = render_count; i < sf->numVerts; i++) {
             collapse[i] = collapse[collapse_map[i]];
         }
 
         for (i = 0; i < indexes; i += 3)
         {
+			assert(collapse[triangles[i]] < sf->numVerts);
+			assert(collapse[triangles[i + 1]] < sf->numVerts);
+			assert(collapse[triangles[i + 2]] < sf->numVerts);
+
             if (collapse[triangles[i]] == collapse[triangles[i + 1]] ||
                 collapse[triangles[i + 1]] == collapse[triangles[i + 2]] ||
                 collapse[triangles[i + 2]] == collapse[triangles[i]])
