@@ -1661,18 +1661,18 @@ void RB_CalcLightGridColor(unsigned char* colors)
 
 	if (!backEnd.currentEntity) {
 		for (i = 0; i < tess.numVertexes; i++) {
-			colors[i * 4] = backEnd.currentStaticModel->iGridLighting;
-			colors[i * 4 + 1] = backEnd.currentStaticModel->iGridLighting;
-			colors[i * 4 + 2] = backEnd.currentStaticModel->iGridLighting;
-			colors[i * 4 + 3] = backEnd.currentStaticModel->iGridLighting;
+			colors[i * 4] = ((byte*)&backEnd.currentStaticModel->iGridLighting)[0];
+			colors[i * 4 + 1] = ((byte*)&backEnd.currentStaticModel->iGridLighting)[1];
+			colors[i * 4 + 2] = ((byte*)&backEnd.currentStaticModel->iGridLighting)[2];
+			colors[i * 4 + 3] = ((byte*)&backEnd.currentStaticModel->iGridLighting)[3];
 		}
 	}
 	else if (backEnd.currentEntity != &tr.worldEntity) {
 		for (i = 0; i < tess.numVertexes; i++) {
-			colors[i * 4] = backEnd.currentEntity->iGridLighting;
-			colors[i * 4 + 1] = backEnd.currentEntity->iGridLighting;
-			colors[i * 4 + 2] = backEnd.currentEntity->iGridLighting;
-			colors[i * 4 + 3] = backEnd.currentEntity->iGridLighting;
+			colors[i * 4] = ((byte*)&backEnd.currentEntity->iGridLighting)[0];
+			colors[i * 4 + 1] = ((byte*)&backEnd.currentEntity->iGridLighting)[1];
+			colors[i * 4 + 2] = ((byte*)&backEnd.currentEntity->iGridLighting)[2];
+			colors[i * 4 + 3] = ((byte*)&backEnd.currentEntity->iGridLighting)[3];
 		}
 	}
 	else {
