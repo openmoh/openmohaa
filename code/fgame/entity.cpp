@@ -1471,6 +1471,7 @@ Event EV_Entity_SetDHack
     "Enable or disable depth hack.",
     EV_NORMAL
 );
+/*
 Event EV_Entity_GetZone
 (
     "getzone",
@@ -1498,6 +1499,7 @@ Event EV_Entity_IsInZone
     "Returns 1 if the entity is in the specified zone. 0 otherwise",
     EV_RETURN
 );
+*/
 Event EV_Entity_SetHintRequireLookAt
 (
     "setuselookat",
@@ -1667,9 +1669,11 @@ CLASS_DECLARATION(SimpleEntity, Entity, NULL) {
     {&EV_ShootableOnly,                &Entity::EventShootableOnly       },
     {&EV_SetShaderTime,                &Entity::SetShaderTime            },
     {&EV_NoTarget,                     &Entity::NoTarget                 },
+    /*
     {&EV_Entity_GetZone,               &Entity::GetZone                  },
     {&EV_Entity_Zone,                  &Entity::GetZone                  },
     {&EV_Entity_IsInZone,              &Entity::IsInZone                 },
+    */
     {&EV_Entity_SetDHack,              &Entity::SetDepthHack             },
     {&EV_Entity_SetHintRequireLookAt,  &Entity::SetHintRequireLookAt     },
     {&EV_Entity_SetHintString,         &Entity::SetHintString            },
