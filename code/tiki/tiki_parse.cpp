@@ -322,9 +322,9 @@ qboolean TIKI_ParseIncludes(dloaddef_t *ld)
     }
 
     while (1) {
-        if (!strncmp(token, mapname, strlen(token)) || !strncmp(token, servertype, strlen(token))) {
+        if (!Q_stricmpn(token, mapname, strlen(token)) || !Q_stricmpn(token, servertype, strlen(token))) {
             b_incl = true;
-        } else if ((!stricmp(token, "{") || !ld->tikiFile.TokenAvailable(true))) {
+        } else if (!stricmp(token, "{") || !ld->tikiFile.TokenAvailable(true)) {
             break;
         }
 
@@ -387,7 +387,11 @@ void TIKI_ParseAnimations(dloaddef_t *ld)
     while (ld->tikiFile.TokenAvailable(true)) {
         token = ld->tikiFile.GetToken(true);
         if (!stricmp(token, "}")) {
-            return;
+            if (!b_mapspec) {
+                // Return when there is no mapspec
+                return;
+            }
+            b_mapspec = false;
         } else if (!stricmp(token, "$mapspec")) {
             token = ld->tikiFile.GetToken(true);
             if (sv_mapname) {
@@ -415,7 +419,7 @@ void TIKI_ParseAnimations(dloaddef_t *ld)
 
                     if (strstr(token, "}")) {
                         if (!depth) {
-                            break;
+                            continue;
                         }
 
                         depth--;
@@ -423,7 +427,7 @@ void TIKI_ParseAnimations(dloaddef_t *ld)
                 }
             }
         } else {
-            if (ld->numanims > 4094) {
+            if (ld->numanims >= MAX_TIKI_LOAD_ANIMS) {
                 TIKI_Error("TIKI_ParseAnimations: Too many animations in '%s'.\n", ld->path);
                 continue;
             }
@@ -440,8 +444,7 @@ void TIKI_ParseAnimations(dloaddef_t *ld)
                 continue;
             }
 
-            depth = strlen(token);
-            if (depth < 48) {
+            if (strlen(token) < 48) {
                 anim->alias = (char *)TIKI_CopyString(token);
 
                 token = ld->tikiFile.GetToken(false);
