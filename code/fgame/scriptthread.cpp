@@ -2113,7 +2113,7 @@ CLASS_DECLARATION(Listener, ScriptThread, NULL) {
     {&EV_ScriptThread_MissionFailed,           &ScriptThread::MissionFailed           },
     {&EV_ScriptThread_IsAlive,                 &ScriptThread::EventIsAlive            },
     {&EV_ScriptThread_Popmenu,                 &ScriptThread::EventPopmenu            },
-    {&EV_ScriptThread_Showmenu,                &ScriptThread::EventPopmenu            },
+    {&EV_ScriptThread_Showmenu,                &ScriptThread::EventShowmenu           },
     {&EV_ScriptThread_Hidemenu,                &ScriptThread::EventHidemenu           },
     {&EV_ScriptThread_PlayMovie,               &ScriptThread::EventPlayMovie          },
     {&EV_ScriptThread_Pushmenu,                &ScriptThread::EventPushmenu           },
