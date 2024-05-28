@@ -182,7 +182,7 @@ dtikianim_t *TIKI_LoadTikiAnim(const char *path)
     loaddef.numclientinitcmds = 0;
 
     if (loaddef.tikiFile.LoadFile(path, qfalse)) {
-        loaddef.path = path;
+        loaddef.bInIncludesSection = false;
 
         token = loaddef.tikiFile.GetToken(true);
         if (strcmp(token, "TIKI")) {
@@ -194,11 +194,6 @@ dtikianim_t *TIKI_LoadTikiAnim(const char *path)
             loaddef.tikiFile.Close();
             return NULL;
         }
-
-        loaddef.numanims           = 0;
-        loaddef.numserverinitcmds  = 0;
-        loaddef.numclientinitcmds  = 0;
-        loaddef.bInIncludesSection = false;
 
         while (loaddef.tikiFile.TokenAvailable(true)) {
             token = loaddef.tikiFile.GetToken(true);
