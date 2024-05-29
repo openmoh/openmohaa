@@ -1641,14 +1641,30 @@ int G_AIEventTypeFromString(const char *pszType)
 float G_AIEventRadius(int iType)
 {
     static float fRadius[] = {
-        2048.0f, 384.0f, 4096.0f, 1024.0f, 1024.0f, 1536.0f, 1536.0f, 1500.0f, 2250.0f, 512.0f, 384.0f, 0, 0, 0, 0};
+        0,
+        2048,
+        384,
+        4096,
+        1024,
+        1024,
+        1536,
+        1536,
+        1500,
+        2250,
+        512,
+        384,
+        32768,
+        0,
+        0,
+        0
+    };
 
-    if (iType <= AI_EVENT_GRENADE) {
-        return fRadius[iType];
-    } else {
+    if (iType >= AI_EVENT_MAX) {
         Com_Printf("G_AIEventRadius: invalid event type\n");
         return 1500.0f;
     }
+
+    return fRadius[iType];
 }
 
 void G_BroadcastAIEvent(Entity *originator, Vector origin, char *pszType)

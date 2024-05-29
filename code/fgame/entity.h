@@ -81,7 +81,8 @@ enum eAIEvent {
     AI_EVENT_MISC_LOUD,
     AI_EVENT_FOOTSTEP,
     AI_EVENT_GRENADE,
-    AI_EVENT_BADPLACE // Added in 2.0
+    AI_EVENT_BADPLACE, // Added in 2.0
+    AI_EVENT_MAX
 };
 
 //deadflag
