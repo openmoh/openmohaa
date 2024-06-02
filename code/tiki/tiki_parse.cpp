@@ -401,7 +401,7 @@ void TIKI_ParseAnimations(dloaddef_t *ld)
             }
 
             while (ld->tikiFile.TokenAvailable(true)) {
-                if (!Q_strncmp(token, mapname, strlen(token))) {
+                if (!Q_stricmpn(token, mapname, strlen(token))) {
                     b_mapspec = true;
                 } else if (!Q_stricmp(token, "{")) {
                     break;
