@@ -198,16 +198,16 @@ dtikianim_t *TIKI_LoadTikiAnim(const char *path)
         while (loaddef.tikiFile.TokenAvailable(true)) {
             token = loaddef.tikiFile.GetToken(true);
 
-            if (!stricmp(token, "setup")) {
+            if (!Q_stricmp(token, "setup")) {
                 if (!TIKI_ParseSetup(&loaddef)) {
                     TIKI_FreeStorage(&loaddef);
                     return NULL;
                 }
-            } else if (!stricmp(token, "init")) {
+            } else if (!Q_stricmp(token, "init")) {
                 TIKI_ParseInit(&loaddef);
-            } else if (!stricmp(token, "animations")) {
+            } else if (!Q_stricmp(token, "animations")) {
                 TIKI_ParseAnimations(&loaddef);
-            } else if (!stricmp(token, "includes")) {
+            } else if (!Q_stricmp(token, "includes")) {
                 if (!loaddef.bInIncludesSection) {
                     loaddef.bInIncludesSection = TIKI_ParseIncludes(&loaddef);
                 } else {
@@ -218,7 +218,7 @@ dtikianim_t *TIKI_LoadTikiAnim(const char *path)
                         loaddef.tikiFile.Filename()
                     );
                 }
-            } else if (!stricmp(token, "}") && loaddef.bInIncludesSection) {
+            } else if (!Q_stricmp(token, "}") && loaddef.bInIncludesSection) {
                 loaddef.bInIncludesSection = false;
             } else {
                 TIKI_Error(
@@ -385,7 +385,7 @@ dtiki_t *TIKI_LoadTikiModel(dtikianim_t *tikianim, const char *name, con_map<str
 
         surfOffset = 0;
 
-        if (strptr || !stricmp(loadsurf->name, "all")) {
+        if (strptr || !Q_stricmp(loadsurf->name, "all")) {
             for (j = 0; j < temp.tiki.numMeshes; j++) {
                 mesh      = temp.tiki.mesh[j];
                 skelmodel = TIKI_GetSkel(mesh);
@@ -396,7 +396,7 @@ dtiki_t *TIKI_LoadTikiModel(dtikianim_t *tikianim, const char *name, con_map<str
 
                     if ((strptr && strptr != loadsurf->name
                          && !strnicmp(loadsurf->name, surf->name, strptr - loadsurf->name))
-                        || !stricmp(loadsurf->name, "all")) {
+                        || !Q_stricmp(loadsurf->name, "all")) {
                         TIKI_SetupIndividualSurface(tikianim->name, tikiSurf, surf->name, loadsurf);
                         found = true;
                     }
@@ -415,7 +415,7 @@ dtiki_t *TIKI_LoadTikiModel(dtikianim_t *tikianim, const char *name, con_map<str
                 tikiSurf = &tiki->surfaces[surfOffset];
 
                 for (k = 0; k < skelmodel->numSurfaces; k++) {
-                    if (!stricmp(loadsurf->name, surf->name)) {
+                    if (!Q_stricmp(loadsurf->name, surf->name)) {
                         TIKI_SetupIndividualSurface(tikianim->name, tikiSurf, surf->name, loadsurf);
                         if (!tikiSurf->name[0]) {
                             TIKI_Warning(
@@ -629,7 +629,7 @@ bool SkeletorCacheFindFilename(const char *path, int *indexPtr)
     upperBound = m_numInCache - 1;
     while (lowerBound <= upperBound) {
         index     = (lowerBound + upperBound) / 2;
-        sortValue = stricmp(path, m_cachedData[m_cachedDataLookup[index]].path);
+        sortValue = Q_stricmp(path, m_cachedData[m_cachedDataLookup[index]].path);
         if (!sortValue) {
             if (indexPtr) {
                 *indexPtr = index;

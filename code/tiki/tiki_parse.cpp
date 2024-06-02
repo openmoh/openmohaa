@@ -71,7 +71,7 @@ void TIKI_ParseFrameCommands(dloaddef_t *ld, dloadframecmd_t **cmdlist, int maxc
 
     while (ld->tikiFile.TokenAvailable(true)) {
         token = ld->tikiFile.GetToken(true);
-        if (!stricmp(token, "}")) {
+        if (!Q_stricmp(token, "}")) {
             break;
         }
 
@@ -90,22 +90,22 @@ void TIKI_ParseFrameCommands(dloaddef_t *ld, dloadframecmd_t **cmdlist, int maxc
             cmds->num_args = 0;
             (*numcmds)++;
 
-            if (!stricmp(token, "start") || !stricmp(token, "first")) {
+            if (!Q_stricmp(token, "start") || !Q_stricmp(token, "first")) {
                 framenum = TIKI_FRAME_FIRST;
-            } else if (!stricmp(token, "end")) {
+            } else if (!Q_stricmp(token, "end")) {
                 framenum = TIKI_FRAME_END;
-            } else if (!stricmp(token, "last")) {
+            } else if (!Q_stricmp(token, "last")) {
                 framenum = TIKI_FRAME_LAST;
-            } else if (!stricmp(token, "every")) {
+            } else if (!Q_stricmp(token, "every")) {
                 framenum = TIKI_FRAME_EVERY;
-            } else if (!stricmp(token, "exit")) {
+            } else if (!Q_stricmp(token, "exit")) {
                 framenum = TIKI_FRAME_EXIT;
-            } else if (!stricmp(token, "entry") || !stricmp(token, "enter")) {
+            } else if (!Q_stricmp(token, "entry") || !Q_stricmp(token, "enter")) {
                 framenum = TIKI_FRAME_ENTRY;
-            } else if (!stricmp(token, "(")) {
+            } else if (!Q_stricmp(token, "(")) {
                 usecurrentframe = true;
                 ld->tikiFile.UnGetToken();
-            } else if (!stricmp(token, ")")) {
+            } else if (!Q_stricmp(token, ")")) {
                 usecurrentframe = false;
                 ld->tikiFile.UnGetToken();
             } else if (!usecurrentframe) {
@@ -175,21 +175,21 @@ void TIKI_ParseAnimationCommands(dloaddef_t *ld, dloadanim_t *anim)
 
     while (ld->tikiFile.TokenAvailable(true)) {
         token = ld->tikiFile.GetToken(true);
-        if (!stricmp(token, "client")) {
+        if (!Q_stricmp(token, "client")) {
             TIKI_ParseFrameCommands(
                 ld,
                 anim->loadclientcmds,
                 sizeof(anim->loadclientcmds) / sizeof(anim->loadclientcmds[0]),
                 &anim->num_client_cmds
             );
-        } else if (!stricmp(token, "server")) {
+        } else if (!Q_stricmp(token, "server")) {
             TIKI_ParseFrameCommands(
                 ld,
                 anim->loadservercmds,
                 sizeof(anim->loadservercmds) / sizeof(anim->loadservercmds[0]),
                 &anim->num_server_cmds
             );
-        } else if (!stricmp(token, "}")) {
+        } else if (!Q_stricmp(token, "}")) {
             break;
         } else {
             TIKI_Error(
@@ -221,26 +221,26 @@ void TIKI_ParseAnimationFlags(dloaddef_t *ld, dloadanim_t *anim)
     while (ld->tikiFile.TokenAvailable(false)) {
         token = ld->tikiFile.GetToken(false);
 
-        if (!stricmp(token, "weight")) {
+        if (!Q_stricmp(token, "weight")) {
             anim->weight = ld->tikiFile.GetFloat(false);
             anim->flags |= TAF_RANDOM;
-        } else if (!stricmp(token, "deltadriven")) {
+        } else if (!Q_stricmp(token, "deltadriven")) {
             anim->flags |= TAF_DELTADRIVEN;
-        } else if (!stricmp(token, "default_angles")) {
+        } else if (!Q_stricmp(token, "default_angles")) {
             anim->flags |= TAF_DEFAULT_ANGLES;
-        } else if (!stricmp(token, "notimecheck")) {
+        } else if (!Q_stricmp(token, "notimecheck")) {
             anim->flags |= TAF_NOTIMECHECK;
-        } else if (!stricmp(token, "crossblend")) {
+        } else if (!Q_stricmp(token, "crossblend")) {
             anim->blendtime = ld->tikiFile.GetFloat(false);
-        } else if (!stricmp(token, "dontrepeate")) {
+        } else if (!Q_stricmp(token, "dontrepeate")) {
             anim->flags |= TAF_NOREPEAT;
-        } else if (!stricmp(token, "random")) {
+        } else if (!Q_stricmp(token, "random")) {
             anim->flags |= TAF_RANDOM;
-        } else if (!stricmp(token, "autosteps_run")) {
+        } else if (!Q_stricmp(token, "autosteps_run")) {
             anim->flags |= TAF_AUTOSTEPS | TAF_AUTOSTEPS_RUNNING | TAF_AUTOSTEPS_EQUIPMENT;
-        } else if (!stricmp(token, "autosteps_walk")) {
+        } else if (!Q_stricmp(token, "autosteps_walk")) {
             anim->flags |= TAF_AUTOSTEPS | TAF_AUTOSTEPS_EQUIPMENT;
-        } else if (!stricmp(token, "autosteps_dog")) {
+        } else if (!Q_stricmp(token, "autosteps_dog")) {
             anim->flags |= TAF_AUTOSTEPS;
         } else {
             TIKI_Error(
@@ -272,7 +272,7 @@ void TIKI_ParseAnimationsFail(dloaddef_t *ld)
     }
 
     token = ld->tikiFile.GetToken(true);
-    if (stricmp(token, "{")) {
+    if (Q_stricmp(token, "{")) {
         ld->tikiFile.UnGetToken();
         return;
     }
@@ -281,9 +281,9 @@ void TIKI_ParseAnimationsFail(dloaddef_t *ld)
 
     while (ld->tikiFile.TokenAvailable(true)) {
         token = ld->tikiFile.GetToken(true);
-        if (!stricmp(token, "{")) {
+        if (!Q_stricmp(token, "{")) {
             nestcount++;
-        } else if (!stricmp(token, "}")) {
+        } else if (!Q_stricmp(token, "}")) {
             nestcount--;
             if (!nestcount) {
                 break;
@@ -324,7 +324,7 @@ qboolean TIKI_ParseIncludes(dloaddef_t *ld)
     while (1) {
         if (!Q_stricmpn(token, mapname, strlen(token)) || !Q_stricmpn(token, servertype, strlen(token))) {
             b_incl = true;
-        } else if (!stricmp(token, "{") || !ld->tikiFile.TokenAvailable(true)) {
+        } else if (!Q_stricmp(token, "{") || !ld->tikiFile.TokenAvailable(true)) {
             break;
         }
 
@@ -386,13 +386,13 @@ void TIKI_ParseAnimations(dloaddef_t *ld)
 
     while (ld->tikiFile.TokenAvailable(true)) {
         token = ld->tikiFile.GetToken(true);
-        if (!stricmp(token, "}")) {
+        if (!Q_stricmp(token, "}")) {
             if (!b_mapspec) {
                 // Return when there is no mapspec
                 return;
             }
             b_mapspec = false;
-        } else if (!stricmp(token, "$mapspec")) {
+        } else if (!Q_stricmp(token, "$mapspec")) {
             token = ld->tikiFile.GetToken(true);
             if (sv_mapname) {
                 mapname = sv_mapname->string;
@@ -401,9 +401,9 @@ void TIKI_ParseAnimations(dloaddef_t *ld)
             }
 
             while (ld->tikiFile.TokenAvailable(true)) {
-                if (!strncmp(token, mapname, strlen(token))) {
+                if (!Q_strncmp(token, mapname, strlen(token))) {
                     b_mapspec = true;
-                } else if (!stricmp(token, "{")) {
+                } else if (!Q_stricmp(token, "{")) {
                     break;
                 }
 
@@ -468,7 +468,7 @@ void TIKI_ParseAnimations(dloaddef_t *ld)
 
                 if (ld->tikiFile.TokenAvailable(true)) {
                     token = ld->tikiFile.GetToken(true);
-                    if (!stricmp(token, "{")) {
+                    if (!Q_stricmp(token, "{")) {
                         TIKI_ParseAnimationCommands(ld, anim);
                     } else {
                         ld->tikiFile.UnGetToken();
@@ -493,21 +493,21 @@ int TIKI_ParseSurfaceFlag(const char *token)
 {
     int flags = 0;
 
-    if (!stricmp(token, "skin1")) {
+    if (!Q_stricmp(token, "skin1")) {
         flags = TIKI_SURF_SKIN1;
-    } else if (!stricmp(token, "skin2")) {
+    } else if (!Q_stricmp(token, "skin2")) {
         flags = TIKI_SURF_SKIN2;
-    } else if (!stricmp(token, "skin3")) {
+    } else if (!Q_stricmp(token, "skin3")) {
         flags = TIKI_SURF_SKIN3;
-    } else if (!stricmp(token, "nodraw")) {
+    } else if (!Q_stricmp(token, "nodraw")) {
         flags = TIKI_SURF_NODRAW;
-    } else if (!stricmp(token, "nodamage")) {
+    } else if (!Q_stricmp(token, "nodamage")) {
         flags = TIKI_SURF_NODAMAGE;
-    } else if (!stricmp(token, "crossfade")) {
+    } else if (!Q_stricmp(token, "crossfade")) {
         flags = TIKI_SURF_CROSSFADE;
-    } else if (!stricmp(token, "nomipmaps")) {
+    } else if (!Q_stricmp(token, "nomipmaps")) {
         flags = TIKI_SURF_NOMIPMAPS;
-    } else if (!stricmp(token, "nopicmip")) {
+    } else if (!Q_stricmp(token, "nopicmip")) {
         flags = TIKI_SURF_NOPICMIP;
     } else {
         TIKI_Error("Unknown surface flag %s\n", token);
@@ -741,7 +741,7 @@ qboolean TIKI_LoadSetupCaseHeader(
             }
 
             val = keyValues->find(key);
-            if (val && !stricmp(val->c_str(), value)) {
+            if (val && !Q_stricmp(val->c_str(), value)) {
                 match = true;
             }
             break;
@@ -862,7 +862,7 @@ qboolean TIKI_LoadSetupCase(
             }
 
             for (currentSurface = 0; currentSurface < *numSurfacesSetUp; currentSurface++) {
-                if (!stricmp(loadsurfaces[currentSurface].name, name)) {
+                if (!Q_stricmp(loadsurfaces[currentSurface].name, name)) {
                     break;
                 }
             }
@@ -1001,21 +1001,21 @@ qboolean TIKI_ParseSetup(dloaddef_t *ld)
     while (ld->tikiFile.TokenAvailable(true)) {
         token = ld->tikiFile.GetToken(true);
 
-        if (!stricmp(token, "scale")) {
+        if (!Q_stricmp(token, "scale")) {
             load_scale = ld->tikiFile.GetFloat(false);
             WriteScale(ld, load_scale);
-        } else if (!stricmp(token, "lod_scale")) {
+        } else if (!Q_stricmp(token, "lod_scale")) {
             lod_scale = ld->tikiFile.GetFloat(false) / 5.0f;
             WriteLoadScale(ld, lod_scale);
-        } else if (!stricmp(token, "lod_bias")) {
+        } else if (!Q_stricmp(token, "lod_bias")) {
             lod_bias = ld->tikiFile.GetFloat(false);
             WriteLodBias(ld, lod_bias);
-        } else if (!stricmp(token, "skelmodel")) {
+        } else if (!Q_stricmp(token, "skelmodel")) {
             token = ld->tikiFile.GetToken(false);
             strcpy(name, ld->tikiFile.currentScript->path);
             strcat(name, token);
             WriteSkelmodel(ld, name);
-        } else if (!stricmp(token, "path")) {
+        } else if (!Q_stricmp(token, "path")) {
             token = ld->tikiFile.GetToken(false);
             strcpy(ld->tikiFile.currentScript->path, token);
             length = strlen(ld->tikiFile.currentScript->path);
@@ -1024,32 +1024,32 @@ qboolean TIKI_ParseSetup(dloaddef_t *ld)
             if (*token != '/' && *token != '\\') {
                 strcat(ld->tikiFile.currentScript->path, "/");
             }
-        } else if (!stricmp(token, "orgin")) {
+        } else if (!Q_stricmp(token, "orgin")) {
             tmpVec[0] = ld->tikiFile.GetFloat(false);
             tmpVec[1] = ld->tikiFile.GetFloat(false);
             tmpVec[2] = ld->tikiFile.GetFloat(false);
             WriteOrigin(ld, tmpVec[0], tmpVec[1], tmpVec[2]);
-        } else if (!stricmp(token, "lightoffset")) {
+        } else if (!Q_stricmp(token, "lightoffset")) {
             tmpVec[0] = ld->tikiFile.GetFloat(false);
             tmpVec[1] = ld->tikiFile.GetFloat(false);
             tmpVec[2] = ld->tikiFile.GetFloat(false);
             WriteLightOffset(ld, tmpVec[0], tmpVec[1], tmpVec[2]);
-        } else if (!stricmp(token, "radius")) {
+        } else if (!Q_stricmp(token, "radius")) {
             tmpFloat = ld->tikiFile.GetFloat(false);
             WriteRadius(ld, tmpFloat);
-        } else if (!stricmp(token, "surface")) {
+        } else if (!Q_stricmp(token, "surface")) {
             token = ld->tikiFile.GetToken(false);
             WriteSurface(ld, token);
             while (ld->tikiFile.TokenAvailable(false)) {
                 token = ld->tikiFile.GetToken(false);
-                if (!stricmp(token, "flags")) {
+                if (!Q_stricmp(token, "flags")) {
                     token  = ld->tikiFile.GetToken(false);
                     tmpInt = TIKI_ParseSurfaceFlag(token);
                     WriteFlags(ld, tmpInt);
-                } else if (!stricmp(token, "damage")) {
+                } else if (!Q_stricmp(token, "damage")) {
                     tmpFloat = ld->tikiFile.GetFloat(false);
                     WriteDamage(ld, tmpFloat);
-                } else if (!stricmp(token, "shader")) {
+                } else if (!Q_stricmp(token, "shader")) {
                     token = ld->tikiFile.GetToken(false);
                     if (strstr(token, ".")) {
                         strcpy(name, ld->tikiFile.currentScript->path);
@@ -1060,13 +1060,13 @@ qboolean TIKI_ParseSetup(dloaddef_t *ld)
                     }
                 }
             }
-        } else if (!stricmp(token, "ischaracter")) {
+        } else if (!Q_stricmp(token, "ischaracter")) {
             ld->bIsCharacter = true;
-        } else if (!stricmp(token, "case")) {
+        } else if (!Q_stricmp(token, "case")) {
             if (!TIKI_ParseCase(ld)) {
                 return false;
             }
-        } else if (!stricmp(token, "}")) {
+        } else if (!Q_stricmp(token, "}")) {
             return true;
         } else {
             TIKI_Error(
@@ -1102,7 +1102,7 @@ void TIKI_ParseInitCommands(dloaddef_t *ld, dloadinitcmd_t **cmdlist, int maxcmd
     while (ld->tikiFile.TokenAvailable(true)) {
         token = ld->tikiFile.GetToken(true);
 
-        if (!stricmp(token, "}")) {
+        if (!Q_stricmp(token, "}")) {
             break;
         }
 
@@ -1157,11 +1157,11 @@ void TIKI_ParseInit(dloaddef_t *ld)
 
     while (ld->tikiFile.TokenAvailable(true)) {
         token = ld->tikiFile.GetToken(true);
-        if (!stricmp(token, "client")) {
+        if (!Q_stricmp(token, "client")) {
             TIKI_ParseInitCommands(ld, ld->loadclientinitcmds, 160, &ld->numclientinitcmds);
-        } else if (!stricmp(token, "server")) {
+        } else if (!Q_stricmp(token, "server")) {
             TIKI_ParseInitCommands(ld, ld->loadserverinitcmds, 160, &ld->numserverinitcmds);
-        } else if (!stricmp(token, "}")) {
+        } else if (!Q_stricmp(token, "}")) {
             break;
         } else {
             TIKI_Error(
@@ -1195,8 +1195,8 @@ qboolean TIKI_ParseCase(dloaddef_t *ld)
 __newcase:
     token = ld->tikiFile.GetToken(false);
     WriteCaseKey(ld, token);
-    isheadmodel = !stricmp(token, "headmodel");
-    isheadskin  = !stricmp(token, "headskin");
+    isheadmodel = !Q_stricmp(token, "headmodel");
+    isheadskin  = !Q_stricmp(token, "headskin");
 
     while (1) {
         if (!ld->tikiFile.TokenAvailable(true)) {
@@ -1209,9 +1209,9 @@ __newcase:
         }
 
         token = ld->tikiFile.GetToken(true);
-        if (!stricmp(token, "case")) {
+        if (!Q_stricmp(token, "case")) {
             goto __newcase;
-        } else if (!stricmp(token, "{")) {
+        } else if (!Q_stricmp(token, "{")) {
             break;
         }
 
