@@ -1714,7 +1714,7 @@ inline bool Actor::CanSeeFOV(Entity *ent)
 
     bCanSee = false;
 
-    if (InFOV(ent->centroid) && gi.AreasConnected(edict->r.areanum, ent->edict->r.areanum)) {
+    if (InFOV(ent) && AreasConnected(ent)) {
         bCanSee = CanSee(ent, 0, 0, false);
     }
 
