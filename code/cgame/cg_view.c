@@ -560,17 +560,6 @@ static int CG_CalcViewValues(void)
     CG_CalcVrect();
     CG_SetupFog();
 
-    // setup fog and far clipping plane
-    cg.refdef.farplane_distance = cg.farplane_distance;
-    VectorCopy(cg.farplane_color, cg.refdef.farplane_color);
-    cg.refdef.farplane_cull = cg.farplane_cull;
-
-    // setup portal sky
-    cg.refdef.sky_alpha  = cg.sky_alpha;
-    cg.refdef.sky_portal = cg.sky_portal;
-    memcpy(cg.refdef.sky_axis, cg.sky_axis, sizeof(cg.sky_axis));
-    VectorCopy(cg.sky_origin, cg.refdef.sky_origin);
-
     ps = &cg.predicted_player_state;
 
     VectorCopy(ps->origin, cg.refdef.vieworg);
