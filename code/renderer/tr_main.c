@@ -993,12 +993,12 @@ qboolean SurfIsOffscreen(const srfSurfaceFace_t* surface, shader_t* shader, int 
 		R_RotateForEntity(&tr.refdef.entities[entityNum], &tr.viewParms, &surfOr);
 	}
 
-	for ( i = 0; i < tess.numVertexes; i++ )
+	for ( i = 0; i < surface->numPoints; i++ )
 	{
 		int j;
 		unsigned int pointFlags = 0;
 
-		R_TransformModelToClip( tess.xyz[i], tr.ori.modelMatrix, tr.viewParms.projectionMatrix, eye, clip );
+		R_TransformModelToClip( surface->points[i], surfOr.modelMatrix, tr.viewParms.projectionMatrix, eye, clip );
 
 		for ( j = 0; j < 3; j++ )
 		{
@@ -1026,20 +1026,25 @@ qboolean SurfIsOffscreen(const srfSurfaceFace_t* surface, shader_t* shader, int 
 	// based on vertex distance isn't 100% correct (we should be checking for
 	// range to the surface), but it's good enough for the types of portals
 	// we have in the game right now.
-	numTriangles = tess.numIndexes / 3;
+	numTriangles = surface->numIndices / 3;
 
-	for ( i = 0; i < tess.numIndexes; i += 3 )
+	for ( i = 0; i < surface->numIndices; i += 3 )
 	{
 		vec3_t normal;
 		float dot;
 		float len;
+		unsigned* indices;
 
-		VectorSubtract( tess.xyz[tess.indexes[i]], tr.viewParms.ori.origin, normal );
+		indices = (unsigned*)(((char*)surface) + surface->ofsIndices);
 
-		len = VectorLengthSquared( normal );			// lose the sqrt
-		if ( len < shortest )
-		{
-			shortest = len;
+		VectorSubtract( surface->points[indices[i]], surfOr.viewOrigin, normal);
+
+		if (shader->fDistRange > 0) {
+			len = VectorLengthSquared(normal);			// lose the sqrt
+			if (len < shortest)
+			{
+				shortest = len;
+			}
 		}
 
 		if ( ( dot = DotProduct( normal, tess.normal[tess.indexes[i]] ) ) >= 0 )
