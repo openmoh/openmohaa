@@ -99,9 +99,7 @@ void R_Sky_Render() {
         return;
     }
 
-	if (tr.viewParms.isPortalSky)
-	{
-		ri.Printf(PRINT_WARNING, "WARNING: Recursive skies found!  Make that not happen!\n");
+	if (tr.viewParms.isPortalSky) {
 		return;
 	}
 
@@ -115,7 +113,6 @@ void R_Sky_Render() {
         return;
     }
 
-    tr.skyRendered = qtrue;
     oldParms = tr.viewParms;
     newParms = tr.viewParms;
 
@@ -133,8 +130,16 @@ void R_Sky_Render() {
 		MatrixMultiply(newParms.ori.axis, tr.refdef.sky_axis, newParms.ori.axis);
 	}
 
-    tr.viewParms.isPortalSky = qtrue;
     VectorCopy(newParms.ori.origin, newParms.pvsOrigin);
+	newParms.isPortalSky = qtrue;
+	newParms.farplane_distance = tr.refdef.skybox_farplane;
+	newParms.renderTerrain = tr.refdef.render_terrain;
+
+	if (oldParms.farplane_bias == 0.0 || oldParms.farplane_distance == 0.0) {
+		newParms.farplane_bias = 0.0;
+	} else {
+		newParms.farplane_bias = newParms.farplane_distance / oldParms.farplane_distance * oldParms.farplane_bias;
+	}
 
     leaf = R_PointInLeaf(newParms.pvsOrigin);
     if (leaf) {
@@ -143,8 +148,8 @@ void R_Sky_Render() {
 
     tr.viewParms = oldParms;
 
-	tr.viewParms.isPortalSky = qfalse;
 	tr.portalsky.numSurfs = 0;
+	tr.skyRendered = qtrue;
 	R_RotateForViewer();
 	R_SetupFrustum();
 }
