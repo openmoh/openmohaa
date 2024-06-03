@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2023 the OpenMoHAA team
+Copyright (C) 2024 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -9946,9 +9946,11 @@ void Player::EventGetCurrentDMWeaponType(Event *ev)
 
 void Player::PhysicsOff(Event *ev)
 {
-    // Added in 2.0
-    //  Reset the state to STAND before disabling physics
-    EvaluateState(statemap_Torso->FindState("STAND"), statemap_Legs->FindState("STAND"));
+    if (g_target_game > TG_MOH || g_gametype->integer != GT_SINGLE_PLAYER) {
+        // Added in 2.0
+        //  Reset the state to STAND before disabling physics
+        EvaluateState(statemap_Torso->FindState("STAND"), statemap_Legs->FindState("STAND"));
+    }
 
     flags |= FL_IMMOBILE;
 }
