@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2023 the OpenMoHAA team
+Copyright (C) 2024 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -784,7 +784,8 @@ qboolean Player::CondCrouch(Conditional& condition)
 {
     // Added in 2.0
     //  Don't crouch if the player is not moving
-    if (client->ps.pm_flags & PMF_NO_MOVE) {
+    if (client->ps.pm_flags & PMF_NO_MOVE
+        && (g_target_game > target_game_e::TG_MOH || g_gametype->integer != GT_SINGLE_PLAYER)) {
         // Added in 2.30
         //  Allow ducking if specified
         if (!m_pGlueMaster || !m_bGlueDuckable) {
@@ -812,7 +813,7 @@ qboolean Player::CondAnimDoneTorso(Conditional& condition)
 
 qboolean Player::CondAttackPrimary(Conditional& condition)
 {
-    Weapon* weapon;
+    Weapon *weapon;
 
     if (level.playerfrozen || m_bFrozen || (flags & FL_IMMOBILE)) {
         return false;
@@ -852,7 +853,7 @@ qboolean Player::CondAttackButtonPrimary(Conditional& condition)
 
 qboolean Player::CondAttackSecondary(Conditional& condition)
 {
-    Weapon* weapon;
+    Weapon *weapon;
 
     if (level.playerfrozen || m_bFrozen || (flags & FL_IMMOBILE)) {
         return false;
@@ -1949,7 +1950,7 @@ Condition<Player> Player::Conditions[] = {
     {"ATTACK_SECONDARY_BUTTON",         &Player::CondAttackButtonSecondary   },
     {"CHECK_MOVEMENT_SPEED",            &Player::CondCheckMovementSpeed      },
 
- // Weapon conditions
+    // Weapon conditions
     {"ANIMDONE_VM",                     &Player::CondAnimDoneVM              },
     {"CLIENT_COMMAND",                  &Player::CondClientCommand           },
     {"IS_VM_ANIM",                      &Player::CondVMAnim                  },
