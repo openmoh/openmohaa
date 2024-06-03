@@ -2113,6 +2113,7 @@ CLASS_DECLARATION(ScriptSlave, ScriptSkyOrigin, "script_skyorigin") {
 ScriptSkyOrigin::ScriptSkyOrigin()
 {
     edict->s.renderfx |= RF_SKYORIGIN;
+    edict->r.svFlags &= ~SVF_NOCLIENT;
     setContents(0);
     setSolidType(SOLID_NOT);
 }
