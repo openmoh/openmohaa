@@ -241,6 +241,38 @@ bool IsBogusChannelName(const char *name)
     return false;
 }
 
+int GetBoneChannelType(const char* name)
+{
+    size_t len;
+
+    if (!name) {
+        return 2;
+    }
+
+    if (IsBogusChannelName(name)) {
+        return 2;
+    }
+
+    len = strlen(name);
+    if (len < 4) {
+        return 3;
+    }
+
+    if (!strcmp(name + len - 4, " rot")) {
+        return 0;
+    }
+
+    if (!strcmp(name + len - 4, " pos")) {
+        return 1;
+    }
+
+    if (len >= 6 && !strcmp(name + len - 6, " rotFK")) {
+        return 2;
+    }
+
+    return 3;
+}
+
 int GetChannelTypeFromName(const char *name)
 {
     int    i;
