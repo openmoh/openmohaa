@@ -91,9 +91,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define TIKI_SURF_NOMIPMAPS (1 << 8)
 #define TIKI_SURF_NOPICMIP  (1 << 9)
 
-#define MAX_SKELMODELS      12
-#define MAX_TIKI_SHADER     4
-#define MAX_TIKI_ALIASES    4095
+#define MAX_SKELMODELS        12
+#define MAX_TIKI_SHADER       4
+#define MAX_TIKI_ALIASES      4095
+#define MAX_GLOBAL_FROM_LOCAL 200
 
 typedef struct AliasList_s     AliasList_t;
 typedef struct AliasListNode_s AliasListNode_t;
@@ -120,7 +121,7 @@ private:
     short int *m_chanLocalFromGlobal;
 
 public:
-    short int m_chanGlobalFromLocal[200];
+    short int m_chanGlobalFromLocal[MAX_GLOBAL_FROM_LOCAL];
 
     int         NumChannels(void) const;
     void        ZeroChannels(void);

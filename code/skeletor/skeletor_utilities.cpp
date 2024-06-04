@@ -71,6 +71,18 @@ int FileLength(FILE *pFile)
     return iEnd;
 }
 
+
+int skelChannelList_s::GlobalChannel(int localchannel) const
+{
+    assert(localchannel < MAX_GLOBAL_FROM_LOCAL);
+    return m_chanGlobalFromLocal[localchannel];
+}
+
+int skelChannelList_s::LocalChannel(int channel) const
+{
+    return m_chanLocalFromGlobal[channel];
+}
+
 int skelChannelList_s::GetLocalFromGlobal(int globalChannel) const
 {
     if (m_chanLocalFromGlobal && globalChannel < m_numLocalFromGlobal) {
