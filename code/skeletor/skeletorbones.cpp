@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2023 the OpenMoHAA team
+Copyright (C) 2024 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -163,21 +163,47 @@ void SkeletorLoadBonesFromBuffer(skelChannelList_c *boneList, skelHeaderGame_t *
     }
 }
 
-float *DecodeRLEValue(skanChannelHdr *channelFrames, int desiredFrameNum)
+float *DecodeRLEPosValue(skanChannelHdr *channelFrames, int desiredFrameNum)
 {
     skanGameFrame *foundFrame = channelFrames->ary_frames;
+    size_t         frameSize;
     int            i;
+
+    frameSize = (sizeof(skanGameFrame) - sizeof(skanGameFrame::pChannelData) + sizeof(vec3_t));
 
     for (i = 0; i < channelFrames->nFramesInChannel; i++) {
         if (foundFrame->nFrameNum >= desiredFrameNum) {
             break;
         }
 
-        foundFrame++;
+        foundFrame = (skanGameFrame *)((byte *)foundFrame + frameSize);
     }
 
     if (foundFrame->nFrameNum > desiredFrameNum) {
-        foundFrame = &channelFrames->ary_frames[foundFrame->nPrevFrameIndex];
+        foundFrame = (skanGameFrame *)((byte *)channelFrames->ary_frames + foundFrame->nPrevFrameIndex * frameSize);
+    }
+
+    return foundFrame->pChannelData;
+}
+
+float *DecodeRLERotValue(skanChannelHdr *channelFrames, int desiredFrameNum)
+{
+    skanGameFrame *foundFrame = channelFrames->ary_frames;
+    size_t         frameSize;
+    int            i;
+
+    frameSize = (sizeof(skanGameFrame) - sizeof(skanGameFrame::pChannelData) + sizeof(vec4_t));
+
+    for (i = 0; i < channelFrames->nFramesInChannel; i++) {
+        if (foundFrame->nFrameNum >= desiredFrameNum) {
+            break;
+        }
+
+        foundFrame = (skanGameFrame *)((byte *)foundFrame + frameSize);
+    }
+
+    if (foundFrame->nFrameNum > desiredFrameNum) {
+        foundFrame = (skanGameFrame *)((byte *)channelFrames->ary_frames + foundFrame->nPrevFrameIndex * frameSize);
     }
 
     return foundFrame->pChannelData;
@@ -214,8 +240,9 @@ SkelQuat skelAnimStoreFrameList_c::GetSlerpValue(int globalChannelNum) const
                 if (incomingWeight == 0.0) {
                     continue;
                 }
-                pIncomingQuat =
-                    (SkelQuat *)DecodeRLEValue(&pFrame->pAnimationData->ary_channels[localChannelNum], pFrame->frame);
+                pIncomingQuat = (SkelQuat *)DecodeRLERotValue(
+                    &pFrame->pAnimationData->ary_channels[localChannelNum], pFrame->frame
+                );
                 totalWeight += incomingWeight;
                 nTotal++;
 
@@ -263,8 +290,9 @@ SkelQuat skelAnimStoreFrameList_c::GetSlerpValue(int globalChannelNum) const
                 if (incomingWeight == 0.0) {
                     continue;
                 }
-                pIncomingQuat =
-                    (SkelQuat *)DecodeRLEValue(&pFrame->pAnimationData->ary_channels[localChannelNum], pFrame->frame);
+                pIncomingQuat = (SkelQuat *)DecodeRLERotValue(
+                    &pFrame->pAnimationData->ary_channels[localChannelNum], pFrame->frame
+                );
                 totalWeight += incomingWeight;
                 nTotal++;
 
@@ -358,7 +386,7 @@ void skelAnimStoreFrameList_c::GetLerpValue3(int globalChannelNum, SkelVec3 *out
             localChannelNum = pFrame->pAnimationData->channelList.GetLocalFromGlobal(globalChannelNum);
             if (localChannelNum >= 0) {
                 incomingWeight = pFrame->weight;
-                incomingVec    = DecodeRLEValue(&pFrame->pAnimationData->ary_channels[localChannelNum], pFrame->frame);
+                incomingVec = DecodeRLEPosValue(&pFrame->pAnimationData->ary_channels[localChannelNum], pFrame->frame);
                 totalWeight += incomingWeight;
                 result[0] += incomingVec[0] * incomingWeight;
                 result[1] += incomingVec[1] * incomingWeight;
@@ -389,7 +417,7 @@ void skelAnimStoreFrameList_c::GetLerpValue3(int globalChannelNum, SkelVec3 *out
         localChannelNum = pFrame->pAnimationData->channelList.GetLocalFromGlobal(globalChannelNum);
         if (localChannelNum >= 0) {
             incomingWeight = pFrame->weight;
-            incomingVec    = DecodeRLEValue(&pFrame->pAnimationData->ary_channels[localChannelNum], pFrame->frame);
+            incomingVec    = DecodeRLEPosValue(&pFrame->pAnimationData->ary_channels[localChannelNum], pFrame->frame);
             totalWeight += incomingWeight;
             result[0] += incomingVec[0] * incomingWeight;
             result[1] += incomingVec[1] * incomingWeight;

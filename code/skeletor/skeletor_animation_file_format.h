@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2023 the OpenMoHAA team
+Copyright (C) 2024 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -59,7 +59,7 @@ typedef struct {
 typedef struct {
     short int nFrameNum;
     short int nPrevFrameIndex;
-    vec4_t    pChannelData;
+    float     pChannelData[1];
 } skanGameFrame;
 
 typedef struct {
