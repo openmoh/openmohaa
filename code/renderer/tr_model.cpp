@@ -1250,7 +1250,12 @@ void RB_SkelMesh( skelSurfaceGame_t *sf ) {
 					morph++;
 				}
 
-				channelNum = skelmodel->pBones[ morph->morphIndex ].channel;
+				if (newVerts->numMorphs) {
+					channelNum = skelmodel->pBones[morph->morphIndex].channel;
+				} else {
+					channelNum = skelmodel->pBones[weight->boneIndex].channel;
+				}
+
 				boneNum = tiki->m_boneList.GetLocalFromGlobal( channelNum );
 				bone = &bones[ boneNum ];
 
@@ -1282,7 +1287,12 @@ void RB_SkelMesh( skelSurfaceGame_t *sf ) {
 					morph++;
 				}
 
-				bone = &bones[ morph->morphIndex ];
+				if (newVerts->numMorphs) {
+					bone = &bones[morph->morphIndex];
+				} else {
+					bone = &bones[weight->boneIndex];
+				}
+
 				SkelVertGetNormal( newVerts, bone, normal );
 
 				for( weightNum = 0; weightNum < newVerts->numWeights; weightNum++ ) {
