@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2023 the OpenMoHAA team
+Copyright (C) 2024 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -1172,9 +1172,6 @@ void RB_SkelMesh( skelSurfaceGame_t *sf ) {
     outNormal = &tess.normal[baseVertex];
     newVerts = sf->pVerts;
 
-    bones = &TIKI_Skel_Bones[backEnd.currentEntity->e.bonestart];
-    morphs = &skeletorMorphCache[backEnd.currentEntity->e.morphstart];
-
 	if (render_count == sf->numVerts)
 	{
 		for (i = 0; i < indexes; i++) {
@@ -1218,33 +1215,33 @@ void RB_SkelMesh( skelSurfaceGame_t *sf ) {
 	//
 	// just copy the vertexes
 	//
-	for( vertNum = 0; vertNum < render_count; vertNum++ )
+	bones = &TIKI_Skel_Bones[backEnd.currentEntity->e.bonestart];
+	morphs = &skeletorMorphCache[backEnd.currentEntity->e.morphstart];
+
+	if (backEnd.currentEntity->e.hasMorph)
 	{
-		vec3_t normal;
-		vec3_t out;
-
-		VectorClear( out );
-		VectorClear( outXyz );
-
-		weight = ( skelWeight_t * )( ( byte * )newVerts + sizeof( skeletorVertex_t ) + sizeof( skeletorMorph_t ) * newVerts->numMorphs );
-
-		if( backEnd.currentEntity->e.hasMorph )
+		if (mesh > 0)
 		{
-			vec3_t totalmorph;
-
-			VectorClear( totalmorph );
-			morph = ( skeletorMorph_t * )( ( byte * )newVerts + sizeof( skeletorVertex_t ) );
-
-			if( mesh > 0 )
+			for (vertNum = 0; vertNum < render_count; vertNum++)
 			{
+				vec3_t normal;
+				vec3_t out;
+				vec3_t totalmorph;
 				int channelNum;
 				int boneNum;
 
-				for( morphNum = 0; morphNum < newVerts->numMorphs; morphNum++ ) {
-					morphcache = &morphs[ morph->morphIndex ];
+				VectorClear(out);
+				VectorClear(outXyz);
+				VectorClear(totalmorph);
 
-					if( *morphcache ) {
-						SkelMorphGetXyz( morph, morphcache, totalmorph );
+				weight = (skelWeight_t*)((byte*)newVerts + sizeof(skeletorVertex_t) + sizeof(skeletorMorph_t) * newVerts->numMorphs);
+				morph = (skeletorMorph_t*)((byte*)newVerts + sizeof(skeletorVertex_t));
+
+				for (morphNum = 0; morphNum < newVerts->numMorphs; morphNum++) {
+					morphcache = &morphs[morph->morphIndex];
+
+					if (*morphcache) {
+						SkelMorphGetXyz(morph, morphcache, totalmorph);
 					}
 
 					morph++;
@@ -1256,32 +1253,57 @@ void RB_SkelMesh( skelSurfaceGame_t *sf ) {
 					channelNum = skelmodel->pBones[weight->boneIndex].channel;
 				}
 
-				boneNum = tiki->m_boneList.GetLocalFromGlobal( channelNum );
-				bone = &bones[ boneNum ];
+				boneNum = tiki->m_boneList.GetLocalFromGlobal(channelNum);
+				bone = &bones[boneNum];
 
-				SkelVertGetNormal( newVerts, bone, normal );
+				SkelVertGetNormal(newVerts, bone, normal);
 
-				for( weightNum = 0; weightNum < newVerts->numWeights; weightNum++ ) {
-					channelNum = skelmodel->pBones[ weight->boneIndex ].channel;
-					boneNum = tiki->m_boneList.GetLocalFromGlobal( channelNum );
-					bone = &bones[ boneNum ];
+				for (weightNum = 0; weightNum < newVerts->numWeights; weightNum++) {
+					channelNum = skelmodel->pBones[weight->boneIndex].channel;
+					boneNum = tiki->m_boneList.GetLocalFromGlobal(channelNum);
+					bone = &bones[boneNum];
 
-					if( !weightNum ) {
-						SkelWeightMorphGetXyz( weight, bone, totalmorph, out );
+					if (!weightNum) {
+						SkelWeightMorphGetXyz(weight, bone, totalmorph, out);
 					} else {
-						SkelWeightGetXyz( weight, bone, out );
+						SkelWeightGetXyz(weight, bone, out);
 					}
 
 					weight++;
 				}
-			}
-			else
-			{
-				for( morphNum = 0; morphNum < newVerts->numMorphs; morphNum++ ) {
-					morphcache = &morphs[ morph->morphIndex ];
 
-					if( *morphcache ) {
-						SkelMorphGetXyz( morph, morphcache, totalmorph );
+				VectorCopy(normal, *outNormal);
+				VectorScale(out, scale, outXyz);
+
+				tess.texCoords[baseVertex + vertNum][0][0] = newVerts->texCoords[0];
+				tess.texCoords[baseVertex + vertNum][0][1] = newVerts->texCoords[1];
+				// FIXME: fill in lightmapST for completeness?
+
+				newVerts = (skeletorVertex_t*)((byte*)newVerts + sizeof(skeletorVertex_t) + sizeof(skeletorMorph_t) * newVerts->numMorphs + sizeof(skelWeight_t) * newVerts->numWeights);
+				outXyz += 4;
+				outNormal++;
+			}
+		}
+		else
+		{
+			for (vertNum = 0; vertNum < render_count; vertNum++)
+			{
+				vec3_t normal;
+				vec3_t out;
+				vec3_t totalmorph;
+
+				VectorClear(out);
+				VectorClear(outXyz);
+				VectorClear(totalmorph);
+
+				weight = (skelWeight_t*)((byte*)newVerts + sizeof(skeletorVertex_t) + sizeof(skeletorMorph_t) * newVerts->numMorphs);
+				morph = (skeletorMorph_t*)((byte*)newVerts + sizeof(skeletorVertex_t));
+
+				for (morphNum = 0; morphNum < newVerts->numMorphs; morphNum++) {
+					morphcache = &morphs[morph->morphIndex];
+
+					if (*morphcache) {
+						SkelMorphGetXyz(morph, morphcache, totalmorph);
 					}
 
 					morph++;
@@ -1293,70 +1315,112 @@ void RB_SkelMesh( skelSurfaceGame_t *sf ) {
 					bone = &bones[weight->boneIndex];
 				}
 
-				SkelVertGetNormal( newVerts, bone, normal );
+				SkelVertGetNormal(newVerts, bone, normal);
 
-				for( weightNum = 0; weightNum < newVerts->numWeights; weightNum++ ) {
-					bone = &bones[ weight->boneIndex ];
+				for (weightNum = 0; weightNum < newVerts->numWeights; weightNum++) {
+					bone = &bones[weight->boneIndex];
 
-					if( !weightNum ) {
-						SkelWeightMorphGetXyz( weight, bone, totalmorph, out );
+					if (!weightNum) {
+						SkelWeightMorphGetXyz(weight, bone, totalmorph, out);
 					} else {
-						SkelWeightGetXyz( weight, bone, out );
+						SkelWeightGetXyz(weight, bone, out);
 					}
 
 					weight++;
 				}
+
+				VectorCopy(normal, *outNormal);
+				VectorScale(out, scale, outXyz);
+
+				tess.texCoords[baseVertex + vertNum][0][0] = newVerts->texCoords[0];
+				tess.texCoords[baseVertex + vertNum][0][1] = newVerts->texCoords[1];
+				// FIXME: fill in lightmapST for completeness?
+
+				newVerts = (skeletorVertex_t*)((byte*)newVerts + sizeof(skeletorVertex_t) + sizeof(skeletorMorph_t) * newVerts->numMorphs + sizeof(skelWeight_t) * newVerts->numWeights);
+				outXyz += 4;
+				outNormal++;
 			}
 		}
-		else
-        {
-			if( mesh > 0 )
+	}
+	else
+	{
+		if (mesh > 0)
+		{
+			for (vertNum = 0; vertNum < render_count; vertNum++)
 			{
+				vec3_t normal;
+				vec3_t out;
 				int channelNum;
 				int boneNum;
 
-				channelNum = skelmodel->pBones[ weight->boneIndex ].channel;
-				boneNum = tiki->m_boneList.GetLocalFromGlobal( channelNum );
-				bone = &bones[ boneNum ];
+				VectorClear(out);
+				VectorClear(outXyz);
 
-                SkelVertGetNormal(newVerts, bone, normal);
+				weight = (skelWeight_t*)((byte*)newVerts + sizeof(skeletorVertex_t) + sizeof(skeletorMorph_t) * newVerts->numMorphs);
 
-				for( weightNum = 0; weightNum < newVerts->numWeights; weightNum++ ) {
-					channelNum = skelmodel->pBones[ weight->boneIndex ].channel;
-					boneNum = tiki->m_boneList.GetLocalFromGlobal( channelNum );
-					bone = &bones[ boneNum ];
+				channelNum = skelmodel->pBones[weight->boneIndex].channel;
+				boneNum = tiki->m_boneList.GetLocalFromGlobal(channelNum);
+				bone = &bones[boneNum];
 
-					SkelWeightGetXyz( weight, bone, out );
+				SkelVertGetNormal(newVerts, bone, normal);
 
-					weight++;
-				}
-			}
-			else
-            {
-				bone = &bones[weight->boneIndex];
-                SkelVertGetNormal(newVerts, bone, normal);
+				for (weightNum = 0; weightNum < newVerts->numWeights; weightNum++) {
+					channelNum = skelmodel->pBones[weight->boneIndex].channel;
+					boneNum = tiki->m_boneList.GetLocalFromGlobal(channelNum);
+					bone = &bones[boneNum];
 
-				for( weightNum = 0; weightNum < newVerts->numWeights; weightNum++ ) {
-					bone = &bones[ weight->boneIndex ];
-
-					SkelWeightGetXyz( weight, bone, out );
+					SkelWeightGetXyz(weight, bone, out);
 
 					weight++;
 				}
+
+				VectorCopy(normal, *outNormal);
+				VectorScale(out, scale, outXyz);
+
+				tess.texCoords[baseVertex + vertNum][0][0] = newVerts->texCoords[0];
+				tess.texCoords[baseVertex + vertNum][0][1] = newVerts->texCoords[1];
+				// FIXME: fill in lightmapST for completeness?
+
+				newVerts = (skeletorVertex_t*)((byte*)newVerts + sizeof(skeletorVertex_t) + sizeof(skeletorMorph_t) * newVerts->numMorphs + sizeof(skelWeight_t) * newVerts->numWeights);
+				outXyz += 4;
+				outNormal++;
 			}
 		}
+		else
+		{
+			for (vertNum = 0; vertNum < render_count; vertNum++)
+			{
+				vec3_t normal;
+				vec3_t out;
 
-		VectorCopy(normal, *outNormal);
+				VectorClear(out);
+				VectorClear(outXyz);
 
-		VectorScale( out, scale, outXyz );
+				weight = (skelWeight_t*)((byte*)newVerts + sizeof(skeletorVertex_t) + sizeof(skeletorMorph_t) * newVerts->numMorphs);
 
-        tess.texCoords[baseVertex + vertNum][0][0] = newVerts->texCoords[0];
-        tess.texCoords[baseVertex + vertNum][0][1] = newVerts->texCoords[1];
-		// FIXME: fill in lightmapST for completeness?
+				bone = &bones[weight->boneIndex];
+				SkelVertGetNormal(newVerts, bone, normal);
 
-		newVerts = ( skeletorVertex_t * )( ( byte * )newVerts + sizeof( skeletorVertex_t ) + sizeof( skeletorMorph_t ) * newVerts->numMorphs + sizeof( skelWeight_t ) * newVerts->numWeights );
-		outXyz += 4;
-		outNormal++;
+				for (weightNum = 0; weightNum < newVerts->numWeights; weightNum++) {
+					bone = &bones[weight->boneIndex];
+
+					SkelWeightGetXyz(weight, bone, out);
+
+					weight++;
+				}
+
+				VectorCopy(normal, *outNormal);
+				VectorScale(out, scale, outXyz);
+
+				tess.texCoords[baseVertex + vertNum][0][0] = newVerts->texCoords[0];
+				tess.texCoords[baseVertex + vertNum][0][1] = newVerts->texCoords[1];
+				// FIXME: fill in lightmapST for completeness?
+
+				newVerts = (skeletorVertex_t*)((byte*)newVerts + sizeof(skeletorVertex_t) + sizeof(skeletorMorph_t) * newVerts->numMorphs + sizeof(skelWeight_t) * newVerts->numWeights);
+				outXyz += 4;
+				outNormal++;
+			}
+		}
 	}
 
 #if 0
