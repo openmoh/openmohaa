@@ -966,17 +966,7 @@ SkelMorphGetXyz
 =============
 */
 static void SkelMorphGetXyz( skeletorMorph_t *morph, int *morphcache, vec3_t out ) {
-	out[ 0 ] += morph->offset[ 0 ] * *morphcache +
-				morph->offset[ 1 ] * *morphcache +
-				morph->offset[ 2 ] * *morphcache;
-
-	out[ 1 ] += morph->offset[ 0 ] * *morphcache +
-				morph->offset[ 1 ] * *morphcache +
-				morph->offset[ 2 ] * *morphcache;
-
-	out[ 2 ] += morph->offset[ 0 ] * *morphcache +
-				morph->offset[ 1 ] * *morphcache +
-				morph->offset[ 2 ] * *morphcache;
+	VectorMA(out, *morphcache, morph->offset, out);
 }
 
 /*
