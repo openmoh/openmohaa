@@ -3,8 +3,12 @@ set(archdetect_c_code "
 #  error cmake_ARCH x86
 #elif defined(__x86_64) || defined(__x86_64__) || defined(__amd64) || defined(_M_X64)
 #  error cmake_ARCH x86_64
-#elif defined(__ppc64__) || defined(__powerpc64__)
-#  error cmake_ARCH ppc64
+#elif defined(__PPC64__) || defined(__ppc64__) || defined(__powerpc64__) || defined(_ARCH_PPC64)
+#  if __BIG_ENDIAN__
+#    error cmake_ARCH ppc64
+#  else
+#    error cmake_ARCH ppc64el
+#  endif
 #elif defined(__ppc__) || defined(__ppc) || defined(__powerpc__)
 #  error cmake_ARCH ppc
 #elif defined __s390__

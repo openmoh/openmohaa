@@ -163,11 +163,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define PATH_SEP '/'
 
 #ifdef __ppc__
-#define ARCH_STRING "ppc"
-#define Q3_BIG_ENDIAN
+#  define ARCH_STRING "ppc"
+#  define Q3_BIG_ENDIAN
 #elif defined __i386__
-#define ARCH_STRING "i386"
-#define Q3_LITTLE_ENDIAN
+#  define ARCH_STRING "i386"
+#  define Q3_LITTLE_ENDIAN
 #endif
 
 #define DLL_EXT ".dylib"
@@ -193,8 +193,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #  define ARCH_STRING "x86"
 #elif defined(__x86_64) || defined(__x86_64__) || defined(__amd64) || defined(_M_X64)
 #  define ARCH_STRING "x86_64"
-#elif defined(__ppc64__) || defined(__powerpc64__)
-#  define ARCH_STRING "ppc64"
+#elif defined(__PPC64__) || defined(__ppc64__) || defined(__powerpc64__) || defined(_ARCH_PPC64)
+#  if __BIG_ENDIAN__
+#    define ARCH_STRING "ppc64"
+#  else
+#    define ARCH_STRING "ppc64el"
+#  endif
 #elif defined(__ppc__) || defined(__ppc) || defined(__powerpc__)
 #  define ARCH_STRING "ppc"
 #elif defined __s390__
@@ -229,10 +233,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #  endif
 #endif
 
-#if __FLOAT_WORD_ORDER == __BIG_ENDIAN
-#define Q3_BIG_ENDIAN
+#if __BIG_ENDIAN__
+#  define Q3_BIG_ENDIAN
 #else
-#define Q3_LITTLE_ENDIAN
+#  define Q3_LITTLE_ENDIAN
 #endif
 
 #define DLL_EXT ".so"
@@ -294,10 +298,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define ARCH_STRING "alpha"
 #endif
 
-#if BYTE_ORDER == BIG_ENDIAN
-#define Q3_BIG_ENDIAN
+#if __BIG_ENDIAN__
+#  define Q3_BIG_ENDIAN
 #else
-#define Q3_LITTLE_ENDIAN
+#  define Q3_LITTLE_ENDIAN
 #endif
 
 #define DLL_EXT ".so"
