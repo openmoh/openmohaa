@@ -1368,18 +1368,16 @@ int R_GatherLightSources(const vec3_t vPos, vec3_t *pvLightPos, vec3_t *pvLightI
     iLightCount = 0;
 
     if (s_sun.exists) {
-        if (leaf) {
-            if (leaf->lights[0] = &tr.sSunLight) {
-                VectorMA(vPos, 16384.0, s_sun.direction, vEnd);
-                ri.CM_BoxTrace(&trace, vPos, vEnd, vec3_origin, vec3_origin, 0, CONTENTS_SOLID, 0);
+        if (leaf && leaf->lights[0] == &tr.sSunLight) {
+            VectorMA(vPos, 16384.0, s_sun.direction, vEnd);
+            ri.CM_BoxTrace(&trace, vPos, vEnd, vec3_origin, vec3_origin, 0, CONTENTS_SOLID, 0);
 
-                if (trace.surfaceFlags & SURF_SKY) {
-                    VectorMA(vPos, 16384.0, s_sun.direction, pvLightPos[0]);
-                    pvLightIntensity[0][0] = s_sun.color[0] * (1.0 / 510.0);
-                    pvLightIntensity[0][1] = s_sun.color[1] * (1.0 / 510.0);
-                    pvLightIntensity[0][2] = s_sun.color[2] * (1.0 / 510.0);
-                    iLightCount            = 1;
-                }
+            if (trace.surfaceFlags & SURF_SKY) {
+                VectorMA(vPos, 16384.0, s_sun.direction, pvLightPos[0]);
+                pvLightIntensity[0][0] = s_sun.color[0] * (1.0 / 510.0);
+                pvLightIntensity[0][1] = s_sun.color[1] * (1.0 / 510.0);
+                pvLightIntensity[0][2] = s_sun.color[2] * (1.0 / 510.0);
+                iLightCount            = 1;
             }
         }
     }
