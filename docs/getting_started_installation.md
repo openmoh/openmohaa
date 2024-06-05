@@ -7,6 +7,17 @@ Ensure that you download the binaries compatible with your platform in the relea
 - A valid MOH:AA installation
 - On Windows, Microsoft Visual C++ 2015/2017/2019/2022 Redistributable from https://learn.microsoft.com/en-US/cpp/windows/latest-supported-vc-redist?view=msvc-170 may be required.
 
+## System requirements
+
+This matches the hardware requirements (x86) of the original game:
+
+|Hardware|Minimum
+|--------|-------
+|CPU     |450 MHz
+|Memory  |128MB
+|Storage |1.2GB
+|GPU     |16MB
+
 ## Client
 
 a) extract archive to your MOHAA installation directory.
