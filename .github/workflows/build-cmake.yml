@@ -20,10 +20,13 @@ jobs:
     strategy:
       matrix:
         architecture: [
-          {name: 'amd64',   triple: 'x86_64-linux-gnu'},
-          {name: 'i686',    triple: 'i686-linux-gnu'},
-          {name: 'arm64',   triple: 'aarch64-linux-gnu'},
-          {name: 'armhf',   triple: 'arm-linux-gnueabihf'}
+          {name: 'amd64',    triple: 'x86_64-linux-gnu'},
+          {name: 'i686',     triple: 'i686-linux-gnu'},
+          {name: 'arm64',    triple: 'aarch64-linux-gnu'},
+          {name: 'armhf',    triple: 'arm-linux-gnueabihf'},
+          {name: 'powerpc',  triple: 'powerpc-linux-gnu'},
+          {name: 'ppc64',    triple: 'powerpc64-linux-gnu'},
+          {name: 'ppc64el',  triple: 'powerpc64le-linux-gnu'}
         ]
 
     name: "Building for platform linux-${{matrix.architecture.name}}"

@@ -25,8 +25,11 @@ jobs:
         target_os: [
           'linux-amd64',
           'linux-i686',
-          'linux-aarch64',
+          'linux-arm64',
           'linux-armhf',
+          'linux-powerpc',
+          'linux-ppc64',
+          'linux-ppc64el',
           'windows-x64',
           'windows-x86',
           'windows-x64-pdb',
