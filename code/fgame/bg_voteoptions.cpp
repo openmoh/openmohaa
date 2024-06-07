@@ -114,7 +114,7 @@ void VoteOptions::SetupVoteOptions(const char *configFileName, int length, const
     if (length >= MAX_VOTEOPTIONS_BUFFER_LENGTH) {
         Com_Error(
             ERR_DROP,
-            "VoteOptions: Options file '%s' is too big. Max size is %i bytes\n",
+            "VoteOptions: Options file '%s' is too big. Max size is %u bytes\n",
             configFileName,
             MAX_VOTEOPTIONS_BUFFER_LENGTH
         );
