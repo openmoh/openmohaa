@@ -55,6 +55,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define TIKI_FRAME_FIRST        0  // exec at first frame
 #define TIKI_FRAME_MAXFRAMERATE 60
 
+#define TIKI_SKEL_LOD_INDEXES 10
+
 // skb skeletor
 #define TIKI_SKB_HEADER_IDENT   (*(int *)"SKL ")
 #define TIKI_SKB_HEADER_VER_3   3
@@ -71,11 +73,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define TIKI_SKC_HEADER_VERSION     14
 
 // tiki limitations
-#define TIKI_MAX_BONES     100
-#define TIKI_MAX_VERTEXES  1000
-#define TIKI_MAX_TRIANGLES 2000
-#define TIKI_MAX_SKELCACHE 1024
-#define TIKI_MAX_COMMANDS  128
+#define TIKI_MAX_BONES       100
+#define TIKI_MAX_VERTEXES    1000
+#define TIKI_MAX_TRIANGLES   2000
+#define TIKI_MAX_SKELCACHE   1024
+#define TIKI_MAX_COMMANDS    128
 
 #define TIKI_MAX_ENTITIES              2048
 #define TIKI_MAX_ENTITY_CACHE_PER_ENT  2
@@ -199,7 +201,7 @@ typedef struct {
     int  ofsBones;
     int  ofsSurfaces;
     int  ofsEnd;
-    int  lodIndex[10];
+    int  lodIndex[TIKI_SKEL_LOD_INDEXES];
     int  numBoxes;
     int  ofsBoxes;
     int  numMorphTargets;
@@ -254,7 +256,7 @@ typedef struct skelHeaderGame_s {
     int                  numBones;
     struct boneData_s   *pBones;
     skelSurfaceGame_t   *pSurfaces;
-    int                  lodIndex[10];
+    int                  lodIndex[TIKI_SKEL_LOD_INDEXES];
     int                  numBoxes;
     struct skelHitBox_s *pBoxes;
     struct lodControl_s *pLOD;
