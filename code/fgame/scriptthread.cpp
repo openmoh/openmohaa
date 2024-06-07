@@ -2286,7 +2286,8 @@ ScriptThread::~ScriptThread()
     assert(m_ScriptVM);
     if (!m_ScriptVM) {
         // should never happen
-        throw ScriptException("Attempting to delete a dead thread.");
+        //throw ScriptException("Attempting to delete a dead thread.");
+        gi.Error(ERR_DROP, "Attempting to delete a dead thread.");
     }
 
     vm         = m_ScriptVM;

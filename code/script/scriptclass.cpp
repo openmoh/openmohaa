@@ -89,7 +89,8 @@ ScriptClass::ScriptClass()
 ScriptClass::~ScriptClass()
 {
     if (m_Script == NULL) {
-        throw ScriptException("Attempting to delete dead class.");
+        //throw ScriptException("Attempting to delete dead class.");
+        gi.Error(ERR_DROP, "Attempting to delete a dead thread.");
     }
 
     KillThreads();
