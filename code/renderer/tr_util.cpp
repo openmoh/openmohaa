@@ -265,7 +265,7 @@ void R_DrawDebugNumber( const vec3_t org, float number, float scale, float r, fl
 		sprintf(format, "%%.%df", precision);
         text = va(format, number);
 	} else {
-		text = va("%d", number);
+		text = va("%d", (int)number);
 	}
 
 	// NOTE: this cast here is needed!

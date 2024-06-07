@@ -1139,12 +1139,12 @@ static void CM_PatchCollideFromGrid( cGrid_t *grid, patchCollide_t *pf ) {
         pf->planes = NULL;
         Com_DPrintf(
             "WARNING: CM_PatchCollideFromGrid: Degenerate patch - no planes (%i %i %i)-(%i %i %i)\n",
-            pf->bounds[0][0],
-            pf->bounds[0][1],
-            pf->bounds[0][2],
-            pf->bounds[1][0],
-            pf->bounds[1][1],
-            pf->bounds[1][2]);
+            (int)pf->bounds[0][0],
+            (int)pf->bounds[0][1],
+            (int)pf->bounds[0][2],
+            (int)pf->bounds[1][0],
+            (int)pf->bounds[1][1],
+            (int)pf->bounds[1][2]);
 	}
 
 	if (numFacets >= 1) {
@@ -1155,12 +1155,12 @@ static void CM_PatchCollideFromGrid( cGrid_t *grid, patchCollide_t *pf ) {
         pf->facets = NULL;
         Com_DPrintf(
             "WARNING: CM_PatchCollideFromGrid: Degenerate patch - no facets (%i %i %i)-(%i %i %i)\n",
-            pf->bounds[0][0],
-            pf->bounds[0][1],
-            pf->bounds[0][2],
-            pf->bounds[1][0],
-            pf->bounds[1][1],
-            pf->bounds[1][2]);
+            (int)pf->bounds[0][0],
+            (int)pf->bounds[0][1],
+            (int)pf->bounds[0][2],
+            (int)pf->bounds[1][0],
+            (int)pf->bounds[1][1],
+            (int)pf->bounds[1][2]);
 	}
 }
 
