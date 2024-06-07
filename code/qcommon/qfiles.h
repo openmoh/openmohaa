@@ -424,6 +424,8 @@ typedef struct fcm_s {
 	int iHeight;
 } fcm_t;
 
+#define MAX_TERRAIN_VARNODES 63
+
 typedef struct varnode_s {
 	unsigned short flags;
 } varnode_t;
@@ -448,7 +450,7 @@ typedef struct cTerraPatch_s {
 	short	iSouth;
 	short	iWest;
 
-	varnode_t		varTree[ 2 ][ 63 ];
+	varnode_t varTree[2][MAX_TERRAIN_VARNODES];
 
 	unsigned char	heightmap[ 9 * 9 ];
 } cTerraPatch_t;
