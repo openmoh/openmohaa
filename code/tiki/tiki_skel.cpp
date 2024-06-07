@@ -156,21 +156,17 @@ void TIKI_CacheFileSkel(skelHeader_t *pHeader, skelcache_t *cache, int length)
     byte              *max_gs_ptr;
     byte              *gs_ptr = NULL;
 
-    pSurf      = (skelSurface_t *)((byte *)pHeader + LittleLong(pHeader->ofsSurfaces));
+    pSurf      = (skelSurface_t *)((byte *)pHeader + pHeader->ofsSurfaces);
     nSurfBytes = 0;
 
-    int numSurfaces = 0, version;
-    CopyLittleLong(&numSurfaces, &pHeader->numSurfaces);
-    CopyLittleLong(&version, &pHeader->version);
-
-    for (i = 0; i < numSurfaces; i++) {
-        skeletorVertex_t *pVert    = (skeletorVertex_t *)((byte *)pSurf + LittleLongPtr(pSurf->ofsVerts));
-        const int         numVerts = LittleLongPtr(pSurf->numVerts);
+    for (i = 0; i < pHeader->numSurfaces; i++) {
+        skeletorVertex_t *pVert    = (skeletorVertex_t *)((byte *)pSurf + LongNoSwapPtr(&pSurf->ofsVerts));
+        const int         numVerts = LongNoSwapPtr(&pSurf->numVerts);
 
         nVertBytes = 0;
         for (j = 0; j < numVerts; j++) {
-            const int numMorphs  = LittleLongPtr(pVert->numMorphs);
-            const int numWeights = LittleLongPtr(pVert->numWeights);
+            const int numMorphs  = LongNoSwapPtr(&pVert->numMorphs);
+            const int numWeights = LongNoSwapPtr(&pVert->numWeights);
 
             int iOffset = sizeof(skeletorMorph_t) * numMorphs;
             iOffset += sizeof(skelWeight_t) * numWeights;
@@ -182,7 +178,7 @@ void TIKI_CacheFileSkel(skelHeader_t *pHeader, skelcache_t *cache, int length)
 
         nSurfBytes += sizeof(skelSurfaceGame_t);
         // triangles
-        nSurfBytes += LittleLongPtr(pSurf->numTriangles) * sizeof(skelIndex_t) * 3;
+        nSurfBytes += LongNoSwapPtr(&pSurf->numTriangles) * sizeof(skelIndex_t) * 3;
         nSurfBytes = PAD(nSurfBytes, sizeof(void *));
         // vertices
         nSurfBytes += nVertBytes;
@@ -190,38 +186,36 @@ void TIKI_CacheFileSkel(skelHeader_t *pHeader, skelcache_t *cache, int length)
         // collapse
         nSurfBytes += numVerts * sizeof(skelIndex_t);
 
-        if (version > TIKI_SKB_HEADER_VER_3) {
+        if (pHeader->version > TIKI_SKB_HEADER_VER_3) {
             // collapse indices
             nSurfBytes += numVerts * sizeof(skelIndex_t);
         }
 
-        pSurf = (skelSurface_t *)((byte *)pSurf + LittleLongPtr(pSurf->ofsEnd));
+        pSurf = (skelSurface_t *)((byte *)pSurf + LongNoSwapPtr(&pSurf->ofsEnd));
     }
 
-    nBoneBytes  = LittleLong(pHeader->numBones) * sizeof(boneData_t);
+    nBoneBytes  = pHeader->numBones * sizeof(boneData_t);
     nBoxBytes   = 0;
     nMorphBytes = 0;
 
-    if (version > TIKI_SKB_HEADER_VERSION) {
+    if (pHeader->version > TIKI_SKB_HEADER_VERSION) {
         char    *pMorphTargets;
         intptr_t nLen;
 
-        nBoxBytes                 = LittleLong(pHeader->numBoxes) * sizeof(skelHitBox_t);
-        const int ofsMorphTargets = LittleLongPtr(pHeader->ofsMorphTargets);
-        const int numMorphTargets = LittleLongPtr(pHeader->numMorphTargets);
-        pMorphTargets             = (char *)((byte *)pHeader + ofsMorphTargets);
+        nBoxBytes                 = pHeader->numBoxes * sizeof(skelHitBox_t);
+        pMorphTargets             = (char *)((byte *)pHeader + pHeader->ofsMorphTargets);
 
-        if (ofsMorphTargets > 0 || (ofsMorphTargets + numMorphTargets) < length) {
-            for (i = 0; i < numMorphTargets; i++) {
+        if (pHeader->ofsMorphTargets > 0 || (pHeader->ofsMorphTargets + pHeader->numMorphTargets) < length) {
+            for (i = 0; i < pHeader->numMorphTargets; i++) {
                 nLen = strlen(pMorphTargets) + 1;
                 nMorphBytes += nLen;
                 pMorphTargets += nLen;
             }
         } else {
-            nMorphBytes = numMorphTargets;
+            nMorphBytes = pHeader->numMorphTargets;
         }
-    } else if (version == TIKI_SKB_HEADER_VERSION) {
-        nBoxBytes = LittleLong(pHeader->numBoxes) * sizeof(skelHitBox_t);
+    } else if (pHeader->version == TIKI_SKB_HEADER_VERSION) {
+        nBoxBytes = pHeader->numBoxes * sizeof(skelHitBox_t);
     }
 
     cache->size = sizeof(skelHeaderGame_t);
@@ -238,51 +232,51 @@ void TIKI_CacheFileSkel(skelHeader_t *pHeader, skelcache_t *cache, int length)
     byte *max_ptr       = start_ptr + cache->size;
     byte *ptr           = start_ptr + sizeof(skelHeaderGame_t);
 
-    pSkel->version     = version;
-    pSkel->numSurfaces = numSurfaces;
-    pSkel->numBones    = LittleLong(pHeader->numBones);
+    pSkel->version     = pHeader->version;
+    pSkel->numSurfaces = pHeader->numSurfaces;
+    pSkel->numBones    = pHeader->numBones;
     pSkel->pSurfaces   = (skelSurfaceGame_t *)ptr;
     ptr += nSurfBytes;
     ptr           = (byte *)PADP(ptr, sizeof(void *));
     pSkel->pBones = (boneData_t *)ptr;
     ptr += nBoneBytes;
     ptr             = (byte *)PADP(ptr, sizeof(void *));
-    pSkel->numBoxes = LittleLong(pHeader->numBoxes);
+    pSkel->numBoxes = pHeader->numBoxes;
     pSkel->pBoxes   = (skelHitBox_t *)ptr;
     ptr += nBoxBytes;
     ptr                    = (byte *)PADP(ptr, sizeof(void *));
     pSkel->pLOD            = NULL;
-    pSkel->numMorphTargets = LittleLong(pHeader->numMorphTargets);
+    pSkel->numMorphTargets = pHeader->numMorphTargets;
     pSkel->pMorphTargets   = (char *)ptr;
     ptr += nMorphBytes;
     ptr = (byte *)PADP(ptr, sizeof(void *));
     memcpy(pSkel->name, pHeader->name, sizeof(pSkel->name));
 
     for (i = 0; i < sizeof(pSkel->lodIndex) / sizeof(pSkel->lodIndex[0]); i++) {
-        CopyLittleLong(&pSkel->lodIndex[0], &pHeader->lodIndex[0]);
+        Com_Memcpy(&pSkel->lodIndex[i], &pHeader->lodIndex[i], sizeof(pSkel->lodIndex[i]));
     }
 
-    pSurf     = (skelSurface_t *)((byte *)pHeader + LittleLongPtr(pHeader->ofsSurfaces));
+    pSurf     = (skelSurface_t *)((byte *)pHeader + pHeader->ofsSurfaces);
     pGameSurf = pSkel->pSurfaces;
 
-    for (i = 0; i < numSurfaces; i++) {
+    for (i = 0; i < pHeader->numSurfaces; i++) {
         size_t            nBytesUsed;
         skeletorVertex_t *pVert;
-        const int         numTriangles = LittleLongPtr(pSurf->numTriangles);
-        const int         numVerts     = LittleLongPtr(pSurf->numVerts);
+        const int         numTriangles = LongNoSwapPtr(&pSurf->numTriangles);
+        const int         numVerts     = LongNoSwapPtr(&pSurf->numVerts);
 
         nTriBytes  = numTriangles * sizeof(skelIndex_t) * 3;
         nSurfBytes = 0;
-        if (version > TIKI_SKB_HEADER_VER_3) {
+        if (pHeader->version > TIKI_SKB_HEADER_VER_3) {
             nSurfBytes = numVerts * sizeof(skelIndex_t);
         }
 
-        pVert = (skeletorVertex_t *)((byte *)pSurf + LittleLongPtr(pSurf->ofsVerts));
+        pVert = (skeletorVertex_t *)((byte *)pSurf + LongNoSwapPtr(&pSurf->ofsVerts));
 
         nVertBytes = 0;
         for (j = 0; j < numVerts; j++) {
-            const int numMorphs  = LittleLongPtr(pVert->numMorphs);
-            const int numWeights = LittleLongPtr(pVert->numWeights);
+            const int numMorphs  = LongNoSwapPtr(&pVert->numMorphs);
+            const int numWeights = LongNoSwapPtr(&pVert->numWeights);
 
             int iOffset = sizeof(skeletorMorph_t) * numMorphs;
             iOffset += sizeof(skelWeight_t) * numWeights;
@@ -303,7 +297,7 @@ void TIKI_CacheFileSkel(skelHeader_t *pHeader, skelcache_t *cache, int length)
         max_gs_ptr   = (byte *)pGameSurf + nBytesUsed;
         gs_ptr       = start_gs_ptr + sizeof(skelSurfaceGame_t);
 
-        pGameSurf->ident            = LittleLongPtr(pSurf->ident);
+        pGameSurf->ident            = LongNoSwapPtr(&pSurf->ident);
         pGameSurf->numTriangles     = numTriangles;
         pGameSurf->numVerts         = numVerts;
         pGameSurf->pStaticXyz       = NULL;
@@ -317,7 +311,7 @@ void TIKI_CacheFileSkel(skelHeader_t *pHeader, skelcache_t *cache, int length)
         gs_ptr               = (byte *)PADP(gs_ptr, sizeof(void *));
         pGameSurf->pCollapse = (skelIndex_t *)gs_ptr;
         gs_ptr += sizeof(*pGameSurf->pCollapse) * numVerts;
-        if (version > TIKI_SKB_HEADER_VER_3) {
+        if (pHeader->version > TIKI_SKB_HEADER_VER_3) {
             pGameSurf->pCollapseIndex = (skelIndex_t*)gs_ptr;
             gs_ptr += sizeof(*pGameSurf->pCollapseIndex) * numVerts;
         }
@@ -325,9 +319,9 @@ void TIKI_CacheFileSkel(skelHeader_t *pHeader, skelcache_t *cache, int length)
         memcpy(pGameSurf->name, pSurf->name, sizeof(pGameSurf->name));
 
         if (pGameSurf->numTriangles) {
-            const int *pTriangles = (const int *)((byte *)pSurf + LittleLongPtr(pSurf->ofsTriangles));
+            const int *pTriangles = (const int *)((byte *)pSurf + LongNoSwapPtr(&pSurf->ofsTriangles));
             for (j = 0; j < numTriangles * 3; j++) {
-                CopyLittleLong(&pGameSurf->pTriangles[j], &pTriangles[j]);
+                Com_Memcpy(&pGameSurf->pTriangles[j], &pTriangles[j], sizeof(pGameSurf->pTriangles[j]));
             }
         } else {
             pGameSurf->pTriangles = NULL;
@@ -335,21 +329,21 @@ void TIKI_CacheFileSkel(skelHeader_t *pHeader, skelcache_t *cache, int length)
 
         if (pGameSurf->numVerts) {
             skeletorVertex_t *skelVert = pGameSurf->pVerts;
-            pVert                      = (skeletorVertex_t *)((char *)pSurf + LittleLongPtr(pSurf->ofsVerts));
+            pVert                      = (skeletorVertex_t *)((char *)pSurf + LongNoSwapPtr(&pSurf->ofsVerts));
 
             for (j = 0; j < pGameSurf->numVerts; j++) {
-                const int numMorphs  = LittleLongPtr(pVert->numMorphs);
-                const int numWeights = LittleLongPtr(pVert->numWeights);
+                const int numMorphs  = LongNoSwapPtr(&pVert->numMorphs);
+                const int numWeights = LongNoSwapPtr(&pVert->numWeights);
 
                 int iOffset = sizeof(skeletorMorph_t) * numMorphs;
                 iOffset += sizeof(skelWeight_t) * numWeights;
                 iOffset += sizeof(skeletorVertex_t);
 
-                skelVert->normal[0]    = LittleFloatPtr(pVert->normal[0]);
-                skelVert->normal[1]    = LittleFloatPtr(pVert->normal[1]);
-                skelVert->normal[2]    = LittleFloatPtr(pVert->normal[2]);
-                skelVert->texCoords[0] = LittleFloatPtr(pVert->texCoords[0]);
-                skelVert->texCoords[1] = LittleFloatPtr(pVert->texCoords[1]);
+                skelVert->normal[0]    = FloatNoSwapPtr(&pVert->normal[0]);
+                skelVert->normal[1]    = FloatNoSwapPtr(&pVert->normal[1]);
+                skelVert->normal[2]    = FloatNoSwapPtr(&pVert->normal[2]);
+                skelVert->texCoords[0] = FloatNoSwapPtr(&pVert->texCoords[0]);
+                skelVert->texCoords[1] = FloatNoSwapPtr(&pVert->texCoords[1]);
                 skelVert->numWeights   = numWeights;
                 skelVert->numMorphs    = numMorphs;
 
@@ -357,20 +351,20 @@ void TIKI_CacheFileSkel(skelHeader_t *pHeader, skelcache_t *cache, int length)
                 skeletorMorph_t *pMorph    = (skeletorMorph_t *)((byte *)pVert + sizeof(skeletorVertex_t));
                 skeletorMorph_t *skelMorph = (skeletorMorph_t *)((byte *)skelVert + sizeof(skeletorVertex_t));
                 for (k = 0; k < numMorphs; k++, pMorph++, skelMorph++) {
-                    skelMorph->morphIndex = LittleLongPtr(pMorph->morphIndex);
-                    skelMorph->offset[0]  = LittleFloatPtr(pMorph->offset[0]);
-                    skelMorph->offset[1]  = LittleFloatPtr(pMorph->offset[1]);
-                    skelMorph->offset[2]  = LittleFloatPtr(pMorph->offset[2]);
+                    skelMorph->morphIndex = LongNoSwapPtr(&pMorph->morphIndex);
+                    skelMorph->offset[0]  = FloatNoSwapPtr(&pMorph->offset[0]);
+                    skelMorph->offset[1]  = FloatNoSwapPtr(&pMorph->offset[1]);
+                    skelMorph->offset[2]  = FloatNoSwapPtr(&pMorph->offset[2]);
                 }
 
                 skelWeight_t *pWeight    = (skelWeight_t *)((byte *)pMorph);
                 skelWeight_t *skelWeight = (skelWeight_t *)((byte *)skelMorph);
                 for (k = 0; k < numWeights; k++, skelWeight++, pWeight++) {
-                    skelWeight->boneIndex  = LittleLongPtr(pWeight->boneIndex);
-                    skelWeight->boneWeight = LittleFloatPtr(pWeight->boneWeight);
-                    skelWeight->offset[0]  = LittleFloatPtr(pWeight->offset[0]);
-                    skelWeight->offset[1]  = LittleFloatPtr(pWeight->offset[1]);
-                    skelWeight->offset[2]  = LittleFloatPtr(pWeight->offset[2]);
+                    skelWeight->boneIndex  = LongNoSwapPtr(&pWeight->boneIndex);
+                    skelWeight->boneWeight = FloatNoSwapPtr(&pWeight->boneWeight);
+                    skelWeight->offset[0]  = FloatNoSwapPtr(&pWeight->offset[0]);
+                    skelWeight->offset[1]  = FloatNoSwapPtr(&pWeight->offset[1]);
+                    skelWeight->offset[2]  = FloatNoSwapPtr(&pWeight->offset[2]);
                 }
 
                 pVert    = (skeletorVertex_t *)((byte *)pVert + iOffset);
@@ -379,15 +373,15 @@ void TIKI_CacheFileSkel(skelHeader_t *pHeader, skelcache_t *cache, int length)
 
             assert((byte *)skelVert - (byte *)pGameSurf <= (byte *)pGameSurf->pCollapse - (byte *)pGameSurf);
 
-            const int *pCollapse = (const int *)((byte *)pSurf + LittleLongPtr(pSurf->ofsCollapse));
+            const int *pCollapse = (const int *)((byte *)pSurf + LongNoSwapPtr(&pSurf->ofsCollapse));
             for (j = 0; j < numVerts; j++) {
-                pGameSurf->pCollapse[j] = LittleLongPtr(pCollapse[j]);
+                pGameSurf->pCollapse[j] = LongNoSwapPtr(&pCollapse[j]);
             }
 
-            if (version > TIKI_SKB_HEADER_VER_3) {
-                const int *pCollapseIndex = (const int *)((byte *)pSurf + LittleLongPtr(pSurf->ofsCollapseIndex));
+            if (pHeader->version > TIKI_SKB_HEADER_VER_3) {
+                const int *pCollapseIndex = (const int *)((byte *)pSurf + LongNoSwapPtr(&pSurf->ofsCollapseIndex));
                 for (j = 0; j < numVerts; j++) {
-                    pGameSurf->pCollapseIndex[j] = LittleLongPtr(pCollapseIndex[j]);
+                    pGameSurf->pCollapseIndex[j] = LongNoSwapPtr(&pCollapseIndex[j]);
                 }
             } else {
                 pGameSurf->pCollapseIndex = NULL;
@@ -398,10 +392,10 @@ void TIKI_CacheFileSkel(skelHeader_t *pHeader, skelcache_t *cache, int length)
             pGameSurf->pCollapseIndex = NULL;
         }
 
-        if (i != numSurfaces - 1) {
+        if (i != pHeader->numSurfaces - 1) {
             pGameSurf->pNext = (skelSurfaceGame_t *)gs_ptr;
             pGameSurf        = pGameSurf->pNext;
-            pSurf            = (skelSurface_t *)((byte *)pSurf + LittleLongPtr(pSurf->ofsEnd));
+            pSurf            = (skelSurface_t *)((byte *)pSurf + LongNoSwapPtr(&pSurf->ofsEnd));
         }
     }
 
@@ -410,8 +404,8 @@ void TIKI_CacheFileSkel(skelHeader_t *pHeader, skelcache_t *cache, int length)
     assert(((byte *)pGameSurf - (byte *)pSkel) <= cache->size);
 
     if (nBoneBytes) {
-        if (version <= TIKI_SKB_HEADER_VERSION) {
-            skelBoneName_t *TIKI_bones = (skelBoneName_t *)((byte *)pHeader + LittleLongPtr(pHeader->ofsBones));
+        if (pHeader->version <= TIKI_SKB_HEADER_VERSION) {
+            skelBoneName_t *TIKI_bones = (skelBoneName_t *)((byte *)pHeader + LongNoSwapPtr(&pHeader->ofsBones));
             for (i = 0; i < pSkel->numBones; i++) {
                 const char *boneName;
 
@@ -425,10 +419,10 @@ void TIKI_CacheFileSkel(skelHeader_t *pHeader, skelcache_t *cache, int length)
                 TIKI_bones++;
             }
         } else {
-            boneFileData_t *boneBuffer = (boneFileData_t *)((byte *)pHeader + LittleLongPtr(pHeader->ofsBones));
+            boneFileData_t *boneBuffer = (boneFileData_t *)((byte *)pHeader + LongNoSwapPtr(&pHeader->ofsBones));
             for (i = 0; i < pSkel->numBones; i++) {
                 LoadBoneFromBuffer2(boneBuffer, &pSkel->pBones[i]);
-                boneBuffer = (boneFileData_t *)((byte *)boneBuffer + LittleLongPtr(boneBuffer->ofsEnd));
+                boneBuffer = (boneFileData_t *)((byte *)boneBuffer + LongNoSwapPtr(&boneBuffer->ofsEnd));
             }
         }
     } else {
@@ -436,7 +430,7 @@ void TIKI_CacheFileSkel(skelHeader_t *pHeader, skelcache_t *cache, int length)
         pSkel->pBones   = NULL;
     }
 
-    if (version <= TIKI_SKB_HEADER_VER_3) {
+    if (pHeader->version <= TIKI_SKB_HEADER_VER_3) {
         pSkel->numBoxes        = 0;
         pSkel->pBoxes          = NULL;
         pSkel->numMorphTargets = 0;
@@ -445,7 +439,7 @@ void TIKI_CacheFileSkel(skelHeader_t *pHeader, skelcache_t *cache, int length)
     }
 
     if (nBoxBytes) {
-        const int ofsBoxes = LittleLongPtr(pHeader->ofsBoxes);
+        const int ofsBoxes = LongNoSwapPtr(&pHeader->ofsBoxes);
 
         if (ofsBoxes <= 0 || (nBoxBytes + ofsBoxes) >= length) {
             Com_Printf("^~^~^ Box data is corrupted for '%s'\n", cache->path);
@@ -459,14 +453,14 @@ void TIKI_CacheFileSkel(skelHeader_t *pHeader, skelcache_t *cache, int length)
         pSkel->pBoxes   = NULL;
     }
 
-    if (version <= TIKI_SKB_HEADER_VERSION) {
+    if (pHeader->version <= TIKI_SKB_HEADER_VERSION) {
         pSkel->numMorphTargets = 0;
         pSkel->pMorphTargets   = NULL;
         return;
     }
 
     if (nMorphBytes) {
-        const int ofsMorphTargets = LittleLongPtr(pHeader->ofsBoxes);
+        const int ofsMorphTargets = LongNoSwapPtr(&pHeader->ofsBoxes);
 
         if (ofsMorphTargets <= 0 || (nMorphBytes + ofsMorphTargets) >= length) {
             Com_Printf("^~^~^ Morph targets data is corrupted for '%s'\n", cache->path);
@@ -656,7 +650,7 @@ qboolean TIKI_LoadSKB(const char *path, skelcache_t *cache)
             newSurf->ofsCollapse += sizeof(unsigned int) * newSurf->numVerts;
         }
         if (newSurf->ofsCollapseIndex > newSurf->ofsVerts) {
-            newSurf->ofsCollapse += sizeof(unsigned int) * newSurf->numVerts;
+            newSurf->ofsCollapseIndex += sizeof(unsigned int) * newSurf->numVerts;
         }
         if (newSurf->ofsTriangles > newSurf->ofsVerts) {
             newSurf->ofsTriangles += sizeof(unsigned int) * newSurf->numVerts;
@@ -832,7 +826,7 @@ qboolean TIKI_LoadSKD(const char *path, skelcache_t *cache)
     }
 
     // The SKD must have at least one surface
-    if (pheader->numSurfaces <= 0) {
+    if (LittleLong(pheader->numSurfaces) <= 0) {
         TIKI_Error("^~^~^ TIKI_LoadSKD: %s has no surfaces\n", path);
         TIKI_FreeFile(pheader);
         return qfalse;
@@ -857,12 +851,15 @@ qboolean TIKI_LoadSKD(const char *path, skelcache_t *cache)
         return qfalse;
     }
 
+    TIKI_SwapSkel(pheader);
+
     surf = (skelSurface_t *)((byte *)pheader + pheader->ofsSurfaces);
 
     for (i = 0; i < pheader->numSurfaces; i++) {
         if (surf->numVerts > TIKI_MAX_VERTEXES) {
             TIKI_Error(
-                "TIKI_LoadSKD: %s has more than %i verts on a surface (%i)", path, TIKI_MAX_VERTEXES, surf->numVerts
+                "TIKI_LoadSKD: %s has more than %i verts on a surface (%i)", path, TIKI_MAX_VERTEXES,
+                surf->numVerts
             );
             TIKI_FreeFile(pheader);
             return qfalse;
@@ -896,7 +893,8 @@ qboolean TIKI_LoadSKD(const char *path, skelcache_t *cache)
     // Get the lod file associated with the skeleton
     GetLODFile(cache);
     TIKI_SortLOD(cache->skel);
-    return 1;
+
+    return true;
 }
 
 /*
