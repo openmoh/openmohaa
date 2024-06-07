@@ -679,6 +679,7 @@ UIWidget::UIWidget()
 	m_visible = true;
 	m_enabled = true;
 	m_canactivate = false;
+	m_commandhandler = NULL;
 	m_font = NULL;
 	m_material = NULL;
 	m_hovermaterial = NULL;
