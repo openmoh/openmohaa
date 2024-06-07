@@ -40,6 +40,7 @@ extern "C" {
     TIKI_SetupIndividualSurface(const char *filename, dtikisurface_t *surf, const char *name, dloadsurface_t *loadsurf);
     size_t       TIKI_CalcAnimDefSize(dloaddef_t *ld);
     dtikianim_t *TIKI_FillTIKIStructureSkel(dloaddef_t *ld);
+    void         TIKI_SwapSkel(skelHeader_t* pheader);
 
 #ifdef __cplusplus
 }
