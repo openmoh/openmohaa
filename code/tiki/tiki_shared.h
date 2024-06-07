@@ -193,19 +193,21 @@ typedef struct dtiki_s {
 } dtiki_t;
 
 typedef struct {
-    int  ident;
-    int  version;
-    char name[64];
-    int  numSurfaces;
-    int  numBones;
-    int  ofsBones;
-    int  ofsSurfaces;
-    int  ofsEnd;
-    int  lodIndex[TIKI_SKEL_LOD_INDEXES];
-    int  numBoxes;
-    int  ofsBoxes;
-    int  numMorphTargets;
-    int  ofsMorphTargets;
+    int   ident;
+    int   version;
+    char  name[64];
+    int   numSurfaces;
+    int   numBones;
+    int   ofsBones;
+    int   ofsSurfaces;
+    int   ofsEnd;
+    int   lodIndex[TIKI_SKEL_LOD_INDEXES];
+    int   numBoxes;
+    int   ofsBoxes;
+    int   numMorphTargets;
+    int   ofsMorphTargets;
+    // Added in 2.0 (SKD version 6)
+    float scale;
 } skelHeader_t;
 
 typedef struct {
