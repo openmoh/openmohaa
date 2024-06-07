@@ -1502,7 +1502,22 @@ short ShortSwap(short l)
 	return (b1 << 8) + b2;
 }
 
+unsigned short UnsignedShortSwap(unsigned short l)
+{
+	byte b1, b2;
+
+	b1 = l & 255;
+	b2 = (l >> 8) & 255;
+
+	return (b1 << 8) + b2;
+}
+
 short ShortNoSwap(short l)
+{
+	return l;
+}
+
+unsigned short UnsignedShortNoSwap(unsigned short l)
 {
 	return l;
 }
@@ -1519,7 +1534,24 @@ int LongSwap(int l)
 	return ((int)b1 << 24) + ((int)b2 << 16) + ((int)b3 << 8) + b4;
 }
 
+unsigned int UnsignedLongSwap(unsigned int l)
+{
+	byte b1, b2, b3, b4;
+
+	b1 = l & 255;
+	b2 = (l >> 8) & 255;
+	b3 = (l >> 16) & 255;
+	b4 = (l >> 24) & 255;
+
+	return ((unsigned int)b1 << 24) + ((unsigned int)b2 << 16) + ((unsigned int)b3 << 8) + b4;
+}
+
 int LongNoSwap(int l)
+{
+	return l;
+}
+
+unsigned int UnsignedLongNoSwap(unsigned int l)
 {
 	return l;
 }

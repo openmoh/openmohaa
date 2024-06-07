@@ -392,7 +392,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 void CopyShortSwap(void* dest, const void* src);
 void CopyLongSwap(void* dest, const void* src);
 short ShortSwap(short l);
+unsigned short UnsignedShortSwap(unsigned short l);
 int LongSwap(int l);
+unsigned int UnsignedLongSwap(unsigned int l);
 float FloatSwap(const float* f);
 short ShortSwapPtr(const void* l);
 int LongSwapPtr(const void* l);
@@ -413,7 +415,9 @@ float FloatNoSwapPtr(const void* l);
 //
 
 #define LittleShort(x) ShortSwap(x)
+#define LittleUnsignedShort(x) UnsignedShortSwap(x)
 #define LittleLong(x) LongSwap(x)
+#define LittleUnsignedLong(x) UnsignedLongSwap(x)
 #define LittleFloat(x) FloatSwap(&x)
 #define LittleShortPtr(x) ShortSwapPtr(&x)
 #define LittleLongPtr(x) LongSwapPtr(&x)
@@ -431,6 +435,7 @@ float FloatNoSwapPtr(const void* l);
 #define CopyLittleLong(dest, src) Com_Memcpy(dest, src, 4)
 
 #define LittleShort
+#define LittleUnsignedShort
 #define LittleLong
 #define LittleFloat
 #define LittleShortPtr(x) ShortNoSwapPtr(&x)
@@ -438,7 +443,9 @@ float FloatNoSwapPtr(const void* l);
 #define LittleFloatPtr(x) FloatNoSwapPtr(&x)
 
 #define BigShort(x) ShortSwap(x)
+#define BigUnsignedShort(x) UnsignedShortSwap(x)
 #define BigLong(x) LongSwap(x)
+#define BigUnsignedLong(x) UnsignedLongSwap(x)
 #define BigFloat(x) FloatSwap(&x)
 #define BigShortPtr(x) ShortSwapPtr(&x)
 #define BigLongPtr(x) LongSwapPtr(&x)
