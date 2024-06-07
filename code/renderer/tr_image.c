@@ -947,7 +947,7 @@ image_t* R_CreateImage(
 
 	if (glCompressMode) {
 		UploadCompressed(
-			(unsigned*)pic,
+			(byte*)pic,
 			image->width,
 			image->height,
 			image->numMipmaps,
@@ -962,7 +962,7 @@ image_t* R_CreateImage(
 	}
 	else {
 		Upload32(
-			(unsigned*)pic,
+			(unsigned int*)pic,
 			image->width,
 			image->height,
 			image->numMipmaps,
@@ -1089,7 +1089,7 @@ static void LoadBMP( const char *name, byte **pic, int *width, int *height )
 	}
 	if ( bmpHeader.fileSize != length )
 	{
-		ri.Error( ERR_DROP, "LoadBMP: header size does not match file size (%d vs. %d) (%s)\n", bmpHeader.fileSize, length, name );
+		ri.Error( ERR_DROP, "LoadBMP: header size does not match file size (%lu vs. %d) (%s)\n", bmpHeader.fileSize, length, name );
 	}
 	if ( bmpHeader.compression != 0 )
 	{
@@ -1213,7 +1213,7 @@ static void LoadPCX ( const char *filename, byte **pic, byte **palette, int *wid
 	// parse the PCX file
 	//
 	pcx = (pcx_t *)raw;
-	raw = &pcx->data;
+	raw = (byte*)pcx->data;
 
   	xmax = LittleShort(pcx->xmax);
     ymax = LittleShort(pcx->ymax);

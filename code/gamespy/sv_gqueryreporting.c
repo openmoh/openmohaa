@@ -295,8 +295,8 @@ static void send_echo(qr_t qrec, struct sockaddr *sender, char *outbuf, const ch
 static void send_final(qr_t qrec, struct sockaddr *sender, char *outbuf, char *validation)
 {
     char keyvalue[256];
-    char encrypted_val[128];
-    char encoded_val[200];
+    uchar encrypted_val[128];
+    uchar encoded_val[200];
     int  keylen;
 
     if (*validation) {

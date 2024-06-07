@@ -1180,7 +1180,7 @@ void CG_DrawCrosshair()
     float      x, y;
     float      width, height;
 
-    shader = NULL;
+    shader = (qhandle_t)0;
 
     if (!cg_hud->integer || !ui_crosshair->integer) {
         return;

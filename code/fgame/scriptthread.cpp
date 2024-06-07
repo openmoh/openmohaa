@@ -4632,7 +4632,7 @@ void ScriptThread::RestoreSound(Event *ev)
 
     time = delaytime * 1000.0f;
 
-    gi.SendServerCommand(player != NULL ? player->edict - g_entities : NULL, "restoresound %0.2f %f", time, max_vol);
+    gi.SendServerCommand(player != NULL ? player->edict - g_entities : 0, "restoresound %0.2f %f", time, max_vol);
 }
 
 void ScriptThread::EventHudDraw3d(Event *ev)

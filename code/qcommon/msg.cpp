@@ -2756,7 +2756,7 @@ void MSG_ReadDeltaEntity( msg_t *msg, entityState_t *from, entityState_t *to,
 	// su44: trying to find the cause of "unrecognized entity field type" error.
 	// Number of changed fields (lc) should never be larger than total field count....
 	if(numFields < lc) {
-		Com_Error( ERR_DROP, "MSG_ReadDeltaEntity: number of changed fields (%i) is higher than total field count (%i)\n",
+		Com_Error( ERR_DROP, "MSG_ReadDeltaEntity: number of changed fields (%i) is higher than total field count (%zu)\n",
 			lc, numFields);
 	}
 

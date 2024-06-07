@@ -250,6 +250,8 @@ static void RB_OptimizeLights()
                 VectorNormalize2(pLight->vOrigin, pLight->vDirection);
             }
             break;
+        default:
+            break;
         }
     }
 }

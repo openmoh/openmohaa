@@ -161,6 +161,8 @@ void UIHorizScroll::DrawThumb(void)
             m_local_alpha
         );
         break;
+    default:
+        break;
     }
 }
 

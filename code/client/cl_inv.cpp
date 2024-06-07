@@ -23,8 +23,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "cl_ui.h"
 
 typedef struct {
-    char *string;
-    int   value;
+    const char *string;
+    int         value;
 } equipment_event_table_t;
 
 static equipment_event_table_t s_equipTable[] = {

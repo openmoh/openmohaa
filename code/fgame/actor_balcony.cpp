@@ -264,7 +264,7 @@ bool Actor::CalcFallPath(void)
     loop = currentPos;
 
     mm.desired_speed = 0;
-    mm.groundPlane = NULL;
+    mm.groundPlane = qfalse;
     mm.walking = false;
     VectorSet(mm.velocity, 0, 0, -171);
 

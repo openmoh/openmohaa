@@ -22,8 +22,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //
 // g_local.h -- local definitions for game module
 
-#ifndef __G_LOCAL_H__
-#define __G_LOCAL_H__
+#pragma once
 
 #include "q_shared.h"
 #include "bg_public.h"
@@ -417,8 +416,8 @@ void       G_RunThink(gentity_t *ent);
 void QDECL G_LogPrintf(const char *fmt, ...);
 void       SendScoreboardMessageToAllClients(void);
 void QDECL G_Printf(const char *fmt, ...);
-void QDECL G_Error(const char *fmt, ...);
-void QDECL G_Error(errorParm_t type, const char *fmt, ...);
+void QDECL G_Error(const char *fmt, ...) __attribute__ ((noreturn, format(printf, 1, 2)));
+void QDECL G_Error(errorParm_t type, const char *fmt, ...) __attribute__((noreturn, format(printf, 2, 3)));
 
 //
 // g_client.c
@@ -530,5 +529,3 @@ extern gentity_t *g_entities;
 #define FOFS(x) ((size_t) & (((gentity_t *)0)->x))
 
 #include "g_utils.h"
-
-#endif /* g_local.h */

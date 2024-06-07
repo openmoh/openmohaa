@@ -287,7 +287,7 @@ void UIField::CharEvent(int ch)
     // if the character was inserted at the end of the string,
     // make sure it remains NULL-terminated
     if (m_edit.m_cursor == len) {
-        m_edit.m_buffer[m_edit.m_cursor] = NULL;
+        m_edit.m_buffer[m_edit.m_cursor] = 0;
     }
 
     if (m_cvarname.length()) {

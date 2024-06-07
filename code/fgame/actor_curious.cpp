@@ -246,8 +246,8 @@ void Actor::LookAtCuriosity(void)
 
     iSeed = 0x19660D * (m_iCuriousTime - 0x2EB71B09 * ((level.inttime - m_iCuriousTime) & 0xFFFFFF00)) + 0x3C6EF35F;
 
-    vAngles[0] = m_DesiredLookAngles[0] + (float)iSeed / 0x4444444 * fLookScale;
-    vAngles[1] = m_DesiredLookAngles[1] + (float)iSeed / 0x2222222 * fLookScale;
+    vAngles[0] = m_DesiredLookAngles[0] + (float)iSeed / (float)0x4444444 * fLookScale;
+    vAngles[1] = m_DesiredLookAngles[1] + (float)iSeed / (float)0x2222222 * fLookScale;
     vAngles[2] = m_DesiredLookAngles[2];
     // clamp
     vAngles[0] = Q_clamp_float(vAngles[0], -90, 90);

@@ -833,6 +833,8 @@ void R_BoxSurfacesForBModel_r(bmodel_t* pBmodel, const vec3_t mins, const vec3_t
             case SF_GRID:
                 surf->viewCount = tr.viewCount;
 				break;
+			default:
+				break;
 			}
 		}
 		else

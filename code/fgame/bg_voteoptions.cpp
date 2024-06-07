@@ -114,7 +114,7 @@ void VoteOptions::SetupVoteOptions(const char *configFileName, int length, const
     if (length >= MAX_VOTEOPTIONS_BUFFER_LENGTH) {
         Com_Error(
             ERR_DROP,
-            "VoteOptions: Options file '%s' is too big. Max size is %u bytes\n",
+            "VoteOptions: Options file '%s' is too big. Max size is %lu bytes\n",
             configFileName,
             MAX_VOTEOPTIONS_BUFFER_LENGTH
         );
@@ -564,7 +564,7 @@ void CG_PushCallVoteSubClient_f(void)
         if (!strlen(cg.clientinfo[i].name)) {
             continue;
         }
-
+        
         VO_ExecuteCommand(
             va("globalwidgetcommand voteclientlist additem \"%i: %s\" \"callvote %i %i;popmenu 0\"\n",
                i,

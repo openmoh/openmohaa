@@ -5355,7 +5355,7 @@ void Actor::MovePath(float fMoveSpeed)
         VectorCopy(m_groundPlaneNormal, mm.groundPlaneNormal);
         VectorCopy2D(mm.obstacle_normal, m_PrevObstacleNormal);
 
-        if (m_WallDir == -1) {
+        if (m_WallDir == (char)-1) {
             mm.desired_dir[0] = -mm.obstacle_normal[1];
             mm.desired_dir[1] = mm.obstacle_normal[0];
         } else {

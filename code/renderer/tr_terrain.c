@@ -1185,7 +1185,7 @@ void R_AddTerrainSurfaces()
             if (ter_count->integer && (g_nSplit || g_nMerge)) {
                 if (ter_count->integer == 1 || g_nSplit * 2 != g_nMerge) {
                     Com_DPrintf(
-                        "%5d tris / %5d verts / %4d splits / %4d merges\n",
+                        "%5zu tris / %5zu verts / %4d splits / %4d merges\n",
                         g_nTris - g_tri.nFree,
                         g_nVerts - g_vert.nFree,
                         g_nSplit,

@@ -113,7 +113,7 @@ void CG_ArchiveModelHandle(MemArchiver& archiver, qhandle_t* handle)
 		if (tmp.length()) {
 			*handle = cgi.R_RegisterModel(tmp.c_str());
 		} else {
-			*handle = NULL;
+			*handle = (qhandle_t)0;
 		}
 	} else {
 		if (*handle) {
@@ -135,7 +135,7 @@ void CG_ArchiveShaderHandle(MemArchiver& archiver, qhandle_t* handle)
 		if (tmp.length()) {
 			*handle = cgi.R_RegisterShader(tmp.c_str());
 		} else {
-			*handle = NULL;
+			*handle = (qhandle_t)0;
 		}
 	} else {
 		if (*handle) {
