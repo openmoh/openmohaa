@@ -59,7 +59,7 @@ qboolean CG_LightStyleColor(int style, int realtime, vec4_t color, qboolean clam
 
     time = realtime / 50;
     frac = (realtime - (time * 50.0f)) / 50.0f;
-    memset(color, 0, sizeof(color));
+    VectorClear4(color);
     if ((style < 0) || (style >= (MAX_LIGHTSTYLES * 2))) {
         cgi.DPrintf("CG_LightStyleColor: style out of range.\n");
         return qtrue;
