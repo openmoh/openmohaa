@@ -573,7 +573,7 @@ qboolean TIKI_LoadSKB(const char *path, skelcache_t *cache)
     memset(cache, 0, sizeof(skelcache_t));
     strncpy(cache->path, path, sizeof(cache->path));
 
-    header = LittleLong(pheader->ident);
+    header = pheader->ident;
     if (header != TIKI_SKB_HEADER_IDENT) {
         TIKI_Error("TIKI_LoadSKB: Tried to load '%s' as a skeletal base frame (File has invalid header)\n", path);
         TIKI_Free(pheader);
@@ -842,7 +842,7 @@ qboolean TIKI_LoadSKD(const char *path, skelcache_t *cache)
     strncpy(cache->path, path, sizeof(cache->path));
 
     // Check the signature
-    header = LittleLong(pheader->ident);
+    header = pheader->ident;
     if (header != TIKI_SKD_HEADER_IDENT) {
         TIKI_Error("TIKI_LoadSKD: Tried to load '%s' as a skeletal base frame (File has invalid header)\n", path);
         TIKI_FreeFile(pheader);
