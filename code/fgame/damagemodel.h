@@ -39,7 +39,7 @@ public:
 
     void Setup(Event *ev);
     void Damaged(Event *ev);
-    void Killed(Event *ev);
+    void Killed(Event *ev) override;
     void KillTrace(Event *ev);
     void SpawnOrientedBoundingBox(Event *ev);
     void EventSetKillThread(Event *ev);
