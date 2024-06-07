@@ -766,7 +766,7 @@ unsigned CM_Checksum( dheader_t *header ) {
 
 	return LittleLong(Com_BlockChecksum(checksums, 11 * 4));
 	*/
-	return header->checksum;
+	return LittleLong(header->checksum);
 }
 
 /*
@@ -883,7 +883,7 @@ void CM_LoadMap( const char *name, qboolean clientload, int *checksum ) {
 
 	FS_Read( &header, sizeof( dheader_t ), h );
 
-	last_checksum = header.checksum;
+	last_checksum = LittleLong(header.checksum);
 	*checksum = last_checksum;
 
 	for (i=0 ; i<sizeof(dheader_t)/4 ; i++) {
