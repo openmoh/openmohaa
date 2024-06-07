@@ -568,7 +568,7 @@ void CG_PushCallVoteSubClient_f(void)
         VO_ExecuteCommand(
             va("globalwidgetcommand voteclientlist additem \"%i: %s\" \"callvote %i %i;popmenu 0\"\n",
                i,
-               cg.clientinfo[i],
+               cg.clientinfo[i].name,
                index,
                i)
         );
