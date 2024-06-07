@@ -543,7 +543,7 @@ int R_RealDlightTerrain(cTerraPatchUnpacked_t* srf, int dlightBits) {
 			vec[0] += srf->drawinfo.lmapStep;
 
 			z01 = srf->heightmap[k];
-            vec[2] = srf->z0; z00 + z01;
+            vec[2] = srf->z0 + z00 + z01;
             added |= R_DlightSample(src, vec, dst);
 
 			src += 3;
