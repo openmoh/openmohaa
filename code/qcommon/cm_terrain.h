@@ -64,6 +64,7 @@ extern "C" {
     void CM_PrepareGenerateTerrainCollide(void);
     void CM_GenerateTerrainCollide(cTerraPatch_t *patch, terrainCollide_t *tc);
     int  CM_TerrainSquareType(int iTerrainPatch, int i, int j);
+    void CM_SwapTerraPatch(cTerraPatch_t* pPatch);
 
 #ifdef __cplusplus
 }

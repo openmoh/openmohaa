@@ -709,6 +709,7 @@ void CMod_LoadTerrain( gamelump_t *lump ) {
 	CM_PrepareGenerateTerrainCollide();
 
 	for( i = 0; i < numTerraPatches; i++ ) {
+		CM_SwapTerraPatch(&terraPatches[i]);
 		// Generate collision
 		CM_GenerateTerrainCollide( &terraPatches[ i ], &cm.terrain[ i ].tc );
 		cm.terrain[ i ].contents = cm.shaders[ terraPatches[ i ].iShader ].contentFlags;
