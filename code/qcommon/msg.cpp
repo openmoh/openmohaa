@@ -2645,11 +2645,12 @@ void MSG_WritePackedCoordExtra(msg_t* msg, float fromValue, float toValue, int b
 	}
 }
 
-qboolean MSG_DeltaNeeded(const void* fromField, const void* toField, int fieldType, int bits)
-{
-    // Unoptimized in base game
-    // Doesn't compare packed values
-    return *(int*)fromField != *(int*)toField;
+qboolean MSG_DeltaNeeded(const void* fromField, const void* toField, int fieldType, int bits) {
+	if (MSG_IsProtocolVersion15()) {
+		return MSG_DeltaNeeded_ver_15(fromField, toField, fieldType, bits);
+    } else {
+		return MSG_DeltaNeeded_ver_6(fromField, toField, fieldType, bits);
+	}
 }
 
 float MSG_ReadPackedVelocity(msg_t* msg, int bits)
