@@ -744,7 +744,7 @@ void CMod_LoadTerrainIndexes( gamelump_t *lump ) {
 
 	for( i = 0; i < cm.numLeafTerrains; i++, in++ )
 	{
-		cm.leafterrains[ i ] = &cm.terrain[ *in ];
+		cm.leafterrains[ i ] = &cm.terrain[ LittleShort( *in ) ];
 	}
 }
 
