@@ -146,7 +146,7 @@ void ScriptCompiler::AddJumpBackLocation(unsigned char *pos)
 {
     int offset = (code_pos - pos);
 
-    EmitOpcodeValue(offset, sizeof(unsigned int));
+    EmitOpcodeValue((unsigned int)offset, sizeof(unsigned int));
     ClearPrevOpcode();
 }
 
@@ -154,7 +154,7 @@ void ScriptCompiler::AddJumpToLocation(unsigned char *pos)
 {
     int offset = (pos - code_pos - 1);
 
-    EmitOpcodeValue(offset, sizeof(unsigned int));
+    EmitOpcodeValue((unsigned int)offset, sizeof(unsigned int));
     ClearPrevOpcode();
 }
 
@@ -280,7 +280,7 @@ void ScriptCompiler::EmitAssignmentStatement(sval_t lhs, unsigned int sourcePos)
         EmitOpcode(OP_LOAD_GAME_VAR + listener_val.node[1].byteValue, sourcePos);
     }
 
-    EmitOpcodeValue(index, sizeof(unsigned int));
+    EmitOpcodeValue((unsigned int)index, sizeof(unsigned int));
 }
 
 void ScriptCompiler::EmitBoolJumpFalse(unsigned int sourcePos)
@@ -394,7 +394,7 @@ void ScriptCompiler::EmitConstArrayOpcode(int iCount)
     SetOpcodeVarStackOffset(OP_LOAD_CONST_ARRAY1, 1 - iCount);
     EmitOpcode(OP_LOAD_CONST_ARRAY1, -1);
 
-    EmitOpcodeValue(iCount, sizeof(short));
+    EmitOpcodeValue((short)iCount, sizeof(short));
 }
 
 void ScriptCompiler::EmitContinue(unsigned int sourcePos)
@@ -507,10 +507,10 @@ void ScriptCompiler::EmitField(sval_t listener_val, sval_t field_val, unsigned i
         || (eventnum && BuiltinReadVariable(sourcePos, listener_val.node[1].byteValue, eventnum))) {
         EmitValue(listener_val);
         EmitOpcode(OP_STORE_FIELD, sourcePos);
-        EmitOpcodeValue(index, sizeof(unsigned int));
+        EmitOpcodeValue((unsigned int)index, sizeof(unsigned int));
     } else if (PrevOpcode() != (OP_LOAD_GAME_VAR + listener_val.node[1].byteValue) || prev_index != index) {
         EmitOpcode(OP_STORE_GAME_VAR + listener_val.node[1].byteValue, sourcePos);
-        EmitOpcodeValue(index, sizeof(unsigned int));
+        EmitOpcodeValue((unsigned int)index, sizeof(unsigned int));
     } else {
         AbsorbPrevOpcode();
         EmitOpcode(OP_LOAD_STORE_GAME_VAR + listener_val.node[1].byteValue, sourcePos);
@@ -645,16 +645,16 @@ void ScriptCompiler::EmitInteger(unsigned int value, unsigned int sourcePos)
         EmitOpcode(OP_STORE_INT0, sourcePos);
     } else if (value < 127) {
         EmitOpcode(OP_STORE_INT1, sourcePos);
-        EmitOpcodeValue(value, sizeof(byte));
+        EmitOpcodeValue((byte)value, sizeof(byte));
     } else if (value < 32767) {
         EmitOpcode(OP_STORE_INT2, sourcePos);
-        EmitOpcodeValue(value, sizeof(short));
+        EmitOpcodeValue((short)value, sizeof(short));
     } else if (value < 8388607) {
         EmitOpcode(OP_STORE_INT3, sourcePos);
-        EmitOpcodeValue(value, sizeof(short3));
+        EmitOpcodeValue((short3)value, sizeof(short3));
     } else {
         EmitOpcode(OP_STORE_INT4, sourcePos);
-        EmitOpcodeValue(value, sizeof(int));
+        EmitOpcodeValue((int)value, sizeof(int));
     }
 }
 
@@ -799,12 +799,12 @@ void ScriptCompiler::EmitMethodExpression(int iParamCount, int eventnum, unsigne
         SetOpcodeVarStackOffset(OP_EXEC_METHOD_COUNT1, -iParamCount);
         EmitOpcode(OP_EXEC_METHOD_COUNT1, sourcePos);
 
-        EmitOpcodeValue(iParamCount, sizeof(byte));
+        EmitOpcodeValue((byte)iParamCount, sizeof(byte));
     } else {
         EmitOpcode(OP_EXEC_METHOD0 + iParamCount, sourcePos);
     }
 
-    EmitOpcodeValue(eventnum, sizeof(unsigned int));
+    EmitOpcodeValue((unsigned int)eventnum, sizeof(unsigned int));
 }
 
 void ScriptCompiler::EmitNil(unsigned int sourcePos)
@@ -907,7 +907,7 @@ void ScriptCompiler::EmitOpcode(int opcode, unsigned int sourcePos)
     prev_opcodes[prev_opcode_pos].VarStackOffset     = iVarStackOffset;
     prev_opcodes[(prev_opcode_pos + 1) % 100].opcode = OP_PREVIOUS;
 
-    EmitOpcodeValue(opcode, sizeof(byte));
+    EmitOpcodeValue((byte)opcode, sizeof(byte));
 }
 
 void ScriptCompiler::EmitParameter(sval_t lhs, unsigned int sourcePos)
@@ -933,7 +933,7 @@ void ScriptCompiler::EmitParameter(sval_t lhs, unsigned int sourcePos)
         EmitOpcode(OP_LOAD_GAME_VAR + listener_val.node[1].byteValue, sourcePos);
 
         unsigned int index = Director.AddString(name);
-        EmitOpcodeValue(index, sizeof(unsigned int));
+        EmitOpcodeValue((unsigned int)index, sizeof(unsigned int));
     }
 }
 
@@ -979,7 +979,7 @@ void ScriptCompiler::EmitRef(sval_t val, unsigned int sourcePos)
 
     EmitValue(val.node[1]);
     EmitOpcode(OP_STORE_FIELD_REF, sourcePos);
-    EmitOpcodeValue(index, sizeof(unsigned int));
+    EmitOpcodeValue((unsigned int)index, sizeof(unsigned int));
 }
 
 void ScriptCompiler::EmitStatementList(sval_t val)
@@ -1000,7 +1000,7 @@ void ScriptCompiler::EmitString(str value, unsigned int sourcePos)
     }
 
     EmitOpcode(OP_STORE_STRING, sourcePos);
-    EmitOpcodeValue(index, sizeof(unsigned int));
+    EmitOpcodeValue((unsigned int)index, sizeof(unsigned int));
 }
 
 void ScriptCompiler::EmitSwitch(sval_t val, unsigned int sourcePos)
@@ -1130,12 +1130,12 @@ __emit:
                 SetOpcodeVarStackOffset(OP_EXEC_CMD_COUNT1, -(int32_t)iParamCount);
                 EmitOpcode(OP_EXEC_CMD_COUNT1, val.node[3].sourcePosValue);
 
-                EmitOpcodeValue(iParamCount, sizeof(byte));
+                EmitOpcodeValue((byte)iParamCount, sizeof(byte));
             } else {
                 EmitOpcode(OP_EXEC_CMD0 + iParamCount, val.node[3].sourcePosValue);
             }
 
-            EmitOpcodeValue((op_ev_t)eventnum, sizeof(unsigned int));
+            EmitOpcodeValue((op_ev_t)eventnum, sizeof(op_ev_t));
             break;
         }
 
@@ -1170,12 +1170,12 @@ __emit:
                 SetOpcodeVarStackOffset(OP_EXEC_CMD_COUNT1, -(int32_t)iParamCount);
                 EmitOpcode(OP_EXEC_CMD_METHOD_COUNT1, val.node[4].sourcePosValue);
 
-                EmitOpcodeValue(iParamCount, sizeof(byte));
+                EmitOpcodeValue((byte)iParamCount, sizeof(byte));
             } else {
                 EmitOpcode(OP_EXEC_CMD_METHOD0 + iParamCount, val.node[4].sourcePosValue);
             }
 
-            EmitOpcodeValue(eventnum, sizeof(unsigned int));
+            EmitOpcodeValue((op_ev_t)eventnum, sizeof(op_ev_t));
             break;
         }
 
@@ -1624,6 +1624,13 @@ void ScriptCompiler::EmitOpcodeValue(const Value& value, size_t size)
 {
     Com_Memcpy(code_pos, &value, size);
     code_pos += size;
+}
+
+template<typename Value>
+void ScriptCompiler::EmitOpcodeValue(const Value& value)
+{
+    Com_Memcpy(code_pos, &value, sizeof(value));
+    code_pos += sizeof(value);
 }
 
 template<typename Value>

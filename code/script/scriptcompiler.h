@@ -161,6 +161,9 @@ private:
     void EmitOpcodeValue(const Value& value, size_t size);
 
     template<typename Value>
+    void EmitOpcodeValue(const Value& value);
+
+    template<typename Value>
     void EmitAt(unsigned char *location, const Value& value, size_t size);
 
     template<typename Value>
