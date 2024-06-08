@@ -273,11 +273,11 @@ void ScriptCompiler::EmitAssignmentStatement(sval_t lhs, unsigned int sourcePos)
     listener_val = lhs.node[1];
 
     if (listener_val.node[0].type != ENUM_listener
-        || (eventnum && BuiltinWriteVariable(sourcePos, listener_val.node[1].byteValue, eventnum))) {
+        || (eventnum && BuiltinWriteVariable(sourcePos, listener_val.node[1].intValue, eventnum))) {
         EmitValue(listener_val);
         EmitOpcode(OP_LOAD_FIELD_VAR, sourcePos);
     } else {
-        EmitOpcode(OP_LOAD_GAME_VAR + listener_val.node[1].byteValue, sourcePos);
+        EmitOpcode(OP_LOAD_GAME_VAR + listener_val.node[1].intValue, sourcePos);
     }
 
     EmitOpcodeValue((unsigned int)index, sizeof(unsigned int));
@@ -504,16 +504,16 @@ void ScriptCompiler::EmitField(sval_t listener_val, sval_t field_val, unsigned i
     prev_index = GetOpcodeValue<unsigned int>(sizeof(unsigned int), sizeof(unsigned int));
 
     if (listener_val.node[0].type != ENUM_listener
-        || (eventnum && BuiltinReadVariable(sourcePos, listener_val.node[1].byteValue, eventnum))) {
+        || (eventnum && BuiltinReadVariable(sourcePos, listener_val.node[1].intValue, eventnum))) {
         EmitValue(listener_val);
         EmitOpcode(OP_STORE_FIELD, sourcePos);
         EmitOpcodeValue((unsigned int)index, sizeof(unsigned int));
-    } else if (PrevOpcode() != (OP_LOAD_GAME_VAR + listener_val.node[1].byteValue) || prev_index != index) {
-        EmitOpcode(OP_STORE_GAME_VAR + listener_val.node[1].byteValue, sourcePos);
+    } else if (PrevOpcode() != (OP_LOAD_GAME_VAR + listener_val.node[1].intValue) || prev_index != index) {
+        EmitOpcode(OP_STORE_GAME_VAR + listener_val.node[1].intValue, sourcePos);
         EmitOpcodeValue((unsigned int)index, sizeof(unsigned int));
     } else {
         AbsorbPrevOpcode();
-        EmitOpcode(OP_LOAD_STORE_GAME_VAR + listener_val.node[1].byteValue, sourcePos);
+        EmitOpcode(OP_LOAD_STORE_GAME_VAR + listener_val.node[1].intValue, sourcePos);
         code_pos += sizeof(unsigned int);
     }
 }
@@ -926,11 +926,11 @@ void ScriptCompiler::EmitParameter(sval_t lhs, unsigned int sourcePos)
     int eventnum = Event::FindSetterEventNum(name);
 
     if (listener_val.node[0].type != ENUM_listener
-        || (eventnum && BuiltinWriteVariable(sourcePos, listener_val.node[1].byteValue, eventnum))) {
+        || (eventnum && BuiltinWriteVariable(sourcePos, listener_val.node[1].intValue, eventnum))) {
         CompileError(sourcePos, "built-in field '%s' not allowed", name);
     } else {
         EmitOpcode(OP_STORE_PARAM, sourcePos);
-        EmitOpcode(OP_LOAD_GAME_VAR + listener_val.node[1].byteValue, sourcePos);
+        EmitOpcode(OP_LOAD_GAME_VAR + listener_val.node[1].intValue, sourcePos);
 
         unsigned int index = Director.AddString(name);
         EmitOpcodeValue((unsigned int)index, sizeof(unsigned int));
@@ -1266,7 +1266,7 @@ __emit:
         break;
 
     case ENUM_listener:
-        EmitOpcode(OP_STORE_GAME + val.node[1].byteValue, val.node[2].sourcePosValue);
+        EmitOpcode(OP_STORE_GAME + val.node[1].intValue, val.node[2].sourcePosValue);
         break;
 
     case ENUM_NIL:
