@@ -1395,3 +1395,37 @@ void R_InitTerrain()
         g_fDistanceTable[i]       = 443.5 / sqrt(1.0 - dot);
     }
 }
+
+/*
+====================
+R_SwapTerraPatch
+
+Swaps the patch on big-endian
+====================
+*/
+void R_SwapTerraPatch(cTerraPatch_t* pPatch) {
+#ifdef Q3_BIG_ENDIAN
+    int i;
+
+    pPatch->texCoord[0][0][0] = LittleFloat(pPatch->texCoord[0][0][0]);
+    pPatch->texCoord[0][0][1] = LittleFloat(pPatch->texCoord[0][0][1]);
+    pPatch->texCoord[0][1][0] = LittleFloat(pPatch->texCoord[0][1][0]);
+    pPatch->texCoord[0][1][1] = LittleFloat(pPatch->texCoord[0][1][1]);
+    pPatch->texCoord[1][0][0] = LittleFloat(pPatch->texCoord[1][0][0]);
+    pPatch->texCoord[1][0][1] = LittleFloat(pPatch->texCoord[1][0][1]);
+    pPatch->texCoord[1][1][0] = LittleFloat(pPatch->texCoord[1][1][0]);
+    pPatch->texCoord[1][1][1] = LittleFloat(pPatch->texCoord[1][1][1]);
+    pPatch->iBaseHeight = LittleShort(pPatch->iBaseHeight);
+    pPatch->iShader = LittleUnsignedShort(pPatch->iShader);
+    pPatch->iLightMap = LittleUnsignedShort(pPatch->iLightMap);
+    pPatch->iNorth = LittleShort(pPatch->iNorth);
+    pPatch->iEast = LittleShort(pPatch->iEast);
+    pPatch->iSouth = LittleShort(pPatch->iSouth);
+    pPatch->iWest = LittleShort(pPatch->iWest);
+
+    for (i = 0; i < MAX_TERRAIN_VARNODES; i++) {
+        pPatch->varTree[0][i].flags = LittleUnsignedShort(pPatch->varTree[0][i].flags);
+        pPatch->varTree[1][i].flags = LittleUnsignedShort(pPatch->varTree[1][i].flags);
+    }
+#endif
+}

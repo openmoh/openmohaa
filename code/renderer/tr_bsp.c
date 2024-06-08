@@ -566,6 +566,7 @@ void R_LoadTerrain(gamelump_t* lump) {
     out = s_worldData.terraPatches;
 
     for (i = 0; i < s_worldData.numTerraPatches; in++, out++, i++) {
+		R_SwapTerraPatch(in);
         R_UnpackTerraPatch(in, out);
     }
 }
@@ -597,7 +598,7 @@ void R_LoadTerrainIndexes(gamelump_t* lump) {
     out = s_worldData.visTerraPatches;
 
     for (i = 0; i < s_worldData.numVisTerraPatches; in++, out++, i++) {
-        *out = &s_worldData.terraPatches[*in];
+        *out = &s_worldData.terraPatches[LittleShort(*in)];
     }
 }
 
