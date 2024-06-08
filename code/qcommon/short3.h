@@ -39,8 +39,8 @@ private:
 	short3_data_t data;
 
 protected:
-	int				get() const { return *( int * )this & 0xFFFFFF; }
-	void			set( int value ) { data.highmid = value; data.low = *( ( unsigned char * )&value + 2 ); }
+	int				get() const { return data.highmid | (data.low << 16); }
+	void			set( int value ) { data.highmid = value & 0xFFFF; data.low = value >> 16; }
 
 public :
 	operator		int( void ) const { return get(); }
