@@ -1280,13 +1280,30 @@ typedef enum netFieldType_e {
 typedef struct {
 	const char *name;
 	size_t offset;
+	size_t size;
 	// bits: 0 = float
 	int bits;
 	int type;
 } netField_t;
 
+byte* LittleOffset(void* value, size_t size, size_t targetSize) {
+#ifdef Q3_BIG_ENDIAN
+	return (byte*)value + size - targetSize;
+#else
+	return (byte*)value;
+#endif
+}
+
+void CopyToLittleField(void* toF, const void* value, size_t size, size_t targetSize) {
+	Com_Memcpy(toF, LittleOffset((byte*)value, size, targetSize), targetSize);
+}
+
+void CopyFromLittleField(void* value, const void* fromF, size_t size, size_t targetSize) {
+	Com_Memcpy(LittleOffset((byte*)value, size, targetSize), fromF, targetSize);
+}
+
 // using the stringizing operator to save typing...
-#define	NETF(x) #x,(size_t)&((entityState_t*)0)->x
+#define	NETF(x) #x,(size_t)&((entityState_t*)0)->x,sizeof(entityState_t::x)
 
 netField_t	entityStateFields_ver_15[] =
 {
@@ -1610,7 +1627,7 @@ netField_t* MSG_GetEntityStateFields(size_t& outNumFields)
 #define	FLOAT_INT_BITS	13
 #define	FLOAT_INT_BIAS	(1<<(FLOAT_INT_BITS-1))
 
-void MSG_ReadRegular_ver_15(msg_t* sb, int bits, void* toF)
+void MSG_ReadRegular_ver_15(msg_t* sb, int bits, int size, void* toF)
 {
 	if (bits == 0)
 	{
@@ -1642,20 +1659,21 @@ void MSG_ReadRegular_ver_15(msg_t* sb, int bits, void* toF)
 	else
 	{
 		if (MSG_ReadBits(sb, 1)) {
-			*(int*)toF = MSG_ReadBits(sb, bits);
+			int tmp = MSG_ReadBits(sb, bits);
+			CopyToLittleField(toF, &tmp, sizeof(int), size);
 		}
 		else {
-			*(int*)toF = 0;
+			Com_Memset(toF, 0, size);
 		}
 	}
 }
 
-void MSG_ReadRegularSimple_ver_15(msg_t* sb, int bits, void* toF)
+void MSG_ReadRegularSimple_ver_15(msg_t* sb, int bits, int size, void* toF)
 {
-	MSG_ReadRegular_ver_15(sb, bits, toF);
+	MSG_ReadRegular_ver_15(sb, bits, size, toF);
 }
 
-void MSG_WriteRegular_ver_15(msg_t* sb, int bits, const void* toF)
+void MSG_WriteRegular_ver_15(msg_t* sb, int bits, int size, const void* toF)
 {
 	float fullFloat;
 	int trunc;
@@ -1688,20 +1706,36 @@ void MSG_WriteRegular_ver_15(msg_t* sb, int bits, const void* toF)
 		}
 	}
 	else {
-		if (!*(int*)toF) {
+		qboolean hasValue = qfalse;
+		for (size_t i = 0; i < size; ++i)
+		{
+			if (((byte*)toF)[i] != 0)
+			{
+				hasValue = qtrue;
+				break;
+			}
+		}
+
+		if (!hasValue) {
 			MSG_WriteBits(sb, 0, 1);
 		}
 		else {
+			//
+			// Added in OPM
+			//  Properly swap on little-endian architectures
+			int tmp = 0;
+			CopyFromLittleField(&tmp, toF, sizeof(int), size);
+
 			MSG_WriteBits(sb, 1, 1);
 			// integer
-			MSG_WriteBits(sb, *(int*)toF, bits);
+			MSG_WriteBits(sb, tmp, bits);
 		}
 	}
 }
 
-void MSG_WriteRegularSimple_ver_15(msg_t* sb, int bits, const void* toF)
+void MSG_WriteRegularSimple_ver_15(msg_t* sb, int bits, int size, const void* toF)
 {
-	MSG_WriteRegular_ver_15(sb, bits, toF);
+	MSG_WriteRegular_ver_15(sb, bits, size, toF);
 }
 
 void MSG_WriteEntityNum_ver_15(msg_t* sb, short number)
@@ -1715,7 +1749,7 @@ unsigned short MSG_ReadEntityNum_ver_15(msg_t* sb)
 	return (unsigned short)(MSG_ReadBits(sb, GENTITYNUM_BITS) - 1) % MAX_GENTITIES;
 }
 
-void MSG_ReadRegular_ver_6(msg_t* sb, int bits, void* toF)
+void MSG_ReadRegular_ver_6(msg_t* sb, int bits, int size, void* toF)
 {
 	if (bits == 0)
 	{
@@ -1738,15 +1772,16 @@ void MSG_ReadRegular_ver_6(msg_t* sb, int bits, void* toF)
 	else
 	{
 		if (MSG_ReadBits(sb, 1)) {
-			*(int*)toF = MSG_ReadBits(sb, bits);
+			int tmp = MSG_ReadBits(sb, bits);
+			CopyToLittleField(toF, &tmp, sizeof(int), size);
 		}
 		else {
-			*(int*)toF = 0;
+			Com_Memset(toF, 0, size);
 		}
 	}
 }
 
-void MSG_ReadRegularSimple_ver_6(msg_t* sb, int bits, void* toF)
+void MSG_ReadRegularSimple_ver_6(msg_t* sb, int bits, int size, void* toF)
 {
 	if (bits == 0) {
 		// float
@@ -1764,11 +1799,12 @@ void MSG_ReadRegularSimple_ver_6(msg_t* sb, int bits, void* toF)
 	}
 	else {
 		// integer
-		*(int*)toF = MSG_ReadBits(sb, bits);
+		int tmp = MSG_ReadBits(sb, bits);
+		CopyToLittleField(toF, &tmp, sizeof(int), size);
 	}
 }
 
-void MSG_WriteRegular_ver_6(msg_t* sb, int bits, const void* toF)
+void MSG_WriteRegular_ver_6(msg_t* sb, int bits, int size, const void* toF)
 {
 	float fullFloat;
 	int trunc;
@@ -1802,14 +1838,20 @@ void MSG_WriteRegular_ver_6(msg_t* sb, int bits, const void* toF)
 			MSG_WriteBits(sb, 0, 1);
 		}
 		else {
+			//
+			// Added in OPM
+			//  Properly swap on little-endian architectures
+			int tmp = 0;
+			CopyFromLittleField(&tmp, toF, sizeof(int), size);
+
 			MSG_WriteBits(sb, 1, 1);
 			// integer
-			MSG_WriteBits(sb, *(int*)toF, bits);
+			MSG_WriteBits(sb, tmp, bits);
 		}
 	}
 }
 
-void MSG_WriteRegularSimple_ver_6(msg_t* sb, int bits, const void* toF)
+void MSG_WriteRegularSimple_ver_6(msg_t* sb, int bits, int size, const void* toF)
 {
 	float fullFloat;
 	int trunc;
@@ -1833,7 +1875,14 @@ void MSG_WriteRegularSimple_ver_6(msg_t* sb, int bits, const void* toF)
 	}
 	else {
 		// integer
-		MSG_WriteBits(sb, *(int*)toF, bits);
+		//
+		// Added in OPM
+		//  Properly swap on little-endian architectures
+		int tmp = 0;
+		CopyFromLittleField(&tmp, toF, sizeof(int), size);
+
+		// integer
+		MSG_WriteBits(sb, tmp, bits);
 	}
 }
 
@@ -1847,39 +1896,39 @@ unsigned short MSG_ReadEntityNum_ver_6(msg_t* sb)
 	return MSG_ReadBits(sb, GENTITYNUM_BITS) % MAX_GENTITIES;
 }
 
-void MSG_ReadRegular(msg_t* sb, int bits, void* toF)
+void MSG_ReadRegular(msg_t* sb, int bits, int size, void* toF)
 {
 	if (MSG_IsProtocolVersion15()) {
-		return MSG_ReadRegular_ver_15(sb, bits, toF);
+		return MSG_ReadRegular_ver_15(sb, bits, size, toF);
 	} else {
-		return MSG_ReadRegular_ver_6(sb, bits, toF);
+		return MSG_ReadRegular_ver_6(sb, bits, size, toF);
 	}
 }
 
-void MSG_ReadRegularSimple(msg_t* sb, int bits, void* toF)
+void MSG_ReadRegularSimple(msg_t* sb, int bits, int size, void* toF)
 {
 	if (MSG_IsProtocolVersion15()) {
-		return MSG_ReadRegularSimple_ver_15(sb, bits, toF);
+		return MSG_ReadRegularSimple_ver_15(sb, bits, size, toF);
 	} else {
-		return MSG_ReadRegularSimple_ver_6(sb, bits, toF);
+		return MSG_ReadRegularSimple_ver_6(sb, bits, size, toF);
 	}
 }
 
-void MSG_WriteRegular(msg_t* sb, int bits, const void* toF)
+void MSG_WriteRegular(msg_t* sb, int bits, int size, const void* toF)
 {
 	if (MSG_IsProtocolVersion15()) {
-		return MSG_WriteRegular_ver_15(sb, bits, toF);
+		return MSG_WriteRegular_ver_15(sb, bits, size, toF);
 	} else {
-		return MSG_WriteRegular_ver_6(sb, bits, toF);
+		return MSG_WriteRegular_ver_6(sb, bits, size, toF);
 	}
 }
 
-void MSG_WriteRegularSimple(msg_t* sb, int bits, const void* toF)
+void MSG_WriteRegularSimple(msg_t* sb, int bits, int size, const void* toF)
 {
 	if (MSG_IsProtocolVersion15()) {
-		return MSG_WriteRegularSimple_ver_15(sb, bits, toF);
+		return MSG_WriteRegularSimple_ver_15(sb, bits, size, toF);
 	} else {
-		return MSG_WriteRegularSimple_ver_6(sb, bits, toF);
+		return MSG_WriteRegularSimple_ver_6(sb, bits, size, toF);
 	}
 }
 
@@ -1950,7 +1999,7 @@ void MSG_WriteDeltaEntity( msg_t *msg, struct entityState_s *from, struct entity
 	for ( i = 0, field = entityStateFields ; i < numFields; i++, field++ ) {
 		fromF = (int *)( (byte *)from + field->offset );
 		toF = (int *)( (byte *)to + field->offset );
-		deltasNeeded[i] = MSG_DeltaNeeded(fromF, toF, field->type, field->bits);
+		deltasNeeded[i] = MSG_DeltaNeeded(fromF, toF, field->type, field->bits, field->size);
 		if (deltasNeeded[i]) {
 			lc = i+1;
 		}
@@ -1992,7 +2041,7 @@ void MSG_WriteDeltaEntity( msg_t *msg, struct entityState_s *from, struct entity
 		switch ( field->type ) {
 			// normal style
 			case netFieldType_e::regular:
-				MSG_WriteRegular(msg, field->bits, toF);
+				MSG_WriteRegular(msg, field->bits, field->size, toF);
 				break;
 			case netFieldType_e::angle:
 				MSG_WritePackedAngle(msg, *(float*)toF, field->bits);
@@ -2283,13 +2332,16 @@ void MSG_WritePackedCoordExtra_ver_15(msg_t* msg, float fromValue, float toValue
 	MSG_WriteDeltaCoordExtra(msg, packedFrom, packedTo);
 }
 
-qboolean MSG_DeltaNeeded_ver_15(const void* fromField, const void* toField, int fieldType, int bits)
+qboolean MSG_DeltaNeeded_ver_15(const void* fromField, const void* toField, int fieldType, int bits, int size)
 {
 	int packedFrom;
 	int packedTo;
 	int maxValue;
+	int xoredValue;
+	int i;
 
-	if (*(int*)fromField == *(int*)toField) {
+	if (!memcmp(fromField, toField, size)) {
+		// same values, not needed
 		return qfalse;
 	}
 
@@ -2301,7 +2353,16 @@ qboolean MSG_DeltaNeeded_ver_15(const void* fromField, const void* toField, int 
 		}
 
 		maxValue = (1 << abs(bits)) - 1;
-		return ((*(int*)fromField ^ *(int*)toField) & maxValue) != 0;
+		xoredValue = 0;
+
+		for (i = 0; i < size; i++) {
+			byte fromVal, toVal;
+
+			fromVal = ((byte*)fromField)[i];
+			toVal = ((byte*)toField)[i];
+			xoredValue += fromVal ^ toVal;
+		}
+		return (xoredValue & maxValue) != 0;
 	case netFieldType_e::angle:
 		packedFrom = MSG_PackAngle(*(float*)fromField, bits);
 		packedTo = MSG_PackAngle(*(float*)toField, bits);
@@ -2524,11 +2585,11 @@ void MSG_WritePackedCoordExtra_ver_6(msg_t* msg, float fromValue, float toValue,
 	// Don't implement
 }
 
-qboolean MSG_DeltaNeeded_ver_6(const void* fromField, const void* toField, int fieldType, int bits)
+qboolean MSG_DeltaNeeded_ver_6(const void* fromField, const void* toField, int fieldType, int bits, int size)
 {
 	// Unoptimized in base game
 	// Doesn't compare packed values
-	return *(int*)fromField != *(int*)toField;
+	return memcmp(fromField, toField, size);
 }
 
 float MSG_ReadPackedAngle(msg_t* msg, int bits) {
@@ -2645,11 +2706,11 @@ void MSG_WritePackedCoordExtra(msg_t* msg, float fromValue, float toValue, int b
 	}
 }
 
-qboolean MSG_DeltaNeeded(const void* fromField, const void* toField, int fieldType, int bits) {
+qboolean MSG_DeltaNeeded(const void* fromField, const void* toField, int fieldType, int bits, int size) {
 	if (MSG_IsProtocolVersion15()) {
-		return MSG_DeltaNeeded_ver_15(fromField, toField, fieldType, bits);
+		return MSG_DeltaNeeded_ver_15(fromField, toField, fieldType, bits, size);
     } else {
-		return MSG_DeltaNeeded_ver_6(fromField, toField, fieldType, bits);
+		return MSG_DeltaNeeded_ver_6(fromField, toField, fieldType, bits, size);
 	}
 }
 
@@ -2788,7 +2849,7 @@ void MSG_ReadDeltaEntity( msg_t *msg, entityState_t *from, entityState_t *to,
 		} else {
 			switch (field->type) {
 				case netFieldType_e::regular:
-					MSG_ReadRegular(msg, field->bits, toF);
+					MSG_ReadRegular(msg, field->bits, field->size, toF);
 					break;
 				case netFieldType_e::angle: // angles, what a mess! it wouldnt surprise me if something goes wrong here ;)
 					*(float*)toF = MSG_ReadPackedAngle(msg, field->bits);
@@ -3073,7 +3134,7 @@ plyer_state_t communication
 */
 
 // using the stringizing operator to save typing...
-#define	PSF(x) #x,(size_t)&((playerState_t*)0)->x
+#define	PSF(x) #x,(size_t)&((playerState_t*)0)->x,sizeof(playerState_t::x)
 
 netField_t	playerStateFields_ver_15[] =
 {
@@ -3267,7 +3328,7 @@ void MSG_WriteDeltaPlayerstate(msg_t *msg, struct playerState_s *from, struct pl
 
 		switch ( field->type ) {
 			case netFieldType_e::regular:
-				MSG_WriteRegularSimple(msg, field->bits, toF);
+				MSG_WriteRegularSimple(msg, field->bits, field->size, toF);
 				break;
 			case netFieldType_e::angle:
 				MSG_WritePackedAngle(msg, *(float*)toF, field->bits);
@@ -3456,7 +3517,7 @@ void MSG_ReadDeltaPlayerstate(msg_t *msg, playerState_t *from, playerState_t *to
 		} else {
 			switch ( field->type ) {
 				case netFieldType_e::regular:
-					MSG_ReadRegularSimple(msg, field->bits, toF);
+					MSG_ReadRegularSimple(msg, field->bits, field->size, toF);
 					break;
 				case netFieldType_e::angle:
 					*(float*)toF = MSG_ReadPackedAngle(msg, field->bits);

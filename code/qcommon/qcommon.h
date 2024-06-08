@@ -154,7 +154,7 @@ int MSG_PackScale(float scale, int bits);
 int MSG_PackAlpha(float alpha, int bits);
 int MSG_PackCoord(float coord);
 int MSG_PackCoordExtra(float coord);
-qboolean MSG_DeltaNeeded(const void* fromField, const void* toField, int fieldType, int bits);
+qboolean MSG_DeltaNeeded(const void* fromField, const void* toField, int fieldType, int bits, int size);
 
 void MSG_WritePackedAngle(msg_t* msg, float value, int bits);
 void MSG_WritePackedAnimTime(msg_t* msg, float fromValue, float toValue, float frameTime, int bits);
