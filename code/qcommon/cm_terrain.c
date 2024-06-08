@@ -200,15 +200,25 @@ void CM_PickTerrainSquareMode(terrainCollideSquare_t *square, vec3_t vTest, int 
     int             flags0, flags1;
     varnodeIndex_t *vni;
 
-    vni = &g_vni[(patch->flags & 0x80) ? 1 : 0][i][j][0];
+    if (patch->flags & 0x80) {
+        vni = g_vni[1][i][j];
+    } else {
+        vni = g_vni[0][i][j];
+    }
 
-    flags0 =
-        ((unsigned short)(patch->varTree[vni->iTreeAndMask & 1][vni->iNode].flags & 0xFFFE & vni->iTreeAndMask) != 0);
-    flags1 =
-        ((unsigned short)(patch->varTree[vni[1].iTreeAndMask & 1][vni[1].iNode].flags & 0xFFFE & vni[1].iTreeAndMask)
-         != 0);
+    if ((vni[0].iTreeAndMask & patch->varTree[vni[0].iTreeAndMask & 1][vni[0].iNode].flags & 0xFFFE) != 0) {
+        flags0 = 2;
+    } else {
+        flags0 = 0;
+    }
 
-    square->eMode = modeTable[(j + i) & 1 | 2 * flags0 | 4 * flags1];
+    if ((vni[1].iTreeAndMask & patch->varTree[vni[1].iTreeAndMask & 1][vni[1].iNode].flags & 0xFFFFFFFE) != 0) {
+        flags1 = 4;
+    } else {
+        flags1 = 0;
+    }
+
+    square->eMode = modeTable[(j + i) & 1 | flags0 | flags1];
 
     if (square->eMode == 2) {
         if (DotProduct(vTest, square->plane[0]) < square->plane[0][3]) {
