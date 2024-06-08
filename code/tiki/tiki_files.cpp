@@ -565,6 +565,21 @@ skelAnimDataGameHeader_t *SkeletorCacheFileCallback(const char *path)
 
         if (version == TIKI_SKC_HEADER_OLD_VERSION) {
             Com_Printf("WARNING- DOWNGRADING TO OLD ANIMATION FORMAT FOR FILE: %s\n", path);
+
+            //
+            // Handle the endianness
+            //
+            pHeader->flags = LittleLong(pHeader->flags);
+            pHeader->nBytesUsed = LittleLong(pHeader->nBytesUsed);
+            pHeader->frameTime = LittleFloat(pHeader->frameTime);
+            pHeader->totalDelta.x = LittleFloat(pHeader->totalDelta.x);
+            pHeader->totalDelta.y = LittleFloat(pHeader->totalDelta.y);
+            pHeader->totalDelta.z = LittleFloat(pHeader->totalDelta.z);
+            pHeader->totalAngleDelta = LittleFloat(pHeader->totalAngleDelta);
+            pHeader->numChannels = LittleLong(pHeader->numChannels);
+            pHeader->ofsChannelNames = LittleLong(pHeader->ofsChannelNames);
+            pHeader->numFrames = LittleLong(pHeader->numFrames);
+
             finishedHeader = skeletor_c::ConvertSkelFileToGame(pHeader, iBuffLength, path);
             if (convertAnims && convertAnims->integer) {
                 skeletor_c::SaveProcessedAnim(finishedHeader, path, pHeader);
