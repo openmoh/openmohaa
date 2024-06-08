@@ -438,8 +438,8 @@ typedef struct cTerraPatch_s {
 
 	vec2_t	texCoord[ 2 ][ 2 ];
 
-	char	x;
-	char	y;
+	signed char		x;
+	signed char		y;
 
 	short			iBaseHeight;
 	unsigned short	iShader;
