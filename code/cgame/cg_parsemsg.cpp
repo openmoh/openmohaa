@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2023 the OpenMoHAA team
+Copyright (C) 2024 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -1031,22 +1031,33 @@ void CG_MakeExplosionEffect(const vec3_t vPos, int iType)
         return;
     }
 
-    switch (iType) {
-    case 13:
-        iBaseEffect = SFX_EXP_GREN_BASE;
-        break;
-    case 14:
-        iBaseEffect = SFX_EXP_BAZOOKA_BASE;
-        break;
-    case 15:
-        iBaseEffect = SFX_EXP_HEAVYSHELL_BASE;
-        break;
-    case 16:
-        iBaseEffect = SFX_EXP_TANK_BASE;
-        break;
-    default:
-        iBaseEffect = SFX_EXP_GREN_BASE;
-        break;
+    if (cg_protocol >= protocol_e::PROTOCOL_MOHTA_MIN) {
+        switch (iType) {
+        case 13:
+            iBaseEffect = SFX_EXP_GREN_BASE;
+            break;
+        case 14:
+            iBaseEffect = SFX_EXP_BAZOOKA_BASE;
+            break;
+        case 15:
+            iBaseEffect = SFX_EXP_HEAVYSHELL_BASE;
+            break;
+        case 16:
+            iBaseEffect = SFX_EXP_TANK_BASE;
+            break;
+        default:
+            iBaseEffect = SFX_EXP_GREN_BASE;
+            break;
+        }
+    } else {
+        switch (iType) {
+        case 13:
+            iBaseEffect = SFX_EXP_BAZOOKA_BASE;
+            break;
+        default:
+            iBaseEffect = SFX_EXP_GREN_BASE;
+            break;
+        }
     }
 
     CG_Trace(
@@ -1074,14 +1085,18 @@ void CG_MakeExplosionEffect(const vec3_t vPos, int iType)
             break;
         case SFX_EXP_BAZOOKA_BASE:
             iSurfEffect = SFX_EXP_BAZOOKA_SNOW;
-            iBaseEffect = -1;
+            if (cg_protocol >= protocol_e::PROTOCOL_MOHTA_MIN) {
+                iBaseEffect = -1;
+            }
             break;
         case SFX_EXP_HEAVYSHELL_BASE:
             iSurfEffect = SFX_EXP_HEAVYSHELL_SNOW;
             break;
         default:
             iSurfEffect = SFX_EXP_GREN_SNOW;
-            iBaseEffect = -1;
+            if (cg_protocol >= protocol_e::PROTOCOL_MOHTA_MIN) {
+                iBaseEffect = -1;
+            }
             break;
         }
         fRadius = 0;
@@ -1115,14 +1130,18 @@ void CG_MakeExplosionEffect(const vec3_t vPos, int iType)
             break;
         case SFX_EXP_BAZOOKA_BASE:
             iSurfEffect = SFX_EXP_BAZOOKA_DIRT;
-            iBaseEffect = -1;
+            if (cg_protocol >= protocol_e::PROTOCOL_MOHTA_MIN) {
+                iBaseEffect = -1;
+            }
             break;
         case SFX_EXP_HEAVYSHELL_BASE:
             iSurfEffect = SFX_EXP_HEAVYSHELL_DIRT;
             break;
         default:
             iSurfEffect = SFX_EXP_GREN_DIRT;
-            iBaseEffect = -1;
+            if (cg_protocol >= protocol_e::PROTOCOL_MOHTA_MIN) {
+                iBaseEffect = -1;
+            }
             break;
         }
         fRadius = 0;
@@ -1144,7 +1163,9 @@ void CG_MakeExplosionEffect(const vec3_t vPos, int iType)
             break;
         default:
             iSurfEffect = SFX_EXP_GREN_GRASS;
-            iBaseEffect = -1;
+            if (cg_protocol >= protocol_e::PROTOCOL_MOHTA_MIN) {
+                iBaseEffect = -1;
+            }
             break;
         }
         fRadius = 0;
@@ -1156,14 +1177,18 @@ void CG_MakeExplosionEffect(const vec3_t vPos, int iType)
             break;
         case SFX_EXP_BAZOOKA_BASE:
             iSurfEffect = SFX_EXP_BAZOOKA_STONE;
-            iBaseEffect = -1;
+            if (cg_protocol >= protocol_e::PROTOCOL_MOHTA_MIN) {
+                iBaseEffect = -1;
+            }
             break;
         case SFX_EXP_HEAVYSHELL_BASE:
             iSurfEffect = SFX_EXP_HEAVYSHELL_STONE;
             break;
         default:
             iSurfEffect = SFX_EXP_GREN_STONE;
-            iBaseEffect = -1;
+            if (cg_protocol >= protocol_e::PROTOCOL_MOHTA_MIN) {
+                iBaseEffect = -1;
+            }
             break;
         }
         break;
@@ -1211,7 +1236,9 @@ void CG_MakeExplosionEffect(const vec3_t vPos, int iType)
         );
     }
 
-    sfxManager.MakeEffect_Normal(iBaseEffect, vEnd, trace.plane.normal);
+    if (iBaseEffect != -1) {
+        sfxManager.MakeEffect_Normal(iBaseEffect, vEnd, trace.plane.normal);
+    }
 }
 
 void CG_MakeVehicleEffect(vec3_t i_vStart, vec3_t i_vEnd, vec3_t i_vDir)
