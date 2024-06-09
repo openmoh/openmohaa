@@ -2312,6 +2312,12 @@ void Level::EventRainShaderGet(Event *ev)
 
 void Level::EventRainNumShadersSet(Event *ev)
 {
+    if (g_protocol <= protocol_e::PROTOCOL_MOH) {
+        // There is a mistake in 1.11 and below where the NumShader event doesn't work
+        // Because the response points to EventRainShaderSet
+        return;
+    }
+
     gi.setConfigstring(CS_RAIN_NUMSHADERS, ev->GetString(1));
 }
 
