@@ -431,6 +431,7 @@ extern "C" {
     extern cgs_t              cgs;
     extern cg_t               cg;
     extern clientGameImport_t cgi;
+    extern target_game_e      cg_target_game;
     extern int                cg_protocol;
     extern centity_t          cg_entities[MAX_GENTITIES];
     extern markPoly_t         *cg_markPolys;

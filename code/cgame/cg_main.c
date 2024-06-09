@@ -35,12 +35,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 clientGameImport_t        cgi;
 static clientGameExport_t cge;
 
-cvar_t   *paused;
-cvar_t   *developer;
-cg_t      cg;
-cgs_t     cgs;
-int       cg_protocol;
-centity_t cg_entities[MAX_GENTITIES];
+cvar_t       *paused;
+cvar_t       *developer;
+cg_t          cg;
+cgs_t         cgs;
+target_game_e cg_target_game = TG_INVALID;
+int           cg_protocol;
+centity_t     cg_entities[MAX_GENTITIES];
 
 cvar_t *cg_animSpeed;
 cvar_t *cg_debugAnim;
@@ -634,6 +635,8 @@ void CG_Init(clientGameImport_t *imported, int serverMessageNum, int serverComma
     cgi = *imported;
 
     cg_protocol = cgi.Cvar_Get("com_protocol", "", 0)->integer;
+    cg_target_game = (target_game_e)cgi.Cvar_Get("com_target_game", "0", 0)->integer;
+
     CG_InitCGMessageAPI(&cge);
     CG_InitScoresAPI(&cge);
 
