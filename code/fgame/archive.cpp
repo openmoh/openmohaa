@@ -66,7 +66,7 @@ static const char *typenames[] = {
     "object", "objectpointer", "safepointer",    "eventpointer", "quaternion", "entity",   "bool",     "position",
     "size"};
 
-#define ArchiveHeader  (*(int *)"MHAA")
+#define ArchiveHeader  (LittleLong(*(int *)"MHAA"))
 #define ArchiveVersion 14                             // This must be changed any time the format changes!
 #define ArchiveInfo    "OPENMOHAA Archive Version 14" // This must be changed any time the format changes!
 
@@ -208,6 +208,7 @@ qboolean ArchiveFile::OpenRead(const char *name)
 
         new_len = 0;
         Read(&new_len, sizeof(uint32_t));
+        new_len = LittleLong(new_len);
         tempbuf = (byte *)gi.Malloc(new_len);
 
         if (g_lz77.Decompress(pos, length - 8, tempbuf, &iCSVGLength) || iCSVGLength != new_len) {
@@ -487,11 +488,44 @@ File Archive functions
 
 //#define ARCHIVE_USE_TYPES 1
 
-#define ARCHIVE(func, type)                       \
-    void Archiver::Archive##func(type *v)         \
-                                                  \
-    {                                             \
-        ArchiveData(ARC_##func, v, sizeof(type)); \
+template<typename v>
+void ArchiveSwapValue(v* value) {
+    LittleSwap(value, sizeof(v));
+}
+
+template<typename v>
+void ArchiveSwapValue(v* value, size_t size) {
+    for (size_t i = 0; i < size; i++) {
+        LittleSwap(&value[i], sizeof(value[i]));
+    }
+}
+
+template<>
+void ArchiveSwapValue<Vector>(Vector* value) {
+    for (int i = 0; i < 3; i++) {
+        (*value)[i] = LittleFloat((*value)[i]);
+    }
+}
+
+template<>
+void ArchiveSwapValue<Quat>(Quat* value) {
+    for (int i = 0; i < 4; i++) {
+        (*value)[i] = LittleFloat((*value)[i]);
+    }
+}
+
+#define ARCHIVE(func, type)                             \
+    void Archiver::Archive##func(type *v)               \
+    {                                                   \
+        int i;                                          \
+        if (archivemode == ARCHIVE_WRITE) {             \
+            type nv = *v;                               \
+            ArchiveSwapValue(&nv);                      \
+            ArchiveData(ARC_##func, &nv, sizeof(type)); \
+        } else {                                        \
+            ArchiveData(ARC_##func, v, sizeof(type));   \
+            ArchiveSwapValue(v);                        \
+        }                                               \
     }
 
 ARCHIVE(Vector, Vector);
@@ -525,17 +559,41 @@ void Archiver::ArchiveSvsTime(int *time)
 
 void Archiver::ArchiveVec2(vec2_t vec)
 {
-    ArchiveData(ARC_Vec2, vec, sizeof(vec2_t));
+    int i;
+    if (archivemode == ARCHIVE_WRITE) {
+        vec2_t nv = { vec[0], vec[1] };
+        ArchiveSwapValue(nv, 2);
+        ArchiveData(ARC_Vec2, nv, sizeof(vec2_t));
+    } else {
+        ArchiveData(ARC_Vec2, vec, sizeof(vec2_t));
+        ArchiveSwapValue(vec, 2);
+    }
 }
 
 void Archiver::ArchiveVec3(vec3_t vec)
 {
-    ArchiveData(ARC_Vec3, vec, sizeof(vec3_t));
+    int i;
+    if (archivemode == ARCHIVE_WRITE) {
+        vec3_t nv = { vec[0], vec[1], vec[2]};
+        ArchiveSwapValue(nv, 3);
+        ArchiveData(ARC_Vec3, nv, sizeof(vec3_t));
+    } else {
+        ArchiveData(ARC_Vec3, vec, sizeof(vec3_t));
+        ArchiveSwapValue(vec, 3);
+    }
 }
 
 void Archiver::ArchiveVec4(vec4_t vec)
 {
-    ArchiveData(ARC_Vec4, vec, sizeof(vec4_t));
+    int i;
+    if (archivemode == ARCHIVE_WRITE) {
+        vec4_t nv = { vec[0], vec[1], vec[2], vec[3] };
+        ArchiveSwapValue(nv, 4);
+        ArchiveData(ARC_Vec4, nv, sizeof(vec4_t));
+    } else {
+        ArchiveData(ARC_Vec4, vec, sizeof(vec4_t));
+        ArchiveSwapValue(vec, 4);
+    }
 }
 
 void Archiver::ArchiveObjectPointer(LightClass **ptr)
@@ -544,7 +602,9 @@ void Archiver::ArchiveObjectPointer(LightClass **ptr)
 
     if (archivemode == ARCHIVE_READ) {
         pointer_fixup_t *fixup;
+
         ArchiveData(ARC_ObjectPointer, &index, sizeof(index));
+        index = LittleLong(index);
 
         //
         // see if the variable was NULL
@@ -567,6 +627,8 @@ void Archiver::ArchiveObjectPointer(LightClass **ptr)
         } else {
             index = ARCHIVE_NULL_POINTER;
         }
+
+        index = LittleLong(index);
         ArchiveData(ARC_ObjectPointer, &index, sizeof(index));
     }
 }
@@ -577,7 +639,9 @@ void Archiver::ArchiveObjectPointer(Class **ptr)
 
     if (archivemode == ARCHIVE_READ) {
         pointer_fixup_t *fixup;
+
         ArchiveData(ARC_ObjectPointer, &index, sizeof(index));
+        index = LittleLong(index);
 
         //
         // see if the variable was NULL
@@ -600,6 +664,8 @@ void Archiver::ArchiveObjectPointer(Class **ptr)
         } else {
             index = ARCHIVE_NULL_POINTER;
         }
+
+        index = LittleLong(index);
         ArchiveData(ARC_ObjectPointer, &index, sizeof(index));
     }
 }
@@ -612,6 +678,7 @@ void Archiver::ArchiveSafePointer(SafePtrBase *ptr)
         pointer_fixup_t *fixup;
 
         ArchiveData(ARC_SafePointer, &index, sizeof(index));
+        index = LittleLong(index);
 
         //
         // see if the variable was NULL
@@ -638,6 +705,7 @@ void Archiver::ArchiveSafePointer(SafePtrBase *ptr)
         } else {
             index = ARCHIVE_NULL_POINTER;
         }
+        index = LittleLong(index);
         ArchiveData(ARC_SafePointer, &index, sizeof(index));
     }
 }
@@ -646,12 +714,13 @@ void Archiver::ArchiveEventPointer(Event **ev)
 {
     int index;
 
+#ifdef ARCHIVE_USE_TYPES
+    CheckType(ARC_EventPointer);
+#endif
+
     if (archivemode == ARCHIVE_READ) {
 #ifndef NDEBUG
         CheckRead();
-#endif
-#ifdef ARCHIVE_USE_TYPES
-        CheckType(ARC_EventPointer);
 #endif
         ArchiveInteger(&index);
 
@@ -673,10 +742,6 @@ void Archiver::ArchiveEventPointer(Event **ev)
             index = ARCHIVE_NULL_POINTER;
         }
 
-#ifdef ARCHIVE_USE_TYPES
-        WriteType(ARC_EventPointer);
-#endif
-
         ArchiveInteger(&index);
         if (*ev) {
             (*ev)->Archive(*this);
@@ -691,6 +756,10 @@ void Archiver::ArchiveRaw(void *data, size_t size)
 
 void Archiver::ArchiveString(str *string)
 {
+#ifdef ARCHIVE_USE_TYPES
+    CheckType(ARC_String);
+#endif
+
     if (archivemode == ARCHIVE_READ) {
         fileSize_t s;
         char      *data;
@@ -698,10 +767,6 @@ void Archiver::ArchiveString(str *string)
 #ifndef NDEBUG
         CheckRead();
 #endif
-#ifdef ARCHIVE_USE_TYPES
-        CheckType(ARC_String);
-#endif
-
         if (!fileerror) {
             s = ReadSize();
             if (!fileerror) {
@@ -719,13 +784,12 @@ void Archiver::ArchiveString(str *string)
             }
         }
     } else {
+        fileSize_t s;
+
 #ifndef NDEBUG
         CheckWrite();
 #endif
-#ifdef ARCHIVE_USE_TYPES
-        WriteType(ARC_String);
-#endif
-        WriteSize((fileSize_t)string->length());
+        WriteSize(string->length());
         archivefile.Write(string->c_str(), string->length());
     }
 }
@@ -1019,6 +1083,7 @@ fileSize_t Archiver::ReadSize(void)
     s = 0;
     if (!fileerror) {
         archivefile.Read(&s, sizeof(s));
+        LittleSwap(&s, sizeof(s));
     }
 
     return s;
@@ -1039,6 +1104,7 @@ void Archiver::CheckSize(int type, fileSize_t size)
 
 void Archiver::WriteSize(fileSize_t size)
 {
+    LittleSwap(&size, sizeof(size));
     archivefile.Write(&size, sizeof(fileSize_t));
 }
 
@@ -1048,6 +1114,7 @@ int Archiver::ReadType(void)
 
     if (!fileerror) {
         archivefile.Read(&t, sizeof(t));
+        t = LittleLong(t);
 
         return t;
     }
@@ -1066,29 +1133,35 @@ void Archiver::CheckType(int type)
 
     assert((type >= 0) && (type < ARC_NUMTYPES));
 
-    if (!fileerror) {
-        t = ReadType();
-        if (t != type) {
-            if (t < ARC_NUMTYPES) {
-                FileError("Expecting %s, Should be %s", typenames[type], typenames[t]);
-                assert(0);
-            } else {
-                FileError("Expecting %s, Should be %i (Unknown type)", typenames[type], t);
+    if (archivemode == ARCHIVE_READ) {
+        if (!fileerror) {
+            t = ReadType();
+            if (t != type) {
+                if (t < ARC_NUMTYPES) {
+                    FileError("Expecting %s, Should be %s", typenames[type], typenames[t]);
+                    assert(0);
+                }
+                else {
+                    FileError("Expecting %s, Should be %i (Unknown type)", typenames[type], t);
+                }
             }
         }
+    } else {
+        int nt = LittleLong(type);
+        archivefile.Write(&nt, sizeof(nt));
     }
 }
 
 void Archiver::ArchiveData(int type, void *data, size_t size)
 {
+#ifdef ARCHIVE_USE_TYPES
+    CheckType(type);
+#endif
+
     if (archivemode == ARCHIVE_READ) {
 #ifndef NDEBUG
         CheckRead();
 #endif
-#ifdef ARCHIVE_USE_TYPES
-        CheckType(type);
-#endif
-
         if (!fileerror && size) {
             m_iNumBytesIO += size;
             archivefile.Read(data, size);
@@ -1096,9 +1169,6 @@ void Archiver::ArchiveData(int type, void *data, size_t size)
     } else {
 #ifndef NDEBUG
         CheckWrite();
-#endif
-#ifdef ARCHIVE_USE_TYPES
-        WriteType(type);
 #endif
 
         if (!fileerror && size) {
