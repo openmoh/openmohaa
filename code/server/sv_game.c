@@ -491,7 +491,7 @@ void MSG_SetBroadcastVisible(const vec_t* vPos, const vec_t* vPosB)
 		clientcluster = CM_LeafCluster(leafnum);
 		clientpvs = CM_ClusterPVS(clientcluster);
 
-		if (CM_AreasConnected(clientarea, posarea) && (!vPosB || !CM_AreasConnected(clientarea, posBarea))) {
+		if (!CM_AreasConnected(clientarea, posarea) && (!vPosB || !CM_AreasConnected(clientarea, posBarea))) {
 			continue;
 		}
 
