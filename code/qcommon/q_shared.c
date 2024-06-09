@@ -1492,6 +1492,21 @@ void CopyLongSwap(void* dest, const void* src)
 	to[3] = from[0];
 }
 
+void SwapValue(void* dest, size_t size) {
+	byte* data = (byte*)dest;
+
+	// swap values
+	for (size_t i = size / 2; i > 0; --i)
+	{
+		uint8_t* in = data + i - 1;
+		uint8_t* out = data + size - i;
+
+		const uint8_t tmp = *in;
+		*in = *out;
+		*out = tmp;
+	}
+}
+
 short ShortSwap(short l)
 {
 	byte b1, b2;

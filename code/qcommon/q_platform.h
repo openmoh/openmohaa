@@ -402,6 +402,7 @@ short ShortNoSwapPtr(const void* l);
 int LongNoSwapPtr(const void* l);
 float FloatSwapPtr(const void* l);
 float FloatNoSwapPtr(const void* l);
+void SwapValue(void* dest, size_t size);
 
 #if defined( Q3_BIG_ENDIAN ) && defined( Q3_LITTLE_ENDIAN )
 #error "Endianness defined as both big and little"
@@ -422,12 +423,14 @@ float FloatNoSwapPtr(const void* l);
 #define LittleShortPtr(x) ShortSwapPtr(&x)
 #define LittleLongPtr(x) LongSwapPtr(&x)
 #define LittleFloatPtr(x) FloatSwapPtr(&x)
+#define LittleSwap(x, size) SwapValue(x, size)
 
 #define BigShort
 #define BigLong
 #define BigFloat
 #define BigShortPtr(x) ShortNoSwapPtr(&x)
 #define BigLongPtr(x) LongNoSwapPtr(&x)
+#define BigSwap(x, size) x
 
 #elif defined( Q3_LITTLE_ENDIAN )
 
@@ -441,6 +444,7 @@ float FloatNoSwapPtr(const void* l);
 #define LittleShortPtr(x) ShortNoSwapPtr(&x)
 #define LittleLongPtr(x) LongNoSwapPtr(&x)
 #define LittleFloatPtr(x) FloatNoSwapPtr(&x)
+#define LittleSwap(x, size) x
 
 #define BigShort(x) ShortSwap(x)
 #define BigUnsignedShort(x) UnsignedShortSwap(x)
@@ -449,6 +453,7 @@ float FloatNoSwapPtr(const void* l);
 #define BigFloat(x) FloatSwap(&x)
 #define BigShortPtr(x) ShortSwapPtr(&x)
 #define BigLongPtr(x) LongSwapPtr(&x)
+#define BigSwap(x, size) SwapValue(x, size)
 
 #else
 #error "Endianness not defined"
