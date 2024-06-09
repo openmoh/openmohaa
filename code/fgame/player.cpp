@@ -2430,8 +2430,8 @@ void Player::InitModel(void)
     if (g_gametype->integer == GT_SINGLE_PLAYER) {
         setModel("models/player/" + str(g_playermodel->string) + ".tik");
     } else if (dm_team == TEAM_AXIS) {
-        if (Q_stricmpn(client->pers.dm_playermodel, "german", 6)
-            && Q_stricmpn(client->pers.dm_playermodel, "axis", 4)
+        if (Q_stricmpn(client->pers.dm_playergermanmodel, "german", 6)
+            && Q_stricmpn(client->pers.dm_playergermanmodel, "axis", 4)
             //
             // 2.30 models
             //
