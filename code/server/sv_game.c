@@ -203,11 +203,11 @@ static void MSG_WriteCGMBits (cgm_t *pCGM, int value, int bits)
 		pCGM->cursize++;
 	} else if(bits <= 16) {
 		// append short (two bytes)
-		*((short*)(&pCGM->data[pCGM->cursize])) = LittleShort(value);
+		*((short*)(&pCGM->data[pCGM->cursize])) = value;
 		pCGM->cursize+=2;
 	} else if(bits <= 32) {
 		// append integer (4 bytes)
-		*((int*)(&pCGM->data[pCGM->cursize])) = LittleLong(value);	
+		*((int*)(&pCGM->data[pCGM->cursize])) = value;	
 		pCGM->cursize+=4;
 	}
 	// save datatype
