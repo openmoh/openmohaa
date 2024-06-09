@@ -2698,8 +2698,6 @@ qboolean CheckMove(Vector& origin, Vector& pos, short int *path_fallheight, floa
         if (DotProduct2D(dir, mm.desired_dir) <= 0.1f) {
             error = mm.origin[2] - pos[2];
 
-            gi.Printf("error = %f\n", error);
-
             *path_fallheight = (short)fallheight;
             if (fabs(error) <= 94.0f) {
                 if (error <= 0.0f || mm.groundPlane) {
