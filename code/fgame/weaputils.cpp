@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2024 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -1146,6 +1146,7 @@ void Projectile::Touch(Event *ev)
     // Bouncy Projectile
     if ((projFlags & P_BOUNCE_TOUCH)) {
         str snd;
+        int flags;
 
         if (level.time - fLastBounceTime < 0.1f) {
             fLastBounceTime = level.time;
@@ -1157,49 +1158,60 @@ void Projectile::Touch(Event *ev)
             if (bouncesound_water.length()) {
                 this->Sound(bouncesound_water, CHAN_BODY);
             }
-        } else {
-            if (bouncesound_metal.length()) {
-                snd = bouncesound_metal;
-            } else if (bouncesound_hard.length()) {
-                snd = bouncesound_hard;
-            } else {
-                snd = bouncesound;
+
+            //
+            // Added in 2.30
+            //
+            if (m_bDieInWater) {
+                PostEvent(EV_Remove, 0.5f);
             }
 
-            int flags = level.impact_trace.surfaceFlags;
+            return;
+        }
 
-            if (flags & SURF_MUD) {
-                if (bouncesound.length()) {
-                    Sound(bouncesound, CHAN_BODY);
-                }
-            } else if (flags & SURF_ROCK) {
-                if (bouncesound_hard.length()) {
-                    Sound(bouncesound_hard, CHAN_BODY);
-                }
-            } else if (flags & SURF_GRILL) {
-                if (bouncesound_metal.length()) {
-                    Sound(bouncesound_metal, CHAN_BODY);
-                }
-            } else if (flags & SURF_WOOD) {
-                if (bouncesound_hard.length()) {
-                    Sound(bouncesound_hard, CHAN_BODY);
-                }
-            } else if (flags & SURF_METAL) {
-                if (bouncesound_metal.length()) {
-                    Sound(bouncesound_metal, CHAN_BODY);
-                }
-            } else if (flags & SURF_GLASS) {
-                if (bouncesound_hard.length()) {
-                    Sound(bouncesound_hard, CHAN_BODY);
-                }
-            } else {
-                if (bouncesound.length()) {
-                    Sound(bouncesound, CHAN_BODY);
-                }
+        if (bouncesound_metal.length()) {
+            snd = bouncesound_metal;
+        } else if (bouncesound_hard.length()) {
+            snd = bouncesound_hard;
+        } else {
+            snd = bouncesound;
+        }
+
+        flags = level.impact_trace.surfaceFlags;
+
+        if (flags & SURF_MUD) {
+            if (bouncesound.length()) {
+                Sound(bouncesound, CHAN_BODY);
+            }
+        } else if (flags & SURF_ROCK) {
+            if (bouncesound_hard.length()) {
+                Sound(bouncesound_hard, CHAN_BODY);
+            }
+        } else if (flags & SURF_GRILL) {
+            if (bouncesound_metal.length()) {
+                Sound(bouncesound_metal, CHAN_BODY);
+            }
+        } else if (flags & SURF_WOOD) {
+            if (bouncesound_hard.length()) {
+                Sound(bouncesound_hard, CHAN_BODY);
+            }
+        } else if (flags & SURF_METAL) {
+            if (bouncesound_metal.length()) {
+                Sound(bouncesound_metal, CHAN_BODY);
+            }
+        } else if (flags & SURF_GLASS) {
+            if (bouncesound_hard.length()) {
+                Sound(bouncesound_hard, CHAN_BODY);
+            }
+        } else {
+            if (bouncesound.length()) {
+                Sound(bouncesound, CHAN_BODY);
             }
         }
 
         BroadcastAIEvent(AI_EVENT_WEAPON_IMPACT);
+        fLastBounceTime = level.time;
+
         return;
     }
 
