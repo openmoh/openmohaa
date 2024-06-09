@@ -583,337 +583,192 @@ LABEL_19:
 *************************************************************************/
 int cLZ77::Decompress( unsigned char *in, size_t in_len, unsigned char *out, size_t *out_len )
 {
-	unsigned int v5;
-	uint8_t* v6;
-	unsigned int v7;
-	uint8_t* v8;
-	int v9;
-	uint8_t* v10;
-	uint8_t* v11;
-	unsigned int v12;
-	uint8_t* v13;
-	uint8_t* v14;
-	uint8_t* v15;
-	uint8_t* v16;
-	uint8_t* v17;
-	uint8_t* op;
-	uint8_t* v19;
-	uint8_t* v20;
-	uint8_t* v21;
-	uint8_t* v22;
-	uint8_t* v23;
-	uint8_t* ip;
-	uint8_t* v25;
-	uint8_t* v26;
-	int v27;
-	uint8_t* v28;
-	uint8_t* v29;
-	uint8_t* v30;
-	uint8_t* v31;
-	uint8_t* v32;
-	uint8_t* v33;
-	unsigned int v34;
-	uint8_t* v35;
-	int v36;
-	uint8_t* v37;
-	uint8_t* v38;
-	uint8_t* v39;
-	uint8_t* v40;
-	uint8_t* v41;
-	int v42;
-	uint8_t* v43;
-	uint8_t* v44;
-	uint8_t* v45;
-	uint8_t* v46;
-	unsigned int v47;
-	uint8_t* v48;
-	uint8_t* v49;
-	uint8_t* v50;
-	uint8_t* v51;
-	uint8_t* v52;
-	uint8_t* v53;
-	uint8_t* v54;
-	uint8_t* v55;
-	uint8_t* v56;
-	uint8_t* v57;
-	uint8_t* v58;
-	uint8_t* v59;
-	uint8_t* v60;
-	uint8_t* v61;
-	uint8_t* v62;
-	uint8_t* ip_end;
+	unsigned int t;
 
-	this->ip_end = in + in_len;
+	this->ip_end = &in[in_len];
 	*out_len = 0;
 	this->op = out;
 	this->ip = in;
-	if (*in > 17u)
+	if (*this->ip > 17u)
 	{
-		v5 = *in - 17;
-		this->ip = in + 1;
-		if (v5 < 4)
-			goto LABEL_49;
+		t = *this->ip++ - 17;
+		if (t <= 3)
+			goto LABEL_52;
 		do
 		{
-			*this->op = *this->ip;
-			v6 = this->ip + 1;
-			--v5;
-			++this->op;
-			this->ip = v6;
-		} while (v5);
+			*this->op++ = *this->ip++;
+			--t;
+		} while (t);
 		goto LABEL_17;
 	}
+
 LABEL_5:
-	v7 = *this->ip;
-	v8 = this->ip + 1;
-	this->ip = v8;
-	if (v7 < 16)
+	t = *this->ip++;
+	if (t <= 15)
 	{
-		if (!v7)
+		if (!t)
 		{
-			for (; !*v8; this->ip = v8)
+			while (!*this->ip)
 			{
-				v7 += 255;
-				++v8;
+				t += 255;
+				++this->ip;
 			}
-			v9 = *v8;
-			this->ip = v8 + 1;
-			v7 += v9 + 15;
+			t += 15 + *this->ip++;
 		}
-		*(int*)this->op = *(int*)this->ip;
-		v10 = this->op + 4;
-		v11 = this->ip + 4;
-		v12 = v7 - 1;
-		this->op = v10;
-		this->ip = v11;
-		v13 = v11;
-		if (v12)
+		*(unsigned int*)this->op = *(unsigned int*)this->ip;
+		this->op += 4;
+		this->ip += 4;
+		if (--t)
 		{
-			if (v12 < 4)
+			if (t <= 3)
 			{
 				do
 				{
-					*this->op = *this->ip;
-					v16 = this->ip + 1;
-					--v12;
-					++this->op;
-					this->ip = v16;
-				} while (v12);
+					*this->op++ = *this->ip++;
+					--t;
+				} while (t);
 			}
 			else
 			{
 				do
 				{
-					v12 -= 4;
-					*(int*)v10 = *(int*)v13;
-					v14 = this->op + 4;
-					v13 = this->ip + 4;
-					this->op = v14;
-					v10 = v14;
-					this->ip = v13;
-				} while (v12 >= 4);
-				for (; v12; this->ip = v15)
-				{
-					*this->op = *this->ip;
-					v15 = this->ip + 1;
-					--v12;
-					++this->op;
-				}
+					*(unsigned int*)this->op = *(unsigned int*)this->ip;
+					this->op += 4;
+					this->ip += 4;
+					t -= 4;
+				} while (t > 3);
+				for (; t; --t)
+					*this->op++ = *this->ip++;
 			}
 		}
 	LABEL_17:
-		v7 = *this->ip;
-		v17 = this->ip + 1;
-		this->ip = v17;
-		if (v7 < 16)
+		t = *this->ip++;
+		if (t <= 0xF)
 		{
-			op = this->op;
-			v19 = op - (v7 >> 2) - 2049;
-			this->m_pos = v19;
-			v20 = v19 - 4 * *v17;
-			this->m_pos = v20;
-			this->ip = v17 + 1;
-			*op = *v20;
-			v21 = this->op + 1;
-			v22 = this->m_pos + 1;
-			this->op = v21;
-			this->m_pos = v22;
-			*v21 = *v22;
-		LABEL_47:
-			v59 = this->m_pos + 1;
-			v60 = ++this->op;
-			this->m_pos = v59;
-			*v60 = *v59;
+			this->m_pos = this->op - 2049;
+			this->m_pos -= t >> 2;
+			this->m_pos -= 4 * *this->ip++;
+			*this->op = *this->m_pos++;
+			*++this->op = *this->m_pos++;
+			*++this->op = *this->m_pos;
 			++this->op;
-			goto LABEL_48;
+			goto LABEL_51;
 		}
 	}
 	while (1)
 	{
-		if (v7 >= 64)
+		if (t > 0x3F)
 		{
-			v23 = this->op;
-			ip = this->ip;
-			v25 = v23 - ((v7 >> 2) & 7) - 1;
-			this->m_pos = v25;
-			v26 = v25 - 8 * *ip;
-			this->ip = ip + 1;
-			v27 = (v7 >> 5) - 1;
-			this->m_pos = v26;
-			*v23 = *v26;
-			v28 = this->op + 1;
-			v29 = this->m_pos + 1;
-			this->op = v28;
-			this->m_pos = v29;
-			*v28 = *v29;
-			v30 = this->op + 1;
-			v31 = this->m_pos + 1;
-			this->op = v30;
-			this->m_pos = v31;
+			this->m_pos = this->op - 1;
+			this->m_pos -= (t >> 2) & 7;
+			this->m_pos -= 8 * *this->ip++;
+			t = (t >> 5) - 1;
+			*this->op = *this->m_pos++;
+			*++this->op = *this->m_pos++;
+			++this->op;
 			do
 			{
-				*v30 = *this->m_pos;
-				v32 = this->op + 1;
-				v33 = this->m_pos + 1;
-				--v27;
-				this->op = v32;
-				v30 = v32;
-				this->m_pos = v33;
-			} while (v27);
-			goto LABEL_48;
+				*this->op++ = *this->m_pos++;
+				--t;
+			} while (t);
+			goto LABEL_51;
 		}
-		if (v7 >= 32)
+		if (t > 0x1F)
 		{
-			v34 = v7 & 31;
-			if (!v34)
+			t &= 0x1Fu;
+			if (!t)
 			{
-				if (!*this->ip)
+				while (!*this->ip)
 				{
-					do
-					{
-						v34 += 255;
-						v35 = this->ip + 1;
-						this->ip = v35;
-					} while (!*v35);
+					t += 255;
+					++this->ip;
 				}
-				v36 = *this->ip++;
-				v34 += v36 + 31;
+				t += 31 + *this->ip++;
 			}
-			v37 = this->op;
-			v38 = this->ip;
-			this->m_pos = v37 - 1;
-			v39 = v37 - (LittleShort(*(unsigned short*)v38) >> 2) - 1;
-			this->ip = v38 + 2;
-			goto LABEL_36;
+			this->m_pos = this->op - 1;
+			this->m_pos -= LittleUnsignedShort(*(unsigned short*)this->ip) >> 2;
+			this->ip += 2;
+			goto LABEL_42;
 		}
-		v37 = this->op;
-		if (v7 < 0x10)
+		if (t <= 0xF)
 		{
-			v56 = this->ip;
-			v57 = v37 - (v7 >> 2) - 1;
-			this->m_pos = v57;
-			v58 = v57 - 4 * *v56;
-			this->m_pos = v58;
-			this->ip = v56 + 1;
-			*v37 = *v58;
-			goto LABEL_47;
+			this->m_pos = this->op - 1;
+			this->m_pos -= t >> 2;
+			this->m_pos -= 4 * *this->ip++;
+			*this->op = *this->m_pos++;
+			*++this->op = *this->m_pos;
+			++this->op;
+			goto LABEL_51;
 		}
-		v40 = v37 - 2048 * (v7 & 8);
-		v34 = v7 & 7;
-		this->m_pos = v40;
-		if (!v34)
+		this->m_pos = this->op;
+		this->m_pos -= 2048 * (t & 8);
+		t &= 7u;
+		if (!t)
 		{
-			if (!*this->ip)
+			while (!*this->ip)
 			{
-				do
-				{
-					v34 += 255;
-					v41 = this->ip + 1;
-					this->ip = v41;
-				} while (!*v41);
+				t += 255;
+				++this->ip;
 			}
-			v42 = *this->ip++;
-			v34 += v42 + 7;
+			t += 7 + *this->ip++;
 		}
-		this->m_pos -= LittleShort(*(unsigned short*)this->ip) >> 2;
+		this->m_pos -= LittleUnsignedShort(*(unsigned short*)this->ip) >> 2;
 		this->ip += 2;
-		if (this->m_pos == v37)
+		if (this->m_pos == this->op)
 			break;
-		v39 = this->m_pos - 0x4000;
-	LABEL_36:
-		this->m_pos = v39;
-		if (v34 < 6 || v37 - v39 < 4)
+		this->m_pos -= 0x4000;
+	LABEL_42:
+		if (t <= 5 || this->op - this->m_pos <= 3)
 		{
-			*v37 = *this->m_pos;
-			v50 = this->op + 1;
-			v51 = this->m_pos + 1;
-			this->op = v50;
-			this->m_pos = v51;
-			*v50 = *v51;
-			v52 = this->op + 1;
-			v53 = this->m_pos + 1;
-			this->op = v52;
-			this->m_pos = v53;
+			*this->op = *this->m_pos++;
+			*++this->op = *this->m_pos++;
+			++this->op;
 			do
 			{
-				*v52 = *this->m_pos;
-				v54 = this->op + 1;
-				v55 = this->m_pos + 1;
-				--v34;
-				this->op = v54;
-				v52 = v54;
-				this->m_pos = v55;
-			} while (v34);
+				*this->op++ = *this->m_pos++;
+				--t;
+			} while (t);
 		}
 		else
 		{
-			*(int*)v37 = *(int*)v39;
-			v44 = this->op + 4;
-			v45 = this->m_pos + 4;
-			this->op = v44;
-			v46 = v44;
-			this->m_pos = v45;
-			v47 = v34 - 2;
+			*(unsigned int*)this->op = *(unsigned int*)this->m_pos;
+			this->op += 4;
+			this->m_pos += 4;
+			t -= 2;
 			do
 			{
-				v47 -= 4;
-				*(int*)v46 = *(int*)this->m_pos;
-				v46 = this->op + 4;
-				v48 = this->m_pos + 4;
-				this->op = v46;
-				this->m_pos = v48;
-			} while (v47 >= 4);
-			for (; v47; this->m_pos = v49)
-			{
-				*this->op = *this->m_pos;
-				v49 = this->m_pos + 1;
-				--v47;
-				++this->op;
-			}
+				*(unsigned int*)this->op = *(unsigned int*)this->m_pos;
+				this->op += 4;
+				this->m_pos += 4;
+				t -= 4;
+			} while (t > 3);
+			for (; t; --t)
+				*this->op++ = *this->m_pos++;
 		}
-	LABEL_48:
-		v5 = *(this->ip - 2) & 3;
-		if ((*(this->ip - 2) & 3) == 0)
+	LABEL_51:
+		t = *(this->ip - 2) & 3;
+
+		if (!t)
 			goto LABEL_5;
+
+	LABEL_52:
 		do
 		{
-		LABEL_49:
-			*this->op = *this->ip;
-			v61 = this->ip + 1;
-			--v5;
-			++this->op;
-			this->ip = v61;
-		} while (v5);
-		v7 = *v61;
-		this->ip = v61 + 1;
+			*this->op++ = *this->ip++;
+			--t;
+		} while (t);
+
+		t = *this->ip++;
 	}
+
 	*out_len = this->op - out;
-	v62 = this->ip;
-	ip_end = this->ip_end;
-	if (v62 == ip_end)
+
+	if (this->ip == this->ip_end)
 		return 0;
-	else
-		return (v62 < ip_end) - 2;
+
+	if (this->ip >= this->ip_end)
+		return -2;
+	return -1;
 }
 
 static unsigned char in[ 0x40000 ];
