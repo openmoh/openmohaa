@@ -151,59 +151,59 @@ cLZ77::cLZ77()
 
 unsigned int cLZ77::CompressData( unsigned char *in, size_t in_len, unsigned char *out, size_t *out_len )
 {
-	uint8_t* ip; // eax
-	unsigned int v7; // edi
-	unsigned int v8; // edx
-	unsigned int v9; // edx
-	unsigned int v10; // esi
-	unsigned int m_off; // edx
-	uint8_t* v12; // ebp
-	unsigned int v13; // edx
-	unsigned int v14; // esi
-	unsigned int v15; // edx
-	unsigned int v16; // ebp
-	uint8_t* v17; // esi
-	unsigned int v18; // edx
-	uint8_t* v19; // esi
-	uint8_t* v20; // eax
-	int v22; // eax
-	uint8_t v23; // bl
-	uint8_t* v24; // esi
-	unsigned int v25; // edx
-	uint8_t* v26; // esi
-	uint8_t* m_pos; // eax
-	uint8_t* v28; // ebp
-	bool v29; // zf
-	uint8_t v30; // al
-	uint8_t v31; // dl
-	uint8_t v32; // dl
-	uint8_t v33; // al
-	uint8_t v34; // al
-	uint8_t v35; // dl
-	uint8_t v36; // dl
-	uint8_t v37; // al
-	uint8_t v38; // al
-	uint8_t v39; // dl
-	uint8_t* in_end; // edi
-	uint8_t* v41; // eax
-	uint8_t* v42; // esi
-	unsigned int v43; // edx
-	unsigned int v44; // eax
-	uint8_t* v45; // edi
-	uint8_t* i; // edx
-	uint8_t* v47; // edi
-	unsigned int v48; // edx
-	unsigned int v49; // edx
-	unsigned int m_len; // eax
-	uint8_t* v51; // edi
-	uint8_t* v52; // edi
-	uint8_t* ii; // esi
-	uint8_t* v54; // edi
-	unsigned int v55; // edx
-	char v56; // dl
-	uint8_t* v57; // eax
-	uint8_t v58; // dl
-	uint8_t* v59; // edi
+	uint8_t* ip;
+	unsigned int v7;
+	unsigned int v8;
+	unsigned int v9;
+	unsigned int v10;
+	unsigned int m_off;
+	uint8_t* v12;
+	unsigned int v13;
+	unsigned int v14;
+	unsigned int v15;
+	unsigned int v16;
+	uint8_t* v17;
+	unsigned int v18;
+	uint8_t* v19;
+	uint8_t* v20;
+	int v22;
+	uint8_t v23;
+	uint8_t* v24;
+	unsigned int v25;
+	uint8_t* v26;
+	uint8_t* m_pos;
+	uint8_t* v28;
+	bool v29;
+	uint8_t v30;
+	uint8_t v31;
+	uint8_t v32;
+	uint8_t v33;
+	uint8_t v34;
+	uint8_t v35;
+	uint8_t v36;
+	uint8_t v37;
+	uint8_t v38;
+	uint8_t v39;
+	uint8_t* in_end;
+	uint8_t* v41;
+	uint8_t* v42;
+	unsigned int v43;
+	unsigned int v44;
+	uint8_t* v45;
+	uint8_t* i;
+	uint8_t* v47;
+	unsigned int v48;
+	unsigned int v49;
+	unsigned int m_len;
+	uint8_t* v51;
+	uint8_t* v52;
+	uint8_t* ii;
+	uint8_t* v54;
+	unsigned int v55;
+	char v56;
+	uint8_t* v57;
+	uint8_t v58;
+	uint8_t* v59;
 
 	this->in_end = &in[in_len];
 	this->ip_end = &in[in_len - 13];
@@ -583,65 +583,65 @@ LABEL_19:
 *************************************************************************/
 int cLZ77::Decompress( unsigned char *in, size_t in_len, unsigned char *out, size_t *out_len )
 {
-	unsigned int v5; // eax
-	uint8_t* v6; // esi
-	unsigned int v7; // eax
-	uint8_t* v8; // esi
-	int v9; // edx
-	uint8_t* v10; // edx
-	uint8_t* v11; // ebp
-	unsigned int v12; // eax
-	uint8_t* v13; // esi
-	uint8_t* v14; // edi
-	uint8_t* v15; // esi
-	uint8_t* v16; // esi
-	uint8_t* v17; // esi
-	uint8_t* op; // edi
-	uint8_t* v19; // eax
-	uint8_t* v20; // eax
-	uint8_t* v21; // ebp
-	uint8_t* v22; // edi
-	uint8_t* v23; // edi
-	uint8_t* ip; // ebp
-	uint8_t* v25; // esi
-	uint8_t* v26; // esi
-	int v27; // ebp
-	uint8_t* v28; // edi
-	uint8_t* v29; // esi
-	uint8_t* v30; // edx
-	uint8_t* v31; // eax
-	uint8_t* v32; // edi
-	uint8_t* v33; // esi
-	unsigned int v34; // eax
-	uint8_t* v35; // edx
-	int v36; // edx
-	uint8_t* v37; // esi
-	uint8_t* v38; // edi
-	uint8_t* v39; // edx
-	uint8_t* v40; // edi
-	uint8_t* v41; // edx
-	int v42; // edx
-	uint8_t* v43; // ebp
-	uint8_t* v44; // ebp
-	uint8_t* v45; // edi
-	uint8_t* v46; // edx
-	unsigned int v47; // eax
-	uint8_t* v48; // ebp
-	uint8_t* v49; // esi
-	uint8_t* v50; // ebp
-	uint8_t* v51; // edi
-	uint8_t* v52; // esi
-	uint8_t* v53; // edx
-	uint8_t* v54; // ebp
-	uint8_t* v55; // edi
-	uint8_t* v56; // edi
-	uint8_t* v57; // eax
-	uint8_t* v58; // eax
-	uint8_t* v59; // edx
-	uint8_t* v60; // eax
-	uint8_t* v61; // edi
-	uint8_t* v62; // eax
-	uint8_t* ip_end; // ecx
+	unsigned int v5;
+	uint8_t* v6;
+	unsigned int v7;
+	uint8_t* v8;
+	int v9;
+	uint8_t* v10;
+	uint8_t* v11;
+	unsigned int v12;
+	uint8_t* v13;
+	uint8_t* v14;
+	uint8_t* v15;
+	uint8_t* v16;
+	uint8_t* v17;
+	uint8_t* op;
+	uint8_t* v19;
+	uint8_t* v20;
+	uint8_t* v21;
+	uint8_t* v22;
+	uint8_t* v23;
+	uint8_t* ip;
+	uint8_t* v25;
+	uint8_t* v26;
+	int v27;
+	uint8_t* v28;
+	uint8_t* v29;
+	uint8_t* v30;
+	uint8_t* v31;
+	uint8_t* v32;
+	uint8_t* v33;
+	unsigned int v34;
+	uint8_t* v35;
+	int v36;
+	uint8_t* v37;
+	uint8_t* v38;
+	uint8_t* v39;
+	uint8_t* v40;
+	uint8_t* v41;
+	int v42;
+	uint8_t* v43;
+	uint8_t* v44;
+	uint8_t* v45;
+	uint8_t* v46;
+	unsigned int v47;
+	uint8_t* v48;
+	uint8_t* v49;
+	uint8_t* v50;
+	uint8_t* v51;
+	uint8_t* v52;
+	uint8_t* v53;
+	uint8_t* v54;
+	uint8_t* v55;
+	uint8_t* v56;
+	uint8_t* v57;
+	uint8_t* v58;
+	uint8_t* v59;
+	uint8_t* v60;
+	uint8_t* v61;
+	uint8_t* v62;
+	uint8_t* ip_end;
 
 	this->ip_end = in + in_len;
 	*out_len = 0;
@@ -802,7 +802,7 @@ LABEL_5:
 			v37 = this->op;
 			v38 = this->ip;
 			this->m_pos = v37 - 1;
-			v39 = v37 - (*(uint16_t*)v38 >> 2) - 1;
+			v39 = v37 - (LittleShort(*(unsigned short*)v38) >> 2) - 1;
 			this->ip = v38 + 2;
 			goto LABEL_36;
 		}
@@ -835,7 +835,7 @@ LABEL_5:
 			v42 = *this->ip++;
 			v34 += v42 + 7;
 		}
-		this->m_pos -= *(unsigned short*)this->ip >> 2;
+		this->m_pos -= LittleShort(*(unsigned short*)this->ip) >> 2;
 		this->ip += 2;
 		if (this->m_pos == v37)
 			break;
