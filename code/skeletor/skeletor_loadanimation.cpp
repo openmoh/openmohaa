@@ -221,7 +221,7 @@ skelAnimDataGameHeader_t *EncodeFrames(
 skelAnimDataGameHeader_t *
 skeletor_c::ConvertSkelFileToGame(skelAnimDataFileHeader_t *pHeader, int iBuffLength, const char *path)
 {
-    int                       i;
+    int                       i, j;
     skelAnimFileFrame_t      *pFileFrame;
     skelAnimGameFrame_t      *pGameFrame;
     skelChannelName_t        *pChannelNames;
@@ -229,6 +229,9 @@ skeletor_c::ConvertSkelFileToGame(skelAnimDataFileHeader_t *pHeader, int iBuffLe
     skelAnimGameFrame_t      *oldFrame;
     skelAnimGameFrame_t      *newFrame;
     int                       channelIndex;
+
+    static_assert(sizeof(skelAnimDataFileHeader_t) == 96, "Skeletor anim header size doesn't match!");
+    static_assert(sizeof(skelAnimFileFrame_t) == 48, "Skeletor anim file frame size doesn't match!");
 
     if (pHeader->numFrames <= 0) {
         return NULL;
@@ -239,17 +242,30 @@ skeletor_c::ConvertSkelFileToGame(skelAnimDataFileHeader_t *pHeader, int iBuffLe
     newFrame   = pGameFrame;
 
     for (i = 0; i < pHeader->numFrames; i++) {
-        newFrame->bounds[0]  = pFileFrame->bounds[0];
-        newFrame->bounds[1]  = pFileFrame->bounds[1];
-        newFrame->delta      = pFileFrame->delta;
-        newFrame->angleDelta = pFileFrame->angleDelta;
+        vec4_t* pChannels;
+
+        newFrame->bounds[0][0] = LittleFloat(pFileFrame->bounds[0][0]);
+        newFrame->bounds[0][1] = LittleFloat(pFileFrame->bounds[0][1]);
+        newFrame->bounds[1][2] = LittleFloat(pFileFrame->bounds[0][2]);
+        newFrame->bounds[1][0] = LittleFloat(pFileFrame->bounds[1][0]);
+        newFrame->bounds[1][1] = LittleFloat(pFileFrame->bounds[1][1]);
+        newFrame->bounds[1][2] = LittleFloat(pFileFrame->bounds[1][2]);
+        newFrame->delta[0] = LittleFloat(pFileFrame->delta[0]);
+        newFrame->delta[1] = LittleFloat(pFileFrame->delta[1]);
+        newFrame->delta[2] = LittleFloat(pFileFrame->delta[2]);
+        newFrame->angleDelta = LittleFloat(pFileFrame->angleDelta);
+        //
+        // Load channels
+        //
         newFrame->pChannels  = new vec4_t[pHeader->numChannels];
-        memcpy(
-            newFrame->pChannels,
-            (char *)pHeader
-                + (sizeof(vec4_t) * (3 * pHeader->numFrames - 3) + sizeof(vec4_t) * pHeader->numChannels * i + 96),
-            pHeader->numChannels * sizeof(vec4_t)
-        );
+        pChannels = (vec4_t*)((byte*)pHeader + (sizeof(skelAnimDataFileHeader_t) + sizeof(skelAnimFileFrame_t) * (pHeader->numFrames - 1) + sizeof(vec4_t) * pHeader->numChannels * i));
+        for (j = 0; j < pHeader->numChannels; j++) {
+            newFrame->pChannels[j][0] = LittleFloat(pChannels[j][0]);
+            newFrame->pChannels[j][1] = LittleFloat(pChannels[j][1]);
+            newFrame->pChannels[j][2] = LittleFloat(pChannels[j][2]);
+            newFrame->pChannels[j][3] = LittleFloat(pChannels[j][3]);
+        }
+
         AddToBounds(newFrame->bounds, pFileFrame->bounds);
 
         pFileFrame++;
@@ -376,10 +392,17 @@ void WriteEncodedFrames(msg_t *msg, skelAnimDataGameHeader_t *enAnim)
         MSG_WriteShort(msg, pChannel->nFramesInChannel);
 
         for (j = 0; j < pChannel->nFramesInChannel; j++) {
+            vec3_t channelData;
+
             pFrame = &pChannel->ary_frames[i];
             MSG_WriteShort(msg, pFrame->nFrameNum);
             MSG_WriteShort(msg, pFrame->nPrevFrameIndex);
-            MSG_WriteData(msg, pFrame->pChannelData, sizeof(vec4_t));
+
+            channelData[0] = LittleFloat(pFrame->pChannelData[0]);
+            channelData[1] = LittleFloat(pFrame->pChannelData[1]);
+            channelData[2] = LittleFloat(pFrame->pChannelData[2]);
+            channelData[3] = LittleFloat(pFrame->pChannelData[3]);
+            MSG_WriteData(msg, channelData, sizeof(vec4_t));
         }
     }
 
@@ -433,10 +456,10 @@ void ReadEncodedFrames(msg_t *msg, skelAnimDataGameHeader_t *enAnim)
                 pFrame->nPrevFrameIndex = MSG_ReadShort(msg);
                 MSG_ReadData(msg, channelData, sizeof(vec4_t));
 
-                pFrame->pChannelData[0] = channelData[0];
-                pFrame->pChannelData[1] = channelData[1];
-                pFrame->pChannelData[2] = channelData[2];
-                pFrame->pChannelData[3] = channelData[3];
+                pFrame->pChannelData[0] = LittleFloat(channelData[0]);
+                pFrame->pChannelData[1] = LittleFloat(channelData[1]);
+                pFrame->pChannelData[2] = LittleFloat(channelData[2]);
+                pFrame->pChannelData[3] = LittleFloat(channelData[3]);
             }
             break;
         case 1:
@@ -452,9 +475,9 @@ void ReadEncodedFrames(msg_t *msg, skelAnimDataGameHeader_t *enAnim)
                 pFrame->nPrevFrameIndex = MSG_ReadShort(msg);
                 MSG_ReadData(msg, channelData, sizeof(vec4_t));
 
-                pFrame->pChannelData[0] = channelData[0];
-                pFrame->pChannelData[1] = channelData[1];
-                pFrame->pChannelData[2] = channelData[2];
+                pFrame->pChannelData[0] = LittleFloat(channelData[0]);
+                pFrame->pChannelData[1] = LittleFloat(channelData[1]);
+                pFrame->pChannelData[2] = LittleFloat(channelData[2]);
             }
             break;
         case 2:
@@ -481,7 +504,7 @@ void ReadEncodedFrames(msg_t *msg, skelAnimDataGameHeader_t *enAnim)
                 pFrame->nPrevFrameIndex = MSG_ReadShort(msg);
                 MSG_ReadData(msg, channelData, sizeof(vec4_t));
 
-                pFrame->pChannelData[0] = channelData[0];
+                pFrame->pChannelData[0] = LittleFloat(channelData[0]);
             }
             break;
         }
