@@ -1047,7 +1047,7 @@ int skeletor_c::GetMorphWeightFrame(int index, float time, int *data)
     return GetMorphWeightFrame(data);
 }
 
-float *DecodeFrameValue(skanChannelHdr *channelFrames, int desiredFrameNum)
+float DecodeFrameValue(skanChannelHdr *channelFrames, int desiredFrameNum)
 {
     skanGameFrame *foundFrame;
     size_t         frameSize;
@@ -1069,7 +1069,7 @@ float *DecodeFrameValue(skanChannelHdr *channelFrames, int desiredFrameNum)
         foundFrame = (skanGameFrame *)((byte *)channelFrames->ary_frames + foundFrame->nPrevFrameIndex * frameSize);
     }
 
-    return foundFrame->pChannelData;
+    return foundFrame->pChannelData[0];
 }
 
 int skeletor_c::GetMorphWeightFrame(int *data)
@@ -1079,7 +1079,7 @@ int skeletor_c::GetMorphWeightFrame(int *data)
     int    blendNum;
     float  weight;
     int    modelChannelNum;
-    float *channelData;
+    float  channelData;
 
     numTargets = m_morphTargetList.NumChannels();
 
@@ -1096,12 +1096,11 @@ int skeletor_c::GetMorphWeightFrame(int *data)
         if (weight > 0.001) {
             for (modelChannelNum = 0; modelChannelNum < numTargets; modelChannelNum++) {
                 animChannelNum = m_morphTargetList.GlobalChannel(modelChannelNum);
-                animChannelNum = blendInfo.pAnimationData->channelList.GetLocalFromGlobal(animChannelNum);
+                animChannelNum = blendInfo.pAnimationData->channelList.LocalChannel(animChannelNum);
 
                 if (animChannelNum >= 0) {
-                    channelData =
-                        DecodeFrameValue(&blendInfo.pAnimationData->ary_channels[animChannelNum], blendInfo.frame);
-                    data[modelChannelNum] += (int)(channelData[0] * weight);
+                    channelData = DecodeFrameValue(&blendInfo.pAnimationData->ary_channels[animChannelNum], blendInfo.frame);
+                    data[modelChannelNum] += (int)(channelData * weight);
                 }
             }
         }
@@ -1114,12 +1113,11 @@ int skeletor_c::GetMorphWeightFrame(int *data)
         if (weight > 0.001) {
             for (modelChannelNum = 0; modelChannelNum < numTargets; modelChannelNum++) {
                 animChannelNum = m_morphTargetList.GlobalChannel(modelChannelNum);
-                animChannelNum = blendInfo.pAnimationData->channelList.GetLocalFromGlobal(animChannelNum);
+                animChannelNum = blendInfo.pAnimationData->channelList.LocalChannel(animChannelNum);
 
                 if (animChannelNum >= 0) {
-                    channelData =
-                        DecodeFrameValue(&blendInfo.pAnimationData->ary_channels[animChannelNum], blendInfo.frame);
-                    data[modelChannelNum] += (int)(channelData[0] * weight);
+                    channelData = DecodeFrameValue(&blendInfo.pAnimationData->ary_channels[animChannelNum], blendInfo.frame);
+                    data[modelChannelNum] += (int)(channelData * weight);
                 }
             }
         }
