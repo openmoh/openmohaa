@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2015-2024 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -500,6 +500,7 @@ int UIFont::getCharWidth(unsigned short ch)
 {
     int index;
     int indirected;
+    float widthMul = 1.0f; // Added in OPM for easier readability
 
     if (!m_font) {
         return 0;
@@ -507,6 +508,7 @@ int UIFont::getCharWidth(unsigned short ch)
 
     if (ch == '\t') {
         ch = ' ';
+        widthMul = 3.0f;
     }
 
     if (m_font->numPages) {
@@ -526,11 +528,7 @@ int UIFont::getCharWidth(unsigned short ch)
         index = 0;
     }
 
-    if (ch == '\t') {
-        return m_font->sgl[index]->locations[indirected].size[0] * 256.0 * 3.0;
-    } else {
-        return m_font->sgl[index]->locations[indirected].size[0] * 256.0;
-    }
+    return m_font->sgl[index]->locations[indirected].size[0] * 256.0 * widthMul;
 }
 
 int UIFont::getHeight(const char *text, int maxlen, qboolean bVirtual)
@@ -631,6 +629,7 @@ float UI_FontgetCharWidthf(fontheader_t *font, unsigned short uch)
 {
     int index;
     int indirected;
+    float widthMul = 1.0f; // Added in OPM for easier readability
 
     if (!font) {
         return 0.f;
@@ -638,6 +637,7 @@ float UI_FontgetCharWidthf(fontheader_t *font, unsigned short uch)
 
     if (uch == '\t') {
         uch = ' ';
+        widthMul = 3.0f;
     }
 
     if (font->numPages) {
@@ -657,11 +657,7 @@ float UI_FontgetCharWidthf(fontheader_t *font, unsigned short uch)
         index = 0;
     }
 
-    if (uch == '\t') {
-        return font->sgl[index]->locations[indirected].size[0] * 3.0;
-    } else {
-        return font->sgl[index]->locations[indirected].size[0];
-    }
+    return font->sgl[index]->locations[indirected].size[0] * widthMul;
 }
 
 int UI_FontStringMaxWidth(fontheader_t *pFont, const char *pszString, int iMaxLen)
@@ -674,13 +670,8 @@ int UI_FontStringMaxWidth(fontheader_t *pFont, const char *pszString, int iMaxLe
         return 0;
     }
 
-    i = 0;
-    for (;;) {
-        unsigned short uch = pszString[i++];
-
-        if (uch == 0 || (iMaxLen != -1 && i > iMaxLen)) {
-            break;
-        }
+    for (int i = 0; pszString[i] && (iMaxLen == -1 || i < iMaxLen); i++) {
+        unsigned short uch = pszString[i];
 
         if (UI_FontDBCSIsLeadByte(pFont, uch)) {
             uch = (uch << 8) | pszString[i];
@@ -709,19 +700,13 @@ int UI_FontStringWidth(fontheader_t *pFont, const char *pszString, int iMaxLen)
 {
     float widths    = 0.0;
     float maxwidths = 0.0;
-    int   i;
 
     if (!pFont) {
         return 0;
     }
 
-    i = 0;
-    for (;;) {
-        unsigned short uch = pszString[i++];
-
-        if (uch == 0 || (iMaxLen != -1 && i > iMaxLen)) {
-            break;
-        }
+    for (int i = 0; pszString[i] && (iMaxLen == -1 || i < iMaxLen); i++) {
+        unsigned short uch = pszString[i];
 
         if (UI_FontDBCSIsLeadByte(pFont, uch)) {
             uch = (uch << 8) | pszString[i];
