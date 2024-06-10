@@ -80,16 +80,20 @@ int skelChannelList_s::GlobalChannel(int localchannel) const
 
 int skelChannelList_s::LocalChannel(int channel) const
 {
-    return m_chanLocalFromGlobal[channel];
+    return GetLocalFromGlobal(channel);
 }
 
 int skelChannelList_s::GetLocalFromGlobal(int globalChannel) const
 {
-    if (m_chanLocalFromGlobal && globalChannel < m_numLocalFromGlobal) {
-        return m_chanLocalFromGlobal[globalChannel];
-    } else {
+    if (!m_chanLocalFromGlobal) {
         return -1;
     }
+
+    if (globalChannel >= m_numLocalFromGlobal) {
+        return -1;
+    }
+
+    return m_chanLocalFromGlobal[globalChannel];
 }
 
 int skelChannelList_s::NumChannels(void) const
