@@ -1252,5 +1252,5 @@ int dtiki_s::GetBoneNumFromName(const char *name)
         return -1;
     }
 
-    return m_boneList.GetLocalFromGlobal(iGlobalChannel);
+    return m_boneList.LocalChannel(iGlobalChannel);
 }
