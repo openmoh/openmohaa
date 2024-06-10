@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015-2023 the OpenMoHAA team
+Copyright (C) 2015-2024 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -405,6 +405,11 @@ void UIPopupMenu::MouseReleased
 		return;
 	}
 
+	// NOTE: Dismiss() below can delete this entire instance!
+	// Save the m_listener pointer for later, as `this->m_listener`
+	// cannot be used after the instance was freed.
+	Listener* listener = m_listener;
+
 	if (m_autodismiss)
 	{
 		Dismiss();
@@ -413,10 +418,11 @@ void UIPopupMenu::MouseReleased
 	switch (desc->type)
 	{
 	case UIP_EVENT:
-		ProcessEvent((Event*)desc->data);
+		// make sure it's passed in as an Event&, as ProcessEvent(Event*) would try to delete the static event!
+		listener->ProcessEvent(*(Event*)desc->data);
 		break;
 	case UIP_EVENT_STRING:
-		ProcessEvent(new Event((const char*)desc->data));
+		listener->ProcessEvent(new Event((const char*)desc->data));
 		break;
 	case UIP_CMD:
 	case UIP_CVAR:
@@ -466,7 +472,7 @@ void UIPopupMenu::Dismiss
 	{
 		m_parentMenu->Dismiss();
 	}
-	else
+	else if (this)
 	{
 		// this is the topmost menu, self-destruct
 		delete this;
