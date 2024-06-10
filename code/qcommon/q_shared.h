@@ -1188,6 +1188,9 @@ typedef enum {
 
 //=============================================
 
+// get the control character for the given key (moved from sdl_input.c)
+#define CTRL(a) ((a)-'a'+1)
+
 int Q_isprint( int c );
 int Q_islower( int c );
 int Q_isupper( int c );

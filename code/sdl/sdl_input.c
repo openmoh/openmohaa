@@ -59,8 +59,6 @@ static int in_eventTime = 0;
 
 static SDL_Window *SDL_window = NULL;
 
-#define CTRL(a) ((a)-'a'+1)
-
 /*
 ===============
 IN_PrintKey
