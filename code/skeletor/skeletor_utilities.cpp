@@ -182,24 +182,20 @@ qboolean skelChannelList_s::HasChannel(ChannelNameTable *nameTable, const char *
 {
     short int iGlobalChannel = nameTable->FindNameLookup(channelName);
 
-    if (iGlobalChannel >= 0) {
-        if (m_chanLocalFromGlobal && iGlobalChannel < m_numLocalFromGlobal) {
-            return (unsigned int)~m_chanLocalFromGlobal[iGlobalChannel] >> 31;
-        } else {
-            return qtrue;
-        }
-    } else {
-        return qfalse;
-    }
+    return iGlobalChannel >= 0 && LocalChannel(iGlobalChannel) >= 0;
 }
 
 const char *skelChannelList_s::ChannelName(ChannelNameTable *nameTable, int localChannelNum) const
 {
-    if (localChannelNum >= 0 && localChannelNum < m_numChannels) {
-        return nameTable->FindName(m_chanGlobalFromLocal[localChannelNum]);
-    } else {
+    if (localChannelNum >= this->m_numChannels || localChannelNum < 0) {
         return NULL;
     }
+
+    if (m_chanGlobalFromLocal[localChannelNum] < 0) {
+        return 0;
+    }
+
+    return nameTable->FindName(m_chanGlobalFromLocal[localChannelNum]);
 }
 
 void Skel_ExtractFilePath(const char *path, char *dest)

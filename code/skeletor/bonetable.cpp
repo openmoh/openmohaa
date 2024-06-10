@@ -348,9 +348,9 @@ int ChannelNameTable::RegisterChannel(const char *name)
 
 const char *ChannelNameTable::FindNameFromLookup(int index)
 {
-    if (index < m_iNumChannels) {
-        return m_Channels[index].name;
-    } else {
+    if (index >= m_iNumChannels) {
         return NULL;
     }
+
+    return m_Channels[index].name;
 }
