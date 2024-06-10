@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2015-2024 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -525,7 +525,7 @@ qboolean UIWindowManager::KeyEvent(int key, unsigned int time)
 {
     UIWidget *selwidget = NULL;
 
-    if (key == K_TAB && (uii.Sys_IsKeyDown(K_CTRL) || uii.Sys_IsKeyDown(K_DEL))) {
+    if (key == K_TAB && uii.Sys_IsKeyDown(K_CTRL)) {
         UIWidget *wid;
 
         if (m_activeControl && m_activeControl != this) {
@@ -540,13 +540,13 @@ qboolean UIWindowManager::KeyEvent(int key, unsigned int time)
             selwidget = getFirstChild();
         }
 
-        for (wid = selwidget->getNextChild(selwidget); wid != NULL; wid = wid->getNextChild(wid)) {
+        for (wid = getNextChild(selwidget); wid != NULL; wid = getNextChild(wid)) {
             if (!(selwidget->m_flags & WF_ALWAYS_BOTTOM) && selwidget->CanActivate()) {
                 ActivateControl(wid);
                 return true;
             }
         }
-        for (wid = getFirstChild(); wid != selwidget && wid != NULL; wid = wid->getNextChild(wid)) {
+        for (wid = getFirstChild(); wid != selwidget && wid != NULL; wid = getNextChild(wid)) {
             if (!(selwidget->m_flags & WF_ALWAYS_BOTTOM) && selwidget->CanActivate()) {
                 ActivateControl(wid);
                 return true;
@@ -555,7 +555,7 @@ qboolean UIWindowManager::KeyEvent(int key, unsigned int time)
     } else {
         if (m_bindactive) {
             m_bindactive->KeyEvent(key, time);
-        } else if (!m_activeControl || !m_activeControl->KeyEvent(key, time) && (key != K_UPARROW || key != K_DOWNARROW)) {
+        } else if (!(m_activeControl && m_activeControl->KeyEvent(key, time)) && (key == K_DOWNARROW || key == K_UPARROW)) {
             selwidget = m_activeControl;
             if (selwidget && selwidget != this) {
                 for (selwidget = m_activeControl; selwidget != NULL; selwidget = selwidget->getParent()) {

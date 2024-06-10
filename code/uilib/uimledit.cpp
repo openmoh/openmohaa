@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2015-2024 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -103,10 +103,10 @@ void UIMultiLineEdit::setData(const char *data)
             toadd = "";
         } else if (*p == '\r') {
             continue;
+        } else {
+            s[0] = *p;
+            toadd += s;
         }
-
-        s[0] = *p;
-        toadd += s;
     }
 
     m_lines.AddTail(toadd);
@@ -146,7 +146,7 @@ void UIMultiLineEdit::FrameInitialized(void)
     m_vertscroll->InitFrameAlignRight(this, 0, 0);
 
     Connect(this, W_SizeChanged, W_SizeChanged);
-    AllowActivate(false);
+    AllowActivate(true);
 }
 
 void UIMultiLineEdit::SizeChanged(Event *ev)
@@ -201,76 +201,100 @@ void UIMultiLineEdit::Draw(void)
         int  caret = 0;
 
         if (i < topsel->line || i > botsel->line) {
+            // Print regular line without any selection or cursor present
             m_font->setColor(m_foreground_color);
             m_font->Print(0, aty, cur, -1, m_bVirtual);
         } else {
+            // Current line contains cursor and/or selected text
             float linewidth = m_font->getWidth(cur, -1);
 
             if (i > topsel->line && i < botsel->line) {
-                DrawBox(0, aty, linewidth, m_font->getHeight(m_bVirtual), selectionBG, 1.f);
+                // all text in current line is selected, it's part of a larger selection,
+                // print entire line with the selection highlight box around it
+                DrawBox(0.0f, aty, linewidth, m_font->getHeight(m_bVirtual), selectionBG, 1.f);
                 m_font->setColor(selectionColor);
                 m_font->Print(0, aty, Sys_LV_CL_ConvertString(cur), -1, m_bVirtual);
             } else if (i != topsel->line) {
-                if (i == botsel->line) {
-                    int toplen = m_font->getWidth(cur, botsel->column);
+                // part of this line is selected, and selection continues/began above
+                if (i == botsel->line) { // sanity check, should always be true
+                    int toplen = m_font->getWidth(cur, botsel->column); // X coord of highlighting end
                     if (toplen) {
+                        // selection contains text from the beginning of the line,
+                        // print it with the selection highlight box around it
                         m_font->setColor(selectionColor);
                         DrawBox(0, aty, toplen, m_font->getHeight(m_bVirtual), selectionBG, 1.f);
                         m_font->Print(0, aty, cur, botsel->column, m_bVirtual);
                     }
 
-                    if (toplen < linewidth) {
+                    if (toplen < linewidth) { // is there still text on this line after the selection?
                         m_font->setColor(m_foreground_color);
                         m_font->Print(toplen, aty, &cur[botsel->column], -1, m_bVirtual);
                     }
 
                     if (botsel == &m_selection.end) {
+                        // Place cursor at the end of the selection if it was started from above
                         caret = toplen;
                     }
                 }
             } else if (i != botsel->line) {
-                int toplen = m_font->getWidth(cur, topsel->column);
-                if (topsel->column) {
+                // part of this line is selected, and selection continues/began below
+                int toplen = m_font->getWidth(cur, topsel->column); // X coord of highlighting start
+                if (topsel->column) { // is there any text on this line before the selection?
                     m_font->setColor(m_foreground_color);
                     m_font->Print(0, aty, cur, topsel->column, m_bVirtual);
                 }
 
-                if (toplen < linewidth) {
+                if (toplen < linewidth) { // is there any selected text before the end of the line?
+                    // print the selected text with the selection highlight box around it
                     m_font->setColor(selectionColor);
                     DrawBox(toplen, aty, linewidth - toplen, m_font->getHeight(m_bVirtual), selectionBG, 1.f);
                     m_font->Print(toplen, aty, &cur[topsel->column], -1, m_bVirtual);
                 }
 
                 if (topsel == &m_selection.end) {
+                    // Place cursor before the highlight box if selection was made from the bottom up
                     caret = toplen;
                 }
             } else {
+                // current line contains the cursor
                 if (topsel->column == botsel->column) {
+                    // no selection or highlighted text
                     caret = m_font->getWidth(cur, topsel->column);
                     m_font->setColor(m_foreground_color);
                     m_font->Print(0, aty, Sys_LV_CL_ConvertString(cur), -1, m_bVirtual);
                 } else {
-                    int toplen = m_font->getWidth(cur, topsel->column);
-                    int botlen = toplen + m_font->getWidth(&cur[topsel->column], botsel->column - topsel->column);
+                    // selection starts and ends on this line
+                    int toplen = m_font->getWidth(cur, topsel->column); // X coord of highlighting start
+                    int botlen = toplen + m_font->getWidth(&cur[topsel->column], botsel->column - topsel->column); // X coord of selection end
 
-                    if (toplen) {
+                    if (toplen) { // is there any text on this line before the selection?
                         m_font->setColor(m_foreground_color);
                         m_font->Print(0, aty, cur, topsel->column, m_bVirtual);
                     }
 
-                    if (botlen != toplen) {
+                    if (botlen != toplen) { // is the selection wider than 0 pixels? (sanity check, always true)
+                        // print the selected text with the selection highlight box around it
                         DrawBox(toplen, aty, botlen - toplen, m_font->getHeight(m_bVirtual), selectionBG, 1.f);
                         m_font->setColor(selectionColor);
                         m_font->Print(toplen, aty, &cur[topsel->column], botsel->column - topsel->column, m_bVirtual);
                     }
 
-                    if (cur.length() != botsel->column) {
+                    if (cur.length() != botsel->column) { // is there still text on this line after the selection?
+                        // print the leftover text
                         m_font->setColor(m_foreground_color);
-                        m_font->Print(botlen, aty, &cur[botsel->column], m_bVirtual, false);
+
+                        // Fixed in OPM:
+                        // highlighting text made the rest of the text after the selection on the line disappear.
+                        // Cause: the last two arguments were incorrectly passed in originally,
+                        // always specifying maxlen as m_bVirtual (which is usually zero).
+                        // m_font->Print(botlen, aty, &cur[botsel->column], m_bVirtual, false);
+                        m_font->Print(botlen, aty, &cur[botsel->column], -1, m_bVirtual);
                     }
 
+                    // Place the cursor at the end of the selection...
                     caret = botlen;
                     if (topsel == &m_selection.end) {
+                        // ... except if selection was made from the bottom up
                         caret = toplen;
                     }
                 }
@@ -280,7 +304,8 @@ void UIMultiLineEdit::Draw(void)
             }
         }
 
-        if (m_selection.end.line == i && (uid.time % 750) > 374 && IsActive()) {
+        if (m_selection.end.line == i && (uid.time % 750) >= 375 && IsActive()) {
+            // draw cursor caret
             DrawBox(caret, aty, 2.f, m_font->getHeight(m_bVirtual), UBlack, 1.f);
         }
 
@@ -438,10 +463,12 @@ qboolean UIMultiLineEdit::KeyEvent(int key, unsigned int time)
     case K_UPARROW:
         m_selection.end.line--;
         caret_moved = true;
+        key_rec     = true;
         break;
     case K_DOWNARROW:
         m_selection.end.line++;
         caret_moved = true;
+        key_rec     = true;
         break;
     case K_LEFTARROW:
         m_selection.end.column--;
@@ -485,16 +512,21 @@ qboolean UIMultiLineEdit::KeyEvent(int key, unsigned int time)
         }
         break;
     case K_DEL:
+        // Fixed in OPM:
+        // DEL key needed to be pressed twice to delete a single character,
+        // as the first hit would only create an "internal" selection,
+        // but wouldn't actually delete the character after the cursor.
+        // The DeleteSelection() method should ALWAYS be called,
+        // not only when there's an active selection.
         if (IsSelectionEmpty()) {
             m_shiftForcedDown = true;
             KeyEvent(K_RIGHTARROW, 0);
             m_shiftForcedDown = false;
         } else if (uii.Sys_IsKeyDown(K_SHIFT)) {
             CopySelection();
-            DeleteSelection();
-        } else {
-            DeleteSelection();
         }
+
+        DeleteSelection();
         break;
     case K_PGDN:
         if (m_selection.end.line == (m_vertscroll->getTopItem() + m_vertscroll->getPageHeight() - 1)) {
@@ -584,6 +616,7 @@ void UIMultiLineEdit::DeleteSelection(void)
         line.CapLength(newlen);
         *botsel = *topsel;
         EnsureSelectionPointVisible(*topsel);
+        return;
     } else if (botsel->line - topsel->line > 1) {
         for (i = 0, m_lines.IterateFromHead(); m_lines.IsCurrentValid() && i < topsel->line;
              i++, m_lines.IterateNext()) {
@@ -694,6 +727,9 @@ void UIMultiLineEdit::CopySelection(void)
         line.CapLength(botsel->column);
         clipText += "\n" + line;
     }
+
+    // FIXME: clipboard not implemented yet
+    uii.Sys_SetClipboard(clipText);
 }
 
 void UIMultiLineEdit::PasteSelection(void)
@@ -701,7 +737,16 @@ void UIMultiLineEdit::PasteSelection(void)
     str sel;
     int i;
 
-    sel = uii.Sys_GetClipboard();
+    // temporary variable added in OPM as str cannot handle NULL assignment
+    // will be removed when Sys_GetClipboard is properly implemented
+    const char *clipboardData = uii.Sys_GetClipboard();
+    if (clipboardData == NULL)
+    {
+        // FIXME: clipboard not implemented yet
+        return;
+    }
+
+    sel = clipboardData;
 
     DeleteSelection();
 

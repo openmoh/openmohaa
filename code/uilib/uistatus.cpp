@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2015-2024 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -161,7 +161,10 @@ UIStatusBar::UIStatusBar
 	alignment_t align,
 	float height
 	)
-	: UIStatusBar()
+	: UIStatusBar() // Fixed in OPM:
+					// original builds didn't call this ctor,
+					// so statusbar text got center-justified due to
+					// m_iFontAlignmentHorizontal defaulting to FONT_JUSTHORZ_CENTER (0)
 
 {
 	AlignBar(align, height);

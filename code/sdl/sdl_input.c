@@ -59,8 +59,6 @@ static int in_eventTime = 0;
 
 static SDL_Window *SDL_window = NULL;
 
-#define CTRL(a) ((a)-'a'+1)
-
 /*
 ===============
 IN_PrintKey
@@ -1018,6 +1016,8 @@ static void IN_ProcessEvents( void )
 
 				if( key == K_BACKSPACE )
 					Com_QueueEvent( in_eventTime, SE_CHAR, CTRL('h'), 0, 0, NULL );
+				else if (key == K_ENTER || key == K_TAB || key == K_ESCAPE) // mostly used by UINotepad
+					Com_QueueEvent( in_eventTime, SE_CHAR, key, 0, 0, NULL);
 				else if( keys[K_CTRL].down && key >= 'a' && key <= 'z' )
 					Com_QueueEvent( in_eventTime, SE_CHAR, CTRL(key), 0, 0, NULL );
 

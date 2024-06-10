@@ -1659,7 +1659,6 @@ va
 
 does a varargs printf into a temp buffer, so I don't need to have
 varargs versions of all text functions.
-FIXME: make this buffer size safe someday
 ============
 */
 const char *va( const char *format, ... )
@@ -1673,7 +1672,7 @@ const char *va( const char *format, ... )
 	index++;
 
 	va_start( argptr, format );
-	vsprintf( buf, format, argptr );
+	Q_vsnprintf( buf, sizeof(*string), format, argptr );
 	va_end( argptr );
 
 	return buf;
