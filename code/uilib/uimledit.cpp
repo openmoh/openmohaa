@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2015-2024 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -103,10 +103,10 @@ void UIMultiLineEdit::setData(const char *data)
             toadd = "";
         } else if (*p == '\r') {
             continue;
+        } else {
+            s[0] = *p;
+            toadd += s;
         }
-
-        s[0] = *p;
-        toadd += s;
     }
 
     m_lines.AddTail(toadd);
@@ -146,7 +146,7 @@ void UIMultiLineEdit::FrameInitialized(void)
     m_vertscroll->InitFrameAlignRight(this, 0, 0);
 
     Connect(this, W_SizeChanged, W_SizeChanged);
-    AllowActivate(false);
+    AllowActivate(true);
 }
 
 void UIMultiLineEdit::SizeChanged(Event *ev)
@@ -266,7 +266,13 @@ void UIMultiLineEdit::Draw(void)
 
                     if (cur.length() != botsel->column) {
                         m_font->setColor(m_foreground_color);
-                        m_font->Print(botlen, aty, &cur[botsel->column], m_bVirtual, false);
+
+                        // Fixed in OPM:
+                        // highlighting text made the rest of the text after the selection on the line disappear.
+                        // Cause: the last two arguments were incorrectly passed in originally,
+                        // always specifying maxlen as m_bVirtual (which is usually zero).
+                        // m_font->Print(botlen, aty, &cur[botsel->column], m_bVirtual, false);
+                        m_font->Print(botlen, aty, &cur[botsel->column], -1, m_bVirtual);
                     }
 
                     caret = botlen;
@@ -438,10 +444,12 @@ qboolean UIMultiLineEdit::KeyEvent(int key, unsigned int time)
     case K_UPARROW:
         m_selection.end.line--;
         caret_moved = true;
+        key_rec     = true;
         break;
     case K_DOWNARROW:
         m_selection.end.line++;
         caret_moved = true;
+        key_rec     = true;
         break;
     case K_LEFTARROW:
         m_selection.end.column--;
@@ -485,16 +493,21 @@ qboolean UIMultiLineEdit::KeyEvent(int key, unsigned int time)
         }
         break;
     case K_DEL:
+        // Fixed in OPM:
+        // DEL key needed to be pressed twice to delete a single character,
+        // as the first hit would only create an "internal" selection,
+        // but wouldn't actually delete the character after the cursor.
+        // The DeleteSelection() method should ALWAYS be called,
+        // not only when there's an active selection.
         if (IsSelectionEmpty()) {
             m_shiftForcedDown = true;
             KeyEvent(K_RIGHTARROW, 0);
             m_shiftForcedDown = false;
         } else if (uii.Sys_IsKeyDown(K_SHIFT)) {
             CopySelection();
-            DeleteSelection();
-        } else {
-            DeleteSelection();
         }
+
+        DeleteSelection();
         break;
     case K_PGDN:
         if (m_selection.end.line == (m_vertscroll->getTopItem() + m_vertscroll->getPageHeight() - 1)) {
@@ -584,6 +597,7 @@ void UIMultiLineEdit::DeleteSelection(void)
         line.CapLength(newlen);
         *botsel = *topsel;
         EnsureSelectionPointVisible(*topsel);
+        return;
     } else if (botsel->line - topsel->line > 1) {
         for (i = 0, m_lines.IterateFromHead(); m_lines.IsCurrentValid() && i < topsel->line;
              i++, m_lines.IterateNext()) {
