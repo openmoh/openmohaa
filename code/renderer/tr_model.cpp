@@ -1243,14 +1243,14 @@ void RB_SkelMesh( skelSurfaceGame_t *sf ) {
 					channelNum = skelmodel->pBones[weight->boneIndex].channel;
 				}
 
-				boneNum = tiki->m_boneList.GetLocalFromGlobal(channelNum);
+				boneNum = tiki->m_boneList.LocalChannel(channelNum);
 				bone = &bones[boneNum];
 
 				SkelVertGetNormal(newVerts, bone, normal);
 
 				for (weightNum = 0; weightNum < newVerts->numWeights; weightNum++) {
 					channelNum = skelmodel->pBones[weight->boneIndex].channel;
-					boneNum = tiki->m_boneList.GetLocalFromGlobal(channelNum);
+					boneNum = tiki->m_boneList.LocalChannel(channelNum);
 					bone = &bones[boneNum];
 
 					if (!weightNum) {
@@ -1349,14 +1349,14 @@ void RB_SkelMesh( skelSurfaceGame_t *sf ) {
 				weight = (skelWeight_t*)((byte*)newVerts + sizeof(skeletorVertex_t) + sizeof(skeletorMorph_t) * newVerts->numMorphs);
 
 				channelNum = skelmodel->pBones[weight->boneIndex].channel;
-				boneNum = tiki->m_boneList.GetLocalFromGlobal(channelNum);
+				boneNum = tiki->m_boneList.LocalChannel(channelNum);
 				bone = &bones[boneNum];
 
 				SkelVertGetNormal(newVerts, bone, normal);
 
 				for (weightNum = 0; weightNum < newVerts->numWeights; weightNum++) {
 					channelNum = skelmodel->pBones[weight->boneIndex].channel;
-					boneNum = tiki->m_boneList.GetLocalFromGlobal(channelNum);
+					boneNum = tiki->m_boneList.LocalChannel(channelNum);
 					bone = &bones[boneNum];
 
 					SkelWeightGetXyz(weight, bone, out);
