@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2023 the OpenMoHAA team
+Copyright (C) 2023-2024 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -94,7 +94,7 @@ void PickFile(const char *name, Listener *obj, Event& event)
         currentpath = "";
     }
 
-    picker->Setup("", currentpath, ".*");
+    picker->Setup("", currentpath, ".*", "");
 }
 
 CLASS_DECLARATION(FilePickerClass, ViewSpawnerClass, NULL) {
