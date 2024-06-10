@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2015-2024 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -59,6 +59,7 @@ typedef struct ctrlevent_s {
 } ctrlevent_t;
 
 class UINotepad : public UIFloatingWindow {
+	friend class UINotepadEdit; // UINotepadEdit needs m_state
 private:
 	Container<Container<uipopup_describe *> *> m_popups;
 
@@ -80,6 +81,7 @@ protected:
 
 public:
 	UINotepad();
+	~UINotepad();
 
 	bool	OpenFile( const char *filename );
 	bool	Create( UIWidget *parent, UIRect2D& rect, const char *filename );
