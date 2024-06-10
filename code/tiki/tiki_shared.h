@@ -425,3 +425,5 @@ typedef struct {
     size_t            size;
     int               numuses;
 } skelcache_t;
+
+typedef int skeletorMorphCache_t;
