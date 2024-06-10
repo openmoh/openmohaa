@@ -31,7 +31,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 ChannelNameTable* skeletor_c::ChannelNames()
 {
-    return m_channelNames;
+    return &m_channelNames;
 }
 
 int skelAnimDataGameHeader_s::GetFrameNums(
