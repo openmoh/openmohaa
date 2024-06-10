@@ -217,6 +217,6 @@ void skeletor_c::LoadMorphTargetNames(skelHeaderGame_t *modelHeader)
             m_targetBlink = morphTargetIndex;
         }
 
-        newTargetName += strlen(newTargetName + 1);
+        newTargetName += strlen(newTargetName) + 1;
     }
 }

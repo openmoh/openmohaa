@@ -439,14 +439,12 @@ void TIKI_CacheFileSkel(skelHeader_t *pHeader, skelcache_t *cache, int length)
     }
 
     if (nBoxBytes) {
-        const int ofsBoxes = LongNoSwapPtr(&pHeader->ofsBoxes);
-
-        if (ofsBoxes <= 0 || (nBoxBytes + ofsBoxes) >= length) {
+        if (pHeader->ofsBoxes <= 0 || (nBoxBytes + pHeader->ofsBoxes) > length) {
             Com_Printf("^~^~^ Box data is corrupted for '%s'\n", cache->path);
-            pSkel->numMorphTargets = 0;
-            pSkel->pMorphTargets   = NULL;
+            pSkel->numBoxes = 0;
+            pSkel->pBoxes = NULL;
         } else {
-            memcpy(pSkel->pBoxes, ((byte *)pHeader + ofsBoxes), nBoxBytes);
+            memcpy(pSkel->pBoxes, ((byte *)pHeader + pHeader->ofsBoxes), nBoxBytes);
         }
     } else {
         pSkel->numBoxes = 0;
@@ -460,14 +458,12 @@ void TIKI_CacheFileSkel(skelHeader_t *pHeader, skelcache_t *cache, int length)
     }
 
     if (nMorphBytes) {
-        const int ofsMorphTargets = LongNoSwapPtr(&pHeader->ofsBoxes);
-
-        if (ofsMorphTargets <= 0 || (nMorphBytes + ofsMorphTargets) >= length) {
+        if (pHeader->ofsMorphTargets <= 0 || (nMorphBytes + pHeader->ofsMorphTargets) > length) {
             Com_Printf("^~^~^ Morph targets data is corrupted for '%s'\n", cache->path);
             pSkel->numMorphTargets = 0;
             pSkel->pMorphTargets   = NULL;
         } else {
-            memcpy(pSkel->pMorphTargets, ((byte *)pHeader + ofsMorphTargets), nMorphBytes);
+            memcpy(pSkel->pMorphTargets, ((byte *)pHeader + pHeader->ofsMorphTargets), nMorphBytes);
         }
     } else {
         pSkel->numMorphTargets = 0;
