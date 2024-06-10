@@ -149,7 +149,8 @@ static ctrlevent_s controlEvents[CTRL_EVENT_COUNT] = {
 bool UI_LoadNotepadFile(const char *filename)
 {
     UINotepad *uinp = new UINotepad();
-    if (uinp->Create(NULL, UIRect2D(100.0f, 100.0f, 450.0f, 300.0f), filename)) {
+    UIRect2D  rect  = UIRect2D(100.0f, 100.0f, 450.0f, 300.0f);
+    if (uinp->Create(NULL, rect, filename)) {
         uWinMan.ActivateControl(uinp);
         return true;
     }
