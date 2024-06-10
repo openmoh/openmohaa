@@ -527,7 +527,7 @@ void ReadEncodedFramesEx(msg_t *msg, skelAnimDataGameHeader_t *enAnim)
         pChannel = &enAnim->ary_channels[i];
 
         name     = enAnim->channelList.ChannelName(&skeletor_c::m_channelNames, i);
-        type     = GetChannelTypeFromName(name);
+        type     = GetBoneChannelType(name);
         frameCnt = MSG_ReadShort(msg);
 
         switch (type) {
@@ -703,8 +703,6 @@ skelAnimDataGameHeader_t *skeletor_c::LoadProcessedAnimEx(const char *path, void
     for (i = 0; i < enAnim->nTotalChannels; i++) {
         enAnim->channelList.AddChannel(m_channelNames.RegisterChannel(MSG_ReadString(&msg)));
     }
-
-    enAnim->channelList.PackChannels();
 
     newFrame        = (skelAnimGameFrame_t *)Skel_Alloc(enAnim->numFrames * sizeof(skelAnimGameFrame_t));
     enAnim->m_frame = newFrame;
