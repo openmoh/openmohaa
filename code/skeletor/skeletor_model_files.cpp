@@ -209,7 +209,7 @@ void skeletor_c::LoadMorphTargetNames(skelHeaderGame_t *modelHeader)
             m_targetLookLeft = morphTargetIndex;
         } else if (!strncmp(newTargetName, "EYES_right", 10)) {
             m_targetLookRight = morphTargetIndex;
-        } else if (!strncmp(newTargetName, "EYES_up", 70)) {
+        } else if (!strncmp(newTargetName, "EYES_up", 7)) {
             m_targetLookUp = morphTargetIndex;
         } else if (!strncmp(newTargetName, "EYES_down", 9)) {
             m_targetLookDown = morphTargetIndex;
