@@ -29,6 +29,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define EPSILON 0.000000000001f
 
+ChannelNameTable* skeletor_c::ChannelNames()
+{
+    return m_channelNames;
+}
+
 int skelAnimDataGameHeader_s::GetFrameNums(
     float timeSeconds, float timeTolerance, int *beforeFrame, int *afterFrame, float *beforeWeight, float *afterWeight
 )
