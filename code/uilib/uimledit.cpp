@@ -708,6 +708,9 @@ void UIMultiLineEdit::CopySelection(void)
         line.CapLength(botsel->column);
         clipText += "\n" + line;
     }
+
+    // FIXME: clipboard not implemented yet
+    uii.Sys_SetClipboard(clipText);
 }
 
 void UIMultiLineEdit::PasteSelection(void)
@@ -715,7 +718,16 @@ void UIMultiLineEdit::PasteSelection(void)
     str sel;
     int i;
 
-    sel = uii.Sys_GetClipboard();
+    // temporary variable added in OPM as str cannot handle NULL assignment
+    // will be removed when Sys_GetClipboard is properly implemented
+    const char *clipboardData = uii.Sys_GetClipboard();
+    if (clipboardData == NULL)
+    {
+        // FIXME: clipboard not implemented yet
+        return;
+    }
+
+    sel = clipboardData;
 
     DeleteSelection();
 
