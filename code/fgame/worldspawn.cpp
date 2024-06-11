@@ -920,6 +920,7 @@ void World::GetRenderTerrain(Event *ev)
 void World::SetRenderTerrain(Event *ev)
 {
     render_terrain = ev->GetInteger(1);
+    UpdateFog();
 }
 
 void World::GetSkyboxSpeed(Event *ev)
