@@ -23,10 +23,14 @@ set(archdetect_c_code "
 #  error cmake_ARCH alpha
 #elif defined __sparc__
 #  error cmake_ARCH sparc
-#elif defined __arm__ || defined (_M_ARM)
-#  error cmake_ARCH arm
 #elif defined(__aarch64__) || defined(__ARM64__) || defined(_M_ARM64)
 #  error cmake_ARCH arm64
+#elif defined __arm__ || defined (_M_ARM)
+#  if defined(__ARM_PCS_VFP) && (__ARM_PCS_VFP)
+#    error cmake_ARCH armhf
+#  else
+#    error cmake_ARCH armel
+#  endif
 #elif defined __cris__
 #  error cmake_ARCH cris
 #elif defined __hppa__
