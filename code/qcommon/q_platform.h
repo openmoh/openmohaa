@@ -430,7 +430,7 @@ void SwapValue(void* dest, size_t size);
 #define BigFloat
 #define BigShortPtr(x) ShortNoSwapPtr(&x)
 #define BigLongPtr(x) LongNoSwapPtr(&x)
-#define BigSwap(x, size) x
+#define BigSwap(x, size)
 
 #elif defined( Q3_LITTLE_ENDIAN )
 
@@ -444,7 +444,7 @@ void SwapValue(void* dest, size_t size);
 #define LittleShortPtr(x) ShortNoSwapPtr(&x)
 #define LittleLongPtr(x) LongNoSwapPtr(&x)
 #define LittleFloatPtr(x) FloatNoSwapPtr(&x)
-#define LittleSwap(x, size) x
+#define LittleSwap(x, size)
 
 #define BigShort(x) ShortSwap(x)
 #define BigUnsignedShort(x) UnsignedShortSwap(x)
