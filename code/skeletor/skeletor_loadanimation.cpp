@@ -392,7 +392,7 @@ void WriteEncodedFrames(msg_t *msg, skelAnimDataGameHeader_t *enAnim)
         MSG_WriteShort(msg, pChannel->nFramesInChannel);
 
         for (j = 0; j < pChannel->nFramesInChannel; j++) {
-            vec3_t channelData;
+            vec4_t channelData;
 
             pFrame = &pChannel->ary_frames[i];
             MSG_WriteShort(msg, pFrame->nFrameNum);
