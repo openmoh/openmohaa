@@ -1519,7 +1519,7 @@ void SV_ExecuteClientCommand( client_t *cl, const char *s, qboolean clientOK ) {
 		// Since 2.0, displays chat messages
 		// NOTE: this should be handled by fgame, not server
 		//
-		Com_Printf("%s (%ld): %s", cl->name, cl - svs.clients, s);
+		Com_Printf("%s (%zu): %s", cl->name, (size_t)(cl - svs.clients), s);
 	}
 
 	if (clientOK) {

@@ -306,7 +306,7 @@ static void send_final(qr_t qrec, struct sockaddr *sender, char *outbuf, char *v
             return;
         }
 
-        strcpy(encrypted_val, validation);
+        strcpy((char*)encrypted_val, validation);
 
         gs_encrypt((uchar *)qrec->secret_key, (int)strlen(qrec->secret_key), encrypted_val, keylen);
         gs_encode(encrypted_val, keylen, encoded_val);
