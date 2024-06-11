@@ -58,6 +58,10 @@ static qboolean	R_CullGrid( srfGridMesh_t *cv ) {
 		return qtrue;
 	}
 
+	if (!tr.refdef.render_terrain) {
+		return qtrue;
+	}
+
 	if ( tr.currentEntityNum != ENTITYNUM_WORLD ) {
 		sphereCull = R_CullLocalPointAndRadius( cv->localOrigin, cv->meshRadius );
 	} else {
@@ -559,7 +563,7 @@ static void R_RecursiveWorldNode( mnode_t *node, int planeBits, int dlightBits )
 			}
 		}
 
-		if (r_drawterrain->integer)
+		if (r_drawterrain->integer && tr.refdef.render_terrain && !tr.viewParms.isPortalSky)
 		{
 			int i;
 
@@ -791,7 +795,7 @@ void R_AddWorldSurfaces (void) {
 	tr.currentEntityNum = ENTITYNUM_WORLD;
 	tr.shiftedEntityNum = tr.currentEntityNum << QSORT_ENTITYNUM_SHIFT;
 
-	if (r_drawterrain->integer) {
+	if (r_drawterrain->integer && tr.refdef.render_terrain && !tr.viewParms.isPortalSky) {
 		R_TerrainPrepareFrame();
 	}
 
@@ -808,7 +812,7 @@ void R_AddWorldSurfaces (void) {
 	R_TransformDlights(tr.refdef.num_dlights, tr.refdef.dlights, &tr.viewParms.world);
 	R_RecursiveWorldNode(tr.world->nodes, tr.viewParms.fog.extrafrustums ? 31 : 15, (1 << tr.refdef.num_dlights) - 1);
 
-	if (r_drawterrain->integer) {
+	if (r_drawterrain->integer && tr.refdef.render_terrain && !tr.viewParms.isPortalSky) {
 		R_AddTerrainSurfaces();
 	}
 	if (r_drawstaticmodels->integer) {
