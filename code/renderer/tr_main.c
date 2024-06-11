@@ -1047,7 +1047,7 @@ qboolean SurfIsOffscreen(const srfSurfaceFace_t* surface, shader_t* shader, int 
 			}
 		}
 
-		if ( ( dot = DotProduct( normal, tess.normal[tess.indexes[i]] ) ) >= 0 )
+		if ( ( dot = DotProduct( normal, surface->plane.normal ) ) >= 0 )
 		{
 			numTriangles--;
 		}
@@ -1485,6 +1485,27 @@ void R_AddEntitySurfaces (void) {
 			continue;
 		}
 
+		if (tr.viewParms.isPortalSky) {
+			// Expecting a sky entity in a sky portal
+			if (!(ent->e.renderfx & RF_SKYENTITY)) {
+				continue;
+			}
+		} else {
+			if (ent->e.renderfx & RF_SKYENTITY) {
+				continue;
+			}
+		}
+
+		if (tr.viewParms.isPortal) {
+			if (!(ent->e.renderfx & (RF_WRAP_FRAMES | RF_SHADOW_PLANE))) {
+				continue;
+			}
+		} else {
+			if (ent->e.renderfx & RF_SHADOW_PLANE) {
+				continue;
+			}
+		}
+
 		// simple generated models, like sprites and beams, are not culled
 		switch ( ent->e.reType ) {
 		case RT_PORTALSURFACE:
@@ -1552,25 +1573,24 @@ void R_AddSpriteSurfaces()
 	{
 		sprite = &tr.refdef.sprites[tr.currentSpriteNum];
 
-        if (tr.viewParms.isPortalSky)
-        {
-			if ((sprite->renderfx & RF_SKYENTITY) == 0) {
+        if (tr.viewParms.isPortalSky) {
+			if (!(sprite->renderfx & RF_SKYENTITY)) {
 				continue;
 			}
-        }
-        else if ((sprite->renderfx & RF_SKYENTITY) != 0)
-        {
-            continue;
-        }
+        } else {
+			if (sprite->renderfx & RF_SKYENTITY) {
+				continue;
+			}
+		}
         
-		if (tr.viewParms.isPortal)
-        {
+		if (tr.viewParms.isPortal) {
 			if (!(sprite->renderfx & (RF_SHADOW_PLANE | RF_WRAP_FRAMES))) {
 				continue;
 			}
-        }
-		else if (sprite->renderfx & RF_SHADOW_PLANE) {
-			continue;
+		} else {
+			if (sprite->renderfx & RF_SHADOW_PLANE) {
+				continue;
+			}
 		}
 
 		tr.currentEntityNum = ENTITYNUM_WORLD;
