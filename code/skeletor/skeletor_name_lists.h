@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #pragma once
 
-#define MAX_SKELETOR_CHANNELS 16384
+#define MAX_SKELETOR_CHANNELS 2560 // Limit was 2048 before 2.30
 #define MAX_CHANNEL_NAME      32
 
 typedef struct ChannelName_s {
