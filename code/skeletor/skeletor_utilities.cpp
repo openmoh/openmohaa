@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2023 the OpenMoHAA team
+Copyright (C) 2024 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -96,6 +96,12 @@ int skelChannelList_s::GetLocalFromGlobal(int globalChannel) const
     return m_chanLocalFromGlobal[globalChannel];
 }
 
+
+void skelChannelList_s::SetLocalFromGlobal(int channel, int localchannel)
+{
+    m_chanLocalFromGlobal[channel] = localchannel;
+}
+
 int skelChannelList_s::NumChannels(void) const
 {
     return m_numChannels;
@@ -117,26 +123,31 @@ void skelChannelList_s::ZeroChannels()
 void skelChannelList_s::PackChannels()
 {
     m_numLocalFromGlobal = MAX_SKELETOR_CHANNELS - 1;
-
-    if (m_chanLocalFromGlobal[m_numLocalFromGlobal] == -1) {
-        do {
-            m_numLocalFromGlobal--;
-        } while (m_chanLocalFromGlobal[m_numLocalFromGlobal] == -1 && m_numLocalFromGlobal >= 0);
+    for (m_numLocalFromGlobal = MAX_SKELETOR_CHANNELS - 1; m_numLocalFromGlobal >= 0; m_numLocalFromGlobal--) {
+        if (m_chanLocalFromGlobal[m_numLocalFromGlobal] != -1) {
+            break;
+        }
     }
 
     if (m_numLocalFromGlobal < MAX_SKELETOR_CHANNELS) {
         m_numLocalFromGlobal++;
     }
 
-    if (m_numLocalFromGlobal <= 0) {
+    if (m_numLocalFromGlobal > 0) {
+        short *old_array      = m_chanLocalFromGlobal;
+        int    i;
+
+        m_chanLocalFromGlobal = (short *)Skel_Alloc(m_numLocalFromGlobal * sizeof(m_chanLocalFromGlobal[0]));
+
+        for (i = 0; i < m_numLocalFromGlobal; i++) {
+            m_chanLocalFromGlobal[i] = old_array[i];
+        }
+
+        Skel_Free(old_array);
+    } else {
         Skel_Free(m_chanLocalFromGlobal);
         m_chanLocalFromGlobal = NULL;
         m_numLocalFromGlobal  = -1;
-    } else {
-        short *old_array      = m_chanLocalFromGlobal;
-        m_chanLocalFromGlobal = (short *)Skel_Alloc(m_numLocalFromGlobal * sizeof(m_chanLocalFromGlobal[0]));
-        memcpy(m_chanLocalFromGlobal, old_array, m_numLocalFromGlobal * sizeof(m_chanLocalFromGlobal[0]));
-        Skel_Free(old_array);
     }
 }
 
@@ -170,9 +181,10 @@ int skelChannelList_s::AddChannel(int newGlobalChannelNum)
     iLocalChannel = GetLocalFromGlobal(newGlobalChannelNum);
 
     if (iLocalChannel < 0) {
-        iLocalChannel                              = m_numChannels++;
-        m_chanGlobalFromLocal[iLocalChannel]       = newGlobalChannelNum;
-        m_chanLocalFromGlobal[newGlobalChannelNum] = iLocalChannel;
+        iLocalChannel = m_numChannels++;
+
+        m_chanGlobalFromLocal[iLocalChannel] = newGlobalChannelNum;
+        SetLocalFromGlobal(newGlobalChannelNum, iLocalChannel);
     }
 
     return iLocalChannel;
