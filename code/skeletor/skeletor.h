@@ -130,10 +130,10 @@ public:
     void SetPose(const frameInfo_t *frameInfo, const int *contIndices, const vec4_t *contValues, float actionWeight);
     void SetEyeTargetPos(const float *pEyeTargetPos);
     int  GetBoneParent(int boneIndex);
+    static class ChannelNameTable* ChannelNames();
 
 private:
     void                           Init();
-    static class ChannelNameTable *ChannelNames();
     SkelMat4                      *BoneTransformation(int, int *, float (*)[4]);
 };
 
