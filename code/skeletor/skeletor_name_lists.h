@@ -58,7 +58,6 @@ private:
 };
 
 int GetBoneChannelType(const char* name);
-int GetChannelTypeFromName(const char *name);
 
 #else
 
