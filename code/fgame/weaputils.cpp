@@ -168,7 +168,7 @@ qboolean MeleeAttack(
 
                 victim->Damage(attacker, attacker, damage, pos, dir, vec_zero, knockback, 0, means_of_death);
 
-                if (victim->edict->r.contents & CONTENTS_SOLID) {
+                if (!(victim->edict->r.contents & CONTENTS_CLAYPIDGEON)) {
                     victim->Sound("pistol_hit");
                 }
             }
