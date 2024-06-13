@@ -146,7 +146,7 @@ typedef struct skelChannelList_s {
     short int  m_numChannels;
     short int  m_numLocalFromGlobal;
     short int *m_chanLocalFromGlobal;
-    short int  m_chanGlobalFromLocal[200];
+    short int  m_chanGlobalFromLocal[MAX_GLOBAL_FROM_LOCAL];
 } skelChannelList_c;
 
 #endif
