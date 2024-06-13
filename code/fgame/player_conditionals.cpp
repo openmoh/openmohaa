@@ -433,7 +433,90 @@ qboolean Player::CondNearLandmine(Conditional& condition)
 
 void Player::MeasureLandmineDistances()
 {
-    // FIXME: unimplemented
+    Weapon* weapon;
+    float previousMineDist;
+    float maxrange;
+    int i;
+
+    if (m_fMineCheckTime == level.time) {
+        return;
+    }
+    m_fMineCheckTime = level.time;
+    previousMineDist = m_fMineDist;
+    m_fMineDist = 1000;
+
+    weapon = GetActiveWeapon(WEAPON_MAIN);
+    if (!weapon) {
+        weapon = GetActiveWeapon(WEAPON_OFFHAND);
+    }
+
+    maxrange = 40;
+    if (weapon) {
+        maxrange = weapon->GetMaxRange();
+    }
+
+    for (i = 0; i < globals.max_entities; i++) {
+        TriggerLandmine* landmine;
+        Entity* ent;
+        vec3_t forward;
+        Vector delta;
+        float radius;
+
+        ent = G_GetEntity(i);
+        if (!ent) {
+            continue;
+        }
+
+        if (!ent->isSubclassOf(TriggerLandmine)) {
+            continue;
+        }
+
+        landmine = static_cast<TriggerLandmine*>(ent);
+        // This could be from an allied player
+        if (landmine->IsImmune(this)) {
+            continue;
+        }
+
+        AngleVectorsLeft(angles, forward, NULL, NULL);
+        delta = landmine->origin - origin;
+        radius = delta.length();
+
+        if (radius < maxrange) {
+            ent->PostEvent(EV_Show, level.frametime);
+        }
+
+        if (radius > m_fMineDist) {
+            continue;
+        }
+
+        if (radius >= 40) {
+            float dot;
+
+            delta.normalize();
+
+            dot = DotProduct(delta, forward);
+            if (dot > 0 && radius / Square(dot) < m_fMineDist) {
+                m_fMineDist = radius / Square(dot);
+            }
+        } else if (radius < m_fMineDist) {
+            m_fMineDist = radius;
+        }
+    }
+
+    m_fMineDist /= maxrange;
+
+    if (m_fMineDist > 3) {
+        StopLoopSound();
+        return;
+    }
+
+    if (floorf(previousMineDist * 20) != floorf(m_fMineDist * 20)) {
+        float pitch;
+
+        pitch = 2.f - log(m_fMineDist + 1.0);
+
+        LoopSound("minedetector_on", -1, -1, -1, pitch);
+    }
 }
 
 qboolean Player::CondIsAssistingEscape(Conditional& condition)
