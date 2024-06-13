@@ -28,6 +28,26 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../skeletor/skeletor.h"
 #include <tiki.h>
 
+typedef enum tiki_setupcase_e {
+    SETUP_END_MESSAGE = -1,
+    SETUP_LOAD_SCALE,
+    SETUP_LOD_SCALE,
+    SETUP_LOD_BIAS,
+    SETUP_SKELMODEL,
+    SETUP_LOAD_ORIGIN,
+    SETUP_LIGHT_OFFSET,
+    SETUP_RADIUS,
+    SETUP_SURFACE,
+    SETUP_FLAGS,
+    SETUP_DAMAGE,
+    SETUP_SHADER,
+    SETUP_CASE_KEY,
+    SETUP_CASE_VALUE,
+    SETUP_BEGIN_CASE,
+    SETUP_BEGIN_CASE_BODY,
+    SETUP_END_CASE
+} tiki_setupcase_t;
+
 /*
 ===============
 TIKI_FileExtension
@@ -523,7 +543,7 @@ WriteScale
 */
 static void WriteScale(dloaddef_t *ld, float scale)
 {
-    MSG_WriteByte(ld->modelBuf, 0);
+    MSG_WriteByte(ld->modelBuf, SETUP_LOAD_SCALE);
     MSG_WriteFloat(ld->modelBuf, scale);
 }
 
@@ -534,7 +554,7 @@ WriteLoadScale
 */
 static void WriteLoadScale(dloaddef_t *ld, float lod_scale)
 {
-    MSG_WriteByte(ld->modelBuf, 1);
+    MSG_WriteByte(ld->modelBuf, SETUP_LOD_SCALE);
     MSG_WriteFloat(ld->modelBuf, lod_scale);
 }
 
@@ -545,7 +565,7 @@ WriteLodBias
 */
 static void WriteLodBias(dloaddef_t *ld, float lod_bias)
 {
-    MSG_WriteByte(ld->modelBuf, 2);
+    MSG_WriteByte(ld->modelBuf, SETUP_LOD_BIAS);
     MSG_WriteFloat(ld->modelBuf, lod_bias);
 }
 
@@ -556,7 +576,7 @@ WriteSkelmodel
 */
 void WriteSkelmodel(dloaddef_t *ld, const char *name)
 {
-    MSG_WriteByte(ld->modelBuf, 3);
+    MSG_WriteByte(ld->modelBuf, SETUP_SKELMODEL);
     MSG_WriteString(ld->modelBuf, name);
 
     Q_strncpyz(ld->idleSkel, name, sizeof(ld->idleSkel));
@@ -570,7 +590,7 @@ WriteOrigin
 */
 static void WriteOrigin(dloaddef_t *ld, float origin_x, float origin_y, float origin_z)
 {
-    MSG_WriteByte(ld->modelBuf, 4);
+    MSG_WriteByte(ld->modelBuf, SETUP_LOAD_ORIGIN);
     MSG_WriteFloat(ld->modelBuf, origin_x);
     MSG_WriteFloat(ld->modelBuf, origin_y);
     MSG_WriteFloat(ld->modelBuf, origin_z);
@@ -583,7 +603,7 @@ WriteLightOffset
 */
 static void WriteLightOffset(dloaddef_t *ld, float light_offset_x, float light_offset_y, float light_offset_z)
 {
-    MSG_WriteByte(ld->modelBuf, 5);
+    MSG_WriteByte(ld->modelBuf, SETUP_LIGHT_OFFSET);
     MSG_WriteFloat(ld->modelBuf, light_offset_x);
     MSG_WriteFloat(ld->modelBuf, light_offset_y);
     MSG_WriteFloat(ld->modelBuf, light_offset_z);
@@ -596,7 +616,7 @@ WriteRadius
 */
 static void WriteRadius(dloaddef_t *ld, float radius)
 {
-    MSG_WriteByte(ld->modelBuf, 6);
+    MSG_WriteByte(ld->modelBuf, SETUP_RADIUS);
     MSG_WriteFloat(ld->modelBuf, radius);
 }
 
@@ -607,7 +627,7 @@ WriteSurface
 */
 static void WriteSurface(dloaddef_t *ld, const char *surface)
 {
-    MSG_WriteByte(ld->modelBuf, 7);
+    MSG_WriteByte(ld->modelBuf, SETUP_SURFACE);
     MSG_WriteString(ld->modelBuf, surface);
 }
 
@@ -618,7 +638,7 @@ WriteFlags
 */
 static void WriteFlags(dloaddef_t *ld, int flags)
 {
-    MSG_WriteByte(ld->modelBuf, 8);
+    MSG_WriteByte(ld->modelBuf, SETUP_FLAGS);
     MSG_WriteLong(ld->modelBuf, flags);
 }
 
@@ -629,7 +649,7 @@ WriteDamage
 */
 static void WriteDamage(dloaddef_t *ld, float damage)
 {
-    MSG_WriteByte(ld->modelBuf, 9);
+    MSG_WriteByte(ld->modelBuf, SETUP_DAMAGE);
     MSG_WriteFloat(ld->modelBuf, damage);
 }
 
@@ -640,7 +660,7 @@ WriteShader
 */
 static void WriteShader(dloaddef_t *ld, const char *shader)
 {
-    MSG_WriteByte(ld->modelBuf, 10);
+    MSG_WriteByte(ld->modelBuf, SETUP_SHADER);
     MSG_WriteString(ld->modelBuf, shader);
 }
 
@@ -651,7 +671,7 @@ WriteBeginCase
 */
 static void WriteBeginCase(dloaddef_t *ld)
 {
-    MSG_WriteByte(ld->modelBuf, 13);
+    MSG_WriteByte(ld->modelBuf, SETUP_BEGIN_CASE);
 }
 
 /*
@@ -661,7 +681,7 @@ WriteCaseKey
 */
 static void WriteCaseKey(dloaddef_t *ld, const char *key)
 {
-    MSG_WriteByte(ld->modelBuf, 11);
+    MSG_WriteByte(ld->modelBuf, SETUP_CASE_KEY);
     MSG_WriteString(ld->modelBuf, key);
 }
 
@@ -672,7 +692,7 @@ WriteCaseValue
 */
 static void WriteCaseValue(dloaddef_t *ld, const char *value)
 {
-    MSG_WriteByte(ld->modelBuf, 12);
+    MSG_WriteByte(ld->modelBuf, SETUP_CASE_VALUE);
     MSG_WriteString(ld->modelBuf, value);
 }
 
@@ -683,7 +703,7 @@ WriteBeginCaseBody
 */
 static void WriteBeginCaseBody(dloaddef_t *ld)
 {
-    MSG_WriteByte(ld->modelBuf, 14);
+    MSG_WriteByte(ld->modelBuf, SETUP_BEGIN_CASE_BODY);
 }
 
 /*
@@ -693,7 +713,7 @@ WriteEndCase
 */
 static void WriteEndCase(dloaddef_t *ld)
 {
-    MSG_WriteByte(ld->modelBuf, 15);
+    MSG_WriteByte(ld->modelBuf, SETUP_END_CASE);
 }
 
 /*
@@ -727,14 +747,14 @@ qboolean TIKI_LoadSetupCaseHeader(
     const char *value;
     qboolean    match = false;
 
-    while (c != 14) {
+    while (c != SETUP_BEGIN_CASE_BODY) {
         c = MSG_ReadByte(msg);
         switch (c) {
-        case 11:
+        case SETUP_CASE_KEY:
             value = MSG_ReadString(msg);
             key   = value;
             break;
-        case 12:
+        case SETUP_CASE_VALUE:
             value = MSG_ReadString(msg);
             if (skip || match || !keyValues) {
                 break;
@@ -745,7 +765,6 @@ qboolean TIKI_LoadSetupCaseHeader(
                 match = true;
             }
             break;
-        case 14:
         default:
             break;
         }
@@ -788,28 +807,28 @@ qboolean TIKI_LoadSetupCase(
         switch (c) {
         default:
             break;
-        case 0:
+        case SETUP_LOAD_SCALE:
             load_scale = MSG_ReadFloat(msg);
             if (skip) {
                 break;
             }
             tiki->load_scale = load_scale;
             break;
-        case 1:
+        case SETUP_LOD_SCALE:
             lod_scale = MSG_ReadFloat(msg);
             if (skip) {
                 break;
             }
             tiki->lod_scale = lod_scale;
             break;
-        case 2:
+        case SETUP_LOD_BIAS:
             lod_bias = MSG_ReadFloat(msg);
             if (skip) {
                 break;
             }
             tiki->lod_bias = lod_bias;
             break;
-        case 3:
+        case SETUP_SKELMODEL:
             name = MSG_ReadString(msg);
             if (skip) {
                 break;
@@ -830,7 +849,7 @@ qboolean TIKI_LoadSetupCase(
             tiki->num_surfaces += skelmodel->numSurfaces;
             tiki->numMeshes++;
             break;
-        case 4:
+        case SETUP_LOAD_ORIGIN:
             load_origin[0] = MSG_ReadFloat(msg);
             load_origin[1] = MSG_ReadFloat(msg);
             load_origin[2] = MSG_ReadFloat(msg);
@@ -839,7 +858,7 @@ qboolean TIKI_LoadSetupCase(
             }
             VectorCopy(load_origin, tiki->load_origin);
             break;
-        case 5:
+        case SETUP_LIGHT_OFFSET:
             light_offset[0] = MSG_ReadFloat(msg);
             light_offset[1] = MSG_ReadFloat(msg);
             light_offset[2] = MSG_ReadFloat(msg);
@@ -848,14 +867,14 @@ qboolean TIKI_LoadSetupCase(
             }
             VectorCopy(light_offset, tiki->load_origin);
             break;
-        case 6:
+        case SETUP_RADIUS:
             radius = MSG_ReadFloat(msg);
             if (skip) {
                 break;
             }
             tiki->radius = radius;
             break;
-        case 7:
+        case SETUP_SURFACE:
             name = MSG_ReadString(msg);
             if (skip) {
                 break;
@@ -873,21 +892,21 @@ qboolean TIKI_LoadSetupCase(
             }
             strcpy(loadsurfaces[currentSurface].name, name);
             break;
-        case 8:
+        case SETUP_FLAGS:
             flags = MSG_ReadLong(msg);
             if (skip) {
                 break;
             }
             loadsurfaces[currentSurface].flags |= flags;
             break;
-        case 9:
+        case SETUP_DAMAGE:
             damage_multiplier = MSG_ReadFloat(msg);
             if (skip) {
                 break;
             }
             loadsurfaces[currentSurface].damage_multiplier = damage_multiplier;
             break;
-        case 10:
+        case SETUP_SHADER:
             name = MSG_ReadString(msg);
             if (skip) {
                 break;
@@ -909,13 +928,13 @@ qboolean TIKI_LoadSetupCase(
             );
             loadsurfaces[currentSurface].numskins++;
             break;
-        case 13:
+        case SETUP_BEGIN_CASE:
             if (!TIKI_LoadSetupCaseHeader(tiki, filename, loadsurfaces, numSurfacesSetUp, msg, skip, keyValues)) {
                 return false;
             }
             break;
-        case -1:
-        case 15:
+        case SETUP_END_MESSAGE:
+        case SETUP_END_CASE:
             return true;
         }
     }
