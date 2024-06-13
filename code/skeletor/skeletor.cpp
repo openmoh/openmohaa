@@ -261,15 +261,17 @@ void skelAnimDataGameHeader_s::DeallocAnimData(skelAnimDataGameHeader_t *data)
 {
     skanChannelHdr *pChannel;
     int             i;
+    int             channelType;
 
-    if (!data || data == (skelAnimDataGameHeader_t *)-476) {
+    if (!data) {
         return;
     }
 
     for (i = 0; i < data->nTotalChannels; i++) {
         pChannel = &data->ary_channels[i];
+        channelType = GetBoneChannelType(data->channelList.ChannelName(skeletor_c::ChannelNames(), i));
 
-        if (pChannel->ary_frames) {
+        if (channelType != 2) {
             Skel_Free(pChannel->ary_frames);
         }
     }
