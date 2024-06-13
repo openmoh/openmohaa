@@ -79,7 +79,7 @@ typedef struct skelAnimDataGameHeader_s skelAnimDataGameHeader_t;
 
 typedef struct skelAnimDataGameHeader_s {
     int                  flags;
-    int                  nBytesUsed;
+    size_t               nBytesUsed;
     bool                 bHasDelta;
     bool                 bHasMorph;
     bool                 bHasUpper;

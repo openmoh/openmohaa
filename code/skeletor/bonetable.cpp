@@ -241,36 +241,36 @@ bool IsBogusChannelName(const char *name)
     return false;
 }
 
-int GetBoneChannelType(const char* name)
+channelType_t GetBoneChannelType(const char* name)
 {
     size_t len;
 
     if (!name) {
-        return 2;
+        return CHANNEL_NONE;
     }
 
     if (IsBogusChannelName(name)) {
-        return 2;
+        return CHANNEL_NONE;
     }
 
     len = strlen(name);
     if (len < 4) {
-        return 3;
+        return CHANNEL_VALUE;
     }
 
     if (!strcmp(name + len - 4, " rot")) {
-        return 0;
+        return CHANNEL_ROTATION;
     }
 
     if (!strcmp(name + len - 4, " pos")) {
-        return 1;
+        return CHANNEL_POSITION;
     }
 
     if (len >= 6 && !strcmp(name + len - 6, " rotFK")) {
-        return 2;
+        return CHANNEL_NONE;
     }
 
-    return 3;
+    return CHANNEL_VALUE;
 }
 
 int ChannelNameTable::RegisterChannel(const char *name)

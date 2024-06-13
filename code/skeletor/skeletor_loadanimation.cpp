@@ -71,7 +71,7 @@ skelAnimDataGameHeader_t *EncodeFrames(
     skanGameFrame       *pFrame;
     size_t               frameSize;
     int                  indexLastFrameAdded;
-    int                  channelType;
+    channelType_t        channelType;
 
     pChannel    = enAnim->ary_channels;
     endFrameCap = enAnim->numFrames - 2;
@@ -82,7 +82,7 @@ skelAnimDataGameHeader_t *EncodeFrames(
 
         channelType = GetBoneChannelType(enAnim->channelList.ChannelName(channelNames, i));
         switch (channelType) {
-        case 0:
+        case CHANNEL_ROTATION:
             frameSize = (sizeof(skanGameFrame) - sizeof(skanGameFrame::pChannelData) + sizeof(vec4_t));
             frameCnt  = 0;
             for (j = 0; j < enAnim->numFrames; j++) {
@@ -125,7 +125,7 @@ skelAnimDataGameHeader_t *EncodeFrames(
                 pCurrFrame++;
             }
             break;
-        case 1:
+        case CHANNEL_POSITION:
             frameSize = (sizeof(skanGameFrame) - sizeof(skanGameFrame::pChannelData) + sizeof(vec3_t));
             frameCnt  = 0;
             for (j = 0; j < enAnim->numFrames; j++) {
@@ -167,11 +167,11 @@ skelAnimDataGameHeader_t *EncodeFrames(
                 pCurrFrame++;
             }
             break;
-        case 2:
+        case CHANNEL_NONE:
             pChannel->ary_frames       = NULL;
             pChannel->nFramesInChannel = 0;
             break;
-        case 3:
+        case CHANNEL_VALUE:
         default:
             frameSize = (sizeof(skanGameFrame) - sizeof(skanGameFrame::pChannelData) + sizeof(float));
             frameCnt  = 0;
@@ -433,7 +433,7 @@ void ReadEncodedFrames(msg_t *msg, skelAnimDataGameHeader_t *enAnim)
     size_t          frameSize;
     int             frameCnt;
     int             i, j;
-    int             channelType;
+    channelType_t   channelType;
     vec4_t          channelData;
 
     for (i = 0; i < enAnim->nTotalChannels; i++) {
@@ -443,7 +443,7 @@ void ReadEncodedFrames(msg_t *msg, skelAnimDataGameHeader_t *enAnim)
         frameCnt    = MSG_ReadShort(msg);
 
         switch (channelType) {
-        case 0:
+        case CHANNEL_ROTATION:
             frameSize = (sizeof(skanGameFrame) - sizeof(skanGameFrame::pChannelData) + sizeof(vec4_t));
 
             pFrame                     = (skanGameFrame *)Skel_Alloc(frameSize * frameCnt);
@@ -462,7 +462,7 @@ void ReadEncodedFrames(msg_t *msg, skelAnimDataGameHeader_t *enAnim)
                 pFrame->pChannelData[3] = LittleFloat(channelData[3]);
             }
             break;
-        case 1:
+        case CHANNEL_POSITION:
             frameSize = (sizeof(skanGameFrame) - sizeof(skanGameFrame::pChannelData) + sizeof(vec3_t));
 
             pFrame                     = (skanGameFrame *)Skel_Alloc(frameSize * frameCnt);
@@ -480,7 +480,7 @@ void ReadEncodedFrames(msg_t *msg, skelAnimDataGameHeader_t *enAnim)
                 pFrame->pChannelData[2] = LittleFloat(channelData[2]);
             }
             break;
-        case 2:
+        case CHANNEL_NONE:
             pChannel->ary_frames       = NULL;
             pChannel->nFramesInChannel = 0;
 
@@ -490,7 +490,7 @@ void ReadEncodedFrames(msg_t *msg, skelAnimDataGameHeader_t *enAnim)
                 MSG_ReadData(msg, channelData, sizeof(vec4_t));
             }
             break;
-        case 3:
+        case CHANNEL_VALUE:
         default:
             frameSize = (sizeof(skanGameFrame) - sizeof(skanGameFrame::pChannelData) + sizeof(float));
 
@@ -521,7 +521,7 @@ void ReadEncodedFramesEx(msg_t *msg, skelAnimDataGameHeader_t *enAnim)
     int             frameCnt;
     int             i, j;
     const char     *name;
-    int             type;
+    channelType_t   type;
 
     for (i = 0; i < enAnim->nTotalChannels; i++) {
         pChannel = &enAnim->ary_channels[i];
@@ -534,7 +534,7 @@ void ReadEncodedFramesEx(msg_t *msg, skelAnimDataGameHeader_t *enAnim)
         //
         // 4 channels (Quat)
         //
-        case 0:
+        case CHANNEL_ROTATION:
             frameSize                  = (sizeof(skanGameFrame) - sizeof(skanGameFrame::pChannelData) + sizeof(vec4_t));
             pFrame                     = (skanGameFrame *)Skel_Alloc(frameSize * frameCnt);
             pChannel->ary_frames       = pFrame;
@@ -553,7 +553,7 @@ void ReadEncodedFramesEx(msg_t *msg, skelAnimDataGameHeader_t *enAnim)
         //
         // 3 channels (Position)
         //
-        case 1:
+        case CHANNEL_POSITION:
             frameSize                  = (sizeof(skanGameFrame) - sizeof(skanGameFrame::pChannelData) + sizeof(vec3_t));
             pFrame                     = (skanGameFrame *)Skel_Alloc(frameSize * frameCnt);
             pChannel->ary_frames       = pFrame;
@@ -571,7 +571,7 @@ void ReadEncodedFramesEx(msg_t *msg, skelAnimDataGameHeader_t *enAnim)
         //
         // 1 channel (frame)
         //
-        case 3:
+        case CHANNEL_VALUE:
             frameSize            = (sizeof(skanGameFrame) - sizeof(skanGameFrame::pChannelData) + sizeof(float) * 1);
             pFrame               = (skanGameFrame *)Skel_Alloc(frameSize * frameCnt);
             pChannel->ary_frames = pFrame;

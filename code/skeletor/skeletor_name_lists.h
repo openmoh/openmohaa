@@ -57,7 +57,14 @@ private:
     void        SetChannelName(ChannelName_t *channel, const char *newName);
 };
 
-int GetBoneChannelType(const char* name);
+typedef enum channelType_e {
+    CHANNEL_ROTATION,
+    CHANNEL_POSITION,
+    CHANNEL_NONE,
+    CHANNEL_VALUE
+} channelType_t;
+
+channelType_t GetBoneChannelType(const char* name);
 
 #else
 
