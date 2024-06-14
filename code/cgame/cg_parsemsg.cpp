@@ -859,14 +859,14 @@ void CG_AddBulletImpacts()
             }
 
             if (fImpSndDistRA < fImpSndDistLA) {
-                if (wall_impact_type[iImpSndIndexRA]) {
+                if (wall_impact_type[iImpSndIndexRA] != SFX_BHIT_PAPER_LITE) {
                     if (wall_impact_large[iImpSndIndexRA]) {
                         fVolume = 1.f;
                     } else {
                         fVolume = 0.75f;
                     }
 
-                    if (wall_impact_type[iImpSndIndexRA] == 2 || wall_impact_type[iImpSndIndexRA] == 3) {
+                    if (wall_impact_type[iImpSndIndexRA] == SFX_BHIT_WOOD_LITE || wall_impact_type[iImpSndIndexRA] == SFX_BHIT_WOOD_HARD) {
                         sSoundName = "snd_bh_metal";
                     } else {
                         sSoundName = "snd_bh_wood";
@@ -897,7 +897,7 @@ void CG_AddBulletImpacts()
                             fVolume = 0.75f;
                         }
 
-                        if (wall_impact_type[iImpSndIndexRB] == 2 || wall_impact_type[iImpSndIndexRB] == 3) {
+                        if (wall_impact_type[iImpSndIndexRB] == SFX_BHIT_WOOD_LITE || wall_impact_type[iImpSndIndexRB] == SFX_BHIT_WOOD_HARD) {
                             sSoundName = "snd_bh_metal";
                         } else {
                             sSoundName = "snd_bh_wood";
@@ -923,14 +923,14 @@ void CG_AddBulletImpacts()
             }
 
             if (fImpSndDistLA > 9999.0f) {
-                if (wall_impact_type[0]) {
+                if (wall_impact_type[0] != SFX_BHIT_PAPER_LITE) {
                     if (wall_impact_large[0]) {
                         fVolume = 1.f;
                     } else {
                         fVolume = 0.75f;
                     }
 
-                    if (wall_impact_type[0] == 2 || wall_impact_type[0] == 3) {
+                    if (wall_impact_type[0] == SFX_BHIT_WOOD_LITE || wall_impact_type[0] == SFX_BHIT_WOOD_HARD) {
                         sSoundName = "snd_bh_metal";
                     } else {
                         sSoundName = "snd_bh_wood";
@@ -945,14 +945,14 @@ void CG_AddBulletImpacts()
             }
 
             if (fImpSndDistLB < fImpSndDistLA) {
-                if (wall_impact_type[iImpSndIndexLB]) {
+                if (wall_impact_type[iImpSndIndexLB] != SFX_BHIT_PAPER_LITE) {
                     if (wall_impact_large[iImpSndIndexLB]) {
                         fVolume = 1.f;
                     } else {
                         fVolume = 0.75f;
                     }
 
-                    if (wall_impact_type[iImpSndIndexLB] == 2 || wall_impact_type[iImpSndIndexLB] == 3) {
+                    if (wall_impact_type[iImpSndIndexLB] == SFX_BHIT_WOOD_LITE || wall_impact_type[iImpSndIndexLB] == SFX_BHIT_WOOD_HARD) {
                         sSoundName = "snd_bh_metal";
                     } else {
                         sSoundName = "snd_bh_wood";
@@ -1033,16 +1033,16 @@ void CG_MakeExplosionEffect(const vec3_t vPos, int iType)
 
     if (cg_protocol >= protocol_e::PROTOCOL_MOHTA_MIN) {
         switch (iType) {
-        case 13:
+        case CGM_EXPLOSION_EFFECT_1:
             iBaseEffect = SFX_EXP_GREN_BASE;
             break;
-        case 14:
+        case CGM_EXPLOSION_EFFECT_2:
             iBaseEffect = SFX_EXP_BAZOOKA_BASE;
             break;
-        case 15:
+        case CGM_EXPLOSION_EFFECT_3:
             iBaseEffect = SFX_EXP_HEAVYSHELL_BASE;
             break;
-        case 16:
+        case CGM_EXPLOSION_EFFECT_4:
             iBaseEffect = SFX_EXP_TANK_BASE;
             break;
         default:
@@ -1051,7 +1051,7 @@ void CG_MakeExplosionEffect(const vec3_t vPos, int iType)
         }
     } else {
         switch (iType) {
-        case 13:
+        case CGM6_EXPLOSION_EFFECT_2:
             iBaseEffect = SFX_EXP_BAZOOKA_BASE;
             break;
         default:
@@ -1274,10 +1274,10 @@ void CG_ParseCGMessage_ver_15()
         iType = cgi.MSG_ReadBits(6);
 
         switch (iType) {
-        case 1:
-        case 2:
-        case 5:
-            if (iType == 1) {
+        case CGM_BULLET_1:
+        case CGM_BULLET_2:
+        case CGM_BULLET_5:
+            if (iType == CGM_BULLET_1) {
                 vTmp[0] = cgi.MSG_ReadCoord();
                 vTmp[1] = cgi.MSG_ReadCoord();
                 vTmp[2] = cgi.MSG_ReadCoord();
@@ -1286,7 +1286,7 @@ void CG_ParseCGMessage_ver_15()
             vStart[1] = cgi.MSG_ReadCoord();
             vStart[2] = cgi.MSG_ReadCoord();
 
-            if (iType != 1) {
+            if (iType != CGM_BULLET_1) {
                 vTmp[0] = vStart[0];
                 vTmp[1] = vStart[1];
                 vTmp[2] = vStart[2];
@@ -1306,18 +1306,18 @@ void CG_ParseCGMessage_ver_15()
                 alpha = 1.0f;
             }
 
-            if (iType == 1) {
-                CG_MakeBulletTracer(vTmp, vStart, vEndArray, 1, iLarge, qfalse, qtrue, alpha);
-            } else if (iType == 2) {
+            if (iType == CGM_BULLET_1) {
+                CG_MakeBulletTracer(vTmp, vStart, vEndArray, 1, iLarge, qtrue, qtrue, alpha);
+            } else if (iType == CGM_BULLET_2) {
                 CG_MakeBulletTracer(vTmp, vStart, vEndArray, 1, iLarge, qfalse, qtrue, alpha);
             } else {
                 CG_MakeBubbleTrail(vStart, vEndArray[0], iLarge, alpha);
             }
 
             break;
-        case 3:
-        case 4:
-            if (iType == 3) {
+        case CGM_BULLET_3:
+        case CGM_BULLET_4:
+            if (iType == CGM_BULLET_3) {
                 vTmp[0] = cgi.MSG_ReadCoord();
                 vTmp[1] = cgi.MSG_ReadCoord();
                 vTmp[2] = cgi.MSG_ReadCoord();
@@ -1351,12 +1351,12 @@ void CG_ParseCGMessage_ver_15()
                 CG_MakeBulletTracer(vTmp, vStart, vEndArray, iCount, iLarge, iInfo, qtrue, alpha);
             }
             break;
-        case 6:
-        case 7:
-        case 8:
-        case 9:
-        case 10:
-        case 11:
+        case CGM_BULLET_6:
+        case CGM_BULLET_7:
+        case CGM_BULLET_8:
+        case CGM_BULLET_9:
+        case CGM_BULLET_10:
+        case CGM_BULLET_11:
             vStart[0] = cgi.MSG_ReadCoord();
             vStart[1] = cgi.MSG_ReadCoord();
             vStart[2] = cgi.MSG_ReadCoord();
@@ -1364,7 +1364,7 @@ void CG_ParseCGMessage_ver_15()
             iLarge = cgi.MSG_ReadBits(2);
 
             switch (iType) {
-            case 6:
+            case CGM_BULLET_6:
                 if (wall_impact_count < MAX_IMPACTS) {
                     VectorCopy(vStart, wall_impact_pos[wall_impact_count]);
                     VectorCopy(vEnd, wall_impact_norm[wall_impact_count]);
@@ -1373,16 +1373,16 @@ void CG_ParseCGMessage_ver_15()
                     wall_impact_count++;
                 }
                 break;
-            case 7:
+            case CGM_BULLET_7:
                 if (wall_impact_count < MAX_IMPACTS) {
                     VectorCopy(vStart, wall_impact_pos[wall_impact_count]);
                     VectorCopy(vEnd, wall_impact_norm[wall_impact_count]);
                     wall_impact_large[wall_impact_count] = iLarge;
-                    wall_impact_type[wall_impact_count]  = 6;
+                    wall_impact_type[wall_impact_count]  = SFX_BHIT_STONE_LITE;
                     wall_impact_count++;
                 }
                 break;
-            case 8:
+            case CGM_BULLET_8:
                 if (flesh_impact_count < MAX_IMPACTS) {
                     // negative
                     VectorNegate(vEnd, vEnd);
@@ -1392,7 +1392,7 @@ void CG_ParseCGMessage_ver_15()
                     flesh_impact_count++;
                 }
                 break;
-            case 9:
+            case CGM_BULLET_9:
                 if (flesh_impact_count < MAX_IMPACTS) {
                     // negative
                     VectorNegate(vEnd, vEnd);
@@ -1402,21 +1402,21 @@ void CG_ParseCGMessage_ver_15()
                     flesh_impact_count++;
                 }
                 break;
-            case 10:
+            case CGM_BULLET_10:
                 if (wall_impact_count < MAX_IMPACTS) {
                     VectorCopy(vStart, wall_impact_pos[wall_impact_count]);
                     VectorCopy(vEnd, wall_impact_norm[wall_impact_count]);
                     wall_impact_large[wall_impact_count] = iLarge;
-                    wall_impact_type[wall_impact_count]  = 2;
+                    wall_impact_type[wall_impact_count]  = SFX_BHIT_WOOD_LITE;
                     wall_impact_count++;
                 }
                 break;
-            case 11:
+            case CGM_BULLET_11:
                 if (wall_impact_count < MAX_IMPACTS) {
                     VectorCopy(vStart, wall_impact_pos[wall_impact_count]);
                     VectorCopy(vEnd, wall_impact_norm[wall_impact_count]);
                     wall_impact_large[wall_impact_count] = iLarge;
-                    wall_impact_type[wall_impact_count]  = 4;
+                    wall_impact_type[wall_impact_count]  = SFX_BHIT_METAL_LITE;
                     wall_impact_count++;
                 }
                 break;
@@ -1425,7 +1425,7 @@ void CG_ParseCGMessage_ver_15()
             }
             break;
 
-        case 12:
+        case CGM_MELEE_IMPACT:
             vStart[0] = cgi.MSG_ReadCoord();
             vStart[1] = cgi.MSG_ReadCoord();
             vStart[2] = cgi.MSG_ReadCoord();
@@ -1434,33 +1434,33 @@ void CG_ParseCGMessage_ver_15()
             vEnd[2]   = cgi.MSG_ReadCoord();
             CG_MeleeImpact(vStart, vEnd);
             break;
-        case 13:
-        case 14:
-        case 15:
-        case 16:
+        case CGM_EXPLOSION_EFFECT_1:
+        case CGM_EXPLOSION_EFFECT_2:
+        case CGM_EXPLOSION_EFFECT_3:
+        case CGM_EXPLOSION_EFFECT_4:
             vStart[0] = cgi.MSG_ReadCoord();
             vStart[1] = cgi.MSG_ReadCoord();
             vStart[2] = cgi.MSG_ReadCoord();
             CG_MakeExplosionEffect(vStart, iType);
             break;
-        case 18:
-        case 19:
-        case 20:
-        case 21:
-        case 22:
-        case 23:
-        case 24:
-        case 25:
+        case CGM_MAKE_EFFECT_1:
+        case CGM_MAKE_EFFECT_2:
+        case CGM_MAKE_EFFECT_3:
+        case CGM_MAKE_EFFECT_4:
+        case CGM_MAKE_EFFECT_5:
+        case CGM_MAKE_EFFECT_6:
+        case CGM_MAKE_EFFECT_7:
+        case CGM_MAKE_EFFECT_8:
             vStart[0] = cgi.MSG_ReadCoord();
             vStart[1] = cgi.MSG_ReadCoord();
             vStart[2] = cgi.MSG_ReadCoord();
             cgi.MSG_ReadDir(vEnd);
 
-            sfxManager.MakeEffect_Normal(iType + SFX_EXP_GREN_PUDDLE, vStart, vEnd);
+            sfxManager.MakeEffect_Normal(SFX_EXP_GREN_PUDDLE + iType, vStart, vEnd);
             break;
 
-        case 26:
-        case 27:
+        case CGM_MAKE_CRATE_DEBRIS:
+        case CGM_MAKE_WINDOW_DEBRIS:
             {
                 str    sEffect;
                 char   cTmp[8];
@@ -1473,7 +1473,7 @@ void CG_ParseCGMessage_ver_15()
                 // get the integer as string
                 snprintf(cTmp, sizeof(cTmp), "%d", iLarge);
 
-                if (iType == 26) {
+                if (iType == CGM_MAKE_CRATE_DEBRIS) {
                     sEffect = "models/fx/crates/debris_";
                 } else {
                     sEffect = "models/fx/windows/debris_";
@@ -1490,7 +1490,7 @@ void CG_ParseCGMessage_ver_15()
             }
             break;
 
-        case 28:
+        case CGM_BULLET_NO_BARREL_1:
             vTmp[0]         = cgi.MSG_ReadCoord();
             vTmp[1]         = cgi.MSG_ReadCoord();
             vTmp[2]         = cgi.MSG_ReadCoord();
@@ -1501,6 +1501,7 @@ void CG_ParseCGMessage_ver_15()
             vEndArray[0][1] = cgi.MSG_ReadCoord();
             vEndArray[0][2] = cgi.MSG_ReadCoord();
             iLarge          = cgi.MSG_ReadBits(2);
+
             if (cgi.MSG_ReadBits(1)) {
                 int iAlpha = cgi.MSG_ReadBits(10);
                 alpha      = (float)iAlpha / 512.0;
@@ -1514,7 +1515,7 @@ void CG_ParseCGMessage_ver_15()
             CG_MakeBulletTracer(vTmp, vStart, vEndArray, 1, iLarge, qtrue, qtrue, alpha);
             break;
 
-        case 29:
+        case CGM_BULLET_NO_BARREL_2:
             memset(vTmp, 0, sizeof(vTmp));
             vStart[0]       = cgi.MSG_ReadCoord();
             vStart[1]       = cgi.MSG_ReadCoord();
@@ -1523,6 +1524,7 @@ void CG_ParseCGMessage_ver_15()
             vEndArray[0][1] = cgi.MSG_ReadCoord();
             vEndArray[0][2] = cgi.MSG_ReadCoord();
             iLarge          = cgi.MSG_ReadBits(1);
+
             if (cgi.MSG_ReadBits(1)) {
                 int iAlpha = cgi.MSG_ReadBits(10);
                 alpha      = (float)iAlpha / 512.0;
@@ -1536,7 +1538,7 @@ void CG_ParseCGMessage_ver_15()
             CG_MakeBulletTracer(vTmp, vStart, vEndArray, 1, iLarge, qfalse, qtrue, alpha);
             break;
 
-        case 30:
+        case CGM_HUDDRAW_SHADER:
             iInfo = cgi.MSG_ReadByte();
             strcpy(cgi.HudDrawElements[iInfo].shaderName, cgi.MSG_ReadString());
             cgi.HudDrawElements[iInfo].string[0]   = 0;
@@ -1546,13 +1548,13 @@ void CG_ParseCGMessage_ver_15()
             CG_HudDrawShader(iInfo);
             break;
 
-        case 31:
+        case CGM_HUDDRAW_ALIGN:
             iInfo                                       = cgi.MSG_ReadByte();
             cgi.HudDrawElements[iInfo].iHorizontalAlign = cgi.MSG_ReadBits(2);
             cgi.HudDrawElements[iInfo].iVerticalAlign   = cgi.MSG_ReadBits(2);
             break;
 
-        case 32:
+        case CGM_HUDDRAW_RECT:
             iInfo                              = cgi.MSG_ReadByte();
             cgi.HudDrawElements[iInfo].iX      = cgi.MSG_ReadShort();
             cgi.HudDrawElements[iInfo].iY      = cgi.MSG_ReadShort();
@@ -1560,30 +1562,30 @@ void CG_ParseCGMessage_ver_15()
             cgi.HudDrawElements[iInfo].iHeight = cgi.MSG_ReadShort();
             break;
 
-        case 33:
+        case CGM_HUDDRAW_VIRTUALSIZE:
             iInfo                                     = cgi.MSG_ReadByte();
             cgi.HudDrawElements[iInfo].bVirtualScreen = cgi.MSG_ReadBits(1);
             break;
 
-        case 34:
+        case CGM_HUDDRAW_COLOR:
             iInfo                                = cgi.MSG_ReadByte();
             cgi.HudDrawElements[iInfo].vColor[0] = cgi.MSG_ReadByte() / 255.0;
             cgi.HudDrawElements[iInfo].vColor[1] = cgi.MSG_ReadByte() / 255.0;
             cgi.HudDrawElements[iInfo].vColor[2] = cgi.MSG_ReadByte() / 255.0;
             break;
 
-        case 35:
+        case CGM_HUDDRAW_ALPHA:
             iInfo                                = cgi.MSG_ReadByte();
             cgi.HudDrawElements[iInfo].vColor[3] = cgi.MSG_ReadByte() / 255.0;
             break;
 
-        case 36:
+        case CGM_HUDDRAW_STRING:
             iInfo                              = cgi.MSG_ReadByte();
             cgi.HudDrawElements[iInfo].hShader = 0;
             strcpy(cgi.HudDrawElements[iInfo].string, cgi.MSG_ReadString());
             break;
 
-        case 37:
+        case CGM_HUDDRAW_FONT:
             iInfo = cgi.MSG_ReadByte();
             strcpy(cgi.HudDrawElements[iInfo].fontName, cgi.MSG_ReadString());
             cgi.HudDrawElements[iInfo].hShader       = 0;
@@ -1592,14 +1594,14 @@ void CG_ParseCGMessage_ver_15()
             CG_HudDrawFont(iInfo);
             break;
 
-        case 38:
-        case 39:
+        case CGM_NOTIFY_KILL:
+        case CGM_NOTIFY_HIT:
             {
                 int iOldEnt;
 
                 iOldEnt               = current_entity_number;
                 current_entity_number = cg.snap->ps.clientNum;
-                if (iType == 36) {
+                if (iType == CGM_NOTIFY_HIT) {
                     commandManager.PlaySound("dm_kill_notify", NULL, CHAN_LOCAL, 2.0, -1, -1, 1);
                 } else {
                     commandManager.PlaySound("dm_hit_notify", NULL, CHAN_LOCAL, 2.0, -1, -1, 1);
@@ -1609,7 +1611,7 @@ void CG_ParseCGMessage_ver_15()
             }
             break;
 
-        case 40:
+        case CGM_VOICE_CHAT:
             {
                 int iOldEnt;
 
@@ -1635,7 +1637,7 @@ void CG_ParseCGMessage_ver_15()
                 current_entity_number = iOldEnt;
             }
             break;
-        case 41:
+        case CGM_FENCEPOST:
             vStart[0] = cgi.MSG_ReadCoord();
             vStart[1] = cgi.MSG_ReadCoord();
             vStart[2] = cgi.MSG_ReadCoord();
@@ -1674,10 +1676,10 @@ void CG_ParseCGMessage_ver_6()
         iType = cgi.MSG_ReadBits(6);
 
         switch (iType) {
-        case 1:
-        case 2:
-        case 5:
-            if (iType == 1) {
+        case CGM6_BULLET_1:
+        case CGM6_BULLET_2:
+        case CGM6_BULLET_5:
+            if (iType == CGM6_BULLET_1) {
                 vTmp[0] = cgi.MSG_ReadCoord();
                 vTmp[1] = cgi.MSG_ReadCoord();
                 vTmp[2] = cgi.MSG_ReadCoord();
@@ -1686,7 +1688,7 @@ void CG_ParseCGMessage_ver_6()
             vStart[1] = cgi.MSG_ReadCoord();
             vStart[2] = cgi.MSG_ReadCoord();
 
-            if (iType != 1) {
+            if (iType != CGM6_BULLET_1) {
                 vTmp[0] = vStart[0];
                 vTmp[1] = vStart[1];
                 vTmp[2] = vStart[2];
@@ -1697,18 +1699,18 @@ void CG_ParseCGMessage_ver_6()
             vEndArray[0][2] = cgi.MSG_ReadCoord();
             iLarge          = cgi.MSG_ReadBits(1);
 
-            if (iType == 1) {
+            if (iType == CGM6_BULLET_1) {
                 CG_MakeBulletTracer(vTmp, vStart, vEndArray, 1, iLarge, qfalse, qtrue);
-            } else if (iType == 2) {
+            } else if (iType == CGM6_BULLET_2) {
                 CG_MakeBulletTracer(vTmp, vStart, vEndArray, 1, iLarge, qfalse, qtrue);
             } else {
                 CG_MakeBubbleTrail(vStart, vEndArray[0], iLarge);
             }
 
             break;
-        case 3:
-        case 4:
-            if (iType == 3) {
+        case CGM6_BULLET_3:
+        case CGM6_BULLET_4:
+            if (iType == CGM6_BULLET_3) {
                 vTmp[0] = cgi.MSG_ReadCoord();
                 vTmp[1] = cgi.MSG_ReadCoord();
                 vTmp[2] = cgi.MSG_ReadCoord();
@@ -1732,11 +1734,11 @@ void CG_ParseCGMessage_ver_6()
                 CG_MakeBulletTracer(vTmp, vStart, vEndArray, iCount, iLarge, iInfo, qtrue);
             }
             break;
-        case 6:
-        case 7:
-        case 8:
-        case 9:
-        case 10:
+        case CGM6_BULLET_6:
+        case CGM6_BULLET_7:
+        case CGM6_BULLET_8:
+        case CGM6_BULLET_9:
+        case CGM6_BULLET_10:
             vStart[0] = cgi.MSG_ReadCoord();
             vStart[1] = cgi.MSG_ReadCoord();
             vStart[2] = cgi.MSG_ReadCoord();
@@ -1744,16 +1746,16 @@ void CG_ParseCGMessage_ver_6()
             iLarge = cgi.MSG_ReadBits(1);
 
             switch (iType) {
-            case 6:
+            case CGM6_BULLET_6:
                 if (wall_impact_count < MAX_IMPACTS) {
                     VectorCopy(vStart, wall_impact_pos[wall_impact_count]);
                     VectorCopy(vEnd, wall_impact_norm[wall_impact_count]);
                     wall_impact_large[wall_impact_count] = iLarge;
-                    wall_impact_type[wall_impact_count]  = 0;
+                    wall_impact_type[wall_impact_count]  = SFX_BHIT_PAPER_LITE;
                     wall_impact_count++;
                 }
                 break;
-            case 7:
+            case CGM6_BULLET_7:
                 if (flesh_impact_count < MAX_IMPACTS) {
                     // negative
                     VectorNegate(vEnd, vEnd);
@@ -1763,7 +1765,7 @@ void CG_ParseCGMessage_ver_6()
                     flesh_impact_count++;
                 }
                 break;
-            case 8:
+            case CGM6_BULLET_8:
                 if (flesh_impact_count < MAX_IMPACTS) {
                     // negative
                     VectorNegate(vEnd, vEnd);
@@ -1773,21 +1775,21 @@ void CG_ParseCGMessage_ver_6()
                     flesh_impact_count++;
                 }
                 break;
-            case 9:
+            case CGM6_BULLET_9:
                 if (wall_impact_count < MAX_IMPACTS) {
                     VectorCopy(vStart, wall_impact_pos[wall_impact_count]);
                     VectorCopy(vEnd, wall_impact_norm[wall_impact_count]);
                     wall_impact_large[wall_impact_count] = iLarge;
-                    wall_impact_type[wall_impact_count]  = (iLarge != 0) + 2;
+                    wall_impact_type[wall_impact_count]  = iLarge ? SFX_BHIT_WOOD_HARD : SFX_BHIT_WOOD_LITE;
                     wall_impact_count++;
                 }
                 break;
-            case 10:
+            case CGM6_BULLET_10:
                 if (wall_impact_count < MAX_IMPACTS) {
                     VectorCopy(vStart, wall_impact_pos[wall_impact_count]);
                     VectorCopy(vEnd, wall_impact_norm[wall_impact_count]);
                     wall_impact_large[wall_impact_count] = iLarge;
-                    wall_impact_type[wall_impact_count]  = (iLarge != 0) + 4;
+                    wall_impact_type[wall_impact_count]  = iLarge ? SFX_BHIT_METAL_HARD : SFX_BHIT_METAL_LITE;
                     wall_impact_count++;
                 }
                 break;
@@ -1796,7 +1798,7 @@ void CG_ParseCGMessage_ver_6()
             }
             break;
 
-        case 11:
+        case CGM6_MELEE_IMPACT:
             vStart[0] = cgi.MSG_ReadCoord();
             vStart[1] = cgi.MSG_ReadCoord();
             vStart[2] = cgi.MSG_ReadCoord();
@@ -1805,31 +1807,31 @@ void CG_ParseCGMessage_ver_6()
             vEnd[2]   = cgi.MSG_ReadCoord();
             CG_MeleeImpact(vStart, vEnd);
             break;
-        case 12:
-        case 13:
+        case CGM6_EXPLOSION_EFFECT_1:
+        case CGM6_EXPLOSION_EFFECT_2:
             vStart[0] = cgi.MSG_ReadCoord();
             vStart[1] = cgi.MSG_ReadCoord();
             vStart[2] = cgi.MSG_ReadCoord();
             CG_MakeExplosionEffect(vStart, iType);
             break;
-        case 15:
-        case 16:
-        case 17:
-        case 18:
-        case 19:
-        case 20:
-        case 21:
-        case 22:
+        case CGM6_MAKE_EFFECT_1:
+        case CGM6_MAKE_EFFECT_2:
+        case CGM6_MAKE_EFFECT_3:
+        case CGM6_MAKE_EFFECT_4:
+        case CGM6_MAKE_EFFECT_5:
+        case CGM6_MAKE_EFFECT_6:
+        case CGM6_MAKE_EFFECT_7:
+        case CGM6_MAKE_EFFECT_8:
             vStart[0] = cgi.MSG_ReadCoord();
             vStart[1] = cgi.MSG_ReadCoord();
             vStart[2] = cgi.MSG_ReadCoord();
             cgi.MSG_ReadDir(vEnd);
 
-            sfxManager.MakeEffect_Normal(iType + SFX_EXP_GREN_PUDDLE, vStart, vEnd);
+            sfxManager.MakeEffect_Normal(SFX_EXP_GREN_PUDDLE + iType, vStart, vEnd);
             break;
 
-        case 23:
-        case 24:
+        case CGM6_MAKE_CRATE_DEBRIS:
+        case CGM6_MAKE_WINDOW_DEBRIS:
             {
                 str    sEffect;
                 char   cTmp[8];
@@ -1842,7 +1844,7 @@ void CG_ParseCGMessage_ver_6()
                 // get the integer as string
                 snprintf(cTmp, sizeof(cTmp), "%d", iLarge);
 
-                if (iType == 23) {
+                if (iType == CGM6_MAKE_CRATE_DEBRIS) {
                     sEffect = "models/fx/crates/debris_";
                 } else {
                     sEffect = "models/fx/windows/debris_";
@@ -1859,7 +1861,7 @@ void CG_ParseCGMessage_ver_6()
             }
             break;
 
-        case 25:
+        case CGM6_BULLET_NO_BARREL_1:
             vTmp[0]         = cgi.MSG_ReadCoord();
             vTmp[1]         = cgi.MSG_ReadCoord();
             vTmp[2]         = cgi.MSG_ReadCoord();
@@ -1874,7 +1876,7 @@ void CG_ParseCGMessage_ver_6()
             CG_MakeBulletTracer(vTmp, vStart, vEndArray, 1, iLarge, qtrue, qtrue);
             break;
 
-        case 26:
+        case CGM6_BULLET_NO_BARREL_2:
             memset(vTmp, 0, sizeof(vTmp));
             vStart[0]       = cgi.MSG_ReadCoord();
             vStart[1]       = cgi.MSG_ReadCoord();
@@ -1887,7 +1889,7 @@ void CG_ParseCGMessage_ver_6()
             CG_MakeBulletTracer(vTmp, vStart, vEndArray, 1, iLarge, qfalse, qtrue);
             break;
 
-        case 27:
+        case CGM6_HUDDRAW_SHADER:
             iInfo = cgi.MSG_ReadByte();
             strcpy(cgi.HudDrawElements[iInfo].shaderName, cgi.MSG_ReadString());
             cgi.HudDrawElements[iInfo].string[0]   = 0;
@@ -1897,13 +1899,13 @@ void CG_ParseCGMessage_ver_6()
             CG_HudDrawShader(iInfo);
             break;
 
-        case 28:
+        case CGM6_HUDDRAW_ALIGN:
             iInfo                                       = cgi.MSG_ReadByte();
             cgi.HudDrawElements[iInfo].iHorizontalAlign = cgi.MSG_ReadBits(2);
             cgi.HudDrawElements[iInfo].iVerticalAlign   = cgi.MSG_ReadBits(2);
             break;
 
-        case 29:
+        case CGM6_HUDDRAW_RECT:
             iInfo                              = cgi.MSG_ReadByte();
             cgi.HudDrawElements[iInfo].iX      = cgi.MSG_ReadShort();
             cgi.HudDrawElements[iInfo].iY      = cgi.MSG_ReadShort();
@@ -1911,30 +1913,30 @@ void CG_ParseCGMessage_ver_6()
             cgi.HudDrawElements[iInfo].iHeight = cgi.MSG_ReadShort();
             break;
 
-        case 30:
+        case CGM6_HUDDRAW_VIRTUALSIZE:
             iInfo                                     = cgi.MSG_ReadByte();
             cgi.HudDrawElements[iInfo].bVirtualScreen = cgi.MSG_ReadBits(1);
             break;
 
-        case 31:
+        case CGM6_HUDDRAW_COLOR:
             iInfo                                = cgi.MSG_ReadByte();
             cgi.HudDrawElements[iInfo].vColor[0] = cgi.MSG_ReadByte() / 255.0;
             cgi.HudDrawElements[iInfo].vColor[1] = cgi.MSG_ReadByte() / 255.0;
             cgi.HudDrawElements[iInfo].vColor[2] = cgi.MSG_ReadByte() / 255.0;
             break;
 
-        case 32:
+        case CGM6_HUDDRAW_ALPHA:
             iInfo                                = cgi.MSG_ReadByte();
             cgi.HudDrawElements[iInfo].vColor[3] = cgi.MSG_ReadByte() / 255.0;
             break;
 
-        case 33:
+        case CGM6_HUDDRAW_STRING:
             iInfo                              = cgi.MSG_ReadByte();
             cgi.HudDrawElements[iInfo].hShader = 0;
             strcpy(cgi.HudDrawElements[iInfo].string, cgi.MSG_ReadString());
             break;
 
-        case 34:
+        case CGM6_HUDDRAW_FONT:
             iInfo = cgi.MSG_ReadByte();
             strcpy(cgi.HudDrawElements[iInfo].fontName, cgi.MSG_ReadString());
             cgi.HudDrawElements[iInfo].hShader       = 0;
@@ -1943,14 +1945,14 @@ void CG_ParseCGMessage_ver_6()
             CG_HudDrawFont(iInfo);
             break;
 
-        case 35:
-        case 36:
+        case CGM6_NOTIFY_KILL:
+        case CGM6_NOTIFY_HIT:
             {
                 int iOldEnt;
 
                 iOldEnt               = current_entity_number;
                 current_entity_number = cg.snap->ps.clientNum;
-                if (iType == 36) {
+                if (iType == CGM6_NOTIFY_HIT) {
                     commandManager.PlaySound("dm_kill_notify", NULL, CHAN_LOCAL, 2.0, -1, -1, 1);
                 } else {
                     commandManager.PlaySound("dm_hit_notify", NULL, CHAN_LOCAL, 2.0, -1, -1, 1);
@@ -1960,7 +1962,7 @@ void CG_ParseCGMessage_ver_6()
             }
             break;
 
-        case 37:
+        case CGM6_VOICE_CHAT:
             {
                 int iOldEnt;
 
