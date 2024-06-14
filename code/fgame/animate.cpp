@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2023 the OpenMoHAA team
+Copyright (C) 2024 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -508,9 +508,8 @@ void Animate::StopAnimating(int slot)
         edict->s.frameInfo[slot].index = 1;
     }
 
-    edict->s.frameInfo[slot].weight = 0.0f;
-
     animFlags[slot] = ANIM_LOOP | ANIM_NODELTA | ANIM_NOEXIT | ANIM_PAUSED;
+    SetWeight(slot, 0);
     animtimes[slot] = 0.0f;
 
     SlotChanged(slot);
