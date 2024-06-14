@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2023 the OpenMoHAA team
+Copyright (C) 2024 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -515,5 +515,28 @@ void Player::PlayerAnimDelta(float *vDelta)
 
 void Player::EventTestAnim(Event *ev)
 {
-    // FIXME: unimplemented
+    str name;
+    float weight;
+    int animNum;
+
+    weight = ev->GetFloat(1);
+    if (weight <= 0) {
+        SetWeight(ANIMSLOT_TESTANIM, 0);
+        StopAnimating(ANIMSLOT_TESTANIM);
+        return;
+    }
+
+    if (ev->NumArgs() > 1) {
+        name = ev->GetString(1);
+        animNum = gi.Anim_NumForName(edict->tiki, name.c_str());
+        if (animNum == -1) {
+            gi.Printf("Couldn't find anim '%s'\n", name.c_str());
+            return;
+        }
+
+        NewAnim(animNum, ANIMSLOT_TESTANIM, weight);
+        RestartAnimSlot(ANIMSLOT_TESTANIM);
+    }
+
+    SetWeight(ANIMSLOT_TESTANIM, weight);
 }

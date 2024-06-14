@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2023 the OpenMoHAA team
+Copyright (C) 2024 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -68,7 +68,8 @@ enum painDirection_t {
 };
 
 typedef enum {
-    ANIMSLOT_PAIN = 4
+    ANIMSLOT_PAIN = 4,
+    ANIMSLOT_TESTANIM = 7
 } playerAnimSlot_t;
 
 typedef enum {
