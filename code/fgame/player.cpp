@@ -3438,20 +3438,44 @@ void Player::DoUse(Event *ev)
 
     num = getUseableEntities(touch, MAX_GENTITIES, true);
 
-    for (i = 0; i < num; i++) {
-        hit = &g_entities[touch[i]];
+    if (g_protocol >= protocol_e::PROTOCOL_MOHTA_MIN) {
+        // Fixed in 2.0
+        //  Since 2.0, the loop stops when the player
+        //  uses a turret, this prevents the turret from being deleted
+        //  after being attached to the player
+        //
+        for (i = 0; i < num; i++) {
+            hit = &g_entities[touch[i]];
 
-        if (!hit->inuse) {
-            continue;
+            if (!hit->inuse) {
+                continue;
+            }
+
+            Event* event = new Event(EV_Use);
+            event->AddListener(this);
+
+            hit->entity->ProcessEvent(event);
+
+            if (m_pVehicle || m_pTurret) {
+                break;
+            }
         }
+    } else {
+        //
+        // Backward compatibility
+        // It still allows 1.11 SP to work properly
+        // Such as in m1l1 when the player must man the mounted machine gun
+        for (i = 0; i < num; i++) {
+            hit = &g_entities[touch[i]];
 
-        Event *event = new Event(EV_Use);
-        event->AddListener(this);
+            if (!hit->inuse) {
+                continue;
+            }
 
-        hit->entity->ProcessEvent(event);
+            Event* event = new Event(EV_Use);
+            event->AddListener(this);
 
-        if (m_pVehicle || m_pTurret) {
-            break;
+            hit->entity->ProcessEvent(event);
         }
     }
 
