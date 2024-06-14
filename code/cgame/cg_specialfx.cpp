@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2023 the OpenMoHAA team
+Copyright (C) 2024 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -38,7 +38,8 @@ static vec3_t g_vLadderstepMaxs;
 
 ClientSpecialEffectsManager sfxManager;
 
-Event EV_SFX_EffectDelay(
+Event EV_SFX_EffectDelay
+(
     "effectdelay",
     EV_DEFAULT,
     "iivvvvv",
@@ -519,7 +520,7 @@ void ClientSpecialEffectsManager::ExecuteEffect(
                 AxisCopy(axis, pCommand->emitter->tag_axis);
                 pCommand->emitter->cgd.createTime = cg.time;
                 commandManager.SetSpawnthing(pCommand->emitter);
-            
+
                 (commandManager.*pCommand->endfcn)();
             }
         }
@@ -937,7 +938,144 @@ void CG_LandingSound(centity_t *ent, refEntity_t *pREnt, float volume, int iEqui
 
 void CG_BodyFallSound(centity_t *ent, refEntity_t *pREnt, float volume)
 {
-    // FIXME: unimplemented
+    int     contents;
+    int     surftype;
+    int     iEffectNum = -1;
+    vec3_t  vStart, vEnd;
+    vec3_t  midlegs;
+    str     sSoundName;
+    trace_t trace;
+
+    VectorCopy(ent->lerpOrigin, vStart);
+    vStart[2] += 8;
+
+    VectorCopy(vStart, vEnd);
+    vEnd[2] -= 64;
+
+    if (ent->currentState.eType == ET_PLAYER) {
+        CG_Trace(
+            &trace,
+            vStart,
+            g_vFootstepMins,
+            g_vFootstepMaxs,
+            vEnd,
+            ent->currentState.number,
+            MASK_PLAYERSOLID,
+            qtrue,
+            qtrue,
+            "Player Landing"
+        );
+    } else {
+        CG_Trace(
+            &trace,
+            vStart,
+            g_vFootstepMins,
+            g_vFootstepMaxs,
+            vEnd,
+            ent->currentState.number,
+            MASK_MONSTERSOLID,
+            qfalse,
+            qfalse,
+            "Monster Landing"
+        );
+    }
+
+    if (trace.fraction == 1) {
+        return;
+    }
+
+    sSoundName = "snd_bodyfall_";
+    contents   = CG_PointContents(trace.endpos, -1);
+    if (contents & MASK_WATER) {
+        // take our ground position and trace upwards
+        VectorCopy(trace.endpos, midlegs);
+        midlegs[2] += WATER_NO_SPLASH_HEIGHT;
+        contents = CG_PointContents(midlegs, -1);
+        if (contents & MASK_WATER) {
+            sSoundName += "wade";
+        } else {
+            sSoundName += "puddle";
+            iEffectNum = SFX_FOOT_PUDDLE;
+        }
+    } else {
+        surftype = trace.surfaceFlags & MASK_SURF_TYPE;
+        switch (surftype) {
+        case SURF_FOLIAGE:
+            sSoundName += "foliage";
+            iEffectNum = SFX_FOOT_GRASS;
+            break;
+        case SURF_SNOW:
+            sSoundName += "snow";
+            iEffectNum = SFX_FOOT_SNOW;
+            break;
+        case SURF_CARPET:
+            sSoundName += "carpet";
+            iEffectNum = SFX_FOOT_LIGHT_DUST;
+            break;
+        case SURF_SAND:
+            sSoundName += "sand";
+            iEffectNum = SFX_FOOT_SAND;
+            break;
+        case SURF_PUDDLE:
+            sSoundName += "puddle";
+            iEffectNum = SFX_FOOT_PUDDLE;
+            break;
+        case SURF_GLASS:
+            sSoundName += "glass";
+            iEffectNum = SFX_FOOT_LIGHT_DUST;
+            break;
+        case SURF_GRAVEL:
+            sSoundName += "gravel";
+            iEffectNum = SFX_FOOT_HEAVY_DUST;
+            break;
+        case SURF_MUD:
+            sSoundName += "mud";
+            iEffectNum = SFX_FOOT_MUD;
+            break;
+        case SURF_DIRT:
+            sSoundName += "dirt";
+            iEffectNum = SFX_FOOT_DIRT;
+            break;
+        case SURF_GRILL:
+            sSoundName += "grill";
+            iEffectNum = SFX_FOOT_LIGHT_DUST;
+            break;
+        case SURF_GRASS:
+            sSoundName += "grass";
+            iEffectNum = SFX_FOOT_GRASS;
+            break;
+        case SURF_ROCK:
+            sSoundName += "stone";
+            iEffectNum = SFX_FOOT_HEAVY_DUST;
+            break;
+        case SURF_PAPER:
+            sSoundName += "paper";
+            iEffectNum = SFX_FOOT_LIGHT_DUST;
+            break;
+        case SURF_WOOD:
+            sSoundName += "wood";
+            iEffectNum = SFX_FOOT_LIGHT_DUST;
+            break;
+        case SURF_METAL:
+            sSoundName += "metal";
+            iEffectNum = SFX_FOOT_LIGHT_DUST;
+            break;
+        default:
+            sSoundName += "stone";
+            iEffectNum = SFX_FOOT_HEAVY_DUST;
+            break;
+        }
+    }
+
+    if (cg_debugFootsteps->integer) {
+        cgi.DPrintf("BodyFall: %s    volume: %.2f   effect = %i\n", sSoundName.c_str(), volume, iEffectNum);
+    }
+
+    commandManager.PlaySound(sSoundName, trace.endpos, -1, volume, -1, -1, 1);
+
+    if (iEffectNum != -1) {
+        sfxManager.MakeEffect_Angles(iEffectNum, trace.endpos, Vector(270, 0, 0));
+    }
 }
 
 /*
