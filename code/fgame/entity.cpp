@@ -3280,10 +3280,10 @@ void Entity::LoopSound(str sound_name, float volume, float min_dist, float max_d
             // Add the looping sound to the entity
 
             edict->s.loopSound        = gi.soundindex(name, aliasstreamed);
-            edict->s.loopSoundVolume  = aliasvolume;
-            edict->s.loopSoundMinDist = aliasmin_dist;
-            edict->s.loopSoundMaxDist = aliasmax_dist;
-            edict->s.loopSoundPitch   = aliaspitch;
+            edict->s.loopSoundVolume  = volume < 0 ? (aliasvolume) : (aliasvolume * volume);
+            edict->s.loopSoundMinDist = min_dist < 0 ? (aliasmin_dist) : (min_dist);
+            edict->s.loopSoundMaxDist = max_dist < 0 ? (aliasmax_dist) : (max_dist);
+            edict->s.loopSoundPitch   = pitch < 0 ? (aliaspitch) : (aliaspitch * pitch);
 
             // Local sound will always be heard
             edict->s.loopSoundFlags = aliaschannel == CHAN_LOCAL;
