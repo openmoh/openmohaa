@@ -2426,10 +2426,37 @@ void CL_CheckTimeout( void ) {
 		&& clc.state >= CA_CONNECTED && clc.state != CA_CINEMATIC
 	    && cls.realtime - clc.lastPacketTime > cl_timeout->value*1000) {
 		if (++cl.timeoutcount > 5) {	// timeoutcount saves debugger
-			Com_Printf ("\nServer connection timed out.\n");
-			Cbuf_AddText( "pushmenu servertimeout\n" );
-			CL_Disconnect();
-			return;
+			const char* info;
+			const char* maxclients;
+
+			info = &cl.gameState.stringData[cl.gameState.stringOffsets[CS_SERVERINFO]];
+			maxclients = Info_ValueForKey(info, "maxclients");
+			//
+			// Disconnect if the player isn't alone (single-player mode)
+			//
+			if (!maxclients || atoi(maxclients) != 1) {
+				qboolean bConsoleState;
+
+				bConsoleState = UI_ConsoleIsOpen();
+
+				Com_Printf("\nServer connection timed out.\n");
+				SV_Shutdown("\nServer connection timed out\n");
+
+				if (com_cl_running && com_cl_running->integer) {
+					CL_AbnormalDisconnect();
+					CL_FlushMemory();
+					CL_StartHunkUsers(qfalse);
+				}
+
+				UI_ForceMenuOff(qtrue);
+				UI_PushMenu("servertimeout");
+
+				if (bConsoleState) {
+					UI_OpenConsole();
+				} else {
+					UI_CloseConsole();
+				}
+			}
 		}
 	} else {
 		cl.timeoutcount = 0;
