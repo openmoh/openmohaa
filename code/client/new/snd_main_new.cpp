@@ -21,6 +21,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "../snd_local.h"
+#include "../client.h"
 
 #if !defined(USE_SOUND_NEW) || !USE_SOUND_NEW
 
@@ -57,6 +58,13 @@ void S_AddLoopingSound(const vec3_t origin, const vec3_t velocity, sfxHandle_t s
     }
 
     // FIXME: unimplemented
+
+    if (VectorCompare(origin, vec3_origin)) {
+        // Consider it to be a local sound, uses the player origin
+        S_AddLoopingSound(cl.snap.ps.clientNum, cl.snap.ps.origin, velocity, sfxHandle);
+        return;
+    }
+
     S_AddLoopingSound(ENTITYNUM_WORLD, origin, velocity, sfxHandle);
 }
 
