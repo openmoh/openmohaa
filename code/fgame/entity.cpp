@@ -3221,6 +3221,15 @@ void Entity::LoopSound(Event *ev)
         return;
     }
 
+    if (level.spawning) {
+        // If the server is currently spawning
+        // repost the event as loopsound wouldn't work properly
+        // on the client
+        Event* newev = new Event(*ev);
+        PostEvent(newev, level.frametime);
+        return;
+    }
+
     // Get parameters
 
     sound_name = ev->GetString(1);
