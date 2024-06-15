@@ -432,7 +432,7 @@ void CL_MouseEvent( int dx, int dy, int time ) {
 		if( cl.mousey > cls.glconfig.vidHeight )
 			cl.mousey = cls.glconfig.vidHeight;
 	}
-	else
+	else if ( !paused->integer )
 	{
 		cl.mouseDx[cl.mouseIndex] += dx;
 		cl.mouseDy[cl.mouseIndex] += dy;
@@ -999,7 +999,7 @@ void CL_SendCmd( void ) {
 	}
 
 	// don't send commands if paused
-	if ( com_sv_running->integer && paused->integer && paused->integer ) {
+	if ( com_sv_running->integer && paused->integer  ) {
 		return;
 	}
 
