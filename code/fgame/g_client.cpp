@@ -890,7 +890,7 @@ const char *G_ClientConnect(int clientNum, qboolean firstTime, qboolean differen
     if ((strcmp(ip, "localhost") != 0)) {
         // check for a password
         value = Info_ValueForKey(userinfo, "password");
-        if (password->string[0] && Q_stricmp(password->string, "none") && strcmp(password->string, value) != 0) {
+        if (strcmp(sv_privatePassword->string, value) != 0 && *password->string && strcmp(password->string, value) != 0) {
             return "Invalid password";
         }
     }
