@@ -70,9 +70,17 @@ void SV_Sound( vec3_t *org, int entnum, int channel, const char *sound_name, flo
 {
     int i;
 
-    for (i = 0; i < sv_maxclients->integer; i++)
+    for (i = 0; i < svs.iNumClients; i++)
     {
         client_t* client = &svs.clients[i];
+		if (client->state != CS_ACTIVE) {
+			continue;
+        }
+
+		if (client->number_of_server_sounds >= MAX_SERVER_SOUNDS) {
+			continue;
+		}
+
         SV_ClientSound(client, org, entnum, channel, SV_SoundIndex(sound_name, streamed), volume, mindist, pitch, maxdist, streamed);
     }
 }
