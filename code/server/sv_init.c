@@ -915,7 +915,7 @@ void SV_SpawnServer( const char *server, qboolean loadgame, qboolean restart, qb
 
 	UI_LoadResource( "*143" );
 
-	if( g_gametype->integer ) {
+	if( g_gametype->integer != GT_SINGLE_PLAYER ) {
 		SV_ServerLoaded();
 	}
 }

@@ -863,9 +863,11 @@ const char *G_ClientConnect(int clientNum, qboolean firstTime, qboolean differen
     char       userinfo[MAX_INFO_STRING];
 
     gi.DPrintf("TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT\n");
-    if (g_gametype->integer == GT_SINGLE_PLAYER) {
-        return NULL;
-    }
+    // Removed in OPM
+    //  Accepts remote clients
+    //if (g_gametype->integer == GT_SINGLE_PLAYER) {
+    //    return NULL;
+    //}
 
     ent = &g_entities[clientNum];
 

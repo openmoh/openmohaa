@@ -52,9 +52,11 @@ void SV_GetChallenge( netadr_t from ) {
 	challenge_t	*challenge;
 
 	// ignore if we are in single player
-	if ( Cvar_VariableValue( "g_gametype" ) == GT_SINGLE_PLAYER ) {
-		return;
-	}
+	// Removed in OPM
+	//  Allow servers to accept players in a single-player game
+	//if ( Cvar_VariableValue( "g_gametype" ) == GT_SINGLE_PLAYER ) {
+	//	return;
+	//}
 
 	challenge = FindChallenge(from, qtrue);
 
@@ -759,6 +761,13 @@ void SV_ClientEnterWorld( client_t *client, usercmd_t *cmd ) {
 
 	// call the game begin function
 	ge->ClientBegin( ( gentity_t * )ent, cmd );
+
+	//
+	// Added in OPM
+	//  In a dedicated server, start the game when the first client enters the game
+	if (com_dedicated->integer) {
+		SV_ServerLoaded();
+	}
 }
 
 /*
