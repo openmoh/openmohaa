@@ -827,7 +827,7 @@ void G_BotConnect(int clientNum, const char *userinfo)
 
     // read the session data
     memset(client, 0, sizeof(*client));
-    G_InitSessionData(client, userinfo);
+    G_InitClientPersistant(client, userinfo);
 
     Q_strncpyz(client->pers.ip, "localhost", sizeof(client->pers.ip));
     client->pers.port = 0;
@@ -901,9 +901,9 @@ const char *G_ClientConnect(int clientNum, qboolean firstTime, qboolean differen
     // read or initialize the session data
     if (firstTime) {
         memset(client, 0, sizeof(*client));
-        G_InitSessionData(client, userinfo);
+        G_InitClientPersistant(client, userinfo);
     } else {
-        G_ReadSessionData(client);
+        G_ReadClientSessionData(client);
         if (differentMap) {
             client->pers.dm_primary[0] = 0;
         }

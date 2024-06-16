@@ -455,8 +455,8 @@ void  Svcmd_GameMem_f(void);
 //
 // g_session.c
 //
-void G_ReadSessionData(gclient_t *client);
-void G_InitSessionData(gclient_t *client, const char *userinfo);
+void G_ReadClientSessionData(gclient_t *client);
+void G_InitClientPersistant(gclient_t *client, const char *userinfo);
 
 void G_InitWorldSession(void);
 void G_WriteSessionData(void);

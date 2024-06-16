@@ -58,7 +58,7 @@ G_ReadSessionData
 Called on a reconnect
 ================
 */
-void G_ReadSessionData( gclient_t *client )
+void G_ReadClientSessionData( gclient_t *client )
 {
 	cvar_t *session;
 
@@ -83,7 +83,7 @@ G_InitSessionData
 Called on a first-time connect
 ================
 */
-void G_InitSessionData( gclient_t *client, const char *userinfo )
+void G_InitClientPersistant( gclient_t *client, const char *userinfo )
 {
 	G_WriteClientSessionData( client );
 }
