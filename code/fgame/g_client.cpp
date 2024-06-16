@@ -901,7 +901,9 @@ const char *G_ClientConnect(int clientNum, qboolean firstTime, qboolean differen
     // read or initialize the session data
     if (firstTime) {
         memset(client, 0, sizeof(*client));
-        G_InitClientPersistant(client, userinfo);
+        if (!game.autosaved) {
+            G_InitClientPersistant(client, userinfo);
+        }
     } else {
         G_ReadClientSessionData(client);
         if (differentMap) {
