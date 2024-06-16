@@ -805,7 +805,7 @@ void SV_SpawnServer( const char *server, qboolean loadgame, qboolean restart, qb
 					|| Cvar_VariableIntegerValue( "g_gametype" ) == 0 )
 				{
 					// connect the client again
-					denied = ge->ClientConnect( i, qfalse );
+					denied = ge->ClientConnect( i, qfalse, qtrue );
 
 					p = ge->errorMessage;
 					if( p )
@@ -887,7 +887,7 @@ void SV_SpawnServer( const char *server, qboolean loadgame, qboolean restart, qb
 				const char	*denied;
 
 				// connect the client again
-				denied = ge->ClientConnect( i, qfalse );
+				denied = ge->ClientConnect( i, qfalse, qfalse );
 
 				p = ge->errorMessage;
 				if( p )

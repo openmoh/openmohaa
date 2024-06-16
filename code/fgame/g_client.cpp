@@ -855,7 +855,7 @@ to the server machine, but qfalse on map changes and tournement
 restarts.
 ============
 */
-const char *G_ClientConnect(int clientNum, qboolean firstTime)
+const char *G_ClientConnect(int clientNum, qboolean firstTime, qboolean differentMap)
 {
     char      *ip, *port, *value;
     gclient_t *client;
@@ -863,7 +863,7 @@ const char *G_ClientConnect(int clientNum, qboolean firstTime)
     char       userinfo[MAX_INFO_STRING];
 
     gi.DPrintf("TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT\n");
-    if (!g_gametype->integer) {
+    if (g_gametype->integer == GT_SINGLE_PLAYER) {
         return NULL;
     }
 
@@ -879,6 +879,7 @@ const char *G_ClientConnect(int clientNum, qboolean firstTime)
     port = Info_ValueForKey(userinfo, "port");
 
     // FIXME: what is fucking wrong with G_FilterPacket...
+    // NOTE: IP banning is directly handled by the server
     //if ( G_FilterPacket( value ) ) {
     //	return "Banned IP";
     //}
@@ -903,6 +904,9 @@ const char *G_ClientConnect(int clientNum, qboolean firstTime)
         G_InitSessionData(client, userinfo);
     } else {
         G_ReadSessionData(client);
+        if (differentMap) {
+            client->pers.dm_primary[0] = 0;
+        }
     }
 
     Q_strncpyz(client->pers.ip, ip, sizeof(client->pers.ip));
@@ -922,7 +926,7 @@ const char *G_ClientConnect(int clientNum, qboolean firstTime)
 #endif
 
     // don't do the "xxx connected" messages if they were caried over from previous level
-    if (firstTime && g_gametype->integer) {
+    if (firstTime && g_gametype->integer != GT_SINGLE_PLAYER) {
         if (dedicated->integer) {
             gi.Printf("%s is preparing for deployment\n", client->pers.netname);
         }
@@ -971,7 +975,7 @@ void G_ClientBegin(gentity_t *ent, usercmd_t *cmd)
         } else {
             ent->client->pers.enterTime = level.svsFloatTime;
 
-            if (g_gametype->integer) {
+            if (g_gametype->integer != GT_SINGLE_PLAYER) {
                 // send effect if in a multiplayer game
                 if (dedicated->integer) {
                     gi.Printf("%s has entered the battle\n", ent->client->pers.netname);

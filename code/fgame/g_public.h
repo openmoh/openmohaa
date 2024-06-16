@@ -490,7 +490,7 @@ typedef struct gameExport_s {
 
     // return NULL if the client is allowed to connect, otherwise return
     // a text string with the reason for denial
-    const char *(*ClientConnect)(int clientNum, qboolean firstTime);
+    const char *(*ClientConnect)(int clientNum, qboolean firstTime, qboolean differentMap);
 
     void (*ClientBegin)(gentity_t *ent, usercmd_t *cmd);
     void (*ClientUserinfoChanged)(gentity_t *ent, const char *userinfo);

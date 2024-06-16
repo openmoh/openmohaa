@@ -496,7 +496,7 @@ gotnewcl:
 	Q_strncpyz( newcl->userinfo, userinfo, sizeof( newcl->userinfo ) );
 
 	// get the game a chance to reject this connection or modify the userinfo
-	denied = ge->ClientConnect( clientNum, qtrue );
+	denied = ge->ClientConnect( clientNum, qtrue, qfalse );
 
 	if ( denied ) {
 		NET_OutOfBandPrint( NS_SERVER, from, "droperror\n%s\n", denied );
