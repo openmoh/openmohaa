@@ -1384,7 +1384,7 @@ R_DecomposeSort
 */
 void R_DecomposeSort(unsigned int sort, int* entityNum, shader_t** shader, int* dlightMap, qboolean* bStaticModel) {
 	*shader = tr.sortedShaders[ ( sort >> QSORT_SHADERNUM_SHIFT ) & (MAX_SHADERS-1) ];
-	*entityNum = ( sort >> QSORT_ENTITYNUM_SHIFT ) & 1023;
+	*entityNum = ( sort >> QSORT_ENTITYNUM_SHIFT ) & 4095;
 	*dlightMap = sort & 15;
 	*bStaticModel = sort & (1 << QSORT_STATICMODEL_SHIFT);
 }
