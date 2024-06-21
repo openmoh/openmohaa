@@ -358,6 +358,8 @@ void R_AddStaticModelSurfaces(void) {
                 skelSurfaceGame_t* surface;
                 staticSurface_t* s_surface;
                 shader_t* shader;
+                float fDist;
+                vec3_t vDelta;
 
                 if (!skelmodel) {
                     continue;
@@ -383,20 +385,34 @@ void R_AddStaticModelSurfaces(void) {
 
                     shader = tr.shaders[dsurf->hShader[0]];
 
-                    if (shader->numUnfoggedPasses == 1)
+                    if (shader->numUnfoggedPasses == 1 && !r_nocull->integer)
                     {
-                        if (shader->unfoggedStages[0]->alphaGen == AGEN_DIST_FADE)
-                        {
+                        switch (shader->unfoggedStages[0]->alphaGen) {
+                        case AGEN_DIST_FADE:
                             if (R_DistanceCullPointAndRadius(shader->fDistNear + shader->fDistRange, tiki_worldorigin, SM->cull_radius) == CULL_OUT) {
                                 continue;
                             }
-						}
-						else if (shader->unfoggedStages[0]->alphaGen == AGEN_ONE_MINUS_DIST_FADE)
-						{
-							if (R_DistanceCullPointAndRadius(shader->fDistNear, tiki_worldorigin, SM->cull_radius) == CULL_IN) {
-								continue;
-							}
-						}
+                            break;
+                        case AGEN_ONE_MINUS_DIST_FADE:
+                            if (R_DistanceCullPointAndRadius(shader->fDistNear, tiki_worldorigin, SM->cull_radius) == CULL_IN) {
+                                continue;
+                            }
+                            break;
+                        case AGEN_TIKI_DIST_FADE:
+                            fDist = (shader->fDistNear + shader->fDistRange);
+                            VectorSubtract(tiki_worldorigin, tr.viewParms.ori.origin, vDelta);
+                            if (VectorLengthSquared(vDelta) >= Square(fDist)) {
+                                continue;
+                            }
+                            break;
+                        case AGEN_ONE_MINUS_TIKI_DIST_FADE:
+                            fDist = (shader->fDistNear + shader->fDistRange);
+                            VectorSubtract(tiki_worldorigin, tr.viewParms.ori.origin, vDelta);
+                            if (VectorLengthSquared(vDelta) <= Square(shader->fDistNear)) {
+                                continue;
+                            }
+                            break;
+                        }
                     }
 
                     SM->bRendered = qtrue;
