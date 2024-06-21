@@ -489,6 +489,10 @@ void RB_StaticMesh(staticSurface_t* staticSurf) {
     int					baseIndex, baseVertex;
     short				collapse[1000];
 
+    if (!r_drawstaticmodelpoly->integer) {
+        return;
+    }
+
     assert(backEnd.currentStaticModel);
     tiki = backEnd.currentStaticModel->tiki;
     surf = staticSurf->surface;
