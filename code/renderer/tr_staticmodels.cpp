@@ -294,7 +294,7 @@ R_AddStaticModelSurfaces
 */
 void R_AddStaticModelSurfaces(void) {
     cStaticModelUnpacked_t* SM;
-    int i, j;
+    int i, j, k;
     int ofsStaticData;
     int iRadiusCull;
     dtiki_t* tiki;
@@ -418,10 +418,10 @@ void R_AddStaticModelSurfaces(void) {
                     if (r_showstaticbboxes->integer) {
                         vec3_t vMins, vMaxs;
 
-                        for (i = 0; i < 3; i++)
+                        for (k = 0; k < 3; k++)
                         {
-                            vMins[i] = tiki->a->mins[i] * tiki->load_scale * SM->scale;
-                            vMaxs[i] = tiki->a->maxs[i] * tiki->load_scale * SM->scale;
+                            vMins[k] = tiki->a->mins[k] * tiki->load_scale * SM->scale;
+                            vMaxs[k] = tiki->a->maxs[k] * tiki->load_scale * SM->scale;
                         }
 
                         R_DebugRotatedBBox(SM->origin, SM->angles, vMins, vMaxs, 1.0, 0.0, 1.0, 0.75);
