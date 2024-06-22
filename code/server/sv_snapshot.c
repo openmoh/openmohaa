@@ -1076,7 +1076,7 @@ Also called by SV_FinalMessage
 =======================
 */
 void SV_SendClientSnapshot( client_t *client ) {
-	byte		msg_buf[MAX_MSGLEN] = { 0 };
+	byte		msg_buf[MAX_MSGLEN];
 	msg_t		msg;
 
 	// build the snapshot
@@ -1088,6 +1088,7 @@ void SV_SendClientSnapshot( client_t *client ) {
 		return;
 	}
 
+	memset(msg_buf, 0, sizeof(msg_buf));
 	MSG_Init (&msg, msg_buf, sizeof(msg_buf));
 	msg.allowoverflow = qtrue;
 

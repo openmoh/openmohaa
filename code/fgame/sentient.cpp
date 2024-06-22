@@ -690,7 +690,8 @@ void Sentient::EventGiveDynItem(Event *ev)
 }
 
 Sentient::Sentient()
-    : m_bIsAnimal(false)
+    : mAccuracy(0.2f)
+    , m_bIsAnimal(false)
 {
     SentientList.AddObject((Sentient *)this);
     entflags |= ECF_SENTIENT;

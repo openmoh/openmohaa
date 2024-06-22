@@ -2952,6 +2952,11 @@ Actor::Actor()
     }
 
     mVoiceType = -1;
+
+    //
+    // Added in OPM
+    //
+    m_bSilent = false;
 }
 
 /*
