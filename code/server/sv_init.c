@@ -573,7 +573,11 @@ void SV_SpawnServer( const char *server, qboolean loadgame, qboolean restart, qb
 	
 	differentmap = qtrue;
 
-	strncpy( svs.rawServerName, server, sizeof( svs.rawServerName ) );
+	if (svs.rawServerName != server) {
+		// Fixed in OPM
+		//  Make sure to not copy from the same string...
+		strncpy( svs.rawServerName, server, sizeof( svs.rawServerName ) );
+	}
 
 	// check for a spawn position
 	spawnpos = strchr( server, '$' );
