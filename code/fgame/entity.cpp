@@ -1847,8 +1847,8 @@ Entity::~Entity()
     }
 
     if (m_BlockedPaths) {
-        delete m_BlockedPaths;
-        m_BlockedPaths = 0;
+        delete[] m_BlockedPaths;
+        m_BlockedPaths = NULL;
     }
 
     level.FreeEdict(edict);
@@ -5643,7 +5643,7 @@ void Entity::ConnectPaths(void)
 
     m_iNumBlockedPaths = 0;
     if (m_BlockedPaths) {
-        delete m_BlockedPaths;
+        delete[] m_BlockedPaths;
         m_BlockedPaths = NULL;
     }
 }
