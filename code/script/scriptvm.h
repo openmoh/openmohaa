@@ -123,7 +123,12 @@ private:
     /** The local stack size. */
     ScriptVariable *stackBottom;
     /** Variable from the top stack of the local stack. */
-    ScriptVariable *pTop;
+    ScriptVariable* pTop;
+
+public:
+    /** Whether or not the stack is marked. */
+    /** changed by OP_MARK_STACK_POS and OP_RESTORE_STACK_POS */
+    bool m_bMarkStack;
 };
 
 class ScriptVM
@@ -159,7 +164,7 @@ public:
     // parameters variables
     ScriptVariable *m_pOldData; // old fastEvent data, to cleanup
     int             m_OldDataSize;
-    bool            m_bMarkStack; // changed by OP_MARK_STACK_POS and OP_RESTORE_STACK_POS
+    //bool            m_bMarkStack; // changed by OP_MARK_STACK_POS and OP_RESTORE_STACK_POS
     Event           fastEvent;    // parameter list, set when the VM is executed
 
 private:

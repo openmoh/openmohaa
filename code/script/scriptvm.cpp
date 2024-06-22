@@ -79,6 +79,7 @@ ScriptVMStack::ScriptVMStack()
     : localStack(nullptr)
     , stackBottom(nullptr)
     , pTop(nullptr)
+    , m_bMarkStack(false)
 {}
 
 ScriptVMStack::ScriptVMStack(size_t stackSize)
@@ -157,11 +158,13 @@ ScriptVariable& ScriptVMStack::SetTop(ScriptVariable& newTop)
 
 ScriptVariable& ScriptVMStack::GetTop() const
 {
+    assert(m_bMarkStack || pTop < stackBottom);
     return *pTop;
 }
 
 ScriptVariable& ScriptVMStack::GetTop(size_t offset) const
 {
+    assert(m_bMarkStack || (pTop + offset) < stackBottom);
     return *(pTop + offset);
 }
 
@@ -210,23 +213,27 @@ ScriptVariable& ScriptVMStack::PopAndGet(size_t offset)
 
 ScriptVariable& ScriptVMStack::Push()
 {
+    assert(!m_bMarkStack && (pTop + 1) < stackBottom);
     return *(pTop++);
 }
 
 ScriptVariable& ScriptVMStack::Push(size_t offset)
 {
     ScriptVariable& old = *pTop;
+    assert(!m_bMarkStack && (pTop + offset) < stackBottom);
     pTop += offset;
     return old;
 }
 
 ScriptVariable& ScriptVMStack::PushAndGet()
 {
+    assert(!m_bMarkStack && (pTop + 1) < stackBottom);
     return *++pTop;
 }
 
 ScriptVariable& ScriptVMStack::PushAndGet(size_t offset)
 {
+    assert(!m_bMarkStack && (pTop + offset) < stackBottom);
     pTop += offset;
     return *pTop;
 }
@@ -305,7 +312,6 @@ ScriptVM::ScriptVM()
     m_pOldData    = NULL;
     m_OldDataSize = 0;
 
-    m_bMarkStack = false;
     m_StackPos   = NULL;
 }
 
@@ -333,7 +339,6 @@ ScriptVM::ScriptVM(ScriptClass *scriptClass, unsigned char *pCodePos, ScriptThre
     m_pOldData    = NULL;
     m_OldDataSize = 0;
 
-    m_bMarkStack = false;
     m_StackPos   = NULL;
 
     m_ScriptClass->AddThread(this);
@@ -1081,7 +1086,7 @@ void ScriptVM::Execute(ScriptVariable *data, int dataSize, str label)
                 Director.cmdCount = 0;
             }
 
-            if (!m_bMarkStack) {
+            if (!m_VMStack.m_bMarkStack) {
                 /*
 				assert(pTop >= localStack && pTop < localStack + localStackSize);
 				if (pTop < localStack)
@@ -1549,7 +1554,7 @@ void ScriptVM::Execute(ScriptVariable *data, int dataSize, str label)
 
             case OP_MARK_STACK_POS:
                 m_StackPos   = &m_VMStack.GetTop();
-                m_bMarkStack = true;
+                m_VMStack.m_bMarkStack = true;
                 break;
 
             case OP_STORE_PARAM:
@@ -1564,7 +1569,7 @@ void ScriptVM::Execute(ScriptVariable *data, int dataSize, str label)
 
             case OP_RESTORE_STACK_POS:
                 m_VMStack.SetTop(*m_StackPos);
-                m_bMarkStack = false;
+                m_VMStack.m_bMarkStack = false;
                 break;
 
             case OP_STORE_ARRAY:
