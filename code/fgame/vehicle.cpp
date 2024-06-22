@@ -1174,6 +1174,7 @@ Vehicle::Vehicle()
     m_sAnimationSet = "";
     m_sSoundSet     = "";
 
+    m_iLastTiresUpdate = -1;
     for (i = 0; i < NUM_VEHICLE_TIRES; i++) {
         m_vTireEnd[i] = origin;
         m_bTireHit[i] = false;
