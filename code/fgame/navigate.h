@@ -103,8 +103,19 @@ public:
     vec2_t dir;
 
 public:
+    PathInfo();
+
     void Archive(Archiver& arc);
 };
+
+
+inline PathInfo::PathInfo()
+    : bAccurate(false)
+    , point{ 0, 0, 0 }
+    , dist(0)
+    , dir{ 0, 0 }
+{
+}
 
 inline void PathInfo::Archive(Archiver& arc)
 {
