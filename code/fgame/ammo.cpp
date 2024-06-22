@@ -138,7 +138,9 @@ CLASS_DECLARATION(Class, Ammo, NULL) {
 };
 
 Ammo::Ammo()
-
+    : amount(0)
+    , maxamount(0)
+    , name_index(0)
 {
     if (LoadingSavegame) {
         // all data will be setup by the archive function
@@ -150,7 +152,6 @@ Ammo::Ammo()
 }
 
 void Ammo::setAmount(int a)
-
 {
     amount = a;
 
@@ -160,38 +161,32 @@ void Ammo::setAmount(int a)
 }
 
 int Ammo::getAmount(void)
-
 {
     return amount;
 }
 
 void Ammo::setMaxAmount(int a)
-
 {
     maxamount = a;
 }
 
 int Ammo::getMaxAmount(void)
-
 {
     return maxamount;
 }
 
 void Ammo::setName(str n)
-
 {
     name       = n;
     name_index = gi.itemindex(name) + CS_WEAPONS;
 }
 
 str Ammo::getName(void)
-
 {
     return name;
 }
 
 int Ammo::getIndex(void)
-
 {
     return name_index;
 }
