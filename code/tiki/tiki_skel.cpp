@@ -748,6 +748,20 @@ void GetLODFile(skelcache_t *cache)
         LOD = (lodControl_t *)TIKI_Alloc(sizeof(lodControl_t));
         memcpy(LOD, buf, length);
         TIKI_FreeFile(buf);
+
+        LOD->minMetric = LittleFloat(LOD->minMetric);
+        LOD->maxMetric = LittleFloat(LOD->maxMetric);
+
+        for (i = 0; i < MAX_LOD_CURVE_POINTS; i++) {
+            LOD->curve[i].pos = LittleFloat(LOD->curve[i].pos);
+            LOD->curve[i].val = LittleFloat(LOD->curve[i].val);
+        }
+
+        for (i = 0; i < MAX_LOD_CURVE_CONSTS; i++) {
+            LOD->consts[i].base = LittleFloat(LOD->consts[i].base);
+            LOD->consts[i].scale = LittleFloat(LOD->consts[i].scale);
+            LOD->consts[i].cutoff = LittleFloat(LOD->consts[i].cutoff);
+        }
     } else {
         LOD               = (lodControl_t *)TIKI_Alloc(sizeof(lodControl_t));
         LOD->minMetric    = 1.0f;
