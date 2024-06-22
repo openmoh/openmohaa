@@ -50,7 +50,7 @@ typedef struct {
 
 typedef struct {
     unsigned char opcode;
-    char          VarStackOffset;
+    signed char   VarStackOffset;
 } opcode_info_t;
 
 typedef enum {

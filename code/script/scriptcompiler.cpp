@@ -77,7 +77,7 @@ unsigned char ScriptCompiler::PrevOpcode()
     return prev_opcodes[prev_opcode_pos].opcode;
 }
 
-char ScriptCompiler::PrevVarStackOffset()
+signed char ScriptCompiler::PrevVarStackOffset()
 {
     return prev_opcodes[prev_opcode_pos].VarStackOffset;
 }

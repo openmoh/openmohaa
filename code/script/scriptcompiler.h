@@ -77,7 +77,7 @@ public:
     void Reset();
 
     unsigned char PrevOpcode();
-    char          PrevVarStackOffset();
+    signed char   PrevVarStackOffset();
     void          AbsorbPrevOpcode();
     void          ClearPrevOpcode();
     void          AccumulatePrevOpcode(int opcode, int iVarStackOffset);
