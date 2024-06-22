@@ -1217,7 +1217,7 @@ __emit:
 
     case ENUM_if_statement:
         EmitValue(val.node[1]);
-        EmitVarToBool(val.node[4].sourcePosValue);
+        EmitVarToBool(val.node[3].sourcePosValue);
         EmitIfJump(val.node[2], val.node[3].sourcePosValue);
         break;
 
