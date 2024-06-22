@@ -98,6 +98,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define MAX_TIKI_ALIASES      4095
 #define MAX_GLOBAL_FROM_LOCAL 200
 
+#define MAX_LOD_CURVE_POINTS  5
+#define MAX_LOD_CURVE_CONSTS  4
+
 typedef struct AliasList_s     AliasList_t;
 typedef struct AliasListNode_s AliasListNode_t;
 
@@ -415,8 +418,8 @@ typedef struct {
 typedef struct lodControl_s {
     float                    minMetric;
     float                    maxMetric;
-    lodCurvePoint_t          curve[5];
-    lodCurvePointConstants_t consts[4];
+    lodCurvePoint_t          curve[MAX_LOD_CURVE_POINTS];
+    lodCurvePointConstants_t consts[MAX_LOD_CURVE_CONSTS];
 } lodControl_t;
 
 typedef struct {
