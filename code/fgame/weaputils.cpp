@@ -1530,6 +1530,11 @@ Explosion::Explosion()
         return;
     }
 
+    flash_r            = 0;
+    flash_g            = 0;
+    flash_b            = 0;
+    flash_a            = 0;
+    flash_radius       = 0;
     radius             = 0;
     constant_damage    = false;
     damage_every_frame = false;
