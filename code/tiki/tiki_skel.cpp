@@ -762,7 +762,7 @@ void GetLODFile(skelcache_t *cache)
         LOD->curve[3].val = (float)cache->skel->lodIndex[1];
         LOD->curve[4].pos = 1.0f;
 
-        for (i = 9; cache->skel->lodIndex[i] > cache->skel->lodIndex[3]; i--) {
+        for (i = TIKI_SKEL_LOD_INDEXES; cache->skel->lodIndex[i] > cache->skel->lodIndex[3]; i--) {
             if (i <= 2) {
                 break;
             }
@@ -770,8 +770,8 @@ void GetLODFile(skelcache_t *cache)
 
         LOD->curve[4].val = (float)cache->skel->lodIndex[i];
 
-        for (i = 8; i >= 0; i--) {
-            if (LOD->curve[i - 1].pos > LOD->curve[i].pos) {
+        for (i = 1; i < MAX_LOD_CURVE_POINTS - 1; i++) {
+            if (LOD->curve[i].pos < LOD->curve[i - 1].pos) {
                 LOD->curve[i].val = LOD->curve[i - 1].pos;
             }
         }
