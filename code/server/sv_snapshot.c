@@ -1076,7 +1076,7 @@ Also called by SV_FinalMessage
 =======================
 */
 void SV_SendClientSnapshot( client_t *client ) {
-	byte		msg_buf[MAX_MSGLEN]{ 0 };
+	byte		msg_buf[MAX_MSGLEN] = { 0 };
 	msg_t		msg;
 
 	// build the snapshot
