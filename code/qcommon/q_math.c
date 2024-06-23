@@ -4137,3 +4137,23 @@ float PointToSegmentDistanceSquared(const vec3_t origin, const vec3_t a, const v
 
     return VectorLengthSquared(final);
 }
+
+/*
+=================
+FloatRoundedBitError
+
+On x86 with FP87, some float operations may have results that are off by 1 bit.
+This returns whether or not the operation lost 1 bit.
+=================
+*/
+qboolean FloatRoundedBitError() {
+    float a, b, c;
+    float value;
+
+    a = 91.0000610;
+    b = 40.0000038;
+    c = 0.00005;
+    value = a * b + c;
+
+    return value != 3640.00269f;
+}
