@@ -766,10 +766,6 @@ static qboolean CM_ValidateFacet( facet_t *facet ) {
 	Vector4Copy( planes[ facet->surfacePlane ].plane, plane );
 	w = BaseWindingForPlane( plane,  plane[3] );
 	for ( j = 0 ; j < facet->numBorders && w ; j++ ) {
-		if ( facet->borderPlanes[j] == -1 ) {
-			FreeWinding( w );
-			return qfalse;
-		}
 		Vector4Copy( planes[ facet->borderPlanes[j] ].plane, plane );
 		if ( !facet->borderInward[j] ) {
 			VectorSubtract( vec3_origin, plane, plane );
@@ -789,12 +785,6 @@ static qboolean CM_ValidateFacet( facet_t *facet ) {
 	for ( j = 0 ; j < 3 ; j++ ) {
 		if ( bounds[1][j] - bounds[0][j] > MAX_MAP_BOUNDS ) {
 			return qfalse;		// we must be missing a plane
-		}
-		if ( bounds[0][j] >= MAX_MAP_BOUNDS ) {
-			return qfalse;
-		}
-		if ( bounds[1][j] <= -MAX_MAP_BOUNDS ) {
-			return qfalse;
 		}
 	}
 	return qtrue;		// winding is fine
@@ -1314,7 +1304,7 @@ void CM_TracePointThroughPatchCollide( traceWork_t *tw, const struct patchCollid
 		}
 		for ( j = 0 ; j < facet->numBorders ; j++ ) {
 			k = facet->borderPlanes[j];
-			if ( frontFacing[k] ^ facet->borderInward[j] ) {
+			if ( frontFacing[k] != facet->borderInward[j] ) {
 				if ( intersection[k] > intersect ) {
 					break;
 				}
