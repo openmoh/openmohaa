@@ -925,12 +925,12 @@ void World::SetRenderTerrain(Event *ev)
 
 void World::GetSkyboxSpeed(Event *ev)
 {
-    ev->AddInteger(skybox_speed);
+    ev->AddFloat(skybox_speed);
 }
 
 void World::SetSkyboxSpeed(Event *ev)
 {
-    skybox_speed = ev->GetInteger(1);
+    skybox_speed = ev->GetFloat(1);
 }
 
 void World::SetSkyAlpha(Event *ev)
