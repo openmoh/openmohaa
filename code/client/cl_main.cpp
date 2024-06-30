@@ -2419,6 +2419,13 @@ CL_CheckTimeout
 ==================
 */
 void CL_CheckTimeout( void ) {
+	if (com_sv_running->integer) {
+		// Added in OPM
+		//  Timeout should not be possible if the client is hosting the game
+		//  (like in single-player mode)
+		return;
+	}
+
 	//
 	// check timeout
 	//
