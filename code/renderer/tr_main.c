@@ -1059,7 +1059,7 @@ qboolean SurfIsOffscreen(const srfSurfaceFace_t* surface, shader_t* shader, int 
 
 	if (shader->fDistRange > 0.0)
 	{
-		if (shortest > (tess.shader->portalRange * tess.shader->portalRange))
+		if (shortest > Square(shader->fDistRange))
 		{
 			return qtrue;
 		}
