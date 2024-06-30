@@ -895,7 +895,7 @@ void R_GetLightingForDecal(vec3_t vLight, const vec3_t vFacing, const vec3_t vOr
     VectorScale(vLight, tr.overbrightMult, vLight);
 
     if (vLight[0] > 255.0 || vLight[1] > 255.0 || vLight[2] > 255.0) {
-        float scale = 255.0 / fmin(vLight[0], fmin(vLight[1], vLight[2]));
+        float scale = 255.0 / fmax(vLight[0], fmax(vLight[1], vLight[2]));
         VectorScale(vLight, scale, vLight);
     }
 }
@@ -945,7 +945,7 @@ static int RB_GetEntityGridLighting()
 
 	// normalize
 	if (vLight[0] > 255.0 || vLight[1] > 255.0 || vLight[2] > 255.0) {
-		float scale = 255.0 / fmin(vLight[0], fmin(vLight[1], vLight[2]));
+		float scale = 255.0 / fmax(vLight[0], fmax(vLight[1], vLight[2]));
 		VectorScale(vLight, scale, vLight);
 	}
 
