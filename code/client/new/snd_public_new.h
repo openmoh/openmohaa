@@ -64,6 +64,10 @@ qboolean MUSIC_PlaySong(const char* alias);
 void MUSIC_UpdateMusicVolumes(void);
 void MUSIC_CheckForStoppedSongs(void);
 
+void S_TriggeredMusic_Start();
+void S_TriggeredMusic_StartLoop();
+void S_TriggeredMusic_Stop();
+
 void S_StopSound(int entnum, int channel);
 void S_StopAllSounds2(qboolean stop_music);
 float S_GetSoundTime(sfxHandle_t handle);

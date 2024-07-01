@@ -33,6 +33,10 @@ void S_Init2()
     // HACK: S_RegisterSound returns 0 when unsuccessful, or it returns the the sfx handle
     // But the first sfx handle is also 0...
     S_RegisterSound("sound/null.wav", qfalse);
+
+    Cmd_AddCommand("tmstart", S_TriggeredMusic_Start);
+    Cmd_AddCommand("tmstartloop", S_TriggeredMusic_StartLoop);
+    Cmd_AddCommand("tmstop", S_TriggeredMusic_Stop);
 }
 
 /*
@@ -439,8 +443,53 @@ void S_FadeSound(float fTime)
     // FIXME: unimplemented
 }
 
+/*
+==============
+S_TriggeredMusic_Start
+==============
+*/
+void S_TriggeredMusic_Start()
+{
+    if (Cmd_Argc() != 2) {
+        Com_Printf("tmstart <sound file>\n");
+        return;
+    }
+
+    S_StartBackgroundTrack(Cmd_Argv(1), "");
+}
+
+/*
+==============
+S_TriggeredMusic_StartLoop
+==============
+*/
+void S_TriggeredMusic_StartLoop()
+{
+    if (Cmd_Argc() != 2) {
+        Com_Printf("tmstartloop <sound file>\n");
+        return;
+    }
+
+    S_StartBackgroundTrack(Cmd_Argv(1), Cmd_Argv(1));
+}
+
+/*
+==============
+S_TriggeredMusic_Stop
+==============
+*/
+void S_TriggeredMusic_Stop()
+{
+    S_StopBackgroundTrack();
+}
+
+/*
+==============
+S_TriggeredMusic_PlayIntroMusic
+==============
+*/
 void S_TriggeredMusic_PlayIntroMusic() {
-    // FIXME: unimplemented
+    S_StartBackgroundTrack("sound/music/mus_MainTheme.mp3", "");
 }
 
 void callbackServer(int entnum, int channel_number, const char* name) {
