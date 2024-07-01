@@ -478,7 +478,7 @@ qboolean S_LoadSound(const char *fileName, sfx_t *sfx, int streamed, qboolean fo
         }
     }
 
-    if (!(sfx->iFlags & SFX_FLAG_NO_DATA) && realKhz < sfx->info.rate) {
+    if (!(sfx->iFlags & SFX_FLAG_STREAMED) && realKhz < sfx->info.rate) {
         byte* newdata;
         int newdatasize;
 
@@ -499,7 +499,7 @@ qboolean S_LoadSound(const char *fileName, sfx_t *sfx, int streamed, qboolean fo
     sfx->width = sfx->info.width;
     sfx->time_length = sfx->info.samples / sfx->info.rate * 1000.f;
 
-    if (sfx->iFlags & SFX_FLAG_NO_DATA) {
+    if (sfx->iFlags & SFX_FLAG_STREAMED) {
         Z_Free(sfx->data);
         sfx->data = NULL;
     }

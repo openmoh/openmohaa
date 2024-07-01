@@ -1205,7 +1205,7 @@ static void S_OPENAL_Start2DSound(
 
     iRealEntNum = iEntNum & ~S_FLAG_DO_CALLBACK;
 
-    if (pSfx->iFlags & SFX_FLAG_NO_DATA) {
+    if (pSfx->iFlags & SFX_FLAG_STREAMED) {
         iFreeChannel = S_OPENAL_PickChannel2DStreamed(iRealEntNum, iEntChannel);
     } else {
         iFreeChannel = S_OPENAL_PickChannel2D(iRealEntNum, iEntChannel);
@@ -1214,7 +1214,7 @@ static void S_OPENAL_Start2DSound(
     if (iFreeChannel < 0) {
         Com_DPrintf(
             "Couldn't play %s sound '%s' for entity %i on channel %s\n",
-            (pSfx->iFlags & SFX_FLAG_NO_DATA) ? "2Dstreamed" : "2D",
+            (pSfx->iFlags & SFX_FLAG_STREAMED) ? "2Dstreamed" : "2D",
             pSfx->name,
             iRealEntNum,
             S_ChannelNumToName(iEntChannel)
@@ -1352,7 +1352,7 @@ void S_OPENAL_StartSound(
     bOnlyUpdate = false;
     pSfx        = &s_knownSfx[sfxHandle];
     if (bStreamed) {
-        pSfx->iFlags |= SFX_FLAG_NO_DATA;
+        pSfx->iFlags |= SFX_FLAG_STREAMED;
     }
 
     if (!S_OPENAL_ShouldPlay(pSfx)) {
@@ -1360,7 +1360,7 @@ void S_OPENAL_StartSound(
         return;
     }
 
-    if ((pSfx->iFlags & (SFX_FLAG_NO_OFFSET | SFX_FLAG_NO_DATA | SFX_FLAG_MP3)) || iEntChannel == CHAN_MENU
+    if ((pSfx->iFlags & (SFX_FLAG_NO_OFFSET | SFX_FLAG_STREAMED | SFX_FLAG_MP3)) || iEntChannel == CHAN_MENU
         || iEntChannel == CHAN_LOCAL) {
         S_OPENAL_Start2DSound(vOrigin, iEntNum, iEntChannel, pSfx, fVolume, fMinDist, fPitch, fMaxDist);
         return;
@@ -1370,7 +1370,7 @@ void S_OPENAL_StartSound(
     iEntNum &= ~S_FLAG_DO_CALLBACK;
 
     pSfxInfo = &sfx_infos[pSfx->sfx_info_index];
-    if (pSfx->iFlags & SFX_FLAG_NO_DATA) {
+    if (pSfx->iFlags & SFX_FLAG_STREAMED) {
         Com_DPrintf("3D sounds not supported - couldn't play '%s'\n", pSfx->name);
         return;
     }
@@ -1379,7 +1379,7 @@ void S_OPENAL_StartSound(
     if (iChannel < 0) {
         Com_DPrintf(
             "Couldn't play %s sound '%s' for entity %i on channel %s\n",
-            (pSfx->iFlags & SFX_FLAG_NO_DATA) ? "3Dstreamed" : "3D",
+            (pSfx->iFlags & SFX_FLAG_STREAMED) ? "3Dstreamed" : "3D",
             pSfx->name,
             iEntNum,
             S_ChannelNumToName(iEntChannel)
@@ -1719,7 +1719,7 @@ static int S_OPENAL_Start2DLoopSound(
     int             iSoundOFfset;
     openal_channel *pChannel;
 
-    if (pLoopSound->pSfx->iFlags & SFX_FLAG_NO_DATA) {
+    if (pLoopSound->pSfx->iFlags & SFX_FLAG_STREAMED) {
         iChannel = S_OPENAL_PickChannel2DStreamed(0, 0);
     } else {
         iChannel = S_OPENAL_PickChannel2D(0, 0);
@@ -1789,7 +1789,7 @@ static int S_OPENAL_Start3DLoopSound(
     int             iSoundOffset;
     openal_channel *pChan3D;
 
-    if (pLoopSound->pSfx->iFlags & SFX_FLAG_NO_DATA) {
+    if (pLoopSound->pSfx->iFlags & SFX_FLAG_STREAMED) {
         return -1;
     }
 
@@ -1869,7 +1869,7 @@ static bool S_OPENAL_UpdateLoopSound(
 
     pChannel->iStartTime = cl.serverTime;
 
-    if (pLoopSound->pSfx->iFlags & (SFX_FLAG_NO_OFFSET | SFX_FLAG_NO_DATA | SFX_FLAG_MP3)
+    if (pLoopSound->pSfx->iFlags & (SFX_FLAG_NO_OFFSET | SFX_FLAG_STREAMED | SFX_FLAG_MP3)
         || (pLoopSound->iFlags & LOOPSOUND_FLAG_NO_PAN)) {
         vec3_t vOrigin;
         int    iPan;
@@ -2087,7 +2087,7 @@ void S_OPENAL_AddLoopSounds(const vec3_t vTempAxis)
             Com_DPrintf("%d (#%i) - started loop - %s\n", cl.serverTime, pLoopSound->iChannel, pLoopSound->pSfx->name);
         }
 
-        if (pLoopSound->pSfx->iFlags & (SFX_FLAG_NO_OFFSET | SFX_FLAG_NO_DATA | SFX_FLAG_MP3)
+        if (pLoopSound->pSfx->iFlags & (SFX_FLAG_NO_OFFSET | SFX_FLAG_STREAMED | SFX_FLAG_MP3)
             || (pLoopSound->iFlags & LOOPSOUND_FLAG_NO_PAN)) {
             iChannel = S_OPENAL_Start2DLoopSound(
                 pLoopSound, fVolume, S_GetBaseVolume() * s_fVolumeGain * fTotalVolume, fMinDistance, vLoopOrigin

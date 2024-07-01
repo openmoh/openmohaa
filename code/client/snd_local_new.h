@@ -148,7 +148,7 @@ enum channel_flags_t {
 enum sfx_flags_t {
     SFX_FLAG_DEFAULT_SOUND = 1,
     SFX_FLAG_MP3           = 2,
-    SFX_FLAG_NO_DATA       = 4,
+    SFX_FLAG_STREAMED      = 4,
     SFX_FLAG_NO_OFFSET     = 8,
 };
 
