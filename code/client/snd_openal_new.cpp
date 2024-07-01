@@ -2827,7 +2827,7 @@ openal_channel::set_sfx
 */
 bool openal_channel::set_sfx(sfx_t *pSfx)
 {
-    ALfloat freq = 0;
+    ALint freq = 0;
 
     this->pSfx = pSfx;
     if (!pSfx->buffer || !qalIsBuffer(pSfx->buffer)) {
@@ -2893,7 +2893,7 @@ bool openal_channel::set_sfx(sfx_t *pSfx)
     alDieIfError();
 
     // Get the base frequency
-    qalGetBufferfv(pSfx->buffer, AL_FREQUENCY, &freq);
+    qalGetBufferi(pSfx->buffer, AL_FREQUENCY, &freq);
     alDieIfError();
 
     iBaseRate = freq;
@@ -3062,9 +3062,11 @@ void openal_channel::set_sample_loop_count(S32 count)
         alDieIfError();
     }
 
-    for (S32 i = 0; i < count; i++) {
-        qalSourceQueueBuffers(source, 1, &buffer);
-        alDieIfError();
+    if (buffer) {
+        for (S32 i = 0; i < count; i++) {
+            qalSourceQueueBuffers(source, 1, &buffer);
+            alDieIfError();
+        }
     }
 }
 
