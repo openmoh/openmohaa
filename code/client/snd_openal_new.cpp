@@ -103,7 +103,8 @@ static void S_OPENAL_Pitch();
 static int
 S_OPENAL_SpatializeStereoSound(const vec3_t listener_origin, const vec3_t listener_left, const vec3_t origin);
 static void S_OPENAL_reverb(int iChannel, int iReverbType, float fReverbLevel);
-static bool S_OPENAL_LoadMP3_Codec(const char *_path, openal_channel *chan);
+static bool S_OPENAL_LoadMP3_Codec(const char *_path, sfx_t* pSfx);
+static ALuint S_OPENAL_Format(int width, int channels);
 
 #    define alDieIfError() __alDieIfError(__FILE__, __LINE__)
 
@@ -726,8 +727,55 @@ S_OPENAL_LoadMP3
 */
 static bool S_OPENAL_LoadMP3(const char *_path, openal_channel *chan)
 {
-    return S_OPENAL_LoadMP3_Codec(_path, chan);
+    char path[MAX_QPATH];
+    snd_info_t info;
+    ALuint format;
 
+    chan->stop();
+
+    qalSourcei(chan->source, AL_BUFFER, 0);
+    alDieIfError();
+
+    Q_strncpyz(path, _path, sizeof(path));
+    path[MAX_QPATH - 1] = 0;
+
+    FS_CorrectCase(path);
+
+    // Try to load
+    chan->bufferdata = (ALubyte*)S_CodecLoad(path, &info);
+    if (!chan->bufferdata) {
+        return false;
+    }
+
+    format = S_OPENAL_Format(info.width, info.channels);
+
+    // Create a buffer
+    qalGenBuffers(1, &chan->buffer);
+    alDieIfError();
+
+    // Fill the buffer
+    if (info.size == 0) {
+        // We have no data to buffer, so buffer silence
+        byte dummyData[2] = {0};
+
+        qalBufferData(chan->buffer, AL_FORMAT_MONO16, (void *)dummyData, 2, 22050);
+    } else {
+        qalBufferData(chan->buffer, format, chan->bufferdata, info.size, info.rate);
+    }
+
+    alDieIfError();
+
+    // Free the memory
+    Hunk_FreeTempMemory(chan->bufferdata);
+
+    qalSourcei(chan->source, AL_BUFFER, chan->buffer);
+    alDieIfError();
+
+    chan->set_no_3d();
+
+    return true;
+
+#if 0
     char   path[MAX_QPATH];
     FILE  *in;
     size_t len;
@@ -789,6 +837,7 @@ static bool S_OPENAL_LoadMP3(const char *_path, openal_channel *chan)
     chan->set_no_3d();
 
     return true;
+#endif
 }
 
 /*
@@ -2836,7 +2885,7 @@ bool openal_channel::set_sfx(sfx_t *pSfx)
             alDieIfError();
 
             //if (!_alutLoadMP3_LOKI(pSfx->buffer, pSfx->data, pSfx->length)) {
-            if (!S_OPENAL_LoadMP3_Codec(pSfx->name, this)) {
+            if (!S_OPENAL_LoadMP3_Codec(pSfx->name, pSfx)) {
                 qalDeleteBuffers(1, &pSfx->buffer);
                 alDieIfError();
 
@@ -3989,7 +4038,7 @@ static ALuint S_OPENAL_Format(int width, int channels)
 S_OPENAL_LoadMP3_Codec
 ==============
 */
-static bool S_OPENAL_LoadMP3_Codec(const char *_path, openal_channel *chan)
+static bool S_OPENAL_LoadMP3_Codec(const char *_path, sfx_t* pSfx)
 {
     void      *data;
     snd_info_t info;
@@ -4004,7 +4053,7 @@ static bool S_OPENAL_LoadMP3_Codec(const char *_path, openal_channel *chan)
     format = S_OPENAL_Format(info.width, info.channels);
 
     // Create a buffer
-    qalGenBuffers(1, &chan->buffer);
+    qalGenBuffers(1, &pSfx->buffer);
     alDieIfError();
 
     // Fill the buffer
@@ -4012,20 +4061,15 @@ static bool S_OPENAL_LoadMP3_Codec(const char *_path, openal_channel *chan)
         // We have no data to buffer, so buffer silence
         byte dummyData[2] = {0};
 
-        qalBufferData(chan->buffer, AL_FORMAT_MONO16, (void *)dummyData, 2, 22050);
+        qalBufferData(pSfx->buffer, AL_FORMAT_MONO16, (void *)dummyData, 2, 22050);
     } else {
-        qalBufferData(chan->buffer, format, data, info.size, info.rate);
+        qalBufferData(pSfx->buffer, format, data, info.size, info.rate);
     }
 
     alDieIfError();
 
     // Free the memory
     Hunk_FreeTempMemory(data);
-
-    qalSourcei(chan->source, AL_BUFFER, chan->buffer);
-    alDieIfError();
-
-    chan->set_no_3d();
 
     return true;
 }
