@@ -11,6 +11,8 @@ The installation directory can be set to the MOHAA directory.
 
 By default, the build will produce both the client and dedicated server versions. The client can be omitted from the build by appending `-DBUILD_NO_CLIENT=1` to the CMake command-line arguments. Using this parameter will result in only the server portion being built.
 
+The experimental OpenAL-based sound system can be used by appending `-DUSE_SOUND_NEW=1` to the CMake command-line arguments.
+
 ## Compiling for Linux
 
 These are the tools required on Linux :
