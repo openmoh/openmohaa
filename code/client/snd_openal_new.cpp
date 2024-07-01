@@ -43,6 +43,8 @@ static bool  s_bReverbChanged      = false;
 static bool  s_bFading             = false;
 static float s_fFadeVolume         = 1.f;
 
+static constexpr float s_fVolumeGain = 1.f; // = 84.f;
+
 cvar_t *s_milesdriver;
 cvar_t *s_openaldevice;
 cvar_t *s_reverb;
@@ -380,9 +382,7 @@ S_OPENAL_InitChannel
 static bool S_OPENAL_InitChannel(int idx, openal_channel *chan)
 {
     openal.channel[idx]   = chan;
-    chan->vOrigin[2]      = 0.0;
-    chan->vOrigin[1]      = 0.0;
-    chan->vOrigin[0]      = 0.0;
+    VectorClear(chan->vOrigin);
     chan->fVolume         = 1.0;
     chan->fNewPitchMult   = 0.0;
     chan->fMinDist        = 0.0;
@@ -1250,7 +1250,7 @@ static void S_OPENAL_Start2DSound(
 
         pChannel->iBaseRate = pChannel->sample_playback_rate();
         pChannel->set_no_3d();
-        fRealVolume = fRealVolume * 84.f;
+        fRealVolume = fRealVolume * s_fVolumeGain;
         pChannel->set_gain(fRealVolume);
         pChannel->play();
     } else {
@@ -1824,7 +1824,7 @@ static bool S_OPENAL_UpdateLoopSound(
         vec3_t vOrigin;
         int    iPan;
 
-        pChannel->fVolume = fVolumeToPlay / 84.0;
+        pChannel->fVolume = fVolumeToPlay / s_fVolumeGain;
         fVolume           = S_GetBaseVolume() * pChannel->fVolume;
         fMaxVolume        = fVolume;
 
@@ -2022,7 +2022,7 @@ void S_OPENAL_AddLoopSounds(const vec3_t vTempAxis)
         if (pLoopSound->bPlaying) {
             S_OPENAL_UpdateLoopSound(
                 pLoopSound,
-                S_GetBaseVolume() * 84.0 * fTotalVolume,
+                S_GetBaseVolume() * s_fVolumeGain * fTotalVolume,
                 fMinDistance,
                 fMaxDistance,
                 vListenerOrigin,
@@ -2040,12 +2040,12 @@ void S_OPENAL_AddLoopSounds(const vec3_t vTempAxis)
         if (pLoopSound->pSfx->iFlags & (SFX_FLAG_NO_OFFSET | SFX_FLAG_NO_DATA | SFX_FLAG_MP3)
             || (pLoopSound->iFlags & LOOPSOUND_FLAG_NO_PAN)) {
             iChannel = S_OPENAL_Start2DLoopSound(
-                pLoopSound, fVolume, S_GetBaseVolume() * 84.0 * fTotalVolume, fMinDistance, vLoopOrigin
+                pLoopSound, fVolume, S_GetBaseVolume() * s_fVolumeGain * fTotalVolume, fMinDistance, vLoopOrigin
             );
         } else {
             iChannel = S_OPENAL_Start3DLoopSound(
                 pLoopSound,
-                S_GetBaseVolume() * 84.0 * fTotalVolume,
+                S_GetBaseVolume() * s_fVolumeGain * fTotalVolume,
                 fMinDistance,
                 fMaxDistance,
                 vLoopOrigin,
@@ -3670,7 +3670,7 @@ qboolean MUSIC_PlaySong(const char *alias)
         song_channel->fade_start_time = cls.realtime;
     } else {
         song_channel->fading = FADE_NONE;
-        song_channel->set_gain(S_GetBaseVolume() * (song->volume * s_ambientVolume->value) * 84.f);
+        song_channel->set_gain(S_GetBaseVolume() * (song->volume * s_ambientVolume->value) * s_fVolumeGain);
     }
 
     song_channel->play();
@@ -3703,7 +3703,7 @@ void MUSIC_UpdateMusicVolumes()
 
             openal.chan_song[i].set_gain(
                 S_GetBaseVolume() * (music_songs[openal.chan_song[i].song_number].volume * s_ambientVolume->value)
-                * 84.0 * music_volume
+                * s_fVolumeGain * music_volume
             );
         }
     }
@@ -3720,10 +3720,10 @@ void MUSIC_UpdateMusicVolumes()
                        / (openal.chan_song[i].fade_time * 1000.f) * max_volume;
 
             if (new_volume > max_volume) {
-                openal.chan_song[i].set_gain(S_GetBaseVolume() * (max_volume * 84.f * music_volume));
+                openal.chan_song[i].set_gain(S_GetBaseVolume() * (max_volume * s_fVolumeGain * music_volume));
                 openal.chan_song[i].fading = FADE_NONE;
             } else {
-                openal.chan_song[i].set_gain(S_GetBaseVolume() * (new_volume * 84.f * music_volume));
+                openal.chan_song[i].set_gain(S_GetBaseVolume() * (new_volume * s_fVolumeGain * music_volume));
             }
             break;
         case fade_t::FADE_OUT:
@@ -3732,7 +3732,7 @@ void MUSIC_UpdateMusicVolumes()
                        / (openal.chan_song[i].fade_time * 1000.f) * max_volume;
 
             if (new_volume > 0) {
-                openal.chan_song[i].set_gain(S_GetBaseVolume() * (new_volume * 84.f * music_volume));
+                openal.chan_song[i].set_gain(S_GetBaseVolume() * (new_volume * s_fVolumeGain * music_volume));
             } else {
                 MUSIC_StopChannel(i);
             }
@@ -3746,7 +3746,7 @@ void MUSIC_UpdateMusicVolumes()
         s_musicVolume->modified = false;
         if (openal.chan_trig_music.is_playing() || openal.chan_trig_music.is_paused()) {
             openal.chan_trig_music.set_gain(
-                S_GetBaseVolume() * (openal.chan_trig_music.fVolume * s_musicVolume->value) * 84.f
+                S_GetBaseVolume() * (openal.chan_trig_music.fVolume * s_musicVolume->value) * s_fVolumeGain
             );
         }
     }
@@ -3826,7 +3826,7 @@ void S_TriggeredMusic_SetupHandle(const char *pszName, int iLoopCount, int iOffs
     }
 
     openal.chan_trig_music.fVolume = fVolume;
-    openal.chan_trig_music.set_gain(S_GetBaseVolume() * (fVolume * s_musicVolume->value) * 84.f);
+    openal.chan_trig_music.set_gain(S_GetBaseVolume() * (fVolume * s_musicVolume->value) * s_fVolumeGain);
     openal.chan_trig_music.set_sample_loop_count(iLoopCount);
     openal.chan_trig_music.set_sample_offset(iOffset);
 
@@ -3910,7 +3910,7 @@ void S_TriggeredMusic_Unpause()
         openal.chan_trig_music.play();
     }
 
-    openal.chan_trig_music.set_gain(S_GetBaseVolume() * (openal.chan_trig_music.fVolume * s_musicVolume->value) * 84.f);
+    openal.chan_trig_music.set_gain(S_GetBaseVolume() * (openal.chan_trig_music.fVolume * s_musicVolume->value) * s_fVolumeGain);
 }
 
 /*
