@@ -577,9 +577,9 @@ void CL_MouseMove( usercmd_t *cmd ) {
 		cmd->forwardmove = ClampChar(cmd->forwardmove - m_forward->value * my);
 
 	if (!isfinite(cl.viewangles[PITCH]) || !isfinite(cl.viewangles[YAW])) {
-		Com_Printf("Invalid client viewangles encountered!\n");
-		Com_Printf("cgameSensitivity: %f - mx: %f - my: %f - m_pitch: %f - m_yaw: %f", cgameSensitivity, mx, my, m_pitch->value, m_yaw->value);
-		Com_Printf("Resetting client viewangles");
+		Com_DPrintf("Invalid client viewangles encountered (view pitch: %f, view yaw: %f)!\n", cl.viewangles[PITCH], cl.viewangles[YAW]);
+		Com_DPrintf("cgameSensitivity: %f | mx: %f | my: %f | m_pitch: %f | m_yaw: %f\n", cgameSensitivity, mx, my, m_pitch->value, m_yaw->value);
+		Com_DPrintf("Resetting client viewangles\n");
 		cl.viewangles[PITCH] = 0;
 		cl.viewangles[YAW] = 0;
 	}

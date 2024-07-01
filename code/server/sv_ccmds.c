@@ -2265,9 +2265,9 @@ void SV_SaveGame( const char *gamename, qboolean autosave )
 
 	Com_Printf( "Saving to %s", name );
 	if( autosave ) {
-		Com_DPrintf( " (autosave)...\n" );
+		Com_Printf( " (autosave)...\n" );
 	} else {
-		Com_DPrintf( "...\n" );
+		Com_Printf( "...\n" );
 	}
 
 	strcpy( svs.gameName, name );
