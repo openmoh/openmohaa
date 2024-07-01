@@ -767,6 +767,7 @@ static bool S_OPENAL_LoadMP3(const char *_path, openal_channel *chan)
 
     // Free the memory
     Hunk_FreeTempMemory(chan->bufferdata);
+    chan->bufferdata = NULL;
 
     qalSourcei(chan->source, AL_BUFFER, chan->buffer);
     alDieIfError();
@@ -2782,10 +2783,14 @@ void openal_channel::set_3d()
     //
     // Added in OPM
     //
-    qalSourcef(source, AL_REFERENCE_DISTANCE, fMinDist);
-    alDieIfError();
-    qalSourcef(source, AL_MAX_DISTANCE, fMaxDist);
-    alDieIfError();
+    if (fMinDist > 0) {
+        qalSourcef(source, AL_REFERENCE_DISTANCE, fMinDist);
+        alDieIfError();
+    }
+    if (fMaxDist > 0) {
+        qalSourcef(source, AL_MAX_DISTANCE, fMaxDist);
+        alDieIfError();
+    }
 }
 
 /*
