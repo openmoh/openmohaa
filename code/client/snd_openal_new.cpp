@@ -1360,8 +1360,10 @@ void S_OPENAL_StartSound(
         return;
     }
 
-    if ((pSfx->iFlags & (SFX_FLAG_NO_OFFSET | SFX_FLAG_STREAMED | SFX_FLAG_MP3)) || iEntChannel == CHAN_MENU
-        || iEntChannel == CHAN_LOCAL) {
+    // Fixed in OPM
+    //  3D streamed or MP3 sound should be supported
+    if ((pSfx->iFlags & (SFX_FLAG_NO_OFFSET)) //|| pSfx->iFlags & (SFX_FLAG_STREAMED | SFX_FLAG_MP3)
+        || iEntChannel == CHAN_MENU || iEntChannel == CHAN_LOCAL) {
         S_OPENAL_Start2DSound(vOrigin, iEntNum, iEntChannel, pSfx, fVolume, fMinDist, fPitch, fMaxDist);
         return;
     }
@@ -1370,10 +1372,12 @@ void S_OPENAL_StartSound(
     iEntNum &= ~S_FLAG_DO_CALLBACK;
 
     pSfxInfo = &sfx_infos[pSfx->sfx_info_index];
-    if (pSfx->iFlags & SFX_FLAG_STREAMED) {
-        Com_DPrintf("3D sounds not supported - couldn't play '%s'\n", pSfx->name);
-        return;
-    }
+    // Fixed in OPM
+    //  3D streamed sound should be supported
+    //if (pSfx->iFlags & SFX_FLAG_STREAMED) {
+    //    Com_DPrintf("3D sounds not supported - couldn't play '%s'\n", pSfx->name);
+    //    return;
+    //}
 
     iChannel = S_OPENAL_PickChannel3D(iEntNum, iEntChannel);
     if (iChannel < 0) {
@@ -1789,9 +1793,11 @@ static int S_OPENAL_Start3DLoopSound(
     int             iSoundOffset;
     openal_channel *pChan3D;
 
-    if (pLoopSound->pSfx->iFlags & SFX_FLAG_STREAMED) {
-        return -1;
-    }
+    // Fixed in OPM
+    //  3D streamed sound should be supported
+    //if (pLoopSound->pSfx->iFlags & SFX_FLAG_STREAMED) {
+    //    return -1;
+    //}
 
     iChannel = S_OPENAL_PickChannel3D(0, 0);
     if (iChannel < 0) {
@@ -2107,7 +2113,7 @@ void S_OPENAL_AddLoopSounds(const vec3_t vTempAxis)
             continue;
         }
 
-        pLoopSound->bPlaying = 1;
+        pLoopSound->bPlaying = true;
         pLoopSound->iChannel = iChannel;
 
         if (pLoopSound->bCombine) {
