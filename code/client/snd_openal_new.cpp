@@ -1038,8 +1038,7 @@ static int S_OPENAL_PickChannelBase(int iEntNum, int iEntChannel, int iFirstChan
             }
 
             if (!bStoppedChannel) {
-                i = iLastChannel;
-                while (++i <= 95) {
+                for(i = iLastChannel + 1; i < MAX_OPENAL_POSITION_CHANNELS; i++) {
                     pChannel = openal.channel[i];
                     if (!pChannel || pChannel->is_free()) {
                         continue;
@@ -1215,17 +1214,19 @@ static void S_OPENAL_Start2DSound(
         pChannel->iEntNum = 0;
 
         if (vOrigin) {
-            pChannel->vOrigin[0] = -vOrigin[0];
-            pChannel->vOrigin[1] = vOrigin[2];
-            pChannel->vOrigin[2] = -vOrigin[1];
+            //pChannel->vOrigin[0] = -vOrigin[0];
+            //pChannel->vOrigin[1] = vOrigin[2];
+            //pChannel->vOrigin[2] = -vOrigin[1];
+            VectorCopy(vOrigin, pChannel->vOrigin);
         }
     } else {
         pChannel->iFlags &= ~CHANNEL_FLAG_NO_ENTITY;
         pChannel->iEntNum = iRealEntNum;
         if (vOrigin) {
-            pChannel->vOrigin[0] = -vOrigin[0];
-            pChannel->vOrigin[1] = vOrigin[2];
-            pChannel->vOrigin[2] = -vOrigin[1];
+            //pChannel->vOrigin[0] = -vOrigin[0];
+            //pChannel->vOrigin[1] = vOrigin[2];
+            //pChannel->vOrigin[2] = -vOrigin[1];
+            VectorCopy(vOrigin, pChannel->vOrigin);
 
             bSupportWaitTillSoundDone = cl.serverTime - 1 < 0;
             pChannel->iTime           = cl.serverTime - 1;
