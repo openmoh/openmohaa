@@ -2340,7 +2340,7 @@ static int S_OPENAL_SpatializeStereoSound(const vec3_t listener_origin, const ve
 {
     float  lscale, rscale;
     vec3_t source_vec;
-    int    pan;
+    float  pan;
 
     VectorSubtract(origin, listener_origin, source_vec);
     VectorNormalize(source_vec);
