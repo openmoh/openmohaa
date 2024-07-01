@@ -2775,9 +2775,16 @@ void openal_channel::set_3d()
     alDieIfError();
     qalSourcei(source, AL_LOOPING, false);
     alDieIfError();
-    qalSourcef(source, AL_ROLLOFF_FACTOR, 0.019f);
+    qalSourcef(source, AL_ROLLOFF_FACTOR, 0.5f);
     alDieIfError();
     qalSourcef(source, AL_GAIN, S_GetBaseVolume());
+    alDieIfError();
+    //
+    // Added in OPM
+    //
+    qalSourcef(source, AL_REFERENCE_DISTANCE, fMinDist);
+    alDieIfError();
+    qalSourcef(source, AL_MAX_DISTANCE, fMaxDist);
     alDieIfError();
 }
 
