@@ -4154,6 +4154,10 @@ void Player::VehicleMove(usercmd_t *ucmd)
 
     if (m_pVehicle->Drive(current_ucmd)) {
         client->ps.commandTime = ucmd->serverTime;
+        // Added in OPM
+        //  The player can't walk while attached to a vehicle
+        client->ps.groundEntityNum = ENTITYNUM_NONE;
+        client->ps.walking = false;
     } else {
         ClientMove(ucmd);
     }
@@ -4186,10 +4190,14 @@ void Player::TurretMove(usercmd_t *ucmd)
 
     client->ps.gravity = gravity * sv_gravity->value;
 
-    if (!m_pTurret->IsSubclassOfTurretGun() || !m_pTurret->UserAim(current_ucmd)) {
-        ClientMove(ucmd);
-    } else {
+    if (m_pTurret->IsSubclassOfTurretGun() && m_pTurret->UserAim(current_ucmd)) {
         client->ps.commandTime = ucmd->serverTime;
+        // Added in OPM
+        //  The player can't walk while attached to a turret
+        client->ps.groundEntityNum = ENTITYNUM_NONE;
+        client->ps.walking = false;
+    } else {
+        ClientMove(ucmd);
     }
 }
 
