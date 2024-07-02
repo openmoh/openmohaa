@@ -3137,6 +3137,11 @@ void openal_channel::set_sample_loop_count(S32 count)
             alDieIfError();
         }
     }
+
+    if (count == 0) {
+        qalSourcei(source, AL_LOOPING, true);
+        alDieIfError();
+    }
 }
 
 /*
