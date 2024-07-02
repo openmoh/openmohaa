@@ -253,13 +253,11 @@ CG_IsHandleUnique
 Check if the model handle is unique
 ================
 */
-static qboolean CG_IsHandleUnique(int num) {
-    qhandle_t handle;
+static qboolean CG_IsHandleUnique(qhandle_t handle) {
     int i;
     int numRef;
 
     numRef = 0;
-    handle = cgs.model_draw[num];
     for (i = 0; i < MAX_MODELS; i++) {
         if (cgs.model_draw[i] == handle) {
             numRef++;
