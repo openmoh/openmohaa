@@ -6878,7 +6878,7 @@ bool Actor::SoundSayAnim(const_str name, byte bLevelSayAnim)
         edict->tiki->a->name
     );
 
-    Sound(Director.GetString(name), 0, 0, 0, NULL, 0, 1, 1, -1);
+    Sound(Director.GetString(name), CHAN_AUTO, 0, 0, 0, NULL, 0, 1, 1, -1);
 
     return true;
 }

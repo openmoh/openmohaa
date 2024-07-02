@@ -3615,6 +3615,11 @@ void Entity::Sound(
     static cvar_t   *g_subtitle = NULL;
     static bool      _tmp       = false;
     int              num;
+    int              aliaschannel;
+    float            aliasvolume;
+    float            aliasmin_dist;
+    float            aliasmax_dist;
+    float            aliaspitch;
 
     if (!_tmp) {
         g_subtitle = gi.Cvar_Get("g_subtitle", "0", CVAR_ARCHIVE);
@@ -3643,6 +3648,12 @@ void Entity::Sound(
 
         if (name != NULL) {
             if (ret) {
+                aliaschannel = ret->channel;
+                aliasvolume = G_Random() * ret->volumeMod + ret->volume;
+                aliaspitch = G_Random() * ret->pitchMod + ret->pitch;
+                aliasmin_dist = ret->dist;
+                aliasmax_dist = ret->maxDist;
+
                 if (channel < 0) {
                     channel = ret->channel;
                 }
@@ -3659,51 +3670,72 @@ void Entity::Sound(
                     }
                 }
 
-                if (argstype == 0) {
-                    volume   = G_Random() * ret->volumeMod + ret->volume;
-                    pitch    = G_Random() * ret->pitchMod + ret->pitch;
-                    min_dist = ret->dist;
-                    max_dist = ret->maxDist;
-                } else if (argstype == 1) {
+                switch (argstype) {
+                case 0:
+                    volume = aliasvolume;
+                    pitch = aliaspitch;
+                    min_dist = aliasmin_dist;
+                    max_dist = aliasmax_dist;
+                    channel = aliaschannel;
+                    break;
+                case 1:
                     if (volume >= 0.0f) {
-                        volume = G_Random() * ret->volumeMod + volume;
+                        volume = volume * aliasvolume;
                     } else {
-                        volume = G_Random() * ret->volumeMod + volume;
+                        volume = aliasvolume;
                     }
 
                     if (pitch >= 0.0f) {
-                        pitch = G_Random() * ret->pitchMod + pitch;
+                        pitch = pitch * aliaspitch;
                     } else {
-                        pitch = G_Random() * ret->pitchMod + ret->pitch;
-                    }
-                } else {
-                    if (volume <= 0.0f) {
-                        volume = G_Random() * ret->volumeMod + ret->volume;
-                    }
-
-                    if (pitch >= 0.0f) {
-                        pitch = G_Random() * ret->pitchMod + pitch;
-                    } else {
-                        pitch = G_Random() * ret->pitchMod + ret->pitch;
+                        pitch = aliaspitch;
                     }
 
                     if (min_dist < 0.0f) {
-                        min_dist = ret->dist;
+                        min_dist = aliasmin_dist;
                     }
 
                     if (max_dist < 0.0f) {
-                        max_dist = ret->maxDist;
+                        max_dist = aliasmax_dist;
                     }
+
+                    if (channel < 0) {
+                        channel = aliaschannel;
+                    }
+                    break;
+                default:
+                    if (volume < 0.0) {
+                        volume = aliasvolume;
+                    }
+                    if (pitch < 0.0) {
+                        pitch = aliaspitch;
+                    }
+                    if (min_dist < 0.0) {
+                        min_dist = aliasmin_dist;
+                    }
+                    if (max_dist < 0.0) {
+                        max_dist = aliasmax_dist;
+                    }
+                    if (channel < 0) {
+                        channel = aliaschannel;
+                    }
+                    break;
                 }
 
-                if (g_gametype->integer == GT_SINGLE_PLAYER && (!checkSubtitle || g_subtitle->integer) && ret->subtitle) {
+                if ((!checkSubtitle || g_subtitle->integer) && ret->subtitle) {
                     Entity *p = G_GetEntity(0);
 
-                    if (g_subtitle->integer == 2 || max_dist * max_dist > DistanceSquared(org, p->edict->s.origin)) {
+                    if (g_subtitle->integer == 2 || Square(max_dist) > DistanceSquared(org, p->edict->s.origin)) {
                         cvar_t *curSubtitle = gi.Cvar_Get("curSubtitle", "0", 0);
+                        int curSub;
 
                         gi.cvar_set(va("subtitle%d", curSubtitle->integer), va("%s", ret->subtitle));
-                        gi.cvar_set("curSubtitle", va("%d", curSubtitle->integer + 1));
+                        curSub = curSubtitle->integer + 1;
+                        if (curSubtitle->integer + 1 < 0) {
+                            curSub = curSubtitle->integer + MAX_SUBTITLES;
+                        }
+                        
+                        gi.cvar_set("curSubtitle", va("%d", (curSubtitle->integer + 1) - MAX_SUBTITLES * (curSub >> 2)));
                     }
                 }
 
