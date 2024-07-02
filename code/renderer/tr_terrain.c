@@ -1351,10 +1351,14 @@ void R_TerrainRestart_f(void)
         return;
     }
 
-    ri.Free(g_pVert);
-    g_pVert = NULL;
-    ri.Free(g_pTris);
-    g_pTris = NULL;
+    if (g_pVert) {
+        ri.Free(g_pVert);
+        g_pVert = NULL;
+    }
+    if (g_pTris) {
+        ri.Free(g_pTris);
+        g_pTris = NULL;
+    }
 
     R_PreTessellateTerrain();
 }
