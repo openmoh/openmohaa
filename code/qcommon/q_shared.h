@@ -1661,6 +1661,8 @@ typedef enum
 #define	MAX_CONFIGSTRINGS	2736
 #define MAX_HUDDRAW_ELEMENTS 256
 
+#define MAX_SUBTITLES 4
+
 // these are the only configstrings that the system reserves, all the
 // other ones are strictly for servergame to clientgame communication
 #define	CS_SERVERINFO		0		// an info string with all the serverinfo cvars

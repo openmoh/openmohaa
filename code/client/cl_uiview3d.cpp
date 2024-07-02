@@ -30,8 +30,6 @@ CLASS_DECLARATION(UIWidget, View3D, NULL) {
     {NULL,             NULL                 }
 };
 
-#define MAX_SUBTITLES 4
-
 cvar_t *subs[MAX_SUBTITLES];
 cvar_t *teams[MAX_SUBTITLES];
 float   fadeTime[MAX_SUBTITLES];
