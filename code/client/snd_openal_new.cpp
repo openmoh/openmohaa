@@ -2780,6 +2780,8 @@ void openal_channel::set_3d()
     alDieIfError();
     qalSourcef(source, AL_GAIN, S_GetBaseVolume());
     alDieIfError();
+    qalSourcef(source, AL_DISTANCE_MODEL, AL_LINEAR_DISTANCE);
+    alDieIfError();
     //
     // Added in OPM
     //
