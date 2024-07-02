@@ -3022,7 +3022,12 @@ void openal_channel::set_sample_pan(S32 pan) {}
 openal_channel::set_sample_playback_rate
 ==============
 */
-void openal_channel::set_sample_playback_rate(S32 rate) {}
+void openal_channel::set_sample_playback_rate(S32 rate) {
+    // Fixed in OPM
+    //  Set the pitch in OpenAL
+    qalSourcef(source, AL_PITCH, rate / (float)iBaseRate);
+    alDieIfError();
+}
 
 /*
 ==============
@@ -3031,7 +3036,25 @@ openal_channel::sample_playback_rate
 */
 S32 openal_channel::sample_playback_rate()
 {
-    return 22050;
+    float pitch = 1;
+    ALint freq = 0;
+
+    // Fixed in OPM
+    //  The sample rate varies according to the pitch
+    qalGetSourcef(source, AL_PITCH, &pitch);
+    alDieIfError();
+
+    if (buffer) {
+        qalGetBufferi(buffer, AL_FREQUENCY, &freq);
+        alDieIfError();
+    } else if (pSfx) {
+        qalGetBufferi(pSfx->buffer, AL_FREQUENCY, &freq);
+        alDieIfError();
+    } else {
+        freq = 22050;
+    }
+
+    return freq * pitch;
 }
 
 /*
