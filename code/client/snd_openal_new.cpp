@@ -1559,12 +1559,13 @@ void S_OPENAL_AddLoopingSound(
     }
 
     pLoopSound             = &openal.loop_sounds[iFreeLoopSound];
-    pLoopSound->vOrigin[0] = -vOrigin[0];
-    pLoopSound->vOrigin[1] = vOrigin[2];
-    pLoopSound->vOrigin[2] = -vOrigin[1];
+    //pLoopSound->vOrigin[0] = -vOrigin[0];
+    //pLoopSound->vOrigin[1] = vOrigin[2];
+    //pLoopSound->vOrigin[2] = -vOrigin[1];
     //pLoopSound->vVelocity[0] = -vVelocity[0] / 52.49f / 500.f;
     //pLoopSound->vVelocity[1] = vVelocity[2] / 52.49f / 500.f;
     //pLoopSound->vVelocity[2] = -vVelocity[1] / 52.49f / 500.f;
+    VectorCopy(vOrigin, pLoopSound->vOrigin);
     VectorCopy(vVelocity, pLoopSound->vVelocity);
     pLoopSound->pSfx        = pSfx;
     pLoopSound->bInUse      = true;
@@ -1823,8 +1824,8 @@ static int S_OPENAL_Start3DLoopSound(
         pLoopSound->vVelocity[0] / 52.49f, vLoopOrigin[1] / 52.49f, pLoopSound->vVelocity[2] / 52.49f
     );
     */
-    pChan3D->set_position(vLoopOrigin[0], pLoopSound->vVelocity[1], vLoopOrigin[2]);
-    pChan3D->set_velocity(pLoopSound->vVelocity[0], vLoopOrigin[1], pLoopSound->vVelocity[2]);
+    pChan3D->set_position(vLoopOrigin[0], vLoopOrigin[1], vLoopOrigin[2]);
+    pChan3D->set_velocity(pLoopSound->vVelocity[0], pLoopSound->vVelocity[1], pLoopSound->vVelocity[2]);
     pChan3D->pSfx = pLoopSound->pSfx;
     pChan3D->iFlags |= CHANNEL_FLAG_PAUSED | CHANNEL_FLAG_NO_ENTITY;
     pChan3D->iBaseRate = pChan3D->sample_playback_rate();
@@ -1876,7 +1877,7 @@ static bool S_OPENAL_UpdateLoopSound(
 
     pChannel->iStartTime = cl.serverTime;
 
-    if (pLoopSound->pSfx->iFlags & (SFX_FLAG_NO_OFFSET | SFX_FLAG_STREAMED | SFX_FLAG_MP3)
+    if (pLoopSound->pSfx->iFlags & (SFX_FLAG_NO_OFFSET) // || pLoopSound->pSfx->iFlags & (SFX_FLAG_STREAMED | SFX_FLAG_MP3)
         || (pLoopSound->iFlags & LOOPSOUND_FLAG_NO_PAN)) {
         vec3_t vOrigin;
         int    iPan;
@@ -1944,6 +1945,7 @@ void S_OPENAL_AddLoopSounds(const vec3_t vTempAxis)
     vec3_t               alvec;
 
     qalGetListenerfv(AL_POSITION, alvec);
+    VectorCopy(alvec, vListenerOrigin);
     //VectorScale(alvec, 52.49f, vListenerOrigin);
 
     for (i = 0; i < MAX_OPENAL_LOOP_SOUNDS; i++) {
@@ -2094,7 +2096,7 @@ void S_OPENAL_AddLoopSounds(const vec3_t vTempAxis)
             Com_DPrintf("%d (#%i) - started loop - %s\n", cl.serverTime, pLoopSound->iChannel, pLoopSound->pSfx->name);
         }
 
-        if (pLoopSound->pSfx->iFlags & (SFX_FLAG_NO_OFFSET | SFX_FLAG_STREAMED | SFX_FLAG_MP3)
+        if (pLoopSound->pSfx->iFlags & (SFX_FLAG_NO_OFFSET) //|| pLoopSound->pSfx->iFlags & (SFX_FLAG_STREAMED | SFX_FLAG_MP3)
             || (pLoopSound->iFlags & LOOPSOUND_FLAG_NO_PAN)) {
             iChannel = S_OPENAL_Start2DLoopSound(
                 pLoopSound, fVolume, S_GetBaseVolume() * s_fVolumeGain * fTotalVolume, fMinDistance, vLoopOrigin
