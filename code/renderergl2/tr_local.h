@@ -2474,6 +2474,8 @@ extern cvar_t* r_showportal;
 
 //=========================
 
+extern cvar_t *r_vaoCache;
+
 //====================================================================
 
 static ID_INLINE qboolean ShaderRequiresCPUDeforms(const shader_t * shader)
