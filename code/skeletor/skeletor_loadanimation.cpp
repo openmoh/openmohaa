@@ -584,6 +584,9 @@ void ReadEncodedFramesEx(msg_t *msg, skelAnimDataGameHeader_t *enAnim)
                 pFrame->pChannelData[0] = MSG_ReadFloat(msg);
             }
             break;
+        case CHANNEL_NONE:
+            // Nothing to do
+            break;
         }
     }
 }
