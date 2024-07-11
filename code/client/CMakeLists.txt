@@ -34,6 +34,15 @@ if (USE_SOUND_NEW)
 	list(FILTER SOURCES_CLIENT EXCLUDE REGEX "./snd_([a-zA-Z0-9_]+)\.c$")
 	file(GLOB_RECURSE SOURCES_CLIENT_SND "./snd_*_new.c*" "./snd_codec*.c*")
 	list(APPEND SOURCES_CLIENT ${SOURCES_CLIENT_SND})
+
+	set(OLD_VALUE ${BUILD_SHARED_LIBS})
+	set(BUILD_SHARED_LIBS OFF)
+	add_subdirectory("../libmad" "./libmad")
+	set(BUILD_SHARED_LIBS ${OLD_VALUE})
+	target_link_libraries(omohclient INTERFACE mad)
+else()
+	add_subdirectory("../libmad-0.15.1b" "./libmad")
+	target_link_libraries(omohclient INTERFACE libmad)
 endif()
 
 if (USE_OPENAL)
@@ -47,6 +56,3 @@ if (USE_OPENAL)
 endif()
 
 target_sources(omohclient INTERFACE ${SOURCES_CLIENT} ${SOURCES_UILIB})
-
-add_subdirectory("../libmad-0.15.1b" "./libmad")
-target_link_libraries(omohclient INTERFACE libmad)

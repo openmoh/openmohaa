@@ -1,0 +1,10 @@
+prefix=@CMAKE_INSTALL_PREFIX@
+includedir=@PKGCONFIG_INCLUDEDIR@
+libdir=@PKGCONFIG_LIBDIR@
+
+Name: MAD
+Description: MPEG audio decoder library
+Version: @CMAKE_PROJECT_VERSION@
+URL: https://codeberg.org/tenacityteam/libmad
+Libs: -L${libdir} -lmad
+Cflags: -I${includedir}

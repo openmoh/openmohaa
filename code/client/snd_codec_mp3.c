@@ -31,7 +31,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "snd_codec.h"
 
 // includes for the MP3 codec
-#include "../libmad-0.15.1b/synth.h"
+#if USE_SOUND_NEW
+#   include "mad.h"
+#else
+#   include "../libmad-0.15.1b/synth.h"
+#endif
 
 #define MP3_SAMPLE_WIDTH		2
 #define MP3_PCMSAMPLES_PERSLICE		32
