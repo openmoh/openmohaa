@@ -163,7 +163,7 @@ void CG_ArchiveRefEntity(MemArchiver& archiver, refEntity_t* ref)
     archiver.ArchiveVec3(ref->axis[2]);
     archiver.ArchiveBoolean(&ref->nonNormalizedAxes);
     archiver.ArchiveVec3(ref->origin);
-    archiver.ArchiveRaw(ref->frameInfo, 192);
+    archiver.ArchiveRaw(ref->frameInfo, sizeof(ref->frameInfo));
     archiver.ArchiveFloat(&ref->actionWeight);
     archiver.ArchiveShort(&ref->wasframe);
     archiver.ArchiveFloat(&ref->scale);
@@ -171,7 +171,7 @@ void CG_ArchiveRefEntity(MemArchiver& archiver, refEntity_t* ref)
     archiver.ArchiveInteger(&ref->skinNum);
 
     CG_ArchiveShaderHandle(archiver, &ref->customShader);
-    archiver.ArchiveRaw(ref->shaderRGBA, 4);
+    archiver.ArchiveRaw(ref->shaderRGBA, sizeof(ref->shaderRGBA));
     archiver.ArchiveFloat(ref->shaderTexCoord);
     archiver.ArchiveFloat(&ref->shaderTexCoord[1]);
     archiver.ArchiveFloat(&ref->shaderTime);

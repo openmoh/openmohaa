@@ -42,23 +42,23 @@ MemArchiver::~MemArchiver()
 
 void MemArchiver::SetupForWriting(size_t initialSize)
 {
-    state = MEMARC_WRITING;
-    buffer = (byte*)cgi.Malloc(initialSize);
-    allocatedSize = initialSize;
-    bufferSize = 0;
+    this->state = MEMARC_WRITING;
+    this->buffer = (byte*)cgi.Malloc(initialSize);
+    this->allocatedSize = initialSize;
+    this->bufferSize = 0;
 }
 
 void MemArchiver::SetupForReading(byte* buffer, size_t size)
 {
-    state = MEMARC_READING;
-    buffer = buffer;
-    allocatedSize = size;
-    bufferSize = 0;
+    this->state = MEMARC_READING;
+    this->buffer = buffer;
+    this->allocatedSize = size;
+    this->bufferSize = 0;
 }
 
 void MemArchiver::SetBaseTime(unsigned int time)
 {
-    svsTime = time;
+    this->svsTime = time;
 }
 
 size_t MemArchiver::BufferSize() const

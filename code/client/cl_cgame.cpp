@@ -582,7 +582,7 @@ CL_RestoreSavedCgameState
 */
 void CL_RestoreSavedCgameState() {
 	if (cls.savedCgameState) {
-		cge->CG_LoadStateToBuffer(&cls.savedCgameState, cls.savedCgameStateSize, cl.snap.serverTime);
+		cge->CG_LoadStateToBuffer(cls.savedCgameState, cls.savedCgameStateSize, cl.snap.serverTime);
 	}
 }
 
