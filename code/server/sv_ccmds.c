@@ -1878,7 +1878,7 @@ qboolean SV_ArchiveLevelFile(qboolean loading, qboolean autosave)
     name = Com_GetArchiveFileName(svs.gameName, "sav");
     if (loading)
     {
-		if (!ge->ReadLevel(name)) {
+		if (!ge->ReadLevel(name, &cls.savedCgameState, &cls.savedCgameStateSize)) {
 			return qfalse;
         }
 
@@ -1901,7 +1901,7 @@ qboolean SV_ArchiveLevelFile(qboolean loading, qboolean autosave)
     else
     {
 		cls.savedCgameStateSize = cge->CG_SaveStateToBuffer(&cls.savedCgameState, svs.time);
-        ge->WriteLevel(name, autosave);
+        ge->WriteLevel(name, autosave, &cls.savedCgameState, &cls.savedCgameStateSize);
 		Z_Free(cls.savedCgameState);
 		cls.savedCgameState = NULL;
     }
@@ -2271,9 +2271,18 @@ void SV_SaveGame( const char *gamename, qboolean autosave )
 	}
 
 	strcpy( svs.gameName, name );
-	SV_ArchiveLevelFile( qfalse, autosave );
+
+	if (!SV_ArchiveLevelFile(qfalse, autosave)) {
+		if (cls.savedCgameState) {
+			Z_Free(cls.savedCgameState);
+			cls.savedCgameState = 0;
+		}
+	}
+
 	SV_ArchiveServerFile( qfalse, autosave );
+
 	Com_Printf( "Done.\n" );
+
 	strcpy( svs.gameName, "current" );
 #endif
 }

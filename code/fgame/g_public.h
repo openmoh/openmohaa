@@ -520,8 +520,8 @@ typedef struct gameExport_s {
     // ReadLevel is called after the default map information has been
     // loaded with SpawnEntities, so any stored client spawn spots will
     // be used when the clients reconnect.
-    void (*WriteLevel)(const char *filename, qboolean autosave);
-    qboolean (*ReadLevel)(const char *filename);
+    void (*WriteLevel)(const char *filename, qboolean autosave, byte** savedCgameState, int* savedCgameStateSize);
+    qboolean (*ReadLevel)(const char *filename, byte** savedCgameState, int* savedCgameStateSize);
     qboolean (*LevelArchiveValid)(const char *filename);
 
     void (*ArchiveInteger)(int *i);

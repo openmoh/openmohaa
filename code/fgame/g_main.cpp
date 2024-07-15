@@ -1215,7 +1215,7 @@ G_ArchiveLevel
 
 =================
 */
-qboolean G_ArchiveLevel(const char *filename, qboolean autosave, qboolean loading)
+qboolean G_ArchiveLevel(const char *filename, byte** savedCgameState, int *savedCgameStateSize, qboolean autosave, qboolean loading)
 {
     try {
         int         i;
@@ -1258,6 +1258,16 @@ qboolean G_ArchiveLevel(const char *filename, qboolean autosave, qboolean loadin
             // later objects need to post events when reading the archive.
             L_ArchiveEvents(arc);
         }
+
+        arc.ArchiveInteger(savedCgameStateSize);
+        if (!arc.Saving()) {
+            if (*savedCgameStateSize) {
+                *savedCgameState = (byte*)gi.Malloc(*savedCgameStateSize);
+            } else {
+                *savedCgameState = NULL;
+            }
+        }
+        arc.ArchiveRaw(*savedCgameState, *savedCgameStateSize);
 
         if (arc.Saving()) {
             str s;
@@ -1427,10 +1437,10 @@ G_WriteLevel
 
 =================
 */
-void G_WriteLevel(const char *filename, qboolean autosave)
+void G_WriteLevel(const char *filename, qboolean autosave, byte** savedCgameState, int* savedCgameStateSize)
 {
     game.autosaved = autosave;
-    G_ArchiveLevel(filename, autosave, qfalse);
+    G_ArchiveLevel(filename, savedCgameState, savedCgameStateSize, autosave, qfalse);
     game.autosaved = false;
 }
 
@@ -1449,11 +1459,11 @@ calling ReadLevel.
 No clients are connected yet.
 =================
 */
-qboolean G_ReadLevel(const char *filename)
+qboolean G_ReadLevel(const char *filename, byte** savedCgameState, int* savedCgameStateSize)
 {
     qboolean status;
 
-    status = G_ArchiveLevel(filename, qfalse, qtrue);
+    status = G_ArchiveLevel(filename, savedCgameState, savedCgameStateSize, qfalse, qtrue);
     // if the level load failed make sure that these variables are not set
     if (!status) {
         LoadingSavegame = false;
