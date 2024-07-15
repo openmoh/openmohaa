@@ -1264,14 +1264,14 @@ qboolean G_ArchiveLevel(const char *filename, qboolean autosave, qboolean loadin
 
             num = 0;
             for (cvar = gi.NextCvar(NULL); cvar != NULL; cvar = gi.NextCvar(cvar)) {
-                if (cvar->flags & CVAR_ROM) {
+                if (cvar->flags & CVAR_SAVEGAME) {
                     num++;
                 }
             }
 
             arc.ArchiveInteger(&num);
             for (cvar = gi.NextCvar(NULL); cvar != NULL; cvar = gi.NextCvar(cvar)) {
-                if (cvar->flags & CVAR_ROM) {
+                if (cvar->flags & CVAR_SAVEGAME) {
                     s = cvar->name;
                     arc.ArchiveString(&s);
 
@@ -1391,15 +1391,6 @@ qboolean G_ArchiveLevel(const char *filename, qboolean autosave, qboolean loadin
         PathSearch::ArchiveDynamic(arc);
 
         if (arc.Loading()) {
-            arc.Close();
-            LoadingSavegame = false;
-            gi.Printf(HUD_MESSAGE_YELLOW "%s\n", gi.LV_ConvertString("Game Loaded"));
-        } else {
-            arc.Close();
-            gi.Printf(HUD_MESSAGE_YELLOW "%s\n", gi.LV_ConvertString("Game Saved"));
-        }
-
-        if (arc.Loading()) {
             // Make sure all code that needs to setup the player after they have been loaded is run
 
             for (i = 0; i < game.maxclients; i++) {
@@ -1410,6 +1401,15 @@ qboolean G_ArchiveLevel(const char *filename, qboolean autosave, qboolean loadin
                     player->Loaded();
                 }
             }
+        }
+
+        if (arc.Loading()) {
+            arc.Close();
+            LoadingSavegame = false;
+            gi.Printf(HUD_MESSAGE_YELLOW "%s\n", gi.LV_ConvertString("Game Loaded"));
+        } else {
+            arc.Close();
+            gi.Printf(HUD_MESSAGE_YELLOW "%s\n", gi.LV_ConvertString("Game Saved"));
         }
 
         return qtrue;
