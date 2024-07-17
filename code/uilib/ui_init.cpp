@@ -61,9 +61,12 @@ int UI_GetCvarInt( const char *name, int def )
 {
 	cvar_t *cvar = uii.Cvar_Find( name );
 
-	if( !cvar )
-	{
+	if( !cvar ) {
 		return def;
+	}
+
+	if (cvar->latchedString) {
+		return atoi(cvar->latchedString);
 	}
 
 	return cvar->integer;
@@ -73,9 +76,12 @@ float UI_GetCvarFloat( const char *name, float def )
 {
 	cvar_t *cvar = uii.Cvar_Find( name );
 
-	if( !cvar )
-	{
+	if( !cvar ) {
 		return def;
+	}
+
+	if (cvar->latchedString) {
+		return atof(cvar->latchedString);
 	}
 
 	return cvar->value;
