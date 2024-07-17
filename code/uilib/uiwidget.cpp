@@ -1966,9 +1966,21 @@ bool UIWidget::isEnabled
 	)
 
 {
-	if( !strcmp( m_enabledCvar, "" ) || UI_GetCvarInt( m_enabledCvar, 0 ) )
-	{
+	if (!strcmp(m_enabledCvar.c_str(), "")) {
 		return m_enabled;
+	}
+
+	if (m_enabledCvar[0] == '!') {
+		//
+		// Added in 2.30
+		//  True if the cvar is 0
+		if (m_enabled) {
+			return !UI_GetCvarInt(m_enabledCvar.c_str() + 1, 0);
+		}
+	} else {
+		if (m_enabled) {
+			return UI_GetCvarInt(m_enabledCvar.c_str(), 0) != 0;
+		}
 	}
 
 	return false;
@@ -2414,84 +2426,84 @@ void UIWidget::Display
 {
 	int i;
 	int n;
-	vec4_t col;
+	vec4_t col = { 1, 1, 1, 1 };
 
-	VectorSet( col, 1, 1, 1 );
+	if ( !isEnabled() ) {
+		return;
+	}
 
-	if( !m_enabledCvar.length() || UI_GetCvarInt( m_enabledCvar, 0 ) )
+	if( !m_enabledCvar.length() && !IsVisible() ) {
+		return;
+	}
+
+	if (m_direction || m_fadetime || m_fadeSequenceState != fadesequence_t::SEQUENCE_NONE) {
+		Motion();
+	}
+
+	m_local_alpha = m_alpha * parent_alpha;
+	set2D();
+
+	col[ 3 ] = m_local_alpha;
+	uii.Rend_SetColor( col );
+
+	if( m_background_color.a != 0.0 )
 	{
-		if( !m_enabledCvar.length() && !IsVisible() )
-			return;
+		DrawBox( 0, 0, m_frame.size.width, m_frame.size.height, m_background_color, m_background_color.a * m_local_alpha );
+	}
 
-		if (m_direction || m_fadetime || m_fadeSequenceState != fadesequence_t::SEQUENCE_NONE) {
-			Motion();
-		}
+	if( m_borderStyle == border_outline )
+	{
+		DrawBoxWithSolidBorder( UIRect2D( 0, 0, m_frame.size.width, m_frame.size.height ), UWhite, m_border_color.original, 2, 2, m_local_alpha );
+	}
+	else if( m_borderStyle )
+	{
+		Draw3DBox( 0, 0, m_frame.size.width, m_frame.size.height, m_borderStyle == border_indent, m_border_color, m_local_alpha );
+	}
 
-		m_local_alpha = m_alpha * parent_alpha;
-		set2D();
-
-		col[ 3 ] = m_local_alpha;
+	if( m_material )
+	{
+		col[0] = m_foreground_color.r;
+		col[1] = m_foreground_color.g;
+		col[2] = m_foreground_color.b;
+		col[3] = m_foreground_color.a * m_local_alpha;
 		uii.Rend_SetColor( col );
 
-		if( m_background_color.a != 0.0 )
-		{
-			DrawBox( 0, 0, m_frame.size.width, m_frame.size.height, m_background_color, m_background_color.a * m_local_alpha );
-		}
+		m_material->ReregisterMaterial();
 
-		if( m_borderStyle == border_outline )
+		if( m_flags & WF_TILESHADER )
 		{
-			DrawBoxWithSolidBorder( UIRect2D( 0, 0, m_frame.size.width, m_frame.size.height ), UWhite, m_border_color.original, 2, 2, m_local_alpha );
-		}
-		else if( m_borderStyle )
-		{
-			Draw3DBox( 0, 0, m_frame.size.width, m_frame.size.height, m_borderStyle == border_indent, m_border_color, m_local_alpha );
-		}
-
-		if( m_material )
-		{
-			col[0] = m_foreground_color.r;
-			col[1] = m_foreground_color.g;
-			col[2] = m_foreground_color.b;
-			col[3] = m_foreground_color.a * m_local_alpha;
-			uii.Rend_SetColor( col );
-
-			m_material->ReregisterMaterial();
-
-			if( m_flags & WF_TILESHADER )
-			{
-                if (m_bVirtual) {
-					float fvWidth = m_frame.size.width / m_vVirtualScale[0] / uii.Rend_GetShaderWidth(m_material->GetMaterial());
-					float fvHeight = m_frame.size.height / m_vVirtualScale[1] / uii.Rend_GetShaderHeight(m_material->GetMaterial());
-                    
-					uii.Rend_DrawPicStretched(0, 0, m_frame.size.width, m_frame.size.height, 0, 0, fvWidth, fvHeight, m_material->GetMaterial());
-				} else {
-					uii.Rend_DrawPicTiled(0, 0, m_frame.size.width, m_frame.size.height, m_material->GetMaterial());
-				}
-			}
-			else
-			{
-				uii.Rend_DrawPicStretched( 0, 0, m_frame.size.width, m_frame.size.height, 0, 0, 1, 1, m_material->GetMaterial() );
+               if (m_bVirtual) {
+				float fvWidth = m_frame.size.width / m_vVirtualScale[0] / uii.Rend_GetShaderWidth(m_material->GetMaterial());
+				float fvHeight = m_frame.size.height / m_vVirtualScale[1] / uii.Rend_GetShaderHeight(m_material->GetMaterial());
+                   
+				uii.Rend_DrawPicStretched(0, 0, m_frame.size.width, m_frame.size.height, 0, 0, fvWidth, fvHeight, m_material->GetMaterial());
+			} else {
+				uii.Rend_DrawPicTiled(0, 0, m_frame.size.width, m_frame.size.height, m_material->GetMaterial());
 			}
 		}
-
-		if( m_pressedmaterial_active && m_pressedmaterial != NULL )
+		else
 		{
-			m_pressedmaterial->ReregisterMaterial();
-			uii.Rend_DrawPicStretched( 0, 0, m_frame.size.width, m_frame.size.height, 0, 0, 1, 1, m_pressedmaterial->GetMaterial() );
+			uii.Rend_DrawPicStretched( 0, 0, m_frame.size.width, m_frame.size.height, 0, 0, 1, 1, m_material->GetMaterial() );
 		}
-		else if( m_hovermaterial_active && m_hovermaterial != NULL )
-		{
-			m_hovermaterial->ReregisterMaterial();
-			uii.Rend_DrawPicStretched( 0, 0, m_frame.size.width, m_frame.size.height, 0, 0, 1, 1, m_hovermaterial->GetMaterial() );
-		}
+	}
 
-		Draw();
+	if( m_pressedmaterial_active && m_pressedmaterial != NULL )
+	{
+		m_pressedmaterial->ReregisterMaterial();
+		uii.Rend_DrawPicStretched( 0, 0, m_frame.size.width, m_frame.size.height, 0, 0, 1, 1, m_pressedmaterial->GetMaterial() );
+	}
+	else if( m_hovermaterial_active && m_hovermaterial != NULL )
+	{
+		m_hovermaterial->ReregisterMaterial();
+		uii.Rend_DrawPicStretched( 0, 0, m_frame.size.width, m_frame.size.height, 0, 0, 1, 1, m_hovermaterial->GetMaterial() );
+	}
 
-		n = m_children.NumObjects();
-		for( i = 1; i <= m_children.NumObjects(); i++ )
-		{
-			m_children.ObjectAt( i )->Display( m_frame, m_local_alpha );
-		}
+	Draw();
+
+	n = m_children.NumObjects();
+	for( i = 1; i <= m_children.NumObjects(); i++ )
+	{
+		m_children.ObjectAt( i )->Display( m_frame, m_local_alpha );
 	}
 }
 
