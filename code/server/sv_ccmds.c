@@ -2002,7 +2002,7 @@ qboolean SV_ArchiveServerFile( qboolean loading, qboolean autosave )
 
 		name = Com_GetArchiveFileName( svs.gameName, "tga" );
 		Com_sprintf( cmdString, sizeof( cmdString ), "saveshot %s 256 256\n", name );
-		Cbuf_ExecuteText( svs.autosave != qfalse, name );
+		Cbuf_ExecuteText( svs.autosave ? EXEC_INSERT : EXEC_NOW, cmdString );
 	}
 	else
 	{
