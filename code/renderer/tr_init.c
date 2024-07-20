@@ -796,7 +796,7 @@ void R_ScreenShot_f(void) {
 			Com_sprintf(checkname, MAX_OSPATH, "screenshots/%s.tga", ri.Cmd_Argv(1));
 		}
 
-		if (ri.Cmd_Argc(2) > 2) {
+		if (ri.Cmd_Argc() > 2) {
 			width = atoi(ri.Cmd_Argv(2));
 			height = atoi(ri.Cmd_Argv(3));
 		}
