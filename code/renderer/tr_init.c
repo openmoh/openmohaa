@@ -632,6 +632,66 @@ void R_ScreenshotFilenameJPEG( int lastNumber, char *fileName ) {
 
 /*
 ====================
+R_ResampledScreenShot
+====================
+*/
+void R_ResampledScreenShot(const char* filename, int destwidth, int destheight) {
+	char		checkname[MAX_OSPATH];
+	byte		*buffer;
+	byte		*source;
+	byte		*src, *dst;
+	int			x, y;
+	int			r, g, b;
+	float		xScale, yScale;
+	int			xx, yy;
+
+	source = ri.Hunk_AllocateTempMemory( glConfig.vidWidth * glConfig.vidHeight * 3 );
+
+	buffer = ri.Hunk_AllocateTempMemory(destheight * destwidth * 3 + 18);
+	Com_Memset (buffer, 0, 18);
+	buffer[2]  = 2;		// uncompressed type
+	buffer[12] = destwidth & 255;
+	buffer[13] = destwidth >> 8;
+	buffer[14] = destheight & 255;
+	buffer[15] = destheight >> 8;
+	buffer[16] = 24;	// pixel size
+
+	qglReadPixels( 0, 0, glConfig.vidWidth, glConfig.vidHeight, GL_RGB, GL_UNSIGNED_BYTE, source ); 
+
+	// resample from source
+	xScale = glConfig.vidWidth / (float)(destwidth * 4);
+	yScale = glConfig.vidHeight / (float)(destheight * 3);
+	for ( y = 0 ; y < destheight ; y++ ) {
+		for ( x = 0 ; x < destwidth ; x++ ) {
+			r = g = b = 0;
+			for ( yy = 0 ; yy < 3 ; yy++ ) {
+				for ( xx = 0 ; xx < 4 ; xx++ ) {
+					src = source + 3 * ( glConfig.vidWidth * (int)( (y*3+yy)*yScale ) + (int)( (x*4+xx)*xScale ) );
+					r += src[0];
+					g += src[1];
+					b += src[2];
+				}
+			}
+			dst = buffer + 18 + 3 * ( y * destwidth + x );
+			dst[0] = b / 12;
+			dst[1] = g / 12;
+			dst[2] = r / 12;
+		}
+	}
+
+	// gamma correct
+	if ( ( tr.overbrightBits > 0 ) && glConfig.deviceSupportsGamma ) {
+		R_GammaCorrect( buffer + 18, destheight * destwidth * 3 );
+	}
+
+	ri.FS_WriteFile( filename, buffer, destheight * destwidth * 3 + 18 );
+
+	ri.Hunk_FreeTempMemory( buffer );
+	ri.Hunk_FreeTempMemory( source );
+}
+
+/*
+====================
 R_LevelShot
 
 levelshots are specialized 128*128 thumbnails for
@@ -709,7 +769,8 @@ Doesn't print the pacifier message if there is a second arg
 */  
 void R_ScreenShot_f(void) {
     char	checkname[MAX_OSPATH];
-    static	int	lastNumber = -1;
+    static int	lastNumber = -1;
+	int		width, height;
     qboolean	silent;
 
     if (!strcmp(ri.Cmd_Argv(1), "levelshot")) {
@@ -723,10 +784,23 @@ void R_ScreenShot_f(void) {
         silent = qfalse;
     }
 
-    if (ri.Cmd_Argc() == 2 && !silent) {
+	width = 0;
+	height = 0;
+
+    if (ri.Cmd_Argc() >= 2 && !silent) {
         // explicit filename
-        Com_sprintf(checkname, MAX_OSPATH, "screenshots/%s.tga", ri.Cmd_Argv(1));
-    } else {
+		const char* name = ri.Cmd_Argv(1);
+		if (strchr(name, '/')) {
+			Q_strncpyz(checkname, name, sizeof(checkname));
+		} else {
+			Com_sprintf(checkname, MAX_OSPATH, "screenshots/%s.tga", ri.Cmd_Argv(1));
+		}
+
+		if (ri.Cmd_Argc(2) > 2) {
+			width = atoi(ri.Cmd_Argv(2));
+			height = atoi(ri.Cmd_Argv(3));
+		}
+	} else {
         // scan for a free filename
 
         // if we have saved a previous screenshot, don't scan
@@ -753,14 +827,18 @@ void R_ScreenShot_f(void) {
         lastNumber++;
     }
 
-    R_TakeScreenshot(0, 0, glConfig.vidWidth, glConfig.vidHeight, checkname, qfalse);
+	if (!width || !height) {
+		R_TakeScreenshot(0, 0, glConfig.vidWidth, glConfig.vidHeight, checkname, qfalse);
 
-    if (!silent) {
-        char message[64];
+		if (!silent) {
+			char message[64];
 
-        Com_sprintf(message, sizeof(message), "centerprint \"%s %s\"\n", ri.LV_ConvertString("Wrote"), checkname);
-        ri.Cmd_ExecuteText(EXEC_NOW, message);
-    }
+			Com_sprintf(message, sizeof(message), "centerprint \"%s %s\"\n", ri.LV_ConvertString("Wrote"), checkname);
+			ri.Cmd_ExecuteText(EXEC_NOW, message);
+		}
+	} else {
+		R_ResampledScreenShot(checkname, width, height);
+	}
 }
 
 void R_ScreenShotJPEG_f (void) {
