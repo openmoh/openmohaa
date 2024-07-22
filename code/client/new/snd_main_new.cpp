@@ -25,6 +25,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #if !defined(USE_SOUND_NEW) || !USE_SOUND_NEW
 
+qboolean s_bSoundPaused = qfalse;
+
 void S_Init2()
 {
     S_Init();
@@ -492,23 +494,61 @@ void S_TriggeredMusic_PlayIntroMusic() {
     S_StartBackgroundTrack("sound/music/mus_MainTheme.mp3", "");
 }
 
+/*
+==============
+S_TriggeredMusic_SetupHandle
+==============
+*/
+void S_TriggeredMusic_SetupHandle(const char* pszName, int iLoopCount, int iOffset, qboolean autostart) {
+    // FIXME: unimplemented
+}
+
+/*
+==============
+callbackServer
+==============
+*/
 void callbackServer(int entnum, int channel_number, const char* name) {
     if (com_sv_running->integer) {
         SV_SoundCallback(entnum, channel_number, name);
     }
 }
 
+/*
+==============
+S_ChannelFree_Callback
+==============
+*/
 void S_ChannelFree_Callback(channel_t* v) {
     if (v->entnum & S_FLAG_DO_CALLBACK) {
         callbackServer(v->entnum & ~S_FLAG_DO_CALLBACK, v - s_channels, v->thesfx->soundName);
     }
 }
 
+/*
+==============
+S_LoadData
+==============
+*/
 void S_LoadData(soundsystemsavegame_t* pSave) {
     // FIXME: unimplemented
 }
 
+/*
+==============
+S_SaveData
+==============
+*/
 void S_SaveData(soundsystemsavegame_t* pSave) {
+    // FIXME: unimplemented
+}
+
+/*
+==============
+S_ReLoad
+==============
+*/
+void S_ReLoad(soundsystemsavegame_t* pSave) {
     // FIXME: unimplemented
 }
 
