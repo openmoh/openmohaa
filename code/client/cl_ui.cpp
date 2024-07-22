@@ -1777,6 +1777,8 @@ void UI_Update(void)
                 hud_compass->GetContainerWidget()->Display(frame, 1.0);
             }
         }
+
+        return;
     }
 
     if (fakk_console) {
