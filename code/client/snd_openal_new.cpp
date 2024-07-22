@@ -964,11 +964,9 @@ void S_UnpauseSound()
             continue;
         }
 
-        if (!pChannel->is_paused()) {
-            continue;
+        if (pChannel->is_paused() || (pChannel->iFlags & CHANNEL_FLAG_PLAYABLE)) {
+            pChannel->play();
         }
-
-        pChannel->play();
     }
 
     if (openal.chan_mp3.is_paused()) {
@@ -2591,9 +2589,6 @@ S_StartSoundFromBase(channelbasesavegame_t *pBase, openal_channel *pChannel, sfx
     }
 
     pChannel->iBaseRate = pChannel->sample_playback_rate();
-    pChannel->set_gain(pChannel->fVolume);
-    pChannel->set_sample_offset(pBase->iOffset);
-    pChannel->set_sample_playback_rate(pChannel->iBaseRate * pBase->fNewPitchMult);
 
     if (sfx_infos[pSfx->sfx_info_index].loop_start != -1) {
         pChannel->set_sample_loop_block(
@@ -2611,6 +2606,10 @@ S_StartSoundFromBase(channelbasesavegame_t *pBase, openal_channel *pChannel, sfx
     } else {
         pChannel->set_sample_loop_count(1);
     }
+
+    pChannel->set_gain(pChannel->fVolume);
+    pChannel->set_sample_offset(pBase->iOffset);
+    pChannel->set_sample_playback_rate(pChannel->iBaseRate * pBase->fNewPitchMult);
 
     if (bStartUnpaused) {
         pChannel->resume_sample();
@@ -2917,6 +2916,7 @@ openal_channel::force_free
 void openal_channel::force_free()
 {
     stop();
+    iFlags = 0;
 }
 
 /*
