@@ -197,6 +197,10 @@ void S_OPENAL_Respatialize(int iEntNum, const vec3_t vHeadPos, const vec3_t vAxi
 void S_OPENAL_SetReverb(int iType, float fLevel);
 void S_OPENAL_Update();
 
+const char* S_OPENAL_GetMusicFilename();
+int S_OPENAL_GetMusicLoopCount();
+unsigned int S_OPENAL_GetMusicOffset();
+
 #ifdef __cplusplus
 }
 #endif

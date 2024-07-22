@@ -215,6 +215,9 @@ qboolean S_LoadSound(const char *fileName, sfx_t *sfx, int streamed, qboolean fo
 #define S_Driver_Respatialize           S_Call_SndDriverX(SOUND_DRIVER, Respatialize)
 #define S_Driver_SetReverb              S_Call_SndDriverX(SOUND_DRIVER, SetReverb)
 #define S_Driver_Update                 S_Call_SndDriverX(SOUND_DRIVER, Update)
+#define S_Driver_GetMusicFilename       S_Call_SndDriverX(SOUND_DRIVER, GetMusicFilename)
+#define S_Driver_GetMusicLoopCount      S_Call_SndDriverX(SOUND_DRIVER, GetMusicLoopCount)
+#define S_Driver_GetMusicOffset         S_Call_SndDriverX(SOUND_DRIVER, GetMusicOffset)
 
 void S_PrintInfo();
 void S_DumpInfo();

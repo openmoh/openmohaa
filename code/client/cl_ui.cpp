@@ -3976,13 +3976,13 @@ void S_ServerLoaded(void)
     Com_DPrintf("Loading Previous Sound State.\n");
     S_StopAllSounds2(qfalse);
 
-    //S_TriggeredMusic_Stop();
-    //s_bSoundPaused = qtrue;
-    //S_ReLoad( &svs.soundSystem );
-    //
-    //if( svs.tm_filename[ 0 ] ) {
-    //	S_TriggeredMusic_SetupHandle( svs.tm_filename, svs.tm_loopcount, svs.tm_offset, 0 );
-    //}
+    S_TriggeredMusic_Stop();
+    s_bSoundPaused = qtrue;
+    S_ReLoad( &svs.soundSystem );
+
+    if( svs.tm_filename[ 0 ] ) {
+    	S_TriggeredMusic_SetupHandle( svs.tm_filename, svs.tm_loopcount, svs.tm_offset, 0 );
+    }
 }
 
 /*

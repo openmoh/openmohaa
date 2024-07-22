@@ -80,6 +80,10 @@ void S_FadeSound(float fTime);
 void S_TriggeredMusic_PlayIntroMusic();
 void S_TriggeredMusic_SetupHandle(const char* pszName, int iLoopCount, int iOffset, qboolean autostart);
 
+const char* S_GetMusicFilename();
+int S_GetMusicLoopCount();
+unsigned int S_GetMusicOffset();
+
 #ifdef __cplusplus
 }
 #endif

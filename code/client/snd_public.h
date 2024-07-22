@@ -157,6 +157,10 @@ void S_StopMovieAudio();
 void S_SetupMovieAudio(const char* pszMovieName);
 int S_CurrentMoviePosition();
 
+const char* S_GetMusicFilename();
+int S_GetMusicLoopCount();
+unsigned int S_GetMusicOffset();
+
 #ifdef __cplusplus
 }
 #endif

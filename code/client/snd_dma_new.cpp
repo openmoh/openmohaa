@@ -787,4 +787,34 @@ void S_ClearSoundBuffer()
     // TODO: Remove once AL is fully implemented
 }
 
+/*
+==============
+S_GetMusicFilename
+==============
+*/
+const char* S_GetMusicFilename()
+{
+    return S_Driver_GetMusicFilename();
+}
+
+/*
+==============
+S_GetMusicLoopCount
+==============
+*/
+int S_GetMusicLoopCount()
+{
+    return S_Driver_GetMusicLoopCount();
+}
+
+/*
+==============
+S_GetMusicOffset
+==============
+*/
+unsigned int S_GetMusicOffset()
+{
+    return S_Driver_GetMusicOffset();
+}
+
 #endif

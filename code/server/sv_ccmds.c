@@ -1955,6 +1955,7 @@ qboolean SV_ArchiveServerFile( qboolean loading, qboolean autosave )
 	time_t aclock;
 
 	Com_DPrintf( "SV_ArchiveServerFile(%s)\n", autosave ? "true" : "false" );
+	memset(&save, 0, sizeof(save));
 	name = Com_GetArchiveFileName( svs.gameName, "ssv" );
 
 	if( !loading )
@@ -1994,6 +1995,17 @@ qboolean SV_ArchiveServerFile( qboolean loading, qboolean autosave )
 		strncpy( save.mapName, svs.mapName, sizeof( save.mapName ) );
 		strncpy( save.saveName, svs.gameName, sizeof( save.saveName ) );
 		save.mapTime = svs.time - svs.startTime;
+
+		name = S_GetMusicFilename();
+		if (name) {
+			Q_strncpyz(save.tm_filename, name, sizeof(save.tm_filename));
+			save.tm_offset = S_GetMusicOffset();
+			save.tm_loopcount = S_GetMusicLoopCount();
+		} else {
+			save.tm_filename[0] = 0;
+			save.tm_offset = 0;
+			save.tm_loopcount = 0;
+		}
 
 		FS_Write( &save, sizeof( savegamestruct_t ), f );
 		S_Save( f );

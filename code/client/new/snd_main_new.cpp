@@ -505,6 +505,36 @@ void S_TriggeredMusic_SetupHandle(const char* pszName, int iLoopCount, int iOffs
 
 /*
 ==============
+S_GetMusicFilename
+==============
+*/
+const char* S_GetMusicFilename() {
+    // FIXME: unimplemented
+    return "";
+}
+
+/*
+==============
+S_GetMusicLoopCount
+==============
+*/
+int S_GetMusicLoopCount() {
+    // FIXME: unimplemented
+    return 0;
+}
+
+/*
+==============
+S_GetMusicOffset
+==============
+*/
+unsigned int S_GetMusicOffset() {
+    // FIXME: unimplemented
+    return 0;
+}
+
+/*
+==============
 callbackServer
 ==============
 */

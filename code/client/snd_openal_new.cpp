@@ -958,8 +958,6 @@ void S_UnpauseSound()
         return;
     }
 
-    s_bSoundPaused = true;
-
     for (i = 0; i < MAX_OPENAL_POSITION_CHANNELS; i++) {
         openal_channel *pChannel = openal.channel[i];
         if (!pChannel) {
@@ -2479,6 +2477,36 @@ void S_OPENAL_Update()
 
 /*
 ==============
+S_OPENAL_GetMusicFilename
+==============
+*/
+const char* S_OPENAL_GetMusicFilename()
+{
+    return openal.tm_filename;
+}
+
+/*
+==============
+S_OPENAL_GetMusicLoopCount
+==============
+*/
+int S_OPENAL_GetMusicLoopCount()
+{
+    return openal.tm_loopcount;
+}
+
+/*
+==============
+S_OPENAL_GetMusicOffset
+==============
+*/
+unsigned int S_OPENAL_GetMusicOffset()
+{
+    return openal.chan_trig_music.sample_offset();
+}
+
+/*
+==============
 S_IsSoundPlaying
 ==============
 */
@@ -3077,8 +3105,12 @@ openal_channel::sample_offset
 */
 U32 openal_channel::sample_offset()
 {
-    STUB_DESC("sample_offset");
-    return 127;
+    ALint offset = 0;
+
+    qalGetSourcei(source, AL_SAMPLE_OFFSET, &offset);
+    alDieIfError();
+
+    return offset;
 }
 
 /*
@@ -3088,8 +3120,12 @@ openal_channel::sample_ms_offset
 */
 U32 openal_channel::sample_ms_offset()
 {
-    STUB_DESC("sample_ms_offset");
-    return 127;
+    float offset = 0;
+
+    qalGetSourcef(source, AL_SAMPLE_OFFSET, &offset);
+    alDieIfError();
+
+    return offset * 1000.f;
 }
 
 /*
@@ -3122,7 +3158,8 @@ openal_channel::set_sample_offset
 */
 void openal_channel::set_sample_offset(U32 offset)
 {
-    STUB_DESC("sample_offset");
+    qalSourcei(source, AL_SAMPLE_OFFSET, offset);
+    alDieIfError();
 }
 
 /*
@@ -3132,7 +3169,8 @@ openal_channel::set_sample_ms_offset
 */
 void openal_channel::set_sample_ms_offset(U32 offset)
 {
-    STUB_DESC("sample_ms_offset");
+    qalSourcef(source, AL_SEC_OFFSET, offset / 1000.f);
+    alDieIfError();
 }
 
 /*
@@ -3932,9 +3970,18 @@ void S_TriggeredMusic_SetupHandle(const char *pszName, int iLoopCount, int iOffs
     openal.chan_trig_music.set_sample_loop_count(iLoopCount);
     openal.chan_trig_music.set_sample_offset(iOffset);
 
-    if (autostart) {
-        openal.chan_trig_music.play();
+    // Fixed in OPM
+    //  Play the sound then pause it immediately
+    //  So it can be unpaused upon loading from save
+    openal.chan_trig_music.play();
+
+    if (!autostart) {
+        openal.chan_trig_music.pause();
     }
+
+    //if (autostart) {
+    //    openal.chan_trig_music.play();
+    //}
 }
 
 /*
