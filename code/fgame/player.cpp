@@ -4499,9 +4499,9 @@ void Player::ClientThink(void)
                 || g_medalbt3->modificationCount > 1 || g_medalbt4->modificationCount > 1
                 || g_medalbt5->modificationCount > 1 || g_eogmedal0->modificationCount > 1
                 || g_eogmedal1->modificationCount > 1 || g_eogmedal2->modificationCount > 1) {
-                gi.cvar_set("g_gotmedal", "0");
-            } else {
                 gi.cvar_set("g_gotmedal", "1");
+            } else {
+                gi.cvar_set("g_gotmedal", "0");
             }
 
             client->ps.pm_flags |= PMF_FROZEN;
