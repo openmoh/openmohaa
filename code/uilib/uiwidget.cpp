@@ -653,7 +653,7 @@ void UIReggedMaterial::RefreshMaterial
 {
 	if( isGot )
 	{
-		this->hMat = uii.Rend_RegisterMaterial( name.c_str() );
+		this->hMat = uii.Rend_RefreshMaterial( name.c_str() );
 	}
 }
 

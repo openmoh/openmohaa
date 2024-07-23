@@ -635,7 +635,7 @@ UIReggedMaterial *UIWindowManager::RefreshShader(const str& name)
     for (i = 1; i <= m_materiallist.NumObjects(); i++) {
         regged = m_materiallist.ObjectAt(i);
         if (regged->GetName() == name) {
-            regged->ReregisterMaterial();
+            regged->RefreshMaterial();
             return regged;
         }
     }
