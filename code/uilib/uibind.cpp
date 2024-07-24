@@ -172,7 +172,6 @@ void UIBindButton::DrawUnpressed(void)
     if (str::cmp(s, m_last_keyname)) {
         m_mat = uWinMan.RegisterShader("textures/bind/" + s);
         if (m_mat) {
-            m_mat->ReregisterMaterial();
             if (m_mat->GetMaterial()) {
                 m_material = m_mat;
             } else {
@@ -186,8 +185,6 @@ void UIBindButton::DrawUnpressed(void)
     }
 
     if (m_mat) {
-        m_mat->ReregisterMaterial();
-
         if (m_mat->GetMaterial()) {
             return;
         }

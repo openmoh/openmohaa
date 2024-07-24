@@ -1891,7 +1891,7 @@ void UI_Update(void)
                     UI_CloseConsole();
                 }
             } else if (ui_static_materials.loading) {
-                ui_static_materials.loading->ReregisterMaterial();
+                ui_static_materials.loading->GetMaterial();
             }
         }
     }

@@ -108,8 +108,6 @@ void UIList::Draw
 		m_border_color,
 		m_local_alpha);
 
-	m_prev_arrow->ReregisterMaterial();
-
 	float height = m_frame.size.height - 4.0;
 	float width = m_arrow_width - 4.0;
 	uii.Rend_DrawPicStretched(
@@ -134,8 +132,6 @@ void UIList::Draw
 		m_next_arrow_depressed,
 		m_border_color,
 		m_local_alpha);
-
-	m_next_arrow->ReregisterMaterial();
 
 	uii.Rend_DrawPicStretched(
 		x + 2.0f,

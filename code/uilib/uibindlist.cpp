@@ -592,10 +592,7 @@ void UIFakkBindList::DrawPressKey(UIRect2D frame)
         return;
     }
 
-    m_presskey_mat->ReregisterMaterial();
     w = uii.Rend_GetShaderWidth(m_presskey_mat->GetMaterial()) * m_vVirtualScale[0];
-
-    m_presskey_mat->ReregisterMaterial();
     h = uii.Rend_GetShaderHeight(m_presskey_mat->GetMaterial()) * m_vVirtualScale[1];
 
     UIRect2D newFrame    = uWinMan.getFrame();

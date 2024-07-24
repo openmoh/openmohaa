@@ -102,7 +102,6 @@ void UICheckBox::Draw()
 	float y = (m_frame.size.height - height) * 0.5f;
 	if (material)
 	{
-		material->ReregisterMaterial();
 		uii.Rend_DrawPicStretched(x, y, width, height, 0.0f, 0.0f, 1.0f, 1.0f, material->GetMaterial());
 	}
 	else

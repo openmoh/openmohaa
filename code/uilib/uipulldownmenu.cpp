@@ -121,8 +121,6 @@ UIRect2D UIPulldownMenu::getAlignmentRect
 		uipull_describe *uipd = m_desc.ObjectAt(i);
 		if (uipd && uipd->material)
 		{
-			uipd->material->ReregisterMaterial();
-
 			int h = uii.Rend_GetShaderHeight(uipd->material->GetMaterial());
 			if (h > maxheight)
 			{
@@ -148,7 +146,6 @@ float UIPulldownMenu::getDescWidth
 	UIReggedMaterial* mat = desc->material;
 	if (mat)
 	{
-		mat->ReregisterMaterial();
 		return uii.Rend_GetShaderWidth(mat->GetMaterial());
 	}
 
@@ -164,7 +161,6 @@ float UIPulldownMenu::getDescHeight
 	UIReggedMaterial* mat = desc->material;
 	if (mat)
 	{
-		mat->ReregisterMaterial();
 		return uii.Rend_GetShaderHeight(mat->GetMaterial());
 	}
 
@@ -549,7 +545,6 @@ void UIPulldownMenu::Draw
 			m_font->setColor(m_highlightFGColor);
 			if (desc->selected_material)
 			{
-				desc->selected_material->ReregisterMaterial();
 				uii.Rend_DrawPicStretched(
 					atx,
 					0.0f,
@@ -577,7 +572,6 @@ void UIPulldownMenu::Draw
 		{
 			if (m_submenu != i)
 			{
-				desc->material->ReregisterMaterial();
 				uii.Rend_DrawPicStretched(
 					atx,
 					0.0f,

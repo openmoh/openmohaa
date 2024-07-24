@@ -490,12 +490,10 @@ void UIFakkLabel::DrawStatbar(float frac)
                 {
                     float width = frac * m_frame.size.width;
 
-                    m_statbar_material->ReregisterMaterial();
                     re.DrawTilePic(0.0, 0.0, width, m_frame.size.height, m_statbar_material->GetMaterial());
 
                     if (alpha != 0.0 && m_statbar_material_flash) {
                         re.SetColor(col);
-                        m_statbar_material_flash->ReregisterMaterial();
                         re.DrawTilePic(0.0, 0.0, width, m_frame.size.height, m_statbar_material_flash->GetMaterial());
                     }
                     break;
@@ -507,12 +505,10 @@ void UIFakkLabel::DrawStatbar(float frac)
                 {
                     float y = m_frame.size.height * (1.0 - frac);
 
-                    m_statbar_material->ReregisterMaterial();
                     re.DrawTilePic(0.0, y, m_frame.size.width, m_frame.size.height, m_statbar_material->GetMaterial());
 
                     if (alpha != 0.0 && m_statbar_material_flash) {
                         re.SetColor(col);
-                        m_statbar_material_flash->ReregisterMaterial();
                         re.DrawTilePic(
                             0.0, y, m_frame.size.width, m_frame.size.height, m_statbar_material_flash->GetMaterial()
                         );
@@ -528,14 +524,12 @@ void UIFakkLabel::DrawStatbar(float frac)
                 {
                     float width = frac * m_frame.size.width;
 
-                    m_statbar_material->ReregisterMaterial();
                     re.DrawStretchPic(
                         0.0, 0.0, width, m_frame.size.height, 0.0, 0.0, 1.0, 1.0, m_statbar_material->GetMaterial()
                     );
 
                     if (alpha != 0.0 && m_statbar_material_flash) {
                         re.SetColor(col);
-                        m_statbar_material_flash->ReregisterMaterial();
                         re.DrawStretchPic(
                             0.0,
                             0.0,
@@ -557,14 +551,12 @@ void UIFakkLabel::DrawStatbar(float frac)
                     float y      = m_frame.size.height * (1.0 - frac);
                     float height = m_frame.size.height * frac;
 
-                    m_statbar_material->ReregisterMaterial();
                     re.DrawStretchPic(
                         0.0, y, m_frame.size.width, height, 0.0, 1.0 - frac, 1.0, 1.0, m_statbar_material->GetMaterial()
                     );
 
                     if (alpha != 0.0 && m_statbar_material_flash) {
                         re.SetColor(col);
-                        m_statbar_material_flash->ReregisterMaterial();
                         re.DrawStretchPic(
                             0.0,
                             y,
@@ -583,14 +575,12 @@ void UIFakkLabel::DrawStatbar(float frac)
                 {
                     float height = m_frame.size.height * frac;
 
-                    m_statbar_material->ReregisterMaterial();
                     re.DrawStretchPic(
                         0.0, 0.0, m_frame.size.width, height, 0.0, 0.0, 1.0, frac, m_statbar_material->GetMaterial()
                     );
 
                     if (alpha != 0.0 && m_statbar_material_flash) {
                         re.SetColor(col);
-                        m_statbar_material_flash->ReregisterMaterial();
                         re.DrawStretchPic(
                             0.0,
                             0.0,
@@ -686,12 +676,10 @@ void UIFakkLabel::DrawStatCircle(float frac)
                 re.SetColor(m_foreground_color);
             }
 
-            m_statbar_material->ReregisterMaterial();
             re.DrawTrianglePic(vVerts, vTexCoords, m_statbar_material->GetMaterial());
 
             if (alpha && m_statbar_material_flash) {
                 re.SetColor(col);
-                m_statbar_material_flash->ReregisterMaterial();
                 re.DrawTrianglePic(vVerts, vTexCoords, m_statbar_material_flash->GetMaterial());
             }
         } else {
@@ -709,12 +697,10 @@ void UIFakkLabel::DrawStatCircle(float frac)
                     re.SetColor(m_foreground_color);
                 }
 
-                m_statbar_material->ReregisterMaterial();
                 re.DrawTrianglePic(vVerts, vTexCoords, m_statbar_material->GetMaterial());
 
                 if (alpha && m_statbar_material_flash) {
                     re.SetColor(col);
-                    m_statbar_material_flash->ReregisterMaterial();
                     re.DrawTrianglePic(vVerts, vTexCoords, m_statbar_material_flash->GetMaterial());
                 }
 
@@ -739,12 +725,10 @@ void UIFakkLabel::DrawStatCircle(float frac)
                 re.SetColor(m_foreground_color);
             }
 
-            m_statbar_material->ReregisterMaterial();
             re.DrawTrianglePic(vVerts, vTexCoords, m_statbar_material->GetMaterial());
 
             if (alpha && m_statbar_material_flash) {
                 re.SetColor(col);
-                m_statbar_material_flash->ReregisterMaterial();
                 re.DrawTrianglePic(vVerts, vTexCoords, m_statbar_material_flash->GetMaterial());
             }
         } else {
@@ -766,12 +750,10 @@ void UIFakkLabel::DrawStatCircle(float frac)
                     re.SetColor(m_foreground_color);
                 }
 
-                m_statbar_material->ReregisterMaterial();
                 re.DrawTrianglePic(vVerts, vTexCoords, m_statbar_material->GetMaterial());
 
                 if (alpha && m_statbar_material_flash) {
                     re.SetColor(col);
-                    m_statbar_material_flash->ReregisterMaterial();
                     re.DrawTrianglePic(vVerts, vTexCoords, m_statbar_material_flash->GetMaterial());
                 }
 
@@ -846,12 +828,10 @@ void UIFakkLabel::DrawStatNeedle(float frac)
         re.SetColor(m_foreground_color);
     }
 
-    m_statbar_material->ReregisterMaterial();
     re.DrawTrianglePic(vVerts, vTexCoords, m_statbar_material->GetMaterial());
 
     if (alpha != 0.f && m_statbar_material_flash) {
         re.SetColor(col);
-        m_statbar_material_flash->ReregisterMaterial();
         re.DrawTrianglePic(vVerts, vTexCoords, m_statbar_material_flash->GetMaterial());
     }
 
@@ -867,11 +847,9 @@ void UIFakkLabel::DrawStatNeedle(float frac)
         re.SetColor(m_foreground_color);
     }
 
-    m_statbar_material->ReregisterMaterial();
     re.DrawTrianglePic(vVerts, vTexCoords, m_statbar_material->GetMaterial());
 
     if (alpha != 0.f && m_statbar_material_flash) {
-        m_statbar_material_flash->ReregisterMaterial();
         re.DrawTrianglePic(vVerts, vTexCoords, m_statbar_material_flash->GetMaterial());
     }
 }
@@ -937,11 +915,9 @@ void UIFakkLabel::DrawStatRotator(float frac)
         re.SetColor(m_foreground_color);
     }
 
-    m_statbar_material->ReregisterMaterial();
     re.DrawTrianglePic(vVerts, vTexCoords, m_statbar_material->GetMaterial());
 
     if (alpha != 0.f && m_statbar_material_flash) {
-        m_statbar_material_flash->ReregisterMaterial();
         re.DrawTrianglePic(vVerts, vTexCoords, m_statbar_material_flash->GetMaterial());
     }
 
@@ -959,11 +935,9 @@ void UIFakkLabel::DrawStatRotator(float frac)
         re.SetColor(m_foreground_color);
     }
 
-    m_statbar_material->ReregisterMaterial();
     re.DrawTrianglePic(vVerts, vTexCoords, m_statbar_material->GetMaterial());
 
     if (alpha != 0.f && m_statbar_material_flash) {
-        m_statbar_material_flash->ReregisterMaterial();
         re.DrawTrianglePic(vVerts, vTexCoords, m_statbar_material_flash->GetMaterial());
     }
 }
@@ -1137,7 +1111,6 @@ void UIFakkLabel::DrawStatCompass(float frac)
     vVerts[1][1] = vCenter[1] + vCompassDir[1] * vCenter[1] + fSinVal * vCenter[0];
     vVerts[2][1] = vCenter[1] - vCompassDir[1] * vCenter[1] - fSinVal * vCenter[0];
 
-    m_statbar_material->ReregisterMaterial();
     re.DrawTrianglePic(vVerts, vTexCoords, m_statbar_material->GetMaterial());
 
     vVerts[0][0]     = vVerts[2][0];
@@ -1150,7 +1123,6 @@ void UIFakkLabel::DrawStatCompass(float frac)
     vVerts[2][0] = vCenter[0] + fCosVal * vCenter[1] - vCompassDir[0] * vCenter[0];
     vVerts[2][1] = vCenter[1] * fSinVal + vCenter[0] - vCompassDir[1] * vCenter[1];
 
-    m_statbar_material->ReregisterMaterial();
     re.DrawTrianglePic(vVerts, vTexCoords, m_statbar_material->GetMaterial());
 }
 
@@ -1227,11 +1199,9 @@ void UIFakkLabel::DrawStatSpinner(float frac)
         re.SetColor(m_foreground_color);
     }
 
-    m_statbar_material->ReregisterMaterial();
     re.DrawTrianglePic(vVerts, vTexCoords, m_statbar_material->GetMaterial());
 
     if (alpha != 0.f && m_statbar_material_flash) {
-        m_statbar_material_flash->ReregisterMaterial();
         re.DrawTrianglePic(vVerts, vTexCoords, m_statbar_material_flash->GetMaterial());
     }
 
@@ -1249,11 +1219,9 @@ void UIFakkLabel::DrawStatSpinner(float frac)
         re.SetColor(m_foreground_color);
     }
 
-    m_statbar_material->ReregisterMaterial();
     re.DrawTrianglePic(vVerts, vTexCoords, m_statbar_material->GetMaterial());
 
     if (alpha != 0.f && m_statbar_material_flash) {
-        m_statbar_material_flash->ReregisterMaterial();
         re.DrawTrianglePic(vVerts, vTexCoords, m_statbar_material_flash->GetMaterial());
     }
 }

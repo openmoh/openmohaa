@@ -270,7 +270,6 @@ void UILabel::Draw(void)
                 m_sCurrentShaderName = string;
 
                 setMaterial(uWinMan.RegisterShader(m_sCurrentShaderName));
-                m_material->ReregisterMaterial();
 
                 if (!m_material->GetMaterial()) {
                     setMaterial(NULL);

@@ -256,8 +256,6 @@ void UIWindowManager::UpdateViews(void)
         set2D();
         uii.Rend_SetColor(col);
 
-        m_cursor->ReregisterMaterial();
-
         uii.Rend_DrawPicStretched(uid.mouseX, uid.mouseY, 0, 0, 0, 0, 1, 1, m_cursor->GetMaterial());
 
         m_font->setColor(UWhite);
@@ -667,7 +665,7 @@ void UIWindowManager::RefreshShadersFromList(void)
     num = m_materiallist.NumObjects();
     for (i = 1; i <= num; i++) {
         UIReggedMaterial *regged = m_materiallist.ObjectAt(i);
-        regged->RefreshMaterial();
+        regged->ReregisterMaterial();
     }
 }
 

@@ -610,7 +610,11 @@ UIReggedMaterial::UIReggedMaterial()
 
 uihandle_t UIReggedMaterial::GetMaterial()
 {
-	ReregisterMaterial();
+	if ( !isGot )
+	{
+		isGot = true;
+		this->hMat = uii.Rend_RegisterMaterial(name.c_str());
+	}
 	return hMat;
 }
 
@@ -620,9 +624,7 @@ void UIReggedMaterial::ReregisterMaterial
 	)
 
 {
-	if( !isGot )
-	{
-		isGot = true;
+	if( isGot ) {
 		this->hMat = uii.Rend_RegisterMaterial( name.c_str() );
 	}
 }
@@ -2468,8 +2470,6 @@ void UIWidget::Display
 		col[3] = m_foreground_color.a * m_local_alpha;
 		uii.Rend_SetColor( col );
 
-		m_material->ReregisterMaterial();
-
 		if( m_flags & WF_TILESHADER )
 		{
                if (m_bVirtual) {
@@ -2489,12 +2489,10 @@ void UIWidget::Display
 
 	if( m_pressedmaterial_active && m_pressedmaterial != NULL )
 	{
-		m_pressedmaterial->ReregisterMaterial();
 		uii.Rend_DrawPicStretched( 0, 0, m_frame.size.width, m_frame.size.height, 0, 0, 1, 1, m_pressedmaterial->GetMaterial() );
 	}
 	else if( m_hovermaterial_active && m_hovermaterial != NULL )
 	{
-		m_hovermaterial->ReregisterMaterial();
 		uii.Rend_DrawPicStretched( 0, 0, m_frame.size.width, m_frame.size.height, 0, 0, 1, 1, m_hovermaterial->GetMaterial() );
 	}
 

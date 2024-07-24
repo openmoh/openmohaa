@@ -454,7 +454,6 @@ void UISlider::LayoutSliderThumbShader
 		m_thumbmaterial_pressed = uWinMan.RegisterShader(pressedShader);
 	}
 
-	m_thumbmaterial->ReregisterMaterial();
 	m_sliderwidth = uii.Rend_GetShaderWidth(m_thumbmaterial->GetMaterial());
 	m_initialized = qfalse;
 }
@@ -478,7 +477,6 @@ void UISlider::LayoutSliderLeftShader
 		m_prev_arrow_material_pressed = uWinMan.RegisterShader(pressedShader);
 	}
 
-	m_prev_arrow_material->ReregisterMaterial();
 	m_arrow_width = uii.Rend_GetShaderWidth(m_prev_arrow_material->GetMaterial());
 	m_initialized = qfalse;
 }
@@ -502,7 +500,6 @@ void UISlider::LayoutSliderRightShader
 		m_next_arrow_material_pressed = uWinMan.RegisterShader(pressedShader);
 	}
 
-	m_next_arrow_material->ReregisterMaterial();
 	m_arrow_width = uii.Rend_GetShaderWidth(m_next_arrow_material->GetMaterial());
 	m_initialized = qfalse;
 }
@@ -569,7 +566,6 @@ void UISlider::Draw
 	if (m_thumbmaterial)
 	{
 		UIReggedMaterial* material = m_thumb_depressed ? m_thumbmaterial_pressed : m_thumbmaterial;
-		material->ReregisterMaterial();
 		uii.Rend_DrawPicStretched(x, 0.0f, scaledThumbWidth, m_frame.size.height, 0.0f, 0.0f, 1.0f, 1.0f, material->GetMaterial());
 	}
 	else
@@ -581,7 +577,6 @@ void UISlider::Draw
 	{
 		Draw3DBox(0.0f, 0.0f, scaledArrowWidth, m_frame.size.height, m_prev_arrow_depressed, m_border_color, m_local_alpha);
 
-		m_prev_arrow_material->ReregisterMaterial();
 		uii.Rend_DrawPicStretched(
 			2.0f,
 			2.0f,
@@ -599,12 +594,10 @@ void UISlider::Draw
 		uihandle_t material;
 		if (m_prev_arrow_depressed)
 		{
-			m_prev_arrow_material_pressed->ReregisterMaterial();
 			material = m_prev_arrow_material_pressed->GetMaterial();
 		}
 		else
 		{
-			m_prev_arrow_material->ReregisterMaterial();
 			material = m_prev_arrow_material->GetMaterial();
 		}
 
@@ -615,7 +608,6 @@ void UISlider::Draw
 	{
 		Draw3DBox(m_frame.size.width - scaledArrowWidth, 0.0f, scaledArrowWidth, m_frame.size.height, m_next_arrow_depressed, m_border_color, m_local_alpha);
 
-		m_next_arrow_material->ReregisterMaterial();
 		uii.Rend_DrawPicStretched(
 			m_frame.size.width - scaledArrowWidth + 2.0f,
 			2.0f,
@@ -633,12 +625,10 @@ void UISlider::Draw
 		uihandle_t material;
 		if (m_next_arrow_depressed)
 		{
-			m_next_arrow_material_pressed->ReregisterMaterial();
 			material = m_next_arrow_material_pressed->GetMaterial();
 		}
 		else
 		{
-			m_next_arrow_material->ReregisterMaterial();
 			material = m_next_arrow_material->GetMaterial();
 		}
 
