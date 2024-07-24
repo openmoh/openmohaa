@@ -22,7 +22,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #if USE_SOUND_NEW
 
-#    include "snd_local.h"
+#include "snd_local.h"
+#include "cl_ui.h"
 
 byte *data_p;
 byte *iff_end;
@@ -355,7 +356,7 @@ qboolean DownSampleWav(wavinfo_t *info, byte *wav, int wavlength, int newkhz, by
     info->rate = (float)newkhz;
     newdatasize += info->dataofs;
 
-    *newdata = Z_TagMalloc(newdatasize, TAG_SOUND);
+    *newdata = (byte*)Z_TagMalloc(newdatasize, TAG_SOUND);
     memcpy(*newdata, wav, info->dataofs);
 
     iff_data = *newdata;
@@ -450,7 +451,7 @@ qboolean S_LoadSound(const char *fileName, sfx_t *sfx, int streamed, qboolean fo
         return qfalse;
     }
 
-    sfx->data = Z_TagMalloc(size, TAG_SOUND);
+    sfx->data = (byte*)Z_TagMalloc(size, TAG_SOUND);
 
     FS_Read(sfx->data, size, file_handle);
     FS_FCloseFile(file_handle);
@@ -528,7 +529,7 @@ qboolean S_LoadMP3(const char *fileName, sfx_t *sfx)
     }
 
     memset(&sfx->info, 0, sizeof(sfx->info));
-    sfx->data = Z_TagMalloc(length, TAG_SOUND);
+    sfx->data = (byte*)Z_TagMalloc(length, TAG_SOUND);
     sfx->length = length;
     sfx->width = 1;
     FS_Read(sfx->data, length, file_handle);
