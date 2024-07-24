@@ -20,7 +20,7 @@ target_compile_definitions(omohclient INTERFACE USE_CODEC_MP3)
 
 if (USE_SOUND_NEW)
 	# Try to use OpenAL
-	find_package(OpenAL)
+	find_package(OpenAL REQUIRED)
 	if (OPENAL_FOUND)
 		target_compile_definitions(omohclient INTERFACE USE_OPENAL=1 USE_SOUND_NEW=1)
 		if (MSVC)
