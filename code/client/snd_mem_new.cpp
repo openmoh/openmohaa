@@ -416,8 +416,11 @@ DownSampleWav_MILES
 */
 int DownSampleWav_MILES(wavinfo_t *info, byte *wav, int wavlength, int newkhz, byte **newdata)
 {
-    STUB_DESC("sound stuff");
-    return 0;
+    //STUB_DESC("sound stuff");
+    //return 0;
+    // FIXME: unimplemented
+    //  Fallback to software downsampling
+    return DownSampleWav(info, wav, wavlength, newkhz, newdata);
 }
 
 /*
@@ -436,6 +439,25 @@ qboolean S_LoadSound(const char *fileName, sfx_t *sfx, int streamed, qboolean fo
 
     if (fileName[0] == '*') {
         return qfalse;
+    }
+
+    // Removed because of OpenAL
+    /*
+    if (streamed) {
+        //
+        // Added in 2.0
+        //  Will be loaded next time
+        sfx->length = 5000;
+        sfx->width = 1;
+        sfx->iFlags |= SFX_FLAG_STREAMED;
+        sfx->time_length = 5000.0;
+        sfx->data = 0;
+        return qtrue;
+    }
+    */
+
+    if (clc.state != CA_LOADING && !force_load) {
+        Com_Printf("**************S_LoadSound: %s\n", fileName);
     }
 
     if (strstr(fileName, ".mp3")) {
@@ -457,7 +479,7 @@ qboolean S_LoadSound(const char *fileName, sfx_t *sfx, int streamed, qboolean fo
     FS_FCloseFile(file_handle);
     sfx->info = GetWavinfo(fileName, sfx->data, size);
 
-    if (sfx->info.channels != 1)
+    if (sfx->info.channels != 1 && !streamed)
     {
         Com_Printf("%s is a stereo wav file\n", fileName);
         Z_Free(sfx->data);
@@ -469,14 +491,17 @@ qboolean S_LoadSound(const char *fileName, sfx_t *sfx, int streamed, qboolean fo
         sfx->iFlags |= SFX_FLAG_NO_OFFSET;
     }
 
-    realKhz = 11025;
-
-    if (s_khz->integer != 11)
-    {
+    switch (s_khz->integer) {
+    case 11:
+        realKhz = 11025;
+        break;
+    case 22:
+    default:
         realKhz = 22050;
-        if (s_khz->integer == 44) {
-            realKhz = 44100;
-        }
+        break;
+    case 44:
+        realKhz = 44100;
+        break;
     }
 
     if (!(sfx->iFlags & SFX_FLAG_STREAMED) && realKhz < sfx->info.rate) {
@@ -507,6 +532,12 @@ qboolean S_LoadSound(const char *fileName, sfx_t *sfx, int streamed, qboolean fo
 
     sprintf(tempName, "k%s", fileName);
     UI_LoadResource(tempName);
+
+    if (strstr(fileName, "sound/null.wav")) {
+        sfx->iFlags |= SFX_FLAG_NULL;
+        return qtrue;
+    }
+
     return qtrue;
 }
 
