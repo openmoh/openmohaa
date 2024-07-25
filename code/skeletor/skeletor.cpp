@@ -102,8 +102,8 @@ SkelVec3 skelAnimDataGameHeader_s::GetDeltaOverTime(float time1, float time2)
 
     deltaWeight1 = time1 / frameTime;
     deltaWeight2 = time2 / frameTime;
-    frameNum1    = (int)(deltaWeight1 + 1.0);
-    frameNum2    = (int)(deltaWeight2 + 1.0);
+    frameNum1    = ceil(deltaWeight1);
+    frameNum2    = ceil(deltaWeight2);
 
     d = frameNum1 - deltaWeight1;
     s = 1.0 - (frameNum2 - deltaWeight2);
@@ -115,13 +115,14 @@ SkelVec3 skelAnimDataGameHeader_s::GetDeltaOverTime(float time1, float time2)
         for (currFrame = frameNum1 + 1; currFrame < frameNum2; currFrame++) {
             delta += m_frame[currFrame % numFrames].delta;
         }
+
+        delta.x += m_frame[frameNum2 % numFrames].delta.x * s;
+        delta.y += m_frame[frameNum2 % numFrames].delta.y * s;
+        delta.z += m_frame[frameNum2 % numFrames].delta.z * s;
     } else {
         s = s - (1.0 - d);
+        delta = m_frame[frameNum2 % numFrames].delta;
     }
-
-    delta.x += m_frame[frameNum2 % numFrames].delta.x * s;
-    delta.y += m_frame[frameNum2 % numFrames].delta.y * s;
-    delta.z += m_frame[frameNum2 % numFrames].delta.z * s;
 
     if (delta.x > -0.001f && delta.x < 0.001f) {
         delta.x = 0;
@@ -148,24 +149,25 @@ float skelAnimDataGameHeader_s::GetAngularDeltaOverTime(float time1, float time2
 
     deltaWeight1 = time1 / frameTime;
     deltaWeight2 = time2 / frameTime;
-    frameNum1    = (int)(deltaWeight1 + 1.0);
-    frameNum2    = (int)(deltaWeight2 + 1.0);
+    frameNum1    = ceil(deltaWeight1);
+    frameNum2    = ceil(deltaWeight2);
 
     d     = frameNum1 - deltaWeight1;
     s     = 1.0 - (frameNum2 - deltaWeight2);
     delta = 0;
 
-    if (frameNum2 > frameNum1) {
+    if (frameNum1 < frameNum2) {
         delta = m_frame[frameNum1 % numFrames].angleDelta;
 
         for (currFrame = frameNum1 + 1; currFrame < frameNum2; currFrame++) {
             delta += m_frame[currFrame % numFrames].angleDelta;
         }
+
+        delta += m_frame[frameNum2 % numFrames].angleDelta * s;
     } else {
         s = s - (1.0 - d);
+        delta = m_frame[frameNum2 % numFrames].angleDelta;
     }
-
-    delta += m_frame[frameNum2 % numFrames].angleDelta * s;
 
     if (delta > -0.001f && delta < 0.001f) {
         delta = 0;
