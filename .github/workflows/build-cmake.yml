@@ -59,7 +59,7 @@ jobs:
           -DCMAKE_C_FLAGS=--target=${{ matrix.architecture.triple }}
           -DCMAKE_CXX_FLAGS=--target=${{ matrix.architecture.triple }}"
 
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         path: 'source'
 
@@ -99,7 +99,7 @@ jobs:
         cmake --install ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
         cp '${{steps.sdl.outputs.prefix}}/lib/libSDL2.so' '${{github.workspace}}/install'
 
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v4
       with:
         name: out-linux-${{matrix.architecture.name}}
         if-no-files-found: error
@@ -142,7 +142,7 @@ jobs:
         cmake --build winflexbison-build --config Release --parallel
         cmake --install winflexbison-build
 
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         path: 'source'
 
@@ -181,7 +181,7 @@ jobs:
         cmake --install ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
         Copy-Item '${{steps.sdl.outputs.prefix}}/bin/*.dll' -Destination '${{github.workspace}}/install'
 
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v4
       with:
         name: out-windows-${{matrix.architecture.name}}
         if-no-files-found: error
@@ -189,7 +189,7 @@ jobs:
           ${{github.workspace}}/install
           !${{github.workspace}}/install/**/*.pdb
 
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v4
       with:
         name: out-windows-${{matrix.architecture.name}}-pdb
         if-no-files-found: error
