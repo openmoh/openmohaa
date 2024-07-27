@@ -819,7 +819,7 @@ void ScriptSlave::DoMove(Event *ev)
 void ScriptSlave::WaitMove(Event *ev)
 {
     NewMove();
-    Register(0, Director.CurrentThread());
+    Register(0, Director.CurrentScriptThread());
 }
 
 void ScriptSlave::MoveEnd(Event *ev)
