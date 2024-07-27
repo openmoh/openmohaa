@@ -6322,11 +6322,18 @@ void Player::DamageFeedback(void)
     //
     damage_blood = 0;
 
-    if (IsSubclassOfPlayer()) {
-        damage_count  = 0;
-        damage_blood  = 0;
-        damage_alpha  = 0;
-        damage_angles = vec_zero;
+    if (g_target_game >= target_game_e::TG_MOHTA) {
+        //
+        // Added in 2.0
+        //  No more damage angles since MOHTA
+        //
+
+        if (IsSubclassOfPlayer()) {
+            damage_count = 0;
+            damage_blood = 0;
+            damage_alpha = 0;
+            damage_angles = vec_zero;
+        }
     }
 }
 
