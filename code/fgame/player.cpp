@@ -3357,7 +3357,7 @@ void Player::Pain(Event *ev)
     pain_location = iLocation;
 
     // Only set the regular pain level if enough time since last pain has passed
-    if ((level.time > nextpaintime) && take_pain) {
+    if (((level.time > nextpaintime) && take_pain) || IsDead()) {
         pain = damage;
     }
 
