@@ -1146,7 +1146,7 @@ void ClientGameCommandManager::SpawnTempModel(int mcount)
                 newForward = p->cgd.origin - m_spawnthing->cgd.origin;
                 newForward.normalize();
             }
-        } else if (m_spawnthing->cgd.flags & T_SPHERE) {
+        } else if (m_spawnthing->cgd.flags & T_INWARDSPHERE) {
             // Project the origin along a random ray, and set the forward
             // vector pointing back to the origin
             Vector dir, end;
