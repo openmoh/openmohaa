@@ -1442,7 +1442,9 @@ void ScriptSlave::EndPath(Event *ev)
 
     delete splinePath;
     splinePath = NULL;
-    velocity   = vec_zero;
+    if (!ignorevelocity) {
+        velocity = vec_zero;
+    }
     if (!ignoreangles) {
         avelocity = vec_zero;
     }
@@ -1639,7 +1641,9 @@ void ScriptSlave::FollowingPath(Event *ev)
         if ((splinePath->GetType() == SPLINE_CLAMP) && (splineTime > (splinePath->EndPoint() - 2))) {
             delete splinePath;
             splinePath = NULL;
-            velocity   = vec_zero;
+            if (!ignorevelocity) {
+                velocity = vec_zero;
+            }
             if (!ignoreangles) {
                 avelocity = vec_zero;
             }
