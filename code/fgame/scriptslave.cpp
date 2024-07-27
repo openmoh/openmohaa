@@ -772,10 +772,7 @@ void ScriptSlave::NewMove(void)
         BroadcastEvent(0, ev);
     }
 
-    if (m_pCurPath) {
-        PostEvent(EV_ScriptSlave_FollowingPath, 0);
-    } else if (splinePath) {
-        moving = true;
+    if (m_pCurPath || splinePath) {
         PostEvent(EV_ScriptSlave_FollowingPath, 0);
     } else {
         float t = traveltime;
@@ -783,7 +780,6 @@ void ScriptSlave::NewMove(void)
             dist = Vector(NewPos - localorigin).length();
             t    = dist / speed;
         }
-        moving = true;
         LinearInterpolate(NewPos, NewAngles, t, EV_ScriptSlave_MoveDone);
     }
 }
@@ -829,7 +825,7 @@ void ScriptSlave::MoveEnd(Event *ev)
 
 void ScriptSlave::SetAnglesEvent(Event *ev)
 {
-    commandswaiting = true;
+    CheckNewOrders();
     SetAngles(ev);
     NewAngles = localangles;
 }
@@ -904,7 +900,7 @@ void ScriptSlave::TriggerEvent(Event *ev)
 
 void ScriptSlave::GotoNextWaypoint(Event *ev)
 {
-    commandswaiting = true;
+    CheckNewOrders();
 
     if (!waypoint) {
         ScriptError("%s is currently not at a waypoint", TargetName().c_str());
@@ -961,7 +957,7 @@ void ScriptSlave::JumpTo(Event *ev)
 
 void ScriptSlave::MoveToEvent(Event *ev)
 {
-    commandswaiting = true;
+    CheckNewOrders();
 
     //
     // see if it is a vector
@@ -1416,8 +1412,7 @@ void ScriptSlave::FollowPath(Event *ev)
         }
     }
     if (ent && ent->IsSubclassOfSplinePath()) {
-        commandswaiting = true;
-        path            = (SplinePath *)ent;
+        path = (SplinePath *)ent;
         if (clamp) {
             CreatePath(path, SPLINE_CLAMP);
         } else {
