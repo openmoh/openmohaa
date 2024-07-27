@@ -182,7 +182,7 @@ int UIFont::DBCSGetWordBlockCount(const char *text, int maxlen)
         return 0;
     }
 
-    uch = text[0];
+    uch = (unsigned char)text[0];
     p   = (unsigned char *)(text + 1);
 
     if (!text[0]) {
@@ -201,6 +201,7 @@ int UIFont::DBCSGetWordBlockCount(const char *text, int maxlen)
     isATokin  = DBCSIsAtokin(uch);
     hasDBCS   = DBCSLen > 1;
     isControl = uch < ' ';
+    uch2 = (unsigned char)*p;
 
     for (;;) {
         unsigned int subDBCSLen;
@@ -671,7 +672,7 @@ int UI_FontStringMaxWidth(fontheader_t *pFont, const char *pszString, int iMaxLe
     }
 
     for (int i = 0; pszString[i] && (iMaxLen == -1 || i < iMaxLen); i++) {
-        unsigned short uch = pszString[i];
+        unsigned short uch = (unsigned char)pszString[i];
 
         if (UI_FontDBCSIsLeadByte(pFont, uch)) {
             uch = (uch << 8) | pszString[i];
@@ -706,7 +707,7 @@ int UI_FontStringWidth(fontheader_t *pFont, const char *pszString, int iMaxLen)
     }
 
     for (int i = 0; pszString[i] && (iMaxLen == -1 || i < iMaxLen); i++) {
-        unsigned short uch = pszString[i];
+        unsigned short uch = (unsigned char)pszString[i];
 
         if (UI_FontDBCSIsLeadByte(pFont, uch)) {
             uch = (uch << 8) | pszString[i];
