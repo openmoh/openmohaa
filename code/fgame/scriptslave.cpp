@@ -463,7 +463,7 @@ Event EV_ScriptSlave_FollowPath
     "eSSSSSS",
     "path arg1 arg2 arg3 arg4 arg5 arg6",
     "Makes the script slave follow the specified path.  The allowable arguments are ignoreangles,\n"
-    "normalangles, loop, and a number specifying the start time.",
+    "ignorevelocity, normalangles, loop, and a number specifying the start time.",
     EV_NORMAL
 );
 Event EV_ScriptSlave_FollowPath_RelativeYaw
@@ -1407,6 +1407,17 @@ void ScriptSlave::FollowPath(Event *ev)
             clamp = false;
         } else if (IsNumeric(token)) {
             starttime = atof(token);
+            // Fixed in OPM
+            // HACKHACK
+            //
+            // There is a bug in mohaa where the token's raw pointer is directly used
+            // but then the token can be freed before comparison, which cause
+            // starttime to be always 0.
+            // OPM is correct here but for compatibility purpose the bug have to be reproduced.
+            // Otherwise, for example the final bomber plane in t3l2 will not fly.
+            if (!ev->IsStringAt(i)) {
+                starttime = 0;
+            }
         } else {
             ScriptError("Unknown followpath command %s.", token.c_str());
         }
