@@ -1392,16 +1392,19 @@ void ScriptSlave::FollowPath(Event *ev)
     qboolean    clamp;
     float       starttime;
 
-    ent          = ev->GetEntity(1);
-    argnum       = 2;
-    starttime    = -2;
-    clamp        = true;
-    ignoreangles = false;
-    splineangles = true;
+    ent             = ev->GetEntity(1);
+    argnum          = 2;
+    starttime       = -2;
+    clamp           = true;
+    ignoreangles    = false;
+    ignorevelocity  = false;
+    splineangles    = true;
     for (i = argnum; i <= ev->NumArgs(); i++) {
         token = ev->GetString(i);
         if (!Q_stricmp(token, "ignoreangles")) {
             ignoreangles = true;
+        } else if (!Q_stricmp(token, "ignorevelocity")) {
+            ignorevelocity = true;
         } else if (!Q_stricmp(token, "normalangles")) {
             splineangles = false;
         } else if (!Q_stricmp(token, "loop")) {
@@ -1425,7 +1428,9 @@ void ScriptSlave::FollowPath(Event *ev)
         if (!ignoreangles) {
             avelocity = vec_zero;
         }
-        velocity = vec_zero;
+        if (!ignorevelocity) {
+            velocity = vec_zero;
+        }
     }
 }
 
