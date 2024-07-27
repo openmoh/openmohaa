@@ -97,9 +97,14 @@ Entity *G_FixEntityPosition
 
 	if( trace.startsolid )
 	{
-		//return g_entities->entity;
-		assert( trace.ent );
-		assert( trace.ent->entity );
+		if (!trace.ent) {
+			// Fixed in OPM
+			//  I don't understand why they just prefer the game crashing
+			//  rather than ignoring the entity
+			return NULL;
+		}
+		//assert( trace.ent );
+		//assert( trace.ent->entity );
 		return trace.ent->entity;
 	}
 
