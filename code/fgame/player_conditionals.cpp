@@ -95,7 +95,7 @@ qboolean Player::CondBlocked(Conditional& condition)
 
 qboolean Player::CondPain(Conditional& condition)
 {
-    return (pain != 0 || knockdown != 0);
+    return pain != 0 && level.time > nextpaintime;
 }
 
 qboolean Player::CondOnGround(Conditional& condition)
