@@ -41,7 +41,7 @@ jobs:
 
     - name: Install required packages
       run: |
-        sudo apt update && sudo apt install -y flex bison
+        sudo apt update && sudo apt install -y flex bison libopenal-dev
   
     - name: Install required cross-platform packages (${{ matrix.architecture.triple }})
       if: matrix.architecture.name != 'amd64'
@@ -59,6 +59,26 @@ jobs:
           -DCMAKE_C_FLAGS=--target=${{ matrix.architecture.triple }}
           -DCMAKE_CXX_FLAGS=--target=${{ matrix.architecture.triple }}"
 
+    # soft-oal setup
+    # Use GCC instead of Clang because of missing SSE intrinsics
+    # It also doesn't enable altivec support on PowerPC by default
+    - name: Checkout soft-oal
+      uses: actions/checkout@v4
+      with:
+        repository: 'kcat/openal-soft'
+        path: 'thirdparties/soft-oal'
+        ref: '1.23.1'
+
+    - name: Configure and install soft-oal
+      working-directory: ${{github.workspace}}/thirdparties/soft-oal
+      run: |
+        cmake -B ./build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} \
+        -DCMAKE_INSTALL_PREFIX='${{github.workspace}}/thirdparties/soft-oal/install' \
+        -DCMAKE_C_COMPILER=${{ matrix.architecture.triple }}-gcc-12 \
+        -DCMAKE_CXX_COMPILER=${{ matrix.architecture.triple }}-g++-12
+        cmake --build ./build --config ${{env.BUILD_TYPE}}
+        cmake --install ./build --config ${{env.BUILD_TYPE}}
+
     - uses: actions/checkout@v4
       with:
         path: 'source'
@@ -72,12 +92,14 @@ jobs:
         -DCMAKE_CXX_COMPILER=clang++ \
         -DCMAKE_C_FLAGS=--target=${{ matrix.architecture.triple }} \
         -DCMAKE_CXX_FLAGS=--target=${{ matrix.architecture.triple }} \
+        -DOPENAL_LIBRARY='${{github.workspace}}/thirdparties/soft-oal' \
+        -DOPENAL_INCLUDE_DIR='${{github.workspace}}/thirdparties/soft-oal/include' \
         -DGIT_REVISION_BUILD_NUMBER=${{ github.run_number }}" >> $GITHUB_ENV
 
     - name: Configure CMake
       working-directory: ${{github.workspace}}
       run: |
-        cmake -B ./build ${{ env.CMAKE_PARAM }} ./source
+        cmake -B ./build ${{ env.CMAKE_PARAM }} -DUSE_SOUND_NEW=1 ./source
 
     - name: Build
       working-directory: ${{github.workspace}}
@@ -97,7 +119,9 @@ jobs:
       # Install to the directory defined in CMAKE_INSTALL_PREFIX
       run: |
         cmake --install ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
-        cp '${{steps.sdl.outputs.prefix}}/lib/libSDL2.so' '${{github.workspace}}/install'
+        # Create hard-link and copy symbolic links
+        cp -l ${{steps.sdl.outputs.prefix}}/lib/libSDL2-2.0.so.0 '${{github.workspace}}/install/'
+        cp -l ${{github.workspace}}/thirdparties/soft-oal/install/lib/libopenal.so.1 '${{github.workspace}}/install/'
 
     - uses: actions/upload-artifact@v4
       with:
@@ -124,7 +148,7 @@ jobs:
       run: |
         echo "CMAKE_BUILD_PARALLEL_LEVEL=$((Get-CimInstance Win32_ComputerSystem).NumberOfLogicalProcessors * 16)" >> $GITHUB_ENV
 
-        # Setup SDL
+    # Setup SDL
     - name: Set up SDL
       id: sdl
       uses: libsdl-org/setup-sdl@main
@@ -142,6 +166,25 @@ jobs:
         cmake --build winflexbison-build --config Release --parallel
         cmake --install winflexbison-build
 
+    # soft-oal setup
+    - name: Checkout soft-oal
+      uses: actions/checkout@v4
+      with:
+        repository: 'kcat/openal-soft'
+        path: 'thirdparties/soft-oal'
+        ref: '1.23.1'
+
+    - name: Configure and install soft-oal
+      working-directory: ${{github.workspace}}/thirdparties/soft-oal
+      run: |
+        cmake -B ./build -A ${{ matrix.architecture.config }} `
+        -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} `
+        -DCMAKE_INSTALL_PREFIX='${{github.workspace}}/thirdparties/soft-oal/install'
+        cmake --build ./build --config ${{env.BUILD_TYPE}}
+        cmake --install ./build --config ${{env.BUILD_TYPE}}
+        # Unfortunately soft-oal produces a binary called OpenAL32 even in 64-bit
+        if ([Environment]::Is64BitOperatingSystem) { Rename-Item -Path '.\install\bin\OpenAL32.dll' -NewName 'OpenAL64.dll' }
+
     - uses: actions/checkout@v4
       with:
         path: 'source'
@@ -154,12 +197,14 @@ jobs:
         -DCMAKE_INSTALL_PREFIX='${{github.workspace}}/install' `
         -DGIT_REVISION_BUILD_NUMBER=${{ github.run_number }} `
         -DBISON_EXECUTABLE='${{github.workspace}}/thirdparties/winflexbison-install/win_bison.exe' `
+        -DOPENAL_LIBRARY='${{github.workspace}}/thirdparties/soft-oal' `
+        -DOPENAL_INCLUDE_DIR='${{github.workspace}}/thirdparties/soft-oal/include' `
         -DFLEX_EXECUTABLE='${{github.workspace}}/thirdparties/winflexbison-install/win_flex.exe'".Replace("`r", "").Replace("`n", "") >> $env:GITHUB_ENV
 
     - name: Configure CMake
       working-directory: ${{github.workspace}}
       run: |
-        cmake -B ./build ${{ env.CMAKE_PARAM }} ./source
+        cmake -B ./build ${{ env.CMAKE_PARAM }} -DUSE_SOUND_NEW=1 ./source
 
     - name: Build
       working-directory: ${{github.workspace}}
@@ -180,6 +225,7 @@ jobs:
       run: |
         cmake --install ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
         Copy-Item '${{steps.sdl.outputs.prefix}}/bin/*.dll' -Destination '${{github.workspace}}/install'
+        Copy-Item '${{github.workspace}}/thirdparties/soft-oal/install/bin/*.dll' -Destination '${{github.workspace}}/install'
 
     - uses: actions/upload-artifact@v4
       with:
