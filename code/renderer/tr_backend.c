@@ -791,10 +791,7 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 				backEnd.currentStaticModel = NULL;
 				if (entityNum != ENTITYNUM_WORLD) {
 					backEnd.currentEntity = &backEnd.refdef.entities[entityNum];
-					backEnd.refdef.floatTime = originalTime - backEnd.currentEntity->e.shaderTime;
-					// we have to reset the shaderTime as well otherwise image animations start
-					// from the wrong frame
-					tess.shaderTime = backEnd.refdef.floatTime - tess.shader->timeOffset;
+					backEnd.shaderStartTime = backEnd.currentEntity->e.shaderTime;
 
 					// set up the transformation matrix
 					R_RotateForEntity(backEnd.currentEntity, &backEnd.viewParms, &backEnd.ori);
@@ -811,12 +808,8 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 				}
 				else {
 					backEnd.currentEntity = &tr.worldEntity;
-					backEnd.refdef.floatTime = originalTime;
 					backEnd.ori = backEnd.viewParms.world;
 					backEnd.shaderStartTime = 0.0;
-					// we have to reset the shaderTime as well otherwise image animations on
-					// the world (like water) continue with the wrong frame
-					tess.shaderTime = backEnd.refdef.floatTime - tess.shader->timeOffset;
 					R_TransformDlights(backEnd.refdef.num_dlights, backEnd.refdef.dlights, &backEnd.ori);
 				}
 			}
@@ -902,8 +895,6 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 		// add the triangles for this surface
 		rb_surfaceTable[ *drawSurf->surface ]( drawSurf->surface );
 	}
-
-	backEnd.refdef.floatTime = originalTime;
 
 	// draw the contents of the last shader batch
 	if (oldShader != NULL) {

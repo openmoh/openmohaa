@@ -215,24 +215,28 @@ R_BindAnimatedImage
 =================
 */
 static void R_BindAnimatedImage( textureBundle_t *bundle ) {
-	int		index;
+	int index;
 
-	if ( bundle->numImageAnimations <= 1 ) {
-		GL_Bind( bundle->image[0] );
+	if (bundle->numImageAnimations <= 1) {
+		GL_Bind(bundle->image[0]);
 		return;
 	}
 
 	// it is necessary to do this messy calc to make sure animations line up
 	// exactly with waveforms of the same frequency
-	index = myftol( tess.shaderTime * bundle->imageAnimationSpeed * FUNCTABLE_SIZE );
+	index = myftol((tess.shaderTime + bundle->imageAnimationPhase) * bundle->imageAnimationSpeed * FUNCTABLE_SIZE);
 	index >>= FUNCTABLE_SIZE2;
 
-	if ( index < 0 ) {
+	if (index < 0) {
 		index = 0;	// may happen with shader time offsets
 	}
-	index %= bundle->numImageAnimations;
+	if (!(bundle->flags & BUNDLE_ANIMATE_ONCE)) {
+		index %= bundle->numImageAnimations;
+	} else if (index >= bundle->numImageAnimations) {
+		index = bundle->numImageAnimations - 1;
+	}
 
-	GL_Bind( bundle->image[ index ] );
+	GL_Bind(bundle->image[index]);
 }
 
 /*

@@ -957,6 +957,8 @@ static qboolean ParseStage(shaderStage_t* stage, char** text)
 		{
 			qboolean phased;
 
+			shader.flags |= 3;
+
 			if (!Q_stricmp(token, "animMapOnce")) {
 				stage->bundle[cntBundle].flags |= BUNDLE_ANIMATE_ONCE;
 			}
