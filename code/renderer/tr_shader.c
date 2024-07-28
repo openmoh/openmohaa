@@ -790,7 +790,7 @@ static void ParseTexMod( char *_text, shaderStage_t *stage, int cntBundle )
 ParseStage
 ===================
 */
-static qboolean ParseStage(shaderStage_t* stage, char** text)
+static qboolean ParseStage(shaderStage_t* stage, char** text, qboolean picmip)
 {
 	char* token;
 	int depthMaskBits = GLS_DEPTHMASK_TRUE, blendSrcBits = 0, blendDstBits = 0, atestBits = 0, depthFuncBits = 0, colorBits = 0;
@@ -884,7 +884,7 @@ static qboolean ParseStage(shaderStage_t* stage, char** text)
 			}
 			else
 			{
-				stage->bundle[cntBundle].image[0] = R_FindImageFile(token, !stage->noMipMaps, !stage->noPicMip, qfalse, GL_REPEAT, GL_REPEAT);
+				stage->bundle[cntBundle].image[0] = R_FindImageFile(token, !stage->noMipMaps, (!stage->noPicMip ? picmip : 0), stage->force32bit, GL_REPEAT, GL_REPEAT);
 				if (!stage->bundle[cntBundle].image[0])
 				{
 					ri.Printf(PRINT_WARNING, "WARNING: R_FindImageFile could not find '%s' in shader '%s'\n", token, shader.name);
@@ -943,7 +943,7 @@ static qboolean ParseStage(shaderStage_t* stage, char** text)
 				return qfalse;
 			}
 
-			stage->bundle[cntBundle].image[0] = R_FindImageFile(token, !stage->noMipMaps, !stage->noPicMip, qfalse, clampx, clampy);
+			stage->bundle[cntBundle].image[0] = R_FindImageFile(token, !stage->noMipMaps, (!stage->noPicMip ? picmip : 0), stage->force32bit, clampx, clampy);
 			if (!stage->bundle[cntBundle].image[0])
 			{
 				ri.Printf(PRINT_WARNING, "WARNING: R_FindImageFile could not find '%s' in shader '%s'\n", token, shader.name);
@@ -995,7 +995,7 @@ static qboolean ParseStage(shaderStage_t* stage, char** text)
 				}
 				num = stage->bundle[cntBundle].numImageAnimations;
 				if ( num < MAX_IMAGE_ANIMATIONS ) {
-                    stage->bundle[cntBundle].image[num] = R_FindImageFile(token, !stage->noMipMaps, !stage->noPicMip, qfalse, GL_REPEAT, GL_REPEAT );
+                    stage->bundle[cntBundle].image[num] = R_FindImageFile(token, !stage->noMipMaps, (!stage->noPicMip ? picmip : 0), stage->force32bit, GL_REPEAT, GL_REPEAT );
 					if ( !stage->bundle[cntBundle].image[num] )
 					{
 						ri.Printf( PRINT_WARNING, "WARNING: R_FindImageFile could not find '%s' in shader '%s'\n", token, shader.name );
@@ -1018,7 +1018,7 @@ static qboolean ParseStage(shaderStage_t* stage, char** text)
                 return qfalse;
             }
 
-			stage->normalMap = R_FindImageFile(token, !stage->noMipMaps, !stage->noPicMip, stage->force32bit, GL_REPEAT, GL_REPEAT);
+			stage->normalMap = R_FindImageFile(token, !stage->noMipMaps, (!stage->noPicMip ? picmip : 0), stage->force32bit, GL_REPEAT, GL_REPEAT);
 			if (!stage->normalMap)
             {
                 ri.Printf(PRINT_WARNING, "WARNING: R_FindImageFile could not find '%s' in shader '%s'\n", token, shader.name);
@@ -2143,7 +2143,7 @@ shader.  Parse it into the global shader variable.  Later functions
 will optimize it.
 =================
 */
-static qboolean ParseShader( char **text )
+static qboolean ParseShader( char **text, qboolean picmip )
 {
 	char *token;
 	int s;
@@ -2174,7 +2174,7 @@ static qboolean ParseShader( char **text )
 		// stage definition
 		else if ( token[0] == '{' )
 		{
-			if ( !ParseStage( &unfoggedStages[s], text ) )
+			if ( !ParseStage( &unfoggedStages[s], text, picmip ) )
 			{
 				return qfalse;
 			}
@@ -2262,7 +2262,7 @@ static qboolean ParseShader( char **text )
 			shader_noPicMip = qtrue;
 			continue;
 		}
-		// no picmip adjustment
+		// force 32 bit images
 		else if (!Q_stricmp(token, "force32bit"))
 		{
 			shader_force32bit = qtrue;
@@ -3225,7 +3225,7 @@ shader_t* R_FindShader(const char* name, int lightmapIndex, qboolean mipRawImage
 			ri.Printf( PRINT_ALL, "*SHADER* %s\n", name );
 		}
 
-		if ( !ParseShader( &shaderText ) ) {
+		if ( !ParseShader( &shaderText, picmip ) ) {
 			// had errors, so use default shader
 			shader.defaultShader = qtrue;
 		}

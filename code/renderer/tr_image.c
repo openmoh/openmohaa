@@ -608,7 +608,7 @@ static void Upload32(
 			}
 			else
 			{
-				internalFormat = GL_RGB8;
+				internalFormat = GL_RGBA8;
 			}
 		}
 	} else {
