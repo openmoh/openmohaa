@@ -493,31 +493,31 @@ void R_UnpackTerraPatch(cTerraPatch_t* pPacked, cTerraPatchUnpacked_t* pUnpacked
 
 	for (i = 0; i < 2; i++) {
 		for (j = 0; j < 2; j++) {
-			pUnpacked->texCoord[i][j][0] = LittleFloat(pPacked->texCoord[i][j][0]);
-			pUnpacked->texCoord[i][j][1] = LittleFloat(pPacked->texCoord[i][j][1]);
+			pUnpacked->texCoord[i][j][0] = pPacked->texCoord[i][j][0];
+			pUnpacked->texCoord[i][j][1] = pPacked->texCoord[i][j][1];
 		}
 	}
 
 	pUnpacked->x0 = ((int)pPacked->x << 6);
 	pUnpacked->y0 = ((int)pPacked->y << 6);
-    pUnpacked->z0 = LittleShort(pPacked->iBaseHeight);
-    pUnpacked->shader = ShaderForShaderNum(LittleShort(pPacked->iShader), LittleShort(pPacked->iLightMap));
-    pUnpacked->iNorth = LittleShort(pPacked->iNorth);
-    pUnpacked->iEast = LittleShort(pPacked->iEast);
-    pUnpacked->iSouth = LittleShort(pPacked->iSouth);
-    pUnpacked->iWest = LittleShort(pPacked->iWest);
+    pUnpacked->z0 = pPacked->iBaseHeight;
+    pUnpacked->shader = ShaderForShaderNum(pPacked->iShader, pPacked->iLightMap);
+    pUnpacked->iNorth = pPacked->iNorth;
+    pUnpacked->iEast = pPacked->iEast;
+    pUnpacked->iSouth = pPacked->iSouth;
+    pUnpacked->iWest = pPacked->iWest;
 
     for (i = 0; i < 63; i++)
 	{
 		flags.v = pPacked->varTree[0][i].flags;
 		flags.b[1] &= 7;
-		pUnpacked->varTree[0][i].fVariance = LittleShort(flags.v);
-		pUnpacked->varTree[0][i].s.flags = LittleShort(pPacked->varTree[0][i].flags) >> 12;
+		pUnpacked->varTree[0][i].fVariance = flags.v;
+		pUnpacked->varTree[0][i].s.flags = pPacked->varTree[0][i].flags >> 12;
 
 		flags.v = pPacked->varTree[1][i].flags;
 		flags.b[1] &= 7;
-		pUnpacked->varTree[1][i].fVariance = LittleShort(flags.v);
-		pUnpacked->varTree[1][i].s.flags = LittleShort(pPacked->varTree[1][i].flags) >> 12;
+		pUnpacked->varTree[1][i].fVariance = flags.v;
+		pUnpacked->varTree[1][i].s.flags = pPacked->varTree[1][i].flags >> 12;
     }
 
 	for (i = 0; i < sizeof(pUnpacked->heightmap) / sizeof(pUnpacked->heightmap[0]); i++) {
