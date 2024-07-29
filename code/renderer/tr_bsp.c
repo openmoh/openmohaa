@@ -2247,10 +2247,13 @@ void RE_LoadWorldMap( const char *name ) {
     }
 
     ri.FS_Read(&header, sizeof(dheader_t), h);
+
+	for (i=0 ; i<sizeof(dheader_t)/4 ; i++) {
+		((int *)&header)[i] = LittleLong ( ((int *)&header)[i]);
+	}
+
     map_length = length;
     map_version = header.version;
-
-    header.ident = LittleLong(header.ident);
 
 	// clear tr.world so if the level fails to load, the next
 	// try will not look at the partially loaded version
