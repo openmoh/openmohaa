@@ -435,7 +435,6 @@ static shader_t *ShaderForShaderNum( int shaderNum, int lightmapNum ) {
     shader_t	*shader;
     dshader_t	*dsh;
 
-    shaderNum = LittleLong( shaderNum );
     if ( shaderNum < 0 || shaderNum >= s_worldData.numShaders ) {
         ri.Error( ERR_DROP, "ShaderForShaderNum: bad num %i", shaderNum );
     }
@@ -618,7 +617,7 @@ static void ParseFace( dsurface_t *ds, drawVert_t *verts, msurface_t *surf, int 
     lightmapNum = LittleLong( ds->lightmapNum );
 
     // get shader value
-    surf->shader = ShaderForShaderNum( ds->shaderNum, lightmapNum );
+    surf->shader = ShaderForShaderNum(LittleLong(ds->shaderNum), lightmapNum);
     if ( r_singleShader->integer && !surf->shader->isSky ) {
         surf->shader = tr.defaultShader;
     }
@@ -735,7 +734,7 @@ static void ParseMesh ( dsurface_t *ds, drawVert_t *verts, msurface_t *surf ) {
     surf->fogIndex = LittleLong( ds->fogNum ) + 1;
 
     // get shader value
-    surf->shader = ShaderForShaderNum( ds->shaderNum, lightmapNum );
+    surf->shader = ShaderForShaderNum(LittleLong(ds->shaderNum), lightmapNum);
     if ( r_singleShader->integer && !surf->shader->isSky ) {
         surf->shader = tr.defaultShader;
     }
@@ -814,7 +813,7 @@ static void ParseTriSurf( dsurface_t *ds, drawVert_t *verts, msurface_t *surf, i
     surf->fogIndex = LittleLong( ds->fogNum ) + 1;
 
     // get shader
-    surf->shader = ShaderForShaderNum( ds->shaderNum, LIGHTMAP_BY_VERTEX );
+    surf->shader = ShaderForShaderNum(LittleLong(ds->shaderNum), LIGHTMAP_BY_VERTEX);
     if ( r_singleShader->integer && !surf->shader->isSky ) {
         surf->shader = tr.defaultShader;
     }
@@ -872,7 +871,7 @@ static void ParseFlare( dsurface_t *ds, drawVert_t *verts, msurface_t *surf, int
     surf->fogIndex = LittleLong( ds->fogNum ) + 1;
 
     // get shader
-    surf->shader = ShaderForShaderNum( ds->shaderNum, LIGHTMAP_BY_VERTEX );
+    surf->shader = ShaderForShaderNum(LittleLong(ds->shaderNum), LIGHTMAP_BY_VERTEX);
     if ( r_singleShader->integer && !surf->shader->isSky ) {
         surf->shader = tr.defaultShader;
     }
