@@ -2145,8 +2145,8 @@ R_LoadStaticModelIndexes
 ================
 */
 void R_LoadStaticModelIndexes(gamelump_t* lump) {
-    int		i;
-    short* in;
+    int i;
+    unsigned short* in;
     cStaticModelUnpacked_t** out;
 
     if (lump->length % sizeof(short)) {
@@ -2160,7 +2160,13 @@ void R_LoadStaticModelIndexes(gamelump_t* lump) {
     out = s_worldData.visStaticModels;
 
     for (i = 0; i < s_worldData.numVisStaticModels; in++, out++, i++) {
-        *out = &s_worldData.staticModels[*in];
+        unsigned short index = LittleUnsignedShort(*in);
+        if (index >= s_worldData.numStaticModels) {
+            // Added in OPM
+            Com_Error(ERR_DROP, "R_LoadStaticModelIndexes: bad static model index %d", index);
+        }
+
+        *out = &s_worldData.staticModels[index];
     }
 }
 
