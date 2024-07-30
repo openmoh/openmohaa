@@ -396,7 +396,7 @@ qboolean DownSampleWav(wavinfo_t *info, byte *wav, int wavlength, int newkhz, by
         error += newkhz;
         while (error > oldrate) {
             error -= oldrate;
-            for (ii = 0; ii < width; i++) {
+            for (ii = 0; ii < width; ii++) {
                 data_p[ii] = datap[ii];
             }
 
