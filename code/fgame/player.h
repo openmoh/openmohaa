@@ -979,7 +979,7 @@ inline void Player::Archive(Archiver& arc)
     arc.ArchiveFloat(&m_fPartBlends[0]);
     arc.ArchiveFloat(&m_fPartBlends[1]);
     arc.ArchiveFloat(&partBlendMult[0]);
-    arc.ArchiveFloat(&partBlendMult[0]);
+    arc.ArchiveFloat(&partBlendMult[1]);
 
     arc.ArchiveString(&last_torso_anim_name);
     arc.ArchiveString(&last_leg_anim_name);
