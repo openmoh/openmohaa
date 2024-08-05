@@ -1323,7 +1323,12 @@ void CG_ModelAnim(centity_t *cent, qboolean bDoShaderTime)
         if (model.frameInfo[i].weight) {
             if (!((cent->animLastWeight >> i) & 1) || model.frameInfo[i].index != cent->animLast[i]) {
                 CG_ProcessEntityCommands(TIKI_FRAME_ENTRY, model.frameInfo[i].index, s1->number, &model, cent);
-                cent->animLastTimes[i] = 0.0;
+                if (cent->animLastTimes[i] == -1) {
+                    cent->animLast[i] = model.frameInfo[i].index;
+                    cent->animLastTimes[i] = model.frameInfo[i].time;
+                } else {
+                    cent->animLastTimes[i] = 0;
+                }
             }
 
             CG_ClientCommands(&model, cent, i);
