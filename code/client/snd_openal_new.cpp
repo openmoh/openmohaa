@@ -965,6 +965,7 @@ void S_UnpauseSound()
         }
 
         if (pChannel->is_paused() || (pChannel->iFlags & CHANNEL_FLAG_PLAYABLE)) {
+            pChannel->iFlags &= ~CHANNEL_FLAG_PLAYABLE;
             pChannel->play();
         }
     }
