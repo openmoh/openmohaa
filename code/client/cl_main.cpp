@@ -1515,6 +1515,12 @@ because the renderer doesn't know what graphics to reload
 =================
 */
 void CL_Vid_Restart_f( void ) {
+    soundsystemsavegame_t save;
+    char tm_filename[MAX_RES_NAME];
+    int tm_loopcount;
+    int tm_offset;
+    char current_soundtrack[128];
+
 	if (!CL_Allowed_Vid_Restart()) {
 		return;
 	}
@@ -1522,10 +1528,17 @@ void CL_Vid_Restart_f( void ) {
 	Com_Printf("-------- CL_Vid_Restart_f --------\n");
 	cls.vid_restart = qtrue;
 
-	// don't let them loop during the restart
-	S_StopAllSounds2(qtrue);
+    //
+    // Save the current music
+    //
+    Q_strncpyz(tm_filename, S_GetMusicFilename(), sizeof(tm_filename));
+    tm_loopcount = S_GetMusicLoopCount();
+    tm_offset = S_GetMusicOffset();
 
 	SV_ClearSvsTimeFixups();
+
+    S_SaveData(&save);
+    Q_strncpyz(current_soundtrack, S_CurrentSoundtrack(), sizeof(current_soundtrack));
 
 	S_BeginRegistration();
 
@@ -1547,13 +1560,22 @@ void CL_Vid_Restart_f( void ) {
 
 	CL_StartHunkUsers(qfalse);
 
+#if defined(USE_SOUND_NEW) && USE_SOUND_NEW
+    s_bSoundPaused = true;
+    S_LoadData(&save);
+#else
+    S_Init();
+#endif
+
 	SV_FinishSvsTimeFixups();
 
-#if !defined(USE_SOUND_NEW) || !USE_SOUND_NEW
-	S_Init();
-#else
-	S_Init(qtrue);
-#endif
+    S_ReLoad(&save);
+
+    if (tm_filename[0]) {
+        S_TriggeredMusic_SetupHandle(tm_filename, tm_loopcount, tm_offset, 0);
+    }
+
+    MUSIC_NewSoundtrack(current_soundtrack);
 
 	if (clc.state > CA_CONNECTED && clc.state != CA_CINEMATIC)
 	{
@@ -1578,26 +1600,28 @@ void CL_Snd_Restart_f( void ) {
 #if !defined(USE_SOUND_NEW) || !USE_SOUND_NEW
 	S_Shutdown();
 	S_Init();
+    CL_Vid_Restart_f();
 #else
 	qboolean full;
 	soundsystemsavegame_t save;
-	char tm_filename[MAX_RES_NAME];
+    char tm_filename[MAX_RES_NAME];
 	int tm_loopcount;
 	int tm_offset;
 	char current_soundtrack[128];
 
 	full = S_NeedFullRestart();
 
-	//
-	// FIXME: there is a stub function
-	tm_loopcount = 0;
-	tm_offset = 0;
-	//
+    //
+    // Save the current music
+    //
+    Q_strncpyz(tm_filename, S_GetMusicFilename(), sizeof(tm_filename));
+    tm_loopcount = S_GetMusicLoopCount();
+    tm_offset = S_GetMusicOffset();
 
 	SV_ClearSvsTimeFixups();
 
 	S_SaveData(&save);
-	strcpy(current_soundtrack, S_CurrentSoundtrack());
+	Q_strncpyz(current_soundtrack, S_CurrentSoundtrack(), sizeof(current_soundtrack));
 
 	S_Shutdown(qfalse);
 	S_Init(qfalse);
@@ -1614,12 +1638,11 @@ void CL_Snd_Restart_f( void ) {
 	}
 
 	MUSIC_NewSoundtrack(current_soundtrack);
+
 	if (full) {
 		CL_Vid_Restart_f();
 	}
 #endif
-
-	CL_Vid_Restart_f();
 }
 
 
