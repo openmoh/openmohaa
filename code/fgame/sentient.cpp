@@ -1354,24 +1354,22 @@ void Sentient::ArmorDamage(Event *ev)
 {
     Entity   *inflictor;
     Sentient *attacker;
-    float     damage;
-    Vector    momentum;
-    Vector    position;
-    Vector    normal;
-    Vector    direction;
+    float    damage;
+    Vector   momentum;
+    Vector   position;
+    Vector   normal;
+    Vector   direction;
     Event    *event;
-    int       dflags;
-    int       meansofdeath;
-    int       knockback;
-    int       location;
+    int      dflags;
+    int      meansofdeath;
+    int      knockback;
+    int      location;
 
-    /*
-    qboolean	blocked;
+    //qboolean	blocked;
     float		damage_red;
     float		damage_green;
     float		damage_time;
-    qboolean	set_means_of_death;
-*/
+    //qboolean	set_means_of_death;
 
     static bool    tmp          = false;
     static cvar_t *AIDamageMult = NULL;
@@ -1396,7 +1394,7 @@ void Sentient::ArmorDamage(Event *ev)
     meansofdeath = ev->GetInteger(9);
     location     = CheckHitLocation(ev->GetInteger(10));
 
-    if (location == -2) {
+    if (location == HITLOC_MISS) {
         return;
     }
 
@@ -1404,12 +1402,10 @@ void Sentient::ArmorDamage(Event *ev)
         return;
     }
 
-    if ((client && !g_gametype->integer) || (location < 0 || location > 18)) {
-        if (attacker && attacker->IsSubclassOfActor()) {
-            damage *= AIDamageMult->value;
-        }
-    } else {
+    if ((!isClient() || g_gametype->integer != GT_SINGLE_PLAYER) && (location > HITLOC_GENERAL && location < NUMBODYLOCATIONS)) {
         damage *= m_fDamageMultipliers[location];
+    } else if (isClient() && attacker && attacker->IsSubclassOfActor() && g_gametype->integer == GT_SINGLE_PLAYER) {
+        damage *= AIDamageMult->value;
     }
 
     // See if sentient is immune to this type of damage
@@ -1471,34 +1467,6 @@ void Sentient::ArmorDamage(Event *ev)
     }
 */
 
-    /*
-if( meansofdeath == MOD_SLIME )
-{
-    damage_green = damage / 50;
-    if( damage_green > 1.0f )
-        damage_green = 1.0f;
-    if( ( damage_green < 0.2 ) && ( damage_green > 0 ) )
-        damage_green = 0.2f;
-    damage_red = 0;
-}
-else
-{
-    damage_red = damage / 50;
-    if( damage_red > 1.0f )
-        damage_red = 1.0f;
-    if( ( damage_red < 0.2 ) && ( damage_red > 0 ) )
-        damage_red = 0.2f;
-    damage_green = 0;
-}
-
-damage_time = damage / 50;
-
-if( damage_time > 2 )
-    damage_time = 2;
-
-SetOffsetColor( damage_red, damage_green, 0, damage_time );
-*/
-
     // Do the kick
     if (!(dflags & DAMAGE_NO_KNOCKBACK)) {
         if ((knockback) && (movetype != MOVETYPE_NONE) && (movetype != MOVETYPE_STATIONARY)
@@ -1506,14 +1474,14 @@ SetOffsetColor( damage_red, damage_green, 0, damage_time );
             float  m;
             Event *immunity_event;
 
-            if (mass < 50) {
-                m = 50;
+            if (mass < 20) {
+                m = 20;
             } else {
                 m = mass;
             }
 
             direction.normalize();
-            if (isClient() && (attacker == this) && g_gametype->integer) {
+            if (isClient() && (attacker == this) && deathmatch->integer) {
                 momentum = direction * (1700.0f * (float)knockback / m); // the rocket jump hack...
             } else {
                 momentum = direction * (500.0f * (float)knockback / m);
@@ -1542,8 +1510,8 @@ SetOffsetColor( damage_red, damage_green, 0, damage_time );
     }
 
     if (!(flags & FL_GODMODE)
-        && ((g_gametype->integer) || !(attacker) || (attacker) == this || !(attacker->IsSubclassOfPlayer())
-            || !(attacker->IsTeamMate(this)))) {
+        && ((g_gametype->integer != GT_SINGLE_PLAYER) || !(attacker) || (attacker) == this || !(attacker->IsSubclassOfSentient())
+            || (attacker->m_Team != m_Team))) {
         health -= damage;
     }
 
@@ -1573,9 +1541,38 @@ SetOffsetColor( damage_red, damage_green, 0, damage_time );
         }
     }
 
-    if (health > 0) {
-        // Send pain event
-        event = new Event(EV_Pain, 10);
+    if (meansofdeath == MOD_SLIME)
+    {
+        damage_green = damage / 50;
+        if (damage_green > 1.0f)
+            damage_green = 1.0f;
+        if ((damage_green < 0.2) && (damage_green > 0))
+            damage_green = 0.2f;
+        damage_red = 0;
+    }
+    else
+    {
+        damage_red = damage / 50;
+        if (damage_red > 1.0f)
+            damage_red = 1.0f;
+        if ((damage_red < 0.2) && (damage_red > 0))
+            damage_red = 0.2f;
+        damage_green = 0;
+    }
+
+    damage_time = damage / 50;
+
+    if (damage_time > 2)
+        damage_time = 2;
+
+    //SetOffsetColor(damage_red, damage_green, 0, damage_time);
+
+    if (health < 0.1) {
+        // Make sure health is now 0
+
+        health = 0;
+
+        event = new Event(EV_Killed, 10);
         event->AddEntity(attacker);
         event->AddFloat(damage);
         event->AddEntity(inflictor);
@@ -1590,12 +1587,9 @@ SetOffsetColor( damage_red, damage_green, 0, damage_time );
         ProcessEvent(event);
     }
 
-    if (health < 0.1) {
-        // Make sure health is now 0
-
-        health = 0;
-
-        event = new Event(EV_Killed, 10);
+    if (health > 0) {
+        // Send pain event
+        event = new Event(EV_Pain, 10);
         event->AddEntity(attacker);
         event->AddFloat(damage);
         event->AddEntity(inflictor);
