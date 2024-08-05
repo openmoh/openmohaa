@@ -4027,6 +4027,10 @@ void S_TriggeredMusic_Stop()
     }
 
     openal.chan_trig_music.stop();
+    // Fixed in OPM
+    //  Make sure to clear the triggered music in case snd_restart is called
+    openal.tm_filename[0] = 0;
+    openal.tm_loopcount = 0;
 }
 
 /*
