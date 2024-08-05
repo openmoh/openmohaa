@@ -33,6 +33,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "qcommon.h"
 #include "unzip.h"
 
+#ifndef _WIN32
+#   include <sys/types.h>
+#   include <dirent.h>
+#endif
+
 /*
 =============================================================================
 
@@ -522,17 +527,51 @@ check_filecase
 ====================
 */
 static int check_filecase( char *Path ) {
-	/*
-	int retval;
+    int retval;
+
+#ifdef _WIN32
+    retval = 0;
+#else
 	char *ptr;
 	char *filename;
 	char *basedir;
+    DIR* dir;
 
-	// of course there is no portable way to open a dir in Linux or Windows
-	// DAMNIT
-	// FIXME: stub
-	*/
-	return 0;
+    retval = 0;
+    ptr = strrchr(Path, '/');
+    filename = Path;
+
+    if (ptr) {
+        filename = ptr + 1;
+    }
+
+    basedir = ".";
+    if (ptr)
+    {
+        basedir = Path;
+        *ptr = 0;
+    }
+
+    dir = opendir(basedir);
+    if (dir)
+    {
+        dirent* ent;
+
+        for (ent = readdir(dir); ent && !retval; ent = readdir(dir)) {
+            if (!Q_stricmp(ent->d_name, filename)) {
+                strcpy(filename, ent->d_name);
+                retval = 1;
+            }
+        }
+
+        closedir(dir);
+    }
+
+    if (ptr) {
+        *ptr = '/';
+    }
+#endif
+    return retval;
 }
 
 /*
@@ -564,9 +603,7 @@ void FS_CorrectCase( char *path ) {
 			*ptr = 0;
 		}
 
-		getOut = access( path, 0 );
-
-		if( getOut ) {
+		if( access(path, 0) ) {
 			getOut = !check_filecase( path );
 		}
 
