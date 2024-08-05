@@ -964,8 +964,8 @@ void S_UnpauseSound()
             continue;
         }
 
-        if (pChannel->is_paused() || (pChannel->iFlags & CHANNEL_FLAG_PLAYABLE)) {
-            pChannel->iFlags &= ~CHANNEL_FLAG_PLAYABLE;
+        if (pChannel->is_paused() || (pChannel->iFlags & CHANNEL_FLAG_PLAY_DEFERRED)) {
+            pChannel->iFlags &= ~CHANNEL_FLAG_PLAY_DEFERRED;
             pChannel->play();
         }
     }
@@ -1746,7 +1746,7 @@ static int S_OPENAL_Start2DLoopSound(
 
     if (!pChannel->set_sfx(pLoopSound->pSfx)) {
         Com_DPrintf("Set sample error\n");
-        pChannel->iFlags &= ~CHANNEL_FLAG_PLAYABLE;
+        pChannel->iFlags &= ~CHANNEL_FLAG_PLAY_DEFERRED;
         return -1;
     }
 
@@ -2585,7 +2585,7 @@ S_StartSoundFromBase(channelbasesavegame_t *pBase, openal_channel *pChannel, sfx
 {
     if (!pChannel->set_sfx(pSfx)) {
         Com_DPrintf("Set sample error - %s\n", pSfx->name);
-        pChannel->iFlags &= ~CHANNEL_FLAG_PLAYABLE;
+        pChannel->iFlags &= ~CHANNEL_FLAG_PLAY_DEFERRED;
         return;
     }
 
@@ -2615,7 +2615,7 @@ S_StartSoundFromBase(channelbasesavegame_t *pBase, openal_channel *pChannel, sfx
     if (bStartUnpaused) {
         pChannel->resume_sample();
     } else {
-        pChannel->iFlags |= CHANNEL_FLAG_PLAYABLE;
+        pChannel->iFlags |= CHANNEL_FLAG_PLAY_DEFERRED;
     }
 }
 

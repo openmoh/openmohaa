@@ -138,7 +138,7 @@ typedef struct {
 } soundsystemsavegame_t;
 
 enum channel_flags_t {
-    CHANNEL_FLAG_PLAYABLE       = 1,
+    CHANNEL_FLAG_PLAY_DEFERRED  = 1,
     CHANNEL_FLAG_LOCAL_LISTENER = 16,
     CHANNEL_FLAG_NO_ENTITY      = 32,
     CHANNEL_FLAG_PAUSED         = 64,
