@@ -382,6 +382,16 @@ void MUSIC_CheckForStoppedSongs(void)
 }
 
 /*
+==============
+S_CurrentSoundtrack
+==============
+*/
+const char* S_CurrentSoundtrack()
+{
+    return "";
+}
+
+/*
 =================
 S_IsSoundRegistered
 =================

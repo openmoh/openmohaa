@@ -68,6 +68,8 @@ void S_TriggeredMusic_Start();
 void S_TriggeredMusic_StartLoop();
 void S_TriggeredMusic_Stop();
 
+const char* S_CurrentSoundtrack();
+
 void S_StopSound(int entnum, int channel);
 void S_StopAllSounds2(qboolean stop_music);
 float S_GetSoundTime(sfxHandle_t handle);
