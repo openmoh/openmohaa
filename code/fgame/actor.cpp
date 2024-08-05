@@ -10135,7 +10135,7 @@ Vector Actor::GunTarget(bool bNoCollision, const vec3_t position, const vec3_t f
     float           fAccuracy, fCoverFactor;
     Vector          aimDir;
 
-    fCoverFactor = mAccuracy * (1.0 - m_fVisibilityAlpha) * aiMinAccuracy->value + m_fVisibilityAlpha;
+    fCoverFactor = mAccuracy * ((1.0 - m_fVisibilityAlpha) * aiMinAccuracy->value + m_fVisibilityAlpha);
 
     if (doInit) {
         aiRanges[0] = gi.Cvar_Get("g_aishortrange", "500", 0);
