@@ -481,7 +481,7 @@ qboolean S_OPENAL_Init()
         }
     }
 
-    al_current_volume = s_volume->value * s_volume->value;
+    al_current_volume = Square(s_volume->value);
     qalListenerf(AL_GAIN, al_current_volume);
     alDieIfError();
 
@@ -1358,9 +1358,8 @@ void S_OPENAL_StartSound(
         return;
     }
 
-    // Fixed in OPM
-    //  3D streamed or MP3 sound should be supported
-    if ((pSfx->iFlags & (SFX_FLAG_NO_OFFSET)) //|| pSfx->iFlags & (SFX_FLAG_STREAMED | SFX_FLAG_MP3)
+    //if ((pSfx->iFlags & (SFX_FLAG_NO_OFFSET)) //|| pSfx->iFlags & (SFX_FLAG_STREAMED | SFX_FLAG_MP3)
+    if ((pSfx->iFlags & (SFX_FLAG_NO_OFFSET) || pSfx->iFlags & (SFX_FLAG_STREAMED | SFX_FLAG_MP3))
         || iEntChannel == CHAN_MENU || iEntChannel == CHAN_LOCAL) {
         S_OPENAL_Start2DSound(vOrigin, iEntNum, iEntChannel, pSfx, fVolume, fMinDist, fPitch, fMaxDist);
         return;
@@ -1370,12 +1369,10 @@ void S_OPENAL_StartSound(
     iEntNum &= ~S_FLAG_DO_CALLBACK;
 
     pSfxInfo = &sfx_infos[pSfx->sfx_info_index];
-    // Fixed in OPM
-    //  3D streamed sound should be supported
-    //if (pSfx->iFlags & SFX_FLAG_STREAMED) {
-    //    Com_DPrintf("3D sounds not supported - couldn't play '%s'\n", pSfx->name);
-    //    return;
-    //}
+    if (pSfx->iFlags & SFX_FLAG_STREAMED) {
+        Com_DPrintf("3D sounds not supported - couldn't play '%s'\n", pSfx->name);
+        return;
+    }
 
     iChannel = S_OPENAL_PickChannel3D(iEntNum, iEntChannel);
     if (iChannel < 0) {
@@ -1792,11 +1789,9 @@ static int S_OPENAL_Start3DLoopSound(
     int             iSoundOffset;
     openal_channel *pChan3D;
 
-    // Fixed in OPM
-    //  3D streamed sound should be supported
-    //if (pLoopSound->pSfx->iFlags & SFX_FLAG_STREAMED) {
-    //    return -1;
-    //}
+    if (pLoopSound->pSfx->iFlags & SFX_FLAG_STREAMED) {
+        return -1;
+    }
 
     iChannel = S_OPENAL_PickChannel3D(0, 0);
     if (iChannel < 0) {
@@ -1874,7 +1869,8 @@ static bool S_OPENAL_UpdateLoopSound(
 
     pChannel->iStartTime = cl.serverTime;
 
-    if (pLoopSound->pSfx->iFlags & (SFX_FLAG_NO_OFFSET) // || pLoopSound->pSfx->iFlags & (SFX_FLAG_STREAMED | SFX_FLAG_MP3)
+    //if (pLoopSound->pSfx->iFlags & (SFX_FLAG_NO_OFFSET) // || pLoopSound->pSfx->iFlags & (SFX_FLAG_STREAMED | SFX_FLAG_MP3)
+    if (pLoopSound->pSfx->iFlags & (SFX_FLAG_NO_OFFSET) || pLoopSound->pSfx->iFlags & (SFX_FLAG_STREAMED | SFX_FLAG_MP3)
         || (pLoopSound->iFlags & LOOPSOUND_FLAG_NO_PAN)) {
         vec3_t vOrigin;
         int    iPan;
@@ -2093,7 +2089,8 @@ void S_OPENAL_AddLoopSounds(const vec3_t vTempAxis)
             Com_DPrintf("%d (#%i) - started loop - %s\n", cl.serverTime, pLoopSound->iChannel, pLoopSound->pSfx->name);
         }
 
-        if (pLoopSound->pSfx->iFlags & (SFX_FLAG_NO_OFFSET) //|| pLoopSound->pSfx->iFlags & (SFX_FLAG_STREAMED | SFX_FLAG_MP3)
+        //if (pLoopSound->pSfx->iFlags & (SFX_FLAG_NO_OFFSET) //|| pLoopSound->pSfx->iFlags & (SFX_FLAG_STREAMED | SFX_FLAG_MP3)
+        if (pLoopSound->pSfx->iFlags & (SFX_FLAG_NO_OFFSET) || pLoopSound->pSfx->iFlags & (SFX_FLAG_STREAMED | SFX_FLAG_MP3)
             || (pLoopSound->iFlags & LOOPSOUND_FLAG_NO_PAN)) {
             iChannel = S_OPENAL_Start2DLoopSound(
                 pLoopSound, fVolume, S_GetBaseVolume() * s_fVolumeGain * fTotalVolume, fMinDistance, vLoopOrigin
@@ -2199,7 +2196,7 @@ void S_OPENAL_Respatialize(int iEntNum, const vec3_t vHeadPos, const vec3_t vAxi
     //vTempAxis[0] = -vAxis[0][1];
     //vTempAxis[1] = vAxis[2][1];
     //vTempAxis[2] = -vAxis[1][1];
-    VectorCopy(vAxis[0], vTempAxis);
+    VectorCopy(vAxis[1], vTempAxis);
 
     fVolume = 1;
     iPan    = 64;
@@ -2351,7 +2348,7 @@ static int S_OPENAL_SpatializeStereoSound(const vec3_t listener_origin, const ve
         pan = 0;
     }
 
-    return pan * 128.f;
+    return ceilf(pan * 127);
 }
 
 /*
@@ -2417,7 +2414,7 @@ void S_OPENAL_Update()
 
         music_volume_changed = true;
         s_volume->modified   = 0;
-        al_current_volume    = Square(s_volume->value * s_volume->value);
+        al_current_volume    = Square(s_volume->value);
         qalListenerf(AL_GAIN, al_current_volume);
         alDieIfError();
     }
@@ -3046,7 +3043,15 @@ void openal_channel::end_sample()
 openal_channel::set_sample_pan
 ==============
 */
-void openal_channel::set_sample_pan(S32 pan) {}
+void openal_channel::set_sample_pan(S32 pan)
+{
+    const float panning = (pan - 64) / 127.f;
+    const ALfloat sourcePosition[3] = {panning, 0, sqrtf(1.f - Square(panning))};
+
+    qalSourcef(source, AL_ROLLOFF_FACTOR, 0);
+    qalSourcei(source, AL_SOURCE_RELATIVE, AL_TRUE);
+    qalSourcefv(source, AL_POSITION, sourcePosition);
+}
 
 /*
 ==============
