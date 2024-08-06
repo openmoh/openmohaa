@@ -252,31 +252,21 @@ CM_ObfuscationTraceThroughBrush
 ================
 */
 float CM_ObfuscationTraceThroughBrush( traceWork_t *tw, cbrush_t *brush ) {
-	int			i;
-	cplane_t	*plane, *clipplane, *clipplane2;
-	float		dist;
-	float		enterFrac, leaveFrac, leaveFrac2;
-	float		d1, d2;
-	qboolean	getout, startout;
-	float		f;
-	cbrushside_t	*side, *leadside, *leadside2;
-	float		t;
-	float		alpha;
+    int i;
+    cplane_t* plane;
+    float dist;
+    float enterFrac, leaveFrac;
+    float enterDensity, leaveDensity;
+    float delta;
+    float d1, d2;
+    float f;
+    cbrushside_t* side;
 
-	if( !brush->numsides ) {
-		return tw->radius * cm.shaders[brush->shaderNum].obfuscationHeightDensity;
-	}
-
-	enterFrac = -1.0;
+	enterFrac = 0;
+    enterDensity = 0;
 	leaveFrac = 1.0;
-	clipplane = NULL;
+    leaveDensity = 0;
 
-	c_brush_traces++;
-
-	getout = qfalse;
-	startout = qfalse;
-
-	leadside = NULL;
 	//
 	// compare the trace against all planes of the brush
 	// find the latest time the trace crosses a plane towards the interior
@@ -287,41 +277,38 @@ float CM_ObfuscationTraceThroughBrush( traceWork_t *tw, cbrush_t *brush ) {
 		plane = side->plane;
 
 		// adjust the plane distance apropriately for mins/maxs
-		dist = plane->dist - DotProduct( tw->offsets[ plane->signbits ], plane->normal );
+		//dist = plane->dist - DotProduct( tw->offsets[ plane->signbits ], plane->normal );
+        dist = plane->dist;
 
 		d1 = DotProduct( tw->start, plane->normal ) - dist;
 		d2 = DotProduct( tw->end, plane->normal ) - dist;
 
 		// if it doesn't cross the plane, the plane isn't relevent
 		if( d1 >= 0 && d2 >= 0 ) {
-			continue;
+            return 0;
 		}
 
-		// crosses face
-		if( d1 > d2 ) { // enter
-			f = ( d1 - SURFACE_CLIP_EPSILON ) / ( d1 - d2 );
-			if( f < 0 ) {
-				f = 0;
-			}
-			if( f > enterFrac ) {
-				enterFrac = f;
-				clipplane = plane;
-				leadside = side;
-			}
-		} else { // leave
-			f = ( d1 + SURFACE_CLIP_EPSILON ) / ( d1 - d2 );
-			if( f > 1 ) {
-				f = 1;
-			}
-			if( f < leaveFrac ) {
-				leaveFrac = f;
-			}
-		}
+        if (d1 < 0 && d2 > 0) {
+            f = d1 / (d1 - d2);
+            if (leaveFrac > f) {
+                leaveFrac = f;
+            }
+            leaveDensity = cm.shaders[brush->shaderNum].obfuscationWidthDensity;
+        } else if (d1 > 0 && d2 < 0) {
+            f = d1 / (d1 - d2);
+            if (enterFrac < f) {
+                enterFrac = f;
+            }
+            enterDensity = cm.shaders[brush->shaderNum].obfuscationWidthDensity;
+        }
 	}
 
-	alpha = 1.f;
-	// FIXME: unimplemented
-	return alpha;
+    delta = leaveFrac - enterFrac;
+    if (delta <= 0) {
+        return 0;
+    }
+
+    return enterDensity + cm.shaders[brush->shaderNum].obfuscationHeightDensity * tw->radius * delta + leaveDensity;
 }
 
 /*
@@ -366,7 +353,7 @@ a smaller intercept fraction.
 float CM_ObfuscationTraceThroughTree( traceWork_t *tw, int num, float p1f, float p2f, vec3_t p1, vec3_t p2) {
 	cNode_t		*node;
 	cplane_t	*plane;
-	float		t1, t2, offset;
+	float		t1, t2;
 	float		frac, frac2;
 	float		idist;
 	vec3_t		mid;
@@ -391,23 +378,16 @@ float CM_ObfuscationTraceThroughTree( traceWork_t *tw, int num, float p1f, float
 	if ( plane->type < 3 ) {
 		t1 = p1[plane->type] - plane->dist;
 		t2 = p2[plane->type] - plane->dist;
-		offset = tw->extents[plane->type];
 	} else {
 		t1 = DotProduct (plane->normal, p1) - plane->dist;
 		t2 = DotProduct (plane->normal, p2) - plane->dist;
-		if ( tw->isPoint ) {
-			offset = 0;
-		} else {
-			// this is silly
-			offset = 2048;
-		}
 	}
 
 	// see which sides we need to consider
-	if ( t1 >= offset + 1 && t2 >= offset + 1 ) {
+	if ( t1 >= SURFACE_CLIP_EPSILON && t2 >= SURFACE_CLIP_EPSILON) {
 		return CM_ObfuscationTraceThroughTree( tw, node->children[0], p1f, p2f, p1, p2 );
 	}
-	if ( t1 < -offset - 1 && t2 < -offset - 1 ) {
+	if ( t1 < -SURFACE_CLIP_EPSILON && t2 < -SURFACE_CLIP_EPSILON) {
 		return CM_ObfuscationTraceThroughTree( tw, node->children[1], p1f, p2f, p1, p2 );
 	}
 
@@ -415,13 +395,13 @@ float CM_ObfuscationTraceThroughTree( traceWork_t *tw, int num, float p1f, float
 	if ( t1 < t2 ) {
 		idist = 1.0/(t1-t2);
 		side = 1;
-		frac2 = (t1 + offset + SURFACE_CLIP_EPSILON)*idist;
-		frac = (t1 - offset + SURFACE_CLIP_EPSILON)*idist;
+		frac2 = (t1 + SURFACE_CLIP_EPSILON)*idist;
+		frac = (t1 + SURFACE_CLIP_EPSILON)*idist;
 	} else if (t1 > t2) {
 		idist = 1.0/(t1-t2);
 		side = 0;
-		frac2 = (t1 - offset - SURFACE_CLIP_EPSILON)*idist;
-		frac = (t1 + offset + SURFACE_CLIP_EPSILON)*idist;
+		frac2 = (t1 - SURFACE_CLIP_EPSILON)*idist;
+		frac = (t1 + SURFACE_CLIP_EPSILON)*idist;
 	} else {
 		side = 0;
 		frac = 1;
@@ -431,8 +411,7 @@ float CM_ObfuscationTraceThroughTree( traceWork_t *tw, int num, float p1f, float
 	// move up to the node
 	if ( frac < 0 ) {
 		frac = 0;
-	}
-	if ( frac > 1 ) {
+	} else if ( frac > 1 ) {
 		frac = 1;
 	}
 
@@ -448,8 +427,7 @@ float CM_ObfuscationTraceThroughTree( traceWork_t *tw, int num, float p1f, float
 	// go past the node
 	if ( frac2 < 0 ) {
 		frac2 = 0;
-	}
-	if ( frac2 > 1 ) {
+	} else if ( frac2 > 1 ) {
 		frac2 = 1;
 	}
 
@@ -467,9 +445,26 @@ float CM_ObfuscationTraceThroughTree( traceWork_t *tw, int num, float p1f, float
 CM_ObfuscationTrace
 ================
 */
-float CM_ObfuscationTrace(const vec3_t start, const vec3_t end, clipHandle_t model) {
-	// FIXME: unimplemented
-	return 0.f;
+float CM_ObfuscationTrace(const vec3_t start, const vec3_t end, clipHandle_t handle) {
+    cmodel_t* model;
+    vec3_t delta;
+    traceWork_t tw;
+
+    model = CM_ClipHandleToModel(handle);
+
+    c_traces++;
+    cm.checkcount++;
+
+    VectorCopy(start, tw.start);
+    VectorCopy(end, tw.end);
+    VectorSubtract(tw.end, tw.start, delta);
+    tw.radius = VectorLength(delta);
+
+    if (handle) {
+        return CM_ObfuscationTraceToLeaf(&tw, &model->leaf);
+    } else {
+        return CM_ObfuscationTraceThroughTree(&tw, 0, 0.0, 1.0, tw.start, tw.end);
+    }
 }
 
 /*
@@ -478,6 +473,5 @@ CM_VisualObfuscation
 ================
 */
 float CM_VisualObfuscation(const vec3_t start, const vec3_t end) {
-    // FIXME: unimplemented
-	return 0.f;
+    return CM_ObfuscationTrace(start, end, 0);
 }
