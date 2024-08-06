@@ -22,14 +22,92 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "cm_local.h"
 
+static char com_token[MAX_TOKEN_CHARS];
+
+/*
+================
+CM_NextCsvToken
+================
+*/
 char* CM_NextCsvToken(char** text, qboolean crossline) {
-	// FIXME: unimplemented
-	return NULL;
+    char* p;
+    char* out;
+    char c;
+    int i;
+    qboolean newline;
+    qboolean comma;
+
+    com_token[0] = 0;
+    p = *text;
+    if (!p) {
+        return com_token;
+    }
+
+    for (c = *p; isspace(c); p++, c = *p)
+    {
+        if (c == '\n' && !crossline) {
+            break;
+        }
+    }
+
+    out = com_token;
+
+    for (i = 0; ; i++, p++) {
+        c = *p;
+
+        newline = qfalse;
+        comma = qfalse;
+
+        if (*p && c != ',') {
+            comma = qtrue;
+        }
+
+        if (comma && c != '\n') {
+            newline = qtrue;
+        }
+
+        if (!newline) {
+            break;
+        }
+
+        *out = c;
+        out++;
+    }
+
+    if (c == ',') {
+        p++;
+    }
+
+    while (i > 0) {
+        if (!isspace(com_token[i - 1])) {
+            break;
+        }
+
+        i--;
+    }
+
+    com_token[i] = 0;
+    *text = p;
+
+    if (!p[0]) {
+        *text = NULL;
+    }
+
+    return com_token;
 }
 
+/*
+================
+CM_SetupObfuscationMapping
+================
+*/
 obfuscation_t* CM_SetupObfuscationMapping() {
 	obfuscation_t* list;
-	int i;
+    obfuscation_t* obfuscation;
+    char** files;
+    int numFiles;
+    int numObfuscations;
+	int i, j;
 	
 	list = (obfuscation_t*)Hunk_AllocateTempMemory(sizeof(obfuscation_t) * MAX_OBFUSCATIONS);
 	for (i = 0; i < MAX_OBFUSCATIONS; i++) {
@@ -37,14 +115,122 @@ obfuscation_t* CM_SetupObfuscationMapping() {
 		list[i].heightDensity = 0;
 		list[i].widthDensity = 0;
 	}
-	// FIXME: unimplemented
+
+    files = FS_ListFiles("scripts/", ".csv", qfalse, &numFiles);
+    numObfuscations = 0;
+
+    for (i = 0; i < numFiles; ++i) {
+        const char* filename = va("scripts/%s", files[i]);
+        void* buffer;
+        char* text;
+        char* token;
+
+        if (FS_ReadFile(filename, &buffer) < 0) {
+            continue;
+        }
+
+        text = (char*)buffer;
+        while (text) {
+            token = CM_NextCsvToken(&text, qtrue);
+            if (!token[0]) {
+                break;
+            }
+
+            for (j = 0; j < numObfuscations; ++j)
+            {
+                if (!Q_stricmp(token, list[j].name))
+                {
+                    Com_Printf("WARNING: using redefinition of obfuscation for '%s' in '%s'\n", token, files[i]);
+                    break;
+                }
+            }
+
+            obfuscation = &list[j];
+            strcpy(obfuscation->name, token);
+
+            token = CM_NextCsvToken(&text, qfalse);
+            if (!text) {
+                Com_Printf(
+                    "WARNING: unexpected EOF in definition of obfuscation for '%s' in '%s'; skipping\n",
+                    obfuscation->name,
+                    files[i]
+                );
+                break;
+            }
+
+            if (token[0]) {
+                float maxNumVolumes = atof(token);
+
+                if (maxNumVolumes > 0) {
+                    obfuscation->widthDensity = 0.5f / maxNumVolumes;
+                } else {
+                    obfuscation->widthDensity = 0;
+                }
+
+                token = CM_NextCsvToken(&text, 0);
+                if (!text) {
+                    Com_Printf(
+                        "WARNING: unexpected EOF in definition of obfuscation for '%s' in '%s'; skipping\n",
+                        obfuscation->name,
+                        files[i]
+                    );
+                    break;
+                }
+
+                if (token[0]) {
+                    float maxDist = atof(token);
+
+                    if (maxDist > 0) {
+                        obfuscation->heightDensity = 1.f / maxDist;
+                    } else {
+                        obfuscation->heightDensity = 0;
+                    }
+
+                    if (numObfuscations == MAX_OBFUSCATIONS) {
+                        Com_Printf("WARNING: exceeded MAX_OBFUSCATIONS (%i)", numObfuscations);
+                    } else {
+                        numObfuscations++;
+                    }
+                } else {
+                    Com_Printf(
+                        "WARNING: missing max distance thorugh obscuring volumes for '%s' in '%s'; skipping\n",
+                        obfuscation->name,
+                        files[i]
+                    );
+                    SkipRestOfLine(&text);
+                }
+            } else {
+                Com_Printf(
+                    "WARNING: missing max number of obscuring volumes for '%s' in '%s'; skipping\n",
+                    obfuscation->name,
+                    files[i]
+                );
+                SkipRestOfLine(&text);
+            }
+        }
+
+        FS_FreeFile(buffer);
+    }
+
+    list[numObfuscations].name[0] = 0;
+
 	return list;
 }
 
+/*
+================
+CM_ReleaseObfuscationMapping
+================
+*/
 void CM_ReleaseObfuscationMapping(obfuscation_t* obfuscation) {
 	Hunk_FreeTempMemory(obfuscation);
 }
 
+/*
+================
+CM_ObfuscationForShader
+================
+*/
 void CM_ObfuscationForShader(obfuscation_t* list, const char* shaderName, float* widthDensity, float* heightDensity) {
 	obfuscation_t* current;
 
@@ -276,11 +462,22 @@ float CM_ObfuscationTraceThroughTree( traceWork_t *tw, int num, float p1f, float
 	return CM_ObfuscationTraceThroughTree( tw, node->children[side^1], midf, p2f, mid, p2 );
 }
 
+/*
+================
+CM_ObfuscationTrace
+================
+*/
 float CM_ObfuscationTrace(const vec3_t start, const vec3_t end, clipHandle_t model) {
 	// FIXME: unimplemented
 	return 0.f;
 }
 
-float CM_VisualObfuscation(const vec3_t start, const vec3_t end) {	// FIXME: unimplemented
+/*
+================
+CM_VisualObfuscation
+================
+*/
+float CM_VisualObfuscation(const vec3_t start, const vec3_t end) {
+    // FIXME: unimplemented
 	return 0.f;
 }
