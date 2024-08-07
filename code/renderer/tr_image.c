@@ -2928,7 +2928,7 @@ void R_DeleteTextures( void ) {
 	int		i;
 
 	for ( i=0; i<tr.numImages ; i++ ) {
-		qglDeleteTextures( 1, &tr.images[i].texnum );
+        R_FreeImage(&tr.images[i]);
 	}
 	Com_Memset( tr.images, 0, sizeof( tr.images ) );
 
@@ -2945,6 +2945,66 @@ void R_DeleteTextures( void ) {
 			qglBindTexture( GL_TEXTURE_2D, 0 );
 		}
 	}
+}
+
+/*
+===============
+R_DumpTextureMemory
+===============
+*/
+void R_DumpTextureMemory() {
+    int i;
+    char str_buffer[32];
+    char* Label1, * Label2;
+    fileHandle_t stat_file;
+
+    stat_file = FS_SV_FOpenFileWrite("textureuse.csv");
+
+    Label1 = "Texture Name,";
+    FS_Write(Label1, strlen(Label1), stat_file);
+    Label2 = "Size (kb),";
+    FS_Write(Label2, strlen(Label2), stat_file);
+    Label1 = "Num Uses,";
+    FS_Write(Label1, strlen(Label1), stat_file);
+    Label2 = "Miplevels\n";
+    FS_Write(Label2, strlen(Label2), stat_file);
+
+    for (i = 0; i < tr.numImages; i++) {
+        image_t* image = &tr.images[i];
+
+        FS_Write(image->imgName, strlen(image->imgName), stat_file);
+        FS_Write(", ", 2, stat_file);
+
+        // Write the number of bytes (in KiB)
+        itoa(image->bytesUsed >> 10, str_buffer, 10);
+        FS_Write(str_buffer, strlen(str_buffer), stat_file);
+        FS_Write(", ", 2, stat_file);
+
+        // Write the sequence
+        itoa(image->r_sequence, str_buffer, 10);
+        FS_Write(str_buffer, strlen(str_buffer), stat_file);
+        FS_Write(", ", 2, stat_file);
+    }
+}
+
+/*
+===============
+R_CountTextureMemory
+===============
+*/
+int R_CountTextureMemory() {
+    int total_bytes;
+    int i;
+
+    R_DumpTextureMemory();
+
+    total_bytes = 0;
+
+    for (i = 0; i < tr.numImages; i++) {
+        total_bytes = tr.images[i].bytesUsed;
+    }
+
+    return total_bytes;
 }
 
 /*

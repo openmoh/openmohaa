@@ -125,3 +125,6 @@ void SCR_DebugGraph( float value ) {
 qboolean CL_FinishedIntro( void ) {
 	return qtrue;
 }
+
+int R_CountTextureMemory() {
+}

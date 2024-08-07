@@ -1211,6 +1211,7 @@ void Com_FakeUnpause();
 void Com_Pause_f();
 void SV_SoundCallback( int entnum, int channel_number, const char *name );
 
+int R_CountTextureMemory();
 /*
 ==============================================================
 
