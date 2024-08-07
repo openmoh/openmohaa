@@ -2976,12 +2976,12 @@ void R_DumpTextureMemory() {
         FS_Write(", ", 2, stat_file);
 
         // Write the number of bytes (in KiB)
-        itoa(image->bytesUsed >> 10, str_buffer, 10);
+        Q_snprintf(str_buffer, sizeof(str_buffer), "%d", image->bytesUsed >> 10);
         FS_Write(str_buffer, strlen(str_buffer), stat_file);
         FS_Write(", ", 2, stat_file);
 
         // Write the sequence
-        itoa(image->r_sequence, str_buffer, 10);
+        Q_snprintf(str_buffer, sizeof(str_buffer), "%d", image->r_sequence);
         FS_Write(str_buffer, strlen(str_buffer), stat_file);
         FS_Write(", ", 2, stat_file);
     }
