@@ -1602,8 +1602,16 @@ Touch all images to make sure they are resident
 */
 void RE_EndRegistration( void ) {
 	R_SyncRenderThread();
-	if (!Sys_LowPhysicalMemory()) {
-		RB_ShowImages();
+	if (r_precacheimages->integer) {
+        int start, end;
+
+        start = Sys_Milliseconds();
+
+        RB_ShowImages(qtrue);
+
+        end = Sys_Milliseconds();
+
+        Com_Printf("RB_ShowImages: %5.2f seconds\n", (float)((end - start) / 1000.f));
 	}
 }
 

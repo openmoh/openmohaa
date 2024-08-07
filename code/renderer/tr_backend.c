@@ -1294,7 +1294,7 @@ was there.  This is used to test for texture thrashing.
 Also called by RE_EndRegistration
 ===============
 */
-void RB_ShowImages( void ) {
+void RB_ShowImages( qboolean quiet ) {
 	int		i;
 	image_t	*image;
 	float	x, y, w, h;
@@ -1340,8 +1340,10 @@ void RB_ShowImages( void ) {
 	qglFinish();
 
 	end = ri.Milliseconds();
-	ri.Printf( PRINT_ALL, "%i msec to draw all images\n", end - start );
 
+    if (!quiet) {
+        ri.Printf(PRINT_ALL, "%i msec to draw all images\n", end - start);
+    }
 }
 
 
@@ -1361,7 +1363,7 @@ const void	*RB_SwapBuffers( const void *data ) {
 
 	// texture swapping test
 	if ( r_showImages->integer ) {
-		RB_ShowImages();
+		RB_ShowImages(qfalse);
 	}
 
 	cmd = (const swapBuffersCommand_t *)data;
