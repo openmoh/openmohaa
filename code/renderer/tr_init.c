@@ -1613,8 +1613,15 @@ void RE_EndRegistration( void ) {
 
         Com_Printf("RB_ShowImages: %5.2f seconds\n", (float)((end - start) / 1000.f));
 	}
+
+    R_FreeUnusedImages();
 }
 
+/*
+=============
+RE_SetRenderTime
+=============
+*/
 void RE_SetRenderTime(int t) {
 	// FIXME: unimplemented
 }

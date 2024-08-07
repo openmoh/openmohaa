@@ -1794,6 +1794,7 @@ void	R_ScreenShot_f( void );
 void	R_InitImages( void );
 void	R_FreeImage(image_t* image);
 void	R_DeleteTextures( void );
+void    R_FreeUnusedImages( void );
 int		R_SumOfUsedImages( void );
 skin_t	*R_GetSkinByHandle( qhandle_t hSkin );
 

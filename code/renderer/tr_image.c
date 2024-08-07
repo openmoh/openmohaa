@@ -3008,6 +3008,23 @@ int R_CountTextureMemory() {
 }
 
 /*
+===============
+R_FreeUnusedImages
+===============
+*/
+void R_FreeUnusedImages() {
+    int i;
+
+    for (i = 0; i < tr.numImages; i++) {
+        image_t* image = &tr.images[i];
+
+        if (image->imgName[0] && image->r_sequence != r_sequencenumber && image->r_sequence != -1) {
+            R_FreeImage(image);
+        }
+    }
+}
+
+/*
 ============================================================================
 
 SKINS
