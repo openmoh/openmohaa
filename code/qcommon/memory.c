@@ -323,8 +323,6 @@ void Z_Meminfo_f( void )
 	}
 
 	Com_Printf( "\n%.2f Kbytes in %zu blocks in all memory pools\n", ( float )totalBytes / 1024.0f, totalBlocks );
-
-	// FIXME: Count texture memory
 	Com_Printf( "\n%.2f megabytes in 'new' system memory\n", 1.024f );
 	Com_Printf( "\n%.2f megabytes in texture memory\n", ( float )R_CountTextureMemory() / 1024.0f );
 	Com_Printf( "\n%.1f megabytes in total allocations\n", ( float )R_CountTextureMemory() + totalBytes - 1 / 1024.0f );
