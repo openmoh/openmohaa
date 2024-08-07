@@ -127,4 +127,5 @@ qboolean CL_FinishedIntro( void ) {
 }
 
 int R_CountTextureMemory() {
+    return 0;
 }
