@@ -918,7 +918,7 @@ image_t* R_CreateImage(
 	}
 
 	image = &tr.images[i];
-	image->texnum = 1024 + tr.numImages;
+	image->texnum = 1024 + i;
 
 	image->numMipmaps = numMipmaps;
 	image->allowPicmip = allowPicmip;
