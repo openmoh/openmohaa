@@ -918,7 +918,11 @@ image_t* R_CreateImage(
 	}
 
 	image = &tr.images[i];
-	image->texnum = 1024 + i;
+	//image->texnum = 1024 + i;
+    // Fixed in OPM / ioquake3
+    //  Original mohaa uses a fixed texnum instead of generating one regardless of the platform.
+    //  Here, by using glGenTextures, it will guarantee the uniqueness of the texture
+    qglGenTextures(1, &image->texnum);
 
 	image->numMipmaps = numMipmaps;
 	image->allowPicmip = allowPicmip;
