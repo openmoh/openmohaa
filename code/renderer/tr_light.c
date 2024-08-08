@@ -725,6 +725,7 @@ void R_GetLightingGridValue(const vec3_t vPos, vec3_t vLight)
 	float fOMFrac[3];
 	float fWeight, fWeight2;
 	float fTotalFactor;
+    int iCurData;
 	vec3_t vLightOrigin;
 	byte* pCurData;
 
@@ -737,7 +738,7 @@ void R_GetLightingGridValue(const vec3_t vPos, vec3_t vLight)
 
 	for (i = 0; i < 3; i++) {
 		fV = vLightOrigin[i] * tr.world->lightGridOOSize[i];
-		iGridPos[i] = myftol(fV);
+		iGridPos[i] = floor(fV);
 		fFrac[i] = fV - iGridPos[i];
 		fOMFrac[i] = 1.0 - fFrac[i];
 
@@ -758,23 +759,23 @@ void R_GetLightingGridValue(const vec3_t vPos, vec3_t vLight)
 		{
         case 0:
 			fWeight = fOMFrac[0] * fOMFrac[1] * fOMFrac[2];
-			fWeight2 = fWeight;
+			fWeight2 = fOMFrac[0] * fOMFrac[1] * fFrac[2];
 			iOffset = tr.world->lightGridOffsets[iBaseOffset] + (tr.world->lightGridOffsets[iGridPos[0]] << 8);
             break;
         case 1:
-            fWeight = fFrac[0] * fFrac[1] * fOMFrac[2];
-            fWeight2 = fFrac[0] * fFrac[1] * fFrac[2];
-			iOffset = tr.world->lightGridOffsets[iArrayXStep + 1 + iBaseOffset];
+            fWeight = fOMFrac[0] * fFrac[1] * fOMFrac[2];
+            fWeight2 = fOMFrac[0] * fFrac[1] * fFrac[2];
+            iOffset = tr.world->lightGridOffsets[iBaseOffset + 1] + (tr.world->lightGridOffsets[iGridPos[0]] << 8);
             break;
         case 2:
             fWeight = fFrac[0] * fOMFrac[1] * fOMFrac[2];
             fWeight2 = fFrac[0] * fOMFrac[1] * fFrac[2];
-            iOffset = tr.world->lightGridOffsets[iArrayXStep + iBaseOffset];
+            iOffset = tr.world->lightGridOffsets[iBaseOffset + iArrayXStep] + (tr.world->lightGridOffsets[iGridPos[0] + 1] << 8);
             break;
 		case 3:
             fWeight = fFrac[0] * fFrac[1] * fOMFrac[2];
             fWeight2 = fFrac[0] * fFrac[1] * fFrac[2];
-            iOffset = tr.world->lightGridOffsets[iArrayXStep + 1 + iBaseOffset];
+            iOffset = tr.world->lightGridOffsets[iBaseOffset + iArrayXStep + 1] + (tr.world->lightGridOffsets[iGridPos[0] + 1] << 8);
 			break;
 		}
 
@@ -786,11 +787,13 @@ void R_GetLightingGridValue(const vec3_t vPos, vec3_t vLight)
 		{
 			while (1)
 			{
-				if (pCurData[iData] >= 0ul) {
+                iCurData = pCurData[iData];
+                iData++;
+				if (iCurData >= 0ul) {
 					break;
 				}
 
-				iLen = -pCurData[iData];
+				iLen = -iCurData;
 				if (iLen > iRowPos) {
 					iData += iRowPos;
 					if (pCurData[iData]) {
@@ -816,7 +819,7 @@ void R_GetLightingGridValue(const vec3_t vPos, vec3_t vLight)
                 iData += iLen + 1;
 			}
 
-			iLen = pCurData[iData] + 2;
+			iLen = iCurData + 2;
 			if (iLen - 1 >= iRowPos) {
 				break;
 			}
