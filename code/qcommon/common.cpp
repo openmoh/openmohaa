@@ -2596,6 +2596,7 @@ void Field_CompleteCommand(char* cmd,
     else
         completionString = Cmd_Argv(completionArgument - 1);
 
+#if 0
 #ifndef DEDICATED
     // add a '\' to the start of the buffer if it might be sent as chat otherwise
     if (con_autochat->integer && completionField->buffer[0] &&
@@ -2616,6 +2617,7 @@ void Field_CompleteCommand(char* cmd,
 
         completionField->buffer[0] = '\\';
     }
+#endif
 #endif
 
     if (completionArgument > 1)
