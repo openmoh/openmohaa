@@ -34,20 +34,17 @@ if (USE_SOUND_NEW)
 	list(FILTER SOURCES_CLIENT EXCLUDE REGEX "./snd_([a-zA-Z0-9_]+)\.c$")
 	file(GLOB SOURCES_CLIENT_SND "./snd_*_new.c*" "./snd_codec*.c*")
 	list(APPEND SOURCES_CLIENT ${SOURCES_CLIENT_SND})
-
-	set(OLD_VALUE ${BUILD_SHARED_LIBS})
-	set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
-	add_subdirectory("../libmad" "./libmad" EXCLUDE_FROM_ALL)
-	target_link_libraries(omohclient INTERFACE mad)
-	set(BUILD_SHARED_LIBS ${OLD_VALUE} CACHE BOOL "" FORCE)
 else()
-	add_subdirectory("../libmad-0.15.1b" "./libmad")
-	target_link_libraries(omohclient INTERFACE libmad)
-    
 	list(FILTER SOURCES_CLIENT EXCLUDE REGEX "./snd_([a-zA-Z0-9_]+)\.cpp$")
 	file(GLOB_RECURSE SOURCES_CLIENT_SND "./new/*.c*")
 	list(APPEND SOURCES_CLIENT ${SOURCES_CLIENT_SND})
 endif()
+
+set(OLD_VALUE ${BUILD_SHARED_LIBS})
+set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
+add_subdirectory("../libmad" "./libmad" EXCLUDE_FROM_ALL)
+target_link_libraries(omohclient INTERFACE mad)
+set(BUILD_SHARED_LIBS ${OLD_VALUE} CACHE BOOL "" FORCE)
 
 if (USE_OPENAL)
 	# Try to use OpenAL
