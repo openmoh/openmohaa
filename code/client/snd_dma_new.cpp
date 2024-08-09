@@ -20,12 +20,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-#if USE_SOUND_NEW
-
-#    include "snd_local.h"
-#    include "snd_openal_new.h"
-#    include "client.h"
-#    include "cl_ui.h"
+#include "snd_local.h"
+#include "snd_openal_new.h"
+#include "client.h"
+#include "cl_ui.h"
 
 typedef struct {
     vec3_t origin;
@@ -816,5 +814,3 @@ unsigned int S_GetMusicOffset()
 {
     return S_Driver_GetMusicOffset();
 }
-
-#endif

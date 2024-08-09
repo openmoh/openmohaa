@@ -3,7 +3,7 @@ project(omohclient)
 
 add_subdirectory("../cgame" "./cgame")
 
-file(GLOB_RECURSE SOURCES_CLIENT "./*.c*")
+file(GLOB SOURCES_CLIENT "./*.c*")
 file(GLOB_RECURSE SOURCES_UILIB "../uilib/*.c*")
 
 # Made as an interface and not static, as static only links used methods
@@ -32,7 +32,7 @@ if (USE_SOUND_NEW)
 	endif()
 
 	list(FILTER SOURCES_CLIENT EXCLUDE REGEX "./snd_([a-zA-Z0-9_]+)\.c$")
-	file(GLOB_RECURSE SOURCES_CLIENT_SND "./snd_*_new.c*" "./snd_codec*.c*")
+	file(GLOB SOURCES_CLIENT_SND "./snd_*_new.c*" "./snd_codec*.c*")
 	list(APPEND SOURCES_CLIENT ${SOURCES_CLIENT_SND})
 
 	set(OLD_VALUE ${BUILD_SHARED_LIBS})
@@ -43,6 +43,10 @@ if (USE_SOUND_NEW)
 else()
 	add_subdirectory("../libmad-0.15.1b" "./libmad")
 	target_link_libraries(omohclient INTERFACE libmad)
+    
+	list(FILTER SOURCES_CLIENT EXCLUDE REGEX "./snd_([a-zA-Z0-9_]+)\.cpp$")
+	file(GLOB_RECURSE SOURCES_CLIENT_SND "./new/*.c*")
+	list(APPEND SOURCES_CLIENT ${SOURCES_CLIENT_SND})
 endif()
 
 if (USE_OPENAL)

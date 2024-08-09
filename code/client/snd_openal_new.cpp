@@ -20,13 +20,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-#if USE_SOUND_NEW
-
-#    include "snd_local.h"
-#    include "snd_openal_new.h"
-#    include "client.h"
-#    include "../server/server.h"
-#    include "snd_codec.h"
+#include "snd_local.h"
+#include "snd_openal_new.h"
+#include "client.h"
+#include "../server/server.h"
+#include "snd_codec.h"
 
 typedef struct {
     char  *funcname;
@@ -4180,5 +4178,3 @@ static bool S_OPENAL_LoadMP3_Codec(const char *_path, sfx_t* pSfx)
 
     return true;
 }
-
-#endif

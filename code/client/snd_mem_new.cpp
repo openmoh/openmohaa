@@ -20,8 +20,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-#if USE_SOUND_NEW
-
 #include "snd_local.h"
 #include "cl_ui.h"
 
@@ -570,5 +568,3 @@ qboolean S_LoadMP3(const char *fileName, sfx_t *sfx)
 
     return qtrue;
 }
-
-#endif
