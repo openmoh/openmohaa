@@ -45,6 +45,9 @@ typedef unsigned int U32;
 #define OPENAL_CHANNEL_TRIGGER_MUSIC_ID (OPENAL_CHANNEL_MP3_ID + 1)
 #define OPENAL_CHANNEL_MOVIE_ID         (OPENAL_CHANNEL_TRIGGER_MUSIC_ID + 1)
 
+#define MAX_STREAM_BUFFERS 16
+#define MAX_BUFFER_SAMPLES 16384
+
 typedef enum {
     FADE_NONE,
     FADE_IN,
@@ -103,7 +106,7 @@ struct openal_channel {
 
 public:
     void play();
-    void stop();
+    virtual void stop();
     void pause();
 
     void  set_no_3d();
@@ -119,7 +122,7 @@ public:
     bool is_playing();
 
     void force_free();
-    bool set_sfx(sfx_t *pSfx);
+    virtual bool set_sfx(sfx_t *pSfx);
 
     void start_sample();
     void stop_sample();
@@ -136,20 +139,46 @@ public:
     U32  sample_loop_count();
     void set_sample_offset(U32 offset);
     void set_sample_ms_offset(U32 offset);
-    void set_sample_loop_count(S32 count);
+    virtual void set_sample_loop_count(S32 count);
     void set_sample_loop_block(S32 start_offset, S32 end_offset);
 
     U32 sample_status();
+
+public:
+    virtual void update();
+};
+
+struct openal_channel_two_d_stream : public openal_channel {
+private:
+    char fileName[64];
+    void *streamHandle;
+    unsigned int buffers[MAX_STREAM_BUFFERS];
+    unsigned int currentBuf;
+    int sampleLoopCount;
+    int sampleLooped;
+    bool streaming;
+
+public:
+    openal_channel_two_d_stream();
+
+    void stop() override;
+    bool set_sfx(sfx_t* pSfx) override;
+    void set_sample_loop_count(S32 count) override;
+    void update() override;
+    bool queue_stream(const char* fileName);
+
+private:
+    void clear_stream();
 };
 
 struct openal_internal_t {
     openal_channel chan_3D[MAX_OPENAL_CHANNELS_3D];
     openal_channel chan_2D[MAX_OPENAL_CHANNELS_2D];
-    openal_channel chan_2D_stream[MAX_OPENAL_CHANNELS_2D_STREAM];
-    openal_channel chan_song[MAX_OPENAL_SONGS];
-    openal_channel chan_mp3;
-    openal_channel chan_trig_music;
-    openal_channel chan_movie;
+    openal_channel_two_d_stream chan_2D_stream[MAX_OPENAL_CHANNELS_2D_STREAM];
+    openal_channel_two_d_stream chan_song[MAX_OPENAL_SONGS];
+    openal_channel_two_d_stream chan_mp3;
+    openal_channel_two_d_stream chan_trig_music;
+    openal_channel_two_d_stream chan_movie;
 
     // Pointers to channels
     openal_channel *channel[MAX_OPENAL_CHANNELS];
