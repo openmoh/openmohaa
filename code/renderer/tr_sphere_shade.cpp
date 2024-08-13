@@ -1049,8 +1049,12 @@ static void RB_Sphere_BuildStaticLights()
     if (tr.world->vis) {
         int cntarea;
 
-        for (curleaf = 0, leaf = backEnd.currentSphere->leaves[curleaf]; curleaf < 8 && leaf;
-             curleaf++, leaf   = backEnd.currentSphere->leaves[curleaf]) {
+        for (curleaf = 0; curleaf < 8; curleaf++) {
+            leaf = backEnd.currentSphere->leaves[curleaf];
+            if (!leaf) {
+                break;
+            }
+
             cntarea = leaf->numlights;
 
             if (cntarea) {
