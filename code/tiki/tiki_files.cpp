@@ -302,8 +302,9 @@ dtiki_t *TIKI_LoadTikiModel(dtikianim_t *tikianim, const char *name, con_map<str
 
     struct {
         dtiki_t   tiki;
-        short int buffer[1000];
+        short int buffer[32];
     } temp;
+    dtiki_t* temp_tiki;
 
     //int skel;
     dloadsurface_t     loadsurfaces[24];
@@ -317,8 +318,12 @@ dtiki_t *TIKI_LoadTikiModel(dtikianim_t *tikianim, const char *name, con_map<str
     qboolean           found;
     byte              *start_ptr, *max_ptr, *ptr;
 
+    // Use a pointer directly to avoid compiler wrongly optimizing out loops
+    // as the mesh field of the tiki is an array of 1 element
+    temp_tiki = &temp.tiki;
+
     TIKI_LoadSetup(
-        &temp.tiki,
+        temp_tiki,
         tikianim->name,
         loadsurfaces,
         &numSurfacesSetUp,
@@ -326,33 +331,33 @@ dtiki_t *TIKI_LoadTikiModel(dtikianim_t *tikianim, const char *name, con_map<str
         tikianim->modelDataSize,
         keyValues
     );
-    if (!temp.tiki.numMeshes) {
+    if (!temp_tiki->numMeshes) {
         Com_Printf("^~^~^ Model '%s' has no skelmodel\n", tikianim->name);
         return NULL;
     }
 
     defsize = sizeof(dtiki_t) - sizeof(tiki->mesh);
-    defsize += temp.tiki.numMeshes * sizeof(short);
+    defsize += temp_tiki->numMeshes * sizeof(short);
     defsize += strlen(name) + 1;
     defsize = PAD(defsize, sizeof(void *));
-    defsize += temp.tiki.num_surfaces * sizeof(dtikisurface_t);
+    defsize += temp_tiki->num_surfaces * sizeof(dtikisurface_t);
 
     tiki = (dtiki_t *)TIKI_Alloc(defsize);
     memset(tiki, 0, defsize);
 
     start_ptr = (byte *)tiki;
     max_ptr   = start_ptr + defsize;
-    ptr       = start_ptr + sizeof(dtiki_t) - sizeof(tiki->mesh) + temp.tiki.numMeshes * sizeof(tiki->mesh[0]);
+    ptr       = start_ptr + sizeof(dtiki_t) - sizeof(tiki->mesh) + temp_tiki->numMeshes * sizeof(tiki->mesh[0]);
 
     tiki->a = tikianim;
     tiki->m_boneList.InitChannels();
     tiki->skeletor     = NULL;
-    tiki->load_scale   = temp.tiki.load_scale;
-    tiki->lod_scale    = temp.tiki.lod_scale;
-    tiki->lod_bias     = temp.tiki.lod_bias;
-    tiki->num_surfaces = temp.tiki.num_surfaces;
-    tiki->numMeshes    = temp.tiki.numMeshes;
-    tiki->radius       = temp.tiki.radius;
+    tiki->load_scale   = temp_tiki->load_scale;
+    tiki->lod_scale    = temp_tiki->lod_scale;
+    tiki->lod_bias     = temp_tiki->lod_bias;
+    tiki->num_surfaces = temp_tiki->num_surfaces;
+    tiki->numMeshes    = temp_tiki->numMeshes;
+    tiki->radius       = temp_tiki->radius;
     tiki->name         = (char *)ptr;
     strcpy(tiki->name, name);
     ptr += strlen(tiki->name) + 1;
@@ -360,12 +365,13 @@ dtiki_t *TIKI_LoadTikiModel(dtikianim_t *tikianim, const char *name, con_map<str
     tikiSurf = (dtikisurface_t *)ptr;
     tiki->m_boneList.ZeroChannels();
 
-    assert((byte *)(tikiSurf + temp.tiki.num_surfaces) <= max_ptr);
+    assert((byte *)(tikiSurf + temp_tiki->num_surfaces) <= max_ptr);
 
-    for (i = 0; i < temp.tiki.numMeshes; i++) {
-        mesh          = temp.tiki.mesh[i];
+    for (i = 0; i < temp_tiki->numMeshes; i++) {
+        mesh          = temp_tiki->mesh[i];
         tiki->mesh[i] = mesh;
-        skelmodel     = skelcache[mesh].skel;
+
+        skelmodel = skelcache[mesh].skel;
         skelcache[mesh].numuses++;
 
         for (j = 0; j < skelmodel->numBones; j++) {
@@ -374,8 +380,8 @@ dtiki_t *TIKI_LoadTikiModel(dtikianim_t *tikianim, const char *name, con_map<str
     }
 
     tiki->m_boneList.PackChannels();
-    VectorCopy(temp.tiki.light_offset, tiki->light_offset);
-    VectorCopy(temp.tiki.load_origin, tiki->load_origin);
+    VectorCopy(temp_tiki->light_offset, tiki->light_offset);
+    VectorCopy(temp_tiki->load_origin, tiki->load_origin);
     tiki->surfaces = tikiSurf;
 
     for (i = 0; i < numSurfacesSetUp; i++) {
@@ -386,8 +392,8 @@ dtiki_t *TIKI_LoadTikiModel(dtikianim_t *tikianim, const char *name, con_map<str
         surfOffset = 0;
 
         if (strptr || !Q_stricmp(loadsurf->name, "all")) {
-            for (j = 0; j < temp.tiki.numMeshes; j++) {
-                mesh      = temp.tiki.mesh[j];
+            for (j = 0; j < temp_tiki->numMeshes; j++) {
+                mesh      = temp_tiki->mesh[j];
                 skelmodel = TIKI_GetSkel(mesh);
                 surf      = skelmodel->pSurfaces;
 
@@ -407,8 +413,8 @@ dtiki_t *TIKI_LoadTikiModel(dtikianim_t *tikianim, const char *name, con_map<str
                 surfOffset += skelmodel->numSurfaces;
             }
         } else {
-            for (j = 0; j < temp.tiki.numMeshes; j++) {
-                mesh      = temp.tiki.mesh[j];
+            for (j = 0; j < temp_tiki->numMeshes; j++) {
+                mesh      = temp_tiki->mesh[j];
                 skelmodel = TIKI_GetSkel(mesh);
                 surf      = skelmodel->pSurfaces;
 
@@ -450,8 +456,8 @@ dtiki_t *TIKI_LoadTikiModel(dtikianim_t *tikianim, const char *name, con_map<str
     //  For surfaces without shader
     //  assign them the shader with the same name
     surfOffset = 0;
-    for (i = 0; i < temp.tiki.numMeshes; i++, surfOffset += skelmodel->numSurfaces) {
-        skelmodel = TIKI_GetSkel(temp.tiki.mesh[i]);
+    for (i = 0; i < temp_tiki->numMeshes; i++, surfOffset += skelmodel->numSurfaces) {
+        skelmodel = TIKI_GetSkel(temp_tiki->mesh[i]);
 
         surf = skelmodel->pSurfaces;
 
