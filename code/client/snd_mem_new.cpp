@@ -439,8 +439,6 @@ qboolean S_LoadSound(const char *fileName, sfx_t *sfx, int streamed, qboolean fo
         return qfalse;
     }
 
-    // Removed because of OpenAL
-    /*
     if (streamed) {
         //
         // Added in 2.0
@@ -449,10 +447,9 @@ qboolean S_LoadSound(const char *fileName, sfx_t *sfx, int streamed, qboolean fo
         sfx->width = 1;
         sfx->iFlags |= SFX_FLAG_STREAMED;
         sfx->time_length = 5000.0;
-        sfx->data = 0;
+        sfx->data = NULL;
         return qtrue;
     }
-    */
 
     if (clc.state != CA_LOADING && !force_load) {
         Com_Printf("**************S_LoadSound: %s\n", fileName);
