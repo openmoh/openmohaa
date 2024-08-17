@@ -1469,6 +1469,13 @@ void S_OPENAL_StartSound(
             if (bSupportWaitTillSoundDone) {
                 pChannel->iTime = 0;
             }
+
+            if (s_entity[iEntNum].time < pChannel->iTime) {
+                // Fixed in OPM
+                //  Not sure if it's the real solution, but script_origin entities are usually
+                //  never sent to client so the sound will immediately get stopped
+                pChannel->iFlags |= CHANNEL_FLAG_NO_ENTITY;
+            }
         } else {
             VectorClear(pChannel->vOrigin);
             pChannel->iTime = 0;
