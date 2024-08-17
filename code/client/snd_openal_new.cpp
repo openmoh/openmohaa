@@ -4365,6 +4365,13 @@ void openal_channel_two_d_stream::update()
     qalSourceQueueBuffers(source, 1, &buffers[currentBuf]);
     alDieIfError();
 
+    if (!is_playing()) {
+        // The sample has stopped during stream
+        // Could be because the storage is slow enough for the buffer
+        // or because the storage was powering on after standby
+        play();
+    }
+
     currentBuf = (currentBuf + 1) % MAX_STREAM_BUFFERS;
 }
 
