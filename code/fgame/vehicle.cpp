@@ -6857,11 +6857,6 @@ DrivableVehicle::DrivableVehicle
 */
 DrivableVehicle::DrivableVehicle()
 {
-    if (LoadingSavegame) {
-        // Archive function will setup all necessary data
-        return;
-    }
-
     AddWaitTill(STRING_DEATH);
 
     drivable = true;
