@@ -1606,7 +1606,7 @@ void Cvar_CompleteCvarName( const char *args, int argNum )
 	if( argNum == 2 )
 	{
 		// Skip "<cmd> "
-		char *p = Com_SkipTokens( args, 1, " " );
+		char *p = Com_SkipTokens((char *)args, 1, " " );
 
 		if( p > args )
 			Field_CompleteCommand( p, qfalse, qtrue );
