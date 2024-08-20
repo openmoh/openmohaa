@@ -1267,7 +1267,7 @@ qboolean G_ArchiveLevel(const char *filename, byte** savedCgameState, size_t *sa
                 *savedCgameState = NULL;
             }
         }
-        arc.ArchiveRaw((byte*)savedCgameState, *savedCgameStateSize);
+        arc.ArchiveRaw(*savedCgameState, *savedCgameStateSize);
 
         if (arc.Saving()) {
             str s;
