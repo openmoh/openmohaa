@@ -50,17 +50,23 @@ void SNDDMA_Submit(void)
 void SNDDMA_Activate(void) {
 }
 
-sfxHandle_t S_RegisterSound( const char *sample, qboolean compressed )
-{
-	return 0;
-}
-
-void S_StartLocalSound( sfxHandle_t sfx, int channelNum ) {
-}
-
 void S_ClearSoundBuffer( void ) {
 }
 
 int S_IsSoundPlaying( int channel_number, const char *sfxName ){
 	return 0;
 }
+
+#if defined(NO_MODERN_DMA) && NO_MODERN_DMA
+void S_StartLocalSound(sfxHandle_t sfx, int channelNum) {
+}
+sfxHandle_t S_RegisterSound(const char* sample, qboolean compressed) {
+	return 0;
+}
+#else
+void S_StartLocalSound(const char* sound_name, qboolean force_load) {
+}
+sfxHandle_t S_RegisterSound(const char* name, int streamed, qboolean force_load) {
+	return 0;
+}
+#endif
