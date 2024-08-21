@@ -99,7 +99,7 @@ jobs:
     - name: Configure CMake
       working-directory: ${{github.workspace}}
       run: |
-        cmake -B ./build ${{ env.CMAKE_PARAM }} -DUSE_SOUND_NEW=1 ./source
+        cmake -B ./build ${{ env.CMAKE_PARAM }} ./source
 
     - name: Build
       working-directory: ${{github.workspace}}
@@ -204,7 +204,7 @@ jobs:
     - name: Configure CMake
       working-directory: ${{github.workspace}}
       run: |
-        cmake -B ./build ${{ env.CMAKE_PARAM }} -DUSE_SOUND_NEW=1 ./source
+        cmake -B ./build ${{ env.CMAKE_PARAM }} ./source
 
     - name: Build
       working-directory: ${{github.workspace}}
