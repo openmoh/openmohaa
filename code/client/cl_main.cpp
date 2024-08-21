@@ -769,7 +769,7 @@ void CL_ShutdownAll(qboolean shutdownRef) {
 	CL_cURL_Shutdown();
 #endif
 	// clear sounds
-#if !defined(USE_SOUND_NEW) || !USE_SOUND_NEW
+#if defined(NO_MODERN_DMA) && NO_MODERN_DMA
 	S_DisableSounds();
 #endif
 	// shutdown CGame
@@ -1560,7 +1560,7 @@ void CL_Vid_Restart_f( void ) {
 
 	CL_StartHunkUsers(qfalse);
 
-#if defined(USE_SOUND_NEW) && USE_SOUND_NEW
+#if !defined(NO_MODERN_DMA) || !NO_MODERN_DMA
     s_bSoundPaused = true;
     S_LoadData(&save);
 #else
@@ -1597,7 +1597,7 @@ handles will be invalid
 =================
 */
 void CL_Snd_Restart_f( void ) {
-#if !defined(USE_SOUND_NEW) || !USE_SOUND_NEW
+#if defined(NO_MODERN_DMA) && NO_MODERN_DMA
 	S_Shutdown();
 	S_Init();
     CL_Vid_Restart_f();
@@ -3492,7 +3492,7 @@ void CL_Init( void ) {
 
 	Cvar_Set( "cl_running", "1" );
 
-#if !defined(USE_SOUND_NEW) || !USE_SOUND_NEW
+#if defined(NO_MODERN_DMA) && NO_MODERN_DMA
 	S_Init2();
 #else
 	S_Init(qtrue);
@@ -3537,7 +3537,7 @@ void CL_Shutdown(const char* finalmsg, qboolean disconnect, qboolean quit) {
 	if(disconnect)
 		CL_Disconnect();
 
-#if !defined(USE_SOUND_NEW) || !USE_SOUND_NEW
+#if defined(NO_MODERN_DMA) && NO_MODERN_DMA
 	S_Shutdown();
 #else
 	S_Shutdown(qtrue);

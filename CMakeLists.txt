@@ -105,10 +105,10 @@ INSTALL(TARGETS omohaaded DESTINATION "./")
 
 if (NOT BUILD_NO_CLIENT)
 	## Client app
-
+	
+	add_subdirectory("code/client")
 	add_subdirectory("code/renderer")
 	add_subdirectory("code/sdl")
-	add_subdirectory("code/client")
 
 	#include("code/renderergl2/glsl/shaders.cmake")
 	#file(GLOB_RECURSE SOURCES_RENDERER "code/sdl/*.c" "code/renderercommon/*.c" "code/renderergl2/*.c" "code/renderergl2/*.cpp")

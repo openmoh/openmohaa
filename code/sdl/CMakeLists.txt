@@ -1,12 +1,23 @@
 cmake_minimum_required(VERSION 3.5)
 project(omohsdl)
 
-file(GLOB_RECURSE SOURCES_SDL "./*.c")
+file(GLOB SOURCES_SDL
+"./sdl_gamma.c"
+"./sdl_glimp.c"
+"./sdl_input.c"
+)
+
+if (NO_MODERN_DMA)
+	list(APPEND SOURCES_SDL "./sdl_snd.c")
+endif()
 
 add_library(omohsdl STATIC ${SOURCES_SDL})
 target_compile_features(omohsdl PUBLIC c_variadic_macros)
 target_link_libraries(omohsdl PRIVATE qcommon qcommon_standalone)
 
+if (NO_MODERN_DMA)
+	target_compile_definitions(omohsdl PRIVATE NO_MODERN_DMA=1)
+endif()
 
 if(${CMAKE_VERSION} VERSION_GREATER "3.11")
 	cmake_policy(SET CMP0074 NEW)

@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.5)
 project(omohclient)
 
+option(NO_OPENAL "Use older sound-system" FALSE)
+
 add_subdirectory("../cgame" "./cgame")
 
 file(GLOB SOURCES_CLIENT "./*.c*")
@@ -18,11 +20,12 @@ target_link_libraries(omohclient INTERFACE gcd)
 # Sound stuff
 target_compile_definitions(omohclient INTERFACE USE_CODEC_MP3)
 
-if (USE_SOUND_NEW)
-	# Try to use OpenAL
+if (NOT NO_OPENAL)
+	# Use OpenAL
 	find_package(OpenAL REQUIRED)
+
 	if (OPENAL_FOUND)
-		target_compile_definitions(omohclient INTERFACE USE_OPENAL=1 USE_SOUND_NEW=1)
+		target_compile_definitions(omohclient INTERFACE USE_OPENAL=1 NO_MODERN_DMA=0)
 		if (MSVC)
 			target_include_directories(omohclient INTERFACE ${OPENAL_INCLUDE_DIR}/AL)
 		else()
@@ -35,6 +38,13 @@ if (USE_SOUND_NEW)
 	file(GLOB SOURCES_CLIENT_SND "./snd_*_new.c*" "./snd_codec*.c*")
 	list(APPEND SOURCES_CLIENT ${SOURCES_CLIENT_SND})
 else()
+	#
+	# Fallback to old DMA sound system
+	#
+	message(NOTICE "OpenAL was explicitly disabled - fallback to old SDL sound system")
+	target_compile_definitions(omohclient INTERFACE NO_MODERN_DMA=1)
+	set(NO_MODERN_DMA TRUE)
+
 	list(FILTER SOURCES_CLIENT EXCLUDE REGEX "./snd_([a-zA-Z0-9_]+)\.cpp$")
 	file(GLOB_RECURSE SOURCES_CLIENT_SND "./new/*.c*")
 	list(APPEND SOURCES_CLIENT ${SOURCES_CLIENT_SND})

@@ -23,7 +23,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../snd_local.h"
 #include "../client.h"
 
-#if !defined(USE_SOUND_NEW) || !USE_SOUND_NEW
+#if defined(NO_MODERN_DMA) && NO_MODERN_DMA
 
 qboolean s_bSoundPaused = qfalse;
 

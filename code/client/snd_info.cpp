@@ -20,10 +20,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-#if USE_SOUND_NEW
-
-#    include "snd_local.h"
-#    include "../qcommon/tiki.h"
+#include "snd_local.h"
+#include "../qcommon/tiki.h"
 
 void load_sfx_info()
 {
@@ -95,5 +93,3 @@ void load_sfx_info()
 
     sfx_infos[0].name[0] = 0;
 }
-
-#endif
