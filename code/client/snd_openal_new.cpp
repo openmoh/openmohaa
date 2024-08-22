@@ -268,7 +268,11 @@ static bool S_OPENAL_InitContext()
         dev = NULL;
     }
 
-    Com_Printf("OpenAL: Opening device %s...\n", dev ? dev : "{default}");
+    if (!dev) {
+        dev = qalcGetString(NULL, ALC_DEFAULT_DEVICE_SPECIFIER);
+    }
+
+    Com_Printf("OpenAL: Opening device \"%s\"...\n", dev ? dev : "{default}");
 
     al_device = qalcOpenDevice(dev);
     if (!al_device) {
