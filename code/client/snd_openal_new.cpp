@@ -27,9 +27,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "snd_codec.h"
 
 typedef struct {
-    char  *funcname;
-    void **funcptr;
-    bool   required;
+    const char  *funcname;
+    void       **funcptr;
+    bool         required;
 } extensions_table_t;
 
 #    define MAX_MUSIC_SONGS 16
@@ -282,11 +282,17 @@ static bool S_OPENAL_InitContext()
     }
 
     Com_Printf("OpenAL: Device opened successfully.\n");
-    al_frequency = 22050;
-    if (s_khz->integer == 11) {
+    switch (s_khz->integer) {
+    case 11:
         al_frequency = 11025;
-    } else if (s_khz->integer == 44) {
+        break;
+    default:
+    case 22:
+        al_frequency = 22050;
+        break;
+    case 44:
         al_frequency = 44100;
+        break;
     }
 
     attrlist[0] = 256;
@@ -362,7 +368,7 @@ static bool S_OPENAL_InitExtensions()
 
         *i->funcptr = qalGetProcAddress(i->funcname);
         if (!*i->funcptr) {
-            Com_Printf("...not found! [%s]\n", qalGetError());
+            Com_Printf("...not found! %d [%s]\n", qalGetError(), qalGetString(qalGetError()));
             if (i->required) {
                 S_OPENAL_NukeContext();
                 return false;
