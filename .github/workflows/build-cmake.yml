@@ -41,7 +41,8 @@ jobs:
 
     - name: Install required packages
       run: |
-        sudo apt update && sudo apt install -y flex bison libopenal-dev
+        sudo apt update && sudo apt install -y flex bison \
+            libpulse-dev portaudio19-dev libasound2-dev libjack-dev libpipewire-0.3-dev qtbase5-dev libdbus-1-dev
   
     - name: Install required cross-platform packages (${{ matrix.architecture.triple }})
       if: matrix.architecture.name != 'amd64'
@@ -179,7 +180,11 @@ jobs:
       run: |
         cmake -B ./build -A ${{ matrix.architecture.config }} `
         -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} `
-        -DCMAKE_INSTALL_PREFIX='${{github.workspace}}/thirdparties/soft-oal/install'
+        -DCMAKE_INSTALL_PREFIX='${{github.workspace}}/thirdparties/soft-oal/install' `
+        -DALSOFT_BUILD_ROUTER=OFF `
+        -DALSOFT_REQUIRE_WINMM=ON `
+        -DALSOFT_REQUIRE_DSOUND=ON `
+        -DALSOFT_REQUIRE_WASAPI=ON
         cmake --build ./build --config ${{env.BUILD_TYPE}}
         cmake --install ./build --config ${{env.BUILD_TYPE}}
         # Unfortunately soft-oal produces a binary called OpenAL32 even in 64-bit
