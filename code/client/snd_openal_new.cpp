@@ -307,7 +307,9 @@ static bool S_OPENAL_InitContext()
 			enumeration_ext = qtrue;
 		}
 
+#ifdef _WIN32
         Com_DPrintf("OpenAL: Default playback device: \"%s\"\n", defaultdevice);
+#endif
 
 #ifdef _WIN32
 		// check whether the default device is generic hardware. If it is, change to
