@@ -54,6 +54,7 @@ cvar_t *s_obstruction_cal_time;
 cvar_t *s_lastSoundTime;
 // Added in OPM
 cvar_t *s_openaldriver;
+cvar_t *s_alAvailableDevices;
 
 static float reverb_table[] = {
     0.5f,   0.25f,        0.417f, 0.653f,      0.208f,      0.5f,   0.403f, 0.5f,   0.5f,
@@ -88,6 +89,9 @@ int             music_volume_changed    = 0;
 int             music_loaded            = 0;
 int             music_numsongs          = 0;
 int             music_currentsong       = 0;
+
+static qboolean enumeration_ext = qfalse;
+static qboolean enumeration_all_ext = qfalse;
 
 song_t            music_songs[MAX_MUSIC_SONGS];
 openal_internal_t openal;
@@ -268,13 +272,72 @@ static bool S_OPENAL_InitContext()
         dev = NULL;
     }
 
-    if (!dev) {
-        dev = qalcGetString(NULL, ALC_DEFAULT_DEVICE_SPECIFIER);
-    }
+
+	// Device enumeration support
+	enumeration_all_ext = qalcIsExtensionPresent(NULL, "ALC_ENUMERATE_ALL_EXT");
+	enumeration_ext = qalcIsExtensionPresent(NULL, "ALC_ENUMERATION_EXT");
+
+	if(enumeration_ext || enumeration_all_ext)
+	{
+		char devicenames[16384] = "";
+		const char *devicelist;
+#ifdef _WIN32
+		const char *defaultdevice;
+#endif
+		int curlen;
+
+		// get all available devices + the default device name.
+		if(enumeration_all_ext)
+		{
+			devicelist = qalcGetString(NULL, ALC_ALL_DEVICES_SPECIFIER);
+#ifdef _WIN32
+			defaultdevice = qalcGetString(NULL, ALC_DEFAULT_ALL_DEVICES_SPECIFIER);
+#endif
+		}
+		else
+		{
+			// We don't have ALC_ENUMERATE_ALL_EXT but normal enumeration.
+			devicelist = qalcGetString(NULL, ALC_DEVICE_SPECIFIER);
+#ifdef _WIN32
+			defaultdevice = qalcGetString(NULL, ALC_DEFAULT_DEVICE_SPECIFIER);
+#endif
+			enumeration_ext = qtrue;
+		}
+
+#ifdef _WIN32
+		// check whether the default device is generic hardware. If it is, change to
+		// Generic Software as that one works more reliably with various sound systems.
+		// If it's not, use OpenAL's default selection as we don't want to ignore
+		// native hardware acceleration.
+		if(!dev && defaultdevice && !strcmp(defaultdevice, "Generic Hardware"))
+			dev = "Generic Software";
+#endif
+
+		// dump a list of available devices to a cvar for the user to see.
+
+		if(devicelist)
+		{
+			while((curlen = strlen(devicelist)))
+			{
+				Q_strcat(devicenames, sizeof(devicenames), devicelist);
+				Q_strcat(devicenames, sizeof(devicenames), "\n");
+
+				devicelist += curlen + 1;
+			}
+		}
+
+		s_alAvailableDevices = Cvar_Get("s_alAvailableDevices", devicenames, CVAR_ROM | CVAR_NORESTART);
+        Com_Printf("OpenAL: List of available devices:\n%s\n", devicenames);
+	}
 
     Com_Printf("OpenAL: Opening device \"%s\"...\n", dev ? dev : "{default}");
 
     al_device = qalcOpenDevice(dev);
+    if (!al_device && dev) {
+        Com_Printf("Failed to open OpenAL device '%s', trying default.\n", dev);
+        al_device = qalcOpenDevice(NULL);
+    }
+
     if (!al_device) {
         Com_Printf("OpenAL: Could not open device\n");
         S_OPENAL_NukeContext();
