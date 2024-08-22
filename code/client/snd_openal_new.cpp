@@ -272,6 +272,7 @@ static bool S_OPENAL_InitContext()
         dev = NULL;
     }
 
+    Com_DPrintf("OpenAL: Context initialization\n");
 
 	// Device enumeration support
 	enumeration_all_ext = qalcIsExtensionPresent(NULL, "ALC_ENUMERATE_ALL_EXT");
@@ -289,6 +290,7 @@ static bool S_OPENAL_InitContext()
 		// get all available devices + the default device name.
 		if(enumeration_all_ext)
 		{
+            Com_DPrintf("OpenAL: Fetching all devices\n");
 			devicelist = qalcGetString(NULL, ALC_ALL_DEVICES_SPECIFIER);
 #ifdef _WIN32
 			defaultdevice = qalcGetString(NULL, ALC_DEFAULT_ALL_DEVICES_SPECIFIER);
@@ -296,6 +298,7 @@ static bool S_OPENAL_InitContext()
 		}
 		else
 		{
+            Com_DPrintf("OpenAL: Fetching current device\n");
 			// We don't have ALC_ENUMERATE_ALL_EXT but normal enumeration.
 			devicelist = qalcGetString(NULL, ALC_DEVICE_SPECIFIER);
 #ifdef _WIN32
@@ -303,6 +306,8 @@ static bool S_OPENAL_InitContext()
 #endif
 			enumeration_ext = qtrue;
 		}
+
+        Com_DPrintf("OpenAL: Default playback device: \"%s\"\n", defaultdevice);
 
 #ifdef _WIN32
 		// check whether the default device is generic hardware. If it is, change to
@@ -326,8 +331,9 @@ static bool S_OPENAL_InitContext()
 			}
 		}
 
-		s_alAvailableDevices = Cvar_Get("s_alAvailableDevices", devicenames, CVAR_ROM | CVAR_NORESTART);
         Com_Printf("OpenAL: List of available devices:\n%s\n", devicenames);
+
+		s_alAvailableDevices = Cvar_Get("s_alAvailableDevices", devicenames, CVAR_ROM | CVAR_NORESTART);
 	}
 
     Com_Printf("OpenAL: Opening device \"%s\"...\n", dev ? dev : "{default}");
