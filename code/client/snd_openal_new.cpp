@@ -4223,8 +4223,6 @@ bool openal_channel_two_d_stream::set_sfx(sfx_t* pSfx) {
     int bytesRead;
     char rawData[MAX_BUFFER_SAMPLES * 2 * 2];
 
-    assert(!pSfx->buffer);
-
     stop();
 
     sampleLoopCount = 1;
