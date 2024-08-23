@@ -1258,14 +1258,19 @@ qboolean G_ArchiveLevel(const char *filename, byte** savedCgameState, size_t *sa
             // later objects need to post events when reading the archive.
             L_ArchiveEvents(arc);
         }
-        num = (int)*savedCgameStateSize;
-        arc.ArchiveInteger(&num);
+
         if (!arc.Saving()) {
+            arc.ArchiveInteger(&num);
+            *savedCgameStateSize = num;
+
             if (*savedCgameStateSize) {
                 *savedCgameState = (byte*)gi.Malloc(*savedCgameStateSize);
             } else {
                 *savedCgameState = NULL;
             }
+        } else {
+            num = (int)*savedCgameStateSize;
+            arc.ArchiveInteger(&num);
         }
         arc.ArchiveRaw(*savedCgameState, *savedCgameStateSize);
 
