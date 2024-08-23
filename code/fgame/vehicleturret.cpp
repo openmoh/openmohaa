@@ -2041,7 +2041,7 @@ void VehicleTurretGunTandem::RemoteControl(usercmd_t *ucmd, Sentient *owner)
 
     vNewCmdAng = Vector(SHORT2ANGLE(ucmd->angles[0]), SHORT2ANGLE(ucmd->angles[1]), SHORT2ANGLE(ucmd->angles[2]));
 
-    if (vNewCmdAng[0] || vNewCmdAng[1] || vNewCmdAng[2]) {
+    if (m_vUserLastCmdAng[0] || m_vUserLastCmdAng[1] || m_vUserLastCmdAng[2]) {
         m_vUserViewAng[0] += AngleSubtract(vNewCmdAng[0], m_vUserLastCmdAng[0]);
         m_vUserViewAng[1] += AngleSubtract(vNewCmdAng[1], m_vUserLastCmdAng[1]);
         m_vUserViewAng[2] += AngleSubtract(vNewCmdAng[2], m_vUserLastCmdAng[2]);
@@ -2062,7 +2062,7 @@ void VehicleTurretGunTandem::RemoteControlSecondary(usercmd_t *ucmd, Sentient *o
 
     vNewCmdAng = Vector(SHORT2ANGLE(ucmd->angles[0]), SHORT2ANGLE(ucmd->angles[1]), SHORT2ANGLE(ucmd->angles[2]));
 
-    if (vNewCmdAng[0] || vNewCmdAng[1] || vNewCmdAng[2]) {
+    if (m_vUserLastCmdAng[0] || m_vUserLastCmdAng[1] || m_vUserLastCmdAng[2]) {
         m_vUserViewAng[0] += AngleSubtract(vNewCmdAng[0], m_vUserLastCmdAng[0]);
         m_vUserViewAng[1] += AngleSubtract(vNewCmdAng[1], m_vUserLastCmdAng[1]);
         m_vUserViewAng[2] += AngleSubtract(vNewCmdAng[2], m_vUserLastCmdAng[2]);
