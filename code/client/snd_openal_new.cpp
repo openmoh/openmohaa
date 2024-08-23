@@ -2965,7 +2965,7 @@ bool openal_channel::set_sfx(sfx_t *pSfx)
                 qalDeleteBuffers(1, &pSfx->buffer);
                 alDieIfError();
 
-                Com_Printf("OpenAL: Failed to load MP3.\n");
+                Com_DPrintf("OpenAL: Failed to load MP3.\n");
                 return false;
             }
 
@@ -4237,7 +4237,7 @@ bool openal_channel_two_d_stream::set_sfx(sfx_t* pSfx) {
         qalDeleteBuffers(1, &pSfx->buffer);
         alDieIfError();
 
-        Com_Printf("OpenAL: Failed to load MP3.\n");
+        Com_DPrintf("OpenAL: Failed to load MP3.\n");
         return false;
     }
 
@@ -4251,7 +4251,7 @@ bool openal_channel_two_d_stream::set_sfx(sfx_t* pSfx) {
 
     pSfx->info.format = S_OPENAL_Format(stream->info.width, stream->info.channels);
     if (!pSfx->info.format) {
-        Com_Printf(
+        Com_DPrintf(
             "OpenAL: Bad Wave file (%d channels, %d bits) [%s].\n",
             pSfx->info.channels,
             (int)(pSfx->info.width * 8.f),
