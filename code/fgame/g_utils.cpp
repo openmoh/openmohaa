@@ -1197,6 +1197,7 @@ void G_ArchiveEdict(Archiver& arc, gentity_t *edict)
         arc.ArchiveString(&tempStr);
 
         if (tempStr.length()) {
+            tempStr[tempStr.length() - 1] = 0;
             edict->s.loopSound = gi.soundindex(tempStr.c_str(), true);
         } else {
             edict->s.loopSound = 0;
