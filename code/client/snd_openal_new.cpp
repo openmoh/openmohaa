@@ -1522,6 +1522,7 @@ void S_OPENAL_StartSound(
         pChannel->iFlags |= CHANNEL_FLAG_NO_ENTITY;
         pChannel->iEntNum = 0;
     } else {
+        pChannel->iFlags &= ~CHANNEL_FLAG_NO_ENTITY;
         pChannel->iEntNum = iEntNum;
         if (vOrigin) {
             VectorCopy(vOrigin, pChannel->vOrigin);
