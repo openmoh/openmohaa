@@ -175,6 +175,8 @@ jobs:
         path: 'thirdparties/soft-oal'
         ref: '1.23.1'
 
+    # soft-oal build
+    # Statically link the CRT runtime into OAL as a workaround to prevent crashes
     - name: Configure and install soft-oal
       working-directory: ${{github.workspace}}/thirdparties/soft-oal
       run: |
@@ -184,7 +186,13 @@ jobs:
         -DALSOFT_BUILD_ROUTER=OFF `
         -DALSOFT_REQUIRE_WINMM=ON `
         -DALSOFT_REQUIRE_DSOUND=ON `
-        -DALSOFT_REQUIRE_WASAPI=ON
+        -DALSOFT_REQUIRE_WASAPI=ON `
+        -DCMAKE_C_FLAGS_RELEASE="/MT /O2 /Ob2 /DNDEBUG" `
+        -DCMAKE_CXX_FLAGS_RELEASE="/MT /O2 /Ob2 /DNDEBUG" `
+        -DCMAKE_C_FLAGS_MINSIZEREL="/MT /O2 /Ob2 /DNDEBUG" `
+        -DCMAKE_CXX_FLAGS_MINSIZEREL="/MT /O1 /Ob1 /DNDEBUG" `
+        -DCMAKE_C_FLAGS_RELWITHDEBINFO="/MT /Zi /O2 /Ob1 /DNDEBUG" `
+        -DCMAKE_CXX_FLAGS_RELWITHDEBINFO="/MT /Zi /O2 /Ob1 /DNDEBUG"
         cmake --build ./build --config ${{env.BUILD_TYPE}}
         cmake --install ./build --config ${{env.BUILD_TYPE}}
         # Unfortunately soft-oal produces a binary called OpenAL32 even in 64-bit
