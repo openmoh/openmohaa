@@ -155,6 +155,7 @@ void UIFAKKLoadGameClass::SetupFiles(void)
 
         FS_Read(&save, sizeof(savegamestruct_t), f);
         FS_FCloseFile(f);
+        Com_SwapSaveStruct(&save);
 
         if (save.version != SAVEGAME_STRUCT_VERSION) {
             // wrong save game version

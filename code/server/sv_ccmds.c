@@ -1887,6 +1887,7 @@ qboolean SV_ArchiveLevelFile(qboolean loading, qboolean autosave)
         if (f)
         {
             FS_Read(&save, sizeof(savegamestruct_t), f);
+			Com_SwapSaveStruct(&save);
             if (save.version != SAVEGAME_STRUCT_VERSION)
             {
                 FS_FCloseFile(f);
@@ -2007,6 +2008,7 @@ qboolean SV_ArchiveServerFile( qboolean loading, qboolean autosave )
 			save.tm_loopcount = 0;
 		}
 
+		Com_SwapSaveStruct(&save);
 		FS_Write( &save, sizeof( savegamestruct_t ), f );
 		S_Save( f );
 		CM_WritePortalState( f );
@@ -2026,6 +2028,7 @@ qboolean SV_ArchiveServerFile( qboolean loading, qboolean autosave )
 		}
 
         FS_Read(&save, sizeof(savegamestruct_t), f);
+		Com_SwapSaveStruct(&save);
         if (save.version != SAVEGAME_STRUCT_VERSION)
 		{
 			Com_Printf("Invalid or Old Server SaveGame Version\n");
