@@ -685,6 +685,7 @@ static void ParseTexMod( char *_text, shaderStage_t *stage, int cntBundle )
 		}
 
 		tmi->type = TMOD_ROTATE;
+		shader.flags |= 2;
 	}
     else if (!Q_stricmp(token, "offset")) {
         token = COM_ParseExt(text, qfalse);
