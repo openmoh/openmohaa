@@ -162,6 +162,10 @@ void UIFAKKLoadGameClass::SetupFiles(void)
             continue;
         }
 
+        if (save.type != com_target_game->integer) {
+            continue;
+        }
+
         gametime = (save.mapTime / 1000);
         date     = save.time;
 

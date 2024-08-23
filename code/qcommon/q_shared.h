@@ -1461,7 +1461,15 @@ typedef struct {
 #define SAVEGAME_STRUCT_VERSION 4
 
 typedef struct savegamestruct_s {
-	int version;
+	//int version
+	// Modified in OPM
+	//===
+	short version;
+	// The type matches com_target_game
+	byte type;
+	// Currently unused
+	byte flags;
+	//===
 	int time;
 	int mapTime;
 	char comment[ 64 ];

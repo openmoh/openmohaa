@@ -2192,7 +2192,7 @@ int Com_IndexForGrowListElement(const growList_t * list, const void *element)
 }
 
 void Com_SwapSaveStruct(savegamestruct_t* save) {
-	save->version = LittleLong(save->version);
+	save->version = LittleShort(save->version);
 	save->time = LittleLong(save->time);
 	save->mapTime = LittleLong(save->mapTime);
 

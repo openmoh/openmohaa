@@ -1992,6 +1992,9 @@ qboolean SV_ArchiveServerFile( qboolean loading, qboolean autosave )
 		SV_SetConfigstring( CS_SAVENAME, "" );
 
 		save.version = SAVEGAME_STRUCT_VERSION;
+		save.type = com_target_game->integer;
+		save.flags = 0;
+
 		save.time = aclock;
 		strncpy( save.mapName, svs.mapName, sizeof( save.mapName ) );
 		strncpy( save.saveName, svs.gameName, sizeof( save.saveName ) );
