@@ -4469,7 +4469,6 @@ void openal_channel_two_d_stream::clear_stream() {
 
     qalSourceStop(source);
     qalSourcei(source, AL_BUFFER, 0);
-    qalSourceUnqueueBuffers(source, MAX_STREAM_BUFFERS, buffers);
     qalDeleteBuffers(1, buffers);
 
     if (streamHandle) {
