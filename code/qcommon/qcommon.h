@@ -1096,6 +1096,7 @@ const char *Com_GetArchiveFolder();
 void Com_WipeSavegame( const char *savename );
 qboolean Com_ShiftedStrStr(const char* shifted, const char* name, int offset);
 qboolean COM_IsMapValid(const char* name);
+void Com_SwapSaveStruct(savegamestruct_t* save);
 
 
 /*

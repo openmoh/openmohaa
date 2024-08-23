@@ -2403,6 +2403,15 @@ qboolean COM_IsMapValid(const char* name) {
 	*/
 }
 
+void Com_SwapSaveStruct(savegamestruct_t* save) {
+	save->version = LittleShort(save->version);
+	save->time = LittleLong(save->time);
+	save->mapTime = LittleLong(save->mapTime);
+
+	save->tm_loopcount = LittleLong(save->tm_loopcount);
+	save->tm_offset = LittleLong(save->tm_offset);
+}
+
 //------------------------------------------------------------------------
 
 

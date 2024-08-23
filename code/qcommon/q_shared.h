@@ -1107,8 +1107,6 @@ int             Com_AddToGrowList(growList_t * list, void *data);
 void           *Com_GrowListElement(const growList_t * list, int index);
 int             Com_IndexForGrowListElement(const growList_t * list, const void *element);
 
-void			Com_SwapSaveStruct(struct savegamestruct_s* save);
-
 
 //=============================================
 
