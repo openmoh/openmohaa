@@ -96,7 +96,6 @@ G_TouchTriggers
 ============
 */
 void G_TouchTriggers(Entity *ent)
-
 {
     int        i;
     int        num;
@@ -142,7 +141,6 @@ to force all entities it covers to immediately touch it
 ============
 */
 void G_TouchSolids(Entity *ent)
-
 {
     int        i;
     int        num;
@@ -171,7 +169,6 @@ void G_TouchSolids(Entity *ent)
 }
 
 void G_ShowTrace(trace_t *trace, const gentity_t *passent, const char *reason)
-
 {
     str text;
     str pass;
@@ -237,7 +234,6 @@ void G_ShowSightTrace(gentity_t *passent1, gentity_t *passent2, const char *reas
 }
 
 void G_CalcBoundsOfMove(Vector& start, Vector& end, Vector& mins, Vector& maxs, Vector *minbounds, Vector *maxbounds)
-
 {
     Vector bmin;
     Vector bmax;
@@ -378,7 +374,6 @@ trace_t G_Trace(
     const char      *reason,
     qboolean         tracedeep
 )
-
 {
     int     entnum;
     trace_t trace;
@@ -420,7 +415,6 @@ trace_t G_Trace(
     const char   *reason,
     qboolean      tracedeep
 )
-
 {
     gentity_t *ent;
     int        entnum;
@@ -466,7 +460,6 @@ void G_TraceEntities(
     int                  contentmask,
     qboolean             bIncludeTriggers
 )
-
 {
     trace_t    trace;
     vec3_t     boxmins;
@@ -544,7 +537,6 @@ Returns the distance to the nearest player from the given spot
 ================
 */
 float PlayersRangeFromSpot(Entity *spot)
-
 {
     Entity *player;
     float   bestplayerdistance;
@@ -583,7 +575,6 @@ to other players
 ================
 */
 Entity *SelectRandomDeathmatchSpawnPoint(void)
-
 {
     Entity *spot, *spot1, *spot2;
     int     count = 0;
@@ -642,7 +633,6 @@ SelectFarthestDeathmatchSpawnPoint
 ================
 */
 Entity *SelectFarthestDeathmatchSpawnPoint(void)
-
 {
     Entity *bestspot;
     float   bestdistance;
@@ -672,7 +662,6 @@ Entity *SelectFarthestDeathmatchSpawnPoint(void)
 }
 
 Entity *SelectDeathmatchSpawnPoint(void)
-
 {
     if (DM_FLAG(DF_SPAWN_FARTHEST)) {
         return SelectFarthestDeathmatchSpawnPoint();
@@ -693,7 +682,6 @@ is not a staircase.
 int c_yes, c_no;
 
 qboolean M_CheckBottom(Entity *ent)
-
 {
     Vector  mins, maxs, start, stop;
     trace_t trace;
@@ -766,7 +754,6 @@ realcheck:
 }
 
 Entity *G_FindClass(Entity *ent, const char *classname)
-
 {
     int        entnum;
     gentity_t *from;
@@ -790,7 +777,6 @@ Entity *G_FindClass(Entity *ent, const char *classname)
 }
 
 Entity *G_FindTarget(Entity *ent, const char *name)
-
 {
     SimpleEntity *next;
 
@@ -845,7 +831,6 @@ Entity *G_FindRandomTarget(const char *name)
 }
 
 Entity *G_NextEntity(Entity *ent)
-
 {
     gentity_t *from;
 
@@ -879,7 +864,6 @@ Entity *G_NextEntity(Entity *ent)
 // just constant angles.
 //
 Vector G_GetMovedir(float angle)
-
 {
     if (angle == -1) {
         return Vector(0, 0, 1);
@@ -927,7 +911,6 @@ of ent.  Ent should be unlinked before calling this!
 =================
 */
 qboolean KillBox(Entity *ent)
-
 {
     int        i;
     int        num;
@@ -979,9 +962,8 @@ qboolean KillBox(Entity *ent)
 }
 
 qboolean IsNumeric(const char *str)
-
 {
-    int      len;
+    size_t   len;
     int      i;
     qboolean dot;
 
@@ -1014,7 +996,6 @@ findradius (org, radius)
 =================
 */
 Entity *findradius(Entity *startent, Vector org, float rad)
-
 {
     Vector     eorg;
     gentity_t *from;
@@ -1069,7 +1050,6 @@ findclientinradius (org, radius)
 =================
 */
 Entity *findclientsinradius(Entity *startent, Vector org, float rad)
-
 {
     Vector     eorg;
     gentity_t *ed;
@@ -1104,7 +1084,6 @@ Entity *findclientsinradius(Entity *startent, Vector org, float rad)
 }
 
 Vector G_CalculateImpulse(Vector start, Vector end, float speed, float gravity)
-
 {
     float  traveltime, vertical_speed;
     Vector dir, xydir, velocity;
@@ -1122,7 +1101,6 @@ Vector G_CalculateImpulse(Vector start, Vector end, float speed, float gravity)
 }
 
 Vector G_PredictPosition(Vector start, Vector target, Vector targetvelocity, float speed)
-
 {
     Vector projected;
     float  traveltime;
@@ -1143,7 +1121,6 @@ G_ArchiveEdict
 ==============
 */
 void G_ArchiveEdict(Archiver& arc, gentity_t *edict)
-
 {
     int i;
     str tempStr;
@@ -1332,7 +1309,6 @@ Sets the pos trajectory for a fixed position
 ===============
 */
 void G_SetTrajectory(gentity_t *ent, vec3_t org)
-
 {
     ent->s.pos.trTime = 0;
     VectorClear(ent->s.pos.trDelta);
@@ -1348,7 +1324,6 @@ Sets the encoded constant light parameter for entities
 ===============
 */
 void G_SetConstantLight(int *constantlight, float *red, float *green, float *blue, float *radius, int *lightStyle)
-
 {
     int ir, ig, ib, iradius;
 
@@ -1444,46 +1419,45 @@ void G_ProcessCacheInitCommands(dtiki_t *tiki)
 }
 
 void CacheResource(const char *stuff)
-
 {
     AliasListNode_t *ret;
     qboolean         streamed = qfalse;
     char             filename[MAX_STRING_TOKENS];
 
+    assert(stuff);
     if (!stuff) {
         return;
+    }
+
+    if (gi.fsDebug->integer == 2) {
+        Com_Printf("server cache: %s\n", stuff);
     }
 
     if (!strchr(stuff, '.')) {
         // must be a global alias
         stuff = gi.GlobalAlias_FindRandom(stuff, &ret);
         if (!stuff) {
-            if (gi.fsDebug->integer) {
+            if (gi.fsDebug->integer == 2) {
                 Com_Printf("alias not found\n");
             }
 
             return;
         }
         streamed = ret->streamed;
+        if (gi.fsDebug->integer == 2) {
+            Com_Printf("=> %s\n", stuff);
+        }
     }
 
     strcpy(filename, stuff);
     gi.FS_CanonicalFilename(filename);
 
-    if (strstr(filename, ".wav")) {
-        gi.soundindex(filename, streamed);
-    } else if (strstr(filename, ".mp3")) {
+    if (strstr(filename, ".wav") || strstr(filename, ".mp3")) {
         gi.soundindex(filename, streamed);
     } else if (strstr(filename, ".tik")) {
         dtiki_t *tiki;
 
-        if (*stuff && strncmp("models/", stuff, 7)) {
-            sprintf(filename, "models/%s", stuff);
-        } else {
-            strcpy(filename, stuff);
-        }
-
-        gi.FS_CanonicalFilename(filename);
+        Q_strncpyz(filename, CanonicalTikiName(stuff), sizeof(filename));
 
         tiki = gi.TIKI_RegisterModel(filename);
 
@@ -1791,7 +1765,6 @@ void CloneEntity(Entity *dest, Entity *src)
 }
 
 weaponhand_t WeaponHandNameToNum(str side)
-
 {
     if (!side.length()) {
         gi.DPrintf("WeaponHandNameToNum : Weapon hand not specified\n");
@@ -1808,7 +1781,6 @@ weaponhand_t WeaponHandNameToNum(str side)
 }
 
 const char *WeaponHandNumToName(weaponhand_t hand)
-
 {
     switch (hand) {
     case WEAPON_MAIN:
@@ -1821,7 +1793,6 @@ const char *WeaponHandNumToName(weaponhand_t hand)
 }
 
 firemode_t WeaponModeNameToNum(str mode)
-
 {
     if (!mode.length()) {
         gi.DPrintf("WeaponModeNameToNum : Weapon mode not specified\n");
@@ -1913,7 +1884,6 @@ str G_WeaponClassNumToName(int num)
 }
 
 void G_DebugTargets(Entity *e, str from)
-
 {
     gi.DPrintf("DEBUGTARGETS:%s ", from.c_str());
 
@@ -1931,7 +1901,6 @@ void G_DebugTargets(Entity *e, str from)
 }
 
 void G_DebugDamage(float damage, Entity *victim, Entity *attacker, Entity *inflictor)
-
 {
     gi.DPrintf(
         "Victim:%s Attacker:%s Inflictor:%s Damage:%f\n",
@@ -1954,7 +1923,6 @@ void G_FadeOut(float delaytime)
 }
 
 void G_AutoFadeIn(void)
-
 {
     level.m_fade_time_start = 1;
     level.m_fade_time       = 1;
@@ -1967,7 +1935,6 @@ void G_AutoFadeIn(void)
 }
 
 void G_ClearFade(void)
-
 {
     level.m_fade_time = -1;
     level.m_fade_type = fadein;
@@ -2030,7 +1997,6 @@ void G_PlayerDied(float delaytime)
 }
 
 void G_MissionFailed(void)
-
 {
     // Make the music system play the failure music for this level
     ChangeMusic("failure", "normal", true);
@@ -2044,14 +2010,12 @@ void G_MissionFailed(void)
 }
 
 void G_StartCinematic(void)
-
 {
     level.cinematic = true;
     gi.cvar_set("sv_cinematic", "1");
 }
 
 void G_StopCinematic(void)
-
 {
     // clear out the skip thread
     level.cinematic = false;
