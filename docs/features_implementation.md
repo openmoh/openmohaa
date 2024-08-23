@@ -2,24 +2,26 @@
 
 ## Server
 
-The server version can be built successfully, but some features are not functional. For example, the Actor system is almost fully implemented, but it is not yet stable. This means that Actor may not work as expected and could cause crashes.
-
-Overall, the server and the fgame components are almost fully implemented, but they may not be completely stable. There could be some minor bugs (and rare crashes), but the game should be playable.
+The server version can be built successfully. The server and the fgame components are fully implemented, the single-player campaign can be played from start to end in MOH:AA, MOH:SH and MOH:BT. However there could be some minor bugs (and rare crashes), but overall, the game should be playable.
 
 ## Client
 
-The client version of OpenMoHAA has undergone partial implementation, with the cgame module being nearly completed. Credits to the SDK of **Heavy Metal: F.A.K.K. 2** both the cgame and fgame modules.
+The client version of OpenMoHAA is also fully implemented with a few bugs remaining, and with the cgame module being nearly completed. Credits to the SDK of **Heavy Metal: F.A.K.K. 2** both the cgame and fgame modules.
+
+OpenMoHAA is using OpenAL for the audio.
 
 The current operational status for each component is as follow:
 
 | Component               | Full | Almost | Half | Early | Bad | Not working | Comment                                                           |
 |-------------------------|------|--------|------|-------|-----|-------------|-------------------------------------------------------------------|
-| Audio                   |      |        |      |       | x   |             | Very basic implementation from Quake III                          |
-| CG Module               |      | x      |      |       |     |             | Missing FX, Marks and decals                                      |
+| Audio                   | x    |        |      |       |     |             | Full implementation using OpenAL, there may still be some bugs    |
+| CG Module               |      | x      |      |       |     |             | Need more fixes for FX, marks and decals                          |
 | Client                  | x    |        |      |       |     |             |                                                                   |
 | Collision               | x    |        |      |       |     |             |                                                                   |
 | Model/TIKI/Skeletor     | x    |        |      |       |     |             |                                                                   |
-| Renderer                |      | x      |      |       |     |             | Missing ghost, marks, sphere lights, sky portal, sun flare, swipe |
-| Server                  |      | x      |      |       |     |             | Probably a few bugs remaining                                     |
-| Server module (fgame)   |      | x      |      |       |     |             | Actor, and few gameplay bugs                                      |
-| UI                      |      | x      |      |       |     |             | A few bugs to fix                                                 |
+| Renderer                | x    | x      |      |       |     |             | Missing ghost, sun flare, swipe, some lighting bugs               |
+| Server                  | x    |        |      |       |     |             |                                                                   |
+| Server module (fgame)   | x    |        |      |       |     |             | There might still be some AI/gameplay bugs                        |
+| UI                      | x    |        |      |       |     |             |                                                                   |
+
+Full = code is fully working, however it doesn't mean it's bug-free.

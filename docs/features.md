@@ -8,7 +8,7 @@ A lot of bugs and exploits from MOH:AA were fixed in OpenMoHAA (BOF exploit, gre
 
 - Features from ioquake3
 - IPv6 support (from ioquake3)
-- Features from SH 2.15 and BT 2.40
+- Features from MOH: Spearhead 2.15 and MOH: Breakthrough 2.40
 
 ### Server-side
 

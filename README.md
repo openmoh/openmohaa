@@ -26,6 +26,10 @@ The main goal of OpenMoHAA is to ensure the future and continuity of **Medal of 
 
 ## Current state
 
+### Single-player
+
+The entire single-player campaign can be played from start to end. There may be occasional bugs though; if you encounter any, please create a GitHub issue describing them.
+
 ### Multiplayer
 
 The Multiplayer part is almost fully stable.
@@ -34,13 +38,9 @@ Server admins can use OpenMoHAA to [host](docs/getting_started_installation.md#s
 
 All game modes including `Tug-of-War` from Medal of Honor: Spearhead, and `Liberation` from Medal of Honor: Breakthrough are implemented and are working as intended. Mods like `Freeze-Tag` are working as well.
 
-### Single-player
-
-The `training` map can be played from start to end. The single-player campaign is not fully functional, but at least AI can breathe, talk, run, and shoot.
-
 ## Features
 
-- [What's working and what's not](docs/features_implementation.md)
+- [What's working](docs/features_implementation.md)
 - [New features](docs/features.md)
 - [Scripting commands](https://htmlpreview.github.io/?https://github.com/openmoh/openmohaa/blob/main/docs/features_g_allclasses.html)
 
