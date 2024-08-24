@@ -420,7 +420,7 @@ void ScriptVM::error(const char *format, ...)
     vsprintf(buffer, format, va);
     va_end(va);
 
-    glbs.Printf("----------------------------------------------------------\n%s\n", buffer);
+    gi.Printf("----------------------------------------------------------\n%s\n", buffer);
     m_ReturnValue.setStringValue("$.INTERRUPTED");
 }
 
@@ -1040,9 +1040,6 @@ void ScriptVM::Execute(ScriptVariable *data, int dataSize, str label)
 
     state = STATE_RUNNING;
 
-    Director.cmdTime  = glbs.Milliseconds();
-    Director.cmdCount = 0;
-
     while (state == STATE_RUNNING) {
         if (g_scripttrace->integer && CanScriptTracePrint()) {
             switch (g_scripttrace->integer) {
@@ -1059,33 +1056,7 @@ void ScriptVM::Execute(ScriptVariable *data, int dataSize, str label)
 
         m_PrevCodePos = m_CodePos;
 
-        Director.cmdCount++;
-
         try {
-            if (Director.cmdCount > 9999 && glbs.Milliseconds() - Director.cmdTime > Director.maxTime) {
-                if (level.m_LoopProtection) {
-                    Director.cmdTime = glbs.Milliseconds();
-
-                    GetScript()->PrintSourcePos(m_CodePos, true);
-                    gi.DPrintf2("\n");
-
-                    state = STATE_EXECUTION;
-
-                    if (level.m_LoopDrop) {
-                        ScriptException::next_abort = -1;
-                    }
-
-                    ScriptError("Command overflow. Possible infinite loop in thread.\n");
-                }
-
-                VM_DPrintf("Update of script position - This is not an error.\n");
-                VM_DPrintf("=================================================\n");
-                m_ScriptClass->GetScript()->PrintSourcePos(opcode, true);
-                VM_DPrintf("=================================================\n");
-
-                Director.cmdCount = 0;
-            }
-
             if (!m_VMStack.m_bMarkStack) {
                 /*
 				assert(pTop >= localStack && pTop < localStack + localStackSize);
@@ -1832,11 +1803,50 @@ void ScriptVM::Execute(ScriptVariable *data, int dataSize, str label)
             default:
                 assert(!"Invalid opcode");
                 if (*opcode < OP_MAX) {
-                    glbs.DPrintf("unknown opcode %d ('%s')\n", *opcode, OpcodeName(*opcode));
+                    gi.DPrintf("unknown opcode %d ('%s')\n", *opcode, OpcodeName(*opcode));
                 } else {
-                    glbs.DPrintf("unknown opcode %d\n", *opcode);
+                    gi.DPrintf("unknown opcode %d\n", *opcode);
                 }
                 break;
+            }
+
+            Director.cmdCount++;
+
+            if (Director.cmdCount >= 15000) {
+                if (!Director.cmdTime) {
+                    Director.cmdTime = gi.Milliseconds();
+                    Director.cmdCount = 0;
+                    continue;
+                }
+
+                if (gi.Milliseconds() - Director.cmdTime < Director.maxTime) {
+                    Director.cmdCount = 0;
+                    continue;
+                }
+
+                // The maximum execution time was reached
+                if (level.m_LoopProtection) {
+                    Director.cmdTime = gi.Milliseconds();
+
+                    GetScript()->PrintSourcePos(m_CodePos, true);
+                    gi.DPrintf2("\n");
+
+                    state = STATE_EXECUTION;
+
+                    if (level.m_LoopDrop) {
+                        ScriptException::next_abort = -1;
+                    }
+
+                    ScriptError("Command overflow. Possible infinite loop in thread.\n");
+                    break;
+                }
+
+                VM_DPrintf("Update of script position - This is not an error.\n");
+                VM_DPrintf("=================================================\n");
+                m_ScriptClass->GetScript()->PrintSourcePos(opcode, true);
+                VM_DPrintf("=================================================\n");
+
+                Director.cmdCount = 0;
             }
         } catch (ScriptException& exc) {
             HandleScriptException(exc);
@@ -1877,7 +1887,7 @@ void ScriptVM::HandleScriptException(ScriptException& exc)
     if (m_ScriptClass) {
         m_ScriptClass->GetScript()->PrintSourcePos(m_PrevCodePos, true);
     } else {
-        glbs.DPrintf("unknown source pos");
+        gi.DPrintf("unknown source pos");
     }
 
     if (exc.bAbort) {
