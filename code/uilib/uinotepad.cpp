@@ -143,7 +143,7 @@ static ctrlevent_s controlEvents[CTRL_EVENT_COUNT] = {
     {'c',  &EV_Notepad_Copy                 },
     {'x',  &EV_Notepad_Cut                  },
     {'v',  &EV_Notepad_Paste                },
-    {NULL, NULL                             },
+    {0,    NULL                             },
 };
 
 bool UI_LoadNotepadFile(const char *filename)

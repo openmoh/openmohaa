@@ -468,13 +468,9 @@ void UIPopupMenu::Dismiss
 
 {
 	// navigate to the topmost menu
-	if (m_parentMenu)
-	{
+	if (m_parentMenu) {
 		m_parentMenu->Dismiss();
-	}
-	else if (this)
-	{
-		// this is the topmost menu, self-destruct
+	} else {
 		delete this;
 	}
 }
