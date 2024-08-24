@@ -1501,9 +1501,6 @@ void S_OPENAL_StartSound(
     pChannel->iEntChannel   = iEntChannel;
     pChannel->iFlags &= ~(CHANNEL_FLAG_PAUSED | CHANNEL_FLAG_LOCAL_LISTENER);
     state = pChannel->get_state();
-    // Fixed in OPM
-    //  Setup the channel for 3D
-    pChannel->set_3d();
 
     if (pChannel->iEntNum == iEntNum && (state == AL_PLAYING || state == AL_PAUSED) && pChannel->pSfx == pSfx) {
         bOnlyUpdate = true;
@@ -1529,6 +1526,10 @@ void S_OPENAL_StartSound(
 
     pChannel->fVolume = S_GetBaseVolume() * fVolume;
     pChannel->set_gain(pChannel->fVolume);
+
+    // Fixed in OPM
+    //  Setup the channel for 3D
+    pChannel->set_3d();
 
     if (s_show_sounds->integer > 0) {
         Com_DPrintf(
@@ -2869,11 +2870,11 @@ void openal_channel::set_3d()
     alDieIfError();
     qalSourcei(source, AL_LOOPING, false);
     alDieIfError();
-    qalSourcef(source, AL_ROLLOFF_FACTOR, 0.5f);
+    qalSourcef(source, AL_ROLLOFF_FACTOR, 1.0f);
     alDieIfError();
     qalSourcef(source, AL_GAIN, S_GetBaseVolume());
     alDieIfError();
-    qalSourcei(source, AL_DISTANCE_MODEL, AL_LINEAR_DISTANCE);
+    qalSourcei(source, AL_DISTANCE_MODEL, AL_LINEAR_DISTANCE_CLAMPED);
     alDieIfError();
     //
     // Added in OPM
