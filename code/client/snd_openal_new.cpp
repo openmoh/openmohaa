@@ -269,6 +269,8 @@ static bool S_OPENAL_InitContext()
     const char *dev;
     int         attrlist[8];
 
+    Com_DPrintf("OpenAL: Context initialization\n");
+
     dev = NULL;
     if (s_openaldevice) {
         dev = s_openaldevice->string;
@@ -277,8 +279,6 @@ static bool S_OPENAL_InitContext()
     if (dev && !*dev) {
         dev = NULL;
     }
-
-    Com_DPrintf("OpenAL: Context initialization\n");
 
 	// Device enumeration support
 	enumeration_all_ext = qalcIsExtensionPresent(NULL, "ALC_ENUMERATE_ALL_EXT");
@@ -296,7 +296,6 @@ static bool S_OPENAL_InitContext()
 		// get all available devices + the default device name.
 		if(enumeration_all_ext)
 		{
-            Com_DPrintf("OpenAL: Fetching all devices\n");
 			devicelist = qalcGetString(NULL, ALC_ALL_DEVICES_SPECIFIER);
 #ifdef _WIN32
 			defaultdevice = qalcGetString(NULL, ALC_DEFAULT_ALL_DEVICES_SPECIFIER);
@@ -304,7 +303,6 @@ static bool S_OPENAL_InitContext()
 		}
 		else
 		{
-            Com_DPrintf("OpenAL: Fetching current device\n");
 			// We don't have ALC_ENUMERATE_ALL_EXT but normal enumeration.
 			devicelist = qalcGetString(NULL, ALC_DEVICE_SPECIFIER);
 #ifdef _WIN32
@@ -377,6 +375,7 @@ static bool S_OPENAL_InitContext()
     attrlist[2] = ALC_SYNC;
     attrlist[3] = qfalse;
 
+#ifdef ALC_SOFT_output_mode
     attrlist[4] = ALC_OUTPUT_MODE_SOFT;
 
     switch (s_speaker_type->integer) {
@@ -398,6 +397,13 @@ static bool S_OPENAL_InitContext()
         attrlist[5] = ALC_QUAD_SOFT;
         break;
     }
+#else
+#  pragma message("OpenAL: ALC_OUTPUT_MODE_SOFT unavailable") 
+
+    Com_Printf("OpenAL: ALC_OUTPUT_MODE_SOFT is unavailable. The speaker type will be ignored, fallback to normal stereo.\n");
+    attrlist[4] = 0;
+    attrlist[5] = 0;
+#endif
 
     attrlist[6] = 0;
     attrlist[7] = 0;
