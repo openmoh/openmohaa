@@ -2510,11 +2510,7 @@ void S_OPENAL_Update()
     }
 
     if (s_speaker_type->modified) {
-        if (s_speaker_type->integer) {
-            //Com_Printf("FIXME: Allow different speaker types in OpenAL code.\n");
-            //Cvar_Set("s_speaker_type", "0");
-            Cbuf_AddText("snd_restart\n");
-        }
+        Cbuf_AddText("snd_restart\n");
         s_speaker_type->modified = false;
     }
 
