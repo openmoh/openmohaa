@@ -38,7 +38,7 @@ typedef struct {
     bool         required;
 } extensions_table_t;
 
-#    define MAX_MUSIC_SONGS 16
+#define MAX_MUSIC_SONGS 16
 
 static int   s_iNextLoopingWarning = 0;
 static int   s_iReverbType         = 0;
@@ -46,6 +46,7 @@ static float s_fReverbLevel        = 0;
 static bool  s_bReverbChanged      = false;
 static bool  s_bFading             = false;
 static float s_fFadeVolume         = 1.f;
+static float s_fVelocityScale      = 0.005f;
 
 static constexpr float s_fVolumeGain = 1.f; // = 84.f;
 
@@ -1914,6 +1915,7 @@ static int S_OPENAL_Start3DLoopSound(
     }
 
     pChan3D->set_position(vLoopOrigin[0], vLoopOrigin[1], vLoopOrigin[2]);
+    VectorScale(pLoopSound->vVelocity, s_fVelocityScale, pLoopSound->vVelocity);
     pChan3D->set_velocity(pLoopSound->vVelocity[0], pLoopSound->vVelocity[1], pLoopSound->vVelocity[2]);
     pChan3D->pSfx = pLoopSound->pSfx;
     pChan3D->iFlags |= CHANNEL_FLAG_PAUSED | CHANNEL_FLAG_NO_ENTITY;
@@ -2252,6 +2254,8 @@ void S_OPENAL_Respatialize(int iEntNum, const vec3_t vHeadPos, const vec3_t vAxi
     //
     // Velocity
     //
+    VectorCopy(s_entity[iEntNum].velocity, alvec);
+    VectorScale(alvec, s_fVelocityScale, alvec);
     qalListenerfv(AL_VELOCITY, alvec);
     alDieIfError();
 
@@ -2377,6 +2381,7 @@ void S_OPENAL_Respatialize(int iEntNum, const vec3_t vHeadPos, const vec3_t vAxi
                 pChannel->set_position(vOrigin[0], vOrigin[1], vOrigin[2]);
                 VectorCopy(s_entity[pChannel->iEntNum].velocity, vEntVelocity);
                 VectorCopy(vEntVelocity, vVelocity);
+                VectorScale(vVelocity, s_fVelocityScale, vVelocity);
                 pChannel->set_velocity(vVelocity[0], vVelocity[1], vVelocity[2]);
             }
         }
