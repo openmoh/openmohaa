@@ -26,6 +26,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../server/server.h"
 #include "snd_codec.h"
 
+#if defined(_MSC_VER) || defined(__APPLE__)
+#  include <alext.h>
+#else
+#  include <AL/alext.h>
+#endif
+
 typedef struct {
     const char  *funcname;
     void       **funcptr;
@@ -261,7 +267,7 @@ S_OPENAL_InitContext
 static bool S_OPENAL_InitContext()
 {
     const char *dev;
-    int         attrlist[6];
+    int         attrlist[8];
 
     dev = NULL;
     if (s_openaldevice) {
@@ -366,12 +372,35 @@ static bool S_OPENAL_InitContext()
         break;
     }
 
-    attrlist[0] = 256;
+    attrlist[0] = ALC_FREQUENCY;
     attrlist[1] = al_frequency;
-    attrlist[2] = 258;
-    attrlist[3] = 0;
-    attrlist[4] = 0;
-    attrlist[5] = 0;
+    attrlist[2] = ALC_SYNC;
+    attrlist[3] = qfalse;
+
+    attrlist[4] = ALC_OUTPUT_MODE_SOFT;
+
+    switch (s_speaker_type->integer) {
+    // Two speakers
+    default:
+    case 0:
+        attrlist[5] = ALC_STEREO_SOFT;
+        break;
+    // Headphones
+    case 1:
+        attrlist[5] = ALC_STEREO_HRTF_SOFT;
+        break;
+    // Surround
+    case 2:
+        attrlist[5] = ALC_SURROUND_5_1_SOFT;
+        break;
+    // Quad speakers
+    case 3:
+        attrlist[5] = ALC_QUAD_SOFT;
+        break;
+    }
+
+    attrlist[6] = 0;
+    attrlist[7] = 0;
 
     Com_Printf("OpenAL: Creating AL context...\n");
     al_context_id = qalcCreateContext(al_device, attrlist);
@@ -2465,8 +2494,9 @@ void S_OPENAL_Update()
 
     if (s_speaker_type->modified) {
         if (s_speaker_type->integer) {
-            Com_Printf("FIXME: Allow different speaker types in OpenAL code.\n");
-            Cvar_Set("s_speaker_type", "0");
+            //Com_Printf("FIXME: Allow different speaker types in OpenAL code.\n");
+            //Cvar_Set("s_speaker_type", "0");
+            Cbuf_AddText("snd_restart\n");
         }
         s_speaker_type->modified = false;
     }
