@@ -946,7 +946,7 @@ void R_AddSkelSurfaces( trRefEntity_t *ent ) {
 SkelVertGetNormal
 =============
 */
-static void SkelVertGetNormal( skeletorVertex_t *vert, skelBoneCache_t *bone, vec3_t out ) {
+inline static void SkelVertGetNormal( skeletorVertex_t *vert, skelBoneCache_t *bone, vec3_t out ) {
 	out[ 0 ] = vert->normal[ 0 ] * bone->matrix[ 0 ][ 0 ] +
 			vert->normal[ 1 ] * bone->matrix[ 1 ][ 0 ] +
 			vert->normal[ 2 ] * bone->matrix[ 2 ][ 0 ];
@@ -965,7 +965,7 @@ static void SkelVertGetNormal( skeletorVertex_t *vert, skelBoneCache_t *bone, ve
 SkelMorphGetXyz
 =============
 */
-static void SkelMorphGetXyz( skeletorMorph_t *morph, int *morphcache, vec3_t out ) {
+inline static void SkelMorphGetXyz( skeletorMorph_t *morph, int *morphcache, vec3_t out ) {
 	VectorMA(out, *morphcache, morph->offset, out);
 }
 
@@ -974,7 +974,7 @@ static void SkelMorphGetXyz( skeletorMorph_t *morph, int *morphcache, vec3_t out
 SkelWeightGetXyz
 =============
 */
-static void SkelWeightGetXyz( skelWeight_t *weight, skelBoneCache_t *bone, vec3_t out ) {
+inline static void SkelWeightGetXyz( skelWeight_t *weight, skelBoneCache_t *bone, vec3_t out ) {
 	out[ 0 ] += ( ( weight->offset[ 0 ] * bone->matrix[ 0 ][ 0 ] +
 				weight->offset[ 1 ] * bone->matrix[ 1 ][ 0 ] +
 				weight->offset[ 2 ] * bone->matrix[ 2 ][ 0 ] ) +
@@ -996,7 +996,7 @@ static void SkelWeightGetXyz( skelWeight_t *weight, skelBoneCache_t *bone, vec3_
 SkelWeightMorphGetXyz
 =============
 */
-static void SkelWeightMorphGetXyz( skelWeight_t *weight, skelBoneCache_t *bone, vec3_t totalmorph, vec3_t out ) {
+inline static void SkelWeightMorphGetXyz( skelWeight_t *weight, skelBoneCache_t *bone, vec3_t totalmorph, vec3_t out ) {
 	vec3_t point;
 
 	VectorAdd( totalmorph, weight->offset, point );
