@@ -1595,9 +1595,14 @@ void S_OPENAL_StartSound(
     }
 
     if (!bOnlyUpdate && S_OPENAL_ShouldStart(pChannel->vOrigin, pChannel->fMinDist, pChannel->fMaxDist)) {
+        // Fixed in OPM
+        //  Make sure to set the pitch before playing the sound
+        pChannel->iBaseRate = pSfx->info.rate;
+        pChannel->set_sample_playback_rate(pChannel->iBaseRate * pChannel->fNewPitchMult);
+        pChannel->fNewPitchMult = 0;
+
         pChannel->play();
         pChannel->iEndTime   = cl.serverTime + (int)pChannel->pSfx->time_length + 250;
-        pChannel->iBaseRate  = pChannel->sample_playback_rate();
         pChannel->iStartTime = cl.serverTime;
     }
 }
