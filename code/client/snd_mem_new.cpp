@@ -117,7 +117,7 @@ void SetLittleLong(int i)
 {
     union {
         int  value;
-        byte bytes[2];
+        byte bytes[4];
     } val;
 
     val.value = i;
