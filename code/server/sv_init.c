@@ -943,9 +943,9 @@ void SV_ServerLoaded( void ) {
 	sv.state = SS_GAME;
 	sv.timeResidual = 0;
 	svs.startTime = svs.time - svs.mapTime;
-	if( svs.time - svs.mapTime < 0 )
+	if( svs.startTime < 0 )
 	{
-		svs.time -= svs.time - svs.mapTime;
+		svs.time -= svs.startTime;
 		svs.startTime = 0;
 	}
 
