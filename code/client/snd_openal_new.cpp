@@ -4372,10 +4372,12 @@ void openal_channel_two_d_stream::update()
     qalGetSourcei(source, AL_BUFFERS_QUEUED, &numQueuedBuffers);
     alDieIfError();
 
-    // Unqueue processed buffers
-    while (numProcessedBuffers-- > 0) {
-        ALuint tmpBuffer;
-        qalSourceUnqueueBuffers(source, 1, &tmpBuffer);
+    // Remove processed buffers after half of the queued buffers has been processed
+    if (numProcessedBuffers >= numQueuedBuffers / 2) {
+        while (numProcessedBuffers-- > 0) {
+            ALuint tmpBuffer;
+            qalSourceUnqueueBuffers(source, 1, &tmpBuffer);
+        }
     }
 
     if (numQueuedBuffers >= MAX_STREAM_BUFFERS) {
