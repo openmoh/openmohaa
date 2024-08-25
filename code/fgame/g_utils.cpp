@@ -1528,7 +1528,12 @@ void ChangeSoundtrack(const char *soundtrack)
     level.saved_soundtrack   = level.current_soundtrack;
     level.current_soundtrack = soundtrack;
 
+    // Force the soundtrack to be sent again by setting it to empty first
+    // so it gets sent to clients again especially when loading
+    // from a saved game
+    gi.setConfigstring(CS_MUSIC, "");
     gi.setConfigstring(CS_MUSIC, soundtrack);
+
     gi.DPrintf("soundtrack switched to %s.\n", soundtrack);
 }
 
