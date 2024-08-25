@@ -46,10 +46,10 @@ to the new value before sending out any replies.
 
 */
 
+#define	MAX_PACKETLEN					10000		// max size of a network packet
+#define	MAX_REMOTE_PACKETLEN			1400		// max size of a network packet
 
-#define	MAX_PACKETLEN			1400		// max size of a network packet
-
-#define	FRAGMENT_SIZE			(MAX_PACKETLEN - 100)
+#define FRAGMENT_SIZE			(((chan->remoteAddress.type == NA_LOOPBACK) ? MAX_PACKETLEN : MAX_REMOTE_PACKETLEN) - 100)
 #define	PACKET_HEADER			10			// two ints and a short
 
 #define	FRAGMENT_BIT	(1<<31)
@@ -198,7 +198,7 @@ void Netchan_TransmitNextFragment( netchan_t *chan ) {
 	size_t		fragmentLength;
 
 	// write the packet header
-	MSG_InitOOB (&send, send_buf, sizeof(send_buf));				// <-- only do the oob here
+	MSG_InitOOB (&send, send_buf, chan->remoteAddress.type == NA_LOOPBACK ? MAX_PACKETLEN : MAX_REMOTE_PACKETLEN); // <-- only do the oob here
 
 	MSG_WriteLong( &send, chan->outgoingSequence | FRAGMENT_BIT );
 
@@ -250,8 +250,8 @@ A 0 length will still generate a packet.
 ================
 */
 void Netchan_Transmit( netchan_t *chan, size_t length, const byte *data ) {
-	msg_t		send;
-	byte		send_buf[MAX_PACKETLEN];
+	msg_t			send;
+	byte			send_buf[MAX_PACKETLEN];
 
 	if ( length > MAX_MSGLEN ) {
 		Com_Error( ERR_DROP, "Netchan_Transmit: length = %zu", length );
@@ -271,7 +271,7 @@ void Netchan_Transmit( netchan_t *chan, size_t length, const byte *data ) {
 	}
 
 	// write the packet header
-	MSG_InitOOB (&send, send_buf, sizeof(send_buf));
+	MSG_InitOOB (&send, send_buf, chan->remoteAddress.type == NA_LOOPBACK ? MAX_PACKETLEN : MAX_REMOTE_PACKETLEN);
 
 	MSG_WriteLong( &send, chan->outgoingSequence );
 	chan->outgoingSequence++;
