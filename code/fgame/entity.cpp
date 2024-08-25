@@ -3310,7 +3310,7 @@ void Entity::ProcessSoundEvent(Event *ev, qboolean checkSubtitle)
 {
     str   sound_name;
     str   wait;
-    int   waitTillDone = 0;
+    bool  waitTillDone = false;
     float volume;
     int   channel = 0;
 
@@ -3330,30 +3330,24 @@ void Entity::ProcessSoundEvent(Event *ev, qboolean checkSubtitle)
         wait = ev->GetString(2);
     }
 
-    if (Q_stricmp(wait.c_str(), "wait")) {
-        if (!Q_stricmp(wait.c_str(), "volume")) {
-            if (ev->NumArgs() != 3) {
-                ScriptError("Entity::Sound: volume not followed by a float");
-            }
-
-            volume = ev->GetFloat(3);
-        }
-    } else {
-        waitTillDone = 1;
+    if (!Q_stricmp(wait.c_str(), "wait")) {
+        waitTillDone = true;
 
         if (ev->NumArgs() == 3) {
             volume = ev->GetFloat(3);
         }
+    } else if (!Q_stricmp(wait.c_str(), "volume")) {
+        if (ev->NumArgs() != 3) {
+            ScriptError("Entity::Sound: volume not followed by a float");
+        }
+
+        volume = ev->GetFloat(3);
     }
 
     if (volume == DEFAULT_VOL) {
-        if (wait.length()) {
-            channel = atoi(wait.c_str());
-        }
-
-        Sound(sound_name, channel, volume, 0, NULL, 0, 0, waitTillDone, checkSubtitle, -1.0f);
+        Sound(sound_name, CHAN_AUTO, volume, 0, NULL, 0, 0, waitTillDone, checkSubtitle, -1.0f);
     } else {
-        Sound(sound_name, -1.0f, volume, -1.0f, NULL, -1.0f, 1, waitTillDone, checkSubtitle, -1.0f);
+        Sound(sound_name, -1, volume, -1.0f, NULL, -1.0f, 1, waitTillDone, checkSubtitle, -1.0f);
     }
 }
 
