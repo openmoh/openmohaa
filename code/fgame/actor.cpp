@@ -10589,7 +10589,7 @@ void Actor::EventSoundDone(Event *ev)
     str sfxName;
 
     channelNum = ev->GetInteger(1);
-    sfxName    = ev->GetString(1);
+    sfxName    = ev->GetString(2);
 
     if (gi.S_IsSoundPlaying(channelNum, sfxName)) {
         Event event(EV_SoundDone);
