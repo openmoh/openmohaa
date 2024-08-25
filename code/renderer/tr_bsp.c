@@ -726,6 +726,7 @@ static void ParseMesh ( dsurface_t *ds, drawVert_t *verts, msurface_t *surf ) {
     int				lightmapNum;
     vec3_t			bounds[2];
     vec3_t			tmpVec;
+    float           subdivisions;
     static surfaceType_t	skipData = SF_SKIP;
 
     lightmapNum = LittleLong( ds->lightmapNum );
@@ -764,8 +765,9 @@ static void ParseMesh ( dsurface_t *ds, drawVert_t *verts, msurface_t *surf ) {
     }
 
     // pre-tesseleate
-    if (ds->subdivisions) {
-        grid = R_SubdividePatchToGrid(width, height, ds->subdivisions * (r_subdivisions->value / 10.0), points);
+    subdivisions = LittleFloat(ds->subdivisions);
+    if (subdivisions) {
+        grid = R_SubdividePatchToGrid(width, height, subdivisions * (r_subdivisions->value / 10.0), points);
     } else if (surf->shader->subdivisions) {
         grid = R_SubdividePatchToGrid(width, height, surf->shader->subdivisions * (r_subdivisions->value / 10.0), points);
     } else {
