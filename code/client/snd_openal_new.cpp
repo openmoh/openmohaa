@@ -27,15 +27,15 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "snd_codec.h"
 
 #if defined(_MSC_VER) || defined(__APPLE__)
-#  include <alext.h>
+#    include <alext.h>
 #else
-#  include <AL/alext.h>
+#    include <AL/alext.h>
 #endif
 
 typedef struct {
-    const char  *funcname;
-    void       **funcptr;
-    bool         required;
+    const char *funcname;
+    void      **funcptr;
+    bool        required;
 } extensions_table_t;
 
 #define MAX_MUSIC_SONGS 16
@@ -97,7 +97,7 @@ int             music_loaded            = 0;
 int             music_numsongs          = 0;
 int             music_currentsong       = 0;
 
-static qboolean enumeration_ext = qfalse;
+static qboolean enumeration_ext     = qfalse;
 static qboolean enumeration_all_ext = qfalse;
 
 song_t            music_songs[MAX_MUSIC_SONGS];
@@ -111,23 +111,23 @@ static void S_OPENAL_StopMP3();
 static void S_OPENAL_Pitch();
 static int
 S_OPENAL_SpatializeStereoSound(const vec3_t listener_origin, const vec3_t listener_left, const vec3_t origin);
-static void S_OPENAL_reverb(int iChannel, int iReverbType, float fReverbLevel);
-static bool S_OPENAL_LoadMP3_Codec(const char *_path, sfx_t* pSfx);
+static void   S_OPENAL_reverb(int iChannel, int iReverbType, float fReverbLevel);
+static bool   S_OPENAL_LoadMP3_Codec(const char *_path, sfx_t *pSfx);
 static ALuint S_OPENAL_Format(int width, int channels);
 
-#    define alDieIfError() __alDieIfError(__FILE__, __LINE__)
+#define alDieIfError() __alDieIfError(__FILE__, __LINE__)
 
-#    if defined(_WIN64)
-#        define ALDRIVER_DEFAULT "OpenAL64.dll"
-#    elif defined(_WIN32)
-#        define ALDRIVER_DEFAULT "OpenAL32.dll"
-#    elif defined(__APPLE__)
-#        define ALDRIVER_DEFAULT "/System/Library/Frameworks/OpenAL.framework/OpenAL"
-#    elif defined(__OpenBSD__)
-#        define ALDRIVER_DEFAULT "libopenal.so"
-#    else
-#        define ALDRIVER_DEFAULT "libopenal.so.1"
-#    endif
+#if defined(_WIN64)
+#    define ALDRIVER_DEFAULT "OpenAL64.dll"
+#elif defined(_WIN32)
+#    define ALDRIVER_DEFAULT "OpenAL32.dll"
+#elif defined(__APPLE__)
+#    define ALDRIVER_DEFAULT "/System/Library/Frameworks/OpenAL.framework/OpenAL"
+#elif defined(__OpenBSD__)
+#    define ALDRIVER_DEFAULT "libopenal.so"
+#else
+#    define ALDRIVER_DEFAULT "libopenal.so.1"
+#endif
 
 /*
 ==============
@@ -281,67 +281,62 @@ static bool S_OPENAL_InitContext()
         dev = NULL;
     }
 
-	// Device enumeration support
-	enumeration_all_ext = qalcIsExtensionPresent(NULL, "ALC_ENUMERATE_ALL_EXT");
-	enumeration_ext = qalcIsExtensionPresent(NULL, "ALC_ENUMERATION_EXT");
+    // Device enumeration support
+    enumeration_all_ext = qalcIsExtensionPresent(NULL, "ALC_ENUMERATE_ALL_EXT");
+    enumeration_ext     = qalcIsExtensionPresent(NULL, "ALC_ENUMERATION_EXT");
 
-	if(enumeration_ext || enumeration_all_ext)
-	{
-		char devicenames[16384] = "";
-		const char *devicelist;
+    if (enumeration_ext || enumeration_all_ext) {
+        char        devicenames[16384] = "";
+        const char *devicelist;
 #ifdef _WIN32
-		const char *defaultdevice;
+        const char *defaultdevice;
 #endif
-		int curlen;
+        int curlen;
 
-		// get all available devices + the default device name.
-		if(enumeration_all_ext)
-		{
-			devicelist = qalcGetString(NULL, ALC_ALL_DEVICES_SPECIFIER);
+        // get all available devices + the default device name.
+        if (enumeration_all_ext) {
+            devicelist = qalcGetString(NULL, ALC_ALL_DEVICES_SPECIFIER);
 #ifdef _WIN32
-			defaultdevice = qalcGetString(NULL, ALC_DEFAULT_ALL_DEVICES_SPECIFIER);
+            defaultdevice = qalcGetString(NULL, ALC_DEFAULT_ALL_DEVICES_SPECIFIER);
 #endif
-		}
-		else
-		{
-			// We don't have ALC_ENUMERATE_ALL_EXT but normal enumeration.
-			devicelist = qalcGetString(NULL, ALC_DEVICE_SPECIFIER);
+        } else {
+            // We don't have ALC_ENUMERATE_ALL_EXT but normal enumeration.
+            devicelist = qalcGetString(NULL, ALC_DEVICE_SPECIFIER);
 #ifdef _WIN32
-			defaultdevice = qalcGetString(NULL, ALC_DEFAULT_DEVICE_SPECIFIER);
+            defaultdevice = qalcGetString(NULL, ALC_DEFAULT_DEVICE_SPECIFIER);
 #endif
-			enumeration_ext = qtrue;
-		}
+            enumeration_ext = qtrue;
+        }
 
 #ifdef _WIN32
         Com_DPrintf("OpenAL: Default playback device: \"%s\"\n", defaultdevice);
 #endif
 
 #ifdef _WIN32
-		// check whether the default device is generic hardware. If it is, change to
-		// Generic Software as that one works more reliably with various sound systems.
-		// If it's not, use OpenAL's default selection as we don't want to ignore
-		// native hardware acceleration.
-		if(!dev && defaultdevice && !strcmp(defaultdevice, "Generic Hardware"))
-			dev = "Generic Software";
+        // check whether the default device is generic hardware. If it is, change to
+        // Generic Software as that one works more reliably with various sound systems.
+        // If it's not, use OpenAL's default selection as we don't want to ignore
+        // native hardware acceleration.
+        if (!dev && defaultdevice && !strcmp(defaultdevice, "Generic Hardware")) {
+            dev = "Generic Software";
+        }
 #endif
 
-		// dump a list of available devices to a cvar for the user to see.
+        // dump a list of available devices to a cvar for the user to see.
 
-		if(devicelist)
-		{
-			while((curlen = strlen(devicelist)))
-			{
-				Q_strcat(devicenames, sizeof(devicenames), devicelist);
-				Q_strcat(devicenames, sizeof(devicenames), "\n");
+        if (devicelist) {
+            while ((curlen = strlen(devicelist))) {
+                Q_strcat(devicenames, sizeof(devicenames), devicelist);
+                Q_strcat(devicenames, sizeof(devicenames), "\n");
 
-				devicelist += curlen + 1;
-			}
-		}
+                devicelist += curlen + 1;
+            }
+        }
 
         Com_Printf("OpenAL: List of available devices:\n%s\n", devicenames);
 
-		s_alAvailableDevices = Cvar_Get("s_alAvailableDevices", devicenames, CVAR_ROM | CVAR_NORESTART);
-	}
+        s_alAvailableDevices = Cvar_Get("s_alAvailableDevices", devicenames, CVAR_ROM | CVAR_NORESTART);
+    }
 
     Com_Printf("OpenAL: Opening device \"%s\"...\n", dev ? dev : "{default}");
 
@@ -376,6 +371,8 @@ static bool S_OPENAL_InitContext()
     attrlist[2] = ALC_SYNC;
     attrlist[3] = qfalse;
 
+    s_speaker_type->modified = false;
+
 #ifdef ALC_SOFT_output_mode
     attrlist[4] = ALC_OUTPUT_MODE_SOFT;
 
@@ -399,9 +396,11 @@ static bool S_OPENAL_InitContext()
         break;
     }
 #else
-#  pragma message("OpenAL: ALC_OUTPUT_MODE_SOFT unavailable") 
+#    pragma message("OpenAL: ALC_OUTPUT_MODE_SOFT unavailable")
 
-    Com_Printf("OpenAL: ALC_OUTPUT_MODE_SOFT is unavailable. The speaker type will be ignored, fallback to normal stereo.\n");
+    Com_Printf(
+        "OpenAL: ALC_OUTPUT_MODE_SOFT is unavailable. The speaker type will be ignored, fallback to normal stereo.\n"
+    );
     attrlist[4] = 0;
     attrlist[5] = 0;
 #endif
@@ -497,7 +496,7 @@ S_OPENAL_InitChannel
 */
 static bool S_OPENAL_InitChannel(int idx, openal_channel *chan)
 {
-    openal.channel[idx]   = chan;
+    openal.channel[idx] = chan;
     VectorClear(chan->vOrigin);
     chan->fVolume         = 1.0;
     chan->fNewPitchMult   = 0.0;
@@ -842,9 +841,9 @@ S_OPENAL_LoadMP3
 */
 static bool S_OPENAL_LoadMP3(const char *_path, openal_channel *chan)
 {
-    char path[MAX_QPATH];
+    char       path[MAX_QPATH];
     snd_info_t info;
-    ALuint format;
+    ALuint     format;
 
     chan->stop();
 
@@ -857,7 +856,7 @@ static bool S_OPENAL_LoadMP3(const char *_path, openal_channel *chan)
     FS_CorrectCase(path);
 
     // Try to load
-    chan->bufferdata = (ALubyte*)S_CodecLoad(path, &info);
+    chan->bufferdata = (ALubyte *)S_CodecLoad(path, &info);
     if (!chan->bufferdata) {
         return false;
     }
@@ -1199,7 +1198,7 @@ static int S_OPENAL_PickChannelBase(int iEntNum, int iEntChannel, int iFirstChan
             }
 
             if (!bStoppedChannel) {
-                for(i = iLastChannel + 1; i < MAX_OPENAL_POSITION_CHANNELS; i++) {
+                for (i = iLastChannel + 1; i < MAX_OPENAL_POSITION_CHANNELS; i++) {
                     pChannel = openal.channel[i];
                     if (!pChannel || pChannel->is_free()) {
                         continue;
@@ -1501,7 +1500,7 @@ void S_OPENAL_StartSound(
     pChannel->fNewPitchMult = fPitch;
     pChannel->iEntChannel   = iEntChannel;
     pChannel->iFlags &= ~(CHANNEL_FLAG_PAUSED | CHANNEL_FLAG_LOCAL_LISTENER);
-    state = pChannel->get_state();
+    state = pChannel->sample_status();
 
     if (pChannel->iEntNum == iEntNum && (state == AL_PLAYING || state == AL_PAUSED) && pChannel->pSfx == pSfx) {
         bOnlyUpdate = true;
@@ -1631,7 +1630,7 @@ void S_OPENAL_AddLoopingSound(
 
     iFreeLoopSound = -1;
     pSfx           = &s_knownSfx[sfxHandle];
-    if (!pSfx) {
+    if (!pSfx || !pSfx->length) {
         return;
     }
 
@@ -1662,7 +1661,7 @@ void S_OPENAL_AddLoopingSound(
         return;
     }
 
-    pLoopSound             = &openal.loop_sounds[iFreeLoopSound];
+    pLoopSound = &openal.loop_sounds[iFreeLoopSound];
     VectorCopy(vOrigin, pLoopSound->vOrigin);
     VectorCopy(vVelocity, pLoopSound->vVelocity);
     pLoopSound->pSfx        = pSfx;
@@ -1820,7 +1819,7 @@ static int S_OPENAL_Start2DLoopSound(
 )
 {
     int             iChannel;
-    int             iSoundOFfset;
+    int             iSoundOffset;
     openal_channel *pChannel;
 
     if (pLoopSound->pSfx->iFlags & SFX_FLAG_STREAMED) {
@@ -1857,12 +1856,10 @@ static int S_OPENAL_Start2DLoopSound(
     pChannel->iFlags |= CHANNEL_FLAG_PAUSED | CHANNEL_FLAG_NO_ENTITY;
     pChannel->iBaseRate = pChannel->sample_playback_rate();
     VectorCopy(vLoopOrigin, pChannel->vOrigin);
-    pChannel->set_sample_offset(
-        (int)(pLoopSound->pSfx->info.width * pLoopSound->pSfx->info.rate
-              * (float)(cls.realtime - pLoopSound->iStartTime) / 1000.0)
-        % pLoopSound->pSfx->length
-    );
 
+    iSoundOffset = (int)(pLoopSound->pSfx->info.width * pLoopSound->pSfx->info.rate
+                         * (float)(cls.realtime - pLoopSound->iStartTime) / 1000.0);
+    pChannel->set_sample_offset(iSoundOffset % pLoopSound->pSfx->length);
     pChannel->set_sample_loop_count(0);
     pChannel->fVolume = fVolumeToPlay;
     pChannel->set_gain(fVolumeToPlay);
@@ -1907,6 +1904,8 @@ static int S_OPENAL_Start3DLoopSound(
     pChan3D->force_free();
     pChan3D->iEntNum     = 0;
     pChan3D->iEntChannel = 0;
+    pChan3D->fMinDist    = fMinDistance;
+    pChan3D->fMaxDist    = fMaxDistance;
     pChan3D->set_3d();
 
     if (!pChan3D->set_sfx(pLoopSound->pSfx)) {
@@ -2185,7 +2184,8 @@ void S_OPENAL_AddLoopSounds(const vec3_t vTempAxis)
             Com_DPrintf("%d (#%i) - started loop - %s\n", cl.serverTime, pLoopSound->iChannel, pLoopSound->pSfx->name);
         }
 
-        if (pLoopSound->pSfx->iFlags & (SFX_FLAG_NO_OFFSET) || pLoopSound->pSfx->iFlags & (SFX_FLAG_STREAMED | SFX_FLAG_MP3)
+        if (pLoopSound->pSfx->iFlags & (SFX_FLAG_NO_OFFSET)
+            || pLoopSound->pSfx->iFlags & (SFX_FLAG_STREAMED | SFX_FLAG_MP3)
             || (pLoopSound->iFlags & LOOPSOUND_FLAG_NO_PAN)) {
             iChannel = S_OPENAL_Start2DLoopSound(
                 pLoopSound, fVolume, S_GetBaseVolume() * s_fVolumeGain * fTotalVolume, fMinDistance, vLoopOrigin
@@ -2549,7 +2549,7 @@ void S_OPENAL_Update()
 S_OPENAL_GetMusicFilename
 ==============
 */
-const char* S_OPENAL_GetMusicFilename()
+const char *S_OPENAL_GetMusicFilename()
 {
     return openal.tm_filename;
 }
@@ -2594,11 +2594,15 @@ qboolean S_IsSoundPlaying(int channel_number, const char *sfxName)
         return false;
     }
 
-    if (!pChannel->pSfx || pChannel->pSfx == (sfx_t *)-16) {
+    if (!pChannel->pSfx) {
         return false;
     }
 
-    return !strcmp(sfxName, pChannel->pSfx->name);
+    if (strcmp(sfxName, pChannel->pSfx->name)) {
+        return false;
+    }
+
+    return true;
 }
 
 /*
@@ -2710,7 +2714,7 @@ static void S_LoadBase(channelbasesavegame_t *pBase, openal_channel *pChannel, b
         return;
     }
 
-    handle = S_RegisterSound(pBase->sfx.szName, (pBase->sfx.iFlags & SFX_FLAG_DEFAULT_SOUND), false);
+    handle = S_RegisterSound(pBase->sfx.szName, (pBase->sfx.iFlags & SFX_FLAG_STREAMED), false);
 
     pChannel->iBaseRate     = pBase->iBaseRate;
     pChannel->iStartTime    = pBase->iStartTime;
@@ -2930,27 +2934,12 @@ void openal_channel::stop()
 
 /*
 ==============
-openal_channel::get_state
-==============
-*/
-ALint openal_channel::get_state()
-{
-    ALint retval;
-
-    qalGetSourcei(source, AL_SOURCE_STATE, &retval);
-    alDieIfError();
-
-    return retval;
-}
-
-/*
-==============
 openal_channel::is_free
 ==============
 */
 bool openal_channel::is_free()
 {
-    ALint state = get_state();
+    ALint state = sample_status();
 
     return state == AL_INITIAL || state == AL_STOPPED;
 }
@@ -2962,7 +2951,7 @@ openal_channel::is_paused
 */
 bool openal_channel::is_paused()
 {
-    ALint state = get_state();
+    ALint state = sample_status();
 
     return state == AL_PAUSED;
 }
@@ -2974,7 +2963,7 @@ openal_channel::is_playing
 */
 bool openal_channel::is_playing()
 {
-    ALint state = get_state();
+    ALint state = sample_status();
 
     return state == AL_PLAYING;
 }
@@ -2999,6 +2988,8 @@ bool openal_channel::set_sfx(sfx_t *pSfx)
 {
     ALint freq = 0;
 
+    assert(pSfx->length);
+
     this->pSfx = pSfx;
     if (!pSfx->buffer || !qalIsBuffer(pSfx->buffer)) {
         if (pSfx->iFlags & SFX_FLAG_MP3) {
@@ -3015,27 +3006,13 @@ bool openal_channel::set_sfx(sfx_t *pSfx)
 
             alDieIfError();
         } else {
-            ALenum fmt = 0;
-
-            if (pSfx->info.channels == 1) {
-                if (pSfx->info.width == 1) {
-                    fmt = AL_FORMAT_MONO8;
-                } else if (pSfx->info.width == 2) {
-                    fmt = AL_FORMAT_MONO16;
-                }
-            } else if (pSfx->info.channels == 2) {
-                if (pSfx->info.width == 1) {
-                    fmt = AL_FORMAT_STEREO8;
-                } else if (pSfx->info.width == 2) {
-                    fmt = AL_FORMAT_STEREO16;
-                }
-            }
+            ALenum fmt = S_OPENAL_Format(pSfx->info.width, pSfx->info.channels);
 
             if (!fmt) {
                 Com_Printf(
                     "OpenAL: Bad Wave file (%d channels, %d bits) [%s].\n",
                     pSfx->info.channels,
-                    (int)(pSfx->info.width * 8.f),
+                    (int)(pSfx->info.width * 8),
                     pSfx->name
                 );
                 return false;
@@ -3044,13 +3021,7 @@ bool openal_channel::set_sfx(sfx_t *pSfx)
             qalGenBuffers(1, &pSfx->buffer);
             alDieIfError();
 
-            qalBufferData(
-                pSfx->buffer,
-                fmt,
-                &pSfx->data[pSfx->info.dataofs],
-                pSfx->info.samples * pSfx->info.width,
-                pSfx->info.rate
-            );
+            qalBufferData(pSfx->buffer, fmt, &pSfx->data[pSfx->info.dataofs], pSfx->info.datasize, pSfx->info.rate);
             alDieIfError();
         }
     }
@@ -3117,7 +3088,7 @@ openal_channel::set_sample_pan
 */
 void openal_channel::set_sample_pan(S32 pan)
 {
-    const float panning = (pan - 64) / 127.f;
+    const float   panning           = (pan - 64) / 127.f;
     const ALfloat sourcePosition[3] = {panning, 0, sqrtf(1.f - Square(panning))};
 
     qalSourcef(source, AL_ROLLOFF_FACTOR, 0);
@@ -3130,7 +3101,8 @@ void openal_channel::set_sample_pan(S32 pan)
 openal_channel::set_sample_playback_rate
 ==============
 */
-void openal_channel::set_sample_playback_rate(S32 rate) {
+void openal_channel::set_sample_playback_rate(S32 rate)
+{
     // Fixed in OPM
     //  Set the pitch in OpenAL
     qalSourcef(source, AL_PITCH, rate / (float)iBaseRate);
@@ -3145,12 +3117,24 @@ openal_channel::sample_playback_rate
 S32 openal_channel::sample_playback_rate()
 {
     float pitch = 1;
-    ALint freq = 0;
+    ALint freq  = 0;
 
     // Fixed in OPM
     //  The sample rate varies according to the pitch
     qalGetSourcef(source, AL_PITCH, &pitch);
     alDieIfError();
+
+    return buffer_frequency() * pitch;
+}
+
+/*
+==============
+openal_channel::buffer_frequency
+==============
+*/
+U32 openal_channel::buffer_frequency() const
+{
+    ALint freq = 0;
 
     if (buffer) {
         qalGetBufferi(buffer, AL_FREQUENCY, &freq);
@@ -3162,7 +3146,7 @@ S32 openal_channel::sample_playback_rate()
         freq = 22050;
     }
 
-    return freq * pitch;
+    return freq;
 }
 
 /*
@@ -3172,6 +3156,8 @@ openal_channel::sample_volume
 */
 S32 openal_channel::sample_volume()
 {
+    // FIXME: unimplemented
+    // Default volume is 100, range 0..=127
     STUB_DESC("sample_volume");
     return 127;
 }
@@ -3198,12 +3184,11 @@ openal_channel::sample_ms_offset
 */
 U32 openal_channel::sample_ms_offset()
 {
-    float offset = 0;
+    if (!is_playing()) {
+        return 0;
+    }
 
-    qalGetSourcef(source, AL_SAMPLE_OFFSET, &offset);
-    alDieIfError();
-
-    return offset * 1000.f;
+    return sample_offset() * 1000 / sample_playback_rate();
 }
 
 /*
@@ -3247,8 +3232,7 @@ openal_channel::set_sample_ms_offset
 */
 void openal_channel::set_sample_ms_offset(U32 offset)
 {
-    qalSourcef(source, AL_SEC_OFFSET, offset / 1000.f);
-    alDieIfError();
+    set_sample_offset(offset * sample_playback_rate() / 1000);
 }
 
 /*
@@ -3292,6 +3276,7 @@ openal_channel::set_sample_loop_block
 */
 void openal_channel::set_sample_loop_block(S32 start_offset, S32 end_offset)
 {
+    // FIXME: unimplemented
     STUB_DESC("sample_loop_block");
 }
 
@@ -3302,8 +3287,12 @@ openal_channel::sample_status
 */
 U32 openal_channel::sample_status()
 {
-    STUB_DESC("sample_status");
-    return 127;
+    ALint retval;
+
+    qalGetSourcei(source, AL_SOURCE_STATE, &retval);
+    alDieIfError();
+
+    return retval;
 }
 
 /*
@@ -4007,7 +3996,7 @@ void S_TriggeredMusic_SetupHandle(const char *pszName, int iLoopCount, int iOffs
     const char      *pszRealName;
     float            fVolume     = 1.0;
     AliasListNode_t *pSoundAlias = NULL;
-    void            *stream = NULL;
+    void            *stream      = NULL;
 
     if (!s_bSoundStarted) {
         return;
@@ -4102,7 +4091,7 @@ void S_TriggeredMusic_Stop()
     // Fixed in OPM
     //  Make sure to clear the triggered music in case snd_restart is called
     openal.tm_filename[0] = 0;
-    openal.tm_loopcount = 0;
+    openal.tm_loopcount   = 0;
 }
 
 /*
@@ -4136,7 +4125,9 @@ void S_TriggeredMusic_Unpause()
         openal.chan_trig_music.play();
     }
 
-    openal.chan_trig_music.set_gain(S_GetBaseVolume() * (openal.chan_trig_music.fVolume * s_musicVolume->value) * s_fVolumeGain);
+    openal.chan_trig_music.set_gain(
+        S_GetBaseVolume() * (openal.chan_trig_music.fVolume * s_musicVolume->value) * s_fVolumeGain
+    );
 }
 
 /*
@@ -4156,6 +4147,7 @@ S_StopMovieAudio
 */
 void S_StopMovieAudio()
 {
+    // FIXME: unimplemented
     STUB_DESC("sound stuff.");
 }
 
@@ -4166,6 +4158,7 @@ S_SetupMovieAudio
 */
 void S_SetupMovieAudio(const char *pszMovieName)
 {
+    // FIXME: unimplemented
     STUB_DESC("sound stuff");
 }
 
@@ -4176,6 +4169,7 @@ S_CurrentMoviePosition
 */
 int S_CurrentMoviePosition()
 {
+    // FIXME: unimplemented
     STUB_DESC("sound stuff");
     return 0;
 }
@@ -4212,7 +4206,7 @@ static ALuint S_OPENAL_Format(int width, int channels)
 S_OPENAL_LoadMP3_Codec
 ==============
 */
-static bool S_OPENAL_LoadMP3_Codec(const char *_path, sfx_t* pSfx)
+static bool S_OPENAL_LoadMP3_Codec(const char *_path, sfx_t *pSfx)
 {
     void      *data;
     snd_info_t info;
@@ -4248,11 +4242,18 @@ static bool S_OPENAL_LoadMP3_Codec(const char *_path, sfx_t* pSfx)
     return true;
 }
 
-void openal_channel::update()
-{
+/*
+==============
+openal_channel::update
+==============
+*/
+void openal_channel::update() {}
 
-}
-
+/*
+==============
+openal_channel_two_d_stream::stop
+==============
+*/
 void openal_channel_two_d_stream::stop()
 {
     openal_channel::stop();
@@ -4260,12 +4261,17 @@ void openal_channel_two_d_stream::stop()
     clear_stream();
 }
 
-bool openal_channel_two_d_stream::set_sfx(sfx_t* pSfx) {
-    ALint freq = 0;
-    snd_stream_t* stream;
-    int bytesToRead = 0;
-    int bytesRead;
-    char rawData[MAX_BUFFER_SAMPLES * 2 * 2];
+/*
+==============
+openal_channel_two_d_stream::set_sfx
+==============
+*/
+bool openal_channel_two_d_stream::set_sfx(sfx_t *pSfx)
+{
+    snd_stream_t *stream;
+    unsigned int  bytesToRead, bytesRead;
+    ALint         freq = 0;
+    char          rawData[MAX_BUFFER_SAMPLES * 2 * 2];
 
     stop();
 
@@ -4276,20 +4282,17 @@ bool openal_channel_two_d_stream::set_sfx(sfx_t* pSfx) {
 
     streamHandle = S_CodecLoad(pSfx->name, NULL);
     if (!streamHandle) {
-        qalDeleteBuffers(1, &pSfx->buffer);
-        alDieIfError();
-
         Com_DPrintf("OpenAL: Failed to load MP3.\n");
         return false;
     }
 
-    stream = (snd_stream_t*)streamHandle;
+    stream              = (snd_stream_t *)streamHandle;
     pSfx->info.channels = stream->info.channels;
-    pSfx->info.dataofs = stream->info.dataofs;
+    pSfx->info.dataofs  = stream->info.dataofs;
     pSfx->info.datasize = stream->info.size;
-    pSfx->info.rate = stream->info.rate;
-    pSfx->info.samples = stream->info.samples;
-    pSfx->info.width = stream->info.width;
+    pSfx->info.rate     = stream->info.rate;
+    pSfx->info.samples  = stream->info.samples;
+    pSfx->info.width    = stream->info.width;
 
     pSfx->info.format = S_OPENAL_Format(stream->info.width, stream->info.channels);
     if (!pSfx->info.format) {
@@ -4304,12 +4307,16 @@ bool openal_channel_two_d_stream::set_sfx(sfx_t* pSfx) {
         return false;
     }
 
+    qalSourceStop(source);
+    alDieIfError();
+
     qalGenBuffers(MAX_STREAM_BUFFERS, buffers);
     alDieIfError();
 
     // Read a smaller sample
-    bytesToRead = Q_min(stream->info.width * stream->info.channels * (MAX_BUFFER_SAMPLES / 2), sizeof(rawData));
-    bytesRead = S_CodecReadStream(stream, bytesToRead, rawData);
+    bytesToRead      = Q_min(MAX_BUFFER_SAMPLES * stream->info.width * stream->info.channels, sizeof(rawData));
+    bytesRead        = S_CodecReadStream(stream, bytesToRead, rawData);
+    streamNextOffset = bytesRead;
     if (!bytesRead) {
         // Valid stream but no data?
         S_CodecCloseStream(stream);
@@ -4322,47 +4329,70 @@ bool openal_channel_two_d_stream::set_sfx(sfx_t* pSfx) {
     qalSourceQueueBuffers(source, 1, &buffers[currentBuf]);
     alDieIfError();
 
-    qalSourceStop(source);
-    alDieIfError();
-
-    iBaseRate = stream->info.rate;
+    iBaseRate  = stream->info.rate;
     currentBuf = (currentBuf + 1) % MAX_STREAM_BUFFERS;
-    streaming = true;
+    streaming  = true;
 
     return true;
 }
 
+/*
+==============
+openal_channel_two_d_stream::set_sample_loop_count
+==============
+*/
 void openal_channel_two_d_stream::set_sample_loop_count(S32 count)
 {
     sampleLoopCount = count;
-    sampleLooped = 0;
+    sampleLooped    = 0;
 }
 
-openal_channel_two_d_stream::openal_channel_two_d_stream() {
+/*
+==============
+openal_channel_two_d_stream::openal_channel_two_d_stream
+==============
+*/
+openal_channel_two_d_stream::openal_channel_two_d_stream()
+{
     int i;
 
     streamHandle = NULL;
     for (i = 0; i < MAX_STREAM_BUFFERS; i++) {
         buffers[i] = 0;
     }
-    currentBuf = 0;
-    sampleLoopCount = 0;
-    sampleLooped = 0;
-    streaming = false;
+    currentBuf       = 0;
+    sampleLoopCount  = 0;
+    sampleLooped     = 0;
+    streamNextOffset = 0;
+    streaming        = false;
 }
 
+/*
+==============
+openal_channel_two_d_stream::openal_channel_two_d_stream
+==============
+*/
+openal_channel_two_d_stream::~openal_channel_two_d_stream()
+{
+    clear_stream();
+}
+
+/*
+==============
+openal_channel_two_d_stream::update
+==============
+*/
 void openal_channel_two_d_stream::update()
 {
-    snd_stream_t* stream = (snd_stream_t*)streamHandle;
-    int bytesToRead, bytesRead;
-    ALuint format;
-    ALint numProcessedBuffers = 0;
-    ALint numQueuedBuffers = 0;
-    ALint state = get_state();
+    snd_stream_t *stream = (snd_stream_t *)streamHandle;
+    unsigned int  bytesToRead, bytesRead;
+    ALuint        format;
+    ALint         numProcessedBuffers = 0, numQueuedBuffers = 0;
+    ALint         state = sample_status();
     // 2 channels with a width of 2
     char rawData[MAX_BUFFER_SAMPLES * 2 * 2];
 
-    if (!streaming) {
+    if (!streaming || is_paused()) {
         return;
     }
 
@@ -4373,7 +4403,7 @@ void openal_channel_two_d_stream::update()
     alDieIfError();
 
     // Remove processed buffers after half of the queued buffers has been processed
-    if (numProcessedBuffers >= numQueuedBuffers / 2) {
+    if (numProcessedBuffers >= Q_max(numQueuedBuffers / 2, 1)) {
         while (numProcessedBuffers-- > 0) {
             ALuint tmpBuffer;
             qalSourceUnqueueBuffers(source, 1, &tmpBuffer);
@@ -4392,11 +4422,12 @@ void openal_channel_two_d_stream::update()
         return;
     }
 
-    bytesToRead = Q_min(stream->info.width * stream->info.channels * MAX_BUFFER_SAMPLES, sizeof(rawData));
+    bytesToRead = Q_min(MAX_BUFFER_SAMPLES * stream->info.width * stream->info.channels, sizeof(rawData));
 
     format = S_OPENAL_Format(stream->info.width, stream->info.channels);
 
     bytesRead = S_CodecReadStream(stream, bytesToRead, rawData);
+    streamNextOffset += bytesRead;
     if (!bytesRead) {
         S_CodecCloseStream(stream);
 
@@ -4407,18 +4438,23 @@ void openal_channel_two_d_stream::update()
             return;
         }
 
+        //
+        // Looped, start again from the beginning
+        //
         streamHandle = S_CodecLoad(this->fileName, NULL);
         if (!streamHandle) {
             clear_stream();
             return;
         }
 
-        stream = (snd_stream_t*)streamHandle;
+        stream = (snd_stream_t *)streamHandle;
         //
         // Re-read the format, we never know...
         //
         format = S_OPENAL_Format(stream->info.width, stream->info.channels);
-        bytesRead = S_CodecReadStream(stream, bytesToRead, rawData);
+
+        bytesRead        = S_CodecReadStream(stream, bytesToRead, rawData);
+        streamNextOffset = bytesRead;
         if (!bytesRead) {
             S_CodecCloseStream(stream);
             streamHandle = NULL;
@@ -4442,16 +4478,185 @@ void openal_channel_two_d_stream::update()
     currentBuf = (currentBuf + 1) % MAX_STREAM_BUFFERS;
 }
 
-bool openal_channel_two_d_stream::queue_stream(const char* fileName) {
-    
-    ALint freq = 0;
-    ALuint format = 0;
-    snd_stream_t* stream;
-    int bytesToRead = 0;
-    int bytesRead;
-    ALuint old = 0;
-    int i;
-    char rawData[MAX_BUFFER_SAMPLES * 2 * 2];
+/*
+==============
+openal_channel_two_d_stream::sample_offset
+==============
+*/
+U32 openal_channel_two_d_stream::sample_offset()
+{
+    snd_stream_t *stream              = (snd_stream_t *)streamHandle;
+    ALint         playerByteOffset    = 0;
+    ALint         numProcessedBuffers = 0;
+    ALint         numQueuedBuffers    = 0;
+    unsigned int  totalQueueLength    = 0;
+    unsigned int  bytesPerSample      = 0;
+    ALint         bits = 0, channels = 0;
+
+    if (!streaming) {
+        // no stream
+        return 0;
+    }
+
+    // Get the byte offset in the queue
+    qalGetSourcei(source, AL_BYTE_OFFSET, &playerByteOffset);
+    alDieIfError();
+
+    totalQueueLength = getQueueLength();
+
+    assert(playerByteOffset < totalQueueLength);
+    assert(streamNextOffset >= totalQueueLength);
+
+    bytesPerSample = getBytesPerSample();
+
+    return (streamNextOffset - totalQueueLength + playerByteOffset) / bytesPerSample;
+}
+
+/*
+==============
+openal_channel_two_d_stream::buffer_frequency
+==============
+*/
+U32 openal_channel_two_d_stream::buffer_frequency() const
+{
+    unsigned int bufferId;
+    ALint        freq = 0;
+
+    bufferId = (currentBuf - 1) % MAX_STREAM_BUFFERS;
+    qalGetBufferi(buffers[bufferId], AL_FREQUENCY, &freq);
+    alDieIfError();
+
+    return freq;
+}
+
+/*
+==============
+openal_channel_two_d_stream::set_sample_offset
+==============
+*/
+void openal_channel_two_d_stream::set_sample_offset(U32 offset)
+{
+    snd_stream_t *stream;
+    unsigned int  bytesToRead, bytesRead;
+    unsigned int  byteOffset;
+    unsigned int  bytesPerSample;
+    unsigned int  streamPosition;
+    ALuint        format;
+    ALint         numQueuedBuffers;
+    bool          bWasPlaying;
+    char          rawData[MAX_BUFFER_SAMPLES * 2 * 2];
+
+    if (!streaming) {
+        return;
+    }
+
+    stream         = (snd_stream_t *)streamHandle;
+    streamPosition = getCurrentStreamPosition();
+    bytesPerSample = getBytesPerSample();
+    byteOffset     = offset * bytesPerSample;
+
+    if (byteOffset >= streamPosition && byteOffset < streamNextOffset) {
+        //
+        // Sample is in the currently streamed data
+        //
+        qalSourcei(source, AL_BYTE_OFFSET, byteOffset - streamPosition);
+        alDieIfError();
+
+        return;
+    }
+
+    bWasPlaying = is_playing();
+
+    if (byteOffset < streamPosition) {
+        //
+        // New offset is before the current offset,
+        // reload the stream from the beginning
+        //
+        if (stream) {
+            S_CodecCloseStream(stream);
+            streamHandle = NULL;
+        }
+    }
+
+    if (!streamHandle) {
+        streamHandle = S_CodecLoad(this->fileName, NULL);
+        if (!streamHandle) {
+            clear_stream();
+            return;
+        }
+
+        stream           = (snd_stream_t *)streamHandle;
+        streamNextOffset = 0;
+    }
+
+    while (streamNextOffset <= byteOffset) {
+        streamPosition = streamNextOffset;
+
+        bytesToRead = Q_min(MAX_BUFFER_SAMPLES * stream->info.width * stream->info.channels, sizeof(rawData));
+        bytesRead   = S_CodecReadStream(stream, bytesToRead, rawData);
+        if (!bytesRead) {
+            clear_stream();
+            return;
+        }
+
+        streamNextOffset += bytesRead;
+    }
+
+    //
+    // Stop the sound and remove all buffers from the queue
+    //
+    qalSourceStop(source);
+    alDieIfError();
+
+    //
+    // Remove all buffers from the queue
+    //
+    numQueuedBuffers = 0;
+    qalGetSourcei(source, AL_BUFFERS_QUEUED, &numQueuedBuffers);
+    alDieIfError();
+
+    while (numQueuedBuffers--) {
+        ALuint b;
+        qalSourceUnqueueBuffers(source, 1, &b);
+        alDieIfError();
+    }
+
+    format = S_OPENAL_Format(stream->info.width, stream->info.channels);
+
+    qalBufferData(buffers[currentBuf], format, rawData, bytesRead, stream->info.rate);
+    alDieIfError();
+
+    qalSourceQueueBuffers(source, 1, &buffers[currentBuf]);
+    alDieIfError();
+    currentBuf = (currentBuf + 1) % MAX_STREAM_BUFFERS;
+
+    //
+    // Now set the source offset
+    //
+    qalSourcei(source, AL_BYTE_OFFSET, byteOffset - streamPosition);
+    alDieIfError();
+
+    if (bWasPlaying) {
+        //
+        // The sound was stopped when re-streaming
+        //
+        play();
+    }
+}
+
+/*
+==============
+openal_channel_two_d_stream::queue_stream
+==============
+*/
+bool openal_channel_two_d_stream::queue_stream(const char *fileName)
+{
+    snd_stream_t *stream;
+    unsigned int  bytesToRead, bytesRead;
+    ALint         freq   = 0;
+    ALuint        format = 0;
+    ALuint        old    = 0;
+    char          rawData[MAX_BUFFER_SAMPLES * 2 * 2];
 
     // Store the filename so it can be looped later
     Q_strncpyz(this->fileName, fileName, sizeof(this->fileName));
@@ -4466,10 +4671,10 @@ bool openal_channel_two_d_stream::queue_stream(const char* fileName) {
     if (!streamHandle) {
         return false;
     }
-    stream = (snd_stream_t*)streamHandle;
+    stream = (snd_stream_t *)streamHandle;
 
     iStartTime = cl.serverTime;
-    iEndTime = (int)(cl.serverTime + (stream->info.samples / stream->info.rate * 1000.f));
+    iEndTime   = (int)(cl.serverTime + (stream->info.samples / stream->info.rate * 1000.f));
 
     format = S_OPENAL_Format(stream->info.width, stream->info.channels);
     if (!format) {
@@ -4488,12 +4693,14 @@ bool openal_channel_two_d_stream::queue_stream(const char* fileName) {
     alDieIfError();
 
     // Read a smaller sample
-    bytesToRead = Q_min(stream->info.width * stream->info.channels * (MAX_BUFFER_SAMPLES / 2), sizeof(rawData));
-    bytesRead = S_CodecReadStream(stream, bytesToRead, rawData);
+    bytesToRead = Q_min(MAX_BUFFER_SAMPLES * stream->info.width * stream->info.channels, sizeof(rawData));
+    bytesRead   = S_CodecReadStream(stream, bytesToRead, rawData);
     if (!bytesRead) {
         // Valid stream but no data?
         return true;
     }
+
+    streamNextOffset = bytesRead;
 
     qalBufferData(buffers[currentBuf], format, rawData, bytesRead, stream->info.rate);
     alDieIfError();
@@ -4508,23 +4715,93 @@ bool openal_channel_two_d_stream::queue_stream(const char* fileName) {
     return true;
 }
 
-void openal_channel_two_d_stream::clear_stream() {
+/*
+==============
+openal_channel_two_d_stream::clear_stream
+==============
+*/
+void openal_channel_two_d_stream::clear_stream()
+{
     if (!streaming) {
         return;
     }
 
     qalSourceStop(source);
     qalSourcei(source, AL_BUFFER, 0);
-    qalDeleteBuffers(1, buffers);
+    qalDeleteBuffers(MAX_STREAM_BUFFERS, buffers);
 
     if (streamHandle) {
-        S_CodecCloseStream((snd_stream_t*)streamHandle);
+        S_CodecCloseStream((snd_stream_t *)streamHandle);
     }
 
-    fileName[0] = 0;
+    fileName[0]  = 0;
     streamHandle = NULL;
 
-    currentBuf = 0;
-    streaming = false;
-    sampleLooped = 0;
+    currentBuf       = 0;
+    streamNextOffset = 0;
+    streaming        = false;
+    sampleLooped     = 0;
+}
+
+/*
+==============
+openal_channel_two_d_stream::getQueueLength
+
+Return the total length of all buffers being streamed.
+==============
+*/
+unsigned int openal_channel_two_d_stream::getQueueLength() const
+{
+    ALint        numQueuedBuffers = 0;
+    unsigned int totalQueueLength = 0;
+    unsigned int bufferId;
+    unsigned int i;
+
+    qalGetSourcei(source, AL_BUFFERS_QUEUED, &numQueuedBuffers);
+    alDieIfError();
+
+    for (i = 0; i < numQueuedBuffers; i++) {
+        ALint bufferSize = 0;
+
+        bufferId = (currentBuf - i - 1) % MAX_STREAM_BUFFERS;
+        qalGetBufferi(buffers[bufferId], AL_SIZE, &bufferSize);
+
+        totalQueueLength += bufferSize;
+    }
+
+    return totalQueueLength;
+}
+
+/*
+==============
+openal_channel_two_d_stream::getCurrentStreamPosition
+
+Return the current position in the sound being streamed.
+==============
+*/
+unsigned int openal_channel_two_d_stream::getCurrentStreamPosition() const
+{
+    return streamNextOffset - getQueueLength();
+}
+
+/*
+==============
+openal_channel_two_d_stream::getBytesPerSample
+
+Return the number of bytes per sample.
+It assumes that all pending buffers have the same channels and bits.
+==============
+*/
+unsigned int openal_channel_two_d_stream::getBytesPerSample() const
+{
+    unsigned int bufferId;
+    ALint        bits = 0, channels = 0;
+
+    bufferId = (currentBuf - 1) % MAX_STREAM_BUFFERS;
+    qalGetBufferi(buffers[bufferId], AL_BITS, &bits);
+    alDieIfError();
+    qalGetBufferi(buffers[bufferId], AL_CHANNELS, &channels);
+    alDieIfError();
+
+    return bits * channels / 8;
 }

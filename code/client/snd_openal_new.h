@@ -45,8 +45,8 @@ typedef unsigned int U32;
 #define OPENAL_CHANNEL_TRIGGER_MUSIC_ID (OPENAL_CHANNEL_MP3_ID + 1)
 #define OPENAL_CHANNEL_MOVIE_ID         (OPENAL_CHANNEL_TRIGGER_MUSIC_ID + 1)
 
-#define MAX_STREAM_BUFFERS 16
-#define MAX_BUFFER_SAMPLES 16384
+#define MAX_STREAM_BUFFERS              16
+#define MAX_BUFFER_SAMPLES              16384
 
 typedef enum {
     FADE_NONE,
@@ -105,13 +105,12 @@ struct openal_channel {
     ALubyte *bufferdata;
 
 public:
-    void play();
+    void         play();
     virtual void stop();
-    void pause();
+    void         pause();
 
     void  set_no_3d();
     void  set_3d();
-    ALint get_state();
 
     void set_gain(float gain);
     void set_velocity(float v0, float v1, float v2);
@@ -121,7 +120,7 @@ public:
     bool is_paused();
     bool is_playing();
 
-    void force_free();
+    void         force_free();
     virtual bool set_sfx(sfx_t *pSfx);
 
     void start_sample();
@@ -133,47 +132,61 @@ public:
     void set_sample_playback_rate(S32 pan);
     S32  sample_playback_rate();
 
-    S32  sample_volume();
-    U32  sample_offset();
-    U32  sample_ms_offset();
-    U32  sample_loop_count();
-    void set_sample_offset(U32 offset);
-    void set_sample_ms_offset(U32 offset);
+    S32          sample_volume();
+    virtual U32  sample_offset();
+    U32          sample_ms_offset();
+    U32          sample_loop_count();
+    virtual void set_sample_offset(U32 offset);
+    void         set_sample_ms_offset(U32 offset);
     virtual void set_sample_loop_count(S32 count);
-    void set_sample_loop_block(S32 start_offset, S32 end_offset);
+    void         set_sample_loop_block(S32 start_offset, S32 end_offset);
 
     U32 sample_status();
 
 public:
     virtual void update();
+
+    virtual U32 buffer_frequency() const;
 };
 
 struct openal_channel_two_d_stream : public openal_channel {
 private:
-    char fileName[64];
-    void *streamHandle;
+    char         fileName[64];
+    void        *streamHandle;
     unsigned int buffers[MAX_STREAM_BUFFERS];
     unsigned int currentBuf;
-    int sampleLoopCount;
-    int sampleLooped;
-    bool streaming;
+    unsigned int sampleLoopCount;
+    unsigned int sampleLooped;
+    unsigned int streamNextOffset;
+    bool         streaming;
 
 public:
     openal_channel_two_d_stream();
+    ~openal_channel_two_d_stream();
 
     void stop() override;
-    bool set_sfx(sfx_t* pSfx) override;
+    bool set_sfx(sfx_t *pSfx) override;
     void set_sample_loop_count(S32 count) override;
     void update() override;
-    bool queue_stream(const char* fileName);
+    U32  sample_offset() override;
+    void set_sample_offset(U32 offset) override;
+
+    bool queue_stream(const char *fileName);
+
+protected:
+    U32 buffer_frequency() const override;
 
 private:
     void clear_stream();
+
+    unsigned int getQueueLength() const;
+    unsigned int getCurrentStreamPosition() const;
+    unsigned int getBytesPerSample() const;
 };
 
 struct openal_internal_t {
-    openal_channel chan_3D[MAX_OPENAL_CHANNELS_3D];
-    openal_channel chan_2D[MAX_OPENAL_CHANNELS_2D];
+    openal_channel              chan_3D[MAX_OPENAL_CHANNELS_3D];
+    openal_channel              chan_2D[MAX_OPENAL_CHANNELS_2D];
     openal_channel_two_d_stream chan_2D_stream[MAX_OPENAL_CHANNELS_2D_STREAM];
     openal_channel_two_d_stream chan_song[MAX_OPENAL_SONGS];
     openal_channel_two_d_stream chan_mp3;
@@ -196,39 +209,39 @@ struct openal_internal_t {
 extern "C" {
 #endif
 
-qboolean S_OPENAL_Init();
-void     S_OPENAL_Shutdown();
-void     S_OPENAL_StartSound(
+    qboolean S_OPENAL_Init();
+    void     S_OPENAL_Shutdown();
+    void     S_OPENAL_StartSound(
+            const vec3_t vOrigin,
+            int          iEntNum,
+            int          iEntChannel,
+            sfxHandle_t  sfxHandle,
+            float        fVolume,
+            float        fMinDist,
+            float        fPitch,
+            float        fMaxDist,
+            qboolean     bStreamed
+        );
+    void S_OPENAL_AddLoopingSound(
         const vec3_t vOrigin,
-        int          iEntNum,
-        int          iEntChannel,
+        const vec3_t vVelocity,
         sfxHandle_t  sfxHandle,
         float        fVolume,
         float        fMinDist,
-        float        fPitch,
         float        fMaxDist,
-        qboolean     bStreamed
+        float        fPitch,
+        int          iFlags
     );
-void S_OPENAL_AddLoopingSound(
-    const vec3_t vOrigin,
-    const vec3_t vVelocity,
-    sfxHandle_t  sfxHandle,
-    float        fVolume,
-    float        fMinDist,
-    float        fMaxDist,
-    float        fPitch,
-    int          iFlags
-);
-void S_OPENAL_ClearLoopingSounds();
-void S_OPENAL_StopSound(int iEntNum, int iEntChannel);
-void S_OPENAL_StopAllSounds(qboolean bStopMusic);
-void S_OPENAL_Respatialize(int iEntNum, const vec3_t vHeadPos, const vec3_t vAxis[3]);
-void S_OPENAL_SetReverb(int iType, float fLevel);
-void S_OPENAL_Update();
+    void S_OPENAL_ClearLoopingSounds();
+    void S_OPENAL_StopSound(int iEntNum, int iEntChannel);
+    void S_OPENAL_StopAllSounds(qboolean bStopMusic);
+    void S_OPENAL_Respatialize(int iEntNum, const vec3_t vHeadPos, const vec3_t vAxis[3]);
+    void S_OPENAL_SetReverb(int iType, float fLevel);
+    void S_OPENAL_Update();
 
-const char* S_OPENAL_GetMusicFilename();
-int S_OPENAL_GetMusicLoopCount();
-unsigned int S_OPENAL_GetMusicOffset();
+    const char  *S_OPENAL_GetMusicFilename();
+    int          S_OPENAL_GetMusicLoopCount();
+    unsigned int S_OPENAL_GetMusicOffset();
 
 #ifdef __cplusplus
 }
