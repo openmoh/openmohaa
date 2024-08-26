@@ -1095,10 +1095,7 @@ void Door::LinkDoors(Event *ev)
         return;
     }
 
-    // Don't spawn trigger field when set to toggle
-    if (!(spawnflags & DOOR_TOGGLE)) {
-        SpawnTriggerField(cmins, cmaxs);
-    }
+    SpawnTriggerField(cmins, cmaxs);
 }
 
 void Door::SetTime(Event *ev)
