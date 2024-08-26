@@ -1894,6 +1894,10 @@ static int S_OPENAL_Start3DLoopSound(
         return -1;
     }
 
+    if (!pLoopSound->pSfx->data || !pLoopSound->pSfx->length) {
+        return -1;
+    }
+
     iChannel = S_OPENAL_PickChannel3D(0, 0);
     if (iChannel < 0) {
         Com_DPrintf("Could not find a free channel\n");
