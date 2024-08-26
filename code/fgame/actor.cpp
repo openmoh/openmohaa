@@ -3630,7 +3630,8 @@ void Actor::SafeSetOrigin(vec3_t newOrigin)
     if (!m_bNoPlayerCollision) {
         Player *p = (Player *)G_GetEntity(0);
 
-        // Solidity check added in 2.30
+        // Added in 2.30
+        //  Solidity check.
         //  If the Actor is already nonsolid the player won't get stuck
         if (p && IsTouching(p) && getSolidType() != SOLID_NOT) {
             Com_Printf("(entnum %d, radnum %d) is going not solid to not get stuck in the player\n", entnum, radnum);
@@ -3895,7 +3896,8 @@ bool Actor::CanShoot(Entity *ent)
     Vector vGunPos;
 
     if (FriendlyInLineOfFire(ent)) {
-        // This check was added in 2.0
+		// Added in 2.0
+        //  Check if a friend is in sight
         bCanShoot = false;
     } else if (ent->IsSubclassOfSentient()) {
         Sentient *sen = static_cast<Sentient *>(ent);
@@ -4975,7 +4977,7 @@ void Actor::HandlePain(Event *ev)
         //FIXME: macro
         SetCuriousAnimHint(7);
 
-        // m_bIsCurious check: Added in 2.30
+		// Added in 2.30 the m_bIsCurous check
         if (m_bEnableEnemy && m_ThinkStates[THINKLEVEL_IDLE] == THINKSTATE_IDLE && m_bIsCurious) {
             SetEnemyPos(attacker->origin);
             m_pszDebugState = "from_pain";
@@ -5967,7 +5969,7 @@ bool Actor::MoveOnPathWithSquad(void)
         }
 
         if (DotProduct2D(pvMyDir, pvHisDir) >= 0
-            && (entnum == pActorSquadMate->entnum || DotProduct2D(pvHisDir, vDelta) >= 0)) {
+            && (entnum >= pActorSquadMate->entnum || DotProduct2D(pvHisDir, vDelta) >= 0)) {
             m_iSquadStandTime = level.inttime;
             return false;
         }
@@ -6325,7 +6327,9 @@ void Actor::Init(void)
     InitWeaponless(&GlobalFuncs[THINK_WEAPONLESS]);
     InitNoClip(&GlobalFuncs[THINK_NOCLIP]);
     InitDead(&GlobalFuncs[THINK_DEAD]);
+    // Added in 2.0
     InitBadPlace(&GlobalFuncs[THINK_BADPLACE]);
+    // Added in 2.30
     InitRunAndShoot(&GlobalFuncs[THINK_RUN_AND_SHOOT]);
 
     AddWaitTill(STRING_VISIBLE);
