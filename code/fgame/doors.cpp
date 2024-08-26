@@ -843,6 +843,8 @@ void Door::DoorBlocked(Event *ev)
 void Door::FieldTouched(Event *ev)
 {
     Entity *other;
+    Actor* otherActor;
+    float dist;
 
     other = ev->GetEntity(1);
 
@@ -850,41 +852,45 @@ void Door::FieldTouched(Event *ev)
         return;
     }
 
-    if (other->IsSubclassOfActor()) {
-        Actor* otherActor = static_cast<Actor*>(other);
-        float dist;
-
-        otherActor->m_Path.ForceShortLookahead();
-
-        if (state == STATE_OPENING) {
-            otherActor->m_maxspeed = speed * 64;
-        }
-
-        if ((state != STATE_OPEN) && !(spawnflags & DOOR_AUTO_OPEN) && !other->isSubclassOf(Actor)) {
+    if (!other->IsSubclassOfActor()) {
+        if ((spawnflags & DOOR_TOGGLE) || (state != STATE_OPEN && !(spawnflags & DOOR_AUTO_OPEN))) {
             return;
         }
 
-        dist = VectorLength2D(other->velocity) * 0.25f;
-        if (other->absmin[0] > absmax[0] + dist) {
-            return;
-        }
-        if (other->absmin[1] > absmax[1] + dist) {
-            return;
-        }
-        if (other->absmin[2] > absmax[2]) {
-            return;
-        }
+        TryOpen(ev);
+        return;
+    }
 
-        if (other->absmax[0] < absmin[0] - dist) {
-            return;
-        }
-        if (other->absmax[1] < absmin[1] - dist) {
-            return;
-        }
-        if (other->absmax[2] < absmin[2]) {
-            return;
-        }
-    } else if ((state != STATE_OPEN) && !(spawnflags & DOOR_AUTO_OPEN) && !other->isSubclassOf(Actor)) {
+    otherActor = static_cast<Actor*>(other);
+
+    otherActor->m_Path.ForceShortLookahead();
+
+    if (state == STATE_OPENING) {
+        otherActor->m_maxspeed = speed * 64;
+    }
+
+    if (((spawnflags & DOOR_TOGGLE) || (state != STATE_OPEN && !(spawnflags & DOOR_AUTO_OPEN))) && (state == STATE_OPEN || state == STATE_OPENING)) {
+        return;
+    }
+
+    dist = VectorLength2D(other->velocity) * 0.25f;
+    if (other->absmin[0] > absmax[0] + dist) {
+        return;
+    }
+    if (other->absmin[1] > absmax[1] + dist) {
+        return;
+    }
+    if (other->absmin[2] > absmax[2]) {
+        return;
+    }
+
+    if (other->absmax[0] < absmin[0] - dist) {
+        return;
+    }
+    if (other->absmax[1] < absmin[1] - dist) {
+        return;
+    }
+    if (other->absmax[2] < absmin[2]) {
         return;
     }
 
