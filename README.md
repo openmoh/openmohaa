@@ -28,7 +28,7 @@ The main goal of OpenMoHAA is to ensure the future and continuity of **Medal of 
 
 ### Single-player
 
-The entire single-player campaign can be played from start to end. There may be occasional bugs though; if you encounter any, please create a GitHub issue describing them.
+The entire single-player campaign can be played from start to end. There may be occasional bugs though; if you encounter any, please create a new [GitHub issue](https://github.com/openmoh/openmohaa/issues) describing them.
 
 ### Multiplayer
 
