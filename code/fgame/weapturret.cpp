@@ -1246,6 +1246,18 @@ void TurretGun::AI_DoFiring()
     float minBurstTime, maxBurstTime;
     float minBurstDelay, maxBurstDelay;
 
+    if (g_target_game == target_game_e::TG_MOH) {
+        //
+        // Removed in 2.0
+        //  The fire delay is always constant on 1.11 and below
+        //
+        if (ReadyToFire(FIRE_PRIMARY)) {
+            Fire(FIRE_PRIMARY);
+        }
+
+        return;
+    }
+
     minBurstTime = m_fMinBurstTime;
     maxBurstTime = m_fMaxBurstTime;
     minBurstDelay = m_fMinBurstDelay;
@@ -1936,6 +1948,17 @@ void TurretGun::StopWeaponAnim(void)
 
 float TurretGun::FireDelay(firemode_t mode)
 {
+    if (g_target_game == target_game_e::TG_MOH) {
+        //
+        // Removed in 2.0
+        //
+        //  On 1.11 and below, the firedelay for players is always 0.06.
+        //  Some maps like m1l1 sets the turret firedelay higher for AI
+        if (owner && owner->IsSubclassOfPlayer()) {
+            return 0.06f;
+        }
+    }
+
     return fire_delay[FIRE_PRIMARY];
 }
 
