@@ -21,6 +21,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 // actor_runandshoot.cpp
+//
+// Added in 2.30
+//
 
 #include "actor.h"
 
@@ -37,9 +40,10 @@ void Actor::InitRunAndShoot(GlobalFuncs_t *func)
 
 void Actor::Begin_RunAndShoot(void)
 {
-    m_State = ACTOR_STATE_RUN_AND_SHOOT_RUN;
     if (m_patrolCurrentNode) {
         m_State = ACTOR_STATE_RUN_AND_SHOOT_RUNNING;
+    } else {
+        m_State = ACTOR_STATE_RUN_AND_SHOOT_RUN;
     }
 }
 
@@ -143,62 +147,29 @@ bool Actor::RunAndShoot_MoveToPatrolCurrentNode(void)
 
     if (MoveOnPathWithSquad()) {
         if (m_Enemy) {
-            m_eNextAnimMode    = ANIM_MODE_PATH;
-            m_csNextAnimString = STRING_ANIM_RUNTO_INOPEN_SCR;
-            m_bNextForceStart  = false;
-
-            Vector delta;
-            Vector lookDir;
-
-            delta   = mTargetPos - EyePosition();
-            lookDir = delta;
-            lookDir[2] += 16;
-            SetDesiredLookDir(lookDir);
-
-            m_DesiredGunDir[0] = 360 - delta.toPitch();
-            m_DesiredGunDir[1] = delta.toYaw();
-            m_DesiredGunDir[2] = 0;
-            SetDesiredYaw(m_DesiredGunDir[1]);
+            DesiredAnimation(ANIM_MODE_PATH, STRING_ANIM_RUNTO_INOPEN_SCR);
+            AimAtTargetPos();
         } else {
-            m_eNextAnimMode    = ANIM_MODE_PATH;
-            m_csNextAnimString = STRING_ANIM_CROUCH_RUN_SCR;
-            m_bNextForceStart  = false;
+            DesiredAnimation(ANIM_MODE_PATH, STRING_ANIM_CROUCH_RUN_SCR);
             FaceMotion();
         }
     } else if (m_Enemy) {
-        Vector delta;
-        Vector lookDir;
-
-        delta   = mTargetPos - EyePosition();
-        lookDir = delta;
-        lookDir[2] += 16;
-        SetDesiredLookDir(lookDir);
-
-        m_DesiredGunDir[0] = 360 - delta.toPitch();
-        m_DesiredGunDir[1] = delta.toYaw();
-        m_DesiredGunDir[2] = 0;
-        SetDesiredYaw(m_DesiredGunDir[1]);
+        AimAtTargetPos();
         Anim_Attack();
     } else {
         Anim_Stand();
         IdleLook();
     }
 
-    if (!m_fMoveDoneRadiusSquared) {
-        return false;
+    if (m_fMoveDoneRadiusSquared) {
+        if (PathComplete()) {
+            return true;
+        }
+
+        if (m_Path.HasCompleteLookahead() && !m_patrolCurrentNode->Next()) {
+            return VectorLength2DSquared(PathDelta()) <= m_fMoveDoneRadiusSquared;
+        }
     }
 
-    if (PathComplete()) {
-        return true;
-    }
-
-    if (!m_Path.HasCompleteLookahead() || m_patrolCurrentNode->Next()) {
-        return false;
-    }
-
-    if (VectorLength2DSquared(PathDelta()) > m_fMoveDoneRadiusSquared) {
-        return false;
-    }
-
-    return true;
+    return false;
 }
