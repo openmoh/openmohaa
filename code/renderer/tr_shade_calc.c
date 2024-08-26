@@ -946,21 +946,16 @@ void RB_CalcRGBFromDot(unsigned char* colors, float alphaMin, float alphaMax)
 	vec3_t viewInModel;
 
 	for (i = 0; i < tess.numVertexes; i++, colors += 4) {
-		union {
-			float f;
-			int i;
-		} u;
+		float f;
 
 		VectorSubtract(backEnd.ori.viewOrigin, tess.xyz[i], viewInModel);
 		VectorNormalizeFast(viewInModel);
 
-        u.f = DotProduct(tess.normal[i], viewInModel);
-        u.f *= u.f;
-        u.f = ((alphaMax - alphaMin) * u.f + alphaMin) * 255.0;
-        u.f = u.f - (float)(~((int)(u.f - 255.0) >> 31) & (int)(u.f - 255.0));
+        f = Square(DotProduct(tess.normal[i], viewInModel));
+        f = ((alphaMax - alphaMin) * f + alphaMin) * 255.0;
+		f = f - Q_max((int)(f - 255), 0);
 
-		u.i &= ~(u.i >> 31);
-		colors[0] = colors[1] = colors[2] = u.i;
+		colors[0] = colors[1] = colors[2] = (unsigned char)Q_max(f, 0);
 	}
 }
 
@@ -971,26 +966,18 @@ void RB_CalcRGBFromOneMinusDot(unsigned char* colors, float alphaMin, float alph
 {
 	int i;
 	vec3_t viewInModel;
-	float dot;
 
 	for (i = 0; i < tess.numVertexes; i++, colors += 4) {
-		union {
-			float f;
-			int i;
-		} u;
+		float f;
 
 		VectorSubtract(backEnd.ori.viewOrigin, tess.xyz[i], viewInModel);
 		VectorNormalizeFast(viewInModel);
 
-        dot = DotProduct(tess.normal[i], viewInModel);
-		dot *= dot;
+        f = 1.0 - Square(DotProduct(tess.normal[i], viewInModel));
+        f = ((alphaMax - alphaMin) * f + alphaMin) * 255.0;
+		f = f - Q_max((int)(f - 255), 0);
 
-        u.f = 1.0 - dot;
-        u.f = ((alphaMax - alphaMin) * u.f + alphaMin) * 255.0;
-        u.f = u.f - (long double)(~((int)(u.f - 255.0) >> 31) & (int)(u.f - 255.0));
-
-		u.i &= ~(u.i >> 31);
-		colors[0] = colors[1] = colors[2] = u.i;
+		colors[0] = colors[1] = colors[2] = (unsigned char)Q_max(f, 0);
 	}
 }
 
@@ -1015,21 +1002,16 @@ void RB_CalcAlphaFromDot(unsigned char* colors, float alphaMin, float alphaMax)
 	vec3_t viewInModel;
 
 	for (i = 0; i < tess.numVertexes; i++, colors += 4) {
-		union {
-			float f;
-			int i;
-		} u;
+		float f;
 
 		VectorSubtract(backEnd.ori.viewOrigin, tess.xyz[i], viewInModel);
 		VectorNormalizeFast(viewInModel);
 
-        u.f = DotProduct(tess.normal[i], viewInModel);
-        u.f *= u.f;
-        u.f = ((alphaMax - alphaMin) * u.f + alphaMin) * 255.0;
-        u.f = u.f - (float)(~((int)(u.f - 255.0) >> 31) & (int)(u.f - 255.0));
+        f = Square(DotProduct(tess.normal[i], viewInModel));
+        f = ((alphaMax - alphaMin) * f + alphaMin) * 255.0;
+		f = f - Q_max((int)(f - 255), 0);
 
-		u.i &= ~(u.i >> 31);
-		colors[0] = colors[1] = colors[2] = u.i;
+		colors[0] = colors[1] = colors[2] = (unsigned char)Q_max(f, 0);
 	}
 }
 
@@ -1058,26 +1040,18 @@ void RB_CalcAlphaFromOneMinusDot(unsigned char* colors, float alphaMin, float al
 {
 	int i;
 	vec3_t viewInModel;
-	float dot;
 
 	for (i = 0; i < tess.numVertexes; i++, colors += 4) {
-		union {
-			float f;
-			int i;
-		} u;
+		float f;
 
 		VectorSubtract(backEnd.ori.viewOrigin, tess.xyz[i], viewInModel);
 		VectorNormalizeFast(viewInModel);
 
-        dot = DotProduct(tess.normal[i], viewInModel);
-		dot *= dot;
+        f = 1.0 - Square(DotProduct(tess.normal[i], viewInModel));
+        f = ((alphaMax - alphaMin) * f + alphaMin) * 255.0;
+		f = f - Q_max((int)(f - 255), 0);
 
-        u.f = 1.0 - dot;
-        u.f = ((alphaMax - alphaMin) * u.f + alphaMin) * 255.0;
-        u.f = u.f - (float)(~((int)(u.f - 255.0) >> 31) & (int)(u.f - 255.0));
-
-		u.i &= ~(u.i >> 31);
-		colors[0] = colors[1] = colors[2] = u.i;
+		colors[0] = colors[1] = colors[2] = (unsigned char)Q_max(f, 0);
 	}
 }
 
@@ -1093,10 +1067,10 @@ void RB_CalcAlphaFromTexCoords(unsigned char* colors, float alphaMin, float alph
 
         f = sWeight * tess.texCoords[i][0][0] + tWeight * tess.texCoords[i][0][1];
         f = ((alphaMax - alphaMin) * f + alphaMin) * 255.0;
-        f = f - (float)(~((int)(f - (float)(byte)alphaCap) >> 31) & (int)(f - (float)(byte)alphaCap));
-        f = (float)((~((int)(f - (float)(byte)alphaMinCap) >> 31) & (int)(f - (float)(byte)alphaMinCap)) + (byte)alphaMinCap);
+		f = f - Q_max((int)(f - alphaCap), 0);
+		f = alphaMinCap + Q_max((int)(f - alphaMinCap), 0);
 	
-		colors[3] = f;
+		colors[3] = (unsigned char)f;
 	}
 }
 
@@ -1112,10 +1086,10 @@ void RB_CalcRGBFromTexCoords(unsigned char* colors, float alphaMin, float alphaM
 
         f = sWeight * tess.texCoords[i][0][0] + tWeight * tess.texCoords[i][0][1];
         f = ((alphaMax - alphaMin) * f + alphaMin) * 255.0;
-        f = f - (float)(~((int)(f - (float)(byte)alphaCap) >> 31) & (int)(f - (float)(byte)alphaCap));
-        f = (float)((~((int)(f - (float)(byte)alphaMinCap) >> 31) & (int)(f - (float)(byte)alphaMinCap)) + (byte)alphaMinCap);
+		f = f - Q_max((int)(f - alphaCap), 0);
+		f = alphaMinCap + Q_max((int)(f - alphaMinCap), 0);
 
-		colors[0] = colors[1] = colors[2] = f;
+		colors[0] = colors[1] = colors[2] = (unsigned char)f;
 	}
 }
 
