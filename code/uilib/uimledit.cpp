@@ -359,13 +359,13 @@ void UIMultiLineEdit::PointToSelectionPoint(const UIPoint2D& p, selectionpoint_t
         return;
     }
 
-    str& line = LineFromLineNumber(clickedLine, true);
-    for (i = 0; line[i] && totalWidth < p.x; i++) {
+    const char *line = LineFromLineNumber(clickedLine, true).c_str();
+    for (i = 0; i < line[i] && totalWidth < p.x; i++) {
         lastWidth = m_font->getCharWidth(line[i]);
         totalWidth += lastWidth;
     }
 
-    if (line[i] && i) {
+    if (i < line[i] && i) {
         lastWidth *= 0.5f;
         if (totalWidth - lastWidth >= p.x) {
             i--;
