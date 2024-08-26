@@ -121,7 +121,9 @@ SkelVec3 skelAnimDataGameHeader_s::GetDeltaOverTime(float time1, float time2)
         delta.z += m_frame[frameNum2 % numFrames].delta.z * s;
     } else {
         s = s - (1.0 - d);
-        delta = m_frame[frameNum2 % numFrames].delta;
+        delta.x = m_frame[frameNum2 % numFrames].delta.x * s;
+        delta.y = m_frame[frameNum2 % numFrames].delta.y * s;
+        delta.z = m_frame[frameNum2 % numFrames].delta.z * s;
     }
 
     if (delta.x > -0.001f && delta.x < 0.001f) {
