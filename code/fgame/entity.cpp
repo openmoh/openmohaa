@@ -4135,7 +4135,7 @@ void Entity::BroadcastAIEvent(int iType, float rad)
         return;
     }
 
-    G_BroadcastAIEvent(this, origin, iType, rad);
+    G_BroadcastAIEvent(this, centroid, iType, rad);
 }
 
 void Entity::BroadcastAIEvent(Event *ev)
