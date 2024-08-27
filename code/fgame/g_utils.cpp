@@ -1174,8 +1174,9 @@ void G_ArchiveEdict(Archiver& arc, gentity_t *edict)
         arc.ArchiveString(&tempStr);
 
         if (tempStr.length()) {
+            qboolean streamed = tempStr[tempStr.length() - 1] != '0';
             tempStr[tempStr.length() - 1] = 0;
-            edict->s.loopSound = gi.soundindex(tempStr.c_str(), true);
+            edict->s.loopSound = gi.soundindex(tempStr.c_str(), streamed);
         } else {
             edict->s.loopSound = 0;
         }
