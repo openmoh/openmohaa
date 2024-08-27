@@ -7734,6 +7734,10 @@ void Player::SetViewAngles(Vector newViewangles)
     client->ps.delta_angles[2] = ANGLE2SHORT(newViewangles.z - client->cmd_angles[2]);
 
     v_angle = newViewangles;
+    // Fixed in OPM
+    //  Normalize angles to the range (-180, +180)
+    //  so interpolation is done properly client-side
+    v_angle.EulerNormalize();
 
     // get the pitch and roll from our leg angles
     newViewangles.x = angles.x;
