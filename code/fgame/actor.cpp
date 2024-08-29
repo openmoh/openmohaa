@@ -2955,6 +2955,7 @@ Actor::Actor()
 
     //
     // Added in OPM
+    //  The variable isn't set in original
     //
     m_bSilent = false;
 }
@@ -3225,7 +3226,7 @@ void Actor::GetMoveInfo(mmove_t *mm)
 
                 DoFailSafeMove(node->point);
             }
-        } else if (DotProduct(mm->velocity, velocity) < -0.7f && level.inttime >= m_Path.Time() + 1000) {
+        } else if (DotProduct2D(mm->velocity, velocity) < -0.7f && level.inttime >= m_Path.Time() + 1000) {
             m_Path.ReFindPath(origin, this);
         }
         break;
