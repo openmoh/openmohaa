@@ -5482,7 +5482,7 @@ void Actor::MovePathGoal(float fMoveSpeed)
                 m_eAnimMode = ANIM_MODE_NORMAL;
             }
         }
-    } else if (fDeltaSquareLen < fMoveSpeed * Square(0.5f)) {
+    } else if (fDeltaSquareLen < Square(fMoveSpeed * 0.5 * 0.5)) {
         fTimeToGo       = 0.5f;
         m_fPathGoalTime = level.time + fTimeToGo;
         if (m_csPathGoalEndAnimScript == STRING_EMPTY) {
