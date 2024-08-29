@@ -1796,6 +1796,8 @@ void S_OPENAL_StopAllSounds(qboolean bStopMusic)
         return;
     }
 
+    S_OPENAL_StopLoopingSounds();
+
     for (i = 0; i < MAX_OPENAL_POSITION_CHANNELS; i++) {
         openal_channel *pChannel = openal.channel[i];
         if (pChannel) {
