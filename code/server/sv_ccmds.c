@@ -2122,6 +2122,8 @@ void SV_Loadgame_f( void )
 		return;
 	}
 
+    bStartedGame = qfalse;
+
 	if( !ge )
 	{
 		SV_InitGameProgs();
