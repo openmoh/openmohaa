@@ -4497,6 +4497,7 @@ U32 openal_channel_two_d_stream::sample_offset()
     ALint         numQueuedBuffers    = 0;
     unsigned int  totalQueueLength    = 0;
     unsigned int  bytesPerSample      = 0;
+    unsigned int  offset              = 0;
     ALint         bits = 0, channels = 0;
 
     if (!streaming) {
@@ -4509,13 +4510,30 @@ U32 openal_channel_two_d_stream::sample_offset()
     alDieIfError();
 
     totalQueueLength = getQueueLength();
-
-    assert(playerByteOffset < totalQueueLength);
-    assert(streamNextOffset >= totalQueueLength);
-
     bytesPerSample = getBytesPerSample();
 
-    return (streamNextOffset - totalQueueLength + playerByteOffset) / bytesPerSample;
+    assert(playerByteOffset < totalQueueLength);
+    assert(streamNextOffset >= totalQueueLength || stream);
+
+    if (streamNextOffset >= totalQueueLength) {
+        offset = streamNextOffset - totalQueueLength + playerByteOffset;
+    } else if (stream) {
+        // it probably means the sound is looped and will restart from the beginning
+        if (streamNextOffset + playerByteOffset <= totalQueueLength) {
+            // near the end of the stream
+            offset = stream->info.size + streamNextOffset - totalQueueLength + playerByteOffset;
+        } else {
+            // it is past end of stream
+            // so, start from the beginning of the stream
+            offset = streamNextOffset + playerByteOffset - totalQueueLength;
+        }
+
+        assert(offset < stream->info.size);
+    } else {
+        offset = totalQueueLength - streamNextOffset + playerByteOffset;
+    }
+
+    return offset / bytesPerSample;
 }
 
 /*
@@ -4573,12 +4591,20 @@ void openal_channel_two_d_stream::set_sample_offset(U32 offset)
 
     bWasPlaying = is_playing();
 
-    if (byteOffset < streamPosition) {
-        //
-        // New offset is before the current offset,
-        // reload the stream from the beginning
-        //
-        if (stream) {
+    if (stream) {
+        if (byteOffset < streamPosition) {
+            //
+            // New offset is before the current offset,
+            // reload the stream from the beginning
+            //
+            S_CodecCloseStream(stream);
+            streamHandle = NULL;
+        } else if (byteOffset >= stream->info.size) {
+            //
+            // This shouldn't happen unless the file is different
+            // from the one used while saving
+            //
+            byteOffset %= stream->info.size;
             S_CodecCloseStream(stream);
             streamHandle = NULL;
         }
@@ -4787,7 +4813,16 @@ Return the current position in the sound being streamed.
 */
 unsigned int openal_channel_two_d_stream::getCurrentStreamPosition() const
 {
-    return streamNextOffset - getQueueLength();
+    unsigned int queueLength = getQueueLength();
+
+    if (streamNextOffset >= queueLength) {
+        return streamNextOffset - queueLength;
+    } else if (streamHandle) {
+        snd_stream_t* stream = (snd_stream_t*)streamHandle;
+        return (stream->info.size + streamNextOffset - queueLength) % stream->info.size;
+    } else {
+        return queueLength - streamNextOffset;
+    }
 }
 
 /*
