@@ -129,6 +129,9 @@ void LODMaster::Spawn
 	gi.cvar_set( "lod_tool", "1" );
 
 	ent = g_entities->entity;
+    if (!ent) {
+        return;
+    }
 
 	if( ent->IsSubclassOfPlayer() )
 	{
