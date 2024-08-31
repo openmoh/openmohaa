@@ -648,14 +648,12 @@ void TurretGun::AI_SetTargetAngles(vec3_t vTargAngles, float speed)
         vTargAngles[1] = m_fStartYaw + m_fMaxYawOffset;
     } else if (fDiff < -m_fMaxYawOffset) {
         vTargAngles[1] = m_fStartYaw - m_fMaxYawOffset;
-    } else {
-        vTargAngles[1] = m_fStartYaw + fDiff;
     }
 
     fYawDiff   = AngleSubtract(vTargAngles[1], angles[1]);
     fPitchDiff = AngleSubtract(vTargAngles[0], angles[0]);
 
-    if (fabs(fPitchDiff) == 0) {
+    if (speed == 0) {
         fTurnYawSpeed   = m_fTurnSpeed * level.frametime;
         fTurnPitchSpeed = m_fAIPitchSpeed * level.frametime;
     } else {
@@ -686,10 +684,10 @@ void TurretGun::AI_SetTargetAngles(vec3_t vTargAngles, float speed)
 
     if (fabs(fYawDiff) < fTurnYawSpeed) {
         angles[1] = vTargAngles[1];
-    } else if (fPitchDiff > 0) {
-        angles[1] += fYawDiff;
+    } else if (fYawDiff > 0) {
+        angles[1] += fTurnYawSpeed;
     } else {
-        angles[1] -= fYawDiff;
+        angles[1] -= fTurnYawSpeed;
     }
 
     setAngles(angles);
