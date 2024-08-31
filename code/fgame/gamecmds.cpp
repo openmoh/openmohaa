@@ -60,13 +60,17 @@ consolecmd_t G_ConsoleCmds[] = {
     {"levelvars",       G_LevelVarsCmd,       qfalse},
     {"gamevars",        G_GameVarsCmd,        qfalse},
     {"script",          G_ScriptCmd,          qfalse},
+    // Added in 2.0
     {"reloadmap",       G_ReloadMap,          qfalse},
+    // Added in OPM
+    //====
     {"compilescript",   G_CompileScript,      qfalse},
     {"addbot",          G_AddBotCommand,      qfalse},
     {"removebot",       G_RemoveBotCommand,   qfalse},
 #ifdef _DEBUG
     {"bot",             G_BotCommand,         qfalse},
 #endif
+    //====
     {NULL,              NULL,                 qfalse}
 };
 
@@ -223,7 +227,6 @@ Cmd_Say_f
 ==================
 */
 void G_Say(gentity_t *ent, qboolean team, qboolean arg0)
-
 {
     int         j;
     gentity_t  *other;
@@ -287,7 +290,6 @@ void G_Say(gentity_t *ent, qboolean team, qboolean arg0)
 }
 
 qboolean G_CameraCmd(gentity_t *ent)
-
 {
     Event      *ev;
     const char *cmd;
@@ -346,7 +348,6 @@ qboolean G_SoundCmd(gentity_t *ent)
 }
 
 qboolean G_SayCmd(gentity_t *ent)
-
 {
     G_Say(ent, false, false);
 
@@ -354,7 +355,6 @@ qboolean G_SayCmd(gentity_t *ent)
 }
 
 qboolean G_EventListCmd(gentity_t *ent)
-
 {
     const char *mask;
 
@@ -363,13 +363,12 @@ qboolean G_EventListCmd(gentity_t *ent)
         mask = gi.Argv(1);
     }
 
-    //Event::ListCommands( mask );
+    Event::ListCommands( mask );
 
     return qtrue;
 }
 
 qboolean G_PendingEventsCmd(gentity_t *ent)
-
 {
     const char *mask;
 
@@ -378,13 +377,12 @@ qboolean G_PendingEventsCmd(gentity_t *ent)
         mask = gi.Argv(1);
     }
 
-    //Event::PendingEvents( mask );
+    Event::PendingEvents( mask );
 
     return qtrue;
 }
 
 qboolean G_EventHelpCmd(gentity_t *ent)
-
 {
     const char *mask;
 
@@ -393,13 +391,12 @@ qboolean G_EventHelpCmd(gentity_t *ent)
         mask = gi.Argv(1);
     }
 
-    //Event::ListDocumentation( mask, false );
+    Event::ListDocumentation( mask, false );
 
     return qtrue;
 }
 
 qboolean G_DumpEventsCmd(gentity_t *ent)
-
 {
     const char *mask;
 
@@ -408,13 +405,12 @@ qboolean G_DumpEventsCmd(gentity_t *ent)
         mask = gi.Argv(1);
     }
 
-    //Event::ListDocumentation( mask, true );
+    Event::ListDocumentation( mask, true );
 
     return qtrue;
 }
 
 qboolean G_ClassEventsCmd(gentity_t *ent)
-
 {
     const char *className;
 
@@ -424,13 +420,12 @@ qboolean G_ClassEventsCmd(gentity_t *ent)
         className = gi.Argv(1);
     } else {
         className = gi.Argv(1);
-        //ClassEvents( className );
+        ClassEvents( className, qfalse );
     }
     return qtrue;
 }
 
 qboolean G_DumpClassEventsCmd(gentity_t *ent)
-
 {
     const char *className;
 
@@ -440,31 +435,28 @@ qboolean G_DumpClassEventsCmd(gentity_t *ent)
         className = gi.Argv(1);
     } else {
         className = gi.Argv(1);
-        //ClassEvents( className, qtrue );
+        ClassEvents( className, qtrue );
     }
     return qtrue;
 }
 
 qboolean G_DumpAllClassesCmd(gentity_t *ent)
-
 {
     DumpAllClasses();
     return qtrue;
 }
 
 qboolean G_ClassListCmd(gentity_t *ent)
-
 {
-    //listAllClasses();
+    listAllClasses();
 
     return qtrue;
 }
 
 qboolean G_ClassTreeCmd(gentity_t *ent)
-
 {
     if (gi.Argc() > 1) {
-        //listInheritanceOrder( gi.Argv( 1 ) );
+        listInheritanceOrder( gi.Argv( 1 ) );
     } else {
         gi.SendServerCommand(ent - g_entities, "print \"Syntax: classtree [classname].\n\"");
     }
@@ -480,7 +472,6 @@ qboolean G_ShowVarCmd(gentity_t *ent)
 void PrintVariableList(ScriptVariableList *list) {}
 
 qboolean G_LevelVarsCmd(gentity_t *ent)
-
 {
     gi.Printf("Level Variables\n");
     PrintVariableList(level.vars);
@@ -489,7 +480,6 @@ qboolean G_LevelVarsCmd(gentity_t *ent)
 }
 
 qboolean G_GameVarsCmd(gentity_t *ent)
-
 {
     gi.Printf("Game Variables\n");
     PrintVariableList(game.vars);
@@ -546,7 +536,8 @@ qboolean G_ScriptCmd(gentity_t *ent)
     return scriptEnt->ProcessEvent(event);
 }
 
-qboolean G_ReloadMap(gentity_t* ent) {
+qboolean G_ReloadMap(gentity_t* ent)
+{
     char name[256];
 
     Com_sprintf(name, sizeof(name), "gamemap \"%s\"\n", level.mapname.c_str());
