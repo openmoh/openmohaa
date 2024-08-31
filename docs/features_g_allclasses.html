@@ -28,14 +28,17 @@
 <P><tt><B>ai_on</B></tt><BR>
 <ul>Turns the AI on for this actor.</ul>
 
+<P><tt><B>alarmnode</B>( <i>String value </i>)</tt><BR>
+<ul>Sets the name of the alarm node for the actor (must have type set to alarm for effect)</ul>
+
 <P><tt><B>alarmnode</B></tt><BR>
 <ul>Gets the name of the alarm node for the actor (must have type set to alarm for effect)</ul>
 
 <P><tt><B>alarmnode</B>( <i>String value </i>)</tt><BR>
 <ul>Sets the name of the alarm node for the actor (must have type set to alarm for effect)</ul>
 
-<P><tt><B>alarmnode</B>( <i>String value </i>)</tt><BR>
-<ul>Sets the name of the alarm node for the actor (must have type set to alarm for effect)</ul>
+<P><tt><B>alarmthread</B>( <i>String value </i>)</tt><BR>
+<ul>Sets the name of the alarm thread for the actor (must have type set to alarm for effect)</ul>
 
 <P><tt><B>alarmthread</B></tt><BR>
 <ul>Gets the name of the alarm thread for the actor (must have type set to alarm for effect)</ul>
@@ -43,14 +46,11 @@
 <P><tt><B>alarmthread</B>( <i>String value </i>)</tt><BR>
 <ul>Sets the name of the alarm thread for the actor (must have type set to alarm for effect)</ul>
 
-<P><tt><B>alarmthread</B>( <i>String value </i>)</tt><BR>
-<ul>Sets the name of the alarm thread for the actor (must have type set to alarm for effect)</ul>
+<P><tt><B>ammo_grenade</B>( <i>Integer grenade_count </i>)</tt><BR>
+<ul>Gives the AI some grenades</ul>
 
 <P><tt><B>ammo_grenade</B></tt><BR>
 <ul>Returns how many grenades an AI has</ul>
-
-<P><tt><B>ammo_grenade</B>( <i>Integer grenade_count </i>)</tt><BR>
-<ul>Gives the AI some grenades</ul>
 
 <P><tt><B>ammo_grenade</B>( <i>Integer grenade_count </i>)</tt><BR>
 <ul>Gives the AI some grenades</ul>
@@ -65,10 +65,10 @@
 <ul>Loop animation.</ul>
 
 <P><tt><B>animname</B></tt><BR>
-<ul>Gets the animname.</ul>
+<ul>Sets the animname.</ul>
 
 <P><tt><B>animname</B></tt><BR>
-<ul>Sets the animname.</ul>
+<ul>Gets the animname.</ul>
 
 <P><tt><B>animscript</B>( <i>String name </i>)</tt><BR>
 <ul>Play the animation script</ul>
@@ -95,28 +95,25 @@
 <ul>Used only by grenade return animations to tell the code when to attach the grenade to the actor</ul>
 
 <P><tt><B>attackhandler</B></tt><BR>
-<ul>Sets the current script that will handle attack events</ul>
+<ul>Gets the current script that will handle attack events</ul>
 
 <P><tt><B>attackhandler</B></tt><BR>
-<ul>Gets the current script that will handle attack events</ul>
+<ul>Sets the current script that will handle attack events</ul>
 
 <P><tt><B>attackplayer</B></tt><BR>
 <ul>Force Actor to attack the player</ul>
 
+<P><tt><B>avoidplayer</B>( <i>Integer allowavoid </i>)</tt><BR>
+<ul>set to 0 if this AI shouldn't automatically get out of the way, non-zero if he should.<BR>
+</ul>
+
+<P><tt><B>avoidplayer</B>( <i>Integer allowavoid </i>)</tt><BR>
+<ul>set to 0 if this AI shouldn't automatically get out of the way, non-zero if he should.<BR>
+</ul>
+
 <P><tt><B>avoidplayer</B></tt><BR>
 <ul>is 0 if this AI won't automatically get out of the way, non-zero if he will<BR>
 </ul>
-
-<P><tt><B>avoidplayer</B>( <i>Integer allowavoid </i>)</tt><BR>
-<ul>set to 0 if this AI shouldn't automatically get out of the way, non-zero if he should.<BR>
-</ul>
-
-<P><tt><B>avoidplayer</B>( <i>Integer allowavoid </i>)</tt><BR>
-<ul>set to 0 if this AI shouldn't automatically get out of the way, non-zero if he should.<BR>
-</ul>
-
-<P><tt><B>balconyheight</B>( <i>Float height </i>)</tt><BR>
-<ul>minimum height a balcony guy must fall to do special balcony death</ul>
 
 <P><tt><B>balconyheight</B>( <i>Float height </i>)</tt><BR>
 <ul>minimum height a balcony guy must fall to do special balcony death</ul>
@@ -124,14 +121,17 @@
 <P><tt><B>balconyheight</B></tt><BR>
 <ul>minimum height a balcony guy must fall to do special balcony death</ul>
 
+<P><tt><B>balconyheight</B>( <i>Float height </i>)</tt><BR>
+<ul>minimum height a balcony guy must fall to do special balcony death</ul>
+
 <P><tt><B>bedead</B></tt><BR>
 <ul>Forces the actor to be instantly and totally dead; no death animation is played</ul>
 
 <P><tt><B>blendtime</B></tt><BR>
-<ul>Get the crossblend time</ul>
+<ul>Set the crossblend time to something other than the default, in seconds</ul>
 
 <P><tt><B>blendtime</B></tt><BR>
-<ul>Set the crossblend time to something other than the default, in seconds</ul>
+<ul>Get the crossblend time</ul>
 
 <P><tt><B>breakspecial</B></tt><BR>
 <ul>tell ai to break special attack</ul>
@@ -175,10 +175,10 @@ Should be called infrequently, and never during the middle of a grenade toss.<BR
 <ul>preps the dead actor for turning nonsolid gradually over time</ul>
 
 <P><tt><B>deathhandler</B></tt><BR>
-<ul>Gets the current script that will handle death events</ul>
+<ul>Sets the current script that will handle death events</ul>
 
 <P><tt><B>deathhandler</B></tt><BR>
-<ul>Sets the current script that will handle death events</ul>
+<ul>Gets the current script that will handle death events</ul>
 
 <P><tt><B>deathsinkstart</B></tt><BR>
 <ul>Makes the entity sink into the ground and then get removed (this starts it).</ul>
@@ -192,20 +192,20 @@ Should be called infrequently, and never during the middle of a grenade toss.<BR
 <P><tt><B>detachgrenade</B></tt><BR>
 <ul>Used only by grenade return animations to tell the code when to throw the grenade</ul>
 
-<P><tt><B>disguise_accept_thread</B>( <i>String value </i>)</tt><BR>
-<ul>Sets the name of the thread for the actor to start when accepting papers</ul>
-
-<P><tt><B>disguise_accept_thread</B>( <i>String value </i>)</tt><BR>
-<ul>Sets the name of the thread for the actor to start when accepting papers</ul>
-
 <P><tt><B>disguise_accept_thread</B></tt><BR>
 <ul>Gets the name of the thread for the actor to start when accepting papers</ul>
 
-<P><tt><B>disguise_level</B></tt><BR>
-<ul>Gets the disguise level of the actor. May be 1 or 2</ul>
+<P><tt><B>disguise_accept_thread</B>( <i>String value </i>)</tt><BR>
+<ul>Sets the name of the thread for the actor to start when accepting papers</ul>
+
+<P><tt><B>disguise_accept_thread</B>( <i>String value </i>)</tt><BR>
+<ul>Sets the name of the thread for the actor to start when accepting papers</ul>
 
 <P><tt><B>disguise_level</B>( <i>Integer value </i>)</tt><BR>
 <ul>Sets the disguise level of the actor. May be 1 or 2</ul>
+
+<P><tt><B>disguise_level</B></tt><BR>
+<ul>Gets the disguise level of the actor. May be 1 or 2</ul>
 
 <P><tt><B>disguise_level</B>( <i>Integer value </i>)</tt><BR>
 <ul>Sets the disguise level of the actor. May be 1 or 2</ul>
@@ -219,11 +219,11 @@ Should be called infrequently, and never during the middle of a grenade toss.<BR
 <P><tt><B>disguise_period</B></tt><BR>
 <ul>Gets the time between the end of one disguise behavior and start of the next</ul>
 
-<P><tt><B>disguise_range</B></tt><BR>
-<ul>Gets the maximum distance for disguise behavior to get triggered</ul>
-
 <P><tt><B>disguise_range</B>( <i>Float range_in_units </i>)</tt><BR>
 <ul>Sets the maximum distance for disguise behavior to get triggered</ul>
+
+<P><tt><B>disguise_range</B></tt><BR>
+<ul>Gets the maximum distance for disguise behavior to get triggered</ul>
 
 <P><tt><B>disguise_range</B>( <i>Float range_in_units </i>)</tt><BR>
 <ul>Sets the maximum distance for disguise behavior to get triggered</ul>
@@ -276,10 +276,10 @@ Should be called infrequently, and never during the middle of a grenade toss.<BR
 <P><tt><B>eyeslookat</B>( <i>Entity entity </i>)</tt><BR>
 <ul>The actor will look at this entity.</ul>
 
-<P><tt><B>fallheight</B></tt><BR>
+<P><tt><B>fallheight</B>( <i>Float height </i>)</tt><BR>
 <ul>Set the fallheight</ul>
 
-<P><tt><B>fallheight</B>( <i>Float height </i>)</tt><BR>
+<P><tt><B>fallheight</B></tt><BR>
 <ul>Set the fallheight</ul>
 
 <P><tt><B>favoriteenemy</B>( <i>Entity ai_or_player </i>)</tt><BR>
@@ -300,19 +300,19 @@ Should be called infrequently, and never during the middle of a grenade toss.<BR
 <P><tt><B>fixedleash</B>( <i>Float multiplier </i>)</tt><BR>
 <ul>if non-zero, the leash will never auto-reset; if zero, the leash may auto-reset</ul>
 
-<P><tt><B>fixedleash</B></tt><BR>
-<ul>if non-zero, the leash will never auto-reset; if zero, the leash may auto-reset</ul>
-
 <P><tt><B>fixedleash</B>( <i>Float multiplier </i>)</tt><BR>
 <ul>if non-zero, the leash will never auto-reset; if zero, the leash may auto-reset</ul>
 
-<P><tt><B>fov</B>( <i>Float angle </i>)</tt><BR>
-<ul>The fov angle of the actor</ul>
-
-<P><tt><B>fov</B>( <i>Float angle </i>)</tt><BR>
-<ul>The fov angle of the actor</ul>
+<P><tt><B>fixedleash</B></tt><BR>
+<ul>if non-zero, the leash will never auto-reset; if zero, the leash may auto-reset</ul>
 
 <P><tt><B>fov</B></tt><BR>
+<ul>The fov angle of the actor</ul>
+
+<P><tt><B>fov</B>( <i>Float angle </i>)</tt><BR>
+<ul>The fov angle of the actor</ul>
+
+<P><tt><B>fov</B>( <i>Float angle </i>)</tt><BR>
 <ul>The fov angle of the actor</ul>
 
 <P><tt><B>GetRunAnim</B></tt><BR>
@@ -321,23 +321,23 @@ Should be called infrequently, and never during the middle of a grenade toss.<BR
 <P><tt><B>GetWalkAnim</B></tt><BR>
 <ul>Internal usage</ul>
 
+<P><tt><B>gren_awareness</B>( <i>Float awareness_percent </i>)</tt><BR>
+<ul>sets the awareness of grenades in 0-100 percent chance of responding to a grenadewhen the AI sees it (applied once every 0.4 seconds)</ul>
+
+<P><tt><B>gren_awareness</B>( <i>Float awareness_percent </i>)</tt><BR>
+<ul>sets the awareness of grenades in 0-100 percent chance of responding to a grenadewhen the AI sees it (applied once every 0.4 seconds)</ul>
+
 <P><tt><B>gren_awareness</B></tt><BR>
 <ul>gets the awareness of grenades in 0-100 percent chance of responding to a grenadewhen the AI sees it (applied once every 0.4 seconds)</ul>
 
-<P><tt><B>gren_awareness</B>( <i>Float awareness_percent </i>)</tt><BR>
-<ul>sets the awareness of grenades in 0-100 percent chance of responding to a grenadewhen the AI sees it (applied once every 0.4 seconds)</ul>
-
-<P><tt><B>gren_awareness</B>( <i>Float awareness_percent </i>)</tt><BR>
-<ul>sets the awareness of grenades in 0-100 percent chance of responding to a grenadewhen the AI sees it (applied once every 0.4 seconds)</ul>
+<P><tt><B>gun</B>( <i>String s </i>)</tt><BR>
+<ul>specifies the gun to use</ul>
 
 <P><tt><B>gun</B>( <i>String s </i>)</tt><BR>
 <ul>specifies the gun to use</ul>
 
 <P><tt><B>gun</B></tt><BR>
 <ul>gets the gun to being used</ul>
-
-<P><tt><B>gun</B>( <i>String s </i>)</tt><BR>
-<ul>specifies the gun to use</ul>
 
 <P><tt><B>hascompletelookahead</B></tt><BR>
 <ul>returns true if there are no corners to turn on the rest of the AI's current path</ul>
@@ -348,11 +348,11 @@ Should be called infrequently, and never during the middle of a grenade toss.<BR
 <P><tt><B>headmodel</B>( <i>String headmodel </i>)</tt><BR>
 <ul>sets the head model</ul>
 
-<P><tt><B>headskin</B>( <i>String headskin </i>)</tt><BR>
-<ul>sets the head skin</ul>
-
 <P><tt><B>headskin</B></tt><BR>
 <ul>gets the head skin</ul>
+
+<P><tt><B>headskin</B>( <i>String headskin </i>)</tt><BR>
+<ul>sets the head skin</ul>
 
 <P><tt><B>hearing</B>( <i>Float radius </i>)</tt><BR>
 <ul>The hearing radius of the actor</ul>
@@ -381,11 +381,11 @@ Should be called infrequently, and never during the middle of a grenade toss.<BR
 <P><tt><B>immediateremove</B></tt><BR>
 <ul>Removes this listener immediately.</ul>
 
-<P><tt><B>inreload</B>( <i>Integer reloading </i>)</tt><BR>
-<ul>set to non-zero to indicate the AI is in a reload</ul>
-
 <P><tt><B>inreload</B></tt><BR>
 <ul>returns non-zero if the AI is in a reload</ul>
+
+<P><tt><B>inreload</B>( <i>Integer reloading </i>)</tt><BR>
+<ul>set to non-zero to indicate the AI is in a reload</ul>
 
 <P><tt><B>interrupt_point</B></tt><BR>
 <ul>hint from animation scripts to AI code that now is a good time to switch animations</ul>
@@ -393,11 +393,11 @@ Should be called infrequently, and never during the middle of a grenade toss.<BR
 <P><tt><B>interval</B>( <i>Float distance </i>)</tt><BR>
 <ul>Sets the distance AI tries to keep between squadmates while moving.</ul>
 
-<P><tt><B>interval</B></tt><BR>
-<ul>Gets the distance AI tries to keep between squadmates while moving.</ul>
-
 <P><tt><B>interval</B>( <i>Float distance </i>)</tt><BR>
 <ul>Sets the distance AI tries to keep between squadmates while moving.</ul>
+
+<P><tt><B>interval</B></tt><BR>
+<ul>Gets the distance AI tries to keep between squadmates while moving.</ul>
 
 <P><tt><B>intervaldir</B></tt><BR>
 <ul>the direction the AI would like to move to maintain its interval</ul>
@@ -439,16 +439,16 @@ Location values:<BR>
 <P><tt><B>leash</B>( <i>Float distance </i>)</tt><BR>
 <ul>Sets the maximum distance the AI will wander from its leash home</ul>
 
-<P><tt><B>leash</B></tt><BR>
-<ul>Gets the maximum distance the AI will wander from its leash home</ul>
-
 <P><tt><B>leash</B>( <i>Float distance </i>)</tt><BR>
 <ul>Sets the maximum distance the AI will wander from its leash home</ul>
 
-<P><tt><B>lookaroundangle</B></tt><BR>
-<ul>gets the angle in degrees left or right of center that the AI will look around while patrolling</ul>
+<P><tt><B>leash</B></tt><BR>
+<ul>Gets the maximum distance the AI will wander from its leash home</ul>
 
 <P><tt><B>lookaroundangle</B>( <i>Float angle </i>)</tt><BR>
+<ul>gets the angle in degrees left or right of center that the AI will look around while patrolling</ul>
+
+<P><tt><B>lookaroundangle</B></tt><BR>
 <ul>gets the angle in degrees left or right of center that the AI will look around while patrolling</ul>
 
 <P><tt><B>lookaroundangle</B>( <i>Float angle </i>)</tt><BR>
@@ -457,14 +457,17 @@ Location values:<BR>
 <P><tt><B>lookat</B>( <i>Entity entity </i>)</tt><BR>
 <ul>The actor will look at this entity.</ul>
 
+<P><tt><B>maxdist</B>( <i>Float distance </i>)</tt><BR>
+<ul>Sets the maximum distance the AI tries to allow between itself and the player</ul>
+
+<P><tt><B>maxdist</B>( <i>Float distance </i>)</tt><BR>
+<ul>Sets the maximum distance the AI tries to allow between itself and the player</ul>
+
 <P><tt><B>maxdist</B></tt><BR>
 <ul>Gets the maximum distance the AI tries to keep between itself and the player</ul>
 
-<P><tt><B>maxdist</B>( <i>Float distance </i>)</tt><BR>
-<ul>Sets the maximum distance the AI tries to allow between itself and the player</ul>
-
-<P><tt><B>maxdist</B>( <i>Float distance </i>)</tt><BR>
-<ul>Sets the maximum distance the AI tries to allow between itself and the player</ul>
+<P><tt><B>mindist</B>( <i>Float distance </i>)</tt><BR>
+<ul>Sets the minimum distance the AI tries to keep between itself and the player</ul>
 
 <P><tt><B>mindist</B></tt><BR>
 <ul>Gets the minimum distance the AI tries to keep between itself and the player</ul>
@@ -472,14 +475,11 @@ Location values:<BR>
 <P><tt><B>mindist</B>( <i>Float distance </i>)</tt><BR>
 <ul>Sets the minimum distance the AI tries to keep between itself and the player</ul>
 
-<P><tt><B>mindist</B>( <i>Float distance </i>)</tt><BR>
-<ul>Sets the minimum distance the AI tries to keep between itself and the player</ul>
+<P><tt><B>mood</B></tt><BR>
+<ul>gets the AI mood: 'bored', 'nervous', 'curious', or 'alert'.</ul>
 
 <P><tt><B>mood</B>( <i>String new_mood </i>)</tt><BR>
 <ul>sets the AI mood... must be 'bored', 'nervous', 'curious', or 'alert'.</ul>
-
-<P><tt><B>mood</B></tt><BR>
-<ul>gets the AI mood: 'bored', 'nervous', 'curious', or 'alert'.</ul>
 
 <P><tt><B>movedir</B></tt><BR>
 <ul>Returns a unit vector pointing in the current direction of motion, or zero if not moving.This still has meaning if velocity is zero but the AI is starting to move on a path.</ul>
@@ -493,14 +493,14 @@ Location values:<BR>
 <P><tt><B>moveto</B>( <i>String anim, String dest </i>)</tt><BR>
 <ul>Specify the location to move to, with animation anim.</ul>
 
+<P><tt><B>mumble</B>( <i>Integer can_mumble </i>)</tt><BR>
+<ul>Set to 1 if this guy is allowed to mumble, or 0 if he is not</ul>
+
+<P><tt><B>mumble</B>( <i>Integer can_mumble </i>)</tt><BR>
+<ul>Set to 1 if this guy is allowed to mumble, or 0 if he is not</ul>
+
 <P><tt><B>mumble</B></tt><BR>
 <ul>Returns 1 if this guy is allowed to mumble, or 0 if he is not</ul>
-
-<P><tt><B>mumble</B>( <i>Integer can_mumble </i>)</tt><BR>
-<ul>Set to 1 if this guy is allowed to mumble, or 0 if he is not</ul>
-
-<P><tt><B>mumble</B>( <i>Integer can_mumble </i>)</tt><BR>
-<ul>Set to 1 if this guy is allowed to mumble, or 0 if he is not</ul>
 
 <P><tt><B>nationality</B></tt><BR>
 <ul>Get the nationality of an actor. Return values are ger, it, usa, uk, ussr and unset.</ul>
@@ -511,15 +511,15 @@ Location values:<BR>
 <P><tt><B>nationality</B>( <i>String nationality </i>)</tt><BR>
 <ul>Set the nationality of an actor. Valid entries are default, ger, it, usa, uk, and ussr.</ul>
 
+<P><tt><B>nolongpain</B>( <i>Integer allow </i>)</tt><BR>
+<ul>Set to 1 if long pain is not allowed, or 0 if long pain is allowed.</ul>
+
+<P><tt><B>nolongpain</B>( <i>Integer allow </i>)</tt><BR>
+<ul>Set to 1 if long pain is not allowed, or 0 if long pain is allowed.</ul>
+
 <P><tt><B>nolongpain</B></tt><BR>
 <ul>Returns 1 if long pain is not allowed, or 0 if long pain is allowed.</ul>
 
-<P><tt><B>nolongpain</B>( <i>Integer allow </i>)</tt><BR>
-<ul>Set to 1 if long pain is not allowed, or 0 if long pain is allowed.</ul>
-
-<P><tt><B>nolongpain</B>( <i>Integer allow </i>)</tt><BR>
-<ul>Set to 1 if long pain is not allowed, or 0 if long pain is allowed.</ul>
-
 <P><tt><B>nonvislevel</B></tt><BR>
 <ul>visibility level in range 0-1 below which an enemy is treated as non-visible</ul>
 
@@ -528,6 +528,10 @@ Location values:<BR>
 
 <P><tt><B>nonvislevel</B></tt><BR>
 <ul>visibility level in range 0-1 below which an enemy is treated as non-visible</ul>
+
+<P><tt><B>nosurprise</B>( <i>Integer nosurprise </i>)</tt><BR>
+<ul>set to 0 to allow this guy to play a surprised animation when first encountering an enemy.<BR>
+</ul>
 
 <P><tt><B>nosurprise</B></tt><BR>
 <ul>gets whether or not this guy is allowed to play a surprised animation when first encountering an enemy.<BR>
@@ -537,45 +541,41 @@ Location values:<BR>
 <ul>set to 0 to allow this guy to play a surprised animation when first encountering an enemy.<BR>
 </ul>
 
-<P><tt><B>nosurprise</B>( <i>Integer nosurprise </i>)</tt><BR>
-<ul>set to 0 to allow this guy to play a surprised animation when first encountering an enemy.<BR>
-</ul>
-
-<P><tt><B>noticescale</B>( <i>Float multiplier </i>)</tt><BR>
-<ul>Set the max multiplier in time to notice an enemy (default 100, half as big notices twice as fast)</ul>
-
 <P><tt><B>noticescale</B>( <i>Float multiplier </i>)</tt><BR>
 <ul>Set the max multiplier in time to notice an enemy (default 100, half as big notices twice as fast)</ul>
 
 <P><tt><B>noticescale</B></tt><BR>
 <ul>Get the max multiplier in time to notice an enemy (default 100, half as big notices twice as fast)</ul>
 
-<P><tt><B>no_idle</B></tt><BR>
-<ul>Specifies if the actor will not go into idle after playing an animation</ul>
+<P><tt><B>noticescale</B>( <i>Float multiplier </i>)</tt><BR>
+<ul>Set the max multiplier in time to notice an enemy (default 100, half as big notices twice as fast)</ul>
 
 <P><tt><B>no_idle</B></tt><BR>
 <ul>Gets if the actor will not go into idle after playing an animation</ul>
+
+<P><tt><B>no_idle</B></tt><BR>
+<ul>Specifies if the actor will not go into idle after playing an animation</ul>
 
 <P><tt><B>pain</B>( <i>Entity attacker, Integer damage, Entity inflictor, Vector position, Vector direction, Vector normal, Integer knockback, Integer damageflags, Integer meansofdeath, Integer location </i>)</tt><BR>
 <ul>used to inflict pain to an entity</ul>
 
 <P><tt><B>painhandler</B></tt><BR>
-<ul>Sets the current script that will handle pain events</ul>
+<ul>Gets the current script that will handle pain events</ul>
 
 <P><tt><B>painhandler</B></tt><BR>
-<ul>Gets the current script that will handle pain events</ul>
+<ul>Sets the current script that will handle pain events</ul>
 
 <P><tt><B>pathdist</B></tt><BR>
 <ul>returns total distance along current path to the path goal</ul>
 
+<P><tt><B>patrolpath</B>( <i>String value </i>)</tt><BR>
+<ul>Sets the name of the patrol path for the actor (must have type set to patrol for effect)</ul>
+
+<P><tt><B>patrolpath</B>( <i>String value </i>)</tt><BR>
+<ul>Sets the name of the patrol path for the actor (must have type set to patrol for effect)</ul>
+
 <P><tt><B>patrolpath</B></tt><BR>
 <ul>Gets the name of the patrol path for the actor (must have type set to patrol for effect)</ul>
-
-<P><tt><B>patrolpath</B>( <i>String value </i>)</tt><BR>
-<ul>Sets the name of the patrol path for the actor (must have type set to patrol for effect)</ul>
-
-<P><tt><B>patrolpath</B>( <i>String value </i>)</tt><BR>
-<ul>Sets the name of the patrol path for the actor (must have type set to patrol for effect)</ul>
 
 <P><tt><B>physics_off</B></tt><BR>
 <ul>turn physics off.</ul>
@@ -614,14 +614,14 @@ default channel, CHAN_BODY.</ul>
 <P><tt><B>resetleash</B></tt><BR>
 <ul>resets the AI's leash to their current position</ul>
 
-<P><tt><B>runanimrate</B>( <i>Float multiplier </i>)</tt><BR>
-<ul>Set the rate at which the run animation plays back</ul>
-
-<P><tt><B>runanimrate</B>( <i>Float multiplier </i>)</tt><BR>
-<ul>Set the rate at which the run animation plays back</ul>
-
 <P><tt><B>runanimrate</B></tt><BR>
 <ul>Get the rate at which the run animation plays back</ul>
+
+<P><tt><B>runanimrate</B>( <i>Float multiplier </i>)</tt><BR>
+<ul>Set the rate at which the run animation plays back</ul>
+
+<P><tt><B>runanimrate</B>( <i>Float multiplier </i>)</tt><BR>
+<ul>Set the rate at which the run animation plays back</ul>
 
 <P><tt><B>runto</B>( <i>String dest </i>)</tt><BR>
 <ul>Specify the location to run to.</ul>
@@ -665,14 +665,18 @@ default channel, CHAN_BODY.</ul>
 <P><tt><B>share_grenade</B></tt><BR>
 <ul>internal code use only - shares an AI's grenade with his squad mates.</ul>
 
-<P><tt><B>sight</B>( <i>Float max_sight_range </i>)</tt><BR>
-<ul>Sets the vision distance of the actor.</ul>
-
 <P><tt><B>sight</B></tt><BR>
 <ul>Gets the vision distance of the actor.</ul>
 
 <P><tt><B>sight</B>( <i>Float max_sight_range </i>)</tt><BR>
 <ul>Sets the vision distance of the actor.</ul>
+
+<P><tt><B>sight</B>( <i>Float max_sight_range </i>)</tt><BR>
+<ul>Sets the vision distance of the actor.</ul>
+
+<P><tt><B>silent</B>( <i>Integer silent </i>)</tt><BR>
+<ul>set to 0 to prevent this guy from saying stuff besides pain and death sounds.<BR>
+</ul>
 
 <P><tt><B>silent</B></tt><BR>
 <ul>gets whether or not this guy is allowed to say stuff besides pain and death sounds</ul>
@@ -681,15 +685,11 @@ default channel, CHAN_BODY.</ul>
 <ul>set to 0 to prevent this guy from saying stuff besides pain and death sounds.<BR>
 </ul>
 
-<P><tt><B>silent</B>( <i>Integer silent </i>)</tt><BR>
-<ul>set to 0 to prevent this guy from saying stuff besides pain and death sounds.<BR>
-</ul>
+<P><tt><B>sound_awareness</B>( <i>Float awareness_percent </i>)</tt><BR>
+<ul>sets the awareness of sounds in 0-100 percent chance of hearing a sound withinhalf of the sound's radius' fades to zero outside sound's radius</ul>
 
 <P><tt><B>sound_awareness</B></tt><BR>
 <ul>gets the awareness of sounds in 0-100 percent chance of hearing a sound withinhalf of the sound's radius' fades to zero outside sound's radius</ul>
-
-<P><tt><B>sound_awareness</B>( <i>Float awareness_percent </i>)</tt><BR>
-<ul>sets the awareness of sounds in 0-100 percent chance of hearing a sound withinhalf of the sound's radius' fades to zero outside sound's radius</ul>
 
 <P><tt><B>sound_awareness</B>( <i>Float awareness_percent </i>)</tt><BR>
 <ul>sets the awareness of sounds in 0-100 percent chance of hearing a sound withinhalf of the sound's radius' fades to zero outside sound's radius</ul>
@@ -736,26 +736,26 @@ default channel, CHAN_BODY.</ul>
 <P><tt><B>turret</B>( <i>String turret </i>)</tt><BR>
 <ul>Sets the turret of the actor.</ul>
 
-<P><tt><B>turret</B></tt><BR>
-<ul>Gets the turret of the actor.</ul>
-
 <P><tt><B>turret</B>( <i>String turret </i>)</tt><BR>
 <ul>Sets the turret of the actor.</ul>
 
-<P><tt><B>type_attack</B>( <i>String value </i>)</tt><BR>
-<ul>Sets the attack type of the actor.</ul>
-
-<P><tt><B>type_attack</B>( <i>String value </i>)</tt><BR>
-<ul>Sets the attack type of the actor.</ul>
+<P><tt><B>turret</B></tt><BR>
+<ul>Gets the turret of the actor.</ul>
 
 <P><tt><B>type_attack</B></tt><BR>
 <ul>Gets the attack type of the actor.</ul>
 
-<P><tt><B>type_disguise</B>( <i>String value </i>)</tt><BR>
-<ul>Sets the disguise type of the actor.</ul>
+<P><tt><B>type_attack</B>( <i>String value </i>)</tt><BR>
+<ul>Sets the attack type of the actor.</ul>
+
+<P><tt><B>type_attack</B>( <i>String value </i>)</tt><BR>
+<ul>Sets the attack type of the actor.</ul>
 
 <P><tt><B>type_disguise</B></tt><BR>
 <ul>Gets the disguise type of the actor.</ul>
+
+<P><tt><B>type_disguise</B>( <i>String value </i>)</tt><BR>
+<ul>Sets the disguise type of the actor.</ul>
 
 <P><tt><B>type_disguise</B>( <i>String value </i>)</tt><BR>
 <ul>Sets the disguise type of the actor.</ul>
@@ -769,11 +769,11 @@ default channel, CHAN_BODY.</ul>
 <P><tt><B>type_grenade</B></tt><BR>
 <ul>Gets the grenade type of the actor.</ul>
 
-<P><tt><B>type_idle</B>( <i>String value </i>)</tt><BR>
-<ul>Sets the idle type of the actor.</ul>
-
 <P><tt><B>type_idle</B></tt><BR>
 <ul>Gets the idle type of the actor.</ul>
+
+<P><tt><B>type_idle</B>( <i>String value </i>)</tt><BR>
+<ul>Sets the idle type of the actor.</ul>
 
 <P><tt><B>type_idle</B>( <i>String value </i>)</tt><BR>
 <ul>Sets the idle type of the actor.</ul>
@@ -788,18 +788,18 @@ default channel, CHAN_BODY.</ul>
 <ul>Use the specified weapon or item in the hand choosen (optional).</ul>
 
 <P><tt><B>voicetype</B></tt><BR>
+<ul>Set voicetype to magic letter postfix</ul>
+
+<P><tt><B>voicetype</B></tt><BR>
+<ul>Set voicetype to magic letter postfix</ul>
+
+<P><tt><B>voicetype</B></tt><BR>
 <ul>Gets the voice type</ul>
 
-<P><tt><B>voicetype</B></tt><BR>
-<ul>Set voicetype to magic letter postfix</ul>
-
-<P><tt><B>voicetype</B></tt><BR>
-<ul>Set voicetype to magic letter postfix</ul>
-
-<P><tt><B>waittrigger</B>( <i>Boolean bool </i>)</tt><BR>
+<P><tt><B>waittrigger</B></tt><BR>
 <ul>If true, patrol guys and running men wait until triggered to move</ul>
 
-<P><tt><B>waittrigger</B></tt><BR>
+<P><tt><B>waittrigger</B>( <i>Boolean bool </i>)</tt><BR>
 <ul>If true, patrol guys and running men wait until triggered to move</ul>
 
 <P><tt><B>waittrigger</B>( <i>Boolean bool </i>)</tt><BR>
@@ -839,11 +839,11 @@ default channel, CHAN_BODY.</ul>
 <P><tt><B>accuracy</B></tt><BR>
 <ul>Set percent to hit</ul>
 
-<P><tt><B>alarmnode</B></tt><BR>
-<ul>Gets the name of the alarm node for the actor (must have type set to alarm for effect)</ul>
-
 <P><tt><B>alarmnode</B>( <i>String value </i>)</tt><BR>
 <ul>Sets the name of the alarm node for the actor (must have type set to alarm for effect)</ul>
+
+<P><tt><B>alarmnode</B></tt><BR>
+<ul>Gets the name of the alarm node for the actor (must have type set to alarm for effect)</ul>
 
 <P><tt><B>ammo_grenade</B></tt><BR>
 <ul>Returns how many grenades an AI has</ul>
@@ -851,17 +851,17 @@ default channel, CHAN_BODY.</ul>
 <P><tt><B>ammo_grenade</B>( <i>Integer grenade_count </i>)</tt><BR>
 <ul>Gives the AI some grenades</ul>
 
-<P><tt><B>balconyheight</B>( <i>Float height </i>)</tt><BR>
-<ul>minimum height a balcony guy must fall to do special balcony death</ul>
-
 <P><tt><B>balconyheight</B></tt><BR>
 <ul>minimum height a balcony guy must fall to do special balcony death</ul>
 
-<P><tt><B>disguise_level</B></tt><BR>
-<ul>Gets the disguise level of the actor. May be 1 or 2</ul>
+<P><tt><B>balconyheight</B>( <i>Float height </i>)</tt><BR>
+<ul>minimum height a balcony guy must fall to do special balcony death</ul>
 
 <P><tt><B>disguise_level</B>( <i>Integer value </i>)</tt><BR>
 <ul>Sets the disguise level of the actor. May be 1 or 2</ul>
+
+<P><tt><B>disguise_level</B></tt><BR>
+<ul>Gets the disguise level of the actor. May be 1 or 2</ul>
 
 <P><tt><B>disguise_period</B>( <i>Float period_in_seconds </i>)</tt><BR>
 <ul>Sets the time between the end of one disguise behavior and start of the next</ul>
@@ -918,28 +918,28 @@ default channel, CHAN_BODY.</ul>
 <ul>Get if the sentient is forced to drop health no matter what level.nodrophealth is.</ul>
 
 <P><tt><B>forcedropweapon</B></tt><BR>
-<ul>Get if the sentient is forced to drop health no matter what level.nodrophealth is.</ul>
+<ul>Force the sentient to drop weapons no matter what level.nodropweapon is.</ul>
 
 <P><tt><B>forcedropweapon</B></tt><BR>
-<ul>Force the sentient to drop health no matter what level.nodrophealth is.</ul>
-
-<P><tt><B>fov</B>( <i>Float angle </i>)</tt><BR>
-<ul>The fov angle of the actor</ul>
+<ul>Get if the sentient is forced to drop health no matter what level.nodrophealth is.</ul>
 
 <P><tt><B>fov</B></tt><BR>
 <ul>The fov angle of the actor</ul>
 
-<P><tt><B>gren_awareness</B></tt><BR>
-<ul>gets the awareness of grenades in 0-100 percent chance of responding to a grenadewhen the AI sees it (applied once every 0.4 seconds)</ul>
+<P><tt><B>fov</B>( <i>Float angle </i>)</tt><BR>
+<ul>The fov angle of the actor</ul>
 
 <P><tt><B>gren_awareness</B>( <i>Float awareness_percent </i>)</tt><BR>
 <ul>sets the awareness of grenades in 0-100 percent chance of responding to a grenadewhen the AI sees it (applied once every 0.4 seconds)</ul>
 
-<P><tt><B>gun</B></tt><BR>
-<ul>gets the gun to being used</ul>
+<P><tt><B>gren_awareness</B></tt><BR>
+<ul>gets the awareness of grenades in 0-100 percent chance of responding to a grenadewhen the AI sees it (applied once every 0.4 seconds)</ul>
 
 <P><tt><B>gun</B>( <i>String s </i>)</tt><BR>
 <ul>specifies the gun to use</ul>
+
+<P><tt><B>gun</B></tt><BR>
+<ul>gets the gun to being used</ul>
 
 <P><tt><B>health</B>( <i>Integer newHealth </i>)</tt><BR>
 <ul>set the health of the entity to newHealth</ul>
@@ -965,23 +965,23 @@ default channel, CHAN_BODY.</ul>
 <P><tt><B>leash</B></tt><BR>
 <ul>Gets the maximum distance the AI will wander from its leash home</ul>
 
-<P><tt><B>maxdist</B></tt><BR>
-<ul>Gets the maximum distance the AI tries to keep between itself and the player</ul>
-
 <P><tt><B>maxdist</B>( <i>Float distance </i>)</tt><BR>
 <ul>Sets the maximum distance the AI tries to allow between itself and the player</ul>
 
-<P><tt><B>mindist</B></tt><BR>
-<ul>Gets the minimum distance the AI tries to keep between itself and the player</ul>
+<P><tt><B>maxdist</B></tt><BR>
+<ul>Gets the maximum distance the AI tries to keep between itself and the player</ul>
 
 <P><tt><B>mindist</B>( <i>Float distance </i>)</tt><BR>
 <ul>Sets the minimum distance the AI tries to keep between itself and the player</ul>
 
-<P><tt><B>model</B></tt><BR>
-<ul>get the modelName.</ul>
+<P><tt><B>mindist</B></tt><BR>
+<ul>Gets the minimum distance the AI tries to keep between itself and the player</ul>
 
 <P><tt><B>model</B>( <i>Entity modelName </i>)</tt><BR>
 <ul>set the model to modelName.</ul>
+
+<P><tt><B>model</B></tt><BR>
+<ul>get the modelName.</ul>
 
 <P><tt><B>nosurprise</B></tt><BR>
 <ul>gets whether or not this guy is allowed to play a surprised animation when first encountering an enemy.<BR>
@@ -991,29 +991,29 @@ default channel, CHAN_BODY.</ul>
 <ul>set to 0 to allow this guy to play a surprised animation when first encountering an enemy.<BR>
 </ul>
 
-<P><tt><B>noticescale</B>( <i>Float multiplier </i>)</tt><BR>
-<ul>Set the max multiplier in time to notice an enemy (default 100, half as big notices twice as fast)</ul>
-
 <P><tt><B>noticescale</B></tt><BR>
 <ul>Get the max multiplier in time to notice an enemy (default 100, half as big notices twice as fast)</ul>
 
-<P><tt><B>patrolpath</B></tt><BR>
-<ul>Gets the name of the patrol path for the actor (must have type set to patrol for effect)</ul>
+<P><tt><B>noticescale</B>( <i>Float multiplier </i>)</tt><BR>
+<ul>Set the max multiplier in time to notice an enemy (default 100, half as big notices twice as fast)</ul>
 
 <P><tt><B>patrolpath</B>( <i>String value </i>)</tt><BR>
 <ul>Sets the name of the patrol path for the actor (must have type set to patrol for effect)</ul>
 
-<P><tt><B>sight</B>( <i>Float max_sight_range </i>)</tt><BR>
-<ul>Sets the vision distance of the actor.</ul>
+<P><tt><B>patrolpath</B></tt><BR>
+<ul>Gets the name of the patrol path for the actor (must have type set to patrol for effect)</ul>
 
 <P><tt><B>sight</B></tt><BR>
 <ul>Gets the vision distance of the actor.</ul>
 
-<P><tt><B>sound_awareness</B></tt><BR>
-<ul>gets the awareness of sounds in 0-100 percent chance of hearing a sound withinhalf of the sound's radius' fades to zero outside sound's radius</ul>
+<P><tt><B>sight</B>( <i>Float max_sight_range </i>)</tt><BR>
+<ul>Sets the vision distance of the actor.</ul>
 
 <P><tt><B>sound_awareness</B>( <i>Float awareness_percent </i>)</tt><BR>
 <ul>sets the awareness of sounds in 0-100 percent chance of hearing a sound withinhalf of the sound's radius' fades to zero outside sound's radius</ul>
+
+<P><tt><B>sound_awareness</B></tt><BR>
+<ul>gets the awareness of sounds in 0-100 percent chance of hearing a sound withinhalf of the sound's radius' fades to zero outside sound's radius</ul>
 
 <P><tt><B>target</B></tt><BR>
 <ul>entity's target</ul>
@@ -1021,17 +1021,17 @@ default channel, CHAN_BODY.</ul>
 <P><tt><B>target</B>( <i>String targetname_to_target </i>)</tt><BR>
 <ul>target another entity with targetname_to_target.</ul>
 
-<P><tt><B>turret</B></tt><BR>
-<ul>Gets the turret of the actor.</ul>
-
 <P><tt><B>turret</B>( <i>String turret </i>)</tt><BR>
 <ul>Sets the turret of the actor.</ul>
 
-<P><tt><B>type_attack</B>( <i>String value </i>)</tt><BR>
-<ul>Sets the attack type of the actor.</ul>
+<P><tt><B>turret</B></tt><BR>
+<ul>Gets the turret of the actor.</ul>
 
 <P><tt><B>type_attack</B></tt><BR>
 <ul>Gets the attack type of the actor.</ul>
+
+<P><tt><B>type_attack</B>( <i>String value </i>)</tt><BR>
+<ul>Sets the attack type of the actor.</ul>
 
 <P><tt><B>type_disguise</B></tt><BR>
 <ul>Gets the disguise type of the actor.</ul>
@@ -1052,10 +1052,10 @@ default channel, CHAN_BODY.</ul>
 <ul>Sets the idle type of the actor.</ul>
 
 <P><tt><B>voicetype</B></tt><BR>
-<ul>Gets the voice type</ul>
+<ul>Set voicetype to magic letter postfix</ul>
 
 <P><tt><B>voicetype</B></tt><BR>
-<ul>Set voicetype to magic letter postfix</ul>
+<ul>Gets the voice type</ul>
 
 <P><tt><B>waittrigger</B></tt><BR>
 <ul>If true, patrol guys and running men wait until triggered to move</ul>
@@ -1076,6 +1076,9 @@ default channel, CHAN_BODY.</ul>
 
 <h2> <a name="AmmoEntity">AmmoEntity</a> -> <a href="#Item">Item</a> -> <a href="#Trigger">Trigger</a> -> <a href="#Animate">Animate</a> -> <a href="#Entity">Entity</a> -> <a href="#SimpleEntity">SimpleEntity</a> -> <a href="#Listener">Listener</a> -> <a href="#Class">Class</a></h2>
 <BLOCKQUOTE>
+
+<P><tt><B>ammoentity_postspawn</B></tt><BR>
+<ul>Ammo Entity Post Spawn</ul>
 </BLOCKQUOTE>
 
 <h2> <a name="Animate">Animate (<i>animate</i>)</a> -> <a href="#Entity">Entity</a> -> <a href="#SimpleEntity">SimpleEntity</a> -> <a href="#Listener">Listener</a> -> <a href="#Class">Class</a></h2>
@@ -1134,17 +1137,17 @@ speed - how fast the effect should travel, in other words, how long before the e
 <P><tt><B>max_dist</B>( <i>Float max_dist </i>)</tt><BR>
 <ul>Set the max distance for this node to be attracted, -1 for unlimited distance.</ul>
 
-<P><tt><B>priority</B></tt><BR>
-<ul>Get the node priority</ul>
-
 <P><tt><B>priority</B>( <i>Integer priority </i>)</tt><BR>
 <ul>Set the node priority</ul>
 
-<P><tt><B>respawn_time</B></tt><BR>
-<ul>Get the how much time will this node re-attract already attracted AIs</ul>
+<P><tt><B>priority</B></tt><BR>
+<ul>Get the node priority</ul>
 
 <P><tt><B>respawn_time</B>( <i>Float respawn_time </i>)</tt><BR>
 <ul>Set the how much time will this node re-attract already attracted AIs. The minimum required value is 1, otherwise AI will get stuck.</ul>
+
+<P><tt><B>respawn_time</B></tt><BR>
+<ul>Get the how much time will this node re-attract already attracted AIs</ul>
 
 <P><tt><B>setuse</B>( <i>Boolean use </i>)</tt><BR>
 <ul>Set if AI should use or not</ul>
@@ -1155,11 +1158,11 @@ speed - how fast the effect should travel, in other words, how long before the e
 <P><tt><B>stay_time</B>( <i>Float stay_time </i>)</tt><BR>
 <ul>Set the maximum stay time AI will stay on this node</ul>
 
-<P><tt><B>team</B></tt><BR>
-<ul>Get the attractive node team. 'none' for no team.</ul>
-
 <P><tt><B>team</B>( <i>String team </i>)</tt><BR>
 <ul>Set the attractive node team. 'none' for no team.</ul>
+
+<P><tt><B>team</B></tt><BR>
+<ul>Get the attractive node team. 'none' for no team.</ul>
 </BLOCKQUOTE>
 
 <h2> <a name="BarrelObject">BarrelObject (<i>func_barrel</i>)</a> -> <a href="#Entity">Entity</a> -> <a href="#SimpleEntity">SimpleEntity</a> -> <a href="#Listener">Listener</a> -> <a href="#Class">Class</a></h2>
@@ -1864,13 +1867,13 @@ offset		     - vector offset for the model from the specified tag</ul>
 <ul>used to ban certain contact when in parentmode<BR>
 </ul>
 
-<P><tt><B>classname</B></tt><BR>
-<ul>The entity's classname</ul>
-
 <P><tt><B>classname</B>( <i>String nameOfClass </i>)</tt><BR>
 <ul>Determines what class to use for this entity,<BR>
 this is pre-processed from the BSP at the start<BR>
 of the level.</ul>
+
+<P><tt><B>classname</B></tt><BR>
+<ul>The entity's classname</ul>
 
 <P><tt><B>claypidgeon</B></tt><BR>
 <ul>turn the entity into a non-solid shootable thing</ul>
@@ -1998,9 +2001,6 @@ god - makes the entity invincible<BR>
 <P><tt><B>gettagposition</B>( <i>String tag_name </i>)</tt><BR>
 <ul>Gets the world position of the tag</ul>
 
-<P><tt><B>getzone</B></tt><BR>
-<ul>Gets the current entity zone. NIL if the entity is not in a zone.</ul>
-
 <P><tt><B>ghost</B></tt><BR>
 <ul>make non-solid but still send to client regardless of hide status.</ul>
 
@@ -2047,9 +2047,6 @@ entity's current health, it will be killed or destroyed.</ul>
 
 <P><tt><B>isinside</B>( <i>Entity ent </i>)</tt><BR>
 <ul>returns 1 if the entity is inside,0 if not</ul>
-
-<P><tt><B>isinzone</B>( <i>Entity zone </i>)</tt><BR>
-<ul>Returns 1 if the entity is in the specified zone. 0 otherwise</ul>
 
 <P><tt><B>istouching</B>( <i>Entity ent </i>)</tt><BR>
 <ul>returns 1 if the entities are touching,0 if not</ul>
@@ -2125,20 +2122,20 @@ which is attached to the current entity.</ul>
 <P><tt><B>max_health</B>( <i>Integer newHealth </i>)</tt><BR>
 <ul>sets max_health without changing health</ul>
 
-<P><tt><B>max_health</B>( <i>Integer newHealth </i>)</tt><BR>
-<ul>sets max_health without changing health</ul>
-
 <P><tt><B>max_health</B></tt><BR>
 <ul>gets the entity's max health</ul>
 
+<P><tt><B>max_health</B>( <i>Integer newHealth </i>)</tt><BR>
+<ul>sets max_health without changing health</ul>
+
+<P><tt><B>model</B>( <i>Entity modelName </i>)</tt><BR>
+<ul>set the model to modelName.</ul>
+
+<P><tt><B>model</B>( <i>Entity modelName </i>)</tt><BR>
+<ul>set the model to modelName.</ul>
+
 <P><tt><B>model</B></tt><BR>
 <ul>get the modelName.</ul>
-
-<P><tt><B>model</B>( <i>Entity modelName </i>)</tt><BR>
-<ul>set the model to modelName.</ul>
-
-<P><tt><B>model</B>( <i>Entity modelName </i>)</tt><BR>
-<ul>set the model to modelName.</ul>
 
 <P><tt><B>movementstealth</B>( <i>Float scale </i>)</tt><BR>
 <ul>Sets the current movement stealth scalar for the sentient</ul>
@@ -2211,11 +2208,11 @@ lightstyledynamiclight - the dynamic light uses a light style, use the<BR>
 <P><tt><B>revive</B>( <i>Float health </i>)</tt><BR>
 <ul>sets the health,even if dead</ul>
 
-<P><tt><B>rotatedbbox</B>( <i>Integer on_off </i>)</tt><BR>
-<ul>Sets the entity's bbox to rotate with it.</ul>
-
 <P><tt><B>rotatedbbox</B></tt><BR>
 <ul>Gets te entity's bbox to rotate with it.</ul>
+
+<P><tt><B>rotatedbbox</B>( <i>Integer on_off </i>)</tt><BR>
+<ul>Sets the entity's bbox to rotate with it.</ul>
 
 <P><tt><B>safesolid</B></tt><BR>
 <ul>make solid but first make sure no one is in my bounds that is thinking.</ul>
@@ -2351,20 +2348,17 @@ broadcast - always send this entity to the client</ul>
 <P><tt><B>usebbox</B></tt><BR>
 <ul>do not perform perfect collision,use bounding box instead.</ul>
 
-<P><tt><B>velocity</B></tt><BR>
-<ul>gets the velocity for this entity.</ul>
-
 <P><tt><B>velocity</B>( <i>Vector velocity </i>)</tt><BR>
 <ul>sets the velocity for this entity.</ul>
+
+<P><tt><B>velocity</B></tt><BR>
+<ul>gets the velocity for this entity.</ul>
 
 <P><tt><B>volumedamage</B>( <i>Float damage </i>)</tt><BR>
 <ul>does damage to any entity within this's volume</ul>
 
 <P><tt><B>yaw</B></tt><BR>
 <ul>entity's yaw</ul>
-
-<P><tt><B>zone</B></tt><BR>
-<ul>Get the current entity zone. NIL if the entity is not in a zone.</ul>
 </BLOCKQUOTE>
 
 <h2> <a name="Event">Event</a> -> <a href="#Class">Class</a></h2>
@@ -2517,6 +2511,31 @@ Location values:<BR>
 
 <h2> <a name="FencePost">FencePost (<i>func_fencepost</i>)</a> -> <a href="#Entity">Entity</a> -> <a href="#SimpleEntity">SimpleEntity</a> -> <a href="#Listener">Listener</a> -> <a href="#Class">Class</a></h2>
 <BLOCKQUOTE>
+
+<P><tt><B>killed</B>( <i>Entity attacker, Integer damage, Entity inflictor, Vector position, Vector direction, Vector normal, Integer knockback, Integer damageflags, Integer meansofdeath, Integer location </i>)</tt><BR>
+<ul>event which is sent to an entity once it as been killed<BR>
+<BR>
+Location values:<BR>
+-1 General<BR>
+0 Pelvis<BR>
+1 Lower Torso<BR>
+2 Mid Torso<BR>
+3 Upper Torso<BR>
+4 Neck<BR>
+5 Head<BR>
+6 RUpperArm<BR>
+7 RForearm<BR>
+8 RHand<BR>
+9 LUpperArm<BR>
+10 LForearm<BR>
+11 LHand<BR>
+12 RThigh<BR>
+13 RCalf<BR>
+14 RFoot<BR>
+15 LThigh<BR>
+16 LCalf<BR>
+17 LFoot<BR>
+</ul>
 </BLOCKQUOTE>
 
 <h2> <a name="FixedTurret">FixedTurret</a> -> <a href="#VehicleTank">VehicleTank</a> -> <a href="#DrivableVehicle">DrivableVehicle</a> -> <a href="#Vehicle">Vehicle</a> -> <a href="#VehicleBase">VehicleBase</a> -> <a href="#Animate">Animate</a> -> <a href="#Entity">Entity</a> -> <a href="#SimpleEntity">SimpleEntity</a> -> <a href="#Listener">Listener</a> -> <a href="#Class">Class</a></h2>
@@ -2676,6 +2695,12 @@ direction if newAngle is[ 0 - 359 ] or - 1 or - 2</ul>
 
 <h2> <a name="Game">Game</a> -> <a href="#Listener">Listener</a> -> <a href="#Class">Class</a></h2>
 <BLOCKQUOTE>
+
+<P><tt><B>detail</B></tt><BR>
+<ul>game.detail</ul>
+
+<P><tt><B>skill</B></tt><BR>
+<ul>game.skill</ul>
 </BLOCKQUOTE>
 
 <h2> <a name="Gib">Gib (<i>gib</i>)</a> -> <a href="#Mover">Mover</a> -> <a href="#Trigger">Trigger</a> -> <a href="#Animate">Animate</a> -> <a href="#Entity">Entity</a> -> <a href="#SimpleEntity">SimpleEntity</a> -> <a href="#Listener">Listener</a> -> <a href="#Class">Class</a></h2>
@@ -2776,11 +2801,11 @@ direction if newAngle is[ 0 - 359 ] or - 1 or - 2</ul>
 <h2> <a name="Hud">Hud</a> -> <a href="#Listener">Listener</a> -> <a href="#Class">Class</a></h2>
 <BLOCKQUOTE>
 
-<P><tt><B>alignx</B>( <i>String align </i>)</tt><BR>
-<ul>Sets the horizontal alignment for the HUD. Specified by 'left', 'center', or 'right'</ul>
-
 <P><tt><B>alignx</B></tt><BR>
 <ul>Gets the horizontal alignment for the HUD. Specified by 'left', 'center', or 'right'</ul>
+
+<P><tt><B>alignx</B>( <i>String align </i>)</tt><BR>
+<ul>Sets the horizontal alignment for the HUD. Specified by 'left', 'center', or 'right'</ul>
 
 <P><tt><B>aligny</B>( <i>String align </i>)</tt><BR>
 <ul>Sets the vertical alignment for the HUD. Specified by 'top', 'center', or 'bottom'</ul>
@@ -2788,11 +2813,11 @@ direction if newAngle is[ 0 - 359 ] or - 1 or - 2</ul>
 <P><tt><B>aligny</B></tt><BR>
 <ul>Gets the vertical alignment for the HUD</ul>
 
-<P><tt><B>alpha</B>( <i>Float alpha </i>)</tt><BR>
-<ul>Sets the HUD alpha</ul>
-
 <P><tt><B>alpha</B></tt><BR>
 <ul>Gets the HUD alpha</ul>
+
+<P><tt><B>alpha</B>( <i>Float alpha </i>)</tt><BR>
+<ul>Sets the HUD alpha</ul>
 
 <P><tt><B>color</B></tt><BR>
 <ul>Gets the HUD colors</ul>
@@ -2855,17 +2880,17 @@ Note : you will need to call in HUD functions again as it won't refresh to the p
 <P><tt><B>setvirtualsize</B>( <i>Boolean virtual </i>)</tt><BR>
 <ul>Sets if the HUD should use virtual screen resolution for positioning and size</ul>
 
-<P><tt><B>x</B>( <i>Integer x </i>)</tt><BR>
-<ul>Sets the HUD horizontal position</ul>
-
 <P><tt><B>x</B></tt><BR>
 <ul>Gets the HUD horizontal position</ul>
 
-<P><tt><B>y</B></tt><BR>
-<ul>Gets the HUD vertical position</ul>
+<P><tt><B>x</B>( <i>Integer x </i>)</tt><BR>
+<ul>Sets the HUD horizontal position</ul>
 
 <P><tt><B>y</B>( <i>Integer y </i>)</tt><BR>
 <ul>Sets the HUD vertical position</ul>
+
+<P><tt><B>y</B></tt><BR>
+<ul>Gets the HUD vertical position</ul>
 </BLOCKQUOTE>
 
 <h2> <a name="InfoLandmark">InfoLandmark (<i>info_landmark</i>)</a> -> <a href="#Listener">Listener</a> -> <a href="#Class">Class</a></h2>
@@ -2882,7 +2907,7 @@ Note : you will need to call in HUD functions again as it won't refresh to the p
 <BLOCKQUOTE>
 </BLOCKQUOTE>
 
-<h2> <a name="InfoNull">InfoNull (<i>info_null</i>)</a> -> <a href="#Entity">Entity</a> -> <a href="#SimpleEntity">SimpleEntity</a> -> <a href="#Listener">Listener</a> -> <a href="#Class">Class</a></h2>
+<h2> <a name="InfoNull">InfoNull (<i>info_null</i>)</a> -> <a href="#Listener">Listener</a> -> <a href="#Class">Class</a></h2>
 <BLOCKQUOTE>
 </BLOCKQUOTE>
 
@@ -3028,50 +3053,59 @@ direction if newAngle is[ 0 - 359 ] or - 1 or - 2</ul>
 <h2> <a name="Level">Level</a> -> <a href="#Listener">Listener</a> -> <a href="#Class">Class</a></h2>
 <BLOCKQUOTE>
 
-<P><tt><B>alarm</B>( <i>Integer alarm_status </i>)</tt><BR>
+<P><tt><B>alarm</B></tt><BR>
 <ul>zero = global level alarm off,non-zero = alarm on</ul>
 
-<P><tt><B>alarm</B></tt><BR>
+<P><tt><B>alarm</B>( <i>Integer alarm_status </i>)</tt><BR>
 <ul>zero = global level alarm off,non-zero = alarm on</ul>
 
 <P><tt><B>badplace</B>( <i>String name, Vector origin, Float radius, [ String [team] ], [ Float [duration] ] </i>)</tt><BR>
 <ul>Enables a 'bad place' for AI of team 'american', 'german', or (default) 'both' to avoid, and optionally gives it a duration</ul>
 
 <P><tt><B>bombs_planted</B>( <i>Integer num </i>)</tt><BR>
-<ul>the number of bombs that are set</ul>
+<ul>Sets the number of bombs that are set</ul>
 
 <P><tt><B>bombs_planted</B>( <i>Integer num </i>)</tt><BR>
-<ul>Sets the number of bombs that are set</ul>
+<ul>the number of bombs that are set</ul>
 
 <P><tt><B>bombs_planted</B></tt><BR>
 <ul>Gets the number of bombs that are set</ul>
 
-<P><tt><B>clockside</B></tt><BR>
-<ul>Gets which side the clock is on... 'axis' or 'allies' win when time is up</ul>
+<P><tt><B>clockside</B>( <i>String axis_allies_draw_kills </i>)</tt><BR>
+<ul>Sets which side the clock is on... 'axis' or 'allies' win when time is up, 'kills' gives the win to the team with more live members,'draw' no one wins</ul>
 
 <P><tt><B>clockside</B>( <i>String axis_or_allies </i>)</tt><BR>
 <ul>Sets which side the clock is on... 'axis' or 'allies' win when time is up</ul>
 
-<P><tt><B>clockside</B>( <i>String axis_allies_draw_kills </i>)</tt><BR>
-<ul>Sets which side the clock is on... 'axis' or 'allies' win when time is up, 'kills' gives the win to the team with more live members,'draw' no one wins</ul>
-
-<P><tt><B>dmrespawning</B>( <i>Integer allow_respawn </i>)</tt><BR>
-<ul>set to 1 to turn on wave-based DM, to 0 to disable respawns within a round</ul>
+<P><tt><B>clockside</B></tt><BR>
+<ul>Gets which side the clock is on... 'axis' or 'allies' win when time is up</ul>
 
 <P><tt><B>dmrespawning</B></tt><BR>
 <ul>returns 1 if wave-based DM, 0 if respawns are disabled within a round</ul>
 
 <P><tt><B>dmrespawning</B>( <i>Integer allow_respawn </i>)</tt><BR>
-<ul>set to 1 to turn on wave-based DM,to 0 to disable respawns within a round</ul>
+<ul>set to 1 to turn on wave-based DM, to 0 to disable respawns within a round</ul>
 
-<P><tt><B>dmroundlimit</B>( <i>Integer roundlimit </i>)</tt><BR>
-<ul>sets the default roundlimit,in minutes; can be overridden by 'roundlimit' cvar</ul>
+<P><tt><B>dmrespawning</B>( <i>Integer allow_respawn </i>)</tt><BR>
+<ul>set to 1 to turn on wave-based DM,to 0 to disable respawns within a round</ul>
 
 <P><tt><B>dmroundlimit</B>( <i>Integer roundlimit </i>)</tt><BR>
 <ul>sets the default roundlimit, in minutes; can be overridden by 'roundlimit' cvar</ul>
 
+<P><tt><B>dmroundlimit</B>( <i>Integer roundlimit </i>)</tt><BR>
+<ul>sets the default roundlimit,in minutes; can be overridden by 'roundlimit' cvar</ul>
+
 <P><tt><B>dmroundlimit</B></tt><BR>
 <ul>gets the actual roundlimit, in minutes; may be 'roundlimit' cvar or the default round limit</ul>
+
+<P><tt><B>force_team_objective</B></tt><BR>
+<ul>Return 1 if each team has a separate objective location</ul>
+
+<P><tt><B>force_team_objective</B>( <i>Integer force </i>)</tt><BR>
+<ul>Whether or not to force using a separate objective location for each team.<BR>
+1 (forced on TOW/Liberation match): different location for each team<BR>
+0 (default): teams use same location on non-TOW/non-Liberation match<BR>
+</ul>
 
 <P><tt><B>found_secrets</B></tt><BR>
 <ul>count of found secrets</ul>
@@ -3103,11 +3137,11 @@ direction if newAngle is[ 0 - 359 ] or - 1 or - 2</ul>
 <P><tt><B>planting_team</B>( <i>String axis_allies_draw_kills </i>)</tt><BR>
 <ul>which is planting the bomb,'axis' or 'allies'</ul>
 
-<P><tt><B>planting_team</B></tt><BR>
-<ul>Gets which is planting the bomb,'axis' or 'allies'</ul>
-
 <P><tt><B>planting_team</B>( <i>String axis_or_allies </i>)</tt><BR>
 <ul>Sets which is planting the bomb,'axis' or 'allies'</ul>
+
+<P><tt><B>planting_team</B></tt><BR>
+<ul>Gets which is planting the bomb,'axis' or 'allies'</ul>
 
 <P><tt><B>rain_density</B></tt><BR>
 <ul>Sets the rain density</ul>
@@ -3172,20 +3206,20 @@ direction if newAngle is[ 0 - 359 ] or - 1 or - 2</ul>
 <P><tt><B>roundstarted</B></tt><BR>
 <ul>non-zero if round has started</ul>
 
+<P><tt><B>targets_destroyed</B>( <i>Integer num </i>)</tt><BR>
+<ul>Sets the number of bomb targets that have been destroyed</ul>
+
 <P><tt><B>targets_destroyed</B></tt><BR>
 <ul>Gets the number of bomb targets that have been destroyed</ul>
 
 <P><tt><B>targets_destroyed</B>( <i>Integer num </i>)</tt><BR>
-<ul>Sets the number of bomb targets that have been destroyed</ul>
-
-<P><tt><B>targets_destroyed</B>( <i>Integer num </i>)</tt><BR>
 <ul>the number of bomb targets that have been destroyed</ul>
-
-<P><tt><B>targets_to_destroy</B></tt><BR>
-<ul>Gets the number of bomb targets that must be destroyed</ul>
 
 <P><tt><B>targets_to_destroy</B>( <i>Integer num </i>)</tt><BR>
 <ul>Sets the number of bomb targets that must be destroyed</ul>
+
+<P><tt><B>targets_to_destroy</B></tt><BR>
+<ul>Gets the number of bomb targets that must be destroyed</ul>
 
 <P><tt><B>targets_to_destroy</B>( <i>Integer num </i>)</tt><BR>
 <ul>the number of bomb targets that must be destroyed</ul>
@@ -3390,6 +3424,15 @@ direction if newAngle is[ 0 - 359 ] or - 1 or - 2</ul>
 <h2> <a name="Parm">Parm</a> -> <a href="#Listener">Listener</a> -> <a href="#Class">Class</a></h2>
 <BLOCKQUOTE>
 
+<P><tt><B>motionfail</B></tt><BR>
+<ul>motionfail</ul>
+
+<P><tt><B>movedone</B></tt><BR>
+<ul>movedone</ul>
+
+<P><tt><B>movefail</B></tt><BR>
+<ul>movefail</ul>
+
 <P><tt><B>other</B></tt><BR>
 <ul>other</ul>
 
@@ -3398,6 +3441,12 @@ direction if newAngle is[ 0 - 359 ] or - 1 or - 2</ul>
 
 <P><tt><B>previousthread</B></tt><BR>
 <ul>previousthread</ul>
+
+<P><tt><B>sayfail</B></tt><BR>
+<ul>sayfail</ul>
+
+<P><tt><B>upperfail</B></tt><BR>
+<ul>upperfail</ul>
 </BLOCKQUOTE>
 
 <h2> <a name="PathNode">PathNode (<i>info_pathnode</i>)</a> -> <a href="#SimpleEntity">SimpleEntity</a> -> <a href="#Listener">Listener</a> -> <a href="#Class">Class</a></h2>
@@ -3502,10 +3551,10 @@ Location values:<BR>
 17 LFoot<BR>
 </ul>
 
-<P><tt><B>damage_multiplier</B></tt><BR>
-
 <P><tt><B>damage_multiplier</B>( <i>Float damage_multiplier </i>)</tt><BR>
 <ul>Sets the current damage multiplier</ul>
+
+<P><tt><B>damage_multiplier</B></tt><BR>
 
 <P><tt><B>dead</B></tt><BR>
 <ul>Called when the player is dead.</ul>
@@ -3604,7 +3653,7 @@ Location values:<BR>
 <ul>Gives the player the specified thing (weapon, ammo, item, etc.) and optionally the amount.</ul>
 
 <P><tt><B>giveweapon</B>( <i>String weapon_name </i>)</tt><BR>
-<ul>Gives player all weapons.</ul>
+<ul>Gives the player the specified weapon.</ul>
 
 <P><tt><B>gotkill</B>( <i>Entity victim, Integer damage, Entity inflictor, Integer meansofdeath, Boolean gib </i>)</tt><BR>
 <ul>event sent to attacker when an entity dies</ul>
@@ -3612,10 +3661,10 @@ Location values:<BR>
 <P><tt><B>gvo</B></tt><BR>
 <ul>Retrieves the server's vote options file</ul>
 
-<P><tt><B>has_disguise</B></tt><BR>
+<P><tt><B>has_disguise</B>( <i>Integer is_disguised </i>)</tt><BR>
 <ul>zero = does not have a disguise,non - zero = has a disguise</ul>
 
-<P><tt><B>has_disguise</B>( <i>Integer is_disguised </i>)</tt><BR>
+<P><tt><B>has_disguise</B></tt><BR>
 <ul>zero = does not have a disguise,non - zero = has a disguise</ul>
 
 <P><tt><B>hideent</B>( <i>Entity entity </i>)</tt><BR>
@@ -3798,10 +3847,10 @@ can specify 'stand', 'duck' or 'prone'.</ul>
 <ul>returns 1 if this player is holding the primary fire, or 0 if not</ul>
 
 <P><tt><B>ready</B></tt><BR>
-<ul>returns 1 if this player is ready,0 otherwise</ul>
+<ul>makes this player ready for the round to start</ul>
 
 <P><tt><B>ready</B></tt><BR>
-<ul>makes this player ready for the round to start</ul>
+<ul>returns 1 if this player is ready,0 otherwise</ul>
 
 <P><tt><B>reload</B></tt><BR>
 <ul>Reloads the player's weapon</ul>
@@ -4544,6 +4593,9 @@ Default=0:</ul>
 <h2> <a name="ScriptAimedStrafingGunfire">ScriptAimedStrafingGunfire (<i>script_aimedstrafinggunfire</i>)</a> -> <a href="#ScriptSimpleStrafingGunfire">ScriptSimpleStrafingGunfire</a> -> <a href="#ScriptSlave">ScriptSlave</a> -> <a href="#Mover">Mover</a> -> <a href="#Trigger">Trigger</a> -> <a href="#Animate">Animate</a> -> <a href="#Entity">Entity</a> -> <a href="#SimpleEntity">SimpleEntity</a> -> <a href="#Listener">Listener</a> -> <a href="#Class">Class</a></h2>
 <BLOCKQUOTE>
 
+<P><tt><B>aimtarget</B></tt><BR>
+<ul>Set the aim target.</ul>
+
 <P><tt><B>fire</B></tt><BR>
 <ul>Fire.</ul>
 </BLOCKQUOTE>
@@ -4748,6 +4800,18 @@ Location values:<BR>
 <P><tt><B>dmg</B>( <i>Integer damage </i>)</tt><BR>
 <ul>Set the damage.</ul>
 
+<P><tt><B>doActivate</B>( <i>Entity activatingEntity </i>)</tt><BR>
+<ul>General trigger event for all entities</ul>
+
+<P><tt><B>doBlocked</B>( <i>Entity obstacle </i>)</tt><BR>
+<ul>sent to entity when blocked.</ul>
+
+<P><tt><B>doTouch</B>( <i>Entity touchingEntity </i>)</tt><BR>
+<ul>sent to entity when touched.</ul>
+
+<P><tt><B>doUse</B>( <i>Entity activatingEntity </i>)</tt><BR>
+<ul>sent to entity when it is used by another entity</ul>
+
 <P><tt><B>endpath</B></tt><BR>
 <ul>Stop following the path</ul>
 
@@ -4759,7 +4823,7 @@ Location values:<BR>
 
 <P><tt><B>followpath</B>( <i>Entity path, [ String arg1 ], [ String arg2 ], [ String arg3 ], [ String arg4 ], [ String arg5 ], [ String arg6 ] </i>)</tt><BR>
 <ul>Makes the script slave follow the specified path.  The allowable arguments are ignoreangles,<BR>
-normalangles, loop, and a number specifying the start time.</ul>
+ignorevelocity, normalangles, loop, and a number specifying the start time.</ul>
 
 <P><tt><B>jumpto</B>( <i>String vector_or_entity </i>)</tt><BR>
 <ul>Jump to specified vector or entity.</ul>
@@ -5684,13 +5748,13 @@ Location values:<BR>
 <ul>Get if the sentient is forced to drop health no matter what level.nodrophealth is.</ul>
 
 <P><tt><B>forcedropweapon</B></tt><BR>
+<ul>Force the sentient to drop health no matter what level.nodrophealth is.</ul>
+
+<P><tt><B>forcedropweapon</B></tt><BR>
+<ul>Force the sentient to drop health no matter what level.nodrophealth is.</ul>
+
+<P><tt><B>forcedropweapon</B></tt><BR>
 <ul>Get if the sentient is forced to drop health no matter what level.nodrophealth is.</ul>
-
-<P><tt><B>forcedropweapon</B></tt><BR>
-<ul>Force the sentient to drop weapons no matter what level.nodropweapon is.</ul>
-
-<P><tt><B>forcedropweapon</B></tt><BR>
-<ul>Force the sentient to drop weapons no matter what level.nodropweapon is.</ul>
 
 <P><tt><B>forcelandminemeasure</B></tt><BR>
 <ul>Force a remeasurement to all landmines</ul>
@@ -5829,24 +5893,24 @@ Location values:<BR>
 Sets the yaw of the entity or an up and down<BR>
 direction if newAngle is[ 0 - 359 ] or - 1 or - 2</ul>
 
-<P><tt><B>angle</B>( <i>Float newAngle </i>)</tt><BR>
-<ul>set the angles of the entity using just one value.<BR>
-Sets the yaw of the entity or an up and down<BR>
-direction if newAngle is[ 0 - 359 ] or - 1 or - 2</ul>
-
 <P><tt><B>angle</B></tt><BR>
 <ul>get the angles of the entity using just one value.<BR>
 Gets the yaw of the entity or an up and down<BR>
 direction if newAngle is[ 0 - 359 ] or - 1 or - 2</ul>
 
-<P><tt><B>angles</B>( <i>Vector newAngles<0.00...360.00><0.00...360.00><0.00...360.00> </i>)</tt><BR>
-<ul>set the angles of the entity to newAngles.</ul>
+<P><tt><B>angle</B>( <i>Float newAngle </i>)</tt><BR>
+<ul>set the angles of the entity using just one value.<BR>
+Sets the yaw of the entity or an up and down<BR>
+direction if newAngle is[ 0 - 359 ] or - 1 or - 2</ul>
 
 <P><tt><B>angles</B>( <i>Vector newAngles<0.00...360.00><0.00...360.00><0.00...360.00> </i>)</tt><BR>
 <ul>set the angles of the entity to newAngles.</ul>
 
 <P><tt><B>angles</B></tt><BR>
 <ul>get the angles of the entity.</ul>
+
+<P><tt><B>angles</B>( <i>Vector newAngles<0.00...360.00><0.00...360.00><0.00...360.00> </i>)</tt><BR>
+<ul>set the angles of the entity to newAngles.</ul>
 
 <P><tt><B>centroid</B></tt><BR>
 <ul>entity's centroid</ul>
@@ -5869,23 +5933,23 @@ direction if newAngle is[ 0 - 359 ] or - 1 or - 2</ul>
 <P><tt><B>rightvector</B></tt><BR>
 <ul>get the right vector of angles</ul>
 
+<P><tt><B>target</B>( <i>String targetname_to_target </i>)</tt><BR>
+<ul>target another entity with targetname_to_target.</ul>
+
 <P><tt><B>target</B></tt><BR>
 <ul>entity's target</ul>
 
 <P><tt><B>target</B>( <i>String targetname_to_target </i>)</tt><BR>
 <ul>target another entity with targetname_to_target.</ul>
 
-<P><tt><B>target</B>( <i>String targetname_to_target </i>)</tt><BR>
-<ul>target another entity with targetname_to_target.</ul>
-
-<P><tt><B>targetname</B>( <i>String targetName </i>)</tt><BR>
-<ul>set the targetname of the entity to targetName.</ul>
-
 <P><tt><B>targetname</B>( <i>String targetName </i>)</tt><BR>
 <ul>set the targetname of the entity to targetName.</ul>
 
 <P><tt><B>targetname</B></tt><BR>
 <ul>entity's targetname</ul>
+
+<P><tt><B>targetname</B>( <i>String targetName </i>)</tt><BR>
+<ul>set the targetname of the entity to targetName.</ul>
 
 <P><tt><B>upvector</B></tt><BR>
 <ul>get the up vector of angles</ul>
@@ -6120,6 +6184,10 @@ direction if newAngle is[ 0 - 359 ] or - 1 or - 2</ul>
 <ul>Sets the entity to watch at this node.</ul>
 </BLOCKQUOTE>
 
+<h2> <a name="TargetList">TargetList</a> -> <a href="#Class">Class</a></h2>
+<BLOCKQUOTE>
+</BLOCKQUOTE>
+
 <h2> <a name="Teleporter">Teleporter (<i>trigger_teleport</i>)</a> -> <a href="#Trigger">Trigger</a> -> <a href="#Animate">Animate</a> -> <a href="#Entity">Entity</a> -> <a href="#SimpleEntity">SimpleEntity</a> -> <a href="#Listener">Listener</a> -> <a href="#Class">Class</a></h2>
 <BLOCKQUOTE>
 
@@ -6234,7 +6302,7 @@ Location values:<BR>
 <P><tt><B>stickybombwet</B></tt><BR>
 </BLOCKQUOTE>
 
-<h2> <a name="ThrowObject">ThrowObject (<i>func_throwobject</i>)</a> -> <a href="#Object">Object</a> -> <a href="#Animate">Animate</a> -> <a href="#Entity">Entity</a> -> <a href="#SimpleEntity">SimpleEntity</a> -> <a href="#Listener">Listener</a> -> <a href="#Class">Class</a></h2>
+<h2> <a name="ThrowObject">ThrowObject (<i>func_throwobject</i>)</a> -> <a href="#Animate">Animate</a> -> <a href="#Entity">Entity</a> -> <a href="#SimpleEntity">SimpleEntity</a> -> <a href="#Listener">Listener</a> -> <a href="#Class">Class</a></h2>
 <BLOCKQUOTE>
 
 <P><tt><B>doTouch</B>( <i>Entity touchingEntity </i>)</tt><BR>
@@ -6289,11 +6357,11 @@ Location values:<BR>
 <P><tt><B>AxisObjNum</B>( <i>Integer AxisObjNum </i>)</tt><BR>
 <ul>Sets the objective number for the axis team</ul>
 
-<P><tt><B>ControlledBy</B>( <i>Integer ControlledBy </i>)</tt><BR>
-<ul>Sets the team controlling the objective</ul>
-
 <P><tt><B>ControlledBy</B></tt><BR>
 <ul>Objective controller</ul>
+
+<P><tt><B>ControlledBy</B>( <i>Integer ControlledBy </i>)</tt><BR>
+<ul>Sets the team controlling the objective</ul>
 
 <P><tt><B>initialize</B></tt><BR>
 <ul>Initialize object</ul>
@@ -6454,30 +6522,8 @@ If facet is 2 than trigger is East/West oriented. If facet is 3 than trigger is 
 <P><tt><B>activatetrigger</B>( <i>Entity triggering_entity </i>)</tt><BR>
 <ul>Activates all of the targets for this trigger.</ul>
 
-<P><tt><B>damage</B>( <i>Entity attacker, Integer damage, Entity inflictor, Vector position, Vector direction, Vector normal, Integer knockback, Integer damageflags, Integer meansofdeath, Integer location </i>)</tt><BR>
-<ul>general damage event used by all entities<BR>
-<BR>
-Location values:<BR>
--1 General<BR>
-0 Pelvis<BR>
-1 Lower Torso<BR>
-2 Mid Torso<BR>
-3 Upper Torso<BR>
-4 Neck<BR>
-5 Head<BR>
-6 RUpperArm<BR>
-7 RForearm<BR>
-8 RHand<BR>
-9 LUpperArm<BR>
-10 LForearm<BR>
-11 LHand<BR>
-12 RThigh<BR>
-13 RCalf<BR>
-14 RFoot<BR>
-15 LThigh<BR>
-16 LCalf<BR>
-17 LFoot<BR>
-</ul>
+<P><tt><B>damage</B>( <i>Integer damage </i>)</tt><BR>
+<ul>Sets the amount of damage to do.</ul>
 </BLOCKQUOTE>
 
 <h2> <a name="TriggerEntity">TriggerEntity (<i>trigger_entity</i>)</a> -> <a href="#Trigger">Trigger</a> -> <a href="#Animate">Animate</a> -> <a href="#Entity">Entity</a> -> <a href="#SimpleEntity">SimpleEntity</a> -> <a href="#Listener">Listener</a> -> <a href="#Class">Class</a></h2>
@@ -6661,6 +6707,10 @@ as a multi-faceted edge trigger.</ul>
 <ul>Send event to owner of trigger.</ul>
 </BLOCKQUOTE>
 
+<h2> <a name="TriggerSidedUse">TriggerSidedUse (<i>trigger_sideduse</i>)</a> -> <a href="#TriggerUse">TriggerUse</a> -> <a href="#Trigger">Trigger</a> -> <a href="#Animate">Animate</a> -> <a href="#Entity">Entity</a> -> <a href="#SimpleEntity">SimpleEntity</a> -> <a href="#Listener">Listener</a> -> <a href="#Class">Class</a></h2>
+<BLOCKQUOTE>
+</BLOCKQUOTE>
+
 <h2> <a name="TriggerSpeaker">TriggerSpeaker (<i>sound_speaker</i>)</a> -> <a href="#TriggerPlaySound">TriggerPlaySound</a> -> <a href="#Trigger">Trigger</a> -> <a href="#Animate">Animate</a> -> <a href="#Entity">Entity</a> -> <a href="#SimpleEntity">SimpleEntity</a> -> <a href="#Listener">Listener</a> -> <a href="#Class">Class</a></h2>
 <BLOCKQUOTE>
 </BLOCKQUOTE>
@@ -6767,14 +6817,14 @@ as a multi-faceted edge trigger.</ul>
 <P><tt><B>suppressWidth</B>( <i>Float radius </i>)</tt><BR>
 <ul>Sets the horizontal radius of suppression fire</ul>
 
-<P><tt><B>targettype</B>( <i>String value </i>)</tt><BR>
-<ul>Sets the target type to be none any, or player</ul>
+<P><tt><B>targettype</B></tt><BR>
+<ul>Gets the target type</ul>
 
 <P><tt><B>targettype</B>( <i>String value </i>)</tt><BR>
 <ul>Sets the target type to be none, any, or player</ul>
 
-<P><tt><B>targettype</B></tt><BR>
-<ul>Gets the target type</ul>
+<P><tt><B>targettype</B>( <i>String value </i>)</tt><BR>
+<ul>Sets the target type to be none any, or player</ul>
 
 <P><tt><B>turnSpeed</B>( <i>Float speed </i>)</tt><BR>
 <ul>Sets the turret's turn speed</ul>
@@ -6947,10 +6997,10 @@ Location values:<BR>
 <P><tt><B>canuse</B>( <i>Entity entity </i>)</tt><BR>
 <ul>Returns 1 if passed entity can 'use' this vehicle.</ul>
 
-<P><tt><B>collisionent</B>( <i>Entity entity </i>)</tt><BR>
+<P><tt><B>collisionent</B></tt><BR>
 <ul>Gets the Collision Entity</ul>
 
-<P><tt><B>collisionent</B></tt><BR>
+<P><tt><B>collisionent</B>( <i>Entity entity </i>)</tt><BR>
 <ul>Gets the Collision Entity</ul>
 
 <P><tt><B>damage</B>( <i>Entity attacker, Integer damage, Entity inflictor, Vector position, Vector direction, Vector normal, Integer knockback, Integer damageflags, Integer meansofdeath, Integer location </i>)</tt><BR>
@@ -7233,6 +7283,9 @@ Location values:<BR>
 16 LCalf<BR>
 17 LFoot<BR>
 </ul>
+
+<P><tt><B>owner</B></tt><BR>
+<ul>owner</ul>
 </BLOCKQUOTE>
 
 <h2> <a name="VehicleHalfTrack">VehicleHalfTrack (<i>VehicleHalfTrack</i>)</a> -> <a href="#DrivableVehicle">DrivableVehicle</a> -> <a href="#Vehicle">Vehicle</a> -> <a href="#VehicleBase">VehicleBase</a> -> <a href="#Animate">Animate</a> -> <a href="#Entity">Entity</a> -> <a href="#SimpleEntity">SimpleEntity</a> -> <a href="#Listener">Listener</a> -> <a href="#Class">Class</a></h2>
@@ -7348,11 +7401,11 @@ Location values:<BR>
 <P><tt><B>aimtolerance</B>( <i>Vector caps </i>)</tt><BR>
 <ul>Sets a tolerance for the angles.</ul>
 
-<P><tt><B>collisionent</B>( <i>Entity entity </i>)</tt><BR>
-<ul>Sets the Collision Entity</ul>
-
 <P><tt><B>collisionent</B></tt><BR>
 <ul>Gets the Collision Entity</ul>
+
+<P><tt><B>collisionent</B>( <i>Entity entity </i>)</tt><BR>
+<ul>Sets the Collision Entity</ul>
 
 <P><tt><B>damage</B>( <i>Entity attacker, Integer damage, Entity inflictor, Vector position, Vector direction, Vector normal, Integer knockback, Integer damageflags, Integer meansofdeath, Integer location </i>)</tt><BR>
 <ul>general damage event used by all entities<BR>
@@ -8114,11 +8167,11 @@ Location values:<BR>
 <P><tt><B>farclipoverride</B>( <i>Float farclipoverride </i>)</tt><BR>
 <ul>Override the min config default for the far clip distance</ul>
 
-<P><tt><B>farplane</B></tt><BR>
-<ul>Get the distance of the far clipping plane</ul>
-
 <P><tt><B>farplane</B>( <i>Float farplaneDistance </i>)</tt><BR>
 <ul>Set the distance of the far clipping plane</ul>
+
+<P><tt><B>farplane</B></tt><BR>
+<ul>Get the distance of the far clipping plane</ul>
 
 <P><tt><B>farplane</B>( <i>Float farplaneDistance </i>)</tt><BR>
 <ul>Set the distance of the far clipping plane</ul>
@@ -8129,20 +8182,20 @@ Location values:<BR>
 <P><tt><B>farplane_bias</B>( <i>Float farplaneDistanceBias </i>)</tt><BR>
 <ul>Set the distance bias of the far clipping plane</ul>
 
-<P><tt><B>farplane_bias</B></tt><BR>
-<ul>Get the distance bias of the far clipping plane</ul>
-
 <P><tt><B>farplane_bias</B>( <i>Float farplaneDistanceBias </i>)</tt><BR>
 <ul>Set the distance bias of the far clipping plane</ul>
 
+<P><tt><B>farplane_bias</B></tt><BR>
+<ul>Get the distance bias of the far clipping plane</ul>
+
+<P><tt><B>farplane_color</B>( <i>Vector farplaneColor </i>)</tt><BR>
+<ul>Set the color of the far clipping plane fog</ul>
+
+<P><tt><B>farplane_color</B>( <i>Vector farplaneColor </i>)</tt><BR>
+<ul>Set the color of the far clipping plane fog</ul>
+
 <P><tt><B>farplane_color</B></tt><BR>
 <ul>Get the color of the far clipping plane fog</ul>
-
-<P><tt><B>farplane_color</B>( <i>Vector farplaneColor </i>)</tt><BR>
-<ul>Set the color of the far clipping plane fog</ul>
-
-<P><tt><B>farplane_color</B>( <i>Vector farplaneColor </i>)</tt><BR>
-<ul>Set the color of the far clipping plane fog</ul>
 
 <P><tt><B>farplane_cull</B>( <i>Integer farplaneCull </i>)</tt><BR>
 <ul>Whether or not the far clipping plane should cull things out of the world<BR>
@@ -8208,7 +8261,7 @@ Location values:<BR>
 <ul>Set the watercolor screen blend</ul>
 </BLOCKQUOTE>
 <H2>
-189 Game Module Classes.<BR>2154 Game Module Events.
+191 Game Module Classes.<BR>2169 Game Module Events.
 </H2>
 </BODY>
 </HTML>
