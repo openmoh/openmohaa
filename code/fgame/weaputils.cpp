@@ -2321,7 +2321,7 @@ float BulletAttack(
                             gi.MSG_WriteDir(trace.plane.normal);
                             gi.MSG_WriteBits(bulletlarge, bulletbits);
                             gi.MSG_EndCGM();
-                        } else if (trace.location >= 0 && ent->IsSubclassOfPlayer()) {
+                        } else if (trace.location >= 0 && ent->IsSubclassOfSentient()) {
                             gi.SetBroadcastVisible(vTmpEnd, NULL);
                             gi.MSG_StartCGM(BG_MapCGMToProtocol(g_protocol, CGM_BULLET_8));
                             gi.MSG_WriteCoord(vTmpEnd[0]);

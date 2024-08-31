@@ -987,14 +987,16 @@ void CG_AddBulletImpacts()
     if (flesh_impact_count) {
         if (flesh_impact_count > 1) {
             fImpSndDistRA  = 9999.0;
+            fImpSndDistRB  = 9999.0;
             iImpSndIndexRA = 0;
+            iImpSndIndexRB = 0;
 
             for (i = 0; i < flesh_impact_count; i++) {
-                VectorSubtract(wall_impact_pos[i], cg.SoundOrg, vTmp);
+                VectorSubtract(flesh_impact_pos[i], cg.SoundOrg, vTmp);
                 iHeadDist = VectorLength(vTmp);
 
                 if (DotProduct(vTmp, cg.SoundAxis[1]) > 0.f) {
-                    if (iHeadDist < fImpSndDistRA) {
+                    if (iHeadDist < fImpSndDistRB) {
                         fImpSndDistRA  = iHeadDist;
                         iImpSndIndexRA = i;
                     }
@@ -1002,6 +1004,30 @@ void CG_AddBulletImpacts()
                     fImpSndDistRA  = iHeadDist;
                     iImpSndIndexRA = i;
                 }
+            }
+
+            if (fImpSndDistRA < 9999) {
+                sfxManager.MakeEffect_Normal(
+                    flesh_impact_large[iImpSndIndexRA] ? SFX_BHIT_HUMAN_UNIFORM_HARD : SFX_BHIT_HUMAN_UNIFORM_LITE,
+                    flesh_impact_pos[iImpSndIndexRA],
+                    flesh_impact_norm[iImpSndIndexRA]
+                );
+            }
+
+            if (fImpSndDistRB < 9999) {
+                sfxManager.MakeEffect_Normal(
+                    flesh_impact_large[iImpSndIndexRB] ? SFX_BHIT_HUMAN_UNIFORM_HARD : SFX_BHIT_HUMAN_UNIFORM_LITE,
+                    flesh_impact_pos[iImpSndIndexRB],
+                    flesh_impact_norm[iImpSndIndexRB]
+                );
+            }
+        } else {
+            for (i = 0; i < flesh_impact_count; i++) {
+                sfxManager.MakeEffect_Normal(
+                    flesh_impact_large[i] ? SFX_BHIT_HUMAN_UNIFORM_HARD : SFX_BHIT_HUMAN_UNIFORM_LITE,
+                    flesh_impact_pos[i],
+                    flesh_impact_norm[i]
+                );
             }
         }
 
