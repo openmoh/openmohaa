@@ -1130,7 +1130,7 @@ Number of total events
 */
 int Event::NumEventCommands()
 {
-    return totalevents;
+    return commandList.size();
 }
 
 /*
