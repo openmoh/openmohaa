@@ -6418,7 +6418,7 @@ void Actor::UpdateEnemyInternal(void)
 
     m_PotentialEnemies.CheckEnemies(this);
 
-    if (m_Enemy != m_PotentialEnemies.GetCurrentEnemy() && (m_bEnemySwitch || m_Enemy)) {
+    if (m_Enemy != m_PotentialEnemies.GetCurrentEnemy() && (m_bEnemySwitch || !m_Enemy)) {
         SetEnemy(m_PotentialEnemies.GetCurrentEnemy(), false);
     }
 
