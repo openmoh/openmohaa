@@ -159,13 +159,17 @@ qboolean G_ProcessClientCommand(gentity_t *ent)
     consolecmd_t *cmds;
     int           i;
     int           n;
-    ConsoleEvent *ev;
     Player       *player;
+    qboolean      allowDev;
 
     if (!ent || !ent->client || !ent->entity) {
         // not fully in game yet
         return qfalse;
     }
+
+    // Added in 2.1
+    //  Prevent players from messing with the server with developer commands
+    allowDev = g_gametype->integer == GT_SINGLE_PLAYER;
 
     cmd = gi.Argv(0);
 
@@ -184,20 +188,28 @@ qboolean G_ProcessClientCommand(gentity_t *ent)
     }
 
     if (Event::Exists(cmd)) {
-        ev = new ConsoleEvent(cmd);
-        ev->SetConsoleEdict(ent);
+        ConsoleEvent ev(cmd);
+        ev.SetConsoleEdict(ent);
 
         n = gi.Argc();
 
         for (i = 1; i < n; i++) {
-            ev->AddToken(gi.Argv(i));
+            ev.AddToken(gi.Argv(i));
         }
 
         if (!Q_stricmpn(cmd, "lod_", 4)) {
+            if (!allowDev) {
+                return false;
+            }
             return LODModel.ProcessEvent(ev);
         } else if (!Q_stricmpn(cmd, "view", 4)) {
+            if (!allowDev) {
+                return false;
+            }
             return Viewmodel.ProcessEvent(ev);
-        } else if (ent->entity->CheckEventFlags(ev)) {
+        }
+
+        if (ent->entity->CheckEventFlags(&ev)) {
             return ent->entity->ProcessEvent(ev);
         }
     }
@@ -493,12 +505,11 @@ qboolean G_ScriptCmd(gentity_t *ent)
     ConsoleEvent *event;
     int           numArgs;
     int           i;
-    bool          recompile;
 
     numArgs = gi.Argc();
 
     if (numArgs <= 1) {
-        gi.Printf("Usage: script [filename] ([recompile])\n");
+        gi.Printf("Usage: script [filename]\n");
         return qtrue;
     }
 
