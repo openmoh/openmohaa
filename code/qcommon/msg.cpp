@@ -875,6 +875,18 @@ void MSG_ReadData( msg_t *msg, void *data, int len ) {
 	}
 }
 
+// a string hasher which gives the same hash value even if the
+// string is later modified via the legacy MSG read/write code
+int MSG_HashKey(const char *string, int maxlen) {
+	int register hash, i;
+
+	hash = 0;
+	for (i = 0; i < maxlen && string[i] != '\0'; i++) {
+		hash += string[i] * (119 + i);
+	}
+	hash = (hash ^ (hash >> 10) ^ (hash >> 20));
+	return hash;
+}
 
 /*
 =============================================================================

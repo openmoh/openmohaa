@@ -79,6 +79,8 @@ extern "C" {
 
 #define CLIENT_WINDOW_TITLE		PRODUCT_NAME
 #define CLIENT_WINDOW_MIN_TITLE PRODUCT_NAME
+    
+#define MAX_MASTER_SERVERS      5	// number of supported master servers
 
 #define DEMOEXT	"dm_"			// standard demo extension
 

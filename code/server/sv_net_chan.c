@@ -259,17 +259,17 @@ void SV_Netchan_Transmit( client_t *client, msg_t *msg)
 Netchan_SV_Process
 =================
 */
-qboolean SV_Netchan_Process(client_t* client, msg_t* msg) {
-    int ret;
-    ret = Netchan_Process(&client->netchan, msg);
-    if (!ret)
-        return qfalse;
+qboolean SV_Netchan_Process( client_t *client, msg_t *msg ) {
+	int ret;
+	ret = Netchan_Process( &client->netchan, msg );
+	if (!ret)
+		return qfalse;
 
 #ifdef LEGACY_PROTOCOL
-    if (client->compat)
-        SV_Netchan_Decode(client, msg);
+	if(client->compat)
+		SV_Netchan_Decode(client, msg);
 #endif
 
-    return qtrue;
+	return qtrue;
 }
 

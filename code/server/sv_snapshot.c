@@ -91,7 +91,7 @@ static void SV_EmitPacketEntities( clientSnapshot_t *from, clientSnapshot_t *to,
 		if ( newnum == oldnum ) {
 			// delta update from old position
 			// because the force parm is qfalse, this will not result
-			// in any bytes being emited if the entity has not changed at all
+			// in any bytes being emitted if the entity has not changed at all
 			MSG_WriteDeltaEntity (msg, oldent, newent, qfalse, sv.frameTime);
 			oldindex++;
 			newindex++;
@@ -1049,6 +1049,53 @@ static void SV_BuildClientSnapshot( client_t *client ) {
     frame->ps.radarInfo = client->radarInfo;
 }
 
+#ifdef USE_VOIP
+/*
+==================
+SV_WriteVoipToClient
+
+Check to see if there is any VoIP queued for a client, and send if there is.
+==================
+*/
+static void SV_WriteVoipToClient(client_t *cl, msg_t *msg)
+{
+	int totalbytes = 0;
+	int i;
+	voipServerPacket_t *packet;
+
+	if(cl->queuedVoipPackets)
+	{
+		// Write as many VoIP packets as we reasonably can...
+		for(i = 0; i < cl->queuedVoipPackets; i++)
+		{
+			packet = cl->voipPacket[(i + cl->queuedVoipIndex) % ARRAY_LEN(cl->voipPacket)];
+
+			if(!*cl->downloadName)
+			{
+        			totalbytes += packet->len;
+	        		if (totalbytes > (msg->maxsize - msg->cursize) / 2)
+		        		break;
+
+        			MSG_WriteByte(msg, svc_voipOpus);
+        			MSG_WriteShort(msg, packet->sender);
+	        		MSG_WriteByte(msg, (byte) packet->generation);
+		        	MSG_WriteLong(msg, packet->sequence);
+		        	MSG_WriteByte(msg, packet->frames);
+        			MSG_WriteShort(msg, packet->len);
+        			MSG_WriteBits(msg, packet->flags, VOIP_FLAGCNT);
+	        		MSG_WriteData(msg, packet->data, packet->len);
+                        }
+
+			Z_Free(packet);
+		}
+
+		cl->queuedVoipPackets -= i;
+		cl->queuedVoipIndex += i;
+		cl->queuedVoipIndex %= ARRAY_LEN(cl->voipPacket);
+	}
+}
+#endif
+
 /*
 =======================
 SV_SendMessageToClient
@@ -1056,7 +1103,8 @@ SV_SendMessageToClient
 Called by SV_SendClientSnapshot and SV_SendClientGameState
 =======================
 */
-void SV_SendMessageToClient( msg_t *msg, client_t *client ) {
+void SV_SendMessageToClient(msg_t *msg, client_t *client)
+{
 	// record information about the message
 	client->frames[client->netchan.outgoingSequence & PACKET_MASK].messageSize = msg->cursize;
 	client->frames[client->netchan.outgoingSequence & PACKET_MASK].messageSent = svs.time;
@@ -1088,7 +1136,6 @@ void SV_SendClientSnapshot( client_t *client ) {
 		return;
 	}
 
-	memset(msg_buf, 0, sizeof(msg_buf));
 	MSG_Init (&msg, msg_buf, sizeof(msg_buf));
 	msg.allowoverflow = qtrue;
 
@@ -1115,6 +1162,10 @@ void SV_SendClientSnapshot( client_t *client ) {
 	// Add any download data if the client is downloading
 	SV_WriteDownloadToClient( client, &msg );
 
+#ifdef USE_VOIP
+	SV_WriteVoipToClient( client, &msg );
+#endif
+
 	// check for overflow
 	if ( msg.overflowed ) {
 		Com_Printf ("WARNING: msg overflowed for %s\n", client->name);
@@ -1130,16 +1181,19 @@ void SV_SendClientSnapshot( client_t *client ) {
 SV_SendClientMessages
 =======================
 */
-void SV_SendClientMessages( void ) {
-	int			i;
+void SV_SendClientMessages(void)
+{
+	int		i;
 	int			rate;
 	client_t	*c;
 
 	// send a message to each connected client
-	for (i=0, c = svs.clients ; i < sv_maxclients->integer ; i++, c++) {
-		if (!c->state) {
+	for(i=0; i < sv_maxclients->integer; i++)
+	{
+		c = &svs.clients[i];
+		
+		if(!c->state)
 			continue;		// not connected
-		}
 
 		if(svs.time - c->lastSnapshotTime < c->snapshotMsec * com_timescale->value)
 			continue;		// It's not time yet
@@ -1171,8 +1225,8 @@ void SV_SendClientMessages( void ) {
 		}
 
 		// generate and send a new message
-        SV_SendClientSnapshot(c);
-        c->lastSnapshotTime = svs.time;
+		SV_SendClientSnapshot(c);
+		c->lastSnapshotTime = svs.time;
 		c->rateDelayed = qfalse;
     }
 

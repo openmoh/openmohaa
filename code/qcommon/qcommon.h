@@ -87,6 +87,7 @@ void MSG_WriteBigString (msg_t *sb, const char *s);
 void MSG_WriteScrambledString(msg_t* sb, const char* s);
 void MSG_WriteScrambledBigString(msg_t* sb, const char* s);
 void MSG_WriteAngle16 (msg_t *sb, float f);
+int MSG_HashKey(const char *string, int maxlen);
 void MSG_WriteEntityNum(msg_t* sb, short number);
 
 void	MSG_BeginReading (msg_t *sb);
@@ -202,8 +203,8 @@ NET
 #define	MAX_RELIABLE_COMMANDS	512			// max string commands buffered for restransmit
 
 typedef enum {
-	NA_BOT,
 	NA_BAD,					// an address lookup failed
+    NA_BOT,
 	NA_LOOPBACK,
 	NA_BROADCAST,
 	NA_IP,
@@ -373,7 +374,11 @@ enum clc_ops_e {
 	clc_move,				// [[usercmd_t]
 	clc_moveNoDelta,		// [[usercmd_t]
 	clc_clientCommand,		// [string] message
-	clc_EOF
+	clc_EOF,
+
+// new commands, supported only by ioquake3 protocol but not legacy
+	clc_voipSpeex,   // not wrapped in USE_VOIP, so this value is reserved.
+	clc_voipOpus,    //
 };
 
 /*

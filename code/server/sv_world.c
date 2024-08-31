@@ -100,7 +100,7 @@ SV_CreateworldSector
 Builds a uniformly subdivided tree for the given world size
 ===============
 */
-worldSector_t *SV_CreateworldSector( int depth, vec3_t mins, vec3_t maxs ) {
+static worldSector_t *SV_CreateworldSector( int depth, vec3_t mins, vec3_t maxs ) {
 	worldSector_t	*anode;
 	vec3_t		size;
 	vec3_t		mins1, maxs1, mins2, maxs2;
@@ -388,8 +388,8 @@ SV_AreaEntities_r
 
 ====================
 */
-void SV_AreaEntities_r( worldSector_t *node, areaParms_t *ap ) {
-	svEntity_t		*check, *next;
+static void SV_AreaEntities_r( worldSector_t *node, areaParms_t *ap ) {
+	svEntity_t	*check, *next;
 	gentity_t		*gcheck;
 	worldSector_t	*nodestack[ 8 ];
 	int				iStackPos;
@@ -499,7 +499,7 @@ void SV_ClipToEntity( trace_t *trace, const vec3_t start, const vec3_t mins, con
 
 	touch = SV_GentityNum( entityNum );
 
-	Com_Memset( trace, 0, sizeof( trace_t ) );
+	Com_Memset(trace, 0, sizeof(trace_t));
 
 	// if it doesn't have any brushes of a type we
 	// are looking for, ignore it
@@ -527,7 +527,7 @@ SV_ClipMoveToEntities
 
 ====================
 */
-void SV_ClipMoveToEntities( moveclip_t *clip ) {
+static void SV_ClipMoveToEntities( moveclip_t *clip ) {
 	int			i, num;
 	int			touchlist[MAX_GENTITIES];
 	gentity_t	*touch;
@@ -797,7 +797,7 @@ void SV_Trace( trace_t *results, const vec3_t start, const vec3_t mins, const ve
 	moveclip_t	clip;
 	int			i;
 
-	Com_Memset( &clip, 0, sizeof( moveclip_t ) );
+	Com_Memset ( &clip, 0, sizeof ( moveclip_t ) );
 
 	// clip to world
 	CM_BoxTrace( &clip.trace, start, end, mins, maxs, 0, contentmask, cylinder );

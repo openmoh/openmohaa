@@ -73,12 +73,11 @@ SV_SetConfigstring
 ===============
 */
 void SV_SetConfigstring (int index, const char *val) {
-	int i;
-	size_t len;
+	int		i;
 	client_t	*client;
 
 	if ( index < 0 || index >= MAX_CONFIGSTRINGS ) {
-		Com_Error( ERR_DROP, "SV_SetConfigstring: bad index %i\n", index );
+		Com_Error (ERR_DROP, "SV_SetConfigstring: bad index %i\n", index);
 	}
 
 	if ( !val ) {
@@ -98,7 +97,7 @@ void SV_SetConfigstring (int index, const char *val) {
 	// spawning a new server
 	if (sv.state == SS_LOADING2 || sv.state == SS_GAME || sv.restarting ) {
 
-		// send the data to all relevent clients
+		// send the data to all relevant clients
 		for (i = 0, client = svs.clients; i < svs.iNumClients ; i++, client++) {
 			if ( client->state < CS_ACTIVE ) {
 				if ( client->state == CS_PRIMED )
@@ -111,7 +110,6 @@ void SV_SetConfigstring (int index, const char *val) {
 			}
 		
 
-			len = strlen( val );
 			SV_SendConfigstring(client, index);
 		}
 	}
@@ -316,7 +314,7 @@ void SV_UpdateConfigstrings(client_t *client)
 {
 	int index;
 
-	for( index = 0; index <= MAX_CONFIGSTRINGS; index++ ) {
+	for( index = 0; index < MAX_CONFIGSTRINGS; index++ ) {
 		// if the CS hasn't changed since we went to CS_PRIMED, ignore
 		if(!client->csUpdated[index])
 			continue;
@@ -452,6 +450,9 @@ void SV_Startup( void ) {
 
 	SV_InitGamespy();
 	Cvar_Set( "sv_running", "1" );
+	
+	// Join the ipv6 multicast group now that a map is running so clients can scan for us on the local network.
+	NET_JoinMulticast6();
 }
 
 /*
@@ -478,10 +479,10 @@ SV_ChangeMaxClients
 ==================
 */
 void SV_ChangeMaxClients( void ) {
-	int			oldMaxClients;
-	int			i;
+	int		oldMaxClients;
+	int		i;
 	client_t	*oldClients;
-	int			count;
+	int		count;
 
 	// get the highest client number in use
 	count = 0;
@@ -536,6 +537,20 @@ void SV_ClearServer(void) {
 	}
 	Com_Memset (&sv, 0, sizeof(sv));
 	sv.frameTime = 1.0 / sv_fps->value;
+}
+
+/*
+================
+SV_TouchFile
+================
+*/
+static void SV_TouchFile( const char *filename ) {
+	fileHandle_t	f;
+
+	FS_FOpenFileRead( filename, &f, qfalse, qtrue );
+	if ( f ) {
+		FS_FCloseFile( f );
+	}
 }
 
 /*
@@ -980,15 +995,16 @@ SV_Init
 Only called at main exe startup, not for each game
 ===============
 */
-void SV_Init( void ) {
+void SV_Init (void)
+{
 	int index;
 
 	SV_AddOperatorCommands();
 
 	// serverinfo vars
-	Cvar_Get( "dmflags", "0", CVAR_SERVERINFO );
-	Cvar_Get( "fraglimit", "20", CVAR_SERVERINFO );
-	Cvar_Get( "timelimit", "0", CVAR_SERVERINFO );
+	Cvar_Get ("dmflags", "0", CVAR_SERVERINFO);
+	Cvar_Get ("fraglimit", "20", CVAR_SERVERINFO);
+	Cvar_Get ("timelimit", "0", CVAR_SERVERINFO);
 	g_gametype = Cvar_Get ("g_gametype", "0", CVAR_SERVERINFO | CVAR_LATCH );
 	g_gametypestring = Cvar_Get( "g_gametypestring", "0", CVAR_SERVERINFO | CVAR_LATCH );
 	Cvar_Get( "sv_keywords", "", CVAR_SERVERINFO );
@@ -1013,12 +1029,11 @@ void SV_Init( void ) {
     // sv_pure is disabled by default in mohaa
 	// the problem is because of difference in pak files between languages
 	sv_pure = Cvar_Get ("sv_pure", "0", CVAR_SYSTEMINFO );
-	#ifdef USE_VOIP
+#ifdef USE_VOIP
 	sv_voip = Cvar_Get("sv_voip", "1", CVAR_LATCH);
 	Cvar_CheckRange(sv_voip, 0, 1, qtrue);
 	sv_voipProtocol = Cvar_Get("sv_voipProtocol", sv_voip->integer ? "opus" : "", CVAR_SYSTEMINFO | CVAR_ROM );
 #endif
-
 	Cvar_Get ("sv_paks", "", CVAR_SYSTEMINFO | CVAR_ROM );
 	Cvar_Get ("sv_pakNames", "", CVAR_SYSTEMINFO | CVAR_ROM );
 	Cvar_Get ("sv_referencedPaks", "", CVAR_SYSTEMINFO | CVAR_ROM );
@@ -1129,8 +1144,14 @@ void SV_Shutdown( const char *finalmsg ) {
 	SV_ClearServer();
 
 	// free server static data
-	if ( svs.clients ) {
-		Z_Free( svs.clients );
+	if(svs.clients)
+	{
+		int index;
+		
+		for(index = 0; index < sv_maxclients->integer; index++)
+			SV_FreeClient(&svs.clients[index]);
+		
+		Z_Free(svs.clients);
 	}
 	Com_Memset( &svs, 0, sizeof( svs ) );
 
