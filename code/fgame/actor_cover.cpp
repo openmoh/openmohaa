@@ -380,7 +380,7 @@ void Actor::State_Cover_Hide(void)
         return;
     }
 
-    if (bCanShoot || bCanShoot) {
+    if (bCanSee || bCanShoot) {
         m_pCoverNode->Relinquish();
         m_pCoverNode->MarkTemporarilyBad();
         m_pCoverNode = NULL;
