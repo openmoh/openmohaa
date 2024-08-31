@@ -812,13 +812,7 @@ void SV_Frame( int msec ) {
 		Cvar_Set( "sv_fps", "20" );
 	}
     
-	frameMsec = 1000 / sv_fps->integer * com_timescale->value;
-	// don't let it scale below 1ms
-	if(frameMsec < 1)
-	{
-		Cvar_Set("timescale", va("%f", sv_fps->integer / 1000.0f));
-		frameMsec = 1;
-	}
+	frameMsec = 1000 / sv_fps->integer;
 
 	sv.timeResidual += msec;
 
