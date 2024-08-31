@@ -268,6 +268,8 @@ cvar_t *sv_minPlayers;
 cvar_t *g_rankedserver;
 cvar_t *g_spectatefollow_firstperson;
 
+cvar_t *cl_running;
+
 void CVAR_Init(void)
 {
     developer      = gi.Cvar_Get("developer", "0", 0);
@@ -623,4 +625,6 @@ void CVAR_Init(void)
         gi.Printf("numbots overflow, setting to %d\n", sv_maxbots->integer);
         gi.cvar_set("sv_numbots", sv_maxbots->string);
     }
+
+    cl_running = gi.Cvar_Get("cl_running", "", 0);
 }

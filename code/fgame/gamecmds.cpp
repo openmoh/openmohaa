@@ -127,7 +127,11 @@ qboolean G_ConsoleCommand(void)
             }
         }
 
-        result = G_ProcessClientCommand(ent);
+        if (cl_running->integer) {
+            // Don't execute the command in multiplayer
+            // otherwise, the command will be executed "by" the first client
+            result = G_ProcessClientCommand(ent);
+        }
     } catch (const char *error) {
         G_ExitWithError(error);
     }

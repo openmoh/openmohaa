@@ -273,6 +273,8 @@ extern cvar_t *sv_minPlayers;
 extern cvar_t *g_rankedserver;
 extern cvar_t *g_spectatefollow_firstperson;
 
+extern cvar_t *cl_running;
+
 void CVAR_Init(void);
 
 #ifdef __cplusplus
