@@ -157,7 +157,7 @@ void Actor::ThinkHoldGun_TurretGun(void)
             }
         }
 
-        VectorScale2D(orientation[0], m_fCrouchWeight * -9.3f + 23.4f, offset);
+        VectorScale2D(orientation[0], -(m_fCrouchWeight * -9.3f + 23.4f), offset);
         VectorAdd2D(newOrigin, offset, newOrigin);
         VectorScale2D(orientation[1], m_fCrouchWeight * 2.6f + 10.3f, offset);
         VectorAdd2D(newOrigin, offset, newOrigin);
@@ -167,7 +167,7 @@ void Actor::ThinkHoldGun_TurretGun(void)
             m_fCrouchWeight = 1.0;
         }
 
-        VectorScale2D(orientation[0], m_fCrouchWeight * -3.f + 23.4f, offset);
+        VectorScale2D(orientation[0], -(m_fCrouchWeight * -3.f + 23.4f), offset);
         VectorAdd2D(newOrigin, offset, newOrigin);
         VectorScale2D(orientation[1], m_fCrouchWeight * -1.6f + 10.3f, offset);
         VectorAdd2D(newOrigin, offset, newOrigin);
@@ -181,6 +181,8 @@ void Actor::ThinkHoldGun_TurretGun(void)
 
     UpdateAimMotion();
     UpdateAnim();
+
+    newOrigin[2] += 18;
 
     end[0] = newOrigin[0];
     end[1] = newOrigin[1];
