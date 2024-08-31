@@ -421,14 +421,13 @@ void ActorEnemySet::CheckEnemies(Actor *pSelf)
     fRangeSquared    = 1e37f;
 
     if (m_fCurrentVisibility >= 0.999f) {
-        iThreat = 0;
-
         for (i = 1; i <= m_Enemies.NumObjects(); i++) {
             pActorEnemy = &m_Enemies.ObjectAt(i);
             pActorEnemy->UpdateThreat(pSelf);
+            iThreat = pActorEnemy->GetThreat();
 
-            if (m_iCurrentThreat >= pActorEnemy->GetThreat()) {
-                if (m_iCheckCount != pActorEnemy->GetThreat()) {
+            if (m_iCurrentThreat >= iThreat) {
+                if (m_iCheckCount != iThreat) {
                     continue;
                 }
 
@@ -437,12 +436,10 @@ void ActorEnemySet::CheckEnemies(Actor *pSelf)
                 }
             }
 
-            iThreat         = pActorEnemy->GetThreat();
-            m_pCurrentEnemy = pActorEnemy->GetEnemy();
-            fRangeSquared   = pActorEnemy->m_fCurrentRangeSquared;
+            m_iCurrentThreat = pActorEnemy->GetThreat();
+            m_pCurrentEnemy  = pActorEnemy->GetEnemy();
+            fRangeSquared    = pActorEnemy->m_fCurrentRangeSquared;
         }
-
-        m_iCurrentThreat = iThreat;
     }
 
     if ((!m_pCurrentEnemy || !m_pCurrentEnemy->m_bIsDisguised) && m_iCurrentThreat <= 0) {
