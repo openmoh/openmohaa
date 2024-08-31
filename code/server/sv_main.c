@@ -69,10 +69,6 @@ cvar_t	*sv_gamename;
 cvar_t	*sv_location;
 cvar_t	*sv_debug_gamespy;
 cvar_t	*sv_gamespy;
-
-// FIXME: use another global network ?
-//cvar_t	*sv_debug_gamepsy;
-//cvar_t	*sv_gamespy;
 cvar_t	*sv_lanForceRate; // dedicated 1 (LAN) server forces local client rates to 99999 (bug #491)
 #ifndef STANDALONE
 cvar_t	*sv_strictAuth;
@@ -815,16 +811,16 @@ void SV_Frame( int msec ) {
 	if ( sv_fps->integer < 1 ) {
 		Cvar_Set( "sv_fps", "20" );
 	}
-
-	frameMsec = 1000 / sv_fps->integer;
-	sv.timeResidual += msec;
-
-	if ( com_dedicated->integer && sv.timeResidual < frameMsec ) {
-		// NET_Sleep will give the OS time slices until either get a packet
-		// or time enough for a server frame has gone by
-		NET_Sleep( frameMsec - sv.timeResidual );
-		return;
+    
+	frameMsec = 1000 / sv_fps->integer * com_timescale->value;
+	// don't let it scale below 1ms
+	if(frameMsec < 1)
+	{
+		Cvar_Set("timescale", va("%f", sv_fps->integer / 1000.0f));
+		frameMsec = 1;
 	}
+
+	sv.timeResidual += msec;
 
 	// if time is about to hit the 32nd bit, kick all clients
 	// and clear sv.time, rather
