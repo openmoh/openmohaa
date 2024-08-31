@@ -1653,7 +1653,7 @@ void SV_ArchiveHudDrawElements( qboolean loading )
 		ge->ArchiveInteger( &cls.HudDrawElements[ i ].iX );
 		ge->ArchiveInteger( &cls.HudDrawElements[ i ].iY );
 		ge->ArchiveInteger( &cls.HudDrawElements[ i ].iWidth );
-		ge->ArchiveInteger( &cls.HudDrawElements[ i ].iVerticalAlign );
+		ge->ArchiveInteger( &cls.HudDrawElements[ i ].iHeight );
 		ge->ArchiveFloat( &cls.HudDrawElements[ i ].vColor[ 0 ] );
 		ge->ArchiveFloat( &cls.HudDrawElements[ i ].vColor[ 1 ] );
 		ge->ArchiveFloat( &cls.HudDrawElements[ i ].vColor[ 2 ] );
