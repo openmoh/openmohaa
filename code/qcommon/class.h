@@ -241,6 +241,7 @@ public:
     );
 
     EventDef *GetDef(int eventnum);
+    EventDef *GetDef(Event *ev);
     int       GetFlags(Event *event);
 
     void Destroy();

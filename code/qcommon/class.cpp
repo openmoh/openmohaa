@@ -466,6 +466,11 @@ EventDef *ClassDef::GetDef(int eventnum)
     }
 }
 
+EventDef *ClassDef::GetDef(Event *ev)
+{
+    return GetDef(ev->eventnum);
+}
+
 int ClassDef::GetFlags(Event *event)
 {
     EventDef *def = GetDef(event->eventnum);
@@ -490,10 +495,9 @@ void ClassDef::BuildResponseList(void)
         delete[] responseLookup;
         responseLookup = NULL;
     }
-
-    num = Event::NumEventCommands(
-    ); //size will be total event count, because it WAS faster to look for an event via eventnum
-        //nowadays there's not much overhead in performance, TODO: change size to appropriate.
+    //size will be total event count, because it WAS faster to look for an event via eventnum
+    //nowadays there's not much overhead in performance, TODO: change size to appropriate.
+    num = Event::NumEventCommands();
     responseLookup = (ResponseDef<Class> **)new char[sizeof(ResponseDef<Class> *) * num];
     memset(responseLookup, 0, sizeof(ResponseDef<Class> *) * num);
 
@@ -564,8 +568,9 @@ void ClassEvents(const char *classname, qboolean print_to_disk)
     Event             **events;
     byte               *order;
     FILE               *class_file;
-    str                 classNames[MAX_INHERITANCE];
+    ClassDef           *classes[MAX_INHERITANCE];
     str                 class_filename;
+    EventDef           *def;
 
     c = getClass(classname);
     if (!c) {
@@ -597,12 +602,13 @@ void ClassEvents(const char *classname, qboolean print_to_disk)
     orderNum = 0;
     for (; c != NULL; c = c->super) {
         if (orderNum < MAX_INHERITANCE) {
-            classNames[orderNum] = c->classname;
+            classes[orderNum] = c;
         }
         r = c->responses;
         if (r) {
             for (i = 0; r[i].event != NULL; i++) {
                 ev = (int)r[i].event->eventnum;
+                assert(ev < num);
                 if (!set[ev]) {
                     set[ev] = true;
 
@@ -622,19 +628,24 @@ void ClassEvents(const char *classname, qboolean print_to_disk)
     CLASS_Print(class_file, "********************************************************\n");
     CLASS_Print(class_file, "********************************************************\n\n");
 
+    Event::SortEventList(&ClassDef::sortedList);
+
     for (j = orderNum - 1; j >= 0; j--) {
         CLASS_Print(class_file, "\n********************************************************\n");
-        CLASS_Print(class_file, "* Class: %s\n", classNames[j].c_str());
+        CLASS_Print(class_file, "* Class: %s\n", classes[j]->classname);
         CLASS_Print(class_file, "********************************************************\n\n");
         for (i = 1; i < num; i++) {
             int index;
 
             index = ClassDef::sortedList.ObjectAt(i);
             if (events[index] && (order[index] == j)) {
-                Event::eventDefList[events[index]].PrintEventDocumentation(class_file, qfalse);
+                def = classes[j]->GetDef(events[index]);
+                def->PrintEventDocumentation(class_file, qfalse);
             }
         }
     }
+
+    ClassDef::sortedList.FreeObjectList();
 
     if (class_file != NULL) {
         CLASS_DPrintf("Printed class info to file %s\n", class_filename.c_str());
@@ -648,44 +659,46 @@ void ClassEvents(const char *classname, qboolean print_to_disk)
 
 void DumpClass(FILE *class_file, const char *className)
 {
+    ClassDef           *classDef;
     ClassDef           *c;
     ResponseDef<Class> *r;
     int                 ev;
     int                 i;
-    int                 num, num2;
+    int                 num;
     Event             **events;
+    EventDef           *def;
 
-    c = getClass(className);
-    if (!c) {
+    classDef = getClass(className);
+    if (!classDef) {
         return;
     }
 
-    num  = Event::commandList.size();
-    num2 = Event::NumEventCommands();
+    num = Event::NumEventCommands();
 
-    events = new Event *[num2];
-    memset(events, 0, sizeof(Event *) * num2);
+    events = new Event *[num];
+    memset(events, 0, sizeof(Event *) * num);
 
     // gather event responses for this class
-    r = c->responses;
+    r = classDef->responses;
     if (r) {
         for (i = 0; r[i].event != NULL; i++) {
             ev = (int)r[i].event->eventnum;
             if (r[i].response) {
+                assert(ev < num);
                 events[ev] = r[i].event;
             }
         }
     }
 
     CLASS_Print(class_file, "\n");
-    if (c->classID[0]) {
-        CLASS_Print(class_file, "<h2> <a name=\"%s\">%s (<i>%s</i>)</a>", c->classname, c->classname, c->classID);
+    if (classDef->classID[0]) {
+        CLASS_Print(class_file, "<h2> <a name=\"%s\">%s (<i>%s</i>)</a>", classDef->classname, classDef->classname, classDef->classID);
     } else {
-        CLASS_Print(class_file, "<h2> <a name=\"%s\">%s</a>", c->classname, c->classname);
+        CLASS_Print(class_file, "<h2> <a name=\"%s\">%s</a>", classDef->classname, classDef->classname);
     }
 
     // print out lineage
-    for (c = c->super; c != NULL; c = c->super) {
+    for (c = classDef->super; c != NULL; c = c->super) {
         CLASS_Print(class_file, " -> <a href=\"#%s\">%s</a>", c->classname, c->classname);
     }
     CLASS_Print(class_file, "</h2>\n");
@@ -698,7 +711,8 @@ void DumpClass(FILE *class_file, const char *className)
 
         index = ClassDef::sortedList.ObjectAt(i);
         if (events[index]) {
-            Event::eventDefList[events[index]].PrintEventDocumentation(class_file, qtrue);
+            def = classDef->GetDef(events[index]);
+            def->PrintEventDocumentation(class_file, qtrue);
             ClassDef::dump_numevents++;
         }
     }
@@ -762,9 +776,6 @@ void DumpAllClasses(void)
     ClassDef::dump_numclasses = 0;
     ClassDef::dump_numevents  = 0;
 
-    ClassDef::sortedList.ClearObjectList();
-    ClassDef::sortedClassList.ClearObjectList();
-
     Event::SortEventList(&ClassDef::sortedList);
     ClassDef::SortClassList(&ClassDef::sortedClassList);
 
@@ -775,6 +786,8 @@ void DumpAllClasses(void)
         c = ClassDef::sortedClassList.ObjectAt(i);
         DumpClass(class_file, c->classname);
     }
+
+    ClassDef::sortedList.FreeObjectList();
 
     if (class_file != NULL) {
         CLASS_Print(class_file, "<H2>\n");

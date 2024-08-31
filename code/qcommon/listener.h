@@ -274,7 +274,6 @@ public:
 
     static EventQueueNode EventQueue;
 
-    static int totalevents;
     static int NumEventCommands();
 
     static void ListCommands(const char *mask = NULL);

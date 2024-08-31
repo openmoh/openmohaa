@@ -75,8 +75,6 @@ int DisableListenerNotify = 0;
 
 bool Listener::EventSystemStarted = 0;
 
-int Event::totalevents = 1;
-
 Event EV_Listener_CancelFor
 (
     "cancelFor",
@@ -1130,7 +1128,7 @@ Number of total events
 */
 int Event::NumEventCommands()
 {
-    return commandList.size();
+    return commandList.size() + 1;
 }
 
 /*
@@ -1629,7 +1627,6 @@ void Event::LoadEvents()
 #endif
 
         delete DataNodeList;
-        totalevents++;
     }
 }
 
