@@ -81,6 +81,11 @@ void Actor::Think_Patrol(void)
     } else if (bMoveInRadius) {
         ClearPatrolCurrentNode();
         SetThinkIdle(THINK_IDLE);
+        // Added in OPM
+        //  Not sure why it was not cleared originally.
+        //  Once you reach your goal, there is no point
+        //  in leaving it set to true
+        m_bScriptGoalValid = false;
 
         parm.movedone = true;
         Unregister(STRING_MOVEDONE);
