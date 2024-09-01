@@ -6008,7 +6008,7 @@ void Vehicle::UpdatePassengerSlot(int iSlot)
         Passengers[iSlot].ent->avelocity = avelocity;
         Passengers[iSlot].ent->velocity  = velocity;
 
-        if (!Passengers[iSlot].ent->IsSubclassOfActor() || ((Actor *)Passengers[iSlot].ent.Pointer())->m_Enemy) {
+        if (!Passengers[iSlot].ent->IsSubclassOfActor() || !((Actor *)Passengers[iSlot].ent.Pointer())->m_Enemy) {
             Vector newAngles;
 
             MatrixToEulerAngles(orient.axis, newAngles);
