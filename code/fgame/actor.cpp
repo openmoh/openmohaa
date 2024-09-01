@@ -3017,7 +3017,6 @@ Actor::~Actor()
 /*
 ===============
 Actor::setContentsSolid
-
 ===============
 */
 void Actor::setContentsSolid(void)
@@ -3025,6 +3024,11 @@ void Actor::setContentsSolid(void)
     setContents(CONTENTS_NOBOTCLIP);
 }
 
+/*
+===============
+Actor::EndStates
+===============
+*/
 void Actor::EndStates(void)
 {
     for (int i = 0; i < NUM_THINKLEVELS; i++) {
@@ -3032,6 +3036,11 @@ void Actor::EndStates(void)
     }
 }
 
+/*
+===============
+Actor::ClearStates
+===============
+*/
 void Actor::ClearStates(void)
 {
     for (int i = 0; i < NUM_THINKSTATES; i++) {
@@ -3039,6 +3048,11 @@ void Actor::ClearStates(void)
     }
 }
 
+/*
+===============
+Actor::ResolveVoiceType
+===============
+*/
 void Actor::ResolveVoiceType(void)
 {
     char validVoice[128];
@@ -3111,6 +3125,11 @@ void Actor::EventStart(Event *ev)
     }
 }
 
+/*
+===============
+Actor::ClearEnemies
+===============
+*/
 void Actor::ClearEnemies(void)
 {
     m_PotentialEnemies.RemoveAll();
@@ -3609,6 +3628,11 @@ void Actor::UpdateBoneControllers(void)
     SetControllerAngles(ARMS_TAG, new_angles);
 }
 
+/*
+===============
+Actor::setOriginEvent
+===============
+*/
 void Actor::setOriginEvent(Vector org)
 {
     float dist;
@@ -4058,6 +4082,11 @@ bool Actor::CanShootEnemy(int iMaxDirtyTime)
     return m_bCanShootEnemy;
 }
 
+/*
+===============
+Actor::FriendlyInLineOfFire
+===============
+*/
 bool Actor::FriendlyInLineOfFire(Entity *other)
 {
     Vector delta;
@@ -4089,6 +4118,11 @@ bool Actor::FriendlyInLineOfFire(Entity *other)
     return false;
 }
 
+/*
+===============
+Actor::VirtualEyePosition
+===============
+*/
 Vector Actor::VirtualEyePosition()
 {
     if (m_pTurret && CurrentThink() == THINK_MACHINEGUNNER) {
@@ -4277,11 +4311,21 @@ void Actor::ShowInfo(float fDot, float fDist)
     }
 }
 
+/*
+===============
+Actor::ThinkName
+===============
+*/
 str Actor::ThinkName(void) const
 {
     return Director.GetString(m_csThinkNames[CurrentThink()]);
 }
 
+/*
+===============
+Actor::ThinkStateName
+===============
+*/
 str Actor::ThinkStateName(void) const
 {
     return Director.GetString(m_csThinkStateNames[m_ThinkState]);
@@ -6224,6 +6268,11 @@ void Actor::EventGetAccuracy(Event *ev)
     ev->AddFloat(mAccuracy * 100.f);
 }
 
+/*
+===============
+Actor::EventSetMinDistance
+===============
+*/
 void Actor::EventSetMinDistance(Event *ev)
 {
     m_fMinDistance = ev->GetFloat(1);
@@ -6241,11 +6290,21 @@ void Actor::EventSetMinDistance(Event *ev)
     m_fMinDistanceSquared = Square(m_fMinDistance);
 }
 
+/*
+===============
+Actor::EventGetMinDistance
+===============
+*/
 void Actor::EventGetMinDistance(Event *ev)
 {
     ev->AddFloat(m_fMinDistance);
 }
 
+/*
+===============
+Actor::EventSetMaxDistance
+===============
+*/
 void Actor::EventSetMaxDistance(Event *ev)
 {
     m_fMaxDistance = ev->GetFloat(1);
@@ -6264,32 +6323,62 @@ void Actor::EventSetMaxDistance(Event *ev)
     m_fMaxDistanceSquared = Square(m_fMaxDistance);
 }
 
+/*
+===============
+Actor::EventGetMaxDistance
+===============
+*/
 void Actor::EventGetMaxDistance(Event *ev)
 {
     ev->AddFloat(m_fMaxDistance);
 }
 
+/*
+===============
+Actor::EventGetLeash
+===============
+*/
 void Actor::EventGetLeash(Event *ev)
 {
     ev->AddFloat(m_fLeash);
 }
 
+/*
+===============
+Actor::EventSetLeash
+===============
+*/
 void Actor::EventSetLeash(Event *ev)
 {
     m_fLeash        = ev->GetFloat(1);
     m_fLeashSquared = Square(m_fLeash);
 }
 
+/*
+===============
+Actor::EventGetInterval
+===============
+*/
 void Actor::EventGetInterval(Event *ev)
 {
     ev->AddFloat(m_fInterval);
 }
 
+/*
+===============
+Actor::EventSetInterval
+===============
+*/
 void Actor::EventSetInterval(Event *ev)
 {
     m_fInterval = ev->GetFloat(1);
 }
 
+/*
+===============
+Actor::EventDistToEnemy
+===============
+*/
 void Actor::EventDistToEnemy(Event *ev)
 {
     if (!m_Enemy) {
@@ -7407,6 +7496,16 @@ void Actor::Think(void)
     Director.Unpause();
 }
 
+/*
+===============
+Actor::CheckUnregister
+
+Notify scripts when the actor has:
+- Finished moving
+- Has a new enemy
+- And/or if the enemy is visible
+===============
+*/
 void Actor::CheckUnregister(void)
 {
     m_bBecomeRunner = false;
@@ -7649,6 +7748,11 @@ void Actor::ClearThinkStates(void)
     }
 }
 
+/*
+===============
+Actor::EventSetAlarmNode
+===============
+*/
 void Actor::EventSetAlarmNode(Event *ev)
 {
     Listener *l = ev->GetListener(1);
@@ -7659,11 +7763,21 @@ void Actor::EventSetAlarmNode(Event *ev)
     m_AlarmNode = static_cast<SimpleEntity *>(l);
 }
 
+/*
+===============
+Actor::EventGetAlarmNode
+===============
+*/
 void Actor::EventGetAlarmNode(Event *ev)
 {
     ev->AddListener(m_AlarmNode);
 }
 
+/*
+===============
+Actor::EventSetPreAlarmThread
+===============
+*/
 void Actor::EventSetPreAlarmThread(Event *ev)
 {
     if (ev->IsFromScript()) {
@@ -7673,6 +7787,11 @@ void Actor::EventSetPreAlarmThread(Event *ev)
     }
 }
 
+/*
+===============
+Actor::EventSetAlarmThread
+===============
+*/
 void Actor::EventSetAlarmThread(Event *ev)
 {
     if (ev->IsFromScript()) {
@@ -7682,31 +7801,61 @@ void Actor::EventSetAlarmThread(Event *ev)
     }
 }
 
+/*
+===============
+Actor::EventGetAlarmThread
+===============
+*/
 void Actor::EventGetAlarmThread(Event *ev)
 {
     m_AlarmThread.GetScriptValue(&ev->GetValue());
 }
 
+/*
+===============
+Actor::EventSetSoundAwareness
+===============
+*/
 void Actor::EventSetSoundAwareness(Event *ev)
 {
     m_fSoundAwareness = ev->GetFloat(1);
 }
 
+/*
+===============
+Actor::EventGetSoundAwareness
+===============
+*/
 void Actor::EventGetSoundAwareness(Event *ev)
 {
     ev->AddFloat(m_fSoundAwareness);
 }
 
+/*
+===============
+Actor::EventSetGrenadeAwareness
+===============
+*/
 void Actor::EventSetGrenadeAwareness(Event *ev)
 {
     m_fGrenadeAwareness = ev->GetFloat(1);
 }
 
+/*
+===============
+Actor::EventGetGrenadeAwareness
+===============
+*/
 void Actor::EventGetGrenadeAwareness(Event *ev)
 {
     ev->AddFloat(m_fGrenadeAwareness);
 }
 
+/*
+===============
+Actor::EventSetTypeIdle
+===============
+*/
 void Actor::EventSetTypeIdle(Event *ev)
 {
     bool (*AllowedState)(int state);
@@ -7723,11 +7872,21 @@ void Actor::EventSetTypeIdle(Event *ev)
     SetThinkIdle(think);
 }
 
+/*
+===============
+Actor::EventGetTypeIdle
+===============
+*/
 void Actor::EventGetTypeIdle(Event *ev)
 {
     ev->AddConstString(m_csThinkNames[m_ThinkMap[THINKSTATE_IDLE]]);
 }
 
+/*
+===============
+Actor::EventSetTypeAttack
+===============
+*/
 void Actor::EventSetTypeAttack(Event *ev)
 {
     bool (*AllowedState)(int state);
@@ -7744,11 +7903,21 @@ void Actor::EventSetTypeAttack(Event *ev)
     SetThink(THINKSTATE_ATTACK, think);
 }
 
+/*
+===============
+Actor::EventGetTypeAttack
+===============
+*/
 void Actor::EventGetTypeAttack(Event *ev)
 {
     ev->AddConstString(m_csThinkNames[m_ThinkMap[THINKSTATE_ATTACK]]);
 }
 
+/*
+===============
+Actor::EventSetTypeDisguise
+===============
+*/
 void Actor::EventSetTypeDisguise(Event *ev)
 {
     bool (*AllowedState)(int state);
@@ -7765,6 +7934,11 @@ void Actor::EventSetTypeDisguise(Event *ev)
     SetThink(THINKSTATE_DISGUISE, think);
 }
 
+/*
+===============
+Actor::EventSetDisguiseAcceptThread
+===============
+*/
 void Actor::EventSetDisguiseAcceptThread(Event *ev)
 {
     if (ev->IsFromScript()) {
@@ -7774,16 +7948,31 @@ void Actor::EventSetDisguiseAcceptThread(Event *ev)
     }
 }
 
+/*
+===============
+Actor::EventGetDisguiseAcceptThread
+===============
+*/
 void Actor::EventGetDisguiseAcceptThread(Event *ev)
 {
     m_DisguiseAcceptThread.GetScriptValue(&ev->GetValue());
 }
 
+/*
+===============
+Actor::EventGetTypeDisguise
+===============
+*/
 void Actor::EventGetTypeDisguise(Event *ev)
 {
     ev->AddConstString(m_csThinkNames[m_ThinkMap[THINKSTATE_DISGUISE]]);
 }
 
+/*
+===============
+Actor::EventSetDisguiseLevel
+===============
+*/
 void Actor::EventSetDisguiseLevel(Event *ev)
 {
     m_iDisguiseLevel = ev->GetInteger(1);
@@ -7794,11 +7983,21 @@ void Actor::EventSetDisguiseLevel(Event *ev)
     }
 }
 
+/*
+===============
+Actor::EventGetDisguiseLevel
+===============
+*/
 void Actor::EventGetDisguiseLevel(Event *ev)
 {
     ev->AddInteger(m_iDisguiseLevel);
 }
 
+/*
+===============
+Actor::EventSetTypeGrenade
+===============
+*/
 void Actor::EventSetTypeGrenade(Event *ev)
 {
     bool (*AllowedState)(int state);
@@ -7815,6 +8014,11 @@ void Actor::EventSetTypeGrenade(Event *ev)
     SetThink(THINKSTATE_GRENADE, think);
 }
 
+/*
+===============
+Actor::EventGetTypeGrenade
+===============
+*/
 void Actor::EventGetTypeGrenade(Event *ev)
 {
     ev->AddConstString(m_csThinkNames[m_ThinkMap[THINKSTATE_GRENADE]]);
@@ -8450,11 +8654,21 @@ bool Actor::PassesTransitionConditions_Idle(void)
     return false;
 }
 
+/*
+===============
+Actor::EventGetRunAnim
+===============
+*/
 void Actor::EventGetRunAnim(Event *ev)
 {
     ev->AddConstString(GetRunAnim());
 }
 
+/*
+===============
+Actor::EventGetWalkAnim
+===============
+*/
 void Actor::EventGetWalkAnim(Event *ev)
 {
     ev->AddConstString(GetWalkAnim());
@@ -8563,32 +8777,62 @@ void Actor::FaceDirectionDuringMotion(vec3_t vLook)
     SetDesiredYaw(yaw);
 }
 
+/*
+===============
+Actor::EventGetAnimName
+===============
+*/
 void Actor::EventGetAnimName(Event *ev)
 {
     ev->AddConstString(m_csAnimName);
 }
 
+/*
+===============
+Actor::EventSetAnimName
+===============
+*/
 void Actor::EventSetAnimName(Event *ev)
 {
     m_csAnimName = ev->GetConstString(1);
 }
 
+/*
+===============
+Actor::EventSetDisguiseRange
+===============
+*/
 void Actor::EventSetDisguiseRange(Event *ev)
 {
     m_fMaxDisguiseDistSquared = ev->GetFloat(1);
     m_fMaxDisguiseDistSquared = Square(m_fMaxDisguiseDistSquared);
 }
 
+/*
+===============
+Actor::EventGetDisguiseRange
+===============
+*/
 void Actor::EventGetDisguiseRange(Event *ev)
 {
     ev->AddFloat(sqrt(m_fMaxDisguiseDistSquared));
 }
 
+/*
+===============
+Actor::EventSetDisguisePeriod
+===============
+*/
 void Actor::EventSetDisguisePeriod(Event *ev)
 {
     m_iDisguisePeriod = ev->GetFloat(1) * 1000 + 0.5;
 }
 
+/*
+===============
+Actor::EventGetDisguisePeriod
+===============
+*/
 void Actor::EventGetDisguisePeriod(Event *ev)
 {
     ev->AddFloat(m_iDisguisePeriod / 1000.0);
@@ -8630,12 +8874,22 @@ void Actor::FaceMotion(void)
     }
 }
 
+/*
+===============
+Actor::ForceAttackPlayer
+===============
+*/
 void Actor::ForceAttackPlayer(void)
 {
     m_PotentialEnemies.ConfirmEnemy(this, static_cast<Sentient *>(G_GetEntity(0)));
     m_bForceAttackPlayer = true;
 }
 
+/*
+===============
+Actor::EventAttackPlayer
+===============
+*/
 void Actor::EventAttackPlayer(Event *ev)
 {
     if (!G_GetEntity(0)) {
@@ -9966,6 +10220,11 @@ void Actor::Grenade_EventFire(Event *ev)
     UseAmmo("grenade", 1);
 }
 
+/*
+===============
+Actor::EventSetTurret
+===============
+*/
 void Actor::EventSetTurret(Event *ev)
 {
     Listener *l = ev->GetListener(1);
@@ -9974,26 +10233,51 @@ void Actor::EventSetTurret(Event *ev)
     }
 }
 
+/*
+===============
+Actor::EventGetTurret
+===============
+*/
 void Actor::EventGetTurret(Event *ev)
 {
     ev->AddListener(m_pTurret);
 }
 
+/*
+===============
+Actor::EventGetAmmoGrenade
+===============
+*/
 void Actor::EventGetAmmoGrenade(Event *ev)
 {
     ev->AddInteger(AmmoCount("grenade"));
 }
 
+/*
+===============
+Actor::EventSetAmmoGrenade
+===============
+*/
 void Actor::EventSetAmmoGrenade(Event *ev)
 {
     GiveAmmo("grenade", ev->GetInteger(1));
 }
 
+/*
+===============
+Actor::EventEnableEnemy
+===============
+*/
 void Actor::EventEnableEnemy(Event *ev)
 {
     m_bDesiredEnableEnemy = ev->GetBoolean(1);
 }
 
+/*
+===============
+Actor::EventEnablePain
+===============
+*/
 void Actor::EventEnablePain(Event *ev)
 {
     m_bEnablePain = ev->GetBoolean(1);
@@ -10002,12 +10286,22 @@ void Actor::EventEnablePain(Event *ev)
     }
 }
 
+/*
+===============
+Actor::EventActivate
+===============
+*/
 void Actor::EventActivate(Event *ev)
 {
     m_bPatrolWaitTrigger = false;
     Unregister(STRING_TRIGGER);
 }
 
+/*
+===============
+Actor::EventInterruptPoint
+===============
+*/
 void Actor::EventInterruptPoint(Event *ev)
 {
     GlobalFuncs_t *interrupt = &GlobalFuncs[m_Think[m_ThinkLevel]];
@@ -10017,11 +10311,21 @@ void Actor::EventInterruptPoint(Event *ev)
     }
 }
 
+/*
+===============
+Actor::EventGetVisibilityThreshold
+===============
+*/
 void Actor::EventGetVisibilityThreshold(Event *ev)
 {
     ev->AddFloat(m_fVisibilityThreshold);
 }
 
+/*
+===============
+Actor::EventSetVisibilityThreshold
+===============
+*/
 void Actor::EventSetVisibilityThreshold(Event *ev)
 {
     float threshold;
@@ -10036,6 +10340,11 @@ void Actor::EventSetVisibilityThreshold(Event *ev)
     m_fVisibilityThreshold    = threshold;
 }
 
+/*
+===============
+Actor::EventSetDefaultVisibilityThreshold
+===============
+*/
 void Actor::EventSetDefaultVisibilityThreshold(Event *ev)
 {
     float threshold;
@@ -10051,11 +10360,21 @@ void Actor::EventSetDefaultVisibilityThreshold(Event *ev)
     }
 }
 
+/*
+===============
+Actor::EventGetSuppressChance
+===============
+*/
 void Actor::EventGetSuppressChance(Event *ev)
 {
     ev->AddInteger(m_iSuppressChance);
 }
 
+/*
+===============
+Actor::EventSetSuppressChance
+===============
+*/
 void Actor::EventSetSuppressChance(Event *ev)
 {
     m_iSuppressChance = ev->GetInteger(1);
@@ -10084,6 +10403,11 @@ void Actor::EventSetSuppressChance(Event *ev)
     }
 }
 
+/*
+===============
+Actor::EventAnimScript
+===============
+*/
 void Actor::EventAnimScript(Event *ev)
 {
     m_csAnimScript   = ev->GetConstString(1);
@@ -10093,6 +10417,11 @@ void Actor::EventAnimScript(Event *ev)
     SetThinkIdle(THINK_ANIM);
 }
 
+/*
+===============
+Actor::EventAnimScript_Scripted
+===============
+*/
 void Actor::EventAnimScript_Scripted(Event *ev)
 {
     m_csAnimScript   = ev->GetConstString(1);
@@ -10102,6 +10431,11 @@ void Actor::EventAnimScript_Scripted(Event *ev)
     SetThinkIdle(THINK_ANIM);
 }
 
+/*
+===============
+Actor::EventAnimScript_Noclip
+===============
+*/
 void Actor::EventAnimScript_Noclip(Event *ev)
 {
     m_csAnimScript   = ev->GetConstString(1);
@@ -10111,6 +10445,11 @@ void Actor::EventAnimScript_Noclip(Event *ev)
     SetThinkIdle(THINK_ANIM);
 }
 
+/*
+===============
+Actor::EventAnimScript_Attached
+===============
+*/
 void Actor::EventAnimScript_Attached(Event *ev)
 {
     m_csAnimScript   = ev->GetConstString(1);
@@ -10120,6 +10459,11 @@ void Actor::EventAnimScript_Attached(Event *ev)
     SetThinkIdle(THINK_ANIM);
 }
 
+/*
+===============
+Actor::EventReload_mg42
+===============
+*/
 void Actor::EventReload_mg42(Event *ev)
 {
     if (m_State != ACTOR_STATE_MACHINE_GUNNER_RELOADING) {
@@ -10132,6 +10476,11 @@ void Actor::EventReload_mg42(Event *ev)
     }
 }
 
+/*
+===============
+Actor::CanMovePathWithLeash
+===============
+*/
 bool Actor::CanMovePathWithLeash(void) const
 {
     vec2_t delta;
@@ -10149,6 +10498,11 @@ bool Actor::CanMovePathWithLeash(void) const
     return true;
 }
 
+/*
+===============
+Actor::MovePathWithLeash
+===============
+*/
 bool Actor::MovePathWithLeash(void)
 {
     if (!CanMovePathWithLeash()) {
@@ -10162,6 +10516,11 @@ bool Actor::MovePathWithLeash(void)
     return true;
 }
 
+/*
+===============
+Actor::GunTarget
+===============
+*/
 Vector Actor::GunTarget(bool bNoCollision, const vec3_t position, const vec3_t forward)
 {
     static cvar_t  *aifSupressScatter = gi.Cvar_Get("g_aiSupressScatter", "2.0", 0);
@@ -10293,6 +10652,11 @@ Vector Actor::GunTarget(bool bNoCollision, const vec3_t position, const vec3_t f
     return vPos + error;
 }
 
+/*
+===============
+Actor::setModel
+===============
+*/
 qboolean Actor::setModel(void)
 {
     str      name;
@@ -10328,28 +10692,53 @@ qboolean Actor::setModel(void)
     return success;
 }
 
+/*
+===============
+Actor::EventSetHeadModel
+===============
+*/
 void Actor::EventSetHeadModel(Event *ev)
 {
     m_csHeadModel = ev->GetConstString(1);
     setModel();
 }
 
+/*
+===============
+Actor::EventGetHeadModel
+===============
+*/
 void Actor::EventGetHeadModel(Event *ev)
 {
     ev->AddConstString(m_csHeadModel);
 }
 
+/*
+===============
+Actor::EventSetHeadSkin
+===============
+*/
 void Actor::EventSetHeadSkin(Event *ev)
 {
     m_csHeadSkin = ev->GetConstString(1);
     setModel();
 }
 
+/*
+===============
+Actor::EventGetHeadSkin
+===============
+*/
 void Actor::EventGetHeadSkin(Event *ev)
 {
     ev->AddConstString(m_csHeadSkin);
 }
 
+/*
+===============
+Actor::SetPathWithLeash
+===============
+*/
 void Actor::SetPathWithLeash(Vector vDestPos, const char *description, int iMaxDirtyTime)
 {
     vec2_t vDelta;
@@ -10371,6 +10760,11 @@ void Actor::SetPathWithLeash(Vector vDestPos, const char *description, int iMaxD
     SetPath(vDestPos, description, iMaxDirtyTime, m_vHome, m_fLeashSquared);
 }
 
+/*
+===============
+Actor::SetPathWithLeash
+===============
+*/
 void Actor::SetPathWithLeash(SimpleEntity *pDestNode, const char *description, int iMaxDirtyTime)
 {
     if (!pDestNode) {
@@ -10392,12 +10786,22 @@ void Actor::SetPathWithLeash(SimpleEntity *pDestNode, const char *description, i
     SetPathWithLeash(pDestNode->origin, description, iMaxDirtyTime);
 }
 
+/*
+===============
+Actor::FindPathAwayWithLeash
+===============
+*/
 void Actor::FindPathAwayWithLeash(vec3_t vAwayFrom, vec3_t vDirPreferred, float fMinSafeDist)
 {
     m_Path.FindPathAway(origin, vAwayFrom, vDirPreferred, this, fMinSafeDist, m_vHome, m_fLeashSquared);
     ShortenPathToAvoidSquadMates();
 }
 
+/*
+===============
+Actor::FindPathNearWithLeash
+===============
+*/
 void Actor::FindPathNearWithLeash(vec3_t vNearbyTo, float fCloseDistSquared)
 {
     vec2_t vDelta;
@@ -10463,6 +10867,11 @@ Vector Actor::GetAntiBunchPoint(void)
     }
 }
 
+/*
+===============
+Actor::AutoArchiveModel
+===============
+*/
 bool Actor::AutoArchiveModel(void)
 {
     return false;
@@ -10507,21 +10916,41 @@ void Actor::ResetBodyQueue(void)
     mCurBody = 0;
 }
 
+/*
+===============
+Actor::EventSetNoIdle
+===============
+*/
 void Actor::EventSetNoIdle(Event *ev)
 {
     m_bNoIdleAfterAnim = ev->GetInteger(1);
 }
 
+/*
+===============
+Actor::EventGetNoIdle
+===============
+*/
 void Actor::EventGetNoIdle(Event *ev)
 {
     ev->AddInteger(m_bNoIdleAfterAnim);
 }
 
+/*
+===============
+Actor::EventGetEnemy
+===============
+*/
 void Actor::EventGetEnemy(Event *ev)
 {
     ev->AddListener(m_Enemy);
 }
 
+/*
+===============
+Actor::EventSetMaxNoticeTimeScale
+===============
+*/
 void Actor::EventSetMaxNoticeTimeScale(Event *ev)
 {
     float fScale;
@@ -10535,21 +10964,41 @@ void Actor::EventSetMaxNoticeTimeScale(Event *ev)
     m_fMaxNoticeTimeScale = fScale * 0.01f;
 }
 
+/*
+===============
+Actor::EventGetMaxNoticeTimeScale
+===============
+*/
 void Actor::EventGetMaxNoticeTimeScale(Event *ev)
 {
     ev->AddFloat(m_fMaxNoticeTimeScale * 100);
 }
 
+/*
+===============
+Actor::EventSetFixedLeash
+===============
+*/
 void Actor::EventSetFixedLeash(Event *ev)
 {
     m_bFixedLeash = ev->GetBoolean(1);
 }
 
+/*
+===============
+Actor::EventGetFixedLeash
+===============
+*/
 void Actor::EventGetFixedLeash(Event *ev)
 {
     ev->AddInteger(m_bFixedLeash);
 }
 
+/*
+===============
+Actor::Holster
+===============
+*/
 void Actor::Holster(void)
 {
     if (activeWeaponList[WEAPON_MAIN]) {
@@ -10557,6 +11006,11 @@ void Actor::Holster(void)
     }
 }
 
+/*
+===============
+Actor::HolsterOffHand
+===============
+*/
 void Actor::HolsterOffHand(void)
 {
     if (activeWeaponList[WEAPON_OFFHAND]) {
@@ -10564,6 +11018,11 @@ void Actor::HolsterOffHand(void)
     }
 }
 
+/*
+===============
+Actor::Unholster
+===============
+*/
 void Actor::Unholster(void)
 {
     Weapon *weap;
@@ -10577,6 +11036,11 @@ void Actor::Unholster(void)
     }
 }
 
+/*
+===============
+Actor::UnholsterOffHand
+===============
+*/
 void Actor::UnholsterOffHand(void)
 {
     Weapon *weap;
@@ -10590,6 +11054,11 @@ void Actor::UnholsterOffHand(void)
     }
 }
 
+/*
+===============
+Actor::EventHolster
+===============
+*/
 void Actor::EventHolster(Event *ev)
 {
     if (ev->NumArgs() > 0 && ev->GetInteger(1) > 0) {
@@ -10599,6 +11068,11 @@ void Actor::EventHolster(Event *ev)
     }
 }
 
+/*
+===============
+Actor::EventUnholster
+===============
+*/
 void Actor::EventUnholster(Event *ev)
 {
     if (ev->NumArgs() > 0 && ev->GetInteger(1) > 0) {
@@ -10608,21 +11082,41 @@ void Actor::EventUnholster(Event *ev)
     }
 }
 
+/*
+===============
+Actor::EventIsEnemyVisible
+===============
+*/
 void Actor::EventIsEnemyVisible(Event *ev)
 {
     ev->AddInteger(m_bEnemyVisible);
 }
 
+/*
+===============
+Actor::EventGetEnemyVisibleChangeTime
+===============
+*/
 void Actor::EventGetEnemyVisibleChangeTime(Event *ev)
 {
     ev->AddFloat(m_iEnemyVisibleChangeTime / 100.f);
 }
 
+/*
+===============
+Actor::EventGetLastEnemyVisibleTime
+===============
+*/
 void Actor::EventGetLastEnemyVisibleTime(Event *ev)
 {
     ev->AddFloat(m_iLastEnemyVisibleTime / 100.f);
 }
 
+/*
+===============
+Actor::EventSoundDone
+===============
+*/
 void Actor::EventSoundDone(Event *ev)
 {
     int channelNum;
@@ -10646,6 +11140,11 @@ void Actor::EventSoundDone(Event *ev)
     }
 }
 
+/*
+===============
+Actor::EventSound
+===============
+*/
 void Actor::EventSound(Event *ev)
 {
     if (g_gametype->integer == GT_SINGLE_PLAYER || m_Team == TEAM_AMERICAN) {
@@ -10655,6 +11154,11 @@ void Actor::EventSound(Event *ev)
     }
 }
 
+/*
+===============
+Actor::EventSetFallHeight
+===============
+*/
 void Actor::EventSetFallHeight(Event *ev)
 {
     float fHeight = ev->GetFloat(1);
@@ -10669,11 +11173,21 @@ void Actor::EventSetFallHeight(Event *ev)
     m_Path.SetFallHeight(fHeight);
 }
 
+/*
+===============
+Actor::EventGetFallHeight
+===============
+*/
 void Actor::EventGetFallHeight(Event *ev)
 {
     ev->AddFloat(m_Path.GetFallHeight());
 }
 
+/*
+===============
+Actor::EventCanMoveTo
+===============
+*/
 void Actor::EventCanMoveTo(Event *ev)
 {
     Vector    vDest;
@@ -10746,6 +11260,11 @@ void Actor::EventCanMoveTo(Event *ev)
     ev->AddInteger(true);
 }
 
+/*
+===============
+Actor::EventMoveDir
+===============
+*/
 void Actor::EventMoveDir(Event *ev)
 {
     vec3_t vDir;
@@ -10769,6 +11288,11 @@ void Actor::EventMoveDir(Event *ev)
     ev->AddVector(vDir);
 }
 
+/*
+===============
+Actor::EventIntervalDir
+===============
+*/
 void Actor::EventIntervalDir(Event *ev)
 {
     if (level.inttime >= m_iIntervalDirTime + 250) {
@@ -10786,17 +11310,32 @@ void Actor::EventIntervalDir(Event *ev)
     ev->AddVector(m_vIntervalDir);
 }
 
+/*
+===============
+Actor::EventResetLeash
+===============
+*/
 void Actor::EventResetLeash(Event *ev)
 {
     m_vHome      = origin;
     m_pTetherEnt = NULL;
 }
 
+/*
+===============
+Actor::EventTether
+===============
+*/
 void Actor::EventTether(Event *ev)
 {
     m_pTetherEnt = ev->GetSimpleEntity(1);
 }
 
+/*
+===============
+Actor::ShortenPathToAttack
+===============
+*/
 bool Actor::ShortenPathToAttack(float fMinDist)
 {
     float     fMinDistSquared;
@@ -10826,6 +11365,11 @@ bool Actor::ShortenPathToAttack(float fMinDist)
     return false;
 }
 
+/*
+===============
+Actor::StrafeToAttack
+===============
+*/
 void Actor::StrafeToAttack(float fDist, vec3_t vDir)
 {
     static const vec3_t mins = {-16, -16, 16};
@@ -10869,28 +11413,53 @@ void Actor::StrafeToAttack(float fDist, vec3_t vDir)
     SetPathWithLeash(vSpot, NULL, 0);
 }
 
+/*
+===============
+Actor::EventGetThinkState
+===============
+*/
 void Actor::EventGetThinkState(Event *ev)
 {
     ev->AddConstString(m_csThinkStateNames[m_ThinkState]);
 }
 
+/*
+===============
+Actor::EventGetEnemyShareRange
+===============
+*/
 void Actor::EventGetEnemyShareRange(Event *ev)
 {
     ev->AddFloat(sqrt(m_fMaxShareDistSquared));
 }
 
+/*
+===============
+Actor::EventSetEnemyShareRange
+===============
+*/
 void Actor::EventSetEnemyShareRange(Event *ev)
 {
     float fLength          = ev->GetFloat(1);
     m_fMaxShareDistSquared = Square(fLength);
 }
 
+/*
+===============
+Actor::GetVoiceType
+===============
+*/
 void Actor::GetVoiceType(Event *ev)
 {
     //voice type in actor is a char.
     ev->AddString(va("%c", mVoiceType));
 }
 
+/*
+===============
+Actor::SetVoiceType
+===============
+*/
 void Actor::SetVoiceType(Event *ev)
 {
     //voice type in actor is a char.
@@ -10903,6 +11472,11 @@ void Actor::SetVoiceType(Event *ev)
     }
 }
 
+/*
+===============
+Actor::FindSniperNodeAndSetPath
+===============
+*/
 PathNode *Actor::FindSniperNodeAndSetPath(bool *pbTryAgain)
 {
     PathNode *pSniperNode;
@@ -10932,6 +11506,11 @@ PathNode *Actor::FindSniperNodeAndSetPath(bool *pbTryAgain)
     return pSniperNode;
 }
 
+/*
+===============
+Actor::Remove
+===============
+*/
 void Actor::Remove(Event *ev)
 {
     EndStates();
@@ -10945,21 +11524,41 @@ void Actor::Remove(Event *ev)
     Delete();
 }
 
+/*
+===============
+Actor::EventGetKickDir
+===============
+*/
 void Actor::EventGetKickDir(Event *ev)
 {
     ev->AddVector(m_vKickDir);
 }
 
+/*
+===============
+Actor::EventGetNoLongPain
+===============
+*/
 void Actor::EventGetNoLongPain(Event *ev)
 {
     ev->AddInteger(m_bNoLongPain || m_Team == TEAM_AMERICAN);
 }
 
+/*
+===============
+Actor::EventSetNoLongPain
+===============
+*/
 void Actor::EventSetNoLongPain(Event *ev)
 {
     m_bNoLongPain = ev->GetBoolean(1);
 }
 
+/*
+===============
+Actor::DontFaceWall
+===============
+*/
 void Actor::DontFaceWall(void)
 {
     trace_t   trace;
@@ -11060,51 +11659,101 @@ void Actor::DontFaceWall(void)
     m_fDfwDerivedYaw = m_DesiredYaw;
 }
 
+/*
+===============
+Actor::IsVoidState
+===============
+*/
 bool Actor::IsVoidState(int state)
 {
     return true;
 }
 
+/*
+===============
+Actor::IsIdleState
+===============
+*/
 bool Actor::IsIdleState(int state)
 {
     return state == THINKSTATE_IDLE;
 }
 
+/*
+===============
+Actor::IsCuriousState
+===============
+*/
 bool Actor::IsCuriousState(int state)
 {
     return state == THINKSTATE_CURIOUS;
 }
 
+/*
+===============
+Actor::IsDisguiseState
+===============
+*/
 bool Actor::IsDisguiseState(int state)
 {
     return state == THINKSTATE_DISGUISE;
 }
 
+/*
+===============
+Actor::IsAttackState
+===============
+*/
 bool Actor::IsAttackState(int state)
 {
     return state == THINKSTATE_ATTACK;
 }
 
+/*
+===============
+Actor::IsGrenadeState
+===============
+*/
 bool Actor::IsGrenadeState(int state)
 {
     return state == THINKSTATE_GRENADE;
 }
 
+/*
+===============
+Actor::IsBadPlaceState
+===============
+*/
 bool Actor::IsBadPlaceState(int state)
 {
     return state == THINKSTATE_BADPLACE;
 }
 
+/*
+===============
+Actor::IsPainState
+===============
+*/
 bool Actor::IsPainState(int state)
 {
     return state == THINKSTATE_PAIN;
 }
 
+/*
+===============
+Actor::IsKilledState
+===============
+*/
 bool Actor::IsKilledState(int state)
 {
     return state == THINKSTATE_KILLED;
 }
 
+/*
+===============
+Actor::IsNoClipState
+===============
+*/
 bool Actor::IsNoClipState(int state)
 {
     return state == THINKSTATE_NOCLIP;
@@ -11122,6 +11771,11 @@ void Actor::InitVoid(GlobalFuncs_t *func)
     func->IsState = &Actor::IsVoidState;
 }
 
+/*
+===============
+Actor::BecomeCorpse
+===============
+*/
 void Actor::BecomeCorpse(void)
 {
     AddToBodyQue();
@@ -11144,16 +11798,31 @@ void Actor::BecomeCorpse(void)
     PostEvent(EV_DeathSinkStart, 10);
 }
 
+/*
+===============
+Actor::EventGetFavoriteEnemy
+===============
+*/
 void Actor::EventGetFavoriteEnemy(Event *ev)
 {
     ev->AddEntity(m_FavoriteEnemy);
 }
 
+/*
+===============
+Actor::EventSetFavoriteEnemy
+===============
+*/
 void Actor::EventSetFavoriteEnemy(Event *ev)
 {
     m_FavoriteEnemy = static_cast<Sentient *>(ev->GetEntity(1));
 }
 
+/*
+===============
+Actor::EventFindEnemy
+===============
+*/
 void Actor::EventFindEnemy(Event *ev)
 {
     if (level.inttime > m_iEnemyCheckTime + 200) {
@@ -11163,26 +11832,51 @@ void Actor::EventFindEnemy(Event *ev)
     ev->AddEntity(m_Enemy);
 }
 
+/*
+===============
+Actor::EventGetMumble
+===============
+*/
 void Actor::EventGetMumble(Event *ev)
 {
     ev->AddInteger(m_bMumble);
 }
 
+/*
+===============
+Actor::EventSetMumble
+===============
+*/
 void Actor::EventSetMumble(Event *ev)
 {
     m_bMumble = ev->GetInteger(1) != false;
 }
 
+/*
+===============
+Actor::EventGetBreathSteam
+===============
+*/
 void Actor::EventGetBreathSteam(Event *ev)
 {
     ev->AddInteger(m_bBreathSteam);
 }
 
+/*
+===============
+Actor::EventSetBreathSteam
+===============
+*/
 void Actor::EventSetBreathSteam(Event *ev)
 {
     m_bBreathSteam = ev->GetInteger(1) != false;
 }
 
+/*
+===============
+Actor::EventSetNextBreathTime
+===============
+*/
 void Actor::EventSetNextBreathTime(Event *ev)
 {
     ScriptVariable var;
@@ -11195,6 +11889,11 @@ void Actor::EventSetNextBreathTime(Event *ev)
     thread->Execute(&var, 1);
 }
 
+/*
+===============
+Actor::EventCalcGrenadeToss2
+===============
+*/
 void Actor::EventCalcGrenadeToss2(Event *ev)
 {
     Vector vTargetPos;
@@ -11253,6 +11952,11 @@ void Actor::EventCalcGrenadeToss2(Event *ev)
     SetDesiredYawDir(m_vGrenadeVel);
 }
 
+/*
+===============
+Actor::EventCalcGrenadeToss
+===============
+*/
 void Actor::EventCalcGrenadeToss(Event *ev)
 {
     bool bSuccess;
@@ -11287,36 +11991,71 @@ void Actor::EventCalcGrenadeToss(Event *ev)
     SetDesiredYawDir(m_vGrenadeVel);
 }
 
+/*
+===============
+Actor::EventGetNoSurprise
+===============
+*/
 void Actor::EventGetNoSurprise(Event *ev)
 {
     ev->AddInteger(m_bNoSurprise);
 }
 
+/*
+===============
+Actor::EventSetNoSurprise
+===============
+*/
 void Actor::EventSetNoSurprise(Event *ev)
 {
     m_bNoSurprise = ev->GetBoolean(1);
 }
 
+/*
+===============
+Actor::EventGetSilent
+===============
+*/
 void Actor::EventGetSilent(Event *ev)
 {
     ev->AddInteger(m_bSilent);
 }
 
+/*
+===============
+Actor::EventSetSilent
+===============
+*/
 void Actor::EventSetSilent(Event *ev)
 {
     m_bSilent = ev->GetBoolean(1);
 }
 
+/*
+===============
+Actor::EventGetAvoidPlayer
+===============
+*/
 void Actor::EventGetAvoidPlayer(Event *ev)
 {
     ev->AddInteger(m_bAutoAvoidPlayer);
 }
 
+/*
+===============
+Actor::EventSetAvoidPlayer
+===============
+*/
 void Actor::EventSetAvoidPlayer(Event *ev)
 {
     m_bAutoAvoidPlayer = ev->GetBoolean(1);
 }
 
+/*
+===============
+Actor::PathnodeClaimRevoked
+===============
+*/
 void Actor::PathnodeClaimRevoked(PathNode *node)
 {
     int iThinkLevel;
@@ -11333,6 +12072,11 @@ void Actor::PathnodeClaimRevoked(PathNode *node)
     m_pCoverNode = NULL;
 }
 
+/*
+===============
+Actor::SetPathToNotBlockSentient
+===============
+*/
 void Actor::SetPathToNotBlockSentient(Sentient *pOther)
 {
     Vector vAway;
@@ -11446,6 +12190,11 @@ void Actor::LookAround(float fFovAdd)
     }
 }
 
+/*
+===============
+Actor::EventGetLookAroundAngle
+===============
+*/
 void Actor::EventGetLookAroundAngle(Event *ev)
 {
     // Fixed in OPM
@@ -11455,6 +12204,11 @@ void Actor::EventGetLookAroundAngle(Event *ev)
     ev->AddFloat(m_fLookAroundFov);
 }
 
+/*
+===============
+Actor::EventSetLookAroundAngle
+===============
+*/
 void Actor::EventSetLookAroundAngle(Event *ev)
 {
     float fLookAroundFov;
@@ -11467,6 +12221,11 @@ void Actor::EventSetLookAroundAngle(Event *ev)
     m_fLookAroundFov = fLookAroundFov;
 }
 
+/*
+===============
+Actor::DumpAnimInfo
+===============
+*/
 void Actor::DumpAnimInfo(void)
 {
     vec3_t LocalLookAngles;
@@ -11602,12 +12361,22 @@ const char *Actor::DumpCallTrace(const char *pszFmt, ...) const
     );
 }
 
+/*
+===============
+Actor::EventSetMoveDoneRadius
+===============
+*/
 void Actor::EventSetMoveDoneRadius(Event *ev)
 {
     float radius             = ev->GetFloat(1);
     m_fMoveDoneRadiusSquared = Square(radius);
 }
 
+/*
+===============
+Actor::EventGetMoveDoneRadius
+===============
+*/
 void Actor::EventGetMoveDoneRadius(Event *ev)
 {
     ev->AddFloat(sqrtf(m_fMoveDoneRadiusSquared));
@@ -11633,11 +12402,21 @@ void Actor::StoppedWaitFor(const_str name, bool bDeleting)
     g_iInThinks--;
 }
 
+/*
+===============
+Actor::EventHasCompleteLookahead
+===============
+*/
 void Actor::EventHasCompleteLookahead(Event *ev)
 {
     ev->AddInteger(PathExists() && PathHasCompleteLookahead());
 }
 
+/*
+===============
+Actor::EventPathDist
+===============
+*/
 void Actor::EventPathDist(Event *ev)
 {
     if (!PathExists() || PathComplete()) {
@@ -11648,6 +12427,11 @@ void Actor::EventPathDist(Event *ev)
     ev->AddFloat(PathDist());
 }
 
+/*
+===============
+Actor::EventCanShootEnemyFrom
+===============
+*/
 void Actor::EventCanShootEnemyFrom(Event *ev)
 {
     if (!m_Enemy) {
@@ -11658,26 +12442,51 @@ void Actor::EventCanShootEnemyFrom(Event *ev)
     ev->AddInteger(CanSeeFrom(ev->GetVector(1), m_Enemy));
 }
 
+/*
+===============
+Actor::EventSetInReload
+===============
+*/
 void Actor::EventSetInReload(Event *ev)
 {
     m_bInReload = ev->GetBoolean(1);
 }
 
+/*
+===============
+Actor::EventGetInReload
+===============
+*/
 void Actor::EventGetInReload(Event *ev)
 {
     ev->AddInteger(m_bInReload);
 }
 
+/*
+===============
+Actor::EventSetReloadCover
+===============
+*/
 void Actor::EventSetReloadCover(Event *ev)
 {
     m_bNeedReload = ev->GetBoolean(1);
 }
 
+/*
+===============
+Actor::EventBreakSpecial
+===============
+*/
 void Actor::EventBreakSpecial(Event *ev)
 {
     mbBreakSpecialAttack = true;
 }
 
+/*
+===============
+Actor::EventCanShoot
+===============
+*/
 void Actor::EventCanShoot(Event *ev)
 {
     Entity *ent;
@@ -11691,11 +12500,21 @@ void Actor::EventCanShoot(Event *ev)
     ev->AddInteger(CanShoot(ent));
 }
 
+/*
+===============
+Actor::EventSetBalconyHeight
+===============
+*/
 void Actor::EventSetBalconyHeight(Event *ev)
 {
     m_fBalconyHeight = ev->GetFloat(1);
 }
 
+/*
+===============
+Actor::EventSetIgnoreBadPlace
+===============
+*/
 void Actor::EventSetIgnoreBadPlace(Event *ev)
 {
     if (m_bIgnoreBadPlace == ev->GetBoolean(1)) {
@@ -11709,16 +12528,31 @@ void Actor::EventSetIgnoreBadPlace(Event *ev)
     }
 }
 
+/*
+===============
+Actor::EventGetIgnoreBadPlace
+===============
+*/
 void Actor::EventGetIgnoreBadPlace(Event *ev)
 {
     ev->AddInteger(m_bIgnoreBadPlace);
 }
 
+/*
+===============
+Actor::EventGetBalconyHeight
+===============
+*/
 void Actor::EventGetBalconyHeight(Event *ev)
 {
     ev->AddFloat(m_fBalconyHeight);
 }
 
+/*
+===============
+Actor::BecomeTurretGuy
+===============
+*/
 void Actor::BecomeTurretGuy(void)
 {
     SetThinkIdle(THINK_IDLE);
@@ -11800,6 +12634,11 @@ void Actor::Landed(Event *ev)
     setMoveType(MOVETYPE_NONE);
 }
 
+/*
+===============
+Actor::IsOnFloor
+===============
+*/
 bool Actor::IsOnFloor(void)
 {
     str name = AnimName(0);
@@ -11920,10 +12759,25 @@ void Actor::EventCuriousOn(Event *ev)
     m_bIsCurious = true;
 }
 
+/*
+===============
+Actor::EventSetDestIdle
+===============
+*/
 void Actor::EventSetDestIdle(Event *ev) {}
 
+/*
+===============
+Actor::EventSetDestIdle2
+===============
+*/
 void Actor::EventSetDestIdle2(Event *ev) {}
 
+/*
+===============
+Actor::IsDisabled
+===============
+*/
 bool Actor::IsDisabled() const
 {
     return !m_bDoAI;
