@@ -261,6 +261,8 @@ Event EV_Actor_AnimScript_Noclip
     "Play the noclip animation script",
     EV_NORMAL
 );
+// Added in 2.0
+//====
 Event EV_Actor_AnimScript_Attached
 (
     "animscript_attached",
@@ -270,6 +272,7 @@ Event EV_Actor_AnimScript_Attached
     "Play a noclip animation even when attached",
     EV_NORMAL
 );
+//====
 Event EV_Actor_Reload_mg42
 (
     "reload_mg42",
@@ -918,6 +921,8 @@ Event EV_Actor_GetAlarmNode
     "Gets the name of the alarm node for the actor (must have type set to alarm for effect)",
     EV_GETTER
 );
+// Added in 2.30
+//====
 Event EV_Actor_SetPreAlarmThread
 (
     "prealarmthread",
@@ -936,6 +941,7 @@ Event EV_Actor_SetPreAlarmThread2
     "Sets the name of the pre alarm thread for the actor (must have type set to alarm for effect)",
     EV_SETTER
 );
+//====
 Event EV_Actor_SetAlarmThread
 (
     "alarmthread",
@@ -2181,6 +2187,9 @@ Event EV_Actor_GetBalconyHeight
     "minimum height a balcony guy must fall to do special balcony death",
     EV_GETTER
 );
+//
+// Added in 2.0
+//====
 Event EV_Actor_SetVisibilityThreshold
 (
     "nonvislevel",
@@ -2325,6 +2334,10 @@ Event EV_Actor_GetRunAnimRate
     "Get the rate at which the run animation plays back",
     EV_GETTER
 );
+//====
+//
+// Added in 2.30
+//====
 Event EV_Actor_SetNationality
 (
     "nationality",
@@ -2379,6 +2392,7 @@ Event EV_Actor_CuriousOn
     "Turn on an actor's curious state",
     EV_NORMAL
 );
+//====
 
 CLASS_DECLARATION(SimpleActor, Actor, "Actor") {
     {&EV_Entity_Start,                        &Actor::EventStart                        },
@@ -2399,7 +2413,10 @@ CLASS_DECLARATION(SimpleActor, Actor, "Actor") {
     {&EV_Actor_AnimScript,                    &Actor::EventAnimScript                   },
     {&EV_Actor_AnimScript_Scripted,           &Actor::EventAnimScript_Scripted          },
     {&EV_Actor_AnimScript_Noclip,             &Actor::EventAnimScript_Noclip            },
+    // Added in 2.0
+    //====
     {&EV_Actor_AnimScript_Attached,           &Actor::EventAnimScript_Attached          },
+    //====
     {&EV_Actor_Reload_mg42,                   &Actor::EventReload_mg42                  },
     {&EV_Actor_Dumb,                          &Actor::Dumb                              },
     {&EV_Actor_Physics_On,                    &Actor::PhysicsOn                         },
@@ -2510,8 +2527,11 @@ CLASS_DECLARATION(SimpleActor, Actor, "Actor") {
     {&EV_Actor_SetAlarmNode,                  &Actor::EventSetAlarmNode                 },
     {&EV_Actor_SetAlarmNode2,                 &Actor::EventSetAlarmNode                 },
     {&EV_Actor_GetAlarmNode,                  &Actor::EventGetAlarmNode                 },
+    // Added in 2.30
+    //====
     {&EV_Actor_SetPreAlarmThread,             &Actor::EventSetPreAlarmThread            },
     {&EV_Actor_SetPreAlarmThread2,            &Actor::EventSetPreAlarmThread            },
+    //====
     {&EV_Actor_SetAlarmThread,                &Actor::EventSetAlarmThread               },
     {&EV_Actor_SetAlarmThread2,               &Actor::EventSetAlarmThread               },
     {&EV_Actor_GetAlarmThread,                &Actor::EventGetAlarmThread               },
@@ -2538,6 +2558,8 @@ CLASS_DECLARATION(SimpleActor, Actor, "Actor") {
     {&EV_Actor_ShareEnemy,                    &Actor::EventShareEnemy                   },
     {&EV_Actor_ShareGrenade,                  &Actor::EventShareGrenade                 },
     {&EV_Actor_InterruptPoint,                &Actor::EventInterruptPoint               },
+    // Added in 2.0
+    //====
     {&EV_Actor_GetVisibilityThreshold,        &Actor::EventGetVisibilityThreshold       },
     {&EV_Actor_SetVisibilityThreshold,        &Actor::EventSetVisibilityThreshold       },
     {&EV_Actor_SetVisibilityThreshold2,       &Actor::EventSetVisibilityThreshold       },
@@ -2545,6 +2567,7 @@ CLASS_DECLARATION(SimpleActor, Actor, "Actor") {
     {&EV_Actor_GetSuppressChance,             &Actor::EventGetSuppressChance            },
     {&EV_Actor_SetSuppressChance,             &Actor::EventSetSuppressChance            },
     {&EV_Actor_SetSuppressChance2,            &Actor::EventSetSuppressChance            },
+    //====
     {&EV_Actor_GetPainHandler,                &Actor::EventGetPainHandler               },
     {&EV_Actor_SetPainHandler,                &Actor::EventSetPainHandler               },
     {&EV_Actor_GetDeathHandler,               &Actor::EventGetDeathHandler              },
@@ -2598,10 +2621,12 @@ CLASS_DECLARATION(SimpleActor, Actor, "Actor") {
     {&EV_Actor_GetMumble,                     &Actor::EventGetMumble                    },
     {&EV_Actor_SetMumble,                     &Actor::EventSetMumble                    },
     {&EV_Actor_SetMumble2,                    &Actor::EventSetMumble                    },
- // FIXME: removed since 2.0?
-  //{&EV_Actor_GetBreathSteam,                &Actor::EventGetBreathSteam                     },
-  //{&EV_Actor_SetBreathSteam,                &Actor::EventSetBreathSteam                     },
-  //{&EV_Actor_SetBreathSteam2,               &Actor::EventSetBreathSteam                     },
+    // Removed in 2.0
+    //====
+    //{&EV_Actor_GetBreathSteam,                &Actor::EventGetBreathSteam                     },
+    //{&EV_Actor_SetBreathSteam,                &Actor::EventSetBreathSteam                     },
+    //{&EV_Actor_SetBreathSteam2,               &Actor::EventSetBreathSteam                     },
+    //====
     {&EV_Actor_CalcGrenadeToss,               &Actor::EventCalcGrenadeToss              },
     {&EV_Actor_CalcGrenadeToss2,              &Actor::EventCalcGrenadeToss              },
     {&EV_Actor_GetNoSurprise,                 &Actor::EventGetNoSurprise                },
@@ -2630,6 +2655,12 @@ CLASS_DECLARATION(SimpleActor, Actor, "Actor") {
     {&EV_Actor_SetBalconyHeight,              &Actor::EventSetBalconyHeight             },
     {&EV_Actor_SetBalconyHeight2,             &Actor::EventSetBalconyHeight             },
     {&EV_Actor_GetBalconyHeight,              &Actor::EventGetBalconyHeight             },
+    // Removed in 2.0
+    //====
+    //{&EV_CanSee,                              &Actor::CanSee                            },
+    //====
+    // Added in 2.0
+    //====
     {&EV_Actor_SetIgnoreBadPlace,             &Actor::EventSetIgnoreBadPlace            },
     {&EV_Actor_SetIgnoreBadPlace2,            &Actor::EventSetIgnoreBadPlace            },
     {&EV_Actor_GetIgnoreBadPlace,             &Actor::EventGetIgnoreBadPlace            },
@@ -2639,6 +2670,9 @@ CLASS_DECLARATION(SimpleActor, Actor, "Actor") {
     {&EV_Actor_SetRunAnimRate,                &Actor::EventSetRunAnimRate               },
     {&EV_Actor_SetRunAnimRate2,               &Actor::EventSetRunAnimRate               },
     {&EV_Actor_GetRunAnimRate,                &Actor::EventGetRunAnimRate               },
+    //====
+    // Added in 2.30
+    //====
     {&EV_Stop,                                &Actor::Landed                            },
     {&EV_Actor_SetNationality,                &Actor::SetNationality                    },
     {&EV_Actor_SetNationality2,               &Actor::SetNationality                    },
@@ -2646,6 +2680,7 @@ CLASS_DECLARATION(SimpleActor, Actor, "Actor") {
     {&EV_Actor_WriteStats,                    &Actor::EventWriteStats                   },
     {&EV_Actor_CuriousOff,                    &Actor::EventCuriousOff                   },
     {&EV_Actor_CuriousOn,                     &Actor::EventCuriousOn                    },
+    //====
     {NULL,                                    NULL                                      }
 };
 
