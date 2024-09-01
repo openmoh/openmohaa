@@ -4676,6 +4676,11 @@ void Player::Think(void)
                     gi.SendServerCommand(edict - g_entities, "stufftext \"pushmenu_teamselect\"");
                 }
             }
+            // Removed in 2.0
+            //else if (level.time > m_fWeapSelectTime + 10.0) {
+            //    m_fWeapSelectTime = level.time;
+            //    gi.centerprintf(edict, "\n\n\n%s", gi.LV_ConvertString("Press fire to join the battle!"));
+            //}
         } else if (!client->pers.dm_primary[0]) {
             Spectator();
             if (m_fWeapSelectTime < level.time) {
