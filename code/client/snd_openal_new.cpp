@@ -1387,6 +1387,13 @@ static void S_OPENAL_Start2DSound(
             if (bSupportWaitTillSoundDone) {
                 pChannel->iTime = 0;
             }
+
+            if (s_entity[iEntNum].time < pChannel->iTime) {
+                // Fixed in OPM
+                //  Not sure if it's the real solution, but script_origin entities are usually
+                //  never sent to client so the sound will immediately get stopped
+                pChannel->iFlags |= CHANNEL_FLAG_MISSING_ENT;
+            }
         } else {
             VectorClear(pChannel->vOrigin);
             pChannel->iTime = 0;
@@ -1573,7 +1580,7 @@ void S_OPENAL_StartSound(
                 // Fixed in OPM
                 //  Not sure if it's the real solution, but script_origin entities are usually
                 //  never sent to client so the sound will immediately get stopped
-                pChannel->iFlags |= CHANNEL_FLAG_NO_ENTITY;
+                pChannel->iFlags |= CHANNEL_FLAG_MISSING_ENT;
             }
         } else {
             VectorClear(pChannel->vOrigin);
@@ -2346,11 +2353,13 @@ void S_OPENAL_Respatialize(int iEntNum, const vec3_t vHeadPos, const vec3_t vAxi
         } else {
             if (s_entity[pChannel->iEntNum].time < pChannel->iTime) {
                 VectorCopy(pChannel->vOrigin, vOrigin);
-                if (!(pChannel->iFlags & CHANNEL_FLAG_LOOPING)) {
+                if (!(pChannel->iFlags & CHANNEL_FLAG_LOOPING) && !(pChannel->iFlags & (CHANNEL_FLAG_MISSING_ENT))) {
                     pChannel->end_sample();
                     continue;
                 }
             } else {
+                pChannel->iFlags &= ~CHANNEL_FLAG_MISSING_ENT;
+
                 VectorCopy(s_entity[pChannel->iEntNum].position, vEntOrigin);
                 VectorCopy(vEntOrigin, vOrigin);
                 VectorCopy(vOrigin, pChannel->vOrigin);

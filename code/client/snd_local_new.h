@@ -143,6 +143,8 @@ enum channel_flags_t {
     CHANNEL_FLAG_NO_ENTITY      = 32,
     CHANNEL_FLAG_PAUSED         = 64,
     CHANNEL_FLAG_LOOPING        = 128,
+    // Added in OPM
+    CHANNEL_FLAG_MISSING_ENT    = 256,
 };
 
 enum sfx_flags_t {
