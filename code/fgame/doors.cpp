@@ -578,6 +578,10 @@ void Door::OpenEnd(Event *ev)
     } else {
         StopSound(CHAN_VOICE);
     }
+    
+    // Added in 2.30
+    //  Notify scripts that the door has finished opening
+    Unregister(STRING_DONE);
 
     previous_state = state;
     SetState(STATE_OPEN);
@@ -609,6 +613,10 @@ void Door::CloseEnd(Event *ev)
 
     previous_state = state;
     SetState(STATE_CLOSED);
+
+    // Added in 2.30
+    //  Notify scripts that the door has finished closing
+    Unregister(STRING_DONE);
 }
 
 void Door::Close(Event *ev)
