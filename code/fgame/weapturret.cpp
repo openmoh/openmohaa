@@ -1961,7 +1961,7 @@ float TurretGun::FireDelay(firemode_t mode)
         }
     }
 
-    return fire_delay[FIRE_PRIMARY];
+    return fire_delay[mode];
 }
 
 void TurretGun::SetFireDelay(Event *ev)
