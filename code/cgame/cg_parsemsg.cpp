@@ -1726,7 +1726,7 @@ void CG_ParseCGMessage_ver_6()
             iLarge          = cgi.MSG_ReadBits(1);
 
             if (iType == CGM6_BULLET_1) {
-                CG_MakeBulletTracer(vTmp, vStart, vEndArray, 1, iLarge, qfalse, qtrue);
+                CG_MakeBulletTracer(vTmp, vStart, vEndArray, 1, iLarge, qtrue, qtrue);
             } else if (iType == CGM6_BULLET_2) {
                 CG_MakeBulletTracer(vTmp, vStart, vEndArray, 1, iLarge, qfalse, qtrue);
             } else {
