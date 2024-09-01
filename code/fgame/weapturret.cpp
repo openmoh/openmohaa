@@ -1265,14 +1265,14 @@ void TurretGun::AI_DoFiring()
         // Added in OPM
         //  default values if not set
         maxBurstTime = minBurstTime = 0.001f;
-        maxBurstDelay = minBurstDelay = fire_delay[FIRE_PRIMARY];
+        maxBurstDelay = minBurstDelay = fire_delay[FIRE_PRIMARY] / 10.f;
     }
 
     if (m_iFiring == 1) {
-        if (maxBurstTime > 0) {
+        if (m_fMaxBurstTime > 0) {
             if (m_fFireToggleTime < level.time) {
                 m_iFiring         = 4;
-                m_fFireToggleTime = level.time + minBurstTime + (maxBurstTime - minBurstTime) * random();
+                m_fFireToggleTime = level.time + m_fMinBurstTime + (m_fMaxBurstTime - m_fMinBurstTime) * random();
             }
         } else {
             m_iFiring = 4;
@@ -1280,10 +1280,10 @@ void TurretGun::AI_DoFiring()
     } else if (m_iFiring == 4) {
         Fire(FIRE_PRIMARY);
 
-        if (maxBurstTime > 0) {
+        if (m_fMaxBurstTime > 0) {
             if (m_fFireToggleTime < level.time) {
                 m_iFiring         = 1;
-                m_fFireToggleTime = level.time + minBurstDelay + (maxBurstDelay - minBurstDelay) * random();
+                m_fFireToggleTime = level.time + m_fMinBurstDelay + (m_fMaxBurstDelay - m_fMinBurstDelay) * random();
             }
         }
     }
@@ -1643,7 +1643,7 @@ void TurretGun::P_EventDoJitter(Event *ev)
 
 void TurretGun::AI_EventBurstFireSettings(Event *ev)
 {
-    if (ev->NumArgs() <= 3) {
+    if (ev->NumArgs() < 4) {
         return;
     }
 
