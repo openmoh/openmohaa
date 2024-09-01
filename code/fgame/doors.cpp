@@ -597,15 +597,17 @@ void Door::OpenEnd(Event *ev)
 
 void Door::CloseEnd(Event *ev)
 {
+    // Fixed in 2.0
+    //  Since this version, the area portal state is changed before sound
+    if (master == this) {
+        gi.AdjustAreaPortalState(this->edict, false);
+    }
+
     if (sound_close_end.length() > 1) {
         BroadcastAIEvent();
         Sound(sound_close_end, CHAN_VOICE);
     } else {
         StopSound(CHAN_VOICE);
-    }
-
-    if (master == this) {
-        gi.AdjustAreaPortalState(this->edict, false);
     }
 
     setContents(CONTENTS_SOLID);
