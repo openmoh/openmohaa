@@ -1249,7 +1249,11 @@ void TurretGun::AI_DoFiring()
         // Removed in 2.0
         //  The fire delay is always constant on 1.11 and below
         //
-        if (ReadyToFire(FIRE_PRIMARY)) {
+        if (m_iFiring == 1) {
+            m_iFiring = 4;
+        }
+
+        if (IsFiring() && ReadyToFire(FIRE_PRIMARY)) {
             Fire(FIRE_PRIMARY);
         }
 
