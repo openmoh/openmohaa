@@ -778,7 +778,7 @@ bool TurretGun::AI_CanTarget(const vec3_t pos)
     yawCap = AngleSubtract(vAngles[1], m_fStartYaw);
     if (yawCap > m_fMaxYawOffset) {
         return false;
-    } else if (yawCap < m_fMaxYawOffset) {
+    } else if (yawCap < -m_fMaxYawOffset) {
         return false;
     }
 
