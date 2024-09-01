@@ -61,9 +61,9 @@ void Mover::MoveDone
 	Vector amove;
 
 	// zero out the movement
+    avelocity = vec_zero;
 	if( moveflags & MOVE_ANGLES )
 	{
-		avelocity = vec_zero;
 		amove = angledest - localangles;
 	}
 	else
@@ -71,15 +71,18 @@ void Mover::MoveDone
 		amove = vec_zero;
 	}
 
+    velocity = vec_zero;
 	if( moveflags & MOVE_ORIGIN )
 	{
-		velocity = vec_zero;
 		move = finaldest - localorigin;
 	}
 	else
 	{
 		move = vec_zero;
 	}
+
+    accel = vec_zero;
+    aaccel = vec_zero;
 
 	if( !G_PushMove( this, move, amove ) )
 	{
