@@ -314,7 +314,7 @@ void View3D::DrawSubtitleOverlay(void)
                 if (total > maxY) {
                     total = 0;
                     if (end < start) {
-                        Com_Printf("ERROR - word longer than possible line\n");
+                        Com_DPrintf("ERROR - word longer than possible line\n");
                         break;
                     }
 
