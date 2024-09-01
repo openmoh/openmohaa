@@ -148,6 +148,7 @@ PathInfo *PathSearch::GeneratePath(PathInfo *path)
             VectorCopy2D(pathway->dir, current_path->dir);
             current_path->dist      = pathway->dist;
             current_path->bAccurate = true;
+            assert(current_path->dist > -1e+07 && current_path->dist < 1e+07);
             current_path++;
         }
 
@@ -158,6 +159,7 @@ PathInfo *PathSearch::GeneratePath(PathInfo *path)
                 VectorCopy(pathway->pos2, current_path->point);
                 VectorCopy2D(pathway->dir, current_path->dir);
                 current_path->dist      = pathway->dist;
+                assert(current_path->dist > -1e+07 && current_path->dist < 1e+07);
                 current_path->bAccurate = true;
                 current_path++;
             }
@@ -166,6 +168,7 @@ PathInfo *PathSearch::GeneratePath(PathInfo *path)
         VectorCopy(pathway->pos1, current_path->point);
         VectorCopy2D(path_startdir, current_path->dir);
         current_path->dist = Node->g;
+        assert(current_path->dist > -1e+07 && current_path->dist < 1e+07);
     } else {
         VectorCopy2D(path_totaldir, current_path->dir);
         path->dist = Node->h;
@@ -214,6 +217,7 @@ PathInfo *PathSearch::GeneratePathNear(PathInfo *path)
                 VectorCopy2D(pathway->dir, current_path->dir);
                 current_path->dist      = pathway->dist;
                 current_path->bAccurate = true;
+                assert(current_path->dist > -1e+07 && current_path->dist < 1e+07);
                 current_path++;
             }
         }
@@ -252,11 +256,12 @@ PathInfo *PathSearch::GeneratePathAway(PathInfo *path)
         pathway = &ParentNode->Child[Node->pathway];
 
         if (pathway->dist) {
-            VectorCopy(pathway->pos2, path->point);
-            VectorCopy2D(pathway->dir, path->dir);
-            path->dist = pathway->dist;
+            VectorCopy(pathway->pos2, current_path->point);
+            VectorCopy2D(pathway->dir, current_path->dir);
+            current_path->dist = pathway->dist;
 
             current_path->bAccurate = true;
+            assert(current_path->dist > -1e+07 && current_path->dist < 1e+07);
             current_path++;
         }
 
@@ -268,6 +273,7 @@ PathInfo *PathSearch::GeneratePathAway(PathInfo *path)
                 VectorCopy2D(pathway->dir, current_path->dir);
                 current_path->dist      = pathway->dist;
                 current_path->bAccurate = true;
+                assert(current_path->dist > -1e+07 && current_path->dist < 1e+07);
                 current_path++;
             }
         }

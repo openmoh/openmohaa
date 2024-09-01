@@ -399,6 +399,7 @@ void ActorPath::UpdatePos(float *origin, float fNodeRadius)
         m_pathpos->point[2] = m_pathpos->point[2] * s + current_path->point[2] * t;
 
         current_path->dist *= s;
+        assert(current_path->dist > -1e+07 && current_path->dist < 1e+07);
 
         m_Side = true;
     } else {
@@ -457,6 +458,7 @@ void ActorPath::Shorten(float fDistRemove)
     //  This is a bug in mohaa as it can write past the end of the class instance
     //m_path->point[2] += m_path->dir[2] * -fDistRemove;
     m_path->dist -= fDistRemove;
+    assert(m_path->dist > -1e+07 && m_path->dist < 1e+07);
 }
 
 PathInfo *ActorPath::StartNode(void) const
