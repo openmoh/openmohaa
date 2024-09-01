@@ -2127,7 +2127,7 @@ float BulletAttack(
     qboolean bBulletDone;
     qboolean bThroughThing;
     int      iContinueCount;
-    float    vEndArray[64][3];
+    vec3_t   vEndArray[64];
     int      iTracerCount = 0;
     int      iNumHit;
     int      lastSurfaceFlags;
@@ -2186,6 +2186,7 @@ float BulletAttack(
                 );
 
                 vTmpEnd = trace.endpos;
+                vTraceEnd = vTmpEnd;
 
                 if (bThroughThing) {
                     bThroughThing = qfalse;
