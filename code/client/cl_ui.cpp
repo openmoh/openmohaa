@@ -3679,7 +3679,7 @@ void CL_FillUIImports(void)
     uii.Cvar_GetString              = CvarGetForUI;
     uii.Cvar_Reset                  = Cvar_Reset;
     uii.Cvar_Find                   = Cvar_FindVar;
-    uii.Cvar_Set                    = Cvar_Set;
+    uii.Cvar_Set                    = UI_Cvar_Set;
     uii.File_PickFile               = PickFile;
     uii.File_FreeFile               = FS_FreeFile;
     uii.File_ListFiles              = ListFilesForUI;
