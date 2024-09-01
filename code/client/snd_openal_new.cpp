@@ -2566,6 +2566,9 @@ S_OPENAL_GetMusicFilename
 */
 const char *S_OPENAL_GetMusicFilename()
 {
+    if (!openal.chan_trig_music.is_playing()) {
+        return "";
+    }
     return openal.tm_filename;
 }
 
