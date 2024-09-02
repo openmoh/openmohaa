@@ -196,7 +196,7 @@ jobs:
         cmake --build ./build --config ${{env.BUILD_TYPE}}
         cmake --install ./build --config ${{env.BUILD_TYPE}}
         # Unfortunately soft-oal produces a binary called OpenAL32 even in 64-bit
-        if ("${{ matrix.architecture.config }}" -eq "x64") { Rename-Item -Path '.\install\bin\OpenAL32.dll' -NewName 'OpenAL64.dll' }
+        if (("x64", "ARM64") -icontains "${{ matrix.architecture.config }}") { Rename-Item -Path '.\install\bin\OpenAL32.dll' -NewName 'OpenAL64.dll' }
 
     - uses: actions/checkout@v4
       with:
