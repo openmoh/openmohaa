@@ -64,7 +64,7 @@ extern cvar_t *sv_rollspeed;
 extern cvar_t *sv_rollangle;
 extern cvar_t *sv_cheats;
 extern cvar_t *sv_showbboxes;
-extern cvar_t *sv_showbtags;
+extern cvar_t *sv_showtags;
 
 extern cvar_t *sv_testloc_num;
 extern cvar_t *sv_testloc_secondary;

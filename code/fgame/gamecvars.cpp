@@ -59,7 +59,7 @@ cvar_t *sv_rollspeed;
 cvar_t *sv_rollangle;
 cvar_t *sv_cheats;
 cvar_t *sv_showbboxes;
-cvar_t *sv_showbtags;
+cvar_t *sv_showtags;
 
 cvar_t *sv_testloc_num;
 cvar_t *sv_testloc_secondary;
@@ -312,7 +312,7 @@ void CVAR_Init(void)
     sv_traceinfo  = gi.Cvar_Get("sv_traceinfo", "0", 0);
     sv_drawtrace  = gi.Cvar_Get("sv_drawtrace", "0", 0);
     sv_showbboxes = gi.Cvar_Get("sv_showbboxes", "0", 0);
-    sv_showbtags  = gi.Cvar_Get("sv_showtags", "0", 0);
+    sv_showtags   = gi.Cvar_Get("sv_showtags", "0", 0);
 
     sv_testloc_num       = gi.Cvar_Get("sv_testloc_num", "0", 0);
     sv_testloc_secondary = gi.Cvar_Get("sv_testloc_secondary", "0", 0);
