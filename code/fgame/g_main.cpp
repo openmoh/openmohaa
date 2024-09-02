@@ -744,11 +744,71 @@ void G_ClientDrawBoundingBoxes(void)
 /*
 =================
 G_ClientDrawTags
+
+Added in 2.0.
+
+This draws tag position and orientation
+for entities in a radius of 1000 units.
 =================
 */
 void G_ClientDrawTags(void)
 {
-    // FIXME: unimplemented
+    Entity* player;
+    Entity* ent;
+    const char* tagName;
+    Vector origin;
+    orientation_t ori;
+    int numTags;
+    int i;
+
+    if (!sv_showtags->string || !sv_showtags->string[0]) {
+        return;
+    }
+
+    if (sv_showtags->string[0] != '*' && !sv_showtags->string[1] && sv_showtags->integer == 0) {
+        // The variable is defined but set to 0
+        return;
+    }
+
+    if (g_gametype->integer != GT_SINGLE_PLAYER && !sv_cheats->integer) {
+        return;
+    }
+
+    player = G_GetEntity(0);
+    origin = player->origin;
+
+    for (ent = findradius(NULL, origin, 1000); ent; ent = findradius(ent, origin, 1000)) {
+        if (!ent->edict->tiki) {
+            continue;
+        }
+
+        if (ent == player) {
+            continue;
+        }
+
+        numTags = gi.TIKI_NumTags(ent->edict->tiki);
+        for (i = 0; i < numTags; i++) {
+            tagName = gi.Tag_NameForNum(ent->edict->tiki, i);
+
+            if (Q_stricmp(sv_showtags->string, "*")) {
+                //
+                // If it's not a wildcard, check to see if
+                // the tag name partially matches
+                //
+                if (Q_stricmpn(tagName, sv_showtags->string, strlen(sv_showtags->string))) {
+                    continue;
+                }
+            }
+
+            ent->GetTagPositionAndOrientation(i, &ori);
+
+            G_DebugString(ori.origin + Vector(0, 0, 8), 1, 1, 1, 0, "%s", tagName);
+            G_DebugCircle(ori.origin, 10, 1, 1, 1, 1, true);
+            G_DebugLine(ori.origin, ori.origin + Vector(ori.axis[0]) * 32, 1, 0, 0, 1);
+            G_DebugLine(ori.origin, ori.origin + Vector(ori.axis[1]) * 32, 0, 1, 0, 1);
+            G_DebugLine(ori.origin, ori.origin + Vector(ori.axis[2]) * 32, 0, 0, 1, 1);
+        }
+    }
 }
 
 // Used to tell the server about the edict pose, such as the player pose
