@@ -1031,6 +1031,18 @@ void VehicleTurretGun::AdjustReloadStatus()
         m_iAmmo                = m_iReloadShots;
         m_fReloadTimeRemaining = m_fReloadDelay;
 
+        if (g_target_game <= target_game_e::TG_MOHTA) {
+            //
+            // Below 2.30 (Spearhead), the sound is played immediately.
+            // 2.30 has it wrong with the Nebelwerfer.
+            //
+            ProcessEvent(EV_VehicleTurretGun_PlayReloadSound);
+            return;
+        }
+
+        //
+        // Changed in 2.30
+        //  Play the reload sound once finished reloading
         PostEvent(EV_VehicleTurretGun_PlayReloadSound, m_fReloadDelay * 0.5);
     }
 }
