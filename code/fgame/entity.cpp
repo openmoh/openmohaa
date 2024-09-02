@@ -5362,7 +5362,7 @@ void Entity::GetTagPositionAndOrientation(int tagnum, orientation_t *new_or)
     VectorCopy(origin, new_or->origin);
 
     for (i = 0; i < 3; i++) {
-        VectorMA(new_or->origin, tag_or.origin[i], tag_or.axis[i], new_or->origin);
+        VectorMA(new_or->origin, tag_or.origin[i], axis[i], new_or->origin);
     }
 
     MatrixMultiply(tag_or.axis, axis, new_or->axis);
