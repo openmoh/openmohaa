@@ -113,8 +113,56 @@ void G_AddSmokeSprite(const SmokeSprite* sprite)
 }
 
 float G_ObfuscationForSmokeSprites(float visibilityAlpha, const Vector& start, const Vector& end) {
-    // FIXME: unimplemented
-    return 0;
+    Vector vDelta = end - start;
+    float fLength = vDelta.length();
+    Vector vDir = vDelta * (1.0 / fLength);
+    float fObfuscation = visibilityAlpha;
+    int i;
+
+    for (i = 1; i <= g_Sprites.NumObjects(); i++) {
+        const SmokeSprite& sprite = g_Sprites.ObjectAt(i);
+        Vector vSpriteDelta = sprite.origin - start;
+        float fDot = vSpriteDelta * vDir;
+        float fTimeAlive;
+
+        if (fDot < -sprite.scale || fDot > fLength + sprite.scale) {
+            continue;
+        }
+
+        if (fDot <= 0) {
+            if (Square(sprite.scale) <= vSpriteDelta.lengthSquared()) {
+                continue;
+            }
+        } else if (fDot >= fLength) {
+            Vector vSpriteEndDelta = sprite.origin - end;
+
+            if (Square(sprite.scale) <= vSpriteEndDelta.lengthSquared()) {
+                continue;
+            }
+        } else {
+            Vector vSpriteEndDelta = vSpriteDelta - (vDir * fDot);
+
+            if (Square(sprite.scale) <= vSpriteEndDelta.lengthSquared()) {
+                continue;
+            }
+        }
+
+        fTimeAlive = level.time - sprite.spawnTime;
+        if (fTimeAlive < sprite.fadeIn) {
+            fObfuscation += sprite.maxAlpha * fTimeAlive / sprite.fadeIn;
+        } else if (sprite.spawnTime + sprite.fadeDelay >= level.svsTime) {
+            fObfuscation += sprite.maxAlpha;
+        } else if (sprite.spawnLife - fTimeAlive > 0) {
+            fObfuscation = (sprite.spawnLife - fTimeAlive) * sprite.maxAlpha / (sprite.spawnLife - sprite.fadeDelay);
+        }
+
+        if(fObfuscation >= 1.0) {
+            // Completely obfuscated
+            return 1.0;
+        }
+    }
+   
+    return fObfuscation;
 }
 
 SmokeSprite* G_GetRandomSmokeSprite() {
