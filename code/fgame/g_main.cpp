@@ -83,6 +83,11 @@ void (*SV_Free)(void *ptr);
 qboolean LevelArchiveValid(Archiver& arc);
 void     ClosePlayerLogFile(void);
 
+/*
+===============
+G_Printf
+===============
+*/
 void QDECL G_Printf(const char *fmt, ...)
 {
     va_list argptr;
@@ -95,6 +100,11 @@ void QDECL G_Printf(const char *fmt, ...)
     gi.Printf(text);
 }
 
+/*
+===============
+G_Error
+===============
+*/
 void QDECL G_Error(const char *fmt, ...)
 {
     va_list argptr;
@@ -107,6 +117,11 @@ void QDECL G_Error(const char *fmt, ...)
     gi.Error(ERR_DROP, text);
 }
 
+/*
+===============
+G_Error
+===============
+*/
 void QDECL G_Error(int type, const char *fmt, ...)
 {
     va_list argptr;
@@ -430,7 +445,6 @@ void G_RunFrame(int levelTime, int frameTime)
     qboolean           showentnums;
     unsigned long long start;
     unsigned long long end;
-    int                i;
     static int         processed[MAX_GENTITIES] = {0};
     static int         processedFrameID         = 0;
 
@@ -460,16 +474,9 @@ void G_RunFrame(int levelTime, int frameTime)
 
         if (level.intermissiontime || level.died_already) {
             L_ProcessPendingEvents();
+            G_ClientDoBlends();
 
-            for (i = 0, edict = g_entities; i < game.maxclients; i++, edict++) {
-                if (!edict->inuse || !edict->client || !edict->entity) {
-                    continue;
-                }
-
-                edict->entity->CalcBlend();
-            }
-
-            if (g_gametype->integer && g_maxintermission->value != 0.0f) {
+            if (g_gametype->integer != GT_SINGLE_PLAYER && g_maxintermission->value != 0.0f) {
                 if (level.time - level.intermissiontime > g_maxintermission->value) {
                     level.exitintermission = true;
                 }
@@ -1575,32 +1582,95 @@ void G_ClientEndServerFrames(void)
     }
 }
 
-void G_ClientDoBlends()
+/*
+===============
+G_ClientDoBlends
+===============
+*/
+void G_ClientDoBlends(void)
 {
-    // FIXME: unimplemented
+    gentity_t* edict;
+    int i;
+
+    for (i = 0, edict = g_entities; i < game.maxclients; i++, edict++) {
+        if (!edict->inuse || !edict->client || !edict->entity) {
+            continue;
+        }
+
+        edict->entity->CalcBlend();
+    }
 }
 
-void FindIntermissionPoint()
+/*
+===============
+FindIntermissionPoint
+===============
+*/
+void FindIntermissionPoint(void)
 {
-    // FIXME: unimplemented
+    SimpleEntity* sent;
+    SimpleEntity* starget;
+    vec3_t dir;
+
+    sent = static_cast<SimpleEntity*>(G_FindClass(NULL, "info_player_intermission"));
+    if (!sent) {
+        level.m_intermission_origin = vec_zero;
+        level.m_intermission_angle = vec_zero;
+        return;
+    }
+
+    level.m_intermission_origin = sent->origin;
+    level.m_intermission_angle = sent->angles;
+
+    if (!sent->target.length()) {
+        return;
+    }
+
+    starget = static_cast<SimpleEntity*>(G_FindTarget(NULL, sent->Target()));
+    if (!starget) {
+        return;
+    }
+
+    VectorSubtract(starget->origin, level.m_intermission_origin, dir);
+    vectoangles(dir, level.m_intermission_angle);
 }
 
+/*
+===============
+G_MoveClientToIntermission
+===============
+*/
 void G_MoveClientToIntermission(Entity *ent)
 {
     G_DisplayScores(ent);
     ent->flags |= FL_IMMOBILE;
 }
 
+/*
+===============
+G_DisplayScores
+===============
+*/
 void G_DisplayScores(Entity *ent)
 {
     ent->client->ps.pm_flags |= PMF_INTERMISSION;
 }
 
+/*
+===============
+G_HideScores
+===============
+*/
 void G_HideScores(Entity *ent)
 {
     ent->client->ps.pm_flags &= ~PMF_INTERMISSION;
 }
 
+/*
+===============
+G_BeginIntermission2
+===============
+*/
 void G_BeginIntermission2(void)
 {
     gentity_t *client;
@@ -1636,6 +1706,11 @@ void G_BeginIntermission2(void)
     }
 }
 
+/*
+===============
+G_BeginIntermission
+===============
+*/
 void G_BeginIntermission(const char *map_name, INTTYPE_e transtype, bool no_fade)
 {
     Entity    *camera;
@@ -1683,6 +1758,11 @@ void G_BeginIntermission(const char *map_name, INTTYPE_e transtype, bool no_fade
     }
 }
 
+/*
+===============
+G_ExitLevel
+===============
+*/
 void G_ExitLevel(void)
 {
     static const char *seps = " ,\n\r";
@@ -1784,6 +1864,11 @@ void G_ExitLevel(void)
     G_ClientEndServerFrames();
 }
 
+/*
+===============
+G_CheckIntermissionExit
+===============
+*/
 void G_CheckIntermissionExit(void)
 {
     if (!level.exitintermission && g_maxintermission->value > level.time - level.intermissiontime) {
@@ -1801,11 +1886,21 @@ void G_CheckIntermissionExit(void)
     }
 }
 
+/*
+===============
+G_ExitIntermission
+===============
+*/
 void G_ExitIntermission(void)
 {
     level.exitintermission = qtrue;
 }
 
+/*
+===============
+G_CheckStartRules
+===============
+*/
 void G_CheckStartRules(void)
 {
     if ((!dmManager.IsGameActive()) && (!dmManager.WaitingForPlayers())) {
@@ -1813,6 +1908,11 @@ void G_CheckStartRules(void)
     }
 }
 
+/*
+===============
+G_CheckExitRules
+===============
+*/
 void G_CheckExitRules(void)
 {
     if (g_gametype->integer) {
@@ -1824,6 +1924,11 @@ void G_CheckExitRules(void)
     }
 }
 
+/*
+===============
+G_DisplayScoresToAllClients
+===============
+*/
 void G_DisplayScoresToAllClients(void)
 {
     gentity_t *ent;
@@ -1838,6 +1943,11 @@ void G_DisplayScoresToAllClients(void)
     }
 }
 
+/*
+===============
+G_HideScoresToAllClients
+===============
+*/
 void G_HideScoresToAllClients(void)
 {
     gentity_t *ent;

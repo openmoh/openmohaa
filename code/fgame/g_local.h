@@ -436,6 +436,8 @@ void        G_ClientCommand(gentity_t *ent);
 void G_ClientThink(gentity_t *ent, usercmd_t *cmd, usereyes_t *eyeinfo);
 void ClientEndFrame(gentity_t *ent);
 void G_ClientEndServerFrames(void);
+void G_ClientDoBlends(void);
+void FindIntermissionPoint(void);
 void G_RunClient(gentity_t *ent);
 
 //
