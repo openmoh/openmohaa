@@ -176,7 +176,7 @@ void DCLC_Save(void)
         }
     }
 
-    header.ident         = LittleLong(DCL_FILE_SIGNATURE);
+    header.ident         = DCL_FILE_SIGNATURE;
     header.version       = LittleLong(DCL_FILE_VERSION);
     header.checksum      = 0;
     header.iNumDecals    = LittleLong(iNumDecals);
@@ -328,10 +328,6 @@ void R_LevelMarksLoad(const char *szBSPName)
         return;
     }
 
-    for (i = 0; i < sizeof(dclHeader) / sizeof(int); i++) {
-        ((int *)&dclHeader)[i] = LittleLong(((int *)&dclHeader)[i]);
-    }
-
     //
     // Signature and version checks
     //
@@ -340,6 +336,10 @@ void R_LevelMarksLoad(const char *szBSPName)
         ri.Printf(PRINT_ALL, "R_LevelMarksLoad: %s Seems to be an invalid DCL file\n", lm.szDCLFilename);
         ri.FS_CloseFile(hFile);
         return;
+    }
+
+    for (i = 0; i < sizeof(dclHeader) / sizeof(int); i++) {
+        ((int *)&dclHeader)[i] = LittleLong(((int *)&dclHeader)[i]);
     }
 
     if (dclHeader.version != DCL_FILE_OLD_VERSION && dclHeader.version != DCL_FILE_VERSION) {
