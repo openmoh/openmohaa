@@ -1719,7 +1719,7 @@ void R_UpdateLevelMarksSystem()
         lm.bPathLayingMode = qfalse;
     }
 
-    if (lm.bAutoApplySettings && lm.pCurrentMark && lm.pCurrentMark->fRotation == -1) {
+    if (lm.bAutoApplySettings && lm.pCurrentMark && lm.pCurrentMark->fRotation != -1) {
         qboolean bDoUpdate = qfalse;
         float    f;
 
