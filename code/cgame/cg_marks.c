@@ -58,7 +58,7 @@ int         cg_iMinFreeMarkObjs;
 qboolean    cg_bMarksInitialized;
 cvar_t     *cg_treadmark_test;
 
-vec3_t vec_upwards;
+vec3_t vec_upwards = {0, 0, 1};
 
 typedef struct cg_impactmarkinfo_s {
     vec3_t axis[3];
@@ -1075,7 +1075,7 @@ void CG_MakeTreadMarkDecal(treadMark_t *pTread, qboolean bStartSegment, qboolean
     // FIXME: unimplemented
 }
 
-int CG_UpdateTreadMark(int iReference, vec_t *vNewPos, float fAlpha)
+int CG_UpdateTreadMark(int iReference, const vec3_t vNewPos, float fAlpha)
 {
     int          i;
     int          iTreadNum;
@@ -1291,7 +1291,7 @@ int CG_PermanentMark(
                 v->st[1] = fTCenter + DotProduct(delta, axis[2]) * texCoordScaleT;
             }
 
-            pMarkFragments[i].iIndex = -cgi.CM_InlineModel(cg_entities[-mf->iIndex].currentState.modelindex);
+            mf->iIndex = -cgi.CM_InlineModel(cg_entities[-mf->iIndex].currentState.modelindex);
         } else {
             mf->numPoints = 0;
         }
@@ -1325,8 +1325,9 @@ int CG_PermanentTreadMarkDecal(
     float           fOOWidth, fOODoubleWidth;
     float           fDist, fSideDist;
     float           fFrac;
-    float           fStartDist, fRightStart, fLeftStartDist;
+    float           fStartDist, fRightStartDist, fLeftStartDist;
     float           fCenterTexScale, fRightTexScale, fLeftTexScale;
+    float           fCenterAlphaScale, fRightAlphaScale, fLeftAlphaScale;
     float           fSideAlpha, fCenterAlpha;
     vec3_t          vStartCenter, vEndCenter;
     vec3_t          vDirection;
@@ -1334,8 +1335,164 @@ int CG_PermanentTreadMarkDecal(
     vec3_t          vDelta;
     float           fRadiusSquared;
 
-    // FIXME: unimplemented
-    return 0;
+    pPolyVerts = (polyVert_t *)pVoidPolyVerts;
+
+    if (bStartSegment) {
+        VectorCopy(pTread->vStartVerts[1], originalPoints[0]);
+        VectorCopy(pTread->vStartVerts[0], originalPoints[1]);
+        VectorCopy(pTread->vMidVerts[0], originalPoints[2]);
+        VectorCopy(pTread->vMidVerts[1], originalPoints[3]);
+
+        fStartAlpha = pTread->fStartAlpha;
+        fEndAlpha   = pTread->fMidAlpha;
+        fStartTex   = pTread->fStartTexCoord;
+        fEndTex     = pTread->fMidTexCoord;
+
+        // Calculate the start center
+        vStartCenter[0] = (originalPoints[1][0] + originalPoints[0][0]) * 0.5;
+        vStartCenter[1] = (originalPoints[1][1] + originalPoints[0][1]) * 0.5;
+        vStartCenter[2] = (originalPoints[1][2] + originalPoints[0][2]) * 0.5;
+        VectorCopy(pTread->vMidPos, vEndCenter);
+        VectorCopy(pTread->vStartDir, vDirection);
+    } else {
+        VectorCopy(pTread->vMidVerts[1], originalPoints[0]);
+        VectorCopy(pTread->vMidVerts[0], originalPoints[1]);
+        VectorCopy(pTread->vEndVerts[0], originalPoints[2]);
+        VectorCopy(pTread->vEndVerts[1], originalPoints[3]);
+
+        fStartAlpha = pTread->fMidAlpha;
+        fEndAlpha   = pTread->fEndAlpha;
+        fStartTex   = pTread->fMidTexCoord;
+        fEndTex     = pTread->fEndTexCoord;
+
+        VectorCopy(pTread->vMidPos, vStartCenter);
+        VectorCopy(pTread->vEndPos, vEndCenter);
+
+        // Calculate the direction
+        VectorSubtract(vEndCenter, vStartCenter, vDirection);
+        VectorNormalizeFast(vDirection);
+    }
+
+    CrossProduct(vec_upwards, vDirection, vRight);
+    fRightCenterDist = DotProduct(vEndCenter, vRight);
+    fOOWidth         = 1.0 / pTread->fWidth;
+    fOODoubleWidth   = 1.0 / (pTread->fWidth * 2);
+    fStartDist       = DotProduct(vDirection, vStartCenter);
+    fRightStartDist  = DotProduct(vDirection, originalPoints[1]);
+    fLeftStartDist   = DotProduct(vDirection, originalPoints[1]);
+
+    //
+    // Calculate center
+    //
+    VectorSubtract(vEndCenter, vStartCenter, vDelta);
+    fDist             = VectorLength(vDelta);
+    fCenterTexScale   = (fEndTex - fStartTex) / fDist;
+    fCenterAlphaScale = (fEndAlpha - fStartAlpha) / fDist;
+    fSideDist         = fDist;
+
+    //
+    // Calculate right
+    //
+    VectorSubtract(originalPoints[2], originalPoints[1], vDelta);
+    fDist            = VectorLength(vDelta);
+    fRightTexScale   = (fEndTex - fStartTex) / fDist;
+    fRightAlphaScale = (fEndAlpha - fStartAlpha) / fDist;
+
+    //
+    // Calculate left
+    //
+    VectorSubtract(originalPoints[3], originalPoints[0], vDelta);
+    fDist           = VectorLength(vDelta);
+    fLeftTexScale   = (fEndTex - fStartTex) / fDist;
+    fLeftAlphaScale = (fEndAlpha - fStartAlpha) / fDist;
+
+    VectorSet(projection, 0, 0, -32);
+    colors[0] = colors[1] = colors[2] = colors[3] = 0xff;
+
+    numFragments = CG_GetMarkFragments(
+        4, originalPoints, projection, markPoints, pMarkFragments, (Square(pTread->fWidth) + Square(fSideDist)) * 0.25
+    );
+
+    for (i = 0; i < numFragments; i++) {
+        vec3_t vWorldPos;
+
+        mf = &pMarkFragments[i];
+
+        if (mf->numPoints > 8) {
+            mf->numPoints = 8;
+        }
+
+        if (mf->iIndex >= 0) {
+            for (j = 0; j < mf->numPoints; j++) {
+                v = &pPolyVerts[mf->firstPoint + j];
+                VectorCopy(markPoints[mf->firstPoint + j], v->xyz);
+
+                if (dolighting) {
+                    cgi.R_GetLightingForDecal(vLight, projection, v->xyz);
+
+                    colors[0] = vLight[0];
+                    colors[1] = vLight[1];
+                    colors[2] = vLight[2];
+                }
+
+                fSideDist  = DotProduct(v->xyz, vRight) - fRightCenterDist;
+                fSideAlpha = fSideDist * fOOWidth;
+                v->st[0]   = (fSideDist + pTread->fWidth) * fOODoubleWidth;
+
+                if (fSideAlpha < 0) {
+                    fSideAlpha = -fSideAlpha;
+                    v->st[1] =
+                        fStartTex + ((DotProduct(v->xyz, vDirection) - fLeftStartDist) * fLeftTexScale * fSideAlpha);
+                } else {
+                    v->st[1] =
+                        fStartTex + ((DotProduct(v->xyz, vDirection) - fRightStartDist) * fRightTexScale * fSideAlpha);
+                }
+
+                v->st[1] += (DotProduct(v->xyz, vDirection) - fStartDist) * fCenterTexScale * (1.0 - fSideAlpha);
+            }
+        } else if (CG_GetMarkInlineModelOrientation(mf->iIndex)) {
+            for (j = 0; j < mf->numPoints; j++) {
+                v = &pPolyVerts[mf->firstPoint + j];
+                VectorCopy(markPoints[mf->firstPoint + j], v->xyz);
+
+                if (dolighting) {
+                    cgi.R_GetLightingForDecal(vLight, projection, v->xyz);
+
+                    colors[0] = vLight[0];
+                    colors[1] = vLight[1];
+                    colors[2] = vLight[2];
+                }
+
+                v->modulate[0] = colors[0];
+                v->modulate[1] = colors[1];
+                v->modulate[2] = colors[2];
+                v->modulate[3] = colors[3];
+
+                CG_FragmentPosToWorldPos(v->xyz, vWorldPos);
+
+                fSideDist  = DotProduct(vWorldPos, vRight) - fRightCenterDist;
+                fSideAlpha = fSideDist * fOOWidth;
+                v->st[0]   = (fSideDist + pTread->fWidth) * fOODoubleWidth;
+
+                if (fSideAlpha < 0) {
+                    fSideAlpha = -fSideAlpha;
+                    v->st[1] =
+                        fStartTex + ((DotProduct(vWorldPos, vDirection) - fLeftStartDist) * fLeftTexScale * fSideAlpha);
+                } else {
+                    v->st[1] = fStartTex
+                             + ((DotProduct(vWorldPos, vDirection) - fRightStartDist) * fRightTexScale * fSideAlpha);
+                }
+
+                v->st[1] += (DotProduct(vWorldPos, vDirection) - fStartDist) * fCenterTexScale * (1.0 - fSideAlpha);
+            }
+
+            mf->iIndex = -cgi.CM_InlineModel(cg_entities[-mf->iIndex].currentState.modelindex);
+        } else {
+            mf->numPoints = 0;
+        }
+    }
+
+    return numFragments;
 }
 
 int CG_PermanentUpdateTreadMark(
@@ -1355,6 +1512,208 @@ int CG_PermanentUpdateTreadMark(
     vec3_t   vDir, vMidDir;
     vec3_t   vRight;
 
-    // FIXME: unimplemented
+    VectorCopy(cg.predicted_player_state.origin, vPos);
+    VectorCopy(cg.predicted_player_state.origin, vEnd);
+
+    vPos[2] += 32;
+    vEnd[2] -= 256;
+
+    CG_Trace(
+        &trace,
+        vPos,
+        vec3_origin,
+        vec3_origin,
+        vEnd,
+        cg.snap->ps.clientNum,
+        MASK_TREADMARK,
+        qfalse,
+        qtrue,
+        "CG_PermanentUpdateTreadMark"
+    );
+
+    VectorCopy(trace.endpos, vNewPos);
+
+    if (cg.time - pTread->iLastTime > 500) {
+        VectorClear(pTread->vStartDir);
+        VectorClear(pTread->vStartVerts[0]);
+        VectorClear(pTread->vStartVerts[1]);
+        pTread->fStartTexCoord = 0;
+        pTread->fStartAlpha    = 0;
+
+        VectorClear(pTread->vMidPos);
+        VectorClear(pTread->vMidVerts[0]);
+        VectorClear(pTread->vMidVerts[1]);
+        pTread->fMidTexCoord = 0;
+        pTread->fMidAlpha    = 0;
+
+        VectorClear(pTread->vEndPos);
+        VectorClear(pTread->vEndVerts[0]);
+        VectorClear(pTread->vEndVerts[1]);
+        pTread->fEndTexCoord = 0;
+        pTread->fEndAlpha    = 0;
+
+        pTread->iState           = 1;
+        pTread->iReferenceNumber = 0;
+        pTread->iLastTime        = cg.time;
+        VectorCopy(vNewPos, pTread->vMidPos);
+        VectorCopy(vNewPos, pTread->vEndPos);
+
+        if (fAlpha < 0) {
+            pTread->fMidAlpha = 255.0;
+        } else {
+            pTread->fMidAlpha = fAlpha * 255.0;
+        }
+        pTread->fEndAlpha = pTread->fMidAlpha;
+
+        return 0;
+    }
+
+    if (VectorCompare(pTread->vEndPos, vNewPos)) {
+        if (fAlpha < 0) {
+            return -1;
+        }
+
+        fTmp              = pTread->fEndAlpha;
+        pTread->fEndAlpha = fAlpha * 255;
+
+        //if (fabs(fTmp - pTread->fEndAlpha > 0.05)) {
+        // Fixed in OPM
+        //  Looks like this was accidental
+        if (fabs(fTmp - pTread->fEndAlpha) > 0.05) {
+            return -1;
+        }
+
+        return 0;
+    }
+
+    VectorSubtract(vNewPos, pTread->vMidPos, vDelta);
+    fDist = VectorNormalize2(vDelta, vDeltaNorm);
+
+    if (pTread->iState == 1) {
+        fSplitLength    = 0.0;
+        bDoSegmentation = qfalse;
+    } else {
+        VectorAdd(vDeltaNorm, pTread->vStartDir, vMidDir);
+        VectorScale(vMidDir, 0.5, vMidDir);
+        VectorNormalizeFast(vMidDir);
+
+        fTmp         = DotProduct(vMidDir, vDeltaNorm);
+        fSplitLength = pTread->fWidth / fTmp;
+
+        if (fTmp < -0.5) {
+            fNewLength =
+                fTmp
+                * (fTmp
+                       * (fTmp
+                              * (fTmp * (fTmp * (fTmp * -337.31875783205 + -1237.54375255107) + -1802.11467325687)
+                                 + -1303.19904613494)
+                          + -471.347871690988)
+                   + -70.0883838161826);
+        } else if (fTmp > 0.5) {
+            fNewLength =
+                fTmp
+                    * (fTmp
+                           * (fTmp
+                                  * (fTmp * (fTmp * (fTmp * -1507.55394345521 + 6580.58002318442) + -11860.0735285953)
+                                     + 11290.7510782536)
+                              + -5986.89654545347)
+                       + 1675.66417006387)
+                + -192.426950291139;
+        } else {
+            fNewLength = fTmp * (fTmp * -0.531387674508458 + -2.11e-14) + 1.00086138065435;
+        }
+
+        fNewLength *= fSplitLength;
+        if (fNewLength + fMinSegment > fDist) {
+            bDoSegmentation = qfalse;
+        } else if (fSplitLength < -1) {
+            fSplitLength    = -fSplitLength;
+            bDoSegmentation = qtrue;
+        } else if (fDist > fMaxSegment) {
+            bDoSegmentation = qtrue;
+        } else {
+            CrossProduct(vec_upwards, pTread->vStartDir, vRight);
+            VectorNormalizeFast(vRight);
+
+            if (fabs(DotProduct(vRight, vDelta)) > fMaxOffset) {
+                bDoSegmentation = qtrue;
+            } else {
+                bDoSegmentation = qfalse;
+            }
+        }
+    }
+
+    if (pTread->iState == 2 && bDoSegmentation) {
+        VectorCopy(pTread->vStartVerts[0], pTread->vMidVerts[0]);
+        VectorCopy(pTread->vStartVerts[1], pTread->vMidVerts[1]);
+        pTread->fMidTexCoord = pTread->fEndTexCoord;
+        pTread->fMidAlpha    = pTread->fEndAlpha;
+        VectorCopy(vNewPos, pTread->vEndPos);
+
+        if (fAlpha >= 0) {
+            pTread->fEndAlpha = fAlpha * 255.0;
+        }
+
+        pTread->iState = 3;
+
+        return 0;
+    } else if (pTread->iState == 1 || pTread->iState == 2) {
+        VectorCopy(vNewPos, pTread->vEndPos);
+
+        if (fAlpha >= 0.0) {
+            pTread->fEndAlpha = fAlpha * 255.0;
+        }
+
+        CrossProduct(vec_upwards, vDeltaNorm, vDir);
+        VectorMA(pTread->vMidPos, pTread->fWidth, vDir, pTread->vMidVerts[0]);
+        VectorMA(pTread->vMidPos, -pTread->fWidth, vDir, pTread->vMidVerts[1]);
+        VectorMA(pTread->vEndPos, pTread->fWidth, vDir, pTread->vEndVerts[0]);
+        VectorMA(pTread->vEndPos, -pTread->fWidth, vDir, pTread->vEndVerts[1]);
+
+        pTread->fEndTexCoord = fDist * fTexScale;
+
+        if (pTread->iState == 1 && fDist > 8.0) {
+            VectorCopy(vDelta, pTread->vStartDir);
+            pTread->iState = 2;
+        }
+
+        return 0;
+    } else if (bDoSegmentation) {
+        if (!pTread->iReferenceNumber) {
+            pTread->iReferenceNumber = 1;
+            return 1;
+        }
+
+        pTread->iReferenceNumber = 0;
+        VectorCopy(pTread->vStartVerts[0], pTread->vMidVerts[0]);
+        VectorCopy(pTread->vStartVerts[1], pTread->vMidVerts[1]);
+        VectorSubtract(pTread->vEndPos, pTread->vMidPos, pTread->vStartDir);
+        VectorNormalizeFast(pTread->vStartDir);
+
+        VectorCopy(pTread->vEndPos, pTread->vMidPos);
+        pTread->fMidTexCoord = pTread->fEndTexCoord;
+        pTread->fMidAlpha    = pTread->fEndAlpha;
+
+        if (pTread->fStartTexCoord >= 1.0) {
+            pTread->fStartTexCoord = pTread->fStartTexCoord - floor(pTread->fStartTexCoord);
+            pTread->fMidTexCoord   = pTread->fMidTexCoord - floor(pTread->fStartTexCoord);
+        }
+
+        VectorCopy(vNewPos, pTread->vEndPos);
+        pTread->fEndTexCoord = fDist * fTexScale + pTread->fMidTexCoord;
+        if (fAlpha >= 0) {
+            pTread->fEndAlpha = fAlpha * 255.0;
+        }
+    }
+
+    CrossProduct(vec_upwards, vMidDir, vRight);
+    VectorNormalizeFast(vRight);
+    VectorMA(pTread->vMidPos, fSplitLength, vRight, pTread->vMidVerts[0]);
+    VectorMA(pTread->vMidPos, -fSplitLength, vRight, pTread->vMidVerts[1]);
+    CrossProduct(vec_upwards, vDeltaNorm, vRight);
+    VectorNormalizeFast(vRight);
+    VectorMA(pTread->vEndPos, pTread->fWidth, vRight, pTread->vEndVerts[0]);
+    VectorMA(pTread->vEndPos, -pTread->fWidth, vRight, pTread->vEndVerts[1]);
+
     return 0;
 }
