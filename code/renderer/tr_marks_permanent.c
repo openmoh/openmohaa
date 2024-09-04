@@ -321,7 +321,12 @@ void R_LevelMarksLoad(const char *szBSPName)
     // Read the DCL file header
     //
 
-    ri.FS_Read(&dclHeader, sizeof(dclHeader), hFile);
+    iLength = ri.FS_Read(&dclHeader, sizeof(dclHeader), hFile);
+    if (iLength < sizeof(dclHeader)) {
+        ri.FS_CloseFile(hFile);
+        ri.Printf(PRINT_ALL, "------ Finished loading DCL file %s -----\n", lm.szDCLFilename);
+        return;
+    }
 
     for (i = 0; i < sizeof(dclHeader) / sizeof(int); i++) {
         ((int *)&dclHeader)[i] = LittleLong(((int *)&dclHeader)[i]);
