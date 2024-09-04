@@ -729,8 +729,8 @@ extern "C" {
     void CG_InitTestTreadMark();
     void CG_AddTreadMarks();
     int  CG_PermanentMark(
-         const vec3_t    origin,
-         const vec3_t    dir,
+         vec3_t          origin,
+         vec3_t          dir,
          float           orientation,
          float           fSScale,
          float           fTScale,

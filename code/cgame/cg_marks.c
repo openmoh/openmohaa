@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2023 the OpenMoHAA team
+Copyright (C) 2024 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -36,93 +36,94 @@ MARK POLYS
 #define MAX_MARK_FRAGMENTS 128
 #define MAX_MARK_POINTS    384
 
-static vec3_t cg_vEntAngles;
-static vec3_t cg_vEntOrigin;
-static vec3_t cg_fEntAxis[3];
+static vec3_t   cg_vEntAngles;
+static vec3_t   cg_vEntOrigin;
+static vec3_t   cg_fEntAxis[3];
 static qboolean cg_bEntAnglesSet;
 
-static int cg_iLastEntIndex;
-static int cg_iLastEntTime;
+static int      cg_iLastEntIndex;
+static int      cg_iLastEntTime;
 static qboolean cg_bLastEntValid;
 
-markPoly_t* cg_freeMarkPolys;   // single linked list
-markObj_t cg_activeMarkObjs;
-markObj_t* cg_freeMarkObjs;
+markPoly_t *cg_freeMarkPolys; // single linked list
+markObj_t   cg_activeMarkObjs;
+markObj_t  *cg_freeMarkObjs;
 treadMark_t cg_treadMarks[MAX_TREAD_MARKS];
 
-markPoly_t* cg_markPolys;
-int cg_iNumMarkPolys;
-markObj_t* cg_markObjs;
-int cg_iNumFreeMarkObjs;
-int cg_iMinFreeMarkObjs;
-qboolean cg_bMarksInitialized;
-cvar_t* cg_treadmark_test;
+markPoly_t *cg_markPolys;
+int         cg_iNumMarkPolys;
+markObj_t  *cg_markObjs;
+int         cg_iNumFreeMarkObjs;
+int         cg_iMinFreeMarkObjs;
+qboolean    cg_bMarksInitialized;
+cvar_t     *cg_treadmark_test;
 
 vec3_t vec_upwards;
 
 typedef struct cg_impactmarkinfo_s {
     vec3_t axis[3];
     vec3_t origin;
-    float fSCenter;
-    float fTCenter;
-    float texCoordScaleS;
-    float texCoordScaleT;
-    byte colors[4];
-    int leafnum;
+    float  fSCenter;
+    float  fTCenter;
+    float  texCoordScaleS;
+    float  texCoordScaleT;
+    byte   colors[4];
+    int    leafnum;
 } cg_impactmarkinfo_t;
 
 typedef struct cg_treadmarkinfo_s {
-    treadMark_t* pTread;
-    vec3_t vDirection;
-    vec3_t vRight;
-    float fStartDist;
-    float fStartTex;
-    float fStartAlpha;
-    float fLeftStartDist;
-    float fRightStartDist;
-    float fRightCenterDist;
-    float fLeftTexScale;
-    float fRightTexScale;
-    float fCenterTexScale;
-    float fLeftAlphaScale;
-    float fRightAlphaScale;
-    float fCenterAlphaScale;
-    float fOOWidth;
-    float fOODoubleWidth;
-    byte colors[4];
-    int leafnum;
+    treadMark_t *pTread;
+    vec3_t       vDirection;
+    vec3_t       vRight;
+    float        fStartDist;
+    float        fStartTex;
+    float        fStartAlpha;
+    float        fLeftStartDist;
+    float        fRightStartDist;
+    float        fRightCenterDist;
+    float        fLeftTexScale;
+    float        fRightTexScale;
+    float        fCenterTexScale;
+    float        fLeftAlphaScale;
+    float        fRightAlphaScale;
+    float        fCenterAlphaScale;
+    float        fOOWidth;
+    float        fOODoubleWidth;
+    byte         colors[4];
+    int          leafnum;
 } cg_treadmarkinfo_t;
 
 int CG_GetMarkFragments(
-    int numVerts,
-    const vec3_t* pVerts,
-    const vec3_t vProjection,
-    const vec3_t* pPointBuffer,
-    markFragment_t* pFragmentBuffer,
-    float fRadiusSquared
-) {
-    int i, j;
-    int iNumEnts;
-    int iCurrPoints, iCurrFragments;
-    int iCurrMaxPoints, iCurrMaxFragments;
-    int iNewPoints, iNewFragments;
-    clipHandle_t cmodel;
-    vec3_t vProjectionDir;
-    vec3_t vMins, vMaxs;
-    vec3_t vTemp;
-    vec3_t vAngles, vOrigin;
-    const vec3_t* pCurrPoint;
-    centity_t* pEntList[64];
-    entityState_t* pEnt;
-    markFragment_t* pCurrFragment;
-    markFragment_t* pFragment;
+    int             numVerts,
+    const vec3_t   *pVerts,
+    const vec3_t    vProjection,
+    const vec3_t   *pPointBuffer,
+    markFragment_t *pFragmentBuffer,
+    float           fRadiusSquared
+)
+{
+    int             i, j;
+    int             iNumEnts;
+    int             iCurrPoints, iCurrFragments;
+    int             iCurrMaxPoints, iCurrMaxFragments;
+    int             iNewPoints, iNewFragments;
+    clipHandle_t    cmodel;
+    vec3_t          vProjectionDir;
+    vec3_t          vMins, vMaxs;
+    vec3_t          vTemp;
+    vec3_t          vAngles, vOrigin;
+    const vec3_t   *pCurrPoint;
+    centity_t      *pEntList[64];
+    entityState_t  *pEnt;
+    markFragment_t *pCurrFragment;
+    markFragment_t *pFragment;
 
     iNewFragments = cgi.R_MarkFragments(
         numVerts,
         pVerts,
         vProjection,
         MAX_MARK_POINTS,
-        (float*)pPointBuffer,
+        (float *)pPointBuffer,
         MAX_MARK_FRAGMENTS,
         pFragmentBuffer,
         fRadiusSquared
@@ -141,12 +142,12 @@ int CG_GetMarkFragments(
         return iNewFragments;
     }
 
-    iCurrPoints = iNewPoints;
-    iCurrFragments = iNewFragments;
-    iCurrMaxPoints = MAX_MARK_POINTS - iNewPoints;
+    iCurrPoints       = iNewPoints;
+    iCurrFragments    = iNewFragments;
+    iCurrMaxPoints    = MAX_MARK_POINTS - iNewPoints;
     iCurrMaxFragments = MAX_MARK_FRAGMENTS - iNewFragments;
-    pCurrPoint = &pPointBuffer[iNewPoints];
-    pCurrFragment = &pFragmentBuffer[iNewFragments];
+    pCurrPoint        = &pPointBuffer[iNewPoints];
+    pCurrFragment     = &pFragmentBuffer[iNewFragments];
 
     VectorNormalize2(vProjection, vProjectionDir);
     ClearBounds(vMins, vMaxs);
@@ -170,7 +171,7 @@ int CG_GetMarkFragments(
         VectorCopy(pEntList[i]->lerpOrigin, vOrigin);
 
         cmodel = cgi.CM_InlineModel(pEnt->modelindex);
-        
+
         iNewFragments = cgi.R_MarkFragmentsForInlineModel(
             cmodel,
             vAngles,
@@ -179,7 +180,7 @@ int CG_GetMarkFragments(
             pVerts,
             vProjection,
             iCurrMaxPoints,
-            (float*)pCurrPoint,
+            (float *)pCurrPoint,
             iCurrMaxFragments,
             pCurrFragment,
             fRadiusSquared
@@ -211,16 +212,16 @@ int CG_GetMarkFragments(
     return iCurrFragments;
 }
 
-static qboolean CG_GetMarkInlineModelOrientation(int iIndex) {
-    centity_t* pCEnt;
+static qboolean CG_GetMarkInlineModelOrientation(int iIndex)
+{
+    centity_t *pCEnt;
 
     if (iIndex == cg_iLastEntIndex && cg_iLastEntTime == cg.time) {
         return cg_bLastEntValid;
     }
 
     pCEnt = &cg_entities[-iIndex];
-    if (pCEnt->currentValid && pCEnt->currentState.modelindex < cgs.numInlineModels)
-    {
+    if (pCEnt->currentValid && pCEnt->currentState.modelindex < cgs.numInlineModels) {
         VectorCopy(pCEnt->lerpAngles, cg_vEntAngles);
         VectorCopy(pCEnt->lerpOrigin, cg_vEntOrigin);
         cg_bLastEntValid = qtrue;
@@ -234,7 +235,7 @@ static qboolean CG_GetMarkInlineModelOrientation(int iIndex) {
         }
 
         cg_iLastEntIndex = iIndex;
-        cg_iLastEntTime = cg.time;
+        cg_iLastEntTime  = cg.time;
         return cg_bLastEntValid;
     }
 
@@ -250,25 +251,24 @@ static qboolean CG_GetMarkInlineModelOrientation(int iIndex) {
     return qfalse;
 }
 
-static void CG_FragmentPosToWorldPos(const vec3_t vFrom, vec3_t vTo) {
-    if (cg_bEntAnglesSet)
-    {
+static void CG_FragmentPosToWorldPos(const vec3_t vFrom, vec3_t vTo)
+{
+    if (cg_bEntAnglesSet) {
         VectorMA(cg_vEntOrigin, vFrom[0], cg_fEntAxis[0], vTo);
         VectorMA(vTo, vFrom[1], cg_fEntAxis[1], vTo);
         VectorMA(vTo, vFrom[2], cg_fEntAxis[2], vTo);
-    }
-    else
-    {
+    } else {
         vTo[0] = cg_vEntOrigin[0] + *vFrom;
         vTo[1] = cg_vEntOrigin[1] + vFrom[1];
         vTo[2] = cg_vEntOrigin[2] + vFrom[2];
     }
 }
 
-qboolean CG_UpdateMarkPosition(markObj_t* pMark) {
+qboolean CG_UpdateMarkPosition(markObj_t *pMark)
+{
     vec3_t v;
     vec3_t pt;
-    int iIndex;
+    int    iIndex;
 
     iIndex = pMark->markPolys->iIndex;
     if (!CG_GetMarkInlineModelOrientation(iIndex)) {
@@ -277,8 +277,7 @@ qboolean CG_UpdateMarkPosition(markObj_t* pMark) {
 
     VectorCopy(pMark->markPolys->verts[0].xyz, v);
 
-    if (cg_bEntAnglesSet)
-    {
+    if (cg_bEntAnglesSet) {
         VectorScale(cg_fEntAxis[0], v[0], pt);
         VectorMA(pt, v[1], cg_fEntAxis[1], pt);
         VectorMA(pt, v[2], cg_fEntAxis[2], pt);
@@ -292,12 +291,8 @@ qboolean CG_UpdateMarkPosition(markObj_t* pMark) {
     return qtrue;
 }
 
-void CG_AddFragmentToScene(
-    int iIndex,
-    qhandle_t hShader,
-    int iNumVerts,
-    polyVert_t* pVerts
-) {
+void CG_AddFragmentToScene(int iIndex, qhandle_t hShader, int iNumVerts, polyVert_t *pVerts)
+{
     if (!iIndex) {
         cgi.R_AddPolyToScene(hShader, iNumVerts, pVerts, 0);
         return;
@@ -309,9 +304,9 @@ void CG_AddFragmentToScene(
     }
 
     if (cg_bEntAnglesSet) {
-        int i;
-        vec3_t vTmp;
-        polyVert_t* pCurrVert;
+        int         i;
+        vec3_t      vTmp;
+        polyVert_t *pCurrVert;
 
         for (i = 0; i < iNumVerts; i++) {
             pCurrVert = &pVerts[i];
@@ -324,8 +319,8 @@ void CG_AddFragmentToScene(
             VectorAdd(vTmp, cg_vEntOrigin, pCurrVert->xyz);
         }
     } else {
-        int i;
-        polyVert_t* pCurrVert;
+        int         i;
+        polyVert_t *pCurrVert;
 
         for (i = 0; i < iNumVerts; i++) {
             pCurrVert = &pVerts[i];
@@ -367,7 +362,7 @@ void CG_InitMarks(void)
         cgi.Free(cg_markPolys);
     }
 
-    cg_markPolys = (markPoly_t*)cgi.Malloc(sizeof(markPoly_t) * cg_iNumMarkPolys);
+    cg_markPolys = (markPoly_t *)cgi.Malloc(sizeof(markPoly_t) * cg_iNumMarkPolys);
 
     if (!cg_markPolys) {
         cgi.Error(ERR_DROP, "CG_InitMarks: Could not allocate array for mark polys");
@@ -377,7 +372,7 @@ void CG_InitMarks(void)
         cgi.Free(cg_markObjs);
     }
 
-    cg_markObjs = (markObj_t*)cgi.Malloc(sizeof(markObj_t) * iMaxMarks);
+    cg_markObjs = (markObj_t *)cgi.Malloc(sizeof(markObj_t) * iMaxMarks);
 
     if (!cg_markObjs) {
         cgi.Error(ERR_DROP, "CG_InitMarks: Could not allocate array for mark objects");
@@ -401,7 +396,7 @@ void CG_InitMarks(void)
     }
     cg_markObjs[i].nextMark = NULL;
 
-    cg_iNumFreeMarkObjs = iMaxMarks;
+    cg_iNumFreeMarkObjs  = iMaxMarks;
     cg_bMarksInitialized = qtrue;
 }
 
@@ -416,7 +411,7 @@ void CG_FreeMarkPoly(markPoly_t *le)
         return;
     }
 
-    le->nextPoly = cg_freeMarkPolys;
+    le->nextPoly     = cg_freeMarkPolys;
     cg_freeMarkPolys = le;
 }
 
@@ -425,9 +420,10 @@ void CG_FreeMarkPoly(markPoly_t *le)
 CG_FreeMarkObj
 ==================
 */
-void CG_FreeMarkObj(markObj_t* pMark) {
-    markPoly_t* pPoly;
-    markPoly_t* pNextPoly;
+void CG_FreeMarkObj(markObj_t *pMark)
+{
+    markPoly_t *pPoly;
+    markPoly_t *pNextPoly;
 
     pPoly = pMark->markPolys;
     for (pPoly = pMark->markPolys; pPoly; pPoly = pNextPoly) {
@@ -437,8 +433,8 @@ void CG_FreeMarkObj(markObj_t* pMark) {
 
     pMark->prevMark->nextMark = pMark->nextMark;
     pMark->nextMark->prevMark = pMark->prevMark;
-    pMark->nextMark = cg_freeMarkObjs;
-    cg_freeMarkObjs = pMark;
+    pMark->nextMark           = cg_freeMarkObjs;
+    cg_freeMarkObjs           = pMark;
     cg_iNumFreeMarkObjs++;
 }
 
@@ -447,13 +443,12 @@ void CG_FreeMarkObj(markObj_t* pMark) {
 CG_FreeBestMarkObj
 ==================
 */
-void CG_FreeBestMarkObj(qboolean bAllowFade) {
-    markObj_t* pMark;
+void CG_FreeBestMarkObj(qboolean bAllowFade)
+{
+    markObj_t *pMark;
 
-    for (pMark = cg_activeMarkObjs.prevMark; pMark != &cg_activeMarkObjs; pMark = pMark->prevMark)
-    {
-        if (pMark->lastVisTime < cg.time - 250)
-        {
+    for (pMark = cg_activeMarkObjs.prevMark; pMark != &cg_activeMarkObjs; pMark = pMark->prevMark) {
+        if (pMark->lastVisTime < cg.time - 250) {
             CG_FreeMarkObj(pMark);
             return;
         }
@@ -464,10 +459,9 @@ void CG_FreeBestMarkObj(qboolean bAllowFade) {
         return;
     }
 
-    for (pMark = cg_activeMarkObjs.prevMark; pMark != &cg_activeMarkObjs; pMark = pMark->prevMark)
-    {
+    for (pMark = cg_activeMarkObjs.prevMark; pMark != &cg_activeMarkObjs; pMark = pMark->prevMark) {
         if (!pMark->alphaFade || pMark->time > cg.time - 9000) {
-            pMark->time = cg.time - 9000;
+            pMark->time      = cg.time - 9000;
             pMark->alphaFade = 1;
         }
     }
@@ -480,11 +474,11 @@ CG_AllocMark
 Will allways succeed, even if it requires freeing an old active mark
 ===================
 */
-markObj_t* CG_AllocMark(int iNumPolys)
+markObj_t *CG_AllocMark(int iNumPolys)
 {
-    int iPolyCount;
-    markPoly_t* pPoly;
-    markObj_t* pMark;
+    int         iPolyCount;
+    markPoly_t *pPoly;
+    markObj_t  *pMark;
 
     if (!cg_bMarksInitialized) {
         return NULL;
@@ -498,74 +492,65 @@ markObj_t* CG_AllocMark(int iNumPolys)
         CG_FreeBestMarkObj(1);
     }
 
-    pMark = cg_freeMarkObjs;
+    pMark           = cg_freeMarkObjs;
     cg_freeMarkObjs = cg_freeMarkObjs->nextMark;
 
     memset(pMark, 0, sizeof(markObj_t));
     pMark->lastVisTime = cg.time;
 
-    for (iPolyCount = 0; iPolyCount < iNumPolys; iPolyCount++)
-    {
+    for (iPolyCount = 0; iPolyCount < iNumPolys; iPolyCount++) {
         while (!cg_freeMarkPolys) {
             CG_FreeBestMarkObj(qfalse);
         }
 
-        pPoly = cg_freeMarkPolys;
+        pPoly            = cg_freeMarkPolys;
         cg_freeMarkPolys = pPoly->nextPoly;
 
         memset(pPoly, 0, sizeof(*pPoly));
-        pPoly->nextPoly = pMark->markPolys;
+        pPoly->nextPoly  = pMark->markPolys;
         pMark->markPolys = pPoly;
     }
 
-
     // link into the active list
-    pMark->nextMark = cg_activeMarkObjs.nextMark;
-    pMark->prevMark = &cg_activeMarkObjs;
+    pMark->nextMark                      = cg_activeMarkObjs.nextMark;
+    pMark->prevMark                      = &cg_activeMarkObjs;
     cg_activeMarkObjs.nextMark->prevMark = pMark;
-    cg_activeMarkObjs.nextMark = pMark;
+    cg_activeMarkObjs.nextMark           = pMark;
     cg_iNumFreeMarkObjs--;
     return pMark;
 }
 
-int CG_ImpactMark_GetLeafCallback(markFragment_t* mf, void* pCustom) {
-    return ((cg_impactmarkinfo_t*)pCustom)->leafnum;
+int CG_ImpactMark_GetLeafCallback(markFragment_t *mf, void *pCustom)
+{
+    return ((cg_impactmarkinfo_t *)pCustom)->leafnum;
 }
 
-qboolean CG_ImpactMark_PerPolyCallback(
-    const vec3_t* markPoints,
-    markFragment_t* mf,
-    polyVert_t* verts,
-    void* pCustom
-) {
-    int j;
-    polyVert_t* v;
-    cg_impactmarkinfo_t* pInfo;
+qboolean CG_ImpactMark_PerPolyCallback(const vec3_t *markPoints, markFragment_t *mf, polyVert_t *verts, void *pCustom)
+{
+    int                  j;
+    polyVert_t          *v;
+    cg_impactmarkinfo_t *pInfo;
 
-    pInfo = (cg_impactmarkinfo_t*)pCustom;
+    pInfo = (cg_impactmarkinfo_t *)pCustom;
 
-    if (mf->iIndex >= 0)
-    {
+    if (mf->iIndex >= 0) {
         for (j = 0; j < mf->numPoints; j++) {
             vec3_t delta;
 
             v = &verts[j];
             VectorCopy(markPoints[j + mf->firstPoint], v->xyz);
             VectorSubtract(v->xyz, pInfo->origin, delta);
-            v->st[0] = pInfo->fSCenter + DotProduct(delta, pInfo->axis[1]) * pInfo->texCoordScaleS;
-            v->st[1] = pInfo->fTCenter + DotProduct(delta, pInfo->axis[2]) * pInfo->texCoordScaleT;
+            v->st[0]       = pInfo->fSCenter + DotProduct(delta, pInfo->axis[1]) * pInfo->texCoordScaleS;
+            v->st[1]       = pInfo->fTCenter + DotProduct(delta, pInfo->axis[2]) * pInfo->texCoordScaleT;
             v->modulate[0] = pInfo->colors[0];
             v->modulate[1] = pInfo->colors[1];
             v->modulate[2] = pInfo->colors[2];
             v->modulate[3] = pInfo->colors[3];
         }
-    }
-    else
-    {
+    } else {
         if (!CG_GetMarkInlineModelOrientation(mf->iIndex)) {
             return qfalse;
         }
-
 
         for (j = 0; j < mf->numPoints; j++) {
             vec3_t vWorldPos;
@@ -576,8 +561,8 @@ qboolean CG_ImpactMark_PerPolyCallback(
 
             CG_FragmentPosToWorldPos(v->xyz, vWorldPos);
             VectorSubtract(vWorldPos, pInfo->origin, delta);
-            v->st[0] = pInfo->fSCenter + DotProduct(delta, pInfo->axis[1]) * pInfo->texCoordScaleS;
-            v->st[1] = pInfo->fTCenter + DotProduct(delta, pInfo->axis[2]) * pInfo->texCoordScaleT;
+            v->st[0]       = pInfo->fSCenter + DotProduct(delta, pInfo->axis[1]) * pInfo->texCoordScaleS;
+            v->st[1]       = pInfo->fTCenter + DotProduct(delta, pInfo->axis[2]) * pInfo->texCoordScaleT;
             v->modulate[0] = pInfo->colors[0];
             v->modulate[1] = pInfo->colors[1];
             v->modulate[2] = pInfo->colors[2];
@@ -619,24 +604,23 @@ void CG_ImpactMark(
     float        fTCenter
 )
 {
-    int i;
-    int numFragments;
-    float fSScale2, fTScale2;
-    float fSScale3, fTScale3;
-    vec3_t originalPoints[4];
-    vec3_t markPoints[MAX_MARK_POINTS];
-    vec3_t projection;
-    markFragment_t markFragments[MAX_MARK_FRAGMENTS], *mf;
-    vec3_t v;
-    float fRadiusSquared;
+    int                 i;
+    int                 numFragments;
+    float               fSScale2, fTScale2;
+    float               fSScale3, fTScale3;
+    vec3_t              originalPoints[4];
+    vec3_t              markPoints[MAX_MARK_POINTS];
+    vec3_t              projection;
+    markFragment_t      markFragments[MAX_MARK_FRAGMENTS], *mf;
+    vec3_t              v;
+    float               fRadiusSquared;
     cg_impactmarkinfo_t info;
 
     if (!cg_bMarksInitialized) {
         return;
     }
 
-    if (!cg_addMarks->integer
-        && markShader != cgs.media.shadowMarkShader
+    if (!cg_addMarks->integer && markShader != cgs.media.shadowMarkShader
         && markShader != cgs.media.footShadowMarkShader) {
         return;
     }
@@ -648,7 +632,7 @@ void CG_ImpactMark(
         fTScale = 1.0;
     }
 
-    fRadiusSquared = fSScale * fSScale + fTScale * fTScale;
+    fRadiusSquared      = fSScale * fSScale + fTScale * fTScale;
     info.texCoordScaleS = 0.5 / fSScale;
     info.texCoordScaleT = 0.5 / fTScale;
 
@@ -694,26 +678,16 @@ void CG_ImpactMark(
     // get the fragments
     VectorScale(dir, -32, projection);
 
-    numFragments = CG_GetMarkFragments(
-        4,
-        originalPoints,
-        projection,
-        markPoints,
-        markFragments,
-        fRadiusSquared
-    );
+    numFragments = CG_GetMarkFragments(4, originalPoints, projection, markPoints, markFragments, fRadiusSquared);
 
-    if (dolighting)
-    {
+    if (dolighting) {
         vec3_t vLight;
         cgi.R_GetLightingForDecal(vLight, dir, origin);
 
         info.colors[0] = (int)(red * vLight[0]);
         info.colors[1] = (int)(green * vLight[1]);
         info.colors[2] = (int)(blue * vLight[2]);
-    }
-    else
-    {
+    } else {
         info.colors[0] = (int)(red * 255.0f);
         info.colors[1] = (int)(green * 255.0f);
         info.colors[2] = (int)(blue * 255.0f);
@@ -731,8 +705,7 @@ void CG_ImpactMark(
     VectorAdd(origin, dir, v);
     info.leafnum = cgi.CM_PointLeafnum(v);
 
-    if (temporary)
-    {
+    if (temporary) {
         polyVert_t verts[8];
 
         for (i = 0, mf = markFragments; i < numFragments; i++, mf++) {
@@ -740,20 +713,18 @@ void CG_ImpactMark(
                 mf->numPoints = 8;
             }
 
-            if (CG_ImpactMark_PerPolyCallback(markPoints, mf, verts, (void*)&info)) {
+            if (CG_ImpactMark_PerPolyCallback(markPoints, mf, verts, (void *)&info)) {
                 CG_AddFragmentToScene(mf->iIndex, markShader, mf->numPoints, verts);
             }
         }
-    }
-    else
-    {
+    } else {
         CG_AssembleFinalMarks(
             markPoints,
             markFragments,
             numFragments,
             &CG_ImpactMark_PerPolyCallback,
             &CG_ImpactMark_GetLeafCallback,
-            (void*)&info,
+            (void *)&info,
             info.origin,
             sqrt(fRadiusSquared),
             markShader,
@@ -764,32 +735,31 @@ void CG_ImpactMark(
 }
 
 void CG_AssembleFinalMarks(
-    vec3_t           *markPoints,
-    markFragment_t   *markFragments,
-    int              numFragments,
-    qboolean         (*PerPolyCallback)(const vec3_t* markPoints, markFragment_t* mf, polyVert_t* verts, void* pCustom),
-    int              (*GetLeafCallback)(markFragment_t* mf, void* pCustom),
-    void             *pCustom,
-    vec3_t           pos,
-    float            radius,
-    qhandle_t        markShader,
-    qboolean         fadein,
-    qboolean         alphaFade
+    vec3_t         *markPoints,
+    markFragment_t *markFragments,
+    int             numFragments,
+    qboolean (*PerPolyCallback)(const vec3_t *markPoints, markFragment_t *mf, polyVert_t *verts, void *pCustom),
+    int (*GetLeafCallback)(markFragment_t *mf, void *pCustom),
+    void     *pCustom,
+    vec3_t    pos,
+    float     radius,
+    qhandle_t markShader,
+    qboolean  fadein,
+    qboolean  alphaFade
 )
 {
-    markObj_t* pMark;
-    markPoly_t* pPoly;
-    int iGroup, iFirstNewGroup;
-    int numFragsForMark;
-    int i;
-    markFragment_t* mf;
+    markObj_t      *pMark;
+    markPoly_t     *pPoly;
+    int             iGroup, iFirstNewGroup;
+    int             numFragsForMark;
+    int             i;
+    markFragment_t *mf;
 
     iFirstNewGroup = 0;
-    do
-    {
-        i = iFirstNewGroup;
-        mf = &markFragments[iFirstNewGroup];
-        iGroup = mf->iIndex;
+    do {
+        i               = iFirstNewGroup;
+        mf              = &markFragments[iFirstNewGroup];
+        iGroup          = mf->iIndex;
         numFragsForMark = 0;
 
         for (; i < numFragments; i++, mf++) {
@@ -805,15 +775,15 @@ void CG_AssembleFinalMarks(
             break;
         }
 
-        pMark->time = cg.time;
-        pMark->alphaFade = alphaFade;
+        pMark->time       = cg.time;
+        pMark->alphaFade  = alphaFade;
         pMark->markShader = markShader;
-        pMark->fadein = fadein;
+        pMark->fadein     = fadein;
         VectorCopy(pos, pMark->pos);
         pMark->radius = radius;
 
-        i = iFirstNewGroup;
-        mf = &markFragments[iFirstNewGroup];
+        i              = iFirstNewGroup;
+        mf             = &markFragments[iFirstNewGroup];
         iFirstNewGroup = 0;
 
         if (mf->iIndex < 0) {
@@ -837,8 +807,8 @@ void CG_AssembleFinalMarks(
 
                 if (PerPolyCallback(markPoints, mf, pPoly->verts, pCustom)) {
                     pPoly->numVerts = mf->numPoints;
-                    pPoly->iIndex = mf->iIndex;
-                    pPoly = pPoly->nextPoly;
+                    pPoly->iIndex   = mf->iIndex;
+                    pPoly           = pPoly->nextPoly;
                 }
             }
         }
@@ -895,15 +865,15 @@ CG_AddMarks
 
 void CG_AddMarks(void)
 {
-    int j;
-    int t;
-    int fade;
-    markObj_t* pMark;
-    markObj_t* pNext;
-    markPoly_t* pPoly;
-    polyVert_t* pVert;
-    polyVert_t tmpVerts[8];
-    int viewleafnum;
+    int         j;
+    int         t;
+    int         fade;
+    markObj_t  *pMark;
+    markObj_t  *pNext;
+    markPoly_t *pPoly;
+    polyVert_t *pVert;
+    polyVert_t  tmpVerts[8];
+    int         viewleafnum;
 
     if (!cg_bMarksInitialized) {
         return;
@@ -920,8 +890,7 @@ void CG_AddMarks(void)
         pNext = pMark->nextMark;
 
         // see if it is time to completely remove it
-        if (pMark->alphaFade && cg.time > pMark->time + MARK_TOTAL_TIME)
-        {
+        if (pMark->alphaFade && cg.time > pMark->time + MARK_TOTAL_TIME) {
             CG_FreeMarkObj(pMark);
             continue;
         }
@@ -953,10 +922,9 @@ void CG_AddMarks(void)
         if (pMark->fadein) {
             fade = 255 * (cg.time - pMark->time) / MARK_FADE_TIME;
             if (fade > 255) {
-                fade = 255;
+                fade          = 255;
                 pMark->fadein = 0;
             }
-
 
             for (pPoly = pMark->markPolys; pPoly; pPoly = pPoly->nextPoly) {
                 for (j = 0; j < pPoly->numVerts; j++) {
@@ -977,10 +945,8 @@ void CG_AddMarks(void)
             }
         }
 
-        for (pPoly = pMark->markPolys; pPoly; pPoly = pPoly->nextPoly)
-        {
-            if (pPoly->iIndex < 0)
-            {
+        for (pPoly = pMark->markPolys; pPoly; pPoly = pPoly->nextPoly) {
+            if (pPoly->iIndex < 0) {
                 memcpy(tmpVerts, pPoly->verts, 24 * pPoly->numVerts);
                 pVert = tmpVerts;
             } else {
@@ -1008,7 +974,8 @@ qboolean CG_CheckMakeMarkOnEntity(int iEntIndex)
         return qfalse;
     }
 
-    if (cg_entities[iEntIndex].currentState.modelindex < 0 || cg_entities[iEntIndex].currentState.modelindex > cgi.CM_NumInlineModels()) {
+    if (cg_entities[iEntIndex].currentState.modelindex < 0
+        || cg_entities[iEntIndex].currentState.modelindex > cgi.CM_NumInlineModels()) {
         return qfalse;
     }
 
@@ -1022,9 +989,9 @@ void CG_InitTestTreadMark()
 
 int CG_StartTreadMark(int iReference, qhandle_t treadShader, const vec3_t vStartPos, float fWidth, float fAlpha)
 {
-    int i;
-    int iTreadNum;
-    treadMark_t* pTread;
+    int          i;
+    int          iTreadNum;
+    treadMark_t *pTread;
 
     if (!cg_bMarksInitialized) {
         return -1;
@@ -1038,7 +1005,7 @@ int CG_StartTreadMark(int iReference, qhandle_t treadShader, const vec3_t vStart
     for (i = 0; i < MAX_TREAD_MARKS; i++) {
         if (!cg_treadMarks[i].iState) {
             iTreadNum = i;
-            pTread = &cg_treadMarks[i];
+            pTread    = &cg_treadMarks[i];
             break;
         }
     }
@@ -1048,11 +1015,11 @@ int CG_StartTreadMark(int iReference, qhandle_t treadShader, const vec3_t vStart
     }
 
     memset(pTread, 0, sizeof(*pTread));
-    pTread->iState = 1;
+    pTread->iState           = 1;
     pTread->iReferenceNumber = iReference;
-    pTread->iLastTime = cg.time;
-    pTread->hTreadShader = treadShader;
-    pTread->fWidth = fWidth * 0.5;
+    pTread->iLastTime        = cg.time;
+    pTread->hTreadShader     = treadShader;
+    pTread->fWidth           = fWidth * 0.5;
     VectorCopy(vStartPos, pTread->vMidPos);
     VectorCopy(vStartPos, pTread->vEndPos);
 
@@ -1066,17 +1033,17 @@ int CG_StartTreadMark(int iReference, qhandle_t treadShader, const vec3_t vStart
     return iTreadNum;
 }
 
-qboolean CG_MakeTreadMarkDecal_PerPolyCallback(const vec3_t *markPoints, markFragment_t *mf, polyVert_t *verts, void *pCustom)
+qboolean
+CG_MakeTreadMarkDecal_PerPolyCallback(const vec3_t *markPoints, markFragment_t *mf, polyVert_t *verts, void *pCustom)
 {
-    int j;
-    float fDist;
-    float fSideDist;
-    float fSideAlpha;
-    float fCenterAlpha;
-    float fFrac;
-    polyVert_t* v;
-    cg_treadmarkinfo_t* pInfo;
-
+    int                 j;
+    float               fDist;
+    float               fSideDist;
+    float               fSideAlpha;
+    float               fCenterAlpha;
+    float               fFrac;
+    polyVert_t         *v;
+    cg_treadmarkinfo_t *pInfo;
 
     // FIXME: unimplemented
     return qfalse;
@@ -1084,44 +1051,43 @@ qboolean CG_MakeTreadMarkDecal_PerPolyCallback(const vec3_t *markPoints, markFra
 
 int CG_MakeTreadMarkDecal_GetLeafCallback(markFragment_t *mf, void *pCustom)
 {
-    return ((cg_treadmarkinfo_t*)pCustom)->leafnum;
+    return ((cg_treadmarkinfo_t *)pCustom)->leafnum;
 }
 
 void CG_MakeTreadMarkDecal(treadMark_t *pTread, qboolean bStartSegment, qboolean bTemporary)
 {
-    int i;
-    int numFragments;
-    vec3_t originalPoints[4];
-    vec3_t markPoints[MAX_MARK_POLYVERTS];
-    vec3_t projection;
-    markFragment_t markFragments[MAX_MARK_FRAGMENTS];
-    markFragment_t* mf;
+    int                i;
+    int                numFragments;
+    vec3_t             originalPoints[4];
+    vec3_t             markPoints[MAX_MARK_POLYVERTS];
+    vec3_t             projection;
+    markFragment_t     markFragments[MAX_MARK_FRAGMENTS];
+    markFragment_t    *mf;
     cg_treadmarkinfo_t info;
-    float fEndAlpha, fEndTex;
-    float fDist;
-    vec3_t vStartCenter;
-    vec3_t vEndCenter;
-    vec3_t vDelta;
-    vec3_t origin;
-    float fRadiusSquared;
-
+    float              fEndAlpha, fEndTex;
+    float              fDist;
+    vec3_t             vStartCenter;
+    vec3_t             vEndCenter;
+    vec3_t             vDelta;
+    vec3_t             origin;
+    float              fRadiusSquared;
 
     // FIXME: unimplemented
 }
 
 int CG_UpdateTreadMark(int iReference, vec_t *vNewPos, float fAlpha)
 {
-    int i;
-    int iTreadNum;
-    float fDist;
-    float fSplitLength;
-    float fNewLength;
-    float fTmp;
-    qboolean bDoSegmentation;
-    vec3_t vDelta, vDeltaNorml;
-    vec3_t vDir, vMidDir;
-    vec3_t vRight;
-    treadMark_t* pTread;
+    int          i;
+    int          iTreadNum;
+    float        fDist;
+    float        fSplitLength;
+    float        fNewLength;
+    float        fTmp;
+    qboolean     bDoSegmentation;
+    vec3_t       vDelta, vDeltaNorml;
+    vec3_t       vDir, vMidDir;
+    vec3_t       vRight;
+    treadMark_t *pTread;
 
     // FIXME: unimplemented
     return 0;
@@ -1130,8 +1096,8 @@ int CG_UpdateTreadMark(int iReference, vec_t *vNewPos, float fAlpha)
 void CG_AddTreadMarks()
 {
     trace_t trace;
-    vec3_t vPos, vEnd;
-    int i;
+    vec3_t  vPos, vEnd;
+    int     i;
 
     if (cg_treadmark_test->integer) {
         VectorCopy(cg.predicted_player_state.origin, vPos);
@@ -1165,26 +1131,17 @@ void CG_AddTreadMarks()
         }
 
         if (cg.time - cg_treadMarks[i].iLastTime > 500) {
-            CG_MakeTreadMarkDecal(
-                &cg_treadMarks[i],
-                cg_treadMarks[i].iState == 3 ? qtrue : qfalse,
-                qfalse
-            );
+            CG_MakeTreadMarkDecal(&cg_treadMarks[i], cg_treadMarks[i].iState == 3 ? qtrue : qfalse, qfalse);
             cg_treadMarks[i].iState = 0;
-        }
-        else {
-            CG_MakeTreadMarkDecal(
-                &cg_treadMarks[i],
-                cg_treadMarks[i].iState == 3 ? qtrue : qfalse,
-                qtrue
-            );
+        } else {
+            CG_MakeTreadMarkDecal(&cg_treadMarks[i], cg_treadMarks[i].iState == 3 ? qtrue : qfalse, qtrue);
         }
     }
 }
 
 int CG_PermanentMark(
-    const vec3_t    origin,
-    const vec3_t    dir,
+    vec3_t          origin,
+    vec3_t          dir,
     float           orientation,
     float           fSScale,
     float           fTScale,
@@ -1199,27 +1156,148 @@ int CG_PermanentMark(
     void           *pVoidPolyVerts
 )
 {
-    byte colors[4];
-    int i, j;
-    int numFragments;
-    float fSScale2, fTScale2;
-    float texCoordScaleS, texCoordScaleT;
-    vec3_t originalPoints[4];
-    vec3_t markPoints[MAX_MARK_POLYVERTS];
-    vec3_t projection;
-    vec3_t vLight;
-    vec3_t vTmp;
-    vec3_t axis[3];
-    markFragment_t* mf;
-    polyVert_t* pPolyVerts;
-    polyVert_t* v;
-    clipHandle_t cmodel;
-    trace_t trace;
-    float fRadiusSquared;
+    byte            colors[4];
+    int             i, j;
+    int             numFragments;
+    float           fSScale2, fTScale2;
+    float           fSScale3, fTScale3;
+    float           texCoordScaleS, texCoordScaleT;
+    vec3_t          originalPoints[4];
+    vec3_t          markPoints[MAX_MARK_POLYVERTS];
+    vec3_t          projection;
+    vec3_t          vLight;
+    vec3_t          vTmp;
+    vec3_t          axis[3];
+    markFragment_t *mf;
+    polyVert_t     *pPolyVerts;
+    polyVert_t     *v;
+    clipHandle_t    cmodel;
+    trace_t         trace;
+    float           fRadiusSquared;
 
+    pPolyVerts = (polyVert_t *)pVoidPolyVerts;
 
-    // FIXME: unimplemented
-    return 0;
+    VectorMA(origin, -2048, dir, vTmp);
+    VectorAdd(origin, dir, origin);
+    CG_Trace(
+        &trace, origin, vec3_origin, vec3_origin, vTmp, ENTITYNUM_NONE, MASK_MARK, qfalse, qtrue, "CG_PermanentMark"
+    );
+
+    if (trace.fraction == 1) {
+        return 0;
+    }
+
+    VectorCopy(trace.endpos, origin);
+    VectorCopy(trace.plane.normal, dir);
+
+    if (!fSScale) {
+        fSScale = 1.0;
+    }
+    if (!fTScale) {
+        fTScale = 1.0;
+    }
+    texCoordScaleT = 0.5 / fTScale;
+    texCoordScaleS = 0.5 / fSScale;
+    if (fSCenter < 0.0 || fSCenter > 1.0) {
+        fSCenter = 0.5;
+    }
+    if (fTCenter < 0.0 || fTCenter > 1.0) {
+        fTCenter = 0.5;
+    }
+    fRadiusSquared = fSScale * fSScale;
+    fRadiusSquared = fTScale * fTScale + fRadiusSquared;
+    fSScale2       = (fSScale * (1.0 - fSCenter)) * 2;
+    fTScale2       = (fTScale * (1.0 - fTCenter)) * 2;
+    fSScale3       = fSCenter * 2 * fSScale;
+    fTScale3       = fTCenter * 2 * fTScale;
+
+    VectorNormalize2(dir, axis[0]);
+    PerpendicularVector(axis[1], axis[0]);
+    RotatePointAroundVector(axis[2], axis[0], axis[1], orientation);
+    CrossProduct(axis[0], axis[2], axis[1]);
+
+    // create the full polygon
+    for (i = 0; i < 3; i++) {
+        originalPoints[0][i] = origin[i] - fSScale3 * axis[1][i] - fTScale3 * axis[2][i];
+        originalPoints[1][i] = origin[i] + fSScale2 * axis[1][i] - fTScale3 * axis[2][i];
+        originalPoints[2][i] = origin[i] + fSScale2 * axis[1][i] + fTScale2 * axis[2][i];
+        originalPoints[3][i] = origin[i] - fSScale3 * axis[1][i] + fTScale2 * axis[2][i];
+    }
+
+    VectorScale(dir, -32, projection);
+    numFragments = CG_GetMarkFragments(
+        ARRAY_LEN(originalPoints), originalPoints, projection, markPoints, pMarkFragments, fRadiusSquared
+    );
+
+    if (!dolighting) {
+        colors[0] = (int)(red * 255.0f);
+        colors[1] = (int)(green * 255.0f);
+        colors[2] = (int)(blue * 255.0f);
+    }
+
+    colors[3] = (int)(alpha * 255.0f);
+
+    for (i = 0, mf = pMarkFragments; i < numFragments; i++, mf++) {
+        vec3_t vWorldPos;
+        vec3_t delta;
+
+        if (mf->numPoints > 8) {
+            mf->numPoints = 8;
+        }
+
+        if (mf->iIndex >= 0) {
+            for (j = 0; j < mf->numPoints; j++) {
+                v = &pPolyVerts[mf->firstPoint] + i;
+                VectorCopy(markPoints[mf->firstPoint + j], v->xyz);
+
+                if (dolighting) {
+                    cgi.R_GetLightingForDecal(vLight, dir, (float *)v);
+
+                    colors[0] = (int)(red * vLight[0]);
+                    colors[1] = (int)(green * vLight[1]);
+                    colors[2] = (int)(blue * vLight[2]);
+                }
+
+                v->modulate[0] = colors[0];
+                v->modulate[1] = colors[1];
+                v->modulate[2] = colors[2];
+                v->modulate[3] = colors[3];
+
+                VectorSubtract(v->xyz, origin, delta);
+                v->st[0] = fSCenter + DotProduct(delta, axis[1]) * texCoordScaleS;
+                v->st[1] = fTCenter + DotProduct(delta, axis[2]) * texCoordScaleT;
+            }
+        } else if (CG_GetMarkInlineModelOrientation(mf->iIndex)) {
+            for (j = 0; j < mf->numPoints; j++) {
+                v = &pPolyVerts[mf->firstPoint] + i;
+                VectorCopy(markPoints[mf->firstPoint + j], v->xyz);
+
+                if (dolighting) {
+                    CG_FragmentPosToWorldPos(v->xyz, vWorldPos);
+                    cgi.R_GetLightingForDecal(vLight, dir, (float *)v);
+
+                    colors[0] = (int)(red * vLight[0]);
+                    colors[1] = (int)(green * vLight[1]);
+                    colors[2] = (int)(blue * vLight[2]);
+                }
+
+                v->modulate[0] = colors[0];
+                v->modulate[1] = colors[1];
+                v->modulate[2] = colors[2];
+                v->modulate[3] = colors[3];
+
+                VectorSubtract(v->xyz, origin, delta);
+                v->st[0] = fSCenter + DotProduct(delta, axis[1]) * texCoordScaleS;
+                v->st[1] = fTCenter + DotProduct(delta, axis[2]) * texCoordScaleT;
+            }
+
+            pMarkFragments[i].iIndex = -cgi.CM_InlineModel(cg_entities[-mf->iIndex].currentState.modelindex);
+        } else {
+            mf->numPoints = 0;
+        }
+    }
+
+    return numFragments;
 }
 
 int CG_PermanentTreadMarkDecal(
@@ -1230,31 +1308,31 @@ int CG_PermanentTreadMarkDecal(
     void           *pVoidPolyVerts
 )
 {
-    byte colors[4];
-    int i, j;
-    int numFragments;
-    vec3_t originalPoints[4];
-    vec3_t markPoints[MAX_MARK_POLYVERTS];
-    vec3_t projection;
-    vec3_t vLight;
-    markFragment_t* mf;
-    polyVert_t* pPolyVerts;
-    polyVert_t* v;
-    clipHandle_t cmodel;
-    float fStartAlpha, fEndAlpha;
-    float fStartTex, fEndTex;
-    float fRightCenterDist;
-    float fOOWidth, fOODoubleWidth;
-    float fDist, fSideDist;
-    float fFrac;
-    float fStartDist, fRightStart, fLeftStartDist;
-    float fCenterTexScale, fRightTexScale, fLeftTexScale;
-    float fSideAlpha, fCenterAlpha;
-    vec3_t vStartCenter, vEndCenter;
-    vec3_t vDirection;
-    vec3_t vRight;
-    vec3_t vDelta;
-    float fRadiusSquared;
+    byte            colors[4];
+    int             i, j;
+    int             numFragments;
+    vec3_t          originalPoints[4];
+    vec3_t          markPoints[MAX_MARK_POLYVERTS];
+    vec3_t          projection;
+    vec3_t          vLight;
+    markFragment_t *mf;
+    polyVert_t     *pPolyVerts;
+    polyVert_t     *v;
+    clipHandle_t    cmodel;
+    float           fStartAlpha, fEndAlpha;
+    float           fStartTex, fEndTex;
+    float           fRightCenterDist;
+    float           fOOWidth, fOODoubleWidth;
+    float           fDist, fSideDist;
+    float           fFrac;
+    float           fStartDist, fRightStart, fLeftStartDist;
+    float           fCenterTexScale, fRightTexScale, fLeftTexScale;
+    float           fSideAlpha, fCenterAlpha;
+    vec3_t          vStartCenter, vEndCenter;
+    vec3_t          vDirection;
+    vec3_t          vRight;
+    vec3_t          vDelta;
+    float           fRadiusSquared;
 
     // FIXME: unimplemented
     return 0;
@@ -1264,18 +1342,18 @@ int CG_PermanentUpdateTreadMark(
     treadMark_t *pTread, float fAlpha, float fMinSegment, float fMaxSegment, float fMaxOffset, float fTexScale
 )
 {
-    trace_t trace;
-    float fDist;
-    float fSplitLength;
-    float fNewLength;
-    float fTmp;
+    trace_t  trace;
+    float    fDist;
+    float    fSplitLength;
+    float    fNewLength;
+    float    fTmp;
     qboolean bDoSegmentation;
-    vec3_t vPos;
-    vec3_t vEnd;
-    vec3_t vNewPos;
-    vec3_t vDelta, vDeltaNorm;
-    vec3_t vDir, vMidDir;
-    vec3_t vRight;
+    vec3_t   vPos;
+    vec3_t   vEnd;
+    vec3_t   vNewPos;
+    vec3_t   vDelta, vDeltaNorm;
+    vec3_t   vDir, vMidDir;
+    vec3_t   vRight;
 
     // FIXME: unimplemented
     return 0;
