@@ -459,6 +459,7 @@ void R_LevelMarksLoad(const char *szBSPName)
             //
             ri.FS_CloseFile(hFile);
             ri.Printf(PRINT_ALL, "------ Finished loading DCL file %s -----\n", lm.szDCLFilename);
+            return;
         }
 
         //
