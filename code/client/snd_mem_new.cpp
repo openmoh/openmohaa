@@ -404,6 +404,8 @@ qboolean DownSampleWav(wavinfo_t *info, byte *wav, int wavlength, int newkhz, by
         datap += width;
     }
 
+    assert(iff_end - data_p == 0);
+
     return newdatasize;
 }
 
@@ -440,9 +442,6 @@ qboolean S_LoadSound(const char *fileName, sfx_t *sfx, int streamed, qboolean fo
     }
 
     if (streamed) {
-        //
-        // Added in 2.0
-        //  Will be loaded next time
         sfx->length = 5000;
         sfx->width = 1;
         sfx->iFlags |= SFX_FLAG_STREAMED;
@@ -513,6 +512,7 @@ qboolean S_LoadSound(const char *fileName, sfx_t *sfx, int streamed, qboolean fo
         if (newdatasize) {
             Z_Free(sfx->data);
             sfx->data = newdata;
+            sfx->info.datasize = newdatasize;
         }
     }
 
