@@ -24,6 +24,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define MAX_POINTS     32
 #define MAX_SPRITES    2048
 
+#define MAX_MARK_FRAGMENTS   128
+#define MAX_MARK_POLYVERTS   384
+
 #define RDF_FULLBRIGHT		2		// fullbright intensity
 
 typedef struct

@@ -24,9 +24,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "tr_local.h"
 
-#define MAX_MARK_FRAGMENTS   128
-#define MAX_MARK_POLYVERTS   384
-
 #define DCL_FILE_SIGNATURE   *(int *)"DCL "
 #define DCL_FILE_OLD_VERSION 1
 #define DCL_FILE_VERSION     2
