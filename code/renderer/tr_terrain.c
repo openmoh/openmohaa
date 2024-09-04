@@ -1229,6 +1229,7 @@ qboolean R_TerrainHeightForPoly(cTerraPatchUnpacked_t *pPatch, polyVert_t *pVert
 
     float x = pVerts->xyz[0];
     float y = pVerts->xyz[1];
+    terraInt iTri;
 
     // Calculate the average of the x and y coordinates of all vertices
     if (nVerts > 1) {
@@ -1243,24 +1244,10 @@ qboolean R_TerrainHeightForPoly(cTerraPatchUnpacked_t *pPatch, polyVert_t *pVert
     }
 
     // Get the first valid triangle in the patch
-    terraInt iTri = pPatch->drawinfo.iTriHead;
-    if (!iTri) {
-        assert(
-            !pPatch->drawinfo.iTriHead
-            && va(
-                "R_TerrainHeightForPoly: point(%f %f) not in patch(%f %f %f)\n",
-                x,
-                y,
-                pPatch->x0,
-                pPatch->y0,
-                pPatch->z0
-            )
-        );
-        return qfalse;
-    }
+    iTri = pPatch->drawinfo.iTriHead;
 
     // Find a triangle that contains the point (x, y)
-    while (qtrue) {
+    for(iTri = pPatch->drawinfo.iTriHead; iTri; iTri = g_pTris[iTri].iNext) {
         if (g_pTris[iTri].byConstChecks & 4) {
             // Get all three x-y coordinates of the current triangle's vertices
             x0 = g_pVert[g_pTris[iTri].iPt[0]].xyz[0];
@@ -1291,58 +1278,56 @@ qboolean R_TerrainHeightForPoly(cTerraPatchUnpacked_t *pPatch, polyVert_t *pVert
 
             fAreaTotal = fArea[0] + fArea[1] + fArea[2];
             if (fAreaTotal > 0.0) {
+                //
                 // Found it - the point is inside the triangle
-                break;
+                // Calculate the barycentric coordinates (fKx, fKy, fKz) of the triangle
+                //
+
+                float z0 = g_pVert[g_pTris[iTri].iPt[0]].xyz[2] / fAreaTotal;
+                float z1 = g_pVert[g_pTris[iTri].iPt[1]].xyz[2] / fAreaTotal;
+                float z2 = g_pVert[g_pTris[iTri].iPt[2]].xyz[2] / fAreaTotal;
+
+                fKy[0] = z0 * (x2 - x1);
+                fKy[1] = z1 * (x0 - x2);
+                fKy[2] = z2 * (x1 - x0);
+
+                fKx[0] = z0 * (y2 - y1);
+                fKx[1] = z1 * (y0 - y2);
+                fKx[2] = z2 * (y1 - y0);
+
+                // Note: this could be done with the CrossProduct macro if everything were in a vector
+                fKz[0] = fKx[0] * x1 - y1 * fKy[0];
+                fKz[1] = fKx[1] * x2 - y2 * fKy[1];
+                fKz[2] = fKx[2] * x0 - y0 * fKy[2];
+
+                // Calculate the height for each vertex
+                for (int i = 0; i < nVerts; i++) {
+                    float fScaleX = pVerts[i].xyz[0] * (fKx[0] + fKx[1] + fKx[2]);
+                    float fScaleY = pVerts[i].xyz[1] * (fKy[0] + fKy[1] + fKy[2]);
+                    float fConstZ = fKz[0] + fKz[1] + fKz[2];
+
+                    // Write back the calculated height into the vertex
+                    pVerts[i].xyz[2] = fScaleY - fScaleX - fConstZ;
+                }
+
+                return qtrue;
             }
         }
 
-        iTri = g_pTris[iTri].iNext;
-        if (!iTri) {
-            // There's no triangle that contains point (x, y) - bail out
-            assert(
-                !g_pTris[iTri].iNext
-                && va(
-                    "R_TerrainHeightForPoly: point(%f %f) not in patch(%f %f %f)\n",
-                    x,
-                    y,
-                    pPatch->x0,
-                    pPatch->y0,
-                    pPatch->z0
-                )
-            );
-            return qfalse;
-        }
     }
 
-    // Calculate the barycentric coordinates (fKx, fKy, fKz) of the triangle
-    float z0 = g_pVert[g_pTris[iTri].iPt[0]].xyz[2] / fAreaTotal;
-    float z1 = g_pVert[g_pTris[iTri].iPt[1]].xyz[2] / fAreaTotal;
-    float z2 = g_pVert[g_pTris[iTri].iPt[2]].xyz[2] / fAreaTotal;
-
-    fKy[0] = z0 * (x2 - x1);
-    fKy[1] = z1 * (x0 - x2);
-    fKy[2] = z2 * (x1 - x0);
-
-    fKx[0] = z0 * (y2 - y1);
-    fKx[1] = z1 * (y0 - y2);
-    fKx[2] = z2 * (y1 - y0);
-
-    // Note: this could be done with the CrossProduct macro if everything were in a vector
-    fKz[0] = fKx[0] * x1 - y1 * fKy[0];
-    fKz[1] = fKx[1] * x2 - y2 * fKy[1];
-    fKz[2] = fKx[2] * x0 - y0 * fKy[2];
-
-    // Calculate the height for each vertex
-    for (int i = 0; i < nVerts; i++) {
-        float fScaleX = pVerts[i].xyz[0] * (fKx[0] + fKx[1] + fKx[2]);
-        float fScaleY = pVerts[i].xyz[1] * (fKy[0] + fKy[1] + fKy[2]);
-        float fConstZ = fKz[0] + fKz[1] + fKz[2];
-
-        // Write back the calculated height into the vertex
-        pVerts[i].xyz[2] = fScaleY - fScaleX - fConstZ;
-    }
-
-    return qtrue;
+    assert(
+        !pPatch->drawinfo.iTriHead
+        && va(
+            "R_TerrainHeightForPoly: point(%f %f) not in patch(%f %f %f)\n",
+            x,
+            y,
+            pPatch->x0,
+            pPatch->y0,
+            pPatch->z0
+        )
+    );
+    return qfalse;
 }
 
 void R_TerrainRestart_f(void)
