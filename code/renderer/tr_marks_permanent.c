@@ -1752,7 +1752,8 @@ void R_UpdateLevelMarksSystem()
             f = dcl_radius->value;
             if (lm.pCurrentMark->fRadius != f) {
                 lm.pCurrentMark->fRadius = f;
-                bDoUpdate                = qtrue;
+
+                bDoUpdate = qtrue;
             }
 
             dcl_radius->modified = qfalse;
@@ -1762,7 +1763,8 @@ void R_UpdateLevelMarksSystem()
             f = dcl_heightscale->value;
             if (lm.pCurrentMark->fHeightScale != f) {
                 lm.pCurrentMark->fHeightScale = f;
-                bDoUpdate                     = qtrue;
+
+                bDoUpdate = qtrue;
             }
 
             dcl_heightscale->modified = qfalse;
@@ -1771,7 +1773,8 @@ void R_UpdateLevelMarksSystem()
             f = dcl_widthscale->value;
             if (lm.pCurrentMark->fWidthScale != f) {
                 lm.pCurrentMark->fWidthScale = f;
-                bDoUpdate                    = qtrue;
+
+                bDoUpdate = qtrue;
             }
 
             dcl_widthscale->modified = qfalse;
@@ -1781,7 +1784,8 @@ void R_UpdateLevelMarksSystem()
             f = anglemod(dcl_rotation->value);
             if (lm.pCurrentMark->fRotation != f) {
                 lm.pCurrentMark->fRotation = f;
-                bDoUpdate                  = qtrue;
+
+                bDoUpdate = qtrue;
             }
 
             dcl_rotation->modified = qfalse;
@@ -1791,7 +1795,8 @@ void R_UpdateLevelMarksSystem()
             f = Q_clamp_float(dcl_r->value, 0, 1);
             if (lm.pCurrentMark->color[0] != f) {
                 lm.pCurrentMark->color[0] = f;
-                bDoUpdate                 = qtrue;
+
+                bDoUpdate = qtrue;
             }
 
             dcl_r->modified = qfalse;
@@ -1800,7 +1805,8 @@ void R_UpdateLevelMarksSystem()
             f = Q_clamp_float(dcl_g->value, 0, 1);
             if (lm.pCurrentMark->color[1] != f) {
                 lm.pCurrentMark->color[1] = f;
-                bDoUpdate                 = qtrue;
+
+                bDoUpdate = qtrue;
             }
 
             dcl_g->modified = qfalse;
@@ -1809,16 +1815,18 @@ void R_UpdateLevelMarksSystem()
             f = Q_clamp_float(dcl_b->value, 0, 1);
             if (lm.pCurrentMark->color[2] != f) {
                 lm.pCurrentMark->color[2] = f;
-                bDoUpdate                 = qtrue;
+
+                bDoUpdate = qtrue;
             }
 
             dcl_b->modified = qfalse;
         }
         if (dcl_alpha->modified) {
             f = Q_clamp_float(dcl_alpha->value, 0, 1);
-            if (lm.pCurrentMark->color[0] != f) {
-                lm.pCurrentMark->color[0] = f;
-                bDoUpdate                 = qtrue;
+            if (lm.pCurrentMark->color[3] != f) {
+                lm.pCurrentMark->color[3] = f;
+
+                bDoUpdate = qtrue;
             }
 
             dcl_alpha->modified = qfalse;
