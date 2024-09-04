@@ -3039,7 +3039,7 @@ bool openal_channel::set_sfx(sfx_t *pSfx)
             qalGenBuffers(1, &pSfx->buffer);
             alDieIfError();
 
-            qalBufferData(pSfx->buffer, fmt, &pSfx->data[pSfx->info.dataofs], pSfx->info.datasize, pSfx->info.rate);
+            qalBufferData(pSfx->buffer, fmt, &pSfx->data[pSfx->info.dataofs], pSfx->info.datasize - pSfx->info.dataofs, pSfx->info.rate);
             alDieIfError();
         }
     }
