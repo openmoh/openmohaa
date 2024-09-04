@@ -1247,11 +1247,11 @@ int CG_PermanentMark(
 
         if (mf->iIndex >= 0) {
             for (j = 0; j < mf->numPoints; j++) {
-                v = &pPolyVerts[mf->firstPoint] + i;
+                v = &pPolyVerts[mf->firstPoint + j];
                 VectorCopy(markPoints[mf->firstPoint + j], v->xyz);
 
                 if (dolighting) {
-                    cgi.R_GetLightingForDecal(vLight, dir, (float *)v);
+                    cgi.R_GetLightingForDecal(vLight, dir, v->xyz);
 
                     colors[0] = (int)(red * vLight[0]);
                     colors[1] = (int)(green * vLight[1]);
@@ -1269,12 +1269,12 @@ int CG_PermanentMark(
             }
         } else if (CG_GetMarkInlineModelOrientation(mf->iIndex)) {
             for (j = 0; j < mf->numPoints; j++) {
-                v = &pPolyVerts[mf->firstPoint] + i;
+                v = &pPolyVerts[mf->firstPoint + j];
                 VectorCopy(markPoints[mf->firstPoint + j], v->xyz);
 
                 if (dolighting) {
                     CG_FragmentPosToWorldPos(v->xyz, vWorldPos);
-                    cgi.R_GetLightingForDecal(vLight, dir, (float *)v);
+                    cgi.R_GetLightingForDecal(vLight, dir, v->xyz);
 
                     colors[0] = (int)(red * vLight[0]);
                     colors[1] = (int)(green * vLight[1]);
