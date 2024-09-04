@@ -1068,6 +1068,16 @@ int CG_StartTreadMark(int iReference, qhandle_t treadShader, const vec3_t vStart
 
 qboolean CG_MakeTreadMarkDecal_PerPolyCallback(const vec3_t *markPoints, markFragment_t *mf, polyVert_t *verts, void *pCustom)
 {
+    int j;
+    float fDist;
+    float fSideDist;
+    float fSideAlpha;
+    float fCenterAlpha;
+    float fFrac;
+    polyVert_t* v;
+    cg_treadmarkinfo_t* pInfo;
+
+
     // FIXME: unimplemented
     return qfalse;
 }
@@ -1079,11 +1089,40 @@ int CG_MakeTreadMarkDecal_GetLeafCallback(markFragment_t *mf, void *pCustom)
 
 void CG_MakeTreadMarkDecal(treadMark_t *pTread, qboolean bStartSegment, qboolean bTemporary)
 {
+    int i;
+    int numFragments;
+    vec3_t originalPoints[4];
+    vec3_t markPoints[MAX_MARK_POLYVERTS];
+    vec3_t projection;
+    markFragment_t markFragments[MAX_MARK_FRAGMENTS];
+    markFragment_t* mf;
+    cg_treadmarkinfo_t info;
+    float fEndAlpha, fEndTex;
+    float fDist;
+    vec3_t vStartCenter;
+    vec3_t vEndCenter;
+    vec3_t vDelta;
+    vec3_t origin;
+    float fRadiusSquared;
+
+
     // FIXME: unimplemented
 }
 
 int CG_UpdateTreadMark(int iReference, vec_t *vNewPos, float fAlpha)
 {
+    int i;
+    int iTreadNum;
+    float fDist;
+    float fSplitLength;
+    float fNewLength;
+    float fTmp;
+    qboolean bDoSegmentation;
+    vec3_t vDelta, vDeltaNorml;
+    vec3_t vDir, vMidDir;
+    vec3_t vRight;
+    treadMark_t* pTread;
+
     // FIXME: unimplemented
     return 0;
 }
@@ -1160,6 +1199,25 @@ int CG_PermanentMark(
     void           *pVoidPolyVerts
 )
 {
+    byte colors[4];
+    int i, j;
+    int numFragments;
+    float fSScale2, fTScale2;
+    float texCoordScaleS, texCoordScaleT;
+    vec3_t originalPoints[4];
+    vec3_t markPoints[MAX_MARK_POLYVERTS];
+    vec3_t projection;
+    vec3_t vLight;
+    vec3_t vTmp;
+    vec3_t axis[3];
+    markFragment_t* mf;
+    polyVert_t* pPolyVerts;
+    polyVert_t* v;
+    clipHandle_t cmodel;
+    trace_t trace;
+    float fRadiusSquared;
+
+
     // FIXME: unimplemented
     return 0;
 }
@@ -1172,6 +1230,32 @@ int CG_PermanentTreadMarkDecal(
     void           *pVoidPolyVerts
 )
 {
+    byte colors[4];
+    int i, j;
+    int numFragments;
+    vec3_t originalPoints[4];
+    vec3_t markPoints[MAX_MARK_POLYVERTS];
+    vec3_t projection;
+    vec3_t vLight;
+    markFragment_t* mf;
+    polyVert_t* pPolyVerts;
+    polyVert_t* v;
+    clipHandle_t cmodel;
+    float fStartAlpha, fEndAlpha;
+    float fStartTex, fEndTex;
+    float fRightCenterDist;
+    float fOOWidth, fOODoubleWidth;
+    float fDist, fSideDist;
+    float fFrac;
+    float fStartDist, fRightStart, fLeftStartDist;
+    float fCenterTexScale, fRightTexScale, fLeftTexScale;
+    float fSideAlpha, fCenterAlpha;
+    vec3_t vStartCenter, vEndCenter;
+    vec3_t vDirection;
+    vec3_t vRight;
+    vec3_t vDelta;
+    float fRadiusSquared;
+
     // FIXME: unimplemented
     return 0;
 }
@@ -1180,6 +1264,19 @@ int CG_PermanentUpdateTreadMark(
     treadMark_t *pTread, float fAlpha, float fMinSegment, float fMaxSegment, float fMaxOffset, float fTexScale
 )
 {
+    trace_t trace;
+    float fDist;
+    float fSplitLength;
+    float fNewLength;
+    float fTmp;
+    qboolean bDoSegmentation;
+    vec3_t vPos;
+    vec3_t vEnd;
+    vec3_t vNewPos;
+    vec3_t vDelta, vDeltaNorm;
+    vec3_t vDir, vMidDir;
+    vec3_t vRight;
+
     // FIXME: unimplemented
     return 0;
 }
