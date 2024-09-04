@@ -799,7 +799,7 @@ lmEditMarkDef_t *R_ApplyLevelDecal(
     vec3_t           vOrigin;
     vec3_t           vProjection;
     vec3_t           vTmp, vTmp2;
-    vec3_t           vNorm, vNorm2l;
+    vec3_t           vNorm, vNorm2;
     vec3_t           bounds[2];
     markFragment_t   markFragments[MAX_MARK_FRAGMENTS];
     markFragment_t  *mf, *mf2;
@@ -813,8 +813,354 @@ lmEditMarkDef_t *R_ApplyLevelDecal(
     polyVert_t      *pMergeVerts[16];
     float            fDist, fDist2;
 
-    // FIXME: unimplemented
-    return NULL;
+    iFirstEdgeVert = iFirstEdgeVert2 = 0;
+
+    if (bUseCurrent && !lm.pCurrentMark) {
+        return NULL;
+    }
+
+    if (iPathIndex) {
+        shader = R_GetShaderByHandle(lm.treadMark.hTreadShader);
+
+        fRadius = lm.treadMark.fWidth;
+        fTScale = 1.0;
+        fSScale = 1.0;
+
+        fG = 1.0;
+        fR = 1.0;
+        fA = 1.0;
+        fB = 1.0;
+
+        bDoLighting = lm.pCurrentMark->bDoLighting;
+        fRoll       = -1.0;
+    } else if (bUseCurrent && bUseCurrentSettings) {
+        shader = lm.pCurrentMark->markShader;
+
+        fRadius = lm.pCurrentMark->fRadius;
+        fSScale = lm.pCurrentMark->fWidthScale;
+        fTScale = lm.pCurrentMark->fHeightScale;
+
+        fR = lm.pCurrentMark->color[0];
+        fG = lm.pCurrentMark->color[1];
+        fB = lm.pCurrentMark->color[2];
+        fA = lm.pCurrentMark->color[3];
+
+        bDoLighting = lm.pCurrentMark->bDoLighting;
+        fRoll       = lm.pCurrentMark->fRotation;
+    } else {
+        hShader = RE_RegisterShader(dcl_shader->string);
+        if (hShader) {
+            shader = R_GetShaderByHandle(hShader);
+        } else {
+            ri.Printf(PRINT_ALL, "Bad decal shader %s\n", dcl_shader->string);
+            shader = tr.defaultShader;
+        }
+
+        fRadius = dcl_radius->value;
+        fSScale = dcl_widthscale->value;
+        fTScale = dcl_heightscale->value;
+
+        fR = Q_clamp_float(dcl_r->value, 0.0, 1.0);
+        fG = Q_clamp_float(dcl_g->value, 0.0, 1.0);
+        fB = Q_clamp_float(dcl_b->value, 0.0, 1.0);
+        fA = Q_clamp_float(dcl_alpha->value, 0.0, 1.0);
+
+        bDoLighting = dcl_dolighting->integer != 0;
+        fRoll       = anglemod(dcl_rotation->value);
+    }
+
+    if (fRadius < 0.0) {
+        fRadius = 0.001;
+    }
+    if (fSScale < 0.0) {
+        fSScale = 0.001;
+    }
+    if (fTScale < 0.0) {
+        fTScale = 0.001;
+    }
+
+    VectorCopy(vPos, vOrigin);
+    VectorNormalize2(vDir, vProjection);
+
+    if (iPathIndex) {
+        iNumFragments =
+            ri.CG_PermanentTreadMarkDecal(&lm.treadMark, iPathIndex == 1, bDoLighting, markFragments, verts);
+    } else {
+        iNumFragments = ri.CG_PermanentMark(
+            vOrigin,
+            vProjection,
+            anglemod(fRoll + 90),
+            fSScale * fRadius,
+            fTScale * fRadius,
+            fR,
+            fG,
+            fB,
+            fA,
+            bDoLighting,
+            0.5,
+            0.5,
+            markFragments,
+            verts
+        );
+    }
+
+    if (!iNumFragments) {
+        return NULL;
+    }
+
+    if (bUseCurrent) {
+        pMark = lm.pCurrentMark;
+        R_FreeMarkFragments(lm.pCurrentMark);
+    } else {
+        pMark = R_AllocateMarkDef();
+        if (!pMark) {
+            return NULL;
+        }
+    }
+
+    VectorCopy(vOrigin, pMark->vPos);
+    VectorCopy(vProjection, pMark->vProjection);
+
+    pMark->markShader   = shader;
+    pMark->fRadius      = fRadius;
+    pMark->fWidthScale  = fSScale;
+    pMark->fHeightScale = fTScale;
+    VectorSet4(pMark->color, fR, fG, fB, fA);
+
+    pMark->bDoLighting = bDoLighting;
+    pMark->fRotation   = fRoll;
+
+    if (iPathIndex) {
+        if (iPathIndex == 1) {
+            VectorCopy(lm.treadMark.vStartVerts[1], pMark->vPathCorners[0]);
+            VectorCopy(lm.treadMark.vStartVerts[0], pMark->vPathCorners[1]);
+            VectorCopy(lm.treadMark.vMidVerts[0], pMark->vPathCorners[2]);
+            VectorCopy(lm.treadMark.vMidVerts[1], pMark->vPathCorners[3]);
+        } else {
+            VectorCopy(lm.treadMark.vMidVerts[1], pMark->vPathCorners[0]);
+            VectorCopy(lm.treadMark.vMidVerts[0], pMark->vPathCorners[1]);
+            VectorCopy(lm.treadMark.vEndVerts[0], pMark->vPathCorners[2]);
+            VectorCopy(lm.treadMark.vEndVerts[1], pMark->vPathCorners[3]);
+        }
+
+        VectorClear(vOrigin);
+
+        for (i = 0; i < 4; i++) {
+            VectorAdd(vOrigin, pMark->vPathCorners[i], vOrigin);
+        }
+
+        vOrigin[0] /= 4.0;
+        vOrigin[1] /= 4.0;
+        vOrigin[2] = vOrigin[2] / 4.0 + 16.0;
+        VectorCopy(vOrigin, pMark->vPos);
+    }
+
+    for (i = 0; i < iNumFragments; i++) {
+        mf = &markFragments[i];
+
+        if (!mf->numPoints) {
+            continue;
+        }
+
+        assert(mf->numPoints >= 3);
+
+        iNumNewVerts = mf->numPoints;
+        for (j = 0; j < mf->numPoints; ++j) {
+            pNewVerts[j] = &verts[mf->firstPoint + j];
+        }
+
+        VectorSubtract(pNewVerts[0]->xyz, pNewVerts[1]->xyz, vTmp);
+        VectorSubtract(pNewVerts[2]->xyz, pNewVerts[1]->xyz, vTmp2);
+        CrossProduct(vTmp, vTmp2, vNorm);
+        VectorNormalize(vNorm);
+
+        fDist = DotProduct(vNorm, pNewVerts[0]->xyz);
+
+        if (mf->iIndex <= 0) {
+            for (j = i + 1; j < iNumFragments; j++) {
+                mf2 = &markFragments[j];
+
+                if (!mf2->numPoints) {
+                    continue;
+                }
+                if (mf2->iIndex > 0 || mf->iIndex == mf2->iIndex) {
+                    continue;
+                }
+
+                pFragVerts = &verts[mf2->firstPoint];
+
+                if (fabs(DotProduct(vNorm, pFragVerts->xyz) - fDist) > 0.01) {
+                    continue;
+                }
+
+                VectorSubtract(pFragVerts[0].xyz, pFragVerts[1].xyz, vTmp);
+                VectorSubtract(pFragVerts[2].xyz, pFragVerts[1].xyz, vTmp2);
+                CrossProduct(vTmp, vTmp2, vNorm2);
+                VectorNormalize(vNorm2);
+
+                if (!VectorCompare(vNorm, vNorm2)) {
+                    continue;
+                }
+
+                bDoMerge = qfalse;
+                for (k = 0; k < iNumNewVerts; k++) {
+                    for (l = 0; l < mf2->numPoints; l++) {
+                        if (VectorCompare(pNewVerts[k]->xyz, pFragVerts[(l + 1) % mf2->numPoints].xyz)
+                            && VectorCompare(pNewVerts[(k + 1) % iNumNewVerts]->xyz, pFragVerts[l].xyz)) {
+                            bDoMerge        = 1;
+                            iFirstEdgeVert  = k;
+                            iFirstEdgeVert2 = l;
+                            break;
+                        }
+                    }
+
+                    if (bDoMerge) {
+                        break;
+                    }
+                }
+
+                if (bDoMerge) {
+                    iNumMergeVerts = 0;
+                    for (k = 1; k < iNumNewVerts; ++k) {
+                        pMergeVerts[iNumMergeVerts++] = pNewVerts[(k + iFirstEdgeVert) % iNumNewVerts];
+                    }
+
+                    for (k = 1; k < mf2->numPoints; k++) {
+                        pMergeVerts[iNumMergeVerts++] = &pFragVerts[(k + iFirstEdgeVert2) % mf2->numPoints];
+                    }
+
+                    bDoMerge = qtrue;
+
+                    for (k = 0; k < iNumMergeVerts; k++) {
+                        VectorSubtract(pMergeVerts[(k + 1) % iNumMergeVerts]->xyz, pMergeVerts[k]->xyz, vTmp);
+                        CrossProduct(vNorm, vTmp, vNorm2);
+                        VectorNormalize(vNorm2);
+
+                        for (l = 0; l < iNumMergeVerts; l++) {
+                            if (l == k) {
+                                break;
+                            }
+
+                            if (DotProduct(pMergeVerts[l]->xyz, vNorm)
+                                > DotProduct(pMergeVerts[k]->xyz, vNorm2) + 0.01) {
+                                bDoMerge = qfalse;
+                                break;
+                            }
+                        }
+
+                        if (!bDoMerge) {
+                            break;
+                        }
+                    }
+
+                    if (bDoMerge) {
+                        for (k = 0; k < iNumMergeVerts; k++) {
+                            VectorSubtract(pMergeVerts[(k + 1) % iNumMergeVerts]->xyz, pMergeVerts[k]->xyz, vTmp);
+                            VectorNormalize(vTmp);
+                            VectorSubtract(
+                                pMergeVerts[k]->xyz, pMergeVerts[(iNumMergeVerts + k - 1) % iNumMergeVerts]->xyz, vTmp
+                            );
+                            VectorNormalize(vTmp2);
+
+                            if (DotProduct(vTmp, vTmp2) > 0.999) {
+                                for (l = k + 1; l < iNumMergeVerts; l++) {
+                                    pMergeVerts[l - 1] = pMergeVerts[l];
+                                }
+                            }
+                        }
+
+                        if (iNumMergeVerts <= 8) {
+                            iNumNewVerts = iNumMergeVerts;
+                            for (k = 0; k < iNumMergeVerts; k++) {
+                                pNewVerts[k] = pMergeVerts[k];
+                            }
+
+                            mf2->numPoints = 0;
+                        }
+                    }
+                }
+            }
+        }
+
+        pPoly = R_AllocateEditPoly();
+        if (!pPoly) {
+            return pMark;
+        }
+
+        pPoly->shader        = shader;
+        pPoly->surf.numVerts = iNumNewVerts;
+
+        for (j = 0; j < iNumNewVerts; j++) {
+            memcpy(&pPoly->verts[j], pNewVerts[j], sizeof(polyVert_t));
+        }
+
+        pPoly->surf.iIndex = mf->iIndex;
+        pPoly->iNumLeafs   = 0;
+
+        if (mf->iIndex <= 0 || dcl_doworld->integer && dcl_doterrain->integer) {
+            if (mf->iIndex >= 0) {
+                if (dcl_doworld->integer) {
+                    ClearBounds(bounds[0], bounds[1]);
+                    VectorClear(vOrigin);
+
+                    for (j = 0; j < pPoly->surf.numVerts; j++) {
+                        VectorAdd(pPoly->verts[j].xyz, vNorm, vTmp);
+
+                        pNode = R_PointInLeaf(vTmp);
+                        if (pNode && pNode->contents != -1 && !(pNode->contents & CONTENTS_SOLID)) {
+                            for (k = 0; k < pPoly->iNumLeafs; k++) {
+                                if (pPoly->pLeafs[k] == pNode) {
+                                    break;
+                                }
+                            }
+
+                            if (k == pPoly->iNumLeafs) {
+                                R_AddEditPolyToPointerList(pPoly, &pNode->pFirstMarkFragment, &pNode->iNumMarkFragment);
+                                pPoly->pLeafs[pPoly->iNumLeafs] = pNode;
+                                pPoly->iNumLeafs++;
+                            }
+                        }
+
+                        AddPointToBounds(vTmp, bounds[0], bounds[1]);
+                        VectorAdd(vOrigin, vTmp, vOrigin);
+                    }
+
+                    VectorScale(vOrigin, 1.0 / pPoly->surf.numVerts, vOrigin);
+
+                    pNode = R_PointInLeaf(vOrigin);
+                    for (k = 0; k < pPoly->iNumLeafs; k++) {
+                        if (pPoly->pLeafs[k] == pNode) {
+                            break;
+                        }
+                    }
+
+                    if (k == pPoly->iNumLeafs) {
+                        R_AddEditPolyToPointerList(pPoly, &pNode->pFirstMarkFragment, &pNode->iNumMarkFragment);
+                        pPoly->pLeafs[pPoly->iNumLeafs] = pNode;
+                        pPoly->iNumLeafs++;
+                    }
+
+                    pPoly->pNextPoly      = pMark->pMarkEditPolys;
+                    pMark->pMarkEditPolys = pPoly;
+                    pMark->iNumEditPolys++;
+                }
+            } else {
+                if (dcl_dobmodels->integer) {
+                    R_AddEditPolyToPointerList(
+                        pPoly,
+                        &tr.world->bmodels[-mf->iIndex].pFirstMarkFragment,
+                        &tr.world->bmodels[-mf->iIndex].iNumMarkFragment
+                    );
+
+                    pPoly->pNextPoly      = pMark->pMarkEditPolys;
+                    pMark->pMarkEditPolys = pPoly;
+                    pMark->iNumEditPolys++;
+                }
+            }
+        }
+    }
+
+    return pMark;
 }
 
 /*
