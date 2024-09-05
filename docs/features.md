@@ -29,21 +29,22 @@ Enable this feature with `set sv_netoptimize 2`.
 
 ### Client-side and server-side
 
-- Fixes from SH 2.15 and BT 2.40
+- Fixes from SH 2.15, BT 2.40 and ioquake3
 - Buffer overflow fixes
 - Directory traversal fix
+- Packet flood protection
 
 ### Server-side
 
 - DM message comment fix
 - Callvote fix
-- Getting weapons from opposite team
-- Grenade crash bug
-- Grenade spectator charge bug
-- `leave_team` bug fix
-- Primary DM weapon spectator fix
-- Projectile spectator glitch fix (for when firing a projectile then going into spectator to kill anyone)
-- `sv_fps` (tickrate) fix, higher values won't cause animation issues anymore
+- Fix to prevent getting weapons from opposite team
+- Fixed grenade crash bug
+- Fixed grenade spectator charge bug
+- Fixed `leave_team` bug
+- Fix to prevent being able to spectate while still in the team
+- Fix to prevent throwing a projectile and going into spectator to kill anyone
+- Fix for `sv_fps` (tickrate), higher values won't cause animation issues anymore
 
 ## Planned features
 
