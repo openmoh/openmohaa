@@ -1045,8 +1045,80 @@ CG_MakeTreadMarkDecal_PerPolyCallback(const vec3_t *markPoints, markFragment_t *
     polyVert_t         *v;
     cg_treadmarkinfo_t *pInfo;
 
-    // FIXME: unimplemented
-    return qfalse;
+    pInfo = (cg_treadmarkinfo_t *)pCustom;
+
+    if (mf->iIndex < 0) {
+        vec3_t vWorldPos;
+
+        if (!CG_GetMarkInlineModelOrientation(mf->iIndex)) {
+            return qfalse;
+        }
+
+        for (j = 0; j < mf->numPoints; j++) {
+            v = &verts[j];
+            VectorCopy(markPoints[mf->firstPoint + j], v->xyz);
+            v->modulate[0] = pInfo->colors[0];
+            v->modulate[1] = pInfo->colors[1];
+            v->modulate[2] = pInfo->colors[2];
+            v->modulate[3] = pInfo->colors[3];
+
+            CG_FragmentPosToWorldPos(v->xyz, vWorldPos);
+            fSideDist    = DotProduct(pInfo->vRight, vWorldPos);
+            verts->st[0] = (fSideDist + pInfo->pTread->fWidth) * pInfo->fOODoubleWidth;
+
+            fSideAlpha = fSideDist * pInfo->fOOWidth;
+            fDist      = DotProduct(vWorldPos, pInfo->vDirection);
+            if (fSideAlpha < 0) {
+                fSideAlpha = -fSideAlpha;
+                v->st[1]   = pInfo->fStartTex + ((fDist - pInfo->fLeftStartDist) * pInfo->fLeftTexScale * fSideAlpha)
+                         + ((fDist - pInfo->fStartDist) * pInfo->fCenterTexScale * (1.0 - fSideAlpha));
+                v->modulate[3] = pInfo->fStartAlpha
+                               + (1.0 - fSideAlpha)
+                                     * ((fDist - pInfo->fStartDist) * pInfo->fCenterTexScale * pInfo->fCenterAlphaScale)
+                               + (fDist - pInfo->fLeftStartDist) * pInfo->fLeftAlphaScale * fSideAlpha;
+            } else {
+                v->st[1] = pInfo->fStartTex + ((fDist - pInfo->fRightStartDist) * pInfo->fRightTexScale * fSideAlpha)
+                         + ((fDist - pInfo->fStartDist) * pInfo->fCenterTexScale * (1.0 - fSideAlpha));
+                v->modulate[3] = pInfo->fStartAlpha
+                               + (1.0 - fSideAlpha)
+                                     * ((fDist - pInfo->fStartDist) * pInfo->fCenterTexScale * pInfo->fCenterAlphaScale)
+                               + (fDist - pInfo->fRightStartDist) * pInfo->fRightAlphaScale * fSideAlpha;
+            }
+        }
+    } else {
+        for (j = 0; j < mf->numPoints; j++) {
+            v = &verts[j];
+            VectorCopy(markPoints[mf->firstPoint + j], v->xyz);
+            v->modulate[0] = pInfo->colors[0];
+            v->modulate[1] = pInfo->colors[1];
+            v->modulate[2] = pInfo->colors[2];
+            v->modulate[3] = pInfo->colors[3];
+
+            fSideDist    = DotProduct(pInfo->vRight, v->xyz);
+            verts->st[0] = (fSideDist + pInfo->pTread->fWidth) * pInfo->fOODoubleWidth;
+
+            fSideAlpha = fSideDist * pInfo->fOOWidth;
+            fDist      = DotProduct(v->xyz, pInfo->vDirection);
+            if (fSideAlpha < 0) {
+                fSideAlpha = -fSideAlpha;
+                v->st[1]   = pInfo->fStartTex + ((fDist - pInfo->fLeftStartDist) * pInfo->fLeftTexScale * fSideAlpha)
+                         + ((fDist - pInfo->fStartDist) * pInfo->fCenterTexScale * (1.0 - fSideAlpha));
+                v->modulate[3] = pInfo->fStartAlpha
+                               + (1.0 - fSideAlpha)
+                                     * ((fDist - pInfo->fStartDist) * pInfo->fCenterTexScale * pInfo->fCenterAlphaScale)
+                               + (fDist - pInfo->fLeftStartDist) * pInfo->fLeftAlphaScale * fSideAlpha;
+            } else {
+                v->st[1] = pInfo->fStartTex + ((fDist - pInfo->fRightStartDist) * pInfo->fRightTexScale * fSideAlpha)
+                         + ((fDist - pInfo->fStartDist) * pInfo->fCenterTexScale * (1.0 - fSideAlpha));
+                v->modulate[3] = pInfo->fStartAlpha
+                               + (1.0 - fSideAlpha)
+                                     * ((fDist - pInfo->fStartDist) * pInfo->fCenterTexScale * pInfo->fCenterAlphaScale)
+                               + (fDist - pInfo->fRightStartDist) * pInfo->fRightAlphaScale * fSideAlpha;
+            }
+        }
+    }
+
+    return qtrue;
 }
 
 int CG_MakeTreadMarkDecal_GetLeafCallback(markFragment_t *mf, void *pCustom)
@@ -1072,7 +1144,119 @@ void CG_MakeTreadMarkDecal(treadMark_t *pTread, qboolean bStartSegment, qboolean
     vec3_t             origin;
     float              fRadiusSquared;
 
-    // FIXME: unimplemented
+    if (bStartSegment) {
+        VectorCopy(pTread->vStartVerts[1], originalPoints[0]);
+        VectorCopy(pTread->vStartVerts[0], originalPoints[1]);
+        VectorCopy(pTread->vMidVerts[0], originalPoints[2]);
+        VectorCopy(pTread->vMidVerts[1], originalPoints[3]);
+
+        info.fStartAlpha = pTread->fStartAlpha;
+        fEndAlpha        = pTread->fMidAlpha;
+        info.fStartTex   = pTread->fStartTexCoord;
+        fEndTex          = pTread->fMidTexCoord;
+
+        // Calculate the start center
+        vStartCenter[0] = (originalPoints[1][0] + originalPoints[0][0]) * 0.5;
+        vStartCenter[1] = (originalPoints[1][1] + originalPoints[0][1]) * 0.5;
+        vStartCenter[2] = (originalPoints[1][2] + originalPoints[0][2]) * 0.5;
+        VectorCopy(pTread->vMidPos, vEndCenter);
+        VectorCopy(pTread->vStartDir, info.vDirection);
+    } else {
+        VectorCopy(pTread->vMidVerts[1], originalPoints[0]);
+        VectorCopy(pTread->vMidVerts[0], originalPoints[1]);
+        VectorCopy(pTread->vEndVerts[0], originalPoints[2]);
+        VectorCopy(pTread->vEndVerts[1], originalPoints[3]);
+
+        info.fStartAlpha = pTread->fMidAlpha;
+        fEndAlpha        = pTread->fEndAlpha;
+        info.fStartTex   = pTread->fMidTexCoord;
+        fEndTex          = pTread->fEndTexCoord;
+
+        VectorCopy(pTread->vMidPos, vStartCenter);
+        VectorCopy(pTread->vEndPos, vEndCenter);
+
+        // Calculate the direction
+        VectorSubtract(vEndCenter, vStartCenter, info.vDirection);
+        VectorNormalizeFast(info.vDirection);
+    }
+
+    CrossProduct(vec_upwards, info.vDirection, info.vRight);
+    info.fRightCenterDist = DotProduct(vEndCenter, info.vRight);
+    info.fOODoubleWidth   = 0.5 / pTread->fWidth;
+    info.fOOWidth         = info.fOODoubleWidth * 2;
+    info.fStartDist       = DotProduct(info.vDirection, vStartCenter);
+    info.fRightStartDist  = DotProduct(info.vDirection, originalPoints[1]);
+    info.fLeftStartDist   = DotProduct(info.vDirection, originalPoints[0]);
+
+    //
+    // Center
+    //
+
+    VectorSubtract(vEndCenter, vStartCenter, vDelta);
+    fDist = VectorLength(vDelta);
+
+    fRadiusSquared = (fDist + pTread->fWidth * pTread->fWidth) * 0.25;
+
+    info.fCenterTexScale   = (fEndTex - info.fStartTex) / fDist;
+    info.fCenterAlphaScale = (fEndAlpha - info.fStartAlpha) / fDist;
+
+    //
+    // Right
+    //
+
+    VectorSubtract(originalPoints[2], originalPoints[1], vDelta);
+    fDist = VectorLength(vDelta);
+
+    info.fRightTexScale   = (fEndTex - info.fStartTex) / fDist;
+    info.fRightAlphaScale = (fEndAlpha - info.fStartAlpha) / fDist;
+
+    //
+    // Left
+    //
+
+    VectorSubtract(originalPoints[3], originalPoints[1], vDelta);
+    fDist = VectorLength(vDelta);
+
+    info.fLeftTexScale   = (fEndTex - info.fStartTex) / fDist;
+    info.fLeftAlphaScale = (fEndAlpha - info.fStartAlpha) / fDist;
+
+    VectorSet(projection, 0, 0, 32);
+    info.colors[0] = info.colors[1] = info.colors[2] = info.colors[3] = -1;
+
+    numFragments = CG_GetMarkFragments(4, originalPoints, projection, markPoints, markFragments, fRadiusSquared);
+    origin[0]    = (vStartCenter[0] + vEndCenter[0]) * 0.5;
+    origin[1]    = (vStartCenter[1] + vEndCenter[1]) * 0.5;
+    origin[2]    = (vStartCenter[2] + vEndCenter[2]) * 0.5;
+    info.leafnum = cgi.CM_PointLeafnum(origin);
+    info.pTread  = pTread;
+
+    if (bTemporary) {
+        for (i = 0; i < numFragments; i++) {
+            polyVert_t verts[8];
+
+            mf = &markFragments[i];
+            if (mf->numPoints > 8) {
+                mf->numPoints = 8;
+            }
+            if (CG_MakeTreadMarkDecal_PerPolyCallback(markPoints, mf, verts, &info)) {
+                CG_AddFragmentToScene(mf->iIndex, pTread->hTreadShader, mf->numPoints, &verts);
+            }
+        }
+    } else {
+        CG_AssembleFinalMarks(
+            markPoints,
+            markFragments,
+            numFragments,
+            &CG_MakeTreadMarkDecal_PerPolyCallback,
+            &CG_MakeTreadMarkDecal_GetLeafCallback,
+            &info,
+            origin,
+            sqrt(fRadiusSquared),
+            pTread->hTreadShader,
+            qfalse,
+            qfalse
+        );
+    }
 }
 
 int CG_UpdateTreadMark(int iReference, const vec3_t vNewPos, float fAlpha)
