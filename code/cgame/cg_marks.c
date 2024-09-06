@@ -1042,6 +1042,7 @@ CG_MakeTreadMarkDecal_PerPolyCallback(const vec3_t *markPoints, markFragment_t *
     float               fSideAlpha;
     float               fCenterAlpha;
     float               fFrac;
+    float               fTex, fAlpha;
     polyVert_t         *v;
     cg_treadmarkinfo_t *pInfo;
 
@@ -1063,8 +1064,8 @@ CG_MakeTreadMarkDecal_PerPolyCallback(const vec3_t *markPoints, markFragment_t *
             v->modulate[3] = pInfo->colors[3];
 
             CG_FragmentPosToWorldPos(v->xyz, vWorldPos);
-            fSideDist    = DotProduct(pInfo->vRight, vWorldPos);
-            verts->st[0] = (fSideDist + pInfo->pTread->fWidth) * pInfo->fOODoubleWidth;
+            fSideDist = DotProduct(pInfo->vRight, vWorldPos) - pInfo->fRightCenterDist;
+            v->st[0]  = (fSideDist + pInfo->pTread->fWidth) * pInfo->fOODoubleWidth;
 
             fSideAlpha = fSideDist * pInfo->fOOWidth;
             fDist      = DotProduct(vWorldPos, pInfo->vDirection);
@@ -1094,27 +1095,25 @@ CG_MakeTreadMarkDecal_PerPolyCallback(const vec3_t *markPoints, markFragment_t *
             v->modulate[2] = pInfo->colors[2];
             v->modulate[3] = pInfo->colors[3];
 
-            fSideDist    = DotProduct(pInfo->vRight, v->xyz);
-            verts->st[0] = (fSideDist + pInfo->pTread->fWidth) * pInfo->fOODoubleWidth;
+            fSideDist = DotProduct(pInfo->vRight, v->xyz) - pInfo->fRightCenterDist;
+            v->st[0]  = (fSideDist + pInfo->pTread->fWidth) * pInfo->fOODoubleWidth;
 
             fSideAlpha = fSideDist * pInfo->fOOWidth;
             fDist      = DotProduct(v->xyz, pInfo->vDirection);
             if (fSideAlpha < 0) {
                 fSideAlpha = -fSideAlpha;
-                v->st[1]   = pInfo->fStartTex + ((fDist - pInfo->fLeftStartDist) * pInfo->fLeftTexScale * fSideAlpha)
-                         + ((fDist - pInfo->fStartDist) * pInfo->fCenterTexScale * (1.0 - fSideAlpha));
-                v->modulate[3] = pInfo->fStartAlpha
-                               + (1.0 - fSideAlpha)
-                                     * ((fDist - pInfo->fStartDist) * pInfo->fCenterTexScale * pInfo->fCenterAlphaScale)
-                               + (fDist - pInfo->fLeftStartDist) * pInfo->fLeftAlphaScale * fSideAlpha;
+                fTex       = (fDist - pInfo->fLeftStartDist) * pInfo->fLeftTexScale;
+                fAlpha     = (fDist - pInfo->fLeftStartDist) * pInfo->fLeftAlphaScale;
             } else {
-                v->st[1] = pInfo->fStartTex + ((fDist - pInfo->fRightStartDist) * pInfo->fRightTexScale * fSideAlpha)
-                         + ((fDist - pInfo->fStartDist) * pInfo->fCenterTexScale * (1.0 - fSideAlpha));
-                v->modulate[3] = pInfo->fStartAlpha
-                               + (1.0 - fSideAlpha)
-                                     * ((fDist - pInfo->fStartDist) * pInfo->fCenterTexScale * pInfo->fCenterAlphaScale)
-                               + (fDist - pInfo->fRightStartDist) * pInfo->fRightAlphaScale * fSideAlpha;
+                fTex   = (fDist - pInfo->fRightStartDist) * pInfo->fRightTexScale;
+                fAlpha = (fDist - pInfo->fRightStartDist) * pInfo->fRightAlphaScale;
             }
+
+            v->st[1] = pInfo->fStartTex + (fTex * fSideAlpha)
+                     + (fDist - pInfo->fStartDist) * pInfo->fCenterTexScale * (1.0 - fSideAlpha);
+            v->modulate[3] = pInfo->fStartAlpha
+                           + ((1.0 - fSideAlpha) * ((fDist - pInfo->fStartDist) * pInfo->fCenterAlphaScale))
+                           + (fAlpha * fSideAlpha);
         }
     }
 
@@ -1156,9 +1155,8 @@ void CG_MakeTreadMarkDecal(treadMark_t *pTread, qboolean bStartSegment, qboolean
         fEndTex          = pTread->fMidTexCoord;
 
         // Calculate the start center
-        vStartCenter[0] = (originalPoints[1][0] + originalPoints[0][0]) * 0.5;
-        vStartCenter[1] = (originalPoints[1][1] + originalPoints[0][1]) * 0.5;
-        vStartCenter[2] = (originalPoints[1][2] + originalPoints[0][2]) * 0.5;
+        VectorAdd(originalPoints[1], originalPoints[0], vStartCenter);
+        VectorScale(vStartCenter, 0.5, vStartCenter);
         VectorCopy(pTread->vMidPos, vEndCenter);
         VectorCopy(pTread->vStartDir, info.vDirection);
     } else {
@@ -1195,7 +1193,7 @@ void CG_MakeTreadMarkDecal(treadMark_t *pTread, qboolean bStartSegment, qboolean
     VectorSubtract(vEndCenter, vStartCenter, vDelta);
     fDist = VectorLength(vDelta);
 
-    fRadiusSquared = (fDist + pTread->fWidth * pTread->fWidth) * 0.25;
+    fRadiusSquared = (Square(fDist) + Square(pTread->fWidth)) * 0.25;
 
     info.fCenterTexScale   = (fEndTex - info.fStartTex) / fDist;
     info.fCenterAlphaScale = (fEndAlpha - info.fStartAlpha) / fDist;
@@ -1220,13 +1218,12 @@ void CG_MakeTreadMarkDecal(treadMark_t *pTread, qboolean bStartSegment, qboolean
     info.fLeftTexScale   = (fEndTex - info.fStartTex) / fDist;
     info.fLeftAlphaScale = (fEndAlpha - info.fStartAlpha) / fDist;
 
-    VectorSet(projection, 0, 0, 32);
+    VectorSet(projection, 0, 0, -32);
     info.colors[0] = info.colors[1] = info.colors[2] = info.colors[3] = -1;
 
     numFragments = CG_GetMarkFragments(4, originalPoints, projection, markPoints, markFragments, fRadiusSquared);
-    origin[0]    = (vStartCenter[0] + vEndCenter[0]) * 0.5;
-    origin[1]    = (vStartCenter[1] + vEndCenter[1]) * 0.5;
-    origin[2]    = (vStartCenter[2] + vEndCenter[2]) * 0.5;
+    VectorAdd(vStartCenter, vEndCenter, origin);
+    VectorScale(origin, 0.5, origin);
     info.leafnum = cgi.CM_PointLeafnum(origin);
     info.pTread  = pTread;
 
@@ -1268,20 +1265,158 @@ int CG_UpdateTreadMark(int iReference, const vec3_t vNewPos, float fAlpha)
     float        fNewLength;
     float        fTmp;
     qboolean     bDoSegmentation;
-    vec3_t       vDelta, vDeltaNorml;
+    vec3_t       vDelta, vDeltaNorm;
     vec3_t       vDir, vMidDir;
     vec3_t       vRight;
     treadMark_t *pTread;
 
-    // FIXME: unimplemented
+    iTreadNum = -1;
+
+    for (i = 0; i < MAX_TREAD_MARKS; i++) {
+        if (cg_treadMarks[i].iReferenceNumber == iReference) {
+            iTreadNum = i;
+            pTread    = &cg_treadMarks[i];
+        }
+    }
+
+    if (iTreadNum == -1 || !pTread->iState) {
+        return -1;
+    }
+
+    pTread->iLastTime = cg.time;
+
+    if (VectorCompare(pTread->vEndPos, vNewPos)) {
+        if (fAlpha >= 0) {
+            pTread->fEndAlpha = fAlpha * 255.0;
+        }
+        return 0;
+    }
+
+    VectorSubtract(vNewPos, pTread->vMidPos, vDelta);
+    fDist = VectorNormalize2(vDelta, vDeltaNorm);
+    if (pTread->iState == 1) {
+        fSplitLength    = 0;
+        bDoSegmentation = qfalse;
+    } else {
+        VectorAdd(vDeltaNorm, pTread->vStartDir, vMidDir);
+        VectorScale(vMidDir, 0.5, vMidDir);
+        VectorNormalizeFast(vMidDir);
+
+        fTmp         = DotProduct(vMidDir, vDeltaNorm);
+        fSplitLength = pTread->fWidth / fTmp;
+
+        if (fTmp < -0.5) {
+            fTmp = fTmp
+                 * (fTmp
+                        * (fTmp
+                               * (fTmp * (fTmp * (fTmp * -337.31875783205 + -1237.54375255107) + -1802.11467325687)
+                                  + -1303.19904613494)
+                           + -471.347871690988)
+                    + -70.0883838161826);
+        } else if (fTmp > 0.5) {
+            fTmp = fTmp
+                     * (fTmp
+                            * (fTmp
+                                   * (fTmp * (fTmp * (fTmp * -1507.55394345521 + 6580.58002318442) + -11860.0735285953)
+                                      + 11290.7510782536)
+                               + -5986.89654545347)
+                        + 1675.66417006387)
+                 + -192.426950291139;
+        } else {
+            fTmp = fTmp * (fTmp * -0.531387674508458 + -2.11e-14) + 1.00086138065435;
+        }
+
+        fNewLength = fSplitLength * fTmp;
+        if (fNewLength + 24 > fDist) {
+            bDoSegmentation = qfalse;
+        } else if (fSplitLength < -1) {
+            fSplitLength    = -fSplitLength;
+            bDoSegmentation = qtrue;
+        } else if (fDist > 256) {
+            bDoSegmentation = qtrue;
+        } else {
+            CrossProduct(vec_upwards, pTread->vStartDir, vRight);
+            VectorNormalizeFast(vRight);
+            bDoSegmentation = fabs(DotProduct(vRight, vDelta)) > 16;
+        }
+    }
+
+    if (pTread->iState == 2 && bDoSegmentation) {
+        VectorCopy(pTread->vMidVerts[0], pTread->vStartVerts[0]);
+        VectorCopy(pTread->vMidVerts[1], pTread->vStartVerts[1]);
+        pTread->fMidTexCoord = pTread->fEndTexCoord;
+        pTread->fMidAlpha    = pTread->fEndAlpha;
+        VectorCopy(vNewPos, pTread->vEndPos);
+
+        if (fAlpha >= 0) {
+            pTread->fEndAlpha = fAlpha * 255.0;
+        }
+
+        pTread->iState = 3;
+    } else if (pTread->iState == 0 || pTread->iState == 1) {
+        VectorCopy(vNewPos, pTread->vEndPos);
+
+        if (fAlpha >= 0) {
+            pTread->fEndAlpha = fAlpha * 255.0;
+        }
+
+        CrossProduct(vec_upwards, vDeltaNorm, vDir);
+        VectorMA(pTread->vMidPos, pTread->fWidth, vDir, pTread->vMidVerts[0]);
+        VectorMA(pTread->vMidPos, 0.0 - pTread->fWidth, vDir, pTread->vMidVerts[1]);
+        VectorMA(pTread->vEndPos, pTread->fWidth, vDir, pTread->vEndVerts[0]);
+        VectorMA(pTread->vEndPos, 0.0 - pTread->fWidth, vDir, pTread->vEndVerts[1]);
+
+        pTread->fEndTexCoord = fDist / 32.0;
+
+        if (pTread->iState == 1 && fDist > 8) {
+            VectorCopy(vDelta, pTread->vStartDir);
+            pTread->iState = 2;
+        }
+        return 0;
+    } else {
+        if (bDoSegmentation) {
+            CG_MakeTreadMarkDecal(pTread, qtrue, qfalse);
+
+            VectorCopy(pTread->vMidVerts[0], pTread->vStartVerts[0]);
+            VectorCopy(pTread->vMidVerts[1], pTread->vStartVerts[1]);
+            VectorSubtract(pTread->vEndPos, pTread->vMidPos, pTread->vStartDir);
+            VectorNormalizeFast(pTread->vStartDir);
+            VectorCopy(pTread->vEndPos, pTread->vMidPos);
+            pTread->fMidTexCoord = pTread->fEndTexCoord;
+            pTread->fMidAlpha    = pTread->fEndAlpha;
+
+            if (pTread->fStartTexCoord >= 1.0) {
+                pTread->fMidTexCoord -= (int)pTread->fStartTexCoord;
+                pTread->fStartTexCoord -= (int)pTread->fStartTexCoord;
+            }
+        }
+
+        VectorCopy(vNewPos, pTread->vEndPos);
+        pTread->fEndTexCoord = pTread->fMidTexCoord + fDist / 32.0;
+
+        if (fAlpha >= 0) {
+            pTread->fEndAlpha = fAlpha * 255.0;
+        }
+    }
+
+    CrossProduct(vec_upwards, vMidDir, vRight);
+    VectorNormalizeFast(vRight);
+    VectorMA(pTread->vMidPos, fSplitLength, vRight, pTread->vMidVerts[0]);
+    VectorMA(pTread->vMidPos, 0.0 - fSplitLength, vRight, pTread->vMidVerts[1]);
+    CrossProduct(vec_upwards, vDeltaNorm, vRight);
+    VectorNormalizeFast(vRight);
+    VectorMA(pTread->vEndPos, pTread->fWidth, vRight, pTread->vEndVerts[0]);
+    VectorMA(pTread->vEndPos, 0.0 - pTread->fWidth, vRight, pTread->vEndVerts[1]);
+
     return 0;
 }
 
 void CG_AddTreadMarks()
 {
-    trace_t trace;
-    vec3_t  vPos, vEnd;
-    int     i;
+    treadMark_t *pTread;
+    trace_t      trace;
+    vec3_t       vPos, vEnd;
+    int          i;
 
     if (cg_treadmark_test->integer) {
         VectorCopy(cg.predicted_player_state.origin, vPos);
@@ -1302,23 +1437,31 @@ void CG_AddTreadMarks()
             "CG_AddTreadMarks test"
         );
 
-        if (trace.fraction < 1.0 && CG_UpdateTreadMark(1, trace.endpos, 0.f) == -1) {
+        if (trace.fraction < 1.0 && CG_UpdateTreadMark(1, trace.endpos, 1.0) == -1) {
             qhandle_t shader = cgi.R_RegisterShader("testtread");
 
-            CG_StartTreadMark(1, shader, trace.endpos, cg_treadmark_test->integer, 1.0f);
+            CG_StartTreadMark(1, shader, trace.endpos, cg_treadmark_test->integer, 1.0);
         }
     }
 
     for (i = 0; i < MAX_TREAD_MARKS; i++) {
-        if (!cg_treadMarks[i].iState) {
+        pTread = &cg_treadMarks[i];
+
+        if (!pTread->iState) {
             continue;
         }
 
-        if (cg.time - cg_treadMarks[i].iLastTime > 500) {
-            CG_MakeTreadMarkDecal(&cg_treadMarks[i], cg_treadMarks[i].iState == 3 ? qtrue : qfalse, qfalse);
-            cg_treadMarks[i].iState = 0;
+        if (cg.time - pTread->iLastTime > 500) {
+            if (pTread->iState == 3) {
+                CG_MakeTreadMarkDecal(pTread, qtrue, qfalse);
+            }
+            CG_MakeTreadMarkDecal(pTread, qfalse, qfalse);
+            pTread->iState = 0;
         } else {
-            CG_MakeTreadMarkDecal(&cg_treadMarks[i], cg_treadMarks[i].iState == 3 ? qtrue : qfalse, qtrue);
+            if (pTread->iState == 3) {
+                CG_MakeTreadMarkDecal(pTread, qtrue, qtrue);
+            }
+            CG_MakeTreadMarkDecal(pTread, qfalse, qtrue);
         }
     }
 }
