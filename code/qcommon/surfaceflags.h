@@ -77,10 +77,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define	CONTENTS_TRIGGER		0x40000000
 #define	CONTENTS_NODROP			0x80000000	// don't leave bodies or items (death fog, lava)
 
-#define MASK_FOOTSTEP			0x42022901
-#define MASK_TREADMARK			0x42012B01
-#define MASK_WOMBAT				(MASK_WOMBAT2|MASK_WOMBAT1|MASK_CLIP|MASK_WOMBAT5)
-
 #define	SURF_NODAMAGE			0x1		// never give falling damage
 #define	SURF_SLICK				0x2		// effects game physics
 #define	SURF_SKY				0x4		// lighting from environment map
