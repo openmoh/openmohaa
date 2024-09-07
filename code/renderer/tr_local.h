@@ -2298,6 +2298,8 @@ typedef struct suninfo_s {
 	qboolean exists;
 } suninfo_t;
 
+extern suninfo_t s_sun;
+
 typedef struct {
 	byte	cmds[MAX_RENDER_COMMANDS];
 	int		used;
