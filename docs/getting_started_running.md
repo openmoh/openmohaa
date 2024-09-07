@@ -16,12 +16,12 @@ With `com_target_game`, OpenMoHAA will support the network protocol accordingly.
 
 You can now start a local OpenMOHAA server or play on a server.
 
-## Config file
+## User data location
 
-The config file can be found in different locations depending on the platform:
+The location of user data, like console logs, saves and config files can be found in different locations depending on the platform:
 
-- `%APPDATA%\openmohaa\<game_name>\configs\omconfig.cfg` on Windows
-- `~/.openmohaa/<game_name>/configs/omconfig.cfg` on Linux
+- `%APPDATA%\openmohaa\<game_name>` on Windows
+- `~/.openmohaa/<game_name>` on Linux
 
 This has two advantages:
 - On a multi-user system, each user will have their own configuration file
