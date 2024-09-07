@@ -1274,22 +1274,8 @@ sets mins and maxs for inline bmodels
 =================
 */
 void SV_SetBrushModel( gentity_t *ent, const char *name ) {
-	clipHandle_t	h;
-	vec3_t			mins, maxs;
-
-	if( !name ) {
-		Com_Error( ERR_DROP, "SV_SetBrushModel: NULL" );
-	}
-
-	if( name[ 0 ] != '*' ) {
-		Com_Error( ERR_DROP, "SV_SetBrushModel: %s isn't a brush model", name );
-	}
-
+	CM_ModelBoundsFromName( name, ent->mins, ent->maxs );
 	ent->s.modelindex = atoi( name + 1 );
-	h = CM_InlineModel( ent->s.modelindex );
-	CM_ModelBounds( h, mins, maxs );
-	VectorCopy( mins, ent->r.mins );
-	VectorCopy( maxs, ent->r.maxs );
 	ent->r.bmodel = qtrue;
 
 	if( !ent->r.contents )
