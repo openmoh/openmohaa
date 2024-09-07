@@ -272,7 +272,7 @@ typedef struct {
     int         (*CM_TerrainSquareType)(int terrainPatch, int i, int j);
     char*       (*CM_EntityString)();
 	const char* (*CM_MapTime)();
-    int         (*CG_PermanentMark)(const vec3_t origin, const vec3_t dir, float orientation, float sScale, float tScale, float red, float green, float blue, float alpha, qboolean doLighting, float sCenter, float tCenter, markFragment_t* markFragments, void* polyVerts);
+    int         (*CG_PermanentMark)(vec3_t origin, vec3_t dir, float orientation, float sScale, float tScale, float red, float green, float blue, float alpha, qboolean doLighting, float sCenter, float tCenter, markFragment_t* markFragments, void* polyVerts);
     int         (*CG_PermanentTreadMarkDecal)(treadMark_t* treadMark, qboolean startSegment, qboolean doLighting, markFragment_t* markFragments, void* polyVerts);
     int         (*CG_PermanentUpdateTreadMark)(treadMark_t* treadMark, float alpha, float minSegment, float maxSegment, float maxOffset, float texScale);
     void        (*CG_ProcessInitCommands)(dtiki_t* tiki, refEntity_t* ent);

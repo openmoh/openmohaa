@@ -465,8 +465,8 @@ functions exported to the main executable
         int (*CG_GetParent)(int entNum);
         float (*CG_GetObjectiveAlpha)();
         int (*CG_PermanentMark)(
-            const vec3_t    origin,
-            const vec3_t    dir,
+            vec3_t          origin,
+            vec3_t          dir,
             float           orientation,
             float           sScale,
             float           tScale,

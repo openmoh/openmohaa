@@ -338,7 +338,7 @@ void CG_ProcessConfigString(int num, qboolean modelOnly)
             if (cg.rain.numshaders) {
                 // Fixed in OPM
                 //  not sure why some maps set a digit at the end...
-                int len = strlen(cg.rain.currentShader);
+                size_t len = strlen(cg.rain.currentShader);
                 if (isdigit(cg.rain.currentShader[len - 1])) {
                     cg.rain.currentShader[len - 1] = 0;
                 }

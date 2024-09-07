@@ -2859,7 +2859,7 @@ void CL_RefStaticClear( void ) {
 CL_CG_PermanentMark
 ============
 */
-int CL_CG_PermanentMark(const vec3_t origin, const vec3_t dir, float orientation,
+int CL_CG_PermanentMark(vec3_t origin, vec3_t dir, float orientation,
 	float fSScale, float fTScale, float red, float green, float blue, float alpha,
 	qboolean dolighting, float fSCenter, float fTCenter,
 	markFragment_t *pMarkFragments, void *pPolyVerts )
