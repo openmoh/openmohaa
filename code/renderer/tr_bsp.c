@@ -2432,11 +2432,23 @@ void RE_LoadWorldMap( const char *name ) {
     UI_LoadResource("*116");
 }
 
+/*
+=================
+RE_MapVersion
+
+=================
+*/
 int RE_MapVersion(void)
 {
 	return map_version;
 }
 
+/*
+=================
+RE_PrintBSPFileSizes
+
+=================
+*/
 void RE_PrintBSPFileSizes(void)
 {
   ri.Printf(PRINT_ALL, "%s: %i\n", s_worldData.name, map_length);
@@ -2465,4 +2477,16 @@ void RE_PrintBSPFileSizes(void)
   ri.Printf(PRINT_ALL, "         static model data     %7i\n", g_nStaticModelData);
   ri.Printf(PRINT_ALL, "%6i   static models defs    %7i\n", g_nStaticModels, 164 * g_nStaticModels);
   ri.Printf(PRINT_ALL, "         static model indexes  %7i\n", g_nStaticModelIndices);
+}
+
+/*
+=================
+R_ClearWorld
+
+Set the world to NULL to prevent anyone from accessing
+freed world data
+=================
+*/
+void R_ClearWorld(void) {
+    tr.world = NULL;
 }

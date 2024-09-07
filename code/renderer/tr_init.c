@@ -1583,6 +1583,13 @@ void RE_BeginRegistration(glconfig_t* glconfigOut) {
     tr.viewCluster = -1;		// force markleafs to regenerate
     R_ClearFlares();
     RE_ClearScene();
+
+    // Added in OPM
+    //  Clear the world because some components
+    //  like the mark system access the world object
+    //  to free allocated marks
+    R_ClearWorld();
+
     R_SetupShaders();
     R_InitLensFlare();
     R_LevelMarksInit();

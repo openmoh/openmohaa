@@ -1593,12 +1593,10 @@ void R_LevelMarksFree()
         for (i = tr.world->numDecisionNodes; i < tr.world->numnodes; i++) {
             mnode_t *pLeaf = &tr.world->nodes[i];
 
-            if (pLeaf->iNumMarkFragment) {
-                if (pLeaf->pFirstMarkFragment) {
-                    ri.Free(pLeaf->pFirstMarkFragment);
-                    pLeaf->pFirstMarkFragment = NULL;
-                    pLeaf->iNumMarkFragment   = 0;
-                }
+            if (pLeaf->iNumMarkFragment && pLeaf->pFirstMarkFragment) {
+                ri.Free(pLeaf->pFirstMarkFragment);
+                pLeaf->pFirstMarkFragment = NULL;
+                pLeaf->iNumMarkFragment   = 0;
             }
         }
     }
