@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2023 the OpenMoHAA team
+Copyright (C) 2023-2024 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -101,7 +101,7 @@ cvar_t *cg_te_radial_scale;
 cvar_t *cg_te_radial_min;
 cvar_t *cg_te_radial_max;
 cvar_t *cg_te_friction;
-cvar_t *cg_te_spin;
+cvar_t *cg_te_spin; // Added in 2.0
 cvar_t *cg_te_varycolor;
 cvar_t *cg_te_spritegridlighting;
 cvar_t *cg_te_cone_height;
@@ -114,17 +114,21 @@ cvar_t *cg_te_tag;
 cvar_t *cg_te_xangles;
 cvar_t *cg_te_yangles;
 cvar_t *cg_te_zangles;
-class specialeffect_t;
-refEntity_t      te_refEnt;
-cvar_t          *cg_te_emittermodel;
-cvar_t          *cg_te_mode;
-cvar_t          *cg_te_mode_name;
-cvar_t          *cg_te_currCommand;
-cvar_t          *cg_te_numCommands;
-float            te_vEmitterOrigin[3];
-int              te_iNumCommands;
-int              te_iCurrCommand;
+cvar_t *cg_te_emittermodel;
+cvar_t *cg_te_mode;
+cvar_t *cg_te_mode_name;
+cvar_t *cg_te_currCommand;
+cvar_t *cg_te_numCommands;
+
+refEntity_t te_refEnt;
+float       te_vEmitterOrigin[3];
+int         te_iNumCommands;
+int         te_iCurrCommand;
+
 specialeffect_t *pTesteffect;
+
+specialeffectcommand_t *pCurrCommand;
+spawnthing_t           *pCurrSpawnthing;
 
 #define MAX_TESTEMITTERS_SAVE 32
 
@@ -305,6 +309,95 @@ void CG_SaveEffectCommandCvars(int iCommand)
     cg_te_tagG[iCommand]                = cg_te_tag->string;
 }
 
+void CG_GetEffectCommandCvars(int iCommand)
+{
+    cgi.Cvar_Set("cg_te_alpha", cg_te_alphaG[iCommand].c_str());
+    cgi.Cvar_Set("cg_te_dietouch", cg_te_dietouchG[iCommand].c_str());
+    cgi.Cvar_Set("cg_te_bouncefactor", cg_te_bouncefactorG[iCommand].c_str());
+    cgi.Cvar_Set("cg_te_scale", cg_te_scaleG[iCommand].c_str());
+    cgi.Cvar_Set("cg_te_scalemin", cg_te_scaleminG[iCommand].c_str());
+    cgi.Cvar_Set("cg_te_scalemax", cg_te_scalemaxG[iCommand].c_str());
+    cgi.Cvar_Set("cg_te_model", cg_te_modelG[iCommand].c_str());
+    cgi.Cvar_Set("cg_te_life", cg_te_lifeG[iCommand].c_str());
+    cgi.Cvar_Set("cg_te_color_r", cg_te_color_rG[iCommand].c_str());
+    cgi.Cvar_Set("cg_te_color_g", cg_te_color_gG[iCommand].c_str());
+    cgi.Cvar_Set("cg_te_color_b", cg_te_color_bG[iCommand].c_str());
+    cgi.Cvar_Set("cg_te_accel_x", cg_te_accel_xG[iCommand].c_str());
+    cgi.Cvar_Set("cg_te_accel_y", cg_te_accel_yG[iCommand].c_str());
+    cgi.Cvar_Set("cg_te_accel_z", cg_te_accel_zG[iCommand].c_str());
+    cgi.Cvar_Set("cg_te_count", cg_te_countG[iCommand].c_str());
+    cgi.Cvar_Set("cg_te_fade", cg_te_fadeG[iCommand].c_str());
+    cgi.Cvar_Set("cg_te_fadedelay", cg_te_fadedelayG[iCommand].c_str());
+    cgi.Cvar_Set("cg_te_fadein", cg_te_fadeinG[iCommand].c_str());
+    cgi.Cvar_Set("cg_te_spawnrate", cg_te_spawnrateG[iCommand].c_str());
+    cgi.Cvar_Set("cg_te_offsbase_x", cg_te_offsbase_xG[iCommand].c_str());
+    cgi.Cvar_Set("cg_te_offsbase_y", cg_te_offsbase_yG[iCommand].c_str());
+    cgi.Cvar_Set("cg_te_offsbase_z", cg_te_offsbase_zG[iCommand].c_str());
+    cgi.Cvar_Set("cg_te_offsamp_x", cg_te_offsamp_xG[iCommand].c_str());
+    cgi.Cvar_Set("cg_te_offsamp_y", cg_te_offsamp_yG[iCommand].c_str());
+    cgi.Cvar_Set("cg_te_offsamp_z", cg_te_offsamp_zG[iCommand].c_str());
+    cgi.Cvar_Set("cg_te_scalerate", cg_te_scalerateG[iCommand].c_str());
+    cgi.Cvar_Set("cg_te_circle", cg_te_circleG[iCommand].c_str());
+    cgi.Cvar_Set("cg_te_sphere", cg_te_sphereG[iCommand].c_str());
+    cgi.Cvar_Set("cg_te_insphere", cg_te_insphereG[iCommand].c_str());
+    cgi.Cvar_Set("cg_te_radius", cg_te_radiusG[iCommand].c_str());
+    cgi.Cvar_Set("cg_te_align", cg_te_alignG[iCommand].c_str());
+    cgi.Cvar_Set("cg_te_flickeralpha", cg_te_flickeralphaG[iCommand].c_str());
+    cgi.Cvar_Set("cg_te_collision", cg_te_collisionG[iCommand].c_str());
+    cgi.Cvar_Set("cg_te_randomroll", cg_te_randomrollG[iCommand].c_str());
+    cgi.Cvar_Set("cg_te_anglesbase_p", cg_te_anglesbase_pG[iCommand].c_str());
+    cgi.Cvar_Set("cg_te_anglesbase_y", cg_te_anglesbase_yG[iCommand].c_str());
+    cgi.Cvar_Set("cg_te_anglesbase_r", cg_te_anglesbase_rG[iCommand].c_str());
+    cgi.Cvar_Set("cg_te_anglesamp_p", cg_te_anglesamp_pG[iCommand].c_str());
+    cgi.Cvar_Set("cg_te_anglesamp_y", cg_te_anglesamp_yG[iCommand].c_str());
+    cgi.Cvar_Set("cg_te_anglesamp_r", cg_te_anglesamp_rG[iCommand].c_str());
+    cgi.Cvar_Set("cg_te_forwardvel", cg_te_forwardvelG[iCommand].c_str());
+    cgi.Cvar_Set("cg_te_randvelbase_x", cg_te_randvelbase_xG[iCommand].c_str());
+    cgi.Cvar_Set("cg_te_randvelbase_y", cg_te_randvelbase_yG[iCommand].c_str());
+    cgi.Cvar_Set("cg_te_randvelbase_z", cg_te_randvelbase_zG[iCommand].c_str());
+    cgi.Cvar_Set("cg_te_randvelamp_x", cg_te_randvelamp_xG[iCommand].c_str());
+    cgi.Cvar_Set("cg_te_randvelamp_y", cg_te_randvelamp_yG[iCommand].c_str());
+    cgi.Cvar_Set("cg_te_randvelamp_z", cg_te_randvelamp_zG[iCommand].c_str());
+    cgi.Cvar_Set("cg_te_clampvelmin_x", cg_te_clampvelmin_xG[iCommand].c_str());
+    cgi.Cvar_Set("cg_te_clampvelmax_x", cg_te_clampvelmax_xG[iCommand].c_str());
+    cgi.Cvar_Set("cg_te_clampvelmin_y", cg_te_clampvelmin_yG[iCommand].c_str());
+    cgi.Cvar_Set("cg_te_clampvelmax_y", cg_te_clampvelmax_yG[iCommand].c_str());
+    cgi.Cvar_Set("cg_te_clampvelmin_z", cg_te_clampvelmin_zG[iCommand].c_str());
+    cgi.Cvar_Set("cg_te_clampvelmax_z", cg_te_clampvelmax_zG[iCommand].c_str());
+    cgi.Cvar_Set("cg_te_clampvelaxis", cg_te_clampvelaxisG[iCommand].c_str());
+    cgi.Cvar_Set("cg_te_volumetric", cg_te_volumetricG[iCommand].c_str());
+    cgi.Cvar_Set("cg_te_randaxis", cg_te_randaxisG[iCommand].c_str());
+    cgi.Cvar_Set("cg_te_axisoffsbase_x", cg_te_axisoffsbase_xG[iCommand].c_str());
+    cgi.Cvar_Set("cg_te_axisoffsbase_y", cg_te_axisoffsbase_yG[iCommand].c_str());
+    cgi.Cvar_Set("cg_te_axisoffsbase_z", cg_te_axisoffsbase_zG[iCommand].c_str());
+    cgi.Cvar_Set("cg_te_axisoffsamp_x", cg_te_axisoffsamp_xG[iCommand].c_str());
+    cgi.Cvar_Set("cg_te_axisoffsamp_y", cg_te_axisoffsamp_yG[iCommand].c_str());
+    cgi.Cvar_Set("cg_te_axisoffsamp_z", cg_te_axisoffsamp_zG[iCommand].c_str());
+    cgi.Cvar_Set("cg_te_swarm_freq", cg_te_swarm_freqG[iCommand].c_str());
+    cgi.Cvar_Set("cg_te_swarm_maxspeed", cg_te_swarm_maxspeedG[iCommand].c_str());
+    cgi.Cvar_Set("cg_te_swarm_delta", cg_te_swarm_deltaG[iCommand].c_str());
+    cgi.Cvar_Set("cg_te_avelbase_p", cg_te_avelbase_pG[iCommand].c_str());
+    cgi.Cvar_Set("cg_te_avelbase_y", cg_te_avelbase_yG[iCommand].c_str());
+    cgi.Cvar_Set("cg_te_avelbase_r", cg_te_avelbase_rG[iCommand].c_str());
+    cgi.Cvar_Set("cg_te_avelamp_p", cg_te_avelamp_pG[iCommand].c_str());
+    cgi.Cvar_Set("cg_te_avelamp_y", cg_te_avelamp_yG[iCommand].c_str());
+    cgi.Cvar_Set("cg_te_avelamp_r", cg_te_avelamp_rG[iCommand].c_str());
+    cgi.Cvar_Set("cg_te_radial_scale", cg_te_radial_scaleG[iCommand].c_str());
+    cgi.Cvar_Set("cg_te_radial_min", cg_te_radial_minG[iCommand].c_str());
+    cgi.Cvar_Set("cg_te_radial_max", cg_te_radial_maxG[iCommand].c_str());
+    cgi.Cvar_Set("cg_te_friction", cg_te_frictionG[iCommand].c_str());
+    cgi.Cvar_Set("cg_te_spin", cg_te_spinG[iCommand].c_str()); // Added in 2.0
+    cgi.Cvar_Set("cg_te_varycolor", cg_te_varycolorG[iCommand].c_str());
+    cgi.Cvar_Set("cg_te_spritegridlighting", cg_te_spritegridlightingG[iCommand].c_str());
+    cgi.Cvar_Set("cg_te_spawnrange_a", cg_te_spawnrange_aG[iCommand].c_str());
+    cgi.Cvar_Set("cg_te_spawnrnage_b", cg_te_spawnrange_bG[iCommand].c_str());
+    cgi.Cvar_Set("cg_te_cone_height", cg_te_cone_heightG[iCommand].c_str());
+    cgi.Cvar_Set("cg_te_alignstretch_scale", cg_te_alignstretch_scaleG[iCommand].c_str());
+    cgi.Cvar_Set("cg_te_command_time", cg_te_command_timeG[iCommand].c_str());
+    cgi.Cvar_Set("cg_te_singlelinecommand", cg_te_singlelinecommandG[iCommand].c_str());
+    cgi.Cvar_Set("cg_te_tag", cg_te_tagG[iCommand].c_str());
+}
+
 void CG_ResetEffectCommandCvars()
 {
     cgi.Cvar_Set("cg_te_alpha", "1");
@@ -406,17 +499,88 @@ void CG_UpdateTestEmitter(void)
 
 void CG_SortEffectCommands()
 {
-    // FIXME: unimplemented
+    int j, k;
+
+    for (j = 1; j < pTesteffect->m_iCommandCount; j++) {
+        for (k = 0; k < j; k++) {
+            if (pTesteffect->m_commands[k] > pTesteffect->m_commands[k + 1]) {
+                specialeffectcommand_t *command = pTesteffect->m_commands[k];
+
+                pTesteffect->m_commands[k]     = pTesteffect->m_commands[k + 1];
+                pTesteffect->m_commands[k + 1] = command;
+            }
+        }
+    }
 }
 
 void CG_TriggerTestEmitter_f(void)
 {
-    // FIXME: unimplemented
+    int    i;
+    vec3_t axis[3];
+
+    if (!cg_te_mode->integer) {
+        return;
+    }
+
+    if (!te_iNumCommands) {
+        return;
+    }
+
+    CG_SaveEffectCommandCvars(te_iCurrCommand);
+
+    for (i = 0; i < te_iNumCommands; ++i) {
+        pCurrCommand = pTesteffect->m_commands[i];
+        if (!pCurrCommand) {
+            return;
+        }
+
+        pCurrSpawnthing = pCurrCommand->emitter;
+        if (!pCurrSpawnthing) {
+            return;
+        }
+
+        CG_GetEffectCommandCvars(i);
+        CG_SetTestEmitterValues();
+    }
+
+    CG_GetEffectCommandCvars(te_iCurrCommand);
+    CG_SortEffectCommands();
+
+    pCurrCommand    = pTesteffect->m_commands[0];
+    pCurrSpawnthing = pCurrCommand->emitter;
+    AxisCopy(pCurrSpawnthing->axis, axis);
+
+    // Spawn the effect
+    sfxManager.MakeEffect_Axis(SFX_TEST_EFFECT, pCurrSpawnthing->cgd.origin, axis);
+
+    pCurrCommand    = NULL;
+    pCurrSpawnthing = NULL;
 }
 
 void CG_DumpBaseAndAmplitude(str *buff, char *prefix, Vector *base, Vector *amplitude)
 {
-    // FIXME: unimplemented
+    int i;
+
+    if (amplitude[0] || amplitude[1] || amplitude[2]) {
+        *buff += prefix;
+
+        for (i = 0; i < 3; i++) {
+            if (!amplitude[i]) {
+                *buff += va(" %g", base[i]);
+            } else if (!base[i]) {
+                *buff += va(" random %g", amplitude[i]);
+            } else if (-base[i] == base[i] + amplitude[i]) {
+                *buff += va(" crandom %g", amplitude[i] * 0.5);
+            } else {
+                *buff += va(" range %g %g", base[i], amplitude[i]);
+            }
+        }
+
+        *buff += "\n";
+    } else if (base[0] || base[1] || base[2]) {
+        *buff += prefix;
+        *buff += va(" %g %g %g\n", base[0], base[1], base[2]);
+    }
 }
 
 void CG_DumpEmitter_f(void)
@@ -438,28 +602,82 @@ void CG_LoadEmitter_f(void)
 
 void CG_TestEmitter_f(void)
 {
-    // FIXME: unimplemented
+    vec3_t angles;
+
+    if (!pTesteffect->m_iCommandCount) {
+        pCurrCommand = pTesteffect->AddNewCommand();
+        if (!pCurrCommand) {
+            return;
+        }
+
+        pCurrSpawnthing       = new spawnthing_t();
+        pCurrCommand->emitter = pCurrSpawnthing;
+        commandManager.InitializeSpawnthing(pCurrSpawnthing);
+
+        te_iNumCommands++;
+    }
+
+    VectorMA(cg.refdef.vieworg, 100.0, cg.refdef.viewaxis[0], te_vEmitterOrigin);
+    VectorSet(angles, 0, cg.refdefViewAngles[1], 0);
+    AnglesToAxis(angles, pCurrSpawnthing->axis);
+
+    pCurrSpawnthing->cgd.tiki = NULL;
+    CG_SetTestEmitterValues();
+
+    pCurrCommand    = NULL;
+    pCurrSpawnthing = NULL;
 }
 
 void CG_PrevEmitterCommand_f(void)
 {
-    // FIXME: unimplemented
+    CG_SaveEffectCommandCvars(te_iCurrCommand);
+
+    te_iCurrCommand--;
+    if (te_iCurrCommand < 0) {
+        te_iCurrCommand = te_iNumCommands - 1;
+    }
+
+    CG_GetEffectCommandCvars(te_iCurrCommand);
 }
 
 void CG_NextEmitterCommand_f(void)
 {
-    // FIXME: unimplemented
+    CG_SaveEffectCommandCvars(te_iCurrCommand);
+
+    te_iCurrCommand++;
+    if (te_iCurrCommand >= te_iNumCommands) {
+        te_iCurrCommand = 0;
+    }
+
+    CG_GetEffectCommandCvars(te_iCurrCommand);
 }
 
 void CG_NewEmitterCommand_f(void)
 {
-    // FIXME: unimplemented
+    if (te_iNumCommands >= MAX_TESTEMITTERS_SAVE) {
+        Com_Printf("Test effect can not have more than %i effect commands\n", MAX_TESTEMITTERS_SAVE);
+        return;
+    }
+
+    pCurrCommand = pTesteffect->AddNewCommand();
+    if (!pCurrCommand) {
+        return;
+    }
+
+    pCurrSpawnthing       = new spawnthing_t();
+    pCurrCommand->emitter = pCurrSpawnthing;
+    commandManager.InitializeSpawnthing(pCurrSpawnthing);
+
+    te_iNumCommands++;
+    CG_SaveEffectCommandCvars(te_iCurrCommand);
+
+    te_iCurrCommand = te_iNumCommands - 1;
+    CG_GetEffectCommandCvars(te_iCurrCommand);
+
+    Com_Printf("Test effect now has %i effect commands\n", te_iNumCommands);
 }
 
-void CG_DeleteEmitterCommand_f(void)
-{
-    // FIXME: unimplemented
-}
+void CG_DeleteEmitterCommand_f(void) {}
 
 void CG_InitTestEmitter(void)
 {
@@ -539,7 +757,7 @@ void CG_InitTestEmitter(void)
     cg_te_radial_min         = cgi.Cvar_Get("cg_te_radial_min", "0", 0);
     cg_te_radial_max         = cgi.Cvar_Get("cg_te_radial_max", "0", 0);
     cg_te_friction           = cgi.Cvar_Get("cg_te_friction", "0", 0);
-    cg_te_spin               = cgi.Cvar_Get("cg_te_spin", "0", 0);
+    cg_te_spin               = cgi.Cvar_Get("cg_te_spin", "0", 0); // Added in 2.0
     cg_te_varycolor          = cgi.Cvar_Get("cg_te_varycolor", "0", 0);
     cg_te_spritegridlighting = cgi.Cvar_Get("cg_te_spritegridlighting", "0", 0);
     cg_te_spawnrange_a       = cgi.Cvar_Get("cg_te_spawnrange_a", "0", 0);
