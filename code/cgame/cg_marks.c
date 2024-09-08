@@ -1236,7 +1236,7 @@ void CG_MakeTreadMarkDecal(treadMark_t *pTread, qboolean bStartSegment, qboolean
                 mf->numPoints = 8;
             }
             if (CG_MakeTreadMarkDecal_PerPolyCallback(markPoints, mf, verts, &info)) {
-                CG_AddFragmentToScene(mf->iIndex, pTread->hTreadShader, mf->numPoints, &verts);
+                CG_AddFragmentToScene(mf->iIndex, pTread->hTreadShader, mf->numPoints, verts);
             }
         }
     } else {
