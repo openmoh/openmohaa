@@ -377,14 +377,7 @@ inline void str::append(const char *text)
 
 inline void str::append(const str& text)
 {
-    size_t len;
-
-    len = length();
-    len += text.length();
-    EnsureAlloced(len + 1);
-
-    strcat(m_data->data, text.c_str());
-    m_data->len = len;
+    append(text.c_str());
 }
 
 inline char& str::operator[](intptr_t index)
