@@ -51,7 +51,7 @@ void RainTouch(ctempmodel_t *ct, trace_t *trace)
 
 void ClientGameCommandManager::RainTouch(Event *ev)
 {
-    // FIXME: unimplemented
+    // Nothing to do
 }
 
 void ClientGameCommandManager::InitializeRainCvars()
