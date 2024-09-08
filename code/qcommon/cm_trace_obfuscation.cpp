@@ -360,8 +360,6 @@ float CM_ObfuscationTraceThroughTree( traceWork_t *tw, int num, float p1f, float
 	int			side;
 	float		midf;
 
-	// FIXME: unimplemented
-
 	// if < 0, we are in a leaf node
 	if (num < 0) {
 		return CM_ObfuscationTraceToLeaf( tw, &cm.leafs[-1-num] );
