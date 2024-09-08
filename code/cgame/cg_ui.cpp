@@ -25,6 +25,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "cg_local.h"
 #include "str.h"
+#include "../client/keycodes.h"
 
 void CG_MessageMode_f(void)
 {
@@ -192,8 +193,30 @@ void CG_HudPrint_f(void)
     cgi.Printf("\x1%s", cgi.Argv(1));
 }
 
-int CG_CheckCaptureKey(int key, qboolean down, unsigned int time)
+qboolean CG_CheckCaptureKey(int key, qboolean down, unsigned int time)
 {
-    // FIXME: unimplemented
-    return 0;
+    if (!cg.iInstaMessageMenu || !down) {
+        return qfalse;
+    }
+
+    if (key < '1' || key > '8') {
+        if (key == K_ESCAPE || key == '0') {
+            cg.iInstaMessageMenu = 0;
+            return qtrue;
+        }
+        return qfalse;
+    }
+
+    if (cg.iInstaMessageMenu == -1) {
+        if (key > '6') {
+            cg.iInstaMessageMenu = 0;
+        } else {
+            cg.iInstaMessageMenu = key - '0';
+        }
+    } else if (cg.iInstaMessageMenu > 0) {
+        cgi.SendClientCommand(va("dmmessage 0 *%i%i\n", cg.iInstaMessageMenu, key - '0'));
+        cg.iInstaMessageMenu = 0;
+    }
+
+    return qtrue;
 }
