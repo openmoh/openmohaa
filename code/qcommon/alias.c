@@ -383,7 +383,7 @@ qboolean Alias_ListAdd(AliasList_t* list, const char* alias, const char* name, c
 		{
 			if (!strcmp(node->alias_name, alias))
 			{
-				Com_Printf("DUPLICATE ALIASES: %s and %s\n", node->alias_name, alias);
+				Com_DPrintf("DUPLICATE ALIASES: %s and %s\n", node->alias_name, alias);
 				return qtrue;
 			}
 		}

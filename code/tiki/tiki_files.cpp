@@ -332,7 +332,7 @@ dtiki_t *TIKI_LoadTikiModel(dtikianim_t *tikianim, const char *name, con_map<str
         keyValues
     );
     if (!temp_tiki->numMeshes) {
-        Com_Printf("^~^~^ Model '%s' has no skelmodel\n", tikianim->name);
+        Com_DPrintf("^~^~^ Model '%s' has no skelmodel\n", tikianim->name);
         return NULL;
     }
 
@@ -536,7 +536,7 @@ skelAnimDataGameHeader_t *SkeletorCacheFileCallback(const char *path)
     Skel_ExtractFileExtension(path, extension);
 
     if (strcmp(extension, "skc")) {
-        Com_Printf("Skeletor CacheAnimSkel: %s: File extension unknown.  Attempting to open as skc file\n", path);
+        Com_DPrintf("Skeletor CacheAnimSkel: %s: File extension unknown.  Attempting to open as skc file\n", path);
     }
 
     strcpy(npath, "newanim/");
@@ -549,7 +549,7 @@ skelAnimDataGameHeader_t *SkeletorCacheFileCallback(const char *path)
     } else {
         iBuffLength = TIKI_ReadFileEx(path, (void **)&pHeader, qtrue);
         if (iBuffLength <= 0) {
-            Com_Printf("Skeletor CacheAnimSkel: Could not open binary file %s\n", path);
+            Com_DPrintf("Skeletor CacheAnimSkel: Could not open binary file %s\n", path);
             return NULL;
         }
 
@@ -557,7 +557,7 @@ skelAnimDataGameHeader_t *SkeletorCacheFileCallback(const char *path)
         int version = LittleLong(pHeader->version);
         if (LittleLong(ident) != TIKI_SKC_HEADER_IDENT
             || (version != TIKI_SKC_HEADER_OLD_VERSION && version != TIKI_SKC_HEADER_VERSION)) {
-            Com_Printf(
+            Com_DPrintf(
                 "Skeletor CacheAnimSkel: anim %s has wrong header ([ident,version] = [%i,%i] should be [%i,%i])\n",
                 path,
                 ident,
@@ -570,7 +570,7 @@ skelAnimDataGameHeader_t *SkeletorCacheFileCallback(const char *path)
         }
 
         if (version == TIKI_SKC_HEADER_OLD_VERSION) {
-            Com_Printf("WARNING- DOWNGRADING TO OLD ANIMATION FORMAT FOR FILE: %s\n", path);
+            Com_DPrintf("WARNING- DOWNGRADING TO OLD ANIMATION FORMAT FOR FILE: %s\n", path);
 
             //
             // Handle the endianness
