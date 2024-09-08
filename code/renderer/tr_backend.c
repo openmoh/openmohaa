@@ -1196,7 +1196,7 @@ void RB_SetupFog() {
 	} else if (r_farplane_nofog->integer) {
 		glState.externalSetState &= ~GLS_FOG;
 	} else {
-		vec3_t vFogColor;
+		vec4_t vFogColor;
 
 		qglFogf(GL_FOG_START, backEnd.viewParms.farplane_bias);
 		qglFogf(GL_FOG_END, backEnd.viewParms.farplane_distance);
@@ -1204,7 +1204,8 @@ void RB_SetupFog() {
         vFogColor[0] = backEnd.viewParms.farplane_color[0] * tr.identityLight;
         vFogColor[1] = backEnd.viewParms.farplane_color[1] * tr.identityLight;
         vFogColor[2] = backEnd.viewParms.farplane_color[2] * tr.identityLight;
-		GL_SetFogColor(vFogColor);
+        vFogColor[3] = 1.0;
+        GL_SetFogColor(vFogColor);
 
 		glState.externalSetState |= GLS_FOG;
 	}
