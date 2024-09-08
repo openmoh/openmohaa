@@ -712,7 +712,37 @@ float CG_SensitivityScale()
 
 void CG_AddLightShow()
 {
-    // FIXME: unimplemented
+    int i;
+    float fSlopeY, fSlopeZ;
+    float x, y, z;
+    vec3_t vOrg;
+    float r, g, b;
+    float fMax;
+
+    fSlopeY = tan(cg.refdef.fov_x * 0.5);
+    fSlopeZ = tan(cg.refdef.fov_y * 0.5);
+
+    for (i = 0; i < cg_acidtrip->integer; i++) {
+        x = pow(random(), 1.0 / 3.0) * 2048.0;
+        y = crandom() * x * fSlopeY;
+        z = crandom() * x * fSlopeZ;
+
+        VectorCopy(cg.refdef.vieworg, vOrg);
+        VectorMA(vOrg, x, cg.refdef.viewaxis[0], vOrg);
+        VectorMA(vOrg, y, cg.refdef.viewaxis[1], vOrg);
+        VectorMA(vOrg, z, cg.refdef.viewaxis[2], vOrg);
+
+        r = random();
+        g = random();
+        b = random();
+
+        fMax = Q_max(r, Q_max(g, b));
+        r /= fMax;
+        g /= fMax;
+        b /= fMax;
+
+        cgi.R_AddLightToScene(vOrg, (rand() & 0x1FF) + 0x80, r, g, b, 0);
+    }
 }
 
 qboolean CG_FrustumCullSphere(const vec3_t vPos, float fRadius) {
