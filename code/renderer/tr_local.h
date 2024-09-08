@@ -2399,6 +2399,7 @@ typedef struct {
 
 extern	int		max_polys;
 extern	int		max_polyverts;
+extern	int		max_termarks;
 
 extern	backEndData_t	*backEndData[SMP_FRAMES];	// the second one may not be allocated
 

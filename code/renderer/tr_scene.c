@@ -165,7 +165,18 @@ R_AddTerrainMarkSurfaces
 =====================
 */
 void R_AddTerrainMarkSurfaces(void) {
-    // FIXME: unimplemented
+    srfMarkFragment_t* terMark;
+    int j;
+    shader_t* shader;
+
+    for (j = 0; j < tr.refdef.numTerMarks; j++)
+    {
+        terMark = &tr.refdef.terMarks[j];
+
+        shader = R_GetShaderByHandle(terMark->surfaceType);
+        terMark->surfaceType = SF_MARK_FRAG;
+        R_AddDrawSurf(&terMark->surfaceType, shader, 0);
+    }
 }
 
 /*
@@ -174,7 +185,26 @@ RE_AddTerrainMarkToScene
 =====================
 */
 void RE_AddTerrainMarkToScene(int iTerrainIndex, qhandle_t hShader, int numVerts, const polyVert_t* verts, int renderfx) {
-    // FIXME: unimplemented
+    srfMarkFragment_t* terMark;
+
+    if (!tr.registered) {
+        return;
+    }
+
+    if (numVerts + r_numpolyverts > max_polyverts || r_numtermarks >= max_termarks) {
+        ri.Printf(PRINT_WARNING, "Exceeded MAX TERRAIN MARKS\n");
+        return;
+    }
+
+    terMark = &backEndData[tr.smpFrame]->terMarks[r_numtermarks];
+    terMark->surfaceType = hShader;
+    terMark->iIndex = iTerrainIndex;
+    terMark->numVerts = numVerts;
+    terMark->verts = &backEndData[tr.smpFrame]->polyVerts[r_numpolyverts];
+    memcpy(terMark->verts, verts, sizeof(polyVert_t) * numVerts);
+
+    r_numtermarks++;
+    r_numpolyverts += numVerts;
 }
 
 //=================================================================================

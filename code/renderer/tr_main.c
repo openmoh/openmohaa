@@ -187,7 +187,6 @@ int R_DistanceCullPointAndRadius(float fDist, const vec3_t pt, float radius) {
 	}
 
 	return CULL_CLIP;
-	// FIXME: unimplemented
 }
 
 /*
