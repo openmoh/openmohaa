@@ -101,6 +101,7 @@ cvar_t *cg_te_radial_scale;
 cvar_t *cg_te_radial_min;
 cvar_t *cg_te_radial_max;
 cvar_t *cg_te_friction;
+cvar_t *cg_te_spin;
 cvar_t *cg_te_varycolor;
 cvar_t *cg_te_spritegridlighting;
 cvar_t *cg_te_cone_height;
@@ -202,6 +203,7 @@ str cg_te_radial_scaleG[MAX_TESTEMITTERS_SAVE];
 str cg_te_radial_minG[MAX_TESTEMITTERS_SAVE];
 str cg_te_radial_maxG[MAX_TESTEMITTERS_SAVE];
 str cg_te_frictionG[MAX_TESTEMITTERS_SAVE];
+str cg_te_spinG[MAX_TESTEMITTERS_SAVE]; // Added in 2.0
 str cg_te_varycolorG[MAX_TESTEMITTERS_SAVE];
 str cg_te_spritegridlightingG[MAX_TESTEMITTERS_SAVE];
 str cg_te_spawnrange_aG[MAX_TESTEMITTERS_SAVE];
@@ -291,6 +293,7 @@ void CG_SaveEffectCommandCvars(int iCommand)
     cg_te_radial_minG[iCommand]         = cg_te_radial_min->string;
     cg_te_radial_maxG[iCommand]         = cg_te_radial_max->string;
     cg_te_frictionG[iCommand]           = cg_te_friction->string;
+    cg_te_spinG[iCommand]               = cg_te_spin->string; // Added in 2.0
     cg_te_varycolorG[iCommand]          = cg_te_varycolor->string;
     cg_te_spritegridlightingG[iCommand] = cg_te_spritegridlighting->string;
     cg_te_spawnrange_aG[iCommand]       = cg_te_spawnrange_a->string;
@@ -304,7 +307,91 @@ void CG_SaveEffectCommandCvars(int iCommand)
 
 void CG_ResetEffectCommandCvars()
 {
-    // FIXME: unimplemented
+    cgi.Cvar_Set("cg_te_alpha", "1");
+    cgi.Cvar_Set("cg_te_dietouch", "0");
+    cgi.Cvar_Set("cg_te_bouncefactor", "0.3");
+    cgi.Cvar_Set("cg_te_scale", "1");
+    cgi.Cvar_Set("cg_te_scalemin", "0");
+    cgi.Cvar_Set("cg_te_scalemax", "0");
+    cgi.Cvar_Set("cg_te_model", "none");
+    cgi.Cvar_Set("cg_te_life", "1");
+    cgi.Cvar_Set("cg_te_color_r", "1");
+    cgi.Cvar_Set("cg_te_color_g", "1");
+    cgi.Cvar_Set("cg_te_color_b", "1");
+    cgi.Cvar_Set("cg_te_accel_x", "0");
+    cgi.Cvar_Set("cg_te_accel_y", "0");
+    cgi.Cvar_Set("cg_te_accel_z", "0");
+    cgi.Cvar_Set("cg_te_count", "1");
+    cgi.Cvar_Set("cg_te_fade", "0");
+    cgi.Cvar_Set("cg_te_fadedelay", "0");
+    cgi.Cvar_Set("cg_te_fadein", "0");
+    cgi.Cvar_Set("cg_te_spawnrate", "1");
+    cgi.Cvar_Set("cg_te_offsbase_x", "0");
+    cgi.Cvar_Set("cg_te_offsbase_y", "0");
+    cgi.Cvar_Set("cg_te_offsbase_z", "0");
+    cgi.Cvar_Set("cg_te_offsamp_x", "0");
+    cgi.Cvar_Set("cg_te_offsamp_y", "0");
+    cgi.Cvar_Set("cg_te_offsamp_z", "0");
+    cgi.Cvar_Set("cg_te_scalerate", "0");
+    cgi.Cvar_Set("cg_te_circle", "0");
+    cgi.Cvar_Set("cg_te_sphere", "0");
+    cgi.Cvar_Set("cg_te_insphere", "0");
+    cgi.Cvar_Set("cg_te_radius", "0");
+    cgi.Cvar_Set("cg_te_align", "0");
+    cgi.Cvar_Set("cg_te_flickeralpha", "0");
+    cgi.Cvar_Set("cg_te_collision", "0");
+    cgi.Cvar_Set("cg_te_randomroll", "0");
+    cgi.Cvar_Set("cg_te_anglesbase_p", "0");
+    cgi.Cvar_Set("cg_te_anglesbase_y", "0");
+    cgi.Cvar_Set("cg_te_anglesbase_r", "0");
+    cgi.Cvar_Set("cg_te_anglesamp_p", "0");
+    cgi.Cvar_Set("cg_te_anglesamp_y", "0");
+    cgi.Cvar_Set("cg_te_anglesamp_r", "0");
+    cgi.Cvar_Set("cg_te_forwardvel", "0");
+    cgi.Cvar_Set("cg_te_randvelbase_x", "0");
+    cgi.Cvar_Set("cg_te_randvelbase_y", "0");
+    cgi.Cvar_Set("cg_te_randvelbase_z", "0");
+    cgi.Cvar_Set("cg_te_randvelamp_x", "0");
+    cgi.Cvar_Set("cg_te_randvelamp_y", "0");
+    cgi.Cvar_Set("cg_te_randvelamp_z", "0");
+    cgi.Cvar_Set("cg_te_clampvelmin_x", "-9999");
+    cgi.Cvar_Set("cg_te_clampvelmax_x", "9999");
+    cgi.Cvar_Set("cg_te_clampvelmin_y", "-9999");
+    cgi.Cvar_Set("cg_te_clampvelmax_y", "9999");
+    cgi.Cvar_Set("cg_te_clampvelmin_z", "-9999");
+    cgi.Cvar_Set("cg_te_clampvelmax_z", "9999");
+    cgi.Cvar_Set("cg_te_clampvelaxis", "0");
+    cgi.Cvar_Set("cg_te_volumetric", "0");
+    cgi.Cvar_Set("cg_te_randaxis", "0");
+    cgi.Cvar_Set("cg_te_axisoffsbase_x", "0");
+    cgi.Cvar_Set("cg_te_axisoffsbase_y", "0");
+    cgi.Cvar_Set("cg_te_axisoffsbase_z", "0");
+    cgi.Cvar_Set("cg_te_axisoffsamp_x", "0");
+    cgi.Cvar_Set("cg_te_axisoffsamp_y", "0");
+    cgi.Cvar_Set("cg_te_axisoffsamp_z", "0");
+    cgi.Cvar_Set("cg_te_swarm_freq", "0");
+    cgi.Cvar_Set("cg_te_swarm_maxspeed", "0");
+    cgi.Cvar_Set("cg_te_swarm_delta", "0");
+    cgi.Cvar_Set("cg_te_avelbase_p", "0");
+    cgi.Cvar_Set("cg_te_avelbase_y", "0");
+    cgi.Cvar_Set("cg_te_avelbase_r", "0");
+    cgi.Cvar_Set("cg_te_avelamp_p", "0");
+    cgi.Cvar_Set("cg_te_avelamp_y", "0");
+    cgi.Cvar_Set("cg_te_avelamp_r", "0");
+    cgi.Cvar_Set("cg_te_radial_scale", "0");
+    cgi.Cvar_Set("cg_te_radial_min", "0");
+    cgi.Cvar_Set("cg_te_radial_max", "0");
+    cgi.Cvar_Set("cg_te_friction", "0");
+    cgi.Cvar_Set("cg_te_spin", "0"); // Added in 2.0
+    cgi.Cvar_Set("cg_te_varycolor", "0");
+    cgi.Cvar_Set("cg_te_spritegridlighting", "0");
+    cgi.Cvar_Set("cg_te_spawnrange_a", "0");
+    cgi.Cvar_Set("cg_te_spawnrange_b", "0");
+    cgi.Cvar_Set("cg_te_cone_height", "0");
+    cgi.Cvar_Set("cg_te_alignstretch_scale", "0");
+    cgi.Cvar_Set("cg_te_command_time", "0");
+    cgi.Cvar_Set("cg_te_singlelinecommand", "");
+    cgi.Cvar_Set("cg_te_tag", "");
 }
 
 void CG_SetTestEmitterValues()
@@ -452,6 +539,7 @@ void CG_InitTestEmitter(void)
     cg_te_radial_min         = cgi.Cvar_Get("cg_te_radial_min", "0", 0);
     cg_te_radial_max         = cgi.Cvar_Get("cg_te_radial_max", "0", 0);
     cg_te_friction           = cgi.Cvar_Get("cg_te_friction", "0", 0);
+    cg_te_spin               = cgi.Cvar_Get("cg_te_spin", "0", 0);
     cg_te_varycolor          = cgi.Cvar_Get("cg_te_varycolor", "0", 0);
     cg_te_spritegridlighting = cgi.Cvar_Get("cg_te_spritegridlighting", "0", 0);
     cg_te_spawnrange_a       = cgi.Cvar_Get("cg_te_spawnrange_a", "0", 0);
@@ -473,14 +561,12 @@ void CG_InitTestEmitter(void)
     cg_te_mode         = cgi.Cvar_Get("cg_te_mode", "0", 0);
     cg_te_mode_name    = cgi.Cvar_Get("cg_te_mode_name", "Emitter Mode", 0);
     cg_te_currCommand  = cgi.Cvar_Get("cg_te_currCommand", "0", 0);
+    cg_te_numCommands  = cgi.Cvar_Get("cg_te_numCommands", "0", 0);
 
-    te_vEmitterOrigin[2] = 0.0;
-    te_vEmitterOrigin[1] = 0.0;
-    te_vEmitterOrigin[0] = 0.0;
-    te_refEnt.scale      = 0.0;
-    cg_te_numCommands    = cgi.Cvar_Get("cg_te_numCommands", "0", 0);
-    te_iNumCommands      = 0;
-    te_iCurrCommand      = 0;
+    VectorClear(te_vEmitterOrigin);
+    te_refEnt.scale = 0.0;
+    te_iNumCommands = 0;
+    te_iCurrCommand = 0;
 
     pTesteffect = sfxManager.GetTestEffectPointer();
 }
