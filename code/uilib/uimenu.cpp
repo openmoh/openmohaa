@@ -291,7 +291,7 @@ UIWidget *Menu::GetNamedWidget
 		}
 	}
 
-	return pWidget;
+	return NULL;
 }
 
 void Menu::Update
