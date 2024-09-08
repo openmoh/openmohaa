@@ -1630,7 +1630,8 @@ RE_SetRenderTime
 =============
 */
 void RE_SetRenderTime(int t) {
-	// FIXME: unimplemented
+    backEnd.refdef.floatTime = (long double)t / 1000.0;
+    R_UpdateGhostTextures();
 }
 
 /*
