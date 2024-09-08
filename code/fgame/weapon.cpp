@@ -3011,7 +3011,7 @@ void Weapon::PickupWeapon(Event *ev)
     if (ammo_type[FIRE_SECONDARY] != ammo_type[FIRE_PRIMARY] && str::icmp(ammo_type[FIRE_SECONDARY], "none")) {
         if (startammo[FIRE_SECONDARY] && ammo_type[FIRE_SECONDARY].length() && other->isClient()) {
             str        sMessage;
-            const str& sAmmoType = ammo_type[FIRE_PRIMARY];
+            const str& sAmmoType = ammo_type[FIRE_SECONDARY];
 
             iGiveAmmo = startammo[FIRE_SECONDARY];
 
