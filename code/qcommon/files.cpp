@@ -2919,11 +2919,11 @@ int FS_PathCmp( const char *s1, const char *s2 ) {
 		c1 = *s1++;
 		c2 = *s2++;
 
-		if (c1 >= 'a' && c1 <= 'z') {
-			c1 -= ('a' - 'A');
+		if (c1 >= 'A' && c1 <= 'Z') {
+			c1 += ('a' - 'A');
 		}
-		if (c2 >= 'a' && c2 <= 'z') {
-			c2 -= ('a' - 'A');
+		if (c2 >= 'A' && c2 <= 'Z') {
+			c2 += ('a' - 'A');
 		}
 
 		if ( c1 == '\\' || c1 == ':' ) {
@@ -3128,9 +3128,6 @@ static int QDECL paksort(const void *a, const void *b) {
 
 	aa = *(char **)a;
 	bb = *(char **)b;
-
-	const char* f1 = COM_SkipPath(aa);
-	const char* f2 = COM_SkipPath(bb);
 
 	return FS_PathCmp( aa, bb );
 }
