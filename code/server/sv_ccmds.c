@@ -1086,12 +1086,12 @@ static int SV_Strlen( const char *str ) {
 	int count = 0;
 
 	while ( *s ) {
-		if ( Q_IsColorString( s ) ) {
-			s += 2;
-		} else {
+		//if ( Q_IsColorString( s ) ) {
+		//	s += 2;
+		//} else {
 			count++;
 			s++;
-		}
+		//}
 	}
 
 	return count;
@@ -1118,9 +1118,14 @@ static void SV_Status_f(void) {
 
     Com_Printf("map: %s\n", sv_mapname->string);
 
-    Com_Printf("num score ping name            lastmsg address                                  qport rate \n");
-    Com_Printf("--- ----- ---- --------------- ------- ---------------------------------------  ----- -----\n");
-    for (i = 0, cl = svs.clients; i < sv_maxclients->integer; i++, cl++)
+    //Com_Printf("num score ping name            lastmsg address                                  qport rate \n");
+    //Com_Printf("--- ----- ---- --------------- ------- ---------------------------------------  ----- -----\n");
+    //
+    // Some programs use fixed-size columns
+    //
+    Com_Printf("num score ping name            lastmsg address               qport rate\n");
+    Com_Printf("--- ----- ---- --------------- ------- --------------------- ----- -----\n");
+    for (i = 0, cl = svs.clients; i < svs.iNumClients; i++, cl++)
     {
         if (!cl->state)
             continue;
@@ -1141,9 +1146,6 @@ static void SV_Status_f(void) {
         }
 
         Com_Printf("%s", cl->name);
-        // TTimo adding a ^7 to reset the color
-        // NOTE: colored names in status breaks the padding (WONTFIX)
-        Com_Printf("^7");
         l = SV_Strlen(cl->name);
 		if (l <= 16) {
 			l = 16 - l;
@@ -1155,7 +1157,8 @@ static void SV_Status_f(void) {
 
         s = NET_AdrToString(cl->netchan.remoteAddress);
         Com_Printf("%s", s);
-        l = 39 - strlen(s);
+        //l = 39 - strlen(s);
+        l = 22 - strlen(s);
         for (j = 0; j < l; j++)
             Com_Printf(" ");
 
