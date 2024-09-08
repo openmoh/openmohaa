@@ -2222,6 +2222,16 @@ const char* RE_GetModelName(qhandle_t hModel);
 
 /*
 =============================================================
+
+GHOST
+
+=============================================================
+*/
+
+void R_UpdateGhostTextures();
+
+/*
+=============================================================
 =============================================================
 */
 void	R_TransformModelToClip( const vec3_t src, const float *modelMatrix, const float *projectionMatrix,
