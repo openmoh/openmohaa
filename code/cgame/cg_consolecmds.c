@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2023 the OpenMoHAA team
+Copyright (C) 2008-2024 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -160,17 +160,157 @@ baseshader_t *CG_GetShaderUnderCrosshair(qboolean bVerbose, trace_t *pRetTrace)
 
 static void CG_PrintContentTypes(int iContentFlags)
 {
-    // FIXME: unimplemented
+    if (iContentFlags & CONTENTS_SOLID) {
+        cgi.Printf(" solid");
+    }
+    if (iContentFlags & CONTENTS_LAVA) {
+        cgi.Printf(" lava");
+    }
+    if (iContentFlags & CONTENTS_SLIME) {
+        cgi.Printf(" slime");
+    }
+    if (iContentFlags & CONTENTS_WATER) {
+        cgi.Printf(" water");
+    }
+    if (iContentFlags & CONTENTS_FOG) {
+        cgi.Printf(" fog");
+    }
+    if (iContentFlags & CONTENTS_FENCE) {
+        cgi.Printf(" fence");
+    }
+    if (iContentFlags & CONTENTS_AREAPORTAL) {
+        cgi.Printf(" areaportal");
+    }
+    if (iContentFlags & CONTENTS_PLAYERCLIP) {
+        cgi.Printf(" playerclip");
+    }
+    if (iContentFlags & CONTENTS_VEHICLECLIP) {
+        cgi.Printf(" vehicleclip");
+    }
+    if (iContentFlags & CONTENTS_MONSTERCLIP) {
+        cgi.Printf(" monsterclip");
+    }
+    if (iContentFlags & CONTENTS_WEAPONCLIP) {
+        cgi.Printf(" weaponclip");
+    }
+    if (iContentFlags & CONTENTS_SHOOTONLY) {
+        cgi.Printf(" shootableonly");
+    }
+    if (iContentFlags & CONTENTS_ORIGIN) {
+        cgi.Printf(" origin");
+    }
+    if (iContentFlags & CONTENTS_TRANSLUCENT) {
+        cgi.Printf(" trans");
+    }
 }
 
 static void CG_PrintSurfaceProperties(int iSurfaceFlags)
 {
-    // FIXME: unimplemented
+    if (iSurfaceFlags & SURF_NODAMAGE) {
+        cgi.Printf(" nodamage");
+    }
+    if (iSurfaceFlags & SURF_SLICK) {
+        cgi.Printf(" slick");
+    }
+    if (iSurfaceFlags & SURF_SKY) {
+        cgi.Printf(" sky");
+    }
+    if (iSurfaceFlags & SURF_LADDER) {
+        cgi.Printf(" ladder");
+    }
+    if (iSurfaceFlags & SURF_NOIMPACT) {
+        cgi.Printf(" noimpact");
+    }
+    if (iSurfaceFlags & SURF_NOMARKS) {
+        cgi.Printf(" nomarks");
+    }
+    if (iSurfaceFlags & SURF_CASTSHADOW) {
+        cgi.Printf(" castshadow");
+    }
+    if (iSurfaceFlags & SURF_NODRAW) {
+        cgi.Printf(" nodraw");
+    }
+    if (iSurfaceFlags & SURF_NOLIGHTMAP) {
+        cgi.Printf(" nolightmap");
+    }
+    if (iSurfaceFlags & SURF_ALPHASHADOW) {
+        cgi.Printf(" alphashadow");
+    }
+    if (iSurfaceFlags & SURF_NOSTEPS) {
+        cgi.Printf(" nofootsteps");
+    }
+    if (iSurfaceFlags & SURF_NONSOLID) {
+        cgi.Printf(" nonsolid");
+    }
+    if (iSurfaceFlags & SURF_OVERBRIGHT) {
+        cgi.Printf(" overbright");
+    }
+    if (iSurfaceFlags & SURF_BACKSIDE) {
+        cgi.Printf(" backside");
+    }
+    if (iSurfaceFlags & SURF_NODLIGHT) {
+        cgi.Printf(" nodlight");
+    }
+    if (iSurfaceFlags & SURF_HINT) {
+        cgi.Printf(" hint");
+    }
+    if (iSurfaceFlags & SURF_PATCH) {
+        cgi.Printf(" patch");
+    }
 }
 
 static void CG_PrintSurfaceType(int iSurfType)
 {
-    // FIXME: unimplemented
+    switch (iSurfType & MASK_SURF_TYPE) {
+    case SURF_FOLIAGE:
+        cgi.Printf("foliage");
+        break;
+    case SURF_SNOW:
+        cgi.Printf("snow");
+        break;
+    case SURF_CARPET:
+        cgi.Printf("carpet");
+        break;
+    case SURF_SAND:
+        cgi.Printf("sand");
+        break;
+    case SURF_PUDDLE:
+        cgi.Printf("puddle");
+        break;
+    case SURF_GLASS:
+        cgi.Printf("glass");
+        break;
+    case SURF_GRAVEL:
+        cgi.Printf("gravel");
+        break;
+    case SURF_MUD:
+        cgi.Printf("mud");
+        break;
+    case SURF_DIRT:
+        cgi.Printf("dirt");
+        break;
+    case SURF_GRILL:
+        cgi.Printf("metal grill");
+        break;
+    case SURF_GRASS:
+        cgi.Printf("grass");
+        break;
+    case SURF_ROCK:
+        cgi.Printf("rock");
+        break;
+    case SURF_PAPER:
+        cgi.Printf("paper");
+        break;
+    case SURF_WOOD:
+        cgi.Printf("wood");
+        break;
+    case SURF_METAL:
+        cgi.Printf("metal");
+        break;
+    default:
+        cgi.Printf("!!*none specified*!!");
+        break;
+    }
 }
 
 void CG_GetCHShader(void)
@@ -340,65 +480,65 @@ typedef struct {
 } consoleCommand_t;
 
 static consoleCommand_t commands[] = {
-    {"useweaponclass",        &CG_UseWeaponClass_f         },
-    {"weapnext",              &CG_NextWeapon_f             },
-    {"weapprev",              &CG_PrevWeapon_f             },
-    {"uselast",               &CG_UseLastWeapon_f          },
-    {"holster",               &CG_HolsterWeapon_f          },
-    {"weapdrop",              &CG_DropWeapon_f             },
-    {"toggleitem",            &CG_ToggleItem_f             },
-    {"+scores",               &CG_ScoresDown_f             },
-    {"-scores",               &CG_ScoresUp_f               },
-    {"viewpos",               &CG_Viewpos_f                },
-    {"sizeup",                &CG_SizeUp_f                 },
-    {"sizedown",              &CG_SizeDown_f               },
-    {"cg_eventlist",          &CG_EventList_f              },
-    {"cg_eventhelp",          &CG_EventHelp_f              },
-    {"cg_dumpevents",         &CG_DumpEventHelp_f          },
-    {"cg_pendingevents",      &CG_PendingEvents_f          },
-    {"cg_classlist",          &CG_ClassList_f              },
-    {"cg_classtree",          &CG_ClassTree_f              },
-    {"cg_classevents",        &CG_ClassEvents_f            },
-    {"cg_dumpclassevents",    &CG_DumpClassEvents_f        },
-    {"cg_dumpallclasses",     &CG_DumpAllClasses_f         },
-    {"testemitter",           &CG_TestEmitter_f            },
-    {"triggertestemitter",    &CG_TriggerTestEmitter_f     },
-    {"prevemittercommand",    &CG_PrevEmitterCommand_f     },
-    {"nextemittercommand",    &CG_NextEmitterCommand_f     },
-    {"newemittercommand",     &CG_NewEmitterCommand_f      },
-    {"deleteemittercommand",  &CG_DeleteEmitterCommand_f   },
-    {"dumpemitter",           &CG_DumpEmitter_f            },
-    {"loademitter",           &CG_LoadEmitter_f            },
-    {"resetvss",              &CG_ResetVSSSources          },
-    {"getchshader",           &CG_GetCHShader              },
-    {"editchshader",          &CG_EditCHShader             },
-    {"messagemode",           &CG_MessageMode_f            },
-    {"messagemode_all",       &CG_MessageMode_All_f        },
-    {"messagemode_team",      &CG_MessageMode_Team_f       },
-    {"messagemode_private",   &CG_MessageMode_Private_f    },
-    {"say",                   &CG_MessageSingleAll_f       },
-    {"sayteam",               &CG_MessageSingleTeam_f      },
-    {"teamsay",               &CG_MessageSingleTeam_f      },
-    {"sayprivate",            &CG_MessageSingleClient_f    },
-    {"sayone",                &CG_MessageSingleClient_f    },
-    {"wisper",                &CG_MessageSingleClient_f    },
-    {"instamsg_main",         &CG_InstaMessageMain_f       },
-    {"instamsg_group_a",      &CG_InstaMessageGroupA_f     },
-    {"instamsg_group_b",      &CG_InstaMessageGroupB_f     },
-    {"instamsg_group_c",      &CG_InstaMessageGroupC_f     },
-    {"instamsg_group_d",      &CG_InstaMessageGroupD_f     },
-    {"instamsg_group_e",      &CG_InstaMessageGroupE_f     },
-    {"pushmenu_teamselect",   &CG_PushMenuTeamSelect_f     },
-    {"pushmenu_weaponselect", &CG_PushMenuWeaponSelect_f   },
+    {"useweaponclass",         &CG_UseWeaponClass_f        },
+    {"weapnext",               &CG_NextWeapon_f            },
+    {"weapprev",               &CG_PrevWeapon_f            },
+    {"uselast",                &CG_UseLastWeapon_f         },
+    {"holster",                &CG_HolsterWeapon_f         },
+    {"weapdrop",               &CG_DropWeapon_f            },
+    {"toggleitem",             &CG_ToggleItem_f            },
+    {"+scores",                &CG_ScoresDown_f            },
+    {"-scores",                &CG_ScoresUp_f              },
+    {"viewpos",                &CG_Viewpos_f               },
+    {"sizeup",                 &CG_SizeUp_f                },
+    {"sizedown",               &CG_SizeDown_f              },
+    {"cg_eventlist",           &CG_EventList_f             },
+    {"cg_eventhelp",           &CG_EventHelp_f             },
+    {"cg_dumpevents",          &CG_DumpEventHelp_f         },
+    {"cg_pendingevents",       &CG_PendingEvents_f         },
+    {"cg_classlist",           &CG_ClassList_f             },
+    {"cg_classtree",           &CG_ClassTree_f             },
+    {"cg_classevents",         &CG_ClassEvents_f           },
+    {"cg_dumpclassevents",     &CG_DumpClassEvents_f       },
+    {"cg_dumpallclasses",      &CG_DumpAllClasses_f        },
+    {"testemitter",            &CG_TestEmitter_f           },
+    {"triggertestemitter",     &CG_TriggerTestEmitter_f    },
+    {"prevemittercommand",     &CG_PrevEmitterCommand_f    },
+    {"nextemittercommand",     &CG_NextEmitterCommand_f    },
+    {"newemittercommand",      &CG_NewEmitterCommand_f     },
+    {"deleteemittercommand",   &CG_DeleteEmitterCommand_f  },
+    {"dumpemitter",            &CG_DumpEmitter_f           },
+    {"loademitter",            &CG_LoadEmitter_f           },
+    {"resetvss",               &CG_ResetVSSSources         },
+    {"getchshader",            &CG_GetCHShader             },
+    {"editchshader",           &CG_EditCHShader            },
+    {"messagemode",            &CG_MessageMode_f           },
+    {"messagemode_all",        &CG_MessageMode_All_f       },
+    {"messagemode_team",       &CG_MessageMode_Team_f      },
+    {"messagemode_private",    &CG_MessageMode_Private_f   },
+    {"say",                    &CG_MessageSingleAll_f      },
+    {"sayteam",                &CG_MessageSingleTeam_f     },
+    {"teamsay",                &CG_MessageSingleTeam_f     },
+    {"sayprivate",             &CG_MessageSingleClient_f   },
+    {"sayone",                 &CG_MessageSingleClient_f   },
+    {"wisper",                 &CG_MessageSingleClient_f   },
+    {"instamsg_main",          &CG_InstaMessageMain_f      },
+    {"instamsg_group_a",       &CG_InstaMessageGroupA_f    },
+    {"instamsg_group_b",       &CG_InstaMessageGroupB_f    },
+    {"instamsg_group_c",       &CG_InstaMessageGroupC_f    },
+    {"instamsg_group_d",       &CG_InstaMessageGroupD_f    },
+    {"instamsg_group_e",       &CG_InstaMessageGroupE_f    },
+    {"pushmenu_teamselect",    &CG_PushMenuTeamSelect_f    },
+    {"pushmenu_weaponselect",  &CG_PushMenuWeaponSelect_f  },
     // Added in 2.0
-    {"pushcallvote",          &CG_PushCallVote_f           },
-    {"pushcallvotesublist",   &CG_PushCallVoteSubList_f    },
-    {"pushcallvotesubtext",   &CG_PushCallVoteSubText_f    },
-    {"pushcallvotesubinteger",&CG_PushCallVoteSubInteger_f },
-    {"pushcallvotesubfloat",  &CG_PushCallVoteSubFloat_f   },
-    {"pushcallvotesubclient", &CG_PushCallVoteSubClient_f  },
-    {"pushvote",              &CG_PushVote_f               },
-    {"callentryvote",         &CG_CallEntryVote_f          },
+    {"pushcallvote",           &CG_PushCallVote_f          },
+    {"pushcallvotesublist",    &CG_PushCallVoteSubList_f   },
+    {"pushcallvotesubtext",    &CG_PushCallVoteSubText_f   },
+    {"pushcallvotesubinteger", &CG_PushCallVoteSubInteger_f},
+    {"pushcallvotesubfloat",   &CG_PushCallVoteSubFloat_f  },
+    {"pushcallvotesubclient",  &CG_PushCallVoteSubClient_f },
+    {"pushvote",               &CG_PushVote_f              },
+    {"callentryvote",          &CG_CallEntryVote_f         },
 };
 
 /*
