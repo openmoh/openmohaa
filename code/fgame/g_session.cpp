@@ -61,6 +61,7 @@ Called on a reconnect
 void G_ReadClientSessionData( gclient_t *client )
 {
 	cvar_t *session;
+    int teamnum;
 
 	if( g_bNewSession ) {
 		return;
@@ -68,11 +69,12 @@ void G_ReadClientSessionData( gclient_t *client )
 
 	session = gi.Cvar_Get(va("session%zi", client - game.clients), "", 0);
 	
-	sscanf( session->string, "%s %i %i", client->pers.dm_primary, &client->pers.teamnum, &client->pers.round_kills);
+	sscanf( session->string, "%s %i %i", client->pers.dm_primary, &teamnum, &client->pers.round_kills);
 	if( client->pers.dm_primary[ 0 ] == '-' )
 	{
 		client->pers.dm_primary[ 0 ] = 0;
 	}
+    client->pers.teamnum = (teamtype_t)teamnum;
 }
 
 

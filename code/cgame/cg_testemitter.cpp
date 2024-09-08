@@ -561,25 +561,25 @@ void CG_DumpBaseAndAmplitude(str *buff, char *prefix, Vector *base, Vector *ampl
 {
     int i;
 
-    if (amplitude[0] || amplitude[1] || amplitude[2]) {
+    if ((*amplitude)[0] || (*amplitude)[1] || (*amplitude)[2]) {
         *buff += prefix;
 
         for (i = 0; i < 3; i++) {
-            if (!amplitude[i]) {
-                *buff += va(" %g", base[i]);
-            } else if (!base[i]) {
-                *buff += va(" random %g", amplitude[i]);
-            } else if (-base[i] == base[i] + amplitude[i]) {
-                *buff += va(" crandom %g", amplitude[i] * 0.5);
+            if (!(*amplitude)[i]) {
+                *buff += va(" %g", (*base)[i]);
+            } else if (!(*base)[i]) {
+                *buff += va(" random %g", (*amplitude)[i]);
+            } else if (-(*base)[i] == (*base)[i] + (*amplitude)[i]) {
+                *buff += va(" crandom %g", (*amplitude)[i] * 0.5);
             } else {
-                *buff += va(" range %g %g", base[i], amplitude[i]);
+                *buff += va(" range %g %g", (*base)[i], (*amplitude)[i]);
             }
         }
 
         *buff += "\n";
-    } else if (base[0] || base[1] || base[2]) {
+    } else if ((*base)[0] || (*base)[1] || (*base)[2]) {
         *buff += prefix;
-        *buff += va(" %g %g %g\n", base[0], base[1], base[2]);
+        *buff += va(" %g %g %g\n", (*base)[0], (*base)[1], (*base)[2]);
     }
 }
 

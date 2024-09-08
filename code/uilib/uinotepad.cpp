@@ -370,7 +370,7 @@ bool UINotepad::Create(UIWidget *parent, UIRect2D& rect, const char *filename)
     uipd = new uipopup_describe("Save As...(Ctrl-A)", UIP_EVENT, &EV_Notepad_SaveAs, NULL);
     pops->AddObject(uipd);
 
-    uipd = new uipopup_describe(NULL, UIP_SEPARATOR, NULL, NULL);
+    uipd = new uipopup_describe(str(), UIP_SEPARATOR, NULL, NULL);
     pops->AddObject(uipd);
 
     uipd = new uipopup_describe("Close (Ctrl-W)", UIP_EVENT, &UIFloatingWindow::W_ClosePressed, NULL);
@@ -389,7 +389,7 @@ bool UINotepad::Create(UIWidget *parent, UIRect2D& rect, const char *filename)
     uipd = new uipopup_describe("Paste (Ctrl-V)", UIP_EVENT, &EV_Notepad_Paste, NULL);
     pops->AddObject(uipd);
 
-    uipd = new uipopup_describe(NULL, UIP_SEPARATOR, NULL, NULL);
+    uipd = new uipopup_describe(str(), UIP_SEPARATOR, NULL, NULL);
     pops->AddObject(uipd);
 
     uipd = new uipopup_describe("Find (Ctrl-F)", UIP_EVENT, &EV_Notepad_Find, NULL);

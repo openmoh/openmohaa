@@ -10930,7 +10930,7 @@ str Player::TranslateBattleLanguageTokens(const char *string)
     }
 
     if (!string) {
-        return NULL;
+        return str();
     }
 
     if (string[0] != '$') {

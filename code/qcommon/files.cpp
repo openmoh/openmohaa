@@ -534,7 +534,7 @@ static int check_filecase( char *Path ) {
 #else
 	char *ptr;
 	char *filename;
-	char *basedir;
+	const char *basedir;
     DIR* dir;
 
     retval = 0;

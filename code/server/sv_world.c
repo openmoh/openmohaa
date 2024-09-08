@@ -146,7 +146,7 @@ void SV_ClearWorld( void ) {
 	vec3_t			mins, maxs;
 	int				i;
 	int				num;
-	char			name[ 10 ];
+	char			name[ 16 ];
 
 	Com_Memset( sv_worldSectors, 0, sizeof(sv_worldSectors) );
 	sv_numworldSectors = 0;
