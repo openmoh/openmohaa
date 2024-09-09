@@ -18,14 +18,16 @@ You can now start a local OpenMOHAA server or play on a server.
 
 ## User data location
 
-The location of user data, like console logs, saves and config files can be found in different locations depending on the platform:
+The location of user-writable data, like the console logfile, saves and configuration files can be found in different locations depending on the platform:
 
 - `%APPDATA%\openmohaa\<game_name>` on Windows
 - `~/.openmohaa/<game_name>` on Linux
 
-This has two advantages:
+This is by design since ioquake3 and has two advantages:
 - On a multi-user system, each user will have their own configuration file
 - It doesn't overwrite the existing MOHAA configuration in the MOHAA installation directory.
+
+The location of user-writable data can be changed manually by setting the `fs_homepath` variable in the command-line argument. The value can be a relative path (relative to the current working directory) or an absolute path.
 
 Note that the configuration file isn't created nor written automatically on a dedicated server (**omohaaded**).
 
