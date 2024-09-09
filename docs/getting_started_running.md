@@ -27,7 +27,12 @@ This is by design since ioquake3 and has two advantages:
 - On a multi-user system, each user will have their own configuration file
 - It doesn't overwrite the existing MOHAA configuration in the MOHAA installation directory.
 
-The location of user-writable data can be changed manually by setting the `fs_homepath` variable in the command-line argument. The value can be a relative path (relative to the current working directory) or an absolute path.
+The location of user-writable data can be changed manually by setting the `fs_homepath` variable in the command-line argument. This is useful when running a dedicated server that can only use the game directory to store/read data. The value can be a relative path (relative to the current working directory) or an absolute path. Example:
+- `+set fs_homepath Z:\openmohaa_data` data will be written inside the fully qualified path `Z:\openmohaa_data`
+- `+set fs_homepath homedata` will use the subfolder `homedata` in the process current working directory to write data (will be created automatically)
+- `+set fs_homepath .` not recommended, will write data inside the process current working directory
+
+The game directory is intended to be read-only, which is the reason why the home path exists. This prevents existing files in the game directory from being accidentally overwritten.
 
 Note that the configuration file isn't created nor written automatically on a dedicated server (**omohaaded**).
 
