@@ -1219,7 +1219,9 @@ bool DM_Manager::CheckEndMatch()
                 G_BeginIntermission2();
                 return true;
             }
-        } else if (timelimit->integer && level.inttime >= 60000 * timelimit->integer) {
+        }
+
+        if (timelimit->integer && level.inttime >= timelimit->integer * 60000) {
             G_BeginIntermission2();
             return true;
         } else {
