@@ -95,7 +95,7 @@ void ClientSpecialEffectsManager::LoadEffects()
     cgi.DPrintf("Loading Special Effects...\n");
     AxisClear(axis);
 
-    for (i = 0; i < MAX_SPECIAL_EFFECTS; i++) {
+    for (i = 0; i < SFX_COUNT; i++) {
         switch (i) {
         case SFX_BHIT_PAPER_LITE:
             szEffectModel = "models/fx/bh_paper_lite.tik";
@@ -1194,5 +1194,5 @@ qboolean ClientSpecialEffectsManager::EffectsPending()
 
 specialeffect_t *ClientSpecialEffectsManager::GetTestEffectPointer()
 {
-    return &m_effects[SPECIAL_EFFECT_TEST];
+    return &m_effects[SFX_TEST_EFFECT];
 }

@@ -170,12 +170,9 @@ public:
     specialeffectcommand_t *AddNewCommand();
 };
 
-#define MAX_SPECIAL_EFFECTS 99
-#define SPECIAL_EFFECT_TEST MAX_SPECIAL_EFFECTS - 1
-
 class ClientSpecialEffectsManager : public Listener
 {
-    specialeffect_t m_effects[99];
+    specialeffect_t m_effects[SFX_COUNT];
     qboolean        m_bEffectsLoaded;
     int             m_iNumPendingEvents;
 
