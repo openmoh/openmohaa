@@ -1952,6 +1952,7 @@ LIGHTS
 
 void R_DlightBmodel( bmodel_t *bmodel );
 void R_GetLightingGridValue(const vec3_t vPos, vec3_t vLight);
+void R_GetLightingGridValueFast(const vec3_t vPos, vec3_t vLight);
 void R_GetLightingForDecal(vec3_t vLight, const vec3_t vFacing, const vec3_t vOrigin);
 void R_GetLightingForSmoke(vec3_t vLight, const vec3_t vOrigin);
 void R_SetupEntityLighting( const trRefdef_t *refdef, trRefEntity_t *ent );
