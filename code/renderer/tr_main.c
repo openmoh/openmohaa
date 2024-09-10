@@ -1556,7 +1556,6 @@ void R_AddEntitySurfaces (void) {
 			ri.Error( ERR_DROP, "R_AddEntitySurfaces: Bad reType" );
 		}
 	}
-
 }
 
 void R_AddSpriteSurfaces()
@@ -1944,6 +1943,7 @@ void R_RenderView (viewParms_t *parms) {
 	);
 
 	R_DrawDebugLines();
+    R_DebugSkeleton();
 
 	// draw main system development information (surface outlines, etc)
 	R_DebugGraphics();

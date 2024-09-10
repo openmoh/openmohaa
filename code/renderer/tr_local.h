@@ -2187,6 +2187,7 @@ float R_CalcLod(const vec3_t origin, float radius);
 int GetLodCutoff(struct skelHeaderGame_s* skelmodel, float lod_val, int renderfx);
 int GetToolLodCutoff(struct skelHeaderGame_s* skelmodel, float lod_val);
 void R_PrintInfoWorldtris(void);
+void R_DebugSkeleton(void);
 
 extern int g_nStaticSurfaces;
 extern qboolean g_bInfostaticmodels;

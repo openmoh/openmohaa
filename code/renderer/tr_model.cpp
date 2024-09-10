@@ -596,8 +596,6 @@ RB_DrawSkeletor
 ==============
 */
 void RB_DrawSkeletor(trRefEntity_t* ent) {
-	// FIXME: unimplemented
-#if 0
 	int i;
 	dtiki_t		*tiki;
 	skeletor_c	*skeletor;
@@ -702,7 +700,6 @@ void RB_DrawSkeletor(trRefEntity_t* ent) {
 		qglEnd();
 		qglLineWidth( 1 );
 	}
-#endif
 }
 
 surfaceType_t	skelSurface = SF_TIKI_SKEL;
@@ -1561,16 +1558,18 @@ R_DebugSkeleton
 =============
 */
 void R_DebugSkeleton(void) {
-    // FIXME: unimplemented
-#if 0
 	int i;
 	trRefEntity_t *ent;
 	model_t *model;
 
+    if (!r_showSkeleton->integer) {
+        return;
+    }
+
 	R_SyncRenderThread();
 
 	GL_Bind( tr.whiteImage );
-	GL_State( 0x200 );
+	GL_State( GLS_POLYMODE_LINE );
 
 	qglDisableClientState( GL_COLOR_ARRAY );
 	qglDisableClientState( GL_TEXTURE_COORD_ARRAY );
@@ -1587,7 +1586,6 @@ void R_DebugSkeleton(void) {
 			}
 		}
 	}
-#endif
 }
 static float ProjectRadius(float r, const vec3_t location)
 {

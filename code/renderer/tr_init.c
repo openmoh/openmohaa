@@ -1380,6 +1380,12 @@ void R_Register( void )
 	ri.Cmd_AddCommand( "screenshot", R_ScreenShot_f );
 	ri.Cmd_AddCommand( "screenshotJPEG", R_ScreenShotJPEG_f );
 	ri.Cmd_AddCommand( "gfxinfo", GfxInfo_f );
+
+    //
+    // Added in OPM
+    //
+
+    r_showSkeleton = ri.Cvar_Get("r_showSkeleton", "0", CVAR_CHEAT);
 }
 
 void R_InitExtensions() {
