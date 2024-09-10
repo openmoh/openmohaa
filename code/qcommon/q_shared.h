@@ -1172,6 +1172,8 @@ size_t	QDECL Com_sprintf (char *dest, size_t size, const char *fmt, ...) __attri
 
 char *Com_SkipTokens( char *s, int numTokens, const char *sep );
 char *Com_SkipCharset( char *s, const char *sep );
+
+void Com_RandomBytes(byte* string, int len);
 void Com_BackslashToSlash( char *str );
 
 // mode parm for FS_FOpenFile

@@ -2689,6 +2689,56 @@ void Field_AutoComplete(field_t* field)
 }
 
 /*
+==================
+Com_RandomBytes
+
+fills string array with len random bytes, preferably from the OS randomizer
+==================
+*/
+void Com_RandomBytes( byte *string, int len )
+{
+	int i;
+
+	if( Sys_RandomBytes( string, len ) )
+		return;
+
+	Com_Printf( "Com_RandomBytes: using weak randomization\n" );
+	for( i = 0; i < len; i++ )
+		string[i] = (unsigned char)( rand() % 256 );
+}
+
+
+/*
+==================
+Com_IsVoipTarget
+
+Returns non-zero if given clientNum is enabled in voipTargets, zero otherwise.
+If clientNum is negative return if any bit is set.
+==================
+*/
+qboolean Com_IsVoipTarget(uint8_t *voipTargets, int voipTargetsSize, int clientNum)
+{
+	int index;
+	if(clientNum < 0)
+	{
+		for(index = 0; index < voipTargetsSize; index++)
+		{
+			if(voipTargets[index])
+				return qtrue;
+		}
+		
+		return qfalse;
+	}
+
+	index = clientNum >> 3;
+	
+	if(index < voipTargetsSize)
+		return (voipTargets[index] & (1 << (clientNum & 0x07)));
+
+	return qfalse;
+}
+
+/*
 ===============
 Field_CompletePlayerName
 ===============
