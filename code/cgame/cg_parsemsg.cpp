@@ -26,6 +26,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "cg_local.h"
 #include "cg_parsemsg.h"
 #include "cg_specialfx.h"
+#include "cg_radar.h"
 
 #include "str.h"
 
@@ -1626,15 +1627,17 @@ void CG_ParseCGMessage_ver_15()
         case CGM_NOTIFY_KILL:
         case CGM_NOTIFY_HIT:
             {
+                const char* soundName;
                 int iOldEnt;
 
                 iOldEnt               = current_entity_number;
                 current_entity_number = cg.snap->ps.clientNum;
                 if (iType == CGM_NOTIFY_HIT) {
-                    commandManager.PlaySound("dm_kill_notify", NULL, CHAN_LOCAL, 2.0, -1, -1, 1);
+                    soundName = "dm_kill_notify";
                 } else {
-                    commandManager.PlaySound("dm_hit_notify", NULL, CHAN_LOCAL, 2.0, -1, -1, 1);
+                    soundName = "dm_hit_notify";
                 }
+                commandManager.PlaySound(soundName, NULL, CHAN_LOCAL, 2.0, -1, -1, 1);
 
                 current_entity_number = iOldEnt;
             }
@@ -1656,13 +1659,14 @@ void CG_ParseCGMessage_ver_15()
                 if (iLarge) {
                     current_entity_number = iInfo;
 
-                    commandManager.PlaySound(szTmp, vStart, CHAN_LOCAL, -1, -1, -1, 0);
-                } else {
+                    commandManager.PlaySound(szTmp, vStart, CHAN_AUTO, -1, -1, -1, 0);
+                } else if (cg.snap) {
                     current_entity_number = cg.snap->ps.clientNum;
 
-                    commandManager.PlaySound(szTmp, vStart, CHAN_AUTO, -1, -1, -1, 1);
+                    commandManager.PlaySound(szTmp, vStart, CHAN_LOCAL, -1, -1, -1, 1);
                 }
 
+                CG_RadarClientSpeaks(iInfo);
                 current_entity_number = iOldEnt;
             }
             break;
@@ -1706,9 +1710,6 @@ void CG_ParseCGMessage_ver_15()
 
                     sfxManager.MakeEffect_Normal(SFX_FENCE_WOOD, vOrg, vNormal);
                 }
-
-                // FIXME: unimplemented
-                // ?? can't figure out what is this
             }
             break;
         default:
