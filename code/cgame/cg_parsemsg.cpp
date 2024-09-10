@@ -866,7 +866,8 @@ void CG_AddBulletImpacts()
                         fVolume = 0.75f;
                     }
 
-                    if (wall_impact_type[iImpSndIndexRA] == SFX_BHIT_WOOD_LITE || wall_impact_type[iImpSndIndexRA] == SFX_BHIT_WOOD_HARD) {
+                    if (wall_impact_type[iImpSndIndexRA] == SFX_BHIT_WOOD_LITE
+                        || wall_impact_type[iImpSndIndexRA] == SFX_BHIT_WOOD_HARD) {
                         sSoundName = "snd_bh_metal";
                     } else {
                         sSoundName = "snd_bh_wood";
@@ -897,7 +898,8 @@ void CG_AddBulletImpacts()
                             fVolume = 0.75f;
                         }
 
-                        if (wall_impact_type[iImpSndIndexRB] == SFX_BHIT_WOOD_LITE || wall_impact_type[iImpSndIndexRB] == SFX_BHIT_WOOD_HARD) {
+                        if (wall_impact_type[iImpSndIndexRB] == SFX_BHIT_WOOD_LITE
+                            || wall_impact_type[iImpSndIndexRB] == SFX_BHIT_WOOD_HARD) {
                             sSoundName = "snd_bh_metal";
                         } else {
                             sSoundName = "snd_bh_wood";
@@ -952,7 +954,8 @@ void CG_AddBulletImpacts()
                         fVolume = 0.75f;
                     }
 
-                    if (wall_impact_type[iImpSndIndexLB] == SFX_BHIT_WOOD_LITE || wall_impact_type[iImpSndIndexLB] == SFX_BHIT_WOOD_HARD) {
+                    if (wall_impact_type[iImpSndIndexLB] == SFX_BHIT_WOOD_LITE
+                        || wall_impact_type[iImpSndIndexLB] == SFX_BHIT_WOOD_HARD) {
                         sSoundName = "snd_bh_metal";
                     } else {
                         sSoundName = "snd_bh_wood";
@@ -1664,18 +1667,49 @@ void CG_ParseCGMessage_ver_15()
             }
             break;
         case CGM_FENCEPOST:
-            vStart[0] = cgi.MSG_ReadCoord();
-            vStart[1] = cgi.MSG_ReadCoord();
-            vStart[2] = cgi.MSG_ReadCoord();
-            vEnd[0]   = cgi.MSG_ReadCoord();
-            vEnd[1]   = cgi.MSG_ReadCoord();
-            vEnd[2]   = cgi.MSG_ReadCoord();
-            cgi.MSG_ReadByte();
-            cgi.MSG_ReadByte();
-            VectorSubtract(vEnd, vStart, vTmp);
+            {
+                int    iHalf;
+                vec3_t vForward, vRight, vUp;
+                float  fLength;
 
-            // FIXME: unimplemented
-            // ?? can't figure out what is this
+                vStart[0] = cgi.MSG_ReadCoord();
+                vStart[1] = cgi.MSG_ReadCoord();
+                vStart[2] = cgi.MSG_ReadCoord();
+                vEnd[0]   = cgi.MSG_ReadCoord();
+                vEnd[1]   = cgi.MSG_ReadCoord();
+                vEnd[2]   = cgi.MSG_ReadCoord();
+                iHalf     = cgi.MSG_ReadByte();
+                cgi.MSG_ReadByte();
+
+                VectorSubtract(vEnd, vStart, vForward);
+                fLength = VectorNormalize(vForward);
+                iCount  = fLength / 2.0;
+
+                MakeNormalVectors(vForward, vRight, vUp);
+
+                for (i = 0; i < iCount; i++) {
+                    vec3_t vOrg;
+                    vec3_t vNormal;
+
+                    VectorCopy(vStart, vOrg);
+
+                    VectorMA(vOrg, random(), vForward, vOrg);
+                    VectorMA(vOrg, crandom() * iHalf, vRight, vOrg);
+                    VectorMA(vOrg, crandom() * iHalf, vUp, vOrg);
+
+                    //
+                    // Spawn the fence wood effect
+                    //
+
+                    VectorSubtract(vStart, vOrg, vNormal);
+                    VectorNormalize(vNormal);
+
+                    sfxManager.MakeEffect_Normal(SFX_FENCE_WOOD, vOrg, vNormal);
+                }
+
+                // FIXME: unimplemented
+                // ?? can't figure out what is this
+            }
             break;
         default:
             cgi.Error(ERR_DROP, "CG_ParseCGMessage: Unknown CGM message type");
