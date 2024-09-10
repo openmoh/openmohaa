@@ -341,8 +341,89 @@ void RE_AddLightToScene( const vec3_t org, float intensity, float r, float g, fl
 	RE_AddDynamicLightToScene( org, intensity, r, g, b, type );
 }
 
+/*
+=====================
+R_AddLightGridSurfacesToScene
+
+Draw small dots to make a grid.
+A dot matches the calculated color of the light at its location
+=====================
+*/
 void R_AddLightGridSurfacesToScene() {
-	// FIXME: unimplemented
+    vec3_t vMin, vMax;
+    vec3_t vPos;
+    vec3_t vLight;
+    int i;
+    qhandle_t hShader;
+    polyVert_t verts[4];
+
+    if (!tr.world) {
+        return;
+    }
+    if (!tr.world->lightGridData) {
+        return;
+    }
+    if (!tr.world->lightGridOffsets) {
+        return;
+    }
+
+    hShader = RE_RegisterShader("showgrid");
+    R_GetShaderByHandle(hShader);
+
+    for (i = 0; i < 3; i++) {
+        vMin[i] = tr.world->lightGridMins[i] + floor((tr.refdef.vieworg[i] - 256.0 - tr.world->lightGridMins[i]) * tr.world->lightGridOOSize[i]) * tr.world->lightGridSize[i];
+        vMax[i] = tr.world->lightGridMins[i] + floor((tr.refdef.vieworg[i] + 256.0 - tr.world->lightGridMins[i]) * tr.world->lightGridOOSize[i]) * tr.world->lightGridSize[i];
+    }
+
+    for (vPos[2] = vMin[2]; vPos[2] < vMax[2]; vPos[2] += tr.world->lightGridSize[2]) {
+        for (vPos[1] = vMin[1]; vPos[1] < vMax[1]; vPos[1] += tr.world->lightGridSize[1]) {
+            for (vPos[0] = vMin[0]; vPos[0] < vMax[0]; vPos[0] += tr.world->lightGridSize[0]) {
+                R_GetLightingGridValueFast(vPos, vLight);
+
+                verts[0].xyz[0] = vPos[0] - 2.0;
+                verts[0].xyz[1] = vPos[1] - 2.0;
+                verts[0].xyz[2] = vPos[2];
+                verts[0].st[0] = 0.0;
+                verts[0].st[1] = 0.0;
+                verts[0].modulate[0] = vLight[0];
+                verts[0].modulate[1] = vLight[1];
+                verts[0].modulate[2] = vLight[2];
+                verts[0].modulate[3] = 0xff;
+
+                verts[1].xyz[0] = vPos[0] + 2.0;
+                verts[1].xyz[1] = vPos[1] - 2.0;
+                verts[1].xyz[2] = vPos[2];
+                verts[1].st[0] = 0.0;
+                verts[1].st[1] = 1.0;
+                verts[1].modulate[0] = vLight[0];
+                verts[1].modulate[1] = vLight[1];
+                verts[1].modulate[2] = vLight[2];
+                verts[1].modulate[3] = 0xff;
+
+                verts[2].xyz[0] = vPos[0] + 2.0;
+                verts[2].xyz[1] = vPos[1] + 2.0;
+                verts[2].xyz[2] = vPos[2];
+                verts[2].st[0] = 1.0;
+                verts[2].st[1] = 1.0;
+                verts[2].modulate[0] = vLight[0];
+                verts[2].modulate[1] = vLight[1];
+                verts[2].modulate[2] = vLight[2];
+                verts[2].modulate[3] = 0xff;
+
+                verts[3].xyz[0] = vPos[0] - 2.0;
+                verts[3].xyz[1] = vPos[1] + 2.0;
+                verts[3].xyz[2] = vPos[2];
+                verts[3].st[0] = 1.0;
+                verts[3].st[1] = 0.0;
+                verts[3].modulate[0] = vLight[0];
+                verts[3].modulate[1] = vLight[1];
+                verts[3].modulate[2] = vLight[2];
+                verts[3].modulate[3] = 0xff;
+
+                RE_AddPolyToScene(hShader, 4, verts, 0);
+            }
+        }
+    }
 }
 
 /*
