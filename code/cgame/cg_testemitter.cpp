@@ -1176,10 +1176,10 @@ void CG_DumpEmitter_f(void)
             buff +=
                 va("%s\tspawnrange %i %i\n",
                    sTabbing.c_str(),
-                   sqrt(pCurrSpawnthing->fMinRangeSquared),
-                   sqrt(pCurrSpawnthing->fMaxRangeSquared));
+                   (int)sqrt(pCurrSpawnthing->fMinRangeSquared),
+                   (int)sqrt(pCurrSpawnthing->fMaxRangeSquared));
         } else if (pCurrSpawnthing->fMaxRangeSquared > 0) {
-            buff += va("%s\tspawnrange %i\n", sTabbing.c_str(), sqrt(pCurrSpawnthing->fMaxRangeSquared));
+            buff += va("%s\tspawnrange %i\n", sTabbing.c_str(), (int)sqrt(pCurrSpawnthing->fMaxRangeSquared));
         }
 
         if (pCurrSpawnthing->cgd.flags2 & T2_VOLUMETRIC) {
@@ -1441,7 +1441,13 @@ void CG_DumpEmitter_f(void)
 }
 
 void CG_LoadBaseAndAmplitude(
-    char **pBufer, char *szCvarX, char *szCvarY, char *szCvarZ, char *szCvarXAmp, char *szCvarYAmp, char *szCvarZAmp
+    char      **pBufer,
+    const char *szCvarX,
+    const char *szCvarY,
+    const char *szCvarZ,
+    const char *szCvarXAmp,
+    const char *szCvarYAmp,
+    const char *szCvarZAmp
 )
 {
     char com_token[MAX_TOKEN_CHARS];

@@ -3832,10 +3832,10 @@ CL_ServerStatusResponse
 ===================
 */
 void CL_ServerStatusResponse( netadr_t from, msg_t *msg ) {
-	char	*s;
-	char	info[MAX_INFO_STRING];
-	int		i, l, score, ping;
-	int		len;
+	const char	*s;
+	char		info[MAX_INFO_STRING];
+	int			i, l, score, ping;
+	int			len;
 	serverStatus_t *serverStatus;
 
 	serverStatus = NULL;
