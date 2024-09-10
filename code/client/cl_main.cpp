@@ -167,8 +167,6 @@ void CL_ShowIP_f(void);
 void CL_ServerStatus_f(void);
 void CL_ServerStatusResponse( netadr_t from, msg_t *msg );
 
-void CL_GamespyServers_f( void );
-
 static qboolean cl_bCLSystemStarted = qfalse;
 
 /*
@@ -3460,7 +3458,6 @@ void CL_Init( void ) {
 	Cmd_AddCommand ("reconnect", CL_Reconnect_f);
 	Cmd_AddCommand ("localservers", CL_LocalServers_f);
 	Cmd_AddCommand ("globalservers", CL_GlobalServers_f);
-	Cmd_AddCommand ("refreshserverlist", CL_GamespyServers_f); // wombat: gamespy query
 	Cmd_AddCommand ("rcon", CL_Rcon_f);
 	Cmd_AddCommand ("setenv", CL_Setenv_f );
 	Cmd_AddCommand ("ping", CL_Ping_f );
@@ -3968,126 +3965,6 @@ void CL_LocalServers_f( void ) {
 		}
 	}
 }
-
-/*
-==================
-CL_GamespyServers_f
-==================
-*/
-// currently about 1000 mohaa servers at a time. when set higher, buffer must be increased!
-#define MAX_GAMESPYSERVERS	16
-
-void CL_GamespyServers_f( void ) {
-	// FIXME: unimplemented
-#if 0
-	char buffer[10240];
-	int bytesRead;
-
-	int				i, count, max, total;
-	serverAddress_t addresses[MAX_GAMESPYSERVERS];
-	int				numservers;
-	byte*			buffptr;
-	byte*			buffend;
-
-//	if ( Cmd_Argc() < 1) {
-//		Com_Printf( "usage: gamespyservers [keywords]\n");
-//		return;
-//	}
-
-	Com_Printf( "Requesting servers from the GameSpy master...\n" );
-	Cvar_Set( "dm_serverstatus", "Getting List.");
-
-
-	if (!NETGS_CreateMasterSocket()) {
-		Com_Printf( "CL_GamespyServers_f: could not create socket.\n" );
-		return;
-	}
-	if (!NETGS_SendMasterRequest()) {
-		Com_Printf( "CL_GamespyServers_f: could not send master request.\n" );
-		return;
-	}
-	bytesRead = NETGS_ReceiveMasterResponse( buffer, sizeof(buffer) );
-	if (!bytesRead) {
-		Com_Printf( "CL_GamespyServers_f: Error in Response.\n" );
-		return;
-	}
-
-	// parse through server response string
-	numservers = 0;
-	buffptr    = ( byte * )buffer;
-	buffend    = buffptr + bytesRead;
-
-	while (buffptr+1 < buffend) {
-		if ( buffptr >= buffend - 6 ) {
-			break;
-		}
-
-		// parse out ip
-		addresses[numservers].ip[0] = *buffptr++;
-		addresses[numservers].ip[1] = *buffptr++;
-		addresses[numservers].ip[2] = *buffptr++;
-		addresses[numservers].ip[3] = *buffptr++;
-
-		// parse out port
-		addresses[numservers].port = *buffptr++;
-		addresses[numservers].port += (*buffptr++) << 8;
-
-		Com_DPrintf( "server: %d ip: %d.%d.%d.%d:%d\n",numservers,
-				addresses[numservers].ip[0],
-				addresses[numservers].ip[1],
-				addresses[numservers].ip[2],
-				addresses[numservers].ip[3],
-				BigShort(addresses[numservers].port) );
-
-		numservers++;
-		if (numservers >= MAX_GAMESPYSERVERS) {
-			break;
-		}
-
-		// parse out "\\final\\"
-		if (buffptr[0] == '\\' && buffptr[1] == 'f' && buffptr[2] == 'i' && buffptr[3] == 'n' && buffptr[4] == 'a' && buffptr[6] == 'l' && buffptr[6] == '\\') {
-			break;
-		}
-	}
-
-	cls.numglobalservers = 0;
-	cls.numGlobalServerAddresses = 0;
-
-	count = cls.numglobalservers;
-	max = MAX_GLOBAL_SERVERS;
-	for (i = 0; i < numservers && count < max; i++) {
-		// build net address
-		serverInfo_t *server = &cls.globalServers[count];
-
-		CL_InitServerInfo( server, &addresses[i] );
-		// advance to next slot
-		count++;
-	}
-
-
-	if ( cls.numGlobalServerAddresses < MAX_GLOBAL_SERVERS ) {
-		// if we couldn't store the servers in the main list anymore
-		for (; i < numservers && count >= max; i++) {
-			serverAddress_t *addr;
-			// just store the addresses in an additional list
-			addr = &cls.globalServerAddresses[cls.numGlobalServerAddresses++];
-			addr->ip[0] = addresses[i].ip[0];
-			addr->ip[1] = addresses[i].ip[1];
-			addr->ip[2] = addresses[i].ip[2];
-			addr->ip[3] = addresses[i].ip[3];
-			addr->port  = addresses[i].port;
-		}
-	}
-
-	cls.numglobalservers = count;
-	total = count + cls.numGlobalServerAddresses;
-
-	Com_Printf("%d servers parsed (total %d)\n", numservers, total);
-	Cvar_Set( "dm_serverstatus", "Server List Received.");
-	Cvar_SetValue( "dm_servercount", total );
-#endif
-}
-
 
 /*
 ==================
