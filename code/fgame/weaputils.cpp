@@ -2186,7 +2186,6 @@ float BulletAttack(
                 );
 
                 vTmpEnd = trace.endpos;
-                vTraceEnd = vTmpEnd;
 
                 if (bThroughThing) {
                     bThroughThing = qfalse;
@@ -2356,6 +2355,7 @@ float BulletAttack(
                 if (trace.fraction < 1.0f) {
                     if (trace.surfaceFlags & (SURF_FOLIAGE | SURF_GLASS | SURF_PUDDLE | SURF_PAPER)
                         || trace.contents & (CONTENTS_CLAYPIDGEON | CONTENTS_WATER)
+                        || (g_protocol < protocol_e::PROTOCOL_MOHTA && trace.startsolid)
                         || (bulletlarge && trace.ent && trace.ent->r.contents & CONTENTS_BBOX && !trace.ent->r.bmodel
                             && trace.ent->entity->takedamage)
                         || ((trace.surfaceFlags & SURF_WOOD) && bulletthroughwood)
@@ -2420,12 +2420,12 @@ float BulletAttack(
                         trace.fraction = 1.f;
                         bBulletDone    = qtrue;
                     }
+                }
 
-                    if (oldfrac != trace.fraction) {
-                        oldfrac = trace.fraction;
-                    } else {
-                        trace.fraction = 1.f;
-                    }
+                if (oldfrac != trace.fraction) {
+                    oldfrac = trace.fraction;
+                } else {
+                    trace.fraction = 1.f;
                 }
             }
         }
@@ -2442,7 +2442,7 @@ float BulletAttack(
             );
         }
 
-        VectorCopy(vTraceEnd, vEndArray[i]);
+        VectorCopy(vTmpEnd, vEndArray[i]);
 
         if (iTracerFrequency && piTracerCount) {
             (*piTracerCount)++;
@@ -2471,7 +2471,7 @@ float BulletAttack(
         }
     }
 
-    gi.SetBroadcastVisible(start, trace.endpos);
+    gi.SetBroadcastVisible(start, vEndArray[0]);
 
     if (count == 1) {
         if (iTracerCount) {
@@ -2487,9 +2487,9 @@ float BulletAttack(
         gi.MSG_WriteCoord(start[0]);
         gi.MSG_WriteCoord(start[1]);
         gi.MSG_WriteCoord(start[2]);
-        gi.MSG_WriteCoord(trace.endpos[0]);
-        gi.MSG_WriteCoord(trace.endpos[1]);
-        gi.MSG_WriteCoord(trace.endpos[2]);
+        gi.MSG_WriteCoord(vEndArray[0][0]);
+        gi.MSG_WriteCoord(vEndArray[0][1]);
+        gi.MSG_WriteCoord(vEndArray[0][2]);
         gi.MSG_WriteBits(bulletlarge, bulletbits);
 
         if (g_protocol >= protocol_e::PROTOCOL_MOHTA_MIN) {
