@@ -163,7 +163,11 @@ static qboolean	R_CullSurface( surfaceType_t *surface, shader_t *shader ) {
 	return qfalse;
 }
 
-
+/*
+======================
+R_FastDlightFace
+======================
+*/
 static int R_FastDlightFace( srfSurfaceFace_t *face, int dlightBits ) {
 	float		d;
 	int			i;
@@ -189,6 +193,11 @@ static int R_FastDlightFace( srfSurfaceFace_t *face, int dlightBits ) {
 	return dlightBits;
 }
 
+/*
+======================
+R_FastDlightGrid
+======================
+*/
 static int R_FastDlightGrid( srfGridMesh_t *grid, int dlightBits ) {
 	int			i;
 	dlight_t	*dl;
@@ -217,11 +226,45 @@ static int R_FastDlightGrid( srfGridMesh_t *grid, int dlightBits ) {
 	return dlightBits;
 }
 
+/*
+======================
+R_FastDlightTerrain
+======================
+*/
 static int R_FastDlightTerrain(cTerraPatchUnpacked_t* srf, int dlightBits) {
-	// FIXME: unimplemented
-	return 0;
+    dlight_t* dl;
+    float* origin;
+    int i;
+
+    for (i = 0; i < tr.refdef.num_dlights; i++) {
+        dl = &tr.refdef.dlights[i];
+        origin = dl->transformed;
+
+        if (srf->x0 - origin[0] > dl->radius
+            || srf->x0 - origin[0] < -512.0 - dl->radius
+            || srf->y0 - origin[1] > dl->radius
+            || srf->y0 - origin[1] < -512.0 - dl->radius
+            || srf->z0 - origin[2] > dl->radius
+            || srf->z0 - origin[2] < -srf->zmax - dl->radius
+            ) {
+            // dlight doesn't reach the bounds
+            dlightBits &= ~(1 << i);
+        }
+    }
+
+    if (!dlightBits) {
+        tr.pc.c_dlightSurfacesCulled++;
+    }
+
+    srf->drawinfo.dlightBits[tr.smpFrame] = dlightBits;
+    return dlightBits;
 }
 
+/*
+======================
+R_DlightTrisurf
+======================
+*/
 static int R_DlightTrisurf( srfTriangles_t *surf, int dlightBits ) {
 	// FIXME: more dlight culling to trisurfs...
 	surf->dlightBits[ tr.smpFrame ] = dlightBits;
@@ -305,6 +348,11 @@ static int R_DlightSurface( msurface_t *surf, int dlightBits ) {
 	return dlightMap;
 }
 
+/*
+======================
+R_DlightTerrain
+======================
+*/
 int R_DlightTerrain(cTerraPatchUnpacked_t* surf, int dlightBits)
 {
 	int dlightMap;
@@ -326,6 +374,11 @@ int R_DlightTerrain(cTerraPatchUnpacked_t* surf, int dlightBits)
     return dlightMap;
 }
 
+/*
+======================
+R_CheckDlightSurface
+======================
+*/
 static int R_CheckDlightSurface(msurface_t* surf, int dlightBits)
 {
     if (dlightBits && surf->frameCount != tr.frameCount)
@@ -348,12 +401,25 @@ static int R_CheckDlightSurface(msurface_t* surf, int dlightBits)
     return 0;
 }
 
+/*
+======================
+R_CheckDlightTerrain
+======================
+*/
 int R_CheckDlightTerrain(cTerraPatchUnpacked_t* surf, int dlightBits)
 {
-	// FIXME: unimplemented
-	return 0;
+    if (dlightBits && surf->frameCount != tr.frameCount)
+    {
+        surf->frameCount = tr.frameCount;
+        return R_DlightTerrain(surf, dlightBits);
+    }
+    else
+    {
+        surf->drawinfo.dlightMap[tr.smpFrame] = 0;
+        surf->drawinfo.dlightBits[tr.smpFrame] = 0;
+        return 0;
+    }
 }
-
 
 /*
 ======================
