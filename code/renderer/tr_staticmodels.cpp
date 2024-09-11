@@ -685,7 +685,7 @@ void R_PrintInfoStaticModels()
     for (i = 0; i < tr.world->numStaticModels; i++) {
         SM = &tr.world->staticModels[i];
         if (!SM->bRendered) {
-            break;
+            continue;
         }
 
         SM->bRendered = qfalse;
@@ -712,6 +712,8 @@ void R_PrintInfoStaticModels()
             tikis[count]      = SM->tiki;
             pSM[count]        = SM;
             tiki_count[count] = 1;
+
+            count++;
         }
     }
 
