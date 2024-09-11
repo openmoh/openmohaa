@@ -852,7 +852,6 @@ void R_DrawFloatingString_sgl(fontheader_sgl_t* font, const char* text, const ve
 }
 
 void R_DrawFloatingString(fontheader_t* font, const char* text, const vec3_t org, const vec4_t color, float scale, int maxlen) {
-    // FIXME: unimplemented
     return R_DrawFloatingString_sgl(font->sgl[0], text, org, color, scale, maxlen);
 }
 
