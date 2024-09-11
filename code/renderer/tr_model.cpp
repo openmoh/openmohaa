@@ -28,7 +28,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define	LL(x) x=LittleLong(x)
 
-qboolean g_bInfoworldtris;
+qboolean g_bInfoworldtris = qfalse;
+static int entityNumIndexes[MAX_ENTITIES];
+static int staticModelNumIndexes[4095];
+
 static int R_CullSkelModel(dtiki_t* tiki, refEntity_t* e, skelAnimFrame_t* newFrame, float fScale, float* vLocalOrg);
 
 /*
@@ -1471,7 +1474,16 @@ R_InfoWorldTris_f
 =============
 */
 void R_InfoWorldTris_f( void ) {
-    // FIXME: unimplemented
+    int i;
+
+    g_bInfoworldtris = qtrue;
+
+    for (i = 0; i < ARRAY_LEN(entityNumIndexes); i++) {
+        entityNumIndexes[i] = 0;
+    }
+    for (i = 0; i < ARRAY_LEN(staticModelNumIndexes); i++) {
+        staticModelNumIndexes[i] = 0;
+    }
 }
 
 /*
@@ -1480,7 +1492,44 @@ R_PrintInfoWorldtris
 =============
 */
 void R_PrintInfoWorldtris( void ) {
-	// FIXME: unimplemented
+    int i;
+    int numTris;
+    int totalNumTris;
+    dtiki_t* tiki;
+    skelHeaderGame_t* skelmodel;
+
+    totalNumTris = 0;
+
+    for (i = 0; i < ARRAY_LEN(entityNumIndexes); i++) {
+        numTris = entityNumIndexes[i] / 3;
+        if (!numTris) {
+            continue;
+        }
+
+        totalNumTris += numTris;
+        tiki = backEnd.refdef.entities[i].e.tiki;
+        skelmodel = TIKI_GetSkel(tiki->mesh[0]);
+        Com_Printf("ent: %i, tris: %i, %s, version: %i\n", i, numTris, tiki->a->name, skelmodel->version);
+    }
+
+    Com_Printf("total entity tris: %i\n\n", totalNumTris);
+
+    totalNumTris = 0;
+
+
+    for (i = 0; i < ARRAY_LEN(entityNumIndexes); i++) {
+        numTris = staticModelNumIndexes[i] / 3;
+        if (!numTris) {
+            continue;
+        }
+
+        totalNumTris += numTris;
+        tiki = backEnd.refdef.staticModels[i].tiki;
+        skelmodel = TIKI_GetSkel(tiki->mesh[0]);
+        Com_Printf("sm: %i, tris: %i, %s, version: %i\n", i, numTris, tiki->a->name, skelmodel->version);
+    }
+
+    Com_Printf("total static model tris: %i\n\n", totalNumTris);
 }
 
 /*
@@ -1596,6 +1645,12 @@ void R_DebugSkeleton(void) {
 		}
 	}
 }
+
+/*
+=============
+ProjectRadius
+=============
+*/
 static float ProjectRadius(float r, const vec3_t location)
 {
 	Vector separation;
@@ -1607,10 +1662,16 @@ static float ProjectRadius(float r, const vec3_t location)
 	return fabs(r) * (100.0 / tr.viewParms.fovX) / projectedRadius;
 }
 
+/*
+=============
+R_CalcLod
+=============
+*/
 float R_CalcLod(const vec3_t origin, float radius)
 {
 	return ProjectRadius(radius, origin);
 }
+
 /*
 =============
 R_CullTIKI
