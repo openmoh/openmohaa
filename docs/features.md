@@ -9,14 +9,15 @@ A lot of bugs and exploits from MOH:AA were fixed in OpenMoHAA (BOF exploit, gre
 - Features from ioquake3
 - IPv6 support (from ioquake3)
 - Features from MOH: Spearhead 2.15 and MOH: Breakthrough 2.40
+- Demo recording
 
 ### Server-side
 
 - Bots
-- Demo recording
 - IP ban (from ioquake3)
 - More script commands for mods
 - Non-PVS optimization
+- Packet flood protection
 - Spectate players in first-person
 
 #### Non-PVS optimization
@@ -32,7 +33,6 @@ Enable this feature with `set sv_netoptimize 2`.
 - Fixes from SH 2.15, BT 2.40 and ioquake3
 - Buffer overflow fixes
 - Directory traversal fix
-- Packet flood protection
 
 ### Server-side
 
