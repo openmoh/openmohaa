@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2015-2024 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -25,39 +25,38 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "tr_local.h"
 #include "tiki.h"
 
-#define MAX_STATIC_MODELS_SURFS		8192
+#define MAX_STATIC_MODELS_SURFS    8192
+#define MAX_DISTINCT_STATIC_MODELS 1000
 
-int g_nStaticSurfaces;
+int             g_nStaticSurfaces;
 staticSurface_t g_staticSurfaces[MAX_STATIC_MODELS_SURFS];
-qboolean g_bInfostaticmodels = qfalse;
+qboolean        g_bInfostaticmodels = qfalse;
 
 /*
 ==============
 R_InitStaticModels
 ==============
 */
-void R_InitStaticModels(void) {
-    cStaticModelUnpacked_t* pSM;
-    char	szTemp[1024];
-    bool	exists;
-    skelBoneCache_t		bones[128];
-    float	radius;
-    int		i, j, k, l;
+void R_InitStaticModels(void)
+{
+    cStaticModelUnpacked_t *pSM;
+    char                    szTemp[1024];
+    bool                    exists;
+    skelBoneCache_t         bones[128];
+    float                   radius;
+    int                     i, j, k, l;
 
     g_bInfostaticmodels = qfalse;
 
-    if (tr.overbrightShift)
-    {
-        for (i = 0; i < tr.world->numStaticModelData; i++)
-        {
-            int		r, g, b;
+    if (tr.overbrightShift) {
+        for (i = 0; i < tr.world->numStaticModelData; i++) {
+            int r, g, b;
 
             r = (int)((float)tr.world->staticModelData[i * 4] * tr.overbrightMult);
             g = (int)((float)tr.world->staticModelData[i * 4 + 1] * tr.overbrightMult);
             b = (int)((float)tr.world->staticModelData[i * 4 + 2] * tr.overbrightMult);
 
-            if (r > 0xFF || g > 0xFF || b > 0xFF)
-            {
+            if (r > 0xFF || g > 0xFF || b > 0xFF) {
                 float t;
 
                 t = 255.0 / (float)Q_max(r, Q_max(g, b));
@@ -67,14 +66,13 @@ void R_InitStaticModels(void) {
                 b = (int)((float)b * t);
             }
 
-            tr.world->staticModelData[i * 4] = r;
+            tr.world->staticModelData[i * 4]     = r;
             tr.world->staticModelData[i * 4 + 1] = g;
             tr.world->staticModelData[i * 4 + 2] = b;
         }
     }
 
-    for (i = 0; i < tr.world->numStaticModels; i++)
-    {
+    for (i = 0; i < tr.world->numStaticModels; i++) {
         vec3_t mins, maxs;
 
         pSM = &tr.world->staticModels[i];
@@ -84,13 +82,12 @@ void R_InitStaticModels(void) {
 
         if (!strnicmp(pSM->model, "models", 6)) {
             strcpy(szTemp, pSM->model);
-        }
-        else {
+        } else {
             sprintf(szTemp, "models/%s", pSM->model);
         }
 
         FS_CanonicalFilename(szTemp);
-        exists = TIKI_FindTiki(szTemp) != NULL;
+        exists    = TIKI_FindTiki(szTemp) != NULL;
         pSM->tiki = TIKI_RegisterTiki(szTemp);
 
         if (!pSM->tiki) {
@@ -103,17 +100,21 @@ void R_InitStaticModels(void) {
         //
         // register shaders
         //
-        for (j = 0; j < pSM->tiki->num_surfaces; j++)
-        {
-            dtikisurface_t* surf = &pSM->tiki->surfaces[j];
+        for (j = 0; j < pSM->tiki->num_surfaces; j++) {
+            dtikisurface_t *surf = &pSM->tiki->surfaces[j];
 
-            for (k = 0; k < surf->numskins; k++)
-            {
+            for (k = 0; k < surf->numskins; k++) {
                 if (surf->shader[k][0]) {
-                    shader_t* sh = R_FindShader(surf->shader[k], -1, !(surf->flags & TIKI_SURF_NOMIPMAPS), !(surf->flags & TIKI_SURF_NOPICMIP), qtrue, qtrue);
+                    shader_t *sh = R_FindShader(
+                        surf->shader[k],
+                        -1,
+                        !(surf->flags & TIKI_SURF_NOMIPMAPS),
+                        !(surf->flags & TIKI_SURF_NOPICMIP),
+                        qtrue,
+                        qtrue
+                    );
                     surf->hShader[k] = sh->index;
-                }
-                else {
+                } else {
                     surf->hShader[k] = 0;
                 }
             }
@@ -126,12 +127,10 @@ void R_InitStaticModels(void) {
         // Suggestion:
         // It would be cool to have animated static model in the future
 
-        if (!exists)
-        {
-            for (j = 0; j < pSM->tiki->numMeshes; j++)
-            {
-                skelHeaderGame_t* skelmodel = TIKI_GetSkel(pSM->tiki->mesh[j]);
-                skelSurfaceGame_t* surf;
+        if (!exists) {
+            for (j = 0; j < pSM->tiki->numMeshes; j++) {
+                skelHeaderGame_t  *skelmodel = TIKI_GetSkel(pSM->tiki->mesh[j]);
+                skelSurfaceGame_t *surf;
 
                 if (!skelmodel) {
                     ri.Printf(PRINT_WARNING, "^~^~^: Warning: Missing mesh in Static Model %s\n", skelmodel->name);
@@ -140,66 +139,69 @@ void R_InitStaticModels(void) {
 
                 surf = skelmodel->pSurfaces;
 
-                for (k = 0; k < skelmodel->numSurfaces; k++, surf = surf->pNext)
-                {
-                    byte* buf;
-                    byte* p;
-                    skelWeight_t* weight;
-                    skeletorVertex_t* vert;
+                for (k = 0; k < skelmodel->numSurfaces; k++, surf = surf->pNext) {
+                    byte             *buf;
+                    byte             *p;
+                    skelWeight_t     *weight;
+                    skeletorVertex_t *vert;
 
                     if (surf->pStaticXyz) {
                         continue;
                     }
 
                     // allocate static vectors
-                    p = buf = (byte*)ri.TIKI_Alloc((sizeof(vec4_t) + sizeof(vec4_t) + sizeof(vec2_t) * 2) * surf->numVerts);
-                    surf->pStaticXyz = (vec4_t*)p;
+                    p = buf =
+                        (byte *)ri.TIKI_Alloc((sizeof(vec4_t) + sizeof(vec4_t) + sizeof(vec2_t) * 2) * surf->numVerts);
+                    surf->pStaticXyz = (vec4_t *)p;
                     p += sizeof(vec4_t) * surf->numVerts;
-                    surf->pStaticNormal = (vec4_t*)p;
+                    surf->pStaticNormal = (vec4_t *)p;
                     p += sizeof(vec4_t) * surf->numVerts;
                     surf->pStaticTexCoords = (vec2_t(*)[2])p;
 
                     vert = surf->pVerts;
 
-                    for (l = 0; l < surf->numVerts; l++)
-                    {
-                        int channel;
-                        skelBoneCache_t* bone;
+                    for (l = 0; l < surf->numVerts; l++) {
+                        int              channel;
+                        skelBoneCache_t *bone;
 
-                        weight = (skelWeight_t*)((byte*)vert + sizeof(skeletorVertex_t) + vert->numMorphs * sizeof(skeletorMorph_t));
+                        weight = (skelWeight_t *)((byte *)vert + sizeof(skeletorVertex_t)
+                                                  + vert->numMorphs * sizeof(skeletorMorph_t));
 
                         if (j > 0) {
-                            channel = pSM->tiki->m_boneList.GetLocalFromGlobal(skelmodel->pBones[weight->boneIndex].channel);
-                        }
-                        else {
+                            channel =
+                                pSM->tiki->m_boneList.GetLocalFromGlobal(skelmodel->pBones[weight->boneIndex].channel);
+                        } else {
                             channel = weight->boneIndex;
                         }
 
                         bone = &bones[channel];
 
-                        surf->pStaticXyz[l][0] = ((weight->offset[0] * bone->matrix[0][0]
-                            + weight->offset[1] * bone->matrix[1][0]
-                            + weight->offset[2] * bone->matrix[2][0])
-                            + bone->offset[0]) * weight->boneWeight;
-                        surf->pStaticXyz[l][1] = ((weight->offset[0] * bone->matrix[0][1]
-                            + weight->offset[1] * bone->matrix[1][1]
-                            + weight->offset[2] * bone->matrix[2][1])
-                            + bone->offset[1]) * weight->boneWeight;
-                        surf->pStaticXyz[l][2] = ((weight->offset[0] * bone->matrix[0][2]
-                            + weight->offset[1] * bone->matrix[1][2]
-                            + weight->offset[2] * bone->matrix[2][2])
-                            + bone->offset[2]) * weight->boneWeight;
+                        surf->pStaticXyz[l][0] =
+                            ((weight->offset[0] * bone->matrix[0][0] + weight->offset[1] * bone->matrix[1][0]
+                              + weight->offset[2] * bone->matrix[2][0])
+                             + bone->offset[0])
+                            * weight->boneWeight;
+                        surf->pStaticXyz[l][1] =
+                            ((weight->offset[0] * bone->matrix[0][1] + weight->offset[1] * bone->matrix[1][1]
+                              + weight->offset[2] * bone->matrix[2][1])
+                             + bone->offset[1])
+                            * weight->boneWeight;
+                        surf->pStaticXyz[l][2] =
+                            ((weight->offset[0] * bone->matrix[0][2] + weight->offset[1] * bone->matrix[1][2]
+                              + weight->offset[2] * bone->matrix[2][2])
+                             + bone->offset[2])
+                            * weight->boneWeight;
                         surf->pStaticXyz[l][3] = 0.f;
 
                         surf->pStaticNormal[l][0] = vert->normal[0] * bone->matrix[0][0]
-                            + vert->normal[1] * bone->matrix[1][0]
-                            + vert->normal[2] * bone->matrix[2][0];
+                                                  + vert->normal[1] * bone->matrix[1][0]
+                                                  + vert->normal[2] * bone->matrix[2][0];
                         surf->pStaticNormal[l][1] = vert->normal[0] * bone->matrix[0][1]
-                            + vert->normal[1] * bone->matrix[1][1]
-                            + vert->normal[2] * bone->matrix[2][1];
+                                                  + vert->normal[1] * bone->matrix[1][1]
+                                                  + vert->normal[2] * bone->matrix[2][1];
                         surf->pStaticNormal[l][2] = vert->normal[0] * bone->matrix[0][2]
-                            + vert->normal[1] * bone->matrix[1][2]
-                            + vert->normal[2] * bone->matrix[2][2];
+                                                  + vert->normal[1] * bone->matrix[1][2]
+                                                  + vert->normal[2] * bone->matrix[2][2];
                         surf->pStaticNormal[l][3] = 0.f;
 
                         surf->pStaticTexCoords[l][0][0] = vert->texCoords[0];
@@ -207,17 +209,19 @@ void R_InitStaticModels(void) {
                         surf->pStaticTexCoords[l][1][0] = vert->texCoords[0];
                         surf->pStaticTexCoords[l][1][1] = vert->texCoords[1];
 
-                        vert = (skeletorVertex_t*)((byte*)vert + sizeof(skeletorVertex_t) + sizeof(skeletorMorph_t) * vert->numMorphs + sizeof(skelWeight_t) * vert->numWeights);
+                        vert = (skeletorVertex_t *)((byte *)vert + sizeof(skeletorVertex_t)
+                                                    + sizeof(skeletorMorph_t) * vert->numMorphs
+                                                    + sizeof(skelWeight_t) * vert->numWeights);
                     }
                 }
             }
         }
     }
 
-    tr.refdef.numStaticModels = tr.world->numStaticModels;
-    tr.refdef.staticModels = tr.world->staticModels;
+    tr.refdef.numStaticModels    = tr.world->numStaticModels;
+    tr.refdef.staticModels       = tr.world->staticModels;
     tr.refdef.numStaticModelData = tr.world->numStaticModelData;
-    tr.refdef.staticModelData = tr.world->staticModelData;
+    tr.refdef.staticModelData    = tr.world->staticModelData;
 }
 
 /*
@@ -225,13 +229,13 @@ void R_InitStaticModels(void) {
 R_CullStaticModel
 ==============
 */
-static int R_CullStaticModel(dtiki_t* tiki, float fScale, const vec3_t vLocalOrg) {
-    vec3_t	bounds[2];
-    int		i;
-    int		cull;
+static int R_CullStaticModel(dtiki_t *tiki, float fScale, const vec3_t vLocalOrg)
+{
+    vec3_t bounds[2];
+    int    i;
+    int    cull;
 
-    for (i = 0; i < 3; i++)
-    {
+    for (i = 0; i < 3; i++) {
         bounds[0][i] = vLocalOrg[i] + tiki->a->mins[i] * fScale;
         bounds[1][i] = vLocalOrg[i] + tiki->a->maxs[i] * fScale;
     }
@@ -239,11 +243,10 @@ static int R_CullStaticModel(dtiki_t* tiki, float fScale, const vec3_t vLocalOrg
     cull = R_CullLocalBox(bounds);
 
     if (r_showcull->integer & 4) {
-        float fR, fG, fB;
+        float  fR, fG, fB;
         vec3_t vAngles;
 
-        switch (cull)
-        {
+        switch (cull) {
         case CULL_CLIP:
             fR = 1.0f;
             fG = 1.0f;
@@ -271,8 +274,7 @@ static int R_CullStaticModel(dtiki_t* tiki, float fScale, const vec3_t vLocalOrg
         R_DebugRotatedBBox(tr.ori.origin, vAngles, bounds[0], bounds[1], fR, fG, fB, 0.5);
     }
 
-    switch (cull)
-    {
+    switch (cull) {
     case CULL_CLIP:
         tr.pc.c_box_cull_md3_clip++;
         break;
@@ -292,15 +294,16 @@ static int R_CullStaticModel(dtiki_t* tiki, float fScale, const vec3_t vLocalOrg
 R_AddStaticModelSurfaces
 ==============
 */
-void R_AddStaticModelSurfaces(void) {
-    cStaticModelUnpacked_t* SM;
-    int i, j, k;
-    int ofsStaticData;
-    int iRadiusCull;
-    dtiki_t* tiki;
-    float tiki_scale;
-    vec3_t tiki_localorigin;
-    vec3_t tiki_worldorigin;
+void R_AddStaticModelSurfaces(void)
+{
+    cStaticModelUnpacked_t *SM;
+    int                     i, j, k;
+    int                     ofsStaticData;
+    int                     iRadiusCull;
+    dtiki_t                *tiki;
+    float                   tiki_scale;
+    vec3_t                  tiki_localorigin;
+    vec3_t                  tiki_worldorigin;
 
     if (!tr.world->numStaticModels) {
         return;
@@ -308,8 +311,7 @@ void R_AddStaticModelSurfaces(void) {
 
     tr.shiftedIsStatic = (1 << QSORT_STATICMODEL_SHIFT);
 
-    for (i = 0; i < tr.world->numStaticModels; i++)
-    {
+    for (i = 0; i < tr.world->numStaticModels; i++) {
         SM = &tr.world->staticModels[i];
 
         //if( SM->visCount != tr.visCounts[ tr.visIndex ] ) {
@@ -325,7 +327,7 @@ void R_AddStaticModelSurfaces(void) {
         tr.currentEntityNum = i;
         tr.shiftedEntityNum = i << QSORT_ENTITYNUM_SHIFT;
 
-        R_RotateForStaticModel(SM, &tr.viewParms, &tr.ori );
+        R_RotateForStaticModel(SM, &tr.viewParms, &tr.ori);
 
         ofsStaticData = 0;
 
@@ -338,28 +340,27 @@ void R_AddStaticModelSurfaces(void) {
 
         // FIXME: r_showcull
 
-        if (iRadiusCull != CULL_OUT && (iRadiusCull != CULL_CLIP || R_CullStaticModel(SM->tiki, tiki_scale, tiki_localorigin) != CULL_OUT))
-        {
-            dtikisurface_t* dsurf;
+        if (iRadiusCull != CULL_OUT
+            && (iRadiusCull != CULL_CLIP || R_CullStaticModel(SM->tiki, tiki_scale, tiki_localorigin) != CULL_OUT)) {
+            dtikisurface_t *dsurf;
 
-			if (tr.viewParms.isPortal) {
-				SM->lodpercentage[1] = R_CalcLod(tiki_worldorigin, SM->cull_radius / SM->scale);
-			} else {
-				SM->lodpercentage[0] = R_CalcLod(tiki_worldorigin, SM->cull_radius / SM->scale);
-			}
+            if (tr.viewParms.isPortal) {
+                SM->lodpercentage[1] = R_CalcLod(tiki_worldorigin, SM->cull_radius / SM->scale);
+            } else {
+                SM->lodpercentage[0] = R_CalcLod(tiki_worldorigin, SM->cull_radius / SM->scale);
+            }
 
             //
             // draw all meshes
             //
             dsurf = tiki->surfaces;
-            for (int mesh = 0; mesh < tiki->numMeshes; mesh++)
-            {
-                skelHeaderGame_t* skelmodel = TIKI_GetSkel(tiki->mesh[mesh]);
-                skelSurfaceGame_t* surface;
-                staticSurface_t* s_surface;
-                shader_t* shader;
-                float fDist;
-                vec3_t vDelta;
+            for (int mesh = 0; mesh < tiki->numMeshes; mesh++) {
+                skelHeaderGame_t  *skelmodel = TIKI_GetSkel(tiki->mesh[mesh]);
+                skelSurfaceGame_t *surface;
+                staticSurface_t   *s_surface;
+                shader_t          *shader;
+                float              fDist;
+                vec3_t             vDelta;
 
                 if (!skelmodel) {
                     continue;
@@ -369,32 +370,38 @@ void R_AddStaticModelSurfaces(void) {
                 // draw all surfaces
                 //
                 surface = skelmodel->pSurfaces;
-                for (j = 0; j < skelmodel->numSurfaces; j++, ofsStaticData += surface->numVerts, surface = surface->pNext, dsurf++)
-                {
-                    if (g_nStaticSurfaces >= MAX_STATIC_MODELS_SURFS)
-                    {
-                        ri.Printf(PRINT_DEVELOPER, "^~^~^ ERROR: MAX_STATIC_MODELS_SURFS exceeded - surface of '%s' skipped\n", tiki->a->name);
+                for (j = 0; j < skelmodel->numSurfaces;
+                     j++, ofsStaticData += surface->numVerts, surface = surface->pNext, dsurf++) {
+                    if (g_nStaticSurfaces >= MAX_STATIC_MODELS_SURFS) {
+                        ri.Printf(
+                            PRINT_DEVELOPER,
+                            "^~^~^ ERROR: MAX_STATIC_MODELS_SURFS exceeded - surface of '%s' skipped\n",
+                            tiki->a->name
+                        );
                         continue;
                     }
 
-                    s_surface = &g_staticSurfaces[g_nStaticSurfaces++];
-					s_surface->ident = SF_TIKI_STATIC;
-					s_surface->ofsStaticData = ofsStaticData;
-					s_surface->surface = surface;
-					s_surface->meshNum = mesh;
+                    s_surface                = &g_staticSurfaces[g_nStaticSurfaces++];
+                    s_surface->ident         = SF_TIKI_STATIC;
+                    s_surface->ofsStaticData = ofsStaticData;
+                    s_surface->surface       = surface;
+                    s_surface->meshNum       = mesh;
 
                     shader = tr.shaders[dsurf->hShader[0]];
 
-                    if (shader->numUnfoggedPasses == 1 && !r_nocull->integer)
-                    {
+                    if (shader->numUnfoggedPasses == 1 && !r_nocull->integer) {
                         switch (shader->unfoggedStages[0]->alphaGen) {
                         case AGEN_DIST_FADE:
-                            if (R_DistanceCullPointAndRadius(shader->fDistNear + shader->fDistRange, tiki_worldorigin, SM->cull_radius) == CULL_OUT) {
+                            if (R_DistanceCullPointAndRadius(
+                                    shader->fDistNear + shader->fDistRange, tiki_worldorigin, SM->cull_radius
+                                )
+                                == CULL_OUT) {
                                 continue;
                             }
                             break;
                         case AGEN_ONE_MINUS_DIST_FADE:
-                            if (R_DistanceCullPointAndRadius(shader->fDistNear, tiki_worldorigin, SM->cull_radius) == CULL_IN) {
+                            if (R_DistanceCullPointAndRadius(shader->fDistNear, tiki_worldorigin, SM->cull_radius)
+                                == CULL_IN) {
                                 continue;
                             }
                             break;
@@ -416,11 +423,11 @@ void R_AddStaticModelSurfaces(void) {
                     }
 
                     SM->bRendered = qtrue;
-                    R_AddDrawSurf((surfaceType_t*)s_surface, shader, 0);
+                    R_AddDrawSurf((surfaceType_t *)s_surface, shader, 0);
 
                     if (r_showstaticlod->integer) {
                         vec3_t org;
-                        int render_count, total_tris;
+                        int    render_count, total_tris;
 
                         VectorCopy(SM->origin, org);
                         org[2] += 100.0;
@@ -434,8 +441,7 @@ void R_AddStaticModelSurfaces(void) {
                     if (r_showstaticbboxes->integer) {
                         vec3_t vMins, vMaxs;
 
-                        for (k = 0; k < 3; k++)
-                        {
+                        for (k = 0; k < 3; k++) {
                             vMins[k] = tiki->a->mins[k] * tiki->load_scale * SM->scale;
                             vMaxs[k] = tiki->a->maxs[k] * tiki->load_scale * SM->scale;
                         }
@@ -450,12 +456,17 @@ void R_AddStaticModelSurfaces(void) {
     tr.shiftedIsStatic = 0;
 }
 
+/*
+==============
+RB_Static_BuildDLights
+==============
+*/
 void RB_Static_BuildDLights()
 {
     int i;
 
-	backEnd.currentStaticModel->useSpecialLighting = backEnd.refdef.num_dlights > 0;
-	backEnd.currentStaticModel->numdlights = 0;
+    backEnd.currentStaticModel->useSpecialLighting = backEnd.refdef.num_dlights > 0;
+    backEnd.currentStaticModel->numdlights         = 0;
 
     if (!backEnd.currentStaticModel->useSpecialLighting) {
         return;
@@ -482,9 +493,14 @@ void RB_Static_BuildDLights()
     }
 }
 
+/*
+==============
+R_InfoStaticModels_f
+==============
+*/
 void R_InfoStaticModels_f()
 {
-    // FIXME: unimplemented
+    g_bInfostaticmodels = qtrue;
 }
 
 /*
@@ -492,18 +508,19 @@ void R_InfoStaticModels_f()
 RB_StaticMesh
 =============
 */
-void RB_StaticMesh(staticSurface_t* staticSurf) {
-    int					i, j;
-    dtiki_t* tiki;
-    skelSurfaceGame_t* surf;
-    int					meshNum;
-    skelHeaderGame_t* skelmodel;
-    int					render_count;
-    skelIndex_t* collapse_map;
-    skelIndex_t* triangles;
-    int					indexes;
-    int					baseIndex, baseVertex;
-    short				collapse[1000];
+void RB_StaticMesh(staticSurface_t *staticSurf)
+{
+    int                i, j;
+    dtiki_t           *tiki;
+    skelSurfaceGame_t *surf;
+    int                meshNum;
+    skelHeaderGame_t  *skelmodel;
+    int                render_count;
+    skelIndex_t       *collapse_map;
+    skelIndex_t       *triangles;
+    int                indexes;
+    int                baseIndex, baseVertex;
+    short              collapse[1000];
 
     if (!r_drawstaticmodelpoly->integer) {
         return;
@@ -515,90 +532,79 @@ void RB_StaticMesh(staticSurface_t* staticSurf) {
 
     assert(surf->pStaticXyz);
 
-    meshNum = staticSurf->meshNum;
+    meshNum   = staticSurf->meshNum;
     skelmodel = TIKI_GetSkel(tiki->mesh[meshNum]);
 
-
-	//
-	// Process LOD
-	//
-	if( skelmodel->pLOD && r_staticlod->integer )
-	{
-		float lod_val;
+    //
+    // Process LOD
+    //
+    if (skelmodel->pLOD && r_staticlod->integer) {
+        float lod_val;
 
         lod_val = backEnd.currentStaticModel->lodpercentage[0];
 
-		if (surf->numVerts > 3) {
-			skelIndex_t* collapseIndex;
-			int mid, low, high;
-			int lod_cutoff;
+        if (surf->numVerts > 3) {
+            skelIndex_t *collapseIndex;
+            int          mid, low, high;
+            int          lod_cutoff;
 
-			if (lod_tool->integer
-				&& !strcmp(backEnd.currentStaticModel->tiki->a->name, lod_tikiname->string)
-				&& meshNum == lod_mesh->integer)
-			{
-				lod_cutoff = GetToolLodCutoff(skelmodel, backEnd.currentStaticModel->lodpercentage[0]);
-			}
-			else
-			{
-				lod_cutoff = GetLodCutoff(skelmodel, backEnd.currentStaticModel->lodpercentage[0], 0);
-			}
-
-			collapseIndex = surf->pCollapseIndex;
-			if (collapseIndex[2] < lod_cutoff) {
-				return;
-			}
-
-			low = mid = 3;
-			high = surf->numVerts;
-			while (high >= low) {
-				mid = (low + high) >> 1;
-				if (collapseIndex[mid] < lod_cutoff) {
-					high = mid - 1;
-					if (collapseIndex[mid - 1] >= lod_cutoff) {
-						break;
-					}
-				}
-				else
-				{
-					mid++;
-					low = mid;
-					if (high == mid || collapseIndex[mid] < lod_cutoff) {
-						break;
-					}
-				}
+            if (lod_tool->integer && !strcmp(backEnd.currentStaticModel->tiki->a->name, lod_tikiname->string)
+                && meshNum == lod_mesh->integer) {
+                lod_cutoff = GetToolLodCutoff(skelmodel, backEnd.currentStaticModel->lodpercentage[0]);
+            } else {
+                lod_cutoff = GetLodCutoff(skelmodel, backEnd.currentStaticModel->lodpercentage[0], 0);
             }
 
-			render_count = mid;
-		} else {
-			render_count = surf->numVerts;
-		}
+            collapseIndex = surf->pCollapseIndex;
+            if (collapseIndex[2] < lod_cutoff) {
+                return;
+            }
 
-		if (!render_count) {
-			return;
-		}
-	} else {
-		render_count = surf->numVerts;
+            low = mid = 3;
+            high      = surf->numVerts;
+            while (high >= low) {
+                mid = (low + high) >> 1;
+                if (collapseIndex[mid] < lod_cutoff) {
+                    high = mid - 1;
+                    if (collapseIndex[mid - 1] >= lod_cutoff) {
+                        break;
+                    }
+                } else {
+                    mid++;
+                    low = mid;
+                    if (high == mid || collapseIndex[mid] < lod_cutoff) {
+                        break;
+                    }
+                }
+            }
+
+            render_count = mid;
+        } else {
+            render_count = surf->numVerts;
+        }
+
+        if (!render_count) {
+            return;
+        }
+    } else {
+        render_count = surf->numVerts;
     }
 
     indexes = surf->numTriangles * 3;
     RB_CHECKOVERFLOW(render_count, surf->numTriangles);
 
     collapse_map = surf->pCollapse;
-    triangles = surf->pTriangles;
-    baseIndex = tess.numIndexes;
-    baseVertex = tess.numVertexes;
+    triangles    = surf->pTriangles;
+    baseIndex    = tess.numIndexes;
+    baseVertex   = tess.numVertexes;
     tess.numVertexes += render_count;
 
-    if (render_count == surf->numVerts)
-    {
+    if (render_count == surf->numVerts) {
         for (j = 0; j < indexes; j++) {
             tess.indexes[baseIndex + j] = baseVertex + triangles[j];
         }
         tess.numIndexes += indexes;
-    }
-    else
-    {
+    } else {
         for (i = 0; i < render_count; i++) {
             collapse[i] = i;
         }
@@ -606,16 +612,14 @@ void RB_StaticMesh(staticSurface_t* staticSurf) {
             collapse[i] = collapse[collapse_map[i]];
         }
 
-        for (j = 0; j < indexes; j += 3)
-        {
-            if (collapse[triangles[j]] == collapse[triangles[j + 1]] ||
-                collapse[triangles[j + 1]] == collapse[triangles[j + 2]] ||
-                collapse[triangles[j + 2]] == collapse[triangles[j]])
-            {
+        for (j = 0; j < indexes; j += 3) {
+            if (collapse[triangles[j]] == collapse[triangles[j + 1]]
+                || collapse[triangles[j + 1]] == collapse[triangles[j + 2]]
+                || collapse[triangles[j + 2]] == collapse[triangles[j]]) {
                 break;
             }
 
-            tess.indexes[baseIndex + j] = baseVertex + collapse[triangles[j]];
+            tess.indexes[baseIndex + j]     = baseVertex + collapse[triangles[j]];
             tess.indexes[baseIndex + j + 1] = baseVertex + collapse[triangles[j + 1]];
             tess.indexes[baseIndex + j + 2] = baseVertex + collapse[triangles[j + 2]];
         }
@@ -626,27 +630,26 @@ void RB_StaticMesh(staticSurface_t* staticSurf) {
         Vector4Copy(surf->pStaticXyz[j], tess.xyz[baseVertex + j]);
         Vector4Copy(surf->pStaticNormal[j], tess.normal[baseVertex + j]);
         tess.texCoords[baseVertex + j][0][0] = surf->pStaticTexCoords[j][0][0];
-		tess.texCoords[baseVertex + j][0][1] = surf->pStaticTexCoords[j][0][1];
-		tess.texCoords[baseVertex + j][1][0] = surf->pStaticTexCoords[j][1][0];
-		tess.texCoords[baseVertex + j][1][1] = surf->pStaticTexCoords[j][1][1];
+        tess.texCoords[baseVertex + j][0][1] = surf->pStaticTexCoords[j][0][1];
+        tess.texCoords[baseVertex + j][1][0] = surf->pStaticTexCoords[j][1][0];
+        tess.texCoords[baseVertex + j][1][1] = surf->pStaticTexCoords[j][1][1];
     }
 
     if (backEndData[backEnd.smpFrame]->staticModelData) {
-        const size_t offset = backEnd.currentStaticModel->firstVertexData + staticSurf->ofsStaticData * sizeof(color4ub_t);
-		assert(offset < tr.world->numStaticModelData * sizeof(color4ub_t));
-		assert(offset + render_count * sizeof(color4ub_t) <= tr.world->numStaticModelData * sizeof(color4ub_t));
+        const size_t offset =
+            backEnd.currentStaticModel->firstVertexData + staticSurf->ofsStaticData * sizeof(color4ub_t);
+        assert(offset < tr.world->numStaticModelData * sizeof(color4ub_t));
+        assert(offset + render_count * sizeof(color4ub_t) <= tr.world->numStaticModelData * sizeof(color4ub_t));
 
-        const color4ub_t* in = (const color4ub_t*)&backEndData[backEnd.smpFrame]->staticModelData[offset];
+        const color4ub_t *in = (const color4ub_t *)&backEndData[backEnd.smpFrame]->staticModelData[offset];
 
-        for (i = 0; i < render_count; i++)
-        {
-			tess.vertexColors[baseVertex + i][0] = in[i][0];
-			tess.vertexColors[baseVertex + i][1] = in[i][1];
-			tess.vertexColors[baseVertex + i][2] = in[i][2];
-			tess.vertexColors[baseVertex + i][3] = in[i][3];
+        for (i = 0; i < render_count; i++) {
+            tess.vertexColors[baseVertex + i][0] = in[i][0];
+            tess.vertexColors[baseVertex + i][1] = in[i][1];
+            tess.vertexColors[baseVertex + i][2] = in[i][2];
+            tess.vertexColors[baseVertex + i][3] = in[i][3];
         }
-    }
-    else {
+    } else {
         for (i = 0; i < render_count; i++) {
             tess.vertexColors[baseVertex + i][0] = 0xFF;
             tess.vertexColors[baseVertex + i][1] = 0xFF;
@@ -658,7 +661,77 @@ void RB_StaticMesh(staticSurface_t* staticSurf) {
     tess.vertexColorValid = qtrue;
 }
 
+/*
+==============
+R_PrintInfoStaticModels
+==============
+*/
 void R_PrintInfoStaticModels()
 {
-    // FIXME: unimplemented
+    int                     iRenderCount;
+    int                     i, j;
+    cStaticModelUnpacked_t *SM;
+    dtiki_t                *tikis[MAX_DISTINCT_STATIC_MODELS];
+    int                     tiki_count[MAX_DISTINCT_STATIC_MODELS];
+    cStaticModelUnpacked_t *pSM[MAX_DISTINCT_STATIC_MODELS];
+    int                     count;
+
+    Com_Printf("Static model info:\n");
+    Com_Printf("------------------\n");
+
+    count        = 0;
+    iRenderCount = 0;
+
+    for (i = 0; i < tr.world->numStaticModels; i++) {
+        SM = &tr.world->staticModels[i];
+        if (!SM->bRendered) {
+            break;
+        }
+
+        SM->bRendered = qfalse;
+        iRenderCount++;
+
+        if (!SM->tiki) {
+            Com_Printf("ERROR: static model with no tiki\n");
+            continue;
+        }
+
+        for (j = 0; j < count; j++) {
+            if (SM->tiki == tikis[j]) {
+                tiki_count[j]++;
+                break;
+            }
+        }
+
+        if (count >= MAX_DISTINCT_STATIC_MODELS) {
+            Com_Printf("R_PrintInfoStaticModels: MAX_DISTINCT_STATIC_MODELS exceeded - increase and recompile\n");
+            break;
+        }
+
+        if (j == count) {
+            tikis[count]      = SM->tiki;
+            pSM[count]        = SM;
+            tiki_count[count] = 1;
+        }
+    }
+
+    Com_Printf("Total static models rendered: %d\n", iRenderCount);
+
+    for (i = 0; i < count; i++) {
+        skelHeaderGame_t *skelmodel = TIKI_GetSkel(tikis[i]->mesh[0]);
+
+        Com_Printf(
+            "model: %s, version: %d, count: %d,\n culling min %.1f %.1f %.1f, max %.1f %.1f %.1f, radius %.1f\n",
+            tikis[i]->a->name,
+            skelmodel ? skelmodel->version : -1,
+            tiki_count[i],
+            tikis[i]->a->mins[0],
+            tikis[i]->a->mins[1],
+            tikis[i]->a->mins[2],
+            tikis[i]->a->maxs[0],
+            tikis[i]->a->maxs[1],
+            tikis[i]->a->maxs[2],
+            pSM[i]->cull_radius
+        );
+    }
 }
