@@ -2195,6 +2195,8 @@ void R_DebugSkeleton(void);
 extern int g_nStaticSurfaces;
 extern qboolean g_bInfostaticmodels;
 extern qboolean g_bInfoworldtris;
+extern int entityNumIndexes[];
+extern int staticModelNumIndexes[];
 
 /*
 =============================================================
