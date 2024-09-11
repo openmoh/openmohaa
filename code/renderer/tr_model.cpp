@@ -1467,11 +1467,20 @@ void RB_SkelMesh( skelSurfaceGame_t *sf ) {
 
 /*
 =============
+R_InfoWorldTris_f
+=============
+*/
+void R_InfoWorldTris_f( void ) {
+    // FIXME: unimplemented
+}
+
+/*
+=============
 R_PrintInfoWorldtris
 =============
 */
 void R_PrintInfoWorldtris( void ) {
-	// FIXME: stub
+	// FIXME: unimplemented
 }
 
 /*

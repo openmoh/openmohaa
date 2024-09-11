@@ -1113,6 +1113,21 @@ void GfxInfo_f( void )
 	}
 }
 
+void FarPlaneInfo_f(void) {
+    Com_Printf("Current fog settings:\n");
+    Com_Printf("Distance: %i\n", (int)tr.viewParms.farplane_distance);
+    Com_Printf(
+        "Color: %f  %f  %f\n",
+        tr.viewParms.farplane_color[0],
+        tr.viewParms.farplane_color[1],
+        tr.viewParms.farplane_color[2]);
+    if (tr.viewParms.farplane_cull) {
+        Com_Printf("Cull: on\n");
+    } else {
+        Com_Printf("Cull: off\n");
+    }
+}
+
 qboolean R_SetMode(int mode, const glconfig_t* glConfig) {
 	// FIXME: unimplemented
 	return qfalse;
@@ -1380,6 +1395,9 @@ void R_Register( void )
 	ri.Cmd_AddCommand( "screenshot", R_ScreenShot_f );
 	ri.Cmd_AddCommand( "screenshotJPEG", R_ScreenShotJPEG_f );
 	ri.Cmd_AddCommand( "gfxinfo", GfxInfo_f );
+    ri.Cmd_AddCommand( "farplane_info", FarPlaneInfo_f );
+    ri.Cmd_AddCommand( "r_infostaticmodels", R_InfoStaticModels_f );
+    ri.Cmd_AddCommand( "r_infoworldtris", R_InfoWorldTris_f );
 
     //
     // Added in OPM

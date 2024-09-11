@@ -2180,6 +2180,7 @@ void R_UpdatePoseInternal(refEntity_t* model);
 void RB_SkelMesh(skelSurfaceGame_t* sf);
 void RB_StaticMesh(staticSurface_t* staticSurf);
 void RB_Static_BuildDLights();
+void R_InfoStaticModels_f();
 void R_PrintInfoStaticModels();
 void R_AddSkelSurfaces(trRefEntity_t* ent);
 void R_AddStaticModelSurfaces(void);
@@ -2187,6 +2188,7 @@ void R_CountTikiLodTris(dtiki_t* tiki, float lodpercentage, int* render_tris, in
 float R_CalcLod(const vec3_t origin, float radius);
 int GetLodCutoff(struct skelHeaderGame_s* skelmodel, float lod_val, int renderfx);
 int GetToolLodCutoff(struct skelHeaderGame_s* skelmodel, float lod_val);
+void R_InfoWorldTris_f(void);
 void R_PrintInfoWorldtris(void);
 void R_DebugSkeleton(void);
 
