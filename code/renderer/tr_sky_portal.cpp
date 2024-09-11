@@ -24,12 +24,24 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "tr_local.h"
 
+/*
+=================
+R_Sky_Init
+
+=================
+*/
 void R_Sky_Init()
 {
 	tr.viewParms.isPortalSky = qfalse;
 	tr.portalsky.numSurfs = 0;
 }
 
+/*
+=================
+R_Sky_Reset
+
+=================
+*/
 void R_Sky_Reset()
 {
     if (tr.viewParms.isPortalSky) {
@@ -46,6 +58,12 @@ void R_Sky_Reset()
 	tr.portalsky.numSurfs = 0;
 }
 
+/*
+=================
+R_Sky_AddSurf
+
+=================
+*/
 void R_Sky_AddSurf(msurface_t* surf)
 {
 	if (tr.viewParms.isPortalSky)
@@ -81,6 +99,12 @@ void R_Sky_AddSurf(msurface_t* surf)
 	}
 }
 
+/*
+=================
+R_Sky_Render
+
+=================
+*/
 void R_Sky_Render() {
     int i;
     viewParms_t newParms, oldParms;
@@ -150,10 +174,75 @@ void R_Sky_Render() {
 
 	tr.portalsky.numSurfs = 0;
 	tr.skyRendered = qtrue;
+
 	R_RotateForViewer();
 	R_SetupFrustum();
 }
 
+/*
+=================
+R_Sky_ChangeFrustum
+
+=================
+*/
 void R_Sky_ChangeFrustum() {
-	// FIXME: unimplemented
+    cplane_t* frust;
+    int i;
+    vec3_t bounds[2];
+    vec3_t origin;
+    cplane_t abouts[4];
+
+    VectorCopy(tr.portalsky.mins, bounds[0]);
+    VectorCopy(tr.portalsky.maxs, bounds[1]);
+    VectorCopy(tr.viewParms.ori.origin, origin);
+
+    VectorCopy(tr.viewParms.ori.axis[2], abouts[0].normal);
+    VectorNegate(tr.viewParms.ori.axis[2], abouts[1].normal);
+    VectorCopy(tr.viewParms.ori.axis[1], abouts[2].normal);
+    VectorNegate(tr.viewParms.ori.axis[1], abouts[3].normal);
+
+    for (i = 0; i < 4; i++) {
+        cplane_t out;
+        int i1;
+        float leastfov = 99999;
+
+        frust = &tr.viewParms.frustum[i];
+
+        abouts[i].dist = DotProduct(tr.viewParms.ori.origin, abouts[i].normal);
+        CrossProduct(frust->normal, abouts[i].normal, out.normal);
+
+        for (i1 = 0; i1 < 8; i1++) {
+            vec3_t point;
+            vec_t distFromFrustum;
+            float angle;
+            int i2;
+
+            for (i2 = 0; i2 < 3; i2++) {
+                point[i2] = bounds[i1 % 3][i2];
+            }
+
+            VectorSubtract(point, origin, point);
+            distFromFrustum = DotProduct(point, frust->normal);
+            if (distFromFrustum <= 0) {
+                break;
+            }
+
+            angle = atan2(DotProduct(point, out.normal), distFromFrustum);
+            if (angle >= 0) {
+                angle = RAD2DEG(angle);
+                if (leastfov > angle) {
+                    leastfov = angle;
+                }
+            }
+        }
+
+        if (leastfov > 0 && leastfov < 180) {
+            RotatePointAroundVector(frust->normal, abouts[i].normal, frust->normal, leastfov);
+            VectorNormalize(frust->normal);
+
+            frust->type = PLANE_NON_AXIAL;
+            frust->dist = DotProduct(origin, frust->normal);
+            SetPlaneSignbits(frust);
+        }
+    }
 }
