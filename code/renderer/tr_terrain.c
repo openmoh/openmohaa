@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2015-2024 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -73,6 +73,11 @@ terrainVert_t *g_pVert;
 poolInfo_t g_tri;
 poolInfo_t g_vert;
 
+/*
+================
+R_ValidateHeightmapForVertex
+================
+*/
 static void R_ValidateHeightmapForVertex(terraTri_t *pTri)
 {
     for (terraInt i = 0; i < 3; i++) {
@@ -83,6 +88,11 @@ static void R_ValidateHeightmapForVertex(terraTri_t *pTri)
     }
 }
 
+/*
+================
+R_AllocateVert
+================
+*/
 static terraInt R_AllocateVert(cTerraPatchUnpacked_t *patch)
 {
     terraInt iVert = g_vert.iFreeHead;
@@ -106,6 +116,11 @@ static terraInt R_AllocateVert(cTerraPatchUnpacked_t *patch)
     return iVert;
 }
 
+/*
+================
+R_InterpolateVert
+================
+*/
 static void R_InterpolateVert(terraTri_t *pTri, terrainVert_t *pVert)
 {
     const terrainVert_t         *pVert0 = &g_pVert[pTri->iPt[0]];
@@ -127,6 +142,11 @@ static void R_InterpolateVert(terraTri_t *pTri, terrainVert_t *pVert)
     pVert->xyz[2] = pVert->fHgtAvg;
 }
 
+/*
+================
+R_ReleaseVert
+================
+*/
 static void R_ReleaseVert(cTerraPatchUnpacked_t *patch, int iVert)
 {
     terrainVert_t *pVert = &g_pVert[iVert];
@@ -150,6 +170,11 @@ static void R_ReleaseVert(cTerraPatchUnpacked_t *patch, int iVert)
     g_vert.nFree++;
 }
 
+/*
+================
+R_AllocateTri
+================
+*/
 terraInt R_AllocateTri(cTerraPatchUnpacked_t *patch, qboolean check)
 {
     terraInt iTri = g_tri.iFreeHead;
@@ -177,6 +202,11 @@ terraInt R_AllocateTri(cTerraPatchUnpacked_t *patch, qboolean check)
     return iTri;
 }
 
+/*
+================
+R_ReleaseTri
+================
+*/
 static void R_ReleaseTri(cTerraPatchUnpacked_t *patch, terraInt iTri)
 {
     terraTri_t *pTri = &g_pTris[iTri];
@@ -219,6 +249,11 @@ static void R_ReleaseTri(cTerraPatchUnpacked_t *patch, terraInt iTri)
     }
 }
 
+/*
+================
+R_ConstChecksForTri
+================
+*/
 static int R_ConstChecksForTri(terraTri_t *pTri)
 {
     varnodeUnpacked_t vn;
@@ -241,6 +276,11 @@ static int R_ConstChecksForTri(terraTri_t *pTri)
     return 2;
 }
 
+/*
+================
+R_DemoteInAncestry
+================
+*/
 static void R_DemoteInAncestry(cTerraPatchUnpacked_t *patch, terraInt iTri)
 {
     terraInt iPrev = g_pTris[iTri].iPrev;
@@ -270,6 +310,11 @@ static void R_DemoteInAncestry(cTerraPatchUnpacked_t *patch, terraInt iTri)
     patch->drawinfo.iMergeHead                = iTri;
 }
 
+/*
+================
+R_TerrainHeapInit
+================
+*/
 static void R_TerrainHeapInit()
 {
     g_tri.iFreeHead  = 1;
@@ -294,6 +339,11 @@ static void R_TerrainHeapInit()
     g_pVert[g_nVerts - 1].iNext = 0;
 }
 
+/*
+================
+R_TerrainPatchesInit
+================
+*/
 static void R_TerrainPatchesInit()
 {
     int i;
@@ -308,6 +358,12 @@ static void R_TerrainPatchesInit()
         patch->drawinfo.nVerts       = 0;
     }
 }
+
+/*
+================
+R_SplitTri
+================
+*/
 
 void R_SplitTri(
     terraInt iSplit, terraInt iNewPt, terraInt iLeft, terraInt iRight, terraInt iRightOfLeft, terraInt iLeftOfRight
@@ -394,6 +450,11 @@ void R_SplitTri(
     }
 }
 
+/*
+================
+R_ForceSplit
+================
+*/
 static void R_ForceSplit(terraInt iTri)
 {
     terraTri_t *pTri = &g_pTris[iTri];
@@ -475,6 +536,11 @@ static void R_ForceSplit(terraInt iTri)
     R_DemoteInAncestry(pTri->patch, iTri);
 }
 
+/*
+================
+R_ForceMerge
+================
+*/
 static void R_ForceMerge(terraInt iTri)
 {
     terraTri_t            *pTri  = &g_pTris[iTri];
@@ -543,6 +609,11 @@ static void R_ForceMerge(terraInt iTri)
     }
 }
 
+/*
+================
+R_TerraTriNeighbor
+================
+*/
 static int R_TerraTriNeighbor(cTerraPatchUnpacked_t *terraPatches, int iPatch, int dir)
 {
     int iNeighbor;
@@ -577,6 +648,11 @@ static int R_TerraTriNeighbor(cTerraPatchUnpacked_t *terraPatches, int iPatch, i
     return 0;
 }
 
+/*
+================
+R_PreTessellateTerrain
+================
+*/
 static void R_PreTessellateTerrain()
 {
     size_t numTerrainPatches = tr.world->numTerraPatches;
@@ -810,6 +886,11 @@ static void R_PreTessellateTerrain()
     }
 }
 
+/*
+================
+R_NeedSplitTri
+================
+*/
 static qboolean R_NeedSplitTri(terraTri_t *pTri)
 {
     uint8_t byConstChecks = pTri->byConstChecks;
@@ -834,6 +915,11 @@ static qboolean R_NeedSplitTri(terraTri_t *pTri)
     return qtrue;
 }
 
+/*
+================
+R_CalcVertMorphHeight
+================
+*/
 static void R_CalcVertMorphHeight(terrainVert_t *pVert)
 {
     float dot;
@@ -857,6 +943,11 @@ static void R_CalcVertMorphHeight(terrainVert_t *pVert)
     }
 }
 
+/*
+================
+R_UpdateVertMorphHeight
+================
+*/
 static void R_UpdateVertMorphHeight(terrainVert_t *pVert)
 {
     if (pVert->uiDistRecalc <= g_uiTerDist) {
@@ -864,6 +955,11 @@ static void R_UpdateVertMorphHeight(terrainVert_t *pVert)
     }
 }
 
+/*
+================
+R_DoTriSplitting
+================
+*/
 static void R_DoTriSplitting()
 {
     cTerraPatchUnpacked_t *patch;
@@ -906,6 +1002,11 @@ static void R_DoTriSplitting()
     }
 }
 
+/*
+================
+R_DoGeomorphs
+================
+*/
 static void R_DoGeomorphs()
 {
     for (size_t n = 0; n < tr.world->numTerraPatches; n++) {
@@ -942,6 +1043,11 @@ static void R_DoGeomorphs()
     }
 }
 
+/*
+================
+R_MergeInternalAggressive
+================
+*/
 static qboolean R_MergeInternalAggressive()
 {
     terraTri_t *pTri = &g_pTris[g_tri.iCur];
@@ -968,6 +1074,11 @@ static qboolean R_MergeInternalAggressive()
     return qtrue;
 }
 
+/*
+================
+R_MergeInternalCautious
+================
+*/
 static qboolean R_MergeInternalCautious()
 {
     terraTri_t *pTri;
@@ -1000,6 +1111,11 @@ static qboolean R_MergeInternalCautious()
     return qtrue;
 }
 
+/*
+================
+R_DoTriMerging
+================
+*/
 static void R_DoTriMerging()
 {
     int iCautiousFrame = g_terVisCount - ter_cautiousframes->integer;
@@ -1024,6 +1140,11 @@ static void R_DoTriMerging()
     }
 }
 
+/*
+================
+R_TessellateTerrain
+================
+*/
 void R_TessellateTerrain()
 {
     if (glConfig.smpActive) {
@@ -1037,6 +1158,11 @@ void R_TessellateTerrain()
     R_DoTriMerging();
 }
 
+/*
+================
+R_TerrainPrepareFrame
+================
+*/
 void R_TerrainPrepareFrame()
 {
     float distance;
@@ -1127,6 +1253,11 @@ void R_TerrainPrepareFrame()
     }
 }
 
+/*
+================
+R_MarkTerrainPatch
+================
+*/
 void R_MarkTerrainPatch(cTerraPatchUnpacked_t *pPatch)
 {
     if (pPatch->visCountCheck == g_terVisCount) {
@@ -1157,6 +1288,11 @@ void R_MarkTerrainPatch(cTerraPatchUnpacked_t *pPatch)
     tr.world->activeTerraPatches = pPatch;
 }
 
+/*
+================
+R_AddTerrainSurfaces
+================
+*/
 void R_AddTerrainSurfaces()
 {
     int                    i;
@@ -1207,15 +1343,19 @@ void R_AddTerrainSurfaces()
     }
 }
 
-/**
- * Calculates the height of a terrain polygon by interpolating the heights of its vertices.
- * The function finds the triangle containing the given point (x, y) within the terrain patch,
- * and then computes the height at each vertex of the polygon using barycentric interpolation.
- * Finally, it updates the z-coordinate of each vertex to store the calculated height.
- * Returns qtrue if the triangle was found and the height could be calculated and saved into its vertices.
- *
- * ToDo: try to use the Vector*(?) macros for the math operations below from q_shared.h and q_math.h, not sure which ones would be a good fit
- */
+/*
+================
+R_TerrainHeightForPoly
+
+Calculates the height of a terrain polygon by interpolating the heights of its vertices.
+The function finds the triangle containing the given point (x, y) within the terrain patch,
+and then computes the height at each vertex of the polygon using barycentric interpolation.
+Finally, it updates the z-coordinate of each vertex to store the calculated height.
+Returns qtrue if the triangle was found and the height could be calculated and saved into its vertices.
+
+ToDo: try to use the Vector*(?) macros for the math operations below from q_shared.h and q_math.h, not sure which ones would be a good fit
+================
+*/
 qboolean R_TerrainHeightForPoly(cTerraPatchUnpacked_t *pPatch, polyVert_t *pVerts, int nVerts)
 {
     float x0     = 0;
@@ -1227,8 +1367,8 @@ qboolean R_TerrainHeightForPoly(cTerraPatchUnpacked_t *pPatch, polyVert_t *pVert
     float fKx[3] = {0}, fKy[3] = {0}, fKz[3] = {0}, fArea[3] = {0};
     float fAreaTotal = 0;
 
-    float x = pVerts->xyz[0];
-    float y = pVerts->xyz[1];
+    float    x = pVerts->xyz[0];
+    float    y = pVerts->xyz[1];
     terraInt iTri;
 
     // Calculate the average of the x and y coordinates of all vertices
@@ -1247,7 +1387,7 @@ qboolean R_TerrainHeightForPoly(cTerraPatchUnpacked_t *pPatch, polyVert_t *pVert
     iTri = pPatch->drawinfo.iTriHead;
 
     // Find a triangle that contains the point (x, y)
-    for(iTri = pPatch->drawinfo.iTriHead; iTri; iTri = g_pTris[iTri].iNext) {
+    for (iTri = pPatch->drawinfo.iTriHead; iTri; iTri = g_pTris[iTri].iNext) {
         if (g_pTris[iTri].byConstChecks & 4) {
             // Get all three x-y coordinates of the current triangle's vertices
             x0 = g_pVert[g_pTris[iTri].iPt[0]].xyz[0];
@@ -1313,23 +1453,20 @@ qboolean R_TerrainHeightForPoly(cTerraPatchUnpacked_t *pPatch, polyVert_t *pVert
                 return qtrue;
             }
         }
-
     }
 
     assert(
         !pPatch->drawinfo.iTriHead
-        && va(
-            "R_TerrainHeightForPoly: point(%f %f) not in patch(%f %f %f)\n",
-            x,
-            y,
-            pPatch->x0,
-            pPatch->y0,
-            pPatch->z0
-        )
+        && va("R_TerrainHeightForPoly: point(%f %f) not in patch(%f %f %f)\n", x, y, pPatch->x0, pPatch->y0, pPatch->z0)
     );
     return qfalse;
 }
 
+/*
+================
+R_TerrainRestart_f
+================
+*/
 void R_TerrainRestart_f(void)
 {
     if (tr.world->numTerraPatches < 0) {
@@ -1348,20 +1485,127 @@ void R_TerrainRestart_f(void)
     R_PreTessellateTerrain();
 }
 
-void R_CraterTerrain(vec_t *pos /* 0x8 */, vec_t *dir, float fDepth, float fRadius)
+/*
+================
+R_CraterTerrain
+================
+*/
+void R_CraterTerrain(const vec3_t pos, const vec3_t dir, float fDepth, float fRadius)
 {
-    // FIXME: unimplemented
+    int                    i, j, k;
+    int                    index;
+    qboolean               bMorphed;
+    cTerraPatchUnpacked_t *pPatch;
+    float                  x, y, z;
+    float                  dzSquared;
+    float                  heightmap[81];
+    float                  fMinHeight, fMaxHeight;
+    float                  fMaxOrig;
+    vec3_t                 vArcCenter;
+    float                  fArcRadius;
+    float                  fArcSquared;
+
+    fArcRadius  = (fRadius * fRadius / fDepth + fDepth) * 0.5;
+    fArcSquared = Square(fArcRadius);
+    VectorMA(pos, fDepth - fArcRadius, dir, vArcCenter);
+
+    for (i = 0; i < tr.world->numTerraPatches; i++) {
+        pPatch = &tr.world->terraPatches[i];
+
+        bMorphed = qfalse;
+
+        fMaxOrig   = pPatch->z0;
+        fMaxHeight = pPatch->z0;
+        fMinHeight = pPatch->z0;
+
+        for (j = 0; j < 9; j++) {
+            for (k = 0; k < 9; k++) {
+                index = k + j * 9;
+
+                x = pPatch->x0 + (k << 6);
+                y = pPatch->y0 + (j << 6);
+                z = pPatch->z0 + (pPatch->heightmap[index] * 2);
+
+                heightmap[index] = z;
+
+                if (fMaxHeight < z) {
+                    fMaxHeight = z;
+                }
+                if (fMaxOrig < z) {
+                    fMaxOrig = z;
+                }
+
+                dzSquared = fArcSquared - (Square(x - vArcCenter[0]) + Square(y - vArcCenter[1]));
+
+                if (Square(z - vArcCenter[2]) > dzSquared) {
+                    continue;
+                }
+
+                if (pPatch->flags & 0x40) {
+                    heightmap[index] = vArcCenter[2] + sqrt(dzSquared);
+                    if (fMaxHeight < heightmap[index]) {
+                        fMaxHeight = heightmap[index];
+                    }
+                } else {
+                    heightmap[index] = vArcCenter[2] - sqrt(dzSquared);
+                    if (fMinHeight > heightmap[index]) {
+                        fMinHeight = heightmap[index];
+                    }
+                }
+
+                bMorphed = qtrue;
+            }
+        }
+
+        if (!bMorphed) {
+            continue;
+        }
+
+        if (fMinHeight < fMaxOrig - 510.0) {
+            fMinHeight = fMaxOrig - 510.0;
+        }
+
+        pPatch->z0 = floor((fMinHeight + 1.0) * 0.5) * 2.0;
+
+        for (j = 0; j < 9; j++) {
+            for (k = 0; k < 9; k++) {
+                index = k + j * 9;
+
+                pPatch->heightmap[index] = Q_clamp_float(floor((heightmap[index] - pPatch->z0 + 1.0) * 0.5), 0, 255);
+            }
+        }
+    }
 }
 
-void R_TerrainCrater_f()
+/*
+================
+R_TerrainCrater_f
+================
+*/
+void R_TerrainCrater_f(void)
 {
     vec3_t dir;
+
+    if (!Cvar_VariableIntegerValue("cheats")) {
+        //
+        // Added in OPM
+        //  This command may be used for debugging purposes.
+        //  It also prevents executing this command accidentally
+        //
+        return;
+    }
+
     VectorNegate(tr.refdef.viewaxis[2], dir);
 
     R_CraterTerrain(tr.refdef.vieworg, dir, 256.0, 256.0);
     R_TerrainRestart_f();
 }
 
+/*
+================
+R_InitTerrain
+================
+*/
 void R_InitTerrain()
 {
     int i;
@@ -1392,7 +1636,8 @@ R_SwapTerraPatch
 Swaps the patch on big-endian
 ====================
 */
-void R_SwapTerraPatch(cTerraPatch_t* pPatch) {
+void R_SwapTerraPatch(cTerraPatch_t *pPatch)
+{
 #ifdef Q3_BIG_ENDIAN
     int i;
 
@@ -1404,13 +1649,13 @@ void R_SwapTerraPatch(cTerraPatch_t* pPatch) {
     pPatch->texCoord[1][0][1] = LittleFloat(pPatch->texCoord[1][0][1]);
     pPatch->texCoord[1][1][0] = LittleFloat(pPatch->texCoord[1][1][0]);
     pPatch->texCoord[1][1][1] = LittleFloat(pPatch->texCoord[1][1][1]);
-    pPatch->iBaseHeight = LittleShort(pPatch->iBaseHeight);
-    pPatch->iShader = LittleUnsignedShort(pPatch->iShader);
-    pPatch->iLightMap = LittleUnsignedShort(pPatch->iLightMap);
-    pPatch->iNorth = LittleShort(pPatch->iNorth);
-    pPatch->iEast = LittleShort(pPatch->iEast);
-    pPatch->iSouth = LittleShort(pPatch->iSouth);
-    pPatch->iWest = LittleShort(pPatch->iWest);
+    pPatch->iBaseHeight       = LittleShort(pPatch->iBaseHeight);
+    pPatch->iShader           = LittleUnsignedShort(pPatch->iShader);
+    pPatch->iLightMap         = LittleUnsignedShort(pPatch->iLightMap);
+    pPatch->iNorth            = LittleShort(pPatch->iNorth);
+    pPatch->iEast             = LittleShort(pPatch->iEast);
+    pPatch->iSouth            = LittleShort(pPatch->iSouth);
+    pPatch->iWest             = LittleShort(pPatch->iWest);
 
     for (i = 0; i < MAX_TERRAIN_VARNODES; i++) {
         pPatch->varTree[0][i].flags = LittleUnsignedShort(pPatch->varTree[0][i].flags);
