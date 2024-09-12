@@ -2182,7 +2182,7 @@ void R_UpdatePoseInternal(refEntity_t* model);
 void RB_SkelMesh(skelSurfaceGame_t* sf);
 void RB_StaticMesh(staticSurface_t* staticSurf);
 void RB_Static_BuildDLights();
-void R_InfoStaticModels_f();
+void R_InfoStaticModels_f(void);
 void R_PrintInfoStaticModels();
 void R_AddSkelSurfaces(trRefEntity_t* ent);
 void R_AddStaticModelSurfaces(void);

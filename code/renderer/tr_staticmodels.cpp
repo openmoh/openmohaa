@@ -498,7 +498,7 @@ void RB_Static_BuildDLights()
 R_InfoStaticModels_f
 ==============
 */
-void R_InfoStaticModels_f()
+void R_InfoStaticModels_f(void)
 {
     g_bInfostaticmodels = qtrue;
 }
