@@ -263,6 +263,8 @@ cvar_t* r_noborder;
 cvar_t* r_ext_texture_filter_anisotropic;
 cvar_t* r_stereoEnabled;
 
+cvar_t* r_screenshotJpegQuality;
+
 static char infostring[8192];
 
 static void AssertCvarRange( cvar_t *cv, float minVal, float maxVal, qboolean shouldBeIntegral )
@@ -581,8 +583,6 @@ RB_TakeScreenshotJPEG
 ================== 
 */  
 void RB_TakeScreenshotJPEG( int x, int y, int width, int height, char *fileName ) {
-	// FIXME: unimplemented
-#if 0
 	byte *buffer;
 	size_t offset = 0, memcount;
 	int padlen;
@@ -596,7 +596,6 @@ void RB_TakeScreenshotJPEG( int x, int y, int width, int height, char *fileName 
 
 	RE_SaveJPG(fileName, r_screenshotJpegQuality->integer, width, height, buffer + offset, padlen);
 	ri.Hunk_FreeTempMemory(buffer);
-#endif
 }
 
 /*
@@ -1499,7 +1498,8 @@ void R_Register( void )
 	// Added in OPM
 	//
 
-	r_showSkeleton = ri.Cvar_Get("r_showSkeleton", "0", CVAR_CHEAT);
+    r_showSkeleton = ri.Cvar_Get("r_showSkeleton", "0", CVAR_CHEAT);
+    r_screenshotJpegQuality = ri.Cvar_Get("r_screenshotJpegQuality", "90", CVAR_ARCHIVE);
 
 	ri.Cmd_AddCommand( "ter_crater", R_TerrainCrater_f );
 }
