@@ -2233,6 +2233,8 @@ GHOST
 */
 
 void R_UpdateGhostTextures();
+void R_SetGhostImage(const char* name, image_t* image);
+void LoadGHOST(const char* name, byte** pic, int* width, int* height);
 
 /*
 =============================================================
