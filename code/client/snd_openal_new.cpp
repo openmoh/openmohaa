@@ -3174,10 +3174,12 @@ openal_channel::sample_volume
 */
 S32 openal_channel::sample_volume()
 {
-    // FIXME: unimplemented
-    // Default volume is 100, range 0..=127
-    STUB_DESC("sample_volume");
-    return 127;
+    ALfloat gain = 0;
+
+    qalGetSourcef(source, AL_GAIN, &gain);
+    alDieIfError();
+
+    return (gain / S_GetBaseVolume()) * 100;
 }
 
 /*
