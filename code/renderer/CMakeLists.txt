@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.5)
 project(omohrenderer)
 
-file(GLOB_RECURSE SOURCES_RENDERER "./*.c" "./*.cpp")
-SET(SOURCES_RENDERER ${SOURCES_RENDERER} "../renderercommon/tr_image_jpg.c")
+file(GLOB_RECURSE SOURCES_RENDERER "./*.c" "./*.cpp" "../renderercommon/tr_*.c")
+#SET(SOURCES_RENDERER ${SOURCES_RENDERER} "../renderercommon/tr_image_jpg.c")
 
 file(GLOB_RECURSE SOURCES_JPEG_8 "../jpeg-8c/*.c")
 add_library(jpeg8 STATIC ${SOURCES_JPEG_8})
