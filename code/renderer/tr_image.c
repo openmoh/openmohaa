@@ -2482,7 +2482,11 @@ static void R_LoadImage(const char* name, byte** pic, int* width, int* height, q
 		else if (!Q_stricmp(name + len - 4, ".jpg")) {
 			LoadJPG(name, pic, width, height);
 			*piMipmapsAvailable = 1;
-		}
+        }
+        else if (!Q_stricmp(name + len - 4, ".gst")) {
+            LoadGHOST(name, pic, width, height);
+            *piMipmapsAvailable = 0;
+        }
 	}
 
 	if (scr_initialized)
@@ -2565,6 +2569,11 @@ image_t* R_FindImageFile(const char* name, qboolean mipmap, qboolean allowPicmip
 		glCompressMode,
 		glWrapClampModeX,
 		glWrapClampModeY);
+
+    len = strlen(name);
+    if (len > 4 && !strcmp(&name[len - 4], ".gst")) {
+        R_SetGhostImage(name, image);
+    }
 
 	ri.Free(pic);
 	return image;
