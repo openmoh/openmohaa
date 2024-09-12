@@ -1404,6 +1404,8 @@ void R_Register( void )
     //
 
     r_showSkeleton = ri.Cvar_Get("r_showSkeleton", "0", CVAR_CHEAT);
+
+    ri.Cmd_AddCommand( "ter_crater", R_TerrainCrater_f );
 }
 
 void R_InitExtensions() {

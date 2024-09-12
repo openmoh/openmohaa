@@ -2151,6 +2151,8 @@ void R_TerrainPrepareFrame();
 qboolean R_TerrainHeightForPoly(cTerraPatchUnpacked_t* pPatch, polyVert_t* pVerts, int nVerts);
 void R_SwapTerraPatch(cTerraPatch_t* pPatch);
 
+void R_TerrainCrater_f(void);
+
 /*
 =============================================================
 
