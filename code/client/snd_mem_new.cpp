@@ -416,10 +416,7 @@ DownSampleWav_MILES
 */
 int DownSampleWav_MILES(wavinfo_t *info, byte *wav, int wavlength, int newkhz, byte **newdata)
 {
-    //STUB_DESC("sound stuff");
-    //return 0;
-    // FIXME: unimplemented
-    //  Fallback to software downsampling
+    // Fallback to software downsampling
     return DownSampleWav(info, wav, wavlength, newkhz, newdata);
 }
 
