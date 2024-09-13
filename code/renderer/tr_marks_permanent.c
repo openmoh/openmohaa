@@ -559,7 +559,7 @@ void R_LevelMarksLoad(const char *szBSPName)
         for (i = tr.world->numDecisionNodes; i < tr.world->numnodes; i++) {
             pLeaf = &tr.world->nodes[i];
 
-            ri.FS_Read(&pLeaf->iNumMarkFragment, sizeof(int), h_low);
+            ri.FS_Read(&pLeaf->iNumMarkFragment, sizeof(int), hFile);
             pLeaf->iNumMarkFragment = LittleLong(pLeaf->iNumMarkFragment);
 
             if (pLeaf->iNumMarkFragment) {
