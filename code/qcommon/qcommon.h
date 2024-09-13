@@ -1125,6 +1125,7 @@ void CL_Init( void );
 void CL_Disconnect();
 void CL_Shutdown(const char *finalmsg, qboolean disconnect, qboolean quit);
 qboolean CL_FinishedIntro(void);
+void CL_FinishedStartStage(void);
 void CL_SetFrameNumber(int frameNumber);
 void CL_Frame( int msec );
 qboolean CL_GameCommand( void );
