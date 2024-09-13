@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2023 the OpenMoHAA team
+Copyright (C) 2023-2024 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -25,12 +25,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 class LANGameItem : public UIListCtrlItem
 {
-    str strings[5];
+    str strings[6];
 
 public:
     LANGameItem();
     LANGameItem(
-        const str& hostName, const str& mapName, const str& players, const str& gameTypeString, const str& ping
+        const str& hostName, const str& mapName, const str& players, const str& gameTypeString, const str& ping, const str& ipAddress
     );
 
     int            getListItemValue(int which) const override;
@@ -65,6 +65,11 @@ UILANGameClass::UILANGameClass()
 
     m_iLastUpdateTime = 0;
     m_noservers_mat   = uWinMan.RegisterShader("textures/menu/noservers");
+
+    //
+    // Added in OPM
+    //
+    m_bVirtual = false;
 }
 
 void UILANGameClass::Draw(void)
@@ -102,11 +107,12 @@ void UILANGameClass::UpdateUIElement(void)
 
     width = getClientFrame().size.width - 16.f;
 
-    AddColumn(Sys_LV_CL_ConvertString("Server Name"), 0, width * 0.4f, false, false);
-    AddColumn(Sys_LV_CL_ConvertString("Map"), 1, width * 0.15f, false, false);
-    AddColumn(Sys_LV_CL_ConvertString("Players"), 2, width * 0.165f, true, true);
-    AddColumn(Sys_LV_CL_ConvertString("GameType"), 3, width * 0.22f, false, false);
-    AddColumn(Sys_LV_CL_ConvertString("Ping"), 4, width * 0.065f, true, false);
+    AddColumn(Sys_LV_CL_ConvertString("Server Name"), 0, width * 0.27f, false, false); // was 0.4
+    AddColumn(Sys_LV_CL_ConvertString("Map"), 1, width * 0.12f, false, false); // was 0.15
+    AddColumn(Sys_LV_CL_ConvertString("Players"), 2, width * 0.08f, true, true); // was 0.165
+    AddColumn(Sys_LV_CL_ConvertString("GameType"), 3, width * 0.118f, false, false); // was 0.22
+    AddColumn(Sys_LV_CL_ConvertString("Ping"), 4, width * 0.052f, true, false); // was 0.065
+    AddColumn(Sys_LV_CL_ConvertString("IP"), 5, width * 0.36f, false, false); // Added in OPM
 
     uWinMan.ActivateControl(this);
 
@@ -134,7 +140,9 @@ void UILANGameClass::SetupServers(void)
             pServerInfo->mapName,
             va("%02i/%02i", pServerInfo->clients, pServerInfo->maxClients),
             pServerInfo->gameTypeString,
-            str(pServerInfo->ping)
+            str(pServerInfo->ping),
+            // Added in OPM
+            NET_AdrToStringwPort(pServerInfo->adr)
         );
     }
 
@@ -197,7 +205,7 @@ qboolean UILANGameClass::KeyEvent(int key, unsigned int time)
 LANGameItem::LANGameItem() {}
 
 LANGameItem::LANGameItem(
-    const str& hostName, const str& mapName, const str& players, const str& gameTypeString, const str& ping
+    const str& hostName, const str& mapName, const str& players, const str& gameTypeString, const str& ping, const str& ipAddress
 )
 {
     strings[0] = hostName;
@@ -205,6 +213,12 @@ LANGameItem::LANGameItem(
     strings[2] = players;
     strings[3] = gameTypeString;
     strings[4] = ping;
+
+    //
+    // Added in OPM
+    //
+
+    strings[5] = ipAddress;
 }
 
 int LANGameItem::getListItemValue(int which) const
