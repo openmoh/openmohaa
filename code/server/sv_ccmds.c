@@ -1108,7 +1108,11 @@ static void SV_Status_f(void) {
     client_t* cl;
     playerState_t* ps;
     const char* s;
+	const char	*colName[8];
+	size_t		colSize[8];
+	size_t		len;
     int			ping;
+    char		padding[64];
 
     // make sure server is running
     if (!com_sv_running->integer) {
@@ -1116,24 +1120,99 @@ static void SV_Status_f(void) {
         return;
     }
 
+	//
+	// Added in OPM
+	//  Dynamic column size.
+	//
+	//  Some programs use fixed-size columns
+	//  and may not parse information correctly
+	//
+
+	colName[0] = "num";
+	colSize[0] = strlen(colName[0]);
+	colName[1] = "score";
+	colSize[1] = strlen(colName[1]);
+	colName[2] = "ping";
+	colSize[2] = strlen(colName[2]);
+    colName[3] = "name";
+	colSize[3] = 15;
+	colName[4] = "lastmsg";
+	colSize[4] = 7;
+	colName[5] = "address";
+	colSize[5] = 21;
+    colName[6] = "qport";
+    colSize[6] = 5;
+    colName[7] = "rate";
+    colSize[7] = 5;
+
+	//
+	// Find IPv6 clients and adjust the IP address column size
+	//
+
+	for (i = 0, cl = svs.clients; i < svs.iNumClients; i++, cl++)
+    {
+		if (cl->state == CS_FREE) {
+			continue;
+		}
+
+        if (cl->netchan.remoteAddress.type == NA_IP6) {
+            colSize[5] = 38;
+			break;
+		}
+	}
+
     Com_Printf("map: %s\n", sv_mapname->string);
 
-    //Com_Printf("num score ping name            lastmsg address                                  qport rate \n");
-    //Com_Printf("--- ----- ---- --------------- ------- ---------------------------------------  ----- -----\n");
-    //
-    // Some programs use fixed-size columns
-    //
-    Com_Printf("num score ping name            lastmsg address               qport rate\n");
-    Com_Printf("--- ----- ---- --------------- ------- --------------------- ----- -----\n");
+	//
+	// Print column header name
+	//
+
+	for (i = 0; i < 8; i++) {
+		// Column name
+        len = strlen(colName[i]);
+		Com_Printf("%s", colName[i]);
+
+		// Padding
+		for (j = 0; j < (ARRAY_LEN(padding) - 1) && (colSize[i] - j >= len); j++) {
+			padding[j] = ' ';
+		}
+		padding[j] = 0;
+
+		if (j > 0) {
+			Com_Printf("%s", padding);
+		}
+	}
+	Com_Printf("\n");
+
+	//
+	// Print column header padding
+	//
+
+    for (i = 0; i < 8; i++) {
+        for (j = 0; j < (ARRAY_LEN(padding) - 1) && (j < colSize[i]); j++) {
+            padding[j] = '-';
+        }
+		padding[j] = 0;
+
+		Com_Printf("%s ", padding);
+    }
+    Com_Printf("\n");
+
+	//
+	// Print values
+	//
+
     for (i = 0, cl = svs.clients; i < svs.iNumClients; i++, cl++)
     {
-        if (!cl->state)
-            continue;
-        Com_Printf("%3i ", i);
+		if (cl->state == CS_FREE) {
+			continue;
+		}
+
+        Com_Printf("%*i ", colSize[0], i);
         ps = SV_GameClientNum(i);
         // su44: ps->persistant is not avaible in mohaa
         //Com_Printf ("%5i ", ps->persistant[PERS_SCORE]);
-        Com_Printf("%5i ", ps->stats[STAT_KILLS]);
+        Com_Printf("%*i ", colSize[1], ps->stats[STAT_KILLS]);
 
         if (cl->state == CS_CONNECTED)
             Com_Printf("CNCT ");
@@ -1142,29 +1221,34 @@ static void SV_Status_f(void) {
         else
         {
             ping = cl->ping < 9999 ? cl->ping : 9999;
-            Com_Printf("%4i ", ping);
+            Com_Printf("%*i ", colSize[2], ping);
         }
 
-        Com_Printf("%s", cl->name);
+        Com_Printf("%s ", cl->name);
         l = SV_Strlen(cl->name);
-		if (l <= 16) {
-			l = 16 - l;
-			for (j = 0; j < l; j++)
+		if (l < colSize[3]) {
+			l = colSize[3] - l;
+			for (j = 0; j < l; j++) {
 				Com_Printf(" ");
+			}
 		}
 
-        Com_Printf("%7i ", svs.time - cl->lastPacketTime);
+        Com_Printf("%*i ", colSize[4], svs.time - cl->lastPacketTime);
 
         s = NET_AdrToString(cl->netchan.remoteAddress);
-        Com_Printf("%s", s);
-        //l = 39 - strlen(s);
-        l = 22 - strlen(s);
-        for (j = 0; j < l; j++)
-            Com_Printf(" ");
+        Com_Printf("%s ", s);
 
-        Com_Printf("%5i", cl->netchan.qport);
+		len = strlen(s);
+		if (len < colSize[5]) {
+			l = colSize[5] - strlen(s);
+			for (j = 0; j < l; j++) {
+				Com_Printf(" ");
+			}
+		}
 
-        Com_Printf(" %5i", cl->rate);
+        Com_Printf( "%*i", colSize[6], cl->netchan.qport );
+
+        Com_Printf(" %*i", colSize[7], cl->rate);
 
         Com_Printf("\n");
     }
