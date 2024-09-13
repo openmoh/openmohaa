@@ -3404,9 +3404,9 @@ qboolean MUSIC_LoadSoundtrackFile(const char *filename)
             }
 
             if (!Q_stricmp(args[1], "volume")) {
-                psong->volume = atoi(args[2]);
+                psong->volume = atof(args[2]);
             } else if (!Q_stricmp(args[1], "fadetime")) {
-                psong->fadetime = atoi(args[2]);
+                psong->fadetime = atof(args[2]);
             } else if (!Q_stricmp(args[1], "loop")) {
                 psong->flags |= 1;
             } else if (!Q_stricmp(args[1], "restart")) {
