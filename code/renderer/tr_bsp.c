@@ -1678,6 +1678,7 @@ static	void R_LoadSubmodels(gamelump_t* l) {
     count = l->length / sizeof(*in);
 
     s_worldData.bmodels = out = ri.Hunk_Alloc( count * sizeof(*out), h_dontcare );
+    s_worldData.numBmodels = count;
 
     for ( i=0 ; i<count ; i++, in++, out++ ) {
         model_t *model;
