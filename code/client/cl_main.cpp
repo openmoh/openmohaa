@@ -3581,6 +3581,7 @@ static void CL_SetServerInfo(serverInfo_t *server, const char *info, int ping) {
 			server->maxClients = atoi(Info_ValueForKey(info, "sv_maxclients"));
 			Q_strncpyz(server->game,Info_ValueForKey(info, "game"), MAX_NAME_LENGTH);
 			server->gameType = atoi(Info_ValueForKey(info, "gametype"));
+			Q_strncpyz(server->gameTypeString, Info_ValueForKey(info, "gametypestring"), sizeof(server->gameTypeString));
 			server->netType = atoi(Info_ValueForKey(info, "nettype"));
 			server->minPing = atoi(Info_ValueForKey(info, "minping"));
 			server->maxPing = atoi(Info_ValueForKey(info, "maxping"));
