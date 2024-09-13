@@ -1664,7 +1664,7 @@ UI_ClearBackground
 void UI_ClearBackground(void)
 {
     re.Set2DWindow(
-        0, 0, cls.glconfig.vidWidth, cls.glconfig.vidHeight, 0, cls.glconfig.vidWidth, cls.glconfig.vidHeight, 0, -1, -1
+        0, 0, cls.glconfig.vidWidth, cls.glconfig.vidHeight, 0, cls.glconfig.vidWidth, cls.glconfig.vidHeight, 0, -1, 1
     );
     re.Scissor(0, 0, cls.glconfig.vidWidth, cls.glconfig.vidHeight);
     re.SetColor(g_color_table[0]);
@@ -1857,7 +1857,7 @@ void UI_Update(void)
             if (clc.state <= CA_PRIMED) {
                 view3d->setShow(false);
                 UI_ClearBackground();
-            } else if (clc.state == CA_PRIMED || clc.state == CA_ACTIVE) {
+            } else if (clc.state == CA_ACTIVE || clc.state == CA_CINEMATIC) {
                 Com_FakeUnpause();
                 view3d->setShow(true);
             } else {
