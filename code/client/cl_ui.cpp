@@ -4027,6 +4027,11 @@ void UI_ServerLoaded(void)
         return;
     }
 
+    if (ui_sCurrentLoadingMenu == "loading_default") {
+        UI_FinishLoadingScreen_f();
+        return;
+    }
+
     server_loading_waiting = qtrue;
 
     event = new Event(EV_Widget_Enable);
