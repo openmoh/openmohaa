@@ -35,6 +35,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../uilib/ui_public.h"
 #include "snd_local.h"
 
+#include "cl_ui.h"
+
 #define MAXSIZE				8
 #define MINSIZE				4
 
@@ -55,6 +57,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 
 static void RoQ_init( void );
+static void CL_FinishedCinematic();
 
 /******************************************************************************
 *
@@ -132,6 +135,8 @@ static cinematics_t		cin;
 static cin_cache		cinTable[MAX_VIDEO_HANDLES];
 static int				currentHandle = -1;
 static int				CL_handle = -1;
+
+static connstate_t		oldClientState;
 
 extern "C" int				s_soundtime;		// sample PAIRS
 
@@ -1091,8 +1096,6 @@ static void RoQReset( void ) {
 
 static void RoQInterrupt(void)
 {
-	// Removed in OPM
-#if 0
 	byte				*framedata;
         short		sbuf[32768];
         int		ssize;
@@ -1144,17 +1147,13 @@ redump:
 		case	ZA_SOUND_MONO:
 			if (!cinTable[currentHandle].silent) {
 				ssize = RllDecodeMonoToStereo( framedata, sbuf, cinTable[currentHandle].RoQFrameSize, 0, (unsigned short)cinTable[currentHandle].roq_flags);
-                                S_RawSamples(0, ssize, 22050, 2, 1, (byte *)sbuf, 1.0f, -1);
+                //                S_RawSamples(0, ssize, 22050, 2, 1, (byte *)sbuf, 1.0f, -1);
 			}
 			break;
 		case	ZA_SOUND_STEREO:
 			if (!cinTable[currentHandle].silent) {
-				if (cinTable[currentHandle].numQuads == -1) {
-					S_Update();
-					s_rawend[0] = s_soundtime;
-				}
 				ssize = RllDecodeStereoToStereo( framedata, sbuf, cinTable[currentHandle].RoQFrameSize, 0, (unsigned short)cinTable[currentHandle].roq_flags);
-                                S_RawSamples(0, ssize, 22050, 2, 2, (byte *)sbuf, 1.0f, -1);
+                //                S_RawSamples(0, ssize, 22050, 2, 2, (byte *)sbuf, 1.0f, -1);
 			}
 			break;
 		case	ROQ_QUAD_INFO:
@@ -1216,7 +1215,6 @@ redump:
 //	assert(cinTable[currentHandle].RoQFrameSize <= 65536);
 //	r = FS_Read( cin.file, cinTable[currentHandle].RoQFrameSize+8, cinTable[currentHandle].iFile );
 	cinTable[currentHandle].RoQPlayed	+= cinTable[currentHandle].RoQFrameSize+8;
-#endif
 }
 
 /******************************************************************************
@@ -1276,8 +1274,10 @@ static void RoQShutdown( void ) {
 		cinTable[currentHandle].iFile = 0;
 	}
 
+	S_StopMovieAudio();
+
 	if (cinTable[currentHandle].alterGameState) {
-		clc.state = CA_DISCONNECTED;
+		clc.state = oldClientState;
 		// we can't just do a vstr nextmap, because
 		// if we are aborting the intro cinematic with
 		// a devmap command, nextmap would be valid by
@@ -1289,8 +1289,29 @@ static void RoQShutdown( void ) {
 		}
 		CL_handle = -1;
 	}
+
 	cinTable[currentHandle].fileName[0] = 0;
 	currentHandle = -1;
+
+	CL_FinishedCinematic();
+}
+
+static void CL_FinishedCinematic()
+{
+	const  char* s;
+
+	if (!CL_FinishedIntro())
+	{
+		CL_FinishedStartStage();
+		return;
+	}
+
+    s = Cvar_VariableString("nextmap");
+    if (*s)
+    {
+        Cbuf_ExecuteText(EXEC_APPEND, va("%s\n", s));
+        Cvar_Set("nextmap", "");
+    }
 }
 
 /*
@@ -1400,9 +1421,6 @@ CIN_PlayCinematic
 ==================
 */
 int CIN_PlayCinematic( const char *arg, int x, int y, int w, int h, int systemBits ) {
-	return 0;
-	// Removed in OPM
-#if 0
 	unsigned short RoQID;
 	char	name[MAX_OSPATH];
 	int		i;
@@ -1474,17 +1492,12 @@ int CIN_PlayCinematic( const char *arg, int x, int y, int w, int h, int systemBi
 			clc.state = CA_CINEMATIC;
 		}
 
-		if (!cinTable[currentHandle].silent) {
-			s_rawend[0] = s_soundtime;
-		}
-
 		return currentHandle;
 	}
 	Com_DPrintf("trFMV::play(), invalid RoQ ID\n");
 
 	RoQShutdown();
 	return -1;
-#endif
 }
 
 void CIN_SetExtents (int handle, int x, int y, int w, int h) {
@@ -1600,33 +1613,91 @@ void CIN_DrawCinematic (int handle) {
 	cinTable[handle].dirty = qfalse;
 }
 
+static unsigned short CL_PlayRoQ(const char* name, const char* arg, const char* s) {
+	unsigned short RoQID;
+
+	Com_Memset(&cin, 0, sizeof(cinematics_t) );
+	currentHandle = CIN_HandleForVideo();
+
+	cin.currentHandle = currentHandle;
+
+	strcpy(cinTable[currentHandle].fileName, name);
+
+	cinTable[currentHandle].ROQSize = 0;
+	cinTable[currentHandle].ROQSize = FS_FOpenFileRead (cinTable[currentHandle].fileName, &cinTable[currentHandle].iFile, qtrue, qtrue);
+
+	if (cinTable[currentHandle].ROQSize<=0) {
+		Com_DPrintf("Can not find RoQ cinematic '%s'\n", name);
+		CL_FinishedCinematic();
+		return -1;
+	}
+
+	if ((s && s[0] == '1') || Q_stricmp(arg,"demoend.roq")==0 || Q_stricmp(arg,"end.roq")==0) {
+		cinTable[currentHandle].holdAtEnd = qtrue;
+    }
+
+    CIN_SetExtents(currentHandle, 0, 0, 640, 480);
+    cinTable[currentHandle].alterGameState = qtrue;
+
+    initRoQ();
+
+	FS_Read (cin.file, 16, cinTable[currentHandle].iFile);
+
+	RoQID = (unsigned short)(cin.file[0]) + (unsigned short)(cin.file[1])*256;
+	if (RoQID == 0x1084)
+	{
+		RoQ_init();
+//		FS_Read (cin.file, cinTable[currentHandle].RoQFrameSize+8, cinTable[currentHandle].iFile);
+
+		cinTable[currentHandle].status = FMV_PLAY;
+		Com_DPrintf("trFMV::play(), playing %s\n", arg);
+
+		oldClientState = clc.state;
+        clc.state = CA_CINEMATIC;
+
+		if (cls.glconfig.maxTextureSize <= 256 || s && *s == '2') {
+			//cinTable[currentHandle].interlaced = qtrue;
+		}
+
+		CL_handle = currentHandle;
+
+		do {
+			SCR_RunCinematic();
+		} while (!cinTable[currentHandle].buf && cinTable[currentHandle].status == FMV_PLAY);
+
+		UI_CloseConsole();
+
+		return currentHandle;
+	}
+	Com_DPrintf("trFMV::play(), invalid RoQ ID\n");
+
+	RoQShutdown();
+	return -1;
+}
+
 void CL_PlayCinematic_f(void) {
 	char	*arg, *s;
-	int bits = CIN_system;
+	char	name[256];
 
-	Com_DPrintf("CL_PlayCinematic_f\n");
 	if (clc.state == CA_CINEMATIC) {
 		SCR_StopCinematic();
 	}
 
 	arg = Cmd_Argv( 1 );
+	Com_DPrintf("CL_PlayCinematic( %s )\n", arg);
 	s = Cmd_Argv(2);
 
-	if ((s && s[0] == '1') || Q_stricmp(arg,"demoend.roq")==0 || Q_stricmp(arg,"end.roq")==0) {
-		bits |= CIN_hold;
-	}
-	if (s && s[0] == '2') {
-		bits |= CIN_loop;
+	CL_StartHunkUsers(qfalse);
+    S_StopAllSounds2(qtrue);
+
+	Com_sprintf(name, sizeof(name), "video/%s", arg);
+
+	if (Q_stricmp(&name[strlen(name) - 4], ".roq")) {
+		Com_Printf("Bad or missing cinematic extension.\n");
+		return;
 	}
 
-	S_StopAllSounds2( qtrue );
-
-	CL_handle = CIN_PlayCinematic( arg, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, bits );
-	if (CL_handle >= 0) {
-		do {
-			SCR_RunCinematic();
-		} while (cinTable[currentHandle].buf == NULL && cinTable[currentHandle].status == FMV_PLAY);		// wait for first frame (load codebook and sound)
-	}
+    CL_PlayRoQ(name, arg, s);
 }
 
 
