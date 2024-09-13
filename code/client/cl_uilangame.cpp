@@ -175,7 +175,7 @@ void UILANGameClass::JoinServer(Event *ev)
     const serverInfo_t& serverInfo = cls.localServers[getCurrentItem() - 1];
 
     UI_SetReturnMenuToCurrent();
-    CL_Connect(NET_AdrToString(serverInfo.adr), netadrtype_t::NA_UNSPEC);
+    CL_Connect(NET_AdrToStringwPort(serverInfo.adr), netadrtype_t::NA_UNSPEC);
 }
 
 qboolean UILANGameClass::KeyEvent(int key, unsigned int time)
