@@ -208,7 +208,7 @@ void UIListCtrl::MousePressed
 			m_sizestate.column = closesep;
 			m_sizestate.min = closeatleft - m_columnlist.ObjectAt(closesep).width;
 			uWinMan.setFirstResponder(this);
-		} else {
+		} else if (insep) {
 			SortByColumn(m_columnlist.ObjectAt(insep).name);
 		}
 	}
