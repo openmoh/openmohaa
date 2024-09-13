@@ -3978,10 +3978,10 @@ void S_ServerLoaded(void)
 
     S_TriggeredMusic_Stop();
     s_bSoundPaused = qtrue;
-    S_ReLoad( &svs.soundSystem );
+    S_ReLoad(&svs.soundSystem);
 
-    if( svs.tm_filename[ 0 ] ) {
-    	S_TriggeredMusic_SetupHandle( svs.tm_filename, svs.tm_loopcount, svs.tm_offset, 0 );
+    if (svs.tm_filename[0]) {
+        S_TriggeredMusic_SetupHandle(svs.tm_filename, svs.tm_loopcount, svs.tm_offset, 0);
     }
 }
 
