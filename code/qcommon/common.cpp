@@ -2181,7 +2181,9 @@ void Com_Frame( void ) {
 		timeBeforeEvents = Sys_Milliseconds ();
 	}
 	Com_EventLoop();
-	Cbuf_Execute(msec);
+	if (CL_FinishedIntro()) {
+		Cbuf_Execute(msec);
+	}
 
 
 	//
