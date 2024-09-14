@@ -129,6 +129,10 @@ typedef struct {
 	int					playonwalls;
 	byte*				buf;
 	long				drawX, drawY;
+
+	long realTime;
+	long currTime;
+	long soundTime;
 } cin_cache;
 
 static cinematics_t		cin;
@@ -137,6 +141,8 @@ static int				currentHandle = -1;
 static int				CL_handle = -1;
 
 static connstate_t		oldClientState;
+
+static int				audioStartTime = 0;
 
 extern "C" int				s_soundtime;		// sample PAIRS
 
@@ -165,7 +171,7 @@ static int CIN_HandleForVideo(void) {
 }
 
 
-extern "C" int CL_ScaledMilliseconds(void);
+extern "C" int Com_Milliseconds(void);
 
 //-----------------------------------------------------------------------------
 // RllSetupTable
@@ -1160,7 +1166,7 @@ redump:
 			if (cinTable[currentHandle].numQuads == -1) {
 				readQuadInfo( framedata );
 				setupQuad( 0, 0 );
-				cinTable[currentHandle].startTime = cinTable[currentHandle].lastTime = CL_ScaledMilliseconds();
+				cinTable[currentHandle].startTime = cinTable[currentHandle].lastTime = Com_Milliseconds();
 			}
 			if (cinTable[currentHandle].numQuads != 1) cinTable[currentHandle].numQuads = 0;
 			break;
@@ -1227,7 +1233,10 @@ redump:
 
 static void RoQ_init( void )
 {
-	cinTable[currentHandle].startTime = cinTable[currentHandle].lastTime = CL_ScaledMilliseconds();
+	cinTable[currentHandle].startTime = cinTable[currentHandle].lastTime = Com_Milliseconds();
+	cinTable[currentHandle].realTime = Com_Milliseconds();
+	cinTable[currentHandle].currTime = 0;
+	cinTable[currentHandle].soundTime = 0;
 
 	cinTable[currentHandle].RoQPlayed = 24;
 
@@ -1352,8 +1361,11 @@ Fetch and decompress the pending frame
 
 e_status CIN_RunCinematic (int handle)
 {
-	int	start = 0;
-	int     thisTime = 0;
+	int deltaTime;
+	int frameTime;
+	int soundTime;
+	int newTime;
+	long tfps;
 
 	if (handle < 0 || handle>= MAX_VIDEO_HANDLES || cinTable[handle].status == FMV_EOF) return FMV_EOF;
 
@@ -1381,24 +1393,46 @@ e_status CIN_RunCinematic (int handle)
 		return cinTable[currentHandle].status;
 	}
 
-	thisTime = CL_ScaledMilliseconds();
-	if (cinTable[currentHandle].shader && (abs(thisTime - cinTable[currentHandle].lastTime))>100) {
-		cinTable[currentHandle].startTime += thisTime - cinTable[currentHandle].lastTime;
+	frameTime = Com_Milliseconds();
+	deltaTime = frameTime - cinTable[currentHandle].realTime;
+	if (deltaTime > 100) {
+		deltaTime = 100;
 	}
-	cinTable[currentHandle].tfps = (((CL_ScaledMilliseconds() - cinTable[currentHandle].startTime)*3)/100);
 
-	start = cinTable[currentHandle].startTime;
-	while(  (cinTable[currentHandle].tfps != cinTable[currentHandle].numQuads)
+	newTime = cinTable[currentHandle].currTime + deltaTime;
+	if (cl_movieaudio->integer) {
+		soundTime = S_CurrentMoviePosition();
+		if (soundTime > cinTable[currentHandle].currTime || soundTime > cinTable[currentHandle].soundTime) {
+			cinTable[currentHandle].currTime = newTime + (deltaTime * (soundTime - newTime)) / 100;
+		}
+		else {
+			cinTable[currentHandle].currTime = newTime;
+		}
+
+        cinTable[currentHandle].soundTime = soundTime;
+	} else {
+		//
+		// Fixed in OPM
+		//
+		cinTable[currentHandle].currTime = newTime;
+	}
+
+	cinTable[currentHandle].realTime = frameTime;
+
+	tfps = (cinTable[currentHandle].currTime * 3) / 100;
+
+	while(  (tfps != cinTable[currentHandle].numQuads)
 		&& (cinTable[currentHandle].status == FMV_PLAY) ) 
 	{
 		RoQInterrupt();
-		if (start != cinTable[currentHandle].startTime) {
-			cinTable[currentHandle].tfps = (((CL_ScaledMilliseconds() - cinTable[currentHandle].startTime)*3)/100);
-			start = cinTable[currentHandle].startTime;
+
+		cinTable[currentHandle].realTime = Com_Milliseconds();
+		if (cinTable[currentHandle].realTime > frameTime + 66) {
+			break;
 		}
 	}
 
-	cinTable[currentHandle].lastTime = thisTime;
+	cinTable[currentHandle].lastTime = frameTime;
 
 	if (cinTable[currentHandle].status == FMV_LOOPED) {
 		cinTable[currentHandle].status = FMV_PLAY;
@@ -1650,7 +1684,12 @@ static unsigned short CL_PlayRoQ(const char* name, const char* arg, const char* 
 //		FS_Read (cin.file, cinTable[currentHandle].RoQFrameSize+8, cinTable[currentHandle].iFile);
 
 		cinTable[currentHandle].status = FMV_PLAY;
-		Com_DPrintf("trFMV::play(), playing %s\n", arg);
+        Com_DPrintf("trFMV::play(), playing %s\n", arg);
+
+        if (cl_movieaudio->integer) {
+			audioStartTime = Com_Milliseconds();
+            S_SetupMovieAudio(name);
+        }
 
 		oldClientState = clc.state;
         clc.state = CA_CINEMATIC;
@@ -1717,7 +1756,5 @@ void SCR_RunCinematic (void)
 void SCR_StopCinematic(void) {
 	if (CL_handle >= 0 && CL_handle < MAX_VIDEO_HANDLES) {
 		CIN_StopCinematic(CL_handle);
-		S_StopAllSounds2( qtrue );
-		CL_handle = -1;
 	}
 }
