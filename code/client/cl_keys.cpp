@@ -1346,5 +1346,5 @@ Key_SetCatcher
 */
 void Key_SetCatcher(int catcher)
 {
-    keyCatchers = catcher;
+    cls.keyCatchers = catcher;
 }
