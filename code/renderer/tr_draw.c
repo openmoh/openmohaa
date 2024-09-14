@@ -331,7 +331,22 @@ RE_DrawBackground_DrawPixels
 ================
 */
 void RE_DrawBackground_DrawPixels(int cols, int rows, int bgr, byte* data) {
-	// FIXME: stub
+	R_SyncRenderThread();
+
+	GL_State(0);
+	qglDisable(GL_TEXTURE_2D);
+
+	qglPixelZoom(glConfig.vidWidth / rows, glConfig.vidHeight / cols);
+
+	if (bgr) {
+		qglDrawPixels(cols, rows, GL_BGR, GL_UNSIGNED_BYTE, data);
+	} else {
+		qglDrawPixels(cols, rows, GL_RGB, GL_UNSIGNED_BYTE, data);
+	}
+
+	qglPixelZoom(1.0, 1.0);
+
+	qglEnable(GL_TEXTURE_2D);
 }
 
 /*
