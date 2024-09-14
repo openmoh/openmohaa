@@ -2607,7 +2607,9 @@ void ClientGameCommandManager::SetColorRange(Event *ev)
         return;
     }
 
-    // FIXME: unused stub??
+    //
+    // Unused
+    //
 }
 
 //=============
@@ -4091,6 +4093,40 @@ void ClientGameCommandManager::LoopSound(Event *ev)
 }
 
 //===============
+// CacheImageResource
+//===============
+void CacheImageResource(const char* stuff) {
+    str real_stuff;
+    char filename[1024];
+
+    if (cgi.fsDebug->integer == 2) {
+        Com_Printf("client cacheimage: %s\n", stuff);
+    }
+
+    Q_strncpyz(filename, stuff, sizeof(filename));
+    cgi.FS_CanonicalFilename(filename);
+
+    cgi.R_RegisterShaderNoMip(filename);
+}
+
+//===============
+// CacheFontResource
+//===============
+void CacheFontResource(const char* stuff) {
+    str real_stuff;
+    char filename[1024];
+
+    if (cgi.fsDebug->integer == 2) {
+        Com_Printf("client cacheimage: %s\n", stuff);
+    }
+
+    Q_strncpyz(filename, stuff, sizeof(filename));
+    cgi.FS_CanonicalFilename(filename);
+
+    cgi.R_LoadFont(filename);
+}
+
+//===============
 // CacheResource
 //===============
 void CacheResource(const char *stuff)
@@ -4129,12 +4165,12 @@ void ClientGameCommandManager::Cache(Event *ev)
 
 void ClientGameCommandManager::CacheImage(Event *ev)
 {
-    // FIXME: stub
+    CacheImageResource(ev->GetString(1).c_str());
 }
 
 void ClientGameCommandManager::CacheFont(Event *ev)
 {
-    // FIXME: stub
+    CacheFontResource(ev->GetString(1).c_str());
 }
 
 //===============
@@ -5006,7 +5042,15 @@ bool ClientGameCommandManager::GetTagPositionAndOrientation(str tagname, orienta
 //===============
 void ClientGameCommandManager::RestartAllEmitters(void)
 {
-    // FIXME: stub??
+    ctempmodel_t *p;
+
+    //
+    // FIXME: not sure if it's the right thing
+    //
+
+    for (p = m_active_tempmodels.prev; p != &m_active_tempmodels; p = p->next) {
+        p->cgd.createTime = cg.time;
+    }
 }
 
 //===============

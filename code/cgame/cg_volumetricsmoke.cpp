@@ -209,7 +209,7 @@ void ClientGameCommandManager::ResetVSSSources()
 
 void ClientGameCommandManager::ResetVSSSources(Event *ev)
 {
-    // FIXME: stub??
+    ResetVSSSources();
 }
 
 void CG_ResetVSSSources()
