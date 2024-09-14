@@ -4170,8 +4170,7 @@ S_StopMovieAudio
 */
 void S_StopMovieAudio()
 {
-    // FIXME: unimplemented
-    STUB_DESC("sound stuff.");
+    openal.chan_movie.stop();
 }
 
 /*
@@ -4181,8 +4180,27 @@ S_SetupMovieAudio
 */
 void S_SetupMovieAudio(const char *pszMovieName)
 {
-    // FIXME: unimplemented
-    STUB_DESC("sound stuff");
+    char filename[MAX_QPATH];
+
+    S_StopMovieAudio();
+
+    COM_StripExtension(pszMovieName, filename, sizeof(filename));
+    Q_strcat(filename, sizeof(filename), ".mp3");
+
+    if (!openal.chan_movie.queue_stream(filename)) {
+        COM_StripExtension(pszMovieName, filename, sizeof(filename));
+        Q_strcat(filename, sizeof(filename), ".wav");
+
+        if (!openal.chan_movie.queue_stream(filename)) {
+            Com_DPrintf("Can't find any matching audio file for movie: %s\n", pszMovieName);
+            return;
+        }
+    }
+
+    openal.chan_movie.set_gain(S_GetBaseVolume() * 1.5f);
+    openal.chan_movie.play();
+
+    Com_DPrintf("Movie Audio setup: %s\n", filename);
 }
 
 /*
@@ -4192,9 +4210,7 @@ S_CurrentMoviePosition
 */
 int S_CurrentMoviePosition()
 {
-    // FIXME: unimplemented
-    STUB_DESC("sound stuff");
-    return 0;
+    return openal.chan_movie.sample_ms_offset();
 }
 
 /*

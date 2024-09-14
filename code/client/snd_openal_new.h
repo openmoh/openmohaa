@@ -184,6 +184,10 @@ private:
     unsigned int getBytesPerSample() const;
 };
 
+struct openal_movie_channel : public openal_channel {
+
+};
+
 struct openal_internal_t {
     openal_channel              chan_3D[MAX_OPENAL_CHANNELS_3D];
     openal_channel              chan_2D[MAX_OPENAL_CHANNELS_2D];
