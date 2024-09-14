@@ -2879,9 +2879,9 @@ ScriptVariable& Listener::ProcessEventReturn(Event *ev)
 
     if (!ev->eventnum) {
 #ifdef _DEBUG
-        EVENT_Printf("^~^~^ Failed execution of event '%s' for class '%s'\n", ev->name, c->classname);
+        EVENT_DPrintf("^~^~^ Failed execution of event '%s' for class '%s'\n", ev->name, c->classname);
 #else
-        EVENT_Printf("^~^~^ Failed execution of event for class '%s'\n", c->classname);
+        EVENT_DPrintf("^~^~^ Failed execution of event for class '%s'\n", c->classname);
 #endif
 
         delete ev;
@@ -2891,7 +2891,7 @@ ScriptVariable& Listener::ProcessEventReturn(Event *ev)
     responses = c->responseLookup[ev->eventnum];
 
     if (responses == NULL) {
-        EVENT_Printf(
+        EVENT_DPrintf(
             "^~^~^ Failed execution of command '%s' for class '%s'\n", Event::GetEventName(ev->eventnum), c->classname
         );
         delete ev;
@@ -2941,9 +2941,9 @@ bool Listener::ProcessScriptEvent(Event& ev)
 
     if (!ev.eventnum) {
 #ifdef _DEBUG
-        EVENT_Printf("^~^~^ Failed execution of event '%s' for class '%s'\n", ev.name, c->classname);
+        EVENT_DPrintf("^~^~^ Failed execution of event '%s' for class '%s'\n", ev.name, c->classname);
 #else
-        EVENT_Printf("^~^~^ Failed execution of event for class '%s'\n", c->classname);
+        EVENT_DPrintf("^~^~^ Failed execution of event for class '%s'\n", c->classname);
 #endif
 
         return false;
