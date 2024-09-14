@@ -6275,7 +6275,9 @@ void Entity::NoTarget(Event *ev)
 
 void Entity::GetZone(Event *ev)
 {
-    // FIXME: stub
+    ev->AddInteger(edict->r.areanum);
+
+    // FIXME: Implement OPM feature
     STUB();
 
 #if 0
@@ -6291,7 +6293,13 @@ void Entity::GetZone(Event *ev)
 
 void Entity::IsInZone(Event *ev)
 {
-    // FIXME: stub
+    if (edict->r.areanum == ev->GetInteger(1)) {
+        ev->AddInteger(1);
+    } else {
+        ev->AddInteger(0);
+    }
+
+    // FIXME: Implement OPM feature
     STUB();
 
 #if 0
