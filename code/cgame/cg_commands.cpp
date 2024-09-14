@@ -1195,6 +1195,14 @@ Event EV_Client_SFXStartDelayed
     "fDelay sCommand arg1 arg2 arg3 arg4 arg5 arg6 arg7 arg8",
     "Used for adding commands to a special effect with a time delay"
 );
+Event EV_Client_PlayForceFeedback
+(
+    "playforcefeedback",
+    EV_DEFAULT,
+    "s",
+    "effectname",
+    "Starts a force feedback effect."
+);
 
 EffectsEventQueueNode EffectsEventQueue;
 
