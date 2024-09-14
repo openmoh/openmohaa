@@ -120,7 +120,7 @@ void View3D::Pressed(Event *ev)
 
 void View3D::OnDeactivate(Event *ev)
 {
-    cls.keyCatchers |= KEYCATCH_UI;
+    Key_SetCatcher(Key_GetCatcher() | KEYCATCH_UI);
 }
 
 void View3D::OnActivate(Event *ev)
@@ -129,7 +129,7 @@ void View3D::OnActivate(Event *ev)
     UList<UIWidget *> widgets;
 
     UI_CloseInventory();
-    cls.keyCatchers &= ~KEYCATCH_UI;
+    Key_SetCatcher(Key_GetCatcher() & ~KEYCATCH_UI);
 
     for (wid = getParent()->getFirstChild(); wid; wid = getParent()->getNextChild(wid)) {
         if (wid->getAlwaysOnBottom() && wid != this) {

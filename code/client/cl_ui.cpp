@@ -3569,7 +3569,7 @@ UI_WantsKeyboard
 */
 void UI_WantsKeyboard()
 {
-    cls.keyCatchers |= KEYCATCH_UI;
+    Key_SetCatcher(Key_GetCatcher() | KEYCATCH_UI);
 }
 
 struct widgettrans_s {
