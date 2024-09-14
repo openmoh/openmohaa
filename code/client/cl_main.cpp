@@ -2573,12 +2573,17 @@ void CL_Frame ( int msec ) {
 	}
 #endif
 
-	if ( clc.state == CA_DISCONNECTED && !UI_MenuActive()
-		&& !com_sv_running->integer ) {
-		// if disconnected, bring up the menu
-		S_StopAllSounds2( qtrue );
-		S_TriggeredMusic_PlayIntroMusic();
-		UI_MenuEscape( "main" );
+	if (CL_FinishedIntro()) {
+		if (clc.state == CA_DISCONNECTED) {
+			if (!UI_MenuActive() && !com_sv_running->integer) {
+				// if disconnected, bring up the menu
+				S_StopAllSounds2(qtrue);
+				S_TriggeredMusic_PlayIntroMusic();
+				UI_MenuEscape("main");
+			}
+		} else if (clc.state == CA_CINEMATIC) {
+			UI_ForceMenuOff(qtrue);
+		}
 	}
 
 	// if recording an avi, lock to a fixed fps

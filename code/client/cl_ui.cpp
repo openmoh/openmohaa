@@ -1702,7 +1702,35 @@ void UI_DrawIntro(void)
     view3d->setShow(false);
     UI_ClearBackground();
 
-    // FIXME: draw intro
+    if (cls.startStage < 3 || cls.startStage >= 12) {
+        return;
+    }
+
+    if (intro_stage.material->GetMaterial()) {
+        float swidth;
+        float sheight;
+        vec4_t color;
+
+        VectorSet4(color, 1, 1, 1, 1);
+        if (intro_stage.fadetime) {
+            float frac;
+
+            frac = Q_clamp_float((cls.realtime - intro_stage.starttime) / intro_stage.fadetime, 0, 1);
+            color[0] = color[1] = color[2] = intro_stage.alpha_start + frac * (intro_stage.alpha_end - intro_stage.alpha_start);
+        }
+
+        swidth = view3d->getFrame().getMaxX();
+        sheight = view3d->getFrame().getMaxY();
+
+        re.SetColor(color);
+
+        re.DrawStretchPic(0.0, 0.0, swidth, sheight, 0.0, 0.0, 1.0, 1.0, intro_stage.material->GetMaterial());
+        re.SetColor(NULL);
+    }
+
+    if (cls.realtime >= intro_stage.endtime) {
+        CL_FinishedStartStage();
+    }
 }
 
 /*
@@ -1809,17 +1837,9 @@ void UI_Update(void)
     }
 
     // don't care about the intro
-    /*
-	if( CL_FinishedIntro() )
-	{
-	}
-	else
-	{
-		UI_DrawIntro();
-	}
-	*/
-
-    if (!server_loading && (clc.state == CA_CONNECTING || clc.state == CA_CHALLENGING) && ui_pConnectingMenu) {
+    if (!CL_FinishedIntro()) {
+        UI_DrawIntro();
+    } else if (!server_loading && (clc.state == CA_CONNECTING || clc.state == CA_CHALLENGING) && ui_pConnectingMenu) {
         view3d->setShow(false);
         UI_ClearBackground();
 
@@ -4738,7 +4758,7 @@ CL_FinishedIntro
 */
 qboolean CL_FinishedIntro(void)
 {
-    return !cls.startStage;
+    return cls.startStage == 0;
 }
 
 /*
@@ -4748,7 +4768,87 @@ CL_FinishedStartStage
 */
 void CL_FinishedStartStage(void)
 {
-    // FIXME: stub
+    int wait;
+
+    switch (cls.startStage++) {
+    case 1:
+        Cbuf_ExecuteText(EXEC_NOW, "cinematic EAlogo.RoQ\n");
+        break;
+    case 2:
+        intro_stage.alpha_start = 0.0;
+        intro_stage.alpha_end   = 1.0;
+
+        wait                  = ui_titlescreen_fadein->value * 1000.0;
+        intro_stage.fadetime  = wait;
+        intro_stage.starttime = cls.realtime;
+        intro_stage.endtime   = cls.realtime + wait;
+
+        intro_stage.material = uWinMan.RegisterShader("mohaa_title");
+        break;
+    case 3:
+        intro_stage.alpha_start = 1.0;
+        intro_stage.alpha_end   = 1.0;
+
+        wait = ui_legalscreen_stay->value * 1000.0;
+        intro_stage.fadetime  = 0.0;
+        intro_stage.starttime = cls.realtime;
+        intro_stage.endtime   = cls.realtime + wait;
+        break;
+    case 4:
+        intro_stage.alpha_start = 1.0;
+        intro_stage.alpha_end   = 0.0;
+
+        wait                  = ui_titlescreen_fadeout->value * 1000.0;
+        intro_stage.fadetime  = wait;
+        intro_stage.starttime = cls.realtime;
+        intro_stage.endtime   = cls.realtime + wait;
+        break;
+    case 5:
+        intro_stage.alpha_start = 0.0;
+        intro_stage.alpha_end   = 1.0;
+
+        wait                  = ui_legalscreen_fadein->value * 1000.0;
+        intro_stage.fadetime  = wait;
+        intro_stage.starttime = cls.realtime;
+        intro_stage.endtime   = cls.realtime + wait;
+
+        intro_stage.material = uWinMan.RegisterShader("legal");
+        break;
+    case 6:
+        intro_stage.alpha_start = 1.0;
+        intro_stage.alpha_end   = 1.0;
+
+        wait                  = ui_legalscreen_stay->value * 1000.0;
+        intro_stage.fadetime  = 0.0;
+        intro_stage.starttime = cls.realtime;
+        intro_stage.endtime   = cls.realtime + wait;
+        break;
+    case 7:
+        intro_stage.alpha_start = 1.0;
+        intro_stage.alpha_end   = 0.0;
+
+        wait                  = ui_legalscreen_fadeout->value * 1000.0;
+        intro_stage.fadetime  = wait;
+        intro_stage.starttime = cls.realtime;
+        intro_stage.endtime   = cls.realtime + wait;
+        break;
+    case 8:
+        if (com_target_game->integer >= target_game_e::TG_MOHTA) {
+            cls.startStage = 0;
+            return;
+        }
+
+        Cbuf_ExecuteText(EXEC_NOW, "cinematic 2015intro.RoQ\n");
+        break;
+    case 9:
+        Cbuf_ExecuteText(EXEC_NOW, "cinematic intro.RoQ\n");
+        break;
+    case 10:
+        cls.startStage = 0;
+        break;
+    default:
+        break;
+    }
 }
 
 /*
@@ -4763,9 +4863,6 @@ void UI_StartStageKeyEvent(void)
         if (ui_skip_eamovie->integer) {
             SCR_StopCinematic();
         }
-        break;
-    case 12:
-        SCR_StopCinematic();
         break;
     case 3:
     case 4:
@@ -4785,11 +4882,9 @@ void UI_StartStageKeyEvent(void)
         break;
     case 9:
     case 10:
-    case 11:
-        if (ui_skip_legalscreen->integer) {
-            cls.startStage = 11;
-            CL_FinishedStartStage();
-        }
+        SCR_StopCinematic();
+        break;
+    default:
         break;
     }
 }
@@ -4817,8 +4912,8 @@ void CL_TryStartIntro(void)
         UI_ToggleConsole();
     } else {
         // FIXME: no intro from now
-        //Cvar_Set( cl_playintro->name, "0" );
-        //UI_StartIntro_f();
+        Cvar_Set(cl_playintro->name, "0");
+        UI_StartIntro_f();
     }
 }
 
@@ -5174,7 +5269,7 @@ void CL_InitializeUI(void)
     ui_success             = Cvar_Get("ui_success", "0", 0);
     ui_failed              = Cvar_Get("ui_failed", "0", 0);
     ui_returnmenu          = Cvar_Get("ui_returnmenu", "0", 0);
-    ui_skip_eamovie        = Cvar_Get("ui_skip_eamovie", "0", 0);
+    ui_skip_eamovie        = Cvar_Get("ui_skip_eamovie", "1", 0);
     ui_skip_titlescreen    = Cvar_Get("ui_skip_titlescreen", "1", 0);
     ui_skip_legalscreen    = Cvar_Get("ui_skip_legalscreen", "1", 0);
     ui_titlescreen_fadein  = Cvar_Get("ui_titlescreen_fadein", "1", 0);
@@ -5370,6 +5465,10 @@ void CL_InitializeUI(void)
     CL_ClearButtons();
 
     cls.uiStarted = qtrue;
+
+    if (!com_dedicated->integer) {
+        CL_TryStartIntro();
+    }
 }
 
 static char        **loadStrings;
