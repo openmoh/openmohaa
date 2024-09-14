@@ -62,6 +62,7 @@ extern void (APIENTRYP qglUnlockArraysEXT) (void);
 	GLE(void, Disable, GLenum cap) \
 	GLE(void, DrawArrays, GLenum mode, GLint first, GLsizei count) \
 	GLE(void, DrawElements, GLenum mode, GLsizei count, GLenum type, const GLvoid *indices) \
+	GLE(void, DrawPixels, GLsizei width, GLsizei height, GLenum format, GLenum type, const GLvoid *pixels) \
 	GLE(void, Enable, GLenum cap) \
 	GLE(void, Finish, void) \
 	GLE(void, Flush, void) \
@@ -75,6 +76,7 @@ extern void (APIENTRYP qglUnlockArraysEXT) (void);
 	GLE(const GLubyte *, GetString, GLenum name) \
 	GLE(void, LineStipple, GLint factor, GLushort pattern) \
 	GLE(void, LineWidth, GLfloat width) \
+	GLE(void, PixelZoom, GLfloat xfactor, GLfloat yfactor) \
 	GLE(void, PolygonOffset, GLfloat factor, GLfloat units) \
 	GLE(void, ReadPixels, GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, GLvoid *pixels) \
 	GLE(void, Scissor, GLint x, GLint y, GLsizei width, GLsizei height) \
