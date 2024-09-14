@@ -4927,6 +4927,8 @@ void Player::Think(void)
     }
 
     server_new_buttons = 0;
+
+    edict->r.svFlags &= ~(SVF_SINGLECLIENT | SVF_NOTSINGLECLIENT);
 }
 
 void Player::InitLegsStateTable(void)
@@ -6966,11 +6968,8 @@ void Player::CopyStats(Player *player)
     VectorCopy(player->client->ps.origin, client->ps.origin);
     VectorCopy(player->client->ps.velocity, client->ps.velocity);
 
-    if (client->ps.iViewModelAnim != player->client->ps.iViewModelAnim) {
-        ViewModelAnim(player->m_sVMcurrent, qfalse, 0);
-    } else if (client->ps.iViewModelAnimChanged != player->client->ps.iViewModelAnimChanged) {
-        ViewModelAnim(player->m_sVMcurrent, qtrue, 0);
-    }
+    client->ps.iViewModelAnim = player->client->ps.iViewModelAnim;
+    client->ps.iViewModelAnimChanged = player->client->ps.iViewModelAnimChanged;
 
     client->ps.gravity = player->client->ps.gravity;
     client->ps.speed   = player->client->ps.speed;
@@ -7003,7 +7002,7 @@ void Player::CopyStats(Player *player)
     edict->r.svFlags &= ~SVF_NOCLIENT;
     edict->s.renderfx &= ~RF_DONTDRAW;
 
-    player->edict->r.svFlags |= SVF_PORTAL;
+    player->edict->r.svFlags |= SVF_NOTSINGLECLIENT;
     player->edict->r.singleClient = client->ps.clientNum;
 
     edict->r.svFlags |= SVF_SINGLECLIENT;
@@ -7031,9 +7030,6 @@ void Player::CopyStats(Player *player)
         dest = new Entity;
 
         CloneEntity(dest, ent->entity);
-
-        dest->edict->r.svFlags |= SVF_SINGLECLIENT;
-        dest->edict->r.singleClient = client->ps.clientNum;
 
         dest->edict->s.modelindex   = ent->entity->edict->s.modelindex;
         dest->edict->tiki           = ent->entity->edict->tiki;
