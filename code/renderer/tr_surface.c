@@ -511,6 +511,10 @@ void RB_SurfaceGrid( srfGridMesh_t *cv ) {
 	dlightBits = cv->dlightBits[backEnd.smpFrame];
 	tess.dlightBits |= dlightBits;
 
+	if (tess.shader->surfaceFlags & (SURF_NODLIGHT | SURF_SKY)) {
+		tess.dlightBits = 0;
+	}
+
 	// determine the allowable discrepance
 	lodError = LodErrorForVolume( cv->lodOrigin, cv->lodRadius );
 
@@ -574,31 +578,59 @@ void RB_SurfaceGrid( srfGridMesh_t *cv ) {
 		texCoords = tess.texCoords[numVertexes][0];
 		color = ( unsigned char * ) &tess.vertexColors[numVertexes];
 		vDlightBits = &tess.vertexDlightBits[numVertexes];
-		needsNormal = tess.shader->needsNormal;
+		needsNormal = tess.shader->needsNormal || tess.shader->needsLSpherical || tr.refdef.num_dlights;
 
-		for ( i = 0 ; i < rows ; i++ ) {
-			for ( j = 0 ; j < lodWidth ; j++ ) {
-				dv = cv->verts + heightTable[ used + i ] * cv->width
-					+ widthTable[ j ];
+		if ( tess.dlightMap ) {
+			for ( i = 0 ; i < rows ; i++ ) {
+				for ( j = 0 ; j < lodWidth ; j++ ) {
+					dv = cv->verts + heightTable[ used + i ] * cv->width
+						+ widthTable[ j ];
 
-				xyz[0] = dv->xyz[0];
-				xyz[1] = dv->xyz[1];
-				xyz[2] = dv->xyz[2];
-				texCoords[0] = dv->st[0];
-				texCoords[1] = dv->st[1];
-				texCoords[2] = dv->lightmap[0];
-				texCoords[3] = dv->lightmap[1];
-				if ( needsNormal || tess.shader->needsLSpherical || tr.refdef.num_dlights ) {
-					normal[0] = dv->normal[0];
-					normal[1] = dv->normal[1];
-					normal[2] = dv->normal[2];
+					xyz[0] = dv->xyz[0];
+					xyz[1] = dv->xyz[1];
+					xyz[2] = dv->xyz[2];
+					texCoords[0] = dv->st[0];
+					texCoords[1] = dv->st[1];
+					texCoords[2] = dv->lightmap[0] + cv->lightmapOffset[0];
+					texCoords[3] = dv->lightmap[1] + cv->lightmapOffset[1];
+					if ( needsNormal ) {
+						normal[0] = dv->normal[0];
+						normal[1] = dv->normal[1];
+						normal[2] = dv->normal[2];
+					}
+					* ( unsigned int * ) color = * ( unsigned int * ) dv->color;
+					*vDlightBits++ = dlightBits;
+					xyz += 4;
+					normal += 4;
+					texCoords += 4;
+					color += 4;
 				}
-				* ( unsigned int * ) color = * ( unsigned int * ) dv->color;
-				*vDlightBits++ = dlightBits;
-				xyz += 4;
-				normal += 4;
-				texCoords += 4;
-				color += 4;
+			}
+		} else {
+			for ( i = 0 ; i < rows ; i++ ) {
+				for ( j = 0 ; j < lodWidth ; j++ ) {
+					dv = cv->verts + heightTable[ used + i ] * cv->width
+						+ widthTable[ j ];
+
+					xyz[0] = dv->xyz[0];
+					xyz[1] = dv->xyz[1];
+					xyz[2] = dv->xyz[2];
+					texCoords[0] = dv->st[0];
+					texCoords[1] = dv->st[1];
+					texCoords[2] = dv->lightmap[0];
+					texCoords[3] = dv->lightmap[1];
+					if ( needsNormal ) {
+						normal[0] = dv->normal[0];
+						normal[1] = dv->normal[1];
+						normal[2] = dv->normal[2];
+					}
+					* ( unsigned int * ) color = * ( unsigned int * ) dv->color;
+					*vDlightBits++ = dlightBits;
+					xyz += 4;
+					normal += 4;
+					texCoords += 4;
+					color += 4;
+				}
 			}
 		}
 
