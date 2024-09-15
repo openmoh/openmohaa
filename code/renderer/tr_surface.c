@@ -827,8 +827,8 @@ void RB_DrawTerrainTris(srfTerrain_t* p) {
 			VectorCopy(g_pVert[i].xyz, tess.xyz[tess.numVertexes]);
 			tess.texCoords[tess.numVertexes][0][0] = g_pVert[i].texCoords[0][0];
 			tess.texCoords[tess.numVertexes][0][1] = g_pVert[i].texCoords[0][1];
-			tess.texCoords[tess.numVertexes][1][0] = g_pVert[i].texCoords[1][0] * lmScale + p->lmapX;
-			tess.texCoords[tess.numVertexes][1][1] = g_pVert[i].texCoords[1][1] * lmScale + p->lmapY;
+			tess.texCoords[tess.numVertexes][1][0] = g_pVert[i].xyz[0] * lmScale + p->lmapX;
+			tess.texCoords[tess.numVertexes][1][1] = g_pVert[i].xyz[1] * lmScale + p->lmapY;
 			tess.normal[tess.numVertexes][0] = 0;
 			tess.normal[tess.numVertexes][1] = 0;
 			tess.normal[tess.numVertexes][2] = 1.0;
