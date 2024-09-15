@@ -1501,9 +1501,9 @@ qboolean R_AllocLMBlock(int w, int h, int *x, int *y)
         for (i = 0; i < LIGHTMAP_SIZE - w; i++) {
             best2 = 0;
 
-            for (j = 0; j < w && dli.allocated[i] < best; j++) {
-                if (best2 < dli.allocated[i]) {
-                    best2 = dli.allocated[i];
+            for (j = 0; j < w && dli.allocated[i + j] < best; j++) {
+                if (best2 < dli.allocated[i + j]) {
+                    best2 = dli.allocated[i + j];
                 }
             }
 
