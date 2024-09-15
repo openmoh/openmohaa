@@ -387,16 +387,33 @@ static int R_CheckDlightSurface(msurface_t* surf, int dlightBits)
         return R_DlightSurface(surf, dlightBits);
     }
 
-    if (*surf->data == SF_FACE)
-    {
-        ((srfSurfaceFace_t*)surf->data)->dlightMap[tr.smpFrame] = 0;
-        ((srfSurfaceFace_t*)surf->data)->dlightBits[tr.smpFrame] = 0;
-    }
-    else if (*surf->data == SF_GRID)
-    {
-        ((srfGridMesh_t*)surf->data)->dlightMap[tr.smpFrame] = 0;
-        ((srfGridMesh_t*)surf->data)->dlightBits[tr.smpFrame] = 0;
-    }
+	if (dlightBits)
+	{
+		//
+		// Added in 2.0
+		//  Return the existing dlight map
+		if (*surf->data == SF_FACE)
+		{
+			return ((srfSurfaceFace_t*)surf->data)->dlightMap[tr.smpFrame];
+		}
+		else if (*surf->data == SF_GRID)
+		{
+			return ((srfGridMesh_t*)surf->data)->dlightMap[tr.smpFrame];
+		}
+	}
+	else
+	{
+		if (*surf->data == SF_FACE)
+		{
+			((srfSurfaceFace_t*)surf->data)->dlightMap[tr.smpFrame] = 0;
+			((srfSurfaceFace_t*)surf->data)->dlightBits[tr.smpFrame] = 0;
+		}
+		else if (*surf->data == SF_GRID)
+		{
+			((srfGridMesh_t*)surf->data)->dlightMap[tr.smpFrame] = 0;
+			((srfGridMesh_t*)surf->data)->dlightBits[tr.smpFrame] = 0;
+		}
+	}
 
     return 0;
 }
@@ -408,17 +425,18 @@ R_CheckDlightTerrain
 */
 int R_CheckDlightTerrain(cTerraPatchUnpacked_t* surf, int dlightBits)
 {
-    if (dlightBits && surf->frameCount != tr.frameCount)
-    {
-        surf->frameCount = tr.frameCount;
-        return R_DlightTerrain(surf, dlightBits);
-    }
-    else
-    {
-        surf->drawinfo.dlightMap[tr.smpFrame] = 0;
-        surf->drawinfo.dlightBits[tr.smpFrame] = 0;
-        return 0;
-    }
+	if (surf->frameCount == tr.frameCount) {
+		return surf->drawinfo.dlightMap[tr.smpFrame];
+	}
+
+	surf->frameCount = tr.frameCount;
+	if (dlightBits) {
+		return R_DlightTerrain(surf, dlightBits);
+	}
+
+	surf->drawinfo.dlightMap[tr.smpFrame] = 0;
+	surf->drawinfo.dlightBits[tr.smpFrame] = 0;
+	return 0;
 }
 
 /*
@@ -427,9 +445,9 @@ R_AddWorldSurface
 ======================
 */
 static void R_AddWorldSurface( msurface_t *surf, int dlightBits ) {
-	if ( surf->viewCount == tr.viewCount ) {
-		return;		// already in this view
-	}
+	//if ( surf->viewCount == tr.viewCount ) {
+	//	return;		// already in this view
+	//}
 
 	surf->viewCount = tr.viewCount;
 	// FIXME: bmodel fog?
