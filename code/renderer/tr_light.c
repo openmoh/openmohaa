@@ -403,6 +403,8 @@ int R_RealDlightTerrain(cTerraPatchUnpacked_t *srf, int dlightBits)
     float     z00, z01;
     float     z10, z11;
 
+    dli.numLights = 0;
+
     for (i = 0; i < tr.refdef.num_dlights; i++) {
         dl = &tr.refdef.dlights[i];
 
