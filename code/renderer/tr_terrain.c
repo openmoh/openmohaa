@@ -1447,7 +1447,7 @@ qboolean R_TerrainHeightForPoly(cTerraPatchUnpacked_t *pPatch, polyVert_t *pVert
                     float fConstZ = fKz[0] + fKz[1] + fKz[2];
 
                     // Write back the calculated height into the vertex
-                    pVerts[i].xyz[2] = fScaleY - fScaleX - fConstZ;
+                    pVerts[i].xyz[2] = fScaleX - fScaleY - fConstZ;
                 }
 
                 return qtrue;
