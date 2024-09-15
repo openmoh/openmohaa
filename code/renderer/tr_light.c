@@ -1,21 +1,21 @@
 /*
 ===========================================================================
-Copyright (C) 1999-2005 Id Software, Inc.
+Copyright (C) 2015-2024 the OpenMoHAA team
 
-This file is part of Quake III Arena source code.
+This file is part of OpenMoHAA source code.
 
-Quake III Arena source code is free software; you can redistribute it
+OpenMoHAA source code is free software; you can redistribute it
 and/or modify it under the terms of the GNU General Public License as
 published by the Free Software Foundation; either version 2 of the License,
 or (at your option) any later version.
 
-Quake III Arena source code is distributed in the hope that it will be
+OpenMoHAA source code is distributed in the hope that it will be
 useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with Foobar; if not, write to the Free Software
+along with OpenMoHAA source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
@@ -110,9 +110,9 @@ static int R_RecursiveDlightPatch(patchLightBlock_t *plb)
         index = 2;
     } else {
         return R_DlightSample(
-            &dli.srcBase[(LIGHTMAP_SIZE * 3) + plb[0].s * 3],
+            &dli.srcBase[plb[0].t * (LIGHTMAP_SIZE * 3) + plb[0].s * 3],
             plb[0].point,
-            &dli.dstBase[(LIGHTMAP_SIZE * 4) + plb[0].s * 4]
+            &dli.dstBase[plb[0].t * (LIGHTMAP_SIZE * 4) + plb[0].s * 4]
         );
     }
 
@@ -184,10 +184,10 @@ int R_RealDlightPatch(srfGridMesh_t *srf, int dlightBits)
     tr.pc.c_dlightSurfaces++;
     tr.pc.c_dlightTexels += srf->lmWidth * srf->lmHeight;
 
-    added = 0;
+    added = qfalse;
 
-    if (srf->verts[srf->width].lightmap[0] != srf->verts[0].lightmap[0]) {
-        if (srf->verts[srf->width].lightmap[0] < srf->verts[0].lightmap[0]) {
+    if (srf->verts[srf->width - 1].lightmap[0] != srf->verts[0].lightmap[0]) {
+        if (srf->verts[srf->width - 1].lightmap[0] < srf->verts[0].lightmap[0]) {
             steps[0][0] = 0;
             steps[0][1] = -1;
         } else {
@@ -211,12 +211,12 @@ int R_RealDlightPatch(srfGridMesh_t *srf, int dlightBits)
             steps[0][1] = 0;
         }
 
-        if (srf->verts[srf->width].lightmap[1] < srf->verts[0].lightmap[1]) {
+        if (srf->verts[srf->width - 1].lightmap[1] < srf->verts[0].lightmap[1]) {
             steps[1][0] = 0;
             steps[1][1] = -1;
         } else {
             steps[1][0] = 0;
-            steps[1][1] = -1;
+            steps[1][1] = 1;
         }
     }
 
@@ -227,47 +227,48 @@ int R_RealDlightPatch(srfGridMesh_t *srf, int dlightBits)
             //
             // Vert 1
             //
+
             dv = &srf->verts[i * srf->width + j];
 
             VectorCopy(dv->xyz, plb[0].point);
-            plb[0].s = dv->lightmap[0] * 128.0 - srf->lmX;
-            plb[0].t = dv->lightmap[1] * 128.0 - srf->lmY;
-
-            i2 = Q_clamp_int(steps[0][0] + i, 0, srf->height - 1);
-            j2 = Q_clamp_int(steps[0][1] + j, 0, srf->width - 1);
+            plb[0].s = (int)(dv->lightmap[0] * LIGHTMAP_SIZE) - srf->lmX;
+            plb[0].t = (int)(dv->lightmap[1] * LIGHTMAP_SIZE) - srf->lmY;
 
             //
             // Vert 2
             //
-            dv = &srf->verts[srf->width * i2 + j2];
+
+            i2 = Q_clamp_int(steps[0][0] + i, 0, srf->height - 1);
+            j2 = Q_clamp_int(steps[0][1] + j, 0, srf->width - 1);
+            dv = &srf->verts[i2 * srf->width + j2];
 
             VectorCopy(dv->xyz, plb[1].point);
-            plb[1].s = dv->lightmap[0] * 128.0 - srf->lmX;
-            plb[1].t = dv->lightmap[1] * 128.0 - srf->lmY;
-
-            i2 = Q_clamp_int(steps[1][0] + i, 0, srf->height - 1);
-            j2 = Q_clamp_int(steps[1][1] + j, 0, srf->width - 1);
+            plb[1].s = (int)(dv->lightmap[0] * LIGHTMAP_SIZE) - srf->lmX;
+            plb[1].t = (int)(dv->lightmap[1] * LIGHTMAP_SIZE) - srf->lmY;
 
             //
             // Vert 3
             //
-            dv = &srf->verts[srf->width * i2 + j2];
+
+            i2 = Q_clamp_int(steps[1][0] + i, 0, srf->height - 1);
+            j2 = Q_clamp_int(steps[1][1] + j, 0, srf->width - 1);
+            dv = &srf->verts[i2 * srf->width + j2];
 
             VectorCopy(dv->xyz, plb[2].point);
-            plb[2].s = dv->lightmap[0] * 128.0 - srf->lmX;
-            plb[2].t = dv->lightmap[1] * 128.0 - srf->lmY;
-
-            i2 = Q_clamp_int(steps[1][0] + steps[0][0] + i, 0, srf->height - 1);
-            j2 = Q_clamp_int(steps[1][1] + steps[0][1] + j, 0, srf->width - 1);
+            plb[2].s = (int)(dv->lightmap[0] * LIGHTMAP_SIZE) - srf->lmX;
+            plb[2].t = (int)(dv->lightmap[1] * LIGHTMAP_SIZE) - srf->lmY;
 
             //
             // Vert 4
             //
-            dv = &srf->verts[srf->width * i2 + j2];
+
+            i2 = Q_clamp_int(steps[1][0] + steps[0][0] + i, 0, srf->height - 1);
+            j2 = Q_clamp_int(steps[1][1] + steps[0][1] + j, 0, srf->width - 1);
+            dv = &srf->verts[i2 * srf->width + j2];
 
             VectorCopy(dv->xyz, plb[3].point);
-            plb[3].s = dv->lightmap[0] * 128.0 - srf->lmX;
-            plb[3].t = dv->lightmap[1] * 128.0 - srf->lmY;
+            plb[3].s = (int)(dv->lightmap[0] * LIGHTMAP_SIZE) - srf->lmX;
+            plb[3].t = (int)(dv->lightmap[1] * LIGHTMAP_SIZE) - srf->lmY;
 
             added |= R_RecursiveDlightPatch(plb);
         }
@@ -364,8 +365,8 @@ int R_RealDlightFace(srfSurfaceFace_t *srf, int dlightBits)
         }
 
         VectorAdd(vec, vecStepT, vec);
-        src += 3 * (LIGHTMAP_SIZE - j);
-        dst += 4 * (LIGHTMAP_SIZE - j);
+        src += (LIGHTMAP_SIZE - j) * 3;
+        dst += (LIGHTMAP_SIZE - j) * 4;
     }
 
     if (!added) {
@@ -436,7 +437,7 @@ int R_RealDlightTerrain(cTerraPatchUnpacked_t *srf, int dlightBits)
                 }
             }
 
-            delta = dl->transformed[0] - srf->z0;
+            delta = dl->transformed[2] - srf->z0;
             if (delta <= 0.f) {
                 dist += delta * delta;
             } else {
@@ -470,8 +471,8 @@ int R_RealDlightTerrain(cTerraPatchUnpacked_t *srf, int dlightBits)
     src = srf->drawinfo.lmData;
     dst = &dli.lightmap_buffer[y * 4 * LIGHTMAP_SIZE + x * 4];
 
-    srf->drawinfo.lmapX = x / 128.f;
-    srf->drawinfo.lmapY = y / 128.f;
+    srf->drawinfo.lmapX = x / (float)LIGHTMAP_SIZE;
+    srf->drawinfo.lmapY = y / (float)LIGHTMAP_SIZE;
 
     tr.pc.c_dlightSurfaces++;
     tr.pc.c_dlightTexels += srf->drawinfo.lmapSize * srf->drawinfo.lmapSize;
@@ -488,7 +489,6 @@ int R_RealDlightTerrain(cTerraPatchUnpacked_t *srf, int dlightBits)
             for (j = 0; j < 9; j++) {
                 vec[2] = srf->z0 + (int)(srf->heightmap[0] << 1);
                 added |= R_DlightSample(src, vec, dst);
-
                 src += 3;
                 dst += 4;
                 vec[0] += srf->drawinfo.lmapStep;
@@ -510,13 +510,17 @@ int R_RealDlightTerrain(cTerraPatchUnpacked_t *srf, int dlightBits)
                 z00    = (int)srf->heightmap[k];
                 vec[2] = srf->z0 + z00 + z00;
                 added |= R_DlightSample(src, vec, dst);
+                src += 3;
+                dst += 4;
                 // increase lightmap step
                 vec[0] += srf->drawinfo.lmapStep;
+                k++;
 
                 z01    = (int)srf->heightmap[k];
                 vec[2] = srf->z0 + z00 + z01;
                 added |= R_DlightSample(src, vec, dst);
-
+                src += 3;
+                dst += 4;
                 vec[0] += srf->drawinfo.lmapStep;
             }
 
@@ -532,37 +536,43 @@ int R_RealDlightTerrain(cTerraPatchUnpacked_t *srf, int dlightBits)
             for (i = 0; i < 8; i++) {
                 z00    = (int)srf->heightmap[k] + (int)srf->heightmap[k + 9];
                 vec[2] = srf->z0 + z00;
-
                 added |= R_DlightSample(src, vec, dst);
+                src += 3;
+                dst += 4;
                 k++;
-
                 vec[0] += srf->drawinfo.lmapStep;
 
                 z01    = (int)srf->heightmap[k] + (int)srf->heightmap[k + 9];
                 vec[2] = srf->z0 + (z00 + z01) * 0.5f;
-
                 added |= R_DlightSample(src, vec, dst);
-
                 src += 3;
                 dst += 4;
                 vec[0] += srf->drawinfo.lmapStep;
             }
+
+            vec[2] = srf->z0 + z01;
+            added |= R_DlightSample(src, vec, dst);
+            src += (LIGHTMAP_SIZE - 16) * 3;
+            dst += (LIGHTMAP_SIZE - 16) * 4;
+            k++;
+            vec[0] += srf->drawinfo.lmapStep;
+            vec[1] += srf->drawinfo.lmapStep;
         }
 
         vec[0] = srf->x0;
 
-        for (i = 0; i < 7; i++) {
+        for (i = 0; i < 8; i++) {
             z00    = (int)srf->heightmap[k];
             vec[2] = srf->z0 + z00 + z00;
-
             k++;
             added |= R_DlightSample(src, vec, dst);
+            src += 3;
+            dst += 4;
             vec[0] += srf->drawinfo.lmapStep;
 
             z01    = (int)srf->heightmap[k];
             vec[2] = srf->z0 + z00 + z01;
             added |= R_DlightSample(src, vec, dst);
-
             src += 3;
             dst += 4;
             vec[0] += srf->drawinfo.lmapStep;
@@ -621,8 +631,8 @@ int R_RealDlightTerrain(cTerraPatchUnpacked_t *srf, int dlightBits)
                     }
                 }
 
-                src += 3 * (LIGHTMAP_SIZE - 1 - (8 * lumelsPerHeight));
-                dst += 4 * (LIGHTMAP_SIZE - 1 - (8 * lumelsPerHeight));
+                src += (LIGHTMAP_SIZE - 1 - (8 * lumelsPerHeight)) * 3;
+                dst += (LIGHTMAP_SIZE - 1 - (8 * lumelsPerHeight)) * 4;
                 vec[1] += srf->drawinfo.lmapStep;
             }
         }
@@ -637,9 +647,9 @@ int R_RealDlightTerrain(cTerraPatchUnpacked_t *srf, int dlightBits)
         dli.allocated[x + i] = srf->drawinfo.lmapSize + y;
     }
 
-    lmScale = (1.f / LIGHTMAP_SIZE) / srf->drawinfo.lmapStep;
-    srf->drawinfo.lmapX -= (srf->x0 * lmScale - (LIGHTMAP_SIZE * 2.f));
-    srf->drawinfo.lmapY -= (srf->y0 * lmScale - (LIGHTMAP_SIZE * 2.f));
+    lmScale = (1.0 / LIGHTMAP_SIZE) / srf->drawinfo.lmapStep;
+    srf->drawinfo.lmapX -= (srf->x0 * lmScale - (0.5 / LIGHTMAP_SIZE));
+    srf->drawinfo.lmapY -= (srf->y0 * lmScale - (0.5 / LIGHTMAP_SIZE));
 
     srf->drawinfo.dlightMap[tr.smpFrame] = dli.dlightMap + 1;
     return srf->drawinfo.dlightMap[tr.smpFrame];
