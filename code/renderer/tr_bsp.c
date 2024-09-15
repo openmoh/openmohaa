@@ -479,8 +479,8 @@ void R_UnpackTerraPatch(cTerraPatch_t* pPacked, cTerraPatchUnpacked_t* pUnpacked
         Com_Error(ERR_DROP, "invalid map: terrain has lmapScale <= 0");
     }
 
-    pUnpacked->drawinfo.lmapStep = (float)(pPacked->lmapScale / 64);
-    pUnpacked->drawinfo.lmapSize = (float)((pPacked->lmapScale * 8) + 1);
+    pUnpacked->drawinfo.lmapStep = (float)(64 / pPacked->lmapScale);
+    pUnpacked->drawinfo.lmapSize = pPacked->lmapScale * 8 + 1;
     pUnpacked->s = ((float)pPacked->s + 0.5) / LIGHTMAP_SIZE;
     pUnpacked->t = ((float)pPacked->t + 0.5) / LIGHTMAP_SIZE;
 
