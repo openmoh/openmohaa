@@ -736,8 +736,14 @@ static void CG_MakeBulletTracerInternal(
         }
 
         commandManager.PlaySound("snd_b_zing", vZingPosA, -1, fVolume, -1.0f, fPitch, 1);
-        commandManager.PlaySound("snd_b_zing", vZingPosB, -1, fVolume, -1.0f, fPitch, 1);
-        commandManager.PlaySound("snd_b_zing", vZingPosC, -1, fVolume, -1.0f, fPitch, 1);
+
+        if (fZingDistB != 9999) {
+            commandManager.PlaySound("snd_b_zing", vZingPosB, -1, fVolume, -1.0f, fPitch, 1);
+
+            if (fZingDistC != 9999) {
+                commandManager.PlaySound("snd_b_zing", vZingPosC, -1, fVolume, -1.0f, fPitch, 1);
+            }
+        }
     }
 }
 
