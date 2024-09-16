@@ -1332,7 +1332,7 @@ void RB_SetupEntityGridLighting()
 
     ent = backEnd.currentEntity;
     for (;;) {
-        ent->bLightGridCalculated = 1;
+        ent->bLightGridCalculated = qtrue;
         ent->iGridLighting        = iColor;
         if (ent->e.parentEntity == ENTITYNUM_NONE) {
             break;
@@ -1368,7 +1368,7 @@ void RB_SetupStaticModelGridLighting(trRefdef_t *refdef, cStaticModelUnpacked_t 
     ent->bLightGridCalculated = qtrue;
 
     if (!(refdef->rdflags & RDF_NOWORLDMODEL) && tr.world->lightGridData) {
-        R_GetLightingGridValue(backEnd.currentSphere->traceOrigin, vLight);
+        R_GetLightingGridValue(lightOrigin, vLight);
     } else {
         vLight[0] = vLight[1] = vLight[2] = tr.identityLight * 150.0;
     }
@@ -1392,8 +1392,8 @@ void RB_SetupStaticModelGridLighting(trRefdef_t *refdef, cStaticModelUnpacked_t 
     }
 
     // normalize
-    if (vLight[0] < 255.0 || vLight[1] < 255.0 || vLight[2] < 255.0) {
-        float scale = 255.0 / fmin(vLight[0], fmin(vLight[1], vLight[2]));
+    if (vLight[0] > 255.0 || vLight[1] > 255.0 || vLight[2] > 255.0) {
+        float scale = 255.0 / Q_max(vLight[0], Q_max(vLight[1], vLight[2]));
         VectorScale(vLight, scale, vLight);
     }
 
