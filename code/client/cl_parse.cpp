@@ -434,7 +434,7 @@ void CL_SystemInfoChanged( void ) {
 		return;
 	}
 
-	s = Info_ValueForKey( systemInfo, "sv_cheats" );
+	s = Info_ValueForKey( systemInfo, "cheats" );
 	cl_connectedToCheatServer = atoi( s );
 	if ( !cl_connectedToCheatServer ) {
 		Cvar_SetCheatState();
