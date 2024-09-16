@@ -788,10 +788,12 @@ void R_GetLightingGridValue(const vec3_t vPos, vec3_t vLight)
 
     fTotalFactor = 0;
     iArrayXStep  = tr.world->lightGridBounds[1];
-    iBaseOffset  = tr.world->lightGridBounds[0] + iGridPos[0] * iArrayXStep + iGridPos[1];
-    vLight[0] = vLight[1] = vLight[2] = 0;
+    iBaseOffset  = tr.world->lightGridBounds[0] + iGridPos[1] + iArrayXStep * iGridPos[0];
+    VectorClear(vLight);
 
     for (i = 0; i < 4; i++) {
+        qboolean bContinue = qfalse;
+
         switch (i) {
         case 0:
             fWeight  = fOMFrac[0] * fOMFrac[1] * fOMFrac[2];
@@ -823,15 +825,16 @@ void R_GetLightingGridValue(const vec3_t vPos, vec3_t vLight)
 
         while (1) {
             while (1) {
-                iCurData = pCurData[iData];
+                iCurData = (char)pCurData[iData];
                 iData++;
-                if (iCurData >= 0ul) {
+                if (iCurData >= 0) {
                     break;
                 }
 
                 iLen = -iCurData;
                 if (iLen > iRowPos) {
                     iData += iRowPos;
+
                     if (pCurData[iData]) {
                         pColor = R_GetLightGridPalettedColor(pCurData[iData]);
                         VectorMA(vLight, fWeight, pColor, vLight);
@@ -846,13 +849,19 @@ void R_GetLightingGridValue(const vec3_t vPos, vec3_t vLight)
                     if (pCurData[iData]) {
                         pColor = R_GetLightGridPalettedColor(pCurData[iData]);
                         VectorMA(vLight, fWeight2, pColor, vLight);
+                        fTotalFactor += fWeight2;
                     }
 
-                    goto cont;
+                    bContinue = qtrue;
+                    break;
                 }
 
                 iRowPos -= iLen;
-                iData += iLen + 1;
+                iData += iLen;
+            }
+
+            if (bContinue) {
+                break;
             }
 
             iLen = iCurData + 2;
@@ -862,6 +871,10 @@ void R_GetLightingGridValue(const vec3_t vPos, vec3_t vLight)
 
             iRowPos -= iLen;
             iData++;
+        }
+
+        if (bContinue) {
+            continue;
         }
 
         if (iLen - 1 > iRowPos) {
@@ -886,8 +899,6 @@ void R_GetLightingGridValue(const vec3_t vPos, vec3_t vLight)
                 fTotalFactor += fWeight2;
             }
         }
-
-    cont:;
     }
 
     if (fTotalFactor > 0.0 && fTotalFactor < 0.99) {
@@ -898,11 +909,8 @@ void R_GetLightingGridValue(const vec3_t vPos, vec3_t vLight)
         if (vLight[0] > 255.0 || vLight[1] > 255.0 || vLight[2] > 255.0) {
             float t;
             // normalize color values
-            t = 255.0 / (float)Q_max(vLight[0], Q_max(vLight[1], vLight[2]));
-
-            vLight[0] = (float)vLight[0] * t;
-            vLight[1] = (float)vLight[1] * t;
-            vLight[2] = (float)vLight[2] * t;
+            t = 255.0 / Q_max(vLight[0], Q_max(vLight[1], vLight[2]));
+            VectorScale(vLight, t, vLight);
         }
     } else {
         vLight[0] = vLight[1] = vLight[2] = tr.identityLightByte;
@@ -985,6 +993,8 @@ void R_GetLightingGridValueFast(const vec3_t vPos, vec3_t vLight)
     for (i = 0; i < 8; i++) {
         iSample[i] = -1;
     }
+
+    iArrayXStep = tr.world->lightGridBounds[1];
     iBaseOffset = iGridPos[1] + tr.world->lightGridBounds[0] + iGridPos[0] * tr.world->lightGridBounds[1];
 
     for (i = 0; i < 8; i++) {
@@ -1005,13 +1015,13 @@ void R_GetLightingGridValueFast(const vec3_t vPos, vec3_t vLight)
             case 2:
                 pCurData = &tr.world->lightGridData
                                 [tr.world->lightGridOffsets[iGridPos[0] + 1] * 256
-                                 + tr.world->lightGridOffsets[iBaseOffset + tr.world->lightGridBounds[1]]];
+                                 + tr.world->lightGridOffsets[iBaseOffset + iArrayXStep]];
                 break;
             case 3:
             default:
                 pCurData = &tr.world->lightGridData
                                 [tr.world->lightGridOffsets[iGridPos[0] + 1] * 256
-                                 + tr.world->lightGridOffsets[iBaseOffset + tr.world->lightGridBounds[1] + 1]];
+                                 + tr.world->lightGridOffsets[iBaseOffset + iArrayXStep + 1]];
                 break;
             }
 
