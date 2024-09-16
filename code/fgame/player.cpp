@@ -5356,6 +5356,16 @@ void Player::EvaluateState(State *forceTorso, State *forceLegs)
                 } else {
                     SetPartAnim(legsAnim.c_str(), legs);
                 }
+
+                // Fixed in OPM
+                //  Clear the legs state, so the torso state can reset it to STAND
+                //  in subsequent iterations.
+                //  As the legs animation is stopped, there would be no anim to wait on.
+                //
+                //  This prevents the current legs state to be stuck
+                //  when the move control is set to non-legs and then to legs
+                //  in the same iteration before the legs state is being processed.
+                currentState_Legs = NULL;
             }
 
             if (movecontrol != move) {
@@ -10369,10 +10379,11 @@ void Player::PlayInstantMessageSound(const char *name)
 void Player::EventDMMessage(Event *ev)
 {
     int              i;
-    int              iStringLength;
+    //int              iStringLength;
     int              iMode = 0;
     str              sToken;
     char             szPrintString[MAX_SAY_TEXT]; // it's MAX_STRING_CHARS in mohaa
+    size_t           iStringLength;
     const char      *pTmpInstantMsg = "";
     qboolean         bInstaMessage  = qfalse;
     AliasListNode_t *pSoundAlias    = NULL;
