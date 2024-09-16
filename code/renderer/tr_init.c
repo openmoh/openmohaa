@@ -1435,7 +1435,7 @@ void R_Register( void )
 	r_light_lines = ri.Cvar_Get("r_light_lines", "0", CVAR_CHEAT);
 	r_light_sun_line = ri.Cvar_Get("r_light_sun_line", "0", CVAR_CHEAT);
 	r_light_int_scale = ri.Cvar_Get("r_light_int_scale", "0.05", CVAR_ARCHIVE);
-	r_light_nolight = ri.Cvar_Get("r_light_nolight", "0", CVAR_ARCHIVE);
+	r_light_nolight = ri.Cvar_Get("r_light_nolight", "0", CVAR_CHEAT | CVAR_ARCHIVE);
 	r_light_showgrid = ri.Cvar_Get("r_light_showgrid", "0", CVAR_CHEAT);
 	r_skyportal = ri.Cvar_Get("r_skyportal", "0", 0);
 	r_skyportal_origin = ri.Cvar_Get("r_skyportal_origin", "0 0 0", 0);
