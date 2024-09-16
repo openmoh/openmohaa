@@ -10210,30 +10210,46 @@ void Player::EventSetVoiceType(Event *ev)
 {
     str sVoiceName = ev->GetString(1);
 
-    if (!sVoiceName.icmp("airborne")) {
-        m_voiceType = PVT_ALLIED_AIRBORNE;
-    } else if (!sVoiceName.icmp("manon")) {
-        m_voiceType = PVT_ALLIED_MANON;
-    } else if (!sVoiceName.icmp("SAS")) {
-        m_voiceType = PVT_ALLIED_SAS;
-    } else if (!sVoiceName.icmp("pilot")) {
-        m_voiceType = PVT_ALLIED_PILOT;
-    } else if (!sVoiceName.icmp("army")) {
-        m_voiceType = PVT_ALLIED_ARMY;
-    } else if (!sVoiceName.icmp("ranger")) {
-        m_voiceType = PVT_ALLIED_RANGER;
-    } else if (!sVoiceName.icmp("axis1")) {
-        m_voiceType = PVT_AXIS_AXIS1;
-    } else if (!sVoiceName.icmp("axis2")) {
-        m_voiceType = PVT_AXIS_AXIS2;
-    } else if (!sVoiceName.icmp("axis3")) {
-        m_voiceType = PVT_AXIS_AXIS3;
-    } else if (!sVoiceName.icmp("axis4")) {
-        m_voiceType = PVT_AXIS_AXIS4;
-    } else if (!sVoiceName.icmp("axis5")) {
-        m_voiceType = PVT_AXIS_AXIS5;
+    if (g_protocol >= protocol_e::PROTOCOL_MOHTA_MIN) {
+        if (!sVoiceName.icmp("american")) {
+            m_voiceType = PVT_ALLIED_AMERICAN;
+        } else if (!sVoiceName.icmp("british")) {
+            m_voiceType = PVT_ALLIED_BRITISH;
+        } else if (!sVoiceName.icmp("russian")) {
+            m_voiceType = PVT_ALLIED_RUSSIAN;
+        } else if (!sVoiceName.icmp("german")) {
+            m_voiceType = PVT_AXIS_GERMAN;
+        } else if (!sVoiceName.icmp("italian")) {
+            m_voiceType = PVT_AXIS_ITALIAN;
+        } else {
+            m_voiceType = PVT_NONE_SET;
+        }
     } else {
-        m_voiceType = PVT_NONE_SET;
+        if (!sVoiceName.icmp("airborne")) {
+            m_voiceType = PVT_ALLIED_AIRBORNE;
+        } else if (!sVoiceName.icmp("manon")) {
+            m_voiceType = PVT_ALLIED_MANON;
+        } else if (!sVoiceName.icmp("SAS")) {
+            m_voiceType = PVT_ALLIED_SAS;
+        } else if (!sVoiceName.icmp("pilot")) {
+            m_voiceType = PVT_ALLIED_PILOT;
+        } else if (!sVoiceName.icmp("army")) {
+            m_voiceType = PVT_ALLIED_ARMY;
+        } else if (!sVoiceName.icmp("ranger")) {
+            m_voiceType = PVT_ALLIED_RANGER;
+        } else if (!sVoiceName.icmp("axis1")) {
+            m_voiceType = PVT_AXIS_AXIS1;
+        } else if (!sVoiceName.icmp("axis2")) {
+            m_voiceType = PVT_AXIS_AXIS2;
+        } else if (!sVoiceName.icmp("axis3")) {
+            m_voiceType = PVT_AXIS_AXIS3;
+        } else if (!sVoiceName.icmp("axis4")) {
+            m_voiceType = PVT_AXIS_AXIS4;
+        } else if (!sVoiceName.icmp("axis5")) {
+            m_voiceType = PVT_AXIS_AXIS5;
+        } else {
+            m_voiceType = PVT_NONE_SET;
+        }
     }
 }
 
