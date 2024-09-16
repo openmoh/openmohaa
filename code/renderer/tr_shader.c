@@ -2446,7 +2446,7 @@ static void ComputeStageIteratorFunc( void )
 		{
 			if ( unfoggedStages[0].alphaGen == AGEN_IDENTITY || unfoggedStages[0].alphaGen == AGEN_SKIP)
 			{
-				if ( unfoggedStages[0].bundle[0].tcGen == TCGEN_TEXTURE && unfoggedStages[0].bundle[1].tcGen == TCGEN_LIGHTMAP)
+				if ( unfoggedStages[0].bundle[0].tcGen == TCGEN_TEXTURE && !unfoggedStages[0].bundle[0].numTexMods)
 				{
 					if ( !shader.polygonOffset )
 					{
