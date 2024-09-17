@@ -817,13 +817,6 @@ static qboolean ParseStage(shaderStage_t* stage, char** text, qboolean picmip)
 
 		if (token[0] == '}')
 		{
-			// Added in 2.0
-			//  Ignore vars that didn't met with 'ifCvar' / 'ifCvarnot'
-			if (!shouldProcess) {
-				stage->active = qfalse;
-				stage->rgbGen = CGEN_BAD;
-				return qtrue;
-			}
 			break;
 		}
 		// no picmip adjustment
@@ -1247,6 +1240,8 @@ static qboolean ParseStage(shaderStage_t* stage, char** text, qboolean picmip)
 			}
 			else if (!Q_stricmp(token, "dot"))
 			{
+				shader.needsNormal = qtrue;
+
 				stage->rgbGen = CGEN_DOT;
 				stage->alphaMin = 0.0;
 				stage->alphaMax = 1.0;
@@ -1262,9 +1257,11 @@ static qboolean ParseStage(shaderStage_t* stage, char** text, qboolean picmip)
 					continue;
 				}
 				stage->alphaMax = atof(token);
-				}
+			}
 			else if (!Q_stricmp(token, "oneminusdot"))
 			{
+				shader.needsNormal = qtrue;
+
 				stage->rgbGen = CGEN_ONE_MINUS_DOT;
 				stage->alphaMin = 0.0;
 				stage->alphaMax = 1.0;
@@ -1681,6 +1678,14 @@ static qboolean ParseStage(shaderStage_t* stage, char** text, qboolean picmip)
 			ri.Printf( PRINT_WARNING, "WARNING: unknown parameter '%s' in shader '%s'\n", token, shader.name );
 			return qfalse;
 		}
+	}
+
+	// Added in 2.0
+	//  Ignore vars that didn't met with 'ifCvar' / 'ifCvarnot'
+	if (!shouldProcess) {
+		stage->active = qfalse;
+		stage->rgbGen = CGEN_BAD;
+		return qtrue;
 	}
 
 	//
@@ -2970,9 +2975,9 @@ static shader_t *FinishShader( void ) {
 		}
 
 		if (pStage->rgbGen == CGEN_LIGHTING_GRID) {
-			shader.needsLGrid = 1;
+			shader.needsLGrid = qtrue;
 		} else if (pStage->rgbGen == CGEN_LIGHTING_SPHERICAL || pStage->rgbGen == CGEN_STATIC) {
-			shader.needsLSpherical = 1;
+			shader.needsLSpherical = qtrue;
 		}
 
 		//
