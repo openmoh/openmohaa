@@ -56,55 +56,65 @@ void Sys_ShowConsole(int visLevel, qboolean quitOnClose)
 /*
 ==============
 SaveRegistryInfo
+
+Used to save product info stuff into the registry.
+Not useful anymore, so no need to implement.
 ==============
 */
 qboolean SaveRegistryInfo(qboolean user, const char* pszName, void* pvBuf, long lSize)
 {
-    STUB_DESC("not implemented");
     return qfalse;
 }
 
 /*
 ==============
 LoadRegistryInfo
+
+Used to load product info stuff from the registry.
+Not useful anymore, so no need to implement.
 ==============
 */
 qboolean LoadRegistryInfo(qboolean user, const char* pszName, void* pvBuf, long* plSize)
 {
-    STUB_DESC("not implemented");
     return qfalse;
 }
 
 /*
 ==============
 IsFirstRun
+
+Returns whether or not this is the first time the game is started.
+Not used anymore.
 ==============
 */
 qboolean IsFirstRun(void)
 {
-    STUB_DESC("wtf");
     return qfalse;
 }
 
 /*
 ==============
 IsNewConfig
+
+Returns whether or not a new hardware change is detected.
+Not used anymore.
 ==============
 */
 qboolean IsNewConfig(void)
 {
-    STUB_DESC("wtf");
     return qfalse;
 }
 
 /*
 ==============
 IsSafeMode
+
+Returns whether or not the game was started in safe mode.
+Not used anymore.
 ==============
 */
 qboolean IsSafeMode(void)
 {
-    STUB_DESC("wtf");
     return qfalse;
 }
 
@@ -139,21 +149,27 @@ void Sys_SetClipboard(const char* contents)
 /*
 ================
 RecoverLostAutodialData
+
+This functions changes the current user setting so the modem
+automatically dials up whenever an attempt to connect is detected.
+
+There is no need to implement this anymore nowadays.
 ================
 */
 void RecoverLostAutodialData(void)
 {
-    // FIXME: stub
 }
 
 /*
 ==============
 Sys_CloseMutex
+
+Closes the global mutex used to check if another instance is already running.
+Not used anymore, as multiple instances could be useful for testing.
 ==============
 */
 void Sys_CloseMutex(void)
 {
-    // FIXME: stub
 }
 
 /*
