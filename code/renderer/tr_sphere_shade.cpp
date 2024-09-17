@@ -134,7 +134,7 @@ static void RB_OptimizeLights()
                             float fDistSquared;
 
                             VectorSubtract(pLight->vOrigin, backEnd.currentSphere->origin, v);
-                            fProjSquared  = DotProduct(v, pLight->vDirection) * DotProduct(v, pLight->vDirection);
+                            fProjSquared = Square(DotProduct(v, pLight->vDirection));
                             fDistSquared  = VectorLengthSquared(v);
                             fMaxIntensity = (pLight->fSpotConst - fDistSquared / fProjSquared) * pLight->fSpotScale;
                             if (fMaxIntensity > 0) {
@@ -180,20 +180,9 @@ static void RB_OptimizeLights()
                 }
             }
 
-            cubecolor[i][0] = colorout[0];
-            if (cubecolor[i][0] > 255.f) {
-                cubecolor[i][0] = 255.f;
-            }
-
-            cubecolor[i][1] = colorout[1];
-            if (cubecolor[i][1] > 255.f) {
-                cubecolor[i][1] = 255.f;
-            }
-
-            cubecolor[i][2] = colorout[2];
-            if (cubecolor[i][2] > 255.f) {
-                cubecolor[i][2] = 255.f;
-            }
+            cubecolor[i][0] = Q_min(colorout[0], 255);
+            cubecolor[i][1] = Q_min(colorout[1], 255);
+            cubecolor[i][2] = Q_min(colorout[2], 255);
         }
 
         cube = backEnd.currentSphere->cubemap;
@@ -232,21 +221,20 @@ static void RB_OptimizeLights()
             VectorSubtract(pLight->vOrigin, backEnd.currentSphere->origin, v);
             fDistSquared   = VectorLengthSquared(v);
             fSlope         = DotProduct(v, pLight->vDirection);
-            fDistPerp      = sqrt(fDistSquared - fSlope * fSlope);
-            fRadiusSquared = backEnd.currentSphere->radius * backEnd.currentSphere->radius;
+            fDistPerp      = sqrt(fDistSquared - Square(fSlope));
+            fRadiusSquared = Square(backEnd.currentSphere->radius);
             fDistParallel  = fDistPerp + fSlope * (pLight->fSpotSlope * 0.9f);
-            if (fDistParallel * fDistParallel
-                >= fRadiusSquared + pLight->fSpotSlope * 0.9f * (pLight->fSpotSlope * 0.9f) * fRadiusSquared) {
+            if (Square(fDistParallel)
+                >= fRadiusSquared + Square(pLight->fSpotSlope * 0.9f) * fRadiusSquared) {
                 pLight->eType = LIGHT_SPOT_FAST;
             }
             break;
         case LIGHT_POINT:
             if ((pLight->fDist - backEnd.currentSphere->radius) * r_entlight_errbound->value * pLight->fDist
                 > backEnd.currentSphere->radius * pLight->fIntensity) {
-                pLight->color[0] *= 1.f / pLight->fDist;
-                pLight->color[1] *= 1.f / pLight->fDist;
-                pLight->color[2] *= 1.f / pLight->fDist;
                 pLight->eType = LIGHT_DIRECTIONAL;
+
+                VectorScale(pLight->color, 1.0f / pLight->fDist, pLight->color);
                 VectorNormalize2(pLight->vOrigin, pLight->vDirection);
             }
             break;
@@ -365,9 +353,10 @@ static void RB_Light_CubeMap(unsigned char *colors)
             }
         }
 
-        color[0] = Q_clamp_int(colorout[0], 0, 255);
-        color[1] = Q_clamp_int(colorout[1], 0, 255);
-        color[2] = Q_clamp_int(colorout[2], 0, 255);
+        color[0] = Q_min(colorout[0], 255);
+        color[1] = Q_min(colorout[1], 255);
+        color[2] = Q_min(colorout[2], 255);
+        color[3] = 0xff;
     }
 }
 
@@ -424,7 +413,7 @@ void RB_Light_Real(unsigned char *colors)
                     if (fDot > 0) {
                         VectorSubtract(pLight->vOrigin, xyz, v);
 
-                        fProjSquared  = DotProduct(v, pLight->vDirection) * DotProduct(v, pLight->vDirection);
+                        fProjSquared  = Square(DotProduct(v, pLight->vDirection));
                         fDistSquared  = VectorLengthSquared(v);
                         fMaxIntensity = (pLight->fSpotConst - fDistSquared / fProjSquared) * pLight->fSpotScale;
                         if (fMaxIntensity > 0) {
@@ -501,7 +490,7 @@ void RB_Light_Real(unsigned char *colors)
                 if (fDot > 0) {
                     VectorSubtract(pLight->vOrigin, xyz, v);
 
-                    fProjSquared  = DotProduct(v, pLight->vDirection) * DotProduct(v, pLight->vDirection);
+                    fProjSquared  = Square(DotProduct(v, pLight->vDirection));
                     fDistSquared  = VectorLengthSquared(v);
                     fMaxIntensity = (pLight->fSpotConst - fDistSquared / fProjSquared) * pLight->fSpotScale;
                     if (fMaxIntensity > 0) {
