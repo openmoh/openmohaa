@@ -117,8 +117,7 @@ inline bool SkelVec3::IsZero() const
 
 inline bool SkelVec3::IsUnit() const
 {
-    // FIXME: stub
-    return false;
+    return VectorLength(*this) == 1;
 }
 
 inline void SkelVec3::set(float x, float y, float z)
