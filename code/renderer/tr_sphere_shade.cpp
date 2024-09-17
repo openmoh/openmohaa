@@ -1175,9 +1175,14 @@ void R_Sphere_InitLights()
     const char *ents;
     const char *ret;
     qboolean    bFlareDirSet;
+    qboolean    bIsWorld;
+    qboolean    bWorldProcessed;
 
-    ents                 = ri.CM_EntityString();
-    bFlareDirSet         = qfalse;
+    ents            = ri.CM_EntityString();
+    bFlareDirSet    = qfalse;
+    bIsWorld        = qfalse;
+    bWorldProcessed = qfalse;
+
     s_sun.szFlareName[0] = 0;
     s_sun.exists         = qfalse;
 
@@ -1198,7 +1203,27 @@ void R_Sphere_InitLights()
             continue;
         }
 
+        if (!bWorldProcessed && !strcmp(ret, "classname")) {
+            //
+            // Added in 2.0
+            //  Make sure that the world's properties are not overridden
+            //  by some random entities
+            //
+            if (!strcmp(COM_Parse((char **)&ents), "worldspawn")) {
+                bIsWorld = qtrue;
+            } else {
+                bWorldProcessed = qtrue;
+            }
+
+            continue;
+        }
+
         if (!strcmp(ret, "suncolor") || !strcmp(ret, "sunlight")) {
+            if (bWorldProcessed) {
+                ri.Printf(PRINT_WARNING, "Multiple suncolors defined in map\n");
+                continue;
+            }
+
             sscanf(COM_Parse((char **)&ents), "%f %f %f", &s_sun.color[0], &s_sun.color[1], &s_sun.color[2]);
             s_sun.color[0] *= tr.overbrightMult;
             s_sun.color[1] *= tr.overbrightMult;
@@ -1206,6 +1231,11 @@ void R_Sphere_InitLights()
             s_sun.exists = qtrue;
         } else if (!strcmp(ret, "sundirection")) {
             vec3_t dir;
+
+            if (bWorldProcessed) {
+                ri.Printf(PRINT_WARNING, "Multiple sundirections defined in map\n");
+                continue;
+            }
 
             sscanf(COM_Parse((char **)&ents), "%f %f %f", &dir[0], &dir[1], &dir[2]);
             AngleVectorsLeft(dir, s_sun.direction, 0, 0);
@@ -1219,14 +1249,30 @@ void R_Sphere_InitLights()
         } else if (!strcmp(ret, "sunflaredirection")) {
             vec3_t dir;
 
+            if (bWorldProcessed) {
+                continue;
+            }
+
             sscanf(COM_Parse((char **)&ents), "%f %f %f", &dir[0], &dir[1], &dir[2]);
             AngleVectorsLeft(dir, s_sun.flaredirection, 0, 0);
             bFlareDirSet = qtrue;
         } else if (!strcmp(ret, "sunflarename")) {
+            if (bWorldProcessed) {
+                continue;
+            }
+
             strcpy(s_sun.szFlareName, COM_Parse((char **)&ents));
         } else if (!strcmp(ret, "ambientlight")) {
+            if (bWorldProcessed) {
+                ri.Printf(PRINT_WARNING, "Multiple ambientlights defined in map\n");
+                continue;
+            }
             sscanf(COM_Parse((char **)&ents), "%f %f %f", &ambientlight[0], &ambientlight[1], &ambientlight[2]);
         } else if (!strcmp(ret, "overbright")) {
+            if (bWorldProcessed) {
+                continue;
+            }
+
             ret = COM_Parse((char **)&ents);
             if (strcmp(ret, "world") || strcmp(ret, "none")) {
                 bEntityOverbright  = qtrue;
@@ -1237,10 +1283,8 @@ void R_Sphere_InitLights()
         }
     }
 
-    if (s_sun.exists) {
-        if (!s_sun.szFlareName[0]) {
-            strcpy(s_sun.szFlareName, "sun");
-        }
+    if (s_sun.exists && !s_sun.szFlareName[0]) {
+        strcpy(s_sun.szFlareName, "sun");
     }
 }
 
