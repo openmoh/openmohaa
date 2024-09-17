@@ -1628,13 +1628,25 @@ void RB_StageIteratorVertexLitTextureUnfogged( void )
 
 	shader = input->shader;
 
-	if (backEnd.currentSphere->TessFunction && r_drawspherelights->integer) {
+	if (backEnd.currentSphere->TessFunction && r_drawspherelights->integer)
+	{
+		//
+		// compute colors using the sphere function
+		//
 		backEnd.currentSphere->TessFunction((unsigned char*)tess.svars.colors);
+	}
+	else if (backEnd.currentStaticModel)
+	{
+		//
+		// compute colors
+		//
+		ComputeColors(input->xstages[0]);
 	}
 	else
 	{
 		//
-		// compute colors
+		// calculate using previously calculated lighting grid
+		// for the entity
 		//
 		RB_CalcLightGridColor((unsigned char*)tess.svars.colors);
 	}
