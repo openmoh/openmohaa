@@ -632,7 +632,9 @@ static void RB_Sphere_Light_Sun()
     }
 
     VectorMA(backEnd.currentSphere->traceOrigin, 16384.0, s_sun.direction, end);
-    ri.CM_BoxTrace(&trace, backEnd.currentSphere->traceOrigin, end, vec3_origin, vec3_origin, 0, CONTENTS_SOLID | CONTENTS_FENCE, 0);
+    ri.CM_BoxTrace(
+        &trace, backEnd.currentSphere->traceOrigin, end, vec3_origin, vec3_origin, 0, CONTENTS_SOLID | CONTENTS_FENCE, 0
+    );
 
     hitSun = (trace.surfaceFlags >> 2) & 1;
     if (r_light_sun_line->integer) {
@@ -909,43 +911,39 @@ static void RB_Sphere_AddSpotLight(const spherel_t *thislight)
         float            fRadByDistSquared;
 
         MatrixTransformVectorRight(backEnd.currentEntity->e.axis, thislight->spot_dir, newdir);
-        dot = DotProduct(newlight, newdir);
+        dot = -DotProduct(newlight, newdir);
         if (dot > 0) {
             fMinDist = sqrt(
-                (newlight[0] + newdir[0] * dot) * (newlight[0] + newdir[0] * dot)
-                + (newlight[1] + newdir[1] * dot) * (newlight[1] + newdir[1] * dot)
-                + (newlight[2] + newdir[2] * dot) * (newlight[2] + newdir[2] * dot)
+                Square(newlight[0] + newdir[0] * dot) + Square(newlight[1] + newdir[1] * dot)
+                + Square(newlight[2] + newdir[2] * dot)
             );
 
-            if (fMinDist < radiusByDistance * dot) {
-                if (backEnd.currentSphere->numRealLights < MAX_REAL_LIGHTS) {
-                    pLight        = &backEnd.currentSphere->light[backEnd.currentSphere->numRealLights];
-                    pLight->eType = LIGHT_SPOT;
-                    pLight->color[0] *= thislight->intensity * 7500.0 * tr.overbrightMult;
-                    pLight->color[1] *= thislight->intensity * 7500.0 * tr.overbrightMult;
-                    pLight->color[2] *= thislight->intensity * 7500.0 * tr.overbrightMult;
-                    pLight->fDist = VectorLength(newlight);
-                    pLight->fIntensity =
-                        (pLight->color[0] * 0.299f + pLight->color[1] * 0.587f + pLight->color[2] * 0.114f)
-                        * (thislight->intensity * 7500.0 * tr.overbrightMult);
+            if (fMinDist < radiusByDistance * dot && backEnd.currentSphere->numRealLights < MAX_REAL_LIGHTS) {
+                pLight = &backEnd.currentSphere->light[backEnd.currentSphere->numRealLights];
 
-                    sampleRadius = pLight->fDist - backEnd.currentSphere->radius;
-                    if (sampleRadius > 0) {
-                        pLight->fIntensity /= (sampleRadius * sampleRadius);
-                    }
+                pLight->eType = LIGHT_SPOT;
+                VectorScale(thislight->color, thislight->intensity * 7500.0 * tr.overbrightMult, pLight->color);
+                pLight->fDist = VectorLength(newlight);
+                pLight->fIntensity =
+                    (thislight->color[0] * 0.299f + thislight->color[1] * 0.587f + thislight->color[2] * 0.114f)
+                    * (thislight->intensity * 7500.0 * tr.overbrightMult);
 
-                    VectorCopy(lightline, pLight->vOrigin);
-                    VectorNegate(newdir, pLight->vDirection);
-                    fRadByDistSquared  = radiusByDistance * radiusByDistance;
-                    pLight->fSpotConst = fRadByDistSquared + 1.0;
-                    pLight->fSpotScale = 1.0 / (fRadByDistSquared * 0.19);
-                    pLight->fSpotSlope = radiusByDistance;
-
-                    backEnd.currentSphere->numRealLights++;
+                sampleRadius = pLight->fDist - backEnd.currentSphere->radius;
+                if (sampleRadius > 0) {
+                    pLight->fIntensity /= (sampleRadius * sampleRadius);
                 }
 
-                RB_Sphere_DrawDebugLine(thislight, falloff, lightline);
+                VectorCopy(lightline, pLight->vOrigin);
+                VectorNegate(newdir, pLight->vDirection);
+                fRadByDistSquared  = radiusByDistance * radiusByDistance;
+                pLight->fSpotConst = fRadByDistSquared + 1.0;
+                pLight->fSpotScale = 1.0 / (fRadByDistSquared * 0.19);
+                pLight->fSpotSlope = radiusByDistance;
+
+                backEnd.currentSphere->numRealLights++;
             }
+
+            RB_Sphere_DrawDebugLine(thislight, falloff, lightline);
         }
     }
 }
@@ -993,17 +991,18 @@ static void RB_Sphere_AddLight(const spherel_t *thislight)
         MatrixTransformVectorRight(backEnd.currentEntity->e.axis, lightorigin, lightline);
         VectorSubtract(lightline, backEnd.currentSphere->origin, newlight);
 
-        intensity = thislight->intensity * 7500.0;
+        intensity = fabs(thislight->intensity) * 7500.0;
         falloff   = 1.f / VectorLengthSquared(newlight) * intensity;
         if (falloff >= 5.0) {
             RB_Sphere_DrawDebugLine(thislight, falloff, lightline);
+
             if (backEnd.currentSphere->numRealLights < MAX_REAL_LIGHTS) {
                 pLight = &backEnd.currentSphere->light[backEnd.currentSphere->numRealLights];
 
-                fDist            = VectorLength(newlight);
-                pLight->color[0] = thislight->color[0] * falloff * tr.overbrightMult * r_entlight_scale->value * fDist;
-                pLight->color[1] = thislight->color[1] * falloff * tr.overbrightMult * r_entlight_scale->value * fDist;
-                pLight->color[2] = thislight->color[2] * falloff * tr.overbrightMult * r_entlight_scale->value * fDist;
+                fDist = VectorLength(newlight);
+                VectorScale(
+                    thislight->color, falloff * tr.overbrightMult * r_entlight_scale->value * fDist, pLight->color
+                );
 
                 VectorCopy(lightline, pLight->vOrigin);
                 pLight->fDist      = fDist;
@@ -1041,7 +1040,7 @@ static void RB_Sphere_BuildStaticLights()
             cntarea = leaf->numlights;
 
             if (cntarea) {
-                for (i = (*leaf->lights == &tr.sSunLight ? 1 : 0); i < cntarea; i++) {
+                for (i = (leaf->lights[0] == &tr.sSunLight ? 1 : 0); i < cntarea; i++) {
                     spherel_t *pLight = leaf->lights[i];
                     byte       mask   = backEnd.refdef.areamask[pLight->leaf->area >> 3];
 
