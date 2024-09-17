@@ -584,13 +584,13 @@ static void RB_Sphere_Light_Sun()
         vec3_t transpos;
         vec3_t temppos;
 
-        for (curleaf = 0, leaf = backEnd.currentSphere->leaves[0]; curleaf < 8; curleaf++) {
-            if (leaf->numlights && leaf->lights[0] == &tr.sSunLight) {
+        for (curleaf = 0; curleaf < 8; curleaf++) {
+            leaf = backEnd.currentSphere->leaves[curleaf];
+            if (!leaf) {
                 break;
             }
 
-            leaf = backEnd.currentSphere->leaves[curleaf];
-            if (!leaf) {
+            if (leaf->numlights && leaf->lights[0] == &tr.sSunLight) {
                 break;
             }
         }
@@ -632,7 +632,7 @@ static void RB_Sphere_Light_Sun()
     }
 
     VectorMA(backEnd.currentSphere->traceOrigin, 16384.0, s_sun.direction, end);
-    ri.CM_BoxTrace(&trace, backEnd.currentSphere->traceOrigin, end, vec3_origin, vec3_origin, 0, CONTENTS_SOLID, 0);
+    ri.CM_BoxTrace(&trace, backEnd.currentSphere->traceOrigin, end, vec3_origin, vec3_origin, 0, CONTENTS_SOLID | CONTENTS_FENCE, 0);
 
     hitSun = (trace.surfaceFlags >> 2) & 1;
     if (r_light_sun_line->integer) {
@@ -682,10 +682,9 @@ static void RB_Sphere_Light_Sun()
 
         MatrixTransformVectorRight(backEnd.currentEntity->e.axis, s_sun.direction, sunnormal);
 
-        pLight           = &pSphere->light[pSphere->numRealLights];
-        pLight->color[0] = s_sun.color[0] * tr.overbrightMult * r_entlight_scale->value;
-        pLight->color[1] = s_sun.color[1] * tr.overbrightMult * r_entlight_scale->value;
-        pLight->color[2] = s_sun.color[2] * tr.overbrightMult * r_entlight_scale->value;
+        pLight = &pSphere->light[pSphere->numRealLights];
+        VectorScale(s_sun.color, r_entlight_scale->value, pLight->color);
+        //VectorScale(s_sun.color, r_entlight_scale->value * tr.overbrightMult, pLight->color);
 
         VectorCopy(sunnormal, pLight->vDirection);
         pLight->eType      = LIGHT_DIRECTIONAL;
@@ -737,8 +736,9 @@ static bool RB_Sphere_SetupGlobals()
         backEnd.currentSphere->TessFunction = &RB_Light_Fullbright;
         return false;
     }
+
     if (backEnd.refdef.rdflags & RDF_HUD) {
-        if (backEnd.refdef.vieworg[0] == 0 && backEnd.refdef.vieworg[1] == 0 && backEnd.refdef.vieworg[2] == 0) {
+        if (!backEnd.refdef.vieworg[0] && !backEnd.refdef.vieworg[1] && !backEnd.refdef.vieworg[2]) {
             backEnd.currentSphere->TessFunction = &RB_Light_Fullbright;
             return false;
         }
@@ -787,27 +787,10 @@ static bool RB_Sphere_ResetPointColors()
         }
     }
 
-    amb[0] = light_offset[0] * tr.overbrightMult * r_entlight_scale->value;
-    if (amb[0] > 255.0) {
-        backEnd.currentSphere->ambient.level[0] = 0xff;
-    } else {
-        backEnd.currentSphere->ambient.level[0] = amb[0];
-    }
-
-    amb[1] = light_offset[1] * tr.overbrightMult * r_entlight_scale->value;
-    if (amb[1] > 255.0) {
-        backEnd.currentSphere->ambient.level[1] = 0xff;
-    } else {
-        backEnd.currentSphere->ambient.level[1] = amb[1];
-    }
-
-    amb[2] = light_offset[2] * tr.overbrightMult * r_entlight_scale->value;
-    if (amb[2] > 255.0) {
-        backEnd.currentSphere->ambient.level[2] = 0xff;
-    } else {
-        backEnd.currentSphere->ambient.level[2] = amb[2];
-    }
-
+    VectorScale(light_offset, tr.overbrightMult * r_entlight_scale->value, amb);
+    backEnd.currentSphere->ambient.level[0] = Q_min(amb[0], 0xff);
+    backEnd.currentSphere->ambient.level[1] = Q_min(amb[1], 0xff);
+    backEnd.currentSphere->ambient.level[2] = Q_min(amb[2], 0xff);
     backEnd.currentSphere->ambient.level[3] = 0xff;
 
     return true;
