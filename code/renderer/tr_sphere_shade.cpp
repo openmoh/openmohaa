@@ -77,12 +77,37 @@ int compare_light_intensities(const void *p1, const void *p2)
 
 static void RB_OptimizeLights()
 {
-    static int iCubeBuildInfo[24][9];
-    int        i, j;
-    int        nCubeMapLights;
-    float      fMaxIntensity;
-    vec3_t     cubecolor[256];
-    vec3_t     colorout;
+    static int iCubeBuildInfo[24][9] = {
+        {0, 1, 2, 1,  1,  0, 6,  10, 18},
+        {0, 1, 2, 1,  -1, 0, 6,  11, 19},
+        {0, 1, 2, -1, 1,  0, 7,  10, 20},
+        {0, 1, 2, -1, -1, 0, 7,  11, 21},
+        {0, 1, 2, -1, -1, 1, 8,  12, 22},
+        {0, 1, 2, -1, 1,  1, 8,  13, 23},
+        {0, 1, 2, 1,  -1, 1, 9,  12, 24},
+        {0, 1, 2, 1,  1,  1, 9,  13, 25},
+        {1, 0, 2, 1,  1,  2, 6,  14, 18},
+        {1, 0, 2, 1,  -1, 2, 6,  15, 19},
+        {1, 0, 2, -1, -1, 3, 7,  16, 20},
+        {1, 0, 2, -1, 1,  3, 7,  17, 21},
+        {1, 0, 2, -1, 1,  2, 8,  14, 22},
+        {1, 0, 2, -1, -1, 2, 8,  15, 23},
+        {1, 0, 2, 1,  -1, 3, 9,  16, 24},
+        {1, 0, 2, 1,  1,  3, 9,  17, 25},
+        {2, 1, 0, 1,  1,  4, 14, 10, 18},
+        {2, 1, 0, -1, -1, 5, 15, 11, 19},
+        {2, 1, 0, -1, 1,  4, 16, 10, 20},
+        {2, 1, 0, 1,  -1, 5, 17, 11, 21},
+        {2, 1, 0, 1,  -1, 4, 14, 12, 22},
+        {2, 1, 0, -1, 1,  5, 15, 13, 23},
+        {2, 1, 0, -1, -1, 4, 16, 12, 24},
+        {2, 1, 0, 1,  1,  5, 17, 13, 25}
+    };
+    int    i, j;
+    int    nCubeMapLights;
+    float  fMaxIntensity;
+    vec3_t cubecolor[256];
+    vec3_t colorout;
     float(*cube)[3][4];
     reallightinfo_t *pLight;
 
@@ -134,7 +159,7 @@ static void RB_OptimizeLights()
                             float fDistSquared;
 
                             VectorSubtract(pLight->vOrigin, backEnd.currentSphere->origin, v);
-                            fProjSquared = Square(DotProduct(v, pLight->vDirection));
+                            fProjSquared  = Square(DotProduct(v, pLight->vDirection));
                             fDistSquared  = VectorLengthSquared(v);
                             fMaxIntensity = (pLight->fSpotConst - fDistSquared / fProjSquared) * pLight->fSpotScale;
                             if (fMaxIntensity > 0) {
@@ -224,8 +249,7 @@ static void RB_OptimizeLights()
             fDistPerp      = sqrt(fDistSquared - Square(fSlope));
             fRadiusSquared = Square(backEnd.currentSphere->radius);
             fDistParallel  = fDistPerp + fSlope * (pLight->fSpotSlope * 0.9f);
-            if (Square(fDistParallel)
-                >= fRadiusSquared + Square(pLight->fSpotSlope * 0.9f) * fRadiusSquared) {
+            if (Square(fDistParallel) >= fRadiusSquared + Square(pLight->fSpotSlope * 0.9f) * fRadiusSquared) {
                 pLight->eType = LIGHT_SPOT_FAST;
             }
             break;
