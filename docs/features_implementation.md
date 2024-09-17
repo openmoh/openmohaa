@@ -12,16 +12,16 @@ OpenMoHAA is using OpenAL for the audio.
 
 The current operational status for each component is as follow:
 
-| Component               | Full | Almost | Half | Early | Bad | Not working | Comment                                                           |
-|-------------------------|------|--------|------|-------|-----|-------------|-------------------------------------------------------------------|
-| Audio                   | x    |        |      |       |     |             | Full implementation using OpenAL, some rare bugs can occur        |
-| CG Module               | x    |        |      |       |     |             | Some effects can be inaccurate compared to the original game      |
-| Client                  | x    |        |      |       |     |             |                                                                   |
-| Collision               | x    |        |      |       |     |             |                                                                   |
-| Model/TIKI/Skeletor     | x    |        |      |       |     |             |                                                                   |
-| Renderer                | x    |        |      |       |     |             |                                                                   |
-| Server                  | x    |        |      |       |     |             |                                                                   |
-| Server module (fgame)   | x    |        |      |       |     |             | There might still be some AI/gameplay bugs                        |
-| UI                      | x    |        |      |       |     |             |                                                                   |
+| Component               | Full | Almost | Half | Early | Bad | Not working | Comment                                                             |
+|-------------------------|------|--------|------|-------|-----|-------------|---------------------------------------------------------------------|
+| Audio                   | x    |        |      |       |     |             | Full implementation using OpenAL                                    |
+| CG Module               | x    |        |      |       |     |             | Some effects can be inaccurate compared to the original game        |
+| Client                  | x    |        |      |       |     |             |                                                                     |
+| Collision               | x    |        |      |       |     |             |                                                                     |
+| Model/TIKI/Skeletor     | x    |        |      |       |     |             |                                                                     |
+| Renderer                | x    |        |      |       |     |             |                                                                     |
+| Server                  | x    |        |      |       |     |             |                                                                     |
+| Server module (fgame)   | x    |        |      |       |     |             | There might still be some AI-related bugs remaining                 |
+| UI                      | x    |        |      |       |     |             |                                                                     |
 
 Full = code is fully working, however it doesn't mean it's bug-free.
