@@ -72,7 +72,7 @@ static vec3_t offsets[26] = {
 
 int compare_light_intensities(const void *p1, const void *p2)
 {
-    return ((const reallightinfo_t *)p2)->fIntensity - ((const reallightinfo_t *)p1)->fIntensity;
+    return *(int *)&((const reallightinfo_t *)p2)->fIntensity - *(int *)&((const reallightinfo_t *)p1)->fIntensity;
 }
 
 static void RB_OptimizeLights()
