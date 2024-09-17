@@ -1181,7 +1181,7 @@ void R_Sphere_InitLights()
     s_sun.szFlareName[0] = 0;
     s_sun.exists         = qfalse;
 
-    for (int i = 0; i < 128; i++) {
+    for (int i = 0; i < MAX_SPHERE_LIGHTS; i++) {
         backEnd.spheres[i].TessFunction = &RB_Light_Real;
     }
 

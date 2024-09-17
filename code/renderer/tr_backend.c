@@ -870,7 +870,7 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 				}
 				else
 				{
-					if (backEnd.numSpheresUsed == 128)
+					if (backEnd.numSpheresUsed == MAX_SPHERE_LIGHTS)
 					{
 						ri.Printf(PRINT_DEVELOPER, "Spherical lighting: Ran out of space in the sphere array!\n");
 						backEnd.currentSphere = &backEnd.spareSphere;
