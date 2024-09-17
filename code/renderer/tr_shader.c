@@ -2153,8 +2153,12 @@ static qboolean ParseShader( char **text, qboolean picmip )
 {
 	char *token;
 	int s;
+	int matchingendifs;
+	qboolean bInElseBlock;
 
 	s = 0;
+	matchingendifs = 0;
+	bInElseBlock = qfalse;
 
 	token = COM_ParseExt( text, qtrue );
 	if ( token[0] != '{' )
@@ -2380,6 +2384,107 @@ static qboolean ParseShader( char **text, qboolean picmip )
 		{
 			ParseSort( text );
 			continue;
+		}
+		else if (!Q_stricmp(token, "#if") || !Q_stricmp(token, "#if_not") || !Q_stricmp(token, "#else"))
+		{
+			qboolean conditionpassed;
+
+			conditionpassed = qfalse;
+			if (!Q_stricmp(token, "#else"))
+			{
+				if (bInElseBlock) {
+					ri.Printf(
+						PRINT_WARNING,
+						"WARNING: illegal #else after a previous #else in shader '%s'\n",
+						shader.name);
+				}
+
+				matchingendifs--;
+				if (matchingendifs < 0) {
+					ri.Printf(PRINT_WARNING, "WARNING: unmatched #else in shader '%s'\n", shader.name);
+				}
+
+				bInElseBlock = qtrue;
+			}
+			else
+			{
+				qboolean bInvertResult;
+
+				bInvertResult = !Q_stricmp(token, "#if_not");
+
+				token = COM_ParseExt(text, qfalse);
+				if (!Q_stricmp(token, "separate_env")) {
+					conditionpassed = r_textureDetails->integer != 0;
+				} else if (!Q_stricmp(token, "0") || !Q_stricmp(token, "false")) {
+					conditionpassed = qfalse;
+				} else if (!Q_stricmp(token, "1") || !Q_stricmp(token, "true")) {
+					conditionpassed = qtrue;
+				} else {
+					ri.Printf(
+						PRINT_WARNING,
+						"WARNING: invalid #if argument '%s' in shader '%s', not passing.\n",
+						token,
+						shader.name);
+				}
+
+				if (bInvertResult) {
+					conditionpassed = !conditionpassed;
+				}
+			}
+
+			if (!conditionpassed) {
+				int nestedifs = 0;
+
+				SkipRestOfLine(text);
+
+				while (1) {
+					token = COM_ParseExt(text, qtrue);
+					if (!token[0]) {
+						ri.Printf(PRINT_WARNING, "WARNING: no matching #endif in shader '%s'\n", &shader);
+						break;
+					}
+
+					if (!Q_stricmp(token, "#if")) {
+						nestedifs++;
+						SkipRestOfLine(text);
+					} else if (!Q_stricmp(token, "#endif")) {
+						nestedifs--;
+					} else if (!Q_stricmp(token, "#else")) {
+						if (bInElseBlock) {
+							ri.Printf(
+								PRINT_WARNING,
+								"WARNING: illegal #else after a previous #else in shader '%s'\n",
+								&shader);
+							break;
+						}
+
+						if (!nestedifs) {
+							matchingendifs++;
+							break;
+						}
+						nestedifs++;
+					} else {
+						SkipRestOfLine(text);
+					}
+
+					if (nestedifs == -1) {
+						break;
+					}
+				}
+			} else {
+				matchingendifs++;
+			}
+
+			continue;
+		}
+		else if (!Q_stricmp(token, "#endif"))
+		{
+			matchingendifs--;
+			if (matchingendifs < 0) {
+				ri.Printf(PRINT_WARNING, "WARNING: unmatched #endif in shader '%s'\n", shader.name);
+			}
+
+			bInElseBlock = qfalse;
 		}
 		else
 		{
