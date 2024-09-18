@@ -5544,7 +5544,7 @@ void UI_LoadResource(const char *name)
         Cvar_SetValue("loadingbar", (float)currentLoadTime / (float)totalLoadTime);
     }
 
-    UI_TestUpdateScreen(333u);
+    UI_TestUpdateScreen(33);
 }
 
 /*
