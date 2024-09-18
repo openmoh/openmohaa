@@ -119,6 +119,9 @@ cvar_t	*r_entlight_cubefraction;
 cvar_t	*r_entlight_maxcalc;
 cvar_t	*r_flares;
 cvar_t	*r_mode;
+cvar_t	*r_maxmode;
+cvar_t	*r_vidmode1024;
+cvar_t	*r_vidmodemax;
 cvar_t	*r_nobind;
 cvar_t	*r_singleShader;
 cvar_t	*r_lerpmodels;
@@ -1276,7 +1279,21 @@ void R_Register( void )
 	r_depthbits = ri.Cvar_Get("r_depthbits", "0", CVAR_ARCHIVE | CVAR_LATCH);
 	r_overBrightBits = ri.Cvar_Get ("r_overBrightBits", "0", CVAR_ARCHIVE | CVAR_LATCH );
 	r_ignorehwgamma = ri.Cvar_Get( "r_ignorehwgamma", "0", CVAR_ARCHIVE | CVAR_LATCH);
-	r_mode = ri.Cvar_Get( "r_mode", "3", CVAR_ARCHIVE | CVAR_LATCH );
+	r_maxmode = (int)ri.Cvar_Get("r_maxmode", "6", CVAR_ARCHIVE | CVAR_LATCH);
+	r_vidmode1024 = (int)ri.Cvar_Get("r_vidmode1024", "1", CVAR_ARCHIVE | CVAR_LATCH);
+	r_vidmodemax = (int)ri.Cvar_Get("r_vidmodemax", "1", CVAR_ARCHIVE | CVAR_LATCH);
+	r_mode = ri.Cvar_Get("r_mode", "3", CVAR_ARCHIVE | CVAR_LATCH);
+	
+	// Added in 2.0
+	//  But removed because it's kind of annoying
+	//if (r_mode->integer > r_maxmode->integer)
+	//{
+	//	char buf[8];
+	//
+	//	Com_sprintf(buf, sizeof(buf), "%d", r_maxmode->integer);
+	//	ri.Cvar_Set("r_mode", buf);
+	//	r_mode = ri.Cvar_Get("r_mode", "3", CVAR_ARCHIVE | CVAR_LATCH);
+	//}
 	r_fullscreen = ri.Cvar_Get("r_fullscreen", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	r_customwidth = ri.Cvar_Get( "r_customwidth", "1600", CVAR_ARCHIVE | CVAR_LATCH );
 	r_customheight = ri.Cvar_Get( "r_customheight", "1024", CVAR_ARCHIVE | CVAR_LATCH );

@@ -1466,6 +1466,9 @@ extern	cvar_t	*r_nocurves;
 extern	cvar_t	*r_showcluster;
 
 extern cvar_t	*r_mode;				// video mode
+extern cvar_t	*r_maxmode;
+extern cvar_t	*r_vidmode1024;
+extern cvar_t	*r_vidmodemax;
 extern cvar_t	*r_fullscreen;
 extern cvar_t	*r_gamma;
 extern cvar_t	*r_displayRefresh;		// optional display refresh option
