@@ -984,6 +984,8 @@ CL_InitKeyCommands
 */
 void CL_InitKeyCommands(void)
 {
+    int i;
+
     // register our functions
     Cmd_AddCommand("bind", Key_Bind_f);
     Cmd_AddCommand("unbind", Key_Unbind_f);
@@ -997,6 +999,10 @@ void CL_InitKeyCommands(void)
     Cmd_AddCommand("ctrlbindlist", Key_AltBindlist_f);
 
     memset(menubound, 0, sizeof(menubound));
+
+    for (i = K_F1; i <= K_F15; i++) {
+        menubound[i] = qtrue;
+    }
 }
 
 /*
