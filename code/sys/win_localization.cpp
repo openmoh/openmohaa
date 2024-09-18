@@ -548,7 +548,7 @@ const char *cLocalization::ConvertString( const char *var )
 
 	i = 0;
 
-	while( !isspace( var[ i ] ) )
+	while( var[ i ] < 0 || !isspace( var[ i ] ) )
 	{
 		i++;
 		if( !var[ i ] ) {
