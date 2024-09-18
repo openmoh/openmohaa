@@ -927,6 +927,8 @@ void CG_UpdateAttackerDisplay()
 
 void CG_UpdateCountdown()
 {
+    const char* message = "";
+
     if (!cg.snap) {
         return;
     }
@@ -937,15 +939,17 @@ void CG_UpdateCountdown()
         iSecondsLeft = (cgs.matchEndTime - cg.time) / 1000;
         if (iSecondsLeft >= 0) {
             iMinutesLeft = iSecondsLeft / 60;
-            cgi.Cvar_Set(
-                "ui_timemessage", va("%s %2i:%02i", cgi.LV_ConvertString("Time Left:"), iMinutesLeft, iSecondsLeft % 60)
-            );
+            message = va("%s %2i:%02i", cgi.LV_ConvertString("Time Left:"), iMinutesLeft, iSecondsLeft % 60);
         } else if (!cgs.matchEndTime) {
-            cgi.Cvar_Set("ui_timemessage", "");
+            message = "";
         }
     } else {
         // The match has not started yet
-        cgi.Cvar_Set("ui_timemessage", "Waiting For Players");
+        message = "Waiting For Players";
+    }
+
+    if (strcmp(ui_timemessage->string, message)) {
+        cgi.Cvar_Set("ui_timemessage", message);
     }
 }
 

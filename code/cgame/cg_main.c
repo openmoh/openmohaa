@@ -110,6 +110,7 @@ cvar_t *vm_lean_lower;
 cvar_t *voiceChat;
 cvar_t *cg_shadowscount;
 cvar_t *cg_shadowdebug;
+cvar_t *ui_timemessage;
 
 /*
 =================
@@ -196,6 +197,8 @@ void CG_RegisterCvars(void)
     vm_offset_upvel               = cgi.Cvar_Get("vm_offset_upvel", "0.0025", 0);
     vm_lean_lower                 = cgi.Cvar_Get("vm_lean_lower", "0.1", 0);
     voiceChat                     = cgi.Cvar_Get("cg_voicechat", "1", 0);
+
+    ui_timemessage = cgi.Cvar_Get("ui_timemessage", "", 0);
 
     // see if we are also running the server on this machine
     temp            = cgi.Cvar_Get("sv_running", "0", 0);

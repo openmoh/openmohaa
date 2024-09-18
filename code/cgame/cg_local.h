@@ -503,6 +503,7 @@ extern "C" {
     extern cvar_t *voiceChat;
     extern cvar_t *cg_shadowscount;
     extern cvar_t *cg_shadowdebug;
+    extern cvar_t* ui_timemessage;
 
     //
     // cg_main.c

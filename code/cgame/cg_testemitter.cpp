@@ -818,7 +818,9 @@ void CG_UpdateTestEmitter(void)
     emittertime_t *et = NULL;
 
     if (VectorCompare(te_vEmitterOrigin, vec_zero) || te_iNumCommands < 1) {
-        cgi.Cvar_Set("cg_te_mode_name", "Temp Emitter Off");
+        if (Q_stricmp(cg_te_mode_name->string, "Temp Emitter Off")) {
+            cgi.Cvar_Set("cg_te_mode_name", "Temp Emitter Off");
+        }
         return;
     }
 

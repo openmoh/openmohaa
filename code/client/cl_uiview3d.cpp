@@ -279,7 +279,10 @@ void View3D::DrawSubtitleOverlay(void)
             // Clear the subtitle
             fadeTime[i]      = 0;
             oldStrings[i][0] = 0;
-            Cvar_Set(va("subtitle%d", i), "");
+
+            if (subs[i]->string && subs[i]->string[0]) {
+                Cvar_Set(va("subtitle%d", i), "");
+            }
         }
     }
 
