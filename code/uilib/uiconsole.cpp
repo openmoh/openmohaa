@@ -511,14 +511,11 @@ void UIConsole::Draw
 			return;
 		}
 
-		i = m_items[item].lines;
-		while (i < topitem) {
+		for (i = 0; i < topitem; i += m_items[item].lines) {
 			item = getNextItem(item);
 			if (item == -1) {
-				break;
+				return;
 			}
-
-			i += m_items[item].lines;
 		}
 
 		if (item == -1) {
@@ -1139,7 +1136,12 @@ void UIDMConsole::AddDMMessageText
 
 {
 	AddText(text, NULL);
-	uii.Snd_PlaySound("objective_text");
+
+	if (com_target_game->integer >= TG_MOHTA) {
+		uii.Snd_PlaySound("radio_click");
+	} else {
+		uii.Snd_PlaySound("objective_text");
+	}
 }
 
 void UIDMConsole::Draw
@@ -1422,7 +1424,7 @@ void UIFloatingDMConsole::FrameInitialized
 	UIFloatingWindow::FrameInitialized();
 
 	m_console = new UIDMConsole();
-	m_console->InitFrame(getChildSpace(), UIRect2D(0, 0, 20.0, 20.0), 0, "verdana-12");
+	m_console->InitFrame(getChildSpace(), UIRect2D(0, 0, 20.0, 20.0), 0, "facfont-20");
 
 	m_console->Connect(this, W_Deactivated, W_Deactivated);
 	setConsoleColor(m_consoleColor);

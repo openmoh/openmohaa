@@ -62,8 +62,8 @@ void CG_MessageMode_Private_f(void)
         return;
     }
 
-    clientNum = atoi(cgi.Argv(1)) - 1;
-    if (clientNum < 0 || clientNum >= MAX_CLIENTS) {
+    clientNum = atoi(cgi.Argv(1));
+    if (clientNum < 1 || clientNum >= MAX_CLIENTS) {
         cgi.Printf(HUD_MESSAGE_CHAT_WHITE "Message Error: %s is a bad client number\n", cgi.Argv(1));
         return;
     }

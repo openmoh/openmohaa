@@ -1017,7 +1017,7 @@ UI_DMMessageModesMatch
 */
 static qboolean UI_DMMessageModesMatch(int iMode)
 {
-    qboolean bQuickMessage;
+    qboolean bQuickMessage = qfalse;
 
     if (iMode && (iMode != 300 || dm_console->GetQuickMessageMode())) {
         if (iMode < 0) {
@@ -1048,13 +1048,15 @@ static void UI_SetDMConsoleMode(int iMode)
         return;
     }
 
+    bQuickMessage = qfalse;
+
     if (iMode < 0) {
         bQuickMessage = qtrue;
         iMode         = -iMode;
     }
 
     if (iMode == 300) {
-        bQuickMessage = dm_console->GetMessageMode();
+        iMode = dm_console->GetMessageMode();
     }
 
     if (dm_console->GetQuickMessageMode()) {
@@ -1064,8 +1066,8 @@ static void UI_SetDMConsoleMode(int iMode)
         }
     } else {
         if (bQuickMessage) {
-            dm_console->setFrame(getDefaultDMConsoleRectangle());
-            dm_console->SetQuickMessageMode(qfalse);
+            dm_console->setFrame(getQuickMessageDMConsoleRectangle());
+            dm_console->SetQuickMessageMode(bQuickMessage);
         }
     }
 
@@ -1086,7 +1088,7 @@ static void UI_SetDMConsoleMode(int iMode)
             dm_console->setTitle(Sys_LV_CL_ConvertString(
                 "Chat Window (Enter to send/close) (all|team|private to change mode) : Messaging to All"
             ));
-        } else if (iMode == 100) {
+        } else if (iMode == 200) {
             dm_console->setTitle(Sys_LV_CL_ConvertString(
                 "Chat Window (Enter to send/close) (all|team|private to change mode) : Messaging to Team"
             ));
