@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2023 the OpenMoHAA team
+Copyright (C) 2023-2024 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -33,7 +33,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define PRODUCT_VERSION_MAJOR			0
 #define PRODUCT_VERSION_MINOR			71
 #define PRODUCT_VERSION_PATCH			0
-#define PRODUCT_VERSION_SUFFIX			"alpha"
+#define PRODUCT_VERSION_SUFFIX			PRODUCT_VERSION_STAGE
 
 //
 // Generated version info
