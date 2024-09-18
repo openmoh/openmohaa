@@ -592,4 +592,29 @@ void S_ReLoad(soundsystemsavegame_t* pSave) {
     // FIXME: unimplemented
 }
 
+/*
+==============
+S_StopMovieAudio
+==============
+*/
+void S_StopMovieAudio() {
+}
+
+/*
+==============
+S_CurrentMoviePosition
+==============
+*/
+int S_CurrentMoviePosition() {
+    return 0;
+}
+
+/*
+==============
+S_SetupMovieAudio
+==============
+*/
+void S_SetupMovieAudio(const char* pszMovieName) {
+}
+
 #endif

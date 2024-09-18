@@ -86,6 +86,10 @@ const char* S_GetMusicFilename();
 int S_GetMusicLoopCount();
 unsigned int S_GetMusicOffset();
 
+void S_StopMovieAudio();
+int S_CurrentMoviePosition();
+void S_SetupMovieAudio(const char* pszMovieName);
+
 #ifdef __cplusplus
 }
 #endif
