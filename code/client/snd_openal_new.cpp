@@ -550,7 +550,7 @@ qboolean S_OPENAL_Init()
     }
 
     s_milesdriver            = Cvar_Get("s_milesdriver", "auto", CVAR_SOUND_LATCH | CVAR_ARCHIVE);
-    s_openaldevice           = Cvar_Get("s_openaldevice", "", CVAR_SOUND_LATCH | CVAR_ARCHIVE);
+    s_openaldevice           = Cvar_Get("s_openaldevice", "", CVAR_SOUND_LATCH);
     s_reverb                 = Cvar_Get("s_reverb", "0", CVAR_SOUND_LATCH | CVAR_ARCHIVE);
     s_show_cpu               = Cvar_Get("s_show_cpu", "0", 0);
     s_show_num_active_sounds = Cvar_Get("s_show_num_active_sounds", "0", 0);
@@ -560,7 +560,7 @@ qboolean S_OPENAL_Init()
     //
     // Added in OPM
     //  Initialize the AL driver DLL
-    s_openaldriver = Cvar_Get("s_openaldriver", ALDRIVER_DEFAULT, CVAR_ARCHIVE | CVAR_LATCH | CVAR_PROTECTED);
+    s_openaldriver = Cvar_Get("s_openaldriver", ALDRIVER_DEFAULT, CVAR_LATCH | CVAR_PROTECTED);
 
     if (!QAL_Init(s_openaldriver->string)) {
         Com_Printf("Failed to load library: \"%s\".\n", s_openaldriver->string);
