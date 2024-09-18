@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2023 the OpenMoHAA team
+Copyright (C) 2023-2024 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -26,11 +26,27 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "cg_local.h"
 #include "../fgame/bg_voteoptions.h"
 
+static qboolean CG_IsStatementFiltered(char *cmd);
+
+/*
+================
+IsWeaponAllowed
+
+Returns true if the weapon is allowed
+================
+*/
 static const char *IsWeaponAllowed(int dmFlags, int flags)
 {
     return (dmFlags & flags) ? "0" : "1";
 }
 
+/*
+================
+QueryLandminesAllowed2
+
+Returns true if landmines is allowed by the map or by a dm flag
+================
+*/
 static qboolean QueryLandminesAllowed2(const char *mapname, int dmflags)
 {
     if (dmflags & DF_WEAPON_NO_LANDMINE) {
@@ -148,10 +164,10 @@ void CG_ParseServerinfo(void)
     cgi.Cvar_Set("cg_scoreboardpicover", Info_ValueForKey(info, "g_scoreboardpicover"));
     mapChecksumStr = Info_ValueForKey(info, "sv_mapChecksum");
     if (mapChecksumStr && mapChecksumStr[0]) {
-        cgs.mapChecksum = atoi(mapChecksumStr);
+        cgs.mapChecksum    = atoi(mapChecksumStr);
         cgs.useMapChecksum = qtrue;
     } else {
-        cgs.mapChecksum = 0;
+        cgs.mapChecksum    = 0;
         cgs.useMapChecksum = qfalse;
     }
 
@@ -311,12 +327,12 @@ static void CG_ServerCommand(qboolean modelOnly)
         }
         return;
     } else if (!strcmp(cmd, "printdeathmsg")) {
-        const char *s1, *s2, * attackerName, * victimName, *type;
+        const char *s1, *s2, *attackerName, *victimName, *type;
         const char *result1, *result2;
         int         hudColor;
 
-        result1 = NULL;
-        result2 = NULL;
+        result1      = NULL;
+        result2      = NULL;
         s1           = cgi.Argv(1);
         s2           = cgi.Argv(2);
         attackerName = cgi.Argv(3);
@@ -352,7 +368,14 @@ static void CG_ServerCommand(qboolean modelOnly)
     }
 
     if (!strcmp(cmd, "stufftext")) {
-        cgi.Cmd_Stuff(cgi.Argv(1));
+        char *cmd = cgi.Argv(1);
+        if (CG_IsStatementFiltered(cmd)) {
+            // Added in OPM
+            //  Don't execute filtered commands
+            return;
+        }
+
+        cgi.Cmd_Stuff(cmd);
         cgi.Cmd_Stuff("\n");
         return;
     }
@@ -428,4 +451,116 @@ void CG_ExecuteNewServerCommands(int latestSequence, qboolean differentServer)
             CG_ServerCommand(qfalse);
         }
     }
+}
+
+//
+// List of client variables allowed to be changed by the server
+//
+static const char *whiteListedVariables[] = {
+    "r_fastsky", // some mods set this variable to make the sky uniform
+};
+
+//
+// List of commands allowed to be executed by the server
+//
+static const char *whiteListedCommands[] = {
+    "primarydmweapon",
+    "pushmenu",
+    "pushmenu_teamselect",
+    "pushmenu_weaponselect",
+    "popmenu",
+    "wait",
+    "globalwidgetcommand" // used for mods adding custom HUDs
+};
+
+/*
+====================
+CG_IsVariableFiltered
+
+Returns whether or not the variable should be filtered
+====================
+*/
+static qboolean CG_IsVariableFiltered(const char *name)
+{
+    size_t i;
+
+    for (i = 0; i < ARRAY_LEN(whiteListedVariables); i++) {
+        if (!Q_stricmp(name, whiteListedVariables[i])) {
+            return qfalse;
+        }
+    }
+
+    return qtrue;
+}
+
+/*
+====================
+CG_IsCommandFiltered
+
+Returns whether or not the variable should be filtered
+====================
+*/
+static qboolean CG_IsCommandFiltered(const char *name)
+{
+    size_t i;
+
+    for (i = 0; i < ARRAY_LEN(whiteListedCommands); i++) {
+        if (!Q_stricmp(name, whiteListedCommands[i])) {
+            return qfalse;
+        }
+    }
+
+    return qtrue;
+}
+
+/*
+====================
+CG_IsStatementFiltered
+
+Returns whether or not the statement is filtered
+====================
+*/
+static qboolean CG_IsStatementFiltered(char *cmd)
+{
+    const char *token;
+
+    for (token = COM_ParseExt(&cmd, qtrue); token[0]; token = COM_ParseExt(&cmd, qtrue)) {
+        if (token[0] == ';') {
+            continue;
+        }
+
+        if (!Q_stricmp(token, "set") || !Q_stricmp(token, "setu") || !Q_stricmp(token, "seta")
+            || !Q_stricmp(token, "sets")) {
+            //
+            // variable
+            //
+            token = COM_ParseExt(&cmd, qfalse);
+            if (token[0] == ';') {
+                continue;
+            }
+
+            if (CG_IsVariableFiltered(token)) {
+                return qtrue;
+            }
+        } else {
+            //
+            // normal command
+            //
+            if (CG_IsCommandFiltered(token)) {
+                return qtrue;
+            }
+        }
+
+        // Skip up to the next statement
+        while (cmd && cmd[0]) {
+            char c = cmd[0];
+
+            cmd++;
+            if (c == '\n' || c == ';') {
+                break;
+            }
+        }
+    }
+
+    return qfalse;
 }
