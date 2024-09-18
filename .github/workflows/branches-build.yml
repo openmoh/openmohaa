@@ -1,0 +1,17 @@
+name: Build branch
+
+on:
+  push:
+    branches:
+      - '**'
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-all:
+   uses: ./.github/workflows/shared-build.yml
+   with:
+      environment: "testing"

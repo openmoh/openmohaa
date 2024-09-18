@@ -1,19 +1,16 @@
-name: Build
+name: Shared build workflow
 
 on:
-  push:
-    branches:
-      - '**'
-  pull_request:
   workflow_call:
-
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+    inputs:
+      environment:
+        required: true
+        type: string
 
 env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
   BUILD_TYPE: RelWithDebInfo
+  RELEASE_STAGE: ${{ vars.RELEASE_STAGE || 'unstable' }}
 
 jobs:
   build-platform-linux:
@@ -30,7 +27,8 @@ jobs:
         ]
 
     name: "Building for platform linux-${{matrix.architecture.name}}"
-    runs-on: ubuntu-22.04
+    runs-on: "ubuntu-22.04"
+    environment: ${{ inputs.environment }}
 
     steps:
     - name: Settings
@@ -95,7 +93,8 @@ jobs:
         -DCMAKE_CXX_FLAGS=--target=${{ matrix.architecture.triple }} \
         -DOPENAL_LIBRARY='${{github.workspace}}/thirdparties/soft-oal' \
         -DOPENAL_INCLUDE_DIR='${{github.workspace}}/thirdparties/soft-oal/include' \
-        -DGIT_REVISION_BUILD_NUMBER=${{ github.run_number }}" >> $GITHUB_ENV
+        -DGIT_REVISION_BUILD_NUMBER=${{ github.run_number }} \
+        -DPRODUCT_VERSION_STAGE='${{ env.RELEASE_STAGE }}'" >> $GITHUB_ENV
 
     - name: Configure CMake
       working-directory: ${{github.workspace}}
@@ -141,7 +140,8 @@ jobs:
         ]
 
     name: "Building for platform windows-${{matrix.architecture.name}}"
-    runs-on: windows-2022
+    runs-on: "windows-2022"
+    environment: ${{ inputs.environment }}
 
     steps:
     - name: Settings
@@ -212,7 +212,8 @@ jobs:
         -DBISON_EXECUTABLE='${{github.workspace}}/thirdparties/winflexbison-install/win_bison.exe' `
         -DOPENAL_LIBRARY='${{github.workspace}}/thirdparties/soft-oal' `
         -DOPENAL_INCLUDE_DIR='${{github.workspace}}/thirdparties/soft-oal/include' `
-        -DFLEX_EXECUTABLE='${{github.workspace}}/thirdparties/winflexbison-install/win_flex.exe'".Replace("`r", "").Replace("`n", "") >> $env:GITHUB_ENV
+        -DFLEX_EXECUTABLE='${{github.workspace}}/thirdparties/winflexbison-install/win_flex.exe' `
+        -DPRODUCT_VERSION_STAGE='${{ env.RELEASE_STAGE }}'".Replace("`r", "").Replace("`n", "") >> $env:GITHUB_ENV
 
     - name: Configure CMake
       working-directory: ${{github.workspace}}
