@@ -511,7 +511,7 @@ void UIConsole::Draw
 			return;
 		}
 
-		for (i = 0; i < topitem; i += m_items[item].lines) {
+		for (i = m_items[item].lines; i < topitem; i += m_items[item].lines) {
 			item = getNextItem(item);
 			if (item == -1) {
 				return;
@@ -527,21 +527,20 @@ void UIConsole::Draw
 		lines_drawn = 0;
 		while (lines_drawn < m_scroll->getPageHeight() + 1)
 		{
-			if (item != -1 && at_line >= m_items[item].lines)
-			{
+			while (at_line >= m_items[item].lines) {
+				item = getNextItem(item);
 				at_line = 0;
-				do {
-					item = getNextItem(item);
+				if (item == -1) {
+					break;
 				}
-				while (item != -1 && m_items[item].lines <= 0);
+			}
+
+			if (item == -1) {
+				break;
 			}
 
 			if (at_line >= 0)
 			{
-				if (item == -1) {
-					break;
-				}
-
 				if (at_line >= m_items[item].lines) {
 					break;
 				}
