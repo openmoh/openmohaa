@@ -190,15 +190,12 @@ public:
     static ClassDef *classlist;
     static int       numclasses;
 
-    static void BuildEventResponses();
-
-    void BuildResponseList();
-
     static int                   dump_numclasses;
     static int                   dump_numevents;
     static Container<int>        sortedList;
     static Container<ClassDef *> sortedClassList;
 
+public:
     ClassDef();
     ~ClassDef();
 
@@ -223,28 +220,17 @@ public:
         void *(*newInstance)(void),
         int classSize
     );
-    void CreateInternal(
-        const char         *classname,
-        const char         *classID,
-        const char         *superclass,
-        ResponseDef<Class> *responses,
-        void *(*newInstance)(void),
-        int classSize
-    );
-    void CreateInternalWin(
-        const char         *classname,
-        const char         *classID,
-        const char         *superclass,
-        ResponseDef<Class> *responses,
-        void *(*newInstance)(void),
-        int classSize
-    );
 
     EventDef *GetDef(int eventnum);
     EventDef *GetDef(Event *ev);
     int       GetFlags(Event *event);
 
     void Destroy();
+
+public:
+    static void BuildEventResponses();
+
+    void BuildResponseList();
 };
 
 ClassDef *getClassList(void);
