@@ -419,40 +419,42 @@ void CrateObject::CrateThink(Event *ev)
     if (m_vJitterAngles[0] || m_vJitterAngles[2]) {
         setAngles(Vector(m_vStartAngles[0] * 2.0f, m_vStartAngles[1], m_vStartAngles[2] * 2.0f));
 
-        if (m_vJitterAngles[0] > 0.0f) {
-            m_vJitterAngles[0] -= 1 / 3 * m_fJitterScale;
+        if (m_vJitterAngles[0] > 0) {
+            m_vJitterAngles[0] -= 1.0 / 3.0 * m_fJitterScale;
 
-            if (m_vJitterAngles[0] > 0.0f) {
-                m_vJitterAngles[0] = 0.0f;
+            if (m_vJitterAngles[0] < 0) {
+                m_vJitterAngles[0] = 0;
             }
-        } else if (m_vJitterAngles[0] < 0.0f) {
-            m_vJitterAngles[0] += 1 / 3 * m_fJitterScale;
+        } else if (m_vJitterAngles[0] < 0) {
+            m_vJitterAngles[0] += 1.0 / 3.0 * m_fJitterScale;
 
-            if (m_vJitterAngles[0] < 0.0f) {
-                m_vJitterAngles[0] = 0.0f;
+            if (m_vJitterAngles[0] > 0) {
+                m_vJitterAngles[0] = 0;
             }
         }
 
         m_vJitterAngles[0] = -m_vJitterAngles[0];
 
-        if (m_vJitterAngles[2] > 0.0f) {
+        if (m_vJitterAngles[2] > 0) {
             m_vJitterAngles[2] -= 1 / 3 * m_fJitterScale;
 
-            if (m_vJitterAngles[2] > 0.0f) {
-                m_vJitterAngles[2] = 0.0f;
+            if (m_vJitterAngles[2] < 0) {
+                m_vJitterAngles[2] = 0;
             }
-        } else if (m_vJitterAngles[2] < 0.0f) {
-            m_vJitterAngles[2] += 1 / 3 * m_fJitterScale;
+        } else if (m_vJitterAngles[2] < 0) {
+            m_vJitterAngles[2] += 1.0 / 3.0 * m_fJitterScale;
 
-            if (m_vJitterAngles[2] < 0.0f) {
-                m_vJitterAngles[2] = 0.0f;
+            if (m_vJitterAngles[2] > 0) {
+                m_vJitterAngles[2] = 0;
             }
         }
 
         m_vJitterAngles[2] = -m_vJitterAngles[2];
-
-        PostEvent(EV_Crate_Think, 0.05f);
     } else if (!VectorCompare(angles, m_vStartAngles)) {
         setAngles(m_vStartAngles);
+    }
+
+    if (m_vJitterAngles[0] || m_vJitterAngles[2]) {
+        PostEvent(EV_Crate_Think, 0.05f);
     }
 }
