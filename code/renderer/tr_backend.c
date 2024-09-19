@@ -448,7 +448,7 @@ void GL_State( unsigned long stateBits )
 	{
 		float clampValue;
 
-		if (r_forceClampToEdge->value)
+		if (haveClampToEdge)
 		{
 			if (stateBits & GLS_CLAMP_EDGE) {
 				clampValue = GL_CLAMP_TO_EDGE;

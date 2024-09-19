@@ -336,6 +336,10 @@ static void InitOpenGL( void )
 		{
 			glConfig.maxTextureSize = 0;
 		}
+
+		if (haveClampToEdge) {
+			ri.Cvar_Set("r_forceClampToEdge", "1");
+		}
 	}
 
 	// init command buffers and SMP
@@ -1259,7 +1263,7 @@ void R_Register( void )
 	r_ext_texture_env_combine = ri.Cvar_Get("r_ext_texture_env_combine", "0", CVAR_ARCHIVE | CVAR_LATCH);
 	r_ext_aniso_filter = ri.Cvar_Get("r_ext_aniso_filter", "0", CVAR_ARCHIVE | CVAR_LATCH);
 	r_ext_max_anisotropy = ri.Cvar_Get("r_ext_max_anisotropy", "2", CVAR_ARCHIVE | CVAR_LATCH);
-	r_forceClampToEdge = ri.Cvar_Get("r_forceClampToEdge", "0", CVAR_ARCHIVE | CVAR_LATCH);
+	r_forceClampToEdge = ri.Cvar_Get("r_forceClampToEdge", "0", CVAR_ROM);
 	r_geForce3WorkAround = ri.Cvar_Get("r_geForce3WorkAround", "1", CVAR_ARCHIVE);
 	r_reset_tc_array = ri.Cvar_Get("r_reset_tc_array", "1", CVAR_ARCHIVE);
 

@@ -894,7 +894,7 @@ static qboolean ParseStage(shaderStage_t* stage, char** text, qboolean picmip)
 			int clampx, clampy;
 
 			if (!token[8]) {
-				if (!r_forceClampToEdge->value) {
+				if (!haveClampToEdge) {
 					clampx = GL_CLAMP;
 					clampy = GL_CLAMP;
 				}
@@ -906,7 +906,7 @@ static qboolean ParseStage(shaderStage_t* stage, char** text, qboolean picmip)
 			else {
 				if (token[8] == 'x')
 				{
-					if (!r_forceClampToEdge->value) {
+					if (!haveClampToEdge) {
 						clampx = GL_CLAMP;
 					}
 					else {
@@ -917,7 +917,7 @@ static qboolean ParseStage(shaderStage_t* stage, char** text, qboolean picmip)
 				else if (token[8] == 'y')
 				{
 					clampx = GL_CLAMP;
-					if (!r_forceClampToEdge->value) {
+					if (!haveClampToEdge) {
 						clampy = GL_CLAMP;
 					}
 					else {
@@ -1966,7 +1966,7 @@ static void ParseSkyParms( char **text ) {
 		for (i=0 ; i<6 ; i++) {
 			Com_sprintf( pathname, sizeof(pathname), "%s_%s.tga"
 				, token, suf[i] );
-			if (!r_forceClampToEdge->integer) {
+			if (!haveClampToEdge) {
 				shader.sky.outerbox[i] = R_FindImageFile((char*)pathname, qtrue, qtrue, shader_force32bit, GL_CLAMP, GL_CLAMP);
 			}
 			else {
@@ -3355,7 +3355,7 @@ shader_t* R_FindShader(const char* name, int lightmapIndex, qboolean mipRawImage
 	//
 	Q_strncpyz( fileName, name, sizeof( fileName ) );
 	COM_DefaultExtension( fileName, sizeof( fileName ), ".tga" );
-    if (!r_forceClampToEdge->value) {
+    if (!haveClampToEdge) {
         image = R_FindImageFile(fileName, mipRawImage, picmip, qfalse, wrapx ? GL_REPEAT : GL_CLAMP, wrapy ? GL_REPEAT : GL_CLAMP);
 	}
     else {
