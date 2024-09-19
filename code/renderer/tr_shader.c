@@ -2440,7 +2440,7 @@ static qboolean ParseShader( char **text, qboolean picmip )
 				while (1) {
 					token = COM_ParseExt(text, qtrue);
 					if (!token[0]) {
-						ri.Printf(PRINT_WARNING, "WARNING: no matching #endif in shader '%s'\n", &shader);
+						ri.Printf(PRINT_WARNING, "WARNING: no matching #endif in shader '%s'\n", shader.name);
 						break;
 					}
 
@@ -2454,7 +2454,7 @@ static qboolean ParseShader( char **text, qboolean picmip )
 							ri.Printf(
 								PRINT_WARNING,
 								"WARNING: illegal #else after a previous #else in shader '%s'\n",
-								&shader);
+								shader.name);
 							break;
 						}
 

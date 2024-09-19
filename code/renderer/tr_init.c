@@ -1279,9 +1279,9 @@ void R_Register( void )
 	r_depthbits = ri.Cvar_Get("r_depthbits", "0", CVAR_ARCHIVE | CVAR_LATCH);
 	r_overBrightBits = ri.Cvar_Get ("r_overBrightBits", "0", CVAR_ARCHIVE | CVAR_LATCH );
 	r_ignorehwgamma = ri.Cvar_Get( "r_ignorehwgamma", "0", CVAR_ARCHIVE | CVAR_LATCH);
-	r_maxmode = (int)ri.Cvar_Get("r_maxmode", "6", CVAR_ARCHIVE | CVAR_LATCH);
-	r_vidmode1024 = (int)ri.Cvar_Get("r_vidmode1024", "1", CVAR_ARCHIVE | CVAR_LATCH);
-	r_vidmodemax = (int)ri.Cvar_Get("r_vidmodemax", "1", CVAR_ARCHIVE | CVAR_LATCH);
+	r_maxmode = ri.Cvar_Get("r_maxmode", "6", CVAR_ARCHIVE | CVAR_LATCH);
+	r_vidmode1024 = ri.Cvar_Get("r_vidmode1024", "1", CVAR_ARCHIVE | CVAR_LATCH);
+	r_vidmodemax = ri.Cvar_Get("r_vidmodemax", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	r_mode = ri.Cvar_Get("r_mode", "3", CVAR_ARCHIVE | CVAR_LATCH);
 	
 	// Added in 2.0
