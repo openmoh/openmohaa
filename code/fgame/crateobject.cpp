@@ -132,13 +132,8 @@ void CrateObject::TellNeighborsToFall(void)
     Vector  vMins;
     Vector  vMaxs;
 
-    vMins[0] = mins[0] + origin[0] + 6.0f;
-    vMins[1] = mins[1] + origin[1] + 6.0f;
-    vMins[2] = mins[2] + origin[2] + 6.0f;
-
-    vMaxs[0] = maxs[0] + origin[0] - 6.0f;
-    vMaxs[1] = maxs[1] + origin[1] - 6.0f;
-    vMaxs[2] = maxs[2] + origin[2] + 12.0f;
+    vMins = origin + mins + Vector(6, 6, 6);
+    vMaxs = origin + maxs + Vector(-6, -6, 12);
 
     for (pEnt = G_NextEntity(NULL); pEnt != NULL; pEnt = pNext) {
         pNext = G_NextEntity(pEnt);
@@ -146,14 +141,20 @@ void CrateObject::TellNeighborsToFall(void)
         for (pEnt = G_NextEntity(NULL); pEnt != NULL; pEnt = pNext) {
             pNext = G_NextEntity(pEnt);
 
-            if (pEnt != this && pEnt->IsSubclassOfCrateObject()) {
-                if (vMins[0] <= absmax[0] && vMins[1] <= absmax[1] && vMins[2] <= absmax[2] && absmin[0] <= vMaxs[0]
-                    && absmin[1] <= vMaxs[1] && absmin[2] <= vMaxs[2]) {
-                    if (!pEnt->EventPending(EV_Crate_Start_Falling)) {
-                        float time = level.frametime + level.frametime;
-                        pEnt->PostEvent(EV_Crate_Start_Falling, time);
-                    }
-                }
+            if (pEnt == this) {
+                continue;
+            }
+            if (!pEnt->IsSubclassOfCrateObject()) {
+                continue;
+            }
+
+            if (vMins[0] > absmax[0] || vMins[1] > absmax[1] || vMins[2] > absmax[2] || absmin[0] > vMaxs[0]
+                || absmin[1] > vMaxs[1] || absmin[2] > vMaxs[2]) {
+                continue;
+            }
+
+            if (!pEnt->EventPending(EV_Crate_Start_Falling)) {
+                pEnt->PostEvent(EV_Crate_Start_Falling, level.frametime * 2);
             }
         }
     }
@@ -166,13 +167,8 @@ void CrateObject::TellNeighborsToJitter(Vector vJitterAdd)
     Vector  vMins;
     Vector  vMaxs;
 
-    vMins[0] = mins[0] + origin[0] + 6.0f;
-    vMins[1] = mins[1] + origin[1] + 6.0f;
-    vMins[2] = mins[2] + origin[2] + 6.0f;
-
-    vMaxs[0] = maxs[0] + origin[0] - 6.0f;
-    vMaxs[1] = maxs[1] + origin[1] - 6.0f;
-    vMaxs[2] = maxs[2] + origin[2] + 12.0f;
+    vMins = origin + mins + Vector(6, 6, 6);
+    vMaxs = origin + maxs + Vector(-6, -6, 12);
 
     for (pEnt = G_NextEntity(NULL); pEnt != NULL; pEnt = pNext) {
         CrateObject *crate = (CrateObject *)pEnt;
@@ -182,7 +178,6 @@ void CrateObject::TellNeighborsToJitter(Vector vJitterAdd)
         if (pEnt == this) {
             continue;
         }
-
         if (!pEnt->IsSubclassOfCrateObject()) {
             continue;
         }
@@ -192,7 +187,7 @@ void CrateObject::TellNeighborsToJitter(Vector vJitterAdd)
             continue;
         }
 
-        crate->m_vJitterAngles[0] = m_vJitterAngles[0] + vJitterAdd[0];
+        crate->m_vJitterAngles[0] += vJitterAdd[0];
 
         if (crate->m_vJitterAngles[0] > m_fJitterScale * 1.25f
             || -(m_fJitterScale * 1.25f) <= crate->m_vJitterAngles[0]) {
@@ -244,12 +239,8 @@ void CrateObject::CrateSetup(Event *ev)
             continue;
         }
 
-        if (vMins[0] <= pEnt->absmax[0]
-            && vMins[1] <= pEnt->absmax[1]
-            && vMins[2] <= pEnt->absmax[2]
-            && vMaxs[0] >= pEnt->absmin[0]
-            && vMaxs[1] >= pEnt->absmin[1]
-            && vMaxs[2] >= pEnt->absmin[2]) {
+        if (vMins[0] <= pEnt->absmax[0] && vMins[1] <= pEnt->absmax[1] && vMins[2] <= pEnt->absmax[2]
+            && vMaxs[0] >= pEnt->absmin[0] && vMaxs[1] >= pEnt->absmin[1] && vMaxs[2] >= pEnt->absmin[2]) {
             Com_Printf(
                 "^~^~^ WARNING: func_crate entities %i and %i have overlapping volumes near (%g %g %g) to (%g %g %g)\n",
                 entnum,
