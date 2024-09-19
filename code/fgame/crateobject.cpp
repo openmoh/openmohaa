@@ -137,25 +137,20 @@ void CrateObject::TellNeighborsToFall(void)
 
     for (pEnt = G_NextEntity(NULL); pEnt != NULL; pEnt = pNext) {
         pNext = G_NextEntity(pEnt);
+        if (pEnt == this) {
+            continue;
+        }
+        if (!pEnt->IsSubclassOfCrateObject()) {
+            continue;
+        }
 
-        for (pEnt = G_NextEntity(NULL); pEnt != NULL; pEnt = pNext) {
-            pNext = G_NextEntity(pEnt);
+        if (vMins[0] > pEnt->absmax[0] || vMins[1] > pEnt->absmax[1] || vMins[2] > pEnt->absmax[2]
+            || pEnt->absmin[0] > vMaxs[0] || pEnt->absmin[1] > vMaxs[1] || pEnt->absmin[2] > vMaxs[2]) {
+            continue;
+        }
 
-            if (pEnt == this) {
-                continue;
-            }
-            if (!pEnt->IsSubclassOfCrateObject()) {
-                continue;
-            }
-
-            if (vMins[0] > absmax[0] || vMins[1] > absmax[1] || vMins[2] > absmax[2] || absmin[0] > vMaxs[0]
-                || absmin[1] > vMaxs[1] || absmin[2] > vMaxs[2]) {
-                continue;
-            }
-
-            if (!pEnt->EventPending(EV_Crate_Start_Falling)) {
-                pEnt->PostEvent(EV_Crate_Start_Falling, level.frametime * 2);
-            }
+        if (!pEnt->EventPending(EV_Crate_Start_Falling)) {
+            pEnt->PostEvent(EV_Crate_Start_Falling, level.frametime * 2);
         }
     }
 }
@@ -182,8 +177,8 @@ void CrateObject::TellNeighborsToJitter(Vector vJitterAdd)
             continue;
         }
 
-        if (vMins[0] > absmax[0] || vMins[1] > absmax[1] || vMins[2] > absmax[2] || absmin[0] > vMaxs[0]
-            || absmin[1] > vMaxs[1] || absmin[2] > vMaxs[2]) {
+        if (vMins[0] > pEnt->absmax[0] || vMins[1] > pEnt->absmax[1] || vMins[2] > pEnt->absmax[2]
+            || pEnt->absmin[0] > vMaxs[0] || pEnt->absmin[1] > vMaxs[1] || pEnt->absmin[2] > vMaxs[2]) {
             continue;
         }
 
@@ -267,8 +262,10 @@ void CrateObject::CrateDebrisType(Event *ev)
 
 void CrateObject::StartFalling(Event *ev)
 {
-    setMoveType(MOVETYPE_FLY);
     m_fMoveTime = 0;
+
+    setMoveType(MOVETYPE_TOSS);
+    setSolidType(SOLID_BBOX);
 
     PostEvent(EV_Crate_Think, level.frametime);
 
@@ -283,12 +280,13 @@ void CrateObject::CrateFalling(Event *ev)
         m_fMoveTime = level.time + 2.0f;
     }
 
-    if (level.time <= m_fMoveTime) {
+    if (m_fMoveTime >= level.time) {
         PostEvent(EV_Crate_Think, level.frametime);
-    } else {
-        setMoveType(MOVETYPE_PUSH);
-        setSolidType(SOLID_BSP);
+        return;
     }
+
+    setMoveType(MOVETYPE_PUSH);
+    setSolidType(SOLID_BSP);
 }
 
 void CrateObject::CrateDamaged(Event *ev)
