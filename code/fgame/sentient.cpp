@@ -146,8 +146,8 @@ Event EV_Sentient_GiveAmmo
 (
     "ammo",
     EV_DEFAULT,
-    "si",
-    "type amount",
+    "siI",
+    "type amount max_amount",
     "Gives the sentient some ammo.",
     EV_NORMAL
 );
