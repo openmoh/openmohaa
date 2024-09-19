@@ -1002,9 +1002,13 @@ static UIRect2D getQuickMessageDMConsoleRectangle(void)
         rect.size.height = f[3] + 50.0;
     } else {
         rect.pos.x       = 0;
-        rect.pos.y       = cls.glconfig.vidHeight * 0.65;
+        rect.pos.y       = cls.glconfig.vidHeight * 0.66;
         rect.size.width  = cls.glconfig.vidWidth;
-        rect.size.height = 38.0;
+        // Fixed in 2.0
+        //  Was 38.0 in 1.11 and below
+        //  This prevents characters to be seen from the DM console
+        //  in the quick message console
+        rect.size.height = 36.0;
     }
 
     return rect;
