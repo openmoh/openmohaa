@@ -1,6 +1,7 @@
 /*
 ===========================================================================
-Copyright (C) 2023-2024 the OpenMoHAA team
+Copyright (C) 2008-2024 the OpenMoHAA team
+Copyright (C) 1999-2005 Id Software, Inc.
 
 This file is part of OpenMoHAA source code.
 
@@ -458,7 +459,13 @@ void CG_ExecuteNewServerCommands(int latestSequence, qboolean differentServer)
 //
 static const char *whiteListedVariables[] = {
     "r_fastsky", // some mods set this variable to make the sky uniform
+    "ui_hud",
 };
+
+//
+// List of client variables allowed to be changed by the server
+//
+static const char *whiteListedLocalServerVariables[] = {"ui_hidemouse", "ui_showmouse", "cg_marks_add"};
 
 //
 // List of commands allowed to be executed by the server
@@ -470,7 +477,23 @@ static const char *whiteListedCommands[] = {
     "pushmenu_weaponselect",
     "popmenu",
     "wait",
-    "globalwidgetcommand" // used for mods adding custom HUDs
+    "globalwidgetcommand", // used for mods adding custom HUDs
+    "tmstart",
+    "tmstartloop",
+    "tmstop",
+    "tmvolume"
+};
+
+//
+// List of commands allowed to be executed by the server
+//
+static const char *whiteListedLocalServerCommands[] = {
+    "spmap", // Used by briefings
+    "map",
+    "disconnect",
+    "cinematic",
+    "showmenu",
+    "hidemenu"
 };
 
 /*
@@ -487,6 +510,14 @@ static qboolean CG_IsVariableFiltered(const char *name)
     for (i = 0; i < ARRAY_LEN(whiteListedVariables); i++) {
         if (!Q_stricmp(name, whiteListedVariables[i])) {
             return qfalse;
+        }
+    }
+
+    if (cgs.localServer) {
+        for (i = 0; i < ARRAY_LEN(whiteListedLocalServerVariables); i++) {
+            if (!Q_stricmp(name, whiteListedLocalServerVariables[i])) {
+                return qfalse;
+            }
         }
     }
 
@@ -510,7 +541,20 @@ static qboolean CG_IsCommandFiltered(const char *name)
         }
     }
 
-    return qtrue;
+    if (cgs.localServer) {
+        // Allow more commands when the client is hosting the server
+        // Mostly used on single-player mode, like when briefings switch to the next map
+        for (i = 0; i < ARRAY_LEN(whiteListedLocalServerCommands); i++) {
+            if (!Q_stricmp(name, whiteListedLocalServerCommands[i])) {
+                return qfalse;
+            }
+        }
+    }
+
+    //
+    // Test variables
+    //
+    return CG_IsVariableFiltered(name);
 }
 
 /*
