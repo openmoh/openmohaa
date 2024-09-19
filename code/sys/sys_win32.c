@@ -20,6 +20,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
+#ifdef _WIN32_WINNT_WINXP
+  // Use EnumProcesses() with Windows XP compatibility
+#  define PSAPI_VERSION 1
+#endif
+
 #include "../qcommon/q_shared.h"
 #include "../qcommon/qcommon.h"
 #include "sys_local.h"
@@ -724,6 +729,8 @@ Display an error message
 */
 void Sys_ErrorDialog( const char *error )
 {
+	Sys_Print( va( "%s\n", error ) );
+
 	if( Sys_Dialog( DT_YES_NO, va( "%s. Copy console log to clipboard?", error ),
 			"Error" ) == DR_YES )
 	{
