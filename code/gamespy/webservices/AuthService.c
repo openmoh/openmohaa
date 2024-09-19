@@ -51,7 +51,7 @@ const char WS_AUTHSERVICE_SIGNATURE_KEY[] =
 const char WS_AUTHSERVICE_SIGNATURE_EXP[] =
 	"010001";
 
-// This is declared as an extern so it can be overriden when testing
+// This is declared as an extern so it can be overridden when testing
 #define WS_LOGIN_SERVICE_URL_FORMAT   "https://%s.auth.pubsvs." GSI_DOMAIN_NAME "/AuthService/AuthService.asmx"
 char wsAuthServiceURL[WS_LOGIN_MAX_URL_LEN] = "";
 

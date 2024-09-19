@@ -957,7 +957,7 @@ Event EV_ScriptThread_HudDraw_VirtualSize
     EV_DEFAULT,
     "ii",
     "index virtual",
-    "Sets if the huddraw element for given player should use virutal screen resolution for positioning and size",
+    "Sets if the huddraw element for given player should use virtual screen resolution for positioning and size",
     EV_NORMAL
 );
 Event EV_ScriptThread_HudDraw_Color
@@ -1369,7 +1369,7 @@ Event EV_ScriptThread_iHudDrawVirtualSize
     EV_DEFAULT,
     "eii",
     "player index virtual",
-    "Sets if the huddraw element for given player should use virutal screen resolution for positioning and size",
+    "Sets if the huddraw element for given player should use virtual screen resolution for positioning and size",
     EV_NORMAL
 );
 Event EV_ScriptThread_IsArray
@@ -3882,7 +3882,7 @@ void ScriptThread::EventHudDrawAlign(Event *ev)
     } else if (h_align == "right") {
         h_alignement = 2;
     } else {
-        throw ScriptException("Wrong alignement h_align string for huddraw_align!\n");
+        throw ScriptException("Wrong alignment h_align string for huddraw_align!\n");
     }
 
     if (v_align == "top") {
@@ -3892,7 +3892,7 @@ void ScriptThread::EventHudDrawAlign(Event *ev)
     } else if (v_align == "bottom") {
         v_alignement = 2;
     } else {
-        throw ScriptException("Wrong alignement v_align string for huddraw_align!\n");
+        throw ScriptException("Wrong alignment v_align string for huddraw_align!\n");
     }
 
     HudDrawAlign(index, h_alignement, v_alignement);
@@ -5032,7 +5032,7 @@ void ScriptThread::EventIHudDrawAlign(Event *ev)
     } else if (h_align == "right") {
         h_alignement = 2;
     } else {
-        throw ScriptException("Wrong alignement h_align string for ihuddraw_align!\n");
+        throw ScriptException("Wrong alignment h_align string for ihuddraw_align!\n");
     }
 
     if (v_align == "top") {
@@ -5042,7 +5042,7 @@ void ScriptThread::EventIHudDrawAlign(Event *ev)
     } else if (v_align == "bottom") {
         v_alignement = 2;
     } else {
-        throw ScriptException("Wrong alignement v_align string for ihuddraw_align!\n");
+        throw ScriptException("Wrong alignment v_align string for ihuddraw_align!\n");
     }
 
     iHudDrawAlign(player->edict - g_entities, index, h_alignement, v_alignement);

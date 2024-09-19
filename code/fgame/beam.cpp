@@ -104,7 +104,7 @@ Event EV_FuncBeam_Minoffset
    EV_DEFAULT,
    "f",
    "min_offset",
-   "Set the minimun offset the beam can travel above, below, forward or back of it's endpoints",
+   "Set the minimum offset the beam can travel above, below, forward or back of it's endpoints",
 	EV_NORMAL
    );
 Event EV_FuncBeam_Overlap

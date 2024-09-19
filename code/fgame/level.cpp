@@ -391,7 +391,7 @@ Event EV_Level_GetRoundBased
     EV_DEFAULT,
     NULL,
     NULL,
-    "Gets wether or not the game is currently round based or not",
+    "Gets whether or not the game is currently round based or not",
     EV_GETTER
 );
 
@@ -401,7 +401,7 @@ Event EV_Level_GetObjectiveBased
     EV_DEFAULT,
     NULL,
     NULL,
-    "Gets wether or not the game is currently objective based or not",
+    "Gets whether or not the game is currently objective based or not",
     EV_GETTER
 );
 

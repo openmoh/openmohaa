@@ -293,7 +293,7 @@ typedef struct {
 static fileHandleData_t	fsh[MAX_FILE_HANDLES];
 
 // TTimo - https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=540
-// wether we did a reorder on the current search path when joining the server
+// whether we did a reorder on the current search path when joining the server
 static qboolean fs_reordered;
 
 // never load anything from pk3 files that are not present at the server when pure

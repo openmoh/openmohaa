@@ -1095,11 +1095,11 @@ void G_ArchivePersistant(const char *name, qboolean loading)
 
         arc.ArchiveInteger(&version);
         if (version < PERSISTANT_VERSION) {
-            gi.Printf("Persistant data from an older version (%d) of MOHAA.\n", version);
+            gi.Printf("Persistent data from an older version (%d) of MOHAA.\n", version);
             arc.Close();
             return;
         } else if (version > PERSISTANT_VERSION) {
-            gi.DPrintf("Persistant data from newer version %d of MOHAA.\n", version);
+            gi.DPrintf("Persistent data from newer version %d of MOHAA.\n", version);
             arc.Close();
             return;
         }

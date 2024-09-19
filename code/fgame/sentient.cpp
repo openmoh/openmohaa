@@ -193,7 +193,7 @@ Event EV_Sentient_UseItem
     EV_CONSOLE,
     "si",
     "name weapon_hand",
-    "Use the specified weapon or item in the hand choosen (optional).",
+    "Use the specified weapon or item in the hand chosen (optional).",
     EV_NORMAL
 );
 Event EV_Sentient_SetBloodModel
@@ -391,7 +391,7 @@ Event EV_Sentient_UseWeaponClass
     EV_CONSOLE,
     "sI",
     "name weapon_hand",
-    "Use the weapon of the specified class in the hand choosen (optional).",
+    "Use the weapon of the specified class in the hand chosen (optional).",
     EV_NORMAL
 );
 Event EV_Sentient_German

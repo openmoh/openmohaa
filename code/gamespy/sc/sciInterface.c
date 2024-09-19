@@ -9,7 +9,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-// This is declared as an extern so it can be overriden when testing
+// This is declared as an extern so it can be overridden when testing
 #define SC_SERVICE_URL_FORMAT   "http://%s.comp.pubsvs." GSI_DOMAIN_NAME "/CompetitionService/CompetitionService.asmx"
 char scServiceURL[SC_SERVICE_MAX_URL_LEN] = "";
 

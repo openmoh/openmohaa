@@ -503,7 +503,7 @@ void VehicleTank::UpdateSound()
 //  This method only work when called from script.
 //  But it is not called automatically when the player actually uses the vehicle
 //  when that vehicle is unlocked.
-//  So the other native method is overriden instead
+//  So the other native method is overridden instead
 /*
 void VehicleTank::AttachDriverSlot(Event *ev)
 {
