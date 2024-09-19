@@ -558,7 +558,7 @@ Event EV_Actor_DamagePuff
     EV_DEFAULT,
     "vv",
     "position direction",
-    "Spawns a puff of 'blood' smoke at the speficied location in the specified direction.",
+    "Spawns a puff of 'blood' smoke at the specified location in the specified direction.",
     EV_NORMAL
 );
 Event EV_Actor_SetAngleYawSpeed
@@ -5646,7 +5646,7 @@ void Actor::EventSetMood(Event *ev)
 ===============
 Actor::EventDamagePuff
 
-Spawns a puff of 'blood' smoke at the speficied location in the specified direction.
+Spawns a puff of 'blood' smoke at the specified location in the specified direction.
 ===============
 */
 void Actor::EventDamagePuff(Event *ev)

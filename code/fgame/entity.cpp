@@ -768,7 +768,7 @@ Event EV_SetLight
     EV_DEFAULT,
     "ffff",
     "red green blue radius",
-    "Create a dynmaic light on this entity.",
+    "Create a dynamic light on this entity.",
     EV_NORMAL
 );
 
@@ -778,7 +778,7 @@ Event EV_LightOn
     EV_DEFAULT,
     NULL,
     NULL,
-    "Turn the configured dynmaic light on this entity on.",
+    "Turn the configured dynamic light on this entity on.",
     EV_NORMAL
 );
 Event EV_LightOff
@@ -805,7 +805,7 @@ Event EV_LightRed
     EV_DEFAULT,
     "f",
     "red",
-    "Set the red component of the dynmaic light on this entity.",
+    "Set the red component of the dynamic light on this entity.",
     EV_NORMAL
 );
 Event EV_LightGreen
@@ -814,7 +814,7 @@ Event EV_LightGreen
     EV_DEFAULT,
     "f",
     "red",
-    "Set the red component of the dynmaic light on this entity.",
+    "Set the red component of the dynamic light on this entity.",
     EV_NORMAL
 );
 Event EV_LightBlue
@@ -823,7 +823,7 @@ Event EV_LightBlue
     EV_DEFAULT,
     "f",
     "red",
-    "Set the red component of the dynmaic light on this entity.",
+    "Set the red component of the dynamic light on this entity.",
     EV_NORMAL
 );
 Event EV_LightRadius
@@ -832,7 +832,7 @@ Event EV_LightRadius
     EV_DEFAULT,
     "f",
     "red",
-    "Set the red component of the dynmaic light on this entity.",
+    "Set the red component of the dynamic light on this entity.",
     EV_NORMAL
 );
 

@@ -564,7 +564,7 @@ Event EV_Client_LoopSound
     EV_DEFAULT,
     "sFFf",
     "soundName volume min_distance pitch",
-    "Play the specifed sound as a looping sound"
+    "Play the specified sound as a looping sound"
 );
 Event EV_Client_Cache
 (
@@ -985,7 +985,7 @@ Event EV_Client_BounceDecal(
     "maxamount temporary",
     "Put a mark when the tempmodel bounces and hits a surface\n"
     "maxamount = Max amount of decals to make when bouncing\n"
-    "temporary = specify 1 for a temporary mark that only appears for a short time, 0 for a decal that stays aroung "
+    "temporary = specify 1 for a temporary mark that only appears for a short time, 0 for a decal that stays around "
     "longer (default is 0)\n"
 );
 Event EV_Client_SetDecalRadius
@@ -1122,7 +1122,7 @@ Event EV_Client_SetAlignStretch(
     EV_DEFAULT,
     "F",
     "scaleMultiplier",
-    "Aligns the temp model to the direction of travel, and stretches it betwen the last and current positions.\n"
+    "Aligns the temp model to the direction of travel, and stretches it between the last and current positions.\n"
 );
 Event EV_Client_SetClampVelocity
 (
@@ -3883,7 +3883,7 @@ void ClientGameCommandManager::PlaySound(
         } else {
             if (debugSound->integer) {
                 Com_Printf(
-                    "\nWARNING: OVERRIDE OVERRIDE OVERRIDESound %s had all its parm overriden by code.\n\n",
+                    "\nWARNING: OVERRIDE OVERRIDE OVERRIDESound %s had all its parm overridden by code.\n\n",
                     sound_name.c_str()
                 );
             }

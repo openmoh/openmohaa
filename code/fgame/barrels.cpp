@@ -30,7 +30,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 /*****************************************************************************
 /*QUAKED func_barrel (0 0.25 0.5) ? INDESTRUCTABLE
 Brush model barrel object
-Bashing only makes thunk or gong sounds (depending on wether it's full or not)
+Bashing only makes thunk or gong sounds (depending on whether it's full or not)
 Bullets and explosions effects are dependant apon the type of barrel.
 "barreltype" sets the type of barrel that it is. Valid settings are:
 - "water" makes the barrel be filled with water.

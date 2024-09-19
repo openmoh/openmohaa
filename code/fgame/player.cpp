@@ -278,7 +278,7 @@ Event EV_Player_CorrectWeaponAttachments
     EV_CONSOLE,
     NULL,
     NULL,
-    "makes sure the weapons is properly attached when interupting a reload",
+    "makes sure the weapons is properly attached when interrupting a reload",
     EV_NORMAL
 );
 Event EV_Player_GiveCheat
@@ -1278,7 +1278,7 @@ Event EV_Player_SetPerferredWeapon
     EV_DEFAULT,
     "s",
     "weapon_name",
-    "Overrides your perferred weapon that is displayed in the stats screen.",
+    "Overrides your preferred weapon that is displayed in the stats screen.",
     EV_NORMAL
 );
 Event EV_Player_SetVoiceType
@@ -10728,7 +10728,7 @@ str Player::GetBattleLanguageCondition() const
     case 0:
         return "almost dead";
     case 1:
-        return "severly wounded";
+        return "severely wounded";
     case 2:
         return "wounded";
     case 3:

@@ -73,7 +73,7 @@ Event EV_Turret_P_SetPlayerUsable
     EV_DEFAULT,
     "i",
     "state",
-    "Sets wether the turret can be used by players. 0 means no, 1 means yes.",
+    "Sets whether the turret can be used by players. 0 means no, 1 means yes.",
     EV_NORMAL
 );
 Event EV_Turret_AI_SetAimTarget
@@ -309,7 +309,7 @@ Event EV_Turret_SetUsable
     EV_DEFAULT,
     "i",
     "state",
-    "Sets wether the turret can be used as a weapon. 0 means no, 1 means yes.",
+    "Sets whether the turret can be used as a weapon. 0 means no, 1 means yes.",
     EV_NORMAL
 );
 Event EV_Turret_AI_SetBulletSpread

@@ -215,7 +215,7 @@ void CarryableTurret::EventPlaceTurret(Event *ev)
 
         if (trace.startsolid || trace.fraction < 1 || trace.ent) {
             gi.DPrintf(
-                "~*~*~ Not enough room to auto place protable turret at (%i %i %i)\n",
+                "~*~*~ Not enough room to auto place portable turret at (%i %i %i)\n",
                 (int)origin[0],
                 (int)origin[1],
                 (int)origin[2]
@@ -243,7 +243,7 @@ void CarryableTurret::EventPlaceTurret(Event *ev)
 
         if (trace.startsolid || trace.fraction < 1) {
             gi.DPrintf(
-                "~*~*~ Not enough room to auto place protable turret at (%i %i %i)\n",
+                "~*~*~ Not enough room to auto place portable turret at (%i %i %i)\n",
                 (int)origin[0],
                 (int)origin[1],
                 (int)origin[2]
