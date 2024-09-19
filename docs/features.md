@@ -11,6 +11,11 @@ A lot of bugs and exploits from MOH:AA were fixed in OpenMoHAA (BOF exploit, gre
 - Features from MOH: Spearhead 2.15 and MOH: Breakthrough 2.40
 - Demo recording
 
+### Client-side
+
+- OpenAL and SDL are used
+- Stufftext protection: commands that the server want clients to execute are now filtered
+
 ### Server-side
 
 - Bots
