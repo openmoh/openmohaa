@@ -306,14 +306,16 @@ enum {
     STRING_ANIM_NO_KILLED_SCR,
     STRING_MG42,
     STRING_MP40,
+    // Added in 2.0
     STRING_AUTO,
     STRING_BOTH,
+    // Added in 2.30
     STRING_RUNANDSHOOT,
-    //
-    // Openmohaa additions
-    //
+    // Added in OPM
     STRING_RESPAWN,
     STRING_VIEWMODELANIM_DONE,
+
+    // The number of strings
     STRING_LENGTH_
 };
 

@@ -399,12 +399,12 @@ const char *ScriptMaster::ConstStrings[] = {
     "anim/no_anim_killed.scr",
     "mg42",
     "mp40",
+    // Added in 2.0
     "auto",
     "both",
+    // Added in 2.30
     "runandshoot",
-    //
     // Added in OPM
-    //
     "respawn",
     "viewmodelanim_done"
 };
@@ -525,8 +525,11 @@ void ScriptMaster::InitConstStrings(void)
     const_str                       name;
     unsigned int                    eventnum;
     con_map_enum<Event *, EventDef> en;
+    int                             i;
 
-    for (int i = 0; i < sizeof(ConstStrings) / sizeof(ConstStrings[0]); i++) {
+    static_assert(ARRAY_LEN(ConstStrings) == (STRING_LENGTH_ - 1), "Constant strings don't match. Make sure the 'const_str' enum match with the 'ConstStrings' string array");
+
+    for (i = 0; i < ARRAY_LEN(ConstStrings); i++) {
         AddString(ConstStrings[i]);
     }
 
