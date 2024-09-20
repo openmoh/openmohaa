@@ -298,7 +298,7 @@ void SVCmd_WriteIP_f
 	byte	 b[ 4 ];
 	int	 i;
 
-	sprintf( name, "%s/listip.cfg", GAMEVERSION );
+	Com_sprintf( name, sizeof( name ), "%s/listip.cfg", GAMEVERSION );
    gi.SendServerCommand( 0, "print \"Writing %s.\n\"", name );
 
 	f = fopen( name, "wb" );

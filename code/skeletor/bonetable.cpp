@@ -32,7 +32,7 @@ void ChannelNameTable::CopyChannel(ChannelName_t *dest, const ChannelName_t *sou
 
 void ChannelNameTable::SetChannelName(ChannelName_t *channel, const char *newName)
 {
-    strcpy(channel->name, newName);
+    Q_strncpyz(channel->name, newName, sizeof(channel->name));
 }
 
 ChannelNameTable::ChannelNameTable()

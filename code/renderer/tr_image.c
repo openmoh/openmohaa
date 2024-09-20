@@ -929,7 +929,7 @@ image_t* R_CreateImage(
 	image->dynamicallyUpdated = dynamicallyUpdated;
 	image->force32bit = force32bit;
 
-	strcpy (image->imgName, name);
+	Q_strncpyz (image->imgName, name, sizeof(image->imgName));
 
 	image->width = width;
 	image->height = height;
@@ -2491,7 +2491,7 @@ static void R_LoadImage(const char* name, byte** pic, int* width, int* height, q
 
 	if (scr_initialized)
 	{
-		sprintf(tempName, "n%s", name);
+		Com_sprintf(tempName, sizeof(tempName), "n%s", name);
 		UI_LoadResource(tempName);
 	}
 }

@@ -262,7 +262,7 @@ void R_DrawDebugNumber( const vec3_t org, float number, float scale, float r, fl
 	VectorScale(right, scale, right);
 
     if (precision > 0) {
-		sprintf(format, "%%.%df", precision);
+		Com_sprintf(format, sizeof(format), "%%.%df", precision);
         text = va(format, number);
 	} else {
 		text = va("%d", (int)number);

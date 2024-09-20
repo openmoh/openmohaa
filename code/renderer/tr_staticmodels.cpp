@@ -81,9 +81,9 @@ void R_InitStaticModels(void)
         AngleVectorsLeft(pSM->angles, pSM->axis[0], pSM->axis[1], pSM->axis[2]);
 
         if (!strnicmp(pSM->model, "models", 6)) {
-            strcpy(szTemp, pSM->model);
+            Q_strncpyz(szTemp, pSM->model, sizeof(szTemp));
         } else {
-            sprintf(szTemp, "models/%s", pSM->model);
+            Com_sprintf(szTemp, sizeof(szTemp), "models/%s", pSM->model);
         }
 
         FS_CanonicalFilename(szTemp);

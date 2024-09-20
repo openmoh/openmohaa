@@ -5826,12 +5826,12 @@ void UI_EndLoad(void)
         }
 
         file = FS_FOpenFileWrite(loadName);
-        sprintf(buf, "%d\n%d %d\n", 3, loadNumber, size);
+        Com_sprintf(buf, sizeof(buf), "%d\n%d %d\n", 3, loadNumber, size);
 
         FS_Write(buf, strlen(buf), file);
 
         for (i = 0; i < loadNumber; i++) {
-            sprintf(buf, "%s\n%d\n", base[i]->name, base[i]->loadCount);
+            Com_sprintf(buf, sizeof(buf), "%s\n%d\n", base[i]->name, base[i]->loadCount);
             FS_Write(buf, strlen(buf), file);
         }
 

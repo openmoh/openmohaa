@@ -739,7 +739,7 @@ void GetLODFile(skelcache_t *cache)
         return;
     }
 
-    strcpy(pathLOD, cache->path);
+    Q_strncpyz(pathLOD, cache->path, sizeof(pathLOD));
     ext = strstr(pathLOD, "skd");
     strcpy(ext, "lod");
 
@@ -1069,7 +1069,7 @@ int TIKI_RegisterSkel(const char *path, dtiki_t *tiki)
         }
     }
 
-    sprintf(tempName, "l%s", path);
+    Com_sprintf(tempName, sizeof(tempName), "l%s", path);
     UI_LoadResource(tempName);
 
     return cache - skelcache;

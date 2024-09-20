@@ -219,7 +219,7 @@ static qhandle_t R_RegisterModelInternal( const char *name, qboolean bBeginTiki,
 		if( !stricmp( ptr, "spr" ) )
 		{
 			mod->d.sprite = SPR_RegisterSprite( name );
-			strcpy( mod->name, name );
+			Q_strncpyz( mod->name, name, sizeof( mod->name ) );
 
 			if( mod->d.sprite )
 			{
@@ -230,7 +230,7 @@ static qhandle_t R_RegisterModelInternal( const char *name, qboolean bBeginTiki,
 		else if( !stricmp( ptr, "tik" ) )
 		{
 			mod->d.tiki = TIKI_RegisterTikiFlags( name, use );
-			strcpy( mod->name, name );
+			Q_strncpyz( mod->name, name, sizeof( mod->name ) );
 
 			if( mod->d.tiki )
 			{
@@ -315,7 +315,7 @@ void R_ModelInit( void ) {
 	tr.numModels = 0;
 
 	mod = R_AllocModel();
-	strcpy( mod->name, "** BAD MODEL **" );
+	Q_strncpyz( mod->name, "** BAD MODEL **", sizeof( mod->name ) );
 	mod->type = MOD_BAD;
 
 	for (i = 0; i < sizeof(tr.skel_index) / sizeof(tr.skel_index[0]); i++) {
@@ -533,7 +533,7 @@ int GetToolLodCutoff( skelHeaderGame_t *skelmodel, float lod_val ) {
 	if( lod_save->integer == 1 )
 	{
 		Cvar_Set( "lod_save", "0" );
-		strcpy( lodPath, GetModelPath( skelmodel ) );
+		Q_strncpyz( lodPath, GetModelPath( skelmodel ), sizeof( lodPath ) );
 		ext = strstr( lodPath, "skd" );
 		strcpy( ext, "lod" );
 		SaveLODFile( lodPath, LOD );

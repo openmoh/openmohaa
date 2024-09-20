@@ -121,7 +121,7 @@ void Actor::Think_Weaponless(void)
         } else {
             Com_Printf("Think_Weaponless: invalid think state %i\n", m_State);
             char assertStr[16317] = {0};
-            strcpy(assertStr, "\"invalid think state\"\n\tMessage: ");
+            Q_strncpyz(assertStr, "\"invalid think state\"\n\tMessage: ", sizeof(assertStr));
             Q_strcat(assertStr, sizeof(assertStr), DumpCallTrace("thinkstate = %i", m_State));
             assert(!assertStr);
         }

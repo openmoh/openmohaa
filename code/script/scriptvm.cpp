@@ -417,7 +417,7 @@ void ScriptVM::error(const char *format, ...)
     va_list va;
 
     va_start(va, format);
-    vsprintf(buffer, format, va);
+    Q_vsnprintf(buffer, sizeof(buffer), format, va);
     va_end(va);
 
     gi.Printf("----------------------------------------------------------\n%s\n", buffer);

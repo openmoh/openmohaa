@@ -31,7 +31,7 @@ void Sys_LaunchAutoupdater(int argc, char **argv)
 		memset(&procinfo, '\0', sizeof (procinfo));
 		memset(&startinfo, '\0', sizeof (startinfo));
 		startinfo.cb = sizeof (startinfo);
-		sprintf(cmdline, "" AUTOUPDATER_BIN " --waitpid %u", (unsigned int) GetCurrentProcessId());
+		Com_sprintf(cmdline, sizeof(cmdline), "" AUTOUPDATER_BIN " --waitpid %u", (unsigned int) GetCurrentProcessId());
 
 		if (CreateProcessA(AUTOUPDATER_BIN, cmdline, NULL, NULL, FALSE, CREATE_NO_WINDOW, NULL, NULL, &startinfo, &procinfo))
 		{

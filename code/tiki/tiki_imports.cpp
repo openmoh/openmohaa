@@ -32,7 +32,7 @@ void TIKI_DPrintf(const char *fmt, ...)
     va_list va;
 
     va_start(va, fmt);
-    vsprintf(msg, fmt, va);
+    Q_vsnprintf(msg, sizeof(msg), fmt, va);
     va_end(va);
 
     Com_DPrintf("%s", msg);

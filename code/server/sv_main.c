@@ -493,7 +493,7 @@ void SVC_Status( netadr_t from ) {
 	if(strlen(Cmd_Argv(1)) > 128)
 		return;
 
-	strcpy( infostring, Cvar_InfoString( CVAR_SERVERINFO ) );
+	Q_strncpyz( infostring, Cvar_InfoString( CVAR_SERVERINFO ), sizeof( infostring ) );
 
 	// echo back the parameter to status. so master servers can use it as a challenge
 	// to prevent timed spoofed reply packets that add ghost servers
@@ -514,7 +514,7 @@ void SVC_Status( netadr_t from ) {
 			if (statusLength + playerLength >= sizeof(status) ) {
 				break;		// can't hold any more
 			}
-			strcpy (status + statusLength, player);
+			Q_strncpyz (status + statusLength, player, sizeof(status) - statusLength);
 			statusLength += playerLength;
 		}
 	}

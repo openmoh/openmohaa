@@ -394,8 +394,8 @@ void TikiScript::AddMacro( const char *name, const char *expansion )
 	}
 	else
 	{
-		strcpy( macros[ nummacros ].name, name );
-		strcpy( macros[ nummacros ].macro, expansion );
+		Q_strncpyz( macros[ nummacros ].name, name, sizeof( macros[ nummacros ].name ) );
+		Q_strncpyz( macros[ nummacros ].macro, expansion, sizeof( macros[ nummacros ].macro ) );
 		nummacros++;
 	}
 
@@ -450,13 +450,13 @@ qboolean TikiScript::ProcessCommand( qboolean crossline )
 	}
 	else if( !stricmp( command, "path" ) )
 	{
-		strcpy( path, argument1 );
+		Q_strncpyz( path, argument1, sizeof( path ) );
 		len = strlen( path );
 
 		if( path[ len - 1 ] != '/' &&
 			path[ len - 1 ] != '\\' )
 		{
-			strcat( path, "/" );
+			Q_strcat( path, sizeof( path ), "/" );
 		}
 
 		SkipToEOL();
@@ -790,7 +790,7 @@ const char *TikiScript::GetToken( qboolean crossline )
 			{
 				strcat( temptoken, macro_end + 1 );
 			}
-			strcpy( i->token, temptoken );
+			Q_strncpyz( i->token, temptoken, sizeof( i->token ) );
 		}
 		else
 		{
@@ -808,7 +808,7 @@ const char *TikiScript::GetToken( qboolean crossline )
 				{
 					strcat( temptoken, macro_end + 1 );
 				}
-				strcpy( i->token, temptoken );
+				Q_strncpyz( i->token, temptoken, sizeof( i->token ) );
 			}
 		}
 	}
@@ -1198,7 +1198,7 @@ int TikiScript::LinesInFile( void )
 	temp_tokenready		= tokenready;
 	temp_script_p		= script_p;
 	temp_line			= line;
-	strcpy( temp_token, token );
+	Q_strncpyz( temp_token, token, sizeof( temp_token ) );
 
 	numentries = 0;
 
@@ -1212,7 +1212,7 @@ int TikiScript::LinesInFile( void )
 	tokenready	= temp_tokenready;
 	script_p	= temp_script_p;
 	line		= temp_line;
-	strcpy( token, temp_token );
+	Q_strncpyz( token, temp_token, sizeof( token ) );
 
 	return numentries;
 }
@@ -1307,7 +1307,7 @@ void TikiScript::MarkPos( void )
 {
 	mark[ mark_pos ].mark_script_p = script_p;
 	mark[ mark_pos ].mark_tokenready = tokenready;
-	strcpy( mark[ mark_pos ].mark_token, token );
+	Q_strncpyz( mark[ mark_pos ].mark_token, token, sizeof(mark[ mark_pos ].mark_token));
 	mark_pos++;
 }
 

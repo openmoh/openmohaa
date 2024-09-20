@@ -351,7 +351,7 @@ void CG_ViewModelAnimation(refEntity_t *pModel)
     } else {
         iAnimPrefixIndex                    = CG_GetVMAnimPrefixIndex();
         cgi.anim->g_iLastEquippedWeaponStat = cg.snap->ps.stats[STAT_EQUIPPED_WEAPON];
-        strcpy(cgi.anim->g_szLastActiveItem, CG_ConfigString(CS_WEAPONS + cg.snap->ps.activeItems[1]));
+        Q_strncpyz(cgi.anim->g_szLastActiveItem, CG_ConfigString(CS_WEAPONS + cg.snap->ps.activeItems[1]), sizeof(cgi.anim->g_szLastActiveItem));
         cgi.anim->g_iLastAnimPrefixIndex = iAnimPrefixIndex;
 
         bAnimChanged   = qtrue;
@@ -359,7 +359,7 @@ void CG_ViewModelAnimation(refEntity_t *pModel)
     }
 
     if (cgi.anim->g_iLastVMAnim == -1) {
-        sprintf(szAnimName, "%s_idle", AnimPrefixList[iAnimPrefixIndex]);
+        Com_sprintf(szAnimName, sizeof(szAnimName), "%s_idle", AnimPrefixList[iAnimPrefixIndex]);
         cgi.anim->g_VMFrameInfo[cgi.anim->g_iCurrentVMAnimSlot].index = cgi.Anim_NumForName(pTiki, szAnimName);
 
         if (cgi.anim->g_VMFrameInfo[cgi.anim->g_iCurrentVMAnimSlot].index == -1) {
@@ -428,7 +428,7 @@ void CG_ViewModelAnimation(refEntity_t *pModel)
             break;
         }
 
-        sprintf(szAnimName, "%s_%s", AnimPrefixList[iAnimPrefixIndex], pszAnimSuffix);
+        Com_sprintf(szAnimName, sizeof(szAnimName), "%s_%s", AnimPrefixList[iAnimPrefixIndex], pszAnimSuffix);
         if (!bWeaponChanged) {
             fCrossblendTime =
                 cgi.Anim_CrossblendTime(pTiki, cgi.anim->g_VMFrameInfo[cgi.anim->g_iCurrentVMAnimSlot].index);

@@ -748,7 +748,7 @@ void EV_Print(FILE *stream, const char *format, ...)
 
     va_start(va, format);
 
-    vsprintf(buffer, format, va);
+    Q_vsnprintf(buffer, sizeof(buffer), format, va);
 
     if (stream) {
         fprintf(stream, "%s", buffer);
@@ -863,7 +863,7 @@ void EventDef::Error(const char *format, ...)
     va_list va;
 
     va_start(va, format);
-    vsprintf(buffer, format, va);
+    Q_vsnprintf(buffer, sizeof(buffer), format, va);
     va_end(va);
 
     EVENT_Printf("^~^~^ Game: '%s' : %s\n", command.c_str(), buffer);
@@ -1018,7 +1018,7 @@ void EventDef::SetupDocumentation(void)
             //
             // store off all the names
             //
-            strcpy(argumentNames, argument_names);
+            Q_strncpyz(argumentNames, argument_names, sizeof(argumentNames));
             namePtr = strtok(argumentNames, " ");
             while (namePtr != NULL) {
                 argNames.AddObject(str(namePtr));

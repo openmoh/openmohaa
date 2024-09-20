@@ -293,7 +293,7 @@ inline str::str(const float num)
     char   text[32];
     size_t len;
 
-    sprintf(text, "%.3f", num);
+    snprintf(text, sizeof(text), "%.3f", num);
     len = strlen(text);
     EnsureAlloced(len + 1);
     strcpy(m_data->data, text);
@@ -306,7 +306,7 @@ inline str::str(const int num)
     char   text[32];
     size_t len;
 
-    sprintf(text, "%d", num);
+    snprintf(text, sizeof(text), "%d", num);
     len = strlen(text);
     EnsureAlloced(len + 1);
     strcpy(m_data->data, text);
@@ -319,7 +319,7 @@ inline str::str(const unsigned int num)
     char   text[32];
     size_t len;
 
-    sprintf(text, "%u", num);
+    snprintf(text, sizeof(text), "%u", num);
     len = strlen(text);
     EnsureAlloced(len + 1);
     strcpy(m_data->data, text);
@@ -332,7 +332,7 @@ inline str::str(const long num)
     char   text[64];
     size_t len;
 
-    sprintf(text, "%ld", num);
+    snprintf(text, sizeof(text), "%ld", num);
     len = strlen(text);
     EnsureAlloced(len + 1);
     strcpy(m_data->data, text);
@@ -345,7 +345,7 @@ inline str::str(const unsigned long num)
     char   text[64];
     size_t len;
 
-    sprintf(text, "%lu", num);
+    snprintf(text, sizeof(text), "%lu", num);
     len = strlen(text);
     EnsureAlloced(len + 1);
     strcpy(m_data->data, text);
@@ -358,7 +358,7 @@ inline str::str(const long long num)
     char   text[64];
     size_t len;
 
-    sprintf(text, "%lld", num);
+    snprintf(text, sizeof(text), "%lld", num);
     len = strlen(text);
     EnsureAlloced(len + 1);
     strcpy(m_data->data, text);
@@ -371,7 +371,7 @@ inline str::str(const unsigned long long num)
     char   text[64];
     size_t len;
 
-    sprintf(text, "%llu", num);
+    snprintf(text, sizeof(text), "%llu", num);
     len = strlen(text);
     EnsureAlloced(len + 1);
     strcpy(m_data->data, text);

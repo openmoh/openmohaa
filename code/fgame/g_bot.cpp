@@ -104,10 +104,10 @@ void G_AddBot(unsigned int num, saved_bot_t* saved)
 		}
 		else
 		{
-			sprintf( botName, "bot%d", clientNum - maxclients->integer + 1 );
+			Com_sprintf( botName, sizeof( botName ), "bot%d", clientNum - maxclients->integer + 1 );
 		}
 
-		sprintf( challenge, "%d", clientNum - maxclients->integer + 1 );
+		Com_sprintf( challenge, sizeof( challenge ), "%d", clientNum - maxclients->integer + 1 );
 
 		e->s.clientNum = clientNum;
 		e->s.number = clientNum;

@@ -1379,9 +1379,9 @@ char *CanonicalTikiName(const char *szInName)
     static char filename[1024];
 
     if (*szInName && Q_stricmpn("models/", szInName, 7)) {
-        sprintf(filename, "models/%s", szInName);
+        Com_sprintf(filename, sizeof(filename), "models/%s", szInName);
     } else {
-        strcpy(filename, szInName);
+        Q_strncpyz(filename, szInName, sizeof(filename));
     }
 
     gi.FS_CanonicalFilename(filename);
@@ -1450,7 +1450,7 @@ void CacheResource(const char *stuff)
         }
     }
 
-    strcpy(filename, stuff);
+    Q_strncpyz(filename, stuff, sizeof(filename));
     gi.FS_CanonicalFilename(filename);
 
     if (strstr(filename, ".wav") || strstr(filename, ".mp3")) {
@@ -2225,7 +2225,7 @@ void G_WarnPlayer(Player *player, const char *format, ...)
     va_list va;
 
     va_start(va, format);
-    vsprintf(buffer, format, va);
+    Q_vsnprintf(buffer, sizeof(buffer), format, va);
     va_end(va);
 
     gi.SendServerCommand(player->client->ps.clientNum, "print \"%s\"\n", buffer);

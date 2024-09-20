@@ -1576,7 +1576,7 @@ void CG_ParseCGMessage_ver_15()
 
         case CGM_HUDDRAW_SHADER:
             iInfo = cgi.MSG_ReadByte();
-            strcpy(cgi.HudDrawElements[iInfo].shaderName, cgi.MSG_ReadString());
+            Q_strncpyz(cgi.HudDrawElements[iInfo].shaderName, cgi.MSG_ReadString(), sizeof(cgi.HudDrawElements[iInfo].shaderName));
             cgi.HudDrawElements[iInfo].string[0]   = 0;
             cgi.HudDrawElements[iInfo].pFont       = NULL;
             cgi.HudDrawElements[iInfo].fontName[0] = 0;
@@ -1618,12 +1618,12 @@ void CG_ParseCGMessage_ver_15()
         case CGM_HUDDRAW_STRING:
             iInfo                              = cgi.MSG_ReadByte();
             cgi.HudDrawElements[iInfo].hShader = 0;
-            strcpy(cgi.HudDrawElements[iInfo].string, cgi.MSG_ReadString());
+            Q_strncpyz(cgi.HudDrawElements[iInfo].string, cgi.MSG_ReadString(), sizeof(cgi.HudDrawElements[iInfo].string));
             break;
 
         case CGM_HUDDRAW_FONT:
             iInfo = cgi.MSG_ReadByte();
-            strcpy(cgi.HudDrawElements[iInfo].fontName, cgi.MSG_ReadString());
+            Q_strncpyz(cgi.HudDrawElements[iInfo].fontName, cgi.MSG_ReadString(), sizeof(cgi.HudDrawElements[iInfo].fontName));
             cgi.HudDrawElements[iInfo].hShader       = 0;
             cgi.HudDrawElements[iInfo].shaderName[0] = 0;
             // load the font
@@ -1958,7 +1958,7 @@ void CG_ParseCGMessage_ver_6()
 
         case CGM6_HUDDRAW_SHADER:
             iInfo = cgi.MSG_ReadByte();
-            strcpy(cgi.HudDrawElements[iInfo].shaderName, cgi.MSG_ReadString());
+            Q_strncpyz(cgi.HudDrawElements[iInfo].shaderName, cgi.MSG_ReadString(), sizeof(cgi.HudDrawElements[iInfo].shaderName));
             cgi.HudDrawElements[iInfo].string[0]   = 0;
             cgi.HudDrawElements[iInfo].pFont       = NULL;
             cgi.HudDrawElements[iInfo].fontName[0] = 0;
@@ -2000,12 +2000,12 @@ void CG_ParseCGMessage_ver_6()
         case CGM6_HUDDRAW_STRING:
             iInfo                              = cgi.MSG_ReadByte();
             cgi.HudDrawElements[iInfo].hShader = 0;
-            strcpy(cgi.HudDrawElements[iInfo].string, cgi.MSG_ReadString());
+            Q_strncpyz(cgi.HudDrawElements[iInfo].string, cgi.MSG_ReadString(), sizeof(cgi.HudDrawElements[iInfo].string));
             break;
 
         case CGM6_HUDDRAW_FONT:
             iInfo = cgi.MSG_ReadByte();
-            strcpy(cgi.HudDrawElements[iInfo].fontName, cgi.MSG_ReadString());
+            Q_strncpyz(cgi.HudDrawElements[iInfo].fontName, cgi.MSG_ReadString(), sizeof(cgi.HudDrawElements[iInfo].fontName));
             cgi.HudDrawElements[iInfo].hShader       = 0;
             cgi.HudDrawElements[iInfo].shaderName[0] = 0;
             // load the font

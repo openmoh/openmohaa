@@ -86,27 +86,27 @@ void View3D::PrintSound(int channel, const char *name, float vol, int rvol, floa
     xStep  = height;
 
     x = 0;
-    sprintf(buf, "%d", channel);
+    Com_sprintf(buf, sizeof(buf), "%d", channel);
     m_font->Print(x, height * line + m_frame.pos.y, buf, -1, false);
 
     x += xStep + xStep;
-    sprintf(buf, "%s", name);
+    Com_sprintf(buf, sizeof(buf), "%s", name);
     m_font->Print(x, height * line + m_frame.pos.y, buf, -1, false);
 
     x += xStep * 30.0;
-    sprintf(buf, "vol:%.2f", vol);
+    Com_sprintf(buf, sizeof(buf), "vol:%.2f", vol);
     m_font->Print(x, height * line + m_frame.pos.y, buf, -1, false);
 
     x += xStep * 8;
-    sprintf(buf, "rvol:%.2f", (float)(rvol / 128.f));
+    Com_sprintf(buf, sizeof(buf), "rvol:%.2f", (float)(rvol / 128.f));
     m_font->Print(x, height * line + m_frame.pos.y, buf, -1, false);
 
     x += xStep * 5;
-    sprintf(buf, "pit:%.2f", pitch);
+    Com_sprintf(buf, sizeof(buf), "pit:%.2f", pitch);
     m_font->Print(x, height * line + m_frame.pos.y, buf, -1, false);
 
     x += xStep * 5;
-    sprintf(buf, "base:%d", (int)base);
+    Com_sprintf(buf, sizeof(buf), "base:%d", (int)base);
     m_font->Print(x, height * line + m_frame.pos.y, buf, -1, false);
 
     line++;
@@ -228,7 +228,7 @@ void View3D::InitSubtitle(void)
     for (int i = 0; i < 4; i++) {
         subs[i]  = Cvar_Get(va("subtitle%d", i), "", 0);
         teams[i] = Cvar_Get(va("subteam%d", i), "0", 0);
-        strcpy(oldStrings[i], subs[i]->string);
+        Q_strncpyz(oldStrings[i], subs[i]->string, sizeof(oldStrings[i]));
         fadeTime[i] = 4000.0;
         subLife[i]  = 4000.0;
     }
@@ -300,7 +300,7 @@ void View3D::DrawSubtitleOverlay(void)
             int   blockcount;
 
             c = buf;
-            strcpy(buf, subs[i]->string);
+            Q_strncpyz(buf, subs[i]->string, sizeof(buf));
 
             total = 0;
             end   = NULL;
@@ -420,7 +420,7 @@ void View3D::DrawFPS(void)
         );
     }
 
-    sprintf(string, "FPS %4.1f", currentfps);
+    Com_sprintf(string, sizeof(string), "FPS %4.1f", currentfps);
     if (currentfps > 23.94) {
         if (cl_greenfps->integer) {
             m_font->setColor(UGreen);
@@ -449,7 +449,7 @@ void View3D::DrawFPS(void)
         m_font->setColor(UWhite);
     }
 
-    sprintf(string, "wt%5d wv%5d cl%d", cls.world_tris, cls.world_verts, cls.character_lights);
+    Com_sprintf(string, sizeof(string), "wt%5d wv%5d cl%d", cls.world_tris, cls.world_verts, cls.character_lights);
 
     m_font->Print(
         m_font->getHeight(qfalse) * 10.0,
@@ -459,7 +459,7 @@ void View3D::DrawFPS(void)
         qfalse
     );
 
-    sprintf(string, "t%5d v%5d Mtex%5.2f", cls.total_tris, cls.total_verts, (float)cls.total_texels * 0.00000095367432);
+    Com_sprintf(string, sizeof(string), "t%5d v%5d Mtex%5.2f", cls.total_tris, cls.total_verts, (float)cls.total_texels * 0.00000095367432);
 
     m_font->Print(
         m_font->getHeight(qfalse) * 10.0,

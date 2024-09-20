@@ -474,7 +474,7 @@ void Actor::FinishedAnimation_Grenade(void)
         break;
     default:
         char assertStr[16317] = {0};
-        strcpy(assertStr, "\"invalid grenade state in FinishedAnimation()\"\n\tMessage: ");
+        Q_strncpyz(assertStr, "\"invalid grenade state in FinishedAnimation()\"\n\tMessage: ", sizeof(assertStr));
         Q_strcat(assertStr, sizeof(assertStr), DumpCallTrace("state = %i", m_eGrenadeState));
         assert(!assertStr);
         break;

@@ -522,7 +522,7 @@ qboolean S_LoadSound(const char *fileName, sfx_t *sfx, int streamed, qboolean fo
         sfx->data = NULL;
     }
 
-    sprintf(tempName, "k%s", fileName);
+    Com_sprintf(tempName, sizeof(tempName), "k%s", fileName);
     UI_LoadResource(tempName);
 
     if (strstr(fileName, "sound/null.wav")) {

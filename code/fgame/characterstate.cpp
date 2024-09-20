@@ -373,7 +373,7 @@ void State::ParseAndProcessCommand(str command, Entity *target)
             script.SkipToEOL();
             break;
         }
-        strcpy(args[argc], script.GetToken(false));
+        Q_strncpyz(args[argc], script.GetToken(false), sizeof(args[argc]));
         argv[argc] = args[argc];
         argc++;
     }

@@ -148,7 +148,7 @@ void CL_Draw3DModel(
 
             hModel[iCurrNum] = model;
             iIndex[iCurrNum] = -1;
-            strcpy(szAnimName[iCurrNum], anim);
+            Q_strncpyz(szAnimName[iCurrNum], anim, sizeof(szAnimName[iCurrNum]));
         } else {
             iCurrNum = i;
 
@@ -164,7 +164,7 @@ void CL_Draw3DModel(
                 }
             } else {
                 iIndex[iCurrNum] = -1;
-                strcpy(szAnimName[iCurrNum], anim);
+                Q_strncpyz(szAnimName[iCurrNum], anim, sizeof(szAnimName[iCurrNum]));
             }
         }
 

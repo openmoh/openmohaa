@@ -94,7 +94,7 @@ void QDECL G_Printf(const char *fmt, ...)
     char    text[1024];
 
     va_start(argptr, fmt);
-    vsprintf(text, fmt, argptr);
+    Q_vsnprintf(text, sizeof(text), fmt, argptr);
     va_end(argptr);
 
     gi.Printf(text);
@@ -111,7 +111,7 @@ void QDECL G_Error(const char *fmt, ...)
     char    text[1024];
 
     va_start(argptr, fmt);
-    vsprintf(text, fmt, argptr);
+    Q_vsnprintf(text, sizeof(text), fmt, argptr);
     va_end(argptr);
 
     gi.Error(ERR_DROP, text);
@@ -128,7 +128,7 @@ void QDECL G_Error(int type, const char *fmt, ...)
     char    text[1024];
 
     va_start(argptr, fmt);
-    vsprintf(text, fmt, argptr);
+    Q_vsnprintf(text, sizeof(text), fmt, argptr);
     va_end(argptr);
 
     // need to manually crash otherwise visual studio fuck up with the stack pointer...
@@ -336,7 +336,7 @@ void QDECL Com_Error(int level, const char *error, ...)
     char    text[1024];
 
     va_start(argptr, error);
-    vsprintf(text, error, argptr);
+    Q_vsnprintf(text, sizeof(text), error, argptr);
     va_end(argptr);
 
     G_Error("%s", text);
@@ -348,7 +348,7 @@ void QDECL Com_Printf(const char *msg, ...)
     char    text[1024];
 
     va_start(argptr, msg);
-    vsprintf(text, msg, argptr);
+    Q_vsnprintf(text, sizeof(text), msg, argptr);
     va_end(argptr);
 
     gi.DPrintf("%s", text);
@@ -1894,7 +1894,7 @@ void G_ExitLevel(void)
             gi.SendConsoleCommand(command);
         } else if (!Q_stricmpn(level.nextmap, "vstr", 4)) {
             // alias on another map
-            strcpy(command, level.nextmap);
+            Q_strncpyz(command, level.nextmap, sizeof(command));
             gi.SendConsoleCommand(command);
         } else // use the level.nextmap variable
         {

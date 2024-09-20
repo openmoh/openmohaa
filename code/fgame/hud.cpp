@@ -779,7 +779,7 @@ void Hud::TimerThink()
 #else
 	if( !*shader ) {
 #endif
-		sprintf( buffer, string, minutes, seconds );
+		Com_sprintf( buffer, sizeof( buffer ), string, minutes, seconds );
 
 		SetText( buffer );
 	} else {

@@ -102,7 +102,7 @@ dtikianim_t *TIKI_RegisterTikiAnimFlags(const char *path, qboolean use)
     dtikianim_t *tiki;
     char         filename[1024];
 
-    strcpy(filename, path);
+    Q_strncpyz(filename, path, sizeof(filename));
     FS_CanonicalFilename(filename);
 
     if (tikianimcache) {
@@ -182,9 +182,9 @@ dtiki_t *TIKI_RegisterTikiFlags(const char *path, qboolean use)
         strcat(full_filename, "|");
     }
 
-    strcpy(filename, name);
+    Q_strncpyz(filename, name, sizeof(filename));
     FS_CanonicalFilename(filename);
-    strcat(full_filename, filename);
+    Q_strcat(full_filename, sizeof(full_filename), filename);
 
     if (!tikicache) {
         tikicache = new con_map<pchar, dtiki_t *>;

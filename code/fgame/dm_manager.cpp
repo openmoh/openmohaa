@@ -1798,7 +1798,7 @@ void DM_Manager::InsertEntry(const char *entry)
     size_t len = strlen(entry);
 
     if (scoreLength + len < MAX_STRING_CHARS) {
-        strcpy(scoreString + scoreLength, entry);
+        Q_strncpyz(scoreString + scoreLength, entry, sizeof(scoreString) - scoreLength);
 
         scoreLength += len;
         scoreEntries++;
@@ -1810,7 +1810,7 @@ void DM_Manager::InsertEntryNoCount(const char *entry)
     size_t len = strlen(entry);
 
     if (scoreLength + len < MAX_STRING_CHARS) {
-        strcpy(scoreString + scoreLength, entry);
+        Q_strncpyz(scoreString + scoreLength, entry, sizeof(scoreString) - scoreLength);
 
         scoreLength += len;
     }

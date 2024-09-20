@@ -150,7 +150,7 @@ void TIKI_ParseFrameCommands(dloaddef_t *ld, dloadframecmd_t **cmdlist, int maxc
 
             cmds->frame_num = framenum;
             if (ld->tikiFile.currentScript) {
-                sprintf(cmds->location, "%s, line: %d", ld->tikiFile.Filename(), ld->tikiFile.GetLineNumber());
+                Com_sprintf(cmds->location, sizeof(cmds->location), "%s, line: %d", ld->tikiFile.Filename(), ld->tikiFile.GetLineNumber());
             }
 
             while (ld->tikiFile.TokenAvailable(false)) {
@@ -468,13 +468,14 @@ void TIKI_ParseAnimations(dloaddef_t *ld)
                 anim->alias = (char *)TIKI_CopyString(token);
 
                 token = ld->tikiFile.GetToken(false);
-                strcpy(anim->name, TikiScript::currentScript->path);
-                strcat(anim->name, token);
+                Q_strncpyz(anim->name, TikiScript::currentScript->path, sizeof(anim->name));
+                Q_strcat(anim->name, sizeof(anim->name), token);
 
                 anim->location[0] = 0;
                 if (ld->tikiFile.currentScript) {
-                    sprintf(
+                    Com_sprintf(
                         anim->location,
+                        sizeof(anim->location),
                         "%s, line: %d",
                         ld->tikiFile.currentScript->Filename(),
                         ld->tikiFile.currentScript->GetLineNumber()
@@ -890,7 +891,7 @@ qboolean TIKI_LoadSetupCase(
                 loadsurfaces[currentSurface].flags = 0;
                 (*numSurfacesSetUp)++;
             }
-            strcpy(loadsurfaces[currentSurface].name, name);
+            Q_strncpyz(loadsurfaces[currentSurface].name, name, sizeof(loadsurfaces[currentSurface].name));
             break;
         case SETUP_FLAGS:
             flags = MSG_ReadLong(msg);
@@ -1031,17 +1032,17 @@ qboolean TIKI_ParseSetup(dloaddef_t *ld)
             WriteLodBias(ld, lod_bias);
         } else if (!Q_stricmp(token, "skelmodel")) {
             token = ld->tikiFile.GetToken(false);
-            strcpy(name, ld->tikiFile.currentScript->path);
-            strcat(name, token);
+            Q_strncpyz(name, ld->tikiFile.currentScript->path, sizeof(name));
+            Q_strcat(name, sizeof(name), token);
             WriteSkelmodel(ld, name);
         } else if (!Q_stricmp(token, "path")) {
             token = ld->tikiFile.GetToken(false);
-            strcpy(ld->tikiFile.currentScript->path, token);
+            Q_strncpyz(ld->tikiFile.currentScript->path, token, sizeof(name));
             length = strlen(ld->tikiFile.currentScript->path);
             token  = ld->tikiFile.currentScript->path + length - 1;
 
             if (*token != '/' && *token != '\\') {
-                strcat(ld->tikiFile.currentScript->path, "/");
+                Q_strcat(ld->tikiFile.currentScript->path, sizeof(ld->tikiFile.currentScript->path), "/");
             }
         } else if (!Q_stricmp(token, "orgin")) {
             tmpVec[0] = ld->tikiFile.GetFloat(false);
@@ -1071,8 +1072,8 @@ qboolean TIKI_ParseSetup(dloaddef_t *ld)
                 } else if (!Q_stricmp(token, "shader")) {
                     token = ld->tikiFile.GetToken(false);
                     if (strstr(token, ".")) {
-                        strcpy(name, ld->tikiFile.currentScript->path);
-                        strcat(name, token);
+                        Q_strncpyz(name, ld->tikiFile.currentScript->path, sizeof(name));
+                        Q_strcat(name, sizeof(name), token);
                         WriteShader(ld, name);
                     } else {
                         WriteShader(ld, token);

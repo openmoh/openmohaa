@@ -1164,7 +1164,7 @@ void Level::SpawnEntities(char *entities, int svsTime)
                 Q_strncpyz(ent->edict->entname, ent->getClassID(), sizeof(ent->edict->entname));
 
                 ent->PostEvent(EV_Entity_Start, -1.0, 0);
-                sprintf(name, "i%d", radnum);
+                Com_sprintf(name, sizeof(name), "i%d", radnum);
                 gi.LoadResource(name);
             }
         }
@@ -1957,7 +1957,7 @@ void Level::SetupMaplist()
         return;
     }
 
-    strcpy(buffer, m_voteString.c_str());
+    Q_strncpyz(buffer, m_voteString.c_str(), sizeof(buffer));
 
     for (p = strtok(buffer, delim); p; p = strtok(NULL, delim)) {
         if (strstr(p, "g_gametype")) {

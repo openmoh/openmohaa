@@ -853,8 +853,8 @@ const char *G_FixTIKIPath(const char *in) {
 	if(gi.FS_ReadFile( in, &buffer ) > 0) {
 		return in;
 	}
-	strcpy(path,"models/");
-	strcat(path,in);
+	Q_strncpyz(path,"models/", sizeof(path));
+	Q_strcat(path,sizeof(path),in);
 	if( gi.FS_ReadFile( in, &buffer ) > 0 ) {
 		return path;
 	}

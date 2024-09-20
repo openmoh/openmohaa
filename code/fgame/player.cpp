@@ -2522,12 +2522,12 @@ void Player::InitModelFps(void)
     char  model_name[MAX_STRING_TOKENS];
     char *model_replace;
 
-    strcpy(model_name, model.c_str());
+    Q_strncpyz(model_name, model.c_str(), sizeof(model_name));
     size_t len = strlen(model_name);
 
     model_replace = model_name + len - 4;
 
-    strcpy(model_replace, "_fps.tik");
+    Q_strncpyz(model_replace, "_fps.tik", sizeof(model_name) - (model_replace - model_name));
 
     m_fpsTiki = gi.modeltiki(model_name);
 }
@@ -3272,14 +3272,14 @@ void Player::SetStopwatch(int iDuration, stopWatchType_t type)
             }
         }
 
-        sprintf(szCmd, "stopwatch %i %i %i", iStartTime, iDuration, type);
+        Com_sprintf(szCmd, sizeof(szCmd), "stopwatch %i %i %i", iStartTime, iDuration, type);
     } else {
         iStartTime = 0;
         if (iDuration) {
             iStartTime = (int)level.svsFloatTime;
         }
 
-        sprintf(szCmd, "stopwatch %i %i", iStartTime, iDuration);
+        Com_sprintf(szCmd, sizeof(szCmd), "stopwatch %i %i", iStartTime, iDuration);
     }
 
     gi.SendServerCommand(edict - g_entities, szCmd);
@@ -5670,7 +5670,7 @@ void Player::GiveAllCheat(Event *ev)
     if (gi.FS_ReadFile("global/giveall.scr", (void **)&buf, true) != -1) {
         buffer = buf;
         while (1) {
-            strcpy(com_token, COM_ParseExt(&buffer, qtrue));
+            Q_strncpyz(com_token, COM_ParseExt(&buffer, qtrue), sizeof(com_token));
 
             if (!com_token[0]) {
                 break;
@@ -5681,7 +5681,7 @@ void Player::GiveAllCheat(Event *ev)
 
             // get the rest of the line
             while (1) {
-                strcpy(com_token, COM_ParseExt(&buffer, qfalse));
+                Q_strncpyz(com_token, COM_ParseExt(&buffer, qfalse), sizeof(com_token));
                 if (!com_token[0]) {
                     break;
                 }
@@ -8631,49 +8631,49 @@ void Player::EnsurePlayerHasAllowedWeapons()
                 return;
             }
 
-            strcpy(client->pers.dm_primary, "rifle");
+            Q_strncpyz(client->pers.dm_primary, "rifle", sizeof(client->pers.dm_primary));
         } else if (!Q_stricmp(client->pers.dm_primary, "rifle")) {
             if (!(dmflags->integer & DF_WEAPON_NO_RIFLE)) {
                 return;
             }
 
-            strcpy(client->pers.dm_primary, "smg");
+            Q_strncpyz(client->pers.dm_primary, "smg", sizeof(client->pers.dm_primary));
         } else if (!Q_stricmp(client->pers.dm_primary, "smg")) {
             if (!(dmflags->integer & DF_WEAPON_NO_RIFLE)) {
                 return;
             }
 
-            strcpy(client->pers.dm_primary, "mg");
+            Q_strncpyz(client->pers.dm_primary, "mg", sizeof(client->pers.dm_primary));
         } else if (!Q_stricmp(client->pers.dm_primary, "mg")) {
             if (!(dmflags->integer & DF_WEAPON_NO_RIFLE)) {
                 return;
             }
 
-            strcpy(client->pers.dm_primary, "shotgun");
+            Q_strncpyz(client->pers.dm_primary, "shotgun", sizeof(client->pers.dm_primary));
         } else if (!Q_stricmp(client->pers.dm_primary, "shotgun")) {
             if (!(dmflags->integer & DF_WEAPON_NO_RIFLE)) {
                 return;
             }
 
-            strcpy(client->pers.dm_primary, "heavy");
+            Q_strncpyz(client->pers.dm_primary, "heavy", sizeof(client->pers.dm_primary));
         } else if (!Q_stricmp(client->pers.dm_primary, "heavy")) {
             if (!(dmflags->integer & DF_WEAPON_NO_RIFLE)) {
                 return;
             }
 
-            strcpy(client->pers.dm_primary, "landmine");
+            Q_strncpyz(client->pers.dm_primary, "landmine", sizeof(client->pers.dm_primary));
         } else if (!Q_stricmp(client->pers.dm_primary, "landmine")) {
             if (QueryLandminesAllowed()) {
                 return;
             }
 
-            strcpy(client->pers.dm_primary, "sniper");
+            Q_strncpyz(client->pers.dm_primary, "sniper", sizeof(client->pers.dm_primary));
         }
     }
 
     gi.cvar_set("dmflags", va("%i", dmflags->integer & ~DF_WEAPON_NO_RIFLE));
     Com_Printf("No valid weapons -- re-allowing the rifle\n");
-    strcpy(client->pers.dm_primary, "rifle");
+    Q_strncpyz(client->pers.dm_primary, "rifle", sizeof(client->pers.dm_primary));
 }
 
 void Player::EquipWeapons()
@@ -10471,12 +10471,12 @@ void Player::EventDMMessage(Event *ev)
         }
     }
 
-    strcpy(szPrintString, "print \"" HUD_MESSAGE_CHAT_WHITE);
+    Q_strncpyz(szPrintString, "print \"" HUD_MESSAGE_CHAT_WHITE, sizeof(szPrintString));
 
     if (m_bSpectator) {
         if (iMode <= 0) {
-            strcat(szPrintString, gi.CL_LV_ConvertString("(spectator)"));
-            strcat(szPrintString, " ");
+            Q_strcat(szPrintString, sizeof(szPrintString), gi.CL_LV_ConvertString("(spectator)"));
+            Q_strcat(szPrintString, sizeof(szPrintString), " ");
         } else if (iMode <= game.maxclients) {
             ent = &g_entities[iMode - 1];
 
@@ -10496,8 +10496,8 @@ void Player::EventDMMessage(Event *ev)
         }
     } else if (IsDead() || m_bTempSpectator) {
         if (iMode <= 0) {
-            strcat(szPrintString, gi.CL_LV_ConvertString("(dead)"));
-            strcat(szPrintString, " ");
+            Q_strcat(szPrintString, sizeof(szPrintString), gi.CL_LV_ConvertString("(dead)"));
+            Q_strcat(szPrintString, sizeof(szPrintString), " ");
         } else if (iMode <= game.maxclients) {
             ent = &g_entities[iMode - 1];
 
@@ -10516,22 +10516,22 @@ void Player::EventDMMessage(Event *ev)
             }
         }
     } else if (iMode < 0) {
-        strcat(szPrintString, gi.CL_LV_ConvertString("(team)"));
-        strcat(szPrintString, " ");
+        Q_strcat(szPrintString, sizeof(szPrintString), gi.CL_LV_ConvertString("(team)"));
+        Q_strcat(szPrintString, sizeof(szPrintString), " ");
     } else if (iMode > 0) {
-        strcat(szPrintString, gi.CL_LV_ConvertString("(private)"));
-        strcat(szPrintString, " ");
+        Q_strcat(szPrintString, sizeof(szPrintString), gi.CL_LV_ConvertString("(private)"));
+        Q_strcat(szPrintString, sizeof(szPrintString), " ");
     }
 
-    strcat(szPrintString, client->pers.netname);
+    Q_strcat(szPrintString, sizeof(szPrintString), client->pers.netname);
 
     if (bInstaMessage) {
-        strcat(szPrintString, ": ");
-        strcat(szPrintString, gi.LV_ConvertString(pTmpInstantMsg));
+        Q_strcat(szPrintString, sizeof(szPrintString), ": ");
+        Q_strcat(szPrintString, sizeof(szPrintString), gi.LV_ConvertString(pTmpInstantMsg));
     } else {
         bool met_comment;
 
-        strcat(szPrintString, ":");
+        Q_strcat(szPrintString, sizeof(szPrintString), ":");
         iStringLength = strlen(szPrintString);
 
         for (i = 2; i <= ev->NumArgs(); i++) {
@@ -10556,12 +10556,12 @@ void Player::EventDMMessage(Event *ev)
                 return;
             }
 
-            strcat(szPrintString, " ");
-            strcat(szPrintString, gi.LV_ConvertString(sToken));
+            Q_strcat(szPrintString, sizeof(szPrintString), " ");
+            Q_strcat(szPrintString, sizeof(szPrintString), gi.LV_ConvertString(sToken));
         }
     }
 
-    strcat(szPrintString, "\n");
+    Q_strcat(szPrintString, sizeof(szPrintString), "\n");
 
     // ignore names containing comments
     if (strstr(client->pers.netname, "//")
@@ -10800,7 +10800,7 @@ str Player::GetBattleLanguageLocalFolks()
                     break;
                 }
 
-                strcpy(p, ", ");
+                Q_strncpyz(p, ", ", sizeof(buf) - (p - buf));
                 p += 2;
                 curP = p;
                 remaining -= 2;
@@ -10811,7 +10811,7 @@ str Player::GetBattleLanguageLocalFolks()
                 break;
             }
 
-            strcpy(p, client->pers.netname);
+            Q_strncpyz(p, client->pers.netname, sizeof(buf) - (p - buf));
             p += length;
             remaining -= length;
             pFolk = pPlayer;
@@ -10819,8 +10819,8 @@ str Player::GetBattleLanguageLocalFolks()
     }
 
     if (curP && remaining >= 2) {
-        strcpy(curP, "and ");
-        strcpy(curP + strlen(curP), pFolk->client->pers.netname);
+        Q_strncpyz(curP, "and ", sizeof(buf) - (curP - buf));
+        Q_strncpyz(curP + strlen(curP), pFolk->client->pers.netname, sizeof(buf) - (curP + strlen(curP) - buf));
     } else if (!pFolk) {
         return "nobody";
     }
@@ -11605,9 +11605,9 @@ void Player::UserSelectWeapon(bool bWait)
     }
 
     if (bWait) {
-        strcpy(buf, "stufftext \"wait 250;pushmenu ");
+        Q_strncpyz(buf, "stufftext \"wait 250;pushmenu ", sizeof(buf));
     } else {
-        strcpy(buf, "stufftext \"pushmenu ");
+        Q_strncpyz(buf, "stufftext \"pushmenu ", sizeof(buf));
     }
 
     if (dmflags->integer & DF_WEAPON_NO_RIFLE && dmflags->integer & DF_WEAPON_NO_SNIPER
@@ -11616,24 +11616,24 @@ void Player::UserSelectWeapon(bool bWait)
         && dmflags->integer & DF_WEAPON_NO_LANDMINE && !QueryLandminesAllowed()) {
         gi.cvar_set("dmflags", va("%i", dmflags->integer & ~DF_WEAPON_NO_RIFLE));
         Com_Printf("No valid weapons -- re-allowing the rifle\n");
-        strcpy(client->pers.dm_primary, "rifle");
+        Q_strncpyz(client->pers.dm_primary, "rifle", sizeof(client->pers.dm_primary));
     }
 
     switch (nationality) {
     case NA_BRITISH:
-        strcat(buf, "SelectPrimaryWeapon_british\"");
+        Q_strcat(buf, sizeof(buf), "SelectPrimaryWeapon_british\"");
         break;
     case NA_RUSSIAN:
-        strcat(buf, "SelectPrimaryWeapon_russian\"");
+        Q_strcat(buf, sizeof(buf), "SelectPrimaryWeapon_russian\"");
         break;
     case NA_GERMAN:
-        strcat(buf, "SelectPrimaryWeapon_german\"");
+        Q_strcat(buf, sizeof(buf), "SelectPrimaryWeapon_german\"");
         break;
     case NA_ITALIAN:
-        strcat(buf, "SelectPrimaryWeapon_italian\"");
+        Q_strcat(buf, sizeof(buf), "SelectPrimaryWeapon_italian\"");
         break;
     default:
-        strcat(buf, "SelectPrimaryWeapon\"");
+        Q_strcat(buf, sizeof(buf), "SelectPrimaryWeapon\"");
         break;
     }
 

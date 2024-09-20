@@ -31,7 +31,7 @@ void SKEL_Message(const char *fmt, ...)
     va_list     va;
 
     va_start(va, fmt);
-    vsprintf(msg, fmt, va);
+    Q_vsnprintf(msg, sizeof(msg), fmt, va);
     va_end(va);
     Skel_DPrintf(msg);
 }
@@ -42,7 +42,7 @@ void SKEL_Warning(const char *fmt, ...)
     va_list va;
 
     va_start(va, fmt);
-    vsprintf(msg, fmt, va);
+    Q_vsnprintf(msg, sizeof(msg), fmt, va);
     va_end(va);
     Skel_DPrintf(msg);
 }
@@ -53,7 +53,7 @@ void SKEL_Error(const char *fmt, ...)
     va_list va;
 
     va_start(va, fmt);
-    vsprintf(msg, fmt, va);
+    Q_vsnprintf(msg, sizeof(msg), fmt, va);
     va_end(va);
     Skel_DPrintf(msg);
 }

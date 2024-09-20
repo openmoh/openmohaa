@@ -803,7 +803,7 @@ GameScript *ScriptMaster::GetGameScriptInternal(str& filename)
         gi.Error(ERR_DROP, "Script filename '%s' exceeds maximum length of %d\n", filename.c_str(), MAX_QPATH);
     }
 
-    strcpy(filepath, filename.c_str());
+    Q_strncpyz(filepath, filename.c_str(), sizeof(filepath));
     gi.FS_CanonicalFilename(filepath);
     filename = filepath;
 
@@ -1111,30 +1111,30 @@ void ScriptMaster::PrintStatus(void)
         ScriptVM *vm;
 
         for (vm = scriptClass->m_Threads; vm != NULL; vm = vm->next) {
-            sprintf(szBuffer, "%.7d", iThreadNum);
+            Com_sprintf(szBuffer, sizeof(szBuffer), "%.7d", iThreadNum);
             status += szBuffer + str(" ");
 
             switch (vm->ThreadState()) {
             case THREAD_RUNNING:
-                sprintf(szBuffer, "%8s", "running");
+                Com_sprintf(szBuffer, sizeof(szBuffer), "%8s", "running");
                 iThreadRunning++;
                 break;
             case THREAD_WAITING:
-                sprintf(szBuffer, "%8s", "waiting");
+                Com_sprintf(szBuffer, sizeof(szBuffer), "%8s", "waiting");
                 iThreadWaiting++;
                 break;
             case THREAD_SUSPENDED:
-                sprintf(szBuffer, "%8s", "suspended");
+                Com_sprintf(szBuffer, sizeof(szBuffer), "%8s", "suspended");
                 iThreadSuspended++;
                 break;
             }
 
             status += szBuffer;
 
-            sprintf(szBuffer, "%15s", vm->Label().c_str());
+            Com_sprintf(szBuffer, sizeof(szBuffer), "%15s", vm->Label().c_str());
             status += szBuffer + str(" ");
 
-            sprintf(szBuffer, "%15s", vm->Filename().c_str());
+            Com_sprintf(szBuffer, sizeof(szBuffer), "%15s", vm->Filename().c_str());
             status += szBuffer;
 
             status += "\n";

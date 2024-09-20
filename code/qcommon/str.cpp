@@ -218,7 +218,7 @@ str operator+(const str& a, const float b)
 
     str result(a);
 
-    sprintf(text, "%f", b);
+    snprintf(text, sizeof(text), "%f", b);
     result.append(text);
 
     return result;
@@ -230,7 +230,7 @@ str operator+(const str& a, const int b)
 
     str result(a);
 
-    sprintf(text, "%d", b);
+    snprintf(text, sizeof(text), "%d", b);
     result.append(text);
 
     return result;
@@ -242,7 +242,7 @@ str operator+(const str& a, const unsigned b)
 
     str result(a);
 
-    sprintf(text, "%u", b);
+    snprintf(text, sizeof(text), "%u", b);
     result.append(text);
 
     return result;
@@ -252,7 +252,7 @@ str& str::operator+=(const float a)
 {
     char text[20];
 
-    sprintf(text, "%f", a);
+    snprintf(text, sizeof(text), "%f", a);
     append(text);
 
     return *this;
@@ -262,7 +262,7 @@ str& str::operator+=(const int a)
 {
     char text[20];
 
-    sprintf(text, "%d", a);
+    snprintf(text, sizeof(text), "%d", a);
     append(text);
 
     return *this;
@@ -272,7 +272,7 @@ str& str::operator+=(const unsigned a)
 {
     char text[20];
 
-    sprintf(text, "%u", a);
+    snprintf(text, sizeof(text), "%u", a);
     append(text);
 
     return *this;
@@ -536,7 +536,7 @@ void str::snprintf(char *dst, int size, const char *fmt, ...)
     va_list argptr;
 
     va_start(argptr, fmt);
-    len = vsprintf(buffer, fmt, argptr);
+    len = vsnprintf(buffer, sizeof(buffer), fmt, argptr);
     va_end(argptr);
 
     assert(len < size);

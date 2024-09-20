@@ -433,7 +433,7 @@ void G_DrawDebugNumber(Vector org, float number, float scale, float r, float g, 
     left *= scale;
 
     if (precision > 0) {
-        sprintf(format, "%%.%df", precision);
+        Com_sprintf(format, sizeof(format), "%%.%df", precision);
         text = va(format, number);
     } else {
         text = va("%d", (int)number);
@@ -761,7 +761,7 @@ void G_DebugString(Vector pos, float scale, float r, float g, float b, const cha
         (*gi.numDebugStrings)++;
 
         va_start(va, pszText);
-        vsprintf(szTemp, pszText, va);
+        Q_vsnprintf(szTemp, sizeof(szTemp), pszText, va);
         va_end(va);
 
         VectorCopy(pos, string->pos);

@@ -4726,7 +4726,7 @@ void ScriptThread::GetPlayerIP(Event *ev)
 
     ip = ent->client->pers.ip;
 
-    sprintf(ip_buff, "%s:%i", ip, ent->client->pers.port);
+    Com_sprintf(ip_buff, sizeof(ip_buff), "%s:%i", ip, ent->client->pers.port);
 
     ev->AddString(ip_buff);
 }
@@ -5348,7 +5348,7 @@ void ScriptThread::FileOpen(Event *ev)
         return;
     } else {
         ev->AddInteger((int)(size_t)f);
-        sprintf(buf, "%i", scriptfiles->integer + 1);
+        Com_sprintf(buf, sizeof(buf), "%i", scriptfiles->integer + 1);
         gi.cvar_set("sv_scriptfiles", buf);
         return;
     }
@@ -5408,7 +5408,7 @@ void ScriptThread::FileClose(Event *ev)
 
     if (ret == 0) {
         ev->AddInteger(0);
-        sprintf(buf, "%i", scriptfiles->integer - 1);
+        Com_sprintf(buf, sizeof(buf), "%i", scriptfiles->integer - 1);
         gi.cvar_set("sv_scriptfiles", buf);
         return;
     } else {
@@ -6252,7 +6252,7 @@ void ScriptThread::FlagInit(Event *ev)
 
     flag            = new Flag;
     flag->bSignaled = false;
-    strcpy(flag->flagName, name);
+    Q_strncpyz(flag->flagName, name, sizeof(flag->flagName));
 }
 
 void ScriptThread::FlagSet(Event *ev)
@@ -6603,7 +6603,7 @@ void ScriptThread::EventFmod(Event *ev)
     ev->AddFloat((float)res);
 }
 
-int checkMD5(const char *filepath, char *md5Hash)
+int checkMD5(const char *filepath, char *md5Hash, size_t destSize)
 {
     md5_state_t state;
     md5_byte_t  digest[16];
@@ -6652,7 +6652,7 @@ int checkMD5(const char *filepath, char *md5Hash)
     md5_finish(&state, digest);
 
     for (di = 0; di < 16; ++di) {
-        sprintf(md5Hash + di * 2, "%02x", digest[di]);
+        Com_sprintf(md5Hash + di * 2, destSize - di * 2, "%02x", digest[di]);
     }
 
     gi.Free(buff);
@@ -6660,7 +6660,7 @@ int checkMD5(const char *filepath, char *md5Hash)
     return 0;
 }
 
-int checkMD5String(const char *string, char *md5Hash)
+int checkMD5String(const char *string, char *md5Hash, size_t destSize)
 {
     md5_state_t state;
     md5_byte_t  digest[16];
@@ -6685,7 +6685,7 @@ int checkMD5String(const char *string, char *md5Hash)
     md5_finish(&state, digest);
 
     for (di = 0; di < 16; ++di) {
-        sprintf(md5Hash + di * 2, "%02x", digest[di]);
+        Com_sprintf(md5Hash + di * 2, destSize - di * 2, "%02x", digest[di]);
     }
 
     gi.Free(buff);
@@ -6705,7 +6705,7 @@ void ScriptThread::Md5File(Event *ev)
 
     filename = ev->GetString(1);
 
-    ret = checkMD5(filename, hash);
+    ret = checkMD5(filename, hash, sizeof(hash));
     if (ret != 0) {
         ev->AddInteger(-1);
         throw ScriptException("Error while generating MD5 checksum for file - md5file!\n");
@@ -6742,7 +6742,7 @@ void ScriptThread::Md5String(Event *ev)
 
     text = ev->GetString(1);
 
-    ret = checkMD5String(text, hash);
+    ret = checkMD5String(text, hash, sizeof(hash));
     if (ret != 0) {
         ev->AddInteger(-1);
         throw ScriptException("Error while generating MD5 checksum for strin!\n");
@@ -6937,7 +6937,7 @@ void ScriptThread::GetTime(Event *ev)
 
     timediff = timearray[0] - gmttime;
 
-    sprintf(buff, "%02i:%02i:%02i", (int)timearray[0], (int)timearray[1], (int)timearray[2]);
+    Com_sprintf(buff, sizeof(buff), "%02i:%02i:%02i", (int)timearray[0], (int)timearray[1], (int)timearray[2]);
 
     ev->AddString(buff);
 }

@@ -1078,7 +1078,7 @@ int SimpleActor::GetEmotionAnim(void)
         default:
 
             char assertStr[16317] = {0};
-            strcpy(assertStr, "\"Unknown value for m_EmotionMode in SimpleActor::GetEmotionAnim\"\n\tMessage: ");
+            Q_strncpyz(assertStr, "\"Unknown value for m_EmotionMode in SimpleActor::GetEmotionAnim\"\n\tMessage: ", sizeof(assertStr));
             Q_strcat(assertStr, sizeof(assertStr), DumpCallTrace(""));
             assert(!assertStr);
             return -1;
@@ -1101,7 +1101,7 @@ int SimpleActor::GetEmotionAnim(void)
         default:
 
             char assertStr[16317] = {0};
-            strcpy(assertStr, "\"Unknown value for m_csMood in SimpleActor::GetEmotionAnim\"\n\tMessage: ");
+            Q_strncpyz(assertStr, "\"Unknown value for m_csMood in SimpleActor::GetEmotionAnim\"\n\tMessage: ", sizeof(assertStr));
             Q_strcat(assertStr, sizeof(assertStr), DumpCallTrace(""));
             assert(!assertStr);
             return -1;

@@ -23,6 +23,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // scriptexception.cpp : Script Exception
 
 #include "scriptexception.h"
+#include "q_shared.h"
 
 #include <cstdarg>
 
@@ -50,7 +51,7 @@ ScriptException::ScriptException(const char *format, ...)
     char    data[4100];
 
     va_start(va, format);
-    vsprintf(data, format, va);
+    Q_vsnprintf(data, sizeof(data), format, va);
     va_end(va);
 
     CreateException(data);
@@ -67,7 +68,7 @@ void Error(const char *format, ...)
     char    data[4100];
 
     va_start(va, format);
-    vsprintf(data, format, va);
+    Q_vsnprintf(data, sizeof(data), format, va);
     va_end(va);
 
     throw ScriptException((const char *)data);

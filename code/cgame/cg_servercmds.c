@@ -186,7 +186,7 @@ void CG_ParseServerinfo(void)
     if (spawnpos) {
         Q_strncpyz(map, mapname, spawnpos - mapname + 1);
     } else {
-        strcpy(map, mapname);
+        Q_strncpyz(map, mapname, sizeof(map));
     }
 
     Com_sprintf(cgs.mapname, sizeof(cgs.mapname), "maps/%s.bsp", map);

@@ -271,7 +271,7 @@ void Alias_ListAddParms(AliasListNode_t* node, const char* parameters)
 			}
 
 			node->subtitle = Z_TagMalloc(strlen(token) + 1, TAG_TIKI);
-			strcpy(node->subtitle, token);
+			Q_strncpyz(node->subtitle, token, sizeof(node->subtitle));
 		}
 		else if (!Q_stricmp(token, "pitch"))
 		{

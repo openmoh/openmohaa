@@ -12282,8 +12282,9 @@ const char *Actor::DumpCallTrace(const char *pszFmt, ...) const
         vPlayer = p->origin;
     }
 
-    i1 = sprintf(
+    i1 = Com_sprintf(
         szTemp,
+        sizeof(szTemp),
         "map = %s\n"
         "time = %i (%i:%02i)\n"
         "entnum = %i, targetname = '%s'\n"
@@ -12318,7 +12319,7 @@ const char *Actor::DumpCallTrace(const char *pszFmt, ...) const
     if (pszFmt) {
         va_list args2;
         va_copy(args2, args);
-        i2 = i1 + vsprintf(&szTemp[i1], pszFmt, args);
+        i2 = i1 + Q_vsnprintf(szTemp + i1, sizeof(szTemp) - i1, pszFmt, args);
     }
 
     va_end(args);
@@ -12329,8 +12330,9 @@ const char *Actor::DumpCallTrace(const char *pszFmt, ...) const
 
     t   = time(0);
     ptm = localtime(&t);
-    sprintf(
+    Com_sprintf(
         szFile,
+        sizeof(szFile),
         "main\\ai_trace_%s_%i_%i_%02i%02i.log",
         sv_mapname->string,
         ptm->tm_mon + 1,

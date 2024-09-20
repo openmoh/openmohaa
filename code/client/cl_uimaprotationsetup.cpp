@@ -76,7 +76,7 @@ void UIMapRotationListBox::PopulateRotationList()
         maplistVar = Cvar_Get("ui_maplist_ffa", "", 0);
     }
 
-    strcpy(mapBuffer, maplistVar->string);
+    Q_strncpyz(mapBuffer, maplistVar->string, sizeof(mapBuffer));
 
     for (token = strtok(mapBuffer, " /"); token; token = strtok(NULL, " /")) {
         if (!Q_stricmp(token, "dm")) {
@@ -143,7 +143,7 @@ void UIMapListBox::PopulateMapList()
         bool        bHasTOW = false;
         bool        bHasLib = false;
 
-        strcpy(mapName, filename);
+        Q_strncpyz(mapName, filename, sizeof(mapName));
         mapName[strlen(mapName) - 4] = 0;
 
         if (!COM_IsMapValid(mapName)) {
@@ -151,7 +151,7 @@ void UIMapListBox::PopulateMapList()
         }
 
         if (bTugOfWar || bLiberation) {
-            strcpy(tokenized, mapName);
+            Q_strncpyz(tokenized, mapName, sizeof(tokenized));
 
             for (token = strtok(tokenized, "_"); token; token = strtok(NULL, "_")) {
                 if (bLiberation) {
@@ -181,7 +181,7 @@ void UIMapListBox::PopulateMapList()
                 }
             }
         } else if (bObjective) {
-            strcpy(tokenized, mapName);
+            Q_strncpyz(tokenized, mapName, sizeof(tokenized));
 
             for (token = strtok(tokenized, "_"); token; token = strtok(NULL, "_")) {
                 if (!Q_stricmp(token, "obj")) {
@@ -209,9 +209,9 @@ void UIMapListBox::PopulateMapList()
             char        mapName[256];
             char        tokenized[256];
 
-            strcpy(mapName, filename);
+            Q_strncpyz(mapName, filename, sizeof(mapName));
             mapName[strlen(mapName) - 4] = 0;
-            strcpy(tokenized, mapName);
+            Q_strncpyz(tokenized, mapName, sizeof(tokenized));
 
             token = strtok(tokenized, "_");
             if (!Q_stricmp(token, "obj") || !Q_stricmp(mapName, "mp_ship_lib")) {
@@ -237,7 +237,7 @@ void UIMapListBox::PopulateMapList()
                 const char *filename = filenames[i];
                 char        mapName[256];
 
-                strcpy(mapName, filename);
+                Q_strncpyz(mapName, filename, sizeof(mapName));
                 mapName[strlen(mapName) - 4] = 0;
 
                 if (!COM_IsMapValid(mapName)) {
@@ -356,7 +356,7 @@ void UIRotationApplyButton::Released(Event *ev)
             char        map[256];
             bool        bHasTOW = false, bHasObj = false, bHasLib = false, bHasShip = false;
 
-            strcpy(map, text);
+            Q_strncpyz(map, text, sizeof(map));
             for (token = strtok(map, "_"); token; token = strtok(NULL, "_")) {
                 if (!Q_stricmp(token, "TOW")) {
                     bHasTOW = true;

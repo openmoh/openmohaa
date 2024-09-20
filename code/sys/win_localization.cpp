@@ -75,7 +75,7 @@ cLocalization::cLocalization()
 	size_t iBasePos;
 
 	ppszFiles = FS_ListFilteredFiles( "global", "txt", "localization*.txt", qfalse, &iFileCount, qtrue );
-	strcpy( szFilename, "global/" );
+	Q_strncpyz( szFilename, "global/", sizeof( szFilename ) );
 	memset( szFilename + 8, 0, sizeof( szFilename ) - 8 );
 	iBasePos = strlen( szFilename );
 
@@ -83,7 +83,7 @@ cLocalization::cLocalization()
 	qsort( ppszFiles, iFileCount, sizeof( char * ), compare_strings );
 	for( i = 0; i < iFileCount; i++ )
 	{
-		strcpy( szFilename + iBasePos, ppszFiles[ i ] );
+		Q_strncpyz( szFilename + iBasePos, ppszFiles[ i ], sizeof( szFilename ) - iBasePos );
 		Com_Printf( "--- Localization: reading file %s\n", szFilename );
 		LoadFile( szFilename );
 	}

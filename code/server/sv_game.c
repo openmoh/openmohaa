@@ -1410,7 +1410,7 @@ void PF_centerprintf( gentity_t *ent, const char *fmt, ... )
 	}
 
 	va_start( va, fmt );
-	vsprintf( msg, fmt, va );
+	Q_vsnprintf( msg, sizeof( msg ), fmt, va );
 	va_end( va );
 
 	if( strlen( msg ) > 256 ) {
@@ -1436,7 +1436,7 @@ void PF_locationprintf( gentity_t *ent, int x, int y, const char *fmt, ... )
 	}
 
 	va_start( va, fmt );
-	vsprintf( msg, fmt, va );
+	Q_vsnprintf( msg, sizeof( msg ), fmt, va );
 	va_end( va );
 
 	if( strlen( msg ) > 256 ) {

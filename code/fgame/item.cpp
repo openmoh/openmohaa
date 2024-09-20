@@ -751,7 +751,7 @@ void Item::setName(const char *i)
 
     item_name  = i;
     item_index = gi.itemindex(i);
-    strcpy(edict->entname, i);
+    Q_strncpyz(edict->entname, i, sizeof(edict->entname));
 
     prefix = GetItemPrefix(item_name);
     if (prefix) {

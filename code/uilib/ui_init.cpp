@@ -101,7 +101,7 @@ void UI_SetCvarInt( const char *cvar, int value )
 {
 	char s[ 16 ];
 
-	sprintf( s, "%d", value );
+	Com_sprintf( s, sizeof( s ), "%d", value );
 	uii.Cvar_Set( cvar, s );
 }
 
@@ -109,7 +109,7 @@ void UI_SetCvarFloat( const char *cvar, float value )
 {
 	char s[ 16 ];
 
-	sprintf( s, "%f", value );
+	Com_sprintf( s, sizeof( s ), "%f", value );
 	uii.Cvar_Set( cvar, s );
 }
 

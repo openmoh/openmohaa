@@ -311,14 +311,14 @@ qboolean CM_LoadFCM(const char *szName, cfencemask_t **pMask)
 
     m      = (cfencemask_t *)Hunk_Alloc(sizeof(cfencemask_t), h_dontcare);
     *pMask = m;
-    strcpy(m->name, szName);
+    Q_strncpyz(m->name, szName, sizeof(m->name));
     m->iWidth  = header.iWidth;
     m->iHeight = header.iHeight;
     m->pData   = (byte *)Hunk_Alloc(iDataSize, h_dontcare);
     FS_Read(m->pData, iDataSize, h);
     FS_FCloseFile(h);
 
-    sprintf(tempName, "f%s", szName);
+    Com_sprintf(tempName, sizeof(tempName), "f%s", szName);
     UI_LoadResource(tempName);
 
     return qtrue;
@@ -483,7 +483,7 @@ qboolean CM_GenerateFenceMask(const char *szName, cfencemask_t **pMask)
     // load the mask if it has transparence and is opaque
     if (bHasOpaque && bHasTrans) {
         *pMask = Hunk_Alloc((iMaskSize >> 3) + sizeof(cfencemask_t), h_dontcare);
-        strcpy((*pMask)->name, szName);
+        Q_strncpyz((*pMask)->name, szName, sizeof((*pMask)->name));
         (*pMask)->iWidth  = iWidth;
         (*pMask)->iHeight = iHeight;
         (*pMask)->pData   = (byte *)((byte *)*pMask + sizeof(**pMask));
@@ -564,7 +564,7 @@ cfencemask_t *CM_GetFenceMask(const char *szMaskName)
     if (save || !CM_LoadFCM(szMaskName, &pMask)) {
         if (!CM_GenerateFenceMask(szMaskName, &pMask)) {
             pMask = (cfencemask_t *)Hunk_Alloc(sizeof(cfencemask_t), h_dontcare);
-            strcpy(pMask->name, szMaskName);
+            Q_strncpyz(pMask->name, szMaskName, sizeof(pMask->name));
             pMask->pData  = NULL;
             pMask->pNext  = cm.fencemasks;
             cm.fencemasks = pMask;

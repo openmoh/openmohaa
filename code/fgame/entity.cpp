@@ -5624,13 +5624,13 @@ void Entity::ShowInfo(float fDot, float fDist)
     int  i;
     char szText[512];
     if (fDot > 0.94999999 && fDist < 1024.0 && fDist > 64.0) {
-        i = sprintf(szText, "%i:%i", entnum, radnum);
+        i = Com_sprintf(szText, sizeof(szText), "%i:%i", entnum, radnum);
         if (targetname.length()) {
-            i = sprintf(&szText[i], ":%s", targetname.c_str());
+            i = Com_sprintf(szText + i, sizeof(szText) - i, ":%s", targetname.c_str());
         }
 
         if (health != 0) {
-            sprintf(&szText[i], ":%.1f", health);
+            Com_sprintf(szText + i, sizeof(szText) - i, ":%.1f", health);
         }
 
         G_DebugString(Vector(origin.x + 0, origin.y + 0, origin.z + maxs.z + 65), 1.0, 1.0, 1.0, 1.0, szText);

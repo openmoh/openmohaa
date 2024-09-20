@@ -308,8 +308,8 @@ void Configurator::WriteData( char **data, size_t *size )
 			currentSize += len;
 			currentData = new char[ currentSize + 1 ];
 			strncpy( currentData, oldData, offset );
-			sprintf( currentData + offset, offset ? "\n\n[%s]" : "[%s]", section->name.c_str() );
-			strcpy( currentData + offset + len, oldData + offset );
+			Com_sprintf( currentData + offset, currentSize + 1 - offset, offset ? "\n\n[%s]" : "[%s]", section->name.c_str() );
+			Q_strncpyz( currentData + offset + len, oldData + offset, currentSize + 1 - offset - len );
 
 			if( currentData != oldData ) delete[] oldData;
 		}
@@ -360,8 +360,8 @@ void Configurator::WriteData( char **data, size_t *size )
 						currentSize += len;
 						currentData = new char[ currentSize + 1 ];
 						strncpy( currentData, oldData, offset );
-						sprintf( currentData + offset, "\n%s[%d]=%s", key->name.c_str(), k, value.c_str() );
-						strcpy( currentData + offset + len, oldData + offset2 );
+						Com_sprintf( currentData + offset, currentSize + 1 - offset, "\n%s[%d]=%s", key->name.c_str(), k, value.c_str() );
+						Q_strncpyz( currentData + offset + len, oldData + offset2, currentSize + 1 - offset - len );
 
 						if( currentData != oldData ) delete[] oldData;
 					}
@@ -393,8 +393,8 @@ void Configurator::WriteData( char **data, size_t *size )
 					currentSize += len;
 					currentData = new char[ currentSize + 1 ];
 					strncpy( currentData, oldData, offset );
-					sprintf( currentData + offset, "\n%s=%s", key->name.c_str(), value.c_str() );
-					strcpy( currentData + offset + len, oldData + offset2 );
+					Com_sprintf( currentData + offset, currentSize + 1 - offset "\n%s=%s", key->name.c_str(), value.c_str() );
+					Q_strncpyz( currentData + offset + len, oldData + offset2, currentSize + 1 - offset - len );
 
 					if( currentData != oldData ) delete[] oldData;
 				}
@@ -445,18 +445,18 @@ void Configurator::WriteData2( char **data, size_t *size )
 			currentSize = tlen + 1024;
 			currentData = new char[ currentSize ];
 			p = currentData + ( p - oldData );
-			strcpy( currentData, oldData );
+			Q_strncpyz( currentData, oldData, currentSize );
 
 			delete[] oldData;
 		}
 
 		if( i == 1 )
 		{
-			p += sprintf( p, "[%s]\n", section->name.c_str() );
+			p += Com_sprintf( p, currentSize - ( p - currentData ), "[%s]\n", section->name.c_str() );
 		}
 		else
 		{
-			p += sprintf( p, "\n[%s]\n", section->name.c_str() );
+			p += Com_sprintf( p, currentSize - ( p - currentData ), "\n[%s]\n", section->name.c_str() );
 		}
 
 		for( j = 0; j < section->key.NumObjects(); j++ )
@@ -500,7 +500,7 @@ void Configurator::WriteData2( char **data, size_t *size )
 							delete[] oldData;
 						}
 
-						p += sprintf( p, "%s[%d]=%s\n", key->name.c_str(), k, value.c_str() );
+						p += Com_sprintf( p, currentSize - ( p - currentData ), "%s[%d]=%s\n", key->name.c_str(), k, value.c_str() );
 					}
 				}
 			}
@@ -524,7 +524,7 @@ void Configurator::WriteData2( char **data, size_t *size )
 					delete[] oldData;
 				}
 
-				p += sprintf( p, "%s=%s\n", key->name.c_str(), value.c_str() );
+				p += Com_sprintf( p, currentSize - ( p - currentData ), "%s=%s\n", key->name.c_str(), value.c_str() );
 			}
 		}
 	}
@@ -585,7 +585,7 @@ bool Configurator::FindData( int type, const char *s, const char *k, size_t *off
 			arrayindex = GetKeyArray( key );
 			if( arrayindex >= 0 )
 			{
-				sprintf( key, "%s[%d]", key, arrayindex );
+				Com_sprintf( key, sizeof( key ), "%s[%d]", key, arrayindex );
 			}
 
 			if( type == LINE_VALUE && bFoundSection && !Q_stricmp( k, key ) )

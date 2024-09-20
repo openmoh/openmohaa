@@ -929,7 +929,7 @@ void ScriptThreadLabel::Set(const char *label)
         return;
     }
 
-    strcpy(buffer, label);
+    Q_strncpyz(buffer, label, sizeof(buffer));
 
     while (true) {
         if (p[0] == ':' && p[1] == ':') {
@@ -1022,7 +1022,7 @@ void ScriptThreadLabel::SetScript(const char *label)
         return;
     }
 
-    strcpy(buffer, label);
+    Q_strncpyz(buffer, label, sizeof(buffer));
 
     script = buffer;
     while (true) {

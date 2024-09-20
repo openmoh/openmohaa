@@ -146,7 +146,7 @@ obfuscation_t* CM_SetupObfuscationMapping() {
             }
 
             obfuscation = &list[j];
-            strcpy(obfuscation->name, token);
+            Q_strncpyz(obfuscation->name, token, sizeof(obfuscation->name));
 
             token = CM_NextCsvToken(&text, qfalse);
             if (!text) {

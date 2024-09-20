@@ -58,19 +58,19 @@ void CG_PrepScoreBoardInfo()
 {
     switch (cgs.gametype) {
     case GT_TEAM_ROUNDS:
-        strcpy(cg.scoresMenuName, "DM_Round_Scoreboard");
+        Q_strncpyz(cg.scoresMenuName, "DM_Round_Scoreboard", sizeof(cg.scoresMenuName));
         break;
     case GT_OBJECTIVE:
-        strcpy(cg.scoresMenuName, "Obj_Scoreboard");
+        Q_strncpyz(cg.scoresMenuName, "Obj_Scoreboard", sizeof(cg.scoresMenuName));
         break;
     case GT_TOW:
-        strcpy(cg.scoresMenuName, "Tow_Scoreboard");
+        Q_strncpyz(cg.scoresMenuName, "Tow_Scoreboard", sizeof(cg.scoresMenuName));
         break;
     case GT_LIBERATION:
-        strcpy(cg.scoresMenuName, "Lib_Scoreboard");
+        Q_strncpyz(cg.scoresMenuName, "Lib_Scoreboard", sizeof(cg.scoresMenuName));
         break;
     default:
-        strcpy(cg.scoresMenuName, "DM_Scoreboard");
+        Q_strncpyz(cg.scoresMenuName, "DM_Scoreboard", sizeof(cg.scoresMenuName));
         break;
     }
 }
@@ -296,14 +296,15 @@ void CG_ParseScores_ver_15()
 
                 switch (iClientTeam) {
                 case 1:
-                    strcpy(szString3, cgi.LV_ConvertString("Spectators"));
+                    Q_strncpyz(szString3, cgi.LV_ConvertString("Spectators"), sizeof(szString3));
                     break;
                 case 2:
-                    strcpy(szString3, cgi.LV_ConvertString("Free-For-Allers"));
+                    Q_strncpyz(szString3, cgi.LV_ConvertString("Free-For-Allers"), sizeof(szString3));
                     break;
                 case 3:
-                    sprintf(
+                    Com_sprintf(
                         szString3,
+                        sizeof(szString3),
                         "%s - %d %s",
                         cgi.LV_ConvertString("Allies"),
                         atoi(cgi.Argv(2 + iCurrentEntry + iDatumCount * i)),
@@ -312,8 +313,9 @@ void CG_ParseScores_ver_15()
                     iCurrentEntry++;
                     break;
                 case 4:
-                    sprintf(
+                    Com_sprintf(
                         szString3,
+                        sizeof(szString3),
                         "%s - %d %s",
                         cgi.LV_ConvertString("Axis"),
                         atoi(cgi.Argv(2 + iCurrentEntry + iDatumCount * i)),
@@ -322,7 +324,7 @@ void CG_ParseScores_ver_15()
                     iCurrentEntry++;
                     break;
                 default:
-                    strcpy(szString3, cgi.LV_ConvertString("No Team"));
+                    Q_strncpyz(szString3, cgi.LV_ConvertString("No Team"), sizeof(szString3));
                     break;
                 }
             } else if (iClientNum == -2) {
@@ -330,14 +332,14 @@ void CG_ParseScores_ver_15()
                 szString2[0] = 0;
                 szString3[0] = 0;
             } else {
-                strcpy(szString2, va("%i", iClientNum));
-                strcpy(szString3, cg.clientinfo[iClientNum].name);
+                Q_strncpyz(szString2, va("%i", iClientNum), sizeof(szString2));
+                Q_strncpyz(szString3, cg.clientinfo[iClientNum].name, sizeof(szString3));
             }
 
-            strcpy(szString4, cgi.Argv(2 + iCurrentEntry + iDatumCount * i));
-            strcpy(szString5, cgi.Argv(3 + iCurrentEntry + iDatumCount * i));
-            strcpy(szString6, cgi.Argv(4 + iCurrentEntry + iDatumCount * i));
-            strcpy(szString7, cgi.Argv(5 + iCurrentEntry + iDatumCount * i));
+            Q_strncpyz(szString4, cgi.Argv(2 + iCurrentEntry + iDatumCount * i), sizeof(szString4));
+            Q_strncpyz(szString5, cgi.Argv(3 + iCurrentEntry + iDatumCount * i), sizeof(szString5));
+            Q_strncpyz(szString6, cgi.Argv(4 + iCurrentEntry + iDatumCount * i), sizeof(szString6));
+            Q_strncpyz(szString7, cgi.Argv(5 + iCurrentEntry + iDatumCount * i), sizeof(szString7));
 
             if (cgs.gametype >= GT_TEAM_ROUNDS && iClientNum == -1
                 && (iClientTeam == TEAM_ALLIES || iClientTeam == TEAM_AXIS)) {
@@ -370,19 +372,19 @@ void CG_ParseScores_ver_15()
         } else {
             iClientNum = atoi(cgi.Argv(iCurrentEntry + iDatumCount * i));
             if (iClientNum >= 0) {
-                strcpy(szString2, va("%i", iClientNum));
-                strcpy(szString3, cg.clientinfo[iClientNum].name);
-                strcpy(szString4, cgi.Argv(1 + iCurrentEntry + iDatumCount * i));
-                strcpy(szString5, cgi.Argv(2 + iCurrentEntry + iDatumCount * i));
-                strcpy(szString6, cgi.Argv(3 + iCurrentEntry + iDatumCount * i));
-                strcpy(szString7, cgi.Argv(4 + iCurrentEntry + iDatumCount * i));
+                Q_strncpyz(szString2, va("%i", iClientNum), sizeof(szString2));
+                Q_strncpyz(szString3, cg.clientinfo[iClientNum].name, sizeof(szString3));
+                Q_strncpyz(szString4, cgi.Argv(1 + iCurrentEntry + iDatumCount * i), sizeof(szString4));
+                Q_strncpyz(szString5, cgi.Argv(2 + iCurrentEntry + iDatumCount * i), sizeof(szString5));
+                Q_strncpyz(szString6, cgi.Argv(3 + iCurrentEntry + iDatumCount * i), sizeof(szString6));
+                Q_strncpyz(szString7, cgi.Argv(4 + iCurrentEntry + iDatumCount * i), sizeof(szString7));
             } else {
                 szString2[0] = 0;
                 if (iClientNum == -3) {
-                    strcpy(szString2, cgi.LV_ConvertString("Players"));
+                    Q_strncpyz(szString2, cgi.LV_ConvertString("Players"), sizeof(szString2));
                     bIsHeader = qtrue;
                 } else if (iClientNum == -2) {
-                    strcpy(szString2, cgi.LV_ConvertString("Spectators"));
+                    Q_strncpyz(szString2, cgi.LV_ConvertString("Spectators"), sizeof(szString3));
                     bIsHeader = qtrue;
                 } else {
                     // unknown
@@ -535,32 +537,32 @@ void CG_ParseScores_ver_6()
 
                 switch (iClientTeam) {
                 case 1:
-                    strcpy(szString2, cgi.LV_ConvertString("Spectators"));
+                    Q_strncpyz(szString2, cgi.LV_ConvertString("Spectators"), sizeof(szString2));
                     break;
                 case 2:
-                    strcpy(szString2, cgi.LV_ConvertString("Free-For-Allers"));
+                    Q_strncpyz(szString2, cgi.LV_ConvertString("Free-For-Allers"), sizeof(szString2));
                     break;
                 case 3:
-                    strcpy(szString2, cgi.LV_ConvertString("Allies"));
+                    Q_strncpyz(szString2, cgi.LV_ConvertString("Allies"), sizeof(szString2));
                     break;
                 case 4:
-                    strcpy(szString2, cgi.LV_ConvertString("Axis"));
+                    Q_strncpyz(szString2, cgi.LV_ConvertString("Axis"), sizeof(szString2));
                     break;
                 default:
-                    strcpy(szString2, cgi.LV_ConvertString("No Team"));
+                    Q_strncpyz(szString2, cgi.LV_ConvertString("No Team"), sizeof(szString2));
                     break;
                 }
             } else if (iClientNum == -2) {
                 // spectating
                 szString2[0] = 0;
             } else {
-                strcpy(szString2, cg.clientinfo[iClientNum].name);
+                Q_strncpyz(szString2, cg.clientinfo[iClientNum].name, sizeof(szString2));
             }
 
-            strcpy(szString3, cgi.Argv(2 + iCurrentEntry + iDatumCount * i));
-            strcpy(szString4, cgi.Argv(3 + iCurrentEntry + iDatumCount * i));
-            strcpy(szString5, cgi.Argv(4 + iCurrentEntry + iDatumCount * i));
-            strcpy(szString6, cgi.Argv(5 + iCurrentEntry + iDatumCount * i));
+            Q_strncpyz(szString3, cgi.Argv(2 + iCurrentEntry + iDatumCount * i), sizeof(szString3));
+            Q_strncpyz(szString4, cgi.Argv(3 + iCurrentEntry + iDatumCount * i), sizeof(szString4));
+            Q_strncpyz(szString5, cgi.Argv(4 + iCurrentEntry + iDatumCount * i), sizeof(szString5));
+            Q_strncpyz(szString6, cgi.Argv(5 + iCurrentEntry + iDatumCount * i), sizeof(szString6));
 
             if (iClientNum == cg.snap->ps.clientNum) {
                 pItemTextColor = vThisClientTextColor;
@@ -587,17 +589,17 @@ void CG_ParseScores_ver_6()
         } else {
             iClientNum = atoi(cgi.Argv(iCurrentEntry + iDatumCount * i));
             if (iClientNum >= 0) {
-                strcpy(szString2, cg.clientinfo[iClientNum].name);
-                strcpy(szString3, cgi.Argv(1 + iCurrentEntry + iDatumCount * i));
-                strcpy(szString4, cgi.Argv(2 + iCurrentEntry + iDatumCount * i));
-                strcpy(szString5, cgi.Argv(3 + iCurrentEntry + iDatumCount * i));
-                strcpy(szString6, cgi.Argv(4 + iCurrentEntry + iDatumCount * i));
+                Q_strncpyz(szString2, cg.clientinfo[iClientNum].name, sizeof(szString2));
+                Q_strncpyz(szString3, cgi.Argv(1 + iCurrentEntry + iDatumCount * i), sizeof(szString3));
+                Q_strncpyz(szString4, cgi.Argv(2 + iCurrentEntry + iDatumCount * i), sizeof(szString4));
+                Q_strncpyz(szString5, cgi.Argv(3 + iCurrentEntry + iDatumCount * i), sizeof(szString5));
+                Q_strncpyz(szString6, cgi.Argv(4 + iCurrentEntry + iDatumCount * i), sizeof(szString6));
             } else {
                 if (iClientNum == -3) {
-                    strcpy(szString2, cgi.LV_ConvertString("Players"));
+                    Q_strncpyz(szString2, cgi.LV_ConvertString("Players"), sizeof(szString2));
                     bIsHeader = qtrue;
                 } else if (iClientNum == -2) {
-                    strcpy(szString2, cgi.LV_ConvertString("Spectators"));
+                    Q_strncpyz(szString2, cgi.LV_ConvertString("Spectators"), sizeof(szString2));
                     bIsHeader = qtrue;
                 } else {
                     // unknown

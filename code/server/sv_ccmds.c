@@ -186,7 +186,7 @@ static void SV_Map_f( void ) {
 	}
 	else
 	{
-		strcpy( map, mapname );
+		Q_strncpyz( map, mapname, sizeof( map ) );
 	}
 
 	// make sure the level exists before trying to change, so that
@@ -284,7 +284,7 @@ static void SV_GameMap_f( void ) {
 	map = Cmd_Argv( 1 );
 	Com_DPrintf( "SV_GameMap(%s)\n", map );
 
-	strcpy( svs.gameName, "current" );
+	Q_strncpyz( svs.gameName, "current", sizeof( svs.gameName ) );
 	Cvar_SaveGameRestart_f();
 
 	bTransition = sv.state == SS_GAME;
@@ -1274,7 +1274,7 @@ static void SV_ConSay_f(void) {
 		return;
 	}
 
-	strcpy (text, "console: ");
+	Q_strncpyz (text, "console: ", sizeof(text));
 	p = Cmd_Args();
 
 	if ( *p == '"' ) {
@@ -1314,7 +1314,7 @@ static void SV_ConTell_f(void) {
 		return;
 	}
 
-	strcpy (text, "(private) console: ");
+	Q_strncpyz(text, "(private) console: ", sizeof(text));
 	p = Cmd_ArgsFrom(2);
 
 	if ( *p == '"' ) {
@@ -1380,7 +1380,7 @@ static void SV_ConSayto_f(void) {
 		return;
 	}
 
-	strcpy (text, "(private) console: ");
+	Q_strncpyz(text, "(private) console: ", sizeof(text));
 	p = Cmd_ArgsFrom(2);
 
 	if ( *p == '"' ) {
@@ -1584,8 +1584,8 @@ static void SV_TIKI_f( void ) {
 	if(TIKI_RegisterModel(fname)==0)
 	{
 		char tmp[128];
-		strcpy(tmp,"models/");
-		strcat(tmp,fname);
+		Q_strncpyz(tmp,"models/",sizeof(tmp));
+		Q_strcat(tmp,sizeof(tmp),fname);
 		TIKI_RegisterModel(tmp);
 	}
 }
@@ -1606,8 +1606,8 @@ static void SV_TIKI_DumpBones_f( void ) {
 	if(tiki==0)
 	{
 		char tmp[128];
-		strcpy(tmp,"models/");
-		strcat(tmp,fname);
+		Q_strncpyz(tmp,"models/",sizeof(tmp));
+		Q_strcat(tmp,sizeof(tmp),fname);
 		tiki = TIKI_RegisterModel(tmp);
 		if(!tiki)
 			return;
@@ -1768,7 +1768,7 @@ SV_HudDrawShader
 void SV_HudDrawShader( int iInfo, char *name )
 {
 #ifndef DEDICATED
-	strcpy( cls.HudDrawElements[ iInfo ].shaderName, name );
+	Q_strncpyz( cls.HudDrawElements[ iInfo ].shaderName, name, sizeof(cls.HudDrawElements[ iInfo ].shaderName) );
 	cls.HudDrawElements[ iInfo ].string[ 0 ] = 0;
 	cls.HudDrawElements[ iInfo ].pFont = NULL;
 	cls.HudDrawElements[ iInfo ].fontName[ 0 ] = 0;
@@ -1852,7 +1852,7 @@ void SV_HudDrawString( int iInfo, const char *string )
 {
 #ifndef DEDICATED
 	cls.HudDrawElements[ iInfo ].hShader = 0;
-	strcpy( cls.HudDrawElements[ iInfo ].string, string );
+	Q_strncpyz( cls.HudDrawElements[ iInfo ].string, string, sizeof(cls.HudDrawElements[iInfo].string) );
 #endif
 }
 
@@ -1864,7 +1864,7 @@ SV_HudDrawFont
 void SV_HudDrawFont( int iInfo, const char *name )
 {
 #ifndef DEDICATED
-	strcpy( cls.HudDrawElements[ iInfo ].fontName, name );
+	Q_strncpyz( cls.HudDrawElements[ iInfo ].fontName, name, sizeof(cls.HudDrawElements[iInfo].fontName) );
 	cls.HudDrawElements[ iInfo ].hShader = 0;
 	cls.HudDrawElements[ iInfo ].shaderName[ 0 ] = 0;
 
@@ -2073,7 +2073,7 @@ qboolean SV_ArchiveServerFile( qboolean loading, qboolean autosave )
 		if( strstr( name, "quick.ssv" ) ) {
 			Com_sprintf( save.comment, sizeof( save.comment ), "QuickSave - %s", comment );
 		} else {
-			strcpy( save.comment, comment );
+			Q_strncpyz( save.comment, comment, sizeof( save.comment ) );
 		}
 
 		SV_SetConfigstring( CS_SAVENAME, "" );
@@ -2083,8 +2083,8 @@ qboolean SV_ArchiveServerFile( qboolean loading, qboolean autosave )
 		save.flags = 0;
 
 		save.time = aclock;
-		strncpy( save.mapName, svs.mapName, sizeof( save.mapName ) );
-		strncpy( save.saveName, svs.gameName, sizeof( save.saveName ) );
+		Q_strncpyz( save.mapName, svs.mapName, sizeof( save.mapName ) );
+		Q_strncpyz( save.saveName, svs.gameName, sizeof( save.saveName ) );
 		save.mapTime = svs.time - svs.startTime;
 
 		name = S_GetMusicFilename();
@@ -2127,10 +2127,10 @@ qboolean SV_ArchiveServerFile( qboolean loading, qboolean autosave )
 
 		S_StopAllSounds2( qtrue );
 		S_Load( f );
-		strncpy( svs.mapName, save.mapName, sizeof( svs.mapName ) );
+		Q_strncpyz( svs.mapName, save.mapName, sizeof( svs.mapName ) );
 		svs.mapTime = save.mapTime;
 		svs.areabits_warning_time = 0;
-		strcpy( svs.tm_filename, save.tm_filename );
+		Q_strncpyz( svs.tm_filename, save.tm_filename, sizeof( svs.tm_filename ) );
 		svs.tm_loopcount = save.tm_loopcount;
 		svs.tm_offset = save.tm_offset;
 		FS_FCloseFile( f );
@@ -2198,7 +2198,7 @@ void SV_Loadgame_f( void )
 		Com_Printf( "Bad savedir.\n" );
 	}
 
-	strcpy( svs.gameName, name );
+	Q_strncpyz( svs.gameName, name, sizeof( svs.gameName ) );
 	archive_name = Com_GetArchiveFileName( name, "sav" );
 	Cvar_SaveGameRestart_f();
 
@@ -2352,11 +2352,11 @@ void SV_SaveGame( const char *gamename, qboolean autosave )
 
 	if( gamename )
 	{
-		strcpy( name, gamename );
+		Q_strncpyz( name, gamename, sizeof( name ) );
 	}
 	else
 	{
-		strcpy( mname, svs.mapName );
+		Q_strncpyz( mname, svs.mapName, sizeof( mname ) );
 		for( ptr = strchr( mname, '/' ); ptr != NULL; ptr = strchr( mname, '/' ) )
 		{
 			*ptr = '_';
@@ -2377,7 +2377,7 @@ void SV_SaveGame( const char *gamename, qboolean autosave )
 		Com_Printf( "...\n" );
 	}
 
-	strcpy( svs.gameName, name );
+	Q_strncpyz( svs.gameName, name, sizeof( svs.gameName ) );
 
 	if (!SV_ArchiveLevelFile(qfalse, autosave)) {
 		if (cls.savedCgameState) {
@@ -2390,7 +2390,7 @@ void SV_SaveGame( const char *gamename, qboolean autosave )
 
 	Com_Printf( "Done.\n" );
 
-	strcpy( svs.gameName, "current" );
+	Q_strncpyz( svs.gameName, "current", sizeof( svs.gameName ) );
 #endif
 }
 
@@ -2418,7 +2418,7 @@ void SV_Savegame_f( void )
 			return;
 		}
 
-		strcpy( savegame_name, s );
+		Q_strncpyz( savegame_name, s, sizeof( savegame_name ) );
 	}
 	else
 	{

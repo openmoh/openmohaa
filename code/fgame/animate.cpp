@@ -315,8 +315,8 @@ void Animate::NewAnim(int animnum, int slot, float weight)
                     const tiki_singlecmd_t& single_cmd = cmds.cmds[ii];
                     int                     eventNum;
 
-                    strcpy(cmdName, "_client_");
-                    strcpy(cmdName + 8, single_cmd.args[0]);
+                    Q_strncpyz(cmdName, "_client_", longest + 8 + 1);
+                    Q_strncpyz(cmdName + 8, single_cmd.args[0], longest + 1);
 
                     eventNum = Event::FindEventNum(cmdName);
 
@@ -386,8 +386,8 @@ void Animate::NewAnim(int animnum, int slot, float weight)
                     const tiki_singlecmd_t& single_cmd = cmds.cmds[ii];
                     int                     eventNum;
 
-                    strcpy(cmdName, "_client_");
-                    strcpy(cmdName + 8, single_cmd.args[0]);
+                    Q_strncpyz(cmdName, "_client_", longestAllFrames + 8 + 1);
+                    Q_strncpyz(cmdName + 8, single_cmd.args[0], longestAllFrames + 1);
 
                     eventNum = Event::FindEventNum(cmdName);
 
@@ -554,8 +554,8 @@ void Animate::DoExitCommands(int slot)
                 const tiki_singlecmd_t& single_cmd = cmds.cmds[ii];
                 int                     eventNum;
 
-                strcpy(cmdName, "_client_");
-                strcpy(cmdName + 8, single_cmd.args[0]);
+                Q_strncpyz(cmdName, "_client_", longest + 8 + 1);
+                Q_strncpyz(cmdName + 8, single_cmd.args[0], longest + 1);
 
                 eventNum = Event::FindEventNum(cmdName);
 

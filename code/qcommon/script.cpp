@@ -181,7 +181,7 @@ void Script::MarkPosition(scriptmarker_t *mark)
     mark->tokenready = tokenready;
     mark->offset     = script_p - buffer;
     mark->line       = line;
-    strcpy(mark->token, token);
+    Q_strncpyz(mark->token, token, sizeof(mark->token));
 }
 
 /*
@@ -199,7 +199,7 @@ void Script::RestorePosition(const scriptmarker_t *mark)
     tokenready = mark->tokenready;
     script_p   = buffer + mark->offset;
     line       = mark->line;
-    strcpy(token, mark->token);
+    Q_strncpyz(token, mark->token, sizeof(token));
 
     assert(script_p <= end_p);
     if (script_p > end_p) {
@@ -660,7 +660,7 @@ const char *Script::GetMacroString(const char *theMacroName)
     }
 
     char tmpstr[255], *sptr = tmpstr;
-    strcpy(tmpstr, theMacroName);
+    Q_strncpyz(tmpstr, theMacroName, sizeof(tmpstr));
     tmpstr[strlen(tmpstr) - 1] = 0;
     sptr++;
 
@@ -741,7 +741,7 @@ char *Script::EvaluateMacroString(const char *theMacroString)
         bufferptr++;
     }
 
-    sprintf(evalText, "%f", value);
+    Com_sprintf(evalText, sizeof(evalText), "%f", value);
     return evalText;
 }
 
@@ -1076,7 +1076,7 @@ int Script::LinesInFile(void)
     temp_tokenready = tokenready;
     temp_script_p   = script_p;
     temp_line       = line;
-    strcpy(temp_token, token);
+    Q_strncpyz(temp_token, token, sizeof(temp_token));
 
     numentries = 0;
 
@@ -1089,7 +1089,7 @@ int Script::LinesInFile(void)
     tokenready = temp_tokenready;
     script_p   = temp_script_p;
     line       = temp_line;
-    strcpy(token, temp_token);
+    Q_strncpyz(token, temp_token, sizeof(token));
 
     return numentries;
 }

@@ -1256,7 +1256,7 @@ void R_Sphere_InitLights()
                 continue;
             }
 
-            strcpy(s_sun.szFlareName, COM_Parse((char **)&ents));
+            Q_strncpyz(s_sun.szFlareName, COM_Parse((char **)&ents), sizeof(s_sun.szFlareName));
         } else if (!strcmp(ret, "ambientlight")) {
             if (bWorldProcessed) {
                 ri.Printf(PRINT_WARNING, "Multiple ambientlights defined in map\n");
@@ -1279,7 +1279,7 @@ void R_Sphere_InitLights()
     }
 
     if (s_sun.exists && !s_sun.szFlareName[0]) {
-        strcpy(s_sun.szFlareName, "sun");
+        Q_strncpyz(s_sun.szFlareName, "sun", sizeof(s_sun.szFlareName));
     }
 }
 

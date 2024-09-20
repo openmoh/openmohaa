@@ -160,7 +160,7 @@ void SV_ClearWorld( void ) {
 	num = CM_NumInlineModels();
 	for( i = 1; i < num; i++ )
 	{
-		sprintf( name, "*%i", i );
+		Com_sprintf( name, sizeof( name ), "*%i", i );
 		SV_ModelIndex( name );
 	}
 }

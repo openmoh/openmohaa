@@ -487,7 +487,7 @@ void ExplodeObject::SetDebrisModel
    const char *ptr;
 
    // there could be multiple space delimited models, so we need to search for the spaces.
-   strcpy( string,  ev->GetString( 1 ) );
+   Q_strncpyz( string,  ev->GetString( 1 ), sizeof( string ) );
    ptr = strtok( string, " " );
    while ( ptr )
       {

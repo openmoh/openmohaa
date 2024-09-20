@@ -202,7 +202,7 @@ void CLASS_Print(FILE *class_file, const char *fmt, ...)
     char    text[1024];
 
     va_start(argptr, fmt);
-    vsprintf(text, fmt, argptr);
+    Q_vsnprintf(text, sizeof(text), fmt, argptr);
     va_end(argptr);
 
     if (class_file) {
@@ -238,7 +238,7 @@ void Class::warning(const char *function, const char *format, ...) const
     va_list     va;
 
     va_start(va, format);
-    vsprintf(buffer, format, va);
+    Q_vsnprintf(buffer, sizeof(buffer), format, va);
 
     classname = classinfo()->classname;
 
@@ -259,7 +259,7 @@ void Class::error(const char *function, const char *fmt, ...) const
     char    text[1024];
 
     va_start(argptr, fmt);
-    vsprintf(text, fmt, argptr);
+    Q_vsnprintf(text, sizeof(text), fmt, argptr);
     va_end(argptr);
 
     if (getClassID()) {

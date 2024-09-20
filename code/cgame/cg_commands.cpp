@@ -5261,7 +5261,7 @@ void CG_ClientCommandDebugMessage(centity_t *cent, const char *fmt, ...)
         char    msg[1024];
 
         va_start(argptr, fmt);
-        vsprintf(msg, fmt, argptr);
+        Q_vsnprintf(msg, sizeof(msg), fmt, argptr);
         va_end(argptr);
 
         if ((!cg_debugAnimWatch->integer) || ((cg_debugAnimWatch->integer - 1) == cent->currentState.number)) {
@@ -5416,7 +5416,7 @@ qboolean CG_Command_ProcessFile(const char *filename, qboolean quiet, dtiki_t *c
     current_tiki = NULL;
 
     // Update the loading screen
-    sprintf(tempName, "m%s", filename);
+    Com_sprintf(tempName, sizeof(tempName), "m%s", filename);
     cgi.LoadResource(tempName);
 
     bufstart = buffer;
@@ -5425,7 +5425,7 @@ qboolean CG_Command_ProcessFile(const char *filename, qboolean quiet, dtiki_t *c
         Event *ev;
 
         // grab each line as we go
-        strcpy(com_token, COM_ParseExt(&buffer, qtrue));
+        Q_strncpyz(com_token, COM_ParseExt(&buffer, qtrue), sizeof(com_token));
         if (!com_token[0]) {
             break;
         }
@@ -5433,7 +5433,7 @@ qboolean CG_Command_ProcessFile(const char *filename, qboolean quiet, dtiki_t *c
         if (!Q_stricmp(com_token, "end") || !Q_stricmp(com_token, "server")) {
             // skip the line
             while (1) {
-                strcpy(com_token, COM_ParseExt(&buffer, qfalse));
+                Q_strncpyz(com_token, COM_ParseExt(&buffer, qfalse), sizeof(com_token));
                 if (!com_token[0]) {
                     break;
                 }
@@ -5446,7 +5446,7 @@ qboolean CG_Command_ProcessFile(const char *filename, qboolean quiet, dtiki_t *c
 
         // get the rest of the line
         while (1) {
-            strcpy(com_token, COM_ParseExt(&buffer, qfalse));
+            Q_strncpyz(com_token, COM_ParseExt(&buffer, qfalse), sizeof(com_token));
             if (!com_token[0]) {
                 break;
             }
@@ -5458,7 +5458,7 @@ qboolean CG_Command_ProcessFile(const char *filename, qboolean quiet, dtiki_t *c
     cgi.FS_FreeFile((void *)bufstart);
 
     // Update the loading screen
-    sprintf(tempName, "o%s", filename);
+    Com_sprintf(tempName, sizeof(tempName), "o%s", filename);
     cgi.LoadResource(tempName);
 
     return qtrue;

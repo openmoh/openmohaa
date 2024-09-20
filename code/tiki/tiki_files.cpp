@@ -256,14 +256,14 @@ dtikianim_t *TIKI_LoadTikiAnim(const char *path)
 
     TIKI_AddDefaultIdleAnim(&loaddef);
     if (loaddef.numanims) {
-        sprintf(tempName, "a%s", path);
+        Com_sprintf(tempName, sizeof(tempName), "a%s", path);
         UI_LoadResource(tempName);
 
         tiki = TIKI_FillTIKIStructureSkel(&loaddef);
         if (tiki) {
-            sprintf(tempName, "b%s", path);
+            Com_sprintf(tempName, sizeof(tempName), "b%s", path);
             UI_LoadResource(tempName);
-            sprintf(tempName, "c%s", path);
+            Com_sprintf(tempName, sizeof(tempName), "c%s", path);
             UI_LoadResource(tempName);
 
             VectorSubtract(tiki->maxs, tiki->mins, tempVec);
@@ -273,7 +273,7 @@ dtikianim_t *TIKI_LoadTikiAnim(const char *path)
             }
 
             TIKI_FreeStorage(&loaddef);
-            sprintf(tempName, "d%s", path);
+            Com_sprintf(tempName, sizeof(tempName), "d%s", path);
             UI_LoadResource(tempName);
         } else {
             TIKI_FreeStorage(&loaddef);
@@ -539,8 +539,8 @@ skelAnimDataGameHeader_t *SkeletorCacheFileCallback(const char *path)
         Com_DPrintf("Skeletor CacheAnimSkel: %s: File extension unknown.  Attempting to open as skc file\n", path);
     }
 
-    strcpy(npath, "newanim/");
-    strcat(npath, path);
+    Q_strncpyz(npath, "newanim/", sizeof(npath));
+    Q_strcat(npath, sizeof(npath), path);
 
     iBuffLength = TIKI_ReadFileEx(npath, (void **)&buffer, qtrue);
     if (iBuffLength > 0) {
@@ -714,7 +714,7 @@ bool SkeletorCacheLoadData(const char *path, bool precache, int newIndex)
     m_cachedDataLookup[newIndex] = lookup;
     m_cachedData[lookup].lookup  = newIndex;
     m_cachedData[lookup].data    = data;
-    strcpy(m_cachedData[lookup].path, path);
+    Q_strncpyz(m_cachedData[lookup].path, path, sizeof(m_cachedData[lookup].path));
     m_cachedData[lookup].numusers = 0;
     m_numInCache++;
 
@@ -985,7 +985,7 @@ dtikianim_t *TIKI_InitTiki(dloaddef_t *ld, size_t defsize)
         ptr += sizeof(dtikianimdef_t);
         panim->animdefs[i]  = panimdef;
         panim->m_aliases[i] = alias_index;
-        strcpy(panimdef->alias, anim->alias);
+        Q_strncpyz(panimdef->alias, anim->alias, sizeof(panimdef->alias));
         panimdef->weight = anim->weight;
         panimdef->flags  = anim->flags;
 
@@ -1093,7 +1093,7 @@ dtikianim_t *TIKI_InitTiki(dloaddef_t *ld, size_t defsize)
         memcpy(panim->headskins, ld->headskins, size);
         ptr += size;
 
-        sprintf(tempName, "h%s", ld->path);
+        Com_sprintf(tempName, sizeof(tempName), "h%s", ld->path);
         UI_LoadResource(tempName);
 
         if (low_anim_memory && (!low_anim_memory->integer || !tiki_loading)) {

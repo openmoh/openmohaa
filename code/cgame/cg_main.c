@@ -369,7 +369,7 @@ void CG_ProcessConfigString(int num, qboolean modelOnly)
         if (num >= CS_OBJECTIVES && num < CS_OBJECTIVES + MAX_OBJECTIVES) {
             cobjective_t *objective = &cg.Objectives[num - CS_OBJECTIVES];
             objective->flags        = atoi(Info_ValueForKey(str, "flags"));
-            strcpy(objective->text, Info_ValueForKey(str, "text"));
+            Q_strncpyz(objective->text, Info_ValueForKey(str, "text"), sizeof(objective->text));
         }
 
         switch (num) {
@@ -424,7 +424,7 @@ void CG_ProcessConfigString(int num, qboolean modelOnly)
             if (len) {
                 qboolean streamed;
                 char     buf[1024];
-                strcpy(buf, str);
+                Q_strncpyz(buf, str, sizeof(buf));
         
                 streamed     = buf[len - 1] != '0';
                 buf[len - 1] = 0;
@@ -826,7 +826,7 @@ void Com_Error(int level, const char *error, ...)
     char    text[1024];
 
     va_start(argptr, error);
-    vsprintf(text, error, argptr);
+    Q_vsnprintf(text, sizeof(text), error, argptr);
     va_end(argptr);
 
     cgi.Error(level, "%s", text);
@@ -838,7 +838,7 @@ void Com_Printf(const char *msg, ...)
     char    text[1024];
 
     va_start(argptr, msg);
-    vsprintf(text, msg, argptr);
+    Q_vsnprintf(text, sizeof(text), msg, argptr);
     va_end(argptr);
 
     cgi.Printf("%s", text);

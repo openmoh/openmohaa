@@ -356,9 +356,9 @@ void CG_EditCHShader(void)
 
     pShader = CG_GetShaderUnderCrosshair(qfalse, NULL);
     if (pShader) {
-        strcpy(name, "editspecificshader ");
-        strcat(name, pShader->shader);
-        strcat(name, "\n");
+        Q_strncpyz(name, "editspecificshader ", sizeof(name));
+        Q_strcat(name, sizeof(name), pShader->shader);
+        Q_strcat(name, sizeof(name), "\n");
         cgi.AddCommand(name);
     } else {
         cgi.Printf("No surface selected\n");

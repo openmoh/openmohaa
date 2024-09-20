@@ -1455,7 +1455,7 @@ void ScriptCompiler::CompileError(unsigned int sourcePos, const char *format, ..
     va_list va;
 
     va_start(va, format);
-    vsprintf(buffer, format, va);
+    Q_vsnprintf(buffer, sizeof(buffer), format, va);
     va_end(va);
 
     compileSuccess = false;

@@ -1220,13 +1220,13 @@ void Door::ShowInfo(float fDot, float fDist)
         return;
     }
 
-    i = sprintf(szText, "%i:%i", entnum, radnum);
+    i = Com_sprintf(szText, sizeof(szText), "%i:%i", entnum, radnum);
     if (TargetName().c_str() && TargetName()[0]) {
-        i = sprintf(szText + i, ":%s", TargetName().c_str());
+        i = Com_sprintf(szText + i, sizeof(szText) - i, ":%s", TargetName().c_str());
     }
 
     if (health != 0) {
-        i = sprintf(szText + i, ":%.1f", health);
+        i = Com_sprintf(szText + i, sizeof(szText) - i, ":%.1f", health);
     }
 
     G_DebugString(origin + Vector(0, 0, (mins.z + maxs.z) * 0.5f), 1, 1, 1, 1, szText);

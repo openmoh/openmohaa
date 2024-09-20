@@ -1411,11 +1411,11 @@ void Camera::SetAutoStateEvent(Event *ev)
         char  com_token[MAX_QPATH];
         char  com_buffer[MAX_STRING_CHARS];
 
-        strcpy(com_buffer, ev->GetString(i));
+        Q_strncpyz(com_buffer, ev->GetString(i), sizeof(com_buffer));
         buffer = com_buffer;
         // get the rest of the line
         while (1) {
-            strcpy(com_token, COM_ParseExt(&buffer, qfalse));
+            Q_strncpyz(com_token, COM_ParseExt(&buffer, qfalse), sizeof(com_token));
             if (!com_token[0]) {
                 break;
             }

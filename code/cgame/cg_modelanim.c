@@ -550,7 +550,7 @@ void CG_AnimationDebugMessage(int number, const char *fmt, ...)
         char    msg[1024];
 
         va_start(argptr, fmt);
-        vsprintf(msg, fmt, argptr);
+        Q_vsnprintf(msg, sizeof(msg), fmt, argptr);
         va_end(argptr);
 
         if ((!cg_debugAnimWatch->integer) || ((cg_debugAnimWatch->integer - 1) == number)) {
@@ -654,8 +654,8 @@ void CG_UpdateForceModels()
     pszAlliesPartial = dm_playermodel->string;
     pszAxisPartial = dm_playergermanmodel->string;
 
-    sprintf(szAlliesModel, "models/player/%s.tik", pszAlliesPartial);
-    sprintf(szAxisModel, "models/player/%s.tik", pszAxisPartial);
+    Com_sprintf(szAlliesModel, sizeof(szAlliesModel), "models/player/%s.tik", pszAlliesPartial);
+    Com_sprintf(szAxisModel, sizeof(szAxisModel), "models/player/%s.tik", pszAxisPartial);
     hModel = cgi.R_RegisterModel(szAlliesModel);
     if (!hModel) hModel = cgi.R_RegisterModel("models/player/american_army.tik");
 

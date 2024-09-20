@@ -1172,12 +1172,12 @@ void CL_Setenv_f( void ) {
 		char buffer[1024];
 		int i;
 
-		strcpy( buffer, Cmd_Argv(1) );
-		strcat( buffer, "=" );
+		Q_strncpyz( buffer, Cmd_Argv(1), sizeof( buffer ) );
+		Q_strcat( buffer, sizeof( buffer ), "=" );
 
 		for ( i = 2; i < argc; i++ ) {
-			strcat( buffer, Cmd_Argv( i ) );
-			strcat( buffer, " " );
+			Q_strcat( buffer, sizeof( buffer ), Cmd_Argv( i ) );
+			Q_strcat( buffer, sizeof( buffer ), " " );
 		}
 
 		putenv( buffer );
@@ -2000,7 +2000,7 @@ wombat: sending conect here: an example connect string from MOHAA looks like thi
 			Info_SetValueForKey(info, "clientType", "Breakthrough");
 		}
 
-		strcpy(data, "connect ");
+		Q_strncpyz(data, "connect ", sizeof(data));
     // TTimo adding " " around the userinfo string to avoid truncated userinfo on the server
     //   (Com_TokenizeString tokenizes around spaces)
     data[8] = '"';
@@ -3126,7 +3126,7 @@ void CL_VidMode_f( void ) {
 	mode = atoi( Cmd_Argv( 1 ) );
 
 	if( CL_SetVidMode( mode ) ) {
-		sprintf( text, "%d", mode );
+		Com_sprintf( text, sizeof( text ), "%d", mode );
 		Cvar_Set( "r_mode", text );
 	}
 }
@@ -3145,10 +3145,10 @@ void CL_TikiInfoCommand_f( void ) {
 	name = Cmd_Argv( 1 );
 
 	if( strchr( name, '/' ) ) {
-		strcpy( modelname, name );
+		Q_strncpyz( modelname, name, sizeof( modelname ) );
 	} else {
-		strcpy( modelname, "models/" );
-		strcat( modelname, name );
+		Q_strncpyz( modelname, "models/", sizeof( modelname ) );
+		Q_strcat( modelname, sizeof( modelname ), name );
 	}
 
 	COM_DefaultExtension( modelname, sizeof( modelname ), ".tik" );
@@ -3997,7 +3997,7 @@ void CL_GlobalServers_f( void ) {
 		int numAddress = 0;
 
 		for ( i = 1; i <= MAX_MASTER_SERVERS; i++ ) {
-			sprintf(command, "sv_master%d", i);
+			Com_sprintf(command, sizeof(command), "sv_master%d", i);
 			masteraddress = Cvar_VariableString(command);
 
 			if(!*masteraddress)
@@ -4015,7 +4015,7 @@ void CL_GlobalServers_f( void ) {
 		return;
 	}
 
-	sprintf(command, "sv_master%d", masterNum);
+	Com_sprintf(command, sizeof(command), "sv_master%d", masterNum);
 	masteraddress = Cvar_VariableString(command);
 	
 	if(!*masteraddress)
@@ -4344,10 +4344,10 @@ void CL_Dialog_f( void ) {
 		return;
 	}
 
-	strcpy( title, Cmd_Argv( 1 ) );
-	strcpy( cvar, Cmd_Argv( 2 ) );
-	strcpy( command, Cmd_Argv( 3 ) );
-	strcpy( cancelCommand, Cmd_Argv( 4 ) );
+	Q_strncpyz( title, Cmd_Argv( 1 ), sizeof( title ) );
+	Q_strncpyz( cvar, Cmd_Argv( 2 ), sizeof( cvar ) );
+	Q_strncpyz( command, Cmd_Argv( 3 ), sizeof( command ) );
+	Q_strncpyz( cancelCommand, Cmd_Argv( 4 ), sizeof( cancelCommand ) );
 
 	if( Cmd_Argc() > 5 ) {
 		width = atoi( Cmd_Argv( 5 ) );
@@ -4361,17 +4361,17 @@ void CL_Dialog_f( void ) {
 	}
 
 	if( Cmd_Argc() > 7 ) {
-		strcpy( shader, Cmd_Argv( 7 ) );
+		Q_strncpyz( shader, Cmd_Argv( 7 ), sizeof( shader ) );
 	} else {
 		shader[ 0 ] = 0;
 	}
 	if( Cmd_Argc() > 8 ) {
-		strcpy( okshader, Cmd_Argv( 8 ) );
+		Q_strncpyz( okshader, Cmd_Argv( 8 ), sizeof(okshader) );
 	} else {
 		okshader[ 0 ] = 0;
 	}
 	if( Cmd_Argc() > 9 ) {
-		strcpy( cancelshader, Cmd_Argv( 9 ) );
+		Q_strncpyz( cancelshader, Cmd_Argv( 9 ), sizeof(cancelshader) );
 	} else {
 		cancelshader[ 0 ] = 0;
 	}
@@ -4615,7 +4615,7 @@ qboolean CL_CDKeyValidate( const char *key, const char *checksum ) {
 		}
 	}
 
-	sprintf(chs, "%02x", sum);
+	Com_sprintf(chs, sizeof(chs), "%02x", sum);
 
 	if (checksum && !Q_stricmp(chs, checksum)) {
 		return qtrue;

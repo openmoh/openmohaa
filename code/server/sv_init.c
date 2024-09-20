@@ -212,8 +212,8 @@ int SV_SoundIndex( const char *name, qboolean streamed )
 {
 	char buf[ 1024 ];
 
-	strcpy( buf, name );
-	strcat( buf, va( "%d", streamed ) );
+	Q_strncpyz( buf, name, sizeof(buf) );
+	Q_strcat( buf, sizeof(buf), va( "%d", streamed ) );
 
 	return SV_FindIndex( buf, CS_SOUNDS, MAX_SOUNDS, qtrue );
 }
@@ -602,7 +602,7 @@ void SV_SpawnServer( const char *server, qboolean loadgame, qboolean restart, qb
 	}
 	else
 	{
-		strcpy( mapname, server );
+		Q_strncpyz( mapname, server, sizeof(mapname) );
 	}
 
 	strncpy( svs.mapName, mapname, sizeof( svs.mapName ) );
@@ -927,7 +927,7 @@ void SV_SpawnServer( const char *server, qboolean loadgame, qboolean restart, qb
 		}
 	}
 
-	strcpy( svs.gameName, "current" );
+	Q_strncpyz(svs.gameName, "current", sizeof(svs.gameName) );
 
 	iEnd = Sys_Milliseconds();
 	Com_Printf( "------ Server Initialization Complete ------ %5.2f seconds\n", ( float )iEnd / 1000.0f );
@@ -1072,7 +1072,7 @@ void SV_Init (void)
 #endif
 	sv_banFile = Cvar_Get("sv_banFile", "serverbans.dat", CVAR_ARCHIVE);
 
-	strcpy( svs.gameName, "current" );
+	Q_strncpyz( svs.gameName, "current", sizeof(svs.gameName) );
 
 	// dday vars
 	Cvar_Get( "g_ddayfodderguys", "0", CVAR_ARCHIVE );

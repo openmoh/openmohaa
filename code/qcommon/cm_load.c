@@ -121,7 +121,7 @@ void CMod_LoadShaders( gamelump_t *l, int **shaderSubdivisions ) {
 
 	out = cm.shaders;
 	for ( i=0 ; i<count ; i++, in++, out++ ) {
-		strcpy( out->shader, in->shader );
+		Q_strncpyz( out->shader, in->shader, sizeof( out->shader ) );
 		out->contentFlags = LittleLong( in->contentFlags );
 		out->surfaceFlags = LittleLong( in->surfaceFlags );
 		out->mask = CM_GetFenceMask( in->fenceMaskImage );
@@ -678,7 +678,7 @@ void CMod_LoadPatches( gamelump_t *surfs, gamelump_t *verts, int *shaderSubdivis
 		// create the internal facet structure
 		patch->pc = CM_GeneratePatchCollide( width, height, points, patch->subdivisions );
 
-		sprintf(tempName, "s%d", i);
+		Com_sprintf(tempName, sizeof(tempName), "s%d", i);
 		UI_LoadResource(tempName);
 	}
 

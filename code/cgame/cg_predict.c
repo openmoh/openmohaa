@@ -190,8 +190,9 @@ void CG_ShowTrace(trace_t *trace, int passent, const char *reason)
     assert(reason);
     assert(trace);
 
-    sprintf(
+    Com_sprintf(
         text,
+        sizeof(text),
         "%0.2f : Pass (%d) Frac %f Hit (%d): '%s'\n",
         (float)cg.time / 1000.0f,
         passent,

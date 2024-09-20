@@ -161,12 +161,12 @@ void S_Base_SoundList( void ) {
 	char	type[4][16];
 	char	mem[2][16];
 
-	strcpy(type[0], "16bit");
-	strcpy(type[1], "adpcm");
-	strcpy(type[2], "daub4");
-	strcpy(type[3], "mulaw");
-	strcpy(mem[0], "paged out");
-	strcpy(mem[1], "resident ");
+	Q_strncpyz(type[0], "16bit", sizeof(type[0]));
+	Q_strncpyz(type[1], "adpcm", sizeof(type[1]));
+	Q_strncpyz(type[2], "daub4", sizeof(type[2]));
+	Q_strncpyz(type[3], "mulaw", sizeof(type[3]));
+	Q_strncpyz(mem[0], "paged out", sizeof(mem[0]));
+	Q_strncpyz(mem[1], "resident ", sizeof(mem[1]));
 	total = 0;
 	for (sfx=s_knownSfx, i=0 ; i<s_numSfx ; i++, sfx++) {
 		size = sfx->soundLength;
@@ -303,7 +303,7 @@ static sfx_t *S_FindName( const char *name ) {
 	
 	sfx = &s_knownSfx[i];
 	Com_Memset (sfx, 0, sizeof(*sfx));
-	strcpy (sfx->soundName, name);
+	Q_strncpyz (sfx->soundName, name, sizeof(sfx->soundName));
 
 	sfx->next = sfxHash[hash];
 	sfxHash[hash] = sfx;

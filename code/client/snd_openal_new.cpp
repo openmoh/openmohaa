@@ -3357,7 +3357,7 @@ qboolean MUSIC_LoadSoundtrackFile(const char *filename)
     load_path[0] = 0;
 
     while (1) {
-        strcpy(com_token, COM_GetToken(&buffer, true));
+        Q_strncpyz(com_token, COM_GetToken(&buffer, true), sizeof(com_token));
         if (!com_token[0]) {
             break;
         }
@@ -3368,10 +3368,10 @@ qboolean MUSIC_LoadSoundtrackFile(const char *filename)
         }
 
         numargs = 1;
-        strcpy(args[0], com_token);
+        Q_strncpyz(args[0], com_token, sizeof(args[0]));
 
         while (1) {
-            strcpy(com_token, COM_GetToken(&buffer, false));
+            Q_strncpyz(com_token, COM_GetToken(&buffer, false), sizeof(com_token));
             if (!com_token[0]) {
                 break;
             }
@@ -3381,14 +3381,14 @@ qboolean MUSIC_LoadSoundtrackFile(const char *filename)
                 com_token[MAX_RES_NAME - 1] = 0;
             }
 
-            strcpy(args[numargs], com_token);
+            Q_strncpyz(args[numargs], com_token, sizeof(args[numargs]));
             numargs++;
         }
 
         if (!Q_stricmp(args[0], "path")) {
-            strcpy(load_path, args[1]);
+            Q_strncpyz(load_path, args[1], sizeof(load_path));
             if (load_path[strlen(load_path) - 1] != '/' && load_path[strlen(load_path) - 1] != '\\') {
-                strcat(load_path, "/");
+                Q_strcat(load_path, sizeof(load_path), "/");
             }
         } else if (args[0][0] == '!') {
             for (i = 0; i < music_numsongs; i++) {
@@ -3421,14 +3421,14 @@ qboolean MUSIC_LoadSoundtrackFile(const char *filename)
             }
         } else {
             if (numargs > 1) {
-                strcpy(alias, args[0]);
-                strcpy(file, load_path);
-                strcat(file, args[1]);
+                Q_strncpyz(alias, args[0], sizeof(alias));
+                Q_strncpyz(file, load_path, sizeof(file));
+                Q_strcat(file, sizeof(file), args[1]);
             } else {
-                strcpy(file, load_path);
-                strcat(file, args[1]);
+                Q_strncpyz(file, load_path, sizeof(file));
+                Q_strcat(file, sizeof(file), args[1]);
 
-                strncpy(alias, args[0], strlen(args[0]) - 4);
+                Q_strncpyz(alias, args[0], strlen(args[0]) - 4);
                 file[strlen(args[0]) + MAX_RES_NAME * 2 - 4] = 0;
             }
 
@@ -3438,8 +3438,8 @@ qboolean MUSIC_LoadSoundtrackFile(const char *filename)
             }
 
             psong = &music_songs[music_numsongs];
-            strcpy(psong->alias, alias);
-            strcpy(psong->path, file);
+            Q_strncpyz(psong->alias, alias, sizeof(psong->alias));
+            Q_strncpyz(psong->path, file, sizeof(psong->path));
             music_songs[music_numsongs].fadetime    = 1.0;
             music_songs[music_numsongs].volume      = 1.0;
             music_songs[music_numsongs].flags       = 0;
