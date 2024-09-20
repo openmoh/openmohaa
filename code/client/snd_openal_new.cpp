@@ -122,7 +122,7 @@ static ALuint S_OPENAL_Format(int width, int channels);
 #elif defined(_WIN32)
 #    define ALDRIVER_DEFAULT "OpenAL32.dll"
 #elif defined(__APPLE__)
-#    define ALDRIVER_DEFAULT "/System/Library/Frameworks/OpenAL.framework/OpenAL"
+#    define ALDRIVER_DEFAULT "libopenal.1.dylib"
 #elif defined(__OpenBSD__)
 #    define ALDRIVER_DEFAULT "libopenal.so"
 #else

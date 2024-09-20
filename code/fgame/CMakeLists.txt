@@ -27,8 +27,24 @@ file(
 
 add_library(fgame SHARED ${SOURCES_GAME})
 
-find_package(BISON)
-find_package(FLEX)
+#
+# Workaround to get a recent version Flex and Bison executables in MacOS
+# as Bison 2.3 shipped with MacOS doesn't work
+#
+if (CMAKE_HOST_SYSTEM_NAME MATCHES "Darwin")
+    execute_process(COMMAND brew --prefix bison RESULT_VARIABLE APP_RESULT OUTPUT_VARIABLE APP_PREFIX OUTPUT_STRIP_TRAILING_WHITESPACE)
+    if (APP_RESULT EQUAL 0 AND EXISTS "${APP_PREFIX}")
+        set(BISON_EXECUTABLE "${APP_PREFIX}/bin/bison")
+    endif()
+
+    execute_process(COMMAND brew --prefix flex RESULT_VARIABLE APP_RESULT OUTPUT_VARIABLE APP_PREFIX OUTPUT_STRIP_TRAILING_WHITESPACE)
+    if (APP_RESULT EQUAL 0 AND EXISTS "${APP_PREFIX}")
+        set(FLEX_EXECUTABLE "${APP_PREFIX}/bin/flex")
+    endif()
+endif()
+
+find_package(BISON 3 REQUIRED)
+find_package(FLEX REQUIRED)
 
 if (FLEX_FOUND)
 	flex_target(fgame-lexer ${CMAKE_SOURCE_DIR}/code/parser/lex_source.txt ${CMAKE_SOURCE_DIR}/code/parser/generated/yyLexer.cpp DEFINES_FILE ${CMAKE_SOURCE_DIR}/code/parser/generated/yyLexer.h COMPILE_FLAGS "-Cem --nounistd")
