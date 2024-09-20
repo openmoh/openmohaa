@@ -56,14 +56,4 @@ add_subdirectory("../libmad" "./libmad" EXCLUDE_FROM_ALL)
 target_link_libraries(omohclient INTERFACE mad)
 set(BUILD_SHARED_LIBS ${OLD_VALUE} CACHE BOOL "" FORCE)
 
-if (USE_OPENAL)
-	# Try to use OpenAL
-	find_package(OpenAL)
-	if (OPENAL_FOUND)
-		target_compile_definitions(omohclient INTERFACE USE_OPENAL=1)
-		target_include_directories(omohclient INTERFACE ${OPENAL_INCLUDE_DIR}/AL)
-		target_link_libraries(omohclient INTERFACE ${OPENAL_LIBRARY})
-	endif()
-endif()
-
 target_sources(omohclient INTERFACE ${SOURCES_CLIENT} ${SOURCES_UILIB})
