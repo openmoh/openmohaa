@@ -90,9 +90,11 @@ public:
     str(const char ch);
     str(const int num);
     str(const float num);
-    str(const unsigned num);
-    str(const int64_t num);
-    str(const uint64_t num);
+    str(const unsigned int num);
+    str(const long num);
+    str(const unsigned long num);
+    str(const long long num);
+    str(const unsigned long long num);
 
     size_t      length(void) const;
     const char *c_str(void) const;
@@ -311,7 +313,7 @@ inline str::str(const int num)
     m_data->len = len;
 }
 
-inline str::str(const unsigned num)
+inline str::str(const unsigned int num)
     : m_data(NULL)
 {
     char   text[32];
@@ -324,26 +326,52 @@ inline str::str(const unsigned num)
     m_data->len = len;
 }
 
-inline str::str(const int64_t num)
+inline str::str(const long num)
     : m_data(NULL)
 {
     char   text[64];
     size_t len;
 
-    sprintf(text, "%" PRId64 "", num);
+    sprintf(text, "%ld", num);
     len = strlen(text);
     EnsureAlloced(len + 1);
     strcpy(m_data->data, text);
     m_data->len = len;
 }
 
-inline str::str(const uint64_t num)
+inline str::str(const unsigned long num)
     : m_data(NULL)
 {
     char   text[64];
     size_t len;
 
-    sprintf(text, "%" PRIu64 "", num);
+    sprintf(text, "%lu", num);
+    len = strlen(text);
+    EnsureAlloced(len + 1);
+    strcpy(m_data->data, text);
+    m_data->len = len;
+}
+
+inline str::str(const long long num)
+    : m_data(NULL)
+{
+    char   text[64];
+    size_t len;
+
+    sprintf(text, "%lld", num);
+    len = strlen(text);
+    EnsureAlloced(len + 1);
+    strcpy(m_data->data, text);
+    m_data->len = len;
+}
+
+inline str::str(const unsigned long long num)
+    : m_data(NULL)
+{
+    char   text[64];
+    size_t len;
+
+    sprintf(text, "%llu", num);
     len = strlen(text);
     EnsureAlloced(len + 1);
     strcpy(m_data->data, text);
