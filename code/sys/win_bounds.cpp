@@ -64,7 +64,7 @@ extern "C"
 
 #ifdef DISABLE_BOUNDS
 
-#include <malloc.h>
+#include <stdlib.h>
 
 void* b_malloc(unsigned int size)
 {
