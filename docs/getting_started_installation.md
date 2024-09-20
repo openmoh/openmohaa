@@ -4,7 +4,7 @@ Ensure that you download the binaries compatible with your platform in the relea
 
 ## Requirements
 
-- A valid MOH:AA installation
+- A valid MOH:AA installation, a MOH:AA Warchest copy can be acquired from GOG [here](https://www.gog.com/en/game/medal_of_honor_allied_assault_war_chest)
 - On Windows, Microsoft Visual C++ 2015/2017/2019/2022 Redistributable from https://learn.microsoft.com/en-US/cpp/windows/latest-supported-vc-redist?view=msvc-170 may be required.
 
 ## System requirements
