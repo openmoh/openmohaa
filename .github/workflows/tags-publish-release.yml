@@ -37,7 +37,9 @@ jobs:
           'windows-x64-pdb',
           'windows-x86-pdb',
           'windows-arm64',
-          'windows-arm64-pdb'
+          'windows-arm64-pdb',
+          'macos-x86_64',
+          'macos-arm64'
         ]
 
     runs-on: ubuntu-22.04

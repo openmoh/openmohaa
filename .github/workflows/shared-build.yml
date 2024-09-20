@@ -13,6 +13,11 @@ env:
   RELEASE_STAGE: ${{ vars.RELEASE_STAGE || 'unstable' }}
 
 jobs:
+  ##########################
+  #
+  # Linux
+  #
+  ##########################
   build-platform-linux:
     strategy:
       matrix:
@@ -130,6 +135,11 @@ jobs:
         path:
           ${{github.workspace}}/install
 
+  ##########################
+  #
+  # Microsoft Windows
+  #
+  ##########################
   build-platform-windows:
     strategy:
       matrix:
@@ -254,4 +264,108 @@ jobs:
         name: out-windows-${{matrix.architecture.name}}-pdb
         if-no-files-found: error
         path: |
+          ${{github.workspace}}/install
+
+  ##########################
+  #
+  # Apple macOS
+  #
+  ##########################
+  build-platform-macos:
+    strategy:
+      matrix:
+        architecture: [
+          {name: 'x86_64',   os: 'macos-13'},
+          {name: 'arm64',    os: 'macos-14'}
+        ]
+
+    name: "Building for platform macos-${{matrix.architecture.name}}"
+    runs-on: ${{matrix.architecture.os}}
+    environment: ${{ inputs.environment }}
+
+    # Install required packages
+    # Paths on x86_64 and ARM64 are different for homebrew
+    steps:
+    - name: Install required packages
+      run: |
+        brew update && brew install git flex bison ninja cmake llvm
+
+    # Setup SDL
+    - name: Set up SDL
+      id: sdl
+      uses: libsdl-org/setup-sdl@main
+      with:
+        version: sdl2-latest
+        build-type: Release
+        cmake-arguments: "-DCMAKE_C_COMPILER=clang
+          -DCMAKE_CXX_COMPILER=clang++"
+
+    # soft-oal setup
+    # Use GCC instead of Clang because of missing SSE intrinsics
+    # It also doesn't enable altivec support on PowerPC by default
+    - name: Checkout soft-oal
+      uses: actions/checkout@v4
+      with:
+        repository: 'kcat/openal-soft'
+        path: 'thirdparties/soft-oal'
+        ref: '1.23.1'
+
+    - name: Configure and install soft-oal
+      working-directory: ${{github.workspace}}/thirdparties/soft-oal
+      run: |
+        cmake -B ./build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} \
+        -DCMAKE_INSTALL_PREFIX='${{github.workspace}}/thirdparties/soft-oal/install' \
+        -DCMAKE_C_COMPILER=clang \
+        -DCMAKE_CXX_COMPILER=clang++
+        cmake --build ./build --config ${{env.BUILD_TYPE}}
+        cmake --install ./build --config ${{env.BUILD_TYPE}}
+
+    - uses: actions/checkout@v4
+      with:
+        path: 'source'
+
+    - name: CMake Settings
+      run: |
+        echo "CMAKE_PARAM=--log-level=VERBOSE \
+        -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} \
+        -DCMAKE_INSTALL_PREFIX='${{github.workspace}}/install' \
+        -DCMAKE_C_COMPILER=clang \
+        -DCMAKE_CXX_COMPILER=clang++ \
+        -DOPENAL_LIBRARY='${{github.workspace}}/thirdparties/soft-oal/install' \
+        -DOPENAL_INCLUDE_DIR='${{github.workspace}}/thirdparties/soft-oal/install/include/AL' \
+        -DGIT_REVISION_BUILD_NUMBER=${{ github.run_number }} \
+        -DPRODUCT_VERSION_STAGE='${{ env.RELEASE_STAGE }}'" >> $GITHUB_ENV
+
+    - name: Configure CMake
+      working-directory: ${{github.workspace}}
+      run: |
+        cmake -B ./build ${{ env.CMAKE_PARAM }} ./source
+
+    - name: Build
+      working-directory: ${{github.workspace}}
+      run: |
+        cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+
+    - name: Test
+      working-directory: ${{github.workspace}}
+      # Execute tests defined by the CMake configuration.
+      # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
+      run: |
+        cd "${{github.workspace}}/build"
+        ctest -C ${{env.BUILD_TYPE}}
+
+    - name: Install
+      working-directory: ${{github.workspace}}
+      # Install to the directory defined in CMAKE_INSTALL_PREFIX
+      run: |
+        cmake --install ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+        # Create hard-link and copy symbolic links
+        cp -l ${{steps.sdl.outputs.prefix}}/lib/libSDL2-2.0.0.dylib '${{github.workspace}}/install/'
+        cp -l ${{github.workspace}}/thirdparties/soft-oal/install/lib/libopenal.1.dylib '${{github.workspace}}/install/'
+
+    - uses: actions/upload-artifact@v4
+      with:
+        name: out-macos-${{matrix.architecture.name}}
+        if-no-files-found: error
+        path:
           ${{github.workspace}}/install
