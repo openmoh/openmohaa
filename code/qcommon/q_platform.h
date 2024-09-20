@@ -86,6 +86,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define DLL_SUFFIX
 #endif
 
+// alloca
+#ifdef _MSC_VER
+#  include <malloc.h>
+#else
+#  include <alloca.h>
+#endif
+
 #if defined(_WIN64) || defined(__WIN64__)
 
 #undef idx64

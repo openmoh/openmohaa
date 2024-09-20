@@ -30,9 +30,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../qcommon/crc.h"
 #include "../qcommon/alias.h"
 
-// alloca
-#include <malloc.h>
-
 debugline_t *DebugLines;
 int numDebugLines;
 debugstring_t *DebugStrings;
