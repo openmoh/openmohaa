@@ -128,7 +128,13 @@ void UIMultiLineEdit::getData(str& data)
     data = "";
 
     for (i = 0, m_lines.IterateFromHead(); m_lines.IsCurrentValid(); i++, m_lines.IterateNext()) {
-        data += m_lines.getCurrent();
+        str text = m_lines.getCurrent();
+        if (i == 0 && !text.length() && m_lines.getCount() <= 1) {
+            // file is empty
+            return;
+        }
+
+        data += text;
 
         if (i != m_lines.getCount() - 1) {
             data += "\n";

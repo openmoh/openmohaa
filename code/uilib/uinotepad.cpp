@@ -424,13 +424,16 @@ void UINotepad::Save(Event *ev)
 {
     if (!m_filename.length()) {
         SaveAs(NULL);
+        // Fixed in OPM:
+        // devs probably forgot to return here - saving was attempted,
+        // even though there was no filename to save the file with
+        return;
     }
 
     str filecontents;
     m_edit->getData(filecontents);
     m_edit->setChanged(false);
 
-    // FIXME: m_filename could be blank
     FS_WriteTextFile(m_filename, filecontents, filecontents.length());
 
     str result = "Saved " + m_filename;
