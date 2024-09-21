@@ -559,6 +559,24 @@ static qboolean CG_IsCommandFiltered(const char *name)
 
 /*
 ====================
+RemoveEndToken
+====================
+*/
+static qboolean RemoveEndToken(char* com_token) {
+    char* p;
+
+    for (p = com_token; p[0]; p++) {
+        if (*p == ';') {
+            *p = 0;
+            return qtrue;
+        }
+    }
+
+    return qfalse;
+}
+
+/*
+====================
 CG_IsStatementFiltered
 
 Returns whether or not the statement is filtered
@@ -566,42 +584,52 @@ Returns whether or not the statement is filtered
 */
 static qboolean CG_IsStatementFiltered(char *cmd)
 {
-    const char *token;
+    char* parsed;
+    char* p;
+    char com_token[256];
+    qboolean bNextStatement = qfalse;
 
-    for (token = COM_ParseExt(&cmd, qtrue); token[0]; token = COM_ParseExt(&cmd, qtrue)) {
-        if (token[0] == ';') {
+    parsed = cmd;
+
+    for (Q_strncpyz(com_token, COM_ParseExt(&parsed, qtrue), sizeof(com_token)); com_token[0]; Q_strncpyz(com_token, COM_ParseExt(&parsed, qtrue), sizeof(com_token))) {
+        bNextStatement = RemoveEndToken(com_token);
+
+        if (com_token[0] == ';') {
             continue;
         }
 
-        if (!Q_stricmp(token, "set") || !Q_stricmp(token, "setu") || !Q_stricmp(token, "seta")
-            || !Q_stricmp(token, "sets")) {
+        if (!Q_stricmp(com_token, "set") || !Q_stricmp(com_token, "setu") || !Q_stricmp(com_token, "seta")
+            || !Q_stricmp(com_token, "sets")) {
             //
             // variable
             //
-            token = COM_ParseExt(&cmd, qfalse);
-            if (token[0] == ';') {
+            Q_strncpyz(com_token, COM_ParseExt(&parsed, qfalse), sizeof(com_token));
+            bNextStatement |= RemoveEndToken(com_token);
+            if (com_token[0] == ';') {
                 continue;
             }
 
-            if (CG_IsVariableFiltered(token)) {
+            if (CG_IsVariableFiltered(com_token)) {
                 return qtrue;
             }
         } else {
             //
             // normal command
             //
-            if (CG_IsCommandFiltered(token)) {
+            if (CG_IsCommandFiltered(com_token)) {
                 return qtrue;
             }
         }
 
-        // Skip up to the next statement
-        while (cmd && cmd[0]) {
-            char c = cmd[0];
+        if (!bNextStatement) {
+            // Skip up to the next statement
+            while (parsed && parsed[0]) {
+                char c = parsed[0];
 
-            cmd++;
-            if (c == '\n' || c == ';') {
-                break;
+                parsed++;
+                if (c == '\n' || c == ';') {
+                    break;
+                }
             }
         }
     }
