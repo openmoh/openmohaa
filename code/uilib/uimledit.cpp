@@ -634,7 +634,7 @@ void UIMultiLineEdit::DeleteSelection(void)
         EnsureSelectionPointVisible(*topsel);
         return;
     } else if (botsel->line - topsel->line > 1) {
-        for (i = 0, m_lines.IterateFromHead(); m_lines.IsCurrentValid() && i < topsel->line;
+        for (i = 0, m_lines.IterateFromHead(); m_lines.IsCurrentValid() && i < botsel->line;
              i++, m_lines.IterateNext()) {
             if (i > topsel->line) {
                 m_lines.RemoveCurrentSetPrev();
