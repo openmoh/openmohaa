@@ -344,7 +344,11 @@ void UIVertScroll::MouseEnter
 	)
 
 {
-	uWinMan.ActivateControl(this);
+	// Fixed in OPM
+	// Why should hovering over the scrollbar activate the control it's on?
+	// This is more disorienting than useful, also no sane window manager
+	// works like this. Simply clicking into it should be sufficient.
+	//uWinMan.ActivateControl(this);
 }
 
 void UIVertScroll::MouseLeave
