@@ -327,6 +327,7 @@ void UIMultiLineEdit::Draw(void)
     }
 }
 
+// num is the ZERO-BASED index of the sought line!
 str& UIMultiLineEdit::LineFromLineNumber(int num, bool resetpos)
 {
     static str emptyLine;
@@ -363,9 +364,7 @@ void UIMultiLineEdit::PointToSelectionPoint(const UIPoint2D& p, selectionpoint_t
     float lastWidth  = 0;
 
     clickedLine = m_vertscroll->getTopItem() + p.y / m_font->getHeight(m_bVirtual);
-    if (clickedLine >= m_lines.getCount()) {
-        clickedLine = m_lines.getCount() - 1;
-    }
+    clickedLine = Q_min(clickedLine, m_lines.getCount() - 1);
 
     if (clickedLine < 0) {
         sel.line   = 0;
@@ -462,7 +461,10 @@ void UIMultiLineEdit::EnsureSelectionPointVisible(selectionpoint_t& point)
 
 void UIMultiLineEdit::BoundSelectionPoint(selectionpoint_t& point)
 {
-    point.line = Q_clamp_int(point.line, 0, m_lines.getCount());
+    // since LineFromLineNumber expects a zero-based line index,
+    // clamp it to one less than the number of lines if the selection point
+    // is right at the end of the text document
+    point.line = Q_clamp_int(point.line, 0, m_lines.getCount() - 1);
 
     str& line    = LineFromLineNumber(point.line, true);
     point.column = Q_clamp_int(point.column, 0, line.length());
