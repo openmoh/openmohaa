@@ -1037,7 +1037,7 @@ qboolean TIKI_ParseSetup(dloaddef_t *ld)
             WriteSkelmodel(ld, name);
         } else if (!Q_stricmp(token, "path")) {
             token = ld->tikiFile.GetToken(false);
-            Q_strncpyz(ld->tikiFile.currentScript->path, token, sizeof(name));
+            Q_strncpyz(ld->tikiFile.currentScript->path, token, sizeof(ld->tikiFile.currentScript->path));
             length = strlen(ld->tikiFile.currentScript->path);
             token  = ld->tikiFile.currentScript->path + length - 1;
 
