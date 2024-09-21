@@ -748,7 +748,7 @@ void UIMultiLineEdit::CopySelection(void)
         clipText.CapLength(botsel->column - topsel->column);
     } else {
         for (int i = topsel->line + 1; i < botsel->line; ++i) {
-            clipText += LineFromLineNumber(i, 1);
+            clipText += "\n" + LineFromLineNumber(i, 1);
         }
 
         line = LineFromLineNumber(botsel->line, true);
