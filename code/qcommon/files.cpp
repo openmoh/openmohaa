@@ -4493,5 +4493,5 @@ void FS_FileTime(const char *filename, char *date, char *size)
         tm.tm_hour < 12 ? 'a' : 'p'
     );
 
-    Q_snprintf(size, 128, "%d", fileSize);
+    Q_snprintf(size, 128, "%ld", fileSize);
 }
