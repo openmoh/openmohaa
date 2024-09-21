@@ -213,7 +213,11 @@ void UIMultiLineEdit::Draw(void)
                 // print entire line with the selection highlight box around it
                 DrawBox(0.0f, aty, linewidth, m_font->getHeight(m_bVirtual), selectionBG, 1.f);
                 m_font->setColor(selectionColor);
-                m_font->Print(0, aty, Sys_LV_CL_ConvertString(cur), -1, m_bVirtual);
+                // Fixed in OPM:
+                // don't spam LOCALIZATION ERROR messages to console
+                // for clicking lines in the opened text document
+                //m_font->Print(0, aty, Sys_LV_CL_ConvertString(cur), -1, m_bVirtual);
+                m_font->Print(0, aty, cur, -1, m_bVirtual);
             } else if (i != topsel->line) {
                 // part of this line is selected, and selection continues/began above
                 if (i == botsel->line) { // sanity check, should always be true
@@ -261,7 +265,11 @@ void UIMultiLineEdit::Draw(void)
                     // no selection or highlighted text
                     caret = m_font->getWidth(cur, topsel->column);
                     m_font->setColor(m_foreground_color);
-                    m_font->Print(0, aty, Sys_LV_CL_ConvertString(cur), -1, m_bVirtual);
+                    // Fixed in OPM:
+                    // don't spam LOCALIZATION ERROR messages to console
+                    // for clicking lines in the opened text document
+                    //m_font->Print(0, aty, Sys_LV_CL_ConvertString(cur), -1, m_bVirtual);
+                    m_font->Print(0, aty, cur, -1, m_bVirtual);
                 } else {
                     // selection starts and ends on this line
                     int toplen = m_font->getWidth(cur, topsel->column); // X coord of highlighting start
