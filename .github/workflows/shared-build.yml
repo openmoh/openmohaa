@@ -32,7 +32,7 @@ jobs:
         ]
 
     name: "Building for platform linux-${{matrix.architecture.name}}"
-    runs-on: "ubuntu-22.04"
+    runs-on: "ubuntu-24.04"
     environment: ${{ inputs.environment }}
 
     steps:
@@ -45,7 +45,7 @@ jobs:
       run: |
         sudo apt update && sudo apt install -y flex bison \
             libpulse-dev portaudio19-dev libasound2-dev libjack-dev libpipewire-0.3-dev qtbase5-dev libdbus-1-dev
-  
+
     - name: Install required cross-platform packages (${{ matrix.architecture.triple }})
       if: matrix.architecture.name != 'amd64'
       run: sudo apt install -y gcc-12-${{ matrix.architecture.triple }} g++-12-${{ matrix.architecture.triple }}
@@ -59,8 +59,8 @@ jobs:
         build-type: Release
         cmake-arguments: "-DCMAKE_C_COMPILER=clang
           -DCMAKE_CXX_COMPILER=clang++
-          -DCMAKE_C_FLAGS=--target=${{ matrix.architecture.triple }}
-          -DCMAKE_CXX_FLAGS=--target=${{ matrix.architecture.triple }}"
+          -DCMAKE_C_FLAGS='--target=${{ matrix.architecture.triple }}'
+          -DCMAKE_CXX_FLAGS='--target=${{ matrix.architecture.triple }}'"
 
     # soft-oal setup
     # Use GCC instead of Clang because of missing SSE intrinsics
@@ -77,8 +77,10 @@ jobs:
       run: |
         cmake -B ./build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} \
         -DCMAKE_INSTALL_PREFIX='${{github.workspace}}/thirdparties/soft-oal/install' \
-        -DCMAKE_C_COMPILER=${{ matrix.architecture.triple }}-gcc-12 \
-        -DCMAKE_CXX_COMPILER=${{ matrix.architecture.triple }}-g++-12
+        -DCMAKE_C_COMPILER=clang \
+        -DCMAKE_CXX_COMPILER=clang++ \
+        -DCMAKE_C_FLAGS='--target=${{ matrix.architecture.triple }}' \
+        -DCMAKE_CXX_FLAGS='--target=${{ matrix.architecture.triple }}'
         cmake --build ./build --config ${{env.BUILD_TYPE}}
         cmake --install ./build --config ${{env.BUILD_TYPE}}
 
@@ -93,8 +95,8 @@ jobs:
         -DCMAKE_INSTALL_PREFIX='${{github.workspace}}/install' \
         -DCMAKE_C_COMPILER=clang \
         -DCMAKE_CXX_COMPILER=clang++ \
-        -DCMAKE_C_FLAGS=--target=${{ matrix.architecture.triple }} \
-        -DCMAKE_CXX_FLAGS=--target=${{ matrix.architecture.triple }} \
+        -DCMAKE_C_FLAGS='--target=${{ matrix.architecture.triple }}' \
+        -DCMAKE_CXX_FLAGS='--target=${{ matrix.architecture.triple }}' \
         -DOPENAL_LIBRARY='${{github.workspace}}/thirdparties/soft-oal' \
         -DOPENAL_INCLUDE_DIR='${{github.workspace}}/thirdparties/soft-oal/include' \
         -DGIT_REVISION_BUILD_NUMBER=${{ github.run_number }} \
