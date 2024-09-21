@@ -384,7 +384,7 @@ void CG_ParseScores_ver_15()
                     Q_strncpyz(szString2, cgi.LV_ConvertString("Players"), sizeof(szString2));
                     bIsHeader = qtrue;
                 } else if (iClientNum == -2) {
-                    Q_strncpyz(szString2, cgi.LV_ConvertString("Spectators"), sizeof(szString3));
+                    Q_strncpyz(szString2, cgi.LV_ConvertString("Spectators"), sizeof(szString2));
                     bIsHeader = qtrue;
                 } else {
                     // unknown
