@@ -40,7 +40,6 @@ jobs:
       working-directory: ${{github.workspace}}
       run: |
         echo "CMAKE_BUILD_PARALLEL_LEVEL=$(($(nproc) * 16))" >> $GITHUB_ENV
-#       echo "CMAKE_GENERATOR=Ninja" >> $GITHUB_ENV
 
     - name: Install required packages
       run: |
@@ -275,13 +274,13 @@ jobs:
     strategy:
       matrix:
         architecture: [
-          {name: 'x86_64',   os: 'macos-13'},
-          {name: 'arm64',    os: 'macos-14'}
+          {name: 'x86_64',   triple: 'x86_64-apple-macos13'},
+          {name: 'arm64',    triple: 'arm64-apple-macos14'}
         ]
 
     name: "Building for platform macos-${{matrix.architecture.name}}"
-    runs-on: ${{matrix.architecture.os}}
-    environment: ${{ inputs.environment }}
+    runs-on: "macos-14"
+    environment: ${{inputs.environment}}
 
     # Install required packages
     # Paths on x86_64 and ARM64 are different for homebrew
@@ -298,7 +297,9 @@ jobs:
         version: sdl2-latest
         build-type: Release
         cmake-arguments: "-DCMAKE_C_COMPILER=clang
-          -DCMAKE_CXX_COMPILER=clang++"
+          -DCMAKE_CXX_COMPILER=clang++
+          -DCMAKE_OSX_ARCHITECTURES=${{ matrix.architecture.name }}
+          -DCMAKE_VERBOSE_MAKEFILE=on"
 
     # soft-oal setup
     # Use GCC instead of Clang because of missing SSE intrinsics
@@ -316,7 +317,9 @@ jobs:
         cmake -B ./build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} \
         -DCMAKE_INSTALL_PREFIX='${{github.workspace}}/thirdparties/soft-oal/install' \
         -DCMAKE_C_COMPILER=clang \
-        -DCMAKE_CXX_COMPILER=clang++
+        -DCMAKE_CXX_COMPILER=clang++ \
+        -DCMAKE_OSX_ARCHITECTURES=${{ matrix.architecture.name }} \
+        -DCMAKE_VERBOSE_MAKEFILE=on
         cmake --build ./build --config ${{env.BUILD_TYPE}}
         cmake --install ./build --config ${{env.BUILD_TYPE}}
 
@@ -329,8 +332,10 @@ jobs:
         echo "CMAKE_PARAM=--log-level=VERBOSE \
         -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} \
         -DCMAKE_INSTALL_PREFIX='${{github.workspace}}/install' \
+        -DCMAKE_VERBOSE_MAKEFILE=on \
         -DCMAKE_C_COMPILER=clang \
         -DCMAKE_CXX_COMPILER=clang++ \
+        -DCMAKE_OSX_ARCHITECTURES=${{ matrix.architecture.name }} \
         -DOPENAL_LIBRARY='${{github.workspace}}/thirdparties/soft-oal/install' \
         -DOPENAL_INCLUDE_DIR='${{github.workspace}}/thirdparties/soft-oal/install/include/AL' \
         -DGIT_REVISION_BUILD_NUMBER=${{ github.run_number }} \
