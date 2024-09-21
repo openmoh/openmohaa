@@ -24,6 +24,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../win_localization.h"
 #include "../sys_loadlib.h"
 
+// a pointer to the last piece of data retrieved from the clipboard is stored here,
+// so that it can be cleaned up when new data is retrieved, preventing memory leaks
+static void* clipboard_text = NULL;
+
 static void* game_library = NULL;
 static void* cgame_library = NULL;
 qboolean	GLimp_SpawnRenderThread(void (*function)(void))
@@ -134,7 +138,36 @@ Sys_GetWholeClipboard
 */
 const char* Sys_GetWholeClipboard(void)
 {
+#ifndef DEDICATED
+    char *data = NULL;
+    char *cliptext;
+
+    if ((cliptext = SDL_GetClipboardText()) != NULL) {
+        if (cliptext[0] != NULL) {
+            // It's necessary to limit buffersize to 4096 as each character
+            // is pasted via CharEvent, which is very-very slow and jams up the EventQueue.
+            // A smaller buffer doesn't jam the EventQueue up as much and avoids dropping
+            // characters that otherwise happens when the EventQueue is overloaded.
+            // FIXME: speed up paste logic so this restriction can be removed
+            size_t bufsize = Q_min(strlen(cliptext) + 1, 4096);
+
+            if (clipboard_text != NULL) {
+                // clean up previously allocated clipboard buffer
+                Z_Free(clipboard_text);
+                clipboard_text = NULL;
+            }
+
+            data = clipboard_text = Z_Malloc(bufsize);
+            // Changed in OPM:
+            // original game skips the Windows-specific '\r' (carriage return) char here!
+            Q_strncpyz(data, cliptext, bufsize);
+        }
+        SDL_free(cliptext);
+    }
+    return data;
+#else
     return NULL;
+#endif
 }
 
 /*
@@ -142,8 +175,15 @@ const char* Sys_GetWholeClipboard(void)
 Sys_SetClipboard
 ==============
 */
-void Sys_SetClipboard(const char* contents)
+void Sys_SetClipboard(const char *contents)
 {
+#ifndef DEDICATED
+    if (contents == NULL || contents[0] == NULL) {
+        return;
+    }
+
+    SDL_SetClipboardText(contents);
+#endif
 }
 
 /*

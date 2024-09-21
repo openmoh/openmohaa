@@ -728,7 +728,6 @@ void UIMultiLineEdit::CopySelection(void)
         clipText += "\n" + line;
     }
 
-    // FIXME: clipboard not implemented yet
     uii.Sys_SetClipboard(clipText);
 }
 
@@ -737,12 +736,11 @@ void UIMultiLineEdit::PasteSelection(void)
     str sel;
     int i;
 
-    // temporary variable added in OPM as str cannot handle NULL assignment
-    // will be removed when Sys_GetClipboard is properly implemented
+    // variable added in OPM as str cannot handle NULL assignment
+    // we can get NULL here if clipboard is empty/couldn't be retrieved
     const char *clipboardData = uii.Sys_GetClipboard();
     if (clipboardData == NULL)
     {
-        // FIXME: clipboard not implemented yet
         return;
     }
 
@@ -753,8 +751,17 @@ void UIMultiLineEdit::PasteSelection(void)
     for (i = 0; i < sel.length(); i++) {
         if (sel[i] == '\n') {
             CharEvent('\r');
+        } else if (sel[i] == '\r') {
+            // Changed in OPM:
+            // NOP, drop CR characters.
+            // On Linux/Mac they aren't present anyway,
+            // on Windows we already have LF chars next to them.
+            // The filtering for CR on the Windows side was originally done
+            // in Sys_GetWholeClipboard with a "manual" selective strcpy,
+            // but here we iterate over all characters of the clipboard anyways,
+            // so this feels like a better place to do the filtering.
         } else {
-            CharEvent(sel[i]);
+            CharEvent(sel[i]); // FIXME: this is VERY slow and jams up the EventQueue!
         }
     }
 }
