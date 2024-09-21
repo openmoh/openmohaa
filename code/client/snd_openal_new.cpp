@@ -704,6 +704,10 @@ void S_FadeSound(float fTime)
     } else {
         s_fFadeVolume = 1;
         s_bFading     = false;
+        // Fixed in OPM
+        //  Make sure to restore the music volume
+        //  in case the map restarts immediately after the intermission
+        music_volume_changed = true;
     }
 }
 
