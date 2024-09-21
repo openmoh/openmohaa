@@ -257,6 +257,8 @@ void Alias_ListAddParms(AliasListNode_t* node, const char* parameters)
 		}
 		else if (!Q_stricmp(token, "subtitle") || !Q_stricmp(token, "forcesubtitle"))
 		{
+			size_t size;
+
 			if (!Q_stricmp(token, "subtitle")) {
 				node->forcesubtitle = qfalse;
 			} else {
@@ -270,8 +272,9 @@ void Alias_ListAddParms(AliasListNode_t* node, const char* parameters)
 				return;
 			}
 
-			node->subtitle = Z_TagMalloc(strlen(token) + 1, TAG_TIKI);
-			Q_strncpyz(node->subtitle, token, sizeof(node->subtitle));
+			size = strlen(token) + 1;
+			node->subtitle = Z_TagMalloc(size, TAG_TIKI);
+			memcpy(node->subtitle, token, size);
 		}
 		else if (!Q_stricmp(token, "pitch"))
 		{
