@@ -36,7 +36,6 @@ jobs:
     environment: ${{ inputs.environment }}
 
     steps:
-
     ###
     # Packages
     ###
@@ -50,6 +49,15 @@ jobs:
       if: matrix.architecture.name != 'amd64'
       run: sudo apt install -y gcc-12-${{ matrix.architecture.triple }} g++-12-${{ matrix.architecture.triple }}
 
+    - name: Settings
+      working-directory: ${{github.workspace}}
+      run: |
+        echo "CMAKE_GENERATOR=Ninja" >> $GITHUB_ENV
+        echo "CC=clang" >> $GITHUB_ENV
+        echo "CXX=clang++" >> $GITHUB_ENV
+        echo "CFLAGS='--target=${{ matrix.architecture.triple }}'" >> $GITHUB_ENV
+        echo "CXXFLAGS='--target=${{ matrix.architecture.triple }}'" >> $GITHUB_ENV
+
     ###
     # SDL
     ###
@@ -61,10 +69,7 @@ jobs:
       with:
         version: sdl2-latest
         build-type: Release
-        cmake-arguments: "-DCMAKE_C_COMPILER=clang
-          -DCMAKE_CXX_COMPILER=clang++
-          -DCMAKE_C_FLAGS='--target=${{ matrix.architecture.triple }}'
-          -DCMAKE_CXX_FLAGS='--target=${{ matrix.architecture.triple }}'"
+        cmake-arguments: ""
 
     ###
     # OpenAL
@@ -84,11 +89,7 @@ jobs:
       working-directory: ${{github.workspace}}/thirdparties/soft-oal
       run: |
         cmake -B ./build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} \
-        -DCMAKE_INSTALL_PREFIX='${{github.workspace}}/thirdparties/soft-oal/install' \
-        -DCMAKE_C_COMPILER=clang \
-        -DCMAKE_CXX_COMPILER=clang++ \
-        -DCMAKE_C_FLAGS='--target=${{ matrix.architecture.triple }}' \
-        -DCMAKE_CXX_FLAGS='--target=${{ matrix.architecture.triple }}'
+        -DCMAKE_INSTALL_PREFIX='${{github.workspace}}/thirdparties/soft-oal/install'
         cmake --build ./build --config ${{env.BUILD_TYPE}}
         cmake --install ./build --config ${{env.BUILD_TYPE}}
 
@@ -105,10 +106,6 @@ jobs:
         echo "CMAKE_PARAM=--log-level=VERBOSE \
         -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} \
         -DCMAKE_INSTALL_PREFIX='${{github.workspace}}/install' \
-        -DCMAKE_C_COMPILER=clang \
-        -DCMAKE_CXX_COMPILER=clang++ \
-        -DCMAKE_C_FLAGS='--target=${{ matrix.architecture.triple }}' \
-        -DCMAKE_CXX_FLAGS='--target=${{ matrix.architecture.triple }}' \
         -DOPENAL_LIBRARY='${{github.workspace}}/thirdparties/soft-oal' \
         -DOPENAL_INCLUDE_DIR='${{github.workspace}}/thirdparties/soft-oal/include' \
         -DGIT_REVISION_BUILD_NUMBER=${{ github.run_number }} \
@@ -137,7 +134,7 @@ jobs:
       # Install to the directory defined in CMAKE_INSTALL_PREFIX
       run: |
         cmake --install ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
-        # Create hard-link and copy symbolic links
+        # Copy libraries
         cp -l ${{steps.sdl.outputs.prefix}}/lib/libSDL2-2.0.so.0 '${{github.workspace}}/install/'
         cp -l ${{github.workspace}}/thirdparties/soft-oal/install/lib/libopenal.so.1 '${{github.workspace}}/install/'
 
@@ -161,9 +158,9 @@ jobs:
     strategy:
       matrix:
         architecture: [
-          {name: 'x64',   config: 'x64' },
-          {name: 'x86',   config: 'Win32' },
-          {name: 'arm64', config: 'ARM64' }
+          {name: 'x64',   config: 'x64',    toolset: 'x64' },
+          {name: 'x86',   config: 'Win32',  toolset: 'x64_x86' },
+          {name: 'arm64', config: 'ARM64',  toolset: 'x64_arm64' }
         ]
 
     name: "Building for platform windows-${{matrix.architecture.name}}"
@@ -171,6 +168,38 @@ jobs:
     environment: ${{ inputs.environment }}
 
     steps:
+    ###
+    # Packages
+    ###
+
+    - name: Install required packages
+      run: |
+        choco install -y ninja
+
+    - name: Install Flex/Bison
+      working-directory: ${{github.workspace}}
+      run: |
+        mkdir thirdparties && cd thirdparties
+        git clone --depth 1 --single-branch --branch v2.5.25 https://github.com/lexxmark/winflexbison.git
+        cmake -B winflexbison-build -DCMAKE_INSTALL_PREFIX='${{github.workspace}}/thirdparties/winflexbison-install' ./winflexbison
+        cmake --build winflexbison-build --config Release --parallel
+        cmake --install winflexbison-build
+
+    - name: Settings
+      working-directory: ${{github.workspace}}
+      run: |
+        echo "CMAKE_GENERATOR=Ninja" >> $env:GITHUB_ENV
+        echo "CC=cl.exe" >> $env:GITHUB_ENV
+        echo "CXX=cl.exe" >> $env:GITHUB_ENV
+        pushd "$($env:PROGRAMFILES)\Microsoft Visual Studio\*\*\VC\Auxiliary\Build"
+        cmd /c "vcvarsall.bat ${{ matrix.architecture.toolset }} & set" | ForEach-Object {
+          if ($_ -match "=") {
+            # Split into key=value
+            $var = $_.split("=", 2);
+            echo "$($var[0])=$($var[1])" >> $env:GITHUB_ENV
+          }
+        }
+        popd
 
     ###
     # SDL
@@ -183,16 +212,7 @@ jobs:
       with:
         version: sdl2-latest
         build-type: Release
-        cmake-arguments: "-A ${{ matrix.architecture.config }}"
-
-    - name: Install Flex/Bison
-      working-directory: ${{github.workspace}}
-      run: |
-        mkdir thirdparties && cd thirdparties
-        git clone --depth 1 --single-branch --branch v2.5.25 https://github.com/lexxmark/winflexbison.git
-        cmake -B winflexbison-build -DCMAKE_INSTALL_PREFIX='${{github.workspace}}/thirdparties/winflexbison-install' ./winflexbison
-        cmake --build winflexbison-build --config Release --parallel
-        cmake --install winflexbison-build
+        cmake-arguments: ""
 
     ###
     # OpenAL
@@ -211,7 +231,7 @@ jobs:
     - name: Configure and install soft-oal
       working-directory: ${{github.workspace}}/thirdparties/soft-oal
       run: |
-        cmake -B ./build -A ${{ matrix.architecture.config }} `
+        cmake -B ./build `
         -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} `
         -DCMAKE_INSTALL_PREFIX='${{github.workspace}}/thirdparties/soft-oal/install' `
         -DALSOFT_BUILD_ROUTER=OFF `
@@ -239,7 +259,7 @@ jobs:
 
     - name: CMake Settings
       run: |
-        echo "CMAKE_PARAM=-A ${{ matrix.architecture.config }} `
+        echo "CMAKE_PARAM= `
         --log-level=VERBOSE `
         -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} `
         -DCMAKE_INSTALL_PREFIX='${{github.workspace}}/install' `
@@ -313,7 +333,6 @@ jobs:
     environment: ${{inputs.environment}}
 
     steps:
-
     ###
     # Packages
     ###
@@ -322,7 +341,12 @@ jobs:
     # Paths on x86_64 and ARM64 are different for homebrew
     - name: Install required packages
       run: |
-        brew update && brew install git flex bison ninja cmake llvm
+        brew update && brew install git flex bison ninja cmake llvm ninja
+
+    - name: Settings
+      working-directory: ${{github.workspace}}
+      run: |
+        echo "CMAKE_GENERATOR=Ninja" >> $GITHUB_ENV
 
     ###
     # SDL
