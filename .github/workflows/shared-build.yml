@@ -36,10 +36,10 @@ jobs:
     environment: ${{ inputs.environment }}
 
     steps:
-    - name: Settings
-      working-directory: ${{github.workspace}}
-      run: |
-        echo "CMAKE_BUILD_PARALLEL_LEVEL=$(($(nproc) * 16))" >> $GITHUB_ENV
+
+    ###
+    # Packages
+    ###
 
     - name: Install required packages
       run: |
@@ -49,6 +49,10 @@ jobs:
     - name: Install required cross-platform packages (${{ matrix.architecture.triple }})
       if: matrix.architecture.name != 'amd64'
       run: sudo apt install -y gcc-12-${{ matrix.architecture.triple }} g++-12-${{ matrix.architecture.triple }}
+
+    ###
+    # SDL
+    ###
 
     # Setup SDL
     - name: Set up SDL
@@ -61,6 +65,10 @@ jobs:
           -DCMAKE_CXX_COMPILER=clang++
           -DCMAKE_C_FLAGS='--target=${{ matrix.architecture.triple }}'
           -DCMAKE_CXX_FLAGS='--target=${{ matrix.architecture.triple }}'"
+
+    ###
+    # OpenAL
+    ###
 
     # soft-oal setup
     # Use GCC instead of Clang because of missing SSE intrinsics
@@ -83,6 +91,10 @@ jobs:
         -DCMAKE_CXX_FLAGS='--target=${{ matrix.architecture.triple }}'
         cmake --build ./build --config ${{env.BUILD_TYPE}}
         cmake --install ./build --config ${{env.BUILD_TYPE}}
+
+    ###
+    # Project
+    ###
 
     - uses: actions/checkout@v4
       with:
@@ -129,6 +141,10 @@ jobs:
         cp -l ${{steps.sdl.outputs.prefix}}/lib/libSDL2-2.0.so.0 '${{github.workspace}}/install/'
         cp -l ${{github.workspace}}/thirdparties/soft-oal/install/lib/libopenal.so.1 '${{github.workspace}}/install/'
 
+    ###
+    # Artifacts
+    ###
+
     - uses: actions/upload-artifact@v4
       with:
         name: out-linux-${{matrix.architecture.name}}
@@ -155,10 +171,10 @@ jobs:
     environment: ${{ inputs.environment }}
 
     steps:
-    - name: Settings
-      working-directory: ${{github.workspace}}
-      run: |
-        echo "CMAKE_BUILD_PARALLEL_LEVEL=$((Get-CimInstance Win32_ComputerSystem).NumberOfLogicalProcessors * 16)" >> $GITHUB_ENV
+
+    ###
+    # SDL
+    ###
 
     # Setup SDL
     - name: Set up SDL
@@ -177,6 +193,10 @@ jobs:
         cmake -B winflexbison-build -DCMAKE_INSTALL_PREFIX='${{github.workspace}}/thirdparties/winflexbison-install' ./winflexbison
         cmake --build winflexbison-build --config Release --parallel
         cmake --install winflexbison-build
+
+    ###
+    # OpenAL
+    ###
 
     # soft-oal setup
     - name: Checkout soft-oal
@@ -208,6 +228,10 @@ jobs:
         cmake --install ./build --config ${{env.BUILD_TYPE}}
         # Unfortunately soft-oal produces a binary called OpenAL32 even in 64-bit
         if (("x64", "ARM64") -icontains "${{ matrix.architecture.config }}") { Rename-Item -Path '.\install\bin\OpenAL32.dll' -NewName 'OpenAL64.dll' }
+
+    ###
+    # Project
+    ###
 
     - uses: actions/checkout@v4
       with:
@@ -252,6 +276,10 @@ jobs:
         Copy-Item '${{steps.sdl.outputs.prefix}}/bin/*.dll' -Destination '${{github.workspace}}/install'
         Copy-Item '${{github.workspace}}/thirdparties/soft-oal/install/bin/*.dll' -Destination '${{github.workspace}}/install'
 
+    ###
+    # Artifact
+    ###
+
     - uses: actions/upload-artifact@v4
       with:
         name: out-windows-${{matrix.architecture.name}}
@@ -284,12 +312,21 @@ jobs:
     runs-on: "macos-14"
     environment: ${{inputs.environment}}
 
+    steps:
+
+    ###
+    # Packages
+    ###
+
     # Install required packages
     # Paths on x86_64 and ARM64 are different for homebrew
-    steps:
     - name: Install required packages
       run: |
         brew update && brew install git flex bison ninja cmake llvm
+
+    ###
+    # SDL
+    ###
 
     # Setup SDL
     - name: Set up SDL
@@ -302,6 +339,9 @@ jobs:
           -DCMAKE_CXX_COMPILER=clang++
           -DCMAKE_OSX_ARCHITECTURES=${{ matrix.architecture.name }}
           -DCMAKE_VERBOSE_MAKEFILE=on"
+    ###
+    # OpenAL
+    ###
 
     # soft-oal setup
     # Use GCC instead of Clang because of missing SSE intrinsics
@@ -324,6 +364,10 @@ jobs:
         -DCMAKE_VERBOSE_MAKEFILE=on
         cmake --build ./build --config ${{env.BUILD_TYPE}}
         cmake --install ./build --config ${{env.BUILD_TYPE}}
+
+    ###
+    # Project
+    ###
 
     - uses: actions/checkout@v4
       with:
@@ -369,6 +413,10 @@ jobs:
         # Create hard-link and copy symbolic links
         cp -l ${{steps.sdl.outputs.prefix}}/lib/libSDL2-2.0.0.dylib '${{github.workspace}}/install/'
         cp -l ${{github.workspace}}/thirdparties/soft-oal/install/lib/libopenal.1.dylib '${{github.workspace}}/install/'
+
+    ###
+    # Artifacts
+    ###
 
     - uses: actions/upload-artifact@v4
       with:
