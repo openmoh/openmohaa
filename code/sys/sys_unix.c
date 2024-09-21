@@ -369,60 +369,76 @@ DIRECTORY SCANNING
 Sys_ListFilteredFiles
 ==================
 */
-void Sys_ListFilteredFiles( const char *basedir, char *subdirs, char *filter, char **list, int *numfiles )
+void Sys_ListFilteredFiles(
+    const char *basedir, char *subdirs, char *filter, qboolean wantsubs, char **list, int *numfiles
+)
 {
-	char          search[MAX_OSPATH], newsubdirs[MAX_OSPATH];
-	char          filename[MAX_OSPATH];
-	DIR           *fdir;
-	struct dirent *d;
-	struct stat   st;
+    char           search[MAX_OSPATH], newsubdirs[MAX_OSPATH];
+    char           filename[MAX_OSPATH];
+    DIR           *fdir;
+    struct dirent *d;
+    struct stat    st;
 
-	if ( *numfiles >= MAX_FOUND_FILES - 1 ) {
-		return;
-	}
+    if (*numfiles >= MAX_FOUND_FILES - 1) {
+        return;
+    }
 
-	if ( basedir[0] == '\0' ) {
-		return;
-	}
+    if (basedir[0] == '\0') {
+        return;
+    }
 
-	if (strlen(subdirs)) {
-		Com_sprintf( search, sizeof(search), "%s/%s", basedir, subdirs );
-	}
-	else {
-		Com_sprintf( search, sizeof(search), "%s", basedir );
-	}
+    if (strlen(subdirs)) {
+        Com_sprintf(search, sizeof(search), "%s/%s", basedir, subdirs);
+    } else {
+        Com_sprintf(search, sizeof(search), "%s", basedir);
+    }
 
-	if ((fdir = opendir(search)) == NULL) {
-		return;
-	}
+    if ((fdir = opendir(search)) == NULL) {
+        return;
+    }
 
-	while ((d = readdir(fdir)) != NULL) {
-		Com_sprintf(filename, sizeof(filename), "%s/%s", search, d->d_name);
-		if (stat(filename, &st) == -1)
-			continue;
+    while ((d = readdir(fdir)) != NULL) {
+        // Fixed in OPM:
+        // don't show current and parent dir entries twice
+        if (!(Q_stricmp(d->d_name, ".") && Q_stricmp(d->d_name, "..")) && Q_stricmp(d->d_name, "cvs")) {
+            continue;
+        }
 
-		if (st.st_mode & S_IFDIR) {
-			if (Q_stricmp(d->d_name, ".") && Q_stricmp(d->d_name, "..")) {
-				if (strlen(subdirs)) {
-					Com_sprintf( newsubdirs, sizeof(newsubdirs), "%s/%s", subdirs, d->d_name);
-				}
-				else {
-					Com_sprintf( newsubdirs, sizeof(newsubdirs), "%s", d->d_name);
-				}
-				Sys_ListFilteredFiles( basedir, newsubdirs, filter, list, numfiles );
-			}
-		}
-		if ( *numfiles >= MAX_FOUND_FILES - 1 ) {
-			break;
-		}
-		Com_sprintf( filename, sizeof(filename), "%s/%s", subdirs, d->d_name );
-		if (!Com_FilterPath( filter, filename, qfalse ))
-			continue;
-		list[ *numfiles ] = CopyString( filename );
-		(*numfiles)++;
-	}
+        Com_sprintf(filename, sizeof(filename), "%s/%s", search, d->d_name);
+        if (stat(filename, &st) == -1) {
+            continue;
+        }
 
-	closedir(fdir);
+        if ((st.st_mode & S_IFDIR) != 0 && wantsubs) {
+            if (strlen(subdirs)) {
+                Com_sprintf(newsubdirs, sizeof(newsubdirs), "%s/%s", subdirs, d->d_name);
+            } else {
+                Com_sprintf(newsubdirs, sizeof(newsubdirs), "%s", d->d_name);
+            }
+
+            // recursively iterate into subdirectory
+            Sys_ListFilteredFiles(basedir, newsubdirs, filter, wantsubs, list, numfiles);
+        }
+
+        if (*numfiles >= MAX_FOUND_FILES - 1) {
+            break;
+        }
+
+        if (strlen(subdirs)) {
+            Com_sprintf(filename, sizeof(filename), "%s/%s", subdirs, d->d_name);
+        } else {
+            Q_strncpyz(filename, d->d_name, sizeof(filename));
+        }
+
+        if (!Com_FilterPath(filter, filename, qfalse)) {
+            continue;
+        }
+
+        list[*numfiles] = CopyString(filename);
+        (*numfiles)++;
+    }
+
+    closedir(fdir);
 }
 
 /*
@@ -430,104 +446,105 @@ void Sys_ListFilteredFiles( const char *basedir, char *subdirs, char *filter, ch
 Sys_ListFiles
 ==================
 */
-char **Sys_ListFiles( const char *directory, const char *extension, const char *filter, int *numfiles, qboolean wantsubs )
+char **Sys_ListFiles(const char *directory, const char *extension, const char *filter, int *numfiles, qboolean wantsubs)
 {
-	struct dirent *d;
-	DIR           *fdir;
-	qboolean      dironly = wantsubs;
-	char          search[MAX_OSPATH];
-	int           nfiles;
-	char          **listCopy;
-	char          *list[MAX_FOUND_FILES];
-	int           i;
-	struct stat   st;
+    struct dirent *d;
+    DIR           *fdir;
+    char           search[MAX_OSPATH];
+    int            nfiles;
+    char         **listCopy;
+    char          *list[MAX_FOUND_FILES];
+    int            i;
+    struct stat    st;
+    char           buffer[64];
 
-	int           extLen;
+    if (directory[0] == '\0') {
+        *numfiles = 0;
+        return NULL;
+    }
 
-	if (filter) {
+    if (!extension) {
+        extension = "";
+    }
 
-		nfiles = 0;
-		Sys_ListFilteredFiles( directory, "", filter, list, &nfiles );
+    // passing a slash as extension will find directories,
+    // anything else looks only for files with that extension
+    if (!filter && (extension[0] != '/' || extension[1])) {
+        Q_snprintf(buffer, sizeof(buffer), "*%s", extension);
+        filter = buffer;
+    }
 
-		list[ nfiles ] = NULL;
-		*numfiles = nfiles;
+    if (filter) {
+        nfiles = 0;
+        Sys_ListFilteredFiles(directory, "", filter, wantsubs, list, &nfiles);
 
-		if (!nfiles)
-			return NULL;
+        list[nfiles] = NULL;
+        *numfiles    = nfiles;
+        if (!nfiles) {
+            return NULL;
+        }
 
-		listCopy = Z_Malloc( ( nfiles + 1 ) * sizeof( *listCopy ) );
-		for ( i = 0 ; i < nfiles ; i++ ) {
-			listCopy[i] = list[i];
-		}
-		listCopy[i] = NULL;
+        listCopy = Z_Malloc((nfiles + 1) * sizeof(*listCopy));
+        for (i = 0; i < nfiles; i++) {
+            listCopy[i] = list[i];
+        }
+        listCopy[i] = NULL;
 
-		return listCopy;
-	}
+        return listCopy;
+    }
 
-	if ( directory[0] == '\0' ) {
-		*numfiles = 0;
-		return NULL;
-	}
+    // only enumerate directories from this point onward
 
-	if ( !extension)
-		extension = "";
+    // search
+    nfiles = 0;
 
-	if ( extension[0] == '/' && extension[1] == 0 ) {
-		extension = "";
-		dironly = qtrue;
-	}
+    if ((fdir = opendir(directory)) == NULL) {
+        *numfiles = 0;
+        return NULL;
+    }
 
-	extLen = strlen( extension );
+    while ((d = readdir(fdir)) != NULL) {
+        Com_sprintf(search, sizeof(search), "%s/%s", directory, d->d_name);
+        if (stat(search, &st) == -1) {
+            continue;
+        }
 
-	// search
-	nfiles = 0;
+        // Fixed in OPM:
+        // don't show current and parent dir entries twice
+        if (!(Q_stricmp(d->d_name, ".") && Q_stricmp(d->d_name, "..") && Q_stricmp(d->d_name, "cvs"))) {
+            continue;
+        }
 
-	if ((fdir = opendir(directory)) == NULL) {
-		*numfiles = 0;
-		return NULL;
-	}
+        if ((st.st_mode & S_IFDIR) == 0) {
+            continue;
+        }
 
-	while ((d = readdir(fdir)) != NULL) {
-		Com_sprintf(search, sizeof(search), "%s/%s", directory, d->d_name);
-		if (stat(search, &st) == -1)
-			continue;
-		if ((dironly && !(st.st_mode & S_IFDIR)) ||
-			(!dironly && (st.st_mode & S_IFDIR)))
-			continue;
+        if (nfiles == MAX_FOUND_FILES - 1) {
+            break;
+        }
 
-		if (*extension) {
-			if ( strlen( d->d_name ) < extLen ||
-				Q_stricmp(
-					d->d_name + strlen( d->d_name ) - extLen,
-					extension ) ) {
-				continue; // didn't match
-			}
-		}
+        list[nfiles] = CopyString(d->d_name);
+        nfiles++;
+    }
 
-		if ( nfiles == MAX_FOUND_FILES - 1 )
-			break;
-		list[ nfiles ] = CopyString( d->d_name );
-		nfiles++;
-	}
+    list[nfiles] = NULL;
 
-	list[ nfiles ] = NULL;
+    closedir(fdir);
 
-	closedir(fdir);
+    // return a copy of the list
+    *numfiles = nfiles;
 
-	// return a copy of the list
-	*numfiles = nfiles;
+    if (!nfiles) {
+        return NULL;
+    }
 
-	if ( !nfiles ) {
-		return NULL;
-	}
+    listCopy = Z_Malloc((nfiles + 1) * sizeof(*listCopy));
+    for (i = 0; i < nfiles; i++) {
+        listCopy[i] = list[i];
+    }
+    listCopy[i] = NULL;
 
-	listCopy = Z_Malloc( ( nfiles + 1 ) * sizeof( *listCopy ) );
-	for ( i = 0 ; i < nfiles ; i++ ) {
-		listCopy[i] = list[i];
-	}
-	listCopy[i] = NULL;
-
-	return listCopy;
+    return listCopy;
 }
 
 /*

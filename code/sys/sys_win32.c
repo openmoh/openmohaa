@@ -477,56 +477,78 @@ DIRECTORY SCANNING
 Sys_ListFilteredFiles
 ==============
 */
-void Sys_ListFilteredFiles( const char *basedir, char *subdirs, char *filter, char **list, int *numfiles )
+void Sys_ListFilteredFiles(
+    const char *basedir, const char *subdirs, char *filter, qboolean wantsubs, char **list, int *numfiles
+)
 {
-	char		search[MAX_OSPATH], newsubdirs[MAX_OSPATH];
-	char		filename[MAX_OSPATH];
-	intptr_t	findhandle;
-	struct _finddata_t findinfo;
+    char               search[MAX_OSPATH], newsubdirs[MAX_OSPATH];
+    char               filename[MAX_OSPATH];
+    intptr_t           findhandle;
+    struct _finddata_t findinfo;
 
-	if ( *numfiles >= MAX_FOUND_FILES - 1 ) {
-		return;
-	}
+    if (*numfiles >= MAX_FOUND_FILES - 1) {
+        return;
+    }
 
-	if ( basedir[0] == '\0' ) {
-		return;
-	}
+    if (basedir[0] == '\0') {
+        return;
+    }
 
-	if (strlen(subdirs)) {
-		Com_sprintf( search, sizeof(search), "%s\\%s\\*", basedir, subdirs );
-	}
-	else {
-		Com_sprintf( search, sizeof(search), "%s\\*", basedir );
-	}
+    if (strlen(subdirs)) {
+        Com_sprintf(search, sizeof(search), "%s\\%s\\*", basedir, subdirs);
+    } else {
+        Com_sprintf(search, sizeof(search), "%s\\*", basedir);
+    }
 
-	findhandle = _findfirst (search, &findinfo);
-	if (findhandle == -1) {
-		return;
-	}
+    findhandle = _findfirst(search, &findinfo);
+    if (findhandle == -1) {
+        return;
+    }
 
-	do {
-		if (findinfo.attrib & _A_SUBDIR) {
-			if (Q_stricmp(findinfo.name, ".") && Q_stricmp(findinfo.name, "..")) {
-				if (strlen(subdirs)) {
-					Com_sprintf( newsubdirs, sizeof(newsubdirs), "%s\\%s", subdirs, findinfo.name);
-				}
-				else {
-					Com_sprintf( newsubdirs, sizeof(newsubdirs), "%s", findinfo.name);
-				}
-				Sys_ListFilteredFiles( basedir, newsubdirs, filter, list, numfiles );
-			}
-		}
-		if ( *numfiles >= MAX_FOUND_FILES - 1 ) {
-			break;
-		}
-		Com_sprintf( filename, sizeof(filename), "%s\\%s", subdirs, findinfo.name );
-		if (!Com_FilterPath( filter, filename, qfalse ))
-			continue;
-		list[ *numfiles ] = CopyString( filename );
-		(*numfiles)++;
-	} while ( _findnext (findhandle, &findinfo) != -1 );
+    do {
+        // Fixed in OPM:
+        // don't show current and parent dir entries twice
+        if (!(Q_stricmp(findinfo.name, ".") && Q_stricmp(findinfo.name, "..") && Q_stricmp(findinfo.name, "cvs"))) {
+            continue;
+        }
 
-	_findclose (findhandle);
+        if ((findinfo.attrib & _A_SUBDIR) != 0 && wantsubs) {
+            if (strlen(subdirs)) {
+                Com_sprintf(newsubdirs, sizeof(newsubdirs), "%s\\%s\\*", subdirs, findinfo.name);
+            } else {
+                Com_sprintf(newsubdirs, sizeof(newsubdirs), "%s", findinfo.name);
+            }
+
+            // recursively iterate into subdirectory
+            Sys_ListFilteredFiles(basedir, newsubdirs, filter, wantsubs, list, numfiles);
+        }
+
+        if (*numfiles >= MAX_FOUND_FILES - 1) {
+            break;
+        }
+
+        if (strlen(subdirs)) {
+            Com_sprintf(filename, sizeof(filename), "%s\\%s", subdirs, findinfo.name);
+        } else {
+            Q_strncpyz(filename, findinfo.name, sizeof(filename));
+        }
+
+        if (!Com_FilterPath(filter, filename, qfalse)) {
+            continue;
+        }
+
+        list[*numfiles] = CopyString(filename);
+
+        // replace backslashes with forward slashes, if any
+        // FS_ReplaceSeparators would be nice but it does the opposite
+        for (char *c = strchr(list[*numfiles], '\\'); c; c = strchr(list[*numfiles], '\\')) {
+            *c = '/';
+        }
+
+        (*numfiles)++;
+    } while (_findnext(findhandle, &findinfo) != -1);
+
+    _findclose(findhandle);
 }
 
 /*
@@ -536,24 +558,24 @@ strgtr
 */
 static qboolean strgtr(const char *s0, const char *s1)
 {
-	int l0, l1, i;
+    int l0, l1, i;
 
-	l0 = strlen(s0);
-	l1 = strlen(s1);
+    l0 = strlen(s0);
+    l1 = strlen(s1);
 
-	if (l1<l0) {
-		l0 = l1;
-	}
+    if (l1 < l0) {
+        l0 = l1;
+    }
 
-	for(i=0;i<l0;i++) {
-		if (s1[i] > s0[i]) {
-			return qtrue;
-		}
-		if (s1[i] < s0[i]) {
-			return qfalse;
-		}
-	}
-	return qfalse;
+    for (i = 0; i < l0; i++) {
+        if (s1[i] > s0[i]) {
+            return qtrue;
+        }
+        if (s1[i] < s0[i]) {
+            return qfalse;
+        }
+    }
+    return qfalse;
 }
 
 /*
@@ -561,116 +583,121 @@ static qboolean strgtr(const char *s0, const char *s1)
 Sys_ListFiles
 ==============
 */
-char **Sys_ListFiles( const char *directory, const char *extension, const char *filter, int *numfiles, qboolean wantsubs )
+char **Sys_ListFiles(const char *directory, const char *extension, const char *filter, int *numfiles, qboolean wantsubs)
 {
-	char		search[MAX_OSPATH];
-	int			nfiles;
-	char		**listCopy;
-	char		*list[MAX_FOUND_FILES];
-	struct _finddata_t findinfo;
-	intptr_t		findhandle;
-	int			flag;
-	int			i;
-	int			extLen;
+    char               search[MAX_OSPATH];
+    int                nfiles;
+    char             **listCopy;
+    char              *list[MAX_FOUND_FILES] = {NULL};
+    struct _finddata_t findinfo;
+    intptr_t           findhandle;
+    qboolean           swapped;
+    int                i;
+    char               buffer[64];
 
-	if (filter) {
+    if (directory[0] == NULL) {
+        *numfiles = 0;
+        return NULL;
+    }
 
-		nfiles = 0;
-		Sys_ListFilteredFiles( directory, "", filter, list, &nfiles );
+    if (!extension) {
+        extension = "";
+    }
 
-		list[ nfiles ] = 0;
-		*numfiles = nfiles;
+    // passing a slash as extension will find directories,
+    // anything else looks only for files with that extension
+    if (!filter && (extension[0] != '/' || extension[1])) {
+        Q_snprintf(buffer, sizeof(buffer), "*%s", extension);
+        filter = buffer;
+    }
 
-		if (!nfiles)
-			return NULL;
+    if (filter) {
+        nfiles = 0;
+        Sys_ListFilteredFiles(directory, "", filter, wantsubs, list, &nfiles);
 
-		listCopy = Z_Malloc( ( nfiles + 1 ) * sizeof( *listCopy ) );
-		for ( i = 0 ; i < nfiles ; i++ ) {
-			listCopy[i] = list[i];
-		}
-		listCopy[i] = NULL;
+        list[nfiles] = NULL;
+        *numfiles    = nfiles;
+        if (!nfiles) {
+            return NULL;
+        }
 
-		return listCopy;
-	}
+        listCopy = Z_Malloc((nfiles + 1) * sizeof(*listCopy));
+        for (i = 0; i < nfiles; i++) {
+            listCopy[i] = list[i];
+        }
+        listCopy[i] = NULL;
 
-	if ( directory[0] == '\0' ) {
-		*numfiles = 0;
-		return NULL;
-	}
+        return listCopy;
+    }
 
-	if ( !extension) {
-		extension = "";
-	}
+    // only enumerate directories from this point onward
+    Com_sprintf(search, 256, "%s\\*", directory);
 
-	// passing a slash as extension will find directories
-	if ( extension[0] == '/' && extension[1] == 0 ) {
-		extension = "";
-		flag = 0;
-	} else {
-		flag = _A_SUBDIR;
-	}
+    // search
+    nfiles     = 0;
+    findhandle = _findfirst(search, &findinfo);
+    if (findhandle == -1) {
+        *numfiles = 0;
+        return NULL;
+    }
 
-	extLen = strlen( extension );
+    do {
+        // Fixed in OPM:
+        // don't show current and parent dir entries twice
+        if (!(Q_stricmp(findinfo.name, ".") && Q_stricmp(findinfo.name, "..") && Q_stricmp(findinfo.name, "cvs"))) {
+            continue;
+        }
 
-	Com_sprintf( search, sizeof(search), "%s\\*%s", directory, extension );
+        if ((findinfo.attrib & _A_SUBDIR) == 0) {
+            continue;
+        }
 
-	// search
-	nfiles = 0;
+        if (nfiles >= MAX_FOUND_FILES - 1) {
+            break;
+        }
 
-	findhandle = _findfirst (search, &findinfo);
-	if (findhandle == -1) {
-		*numfiles = 0;
-		return NULL;
-	}
+        list[nfiles] = CopyString(findinfo.name);
 
-	do {
-		if ( (!wantsubs && flag ^ ( findinfo.attrib & _A_SUBDIR )) || (wantsubs && findinfo.attrib & _A_SUBDIR) ) {
-			if (*extension) {
-				if ( strlen( findinfo.name ) < extLen ||
-					Q_stricmp(
-						findinfo.name + strlen( findinfo.name ) - extLen,
-						extension ) ) {
-					continue; // didn't match
-				}
-			}
-			if ( nfiles == MAX_FOUND_FILES - 1 ) {
-				break;
-			}
-			list[ nfiles ] = CopyString( findinfo.name );
-			nfiles++;
-		}
-	} while ( _findnext (findhandle, &findinfo) != -1 );
+        // replace backslashes with forward slashes
+        // FS_ReplaceSeparators would be nice but it does the opposite
+        for (char *c = strchr(list[nfiles], '\\'); c; c = strchr(list[nfiles], '\\')) {
+            *c = '/';
+        }
 
-	list[ nfiles ] = 0;
+        ++nfiles;
+    } while (_findnext(findhandle, &findinfo) != -1);
 
-	_findclose (findhandle);
+    list[nfiles] = NULL;
 
-	// return a copy of the list
-	*numfiles = nfiles;
+    _findclose(findhandle);
 
-	if ( !nfiles ) {
-		return NULL;
-	}
+    // return a copy of the list
+    *numfiles = nfiles;
 
-	listCopy = Z_Malloc( ( nfiles + 1 ) * sizeof( *listCopy ) );
-	for ( i = 0 ; i < nfiles ; i++ ) {
-		listCopy[i] = list[i];
-	}
-	listCopy[i] = NULL;
+    if (!nfiles) {
+        return NULL;
+    }
 
-	do {
-		flag = 0;
-		for(i=1; i<nfiles; i++) {
-			if (strgtr(listCopy[i-1], listCopy[i])) {
-				char *temp = listCopy[i];
-				listCopy[i] = listCopy[i-1];
-				listCopy[i-1] = temp;
-				flag = 1;
-			}
-		}
-	} while(flag);
+    listCopy = Z_Malloc((nfiles + 1) * sizeof(*listCopy));
+    for (i = 0; i < nfiles; i++) {
+        listCopy[i] = list[i];
+    }
+    listCopy[i] = NULL;
 
-	return listCopy;
+    // bubble-sort name entries alphabetically, in ascending order
+    do {
+        swapped = qfalse;
+        for (i = 1; i < nfiles; i++) {
+            if (strgtr(listCopy[i - 1], listCopy[i])) {
+                char *temp      = listCopy[i];
+                listCopy[i]     = listCopy[i - 1];
+                listCopy[i - 1] = temp;
+                swapped         = qtrue;
+            }
+        }
+    } while (swapped);
+
+    return listCopy;
 }
 
 /*
