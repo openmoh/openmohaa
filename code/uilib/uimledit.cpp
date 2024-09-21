@@ -646,12 +646,19 @@ void UIMultiLineEdit::DeleteSelection(void)
 
     for (i = 0, m_lines.IterateFromHead(); m_lines.IsCurrentValid() && i < topsel->line; i++, m_lines.IterateNext()) {}
 
+    // delete topmost line of the selection, but only up to topsel->column
     str& topline = m_lines.getCurrent();
-    topline.CapLength(topsel->column);
+    if (topline.length() > topsel->column) {
+        topline.CapLength(topsel->column);
+    }
     m_lines.IterateNext();
-    str& line = m_lines.getCurrent();
+    str line = m_lines.getCurrent();
 
-    topline += &line[botsel->column];
+    // merge remainder of topmost line with the remainder after the end of selection
+    if (line.length() > botsel->column) {
+        topline += &line[botsel->column];
+    }
+
     m_lines.RemoveCurrentSetPrev();
     *botsel = *topsel;
     m_vertscroll->setNumItems(m_lines.getCount());
@@ -691,8 +698,11 @@ void UIMultiLineEdit::CharEvent(int ch)
         m_changed = true;
 
         str& line      = LineFromLineNumber(m_selection.begin.line, false);
-        str  otherline = &line[m_selection.begin.column];
-        otherline.CapLength(m_selection.begin.column);
+        str otherline = "";
+        if (line.length() > m_selection.begin.column) {
+            otherline = &line[m_selection.begin.column];
+            line.CapLength(m_selection.begin.column);
+        }
 
         if (m_lines.IsCurrentValid()) {
             m_lines.InsertAfterCurrent(otherline);
@@ -730,7 +740,9 @@ void UIMultiLineEdit::CopySelection(void)
 
     line = LineFromLineNumber(topsel->line, true);
 
-    clipText += &line[topsel->column];
+    if (line.length() > topsel->column) {
+        clipText += &line[topsel->column];
+    }
 
     if (topsel->line == botsel->line) {
         clipText.CapLength(botsel->column - topsel->column);
@@ -740,7 +752,9 @@ void UIMultiLineEdit::CopySelection(void)
         }
 
         line = LineFromLineNumber(botsel->line, true);
-        line.CapLength(botsel->column);
+        if (line.length() > botsel->column) {
+            line.CapLength(botsel->column);
+        }
         clipText += "\n" + line;
     }
 
