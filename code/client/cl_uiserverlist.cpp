@@ -642,9 +642,9 @@ void UIFAKKServerList::RefreshLANServerList( Event *ev )
 
 static void AddFilter(char* filter, const char* value) {
     if (*filter) {
-        Q_strcat(filter, sizeof(filter), va(" and %s", value));
+        strcat(filter, va(" and %s", value));
     } else {
-        Q_strncpyz(filter, value, sizeof(filter));
+        strcpy(filter, value);
     }
 }
 
