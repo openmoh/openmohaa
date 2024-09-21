@@ -303,14 +303,7 @@ UINotepad::~UINotepad()
         for (int j = inner->NumObjects(); j > 0; j--) {
             uipopup_describe *uipd = inner->ObjectAt(j);
             inner->RemoveObjectAt(j);
-            // NOTE: `delete uipd` is intentionally missing here!
-            // Since uipds created for this class have data fields
-            // that contain pointers only to static Event objects,
-            // the fields don't need to be cleaned up as they weren't
-            // dynamically allocated in the first place.
-            // See UINotepad::Create for reference.
-            // However, FIXME: the uipds themselves should still
-            // get cleaned up, but that doesn't happen yet.
+            delete uipd;
         }
     }
 }

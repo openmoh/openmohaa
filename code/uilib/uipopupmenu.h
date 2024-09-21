@@ -68,12 +68,19 @@ uipopup_describe::uipopup_describe
 inline
 uipopup_describe::~uipopup_describe()
 {
-	if (this->data)
-	{
-		// clean up strdup'd C-string from memory
-		free(this->data);
-		this->data = NULL;
-	}
+    if (this->data == NULL) {
+        // nothing to clean up
+        return;
+    }
+
+    // only clean up these types of uipds, because:
+    //  - UIP_EVENT types point to static Event instances,
+    //  - UIP_EVENT_STRING types point to already freed Event instances
+    if (this->type == UIP_CMD || this->type == UIP_CVAR) {
+        // clean up strdup'd C-string from memory
+        free(this->data);
+        this->data = NULL;
+    }
 }
 
 class UIPopupMenu : public UIWidget {
