@@ -128,7 +128,13 @@ void UIMultiLineEdit::getData(str& data)
     data = "";
 
     for (i = 0, m_lines.IterateFromHead(); m_lines.IsCurrentValid(); i++, m_lines.IterateNext()) {
-        data += m_lines.getCurrent();
+        str text = m_lines.getCurrent();
+        if (i == 0 && !text.length() && m_lines.getCount() <= 1) {
+            // file is empty
+            return;
+        }
+
+        data += text;
 
         if (i != m_lines.getCount() - 1) {
             data += "\n";
@@ -213,7 +219,11 @@ void UIMultiLineEdit::Draw(void)
                 // print entire line with the selection highlight box around it
                 DrawBox(0.0f, aty, linewidth, m_font->getHeight(m_bVirtual), selectionBG, 1.f);
                 m_font->setColor(selectionColor);
-                m_font->Print(0, aty, Sys_LV_CL_ConvertString(cur), -1, m_bVirtual);
+                // Fixed in OPM:
+                // don't spam LOCALIZATION ERROR messages to console
+                // for clicking lines in the opened text document
+                //m_font->Print(0, aty, Sys_LV_CL_ConvertString(cur), -1, m_bVirtual);
+                m_font->Print(0, aty, cur, -1, m_bVirtual);
             } else if (i != topsel->line) {
                 // part of this line is selected, and selection continues/began above
                 if (i == botsel->line) { // sanity check, should always be true
@@ -261,7 +271,11 @@ void UIMultiLineEdit::Draw(void)
                     // no selection or highlighted text
                     caret = m_font->getWidth(cur, topsel->column);
                     m_font->setColor(m_foreground_color);
-                    m_font->Print(0, aty, Sys_LV_CL_ConvertString(cur), -1, m_bVirtual);
+                    // Fixed in OPM:
+                    // don't spam LOCALIZATION ERROR messages to console
+                    // for clicking lines in the opened text document
+                    //m_font->Print(0, aty, Sys_LV_CL_ConvertString(cur), -1, m_bVirtual);
+                    m_font->Print(0, aty, cur, -1, m_bVirtual);
                 } else {
                     // selection starts and ends on this line
                     int toplen = m_font->getWidth(cur, topsel->column); // X coord of highlighting start
@@ -313,6 +327,7 @@ void UIMultiLineEdit::Draw(void)
     }
 }
 
+// num is the ZERO-BASED index of the sought line!
 str& UIMultiLineEdit::LineFromLineNumber(int num, bool resetpos)
 {
     static str emptyLine;
@@ -349,9 +364,7 @@ void UIMultiLineEdit::PointToSelectionPoint(const UIPoint2D& p, selectionpoint_t
     float lastWidth  = 0;
 
     clickedLine = m_vertscroll->getTopItem() + p.y / m_font->getHeight(m_bVirtual);
-    if (clickedLine >= m_lines.getCount()) {
-        clickedLine = m_lines.getCount() - 1;
-    }
+    clickedLine = Q_min(clickedLine, m_lines.getCount() - 1);
 
     if (clickedLine < 0) {
         sel.line   = 0;
@@ -360,12 +373,12 @@ void UIMultiLineEdit::PointToSelectionPoint(const UIPoint2D& p, selectionpoint_t
     }
 
     const char *line = LineFromLineNumber(clickedLine, true).c_str();
-    for (i = 0; i < line[i] && totalWidth < p.x; i++) {
+    for (i = 0; line[i] && totalWidth < p.x; i++) {
         lastWidth = m_font->getCharWidth(line[i]);
         totalWidth += lastWidth;
     }
 
-    if (i < line[i] && i) {
+    if (line[i] && i) {
         lastWidth *= 0.5f;
         if (totalWidth - lastWidth >= p.x) {
             i--;
@@ -448,7 +461,10 @@ void UIMultiLineEdit::EnsureSelectionPointVisible(selectionpoint_t& point)
 
 void UIMultiLineEdit::BoundSelectionPoint(selectionpoint_t& point)
 {
-    point.line = Q_clamp_int(point.line, 0, m_lines.getCount());
+    // since LineFromLineNumber expects a zero-based line index,
+    // clamp it to one less than the number of lines if the selection point
+    // is right at the end of the text document
+    point.line = Q_clamp_int(point.line, 0, m_lines.getCount() - 1);
 
     str& line    = LineFromLineNumber(point.line, true);
     point.column = Q_clamp_int(point.column, 0, line.length());
@@ -618,7 +634,7 @@ void UIMultiLineEdit::DeleteSelection(void)
         EnsureSelectionPointVisible(*topsel);
         return;
     } else if (botsel->line - topsel->line > 1) {
-        for (i = 0, m_lines.IterateFromHead(); m_lines.IsCurrentValid() && i < topsel->line;
+        for (i = 0, m_lines.IterateFromHead(); m_lines.IsCurrentValid() && i < botsel->line;
              i++, m_lines.IterateNext()) {
             if (i > topsel->line) {
                 m_lines.RemoveCurrentSetPrev();
@@ -630,12 +646,19 @@ void UIMultiLineEdit::DeleteSelection(void)
 
     for (i = 0, m_lines.IterateFromHead(); m_lines.IsCurrentValid() && i < topsel->line; i++, m_lines.IterateNext()) {}
 
+    // delete topmost line of the selection, but only up to topsel->column
     str& topline = m_lines.getCurrent();
-    topline.CapLength(topsel->column);
+    if (topline.length() > topsel->column) {
+        topline.CapLength(topsel->column);
+    }
     m_lines.IterateNext();
-    str& line = m_lines.getCurrent();
+    str line = m_lines.getCurrent();
 
-    topline += &line[botsel->column];
+    // merge remainder of topmost line with the remainder after the end of selection
+    if (line.length() > botsel->column) {
+        topline += &line[botsel->column];
+    }
+
     m_lines.RemoveCurrentSetPrev();
     *botsel = *topsel;
     m_vertscroll->setNumItems(m_lines.getCount());
@@ -675,8 +698,11 @@ void UIMultiLineEdit::CharEvent(int ch)
         m_changed = true;
 
         str& line      = LineFromLineNumber(m_selection.begin.line, false);
-        str  otherline = &line[m_selection.begin.column];
-        otherline.CapLength(m_selection.begin.column);
+        str otherline = "";
+        if (line.length() > m_selection.begin.column) {
+            otherline = &line[m_selection.begin.column];
+            line.CapLength(m_selection.begin.column);
+        }
 
         if (m_lines.IsCurrentValid()) {
             m_lines.InsertAfterCurrent(otherline);
@@ -714,21 +740,24 @@ void UIMultiLineEdit::CopySelection(void)
 
     line = LineFromLineNumber(topsel->line, true);
 
-    clipText += &line[topsel->column];
+    if (line.length() > topsel->column) {
+        clipText += &line[topsel->column];
+    }
 
     if (topsel->line == botsel->line) {
         clipText.CapLength(botsel->column - topsel->column);
     } else {
         for (int i = topsel->line + 1; i < botsel->line; ++i) {
-            clipText += LineFromLineNumber(i, 1);
+            clipText += "\n" + LineFromLineNumber(i, 1);
         }
 
         line = LineFromLineNumber(botsel->line, true);
-        line.CapLength(botsel->column);
+        if (line.length() > botsel->column) {
+            line.CapLength(botsel->column);
+        }
         clipText += "\n" + line;
     }
 
-    // FIXME: clipboard not implemented yet
     uii.Sys_SetClipboard(clipText);
 }
 
@@ -737,12 +766,11 @@ void UIMultiLineEdit::PasteSelection(void)
     str sel;
     int i;
 
-    // temporary variable added in OPM as str cannot handle NULL assignment
-    // will be removed when Sys_GetClipboard is properly implemented
+    // variable added in OPM as str cannot handle NULL assignment
+    // we can get NULL here if clipboard is empty/couldn't be retrieved
     const char *clipboardData = uii.Sys_GetClipboard();
     if (clipboardData == NULL)
     {
-        // FIXME: clipboard not implemented yet
         return;
     }
 
@@ -753,8 +781,17 @@ void UIMultiLineEdit::PasteSelection(void)
     for (i = 0; i < sel.length(); i++) {
         if (sel[i] == '\n') {
             CharEvent('\r');
+        } else if (sel[i] == '\r') {
+            // Changed in OPM:
+            // NOP, drop CR characters.
+            // On Linux/Mac they aren't present anyway,
+            // on Windows we already have LF chars next to them.
+            // The filtering for CR on the Windows side was originally done
+            // in Sys_GetWholeClipboard with a "manual" selective strcpy,
+            // but here we iterate over all characters of the clipboard anyways,
+            // so this feels like a better place to do the filtering.
         } else {
-            CharEvent(sel[i]);
+            CharEvent(sel[i]); // FIXME: this is VERY slow and jams up the EventQueue!
         }
     }
 }

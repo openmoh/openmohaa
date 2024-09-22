@@ -83,7 +83,7 @@ void PickFile(const char *name, Listener *obj, Event& event)
     if (name && *name && strchr(name, '/')) {
         currentpath = name;
 
-        for (i = currentpath.length(); i > 0; i--) {
+        for (i = currentpath.length() - 1; i > 0; i--) {
             if (currentpath[i] == '/') {
                 break;
             }

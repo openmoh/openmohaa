@@ -35,6 +35,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #ifndef _WIN32
 #   include <sys/types.h>
+#   include <sys/stat.h>
+#   include <errno.h>
 #   include <dirent.h>
 #endif
 
@@ -4445,13 +4447,51 @@ void FS_CanonicalFilename(char* filename)
 	*dest = 0;
 }
 
-void FS_FileTime(const char* filename, char* date, char* size) {
-	const char* ospath;
+void FS_FileTime(const char *filename, char *date, char *size)
+{
+    const char *ospath;
+    struct stat fileStat;
+    int         result = -1;
 
-	date[0] = 0;
-	size[0] = 0;
+    date[0] = 0;
+    size[0] = 0;
 
-	ospath = FS_BuildOSPath(fs_homepath->string, fs_gamedir, filename);
+    // Fixed in OPM:
+    // don't only check the home directory (fs_homepath) for possible files,
+    // but look through all searchpaths
+    //ospath = FS_BuildOSPath(fs_homepath->string, fs_gamedir, filename);
+    for (auto search = fs_searchpaths; search; search = search->next) {
+        if (search->dir != NULL && search->dir->path != NULL) {
+            ospath = FS_BuildOSPath(search->dir->path, fs_gamedir, filename);
+            result = stat(ospath, &fileStat);
+            if (result != -1) {
+                // found the valid file
+                break;
+            }
+        }
+    }
 
-	// FIXME: unimplemented
+    if (result == -1) {
+        int err = errno;
+        return;
+    }
+
+    time_t modTime  = fileStat.st_mtime;
+    off_t  fileSize = fileStat.st_size;
+
+    // FIXME: provide option not to use idiotic date formats
+    tm tm = *localtime(&modTime);
+    Q_snprintf(
+        date,
+        128,
+        "%2d/%02d/%04d %2d:%02d%c",
+        tm.tm_mon + 1,
+        tm.tm_mday,
+        tm.tm_year + 1900,
+        (tm.tm_hour + 12) % 12,
+        tm.tm_min,
+        tm.tm_hour < 12 ? 'a' : 'p'
+    );
+
+    Q_snprintf(size, 128, "%ld", fileSize);
 }

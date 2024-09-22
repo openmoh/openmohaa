@@ -124,6 +124,7 @@ typedef struct uiimport_s {
 	const char *( *Key_KeynumToString )( int keynum );
 	const char *( *GetConfigstring )( int index );
 	void ( *UI_CloseDMConsole )( void );
+	void ( *GetClipboardData )( char *buf, int buflen );
 } uiimport_t;
 
 #if 1
