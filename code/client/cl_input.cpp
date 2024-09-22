@@ -993,16 +993,6 @@ void CL_WritePacket( void ) {
 	}
 
 	CL_Netchan_Transmit (&clc.netchan, &buf);
-
-	// clients never really should have messages large enough
-	// to fragment, but in case they do, fire them all off
-	// at once
-	// TTimo: this causes a packet burst, which is bad karma for winsock
-	// added a WARNING message, we'll see if there are legit situations where this happens
-	while ( clc.netchan.unsentFragments ) {
-		Com_DPrintf( "WARNING: #462 unsent fragments (not supposed to happen!)\n" );
-		CL_Netchan_TransmitNextFragment( &clc.netchan );
-	}
 }
 
 /*
