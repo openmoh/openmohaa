@@ -704,7 +704,7 @@ void CL_PlayDemo_f( void ) {
 
 	clc.state = CA_CONNECTED;
 	clc.demoplaying = qtrue;
-	Q_strncpyz( cls.servername, Cmd_Argv(1), sizeof( cls.servername ) );
+	Q_strncpyz( clc.servername, Cmd_Argv(1), sizeof( clc.servername ) );
 
 	// read demo messages until connected
 	while ( clc.state >= CA_CONNECTED && clc.state < CA_PRIMED ) {
@@ -830,7 +830,7 @@ void CL_MapLoading( qboolean flush, const char *pszMapName ) {
 
 	if (pszMapName) {
 		// if we are already connected to the local host, stay connected
-		if (clc.state >= CA_CONNECTED && !Q_stricmp(cls.servername, "localhost")) {
+		if (clc.state >= CA_CONNECTED && !Q_stricmp(clc.servername, "localhost")) {
 			clc.state = CA_CONNECTED;		// so the connect screen is drawn
 			Com_Memset(cls.updateInfoString, 0, sizeof(cls.updateInfoString));
 			Com_Memset(clc.serverMessage, 0, sizeof(clc.serverMessage));
@@ -841,11 +841,11 @@ void CL_MapLoading( qboolean flush, const char *pszMapName ) {
 			// clear nextmap so the cinematic shutdown doesn't execute it
 			Cvar_Set("nextmap", "");
 			CL_Disconnect();
-			Q_strncpyz(cls.servername, "localhost", sizeof(cls.servername));
+			Q_strncpyz(clc.servername, "localhost", sizeof(clc.servername));
 			clc.state = CA_CHALLENGING;		// so the connect screen is drawn
             clc.connectStartTime = cls.realtime;
 			clc.connectTime = -RETRANSMIT_TIMEOUT;
-			NET_StringToAdr(cls.servername, &clc.serverAddress, NA_UNSPEC);
+			NET_StringToAdr(clc.servername, &clc.serverAddress, NA_UNSPEC);
 			// we don't need a challenge on the localhost
 
 			CL_CheckForResend();
@@ -1232,12 +1232,12 @@ CL_Reconnect_f
 ================
 */
 void CL_Reconnect_f( void ) {
-	if ( !strlen( cls.servername ) || !strcmp( cls.servername, "localhost" ) ) {
+	if ( !strlen( clc.servername ) || !strcmp( clc.servername, "localhost" ) ) {
 		Com_Printf( "Can't reconnect to localhost.\n" );
 		return;
 	}
 	Cvar_Set("ui_singlePlayerActive", "0");
-	Cbuf_AddText( va("connect %s\n", cls.servername ) );
+	Cbuf_AddText( va("connect %s\n", clc.servername ) );
 }
 
 /*
@@ -1273,9 +1273,9 @@ void CL_Connect( const char *server, netadrtype_t family ) {
 	CL_FlushMemory( );
 	*/
 
-	Q_strncpyz( cls.servername, server, sizeof( cls.servername ) );
+	Q_strncpyz( clc.servername, server, sizeof( clc.servername ) );
 
-	if( !NET_StringToAdr( cls.servername, &clc.serverAddress, family ) ) {
+	if( !NET_StringToAdr( clc.servername, &clc.serverAddress, family ) ) {
 		Com_Printf( "Bad server address\n" );
 		clc.state = CA_DISCONNECTED;
 		UI_PushMenu("badserveraddy");
@@ -1286,7 +1286,7 @@ void CL_Connect( const char *server, netadrtype_t family ) {
 	}
 	serverString = NET_AdrToStringwPort(clc.serverAddress);
 
-	Com_Printf( "%s resolved to %s\n", cls.servername, serverString );
+	Com_Printf( "%s resolved to %s\n", clc.servername, serverString );
 
 	if (cl_guidServerUniq->integer)
 		CL_UpdateGUID(serverString, strlen(serverString));
@@ -1705,7 +1705,7 @@ CL_Clientinfo_f
 void CL_Clientinfo_f( void ) {
 	Com_Printf( "--------- Client Information ---------\n" );
 	Com_Printf( "state: %i\n", clc.state );
-	Com_Printf( "Server: %s\n", cls.servername );
+	Com_Printf( "Server: %s\n", clc.servername );
 	Com_Printf ("User info settings:\n");
 	Info_Print( Cvar_InfoString( CVAR_USERINFO ) );
 	Com_Printf( "--------------------------------------\n" );
@@ -2618,7 +2618,7 @@ void CL_Frame ( int msec ) {
 					now.tm_min,
 					now.tm_sec );
 
-			Q_strncpyz( serverName, cls.servername, MAX_OSPATH );
+			Q_strncpyz( serverName, clc.servername, MAX_OSPATH );
 			// Replace the ":" in the address as it is not a valid
 			// file name character
 			p = strstr( serverName, ":" );

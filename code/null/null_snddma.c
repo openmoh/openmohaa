@@ -47,6 +47,29 @@ void SNDDMA_Submit(void)
 {
 }
 
+#ifdef USE_VOIP
+void SNDDMA_StartCapture(void)
+{
+}
+
+int SNDDMA_AvailableCaptureSamples(void)
+{
+	return 0;
+}
+
+void SNDDMA_Capture(int samples, byte *data)
+{
+}
+
+void SNDDMA_StopCapture(void)
+{
+}
+
+void SNDDMA_MasterGain( float val )
+{
+}
+#endif
+
 void SNDDMA_Activate(void) {
 }
 

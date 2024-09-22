@@ -1111,6 +1111,42 @@ void CL_FirstSnapshot( void ) {
 		Cbuf_AddText( cl_activeAction->string );
 		Cvar_Set( "activeAction", "" );
 	}
+
+#ifdef USE_MUMBLE
+	if ((cl_useMumble->integer) && !mumble_islinked()) {
+		int ret = mumble_link(CLIENT_WINDOW_TITLE);
+		Com_Printf("Mumble: Linking to Mumble application %s\n", ret==0?"ok":"failed");
+	}
+#endif
+
+#ifdef USE_VOIP
+	if (!clc.voipCodecInitialized) {
+		int i;
+		int error;
+
+		clc.opusEncoder = opus_encoder_create(48000, 1, OPUS_APPLICATION_VOIP, &error);
+
+		if ( error ) {
+			Com_DPrintf("VoIP: Error opus_encoder_create %d\n", error);
+			return;
+		}
+
+		for (i = 0; i < MAX_CLIENTS; i++) {
+			clc.opusDecoder[i] = opus_decoder_create(48000, 1, &error);
+			if ( error ) {
+				Com_DPrintf("VoIP: Error opus_decoder_create(%d) %d\n", i, error);
+				return;
+			}
+			clc.voipIgnore[i] = qfalse;
+			clc.voipGain[i] = 1.0f;
+		}
+		clc.voipCodecInitialized = qtrue;
+		clc.voipMuteAll = qfalse;
+		Cmd_AddCommand ("voip", CL_Voip_f);
+		Cvar_Set("cl_voipSendTarget", "spatial");
+		Com_Memset(clc.voipTargets, ~0, sizeof(clc.voipTargets));
+	}
+#endif
 }
 
 static int lastSnapFlags;

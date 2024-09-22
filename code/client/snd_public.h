@@ -166,3 +166,20 @@ unsigned int S_GetMusicOffset();
 #endif
 
 #endif
+
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#ifdef USE_VOIP
+void S_StartCapture( void );
+int S_AvailableCaptureSamples( void );
+void S_Capture( int samples, byte *data );
+void S_StopCapture( void );
+void S_MasterGain( float gain );
+#endif
+
+#ifdef __cplusplus
+}
+#endif

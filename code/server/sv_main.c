@@ -24,7 +24,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../gamespy/sv_gamespy.h"
 #include "../gamespy/sv_gqueryreporting.h"
 
-cvar_t			*sv_mapname;
+#ifdef USE_VOIP
+cvar_t *sv_voip;
+cvar_t *sv_voipProtocol;
+#endif
+
 serverStatic_t	svs;				// persistant server info
 server_t		sv;					// local server
 //vm_t			*gvm = NULL;				// game virtual machine
@@ -45,6 +49,7 @@ cvar_t	*sv_reconnectlimit;		// minimum seconds between connect messages
 cvar_t	*sv_showloss;			// report when usercmds are lost
 cvar_t	*sv_padPackets;			// add nop bytes to messages
 cvar_t	*sv_killserver;			// menu system can set to 1 to shut server down
+cvar_t	*sv_mapname;
 cvar_t	*sv_mapChecksum;
 cvar_t	*sv_serverid;
 cvar_t	*sv_minRate;

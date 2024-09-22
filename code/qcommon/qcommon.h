@@ -362,7 +362,11 @@ enum svc_ops_e {
 	svc_centerprint,
 	svc_locprint,
 	svc_cgameMessage,
-	svc_EOF
+	svc_EOF,
+
+// new commands, supported only by ioquake3 protocol but not legacy
+	svc_voipSpeex,     // not wrapped in USE_VOIP, so this value is reserved.
+	svc_voipOpus,      //
 };
 
 //

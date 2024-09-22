@@ -36,6 +36,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "cl_curl.h"
 #endif /* USE_CURL */
 
+#ifdef USE_VOIP
+#include <opus.h>
+#endif
+
 // file full of random crap that gets used to create cl_guid
 #define QKEY_FILE "qkey"
 #define QKEY_SIZE 2048
@@ -174,6 +178,7 @@ typedef struct {
 	int			lastPacketSentTime;			// for retransmits during connection
 	int			lastPacketTime;				// for timeouts
 
+	char		servername[MAX_OSPATH];		// name of server from original connect (used by reconnect)
 	netadr_t	serverAddress;
 	int			connectTime;				// for connection retransmits
 	int			connectStartTime;
@@ -239,15 +244,42 @@ typedef struct {
 	int			timeDemoMaxDuration;	// maximum frame duration
 	unsigned char	timeDemoDurations[ MAX_TIMEDEMO_DURATIONS ];	// log of frame durations
 
+    float		aviVideoFrameRemainder;
+    float		aviSoundFrameRemainder;
+
+#ifdef USE_VOIP
+	qboolean voipEnabled;
+	qboolean voipCodecInitialized;
+
+	// incoming data...
+	// !!! FIXME: convert from parallel arrays to array of a struct.
+	OpusDecoder *opusDecoder[MAX_CLIENTS];
+	byte voipIncomingGeneration[MAX_CLIENTS];
+	int voipIncomingSequence[MAX_CLIENTS];
+	float voipGain[MAX_CLIENTS];
+	qboolean voipIgnore[MAX_CLIENTS];
+	qboolean voipMuteAll;
+
+	// outgoing data...
+	// if voipTargets[i / 8] & (1 << (i % 8)),
+	// then we are sending to clientnum i.
+	uint8_t voipTargets[(MAX_CLIENTS + 7) / 8];
+	uint8_t voipFlags;
+	OpusEncoder *opusEncoder;
+	int voipOutgoingDataSize;
+	int voipOutgoingDataFrames;
+	int voipOutgoingSequence;
+	byte voipOutgoingGeneration;
+	byte voipOutgoingData[1024];
+	float voipPower;
+#endif
+
 #ifdef LEGACY_PROTOCOL
 	qboolean compat;
 #endif
 
 	// big stuff at end of structure so most offsets are 15 bits or less
 	netchan_t	netchan;
-
-    float		aviVideoFrameRemainder;
-    float		aviSoundFrameRemainder;
 } clientConnection_t;
 
 extern	clientConnection_t clc;
@@ -296,8 +328,6 @@ typedef struct {
 	qboolean	vid_restart;
 	qboolean	cddialog;			// bring up the cd needed dialog next frame
 	qboolean	no_menus;
-
-	char		servername[MAX_OSPATH];		// name of server from original connect (used by reconnect)
 
 	// when the server clears the hunk, all of these must be restarted
 	qboolean	rendererRegistered;
@@ -445,6 +475,32 @@ extern	cvar_t	*cl_r_fullscreen;
 
 extern	cvar_t	*cl_consoleKeys;
 
+#ifdef USE_MUMBLE
+extern	cvar_t	*cl_useMumble;
+extern	cvar_t	*cl_mumbleScale;
+#endif
+
+#ifdef USE_VOIP
+// cl_voipSendTarget is a string: "all" to broadcast to everyone, "none" to
+//  send to no one, or a comma-separated list of client numbers:
+//  "0,7,2,23" ... an empty string is treated like "all".
+extern	cvar_t	*cl_voipUseVAD;
+extern	cvar_t	*cl_voipVADThreshold;
+extern	cvar_t	*cl_voipSend;
+extern	cvar_t	*cl_voipSendTarget;
+extern	cvar_t	*cl_voipGainDuringCapture;
+extern	cvar_t	*cl_voipCaptureMult;
+extern	cvar_t	*cl_voipShowMeter;
+extern	cvar_t	*cl_voip;
+
+// 20ms at 48k
+#define VOIP_MAX_FRAME_SAMPLES		( 20 * 48 )
+
+// 3 frame is 60ms of audio, the max opus will encode at once
+#define VOIP_MAX_PACKET_FRAMES		3
+#define VOIP_MAX_PACKET_SAMPLES		( VOIP_MAX_FRAME_SAMPLES * VOIP_MAX_PACKET_FRAMES )
+#endif
+
 extern	cvar_t	*cg_gametype;
 
 extern	cvar_t* j_pitch;
@@ -545,6 +601,10 @@ void CL_EyeInfo(usereyes_t *info);
 extern int cl_connectedToPureServer;
 extern int cl_connectedToCheatServer;
 extern msg_t *cl_currentMSG;
+
+#ifdef USE_VOIP
+void CL_Voip_f( void );
+#endif
 
 void CL_SystemInfoChanged( void );
 void CL_ParseServerMessage( msg_t *msg );
