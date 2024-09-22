@@ -48,6 +48,8 @@ ELSE()
 	set(TARGET_ARCH_SUFFIX ${TARGET_ARCH})
 ENDIF()
 
+set(TARGET_BIN_SUFFIX ".${TARGET_ARCH}")
+
 message(STATUS "Architecture detected: ${TARGET_ARCH}, suffix set to ${TARGET_ARCH_SUFFIX}.")
 
 IF(WIN32)
@@ -93,7 +95,7 @@ target_link_libraries(omohaaded PRIVATE qcommon qcommon_standalone)
 
 # Gamespy dependency
 target_include_directories(omohaaded PUBLIC "code/qcommon" "code/script" "code/gamespy" "code/server")
-set_target_properties(omohaaded PROPERTIES OUTPUT_NAME "omohaaded${TARGET_BASE_SUFFIX}${TARGET_ARCH_SUFFIX}")
+set_target_properties(omohaaded PROPERTIES OUTPUT_NAME "omohaaded${TARGET_BIN_SUFFIX}")
 set_target_properties(omohaaded PROPERTIES DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX})
 
 if (MSVC)
@@ -124,7 +126,7 @@ if (NOT BUILD_NO_CLIENT)
 
 	### Gamespy dependency
 	target_include_directories(openmohaa PUBLIC "code/qcommon" "code/script" "code/gamespy" "code/server" "code/client" "code/uilib" "code/jpeg-8c")
-	set_target_properties(openmohaa PROPERTIES OUTPUT_NAME "openmohaa${TARGET_BASE_SUFFIX}${TARGET_ARCH_SUFFIX}")
+	set_target_properties(openmohaa PROPERTIES OUTPUT_NAME "openmohaa${TARGET_BIN_SUFFIX}")
 	set_target_properties(openmohaa PROPERTIES DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX})
 
 	target_link_libraries(openmohaa PRIVATE jpeg8)
