@@ -248,21 +248,23 @@ qboolean	CL_GetSnapshot( int snapshotNumber, snapshot_t *snapshot ) {
 	if (snapshot->numEntities != count) {
 		Com_DPrintf("CL_GetSnapshot: Not all children could find their parents.\n");
 
-		for (i = count; i < snapshot->numEntities; i++)
+		for (i = snapshot->numEntities; i < count; i++)
 		{
-			s1 = &cl.parseEntities[(clSnap->parseEntitiesNum + i) & (MAX_PARSE_ENTITIES - 1)];
-			if (parents[s1->number] >= 0) {
-				Com_DPrintf(
-					"CL_GetSnapshot: entity %d with parent %d and model '%s' at %.2f %.2f %.2f, could not find parent.\n",
-					s1->number,
-					s1->parent,
-					CL_ConfigString(CS_MODELS + s1->modelindex),
-					s1->origin[0],
-					s1->origin[1],
-					s1->origin[2]
-				);
+			for (pnum = 0; pnum < count; pnum++) {
+				s1 = &cl.parseEntities[(clSnap->parseEntitiesNum + pnum) & (MAX_PARSE_ENTITIES - 1)];
+				if (parents[s1->number] >= 0) {
+					Com_DPrintf(
+						"CL_GetSnapshot: entity %d with parent %d and model '%s' at %.2f %.2f %.2f, could not find parent.\n",
+						s1->number,
+						s1->parent,
+						CL_ConfigString(CS_MODELS + s1->modelindex),
+						s1->origin[0],
+						s1->origin[1],
+						s1->origin[2]
+					);
 
-				parents[s1->number] = -2;
+					parents[s1->number] = -2;
+				}
 			}
 		}
 	}
