@@ -3567,6 +3567,8 @@ void CL_Shutdown(const char* finalmsg, qboolean disconnect, qboolean quit) {
 	Cmd_RemoveCommand ("video");
 	Cmd_RemoveCommand ("stopvideo");
 
+	CL_ShutdownInput();
+
 	Cvar_Set( "cl_running", "0" );
 
 	recursive = qfalse;
