@@ -33,7 +33,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #endif
 
 // FPS
-#include <chrono>
+#ifdef __cplusplus
+#  include <chrono>
+#endif
 
 #include "tiki.h"
 
@@ -158,9 +160,15 @@ static void	(*rd_flush)( char *buffer );
 
 #define MAX_FPS_TIMES 16
 
+#ifdef __cplusplus
 using fps_clock_t = std::chrono::high_resolution_clock;
 using fps_time_t = fps_clock_t::time_point;
 using fps_delta_t = fps_clock_t::duration;
+#else
+typedef unsigned long long fps_clock_t;
+typedef unsigned long long fps_time_t;
+typedef unsigned long long fps_delta_t;
+#endif
 
 static int fpsindex;
 static fps_delta_t fpstimes[MAX_FPS_TIMES];
@@ -2219,19 +2227,35 @@ void Com_Frame( void ) {
 	}
 
 	if (fps->integer) {
-		fps_time_t fpstime = fps_clock_t::now();
-		fps_delta_t delta = fpstime - fpslasttime;
+		fps_time_t fpstime;
+		fps_delta_t delta;
+
+#ifdef __cplusplus
+		fpstime = fps_clock_t::now();
+#else
+		fpstime = Sys_Milliseconds();
+#endif
+
+		delta = fpstime - fpslasttime;
 
 		fpstotal = (fpstime - fpslasttime) + (fpstotal - fpstimes[fpsindex]);
 		fpstimes[fpsindex] = fpstime - fpslasttime;
 		fpsindex = (fpsindex + 1) % MAX_FPS_TIMES;
 		fpslasttime = fpstime;
 
+#ifdef __cplusplus
 		if (fpstotal.count()) {
-			currentfps = 16.0 / std::chrono::duration<long double>(fpstotal).count();
+			currentfps = MAX_FPS_TIMES / std::chrono::duration<long double>(fpstotal).count();
 		} else {
 			currentfps = 0.0;
 		}
+#else
+		if (fpstotal) {
+			currentfps = MAX_FPS_TIMES / (fpstotal / 1000.0);
+		} else {
+			currentfps = 0.0;
+		}
+#endif
 	}
 
 	//
@@ -2278,12 +2302,12 @@ void Com_Shutdown (void) {
 qboolean Com_SanitizeName( const char *pszOldName, char *pszNewName )
 {
 	int i;
-	qboolean bBadName = false;
+	qboolean bBadName = qfalse;
 	const char *p = pszOldName;
 
 	if( *pszOldName && *pszOldName <= ' ' )
 	{
-		bBadName = true;
+		bBadName = qtrue;
 
 		while( *p && *p <= ' ' )
 		{
@@ -2297,22 +2321,22 @@ qboolean Com_SanitizeName( const char *pszOldName, char *pszNewName )
 		if( *p == '~' || *p == '`' )
 		{
 			pszNewName[ i ] = '*';
-			bBadName = true;
+			bBadName = qtrue;
 		}
 		else if( *p == '\"' )
 		{
 			pszNewName[ i ] = '\'';
-			bBadName = true;
+			bBadName = qtrue;
 		}
 		else if( *p == '\\' )
 		{
 			pszNewName[ i ] = '/';
-			bBadName = true;
+			bBadName = qtrue;
 		}
 		else if( *p == ';' )
 		{
 			pszNewName[ i ] = ':';
-			bBadName = true;
+			bBadName = qtrue;
 		}
 		else
 		{
@@ -2322,7 +2346,7 @@ qboolean Com_SanitizeName( const char *pszOldName, char *pszNewName )
 
 	if( i > 0 && pszNewName[ i - 1 ] <= ' ' )
 	{
-		bBadName = true;
+		bBadName = qtrue;
 		do
 		{
 			p++;
@@ -2333,11 +2357,11 @@ qboolean Com_SanitizeName( const char *pszOldName, char *pszNewName )
 	if( !i )
 	{
 		memcpy( pszNewName, "*** Blank Name ***", sizeof( "*** Blank Name ***" ) );
-		bBadName = true;
+		bBadName = qtrue;
 	}
 
 	if( *p )
-		bBadName = true;
+		bBadName = qtrue;
 
 	return bBadName;
 }
@@ -2629,7 +2653,7 @@ void Field_CompleteCommand(char* cmd,
         char* p;
 
 #ifndef DEDICATED
-        // This should always be true
+        // This should always be qtrue
         if (baseCmd[0] == '\\' || baseCmd[0] == '/')
             baseCmd++;
 #endif
@@ -2912,9 +2936,9 @@ void Com_InitTargetGameWithType(target_game_e target_game)
 
     switch (target_game)
     {
-    case target_game_e::TG_MOH:
-        Cvar_Set("com_protocol", va("%i", protocol_e::PROTOCOL_MOH));
-        Cvar_Set("com_legacyprotocol", va("%i", protocol_e::PROTOCOL_MOH));
+    case TG_MOH:
+        Cvar_Set("com_protocol", va("%i", PROTOCOL_MOH));
+        Cvar_Set("com_legacyprotocol", va("%i", PROTOCOL_MOH));
 		Cvar_Set("com_target_version", TARGET_GAME_VERSION_MOH);
 		Cvar_Set("com_target_extension", PRODUCT_EXTENSION_MOH);
 		Cvar_Set("com_gamename", TARGET_GAME_NAME_MOH);
@@ -2922,19 +2946,19 @@ void Com_InitTargetGameWithType(target_game_e target_game)
 		Cvar_Set("fs_basegame", "");
         break;
 
-    case target_game_e::TG_MOHTA:
-        Cvar_Set("com_protocol", va("%i", protocol_e::PROTOCOL_MOHTA));
-        Cvar_Set("com_legacyprotocol", va("%i", protocol_e::PROTOCOL_MOHTA));
+    case TG_MOHTA:
+        Cvar_Set("com_protocol", va("%i", PROTOCOL_MOHTA));
+        Cvar_Set("com_legacyprotocol", va("%i", PROTOCOL_MOHTA));
 		Cvar_Set("com_target_version", TARGET_GAME_VERSION_MOHTA);
 		Cvar_Set("com_target_extension", PRODUCT_EXTENSION_MOHTA);
 		Cvar_Set("com_gamename", TARGET_GAME_NAME_MOHTA);
         Cvar_Set("fs_basegame", "mainta");
         break;
 
-    case target_game_e::TG_MOHTT:
+    case TG_MOHTT:
 		// mohta and mohtt use the same protocol version number
-        Cvar_Set("com_protocol", va("%i", protocol_e::PROTOCOL_MOHTA));
-        Cvar_Set("com_legacyprotocol", va("%i", protocol_e::PROTOCOL_MOHTA));
+        Cvar_Set("com_protocol", va("%i", PROTOCOL_MOHTA));
+        Cvar_Set("com_legacyprotocol", va("%i", PROTOCOL_MOHTA));
 		Cvar_Set("com_target_version", TARGET_GAME_VERSION_MOHTT);
 		Cvar_Set("com_target_extension", PRODUCT_EXTENSION_MOHTT);
 		Cvar_Set("com_gamename", TARGET_GAME_NAME_MOHTT);
@@ -2955,7 +2979,7 @@ Com_InitTargetGame
 ===============
 */
 void Com_InitTargetGame() {
-	Com_InitTargetGameWithType(static_cast<target_game_e>(com_target_game->integer));
+	Com_InitTargetGameWithType((target_game_e)com_target_game->integer);
 }
 
 #ifdef __cplusplus

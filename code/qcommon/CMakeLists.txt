@@ -51,7 +51,7 @@ set(SOURCES_COMMON
 	"${CMAKE_SOURCE_DIR}/code/qcommon/cm_trace_lbd.cpp"
 	"${CMAKE_SOURCE_DIR}/code/qcommon/cm_trace_obfuscation.cpp"
 	"${CMAKE_SOURCE_DIR}/code/qcommon/cmd.c"
-	"${CMAKE_SOURCE_DIR}/code/qcommon/common.cpp"
+	"${CMAKE_SOURCE_DIR}/code/qcommon/common.c"
 	"${CMAKE_SOURCE_DIR}/code/qcommon/crc.c"
 	"${CMAKE_SOURCE_DIR}/code/qcommon/cvar.c"
 	"${CMAKE_SOURCE_DIR}/code/qcommon/files.cpp"
