@@ -1001,7 +1001,6 @@ void Hud::MoveOverTime( float time )
 
 void Hud::Refresh( int clientNumber )
 {
-#ifdef GAME_DLL
 	SetBroadcast( clientNumber );
 
 	gi.MSG_StartCGM( BG_MapCGMToProtocol(g_protocol, CGM_HUDDRAW_ALIGN ));
@@ -1093,13 +1092,13 @@ void Hud::Refresh( int clientNumber )
 		gi.MSG_WriteBits( virtualSize, 1 );
 	gi.MSG_EndCGM();
 
+#ifdef OPM_FEATURES
 	if( sv_specialgame->integer )
 	{
 		if( isDimensional )
 		{
 			SetBroadcast();
 
-			/*
 			gi.MSG_StartCGM( BG_MapCGMToProtocol(g_protocol, CGM_HUDDRAW_3D ));
 				WriteNumber();
 				gi.MSG_WriteCoord( org[ 0 ] );
@@ -1111,19 +1110,16 @@ void Hud::Refresh( int clientNumber )
 				gi.MSG_WriteBits( !!always_show, 1 );
 				gi.MSG_WriteBits( !!depth, 1 );
 			gi.MSG_EndCGM();
-			*/
 		}
 
 		if( fade_alpha )
 		{
 			SetBroadcast();
 
-			/*
 			gi.MSG_StartCGM( BG_MapCGMToProtocol(g_protocol, CGM_HUDDRAW_FADE ));
 				WriteNumber();
 				gi.MSG_WriteFloat( fade_alpha_current );
 			gi.MSG_EndCGM();
-			*/
 
 			SetBroadcast();
 
@@ -1137,7 +1133,6 @@ void Hud::Refresh( int clientNumber )
 		{
 			SetBroadcast();
 
-			/*
 			gi.MSG_StartCGM( BG_MapCGMToProtocol(g_protocol, CGM_HUDDRAW_MOVE ));
 				WriteNumber();
 				gi.MSG_WriteFloat( fade_move_current );
@@ -1150,12 +1145,10 @@ void Hud::Refresh( int clientNumber )
 				gi.MSG_WriteShort( ( short )fade_move_x_target );
 				gi.MSG_WriteShort( ( short )fade_move_y_target );
 			gi.MSG_EndCGM();
-			*/
 		}
 
 		if( fade_timer_flags & TIMER_ACTIVE )
 		{
-			/*
 			SetBroadcast();
 
 			gi.MSG_StartCGM( BG_MapCGMToProtocol(g_protocol, CGM_HUDDRAW_TIMER ));
@@ -1170,7 +1163,6 @@ void Hud::Refresh( int clientNumber )
 				}
 
 			gi.MSG_EndCGM();
-			*/
 		}
 	}
 #endif
@@ -1232,11 +1224,15 @@ void Hud::SetBroadcast( int clientNumber )
 
 void Hud::WriteNumber()
 {
+#ifdef OPM_FEATURES
 	if(sv_specialgame->integer ) {
 		gi.MSG_WriteShort( number );
 	} else {
 		gi.MSG_WriteByte( number );
 	}
+#else
+	gi.MSG_WriteByte(number);
+#endif
 }
 
 #endif

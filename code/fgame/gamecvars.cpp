@@ -26,7 +26,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "gamecvars.h"
 
 cvar_t *developer;
-cvar_t *sv_specialgame;
 
 cvar_t *deathmatch;
 cvar_t *dmflags;
@@ -273,7 +272,6 @@ cvar_t *cl_running;
 void CVAR_Init(void)
 {
     developer      = gi.Cvar_Get("developer", "0", 0);
-    sv_specialgame = gi.Cvar_Get("sv_specialgame", "0", CVAR_LATCH | CVAR_SERVERINFO);
 
     precache = gi.Cvar_Get("sv_precache", "1", 0);
 

@@ -121,11 +121,13 @@ public:
 
     void Archive(Archiver& arc) override;
 
+#ifdef OPM_FEATURES
     //
     // Custom openmohaa stuff
     //
     void EventViewModelPrefix(Event *ev);
     void updatePrefix(Event *ev);
+#endif
 };
 
 inline void Item::Archive(Archiver& arc)

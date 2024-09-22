@@ -1500,6 +1500,7 @@ Event EV_Entity_IsInZone
     EV_RETURN
 );
 */
+#ifdef OPM_FEATURES
 Event EV_Entity_SetHintRequireLookAt
 (
     "setuselookat",
@@ -1528,6 +1529,7 @@ Event EV_Entity_SetShader
     "Sets a shader for the entity. An empty string will revert to the normal entity shader.",
     EV_NORMAL
 );
+#endif
 
 CLASS_DECLARATION(SimpleEntity, Entity, NULL) {
     {&EV_Damage,                       &Entity::DamageEvent              },
@@ -1675,9 +1677,11 @@ CLASS_DECLARATION(SimpleEntity, Entity, NULL) {
     {&EV_Entity_IsInZone,              &Entity::IsInZone                 },
     */
     {&EV_Entity_SetDHack,              &Entity::SetDepthHack             },
+#ifdef OPM_FEATURES
     {&EV_Entity_SetHintRequireLookAt,  &Entity::SetHintRequireLookAt     },
     {&EV_Entity_SetHintString,         &Entity::SetHintString            },
     {&EV_Entity_SetShader,             &Entity::SetShader                },
+#endif
     {NULL,                             NULL                              }
 };
 
@@ -1783,7 +1787,9 @@ Entity::Entity()
     m_iNumBlockedPaths   = 0;
     m_BlockedPaths       = NULL;
 
+#ifdef OPM_FEATURES
     m_bHintRequiresLookAt = true;
+#endif
 }
 
 Entity::~Entity()
@@ -6336,6 +6342,7 @@ void Entity::SetDepthHack(Event *ev)
     }
 }
 
+#ifdef OPM_FEATURES
 void Entity::ProcessHint(gentity_t *client, bool bShow)
 {
     Player *player = (Player *)client->entity;
@@ -6374,18 +6381,19 @@ void Entity::SetHintString(Event *ev)
     m_HintString = ev->GetString(1);
 }
 
-void Entity::SetShader(Event *ev)
+void Entity::SetShader(Event* ev)
 {
     str      shadername = ev->GetString(1);
-    qboolean fReset     = false;
+    qboolean fReset = false;
 
     if (!shadername.length()) {
         shadername = "default";
-        fReset     = true;
+        fReset = true;
     }
 
     gi.SendServerCommand(-1, "setshader %d %s %d", entnum, shadername.c_str(), fReset);
 }
+#endif
 
 void Entity::PlayNonPvsSound(const str& soundName, float volume)
 {

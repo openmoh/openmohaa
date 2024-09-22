@@ -291,6 +291,7 @@ Event EV_Item_SetPickupSound
     EV_NORMAL
 );
 
+#ifdef OPM_FEATURES
 Event EV_Item_ViewModelPrefix
 (
     "viewmodelprefix",
@@ -310,6 +311,7 @@ Event EV_Item_UpdatePrefix
     "internal event - update the custom viewmodel prefix",
     EV_NORMAL
 );
+#endif
 
 CLASS_DECLARATION(Trigger, Item, NULL) {
     {&EV_Trigger_Effect,       &Item::ItemTouch            },
@@ -332,8 +334,10 @@ CLASS_DECLARATION(Trigger, Item, NULL) {
     {&EV_Item_SetDMAmount,     &Item::SetDMAmountEvent     },
     {&EV_Item_SetDMMaxAmount,  &Item::SetDMMaxAmount       },
     {&EV_Item_SetPickupSound,  &Item::SetPickupSound       },
+#ifdef OPM_FEATURES
     {&EV_Item_ViewModelPrefix, &Item::EventViewModelPrefix },
     {&EV_Item_UpdatePrefix,    &Item::updatePrefix         },
+#endif
     {NULL,                     NULL                        }
 };
 
@@ -555,10 +559,12 @@ void Item::SetOwner(Sentient *ent)
     CancelEventsOfType(EV_Item_DropToFloor);
     CancelEventsOfType(EV_Remove);
 
+#ifdef OPM_FEATURES
     Event *ev = new Event(EV_Item_UpdatePrefix);
     ev->AddEntity(ent);
 
     PostEvent(ev, EV_POSTSPAWN);
+#endif
 }
 
 Sentient *Item::GetOwner(void)
@@ -897,6 +903,7 @@ void Item::Landed(Event *ev)
     setMoveType(MOVETYPE_NONE);
 }
 
+#ifdef OPM_FEATURES
 void Item::EventViewModelPrefix(Event *ev)
 {
     int        i;
@@ -922,7 +929,7 @@ void Item::EventViewModelPrefix(Event *ev)
 
 void Item::updatePrefix(Event *ev)
 {
-    if (!level.specialgame) {
+    if (!sv_specialgame->integer) {
         return;
     }
 
@@ -930,8 +937,6 @@ void Item::updatePrefix(Event *ev)
         return;
     }
 
-    // FIXME: delete
-    /*
 	Entity *ent = ev->GetEntity( 1 );
 
 	gi.MSG_SetClient( ent->edict - g_entities );
@@ -940,8 +945,8 @@ void Item::updatePrefix(Event *ev)
 		gi.MSG_WriteString( item_name.c_str() );
 		gi.MSG_WriteString( m_sVMprefix.c_str() );
 	gi.MSG_EndCGM();
-	*/
 }
+#endif
 
 CLASS_DECLARATION(Item, DynItem, NULL) {
     {&EV_Kill,   &DynItem::UnlinkItem},

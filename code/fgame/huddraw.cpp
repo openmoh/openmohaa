@@ -28,11 +28,15 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 void HudWriteNumber( int num )
 {
+#ifdef OPM_FEATURES
 	if(sv_specialgame->integer ) {
 		gi.MSG_WriteShort( num );
 	} else {
 		gi.MSG_WriteByte( num );
 	}
+#else
+	gi.MSG_WriteByte(num);
+#endif
 }
 
 void HudDrawShader( int info, const char *name )

@@ -1352,6 +1352,15 @@ Event EV_Player_AdminRights
     "returns client admin rights",
     EV_GETTER
 );
+Event EV_Player_IsAdmin
+(
+    "isadmin",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "checks if player is logged as admin",
+    EV_RETURN
+);
 Event EV_Player_BindWeap
 (
     "bindweap",
@@ -1361,24 +1370,6 @@ Event EV_Player_BindWeap
     "binds weapon to player and sets him as weapon owner",
     EV_NORMAL
 );
-Event EV_Player_CanSwitchTeams
-(
-    "canswitchteams",
-    EV_DEFAULT,
-    "bB",
-    "allow_team_change allow_spectate",
-    "Specify if this player is allowed to switch teams and spectate. Doesn't override global canswitchteams.",
-    EV_NORMAL
-);
-Event EV_Player_ClearCommand
-(
-    "clearcommand",
-    EV_DEFAULT,
-    "S",
-    "command",
-    "Clears any or a specific client command",
-    EV_NORMAL
-);
 Event EV_Player_Dive
 (
     "dive",
@@ -1386,15 +1377,6 @@ Event EV_Player_Dive
     "fF",
     "height airborne_duration",
     "Makes the player dive into prone position.",
-    EV_NORMAL
-);
-Event EV_Player_Earthquake
-(
-    "earthquake2",
-    EV_DEFAULT,
-    "ffbbVF",
-    "duration magnitude no_rampup no_rampdown location radius",
-    "Create a smooth realistic earthquake for a player. Requires sv_reborn to be set.",
     EV_NORMAL
 );
 Event EV_Player_FreezeControls
@@ -1478,15 +1460,6 @@ Event EV_Player_GetTorsoState
     "Gets the player's current torso state name",
     EV_RETURN
 );
-Event EV_Player_HideEnt
-(
-    "hideent",
-    EV_DEFAULT,
-    "e",
-    "entity",
-    "Hides the specified entity to the player.",
-    EV_NORMAL
-);
 Event EV_Player_Inventory
 (
     "inventory",
@@ -1504,15 +1477,6 @@ Event EV_Player_InventorySet
     "array",
     "Set up the player's inventory",
     EV_SETTER
-);
-Event EV_Player_IsAdmin
-(
-    "isadmin",
-    EV_DEFAULT,
-    NULL,
-    NULL,
-    "checks if player is logged as admin",
-    EV_RETURN
 );
 Event EV_Player_LeanLeftHeld
 (
@@ -1560,15 +1524,6 @@ Event EV_Player_PlayLocalSound
     "sounds.",
     EV_NORMAL
 );
-Event EV_Player_Replicate
-(
-    "replicate",
-    EV_DEFAULT,
-    "s",
-    "variable",
-    "Replicate a variable to the client (needs patch 1.12).",
-    EV_NORMAL
-);
 Event EV_Player_RunHeld
 (
     "runheld",
@@ -1585,7 +1540,7 @@ Event EV_Player_SecFireHeld
     EV_DEFAULT,
     NULL,
     NULL,
-    "returns EV_RETURN if this player is holding secondary fire, or 0 if he is not",
+    "returns 1 if this player is holding secondary fire, or 0 if he is not",
     EV_GETTER
 );
 Event EV_Player_SetAnimSpeed
@@ -1616,33 +1571,6 @@ Event EV_Player_SetKillHandler
     "killed event handler.",
     EV_SETTER
 );
-Event EV_Player_SetClientFlag
-(
-    "setclientflag",
-    EV_DEFAULT,
-    "s",
-    "name",
-    "Calls a flag to the script client.",
-    EV_NORMAL
-);
-Event EV_Player_SetEntityShader
-(
-    "setentshader",
-    EV_DEFAULT,
-    "es",
-    "entity shadername",
-    "Sets an entity shader for this player. An empty string will revert to the normal entity shader.",
-    EV_NORMAL
-);
-Event EV_Player_SetLocalSoundRate
-(
-    "setlocalsoundrate",
-    EV_DEFAULT,
-    "sfF",
-    "name rate time",
-    "Sets the local sound rate.",
-    EV_NORMAL
-);
 Event EV_Player_SetSpeed
 (
     "setspeed",
@@ -1671,13 +1599,13 @@ Event EV_Player_SetTeam
     "Available team names are 'none', 'spectator', 'freeforall', 'axis' and 'allies'.",
     EV_NORMAL
 );
-Event EV_Player_SetViewModelAnimSpeed
+Event EV_Player_HideEnt
 (
-    "setvmaspeed",
+    "hideent",
     EV_DEFAULT,
-    "sf",
-    "name speed",
-    "Sets the player's animation speed when playing it.",
+    "e",
+    "entity",
+    "Hides the specified entity to the player.",
     EV_NORMAL
 );
 Event EV_Player_ShowEnt
@@ -1734,6 +1662,62 @@ Event EV_Player_ViewModelAnimValid
     "True if the view model animation is valid.",
     EV_RETURN
 );
+
+#ifdef OPM_FEATURES
+Event EV_Player_Earthquake
+(
+    "earthquake2",
+    EV_DEFAULT,
+    "ffbbVF",
+    "duration magnitude no_rampup no_rampdown location radius",
+    "Create a smooth realistic earthquake for a player. Requires sv_reborn to be set.",
+    EV_NORMAL
+);
+Event EV_Player_Replicate
+(
+    "replicate",
+    EV_DEFAULT,
+    "s",
+    "variable",
+    "Replicate a variable to the client (needs patch 1.12).",
+    EV_NORMAL
+);
+Event EV_Player_SetClientFlag
+(
+    "setclientflag",
+    EV_DEFAULT,
+    "s",
+    "name",
+    "Calls a flag to the script client.",
+    EV_NORMAL
+);
+Event EV_Player_SetEntityShader
+(
+    "setentshader",
+    EV_DEFAULT,
+    "es",
+    "entity shadername",
+    "Sets an entity shader for this player. An empty string will revert to the normal entity shader.",
+    EV_NORMAL
+);
+Event EV_Player_SetLocalSoundRate
+(
+    "setlocalsoundrate",
+    EV_DEFAULT,
+    "sfF",
+    "name rate time",
+    "Sets the local sound rate.",
+    EV_NORMAL
+);
+Event EV_Player_SetViewModelAnimSpeed
+(
+    "setvmaspeed",
+    EV_DEFAULT,
+    "sf",
+    "name speed",
+    "Sets the player's animation speed when playing it.",
+    EV_NORMAL
+);
 Event EV_Player_VisionSetBlur
 (
     "visionsetblur",
@@ -1762,6 +1746,7 @@ Event EV_Player_VisionSetNaked
     "an empty string, it will revert to the current global vision.",
     EV_NORMAL
 );
+#endif
 
 qboolean TryPush(int entnum, vec3_t move_origin, vec3_t move_end);
 
@@ -1915,11 +1900,8 @@ CLASS_DECLARATION(Sentient, Player, "player") {
     {&EV_Player_AddDeaths,                &Player::AddDeaths                    },
     {&EV_Player_AdminRights,              &Player::AdminRights                  },
     {&EV_Player_BindWeap,                 &Player::BindWeap                     },
-    {&EV_Player_CanSwitchTeams,           &Player::CanSwitchTeams               },
-    {&EV_Player_ClearCommand,             &Player::ClearCommand                 },
     {&EV_Player_Dive,                     &Player::Dive                         },
     {&EV_Player_DMMessage,                &Player::EventDMMessage               },
-    {&EV_Player_Earthquake,               &Player::EventEarthquake              },
     {&EV_Player_FreezeControls,           &Player::FreezeControls               },
     {&EV_Player_SetTeam,                  &Player::EventSetTeam                 },
     {&EV_Player_GetConnState,             &Player::GetConnState                 },
@@ -1943,13 +1925,9 @@ CLASS_DECLARATION(Sentient, Player, "player") {
     {&EV_Player_RunHeld,                  &Player::RunHeld                      },
     {&EV_Player_SecFireHeld,              &Player::SecFireHeld                  },
     {&EV_Player_SetAnimSpeed,             &Player::SetAnimSpeed                 },
-    {&EV_Player_SetClientFlag,            &Player::SetClientFlag                },
-    {&EV_Player_SetEntityShader,          &Player::SetEntityShader              },
     {&EV_Player_SetKillHandler,           &Player::SetKillHandler               },
-    {&EV_Player_SetLocalSoundRate,        &Player::SetLocalSoundRate            },
     {&EV_Player_SetSpeed,                 &Player::SetSpeed                     },
     {&EV_Player_SetStateFile,             &Player::SetStateFile                 },
-    {&EV_Player_SetViewModelAnimSpeed,    &Player::SetVMASpeed                  },
     {&EV_Player_ShowEnt,                  &Player::ShowEntity                   },
     {&EV_Player_Spectator,                &Player::Spectator                    },
     {&EV_Player_StopLocalSound,           &Player::StopLocalSound               },
@@ -1957,9 +1935,16 @@ CLASS_DECLARATION(Sentient, Player, "player") {
     {&EV_Player_ViewModelAnimFinished,    &Player::EventGetViewModelAnimFinished},
     {&EV_Player_ViewModelGetAnim,         &Player::EventGetViewModelAnim        },
     {&EV_Player_ViewModelAnimValid,       &Player::EventGetViewModelAnimValid   },
+#ifdef OPM_FEATURES
+    {&EV_Player_Earthquake,               &Player::EventEarthquake              },
+    {&EV_Player_SetClientFlag,            &Player::SetClientFlag                },
+    {&EV_Player_SetEntityShader,          &Player::SetEntityShader              },
+    {&EV_Player_SetLocalSoundRate,        &Player::SetLocalSoundRate            },
+    {&EV_Player_SetViewModelAnimSpeed,    &Player::SetVMASpeed                  },
     {&EV_Player_VisionGetNaked,           &Player::VisionGetNaked               },
     {&EV_Player_VisionSetBlur,            &Player::VisionSetBlur                },
     {&EV_Player_VisionSetNaked,           &Player::VisionSetNaked               },
+#endif
     {NULL,                                NULL                                  }
 };
 
@@ -2033,9 +2018,9 @@ Player::Player()
     //
     // Added in OPM
     //====
+#ifdef OPM_FEATURES
     m_bShowingHint      = false;
-    disable_spectate    = false;
-    disable_team_change = false;
+#endif
     m_fpsTiki           = NULL;
     m_bConnected        = false;
     //====
@@ -2360,7 +2345,9 @@ void Player::InitClient(void)
 
     SetStopwatch(0);
 
+#ifdef OPM_FEATURES
     m_bShowingHint = false;
+#endif
 }
 
 void Player::InitState(void)
@@ -3915,7 +3902,7 @@ void Player::ClientMove(usercmd_t *ucmd)
     pmove_t pm;
     Vector  move;
 
-#if 0
+#ifdef OPM_FEATURES
     int  touch[MAX_GENTITIES];
     int  num        = getUseableEntities(touch, MAX_GENTITIES, true);
     bool bHintShown = false;
@@ -9270,6 +9257,10 @@ void Player::Join_DM_Team(Event *ev)
     float       startTime;
     Entity     *ent;
 
+    if (ev->isSubclassOf(ConsoleEvent) && disable_team_change) {
+        return;
+    }
+
     teamname = ev->GetString(1);
 
     if (!teamname.icmp("allies")) {
@@ -11733,46 +11724,142 @@ void Player::Spawned(void)
     scriptedEvents[SE_SPAWN].Trigger(ev);
 }
 
-// reborn stuff
+void Player::AddKills(int num)
+{
+    num_kills += num;
+
+    if (g_gametype->integer >= GT_TEAM_ROUNDS) {
+        num_deaths += num;
+    }
+}
+
+void Player::AddDeaths(int num)
+{
+    num_deaths += num;
+}
+
+////////////////////////////
+//
+// Added in OPM
+//
+////////////////////////////
+
+qboolean Player::canUse()
+{
+    int touch[MAX_GENTITIES];
+    int num = getUseableEntities(touch, MAX_GENTITIES);
+
+    return num ? true : false;
+}
+
+qboolean Player::canUse(Entity *entity, bool requiresLookAt)
+{
+    gentity_t *hit;
+    int        touch[MAX_GENTITIES];
+    int        num;
+    int        i;
+
+    num = getUseableEntities(touch, MAX_GENTITIES, requiresLookAt);
+
+    for (i = 0; i < num; i++) {
+        hit = &g_entities[touch[i]];
+
+        if (!hit->inuse || hit->entity == NULL) {
+            continue;
+        }
+
+        if (hit->entity == entity) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+int Player::getUseableEntities(int *touch, int maxcount, bool requiresLookAt)
+{
+    Vector  end;
+    Vector  start;
+    trace_t trace;
+    Vector  offset;
+    Vector  max;
+    Vector  min;
+
+    if ((g_gametype->integer != GT_SINGLE_PLAYER && IsSpectator()) || IsDead()) {
+        return 0;
+    }
+
+    if (m_pTurret) {
+        *touch = m_pTurret->entnum;
+        return 1;
+    }
+
+    if (m_pTurret) {
+        return 0;
+    }
+
+    AngleVectors(client->ps.viewangles, offset, NULL, NULL);
+
+    start = origin;
+    start.z += client->ps.viewheight;
+
+    if (requiresLookAt) {
+        min = Vector(-4.f, -4.f, -4.f);
+        max = Vector(4.f, 4.f, 4.f);
+
+        end[0] = start[0] + (offset[0] * 64.f);
+        end[1] = start[1] + (offset[1] * 64.f);
+
+        if (v_angle[0] <= 0.0f) {
+            end[2] = start[2] + (offset[2] * 40.f);
+        } else {
+            end[2] = start[2] + (offset[2] * 88.f);
+        }
+
+        trace = G_Trace(start, min, max, end, this, MASK_USE, false, "Player::getUseableEntity");
+
+        offset = trace.endpos;
+
+        min = offset - Vector(16.f, 16.f, 16.f);
+        max = offset + Vector(16.f, 16.f, 16.f);
+    } else {
+        min = start - Vector(31.f, 31.f, 31.f);
+        max = start + Vector(31.f, 31.f, 31.f);
+    }
+
+    return gi.AreaEntities(min, max, touch, maxcount);
+}
+
+void Player::Postthink(void)
+{
+    if (bindmaster) {
+        SetViewAngles(GetViewAngles() + Vector(0, bindmaster->avelocity[YAW] * level.frametime, 0));
+    }
+}
+
+void Player::AdminRights(Event* ev)
+{
+    // FIXME: Admin manager ?
+    ev->AddInteger(0);
+    UNIMPLEMENTED();
+}
+
+void Player::IsAdmin(Event* ev)
+{
+    // FIXME: Admin manager ?
+    ev->AddInteger(0);
+    UNIMPLEMENTED();
+}
+
+void Player::BindWeap(Event* ev)
+{
+    // FIXME: TODO
+    UNIMPLEMENTED();
+}
 
 void Player::AddDeaths(Event *ev)
 {
     AddDeaths(ev->GetInteger(1));
-}
-
-void Player::AdminRights(Event *ev)
-{
-    // FIXME: Admin manager ?
-    ev->AddInteger(0);
-}
-
-void Player::BindWeap(Event *ev)
-{
-    // FIXME: TODO
-}
-
-void Player::CanSwitchTeams(Event *ev)
-{
-    qboolean bAllow = ev->GetBoolean(1);
-
-    disable_team_change = !bAllow;
-    if (ev->NumArgs() > 1) {
-        qboolean bAllow2 = ev->GetBoolean(2);
-
-        disable_spectate = !bAllow2;
-    }
-}
-
-void Player::ClearCommand(Event *ev)
-{
-    str command;
-    int clientNum = G_GetClientNumber(this);
-
-    if (ev->NumArgs() > 0) {
-        command = ev->GetString(1);
-    }
-
-    m_lastcommand = "";
 }
 
 void Player::Dive(Event *ev)
@@ -11794,39 +11881,6 @@ void Player::Dive(Event *ev)
     velocity[0] += height * forwardvector[0] * (speed / 16);
     velocity[1] += height * forwardvector[1] * (speed / 16);
     velocity[2] += height * speed / 6.80f;
-}
-
-void Player::EventEarthquake(Event *ev)
-{
-    float    duration    = ev->GetFloat(1);
-    float    magnitude   = ev->GetFloat(2);
-    qboolean no_rampup   = ev->GetBoolean(3);
-    qboolean no_rampdown = ev->GetBoolean(4);
-
-    // full realistic, smooth earthquake
-    if (ev->NumArgs() > 4) {
-        Vector location = ev->GetVector(5);
-        float  radius   = 1.0f;
-
-        if (ev->NumArgs() > 5) {
-            radius = ev->GetFloat(6);
-        }
-
-        gi.SendServerCommand(
-            edict - g_entities,
-            "eq %f %f %d %d %f %f %f %f",
-            duration,
-            magnitude,
-            no_rampup,
-            no_rampdown,
-            location[0],
-            location[1],
-            location[2],
-            radius
-        );
-    } else {
-        gi.SendServerCommand(edict - g_entities, "eq %f %f %d %d", duration, magnitude, no_rampup, no_rampdown);
-    }
 }
 
 void Player::EventSetTeam(Event *ev)
@@ -11857,7 +11911,7 @@ void Player::EventSetTeam(Event *ev)
 
     SetTeam(teamType);
 
-    gi.Printf("Player::SetTeam : Player is now on team \"%s\"\n", team_name.c_str());
+    gi.DPrintf("Player::SetTeam : Player is now on team \"%s\"\n", team_name.c_str());
 }
 
 void Player::EventGetViewModelAnim(Event *ev)
@@ -11983,11 +12037,13 @@ void Player::GetTorsoState(Event *ev)
 void Player::HideEntity(Event *ev)
 {
     // FIXME: todo
+    UNIMPLEMENTED();
 }
 
 void Player::ShowEntity(Event *ev)
 {
     // FIXME: REDO
+    UNIMPLEMENTED();
 }
 
 void Player::Inventory(Event *ev)
@@ -12066,12 +12122,6 @@ void Player::InventorySet(Event *ev)
     array.Clear();
 }
 
-void Player::IsAdmin(Event *ev)
-{
-    // FIXME: Admin manager ?
-    ev->AddInteger(0);
-}
-
 void Player::LeanLeftHeld(Event *ev)
 {
     Player *player     = NULL;
@@ -12121,8 +12171,7 @@ void Player::PlayLocalSound(Event *ev)
         return;
     }
 
-    // FIXME...
-    /*
+#ifdef OPM_FEATURES
         gi.MSG_SetClient( client->ps.clientNum );
 
         gi.MSG_StartCGM( CGM_PLAYLOCALSOUND );
@@ -12133,7 +12182,7 @@ void Player::PlayLocalSound(Event *ev)
         gi.MSG_EndCGM();
 
         return;
-    */
+#endif
 
     if (loop) {
         edict->s.loopSound        = gi.soundindex(found, alias->streamed);
@@ -12182,32 +12231,7 @@ void Player::SetAnimSpeed(Event *ev)
         speed = 0.0f;
     }
 
-    //player->baseSentient.baseAnimate.baseEntity.client->customanimspeed = speed;
-}
-
-void Player::SetClientFlag(Event *ev)
-{
-    str name = ev->GetString(1);
-
-    gi.SendServerCommand(client->ps.clientNum, "cf %s", name.c_str());
-}
-
-void Player::SetEntityShader(Event *ev)
-{
-    Entity  *entity     = ev->GetEntity(1);
-    str      shadername = ev->GetString(2);
-    qboolean fReset     = false;
-
-    if (entity == NULL) {
-        ScriptError("Invalid entity !");
-    }
-
-    if (!shadername.length()) {
-        shadername = "default";
-        fReset     = true;
-    }
-
-    gi.SendServerCommand(edict - g_entities, "setshader %d %s %d", entity->entnum, shadername.c_str(), fReset);
+    UNIMPLEMENTED();
 }
 
 void Player::SetKillHandler(Event *ev)
@@ -12217,38 +12241,6 @@ void Player::SetKillHandler(Event *ev)
     } else {
         m_killedLabel.SetScript(ev->GetValue(1));
     }
-}
-
-void Player::SetLocalSoundRate(Event *ev)
-{
-    str   name = ev->GetString(1);
-    float rate = ev->GetFloat(2);
-    float time;
-
-    if (ev->NumArgs() > 2) {
-        time = ev->GetFloat(3);
-    } else {
-        time = 0.0f;
-    }
-
-    AliasListNode_t *alias = NULL;
-    const char      *found = gi.GlobalAlias_FindRandom(name, &alias);
-
-    if (found == NULL) {
-        gi.DPrintf("ERROR: Player::SetLocalSoundRate: %s needs to be aliased - Please fix.\n", name.c_str());
-        return;
-    }
-
-    gi.MSG_SetClient(client->ps.clientNum);
-
-    // FIXME...
-    /*
-    gi.MSG_StartCGM( CGM_SETLOCALSOUNDRATE );
-        gi.MSG_WriteString( found );
-        gi.MSG_WriteFloat( rate );
-        gi.MSG_WriteFloat( time );
-    gi.MSG_EndCGM();
-    */
 }
 
 void Player::SetSpeed(Event *ev)
@@ -12301,35 +12293,6 @@ void Player::SetStateFile(Event *ev)
     }
 }
 
-void Player::SetVMASpeed(Event *ev)
-{
-    str   name  = ev->GetString(1);
-    float speed = ev->GetFloat(2);
-
-    if (!client || !level.specialgame) {
-        return;
-    }
-
-    vma_t *vma = &vmalist[name];
-
-    if (speed < 0.0f) {
-        speed = 0.0f;
-    }
-
-    vma->name  = name;
-    vma->speed = speed;
-
-    // FIXME...
-    /*
-    gi.MSG_SetClient( edict - g_entities );
-
-    gi.MSG_StartCGM( CGM_SETVMASPEED );
-        gi.MSG_WriteString( name );
-        gi.MSG_WriteFloat( speed );
-    gi.MSG_EndCGM();
-    */
-}
-
 void Player::StopLocalSound(Event *ev)
 {
     str   soundName = ev->GetString(1);
@@ -12361,6 +12324,137 @@ void Player::Userinfo(Event *ev)
     }
 
     ev->AddString(client->pers.userinfo);
+}
+
+int Player::GetNumKills(void) const
+{
+    return num_kills;
+}
+
+int Player::GetNumDeaths(void) const
+{
+    return num_deaths;
+}
+
+#ifdef OPM_FEATURES
+
+void Player::EventEarthquake(Event *ev)
+{
+    float    duration    = ev->GetFloat(1);
+    float    magnitude   = ev->GetFloat(2);
+    qboolean no_rampup   = ev->GetBoolean(3);
+    qboolean no_rampdown = ev->GetBoolean(4);
+
+    // full realistic, smooth earthquake
+    if (ev->NumArgs() > 4) {
+        Vector location = ev->GetVector(5);
+        float  radius   = 1.0f;
+
+        if (ev->NumArgs() > 5) {
+            radius = ev->GetFloat(6);
+        }
+
+        gi.SendServerCommand(
+            edict - g_entities,
+            "eq %f %f %d %d %f %f %f %f",
+            duration,
+            magnitude,
+            no_rampup,
+            no_rampdown,
+            location[0],
+            location[1],
+            location[2],
+            radius
+        );
+    } else {
+        gi.SendServerCommand(edict - g_entities, "eq %f %f %d %d", duration, magnitude, no_rampup, no_rampdown);
+    }
+}
+
+void Player::SetClientFlag(Event *ev)
+{
+    str name = ev->GetString(1);
+
+    gi.SendServerCommand(client->ps.clientNum, "cf %s", name.c_str());
+}
+
+void Player::SetEntityShader(Event *ev)
+{
+    Entity  *entity     = ev->GetEntity(1);
+    str      shadername = ev->GetString(2);
+    qboolean fReset     = false;
+
+    if (entity == NULL) {
+        ScriptError("Invalid entity !");
+    }
+
+    if (!shadername.length()) {
+        shadername = "default";
+        fReset     = true;
+    }
+
+    gi.SendServerCommand(edict - g_entities, "setshader %d %s %d", entity->entnum, shadername.c_str(), fReset);
+}
+
+void Player::SetLocalSoundRate(Event *ev)
+{
+    str   name = ev->GetString(1);
+    float rate = ev->GetFloat(2);
+    float time;
+
+    if (ev->NumArgs() > 2) {
+        time = ev->GetFloat(3);
+    } else {
+        time = 0.0f;
+    }
+
+    AliasListNode_t *alias = NULL;
+    const char      *found = gi.GlobalAlias_FindRandom(name, &alias);
+
+    if (found == NULL) {
+        gi.DPrintf("ERROR: Player::SetLocalSoundRate: %s needs to be aliased - Please fix.\n", name.c_str());
+        return;
+    }
+
+    gi.MSG_SetClient(client->ps.clientNum);
+
+    // FIXME...
+    /*
+    gi.MSG_StartCGM( CGM_SETLOCALSOUNDRATE );
+        gi.MSG_WriteString( found );
+        gi.MSG_WriteFloat( rate );
+        gi.MSG_WriteFloat( time );
+    gi.MSG_EndCGM();
+    */
+}
+
+void Player::SetVMASpeed(Event *ev)
+{
+    str   name  = ev->GetString(1);
+    float speed = ev->GetFloat(2);
+
+    if (!client || !sv_specialgame->integer) {
+        return;
+    }
+
+    vma_t *vma = &vmalist[name];
+
+    if (speed < 0.0f) {
+        speed = 0.0f;
+    }
+
+    vma->name  = name;
+    vma->speed = speed;
+
+    // FIXME...
+    /*
+    gi.MSG_SetClient( edict - g_entities );
+
+    gi.MSG_StartCGM( CGM_SETVMASPEED );
+        gi.MSG_WriteString( name );
+        gi.MSG_WriteFloat( speed );
+    gi.MSG_EndCGM();
+    */
 }
 
 void Player::VisionGetNaked(Event *ev)
@@ -12417,120 +12511,4 @@ void Player::VisionSetNaked(Event *ev)
 
     gi.SendServerCommand(edict - g_entities, "vsn %s %f %f", vision.c_str(), fade_time, phase);
 }
-
-int Player::GetNumKills(void) const
-{
-    return num_kills;
-}
-
-int Player::GetNumDeaths(void) const
-{
-    return num_deaths;
-}
-
-void Player::AddKills(int num)
-{
-    num_kills += num;
-
-    if (g_gametype->integer >= GT_TEAM_ROUNDS) {
-        num_deaths += num;
-    }
-}
-
-void Player::AddDeaths(int num)
-{
-    num_deaths += num;
-}
-
-qboolean Player::canUse()
-{
-    int touch[MAX_GENTITIES];
-    int num = getUseableEntities(touch, MAX_GENTITIES);
-
-    return num ? true : false;
-}
-
-qboolean Player::canUse(Entity *entity, bool requiresLookAt)
-{
-    gentity_t *hit;
-    int        touch[MAX_GENTITIES];
-    int        num;
-    int        i;
-
-    num = getUseableEntities(touch, MAX_GENTITIES, requiresLookAt);
-
-    for (i = 0; i < num; i++) {
-        hit = &g_entities[touch[i]];
-
-        if (!hit->inuse || hit->entity == NULL) {
-            continue;
-        }
-
-        if (hit->entity == entity) {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-int Player::getUseableEntities(int *touch, int maxcount, bool requiresLookAt)
-{
-    Vector  end;
-    Vector  start;
-    trace_t trace;
-    Vector  offset;
-    Vector  max;
-    Vector  min;
-
-    if ((g_gametype->integer != GT_SINGLE_PLAYER && IsSpectator()) || IsDead()) {
-        return 0;
-    }
-
-    if (m_pTurret) {
-        *touch = m_pTurret->entnum;
-        return 1;
-    }
-
-    if (m_pTurret) {
-        return 0;
-    }
-
-    AngleVectors(client->ps.viewangles, offset, NULL, NULL);
-
-    start = origin;
-    start.z += client->ps.viewheight;
-
-    if (requiresLookAt) {
-        min = Vector(-4.f, -4.f, -4.f);
-        max = Vector(4.f, 4.f, 4.f);
-
-        end[0] = start[0] + (offset[0] * 64.f);
-        end[1] = start[1] + (offset[1] * 64.f);
-
-        if (v_angle[0] <= 0.0f) {
-            end[2] = start[2] + (offset[2] * 40.f);
-        } else {
-            end[2] = start[2] + (offset[2] * 88.f);
-        }
-
-        trace = G_Trace(start, min, max, end, this, MASK_USE, false, "Player::getUseableEntity");
-
-        offset = trace.endpos;
-
-        min = offset - Vector(16.f, 16.f, 16.f);
-        max = offset + Vector(16.f, 16.f, 16.f);
-    } else {
-        min = start - Vector(31.f, 31.f, 31.f);
-        max = start + Vector(31.f, 31.f, 31.f);
-    }
-
-    return gi.AreaEntities(min, max, touch, maxcount);
-}
-
-void Player::Postthink(void)
-{
-    if (bindmaster) {
-        SetViewAngles(GetViewAngles() + Vector(0, bindmaster->avelocity[YAW] * level.frametime, 0));
-    }
-}
+#endif

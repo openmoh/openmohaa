@@ -251,9 +251,6 @@ public:
 
     // New Stuff
 
-    // don't put in the game class because it can be changed in another level
-    qboolean specialgame;
-
     bool m_bSpawnBot;
 
     // Script stuff

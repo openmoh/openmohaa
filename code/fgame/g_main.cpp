@@ -266,7 +266,6 @@ void G_InitGame(int levelTime, int randomSeed)
 
     // set some level globals
     level.svsStartTime = levelTime;
-    level.specialgame  = sv_specialgame->integer ? true : false;
 
     G_InitConsoleCommands();
 

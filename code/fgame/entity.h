@@ -286,6 +286,7 @@ public:
     // immune list
     Container<int> immunities;
 
+#ifdef OPM_FEATURES
     //
     // Added in OPM
     //====
@@ -293,6 +294,7 @@ public:
     bool     m_bHintRequiresLookAt;
     str      m_HintString;
     //====
+#endif
 
     Entity();
     virtual ~Entity();
@@ -641,9 +643,11 @@ public:
     void GetZone(Event *ev);
     void IsInZone(Event *ev);
     void SetDepthHack(Event *ev);
+#ifdef OPM_FEATURES
     void SetHintRequireLookAt(Event *ev);
     void SetHintString(Event *ev);
-    void SetShader(Event *ev);
+    void SetShader(Event* ev);
+#endif
     void PlayNonPvsSound(const str& soundName, float volume = 1);
 };
 

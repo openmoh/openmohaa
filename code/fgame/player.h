@@ -306,7 +306,9 @@ private:
     bool        m_bDeathSpectator;
     jailstate_t m_jailstate;
 
+#ifdef OPM_FEATURES
     bool m_bShowingHint;
+#endif
 
 public:
     int m_iNumObjectives;
@@ -346,8 +348,6 @@ public:
     // new variables
     str                 m_sVision;    // current vision
     str                 m_sStateFile; // custom statefile
-    bool                disable_spectate;
-    bool                disable_team_change;
     bool                m_bFrozen; // if player is frozen
     bool                animDoneVM;
     float               speed_multiplier[MAX_SPEED_MULTIPLIERS];
@@ -916,10 +916,7 @@ public:
     void AddDeaths(Event *ev);
     void AdminRights(Event *ev);
     void BindWeap(Event *ev);
-    void CanSwitchTeams(Event *ev);
-    void ClearCommand(Event *ev);
     void Dive(Event *ev);
-    void EventEarthquake(Event *ev);
     void EventSetTeam(Event *ev);
     void EventGetViewModelAnim(Event *ev);
     void EventGetViewModelAnimFinished(Event *ev);
@@ -934,7 +931,6 @@ public:
     void GetLegsState(Event *ev);
     void GetStateFile(Event *ev);
     void GetTorsoState(Event *ev);
-    void HideEntity(Event *ev);
     void Inventory(Event *ev);
     void InventorySet(Event *ev);
     void IsAdmin(Event *ev);
@@ -946,19 +942,23 @@ public:
     void RunHeld(Event *ev);
     void SecFireHeld(Event *ev);
     void SetAnimSpeed(Event *ev);
-    void SetClientFlag(Event *ev);
-    void SetEntityShader(Event *ev);
     void SetKillHandler(Event *ev);
-    void SetLocalSoundRate(Event *ev);
     void SetSpeed(Event *ev);
     void SetStateFile(Event *ev);
-    void SetVMASpeed(Event *ev);
+    void HideEntity(Event* ev);
     void ShowEntity(Event *ev);
     void StopLocalSound(Event *ev);
     void Userinfo(Event *ev);
+#ifdef OPM_FEATURES
+    void EventEarthquake(Event* ev);
+    void SetClientFlag(Event* ev);
+    void SetEntityShader(Event* ev);
+    void SetLocalSoundRate(Event* ev);
+    void SetVMASpeed(Event* ev);
     void VisionGetNaked(Event *ev);
     void VisionSetBlur(Event *ev);
     void VisionSetNaked(Event *ev);
+#endif
 
     void     Postthink() override;
     void     GibEvent(Event *ev);

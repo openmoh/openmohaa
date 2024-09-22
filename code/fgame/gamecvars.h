@@ -31,7 +31,6 @@ extern "C" {
 #endif
 
 extern cvar_t *developer;
-extern cvar_t *sv_specialgame;
 
 extern cvar_t *deathmatch;
 extern cvar_t *dmflags;
