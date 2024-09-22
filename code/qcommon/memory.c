@@ -30,10 +30,20 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 void Z_CheckHeap(void);
 
+typedef struct zonedebug_s {
+	const char *label;
+	const char *file;
+	int line;
+	int allocSize;
+} zonedebug_t;
+
 typedef struct memblock_s {
 	size_t	size;			// including the header and possibly tiny fragments
 	struct memblock_s		*next, *prev;
 	int     id;				// should be ZONEID
+#ifdef ZONE_DEBUG
+	zonedebug_t d;
+#endif
 } memblock_t;
 
 typedef struct memconstant_s {
@@ -44,16 +54,16 @@ typedef struct memconstant_s {
 memconstant_t emptystring = { sizeof( memconstant_t ), NULL, NULL, ZONEID_CONST, 0, 0 };
 memconstant_t numberstring[] =
 {
-	{ sizeof( memconstant_t ), NULL, NULL, ZONEID_CONST, '0', 0 },
-	{ sizeof( memconstant_t ), NULL, NULL, ZONEID_CONST, '1', 0 },
-	{ sizeof( memconstant_t ), NULL, NULL, ZONEID_CONST, '2', 0 },
-	{ sizeof( memconstant_t ), NULL, NULL, ZONEID_CONST, '3', 0 },
-	{ sizeof( memconstant_t ), NULL, NULL, ZONEID_CONST, '4', 0 },
-	{ sizeof( memconstant_t ), NULL, NULL, ZONEID_CONST, '5', 0 },
-	{ sizeof( memconstant_t ), NULL, NULL, ZONEID_CONST, '6', 0 },
-	{ sizeof( memconstant_t ), NULL, NULL, ZONEID_CONST, '7', 0 },
-	{ sizeof( memconstant_t ), NULL, NULL, ZONEID_CONST, '8', 0 },
-	{ sizeof( memconstant_t ), NULL, NULL, ZONEID_CONST, '9', 0 },
+	{ {sizeof( memconstant_t ), NULL, NULL, ZONEID_CONST}, {'0', 0} },
+	{ {sizeof( memconstant_t ), NULL, NULL, ZONEID_CONST}, {'1', 0} },
+	{ {sizeof( memconstant_t ), NULL, NULL, ZONEID_CONST}, {'2', 0} },
+	{ {sizeof( memconstant_t ), NULL, NULL, ZONEID_CONST}, {'3', 0} },
+	{ {sizeof( memconstant_t ), NULL, NULL, ZONEID_CONST}, {'4', 0} },
+	{ {sizeof( memconstant_t ), NULL, NULL, ZONEID_CONST}, {'5', 0} },
+	{ {sizeof( memconstant_t ), NULL, NULL, ZONEID_CONST}, {'6', 0} },
+	{ {sizeof( memconstant_t ), NULL, NULL, ZONEID_CONST}, {'7', 0} },
+	{ {sizeof( memconstant_t ), NULL, NULL, ZONEID_CONST}, {'8', 0} },
+	{ {sizeof( memconstant_t ), NULL, NULL, ZONEID_CONST}, {'9', 0} },
 };
 
 static memblock_t mem_blocks[ TAG_NUM_TOTAL_TAGS ];
@@ -137,8 +147,12 @@ void Z_FreeTags( int tag )
 Z_TagMalloc
 ========================
 */
-void *Z_TagMalloc( int size, int tag )
-{
+#ifdef ZONE_DEBUG
+void *Z_TagMallocDebug( int size, int tag, const char *label, const char *file, int line ) {
+	int		allocSize;
+#else
+void *Z_TagMalloc( int size, int tag ) {
+#endif
 	memblock_t *block;
 
 	if( size <= 0 )
@@ -151,6 +165,10 @@ void *Z_TagMalloc( int size, int tag )
 	if( tag == TAG_FREE ) {
 		Com_Error( ERR_FATAL, "Z_TagMalloc: tried to use a 0 tag" );
 	}
+
+#ifdef ZONE_DEBUG
+	allocSize = size;
+#endif
 
 	size += sizeof( memblock_t );				// account for size of block header
 #ifndef _DEBUG
@@ -165,6 +183,13 @@ void *Z_TagMalloc( int size, int tag )
 	block->prev = mem_blocks[ tag ].prev;
 	block->prev->next = block;
 	mem_blocks[ tag ].prev = block;
+
+#ifdef ZONE_DEBUG
+	block->d.label = label;
+	block->d.file = file;
+	block->d.line = line;
+	block->d.allocSize = allocSize;
+#endif
 
 #ifndef _DEBUG
 	// marker for memory trash testing
@@ -362,34 +387,18 @@ void Z_Shutdown( void ) {
 	}
 }
 
+/*
+=================
+Hunk_Alloc
+
+Allocate permanent (until the hunk is cleared) memory
+=================
+*/
 #ifdef HUNK_DEBUG
-
-/*
-=================
-Hunk_Alloc
-
-Allocate permanent (until the hunk is cleared) memory
-=================
-*/
-void* Hunk_AllocDebug(int size, ha_pref preference, const char* label, const char* file, int line) {
-    void* ptr;
-
-    ptr = Z_TagMalloc(size, TAG_STATIC);
-    memset(ptr, 0, size);
-
-    return ptr;
-}
-
+void *Hunk_AllocDebug( int size, ha_pref preference, const char *label, const char *file, int line ) {
 #else
-
-/*
-=================
-Hunk_Alloc
-
-Allocate permanent (until the hunk is cleared) memory
-=================
-*/
-void *Hunk_Alloc( int size, ha_pref preference) {
+void *Hunk_Alloc( int size, ha_pref preference ) {
+#endif
 	void *ptr;
 
 	ptr = Z_TagMalloc( size, TAG_STATIC );
@@ -397,8 +406,6 @@ void *Hunk_Alloc( int size, ha_pref preference) {
 
 	return ptr;
 }
-
-#endif
 
 /*
 =================
@@ -481,11 +488,21 @@ void Com_InitHunkMemory( void ) {
 Z_Malloc
 ========================
 */
+#ifdef ZONE_DEBUG
+void *Z_MallocDebug( int size, const char *label, const char *file, int line ) {
+#else
 void *Z_Malloc( int size ) {
-	void *ptr;
+#endif
+	void	*buf;
+	
+  //Z_CheckHeap ();	// DEBUG
 
-	ptr = Z_TagMalloc( size, TAG_GENERAL );
-	memset( ptr, 0, size );
+#ifdef ZONE_DEBUG
+	buf = Z_TagMallocDebug( size, TAG_GENERAL, label, file, line );
+#else
+	buf = Z_TagMalloc( size, TAG_GENERAL );
+#endif
+	Com_Memset( buf, 0, size );
 
-	return ptr;
+	return buf;
 }

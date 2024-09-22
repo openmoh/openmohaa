@@ -1062,35 +1062,37 @@ temp file loading
 	#define ZONE_DEBUG
 #endif
 
-const char *Z_EmptyStringPointer( void );
-const char *Z_NumberStringPointer( int iNum );
-
-void *Z_TagMalloc(int size, int tag );
-void *Z_Malloc(int size );
+#ifdef ZONE_DEBUG
+#define Z_TagMalloc(size, tag)			Z_TagMallocDebug(size, tag, #size, __FILE__, __LINE__)
+#define Z_Malloc(size)					Z_MallocDebug(size, #size, __FILE__, __LINE__)
+#define S_Malloc(size)					S_MallocDebug(size, #size, __FILE__, __LINE__)
+void *Z_TagMallocDebug( int size, int tag, const char *label, const char *file, int line );	// NOT 0 filled memory
+void *Z_MallocDebug( int size, const char *label, const char *file, int line );			// returns 0 filled memory
+void *S_MallocDebug( int size, const char *label, const char *file, int line );			// returns 0 filled memory
+#else
+void *Z_TagMalloc( int size, int tag );	// NOT 0 filled memory
+void *Z_Malloc( int size );			// returns 0 filled memory
+void *S_Malloc( int size );			// NOT 0 filled memory only for small allocations
+#endif
 void Z_Free( void *ptr );
-
 void Z_FreeTags( int tag );
-
-void Z_InitMemory( void );
-void Z_Shutdown( void );
 int Z_AvailableMemory( void );
 void Z_LogHeap( void );
-void Z_Meminfo_f( void );
-
-void *Hunk_AllocateTempMemory(int size );
-void Hunk_FreeTempMemory( void *buf );
 
 void Hunk_Clear( void );
 void Hunk_ClearToMark( void );
 void Hunk_SetMark( void );
 qboolean Hunk_CheckMark( void );
 void Hunk_ClearTempMemory( void );
+void *Hunk_AllocateTempMemory( int size );
+void Hunk_FreeTempMemory( void *buf );
 int	Hunk_MemoryRemaining( void );
 void Hunk_Log( void);
-void Hunk_Trash( void );
 
 void Com_TouchMemory( void );
-void Com_InitHunkMemory(void);
+
+const char* Z_EmptyStringPointer(void);
+const char* Z_NumberStringPointer(int iNum);
 
 // commandLine should not include the executable name (argv[0])
 void Com_Init( char *commandLine );

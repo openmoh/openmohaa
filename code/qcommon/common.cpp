@@ -56,17 +56,6 @@ int demo_protocols[] =
 
 #define MAX_NUM_ARGVS	50
 
-//wombat: i had to increase these quite a bit
-//to keep up with larger client_t.
-//i reckon this has bad effect on memory usage
-// update: put it back unless we really need it large
-#define MIN_DEDICATED_COMHUNKMEGS 1
-#define MIN_COMHUNKMEGS		56
-#define DEF_COMHUNKMEGS		96
-#define DEF_COMZONEMEGS		128
-#define DEF_COMHUNKMEGS_S	XSTRING(DEF_COMHUNKMEGS)
-#define DEF_COMZONEMEGS_S	XSTRING(DEF_COMZONEMEGS)
-
 int		com_argc;
 char	*com_argv[MAX_NUM_ARGVS+1];
 
@@ -158,6 +147,8 @@ void Com_WriteConfig_f( void );
 void CIN_CloseAllVideos(void);
 
 void Com_InitTargetGame();
+void Com_InitHunkMemory( void );
+void Z_InitMemory( void );
 
 //============================================================================
 
@@ -846,7 +837,7 @@ CopyString
 char *CopyString( const char *in ) {
 	char	*out;
 
-#ifndef _DEBUG_MEM
+#ifndef ZONE_DEBUG
 	if (!in[0]) {
 		return ( char * )Z_EmptyStringPointer();
 	}
