@@ -81,7 +81,7 @@ void ClientGameCommandManager::FreeTempModel(ctempmodel_t *p)
 
     if (m_active_tempmodels.next == p) {
         // use the next active temp model
-        m_active_tempmodels.next == p->next;
+        m_active_tempmodels.next = p->next;
     }
 
     // remove from the doubly linked active list
