@@ -79,6 +79,11 @@ void ClientGameCommandManager::FreeTempModel(ctempmodel_t *p)
 
     RemoveClientEntity(p->number, p->cgd.tiki, NULL, p);
 
+    if (m_active_tempmodels.next == p) {
+        // use the next active temp model
+        m_active_tempmodels.next == p->next;
+    }
+
     // remove from the doubly linked active list
     p->prev->next = p->next;
     p->next->prev = p->prev;
