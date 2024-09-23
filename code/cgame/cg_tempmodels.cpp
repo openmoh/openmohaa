@@ -91,6 +91,22 @@ void ClientGameCommandManager::FreeTempModel(ctempmodel_t *p)
     // the free list is only singly linked
     p->next           = m_free_tempmodels;
     m_free_tempmodels = p;
+
+    if (p->m_spawnthing) {
+        p->m_spawnthing->numtempmodels--;
+        // delete unused spawnthings
+        if (!p->m_spawnthing->numtempmodels) {
+            m_emitters.RemoveObject(p->m_spawnthing);
+
+            if (p->m_spawnthing == m_spawnthing) {
+                m_spawnthing = NULL;
+            }
+
+            delete p->m_spawnthing;
+        }
+
+        p->m_spawnthing = NULL;
+    }
 }
 
 //===============
