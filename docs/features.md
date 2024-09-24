@@ -8,7 +8,7 @@ A lot of bugs and exploits from MOH:AA were fixed in OpenMoHAA (BOF exploit, gre
 - OpenAL sound support (better sound quality)
 - Full 64-bit support
 - Cross-platform support
-- Multiuser support on OS (On Windows, user game data is stored in "%APPDATA%\Quake3")
+- Multiuser support on OS (On Windows, user game data is stored in "%APPDATA%\openmohaa")
 - Many bug fixes and additions from ioquake3
 
 Overall, better compatibility on modern systems and bugfixes.
