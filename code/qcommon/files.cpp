@@ -1711,106 +1711,10 @@ FS_Seek
 =================
 */
 int FS_Seek( fileHandle_t f, long offset, fsOrigin_t origin ) {
-#if 0
 	int		_origin;
 
 	if ( !fs_searchpaths ) {
-		Com_Error( ERR_FATAL, "Filesystem call made without initialization\n" );
-		return -1;
-	}
-
-	switch( origin ) {
-		case FS_SEEK_CUR:
-			_origin = SEEK_CUR;
-			break;
-		case FS_SEEK_END:
-			_origin = SEEK_END;
-			break;
-		case FS_SEEK_SET:
-			_origin = SEEK_SET;
-			break;
-		default:
-			Com_Error( ERR_FATAL, "Bad origin in FS_Seek\n" );
-			_origin = 0;
-			break;
-	}
-
-	if( fsh[ f ].zipFile == qtrue ) {
-		if( !unzIsCurrentFileOpen( fsh[ f ].handleFiles.file.o ) ) {
-			Com_Error( ERR_FATAL, "Tried to read from a zip file %s that was not open\n", fsh[ f ].name );
-		}
-		return unzseek( fsh[ f ].handleFiles.file.o, offset, _origin );
-	} else {
-		return fseek( FS_FileForHandle( f ), offset, _origin );
-	}
-
-#if 0
-
-	if (fsh[f].streamed) {
-		fsh[f].streamed = qfalse;
-	 	FS_Seek( f, offset, origin );
-		fsh[f].streamed = qtrue;
-	}
-
-	if (fsh[f].zipFile == qtrue) {
-		//FIXME: this is incomplete and really, really
-		//crappy (but better than what was here before)
-		byte	buffer[PK3_SEEK_BUFFER_SIZE];
-		int		remainder = offset;
-
-		if( offset < 0 || origin == FS_SEEK_END ) {
-			Com_Error( ERR_FATAL, "Negative offsets and FS_SEEK_END not implemented "
-					"for FS_Seek on pk3 file contents\n" );
-			return -1;
-		}
-
-		switch( origin ) {
-			case FS_SEEK_SET:
-				unzSetCurrentFileInfoPosition(fsh[f].handleFiles.file.z, fsh[f].zipFilePos);
-				unzOpenCurrentFile(fsh[f].handleFiles.file.z);
-				//fallthrough
-
-			case FS_SEEK_CUR:
-				while( remainder > PK3_SEEK_BUFFER_SIZE ) {
-					FS_Read( buffer, PK3_SEEK_BUFFER_SIZE, f );
-					remainder -= PK3_SEEK_BUFFER_SIZE;
-				}
-				FS_Read( buffer, remainder, f );
-				return offset;
-				break;
-
-			default:
-				Com_Error( ERR_FATAL, "Bad origin in FS_Seek\n" );
-				return -1;
-				break;
-		}
-	} else {
-		FILE *file;
-		file = FS_FileForHandle(f);
-		switch( origin ) {
-		case FS_SEEK_CUR:
-			_origin = SEEK_CUR;
-			break;
-		case FS_SEEK_END:
-			_origin = SEEK_END;
-			break;
-		case FS_SEEK_SET:
-			_origin = SEEK_SET;
-			break;
-		default:
-			_origin = SEEK_CUR;
-			Com_Error( ERR_FATAL, "Bad origin in FS_Seek\n" );
-			break;
-		}
-
-		return fseek( file, offset, _origin );
-	}
-#endif
-#else
-	int		_origin;
-
-	if (!fs_searchpaths) {
-		Com_Error(ERR_FATAL, "Filesystem call made without initialization");
+		Com_Error( ERR_FATAL, "Filesystem call made without initialization" );
 		return -1;
 	}
 
@@ -1819,67 +1723,64 @@ int FS_Seek( fileHandle_t f, long offset, fsOrigin_t origin ) {
 		//(but better than what was here before)
 		byte	buffer[PK3_SEEK_BUFFER_SIZE];
 		int		remainder;
-		int		currentPosition = FS_FTell(f);
+		int		currentPosition = FS_FTell( f );
 
 		// change negative offsets into FS_SEEK_SET
-		if (offset < 0) {
-			switch (origin) {
-			case FS_SEEK_END:
-				remainder = fsh[f].zipFileLen + offset;
-				break;
+		if ( offset < 0 ) {
+			switch( origin ) {
+				case FS_SEEK_END:
+					remainder = fsh[f].zipFileLen + offset;
+					break;
 
-			case FS_SEEK_CUR:
-				remainder = currentPosition + offset;
-				break;
+				case FS_SEEK_CUR:
+					remainder = currentPosition + offset;
+					break;
 
-			case FS_SEEK_SET:
-			default:
-				remainder = 0;
-				break;
+				case FS_SEEK_SET:
+				default:
+					remainder = 0;
+					break;
 			}
 
-			if (remainder < 0) {
+			if ( remainder < 0 ) {
 				remainder = 0;
 			}
 
 			origin = FS_SEEK_SET;
-		}
-		else {
-			if (origin == FS_SEEK_END) {
+		} else {
+			if ( origin == FS_SEEK_END ) {
 				remainder = fsh[f].zipFileLen - currentPosition + offset;
-			}
-			else {
+			} else {
 				remainder = offset;
 			}
 		}
 
-		switch (origin) {
-		case FS_SEEK_SET:
-			if (remainder == currentPosition) {
+		switch( origin ) {
+			case FS_SEEK_SET:
+				if ( remainder == currentPosition ) {
+					return 0;
+				}
+				unzSetOffset(fsh[f].handleFiles.file.z, fsh[f].zipFilePos);
+				unzOpenCurrentFile(fsh[f].handleFiles.file.z);
+				//fallthrough
+
+			case FS_SEEK_END:
+			case FS_SEEK_CUR:
+				while( remainder > PK3_SEEK_BUFFER_SIZE ) {
+					FS_Read( buffer, PK3_SEEK_BUFFER_SIZE, f );
+					remainder -= PK3_SEEK_BUFFER_SIZE;
+				}
+				FS_Read( buffer, remainder, f );
 				return 0;
-			}
-			unzSetOffset(fsh[f].handleFiles.file.z, fsh[f].zipFilePos);
-			unzOpenCurrentFile(fsh[f].handleFiles.file.z);
-			//fallthrough
 
-		case FS_SEEK_END:
-		case FS_SEEK_CUR:
-			while (remainder > PK3_SEEK_BUFFER_SIZE) {
-				FS_Read(buffer, PK3_SEEK_BUFFER_SIZE, f);
-				remainder -= PK3_SEEK_BUFFER_SIZE;
-			}
-			FS_Read(buffer, remainder, f);
-			return 0;
-
-		default:
-			Com_Error(ERR_FATAL, "Bad origin in FS_Seek");
-			return -1;
+			default:
+				Com_Error( ERR_FATAL, "Bad origin in FS_Seek" );
+				return -1;
 		}
-	}
-	else {
+	} else {
 		FILE *file;
 		file = FS_FileForHandle(f);
-		switch (origin) {
+		switch( origin ) {
 		case FS_SEEK_CUR:
 			_origin = SEEK_CUR;
 			break;
@@ -1890,13 +1791,12 @@ int FS_Seek( fileHandle_t f, long offset, fsOrigin_t origin ) {
 			_origin = SEEK_SET;
 			break;
 		default:
-			Com_Error(ERR_FATAL, "Bad origin in FS_Seek");
+			Com_Error( ERR_FATAL, "Bad origin in FS_Seek" );
 			break;
 		}
 
-		return fseek(file, offset, _origin);
+		return fseek( file, offset, _origin );
 	}
-#endif
 }
 
 
