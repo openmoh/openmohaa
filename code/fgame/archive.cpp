@@ -517,7 +517,6 @@ void ArchiveSwapValue<Quat>(Quat* value) {
 #define ARCHIVE(func, type)                             \
     void Archiver::Archive##func(type *v)               \
     {                                                   \
-        int i;                                          \
         if (archivemode == ARCHIVE_WRITE) {             \
             type nv = *v;                               \
             ArchiveSwapValue(&nv);                      \
@@ -559,7 +558,6 @@ void Archiver::ArchiveSvsTime(int *time)
 
 void Archiver::ArchiveVec2(vec2_t vec)
 {
-    int i;
     if (archivemode == ARCHIVE_WRITE) {
         vec2_t nv = { vec[0], vec[1] };
         ArchiveSwapValue(nv, 2);
@@ -572,7 +570,6 @@ void Archiver::ArchiveVec2(vec2_t vec)
 
 void Archiver::ArchiveVec3(vec3_t vec)
 {
-    int i;
     if (archivemode == ARCHIVE_WRITE) {
         vec3_t nv = { vec[0], vec[1], vec[2]};
         ArchiveSwapValue(nv, 3);
@@ -585,7 +582,6 @@ void Archiver::ArchiveVec3(vec3_t vec)
 
 void Archiver::ArchiveVec4(vec4_t vec)
 {
-    int i;
     if (archivemode == ARCHIVE_WRITE) {
         vec4_t nv = { vec[0], vec[1], vec[2], vec[3] };
         ArchiveSwapValue(nv, 4);
@@ -784,8 +780,6 @@ void Archiver::ArchiveString(str *string)
             }
         }
     } else {
-        fileSize_t s;
-
 #ifndef NDEBUG
         CheckWrite();
 #endif
