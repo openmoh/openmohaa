@@ -5,6 +5,15 @@ include(TargetArch.cmake)
 
 target_architecture(TARGET_ARCH)
 
+set(USE_INTERNAL_LIBS ON)
+if(USE_SYSTEM_LIBS)
+	set(USE_INTERNAL_LIBS OFF)
+endif()
+
+option(USE_INTERNAL_JPEG "If set, use bundled libjpeg." ${USE_INTERNAL_LIBS})
+option(USE_INTERNAL_MAD  "If set, use bundled libmad."  ${USE_INTERNAL_LIBS})
+option(USE_INTERNAL_ZLIB "If set, use bundled zlib."    ${USE_INTERNAL_LIBS})
+
 
 if(TARGET_GAME_TYPE)
 	message(SEND_ERROR "TARGET_GAME_TYPE is now unsupported, it is now done at runtime.")
@@ -125,11 +134,18 @@ if (NOT BUILD_NO_CLIENT)
 	target_link_libraries(openmohaa PRIVATE qcommon qcommon_standalone)
 
 	### Gamespy dependency
-	target_include_directories(openmohaa PUBLIC "code/qcommon" "code/script" "code/gamespy" "code/server" "code/client" "code/uilib" "code/jpeg-8c")
+	target_include_directories(openmohaa PUBLIC "code/qcommon" "code/script" "code/gamespy" "code/server" "code/client" "code/uilib")
 	set_target_properties(openmohaa PROPERTIES OUTPUT_NAME "openmohaa${TARGET_BIN_SUFFIX}")
 	set_target_properties(openmohaa PROPERTIES DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX})
 
-	target_link_libraries(openmohaa PRIVATE jpeg8)
+	if(USE_INTERNAL_JPEG)
+		target_include_directories(openmohaa PUBLIC "code/jpeg-8c")
+		target_link_libraries(openmohaa PRIVATE jpeg8)
+	else()
+		find_package(JPEG REQUIRED)
+		target_include_directories(openmohaa PUBLIC ${JPEG_INCLUDE_DIRS})
+		target_link_libraries(openmohaa PRIVATE ${JPEG_LIBRARIES})
+	endif()
 
 	if (MSVC)
 		target_link_options(openmohaa PRIVATE "/MANIFEST:NO")

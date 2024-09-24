@@ -52,8 +52,24 @@ endif()
 
 set(OLD_VALUE ${BUILD_SHARED_LIBS})
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
-add_subdirectory("../libmad" "./libmad" EXCLUDE_FROM_ALL)
-target_link_libraries(omohclient INTERFACE mad)
+
+if(USE_INTERNAL_MAD)
+	add_subdirectory("../libmad" "./libmad" EXCLUDE_FROM_ALL)
+	target_link_libraries(omohclient INTERFACE mad)
+else()
+	include(FindPackageHandleStandardArgs)
+	find_path(LIBMAD_INCLUDE_DIRS mad.h)
+	find_library(LIBMAD_LIBRARIES mad)
+	find_package_handle_standard_args(
+		LibMad
+		DEFAULT_MSG
+		LIBMAD_LIBRARIES
+		LIBMAD_INCLUDE_DIRS
+	)
+	target_include_directories(omohclient INTERFACE ${LIBMAD_INCLUDE_DIRS})
+	target_link_libraries(omohclient INTERFACE ${LIBMAD_LIBRARIES})
+endif()
+
 set(BUILD_SHARED_LIBS ${OLD_VALUE} CACHE BOOL "" FORCE)
 
 target_sources(omohclient INTERFACE ${SOURCES_CLIENT} ${SOURCES_UILIB})
