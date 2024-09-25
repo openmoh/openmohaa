@@ -2691,6 +2691,12 @@ EventQueueNode *Listener::PostEventInternal(Event *ev, float delay, int flags)
     EventQueueNode *i;
     int             inttime;
 
+#if defined(GAME_DLL)
+    if (LoadingSavegame) {
+        return NULL;
+    }
+#endif
+
     if (!classinfo()->responseLookup[ev->eventnum]) {
         if (!ev->eventnum) {
 #ifdef _DEBUG
