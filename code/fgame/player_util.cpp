@@ -95,7 +95,7 @@ void Player::WhatIs(Event *ev)
 
         animname = NULL;
         if (ent->edict->tiki) {
-            animname = gi.Anim_NameForNum(ent->edict->tiki, ent->edict->s.frameInfo[0].index);
+            animname = AnimName(0);
         }
 
         if (!animname) {
