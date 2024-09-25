@@ -785,7 +785,7 @@ int CM_LoadLump( fileHandle_t handle, lump_t *lump, gamelump_t *glump, int size 
 	if( lump->filelen ) {
 		glump->buffer = Hunk_AllocateTempMemory( lump->filelen );
 
-		if( FS_Seek( handle, lump->fileofs, FS_SEEK_SET ) ) {
+		if( FS_Seek( handle, lump->fileofs, FS_SEEK_SET ) < 0 ) {
 			Com_Error( ERR_DROP, "CM_LoadLump: Error seeking to lump." );
 		}
 

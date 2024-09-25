@@ -260,7 +260,7 @@ typedef struct gameImport_s {
     size_t (*FS_Read)(void *buffer, size_t len, fileHandle_t fileHandle);
     void (*FS_FCloseFile)(fileHandle_t fileHandle);
     int (*FS_Tell)(fileHandle_t fileHandle);
-    int (*FS_Seek)(fileHandle_t fileHandle, long int offset, fsOrigin_t origin);
+    int (*FS_Seek)(fileHandle_t fileHandle, long int offset, int origin);
     void (*FS_Flush)(fileHandle_t fileHandle);
     int (*FS_FileNewer)(const char *source, const char *destination);
     void (*FS_CanonicalFilename)(char *fileName);

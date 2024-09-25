@@ -201,7 +201,7 @@ typedef struct {
     int     (*FS_OpenFile)(const char* qpath, fileHandle_t *file, qboolean uniqueFILE, qboolean quiet);
     size_t  (*FS_Read)(void* buffer, size_t len, fileHandle_t fileHandle);
     void    (*FS_CloseFile)(fileHandle_t fileHandle);
-    int     (*FS_Seek)(fileHandle_t fileHandle, long offset, fsOrigin_t origin);
+    int     (*FS_Seek)(fileHandle_t fileHandle, long offset, int origin);
 	int		(*FS_FileIsInPAK)( const char *name, int *pCheckSum );
     int		(*FS_ReadFile)(const char* name, void** buf);
     int     (*FS_ReadFileEx)(const char* qpath, void** buffer, qboolean quiet);

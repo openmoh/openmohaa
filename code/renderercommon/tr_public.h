@@ -265,7 +265,7 @@ typedef struct {
     long    (*FS_OpenFile)(const char* qpath, fileHandle_t *file, qboolean uniqueFILE, qboolean quiet);
     size_t  (*FS_Read)(void* buffer, size_t len, fileHandle_t fileHandle);
     void    (*FS_CloseFile)(fileHandle_t fileHandle);
-    int     (*FS_Seek)(fileHandle_t fileHandle, long offset, fsOrigin_t origin);
+    int     (*FS_Seek)(fileHandle_t fileHandle, long offset, int origin);
     long     (*FS_ReadFileEx)(const char* qpath, void** buffer, qboolean quiet);
 
     void        (*CM_BoxTrace)(trace_t* results, const vec3_t start, const vec3_t end, const vec3_t mins, const vec3_t maxs, int model, int brushMask, int cylinder);

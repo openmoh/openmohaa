@@ -1710,7 +1710,7 @@ FS_Seek
 
 =================
 */
-int FS_Seek( fileHandle_t f, long offset, fsOrigin_t origin ) {
+int FS_Seek( fileHandle_t f, long offset, int origin ) {
 	int		_origin;
 
 	if ( !fs_searchpaths ) {
@@ -1758,7 +1758,7 @@ int FS_Seek( fileHandle_t f, long offset, fsOrigin_t origin ) {
 		switch( origin ) {
 			case FS_SEEK_SET:
 				if ( remainder == currentPosition ) {
-					return 0;
+					return offset;
 				}
 				unzSetOffset(fsh[f].handleFiles.file.z, fsh[f].zipFilePos);
 				unzOpenCurrentFile(fsh[f].handleFiles.file.z);
@@ -1771,7 +1771,7 @@ int FS_Seek( fileHandle_t f, long offset, fsOrigin_t origin ) {
 					remainder -= PK3_SEEK_BUFFER_SIZE;
 				}
 				FS_Read( buffer, remainder, f );
-				return 0;
+				return offset;
 
 			default:
 				Com_Error( ERR_FATAL, "Bad origin in FS_Seek" );
