@@ -543,7 +543,7 @@ Listener *SpawnArgs::SpawnInternal(void)
     }
 
     t2 = gi.Milliseconds();
-    if (t2 - t2 >= 100) {
+    if (t2 - t1 >= 100) {
         //
         // above 100 ms send a message to console
         //
