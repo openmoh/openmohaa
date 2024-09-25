@@ -49,8 +49,8 @@ void MM_ClipVelocity(float *in, float *normal, float *out, float overbounce)
             return;
         }
 
-        normal2[0] = in[0] + DotProduct2D(in, normal);
-        normal2[1] = in[1] + DotProduct2D(in, normal);
+        normal2[0] = in[0] * DotProduct2D(in, normal);
+        normal2[1] = in[1] * DotProduct2D(in, normal);
         normal2[2] = normal[2] * DotProduct2D(in, in);
 
         VectorNormalize(normal2);
