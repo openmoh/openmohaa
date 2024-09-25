@@ -596,7 +596,7 @@ int Animate::NumAnims(void)
 
 const char *Animate::AnimName(int slot)
 {
-    return gi.Anim_NameForNum(edict->tiki, edict->s.frameInfo[slot].index);
+    return gi.Anim_NameForNum(edict->tiki, CurrentAnim(slot));
 }
 
 void Animate::AnimFinished(int slot)
