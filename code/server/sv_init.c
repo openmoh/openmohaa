@@ -794,8 +794,8 @@ void SV_SpawnServer( const char *server, qboolean loadgame, qboolean restart, qb
 		// run a few frames to allow everything to settle
 		for( i = 0; i < 3; i++ )
 		{
-			ge->RunFrame( svs.time, 100 );
 			svs.time += 100;
+			ge->RunFrame( svs.time, 100 );
 
 			p = ge->errorMessage;
 			if( p )
