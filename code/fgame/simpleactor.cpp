@@ -865,9 +865,9 @@ void SimpleActor::UpdateCrossBlendAnimSlot(int slot)
 void SimpleActor::UpdateCrossBlendDialogAnimSlot(int slot)
 {
     if (m_iSaySlot >= 0) {
-        m_weightCrossBlend[m_iSaySlot] -= level.frametime / 0.1f;
+        m_weightCrossBlend[slot] -= level.frametime / 0.1f;
     } else {
-        m_weightCrossBlend[m_iSaySlot] -= level.frametime / 0.5f;
+        m_weightCrossBlend[slot] -= level.frametime / 0.5f;
     }
 
     if (m_weightCrossBlend[slot] > 0.0) {
@@ -881,9 +881,9 @@ void SimpleActor::UpdateCrossBlendDialogAnimSlot(int slot)
 void SimpleActor::UpdateSayAnimSlot(int slot)
 {
     if (m_iSaySlot >= 0) {
-        m_weightCrossBlend[m_iSaySlot] += level.frametime / 0.1f;
+        m_weightCrossBlend[slot] += level.frametime / 0.1f;
     } else {
-        m_weightCrossBlend[m_iSaySlot] += level.frametime / 0.5f;
+        m_weightCrossBlend[slot] += level.frametime / 0.5f;
     }
 
     SetBlendedWeight(slot);
