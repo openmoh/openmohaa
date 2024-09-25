@@ -1402,7 +1402,7 @@ qboolean ClientGameCommandManager::PostEventForEntity(Event *ev, float fWait)
     EffectsEventQueueNode *node;
     int                    inttime;
 
-    if (!m_fEventWait || current_entity_number < 0) {
+    if (m_fEventWait < 0 || current_entity_number < 0) {
         if (!str::icmp(ev->getName(), ")")) {
             m_fEventWait = 0.0;
         }
