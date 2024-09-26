@@ -2023,6 +2023,9 @@ Player::Player()
 #endif
     m_fpsTiki           = NULL;
     m_bConnected        = false;
+
+    m_iInstantMessageTime = 0;
+    m_iTextChatTime = 0;
     //====
 
     if (LoadingSavegame) {
@@ -10403,6 +10406,16 @@ void Player::EventDMMessage(Event *ev)
             return;
         }
 
+        if (!g_instamsg_allowed->integer) {
+            // Added in OPM
+            return;
+        }
+
+        if (g_instamsg_minDelay->integer > 0 && level.inttime < m_iInstantMessageTime + g_instamsg_minDelay->integer) {
+            // Added in OPM
+            return;
+        }
+
         GetTeamDialogPrefix(sAliasName);
         sAliasName += va("%c%c", (sToken[1] + '0'), (sToken[2] + '0'));
         sRandomAlias = GetRandomAlias(sAliasName, &pSoundAlias);
@@ -10449,17 +10462,39 @@ void Player::EventDMMessage(Event *ev)
                 iMode = -1;
             }
         }
+    } else {
+        if (!g_textmsg_allowed->integer) {
+            // Added in OPM
 
-        if (g_voiceChatTime->value > 0) {
-            m_fTalkTime = g_voiceChatTime->value + level.time;
+            str errorString = gi.LV_ConvertString("Message Error");
+            str reasonString = gi.LV_ConvertString("Text chat is disabled on this server");
+
+            gi.SendServerCommand(
+                edict - g_entities,
+                "print \"" HUD_MESSAGE_CHAT_WHITE "%s: %s.\n\"",
+                errorString.c_str(),
+                reasonString.c_str()
+            );
+            return;
+        }
+
+        if (g_textmsg_minDelay->integer > 0 && level.inttime < m_iTextChatTime + g_textmsg_minDelay->integer) {
+            // Added in OPM
+            return;
         }
     }
 
-    if (!bInstaMessage) {
+    if (bInstaMessage) {
+        if (g_voiceChatTime->value > 0) {
+            m_fTalkTime = g_voiceChatTime->value + level.time;
+        }
+        m_iInstantMessageTime = level.inttime;
+    } else {
         iMode = ev->GetInteger(1);
         if (g_textChatTime->value > 0) {
             m_fTalkTime = g_textChatTime->value + level.time;
         }
+        m_iTextChatTime = level.inttime;
     }
 
     Q_strncpyz(szPrintString, "print \"" HUD_MESSAGE_CHAT_WHITE, sizeof(szPrintString));

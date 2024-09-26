@@ -274,6 +274,11 @@ extern cvar_t *g_spectatefollow_firstperson;
 
 extern cvar_t *cl_running;
 
+extern cvar_t *g_instamsg_allowed;
+extern cvar_t *g_instamsg_minDelay;
+extern cvar_t *g_textmsg_allowed;
+extern cvar_t *g_textmsg_minDelay;
+
 void CVAR_Init(void);
 
 #ifdef __cplusplus

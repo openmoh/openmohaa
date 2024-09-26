@@ -257,6 +257,10 @@ cvar_t *g_no_seasick;
 
 cvar_t *g_aistats;
 
+//
+// Added in OPM
+//
+
 cvar_t *g_obituarylocation;
 
 cvar_t *sv_scriptfiles;
@@ -268,6 +272,15 @@ cvar_t *g_rankedserver;
 cvar_t *g_spectatefollow_firstperson;
 
 cvar_t *cl_running;
+
+// Whether or instant messages are allowed
+cvar_t *g_instamsg_allowed;
+// Minimum delay, in milliseconds, between instant messages
+cvar_t *g_instamsg_minDelay;
+// Whether or not text messages are allowed
+cvar_t *g_textmsg_allowed;
+// Minimum delay, in milliseconds, between messages
+cvar_t *g_textmsg_minDelay;
 
 void CVAR_Init(void)
 {
@@ -596,6 +609,10 @@ void CVAR_Init(void)
     g_rifles_for_sweepers     = gi.Cvar_Get("g_rifles_for_sweepers", "0", 0);
     g_no_seasick              = gi.Cvar_Get("g_no_seasick", "0", 0);
 
+    //
+    // Added in OPM
+    //
+
     if (g_target_game >= target_game_e::TG_MOHTA) {
         g_obituarylocation = gi.Cvar_Get("g_obituarylocation", "0", 0);
     } else {
@@ -623,6 +640,11 @@ void CVAR_Init(void)
         gi.Printf("numbots overflow, setting to %d\n", sv_maxbots->integer);
         gi.cvar_set("sv_numbots", sv_maxbots->string);
     }
+
+    g_instamsg_allowed = gi.Cvar_Get("g_instamsg_allowed", "1", 0);
+    g_instamsg_minDelay = gi.Cvar_Get("g_instamsg_minDelay", "0", 0);
+    g_textmsg_allowed = gi.Cvar_Get("g_textmsg_allowed", "1", 0);
+    g_textmsg_minDelay = gi.Cvar_Get("g_textmsg_minDelay", "0", 0);
 
     cl_running = gi.Cvar_Get("cl_running", "", 0);
 }

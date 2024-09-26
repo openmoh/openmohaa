@@ -345,7 +345,9 @@ public:
     bool  m_bWaitingForRespawn;
     bool  m_bShouldRespawn;
 
-    // new variables
+    //
+    // Added in OPM
+    //
     str                 m_sVision;    // current vision
     str                 m_sStateFile; // custom statefile
     bool                m_bFrozen; // if player is frozen
@@ -359,6 +361,10 @@ public:
     dtiki_t            *m_fpsTiki;
     bool                m_bConnected;
     str                 m_lastcommand;
+
+private:
+    int         m_iInstantMessageTime;
+    int         m_iTextChatTime;
 
 public:
     qboolean CondTrue(Conditional& condition);

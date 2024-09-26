@@ -34,7 +34,7 @@ Overall, better compatibility on modern systems and bugfixes.
 - More script commands for mods
 - Non-PVS optimization
 - Packet flood protection
-- Spectate players in first-person
+- Ability to enable/disable the text chat and the voice message chat and set a delay between chat/instant messages
 
 #### Non-PVS optimization
 
