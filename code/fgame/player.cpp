@@ -10448,10 +10448,10 @@ void Player::EventDMMessage(Event *ev)
             } else {
                 iMode = -1;
             }
+        }
 
-            if (g_voiceChatTime->value > 0) {
-                m_fTalkTime = g_voiceChatTime->value + level.time;
-            }
+        if (g_voiceChatTime->value > 0) {
+            m_fTalkTime = g_voiceChatTime->value + level.time;
         }
     }
 
