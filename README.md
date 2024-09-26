@@ -41,7 +41,7 @@ All game modes including `Tug-of-War` from Medal of Honor: Spearhead, and `Liber
 ## Features
 
 - [What's working](docs/features_implementation.md)
-- [New features](docs/features.md)
+- [List of new features](docs/features.md)
 - [Scripting commands](https://htmlpreview.github.io/?https://github.com/openmoh/openmohaa/blob/main/docs/features_g_allclasses.html)
 
 ## Compiling
