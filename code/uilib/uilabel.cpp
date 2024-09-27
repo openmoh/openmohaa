@@ -166,7 +166,13 @@ void UILabel::LabelLayoutShader(Event *ev)
 void UILabel::LabelLayoutTileShader(Event *ev)
 {
     m_sCurrentShaderName = ev->GetString(1);
-    setMaterial(uWinMan.RegisterShader(m_sCurrentShaderName));
+    if (m_sCurrentShaderName.length() > 1) {
+        setMaterial(uWinMan.RegisterShader(m_sCurrentShaderName));
+    } else {
+        // Added in 2.0
+        //  Don't set the material if the shader name is considered empty
+        m_sCurrentShaderName = "";
+    }
 
     m_flags |= WF_TILESHADER;
 }
