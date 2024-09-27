@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2024 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -22,8 +22,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // decals.h: Decal entities
 
-#ifndef __DECAL_H__
-#define __DECAL_H__
+#pragma once
 
 #include "g_local.h"
 #include "entity.h"
@@ -57,5 +56,3 @@ inline void Decal::Archive
       setShader( shader );
       }
    }
-
-#endif // __DECAL_H__

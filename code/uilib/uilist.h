@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2024 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -20,8 +20,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-#ifndef __UILIST_H__
-#define __UILIST_H__
+#pragma once
 
 class UIListItem {
 public:
@@ -71,5 +70,3 @@ public:
 
 	qboolean	KeyEvent( int key, unsigned int time ) override;
 };
-
-#endif /* __UILIST_H__ */

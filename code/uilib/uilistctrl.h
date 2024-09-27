@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2024 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -20,8 +20,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-#ifndef __UILISTCTRL_H__
-#define __UILISTCTRL_H__
+#pragma once
 
 typedef enum { TYPE_STRING, TYPE_OWNERDRAW } griditemtype_t;
 
@@ -105,5 +104,3 @@ public:
 	void				setCompareFunction( int( *func ) ( const UIListCtrlItem *i1, const UIListCtrlItem *i2, int columnname ) );
 	void				setHeaderFont( const char *name );
 };
-
-#endif

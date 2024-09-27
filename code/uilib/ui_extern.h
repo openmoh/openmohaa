@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2024 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -20,8 +20,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-#ifndef __UI_EXTERN_H__
-#define __UI_EXTERN_H__
+#pragma once
 
 #include "../qcommon/q_shared.h"
 #include "../qcommon/qcommon.h"
@@ -83,6 +82,3 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../client/cl_invrender.h"
 #include "../client/cl_uistd.h"
 #include "../client/cl_uiloadsave.h"
-
-#endif /* __UI_EXTERN_H__ */
-

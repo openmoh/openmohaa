@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2024 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -20,8 +20,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-#ifndef __BASEIMP_H__
-#define __BASEIMP_H__
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
@@ -85,6 +84,4 @@ void CacheResource( const char *name );
 
 #ifdef __cplusplus
 }
-#endif
-
 #endif

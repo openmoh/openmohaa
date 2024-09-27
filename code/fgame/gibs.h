@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2024 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -22,8 +22,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // gibs.h: Gibs - nuff said
 
-#ifndef __GIBS_H__
-#define __GIBS_H__
+#pragma once
 
 #include "g_local.h"
 #include "mover.h"
@@ -88,5 +87,3 @@ void CreateGibs
    );
 
 extern Event EV_ThrowGib;
-
-#endif // gibs.h

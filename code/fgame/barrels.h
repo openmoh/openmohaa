@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2024 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -22,8 +22,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // barrels.h : Barrels
 
-#ifndef __BARRELOBJECT_H__
-#define __BARRELOBJECT_H__
+#pragma once
 
 #include "entity.h"
 
@@ -90,5 +89,3 @@ inline void BarrelObject::Archive
 		arc.ArchiveVector( &m_vLeakNorms[ i ] );
 	}
 }
-
-#endif // __BARRELOBJECT_H__

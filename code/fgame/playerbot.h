@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2023 the OpenMoHAA team
+Copyright (C) 2024 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -21,8 +21,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 // playerbot.h: Multiplayer bot system.
 
-#ifndef __PLAYERBOT_H__
-#define __PLAYERBOT_H__
+#pragma once
 
 #include "player.h"
 #include "navigate.h"
@@ -178,5 +177,3 @@ public:
     void GotKill(Event *ev);
     void EventStuffText(Event *ev);
 };
-
-#endif /* playerbot.h */

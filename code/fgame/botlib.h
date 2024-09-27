@@ -13,8 +13,7 @@
  *
  *****************************************************************************/
 
-#ifndef __BOTLIB_H__
-#define __BOTLIB_H__
+#pragma once
 
 #define	BOTLIB_API_VERSION		2
 
@@ -503,4 +502,3 @@ name:						default:			module(s):			description:
 "max_levelitems"			"256"				be_ai_goal.c		maximum number of level items
 
 */
-#endif

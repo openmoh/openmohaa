@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2024 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -20,8 +20,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-#ifndef __UISLIDER_H__
-#define __UISLIDER_H__
+#pragma once
 
 typedef enum { SLIDER_FLOAT, SLIDER_INTEGER } slidertype_t;
 
@@ -85,6 +84,3 @@ public:
 	void		setRange( float min, float max );
 	void		setStep( float value );
 };
-
-#endif
-

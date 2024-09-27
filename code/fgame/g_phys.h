@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2008 the OpenMoHAA team
+Copyright (C) 2024 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -22,8 +22,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // g_phys.h: Header for g_phys.cpp
 
-#ifndef __G_PHYS_H__
-#define __G_PHYS_H__
+#pragma once
 
 #include "g_local.h"
 #include "vector.h"
@@ -79,5 +78,3 @@ void		G_Impact( Entity *e1, trace_t *trace );
 qboolean	G_PushMove( Entity *pusher, Vector move, Vector amove );
 void		G_CheckWater( Entity *ent );
 Entity		*G_TestEntityPosition( Entity *ent, Vector vOrg );
-
-#endif /* g_phys.h */

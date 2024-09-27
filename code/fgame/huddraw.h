@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2024 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -23,8 +23,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // huddraw.cpp :	This is a HudDraw Functions Code section with huddraw functions reversed for 
 //					altering clients HUD
 
-#ifndef __HUDDRAW_H__
-#define __HUDDRAW_H__
+#pragma once
 
 #include "g_local.h"
 
@@ -49,5 +48,3 @@ void iHudDrawAlpha( int cl_num, int info, float alpha );
 void iHudDrawString( int cl_num, int info, const char *string );
 void iHudDrawFont( int cl_num, int info, const char *fontName );
 void iHudDrawTimer( int cl_num, int index, float duration, float fade_out_time );
-
-#endif // __HUDDRAW_H__

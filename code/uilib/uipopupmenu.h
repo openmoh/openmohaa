@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2023 the OpenMoHAA team
+Copyright (C) 2024 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -20,8 +20,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-#ifndef __UIPOPUPMENU_H__
-#define __UIPOPUPMENU_H__
+#pragma once
 
 typedef enum { UIP_NONE, UIP_EVENT, UIP_EVENT_STRING, UIP_SUBMENU, UIP_CMD, UIP_CVAR, UIP_SEPARATOR } uipopup_type;
 typedef enum { UIP_WHERE_RIGHT, UIP_WHERE_DOWN } uipopup_where;
@@ -133,6 +132,3 @@ public:
 };
 
 uipopup_type UI_PopupTypeStringToInt(str type);
-
-#endif
-

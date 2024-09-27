@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2024 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -20,8 +20,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-#ifndef __UI_LOCAL_H__
-#define __UI_LOCAL_H__
+#pragma once
 
 #include "../client/cl_ui.h"
 
@@ -32,6 +31,3 @@ typedef struct uiGlobals_s {
 } uiGlobals_t;
 
 extern uiGlobals_t ui;
-
-#endif /* __UI_LOCAL_H__ */
-

@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2024 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -26,8 +26,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // class size down for objects that don't need such behavior.
 // 
 
-#ifndef __MOVER_H__
-#define __MOVER_H__
+#pragma once
 
 #include "g_local.h"
 #include "entity.h"
@@ -64,5 +63,3 @@ inline void Mover::Archive
    arc.ArchiveEventPointer( &endevent );
    arc.ArchiveInteger( &moveflags );
    }
-
-#endif

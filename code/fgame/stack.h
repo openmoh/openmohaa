@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2024 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -23,8 +23,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // stack.h: Generic Stack object.
 // 
 
-#ifndef __STACK_H__
-#define __STACK_H__
+#pragma once
 
 #include "g_local.h"
 #include "class.h"
@@ -142,5 +141,3 @@ inline Type Stack<Type>::Pop
 
 	return ret;
 	}
-
-#endif /* stack.h */

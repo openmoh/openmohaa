@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2024 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -20,8 +20,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-#ifndef __UISIZE2D_H__
-#define __UISIZE2D_H__
+#pragma once
 
 class UISize2D {
 public:
@@ -65,5 +64,3 @@ bool UISize2D::operator!=( const UISize2D& pos ) const
 {
 	return ( width != pos.width || height != pos.height );
 }
-
-#endif /* __UISIZE2D_H__ */

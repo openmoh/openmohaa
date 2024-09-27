@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2024 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -26,8 +26,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // explosions each time they are activated.
 // 
 
-#ifndef __EXPLOSION_H__
-#define __EXPLOSION_H__
+#pragma once
 
 #include "g_local.h"
 #include "entity.h"
@@ -136,5 +135,3 @@ inline void ExplodeObject::Archive
    arc.ArchiveInteger( &debrisamount );
    debrismodels.Archive( arc );
    }
-
-#endif /* explosion.h */

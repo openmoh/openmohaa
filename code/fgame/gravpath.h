@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2024 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -22,8 +22,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // gravpath.h: Gravity path - Used for underwater currents and wells.
 
-#ifndef __GRAVPATH_H__
-#define __GRAVPATH_H__
+#pragma once
 
 #include "g_local.h"
 #include "class.h"
@@ -202,5 +201,3 @@ inline void GravPathManager::Archive
    }
 
 extern GravPathManager gravPathManager;
-
-#endif /* gravpath.h */

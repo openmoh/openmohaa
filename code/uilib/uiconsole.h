@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2024 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -20,8 +20,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-#ifndef __UI_CONSOLE_H__
-#define __UI_CONSOLE_H__
+#pragma once
 
 typedef void ( *consoleHandler_t )( const char *text );
 
@@ -172,5 +171,3 @@ public:
 	int				GetMessageMode( void );
 	void			SetMessageMode( int iMode );
 };
-
-#endif

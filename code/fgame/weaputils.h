@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2024 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -23,8 +23,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // weaputils.h:
 // 
 
-#ifndef __WEAPUTILS_H__
-#define __WEAPUTILS_H__
+#pragma once
 
 #include "g_local.h"
 #include "animate.h"
@@ -361,5 +360,3 @@ Entity* FindDefusableObject(const Vector& dir, Entity* owner, float maxdist);
 void DefuseObject(const Vector& dir, Entity* owner, float maxdist);
 qboolean CanPlaceLandmine(const Vector& origin, Entity* owner);
 void PlaceLandmine(const Vector& origin, Entity* owner, const str& model, Weapon* weap);
-
-#endif // __WEAPUTILS_H__

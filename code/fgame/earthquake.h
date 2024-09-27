@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2024 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -24,8 +24,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // The earthquake effect is visible to the user as the shaking of his screen.
 // 
 
-#ifndef __EARTHQUAKE_H__
-#define __EARTHQUAKE_H__
+#pragma once
 
 #include "g_local.h"
 #include "trigger.h"
@@ -75,5 +74,3 @@ inline void ViewJitter::Archive
 	arc.ArchiveBoolean( &m_bDoneDeath );
 	arc.ArchiveFloat( &m_fTimeRunning );
 }
-
-#endif

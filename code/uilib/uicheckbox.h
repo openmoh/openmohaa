@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2024 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -20,8 +20,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-#ifndef __UICHECKBOX_H__
-#define __UICHECKBOX_H__
+#pragma once
 
 class UICheckBox : public UIWidget {
 	str m_checked_command;
@@ -60,6 +59,3 @@ extern Event EV_UICheckBox_SetCheckedCommand;
 extern Event EV_UICheckBox_SetUncheckedCommand;
 extern Event EV_UICheckBox_SetCheckedShader;
 extern Event EV_UICheckBox_SetUncheckedShader;
-
-#endif
-

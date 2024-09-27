@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2024 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -23,8 +23,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // PlayerStart.h: Player start location entity declarations
 // 
 
-#ifndef __PLAYERSTART_H__
-#define __PLAYERSTART_H__
+#pragma once
 
 #include "g_local.h"
 #include "simpleentity.h"
@@ -89,5 +88,3 @@ class PlayerIntermission : public Camera
 		CLASS_PROTOTYPE( PlayerIntermission );
       PlayerIntermission();
 	};
-
-#endif /* PlayerStart.h */

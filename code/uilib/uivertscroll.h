@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2024 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -20,8 +20,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-#ifndef __UIVERTSCROLL_H__
-#define __UIVERTSCROLL_H__
+#pragma once
 
 class unnamed_struct {
 public:
@@ -72,6 +71,4 @@ public:
 	void			setSolidBorderColor( const UColor& col );
 	void			InitFrameAlignRight( UIWidget *parent, float fWidthPadding, float fHeightPadding );
 };
-
-#endif
 

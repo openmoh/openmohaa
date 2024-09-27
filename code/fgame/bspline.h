@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2024 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -23,8 +23,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // bspline.h: Uniform non-rational bspline class.
 // 
 
-#ifndef __BSPLINE_H__
-#define __BSPLINE_H__
+#pragma once
 
 #include "g_local.h"
 #include "entity.h"
@@ -580,5 +579,3 @@ inline void SplinePath::SetTriggerTarget
    {
    triggertarget = name;
    }
-
-#endif /* __BSPLINE_H__ */

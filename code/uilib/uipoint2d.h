@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2024 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -20,8 +20,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-#ifndef __UIPOINT2D_H__
-#define __UIPOINT2D_H__
+#pragma once
 
 class UIPoint2D {
 public:
@@ -64,5 +63,3 @@ bool UIPoint2D::operator!=( const UIPoint2D& pos ) const
 {
 	return ( x != pos.x || y != pos.y );
 }
-
-#endif /* __UIPOINT2D_H__ */

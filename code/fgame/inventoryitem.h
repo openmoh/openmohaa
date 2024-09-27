@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2024 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -23,8 +23,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // inventoryitem.h: Items that are visible in the player's inventory
 
 
-#ifndef __INVITEM_H__
-#define __INVITEM_H__
+#pragma once
 
 #include "weapon.h"
 
@@ -52,5 +51,3 @@ class AntiSBJuice : public InventoryItem
 		void			UseEvent( Event *ev );
    };
 
-
-#endif /* inventoryitem.h */

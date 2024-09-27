@@ -22,8 +22,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //
 // g_main.h -- Global header file for g_main.cpp
 
-#ifndef __G_MAIN_H__
-#define __G_MAIN_H__
+#pragma once
 
 #include "g_local.h"
 #include "gamecvars.h"
@@ -55,5 +54,3 @@ void G_AllocGameData(void);
 void G_DeAllocGameData(void);
 void G_ClientDrawBoundingBoxes(void);
 void G_ClientDrawTags(void);
-
-#endif /* g_main.h */

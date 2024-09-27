@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2024 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -23,11 +23,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // ipfilter.h: DESCRIPTION:
 // 
 
-#ifndef __IPFILTER_H__
-#define __IPFILTER_H__
+#pragma once
 
 #include "g_local.h"
 
 qboolean SV_FilterPacket( const char *from );
-
-#endif /* !__IPFILTER_H__ */

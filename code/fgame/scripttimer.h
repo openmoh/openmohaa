@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2024 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -23,8 +23,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // ScriptTimer.cpp: Scripted Timer & Fader
 //
 
-#ifndef __SCRIPTTIMER_H__
-#define __SCRIPTTIMER_H__
+#pragma once
 
 #include "listener.h"
 
@@ -81,5 +80,3 @@ public:
 	bool		isEnabled();
 	void		setType( timertype_e type );
 };
-
-#endif /* __SCRIPTTIMER_H__ */

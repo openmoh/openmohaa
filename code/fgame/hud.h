@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2024 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -23,8 +23,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // hud.h: New HUD handler for MoHAA
 //
 
-#ifndef __HUD_H__
-#define __HUD_H__
+#pragma once
 
 #include "listener.h"
 #include "container.h"
@@ -208,5 +207,3 @@ public:
 };
 
 extern Container< Hud * > hudElements;
-
-#endif /* __HUD_H__  */

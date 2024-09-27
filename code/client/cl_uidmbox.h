@@ -20,8 +20,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-#ifndef __CL_UIDMBOX_H__
-#define __CL_UIDMBOX_H__
+#pragma once
 
 static constexpr unsigned int DMBOX_ITEM_FLAG_BOLD = 2u;
 static constexpr unsigned int DMBOX_ITEM_FLAG_DEATH = 4u;
@@ -77,5 +76,3 @@ public:
 	void		setRealShow( bool b );
 	void		Clear( void );
 };
-
-#endif /* __CL_UIDMBOX_H__ */

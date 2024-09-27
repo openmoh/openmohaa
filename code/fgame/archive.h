@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2024 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -22,8 +22,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // archive.h: OpenMoHAA Archiver
 
-#ifndef __ARCHIVE_H__
-#define __ARCHIVE_H__
+#pragma once
 
 #include "g_local.h"
 #include "class.h"
@@ -343,5 +342,3 @@ void con_map<key, value>::Archive(Archiver& arc)
         arc.ArchiveInteger(&tempInt); \
         (thing) = (type)tempInt;      \
     }
-
-#endif // __ARCHIVE_H__

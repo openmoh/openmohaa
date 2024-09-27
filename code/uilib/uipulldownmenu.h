@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2023 the OpenMoHAA team
+Copyright (C) 2024 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -20,8 +20,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-#ifndef __UIPULLDOWNMENU_H__
-#define __UIPULLDOWNMENU_H__
+#pragma once
 
 class uipull_describe {
 public:
@@ -102,6 +101,3 @@ public:
 	void	Realign( void ) override;
 	void	Draw( void ) override;
 };
-
-#endif
-

@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2024 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -25,8 +25,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // class will be usable by any Sentient (players and monsters) as a weapon.
 //
 
-#ifndef __WEAPON_H__
-#define __WEAPON_H__
+#pragma once
 
 #include "g_local.h"
 #include "item.h"
@@ -620,5 +619,3 @@ inline void Weapon::Archive(Archiver& arc)
 }
 
 typedef SafePtr<Weapon> WeaponPtr;
-
-#endif /* weapon.h */

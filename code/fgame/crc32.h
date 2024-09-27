@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2008 the OpenMoHAA team
+Copyright (C) 2024 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -22,8 +22,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // crc32.h: CRC32 Encryption (used by the Archiver)
 
-#ifndef __CRC32_H__
-#define __CRC32_H8_
+#pragma once
 
 static unsigned int crc32_tab[] = {
 	0x00000000, 0x77073096, 0xee0e612c, 0x990951ba, 0x076dc419, 0x706af48f,
@@ -84,5 +83,3 @@ unsigned int crc32( unsigned int crc, const void *buf, size_t size )
 
 	return crc ^ ~0U;
 }
-
-#endif // __CRC32_H__
