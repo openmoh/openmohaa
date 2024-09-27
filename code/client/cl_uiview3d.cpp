@@ -376,21 +376,22 @@ void View3D::DrawLetterbox(void)
     col[0] = col[1] = col[2] = 0;
     col[3]                   = 1;
 
-    frac = cl.snap.ps.stats[STAT_LETTERBOX] / 32767.0;
-    if (frac > 0.0) {
-        m_letterbox_active = true;
-        re.SetColor(col);
-
-        re.DrawBox(0.0, 0.0, m_screenframe.size.width, m_screenframe.size.height);
-        re.DrawBox(
-            0.0,
-            m_screenframe.size.height - m_screenframe.size.height * frac,
-            m_screenframe.size.width,
-            m_screenframe.size.height
-        );
-    } else {
+    frac = (float)cl.snap.ps.stats[STAT_LETTERBOX] / MAX_LETTERBOX_SIZE;
+    if (frac <= 0) {
         m_letterbox_active = false;
+        return;
     }
+
+    m_letterbox_active = true;
+    re.SetColor(col);
+
+    re.DrawBox(0.0, 0.0, m_screenframe.size.width, m_screenframe.size.height * frac);
+    re.DrawBox(
+        0.0,
+        m_screenframe.size.height - m_screenframe.size.height * frac,
+        m_screenframe.size.width,
+        m_screenframe.size.height
+    );
 }
 
 void View3D::DrawFades(void)
@@ -459,7 +460,14 @@ void View3D::DrawFPS(void)
         qfalse
     );
 
-    Com_sprintf(string, sizeof(string), "t%5d v%5d Mtex%5.2f", cls.total_tris, cls.total_verts, (float)cls.total_texels * 0.00000095367432);
+    Com_sprintf(
+        string,
+        sizeof(string),
+        "t%5d v%5d Mtex%5.2f",
+        cls.total_tris,
+        cls.total_verts,
+        (float)cls.total_texels * 0.00000095367432
+    );
 
     m_font->Print(
         m_font->getHeight(qfalse) * 10.0,
