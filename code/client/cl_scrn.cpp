@@ -520,16 +520,18 @@ text to the screen.
 ==================
 */
 void SCR_UpdateScreen( void ) {
-	static int	recursive;
+	static qboolean screen_recursive;
 
 	if ( !scr_initialized ) {
 		return;				// not initialized yet
 	}
 
-	if ( ++recursive > 2 ) {
-		Com_Error( ERR_FATAL, "SCR_UpdateScreen: recursively called" );
+	if (screen_recursive) {
+		// already called
+		return;
 	}
-	recursive = 1;
+
+	screen_recursive = qtrue;
 	
 	CL_StartHunkUsers(qfalse);
 	SCR_SimpleUpdateScreen();
@@ -553,6 +555,6 @@ void SCR_UpdateScreen( void ) {
 		}
 	}
 
-	recursive = 0;
+	screen_recursive = qfalse;
 }
 
