@@ -7483,7 +7483,7 @@ void Player::UpdateStats(void)
 
     float frac;
 
-    level.m_letterbox_time -= level.intframetime;
+    level.m_letterbox_time -= level.frametime;
 
     frac = level.m_letterbox_time / level.m_letterbox_time_start;
 
