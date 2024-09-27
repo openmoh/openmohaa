@@ -61,6 +61,7 @@ UIDMBox::UIDMBox()
 	m_iBeginDecay = 0;
 	m_boxtime = uid.time;
 	m_movespeed = 500;
+	m_drawoutline = com_target_game->integer >= target_game_e::TG_MOHTA;
 }
 
 void UIDMBox::VerifyBoxOut( void )
@@ -278,6 +279,28 @@ float UIDMBox::PrintWrap( UIFont *font, float x, float y, str text )
 
 float UIDMBox::DrawItem( item_t *in, float x, float y, float alpha )
 {
+	if (m_drawoutline) {
+		//
+		// Draw an outline
+		//
+
+		in->font->setColor(UBlack);
+		in->font->setAlpha(alpha);
+
+		PrintWrap(in->font, x + 1, y + 2, in->string);
+		PrintWrap(in->font, x + 2, y + 1, in->string);
+		PrintWrap(in->font, x - 1, y + 2, in->string);
+		PrintWrap(in->font, x - 2, y + 1, in->string);
+		PrintWrap(in->font, x - 1, y - 2, in->string);
+		PrintWrap(in->font, x - 2, y - 1, in->string);
+		PrintWrap(in->font, x + 1, y - 2, in->string);
+		PrintWrap(in->font, x + 2, y - 1, in->string);
+		PrintWrap(in->font, x + 2, y, in->string);
+		PrintWrap(in->font, x - 2, y, in->string);
+		PrintWrap(in->font, x, y + 2, in->string);
+		PrintWrap(in->font, x, y - 2, in->string);
+	}
+
 	in->font->setColor(in->color);
 	in->font->setAlpha(alpha);
 

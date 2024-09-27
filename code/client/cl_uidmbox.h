@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2015-2024 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -47,6 +47,8 @@ protected:
 	int m_movespeed;
 	int m_iBeginDecay;
 	int m_iEndDecay;
+	// Added in OPM
+	bool m_drawoutline;
 
 public:
 	CLASS_PROTOTYPE( UIDMBox );
