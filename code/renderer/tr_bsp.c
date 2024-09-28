@@ -2044,7 +2044,9 @@ void R_LoadLightGrid(gamelump_t* plPal, gamelump_t* plOffsets, gamelump_t* plDat
     }
 
     w->lightGridOffsets = ri.Hunk_Alloc(plOffsets->length, h_dontcare);
-    Com_Memcpy(w->lightGridOffsets, plOffsets->buffer, plOffsets->length);
+    for (i = 0; i < plOffsets->length / 2; i++) {
+        w->lightGridOffsets[i] = LittleUnsignedShort(((short*)plOffsets->buffer)[i]);
+    }
     Com_Memcpy(w->lightGridPalette, plPal->buffer, sizeof(s_worldData.lightGridPalette));
 
     w->lightGridData = ri.Hunk_Alloc(plData->length, h_dontcare);
