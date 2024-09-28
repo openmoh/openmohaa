@@ -21,6 +21,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 // tiki_skel.cpp : TIKI skeletor loader
+//
+// Some part of the code uses CopyLittleLong / LongNoSwapPtr, etc. because some CPUs can't read misaligned memory
+//
 
 #include "q_shared.h"
 #include "qcommon.h"
@@ -44,7 +47,7 @@ void LoadBoneFromBuffer2(boneFileData_t *fileData, boneData_t *boneData)
     boneData->boneType = fileData->boneType;
 
     if (boneData->boneType == SKELBONE_HOSEROT) {
-        i = *(int *)&fileData->parent[fileData->ofsBaseData + 4];
+        i = LittleLongPtr(fileData->parent[fileData->ofsBaseData + 4]);
 
         if (i == 1) {
             boneData->boneType = SKELBONE_HOSEROTPARENT;
@@ -253,7 +256,7 @@ void TIKI_CacheFileSkel(skelHeader_t *pHeader, skelcache_t *cache, int length)
     memcpy(pSkel->name, pHeader->name, sizeof(pSkel->name));
 
     for (i = 0; i < sizeof(pSkel->lodIndex) / sizeof(pSkel->lodIndex[0]); i++) {
-        Com_Memcpy(&pSkel->lodIndex[i], &pHeader->lodIndex[i], sizeof(pSkel->lodIndex[i]));
+        pSkel->lodIndex[i] = LongNoSwapPtr(&pHeader->lodIndex[i]);
     }
 
     pSurf     = (skelSurface_t *)((byte *)pHeader + pHeader->ofsSurfaces);
@@ -320,8 +323,10 @@ void TIKI_CacheFileSkel(skelHeader_t *pHeader, skelcache_t *cache, int length)
 
         if (pGameSurf->numTriangles) {
             const int *pTriangles = (const int *)((byte *)pSurf + LongNoSwapPtr(&pSurf->ofsTriangles));
-            for (j = 0; j < numTriangles * 3; j++) {
-                Com_Memcpy(&pGameSurf->pTriangles[j], &pTriangles[j], sizeof(pGameSurf->pTriangles[j]));
+            for (j = 0; j < numTriangles; j++) {
+                pGameSurf->pTriangles[j * 3 + 0] = LongNoSwapPtr(&pTriangles[j * 3 + 0]);
+                pGameSurf->pTriangles[j * 3 + 1] = LongNoSwapPtr(&pTriangles[j * 3 + 1]);
+                pGameSurf->pTriangles[j * 3 + 2] = LongNoSwapPtr(&pTriangles[j * 3 + 2]);
             }
         } else {
             pGameSurf->pTriangles = NULL;
