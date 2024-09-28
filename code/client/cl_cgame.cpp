@@ -1199,7 +1199,12 @@ void CL_SetCGameTime( void ) {
 	// allow pause in single player
 	if ( paused->integer && com_sv_running->integer ) {
 		// paused
-		CL_AdjustTimeDelta();
+		//CL_AdjustTimeDelta();
+		// Fixed in OPM
+		//  Keep in sync with the server time.
+		//  In OG, the game could lag for a short time
+		//  when pausing and unpausing frequently
+		cl.serverTimeDelta = cl.snap.serverTime - cls.realtime;
 		return;
 	}
 
