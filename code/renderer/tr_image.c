@@ -1553,7 +1553,7 @@ static void LoadDDS(const char* name, byte** pic, int* width, int* height, qbool
 	// reject files that don't start with "DDS "
 	//
 	ri.FS_Read(&signature, sizeof(signature), handle);
-	if (signature != EncodeFourCC("DDS "))
+	if (strncmp(&signature, "DDS ", 4))
 	{
 		ri.Printf(PRINT_ALL, "File %s is not a DDS file.\n", name);
 		ri.FS_CloseFile(handle);
@@ -1561,6 +1561,14 @@ static void LoadDDS(const char* name, byte** pic, int* width, int* height, qbool
 	}
 
 	ri.FS_Read(&ddsHeader, sizeof(ddsHeader), handle);
+
+	ddsHeader.headerSize = LittleLong(ddsHeader.headerSize);
+	ddsHeader.flags = LittleLong(ddsHeader.flags);
+	ddsHeader.width = LittleLong(ddsHeader.width);
+	ddsHeader.height = LittleLong(ddsHeader.height);
+	ddsHeader.numMips = LittleLong(ddsHeader.numMips);
+	ddsHeader.pitchOrFirstMipSize = LittleLong(ddsHeader.pitchOrFirstMipSize);
+	ddsHeader.fourCC = LittleLong(ddsHeader.fourCC);
 
 	//
 	// Convert DXGI format/FourCC into OpenGL format
