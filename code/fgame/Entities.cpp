@@ -1635,7 +1635,7 @@ ThrobbingBox_Explosive::ThrobbingBox_Explosive()
 
     setModel("items\\\\pulse_explosive.tik");
     m_sUsedModel     = "items/explosive.tik";
-    m_sSound         = "explose_flak88";
+    m_sSound         = "explode_flak88";
     m_sActivateSound = "plantbomb";
     m_sTickSound     = "bombtick";
 
@@ -1809,6 +1809,7 @@ void ThrobbingBox_Explosive::OnBlowUp(Event *ev)
 
                 ent = veh->QueryDriverSlotEntity(0);
                 if (ent) {
+                    ent->takedamage = DAMAGE_YES;
                     ent->Damage(this, this, ent->health * 2.f, vec_zero, vec_zero, vec_zero, 50, 0, MOD_VEHICLE);
                 }
             }
@@ -1899,6 +1900,13 @@ CLASS_DECLARATION(ThrobbingBox_Explosive, ThrobbingBox_ExplodePlayerFlak88, "Thr
     {NULL, NULL}
 };
 
+ThrobbingBox_ExplodePlayerFlak88::ThrobbingBox_ExplodePlayerFlak88()
+{
+    spawnflags |= TBE_SPAWNFLAG_DESTROYED_MODEL;
+    m_sDestroyedModel = "statweapons/flak88_d.tik";
+    m_sEffect         = "fx/demodamage_flak88.tik";
+}
+
 /*QUAKED ThrobbingBox_ExplodeFlak88 (1.0 0.0 1.0) (-12 -12 -12) (12 12 12)
 
   Explosive throbbing box.  Connect to the object you want to make explode.
@@ -1920,6 +1928,12 @@ CLASS_DECLARATION(ThrobbingBox_Explosive, ThrobbingBox_ExplodePlayerFlak88, "Thr
 CLASS_DECLARATION(ThrobbingBox_Explosive, ThrobbingBox_ExplodeFlak88, "ThrobbingBox_ExplodeFlak88") {
     {NULL, NULL}
 };
+
+ThrobbingBox_ExplodeFlak88::ThrobbingBox_ExplodeFlak88()
+{
+    m_sDestroyedModel = "statweapons/flak88_d.tik";
+    m_sEffect         = "fx/demodamage_flak88.tik";
+}
 
 /*QUAKED ThrobbingBox_ExplodeNebelwerfer (1.0 0.0 1.0) (-12 -12 -12) (12 12 12) ReplaceModel
 
@@ -1943,6 +1957,11 @@ CLASS_DECLARATION(ThrobbingBox_Explosive, ThrobbingBox_ExplodeNebelwerfer, "Thro
     {NULL, NULL}
 };
 
+ThrobbingBox_ExplodeNebelwerfer::ThrobbingBox_ExplodeNebelwerfer()
+{
+    m_sDestroyedModel = "statweapons/nebelwerfer_d.tik";
+}
+
 /*QUAKED ThrobbingBox_ExplodePlayerNebelwerfer (1.0 0.0 1.0) (-12 -12 -12) (12 12 12) ReplaceModel
 
   Explosive throbbing box.  Connect to the object you want to make explode.
@@ -1964,6 +1983,12 @@ CLASS_DECLARATION(ThrobbingBox_Explosive, ThrobbingBox_ExplodeNebelwerfer, "Thro
 CLASS_DECLARATION(ThrobbingBox_Explosive, ThrobbingBox_ExplodePlayerNebelwerfer, "ThrobbingBox_ExplodeNebelwerfer") {
     {NULL, NULL}
 };
+
+ThrobbingBox_ExplodePlayerNebelwerfer::ThrobbingBox_ExplodePlayerNebelwerfer()
+{
+    spawnflags |= TBE_SPAWNFLAG_DESTROYED_MODEL;
+    m_sDestroyedModel = "statweapons/nebelwerfer_d.tik";
+}
 
 /*QUAKED ThrobbingBox_Stickybomb (1.0 0.0 1.0) (-12 -12 -12) (12 12 12) ReplaceModel WetFuse
 
