@@ -3212,7 +3212,7 @@ U32 openal_channel::sample_ms_offset()
         return 0;
     }
 
-    return sample_offset() * 1000 / sample_playback_rate();
+    return sample_offset() * 1000ull / sample_playback_rate();
 }
 
 /*
