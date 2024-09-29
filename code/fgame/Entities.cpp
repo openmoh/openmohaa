@@ -1635,7 +1635,7 @@ ThrobbingBox_Explosive::ThrobbingBox_Explosive()
 
     setModel("items\\\\pulse_explosive.tik");
     m_sUsedModel     = "items/explosive.tik";
-    m_sSound         = "explose_flak88";
+    m_sSound         = "explode_flak88";
     m_sActivateSound = "plantbomb";
     m_sTickSound     = "bombtick";
 
