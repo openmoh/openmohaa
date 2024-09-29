@@ -275,24 +275,36 @@ class ThrobbingBox_ExplodePlayerFlak88 : public ThrobbingBox_Explosive
 {
 public:
     CLASS_PROTOTYPE(ThrobbingBox_ExplodePlayerFlak88);
+
+public:
+    ThrobbingBox_ExplodePlayerFlak88();
 };
 
 class ThrobbingBox_ExplodeFlak88 : public ThrobbingBox_Explosive
 {
 public:
     CLASS_PROTOTYPE(ThrobbingBox_ExplodeFlak88);
+
+public:
+    ThrobbingBox_ExplodeFlak88();
 };
 
 class ThrobbingBox_ExplodeNebelwerfer : public ThrobbingBox_Explosive
 {
 public:
     CLASS_PROTOTYPE(ThrobbingBox_ExplodeNebelwerfer);
+
+public:
+    ThrobbingBox_ExplodeNebelwerfer();
 };
 
 class ThrobbingBox_ExplodePlayerNebelwerfer : public ThrobbingBox_Explosive
 {
 public:
     CLASS_PROTOTYPE(ThrobbingBox_ExplodePlayerNebelwerfer);
+
+public:
+    ThrobbingBox_ExplodePlayerNebelwerfer();
 };
 
 #define TBE_SPAWNFLAG_DESTROYED_MODEL 1
