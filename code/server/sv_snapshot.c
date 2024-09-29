@@ -444,6 +444,8 @@ SV_AddEntToSnapshot
 static void SV_AddEntToSnapshot( svEntity_t *svEnt, gentity_t *gEnt, snapshotEntityNumbers_t *eNums, svEntity_t* portalEnt, qboolean portalsky) {
 	// if we have already added this entity to this snapshot, don't add again
 	if ( svEnt->snapshotCounter == sv.snapshotCounter ) {
+		gEnt->s.renderfx &= ~RF_SHADOW_PLANE;
+		gEnt->s.renderfx |= RF_WRAP_FRAMES;
 		return;
 	}
 	svEnt->snapshotCounter = sv.snapshotCounter;
@@ -451,6 +453,14 @@ static void SV_AddEntToSnapshot( svEntity_t *svEnt, gentity_t *gEnt, snapshotEnt
 	// if we are full, silently discard entities
 	if ( eNums->numSnapshotEntities == MAX_SNAPSHOT_ENTITIES ) {
 		return;
+	}
+
+	gEnt->s.renderfx &= ~(RF_SHADOW_PLANE | RF_WRAP_FRAMES | RF_SKYENTITY);
+
+	if ( portalEnt ) {
+		gEnt->s.renderfx |= RF_SHADOW_PLANE;
+	} else if ( portalsky ) {
+		gEnt->s.renderfx |= RF_SKYENTITY;
 	}
 
 	gEnt->r.lastNetTime = svs.time - svs.startTime;
@@ -619,7 +629,7 @@ static void SV_AddEntitiesVisibleFromPoint(const vec3_t origin, clientSnapshot_t
 		// broadcast entities are always sent
 		// or broadcast entities that are sent once
 		if ( (ent->r.svFlags & SVF_BROADCAST) || (ent->r.svFlags & SVF_SENDONCE)  ) {
-			SV_AddEntToSnapshot( svEnt, ent, eNums, NULL, qfalse);
+			SV_AddEntToSnapshot( svEnt, ent, eNums, portalEnt, portalsky);
 			continue;
 		}
 
@@ -717,7 +727,7 @@ static void SV_AddEntitiesVisibleFromPoint(const vec3_t origin, clientSnapshot_t
 		}
 
 		// add it
-		SV_AddEntToSnapshot( svEnt, ent, eNums, NULL, qfalse);
+		SV_AddEntToSnapshot( svEnt, ent, eNums, portalEnt, portalsky);
 
 		// if its a portal entity, add everything visible from its camera position
 		if ( ent->r.svFlags & SVF_PORTAL && svEnt != portalEnt ) {
