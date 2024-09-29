@@ -280,15 +280,25 @@ S_BeginRegistration
 */
 void S_BeginRegistration()
 {
+    int i;
+
     Com_Printf("------- Sound Begin Registration -------\n");
 
     S_StopAllSounds(true);
 
-    ++s_registrationSequence;
+    s_registrationSequence++;
     s_inRegistration                    = true;
     s_knownSfx[0].registration_sequence = s_registrationSequence;
 
     Com_Printf("------- Sound Begin Registration Complete -------\n");
+
+    // Added in OPM
+    //  Reset all sound entities
+    //  OG doesn't do this but this makes sure
+    //  entities don't leak info from previous sessions
+    for (i = 0; i < ARRAY_LEN(s_entity); i++) {
+        s_entity[i] = s_entity_t{};
+    }
 }
 
 /*
