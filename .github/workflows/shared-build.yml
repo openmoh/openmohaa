@@ -347,6 +347,8 @@ jobs:
       working-directory: ${{github.workspace}}
       run: |
         echo "CMAKE_GENERATOR=Ninja" >> $GITHUB_ENV
+        echo "CC=clang" >> $GITHUB_ENV
+        echo "CXX=clang++" >> $GITHUB_ENV
 
     ###
     # SDL
@@ -359,9 +361,7 @@ jobs:
       with:
         version: sdl2-latest
         build-type: Release
-        cmake-arguments: "-DCMAKE_C_COMPILER=clang
-          -DCMAKE_CXX_COMPILER=clang++
-          -DCMAKE_OSX_ARCHITECTURES=${{ matrix.architecture.name }}
+        cmake-arguments: "-DCMAKE_OSX_ARCHITECTURES=${{ matrix.architecture.name }}
           -DCMAKE_VERBOSE_MAKEFILE=on"
     ###
     # OpenAL
@@ -382,8 +382,6 @@ jobs:
       run: |
         cmake -B ./build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} \
         -DCMAKE_INSTALL_PREFIX='${{github.workspace}}/thirdparties/soft-oal/install' \
-        -DCMAKE_C_COMPILER=clang \
-        -DCMAKE_CXX_COMPILER=clang++ \
         -DCMAKE_OSX_ARCHITECTURES=${{ matrix.architecture.name }} \
         -DCMAKE_VERBOSE_MAKEFILE=on
         cmake --build ./build --config ${{env.BUILD_TYPE}}
@@ -403,8 +401,6 @@ jobs:
         -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} \
         -DCMAKE_INSTALL_PREFIX='${{github.workspace}}/install' \
         -DCMAKE_VERBOSE_MAKEFILE=on \
-        -DCMAKE_C_COMPILER=clang \
-        -DCMAKE_CXX_COMPILER=clang++ \
         -DCMAKE_OSX_ARCHITECTURES=${{ matrix.architecture.name }} \
         -DOPENAL_LIBRARY='${{github.workspace}}/thirdparties/soft-oal/install' \
         -DOPENAL_INCLUDE_DIR='${{github.workspace}}/thirdparties/soft-oal/install/include/AL' \
