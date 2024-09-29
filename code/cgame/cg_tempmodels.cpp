@@ -439,9 +439,11 @@ qboolean ClientGameCommandManager::TempModelRealtimeEffects(ctempmodel_t *p, flo
 
         p->ent.shaderRGBA[0] = (int)((float)tempColor[0] * vLighting[0]);
         p->ent.shaderRGBA[1] = (int)((float)tempColor[1] * vLighting[1]);
+        p->ent.shaderRGBA[2] = (int)((float)tempColor[2] * vLighting[2]);
     } else {
         p->ent.shaderRGBA[0] = tempColor[0];
         p->ent.shaderRGBA[1] = tempColor[1];
+        p->ent.shaderRGBA[2] = tempColor[2];
     }
 
     if (p->cgd.flags & T_FADEIN && (fadein < 1)) // Do the fadein effect
