@@ -279,6 +279,8 @@ extern cvar_t *g_instamsg_minDelay;
 extern cvar_t *g_textmsg_allowed;
 extern cvar_t *g_textmsg_minDelay;
 
+extern cvar_t *g_teambalance;
+
 void CVAR_Init(void);
 
 #ifdef __cplusplus

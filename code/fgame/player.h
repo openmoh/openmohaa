@@ -913,8 +913,10 @@ public:
     bool HasVotedNo() const;
 
     //=============================
-    // Custom openmohaa stuff
+    // Added in OPM
     //=============================
+
+    qboolean CheckCanSwitchTeam(teamtype_t team);
 
     qboolean     ViewModelAnim(str anim, qboolean force_restart, qboolean bFullAnim);
     virtual void Spawned(void);

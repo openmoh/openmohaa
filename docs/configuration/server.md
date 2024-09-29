@@ -5,9 +5,9 @@ This documentation currently only lists new changes that were introduced in Open
 ## Home directory
 
 In original MOH:AA, the game installation directory is used to store mods and data, it's not the case in OpenMoHAA as it uses the home directory by default to write data in here, and the home directory can be used to store mods. This behavior can be changed:
-- `set fs_homepath Z:\openmohaa_data` user data will be read and written in the directory located in `Z:\openmohaa_data`
-- `set fs_homepath homedata` the subdirectory `homedata` in the game directory will be used to read and store user data
-- `set fs_homepath .` not recommended, the game directory will be used for storing user data, just like the original MOH:AA
+- `set fs_homepath Z:\openmohaa_data`: User data will be read and written in the directory located in `Z:\openmohaa_data`
+- `set fs_homepath homedata`: The subdirectory `homedata` in the game directory will be used to read and store user data
+- `set fs_homepath .`: Not recommended, the game directory will be used for storing user data, just like the original MOH:AA
 
 The variable defaults to the following value depending on the OS:
 - `%APPDATA%\openmohaa` on Windows
@@ -17,19 +17,19 @@ The variable defaults to the following value depending on the OS:
 
 ### Configure the network components
 
-The network components can be tweaked to use IPv4/IPv6. IPv6 is disabled by default on dedicated servers but that can be changed:
-- `set net_enabled 1` enables IPv4 only - the default on the dedicated server executable
-- `set net_enabled 2` enables IPv6 only
-- `set net_enabled 3` enables both IPv4 and IPv6 - the default on the standalone executable
+The network settings can be adjusted to use either IPv4, IPv6, or both. By default, IPv6 is disabled on dedicated servers. The following commands adjust network settings:
+- `set net_enabled 1`: This enables IPv4 only (the default setting for dedicated servers).
+- `set net_enabled 2`: This enables IPv6 only.
+- `set net_enabled 3`: This enables both IPv4 and IPv6 (the default setting when running the standalone game)
 
-The master server (gamespy protocol) doesn't support IPv6 servers, which means if IPv4 is disabled and IPv6 is only used, the server won't be visible in the internet game server list.
+*Note: The master server (using the GameSpy protocol) does not support IPv6. If IPv4 is disabled, the server won't appear in the online server list for internet games, even if IPv6 is enabled.*
 
-### Optimization (or Antichams)
+### Optimization / Antichams
 
 A new variable, `sv_netoptimize`, enables a feature that optimizes network bandwidth by not sending players information about others they can't see. For each client, the server optimizes by only transmitting data about players within their view. Clients will not receive information about players they can't see. This feature also helps protect against cheaters:
-- `set sv_netoptimize 0` disables the optimization - the default
-- `set sv_netoptimize 1` enables the optimization for entities that are moving
-- `set sv_netoptimize 2` enables the optimization always
+- `set sv_netoptimize 0`: This disables the optimization - the default
+- `set sv_netoptimize 1`: This enables the optimization for entities that are moving
+- `set sv_netoptimize 2`: This enables the optimization, always
 
 This option exists since **Medal of Honor: Allied Assault Breakthrough** 2.30, however it was improved in OpenMoHAA: sounds like footsteps will be sent so players don't get confused.
 
@@ -66,17 +66,25 @@ Chat messages will be logged in the console and in the logfile without requiring
 
 The in-game chat can be tweaked:
 
-- `set g_instamsg_allowed 0` to disable voice instant messages
-- `set g_instamsg_minDelay x` where x is the delay in milliseconds, the minimum delay between each instant messages to avoid spamming
-- `set g_textmsg_allowed 0` to disable text messages. All, team and private messages will be disabled
-- `set g_textmsg_minDelay x` where x is the delay in milliseconds, the minimum delay between each text message to avoid spamming
+- `set g_instamsg_allowed 0`: This disables voice instant messages
+- `set g_instamsg_minDelay x`: x is the delay in milliseconds, the minimum delay between each instant messages to avoid spamming
+- `set g_textmsg_allowed 0`: This disables text messages. All, team and private messages will be disabled
+- `set g_textmsg_minDelay x`: x is the delay in milliseconds, the minimum delay between each text message to avoid spamming
 
 Temporarily disabling text messages can be useful in situations where tensions arise in the chat. Otherwise, it's best to keep them enabled under normal circumstances.
+
+### Balancing teams
+
+This setting prevents clients from joining a team if that team already has more players than the others. By default, it's turned off, but it can be switched on with the command `set g_teambalance 1`.
+
+This feature is passive: it only checks the team sizes when someone tries to join, so it won't automatically balance teams during the game.
+
+*Note: This check doesn't apply in server scripts; it only works when clients join teams directly.*
 
 ### Bots
 
 Bots can be used for testing. They don't move by default, so a mod will be needed, like [eaglear bots](https://www.moddb.com/mods/medal-of-honor-world-war-1/downloads/moh-eaglear-bots):
-- `set sv_maxbots x` must be used to configure the maximum number of bots
-- `set sv_minPlayers x` is optional and can be used to set the minimum number of players that the server should have. Bots will be spawned based on the minimum number of players.
-- `addbot x` where x is the number of bots to add
-- `removebot x` where x is the number of bots to remove
+- `set sv_maxbots x`: Configure and allocate the maximum number of bots
+- `set sv_minPlayers x`: optional, can be used to set the minimum number of players that the server should have. Bots will be spawned based on the minimum number of players.
+- `addbot x`: x is the number of bots to add
+- `removebot x`: x is the number of bots to remove

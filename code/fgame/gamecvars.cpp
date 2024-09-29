@@ -282,6 +282,9 @@ cvar_t *g_textmsg_allowed;
 // Minimum delay, in milliseconds, between messages
 cvar_t *g_textmsg_minDelay;
 
+// Whether or not to prevent teams from being unbalanced
+cvar_t *g_teambalance;
+
 void CVAR_Init(void)
 {
     developer      = gi.Cvar_Get("developer", "0", 0);
@@ -645,6 +648,8 @@ void CVAR_Init(void)
     g_instamsg_minDelay = gi.Cvar_Get("g_instamsg_minDelay", "0", 0);
     g_textmsg_allowed = gi.Cvar_Get("g_textmsg_allowed", "1", 0);
     g_textmsg_minDelay = gi.Cvar_Get("g_textmsg_minDelay", "0", 0);
+
+    g_teambalance = gi.Cvar_Get("g_teambalance", "0", 0);
 
     cl_running = gi.Cvar_Get("cl_running", "", 0);
 }

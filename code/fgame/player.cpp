@@ -9257,10 +9257,10 @@ void Player::Join_DM_Team(Event *ev)
     teamtype_t  team;
     str         teamname;
     const char *join_message;
-    float       startTime;
     Entity     *ent;
 
     if (ev->isSubclassOf(ConsoleEvent) && disable_team_change) {
+        // Added in OPM
         return;
     }
 
@@ -9286,19 +9286,7 @@ void Player::Join_DM_Team(Event *ev)
         return;
     }
 
-    startTime = dmManager.GetMatchStartTime();
-
-    if (startTime >= 0.0f && (level.time - startTime) > 30.0
-        && (level.time - m_fTeamSelectTime) < g_teamswitchdelay->integer) {
-        int seconds = g_teamswitchdelay->integer - (level.time - m_fTeamSelectTime);
-
-        gi.SendServerCommand(
-            edict - g_entities,
-            "print \"" HUD_MESSAGE_WHITE "%s %i %s\n\"",
-            gi.LV_ConvertString("Can not change teams again for another"),
-            seconds + 1,
-            gi.LV_ConvertString("seconds")
-        );
+    if (ev->isSubclassOf(ConsoleEvent) && !CheckCanSwitchTeam(team)) {
         return;
     }
 
@@ -11288,6 +11276,54 @@ void Player::SetMouthAngle(Event *ev)
 int Player::GetMoveResult(void)
 {
     return moveresult;
+}
+
+qboolean Player::CheckCanSwitchTeam(teamtype_t team) {
+    float startTime;
+
+    startTime = dmManager.GetMatchStartTime();
+
+    if (startTime >= 0.0f && (level.time - startTime) > 30.0
+        && (level.time - m_fTeamSelectTime) < g_teamswitchdelay->integer) {
+        int seconds = g_teamswitchdelay->integer - (level.time - m_fTeamSelectTime);
+
+        gi.SendServerCommand(
+            edict - g_entities,
+            "print \"" HUD_MESSAGE_WHITE "%s %i %s\n\"",
+            gi.LV_ConvertString("Can not change teams again for another"),
+            seconds + 1,
+            gi.LV_ConvertString("seconds")
+        );
+        return qfalse;
+    }
+
+    // Added in OPM
+    //  Check and prevent joining the team with the highest number of players
+    if (g_teambalance->integer && g_gametype->integer >= GT_TEAM && !dmManager.WaitingForPlayers()) {
+        DM_Team* pNewTeam = dmManager.GetTeam(team);
+        int i;
+
+        for (i = 0; i < 2; i++) {
+            DM_Team* pTeam = dmManager.GetTeam((teamtype_t)(TEAM_ALLIES + i));
+            int numTeamPlayers = pTeam->m_players.NumObjects();
+
+            if (pTeam->m_players.IndexOfObject(this)) {
+                // Don't count the current player
+                numTeamPlayers--;
+            }
+
+            if (pNewTeam->m_players.NumObjects() > numTeamPlayers) {
+                gi.SendServerCommand(
+                    edict - g_entities,
+                    "print \"" HUD_MESSAGE_WHITE "%s\n\"",
+                    gi.LV_ConvertString("That team has enough players. Choose the team that has the lowest number of players.")
+                );
+                return qfalse;
+            }
+        }
+    }
+
+    return qtrue;
 }
 
 qboolean Player::ViewModelAnim(str anim, qboolean force_restart, qboolean bFullAnim)
