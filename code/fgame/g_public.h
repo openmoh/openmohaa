@@ -36,29 +36,28 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // the server does not know how to interpret most of the values
 // in entityStates (level eType), so the game must explicitly flag
 // special server behaviors
-#define SVF_NOCLIENT 0x00000001 // don't send entity to clients, even if it has effects
+#define SVF_NOCLIENT                    (1<<0)	// don't send entity to clients, even if it has effects
+#define SVF_BOT                         (1<<1)
+#define SVF_BROADCAST                   (1<<2)	// send to all connected clients
+#define SVF_PORTAL                      (1<<3)	// merge a second pvs at origin2 into snapshots
+#define SVF_SENDPVS                     (1<<4)	// even though it doesn't have a sound or modelindex, still run it through the pvs
+#define SVF_USE_CURRENT_ORIGIN          (1<<5)	// entity->currentOrigin instead of entity->s.origin
+  									            // for link position (missiles and movers)
+#define SVF_NOTSINGLECLIENT             (1<<6)  // send entity to everyone but one client
+                                                // (entityShared_t->singleClient)
+#define SVF_MONSTER                     (1<<7)	// treat as CONTENTS_MONSTER for collision
+#define SVF_SINGLECLIENT                (1<<8)  // only send to a single client (entityShared_t->singleClient)
+#define SVF_USEBBOX                     (1<<9)	// do not perform perfect collision use the bbox instead
+#define SVF_NOFARPLANE                  (1<<10)	// only send this entity to its parent
+#define SVF_HIDEOWNER                   (1<<11)	// hide the owner of the client
+#define SVF_MONSTERCLIP                 (1<<12)	// treat as CONTENTS_MONSTERCLIP for collision
+#define SVF_PLAYERCLIP                  (1<<13)	// treat as CONTENTS_PLAYERCLIP for collision
+#define SVF_SENDONCE                    (1<<14) // Send this entity over the network at least one time
+#define SVF_SENT                        (1<<15) // This flag is set when the entity has been sent over at least one time
 
-// TTimo
-// https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=551
-#define SVF_CLIENTMASK 0x00000002
-
-#define SVF_BROADCAST  0x00000004 // send to all connected clients
-#define SVF_SENDPVS    0x00000008
-#define SVF_PORTAL     0x00000010 // merge a second pvs at origin2
-#define SVF_NOTSINGLECLIENT                                                   \
-    0x00000040                      // send entity to everyone but one client \
-                                    // (entityShared_t->singleClient)
-#define SVF_MONSTER      0x00000080 // set if the entity is a bot into snapshots
-#define SVF_SINGLECLIENT 0x00000100 // only send to a single client (entityShared_t->singleClient)
-#define SVF_USEBBOX      0x00000200
-#define SVF_NOFARPLANE   0x00000400
-#define SVF_NOSERVERINFO                                           \
-    0x00000800 // don't send CS_SERVERINFO updates to this client  \
-               // so that it can be updated for ping tools without \
-               // lagging clients
-#define SVF_SENDONCE 0x00004000
-
-#define SVF_SENT     0x00008000
+#define SVF_NOSERVERINFO                (1<<16) // don't send CS_SERVERINFO updates to this client
+                                                // so that it can be updated for ping tools without
+                                                // lagging clients
 
 typedef struct gclient_s   gclient_t;
 typedef struct dtiki_s     dtiki_t;

@@ -444,7 +444,7 @@ SV_AddEntToSnapshot
 static void SV_AddEntToSnapshot( svEntity_t *svEnt, gentity_t *gEnt, snapshotEntityNumbers_t *eNums, svEntity_t* portalEnt, qboolean portalsky) {
 	// if we have already added this entity to this snapshot, don't add again
 	if ( svEnt->snapshotCounter == sv.snapshotCounter ) {
-		gEnt->s.renderfx &= ~RF_SHADOW_PLANE;
+		gEnt->s.renderfx &= ~(RF_SHADOW_PLANE | RF_WRAP_FRAMES);
 		gEnt->s.renderfx |= RF_WRAP_FRAMES;
 		return;
 	}
@@ -592,12 +592,16 @@ static void SV_AddEntitiesVisibleFromPoint(const vec3_t origin, clientSnapshot_t
 			}
 		}
 		// entities can be flagged to be sent to a given mask of clients
+		// Removed in OPM
+		//  This doesn't make sense it it only supports half of the client
+		/*
 		if ( ent->r.svFlags & SVF_CLIENTMASK ) {
 			if (frame->ps.clientNum >= 32)
 				Com_Error( ERR_DROP, "SVF_CLIENTMASK: clientNum > 32\n" );
 			if (~ent->r.singleClient & (1 << frame->ps.clientNum))
 				continue;
 		}
+		*/
 
 		parentEnt = NULL;
 		if (ent->s.parent != ENTITYNUM_NONE) {
@@ -648,7 +652,7 @@ static void SV_AddEntitiesVisibleFromPoint(const vec3_t origin, clientSnapshot_t
 			svCheckEnt = svEnt;
 		}
 
-		if (!(ent->r.svFlags & SVF_PORTAL) && !ent->s.modelindex && !ent->s.loopSound) {
+		if (!(ent->r.svFlags & SVF_SENDPVS) && !ent->s.modelindex && !ent->s.loopSound) {
 			// don't send entities that have nothing to draw
 			continue;
 		}

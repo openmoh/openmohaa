@@ -286,7 +286,7 @@ void DamageModel::SpawnOrientedBoundingBox(Event *ev)
     yawoffset = ev->GetFloat(3);
 
     boundingBoxEnt = new Entity();
-    boundingBoxEnt->edict->r.svFlags |= SVF_PORTAL;
+    boundingBoxEnt->edict->r.svFlags |= SVF_SENDPVS;
     boundingBoxEnt->edict->s.eFlags |= EF_LINKANGLES;
     boundingBoxEnt->edict->r.contents = CONTENTS_SOLID;
     boundingBoxEnt->setSolidType(SOLID_BBOX);
