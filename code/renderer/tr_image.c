@@ -1553,7 +1553,7 @@ static void LoadDDS(const char* name, byte** pic, int* width, int* height, qbool
 	// reject files that don't start with "DDS "
 	//
 	ri.FS_Read(&signature, sizeof(signature), handle);
-	if (strncmp(&signature, "DDS ", 4))
+	if (strncmp(signature, "DDS ", 4))
 	{
 		ri.Printf(PRINT_ALL, "File %s is not a DDS file.\n", name);
 		ri.FS_CloseFile(handle);
