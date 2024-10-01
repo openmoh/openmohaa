@@ -642,7 +642,9 @@ static void R_RecursiveWorldNode( mnode_t *node, int planeBits, int dlightBits )
 				// the surface may have already been added if it
 				// spans multiple leafs
 				surf = *mark;
-				R_AddWorldSurface(surf, dlightBits);
+				if (surf->viewCount != tr.viewCount) {
+					R_AddWorldSurface(surf, dlightBits);
+				}
 				mark++;
 			}
 		}
