@@ -5653,6 +5653,13 @@ void Actor::EventDamagePuff(Event *ev)
 {
     Vector pos = ev->GetVector(1);
     Vector dir = ev->GetVector(2);
+    int      bulletbits;
+
+    // Fixed in OPM
+    //  Large bullet flag normally take 2 bits since 2.0.
+    //  However, in OG Spearhead and Breakthrough, EventDamagePuff
+    //  mistakenly uses 1 bit which causes a parse message error
+    bulletbits = (g_protocol >= protocol_e::PROTOCOL_MOHTA_MIN) ? 2 : 1;
 
     gi.SetBroadcastVisible(pos, NULL);
 
@@ -5662,7 +5669,7 @@ void Actor::EventDamagePuff(Event *ev)
     gi.MSG_WriteCoord(pos.z);
 
     gi.MSG_WriteDir(dir);
-    gi.MSG_WriteBits(0, 1);
+    gi.MSG_WriteBits(0, bulletbits);
     gi.MSG_EndCGM();
 }
 
