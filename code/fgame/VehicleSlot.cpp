@@ -51,7 +51,6 @@ void cVehicleSlot::NotSolid(void)
     prev_contents   = ent->edict->r.contents;
 
     ent->takedamage = DAMAGE_NO;
-    ent->setSolidType(SOLID_NOT);
 
     for (i = 0; i < ent->numchildren; i++) {
         Entity *sub = G_GetEntity(ent->children[i]);
