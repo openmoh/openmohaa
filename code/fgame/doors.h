@@ -118,7 +118,7 @@ public:
     Door();
     qboolean isOpen(void);
     qboolean isCompletelyClosed(void);
-    void     GetIsOpen(Event *ev);
+    void     GetIsOpen(Event *ev); // Added in 2.30
     qboolean CanBeOpenedBy(Entity *ent);
     void     Archive(Archiver    &arc) override;
 };
