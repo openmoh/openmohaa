@@ -177,9 +177,9 @@ Event EV_Door_OpenEnd
     "Called when the door finishes opening.",
     EV_NORMAL
 );
-Event EV_Door_IsOpen
+Event EV_Door_IsOpen // Added in 2.30
 (
-    "isopen",
+    "isOpen",
     EV_DEFAULT,
     NULL,
     NULL,
@@ -301,6 +301,7 @@ CLASS_DECLARATION(ScriptSlave, Door, "NormalDoor") {
     {&EV_Door_Open,                &Door::Open              },
     {&EV_Door_CloseEnd,            &Door::CloseEnd          },
     {&EV_Door_OpenEnd,             &Door::OpenEnd           },
+    {&EV_Door_IsOpen,              &Door::GetIsOpen         }, // Added in 2.30
     {&EV_Door_Fire,                &Door::DoorFire          },
     {&EV_Door_Link,                &Door::LinkDoors         },
     {&EV_Door_SetTime,             &Door::SetTime           },
