@@ -5319,9 +5319,6 @@ void Entity::glue(Entity *master, qboolean use_my_angles, qboolean can_duck)
     m_pGlueMaster   = master;
     m_bGlueDuckable = can_duck == qtrue;
     master->m_iNumGlues++;
-
-    setAngles(master->angles);
-    setOrigin(master->origin);
 }
 
 void Entity::unglue(void)
