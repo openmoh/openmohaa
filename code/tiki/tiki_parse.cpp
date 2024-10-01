@@ -439,7 +439,7 @@ void TIKI_ParseAnimations(dloaddef_t *ld)
 
                     if (strstr(token, "}")) {
                         if (!depth) {
-                            continue;
+                            break;
                         }
 
                         depth--;
