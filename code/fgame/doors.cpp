@@ -745,7 +745,7 @@ void Door::DoorUse(Event *ev)
     if (health || (spawnflags & (DOOR_AUTO_OPEN | DOOR_TARGETED)) || other->IsSubclassOfActor()) {
         if (other->IsSubclassOfSentient() && (state == STATE_CLOSED)) {
             if (health) {
-                gi.SendServerCommand(0, "print \"%s.\"", gi.LV_ConvertString("This door is jammed"));
+                gi.SendServerCommand(other->edict - g_entities, "print \"%s.\"", gi.LV_ConvertString("This door is jammed"));
             } else if (spawnflags & DOOR_TARGETED) {
                 Sound("door_triggered", CHAN_VOICE);
             }
