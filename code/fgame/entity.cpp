@@ -3363,7 +3363,7 @@ void Entity::Sound(Event *ev)
         Event *event = new Event(EV_Sound);
 
         for (int i = 1; i <= ev->NumArgs(); i++) {
-            event->AddValue(ev->GetValue(1));
+            event->AddValue(ev->GetValue(i));
         }
 
         PostEvent(event, level.frametime);
