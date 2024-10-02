@@ -3410,7 +3410,7 @@ void MSG_WriteDeltaPlayerstate(msg_t *msg, struct playerState_s *from, struct pl
 		}
 	}
 	ammobits = 0;
-	for (i=0 ; i<MAX_WEAPONS ; i++) {
+	for (i=0 ; i<MAX_AMMO ; i++) {
 		if (to->ammo_name_index[i] != from->ammo_name_index[i]) {
 			ammobits |= 1<<i;
 		}
