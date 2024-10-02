@@ -481,7 +481,8 @@ static const char *whiteListedCommands[] = {
     "tmstart",
     "tmstartloop",
     "tmstop",
-    "tmvolume"
+    "tmvolume",
+    "`stufftext",
 };
 
 //
