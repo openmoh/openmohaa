@@ -58,6 +58,17 @@ Examples:
 
 To calculate IP subnets, search for `IP subnet calculator` on Internet.
 
+## Flood protection differences with MOH: Spearhead
+
+Flood protection is turned on by default in all games (`sv_floodProtection 1`).
+
+- In MOH: Allied Assault and OpenMoHAA, flood protection checks all commands.
+- In MOH: Spearhead 2.0 and later, flood protection only checks for text messages.
+
+While flood protection prevents spam, it can sometimes be annoying in certain situations like reloading and checking scores within a short period of time. If needed, it can be disabled with `set sv_floodProtection 0`.
+
+For more details on preventing message spamming, check out the [Chat](#chat) section below.
+
 ## Game
 
 ### Chat
