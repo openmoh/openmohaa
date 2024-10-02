@@ -50,7 +50,7 @@ PlayerBot::PlayerBot()
         return;
     }
 
-    m_Path.SetFallHeight(96);
+    m_Path.SetFallHeight(400);
     m_bPathing   = false;
     m_bTempAway  = false;
     m_bDeltaMove = true;
@@ -77,6 +77,7 @@ PlayerBot::PlayerBot()
     m_vCurrentAng    = vec_zero;
     m_iCheckPathTime = 0;
     m_iTempAwayTime  = 0;
+    m_iNumBlocks     = 0;
     m_fYawSpeedMult  = 1.0f;
 
     m_iCuriousTime = 0;
@@ -213,18 +214,18 @@ void PlayerBot::MoveThink(void)
         m_Path.FindPath(origin, m_vTargetPos, this, 0, NULL, 0);
     }
 
-    if (m_Path.CurrentNode()) {
-        m_Path.UpdatePos(origin, 8);
+    if (!m_bTempAway) {
+        if (m_Path.CurrentNode()) {
+            m_Path.UpdatePos(origin, 8);
 
-        m_vCurrentGoal = origin;
-        VectorAdd2D(m_vCurrentGoal, m_Path.CurrentDelta(), m_vCurrentGoal);
+            m_vCurrentGoal = origin;
+            VectorAdd2D(m_vCurrentGoal, m_Path.CurrentDelta(), m_vCurrentGoal);
 
-        if (m_Path.Complete(origin)) {
-            // Clear the path
-            m_Path.Clear();
+            if (m_Path.Complete(origin)) {
+                // Clear the path
+                m_Path.Clear();
+            }
         }
-    } else if (!m_bTempAway) {
-        m_vCurrentGoal = origin;
     }
 
     if (ai_debugpath->integer) {
@@ -233,29 +234,32 @@ void PlayerBot::MoveThink(void)
 
     // Check if we're blocked
     if (level.inttime >= m_iCheckPathTime) {
-        Vector end;
 
         m_bDeltaMove = false;
 
         m_iCheckPathTime = level.inttime + 2000;
 
-        if (m_Path.CurrentNode() && m_Path.CurrentNode() != m_Path.LastNode()) {
-            end = m_Path.NextNode()->point;
-        } else {
-            end = m_vCurrentGoal;
+        if (m_iNumBlocks >= 10) {
+            // Give up
+            ClearMove();
         }
 
-        if (GetMoveResult() >= MOVERESULT_BLOCKED || velocity.lengthSquared() <= 8 * 8) {
-            gi.DPrintf2("Updating path for bot client %i\n", edict - g_entities);
-
+        if (GetMoveResult() >= MOVERESULT_BLOCKED || velocity.lengthSquared() <= Square(8)) {
             m_bTempAway     = true;
             m_bDeltaMove    = false;
             m_iTempAwayTime = level.inttime + 750;
+            m_iNumBlocks++;
 
             // Try to backward a little
             m_Path.Clear();
             m_vCurrentGoal = origin + Vector(G_Random(256) - 128, G_Random(256) - 128, G_Random(256) - 128);
-            return;
+        } else {
+            m_iNumBlocks = 0;
+
+            if (!m_Path.CurrentNode()) {
+                m_vTargetPos = origin + Vector(G_Random(256) - 128, G_Random(256) - 128, G_Random(256) - 128);
+                m_vCurrentGoal = m_vTargetPos;
+            }
         }
     }
 
@@ -275,8 +279,14 @@ void PlayerBot::MoveThink(void)
         }
     }
 
-    if ((m_vTargetPos - origin).lengthSquared() <= 16 * 16) {
-        ClearMove();
+    if (m_Path.CurrentNode()) {
+        if ((m_vTargetPos - origin).lengthSquared() <= Square(16)) {
+            ClearMove();
+        }
+    } else {
+        if ((m_vTargetPos - origin).lengthXYSquared() <= Square(16)) {
+            ClearMove();
+        }
     }
 
     //vDir = m_vCurrentGoal - centroid;
@@ -749,6 +759,7 @@ void PlayerBot::ClearMove(void)
 {
     m_Path.Clear();
     m_bPathing = false;
+    m_iNumBlocks = 0;
 }
 
 /*
@@ -795,7 +806,9 @@ void PlayerBot::AvoidPath(
     m_Path.FindPathAway(origin, vAvoid, vDir, this, fAvoidRadius, vLeashHome, fLeashRadius * fLeashRadius);
 
     if (!m_Path.CurrentNode()) {
-        m_bPathing = false;
+        // Random movements
+        m_vTargetPos = origin + Vector(G_Random(256) - 128, G_Random(256) - 128, G_Random(256) - 128);
+        m_vCurrentGoal = m_vTargetPos;
         return;
     }
 

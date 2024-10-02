@@ -57,6 +57,7 @@ private:
     bool                       m_bAimPath;
     bool                       m_bDeltaMove;
     int                        m_iTempAwayTime;
+    int                        m_iNumBlocks;
     int                        m_iCheckPathTime;
     AttractiveNodePtr          m_pPrimaryAttract;
     float                      m_fAttractTime;
