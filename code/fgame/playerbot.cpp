@@ -432,7 +432,7 @@ void PlayerBot::UpdateBotStates(void)
         return;
     }
 
-    if (IsDead()) {
+    if (IsDead() || m_bShouldRespawn) {
         // The bot should respawn
         m_botCmd.buttons ^= BUTTON_ATTACKLEFT;
         return;
@@ -1346,7 +1346,7 @@ void PlayerBot::GotKill(Event *ev)
         if (g_protocol >= protocol_e::PROTOCOL_MOHTA_MIN) {
             event.AddString("*5" + str(1 + (rand() % 8)));
         } else {
-            event.AddString("*4" + str(1 + (rand() % 8)));
+            event.AddString("*4" + str(1 + (rand() % 9)));
         }
 
         ProcessEvent(event);
