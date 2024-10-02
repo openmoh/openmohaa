@@ -3103,7 +3103,7 @@ void Player::Killed(Event *ev)
     RemoveFromVehiclesAndTurrets();
 
     if (g_gametype->integer != GT_SINGLE_PLAYER && attacker && attacker->IsSubclassOfPlayer()) {
-        ((Player *)attacker)->KilledPlayerInDeathmatch(this);
+        static_cast<Player*>(attacker)->KilledPlayerInDeathmatch(this, (meansOfDeath_t)meansofdeath);
     }
 
     deadflag = DEAD_DYING;
@@ -3275,36 +3275,46 @@ void Player::SetStopwatch(int iDuration, stopWatchType_t type)
     gi.SendServerCommand(edict - g_entities, szCmd);
 }
 
-void Player::KilledPlayerInDeathmatch(Player *killed)
+void Player::KilledPlayerInDeathmatch(Player *killed, meansOfDeath_t meansofdeath)
 {
     DM_Team *pDMTeam;
 
     pDMTeam = killed->GetDM_Team();
+
+    if (meansofdeath == MOD_TELEFRAG) {
+        //
+        // Added in OPM
+        //  Telefrag isn't the fault of anyone
+        //  so don't count any kill
+        //
+        return;
+    }
 
     if (killed == this) {
         pDMTeam->AddKills(this, -1);
         gi.SendServerCommand(
             edict - g_entities, "print \"" HUD_MESSAGE_WHITE "%s\n\"", gi.LV_ConvertString("You killed yourself")
         );
-    } else {
-        if (pDMTeam != GetDM_Team() || g_gametype->integer <= GT_FFA || g_gametype->integer >= GT_MAX_GAME_TYPE) {
-            current_team->AddKills(this, 1);
-        } else {
-            //
-            // A teammate was killed
-            //
-            current_team->AddKills(this, -1);
 
-            num_team_kills++;
-        }
-
-        gi.SendServerCommand(
-            edict - g_entities,
-            "print \"" HUD_MESSAGE_WHITE "%s %s\n\"",
-            gi.LV_ConvertString("You killed"),
-            killed->client->pers.netname
-        );
+        return;
     }
+
+    if (pDMTeam == GetDM_Team() && g_gametype->integer >= GT_TEAM) {
+        //
+        // A teammate was killed
+        //
+        current_team->AddKills(this, -1);
+        num_team_kills++;
+    } else {
+        current_team->AddKills(this, 1);
+    }
+
+    gi.SendServerCommand(
+        edict - g_entities,
+        "print \"" HUD_MESSAGE_WHITE "%s %s\n\"",
+        gi.LV_ConvertString("You killed"),
+        killed->client->pers.netname
+    );
 }
 
 void Player::Pain(Event *ev)
@@ -9485,7 +9495,7 @@ void Player::ArmorDamage(Event *ev)
 
         if (attacker && attacker->IsSubclassOfPlayer()) {
             if (attacker != this) {
-                if (g_gametype->integer > 1 && !g_teamdamage->integer) {
+                if (g_gametype->integer >= GT_TEAM && !g_teamdamage->integer) {
                     // check for team damage
                     if (attacker->GetDM_Team() == GetDM_Team() && mod != MOD_TELEFRAG) {
                         return;
