@@ -1080,6 +1080,7 @@ static int sentients_compare(const void *elem1, const void *elem2)
 bool PlayerBot::CheckCondition_Attack(void)
 {
     Container<Sentient *> sents = SentientList;
+    float maxDistance = 0;
 
     bot_origin = origin;
     sents.Sort(sentients_compare);
@@ -1110,7 +1111,9 @@ bool PlayerBot::CheckCondition_Attack(void)
             }
         }
 
-        if (CanSee(sent, 80, world->m_fAIVisionDistance, false)) {
+        maxDistance = Q_min(world->m_fAIVisionDistance, world->farplane_distance * 0.828);
+
+        if (CanSee(sent, 80, maxDistance, false)) {
             m_pEnemy      = sent;
             m_iAttackTime = level.inttime + 10000;
             return true;
