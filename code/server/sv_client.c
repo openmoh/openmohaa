@@ -1581,14 +1581,10 @@ void SV_ExecuteClientCommand( client_t *cl, const char *s, qboolean clientOK ) {
 		}
 	}
 
-	//if (!Q_stricmp(s, "dmmessage")) {
-	// 2.0 has it wrong, it uses Q_stricmp, but it never works
-	// because `s` is the full command string with arguments
-	if (!Q_stricmpn(s, "dmmessage ", 10)) {
-		//
-		// Since 2.0, displays chat messages
-		// NOTE: this should be handled by fgame, not server
-		//
+	// Added in 1.11 MAC server
+	//  Display chat messages
+	//  NOTE: this should be handled by fgame, not server
+	if (!Q_stricmp(Cmd_Argv(0), "dmmessage")) {
 		Com_Printf("%s (%zu): %s", cl->name, (size_t)(cl - svs.clients), s);
 	}
 
