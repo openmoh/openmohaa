@@ -195,11 +195,17 @@ void CG_HudPrint_f(void)
 
 qboolean CG_CheckCaptureKey(int key, qboolean down, unsigned int time)
 {
+    char minKey = '1', maxKey = '9';
+
     if (!cg.iInstaMessageMenu || !down) {
         return qfalse;
     }
 
-    if (key < '1' || key > '8') {
+    if (cg_protocol >= protocol_e::PROTOCOL_MOHTA_MIN) {
+        maxKey = '8';
+    }
+
+    if (key < minKey || key > maxKey) {
         if (key == K_ESCAPE || key == '0') {
             cg.iInstaMessageMenu = 0;
             return qtrue;
