@@ -9127,10 +9127,6 @@ void Player::SetPlayerSpectate(bool bNext)
         }
     }
 
-    if (m_iPlayerSpectating >= game.maxclients) {
-        m_iPlayerSpectating = 0;
-    }
-
     for (i = num; i < game.maxclients && i >= 0; i += dir) {
         ent = &g_entities[i];
         if (!ent->inuse || !ent->entity) {
@@ -9145,12 +9141,6 @@ void Player::SetPlayerSpectate(bool bNext)
             client->ps.camera_flags |= (client->ps.camera_flags & CF_CAMERA_CUT_BIT) ^ CF_CAMERA_CUT_BIT;
             return;
         }
-
-        if (!m_iPlayerSpectating) {
-            return;
-        }
-
-        m_iPlayerSpectating = 0;
     }
 
     if (m_iPlayerSpectating) {
