@@ -4872,9 +4872,9 @@ void Player::Think(void)
     // Added in 2.0: talk icon
     //
     if (buttons & BUTTON_TALK) {
-        edict->s.eFlags |= EF_PLAYER_TALKING;
+        edict->s.eFlags |= EF_PLAYER_IN_MENU;
     } else {
-        edict->s.eFlags &= ~EF_PLAYER_TALKING;
+        edict->s.eFlags &= ~EF_PLAYER_IN_MENU;
     }
 
     if (m_fTalkTime > level.time) {
