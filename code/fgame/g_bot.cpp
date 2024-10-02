@@ -26,99 +26,178 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "playerbot.h"
 #include "g_bot.h"
 
-static gentity_t* firstBot = NULL;
-static saved_bot_t* saved_bots = NULL;
+static gentity_t   *firstBot          = NULL;
+static saved_bot_t *saved_bots        = NULL;
 static unsigned int current_bot_count = 0;
+static char       **modelList         = NULL;
 
-void G_BotBegin
-	(
-	gentity_t *ent
-	)
+Container<str> alliedModelList;
+Container<str> germanModelList;
+
+bool IsAlliedPlayerModel(const char *filename)
 {
-	level.m_bSpawnBot = true;
-	G_ClientBegin( ent, NULL );
+    return !Q_stricmpn(filename, "/allied_", 8) || !Q_stricmpn(filename, "/american_", 10);
 }
 
-void G_BotThink
-	(
-	gentity_t *ent,
-	int msec
-	)
+bool IsGermanPlayerModel(const char *filename)
 {
-	usercmd_t ucmd;
-	usereyes_t eyeinfo;
-	PlayerBot *bot;
-
-	assert( ent );
-	assert( ent->entity );
-	assert( ent->entity->IsSubclassOfBot() );
-
-	bot = ( PlayerBot * )ent->entity;
-
-	bot->UpdateBotStates();
-	bot->GetUsercmd( &ucmd );
-	bot->GetEyeInfo( &eyeinfo );
-
-	G_ClientThink( ent, &ucmd, &eyeinfo );
+    return !Q_stricmpn(filename, "/german_", 8) || !Q_stricmpn(filename, "/IT_", 4) || !Q_stricmpn(filename, "/SC_", 4);
 }
 
-gentity_t* G_GetFirstBot()
+bool IsPlayerModel(const char *filename)
 {
-	return firstBot;
+    size_t len = strlen(filename);
+
+    if (len >= 8 && !Q_stricmp(&filename[len - 8], "_fps.tik")) {
+        return false;
+    }
+
+    if (!IsAlliedPlayerModel(filename) && !IsGermanPlayerModel(filename)) {
+        return false;
+    }
+
+    return true;
 }
 
-void G_AddBot(unsigned int num, saved_bot_t* saved)
+void ClearModelList()
 {
-	int n;
-	int i;
-	int clientNum = -1;
-	gentity_t *e;
-	char botName[ MAX_NETNAME ];
-	char challenge[ MAX_STRING_TOKENS ];
-	Event* teamEv;
+    alliedModelList.FreeObjectList();
+    germanModelList.FreeObjectList();
+}
 
-	num = Q_min(num, sv_maxbots->integer);
-	for( n = 0; n < num; n++ )
-	{
-		char userinfo[MAX_INFO_STRING]{ 0 };
+void InitModelList()
+{
+    char **fileList;
+    int    numFiles;
+    int    i;
+    size_t numAlliedModels = 0, numGermanModels = 0;
+    byte  *p;
 
-		for( i = maxclients->integer; i < game.maxclients; i++ )
-		{
-			e = &g_entities[ i ];
+    ClearModelList();
 
-			if( !e->inuse && e->client )
-			{
-				clientNum = i;
-				break;
-			}
-		}
+    fileList = gi.FS_ListFiles("models/player", ".tik", qfalse, &numFiles);
 
-		if( clientNum == -1 )
-		{
-			gi.Printf( "No free slot for a bot\n" );
-			return;
-		}
+    for (i = 0; i < numFiles; i++) {
+        const char *filename = fileList[i];
 
-		if( gi.Argc() > 2 )
-		{
-			Q_strncpyz( botName, gi.Argv( 2 ), sizeof( botName ) );
-		}
-		else
-		{
-			Com_sprintf( botName, sizeof( botName ), "bot%d", clientNum - maxclients->integer + 1 );
-		}
+        if (!IsPlayerModel(filename)) {
+            continue;
+        }
 
-		Com_sprintf( challenge, sizeof( challenge ), "%d", clientNum - maxclients->integer + 1 );
+        if (IsAlliedPlayerModel(filename)) {
+            numAlliedModels++;
+        } else {
+            numGermanModels++;
+        }
+    }
 
-		e->s.clientNum = clientNum;
-		e->s.number = clientNum;
+    alliedModelList.Resize(numAlliedModels);
+    germanModelList.Resize(numGermanModels);
+
+    for (i = 0; i < numFiles; i++) {
+        const char *filename = fileList[i];
+        size_t      len      = strlen(filename);
+
+        if (!IsPlayerModel(filename)) {
+            continue;
+        }
+
+        if (IsAlliedPlayerModel(filename)) {
+            alliedModelList.AddObject(str(filename + 1, 0, len - 5));
+        } else {
+            germanModelList.AddObject(str(filename + 1, 0, len - 5));
+        }
+    }
+
+    gi.FS_FreeFileList(fileList);
+}
+
+void G_BotBegin(gentity_t *ent)
+{
+    level.m_bSpawnBot = true;
+    G_ClientBegin(ent, NULL);
+}
+
+void G_BotThink(gentity_t *ent, int msec)
+{
+    usercmd_t  ucmd;
+    usereyes_t eyeinfo;
+    PlayerBot *bot;
+
+    assert(ent);
+    assert(ent->entity);
+    assert(ent->entity->IsSubclassOfBot());
+
+    bot = (PlayerBot *)ent->entity;
+
+    bot->UpdateBotStates();
+    bot->GetUsercmd(&ucmd);
+    bot->GetEyeInfo(&eyeinfo);
+
+    G_ClientThink(ent, &ucmd, &eyeinfo);
+}
+
+gentity_t *G_GetFirstBot()
+{
+    return firstBot;
+}
+
+void G_AddBot(unsigned int num, saved_bot_t *saved)
+{
+    int        n;
+    int        i;
+    int        clientNum = -1;
+    gentity_t *e;
+    char       botName[MAX_NETNAME];
+    char       challenge[MAX_STRING_TOKENS];
+    Event     *teamEv;
+
+    num = Q_min(num, sv_maxbots->integer);
+    for (n = 0; n < num; n++) {
+        char userinfo[MAX_INFO_STRING] {0};
+
+        for (i = maxclients->integer; i < game.maxclients; i++) {
+            e = &g_entities[i];
+
+            if (!e->inuse && e->client) {
+                clientNum = i;
+                break;
+            }
+        }
+
+        if (clientNum == -1) {
+            gi.Printf("No free slot for a bot\n");
+            return;
+        }
+
+        if (gi.Argc() > 2) {
+            Q_strncpyz(botName, gi.Argv(2), sizeof(botName));
+        } else {
+            Com_sprintf(botName, sizeof(botName), "bot%d", clientNum - maxclients->integer + 1);
+        }
+
+        Com_sprintf(challenge, sizeof(challenge), "%d", clientNum - maxclients->integer + 1);
+
+        e->s.clientNum = clientNum;
+        e->s.number    = clientNum;
 
         if (saved) {
-			strncpy(userinfo, saved->pers.userinfo, ARRAY_LEN(userinfo));
-		} else {
+            strncpy(userinfo, saved->pers.userinfo, ARRAY_LEN(userinfo));
+        } else {
             Info_SetValueForKey(userinfo, "name", botName);
-            Info_SetValueForKey(userinfo, "dm_playermodel", "allied_pilot");
-            Info_SetValueForKey(userinfo, "dm_playergermanmodel", "german_afrika_officer");
+
+            //
+            // Choose a random model
+            //
+            if (alliedModelList.NumObjects()) {
+                Info_SetValueForKey(userinfo, "dm_playermodel", alliedModelList[rand() % alliedModelList.NumObjects()]);
+            }
+            if (germanModelList.NumObjects()) {
+                Info_SetValueForKey(
+                    userinfo, "dm_playergermanmodel", germanModelList[rand() % germanModelList.NumObjects()]
+                );
+            }
+
             Info_SetValueForKey(userinfo, "fov", "80");
             Info_SetValueForKey(userinfo, "protocol", "8");
             Info_SetValueForKey(userinfo, "ip", "0.0.0.0");
@@ -127,23 +206,24 @@ void G_AddBot(unsigned int num, saved_bot_t* saved)
             Info_SetValueForKey(userinfo, "snaps", "1");
             Info_SetValueForKey(userinfo, "rate", "1");
             Info_SetValueForKey(userinfo, "dmprimary", "smg");
-		}
+        }
 
-		current_bot_count++;
+        current_bot_count++;
 
-		G_BotConnect( clientNum, userinfo );
+        G_BotConnect(clientNum, userinfo);
 
-		if (saved) {
-			e->client->pers = saved->pers;
-		}
+        if (saved) {
+            e->client->pers = saved->pers;
+        }
 
-		if( !firstBot )
-			firstBot = e;
+        if (!firstBot) {
+            firstBot = e;
+        }
 
-		G_BotBegin( e );
+        G_BotBegin(e);
 
-		if (saved) {
-			/*
+        if (saved) {
+            /*
 			switch (saved->team)
 			{
             case TEAM_ALLIES:
@@ -159,129 +239,133 @@ void G_AddBot(unsigned int num, saved_bot_t* saved)
 				break;
 			}
 			*/
-		} else {
+        } else {
             teamEv = new Event(EV_Player_AutoJoinDMTeam);
             e->entity->PostEvent(teamEv, level.frametime);
 
-            Event* ev = new Event(EV_Player_PrimaryDMWeapon);
-			ev->AddString("auto");
+            Event *ev = new Event(EV_Player_PrimaryDMWeapon);
+            ev->AddString("auto");
 
             e->entity->PostEvent(ev, level.frametime);
         }
-	}
+    }
 }
 
 void G_RemoveBot(unsigned int num)
 {
-	num = Q_min(num, sv_maxbots->integer);
+    num = Q_min(num, sv_maxbots->integer);
 
-	for( int n = 0; n < num; n++ )
-	{
-		gentity_t *e = &g_entities[maxclients->integer + n];
-		if( e->inuse && e->client )
-		{
-			G_ClientDisconnect( e );
-			current_bot_count--;
-		}
-	}
+    for (int n = 0; n < num; n++) {
+        gentity_t *e = &g_entities[maxclients->integer + n];
+        if (e->inuse && e->client) {
+            G_ClientDisconnect(e);
+            current_bot_count--;
+        }
+    }
 }
 
-void G_SaveBots() {
-	unsigned int n;
+void G_SaveBots()
+{
+    unsigned int n;
 
     if (saved_bots) {
         delete[] saved_bots;
-		saved_bots = NULL;
+        saved_bots = NULL;
     }
 
-	if (!current_bot_count) {
-		return;
-	}
+    if (!current_bot_count) {
+        return;
+    }
 
-	saved_bots = new saved_bot_t[current_bot_count];
+    saved_bots = new saved_bot_t[current_bot_count];
     for (n = 0; n < current_bot_count; n++) {
-        gentity_t* e = &g_entities[game.maxclients - sv_maxbots->integer + n];
-		saved_bot_t& saved = saved_bots[n];
+        gentity_t   *e     = &g_entities[game.maxclients - sv_maxbots->integer + n];
+        saved_bot_t& saved = saved_bots[n];
 
-		if (e->inuse && e->client)
-		{
-			Player* player = static_cast<Player*>(e->entity);
+        if (e->inuse && e->client) {
+            Player *player = static_cast<Player *>(e->entity);
 
-			saved.bValid = true;
-			//saved.team = player->GetTeam();
-			saved.pers = player->client->pers;
-		}
-	}
+            saved.bValid = true;
+            //saved.team = player->GetTeam();
+            saved.pers = player->client->pers;
+        }
+    }
 }
 
-void G_RestoreBots() {
-	unsigned int n;
+void G_RestoreBots()
+{
+    unsigned int n;
 
     if (!saved_bots) {
-		return;
+        return;
     }
 
     for (n = 0; n < sv_numbots->integer; n++) {
         saved_bot_t& saved = saved_bots[n];
 
-		G_AddBot(1, &saved);
-	}
+        G_AddBot(1, &saved);
+    }
 
-	delete[] saved_bots;
-	saved_bots = NULL;
+    delete[] saved_bots;
+    saved_bots = NULL;
 }
 
-int G_CountClients() {
-	gentity_t* other;
-	unsigned int n;
-	unsigned int count = 0;
+int G_CountClients()
+{
+    gentity_t   *other;
+    unsigned int n;
+    unsigned int count = 0;
 
-	for (n = 0; n < maxclients->integer; n++) {
-		other = &g_entities[n];
-		if (other->inuse && other->client) {
-			Player* p = static_cast<Player*>(other->entity);
-			if (p->GetTeam() == teamtype_t::TEAM_NONE || p->GetTeam() == teamtype_t::TEAM_SPECTATOR) {
-				// ignore spectators
-				continue;
-			}
+    for (n = 0; n < maxclients->integer; n++) {
+        other = &g_entities[n];
+        if (other->inuse && other->client) {
+            Player *p = static_cast<Player *>(other->entity);
+            if (p->GetTeam() == teamtype_t::TEAM_NONE || p->GetTeam() == teamtype_t::TEAM_SPECTATOR) {
+                // ignore spectators
+                continue;
+            }
 
-			count++;
-		}
-	}
+            count++;
+        }
+    }
 
-	return count;
+    return count;
 }
 
-void G_ResetBots() {
-	G_SaveBots();
+void G_ResetBots()
+{
+    G_SaveBots();
 
-	current_bot_count = 0;
+    current_bot_count = 0;
 }
 
-void G_SpawnBots() {
-	unsigned int numClients;
-	unsigned int numBotsToSpawn;
+void G_SpawnBots()
+{
+    unsigned int numClients;
+    unsigned int numBotsToSpawn;
 
-	if (saved_bots) {
-		G_RestoreBots();
-	}
+    InitModelList();
 
-	//
-	// Check the minimum bot count
-	//
-	numClients = G_CountClients() + sv_numbots->integer;
-	if (numClients < sv_minPlayers->integer) {
-		numBotsToSpawn = sv_minPlayers->integer - numClients;
-	} else {
-		numBotsToSpawn = sv_numbots->integer;
-	}
+    if (saved_bots) {
+        G_RestoreBots();
+    }
 
-	//
-	// Spawn bots
-	//
-	if (numBotsToSpawn > current_bot_count) {
-		G_AddBot(numBotsToSpawn - current_bot_count);
-	} else if (numBotsToSpawn < current_bot_count) {
-		G_RemoveBot(current_bot_count - numBotsToSpawn);
-	}
+    //
+    // Check the minimum bot count
+    //
+    numClients = G_CountClients() + sv_numbots->integer;
+    if (numClients < sv_minPlayers->integer) {
+        numBotsToSpawn = sv_minPlayers->integer - numClients;
+    } else {
+        numBotsToSpawn = sv_numbots->integer;
+    }
+
+    //
+    // Spawn bots
+    //
+    if (numBotsToSpawn > current_bot_count) {
+        G_AddBot(numBotsToSpawn - current_bot_count);
+    } else if (numBotsToSpawn < current_bot_count) {
+        G_RemoveBot(current_bot_count - numBotsToSpawn);
+    }
 }
