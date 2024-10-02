@@ -9905,6 +9905,27 @@ void Player::EventPrimaryDMWeapon(Event *ev)
         bIsBanned = (dmflags->integer & DF_WEAPON_NO_ROCKET);
     } else if (!str::icmp(dm_weapon, "landmine")) {
         bIsBanned = (dmflags->integer & DF_WEAPON_NO_LANDMINE) || !QueryLandminesAllowed();
+    } else if (!str::icmp(dm_weapon, "auto")) {
+        const char* primaryList[7];
+        size_t numPrimaries = 0;
+
+        //
+        // Added in OPM
+        //  Choose a random allowed weapon
+        //
+        if (!(dmflags->integer & DF_WEAPON_NO_SHOTGUN)) { primaryList[numPrimaries++] = "shotgun"; }
+        if (!(dmflags->integer & DF_WEAPON_NO_RIFLE)) { primaryList[numPrimaries++] = "rifle"; }
+        if (!(dmflags->integer & DF_WEAPON_NO_SNIPER)) { primaryList[numPrimaries++] = "sniper"; }
+        if (!(dmflags->integer & DF_WEAPON_NO_SMG)) { primaryList[numPrimaries++] = "smg"; }
+        if (!(dmflags->integer & DF_WEAPON_NO_MG)) { primaryList[numPrimaries++] = "mg"; }
+        if (!(dmflags->integer & DF_WEAPON_NO_ROCKET)) { primaryList[numPrimaries++] = "heavy"; }
+        if (!(dmflags->integer & DF_WEAPON_NO_LANDMINE) && QueryLandminesAllowed()) { primaryList[numPrimaries++] = "landmine"; }
+
+        if (numPrimaries) {
+            dm_weapon = primaryList[rand() % numPrimaries];
+        } else {
+            bIsBanned = qtrue;
+        }
     }
 
     if (bIsBanned) {
