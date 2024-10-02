@@ -3400,6 +3400,7 @@ void Player::DoUse(Event *ev)
     int        touch[MAX_GENTITIES];
     int        num;
     int        i;
+    bool       bWasInTurretOrVehicle;
 
     if (g_gametype->integer != GT_SINGLE_PLAYER && IsSpectator()) {
         // Prevent using stuff while spectating
@@ -3411,7 +3412,9 @@ void Player::DoUse(Event *ev)
         return;
     }
 
-    if (m_pVehicle || m_pTurret) {
+    bWasInTurretOrVehicle = m_pVehicle || m_pTurret;
+
+    if (bWasInTurretOrVehicle) {
         RemoveFromVehiclesAndTurretsInternal();
         return;
     }
@@ -3469,7 +3472,7 @@ void Player::DoUse(Event *ev)
         }
     }
 
-    if (i < num && m_pVehicle) {
+    if (!bWasInTurretOrVehicle && m_pVehicle) {
         //
         // Added in 2.30
         //  Make the vehicle also invincible if the player is invincible
@@ -3479,6 +3482,16 @@ void Player::DoUse(Event *ev)
         } else {
             m_pVehicle->flags &= ~FL_GODMODE;
         }
+    }
+
+    if (!bWasInTurretOrVehicle && (m_pVehicle || m_pTurret)) {
+        //
+        // Added in OPM
+        //  Reset the legs and torso state.
+        //  This prevents players from using a turret and hold the weapon fire
+        //  to crouch with their weapon and become impossible to hit
+        currentState_Legs = statemap_Legs->FindState("STAND");
+        currentState_Torso = statemap_Torso->FindState("STAND");
     }
 }
 
