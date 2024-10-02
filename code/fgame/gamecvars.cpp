@@ -449,7 +449,14 @@ void CVAR_Init(void)
 
     g_teamdamage         = gi.Cvar_Get("g_teamdamage", "0", 0);
     g_healthdrop         = gi.Cvar_Get("g_healthdrop", "1", 0);
-    g_healrate           = gi.Cvar_Get("g_healrate", "10", 0);
+    if (g_protocol >= protocol_e::PROTOCOL_MOHTA_MIN) {
+        g_healrate = gi.Cvar_Get("g_healrate", "10", 0);
+    } else {
+        //
+        // By default, no healrate on 1.11 and below
+        //
+        g_healrate = gi.Cvar_Get("g_healrate", "0", 0);
+    }
     g_allowvote          = gi.Cvar_Get("g_allowvote", "1", 0);
     g_maprotation_filter = gi.Cvar_Get("g_maprotation_filter", "ffa", 0);
     g_warmup             = gi.Cvar_Get("g_warmup", "20", CVAR_ARCHIVE);
