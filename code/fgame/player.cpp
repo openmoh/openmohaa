@@ -3941,7 +3941,7 @@ void Player::ClientMove(usercmd_t *ucmd)
     client->ps.pm_type = GetMovePlayerMoveType();
     // set move flags
     client->ps.pm_flags &=
-        ~(PMF_FROZEN | PMF_NO_PREDICTION | PMF_NO_MOVE | PMF_DUCKED | PMF_NO_GRAVITY | PMF_VIEW_PRONE
+        ~(PMF_FROZEN | PMF_NO_PREDICTION | PMF_NO_MOVE | PMF_DUCKED | PMF_TURRET | PMF_VIEW_PRONE
           | PMF_VIEW_DUCK_RUN | PMF_VIEW_JUMP_START);
 
     if (level.playerfrozen || m_bFrozen) {
@@ -4130,11 +4130,11 @@ void Player::VehicleMove(usercmd_t *ucmd)
 
     // set move flags
     client->ps.pm_flags &=
-        ~(PMF_FROZEN | PMF_NO_PREDICTION | PMF_NO_MOVE | PMF_DUCKED | PMF_NO_GRAVITY | PMF_VIEW_PRONE
+        ~(PMF_FROZEN | PMF_NO_PREDICTION | PMF_NO_MOVE | PMF_DUCKED | PMF_TURRET | PMF_VIEW_PRONE
           | PMF_VIEW_DUCK_RUN | PMF_VIEW_JUMP_START);
 
     // disable prediction
-    client->ps.pm_flags |= PMF_NO_GRAVITY | PMF_NO_PREDICTION;
+    client->ps.pm_flags |= PMF_TURRET | PMF_NO_PREDICTION;
 
     if (level.playerfrozen || m_bFrozen) {
         client->ps.pm_flags |= PMF_FROZEN;
@@ -4165,13 +4165,13 @@ void Player::TurretMove(usercmd_t *ucmd)
 
     // set move flags
     client->ps.pm_flags &=
-        ~(PMF_FROZEN | PMF_NO_PREDICTION | PMF_NO_MOVE | PMF_DUCKED | PMF_NO_GRAVITY | PMF_VIEW_PRONE
+        ~(PMF_FROZEN | PMF_NO_PREDICTION | PMF_NO_MOVE | PMF_DUCKED | PMF_TURRET | PMF_VIEW_PRONE
           | PMF_VIEW_DUCK_RUN | PMF_VIEW_JUMP_START);
 
     // disable prediction
-    client->ps.pm_flags |= PMF_NO_GRAVITY | PMF_NO_PREDICTION;
+    client->ps.pm_flags |= PMF_TURRET | PMF_NO_PREDICTION;
     if (getMoveType() == MOVETYPE_PORTABLE_TURRET) {
-        client->ps.pm_flags |= PMF_NO_GRAVITY;
+        client->ps.pm_flags |= PMF_TURRET;
     }
 
     if (level.playerfrozen || m_bFrozen) {

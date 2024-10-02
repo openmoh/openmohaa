@@ -1,6 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
+Copyright (C) 2024 the OpenMoHAA team
 
 This file is part of Quake III Arena source code.
 
@@ -257,7 +258,7 @@ movement on the server game.
 #define PMF_LEVELEXIT       (1 << 11)
 #define PMF_NO_GRAVITY      (1 << 12)
 #define PMF_NO_HUD          (1 << 13)
-#define PMF_UNKNOWN         (1 << 14)
+#define PMF_TURRET          (1 << 14)
 #define PMF_NO_LEAN         (1 << 15)
 
     // moveposflags

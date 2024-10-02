@@ -1,6 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
+Copyright (C) 2024 the OpenMoHAA team
 
 This file is part of Quake III Arena source code.
 
@@ -1573,7 +1574,17 @@ void PmoveAdjustAngleSettings(vec_t *vViewAngles, vec_t *vAngles, playerState_t 
     vec3_t armsAngles, torsoAngles, headAngles;
     float  fTmp;
 
-    if (pPlayerState->pm_type == PM_CLIMBWALL) {
+    if (pPlayerState->pm_type == PM_DEAD) {
+        // set the default angles
+        VectorSet(pEntState->bone_angles[HEAD_TAG], 0, 0, 0);
+        VectorSet(pEntState->bone_angles[TORSO_TAG], 0, 0, 0);
+        VectorSet(pEntState->bone_angles[ARMS_TAG], 0, 0, 0);
+        VectorSet(pEntState->bone_angles[PELVIS_TAG], 0, 0, 0);
+        QuatSet(pEntState->bone_quat[HEAD_TAG], 0, 0, 0, 1);
+        QuatSet(pEntState->bone_quat[TORSO_TAG], 0, 0, 0, 1);
+        QuatSet(pEntState->bone_quat[ARMS_TAG], 0, 0, 0, 1);
+        QuatSet(pEntState->bone_quat[PELVIS_TAG], 0, 0, 0, 1);
+    } else if (pPlayerState->pm_type == PM_CLIMBWALL) {
         PmoveAdjustViewAngleSettings_OnLadder(vViewAngles, vAngles, pPlayerState, pEntState);
         VectorSet(pEntState->bone_angles[TORSO_TAG], 0, 0, 0);
         VectorSet(pEntState->bone_angles[ARMS_TAG], 0, 0, 0);
@@ -1586,67 +1597,87 @@ void PmoveAdjustAngleSettings(vec_t *vViewAngles, vec_t *vAngles, playerState_t 
         VectorScale(headAngles, 0.5f, pEntState->bone_angles[HEAD_TAG]);
 
         EulerToQuat(headAngles, pEntState->bone_quat[HEAD_TAG]);
-        return;
-    }
-
-    if (pPlayerState->pm_type != PM_DEAD) {
+    } else {
         fTmp = AngleMod(vViewAngles[1]);
         VectorSet(vAngles, 0, fTmp, 0);
 
-        if (!(pPlayerState->pm_flags & PMF_VIEW_PRONE) || (pPlayerState->pm_flags & PMF_DUCKED)) {
-            fTmp = AngleMod(vViewAngles[0]);
+        if (pPlayerState->pm_flags & PMF_TURRET) {
+            vAngles[2] = 0;
+            // Added in 2.0
+            //  Clients checking this flag will draw an icon
+            //  above the head of teammates
+            pEntState->eFlags |= EF_PLAYER_ARTILLERY;
+        } else {
+            fTmp = AngleMod(vViewAngles[1]);
+            VectorSet(vAngles, 0, fTmp, 0);
+            pEntState->eFlags &= ~EF_PLAYER_ARTILLERY;
+        }
 
-            VectorSet(temp, fTmp, 0, pPlayerState->fLeanAngle * 0.60f);
-            VectorSet(temp2, fTmp, 0, pPlayerState->fLeanAngle);
+        if (pPlayerState->pm_flags & PMF_TURRET) {
+            // set the default angles
+            VectorSet(pEntState->bone_angles[TORSO_TAG], 0, 0, 0);
+            VectorSet(pEntState->bone_angles[ARMS_TAG], 0, 0, 0);
+            VectorSet(pEntState->bone_angles[PELVIS_TAG], 0, 0, 0);
+            QuatSet(pEntState->bone_quat[TORSO_TAG], 0, 0, 0, 1);
+            QuatSet(pEntState->bone_quat[ARMS_TAG], 0, 0, 0, 1);
+            QuatSet(pEntState->bone_quat[PELVIS_TAG], 0, 0, 0, 1);
 
-            if (fTmp > 180.0f) {
-                temp2[0] = fTmp - 360.0f;
+            AnglesSubtract(vViewAngles, vAngles, headAngles);
+            // Added in 2.0
+            //  Prevent rotating the player head like a monster
+            if (headAngles[1] > 90) {
+                headAngles[1] = 90;
+            }
+            if (headAngles[1] < -90) {
+                headAngles[1] = -90;
             }
 
-            temp2[0] = 0.90f * temp2[0] * 0.70f;
-
-            AnglesSubtract(temp, temp2, headAngles);
-            VectorCopy(headAngles, pEntState->bone_angles[HEAD_TAG]);
-            EulerToQuat(pEntState->bone_angles[HEAD_TAG], pEntState->bone_quat[HEAD_TAG]);
-
-            if (temp2[0] <= 0.0f) {
-                fTmp = -0.1f;
-            } else {
-                fTmp = 0.3f;
-            }
-
-            VectorSet(temp, fTmp * temp2[0], 0, pPlayerState->fLeanAngle * 0.8f);
-            VectorCopy(temp, pEntState->bone_angles[PELVIS_TAG]);
-            EulerToQuat(pEntState->bone_angles[PELVIS_TAG], pEntState->bone_quat[PELVIS_TAG]);
-
-            float fDelta = (1.0f - fTmp) * temp2[0];
-
-            if (vViewAngles[0] <= 0.0f) {
-                VectorSet(torsoAngles, fDelta * 0.60f, 0, pPlayerState->fLeanAngle * 0.2f * -0.1f);
-                VectorSet(armsAngles, fDelta * 0.40f, 0, pPlayerState->fLeanAngle * 0.2f * 1.1f);
-            } else {
-                VectorSet(torsoAngles, fDelta * 0.70f, 0, pPlayerState->fLeanAngle * 0.2f * -0.1f);
-                VectorSet(armsAngles, fDelta * 0.30f, 0, pPlayerState->fLeanAngle * 0.2f * 1.1f);
-            }
-
-            VectorCopy(torsoAngles, pEntState->bone_angles[TORSO_TAG]);
-            EulerToQuat(pEntState->bone_angles[TORSO_TAG], pEntState->bone_quat[TORSO_TAG]);
-
-            VectorCopy(armsAngles, pEntState->bone_angles[ARMS_TAG]);
-            EulerToQuat(pEntState->bone_angles[ARMS_TAG], pEntState->bone_quat[ARMS_TAG]);
+            VectorSet(pEntState->bone_angles[HEAD_TAG], 0, 0, 0);
+            EulerToQuat(headAngles, pEntState->bone_quat[HEAD_TAG]);
             return;
         }
-    }
 
-    // set the default angles
-    VectorSet(pEntState->bone_angles[HEAD_TAG], 0, 0, 0);
-    VectorSet(pEntState->bone_angles[TORSO_TAG], 0, 0, 0);
-    VectorSet(pEntState->bone_angles[ARMS_TAG], 0, 0, 0);
-    VectorSet(pEntState->bone_angles[PELVIS_TAG], 0, 0, 0);
-    QuatSet(pEntState->bone_quat[HEAD_TAG], 0, 0, 0, 1);
-    QuatSet(pEntState->bone_quat[TORSO_TAG], 0, 0, 0, 1);
-    QuatSet(pEntState->bone_quat[ARMS_TAG], 0, 0, 0, 1);
-    QuatSet(pEntState->bone_quat[PELVIS_TAG], 0, 0, 0, 1);
+        fTmp = AngleMod(vViewAngles[0]);
+
+        VectorSet(temp, fTmp, 0, pPlayerState->fLeanAngle * 0.60f);
+        VectorSet(temp2, fTmp, 0, pPlayerState->fLeanAngle);
+
+        if (fTmp > 180.0f) {
+            temp2[0] = fTmp - 360.0f;
+        }
+
+        temp2[0] = 0.90f * temp2[0] * 0.70f;
+
+        AnglesSubtract(temp, temp2, headAngles);
+        VectorCopy(headAngles, pEntState->bone_angles[HEAD_TAG]);
+        EulerToQuat(pEntState->bone_angles[HEAD_TAG], pEntState->bone_quat[HEAD_TAG]);
+
+        if (temp2[0] <= 0.0f) {
+            fTmp = -0.1f;
+        } else {
+            fTmp = 0.3f;
+        }
+
+        VectorSet(temp, fTmp * temp2[0], 0, pPlayerState->fLeanAngle * 0.8f);
+        VectorCopy(temp, pEntState->bone_angles[PELVIS_TAG]);
+        EulerToQuat(pEntState->bone_angles[PELVIS_TAG], pEntState->bone_quat[PELVIS_TAG]);
+
+        float fDelta = (1.0f - fTmp) * temp2[0];
+
+        if (vViewAngles[0] <= 0.0f) {
+            VectorSet(torsoAngles, fDelta * 0.60f, 0, pPlayerState->fLeanAngle * 0.2f * -0.1f);
+            VectorSet(armsAngles, fDelta * 0.40f, 0, pPlayerState->fLeanAngle * 0.2f * 1.1f);
+        } else {
+            VectorSet(torsoAngles, fDelta * 0.70f, 0, pPlayerState->fLeanAngle * 0.2f * -0.1f);
+            VectorSet(armsAngles, fDelta * 0.30f, 0, pPlayerState->fLeanAngle * 0.2f * 1.1f);
+        }
+
+        VectorCopy(torsoAngles, pEntState->bone_angles[TORSO_TAG]);
+        EulerToQuat(pEntState->bone_angles[TORSO_TAG], pEntState->bone_quat[TORSO_TAG]);
+
+        VectorCopy(armsAngles, pEntState->bone_angles[ARMS_TAG]);
+        EulerToQuat(pEntState->bone_angles[ARMS_TAG], pEntState->bone_quat[ARMS_TAG]);
+    }
 }
 
 // Used to set arms angles accordingly, calculated client-side
