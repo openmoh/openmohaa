@@ -1277,6 +1277,7 @@ void PlayerBot::Spawned(void)
 {
     ClearEnemy();
     m_iCuriousTime = 0;
+    m_botCmd.buttons = 0;
 
     Player::Spawned();
 }
