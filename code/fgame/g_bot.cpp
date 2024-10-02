@@ -75,12 +75,13 @@ void G_AddBot(unsigned int num, saved_bot_t* saved)
 	gentity_t *e;
 	char botName[ MAX_NETNAME ];
 	char challenge[ MAX_STRING_TOKENS ];
-	char userinfo[MAX_INFO_STRING]{ 0 };
 	Event* teamEv;
 
 	num = Q_min(num, sv_maxbots->integer);
 	for( n = 0; n < num; n++ )
 	{
+		char userinfo[MAX_INFO_STRING]{ 0 };
+
 		for( i = maxclients->integer; i < game.maxclients; i++ )
 		{
 			e = &g_entities[ i ];
