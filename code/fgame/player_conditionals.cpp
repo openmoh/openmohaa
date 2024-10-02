@@ -361,7 +361,7 @@ qboolean Player::CondVehicleType(Conditional& condition)
 {
     str sType = condition.getParm(1);
     if (m_pVehicle && m_pVehicle->IsSubclassOfVehicle()) {
-        return !str::cmp(sType, "vehicle");
+        return !str::cmp(sType, m_pVehicle->getName());
     } else {
         return !str::cmp(sType, "none");
     }
