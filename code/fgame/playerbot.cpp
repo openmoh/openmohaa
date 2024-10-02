@@ -83,6 +83,8 @@ PlayerBot::PlayerBot()
     m_iCuriousTime = 0;
     m_iAttackTime  = 0;
 
+    m_iNextTauntTime = 0;
+
     m_StateFlags = 0;
     m_RunLabel.TrySetScript("global/bot_run.scr");
 }
@@ -1332,6 +1334,25 @@ void PlayerBot::GotKill(Event *ev)
 
     ClearEnemy();
     m_iCuriousTime = 0;
+
+    if (level.inttime >= m_iNextTauntTime && (rand() % 5) == 0) {
+        //
+        // Randomly play a taunt
+        //
+        Event event("dmmessage");
+
+        event.AddInteger(0);
+
+        if (g_protocol >= protocol_e::PROTOCOL_MOHTA_MIN) {
+            event.AddString("*5" + str(1 + (rand() % 8)));
+        } else {
+            event.AddString("*4" + str(1 + (rand() % 8)));
+        }
+
+        ProcessEvent(event);
+
+        m_iNextTauntTime = level.inttime + 5000;
+    }
 }
 
 void PlayerBot::EventStuffText(Event *ev)

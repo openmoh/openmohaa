@@ -87,6 +87,9 @@ private:
     unsigned int      m_StateFlags;
     ScriptThreadLabel m_RunLabel;
 
+    // Taunts
+    int m_iNextTauntTime;
+
 private:
     void CheckAttractiveNodes(void);
     void MoveThink(void);
