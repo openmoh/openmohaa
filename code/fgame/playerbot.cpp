@@ -1294,6 +1294,10 @@ void PlayerBot::Killed(Event *ev)
     m_botEyes.angles[1] = 0;
 
     m_vLastDeathPos = origin;
+
+    // Choose a new random primary weapon
+    Event event(EV_Player_PrimaryDMWeapon);
+    event.AddString("auto");
 }
 
 void PlayerBot::GotKill(Event *ev)

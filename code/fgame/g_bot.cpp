@@ -164,7 +164,7 @@ void G_AddBot(unsigned int num, saved_bot_t* saved)
             e->entity->PostEvent(teamEv, level.frametime);
 
             Event* ev = new Event(EV_Player_PrimaryDMWeapon);
-            ev->AddString("smg");
+			ev->AddString("auto");
 
             e->entity->PostEvent(ev, level.frametime);
         }
