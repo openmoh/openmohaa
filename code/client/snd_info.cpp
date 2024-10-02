@@ -34,7 +34,7 @@ void load_sfx_info()
     sfx_infos[0].max_factor         = -1.0;
     sfx_infos[0].loop_start         = -1;
     sfx_infos[0].loop_end           = -1;
-    sfx_infos[0].max_number_playing = 5;
+    sfx_infos[0].max_number_playing = DEFAULT_SFX_NUMBER_PLAYING;
     number_of_sfx_infos             = 1;
 
     for (current_sound_file = 0; current_sound_file < 10; current_sound_file++) {
@@ -62,7 +62,7 @@ void load_sfx_info()
                     sfx_infos[number_of_sfx_infos].max_factor         = -1.f;
                     sfx_infos[number_of_sfx_infos].loop_start         = -1;
                     sfx_infos[number_of_sfx_infos].loop_end           = -1;
-                    sfx_infos[number_of_sfx_infos].max_number_playing = 5;
+                    sfx_infos[number_of_sfx_infos].max_number_playing = DEFAULT_SFX_NUMBER_PLAYING;
                     number_of_sfx_infos++;
                 }
             } else if (!Q_stricmp(token, "loopstart")) {

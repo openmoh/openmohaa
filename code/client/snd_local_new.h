@@ -162,6 +162,7 @@ enum loopsound_flags_t {
 #define MAX_SFX         1400
 #define MAX_SFX_INFOS   1000
 #define MAX_LOOP_SOUNDS 64
+#define DEFAULT_SFX_NUMBER_PLAYING 10 //5
 
 extern qboolean   s_bLastInitSound;
 extern qboolean   s_bSoundStarted;
