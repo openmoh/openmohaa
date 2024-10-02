@@ -1161,7 +1161,7 @@ extern	refimport_t		ri;
 #define	MAX_DRAWIMAGES			2048
 #define	MAX_LIGHTMAPS			256
 #define	MAX_SKINS				1024
-#define MAX_SPHERE_LIGHTS		128
+#define MAX_SPHERE_LIGHTS		512
 
 #define	MAX_DRAWSURFS			0x10000
 #define	MAX_SPRITESURFS			0x8000
@@ -1260,7 +1260,7 @@ typedef struct {
 	trRefEntity_t	*currentEntity;
     qboolean skyRenderedThisView;	// flag for drawing sun
     sphereor_t spheres[MAX_SPHERE_LIGHTS];
-    unsigned char numSpheresUsed;
+    unsigned short numSpheresUsed;
     sphereor_t* currentSphere;
     sphereor_t spareSphere;
     sphereor_t hudSphere;
