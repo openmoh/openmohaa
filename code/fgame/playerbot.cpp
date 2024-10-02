@@ -253,12 +253,8 @@ void PlayerBot::MoveThink(void)
             m_iTempAwayTime = level.inttime + 750;
 
             // Try to backward a little
-            //vDir = end - origin;
-            //VectorNormalizeFast( vDir );
-            //m_Path.FindPathAway( origin, origin + vDir * 16, vDir, this, 256, NULL, 0 );
-            //m_Path.FindPathAway( origin, origin + m_vLastValidDir * 16, -m_vLastValidDir, this, 256, NULL, 0 );
             m_Path.Clear();
-            m_vCurrentGoal = m_vLastValidGoal - m_vLastValidDir * 256;
+            m_vCurrentGoal = origin + Vector(G_Random(256) - 128, G_Random(256) - 128, G_Random(256) - 128);
             return;
         }
     }
@@ -286,10 +282,15 @@ void PlayerBot::MoveThink(void)
     //vDir = m_vCurrentGoal - centroid;
 
     // Rotate the dir
-    vDir[0] = m_Path.CurrentDelta()[0];
-    vDir[1] = m_Path.CurrentDelta()[1];
+    if (m_Path.CurrentNode()) {
+        vDir[0] = m_Path.CurrentDelta()[0];
+        vDir[1] = m_Path.CurrentDelta()[1];
+    } else {
+        vDir = m_vCurrentGoal - origin;
+    }
     vDir[2] = 0;
-    VectorNormalize(vDir);
+
+    VectorNormalize2D(vDir);
     vAngles = vDir.toAngles() - angles;
     vAngles.AngleVectorsLeft(&vWishDir);
 
@@ -297,11 +298,11 @@ void PlayerBot::MoveThink(void)
     m_vLastValidGoal = m_vCurrentGoal;
 
     // Forward to the specified direction
-    float x = vWishDir.x * 255.0f;
-    float y = -vWishDir.y * 255.0f;
+    float x = vWishDir.x * 127;
+    float y = -vWishDir.y * 127;
 
-    m_botCmd.forwardmove = (signed char)(x > 127 ? 127 : x < -127 ? -127 : x);
-    m_botCmd.rightmove   = (signed char)(y > 127 ? 127 : y < -127 ? -127 : y);
+    m_botCmd.forwardmove = (signed char)Q_clamp(x, -127, 127);
+    m_botCmd.rightmove   = (signed char)Q_clamp(y, -127, 127);
     CheckJump();
 
     Weapon *pWeap = GetActiveWeapon(WEAPON_MAIN);
@@ -426,6 +427,7 @@ void PlayerBot::UpdateBotStates(void)
     }
 
     m_botCmd.buttons |= BUTTON_RUN;
+    m_botCmd.serverTime = level.svsTime;
 
     m_botEyes.ofs[0]    = 0;
     m_botEyes.ofs[1]    = 0;
@@ -721,7 +723,7 @@ Returns true if the bot has done moving
 */
 bool PlayerBot::MoveDone(void)
 {
-    return !m_Path.LastNode() || m_Path.Complete(origin);
+    return !m_Path.CurrentNode() || m_Path.Complete(origin);
 }
 
 /*
@@ -1293,11 +1295,18 @@ void PlayerBot::Killed(Event *ev)
     m_botEyes.angles[0] = 0;
     m_botEyes.angles[1] = 0;
 
-    m_vLastDeathPos = origin;
+    if (rand() % 5 == 0) {
+        // 1/5 chance to go back to the last death position
+        m_vLastDeathPos = origin;
+    } else {
+        m_vLastDeathPos = vec_zero;
+    }
 
     // Choose a new random primary weapon
     Event event(EV_Player_PrimaryDMWeapon);
     event.AddString("auto");
+
+    ProcessEvent(event);
 }
 
 void PlayerBot::GotKill(Event *ev)
