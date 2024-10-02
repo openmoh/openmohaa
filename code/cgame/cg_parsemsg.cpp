@@ -1576,7 +1576,11 @@ void CG_ParseCGMessage_ver_15()
 
         case CGM_HUDDRAW_SHADER:
             iInfo = cgi.MSG_ReadByte();
-            Q_strncpyz(cgi.HudDrawElements[iInfo].shaderName, cgi.MSG_ReadString(), sizeof(cgi.HudDrawElements[iInfo].shaderName));
+            Q_strncpyz(
+                cgi.HudDrawElements[iInfo].shaderName,
+                cgi.MSG_ReadString(),
+                sizeof(cgi.HudDrawElements[iInfo].shaderName)
+            );
             cgi.HudDrawElements[iInfo].string[0]   = 0;
             cgi.HudDrawElements[iInfo].pFont       = NULL;
             cgi.HudDrawElements[iInfo].fontName[0] = 0;
@@ -1618,12 +1622,16 @@ void CG_ParseCGMessage_ver_15()
         case CGM_HUDDRAW_STRING:
             iInfo                              = cgi.MSG_ReadByte();
             cgi.HudDrawElements[iInfo].hShader = 0;
-            Q_strncpyz(cgi.HudDrawElements[iInfo].string, cgi.MSG_ReadString(), sizeof(cgi.HudDrawElements[iInfo].string));
+            Q_strncpyz(
+                cgi.HudDrawElements[iInfo].string, cgi.MSG_ReadString(), sizeof(cgi.HudDrawElements[iInfo].string)
+            );
             break;
 
         case CGM_HUDDRAW_FONT:
             iInfo = cgi.MSG_ReadByte();
-            Q_strncpyz(cgi.HudDrawElements[iInfo].fontName, cgi.MSG_ReadString(), sizeof(cgi.HudDrawElements[iInfo].fontName));
+            Q_strncpyz(
+                cgi.HudDrawElements[iInfo].fontName, cgi.MSG_ReadString(), sizeof(cgi.HudDrawElements[iInfo].fontName)
+            );
             cgi.HudDrawElements[iInfo].hShader       = 0;
             cgi.HudDrawElements[iInfo].shaderName[0] = 0;
             // load the font
@@ -1632,11 +1640,12 @@ void CG_ParseCGMessage_ver_15()
 
         case CGM_NOTIFY_KILL:
         case CGM_NOTIFY_HIT:
-            {
-                const char* soundName;
-                int iOldEnt;
+            if (cg.snap) {
+                const char *soundName;
+                int         iOldEnt;
 
-                iOldEnt               = current_entity_number;
+                iOldEnt = current_entity_number;
+
                 current_entity_number = cg.snap->ps.clientNum;
                 if (iType == CGM_NOTIFY_HIT) {
                     soundName = "dm_kill_notify";
@@ -1958,7 +1967,11 @@ void CG_ParseCGMessage_ver_6()
 
         case CGM6_HUDDRAW_SHADER:
             iInfo = cgi.MSG_ReadByte();
-            Q_strncpyz(cgi.HudDrawElements[iInfo].shaderName, cgi.MSG_ReadString(), sizeof(cgi.HudDrawElements[iInfo].shaderName));
+            Q_strncpyz(
+                cgi.HudDrawElements[iInfo].shaderName,
+                cgi.MSG_ReadString(),
+                sizeof(cgi.HudDrawElements[iInfo].shaderName)
+            );
             cgi.HudDrawElements[iInfo].string[0]   = 0;
             cgi.HudDrawElements[iInfo].pFont       = NULL;
             cgi.HudDrawElements[iInfo].fontName[0] = 0;
@@ -2000,12 +2013,16 @@ void CG_ParseCGMessage_ver_6()
         case CGM6_HUDDRAW_STRING:
             iInfo                              = cgi.MSG_ReadByte();
             cgi.HudDrawElements[iInfo].hShader = 0;
-            Q_strncpyz(cgi.HudDrawElements[iInfo].string, cgi.MSG_ReadString(), sizeof(cgi.HudDrawElements[iInfo].string));
+            Q_strncpyz(
+                cgi.HudDrawElements[iInfo].string, cgi.MSG_ReadString(), sizeof(cgi.HudDrawElements[iInfo].string)
+            );
             break;
 
         case CGM6_HUDDRAW_FONT:
             iInfo = cgi.MSG_ReadByte();
-            Q_strncpyz(cgi.HudDrawElements[iInfo].fontName, cgi.MSG_ReadString(), sizeof(cgi.HudDrawElements[iInfo].fontName));
+            Q_strncpyz(
+                cgi.HudDrawElements[iInfo].fontName, cgi.MSG_ReadString(), sizeof(cgi.HudDrawElements[iInfo].fontName)
+            );
             cgi.HudDrawElements[iInfo].hShader       = 0;
             cgi.HudDrawElements[iInfo].shaderName[0] = 0;
             // load the font
@@ -2014,10 +2031,11 @@ void CG_ParseCGMessage_ver_6()
 
         case CGM6_NOTIFY_KILL:
         case CGM6_NOTIFY_HIT:
-            {
+            if (cg.snap) {
                 int iOldEnt;
 
-                iOldEnt               = current_entity_number;
+                iOldEnt = current_entity_number;
+
                 current_entity_number = cg.snap->ps.clientNum;
                 if (iType == CGM6_NOTIFY_HIT) {
                     commandManager.PlaySound("dm_kill_notify", NULL, CHAN_LOCAL, 2.0, -1, -1, 1);
