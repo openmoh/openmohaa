@@ -1572,6 +1572,18 @@ void Sentient::ArmorDamage(Event *ev)
 
         health = 0;
 
+        if (attacker) {
+            // Added in OPM
+            event = new Event(EV_GotKill);
+            event->AddEntity(this);
+            event->AddInteger(damage);
+            event->AddEntity(inflictor);
+            event->AddInteger(meansofdeath);
+            event->AddInteger(0);
+
+            attacker->ProcessEvent(event);
+        }
+
         event = new Event(EV_Killed, 10);
         event->AddEntity(attacker);
         event->AddFloat(damage);
