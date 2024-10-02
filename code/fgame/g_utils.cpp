@@ -2116,7 +2116,11 @@ G_PrintDeathMessageEmulated(const char *s1, const char *s2, char *attackerName, 
         return va("%c%s %s\n", hudColor, victimName, result1);
     } else if (tolower(type) == 'p') {
         if (*s2 == 'x') {
-            return va("%c%s %s %s\n", hudColor, victimName, result1, attackerName);
+            if (s2[1] && s2[2]) {
+                return va("%c%s %s %s %s\n", hudColor, victimName, result1, attackerName, s2 + 2);
+            } else {
+                return va("%c%s %s %s\n", hudColor, victimName, result1, attackerName);
+            }
         } else {
             return va("%c%s %s %s%s\n", hudColor, victimName, result1, attackerName, result2);
         }

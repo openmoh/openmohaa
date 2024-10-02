@@ -2783,13 +2783,13 @@ void Player::Obituary(Entity *attacker, Entity *inflictor, int meansofdeath, int
         }
 
         if (bDispLocation && g_obituarylocation->integer) {
-            str szConv1 = s1 + str(" ") + G_LocationNumToDispString(iLocation);
+            str szConv2 = s2 + " in the " + G_LocationNumToDispString(iLocation);
 
             if (dedicated->integer) {
-                gi.Printf("%s %s\n", client->pers.netname, gi.LV_ConvertString(szConv1.c_str()));
+                gi.Printf("%s %s\n", client->pers.netname, gi.LV_ConvertString(szConv2.c_str()));
             }
 
-            G_PrintDeathMessage(szConv1, s2.c_str(), "x", client->pers.netname, this, "s");
+            G_PrintDeathMessage(s1, szConv2.c_str(), "x", client->pers.netname, this, "s");
         } else {
             if (dedicated->integer) {
                 gi.Printf("%s %s\n", client->pers.netname, gi.LV_ConvertString(s1.c_str()));
@@ -2904,20 +2904,20 @@ void Player::Obituary(Entity *attacker, Entity *inflictor, int meansofdeath, int
         }
 
         if (bDispLocation && g_obituarylocation->integer) {
-            str szConv1 = s1 + str(" ") + G_LocationNumToDispString(iLocation);
+            str szConv2 = s2 + " in the " + G_LocationNumToDispString(iLocation);
 
             G_PrintDeathMessage(
-                szConv1.c_str(), s2.c_str(), attacker->client->pers.netname, client->pers.netname, this, "p"
+                s1.c_str(), szConv2.c_str(), attacker->client->pers.netname, client->pers.netname, this, "p"
             );
 
             if (dedicated->integer) {
                 str szLoc1, szLoc2;
 
-                szLoc1 = gi.LV_ConvertString(szConv1.c_str());
+                szLoc1 = gi.LV_ConvertString(s1.c_str());
                 if (s2 == 'x') {
                     gi.Printf("%s %s %s\n", client->pers.netname, szLoc1.c_str(), attacker->client->pers.netname);
                 } else {
-                    szLoc2 = gi.LV_ConvertString(s2.c_str());
+                    szLoc2 = gi.LV_ConvertString(szConv2.c_str());
                     gi.Printf(
                         "%s %s %s%s\n",
                         client->pers.netname,
@@ -2991,9 +2991,9 @@ void Player::Obituary(Entity *attacker, Entity *inflictor, int meansofdeath, int
         }
 
         if (bDispLocation && g_obituarylocation->integer) {
-            str szConv1 = s1 + str(" ") + G_LocationNumToDispString(iLocation);
+            str szConv2 = s2 + " in the " + G_LocationNumToDispString(iLocation);
 
-            G_PrintDeathMessage(szConv1.c_str(), s2.c_str(), "x", client->pers.netname, this, "w");
+            G_PrintDeathMessage(s1.c_str(), szConv2.c_str(), "x", client->pers.netname, this, "w");
 
             if (dedicated->integer) {
                 gi.Printf("%s %s\n", client->pers.netname, gi.LV_ConvertString(s1.c_str()));
