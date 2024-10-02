@@ -31,9 +31,7 @@ BG_EvaluateTrajectoryDelta
 For determining velocity at a given time
 ================
 */
-void BG_EvaluateTrajectoryDelta( const trajectory_t *tr, int atTime, vec3_t result ) {
-
-}
+void BG_EvaluateTrajectoryDelta(const trajectory_t *tr, int atTime, vec3_t result) {}
 
 // FIXME: OLD Q3 CODE
 #if 0
@@ -50,9 +48,9 @@ qboolean BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
 {
 
 	gitem_t	*item;
-#ifdef MISSIONPACK
+#    ifdef MISSIONPACK
 	int		upperBound;
-#endif
+#    endif
 
 	if ( ent->modelindex < 1 || ent->modelindex >= bg_numItems ) {
 		Com_Error( ERR_DROP, "BG_CanItemBeGrabbed: index out of range" );
@@ -71,7 +69,7 @@ qboolean BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
 		return qtrue;
 
 	case IT_ARMOR:
-#ifdef MISSIONPACK
+#    ifdef MISSIONPACK
 		if( bg_itemlist[ps->stats[STAT_PERSISTANT_POWERUP]].giTag == PW_SCOUT ) {
 			return qfalse;
 		}
@@ -87,22 +85,22 @@ qboolean BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
 		if ( ps->stats[STAT_ARMOR] >= upperBound ) {
 			return qfalse;
 		}
-#else
+#    else
 		if ( ps->stats[STAT_ARMOR] >= ps->stats[STAT_MAX_HEALTH] * 2 ) {
 			return qfalse;
 		}
-#endif
+#    endif
 		return qtrue;
 
 	case IT_HEALTH:
 		// small and mega healths will go over the max, otherwise
 		// don't pick up if already at max
-#ifdef MISSIONPACK
+#    ifdef MISSIONPACK
 		if( bg_itemlist[ps->stats[STAT_PERSISTANT_POWERUP]].giTag == PW_GUARD ) {
 			upperBound = ps->stats[STAT_MAX_HEALTH];
 		}
 		else
-#endif
+#    endif
 		if ( item->quantity == 5 || item->quantity == 100 ) {
 			if ( ps->stats[STAT_HEALTH] >= ps->stats[STAT_MAX_HEALTH] * 2 ) {
 				return qfalse;
@@ -118,7 +116,7 @@ qboolean BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
 	case IT_POWERUP:
 		return qtrue;	// powerups are always picked up
 
-#ifdef MISSIONPACK
+#    ifdef MISSIONPACK
 	case IT_PERSISTANT_POWERUP:
 		// can only hold one item at a time
 		if ( ps->stats[STAT_PERSISTANT_POWERUP] ) {
@@ -134,10 +132,10 @@ qboolean BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
 		}
 
 		return qtrue;
-#endif
+#    endif
 
 	case IT_TEAM: // team items, such as flags
-#ifdef MISSIONPACK		
+#    ifdef MISSIONPACK		
 		if( gametype == GT_1FCTF ) {
 			// neutral flag can always be picked up
 			if( item->giTag == PW_NEUTRALFLAG ) {
@@ -153,7 +151,7 @@ qboolean BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
 				}
 			}
 		}
-#endif
+#    endif
 		if( gametype == GT_CTF ) {
 			// ent->modelindex2 is non-zero on items if they are dropped
 			// we need to know this because we can pick up our dropped flag (and return it)
@@ -171,11 +169,11 @@ qboolean BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
 			}
 		}
 
-#ifdef MISSIONPACK
+#    ifdef MISSIONPACK
 		if( gametype == GT_HARVESTER ) {
 			return qtrue;
 		}
-#endif
+#    endif
 		return qfalse;
 
 	case IT_HOLDABLE:
@@ -188,11 +186,11 @@ qboolean BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
         case IT_BAD:
             Com_Error( ERR_DROP, "BG_CanItemBeGrabbed: IT_BAD" );
         default:
-#ifndef Q3_VM
-#ifndef NDEBUG
+#    ifndef Q3_VM
+#        ifndef NDEBUG
           Com_Printf("BG_CanItemBeGrabbed: unknown enum %d\n", item->giType );
-#endif
-#endif
+#        endif
+#    endif
          break;
 	}
 
@@ -297,8 +295,7 @@ void BG_EvaluateTrajectoryDelta( const trajectory_t *tr, int atTime, vec3_t resu
 BG_TouchJumpPad
 ========================
 */
-void BG_TouchJumpPad( playerState_t *ps, entityState_t *jumppad ) {
-}
+void BG_TouchJumpPad(playerState_t *ps, entityState_t *jumppad) {}
 
 /*
 ========================
@@ -308,43 +305,41 @@ This is done after each set of usercmd_t on the server,
 and after local prediction on the client
 ========================
 */
-void BG_PlayerStateToEntityState( playerState_t *ps, entityState_t *s, qboolean snap )
+void BG_PlayerStateToEntityState(playerState_t *ps, entityState_t *s, qboolean snap)
 {
-	if ( ps->pm_type == PM_NOCLIP ) {
-		s->eType = 0;//ET_INVISIBLE;
-	//} else if ( ps->stats[STAT_HEALTH] <= GIB_HEALTH ) {
-	//	s->eType = 0;//ET_INVISIBLE;
-	} else {
-		s->eType = ET_PLAYER;
-	}
+    if (ps->pm_type == PM_NOCLIP) {
+        s->eType = 0; //ET_INVISIBLE;
+        //} else if ( ps->stats[STAT_HEALTH] <= GIB_HEALTH ) {
+        //	s->eType = 0;//ET_INVISIBLE;
+    } else {
+        s->eType = ET_PLAYER;
+    }
 
-	s->number = ps->clientNum;
+    s->number = ps->clientNum;
 
-	VectorCopy( ps->origin, s->origin );
-	if ( snap ) {
-		SnapVector( s->origin );
-	}
-	// set the trDelta for flag direction
-	VectorCopy( ps->velocity, s->pos.trDelta );
+    VectorCopy(ps->origin, s->origin);
+    if (snap) {
+        SnapVector(s->origin);
+    }
+    // set the trDelta for flag direction
+    VectorCopy(ps->velocity, s->pos.trDelta);
 
-	VectorCopy( ps->viewangles, s->angles );
-	if ( snap ) {
-		SnapVector( s->angles );
-	}
+    VectorCopy(ps->viewangles, s->angles);
+    if (snap) {
+        SnapVector(s->angles);
+    }
 
-	//s->angles2[YAW] = ps->movementDir;
-	s->clientNum = ps->clientNum;		// ET_PLAYER looks here instead of at number
-										// so corpses can also reference the proper config
-	//s->eFlags = ps->eFlags;
-	//if ( ps->stats[STAT_HEALTH] <= 0 ) {
-	//	s->eFlags |= EF_DEAD;
-	//} else {
-	//	s->eFlags &= ~EF_DEAD;
-	//}
+    //s->angles2[YAW] = ps->movementDir;
+    s->clientNum = ps->clientNum; // ET_PLAYER looks here instead of at number
+                                  // so corpses can also reference the proper config
+    //s->eFlags = ps->eFlags;
+    //if ( ps->stats[STAT_HEALTH] <= 0 ) {
+    //	s->eFlags |= EF_DEAD;
+    //} else {
+    //	s->eFlags &= ~EF_DEAD;
+    //}
 
-	
-	s->groundEntityNum = ps->groundEntityNum;
-
+    s->groundEntityNum = ps->groundEntityNum;
 }
 
 /*
@@ -355,37 +350,35 @@ This is done after each set of usercmd_t on the server,
 and after local prediction on the client
 ========================
 */
-void BG_PlayerStateToEntityStateExtraPolate( playerState_t *ps, entityState_t *s, int time, qboolean snap )
+void BG_PlayerStateToEntityStateExtraPolate(playerState_t *ps, entityState_t *s, int time, qboolean snap)
 {
-	if ( ps->pm_type == PM_NOCLIP ) {
-		s->eType = 0;//ET_INVISIBLE;
-	//} else if ( ps->stats[STAT_HEALTH] <= GIB_HEALTH ) {
-	//	s->eType = 0;//ET_INVISIBLE;
-	} else {
-		s->eType = ET_PLAYER;
-	}
+    if (ps->pm_type == PM_NOCLIP) {
+        s->eType = 0; //ET_INVISIBLE;
+        //} else if ( ps->stats[STAT_HEALTH] <= GIB_HEALTH ) {
+        //	s->eType = 0;//ET_INVISIBLE;
+    } else {
+        s->eType = ET_PLAYER;
+    }
 
-	s->number = ps->clientNum;
+    s->number = ps->clientNum;
 
-	VectorCopy( ps->origin, s->origin );
-	if ( snap ) {
-		SnapVector( s->origin );
-	}
-	// set the trDelta for flag direction and linear prediction
-	VectorCopy( ps->velocity, s->pos.trDelta );
-	// set the time for linear prediction
-	s->pos.trTime = time;
+    VectorCopy(ps->origin, s->origin);
+    if (snap) {
+        SnapVector(s->origin);
+    }
+    // set the trDelta for flag direction and linear prediction
+    VectorCopy(ps->velocity, s->pos.trDelta);
+    // set the time for linear prediction
+    s->pos.trTime = time;
 
-	VectorCopy( ps->viewangles, s->angles );
-	if ( snap ) {
-		SnapVector( s->angles );
-	}
-	s->clientNum = ps->clientNum;		// ET_PLAYER looks here instead of at number
-										// so corpses can also reference the proper config
+    VectorCopy(ps->viewangles, s->angles);
+    if (snap) {
+        SnapVector(s->angles);
+    }
+    s->clientNum = ps->clientNum; // ET_PLAYER looks here instead of at number
+                                  // so corpses can also reference the proper config
 
-
-	s->groundEntityNum = ps->groundEntityNum;
-
+    s->groundEntityNum = ps->groundEntityNum;
 }
 
 /*
@@ -398,30 +391,30 @@ and after local prediction on the client
 */
 int BG_MapCGMToProtocol(int protocol, int messageNumber)
 {
-	int newMessageNumber = messageNumber;
+    int newMessageNumber = messageNumber;
 
-	if (protocol >= PROTOCOL_MOHTA_MIN) {
-		// no need translation
-		return messageNumber;
-	}
+    if (protocol >= PROTOCOL_MOHTA_MIN) {
+        // no need translation
+        return messageNumber;
+    }
 
-	if (messageNumber > 40) {
-		// unsupported...
-		return messageNumber;
-	}
+    if (messageNumber > 40) {
+        // unsupported...
+        return messageNumber;
+    }
 
-	if (messageNumber >= 17) {
-		return messageNumber - 3;
-	}
+    if (messageNumber >= 17) {
+        return messageNumber - 3;
+    }
 
-	if (messageNumber == 15 || messageNumber == 16) {
-		// return explosion effect number 2
-		return 14;
-	}
+    if (messageNumber == 15 || messageNumber == 16) {
+        // return explosion effect number 2
+        return 14;
+    }
 
-	if (messageNumber > 10) {
-		return messageNumber - 1;
-	}
+    if (messageNumber > 10) {
+        return messageNumber - 1;
+    }
 
-	return newMessageNumber;
+    return newMessageNumber;
 }

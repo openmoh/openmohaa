@@ -254,7 +254,7 @@ void VoteOptions::ParseVoteOptions()
                 } else {
                     newOption->m_pListItem = newListItem;
                 }
-                listItem = newListItem;
+                listItem                 = newListItem;
                 newListItem->m_sItemName = token;
 
                 if (!script.TokenAvailable(false)) {
@@ -564,7 +564,7 @@ void CG_PushCallVoteSubClient_f(void)
         if (!strlen(cg.clientinfo[i].name)) {
             continue;
         }
-        
+
         VO_ExecuteCommand(
             va("globalwidgetcommand voteclientlist additem \"%i: %s\" \"callvote %i %i;popmenu 0\"\n",
                i,
