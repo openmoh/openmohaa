@@ -27,6 +27,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "consoleevent.h"
 #include "debuglines.h"
 #include "scriptexception.h"
+#include "vehicleturret.h"
+#include "weaputils.h"
 
 // We assume that we have limited access to the server-side
 // and that most logic come from the playerstate_s structure
@@ -840,20 +842,38 @@ Warn the bot of an event
 */
 void PlayerBot::NoticeEvent(Vector vPos, int iType, Entity *pEnt, float fDistanceSquared, float fRadiusSquared)
 {
-    // Ignore teammates
-    if (pEnt->IsSubclassOfPlayer()) {
-        Player *p = (Player *)pEnt;
+    Sentient* pSentOwner;
 
-        if (p->GetTeam() == GetTeam()) {
+    if (pEnt->IsSubclassOfSentient()) {
+        pSentOwner = static_cast<Sentient*>(pEnt);
+    } else if (pEnt->IsSubclassOfVehicleTurretGun()) {
+        VehicleTurretGun* pVTG = static_cast<VehicleTurretGun*>(pEnt);
+        pSentOwner = pVTG->GetSentientOwner();
+    } else if (pEnt->IsSubclassOfItem()) {
+        Item* pItem = static_cast<Item*>(pEnt);
+        pSentOwner = pItem->GetOwner();
+    } else if (pEnt->IsSubclassOfProjectile()) {
+        Projectile* pProj = static_cast<Projectile*>(pEnt);
+        pSentOwner = pProj->GetOwner();
+    } else {
+        pSentOwner = NULL;
+    }
+
+    if (pSentOwner) {
+        if (pSentOwner == this) {
+            // Ignore self
             return;
         }
-    } else if (pEnt->IsSubclassOfWeapon()) {
-        Weapon *pWeap = (Weapon *)pEnt;
 
-        if (pWeap->GetOwner()) {
-            Player *p = (Player *)pWeap->GetOwner();
+        if ((pSentOwner->flags & FL_NOTARGET) || pSentOwner->getSolidType() == SOLID_NOT) {
+            return;
+        }
 
-            if (p->IsSubclassOfPlayer() && p->GetTeam() == GetTeam()) {
+        // Ignore teammates
+        if (pSentOwner->IsSubclassOfPlayer()) {
+            Player* p = static_cast<Player*>(pSentOwner);
+
+            if (p->GetTeam() == GetTeam()) {
                 return;
             }
         }
