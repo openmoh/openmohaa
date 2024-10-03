@@ -10439,7 +10439,14 @@ void Player::EventDMMessage(Event *ev)
         }
 
         GetTeamDialogPrefix(sAliasName);
-        sAliasName += va("%c%c", (sToken[1] + '0'), (sToken[2] + '0'));
+        if (g_target_game >= target_game_e::TG_MOHTT && sToken[1] == '6') {
+            // Added in 2.30
+            //  Liberation messages
+            sAliasName += va("lib%c", (sToken[2] + '0'));
+        } else {
+            sAliasName += va("%c%c", (sToken[1] + '0'), (sToken[2] + '0'));
+        }
+        
         sRandomAlias = GetRandomAlias(sAliasName, &pSoundAlias);
 
         // find a random alias
