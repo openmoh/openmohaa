@@ -1393,6 +1393,12 @@ void UIFakkLabel::Draw(void)
             return;
         }
 
+        if (cl.snap.ps.activeItems[m_itemindex] < 0 || cl.snap.ps.activeItems[m_itemindex] >= MAX_WEAPONS) {
+            // Fixed in OPM
+            //  Make sure to not overflow configstrings
+            return;
+        }
+
         m_font->setColor(m_foreground_color);
 
         if (m_bOutlinedText) {
