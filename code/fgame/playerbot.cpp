@@ -1343,6 +1343,8 @@ void PlayerBot::Spawned(void)
 
 void PlayerBot::Killed(Event *ev)
 {
+    Entity* attacker;
+
     Player::Killed(ev);
 
     // send the respawn buttons
@@ -1358,9 +1360,11 @@ void PlayerBot::Killed(Event *ev)
     m_botEyes.angles[0] = 0;
     m_botEyes.angles[1] = 0;
 
-    if (rand() % 5 == 0) {
-        // 1/5 chance to go back to the last death position
-        m_vLastDeathPos = origin;
+    attacker = ev->GetEntity(1);
+
+    if (attacker && rand() % 5 == 0) {
+        // 1/5 chance to go back to the attacker position
+        m_vLastDeathPos = attacker->origin;
     } else {
         m_vLastDeathPos = vec_zero;
     }
