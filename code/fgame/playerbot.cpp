@@ -1029,7 +1029,10 @@ void PlayerBot::State_Idle(void)
                 m_vLastDeathPos = vec_zero;
             }
         } else {
-            AvoidPath(origin - Vector(orientation[0]) * 128.0f, 1024);
+            Vector randomDir(G_CRandom(1), G_CRandom(1), G_CRandom(1));
+            float radius = 512 + G_Random() * 4096;
+
+            AvoidPath(origin - Vector(orientation[0]) * 2.f, radius, randomDir);
         }
     }
 }
