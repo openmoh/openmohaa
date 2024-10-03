@@ -59,6 +59,7 @@ private:
     int                        m_iTempAwayTime;
     int                        m_iNumBlocks;
     int                        m_iCheckPathTime;
+    Vector                     m_vLastCheckPos[2];
     AttractiveNodePtr          m_pPrimaryAttract;
     float                      m_fAttractTime;
     Container<nodeAttract_t *> m_attractList;
@@ -180,4 +181,7 @@ public:
     void Killed(Event *ev) override;
     void GotKill(Event *ev);
     void EventStuffText(Event *ev);
+
+private:
+    void NewMove();
 };

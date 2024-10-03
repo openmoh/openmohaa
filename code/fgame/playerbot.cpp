@@ -241,12 +241,20 @@ void PlayerBot::MoveThink(void)
 
         m_iCheckPathTime = level.inttime + 2000;
 
-        if (m_iNumBlocks >= 10) {
+        if (m_iNumBlocks >= 5) {
             // Give up
             ClearMove();
         }
 
         if (GetMoveResult() >= MOVERESULT_BLOCKED || velocity.lengthSquared() <= Square(8)) {
+            m_bTempAway = true;
+        } else if ((origin - m_vLastCheckPos[0]).lengthSquared() <= Square(8) && (origin - m_vLastCheckPos[1]).lengthSquared() <= Square(8)) {
+            m_bTempAway = true;
+        } else {
+            m_bTempAway = false;
+        }
+
+        if (m_bTempAway) {
             m_bTempAway     = true;
             m_bDeltaMove    = false;
             m_iTempAwayTime = level.inttime + 750;
@@ -254,6 +262,7 @@ void PlayerBot::MoveThink(void)
 
             // Try to backward a little
             m_Path.Clear();
+            m_Path.ForceShortLookahead();
             m_vCurrentGoal = origin + Vector(G_Random(256) - 128, G_Random(256) - 128, G_Random(256) - 128);
         } else {
             m_iNumBlocks = 0;
@@ -263,6 +272,9 @@ void PlayerBot::MoveThink(void)
                 m_vCurrentGoal = m_vTargetPos;
             }
         }
+
+        m_vLastCheckPos[1] = m_vLastCheckPos[0];
+        m_vLastCheckPos[0] = origin;
     }
 
     if (ai_debugpath->integer) {
@@ -290,8 +302,6 @@ void PlayerBot::MoveThink(void)
             ClearMove();
         }
     }
-
-    //vDir = m_vCurrentGoal - centroid;
 
     // Rotate the dir
     if (m_Path.CurrentNode()) {
@@ -412,6 +422,7 @@ void PlayerBot::CheckUse(void)
     // It may be a door
     if ((trace.allsolid || trace.startsolid || trace.fraction != 1.0f) && trace.entityNum) {
         m_botCmd.buttons |= BUTTON_USE;
+        m_Path.ForceShortLookahead();
     }
 }
 
@@ -595,6 +606,20 @@ void PlayerBot::CheckReload(void)
 
 /*
 ====================
+NewMove
+
+Called when there is a new move
+====================
+*/
+void PlayerBot::NewMove() {
+    m_bPathing = true;
+    m_iCheckPathTime = level.inttime + 2000;
+    m_vLastCheckPos[0] = origin;
+    m_vLastCheckPos[1] = origin;
+}
+
+/*
+====================
 MoveTo
 
 Move to the specified position
@@ -602,9 +627,10 @@ Move to the specified position
 */
 void PlayerBot::MoveTo(Vector vPos, float *vLeashHome, float fLeashRadius)
 {
-    m_bPathing   = true;
     m_vTargetPos = vPos;
     m_Path.FindPath(origin, vPos, this, 0, vLeashHome, fLeashRadius * fLeashRadius);
+
+    NewMove();
 
     if (!m_Path.CurrentNode()) {
         m_bPathing = false;
@@ -773,8 +799,8 @@ Move near the specified position within the radius
 */
 void PlayerBot::MoveNear(Vector vNear, float fRadius, float *vLeashHome, float fLeashRadius)
 {
-    m_bPathing = true;
     m_Path.FindPathNear(origin, vNear, this, 0, fRadius * fRadius, vLeashHome, fLeashRadius * fLeashRadius);
+    NewMove();
 
     if (!m_Path.CurrentNode()) {
         m_bPathing = false;
@@ -804,8 +830,8 @@ void PlayerBot::AvoidPath(
         vDir = vPreferredDir;
     }
 
-    m_bPathing = true;
     m_Path.FindPathAway(origin, vAvoid, vDir, this, fAvoidRadius, vLeashHome, fLeashRadius * fLeashRadius);
+    NewMove();
 
     if (!m_Path.CurrentNode()) {
         // Random movements
