@@ -146,31 +146,15 @@ void PlayerBot::TurnThink(void)
         m_vTargetAng[i]  = AngleMod(m_vTargetAng[i]);
         diff             = AngleDifference(m_vCurrentAng[i], m_vTargetAng[i]);
         desired_speed    = diff * factor;
-        m_vAngSpeed[i] += (m_vAngSpeed[i] - desired_speed);
 
-        if (m_vAngSpeed[i] > 180) {
-            m_vAngSpeed[i] = maxchange;
-        }
-
-        if (m_vAngSpeed[i] < -180) {
-            m_vAngSpeed[i] = -maxchange;
-        }
-
-        anglespeed = m_vAngSpeed[i];
-
-        if (anglespeed > maxchange) {
-            anglespeed = maxchange;
-        }
-
-        if (anglespeed < -maxchange) {
-            anglespeed = -maxchange;
-        }
+        m_vAngSpeed[i] = Q_clamp_float(m_vAngSpeed[i] + (m_vAngSpeed[i] - desired_speed), -180, 180);
+        anglespeed = Q_clamp_float(m_vAngSpeed[i], -maxchange, maxchange);
 
         m_vCurrentAng[i] += anglespeed;
         m_vCurrentAng[i] = AngleMod(m_vCurrentAng[i]);
 
         //demping
-        m_vAngSpeed[i] *= 0.45 * (1 - factor);
+        m_vAngSpeed[i] *= 0.2 * (1 - factor);
     }
 
     if (m_vCurrentAng[PITCH] > 180) {
@@ -458,8 +442,6 @@ void PlayerBot::UpdateBotStates(void)
     m_botEyes.angles[0] = 0;
     m_botEyes.angles[1] = 0;
 
-    SetTargetAngles(Vector(0, 90, 0));
-
     CheckStates();
 
     MoveThink();
@@ -579,8 +561,14 @@ Make the bot face toward the current path
 */
 void PlayerBot::AimAtAimNode(void)
 {
-    if (m_Path.CurrentDelta()) {
-        AimAt(origin + m_Path.CurrentDelta());
+    if (!m_bPathing) {
+        return;
+    }
+
+    if (m_Path.CurrentNode()) {
+        if (!m_Path.Complete(origin)) {
+            AimAt(origin + Vector(m_Path.CurrentDelta()[0], m_Path.CurrentDelta()[1], 0));
+        }
     } else {
         AimAt(m_vCurrentGoal);
     }
