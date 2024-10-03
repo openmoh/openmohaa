@@ -120,6 +120,7 @@ private:
     void        State_BeginAttack(void);
     void        State_EndAttack(void);
     void        State_Attack(void);
+    bool        IsValidEnemy(Sentient *sent) const;
 
     static void InitState_Grenade(botfunc_t *func);
     bool        CheckCondition_Grenade(void);

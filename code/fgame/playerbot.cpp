@@ -1121,6 +1121,42 @@ static int sentients_compare(const void *elem1, const void *elem2)
     }
 }
 
+bool PlayerBot::IsValidEnemy(Sentient* sent) const {
+    if (sent == this) {
+        return false;
+    }
+
+    if (sent->hidden() || (sent->flags & FL_NOTARGET)) {
+        // Ignore hidden / non-target enemies
+        return false;
+    }
+
+    if (sent->IsDead()) {
+        // Ignore dead enemies
+        return false;
+    }
+
+    if (sent->getSolidType() == SOLID_NOT) {
+        // Ignore non-solid, like spectators
+        return false;
+    }
+
+    if (sent->IsSubclassOfPlayer()) {
+        Player* player = static_cast<Player*>(sent);
+
+        if (g_gametype->integer >= GT_TEAM && player->GetTeam() == GetTeam()) {
+            return false;
+        }
+    }
+    else {
+        if (sent->m_Team == m_Team) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 bool PlayerBot::CheckCondition_Attack(void)
 {
     Container<Sentient *> sents = SentientList;
@@ -1131,28 +1167,9 @@ bool PlayerBot::CheckCondition_Attack(void)
 
     for (int i = 1; i <= sents.NumObjects(); i++) {
         Sentient *sent   = sents.ObjectAt(i);
-        Player   *player = (Player *)sent;
 
-        if (sent == this) {
+        if (!IsValidEnemy(sent)) {
             continue;
-        }
-
-        if (sent->hidden()) {
-            continue;
-        }
-
-        if (sent->IsDead()) {
-            continue;
-        }
-
-        if (sent->IsSubclassOfPlayer()) {
-            if (g_gametype->integer >= GT_TEAM && player->GetTeam() == GetTeam()) {
-                continue;
-            }
-        } else {
-            if (sent->m_Team == m_Team) {
-                continue;
-            }
         }
 
         maxDistance = Q_min(world->m_fAIVisionDistance, world->farplane_distance * 0.828);
@@ -1183,17 +1200,15 @@ void PlayerBot::State_EndAttack(void)
 
 void PlayerBot::State_Attack(void)
 {
-    Player *p                   = (Player *)m_pEnemy.Pointer();
     bool    bMelee              = false;
     float   fMinDistance        = 128;
     float   fMinDistanceSquared = fMinDistance * fMinDistance;
 
-    if (!m_pEnemy || m_pEnemy->IsDead() || (!p->IsSubclassOfPlayer() && m_pEnemy->m_Team == m_Team)
-        || (g_gametype->integer >= GT_TEAM && p->GetTeam() == GetTeam())) {
+    if (!m_pEnemy || !IsValidEnemy(m_pEnemy)) {
+        // Ignore dead enemies
         m_iAttackTime = 0;
         return;
     }
-
     float fDistanceSquared = (m_pEnemy->origin - origin).lengthSquared();
 
     if (CanSee(m_pEnemy, 20, world->m_fAIVisionDistance, false)) {
