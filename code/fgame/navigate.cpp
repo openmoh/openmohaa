@@ -662,7 +662,6 @@ int PathSearch::FindPathAway(
     PathNode  *next;
     int        f;
     float      fBias;
-    vec2_t     dir;
     vec2_t     delta;
     float      fMinSafeDistSquared;
 
@@ -687,13 +686,13 @@ int PathSearch::FindPathAway(
     open = NULL;
 
     VectorSub2D(Node->origin, start, path_startdir);
-    VectorSub2D(start, avoid, dir);
+    VectorSub2D(start, avoid, delta);
 
     fBias = VectorLength2D(vPreferredDir);
 
     Node->inopen = true;
     Node->g      = VectorNormalize2D(path_startdir);
-    Node->h      = fMinSafeDist - VectorNormalize2D(dir);
+    Node->h      = fMinSafeDist - VectorNormalize2D(delta);
     Node->h += fBias - DotProduct2D(vPreferredDir, delta);
     Node->Parent    = NULL;
     Node->m_Depth   = 2;
@@ -758,9 +757,9 @@ int PathSearch::FindPathAway(
                 }
             }
 
-            VectorSub2D(pathway->pos2, avoid, dir);
-            NewNode->h = VectorNormalize2D(dir);
-            NewNode->h += fBias - DotProduct2D(dir, vPreferredDir);
+            VectorSub2D(pathway->pos2, avoid, delta);
+            NewNode->h = VectorNormalize2D(delta);
+            NewNode->h += fBias - DotProduct2D(delta, vPreferredDir);
 
             f = (int)((float)g + NewNode->h);
 
