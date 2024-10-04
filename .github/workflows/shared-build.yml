@@ -172,9 +172,12 @@ jobs:
     # Packages
     ###
 
-    - name: Install required packages
-      run: |
-        choco install -y ninja
+    #
+    # Commented out for now, chocolatey servers started complaining about too many requests
+    #
+    #- name: Install required packages
+    #  run: |
+    #    choco install -y ninja
 
     - name: Install Flex/Bison
       working-directory: ${{github.workspace}}
@@ -185,21 +188,21 @@ jobs:
         cmake --build winflexbison-build --config Release --parallel
         cmake --install winflexbison-build
 
-    - name: Settings
-      working-directory: ${{github.workspace}}
-      run: |
-        echo "CMAKE_GENERATOR=Ninja" >> $env:GITHUB_ENV
-        echo "CC=cl.exe" >> $env:GITHUB_ENV
-        echo "CXX=cl.exe" >> $env:GITHUB_ENV
-        pushd "$($env:PROGRAMFILES)\Microsoft Visual Studio\*\*\VC\Auxiliary\Build"
-        cmd /c "vcvarsall.bat ${{ matrix.architecture.toolset }} & set" | ForEach-Object {
-          if ($_ -match "=") {
-            # Split into key=value
-            $var = $_.split("=", 2);
-            echo "$($var[0])=$($var[1])" >> $env:GITHUB_ENV
-          }
-        }
-        popd
+    #- name: Settings
+    #  working-directory: ${{github.workspace}}
+    #  run: |
+    #    echo "CMAKE_GENERATOR=Ninja" >> $env:GITHUB_ENV
+    #    echo "CC=cl.exe" >> $env:GITHUB_ENV
+    #    echo "CXX=cl.exe" >> $env:GITHUB_ENV
+    #    pushd "$($env:PROGRAMFILES)\Microsoft Visual Studio\*\*\VC\Auxiliary\Build"
+    #    cmd /c "vcvarsall.bat ${{ matrix.architecture.toolset }} & set" | ForEach-Object {
+    #      if ($_ -match "=") {
+    #        # Split into key=value
+    #        $var = $_.split("=", 2);
+    #        echo "$($var[0])=$($var[1])" >> $env:GITHUB_ENV
+    #      }
+    #    }
+    #    popd
 
     ###
     # SDL
@@ -212,7 +215,7 @@ jobs:
       with:
         version: sdl2-latest
         build-type: Release
-        cmake-arguments: ""
+        cmake-arguments: "-A ${{ matrix.architecture.config }}"
 
     ###
     # OpenAL
@@ -231,7 +234,7 @@ jobs:
     - name: Configure and install soft-oal
       working-directory: ${{github.workspace}}/thirdparties/soft-oal
       run: |
-        cmake -B ./build `
+        cmake -B ./build -A ${{ matrix.architecture.config }} `
         -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} `
         -DCMAKE_INSTALL_PREFIX='${{github.workspace}}/thirdparties/soft-oal/install' `
         -DALSOFT_BUILD_ROUTER=OFF `
@@ -259,7 +262,7 @@ jobs:
 
     - name: CMake Settings
       run: |
-        echo "CMAKE_PARAM= `
+        echo "CMAKE_PARAM=-A ${{ matrix.architecture.config }} `
         --log-level=VERBOSE `
         -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} `
         -DCMAKE_INSTALL_PREFIX='${{github.workspace}}/install' `
