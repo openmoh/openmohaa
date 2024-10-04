@@ -225,7 +225,7 @@ void PlayerBot::MoveThink(void)
 
         m_bDeltaMove = false;
 
-        m_iCheckPathTime = level.inttime + 2000;
+        m_iCheckPathTime = level.inttime + 1000;
 
         if (m_iNumBlocks >= 5) {
             // Give up
@@ -234,7 +234,7 @@ void PlayerBot::MoveThink(void)
 
         if (GetMoveResult() >= MOVERESULT_BLOCKED || velocity.lengthSquared() <= Square(8)) {
             m_bTempAway = true;
-        } else if ((origin - m_vLastCheckPos[0]).lengthSquared() <= Square(8) && (origin - m_vLastCheckPos[1]).lengthSquared() <= Square(8)) {
+        } else if ((origin - m_vLastCheckPos[0]).lengthSquared() <= Square(32) && (origin - m_vLastCheckPos[1]).lengthSquared() <= Square(32)) {
             m_bTempAway = true;
         } else {
             m_bTempAway = false;
@@ -249,12 +249,12 @@ void PlayerBot::MoveThink(void)
             // Try to backward a little
             m_Path.Clear();
             m_Path.ForceShortLookahead();
-            m_vCurrentGoal = origin + Vector(G_Random(256) - 128, G_Random(256) - 128, G_Random(256) - 128);
+            m_vCurrentGoal = origin + Vector(G_CRandom(512), G_CRandom(512), G_CRandom(512));
         } else {
             m_iNumBlocks = 0;
 
             if (!m_Path.CurrentNode()) {
-                m_vTargetPos = origin + Vector(G_Random(256) - 128, G_Random(256) - 128, G_Random(256) - 128);
+                m_vTargetPos = origin + Vector(G_CRandom(512), G_CRandom(512), G_CRandom(512));
                 m_vCurrentGoal = m_vTargetPos;
             }
         }
@@ -327,12 +327,7 @@ void PlayerBot::CheckJump(void)
     Vector  dir;
     trace_t trace;
 
-    if (!m_Path.CurrentNode()) {
-        return;
-    }
-
-    dir = m_Path.CurrentDelta();
-    VectorNormalizeFast(dir);
+    dir = m_vLastValidDir;
 
     if (ai_debugpath->integer) {
         G_DebugLine(origin + Vector(0, 0, STEPSIZE), origin + Vector(0, 0, STEPSIZE) + dir * 32, 1, 0, 1, 1);
