@@ -1207,6 +1207,8 @@ void PlayerBot::State_Attack(void)
     bool    bMelee              = false;
     float   fMinDistance        = 128;
     float   fMinDistanceSquared = fMinDistance * fMinDistance;
+    Weapon* pWeap = GetActiveWeapon(WEAPON_MAIN);
+    bool    bNoMove = false;
 
     if (!m_pEnemy || !IsValidEnemy(m_pEnemy)) {
         // Ignore dead enemies
@@ -1216,8 +1218,6 @@ void PlayerBot::State_Attack(void)
     float fDistanceSquared = (m_pEnemy->origin - origin).lengthSquared();
 
     if (CanSee(m_pEnemy, 20, world->m_fAIVisionDistance, false)) {
-        Weapon *pWeap = GetActiveWeapon(WEAPON_MAIN);
-
         if (!pWeap) {
             return;
         }
@@ -1226,6 +1226,19 @@ void PlayerBot::State_Attack(void)
         float fPrimaryBulletRangeSquared   = fPrimaryBulletRange * fPrimaryBulletRange;
         float fSecondaryBulletRange        = pWeap->GetBulletRange(FIRE_SECONDARY);
         float fSecondaryBulletRangeSquared = fSecondaryBulletRange * fSecondaryBulletRange;
+
+        //
+        // check the fire movement speed if the weapon has a max fire movement
+        //
+        if (pWeap->m_fMaxFireMovement < 1 && pWeap->HasAmmoInClip(FIRE_PRIMARY)) {
+            float length;
+
+            length = velocity.length();
+            if ((length / sv_runspeed->value) > (pWeap->m_fMaxFireMovement * pWeap->m_fMovementSpeed)) {
+                bNoMove = true;
+                ClearMove();
+            }
+        }
 
         fMinDistance = fPrimaryBulletRange;
 
@@ -1265,6 +1278,10 @@ void PlayerBot::State_Attack(void)
 
     m_vOldEnemyPos  = m_vLastEnemyPos;
     m_vLastEnemyPos = m_pEnemy->centroid;
+
+    if (bNoMove) {
+        return;
+    }
 
     if ((!MoveToBestAttractivePoint(5) && !IsMoving()) || (m_vOldEnemyPos != m_vLastEnemyPos && !MoveDone())) {
         if (!bMelee) {
