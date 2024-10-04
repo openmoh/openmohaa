@@ -74,8 +74,19 @@ void Health::PickupHealth(Event *ev)
 
     player = (Player *)other;
 
-    if (player->health >= player->max_health) {
-        return;
+    if (g_healrate->value && other->IsSubclassOfPlayer()) {
+        // Added in OPM
+        //  OG doesn't check if the future health will be full
+        //  which is problematic as other can pickup the item
+        //  will healing
+        if (player->m_fHealRate + player->health >= player->max_health) {
+            // will be healing to 100%
+            return;
+        }
+    } else {
+        if (player->health >= player->max_health) {
+            return;
+        }
     }
 
     if (!ItemPickup(other, qfalse)) {
