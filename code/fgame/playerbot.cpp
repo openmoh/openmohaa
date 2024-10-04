@@ -582,12 +582,12 @@ void PlayerBot::AimAtAimNode(void)
         return;
     }
 
-    if (m_Path.CurrentNode()) {
-        if (!m_Path.Complete(origin)) {
-            AimAt(origin + Vector(m_Path.CurrentDelta()[0], m_Path.CurrentDelta()[1], 0));
-        }
-    } else {
+    if (!m_Path.CurrentNode()) {
         AimAt(m_vCurrentGoal);
+    } else if (!m_Path.Complete(origin)) {
+        AimAt(origin + Vector(m_Path.CurrentDelta()[0], m_Path.CurrentDelta()[1], 0));
+        //int maxIndex = Q_min(3, m_Path.CurrentNode() - m_Path.LastNode());
+        //AimAt((m_Path.CurrentNode() - maxIndex)->point);
     }
 
     m_vTargetAng[PITCH] = 0;
@@ -1237,7 +1237,7 @@ void PlayerBot::State_Attack(void)
     }
     float fDistanceSquared = (m_pEnemy->origin - origin).lengthSquared();
 
-    if (CanSee(m_pEnemy, 20, world->m_fAIVisionDistance, false)) {
+    if (CanSee(m_pEnemy, 20, Q_min(world->m_fAIVisionDistance, world->farplane_distance * 0.828), false)) {
         if (!pWeap) {
             return;
         }
@@ -1294,10 +1294,10 @@ void PlayerBot::State_Attack(void)
         fMinDistanceSquared = 0;
     }
 
-    AimAt(m_vLastEnemyPos);
-
     m_vOldEnemyPos  = m_vLastEnemyPos;
     m_vLastEnemyPos = m_pEnemy->centroid;
+
+    AimAt(m_vLastEnemyPos + Vector(G_CRandom(8), G_CRandom(8), G_CRandom(8)));
 
     if (bNoMove) {
         return;
