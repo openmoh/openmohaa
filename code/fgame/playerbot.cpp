@@ -304,7 +304,7 @@ void PlayerBot::MoveThink(void)
     vAngles = vDir.toAngles() - angles;
     vAngles.AngleVectorsLeft(&vWishDir);
 
-    m_vLastValidDir  = vWishDir;
+    m_vLastValidDir  = vDir;
     m_vLastValidGoal = m_vCurrentGoal;
 
     // Forward to the specified direction
@@ -331,36 +331,54 @@ void PlayerBot::CheckJump(void)
 
     dir = m_vLastValidDir;
 
-    if (ai_debugpath->integer) {
-        G_DebugLine(origin + Vector(0, 0, STEPSIZE), origin + Vector(0, 0, STEPSIZE) + dir * 32, 1, 0, 1, 1);
-        G_DebugLine(origin + Vector(0, 0, STEPSIZE * 3), origin + Vector(0, 0, STEPSIZE * 3) + dir * 32, 1, 0, 1, 1);
-    }
-
     start = origin + Vector(0, 0, STEPSIZE);
     end   = origin + Vector(0, 0, STEPSIZE) + dir * (maxs.y - mins.y);
+
+    if (ai_debugpath->integer) {
+        G_DebugLine(start, end, 1, 0, 1, 1);
+    }
 
     // Check if the bot needs to jump
     trace = G_Trace(start, mins, maxs, end, this, MASK_PLAYERSOLID, false, "PlayerBot::CheckJump");
 
     // No need to jump
-    if (trace.fraction >= 0.95f) {
+    if (trace.fraction > 0.5f) {
         m_botCmd.upmove = 0;
         return;
     }
 
-    start = origin + Vector(0, 0, STEPSIZE * 2);
-    end   = origin + Vector(0, 0, STEPSIZE * 2) + dir * (maxs.y - mins.y);
+    start = origin;
+    end   = origin + Vector(0, 0, STEPSIZE * 3);
 
-    // Check if the bot can jump
+    if (ai_debugpath->integer) {
+        G_DebugLine(start, end, 1, 0, 1, 1);
+    }
+
+    // Check if the bot can jump up
     trace = G_Trace(start, mins, maxs, end, this, MASK_PLAYERSOLID, true, "PlayerBot::CheckJump");
 
+    start = trace.endpos;
+    end = trace.endpos + dir * (maxs.y - mins.y);
+
+    if (ai_debugpath->integer) {
+        G_DebugLine(start, end, 1, 0, 1, 1);
+    }
+
+    Vector bounds[2];
+    bounds[0] = Vector(mins[0], mins[1], 0);
+    bounds[1] = Vector(maxs[0], maxs[1], (maxs[0] + maxs[1]) * 0.5);
+
+    // Check if the bot can jump at the location
+    trace = G_Trace(start, bounds[0], bounds[1], end, this, MASK_PLAYERSOLID, false, "PlayerBot::CheckJump");
+
+    if (trace.fraction < 1) {
+        m_botCmd.upmove = 0;
+        return;
+    }
+
     // Make the bot climb walls
-    if (trace.fraction >= 0.95f) {
-        if (!m_botCmd.upmove) {
-            m_botCmd.upmove = 127;
-        } else {
-            m_botCmd.upmove = 0;
-        }
+    if (!m_botCmd.upmove) {
+        m_botCmd.upmove = 127;
     } else {
         m_botCmd.upmove = 0;
     }
