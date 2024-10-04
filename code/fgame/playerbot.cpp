@@ -426,7 +426,7 @@ void PlayerBot::UpdateBotStates(void)
         return;
     }
 
-    if (IsDead() || m_bShouldRespawn) {
+    if (IsDead() || IsSpectator()) {
         // The bot should respawn
         m_botCmd.buttons ^= BUTTON_ATTACKLEFT;
         return;
