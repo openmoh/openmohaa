@@ -232,35 +232,37 @@ void PlayerBot::MoveThink(void)
             ClearMove();
         }
 
-        if (GetMoveResult() >= MOVERESULT_BLOCKED || velocity.lengthSquared() <= Square(8)) {
-            m_bTempAway = true;
-        } else if ((origin - m_vLastCheckPos[0]).lengthSquared() <= Square(32) && (origin - m_vLastCheckPos[1]).lengthSquared() <= Square(32)) {
-            m_bTempAway = true;
-        } else {
-            m_bTempAway = false;
-        }
-
-        if (m_bTempAway) {
-            m_bTempAway     = true;
-            m_bDeltaMove    = false;
-            m_iTempAwayTime = level.inttime + 750;
-            m_iNumBlocks++;
-
-            // Try to backward a little
-            m_Path.Clear();
-            m_Path.ForceShortLookahead();
-            m_vCurrentGoal = origin + Vector(G_CRandom(512), G_CRandom(512), G_CRandom(512));
-        } else {
-            m_iNumBlocks = 0;
-
-            if (!m_Path.CurrentNode()) {
-                m_vTargetPos = origin + Vector(G_CRandom(512), G_CRandom(512), G_CRandom(512));
-                m_vCurrentGoal = m_vTargetPos;
+        if (groundentity || client->ps.walking) {
+            if (GetMoveResult() >= MOVERESULT_BLOCKED || velocity.lengthSquared() <= Square(8)) {
+                m_bTempAway = true;
+            } else if ((origin - m_vLastCheckPos[0]).lengthSquared() <= Square(32) && (origin - m_vLastCheckPos[1]).lengthSquared() <= Square(32)) {
+                m_bTempAway = true;
+            } else {
+                m_bTempAway = false;
             }
-        }
 
-        m_vLastCheckPos[1] = m_vLastCheckPos[0];
-        m_vLastCheckPos[0] = origin;
+            if (m_bTempAway) {
+                m_bTempAway     = true;
+                m_bDeltaMove    = false;
+                m_iTempAwayTime = level.inttime + 750;
+                m_iNumBlocks++;
+
+                // Try to backward a little
+                m_Path.Clear();
+                m_Path.ForceShortLookahead();
+                m_vCurrentGoal = origin + Vector(G_CRandom(512), G_CRandom(512), G_CRandom(512));
+            } else {
+                m_iNumBlocks = 0;
+
+                if (!m_Path.CurrentNode()) {
+                    m_vTargetPos = origin + Vector(G_CRandom(512), G_CRandom(512), G_CRandom(512));
+                    m_vCurrentGoal = m_vTargetPos;
+                }
+            }
+
+            m_vLastCheckPos[1] = m_vLastCheckPos[0];
+            m_vLastCheckPos[0] = origin;
+        }
     }
 
     if (ai_debugpath->integer) {
@@ -331,14 +333,14 @@ void PlayerBot::CheckJump(void)
 
     if (ai_debugpath->integer) {
         G_DebugLine(origin + Vector(0, 0, STEPSIZE), origin + Vector(0, 0, STEPSIZE) + dir * 32, 1, 0, 1, 1);
-        G_DebugLine(origin + Vector(0, 0, 56), origin + Vector(0, 0, 56) + dir * 32, 1, 0, 1, 1);
+        G_DebugLine(origin + Vector(0, 0, STEPSIZE * 3), origin + Vector(0, 0, STEPSIZE * 3) + dir * 32, 1, 0, 1, 1);
     }
 
-    Vector vStart = origin + Vector(0, 0, STEPSIZE);
-    Vector vEnd   = origin + Vector(0, 0, STEPSIZE) + dir * 4;
+    start = origin + Vector(0, 0, STEPSIZE);
+    end   = origin + Vector(0, 0, STEPSIZE) + dir * (maxs.y - mins.y);
 
     // Check if the bot needs to jump
-    trace = G_Trace(vStart, mins, maxs, vEnd, this, MASK_PLAYERSOLID, false, "PlayerBot::CheckJump");
+    trace = G_Trace(start, mins, maxs, end, this, MASK_PLAYERSOLID, false, "PlayerBot::CheckJump");
 
     // No need to jump
     if (trace.fraction >= 0.95f) {
@@ -346,8 +348,8 @@ void PlayerBot::CheckJump(void)
         return;
     }
 
-    start = origin + Vector(0, 0, 56);
-    end   = origin + Vector(0, 0, 56) + dir * 4;
+    start = origin + Vector(0, 0, STEPSIZE * 2);
+    end   = origin + Vector(0, 0, STEPSIZE * 2) + dir * (maxs.y - mins.y);
 
     // Check if the bot can jump
     trace = G_Trace(start, mins, maxs, end, this, MASK_PLAYERSOLID, true, "PlayerBot::CheckJump");
