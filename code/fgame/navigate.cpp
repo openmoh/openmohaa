@@ -429,7 +429,7 @@ int PathSearch::FindPath(
             }
 
             if (pathway->fallheight <= fallheight
-                && (!ent->IsSubclassOfSentient() || !pathway->badPlaceTeam[static_cast<Sentient *>(ent)->m_Team])) {
+                && (!ent || !ent->IsSubclassOfSentient() || !pathway->badPlaceTeam[static_cast<Sentient *>(ent)->m_Team])) {
                 NewNode->m_Depth   = Node->m_Depth + 1;
                 NewNode->Parent    = Node;
                 NewNode->pathway   = i;
@@ -595,7 +595,7 @@ int PathSearch::FindPathNear(
             }
 
             if (pathway->fallheight <= fallheight
-                && (!ent->IsSubclassOfSentient() || !pathway->badPlaceTeam[static_cast<Sentient *>(ent)->m_Team])) {
+                && (!ent || !ent->IsSubclassOfSentient() || !pathway->badPlaceTeam[static_cast<Sentient *>(ent)->m_Team])) {
                 NewNode->m_Depth   = Node->m_Depth + 1;
                 NewNode->Parent    = Node;
                 NewNode->pathway   = i;
