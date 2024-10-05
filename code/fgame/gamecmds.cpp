@@ -42,6 +42,11 @@ typedef struct {
     qboolean allclients;
 } consolecmd_t;
 
+typedef struct {
+    const char* prefix;
+    SafePtr<Listener> master;
+} commandmaster_t;
+
 consolecmd_t G_ConsoleCmds[] = {
   //   command name       function             available in multiplayer?
     {"say",             G_SayCmd,             qtrue },
@@ -73,6 +78,8 @@ consolecmd_t G_ConsoleCmds[] = {
     //====
     {NULL,              NULL,                 qfalse}
 };
+
+Container<commandmaster_t> commandMasters;
 
 void G_InitConsoleCommands(void)
 {
@@ -211,6 +218,14 @@ qboolean G_ProcessClientCommand(gentity_t *ent)
                 return false;
             }
             return Viewmodel.ProcessEvent(ev);
+        } else {
+            //
+            // Added in OPM
+            //
+            Listener* master = G_FindMaster(cmd);
+            if (master) {
+                return master->ProcessEvent(ev);
+            }
         }
 
         if (ent->entity->CheckEventFlags(&ev)) {
@@ -219,6 +234,66 @@ qboolean G_ProcessClientCommand(gentity_t *ent)
     }
 
     return qfalse;
+}
+
+/*
+==================
+G_CreateMaster
+==================
+*/
+void G_CreateMaster(const char* prefix, Listener* master)
+{
+    commandmaster_t commandMaster;
+
+    int i;
+
+    for (i = 1; i <= commandMasters.NumObjects(); i++) {
+        const commandmaster_t& commandMaster = commandMasters.ObjectAt(i);
+        if (!str::icmp(commandMaster.prefix, prefix)) {
+            return;
+        }
+    }
+
+    commandMaster.prefix = prefix;
+    commandMaster.master = master;
+    commandMasters.AddObject(commandMaster);
+}
+
+/*
+==================
+G_MasterMatches
+==================
+*/
+bool G_MasterMatches(const commandmaster_t& commandMaster, const char* command) {
+    const char* s1, *s2;
+
+    s2 = commandMaster.prefix;
+    for (s1 = command; *s1 && *s2; s1++, s2++) {
+        if (tolower(*s1) != tolower(*s2)) {
+            return false;
+        }
+    }
+
+    return *s1 == '_';
+}
+
+/*
+==================
+G_FindMaster
+==================
+*/
+Listener* G_FindMaster(const char* command)
+{
+    int i;
+
+    for (i = 1; i <= commandMasters.NumObjects(); i++) {
+        const commandmaster_t& commandMaster = commandMasters.ObjectAt(i);
+        if (G_MasterMatches(commandMaster, command)) {
+            return commandMaster.master;
+        }
+    }
+
+    return NULL;
 }
 
 /*

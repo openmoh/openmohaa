@@ -30,6 +30,12 @@ void G_InitConsoleCommands(void);
 
 qboolean G_ProcessClientCommand(gentity_t *ent);
 
+//===============
+// Added in OPM
+void G_CreateMaster(const char* prefix, class Listener* master);
+Listener* G_FindMaster(const char* command);
+//===============
+
 void     G_Say(gentity_t *ent, qboolean team, qboolean arg0);
 qboolean G_CameraCmd(gentity_t *ent);
 qboolean G_SoundCmd(gentity_t *ent);
