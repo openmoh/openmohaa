@@ -1211,7 +1211,7 @@ bool PlayerBot::CheckCondition_Attack(void)
 
         if (CanSee(sent, 80, maxDistance, false)) {
             m_pEnemy      = sent;
-            m_iAttackTime = level.inttime + 10000;
+            m_iAttackTime = level.inttime + 1000;
             return true;
         }
     }
@@ -1300,6 +1300,8 @@ void PlayerBot::State_Attack(void)
         } else {
             m_botCmd.buttons &= ~(BUTTON_ATTACKLEFT | BUTTON_ATTACKRIGHT);
         }
+
+        m_iAttackTime = level.inttime + 1000;
     } else {
         m_botCmd.buttons &= ~(BUTTON_ATTACKLEFT | BUTTON_ATTACKRIGHT);
         fMinDistanceSquared = 0;
