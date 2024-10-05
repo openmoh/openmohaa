@@ -2928,7 +2928,7 @@ void Sentient::UpdateFootsteps(void)
         iTagNum = gi.Tag_NumForName(edict->tiki, "Bip01 R Foot");
         if (iTagNum >= 0) {
             if (G_TIKI_IsOnGround(edict, iTagNum, 13.461539f)) {
-                BroadcastAIEvent(10, G_AIEventRadius(10));
+                BroadcastAIEvent(AI_EVENT_FOOTSTEP, G_AIEventRadius(AI_EVENT_FOOTSTEP));
                 // simulate footstep sounds
                 Footstep("Bip01 L Foot", (iAnimFlags & TAF_AUTOSTEPS_RUNNING), (iAnimFlags & TAF_AUTOSTEPS_EQUIPMENT));
                 m_bFootOnGround_Right = true;
@@ -2949,7 +2949,7 @@ void Sentient::UpdateFootsteps(void)
         iTagNum = gi.Tag_NumForName(edict->tiki, "Bip01 L Foot");
         if (iTagNum >= 0) {
             if (G_TIKI_IsOnGround(edict, iTagNum, 13.461539f)) {
-                BroadcastAIEvent(10, G_AIEventRadius(10));
+                BroadcastAIEvent(AI_EVENT_FOOTSTEP, G_AIEventRadius(AI_EVENT_FOOTSTEP));
                 // simulate footstep sounds
                 Footstep("Bip01 R Foot", (iAnimFlags & TAF_AUTOSTEPS_RUNNING), (iAnimFlags & TAF_AUTOSTEPS_EQUIPMENT));
                 m_bFootOnGround_Left = true;
