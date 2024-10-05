@@ -232,37 +232,43 @@ void PlayerBot::MoveThink(void)
             ClearMove();
         }
 
+        m_bTempAway = false;
+
         if (groundentity || client->ps.walking) {
             if (GetMoveResult() >= MOVERESULT_BLOCKED || velocity.lengthSquared() <= Square(8)) {
                 m_bTempAway = true;
             } else if ((origin - m_vLastCheckPos[0]).lengthSquared() <= Square(32) && (origin - m_vLastCheckPos[1]).lengthSquared() <= Square(32)) {
                 m_bTempAway = true;
-            } else {
-                m_bTempAway = false;
             }
-
-            if (m_bTempAway) {
-                m_bTempAway     = true;
-                m_bDeltaMove    = false;
-                m_iTempAwayTime = level.inttime + 750;
-                m_iNumBlocks++;
-
-                // Try to backward a little
-                m_Path.Clear();
-                m_Path.ForceShortLookahead();
-                m_vCurrentGoal = origin + Vector(G_CRandom(512), G_CRandom(512), G_CRandom(512));
-            } else {
-                m_iNumBlocks = 0;
-
-                if (!m_Path.CurrentNode()) {
-                    m_vTargetPos = origin + Vector(G_CRandom(512), G_CRandom(512), G_CRandom(512));
-                    m_vCurrentGoal = m_vTargetPos;
-                }
+        } else {
+            // falling
+            if (GetMoveResult() >= MOVERESULT_BLOCKED) {
+                // stuck while falling
+                m_bTempAway = true;
             }
-
-            m_vLastCheckPos[1] = m_vLastCheckPos[0];
-            m_vLastCheckPos[0] = origin;
         }
+
+        if (m_bTempAway) {
+            m_bTempAway     = true;
+            m_bDeltaMove    = false;
+            m_iTempAwayTime = level.inttime + 750;
+            m_iNumBlocks++;
+
+            // Try to backward a little
+            m_Path.Clear();
+            m_Path.ForceShortLookahead();
+            m_vCurrentGoal = origin + Vector(G_CRandom(512), G_CRandom(512), G_CRandom(512));
+        } else {
+            m_iNumBlocks = 0;
+
+            if (!m_Path.CurrentNode()) {
+                m_vTargetPos = origin + Vector(G_CRandom(512), G_CRandom(512), G_CRandom(512));
+                m_vCurrentGoal = m_vTargetPos;
+            }
+        }
+
+        m_vLastCheckPos[1] = m_vLastCheckPos[0];
+        m_vLastCheckPos[0] = origin;
     }
 
     if (ai_debugpath->integer) {
