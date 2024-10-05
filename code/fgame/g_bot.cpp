@@ -28,6 +28,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 static gentity_t   *firstBot          = NULL;
 static saved_bot_t *saved_bots        = NULL;
+static unsigned int num_saved_bots    = 0;
 static unsigned int current_bot_count = 0;
 static char       **modelList         = NULL;
 
@@ -253,13 +254,17 @@ void G_AddBot(unsigned int num, saved_bot_t *saved)
 
 void G_RemoveBot(unsigned int num)
 {
+    unsigned int removed = 0;
+    unsigned int n;
+
     num = Q_min(num, sv_maxbots->integer);
 
-    for (int n = 0; n < num; n++) {
-        gentity_t *e = &g_entities[maxclients->integer + n];
+    for (n = 0; n < game.maxclients && removed < num; n++) {
+        gentity_t *e = &g_entities[game.maxclients - sv_maxbots->integer + n];
         if (e->inuse && e->client) {
             G_ClientDisconnect(e);
             current_bot_count--;
+            removed++;
         }
     }
 }
@@ -278,12 +283,13 @@ void G_SaveBots()
     }
 
     saved_bots = new saved_bot_t[current_bot_count];
-    for (n = 0; n < current_bot_count; n++) {
+    num_saved_bots = 0;
+    for (n = 0; n < game.maxclients; n++) {
         gentity_t   *e     = &g_entities[game.maxclients - sv_maxbots->integer + n];
-        saved_bot_t& saved = saved_bots[n];
 
         if (e->inuse && e->client) {
             Player *player = static_cast<Player *>(e->entity);
+            saved_bot_t& saved = saved_bots[num_saved_bots++];
 
             saved.bValid = true;
             //saved.team = player->GetTeam();
@@ -300,7 +306,7 @@ void G_RestoreBots()
         return;
     }
 
-    for (n = 0; n < sv_numbots->integer; n++) {
+    for (n = 0; n < num_saved_bots; n++) {
         saved_bot_t& saved = saved_bots[n];
 
         G_AddBot(1, &saved);
@@ -320,10 +326,10 @@ int G_CountClients()
         other = &g_entities[n];
         if (other->inuse && other->client) {
             Player *p = static_cast<Player *>(other->entity);
-            if (p->GetTeam() == teamtype_t::TEAM_NONE || p->GetTeam() == teamtype_t::TEAM_SPECTATOR) {
-                // ignore spectators
-                continue;
-            }
+            //if (p->GetTeam() == teamtype_t::TEAM_NONE || p->GetTeam() == teamtype_t::TEAM_SPECTATOR) {
+            //    // ignore spectators
+            //    continue;
+            //}
 
             count++;
         }
