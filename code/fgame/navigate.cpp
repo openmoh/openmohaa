@@ -1223,7 +1223,7 @@ void PathNode::SetLowWallArc(Event *ev)
 
 void PathNode::ConnectTo(PathNode *node)
 {
-    Child[virtualNumChildren].node            = nodenum;
+    Child[virtualNumChildren].node            = node->nodenum;
     Child[virtualNumChildren].numBlockers     = 0;
     Child[virtualNumChildren].badPlaceTeam[0] = 0;
     Child[virtualNumChildren].badPlaceTeam[1] = 0;
