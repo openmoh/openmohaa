@@ -9158,7 +9158,7 @@ void Actor::CuriousSound(int iType, vec3_t sound_origin, float fDistSquared, flo
         }
     }
 
-    if ((fRangeFactor * m_fSoundAwareness) < (rand() / (0x7fffffff / 100.0))) {
+    if ((fRangeFactor * m_fSoundAwareness) < random()) {
         return;
     }
 
