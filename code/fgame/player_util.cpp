@@ -326,17 +326,17 @@ void Player::TestThread(Event *ev)
 void Player::SpawnEntity(Event *ev)
 
 {
-    Entity   *ent;
-    str       name;
-    ClassDef *cls;
-    str       text;
-    Vector    forward;
-    Vector    up;
-    Vector    delta;
-    Vector    v;
-    int       n;
-    int       i;
-    Event    *e;
+    SimpleEntity *ent;
+    str           name;
+    ClassDef     *cls;
+    str           text;
+    Vector        forward;
+    Vector        up;
+    Vector        delta;
+    Vector        v;
+    int           n;
+    int           i;
+    Event        *e;
 
     if (ev->NumArgs() < 1) {
         ScriptError("Usage: spawn entityname [keyname] [value]...");
@@ -360,16 +360,12 @@ void Player::SpawnEntity(Event *ev)
         cls = &Entity::ClassInfo;
     }
 
-    if (!checkInheritance(&Entity::ClassInfo, cls)) {
-        ScriptError("%s is not a valid Entity", name.c_str());
+    if (!checkInheritance(&SimpleEntity::ClassInfo, cls)) {
+        ScriptError("%s is not a valid SimpleEntity", name.c_str());
         return;
     }
 
-    ent = (Entity *)cls->newInstance();
-
-    e = new Event(EV_Model);
-    e->AddString(name.c_str());
-    ent->PostEvent(e, EV_PRIORITY_SPAWNARG);
+    ent = (SimpleEntity *)cls->newInstance();
 
     angles.AngleVectors(&forward, NULL, &up);
     v = origin + (forward + up) * 40;
@@ -396,12 +392,21 @@ void Player::SpawnEntity(Event *ev)
         }
     }
 
-    e = new Event(EV_SetAnim);
-    e->AddString("idle");
-    ent->PostEvent(e, EV_SPAWNARG);
+    if (ent->IsSubclassOfEntity()) {
+        e = new Event(EV_Model);
+        e->AddString(name.c_str());
+        ent->PostEvent(e, EV_PRIORITY_SPAWNARG);
+
+        e = new Event(EV_SetAnim);
+        e->AddString("idle");
+        ent->PostEvent(e, EV_SPAWNARG);
+    }
 
     ent->ProcessPendingEvents();
-    ent->ProcessEvent(EV_Entity_Start);
+
+    if (ent->IsSubclassOfEntity()) {
+        ent->ProcessEvent(EV_Entity_Start);
+    }
 }
 
 //====================
