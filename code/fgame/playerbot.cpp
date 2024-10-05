@@ -1371,6 +1371,10 @@ void PlayerBot::State_Attack(void)
             MoveTo(m_vLastEnemyPos);
         }
     }
+
+    if (IsMoving()) {
+        m_iAttackTime = level.inttime + 1000;
+    }
 }
 
 /*
