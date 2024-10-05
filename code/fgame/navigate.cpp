@@ -2778,8 +2778,6 @@ qboolean CheckMove(Vector& origin, Vector& pos, short int *path_fallheight, floa
                     *path_fallheight = (short)test_fallheight + fallheight;
                     return test_fallheight + fallheight <= 1024.0f;
                 }
-            } else {
-                return true;
             }
 
             if (mm.groundPlane) {
