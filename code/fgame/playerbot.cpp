@@ -1309,7 +1309,7 @@ void PlayerBot::State_Attack(void)
                 Vector vDir = origin - m_vLastEnemyPos;
                 VectorNormalizeFast(vDir);
 
-                AvoidPath(m_vLastEnemyPos, fMinDistance, vDir);
+                AvoidPath(m_vLastEnemyPos, fMinDistance, Vector(orientation[1]) * 512);
             } else {
                 MoveNear(m_vLastEnemyPos, fMinDistance);
             }
