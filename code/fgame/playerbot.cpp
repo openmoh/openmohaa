@@ -335,6 +335,15 @@ void PlayerBot::CheckJump(void)
     Vector  dir;
     trace_t trace;
 
+    if (m_pLadder) {
+        if (!m_botCmd.upmove) {
+            m_botCmd.upmove = 127;
+        } else {
+            m_botCmd.upmove = 0;
+        }
+        return;
+    }
+
     dir = m_vLastValidDir;
 
     start = origin + Vector(0, 0, STEPSIZE);
