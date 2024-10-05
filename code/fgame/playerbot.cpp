@@ -888,7 +888,7 @@ void PlayerBot::NoticeEvent(Vector vPos, int iType, Entity *pEnt, float fDistanc
         if (pSentOwner->IsSubclassOfPlayer()) {
             Player* p = static_cast<Player*>(pSentOwner);
 
-            if (p->GetTeam() == GetTeam()) {
+            if (g_gametype->integer >= GT_TEAM && p->GetTeam() == GetTeam()) {
                 return;
             }
         }
