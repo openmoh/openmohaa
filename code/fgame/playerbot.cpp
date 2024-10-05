@@ -903,6 +903,13 @@ Warn the bot of an event
 void PlayerBot::NoticeEvent(Vector vPos, int iType, Entity *pEnt, float fDistanceSquared, float fRadiusSquared)
 {
     Sentient* pSentOwner;
+    float fRangeFactor;
+
+    fRangeFactor = Q_min(4.0 / 3.0 - ((4.0 / 3.0 * fDistanceSquared) / fRadiusSquared), 1);
+
+    if (fRangeFactor < random()) {
+        return;
+    }
 
     if (pEnt->IsSubclassOfSentient()) {
         pSentOwner = static_cast<Sentient*>(pEnt);
