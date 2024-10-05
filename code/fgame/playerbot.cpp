@@ -783,7 +783,26 @@ Returns true if the bot has done moving
 */
 bool PlayerBot::MoveDone(void)
 {
-    return !m_Path.CurrentNode() || m_Path.Complete(origin);
+    if (!m_bPathing) {
+        return true;
+    }
+
+    if (m_bTempAway) {
+        return false;
+    }
+
+    if (!m_Path.CurrentNode()) {
+        return true;
+    }
+
+    if (!m_Path.NextNode()) {
+        Vector delta = Vector(m_Path.CurrentPathGoal()) - origin;
+        if (delta.lengthXYSquared() < Square(16)) {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 /*
