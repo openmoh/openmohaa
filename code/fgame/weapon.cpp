@@ -2004,11 +2004,17 @@ void Weapon::Shoot(Event *ev)
             break;
         }
 
-        if (!quiet[mode]) {
-            if (next_noise_time <= level.time) {
-                BroadcastAIEvent(AI_EVENT_WEAPON_FIRE);
-                next_noise_time = level.time + 1;
+        if (!quiet[mode] && next_noise_time <= level.time) {
+            if (g_gametype->integer == GT_SINGLE_PLAYER) {
+                BroadcastAIEvent(AI_EVENT_WEAPON_FIRE, 1500);
+            } else {
+                //
+                // Added in OPM
+                //  Weapon firing sounds can be heard 8000 units away
+                //  (from ubersound.scr)
+                BroadcastAIEvent(AI_EVENT_WEAPON_FIRE, 8000);
             }
+            next_noise_time = level.time + 1;
         }
 
         if (owner && owner->client) {
