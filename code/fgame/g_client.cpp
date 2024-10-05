@@ -626,7 +626,10 @@ PlayerStart *SelectSpawnPoint(Player *player)
                 SimpleArchivedEntity *arc = level.m_SimpleArchivedEntities.ObjectAt(i);
 
                 classID = arc->classinfo()->classID;
-                if (!Q_stricmp(classID, "info_player_start")) {
+                // Fixed in OPM
+                //  If there is no free spot, just use any random player start
+                //  OG wants info_player_start directly
+                if (arc->isSubclassOf(PlayerStart)) {
                     int randVal;
 
                     spawnpoint = static_cast<PlayerStart *>(arc);
