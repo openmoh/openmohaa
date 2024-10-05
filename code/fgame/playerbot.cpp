@@ -411,8 +411,6 @@ void PlayerBot::CheckUse(void)
     Vector  end;
     trace_t trace;
 
-    m_botCmd.buttons &= ~BUTTON_USE;
-
     angles.AngleVectorsLeft(&dir);
 
     start = origin + Vector(0, 0, viewheight);
@@ -422,8 +420,21 @@ void PlayerBot::CheckUse(void)
 
     // It may be a door
     if ((trace.allsolid || trace.startsolid || trace.fraction != 1.0f) && trace.entityNum) {
-        m_botCmd.buttons |= BUTTON_USE;
+        if (trace.ent->entity->IsSubclassOfDoor()) {
+            Door* door = static_cast<Door*>(trace.ent->entity);
+            if (door->isOpen()) {
+                m_botCmd.buttons &= ~BUTTON_USE;
+                return;
+            }
+        }
+
+        //
+        // Toggle the use button
+        //
+        m_botCmd.buttons ^= BUTTON_USE;
         m_Path.ForceShortLookahead();
+    } else {
+        m_botCmd.buttons &= ~BUTTON_USE;
     }
 }
 
