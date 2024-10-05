@@ -31,6 +31,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "player.h"
 #include "debuglines.h"
 #include "scriptexception.h"
+#include "gamecmds.h"
 
 #define PATHFILE_VERSION 103
 
@@ -45,6 +46,7 @@ cvar_t *ai_fallheight;
 cvar_t *ai_debugpath;
 cvar_t *ai_pathchecktime;
 cvar_t *ai_pathcheckdist;
+cvar_t *ai_editmode; // Added in OPM
 
 static const vec_t *path_start;
 static const vec_t *path_end;
@@ -1031,8 +1033,8 @@ void PathSearch::ResetNodes(void)
     m_LoadIndex    = -1;
 
     if (!startBulkNavMemory && nodecount) {
-        for (x = PATHMAP_GRIDSIZE - 1; x >= 0; x--) {
-            for (y = PATHMAP_GRIDSIZE - 1; y >= 0; y--) {
+        for (x = 0; x < PATHMAP_GRIDSIZE; x++) {
+            for (y = 0; y < PATHMAP_GRIDSIZE; y++) {
                 if (PathMap[x][y].nodes) {
                     gi.Free(PathMap[x][y].nodes);
                 }
@@ -1048,8 +1050,7 @@ void PathSearch::ResetNodes(void)
 
     for (x = 0; x < PATHMAP_GRIDSIZE; x++){
         for (y = 0; y < PATHMAP_GRIDSIZE; y++) {
-            PathMap[x][y].numnodes = 0;
-            PathMap[x][y].nodes    = NULL;
+            PathMap[x][y] = MapCell();
         }
     }
 
@@ -1059,6 +1060,52 @@ void PathSearch::ResetNodes(void)
     }
 
     nodecount = 0;
+
+    // Free the bulk nav' memory
+    if (startBulkNavMemory) {
+        gi.Free(startBulkNavMemory);
+        bulkNavMemory      = NULL;
+        startBulkNavMemory = NULL;
+    }
+}
+
+void PathSearch::ClearNodes(void)
+{
+    int i;
+    int x;
+    int y;
+
+    m_bNodesloaded = false;
+    m_LoadIndex    = -1;
+
+    if (!startBulkNavMemory && nodecount) {
+        for (x = 0; x < PATHMAP_GRIDSIZE; x++) {
+            for (y = 0; y < PATHMAP_GRIDSIZE; y++) {
+                if (PathMap[x][y].nodes) {
+                    gi.Free(PathMap[x][y].nodes);
+                }
+            }
+        }
+
+        for (i = 0; i < nodecount; i++) {
+            if (pathnodes[i]->Child) {
+                gi.Free(pathnodes[i]->Child);
+            }
+        }
+    }
+
+    for (x = 0; x < PATHMAP_GRIDSIZE; x++) {
+        for (y = 0; y < PATHMAP_GRIDSIZE; y++) {
+            PathMap[x][y] = MapCell();
+        }
+    }
+
+    for (i = 0; i < nodecount; i++) {
+        pathnodes[i]->Child = NULL;
+        pathnodes[i]->virtualNumChildren = 0;
+        pathnodes[i]->numChildren = 0;
+        pathnodes[i]->findCount = 0;
+    }
 
     // Free the bulk nav' memory
     if (startBulkNavMemory) {
@@ -1718,9 +1765,8 @@ int PathSearch::DebugNearestNodeList(const vec3_t pos, PathNode **nodelist, int 
 
     int node_count = NearestNodeSetup(pos, cell, nodes, deltas);
     int n          = 0;
-    int j          = 0;
 
-    for (i = 0; i < node_count && j < iMaxNodes; i++) {
+    for (i = 0; i < node_count && n < iMaxNodes; i++) {
         node = pathnodes[cell->nodes[nodes[i]]];
 
         VectorCopy(pos, start);
@@ -2093,21 +2139,32 @@ void PathSearch::Init(void)
     ai_debugpath           = gi.Cvar_Get("ai_debugpath", "0", 0);
     ai_pathchecktime       = gi.Cvar_Get("ai_pathchecktime", "1.5", CVAR_CHEAT);
     ai_pathcheckdist       = gi.Cvar_Get("ai_pathcheckdist", "4096", CVAR_CHEAT);
+
+    //
+    // Added in OPM
+    //
+    ai_editmode = gi.Cvar_Get("ai_editmode", "0", CVAR_LATCH);
+
+    navMaster.Init();
 }
 
 void *PathSearch::AllocPathNode(void)
 {
     if (!bulkNavMemory) {
         return gi.Malloc(sizeof(PathNode));
+    } else {
+        bulkNavMemory -= sizeof(PathNode);
+        if (ai_editmode->integer) {
+            return gi.Malloc(sizeof(PathNode));
+        }
     }
 
-    bulkNavMemory -= sizeof(PathNode);
     return bulkNavMemory;
 }
 
 void PathSearch::FreePathNode(void *ptr)
 {
-    if (!bulkNavMemory) {
+    if (!bulkNavMemory || ai_editmode->integer) {
         gi.Free(ptr);
     }
 }
@@ -3071,6 +3128,87 @@ PathNode *PathSearch::FindNearestCover(SimpleActor *pEnt, Vector& vPos, Entity *
 {
     // not found in ida
     return NULL;
+}
+
+//===============
+// Added in OPM
+//===============
+
+Event EV_NavMaster_CreatePaths
+(
+    "nav_build",
+    EV_CHEAT,
+    NULL,
+    NULL,
+    "Build navigation path"
+);
+
+Event EV_NavMaster_SpawnNode
+(
+    "nav_newnode",
+    EV_CHEAT,
+    "S",
+    "type",
+    "Create a new node at the player's origin"
+);
+
+CLASS_DECLARATION(Listener, NavMaster, NULL) {
+    { &EV_NavMaster_CreatePaths, &NavMaster::CreatePaths },
+    { &EV_NavMaster_SpawnNode, &NavMaster::CreateNode },
+    { NULL, NULL }
+};
+
+NavMaster navMaster;
+
+NavMaster::NavMaster() {
+
+}
+
+void NavMaster::Init() {
+    G_CreateMaster("nav", this);
+}
+
+void NavMaster::CreatePaths(Event* ev) {
+    if (!ai_editmode->integer) {
+        return;
+    }
+    PathSearch::ClearNodes();
+    PathSearch::CreatePaths();
+}
+
+void NavMaster::CreateNode(Event* ev) {
+    str type;
+    int spawnflags = 0;
+    PathNode* node;
+    Entity* ent;
+
+    if (ev->NumArgs() > 0) {
+        type = ev->GetString(1);
+        if (!str::icmp(type, "corner_left")) {
+            spawnflags = AI_CORNER_LEFT;
+        } else if (!str::icmp(type, "corner_right")) {
+            spawnflags = AI_CORNER_RIGHT;
+        } else if (!str::icmp(type, "duck")) {
+            spawnflags = AI_DUCK;
+        } else if (!str::icmp(type, "sniper")) {
+            spawnflags = AI_SNIPER;
+        } else if (!str::icmp(type, "concealment")) {
+            spawnflags = AI_CONCEALMENT;
+        } else if (!str::icmp(type, "cover")) {
+            spawnflags = AI_COVER;
+        } else if (!str::icmp(type, "crate")) {
+            spawnflags = AI_CRATE;
+        }
+    }
+
+    ent = g_entities->entity;
+    if (!ent) {
+        return;
+    }
+
+    node = new PathNode;
+    node->nodeflags = spawnflags;
+    node->setOrigin(ent->origin);
 }
 
 Event EV_AttractiveNode_GetPriority

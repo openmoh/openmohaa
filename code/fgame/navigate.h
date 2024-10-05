@@ -305,6 +305,7 @@ public:
     static void *AllocPathNode(void);
     static void  FreePathNode(void *);
     static void  ResetNodes(void);
+    static void  ClearNodes(void); // Added in OPM
 
     static void      UpdatePathwaysForBadPlace(const Vector     &origin, float radius, int dir, int team);
     static PathInfo *GeneratePath(PathInfo *path);
@@ -367,6 +368,21 @@ extern PathSearch PathManager;
 //===============
 // Added in OPM
 //===============
+
+class NavMaster : public Listener
+{
+public:
+    CLASS_PROTOTYPE(NavMaster);
+
+    NavMaster();
+
+    void Init(void);
+
+    void CreatePaths(Event* ev);
+    void CreateNode(Event* ev);
+};
+
+extern NavMaster navMaster;
 
 PathNode *AI_FindNode(const char *name);
 void      AI_AddNode(PathNode *node);
