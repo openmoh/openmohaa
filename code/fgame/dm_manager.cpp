@@ -534,7 +534,7 @@ bool DM_Team::IsDead(void) const
         return false;
     }
 
-    if (g_gametype->integer == GT_TOW) {
+    if (g_gametype->integer == GT_TOW || g_gametype->integer == GT_LIBERATION) {
         if (dmManager.AllowTeamRespawn(m_teamnumber)) {
             return false;
         }
