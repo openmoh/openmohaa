@@ -560,7 +560,8 @@ movement on the server game.
         TEAM_SPECTATOR,
         TEAM_FREEFORALL,
         TEAM_ALLIES,
-        TEAM_AXIS
+        TEAM_AXIS,
+        TEAM_MAX
     } teamtype_t;
 
     typedef enum {
