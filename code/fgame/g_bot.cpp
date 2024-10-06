@@ -256,9 +256,42 @@ void G_RemoveBot(unsigned int num)
 {
     unsigned int removed = 0;
     unsigned int n;
+    unsigned int teamCount[2]{ 0 };
+    bool bNoMoreToRemove = false;
 
     num = Q_min(num, sv_maxbots->integer);
 
+    teamCount[0] = dmManager.GetTeamAllies()->m_players.NumObjects();
+    teamCount[1] = dmManager.GetTeamAxis()->m_players.NumObjects();
+
+    while (!bNoMoreToRemove) {
+        bNoMoreToRemove = true;
+
+        for (n = 0; n < game.maxclients && removed < num; n++) {
+            gentity_t *e = &g_entities[game.maxclients - sv_maxbots->integer + n];
+            if (e->inuse && e->client) {
+                Player* player = static_cast<Player*>(e->entity);
+                if (player->GetTeam() == TEAM_ALLIES || player->GetTeam() == TEAM_AXIS) {
+                    unsigned int teamIndex = (player->GetTeam() - TEAM_ALLIES);
+                    if (teamCount[teamIndex] < teamCount[1 - teamIndex]) {
+                        // Skip bots in the lowest team
+                        continue;
+                    }
+
+                    teamCount[teamIndex]--;
+                    bNoMoreToRemove = false;
+                }
+
+                G_ClientDisconnect(e);
+                current_bot_count--;
+                removed++;
+            }
+        }
+    }
+
+    //
+    // Remove all bots regardless
+    //
     for (n = 0; n < game.maxclients && removed < num; n++) {
         gentity_t *e = &g_entities[game.maxclients - sv_maxbots->integer + n];
         if (e->inuse && e->client) {
