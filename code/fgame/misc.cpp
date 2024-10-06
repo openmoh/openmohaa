@@ -3068,7 +3068,7 @@ void FuncLadder::AdjustPositionOnLadder(Entity *pUser)
 
     fHeight = ((int)(pUser->origin[2] + 8.0f) & ~15);
 
-    if (vDelta.length() > 16.0f && pUser->origin[2] == fHeight) {
+    if (vDelta.length() == 16.0f && pUser->origin[2] == fHeight) {
         return;
     }
 
