@@ -644,7 +644,6 @@ Called when there is a new move
 */
 void PlayerBot::NewMove() {
     m_bPathing = true;
-    m_iCheckPathTime = level.inttime + 2000;
     m_vLastCheckPos[0] = origin;
     m_vLastCheckPos[1] = origin;
 }
