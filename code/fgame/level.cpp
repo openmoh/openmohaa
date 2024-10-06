@@ -834,7 +834,6 @@ void Level::Init(void)
 
     m_pAIStats = NULL;
 
-    m_bSpawnBot    = false;
     m_bScriptSpawn = false;
     m_bRejectSpawn = false;
 }

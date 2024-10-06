@@ -95,7 +95,10 @@ This feature is passive: it only checks the team sizes when someone tries to joi
 ### Bots
 
 Bots can be used for testing. They don't move by default, so a mod will be needed, like [eaglear bots](https://www.moddb.com/mods/medal-of-honor-world-war-1/downloads/moh-eaglear-bots):
-- `set sv_maxbots x`: Configure and allocate the maximum number of bots.
-- `set sv_minPlayers x`: optional, can be used to set the minimum number of players that the server should have. Bots will be spawned based on the minimum number of players.
-- `addbot x`: x is the number of bots to add.
-- `removebot x`: x is the number of bots to remove.
+- `set sv_maxbots x`: Required, configure the maximum number of bots allowed in the game. Since the game can only handle a total of 64 players (clients), the number of bots will be limited to 64 minus the number of real players (`sv_maxclients`). For example, if you set `sv_maxclients` to 48, the maximum number of bots (sv_maxbots) can be 16.
+- `set sv_numbots x`: Set the number of bots to spawn. It will be capped to the value of `sv_maxbots`.
+- `set sv_minPlayers x`: Configure the minimum number of players required. If the number of real players is below the specified value, the game will automatically add bots to fill the gap. For example, if `sv_minPlayers` is set to 8 and only 5 real players are connected, the game will spawn 3 bots to make sure there are always 8 players in the game.
+
+Commands:
+- `addbot x`: x is the number of bots to add. It only changes the `sv_numbots` variable.
+- `removebot x`: x is the number of bots to remove. It only changes the `sv_numbots` variable.

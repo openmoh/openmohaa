@@ -265,9 +265,20 @@ cvar_t *g_obituarylocation;
 
 cvar_t *sv_scriptfiles;
 
+// The maximum number of allocated bot clients
 cvar_t *sv_maxbots;
+// The number of bots that should be spawned
 cvar_t *sv_numbots;
+// The minimum number of players that should be present in-game.
+//  If the number of real players is below this number,
+//  the game will automatically add bots to fill the gap
 cvar_t *sv_minPlayers;
+// Whether or not the bots use a shared player slots
+//  NOTE: Setting this cvar is not recommended
+//  because when a client connects and the slot is used by a bot
+//  the bot will be relocated to a free entity slot
+cvar_t *sv_sharedbots;
+
 cvar_t *g_rankedserver;
 cvar_t *g_spectatefollow_firstperson;
 
@@ -632,7 +643,8 @@ void CVAR_Init(void)
 
     sv_scriptfiles               = gi.Cvar_Get("sv_scriptfiles", "0", 0);
     sv_maxbots                   = gi.Cvar_Get("sv_maxbots", "0", CVAR_LATCH);
-    sv_numbots                   = gi.Cvar_Get("sv_numbots", "0", CVAR_LATCH);
+    sv_sharedbots                = gi.Cvar_Get("sv_sharedbots", "0", CVAR_LATCH);
+    sv_numbots                   = gi.Cvar_Get("sv_numbots", "0", 0);
     sv_minPlayers                = gi.Cvar_Get("sv_minPlayers", "0", 0);
     g_rankedserver               = gi.Cvar_Get("g_rankedserver", "0", 0);
     g_spectatefollow_firstperson = gi.Cvar_Get("g_spectatefollow_firstperson", "0", 0);
@@ -644,11 +656,6 @@ void CVAR_Init(void)
 
         gi.cvar_set("sv_maxbots", va("%d", lowered));
         gi.Printf("sv_maxbots reached max clients, lowering the value to %u\n", lowered);
-    }
-
-    if (sv_numbots->integer > sv_maxbots->integer) {
-        gi.Printf("numbots overflow, setting to %d\n", sv_maxbots->integer);
-        gi.cvar_set("sv_numbots", sv_maxbots->string);
     }
 
     g_instamsg_allowed = gi.Cvar_Get("g_instamsg_allowed", "1", 0);

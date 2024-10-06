@@ -251,8 +251,6 @@ public:
 
     // New Stuff
 
-    bool m_bSpawnBot;
-
     // Script stuff
     bool m_bScriptSpawn;
     bool m_bRejectSpawn;

@@ -26,6 +26,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "playerstart.h"
 #include "scriptmaster.h"
 #include "g_spawn.h"
+#include "g_bot.h"
 
 // g_client.c -- client functions that don't happen every frame
 
@@ -833,6 +834,9 @@ void G_BotConnect(int clientNum, const char *userinfo)
     memset(client, 0, sizeof(*client));
     G_InitClientPersistant(client, userinfo);
 
+    //
+    // Use "localhost" as some code relies on it to check whether or not it should be kicked
+    //
     Q_strncpyz(client->pers.ip, "localhost", sizeof(client->pers.ip));
     client->pers.port = 0;
 
@@ -872,6 +876,9 @@ const char *G_ClientConnect(int clientNum, qboolean firstTime, qboolean differen
     //if (g_gametype->integer == GT_SINGLE_PLAYER) {
     //    return NULL;
     //}
+
+    // Added in OPM
+    G_BotShift(clientNum);
 
     ent = &g_entities[clientNum];
 
@@ -969,13 +976,7 @@ void G_ClientBegin(gentity_t *ent, usercmd_t *cmd)
         } else {
             // a spawn point will completely reinitialize the entity
             level.spawn_entnum = ent->s.number;
-
-            if (level.m_bSpawnBot) {
-                level.m_bSpawnBot = false;
-                PlayerBot *player = new PlayerBot;
-            } else {
-                Player *player = new Player;
-            }
+            Player *player = new Player;
         }
 
         if (level.intermissiontime && ent->entity) {
