@@ -1044,7 +1044,7 @@ static void SV_BuildClientSnapshot( client_t *client ) {
 	frame->first_entity = svs.nextSnapshotEntities;
 	for ( i = 0 ; i < entityNumbers.numSnapshotEntities ; i++ ) {
 		ent = SV_GentityNum(entityNumbers.snapshotEntities[i]);
-		if (ent->client) {
+		if (ent->client && ent->s.number < svs.iNumClients) {
 			assert(ent->s.number < MAX_CLIENTS);
 			client->lastRadarTime[ent->s.number] = svs.time;
 		}
