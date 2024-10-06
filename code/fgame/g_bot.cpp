@@ -392,9 +392,9 @@ void G_SpawnBots()
     //
     // Check the minimum bot count
     //
-    numClients = G_CountClients() + sv_numbots->integer;
+    numClients = G_CountClients();
     if (numClients < sv_minPlayers->integer) {
-        numBotsToSpawn = sv_minPlayers->integer - numClients;
+        numBotsToSpawn = sv_minPlayers->integer - numClients + sv_numbots->integer;
     } else {
         numBotsToSpawn = sv_numbots->integer;
     }
