@@ -302,8 +302,6 @@ G_SpawnEntities
 void G_SpawnEntities(char *entities, int svsTime)
 {
     level.SpawnEntities(entities, svsTime);
-
-    G_SpawnBots();
 }
 
 /*
@@ -376,6 +374,8 @@ void G_ServerSpawned(void)
 {
     try {
         level.ServerSpawned();
+
+        G_SpawnBots();
     } catch (const ScriptException& e) {
         G_ExitWithError(e.string.c_str());
     }
@@ -698,11 +698,13 @@ void G_RunFrame(int levelTime, int frameTime)
             }
         }
 
-        //
-        // Added in OPM
-        //
-        // Add or delete bots that were added using addbot/removebot
-        G_SpawnBots();
+        if (level.Spawned()) {
+            //
+            // Added in OPM
+            //
+            // Add or delete bots that were added using addbot/removebot
+            G_SpawnBots();
+        }
     }
 
     catch (const char *error) {
