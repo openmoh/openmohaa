@@ -1049,9 +1049,14 @@ void G_ClientDisconnect(gentity_t *ent)
 
         G_PrintToAllClients(va("%s has left the battle\n", ent->client->pers.netname), 2);
 
+        assert(ent->entity->IsSubclassOfPlayer());
         ((Player *)ent->entity)->Disconnect();
 
-        delete ent->entity;
+        if (g_iInThinks) {
+            ent->entity->PostEvent(EV_Remove, 0);
+        } else {
+            delete ent->entity;
+        }
         ent->entity = NULL;
     }
 
