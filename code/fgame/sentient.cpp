@@ -1032,7 +1032,7 @@ void Sentient::FreeInventory(void)
     num = inventory.NumObjects();
     for (i = num; i > 0; i--) {
         item = (Item *)G_GetEntity(inventory.ObjectAt(i));
-        delete item;
+        item->Delete();
     }
     inventory.ClearObjectList();
 
