@@ -209,7 +209,7 @@ void PlayerBot::MoveThink(void)
             m_vCurrentGoal = origin;
             VectorAdd2D(m_vCurrentGoal, m_Path.CurrentDelta(), m_vCurrentGoal);
 
-            if (m_Path.Complete(origin)) {
+            if (MoveDone()) {
                 // Clear the path
                 m_Path.Clear();
             }
@@ -659,7 +659,7 @@ Move to the specified position
 void PlayerBot::MoveTo(Vector vPos, float *vLeashHome, float fLeashRadius)
 {
     m_vTargetPos = vPos;
-    m_Path.FindPath(origin, vPos, this, 0, vLeashHome, fLeashRadius * fLeashRadius);
+    m_Path.FindPath(origin, m_vTargetPos, this, 0, vLeashHome, fLeashRadius * fLeashRadius);
 
     NewMove();
 
@@ -792,6 +792,8 @@ Returns true if the bot has done moving
 */
 bool PlayerBot::MoveDone(void)
 {
+    PathInfo* next;
+
     if (!m_bPathing) {
         return true;
     }
@@ -804,11 +806,9 @@ bool PlayerBot::MoveDone(void)
         return true;
     }
 
-    if (!m_Path.NextNode()) {
-        Vector delta = Vector(m_Path.CurrentPathGoal()) - origin;
-        if (delta.lengthXYSquared() < Square(16)) {
-            return true;
-        }
+    Vector delta = Vector(m_Path.CurrentPathGoal()) - origin;
+    if (delta.lengthXYSquared() < Square(16) && delta.z < maxs.z) {
+        return true;
     }
 
     return false;
@@ -905,7 +905,7 @@ void PlayerBot::NoticeEvent(Vector vPos, int iType, Entity *pEnt, float fDistanc
     Sentient* pSentOwner;
     float fRangeFactor;
 
-    fRangeFactor = Q_min(4.0 / 3.0 - ((4.0 / 3.0 * fDistanceSquared) / fRadiusSquared), 1);
+    fRangeFactor = 1.0 - (fDistanceSquared / fRadiusSquared);
 
     if (fRangeFactor < random()) {
         return;
@@ -961,7 +961,7 @@ void PlayerBot::NoticeEvent(Vector vPos, int iType, Entity *pEnt, float fDistanc
     case AI_EVENT_GRENADE:
     default:
         m_iCuriousTime    = level.inttime + 20000;
-        m_vLastCuriousPos = vPos;
+        m_vNewCuriousPos  = vPos;
         break;
     }
 }
@@ -1147,11 +1147,11 @@ bool PlayerBot::CheckCondition_Curious(void)
 
 void PlayerBot::State_Curious(void)
 {
-    //AimAt( m_vLastCuriousPos );
     AimAtAimNode();
 
-    if (!MoveToBestAttractivePoint(3) && !IsMoving()) {
-        MoveTo(m_vLastCuriousPos);
+    if (!MoveToBestAttractivePoint(3) && (!IsMoving() || m_vLastCuriousPos != m_vNewCuriousPos)) {
+        MoveTo(m_vNewCuriousPos);
+        m_vLastCuriousPos = m_vNewCuriousPos;
     }
 
     if (MoveDone()) {

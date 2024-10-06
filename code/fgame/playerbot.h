@@ -68,6 +68,7 @@ private:
     int               m_iCuriousTime;
     int               m_iAttackTime;
     Vector            m_vLastCuriousPos;
+    Vector            m_vNewCuriousPos;
     Vector            m_vOldEnemyPos;
     Vector            m_vLastEnemyPos;
     Vector            m_vLastDeathPos;
