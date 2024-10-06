@@ -644,12 +644,13 @@ qboolean G_AddBotCommand(gentity_t *ent)
     }
 
     numbots = atoi(gi.Argv(1));
-    if (numbots > sv_maxbots->integer) {
-        gi.Printf("addbot must be between 1-%d\n", sv_maxbots->integer);
+
+    if (numbots > game.maxclients) {
+        gi.Printf("addbot must be between 1-%d\n", game.maxclients);
         return qfalse;
     }
 
-    totalnumbots = Q_min(numbots + sv_numbots->integer, sv_maxbots->integer);
+    totalnumbots = Q_min(numbots + sv_numbots->integer, game.maxclients);
 
     gi.cvar_set("sv_numbots", va("%d", totalnumbots));
     return qtrue;
