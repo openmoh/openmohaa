@@ -359,10 +359,10 @@ int G_CountClients()
         other = &g_entities[n];
         if (other->inuse && other->client) {
             Player *p = static_cast<Player *>(other->entity);
-            //if (p->GetTeam() == teamtype_t::TEAM_NONE || p->GetTeam() == teamtype_t::TEAM_SPECTATOR) {
-            //    // ignore spectators
-            //    continue;
-            //}
+            if (p->GetTeam() == teamtype_t::TEAM_NONE || p->GetTeam() == teamtype_t::TEAM_SPECTATOR) {
+                // ignore spectators
+                continue;
+            }
 
             count++;
         }
