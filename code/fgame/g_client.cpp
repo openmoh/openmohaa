@@ -25,6 +25,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "playerbot.h"
 #include "playerstart.h"
 #include "scriptmaster.h"
+#include "g_spawn.h"
 
 // g_client.c -- client functions that don't happen every frame
 
@@ -1058,6 +1059,8 @@ void G_ClientDisconnect(gentity_t *ent)
             delete ent->entity;
         }
         ent->entity = NULL;
+
+        G_InitClientPersistant(ent->client);
     }
 
     catch (const char *error) {
