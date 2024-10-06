@@ -26,8 +26,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "animate.h"
 
 typedef enum {
-    CONTROLLER_ALLIES,
     CONTROLLER_AXIS,
+    CONTROLLER_ALLIES,
     CONTROLLER_DRAW
 } eController;
 

@@ -1720,10 +1720,10 @@ void DM_Manager::SetBombsPlanted(int num)
 
 void DM_Manager::StopTeamRespawn(eController controller)
 {
-    if (controller == CONTROLLER_AXIS) {
-        m_bAllowAxisRespawn = false;
-    } else if (controller == CONTROLLER_ALLIES) {
+    if (controller == CONTROLLER_ALLIES) {
         m_bAllowAlliedRespawn = false;
+    } else if (controller == CONTROLLER_AXIS) {
+        m_bAllowAxisRespawn = false;
     }
 }
 

@@ -59,8 +59,8 @@ class TOWObjectiveMan
 {
 private:
     Container<TOWObjective *> m_towObjectives;
-    int                       m_iNumAxisObjectives;
     int                       m_iNumAlliesObjectives;
+    int                       m_iNumAxisObjectives;
 
 public:
     TOWObjectiveMan();

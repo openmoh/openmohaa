@@ -179,8 +179,8 @@ private:
     int m_iNumBombsPlanted;
     int m_iTotalMapTime;
 
-    bool m_bAllowAxisRespawn;
     bool m_bAllowAlliedRespawn;
+    bool m_bAllowAxisRespawn;
     bool m_bRoundActive;
 
     // scoreboard data

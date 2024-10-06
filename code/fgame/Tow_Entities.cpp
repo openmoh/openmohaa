@@ -269,12 +269,12 @@ void TOWObjective::TakeOver(Event *ev)
 
     switch (controller) {
     case CONTROLLER_ALLIES:
-        gi.cvar_set(m_sAxisObjName.c_str(), "1");
-        gi.cvar_set(m_sAlliesObjName.c_str(), "0");
-        break;
-    case CONTROLLER_AXIS:
         gi.cvar_set(m_sAxisObjName.c_str(), "0");
         gi.cvar_set(m_sAlliesObjName.c_str(), "1");
+        break;
+    case CONTROLLER_AXIS:
+        gi.cvar_set(m_sAxisObjName.c_str(), "1");
+        gi.cvar_set(m_sAlliesObjName.c_str(), "0");
         break;
     default:
         break;
@@ -308,12 +308,12 @@ void TOWObjective::OnInitialize(Event *ev)
 
     switch (m_eController) {
     case CONTROLLER_ALLIES:
-        gi.cvar_set(m_sAxisObjName.c_str(), "1");
-        gi.cvar_set(m_sAlliesObjName.c_str(), "0");
-        break;
-    case CONTROLLER_AXIS:
         gi.cvar_set(m_sAxisObjName.c_str(), "0");
         gi.cvar_set(m_sAlliesObjName.c_str(), "1");
+        break;
+    case CONTROLLER_AXIS:
+        gi.cvar_set(m_sAxisObjName.c_str(), "1");
+        gi.cvar_set(m_sAlliesObjName.c_str(), "0");
         break;
     case CONTROLLER_DRAW:
         gi.cvar_set(m_sAxisObjName.c_str(), "0");
