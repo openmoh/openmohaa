@@ -1343,15 +1343,14 @@ void PlayerBot::State_Attack(void)
         }
 
         m_iAttackTime = level.inttime + 1000;
+        m_vOldEnemyPos = m_vLastEnemyPos;
+        m_vLastEnemyPos = m_pEnemy->centroid;
     } else {
         m_botCmd.buttons &= ~(BUTTON_ATTACKLEFT | BUTTON_ATTACKRIGHT);
         fMinDistanceSquared = 0;
     }
 
-    m_vOldEnemyPos  = m_vLastEnemyPos;
-    m_vLastEnemyPos = m_pEnemy->centroid;
-
-    AimAt(m_vLastEnemyPos + Vector(G_CRandom(8), G_CRandom(8), G_CRandom(8)));
+    AimAt(m_pEnemy->centroid + Vector(G_CRandom(8), G_CRandom(8), G_CRandom(8)));
 
     if (bNoMove) {
         return;
