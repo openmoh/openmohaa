@@ -470,6 +470,36 @@ void PlayerBot::UpdateBotStates(void)
         return;
     }
 
+    if (!client->pers.dm_primary[0]) {
+        Event *event;
+
+        //
+        // Primary weapon
+        //
+        event = new Event(EV_Player_PrimaryDMWeapon);
+        event->AddString("auto");
+
+        ProcessEvent(event);
+    }
+
+    if (GetTeam() == TEAM_NONE || GetTeam() == TEAM_SPECTATOR) {
+        Event* event;
+        float time;
+
+        // Add some delay to avoid telefragging
+        time = entnum / 20.0;
+
+        if (EventPending(EV_Player_AutoJoinDMTeam)) {
+            return;
+        }
+
+        //
+        // Team
+        //
+        PostEvent(EV_Player_AutoJoinDMTeam, time);
+        return;
+    }
+
     if (IsDead() || IsSpectator()) {
         // The bot should respawn
         m_botCmd.buttons ^= BUTTON_ATTACKLEFT;
