@@ -35,7 +35,7 @@ static const unsigned int MINS_Y = -15;
 static const unsigned int MINS_Z = 0; // IneQuation: bounding box and viewheights to match MoHAA
 static const unsigned int MAXS_X = 15;
 static const unsigned int MAXS_Y = 15;
-static const unsigned int MAXS_Z = 96;
+static const unsigned int MAXS_Z = 94;
 
 static const unsigned int DEAD_MINS_Z           = 32;
 static const unsigned int CROUCH_MAXS_Z         = 49;
