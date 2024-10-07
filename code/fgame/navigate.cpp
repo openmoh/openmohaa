@@ -2729,15 +2729,14 @@ qboolean CheckMove(Vector& origin, Vector& pos, short int *path_fallheight, floa
     mm.mins[2] = 0;
     mm.maxs[0] = size;
     mm.maxs[1] = size;
-    mm.maxs[2] = 94.0f;
+    mm.maxs[2] = MAXS_Z;
 
     testcount  = 0;
     fallheight = 0.0f;
     air_z      = mm.origin[2];
 
-    for (i = 200; i != 1; i--) {
-        testpos[i - 1] = mm.origin;
-        testcount++;
+    for (i = 0; i < 200; i++) {
+        testpos[testcount++] = mm.origin;
 
         MmoveSingle(&mm);
 
@@ -2745,6 +2744,22 @@ qboolean CheckMove(Vector& origin, Vector& pos, short int *path_fallheight, floa
             test_fallheight = air_z - mm.origin[2];
 
             if (test_fallheight > fallheight) {
+                if (test_fallheight > MAXS_Z) {
+                    Vector start;
+
+                    //
+                    // Added in OPM
+                    //  Check to make sure that the target is reachable enough
+                    //  so that AIs don't block trying to move to the target position
+
+                    start = origin;
+                    start.z += MAXS_Z;
+
+                    if (!G_SightTrace(start, vec_zero, vec_zero, pos, (gentity_t*)NULL, (gentity_t*)NULL, MASK_PATHSOLID, qfalse, "CheckMove")) {
+                        return false;
+                    }
+                }
+
                 if (test_fallheight > 1024.0f) {
                     return false;
                 }
@@ -2761,7 +2776,7 @@ qboolean CheckMove(Vector& origin, Vector& pos, short int *path_fallheight, floa
             error = mm.origin[2] - pos[2];
 
             *path_fallheight = (short)fallheight;
-            if (fabs(error) <= 94.0f) {
+            if (fabs(error) <= MAXS_Z) {
                 if (error <= 0.0f || mm.groundPlane) {
                     return true;
                 }
