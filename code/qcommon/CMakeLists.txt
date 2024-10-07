@@ -86,20 +86,23 @@ target_compile_features(qcommon_standalone INTERFACE cxx_nullptr)
 target_compile_features(qcommon_standalone INTERFACE c_variadic_macros)
 target_link_libraries(qcommon_standalone INTERFACE omohtiki omohskeletor)
 
-#
-# FIXME: Opt-in for the using the system one rather than bundled one
-#
-add_library(zlib INTERFACE)
+if(USE_INTERNAL_ZLIB)
+	add_library(zlib INTERFACE)
 
-target_sources(zlib INTERFACE
-	# zlib
-	"${CMAKE_SOURCE_DIR}/code/zlib/adler32.c"
-	"${CMAKE_SOURCE_DIR}/code/zlib/crc32.c"
-	"${CMAKE_SOURCE_DIR}/code/zlib/inffast.c"
-	"${CMAKE_SOURCE_DIR}/code/zlib/inflate.c"
-	"${CMAKE_SOURCE_DIR}/code/zlib/inftrees.c"
-	"${CMAKE_SOURCE_DIR}/code/zlib/zutil.c"
-)
+	target_sources(zlib INTERFACE
+		# zlib
+		"${CMAKE_SOURCE_DIR}/code/zlib/adler32.c"
+		"${CMAKE_SOURCE_DIR}/code/zlib/crc32.c"
+		"${CMAKE_SOURCE_DIR}/code/zlib/inffast.c"
+		"${CMAKE_SOURCE_DIR}/code/zlib/inflate.c"
+		"${CMAKE_SOURCE_DIR}/code/zlib/inftrees.c"
+		"${CMAKE_SOURCE_DIR}/code/zlib/zutil.c"
+	)
 
-target_include_directories(zlib INTERFACE "${CMAKE_SOURCE_DIR}/code/zlib")
-target_link_libraries(qcommon_standalone INTERFACE zlib)
+	target_include_directories(zlib INTERFACE "${CMAKE_SOURCE_DIR}/code/zlib")
+	target_link_libraries(qcommon_standalone INTERFACE zlib)
+else()
+	find_package(ZLIB REQUIRED)
+	target_include_directories(qcommon INTERFACE ${ZLIB_INCLUDE_DIRS})
+	target_link_libraries(qcommon_standalone INTERFACE ${ZLIB_LIBRARIES})
+endif()
