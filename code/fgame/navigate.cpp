@@ -160,7 +160,7 @@ PathInfo *PathSearch::GeneratePath(PathInfo *path)
             if (pathway->dist) {
                 VectorCopy(pathway->pos2, current_path->point);
                 VectorCopy2D(pathway->dir, current_path->dir);
-                current_path->dist      = pathway->dist;
+                current_path->dist = pathway->dist;
                 assert(current_path->dist > -1e+07 && current_path->dist < 1e+07);
                 current_path->bAccurate = true;
                 current_path++;
@@ -431,7 +431,8 @@ int PathSearch::FindPath(
             }
 
             if (pathway->fallheight <= fallheight
-                && (!ent || !ent->IsSubclassOfSentient() || !pathway->badPlaceTeam[static_cast<Sentient *>(ent)->m_Team])) {
+                && (!ent || !ent->IsSubclassOfSentient() || !pathway->badPlaceTeam[static_cast<Sentient *>(ent)->m_Team]
+                )) {
                 NewNode->m_Depth   = Node->m_Depth + 1;
                 NewNode->Parent    = Node;
                 NewNode->pathway   = i;
@@ -597,7 +598,8 @@ int PathSearch::FindPathNear(
             }
 
             if (pathway->fallheight <= fallheight
-                && (!ent || !ent->IsSubclassOfSentient() || !pathway->badPlaceTeam[static_cast<Sentient *>(ent)->m_Team])) {
+                && (!ent || !ent->IsSubclassOfSentient() || !pathway->badPlaceTeam[static_cast<Sentient *>(ent)->m_Team]
+                )) {
                 NewNode->m_Depth   = Node->m_Depth + 1;
                 NewNode->Parent    = Node;
                 NewNode->pathway   = i;
@@ -1048,7 +1050,7 @@ void PathSearch::ResetNodes(void)
         }
     }
 
-    for (x = 0; x < PATHMAP_GRIDSIZE; x++){
+    for (x = 0; x < PATHMAP_GRIDSIZE; x++) {
         for (y = 0; y < PATHMAP_GRIDSIZE; y++) {
             PathMap[x][y] = MapCell();
         }
@@ -1101,10 +1103,10 @@ void PathSearch::ClearNodes(void)
     }
 
     for (i = 0; i < nodecount; i++) {
-        pathnodes[i]->Child = NULL;
+        pathnodes[i]->Child              = NULL;
         pathnodes[i]->virtualNumChildren = 0;
-        pathnodes[i]->numChildren = 0;
-        pathnodes[i]->findCount = 0;
+        pathnodes[i]->numChildren        = 0;
+        pathnodes[i]->findCount          = 0;
     }
 
     // Free the bulk nav' memory
@@ -1184,8 +1186,7 @@ Event EV_Path_SetNodeFlags
 );
 
 // Added in 2.0
-Event EV_Path_SetLowWallArc
-(
+Event EV_Path_SetLowWallArc(
     "low_wall_arc",
     EV_DEFAULT,
     "f",
@@ -2755,7 +2756,17 @@ qboolean CheckMove(Vector& origin, Vector& pos, short int *path_fallheight, floa
                     start = origin;
                     start.z += MAXS_Z;
 
-                    if (!G_SightTrace(start, vec_zero, vec_zero, pos, (gentity_t*)NULL, (gentity_t*)NULL, MASK_PATHSOLID, qfalse, "CheckMove")) {
+                    if (!G_SightTrace(
+                            start,
+                            vec_zero,
+                            vec_zero,
+                            pos,
+                            (gentity_t *)NULL,
+                            (gentity_t *)NULL,
+                            MASK_PATHSOLID,
+                            qfalse,
+                            "CheckMove"
+                        )) {
                         return false;
                     }
                 }
@@ -3155,7 +3166,6 @@ Event EV_NavMaster_CreatePaths
     NULL,
     "Build navigation path"
 );
-
 Event EV_NavMaster_SpawnNode
 (
     "nav_newnode",
@@ -3166,22 +3176,22 @@ Event EV_NavMaster_SpawnNode
 );
 
 CLASS_DECLARATION(Listener, NavMaster, NULL) {
-    { &EV_NavMaster_CreatePaths, &NavMaster::CreatePaths },
-    { &EV_NavMaster_SpawnNode, &NavMaster::CreateNode },
-    { NULL, NULL }
+    {&EV_NavMaster_CreatePaths, &NavMaster::CreatePaths},
+    {&EV_NavMaster_SpawnNode,   &NavMaster::CreateNode },
+    {NULL,                      NULL                   }
 };
 
 NavMaster navMaster;
 
-NavMaster::NavMaster() {
+NavMaster::NavMaster() {}
 
-}
-
-void NavMaster::Init() {
+void NavMaster::Init()
+{
     G_CreateMaster("nav", this);
 }
 
-void NavMaster::CreatePaths(Event* ev) {
+void NavMaster::CreatePaths(Event *ev)
+{
     if (!ai_editmode->integer) {
         return;
     }
@@ -3189,11 +3199,12 @@ void NavMaster::CreatePaths(Event* ev) {
     PathSearch::CreatePaths();
 }
 
-void NavMaster::CreateNode(Event* ev) {
-    str type;
-    int spawnflags = 0;
-    PathNode* node;
-    Entity* ent;
+void NavMaster::CreateNode(Event *ev)
+{
+    str       type;
+    int       spawnflags = 0;
+    PathNode *node;
+    Entity   *ent;
 
     if (ev->NumArgs() > 0) {
         type = ev->GetString(1);
@@ -3219,7 +3230,7 @@ void NavMaster::CreateNode(Event* ev) {
         return;
     }
 
-    node = new PathNode;
+    node            = new PathNode;
     node->nodeflags = spawnflags;
     node->setOrigin(ent->origin);
 }
@@ -3233,7 +3244,6 @@ Event EV_AttractiveNode_GetPriority
     "Get the node priority",
     EV_GETTER
 );
-
 Event EV_AttractiveNode_SetPriority
 (
     "priority",
@@ -3243,7 +3253,6 @@ Event EV_AttractiveNode_SetPriority
     "Set the node priority",
     EV_SETTER
 );
-
 Event EV_AttractiveNode_GetDistance
 (
     "max_dist",
@@ -3253,7 +3262,6 @@ Event EV_AttractiveNode_GetDistance
     "Get the max distance for this node",
     EV_GETTER
 );
-
 Event EV_AttractiveNode_SetDistance
 (
     "max_dist",
@@ -3263,7 +3271,6 @@ Event EV_AttractiveNode_SetDistance
     "Set the max distance for this node to be attracted, -1 for unlimited distance.",
     EV_SETTER
 );
-
 Event EV_AttractiveNode_GetStayTime
 (
     "stay_time",
@@ -3273,7 +3280,6 @@ Event EV_AttractiveNode_GetStayTime
     "Get the max stay time for this node",
     EV_GETTER
 );
-
 Event EV_AttractiveNode_SetStayTime
 (
     "stay_time",
@@ -3283,7 +3289,6 @@ Event EV_AttractiveNode_SetStayTime
     "Set the maximum stay time AI will stay on this node",
     EV_SETTER
 );
-
 Event EV_AttractiveNode_GetRespawnTime
 (
     "respawn_time",
@@ -3293,7 +3298,6 @@ Event EV_AttractiveNode_GetRespawnTime
     "Get the how much time will this node re-attract already attracted AIs",
     EV_GETTER
 );
-
 Event EV_AttractiveNode_SetRespawnTime
 (
     "respawn_time",
@@ -3304,7 +3308,6 @@ Event EV_AttractiveNode_SetRespawnTime
     "AI will get stuck.",
     EV_SETTER
 );
-
 Event EV_AttractiveNode_GetTeam
 (
     "team",
@@ -3314,7 +3317,6 @@ Event EV_AttractiveNode_GetTeam
     "Get the attractive node team. 'none' for no team.",
     EV_GETTER
 );
-
 Event EV_AttractiveNode_SetTeam
 (
     "team",
@@ -3324,8 +3326,14 @@ Event EV_AttractiveNode_SetTeam
     "Set the attractive node team. 'none' for no team.",
     EV_SETTER
 );
-
-Event EV_AttractiveNode_SetUse("setuse", EV_DEFAULT, "b", "use", "Set if AI should use or not");
+Event EV_AttractiveNode_SetUse
+(
+    "setuse",
+    EV_DEFAULT,
+    "b",
+    "use",
+    "Set if AI should use or not"
+);
 
 CLASS_DECLARATION(SimpleArchivedEntity, AttractiveNode, NULL) {
     {&EV_AttractiveNode_GetPriority,    &AttractiveNode::GetPriority   },

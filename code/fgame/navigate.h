@@ -108,14 +108,12 @@ public:
     void Archive(Archiver& arc);
 };
 
-
 inline PathInfo::PathInfo()
     : bAccurate(false)
-    , point{ 0, 0, 0 }
+    , point {0, 0, 0}
     , dist(0)
-    , dir{ 0, 0 }
-{
-}
+    , dir {0, 0}
+{}
 
 inline void PathInfo::Archive(Archiver& arc)
 {
@@ -307,7 +305,7 @@ public:
     static void  ResetNodes(void);
     static void  ClearNodes(void); // Added in OPM
 
-    static void      UpdatePathwaysForBadPlace(const Vector     &origin, float radius, int dir, int team);
+    static void      UpdatePathwaysForBadPlace(const Vector& origin, float radius, int dir, int team);
     static PathInfo *GeneratePath(PathInfo *path);
     static PathInfo *GeneratePathNear(PathInfo *path);
     static PathInfo *GeneratePathAway(PathInfo *path);
@@ -378,8 +376,8 @@ public:
 
     void Init(void);
 
-    void CreatePaths(Event* ev);
-    void CreateNode(Event* ev);
+    void CreatePaths(Event *ev);
+    void CreateNode(Event *ev);
 };
 
 extern NavMaster navMaster;
