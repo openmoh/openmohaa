@@ -378,6 +378,13 @@ public:
 
     void CreatePaths(Event *ev);
     void CreateNode(Event *ev);
+    void Frame();
+
+private:
+    PathNode* DetermineCurrentNode() const;
+
+private:
+    SafePtr<PathNode> selectedNode;
 };
 
 extern NavMaster navMaster;

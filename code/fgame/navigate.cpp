@@ -2068,6 +2068,8 @@ void PathSearch::ShowNodes(void)
             }
         }
     }
+
+    navMaster.Frame();
 }
 
 qboolean PathSearch::ArchiveSaveNodes(void)
@@ -3188,6 +3190,12 @@ NavMaster::NavMaster() {}
 void NavMaster::Init()
 {
     G_CreateMaster("nav", this);
+
+    if (ai_editmode->integer) {
+        // show routes by default
+        gi.cvar_set("ai_showroutes", "1");
+        gi.cvar_set("ai_shownode", "30");
+    }
 }
 
 void NavMaster::CreatePaths(Event *ev)
@@ -3233,6 +3241,81 @@ void NavMaster::CreateNode(Event *ev)
     node            = new PathNode;
     node->nodeflags = spawnflags;
     node->setOrigin(ent->origin);
+}
+
+void NavMaster::Frame() {
+    float phase;
+    vec3_t color;
+
+    if (!ai_editmode->integer) {
+        return;
+    }
+
+    phase = fmod(level.time * 2, 2.0);
+    if (phase > 1.0) {
+        phase = 2.0 - phase;
+    }
+    //phase = (sin(level.time * 5) + 1) / 2.0;
+
+    selectedNode = DetermineCurrentNode();
+    if (selectedNode) {
+        Vector mins, maxs;
+        Vector org;
+        vec3_t colorPhase;
+
+        GetPathnodeColor(selectedNode->nodeflags, color);
+
+        colorPhase[0] = 0;
+        colorPhase[1] = (1.0 - phase) * 0.5;
+        colorPhase[2] = phase;
+        color[1] = Q_max(color[1], colorPhase[1]) - Q_min(color[1], colorPhase[1]);
+        color[2] = Q_max(color[2], colorPhase[2]) - Q_min(color[2], colorPhase[2]);
+
+        mins = Vector(-24, -24, -24);
+        maxs = Vector(24, 24, 24);
+        org = selectedNode->centroid;
+        org.z += 24;
+
+        G_DebugBBox(org, mins, maxs, color[0], color[1], color[2], 1.0);
+    }
+}
+
+PathNode* NavMaster::DetermineCurrentNode() const {
+    Entity* ent;
+    PathNode* bestnode;
+    float bestdist;
+    Vector delta;
+    int i;
+
+    ent = g_entities->entity;
+    if (!ent) {
+        return NULL;
+    }
+
+    bestdist = 1e+12f;
+    bestnode = NULL;
+
+    for (i = 0; i < PathSearch::nodecount; i++) {
+        PathNode* node = PathSearch::pathnodes[i];
+        float dist;
+
+        delta = node->centroid - ent->centroid;
+        if (!ent->FovCheck(delta, cos(DEG2RAD(80.0 / 2.f)))) {
+            continue;
+        }
+
+        if (abs(delta.z) > MAXS_Z) {
+            continue;
+        }
+
+        dist = delta.lengthSquared();
+        if (dist < bestdist) {
+            bestdist = dist;
+            bestnode = node;
+        }
+    }
+
+    return bestnode;
 }
 
 Event EV_AttractiveNode_GetPriority
