@@ -455,6 +455,8 @@ public:
     float      GetBulletRange(firemode_t firemode);
     firemode_t GetFireMode(void);
     qboolean   IsSemiAuto(void);
+
+    float GetMaxFireMovement() const;
 };
 
 inline void Weapon::Archive(Archiver& arc)

@@ -4567,3 +4567,10 @@ Listener *Weapon::GetScriptOwner(void)
 {
     return owner;
 }
+
+//======================
+//Weapon::GetMaxFireMovement
+//======================
+float Weapon::GetMaxFireMovement() const {
+    return m_fMaxFireMovement;
+}
