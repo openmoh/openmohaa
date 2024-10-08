@@ -2367,15 +2367,15 @@ int node_compare(const void *pe1, const void *pe2)
     nodeinfo *Pe2 = (nodeinfo *)pe2;
     int       iConcealment;
 
-    iConcealment = (Pe1->pNode->nodeflags & AI_CONCEALMENT_MASK) != 0;
+    iConcealment = (Pe1->pNode->nodeflags & AI_CONCEALMENT_MASK) ? 1 : 0;
     if (Pe2->pNode->nodeflags & AI_CONCEALMENT_MASK) {
-        --iConcealment;
+        iConcealment--;
     }
 
     return (
-        (Pe1->fDistSquared) + (iConcealment << 23)
+        *(unsigned int*)&Pe1->fDistSquared + (iConcealment << 23)
         + (((Pe1->pNode->nodeflags & AI_CONCEALMENT) - (Pe2->pNode->nodeflags & AI_CONCEALMENT)) << 21)
-        - (Pe2->fDistSquared)
+        - *(unsigned int*)&Pe2->fDistSquared
     );
 }
 
