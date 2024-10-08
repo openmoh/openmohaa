@@ -2328,7 +2328,7 @@ void PathSearch::PlayerCover(Player *pPlayer)
     for (i = 0; i < nodecount; i++) {
         node = pathnodes[i];
 
-        if (!node || !(node->nodeflags & AI_COVERFLAGS)) {
+        if (!node || !(node->nodeflags & AI_MOVE_MASK)) {
             continue;
         }
 
