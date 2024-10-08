@@ -66,6 +66,7 @@ extern int path_checksthisframe;
 
 class Path;
 class PathNode;
+class SimpleActor;
 
 #define NUM_WIDTH_VALUES 16
 #define WIDTH_STEP       8
@@ -292,7 +293,7 @@ public:
     static MapCell *GetNodesInCell(const vec3_t pos);
 
     static class PathNode *DebugNearestStartNode(const vec3_t pos, Entity *ent = NULL);
-    static class PathNode *NearestStartNode(const vec3_t pos, class SimpleActor *ent);
+    static class PathNode *NearestStartNode(const vec3_t pos, SimpleActor *ent);
     static class PathNode *NearestEndNode(const vec3_t pos);
     static int             DebugNearestNodeList(const vec3_t pos, PathNode **nodelist, int iMaxNodes);
     static int             DebugNearestNodeList2(const vec3_t pos, PathNode **nodelist, int iMaxNodes);
@@ -341,15 +342,14 @@ public:
         float        fLeashDistSquared,
         int          fallheight
     );
-    static class PathNode *FindCornerNodeForWall(
-        const vec3_t start, const vec3_t end, class SimpleActor *ent, float maxPath, const vec4_t plane
-    );
-    static class PathNode *FindCornerNodeForExactPath(class SimpleActor *self, Sentient *enemy, float fMaxPath);
-    static int
-    FindPotentialCover(class SimpleActor *pEnt, Vector& vPos, Entity *pEnemy, PathNode **ppFoundNodes, int iMaxFind);
-    static void            PlayerCover(class Player *pPlayer);
-    static class PathNode *FindNearestCover(class SimpleActor *pEnt, Vector& vPos, Entity *pEnemy);
-    static class PathNode *FindNearestSniperNode(class SimpleActor *pEnt, Vector& vPos, Entity *pEnemy);
+
+    static class PathNode *
+    FindCornerNodeForWall(const vec3_t start, const vec3_t end, Entity *ent, float maxPath, const vec4_t plane);
+    static class PathNode *FindCornerNodeForExactPath(Entity *self, Sentient *enemy, float fMaxPath);
+    static int  FindPotentialCover(Entity *pEnt, Vector& vPos, Entity *pEnemy, PathNode **ppFoundNodes, int iMaxFind);
+    static void PlayerCover(class Player *pPlayer);
+    static class PathNode *FindNearestCover(Entity *pEnt, Vector& vPos, Entity *pEnemy);
+    static class PathNode *FindNearestSniperNode(Entity *pEnt, Vector& vPos, Entity *pEnemy);
 
 private:
     static int NearestNodeSetup(const vec3_t pos, MapCell *cell, int *nodes, vec3_t *deltas);

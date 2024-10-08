@@ -322,8 +322,10 @@ int PathSearch::FindPath(
     PathNode  *to;
 
     if (ent) {
+        // Added in OPM
+        //  Check for simple actor
         if (ent->IsSubclassOfActor()) {
-            Node = NearestStartNode(start, (SimpleActor *)ent);
+            Node = NearestStartNode(start, static_cast<SimpleActor*>(ent));
         } else {
             Node = DebugNearestStartNode(start, ent);
         }
@@ -505,8 +507,10 @@ int PathSearch::FindPathNear(
     vec2_t     delta;
 
     if (ent) {
+        // Added in OPM
+        //  Check for simple actor
         if (ent->IsSubclassOfActor()) {
-            Node = NearestStartNode(start, (SimpleActor *)ent);
+            Node = NearestStartNode(start, static_cast<SimpleActor*>(ent));
         } else {
             Node = DebugNearestStartNode(start, ent);
         }
@@ -678,8 +682,10 @@ int PathSearch::FindPathAway(
     fMinSafeDistSquared = fMinSafeDist * fMinSafeDist;
 
     if (ent) {
+        // Added in OPM
+        //  Check for simple actor
         if (ent->IsSubclassOfActor()) {
-            Node = NearestStartNode(start, (SimpleActor *)ent);
+            Node = NearestStartNode(start, static_cast<SimpleActor*>(ent));
         } else {
             Node = DebugNearestStartNode(start, ent);
         }
@@ -825,7 +831,7 @@ int PathSearch::FindPathAway(
 }
 
 PathNode *PathSearch::FindCornerNodeForWall(
-    const vec3_t start, const vec3_t end, SimpleActor *ent, float maxPath, const vec4_t plane
+    const vec3_t start, const vec3_t end, Entity *ent, float maxPath, const vec4_t plane
 )
 {
     int        i, g;
@@ -836,7 +842,18 @@ PathNode *PathSearch::FindCornerNodeForWall(
     vec2_t     delta;
     vec2_t     dir;
 
-    Node = NearestStartNode(start, ent);
+    if (ent) {
+        // Added in OPM
+        //  Check for simple actor
+        if (ent->IsSubclassOfActor()) {
+            Node = NearestStartNode(start, static_cast<SimpleActor*>(ent));
+        } else {
+            Node = DebugNearestStartNode(start, ent);
+        }
+    } else {
+        Node = DebugNearestStartNode(start);
+    }
+
     if (!Node) {
         last_error = "couldn't find start node";
         return NULL;
@@ -982,7 +999,7 @@ PathNode *PathSearch::FindCornerNodeForWall(
     return NULL;
 }
 
-PathNode *PathSearch::FindCornerNodeForExactPath(SimpleActor *pSelf, Sentient *enemy, float fMaxPath)
+PathNode *PathSearch::FindCornerNodeForExactPath(Entity *pSelf, Sentient *enemy, float fMaxPath)
 {
     PathNode *pPathNode[4096];
     PathNode *pParentNode;
@@ -996,7 +1013,12 @@ PathNode *PathSearch::FindCornerNodeForExactPath(SimpleActor *pSelf, Sentient *e
         return NULL;
     }
 
-    vEyePos   = pSelf->EyePosition();
+    if (pSelf->IsSubclassOfActor()) {
+        vEyePos = static_cast<SimpleActor*>(pSelf)->EyePosition();
+    } else {
+        vEyePos = pSelf->origin + Vector(0, 0, pSelf->maxs.z);
+    }
+
     vEyeDelta = vEyePos - pSelf->origin;
 
     for (pParentNode = Node->Parent, i = 0; pParentNode; pParentNode = pParentNode->Parent, i++) {
@@ -2358,7 +2380,7 @@ int node_compare(const void *pe1, const void *pe2)
 }
 
 int PathSearch::FindPotentialCover(
-    SimpleActor *pEnt, Vector& vPos, Entity *pEnemy, PathNode **ppFoundNodes, int iMaxFind
+    Entity *pEnt, Vector& vPos, Entity *pEnemy, PathNode **ppFoundNodes, int iMaxFind
 )
 {
     nodeinfo  nodes[MAX_PATHNODES];
@@ -2414,7 +2436,7 @@ int PathSearch::FindPotentialCover(
     return nNodes;
 }
 
-PathNode *PathSearch::FindNearestSniperNode(SimpleActor *pEnt, Vector& vPos, Entity *pEnemy)
+PathNode *PathSearch::FindNearestSniperNode(Entity*pEnt, Vector& vPos, Entity *pEnemy)
 {
     Actor    *pSelf = (Actor *)pEnt;
     PathNode *pNode;
@@ -3286,7 +3308,7 @@ int PathSearch::NearestNodeSetup(const vec3_t pos, MapCell *cell, int *nodes, ve
     return n;
 }
 
-PathNode *PathSearch::FindNearestCover(SimpleActor *pEnt, Vector& vPos, Entity *pEnemy)
+PathNode *PathSearch::FindNearestCover(Entity *pEnt, Vector& vPos, Entity *pEnemy)
 {
     // not found in ida
     return NULL;
