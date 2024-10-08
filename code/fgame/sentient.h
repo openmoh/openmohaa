@@ -349,6 +349,8 @@ public:
     TurretGun* GetTurret() const;
     void SetTurret(TurretGun* pTurret);
 
+    Entity* GetLadder() const; // Added in OPM
+
     //
     // Custom openmohaa stuff
     //

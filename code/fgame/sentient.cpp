@@ -3053,6 +3053,10 @@ void Sentient::SetTurret(TurretGun *pTurret)
     m_pTurret = pTurret;
 }
 
+Entity* Sentient::GetLadder() const {
+    return m_pLadder;
+}
+
 #define GROUND_DISTANCE        8
 #define WATER_NO_SPLASH_HEIGHT 16
 
