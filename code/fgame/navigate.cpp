@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2023 the OpenMoHAA team
+Copyright (C) 2024 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -388,6 +388,9 @@ int PathSearch::FindPath(
             pathway = &Node->Child[i];
 
             NewNode = pathnodes[pathway->node];
+            if (!NewNode) {
+                continue;
+            }
 
             if (vLeashHome) {
                 VectorSub2D(pathway->pos2, vLeashHome, vDist);
@@ -562,6 +565,9 @@ int PathSearch::FindPathNear(
             pathway = &Node->Child[i];
 
             NewNode = pathnodes[pathway->node];
+            if (!NewNode) {
+                continue;
+            }
 
             g = (int)(pathway->dist + Node->g + 1.0f);
 
@@ -729,6 +735,9 @@ int PathSearch::FindPathAway(
             pathway = &Node->Child[i];
 
             NewNode = pathnodes[pathway->node];
+            if (!NewNode) {
+                continue;
+            }
 
             if (vLeashHome) {
                 VectorSub2D(pathway->pos2, vLeashHome, vDist);
@@ -889,7 +898,11 @@ PathNode *PathSearch::FindCornerNodeForWall(
             pathway = &Node->Child[i];
 
             NewNode = pathnodes[pathway->node];
-            g       = (int)(pathway->dist + Node->g + 1.0f);
+            if (!NewNode) {
+                continue;
+            }
+
+            g = (int)(pathway->dist + Node->g + 1.0f);
 
             if (NewNode->findCount == findFrame) {
                 if (NewNode->g <= g) {
@@ -1044,7 +1057,7 @@ void PathSearch::ResetNodes(void)
         }
 
         for (i = 0; i < nodecount; i++) {
-            if (pathnodes[i]->Child) {
+            if (pathnodes[i] && pathnodes[i]->Child) {
                 gi.Free(pathnodes[i]->Child);
             }
         }
@@ -1057,8 +1070,10 @@ void PathSearch::ResetNodes(void)
     }
 
     for (i = 0; i < nodecount; i++) {
-        delete pathnodes[i];
-        pathnodes[i] = NULL;
+        if (pathnodes[i]) {
+            delete pathnodes[i];
+            pathnodes[i] = NULL;
+        }
     }
 
     nodecount = 0;
@@ -1073,7 +1088,7 @@ void PathSearch::ResetNodes(void)
 
 void PathSearch::ClearNodes(void)
 {
-    int i;
+    int i, j;
     int x;
     int y;
 
@@ -1090,7 +1105,7 @@ void PathSearch::ClearNodes(void)
         }
 
         for (i = 0; i < nodecount; i++) {
-            if (pathnodes[i]->Child) {
+            if (pathnodes[i] && pathnodes[i]->Child) {
                 gi.Free(pathnodes[i]->Child);
             }
         }
@@ -1103,10 +1118,34 @@ void PathSearch::ClearNodes(void)
     }
 
     for (i = 0; i < nodecount; i++) {
-        pathnodes[i]->Child              = NULL;
-        pathnodes[i]->virtualNumChildren = 0;
-        pathnodes[i]->numChildren        = 0;
-        pathnodes[i]->findCount          = 0;
+        if (pathnodes[i]) {
+            pathnodes[i]->Child              = NULL;
+            pathnodes[i]->virtualNumChildren = 0;
+            pathnodes[i]->numChildren        = 0;
+            pathnodes[i]->findCount          = 0;
+        }
+    }
+
+    // Rebuild node list
+    for (i = 0; i < nodecount; i++) {
+        PathNode *node1 = pathnodes[i];
+        if (node1) {
+            continue;
+        }
+
+        for (j = i + 1; j < nodecount; j++) {
+            PathNode *node2 = pathnodes[j];
+            if (node2) {
+                pathnodes[i]   = node2;
+                pathnodes[j]   = NULL;
+                node2->nodenum = i;
+                break;
+            }
+        }
+    }
+
+    while (nodecount > 0 && !pathnodes[nodecount - 1]) {
+        nodecount--;
     }
 
     // Free the bulk nav' memory
@@ -1126,6 +1165,9 @@ void PathSearch::UpdatePathwaysForBadPlace(const Vector& origin, float radius, i
 
     for (i = 0; i < nodecount; i++) {
         PathNode *node = pathnodes[i];
+        if (!node) {
+            continue;
+        }
 
         for (j = node->virtualNumChildren; j > 0; j--) {
             pathway_t& pathway = node->Child[j - 1];
@@ -1142,21 +1184,47 @@ void PathSearch::UpdatePathwaysForBadPlace(const Vector& origin, float radius, i
 
 void AI_AddNode(PathNode *node)
 {
-    int i = PathSearch::nodecount;
+    int i;
 
     assert(node);
 
-    if (i < MAX_PATHNODES) {
-        if (i > ai_maxnode) {
-            ai_maxnode = i;
+    //
+    // Find a free slot
+    //
+    for (i = 0; i < PathSearch::nodecount; i++) {
+        if (!PathSearch::pathnodes[i]) {
+            PathSearch::pathnodes[i] = node;
+            node->nodenum            = i;
+            return;
         }
-        PathSearch::pathnodes[i] = node;
-        node->nodenum            = i;
-        PathSearch::nodecount++;
+    }
+
+    if (i > ai_maxnode) {
+        ai_maxnode = i;
+    }
+
+    if (i >= MAX_PATHNODES) {
+        gi.Error(ERR_DROP, "Exceeded MAX_PATHNODES!\n");
         return;
     }
 
-    gi.Error(ERR_DROP, "Exceeded MAX_PATHNODES!\n");
+    PathSearch::pathnodes[i] = node;
+    node->nodenum            = i;
+
+    PathSearch::nodecount++;
+}
+
+void AI_RemoveNode(PathNode *node)
+{
+    int num;
+
+    num = node->nodenum;
+    delete node;
+
+    PathSearch::pathnodes[num] = NULL;
+    if (num == PathSearch::nodecount) {
+        PathSearch::nodecount--;
+    }
 }
 
 /*****************************************************************************/
@@ -1186,12 +1254,14 @@ Event EV_Path_SetNodeFlags
 );
 
 // Added in 2.0
-Event EV_Path_SetLowWallArc(
+Event EV_Path_SetLowWallArc
+(
     "low_wall_arc",
     EV_DEFAULT,
     "f",
     "arc_half_angle",
-    "Marks this node as good for low-wall behavior, and gives the arc"
+    "Marks this node as good for low-wall behavior"
+    "and gives the arc"
 );
 
 CLASS_DECLARATION(SimpleEntity, PathNode, "info_pathnode") {
@@ -1340,6 +1410,9 @@ void PathNode::DrawConnections(void)
     for (i = 0; i < numChildren; i++) {
         path = &Child[i];
         node = PathSearch::pathnodes[path->node];
+        if (!node) {
+            continue;
+        }
 
         G_DebugLine(origin + Vector("0 0 24"), node->origin + Vector("0 0 24"), 0.7f, 0.7f, 0, 1);
     }
@@ -1361,27 +1434,32 @@ static void droptofloor(Vector& vec, PathNode *node)
 
 static bool IsValidPathnode(int spawnflags)
 {
-    if ((spawnflags & AI_DUCK) && (spawnflags & AI_COVERFLAGS2)) {
+    if ((spawnflags & AI_DUCK)
+        && (spawnflags & (AI_CONCEALMENT | AI_CORNER_LEFT | AI_CORNER_RIGHT | AI_SNIPER | AI_CRATE))) {
         return false;
     }
 
-    if ((spawnflags & AI_CONCEALMENT) && (spawnflags & AI_SNIPERFLAGS)) {
+    if ((spawnflags & AI_CONCEALMENT) && (spawnflags & (AI_COVER | AI_CORNER_LEFT | AI_CORNER_RIGHT | AI_SNIPER))) {
         return false;
     }
 
-    if ((spawnflags & AI_CORNER_LEFT) && (spawnflags & AI_COVER_LEFT_FLAGS)) {
+    if ((spawnflags & AI_CORNER_LEFT)
+        && (spawnflags & (AI_DUCK | AI_CONCEALMENT | AI_CORNER_RIGHT | AI_SNIPER | AI_CRATE))) {
         return false;
     }
 
-    if ((spawnflags & AI_CORNER_RIGHT) && (spawnflags & AI_COVER_RIGHT_FLAGS)) {
+    if ((spawnflags & AI_CORNER_RIGHT)
+        && (spawnflags & (AI_DUCK | AI_CONCEALMENT | AI_CORNER_LEFT | AI_SNIPER | AI_CRATE))) {
         return false;
     }
 
-    if ((spawnflags & AI_SNIPER) && (spawnflags & AI_CRATEFLAGS)) {
+    if ((spawnflags & AI_SNIPER)
+        && (spawnflags & (AI_DUCK | AI_COVER | AI_CONCEALMENT | AI_CORNER_LEFT | AI_CORNER_RIGHT | AI_CRATE))) {
         return false;
     }
 
-    if ((spawnflags & AI_ALL) && (spawnflags & AI_COVERFLAGS3)) {
+    if ((spawnflags & AI_CRATE)
+        && (spawnflags & (AI_DUCK | AI_CONCEALMENT | AI_CORNER_LEFT | AI_CORNER_RIGHT | AI_SNIPER))) {
         return false;
     }
 
@@ -1390,27 +1468,51 @@ static bool IsValidPathnode(int spawnflags)
 
 static void GetPathnodeColor(int spawnflags, vec3_t color)
 {
-    if (IsValidPathnode(spawnflags)) {
-        if (spawnflags & AI_CORNER_LEFT) {
-            VectorCopy(COLOR_PATHNODE_CORNER_LEFT, color);
-        } else if (spawnflags & AI_CORNER_RIGHT) {
-            VectorCopy(COLOR_PATHNODE_CORNER_RIGHT, color);
-        } else if (spawnflags & AI_DUCK) {
-            VectorCopy(COLOR_PATHNODE_DUCK, color);
-        } else if (spawnflags & AI_SNIPER) {
-            VectorCopy(COLOR_PATHNODE_SNIPER, color);
-        } else if (spawnflags & AI_CONCEALMENT) {
-            VectorCopy(COLOR_PATHNODE_CONCEALMENT, color);
-        } else if (spawnflags & AI_COVER) {
-            VectorCopy(COLOR_PATHNODE_COVER, color);
-        } else if (spawnflags & AI_CRATE) {
-            VectorCopy(COLOR_PATHNODE_CRATE, color);
-        } else {
-            VectorCopy(COLOR_PATHNODE_DEFAULT, color);
-        }
-    } else {
+    if (!IsValidPathnode(spawnflags)) {
         VectorCopy(COLOR_PATHNODE_ERROR, color);
+        return;
     }
+
+    if (spawnflags & AI_CORNER_LEFT) {
+        VectorCopy(COLOR_PATHNODE_CORNER_LEFT, color);
+    } else if (spawnflags & AI_CORNER_RIGHT) {
+        VectorCopy(COLOR_PATHNODE_CORNER_RIGHT, color);
+    } else if (spawnflags & AI_DUCK) {
+        VectorCopy(COLOR_PATHNODE_DUCK, color);
+    } else if (spawnflags & AI_SNIPER) {
+        VectorCopy(COLOR_PATHNODE_SNIPER, color);
+    } else if (spawnflags & AI_CONCEALMENT) {
+        VectorCopy(COLOR_PATHNODE_CONCEALMENT, color);
+    } else if (spawnflags & AI_COVER) {
+        VectorCopy(COLOR_PATHNODE_COVER, color);
+    } else if (spawnflags & AI_CRATE) {
+        VectorCopy(COLOR_PATHNODE_CRATE, color);
+    } else {
+        VectorCopy(COLOR_PATHNODE_DEFAULT, color);
+    }
+}
+
+static int GetNodeTypeFromName(const char *name)
+{
+    if (!str::icmp(name, "corner_left")) {
+        return AI_CORNER_LEFT;
+    } else if (!str::icmp(name, "corner_right")) {
+        return AI_CORNER_RIGHT;
+    } else if (!str::icmp(name, "duck")) {
+        return AI_DUCK;
+    } else if (!str::icmp(name, "sniper")) {
+        return AI_SNIPER;
+    } else if (!str::icmp(name, "concealment")) {
+        return AI_CONCEALMENT;
+    } else if (!str::icmp(name, "cover")) {
+        return AI_COVER;
+    } else if (!str::icmp(name, "crate")) {
+        return AI_CRATE;
+    } else if (!str::icmp(name, "none")) {
+        return 0;
+    }
+
+    return -1;
 }
 
 void DrawNode(int iNodeCount)
@@ -1545,6 +1647,9 @@ void DrawAllConnections(void)
 
     for (int i = 0; i < PathSearch::nodecount; i++) {
         node = PathSearch::pathnodes[i];
+        if (!node) {
+            continue;
+        }
 
         if (Vector(node->origin - playerorigin).length() > ai_showroutes_distance->integer) {
             continue;
@@ -1562,7 +1667,11 @@ void DrawAllConnections(void)
             }
 
             reverse = false;
-            to      = PathSearch::pathnodes[path->node];
+
+            to = PathSearch::pathnodes[path->node];
+            if (!to) {
+                continue;
+            }
 
             for (int k = to->numChildren - 1; k >= 0; k--) {
                 path2 = &to->Child[k];
@@ -1769,6 +1878,9 @@ int PathSearch::DebugNearestNodeList(const vec3_t pos, PathNode **nodelist, int 
 
     for (i = 0; i < node_count && n < iMaxNodes; i++) {
         node = pathnodes[cell->nodes[nodes[i]]];
+        if (!node) {
+            continue;
+        }
 
         VectorCopy(pos, start);
         VectorCopy(pos, end);
@@ -1821,6 +1933,9 @@ int PathSearch::DebugNearestNodeList2(const vec3_t pos, PathNode **nodelist, int
 
     for (i = 0; i < node_count; i++) {
         node = pathnodes[i];
+        if (!node) {
+            continue;
+        }
 
         if (pos[2] > node->origin[2] + 94.0f) {
             continue;
@@ -1877,6 +1992,9 @@ PathNode *PathSearch::DebugNearestStartNode(const vec3_t pos, Entity *ent)
 
     for (i = 0; i < node_count; i++) {
         node = pathnodes[cell->nodes[nodes[i]]];
+        if (!node) {
+            continue;
+        }
 
         VectorCopy(start, end);
         VectorAdd(end, deltas[nodes[i]], end);
@@ -1927,6 +2045,9 @@ PathNode *PathSearch::NearestStartNode(const vec3_t pos, SimpleActor *ent)
 
     for (i = 0; i < node_count; i++) {
         node = pathnodes[cell->nodes[nodes[i]]];
+        if (!node) {
+            continue;
+        }
 
         VectorAdd(start, deltas[nodes[i]], end);
 
@@ -1994,6 +2115,9 @@ PathNode *PathSearch::NearestEndNode(const vec3_t pos)
 
     for (i = 0; i < node_count; i++) {
         node = pathnodes[cell->nodes[nodes[i]]];
+        if (!node) {
+            continue;
+        }
 
         VectorAdd(start, deltas[nodes[i]], end);
 
@@ -2425,6 +2549,9 @@ void PathSearch::CreatePaths(void)
 
     for (i = 0; i < nodecount; i++) {
         node = pathnodes[i];
+        if (!node) {
+            continue;
+        }
 
         droptofloor(node->origin, node);
         node->centroid = node->origin;
@@ -2435,6 +2562,9 @@ void PathSearch::CreatePaths(void)
 
         for (j = i - 1; j >= 0; j--) {
             PathNode *node2 = pathnodes[j];
+            if (!node2) {
+                continue;
+            }
 
             if (node->origin == node2->origin) {
                 Com_Printf(
@@ -2456,7 +2586,7 @@ void PathSearch::CreatePaths(void)
     for (i = 0; i < nodecount; i++) {
         node = pathnodes[i];
 
-        if (node->nodeflags & PATH_DONT_LINK) {
+        if (!node || (node->nodeflags & PATH_DONT_LINK)) {
             continue;
         }
 
@@ -2466,7 +2596,7 @@ void PathSearch::CreatePaths(void)
     for (i = 0; i < nodecount; i++) {
         node = pathnodes[i];
 
-        if (node->nodeflags & PATH_DONT_LINK) {
+        if (!node || (node->nodeflags & PATH_DONT_LINK)) {
             continue;
         }
 
@@ -2668,6 +2798,9 @@ bool PathSearch::Connect(PathNode *node, int x, int y)
 
     for (i = 0; i < cell->numnodes; i++) {
         node2 = pathnodes[cell->nodes[i]];
+        if (!node2) {
+            continue;
+        }
 
         if (node2->findCount != findFrame) {
             node2->findCount = findFrame;
@@ -3119,6 +3252,9 @@ int PathSearch::NearestNodeSetup(const vec3_t pos, MapCell *cell, int *nodes, ve
 
     for (i = 0; i < node_count; i++) {
         node = pathnodes[cell->nodes[i]];
+        if (!node) {
+            continue;
+        }
 
         if (pos[2] > node->origin[2] + 94.0f) {
             continue;
@@ -3170,17 +3306,61 @@ Event EV_NavMaster_CreatePaths
 );
 Event EV_NavMaster_SpawnNode
 (
-    "nav_newnode",
+    "nav_create",
     EV_CHEAT,
     "S",
     "type",
     "Create a new node at the player's origin"
 );
+Event EV_NavMaster_SetNodeFlags
+(
+    "nav_node_set_type",
+    EV_CHEAT,
+    "sSS",
+    "type1 type2 ...",
+    "Set the selected node type. Type can be one of the following values:\n"
+    "- corner_left\n"
+    "- corner_right\n"
+    "- duck\n"
+    "- sniper\n"
+    "- concealment\n"
+    "- cover\n"
+    "- crate\n"
+    "- none\n"
+);
+Event EV_NavMaster_SetNodeTargetName
+(
+    "nav_node_set_targetname",
+    EV_CHEAT,
+    "S",
+    "targetname",
+    "Set the selected node target name"
+);
+Event EV_NavMaster_SetNodeTarget
+(
+    "nav_node_set_target",
+    EV_CHEAT,
+    "S",
+    "target",
+    "Set the selected node target"
+);
+Event EV_NavMaster_RemoveNode
+(
+    "nav_node_remove",
+    EV_CHEAT,
+    NULL,
+    NULL,
+    "Delete the selected node"
+);
 
 CLASS_DECLARATION(Listener, NavMaster, NULL) {
-    {&EV_NavMaster_CreatePaths, &NavMaster::CreatePaths},
-    {&EV_NavMaster_SpawnNode,   &NavMaster::CreateNode },
-    {NULL,                      NULL                   }
+    {&EV_NavMaster_CreatePaths,       &NavMaster::CreatePaths      },
+    {&EV_NavMaster_SpawnNode,         &NavMaster::CreateNode       },
+    {&EV_NavMaster_SetNodeFlags,      &NavMaster::SetNodeFlags     },
+    {&EV_NavMaster_SetNodeTargetName, &NavMaster::SetNodeTargetName},
+    {&EV_NavMaster_SetNodeTarget,     &NavMaster::SetNodeTarget    },
+    {&EV_NavMaster_RemoveNode,        &NavMaster::RemoveNode       },
+    {NULL,                            NULL                         }
 };
 
 NavMaster navMaster;
@@ -3215,21 +3395,10 @@ void NavMaster::CreateNode(Event *ev)
     Entity   *ent;
 
     if (ev->NumArgs() > 0) {
-        type = ev->GetString(1);
-        if (!str::icmp(type, "corner_left")) {
-            spawnflags = AI_CORNER_LEFT;
-        } else if (!str::icmp(type, "corner_right")) {
-            spawnflags = AI_CORNER_RIGHT;
-        } else if (!str::icmp(type, "duck")) {
-            spawnflags = AI_DUCK;
-        } else if (!str::icmp(type, "sniper")) {
-            spawnflags = AI_SNIPER;
-        } else if (!str::icmp(type, "concealment")) {
-            spawnflags = AI_CONCEALMENT;
-        } else if (!str::icmp(type, "cover")) {
-            spawnflags = AI_COVER;
-        } else if (!str::icmp(type, "crate")) {
-            spawnflags = AI_CRATE;
+        type       = ev->GetString(1);
+        spawnflags = GetNodeTypeFromName(type);
+        if (spawnflags == -1) {
+            ScriptError("Unrecognized node type '%s'", type.c_str());
         }
     }
 
@@ -3238,13 +3407,91 @@ void NavMaster::CreateNode(Event *ev)
         return;
     }
 
-    node            = new PathNode;
+    node = new PathNode;
+
     node->nodeflags = spawnflags;
     node->setOrigin(ent->origin);
 }
 
-void NavMaster::Frame() {
-    float phase;
+void NavMaster::SetNodeFlags(Event *ev)
+{
+    str type;
+    str typelist;
+    int spawnflags;
+    int i;
+
+    CheckNodeSelected();
+
+    if (ev->NumArgs() < 1) {
+        ScriptError("A type is required");
+        return;
+    }
+
+    spawnflags = 0;
+
+    for (i = 1; i <= ev->NumArgs(); i++) {
+        int flags;
+
+        type = ev->GetString(i);
+
+        flags = GetNodeTypeFromName(type);
+        if (flags == -1) {
+            ScriptError("Unrecognized node type '%s'", type.c_str());
+        }
+
+        spawnflags |= flags;
+
+        if (i != 1) {
+            typelist += ", ";
+        }
+        typelist += "'" + type + "'";
+    }
+
+    selectedNode->nodeflags = spawnflags;
+
+    gi.Printf("Node %d set type %s\n", selectedNode->nodenum, typelist.c_str());
+}
+
+void NavMaster::SetNodeTargetName(Event *ev)
+{
+    CheckNodeSelected();
+
+    selectedNode->targetname = ev->GetString(1);
+
+    gi.Printf("Node %d got new targetname '%s'\n", selectedNode->nodenum, selectedNode->targetname.c_str());
+}
+
+void NavMaster::SetNodeTarget(Event *ev)
+{
+    CheckNodeSelected();
+
+    selectedNode->target = ev->GetString(1);
+
+    gi.Printf("Node %d got new target '%s'\n", selectedNode->nodenum, selectedNode->target.c_str());
+}
+
+void NavMaster::RemoveNode(Event *ev)
+{
+    int num;
+
+    CheckNodeSelected();
+
+    num = selectedNode->nodenum;
+    AI_RemoveNode(selectedNode);
+
+    gi.Printf("Node %d removed\n", selectedNode->nodenum, selectedNode->targetname.c_str());
+}
+
+void NavMaster::CheckNodeSelected()
+{
+    if (!selectedNode) {
+        ScriptError("No node selected");
+    }
+}
+
+void NavMaster::Frame()
+{
+    float  phase;
     vec3_t color;
 
     if (!ai_editmode->integer) {
@@ -3268,43 +3515,59 @@ void NavMaster::Frame() {
         colorPhase[0] = 0;
         colorPhase[1] = (1.0 - phase) * 0.5;
         colorPhase[2] = phase;
-        color[1] = Q_max(color[1], colorPhase[1]) - Q_min(color[1], colorPhase[1]);
-        color[2] = Q_max(color[2], colorPhase[2]) - Q_min(color[2], colorPhase[2]);
+        color[1]      = Q_max(color[1], colorPhase[1]) - Q_min(color[1], colorPhase[1]);
+        color[2]      = Q_max(color[2], colorPhase[2]) - Q_min(color[2], colorPhase[2]);
 
         mins = Vector(-24, -24, -24);
         maxs = Vector(24, 24, 24);
-        org = selectedNode->centroid;
+        org  = selectedNode->centroid;
         org.z += 24;
 
         G_DebugBBox(org, mins, maxs, color[0], color[1], color[2], 1.0);
     }
 }
 
-PathNode* NavMaster::DetermineCurrentNode() const {
-    Entity* ent;
-    PathNode* bestnode;
-    float bestdist;
-    Vector delta;
-    int i;
+PathNode *NavMaster::DetermineCurrentNode() const
+{
+    Entity   *ent;
+    PathNode *bestnode;
+    float     bestdist;
+    Vector    delta;
+    Vector    dir;
+    int       i;
 
     ent = g_entities->entity;
     if (!ent) {
         return NULL;
     }
 
+    if (ent->IsSubclassOfSentient()) {
+        Sentient    *sent       = static_cast<Sentient *>(ent);
+        const Vector viewAngles = sent->GetViewAngles();
+
+        Vector forward;
+        viewAngles.AngleVectorsLeft(&dir);
+    } else {
+        dir = ent->orientation[0];
+    }
+
     bestdist = 1e+12f;
     bestnode = NULL;
 
     for (i = 0; i < PathSearch::nodecount; i++) {
-        PathNode* node = PathSearch::pathnodes[i];
-        float dist;
+        PathNode *node = PathSearch::pathnodes[i];
+        float     dist;
 
-        delta = node->centroid - ent->centroid;
-        if (!ent->FovCheck(delta, cos(DEG2RAD(80.0 / 2.f)))) {
+        if (!node) {
             continue;
         }
 
-        if (abs(delta.z) > MAXS_Z) {
+        delta = node->centroid - ent->centroid;
+        if (abs(delta.z) > (MAXS_Z * 2)) {
+            continue;
+        }
+
+        if (!FovCheck(dir, delta, 45)) {
             continue;
         }
 
@@ -3316,6 +3579,26 @@ PathNode* NavMaster::DetermineCurrentNode() const {
     }
 
     return bestnode;
+}
+
+bool NavMaster::FovCheck(const Vector& dir, const Vector& delta, float fov) const
+{
+    float fovdot   = cos(DEG2RAD(fov / 2.f));
+    float deltadot = DotProduct(delta, dir);
+
+    if (fovdot < 0.0f) {
+        if (deltadot >= 0.0f) {
+            return true;
+        }
+
+        return VectorLengthSquared(delta) * Square(fovdot) > Square(deltadot);
+    } else {
+        if (deltadot < 0.0f) {
+            return false;
+        }
+
+        return VectorLengthSquared(delta) * Square(fovdot) < Square(deltadot);
+    }
 }
 
 Event EV_AttractiveNode_GetPriority

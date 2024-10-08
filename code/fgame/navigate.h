@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2023 the OpenMoHAA team
+Copyright (C) 2024 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -378,10 +378,16 @@ public:
 
     void CreatePaths(Event *ev);
     void CreateNode(Event *ev);
+    void SetNodeFlags(Event *ev);
+    void SetNodeTargetName(Event *ev);
+    void SetNodeTarget(Event *ev);
+    void RemoveNode(Event *ev);
     void Frame();
 
 private:
-    PathNode* DetermineCurrentNode() const;
+    void      CheckNodeSelected();
+    PathNode *DetermineCurrentNode() const;
+    bool      FovCheck(const Vector& dir, const Vector& delta, float fov) const;
 
 private:
     SafePtr<PathNode> selectedNode;
