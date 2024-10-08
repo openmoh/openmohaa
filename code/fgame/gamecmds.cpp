@@ -678,9 +678,9 @@ qboolean G_RemoveBotCommand(gentity_t *ent)
 qboolean G_BotCommand(gentity_t *ent)
 {
     const char *command;
-    PlayerBot  *bot;
+    BotController *bot;
 
-    if (!G_GetFirstBot() || !G_GetFirstBot()->entity) {
+    if (botManager.getControllerManager().getControllers().NumObjects() < 1) {
         gi.Printf("No bot spawned.\n");
         return qfalse;
     }
@@ -690,7 +690,7 @@ qboolean G_BotCommand(gentity_t *ent)
         return qfalse;
     }
 
-    bot = (PlayerBot *)G_GetFirstBot()->entity;
+    bot = botManager.getControllerManager().getControllers().ObjectAt(1);
 
     command = gi.Argv(1);
 
@@ -713,7 +713,7 @@ qboolean G_BotCommand(gentity_t *ent)
 
         bot->AvoidPath(ent->entity->origin, rad);
     } else if (!Q_stricmp(command, "telehere")) {
-        bot->setOrigin(ent->s.origin);
+        bot->getControlledEntity()->setOrigin(ent->s.origin);
     }
 
     return qtrue;

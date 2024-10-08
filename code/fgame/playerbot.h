@@ -34,19 +34,42 @@ typedef struct nodeAttract_s {
     AttractiveNodePtr m_pNode;
 } nodeAttract_t;
 
+class BotController;
+
 class PlayerBot : public Player
 {
+public:
+    CLASS_PROTOTYPE(PlayerBot);
+
+public:
+    PlayerBot();
+
+    void setController(BotController *controlledBy);
+
+    void Spawned(void);
+
+    void Killed(Event *ev);
+    void GotKill(Event *ev);
+
+private:
+    BotController *controller;
+};
+
+class BotController : public Listener
+{
+public:
     struct botfunc_t {
-        bool (PlayerBot::*CheckCondition)(void);
-        void (PlayerBot::*BeginState)(void);
-        void (PlayerBot::*EndState)(void);
-        void (PlayerBot::*ThinkState)(void);
+        bool (BotController::*CheckCondition)(void);
+        void (BotController::*BeginState)(void);
+        void (BotController::*EndState)(void);
+        void (BotController::*ThinkState)(void);
     };
 
 private:
     static botfunc_t botfuncs[];
 
     // Paths
+    Vector                     m_vCurrentOrigin;
     ActorPath                  m_Path;
     Vector                     m_vTargetPos;
     Vector                     m_vCurrentGoal;
@@ -138,9 +161,9 @@ private:
     void CheckStates(void);
 
 public:
-    CLASS_PROTOTYPE(PlayerBot);
+    CLASS_PROTOTYPE(BotController);
 
-    PlayerBot();
+    BotController();
 
     static void Init(void);
 
@@ -175,15 +198,61 @@ public:
 
     void SendCommand(const char *text);
 
-    void setAngles(Vector angles) override;
-    void updateOrigin(void) override;
+    void Think();
 
-    void Spawned(void) override;
+    void Spawned(void);
 
-    void Killed(Event *ev) override;
+    void Killed(Event *ev);
     void GotKill(Event *ev);
     void EventStuffText(Event *ev);
 
 private:
     void NewMove();
+
+public:
+    void    setControlledEntity(Player *player);
+    Player *getControlledEntity() const;
+
+private:
+    SafePtr<Player> controlledEnt;
 };
+
+class BotControllerManager : public Listener
+{
+public:
+    CLASS_PROTOTYPE(BotControllerManager);
+
+public:
+    ~BotControllerManager();
+
+    BotController                    *createController(Player *player);
+    void                              removeController(BotController *controller);
+    BotController                    *findController(Entity *ent);
+    const Container<BotController *>& getControllers() const;
+
+    void Init();
+    void Cleanup();
+    void ThinkControllers();
+
+private:
+    Container<BotController *> controllers;
+};
+
+class BotManager : public Listener
+{
+public:
+    CLASS_PROTOTYPE(BotManager);
+
+public:
+    BotControllerManager& getControllerManager();
+
+    void Init();
+    void Cleanup();
+    void Frame();
+    void BroadcastEvent(Entity *originator, Vector origin, int iType, float radius);
+
+private:
+    BotControllerManager botControllerManager;
+};
+
+extern BotManager botManager;

@@ -271,7 +271,7 @@ void G_InitGame(int levelTime, int randomSeed)
 
     Director.Reset();
     Actor::Init();
-    PlayerBot::Init();
+    G_BotInit();
 
     sv_numtraces   = 0;
     sv_numpmtraces = 0;
@@ -556,11 +556,7 @@ void G_RunFrame(int levelTime, int frameTime)
             start           = clock();
         }
 
-        for (edict = active_edicts.next; edict != &active_edicts; edict = edict->next) {
-            if (edict->entity->IsSubclassOfBot()) {
-                G_BotThink(edict, frameTime);
-            }
-        }
+        G_BotFrame();
 
         for (edict = active_edicts.next; edict != &active_edicts; edict = edict->next) {
             for (num = edict->s.parent; num != ENTITYNUM_NONE; num = g_entities[num].s.parent) {

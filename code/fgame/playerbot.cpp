@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2023 the OpenMoHAA team
+Copyright (C) 2024 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -42,12 +42,46 @@ CLASS_DECLARATION(Player, PlayerBot, NULL) {
     {NULL,                 NULL                      }
 };
 
-PlayerBot::botfunc_t PlayerBot::botfuncs[MAX_BOT_FUNCTIONS];
-
 PlayerBot::PlayerBot()
 {
     entflags |= ECF_BOT;
+    controller = NULL;
+}
 
+void PlayerBot::setController(BotController *controlledBy)
+{
+    controller = controlledBy;
+}
+
+void PlayerBot::Spawned(void)
+{
+    controller->Spawned();
+
+    Player::Spawned();
+}
+
+void PlayerBot::Killed(Event *ev)
+{
+    Player::Killed(ev);
+
+    controller->Killed(ev);
+}
+
+void PlayerBot::GotKill(Event *ev)
+{
+    Player::GotKill(ev);
+
+    controller->GotKill(ev);
+}
+
+CLASS_DECLARATION(Listener, BotController, NULL) {
+    {NULL, NULL}
+};
+
+BotController::botfunc_t BotController::botfuncs[MAX_BOT_FUNCTIONS];
+
+BotController::BotController()
+{
     if (LoadingSavegame) {
         return;
     }
@@ -72,7 +106,7 @@ PlayerBot::PlayerBot()
     m_botEyes.angles[1] = 0;
     m_botEyes.ofs[0]    = 0;
     m_botEyes.ofs[1]    = 0;
-    m_botEyes.ofs[2]    = viewheight;
+    m_botEyes.ofs[2]    = DEFAULT_VIEWHEIGHT;
 
     m_vAngSpeed      = vec_zero;
     m_vTargetAng     = vec_zero;
@@ -91,13 +125,13 @@ PlayerBot::PlayerBot()
     m_RunLabel.TrySetScript("global/bot_run.scr");
 }
 
-void PlayerBot::Init(void)
+void BotController::Init(void)
 {
     bot_manualmove = gi.Cvar_Get("bot_manualmove", "0", 0);
 
     for (int i = 0; i < MAX_BOT_FUNCTIONS; i++) {
-        botfuncs[i].BeginState = &PlayerBot::State_DefaultBegin;
-        botfuncs[i].EndState   = &PlayerBot::State_DefaultEnd;
+        botfuncs[i].BeginState = &BotController::State_DefaultBegin;
+        botfuncs[i].EndState   = &BotController::State_DefaultEnd;
     }
 
     InitState_Attack(&botfuncs[0]);
@@ -124,7 +158,7 @@ float AngleDifference(float ang1, float ang2)
     return diff;
 }
 
-void PlayerBot::TurnThink(void)
+void BotController::TurnThink(void)
 {
     float diff, factor, maxchange, anglespeed, desired_speed;
     int   i;
@@ -150,7 +184,7 @@ void PlayerBot::TurnThink(void)
         desired_speed    = diff * factor;
 
         m_vAngSpeed[i] = Q_clamp_float(m_vAngSpeed[i] + (m_vAngSpeed[i] - desired_speed), -180, 180);
-        anglespeed = Q_clamp_float(m_vAngSpeed[i], -maxchange, maxchange);
+        anglespeed     = Q_clamp_float(m_vAngSpeed[i], -maxchange, maxchange);
 
         m_vCurrentAng[i] += anglespeed;
         m_vCurrentAng[i] = AngleMod(m_vCurrentAng[i]);
@@ -165,24 +199,24 @@ void PlayerBot::TurnThink(void)
 
     m_botEyes.angles[0] = m_vCurrentAng[0];
     m_botEyes.angles[1] = m_vCurrentAng[1];
-    m_botCmd.angles[0]  = ANGLE2SHORT(m_vCurrentAng[0]) - client->ps.delta_angles[0];
-    m_botCmd.angles[1]  = ANGLE2SHORT(m_vCurrentAng[1]) - client->ps.delta_angles[1];
-    m_botCmd.angles[2]  = ANGLE2SHORT(m_vCurrentAng[2]) - client->ps.delta_angles[2];
+    m_botCmd.angles[0]  = ANGLE2SHORT(m_vCurrentAng[0]) - controlledEnt->client->ps.delta_angles[0];
+    m_botCmd.angles[1]  = ANGLE2SHORT(m_vCurrentAng[1]) - controlledEnt->client->ps.delta_angles[1];
+    m_botCmd.angles[2]  = ANGLE2SHORT(m_vCurrentAng[2]) - controlledEnt->client->ps.delta_angles[2];
 }
 
-void PlayerBot::CheckAttractiveNodes(void)
+void BotController::CheckAttractiveNodes(void)
 {
     for (int i = m_attractList.NumObjects(); i > 0; i--) {
         nodeAttract_t *a = m_attractList.ObjectAt(i);
 
-        if (a->m_pNode == NULL || !a->m_pNode->CheckTeam(this) || level.time > a->m_fRespawnTime) {
+        if (a->m_pNode == NULL || !a->m_pNode->CheckTeam(controlledEnt) || level.time > a->m_fRespawnTime) {
             delete a;
             m_attractList.RemoveObjectAt(i);
         }
     }
 }
 
-void PlayerBot::MoveThink(void)
+void BotController::MoveThink(void)
 {
     Vector vDir;
     Vector vAngles;
@@ -199,14 +233,14 @@ void PlayerBot::MoveThink(void)
 
     if (m_bTempAway && level.inttime >= m_iTempAwayTime) {
         m_bTempAway = false;
-        m_Path.FindPath(origin, m_vTargetPos, this, 0, NULL, 0);
+        m_Path.FindPath(controlledEnt->origin, m_vTargetPos, controlledEnt, 0, NULL, 0);
     }
 
     if (!m_bTempAway) {
         if (m_Path.CurrentNode()) {
-            m_Path.UpdatePos(origin, 8);
+            m_Path.UpdatePos(controlledEnt->origin, 8);
 
-            m_vCurrentGoal = origin;
+            m_vCurrentGoal = controlledEnt->origin;
             VectorAdd2D(m_vCurrentGoal, m_Path.CurrentDelta(), m_vCurrentGoal);
 
             if (MoveDone()) {
@@ -217,12 +251,11 @@ void PlayerBot::MoveThink(void)
     }
 
     if (ai_debugpath->integer) {
-        G_DebugLine(centroid, m_vCurrentGoal + Vector(0, 0, 36), 1, 1, 0, 1);
+        G_DebugLine(controlledEnt->centroid, m_vCurrentGoal + Vector(0, 0, 36), 1, 1, 0, 1);
     }
 
     // Check if we're blocked
     if (level.inttime >= m_iCheckPathTime) {
-
         m_bDeltaMove = false;
 
         m_iCheckPathTime = level.inttime + 1000;
@@ -234,15 +267,17 @@ void PlayerBot::MoveThink(void)
 
         m_bTempAway = false;
 
-        if (groundentity || client->ps.walking) {
-            if (GetMoveResult() >= MOVERESULT_BLOCKED || velocity.lengthSquared() <= Square(8)) {
+        if (controlledEnt->groundentity || controlledEnt->client->ps.walking) {
+            if (controlledEnt->GetMoveResult() >= MOVERESULT_BLOCKED
+                || controlledEnt->velocity.lengthSquared() <= Square(8)) {
                 m_bTempAway = true;
-            } else if ((origin - m_vLastCheckPos[0]).lengthSquared() <= Square(32) && (origin - m_vLastCheckPos[1]).lengthSquared() <= Square(32)) {
+            } else if ((controlledEnt->origin - m_vLastCheckPos[0]).lengthSquared() <= Square(32)
+                       && (controlledEnt->origin - m_vLastCheckPos[1]).lengthSquared() <= Square(32)) {
                 m_bTempAway = true;
             }
         } else {
             // falling
-            if (GetMoveResult() >= MOVERESULT_BLOCKED) {
+            if (controlledEnt->GetMoveResult() >= MOVERESULT_BLOCKED) {
                 // stuck while falling
                 m_bTempAway = true;
             }
@@ -257,18 +292,18 @@ void PlayerBot::MoveThink(void)
             // Try to backward a little
             m_Path.Clear();
             m_Path.ForceShortLookahead();
-            m_vCurrentGoal = origin + Vector(G_CRandom(512), G_CRandom(512), G_CRandom(512));
+            m_vCurrentGoal = controlledEnt->origin + Vector(G_CRandom(512), G_CRandom(512), G_CRandom(512));
         } else {
             m_iNumBlocks = 0;
 
             if (!m_Path.CurrentNode()) {
-                m_vTargetPos = origin + Vector(G_CRandom(512), G_CRandom(512), G_CRandom(512));
+                m_vTargetPos   = controlledEnt->origin + Vector(G_CRandom(512), G_CRandom(512), G_CRandom(512));
                 m_vCurrentGoal = m_vTargetPos;
             }
         }
 
         m_vLastCheckPos[1] = m_vLastCheckPos[0];
-        m_vLastCheckPos[0] = origin;
+        m_vLastCheckPos[0] = controlledEnt->origin;
     }
 
     if (ai_debugpath->integer) {
@@ -288,11 +323,11 @@ void PlayerBot::MoveThink(void)
     }
 
     if (m_Path.CurrentNode()) {
-        if ((m_vTargetPos - origin).lengthSquared() <= Square(16)) {
+        if ((m_vTargetPos - controlledEnt->origin).lengthSquared() <= Square(16)) {
             ClearMove();
         }
     } else {
-        if ((m_vTargetPos - origin).lengthXYSquared() <= Square(16)) {
+        if ((m_vTargetPos - controlledEnt->origin).lengthXYSquared() <= Square(16)) {
             ClearMove();
         }
     }
@@ -302,12 +337,12 @@ void PlayerBot::MoveThink(void)
         vDir[0] = m_Path.CurrentDelta()[0];
         vDir[1] = m_Path.CurrentDelta()[1];
     } else {
-        vDir = m_vCurrentGoal - origin;
+        vDir = m_vCurrentGoal - controlledEnt->origin;
     }
     vDir[2] = 0;
 
     VectorNormalize2D(vDir);
-    vAngles = vDir.toAngles() - angles;
+    vAngles = vDir.toAngles() - controlledEnt->angles;
     vAngles.AngleVectorsLeft(&vWishDir);
 
     m_vLastValidDir  = vDir;
@@ -321,21 +356,21 @@ void PlayerBot::MoveThink(void)
     m_botCmd.rightmove   = (signed char)Q_clamp(y, -127, 127);
     CheckJump();
 
-    Weapon *pWeap = GetActiveWeapon(WEAPON_MAIN);
+    Weapon *pWeap = controlledEnt->GetActiveWeapon(WEAPON_MAIN);
 
     if (pWeap && !pWeap->ShouldReload()) {
         m_RunLabel.Execute(this);
     }
 }
 
-void PlayerBot::CheckJump(void)
+void BotController::CheckJump(void)
 {
     Vector  start;
     Vector  end;
     Vector  dir;
     trace_t trace;
 
-    if (m_pLadder) {
+    if (controlledEnt->GetLadder()) {
         if (!m_botCmd.upmove) {
             m_botCmd.upmove = 127;
         } else {
@@ -346,15 +381,24 @@ void PlayerBot::CheckJump(void)
 
     dir = m_vLastValidDir;
 
-    start = origin + Vector(0, 0, STEPSIZE);
-    end   = origin + Vector(0, 0, STEPSIZE) + dir * (maxs.y - mins.y);
+    start = controlledEnt->origin + Vector(0, 0, STEPSIZE);
+    end   = controlledEnt->origin + Vector(0, 0, STEPSIZE) + dir * (controlledEnt->maxs.y - controlledEnt->mins.y);
 
     if (ai_debugpath->integer) {
         G_DebugLine(start, end, 1, 0, 1, 1);
     }
 
     // Check if the bot needs to jump
-    trace = G_Trace(start, mins, maxs, end, this, MASK_PLAYERSOLID, false, "PlayerBot::CheckJump");
+    trace = G_Trace(
+        start,
+        controlledEnt->mins,
+        controlledEnt->maxs,
+        end,
+        controlledEnt,
+        MASK_PLAYERSOLID,
+        false,
+        "BotController::CheckJump"
+    );
 
     // No need to jump
     if (trace.fraction > 0.5f) {
@@ -362,29 +406,40 @@ void PlayerBot::CheckJump(void)
         return;
     }
 
-    start = origin;
-    end   = origin + Vector(0, 0, STEPSIZE * 3);
+    start = controlledEnt->origin;
+    end   = controlledEnt->origin + Vector(0, 0, STEPSIZE * 3);
 
     if (ai_debugpath->integer) {
         G_DebugLine(start, end, 1, 0, 1, 1);
     }
 
     // Check if the bot can jump up
-    trace = G_Trace(start, mins, maxs, end, this, MASK_PLAYERSOLID, true, "PlayerBot::CheckJump");
+    trace = G_Trace(
+        start,
+        controlledEnt->mins,
+        controlledEnt->maxs,
+        end,
+        controlledEnt,
+        MASK_PLAYERSOLID,
+        true,
+        "BotController::CheckJump"
+    );
 
     start = trace.endpos;
-    end = trace.endpos + dir * (maxs.y - mins.y);
+    end   = trace.endpos + dir * (controlledEnt->maxs.y - controlledEnt->mins.y);
 
     if (ai_debugpath->integer) {
         G_DebugLine(start, end, 1, 0, 1, 1);
     }
 
     Vector bounds[2];
-    bounds[0] = Vector(mins[0], mins[1], 0);
-    bounds[1] = Vector(maxs[0], maxs[1], (maxs[0] + maxs[1]) * 0.5);
+    bounds[0] = Vector(controlledEnt->mins[0], controlledEnt->mins[1], 0);
+    bounds[1] =
+        Vector(controlledEnt->maxs[0], controlledEnt->maxs[1], (controlledEnt->maxs[0] + controlledEnt->maxs[1]) * 0.5);
 
     // Check if the bot can jump at the location
-    trace = G_Trace(start, bounds[0], bounds[1], end, this, MASK_PLAYERSOLID, false, "PlayerBot::CheckJump");
+    trace =
+        G_Trace(start, bounds[0], bounds[1], end, controlledEnt, MASK_PLAYERSOLID, false, "BotController::CheckJump");
 
     if (trace.fraction < 1) {
         m_botCmd.upmove = 0;
@@ -399,7 +454,7 @@ void PlayerBot::CheckJump(void)
     }
 }
 
-void PlayerBot::CheckEndPos(void)
+void BotController::CheckEndPos(void)
 {
     Vector  start;
     Vector  end;
@@ -412,31 +467,40 @@ void PlayerBot::CheckEndPos(void)
     start = m_Path.LastNode()->point;
     end   = m_vTargetPos;
 
-    trace = G_Trace(start, mins, maxs, end, this, MASK_TARGETPATH, true, "PlayerBot::CheckEndPos");
+    trace = G_Trace(
+        start,
+        controlledEnt->mins,
+        controlledEnt->maxs,
+        end,
+        controlledEnt,
+        MASK_TARGETPATH,
+        true,
+        "BotController::CheckEndPos"
+    );
 
     if (trace.fraction < 0.95f) {
         m_vTargetPos = trace.endpos;
     }
 }
 
-void PlayerBot::CheckUse(void)
+void BotController::CheckUse(void)
 {
     Vector  dir;
     Vector  start;
     Vector  end;
     trace_t trace;
 
-    angles.AngleVectorsLeft(&dir);
+    controlledEnt->angles.AngleVectorsLeft(&dir);
 
-    start = origin + Vector(0, 0, viewheight);
-    end   = origin + Vector(0, 0, viewheight) + dir * 32;
+    start = controlledEnt->origin + Vector(0, 0, controlledEnt->viewheight);
+    end   = controlledEnt->origin + Vector(0, 0, controlledEnt->viewheight) + dir * 32;
 
-    trace = G_Trace(start, vec_zero, vec_zero, end, this, MASK_USABLE, false, "PlayerBot::CheckUse");
+    trace = G_Trace(start, vec_zero, vec_zero, end, controlledEnt, MASK_USABLE, false, "BotController::CheckUse");
 
     // It may be a door
     if ((trace.allsolid || trace.startsolid || trace.fraction != 1.0f) && trace.entityNum) {
         if (trace.ent->entity->IsSubclassOfDoor()) {
-            Door* door = static_cast<Door*>(trace.ent->entity);
+            Door *door = static_cast<Door *>(trace.ent->entity);
             if (door->isOpen()) {
                 m_botCmd.buttons &= ~BUTTON_USE;
                 return;
@@ -453,24 +517,24 @@ void PlayerBot::CheckUse(void)
     }
 }
 
-void PlayerBot::GetUsercmd(usercmd_t *ucmd)
+void BotController::GetUsercmd(usercmd_t *ucmd)
 {
     *ucmd = m_botCmd;
 }
 
-void PlayerBot::GetEyeInfo(usereyes_t *eyeinfo)
+void BotController::GetEyeInfo(usereyes_t *eyeinfo)
 {
     *eyeinfo = m_botEyes;
 }
 
-void PlayerBot::UpdateBotStates(void)
+void BotController::UpdateBotStates(void)
 {
     if (bot_manualmove->integer) {
         memset(&m_botCmd, 0, sizeof(usercmd_t));
         return;
     }
 
-    if (!client->pers.dm_primary[0]) {
+    if (!controlledEnt->client->pers.dm_primary[0]) {
         Event *event;
 
         //
@@ -479,28 +543,28 @@ void PlayerBot::UpdateBotStates(void)
         event = new Event(EV_Player_PrimaryDMWeapon);
         event->AddString("auto");
 
-        ProcessEvent(event);
+        controlledEnt->ProcessEvent(event);
     }
 
-    if (GetTeam() == TEAM_NONE || GetTeam() == TEAM_SPECTATOR) {
-        Event* event;
-        float time;
+    if (controlledEnt->GetTeam() == TEAM_NONE || controlledEnt->GetTeam() == TEAM_SPECTATOR) {
+        Event *event;
+        float  time;
 
         // Add some delay to avoid telefragging
-        time = entnum / 20.0;
+        time = controlledEnt->entnum / 20.0;
 
-        if (EventPending(EV_Player_AutoJoinDMTeam)) {
+        if (controlledEnt->EventPending(EV_Player_AutoJoinDMTeam)) {
             return;
         }
 
         //
         // Team
         //
-        PostEvent(EV_Player_AutoJoinDMTeam, time);
+        controlledEnt->PostEvent(EV_Player_AutoJoinDMTeam, time);
         return;
     }
 
-    if (IsDead() || IsSpectator()) {
+    if (controlledEnt->IsDead() || controlledEnt->IsSpectator()) {
         // The bot should respawn
         m_botCmd.buttons ^= BUTTON_ATTACKLEFT;
         return;
@@ -511,7 +575,7 @@ void PlayerBot::UpdateBotStates(void)
 
     m_botEyes.ofs[0]    = 0;
     m_botEyes.ofs[1]    = 0;
-    m_botEyes.ofs[2]    = viewheight;
+    m_botEyes.ofs[2]    = controlledEnt->viewheight;
     m_botEyes.angles[0] = 0;
     m_botEyes.angles[1] = 0;
 
@@ -522,7 +586,7 @@ void PlayerBot::UpdateBotStates(void)
     CheckUse();
 }
 
-void PlayerBot::SendCommand(const char *text)
+void BotController::SendCommand(const char *text)
 {
     char        *buffer;
     char        *data;
@@ -541,7 +605,7 @@ void PlayerBot::SendCommand(const char *text)
         return;
     }
 
-    m_lastcommand = com_token;
+    controlledEnt->m_lastcommand = com_token;
 
     if (!Event::GetEvent(com_token)) {
         return;
@@ -554,7 +618,7 @@ void PlayerBot::SendCommand(const char *text)
         return;
     }
 
-    ev.SetConsoleEdict(edict);
+    ev.SetConsoleEdict(controlledEnt->edict);
 
     while (1) {
         com_token = COM_Parse(&data);
@@ -569,32 +633,9 @@ void PlayerBot::SendCommand(const char *text)
     gi.Free(buffer);
 
     try {
-        ProcessEvent(ev);
+        controlledEnt->ProcessEvent(ev);
     } catch (ScriptException& exc) {
         gi.DPrintf("*** Bot Command Exception *** %s\n", exc.string.c_str());
-    }
-}
-
-void PlayerBot::setAngles(Vector ang)
-{
-    Entity::setAngles(ang);
-    SetTargetAngles(angles);
-}
-
-void PlayerBot::updateOrigin(void)
-{
-    Entity::updateOrigin();
-
-    if (origin == client->ps.origin) {
-        // no change because of Pmove
-        return;
-    }
-
-    m_pPrimaryAttract = NULL;
-
-    if (m_Path.CurrentNode()) {
-        // recalculate paths because of a new origin
-        m_Path.ReFindPath(origin, this);
     }
 }
 
@@ -605,7 +646,7 @@ SetTargetAngles
 Set the bot's angle
 ====================
 */
-void PlayerBot::SetTargetAngles(Vector vAngles)
+void BotController::SetTargetAngles(Vector vAngles)
 {
     m_vTargetAng = vAngles;
 }
@@ -617,9 +658,9 @@ AimAt
 Make the bot face to the specified direction
 ====================
 */
-void PlayerBot::AimAt(Vector vPos)
+void BotController::AimAt(Vector vPos)
 {
-    Vector vDelta = vPos - centroid;
+    Vector vDelta = vPos - controlledEnt->centroid;
 
     VectorNormalize(vDelta);
     vectoangles(vDelta, m_vTargetAng);
@@ -632,7 +673,7 @@ AimAtAimNode
 Make the bot face toward the current path
 ====================
 */
-void PlayerBot::AimAtAimNode(void)
+void BotController::AimAtAimNode(void)
 {
     if (!m_bPathing) {
         return;
@@ -640,8 +681,8 @@ void PlayerBot::AimAtAimNode(void)
 
     if (!m_Path.CurrentNode()) {
         AimAt(m_vCurrentGoal);
-    } else if (!m_Path.Complete(origin)) {
-        AimAt(origin + Vector(m_Path.CurrentDelta()[0], m_Path.CurrentDelta()[1], 0));
+    } else if (!m_Path.Complete(controlledEnt->origin)) {
+        AimAt(controlledEnt->origin + Vector(m_Path.CurrentDelta()[0], m_Path.CurrentDelta()[1], 0));
         //int maxIndex = Q_min(3, m_Path.CurrentNode() - m_Path.LastNode());
         //AimAt((m_Path.CurrentNode() - maxIndex)->point);
     }
@@ -656,9 +697,9 @@ CheckReload
 Make the bot reload if necessary
 ====================
 */
-void PlayerBot::CheckReload(void)
+void BotController::CheckReload(void)
 {
-    Weapon *weap = GetActiveWeapon(WEAPON_MAIN);
+    Weapon *weap = controlledEnt->GetActiveWeapon(WEAPON_MAIN);
 
     if (weap && weap->CheckReload(FIRE_PRIMARY)) {
         SendCommand("reload");
@@ -672,10 +713,11 @@ NewMove
 Called when there is a new move
 ====================
 */
-void PlayerBot::NewMove() {
-    m_bPathing = true;
-    m_vLastCheckPos[0] = origin;
-    m_vLastCheckPos[1] = origin;
+void BotController::NewMove()
+{
+    m_bPathing         = true;
+    m_vLastCheckPos[0] = controlledEnt->origin;
+    m_vLastCheckPos[1] = controlledEnt->origin;
 }
 
 /*
@@ -685,10 +727,10 @@ MoveTo
 Move to the specified position
 ====================
 */
-void PlayerBot::MoveTo(Vector vPos, float *vLeashHome, float fLeashRadius)
+void BotController::MoveTo(Vector vPos, float *vLeashHome, float fLeashRadius)
 {
     m_vTargetPos = vPos;
-    m_Path.FindPath(origin, m_vTargetPos, this, 0, vLeashHome, fLeashRadius * fLeashRadius);
+    m_Path.FindPath(controlledEnt->origin, m_vTargetPos, controlledEnt, 0, vLeashHome, fLeashRadius * fLeashRadius);
 
     NewMove();
 
@@ -708,7 +750,7 @@ Move to the nearest attractive point with a minimum priority
 Returns true if no attractive point was found
 ====================
 */
-bool PlayerBot::MoveToBestAttractivePoint(int iMinPriority)
+bool BotController::MoveToBestAttractivePoint(int iMinPriority)
 {
     Container<AttractiveNode *> list;
     AttractiveNode             *bestNode;
@@ -768,11 +810,11 @@ bool PlayerBot::MoveToBestAttractivePoint(int iMinPriority)
             continue;
         }
 
-        if (!node->CheckTeam(this)) {
+        if (!node->CheckTeam(controlledEnt)) {
             continue;
         }
 
-        distSquared = VectorLengthSquared(origin - node->origin);
+        distSquared = VectorLengthSquared(controlledEnt->origin - node->origin);
 
         if (node->m_fMaxDistanceSquared >= 0 && distSquared > node->m_fMaxDistanceSquared) {
             continue;
@@ -807,9 +849,9 @@ CanMoveTo
 Returns true if the bot has done moving
 ====================
 */
-bool PlayerBot::CanMoveTo(Vector vPos)
+bool BotController::CanMoveTo(Vector vPos)
 {
-    return m_Path.DoesTheoreticPathExist(origin, vPos, NULL, 0, NULL, 0);
+    return m_Path.DoesTheoreticPathExist(controlledEnt->origin, vPos, NULL, 0, NULL, 0);
 }
 
 /*
@@ -819,9 +861,9 @@ MoveDone
 Returns true if the bot has done moving
 ====================
 */
-bool PlayerBot::MoveDone(void)
+bool BotController::MoveDone(void)
 {
-    PathInfo* next;
+    PathInfo *next;
 
     if (!m_bPathing) {
         return true;
@@ -835,8 +877,8 @@ bool PlayerBot::MoveDone(void)
         return true;
     }
 
-    Vector delta = Vector(m_Path.CurrentPathGoal()) - origin;
-    if (delta.lengthXYSquared() < Square(16) && delta.z < maxs.z) {
+    Vector delta = Vector(m_Path.CurrentPathGoal()) - controlledEnt->origin;
+    if (delta.lengthXYSquared() < Square(16) && delta.z < controlledEnt->maxs.z) {
         return true;
     }
 
@@ -850,7 +892,7 @@ IsMoving
 Returns true if the bot has a current path
 ====================
 */
-bool PlayerBot::IsMoving(void)
+bool BotController::IsMoving(void)
 {
     return m_bPathing;
 }
@@ -862,10 +904,10 @@ ClearMove
 Stop the bot from moving
 ====================
 */
-void PlayerBot::ClearMove(void)
+void BotController::ClearMove(void)
 {
     m_Path.Clear();
-    m_bPathing = false;
+    m_bPathing   = false;
     m_iNumBlocks = 0;
 }
 
@@ -876,9 +918,11 @@ MoveNear
 Move near the specified position within the radius
 ====================
 */
-void PlayerBot::MoveNear(Vector vNear, float fRadius, float *vLeashHome, float fLeashRadius)
+void BotController::MoveNear(Vector vNear, float fRadius, float *vLeashHome, float fLeashRadius)
 {
-    m_Path.FindPathNear(origin, vNear, this, 0, fRadius * fRadius, vLeashHome, fLeashRadius * fLeashRadius);
+    m_Path.FindPathNear(
+        controlledEnt->origin, vNear, controlledEnt, 0, fRadius * fRadius, vLeashHome, fLeashRadius * fLeashRadius
+    );
     NewMove();
 
     if (!m_Path.CurrentNode()) {
@@ -896,25 +940,27 @@ AvoidPath
 Avoid the specified position within the radius and start from a direction
 ====================
 */
-void PlayerBot::AvoidPath(
+void BotController::AvoidPath(
     Vector vAvoid, float fAvoidRadius, Vector vPreferredDir, float *vLeashHome, float fLeashRadius
 )
 {
     Vector vDir;
 
     if (vPreferredDir == vec_zero) {
-        vDir = origin - vAvoid;
+        vDir = controlledEnt->origin - vAvoid;
         VectorNormalizeFast(vDir);
     } else {
         vDir = vPreferredDir;
     }
 
-    m_Path.FindPathAway(origin, vAvoid, vDir, this, fAvoidRadius, vLeashHome, fLeashRadius * fLeashRadius);
+    m_Path.FindPathAway(
+        controlledEnt->origin, vAvoid, vDir, controlledEnt, fAvoidRadius, vLeashHome, fLeashRadius * fLeashRadius
+    );
     NewMove();
 
     if (!m_Path.CurrentNode()) {
         // Random movements
-        m_vTargetPos = origin + Vector(G_Random(256) - 128, G_Random(256) - 128, G_Random(256) - 128);
+        m_vTargetPos   = controlledEnt->origin + Vector(G_Random(256) - 128, G_Random(256) - 128, G_Random(256) - 128);
         m_vCurrentGoal = m_vTargetPos;
         return;
     }
@@ -929,10 +975,10 @@ NoticeEvent
 Warn the bot of an event
 ====================
 */
-void PlayerBot::NoticeEvent(Vector vPos, int iType, Entity *pEnt, float fDistanceSquared, float fRadiusSquared)
+void BotController::NoticeEvent(Vector vPos, int iType, Entity *pEnt, float fDistanceSquared, float fRadiusSquared)
 {
-    Sentient* pSentOwner;
-    float fRangeFactor;
+    Sentient *pSentOwner;
+    float     fRangeFactor;
 
     fRangeFactor = 1.0 - (fDistanceSquared / fRadiusSquared);
 
@@ -941,22 +987,22 @@ void PlayerBot::NoticeEvent(Vector vPos, int iType, Entity *pEnt, float fDistanc
     }
 
     if (pEnt->IsSubclassOfSentient()) {
-        pSentOwner = static_cast<Sentient*>(pEnt);
+        pSentOwner = static_cast<Sentient *>(pEnt);
     } else if (pEnt->IsSubclassOfVehicleTurretGun()) {
-        VehicleTurretGun* pVTG = static_cast<VehicleTurretGun*>(pEnt);
-        pSentOwner = pVTG->GetSentientOwner();
+        VehicleTurretGun *pVTG = static_cast<VehicleTurretGun *>(pEnt);
+        pSentOwner             = pVTG->GetSentientOwner();
     } else if (pEnt->IsSubclassOfItem()) {
-        Item* pItem = static_cast<Item*>(pEnt);
-        pSentOwner = pItem->GetOwner();
+        Item *pItem = static_cast<Item *>(pEnt);
+        pSentOwner  = pItem->GetOwner();
     } else if (pEnt->IsSubclassOfProjectile()) {
-        Projectile* pProj = static_cast<Projectile*>(pEnt);
-        pSentOwner = pProj->GetOwner();
+        Projectile *pProj = static_cast<Projectile *>(pEnt);
+        pSentOwner        = pProj->GetOwner();
     } else {
         pSentOwner = NULL;
     }
 
     if (pSentOwner) {
-        if (pSentOwner == this) {
+        if (pSentOwner == controlledEnt) {
             // Ignore self
             return;
         }
@@ -967,9 +1013,9 @@ void PlayerBot::NoticeEvent(Vector vPos, int iType, Entity *pEnt, float fDistanc
 
         // Ignore teammates
         if (pSentOwner->IsSubclassOfPlayer()) {
-            Player* p = static_cast<Player*>(pSentOwner);
+            Player *p = static_cast<Player *>(pSentOwner);
 
-            if (g_gametype->integer >= GT_TEAM && p->GetTeam() == GetTeam()) {
+            if (g_gametype->integer >= GT_TEAM && p->GetTeam() == controlledEnt->GetTeam()) {
                 return;
             }
         }
@@ -989,8 +1035,8 @@ void PlayerBot::NoticeEvent(Vector vPos, int iType, Entity *pEnt, float fDistanc
     case AI_EVENT_FOOTSTEP:
     case AI_EVENT_GRENADE:
     default:
-        m_iCuriousTime    = level.inttime + 20000;
-        m_vNewCuriousPos  = vPos;
+        m_iCuriousTime   = level.inttime + 20000;
+        m_vNewCuriousPos = vPos;
         break;
     }
 }
@@ -1002,7 +1048,7 @@ ClearEnemy
 Clear the bot's enemy
 ====================
 */
-void PlayerBot::ClearEnemy(void)
+void BotController::ClearEnemy(void)
 {
     m_iAttackTime   = 0;
     m_pEnemy        = NULL;
@@ -1024,7 +1070,7 @@ ____________________
 ====================
 */
 
-void PlayerBot::CheckStates(void)
+void BotController::CheckStates(void)
 {
     m_StateCount = 0;
 
@@ -1064,7 +1110,7 @@ void PlayerBot::CheckStates(void)
 
     assert(m_StateCount);
     if (!m_StateCount) {
-        gi.DPrintf("*** WARNING *** %s was stuck with no states !!!", client->pers.netname);
+        gi.DPrintf("*** WARNING *** %s was stuck with no states !!!", controlledEnt->client->pers.netname);
         State_Reset();
     }
 }
@@ -1076,14 +1122,14 @@ Default state
 
 ====================
 */
-void PlayerBot::State_DefaultBegin(void)
+void BotController::State_DefaultBegin(void)
 {
     ClearMove();
 }
 
-void PlayerBot::State_DefaultEnd(void) {}
+void BotController::State_DefaultEnd(void) {}
 
-void PlayerBot::State_Reset(void)
+void BotController::State_Reset(void)
 {
     m_iCuriousTime    = 0;
     m_iAttackTime     = 0;
@@ -1101,13 +1147,13 @@ Idle state
 Make the bot move to random directions
 ====================
 */
-void PlayerBot::InitState_Idle(botfunc_t *func)
+void BotController::InitState_Idle(botfunc_t *func)
 {
-    func->CheckCondition = &PlayerBot::CheckCondition_Idle;
-    func->ThinkState     = &PlayerBot::State_Idle;
+    func->CheckCondition = &BotController::CheckCondition_Idle;
+    func->ThinkState     = &BotController::State_Idle;
 }
 
-bool PlayerBot::CheckCondition_Idle(void)
+bool BotController::CheckCondition_Idle(void)
 {
     if (m_iCuriousTime) {
         return false;
@@ -1120,7 +1166,7 @@ bool PlayerBot::CheckCondition_Idle(void)
     return true;
 }
 
-void PlayerBot::State_Idle(void)
+void BotController::State_Idle(void)
 {
     AimAtAimNode();
     CheckReload();
@@ -1134,10 +1180,10 @@ void PlayerBot::State_Idle(void)
             }
         } else {
             Vector randomDir(G_CRandom(16), G_CRandom(16), G_CRandom(16));
-            Vector preferredDir = Vector(orientation[0]) * (rand() % 5 ? 1024 : -1024);
-            float radius = 512 + G_Random(2048);
+            Vector preferredDir = Vector(controlledEnt->orientation[0]) * (rand() % 5 ? 1024 : -1024);
+            float  radius       = 512 + G_Random(2048);
 
-            AvoidPath(origin + randomDir, radius, preferredDir);
+            AvoidPath(controlledEnt->origin + randomDir, radius, preferredDir);
         }
     }
 }
@@ -1149,13 +1195,13 @@ Curious state
 Forward to the last event position
 ====================
 */
-void PlayerBot::InitState_Curious(botfunc_t *func)
+void BotController::InitState_Curious(botfunc_t *func)
 {
-    func->CheckCondition = &PlayerBot::CheckCondition_Curious;
-    func->ThinkState     = &PlayerBot::State_Curious;
+    func->CheckCondition = &BotController::CheckCondition_Curious;
+    func->ThinkState     = &BotController::State_Curious;
 }
 
-bool PlayerBot::CheckCondition_Curious(void)
+bool BotController::CheckCondition_Curious(void)
 {
     if (m_iAttackTime) {
         m_iCuriousTime = 0;
@@ -1174,7 +1220,7 @@ bool PlayerBot::CheckCondition_Curious(void)
     return true;
 }
 
-void PlayerBot::State_Curious(void)
+void BotController::State_Curious(void)
 {
     AimAtAimNode();
 
@@ -1195,11 +1241,11 @@ Attack state
 Attack the enemy
 ====================
 */
-void PlayerBot::InitState_Attack(botfunc_t *func)
+void BotController::InitState_Attack(botfunc_t *func)
 {
-    func->CheckCondition = &PlayerBot::CheckCondition_Attack;
-    func->EndState       = &PlayerBot::State_EndAttack;
-    func->ThinkState     = &PlayerBot::State_Attack;
+    func->CheckCondition = &BotController::CheckCondition_Attack;
+    func->EndState       = &BotController::State_EndAttack;
+    func->ThinkState     = &BotController::State_Attack;
 }
 
 static Vector bot_origin;
@@ -1226,8 +1272,9 @@ static int sentients_compare(const void *elem1, const void *elem2)
     }
 }
 
-bool PlayerBot::IsValidEnemy(Sentient* sent) const {
-    if (sent == this) {
+bool BotController::IsValidEnemy(Sentient *sent) const
+{
+    if (sent == controlledEnt) {
         return false;
     }
 
@@ -1247,14 +1294,13 @@ bool PlayerBot::IsValidEnemy(Sentient* sent) const {
     }
 
     if (sent->IsSubclassOfPlayer()) {
-        Player* player = static_cast<Player*>(sent);
+        Player *player = static_cast<Player *>(sent);
 
-        if (g_gametype->integer >= GT_TEAM && player->GetTeam() == GetTeam()) {
+        if (g_gametype->integer >= GT_TEAM && player->GetTeam() == controlledEnt->GetTeam()) {
             return false;
         }
-    }
-    else {
-        if (sent->m_Team == m_Team) {
+    } else {
+        if (sent->m_Team == controlledEnt->m_Team) {
             return false;
         }
     }
@@ -1262,16 +1308,16 @@ bool PlayerBot::IsValidEnemy(Sentient* sent) const {
     return true;
 }
 
-bool PlayerBot::CheckCondition_Attack(void)
+bool BotController::CheckCondition_Attack(void)
 {
-    Container<Sentient *> sents = SentientList;
-    float maxDistance = 0;
+    Container<Sentient *> sents       = SentientList;
+    float                 maxDistance = 0;
 
-    bot_origin = origin;
+    bot_origin = controlledEnt->origin;
     sents.Sort(sentients_compare);
 
     for (int i = 1; i <= sents.NumObjects(); i++) {
-        Sentient *sent   = sents.ObjectAt(i);
+        Sentient *sent = sents.ObjectAt(i);
 
         if (!IsValidEnemy(sent)) {
             continue;
@@ -1279,7 +1325,7 @@ bool PlayerBot::CheckCondition_Attack(void)
 
         maxDistance = Q_min(world->m_fAIVisionDistance, world->farplane_distance * 0.828);
 
-        if (CanSee(sent, 80, maxDistance, false)) {
+        if (controlledEnt->CanSee(sent, 80, maxDistance, false)) {
             m_pEnemy      = sent;
             m_iAttackTime = level.inttime + 1000;
             return true;
@@ -1298,27 +1344,29 @@ bool PlayerBot::CheckCondition_Attack(void)
     return true;
 }
 
-void PlayerBot::State_EndAttack(void)
+void BotController::State_EndAttack(void)
 {
     m_botCmd.buttons &= ~(BUTTON_ATTACKLEFT | BUTTON_ATTACKRIGHT);
 }
 
-void PlayerBot::State_Attack(void)
+void BotController::State_Attack(void)
 {
     bool    bMelee              = false;
     float   fMinDistance        = 128;
     float   fMinDistanceSquared = fMinDistance * fMinDistance;
-    Weapon* pWeap = GetActiveWeapon(WEAPON_MAIN);
-    bool    bNoMove = false;
+    Weapon *pWeap               = controlledEnt->GetActiveWeapon(WEAPON_MAIN);
+    bool    bNoMove             = false;
 
     if (!m_pEnemy || !IsValidEnemy(m_pEnemy)) {
         // Ignore dead enemies
         m_iAttackTime = 0;
         return;
     }
-    float fDistanceSquared = (m_pEnemy->origin - origin).lengthSquared();
+    float fDistanceSquared = (m_pEnemy->origin - controlledEnt->origin).lengthSquared();
 
-    if (CanSee(m_pEnemy, 20, Q_min(world->m_fAIVisionDistance, world->farplane_distance * 0.828), false)) {
+    if (controlledEnt->CanSee(
+            m_pEnemy, 20, Q_min(world->m_fAIVisionDistance, world->farplane_distance * 0.828), false
+        )) {
         if (!pWeap) {
             return;
         }
@@ -1331,11 +1379,11 @@ void PlayerBot::State_Attack(void)
         //
         // check the fire movement speed if the weapon has a max fire movement
         //
-        if (pWeap->m_fMaxFireMovement < 1 && pWeap->HasAmmoInClip(FIRE_PRIMARY)) {
+        if (pWeap->GetMaxFireMovement() < 1 && pWeap->HasAmmoInClip(FIRE_PRIMARY)) {
             float length;
 
-            length = velocity.length();
-            if ((length / sv_runspeed->value) > (pWeap->m_fMaxFireMovement * pWeap->m_fMovementSpeed)) {
+            length = controlledEnt->velocity.length();
+            if ((length / sv_runspeed->value) > (pWeap->GetMaxFireMovement() * pWeap->GetMovementSpeed())) {
                 bNoMove = true;
                 ClearMove();
             }
@@ -1349,7 +1397,7 @@ void PlayerBot::State_Attack(void)
 
         fMinDistanceSquared = fMinDistance * fMinDistance;
 
-        if (client->ps.stats[STAT_AMMO] > 0 || client->ps.stats[STAT_CLIPAMMO] > 0) {
+        if (controlledEnt->client->ps.stats[STAT_AMMO] > 0 || controlledEnt->client->ps.stats[STAT_CLIPAMMO] > 0) {
             if (fDistanceSquared <= fPrimaryBulletRangeSquared) {
                 if (pWeap->IsSemiAuto()) {
                     m_botCmd.buttons ^= BUTTON_ATTACKLEFT;
@@ -1371,8 +1419,8 @@ void PlayerBot::State_Attack(void)
             m_botCmd.buttons &= ~(BUTTON_ATTACKLEFT | BUTTON_ATTACKRIGHT);
         }
 
-        m_iAttackTime = level.inttime + 1000;
-        m_vOldEnemyPos = m_vLastEnemyPos;
+        m_iAttackTime   = level.inttime + 1000;
+        m_vOldEnemyPos  = m_vLastEnemyPos;
         m_vLastEnemyPos = m_pEnemy->centroid;
     } else {
         m_botCmd.buttons &= ~(BUTTON_ATTACKLEFT | BUTTON_ATTACKRIGHT);
@@ -1387,11 +1435,11 @@ void PlayerBot::State_Attack(void)
 
     if ((!MoveToBestAttractivePoint(5) && !IsMoving()) || (m_vOldEnemyPos != m_vLastEnemyPos && !MoveDone())) {
         if (!bMelee) {
-            if ((origin - m_vLastEnemyPos).lengthSquared() < fMinDistanceSquared) {
-                Vector vDir = origin - m_vLastEnemyPos;
+            if ((controlledEnt->origin - m_vLastEnemyPos).lengthSquared() < fMinDistanceSquared) {
+                Vector vDir = controlledEnt->origin - m_vLastEnemyPos;
                 VectorNormalizeFast(vDir);
 
-                AvoidPath(m_vLastEnemyPos, fMinDistance, Vector(orientation[1]) * 512);
+                AvoidPath(m_vLastEnemyPos, fMinDistance, Vector(controlledEnt->orientation[1]) * 512);
             } else {
                 MoveNear(m_vLastEnemyPos, fMinDistance);
             }
@@ -1412,19 +1460,19 @@ Grenade state
 Avoid any grenades
 ====================
 */
-void PlayerBot::InitState_Grenade(botfunc_t *func)
+void BotController::InitState_Grenade(botfunc_t *func)
 {
-    func->CheckCondition = &PlayerBot::CheckCondition_Grenade;
-    func->ThinkState     = &PlayerBot::State_Grenade;
+    func->CheckCondition = &BotController::CheckCondition_Grenade;
+    func->ThinkState     = &BotController::State_Grenade;
 }
 
-bool PlayerBot::CheckCondition_Grenade(void)
+bool BotController::CheckCondition_Grenade(void)
 {
     // FIXME: TODO
     return false;
 }
 
-void PlayerBot::State_Grenade(void)
+void BotController::State_Grenade(void)
 {
     // FIXME: TODO
 }
@@ -1436,20 +1484,21 @@ Weapon state
 Change weapon when necessary
 ====================
 */
-void PlayerBot::InitState_Weapon(botfunc_t *func)
+void BotController::InitState_Weapon(botfunc_t *func)
 {
-    func->CheckCondition = &PlayerBot::CheckCondition_Weapon;
-    func->BeginState     = &PlayerBot::State_BeginWeapon;
+    func->CheckCondition = &BotController::CheckCondition_Weapon;
+    func->BeginState     = &BotController::State_BeginWeapon;
 }
 
-bool PlayerBot::CheckCondition_Weapon(void)
+bool BotController::CheckCondition_Weapon(void)
 {
-    return GetActiveWeapon(WEAPON_MAIN) != BestWeapon(NULL, false, WEAPON_CLASS_THROWABLE);
+    return controlledEnt->GetActiveWeapon(WEAPON_MAIN)
+        != controlledEnt->BestWeapon(NULL, false, WEAPON_CLASS_THROWABLE);
 }
 
-void PlayerBot::State_BeginWeapon(void)
+void BotController::State_BeginWeapon(void)
 {
-    Weapon *weap = BestWeapon(NULL, false, WEAPON_CLASS_THROWABLE);
+    Weapon *weap = controlledEnt->BestWeapon(NULL, false, WEAPON_CLASS_THROWABLE);
 
     if (weap == NULL) {
         SendCommand("safeholster 1");
@@ -1459,20 +1508,38 @@ void PlayerBot::State_BeginWeapon(void)
     SendCommand(va("use \"%s\"", weap->model.c_str()));
 }
 
-void PlayerBot::Spawned(void)
+void BotController::Spawned(void)
 {
     ClearEnemy();
-    m_iCuriousTime = 0;
+    m_iCuriousTime   = 0;
     m_botCmd.buttons = 0;
-
-    Player::Spawned();
 }
 
-void PlayerBot::Killed(Event *ev)
+void BotController::Think()
 {
-    Entity* attacker;
+    usercmd_t  ucmd;
+    usereyes_t eyeinfo;
 
-    Player::Killed(ev);
+    UpdateBotStates();
+    GetUsercmd(&ucmd);
+    GetEyeInfo(&eyeinfo);
+
+    G_ClientThink(controlledEnt->edict, &ucmd, &eyeinfo);
+
+    if (m_vCurrentOrigin != controlledEnt->origin) {
+        m_pPrimaryAttract = NULL;
+        m_vCurrentOrigin  = controlledEnt->origin;
+
+        if (m_Path.CurrentNode()) {
+            // recalculate paths because of a new origin
+            m_Path.ReFindPath(controlledEnt->origin, controlledEnt);
+        }
+    }
+}
+
+void BotController::Killed(Event *ev)
+{
+    Entity *attacker;
 
     // send the respawn buttons
     if (!(m_botCmd.buttons & BUTTON_ATTACKLEFT)) {
@@ -1500,13 +1567,11 @@ void PlayerBot::Killed(Event *ev)
     Event event(EV_Player_PrimaryDMWeapon);
     event.AddString("auto");
 
-    ProcessEvent(event);
+    controlledEnt->ProcessEvent(event);
 }
 
-void PlayerBot::GotKill(Event *ev)
+void BotController::GotKill(Event *ev)
 {
-    Player::GotKill(ev);
-
     ClearEnemy();
     m_iCuriousTime = 0;
 
@@ -1524,13 +1589,92 @@ void PlayerBot::GotKill(Event *ev)
             event.AddString("*4" + str(1 + (rand() % 9)));
         }
 
-        ProcessEvent(event);
+        controlledEnt->ProcessEvent(event);
 
         m_iNextTauntTime = level.inttime + 5000;
     }
 }
 
-void PlayerBot::EventStuffText(Event *ev)
+void BotController::EventStuffText(Event *ev)
 {
     SendCommand(ev->GetString(1));
+}
+
+void BotController::setControlledEntity(Player *player)
+{
+    controlledEnt = player;
+}
+
+Player *BotController::getControlledEntity() const
+{
+    return controlledEnt;
+}
+
+BotController *BotControllerManager::createController(Player *player)
+{
+    BotController *controller = new BotController();
+    controller->setControlledEntity(player);
+
+    controllers.AddObject(controller);
+
+    return controller;
+}
+
+void BotControllerManager::removeController(BotController *controller)
+{
+    controllers.RemoveObject(controller);
+    delete controller;
+}
+
+BotController *BotControllerManager::findController(Entity *ent)
+{
+    int i;
+
+    for (i = 1; i <= controllers.NumObjects(); i++) {
+        BotController *controller = controllers.ObjectAt(i);
+        if (controller->getControlledEntity() == ent) {
+            return controller;
+        }
+    }
+
+    return nullptr;
+}
+
+const Container<BotController *>& BotControllerManager::getControllers() const
+{
+    return controllers;
+}
+
+BotControllerManager::~BotControllerManager()
+{
+    Cleanup();
+}
+
+void BotControllerManager::Init()
+{
+    BotController::Init();
+}
+
+void BotControllerManager::Cleanup()
+{
+    int i;
+
+    BotController::Init();
+
+    for (i = 1; i <= controllers.NumObjects(); i++) {
+        BotController *controller = controllers.ObjectAt(i);
+        delete controller;
+    }
+
+    controllers.FreeObjectList();
+}
+
+void BotControllerManager::ThinkControllers()
+{
+    int i;
+
+    for (i = 1; i <= controllers.NumObjects(); i++) {
+        BotController *controller = controllers.ObjectAt(i);
+        controller->Think();
+    }
 }

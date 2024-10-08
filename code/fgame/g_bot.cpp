@@ -159,10 +159,16 @@ Begin spawning a new bot entity
 */
 void G_BotBegin(gentity_t *ent)
 {
+    PlayerBot     *player;
+    BotController *controller;
+
     level.spawn_entnum = ent->s.number;
-    new PlayerBot;
+    player             = new PlayerBot;
 
     G_ClientBegin(ent, NULL);
+
+    controller = botManager.getControllerManager().createController(player);
+    player->setController(controller);
 }
 
 /*
@@ -174,6 +180,7 @@ Called each server frame to make bots think
 */
 void G_BotThink(gentity_t *ent, int msec)
 {
+    /*
     usercmd_t  ucmd;
     usereyes_t eyeinfo;
     PlayerBot *bot;
@@ -189,6 +196,7 @@ void G_BotThink(gentity_t *ent, int msec)
     bot->GetEyeInfo(&eyeinfo);
 
     G_ClientThink(ent, &ucmd, &eyeinfo);
+    */
 }
 
 /*
@@ -468,6 +476,12 @@ Remove the specified bot
 */
 void G_RemoveBot(gentity_t *ent)
 {
+    if (ent->entity) {
+        BotController *controller = botManager.getControllerManager().findController(ent->entity);
+
+        botManager.getControllerManager().removeController(controller);
+    }
+
     G_ClientDisconnect(ent);
     current_bot_count--;
 }
@@ -658,8 +672,34 @@ void G_ResetBots()
 {
     G_SaveBots();
 
+    botManager.Cleanup();
+
     current_bot_count = 0;
     botId             = 0;
+}
+
+/*
+===========
+G_BotInit
+
+Called to initialize bots
+============
+*/
+void G_BotInit()
+{
+    botManager.Init();
+}
+
+/*
+===========
+G_BotFrame
+
+Called each frame to manage bots
+============
+*/
+void G_BotFrame()
+{
+    botManager.Frame();
 }
 
 /*

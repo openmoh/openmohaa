@@ -1687,15 +1687,13 @@ void G_BroadcastAIEvent(Entity *originator, Vector origin, int iType, float radi
             continue;
         }
 
-        if (!ent->IsSubclassOfActor() && !ent->IsSubclassOfBot()) {
+        if (!ent->IsSubclassOfActor()) {
             continue;
         }
 
-        if (ent->IsSubclassOfActor()) {
-            act = static_cast<Actor *>(ent);
-            if (act->IgnoreSound(iType)) {
-                continue;
-            }
+        act = static_cast<Actor*>(ent);
+        if (act->IgnoreSound(iType)) {
+            continue;
         }
 
         delta = origin - ent->centroid;
@@ -1717,15 +1715,10 @@ void G_BroadcastAIEvent(Entity *originator, Vector origin, int iType, float radi
             continue;
         }
 
-        if (ent->IsSubclassOfActor()) {
-            act->ReceiveAIEvent(origin, iType, originator, dist2, r2);
-        } else if (ent->IsSubclassOfBot()) {
-            PlayerBot *bot = static_cast<PlayerBot *>(ent);
-
-            bot->NoticeEvent(origin, iType, originator, dist2, r2);
-        }
+        act->ReceiveAIEvent(origin, iType, originator, dist2, r2);
     }
 
+    botManager.BroadcastEvent(originator, origin, iType, radius);
 #if 0
     gi.DPrintf("Broadcast event %s to %d entities\n", ev->getName(), count);
 #endif

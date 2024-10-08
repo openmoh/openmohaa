@@ -42,4 +42,6 @@ void       G_RemoveBots(unsigned int num);
 bool       G_IsBot(gentity_t *ent);
 bool       G_IsPlayer(gentity_t *ent);
 void       G_ResetBots();
+void       G_BotInit();
+void       G_BotFrame();
 void       G_SpawnBots();
