@@ -2876,20 +2876,20 @@ qboolean Entity::IsInside(Entity *e1)
 
 qboolean Entity::FovCheck(float *delta, float fovdot)
 {
-    float deltadot = delta[0] * orientation[0][0] + delta[1] * orientation[0][1];
+    float deltadot = DotProduct2D(delta, orientation[0]);
 
     if (fovdot < 0.0f) {
         if (deltadot >= 0.0f) {
             return true;
         }
 
-        return (delta[0] * delta[0] + delta[1] * delta[1]) * fovdot * fovdot > (deltadot * deltadot);
+        return VectorLength2DSquared(delta) * Square(fovdot) > Square(deltadot);
     } else {
         if (deltadot < 0.0f) {
             return false;
         }
 
-        return (deltadot * deltadot) > (delta[0] * delta[0] + delta[1] * delta[1]) * fovdot * fovdot;
+        return VectorLength2DSquared(delta) * Square(fovdot) < Square(deltadot);
     }
 }
 
