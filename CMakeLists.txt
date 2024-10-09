@@ -82,6 +82,13 @@ IF(CMAKE_BUILD_TYPE MATCHES Debug)
 	#endif()
 ENDIF()
 
+if(APPLE)
+	# macOS doesn't search the executable path by default
+	# so, locate libraries like SDL in the executable path
+	set(CMAKE_INSTALL_RPATH "@executable_path")
+	set(CMAKE_BUILD_WITH_INSTALL_RPATH ON)
+endif()
+
 # Common stuff
 
 add_subdirectory("code/qcommon")
