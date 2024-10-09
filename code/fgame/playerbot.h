@@ -36,25 +36,6 @@ typedef struct nodeAttract_s {
 
 class BotController;
 
-class PlayerBot : public Player
-{
-public:
-    CLASS_PROTOTYPE(PlayerBot);
-
-public:
-    PlayerBot();
-
-    void setController(BotController *controlledBy);
-
-    void Spawned(void);
-
-    void Killed(Event *ev);
-    void GotKill(Event *ev);
-
-private:
-    BotController *controller;
-};
-
 class BotMovement
 {
 public:
@@ -109,7 +90,25 @@ private:
 };
 
 class BotRotation
-{};
+{
+public:
+    BotRotation();
+
+    void SetControlledEntity(Player *newEntity);
+
+    void          TurnThink(usercmd_t& botcmd, usereyes_t& eyeinfo);
+    const Vector& GetTargetAngles() const;
+    void          SetTargetAngles(Vector vAngles);
+    void          AimAt(Vector vPos);
+
+private:
+    SafePtr<Player> controlledEntity;
+
+    Vector m_vTargetAng;
+    Vector m_vCurrentAng;
+    Vector m_vAngSpeed;
+    float  m_fYawSpeedMult;
+};
 
 class BotController : public Listener
 {
@@ -125,6 +124,7 @@ private:
     static botfunc_t botfuncs[];
 
     BotMovement movement;
+    BotRotation rotation;
 
     // States
     int               m_iCuriousTime;
@@ -140,12 +140,6 @@ private:
     usercmd_t  m_botCmd;
     usereyes_t m_botEyes;
 
-    // Direction
-    Vector m_vTargetAng;
-    Vector m_vCurrentAng;
-    Vector m_vAngSpeed;
-    float  m_fYawSpeedMult;
-
     // States
     int               m_StateCount;
     unsigned int      m_StateFlags;
@@ -155,7 +149,6 @@ private:
     int m_iNextTauntTime;
 
 private:
-    void TurnThink(void);
     void CheckUse(void);
 
     void State_DefaultBegin(void);
@@ -204,12 +197,10 @@ public:
 
     void GetEyeInfo(usereyes_t *eyeinfo);
     void GetUsercmd(usercmd_t *ucmd);
-    void SetTargetAngles(Vector vAngles);
 
     void UpdateBotStates(void);
     void CheckReload(void);
 
-    void AimAt(Vector vPos);
     void AimAtAimNode(void);
 
     void NoticeEvent(Vector vPos, int iType, Entity *pEnt, float fDistanceSquared, float fRadiusSquared);
@@ -274,3 +265,22 @@ private:
 };
 
 extern BotManager botManager;
+
+class PlayerBot : public Player
+{
+public:
+    CLASS_PROTOTYPE(PlayerBot);
+
+public:
+    PlayerBot();
+
+    void setController(BotController *controlledBy);
+
+    void Spawned(void);
+
+    void Killed(Event *ev);
+    void GotKill(Event *ev);
+
+private:
+    BotController *controller;
+};

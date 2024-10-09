@@ -35,45 +35,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 cvar_t *bot_manualmove;
 
-CLASS_DECLARATION(Player, PlayerBot, NULL) {
-    {&EV_Killed,           &PlayerBot::Killed        },
-    {&EV_GotKill,          &PlayerBot::GotKill       },
-    {&EV_Player_StuffText, &PlayerBot::EventStuffText},
-    {NULL,                 NULL                      }
-};
-
-PlayerBot::PlayerBot()
-{
-    entflags |= ECF_BOT;
-    controller = NULL;
-}
-
-void PlayerBot::setController(BotController *controlledBy)
-{
-    controller = controlledBy;
-}
-
-void PlayerBot::Spawned(void)
-{
-    controller->Spawned();
-
-    Player::Spawned();
-}
-
-void PlayerBot::Killed(Event *ev)
-{
-    Player::Killed(ev);
-
-    controller->Killed(ev);
-}
-
-void PlayerBot::GotKill(Event *ev)
-{
-    Player::GotKill(ev);
-
-    controller->GotKill(ev);
-}
-
 CLASS_DECLARATION(Listener, BotController, NULL) {
     {NULL, NULL}
 };
@@ -103,11 +64,6 @@ BotController::BotController()
     m_botEyes.ofs[1]    = 0;
     m_botEyes.ofs[2]    = DEFAULT_VIEWHEIGHT;
 
-    m_vAngSpeed      = vec_zero;
-    m_vTargetAng     = vec_zero;
-    m_vCurrentAng    = vec_zero;
-    m_fYawSpeedMult  = 1.0f;
-
     m_iCuriousTime = 0;
     m_iAttackTime  = 0;
 
@@ -136,69 +92,6 @@ void BotController::Init(void)
     InitState_Grenade(&botfuncs[2]);
     InitState_Idle(&botfuncs[3]);
     InitState_Weapon(&botfuncs[4]);
-}
-
-float AngleDifference(float ang1, float ang2)
-{
-    float diff;
-
-    diff = ang1 - ang2;
-    if (ang1 > ang2) {
-        if (diff > 180.0) {
-            diff -= 360.0;
-        }
-    } else {
-        if (diff < -180.0) {
-            diff += 360.0;
-        }
-    }
-    return diff;
-}
-
-void BotController::TurnThink(void)
-{
-    float diff, factor, maxchange, anglespeed, desired_speed;
-    int   i;
-
-    if (m_vTargetAng[PITCH] > 180) {
-        m_vTargetAng[PITCH] -= 360;
-    }
-
-    factor    = 0.25f;
-    maxchange = 360;
-
-    if (maxchange < 240) {
-        maxchange = 240;
-    }
-
-    maxchange *= level.frametime;
-
-    for (i = 0; i < 2; i++) {
-        //over reaction view model
-        m_vCurrentAng[i] = AngleMod(m_vCurrentAng[i]);
-        m_vTargetAng[i]  = AngleMod(m_vTargetAng[i]);
-        diff             = AngleDifference(m_vCurrentAng[i], m_vTargetAng[i]);
-        desired_speed    = diff * factor;
-
-        m_vAngSpeed[i] = Q_clamp_float(m_vAngSpeed[i] + (m_vAngSpeed[i] - desired_speed), -180, 180);
-        anglespeed     = Q_clamp_float(m_vAngSpeed[i], -maxchange, maxchange);
-
-        m_vCurrentAng[i] += anglespeed;
-        m_vCurrentAng[i] = AngleMod(m_vCurrentAng[i]);
-
-        //demping
-        m_vAngSpeed[i] *= 0.2 * (1 - factor);
-    }
-
-    if (m_vCurrentAng[PITCH] > 180) {
-        m_vCurrentAng[PITCH] -= 360;
-    }
-
-    m_botEyes.angles[0] = m_vCurrentAng[0];
-    m_botEyes.angles[1] = m_vCurrentAng[1];
-    m_botCmd.angles[0]  = ANGLE2SHORT(m_vCurrentAng[0]) - controlledEnt->client->ps.delta_angles[0];
-    m_botCmd.angles[1]  = ANGLE2SHORT(m_vCurrentAng[1]) - controlledEnt->client->ps.delta_angles[1];
-    m_botCmd.angles[2]  = ANGLE2SHORT(m_vCurrentAng[2]) - controlledEnt->client->ps.delta_angles[2];
 }
 
 void BotController::GetUsercmd(usercmd_t *ucmd)
@@ -231,8 +124,7 @@ void BotController::UpdateBotStates(void)
     }
 
     if (controlledEnt->GetTeam() == TEAM_NONE || controlledEnt->GetTeam() == TEAM_SPECTATOR) {
-        Event *event;
-        float  time;
+        float time;
 
         // Add some delay to avoid telefragging
         time = controlledEnt->entnum / 20.0;
@@ -266,7 +158,7 @@ void BotController::UpdateBotStates(void)
     CheckStates();
 
     movement.MoveThink(m_botCmd);
-    TurnThink();
+    rotation.TurnThink(m_botCmd, m_botEyes);
     CheckUse();
 }
 
@@ -358,33 +250,6 @@ void BotController::SendCommand(const char *text)
 
 /*
 ====================
-SetTargetAngles
-
-Set the bot's angle
-====================
-*/
-void BotController::SetTargetAngles(Vector vAngles)
-{
-    m_vTargetAng = vAngles;
-}
-
-/*
-====================
-AimAt
-
-Make the bot face to the specified direction
-====================
-*/
-void BotController::AimAt(Vector vPos)
-{
-    Vector vDelta = vPos - controlledEnt->centroid;
-
-    VectorNormalize(vDelta);
-    vectoangles(vDelta, m_vTargetAng);
-}
-
-/*
-====================
 AimAtAimNode
 
 Make the bot face toward the current path
@@ -400,10 +265,12 @@ void BotController::AimAtAimNode(void)
 
     goal = movement.GetCurrentGoal();
     if (goal != controlledEnt->origin) {
-        AimAt(goal);
+        rotation.AimAt(goal);
     }
 
-    m_vTargetAng[PITCH] = 0;
+    Vector targetAngles = rotation.GetTargetAngles();
+    targetAngles.x      = 0;
+    rotation.SetTargetAngles(targetAngles);
 }
 
 /*
@@ -881,13 +748,14 @@ void BotController::State_Attack(void)
         fMinDistanceSquared = 0;
     }
 
-    AimAt(m_pEnemy->centroid + Vector(G_CRandom(8), G_CRandom(8), G_CRandom(8)));
+    rotation.AimAt(m_pEnemy->centroid + Vector(G_CRandom(8), G_CRandom(8), G_CRandom(8)));
 
     if (bNoMove) {
         return;
     }
 
-    if ((!movement.MoveToBestAttractivePoint(5) && !movement.IsMoving()) || (m_vOldEnemyPos != m_vLastEnemyPos && !movement.MoveDone())) {
+    if ((!movement.MoveToBestAttractivePoint(5) && !movement.IsMoving())
+        || (m_vOldEnemyPos != m_vLastEnemyPos && !movement.MoveDone())) {
         if (!bMelee) {
             if ((controlledEnt->origin - m_vLastEnemyPos).lengthSquared() < fMinDistanceSquared) {
                 Vector vDir = controlledEnt->origin - m_vLastEnemyPos;
@@ -1048,6 +916,7 @@ void BotController::setControlledEntity(Player *player)
 {
     controlledEnt = player;
     movement.SetControlledEntity(player);
+    rotation.SetControlledEntity(player);
 }
 
 Player *BotController::getControlledEntity() const
@@ -1122,4 +991,43 @@ void BotControllerManager::ThinkControllers()
         BotController *controller = controllers.ObjectAt(i);
         controller->Think();
     }
+}
+
+CLASS_DECLARATION(Player, PlayerBot, NULL) {
+    {&EV_Killed,           &PlayerBot::Killed        },
+    {&EV_GotKill,          &PlayerBot::GotKill       },
+    {&EV_Player_StuffText, &PlayerBot::EventStuffText},
+    {NULL,                 NULL                      }
+};
+
+PlayerBot::PlayerBot()
+{
+    entflags |= ECF_BOT;
+    controller = NULL;
+}
+
+void PlayerBot::setController(BotController *controlledBy)
+{
+    controller = controlledBy;
+}
+
+void PlayerBot::Spawned(void)
+{
+    controller->Spawned();
+
+    Player::Spawned();
+}
+
+void PlayerBot::Killed(Event *ev)
+{
+    Player::Killed(ev);
+
+    controller->Killed(ev);
+}
+
+void PlayerBot::GotKill(Event *ev)
+{
+    Player::GotKill(ev);
+
+    controller->GotKill(ev);
 }
