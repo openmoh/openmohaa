@@ -86,11 +86,6 @@ BotController::BotController()
         return;
     }
 
-    m_Path.SetFallHeight(400);
-    m_bPathing   = false;
-    m_bTempAway  = false;
-    m_bDeltaMove = true;
-
     m_botCmd.serverTime = 0;
     m_botCmd.msec       = 0;
     m_botCmd.buttons    = 0;
@@ -111,9 +106,6 @@ BotController::BotController()
     m_vAngSpeed      = vec_zero;
     m_vTargetAng     = vec_zero;
     m_vCurrentAng    = vec_zero;
-    m_iCheckPathTime = 0;
-    m_iTempAwayTime  = 0;
-    m_iNumBlocks     = 0;
     m_fYawSpeedMult  = 1.0f;
 
     m_iCuriousTime = 0;
@@ -123,6 +115,11 @@ BotController::BotController()
 
     m_StateFlags = 0;
     m_RunLabel.TrySetScript("global/bot_run.scr");
+}
+
+BotMovement& BotController::GetMovement()
+{
+    return movement;
 }
 
 void BotController::Init(void)
@@ -204,319 +201,6 @@ void BotController::TurnThink(void)
     m_botCmd.angles[2]  = ANGLE2SHORT(m_vCurrentAng[2]) - controlledEnt->client->ps.delta_angles[2];
 }
 
-void BotController::CheckAttractiveNodes(void)
-{
-    for (int i = m_attractList.NumObjects(); i > 0; i--) {
-        nodeAttract_t *a = m_attractList.ObjectAt(i);
-
-        if (a->m_pNode == NULL || !a->m_pNode->CheckTeam(controlledEnt) || level.time > a->m_fRespawnTime) {
-            delete a;
-            m_attractList.RemoveObjectAt(i);
-        }
-    }
-}
-
-void BotController::MoveThink(void)
-{
-    Vector vDir;
-    Vector vAngles;
-    Vector vWishDir;
-
-    m_botCmd.forwardmove = 0;
-    m_botCmd.rightmove   = 0;
-
-    CheckAttractiveNodes();
-
-    if (!IsMoving()) {
-        return;
-    }
-
-    if (m_bTempAway && level.inttime >= m_iTempAwayTime) {
-        m_bTempAway = false;
-        m_Path.FindPath(controlledEnt->origin, m_vTargetPos, controlledEnt, 0, NULL, 0);
-    }
-
-    if (!m_bTempAway) {
-        if (m_Path.CurrentNode()) {
-            m_Path.UpdatePos(controlledEnt->origin, 8);
-
-            m_vCurrentGoal = controlledEnt->origin;
-            VectorAdd2D(m_vCurrentGoal, m_Path.CurrentDelta(), m_vCurrentGoal);
-
-            if (MoveDone()) {
-                // Clear the path
-                m_Path.Clear();
-            }
-        }
-    }
-
-    if (ai_debugpath->integer) {
-        G_DebugLine(controlledEnt->centroid, m_vCurrentGoal + Vector(0, 0, 36), 1, 1, 0, 1);
-    }
-
-    // Check if we're blocked
-    if (level.inttime >= m_iCheckPathTime) {
-        m_bDeltaMove = false;
-
-        m_iCheckPathTime = level.inttime + 1000;
-
-        if (m_iNumBlocks >= 5) {
-            // Give up
-            ClearMove();
-        }
-
-        m_bTempAway = false;
-
-        if (controlledEnt->groundentity || controlledEnt->client->ps.walking) {
-            if (controlledEnt->GetMoveResult() >= MOVERESULT_BLOCKED
-                || controlledEnt->velocity.lengthSquared() <= Square(8)) {
-                m_bTempAway = true;
-            } else if ((controlledEnt->origin - m_vLastCheckPos[0]).lengthSquared() <= Square(32)
-                       && (controlledEnt->origin - m_vLastCheckPos[1]).lengthSquared() <= Square(32)) {
-                m_bTempAway = true;
-            }
-        } else {
-            // falling
-            if (controlledEnt->GetMoveResult() >= MOVERESULT_BLOCKED) {
-                // stuck while falling
-                m_bTempAway = true;
-            }
-        }
-
-        if (m_bTempAway) {
-            m_bTempAway     = true;
-            m_bDeltaMove    = false;
-            m_iTempAwayTime = level.inttime + 750;
-            m_iNumBlocks++;
-
-            // Try to backward a little
-            m_Path.Clear();
-            m_Path.ForceShortLookahead();
-            m_vCurrentGoal = controlledEnt->origin + Vector(G_CRandom(512), G_CRandom(512), G_CRandom(512));
-        } else {
-            m_iNumBlocks = 0;
-
-            if (!m_Path.CurrentNode()) {
-                m_vTargetPos   = controlledEnt->origin + Vector(G_CRandom(512), G_CRandom(512), G_CRandom(512));
-                m_vCurrentGoal = m_vTargetPos;
-            }
-        }
-
-        m_vLastCheckPos[1] = m_vLastCheckPos[0];
-        m_vLastCheckPos[0] = controlledEnt->origin;
-    }
-
-    if (ai_debugpath->integer) {
-        PathInfo *pos = m_Path.CurrentNode();
-
-        if (pos != NULL) {
-            while (pos != m_Path.LastNode()) {
-                Vector vStart = pos->point + Vector(0, 0, 32);
-
-                pos--;
-
-                Vector vEnd = pos->point + Vector(0, 0, 32);
-
-                G_DebugLine(vStart, vEnd, 1, 0, 0, 1);
-            }
-        }
-    }
-
-    if (m_Path.CurrentNode()) {
-        if ((m_vTargetPos - controlledEnt->origin).lengthSquared() <= Square(16)) {
-            ClearMove();
-        }
-    } else {
-        if ((m_vTargetPos - controlledEnt->origin).lengthXYSquared() <= Square(16)) {
-            ClearMove();
-        }
-    }
-
-    // Rotate the dir
-    if (m_Path.CurrentNode()) {
-        vDir[0] = m_Path.CurrentDelta()[0];
-        vDir[1] = m_Path.CurrentDelta()[1];
-    } else {
-        vDir = m_vCurrentGoal - controlledEnt->origin;
-    }
-    vDir[2] = 0;
-
-    VectorNormalize2D(vDir);
-    vAngles = vDir.toAngles() - controlledEnt->angles;
-    vAngles.AngleVectorsLeft(&vWishDir);
-
-    m_vLastValidDir  = vDir;
-    m_vLastValidGoal = m_vCurrentGoal;
-
-    // Forward to the specified direction
-    float x = vWishDir.x * 127;
-    float y = -vWishDir.y * 127;
-
-    m_botCmd.forwardmove = (signed char)Q_clamp(x, -127, 127);
-    m_botCmd.rightmove   = (signed char)Q_clamp(y, -127, 127);
-    CheckJump();
-
-    Weapon *pWeap = controlledEnt->GetActiveWeapon(WEAPON_MAIN);
-
-    if (pWeap && !pWeap->ShouldReload()) {
-        m_RunLabel.Execute(this);
-    }
-}
-
-void BotController::CheckJump(void)
-{
-    Vector  start;
-    Vector  end;
-    Vector  dir;
-    trace_t trace;
-
-    if (controlledEnt->GetLadder()) {
-        if (!m_botCmd.upmove) {
-            m_botCmd.upmove = 127;
-        } else {
-            m_botCmd.upmove = 0;
-        }
-        return;
-    }
-
-    dir = m_vLastValidDir;
-
-    start = controlledEnt->origin + Vector(0, 0, STEPSIZE);
-    end   = controlledEnt->origin + Vector(0, 0, STEPSIZE) + dir * (controlledEnt->maxs.y - controlledEnt->mins.y);
-
-    if (ai_debugpath->integer) {
-        G_DebugLine(start, end, 1, 0, 1, 1);
-    }
-
-    // Check if the bot needs to jump
-    trace = G_Trace(
-        start,
-        controlledEnt->mins,
-        controlledEnt->maxs,
-        end,
-        controlledEnt,
-        MASK_PLAYERSOLID,
-        false,
-        "BotController::CheckJump"
-    );
-
-    // No need to jump
-    if (trace.fraction > 0.5f) {
-        m_botCmd.upmove = 0;
-        return;
-    }
-
-    start = controlledEnt->origin;
-    end   = controlledEnt->origin + Vector(0, 0, STEPSIZE * 3);
-
-    if (ai_debugpath->integer) {
-        G_DebugLine(start, end, 1, 0, 1, 1);
-    }
-
-    // Check if the bot can jump up
-    trace = G_Trace(
-        start,
-        controlledEnt->mins,
-        controlledEnt->maxs,
-        end,
-        controlledEnt,
-        MASK_PLAYERSOLID,
-        true,
-        "BotController::CheckJump"
-    );
-
-    start = trace.endpos;
-    end   = trace.endpos + dir * (controlledEnt->maxs.y - controlledEnt->mins.y);
-
-    if (ai_debugpath->integer) {
-        G_DebugLine(start, end, 1, 0, 1, 1);
-    }
-
-    Vector bounds[2];
-    bounds[0] = Vector(controlledEnt->mins[0], controlledEnt->mins[1], 0);
-    bounds[1] =
-        Vector(controlledEnt->maxs[0], controlledEnt->maxs[1], (controlledEnt->maxs[0] + controlledEnt->maxs[1]) * 0.5);
-
-    // Check if the bot can jump at the location
-    trace =
-        G_Trace(start, bounds[0], bounds[1], end, controlledEnt, MASK_PLAYERSOLID, false, "BotController::CheckJump");
-
-    if (trace.fraction < 1) {
-        m_botCmd.upmove = 0;
-        return;
-    }
-
-    // Make the bot climb walls
-    if (!m_botCmd.upmove) {
-        m_botCmd.upmove = 127;
-    } else {
-        m_botCmd.upmove = 0;
-    }
-}
-
-void BotController::CheckEndPos(void)
-{
-    Vector  start;
-    Vector  end;
-    trace_t trace;
-
-    if (!m_Path.LastNode()) {
-        return;
-    }
-
-    start = m_Path.LastNode()->point;
-    end   = m_vTargetPos;
-
-    trace = G_Trace(
-        start,
-        controlledEnt->mins,
-        controlledEnt->maxs,
-        end,
-        controlledEnt,
-        MASK_TARGETPATH,
-        true,
-        "BotController::CheckEndPos"
-    );
-
-    if (trace.fraction < 0.95f) {
-        m_vTargetPos = trace.endpos;
-    }
-}
-
-void BotController::CheckUse(void)
-{
-    Vector  dir;
-    Vector  start;
-    Vector  end;
-    trace_t trace;
-
-    controlledEnt->angles.AngleVectorsLeft(&dir);
-
-    start = controlledEnt->origin + Vector(0, 0, controlledEnt->viewheight);
-    end   = controlledEnt->origin + Vector(0, 0, controlledEnt->viewheight) + dir * 32;
-
-    trace = G_Trace(start, vec_zero, vec_zero, end, controlledEnt, MASK_USABLE, false, "BotController::CheckUse");
-
-    // It may be a door
-    if ((trace.allsolid || trace.startsolid || trace.fraction != 1.0f) && trace.entityNum) {
-        if (trace.ent->entity->IsSubclassOfDoor()) {
-            Door *door = static_cast<Door *>(trace.ent->entity);
-            if (door->isOpen()) {
-                m_botCmd.buttons &= ~BUTTON_USE;
-                return;
-            }
-        }
-
-        //
-        // Toggle the use button
-        //
-        m_botCmd.buttons ^= BUTTON_USE;
-        m_Path.ForceShortLookahead();
-    } else {
-        m_botCmd.buttons &= ~BUTTON_USE;
-    }
-}
-
 void BotController::GetUsercmd(usercmd_t *ucmd)
 {
     *ucmd = m_botCmd;
@@ -581,9 +265,42 @@ void BotController::UpdateBotStates(void)
 
     CheckStates();
 
-    MoveThink();
+    movement.MoveThink(m_botCmd);
     TurnThink();
     CheckUse();
+}
+
+void BotController::CheckUse(void)
+{
+    Vector  dir;
+    Vector  start;
+    Vector  end;
+    trace_t trace;
+
+    controlledEnt->angles.AngleVectorsLeft(&dir);
+
+    start = controlledEnt->origin + Vector(0, 0, controlledEnt->viewheight);
+    end   = controlledEnt->origin + Vector(0, 0, controlledEnt->viewheight) + dir * 32;
+
+    trace = G_Trace(start, vec_zero, vec_zero, end, controlledEnt, MASK_USABLE, false, "BotController::CheckUse");
+
+    // It may be a door
+    if ((trace.allsolid || trace.startsolid || trace.fraction != 1.0f) && trace.entityNum) {
+        if (trace.ent->entity->IsSubclassOfDoor()) {
+            Door *door = static_cast<Door *>(trace.ent->entity);
+            if (door->isOpen()) {
+                m_botCmd.buttons &= ~BUTTON_USE;
+                return;
+            }
+        }
+
+        //
+        // Toggle the use button
+        //
+        m_botCmd.buttons ^= BUTTON_USE;
+    } else {
+        m_botCmd.buttons &= ~BUTTON_USE;
+    }
 }
 
 void BotController::SendCommand(const char *text)
@@ -675,16 +392,15 @@ Make the bot face toward the current path
 */
 void BotController::AimAtAimNode(void)
 {
-    if (!m_bPathing) {
+    Vector goal;
+
+    if (!movement.IsMoving()) {
         return;
     }
 
-    if (!m_Path.CurrentNode()) {
-        AimAt(m_vCurrentGoal);
-    } else if (!m_Path.Complete(controlledEnt->origin)) {
-        AimAt(controlledEnt->origin + Vector(m_Path.CurrentDelta()[0], m_Path.CurrentDelta()[1], 0));
-        //int maxIndex = Q_min(3, m_Path.CurrentNode() - m_Path.LastNode());
-        //AimAt((m_Path.CurrentNode() - maxIndex)->point);
+    goal = movement.GetCurrentGoal();
+    if (goal != controlledEnt->origin) {
+        AimAt(goal);
     }
 
     m_vTargetAng[PITCH] = 0;
@@ -704,268 +420,6 @@ void BotController::CheckReload(void)
     if (weap && weap->CheckReload(FIRE_PRIMARY)) {
         SendCommand("reload");
     }
-}
-
-/*
-====================
-NewMove
-
-Called when there is a new move
-====================
-*/
-void BotController::NewMove()
-{
-    m_bPathing         = true;
-    m_vLastCheckPos[0] = controlledEnt->origin;
-    m_vLastCheckPos[1] = controlledEnt->origin;
-}
-
-/*
-====================
-MoveTo
-
-Move to the specified position
-====================
-*/
-void BotController::MoveTo(Vector vPos, float *vLeashHome, float fLeashRadius)
-{
-    m_vTargetPos = vPos;
-    m_Path.FindPath(controlledEnt->origin, m_vTargetPos, controlledEnt, 0, vLeashHome, fLeashRadius * fLeashRadius);
-
-    NewMove();
-
-    if (!m_Path.CurrentNode()) {
-        m_bPathing = false;
-        return;
-    }
-
-    CheckEndPos();
-}
-
-/*
-====================
-MoveTo
-
-Move to the nearest attractive point with a minimum priority
-Returns true if no attractive point was found
-====================
-*/
-bool BotController::MoveToBestAttractivePoint(int iMinPriority)
-{
-    Container<AttractiveNode *> list;
-    AttractiveNode             *bestNode;
-    float                       bestDistanceSquared;
-    int                         bestPriority;
-
-    if (m_pPrimaryAttract) {
-        MoveTo(m_pPrimaryAttract->origin);
-
-        if (!IsMoving()) {
-            m_pPrimaryAttract = NULL;
-        } else {
-            if (MoveDone()) {
-                if (!m_fAttractTime) {
-                    m_fAttractTime = level.time + m_pPrimaryAttract->m_fMaxStayTime;
-                }
-                if (level.time > m_fAttractTime) {
-                    nodeAttract_t *a  = new nodeAttract_t;
-                    a->m_fRespawnTime = level.time + m_pPrimaryAttract->m_fRespawnTime;
-                    a->m_pNode        = m_pPrimaryAttract;
-
-                    m_pPrimaryAttract = NULL;
-                }
-            }
-
-            return true;
-        }
-    }
-
-    if (!attractiveNodes.NumObjects()) {
-        return false;
-    }
-
-    bestNode            = NULL;
-    bestDistanceSquared = 99999999.0f;
-    bestPriority        = iMinPriority;
-
-    for (int i = attractiveNodes.NumObjects(); i > 0; i--) {
-        AttractiveNode *node = attractiveNodes.ObjectAt(i);
-        float           distSquared;
-        bool            m_bRespawning = false;
-
-        for (int j = m_attractList.NumObjects(); j > 0; j--) {
-            AttractiveNode *node2 = m_attractList.ObjectAt(j)->m_pNode;
-
-            if (node2 == node) {
-                m_bRespawning = true;
-                break;
-            }
-        }
-
-        if (m_bRespawning) {
-            continue;
-        }
-
-        if (node->m_iPriority < bestPriority) {
-            continue;
-        }
-
-        if (!node->CheckTeam(controlledEnt)) {
-            continue;
-        }
-
-        distSquared = VectorLengthSquared(controlledEnt->origin - node->origin);
-
-        if (node->m_fMaxDistanceSquared >= 0 && distSquared > node->m_fMaxDistanceSquared) {
-            continue;
-        }
-
-        if (!CanMoveTo(node->origin)) {
-            continue;
-        }
-
-        if (distSquared < bestDistanceSquared) {
-            bestDistanceSquared = distSquared;
-            bestNode            = node;
-            bestPriority        = node->m_iPriority;
-        }
-    }
-
-    if (bestNode) {
-        m_pPrimaryAttract = bestNode;
-        m_fAttractTime    = 0;
-        MoveTo(bestNode->origin);
-        return true;
-    } else {
-        // No attractive point found
-        return false;
-    }
-}
-
-/*
-====================
-CanMoveTo
-
-Returns true if the bot has done moving
-====================
-*/
-bool BotController::CanMoveTo(Vector vPos)
-{
-    return m_Path.DoesTheoreticPathExist(controlledEnt->origin, vPos, NULL, 0, NULL, 0);
-}
-
-/*
-====================
-MoveDone
-
-Returns true if the bot has done moving
-====================
-*/
-bool BotController::MoveDone(void)
-{
-    PathInfo *next;
-
-    if (!m_bPathing) {
-        return true;
-    }
-
-    if (m_bTempAway) {
-        return false;
-    }
-
-    if (!m_Path.CurrentNode()) {
-        return true;
-    }
-
-    Vector delta = Vector(m_Path.CurrentPathGoal()) - controlledEnt->origin;
-    if (delta.lengthXYSquared() < Square(16) && delta.z < controlledEnt->maxs.z) {
-        return true;
-    }
-
-    return false;
-}
-
-/*
-====================
-IsMoving
-
-Returns true if the bot has a current path
-====================
-*/
-bool BotController::IsMoving(void)
-{
-    return m_bPathing;
-}
-
-/*
-====================
-ClearMove
-
-Stop the bot from moving
-====================
-*/
-void BotController::ClearMove(void)
-{
-    m_Path.Clear();
-    m_bPathing   = false;
-    m_iNumBlocks = 0;
-}
-
-/*
-====================
-MoveNear
-
-Move near the specified position within the radius
-====================
-*/
-void BotController::MoveNear(Vector vNear, float fRadius, float *vLeashHome, float fLeashRadius)
-{
-    m_Path.FindPathNear(
-        controlledEnt->origin, vNear, controlledEnt, 0, fRadius * fRadius, vLeashHome, fLeashRadius * fLeashRadius
-    );
-    NewMove();
-
-    if (!m_Path.CurrentNode()) {
-        m_bPathing = false;
-        return;
-    }
-
-    m_vTargetPos = m_Path.LastNode()->point;
-}
-
-/*
-====================
-AvoidPath
-
-Avoid the specified position within the radius and start from a direction
-====================
-*/
-void BotController::AvoidPath(
-    Vector vAvoid, float fAvoidRadius, Vector vPreferredDir, float *vLeashHome, float fLeashRadius
-)
-{
-    Vector vDir;
-
-    if (vPreferredDir == vec_zero) {
-        vDir = controlledEnt->origin - vAvoid;
-        VectorNormalizeFast(vDir);
-    } else {
-        vDir = vPreferredDir;
-    }
-
-    m_Path.FindPathAway(
-        controlledEnt->origin, vAvoid, vDir, controlledEnt, fAvoidRadius, vLeashHome, fLeashRadius * fLeashRadius
-    );
-    NewMove();
-
-    if (!m_Path.CurrentNode()) {
-        // Random movements
-        m_vTargetPos   = controlledEnt->origin + Vector(G_Random(256) - 128, G_Random(256) - 128, G_Random(256) - 128);
-        m_vCurrentGoal = m_vTargetPos;
-        return;
-    }
-
-    m_vTargetPos = m_Path.LastNode()->point;
 }
 
 /*
@@ -1124,7 +578,7 @@ Default state
 */
 void BotController::State_DefaultBegin(void)
 {
-    ClearMove();
+    movement.ClearMove();
 }
 
 void BotController::State_DefaultEnd(void) {}
@@ -1171,11 +625,11 @@ void BotController::State_Idle(void)
     AimAtAimNode();
     CheckReload();
 
-    if (!MoveToBestAttractivePoint() && !IsMoving()) {
+    if (!movement.MoveToBestAttractivePoint() && !movement.IsMoving()) {
         if (m_vLastDeathPos != vec_zero) {
-            MoveTo(m_vLastDeathPos);
+            movement.MoveTo(m_vLastDeathPos);
 
-            if (MoveDone()) {
+            if (movement.MoveDone()) {
                 m_vLastDeathPos = vec_zero;
             }
         } else {
@@ -1183,7 +637,7 @@ void BotController::State_Idle(void)
             Vector preferredDir = Vector(controlledEnt->orientation[0]) * (rand() % 5 ? 1024 : -1024);
             float  radius       = 512 + G_Random(2048);
 
-            AvoidPath(controlledEnt->origin + randomDir, radius, preferredDir);
+            movement.AvoidPath(controlledEnt->origin + randomDir, radius, preferredDir);
         }
     }
 }
@@ -1210,7 +664,7 @@ bool BotController::CheckCondition_Curious(void)
 
     if (level.inttime > m_iCuriousTime) {
         if (m_iCuriousTime) {
-            ClearMove();
+            movement.ClearMove();
             m_iCuriousTime = 0;
         }
 
@@ -1224,12 +678,12 @@ void BotController::State_Curious(void)
 {
     AimAtAimNode();
 
-    if (!MoveToBestAttractivePoint(3) && (!IsMoving() || m_vLastCuriousPos != m_vNewCuriousPos)) {
-        MoveTo(m_vNewCuriousPos);
+    if (!movement.MoveToBestAttractivePoint(3) && (!movement.IsMoving() || m_vLastCuriousPos != m_vNewCuriousPos)) {
+        movement.MoveTo(m_vNewCuriousPos);
         m_vLastCuriousPos = m_vNewCuriousPos;
     }
 
-    if (MoveDone()) {
+    if (movement.MoveDone()) {
         m_iCuriousTime = 0;
     }
 }
@@ -1334,7 +788,7 @@ bool BotController::CheckCondition_Attack(void)
 
     if (level.inttime > m_iAttackTime) {
         if (m_iAttackTime) {
-            ClearMove();
+            movement.ClearMove();
             m_iAttackTime = 0;
         }
 
@@ -1385,7 +839,7 @@ void BotController::State_Attack(void)
             length = controlledEnt->velocity.length();
             if ((length / sv_runspeed->value) > (pWeap->GetMaxFireMovement() * pWeap->GetMovementSpeed())) {
                 bNoMove = true;
-                ClearMove();
+                movement.ClearMove();
             }
         }
 
@@ -1433,22 +887,22 @@ void BotController::State_Attack(void)
         return;
     }
 
-    if ((!MoveToBestAttractivePoint(5) && !IsMoving()) || (m_vOldEnemyPos != m_vLastEnemyPos && !MoveDone())) {
+    if ((!movement.MoveToBestAttractivePoint(5) && !movement.IsMoving()) || (m_vOldEnemyPos != m_vLastEnemyPos && !movement.MoveDone())) {
         if (!bMelee) {
             if ((controlledEnt->origin - m_vLastEnemyPos).lengthSquared() < fMinDistanceSquared) {
                 Vector vDir = controlledEnt->origin - m_vLastEnemyPos;
                 VectorNormalizeFast(vDir);
 
-                AvoidPath(m_vLastEnemyPos, fMinDistance, Vector(controlledEnt->orientation[1]) * 512);
+                movement.AvoidPath(m_vLastEnemyPos, fMinDistance, Vector(controlledEnt->orientation[1]) * 512);
             } else {
-                MoveNear(m_vLastEnemyPos, fMinDistance);
+                movement.MoveNear(m_vLastEnemyPos, fMinDistance);
             }
         } else {
-            MoveTo(m_vLastEnemyPos);
+            movement.MoveTo(m_vLastEnemyPos);
         }
     }
 
-    if (IsMoving()) {
+    if (movement.IsMoving()) {
         m_iAttackTime = level.inttime + 1000;
     }
 }
@@ -1525,16 +979,6 @@ void BotController::Think()
     GetEyeInfo(&eyeinfo);
 
     G_ClientThink(controlledEnt->edict, &ucmd, &eyeinfo);
-
-    if (m_vCurrentOrigin != controlledEnt->origin) {
-        m_pPrimaryAttract = NULL;
-        m_vCurrentOrigin  = controlledEnt->origin;
-
-        if (m_Path.CurrentNode()) {
-            // recalculate paths because of a new origin
-            m_Path.ReFindPath(controlledEnt->origin, controlledEnt);
-        }
-    }
 }
 
 void BotController::Killed(Event *ev)
@@ -1603,6 +1047,7 @@ void BotController::EventStuffText(Event *ev)
 void BotController::setControlledEntity(Player *player)
 {
     controlledEnt = player;
+    movement.SetControlledEntity(player);
 }
 
 Player *BotController::getControlledEntity() const

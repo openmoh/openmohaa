@@ -55,6 +55,62 @@ private:
     BotController *controller;
 };
 
+class BotMovement
+{
+public:
+    BotMovement();
+
+    void SetControlledEntity(Player *newEntity);
+
+    void MoveThink(usercmd_t& botcmd);
+
+    void AvoidPath(
+        Vector vPos,
+        float  fAvoidRadius,
+        Vector vPreferredDir = vec_zero,
+        float *vLeashHome    = NULL,
+        float  fLeashRadius  = 0.0f
+    );
+    void MoveNear(Vector vNear, float fRadius, float *vLeashHome = NULL, float fLeashRadius = 0.0f);
+    void MoveTo(Vector vPos, float *vLeashHome = NULL, float fLeashRadius = 0.0f);
+    bool MoveToBestAttractivePoint(int iMinPriority = 0);
+
+    bool CanMoveTo(Vector vPos);
+    bool MoveDone();
+    bool IsMoving(void);
+    void ClearMove(void);
+
+    Vector GetCurrentGoal() const;
+
+private:
+    void CheckAttractiveNodes();
+    void CheckEndPos(Entity *entity);
+    void CheckJump(usercmd_t& botcmd);
+    void NewMove();
+
+private:
+    SafePtr<Player>            controlledEntity;
+    AttractiveNodePtr          m_pPrimaryAttract;
+    Container<nodeAttract_t *> m_attractList;
+    ActorPath                  m_Path;
+
+    Vector m_vCurrentOrigin;
+    Vector m_vTargetPos;
+    Vector m_vCurrentGoal;
+    Vector m_vLastValidDir;
+    Vector m_vLastValidGoal;
+    Vector m_vLastCheckPos[2];
+    float  m_fAttractTime;
+    int    m_iTempAwayTime;
+    int    m_iNumBlocks;
+    int    m_iCheckPathTime;
+    bool   m_bPathing;
+    bool   m_bTempAway;
+};
+
+class BotRotation
+{};
+
 class BotController : public Listener
 {
 public:
@@ -68,24 +124,7 @@ public:
 private:
     static botfunc_t botfuncs[];
 
-    // Paths
-    Vector                     m_vCurrentOrigin;
-    ActorPath                  m_Path;
-    Vector                     m_vTargetPos;
-    Vector                     m_vCurrentGoal;
-    Vector                     m_vLastValidDir;
-    Vector                     m_vLastValidGoal;
-    bool                       m_bPathing;
-    bool                       m_bTempAway;
-    bool                       m_bAimPath;
-    bool                       m_bDeltaMove;
-    int                        m_iTempAwayTime;
-    int                        m_iNumBlocks;
-    int                        m_iCheckPathTime;
-    Vector                     m_vLastCheckPos[2];
-    AttractiveNodePtr          m_pPrimaryAttract;
-    float                      m_fAttractTime;
-    Container<nodeAttract_t *> m_attractList;
+    BotMovement movement;
 
     // States
     int               m_iCuriousTime;
@@ -116,11 +155,7 @@ private:
     int m_iNextTauntTime;
 
 private:
-    void CheckAttractiveNodes(void);
-    void MoveThink(void);
     void TurnThink(void);
-    void CheckEndPos(void);
-    void CheckJump(void);
     void CheckUse(void);
 
     void State_DefaultBegin(void);
@@ -177,22 +212,6 @@ public:
     void AimAt(Vector vPos);
     void AimAtAimNode(void);
 
-    void AvoidPath(
-        Vector vPos,
-        float  fAvoidRadius,
-        Vector vPreferredDir = vec_zero,
-        float *vLeashHome    = NULL,
-        float  fLeashRadius  = 0.0f
-    );
-    void MoveNear(Vector vNear, float fRadius, float *vLeashHome = NULL, float fLeashRadius = 0.0f);
-    void MoveTo(Vector vPos, float *vLeashHome = NULL, float fLeashRadius = 0.0f);
-    bool MoveToBestAttractivePoint(int iMinPriority = 0);
-
-    bool CanMoveTo(Vector vPos);
-    bool MoveDone(void);
-    bool IsMoving(void);
-    void ClearMove(void);
-
     void NoticeEvent(Vector vPos, int iType, Entity *pEnt, float fDistanceSquared, float fRadiusSquared);
     void ClearEnemy(void);
 
@@ -206,8 +225,7 @@ public:
     void GotKill(Event *ev);
     void EventStuffText(Event *ev);
 
-private:
-    void NewMove();
+    BotMovement& GetMovement();
 
 public:
     void    setControlledEntity(Player *player);

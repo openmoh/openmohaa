@@ -695,7 +695,7 @@ qboolean G_BotCommand(gentity_t *ent)
     command = gi.Argv(1);
 
     if (!Q_stricmp(command, "movehere")) {
-        bot->MoveTo(ent->entity->origin);
+        bot->GetMovement().MoveTo(ent->entity->origin);
     } else if (!Q_stricmp(command, "moveherenear")) {
         float rad = 256.0f;
 
@@ -703,7 +703,7 @@ qboolean G_BotCommand(gentity_t *ent)
             rad = atof(gi.Argv(2));
         }
 
-        bot->MoveNear(ent->entity->origin, rad);
+        bot->GetMovement().MoveNear(ent->entity->origin, rad);
     } else if (!Q_stricmp(command, "avoidhere")) {
         float rad = 256.0f;
 
@@ -711,7 +711,7 @@ qboolean G_BotCommand(gentity_t *ent)
             rad = atof(gi.Argv(2));
         }
 
-        bot->AvoidPath(ent->entity->origin, rad);
+        bot->GetMovement().AvoidPath(ent->entity->origin, rad);
     } else if (!Q_stricmp(command, "telehere")) {
         bot->getControlledEntity()->setOrigin(ent->s.origin);
     }
