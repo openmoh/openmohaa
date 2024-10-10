@@ -136,7 +136,8 @@ static unsigned int  startCountHigh;
 static unsigned int  loadCountLow;
 static unsigned int  loadCountHigh;
 static unsigned int  loadCount;
-static unsigned int  lastTime;
+static unsigned int  lastTime = 0;
+static unsigned int  updateTime = 0;
 static unsigned int  loadNumber;
 static unsigned int  totalLoadTime;
 static unsigned int  currentLoadTime;
@@ -5507,12 +5508,19 @@ UI_TestUpdateScreen
 void UI_TestUpdateScreen(unsigned int timeout)
 {
     unsigned int newTime = Sys_Milliseconds();
+    unsigned int startRenderTime, endRenderTime;
 
-    if (newTime - lastTime >= timeout) {
-        lastTime = newTime;
-        Sys_PumpMessageLoop();
-        SCR_UpdateScreen();
+    if (timeout > 0 && (newTime - lastTime) < (timeout + updateTime)) {
+        return;
     }
+
+    startRenderTime = Sys_Milliseconds();
+    Sys_PumpMessageLoop();
+    SCR_UpdateScreen();
+    endRenderTime = Sys_Milliseconds();
+
+    updateTime = Q_min(endRenderTime - startRenderTime, 1000);
+    lastTime = endRenderTime;
 }
 
 /*
