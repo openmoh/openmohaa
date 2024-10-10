@@ -30,7 +30,6 @@ static saved_bot_t *saved_bots        = NULL;
 static unsigned int num_saved_bots    = 0;
 static unsigned int current_bot_count = 0;
 static unsigned int botId             = 0;
-static char       **modelList         = NULL;
 
 Container<str> alliedModelList;
 Container<str> germanModelList;
@@ -687,6 +686,7 @@ Called to initialize bots
 */
 void G_BotInit()
 {
+    InitModelList();
     botManager.Init();
 }
 
@@ -713,8 +713,6 @@ void G_SpawnBots()
 {
     unsigned int numClients;
     unsigned int numBotsToSpawn;
-
-    InitModelList();
 
     if (saved_bots) {
         G_RestoreBots();
