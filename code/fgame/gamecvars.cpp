@@ -261,6 +261,8 @@ cvar_t *g_aistats;
 // Added in OPM
 //
 
+cvar_t *sv_netoptimize;
+
 cvar_t *g_obituarylocation;
 
 cvar_t *sv_scriptfiles;
@@ -633,6 +635,8 @@ void CVAR_Init(void)
     //
     // Added in OPM
     //
+
+    sv_netoptimize = gi.Cvar_Get("sv_netoptimize", "0", 0);
 
     if (g_target_game >= target_game_e::TG_MOHTA) {
         g_obituarylocation = gi.Cvar_Get("g_obituarylocation", "0", 0);

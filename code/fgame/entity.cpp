@@ -1863,13 +1863,11 @@ Entity::~Entity()
 }
 
 void Entity::ClassnameEvent(Event *ev)
-
 {
     strncpy(edict->entname, ev->GetString(1), sizeof(edict->entname) - 1);
 }
 
 void Entity::SpawnFlagsEvent(Event *ev)
-
 {
     // spawning variables
     spawnflags = ev->GetInteger(1);
@@ -6402,17 +6400,24 @@ void Entity::PlayNonPvsSound(const str& soundName, float volume)
         return;
     }
 
+    if (!sv_netoptimize->integer) {
+        // don't use sound indexes for nothing
+        return;
+    }
+
     if (edict->r.num_nonpvs_sounds >= MAX_NONPVS_SOUNDS) {
         return;
     }
 
     name = GetRandomAlias(soundName, &ret);
     if (name.length() && ret) {
-        edict->r.nonpvs_sounds[edict->r.num_nonpvs_sounds].index = gi.soundindex(name.c_str(), ret->streamed);
-        edict->r.nonpvs_sounds[edict->r.num_nonpvs_sounds].volume = G_Random() * ret->volumeMod + ret->volume * volume;
-        edict->r.nonpvs_sounds[edict->r.num_nonpvs_sounds].minDist = ret->dist;
-        edict->r.nonpvs_sounds[edict->r.num_nonpvs_sounds].maxDist = ret->maxDist;
-        edict->r.nonpvs_sounds[edict->r.num_nonpvs_sounds].pitch = G_Random() * ret->pitchMod + ret->pitch;
+        nonpvs_sound_t* npvs = &edict->r.nonpvs_sounds[edict->r.num_nonpvs_sounds];
+
+        npvs->index = gi.soundindex(name.c_str(), ret->streamed);
+        npvs->volume = G_Random() * ret->volumeMod + ret->volume * volume;
+        npvs->minDist = ret->dist;
+        npvs->maxDist = ret->maxDist;
+        npvs->pitch = G_Random() * ret->pitchMod + ret->pitch;
         edict->r.num_nonpvs_sounds++;
     }
 }
