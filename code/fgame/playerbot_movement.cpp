@@ -58,7 +58,7 @@ void BotMovement::MoveThink(usercmd_t& botcmd)
         return;
     }
 
-    if (m_vCurrentOrigin != controlledEntity->origin) {
+    if (level.inttime >= m_Path.Time() + 1000 && m_vCurrentOrigin != controlledEntity->origin) {
         m_vCurrentOrigin = controlledEntity->origin;
 
         if (m_Path.CurrentNode()) {
