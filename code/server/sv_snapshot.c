@@ -294,20 +294,27 @@ static int QDECL SV_QsortEntityNumbers( const void *a, const void *b ) {
 	return 1;
 }
 
+/*
+===============
+SV_AddNonPVSSound
+===============
+*/
 static void SV_AddNonPVSSound(client_t* client, gentity_t* ent) {
 	int i;
 
     for (i = 0; i < ent->r.num_nonpvs_sounds; i++) {
+		nonpvs_sound_t *npvs = &ent->r.nonpvs_sounds[i];
+
         SV_ClientSound(
             client,
             &ent->s.origin,
             ENTITYNUM_NONE,
             1,
-            ent->r.nonpvs_sounds[i].index,
-            ent->r.nonpvs_sounds[i].volume,
-            ent->r.nonpvs_sounds[i].minDist,
-            ent->r.nonpvs_sounds[i].pitch,
-            ent->r.nonpvs_sounds[i].maxDist,
+            npvs->index,
+            npvs->volume,
+            npvs->minDist,
+            npvs->pitch,
+            npvs->maxDist,
             qfalse
         );
 	}
@@ -1189,6 +1196,57 @@ void SV_SendClientSnapshot( client_t *client ) {
 	SV_SendMessageToClient( &msg, client );
 }
 
+/*
+=======================
+SV_CacheNonPVSSound
+=======================
+*/
+void SV_CacheNonPVSSound(void)
+{
+	gentity_t* ent;
+	nonpvs_sound_t* npvs;
+	int i, j;
+
+	for (i = 0; i < sv.num_entities; i++) {
+		ent = SV_GentityNum(i);
+
+		for (j = 0; j < ent->r.num_nonpvs_sounds; j++) {
+			npvs = &ent->r.nonpvs_sounds[j];
+			if (npvs->index) {
+				svs.nonpvs_sound_cache[npvs->index].inUse = qtrue;
+				svs.nonpvs_sound_cache[npvs->index].deleteTime = svs.time + 1000;
+			}
+		}
+	}
+}
+
+/*
+=======================
+SV_CleanupNonPVSSound
+=======================
+*/
+void SV_CleanupNonPVSSound(void)
+{
+	nonpvs_sound_cache_t* cache;
+	int i, j, k, l;
+
+	for (i = 1; i < MAX_SOUNDS; i++) {
+		cache = &svs.nonpvs_sound_cache[i];
+
+		if (!sv.configstrings[i]) {
+			continue;
+		}
+
+		if (!cache->inUse) {
+			continue;
+		}
+
+		if (svs.time >= cache->deleteTime) {
+			SV_SetConfigstring(CS_SOUNDS + i, NULL);
+			cache->inUse = qfalse;
+		}
+	}
+}
 
 /*
 =======================
@@ -1197,9 +1255,12 @@ SV_SendClientMessages
 */
 void SV_SendClientMessages(void)
 {
-	int		i;
-	int			rate;
-	client_t	*c;
+	int				i, j;
+	int				rate;
+	client_t		*c;
+	gentity_t		*ent;
+
+	SV_CacheNonPVSSound();
 
 	// send a message to each connected client
 	for(i=0; i < sv_maxclients->integer; i++)
@@ -1245,9 +1306,12 @@ void SV_SendClientMessages(void)
     }
 
     for (i = 0; i < sv.num_entities; i++) {
-        gentity_t* ent = SV_GentityNum(i);
+        ent = SV_GentityNum(i);
 		ent->r.num_nonpvs_sounds = 0;
     }
+
+	// Free up sound indices
+	SV_CleanupNonPVSSound();
 }
 
 qboolean SV_IsValidSnapshotClient(client_t* client) {

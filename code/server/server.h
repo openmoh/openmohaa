@@ -274,6 +274,12 @@ typedef struct {
 	cdKeyState_e	cdkeyState;
 } challenge_t;
 
+// Added in OPM
+typedef struct {
+	qboolean inUse;
+	int deleteTime;
+} nonpvs_sound_cache_t;
+
 // this structure will be cleared only when the game dll changes
 typedef struct {
 	qboolean	initialized;				// sv_init has completed
@@ -309,6 +315,7 @@ typedef struct {
 	int				tm_loopcount;
 	int				tm_offset;
 
+	nonpvs_sound_cache_t nonpvs_sound_cache[MAX_SOUNDS]; // Added in OPM
 #ifndef DEDICATED
 	soundsystemsavegame_t	soundSystem;
 #endif
