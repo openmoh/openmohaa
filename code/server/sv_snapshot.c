@@ -321,6 +321,62 @@ static void SV_AddNonPVSSound(client_t* client, gentity_t* ent) {
 }
 
 /*
+====================
+SV_ClipMoveToBSPEntities
+
+====================
+*/
+static qboolean SV_ClipMoveToBSPEntities(const vec3_t start, const vec3_t end, int mask) {
+	int				i, num;
+	int				touchlist[MAX_GENTITIES];
+	gentity_t		*touch;
+	trace_t			trace;
+	clipHandle_t	clipHandle;
+	vec3_t			boxmins, boxmaxs;
+
+	for (i = 0; i < 3; i++) {
+		if (end[i] > start[i]) {
+			boxmins[i] = start[i] - 1;
+			boxmaxs[i] = end[i] + 1;
+		}
+		else {
+			boxmins[i] = end[i] - 1;
+			boxmaxs[i] = start[i] + 1;
+		}
+	}
+
+	num = SV_AreaEntities(boxmins, boxmaxs, touchlist, MAX_GENTITIES);
+
+	for (i = 0; i < num; i++) {
+		touch = SV_GentityNum(touchlist[i]);
+
+		// skip non-solids and triggers
+		if (touch->solid != SOLID_BSP) {
+			continue;
+		}
+
+		// if it doesn't have any brushes of a type we
+		// are looking for, ignore it
+		if (!(mask & touch->r.contents)) {
+			continue;
+		}
+
+		// might intersect, so do an exact clip
+		clipHandle = SV_ClipHandleForEntity(touch);
+
+		CM_TransformedBoxTrace(&trace, start, end,
+			vec3_origin, vec3_origin, clipHandle, mask,
+			touch->s.origin, touch->r.currentAngles, qfalse);
+
+		if (trace.allsolid || trace.startsolid || trace.fraction != 1) {
+			return qfalse;
+		}
+	}
+
+	return qtrue;
+}
+
+/*
 ===============
 SV_WorldTrace
 ===============
@@ -330,7 +386,12 @@ qboolean SV_WorldTrace(const vec3_t start, const vec3_t end, int mask)
 	trace_t trace = { 0 };
 
     CM_BoxTrace(&trace, start, end, vec3_origin, vec3_origin, 0, mask, qfalse);
-    return trace.fraction == 1;
+	if (trace.fraction != 1) {
+		return qfalse;
+	}
+
+	// Also test against brush models
+	return SV_ClipMoveToBSPEntities(start, end, mask);
 }
 
 /*
