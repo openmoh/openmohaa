@@ -832,7 +832,14 @@ void G_BotConnect(int clientNum, qboolean firstTime, const char *userinfo)
 
     // read the session data
     memset(client, 0, sizeof(*client));
-    G_InitClientPersistant(client, userinfo);
+    if (firstTime) {
+        memset(client, 0, sizeof(*client));
+        if (!game.autosaved) {
+            G_InitClientPersistant(client, userinfo);
+        }
+    } else {
+        G_ReadClientSessionData(client);
+    }
 
     //
     // Use "localhost" as some code relies on it to check whether or not it should be kicked
@@ -903,7 +910,8 @@ const char *G_ClientConnect(int clientNum, qboolean firstTime, qboolean differen
     if ((strcmp(ip, "localhost") != 0)) {
         // check for a password
         value = Info_ValueForKey(userinfo, "password");
-        if (strcmp(sv_privatePassword->string, value) != 0 && *password->string && strcmp(password->string, value) != 0) {
+        if (strcmp(sv_privatePassword->string, value) != 0 && *password->string
+            && strcmp(password->string, value) != 0) {
             return "Invalid password";
         }
     }
@@ -979,6 +987,7 @@ void G_ClientBegin(gentity_t *ent, usercmd_t *cmd)
         } else {
             // a spawn point will completely reinitialize the entity
             level.spawn_entnum = ent->s.number;
+
             Player *player = new Player;
         }
 

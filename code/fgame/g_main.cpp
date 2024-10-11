@@ -375,7 +375,7 @@ void G_ServerSpawned(void)
     try {
         level.ServerSpawned();
 
-        G_SpawnBots();
+        G_BotPostInit();
     } catch (const ScriptException& e) {
         G_ExitWithError(e.string.c_str());
     }

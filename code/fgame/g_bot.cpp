@@ -390,7 +390,7 @@ G_AddBot
 Add the specified bot, optionally its saved state
 ============
 */
-void G_AddBot(saved_bot_t *saved)
+void G_AddBot(const saved_bot_t *saved)
 {
     int        i;
     int        clientNum;
@@ -408,44 +408,42 @@ void G_AddBot(saved_bot_t *saved)
 
     clientNum = e - g_entities;
 
+    current_bot_count++;
+    // increase the unique ID
+    botId++;
+
+    if (saved) {
+        G_BotConnect(clientNum, qfalse, saved->userinfo);
+        G_BotBegin(e);
+        return;
+    }
+
     if (gi.Argc() > 2) {
         Q_strncpyz(botName, gi.Argv(2), sizeof(botName));
     } else {
         Com_sprintf(botName, sizeof(botName), "bot%d", botId);
     }
 
-    e->s.clientNum = clientNum;
-    e->s.number    = clientNum;
+    Info_SetValueForKey(userinfo, "name", botName);
 
-    if (saved) {
-        strncpy(userinfo, saved->pers.userinfo, ARRAY_LEN(userinfo));
-    } else {
-        Info_SetValueForKey(userinfo, "name", botName);
-
-        //
-        // Choose a random model
-        //
-        if (alliedModelList.NumObjects()) {
-            const unsigned int index = rand() % alliedModelList.NumObjects();
-            Info_SetValueForKey(userinfo, "dm_playermodel", alliedModelList[index]);
-        }
-        if (germanModelList.NumObjects()) {
-            const unsigned int index = rand() % germanModelList.NumObjects();
-            Info_SetValueForKey(userinfo, "dm_playergermanmodel", germanModelList[index]);
-        }
-
-        Info_SetValueForKey(userinfo, "fov", "80");
-        Info_SetValueForKey(userinfo, "ip", "localhost");
+    //
+    // Choose a random model
+    //
+    if (alliedModelList.NumObjects()) {
+        const unsigned int index = rand() % alliedModelList.NumObjects();
+        Info_SetValueForKey(userinfo, "dm_playermodel", alliedModelList[index]);
+    }
+    if (germanModelList.NumObjects()) {
+        const unsigned int index = rand() % germanModelList.NumObjects();
+        Info_SetValueForKey(userinfo, "dm_playergermanmodel", germanModelList[index]);
     }
 
-    current_bot_count++;
-    botId++;
+    Info_SetValueForKey(userinfo, "fov", "80");
+    Info_SetValueForKey(userinfo, "ip", "localhost");
 
-    G_BotConnect(clientNum, saved == NULL, userinfo);
-
-    if (saved) {
-        e->client->pers = saved->pers;
-    }
+    // Connect the bot for the first time
+    // setup user info and stuff
+    G_BotConnect(clientNum, qtrue, userinfo);
 
     G_BotBegin(e);
 }
@@ -553,6 +551,7 @@ Save bot persistent data
 */
 void G_SaveBots()
 {
+    unsigned int count;
     unsigned int n;
 
     if (saved_bots) {
@@ -566,18 +565,22 @@ void G_SaveBots()
 
     saved_bots     = new saved_bot_t[current_bot_count];
     num_saved_bots = 0;
-    for (n = 0; n < game.maxclients; n++) {
-        gentity_t *e = &g_entities[n];
-        if (!G_IsBot(e)) {
+
+    const BotControllerManager& manager = botManager.getControllerManager();
+
+    count = manager.getControllers().NumObjects();
+    assert(count <= current_bot_count);
+
+    for (n = 1; n <= count; n++) {
+        const BotController *controller = manager.getControllers().ObjectAt(n);
+        Player              *player     = controller->getControlledEntity();
+        if (!player) {
+            // this shouldn't happen
             continue;
         }
 
-        Player      *player = static_cast<Player *>(e->entity);
-        saved_bot_t& saved  = saved_bots[num_saved_bots++];
-
-        saved.bValid = true;
-        //saved.team = player->GetTeam();
-        saved.pers = player->client->pers;
+        saved_bot_t& saved = saved_bots[num_saved_bots++];
+        memcpy(saved.userinfo, player->client->pers.userinfo, sizeof(saved.userinfo));
     }
 }
 
@@ -597,7 +600,7 @@ void G_RestoreBots()
     }
 
     for (n = 0; n < num_saved_bots; n++) {
-        saved_bot_t& saved = saved_bots[n];
+        const saved_bot_t& saved = saved_bots[n];
 
         G_AddBot(&saved);
     }
@@ -704,6 +707,20 @@ void G_BotFrame()
 
 /*
 ===========
+G_BotPostInit
+
+Called after the server has spawned
+============
+*/
+void G_BotPostInit()
+{
+    G_RestoreBots();
+
+    G_SpawnBots();
+}
+
+/*
+===========
 G_SpawnBots
 
 Called each frame to manage bot spawning
@@ -713,10 +730,6 @@ void G_SpawnBots()
 {
     unsigned int numClients;
     unsigned int numBotsToSpawn;
-
-    if (saved_bots) {
-        G_RestoreBots();
-    }
 
     //
     // Check the minimum bot count
