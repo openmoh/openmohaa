@@ -1438,8 +1438,6 @@ qboolean Player::CondPull(Conditional& condition)
     return qfalse;
 }
 
-#define LADDER_HAND_HEIGHT (MAXS_X - MINS_X)
-
 qboolean Player::CondLadder(Conditional& condition)
 {
     trace_t trace;
