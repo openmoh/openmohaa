@@ -919,6 +919,9 @@ const char *G_ClientConnect(int clientNum, qboolean firstTime, qboolean differen
         }
     } else {
         G_ReadClientSessionData(client);
+        // Added in 2.1
+        //  Let clients choose their primary weapon
+        //  on map change
         if (differentMap) {
             client->pers.dm_primary[0] = 0;
         }
