@@ -818,7 +818,7 @@ void G_ClientUserinfoChanged(gentity_t *ent, const char *u)
     Q_strncpyz(client->pers.userinfo, u, sizeof(client->pers.userinfo));
 }
 
-void G_BotConnect(int clientNum, const char *userinfo)
+void G_BotConnect(int clientNum, qboolean firstTime, const char *userinfo)
 {
     gclient_t *client;
     gentity_t *ent;

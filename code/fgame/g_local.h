@@ -422,7 +422,7 @@ void QDECL G_Error(errorParm_t type, const char *fmt, ...) __attribute__((noretu
 //
 // g_client.c
 //
-void        G_BotConnect(int clientNum, const char* userinfo);
+void        G_BotConnect(int clientNum, qboolean firstTime, const char* userinfo);
 const char *G_ClientConnect(int clientNum, qboolean firstTime, qboolean differentMap);
 void        G_ClientUserinfoChanged(gentity_t *ent, const char *userinfo);
 void        G_ClientDisconnect(gentity_t *ent);

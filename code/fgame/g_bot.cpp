@@ -441,7 +441,7 @@ void G_AddBot(saved_bot_t *saved)
     current_bot_count++;
     botId++;
 
-    G_BotConnect(clientNum, userinfo);
+    G_BotConnect(clientNum, saved == NULL, userinfo);
 
     if (saved) {
         e->client->pers = saved->pers;
