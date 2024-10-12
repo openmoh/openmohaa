@@ -2570,7 +2570,8 @@ S_OPENAL_GetMusicFilename
 */
 const char *S_OPENAL_GetMusicFilename()
 {
-    if (!openal.chan_trig_music.is_playing()) {
+    // Don't call into the channel if QAL initialisation did not succeed.
+    if (!al_initialized || !openal.chan_trig_music.is_playing()) {
         return "";
     }
     return openal.tm_filename;
