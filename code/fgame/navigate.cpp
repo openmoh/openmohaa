@@ -3494,14 +3494,16 @@ void NavMaster::SetNodeTarget(Event *ev)
 
 void NavMaster::RemoveNode(Event *ev)
 {
+    str targetname;
     int num;
 
     CheckNodeSelected();
 
     num = selectedNode->nodenum;
+    targetname = selectedNode->targetname;
     AI_RemoveNode(selectedNode);
 
-    gi.Printf("Node %d removed\n", selectedNode->nodenum, selectedNode->targetname.c_str());
+    gi.Printf("Node %d removed\n", num, targetname.c_str());
 }
 
 void NavMaster::CheckNodeSelected()
