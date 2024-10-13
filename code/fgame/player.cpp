@@ -2201,6 +2201,11 @@ Player::~Player()
     legs_conditionals.FreeObjectList();
     torso_conditionals.FreeObjectList();
 
+    // Added in 2.11
+    //  Make sure to clean turret stuff up
+    //  when the player is deleted
+    RemoveFromVehiclesAndTurrets();
+
     entflags &= ~ECF_PLAYER;
 }
 
