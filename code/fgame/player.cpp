@@ -4973,10 +4973,25 @@ void Player::InitTorsoStateTable(void)
 
 void Player::LoadStateTable(void)
 {
+    int i;
+    Conditional* cond;
+
     statemap_Legs  = NULL;
     statemap_Torso = NULL;
 
+    //
+    // Free existing conditionals
+    //
+    for (i = legs_conditionals.NumObjects(); i > 0; i--) {
+        cond = legs_conditionals.ObjectAt(i);
+        delete cond;
+    }
     legs_conditionals.FreeObjectList();
+
+    for (i = torso_conditionals.NumObjects(); i > 0; i--) {
+        cond = torso_conditionals.ObjectAt(i);
+        delete cond;
+    }
     torso_conditionals.FreeObjectList();
 
     statemap_Legs =
