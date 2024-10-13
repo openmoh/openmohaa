@@ -49,7 +49,7 @@ Sys_PrintBackTrace
 ==================
 */
 void Sys_PrintBackTrace() {
-    void* backtrace_arr[20];
+    void* backtrace_arr[64];
     size_t backtrace_size;
 
     printf("----\nBacktrace:\n");
