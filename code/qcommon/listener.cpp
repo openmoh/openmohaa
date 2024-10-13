@@ -2595,6 +2595,7 @@ void Listener::CancelEventsOfType(Event *ev)
         next = node->next;
         if ((node->GetSourceObject() == this) && (node->event->eventnum == eventnum)) {
             LL_Remove(node, next, prev);
+            delete node->event;
             delete node;
         }
         node = next;
@@ -2627,6 +2628,11 @@ void Listener::CancelFlaggedEvents(int flags)
         next = node->next;
         if ((node->GetSourceObject() == this) && (node->flags & flags)) {
             LL_Remove(node, next, prev);
+            // Added in OPM
+            //  Original doesn't delete the posted Event
+            //  which would cause a memory leak
+            delete node->event;
+
             delete node;
         }
         node = next;
@@ -2649,6 +2655,7 @@ void Listener::CancelPendingEvents(void)
         next = node->next;
         if (node->GetSourceObject() == this) {
             LL_Remove(node, next, prev);
+            delete node->event;
             delete node;
         }
         node = next;
