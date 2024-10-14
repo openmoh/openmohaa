@@ -23,23 +23,38 @@ endif()
 set(TARGET_BASE_GAME "./")
 set(CMAKE_DEBUG_POSTFIX "-dbg")
 
+#
+# Microsoft compiler specific parameters
+#
 if(MSVC)
 	add_definitions(-D_CRT_SECURE_NO_WARNINGS -D_CRT_NONSTDC_NO_DEPRECATE)
 	# Treat no return type as error
 	add_compile_options(/we4715)
 endif()
 
-if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+#
+# Clang and GCC specific parameters
+#
+if(CMAKE_C_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_C_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 	add_compile_options(-Wno-comment)
 	# Treat no return type as error
 	add_compile_options(-Werror=return-type)
+	# Don't export symbols, there are some OSes that can resolve symbols
+	# globally
+	add_compile_options(-fvisibility=hidden)
 endif()
 
+#
+# Clang specific parameters
+#
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 	# Ignore warnings for code like 'assert("Assert string")'
 	add_compile_options(-Wno-pointer-bool-conversion)
 endif()
 
+#
+# GCC specific parameters
+#
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 	# Add this option on gcc to prevent functions from having the STB_GNU_UNIQUE binding
 	# Otherwise, it would prevent libraries from being unloaded
