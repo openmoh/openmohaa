@@ -533,6 +533,13 @@ void ScriptMaster::InitConstStrings(void)
         AddString(ConstStrings[i]);
     }
 
+    if (!Listener::EventSystemStarted) {
+        // Added in OPM
+        //  This usually means the game module is getting destroyed
+        //  most often, the event command list has been destroyed earlier
+        return;
+    }
+
     Event::normalCommandList.clear();
     Event::returnCommandList.clear();
     Event::getterCommandList.clear();
