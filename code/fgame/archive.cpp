@@ -109,6 +109,11 @@ const char *ArchiveFile::Filename(void)
 
 qboolean ArchiveFile::Compress()
 {
+#ifdef Q3_BIG_ENDIAN
+    // FIXME: Decompressing crashes on big-endian architectures
+    return false;
+#endif
+
     byte  *tempbuf;
     size_t out_len;
     size_t tempbuf_len;
