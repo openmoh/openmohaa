@@ -43,6 +43,6 @@ Other compilers can be specified by appending `-DCMAKE_C_COMPILER=/path/to/compi
 Visual Studio (2019 or 2022) is generally preferred.
 
 Flex and Bison can be downloaded from here: https://github.com/lexxmark/winflexbison/releases/tag/v2.5.25
-OpenAL can be downloaded from here: https://github.com/kcat/openal-soft/releases/tag/1.23.1
+OpenAL can be downloaded from here: https://github.com/kcat/openal-soft/releases/tag/1.23.1 rename `soft_oal.dll` to `OpenAL64.dll` on 64-bit and `OpenAL32.dll` on 32-bit
 
 Append `-DFLEX_EXECUTABLE=...\win_flex.exe -DBISON_EXECUTABLE=...\win_bison.exe -DOPENAL_INCLUDE_DIR="path/to/oal/include" -DOPENAL_LIBRARY="path/to/oal"` to the CMake command-line to use the package from the link above.
