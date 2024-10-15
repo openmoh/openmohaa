@@ -1482,20 +1482,26 @@ void CopyShortSwap(void* dest, const void* src)
 {
 	const byte* from = src;
 	byte* to = dest;
+	byte tmp[2];
 
-	to[0] = from[1];
-	to[1] = from[0];
+	Com_Memcpy(tmp, from, sizeof(tmp));
+
+	to[0] = tmp[1];
+	to[1] = tmp[0];
 }
 
 void CopyLongSwap(void* dest, const void* src)
 {
 	const byte* from = src;
 	byte* to = dest;
+	byte tmp[4];
 
-	to[0] = from[3];
-	to[1] = from[2];
-	to[2] = from[1];
-	to[3] = from[0];
+	Com_Memcpy(tmp, from, sizeof(tmp));
+
+	to[0] = tmp[3];
+	to[1] = tmp[2];
+	to[2] = tmp[1];
+	to[3] = tmp[0];
 }
 
 void SwapValue(void* dest, size_t size) {
