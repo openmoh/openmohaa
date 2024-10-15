@@ -612,6 +612,12 @@ void L_ShutdownEvents(void)
 
     Event::commandList.clear();
     Event::eventDefList.clear();
+#ifdef WITH_SCRIPT_ENGINE
+    Event::normalCommandList.clear();
+    Event::returnCommandList.clear();
+    Event::getterCommandList.clear();
+    Event::setterCommandList.clear();
+#endif
 
     Listener::EventSystemStarted = false;
 }
