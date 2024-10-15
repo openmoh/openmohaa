@@ -1123,7 +1123,8 @@ int Archiver::ReadType(void)
 
 void Archiver::WriteType(int type)
 {
-    archivefile.Write(&type, sizeof(type));
+    int nt = LittleLong(type);
+    archivefile.Write(&nt, sizeof(nt));
 }
 
 void Archiver::CheckType(int type)
@@ -1146,8 +1147,7 @@ void Archiver::CheckType(int type)
             }
         }
     } else {
-        int nt = LittleLong(type);
-        archivefile.Write(&nt, sizeof(nt));
+        WriteType(type);
     }
 }
 
