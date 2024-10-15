@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2023 the OpenMoHAA team
+Copyright (C) 2024 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -228,19 +228,19 @@ TIKI_SwapSkel
 Swap the skeleton header on Big-Endian systems
 ===============
 */
-void TIKI_SwapSkel(skelHeader_t* pheader)
+void TIKI_SwapSkel(skelHeader_t *pheader)
 {
 #ifdef Q3_BIG_ENDIAN
-    skelSurface_t* pSurf;
-    int i, j, k;
+    skelSurface_t *pSurf;
+    int            i, j, k;
 
     //pheader->ident = LittleLong(pheader->ident);
-    pheader->version = LittleLong(pheader->version);
+    pheader->version     = LittleLong(pheader->version);
     pheader->numSurfaces = LittleLong(pheader->numSurfaces);
-    pheader->numBones = LittleLong(pheader->numBones);
-    pheader->ofsBones = LittleLong(pheader->ofsBones);
+    pheader->numBones    = LittleLong(pheader->numBones);
+    pheader->ofsBones    = LittleLong(pheader->ofsBones);
     pheader->ofsSurfaces = LittleLong(pheader->ofsSurfaces);
-    pheader->ofsEnd = LittleLong(pheader->ofsEnd);
+    pheader->ofsEnd      = LittleLong(pheader->ofsEnd);
 
     if (pheader->version >= TIKI_SKB_HEADER_VERSION) {
         for (i = 0; i < TIKI_SKEL_LOD_INDEXES; i++) {
@@ -261,131 +261,146 @@ void TIKI_SwapSkel(skelHeader_t* pheader)
     }
 
     if (pheader->version >= TIKI_SKD_HEADER_OLD_VERSION) {
-        boneFileData_t* boneBuffer;
+        boneFileData_t *boneBuffer;
 
-        boneBuffer = (boneFileData_t*)((byte*)pheader + pheader->ofsBones);
+        boneBuffer = (boneFileData_t *)((byte *)pheader + pheader->ofsBones);
         for (i = 0; i < pheader->numBones; i++) {
-            boneBuffer->boneType = (boneType_t)LittleLong(boneBuffer->boneType);
-            boneBuffer->ofsBaseData = LittleLong(boneBuffer->ofsBaseData);
+            boneBuffer->boneType        = (boneType_t)LittleLong(boneBuffer->boneType);
+            boneBuffer->ofsBaseData     = LittleLong(boneBuffer->ofsBaseData);
             boneBuffer->ofsChannelNames = LittleLong(boneBuffer->ofsChannelNames);
-            boneBuffer->ofsBoneNames = LittleLong(boneBuffer->ofsBoneNames);
-            boneBuffer->ofsEnd = LittleLong(boneBuffer->ofsEnd);
+            boneBuffer->ofsBoneNames    = LittleLong(boneBuffer->ofsBoneNames);
+            boneBuffer->ofsEnd          = LittleLong(boneBuffer->ofsEnd);
 
-            boneBuffer = (boneFileData_t*)((byte*)boneBuffer + boneBuffer->ofsEnd);
+            boneBuffer = (boneFileData_t *)((byte *)boneBuffer + boneBuffer->ofsEnd);
         }
     } else {
-        skelBoneName_t* TIKI_bones;
+        skelBoneName_t *TIKI_bones;
 
-        TIKI_bones = (skelBoneName_t*)((byte*)pheader + pheader->ofsBones);
+        TIKI_bones = (skelBoneName_t *)((byte *)pheader + pheader->ofsBones);
 
         for (i = 0; i < pheader->numBones; i++) {
-            TIKI_bones->parent = LittleShort(TIKI_bones->parent);
+            TIKI_bones->parent   = LittleShort(TIKI_bones->parent);
             TIKI_bones->boxIndex = LittleShort(TIKI_bones->boxIndex);
-            TIKI_bones->flags = LittleLong(TIKI_bones->flags);
+            TIKI_bones->flags    = LittleLong(TIKI_bones->flags);
 
             TIKI_bones++;
         }
     }
 
-    pSurf = (skelSurface_t*)((byte*)pheader + pheader->ofsSurfaces);
+    pSurf = (skelSurface_t *)((byte *)pheader + pheader->ofsSurfaces);
     for (i = 0; i < pheader->numSurfaces; i++) {
-        skeletorVertex_t* pVert;
-        skeletorMorph_t* pMorph;
-        skelWeight_t* pWeight;
-        int* pTriangles;
-        int* pCollapse, * pCollapseIndex;
+        skeletorMorph_t *pMorph;
+        skelWeight_t    *pWeight;
+        int             *pTriangles;
+        int             *pCollapse, *pCollapseIndex;
+        int              numVerts, numTriangles;
 
-        pSurf->ident = LittleLong(pSurf->ident);
-        pSurf->numTriangles = LittleLong(pSurf->numTriangles);
-        pSurf->numVerts = LittleLong(pSurf->numVerts);
-        pSurf->staticSurfProcessed = LittleLong(pSurf->staticSurfProcessed);
-        pSurf->ofsTriangles = LittleLong(pSurf->ofsTriangles);
-        pSurf->ofsVerts = LittleLong(pSurf->ofsVerts);
-        pSurf->ofsCollapse = LittleLong(pSurf->ofsCollapse);
-        pSurf->ofsEnd = LittleLong(pSurf->ofsEnd);
+        CopyLittleLong(&pSurf->ident, &pSurf->ident);
+        CopyLittleLong(&pSurf->numTriangles, &pSurf->numTriangles);
+        CopyLittleLong(&pSurf->numVerts, &pSurf->numVerts);
+        CopyLittleLong(&pSurf->staticSurfProcessed, &pSurf->staticSurfProcessed);
+        CopyLittleLong(&pSurf->ofsTriangles, &pSurf->ofsTriangles);
+        CopyLittleLong(&pSurf->ofsVerts, &pSurf->ofsVerts);
+        CopyLittleLong(&pSurf->ofsCollapse, &pSurf->ofsCollapse);
+        CopyLittleLong(&pSurf->ofsEnd, &pSurf->ofsEnd);
+
+        numVerts     = LongNoSwapPtr(&pSurf->numVerts);
+        numTriangles = LongNoSwapPtr(&pSurf->numTriangles);
 
         if (pheader->version >= TIKI_SKB_HEADER_VERSION) {
-            pSurf->ofsCollapseIndex = LittleLong(pSurf->ofsCollapseIndex);
+            CopyLittleLong(&pSurf->ofsCollapseIndex, &pSurf->ofsCollapseIndex);
         }
 
-        pTriangles = (int*)((byte*)pSurf + pSurf->ofsTriangles);
-        for (j = 0; j < pSurf->numTriangles; j++) {
-            pTriangles[j * 3 + 0] = LittleLong(pTriangles[j * 3 + 0]);
-            pTriangles[j * 3 + 1] = LittleLong(pTriangles[j * 3 + 1]);
-            pTriangles[j * 3 + 2] = LittleLong(pTriangles[j * 3 + 2]);
+        pTriangles = (int *)((byte *)pSurf + LongNoSwapPtr(&pSurf->ofsTriangles));
+        for (j = 0; j < numTriangles; j++) {
+            CopyLittleLong(&pTriangles[j * 3 + 0], &pTriangles[j * 3 + 0]);
         }
 
         if (pheader->version >= TIKI_SKD_HEADER_OLD_VERSION) {
-            pVert = (skeletorVertex_t*)((byte*)pSurf + pSurf->ofsVerts);
+            skeletorVertex_t *pVert = (skeletorVertex_t *)((byte *)pSurf + LongNoSwapPtr(&pSurf->ofsVerts));
 
-            for (j = 0; j < pSurf->numVerts; j++) {
-                pVert->normal[0] = LittleFloat(pVert->normal[0]);
-                pVert->normal[1] = LittleFloat(pVert->normal[1]);
-                pVert->normal[2] = LittleFloat(pVert->normal[2]);
-                pVert->texCoords[0] = LittleFloat(pVert->texCoords[0]);
-                pVert->texCoords[1] = LittleFloat(pVert->texCoords[1]);
+            for (j = 0; j < numVerts; j++) {
+                int numMorphs, numWeights;
 
-                pVert->numMorphs = LittleLong(pVert->numMorphs);
-                pMorph = (skeletorMorph_t*)((byte*)pVert + sizeof(*pVert));
+                CopyLittleLong(&pVert->normal[0], &pVert->normal[0]);
+                CopyLittleLong(&pVert->normal[1], &pVert->normal[1]);
+                CopyLittleLong(&pVert->normal[2], &pVert->normal[2]);
+                CopyLittleLong(&pVert->texCoords[0], &pVert->texCoords[0]);
+                CopyLittleLong(&pVert->texCoords[1], &pVert->texCoords[1]);
 
-                for (k = 0; k < pVert->numMorphs; k++, pMorph++) {
-                    pMorph->morphIndex = LittleLong(pMorph->morphIndex);
-                    pMorph->offset[0] = LittleFloat(pMorph->offset[0]);
-                    pMorph->offset[1] = LittleFloat(pMorph->offset[1]);
-                    pMorph->offset[2] = LittleFloat(pMorph->offset[2]);
+                numMorphs = LittleLong(pVert->numMorphs);
+                memcpy(&pVert->numMorphs, &numMorphs, sizeof(pVert->numMorphs));
+
+                pMorph = (skeletorMorph_t *)((byte *)pVert + sizeof(*pVert));
+
+                for (k = 0; k < numMorphs; k++, pMorph++) {
+                    int    morphIndex;
+                    vec3_t offset;
+
+                    CopyLittleLong(&pMorph->morphIndex, &pMorph->morphIndex);
+                    CopyLittleLong(&pMorph->offset[0], &pMorph->offset[0]);
+                    CopyLittleLong(&pMorph->offset[1], &pMorph->offset[1]);
+                    CopyLittleLong(&pMorph->offset[2], &pMorph->offset[2]);
                 }
 
-                pVert->numWeights = LittleLong(pVert->numWeights);
-                pWeight = (skelWeight_t*)pMorph;
+                numWeights = LittleLong(pVert->numWeights);
+                memcpy(&pVert->numWeights, &numWeights, sizeof(pVert->numWeights));
 
-                for (k = 0; k < pVert->numWeights; k++, pWeight++) {
-                    pWeight->boneIndex = LittleLong(pWeight->boneIndex);
-                    pWeight->boneWeight = LittleFloat(pWeight->boneWeight);
-                    pWeight->offset[0] = LittleFloat(pWeight->offset[0]);
-                    pWeight->offset[1] = LittleFloat(pWeight->offset[1]);
-                    pWeight->offset[2] = LittleFloat(pWeight->offset[2]);
+                pWeight = (skelWeight_t *)pMorph;
+
+                for (k = 0; k < numWeights; k++, pWeight++) {
+                    CopyLittleLong(&pWeight->boneIndex, &pWeight->boneIndex);
+                    CopyLittleLong(&pWeight->boneWeight, &pWeight->boneWeight);
+                    CopyLittleLong(&pWeight->offset[0], &pWeight->offset[0]);
+                    CopyLittleLong(&pWeight->offset[1], &pWeight->offset[1]);
+                    CopyLittleLong(&pWeight->offset[2], &pWeight->offset[2]);
                 }
 
-                pVert = (skeletorVertex_t*)pWeight;
+                pVert = (skeletorVertex_t *)pWeight;
             }
         } else {
-            pVert = (skeletorVertex_t*)((byte*)pSurf + pSurf->ofsVerts);
+            skelVertex_t *pVert = (skelVertex_t *)((byte *)pSurf + LongNoSwapPtr(&pSurf->ofsVerts));
 
-            for (j = 0; j < pSurf->numVerts; j++) {
-                pVert->normal[0] = LittleFloat(pVert->normal[0]);
-                pVert->normal[1] = LittleFloat(pVert->normal[1]);
-                pVert->normal[2] = LittleFloat(pVert->normal[2]);
-                pVert->texCoords[0] = LittleFloat(pVert->texCoords[0]);
-                pVert->texCoords[1] = LittleFloat(pVert->texCoords[1]);
-                pVert->numWeights = LittleLong(pVert->numWeights);
+            for (j = 0; j < numVerts; j++) {
+                vec3_t normal, texCoords;
+                int    numWeights;
 
-                pWeight = (skelWeight_t*)((byte*)pVert + sizeof(*pVert));
+                CopyLittleLong(&pVert->normal[0], &pVert->normal[0]);
+                CopyLittleLong(&pVert->normal[1], &pVert->normal[1]);
+                CopyLittleLong(&pVert->normal[2], &pVert->normal[2]);
+                CopyLittleLong(&pVert->texCoords[0], &pVert->texCoords[0]);
+                CopyLittleLong(&pVert->texCoords[1], &pVert->texCoords[1]);
 
-                for (k = 0; k < pVert->numWeights; k++, pWeight++) {
-                    pWeight->boneIndex = LittleLong(pWeight->boneIndex);
-                    pWeight->boneWeight = LittleFloat(pWeight->boneWeight);
-                    pWeight->offset[0] = LittleFloat(pWeight->offset[0]);
-                    pWeight->offset[1] = LittleFloat(pWeight->offset[1]);
-                    pWeight->offset[2] = LittleFloat(pWeight->offset[2]);
+                numWeights = LittleLong(pVert->numWeights);
+                memcpy(&pVert->numWeights, &numWeights, sizeof(pVert->numWeights));
+
+                pWeight = pVert->weights;
+
+                for (k = 0; k < numWeights; k++, pWeight++) {
+                    CopyLittleLong(&pWeight->boneIndex, &pWeight->boneIndex);
+                    CopyLittleLong(&pWeight->boneWeight, &pWeight->boneWeight);
+                    CopyLittleLong(&pWeight->offset[0], &pWeight->offset[0]);
+                    CopyLittleLong(&pWeight->offset[1], &pWeight->offset[1]);
+                    CopyLittleLong(&pWeight->offset[2], &pWeight->offset[2]);
                 }
 
-                pVert = (skeletorVertex_t*)pWeight;
+                pVert = (skelVertex_t *)pWeight;
             }
         }
 
-        pCollapse = (int*)((byte*)pSurf + pSurf->ofsCollapse);
-        for (j = 0; j < pSurf->numVerts; j++) {
-            pCollapse[j] = LittleLong(pCollapse[j]);
+        pCollapse = (int *)((byte *)pSurf + LongNoSwapPtr(&pSurf->ofsCollapse));
+        for (j = 0; j < numVerts; j++) {
+            CopyLittleLong(&pCollapse[j], &pCollapse[j]);
         }
 
         if (pheader->version >= TIKI_SKB_HEADER_VERSION) {
-            pCollapseIndex = (int*)((byte*)pSurf + pSurf->ofsCollapseIndex);
-            for (j = 0; j < pSurf->numVerts; j++) {
-                pCollapseIndex[j] = LittleLong(pCollapseIndex[j]);
+            pCollapseIndex = (int *)((byte *)pSurf + LongNoSwapPtr(&pSurf->ofsCollapseIndex));
+            for (j = 0; j < numVerts; j++) {
+                CopyLittleLong(&pCollapseIndex[j], &pCollapseIndex[j]);
             }
         }
 
-        pSurf = (skelSurface_t*)((byte*)pSurf + pSurf->ofsEnd);
+        pSurf = (skelSurface_t *)((byte *)pSurf + LongNoSwapPtr(&pSurf->ofsEnd));
     }
 #endif
 }
