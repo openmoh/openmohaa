@@ -584,6 +584,7 @@ LABEL_19:
 int cLZ77::Decompress( unsigned char *in, size_t in_len, unsigned char *out, size_t *out_len )
 {
 	unsigned int t;
+	unsigned short s;
 
 	this->ip_end = &in[in_len];
 	*out_len = 0;
@@ -615,7 +616,7 @@ LABEL_5:
 			}
 			t += 15 + *this->ip++;
 		}
-		*(unsigned int*)this->op = *(unsigned int*)this->ip;
+		memcpy(this->op, this->ip, sizeof(unsigned int));
 		this->op += 4;
 		this->ip += 4;
 		if (--t)
@@ -632,7 +633,7 @@ LABEL_5:
 			{
 				do
 				{
-					*(unsigned int*)this->op = *(unsigned int*)this->ip;
+					memcpy(this->op, this->ip, sizeof(unsigned int));
 					this->op += 4;
 					this->ip += 4;
 					t -= 4;
@@ -686,7 +687,8 @@ LABEL_5:
 				t += 31 + *this->ip++;
 			}
 			this->m_pos = this->op - 1;
-			this->m_pos -= LittleUnsignedShort(*(unsigned short*)this->ip) >> 2;
+			CopyLittleShort(&s, this->ip);
+			this->m_pos -= s >> 2;
 			this->ip += 2;
 			goto LABEL_42;
 		}
@@ -712,7 +714,8 @@ LABEL_5:
 			}
 			t += 7 + *this->ip++;
 		}
-		this->m_pos -= LittleUnsignedShort(*(unsigned short*)this->ip) >> 2;
+		CopyLittleShort(&s, this->ip);
+		this->m_pos -= s >> 2;
 		this->ip += 2;
 		if (this->m_pos == this->op)
 			break;
@@ -731,13 +734,13 @@ LABEL_5:
 		}
 		else
 		{
-			*(unsigned int*)this->op = *(unsigned int*)this->m_pos;
+			memcpy(this->op, this->m_pos, sizeof(unsigned int));
 			this->op += 4;
 			this->m_pos += 4;
 			t -= 2;
 			do
 			{
-				*(unsigned int*)this->op = *(unsigned int*)this->m_pos;
+				memcpy(this->op, this->m_pos, sizeof(unsigned int));
 				this->op += 4;
 				this->m_pos += 4;
 				t -= 4;
