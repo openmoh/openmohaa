@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2023 the OpenMoHAA team
+Copyright (C) 2024 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -205,8 +205,8 @@ void TIKI_CacheFileSkel(skelHeader_t *pHeader, skelcache_t *cache, int length)
         char    *pMorphTargets;
         intptr_t nLen;
 
-        nBoxBytes                 = pHeader->numBoxes * sizeof(skelHitBox_t);
-        pMorphTargets             = (char *)((byte *)pHeader + pHeader->ofsMorphTargets);
+        nBoxBytes     = pHeader->numBoxes * sizeof(skelHitBox_t);
+        pMorphTargets = (char *)((byte *)pHeader + pHeader->ofsMorphTargets);
 
         if (pHeader->ofsMorphTargets > 0 || (pHeader->ofsMorphTargets + pHeader->numMorphTargets) < length) {
             for (i = 0; i < pHeader->numMorphTargets; i++) {
@@ -315,7 +315,7 @@ void TIKI_CacheFileSkel(skelHeader_t *pHeader, skelcache_t *cache, int length)
         pGameSurf->pCollapse = (skelIndex_t *)gs_ptr;
         gs_ptr += sizeof(*pGameSurf->pCollapse) * numVerts;
         if (pHeader->version > TIKI_SKB_HEADER_VER_3) {
-            pGameSurf->pCollapseIndex = (skelIndex_t*)gs_ptr;
+            pGameSurf->pCollapseIndex = (skelIndex_t *)gs_ptr;
             gs_ptr += sizeof(*pGameSurf->pCollapseIndex) * numVerts;
         }
 
@@ -447,7 +447,7 @@ void TIKI_CacheFileSkel(skelHeader_t *pHeader, skelcache_t *cache, int length)
         if (pHeader->ofsBoxes <= 0 || (nBoxBytes + pHeader->ofsBoxes) > length) {
             Com_Printf("^~^~^ Box data is corrupted for '%s'\n", cache->path);
             pSkel->numBoxes = 0;
-            pSkel->pBoxes = NULL;
+            pSkel->pBoxes   = NULL;
         } else {
             memcpy(pSkel->pBoxes, ((byte *)pHeader + pHeader->ofsBoxes), nBoxBytes);
         }
@@ -588,28 +588,35 @@ qboolean TIKI_LoadSKB(const char *path, skelcache_t *cache)
         return qfalse;
     }
 
+    TIKI_SwapSkel(pheader);
+
     surf = (skelSurface_t *)((char *)pheader + pheader->ofsSurfaces);
     for (i = 0; i < pheader->numSurfaces; i++) {
-        if (surf->numVerts > TIKI_MAX_VERTEXES) {
+        int numSurfVerts, numSurfTriangles;
+
+        numSurfVerts     = LongNoSwapPtr(&surf->numVerts);
+        numSurfTriangles = LongNoSwapPtr(&surf->numTriangles);
+
+        if (numSurfVerts > TIKI_MAX_VERTEXES) {
             TIKI_Error(
-                "TIKI_LoadSKB: %s has more than %i verts on a surface (%i)", path, TIKI_MAX_VERTEXES, surf->numVerts
+                "TIKI_LoadSKB: %s has more than %i verts on a surface (%i)", path, TIKI_MAX_VERTEXES, numSurfVerts
             );
             TIKI_Free(pheader);
             return qfalse;
         }
 
-        if (surf->numTriangles > TIKI_MAX_TRIANGLES) {
+        if (numSurfTriangles > TIKI_MAX_TRIANGLES) {
             TIKI_Error(
                 "TIKI_LoadSKB: %s has more than %i triangles on a surface (%i)",
                 path,
                 TIKI_MAX_TRIANGLES,
-                surf->numTriangles
+                numSurfTriangles
             );
             TIKI_Free(pheader);
             return qfalse;
         }
 
-        surf = (skelSurface_t *)((char *)surf + surf->ofsEnd);
+        surf = (skelSurface_t *)((char *)surf + LongNoSwapPtr(&surf->ofsEnd));
     }
 
     if (pheader->numBones > TIKI_MAX_BONES) {
@@ -621,8 +628,8 @@ qboolean TIKI_LoadSKB(const char *path, skelcache_t *cache)
     totalVerts = 0;
     surf       = (skelSurface_t *)((byte *)pheader + pheader->ofsSurfaces);
     for (i = 0; i < pheader->numSurfaces; i++) {
-        totalVerts += surf->numVerts;
-        surf = (skelSurface_t *)((byte *)surf + surf->ofsEnd);
+        totalVerts += LongNoSwapPtr(&surf->numVerts);
+        surf = (skelSurface_t *)((byte *)surf + LongNoSwapPtr(&surf->ofsEnd));
     }
 
     newLength = totalVerts * sizeof(unsigned int);
@@ -645,47 +652,60 @@ qboolean TIKI_LoadSKB(const char *path, skelcache_t *cache)
     for (i = 0; i < pheader->numSurfaces; i++) {
         skeletorVertex_t *newVerts;
         skelVertex_t     *oldVerts;
+        int               numVerts;
 
         memcpy(newSurf, oldSurf, oldSurf->ofsVerts);
-        if (newSurf->ofsCollapse > newSurf->ofsVerts) {
-            newSurf->ofsCollapse += sizeof(unsigned int) * newSurf->numVerts;
+        if (newSurf->ofsCollapse > LongNoSwapPtr(&newSurf->ofsVerts)) {
+            int newOffset =
+                LongNoSwapPtr(&newSurf->ofsCollapse) + sizeof(unsigned int) * LongNoSwapPtr(&newSurf->numVerts);
+            memcpy(&newSurf->ofsCollapse, &newOffset, sizeof(newSurf->ofsCollapse));
         }
-        if (newSurf->ofsCollapseIndex > newSurf->ofsVerts) {
-            newSurf->ofsCollapseIndex += sizeof(unsigned int) * newSurf->numVerts;
+        if (newSurf->ofsCollapseIndex > LongNoSwapPtr(&newSurf->ofsVerts)) {
+            int newOffset =
+                LongNoSwapPtr(&newSurf->ofsCollapseIndex) + sizeof(unsigned int) * LongNoSwapPtr(&newSurf->numVerts);
+            memcpy(&newSurf->ofsCollapse, &newOffset, sizeof(newSurf->ofsCollapseIndex));
         }
-        if (newSurf->ofsTriangles > newSurf->ofsVerts) {
-            newSurf->ofsTriangles += sizeof(unsigned int) * newSurf->numVerts;
+        if (newSurf->ofsTriangles > LongNoSwapPtr(&newSurf->ofsVerts)) {
+            int newOffset =
+                LongNoSwapPtr(&newSurf->ofsTriangles) + sizeof(unsigned int) * LongNoSwapPtr(&newSurf->numVerts);
+            memcpy(&newSurf->ofsCollapse, &newOffset, sizeof(newSurf->ofsTriangles));
         }
-        if (newSurf->ofsEnd > newSurf->ofsVerts) {
-            newSurf->ofsEnd += sizeof(unsigned int) * newSurf->numVerts;
+        if (newSurf->ofsEnd > LongNoSwapPtr(&newSurf->ofsVerts)) {
+            int newOffset = LongNoSwapPtr(&newSurf->ofsEnd) + sizeof(unsigned int) * LongNoSwapPtr(&newSurf->numVerts);
+            memcpy(&newSurf->ofsCollapse, &newOffset, sizeof(newSurf->ofsEnd));
         }
 
         oldVerts = (skelVertex_t *)((byte *)oldSurf + oldSurf->ofsVerts);
         newVerts = (skeletorVertex_t *)((byte *)newSurf + newSurf->ofsVerts);
 
-        for (j = 0; j < oldSurf->numVerts; j++) {
-            VectorCopy(oldVerts->normal, newVerts->normal);
-            newVerts->texCoords[0] = oldVerts->texCoords[0];
-            newVerts->texCoords[1] = oldVerts->texCoords[1];
-            newVerts->numMorphs    = 0;
-            newVerts->numWeights   = oldVerts->numWeights;
+        numVerts = LongNoSwapPtr(&oldSurf->numVerts);
+        for (j = 0; j < numVerts; j++) {
+            int numMorphs, numWeights;
+
+            memcpy(newVerts->normal, oldVerts->normal, sizeof(newVerts->normal));
+            memcpy(newVerts->texCoords, oldVerts->texCoords, sizeof(newVerts->texCoords));
+
+            numMorphs  = 0;
+            numWeights = LongNoSwapPtr(&oldVerts->numWeights);
+            memcpy(&newVerts->numMorphs, &numMorphs, sizeof(newVerts->numMorphs));
+            memcpy(&newVerts->numWeights, &numWeights, sizeof(newVerts->numWeights));
 
             skelWeight_t *newWeights = (skelWeight_t *)((byte *)newVerts + sizeof(skeletorVertex_t));
 
-            for (k = 0; k < oldVerts->numWeights; k++) {
+            for (k = 0; k < numWeights; k++) {
                 memcpy(newWeights, &oldVerts->weights[k], sizeof(skelWeight_t));
                 newWeights++;
             }
 
-            oldVerts = (skelVertex_t *)((byte *)oldVerts + sizeof(skelWeight_t) * oldVerts->numWeights
+            oldVerts = (skelVertex_t *)((byte *)oldVerts + sizeof(skelWeight_t) * numWeights
                                         + (sizeof(skelVertex_t) - sizeof(skelWeight_t)));
-            newVerts = (skeletorVertex_t *)((byte *)newVerts + sizeof(skeletorVertex_t)
-                                            + sizeof(skelWeight_t) * newVerts->numWeights);
+            newVerts =
+                (skeletorVertex_t *)((byte *)newVerts + sizeof(skeletorVertex_t) + sizeof(skelWeight_t) * numWeights);
         }
 
-        memcpy(newVerts, oldVerts, oldSurf->ofsEnd - ((byte *)oldVerts - (byte *)oldSurf));
-        oldSurf = (skelSurface_t *)((byte *)oldSurf + oldSurf->ofsEnd);
-        newSurf = (skelSurface_t *)((byte *)newSurf + newSurf->ofsEnd);
+        memcpy(newVerts, oldVerts, LongNoSwapPtr(&oldSurf->ofsEnd) - ((byte *)oldVerts - (byte *)oldSurf));
+        oldSurf = (skelSurface_t *)((byte *)oldSurf + LongNoSwapPtr(&oldSurf->ofsEnd));
+        newSurf = (skelSurface_t *)((byte *)newSurf + LongNoSwapPtr(&newSurf->ofsEnd));
     }
 
     memcpy(newSurf, oldSurf, pheader->ofsEnd - ((char *)oldSurf - (char *)pheader));
@@ -763,8 +783,8 @@ void GetLODFile(skelcache_t *cache)
         }
 
         for (i = 0; i < MAX_LOD_CURVE_CONSTS; i++) {
-            LOD->consts[i].base = LittleFloat(LOD->consts[i].base);
-            LOD->consts[i].scale = LittleFloat(LOD->consts[i].scale);
+            LOD->consts[i].base   = LittleFloat(LOD->consts[i].base);
+            LOD->consts[i].scale  = LittleFloat(LOD->consts[i].scale);
             LOD->consts[i].cutoff = LittleFloat(LOD->consts[i].cutoff);
         }
     } else {
@@ -873,8 +893,7 @@ qboolean TIKI_LoadSKD(const char *path, skelcache_t *cache)
     for (i = 0; i < pheader->numSurfaces; i++) {
         if (surf->numVerts > TIKI_MAX_VERTEXES) {
             TIKI_Error(
-                "TIKI_LoadSKD: %s has more than %i verts on a surface (%i)", path, TIKI_MAX_VERTEXES,
-                surf->numVerts
+                "TIKI_LoadSKD: %s has more than %i verts on a surface (%i)", path, TIKI_MAX_VERTEXES, surf->numVerts
             );
             TIKI_FreeFile(pheader);
             return qfalse;
