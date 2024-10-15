@@ -128,7 +128,7 @@ con_arrayset<key, value>::con_arrayset()
     tableLengthIndex = 0;
 
     defaultEntry = NULL;
-    reverseTable = (&this->defaultEntry) - 1;
+    reverseTable = &this->defaultEntry;
 }
 
 template<typename key, typename value>
@@ -184,14 +184,13 @@ void con_arrayset<key, value>::resize(int count)
     }
 
     // allocate a bigger reverse table
-    reverseTable = (new Entry *[this->tableLength]()) - 1;
+    reverseTable = new Entry *[this->tableLength]();
 
-    for (i = 1; i <= oldTableLength; i++) {
+    for (i = 0; i < oldTableLength; i++) {
         reverseTable[i] = oldReverseTable[i];
     }
 
     if (oldTableLength > 1) {
-        ++oldReverseTable;
         delete[] oldReverseTable;
     }
 }
@@ -209,10 +208,9 @@ void con_arrayset<key, value>::clear()
     Entry       *next  = NULL;
     unsigned int i;
 
-    if (this->tableLength > 1) {
-        reverseTable++;
+    if (tableLength > 1) {
         delete[] reverseTable;
-        reverseTable = (&this->defaultEntry) - 1;
+        reverseTable = &defaultEntry;
     }
 
     for (i = 0; i < tableLength; i++) {
@@ -278,8 +276,6 @@ typename con_arrayset<k, v>::Entry *con_arrayset<k, v>::addNewKeyEntry(const k& 
 
     index = HashCode<k>(key) % tableLength;
 
-    count++;
-
     entry = new Entry;
 
     if (defaultEntry == NULL) {
@@ -289,11 +285,12 @@ typename con_arrayset<k, v>::Entry *con_arrayset<k, v>::addNewKeyEntry(const k& 
         entry->next = table[index];
     }
 
+    reverseTable[count] = entry;
+    count++;
+
     entry->key   = key;
     entry->index = count;
-
-    table[index]        = entry;
-    reverseTable[count] = entry;
+    table[index] = entry;
 
     return entry;
 }
@@ -331,7 +328,7 @@ bool con_arrayset<k, v>::remove(const k& key)
 {
     int i;
 
-    for (i = 1; i <= this->tableLength; i++) {
+    for (i = 0; i < tableLength; i++) {
         if (reverseTable[i] && reverseTable[i]->key == key) {
             reverseTable[i] = NULL;
         }
@@ -343,7 +340,7 @@ bool con_arrayset<k, v>::remove(const k& key)
 template<typename key, typename value>
 value& con_arrayset<key, value>::operator[](unsigned int index)
 {
-    return reverseTable[index]->key;
+    return reverseTable[index - 1]->key;
 }
 
 template<typename key, typename value>
