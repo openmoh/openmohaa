@@ -2758,7 +2758,7 @@ int MSG_ReadPackedSimple(msg_t* msg, int fromValue, int bits)
 
 void MSG_WritePackedVelocity(msg_t* msg, float value, int bits)
 {
-	int32_t packed = (uint32_t)(value * 8.0f);
+	int32_t packed = (int32_t)(value * 8.0f);
 	if (value < 0) {
 		packed = ((-packed) & 65535) | 65536;
 	}
