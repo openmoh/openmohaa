@@ -314,6 +314,8 @@ void TIKI_SwapSkel(skelHeader_t *pheader)
         pTriangles = (int *)((byte *)pSurf + LongNoSwapPtr(&pSurf->ofsTriangles));
         for (j = 0; j < numTriangles; j++) {
             CopyLittleLong(&pTriangles[j * 3 + 0], &pTriangles[j * 3 + 0]);
+            CopyLittleLong(&pTriangles[j * 3 + 1], &pTriangles[j * 3 + 1]);
+            CopyLittleLong(&pTriangles[j * 3 + 2], &pTriangles[j * 3 + 2]);
         }
 
         if (pheader->version >= TIKI_SKD_HEADER_OLD_VERSION) {
