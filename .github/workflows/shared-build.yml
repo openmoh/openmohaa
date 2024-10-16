@@ -182,6 +182,13 @@ jobs:
     #  run: |
     #    choco install -y ninja
 
+    - name: Install required packages
+      run: |
+        $DownloadPath="$($env:USERPROFILE)\Downloads"
+        Invoke-WebRequest "https://github.com/ninja-build/ninja/releases/download/v1.12.1/ninja-win.zip" -OutFile "$DownloadPath\ninja-win.zip"
+        Expand-Archive -Path "$DownloadPath\ninja-win.zip" -DestinationPath "$($env:PROGRAMFILES)\ninja"
+        echo "$($env:PROGRAMFILES)\ninja" >> $GITHUB_PATH
+
     - name: Install Flex/Bison
       working-directory: ${{github.workspace}}
       run: |
@@ -191,21 +198,21 @@ jobs:
         cmake --build winflexbison-build --config Release --parallel
         cmake --install winflexbison-build --config Release
 
-    #- name: Settings
-    #  working-directory: ${{github.workspace}}
-    #  run: |
-    #    echo "CMAKE_GENERATOR=Ninja" >> $env:GITHUB_ENV
-    #    echo "CC=cl.exe" >> $env:GITHUB_ENV
-    #    echo "CXX=cl.exe" >> $env:GITHUB_ENV
-    #    pushd "$($env:PROGRAMFILES)\Microsoft Visual Studio\*\*\VC\Auxiliary\Build"
-    #    cmd /c "vcvarsall.bat ${{ matrix.architecture.toolset }} & set" | ForEach-Object {
-    #      if ($_ -match "=") {
-    #        # Split into key=value
-    #        $var = $_.split("=", 2);
-    #        echo "$($var[0])=$($var[1])" >> $env:GITHUB_ENV
-    #      }
-    #    }
-    #    popd
+    - name: Settings
+      working-directory: ${{github.workspace}}
+      run: |
+        echo "CMAKE_GENERATOR=Ninja Multi-Config" >> $env:GITHUB_ENV
+        echo "CC=cl.exe" >> $env:GITHUB_ENV
+        echo "CXX=cl.exe" >> $env:GITHUB_ENV
+        pushd "$($env:PROGRAMFILES)\Microsoft Visual Studio\*\*\VC\Auxiliary\Build"
+        cmd /c "vcvarsall.bat ${{ matrix.architecture.toolset }} & set" | ForEach-Object {
+          if ($_ -match "=") {
+            # Split into key=value
+            $var = $_.split("=", 2);
+            echo "$($var[0])=$($var[1])" >> $env:GITHUB_ENV
+          }
+        }
+        popd
 
     ###
     # SDL
@@ -218,7 +225,7 @@ jobs:
       with:
         version: 2-latest
         build-type: Release
-        cmake-arguments: "-A ${{ matrix.architecture.config }}"
+        cmake-arguments: ""
 
     ###
     # OpenAL
@@ -237,7 +244,7 @@ jobs:
     - name: Configure and install soft-oal
       working-directory: ${{github.workspace}}/thirdparties/soft-oal
       run: |
-        cmake -B ./build -A ${{ matrix.architecture.config }} `
+        cmake -B ./build `
         -DCMAKE_INSTALL_PREFIX='${{github.workspace}}/thirdparties/soft-oal/install' `
         -DALSOFT_BUILD_ROUTER=OFF `
         -DALSOFT_REQUIRE_WINMM=ON `
@@ -264,7 +271,7 @@ jobs:
 
     - name: CMake Settings
       run: |
-        echo "CMAKE_PARAM=-A ${{ matrix.architecture.config }} `
+        echo "CMAKE_PARAM= `
         --log-level=VERBOSE `
         -DCMAKE_INSTALL_PREFIX='${{github.workspace}}/install' `
         -DGIT_REVISION_BUILD_NUMBER=${{ github.run_number }} `
