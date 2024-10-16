@@ -1140,9 +1140,9 @@ void CL_KeyEvent(int key, qboolean down, unsigned time)
 
     if (key >= K_MOUSE1 && key <= K_MOUSE5) {
         if (down) {
-            cl.mouseButtons |= (1 << (key - K_MOUSE1) % sizeof(cl.mouseButtons));
+            cl.mouseButtons |= (1 << (key - K_MOUSE1) % (sizeof(cl.mouseButtons) * 8));
         } else {
-            cl.mouseButtons &= ~(1 << (key - K_MOUSE1) % sizeof(cl.mouseButtons));
+            cl.mouseButtons &= ~(1 << (key - K_MOUSE1) % (sizeof(cl.mouseButtons) * 8));
         }
 
         if (in_guimouse) {
