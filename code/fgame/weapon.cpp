@@ -195,7 +195,14 @@ Event EV_Weapon_DMSetFireDelay
     "Set the minimum time between shots from the weapon",
     EV_NORMAL
 );
-Event EV_Weapon_NotDroppable("notdroppable", EV_DEFAULT, NULL, NULL, "Makes a weapon not droppable");
+Event EV_Weapon_NotDroppable
+(
+    "notdroppable",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Makes a weapon not droppable"
+);
 Event EV_Weapon_SetAimAnim
 (
     "setaimanim",
@@ -205,8 +212,14 @@ Event EV_Weapon_SetAimAnim
     "Set the aim animation and frame for when a weapon fires",
     EV_NORMAL
 );
-Event
-    EV_Weapon_SetRank("rank", EV_DEFAULT, "ii", "iOrder iRank", "Set the order value and power ranking for the weapon");
+Event EV_Weapon_SetRank
+(
+    "rank",
+    EV_DEFAULT,
+    "ii",
+    "iOrder iRank",
+    "Set the order value and power ranking for the weapon"
+);
 Event EV_Weapon_SetFireType
 (
     "firetype",
@@ -216,7 +229,8 @@ Event EV_Weapon_SetFireType
     "Set the firing type of the weapon (projectile or bullet)",
     EV_NORMAL
 );
-Event EV_Weapon_SetAIRange(
+Event EV_Weapon_SetAIRange
+(
     "airange",
     EV_DEFAULT,
     "s",
@@ -350,7 +364,8 @@ Event EV_Weapon_SetDMBulletRange
     "Set the range of the bullets",
     EV_NORMAL
 );
-Event EV_Weapon_SetBulletSpread(
+Event EV_Weapon_SetBulletSpread
+(
     "bulletspread",
     EV_DEFAULT,
     "ffFF",
@@ -358,7 +373,8 @@ Event EV_Weapon_SetBulletSpread(
     "Set the min & optional max spread of the bullet in the x and y axis",
     EV_NORMAL
 );
-Event EV_Weapon_SetDMBulletSpread(
+Event EV_Weapon_SetDMBulletSpread
+(
     "dmbulletspread",
     EV_DEFAULT,
     "ffFF",
@@ -654,7 +670,8 @@ Event EV_Weapon_SetMeansOfDeath
     "Set the meansOfDeath of the weapon.",
     EV_NORMAL
 );
-Event EV_Weapon_SetWorldHitSpawn(
+Event EV_Weapon_SetWorldHitSpawn
+(
     "worldhitspawn",
     EV_DEFAULT,
     "s",
@@ -870,6 +887,20 @@ Event EV_OverCooked_Warning
     EV_NORMAL
 );
 
+//
+// Added in OPM
+//
+
+Event EV_Weapon_DoneAnimating
+(
+    "doneanimating",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Signals the end of animation",
+    EV_NORMAL
+);
+
 CLASS_DECLARATION(Item, Weapon, NULL) {
     {&EV_SetAnim,                       &Weapon::SetWeaponAnimEvent     },
     {&EV_Item_Pickup,                   &Weapon::PickupWeapon           },
@@ -966,6 +997,10 @@ CLASS_DECLARATION(Item, Weapon, NULL) {
     {&EV_OverCooked_Warning,            &Weapon::OnOverCookedWarning    },
     {&EV_Weapon_SetCurrentFireAnim,     &Weapon::SetCurrentFireAnim     },
     {&EV_Weapon_SetSecondaryAmmoInHud,  &Weapon::SetSecondaryAmmoInHud  },
+    //
+    // Added in OPM
+    //
+    {&EV_Weapon_DoneAnimating,          &Weapon::DoneAnimating          },
     {NULL,                              NULL                            }
 };
 
@@ -3106,7 +3141,8 @@ void Weapon::SetWeaponIdleAnimEvent(Event *ev)
 //======================
 void Weapon::SetWeaponAnimEvent(Event *ev)
 {
-    SetWeaponAnim(ev->GetString(1));
+    //SetWeaponAnim(ev->GetString(1));
+    SetWeaponAnim(ev->GetString(1), EV_Weapon_DoneAnimating);
 }
 
 //======================
@@ -3344,6 +3380,10 @@ void Weapon::DoneReloading(Event *ev)
 {
     SetShouldReload(qfalse);
     weaponstate = WEAPON_READY;
+
+    // Added in OPM
+    //  Set to idle when done reloading
+    SetWeaponIdleAnim();
 }
 
 //======================
@@ -4566,6 +4606,12 @@ float Weapon::GetBulletRange(firemode_t mode)
 Listener *Weapon::GetScriptOwner(void)
 {
     return owner;
+}
+
+void Weapon::DoneAnimating(Event* ev) {
+    // Added in OPM
+    //  Set to idle when done reloading
+    SetWeaponIdleAnim();
 }
 
 //======================

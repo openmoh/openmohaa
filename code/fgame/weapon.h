@@ -455,6 +455,7 @@ public:
     float      GetBulletRange(firemode_t firemode);
     firemode_t GetFireMode(void);
     qboolean   IsSemiAuto(void);
+    void       DoneAnimating(Event *ev);
 
     float GetMaxFireMovement() const;
 };
