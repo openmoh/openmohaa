@@ -769,22 +769,12 @@ static void UploadCompressed(
 	scaled_width = width;
 	scaled_height = height;
 
-	for (i = iStartImage; i; i--) {
+	for (i = 0; i < iStartImage; i++) {
 		int w, h;
 
-		w = scaled_width + 3;
-		if (scaled_width + 3 < 0) {
-			w = scaled_width + 6;
-		}
-		w >>= 2;
-
+		w = (scaled_width + 3) / 4;
 		if (w > 1) {
-			h = scaled_height + 3;
-			if (scaled_height + 3 < 0) {
-				h = scaled_height + 6;
-			}
-
-			h >>= 2;
+			h = (scaled_height + 3) / 4;
 			if (h > 1) {
 				offset += blockSize * w * h;
 			}
@@ -792,69 +782,43 @@ static void UploadCompressed(
 
 		scaled_width >>= 1;
 		scaled_height >>= 1;
+
 		if (!scaled_width) scaled_width = 1;
 		if (!scaled_height) scaled_height = 1;
 	}
 
 	*pBytesUsed = 0;
 
-	for (;;)
-	{
-		while (scaled_width)
-		{
-			int w, h;
+	while (scaled_width || scaled_height) {
+		int w, h;
 
-			if (!scaled_height) scaled_height = 1;
-			w = scaled_width + 3;
-			if (scaled_width + 3 < 0) w = scaled_width + 6;
-			w >>= 2;
+		if (!scaled_width) scaled_width = 1;
+		if (!scaled_height) scaled_height = 1;
 
-			h = scaled_height + 3;
-			if (scaled_height + 3 < 0) h = scaled_height + 6;
-			h >>= 2;
+		h = (scaled_height + 3) / 4;
+		w = (scaled_width + 3) / 4;
+		size = blockSize * w * h;
 
-			size = blockSize * w * h;
-			if (w > 1 && h > 1) *pBytesUsed += size;
-			
-			qglCompressedTexImage2D(GL_TEXTURE_2D, i - iStartImage, glCompressMode, scaled_width, scaled_height, 0, size, data);
-			GL_CheckErrors();
-
-			if (i < iMipmapsAvailable)
-			{
-				w = scaled_width + 3;
-				if (scaled_width + 3 < 0) {
-					w = scaled_width + 6;
-				}
-
-				if (w >> 2 > 1)
-				{
-					h = scaled_height + 3;
-					if (scaled_height + 3 < 0) {
-						h = scaled_height + 6;
-					}
-
-					if (h >> 2 > 1)
-						data += size;
-				}
-			}
-			scaled_width >>= 1;
-			scaled_height >>= 1;
-			++i;
+		if (w > 1 && h > 1) {
+			*pBytesUsed += size;
 		}
 
-		if (!scaled_height) {
-			break;
+		qglCompressedTexImage2D(GL_TEXTURE_2D, i - iStartImage, glCompressMode, scaled_width, scaled_height, 0, size, offset);
+		GL_CheckErrors();
+
+		if (i < iMipmapsAvailable && w > 1 && h > 1) {
+			offset += size;
 		}
 
-		scaled_width = 1;
+		scaled_width >>= 1;
+		scaled_height >>= 1;
+		i++;
 	}
 
 	if (numMipmaps > 1) {
 		qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_filter_min);
 		qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_filter_max);
-	}
-	else
-	{
+	} else {
 		qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	}
