@@ -94,11 +94,23 @@ This feature is passive: it only checks the team sizes when someone tries to joi
 
 ### Bots
 
-Bots are supported and can be used for testing or for entertainment. They don't move by default, so the [mp-navigation](https://github.com/openmoh/mp-navigation) pk3 will be needed. The following variables are used to configure bots:
-- `set sv_maxbots x`: Required, configure the maximum number of bots allowed in the game. Since the game can only handle a total of 64 players (clients), the number of bots will be limited to 64 minus the number of real players (`sv_maxclients`). For example, if you set `sv_maxclients` to 48, the maximum number of bots (sv_maxbots) can be 16.
+Bots are supported and can be used for testing or for entertainment. The [mp-navigation](https://github.com/openmoh/mp-navigation) pk3 will be needed so bots can navigate and move on MP maps. The following variables are used to configure bots:
+- `set sv_maxbots x`: **Required**, configure the maximum number of bots allowed in the game. Since the game can only handle a total of 64 players (clients), the number of bots will be limited to 64 minus the number of real players (`sv_maxclients`). For example, if you set `sv_maxclients` to 48, the maximum number of bots (sv_maxbots) can be 16.
 - `set sv_numbots x`: Set the number of bots to spawn. It will be capped to the value of `sv_maxbots`.
 - `set sv_minPlayers x`: Configure the minimum number of players required. If the number of real players is below the specified value, the game will automatically add bots to fill the gap. For example, if `sv_minPlayers` is set to 8 and only 5 real players are connected, the game will spawn 3 bots to make sure there are always 8 players in the game.
 
 Commands:
 - `addbot x`: x is the number of bots to add. It only changes the `sv_numbots` variable.
 - `removebot x`: x is the number of bots to remove. It only changes the `sv_numbots` variable.
+
+Example with the requirement of 6 players:
+```cpp
+set sv_maxbots 16 // Reserve 16 client slots for bots
+set sv_minPlayers 6 // When there is 0 player in a team, there will be 6 bots. When there is 1 player in a team, there will be 5 bots, and so on
+```
+
+Example with 4 bots playing:
+```cpp
+set sv_maxbots 16 // Reserve 16 client slots for bots
+set sv_numbots 4 // Spawn 4 bots
+```
