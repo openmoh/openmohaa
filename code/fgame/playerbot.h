@@ -110,6 +110,14 @@ private:
     float  m_fYawSpeedMult;
 };
 
+class BotState {
+public:
+    virtual bool CheckCondition() const = 0;
+    virtual void Begin() = 0;
+    virtual void End() = 0;
+    virtual void Think() = 0;
+};
+
 class BotController : public Listener
 {
 public:

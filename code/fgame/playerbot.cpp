@@ -668,6 +668,7 @@ bool BotController::CheckCondition_Attack(void)
 void BotController::State_EndAttack(void)
 {
     m_botCmd.buttons &= ~(BUTTON_ATTACKLEFT | BUTTON_ATTACKRIGHT);
+    controlledEnt->ZoomOff();
 }
 
 void BotController::State_Attack(void)
@@ -696,6 +697,7 @@ void BotController::State_Attack(void)
         float fPrimaryBulletRangeSquared   = fPrimaryBulletRange * fPrimaryBulletRange;
         float fSecondaryBulletRange        = pWeap->GetBulletRange(FIRE_SECONDARY);
         float fSecondaryBulletRangeSquared = fSecondaryBulletRange * fSecondaryBulletRange;
+        float fSpreadFactor                = pWeap->GetSpreadFactor(FIRE_PRIMARY);
 
         //
         // check the fire movement speed if the weapon has a max fire movement
@@ -721,12 +723,30 @@ void BotController::State_Attack(void)
         if (controlledEnt->client->ps.stats[STAT_AMMO] > 0 || controlledEnt->client->ps.stats[STAT_CLIPAMMO] > 0) {
             if (fDistanceSquared <= fPrimaryBulletRangeSquared) {
                 if (pWeap->IsSemiAuto()) {
-                    m_botCmd.buttons ^= BUTTON_ATTACKLEFT;
+                    if (controlledEnt->client->ps.iViewModelAnim == VM_ANIM_IDLE || controlledEnt->client->ps.iViewModelAnim >= VM_ANIM_IDLE_0 && controlledEnt->client->ps.iViewModelAnim <= VM_ANIM_IDLE_2) {
+                        if (fSpreadFactor < 0.25) {
+                            m_botCmd.buttons ^= BUTTON_ATTACKLEFT;
+                            if (pWeap->GetZoom()) {
+                                if (!controlledEnt->IsZoomed()) {
+                                    m_botCmd.buttons |= BUTTON_ATTACKRIGHT;
+                                } else {
+                                    m_botCmd.buttons &= ~BUTTON_ATTACKRIGHT;
+                                }
+                            }
+                        } else {
+                            bNoMove = true;
+                            movement.ClearMove();
+                        }
+                    } else {
+                        m_botCmd.buttons &= ~(BUTTON_ATTACKLEFT | BUTTON_ATTACKRIGHT);
+                        controlledEnt->ZoomOff();
+                    }
                 } else {
                     m_botCmd.buttons |= BUTTON_ATTACKLEFT;
                 }
             } else {
-                m_botCmd.buttons &= ~BUTTON_ATTACKLEFT;
+                m_botCmd.buttons &= ~(BUTTON_ATTACKLEFT | BUTTON_ATTACKRIGHT);
+                controlledEnt->ZoomOff();
             }
         } else if (pWeap->GetFireType(FIRE_SECONDARY) == FT_MELEE) {
             bMelee = true;
@@ -738,6 +758,7 @@ void BotController::State_Attack(void)
             }
         } else {
             m_botCmd.buttons &= ~(BUTTON_ATTACKLEFT | BUTTON_ATTACKRIGHT);
+            controlledEnt->ZoomOff();
         }
 
         m_iAttackTime   = level.inttime + 1000;
