@@ -453,6 +453,7 @@ public:
     //
     Listener  *GetScriptOwner(void) override;
     float      GetBulletRange(firemode_t firemode);
+    float      GetSpreadFactor(firemode_t firemode);
     firemode_t GetFireMode(void);
     qboolean   IsSemiAuto(void);
     void       DoneAnimating(Event *ev);

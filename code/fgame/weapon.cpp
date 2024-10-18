@@ -1870,11 +1870,7 @@ void Weapon::Shoot(Event *ev)
                     if (owner->client) {
                         Player *player = (Player *)owner.Pointer();
 
-                        fSpreadFactor = player->velocity.length() / sv_runspeed->integer;
-
-                        if (fSpreadFactor > 1.0f) {
-                            fSpreadFactor = 1.0f;
-                        }
+                        fSpreadFactor = GetSpreadFactor(mode);
 
                         vSpread       = bulletspreadmax[mode] * fSpreadFactor;
                         fSpreadFactor = 1.0f - fSpreadFactor;
@@ -4598,6 +4594,28 @@ qboolean Weapon::MuzzleClear(void)
 float Weapon::GetBulletRange(firemode_t mode)
 {
     return bulletrange[mode];
+}
+
+//======================
+//Weapon::GetSpreadFactor
+//======================
+float Weapon::GetSpreadFactor(firemode_t mode)
+{
+    float fSpreadFactor;
+
+    if (owner && owner->client) {
+        Player* player = (Player*)owner.Pointer();
+
+        fSpreadFactor = player->velocity.length() / sv_runspeed->integer;
+
+        if (fSpreadFactor > 1.0f) {
+            fSpreadFactor = 1.0f;
+        }
+    } else {
+        fSpreadFactor = 0.5f;
+    }
+
+    return fSpreadFactor;
 }
 
 //======================
