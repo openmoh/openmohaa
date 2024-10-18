@@ -613,7 +613,11 @@ void SV_SpawnServer( const char *server, qboolean loadgame, qboolean restart, qb
 			differentmap = qfalse;
 		}
 
-		if( sv_maxclients->modified ) {
+		if( sv_maxclients->modified
+			&& differentmap // Fixed in OPM
+			//  OG  doesn't check for different map when changing the max clients
+			//  which means the snapshot entities memory isn't reallocated
+			) {
 			SV_ChangeMaxClients();
 		}
 	}
@@ -623,6 +627,7 @@ void SV_SpawnServer( const char *server, qboolean loadgame, qboolean restart, qb
 		SV_Startup();
 	}
 
+	// Added in 2.0
 	SV_InitRadar();
 
 	sv.restarting = ( keep_scripts || !differentmap );
