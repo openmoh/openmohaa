@@ -516,6 +516,7 @@ void SV_Heartbeat_f( void );
 //
 // sv_snapshot.c
 //
+void SV_InitRadar();
 void SV_AddServerCommand( client_t *client, const char *cmd );
 void SV_UpdateServerCommandsToClient( client_t *client, msg_t *msg );
 void SV_WriteFrameToClient (client_t *client, msg_t *msg);

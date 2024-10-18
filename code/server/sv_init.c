@@ -623,6 +623,8 @@ void SV_SpawnServer( const char *server, qboolean loadgame, qboolean restart, qb
 		SV_Startup();
 	}
 
+	SV_InitRadar();
+
 	sv.restarting = ( keep_scripts || !differentmap );
 	strncpy( last_mapname, mapname, sizeof( last_mapname ) );
 
