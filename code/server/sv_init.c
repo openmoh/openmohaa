@@ -1186,12 +1186,52 @@ SV_PVSSoundIndex
 */
 int SV_PVSSoundIndex( const char *name, qboolean streamed )
 {
-	int index = SV_SoundIndex(name, streamed);
+	int		i;
+	int		max = MAX_SOUNDS;
+	char	*s;
 
-	svs.nonpvs_sound_cache[index].inUse = qtrue;
-	svs.nonpvs_sound_cache[index].deleteTime = svs.time + 1000;
+	if( !name || !name[ 0 ] ) {
+		return 0;
+	}
 
-	return index;
+	for( i = 1; i<max; i++ ) {
+		s = sv.configstrings[CS_SOUNDS + i ];
+
+		if( !s || !s[ 0 ] ) {
+			SV_SetConfigstring(CS_SOUNDS + i, name);
+			break;
+		}
+		if( !strcmp( s, name ) ) {
+			break;
+		}
+	}
+
+	if( i == max ) {
+		int found = 0;
+
+		// Remove existing sound indexes
+		for (i = 1; i < max; i++) {
+			if (svs.nonpvs_sound_cache[i].inUse) {
+				if (!found) {
+					found = i;
+				}
+
+				svs.nonpvs_sound_cache[i].inUse = qfalse;
+				SV_SetConfigstring(CS_SOUNDS + i, NULL);
+			}
+		}
+
+		if (!found) {
+			return 0;
+		}
+
+		i = found;
+	}
+
+	svs.nonpvs_sound_cache[i].inUse = qtrue;
+	svs.nonpvs_sound_cache[i].deleteTime = svs.time + 200;
+
+	return i;
 }
 
 /*
@@ -1212,7 +1252,7 @@ void SV_CacheNonPVSSound(void)
 			npvs = &ent->r.nonpvs_sounds[j];
 			if (npvs->index) {
 				svs.nonpvs_sound_cache[npvs->index].inUse = qtrue;
-				svs.nonpvs_sound_cache[npvs->index].deleteTime = svs.time + 1000;
+				svs.nonpvs_sound_cache[npvs->index].deleteTime = svs.time + 200;
 			}
 		}
 	}
