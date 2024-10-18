@@ -284,9 +284,9 @@ public:
 
     void setController(BotController *controlledBy);
 
-    void Spawned(void);
+    void Spawned(void) override;
 
-    void Killed(Event *ev);
+    void Killed(Event *ev) override;
     void GotKill(Event *ev);
 
 private:
