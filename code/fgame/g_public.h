@@ -533,6 +533,12 @@ typedef struct gameExport_s {
     void (*SoundCallback)(int entNum, soundChannel_t channelNumber, const char *name);
 
     //
+    // Added in OPM
+    //
+
+    int (*pvssoundindex)(const char* name, int streamed);
+
+    //
     // global variables shared between game and server
     //
 

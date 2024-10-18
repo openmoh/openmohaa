@@ -481,6 +481,9 @@ int SV_NumClients(void);
 void SV_ChangeMaxClients( void );
 void SV_SpawnServer( const char *server, qboolean loadgame, qboolean restart, qboolean bTransition );
 
+// Added in OPM
+int SV_PVSSoundIndex(const char* name, qboolean streamed);
+void SV_HandleNonPVSSound();
 
 
 //

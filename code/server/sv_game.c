@@ -1802,6 +1802,9 @@ void SV_InitGameProgs( void ) {
 	import.SanitizeName					= Com_SanitizeName;
 	import.fsDebug						= fs_debug;
 
+	// Added in OPM
+	import.soundindex					= SV_PVSSoundIndex;
+
 	ge = Sys_GetGameAPI( &import );
 
 	if( !ge ) {

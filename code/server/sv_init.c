@@ -1172,3 +1172,95 @@ void SV_Shutdown( const char *finalmsg ) {
 		CL_Disconnect();
 }
 
+//
+// Added in OPM
+//
+
+/*
+===============
+SV_PVSSoundIndex
+===============
+*/
+int SV_PVSSoundIndex( const char *name, qboolean streamed )
+{
+	int index = SV_SoundIndex(name, streamed);
+
+	svs.nonpvs_sound_cache[index].inUse = qtrue;
+	svs.nonpvs_sound_cache[index].deleteTime = svs.time + 1000;
+
+	return index;
+}
+
+/*
+=======================
+SV_CacheNonPVSSound
+=======================
+*/
+void SV_CacheNonPVSSound(void)
+{
+	gentity_t* ent;
+	nonpvs_sound_t* npvs;
+	int i, j;
+
+	for (i = 0; i < sv.num_entities; i++) {
+		ent = SV_GentityNum(i);
+
+		for (j = 0; j < ent->r.num_nonpvs_sounds; j++) {
+			npvs = &ent->r.nonpvs_sounds[j];
+			if (npvs->index) {
+				svs.nonpvs_sound_cache[npvs->index].inUse = qtrue;
+				svs.nonpvs_sound_cache[npvs->index].deleteTime = svs.time + 1000;
+			}
+		}
+	}
+}
+
+/*
+=======================
+SV_CleanupNonPVSSound
+=======================
+*/
+void SV_CleanupNonPVSSound(void)
+{
+	nonpvs_sound_cache_t* cache;
+	int i, j, k, l;
+
+	for (i = 1; i < MAX_SOUNDS; i++) {
+		cache = &svs.nonpvs_sound_cache[i];
+
+		if (!sv.configstrings[CS_SOUNDS + i]) {
+			continue;
+		}
+
+		if (!cache->inUse) {
+			continue;
+		}
+
+		if (svs.time >= cache->deleteTime) {
+			SV_SetConfigstring(CS_SOUNDS + i, NULL);
+			cache->inUse = qfalse;
+		}
+	}
+}
+
+/*
+===============
+SV_HandleNonPVSSound
+===============
+*/
+void SV_HandleNonPVSSound()
+{
+	gentity_t *ent;
+	int i;
+
+	SV_CacheNonPVSSound();
+
+	for (i = 0; i < sv.num_entities; i++) {
+		ent = SV_GentityNum(i);
+		ent->r.num_nonpvs_sounds = 0;
+	}
+
+	// Free up sound indices
+	SV_CleanupNonPVSSound();
+}
+

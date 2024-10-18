@@ -1121,6 +1121,10 @@ void SV_Frame( int msec ) {
 	// process all gamespy queries
 	SV_ProcessGamespyQueries();
 
+	// Added in OPM
+	//  Handle non-pvs sounds
+	SV_HandleNonPVSSound();
+
 	svs.lastTime = svs.time;
 }
 
