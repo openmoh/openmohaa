@@ -1103,16 +1103,16 @@ SV_Status_f
 ================
 */
 static void SV_Status_f(void) {
-    int			i;
-    size_t		j, l;
-    client_t* cl;
-    playerState_t* ps;
-    const char* s;
-	const char	*colName[8];
-	size_t		colSize[8];
-	size_t		len;
-    int			ping;
-    char		padding[64];
+    int				i;
+    size_t			j, l;
+    client_t		*cl;
+    playerState_t	*ps;
+    const char*		s;
+	const char		*colName[8];
+	size_t			len;
+	unsigned int	colSize[8];
+    int				ping;
+    char			padding[64];
 
     // make sure server is running
     if (!com_sv_running->integer) {
@@ -1208,11 +1208,11 @@ static void SV_Status_f(void) {
 			continue;
 		}
 
-        Com_Printf("%*i ", colSize[0], i);
+        Com_Printf("%*u ", colSize[0], i);
         ps = SV_GameClientNum(i);
         // su44: ps->persistant is not avaible in mohaa
         //Com_Printf ("%5i ", ps->persistant[PERS_SCORE]);
-        Com_Printf("%*i ", colSize[1], ps->stats[STAT_KILLS]);
+        Com_Printf("%*u ", colSize[1], ps->stats[STAT_KILLS]);
 
         if (cl->state == CS_CONNECTED)
             Com_Printf("CNCT ");
@@ -1221,7 +1221,7 @@ static void SV_Status_f(void) {
         else
         {
             ping = cl->ping < 9999 ? cl->ping : 9999;
-            Com_Printf("%*i ", colSize[2], ping);
+            Com_Printf("%*u ", colSize[2], ping);
         }
 
         Com_Printf("%s ", cl->name);
@@ -1233,7 +1233,7 @@ static void SV_Status_f(void) {
 			}
 		}
 
-        Com_Printf("%*i ", colSize[4], svs.time - cl->lastPacketTime);
+        Com_Printf("%*u ", colSize[4], svs.time - cl->lastPacketTime);
 
         s = NET_AdrToString(cl->netchan.remoteAddress);
         Com_Printf("%s ", s);
@@ -1246,9 +1246,9 @@ static void SV_Status_f(void) {
 			}
 		}
 
-        Com_Printf( "%*i", colSize[6], cl->netchan.qport );
+        Com_Printf( "%*u", colSize[6], cl->netchan.qport );
 
-        Com_Printf(" %*i", colSize[7], cl->rate);
+        Com_Printf(" %*u", colSize[7], cl->rate);
 
         Com_Printf("\n");
     }
