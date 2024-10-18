@@ -594,6 +594,9 @@ void SV_SpawnServer( const char *server, qboolean loadgame, qboolean restart, qb
 		strncpy( svs.rawServerName, server, sizeof( svs.rawServerName ) );
 	}
 
+	// Added in 2.30
+	Cvar_Set("g_netoptimize", "1");
+
 	// check for a spawn position
 	spawnpos = strchr( server, '$' );
 	if( spawnpos )
