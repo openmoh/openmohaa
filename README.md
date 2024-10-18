@@ -6,7 +6,7 @@
 
 ![Discord](https://img.shields.io/discord/596049712579215361?logo=discord&logoColor=white&color=5865F2)
 
-<img src="misc/openmohaa-text.png" width=400 />
+![logo](misc/openmohaa-text-sm.png)
 
 ## Intro
 
