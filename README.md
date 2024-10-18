@@ -7,13 +7,9 @@
 ![Discord](https://img.shields.io/discord/596049712579215361?logo=discord&logoColor=white&color=5865F2)
 
 
-```
-     / _ \ _ __   ___ _ __ |  \/  |/ _ \| | | |  / \      / \
-    | | | | '_ \ / _ \ '_ \| |\/| | | | | |_| | / _ \    / _ \
-    | |_| | |_) |  __/ | | | |  | | |_| |  _  |/ ___ \  / ___ \
-     \___/| .__/ \___|_| |_|_|  |_|\___/|_| |_/_/   \_\/_/   \_\
-          |_|
-```
+![openmohaa-text](https://github.com/user-attachments/assets/4ef83c5f-2958-4d8e-8869-8de639874ff1)
+
+
 
 ## Intro
 
