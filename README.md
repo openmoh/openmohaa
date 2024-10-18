@@ -6,10 +6,7 @@
 
 ![Discord](https://img.shields.io/discord/596049712579215361?logo=discord&logoColor=white&color=5865F2)
 
-
-![openmohaa-text](https://github.com/user-attachments/assets/4ef83c5f-2958-4d8e-8869-8de639874ff1)
-
-
+<img src="misc/openmohaa-text.png" width=400 />
 
 ## Intro
 
