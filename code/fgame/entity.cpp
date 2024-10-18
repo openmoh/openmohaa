@@ -6413,7 +6413,7 @@ void Entity::PlayNonPvsSound(const str& soundName, float volume)
     if (name.length() && ret) {
         nonpvs_sound_t* npvs = &edict->r.nonpvs_sounds[edict->r.num_nonpvs_sounds];
 
-        npvs->index = gi.soundindex(name.c_str(), ret->streamed);
+        npvs->index = gi.pvssoundindex(name.c_str(), ret->streamed);
         npvs->volume = G_Random() * ret->volumeMod + ret->volume * volume;
         npvs->minDist = ret->dist;
         npvs->maxDist = ret->maxDist;

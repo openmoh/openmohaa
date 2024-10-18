@@ -461,6 +461,12 @@ typedef struct gameImport_s {
     void (*HudDrawFont)(int info, const char *fontName);
     qboolean (*SanitizeName)(const char *oldName, char *newName);
 
+    //
+    // Added in OPM
+    //
+
+    int (*pvssoundindex)(const char* name, int streamed);
+
     cvar_t *fsDebug;
 
     //
@@ -531,12 +537,6 @@ typedef struct gameExport_s {
     void (*DebugCircle)(float *org, float radius, float r, float g, float b, float alpha, qboolean horizontal);
     void (*SetFrameNumber)(int frameNumber);
     void (*SoundCallback)(int entNum, soundChannel_t channelNumber, const char *name);
-
-    //
-    // Added in OPM
-    //
-
-    int (*pvssoundindex)(const char* name, int streamed);
 
     //
     // global variables shared between game and server

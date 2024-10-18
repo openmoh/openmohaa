@@ -1803,7 +1803,7 @@ void SV_InitGameProgs( void ) {
 	import.fsDebug						= fs_debug;
 
 	// Added in OPM
-	import.soundindex					= SV_PVSSoundIndex;
+	import.pvssoundindex				= SV_PVSSoundIndex;
 
 	ge = Sys_GetGameAPI( &import );
 
