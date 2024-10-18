@@ -339,7 +339,11 @@ void UIDMBox::Print( const char *text )
 	}
 	else if (*text == MESSAGE_CHAT_GREEN)
 	{
-		m_items[m_numitems].color = UGreen;
+		if (com_target_game->integer >= TG_MOHTA) {
+			m_items[m_numitems].color = ULightGreen;
+		} else {
+			m_items[m_numitems].color = UGreen;
+		}
         m_items[m_numitems].font = m_fontbold;
         m_items[m_numitems].flags |= DMBOX_ITEM_FLAG_DEATH;
 
