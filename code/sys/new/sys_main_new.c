@@ -143,7 +143,7 @@ const char* Sys_GetWholeClipboard(void)
     char *cliptext;
 
     if ((cliptext = SDL_GetClipboardText()) != NULL) {
-        if (cliptext[0] != NULL) {
+        if (cliptext[0] != 0) {
             // It's necessary to limit buffersize to 4096 as each character
             // is pasted via CharEvent, which is very-very slow and jams up the EventQueue.
             // A smaller buffer doesn't jam the EventQueue up as much and avoids dropping
@@ -178,7 +178,7 @@ Sys_SetClipboard
 void Sys_SetClipboard(const char *contents)
 {
 #ifndef DEDICATED
-    if (contents == NULL || contents[0] == NULL) {
+    if (!contents || !contents[0]) {
         return;
     }
 
