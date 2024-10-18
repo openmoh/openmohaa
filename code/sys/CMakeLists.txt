@@ -48,7 +48,19 @@ if(WIN32)
 elseif(UNIX)
 	find_package(Threads)
 	target_link_libraries(syslib INTERFACE ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT})
-	target_link_libraries(syslib INTERFACE m)
+	# Check for libc
+	if(CMAKE_C_COMPILER_ID MATCHES "GNU|Clang")
+		execute_process(COMMAND ${CMAKE_C_COMPILER} -v
+						OUTPUT_VARIABLE COMPILER_OUTPUT
+						ERROR_VARIABLE COMPILER_OUTPUT
+						OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+		if(COMPILER_OUTPUT MATCHES "musl")
+			target_link_libraries(syslib INTERFACE execinfo m)
+		else()
+			target_link_libraries(syslib INTERFACE m)
+		endif()
+	endif()
 	target_link_libraries(syslib INTERFACE stdc++)
 endif()
 
