@@ -390,14 +390,16 @@ void Player::SpawnEntity(Event *ev)
         n = ev->NumArgs();
         for (i = 2; i <= n; i += 2) {
             str name = ev->GetString(i);
+            float priority = EV_SPAWNARG;
 
             if (!str::icmp(name, "model")) {
                 bModelSet = true;
+                priority = EV_PRIORITY_SPAWNARG;
             }
 
             e = new Event(name);
             e->AddToken(ev->GetString(i + 1));
-            ent->PostEvent(e, EV_SPAWNARG);
+            ent->PostEvent(e, priority);
         }
     }
 
