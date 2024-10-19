@@ -61,11 +61,11 @@ void G_InitDebugLines(void)
             iNumDelays = 99;
         }
 
-        iCount = g_iFrameLineCount[(g_iCurrFrameLineCounter - iNumDelays + 100) % 100];
+        iCount = g_iFrameLineCount[(g_iCurrFrameLineCounter - (iNumDelays - 100)) % 100];
         if (iCount) {
             g_iFirstLine += iCount;
             *gi.numDebugLines -= iCount;
-            g_iFrameLineCount[(g_iCurrFrameLineCounter - iNumDelays + 100) % 100] = 0;
+            g_iFrameLineCount[(g_iCurrFrameLineCounter - (iNumDelays - 100)) % 100] = 0;
         }
 
         g_iCurrFrameLineCounter = (g_iCurrFrameLineCounter + 1) % 100;
@@ -169,7 +169,7 @@ void G_DebugLine(Vector start, Vector end, float r, float g, float b, float alph
         G_ShiftDebugLines();
     }
 
-    line = &DebugLines[*gi.numDebugLines];
+    line = &DebugLines[g_iFirstLine  + *gi.numDebugLines];
     (*gi.numDebugLines)++;
     g_iFrameLineCount[g_iCurrFrameLineCounter]++;
 
