@@ -337,6 +337,7 @@ void Player::SpawnEntity(Event *ev)
     int           n;
     int           i;
     Event        *e;
+    bool          bModelSet;
 
     if (ev->NumArgs() < 1) {
         ScriptError("Usage: spawn entityname [keyname] [value]...");
@@ -386,13 +387,19 @@ void Player::SpawnEntity(Event *ev)
     if (ev->NumArgs() > 2) {
         n = ev->NumArgs();
         for (i = 2; i <= n; i += 2) {
-            e = new Event(ev->GetString(i));
+            str name = ev->GetString(i);
+
+            if (!str::icmp(name, "model")) {
+                bModelSet = true;
+            }
+
+            e = new Event(name);
             e->AddToken(ev->GetString(i + 1));
             ent->PostEvent(e, EV_SPAWNARG);
         }
     }
 
-    if (ent->IsSubclassOfEntity()) {
+    if (ent->IsSubclassOfEntity() && !bModelSet) {
         e = new Event(EV_Model);
         e->AddString(name.c_str());
         ent->PostEvent(e, EV_PRIORITY_SPAWNARG);
