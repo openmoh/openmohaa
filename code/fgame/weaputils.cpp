@@ -2281,10 +2281,10 @@ float BulletAttack(
                     ent = NULL;
                 }
 
-                if (ent && ent != world && ent != newowner) {
+                if (ent && ent != world && ent != owner) {
                     if (ent->takedamage) {
                         if (g_gametype->integer == GT_SINGLE_PLAYER && !iNumHit) {
-                            BulletAttack_Stat(newowner, ent, &trace, weap);
+                            BulletAttack_Stat(owner, ent, &trace, weap);
                         }
 
                         iNumHit++;
@@ -2295,7 +2295,7 @@ float BulletAttack(
 
                         ent->Damage(
                             world,
-                            newowner,
+                            owner,
                             newdamage,
                             trace.endpos,
                             dir,
