@@ -1323,7 +1323,18 @@ static qboolean ParseStage(shaderStage_t* stage, char** text, qboolean picmip)
 			}
 			else if (!Q_stricmp(token, "lightingSpecular"))
 			{
+				shader.needsNormal = qtrue;
 				stage->alphaGen = AGEN_LIGHTING_SPECULAR;
+				stage->alphaMax = 255;
+				stage->specOrigin[0] = -960;
+				stage->specOrigin[1] = 1980;
+				stage->specOrigin[2] = 96;
+
+				token = COM_ParseExt(text, qfalse);
+				if (token[0]) {
+					stage->alphaMax = atof(token) * 255.0;
+					ParseVector(text, 3, stage->specOrigin);
+				}
 			}
 			else if (!Q_stricmp(token, "distFade") || !Q_stricmp(token, "oneMinusDistFade")
 				|| !Q_stricmp(token, "tikiDistFade") || !Q_stricmp(token, "oneMinusTikiDistFade"))
