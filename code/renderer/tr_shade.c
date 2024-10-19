@@ -915,6 +915,9 @@ static void ComputeColors( shaderStage_t *pStage )
 					tess.svars.colors[i][0] = r;
 					tess.svars.colors[i][1] = g;
 					tess.svars.colors[i][2] = b;
+					// Fixed in OPM
+					//  This sets the alpha channel which will prevent vertices from hiding
+					tess.svars.colors[i][3] = tess.vertexColors[i][3];
 				}
 			}
 			else
