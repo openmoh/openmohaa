@@ -57,10 +57,54 @@ static float *TableForFunc( genFunc_t func )
 static float EvalWaveForm( const waveForm_t *wf ) 
 {
 	float	*table;
+	float	base;
+	float	amplitude;
+	float	phase;
+	float	frequency;
 
 	table = TableForFunc( wf->func );
 
-	return WAVEVALUE( table, wf->base, wf->amplitude, wf->phase, wf->frequency );
+    if (wf->base != 1234567.0f) {
+        base = wf->base;
+    } else if (backEnd.currentEntity) {
+        base = (float)backEnd.currentEntity->e.surfaces[0] / 16.0 - 8.0;
+    } else {
+        base = r_static_shaderdata0->value;
+    }
+
+    if (wf->amplitude != 1234567.0f) {
+		amplitude = wf->amplitude;
+    } else if (backEnd.currentEntity) {
+		amplitude = (float)backEnd.currentEntity->e.surfaces[1] / 16.0;
+    } else {
+		amplitude = r_static_shaderdata1->value;
+    }
+
+    if (wf->phase != 1234567.0f) {
+		phase = wf->phase;
+    } else if (backEnd.currentEntity) {
+		phase = (float)backEnd.currentEntity->e.surfaces[2] / 16.0 - 8.0;
+    } else {
+		phase = r_static_shaderdata2->value;
+    }
+
+    if (wf->frequency != 1234567.0f) {
+		frequency = wf->frequency;
+    } else if (backEnd.currentEntity) {
+		frequency = (float)backEnd.currentEntity->e.surfaces[3] / 16.0;
+    } else {
+		frequency = r_static_shaderdata1->value;
+    }
+
+	if (!backEnd.currentEntity)
+	{
+		base *= r_static_shadermultiplier0->value;
+		amplitude *= r_static_shadermultiplier1->value;
+		phase *= r_static_shadermultiplier2->value;
+		frequency *= r_static_shadermultiplier3->value;
+	}
+
+	return WAVEVALUE( table, base, amplitude, phase, frequency );
 }
 
 static float EvalWaveFormClamped( const waveForm_t *wf )
@@ -182,8 +226,52 @@ void RB_CalcDeformVertexes( deformStage_t *ds )
 	float	*xyz = ( float * ) tess.xyz;
 	float	*normal = ( float * ) tess.normal;
 	float	*table;
+	float	base;
+	float	amplitude;
+	float	phase;
+	float	frequency;
 
-	if ( ds->deformationWave.frequency == 0 )
+    if (ds->deformationWave.base != 1234567.0f) {
+        base = ds->deformationWave.base;
+    } else if (backEnd.currentEntity) {
+        base = (float)backEnd.currentEntity->e.surfaces[0] / 16.0 - 8.0;
+    } else {
+        base = r_static_shaderdata0->value;
+    }
+
+    if (ds->deformationWave.amplitude != 1234567.0f) {
+		amplitude = ds->deformationWave.amplitude;
+    } else if (backEnd.currentEntity) {
+		amplitude = (float)backEnd.currentEntity->e.surfaces[1] / 16.0;
+    } else {
+		amplitude = r_static_shaderdata1->value;
+    }
+
+    if (ds->deformationWave.phase != 1234567.0f) {
+		phase = ds->deformationWave.phase;
+    } else if (backEnd.currentEntity) {
+		phase = (float)backEnd.currentEntity->e.surfaces[2] / 16.0 - 8.0;
+    } else {
+		phase = r_static_shaderdata2->value;
+    }
+
+    if (ds->deformationWave.frequency != 1234567.0f) {
+		frequency = ds->deformationWave.frequency;
+    } else if (backEnd.currentEntity) {
+		frequency = (float)backEnd.currentEntity->e.surfaces[3] / 16.0;
+    } else {
+		frequency = r_static_shaderdata1->value;
+    }
+
+	if (!backEnd.currentEntity)
+	{
+		base *= r_static_shadermultiplier0->value;
+		amplitude *= r_static_shadermultiplier1->value;
+		phase *= r_static_shadermultiplier2->value;
+		frequency *= r_static_shadermultiplier3->value;
+	}
+
+	if ( frequency == 0 )
 	{
 		scale = EvalWaveForm( &ds->deformationWave );
 
@@ -204,10 +292,7 @@ void RB_CalcDeformVertexes( deformStage_t *ds )
 		{
 			float off = ( xyz[0] + xyz[1] + xyz[2] ) * ds->deformationSpread;
 
-			scale = WAVEVALUE( table, ds->deformationWave.base, 
-				ds->deformationWave.amplitude,
-				ds->deformationWave.phase + off,
-				ds->deformationWave.frequency );
+			scale = WAVEVALUE( table, base, amplitude, phase + off, frequency );
 
 			VectorScale( normal, scale, offset );
 			
@@ -241,41 +326,33 @@ void RB_CalcFlapVertexes(deformStage_t* ds, texDirection_t coordsToUse)
 
     if (ds->deformationWave.base != 1234567.0f) {
         base = ds->deformationWave.base;
-    }
-    else if (backEnd.currentEntity) {
+    } else if (backEnd.currentEntity) {
         base = (float)backEnd.currentEntity->e.surfaces[0] / 16.0 - 8.0;
-    }
-    else {
+    } else {
         base = r_static_shaderdata0->value;
     }
 
     if (ds->deformationWave.amplitude != 1234567.0f) {
         amplitude = ds->deformationWave.amplitude;
-    }
-    else if (backEnd.currentEntity) {
+    } else if (backEnd.currentEntity) {
         amplitude = (float)backEnd.currentEntity->e.surfaces[1] / 16.0;
-    }
-    else {
+    } else {
         amplitude = r_static_shaderdata1->value;
     }
 
     if (ds->deformationWave.phase != 1234567.0f) {
         phase = ds->deformationWave.phase;
-    }
-    else if (backEnd.currentEntity) {
+    } else if (backEnd.currentEntity) {
         phase = (float)backEnd.currentEntity->e.surfaces[2] / 16.0 - 8.0;
-    }
-    else {
+    } else {
         phase = r_static_shaderdata2->value;
     }
 
     if (ds->deformationWave.frequency != 1234567.0f) {
         frequency = ds->deformationWave.frequency;
-    }
-    else if (backEnd.currentEntity) {
+    } else if (backEnd.currentEntity) {
         frequency = (float)backEnd.currentEntity->e.surfaces[3] / 16.0;
-    }
-    else {
+    } else {
         frequency = r_static_shaderdata3->value;
     }
 
@@ -292,15 +369,14 @@ void RB_CalcFlapVertexes(deformStage_t* ds, texDirection_t coordsToUse)
 			float off;
 
 			off = ((*xyz)[0] + (*xyz)[1] + (*xyz)[2]) * ds->deformationSpread;
-            scale = table[(int)((phase + off + tess.shaderTime * frequency) * 1024.0) & FUNCTABLE_MASK] * amplitude + base;
+			scale = WAVEVALUE(table, base, amplitude, phase, frequency);
             vertexScale = (max - min) * (*st)[0][coordsToUse] + min;
             offset[0] = scale * vertexScale * (*normal)[0];
             offset[1] = scale * vertexScale * (*normal)[1];
             offset[2] = scale * vertexScale * (*normal)[2];
 			VectorAdd(*xyz, offset, *xyz);
 		}
-	}
-	else {
+	} else {
         scale = EvalWaveForm(&ds->deformationWave);
         for (i = 0; i < tess.numVertexes; i++, xyz++, st++, normal++) {
             vertexScale = (max - min) * (*st)[0][coordsToUse] + min;
