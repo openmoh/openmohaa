@@ -2064,10 +2064,10 @@ void CG_ParseCGMessage_ver_6()
                     current_entity_number = iInfo;
 
                     commandManager.PlaySound(szTmp, vStart, CHAN_LOCAL, -1, -1, -1, 0);
-                } else {
+                } else if (cg.snap) {
                     current_entity_number = cg.snap->ps.clientNum;
 
-                    commandManager.PlaySound(szTmp, vStart, CHAN_AUTO, -1, -1, -1, 1);
+                    commandManager.PlaySound(szTmp, vStart, CHAN_LOCAL, -1, -1, -1, 1);
                 }
 
                 current_entity_number = iOldEnt;
