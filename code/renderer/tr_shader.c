@@ -1814,6 +1814,7 @@ static void ParseDeform( char **text ) {
 		ds->bulgeSpeed = atof( token );
 
 		ds->deformation = DEFORM_BULGE;
+		shader.needsNormal = qtrue;
 		return;
 	}
 
@@ -1838,6 +1839,7 @@ static void ParseDeform( char **text ) {
 
 		ParseWaveForm( text, &ds->deformationWave );
 		ds->deformation = DEFORM_WAVE;
+		shader.needsNormal = qtrue;
 		return;
 	}
 
@@ -1919,6 +1921,7 @@ static void ParseDeform( char **text ) {
 		ds->deformationWave.frequency = atof( token );
 
 		ds->deformation = DEFORM_NORMALS;
+		shader.needsNormal = qtrue;
 		return;
 	}
 
