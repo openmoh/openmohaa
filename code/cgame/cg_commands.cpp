@@ -1403,8 +1403,10 @@ qboolean ClientGameCommandManager::PostEventForEntity(Event *ev, float fWait)
     int                    inttime;
 
     if (m_fEventWait < 0 || current_entity_number < 0) {
-        if (!str::icmp(ev->getName(), ")")) {
-            m_fEventWait = 0.0;
+        if (m_fEventWait != 0.0) {
+            if (!str::icmp(ev->getName(), ")")) {
+                m_fEventWait = 0.0;
+            }
         }
 
         delete ev;
@@ -1421,7 +1423,7 @@ qboolean ClientGameCommandManager::PostEventForEntity(Event *ev, float fWait)
     event   = EffectsEventQueue.next;
     inttime = EVENT_msec + (fWait * 1000.0f + 0.5f);
 
-    while (event != &EffectsEventQueue && inttime > event->inttime) {
+    while (event != &EffectsEventQueue && inttime >= event->inttime) {
         event = event->next;
     }
 
@@ -1560,7 +1562,6 @@ void ClientGameCommandManager::CommandDelay(Event *ev)
         ev1->AddValue(ev->GetValue(i));
     }
 
-    delay = ev->GetFloat(1) * 1000;
     if (current_entity_number != -1) {
         PostEventForEntity(ev1, fWait);
     } else {
@@ -1569,6 +1570,16 @@ void ClientGameCommandManager::CommandDelay(Event *ev)
             "Can't use commanddelay in temp models. Found illegal commanddelay in '%s'\n",
             current_tiki->name
         );
+    }
+
+    if (IsBlockCommand(eventName)) {
+        m_fEventWait = fWait;
+    } else {
+        m_fEventWait = 0;
+    }
+
+    if (current_entity_number == -1 && m_fEventWait > 0) {
+        m_fEventWait = -1;
     }
 }
 
