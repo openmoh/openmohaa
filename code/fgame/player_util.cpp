@@ -384,6 +384,8 @@ void Player::SpawnEntity(Event *ev)
     e->AddVector(v);
     ent->PostEvent(e, EV_SPAWNARG);
 
+    bModelSet = false;
+
     if (ev->NumArgs() > 2) {
         n = ev->NumArgs();
         for (i = 2; i <= n; i += 2) {
