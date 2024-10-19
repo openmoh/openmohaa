@@ -396,10 +396,6 @@ void Player::SpawnEntity(Event *ev)
         e = new Event(EV_Model);
         e->AddString(name.c_str());
         ent->PostEvent(e, EV_PRIORITY_SPAWNARG);
-
-        e = new Event(EV_SetAnim);
-        e->AddString("idle");
-        ent->PostEvent(e, EV_SPAWNARG);
     }
 
     ent->ProcessPendingEvents();
