@@ -182,6 +182,117 @@ void CG_PlayerTeamIcon(refEntity_t *pModel, entityState_t *pPlayerState)
 
 /*
 ===============
+CG_InterpolateAnimParms
+
+Interpolate between current and next entity
+===============
+*/
+void CG_InterpolateAnimParms(entityState_t* state, entityState_t* sNext, refEntity_t* model)
+{
+    static cvar_t *vmEntity = NULL;
+    int i;
+    float t;
+    float animLength;
+    float t1, t2;
+
+    if (!vmEntity) {
+        vmEntity = cgi.Cvar_Get("viewmodelanim", "1", 0);
+    }
+
+    if (sNext && sNext->usageIndex == state->usageIndex) {
+        t1 = cg.time - cg.snap->serverTime;
+        t2 = cg.nextSnap->serverTime - cg.snap->serverTime;
+        t = t1 / t2;
+
+        model->actionWeight = (sNext->actionWeight - state->actionWeight) * t + state->actionWeight;
+
+        for (i = 0; i < MAX_FRAMEINFOS; i++) {
+            if (sNext->frameInfo[i].weight) {
+                model->frameInfo[i].index = sNext->frameInfo[i].index;
+                if (sNext->frameInfo[i].index == state->frameInfo[i].index && state->frameInfo[i].weight) {
+                    model->frameInfo[i].weight =
+                        (sNext->frameInfo[i].weight - state->frameInfo[i].weight) * t + state->frameInfo[i].weight;
+
+                    if (sNext->frameInfo[i].time >= state->frameInfo[i].time) {
+                        model->frameInfo[i].time = (sNext->frameInfo[i].time - state->frameInfo[i].time) * t + state->frameInfo[i].time;
+                    } else {
+                        animLength = cgi.Anim_Time(model->tiki, sNext->frameInfo[i].index);
+                        if (!animLength) {
+                            t1 = 0.0;
+                        } else {
+                            t1 = (animLength + sNext->frameInfo[i].time - state->frameInfo[i].time) * t
+                               + state->frameInfo[i].time;
+                        }
+
+                        t2 = t1;
+                        while (t2 > animLength) {
+                            t2 -= animLength;
+
+                            if (t2 == t1) {
+                                t2 = 1.0;
+                                break;
+                            }
+
+                            t1 = t2;
+                        }
+
+                        model->frameInfo[i].time = t2;
+                    }
+                } else {
+                    animLength = cgi.Anim_Time(model->tiki, sNext->frameInfo[i].index);
+                    if (!animLength) {
+                        t1 = 0.0;
+                    } else {
+                        t1 = sNext->frameInfo[i].time - (cg.nextSnap->serverTime - cg.time) / 1000.0;
+                    }
+
+                    model->frameInfo[i].time   = Q_max(0, t1);
+                    model->frameInfo[i].weight = sNext->frameInfo[i].weight;
+                }
+            } else if (sNext->frameInfo[i].index == state->frameInfo[i].index) {
+                animLength = cgi.Anim_Time(model->tiki, sNext->frameInfo[i].index);
+                if (!animLength) {
+                    t1 = 0.0;
+                } else {
+                    t1 = (cg.time - cg.snap->serverTime) / 1000.0 + state->frameInfo[i].time;
+                }
+
+                model->frameInfo[i].index  = Q_clamp_int(state->frameInfo[i].index, 0, model->tiki->a->num_anims - 1);
+                model->frameInfo[i].time   = Q_min(animLength, t1);
+                model->frameInfo[i].weight = (1.0 - t) * state->frameInfo[i].weight;
+            } else {
+                model->frameInfo[i].index  = -1;
+                model->frameInfo[i].weight = 0.0;
+            }
+        }
+    } else {
+        // no next state, don't blend anims
+
+        model->actionWeight = state->actionWeight;
+        for (i = 0; i < MAX_FRAMEINFOS; i++) {
+            if (state->frameInfo[i].weight) {
+                model->frameInfo[i].index  = Q_clamp_int(state->frameInfo[i].index, 0, model->tiki->a->num_anims - 1);
+                model->frameInfo[i].time   = state->frameInfo[i].time;
+                model->frameInfo[i].weight = state->frameInfo[i].weight;
+            } else {
+                model->frameInfo[i].index  = -1;
+                model->frameInfo[i].weight = 0.0;
+            }
+        }
+    }
+
+    if (vmEntity->integer == state->number) {
+        static cvar_t *curanim;
+        if (!curanim) {
+            curanim = cgi.Cvar_Get("viewmodelanimslot", "1", 0);
+        }
+
+        cgi.Cvar_Set("viewmodelanimclienttime", va("%0.2f", model->frameInfo[curanim->integer].time));
+    }
+}
+
+/*
+===============
 CG_CastFootShadow
 
 Cast complex foot shadow using lights
@@ -697,7 +808,6 @@ void CG_ModelAnim(centity_t *cent, qboolean bDoShaderTime)
     int            i;
     vec3_t         vMins, vMaxs, vTmp;
     const char    *szTagName;
-    static cvar_t *vmEntity = NULL;
     int            iAnimFlags;
 
     s1 = &cent->currentState;
@@ -708,10 +818,6 @@ void CG_ModelAnim(centity_t *cent, qboolean bDoShaderTime)
     }
 
     memset(&model, 0, sizeof(model));
-
-    if (!vmEntity) {
-        vmEntity = cgi.Cvar_Get("viewmodelanim", "1", 0);
-    }
 
     if (cent->interpolate) {
         sNext = &cent->nextState;
@@ -880,103 +986,7 @@ void CG_ModelAnim(centity_t *cent, qboolean bDoShaderTime)
     model.renderfx |= s1->renderfx;
     cgi.TIKI_SetEyeTargetPos(model.tiki, model.entityNumber, s1->eyeVector);
 
-    if (sNext && sNext->usageIndex == s1->usageIndex) {
-        float t;
-        float animLength;
-        float t1, t2;
-
-        t1                 = cg.time - cg.snap->serverTime;
-        t2                 = cg.nextSnap->serverTime - cg.snap->serverTime;
-        t                  = t1 / t2;
-        model.actionWeight = (sNext->actionWeight - s1->actionWeight) * t + s1->actionWeight;
-
-        for (i = 0; i < MAX_FRAMEINFOS; i++) {
-            if (sNext->frameInfo[i].weight) {
-                model.frameInfo[i].index = sNext->frameInfo[i].index;
-                if (sNext->frameInfo[i].index == s1->frameInfo[i].index && s1->frameInfo[i].weight) {
-                    model.frameInfo[i].weight =
-                        (sNext->frameInfo[i].weight - s1->frameInfo[i].weight) * t + s1->frameInfo[i].weight;
-
-                    if (sNext->frameInfo[i].time >= s1->frameInfo[i].time) {
-                        model.frameInfo[i].time =
-                            (sNext->frameInfo[i].time - s1->frameInfo[i].time) * t + s1->frameInfo[i].time;
-                    } else {
-                        animLength = cgi.Anim_Time(model.tiki, sNext->frameInfo[i].index);
-                        if (!animLength) {
-                            t1 = 0.0;
-                        } else {
-                            t1 = (animLength + sNext->frameInfo[i].time - s1->frameInfo[i].time) * t
-                               + s1->frameInfo[i].time;
-                        }
-
-                        t2 = t1;
-                        while (t2 > animLength) {
-                            t2 -= animLength;
-                        }
-
-                        model.frameInfo[i].time = t2;
-                    }
-                } else {
-                    animLength = cgi.Anim_Time(model.tiki, sNext->frameInfo[i].index);
-                    if (!animLength) {
-                        t1 = 0.0;
-                    } else {
-                        t1 = sNext->frameInfo[i].time - (cg.nextSnap->serverTime - cg.time) / 1000.0;
-                    }
-
-                    t2 = t1;
-                    if (t2 < 0.0) {
-                        t2 = 0.0;
-                    }
-
-                    model.frameInfo[i].time   = t2;
-                    model.frameInfo[i].weight = sNext->frameInfo[i].weight;
-                }
-            } else if (sNext->frameInfo[i].index == s1->frameInfo[i].index) {
-                animLength = cgi.Anim_Time(model.tiki, sNext->frameInfo[i].index);
-                if (!animLength) {
-                    t1 = 0.0;
-                } else {
-                    t1 = (cg.time - cg.snap->serverTime) / 1000.0 + s1->frameInfo[i].time;
-                }
-
-                t2 = t1;
-                if (t2 < animLength) {
-                    t2 = animLength;
-                }
-
-                model.frameInfo[i].index  = s1->frameInfo[i].index;
-                model.frameInfo[i].time   = t2;
-                model.frameInfo[i].weight = (1.0 - t) * s1->frameInfo[i].weight;
-            } else {
-                model.frameInfo[i].index  = -1;
-                model.frameInfo[i].weight = 0.0;
-            }
-        }
-    } else {
-        // no next state, don't blend anims
-
-        model.actionWeight = s1->actionWeight;
-        for (i = 0; i < MAX_FRAMEINFOS; i++) {
-            if (s1->frameInfo[i].weight) {
-                model.frameInfo[i].index  = s1->frameInfo[i].index;
-                model.frameInfo[i].time   = s1->frameInfo[i].time;
-                model.frameInfo[i].weight = s1->frameInfo[i].weight;
-            } else {
-                model.frameInfo[i].index  = -1;
-                model.frameInfo[i].weight = 0.0;
-            }
-        }
-    }
-
-    if (vmEntity->integer == s1->number) {
-        static cvar_t *curanim;
-        if (!curanim) {
-            curanim = cgi.Cvar_Get("viewmodelanimslot", "1", 0);
-        }
-
-        cgi.Cvar_Set("viewmodelanimclienttime", va("%0.2f", model.frameInfo[curanim->integer].time));
-    }
+    CG_InterpolateAnimParms(s1, sNext, &model);
 
     if (cent->currentState.parent != ENTITYNUM_NONE) {
         int          iTagNum;
