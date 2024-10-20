@@ -73,10 +73,10 @@ static void CG_ResetEntity(centity_t *cent)
     CG_RemoveClientEntity(cent->currentState.number, tiki, cent);
 
     // reset the animation for the entities
-    if (tiki && tiki->a->bIsCharacter) {
+    if (tiki) {
         for (i = 0; i < MAX_FRAMEINFOS; i++) {
-            cent->animLast[i]      = cent->currentState.frameInfo[i].index;
-            cent->animLastTimes[i] = cent->currentState.frameInfo[i].time;
+            cent->animLast[i]      = -1;
+            cent->animLastTimes[i] = -1;
             if (cent->currentState.frameInfo[i].weight) {
                 cent->animLastWeight |= 1 << i;
             } else {
@@ -87,7 +87,8 @@ static void CG_ResetEntity(centity_t *cent)
     } else {
         // clear all the last animations
         for (i = 0; i < MAX_FRAMEINFOS; i++) {
-            cent->animLast[i] = -1;
+            cent->animLast[i]      = -1;
+            cent->animLastTimes[i] = 0.0;
         }
 
         cent->animLastWeight = 0;
