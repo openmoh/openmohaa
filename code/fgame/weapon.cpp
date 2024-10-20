@@ -3098,6 +3098,12 @@ void Weapon::ForceIdle(void)
 
     // Force the weapon to the idle animation
     weaponstate = WEAPON_READY;
+
+    // Fixed in OPM
+    //  Stop the weapon from charging/cooking
+    CancelEventsOfType(EV_OverCooked);
+    CancelEventsOfType(EV_OverCooked_Warning);
+    charge_fraction = 0;
 }
 
 //======================
