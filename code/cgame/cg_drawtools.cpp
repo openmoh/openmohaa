@@ -953,43 +953,66 @@ void CG_UpdateCountdown()
     }
 }
 
+static void CG_RemoveStopwatch() {
+    cgi.Cmd_Execute(EXEC_NOW, "ui_removehud hud_stopwatch\n");
+    cgi.Cmd_Execute(EXEC_NOW, "ui_removehud hud_fuse\n");
+    cgi.Cmd_Execute(EXEC_NOW, "ui_removehud hud_fuse_wet\n");
+}
+
 void CG_DrawStopwatch()
 {
     int iFraction;
 
     if (!cg_hud->integer) {
-        cgi.Cmd_Execute(EXEC_NOW, "ui_removehud hud_stopwatch\n");
+        CG_RemoveStopwatch();
         return;
     }
 
     if (!cgi.stopWatch->iStartTime) {
-        cgi.Cmd_Execute(EXEC_NOW, "ui_removehud hud_stopwatch\n");
+        CG_RemoveStopwatch();
         return;
     }
 
     if (cgi.stopWatch->iStartTime >= cgi.stopWatch->iEndTime) {
-        cgi.Cmd_Execute(EXEC_NOW, "ui_removehud hud_stopwatch\n");
+        CG_RemoveStopwatch();
         return;
     }
 
     if (cgi.stopWatch->iEndTime <= cg.time) {
-        cgi.Cmd_Execute(EXEC_NOW, "ui_removehud hud_stopwatch\n");
+        CG_RemoveStopwatch();
         return;
     }
 
     if (cg.ObjectivesCurrentAlpha >= 0.02) {
-        cgi.Cmd_Execute(EXEC_NOW, "ui_removehud hud_stopwatch\n");
+        CG_RemoveStopwatch();
         return;
     }
 
     if (cg.snap && cg.snap->ps.stats[STAT_HEALTH] <= 0) {
-        cgi.Cmd_Execute(EXEC_NOW, "ui_removehud hud_stopwatch\n");
+        CG_RemoveStopwatch();
         return;
     }
+    if (cgi.stopWatch->eType >= SWT_FUSE_WET) {
+        iFraction = cgi.stopWatch->iEndTime - cgi.stopWatch->iStartTime;
+    } else {
+        iFraction = cgi.stopWatch->iEndTime - cg.time;
+    }
 
-    iFraction = cgi.stopWatch->iEndTime - cg.time;
     cgi.Cvar_Set("ui_stopwatch", va("%i", iFraction));
-    cgi.Cmd_Execute(EXEC_NOW, "ui_addhud hud_stopwatch\n");
+
+    switch (cgi.stopWatch->eType) {
+    case SWT_NORMAL:
+    default:
+        cgi.Cmd_Execute(EXEC_NOW, "ui_addhud hud_stopwatch\n");
+        break;
+    case SWT_FUSE:
+        cgi.Cmd_Execute(EXEC_NOW, "ui_addhud hud_fuse\n");
+        break;
+    case SWT_FUSE_WET:
+        cgi.Cmd_Execute(EXEC_NOW, "ui_removehud hud_fuse\n");
+        cgi.Cmd_Execute(EXEC_NOW, "ui_addhud hud_fuse_wet\n");
+        break;
+    }
 }
 
 void CG_DrawInstantMessageMenu()
