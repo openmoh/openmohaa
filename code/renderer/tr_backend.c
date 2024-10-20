@@ -887,8 +887,11 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 	}
 
 	RB_ShadowFinish();
-	RB_RenderFlares();
-	R_DrawLensFlares();
+	if (!(backEnd.refdef.rdflags & RDF_HUD)) {
+		RB_RenderFlares();
+		R_DrawLensFlares();
+	}
+
 	if (g_bInfoworldtris)
 	{
 		g_bInfoworldtris = 0;
