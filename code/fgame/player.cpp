@@ -3507,6 +3507,7 @@ void Player::DoUse(Event *ev)
         //  to crouch with their weapon and become impossible to hit
         currentState_Legs = statemap_Legs->FindState("STAND");
         currentState_Torso = statemap_Torso->FindState("STAND");
+        charge_start_time = 0;
     }
 }
 
