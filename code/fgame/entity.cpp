@@ -5819,7 +5819,7 @@ void Entity::Archive(Archiver& arc)
             // set the brush model
             edict->s.modelindex = atoi(model.c_str() + 1);
         } else {
-            setModel(model);
+            setModel();
         }
     }
 
