@@ -4625,6 +4625,14 @@ float Weapon::GetSpreadFactor(firemode_t mode)
 }
 
 //======================
+//Weapon::GetChargeFraction
+//======================
+float Weapon::GetChargeFraction(void) const
+{
+    return charge_fraction;
+}
+
+//======================
 //Weapon::GetScriptOwner
 //======================
 Listener *Weapon::GetScriptOwner(void)

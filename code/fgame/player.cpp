@@ -3498,17 +3498,6 @@ void Player::DoUse(Event *ev)
             m_pVehicle->flags &= ~FL_GODMODE;
         }
     }
-
-    if (!bWasInTurretOrVehicle && (m_pVehicle || m_pTurret)) {
-        //
-        // Added in OPM
-        //  Reset the legs and torso state.
-        //  This prevents players from using a turret and hold the weapon fire
-        //  to crouch with their weapon and become impossible to hit
-        currentState_Legs = statemap_Legs->FindState("STAND");
-        currentState_Torso = statemap_Torso->FindState("STAND");
-        charge_start_time = 0;
-    }
 }
 
 void Player::TouchStuff(pmove_t *pm)
@@ -5851,6 +5840,7 @@ void Player::NoclipCheat(Event *ev)
 
         // reset the state machine so that his animations are correct
         ResetState(NULL);
+        charge_start_time = 0;
     } else {
         client->ps.feetfalling = false;
         movecontrol            = MOVECONTROL_LEGS;
