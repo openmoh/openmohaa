@@ -1500,6 +1500,10 @@ void TurretGun::P_TurretUsed(Player *player)
         m_vUserViewAng = player->GetViewAngles();
 
         if (fabs(AngleSubtract(m_vUserViewAng[1], angles[1])) <= m_fMaxUseAngle) {
+            if (player->charge_start_time) {
+                return;
+            }
+
             P_TurretBeginUsed(player);
 
             flags &= ~FL_THINK;
