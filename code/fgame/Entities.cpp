@@ -2047,7 +2047,7 @@ void ThrobbingBox_Stickybomb::OnStickyBombWet(Event *ev)
 
     player = static_cast<Player *>(G_FindTarget(this, "player"));
     player->SetStopwatch(0, SWT_NORMAL);
-    player->SetStopwatch(m_fStopwatchDuration - (level.svsFloatTime - m_fStopwatchStartTime), SWT_FUSE);
+    player->SetStopwatch(m_fStopwatchDuration - (level.svsFloatTime - m_fStopwatchStartTime), SWT_FUSE_WET);
 }
 
 void ThrobbingBox_Stickybomb::OnStickyBombUse(Event *ev)
