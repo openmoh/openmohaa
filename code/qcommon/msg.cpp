@@ -2263,7 +2263,7 @@ float MSG_ReadPackedAnimTime_ver_15(msg_t* msg, int bits, float fromValue, float
 {
 	int packed;
 	if (!MSG_ReadBits(msg, 1)) {
-		return fromValue + frameTime;
+		return ceil((fromValue + frameTime) * 100) / 100;
 	}
 
 	packed = MSG_ReadBits(msg, bits);
@@ -2869,6 +2869,10 @@ void MSG_ReadDeltaEntity( msg_t *msg, entityState_t *from, entityState_t *to,
 		if ( ! MSG_ReadBits( msg, 1 ) ) {
 			// no change
 			*toF = *fromF;
+
+			if (number == 1 && field->offset == (size_t) & ((entityState_t*)0)->frameInfo[3].time) {
+				Com_Printf("NO DELTA from: %.12f / to: %.12f\n", *(float*)fromF, *(float*)toF);
+			}
 		} else {
 			switch (field->type) {
 				case netFieldType_e::regular:
@@ -2879,6 +2883,10 @@ void MSG_ReadDeltaEntity( msg_t *msg, entityState_t *from, entityState_t *to,
 					break;
 				case netFieldType_e::animTime: // time
 					*(float*)toF = MSG_ReadPackedAnimTime(msg, field->bits, *(float*)fromF, frameTime);
+
+					if (number == 1 && field->offset == (size_t) & ((entityState_t*)0)->frameInfo[3].time) {
+						Com_Printf("from: %.12f / to: %.12f\n", *(float*)fromF, *(float*)toF);
+					}
 					break;
 				case netFieldType_e::animWeight: // nasty!
 					*(float*)toF = MSG_ReadPackedAnimWeight(msg, field->bits);
