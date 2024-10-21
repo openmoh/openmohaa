@@ -26,66 +26,62 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "entity.h"
 
-#define BARREL_INDESTRUCTABLE		1
-#define MAX_BARREL_LEAKS			4
+#define BARREL_INDESTRUCTABLE 1
+#define MAX_BARREL_LEAKS      4
 
-enum
-{
-	BARREL_EMPTY,
-	BARREL_OIL,
-	BARREL_WATER,
-	BARREL_GAS
+enum {
+    BARREL_EMPTY,
+    BARREL_OIL,
+    BARREL_WATER,
+    BARREL_GAS
 };
 
-class BarrelObject : public Entity {
-	int m_iBarrelType;
-	float m_fFluidAmount;
-	float m_fHeightFluid;
-	qboolean m_bLeaksActive[ MAX_BARREL_LEAKS ];
-	Vector m_vLeaks[ MAX_BARREL_LEAKS ];
-	Vector m_vLeakNorms[ MAX_BARREL_LEAKS ];
-	Vector m_vJitterAngles;
-	Vector m_vStartAngles;
-	float m_fJitterScale;
-	float m_fLastEffectTime;
-	float m_fDamageSoundTime;
+class BarrelObject : public Entity
+{
+    int      m_iBarrelType;
+    float    m_fFluidAmount;
+    float    m_fHeightFluid;
+    qboolean m_bLeaksActive[MAX_BARREL_LEAKS];
+    Vector   m_vLeaks[MAX_BARREL_LEAKS];
+    Vector   m_vLeakNorms[MAX_BARREL_LEAKS];
+    Vector   m_vJitterAngles;
+    Vector   m_vStartAngles;
+    float    m_fJitterScale;
+    float    m_fLastEffectTime;
+    float    m_fDamageSoundTime;
 
 public:
-	CLASS_PROTOTYPE( BarrelObject );
+    CLASS_PROTOTYPE(BarrelObject);
 
-	BarrelObject();
+    BarrelObject();
 
-	int				PickBarrelLeak( void );
+    int PickBarrelLeak(void);
 
-	void			BarrelSetup( Event *ev );
-	void			BarrelSetType( Event *ev );
-	void			BarrelThink( Event *ev );
-	void			BarrelDamaged( Event *ev );
-	void			BarrelKilled( Event *ev );
+    void BarrelSetup(Event *ev);
+    void BarrelSetType(Event *ev);
+    void BarrelThink(Event *ev);
+    void BarrelDamaged(Event *ev);
+    void BarrelKilled(Event *ev);
 
-	void Archive( Archiver& arc ) override;
+    void Archive(Archiver& arc) override;
 };
 
-inline void BarrelObject::Archive
-	(
-	Archiver& arc
-	)
+inline void BarrelObject::Archive(Archiver& arc)
 {
-	Entity::Archive( arc );
+    Entity::Archive(arc);
 
-	arc.ArchiveInteger( &m_iBarrelType );
-	arc.ArchiveFloat( &m_fFluidAmount );
-	arc.ArchiveFloat( &m_fHeightFluid );
-	arc.ArchiveVector( &m_vJitterAngles );
-	arc.ArchiveVector( &m_vStartAngles );
-	arc.ArchiveFloat( &m_fJitterScale );
-	arc.ArchiveFloat( &m_fLastEffectTime );
-	arc.ArchiveFloat( &m_fDamageSoundTime );
+    arc.ArchiveInteger(&m_iBarrelType);
+    arc.ArchiveFloat(&m_fFluidAmount);
+    arc.ArchiveFloat(&m_fHeightFluid);
+    arc.ArchiveVector(&m_vJitterAngles);
+    arc.ArchiveVector(&m_vStartAngles);
+    arc.ArchiveFloat(&m_fJitterScale);
+    arc.ArchiveFloat(&m_fLastEffectTime);
+    arc.ArchiveFloat(&m_fDamageSoundTime);
 
-	for( int i = MAX_BARREL_LEAKS - 1; i >= 0; i-- )
-	{
-		arc.ArchiveBoolean( &m_bLeaksActive[ i ] );
-		arc.ArchiveVector( &m_vLeaks[ i ] );
-		arc.ArchiveVector( &m_vLeakNorms[ i ] );
-	}
+    for (int i = MAX_BARREL_LEAKS - 1; i >= 0; i--) {
+        arc.ArchiveBoolean(&m_bLeaksActive[i]);
+        arc.ArchiveVector(&m_vLeaks[i]);
+        arc.ArchiveVector(&m_vLeakNorms[i]);
+    }
 }
