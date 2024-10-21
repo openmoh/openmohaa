@@ -1980,7 +1980,7 @@ ThrobbingBox_ExplodeNebelwerfer::ThrobbingBox_ExplodeNebelwerfer()
  ---------------------------------------------------------------------------------------------
 */
 
-CLASS_DECLARATION(ThrobbingBox_Explosive, ThrobbingBox_ExplodePlayerNebelwerfer, "ThrobbingBox_ExplodeNebelwerfer") {
+CLASS_DECLARATION(ThrobbingBox_Explosive, ThrobbingBox_ExplodePlayerNebelwerfer, "ThrobbingBox_ExplodePlayerNebelwerfer") {
     {NULL, NULL}
 };
 
@@ -2009,7 +2009,7 @@ ThrobbingBox_ExplodePlayerNebelwerfer::ThrobbingBox_ExplodePlayerNebelwerfer()
 
 Event EV_StickyBombWet("stickybombwet", EV_DEFAULT, NULL, NULL, NULL);
 
-CLASS_DECLARATION(ThrobbingBox_Explosive, ThrobbingBox_Stickybomb, "ThrobbingBox_ExplodeNebelwerfer") {
+CLASS_DECLARATION(ThrobbingBox_Explosive, ThrobbingBox_Stickybomb, "ThrobbingBox_Stickybomb") {
     {&EV_Damage,        &ThrobbingBox_Stickybomb::OnBlowUp       },
     {&EV_Use,           &ThrobbingBox_Stickybomb::OnStickyBombUse},
     {&EV_StickyBombWet, &ThrobbingBox_Stickybomb::OnStickyBombWet},
