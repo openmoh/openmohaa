@@ -4258,7 +4258,7 @@ void Player::ClientInactivityTimer(void)
         );
     }
 
-    if (current_ucmd->buttons & BUTTON_MOUSE || (!g_inactivespectate->integer && !g_inactivekick->integer)
+    if (current_ucmd->buttons & BUTTON_ANY || (!g_inactivespectate->integer && !g_inactivekick->integer)
         || current_ucmd->forwardmove || current_ucmd->rightmove || current_ucmd->upmove
         || (m_bTempSpectator && client->lastActiveTime >= level.inttime - 5000)) {
         client->lastActiveTime = level.inttime;
