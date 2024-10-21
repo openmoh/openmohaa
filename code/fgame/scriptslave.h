@@ -285,6 +285,9 @@ class ScriptOrigin : public ScriptSlave
 public:
     CLASS_PROTOTYPE(ScriptOrigin);
     ScriptOrigin();
+
+    void SetAngleEvent(Event *ev); // Added in 2.30
+    void GetAngleEvent(Event *ev); // Added in 2.30
 };
 
 class ScriptSkyOrigin : public ScriptSlave
