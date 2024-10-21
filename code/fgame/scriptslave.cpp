@@ -2104,15 +2104,69 @@ Used as an alternate origin for objects.  Bind the object to the script_origin
 in order to simulate changing that object's origin.
 ******************************************************************************/
 
+// Added in 2.30
+Event EV_ScriptOrigin_SetAngle
+(
+    "angle",
+    EV_DEFAULT,
+    "f",
+    "newAngle",
+    "set the angles of the entity using just one value.\n"
+    "Sets the yaw of the entity or an up and down\n"
+    "direction if newAngle is [0-359] or -1 or -2"
+);
+
+// Added in 2.30
+Event EV_ScriptOrigin_GetAngle
+(
+    "angle",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "get the angles of the entity using just one value.\n"
+    "Gets the yaw of the entity or an up and down\n"
+    "direction if newAngle is [0-359] or -1 or -2"
+);
+
 CLASS_DECLARATION(ScriptSlave, ScriptOrigin, "script_origin") {
     {&EV_Model, &ScriptOrigin::SetModelEvent},
-    {NULL,      NULL                        }
+
+    //
+    // Added in 2.30
+    //
+    {&EV_ScriptOrigin_SetAngle, &ScriptOrigin::SetAngleEvent},
+    {&EV_ScriptOrigin_GetAngle, &ScriptOrigin::GetAngleEvent},
+    {NULL,                      NULL                        }
 };
 
 ScriptOrigin::ScriptOrigin()
 {
     setContents(0);
     setSolidType(SOLID_NOT);
+}
+
+void ScriptOrigin::SetAngleEvent(Event* ev)
+{
+    float angle;
+
+    angle = ev->GetFloat(1);
+    if (angle == -1) {
+        ForwardDir = Vector(0, 0, 90);
+        localangles = Vector(-90, 0, 0);
+    } else if (angle == -2) {
+        ForwardDir = Vector(0, 0, -90);
+        localangles = Vector(90, 0, 0);
+    } else {
+        ForwardDir = Vector(0, angle, 0);
+        localangles = Vector(0, angle, 0);
+    }
+
+    setAngles(localangles);
+}
+
+void ScriptOrigin::GetAngleEvent(Event* ev)
+{
+    ev->AddFloat(G_GetAngle(angles));
 }
 
 /*****************************************************************************/
