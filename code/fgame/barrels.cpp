@@ -264,41 +264,46 @@ void BarrelObject::BarrelThink(Event *ev)
             setAngles(m_vStartAngles);
         }
     }
+    else {
+        Vector ang;
 
-    setAngles(Vector(m_vStartAngles[0] + m_vJitterAngles[0], m_vStartAngles[1], m_vStartAngles[2] + m_vJitterAngles[2])
-    );
+        ang = m_vStartAngles;
+        ang[0] += m_vJitterAngles[0];
+        ang[2] += m_vJitterAngles[2];
+        setAngles(ang);
 
-    if (m_vJitterAngles[0] > 0.0f) {
-        m_vJitterAngles[0] -= 1.f / 3.f * m_fJitterScale;
+        if (m_vJitterAngles[0] < 0) {
+            m_vJitterAngles[0] += 1.f / 3.f * m_fJitterScale;
 
-        if (m_vJitterAngles[0] > 0.0f) {
-            m_vJitterAngles[0] = 0.0f;
+            if (m_vJitterAngles[0] > 0) {
+                m_vJitterAngles[0] = 0;
+            }
+        } else if (m_vJitterAngles[0] > 0) {
+            m_vJitterAngles[0] -= 1.f / 3.f * m_fJitterScale;
+
+            if (m_vJitterAngles[0] < 0) {
+                m_vJitterAngles[0] = 0;
+            }
         }
-    } else if (m_vJitterAngles[0] < 0.0f) {
-        m_vJitterAngles[0] += 1.f / 3.f * m_fJitterScale;
 
-        if (m_vJitterAngles[0] < 0.0f) {
-            m_vJitterAngles[0] = 0.0f;
+        m_vJitterAngles[0] = -m_vJitterAngles[0];
+
+        if (m_vJitterAngles[2] < 0) {
+            m_vJitterAngles[2] += 1.f / 3.f * m_fJitterScale;
+
+            if (m_vJitterAngles[2] > 0) {
+                m_vJitterAngles[2] = 0;
+            }
+        } else if (m_vJitterAngles[2] > 0) {
+            m_vJitterAngles[2] -= 1.f / 3.f * m_fJitterScale;
+
+            if (m_vJitterAngles[2] < 0) {
+                m_vJitterAngles[2] = 0;
+            }
         }
+
+        m_vJitterAngles[2] = -m_vJitterAngles[2];
     }
-
-    m_vJitterAngles[0] = -m_vJitterAngles[0];
-
-    if (m_vJitterAngles[2] > 0.0f) {
-        m_vJitterAngles[2] -= 1.f / 3.f * m_fJitterScale;
-
-        if (m_vJitterAngles[2] > 0.0f) {
-            m_vJitterAngles[2] = 0.0f;
-        }
-    } else if (m_vJitterAngles[2] < 0.0f) {
-        m_vJitterAngles[2] += 1.f / 3.f * m_fJitterScale;
-
-        if (m_vJitterAngles[2] < 0.0f) {
-            m_vJitterAngles[2] = 0.0f;
-        }
-    }
-
-    m_vJitterAngles[2] = -m_vJitterAngles[2];
 
     // Check for at least one active leak to play a sound
     for (i = 0; i < MAX_BARREL_LEAKS; i++) {
@@ -309,17 +314,15 @@ void BarrelObject::BarrelThink(Event *ev)
 
     // Play a leak sound
     if (i != MAX_BARREL_LEAKS && iBiggestLeak) {
-        if (!(iBiggestLeak & 4)) {
-            if (iBiggestLeak & 2) {
-                // medium leak
-                LoopSound("liquid_leak", 0.60f, -1.0f, -1.0f, 0.90f);
-            } else {
-                // small leak
-                LoopSound("liquid_leak", 0.30f, -1.0f, -1.0f, 0.80f);
-            }
-        } else {
+        if (iBiggestLeak & 4) {
             // big leak
-            LoopSound("liquid_leak", 1.0f, -1.0f, -1.0f, 1.0f);
+            LoopSound("liquid_leak", 1, -1, -1, 1);
+        } else if (iBiggestLeak & 2) {
+            // medium leak
+            LoopSound("liquid_leak", 0.6, -1, -1, 0.9);
+        } else {
+            // small leak
+            LoopSound("liquid_leak", 0.3, -1, -1, 0.8);
         }
     }
 
@@ -330,7 +333,7 @@ void BarrelObject::BarrelThink(Event *ev)
     if (m_vJitterAngles[0] || m_vJitterAngles[2] || i < MAX_BARREL_LEAKS) {
         m_fLastEffectTime += 0.075f;
 
-        if (level.time >= m_fLastEffectTime) {
+        if (m_fLastEffectTime <= level.time) {
             m_fLastEffectTime = level.time + 0.075f;
         }
 
