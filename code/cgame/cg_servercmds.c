@@ -483,6 +483,8 @@ static const char *whiteListedCommands[] = {
     "tmstop",
     "tmvolume",
     "`stufftext",
+    "+moveup", // workaround for mods that want to prevent inactivity when handling the spectate
+    "-moveup"
 };
 
 //
