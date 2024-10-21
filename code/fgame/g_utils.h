@@ -124,6 +124,7 @@ Entity       *G_NextEntity(Entity *ent);
 qboolean M_CheckBottom(Entity *ent);
 
 Vector   G_GetMovedir(float angle);
+float    G_GetAngle(Vector movedir);
 qboolean KillBox(Entity *ent);
 qboolean IsNumeric(const char *str);
 

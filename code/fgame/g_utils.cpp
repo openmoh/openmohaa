@@ -904,6 +904,34 @@ void G_SetMovedir(vec3_t angles, vec3_t movedir)
 
 /*
 =================
+G_GetAngle
+
+Return the yaw angle
+=================
+*/
+float G_GetAngle(Vector movedir)
+{
+    float angle;
+
+    if (movedir == Vector(0, 0, 1)) {
+        return -1;
+    }
+
+    if (movedir == Vector(0, 0, -1)) {
+        return -2;
+    }
+
+    angle = RAD2DEG(atan(1.0) * 2 + atan(movedir[0] / sqrt(-movedir[0] * movedir[0] + 1.0)));
+
+    if (movedir[1] < 0) {
+        return 360 - angle;
+    }
+
+    return angle;
+}
+
+/*
+=================
 KillBox
 
 Kills all entities that would touch the proposed new positioning
