@@ -3348,6 +3348,8 @@ qboolean MUSIC_LoadSoundtrackFile(const char *filename)
         Com_sprintf(path, sizeof(path), "%s.mus", filename);
     }
 
+    music_numsongs = 0;
+
     FS_ReadFile(path, (void **)&data);
     if (!data) {
         Com_DPrintf("Couldn't load %s\n", path);
@@ -3356,7 +3358,6 @@ qboolean MUSIC_LoadSoundtrackFile(const char *filename)
     Com_DPrintf("SOUNDTRACK: Loading %s\n", path);
 
     MUSIC_StopAllSongs();
-    music_numsongs = 0;
 
     buffer       = (char *)data;
     load_path[0] = 0;
@@ -3715,6 +3716,11 @@ void MUSIC_FreeAllSongs()
     MUSIC_UpdateMood(mood_none, mood_none);
     current_soundtrack[0] = 0;
     music_loaded          = false;
+
+    // Added in OPM
+    //  Clear the list of songs so the songs from previous maps
+    //  won't get played
+    music_numsongs = 0;
 }
 
 /*
