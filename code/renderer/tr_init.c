@@ -750,7 +750,7 @@ void R_ResampledScreenShot(const char* filename, int destwidth, int destheight) 
 
 	// gamma correct
 	if ( glConfig.deviceSupportsGamma ) {
-		R_GammaCorrect( buffer + 18, 128 * 128 * 3 );
+		R_GammaCorrect( buffer + 18, destheight * destwidth * 3 );
 	}
 
 	ri.FS_WriteFile( filename, buffer, destheight * destwidth * 3 + 18 );
