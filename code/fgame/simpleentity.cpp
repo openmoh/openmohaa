@@ -491,7 +491,10 @@ void SimpleEntity::SetAngleEvent(Event *ev)
 
 void SimpleEntity::GetAngleEvent(Event *ev)
 {
-    ev->AddFloat(angles[1]);
+    Vector forward;
+
+    angles.AngleVectorsLeft(&forward);
+    ev->AddFloat(G_GetAngle(forward));
 }
 
 void SimpleEntity::setAngles(Vector angles)
