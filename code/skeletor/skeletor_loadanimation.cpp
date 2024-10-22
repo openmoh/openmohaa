@@ -246,7 +246,7 @@ skeletor_c::ConvertSkelFileToGame(skelAnimDataFileHeader_t *pHeader, int iBuffLe
 
         newFrame->bounds[0][0] = LittleFloat(pFileFrame->bounds[0][0]);
         newFrame->bounds[0][1] = LittleFloat(pFileFrame->bounds[0][1]);
-        newFrame->bounds[1][2] = LittleFloat(pFileFrame->bounds[0][2]);
+        newFrame->bounds[0][2] = LittleFloat(pFileFrame->bounds[0][2]);
         newFrame->bounds[1][0] = LittleFloat(pFileFrame->bounds[1][0]);
         newFrame->bounds[1][1] = LittleFloat(pFileFrame->bounds[1][1]);
         newFrame->bounds[1][2] = LittleFloat(pFileFrame->bounds[1][2]);
