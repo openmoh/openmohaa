@@ -177,11 +177,11 @@ int R_DistanceCullPointAndRadius(float fDist, const vec3_t pt, float radius) {
 
 		VectorSubtract(pt, tr.viewParms.ori.origin, vDelta);
 		fLengthSquared = VectorLengthSquared(vDelta);
-		fTotalDistSquared = (fDist + radius) * (fDist + radius);
+		fTotalDistSquared = Square(fDist + radius);
 
-		if ((fDist + radius) * (fDist + radius) < vDelta[2] + fLengthSquared) {
+		if (Square(fDist + radius) < Square(vDelta[2]) + fLengthSquared) {
 			return CULL_OUT;
-		} else if ((fDist - radius) * (fDist - radius) > vDelta[2] + fLengthSquared) {
+		} else if (Square(fDist - radius) > Square(vDelta[2]) + fLengthSquared) {
 			return CULL_IN;
 		}
 	}
