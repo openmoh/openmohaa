@@ -814,7 +814,6 @@ void SimpleActor::StartAimAnimSlot(int slot, int anim)
 
     m_weightType[slot]       = ANIM_WEIGHT_AIM;
     m_weightCrossBlend[slot] = 0.0;
-    m_weightBase[slot]       = 1.0;
     NewAnim(anim, slot, 1.0);
 
     RestartAnimSlot(slot);
