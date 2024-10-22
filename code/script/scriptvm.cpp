@@ -1007,7 +1007,7 @@ void ScriptVM::Execute(ScriptVariable *data, int dataSize, str label)
     Event           ev;
     ScriptVariable *var = NULL;
 
-    ConSimple *targetList;
+    TargetList *targetList;
 
     if (Director.stackCount >= MAX_STACK_DEPTH) {
         state = STATE_EXECUTION;
@@ -1769,9 +1769,9 @@ void ScriptVM::Execute(ScriptVariable *data, int dataSize, str label)
 
             case OP_UN_TARGETNAME:
                 // retrieve the target name
-                targetList = world->GetExistingTargetList(m_VMStack.GetTop().constStringValue());
+                targetList = world->GetExistingTargetList(m_VMStack.GetTop().stringValue());
 
-                if (!targetList || !targetList->NumObjects()) {
+                if (!targetList || !targetList->list.NumObjects()) {
                     str targetname = m_VMStack.GetTop().stringValue();
                     // the target name was not found
                     m_VMStack.GetTop().setListenerValue(NULL);
@@ -1780,12 +1780,12 @@ void ScriptVM::Execute(ScriptVariable *data, int dataSize, str label)
                         || (*m_PrevCodePos >= OP_BOOL_UN_NOT && *m_PrevCodePos <= OP_UN_CAST_BOOLEAN)) {
                         ScriptError("Targetname '%s' does not exist.", targetname.c_str());
                     }
-                } else if (targetList->NumObjects() == 1) {
+                } else if (targetList->list.NumObjects() == 1) {
                     // single listener
-                    m_VMStack.GetTop().setListenerValue(targetList->ObjectAt(1));
-                } else if (targetList->NumObjects() > 1) {
+                    m_VMStack.GetTop().setListenerValue(targetList->list.ObjectAt(1));
+                } else if (targetList->list.NumObjects() > 1) {
                     // multiple listeners
-                    m_VMStack.GetTop().setContainerValue((Container<SafePtr<Listener>> *)targetList);
+                    m_VMStack.GetTop().setContainerValue((Container<SafePtr<Listener>> *)&targetList->list);
                 }
                 break;
 

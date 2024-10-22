@@ -536,12 +536,18 @@ void SimpleEntity::GetUpVector(Event *ev)
 
 SimpleEntity *SimpleEntity::Next(void)
 {
-    SimpleEntity *ent = world->GetTarget(target, true);
+    Listener* ent;
+    
+    if (!target.length()) {
+        return NULL;
+    }
+
+    ent = world->GetTarget(target, true);
 
     if (!ent || !ent->isSubclassOf(SimpleEntity)) {
         return NULL;
     } else {
-        return ent;
+        return static_cast<SimpleEntity*>(ent);
     }
 }
 

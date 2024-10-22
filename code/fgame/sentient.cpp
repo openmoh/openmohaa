@@ -1121,30 +1121,19 @@ qboolean Sentient::HasSecondaryWeapon(void)
 
 void Sentient::EventGiveTargetname(Event *ev)
 {
-    int         i;
-    ConSimple  *tlist;
-    str         name;
-    const char *ptr;
-    qboolean    found;
+    int i;
+    str name;
+    qboolean found;
+    ScriptVariable var;
+    SimpleEntity *ent;
 
-    name = ev->GetString(1);
+    var = ev->GetValue(1);
+    var.CastConstArrayValue();
 
-    ptr = name.c_str();
-
-    // skip over the $
-    ptr++;
-
-    found = qfalse;
-
-    str sName = ptr;
-    tlist     = world->GetTargetList(sName);
-    for (i = 1; i <= tlist->NumObjects(); i++) {
-        Entity *ent;
-
-        ent = (Entity *)tlist->ObjectAt(i).Pointer();
-        assert(ent);
-
-        if (ent->isSubclassOf(Item)) {
+    for (i = var.arraysize(); i > 0; i--) {
+        const ScriptVariable *variable = var[i];
+        ent = variable->simpleEntityValue();
+        if (ent && ent->IsSubclassOfItem()) {
             Item *item;
 
             item = (Item *)ent;

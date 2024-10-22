@@ -2131,49 +2131,21 @@ void Entity::SetTeamEvent(Event *ev)
 
 void Entity::TriggerEvent(Event *ev)
 {
-    const char *name;
-    Event      *event;
-    Entity     *ent;
-    ConSimple  *tlist;
-    int         i;
-    int         num;
+    SimpleEntity *ent;
+    ScriptVariable arrayVar;
+    int i;
 
-    name = ev->GetString(1);
+    arrayVar = ev->GetValue(1);
+    arrayVar.CastConstArrayValue();
 
-    // Check for object commands
-    if (name && name[0] == '$') {
-        str sName = str(name + 1);
-
-        tlist = world->GetTargetList(sName);
-        num   = tlist->NumObjects();
-        for (i = 1; i <= num; i++) {
-            ent = (Entity *)tlist->ObjectAt(i).Pointer();
-
-            assert(ent);
-
-            event = new Event(EV_Activate);
-
+    for (i = arrayVar.arraysize(); i > 0; i--) {
+        const ScriptVariable *variable = arrayVar[i];
+        ent = variable->simpleEntityValue();
+        if (ent) {
+            Event* event = new Event(EV_Activate);
             event->AddEntity(this);
             ent->ProcessEvent(event);
         }
-    } else if (name[0] == '*') // Check for entnum commands
-    {
-        if (!IsNumeric(&name[1])) {
-            gi.Printf("Expecting numeric value for * command, but found '%s'\n", &name[1]);
-        } else {
-            ent = G_GetEntity(atoi(&name[1]));
-            if (ent) {
-                event = new Event(EV_Activate);
-
-                event->AddEntity(this);
-                ent->ProcessEvent(event);
-            } else {
-                gi.Printf("Entity not found for * command\n");
-            }
-        }
-        return;
-    } else {
-        gi.Printf("Invalid entity reference '%s'.\n", name);
     }
 }
 
