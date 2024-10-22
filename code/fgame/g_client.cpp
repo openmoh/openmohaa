@@ -878,11 +878,6 @@ const char *G_ClientConnect(int clientNum, qboolean firstTime, qboolean differen
     char       userinfo[MAX_INFO_STRING];
 
     gi.DPrintf("TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT\n");
-    // Removed in OPM
-    //  Accepts remote clients
-    //if (g_gametype->integer == GT_SINGLE_PLAYER) {
-    //    return NULL;
-    //}
 
     // Added in OPM
     G_BotShift(clientNum);
@@ -921,7 +916,12 @@ const char *G_ClientConnect(int clientNum, qboolean firstTime, qboolean differen
 
     // read or initialize the session data
     if (firstTime) {
-        memset(client, 0, sizeof(*client));
+        if (g_gametype->integer != GT_SINGLE_PLAYER || !cl_running->integer || clientNum != 0) {
+            // Added in OPM
+            //  Accept remote clients but ignore the listen server
+            //  so the client flags that were put during prespawn stay
+            memset(client, 0, sizeof(*client));
+        }
         if (!game.autosaved) {
             G_InitClientPersistant(client, userinfo);
         }
