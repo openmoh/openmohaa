@@ -10573,7 +10573,7 @@ Vector Actor::GunTarget(bool bNoCollision, const vec3_t position, const vec3_t f
     dir.normalize();
 
     if (g_target_game > target_game_e::TG_MOH) {
-        if (DotProduct2D(forward, dir) < aiMaxDeviation->value) {
+        if (DotProduct(forward, dir) < aiMaxDeviation->value) {
             Vector vOut;
 
             VectorMA(position, 2048, forward, vOut);
