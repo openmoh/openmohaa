@@ -97,8 +97,8 @@ public:
 
 class World : public Entity
 {
-    con_set<const_str, ConSimple> m_targetList; // moh could have used con_set instead of TargetList
-    qboolean                      world_dying;
+    Container<TargetList*> m_targetListContainer;
+    qboolean world_dying;
 
 public:
     // farplane variables
@@ -144,17 +144,12 @@ public:
     void FreeTargetList();
 
     SimpleEntity *GetNextEntity(str targetname, SimpleEntity *ent);
-    SimpleEntity *GetNextEntity(const_str targetname, SimpleEntity *ent);
-    SimpleEntity *GetScriptTarget(str targetname);
-    SimpleEntity *GetScriptTarget(const_str targetname);
-    SimpleEntity *GetTarget(str targetname, bool quiet);
-    SimpleEntity *GetTarget(const_str targetname, bool quiet);
+    Listener     *GetScriptTarget(str targetname);
+    Listener     *GetTarget(str targetname, bool quiet);
     int           GetTargetnameIndex(SimpleEntity *ent);
 
-    ConSimple *GetExistingTargetList(const str& targetname);
-    ConSimple *GetExistingTargetList(const_str targetname);
-    ConSimple *GetTargetList(str& targetname);
-    ConSimple *GetTargetList(const_str targetname);
+    TargetList *GetExistingTargetList(const str& targetname);
+    TargetList *GetTargetList(str& targetname);
 
     void SetFarClipOverride(Event *ev);
     void SetFarPlaneColorOverride(Event *ev);

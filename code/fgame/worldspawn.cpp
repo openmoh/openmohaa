@@ -994,24 +994,23 @@ void World::SetNorthYaw(Event *ev)
     m_fNorth = anglemod(ev->GetFloat(1));
 }
 
-SimpleEntity *World::GetTarget(str targetname, bool quiet)
+Listener *World::GetTarget(str targetname, bool quiet)
 {
-    return GetTarget(Director.AddString(targetname), quiet);
-}
+    TargetList* targetList = GetTargetList(targetname);
 
-SimpleEntity *World::GetTarget(const_str targetname, bool quiet)
-{
-    ConSimple *list = GetTargetList(targetname);
+    if (!targetList) {
+        return NULL;
+    }
 
-    if (list->NumObjects() == 1) {
-        return list->ObjectAt(1);
-    } else if (list->NumObjects() > 1) {
+    if (targetList->list.NumObjects() == 1) {
+        return targetList->list.ObjectAt(1);
+    } else if (targetList->list.NumObjects() > 1) {
         if (!quiet) {
             warning(
                 "World::GetTarget",
                 "There are %d entities with targetname '%s'. You are using a command that requires exactly one.",
-                list->NumObjects(),
-                Director.GetString(targetname).c_str()
+                targetList->list.NumObjects(),
+                targetname.c_str()
             );
         }
     }
@@ -1019,79 +1018,83 @@ SimpleEntity *World::GetTarget(const_str targetname, bool quiet)
     return NULL;
 }
 
-SimpleEntity *World::GetScriptTarget(str targetname)
+Listener *World::GetScriptTarget(str targetname)
 {
-    return GetScriptTarget(Director.AddString(targetname));
-}
+    TargetList *targetList = GetTargetList(targetname);
 
-SimpleEntity *World::GetScriptTarget(const_str targetname)
-{
-    ConSimple *list = GetTargetList(targetname);
-
-    if (list->NumObjects() == 1) {
-        return list->ObjectAt(1);
-    } else if (list->NumObjects() > 1) {
+    if (targetList->list.NumObjects() == 1) {
+        return targetList->list.ObjectAt(1);
+    } else if (targetList->list.NumObjects() > 1) {
         ScriptError(
             "There are %d entities with targetname '%s'. You are using a command that requires exactly one.",
-            list->NumObjects(),
-            Director.GetString(targetname).c_str()
+            targetList->list.NumObjects(),
+            targetname.c_str()
         );
     }
 
     return NULL;
 }
 
-ConSimple *World::GetExistingTargetList(const str& targetname)
+TargetList*World::GetExistingTargetList(const str& targetname)
 {
-    return GetExistingTargetList(Director.AddString(targetname));
+    TargetList* targetList;
+    int i;
+
+    if (!targetname.length()) {
+        return NULL;
+    }
+
+    for (i = m_targetListContainer.NumObjects(); i > 0; i--) {
+        targetList = m_targetListContainer.ObjectAt(i);
+        if (targetname == targetList->targetname) {
+            return targetList;
+        }
+    }
+
+    return NULL;
 }
 
-ConSimple *World::GetExistingTargetList(const_str targetname)
+TargetList *World::GetTargetList(str& targetname)
 {
-    return m_targetList.findKeyValue(targetname);
-}
+    TargetList* targetList;
+    int i;
 
-ConSimple *World::GetTargetList(str& targetname)
-{
-    return GetTargetList(Director.AddString(targetname));
-}
+    if (!targetname.length()) {
+        return NULL;
+    }
 
-ConSimple *World::GetTargetList(const_str targetname)
-{
-    return &m_targetList.addKeyValue(targetname);
+    for (i = m_targetListContainer.NumObjects(); i > 0; i--) {
+        targetList = m_targetListContainer.ObjectAt(i);
+        if (targetname == targetList->targetname) {
+            return targetList;
+        }
+    }
+
+    targetList = new TargetList(targetname);
+    m_targetListContainer.AddObject(targetList);
+
+    return targetList;
 }
 
 void World::AddTargetEntity(SimpleEntity *ent)
 {
-    str targetname = ent->TargetName();
+    TargetList *list = GetTargetList(ent->TargetName());
 
-    if (!targetname.length()) {
-        return;
-    }
-
-    ConSimple *list = GetTargetList(targetname);
-
-    list->AddObject(ent);
+    list->AddEntity(ent);
 }
 
 void World::AddTargetEntityAt(SimpleEntity *ent, int index)
 {
-    str targetname = ent->TargetName();
+    TargetList *list = GetTargetList(ent->TargetName());
 
-    if (!targetname.length()) {
-        return;
-    }
-
-    ConSimple *list = GetTargetList(targetname);
-
-    list->AddObjectAt(index, ent);
+    list->AddEntityAt(ent, index);
 }
 
 int World::GetTargetnameIndex(SimpleEntity *ent)
 {
-    ConSimple *list = GetTargetList(ent->TargetName());
+    TargetList *targetList = GetTargetList(ent->TargetName());
 
-    return list->IndexOfObject(ent);
+    return targetList->GetEntityIndex(ent);
 }
 
 void World::RemoveTargetEntity(SimpleEntity *ent)
@@ -1100,55 +1103,75 @@ void World::RemoveTargetEntity(SimpleEntity *ent)
         return;
     }
 
-    const str targetname = ent->TargetName();
+    str targetname = ent->TargetName();
 
     if (!targetname.length()) {
         return;
     }
 
-    ConSimple *list = GetExistingTargetList(targetname);
-
+    TargetList *list = GetExistingTargetList(targetname);
     if (list) {
-        list->RemoveObject(ent);
-
-        if (list->NumObjects() <= 0) {
-            m_targetList.remove(Director.AddString(targetname));
-        }
+        list->RemoveEntity(ent);
     }
 }
 
 SimpleEntity *World::GetNextEntity(str targetname, SimpleEntity *ent)
 {
-    return GetNextEntity(Director.AddString(targetname), ent);
-}
-
-SimpleEntity *World::GetNextEntity(const_str targetname, SimpleEntity *ent)
-{
-    ConSimple *list = GetTargetList(targetname);
-    int        index;
-
-    if (ent) {
-        index = list->IndexOfObject(ent) + 1;
-    } else {
-        index = 1;
-    }
-
-    if (list->NumObjects() >= index) {
-        return list->ObjectAt(index);
-    } else {
+    TargetList* targetList = GetExistingTargetList(targetname);
+    if (!targetList) {
         return NULL;
     }
+
+    return targetList->GetNextEntity(ent);
 }
 
 void World::FreeTargetList()
 {
-    m_targetList.clear();
+    int i;
+
+    for (i = 1; i <= m_targetListContainer.NumObjects(); i++) {
+        delete m_targetListContainer.ObjectAt(i);
+    }
+
+    m_targetListContainer.FreeObjectList();
 }
 
 void World::Archive(Archiver& arc)
 {
-    // FIXME: this is not the original way of archiving target list
-    m_targetList.Archive(arc);
+    int num;
+    int num2;
+    int i;
+    TargetList *targetList;
+
+    if (arc.Loading()) {
+        str targetname;
+
+        arc.ArchiveInteger(&num);
+        for (i = 1; i <= num; i++) {
+            arc.ArchiveString(&targetname);
+
+            targetList = new TargetList(targetname);
+            m_targetListContainer.AddObject(targetList);
+
+            arc.ArchiveObjectPosition((LightClass*)&targetList->list);
+            arc.ArchiveInteger(&num2);
+
+            targetList->list.Resize(num2);
+        }
+    } else {
+        num = m_targetListContainer.NumObjects();
+        arc.ArchiveInteger(&num);
+
+        for (i = 1; i <= num; i++) {
+            targetList = m_targetListContainer.ObjectAt(i);
+
+            arc.ArchiveString(&targetList->targetname);
+            arc.ArchiveObjectPosition((LightClass*)&targetList->list);
+
+            num2 = targetList->list.NumObjects();
+            arc.ArchiveInteger(&num2);
+        }
+    }
 
     Entity::Archive(arc);
 
@@ -1236,7 +1259,15 @@ SimpleEntity *TargetList::GetNextEntity(SimpleEntity *ent)
 {
     int index;
 
-    for (index = list.IndexOfObject(ent); index <= list.NumObjects(); index++) {
+    if (ent) {
+        index = list.IndexOfObject(ent);
+    } else {
+        index = 0;
+    }
+
+    index++;
+
+    for (; index <= list.NumObjects(); index++) {
         Listener *objptr;
 
         objptr = list.ObjectAt(index);
