@@ -95,7 +95,7 @@ UIFAKKLoadGameClass::UIFAKKLoadGameClass()
 {
     Connect(this, EV_UIListBase_ItemDoubleClicked, EV_UIListBase_ItemDoubleClicked);
     Connect(this, EV_UIListBase_ItemSelected, EV_UIListBase_ItemSelected);
-    AllowActivate(false);
+    AllowActivate(true);
     m_bRemovePending = false;
 
     setHeaderFont("facfont-20");
@@ -287,7 +287,7 @@ qboolean UIFAKKLoadGameClass::KeyEvent(int key, unsigned int time)
         }
         break;
     default:
-        return UIListBase::KeyEvent(key, time);
+        return UIListCtrl::KeyEvent(key, time);
     }
 
     return qfalse;
