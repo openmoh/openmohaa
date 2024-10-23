@@ -387,11 +387,12 @@ void UIRotationApplyButton::Released(Event *ev)
             }
 
             maplistStr += text;
-            maplistStr += " ";
 
             if (i == 1) {
                 Cvar_Set("ui_dmmap", maplistStr);
             }
+
+            maplistStr += " ";
         }
     }
 
