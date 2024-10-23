@@ -338,7 +338,17 @@ void R_AddStaticModelSurfaces(void)
 
         iRadiusCull = R_CullPointAndRadius(tiki_worldorigin, SM->cull_radius);
 
-        // FIXME: r_showcull
+        if (r_showcull->integer & 8) {
+            switch (iRadiusCull)
+            {
+            case CULL_IN:
+                R_DebugCircle(tiki_worldorigin, SM->cull_radius * 1.2, 0.0, 1.0, 0.0, 0.5, 0);
+                break;
+            case CULL_OUT:
+                R_DebugCircle(tiki_worldorigin, SM->cull_radius * 1.4 + 16.0, 1.0, 0.2, 0.2, 0.5, 0);
+                break;
+            }
+        }
 
         if (iRadiusCull != CULL_OUT
             && (iRadiusCull != CULL_CLIP || R_CullStaticModel(SM->tiki, tiki_scale, tiki_localorigin) != CULL_OUT)) {
