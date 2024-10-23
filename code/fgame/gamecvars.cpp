@@ -472,7 +472,7 @@ void CVAR_Init(void)
         //
         g_healrate = gi.Cvar_Get("g_healrate", "0", 0);
     }
-    g_allowvote          = gi.Cvar_Get("g_allowvote", "1", 0);
+    g_allowvote          = gi.Cvar_Get("g_allowvote", "1", CVAR_SERVERINFO);
     g_maprotation_filter = gi.Cvar_Get("g_maprotation_filter", "ffa", 0);
     g_warmup             = gi.Cvar_Get("g_warmup", "20", CVAR_ARCHIVE);
     g_doWarmup           = gi.Cvar_Get("g_doWarmup", "1", 0);
