@@ -300,6 +300,8 @@ cvar_t *g_teambalance;
 
 void CVAR_Init(void)
 {
+    int i;
+
     developer      = gi.Cvar_Get("developer", "0", 0);
 
     precache = gi.Cvar_Get("sv_precache", "1", 0);
@@ -598,16 +600,12 @@ void CVAR_Init(void)
     g_voiceChatTime = gi.Cvar_Get("g_voiceChatTime", "2.5", 0);
     g_textChatTime  = gi.Cvar_Get("g_textChatTime", "1", 0);
     g_debugsmoke    = gi.Cvar_Get("g_debugsmoke", "0", CVAR_CHEAT);
-    gi.Cvar_Get("g_obj_alliedtext1", "", CVAR_SERVERINFO);
-    gi.Cvar_Get("g_obj_alliedtext2", "", CVAR_SERVERINFO);
-    gi.Cvar_Get("g_obj_alliedtext3", "", CVAR_SERVERINFO);
-    gi.Cvar_Get("g_obj_alliedtext4", "", CVAR_SERVERINFO);
-    gi.Cvar_Get("g_obj_alliedtext5", "", CVAR_SERVERINFO);
-    gi.Cvar_Get("g_obj_axistext1", "", CVAR_SERVERINFO);
-    gi.Cvar_Get("g_obj_axistext2", "", CVAR_SERVERINFO);
-    gi.Cvar_Get("g_obj_axistext3", "", CVAR_SERVERINFO);
-    gi.Cvar_Get("g_obj_axistext4", "", CVAR_SERVERINFO);
-    gi.Cvar_Get("g_obj_axistext5", "", CVAR_SERVERINFO);
+
+    for (i = 1; i <= 5; i++) {
+        gi.Cvar_Get(va("g_obj_alliedtext%d", i), "", CVAR_SERVERINFO);
+        gi.Cvar_Get(va("g_obj_axistext%d", i), "", CVAR_SERVERINFO);
+    }
+
     gi.Cvar_Get("g_scoreboardpic", "", CVAR_SERVERINFO);
     gi.Cvar_Get("g_scoreboardpicover", "", CVAR_SERVERINFO);
 
@@ -634,7 +632,13 @@ void CVAR_Init(void)
 
     //
     // Added in OPM
+    //  Clear the text objectives and the scoreboard pic
     //
+    for (i = 1; i <= 5; i++) {
+        gi.cvar_set(va("g_obj_alliedtext%d", i), "");
+        gi.cvar_set(va("g_obj_axistext%d", i), "");
+    }
+    gi.cvar_set("g_scoreboardpic", "");
 
     sv_netoptimize = gi.Cvar_Get("sv_netoptimize", "0", 0);
 
