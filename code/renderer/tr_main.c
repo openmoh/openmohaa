@@ -1720,7 +1720,7 @@ void R_DebugCircle(const vec3_t org, float radius, float r, float g, float b, fl
 	for (i = 0; i < CIRCLE_LENGTH; i++) {
 		VectorCopy(pos, lastpos);
 
-		ang = (float)i * 0.0174532925199433f;
+		ang = DEG2RAD((float)(i * 15));
 		pos[0] = (org[0] + sin(ang) * radius * forward[0]) +
 			cos(ang) * radius * right[0];
 		pos[1] = (org[1] + sin(ang) * radius * forward[1]) +
