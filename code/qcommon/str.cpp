@@ -539,8 +539,6 @@ void str::snprintf(char *dst, int size, const char *fmt, ...)
     len = vsnprintf(buffer, sizeof(buffer), fmt, argptr);
     va_end(argptr);
 
-    assert(len < size);
-
     strncpy(dst, buffer, size - 1);
 }
 
