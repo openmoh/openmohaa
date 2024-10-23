@@ -4692,7 +4692,8 @@ void Player::Think(void)
         } else if (!client->pers.dm_primary[0]) {
             Spectator();
             if (m_fWeapSelectTime < level.time) {
-                gi.SendServerCommand(edict - g_entities, "stufftext \"pushmenu_weaponselect\"");
+                m_fWeapSelectTime = level.time + 1.0;
+                UserSelectWeapon(false);
             }
         }
 
