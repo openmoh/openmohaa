@@ -151,6 +151,7 @@ void CG_ParseServerinfo(void)
     cgi.Cvar_Set("cg_fraglimit", Info_ValueForKey(info, "fraglimit"));
     cgi.Cvar_Set("cg_timelimit", Info_ValueForKey(info, "timelimit"));
     cgi.Cvar_Set("cg_maxclients", Info_ValueForKey(info, "sv_gametype"));
+    cgi.Cvar_Set("cg_allowvote", Info_ValueForKey(info, "g_allowvote"));
     cgi.Cvar_Set("cg_obj_alliedtext1", Info_ValueForKey(info, "g_obj_alliedtext1"));
     cgi.Cvar_Set("cg_obj_alliedtext2", Info_ValueForKey(info, "g_obj_alliedtext2"));
     cgi.Cvar_Set("cg_obj_alliedtext3", Info_ValueForKey(info, "g_obj_alliedtext3"));
