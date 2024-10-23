@@ -277,20 +277,27 @@ void UIAddToRotationButton::Released(Event *ev)
 
     if (mapList && rotationList) {
         size_t mapLength = 0;
-        int    item      = mapList->getCurrentItem();
+        int item = mapList->getCurrentItem();
+        str currentItemText;
+        
+        if (item) {
+            currentItemText = mapList->getItemText(item);
+        }
 
         for (i = 1; i <= rotationList->getNumItems(); i++) {
             str text = rotationList->getItemText(i);
+            if (text == currentItemText) {
+                // Added in OPM
+                //  Prevent adding duplicates
+                item = 0;
+                break;
+            }
 
             mapLength += text.length();
         }
 
-        if (item) {
-            str text = mapList->getItemText(item);
-
-            if (prefixLength + mapLength + text.length() < 256) {
-                rotationList->AddItem(text, NULL);
-            }
+        if (item && prefixLength + mapLength + currentItemText.length() < 256) {
+            rotationList->AddItem(currentItemText, NULL);
         }
     }
 
