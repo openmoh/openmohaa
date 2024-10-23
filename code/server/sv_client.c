@@ -323,6 +323,19 @@ void SV_DirectConnect( netadr_t from ) {
 
 	Q_strncpyz( userinfo, Cmd_Argv(1), sizeof(userinfo) );
 
+	if (com_target_game->integer >= TG_MOHTT) {
+		const char* clientType;
+
+		clientType = Info_ValueForKey(userinfo, "clientType");
+		// Added in 2.30
+		//  Only allow breakthrough clients when targeting mohaab
+		if (strcmp(clientType, "Breakthrough")) {
+			NET_OutOfBandPrint(NS_SERVER, from, "droperror\nRequires Medal of Honor Allied Assault Breakthrough\n");
+			Com_DPrintf("    rejected connect - only Breakthrough clients allowed.\n");
+			return;
+		}
+	}
+
 	version = atoi(Info_ValueForKey(userinfo, "protocol"));
 	
 #ifdef LEGACY_PROTOCOL
