@@ -421,10 +421,10 @@ void UIRotationMoveItemUpButton::Released(Event *ev)
     list = static_cast<UIListBox *>(uWinMan.FindWidget("Rotation List"));
     item = list->getCurrentItem();
 
-    if (item < list->getNumItems() && list->getNumItems() > 1) {
-        str text = list->getItemText(item + 1);
+    if (item > 1 && list->getNumItems() > 1) {
+        str text = list->getItemText(item - 1);
 
-        list->DeleteItem(list->getCurrentItem() - 1);
+        list->DeleteItem(item - 1);
         list->InsertItem(text, item);
         list->setCurrentItem(item - 1);
     }
@@ -448,7 +448,7 @@ void UIRotationMoveItemDownButton::Released(Event *ev)
     if (item < list->getNumItems() && list->getNumItems() > 1) {
         str text = list->getItemText(item + 1);
 
-        list->DeleteItem(list->getCurrentItem() + 1);
+        list->DeleteItem(item + 1);
         list->InsertItem(text, item);
         list->setCurrentItem(item + 1);
     }
