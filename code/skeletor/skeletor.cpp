@@ -343,7 +343,7 @@ void AddToBounds(SkelVec3 *bounds, SkelVec3 *newBounds)
             bounds[0][i] = newBounds[0][i];
         }
 
-        if (bounds[1][i] > newBounds[1][i]) {
+        if (bounds[1][i] < newBounds[1][i]) {
             bounds[1][i] = newBounds[1][i];
         }
     }
