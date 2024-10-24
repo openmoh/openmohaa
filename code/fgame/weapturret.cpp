@@ -888,7 +888,7 @@ void TurretGun::P_ThinkActive(void)
         m_pUserCamera->setAngles(vAngles);
         m_pUserCamera->SetPositionOffset(m_vViewOffset);
 
-        owner->client->ps.camera_flags |= CF_CAMERA_ANGLES_ALLOWOFFSET;
+        owner->client->ps.camera_flags |= CF_CAMERA_ANGLES_TURRETMODE;
 
         Player *player = (Player *)owner.Pointer();
 
