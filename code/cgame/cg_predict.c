@@ -523,7 +523,11 @@ void CG_PredictPlayerState(void)
     // the server time is beyond our current cg.time,
     // because predicted player positions are going to
     // be ahead of everything else anyway
-    if (cg.nextSnap && !cg.nextFrameTeleport && !cg.thisFrameTeleport) {
+    // Added in OPM: prediction check
+    //  Don't use the next snapshot if the prediction is about to be disabled
+    //  this prevent "blinking" issues like when entering a vehicle turret gun
+    //  where arms would be seen shortly
+    if (cg.nextSnap && !cg.nextFrameTeleport && !cg.thisFrameTeleport && !(cg.nextSnap->ps.pm_flags & PMF_NO_PREDICTION)) {
         cg.predicted_player_state = cg.nextSnap->ps;
         cg.physicsTime            = cg.nextSnap->serverTime;
     } else {
