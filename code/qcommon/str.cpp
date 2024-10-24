@@ -631,7 +631,7 @@ void TestStringClass(void)
     str  b;         // b.len == 0, b.data == "\0"
     str  c("test"); // c.len == 4, c.data == "test\0"
     str  d(c);      // d.len == 4, d.data == "test\0"
-    str  e(reinterpret_cast<const char *>(NULL));
+    str e(nullptr);
     // e.len == 0, e.data == "\0"					ASSERT!
     size_t i; // i == ?
 
@@ -653,14 +653,14 @@ void TestStringClass(void)
     a = NULL;      // a.len == 0, a.data == "\0"					ASSERT!
     a = c + d;     // a.len == 8, a.data == "testtest\0"
     a = c + "wow"; // a.len == 7, a.data == "testwow\0"
-    a = c + reinterpret_cast<const char *>(NULL);
+    a = c + nullptr;
     // a.len == 4, a.data == "test\0"			ASSERT!
     a = "this" + d; // a.len == 8, a.data == "thistest\0"
-    a = reinterpret_cast<const char *>(NULL) + d;
+    a = nullptr + d;
     // a.len == 4, a.data == "test\0"			ASSERT!
     a += c;     // a.len == 8, a.data == "testtest\0"
     a += "wow"; // a.len == 11, a.data == "testtestwow\0"
-    a += reinterpret_cast<const char *>(NULL);
+    a += nullptr;
     // a.len == 11, a.data == "testtestwow\0"	ASSERT!
 
     a  = "test";  // a.len == 4, a.data == "test\0"
