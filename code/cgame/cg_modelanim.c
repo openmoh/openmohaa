@@ -1237,6 +1237,7 @@ void CG_ModelAnim(centity_t *cent, qboolean bDoShaderTime)
             memset(model.surfaces, 0, sizeof(model.surfaces));
 
             CG_ViewModelAnimation(&model);
+            model.renderfx |= RF_FRAMELERP;
             cgi.ForceUpdatePose(&model);
 
             if ((cent->currentState.eFlags & EF_UNARMED) || cg_drawviewmodel->integer <= 1
