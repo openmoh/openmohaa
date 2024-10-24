@@ -350,6 +350,13 @@ static void CG_InterpolatePlayerStateCamera(void)
         return;
     }
 
+    // Added in 2.0
+    if (cg.predicted_player_state.camera_flags & CF_CAMERA_ANGLES_TURRETMODE) {
+        VectorCopy(cg.nextSnap->ps.camera_origin, cg.camera_origin);
+        VectorCopy(cg.nextSnap->ps.camera_angles, cg.camera_angles);
+        return;
+    }
+
     for (i = 0; i < 3; i++) {
         cg.camera_origin[i] = prev->ps.camera_origin[i] + f * (next->ps.camera_origin[i] - prev->ps.camera_origin[i]);
         cg.camera_angles[i] = LerpAngle(prev->ps.camera_angles[i], next->ps.camera_angles[i], f);
