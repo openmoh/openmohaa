@@ -340,7 +340,6 @@ void VehicleTurretGun::Think(void)
     UpdateSound();
     UpdateFireControl();
 
-    sentOwner = GetSentientOwner();
     if (sentOwner) {
         G_TouchTriggers(sentOwner);
         UpdateOwner(sentOwner);
