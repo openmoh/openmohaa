@@ -1333,12 +1333,13 @@ static void Com_Freeze_f (void) {
 =================
 Com_Crash_f
 
-A way to force a bus error for development reasons
+A way to force a segmentation fault for development purposes,
+like testing the backtrace
 =================
 */
 static void Com_Crash_f(void) {
-	void* invalid_ptr = NULL;
-	*(int*)invalid_ptr = 0x12345678;
+	volatile void* invalid_ptr = NULL;
+	*(volatile int*)invalid_ptr = 0x12345678;
 }
 
 /*
