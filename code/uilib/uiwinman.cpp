@@ -194,7 +194,13 @@ UIWidget *UIWindowManager::getResponder(UIPoint2D& pos)
 
     responder = m_firstResponder;
 
-    if (responder != this) {
+    if (responder != this &&
+        // Added in OPM
+        //  Ignore the first responder if it's disabled
+        //  this prevents the UI system from being blocked
+        //  trying to activate the control
+        responder->CanActivate() && responder->isEnabled()
+        ) {
         return responder;
     }
 
