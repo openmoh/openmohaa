@@ -722,9 +722,10 @@ int		FS_GetModList(  char *listbuf, int bufsize );
 
 void	FS_GetModDescription(const char* modDir, char* description, int descriptionLen);
 
-fileHandle_t	FS_FOpenFileAppend( const char *filename );
 fileHandle_t	FS_FOpenFileWrite( const char *qpath );
-fileHandle_t	FS_FOpenTextFileWrite( const char *qpath );
+fileHandle_t	FS_FOpenFileAppend( const char *filename );
+fileHandle_t	FS_FCreateOpenPipeFile( const char *filename );
+fileHandle_t	FS_FOpenTextFileWrite(const char* qpath);
 // will properly create any needed paths and deal with seperater character issues
 
 void	FS_DeleteFile( const char *filename );

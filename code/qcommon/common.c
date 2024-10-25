@@ -65,6 +65,7 @@ jmp_buf abortframe;		// an ERR_DROP occured, exit the entire frame
 
 
 FILE *debuglogfile;
+static fileHandle_t pipefile;
 static fileHandle_t logfile;
 fileHandle_t	com_journalFile;			// events are written here
 fileHandle_t	com_journalDataFile;		// config files are written here
@@ -86,6 +87,7 @@ cvar_t	*com_sv_running;
 cvar_t	*com_cl_running;
 cvar_t	*com_viewlog;
 cvar_t	*com_logfile;		// 1 = buffer log, 2 = flush after each print
+cvar_t	*com_pipefile;
 cvar_t	*com_showtrace;
 cvar_t	*com_shortversion;
 cvar_t	*com_version;
@@ -253,7 +255,7 @@ void QDECL Com_Printf( const char *fmt, ... ) {
 
 			time( &aclock );
 			newtime = localtime( &aclock );
-
+			
 			logfile = FS_FOpenTextFileWrite( "qconsole.log" );
 
 			if(logfile)
@@ -943,7 +945,6 @@ EVENT LOOP
 static sysEvent_t  eventQueue[ MAX_QUEUED_EVENTS ];
 static int         eventHead = 0;
 static int         eventTail = 0;
-static byte        sys_packetReceived[ MAX_MSGLEN ];
 
 /*
 ================
@@ -1007,41 +1008,41 @@ Com_GetSystemEvent
 */
 sysEvent_t Com_GetSystemEvent(void)
 {
-    sysEvent_t  ev;
-    char* s;
+	sysEvent_t  ev;
+	char        *s;
 
-    // return if we have data
-    if (eventHead > eventTail)
-    {
-        eventTail++;
-        return eventQueue[(eventTail - 1) & MASK_QUEUED_EVENTS];
-    }
+	// return if we have data
+	if ( eventHead > eventTail )
+	{
+		eventTail++;
+		return eventQueue[ ( eventTail - 1 ) & MASK_QUEUED_EVENTS ];
+	}
 
-    // check for console commands
-    s = Sys_ConsoleInput();
-    if (s)
-    {
-        char* b;
-        int   len;
+	// check for console commands
+	s = Sys_ConsoleInput();
+	if ( s )
+	{
+		char  *b;
+		int   len;
 
-        len = strlen(s) + 1;
-        b = (char*)Z_Malloc(len);
-        strcpy(b, s);
-        Com_QueueEvent(0, SE_CONSOLE, 0, 0, len, b);
-    }
+		len = strlen( s ) + 1;
+		b = Z_Malloc( len );
+		strcpy( b, s );
+		Com_QueueEvent( 0, SE_CONSOLE, 0, 0, len, b );
+	}
 
-    // return if we have data
-    if (eventHead > eventTail)
-    {
-        eventTail++;
-        return eventQueue[(eventTail - 1) & MASK_QUEUED_EVENTS];
-    }
+	// return if we have data
+	if ( eventHead > eventTail )
+	{
+		eventTail++;
+		return eventQueue[ ( eventTail - 1 ) & MASK_QUEUED_EVENTS ];
+	}
 
-    // create an empty event to return
-    memset(&ev, 0, sizeof(ev));
-    ev.evTime = Sys_Milliseconds();
+	// create an empty event to return
+	memset( &ev, 0, sizeof( ev ) );
+	ev.evTime = Sys_Milliseconds();
 
-    return ev;
+	return ev;
 }
 
 /*
@@ -1050,7 +1051,7 @@ Com_GetRealEvent
 =================
 */
 sysEvent_t	Com_GetRealEvent( void ) {
-	size_t		r;
+	int			r;
 	sysEvent_t	ev;
 
 	// either get an event from the system or the journal file
@@ -1189,7 +1190,6 @@ int Com_EventLoop( void ) {
 	MSG_Init( &buf, bufData, sizeof( bufData ) );
 
 	while ( 1 ) {
-		NET_FlushPacketQueue();
 		ev = Com_GetEvent();
 
 		// if no more events are available
@@ -1210,57 +1210,26 @@ int Com_EventLoop( void ) {
 		}
 
 
-		switch ( ev.evType ) {
-		default:
-			Com_Error( ERR_FATAL, "Com_EventLoop: bad event type %i", ev.evType );
+		switch(ev.evType)
+		{
+			case SE_KEY:
+				CL_KeyEvent( ev.evValue, ev.evValue2, ev.evTime );
 			break;
-        case SE_NONE:
-            break;
-		case SE_KEY:
-			CL_KeyEvent( ev.evValue, ev.evValue2, ev.evTime );
+			case SE_CHAR:
+				CL_CharEvent( ev.evValue );
 			break;
-		case SE_CHAR:
-			CL_CharEvent( ev.evValue );
+			case SE_MOUSE:
+				CL_MouseEvent( ev.evValue, ev.evValue2, ev.evTime );
 			break;
-		case SE_MOUSE:
-			CL_MouseEvent( ev.evValue, ev.evValue2, ev.evTime );
+			case SE_JOYSTICK_AXIS:
+				CL_JoystickEvent( ev.evValue, ev.evValue2, ev.evTime );
 			break;
-		case SE_JOYSTICK_AXIS:
-			CL_JoystickEvent( ev.evValue, ev.evValue2, ev.evTime );
+			case SE_CONSOLE:
+				Cbuf_AddText( (char *)ev.evPtr );
+				Cbuf_AddText( "\n" );
 			break;
-		case SE_CONSOLE:
-			Cbuf_AddText( (char *)ev.evPtr );
-			Cbuf_AddText( "\n" );
-			break;
-		case SE_PACKET:
-			// this cvar allows simulation of connections that
-			// drop a lot of packets.  Note that loopback connections
-			// don't go through here at all.
-			if ( com_dropsim->value > 0 ) {
-				static int seed;
-
-				if ( Q_random( &seed ) < com_dropsim->value ) {
-					break;		// drop this packet
-				}
-			}
-
-			evFrom = *(netadr_t *)ev.evPtr;
-			buf.cursize = ev.evPtrLength - sizeof( evFrom );
-
-			// we must copy the contents of the message out, because
-			// the event buffers are only large enough to hold the
-			// exact payload, but channel messages need to be large
-			// enough to hold fragment reassembly
-			if ( (unsigned)buf.cursize > buf.maxsize ) {
-				Com_Printf("Com_EventLoop: oversize packet\n");
-				continue;
-			}
-			Com_Memcpy( buf.data, (byte *)((netadr_t *)ev.evPtr + 1), buf.cursize );
-			if ( com_sv_running->integer ) {
-				Com_RunAndTimeServerPacket( &evFrom, &buf );
-			} else {
-				CL_PacketEvent( evFrom, &buf );
-			}
+			default:
+				Com_Error( ERR_FATAL, "Com_EventLoop: bad event type %i", ev.evType );
 			break;
 		}
 
@@ -1346,13 +1315,11 @@ static void Com_Freeze_f (void) {
 =================
 Com_Crash_f
 
-A way to force a segmentation fault for development purposes,
-like testing the backtrace
+A way to force a bus error for development reasons
 =================
 */
-static void Com_Crash_f(void) {
-	volatile void* invalid_ptr = NULL;
-	*(volatile int*)invalid_ptr = 0x12345678;
+static void Com_Crash_f( void ) {
+	* ( volatile int * ) 0 = 0x12345678;
 }
 
 /*
@@ -1617,6 +1584,22 @@ static void Com_DetectAltivec(void)
 
 /*
 =================
+Com_InitRand
+Seed the random number generator, if possible with an OS supplied random seed.
+=================
+*/
+static void Com_InitRand(void)
+{
+	unsigned int seed;
+
+	if(Sys_RandomBytes((byte *) &seed, sizeof(seed)))
+		srand(seed);
+	else
+		srand(time(NULL));
+}
+
+/*
+=================
 Com_Init
 =================
 */
@@ -1625,6 +1608,7 @@ void Com_Init( char *commandLine ) {
 	int			iEnd;
 	const char	*s;
 	char		configname[ 128 ];
+	int			qport;
 
 	Com_Printf( "--- Common Initialization ---\n" );
 
@@ -1635,6 +1619,15 @@ void Com_Init( char *commandLine ) {
 	if ( setjmp (abortframe) ) {
 		Sys_Error("Error during initialization");
 	}
+
+	// Clear queues
+	Com_Memset( &eventQueue[ 0 ], 0, MAX_QUEUED_EVENTS * sizeof( sysEvent_t ) );
+
+	// initialize the weak pseudo-random number generator for use later.
+	Com_InitRand();
+
+	// do this before anything else decides to push events
+	Com_InitPushEvent();
 
 	// prepare enough of the subsystems to handle
 	// cvar and command buffer management
@@ -1830,7 +1823,12 @@ void Com_Init( char *commandLine ) {
 	demo_protocols[0] = com_protocol->integer;
 
 	Sys_Init();
-	Netchan_Init( Com_Milliseconds() & 0xffff );	// pick a port value that should be nice and random
+
+	//Sys_InitPIDFile(FS_GetCurrentGameDir());
+
+	// Pick a random port value
+	Com_RandomBytes((byte*)&qport, sizeof(int));
+	Netchan_Init(qport & 0xffff);
 	SV_Init();
 
 	com_dedicated->modified = qfalse;
@@ -1859,11 +1857,74 @@ void Com_Init( char *commandLine ) {
 
 	com_fullyInitialized = qtrue;
 
+	// always set the cvar, but only print the info if it makes sense.
+	Com_DetectAltivec();
+#if idppc
+	Com_Printf ("Altivec support is %s\n", com_altivec->integer ? "enabled" : "disabled");
+#endif
+
+	com_pipefile = Cvar_Get( "com_pipefile", "", CVAR_ARCHIVE|CVAR_LATCH );
+	if( com_pipefile->string[0] )
+	{
+		pipefile = FS_FCreateOpenPipeFile( com_pipefile->string );
+	}
+
 	RecoverLostAutodialData();
 
 	iEnd = Sys_Milliseconds();
 	Com_Printf( "--- Common Initialization Complete --- %i ms\n", iEnd - iStart );
 }
+
+/*
+===============
+Com_ReadFromPipe
+
+Read whatever is in com_pipefile, if anything, and execute it
+===============
+*/
+void Com_ReadFromPipe( void )
+{
+	static char buf[MAX_STRING_CHARS];
+	static int accu = 0;
+	int read;
+
+	if( !pipefile )
+		return;
+
+	while( ( read = FS_Read( buf + accu, sizeof( buf ) - accu - 1, pipefile ) ) > 0 )
+	{
+		char *brk = NULL;
+		int i;
+
+		for( i = accu; i < accu + read; ++i )
+		{
+			if( buf[ i ] == '\0' )
+				buf[ i ] = '\n';
+			if( buf[ i ] == '\n' || buf[ i ] == '\r' )
+				brk = &buf[ i + 1 ];
+		}
+		buf[ accu + read ] = '\0';
+
+		accu += read;
+
+		if( brk )
+		{
+			char tmp = *brk;
+			*brk = '\0';
+			Cbuf_ExecuteText( EXEC_APPEND, buf );
+			*brk = tmp;
+
+			accu -= brk - buf;
+			memmove( buf, brk, accu + 1 );
+		}
+		else if( accu >= sizeof( buf ) - 1 ) // full
+		{
+			Cbuf_ExecuteText( EXEC_APPEND, buf );
+			accu = 0;
+		}
+	}
+}
+
 
 //==================================================================
 
@@ -2031,17 +2092,13 @@ void Com_Frame( void ) {
 	int		msec, minMsec;
 	int		timeVal, timeValSV;
 	static int	lastTime = 0, bias = 0;
-	int key;
-
+ 
 	int		timeBeforeFirstEvents;
-	int           timeBeforeServer;
-	int           timeBeforeEvents;
-	int           timeBeforeClient;
-	int           timeAfter;
-
-
-
-
+	int		timeBeforeServer;
+	int		timeBeforeEvents;
+	int		timeBeforeClient;
+	int		timeAfter;
+  
 
 	if ( setjmp (abortframe) ) {
 		return;			// an ERR_DROP was thrown
@@ -2066,10 +2123,6 @@ void Com_Frame( void ) {
 	timeBeforeEvents =0;
 	timeBeforeClient = 0;
 	timeAfter = 0;
-
-
-	// old net chan encryption key
-	key = 0x87243987;
 
 #ifndef DEDICATED
 	// write config file if anything changed
@@ -2289,8 +2342,7 @@ void Com_Frame( void ) {
 		c_pointcontents = 0;
 	}
 
-	// old net chan encryption key
-	key = lastTime * 0x87243987;
+	Com_ReadFromPipe();
 
 	com_frameNumber++;
 }
