@@ -627,6 +627,12 @@ World::World()
     m_fNorth = 0;
 }
 
+World::~World()
+{
+    world_dying = false;
+    FreeTargetList();
+}
+
 void World::UpdateConfigStrings(void)
 {
     //
@@ -1034,8 +1040,8 @@ Listener *World::GetScriptTarget(str targetname)
 
     return NULL;
 }
-
-TargetList*World::GetExistingTargetList(const str& targetname)
+ 
+TargetList *World::GetExistingTargetList(const str& targetname)
 {
     TargetList* targetList;
     int i;

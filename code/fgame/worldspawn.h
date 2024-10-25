@@ -136,6 +136,7 @@ public:
     CLASS_PROTOTYPE(World);
 
     World();
+    ~World();
 
     void AddTargetEntity(SimpleEntity *ent);
     void AddTargetEntityAt(SimpleEntity *ent, int index);
