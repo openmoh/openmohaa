@@ -651,6 +651,9 @@ static void AddFilter(char* filter, const char* value) {
 void UIFAKKServerList::CancelRefresh( Event *ev )
 {
 	ServerListHalt(m_serverList[0]);
+    if (m_serverList[1]) {
+        ServerListHalt(m_serverList[1]);
+    }
 }
 
 void UIFAKKServerList::NewServerList( void )
