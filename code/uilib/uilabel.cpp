@@ -374,7 +374,7 @@ void UILabel::ProcessSounds()
             m_bOneShotTriggered = true;
             m_iNextOneShotTime  = Sys_Milliseconds() + m_fOneShotSoundTime * 1000.0f;
         } else if (m_sLoopingSoundName.length()) {
-            uii.Cmd_Stuff("tmstartloop " + m_sLoopingSoundName);
+            uii.Cmd_Stuff("tmstartloop " + m_sLoopingSoundName + '\n');
 
             m_iNextOneShotTime = 0;
             m_iSoundState      = 0;
