@@ -1002,7 +1002,7 @@ void World::SetNorthYaw(Event *ev)
 
 Listener *World::GetTarget(str targetname, bool quiet)
 {
-    TargetList* targetList = GetTargetList(targetname);
+    TargetList *targetList = GetTargetList(targetname);
 
     if (!targetList) {
         return NULL;
@@ -1040,11 +1040,11 @@ Listener *World::GetScriptTarget(str targetname)
 
     return NULL;
 }
- 
+
 TargetList *World::GetExistingTargetList(const str& targetname)
 {
-    TargetList* targetList;
-    int i;
+    TargetList *targetList;
+    int         i;
 
     if (!targetname.length()) {
         return NULL;
@@ -1062,10 +1062,12 @@ TargetList *World::GetExistingTargetList(const str& targetname)
 
 TargetList *World::GetTargetList(str& targetname)
 {
-    TargetList* targetList;
-    int i;
+    TargetList *targetList;
+    int         i;
 
     if (!targetname.length()) {
+        // Fixed in OPM
+        //  Don't create a targetlist for the empty target name
         return NULL;
     }
 
@@ -1084,21 +1086,33 @@ TargetList *World::GetTargetList(str& targetname)
 
 void World::AddTargetEntity(SimpleEntity *ent)
 {
-    TargetList *list = GetTargetList(ent->TargetName());
+    TargetList *targetList = GetTargetList(ent->TargetName());
 
-    list->AddEntity(ent);
+    if (!targetList) {
+        return;
+    }
+
+    targetList->AddEntity(ent);
 }
 
 void World::AddTargetEntityAt(SimpleEntity *ent, int index)
 {
-    TargetList *list = GetTargetList(ent->TargetName());
+    TargetList *targetList = GetTargetList(ent->TargetName());
 
-    list->AddEntityAt(ent, index);
+    if (!targetList || !index) {
+        return;
+    }
+
+    targetList->AddEntityAt(ent, index);
 }
 
 int World::GetTargetnameIndex(SimpleEntity *ent)
 {
     TargetList *targetList = GetTargetList(ent->TargetName());
+
+    if (!targetList) {
+        return 0;
+    }
 
     return targetList->GetEntityIndex(ent);
 }
@@ -1109,21 +1123,17 @@ void World::RemoveTargetEntity(SimpleEntity *ent)
         return;
     }
 
-    str targetname = ent->TargetName();
-
-    if (!targetname.length()) {
+    TargetList *targetList = GetExistingTargetList(ent->TargetName());
+    if (!targetList) {
         return;
     }
 
-    TargetList *list = GetExistingTargetList(targetname);
-    if (list) {
-        list->RemoveEntity(ent);
-    }
+    targetList->RemoveEntity(ent);
 }
 
 SimpleEntity *World::GetNextEntity(str targetname, SimpleEntity *ent)
 {
-    TargetList* targetList = GetExistingTargetList(targetname);
+    TargetList *targetList = GetExistingTargetList(targetname);
     if (!targetList) {
         return NULL;
     }
@@ -1144,9 +1154,9 @@ void World::FreeTargetList()
 
 void World::Archive(Archiver& arc)
 {
-    int num;
-    int num2;
-    int i;
+    int         num;
+    int         num2;
+    int         i;
     TargetList *targetList;
 
     if (arc.Loading()) {
@@ -1159,7 +1169,7 @@ void World::Archive(Archiver& arc)
             targetList = new TargetList(targetname);
             m_targetListContainer.AddObject(targetList);
 
-            arc.ArchiveObjectPosition((LightClass*)&targetList->list);
+            arc.ArchiveObjectPosition((LightClass *)&targetList->list);
             arc.ArchiveInteger(&num2);
 
             targetList->list.Resize(num2);
@@ -1172,7 +1182,7 @@ void World::Archive(Archiver& arc)
             targetList = m_targetListContainer.ObjectAt(i);
 
             arc.ArchiveString(&targetList->targetname);
-            arc.ArchiveObjectPosition((LightClass*)&targetList->list);
+            arc.ArchiveObjectPosition((LightClass *)&targetList->list);
 
             num2 = targetList->list.NumObjects();
             arc.ArchiveInteger(&num2);
