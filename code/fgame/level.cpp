@@ -2488,19 +2488,19 @@ void Level::Archive(Archiver& arc)
     Listener::Archive(arc);
 
     if (arc.Saving()) {
-        prespawn = classinfo()->WaitTillDefined("prespawn");
-        spawn    = classinfo()->WaitTillDefined("spawn");
+        prespawn = WaitTillDefined(STRING_PRESPAWN);
+        spawn    = WaitTillDefined(STRING_SPAWN);
     }
 
     arc.ArchiveBool(&prespawn);
     arc.ArchiveBool(&spawn);
 
     if (arc.Loading()) {
-        if (prespawn) {
+        if (!prespawn) {
             RemoveWaitTill(STRING_PRESPAWN);
         }
 
-        if (spawn) {
+        if (!spawn) {
             RemoveWaitTill(STRING_SPAWN);
         }
     }
