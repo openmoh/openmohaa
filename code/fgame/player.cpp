@@ -5871,13 +5871,18 @@ void Player::SetFov(float newFov)
 
 void Player::EventSetSelectedFov(Event *ev)
 {
+    float fOldSelectedFov;
+
     if (ev->NumArgs() < 1) {
         gi.SendServerCommand(edict - g_entities, "print \"Fov = %d\n\"", (unsigned int)fov);
         return;
     }
 
+    fOldSelectedFov = selectedfov;
     SetSelectedFov(ev->GetFloat(1));
-    SetFov(selectedfov);
+    if (fov == fOldSelectedFov) {
+        SetFov(selectedfov);
+    }
 }
 
 void Player::SetSelectedFov(float newFov)
