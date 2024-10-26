@@ -4387,7 +4387,10 @@ CL_ServerRestarted
 ==================
 */
 void CL_ServerRestarted( void ) {
-	S_StopAllSounds2( qfalse );
+	//S_StopAllSounds2( qfalse );
+	// Fixed in OPM
+	//  Also stop the music
+	S_StopAllSounds2( qtrue );
 
 	UI_ServerLoaded();
 	UI_ClearState();
