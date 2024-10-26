@@ -4565,7 +4565,12 @@ U32 openal_channel_two_d_stream::sample_offset()
         // it probably means the sound is looped and will restart from the beginning
         if (streamNextOffset + playerByteOffset <= totalQueueLength) {
             // near the end of the stream
-            offset = stream->info.size + streamNextOffset - totalQueueLength + playerByteOffset;
+            if (stream->info.size > totalQueueLength) {
+                offset = stream->info.size + streamNextOffset - totalQueueLength + playerByteOffset;
+            } else {
+                // the buffer is really small
+                offset = (streamNextOffset - totalQueueLength + playerByteOffset) % stream->info.size;
+            }
         } else {
             // it is past end of stream
             // so, start from the beginning of the stream
