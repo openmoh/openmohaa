@@ -1843,7 +1843,7 @@ void ThrobbingBox_Explosive::OnUse(Event *ev)
 
     if (m_fStopwatchDuration > 0) {
         Player *player = static_cast<Player *>(G_FindTarget(this, "player"));
-        player->SetStopwatch(m_fStopwatchDuration, SWT_FUSE);
+        player->SetStopwatch(m_fStopwatchDuration, SWT_NORMAL);
         LoopSound(m_sTickSound);
     }
 
