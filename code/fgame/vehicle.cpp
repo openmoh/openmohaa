@@ -6511,6 +6511,7 @@ void Vehicle::Archive(Archiver& arc)
     arc.ArchiveFloat(&conesize);
     arc.ArchiveFloat(&maxtracedist);
     arc.ArchiveString(&weaponName);
+    arc.ArchiveString(&vehicleName);
     arc.ArchiveVector(&last_origin);
     arc.ArchiveVector(&seatangles);
     arc.ArchiveVector(&seatoffset);
