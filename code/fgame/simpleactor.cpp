@@ -85,7 +85,7 @@ SimpleActor::SimpleActor()
     m_csNextAnimString        = STRING_NULL;
 
     for (int i = 0; i < MAX_FRAMEINFOS; i++) {
-        m_weightType[i] = 0.0f;
+        m_weightType[i] = ANIM_WEIGHT_NONE;
     }
 
     m_ChangeActionAnimIndex = -1;
@@ -665,7 +665,7 @@ void SimpleActor::StopAnimating(int slot)
 {
     int index = 0;
 
-    m_weightType[slot] = 0;
+    m_weightType[slot] = ANIM_WEIGHT_NONE;
     DoExitCommands(slot);
 
     if (edict->s.frameInfo[slot].index || gi.TIKI_NumAnims(edict->tiki) <= 1) {
