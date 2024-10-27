@@ -453,7 +453,7 @@ void skeletor_c::SetPose(
         afterFrame   = 0.0;
 
         numFramesAdded =
-            animData->GetFrameNums(currentFrame.time, 0.01f, &beforeFrame, &afterFrame, &beforeWeight, &afterWeight);
+            animData->GetFrameNums(currentFrame.time, 0.001f, &beforeFrame, &afterFrame, &beforeWeight, &afterWeight);
 
         frame1                 = &m_frameList.m_blendInfo[blendFrame];
         frame1->frame          = beforeFrame;
