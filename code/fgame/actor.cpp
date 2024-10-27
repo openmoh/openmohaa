@@ -7320,6 +7320,8 @@ void Actor::UpdateUpperAnim(void)
         if (!m_bActionAnimSet) {
             Unregister(STRING_UPPERANIMDONE);
         }
+
+        return;
     }
 
     gi.Anim_FlagsSkel(edict->tiki, anim);
