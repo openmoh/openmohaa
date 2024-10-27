@@ -2263,7 +2263,7 @@ float MSG_ReadPackedAnimTime_ver_15(msg_t* msg, int bits, float fromValue, float
 {
 	int packed;
 	if (!MSG_ReadBits(msg, 1)) {
-		return ceil((fromValue + frameTime) * 1000) / 1000;
+		return ceil((fromValue + frameTime) * 10000) / 10000;
 	}
 
 	packed = MSG_ReadBits(msg, bits);
