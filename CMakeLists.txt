@@ -84,7 +84,7 @@ ELSE()
 ENDIF()
 
 IF(CMAKE_BUILD_TYPE MATCHES Debug)
-	add_definitions(-D_DEBUG)
+	add_compile_definitions(_DEBUG)
 
 	# NOTE: The following may mess up function importation
 	#if(UNIX)
@@ -92,6 +92,9 @@ IF(CMAKE_BUILD_TYPE MATCHES Debug)
 	#	set(CMAKE_ENABLE_EXPORTS ON)
 	#	message(STATUS "Enabling exports on Unix for backtrace")
 	#endif()
+ELSE()
+	# Non-debug builds
+	add_compile_definitions(NDEBUG)
 ENDIF()
 
 if(APPLE)
