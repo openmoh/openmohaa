@@ -3212,7 +3212,7 @@ void Actor::GetMoveInfo(mmove_t *mm)
                 m_Dest - Vector(0, 0, 16384),
                 (Entity *)NULL,
                 MASK_MOVEINFO,
-                qfalse,
+                false,
                 "Actor::GetMoveInfo"
             );
 
@@ -3744,7 +3744,7 @@ void Actor::DoMove(void)
     case ANIM_MODE_SCRIPTED:
         setAngles(angles + Vector(0, angular_delta, 0));
         trace = G_Trace(
-            origin, mins, maxs, origin + frame_delta, this, edict->clipmask & ~MASK_SCRIPT_SLAVE, qtrue, "Actor"
+            origin, mins, maxs, origin + frame_delta, this, edict->clipmask & ~MASK_SCRIPT_SLAVE, true, "Actor"
         );
         SafeSetOrigin(trace.endpos);
         velocity = frame_delta / level.frametime;
@@ -3956,7 +3956,7 @@ bool Actor::CanShoot(Entity *ent)
     Vector vGunPos;
 
     if (FriendlyInLineOfFire(ent)) {
-		// Added in 2.0
+        // Added in 2.0
         //  Check if a friend is in sight
         bCanShoot = false;
     } else if (ent->IsSubclassOfSentient()) {
@@ -3974,7 +3974,7 @@ bool Actor::CanShoot(Entity *ent)
                     this,
                     sen,
                     MASK_CANSEE,
-                    qfalse,
+                    false,
                     "Actor::CanShoot centroid"
                 )) {
                 bCanShoot = true;
@@ -3986,7 +3986,7 @@ bool Actor::CanShoot(Entity *ent)
                            this,
                            sen,
                            MASK_CANSEE,
-                           qfalse,
+                           false,
                            "Actor::CanShoot eyes"
                        )) {
                 bCanShoot = true;
@@ -4027,7 +4027,7 @@ bool Actor::CanSeeFrom(vec3_t pos, Entity *ent)
         return false;
     }
 
-    return G_SightTrace(pos, vec_zero, vec_zero, ent->centroid, this, ent, MASK_CANSEE, qfalse, "Actor::CanSeeFrom");
+    return G_SightTrace(pos, vec_zero, vec_zero, ent->centroid, this, ent, MASK_CANSEE, false, "Actor::CanSeeFrom");
 }
 
 /*
@@ -4300,14 +4300,14 @@ void Actor::ShowInfo(float fDot, float fDist)
 
         G_DebugLine(centroid, a, 0.0, 1.0, 0.0, 1.0);
 
-        G_DebugCircle(a, m_fLeash, 0.0, 1.0, 0.0, 1.0, qtrue);
+        G_DebugCircle(a, m_fLeash, 0.0, 1.0, 0.0, 1.0, true);
 
-        G_DebugCircle(centroid, m_fMinDistance, 1.0, 0.0, 0.0, 1.0, qtrue);
+        G_DebugCircle(centroid, m_fMinDistance, 1.0, 0.0, 0.0, 1.0, true);
 
-        G_DebugCircle(centroid, m_fMaxDistance, 0.0, 0.0, 1.0, 1.0, qtrue);
+        G_DebugCircle(centroid, m_fMaxDistance, 0.0, 0.0, 1.0, 1.0, true);
     } else if (g_entinfo->integer == 2) {
-        G_DebugCircle(centroid, m_fHearing, 1.0, 0.0, 0.0, 1.0, qtrue);
-        G_DebugCircle(centroid, m_fSight, 0.0, 0.0, 1.0, 1.0, qtrue);
+        G_DebugCircle(centroid, m_fHearing, 1.0, 0.0, 0.0, 1.0, true);
+        G_DebugCircle(centroid, m_fSight, 0.0, 0.0, 1.0, 1.0, true);
     }
 }
 
@@ -5057,7 +5057,7 @@ void Actor::HandlePain(Event *ev)
         //FIXME: macro
         SetCuriousAnimHint(7);
 
-		// Added in 2.30 the m_bIsCurous check
+        // Added in 2.30 the m_bIsCurous check
         if (m_bEnableEnemy && m_ThinkStates[THINKLEVEL_IDLE] == THINKSTATE_IDLE && m_bIsCurious) {
             SetEnemyPos(attacker->origin);
             m_pszDebugState = "from_pain";
@@ -5394,7 +5394,8 @@ void Actor::MovePath(float fMoveSpeed)
         if (m_WallDir) {
             if (level.inttime >= m_iWallDodgeTimeout) {
                 m_WallDir = 0;
-            } else if (DotProduct2D(mm.desired_dir, m_PrevObstacleNormal) > 0 && CrossProduct2D(mm.desired_dir, m_PrevObstacleNormal) < 0) {
+            } else if (DotProduct2D(mm.desired_dir, m_PrevObstacleNormal) > 0
+                       && CrossProduct2D(mm.desired_dir, m_PrevObstacleNormal) < 0) {
                 m_iWallDodgeTimeout = level.inttime + 1000;
                 m_WallDir           = -m_WallDir;
             }
@@ -5653,7 +5654,7 @@ void Actor::EventDamagePuff(Event *ev)
 {
     Vector pos = ev->GetVector(1);
     Vector dir = ev->GetVector(2);
-    int      bulletbits;
+    int    bulletbits;
 
     // Fixed in OPM
     //  Large bullet flag normally take 2 bits since 2.0.
@@ -6213,7 +6214,7 @@ bool Actor::MoveToPatrolCurrentNode(void)
             IdleLook();
             Anim_Idle();
             // tell scripts the move has failed
-            parm.movefail = qtrue;
+            parm.movefail = true;
             return false;
         }
 
@@ -6603,15 +6604,7 @@ void Actor::DetectSmokeGrenades(void)
 
     if (fDistSquared > Square(256) || InFOV(sprite->origin)) {
         if (G_SightTrace(
-                eyePos,
-                vec_zero,
-                vec_zero,
-                sprite->origin,
-                this,
-                NULL,
-                MASK_CANSEE,
-                qfalse,
-                "Actor::DetectSmokeGrenades"
+                eyePos, vec_zero, vec_zero, sprite->origin, this, NULL, MASK_CANSEE, false, "Actor::DetectSmokeGrenades"
             )) {
             m_PotentialEnemies.ConfirmEnemy(this, sprite->owner);
         }
@@ -6703,12 +6696,12 @@ void Actor::EventSetAnim(Event *ev)
     int       slot   = 0;
     int       anim;
     const_str flagVal;
-    qboolean  flagged = qfalse;
+    qboolean  flagged = false;
 
     switch (ev->NumArgs()) {
     case 4:
         flagVal = ev->GetConstString(4);
-        flagged = qtrue;
+        flagged = true;
         if (flagVal != STRING_FLAGGED) {
             ScriptError("unknown keyword '%s', expected 'flagged'", Director.GetString(flagVal).c_str());
         }
@@ -6739,11 +6732,11 @@ void Actor::EventSetAnim(Event *ev)
     }
 
     if (!slot) {
-        flagged = qtrue;
+        flagged = true;
     }
 
     if (flagged) {
-        parm.motionfail = qtrue;
+        parm.motionfail = true;
     }
 
     if (!m_bLevelMotionAnim) {
@@ -6757,7 +6750,7 @@ void Actor::EventSetAnim(Event *ev)
         StartMotionAnimSlot(slot, anim, weight);
         if (flagged) {
             m_iMotionSlot   = GetMotionSlot(slot);
-            parm.motionfail = qfalse;
+            parm.motionfail = false;
         }
     }
 }
@@ -6771,10 +6764,10 @@ End action animation.
 */
 void Actor::EventEndActionAnim(Event *ev)
 {
-    parm.upperfail = qtrue;
+    parm.upperfail = true;
     if (!m_bLevelActionAnim) {
         ChangeActionAnim();
-        parm.upperfail = qfalse;
+        parm.upperfail = false;
     }
 }
 
@@ -6801,7 +6794,7 @@ void Actor::EventSetMotionAnim(Event *ev)
         UnknownAnim(Director.GetString(name), edict->tiki);
     }
 
-    parm.motionfail = qtrue;
+    parm.motionfail = true;
 
     if (!m_bLevelMotionAnim) {
         ChangeMotionAnim();
@@ -6812,7 +6805,7 @@ void Actor::EventSetMotionAnim(Event *ev)
         // set the slot
         m_iMotionSlot = GetMotionSlot(0);
 
-        parm.motionfail = qfalse;
+        parm.motionfail = false;
     }
 }
 
@@ -6850,7 +6843,7 @@ void Actor::EventSetAimMotionAnim(Event *ev)
         UnknownAnim(Director.GetString(name), edict->tiki);
     }
 
-    parm.motionfail = qtrue;
+    parm.motionfail = true;
 
     if (!m_bLevelMotionAnim) {
         ChangeMotionAnim();
@@ -6863,7 +6856,7 @@ void Actor::EventSetAimMotionAnim(Event *ev)
         StartAimMotionAnimSlot(2, anim_high);
 
         m_iMotionSlot   = GetMotionSlot(1);
-        parm.motionfail = qfalse;
+        parm.motionfail = false;
     }
 }
 
@@ -6914,7 +6907,7 @@ void Actor::EventSetActionAnim(Event *ev)
         UnknownAnim(derivedName, edict->tiki);
     }
 
-    parm.upperfail = qtrue;
+    parm.upperfail = true;
     if (!m_bLevelActionAnim) {
         ChangeActionAnim();
         m_bAimAnimSet    = true;
@@ -6925,7 +6918,7 @@ void Actor::EventSetActionAnim(Event *ev)
         StartAimAnimSlot(1, anim_forward);
         StartAimAnimSlot(2, anim_down);
         m_iActionSlot  = GetActionSlot(0);
-        parm.upperfail = qfalse;
+        parm.upperfail = false;
     }
 }
 
@@ -6980,13 +6973,16 @@ void Actor::EventSetUpperAnim(Event *ev)
         UnknownAnim(Director.GetString(name), edict->tiki);
     }
 
-    parm.upperfail = qtrue;
+    parm.upperfail = true;
+
     if (!m_bLevelActionAnim) {
         ChangeActionAnim();
         m_bActionAnimSet = true;
+
         StartActionAnimSlot(anim);
-        m_iActionSlot  = SimpleActor::GetActionSlot(0);
-        parm.upperfail = qfalse;
+        m_iActionSlot = GetActionSlot(0);
+
+        parm.upperfail = false;
     }
 }
 
@@ -7098,7 +7094,7 @@ void Actor::EventSetSayAnim(Event *ev)
     }
 
     name         = ev->GetConstString(1);
-    parm.sayfail = qtrue;
+    parm.sayfail = true;
     anim         = gi.Anim_NumForName(edict->tiki, Director.GetString(name));
 
     if (anim == -1) {
@@ -7154,7 +7150,7 @@ void Actor::EventSetSayAnim(Event *ev)
         m_iSaySlot = GetSaySlot();
     }
 
-    parm.sayfail = qfalse;
+    parm.sayfail = false;
 }
 
 /*
@@ -7708,10 +7704,7 @@ void Actor::SetThinkState(eThinkState state, eThinkLevel level)
         m_csIdleMood = STRING_NERVOUS;
         map          = m_ThinkMap[THINKSTATE_ATTACK];
 
-        if (map != THINK_ALARM
-            && map != THINK_WEAPONLESS
-            && map != THINK_DOG_ATTACK
-            && !GetWeapon(WEAPON_MAIN)) {
+        if (map != THINK_ALARM && map != THINK_WEAPONLESS && map != THINK_DOG_ATTACK && !GetWeapon(WEAPON_MAIN)) {
             Com_Printf(
                 "^~^~^ LD ERROR: (entnum %i, radnum %i, targetname '%s'):    forcing weaponless attack state.\n"
                 "^~^~^ Level designers should specify 'type_attack weaponless' for this guy.\n",
@@ -8144,8 +8137,8 @@ void Actor::EndState(int level)
 {
     GlobalFuncs_t *think;
 
-    think                 = &GlobalFuncs[m_Think[level]];
-    m_Think[level]        = THINK_VOID;
+    think          = &GlobalFuncs[m_Think[level]];
+    m_Think[level] = THINK_VOID;
 
     if (think->EndState) {
         (this->*think->EndState)();
@@ -8273,8 +8266,8 @@ void Actor::FixAIParameters(void)
     if (m_pTetherEnt) {
         fMinLeash = 64;
         if (m_pTetherEnt->IsSubclassOfEntity()) {
-            Entity* pEnt = static_cast<Entity*>(m_pTetherEnt.Pointer());
-            fMinLeash = pEnt->maxs[0] - pEnt->mins[1] + pEnt->maxs[1] - pEnt->mins[1];
+            Entity *pEnt = static_cast<Entity *>(m_pTetherEnt.Pointer());
+            fMinLeash    = pEnt->maxs[0] - pEnt->mins[1] + pEnt->maxs[1] - pEnt->mins[1];
         }
 
         if (m_fLeash < fMinLeash) {
@@ -8606,7 +8599,7 @@ bool Actor::PassesTransitionConditions_Disguise(void)
         this,
         player,
         MASK_TRANSITION,
-        qfalse,
+        false,
         "Actor::PassesTransitionConditions_Disguise"
     );
 }
@@ -9240,8 +9233,7 @@ void Actor::WeaponSound(int iType, vec3_t sound_origin, float fDistSquared, floa
         pEnemy = pOwner->m_Enemy;
     }
 
-    if (pOwner->m_Team == m_Team && !pEnemy && pOwner->IsSubclassOfActor()
-        && originator->IsSubclassOfWeapon()) {
+    if (pOwner->m_Team == m_Team && !pEnemy && pOwner->IsSubclassOfActor() && originator->IsSubclassOfWeapon()) {
         Actor  *pActor  = static_cast<Actor *>(pOwner);
         Weapon *pWeapon = static_cast<Weapon *>(originator);
 
@@ -9464,7 +9456,7 @@ void Actor::NotifySquadmateKilled(Sentient *pSquadMate, Sentient *pAttacker)
             this,
             pSquadMate,
             MASK_AI_CANSEE,
-            qfalse,
+            false,
             "Actor::NotifySquadmateKilled"
         );
     }
@@ -9647,7 +9639,7 @@ bool Actor::ValidGrenadePath(const Vector& vFrom, const Vector& vTo, Vector& vVe
         G_DebugLine(vFrom, vPoint1, 1.0, 0.5, 0.5, 1.0);
     }
 
-    if (!G_SightTrace(vFrom, mins, maxs, vPoint1, this, NULL, MASK_GRENADEPATH, qfalse, "Actor::ValidGrenadePath 1")) {
+    if (!G_SightTrace(vFrom, mins, maxs, vPoint1, this, NULL, MASK_GRENADEPATH, false, "Actor::ValidGrenadePath 1")) {
         return false;
     }
 
@@ -9660,9 +9652,7 @@ bool Actor::ValidGrenadePath(const Vector& vFrom, const Vector& vTo, Vector& vVe
         G_DebugLine(vPoint1, vPoint2, 1.0, 0.5, 0.5, 1.0);
     }
 
-    if (!G_SightTrace(
-            vPoint1, mins, maxs, vPoint2, this, NULL, MASK_GRENADEPATH, qfalse, "Actor::ValidGrenadePath 2"
-        )) {
+    if (!G_SightTrace(vPoint1, mins, maxs, vPoint2, this, NULL, MASK_GRENADEPATH, false, "Actor::ValidGrenadePath 2")) {
         return false;
     }
 
@@ -9682,16 +9672,14 @@ bool Actor::ValidGrenadePath(const Vector& vFrom, const Vector& vTo, Vector& vVe
     if (ai_debug_grenades->integer) {
         G_DebugLine(vPoint2, vPoint3, 1.0, 0.5, 0.5, 1.0);
     }
-    if (!G_SightTrace(
-            vPoint2, mins, maxs, vPoint3, this, NULL, MASK_GRENADEPATH, qfalse, "Actor::ValidGrenadePath 3"
-        )) {
+    if (!G_SightTrace(vPoint2, mins, maxs, vPoint3, this, NULL, MASK_GRENADEPATH, false, "Actor::ValidGrenadePath 3")) {
         return false;
     }
     if (ai_debug_grenades->integer) {
         G_DebugLine(vPoint3, vTo, 1.0, 0.5, 0.5, 1.0);
     }
 
-    trace = G_Trace(vPoint3, mins, maxs, vTo, this, MASK_GRENADEPATH, qfalse, "Actor::ValidGrenadePath 4");
+    trace = G_Trace(vPoint3, mins, maxs, vTo, this, MASK_GRENADEPATH, false, "Actor::ValidGrenadePath 4");
     if (!trace.allsolid) {
         if (!trace.ent) {
             return true;
@@ -10499,8 +10487,7 @@ bool Actor::CanMovePathWithLeash(void) const
     }
 
     VectorSub2D(origin, m_vHome, delta);
-    if (VectorLength2DSquared(delta) >= m_fLeashSquared
-        && DotProduct2D(m_Path.CurrentDelta(), delta) >= 0) {
+    if (VectorLength2DSquared(delta) >= m_fLeashSquared && DotProduct2D(m_Path.CurrentDelta(), delta) >= 0) {
         return false;
     }
 
@@ -10539,7 +10526,7 @@ Vector Actor::GunTarget(bool bNoCollision, const vec3_t position, const vec3_t f
     static cvar_t  *aiScatterWide     = gi.Cvar_Get("g_aiScatterWide", "16.0", 0);
     static cvar_t  *aiScatterHeight   = gi.Cvar_Get("g_aiScatterHeight", "45.0", 0);
     static cvar_t  *aiRanges[4];
-    static qboolean doInit = qtrue;
+    static qboolean doInit = true;
     float           fAccuracy, fCoverFactor;
     Vector          aimDir;
 
@@ -10623,7 +10610,7 @@ Vector Actor::GunTarget(bool bNoCollision, const vec3_t position, const vec3_t f
             vPos   = player->centroid;
 
             if (!G_SightTrace(
-                    GunPosition(), vec_zero, vec_zero, vPos, m_Enemy, this, MASK_CANSEE, qfalse, "Actor::GunTarget 1"
+                    GunPosition(), vec_zero, vec_zero, vPos, m_Enemy, this, MASK_CANSEE, false, "Actor::GunTarget 1"
                 )) {
                 fCoverFactor *= aifCoverFactor->value;
                 vPos = m_Enemy->EyePosition();
@@ -11157,9 +11144,9 @@ Actor::EventSound
 void Actor::EventSound(Event *ev)
 {
     if (g_gametype->integer == GT_SINGLE_PLAYER || m_Team == TEAM_AMERICAN) {
-        ProcessSoundEvent(ev, qtrue);
+        ProcessSoundEvent(ev, true);
     } else {
-        ProcessSoundEvent(ev, qfalse);
+        ProcessSoundEvent(ev, false);
     }
 }
 
@@ -11396,7 +11383,7 @@ void Actor::StrafeToAttack(float fDist, vec3_t vDir)
         return;
     }
 
-    if (!G_SightTrace(origin, mins, maxs, vSpot, this, NULL, MASK_TARGETPATH, qtrue, "Actor::StrafeToAttack 1")) {
+    if (!G_SightTrace(origin, mins, maxs, vSpot, this, NULL, MASK_TARGETPATH, true, "Actor::StrafeToAttack 1")) {
         ClearPath();
         return;
     }
@@ -11412,7 +11399,7 @@ void Actor::StrafeToAttack(float fDist, vec3_t vDir)
             this,
             m_Enemy,
             MASK_CANSEE,
-            qfalse,
+            false,
             "Actor::StrafeToAttack 1"
         )) {
         ClearPath();
@@ -11597,8 +11584,8 @@ void Actor::DontFaceWall(void)
 
     VectorSub2D(m_vDfwPos, origin, vDelta);
 
-    if (Square(fErrorLerp * -14.0 + 16.0) > VectorLength2DSquared(vDelta) &&
-        (fabs(AngleNormalize180(m_fDfwRequestedYaw - m_DesiredYaw)) <= fErrorLerp * -29.0 + 30.0
+    if (Square(fErrorLerp * -14.0 + 16.0) > VectorLength2DSquared(vDelta)
+        && (fabs(AngleNormalize180(m_fDfwRequestedYaw - m_DesiredYaw)) <= fErrorLerp * -29.0 + 30.0
             || fabs(AngleNormalize180(m_fDfwDerivedYaw - m_DesiredYaw)) <= fErrorLerp * -29.0 + 30.0)) {
         if (AvoidingFacingWall()) {
             SetDesiredYaw(m_fDfwDerivedYaw);
@@ -11624,7 +11611,7 @@ void Actor::DontFaceWall(void)
     end.y      = start.y + fSinAngle * 64;
     end.z      = start.z;
 
-    trace = G_Trace(start, vec_zero, vec_zero, end, this, MASK_CANSEE, qfalse, "Actor::DontFaceWall");
+    trace = G_Trace(start, vec_zero, vec_zero, end, this, MASK_CANSEE, false, "Actor::DontFaceWall");
 
     if (trace.entityNum == ENTITYNUM_NONE || trace.fraction > 0.999f || trace.startsolid) {
         m_eDontFaceWallMode = 3;
@@ -12130,9 +12117,7 @@ void Actor::SetPathToNotBlockSentient(Sentient *pOther)
 
     vDest = origin + vPerp * 48;
 
-    if (G_SightTrace(
-            vDest, mins, maxs, vDest, this, pOther, MASK_SOLID, qfalse, "Actor::SetPathToNotBlockSentient 1"
-        )) {
+    if (G_SightTrace(vDest, mins, maxs, vDest, this, pOther, MASK_SOLID, false, "Actor::SetPathToNotBlockSentient 1")) {
         SetPathWithinDistance(vDest, NULL, 96, 0);
     }
 
@@ -12142,9 +12127,7 @@ void Actor::SetPathToNotBlockSentient(Sentient *pOther)
 
     vDest = origin - vPerp * 48;
 
-    if (G_SightTrace(
-            vDest, mins, maxs, vDest, this, pOther, MASK_SOLID, qfalse, "Actor::SetPathToNotBlockSentient 2"
-        )) {
+    if (G_SightTrace(vDest, mins, maxs, vDest, this, pOther, MASK_SOLID, false, "Actor::SetPathToNotBlockSentient 2")) {
         SetPathWithinDistance(vDest, NULL, 96, 0);
     }
 
@@ -12181,7 +12164,7 @@ void Actor::LookAround(float fFovAdd)
 
         VectorMA(vEyePos, 1024, vDest, vDest);
 
-        trace = G_Trace(EyePosition(), vec_zero, vec_zero, vDest, this, MASK_LOOK, qfalse, "Actor::LookAround");
+        trace = G_Trace(EyePosition(), vec_zero, vec_zero, vDest, this, MASK_LOOK, false, "Actor::LookAround");
         if (trace.fraction > 0.125) {
             m_bHasDesiredLookDest = true;
             VectorCopy(trace.endpos, m_vDesiredLookDest);
