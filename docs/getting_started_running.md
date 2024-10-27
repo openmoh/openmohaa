@@ -46,4 +46,4 @@ OpenMoHAA has a basic bot system that emulates real players. The maximum number 
 
 This feature is a great way to test the gameplay and mods.
 
-Note that maps must have path built for bots to move, multiplayer maps don't have path built by default. Mods like [eagleAR bots](https://www.moddb.com/mods/medal-of-honor-world-war-1/downloads/moh-eaglear-bots) exist that do introduce paths in multiplayer maps.
+Note that maps must have path built for bots to move, multiplayer maps don't have path built by default. The [mp-navigation](https://github.com/openmoh/mp-navigation) PK3 file can be downloaded and installed in the `main` directory, it adds navigation for all multiplayer maps, including multiplayer maps from Spearhead and Breakthrough.
