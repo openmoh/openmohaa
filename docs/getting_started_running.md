@@ -21,8 +21,11 @@ You can now start a local OpenMOHAA server or play on a server.
 
 The location of user-writable data, like the console logfile, saves and configuration files can be found in different locations depending on the platform:
 
-- `%APPDATA%\openmohaa\<game_name>` on Windows
-- `~/.openmohaa/<game_name>` on Linux
+- `%APPDATA%\openmohaa` on Windows
+- `~/.openmohaa` on Linux
+- `~/Library/Application Support/openmohaa` on macOS
+
+There will be one or more subdirectories like in the game installation folder, they match the game being used: either base game `main` or expansions `mainta`/`maintt`.
 
 This is by design since ioquake3 and has two advantages:
 - On a multi-user system, each user will have their own configuration file

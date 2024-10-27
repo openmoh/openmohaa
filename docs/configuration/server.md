@@ -5,19 +5,23 @@ This documentation currently only lists new changes that were introduced in Open
 ## Home directory
 
 In original MOH:AA, the game installation directory is used to store mods and data, it's not the case in OpenMoHAA as it uses the home directory by default to write data in here, and the home directory can be used to store mods. This behavior can be changed:
+
 - `set fs_homepath Z:\openmohaa_data`: User data will be read and written in the directory located in `Z:\openmohaa_data`
 - `set fs_homepath homedata`: The subdirectory `homedata` in the game directory will be used to read and store user data
 - `set fs_homepath .`: Not recommended, the game directory will be used for storing user data, just like the original MOH:AA
 
 The variable defaults to the following value depending on the OS:
+
 - `%APPDATA%\openmohaa` on Windows
 - `~/.openmohaa` on Linux
+- `~/Library/Application Support/openmohaa` on macOS
 
 ## Networking
 
 ### Configure the network components
 
 The network settings can be adjusted to use either IPv4, IPv6, or both. By default, IPv6 is disabled on dedicated servers. The following commands adjust network settings:
+
 - `set net_enabled 1`: This enables IPv4 only (the default setting for dedicated servers).
 - `set net_enabled 2`: This enables IPv6 only.
 - `set net_enabled 3`: This enables both IPv4 and IPv6 (the default setting when running the standalone game).
@@ -27,6 +31,7 @@ The network settings can be adjusted to use either IPv4, IPv6, or both. By defau
 ### Optimization / Antichams
 
 A new variable, `sv_netoptimize`, enables a feature that optimizes network bandwidth by not sending players information about others they can't see. For each client, the server optimizes by only transmitting data about players within their view. Clients will not receive information about players they can't see. This feature also helps protect against cheaters:
+
 - `set sv_netoptimize 0`: This disables the optimization - the default
 - `set sv_netoptimize 1`: This enables the optimization for entities that are moving
 - `set sv_netoptimize 2`: This enables the optimization, always
@@ -48,6 +53,7 @@ A new feature was introduced to ban IP addresses, thanks to the [ioquake3](https
 |flushbans  |                                       |Removes all bans
 
 Examples:
+
 - `banaddr 192.168.5.2` will ban the IP address **192.168.5.2**.
 - `banaddr 192.168.1.0/24` will ban all **192.168.1.x** IP addresses (in the range **192.168.1.0**-**192.168.1.255**).
 - `banaddr 2` will ban the IP address of the client **#2**.
@@ -95,11 +101,13 @@ This feature is passive: it only checks the team sizes when someone tries to joi
 ### Bots
 
 Bots are supported and can be used for testing or for entertainment. The [mp-navigation](https://github.com/openmoh/mp-navigation) pk3 will be needed so bots can navigate and move on MP maps. The following variables are used to configure bots:
+
 - `set sv_maxbots x`: **Required**, configure the maximum number of bots allowed in the game. Since the game can only handle a total of 64 players (clients), the number of bots will be limited to 64 minus the number of real players (`sv_maxclients`). For example, if you set `sv_maxclients` to 48, the maximum number of bots (sv_maxbots) can be 16.
 - `set sv_numbots x`: Set the number of bots to spawn. It will be capped to the value of `sv_maxbots`.
 - `set sv_minPlayers x`: Configure the minimum number of players required. If the number of real players is below the specified value, the game will automatically add bots to fill the gap. For example, if `sv_minPlayers` is set to 8 and only 5 real players are connected, the game will spawn 3 bots to make sure there are always 8 players in the game.
 
 Commands:
+
 - `addbot x`: x is the number of bots to add. It only changes the `sv_numbots` variable.
 - `removebot x`: x is the number of bots to remove. It only changes the `sv_numbots` variable.
 
