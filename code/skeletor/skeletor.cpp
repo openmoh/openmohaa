@@ -401,7 +401,7 @@ void skeletor_c::SetPose(
     m_frameRadius      = 2.0f;
     animWeight         = 0.0f;
     movementBlendFrame = 0;
-    actionBlendFrame   = 32;
+    actionBlendFrame   = MAX_SKEL_BLEND_MOVEMENT_FRAMES;
     aliases            = m_Tiki->a->m_aliases;
 
     for (blendNum = 0; blendNum < MAX_FRAMEINFOS; blendNum++) {
@@ -491,8 +491,11 @@ void skeletor_c::SetPose(
     }
 
     m_frameList.numMovementFrames = movementBlendFrame;
-    m_frameList.numActionFrames   = actionBlendFrame - 32;
+    m_frameList.numActionFrames   = actionBlendFrame - MAX_SKEL_BLEND_MOVEMENT_FRAMES;
     m_frameList.actionWeight      = actionWeight;
+
+    assert(m_frameList.numMovementFrames < MAX_SKEL_BLEND_MOVEMENT_FRAMES);
+    assert(m_frameList.numActionFrames < MAX_SKEL_BLEND_ACTION_FRAMES);
 }
 
 static SkelMat4 GetGlobalDefaultPosition(skelBone_Base *bone)
@@ -692,9 +695,10 @@ void SkeletorGetAnimFrame(
         if (!animData->bHasDelta) {
             frameList.numMovementFrames              = 0;
             frameList.numActionFrames                = 1;
-            frameList.m_blendInfo[32].weight         = 1.0;
-            frameList.m_blendInfo[32].pAnimationData = animData;
-            frameList.m_blendInfo[32].frame          = frame;
+
+            frameList.m_blendInfo[MAX_SKEL_BLEND_MOVEMENT_FRAMES].weight         = 1.0;
+            frameList.m_blendInfo[MAX_SKEL_BLEND_MOVEMENT_FRAMES].pAnimationData = animData;
+            frameList.m_blendInfo[MAX_SKEL_BLEND_MOVEMENT_FRAMES].frame          = frame;
         } else {
             frameList.numMovementFrames             = 1;
             frameList.numActionFrames               = 0;
@@ -907,9 +911,10 @@ void TIKI_GetSkelAnimFrameInternal(
     if (!animData || !animData->bHasDelta) {
         frameList.numMovementFrames              = 0;
         frameList.numActionFrames                = 1;
-        frameList.m_blendInfo[32].weight         = 1.0;
-        frameList.m_blendInfo[32].pAnimationData = animData;
-        frameList.m_blendInfo[32].frame          = frame;
+
+        frameList.m_blendInfo[MAX_SKEL_BLEND_MOVEMENT_FRAMES].weight         = 1.0;
+        frameList.m_blendInfo[MAX_SKEL_BLEND_MOVEMENT_FRAMES].pAnimationData = animData;
+        frameList.m_blendInfo[MAX_SKEL_BLEND_MOVEMENT_FRAMES].frame          = frame;
     } else {
         frameList.numMovementFrames             = 1;
         frameList.numActionFrames               = 0;
@@ -1117,8 +1122,8 @@ int skeletor_c::GetMorphWeightFrame(int *data)
         }
     }
 
-    for (blendNum = 32; blendNum < m_frameList.numActionFrames + 32; blendNum++) {
-        const skanBlendInfo& blendInfo = m_frameList.m_blendInfo[blendNum];
+    for (blendNum = 0; blendNum < m_frameList.numActionFrames; blendNum++) {
+        const skanBlendInfo& blendInfo = m_frameList.m_blendInfo[blendNum + MAX_SKEL_BLEND_MOVEMENT_FRAMES];
         weight                         = blendInfo.weight;
 
         if (weight > 0.001) {

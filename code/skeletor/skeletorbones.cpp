@@ -232,7 +232,7 @@ SkelQuat skelAnimStoreFrameList_c::GetSlerpValue(int globalChannelNum) const
 
     if (actionWeight > 0.001) {
         for (i = 0; i < numActionFrames; i++) {
-            pFrame = &m_blendInfo[i + 32];
+            pFrame = &m_blendInfo[i + MAX_SKEL_BLEND_MOVEMENT_FRAMES];
 
             localChannelNum = pFrame->pAnimationData->channelList.GetLocalFromGlobal(globalChannelNum);
             if (localChannelNum >= 0) {
@@ -381,7 +381,7 @@ void skelAnimStoreFrameList_c::GetLerpValue3(int globalChannelNum, SkelVec3 *out
         VectorClear(result);
 
         for (i = 0; i < numActionFrames; i++) {
-            pFrame = &m_blendInfo[i + 32];
+            pFrame = &m_blendInfo[i + MAX_SKEL_BLEND_MOVEMENT_FRAMES];
 
             localChannelNum = pFrame->pAnimationData->channelList.GetLocalFromGlobal(globalChannelNum);
             if (localChannelNum >= 0) {

@@ -35,6 +35,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "skeletor_name_lists.h"
 #include "skeletor_internal.h"
 
+#define MAX_SKEL_BLEND_MOVEMENT_FRAMES 32
+#define MAX_SKEL_BLEND_ACTION_FRAMES 32
+#define MAX_SKEL_BLEND_FRAMES (MAX_SKEL_BLEND_MOVEMENT_FRAMES + MAX_SKEL_BLEND_ACTION_FRAMES)
+
 typedef struct skelAnimFrame_s {
     float    radius;
     SkelVec3 bounds[2];
@@ -70,7 +74,7 @@ public:
     short int     numMovementFrames;
     short int     numActionFrames;
     float         actionWeight;
-    skanBlendInfo m_blendInfo[64];
+    skanBlendInfo m_blendInfo[MAX_SKEL_BLEND_FRAMES];
 
 public:
     SkelQuat GetSlerpValue(int globalChannelNum) const;
