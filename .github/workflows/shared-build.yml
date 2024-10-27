@@ -16,6 +16,7 @@ jobs:
   ##########################
   #
   # Linux
+  # Ubuntu 24.04
   #
   ##########################
   build-platform-linux:
@@ -155,6 +156,7 @@ jobs:
   ##########################
   #
   # Microsoft Windows
+  # Windows Server 2022
   #
   ##########################
   build-platform-windows:
@@ -329,14 +331,17 @@ jobs:
   ##########################
   #
   # Apple macOS
+  # macOS 14
   #
+  # It uses this version because older versions are slower,
+  # at least in Actions.
   ##########################
   build-platform-macos:
     strategy:
       matrix:
         architecture: [
-          {name: 'x86_64',   triple: 'x86_64-apple-macos13'},
-          {name: 'arm64',    triple: 'arm64-apple-macos14'}
+          {name: 'x86_64',   triple: 'x86_64-apple-macos10.8'},
+          {name: 'arm64',    triple: 'arm64-apple-macos11'}
         ]
 
     name: "Building for platform macos-${{matrix.architecture.name}}"
@@ -360,6 +365,7 @@ jobs:
         echo "CMAKE_GENERATOR=Ninja Multi-Config" >> $GITHUB_ENV
         echo "CC=clang" >> $GITHUB_ENV
         echo "CXX=clang++" >> $GITHUB_ENV
+        echo "MACOSX_DEPLOYMENT_TARGET=10.15" >> $GITHUB_ENV
 
     ###
     # SDL
