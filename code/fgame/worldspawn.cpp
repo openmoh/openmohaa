@@ -1028,6 +1028,10 @@ Listener *World::GetScriptTarget(str targetname)
 {
     TargetList *targetList = GetTargetList(targetname);
 
+    if (!targetList) {
+        return NULL;
+    }
+
     if (targetList->list.NumObjects() == 1) {
         return targetList->list.ObjectAt(1);
     } else if (targetList->list.NumObjects() > 1) {
