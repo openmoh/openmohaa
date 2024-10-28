@@ -924,7 +924,7 @@ int R_MarkFragmentsForInlineModel(clipHandle_t bmodel, const vec3_t vAngles, con
 
 	VectorCopy(vTransProjDir, normals[numPoints + 1]);
 	VectorInverse(normals[numPoints + 1]);
-	dists[numPoints + 1] = DotProduct(normals[numPoints + 1], vTransPoints[i]) - 20.f;
+	dists[numPoints + 1] = DotProduct(normals[numPoints + 1], vTransPoints[0]) - 20.f;
 
 	returnedPoints = 0;
 	returnedFragments = 0;
