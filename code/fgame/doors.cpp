@@ -344,9 +344,6 @@ Door::Door()
 
     SetDoorType("wood");
 
-    traveltime = 1.0f;
-    speed      = 1.0f / traveltime;
-
     wait = (spawnflags & DOOR_TOGGLE) ? 0 : 3;
     dmg  = 0;
 
@@ -394,6 +391,14 @@ void Door::SetDoorType(str s)
     SetCloseEndSound("door_" + s + "_close_stop");
 
     SetLockedSound("door_" + s + "_locked");
+
+    if (s == "wood") {
+        traveltime = 1.0;
+    } else if (s == "metal") {
+        traveltime = 1.5;
+    }
+
+    speed = 1.0 / traveltime;
 }
 
 void Door::EventDoorType(Event *ev)
