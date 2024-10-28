@@ -901,7 +901,7 @@ void SV_SpawnServer( const char *server, qboolean loadgame, qboolean restart, qb
 
 		Hunk_SetMark();
 
-		if( com_dedicated->integer ) {
+		if( g_gametype->integer != GT_SINGLE_PLAYER ) {
 			ge->RegisterSounds();
 		}
 	}
