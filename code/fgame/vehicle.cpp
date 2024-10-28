@@ -4233,6 +4233,9 @@ void Vehicle::MoveVehicle(void)
     int          iNumSkippedEntities = 0;
     Event       *event               = nullptr;
     Entity      *chain;
+    Entity      *driverEnt = NULL;
+    solid_t     solidDriver = SOLID_NOT;
+    int         contentsDriver = 0;
 
     if (m_bMovementLocked) {
         return;
@@ -4251,6 +4254,19 @@ void Vehicle::MoveVehicle(void)
 
     if (velocity.length() > 0.5f) {
         Vector vVel;
+
+        if (driver.ent && driver.ent->edict->solid != SOLID_NOT) {
+            //
+            // Added in OPM
+            //  Make the driver nonsolid while moving.
+            //  Scripts usually set the player to nonsolid.
+            //  However some scripts still rely on the old 1.11 behavior
+            //  where the player is set to nonsolid when driving some type of vehicles
+            solidDriver = driver.ent->edict->solid;
+            contentsDriver = driver.ent->getContents();
+
+            driver.ent->setSolidType(SOLID_NOT);
+        }
 
         fSpeed   = orientation[0] * velocity;
         vecDelta = velocity * level.frametime;
@@ -4551,6 +4567,11 @@ void Vehicle::MoveVehicle(void)
             }
         } else if (!bHitPerson) {
             velocity *= 0.5;
+        }
+
+        if (solidDriver != SOLID_NOT) {
+            driver.ent->setSolidType(solidDriver);
+            driver.ent->setContents(contentsDriver);
         }
     }
 
