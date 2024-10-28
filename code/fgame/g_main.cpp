@@ -851,35 +851,49 @@ qboolean G_TIKI_IsOnGround(gentity_t *edict, int num, float threshold)
 
 void G_PrepFrame(void) {}
 
-void G_RegisterSounds(void)
+void G_RegisterSoundsForFile(const char *name)
 {
     int startTime;
     int endTime;
 
-    Com_Printf("\n\n-----------PARSING UBERSOUND (SERVER)------------\n");
+    Com_Printf("\n\n-----------PARSING '%s' (SERVER)------------\n", name);
     Com_Printf(
         "Any SetCurrentTiki errors means that tiki wasn't prefetched and tiki-specific sounds for it won't work. To "
         "fix prefetch the tiki. Ignore if you don't use that tiki on this level.\n"
     );
 
     startTime = gi.Milliseconds();
-    G_Command_ProcessFile("ubersound/ubersound.scr", qfalse);
+    G_Command_ProcessFile(name, qfalse);
     endTime = gi.Milliseconds();
 
     Com_Printf("Parse/Load time: %f seconds.\n", (float)(endTime - startTime) / 1000.0);
-    Com_Printf("-------------UBERSOUND DONE (SERVER)---------------\n\n");
-    Com_Printf("\n\n-----------PARSING UBERDIALOG (SERVER)------------\n");
-    Com_Printf(
-        "Any SetCurrentTiki errors means that tiki wasn't prefetched and tiki-specific sounds for it won't work. To "
-        "fix prefetch the tiki. Ignore if you don't use that tiki on this level.\n"
-    );
+    Com_Printf("-------------PARSING '%s' DONE (SERVER)---------------\n\n", name);
+}
 
-    startTime = gi.Milliseconds();
-    G_Command_ProcessFile("ubersound/uberdialog.scr", qfalse);
-    endTime = gi.Milliseconds();
+int qsort_compare_strings(const void *s1, const void *s2)
+{
+    return Q_stricmp(*(const char **)s1, *(const char **)s2);
+}
 
-    Com_Printf("Parse/Load time: %f seconds.\n", (float)(endTime - startTime) / 1000.0);
-    Com_Printf("-------------UBERDIALOG DONE (SERVER)---------------\n\n");
+void G_RegisterSounds(void)
+{
+    char **fileList;
+    int    numFiles;
+    int    i;
+
+    fileList = gi.FS_ListFiles("ubersound/", "scr", qfalse, &numFiles);
+    qsort(fileList, numFiles, sizeof(char *), &qsort_compare_strings);
+
+    gi.GlobalAlias_Clear();
+
+    for (i = 0; i < numFiles; i++) {
+        // Added in 2.0
+        //  Since 2.0, all files in the ubersound folder
+        //  are parsed
+        G_RegisterSoundsForFile(va("ubersound/%s", fileList[i]));
+    }
+
+    gi.FS_FreeFileList(fileList);
 }
 
 void G_Restart(void)
