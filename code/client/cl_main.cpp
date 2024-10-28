@@ -910,6 +910,8 @@ This is also called on Com_Error and Com_Quit, so it shouldn't cause any errors
 =====================
 */
 void CL_Disconnect() {
+	int mouseX, mouseY;
+
 	if ( !com_cl_running || !com_cl_running->integer ) {
 		return;
 	}
@@ -945,7 +947,15 @@ void CL_Disconnect() {
 		CL_WritePacket();
 	}
 
+	// Fixed in OPM
+	//  Don't reset the mouse every time the client disconnects
+	mouseX = cl.mousex;
+	mouseY = cl.mousey;
+
 	CL_ClearState ();
+
+	cl.mousex = mouseX;
+	cl.mousey = mouseY;
 
 	// wipe the client connection
 	Com_Memset( &clc, 0, sizeof( clientConnection_t ) );
@@ -1199,28 +1209,32 @@ CL_Disconnect_f
 ==================
 */
 void CL_Disconnect_f( void ) {
-	if ( clc.state != CA_DISCONNECTED ) {
-		qboolean bConsoleState = UI_ConsoleIsOpen();
+	qboolean bConsoleState;
 
-        Com_Printf("\nDisconnected from server\n");
-        SV_Shutdown("Disconnected from server\n");
+	if ( clc.state == CA_DISCONNECTED ) {
+		return;
+	}
 
-        if (com_cl_running && com_cl_running->integer)
-        {
-            CL_AbnormalDisconnect();
-            CL_FlushMemory();
-            CL_StartHunkUsers(qfalse);
-			S_StopAllSounds2(1);
-            S_TriggeredMusic_PlayIntroMusic();
-        }
+	bConsoleState = UI_ConsoleIsOpen();
 
-        UI_FocusMenuIfExists();
+	Com_Printf("\nDisconnected from server\n");
+	SV_Shutdown("Disconnected from server\n");
 
-		if (bConsoleState) {
-			UI_OpenConsole();
-		} else {
-			UI_CloseConsole();
-		}
+	if (com_cl_running && com_cl_running->integer)
+	{
+		CL_AbnormalDisconnect();
+		CL_FlushMemory();
+		CL_StartHunkUsers(qfalse);
+		S_StopAllSounds2(1);
+		S_TriggeredMusic_PlayIntroMusic();
+	}
+
+	UI_FocusMenuIfExists();
+
+	if (bConsoleState) {
+		UI_OpenConsole();
+	} else {
+		UI_CloseConsole();
 	}
 }
 
