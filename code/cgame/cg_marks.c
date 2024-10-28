@@ -787,7 +787,23 @@ void CG_AssembleFinalMarks(
         iFirstNewGroup = 0;
 
         if (mf->iIndex < 0) {
-            VectorSubtract(pMark->pos, cg_entities[-mf->iIndex].lerpOrigin, pMark->pos);
+            centity_t *cent;
+            vec3_t pos;
+
+            cent = &cg_entities[-mf->iIndex];
+
+            VectorSubtract(pMark->pos, cent->lerpOrigin, pos);
+
+            if (cent->lerpAngles[0] || cent->lerpAngles[1] || cent->lerpAngles[2]) {
+                vec3_t axis[3];
+
+                // Fixed in OPM
+                //  Make the position completely local to the entity
+                AngleVectorsLeft(cent->lerpAngles, &axis[0], &axis[1], &axis[2]);
+                MatrixTransformVectorRight(axis, pos, pMark->pos);
+            } else {
+                VectorCopy(pos, pMark->pos);
+            }
         }
 
         pPoly = pMark->markPolys;
