@@ -876,6 +876,7 @@ dtikianim_t *TIKI_InitTiki(dloaddef_t *ld, size_t defsize)
     byte       *max_ptr;
     dtikicmd_t *pcmds;
     int         i, k;
+    int         numLoadedAnims;
     size_t      j;
     size_t      size;
     //int anim_index;
@@ -963,6 +964,7 @@ dtikianim_t *TIKI_InitTiki(dloaddef_t *ld, size_t defsize)
     assert(ptr <= max_ptr);
 
     // Process anim commands
+    numLoadedAnims = 0;
     for (i = 0; i < ld->numanims; i++) {
         anim = ld->loadanims[order[i]];
         if (!SkeletorCacheFindFilename(anim->name, &index)) {
@@ -973,6 +975,14 @@ dtikianim_t *TIKI_InitTiki(dloaddef_t *ld, size_t defsize)
             }
 
             if (!SkeletorCacheLoadData(anim->name, bPrecache, index)) {
+                if (ld->hasSkel) {
+                    TIKI_DPrintf("^~^~^ TIKI_InitTiki: Couldn't load %s\n", ld->path);
+                    // Fixed in OPM
+                    //  The original game doesn't free the animation on error
+                    TIKI_Free(panim);
+                    return NULL;
+                }
+
                 TIKI_Error("TIKI_InitTiki: Failed to load animation '%s' at %s\n", anim->name, anim->location);
                 panim->m_aliases[i] = -1;
                 continue;
@@ -1067,10 +1077,12 @@ dtikianim_t *TIKI_InitTiki(dloaddef_t *ld, size_t defsize)
         }
 
         assert(ptr <= max_ptr);
+
+        numLoadedAnims++;
     }
 
     panim->m_aliases = NULL;
-    if (i) {
+    if (numLoadedAnims) {
         if (!bModelBoundsSet) {
             TIKI_DPrintf("TIKI_InitTiki: no 'idle' animation found, model bounds not set for %s\n", ld->path);
         }
@@ -1101,6 +1113,9 @@ dtikianim_t *TIKI_InitTiki(dloaddef_t *ld, size_t defsize)
         }
     } else {
         TIKI_Error("TIKI_InitTiki: No valid animations found in %s.\n", ld->path);
+        // Fixed in OPM
+        //  The original game doesn't free the animation on error
+        TIKI_Free(panim);
         panim = NULL;
     }
 
