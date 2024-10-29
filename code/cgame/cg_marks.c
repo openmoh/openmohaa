@@ -799,7 +799,7 @@ void CG_AssembleFinalMarks(
 
                 // Fixed in OPM
                 //  Make the position completely local to the entity
-                AngleVectorsLeft(cent->lerpAngles, &axis[0], &axis[1], &axis[2]);
+                AngleVectorsLeft(cent->lerpAngles, axis[0], axis[1], axis[2]);
                 MatrixTransformVectorRight(axis, pos, pMark->pos);
             } else {
                 VectorCopy(pos, pMark->pos);
