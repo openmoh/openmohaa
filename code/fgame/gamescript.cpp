@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2023 the OpenMoHAA team
+Copyright (C) 2024 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -45,18 +45,44 @@ const_str AbstractScript::ConstFilename(void)
 
 bool AbstractScript::GetSourceAt(size_t sourcePos, str *sourceLine, int& column, int& line)
 {
+    size_t        posLine;
+    size_t        i;
+    size_t        start;
+    char         *p;
+    char          old_token;
+    sourceinfo_t *minCachedInfo = NULL;
+
     if (!m_SourceBuffer || sourcePos >= m_SourceLength) {
         return false;
     }
 
-    line        = 1;
-    column      = 0;
-    int posLine = 0;
+    line    = 1;
+    column  = 0;
+    posLine = 0;
+    start   = 0;
 
-    char *p = m_SourceBuffer;
-    char  old_token;
+    p = m_SourceBuffer;
 
-    for (int i = 0; i < sourcePos; i++, p++) {
+    if (sourcePos > 128) {
+        // Start caching above certain values
+
+        for (i = 0; i < ARRAY_LEN(cachedInfo); i++) {
+            sourceinfo_t *info = &cachedInfo[i];
+
+            if (sourcePos > info->sourcePos && (!minCachedInfo || info->sourcePos > minCachedInfo->sourcePos)) {
+                minCachedInfo = info;
+            }
+        }
+
+        if (minCachedInfo) {
+            start  = minCachedInfo->sourcePos;
+            line   = minCachedInfo->line;
+            column = minCachedInfo->column;
+        }
+    }
+
+    for (i = start; i < sourcePos; i++) {
+        p = m_SourceBuffer + i;
         column++;
 
         if (*p == '\n') {
@@ -80,6 +106,11 @@ bool AbstractScript::GetSourceAt(size_t sourcePos, str *sourceLine, int& column,
     }
 
     *p = old_token;
+
+    cachedInfo[cachedInfoIndex].sourcePos = sourcePos;
+    cachedInfo[cachedInfoIndex].line      = line;
+    cachedInfo[cachedInfoIndex].column    = column;
+    cachedInfoIndex                       = (cachedInfoIndex + 1) % ARRAY_LEN(cachedInfo);
 
     return true;
 }
@@ -158,9 +189,10 @@ void AbstractScript::PrintSourcePos(str sourceLine, int column, int line, bool d
 
 AbstractScript::AbstractScript()
 {
-    m_ProgToSource = NULL;
-    m_SourceBuffer = NULL;
-    m_SourceLength = 0;
+    m_ProgToSource  = NULL;
+    m_SourceBuffer  = NULL;
+    m_SourceLength  = 0;
+    cachedInfoIndex = 0;
 }
 
 StateScript::StateScript()
@@ -702,7 +734,7 @@ void GameScript::Load(const void *sourceBuffer, size_t sourceLength)
     if (nodeLength == 0) {
         // No code, assume success
         requiredStackSize = 0;
-        successCompile = true;
+        successCompile    = true;
         return;
     }
 
@@ -890,7 +922,7 @@ void ScriptThreadLabel::Execute(Listener *listener, Event *ev)
     }
 }
 
-void ScriptThreadLabel::Execute(Listener* pSelf, const SafePtr<Listener>& listener, const SafePtr<Listener>& param)
+void ScriptThreadLabel::Execute(Listener *pSelf, const SafePtr<Listener>& listener, const SafePtr<Listener>& param)
 {
     if (!m_Script) {
         return;

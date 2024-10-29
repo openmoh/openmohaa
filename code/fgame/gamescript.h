@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2024 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -39,11 +39,17 @@ typedef struct {
     bool      isprivate; // new script engine implementation
 } script_label_t;
 
-typedef struct {
+struct sourceinfo_t {
     unsigned int sourcePos;
     int          column;
     int          line;
-} sourceinfo_t;
+
+    sourceinfo_t()
+        : sourcePos(0)
+        , column(0)
+        , line(0)
+    {}
+};
 
 class AbstractScript
 {
@@ -56,13 +62,16 @@ public:
     // Developper variable
     con_set<const uchar *, sourceinfo_t> *m_ProgToSource;
 
+    sourceinfo_t cachedInfo[16];
+    size_t       cachedInfoIndex;
+
 public:
     AbstractScript();
 
-    str     & Filename(void);
+    str&      Filename(void);
     const_str ConstFilename(void);
-    bool      GetSourceAt(size_t sourcePos, str *sourceLine, int     &column, int     &line);
-    bool      GetSourceAt(const unsigned char *sourcePos, str *sourceLine, int     &column, int     &line);
+    bool      GetSourceAt(size_t sourcePos, str *sourceLine, int& column, int& line);
+    bool      GetSourceAt(const unsigned char *sourcePos, str *sourceLine, int& column, int& line);
     void      PrintSourcePos(sourceinfo_t *sourcePos, bool dev);
     void      PrintSourcePos(size_t sourcePos, bool dev);
     void      PrintSourcePos(unsigned char *m_pCodePos, bool dev);
@@ -128,9 +137,9 @@ public:
     GameScript(const char *filename);
     ~GameScript();
 
-    void        Archive(Archiver       &arc);
+    void        Archive(Archiver& arc);
     static void Archive(Archiver& arc, GameScript *& scr);
-    void        ArchiveCodePos(Archiver       &arc, unsigned char **codePos);
+    void        ArchiveCodePos(Archiver& arc, unsigned char **codePos);
 
     void Close(void);
     void Load(const void *sourceBuffer, size_t sourceLength);
@@ -161,9 +170,9 @@ public:
 
     ScriptThread *Create(Listener *listener);
     void          Execute(Listener *listener = NULL);
-    void          Execute(Listener *listener, Event         &ev);
+    void          Execute(Listener *listener, Event& ev);
     void          Execute(Listener *listener, Event *ev);
-    void          Execute(Listener* pSelf, const SafePtr<Listener>         &listener, const SafePtr<Listener>         &param);
+    void          Execute(Listener *pSelf, const SafePtr<Listener>& listener, const SafePtr<Listener>& param);
 
     void Clear();
     void Set(const char *label);
