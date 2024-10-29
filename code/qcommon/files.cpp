@@ -2418,7 +2418,7 @@ char **FS_ListFilteredFiles( const char *path, const char *extension, const char
 					//
 					if (filter) {
 						if (zpathLen) {
-							strcpy(zpath, name + pathLength + 1);
+							strcpy(zpath, name + zpathLen + 1);
 						}
 						else {
 							strcpy(zpath, name);
