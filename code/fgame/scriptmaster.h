@@ -82,7 +82,6 @@ protected:
     void        Cache(Event *ev);
     void        RegisterAliasAndCache(Event *ev);
     void        RegisterAlias(Event *ev);
-    void        RegisterAliasInternal(Event *ev, bool bCache = false);
 
 public:
     CLASS_PROTOTYPE(ScriptMaster);

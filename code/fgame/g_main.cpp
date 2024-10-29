@@ -977,6 +977,7 @@ qboolean G_Command_ProcessFile(const char *filename, qboolean quiet)
     const char *bufstart;
     const char *token;
     int         numTokens = 0;
+    char        tempName[65];
 
     if (gi.FS_ReadFile(filename, (void **)&buffer, quiet) == -1) {
         return qfalse;
@@ -987,6 +988,9 @@ qboolean G_Command_ProcessFile(const char *filename, qboolean quiet)
     }
 
     bufstart = buffer;
+
+    Com_sprintf(tempName, sizeof(tempName), "m%s", filename);
+    gi.LoadResource(tempName);
 
     while (1) {
         // grab each line as we go
@@ -1023,6 +1027,9 @@ qboolean G_Command_ProcessFile(const char *filename, qboolean quiet)
     }
 
     gi.FS_FreeFile((void *)bufstart);
+
+    Com_sprintf(tempName, sizeof(tempName), "o%s", filename);
+    gi.LoadResource(tempName);
 
     return qtrue;
 }
