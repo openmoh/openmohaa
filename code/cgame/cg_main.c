@@ -206,47 +206,71 @@ void CG_RegisterCvars(void)
 }
 
 /*
+================
+CG_RegisterSoundsForFile
+
+Register the specified ubersound source file
+================
+*/
+void CG_RegisterSoundsForFile(const char *name)
+{
+    int startTime;
+    int endTime;
+
+    Com_Printf("\n\n-----------PARSING '%s'------------\n", name);
+    Com_Printf(
+        "Any SetCurrentTiki errors means that tiki wasn't prefetched and tiki-specific sounds for it won't work. To "
+        "fix prefetch the tiki. Ignore if you don't use that tiki on this level.\n"
+    );
+
+    startTime = cgi.Milliseconds();
+    CG_Command_ProcessFile(name, qfalse, NULL);
+    endTime = cgi.Milliseconds();
+
+    Com_Printf("Parse/Load time: %f seconds.\n", (float)(endTime - startTime) / 1000.0);
+    Com_Printf("-------------PARSING '%s' DONE---------------\n\n", name);
+}
+
+/*
+=================
+qsort_compare_strings
+
+perform case-insensitive sorting
+=================
+*/
+int qsort_compare_strings(const void *s1, const void *s2)
+{
+    return Q_stricmp(*(const char **)s1, *(const char **)s2);
+}
+
+/*
 =================
 CG_RegisterSounds
 
-called during a precache command
+Called during a precache command
 =================
 */
 void CG_RegisterSounds(void)
 {
-    int  startTime;
-    int  endTime;
-    char filename[MAX_QPATH];
+    char **fileList;
+    int    numFiles;
+    int    i;
 
-    Com_Printf("\n\n-----------PARSING UBERSOUND------------\n");
-    Com_Printf(
-        "Any SetCurrentTiki errors means that tiki wasn't prefetched and "
-        "tiki-specific sounds for it won't work. To fix prefe"
-        "tch the tiki. Ignore if you don't use that tiki on this level.\n"
-    );
-    Com_sprintf(filename, sizeof(filename), "ubersound/ubersound.scr");
+    fileList = cgi.FS_ListFilteredFiles("ubersound/", "scr", "*.scr", qfalse, &numFiles, qtrue);
+    if (cgs.gametype != GT_SINGLE_PLAYER) {
+        cgi.Alias_Clear();
+    }
+    
+    qsort(fileList, numFiles, sizeof(char *), &qsort_compare_strings);
 
-    startTime = cgi.Milliseconds();
-    CG_Command_ProcessFile(filename, 0, 0);
-    endTime = cgi.Milliseconds();
+    for (i = 0; i < numFiles; i++) {
+        // Added in 2.0
+        //  Since 2.0, all files in the ubersound folder
+        //  are parsed
+        CG_RegisterSoundsForFile(va("ubersound/%s", fileList[i]));
+    }
 
-    Com_Printf("Parse/Load time: %f seconds.\n", (endTime - startTime) / 1000.0f);
-
-    Com_Printf("-------------UBERSOUND DONE---------------\n\n");
-    Com_Printf("\n\n-----------PARSING UBERDIALOG------------\n");
-    Com_Printf(
-        "Any SetCurrentTiki errors means that tiki wasn't prefetched and "
-        "tiki-specific sounds for it won't work. To fix prefe"
-        "tch the tiki. Ignore if you don't use that tiki on this level.\n"
-    );
-    Com_sprintf(filename, sizeof(filename), "ubersound/uberdialog.scr");
-
-    startTime = cgi.Milliseconds();
-    CG_Command_ProcessFile(filename, 0, 0);
-    endTime = cgi.Milliseconds() - startTime;
-
-    Com_Printf("Parse/Load time: %f seconds.\n", endTime / 1000.0f);
-    Com_Printf("-------------UBERDIALOG DONE---------------\n\n");
+    cgi.FS_FreeFileList(fileList);
 }
 
 /*

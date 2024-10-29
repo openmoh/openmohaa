@@ -440,24 +440,27 @@ static int bLoadForMap(char *psMapsBuffer, const char *name)
     return false;
 }
 
-void ScriptMaster::RegisterAliasInternal(Event *ev, bool bCache)
+void ScriptMaster::RegisterAliasAndCache(Event *ev)
 {
-    int   i;
-    char  parameters[MAX_STRING_CHARS];
-    char *psMapsBuffer;
-    int   subtitle;
-    bool  bAlwaysLoaded = false;
+    int      i;
+    char     parameters[MAX_STRING_CHARS];
+    char    *psMapsBuffer;
+    bool     bAlwaysLoaded = false;
+
+    if (ev->NumArgs() < 2) {
+        return;
+    }
 
     // Get the parameters for this alias command
 
     parameters[0] = 0;
-    subtitle      = 0;
     psMapsBuffer  = NULL;
 
     for (i = 3; i <= ev->NumArgs(); i++) {
         str s;
 
-        // MOHAA doesn't check that
+        // Added in OPM
+        //  MOHAA doesn't check that
         if (ev->IsListenerAt(i)) {
             Listener *l = ev->GetListener(i);
 
@@ -470,42 +473,95 @@ void ScriptMaster::RegisterAliasInternal(Event *ev, bool bCache)
             s = ev->GetString(i);
         }
 
-        if (subtitle) {
+        if (!s.icmp("maps")) {
+            i++;
+            psMapsBuffer = (char *)ev->GetToken(i).c_str();
+            continue;
+        }
+
+        if (!s.icmp("always")) {
+            bAlwaysLoaded = true;
+            continue;
+        }
+
+        strcat(parameters, s);
+        strcat(parameters, " ");
+    }
+
+    if (bAlwaysLoaded) {
+        gi.GlobalAlias_Add(ev->GetString(1), ev->GetString(2), parameters);
+    }
+
+    if (bLoadForMap(psMapsBuffer, ev->GetString(1))) {
+        if (!bAlwaysLoaded) {
+            gi.GlobalAlias_Add(ev->GetString(1), ev->GetString(2), parameters);
+        }
+
+        CacheResource(ev->GetString(2));
+    }
+}
+
+void ScriptMaster::RegisterAlias(Event *ev)
+{
+    int      i;
+    char     parameters[MAX_STRING_CHARS];
+    char    *psMapsBuffer;
+    qboolean subtitle;
+    bool     bAlwaysLoaded = false;
+
+    if (ev->NumArgs() < 2) {
+        return;
+    }
+
+    // Get the parameters for this alias command
+
+    parameters[0] = 0;
+    subtitle      = 0;
+    psMapsBuffer  = NULL;
+
+    for (i = 3; i <= ev->NumArgs(); i++) {
+        str s;
+
+        // Added in OPM
+        //  MOHAA doesn't check that
+        if (ev->IsListenerAt(i)) {
+            Listener *l = ev->GetListener(i);
+
+            if (l && l == Director.CurrentThread()) {
+                s = "local";
+            } else {
+                s = ev->GetString(i);
+            }
+        } else {
+            s = ev->GetString(i);
+        }
+
+        if (!s.icmp("maps")) {
+            i++;
+            psMapsBuffer = (char *)ev->GetToken(i).c_str();
+            continue;
+        }
+
+        if (!s.icmp("always")) {
+            bAlwaysLoaded = true;
+        } else if (subtitle) {
             strcat(parameters, "\"");
             strcat(parameters, s);
             strcat(parameters, "\" ");
 
             subtitle = 0;
-        } else if (!s.icmp("maps")) {
-            i++;
-            psMapsBuffer = (char *)ev->GetToken(i).c_str();
-        } else if (!s.icmp("always")) {
-            bAlwaysLoaded = true;
         } else {
             subtitle = s.icmp("subtitle") == 0;
 
             strcat(parameters, s);
-            strcat(parameters, " ");
         }
+
+        strcat(parameters, " ");
     }
 
     if (bAlwaysLoaded || bLoadForMap(psMapsBuffer, ev->GetString(1))) {
         gi.GlobalAlias_Add(ev->GetString(1), ev->GetString(2), parameters);
-
-        if (bCache) {
-            CacheResource(ev->GetString(2));
-        }
     }
-}
-
-void ScriptMaster::RegisterAliasAndCache(Event *ev)
-{
-    RegisterAliasInternal(ev, true);
-}
-
-void ScriptMaster::RegisterAlias(Event *ev)
-{
-    RegisterAliasInternal(ev);
 }
 
 void ScriptMaster::Cache(Event *ev)

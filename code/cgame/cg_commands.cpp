@@ -4189,15 +4189,16 @@ void ClientGameCommandManager::CacheFont(Event *ev)
 //===============
 void AliasResource(dtiki_t *pmdl, const char *alias, const char *realname, const char *parameters)
 {
-    if (pmdl) {
-        if (!pmdl->a->alias_list) {
-            pmdl->a->alias_list = cgi.AliasList_New(pmdl->a->name);
-        }
-
-        cgi.Alias_ListAdd((AliasList_t *)pmdl->a->alias_list, alias, realname, parameters);
-    } else {
+    if (!pmdl) {
         cgi.Alias_Add(alias, realname, parameters);
+        return;
     }
+
+    if (!pmdl->a->alias_list) {
+        pmdl->a->alias_list = cgi.AliasList_New(pmdl->a->name);
+    }
+
+    cgi.Alias_ListAdd((AliasList_t*)pmdl->a->alias_list, alias, realname, parameters);
 }
 
 qboolean bLoadForMap(const char *psMapsBuffer, const char *name)
@@ -4258,19 +4259,32 @@ void ClientGameCommandManager::AliasCache(Event *ev)
     psMapsBuffer  = NULL;
 
     for (i = 3; i <= ev->NumArgs(); i++) {
-        if (!strcmp(ev->GetToken(i).c_str(), "maps")) {
+        str s = ev->GetString(i);
+
+        if (!s.icmp("maps")) {
             i++;
-            psMapsBuffer = ev->GetToken(i);
-        } else if (!strcmp(ev->GetToken(i).c_str(), "always")) {
-            bAlwaysLoaded = true;
-        } else {
-            strcat(parmbuffer, ev->GetToken(i));
-            strcat(parmbuffer, " ");
+            psMapsBuffer = (char *)ev->GetToken(i).c_str();
+            continue;
         }
+
+        if (!s.icmp("always")) {
+            bAlwaysLoaded = true;
+            continue;
+        }
+
+        strcat(parmbuffer, s);
+        strcat(parmbuffer, " ");
     }
 
-    if (bAlwaysLoaded || bLoadForMap(psMapsBuffer, ev->GetString(1))) {
+    if (bAlwaysLoaded) {
         AliasResource(current_tiki, ev->GetString(1), ev->GetString(2), parmbuffer);
+    }
+
+    if (bLoadForMap(psMapsBuffer, ev->GetString(1))) {
+        if (!bAlwaysLoaded) {
+            AliasResource(current_tiki, ev->GetString(1), ev->GetString(2), parmbuffer);
+        }
+
         CacheResource(ev->GetString(2));
     }
 }
@@ -4300,28 +4314,33 @@ void ClientGameCommandManager::Alias(Event *ev)
     psMapsBuffer  = NULL;
 
     for (i = 3; i <= ev->NumArgs(); i++) {
-        if (!strcmp(ev->GetToken(i).c_str(), "maps")) {
+        str s = ev->GetString(i);
+
+        if (!s.icmp("maps")) {
             i++;
-            psMapsBuffer = ev->GetToken(i);
-        } else if (!strcmp(ev->GetToken(i).c_str(), "always")) {
+            psMapsBuffer = (char *)ev->GetToken(i).c_str();
+            continue;
+        }
+
+        if (!s.icmp("always")) {
             bAlwaysLoaded = true;
+        } else if (subtitle) {
+            strcat(parmbuffer, "\"");
+            strcat(parmbuffer, s);
+            strcat(parmbuffer, "\" ");
+
+            subtitle = 0;
         } else {
+            subtitle = s.icmp("subtitle") == 0;
+
             if (!subtitle) {
-                if (!Q_stricmp(ev->GetToken(i), "subtitle") || !Q_stricmp(ev->GetToken(i), "forcesubtitle")) {
-                    subtitle = qtrue;
-                    strcat(parmbuffer, ev->GetToken(i));
-                } else {
-                    strcat(parmbuffer, ev->GetToken(i));
-                }
-            } else {
-                strcat(parmbuffer, "\"");
-                strcat(parmbuffer, ev->GetToken(i));
-                strcat(parmbuffer, "\"");
-                subtitle = qfalse;
+                subtitle = s.icmp("forcesubtitle") == 0;
             }
 
-            strcat(parmbuffer, " ");
+            strcat(parmbuffer, s);
         }
+
+        strcat(parmbuffer, " ");
     }
 
     if (bAlwaysLoaded || bLoadForMap(psMapsBuffer, ev->GetString(1))) {
