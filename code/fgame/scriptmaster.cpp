@@ -835,7 +835,7 @@ void ScriptMaster::RemoveTiming(ScriptThread *thread)
 
 ScriptClass *ScriptMaster::CurrentScriptClass(void)
 {
-    return CurrentThread()->GetScriptClass();
+    return CurrentScriptThread()->GetScriptClass();
 }
 
 void ScriptMaster::CloseGameScript(void)
@@ -1099,7 +1099,6 @@ ScriptThread *ScriptMaster::CurrentThread(void)
 
 ScriptThread *ScriptMaster::CurrentScriptThread(void)
 {
-    assert(m_CurrentThread);
     if (!m_CurrentThread) {
         ScriptError("current thread is NULL");
     }
