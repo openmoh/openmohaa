@@ -3431,11 +3431,17 @@ qboolean MUSIC_LoadSoundtrackFile(const char *filename)
                 Q_strncpyz(file, load_path, sizeof(file));
                 Q_strcat(file, sizeof(file), args[1]);
             } else {
+                size_t len;
+
                 Q_strncpyz(file, load_path, sizeof(file));
                 Q_strcat(file, sizeof(file), args[1]);
 
-                Q_strncpyz(alias, args[0], strlen(args[0]) - 4);
-                file[strlen(args[0]) + MAX_RES_NAME * 2 - 4] = 0;
+                len = strlen(args[0]);
+                if (len >= 4) {
+                    Q_strncpyz(alias, args[0], len - 4);
+                } else {
+                    alias[0] = 0;
+                }
             }
 
             if (music_numsongs >= MAX_MUSIC_SONGS) {
