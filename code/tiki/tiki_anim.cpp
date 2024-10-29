@@ -108,11 +108,7 @@ int TIKI_Anim_NumForName(dtiki_t *pmdl, const char *name)
         iMiddle = (iBottom + iTop) / 2;
 
         panimdef = pmdl->a->animdefs[iMiddle];
-        if (!panimdef) {
-            iComp = -1;
-        } else {
-            iComp = stricmp(panimdef->alias, name);
-        }
+        iComp = stricmp(panimdef->alias, name);
 
         if (!iComp) {
             if (!(panimdef->flags & TAF_RANDOM)) {

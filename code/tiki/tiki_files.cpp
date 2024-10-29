@@ -984,7 +984,6 @@ dtikianim_t *TIKI_InitTiki(dloaddef_t *ld, size_t defsize)
                 }
 
                 TIKI_Error("TIKI_InitTiki: Failed to load animation '%s' at %s\n", anim->name, anim->location);
-                panim->m_aliases[i] = -1;
                 continue;
             }
         }
@@ -993,8 +992,8 @@ dtikianim_t *TIKI_InitTiki(dloaddef_t *ld, size_t defsize)
         m_cachedData[alias_index].numusers++;
         panimdef = (dtikianimdef_t *)ptr;
         ptr += sizeof(dtikianimdef_t);
-        panim->animdefs[i]  = panimdef;
-        panim->m_aliases[i] = alias_index;
+        panim->animdefs[numLoadedAnims]  = panimdef;
+        panim->m_aliases[numLoadedAnims] = alias_index;
         Q_strncpyz(panimdef->alias, anim->alias, sizeof(panimdef->alias));
         panimdef->weight = anim->weight;
         panimdef->flags  = anim->flags;
@@ -1087,7 +1086,7 @@ dtikianim_t *TIKI_InitTiki(dloaddef_t *ld, size_t defsize)
             TIKI_DPrintf("TIKI_InitTiki: no 'idle' animation found, model bounds not set for %s\n", ld->path);
         }
 
-        panim->num_anims = i;
+        panim->num_anims = numLoadedAnims;
         panim->m_aliases = (short *)TIKI_Alloc(panim->num_anims * sizeof(short));
         memcpy(panim->m_aliases, temp_aliases, panim->num_anims * sizeof(short));
         panim->modelData     = ptr;
