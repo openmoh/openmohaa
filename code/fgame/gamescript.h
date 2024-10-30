@@ -41,6 +41,7 @@ typedef struct {
 
 struct sourceinfo_t {
     unsigned int sourcePos;
+    unsigned int startLinePos;
     int          column;
     int          line;
 

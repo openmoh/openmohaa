@@ -69,7 +69,7 @@ bool AbstractScript::GetSourceAt(size_t sourcePos, str *sourceLine, int& column,
         for (i = 0; i < ARRAY_LEN(cachedInfo); i++) {
             sourceinfo_t *info = &cachedInfo[i];
 
-            if (sourcePos > info->sourcePos && (!minCachedInfo || info->sourcePos > minCachedInfo->sourcePos)) {
+            if (info->line && sourcePos > info->sourcePos && (!minCachedInfo || info->sourcePos > minCachedInfo->sourcePos)) {
                 minCachedInfo = info;
             }
         }
@@ -78,6 +78,7 @@ bool AbstractScript::GetSourceAt(size_t sourcePos, str *sourceLine, int& column,
             start  = minCachedInfo->sourcePos;
             line   = minCachedInfo->line;
             column = minCachedInfo->column;
+            posLine = minCachedInfo->startLinePos;
         }
     }
 
@@ -107,9 +108,10 @@ bool AbstractScript::GetSourceAt(size_t sourcePos, str *sourceLine, int& column,
 
     *p = old_token;
 
-    cachedInfo[cachedInfoIndex].sourcePos = sourcePos;
-    cachedInfo[cachedInfoIndex].line      = line;
-    cachedInfo[cachedInfoIndex].column    = column;
+    cachedInfo[cachedInfoIndex].sourcePos    = sourcePos;
+    cachedInfo[cachedInfoIndex].line         = line;
+    cachedInfo[cachedInfoIndex].column       = column;
+    cachedInfo[cachedInfoIndex].startLinePos = posLine;
     cachedInfoIndex                       = (cachedInfoIndex + 1) % ARRAY_LEN(cachedInfo);
 
     return true;
