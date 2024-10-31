@@ -734,6 +734,10 @@ ScriptThread *ScriptMaster::CreateScriptThread(ScriptClass *scriptClass, str lab
     }
 }
 
+ScriptMaster::ScriptMaster()
+{
+}
+
 void ScriptMaster::Reset(qboolean samemap)
 {
     ScriptClass_allocator.FreeAll();

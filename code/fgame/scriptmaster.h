@@ -86,6 +86,7 @@ protected:
 public:
     CLASS_PROTOTYPE(ScriptMaster);
 
+    ScriptMaster();
     virtual ~ScriptMaster();
 
     //
