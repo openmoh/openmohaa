@@ -291,6 +291,12 @@ void G_InitGame(int levelTime, int randomSeed)
     L_InitEvents();
 
     G_AllocGameData();
+
+    if (g_target_game < TG_MOHTA) {
+        // Added in OPM
+        //  This frees alias list to avoid filling up memory
+        gi.GlobalAlias_Clear();
+    }
 }
 
 /*
@@ -881,10 +887,16 @@ void G_RegisterSounds(void)
     int    numFiles;
     int    i;
 
+    if (g_target_game >= TG_MOHTA) {
+        gi.GlobalAlias_Clear();
+    } else if (!dedicated->integer) {
+        // In 1.11 and below, the entire ubersound folder is parsed
+        // only in dedicated mode
+        return;
+    }
+
     fileList = gi.FS_ListFiles("ubersound/", "scr", qfalse, &numFiles);
     qsort(fileList, numFiles, sizeof(char *), &qsort_compare_strings);
-
-    gi.GlobalAlias_Clear();
 
     for (i = 0; i < numFiles; i++) {
         // Added in 2.0

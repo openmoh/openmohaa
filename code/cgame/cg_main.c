@@ -257,8 +257,16 @@ void CG_RegisterSounds(void)
     int    i;
 
     fileList = cgi.FS_ListFilteredFiles("ubersound/", "scr", "*.scr", qfalse, &numFiles, qtrue);
-    if (cgs.gametype != GT_SINGLE_PLAYER) {
-        cgi.Alias_Clear();
+    if (cg_target_game >= TG_MOHTA) {
+        // Fixed in 2.0
+        //  The behavior has changed, all aliases get cleared
+        if (cgs.gametype != GT_SINGLE_PLAYER) {
+            cgi.Alias_Clear();
+        }
+    } else {
+        if (!cgs.localServer) {
+            cgi.Alias_Clear();
+        }
     }
     
     qsort(fileList, numFiles, sizeof(char *), &qsort_compare_strings);
