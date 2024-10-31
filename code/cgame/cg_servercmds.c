@@ -479,6 +479,8 @@ static const char *whiteListedCommands[] = {
     "popmenu",
     "wait",
     "globalwidgetcommand", // used for mods adding custom HUDs
+    "ui_addhud",
+    "ui_removehud",
     "tmstart",
     "tmstartloop",
     "tmstop",
