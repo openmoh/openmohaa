@@ -5319,15 +5319,31 @@ void Player::EvaluateState(State *forceTorso, State *forceLegs)
 
         laststate_Torso = currentState_Torso;
 
-        if (forceTorso) {
-            currentState_Torso = forceTorso;
+        if (currentState_Torso) {
+            laststate_Torso = currentState_Torso;
+
+            if (forceTorso) {
+                currentState_Torso = forceTorso;
+            } else {
+                currentState_Torso = currentState_Torso->Evaluate(*this, &torso_conditionals);
+            }
         } else {
-            currentState_Torso = currentState_Torso->Evaluate(*this, &torso_conditionals);
+            // Added in 2.0
+            //  Switch to the default torso state if it's NULL
+            if (forceTorso) {
+                currentState_Torso = forceTorso;
+            } else {
+                currentState_Torso = statemap_Torso->FindState("STAND");
+            }
+
+            laststate_Torso = NULL;
         }
 
         if (currentState_Torso) {
-            // Process exit commands of the last state
-            laststate_Torso->ProcessExitCommands(this);
+            if (laststate_Torso) {
+                // Process exit commands of the last state
+                laststate_Torso->ProcessExitCommands(this);
+            }
 
             // Process entry commands of the new state
             currentState_Torso->ProcessEntryCommands(this);
@@ -5431,26 +5447,34 @@ void Player::EvaluateState(State *forceTorso, State *forceLegs)
                 }
             }
 
-            if (!laststate_Legs) {
-                if ((m_iMovePosFlags & MPF_POSITION_CROUCHING)) {
+            if (currentState_Legs) {
+                laststate_Legs = currentState_Legs;
+
+                if (forceLegs) {
+                    currentState_Legs = forceLegs;
+                } else {
+                    currentState_Legs = currentState_Legs->Evaluate(*this, &legs_conditionals);
+                }
+            } else {
+                // Added in 2.0
+                //  Switch to the default legs state if it's NULL
+                if (forceLegs) {
+                    currentState_Legs = forceLegs;
+                } else if ((m_iMovePosFlags & MPF_POSITION_CROUCHING)) {
                     currentState_Legs = statemap_Legs->FindState("CROUCH_IDLE");
                 } else {
                     currentState_Legs = statemap_Legs->FindState("STAND");
                 }
-            }
 
-            laststate_Legs = currentState_Legs;
-
-            if (forceLegs) {
-                currentState_Legs = forceLegs;
-            } else {
-                currentState_Legs = currentState_Legs->Evaluate(*this, &legs_conditionals);
+                laststate_Legs = NULL;
             }
 
             animdone_Legs = false;
             if (currentState_Legs) {
-                // Process exit commands of the last state
-                laststate_Legs->ProcessExitCommands(this);
+                if (laststate_Legs) {
+                    // Process exit commands of the last state
+                    laststate_Legs->ProcessExitCommands(this);
+                }
 
                 // Process entry commands of the new state
                 currentState_Legs->ProcessEntryCommands(this);
