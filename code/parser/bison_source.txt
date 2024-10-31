@@ -125,6 +125,7 @@ int success_pos;
 %type <s.val> prim_expr
 %type <s.val> listener_identifier
 %type <s.val> nonident_prim_expr
+%type <s.val> nonident_prim_expr_base
 %type <s.val> const_array_list
 %type <s.val> const_array
 %type <s.val> identifier_prim
@@ -236,7 +237,7 @@ expr:
 
 func_prim_expr:
 	TOKEN_IDENTIFIER event_parameter_list_need { $$ = node3(ENUM_cmd_event_expr, $1, $2, TOKPOS(@1)); }
-	| nonident_prim_expr TOKEN_IDENTIFIER event_parameter_list { $$ = node4(ENUM_method_event_expr, $1, $2, $3, TOKPOS(@2)); }
+	| nonident_prim_expr_base TOKEN_IDENTIFIER event_parameter_list { $$ = node4(ENUM_method_event_expr, $1, $2, $3, TOKPOS(@2)); }
 	| TOKEN_NEG func_prim_expr { $$ = node3(ENUM_func1_expr, node1b(OP_UN_MINUS), $2, TOKPOS(@1)); }
 	| TOKEN_COMPLEMENT func_prim_expr { $$ = node3(ENUM_func1_expr, node1b(OP_UN_COMPLEMENT), $2, TOKPOS(@1)); }
 	| TOKEN_NOT func_prim_expr { $$ = node2(ENUM_bool_not, $2, TOKPOS(@1)); }
@@ -299,6 +300,13 @@ listener_identifier
 	;
 
 nonident_prim_expr
+	: nonident_prim_expr_base
+	| TOKEN_NEG nonident_prim_expr { $$ = node3(ENUM_func1_expr, node1b(OP_UN_MINUS), $2, TOKPOS(@1)); }
+	| TOKEN_COMPLEMENT nonident_prim_expr { $$ = node3(ENUM_func1_expr, node1b(OP_UN_COMPLEMENT), $2, TOKPOS(@1)); }
+	| TOKEN_NOT nonident_prim_expr { $$ = node2(ENUM_bool_not, $2, TOKPOS(@1)); }
+	;
+
+nonident_prim_expr_base
 	: TOKEN_DOLLAR listener_identifier { $$ = node3(ENUM_func1_expr, node1b(OP_UN_TARGETNAME), $2, TOKPOS(@1)); }
 	| nonident_prim_expr TOKEN_PERIOD identifier { $$ = node3(ENUM_field, $1, $3, TOKPOS(@3)); }
 	| nonident_prim_expr TOKEN_PERIOD TOKEN_SIZE { $$ = node3(ENUM_func1_expr, node1b(OP_UN_SIZE), $1, TOKPOS(@3)); }
@@ -310,9 +318,6 @@ nonident_prim_expr
 	| TOKEN_LISTENER { $$ = node2(ENUM_listener, $1, TOKPOS(@1)); }
 	| TOKEN_LEFT_BRACKET expr TOKEN_RIGHT_BRACKET { $$ = $2; }
 	| TOKEN_LEFT_BRACKET expr TOKEN_EOL TOKEN_RIGHT_BRACKET { $$ = $2; }
-	| TOKEN_NEG nonident_prim_expr { $$ = node3(ENUM_func1_expr, node1b(OP_UN_MINUS), $2, TOKPOS(@1)); }
-	| TOKEN_COMPLEMENT nonident_prim_expr { $$ = node3(ENUM_func1_expr, node1b(OP_UN_COMPLEMENT), $2, TOKPOS(@1)); }
-	| TOKEN_NOT nonident_prim_expr { $$ = node2(ENUM_bool_not, $2, TOKPOS(@1)); }
 	| TOKEN_NULL { $$ = node1(ENUM_NULL, TOKPOS(@1)); }
 	| TOKEN_NIL { $$ = node1(ENUM_NIL, TOKPOS(@1)); }
 	;
