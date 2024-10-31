@@ -425,7 +425,6 @@ void CG_FreeMarkObj(markObj_t *pMark)
     markPoly_t *pPoly;
     markPoly_t *pNextPoly;
 
-    pPoly = pMark->markPolys;
     for (pPoly = pMark->markPolys; pPoly; pPoly = pNextPoly) {
         pNextPoly = pPoly->nextPoly;
         CG_FreeMarkPoly(pPoly);
@@ -461,10 +460,12 @@ void CG_FreeBestMarkObj(qboolean bAllowFade)
 
     for (pMark = cg_activeMarkObjs.prevMark; pMark != &cg_activeMarkObjs; pMark = pMark->prevMark) {
         if (!pMark->alphaFade || pMark->time > cg.time - 9000) {
-            pMark->time      = cg.time - 9000;
-            pMark->alphaFade = 1;
+            break;
         }
     }
+
+    pMark->time = cg.time - 9000;
+    pMark->alphaFade = qtrue;
 }
 
 /*
@@ -516,7 +517,10 @@ markObj_t *CG_AllocMark(int iNumPolys)
     pMark->prevMark                      = &cg_activeMarkObjs;
     cg_activeMarkObjs.nextMark->prevMark = pMark;
     cg_activeMarkObjs.nextMark           = pMark;
+
     cg_iNumFreeMarkObjs--;
+    assert(cg_iNumFreeMarkObjs >= 0);
+
     return pMark;
 }
 
