@@ -802,7 +802,7 @@ const char *TikiScript::GetToken( qboolean crossline )
 				if( macro_start - i->token != 0 )
 					memcpy( temptoken, i->token, macro_start - i->token );
 
-				temptoken[ macro_start - i->token + 1 ] = 0;
+				temptoken[ macro_start - i->token ] = 0;
 				strcat( temptoken, subst );
 				if( *( macro_end + 1 ) )
 				{
