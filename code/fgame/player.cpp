@@ -5298,6 +5298,14 @@ void Player::EvaluateState(State *forceTorso, State *forceLegs)
         return;
     }
 
+    if (getMoveType() == MOVETYPE_PORTABLE_TURRET) {
+        // Added in 2.0
+        //  Animations are handled hardcodedly
+        currentState_Torso = NULL;
+        currentState_Legs = NULL;
+        return;
+    }
+
     // Evaluate the current state.
     // When the state changes, we reevaluate the state so that if the
     // conditions aren't met in the new state, we don't play one frame of
