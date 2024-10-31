@@ -608,7 +608,11 @@ void Player::EventJailEscape(Event* ev)
 
 void Player::EventFace(Event *ev)
 {
-    SetViewAngles(Vector(ev->GetFloat(1), ev->GetFloat(2), ev->GetFloat(3)));
+    if (ev->NumArgs() == 1) {
+        SetViewAngles(ev->GetVector(1));
+    } else {
+        SetViewAngles(Vector(ev->GetFloat(1), ev->GetFloat(2), ev->GetFloat(3)));
+    }
 }
 
 void Player::EventCoord(Event *ev)
