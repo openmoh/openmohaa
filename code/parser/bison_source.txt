@@ -281,7 +281,7 @@ const_array
 prim_expr
 	: nonident_prim_expr
 	| identifier_prim { $$ = node2(ENUM_string, $1, TOKPOS(@1)); }
-	| prim_expr TOKEN_DOUBLE_COLON const_array_list { $$ = node3(ENUM_const_array_expr, $1, $3, TOKPOS(@2)); }
+	| const_array TOKEN_DOUBLE_COLON const_array_list { $$ = node3(ENUM_const_array_expr, $1, $3, TOKPOS(@2)); }
 	;
 
 identifier_prim:
