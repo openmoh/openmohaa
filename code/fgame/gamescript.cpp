@@ -89,7 +89,9 @@ bool AbstractScript::GetSourceAt(size_t sourcePos, str *sourceLine, int& column,
         if (*p == '\n') {
             line++;
             column  = 0;
-            posLine = i + 1;
+            if (i + 1 != sourcePos) {
+                posLine = i + 1;
+            }
         } else if (*p == '\0') {
             break;
         }
