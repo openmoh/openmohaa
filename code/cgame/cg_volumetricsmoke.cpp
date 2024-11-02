@@ -880,8 +880,7 @@ void ClientGameCommandManager::SpawnVSSSource(int count, int timealive)
             }
         }
 
-        pSource->velocity *= pSource->lifeTime / 1000.0;
-        pSource->newOrigin += pSource->velocity;
+        pSource->newOrigin += pSource->velocity * (pSource->lifeTime / 1000.0);
         if (vss_lighting_fps->integer) {
             cgi.R_GetLightingForSmoke(pSource->newLighting, pSource->newOrigin);
         }
