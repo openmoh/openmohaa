@@ -748,7 +748,6 @@ void ClientGameCommandManager::SpawnVSSSource(int count, int timealive)
         pSource->newDensity = 0.0;
         if (m_spawnthing->cgd.flags & 1) {
             pSource->newRadius = RandomizeRange(m_spawnthing->cgd.scalemin, m_spawnthing->cgd.scalemax);
-            ;
             if (pSource->newRadius > 32.0) {
                 pSource->newRadius = 32.0;
             }
@@ -1241,7 +1240,7 @@ void ClientGameCommandManager::AddVSSSources()
             }
 
             if (mstime >= physics_rate || (pCurrent->flags2 & 0x10) != 0) {
-                if (!VSS_SourcePhysics(pCurrent, (float)mstime * 0.001)) {
+                if (!VSS_SourcePhysics(pCurrent, (float)mstime / 1000.0)) {
                     FreeVSSSource(pCurrent);
                     continue;
                 }
@@ -1265,26 +1264,18 @@ void ClientGameCommandManager::AddVSSSources()
             }
         }
 
-        fLerpFrac = (cg.time - pCurrent->lastPhysicsTime) / physics_rate;
-        if (fLerpFrac > 1.0) {
-            fLerpFrac = 1.0;
-        } else if (fLerpFrac < 0.0) {
-            fLerpFrac = 0.0;
-        }
+        fLerpFrac = (float)(cg.time - pCurrent->lastPhysicsTime) / (float)physics_rate;
+        fLerpFrac = Q_clamp_float(fLerpFrac, 0, 1);
 
-        fLightingFrac = (cg.time - pCurrent->lastLightingTime) / lighting_rate;
-        if (fLightingFrac > 1.0) {
-            fLightingFrac = 1.0;
-        } else if (fLightingFrac < 0.0) {
-            fLightingFrac = 0.0;
-        }
+        fLightingFrac = (float)(cg.time - pCurrent->lastLightingTime) / (float)lighting_rate;
+        fLightingFrac = Q_clamp_float(fLightingFrac, 0, 1);
 
         if (lastVSSFrameTime) {
             pCurrent->lifeTime += frameTime;
         }
 
         if (!pCurrent->lastValid) {
-            if (!VSS_SourcePhysics(pCurrent, (float)physics_rate * 0.001)) {
+            if (!VSS_SourcePhysics(pCurrent, (float)physics_rate / 1000)) {
                 ClientGameCommandManager::FreeVSSSource(pCurrent);
                 continue;
             }
