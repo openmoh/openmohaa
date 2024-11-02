@@ -9712,7 +9712,7 @@ Vector Actor::CalcThrowVelocity(const Vector& vFrom, const Vector& vTo)
 
     vDelta           = vTo - vFrom;
     fHorzDistSquared = vDelta.lengthXYSquared();
-    fDistance        = sqrt(fHorzDistSquared + vDelta.z * vDelta.z);
+    fDistance        = sqrt(fHorzDistSquared + Square(vDelta.z));
 
     // original irl equation: v10 = sqrt(fGravity * 0.5 * fHorzDistSquared / (fDistance * trigMult ))
     // trigMult = (cos(th)/ tan(al) - sin(th)/tanSquared(al))
@@ -11912,8 +11912,10 @@ void Actor::EventCalcGrenadeToss2(Event *ev)
     }
 
     if (fDistSquared < Square(1024)) {
+        // See if it can roll
         vPoint = GrenadeThrowPoint(vFrom, vDelta, STRING_ANIM_GRENADETOSS_SCR);
         vVel   = CanRollGrenade(vPoint, vTargetPos);
+
         if (vVel != vPointTarget) {
             m_vGrenadeVel  = vVel;
             m_eGrenadeMode = AI_GREN_TOSS_ROLL;
@@ -11926,6 +11928,7 @@ void Actor::EventCalcGrenadeToss2(Event *ev)
     if (!speed) {
         vPoint = GrenadeThrowPoint(vFrom, vDelta, STRING_ANIM_GRENADETHROW_SCR);
         vVel   = CanThrowGrenade(vPoint, vTargetPos);
+
         if (vVel != vec_zero) {
             m_vGrenadeVel  = vVel;
             m_eGrenadeMode = AI_GREN_TOSS_THROW;
@@ -11942,7 +11945,9 @@ void Actor::EventCalcGrenadeToss2(Event *ev)
     vVel = vTargetPos - vPoint;
     vVel.normalize();
     vVel *= speed;
-    m_vGrenadeVel = vVel;
+
+    m_vGrenadeVel  = vVel;
+    m_eGrenadeMode = AI_GREN_TOSS_THROW;
 
     ev->AddConstString(STRING_ANIM_GRENADETOSS_SCR);
     SetDesiredYawDir(m_vGrenadeVel);
