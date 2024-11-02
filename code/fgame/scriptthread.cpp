@@ -3469,7 +3469,15 @@ void ScriptThread::CameraCommand(Event *ev)
 
 void ScriptThread::MissionFailed(Event *ev)
 {
-    G_MissionFailed();
+    bool bNoFade;
+
+    if (level.intermissiontime) {
+        return;
+    }
+
+    bNoFade = ev->NumArgs() && ev->GetInteger(1);
+
+    G_BeginIntermission(level.current_map, TRANS_MISSION_FAILED, bNoFade);
 }
 
 void ScriptThread::Archive(Archiver& arc) {}
