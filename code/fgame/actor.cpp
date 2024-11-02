@@ -2628,7 +2628,7 @@ CLASS_DECLARATION(SimpleActor, Actor, "Actor") {
     //{&EV_Actor_SetBreathSteam2,               &Actor::EventSetBreathSteam                     },
     //====
     {&EV_Actor_CalcGrenadeToss,               &Actor::EventCalcGrenadeToss              },
-    {&EV_Actor_CalcGrenadeToss2,              &Actor::EventCalcGrenadeToss              },
+    {&EV_Actor_CalcGrenadeToss2,              &Actor::EventCalcGrenadeToss2             },
     {&EV_Actor_GetNoSurprise,                 &Actor::EventGetNoSurprise                },
     {&EV_Actor_SetNoSurprise,                 &Actor::EventSetNoSurprise                },
     {&EV_Actor_SetNoSurprise2,                &Actor::EventSetNoSurprise                },
