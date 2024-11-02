@@ -1463,7 +1463,7 @@ void ClientGameCommandManager::SpawnTempModel(int mcount)
             p->cgd.avelocity[i] = m_spawnthing->avelocity_amplitude[i] * random() + m_spawnthing->avelocity_base[i];
 
             // Randomize angles or set absolute
-            p->cgd.angles[i] += random() * m_spawnthing->angles_amplitude[i];
+            p->cgd.angles[i] = m_spawnthing->angles_amplitude[i] * random() + m_spawnthing->cgd.angles[i];
         }
 
         // If forward velocity is set, just use that otherwise use random
