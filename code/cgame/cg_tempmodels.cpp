@@ -541,6 +541,7 @@ qboolean ClientGameCommandManager::TempModelPhysics(ctempmodel_t *p, float ftime
     Vector  tempangles;
     trace_t trace;
     float   dot;
+    int     i;
 
     VectorCopy(p->ent.origin, p->lastEnt.origin);
     AxisCopy(p->ent.axis, p->lastEnt.axis);
@@ -656,9 +657,7 @@ qboolean ClientGameCommandManager::TempModelPhysics(ctempmodel_t *p, float ftime
             p->cgd.velocity.x = Q_clamp_float(p->cgd.velocity.x, p->cgd.minVel.x, p->cgd.maxVel.x);
             p->cgd.velocity.y = Q_clamp_float(p->cgd.velocity.y, p->cgd.minVel.y, p->cgd.maxVel.y);
             p->cgd.velocity.z = Q_clamp_float(p->cgd.velocity.z, p->cgd.minVel.z, p->cgd.maxVel.z);
-        }
-
-        if (p->cgd.flags2 & T2_CLAMP_VEL_AXIS) {
+        } else if (p->cgd.flags2 & T2_CLAMP_VEL_AXIS) {
             Vector localVelocity;
             localVelocity.x = DotProduct(p->cgd.velocity, p->ent.axis[0]);
             localVelocity.y = DotProduct(p->cgd.velocity, p->ent.axis[1]);
@@ -673,8 +672,48 @@ qboolean ClientGameCommandManager::TempModelPhysics(ctempmodel_t *p, float ftime
             p->cgd.velocity.z = DotProduct(localVelocity, p->ent.axis[2]);
         }
 
-        if (p->cgd.flags2 & T_ALIGN) {
-            // FIXME: vss wind
+        if (p->cgd.flags2 & T2_WIND_AFFECT) {
+            for (i = 0; i < 3; i++) {
+                float fWind;
+
+                switch (i) {
+                case 0:
+                    fWind = vss_wind_x->value;
+                    break;
+                case 1:
+                    fWind = vss_wind_y->value;
+                    break;
+                case 2:
+                    fWind = vss_wind_z->value;
+                    break;
+                }
+
+                if (fWind < 0) {
+                    if (p->cgd.velocity[i] > fWind) {
+                        p->cgd.velocity[i] -= ftime * vss_wind_strength->value;
+                        if (p->cgd.velocity[i] > fWind) {
+                            p->cgd.velocity[i] = fWind;
+                        }
+                    } else if (p->cgd.velocity[i] < fWind) {
+                        p->cgd.velocity[i] += ftime * vss_movement_dampen->value;
+                        if (p->cgd.velocity[i] < fWind) {
+                            p->cgd.velocity[i] = fWind;
+                        }
+                    }
+                } else {
+                    if (p->cgd.velocity[i] < fWind) {
+                        p->cgd.velocity[i] += ftime * vss_wind_strength->value;
+                        if (p->cgd.velocity[i] > fWind) {
+                            p->cgd.velocity[i] = fWind;
+                        }
+                    } else if (p->cgd.velocity[i] > fWind) {
+                        p->cgd.velocity[i] -= ftime * vss_wind_strength->value;
+                        if (p->cgd.velocity[i] < fWind) {
+                            p->cgd.velocity[i] = fWind;
+                        }
+                    }
+                }
+            }
         }
     } else {
         Vector normal;
