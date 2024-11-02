@@ -1870,6 +1870,11 @@ Projectile *ProjectileAttack(
     }
 
     args.setArg("model", projectileModel);
+    // Added in 2.0
+    //  Set the projectile targetname
+    //  so they can be managed from scripts
+    args.setArg("targetname", "projectile");
+
     obj = (Entity *)args.Spawn();
 
     if (!obj) {
