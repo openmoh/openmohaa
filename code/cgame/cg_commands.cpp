@@ -1459,8 +1459,8 @@ void ClientGameCommandManager::SetBaseAndAmplitude(Event *ev, Vector& base, Vect
             base[j]      = ev->GetFloat(i++);
             amplitude[j] = ev->GetFloat(i++);
         } else {
-            base[j]      = 0.0;
-            amplitude[j] = atof(org.c_str());
+            base[j]      = atof(org.c_str());
+            amplitude[j] = 0.0;
         }
     }
 }
