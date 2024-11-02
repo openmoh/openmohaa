@@ -289,13 +289,13 @@ qboolean VSS_SourcePhysics(cvssource_t *pSource, float ftime)
 
     fWind = 0.0;
 
-    if ((pSource->flags2 & 5) != 0) {
+    if ((pSource->flags2 & (T2_ACCEL | T2_MOVE)) != 0) {
         VectorMA(pSource->velocity, ftime, pSource->repulsion, pSource->velocity);
     }
 
     pSource->lastOrigin = pSource->newOrigin;
 
-    if (pSource->flags & 0x800) {
+    if (pSource->flags & T_COLLISION) {
         trace.allsolid = qfalse;
         CG_ClipMoveToEntities(
             pSource->newOrigin, vec3_origin, vec3_origin, pSource->newOrigin, -1, MASK_VOLUMETRIC_SMOKE, &trace, qfalse
@@ -315,11 +315,11 @@ qboolean VSS_SourcePhysics(cvssource_t *pSource, float ftime)
         }
     }
 
-    if (pSource->flags2 & 5) {
+    if (pSource->flags2 & (T2_ACCEL | T2_MOVE)) {
         VectorMA(pSource->newOrigin, ftime, pSource->velocity, pSource->newOrigin);
     }
 
-    if (pSource->flags & 0x800) {
+    if (pSource->flags & T_COLLISION) {
         CG_Trace(
             &trace,
             pSource->lastOrigin,
@@ -363,7 +363,7 @@ qboolean VSS_SourcePhysics(cvssource_t *pSource, float ftime)
     }
 
     iSmokeType = abs(pSource->smokeType);
-    if (pSource->flags2 & 5) {
+    if (pSource->flags2 & (T2_ACCEL | T2_MOVE)) {
         VectorCopy(pSource->velocity, vVel);
 
         for (i = 0; i < 3; i++) {
@@ -624,7 +624,7 @@ qboolean VSS_LerpSource(cvssource_t *pCurrent, cvssourcestate_t *pState, float f
 {
     int i;
 
-    if (pCurrent->flags & 0xA0000) {
+    if (pCurrent->flags & (T_HARDLINK | T_PARENTLINK)) {
         Vector parentOrigin;
 
         for (i = 0; i < 3; i++) {
@@ -643,7 +643,7 @@ qboolean VSS_LerpSource(cvssource_t *pCurrent, cvssourcestate_t *pState, float f
 
         parentOrigin = e->origin;
         VectorAdd(pState->origin, parentOrigin, pState->origin);
-    } else if (pCurrent->flags2 & 5) {
+    } else if (pCurrent->flags2 & (T2_ACCEL | T2_MOVE)) {
         for (i = 0; i < 3; i++) {
             pState->origin[i] =
                 (pCurrent->newOrigin[i] - pCurrent->lastOrigin[i]) * fLerpFrac + pCurrent->lastOrigin[i];
@@ -746,7 +746,7 @@ void ClientGameCommandManager::SpawnVSSSource(int count, int timealive)
 
         pSource->startAlpha = (random() * 0.15 + 0.85) * fDensity;
         pSource->newDensity = 0.0;
-        if (m_spawnthing->cgd.flags & 1) {
+        if (m_spawnthing->cgd.flags & T_RANDSCALE) {
             pSource->newRadius = RandomizeRange(m_spawnthing->cgd.scalemin, m_spawnthing->cgd.scalemax);
             if (pSource->newRadius > 32.0) {
                 pSource->newRadius = 32.0;
@@ -776,16 +776,16 @@ void ClientGameCommandManager::SpawnVSSSource(int count, int timealive)
         pSource->roll      = anglemod(fAngle);
 
         if (random() < 0.5) {
-            pSource->flags |= 0x40000;
+            pSource->flags |= T_RANDOMROLL;
         }
 
         VectorCopy(m_spawnthing->axis[0], vNewForward);
-        if (m_spawnthing->cgd.flags & 4) {
+        if (m_spawnthing->cgd.flags & T_SPHERE) {
             VectorCopy(m_spawnthing->cgd.origin, pSource->newOrigin);
             do {
                 vNewForward = Vector(crandom(), crandom(), crandom());
             } while (Vector::Dot(vNewForward, vNewForward) < 1.0);
-        } else if (m_spawnthing->cgd.flags & 0x10) {
+        } else if (m_spawnthing->cgd.flags & T_CIRCLE) {
             if (m_spawnthing->sphereRadius != 0.0) {
                 Vector dst, end;
 
@@ -798,7 +798,7 @@ void ClientGameCommandManager::SpawnVSSSource(int count, int timealive)
 
                 fAngle += fAngleStep;
             }
-        } else if (m_spawnthing->cgd.flags & 8) {
+        } else if (m_spawnthing->cgd.flags & T_INWARDSPHERE) {
             Vector dir, end;
             do {
                 dir = Vector(crandom(), crandom(), crandom());
@@ -807,7 +807,7 @@ void ClientGameCommandManager::SpawnVSSSource(int count, int timealive)
             end = m_spawnthing->cgd.origin + dir * m_spawnthing->sphereRadius;
             VectorCopy(end, pSource->newOrigin);
             vNewForward = dir * -1.0;
-        } else if (m_spawnthing->cgd.flags2 & 0x20000) {
+        } else if (m_spawnthing->cgd.flags2 & T2_CONE) {
             float fHeight, fRadius;
             float fAngle;
             float sina, cosa;
@@ -829,8 +829,6 @@ void ClientGameCommandManager::SpawnVSSSource(int count, int timealive)
             VectorMA(m_spawnthing->cgd.origin, fRadius * cosa, m_spawnthing->axis[1], pSource->newOrigin);
             VectorMA(m_spawnthing->cgd.origin, fRadius * sina, m_spawnthing->axis[2], pSource->newOrigin);
         } else if (m_spawnthing->sphereRadius) {
-            VectorCopy(m_spawnthing->cgd.origin, pSource->newOrigin);
-        } else {
             Vector dir, end;
             do {
                 dir = Vector(crandom(), crandom(), crandom());
@@ -840,6 +838,8 @@ void ClientGameCommandManager::SpawnVSSSource(int count, int timealive)
             end = m_spawnthing->cgd.origin + dir * m_spawnthing->sphereRadius;
             VectorCopy(end, pSource->newOrigin);
             vNewForward = dir;
+        } else {
+            VectorCopy(m_spawnthing->cgd.origin, pSource->newOrigin);
         }
 
         for (i = 0; i < 3; i++) {
@@ -873,7 +873,7 @@ void ClientGameCommandManager::SpawnVSSSource(int count, int timealive)
         for (i = 0; i < 3; ++i) {
             float fDist = m_spawnthing->axis_offset_base[i] + random() * m_spawnthing->axis_offset_amplitude[i];
 
-            if (pSource->flags2 & 0x80) {
+            if (pSource->flags2 & T2_PARALLEL) {
                 pSource->newOrigin += Vector(m_spawnthing->axis[i]) * fDist;
             } else {
                 pSource->newOrigin += Vector(m_spawnthing->tag_axis[i]) * fDist;
@@ -1224,13 +1224,13 @@ void ClientGameCommandManager::AddVSSSources()
         pComp = pCurrent->prev;
 
         newEnt.renderfx = 0;
-        if (pCurrent->flags < 0 && !cg_detail->integer) {
+        if ((pCurrent->flags & T_DETAIL) && !cg_detail->integer) {
             FreeVSSSource(pCurrent);
             continue;
         }
 
-        if ((pCurrent->flags2 & 0x4000) != 0) {
-            newEnt.renderfx = 0x4000000;
+        if ((pCurrent->flags2 & T2_ALWAYSDRAW) != 0) {
+            newEnt.renderfx = RF_ALWAYSDRAW;
         }
 
         if (pCurrent->lastPhysicsTime) {
@@ -1239,7 +1239,7 @@ void ClientGameCommandManager::AddVSSSources()
                 mstime = physics_rate;
             }
 
-            if (mstime >= physics_rate || (pCurrent->flags2 & 0x10) != 0) {
+            if (mstime >= physics_rate || (pCurrent->flags2 & T2_PHYSICS_EVERYFRAME) != 0) {
                 if (!VSS_SourcePhysics(pCurrent, (float)mstime / 1000.0)) {
                     FreeVSSSource(pCurrent);
                     continue;
@@ -1329,12 +1329,12 @@ void ClientGameCommandManager::AddVSSSources()
                         pCurrent->roll -= j;
                     }
 
-                    if ((pCurrent->flags & 0x40000) != 0) {
+                    if ((pCurrent->flags & T_RANDOMROLL) != 0) {
                         newEnt.hModel = hModel;
                     } else {
                         newEnt.hModel = hModel2;
                     }
-                } else if ((pCurrent->flags & 0x40000) != 0) {
+                } else if ((pCurrent->flags & T_RANDOMROLL) != 0) {
                     newEnt.hModel = hModel;
                 } else {
                     newEnt.hModel = hModel2;
