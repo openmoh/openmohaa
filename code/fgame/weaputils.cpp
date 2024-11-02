@@ -624,7 +624,7 @@ Projectile::Projectile()
     fDrunk               = 0;
     fDrunkRate           = 0;
     m_iSmashThroughGlass = 0;
-    addownervelocity     = qtrue;
+    addownervelocity     = false;
     can_hit_owner        = false;
     remove_when_stopped  = false;
     m_bExplodeOnTouch    = false;
