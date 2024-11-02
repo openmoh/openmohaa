@@ -2846,7 +2846,9 @@ void ClientGameCommandManager::SetAccel(Event *ev)
     m_spawnthing->cgd.accel[1] = ev->GetFloat(2);
     m_spawnthing->cgd.accel[2] = ev->GetFloat(3);
 
-    m_spawnthing->cgd.flags2 |= T2_ACCEL;
+    if (!(m_spawnthing->cgd.flags & T_SWARM)) {
+        m_spawnthing->cgd.flags2 |= T2_ACCEL;
+    }
 }
 
 void ClientGameCommandManager::SetFriction(Event *ev)
