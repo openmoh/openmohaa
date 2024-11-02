@@ -23,9 +23,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "server.h"
 
 #ifndef DEDICATED
-#  include "../client/client.h"
-#  include "../client/snd_local.h"
-#  include "../uilib/ui_public.h"
+#    include "../client/client.h"
+#    include "../client/snd_local.h"
+#    include "../uilib/ui_public.h"
 #endif
 
 /*
@@ -235,9 +235,9 @@ static void SV_Map_f( void ) {
 
 	Cvar_SaveGameRestart_f();
 
-    //
-    // in 2.0 and above, ignore training / mohaa mission maps
-    //
+	//
+	// in 2.0 and above, ignore training / mohaa mission maps
+	//
 	// FIXME: is this really necessary?
 	/*
 	if (com_target_game->integer != TG_MOH && g_gametype->integer == GT_SINGLE_PLAYER) {
@@ -677,7 +677,7 @@ static void SV_WriteBans(void)
 			curban = &serverBans[index];
 			
 			Com_sprintf(writebuf, sizeof(writebuf), "%d %s %d\n",
-				    curban->isexception, NET_AdrToString(curban->ip), curban->subnet);
+					curban->isexception, NET_AdrToString(curban->ip), curban->subnet);
 			FS_Write(writebuf, strlen(writebuf), writeto);
 		}
 
@@ -1017,7 +1017,7 @@ static void SV_ListBans_f(void)
 			count++;
 
 			Com_Printf("Ban #%d: %s/%d\n", count,
-				    NET_AdrToString(ban->ip), ban->subnet);
+					NET_AdrToString(ban->ip), ban->subnet);
 		}
 	}
 	// List all exceptions
@@ -1029,7 +1029,7 @@ static void SV_ListBans_f(void)
 			count++;
 
 			Com_Printf("Except #%d: %s/%d\n", count,
-				    NET_AdrToString(ban->ip), ban->subnet);
+					NET_AdrToString(ban->ip), ban->subnet);
 		}
 	}
 }
@@ -1103,22 +1103,22 @@ SV_Status_f
 ================
 */
 static void SV_Status_f(void) {
-    int				i;
-    size_t			j, l;
-    client_t		*cl;
-    playerState_t	*ps;
-    const char*		s;
+	int				i;
+	size_t			j, l;
+	client_t		*cl;
+	playerState_t	*ps;
+	const char*		s;
 	const char		*colName[8];
 	size_t			len;
 	unsigned int	colSize[8];
-    int				ping;
-    char			padding[64];
+	int				ping;
+	char			padding[64];
 
-    // make sure server is running
-    if (!com_sv_running->integer) {
-        Com_Printf("Server is not running.\n");
-        return;
-    }
+	// make sure server is running
+	if (!com_sv_running->integer) {
+		Com_Printf("Server is not running.\n");
+		return;
+	}
 
 	//
 	// Added in OPM
@@ -1134,34 +1134,34 @@ static void SV_Status_f(void) {
 	colSize[1] = strlen(colName[1]);
 	colName[2] = "ping";
 	colSize[2] = strlen(colName[2]);
-    colName[3] = "name";
+	colName[3] = "name";
 	colSize[3] = 15;
 	colName[4] = "lastmsg";
 	colSize[4] = 7;
 	colName[5] = "address";
 	colSize[5] = 21;
-    colName[6] = "qport";
-    colSize[6] = 5;
-    colName[7] = "rate";
-    colSize[7] = 5;
+	colName[6] = "qport";
+	colSize[6] = 5;
+	colName[7] = "rate";
+	colSize[7] = 5;
 
 	//
 	// Find IPv6 clients and adjust the IP address column size
 	//
 
 	for (i = 0, cl = svs.clients; i < svs.iNumClients; i++, cl++)
-    {
+	{
 		if (cl->state == CS_FREE) {
 			continue;
 		}
 
-        if (cl->netchan.remoteAddress.type == NA_IP6) {
-            colSize[5] = 38;
+		if (cl->netchan.remoteAddress.type == NA_IP6) {
+			colSize[5] = 38;
 			break;
 		}
 	}
 
-    Com_Printf("map: %s\n", sv_mapname->string);
+	Com_Printf("map: %s\n", sv_mapname->string);
 
 	//
 	// Print column header name
@@ -1169,7 +1169,7 @@ static void SV_Status_f(void) {
 
 	for (i = 0; i < 8; i++) {
 		// Column name
-        len = strlen(colName[i]);
+		len = strlen(colName[i]);
 		Com_Printf("%s", colName[i]);
 
 		// Padding
@@ -1188,44 +1188,44 @@ static void SV_Status_f(void) {
 	// Print column header padding
 	//
 
-    for (i = 0; i < 8; i++) {
-        for (j = 0; j < (ARRAY_LEN(padding) - 1) && (j < colSize[i]); j++) {
-            padding[j] = '-';
-        }
+	for (i = 0; i < 8; i++) {
+		for (j = 0; j < (ARRAY_LEN(padding) - 1) && (j < colSize[i]); j++) {
+			padding[j] = '-';
+		}
 		padding[j] = 0;
 
 		Com_Printf("%s ", padding);
-    }
-    Com_Printf("\n");
+	}
+	Com_Printf("\n");
 
 	//
 	// Print values
 	//
 
-    for (i = 0, cl = svs.clients; i < svs.iNumClients; i++, cl++)
-    {
+	for (i = 0, cl = svs.clients; i < svs.iNumClients; i++, cl++)
+	{
 		if (cl->state == CS_FREE) {
 			continue;
 		}
 
-        Com_Printf("%*u ", colSize[0], i);
-        ps = SV_GameClientNum(i);
-        // su44: ps->persistant is not avaible in mohaa
-        //Com_Printf ("%5i ", ps->persistant[PERS_SCORE]);
-        Com_Printf("%*u ", colSize[1], ps->stats[STAT_KILLS]);
+		Com_Printf("%*u ", colSize[0], i);
+		ps = SV_GameClientNum(i);
+		// su44: ps->persistant is not avaible in mohaa
+		//Com_Printf ("%5i ", ps->persistant[PERS_SCORE]);
+		Com_Printf("%*u ", colSize[1], ps->stats[STAT_KILLS]);
 
-        if (cl->state == CS_CONNECTED)
-            Com_Printf("CNCT ");
-        else if (cl->state == CS_ZOMBIE)
-            Com_Printf("ZMBI ");
-        else
-        {
-            ping = cl->ping < 9999 ? cl->ping : 9999;
-            Com_Printf("%*u ", colSize[2], ping);
-        }
+		if (cl->state == CS_CONNECTED)
+			Com_Printf("CNCT ");
+		else if (cl->state == CS_ZOMBIE)
+			Com_Printf("ZMBI ");
+		else
+		{
+			ping = cl->ping < 9999 ? cl->ping : 9999;
+			Com_Printf("%*u ", colSize[2], ping);
+		}
 
-        Com_Printf("%s ", cl->name);
-        l = SV_Strlen(cl->name);
+		Com_Printf("%s ", cl->name);
+		l = SV_Strlen(cl->name);
 		if (l < colSize[3]) {
 			l = colSize[3] - l;
 			for (j = 0; j < l; j++) {
@@ -1233,10 +1233,10 @@ static void SV_Status_f(void) {
 			}
 		}
 
-        Com_Printf("%*u ", colSize[4], svs.time - cl->lastPacketTime);
+		Com_Printf("%*u ", colSize[4], svs.time - cl->lastPacketTime);
 
-        s = NET_AdrToString(cl->netchan.remoteAddress);
-        Com_Printf("%s ", s);
+		s = NET_AdrToString(cl->netchan.remoteAddress);
+		Com_Printf("%s ", s);
 
 		len = strlen(s);
 		if (len < colSize[5]) {
@@ -1246,13 +1246,13 @@ static void SV_Status_f(void) {
 			}
 		}
 
-        Com_Printf( "%*u", colSize[6], cl->netchan.qport );
+		Com_Printf( "%*u", colSize[6], cl->netchan.qport );
 
-        Com_Printf(" %*u", colSize[7], cl->rate);
+		Com_Printf(" %*u", colSize[7], cl->rate);
 
-        Com_Printf("\n");
-    }
-    Com_Printf("\n");
+		Com_Printf("\n");
+	}
+	Com_Printf("\n");
 }
 
 /*
@@ -1390,8 +1390,8 @@ static void SV_ConSayto_f(void) {
 
 	strcat(text, p);
 
-    Com_Printf("%s\n", text);
-    SV_SendServerCommand(saytocl, "print \"" HUD_MESSAGE_CHAT_WHITE "%s\n\"", text);
+	Com_Printf("%s\n", text);
+	SV_SendServerCommand(saytocl, "print \"" HUD_MESSAGE_CHAT_WHITE "%s\n\"", text);
 }
 
 
@@ -1637,51 +1637,51 @@ SV_AddOperatorCommands
 ==================
 */
 void SV_AddOperatorCommands(void) {
-    static qboolean	initialized;
+	static qboolean	initialized;
 
-    if (initialized) {
-        return;
-    }
-    initialized = qtrue;
+	if (initialized) {
+		return;
+	}
+	initialized = qtrue;
 
-    Cmd_AddCommand("heartbeat", SV_Heartbeat_f);
-    Cmd_AddCommand("kick", SV_Kick_f);
+	Cmd_AddCommand("heartbeat", SV_Heartbeat_f);
+	Cmd_AddCommand("kick", SV_Kick_f);
 #ifndef STANDALONE
-    if (!com_standalone->integer)
-    {
-        Cmd_AddCommand("banUser", SV_Ban_f);
-        Cmd_AddCommand("banClient", SV_BanNum_f);
-    }
+	if (!com_standalone->integer)
+	{
+		Cmd_AddCommand("banUser", SV_Ban_f);
+		Cmd_AddCommand("banClient", SV_BanNum_f);
+	}
 #endif
-    Cmd_AddCommand("kickall", SV_KickAll_f);
-    Cmd_AddCommand("kicknum", SV_KickNum_f);
-    Cmd_AddCommand("clientkick", SV_KickNum_f); // Legacy command
-    Cmd_AddCommand("status", SV_Status_f);
-    Cmd_AddCommand("serverinfo", SV_Serverinfo_f);
-    Cmd_AddCommand("systeminfo", SV_Systeminfo_f);
-    Cmd_AddCommand("dumpuser", SV_DumpUser_f);
-    Cmd_AddCommand("restart", SV_MapRestart_f);
-    Cmd_AddCommand("sectorlist", SV_SectorList_f);
-    Cmd_AddCommand("spmap", SV_Map_f);
-    Cmd_AddCommand("spdevmap", SV_Map_f);
-    Cmd_AddCommand("map", SV_Map_f);
-    Cmd_AddCommand("devmap", SV_Map_f);
-    Cmd_AddCommand("gamemap", SV_GameMap_f);
+	Cmd_AddCommand("kickall", SV_KickAll_f);
+	Cmd_AddCommand("kicknum", SV_KickNum_f);
+	Cmd_AddCommand("clientkick", SV_KickNum_f); // Legacy command
+	Cmd_AddCommand("status", SV_Status_f);
+	Cmd_AddCommand("serverinfo", SV_Serverinfo_f);
+	Cmd_AddCommand("systeminfo", SV_Systeminfo_f);
+	Cmd_AddCommand("dumpuser", SV_DumpUser_f);
+	Cmd_AddCommand("restart", SV_MapRestart_f);
+	Cmd_AddCommand("sectorlist", SV_SectorList_f);
+	Cmd_AddCommand("spmap", SV_Map_f);
+	Cmd_AddCommand("spdevmap", SV_Map_f);
+	Cmd_AddCommand("map", SV_Map_f);
+	Cmd_AddCommand("devmap", SV_Map_f);
+	Cmd_AddCommand("gamemap", SV_GameMap_f);
 
-    Cmd_AddCommand("killserver", SV_KillServer_f);
+	Cmd_AddCommand("killserver", SV_KillServer_f);
 #ifndef DEDICATED
-    Cmd_AddCommand("savegame", SV_Savegame_f);
-    Cmd_AddCommand("autosavegame", SV_Autosavegame_f);
-    Cmd_AddCommand("loadgame", SV_Loadgame_f);
-    Cmd_AddCommand("loadlastgame", SV_LoadLastGame_f);
+	Cmd_AddCommand("savegame", SV_Savegame_f);
+	Cmd_AddCommand("autosavegame", SV_Autosavegame_f);
+	Cmd_AddCommand("loadgame", SV_Loadgame_f);
+	Cmd_AddCommand("loadlastgame", SV_LoadLastGame_f);
 #endif
 
-    if (com_dedicated->integer) {
+	if (com_dedicated->integer) {
 		Cmd_AddCommand("say", SV_ConSay_f);
 		Cmd_AddCommand("tell", SV_ConTell_f);
 		Cmd_AddCommand("sayto", SV_ConSayto_f);
 		Cmd_SetCommandCompletionFunc("sayto", (completionFunc_t)SV_CompletePlayerName);
-    }
+	}
 
 	Cmd_AddCommand("rehashbans", SV_RehashBans_f);
 	Cmd_AddCommand("listbans", SV_ListBans_f);
@@ -1691,15 +1691,15 @@ void SV_AddOperatorCommands(void) {
 	Cmd_AddCommand("exceptdel", SV_ExceptDel_f);
 	Cmd_AddCommand("flushbans", SV_FlushBans_f);
 	
-    Cmd_AddCommand("difficultyEasy", SV_EasyMode_f);
-    Cmd_AddCommand("difficultyMedium", SV_MediumMode_f);
-    Cmd_AddCommand("difficultyHard", SV_HardMode_f);
+	Cmd_AddCommand("difficultyEasy", SV_EasyMode_f);
+	Cmd_AddCommand("difficultyMedium", SV_MediumMode_f);
+	Cmd_AddCommand("difficultyHard", SV_HardMode_f);
 
-    if (developer->integer) {
-        SV_MediumMode_f();
-    } else {
-        SV_EasyMode_f();
-    }
+	if (developer->integer) {
+		SV_MediumMode_f();
+	} else {
+		SV_EasyMode_f();
+	}
 }
 
 /*
@@ -1707,20 +1707,20 @@ void SV_AddOperatorCommands(void) {
 SV_RemoveOperatorCommands
 ==================
 */
-void SV_RemoveOperatorCommands( void ) {
+void SV_RemoveOperatorCommands(void) {
 #if 0
 	// removing these won't let the server start again
-	Cmd_RemoveCommand ("heartbeat");
-	Cmd_RemoveCommand ("kick");
-	Cmd_RemoveCommand ("banUser");
-	Cmd_RemoveCommand ("banClient");
-	Cmd_RemoveCommand ("status");
-	Cmd_RemoveCommand ("serverinfo");
-	Cmd_RemoveCommand ("systeminfo");
-	Cmd_RemoveCommand ("dumpuser");
-	Cmd_RemoveCommand ("map_restart");
-	Cmd_RemoveCommand ("sectorlist");
-	Cmd_RemoveCommand ("say");
+	Cmd_RemoveCommand("heartbeat");
+	Cmd_RemoveCommand("kick");
+	Cmd_RemoveCommand("banUser");
+	Cmd_RemoveCommand("banClient");
+	Cmd_RemoveCommand("status");
+	Cmd_RemoveCommand("serverinfo");
+	Cmd_RemoveCommand("systeminfo");
+	Cmd_RemoveCommand("dumpuser");
+	Cmd_RemoveCommand("map_restart");
+	Cmd_RemoveCommand("sectorlist");
+	Cmd_RemoveCommand("say");
 #endif
 }
 
@@ -1729,34 +1729,33 @@ void SV_RemoveOperatorCommands( void ) {
 SV_ArchiveHudDrawElements
 ==================
 */
-void SV_ArchiveHudDrawElements( qboolean loading )
+void SV_ArchiveHudDrawElements(qboolean loading)
 {
 #ifndef DEDICATED
 	int i;
 
-	for( i = 0; i < MAX_HUDDRAW_ELEMENTS; i++ )
-	{
-		ge->ArchiveString( cls.HudDrawElements[ i ].shaderName );
-		ge->ArchiveInteger( &cls.HudDrawElements[ i ].iX );
-		ge->ArchiveInteger( &cls.HudDrawElements[ i ].iY );
-		ge->ArchiveInteger( &cls.HudDrawElements[ i ].iWidth );
-		ge->ArchiveInteger( &cls.HudDrawElements[ i ].iHeight );
-		ge->ArchiveFloat( &cls.HudDrawElements[ i ].vColor[ 0 ] );
-		ge->ArchiveFloat( &cls.HudDrawElements[ i ].vColor[ 1 ] );
-		ge->ArchiveFloat( &cls.HudDrawElements[ i ].vColor[ 2 ] );
-		ge->ArchiveFloat( &cls.HudDrawElements[ i ].vColor[ 3 ] );
-		ge->ArchiveInteger( &cls.HudDrawElements[ i ].iHorizontalAlign );
-		ge->ArchiveInteger( &cls.HudDrawElements[ i ].iVerticalAlign );
-		ge->ArchiveInteger( &cls.HudDrawElements[ i ].bVirtualScreen );
-		ge->ArchiveString( cls.HudDrawElements[ i ].fontName );
-		ge->ArchiveString( cls.HudDrawElements[ i ].string );
+	for (i = 0; i < MAX_HUDDRAW_ELEMENTS; i++) {
+		ge->ArchiveString(cls.HudDrawElements[i].shaderName);
+		ge->ArchiveInteger(&cls.HudDrawElements[i].iX);
+		ge->ArchiveInteger(&cls.HudDrawElements[i].iY);
+		ge->ArchiveInteger(&cls.HudDrawElements[i].iWidth);
+		ge->ArchiveInteger(&cls.HudDrawElements[i].iHeight);
+		ge->ArchiveFloat(&cls.HudDrawElements[i].vColor[0]);
+		ge->ArchiveFloat(&cls.HudDrawElements[i].vColor[1]);
+		ge->ArchiveFloat(&cls.HudDrawElements[i].vColor[2]);
+		ge->ArchiveFloat(&cls.HudDrawElements[i].vColor[3]);
+		ge->ArchiveInteger(&cls.HudDrawElements[i].iHorizontalAlign);
+		ge->ArchiveInteger(&cls.HudDrawElements[i].iVerticalAlign);
+		ge->ArchiveInteger(&cls.HudDrawElements[i].bVirtualScreen);
+		ge->ArchiveString(cls.HudDrawElements[i].fontName);
+		ge->ArchiveString(cls.HudDrawElements[i].string);
 	}
 
-	if( loading ) {
-		if( cge ) {
+	if (loading) {
+		if (cge) {
 			cge->CG_RefreshHudDrawElements();
 		}
-    }
+	}
 #endif
 }
 
@@ -1765,16 +1764,16 @@ void SV_ArchiveHudDrawElements( qboolean loading )
 SV_HudDrawShader
 ==================
 */
-void SV_HudDrawShader( int iInfo, char *name )
+void SV_HudDrawShader(int iInfo, char *name)
 {
 #ifndef DEDICATED
-	Q_strncpyz( cls.HudDrawElements[ iInfo ].shaderName, name, sizeof(cls.HudDrawElements[ iInfo ].shaderName) );
-	cls.HudDrawElements[ iInfo ].string[ 0 ] = 0;
-	cls.HudDrawElements[ iInfo ].pFont = NULL;
-	cls.HudDrawElements[ iInfo ].fontName[ 0 ] = 0;
+	Q_strncpyz(cls.HudDrawElements[iInfo].shaderName, name, sizeof(cls.HudDrawElements[iInfo].shaderName));
+	cls.HudDrawElements[iInfo].string[0]   = 0;
+	cls.HudDrawElements[iInfo].pFont       = NULL;
+	cls.HudDrawElements[iInfo].fontName[0] = 0;
 
-	if( cge ) {
-		cge->CG_HudDrawShader( iInfo );
+	if (cge) {
+		cge->CG_HudDrawShader(iInfo);
 	}
 #endif
 }
@@ -1784,11 +1783,11 @@ void SV_HudDrawShader( int iInfo, char *name )
 SV_HudDrawAlign
 ==================
 */
-void SV_HudDrawAlign( int iInfo, int iHorizontalAlign, int iVerticalAlign )
+void SV_HudDrawAlign(int iInfo, int iHorizontalAlign, int iVerticalAlign)
 {
 #ifndef DEDICATED
-	cls.HudDrawElements[ iInfo ].iHorizontalAlign = iHorizontalAlign;
-	cls.HudDrawElements[ iInfo ].iVerticalAlign = iVerticalAlign;
+	cls.HudDrawElements[iInfo].iHorizontalAlign = iHorizontalAlign;
+	cls.HudDrawElements[iInfo].iVerticalAlign   = iVerticalAlign;
 #endif
 }
 
@@ -1797,13 +1796,13 @@ void SV_HudDrawAlign( int iInfo, int iHorizontalAlign, int iVerticalAlign )
 SV_HudDrawRect
 ==================
 */
-void SV_HudDrawRect( int iInfo, int iX, int iY, int iWidth, int iHeight )
+void SV_HudDrawRect(int iInfo, int iX, int iY, int iWidth, int iHeight)
 {
 #ifndef DEDICATED
-	cls.HudDrawElements[ iInfo ].iX = iX;
-	cls.HudDrawElements[ iInfo ].iY = iY;
-	cls.HudDrawElements[ iInfo ].iWidth = iWidth;
-	cls.HudDrawElements[ iInfo ].iHeight = iHeight;
+	cls.HudDrawElements[iInfo].iX      = iX;
+	cls.HudDrawElements[iInfo].iY      = iY;
+	cls.HudDrawElements[iInfo].iWidth  = iWidth;
+	cls.HudDrawElements[iInfo].iHeight = iHeight;
 #endif
 }
 
@@ -1812,10 +1811,10 @@ void SV_HudDrawRect( int iInfo, int iX, int iY, int iWidth, int iHeight )
 SV_HudDrawVirtualSize
 ==================
 */
-void SV_HudDrawVirtualSize( int iInfo, qboolean bVirtualScreen )
+void SV_HudDrawVirtualSize(int iInfo, qboolean bVirtualScreen)
 {
 #ifndef DEDICATED
-	cls.HudDrawElements[ iInfo ].bVirtualScreen = bVirtualScreen;
+	cls.HudDrawElements[iInfo].bVirtualScreen = bVirtualScreen;
 #endif
 }
 
@@ -1824,10 +1823,10 @@ void SV_HudDrawVirtualSize( int iInfo, qboolean bVirtualScreen )
 SV_HudDrawColor
 ==================
 */
-void SV_HudDrawColor( int iInfo, vec3_t vColor )
+void SV_HudDrawColor(int iInfo, vec3_t vColor)
 {
 #ifndef DEDICATED
-	VectorCopy( vColor, cls.HudDrawElements[ iInfo ].vColor );
+	VectorCopy(vColor, cls.HudDrawElements[iInfo].vColor);
 #endif
 }
 
@@ -1836,10 +1835,10 @@ void SV_HudDrawColor( int iInfo, vec3_t vColor )
 SV_HudDrawAlpha
 ==================
 */
-void SV_HudDrawAlpha( int iInfo, float alpha )
+void SV_HudDrawAlpha(int iInfo, float alpha)
 {
 #ifndef DEDICATED
-	cls.HudDrawElements[ iInfo ].vColor[ 3 ] = alpha;
+	cls.HudDrawElements[iInfo].vColor[3] = alpha;
 #endif
 }
 
@@ -1848,11 +1847,11 @@ void SV_HudDrawAlpha( int iInfo, float alpha )
 SV_HudDrawString
 ==================
 */
-void SV_HudDrawString( int iInfo, const char *string )
+void SV_HudDrawString(int iInfo, const char *string)
 {
 #ifndef DEDICATED
-	cls.HudDrawElements[ iInfo ].hShader = 0;
-	Q_strncpyz( cls.HudDrawElements[ iInfo ].string, string, sizeof(cls.HudDrawElements[iInfo].string) );
+	cls.HudDrawElements[iInfo].hShader = 0;
+	Q_strncpyz(cls.HudDrawElements[iInfo].string, string, sizeof(cls.HudDrawElements[iInfo].string));
 #endif
 }
 
@@ -1861,15 +1860,15 @@ void SV_HudDrawString( int iInfo, const char *string )
 SV_HudDrawFont
 ==================
 */
-void SV_HudDrawFont( int iInfo, const char *name )
+void SV_HudDrawFont(int iInfo, const char *name)
 {
 #ifndef DEDICATED
-	Q_strncpyz( cls.HudDrawElements[ iInfo ].fontName, name, sizeof(cls.HudDrawElements[iInfo].fontName) );
-	cls.HudDrawElements[ iInfo ].hShader = 0;
-	cls.HudDrawElements[ iInfo ].shaderName[ 0 ] = 0;
+	Q_strncpyz(cls.HudDrawElements[iInfo].fontName, name, sizeof(cls.HudDrawElements[iInfo].fontName));
+	cls.HudDrawElements[iInfo].hShader       = 0;
+	cls.HudDrawElements[iInfo].shaderName[0] = 0;
 
-	if( cge ) {
-		cge->CG_HudDrawFont( iInfo );
+	if (cge) {
+		cge->CG_HudDrawFont(iInfo);
 	}
 #endif
 }
@@ -1879,29 +1878,28 @@ void SV_HudDrawFont( int iInfo, const char *name )
 SV_ArchiveViewModelAnimation
 ==================
 */
-void SV_ArchiveViewModelAnimation( qboolean loading )
+void SV_ArchiveViewModelAnimation(qboolean loading)
 {
 #ifndef DEDICATED
-    int i;
+	int i;
 
-    for (i = 0; i < MAX_FRAMEINFOS; i++)
-    {
-        ge->ArchiveInteger(&cls.anim.g_VMFrameInfo[i].index);
-        ge->ArchiveFloat(&cls.anim.g_VMFrameInfo[i].time);
-        ge->ArchiveFloat(&cls.anim.g_VMFrameInfo[i].weight);
-    }
+	for (i = 0; i < MAX_FRAMEINFOS; i++) {
+		ge->ArchiveInteger(&cls.anim.g_VMFrameInfo[i].index);
+		ge->ArchiveFloat(&cls.anim.g_VMFrameInfo[i].time);
+		ge->ArchiveFloat(&cls.anim.g_VMFrameInfo[i].weight);
+	}
 
-    ge->ArchiveInteger(&cls.anim.g_iLastVMAnim);
-    ge->ArchiveInteger(&cls.anim.g_iLastVMAnimChanged);
-    ge->ArchiveInteger(&cls.anim.g_iCurrentVMAnimSlot);
-    ge->ArchiveInteger(&cls.anim.g_iCurrentVMDuration);
-    ge->ArchiveInteger(&cls.anim.g_bCrossblending);
-    ge->ArchiveInteger(&cls.anim.g_iLastEquippedWeaponStat);
-    ge->ArchiveString(cls.anim.g_szLastActiveItem);
-    ge->ArchiveInteger(&cls.anim.g_iLastAnimPrefixIndex);
-    ge->ArchiveFloat(&cls.anim.g_vCurrentVMPosOffset[0]);
-    ge->ArchiveFloat(&cls.anim.g_vCurrentVMPosOffset[1]);
-    ge->ArchiveFloat(&cls.anim.g_vCurrentVMPosOffset[2]);
+	ge->ArchiveInteger(&cls.anim.g_iLastVMAnim);
+	ge->ArchiveInteger(&cls.anim.g_iLastVMAnimChanged);
+	ge->ArchiveInteger(&cls.anim.g_iCurrentVMAnimSlot);
+	ge->ArchiveInteger(&cls.anim.g_iCurrentVMDuration);
+	ge->ArchiveInteger(&cls.anim.g_bCrossblending);
+	ge->ArchiveInteger(&cls.anim.g_iLastEquippedWeaponStat);
+	ge->ArchiveString(cls.anim.g_szLastActiveItem);
+	ge->ArchiveInteger(&cls.anim.g_iLastAnimPrefixIndex);
+	ge->ArchiveFloat(&cls.anim.g_vCurrentVMPosOffset[0]);
+	ge->ArchiveFloat(&cls.anim.g_vCurrentVMPosOffset[1]);
+	ge->ArchiveFloat(&cls.anim.g_vCurrentVMPosOffset[2]);
 #endif
 }
 
@@ -1910,11 +1908,11 @@ void SV_ArchiveViewModelAnimation( qboolean loading )
 SV_ArchiveStopwatch
 ==================
 */
-void SV_ArchiveStopwatch( qboolean loading )
+void SV_ArchiveStopwatch(qboolean loading)
 {
 #ifndef DEDICATED
-	ge->ArchiveSvsTime( &cls.stopwatch.iStartTime );
-	ge->ArchiveSvsTime( &cls.stopwatch.iEndTime );
+	ge->ArchiveSvsTime(&cls.stopwatch.iStartTime);
+	ge->ArchiveSvsTime(&cls.stopwatch.iEndTime);
 #endif
 }
 
@@ -1923,14 +1921,14 @@ void SV_ArchiveStopwatch( qboolean loading )
 SV_ArchivePersistantFile
 ==================
 */
-void SV_ArchivePersistantFile( qboolean loading )
+void SV_ArchivePersistantFile(qboolean loading)
 {
 #ifndef DEDICATED
 	const char *name;
 
-	Com_DPrintf( "SV_ArchivePersistantFile()\n" );
-	name = Com_GetArchiveFileName( svs.gameName, "spv" );
-	ge->ArchivePersistant( name, loading );
+	Com_DPrintf("SV_ArchivePersistantFile()\n");
+	name = Com_GetArchiveFileName(svs.gameName, "spv");
+	ge->ArchivePersistant(name, loading);
 #endif
 }
 
@@ -1939,12 +1937,12 @@ void SV_ArchivePersistantFile( qboolean loading )
 SV_ArchiveLevel
 ==================
 */
-void SV_ArchiveLevel( qboolean loading )
+void SV_ArchiveLevel(qboolean loading)
 {
 #ifndef DEDICATED
-	SV_ArchiveHudDrawElements( loading );
-	SV_ArchiveViewModelAnimation( loading );
-	SV_ArchiveStopwatch( loading );
+	SV_ArchiveHudDrawElements(loading);
+	SV_ArchiveViewModelAnimation(loading);
+	SV_ArchiveStopwatch(loading);
 #endif
 }
 
@@ -1956,45 +1954,40 @@ SV_ArchiveLevelFile
 qboolean SV_ArchiveLevelFile(qboolean loading, qboolean autosave)
 {
 #ifndef DEDICATED
-    const char* name;
-    fileHandle_t f;
-    savegamestruct_t save;
-    soundsystemsavegame_t SSsave;
+	const char           *name;
+	fileHandle_t          f;
+	savegamestruct_t      save;
+	soundsystemsavegame_t SSsave;
 
-    Com_DPrintf("SV_ArchiveLevelFile()\n");
-    name = Com_GetArchiveFileName(svs.gameName, "sav");
-    if (loading)
-    {
-		if (!ge->ReadLevel(name, (byte**)&cls.savedCgameState, &cls.savedCgameStateSize)) {
+	Com_DPrintf("SV_ArchiveLevelFile()\n");
+	name = Com_GetArchiveFileName(svs.gameName, "sav");
+	if (loading) {
+		if (!ge->ReadLevel(name, (byte **)&cls.savedCgameState, &cls.savedCgameStateSize)) {
 			return qfalse;
-        }
+		}
 
-        name = Com_GetArchiveFileName(svs.gameName, "ssv");
-        FS_FOpenFileRead(name, &f, qfalse, qtrue);
-        if (f)
-        {
-            FS_Read(&save, sizeof(savegamestruct_t), f);
+		name = Com_GetArchiveFileName(svs.gameName, "ssv");
+		FS_FOpenFileRead(name, &f, qfalse, qtrue);
+		if (f) {
+			FS_Read(&save, sizeof(savegamestruct_t), f);
 			Com_SwapSaveStruct(&save);
-            if (save.version != SAVEGAME_STRUCT_VERSION)
-            {
-                FS_FCloseFile(f);
-                return qfalse;
-            }
+			if (save.version != SAVEGAME_STRUCT_VERSION) {
+				FS_FCloseFile(f);
+				return qfalse;
+			}
 
-            FS_Read(&SSsave, sizeof(soundsystemsavegame_t), f);
-            CM_ReadPortalState(f);
-            FS_FCloseFile(f);
-        }
-    }
-    else
-    {
+			FS_Read(&SSsave, sizeof(soundsystemsavegame_t), f);
+			CM_ReadPortalState(f);
+			FS_FCloseFile(f);
+		}
+	} else {
 		cls.savedCgameStateSize = cge->CG_SaveStateToBuffer(&cls.savedCgameState, svs.time);
-        ge->WriteLevel(name, autosave, (byte**)&cls.savedCgameState, &cls.savedCgameStateSize);
+		ge->WriteLevel(name, autosave, (byte **)&cls.savedCgameState, &cls.savedCgameStateSize);
 		Z_Free(cls.savedCgameState);
 		cls.savedCgameState = NULL;
-    }
+	}
 
-    return qtrue;
+	return qtrue;
 #else
 	return qfalse;
 #endif
@@ -2005,12 +1998,12 @@ qboolean SV_ArchiveLevelFile(qboolean loading, qboolean autosave)
 S_Save
 ==================
 */
-void S_Save( fileHandle_t f )
+void S_Save(fileHandle_t f)
 {
 #ifndef DEDICATED
 	soundsystemsavegame_t save;
-	S_SaveData( &save );
-	FS_Write( &save, sizeof( soundsystemsavegame_t ), f );
+	S_SaveData(&save);
+	FS_Write(&save, sizeof(soundsystemsavegame_t), f);
 #endif
 }
 
@@ -2019,10 +2012,10 @@ void S_Save( fileHandle_t f )
 S_Load
 ==================
 */
-void S_Load( fileHandle_t f )
+void S_Load(fileHandle_t f)
 {
 #ifndef DEDICATED
-	FS_Read( &svs.soundSystem, sizeof( svs.soundSystem ), f );
+	FS_Read(&svs.soundSystem, sizeof(svs.soundSystem), f);
 	S_LoadData(&svs.soundSystem);
 #endif
 }
@@ -2032,108 +2025,99 @@ void S_Load( fileHandle_t f )
 SV_ArchiveServerFile
 ==================
 */
-qboolean SV_ArchiveServerFile( qboolean loading, qboolean autosave )
+qboolean SV_ArchiveServerFile(qboolean loading, qboolean autosave)
 {
 #ifndef DEDICATED
-	fileHandle_t f;
-	const char *name;
-	char comment[ 64 ];
+	fileHandle_t     f;
+	const char      *name;
+	char             comment[64];
 	savegamestruct_t save;
-	char cmdString[ 256 ];
-	time_t aclock;
+	char             cmdString[256];
+	time_t           aclock;
 
-	Com_DPrintf( "SV_ArchiveServerFile(%s)\n", autosave ? "true" : "false" );
+	Com_DPrintf("SV_ArchiveServerFile(%s)\n", autosave ? "true" : "false");
 	memset(&save, 0, sizeof(save));
-	name = Com_GetArchiveFileName( svs.gameName, "ssv" );
+	name = Com_GetArchiveFileName(svs.gameName, "ssv");
 
-	if( !loading )
-	{
-		f = FS_FOpenFileWrite( name );
-		if( !f )
-		{
-			Com_Printf( "Couldn't write %s\n", name );
+	if (!loading) {
+		f = FS_FOpenFileWrite(name);
+		if (!f) {
+			Com_Printf("Couldn't write %s\n", name);
 			return qfalse;
 		}
 
-		time( &aclock );
+		time(&aclock);
 
-		if( autosave )
-		{
-			Com_sprintf( comment, sizeof( comment ), "%s - Starting", sv.configstrings[ CS_MESSAGE ] );
-		}
-		else if( sv.configstrings[ CS_SAVENAME ] && *sv.configstrings[ CS_SAVENAME ] )
-		{
-			Com_sprintf( comment, sizeof( comment ), "%s - %s", sv.configstrings[ CS_MESSAGE ], sv.configstrings[ CS_SAVENAME ] );
-		}
-		else
-		{
-			Com_sprintf( comment, sizeof( comment ), "%s", sv.configstrings[ CS_MESSAGE ] );
-		}
-
-		if( strstr( name, "quick.ssv" ) ) {
-			Com_sprintf( save.comment, sizeof( save.comment ), "QuickSave - %s", comment );
+		if (autosave) {
+			Com_sprintf(comment, sizeof(comment), "%s - Starting", sv.configstrings[CS_MESSAGE]);
+		} else if (sv.configstrings[CS_SAVENAME] && *sv.configstrings[CS_SAVENAME]) {
+			Com_sprintf(
+				comment, sizeof(comment), "%s - %s", sv.configstrings[CS_MESSAGE], sv.configstrings[CS_SAVENAME]
+			);
 		} else {
-			Q_strncpyz( save.comment, comment, sizeof( save.comment ) );
+			Com_sprintf(comment, sizeof(comment), "%s", sv.configstrings[CS_MESSAGE]);
 		}
 
-		SV_SetConfigstring( CS_SAVENAME, "" );
+		if (strstr(name, "quick.ssv")) {
+			Com_sprintf(save.comment, sizeof(save.comment), "QuickSave - %s", comment);
+		} else {
+			Q_strncpyz(save.comment, comment, sizeof(save.comment));
+		}
+
+		SV_SetConfigstring(CS_SAVENAME, "");
 
 		save.version = SAVEGAME_STRUCT_VERSION;
-		save.type = com_target_game->integer;
-		save.flags = 0;
+		save.type    = com_target_game->integer;
+		save.flags   = 0;
 
 		save.time = aclock;
-		Q_strncpyz( save.mapName, svs.mapName, sizeof( save.mapName ) );
-		Q_strncpyz( save.saveName, svs.gameName, sizeof( save.saveName ) );
+		Q_strncpyz(save.mapName, svs.mapName, sizeof(save.mapName));
+		Q_strncpyz(save.saveName, svs.gameName, sizeof(save.saveName));
 		save.mapTime = svs.time - svs.startTime;
 
 		name = S_GetMusicFilename();
 		if (name) {
 			Q_strncpyz(save.tm_filename, name, sizeof(save.tm_filename));
-			save.tm_offset = S_GetMusicOffset();
+			save.tm_offset    = S_GetMusicOffset();
 			save.tm_loopcount = S_GetMusicLoopCount();
 		} else {
 			save.tm_filename[0] = 0;
-			save.tm_offset = 0;
-			save.tm_loopcount = 0;
+			save.tm_offset      = 0;
+			save.tm_loopcount   = 0;
 		}
 
 		Com_SwapSaveStruct(&save);
-		FS_Write( &save, sizeof( savegamestruct_t ), f );
-		S_Save( f );
-		CM_WritePortalState( f );
-		FS_FCloseFile( f );
+		FS_Write(&save, sizeof(savegamestruct_t), f);
+		S_Save(f);
+		CM_WritePortalState(f);
+		FS_FCloseFile(f);
 
-		name = Com_GetArchiveFileName( svs.gameName, "tga" );
-		Com_sprintf( cmdString, sizeof( cmdString ), "saveshot %s 256 256\n", name );
-		Cbuf_ExecuteText( svs.autosave ? EXEC_INSERT : EXEC_NOW, cmdString );
-	}
-	else
-	{
-		FS_FOpenFileRead( name, &f, qfalse, qtrue );
-		if( !f )
-		{
-			Com_Printf( "Couldn't read %s\n", name );
+		name = Com_GetArchiveFileName(svs.gameName, "tga");
+		Com_sprintf(cmdString, sizeof(cmdString), "saveshot %s 256 256\n", name);
+		Cbuf_ExecuteText(svs.autosave ? EXEC_INSERT : EXEC_NOW, cmdString);
+	} else {
+		FS_FOpenFileRead(name, &f, qfalse, qtrue);
+		if (!f) {
+			Com_Printf("Couldn't read %s\n", name);
 			return qfalse;
 		}
 
-        FS_Read(&save, sizeof(savegamestruct_t), f);
+		FS_Read(&save, sizeof(savegamestruct_t), f);
 		Com_SwapSaveStruct(&save);
-        if (save.version != SAVEGAME_STRUCT_VERSION)
-		{
+		if (save.version != SAVEGAME_STRUCT_VERSION) {
 			Com_Printf("Invalid or Old Server SaveGame Version\n");
 			return qfalse;
 		}
 
-		S_StopAllSounds2( qtrue );
-		S_Load( f );
-		Q_strncpyz( svs.mapName, save.mapName, sizeof( svs.mapName ) );
-		svs.mapTime = save.mapTime;
+		S_StopAllSounds2(qtrue);
+		S_Load(f);
+		Q_strncpyz(svs.mapName, save.mapName, sizeof(svs.mapName));
+		svs.mapTime               = save.mapTime;
 		svs.areabits_warning_time = 0;
-		Q_strncpyz( svs.tm_filename, save.tm_filename, sizeof( svs.tm_filename ) );
+		Q_strncpyz(svs.tm_filename, save.tm_filename, sizeof(svs.tm_filename));
 		svs.tm_loopcount = save.tm_loopcount;
-		svs.tm_offset = save.tm_offset;
-		FS_FCloseFile( f );
+		svs.tm_offset    = save.tm_offset;
+		FS_FCloseFile(f);
 	}
 
 	return qtrue;
@@ -2147,83 +2131,70 @@ qboolean SV_ArchiveServerFile( qboolean loading, qboolean autosave )
 SV_Loadgame_f
 ==================
 */
-void SV_Loadgame_f( void )
+void SV_Loadgame_f(void)
 {
 #ifndef DEDICATED
-	int length;
+	int         length;
 	const char *name;
 	const char *archive_name;
-	qboolean bStartedGame;
+	qboolean    bStartedGame;
 
-	if( com_cl_running && com_cl_running->integer &&
-		clc.state != CA_DISCONNECTED && cg_gametype->integer ||
-		com_sv_running && com_sv_running->integer && g_gametype->integer )
-	{
-		Com_Printf( "Can't loadgame in a multiplayer game\n" );
+	if (com_cl_running && com_cl_running->integer && clc.state != CA_DISCONNECTED && cg_gametype->integer
+		|| com_sv_running && com_sv_running->integer && g_gametype->integer) {
+		Com_Printf("Can't loadgame in a multiplayer game\n");
 		return;
 	}
 
-	Cvar_Set( "g_gametype", "0" );
-	Cvar_Set( "sv_maxclients", "1" );
-	Cvar_Get( "g_gametype", "0", CVAR_LATCH | CVAR_SERVERINFO );
-	Cvar_Get( "sv_maxclients", "0", CVAR_LATCH | CVAR_SERVERINFO );
+	Cvar_Set("g_gametype", "0");
+	Cvar_Set("sv_maxclients", "1");
+	Cvar_Get("g_gametype", "0", CVAR_LATCH | CVAR_SERVERINFO);
+	Cvar_Get("sv_maxclients", "0", CVAR_LATCH | CVAR_SERVERINFO);
 
-	if( developer->integer )
-	{
-		if( svs.iNumClients == 1 )
-		{
-			Cvar_Set( "cheats", "1" );
-		}
-		else
-		{
-			Cvar_Set( "cheats", "0" );
+	if (developer->integer) {
+		if (svs.iNumClients == 1) {
+			Cvar_Set("cheats", "1");
+		} else {
+			Cvar_Set("cheats", "0");
 		}
 	}
 
-	if( sv.state == SS_LOADING || sv.state == SS_LOADING2 )
-	{
-		Com_Printf( "Can't load game when loading\n" );
+	if (sv.state == SS_LOADING || sv.state == SS_LOADING2) {
+		Com_Printf("Can't load game when loading\n");
 		return;
 	}
 
-	if( Cmd_Argc() != 2 )
-	{
-		Com_Printf( "USAGE: loadgame <name>\n" );
+	if (Cmd_Argc() != 2) {
+		Com_Printf("USAGE: loadgame <name>\n");
 		return;
 	}
 
-	name = Cmd_Argv( 1 );
-	Com_Printf( "Loading game...%s\n", name );
-	if( strstr( name, ".." ) || strchr( name, '/' ) || strchr( name, '\\' ) ) {
-		Com_Printf( "Bad savedir.\n" );
+	name = Cmd_Argv(1);
+	Com_Printf("Loading game...%s\n", name);
+	if (strstr(name, "..") || strchr(name, '/') || strchr(name, '\\')) {
+		Com_Printf("Bad savedir.\n");
 	}
 
-	Q_strncpyz( svs.gameName, name, sizeof( svs.gameName ) );
-	archive_name = Com_GetArchiveFileName( name, "sav" );
+	Q_strncpyz(svs.gameName, name, sizeof(svs.gameName));
+	archive_name = Com_GetArchiveFileName(name, "sav");
 	Cvar_SaveGameRestart_f();
 
-	length = FS_ReadFileEx( archive_name, NULL, qtrue );
-	if( length == -1 )
-	{
-		Com_Printf( "Savegame not found.\n" );
+	length = FS_ReadFileEx(archive_name, NULL, qtrue);
+	if (length == -1) {
+		Com_Printf("Savegame not found.\n");
 		return;
 	}
 
-    bStartedGame = qfalse;
+	bStartedGame = qfalse;
 
-	if( !ge )
-	{
+	if (!ge) {
 		SV_InitGameProgs();
 		bStartedGame = qtrue;
 	}
 
-	if( ge->LevelArchiveValid( archive_name ) && SV_ArchiveServerFile( qtrue, qfalse ) )
-	{
-		SV_SpawnServer( svs.mapName, qtrue, qfalse, qfalse );
+	if (ge->LevelArchiveValid(archive_name) && SV_ArchiveServerFile(qtrue, qfalse)) {
+		SV_SpawnServer(svs.mapName, qtrue, qfalse, qfalse);
 		svs.soundsNeedLoad = qtrue;
-	}
-	else if( bStartedGame )
-	{
+	} else if (bStartedGame) {
 		SV_ShutdownGameProgs();
 	}
 #endif
@@ -2234,27 +2205,26 @@ void SV_Loadgame_f( void )
 SV_SavegameFilename
 ==================
 */
-void SV_SavegameFilename( const char *name, char *fileName, int length )
+void SV_SavegameFilename(const char *name, char *fileName, int length)
 {
 #ifndef DEDICATED
-	int num;
+	int         num;
 	const char *fname;
-	int lastNumber;
-	int len;
-	int a;
-	int b;
-	int c;
+	int         lastNumber;
+	int         len;
+	int         a;
+	int         b;
+	int         c;
 
-	for( num = 0; num < 10000; num++ )
-	{
-		a = num / 1000;
-		b = num % 1000 / 100;
-		c = num % 1000 % 100 / 10;
+	for (num = 0; num < 10000; num++) {
+		a          = num / 1000;
+		b          = num % 1000 / 100;
+		c          = num % 1000 % 100 / 10;
 		lastNumber = num % 1000 % 100 % 10;
-		Com_sprintf( fileName, length, "%s%i%i%i%i", name, a, b, c, lastNumber );
-		fname = Com_GetArchiveFileName( fileName, "ssv" );
-		len = FS_ReadFileEx( fname, NULL, qtrue );
-		if( len <= 0 ) {
+		Com_sprintf(fileName, length, "%s%i%i%i%i", name, a, b, c, lastNumber);
+		fname = Com_GetArchiveFileName(fileName, "ssv");
+		len   = FS_ReadFileEx(fname, NULL, qtrue);
+		if (len <= 0) {
 			break;
 		}
 	}
@@ -2266,42 +2236,30 @@ void SV_SavegameFilename( const char *name, char *fileName, int length )
 SV_AllowSaveGame
 ==================
 */
-qboolean SV_AllowSaveGame( void )
+qboolean SV_AllowSaveGame(void)
 {
 #ifndef DEDICATED
-	if( !com_sv_running || !com_sv_running->integer )
-	{
-		Com_DPrintf( "You must be in a game with a server to save.\n" );
+	if (!com_sv_running || !com_sv_running->integer) {
+		Com_DPrintf("You must be in a game with a server to save.\n");
 		return qfalse;
-	}
-	else if( !com_cl_running || !com_cl_running->integer )
-	{
-		Com_DPrintf( "You must be in a game with a client to save.\n" );
+	} else if (!com_cl_running || !com_cl_running->integer) {
+		Com_DPrintf("You must be in a game with a client to save.\n");
 		return qfalse;
-	}
-	else if( sv.state != SS_GAME )
-	{
-		Com_DPrintf( "You must be in game to save.\n" );
+	} else if (sv.state != SS_GAME) {
+		Com_DPrintf("You must be in game to save.\n");
 		return qfalse;
-	}
-	else if( clc.state != CA_DISCONNECTED && cg_gametype->integer )
-	{
-		Com_DPrintf( "Can't savegame in a multiplayer game\n" );
+	} else if (clc.state != CA_DISCONNECTED && cg_gametype->integer) {
+		Com_DPrintf("Can't savegame in a multiplayer game\n");
 		return qfalse;
-	}
-	else if( g_gametype->integer )
-	{
-		Com_DPrintf( "Can't savegame in a multiplayer game\n" );
+	} else if (g_gametype->integer) {
+		Com_DPrintf("Can't savegame in a multiplayer game\n");
 		return qfalse;
-	}
-	else if( !svs.clients || svs.clients->gentity == NULL || svs.clients->gentity->client == NULL || !svs.clients->gentity->client->ps.stats[ 0 ] )
-	{
-		Com_DPrintf( "Can't savegame when dead\n" );
+	} else if (!svs.clients || svs.clients->gentity == NULL || svs.clients->gentity->client == NULL
+			   || !svs.clients->gentity->client->ps.stats[0]) {
+		Com_DPrintf("Can't savegame when dead\n");
 		return qfalse;
-	}
-	else if( sv.state == SS_LOADING || sv.state == SS_LOADING2 )
-	{
-		Com_DPrintf( "Can't save game when loading\n" );
+	} else if (sv.state == SS_LOADING || sv.state == SS_LOADING2) {
+		Com_DPrintf("Can't save game when loading\n");
 		return qfalse;
 	}
 
@@ -2321,9 +2279,8 @@ static qboolean bSavegame;
 qboolean SV_DoSaveGame()
 {
 #ifndef DEDICATED
-	if( bSavegame )
-	{
-		if( SV_AllowSaveGame() ) {
+	if (bSavegame) {
+		if (SV_AllowSaveGame()) {
 			return qtrue;
 		}
 		bSavegame = qfalse;
@@ -2339,45 +2296,40 @@ qboolean SV_DoSaveGame()
 SV_SaveGame
 ==================
 */
-void SV_SaveGame( const char *gamename, qboolean autosave )
+void SV_SaveGame(const char *gamename, qboolean autosave)
 {
 #ifndef DEDICATED
 	char *ptr;
-	char name[ 64 ];
-	char mname[ 64 ];
+	char  name[64];
+	char  mname[64];
 
-	if( !SV_AllowSaveGame() ) {
+	if (!SV_AllowSaveGame()) {
 		return;
 	}
 
-	if( gamename )
-	{
-		Q_strncpyz( name, gamename, sizeof( name ) );
-	}
-	else
-	{
-		Q_strncpyz( mname, svs.mapName, sizeof( mname ) );
-		for( ptr = strchr( mname, '/' ); ptr != NULL; ptr = strchr( mname, '/' ) )
-		{
+	if (gamename) {
+		Q_strncpyz(name, gamename, sizeof(name));
+	} else {
+		Q_strncpyz(mname, svs.mapName, sizeof(mname));
+		for (ptr = strchr(mname, '/'); ptr != NULL; ptr = strchr(mname, '/')) {
 			*ptr = '_';
 		}
-		SV_SavegameFilename( mname, name, sizeof( name ) );
+		SV_SavegameFilename(mname, name, sizeof(name));
 	}
 
-	if( strstr( name, ".." ) || strchr( name, '/' ) || strchr( name, '\\' ) )
-	{
-		Com_DPrintf( "Bad savedir.\n" );
+	if (strstr(name, "..") || strchr(name, '/') || strchr(name, '\\')) {
+		Com_DPrintf("Bad savedir.\n");
 		return;
 	}
 
-	Com_Printf( "Saving to %s", name );
-	if( autosave ) {
-		Com_Printf( " (autosave)...\n" );
+	Com_Printf("Saving to %s", name);
+	if (autosave) {
+		Com_Printf(" (autosave)...\n");
 	} else {
-		Com_Printf( "...\n" );
+		Com_Printf("...\n");
 	}
 
-	Q_strncpyz( svs.gameName, name, sizeof( svs.gameName ) );
+	Q_strncpyz(svs.gameName, name, sizeof(svs.gameName));
 
 	if (!SV_ArchiveLevelFile(qfalse, autosave)) {
 		if (cls.savedCgameState) {
@@ -2386,11 +2338,11 @@ void SV_SaveGame( const char *gamename, qboolean autosave )
 		}
 	}
 
-	SV_ArchiveServerFile( qfalse, autosave );
+	SV_ArchiveServerFile(qfalse, autosave);
 
-	Com_Printf( "Done.\n" );
+	Com_Printf("Done.\n");
 
-	Q_strncpyz( svs.gameName, "current", sizeof( svs.gameName ) );
+	Q_strncpyz(svs.gameName, "current", sizeof(svs.gameName));
 #endif
 }
 
@@ -2399,30 +2351,26 @@ void SV_SaveGame( const char *gamename, qboolean autosave )
 SV_Savegame_f
 ==================
 */
-static char savegame_name[ 64 ];
+static char savegame_name[64];
 
-void SV_Savegame_f( void )
+void SV_Savegame_f(void)
 {
 #ifndef DEDICATED
 	char *s;
 
-	if( !SV_AllowSaveGame() ) {
+	if (!SV_AllowSaveGame()) {
 		return;
 	}
 
-	if( Cmd_Argc() == 2 )
-	{
-
-		s = Cmd_Argv( 1 );
-		if( strlen( s ) >= sizeof( savegame_name ) ) {
+	if (Cmd_Argc() == 2) {
+		s = Cmd_Argv(1);
+		if (strlen(s) >= sizeof(savegame_name)) {
 			return;
 		}
 
-		Q_strncpyz( savegame_name, s, sizeof( savegame_name ) );
-	}
-	else
-	{
-		savegame_name[ 0 ] = 0;
+		Q_strncpyz(savegame_name, s, sizeof(savegame_name));
+	} else {
+		savegame_name[0] = 0;
 	}
 
 	bSavegame = qtrue;
@@ -2434,25 +2382,24 @@ void SV_Savegame_f( void )
 SV_CheckSaveGame
 ==================
 */
-void SV_CheckSaveGame( void )
+void SV_CheckSaveGame(void)
 {
 #ifndef DEDICATED
-	if( !SV_DoSaveGame() ) {
+	if (!SV_DoSaveGame()) {
 		return;
 	}
 
-	if( cl.serverTime >= svs.time )
-	{
+	if (cl.serverTime >= svs.time) {
 		bSavegame = qfalse;
-		SV_SaveGame( savegame_name[ 0 ] ? savegame_name : NULL, qfalse );
+		SV_SaveGame(savegame_name[0] ? savegame_name : NULL, qfalse);
 		UI_SetupFiles();
 	}
 #endif
 }
 
-void SV_Autosavegame_f( void )
+void SV_Autosavegame_f(void)
 {
 #ifndef DEDICATED
-	SV_SaveGame( NULL, qtrue );
+	SV_SaveGame(NULL, qtrue);
 #endif
 }
