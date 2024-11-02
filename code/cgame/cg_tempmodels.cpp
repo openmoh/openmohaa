@@ -936,7 +936,12 @@ void ClientGameCommandManager::AddTempModels(void)
         // time of this tempmodel
         lerpfrac = (float)(cg.time - p->lastPhysicsTime) / (float)physics_rate;
         // Clamp
-        lerpfrac = Q_clamp_float(lerpfrac, 0, 1);
+        if (lerpfrac > 1 || (p->cgd.flags2 & T2_PHYSICS_EVERYFRAME)) {
+            lerpfrac = 1;
+        }
+        if (lerpfrac < 0) {
+            lerpfrac = 0;
+        }
 
         // Increment the time this tempmodel has been alive
         p->aliveTime += frameTime;
@@ -1160,7 +1165,13 @@ void ClientGameCommandManager::SpawnTempModel(int mcount)
             {
                 Vector dst;
                 // Create a circular shaped burst around the up vector
-                float angle = ((float)count / (float)m_spawnthing->count) * 360; // * M_PI * 2;
+                float angle;
+                
+                if (mcount == 1) {
+                    angle = random() * 360;
+                } else {
+                    angle = ((float)count / (float)m_spawnthing->count) * 360; // * M_PI * 2;
+                }
 
                 Vector end = Vector(vLeft) * m_spawnthing->sphereRadius * current_entity_scale;
                 RotatePointAroundVector(dst, Vector(vForward), end, angle);
@@ -1447,18 +1458,15 @@ void ClientGameCommandManager::SpawnTempModel(int mcount)
             }
         }
 
-        // Calculate one tick of velocity based on time alive ( passed in )
-        p->cgd.origin = p->cgd.origin + (p->cgd.velocity * ((float)p->aliveTime / 1000.0f) * current_entity_scale);
-
-        if (p->cgd.flags2 & T2_ACCEL) {
+        if (m_spawnthing->cgd.flags2 & T2_RADIALVELOCITY) {
             float fLength;
 
             p->cgd.velocity = p->cgd.origin - start;
 
             fLength = p->cgd.velocity.length();
             if (fLength) {
-                float fVel = m_spawnthing->cgd.velocity.x
-                           + (m_spawnthing->cgd.velocity.y + m_spawnthing->cgd.velocity.z * crandom()) / fLength;
+                float fVel = m_spawnthing->cgd.velocity[0]
+                           + (m_spawnthing->cgd.velocity[1] + m_spawnthing->cgd.velocity[2] * random()) / fLength;
 
                 p->cgd.velocity *= fVel;
             }
@@ -1469,19 +1477,21 @@ void ClientGameCommandManager::SpawnTempModel(int mcount)
                 (m_spawnthing->randvel_base[i] + m_spawnthing->randvel_amplitude[i] * random()) * current_entity_scale;
 
             if (m_spawnthing->cgd.flags & T_RANDVELAXIS) {
-                p->cgd.velocity += fVel * Vector(m_spawnthing->tag_axis[i]);
+                if (p->cgd.flags2 & T2_NOTAGAXIS) {
+                    p->cgd.velocity += fVel * Vector(m_spawnthing->axis[i]);
+                } else {
+                    p->cgd.velocity += fVel * Vector(m_spawnthing->tag_axis[i]);
+                }
             } else {
                 p->cgd.velocity[i] += fVel;
             }
         }
 
         if (p->cgd.flags & (T_ALIGN | T_DETAIL)) {
-            if (p->cgd.velocity.x && p->cgd.velocity.y) {
-                p->cgd.angles = p->cgd.velocity.toAngles();
-            }
-
-            p->cgd.origin += p->cgd.velocity * (p->aliveTime / 1000.0) * current_entity_scale;
+            p->cgd.angles = p->cgd.velocity.toAngles();
         }
+
+        p->cgd.origin += p->cgd.velocity * (p->aliveTime / 1000.0) * current_entity_scale;
 
         if (p->cgd.flags & T_AUTOCALCLIFE) {
             Vector  end, delta;
