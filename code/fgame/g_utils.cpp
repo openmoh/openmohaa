@@ -1980,28 +1980,9 @@ void G_RestartLevelWithDelay(float delaytime)
 {
     int i;
 
-    if (level.died_already) {
+    if (g_gametype->integer != GT_SINGLE_PLAYER) {
         return;
     }
-
-    level.died_already = true;
-
-    // Restart the level soon
-    for (i = 0; i < game.maxclients; i++) {
-        if (g_entities[i].inuse) {
-            if (g_entities[i].entity) {
-                g_entities[i].entity->PostEvent(EV_Player_Respawn, delaytime);
-            }
-        }
-    }
-}
-
-//
-// restarts the game after delaytime
-//
-void G_PlayerDied(float delaytime)
-{
-    int i;
 
     if (level.died_already) {
         return;
@@ -2010,7 +1991,6 @@ void G_PlayerDied(float delaytime)
     level.died_already = true;
 
     // Restart the level soon
-
     for (i = 0; i < game.maxclients; i++) {
         if (g_entities[i].inuse) {
             if (g_entities[i].entity) {
@@ -2025,13 +2005,7 @@ void G_PlayerDied(float delaytime)
 
 void G_MissionFailed(void)
 {
-    // Make the music system play the failure music for this level
-    ChangeMusic("failure", "normal", true);
-
-    G_PlayerDied(3);
-
-    // tell the player they f'd up
-    gi.centerprintf(&g_entities[0], "@textures/menu/mission.tga");
+    G_RestartLevelWithDelay(0);
 
     level.mission_failed = true;
 }

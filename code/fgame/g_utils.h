@@ -144,7 +144,6 @@ void G_MissionFailed(void);
 void G_FadeOut(float delaytime);
 void G_FadeSound(float delaytime);
 void G_RestartLevelWithDelay(float delaytime);
-void G_PlayerDied(float delaytime);
 void G_AutoFadeIn(void);
 void G_ClearFade(void);
 void G_StartCinematic(void);
