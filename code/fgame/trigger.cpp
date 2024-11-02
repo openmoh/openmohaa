@@ -1233,7 +1233,7 @@ void TriggerSave::SaveGame(Event *ev)
 
 void TriggerSave::EventSaveName(Event *ev)
 {
-    m_sSaveName = ev->GetConstString(1);
+    m_sSaveName = ev->GetString(1);
 }
 
 void TriggerSave::Archive(Archiver& arc)

@@ -28,6 +28,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #    include "../uilib/ui_public.h"
 #endif
 
+#include "../sys/win_localization.h"
+
 /*
 ===============================================================================
 
@@ -2049,17 +2051,21 @@ qboolean SV_ArchiveServerFile(qboolean loading, qboolean autosave)
 		time(&aclock);
 
 		if (autosave) {
-			Com_sprintf(comment, sizeof(comment), "%s - Starting", sv.configstrings[CS_MESSAGE]);
+			Com_sprintf(comment, sizeof(comment), "%s - %s", sv.configstrings[CS_MESSAGE], Sys_LV_CL_ConvertString("Starting"));
 		} else if (sv.configstrings[CS_SAVENAME] && *sv.configstrings[CS_SAVENAME]) {
-			Com_sprintf(
-				comment, sizeof(comment), "%s - %s", sv.configstrings[CS_MESSAGE], sv.configstrings[CS_SAVENAME]
-			);
+			if (com_target_game->integer >= TG_MOHTA) {
+				// Fixed in 2.0
+				//  In 2.0 and above, the full save name is set by the level
+				Com_sprintf(comment, sizeof(comment), "%s", Sys_LV_CL_ConvertString(sv.configstrings[CS_SAVENAME]));
+			} else {
+				Com_sprintf(comment, sizeof(comment), "%s - %s", Sys_LV_CL_ConvertString(sv.configstrings[CS_MESSAGE]), Sys_LV_CL_ConvertString(sv.configstrings[CS_SAVENAME]));
+			}
 		} else {
-			Com_sprintf(comment, sizeof(comment), "%s", sv.configstrings[CS_MESSAGE]);
+			Com_sprintf(comment, sizeof(comment), "%s", Sys_LV_CL_ConvertString(sv.configstrings[CS_MESSAGE]));
 		}
 
 		if (strstr(name, "quick.ssv")) {
-			Com_sprintf(save.comment, sizeof(save.comment), "QuickSave - %s", comment);
+			Com_sprintf(save.comment, sizeof(save.comment), "%s - %s", Sys_LV_CL_ConvertString("QuickSave"), comment);
 		} else {
 			Q_strncpyz(save.comment, comment, sizeof(save.comment));
 		}
