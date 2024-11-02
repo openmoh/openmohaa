@@ -512,7 +512,7 @@ void ClientSpecialEffectsManager::ExecuteEffect(
                 current_tiki   = NULL;
 
                 pCommand->emitter->cgd.origin = vPos;
-                if (pCommand->emitter->cgd.flags & T_ANGLES) {
+                if (!(pCommand->emitter->cgd.flags & T_ANGLES)) {
                     pCommand->emitter->cgd.angles = vAngles;
                 }
 
