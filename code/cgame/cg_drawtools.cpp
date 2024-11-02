@@ -1217,7 +1217,7 @@ void CG_DrawCrosshair()
         return;
     }
 
-    if ((cg.snap->ps.pm_flags & PMF_NO_LEAN) || (cg.snap->ps.pm_flags & PMF_INTERMISSION)) {
+    if ((cg.snap->ps.pm_flags & PMF_NO_HUD) || (cg.snap->ps.pm_flags & PMF_INTERMISSION)) {
         return;
     }
 
