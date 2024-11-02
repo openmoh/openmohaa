@@ -276,7 +276,7 @@ void G_InitGame(int levelTime, int randomSeed)
     sv_numtraces   = 0;
     sv_numpmtraces = 0;
 
-    if (developer->integer && !g_gametype->integer) {
+    if (developer->integer && g_gametype->integer == GT_SINGLE_PLAYER) {
         Viewmodel.Init();
         LODModel.Init();
     }
@@ -726,7 +726,7 @@ void G_ClientDrawBoundingBoxes(void)
     Vector     eye;
 
     // don't show bboxes during deathmatch
-    if ((!sv_showbboxes->integer) || (g_gametype->integer && !sv_cheats->integer)) {
+    if ((!sv_showbboxes->integer) || (g_gametype->integer != GT_SINGLE_PLAYER && !sv_cheats->integer)) {
         return;
     }
 
@@ -1813,7 +1813,7 @@ void G_BeginIntermission(const char *map_name, INTTYPE_e transtype, bool no_fade
     gentity_t *client;
     int        i;
 
-    if (level.intermissiontime || g_gametype->integer) {
+    if (level.intermissiontime || g_gametype->integer != GT_SINGLE_PLAYER) {
         return;
     }
 
@@ -1877,7 +1877,7 @@ void G_ExitLevel(void)
     Com_sprintf(command, sizeof(command), "stopsound\n");
     gi.SendConsoleCommand(command);
 
-    if (g_gametype->integer) {
+    if (g_gametype->integer != GT_SINGLE_PLAYER) {
         if (strlen(sv_nextmap->string)) {
             // The nextmap cvar was set (possibly by a vote - so go ahead and use it)
             level.nextmap = sv_nextmap->string;
@@ -2009,7 +2009,7 @@ G_CheckExitRules
 */
 void G_CheckExitRules(void)
 {
-    if (g_gametype->integer) {
+    if (g_gametype->integer != GT_SINGLE_PLAYER) {
         if (level.intermissiontime == 0.0f) {
             dmManager.CheckEndMatch();
         } else {
