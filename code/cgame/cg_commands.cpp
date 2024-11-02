@@ -3077,7 +3077,7 @@ spawnthing_t *ClientGameCommandManager::InitializeSpawnthing(spawnthing_t *sp)
     sp->cgd.parent             = -1;
     sp->cgd.tiki               = nullptr;
     sp->cgd.lightstyle         = -1;
-    sp->cgd.physicsRate        = 10;
+    sp->cgd.physicsRate        = cg_effect_physicsrate->integer;
     sp->cgd.shadername         = "beamshader";
     sp->cgd.decal_orientation  = 0;
     sp->cgd.decal_radius       = 10;
