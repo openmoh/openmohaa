@@ -211,6 +211,7 @@ void G_PrintDeathMessage(
 );
 void G_PrintDeathMessage_Old(const char *pszString);
 void G_WarnPlayer(class Player *player, const char *format, ...);
+int G_NumClients(void);
 
 int G_WeaponIndex(const char *name);
 

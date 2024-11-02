@@ -2023,6 +2023,23 @@ void G_StopCinematic(void)
     gi.cvar_set("sv_cinematic", "0");
 }
 
+int G_NumClients(void)
+{
+    gentity_t *ent;
+    int        i;
+    int        count = 0;
+
+    for (i = 0, ent = g_entities; i < game.maxclients; ent++, i++) {
+        if (!ent->inuse || !ent->entity) {
+            continue;
+        }
+
+        count++;
+    }
+
+    return count;
+}
+
 void G_PrintToAllClients(const char *pszString, int iType)
 {
     if (g_protocol >= protocol_e::PROTOCOL_MOHTA_MIN) {
