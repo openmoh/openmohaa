@@ -677,7 +677,7 @@ Event EV_GetMins
     NULL,
     NULL,
     "Get the mins of the bounding box of the entity to mins.",
-    EV_RETURN
+    EV_GETTER
 );
 Event EV_GetMaxs
 (
@@ -686,7 +686,7 @@ Event EV_GetMaxs
     NULL,
     NULL,
     "Get the maxs of the bounding box of the entity to maxs.",
-    EV_RETURN
+    EV_GETTER
 );
 Event EV_SetAlpha
 (
