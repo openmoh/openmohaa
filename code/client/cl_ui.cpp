@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2023 the OpenMoHAA team
+Copyright (C) 2024 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -5494,19 +5494,17 @@ void UI_RegisterLoadResource(const char *name)
     high = loadNumber - 1;
 
     while (low <= high) {
-        i = (high + low) / 2;
+        i = (low + high) / 2;
         j = strcmp(name, loadStrings[i]);
 
-        if (j >= 0) {
-            if (j <= 0) {
-                currentLoadTime += loadTimes[i];
-                loadTimes[i] = 0;
-                return;
-            }
-
+        if (j < 0) {
+            high = i - 1;
+        } else if (j > 0) {
             low = i + 1;
         } else {
-            high = i - 1;
+            currentLoadTime += loadTimes[i];
+            loadTimes[i] = 0;
+            break;
         }
     }
 }
