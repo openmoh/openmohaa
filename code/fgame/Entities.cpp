@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2023 the OpenMoHAA team
+Copyright (C) 2024 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -2494,31 +2494,38 @@ CLASS_DECLARATION(SimpleArchivedEntity, AISpawnPoint, "info_aispawnpoint") {
 
 AISpawnPoint::AISpawnPoint()
 {
-    m_iHealth             = 100;
-    m_iAccuracy           = 20;
-    m_iAmmoGrenade        = 0;
-    m_iBalconyHeight      = 128;
-    m_iDisguiseLevel      = 1;
-    m_fDisguisePeriod     = 30000;
-    m_fDisguiseRange      = 256;
-    m_fEnemyShareRange    = 0;
-    m_fFixedLeash         = 0.0;
+    m_iHealth = 100;
+
+    m_iAccuracy      = 20;
+    m_iAmmoGrenade   = 0;
+    m_iBalconyHeight = 128;
+
+    m_iDisguiseLevel  = 1;
+    m_fDisguisePeriod = 30000;
+    m_fDisguiseRange  = 256;
+
+    m_fEnemyShareRange = 0;
+    m_fFixedLeash      = 0.0;
+
     m_fGrenadeAwareness   = 20.0;
     m_fMaxNoticeTimeScale = 1;
     m_fSoundAwareness     = 100;
-    m_bPatrolWaitTrigger  = 0;
-    m_fHearing            = 2048;
-    m_fSight              = world->m_fAIVisionDistance;
-    m_fFov                = 90;
-    m_fLeash              = 512;
-    m_fMinDist            = 128.0;
-    m_fMaxDist            = 1024;
-    m_fInterval           = 128.0;
-    m_bDontDropWeapons    = 0;
-    m_bDontDropHealth     = 0;
-    m_bNoSurprise         = 0;
-    m_bForceDropWeapon    = 0;
-    m_bForceDropHealth    = 0;
+
+    m_bPatrolWaitTrigger = false;
+
+    m_fHearing  = 2048;
+    m_fSight    = world->m_fAIVisionDistance;
+    m_fFov      = 90;
+    m_fLeash    = 512;
+    m_fMinDist  = 128.0;
+    m_fMaxDist  = 1024;
+    m_fInterval = 128.0;
+
+    m_bDontDropWeapons = false;
+    m_bDontDropHealth  = false;
+    m_bNoSurprise      = false;
+    m_bForceDropWeapon = false;
+    m_bForceDropHealth = false;
 }
 
 void AISpawnPoint::GetForceDropHealth(Event *ev)
@@ -2528,7 +2535,10 @@ void AISpawnPoint::GetForceDropHealth(Event *ev)
 
 void AISpawnPoint::SetForceDropHealth(Event *ev)
 {
-    // This is a bug on original mohaab (2.30 and 2.40), it should be m_bForceDropHealth
+    // Fixed in OPM
+    //  This does look like a mistake on original mohaab (2.30 and 2.40)
+    //  it should be m_bForceDropHealth.
+    //  That's the reason why AI often don't drop weapons
     //m_bForceDropWeapon = ev->GetBoolean(1);
     m_bForceDropHealth = ev->GetBoolean(1);
 }
