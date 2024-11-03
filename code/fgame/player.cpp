@@ -7783,6 +7783,10 @@ void Player::Jump(Event *ev)
         // v^2 = 2ad
         velocity[2] += sqrt(2 * sv_gravity->integer * maxheight);
 
+        if (client->ps.groundEntityNum != ENTITYNUM_NONE) {
+            velocity += m_vPushVelocity;
+        }
+
         // make sure the player leaves the ground
         client->ps.walking = qfalse;
 
@@ -7813,6 +7817,10 @@ void Player::JumpXY(Event *ev)
     velocity *= speed / distance;
     time        = distance / speed;
     velocity[2] = sv_gravity->integer * time * 0.5f;
+
+    if (client->ps.groundEntityNum != ENTITYNUM_NONE) {
+        velocity += G_GetEntity(client->ps.groundEntityNum)->velocity;
+    }
 
     airspeed = distance;
 
