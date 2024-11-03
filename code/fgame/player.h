@@ -1167,6 +1167,13 @@ inline void Player::Archive(Archiver& arc)
         }
         arc.ArchiveString(&tempStr);
     } else {
+        statemap_Legs = GetStatemap(
+            str(g_statefile->string) + "_Legs.st", (Condition<Class> *)m_conditions, &legs_conditionals, false
+        );
+        statemap_Torso = GetStatemap(
+            str(g_statefile->string) + "_Torso.st", (Condition<Class> *)m_conditions, &torso_conditionals, false
+        );
+
         arc.ArchiveString(&tempStr);
         if (tempStr != "NULL") {
             currentState_Legs = statemap_Legs->FindState(tempStr);
@@ -1178,6 +1185,24 @@ inline void Player::Archive(Archiver& arc)
             currentState_Torso = statemap_Torso->FindState(tempStr);
         } else {
             currentState_Torso = NULL;
+        }
+
+        for (int i = 1; i <= legs_conditionals.NumObjects(); i++) {
+            Conditional *c = legs_conditionals.ObjectAt(i);
+
+            if (Q_stricmp(c->getName(), "PAIN") && !c->parmList.NumObjects()) {
+                m_pLegsPainCond = c;
+                break;
+            }
+        }
+
+        for (int i = 1; i <= torso_conditionals.NumObjects(); i++) {
+            Conditional *c = torso_conditionals.ObjectAt(i);
+
+            if (Q_stricmp(c->getName(), "PAIN") && !c->parmList.NumObjects()) {
+                m_pTorsoPainCond = c;
+                break;
+            }
         }
     }
 
