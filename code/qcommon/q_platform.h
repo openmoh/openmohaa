@@ -126,6 +126,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define Q3_LITTLE_ENDIAN
 
 #define DLL_EXT ".dll"
+#define EXE_EXT ".exe"
 
 #elif defined(_WIN32) || defined(__WIN32__)
 
@@ -153,6 +154,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define Q3_LITTLE_ENDIAN
 
 #define DLL_EXT ".dll"
+#define EXE_EXT ".exe"
 
 #endif
 
@@ -178,6 +180,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #endif
 
 #define DLL_EXT ".dylib"
+#define EXE_EXT ""
 
 #endif
 
@@ -251,6 +254,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #endif
 
 #define DLL_EXT ".so"
+#define EXE_EXT ""
 
 #endif
 
@@ -282,6 +286,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #endif
 
 #define DLL_EXT ".dylib"
+#define EXE_EXT ""
 
 #endif
 
@@ -316,6 +321,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #endif
 
 #define DLL_EXT ".so"
+#define EXE_EXT ""
 
 #endif
 
@@ -343,6 +349,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #endif
 
 #define DLL_EXT ".so"
+#define EXE_EXT ""
 
 #endif
 
@@ -359,6 +366,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define Q3_BIG_ENDIAN // SGI's MIPS are always big endian
 
 #define DLL_EXT ".so"
+#define EXE_EXT ""
 
 #endif
 
