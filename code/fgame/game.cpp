@@ -37,7 +37,8 @@ Event EV_Game_Detail
     EV_DEFAULT,
     NULL,
     NULL,
-    "game.skill"
+    "game.skill",   
+    EV_GETTER   
 );
 
 Event EV_Game_Skill
@@ -46,7 +47,8 @@ Event EV_Game_Skill
     EV_DEFAULT,
     NULL,
     NULL,
-    "game.detail"
+    "game.detail",
+    EV_GETTER
 );
 
 Game game;
