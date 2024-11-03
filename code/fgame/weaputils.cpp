@@ -1015,7 +1015,13 @@ void Projectile::SetBounceSoundWater(Event *ev)
 
 void Projectile::SetChargeLife(Event *ev)
 {
-    projFlags |= P_CHARGE_LIFE;
+    if (ev->NumArgs() <= 0 || ev->GetInteger(1)) {
+        projFlags |= P_CHARGE_LIFE;
+    } else {
+        // Added in 2.0
+        //  Allow disabling the charge life when set to 0
+        projFlags &= ~P_CHARGE_LIFE;
+    }
 }
 
 void Projectile::SetFuse(Event *ev)
@@ -1030,7 +1036,13 @@ void Projectile::SetFuse(Event *ev)
 void Projectile::SetMinLife(Event *ev)
 {
     minlife = ev->GetFloat(1);
-    projFlags |= P_CHARGE_LIFE;
+    if (minlife > 0) {
+        projFlags |= P_CHARGE_LIFE;
+    } else {
+        // Added in 2.0
+        //  Allow disabling the charge life when set to 0
+        projFlags &= ~P_CHARGE_LIFE;
+    }
 }
 
 void Projectile::SetLife(Event *ev)
