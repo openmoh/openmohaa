@@ -7769,6 +7769,14 @@ void Player::Jump(Event *ev)
         return;
     }
 
+    if (g_gametype->integer != GT_SINGLE_PLAYER) {
+        // Added in 2.0
+        //  Don't jump when on top of another sentient
+        if (groundentity && groundentity->entity && groundentity->entity->IsSubclassOfSentient()) {
+            return;
+        }
+    }
+
     maxheight = ev->GetFloat(1);
 
     if (maxheight > 16) {
