@@ -7764,6 +7764,11 @@ void Player::Jump(Event *ev)
 {
     float maxheight;
 
+    if (m_pTurret || m_pVehicle) {
+        // Don't jump when inside a vehicle or turret
+        return;
+    }
+
     maxheight = ev->GetFloat(1);
 
     if (maxheight > 16) {
@@ -7785,6 +7790,11 @@ void Player::JumpXY(Event *ev)
     float distance;
     float time;
     float speed;
+
+    if (m_pTurret || m_pVehicle) {
+        // Don't jump when inside a vehicle or turret
+        return;
+    }
 
     forwardmove = ev->GetFloat(1);
     sidemove    = ev->GetFloat(2);
