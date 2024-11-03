@@ -81,8 +81,11 @@ public:
 	bool m_bExplodeOnTouch;
 	bool m_bHurtOwnerOnly;
 	int m_iSmashThroughGlass;
+	// Added in 2.0
 	bool m_bArcToTarget;
+	// Added in 2.30
 	bool m_bDieInWater;
+	// Added in 2.0
 	int m_iTeam;
 	bool m_bHadPlayerOwner;
 	SafePtr<Entity> m_pOwnerPtr;

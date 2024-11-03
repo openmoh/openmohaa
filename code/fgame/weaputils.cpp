@@ -602,6 +602,7 @@ Projectile::Projectile()
         return;
     }
 
+    minlife              = 0;
     m_beam               = NULL;
     speed                = 0;
     minspeed             = 0;
@@ -621,18 +622,20 @@ Projectile::Projectile()
     impactmarkradius     = 10;
     charge_fraction      = 1.0;
     target               = NULL;
+    addownervelocity     = false;
     fDrunk               = 0;
     fDrunkRate           = 0;
-    m_iSmashThroughGlass = 0;
-    addownervelocity     = false;
     can_hit_owner        = false;
     remove_when_stopped  = false;
     m_bExplodeOnTouch    = false;
     m_bHurtOwnerOnly     = false;
+    m_iSmashThroughGlass = 0;
     takedamage           = DAMAGE_NO;
     owner                = ENTITYNUM_NONE;
     edict->r.ownerNum    = ENTITYNUM_NONE;
+    // Added in 2.0
     m_bArcToTarget       = false;
+    // Added in 2.30
     m_bDieInWater        = false;
 
     // make this shootable but non-solid on the client
@@ -644,6 +647,8 @@ Projectile::Projectile()
     flags |= FL_TOUCH_TRIGGERS;
 
     m_iTeam           = 0;
+
+    // Added in OPM
     m_bHadPlayerOwner = false;
 }
 
