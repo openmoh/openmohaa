@@ -68,7 +68,7 @@ enum painDirection_t {
 };
 
 typedef enum {
-    ANIMSLOT_PAIN = 4,
+    ANIMSLOT_PAIN     = 4,
     ANIMSLOT_TESTANIM = 7
 } playerAnimSlot_t;
 
@@ -130,7 +130,7 @@ class Player : public Sentient
     friend class VehicleTurretGun;
 
 private:
-    static Condition<Player> Conditions[];
+    static Condition<Player> m_conditions[];
     static movecontrolfunc_t MoveStartFuncs[];
 
     StateMap *statemap_Legs;
@@ -350,7 +350,7 @@ public:
     //
     str                 m_sVision;    // current vision
     str                 m_sStateFile; // custom statefile
-    bool                m_bFrozen; // if player is frozen
+    bool                m_bFrozen;    // if player is frozen
     bool                animDoneVM;
     float               speed_multiplier[MAX_SPEED_MULTIPLIERS];
     ScriptThreadLabel   m_killedLabel;
@@ -363,8 +363,8 @@ public:
     str                 m_lastcommand;
 
 private:
-    int         m_iInstantMessageTime;
-    int         m_iTextChatTime;
+    int m_iInstantMessageTime;
+    int m_iTextChatTime;
 
 public:
     qboolean CondTrue(Conditional& condition);
@@ -807,7 +807,7 @@ public:
     void       SetPlayerSpectate(bool bNext);
     void       SetPlayerSpectateRandom(void); // Added in 2.0
     bool       IsValidSpectatePlayer(Player *pPlayer);
-    void       GetSpectateFollowOrientation(Player *pPlayer, Vector      &vPos, Vector      &vAng);
+    void       GetSpectateFollowOrientation(Player *pPlayer, Vector& vPos, Vector& vAng);
     void       UpdateStatus(const char *s);
     void       SetDM_Team(DM_Team *team);
     DM_Team   *GetDM_Team();
@@ -953,16 +953,16 @@ public:
     void SetKillHandler(Event *ev);
     void SetSpeed(Event *ev);
     void SetStateFile(Event *ev);
-    void HideEntity(Event* ev);
+    void HideEntity(Event *ev);
     void ShowEntity(Event *ev);
     void StopLocalSound(Event *ev);
     void Userinfo(Event *ev);
 #ifdef OPM_FEATURES
-    void EventEarthquake(Event* ev);
-    void SetClientFlag(Event* ev);
-    void SetEntityShader(Event* ev);
-    void SetLocalSoundRate(Event* ev);
-    void SetVMASpeed(Event* ev);
+    void EventEarthquake(Event *ev);
+    void SetClientFlag(Event *ev);
+    void SetEntityShader(Event *ev);
+    void SetLocalSoundRate(Event *ev);
+    void SetVMASpeed(Event *ev);
     void VisionGetNaked(Event *ev);
     void VisionSetBlur(Event *ev);
     void VisionSetNaked(Event *ev);

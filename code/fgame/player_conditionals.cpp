@@ -1913,7 +1913,7 @@ CLASS_DECLARATION(Class, Conditional, NULL) {
     {NULL, NULL}
 };
 
-Condition<Player> Player::Conditions[] = {
+Condition<Player> Player::m_conditions[] = {
     {"default",                         &Player::CondTrue                    },
     {"CHANCE",                          &Player::CondChance                  },
     {"HEALTH",                          &Player::CondHealth                  },

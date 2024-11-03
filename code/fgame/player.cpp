@@ -4991,9 +4991,9 @@ void Player::LoadStateTable(void)
     torso_conditionals.FreeObjectList();
 
     statemap_Legs =
-        GetStatemap(str(g_statefile->string) + "_Legs.st", (Condition<Class> *)Conditions, &legs_conditionals, false);
+        GetStatemap(str(g_statefile->string) + "_Legs.st", (Condition<Class> *)m_conditions, &legs_conditionals, false);
     statemap_Torso =
-        GetStatemap(str(g_statefile->string) + "_Torso.st", (Condition<Class> *)Conditions, &torso_conditionals, false);
+        GetStatemap(str(g_statefile->string) + "_Torso.st", (Condition<Class> *)m_conditions, &torso_conditionals, false);
 
     movecontrol = MOVECONTROL_LEGS;
 
