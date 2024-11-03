@@ -91,6 +91,8 @@ typedef enum {
         }                                           \
     }
 
+static const unsigned int MAX_WEAPON_ANIM_SLOTS = 4;
+
 class Player;
 
 class Weapon : public Item

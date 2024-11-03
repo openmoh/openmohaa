@@ -3168,7 +3168,7 @@ qboolean Weapon::SetWeaponAnim(const char *anim, Event *ev)
     int idleanim = gi.Anim_NumForName(edict->tiki, "idle");
 
     edict->s.frameInfo[m_iAnimSlot].index = idleanim;
-    m_iAnimSlot                           = (m_iAnimSlot + 1) & 3;
+    m_iAnimSlot                           = (m_iAnimSlot + 1) % MAX_WEAPON_ANIM_SLOTS;
     edict->s.frameInfo[m_iAnimSlot].index = idleanim;
 
     if (ev) {
@@ -3206,7 +3206,7 @@ void Weapon::StopWeaponAnim(void)
     animnum = gi.Anim_NumForName(edict->tiki, "idle");
     StartAnimSlot(m_iAnimSlot, animnum, 1.f);
 
-    m_iAnimSlot = (m_iAnimSlot + 1) & 3;
+    m_iAnimSlot = (m_iAnimSlot + 1) % MAX_WEAPON_ANIM_SLOTS;
 }
 
 //======================
