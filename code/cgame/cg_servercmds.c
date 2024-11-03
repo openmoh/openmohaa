@@ -487,7 +487,10 @@ static const char *whiteListedCommands[] = {
     "tmvolume",
     "`stufftext",
     "+moveup", // workaround for mods that want to prevent inactivity when handling the spectate
-    "-moveup"
+    "-moveup",
+    "screenshot",
+    "screenshotJPEG",
+    "levelshot"
 };
 
 //
