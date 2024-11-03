@@ -2793,7 +2793,10 @@ void Sentient::RemovedItem(Item *item) {}
 
 void Sentient::AssertValidSquad()
 {
-    for (Sentient *pSquadMate = this; pSquadMate != this; pSquadMate = pSquadMate->m_pNextSquadMate) {}
+    for (Sentient *pSquadMate = this; pSquadMate != this; pSquadMate = pSquadMate->m_pNextSquadMate) {
+        assert(pSquadMate->m_pNextSquadMate);
+        assert(pSquadMate->m_pPrevSquadMate);
+    }
 }
 
 bool Sentient::IsTeamMate(Sentient *pOther)
