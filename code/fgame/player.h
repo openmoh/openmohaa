@@ -1208,6 +1208,9 @@ inline void Player::Archive(Archiver& arc)
 
     if (arc.Loading()) {
         UpdateWeapons();
+        SetViewAngles(v_angle);
+
+        // Added in OPM
         InitModelFps();
     }
 
