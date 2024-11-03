@@ -451,7 +451,7 @@ void Event::Archive(Archiver& arc)
     }
 
     for (int i = dataSize; i > 0; i--) {
-        data[i].ArchiveInternal(arc);
+        data[i - 1].ArchiveInternal(arc);
     }
 }
 
