@@ -1132,7 +1132,20 @@ inline void Player::Archive(Archiver& arc)
     arc.ArchiveInteger(&m_iNumLeftArmShots);
     arc.ArchiveInteger(&m_iNumRightArmShots);
 
+    // Added in 2.30
+    //====
+    ArchiveEnum(m_jailstate, jailstate_t);
+    arc.ArchiveString(&m_sDmPrimary);
+    arc.ArchiveBool(&m_bIsInJail);
+    //====
+
     arc.ArchiveFloat(&m_fLastDeltaTime);
+
+    // Added in 2.0
+    //====
+    arc.ArchiveFloat(&m_fLastSprintTime);
+    arc.ArchiveBool(&m_bHasJumped);
+    //====
 
     // make sure we have the state machine loaded up
     if (arc.Loading()) {
