@@ -7772,6 +7772,9 @@ void Player::Jump(Event *ev)
 
         // make sure the player leaves the ground
         client->ps.walking = qfalse;
+
+        // Added in 2.0
+        m_bHasJumped = true;
     }
 }
 
