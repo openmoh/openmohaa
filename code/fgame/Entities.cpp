@@ -327,7 +327,7 @@ void ClearProjectileTargets()
 
 ProjectileTarget::ProjectileTarget()
 {
-    m_iTarget = -1;
+    m_iID = -1;
     setMoveType(MOVETYPE_NONE);
     setSolidType(SOLID_NOT);
     hideModel();
@@ -337,12 +337,19 @@ ProjectileTarget::ProjectileTarget()
 
 void ProjectileTarget::EventSetId(Event *ev)
 {
-    m_iTarget = ev->GetInteger(1);
+    m_iID = ev->GetInteger(1);
 }
 
-int ProjectileTarget::GetTarget() const
+int ProjectileTarget::GetId() const
 {
-    return m_iTarget;
+    return m_iID;
+}
+
+void ProjectileTarget::Archive(Archiver& arc)
+{
+    Entity::Archive(arc);
+
+    arc.ArchiveInteger(&m_iID);
 }
 
 CLASS_DECLARATION(Animate, ProjectileGenerator, "ProjectileGenerator") {
@@ -583,7 +590,7 @@ void ProjectileGenerator::GetLocalTargets()
     m_projectileTargets.ClearObjectList();
     for (i = 1; i <= g_projectileTargets.NumObjects(); i++) {
         ProjectileTarget *target = g_projectileTargets.ObjectAt(i);
-        if (m_iId == target->GetTarget()) {
+        if (m_iId == target->GetId()) {
             m_projectileTargets.AddObject(target);
         }
     }

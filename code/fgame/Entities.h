@@ -45,7 +45,7 @@ void ClearProjectileTargets();
 class ProjectileTarget : public Entity
 {
 private:
-    int m_iTarget;
+    int m_iID;
 
 public:
     CLASS_PROTOTYPE(ProjectileTarget);
@@ -53,7 +53,9 @@ public:
     ProjectileTarget();
 
     void EventSetId(Event *ev);
-    int  GetTarget() const;
+    int  GetId() const;
+
+    void Archive(Archiver& arc) override;
 };
 
 #define MAX_PROJECTILE_GENERATOR_TARGETS 16
