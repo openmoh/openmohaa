@@ -183,3 +183,7 @@ if (NOT BUILD_NO_CLIENT)
 
 	INSTALL(TARGETS openmohaa DESTINATION "./")
 endif()
+
+# Launcher
+
+add_subdirectory(code/Launcher)

@@ -70,11 +70,13 @@ BEGIN
     IDS_STRING1             "OpenMoHAA"
 END
 
+#ifndef NO_RC_MANIFEST
 /////////////////////////////////////////////////////////////////////////////
 //
 // Application Manifest
 //
 CREATEPROCESS_MANIFEST_RESOURCE_ID RT_MANIFEST "win_manifest.xml"
+#endif
 
 #endif    // English (U.S.) resources
 /////////////////////////////////////////////////////////////////////////////
