@@ -136,7 +136,7 @@ static unsigned int  startCountHigh;
 static unsigned int  loadCountLow;
 static unsigned int  loadCountHigh;
 static unsigned int  loadCount;
-static unsigned int  lastTime = 0;
+static unsigned int  lastTime   = 0;
 static unsigned int  updateTime = 0;
 static unsigned int  loadNumber;
 static unsigned int  totalLoadTime;
@@ -1002,9 +1002,9 @@ static UIRect2D getQuickMessageDMConsoleRectangle(void)
         rect.size.width  = f[2] + 50.0;
         rect.size.height = f[3] + 50.0;
     } else {
-        rect.pos.x       = 0;
-        rect.pos.y       = cls.glconfig.vidHeight * 0.66;
-        rect.size.width  = cls.glconfig.vidWidth;
+        rect.pos.x      = 0;
+        rect.pos.y      = cls.glconfig.vidHeight * 0.66;
+        rect.size.width = cls.glconfig.vidWidth;
         // Fixed in 2.0
         //  Was 38.0 in 1.11 and below
         //  This prevents characters to be seen from the DM console
@@ -1714,19 +1714,20 @@ void UI_DrawIntro(void)
     }
 
     if (intro_stage.material->GetMaterial()) {
-        float swidth;
-        float sheight;
+        float  swidth;
+        float  sheight;
         vec4_t color;
 
         VectorSet4(color, 1, 1, 1, 1);
         if (intro_stage.fadetime) {
             float frac;
 
-            frac = Q_clamp_float((cls.realtime - intro_stage.starttime) / intro_stage.fadetime, 0, 1);
-            color[0] = color[1] = color[2] = intro_stage.alpha_start + frac * (intro_stage.alpha_end - intro_stage.alpha_start);
+            frac     = Q_clamp_float((cls.realtime - intro_stage.starttime) / intro_stage.fadetime, 0, 1);
+            color[0] = color[1] = color[2] =
+                intro_stage.alpha_start + frac * (intro_stage.alpha_end - intro_stage.alpha_start);
         }
 
-        swidth = view3d->getFrame().getMaxX();
+        swidth  = view3d->getFrame().getMaxX();
         sheight = view3d->getFrame().getMaxY();
 
         re.SetColor(color);
@@ -4258,7 +4259,7 @@ public:
     void UpdateStats(Event *ev);
 };
 
-Event EV_StatsUpdater_UpdateStats;
+Event EV_StatsUpdater_UpdateStats("updatestats", EV_DEFAULT, NULL, NULL, "Update the stats on the missionLog");
 
 CLASS_DECLARATION(Listener, StatsUpdater, NULL) {
     {NULL, NULL}
@@ -4700,7 +4701,7 @@ void CL_FinishedStartStage(void)
         intro_stage.alpha_start = 1.0;
         intro_stage.alpha_end   = 1.0;
 
-        wait = ui_legalscreen_stay->value * 1000.0;
+        wait                  = ui_legalscreen_stay->value * 1000.0;
         intro_stage.fadetime  = 0.0;
         intro_stage.starttime = cls.realtime;
         intro_stage.endtime   = cls.realtime + wait;
@@ -5420,13 +5421,13 @@ UI_EndLoadResource
 void UI_EndLoadResource(void)
 {
     clock_t time;
-    int i;
+    int     i;
 
     time = clock() - ((startCountHigh << 32) | startCountLow) + ((loadCountHigh << 32) | loadCountLow);
 
     loadCountHigh = time >> 32;
-    loadCountLow = time;
-    loadCount = time >> 25;
+    loadCountLow  = time;
+    loadCount     = time >> 25;
 }
 
 /*
@@ -5530,7 +5531,7 @@ void UI_TestUpdateScreen(unsigned int timeout)
     endRenderTime = Sys_Milliseconds();
 
     updateTime = Q_min(endRenderTime - startRenderTime, 1000);
-    lastTime = endRenderTime;
+    lastTime   = endRenderTime;
 }
 
 /*
