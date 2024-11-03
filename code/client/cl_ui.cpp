@@ -5417,7 +5417,17 @@ void UI_BeginLoadResource(void)
 UI_EndLoadResource
 ====================
 */
-void UI_EndLoadResource(void) {}
+void UI_EndLoadResource(void)
+{
+    clock_t time;
+    int i;
+
+    time = clock() - ((startCountHigh << 32) | startCountLow) + ((loadCountHigh << 32) | loadCountLow);
+
+    loadCountHigh = time >> 32;
+    loadCountLow = time;
+    loadCount = time >> 25;
+}
 
 /*
 ====================
