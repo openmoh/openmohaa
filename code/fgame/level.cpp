@@ -120,7 +120,7 @@ Event EV_Level_SetNoDropHealth
 
 Event EV_Level_SetNoDropWeapons
 (
-    "nodropweapon",
+    "nodropweapons",
     EV_DEFAULT,
     "i",
     "alarm_status",
