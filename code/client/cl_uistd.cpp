@@ -439,8 +439,10 @@ void UIFakkLabel::LayoutRenderModelAnim(Event *ev)
 
 void UIFakkLabel::DrawStatbar(float frac)
 {
-    vec4_t col;
-    float  alpha;
+    vec4_t    col;
+    float     alpha;
+    qhandle_t hMat;
+    float     w, h;
 
     col[0] = col[1] = col[2] = col[3] = 1.0;
 
@@ -475,11 +477,7 @@ void UIFakkLabel::DrawStatbar(float frac)
     m_lastfrac = frac;
 
     alpha = 1.0 - ((float)uid.time - m_flashtime) / 1500.0;
-    if (alpha < 0.0) {
-        alpha = 0.0;
-    } else if (alpha > 1.0) {
-        alpha = 1.0;
-    }
+    alpha = Q_clamp_float(alpha, 0, 1);
 
     col[3] = alpha;
 
@@ -496,6 +494,24 @@ void UIFakkLabel::DrawStatbar(float frac)
                         re.SetColor(col);
                         re.DrawTilePic(0.0, 0.0, width, m_frame.size.height, m_statbar_material_flash->GetMaterial());
                     }
+
+                    if (m_statbar_material_marker) {
+                        hMat = m_statbar_material_marker->GetMaterial();
+                        w    = re.GetShaderWidth(hMat);
+                        h    = re.GetShaderHeight(hMat);
+
+                        re.DrawStretchPic(
+                            m_frame.size.width * frac - w * 0.5,
+                            m_frame.size.height * 0.5 - h * 0.5,
+                            w,
+                            h,
+                            0,
+                            0,
+                            1,
+                            1,
+                            hMat
+                        );
+                    }
                     break;
                 }
             case L_STATBAR_VERTICAL:
@@ -511,6 +527,24 @@ void UIFakkLabel::DrawStatbar(float frac)
                         re.SetColor(col);
                         re.DrawTilePic(
                             0.0, y, m_frame.size.width, m_frame.size.height, m_statbar_material_flash->GetMaterial()
+                        );
+                    }
+
+                    if (m_statbar_material_marker) {
+                        hMat = m_statbar_material_marker->GetMaterial();
+                        w    = re.GetShaderWidth(hMat);
+                        h    = re.GetShaderHeight(hMat);
+
+                        re.DrawStretchPic(
+                            m_frame.size.width * frac - w * 0.5,
+                            m_frame.size.height * 0.5 - h * 0.5,
+                            w,
+                            h,
+                            0,
+                            0,
+                            1,
+                            1,
+                            hMat
                         );
                     }
                     break;
@@ -542,6 +576,24 @@ void UIFakkLabel::DrawStatbar(float frac)
                             m_statbar_material_flash->GetMaterial()
                         );
                     }
+
+                    if (m_statbar_material_marker) {
+                        hMat = m_statbar_material_marker->GetMaterial();
+                        w    = re.GetShaderWidth(hMat);
+                        h    = re.GetShaderHeight(hMat);
+
+                        re.DrawStretchPic(
+                            m_frame.size.width * frac - w * 0.5,
+                            m_frame.size.height * 0.5 - h * 0.5,
+                            w,
+                            h,
+                            0,
+                            0,
+                            1,
+                            1,
+                            hMat
+                        );
+                    }
                     break;
                 }
             case L_STATBAR_VERTICAL:
@@ -567,6 +619,24 @@ void UIFakkLabel::DrawStatbar(float frac)
                             1.0,
                             1.0,
                             m_statbar_material_flash->GetMaterial()
+                        );
+                    }
+
+                    if (m_statbar_material_marker) {
+                        hMat = m_statbar_material_marker->GetMaterial();
+                        w    = re.GetShaderWidth(hMat);
+                        h    = re.GetShaderHeight(hMat);
+
+                        re.DrawStretchPic(
+                            m_frame.size.width * frac - w * 0.5,
+                            m_frame.size.height * 0.5 - h * 0.5,
+                            w,
+                            h,
+                            0,
+                            0,
+                            1,
+                            1,
+                            hMat
                         );
                     }
                     break;
