@@ -921,7 +921,7 @@ float G_GetAngle(Vector movedir)
         return -2;
     }
 
-    angle = RAD2DEG(atan(1.0) * 2 + atan(movedir[0] / sqrt(-movedir[0] * movedir[0] + 1.0)));
+    angle = RAD2DEG(atan(1.0) * 2 + atan(-movedir[0] / sqrt(-movedir[0] * movedir[0] + 1.0)));
 
     if (movedir[1] < 0) {
         return 360 - angle;
