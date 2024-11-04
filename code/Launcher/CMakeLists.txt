@@ -20,13 +20,13 @@ function (create_launcher name type)
 
     INSTALL(TARGETS openmohaa_launcher_${name} DESTINATION "./")
 
-    add_executable(omohaaded_launcher_${name} ${LAUNCHER_SOURCES})
-    target_include_directories(omohaaded_launcher_${name} PUBLIC "../qcommon")
-    target_compile_definitions(omohaaded_launcher_${name} PRIVATE NO_RC_MANIFEST=1 TARGET_GAME=${type} DEDICATED=1)
-    target_compile_features(omohaaded_launcher_${name} PRIVATE cxx_std_17)
-    set_target_properties(omohaaded_launcher_${name} PROPERTIES OUTPUT_NAME "launch_omohaaded_${name}${TARGET_BIN_SUFFIX}")
-
-    INSTALL(TARGETS omohaaded_launcher_${name} DESTINATION "./")
+    #add_executable(omohaaded_launcher_${name} ${LAUNCHER_SOURCES})
+    #target_include_directories(omohaaded_launcher_${name} PUBLIC "../qcommon")
+    #target_compile_definitions(omohaaded_launcher_${name} PRIVATE NO_RC_MANIFEST=1 TARGET_GAME=${type} DEDICATED=1)
+    #target_compile_features(omohaaded_launcher_${name} PRIVATE cxx_std_17)
+    #set_target_properties(omohaaded_launcher_${name} PROPERTIES OUTPUT_NAME "launch_omohaaded_${name}${TARGET_BIN_SUFFIX}")
+    #
+    #INSTALL(TARGETS omohaaded_launcher_${name} DESTINATION "./")
 endfunction()
 
 create_launcher(base 0)
