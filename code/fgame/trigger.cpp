@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2024 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -322,7 +322,6 @@ Trigger::Trigger()
 Trigger::~Trigger() {}
 
 void Trigger::SetTriggerDir(float angle)
-
 {
     triggerDirYaw = angle;
     triggerDir    = G_GetMovedir(angle);
@@ -330,13 +329,11 @@ void Trigger::SetTriggerDir(float angle)
 }
 
 Vector Trigger::GetTriggerDir(void)
-
 {
     return triggerDir;
 }
 
 void Trigger::SetTriggerCone(Event *ev)
-
 {
     triggerCone = cos(DEG2RAD(ev->GetFloat(1)));
 }
@@ -347,7 +344,6 @@ qboolean Trigger::UsingTriggerDir(void)
 }
 
 void Trigger::SetTriggerDir(Event *ev)
-
 {
     SetTriggerDir(ev->GetFloat(1));
 }
@@ -389,7 +385,6 @@ void Trigger::StartThread(Event *ev)
 }
 
 qboolean Trigger::respondTo(Entity *other)
-
 {
     return (
         ((respondto & TRIGGER_PLAYERS) && other->isClient())
@@ -399,7 +394,6 @@ qboolean Trigger::respondTo(Entity *other)
 }
 
 Entity *Trigger::getActivator(Entity *other)
-
 {
     return other;
 }
@@ -570,7 +564,6 @@ void Trigger::TriggerStuff(Event *ev)
 //==============================
 //
 void Trigger::ActivateTargets(Event *ev)
-
 {
     Entity     *other;
     Entity     *ent;
@@ -647,13 +640,11 @@ void Trigger::ActivateTargets(Event *ev)
 }
 
 void Trigger::EventSetWait(Event *ev)
-
 {
     wait = ev->GetFloat(1);
 }
 
 void Trigger::EventSetDelay(Event *ev)
-
 {
     delay = ev->GetFloat(1);
 }
@@ -668,19 +659,16 @@ void Trigger::EventSetThread(Event *ev)
 }
 
 void Trigger::EventSetCount(Event *ev)
-
 {
     count = ev->GetInteger(1);
 }
 
 void Trigger::EventSetMessage(Event *ev)
-
 {
     SetMessage(ev->GetString(1));
 }
 
 void Trigger::SetMessage(const char *text)
-
 {
     if (text) {
         message = Director.AddString(text);
@@ -690,19 +678,16 @@ void Trigger::SetMessage(const char *text)
 }
 
 str& Trigger::Message(void)
-
 {
     return Director.GetString(message);
 }
 
 void Trigger::EventSetNoise(Event *ev)
-
 {
     SetNoise(ev->GetString(1));
 }
 
 void Trigger::SetNoise(const char *text)
-
 {
     if (text) {
         noise = Director.AddString(text);
@@ -714,7 +699,6 @@ void Trigger::SetNoise(const char *text)
 }
 
 str& Trigger::Noise(void)
-
 {
     return Director.GetString(noise);
 }
@@ -1075,7 +1059,6 @@ TouchField::TouchField()
 }
 
 void TouchField::Setup(Entity *ownerentity, Event& touchevent, Vector min, Vector max, int respondto)
-
 {
     assert(ownerentity);
     if (!ownerentity) {
@@ -1098,7 +1081,6 @@ void TouchField::Setup(Entity *ownerentity, Event& touchevent, Vector min, Vecto
 }
 
 void TouchField::SendEvent(Event *ev)
-
 {
     Event *event;
 
@@ -1309,7 +1291,6 @@ TriggerSecret::TriggerSecret()
 }
 
 void TriggerSecret::FoundSecret(Event *ev)
-
 {
     //
     // anything that causes the trigger to fire increments the number
@@ -1395,7 +1376,6 @@ void TriggerPush::SetPushDir(Event *ev)
 }
 
 void TriggerPush::SetPushSpeed(Event *ev)
-
 {
     speed = ev->GetFloat(1);
 }
@@ -1530,7 +1510,6 @@ CLASS_DECLARATION(Trigger, TriggerPlaySound, "play_sound_triggered") {
 };
 
 void TriggerPlaySound::ToggleSound(Event *ev)
-
 {
     if (!state) {
         // noise should already be initialized
@@ -1556,7 +1535,6 @@ void TriggerPlaySound::ToggleSound(Event *ev)
 }
 
 void TriggerPlaySound::StartSound(void)
-
 {
     // turn the current one off
     state = 1;
@@ -1568,31 +1546,26 @@ void TriggerPlaySound::StartSound(void)
 }
 
 void TriggerPlaySound::SetVolume(float vol)
-
 {
     volume = vol;
 }
 
 void TriggerPlaySound::SetVolume(Event *ev)
-
 {
     volume = ev->GetFloat(1);
 }
 
 void TriggerPlaySound::SetMinDist(float dist)
-
 {
     min_dist = dist;
 }
 
 void TriggerPlaySound::SetMinDist(Event *ev)
-
 {
     min_dist = ev->GetFloat(1);
 }
 
 void TriggerPlaySound::SetChannel(Event *ev)
-
 {
     channel = ev->GetInteger(1);
 }
@@ -1726,7 +1699,6 @@ CLASS_DECLARATION(TriggerSpeaker, RandomSpeaker, "sound_randomspeaker") {
 };
 
 void RandomSpeaker::TriggerSound(Event *ev)
-
 {
     ScheduleSound();
     if (G_Random(1) <= chance) {
@@ -1735,44 +1707,37 @@ void RandomSpeaker::TriggerSound(Event *ev)
 }
 
 void RandomSpeaker::ScheduleSound(void)
-
 {
     CancelEventsOfType(EV_Trigger_Effect);
     PostEvent(EV_Trigger_Effect, mindelay + G_Random(maxdelay - mindelay));
 }
 
 void RandomSpeaker::SetMinDelay(Event *ev)
-
 {
     mindelay = ev->GetFloat(1);
 }
 
 void RandomSpeaker::SetMaxDelay(Event *ev)
-
 {
     maxdelay = ev->GetFloat(1);
 }
 
 void RandomSpeaker::SetChance(Event *ev)
-
 {
     chance = ev->GetFloat(1);
 }
 
 void RandomSpeaker::SetMinDelay(float newMinDelay)
-
 {
     mindelay = newMinDelay;
 }
 
 void RandomSpeaker::SetMaxDelay(float newMaxDelay)
-
 {
     maxdelay = newMaxDelay;
 }
 
 void RandomSpeaker::SetChance(float newChance)
-
 {
     chance = newChance;
 }
@@ -1850,7 +1815,6 @@ TriggerChangeLevel::TriggerChangeLevel()
 }
 
 void TriggerChangeLevel::SetMap(Event *ev)
-
 {
     map = ev->GetConstString(1);
 }
@@ -2137,13 +2101,11 @@ TriggerDamageTargets::TriggerDamageTargets()
 }
 
 void TriggerDamageTargets::SetDamage(Event *ev)
-
 {
     damage = ev->GetInteger(1);
 }
 
 void TriggerDamageTargets::PassDamage(Event *ev)
-
 {
     Entity     *attacker;
     int         dmg;
@@ -2179,7 +2141,6 @@ void TriggerDamageTargets::PassDamage(Event *ev)
 //
 
 void TriggerDamageTargets::DamageTargets(Event *ev)
-
 {
     Entity     *other;
     Entity     *ent;
@@ -2333,13 +2294,11 @@ TriggerExit::TriggerExit()
 }
 
 void TriggerExit::TurnExitSignOff(Event *ev)
-
 {
     level.near_exit = false;
 }
 
 void TriggerExit::DisplayExitSign(Event *ev)
-
 {
     level.near_exit = qtrue;
 
@@ -2856,7 +2815,6 @@ void TriggerByPushObject::setTriggerName(Event *event)
 }
 
 qboolean TriggerByPushObject::respondTo(Entity *other)
-
 {
     if (other->isSubclassOf(PushObject)) {
         if (triggername != STRING_EMPTY) {
@@ -2870,7 +2828,6 @@ qboolean TriggerByPushObject::respondTo(Entity *other)
 }
 
 Entity *TriggerByPushObject::getActivator(Entity *other)
-
 {
     Entity *owner;
 
@@ -3037,6 +2994,12 @@ void TriggerClickItem::SetClickItemModelEvent(Event *ev)
     link();
 }
 
+//===============
+//
+// Added in 2.0
+//
+//===============
+
 CLASS_DECLARATION(TriggerUse, TriggerNoDamage, "trigger_nodamage") {
     {&EV_Touch,          &TriggerNoDamage::TakeNoDamage},
     {&EV_Trigger_Effect, &TriggerNoDamage::TakeNoDamage},
@@ -3057,9 +3020,20 @@ void TriggerNoDamage::TakeNoDamage(Event *ev)
     ent->PostEvent(newev, level.frametime * 3);
 }
 
+//===============
+//
+// Added in 2.30
+//
+//===============
+
 CLASS_DECLARATION(Trigger, TriggerEntity, "trigger_entity") {
     {NULL, NULL}
 };
+
+qboolean TriggerEntity::respondTo(Entity* other)
+{
+    return other != NULL && other->IsSubclassOfEntity() != false;
+}
 
 Event EV_Trigger_IsAbandoned
 (

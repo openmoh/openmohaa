@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2023 the OpenMoHAA team
+Copyright (C) 2024 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -172,7 +172,7 @@ public:
     TouchField();
     virtual void Setup(Entity *ownerentity, Event& ontouch, Vector min, Vector max, int respondto);
     void         SendEvent(Event *ev);
-    void         Archive(Archiver        &arc) override;
+    void         Archive(Archiver& arc) override;
 };
 
 inline void TouchField::Archive(Archiver& arc)
@@ -380,7 +380,7 @@ public:
     void        ChangeLevel(Event *ev);
     const char *Map(void);
     const char *SpawnSpot(void);
-    void        Archive(Archiver       &arc) override;
+    void        Archive(Archiver& arc) override;
 };
 
 class TriggerExit : public Trigger
@@ -604,6 +604,10 @@ inline void TriggerClickItem::Archive(Archiver& arc)
     Trigger::Archive(arc);
 }
 
+//
+// Added in 2.0
+//
+
 class TriggerNoDamage : public TriggerUse
 {
 public:
@@ -613,10 +617,17 @@ public:
     void TakeNoDamage(Event *ev);
 };
 
+//
+// Added in 2.30
+//
+
 class TriggerEntity : public Trigger
 {
 public:
     CLASS_PROTOTYPE(TriggerEntity);
+
+public:
+    qboolean respondTo(Entity *other) override;
 };
 
 class TriggerLandmine : public TriggerEntity
