@@ -2,6 +2,8 @@
 
 ## Game selection
 
+### From command-line
+
 **Medal of Honor: Allied Assault** is the default game, but expansions are also supported.
 
 **Medal of Honor: Allied Assault Spearhead** and **Medal of Honor: Allied Assault Breakthrough** are supported in OpenMoHAA using the `com_target_game` variable.
@@ -13,9 +15,17 @@ To play an expansion, append the following command-line arguments to the executa
 
 With `com_target_game`, OpenMoHAA will support the network protocol accordingly. The default value of `com_target_game` is 0 for the base game (mohaa, main).
 
-On Windows, it's best to create a shortcut to the OpenMoHAA executable, and append the command-line arguments above to play an expansion.
+On Windows, a shortcut can be created to the `openmohaa` executable, with the command-line argument appended from above to play an expansion.
 
 You can now start a local OpenMOHAA server or play on a server.
+
+### From the launchers
+
+For simplicity, there are 3 launchers for the standalone game:
+
+- `launch_openmohaa_base`, this starts OpenMoHAA in **Medal of Honor: Allied Assault** mode which is the base game
+- `launch_openmohaa_spearhead`, this starts OpenMoHAA in **Medal of Honor: Allied Assault: Spearhead** mode
+- `launch_openmohaa_breakthrough`, this starts OpenMoHAA in **Medal of Honor: Allied Assault: Breakthrough** mode
 
 ## User data location
 
