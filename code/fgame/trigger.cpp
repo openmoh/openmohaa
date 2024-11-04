@@ -865,6 +865,7 @@ If DAMAGE is set, the trigger will only respond to bullets
 set "message" to text string
 
 ******************************************************************************/
+
 CLASS_DECLARATION(Trigger, TriggerAll, "trigger_multipleall") {
     {&EV_Touch,    &TriggerAll::TriggerStuff},
     {&EV_Activate, &TriggerAll::TriggerStuff},
@@ -1189,7 +1190,8 @@ set "message" to text string
 
 ******************************************************************************/
 
-Event EV_TriggerSave_SaveName(
+Event EV_TriggerSave_SaveName
+(
     "savename",
     EV_DEFAULT,
     "s",
@@ -2849,10 +2851,30 @@ void TriggerByPushObject::Archive(Archiver& arc)
     Director.ArchiveString(arc, triggername);
 }
 
-Event EV_TriggerGivePowerup_OneShot("oneshot", EV_DEFAULT, NULL, NULL, "Make this a one time trigger.");
+/*****************************************************************************/
+/*QUAKED trigger_givepowerup (1 0 0) ? x x NOT_PLAYERS MONSTERS x x x DAMAGE
+Special trigger that can be triggered to give special items to sentients.
 
-Event EV_TriggerGivePowerup_PowerupName(
-    "powerupname", EV_DEFAULT, "s", "powerup_name", "Specifies the powerup to give to the sentient."
+"cnt" how many times it can be triggered (default 1, use -1 for infinite)
+"powerupname" the name of the powerup to give to sentients
+******************************************************************************/
+
+Event EV_TriggerGivePowerup_OneShot
+(
+    "oneshot",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Make this a one time trigger."
+);
+
+Event EV_TriggerGivePowerup_PowerupName
+(
+    "powerupname",
+    EV_DEFAULT,
+    "s",
+    "powerup_name",
+    "Specifies the powerup to give to the sentient."
 );
 
 CLASS_DECLARATION(Trigger, TriggerGivePowerup, "trigger_givepowerup") {
@@ -3000,6 +3022,21 @@ void TriggerClickItem::SetClickItemModelEvent(Event *ev)
 //
 //===============
 
+/*****************************************************************************/
+/*QUAKED trigger_nodamage (1 0 0) ? x x NOT_PLAYERS MONSTERS
+
+Activates targets when 'used' by an entity. It cannot take damage.
+"setthread" name of thread to trigger.  This can be in a different script file as well\
+by using the '::' notation.
+
+"triggerable" turn trigger on
+"nottriggerable" turn trigger off
+
+If NOT_PLAYERS is set, the trigger does not respond to players
+If MONSTERS is set, the trigger will respond to monsters
+
+******************************************************************************/
+
 CLASS_DECLARATION(TriggerUse, TriggerNoDamage, "trigger_nodamage") {
     {&EV_Touch,          &TriggerNoDamage::TakeNoDamage},
     {&EV_Trigger_Effect, &TriggerNoDamage::TakeNoDamage},
@@ -3026,6 +3063,31 @@ void TriggerNoDamage::TakeNoDamage(Event *ev)
 //
 //===============
 
+/*****************************************************************************/
+/*QUAKED trigger_entity (1 0 0) ?
+
+Variable sized repeatable trigger that respond to entities.  Must be targeted at one or more entities.
+
+If "health" is set, the trigger must be killed to activate each time.
+If "delay" is set, the trigger waits some time after activating before firing.
+
+"setthread" name of thread to trigger.  This can be in a different script file as well\
+by using the '::' notation.
+
+if "angle" is set, the trigger will only fire when someone is facing the
+direction of the angle.
+"cone" the cone in which a directed trigger can be triggered (default 60 degrees)
+
+"wait" : Seconds between triggerings. (.2 default)
+"cnt" how many times it can be triggered (infinite default)
+
+"triggerable" turn trigger on
+"nottriggerable" turn trigger off
+
+set "message" to text string
+
+******************************************************************************/
+
 CLASS_DECLARATION(Trigger, TriggerEntity, "trigger_entity") {
     {NULL, NULL}
 };
@@ -3034,6 +3096,19 @@ qboolean TriggerEntity::respondTo(Entity* other)
 {
     return other != NULL && other->IsSubclassOfEntity() != false;
 }
+
+/*****************************************************************************/
+/*QUAKED trigger_landmine (1 0 0) ?
+
+Variable sized repeatable trigger for landmine. Must be handled by scripts.
+
+"setthread" name of thread to trigger.  This can be in a different script file as well\
+by using the '::' notation.
+
+"triggerable" turn trigger on
+"nottriggerable" turn trigger off
+
+******************************************************************************/
 
 Event EV_Trigger_IsAbandoned
 (
