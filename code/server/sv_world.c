@@ -669,8 +669,11 @@ qboolean SV_ClipSightToEntities( moveclip_t *clip, int passEntityNum2 )
 			if( touchlist[ i ] == clip->passEntityNum ) {
 				continue;	// don't clip against the pass entity
 			}
-			if( touch->r.ownerNum == clip->passEntityNum ) {
+			if( touchlist[ i ] == passOwnerNum ) {
 				continue;	// don't clip against own missiles
+			}
+			if( touch->r.ownerNum == clip->passEntityNum ) {
+				continue;	// don't clip against the pass entity
 			}
 			if( touch->r.ownerNum == passOwnerNum ) {
 				continue;	// don't clip against other missiles from our owner
@@ -681,11 +684,11 @@ qboolean SV_ClipSightToEntities( moveclip_t *clip, int passEntityNum2 )
 			if( touchlist[ i ] == passEntityNum2 ) {
 				continue;	// don't clip against the pass entity
 			}
-			if( touch->r.ownerNum == passEntityNum2 ) {
+			if( touchlist[ i ] == passOwnerNum2 ) {
 				continue;	// don't clip against own missiles
 			}
-			if( touch->r.ownerNum == passOwnerNum2 ) {
-				continue;	// don't clip against other missiles from our owner
+			if( touch->r.ownerNum == passEntityNum2 ) {
+				continue;	// don't clip against own missiles
 			}
 		}
 
