@@ -411,7 +411,7 @@ void SimpleEntity::GetCentroid(Event *ev)
     ev->AddVector(centroid);
 }
 
-str& SimpleEntity::Target()
+const str& SimpleEntity::Target()
 {
     return target;
 }

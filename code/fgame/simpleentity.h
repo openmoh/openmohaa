@@ -64,7 +64,7 @@ public:
     virtual void setOrigin(Vector origin);
     virtual void setOriginEvent(Vector origin);
     virtual void setAngles(Vector angles);
-    str        & Target();
+    const str  & Target();
     qboolean     Targeted(void);
     str        & TargetName();
     virtual void SetTargetName(str targetname);
