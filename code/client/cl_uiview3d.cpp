@@ -291,53 +291,65 @@ void View3D::DrawSubtitleOverlay(void)
     line = 0;
 
     for (i = 0; i < MAX_SUBTITLES; i++) {
+        if (fadeTime[i] <= 0) {
+            continue;
+        }
+
         if (m_font->getWidth(subs[i]->string, sizeof(oldStrings[i])) > maxY) {
             char  buf[2048];
             char *c;
             char *end;
             char *start;
             float total;
+            float width;
             int   blockcount;
 
-            c = buf;
-            Q_strncpyz(buf, subs[i]->string, sizeof(buf));
+            c = subs[i]->string;
 
             total = 0;
             end   = NULL;
             start = buf;
+
             while (*c) {
                 blockcount = m_font->DBCSGetWordBlockCount(c, -1);
                 if (!blockcount) {
                     break;
                 }
 
-                total += m_font->getWidth(c, blockcount);
-                c += blockcount;
+                width = m_font->getWidth(c, blockcount);
 
-                if (total > maxY) {
-                    total = 0;
-                    if (end < start) {
-                        Com_DPrintf("ERROR - word longer than possible line\n");
-                        break;
-                    }
-
+                if (total + width > maxY) {
                     m_font->setColor(UColor(0, 0, 0, alpha[i] * subAlpha->value));
-                    m_font->Print(18, m_font->getHeight(false) * line + minX + 1.f, start, -1, false);
+                    m_font->Print(18, m_font->getHeight(false) * line + minX + 1.f, buf, -1, false);
 
                     m_font->setColor(UColor(1, 1, 1, alpha[i] * subAlpha->value));
-                    m_font->Print(20, m_font->getHeight(false) * line + minX, start, -1, false);
+                    m_font->Print(20, m_font->getHeight(false) * line + minX, buf, -1, false);
 
-                    start = end + 1;
-                    c     = end + 1;
                     line++;
+
+                    total = 0;
+                    start = buf;
                 }
+
+                end = start + blockcount + 1;
+                if (end > buf + MAX_STRING_CHARS) {
+                    Com_DPrintf("ERROR - word longer than possible line\n");
+                    break;
+                }
+
+                memcpy(start, c, blockcount);
+                start += blockcount;
+                total += width;
+                *start = 0;
+
+                c += blockcount;
             }
 
             m_font->setColor(UColor(0, 0, 0, alpha[i] * subAlpha->value));
-            m_font->Print(18, m_font->getHeight(false) * line + minX + 1.f, start, -1, qfalse);
+            m_font->Print(18, m_font->getHeight(false) * line + minX + 1.f, buf, -1, qfalse);
 
             m_font->setColor(UColor(1, 1, 1, alpha[i] * subAlpha->value));
-            m_font->Print(20, m_font->getHeight(false) * line + minX, start, -1, qfalse);
+            m_font->Print(20, m_font->getHeight(false) * line + minX, buf, -1, qfalse);
             line++;
         } else {
             m_font->setColor(UColor(0, 0, 0, alpha[i] * subAlpha->value));
