@@ -1660,7 +1660,6 @@ qboolean CM_SightTraceThroughBrush( traceWork_t *tw, cbrush_t *brush )
 					}
 					if( f > enterFrac ) {
 						enterFrac = f;
-						leadside = side;
 					}
 				} else { // leave
 					f = ( d1 + SURFACE_CLIP_EPSILON ) / ( d1 - d2 );
