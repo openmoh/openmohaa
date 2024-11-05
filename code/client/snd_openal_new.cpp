@@ -2571,9 +2571,14 @@ S_OPENAL_GetMusicFilename
 const char *S_OPENAL_GetMusicFilename()
 {
     // Don't call into the channel if QAL initialisation did not succeed.
-    if (!al_initialized || !openal.chan_trig_music.is_playing()) {
+    if (!al_initialized) {
         return "";
     }
+
+    if (!openal.chan_trig_music.is_playing() && !openal.chan_trig_music.is_paused()) {
+        return "";
+    }
+
     return openal.tm_filename;
 }
 
