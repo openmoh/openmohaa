@@ -69,15 +69,16 @@ bool AbstractScript::GetSourceAt(size_t sourcePos, str *sourceLine, int& column,
         for (i = 0; i < ARRAY_LEN(cachedInfo); i++) {
             sourceinfo_t *info = &cachedInfo[i];
 
-            if (info->line && sourcePos > info->sourcePos && (!minCachedInfo || info->sourcePos > minCachedInfo->sourcePos)) {
+            if (info->line && sourcePos > info->sourcePos
+                && (!minCachedInfo || info->sourcePos > minCachedInfo->sourcePos)) {
                 minCachedInfo = info;
             }
         }
 
         if (minCachedInfo) {
-            start  = minCachedInfo->sourcePos;
-            line   = minCachedInfo->line;
-            column = minCachedInfo->column;
+            start   = minCachedInfo->sourcePos;
+            line    = minCachedInfo->line;
+            column  = minCachedInfo->column;
             posLine = minCachedInfo->startLinePos;
         }
     }
@@ -88,7 +89,7 @@ bool AbstractScript::GetSourceAt(size_t sourcePos, str *sourceLine, int& column,
 
         if (*p == '\n') {
             line++;
-            column  = 0;
+            column = 0;
             if (i + 1 != sourcePos) {
                 posLine = i + 1;
             }
@@ -114,7 +115,7 @@ bool AbstractScript::GetSourceAt(size_t sourcePos, str *sourceLine, int& column,
     cachedInfo[cachedInfoIndex].line         = line;
     cachedInfo[cachedInfoIndex].column       = column;
     cachedInfo[cachedInfoIndex].startLinePos = posLine;
-    cachedInfoIndex                       = (cachedInfoIndex + 1) % ARRAY_LEN(cachedInfo);
+    cachedInfoIndex                          = (cachedInfoIndex + 1) % ARRAY_LEN(cachedInfo);
 
     return true;
 }
@@ -1019,31 +1020,46 @@ void ScriptThreadLabel::Set(const_str label)
 
 void ScriptThreadLabel::SetScript(const ScriptVariable& label)
 {
-    if (label.GetType() == VARIABLE_STRING || label.GetType() == VARIABLE_CONSTSTRING) {
+    switch (label.GetType()) {
+    case VARIABLE_STRING:
         m_Script = Director.GetGameScript(label.stringValue());
         m_Label  = STRING_EMPTY;
-    } else if (label.GetType() == VARIABLE_CONSTARRAY && label.arraysize() > 1) {
-        ScriptVariable *script    = label[1];
-        ScriptVariable *labelname = label[2];
-
-        m_Script = Director.GetGameScript(script->stringValue());
-        m_Label  = labelname->constStringValue();
-
-        if (!m_Script->m_State.FindLabel(m_Label)) {
-            m_Script = NULL;
-            m_Label  = STRING_EMPTY;
-
-            ScriptError(
-                "^~^~^ Could not find label '%s' in '%s'",
-                labelname->stringValue().c_str(),
-                script->stringValue().c_str()
-            );
-        }
-    } else if (label.GetType() == VARIABLE_NONE) {
+        break;
+    case VARIABLE_CONSTSTRING:
+        m_Script = Director.GetGameScript(label.constStringValue());
+        m_Label  = STRING_EMPTY;
+        break;
+    case VARIABLE_NONE:
         m_Script = NULL;
         m_Label  = STRING_EMPTY;
-    } else {
+        break;
+    case VARIABLE_CONSTARRAY:
+        if (label.arraysize() > 1) {
+            ScriptVariable *script    = label[1];
+            ScriptVariable *labelname = label[2];
+
+            if (script->GetType() == VARIABLE_CONSTSTRING) {
+                m_Script = Director.GetGameScript(script->constStringValue());
+            } else {
+                m_Script = Director.GetGameScript(script->stringValue());
+            }
+
+            m_Label = labelname->constStringValue();
+            break;
+        }
+    default:
         ScriptError("ScriptThreadLabel::SetScript: bad label type '%s'", label.GetTypeName());
+        break;
+    }
+
+    if (m_Script && !m_Script->m_State.FindLabel(m_Label)) {
+        const str& scriptName = m_Script->Filename();
+        const str& labelName  = Director.GetString(m_Label);
+
+        m_Script = NULL;
+        m_Label  = STRING_EMPTY;
+
+        ScriptError("^~^~^ Could not find label '%s' in '%s'", scriptName.c_str(), labelName.c_str());
     }
 }
 
@@ -1110,33 +1126,43 @@ void ScriptThreadLabel::SetScript(const_str label)
 
 void ScriptThreadLabel::SetThread(const ScriptVariable& label)
 {
-    ScriptThread *thread = NULL;
-
-    if (label.GetType() == VARIABLE_STRING || label.GetType() == VARIABLE_CONSTSTRING) {
+    switch (label.GetType()) {
+    case VARIABLE_STRING:
+    case VARIABLE_CONSTSTRING:
         m_Script = Director.CurrentScriptClass()->GetScript();
         m_Label  = label.constStringValue();
-    } else if (label.GetType() == VARIABLE_CONSTARRAY && label.arraysize() > 1) {
-        ScriptVariable *script    = label[1];
-        ScriptVariable *labelname = label[2];
-
-        m_Script = Director.GetGameScript(script->stringValue());
-        m_Label  = labelname->constStringValue();
-
-        if (!m_Script->m_State.FindLabel(m_Label)) {
-            m_Script = NULL;
-            m_Label  = STRING_EMPTY;
-
-            ScriptError(
-                "^~^~^ Could not find label '%s' in '%s'",
-                labelname->stringValue().c_str(),
-                script->stringValue().c_str()
-            );
-        }
-    } else if (label.GetType() == VARIABLE_NONE) {
+        break;
+    case VARIABLE_NONE:
         m_Script = NULL;
         m_Label  = STRING_EMPTY;
-    } else {
-        ScriptError("ScriptThreadLabel::SetThread bad label type '%s'", label.GetTypeName());
+        break;
+    case VARIABLE_CONSTARRAY:
+        if (label.arraysize() > 1) {
+            ScriptVariable *script    = label[1];
+            ScriptVariable *labelname = label[2];
+
+            if (script->GetType() == VARIABLE_CONSTSTRING) {
+                m_Script = Director.GetGameScript(script->constStringValue());
+            } else {
+                m_Script = Director.GetGameScript(script->stringValue());
+            }
+
+            m_Label = labelname->constStringValue();
+            break;
+        }
+    default:
+        ScriptError("ScriptThreadLabel::SetThread: bad label type '%s'", label.GetTypeName());
+        break;
+    }
+
+    if (m_Script && !m_Script->m_State.FindLabel(m_Label)) {
+        const str& scriptName = m_Script->Filename();
+        const str& labelName  = Director.GetString(m_Label);
+
+        m_Script = NULL;
+        m_Label  = STRING_EMPTY;
+
+        ScriptError("^~^~^ Could not find label '%s' in '%s'", scriptName.c_str(), labelName.c_str());
     }
 }
 
