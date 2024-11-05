@@ -55,6 +55,16 @@ CLASS_DECLARATION(Entity, WindowObject, "func_window") {
 
 WindowObject::WindowObject()
 {
+    if (LoadingSavegame) {
+        return;
+    }
+
+    edict->s.eType = ET_GENERAL;
+    health         = 250;
+    max_health     = health;
+    deadflag       = 0;
+    takedamage     = DAMAGE_YES;
+
     m_iDebrisType = WINDOW_GLASS;
 
     PostEvent(EV_Window_Setup, EV_POSTSPAWN);
@@ -72,23 +82,21 @@ void WindowObject::WindowSetup(Event *ev)
 {
     Entity *pEnt;
 
+    setMoveType(MOVETYPE_NONE);
     setSolidType(SOLID_BSP);
+    setContents(CONTENTS_TRIGGER);
 
     if (Target().length()) {
+        // If a target is defined,
+        // find it and set the model from it
         pEnt = (Entity *)G_FindTarget(NULL, Target());
 
         if (pEnt) {
-            // set the broken model to the target model
             m_sBrokenModel = pEnt->model;
 
+            // Don't keep the original entity
             pEnt->PostEvent(EV_Remove, 0);
         }
-    }
-
-    takedamage = DAMAGE_YES;
-
-    if (health <= 0.1f) {
-        health = 100.0f;
     }
 }
 
