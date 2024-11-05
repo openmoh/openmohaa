@@ -1,6 +1,15 @@
 # Installation
 
-Ensure that you download the binaries compatible with your platform in the release section.
+Ensure that you download the binaries compatible with your platform in the [releases](https://github.com/openmoh/openmohaa/releases) section.
+
+## Which release should be downloaded?
+
+- If running Windows on AMD/Intel, CPU then `*-windows-x64.zip` is recommended
+- If running Windows on Qualcomm/Snapdragon (ARM-based) CPU, then `*-windows-arm64.zip` is the way to go
+- If running MacOS on Apple Silicon hardware, choose `*-macos-arm64.zip`
+- If running MacOS on AMD/Intel CPU, choose `*-macos-arm64.zip`
+- If running Linux on AMD/Intel CPU, then `*-linux-amd64` is generally fine. Choose the i686 version for CPUs that don't support 64-bit instructions.
+- If running Linux on a Raspberry Pi 4 or 5, then `*-linux-arm64` (if running ARM64) is the way to go
 
 ## Requirements
 
