@@ -1039,6 +1039,9 @@ void ScriptThreadLabel::SetScript(const ScriptVariable& label)
                 script->stringValue().c_str()
             );
         }
+    } else if (label.GetType() == VARIABLE_NONE) {
+        m_Script = NULL;
+        m_Label  = STRING_EMPTY;
     } else {
         ScriptError("ScriptThreadLabel::SetScript: bad label type '%s'", label.GetTypeName());
     }
@@ -1129,6 +1132,9 @@ void ScriptThreadLabel::SetThread(const ScriptVariable& label)
                 script->stringValue().c_str()
             );
         }
+    } else if (label.GetType() == VARIABLE_NONE) {
+        m_Script = NULL;
+        m_Label  = STRING_EMPTY;
     } else {
         ScriptError("ScriptThreadLabel::SetThread bad label type '%s'", label.GetTypeName());
     }
