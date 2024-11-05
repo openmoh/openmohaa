@@ -151,7 +151,8 @@ void WindowObject::WindowKilled(Event *ev)
     hideModel();
     takedamage = DAMAGE_NO;
 
-    vCenter = origin + mins + maxs;
+    vCenter = (mins + maxs) * 0.5;
+    vCenter += origin;
 
     gi.SetBroadcastVisible(vCenter, vCenter);
     gi.MSG_StartCGM(BG_MapCGMToProtocol(g_protocol, CGM_MAKE_WINDOW_DEBRIS));
