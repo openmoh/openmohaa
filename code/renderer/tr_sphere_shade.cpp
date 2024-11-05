@@ -318,11 +318,11 @@ static void RB_Light_CubeMap(unsigned char *colors)
 
         cube = &backEnd.currentSphere->cubemap[cubeIndex];
         colorout[0] =
-            (*cube)[0][0] + (*cube)[0][1] * mapping[1] + (*cube)[0][2] * mapping[1] + (*cube)[0][3] * mapping[2];
+            (*cube)[0][0] + (*cube)[0][1] * mapping[0] + (*cube)[0][2] * mapping[1] + (*cube)[0][3] * mapping[2];
         colorout[1] =
-            (*cube)[1][0] + (*cube)[1][1] * mapping[1] + (*cube)[1][2] * mapping[1] + (*cube)[1][3] * mapping[2];
+            (*cube)[1][0] + (*cube)[1][1] * mapping[0] + (*cube)[1][2] * mapping[1] + (*cube)[1][3] * mapping[2];
         colorout[2] =
-            (*cube)[2][0] + (*cube)[2][1] * mapping[1] + (*cube)[2][2] * mapping[1] + (*cube)[2][3] * mapping[2];
+            (*cube)[2][0] + (*cube)[2][1] * mapping[0] + (*cube)[2][2] * mapping[1] + (*cube)[2][3] * mapping[2];
 
         for (j = 0; j < backEnd.currentSphere->numRealLights; j++) {
             float  fDistSquared;
