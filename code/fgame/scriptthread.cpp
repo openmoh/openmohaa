@@ -1043,10 +1043,9 @@ Event EV_ScriptThread_BspTransition
 (
     "bsptransition",
     EV_DEFAULT,
-    "s",
-    "next_map",
-    "Transitions to the next BSP. Keeps player data,"
-    "and game data."
+    "sB",
+    "next_map skipFade", // Added in 2.30: skipFade
+    "Transitions to the next BSP. Keeps player data, and game data."
 );
 Event EV_ScriptThread_LevelTransition
 (
@@ -4090,9 +4089,15 @@ void ScriptThread::EventRadiusDamage(Event *ev)
 void ScriptThread::EventBspTransition(Event *ev)
 {
     str map = ev->GetString(1);
+    bool skipFade;
+
+    if (ev->NumArgs() >= 2) {
+        // Added in 2.30
+        skipFade = ev->GetBoolean(2);
+    }
 
     if (level.intermissiontime == 0.0f) {
-        G_BeginIntermission(map, TRANS_BSP);
+        G_BeginIntermission(map, TRANS_BSP, skipFade);
     }
 }
 
