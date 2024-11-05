@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2024 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -142,7 +142,8 @@ int ActorEnemy::UpdateThreat(Actor *pSelf)
         Square(305),
         Square(254),
         Square(200),
-        Square(137)};
+        Square(137)
+    };
     static int iWeaponThreat[7][5] = {
         {5,  3,  1,  1, 1},
         {8,  6,  4,  2, 1},
@@ -165,7 +166,7 @@ int ActorEnemy::UpdateThreat(Actor *pSelf)
     }
 
     m_iThreat = 10000;
-    if (m_bVisible == true) {
+    if (m_bVisible) {
         m_iThreat = 10500;
     }
 
@@ -321,7 +322,7 @@ void ActorEnemySet::FlagBadEnemy(Sentient *pEnemy)
 
     // Added in 2.0.
     //  Set the reaction time
-    pActorEnemy->m_iNextEnemyTime       = level.inttime + 5000;
+    pActorEnemy->m_iNextEnemyTime = level.inttime + 5000;
 
     pActorEnemy->m_fLastLookTime        = level.time;
     pActorEnemy->m_fVisibility          = 0.0;
