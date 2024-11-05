@@ -126,7 +126,7 @@ void WindowObject::WindowDamaged(Event *ev)
         iDamage *= 2;
     } else if (iMeansOfDeath == MOD_EXPLOSION) {
         // instant break
-        iDamage = health;
+        iDamage *= 10;
     }
 
     health -= iDamage;
