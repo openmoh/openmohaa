@@ -4089,7 +4089,7 @@ void ScriptThread::EventRadiusDamage(Event *ev)
 void ScriptThread::EventBspTransition(Event *ev)
 {
     str map = ev->GetString(1);
-    bool skipFade;
+    bool skipFade = false;
 
     if (ev->NumArgs() >= 2) {
         // Added in 2.30
