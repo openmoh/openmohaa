@@ -1328,7 +1328,7 @@ void TurretGun::P_UserAim(usercmd_t *ucmd)
 
     m_vUserLastCmdAng = vNewCmdAng;
 
-    if ((ucmd->buttons & BUTTON_ATTACKLEFT) || (ucmd->buttons & BUTTON_ATTACKRIGHT)) {
+    if (ucmd->buttons & BUTTON_ATTACKLEFT) {
         if (m_iFiring == 0) {
             m_iFiring = 1;
         }
