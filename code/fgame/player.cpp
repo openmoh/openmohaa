@@ -4198,6 +4198,11 @@ void Player::TurretMove(usercmd_t *ucmd)
 
     client->ps.gravity = gravity * sv_gravity->value;
 
+    if (m_pVehicle) {
+        // Added in 2.30
+        m_pVehicle->PathDrive(current_ucmd);
+    }
+
     if (m_pTurret->IsSubclassOfTurretGun() && m_pTurret->UserAim(current_ucmd)) {
         client->ps.commandTime = ucmd->serverTime;
         // Added in OPM
