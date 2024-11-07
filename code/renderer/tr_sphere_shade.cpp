@@ -106,13 +106,15 @@ static void RB_OptimizeLights()
     int    i, j;
     int    nCubeMapLights;
     float  fMaxIntensity;
-    vec3_t cubecolor[256];
+    vec3_t cubecolor[26];
     vec3_t colorout;
     float(*cube)[3][4];
     reallightinfo_t *pLight;
 
     nCubeMapLights = 0;
 
+    // FIXME: re-enable when cubemap light is fixed
+#if 0
     if (backEnd.currentSphere->numRealLights > 2) {
         qsort(
             backEnd.currentSphere->light,
@@ -135,6 +137,7 @@ static void RB_OptimizeLights()
             nCubeMapLights = 0;
         }
     }
+#endif
 
     backEnd.currentSphere->bUsesCubeMap = nCubeMapLights > 0;
     if (backEnd.currentSphere->bUsesCubeMap) {
