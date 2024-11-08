@@ -12051,8 +12051,24 @@ void Player::IsAdmin(Event* ev)
 
 void Player::BindWeap(Event* ev)
 {
-    // FIXME: TODO
-    UNIMPLEMENTED();
+    Entity *ent = ev->GetEntity(1);
+    Listener *scriptOwner;
+
+    //
+    // FIXME: deprecate and use something else instead
+    //  like implement this in the Item class directly
+    //  this is dangerous to use especially if the weapon
+    //  is a VehicleTurretGun, could easily mess up the camera
+
+    if (ent) {
+        scriptOwner = ent->GetScriptOwner();
+
+        if (scriptOwner != this) {
+            ent->SetScriptOwner(this);
+        } else {
+            ent->SetScriptOwner(NULL);
+        }
+    }
 }
 
 void Player::AddDeaths(Event *ev)
