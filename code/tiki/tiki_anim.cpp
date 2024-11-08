@@ -306,10 +306,12 @@ TIKI_Anim_Delta
 void TIKI_Anim_Delta(dtiki_t *pmdl, int animnum, float *delta)
 {
     if (!pmdl) {
+        VectorClear(delta);
         return;
     }
 
     if (!pmdl->a || animnum < 0 || animnum >= pmdl->a->num_anims) {
+        VectorClear(delta);
         return;
     }
 
