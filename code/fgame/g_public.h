@@ -238,7 +238,10 @@ typedef struct gameImport_s {
     void (*Error)(int level, const char *format, ...);
     int (*Milliseconds)();
     const char *(*LV_ConvertString)(const char *string);
+
+    // Added in 2.0
     const char *(*CL_LV_ConvertString)(const char *string);
+
     void *(*Malloc)(size_t size);
     void (*Free)(void *ptr);
     cvar_t *(*Cvar_Get)(const char *varName, const char *varValue, int varFlags);
@@ -267,7 +270,10 @@ typedef struct gameImport_s {
     void (*FS_FreeFileList)(char **list);
     const char *(*GetArchiveFileName)(const char *fileName, const char *extension);
     void (*SendConsoleCommand)(const char *text);
+
+    // Added in 2.0
     void (*ExecuteConsoleCommand)(int exec_when, const char *text);
+
     void (*DebugGraph)(float value);
     void (*SendServerCommand)(int client, const char *format, ...);
     void (*DropClient)(int client, const char *reason);
@@ -325,7 +331,10 @@ typedef struct gameImport_s {
         qboolean     cylinder,
         qboolean     traceDeep
     );
+
+    // Added in 2.0
     float (*CM_VisualObfuscation)(const vec3_t start, const vec3_t end);
+
     baseshader_t *(*GetShader)(int shaderNum);
     int (*pointcontents)(const vec3_t p, int passEntityNum);
     int (*PointBrushnum)(const vec3_t p, clipHandle_t model);
@@ -345,7 +354,10 @@ typedef struct gameImport_s {
         int          entityNum,
         int          contentMask
     );
+
+    // Added in 2.0
     qboolean (*HitEntity)(gentity_t *pEnt, gentity_t *pOther);
+
     int (*imageindex)(const char *name);
     int (*itemindex)(const char *name);
     int (*soundindex)(const char *name, int streamed);
@@ -369,9 +381,16 @@ typedef struct gameImport_s {
     float (*Anim_Frametime)(dtiki_t *tiki, int animNum);
     float (*Anim_CrossTime)(dtiki_t *tiki, int animNum);
     void (*Anim_Delta)(dtiki_t *tiki, int animNum, float *delta);
+
+    // Added in 2.0
+    void (*Anim_AngularDelta)(dtiki_t *tiki, int animNum, float *delta);
+
     qboolean (*Anim_HasDelta)(dtiki_t *tiki, int animNum);
     void (*Anim_DeltaOverTime)(dtiki_t *tiki, int animNum, float time1, float time2, float *delta);
+
+    // Added in 2.0
     void (*Anim_AngularDeltaOverTime)(dtiki_t *tiki, int animNum, float time1, float time2, float *delta);
+
     int (*Anim_Flags)(dtiki_t *tiki, int animNum);
     int (*Anim_FlagsSkel)(dtiki_t *tiki, int animNum);
     qboolean (*Anim_HasCommands)(dtiki_t *tiki, int animNum);

@@ -36,6 +36,7 @@ extern "C" {
     float       TIKI_Anim_Time(dtiki_t *pmdl, int animnum);
     float       TIKI_Anim_Frametime(dtiki_t *pmdl, int animnum);
     void        TIKI_Anim_Delta(dtiki_t *pmdl, int animnum, float *delta);
+    void        TIKI_Anim_AngularDelta(dtiki_t *pmdl, int animnum, float *delta);
     qboolean    TIKI_Anim_HasDelta(dtiki_t *pmdl, int animnum);
     void        TIKI_Anim_DeltaOverTime(dtiki_t *pTiki, int iAnimnum, float fTime1, float fTime2, vec3_t vDelta);
     void        TIKI_Anim_AngularDeltaOverTime(dtiki_t *pTiki, int iAnimnum, float fTime1, float fTime2, float *fDelta);

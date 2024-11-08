@@ -321,6 +321,29 @@ void TIKI_Anim_Delta(dtiki_t *pmdl, int animnum, float *delta)
 
 /*
 ===============
+TIKI_Anim_AngularDelta
+
+Added in 2.0
+===============
+*/
+void TIKI_Anim_AngularDelta(dtiki_t *pmdl, int animnum, float *delta)
+{
+    if (!pmdl) {
+        *delta = 0;
+        return;
+    }
+
+    if (!pmdl->a || animnum < 0 || animnum >= pmdl->a->num_anims) {
+        *delta = 0;
+        return;
+    }
+
+    skelAnimDataGameHeader_t *animData = SkeletorCacheGetData(pmdl->a->m_aliases[animnum]);
+    *delta = animData->totalAngleDelta;
+}
+
+/*
+===============
 TIKI_Anim_HasDelta
 ===============
 */

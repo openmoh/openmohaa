@@ -779,6 +779,20 @@ void PF_Anim_Delta( dtiki_t *tiki, int animnum, vec3_t delta )
 
 /*
 ===============
+PF_Anim_AngularDelta
+===============
+*/
+void PF_Anim_AngularDelta(dtiki_t* tiki, int animnum, vec3_t delta)
+{
+    if (!tiki) {
+        return;
+    }
+
+	TIKI_Anim_AngularDelta(tiki, animnum, delta);
+}
+
+/*
+===============
 PF_Anim_HasDelta
 ===============
 */
@@ -1806,6 +1820,7 @@ void SV_InitGameProgs( void ) {
 	import.Anim_Frametime				= PF_Anim_Frametime;
 	import.Anim_CrossTime				= PF_Cross_Time;
 	import.Anim_Delta					= PF_Anim_Delta;
+	import.Anim_AngularDelta			= PF_Anim_AngularDelta;
 	import.Anim_HasDelta				= PF_Anim_HasDelta;
 	import.Anim_DeltaOverTime			= PF_Anim_DeltaOverTime;
 	import.Anim_AngularDeltaOverTime	= PF_Anim_AngularDeltaOverTime;
