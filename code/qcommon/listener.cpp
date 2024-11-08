@@ -3054,6 +3054,15 @@ Listener *Listener::GetScriptOwner(void)
     return NULL;
 }
 
+/*
+=======================
+SetScriptOwner
+=======================
+*/
+void Listener::SetScriptOwner(Listener* newOwner)
+{
+}
+
 #ifdef WITH_SCRIPT_ENGINE
 
 /*

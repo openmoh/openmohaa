@@ -121,6 +121,14 @@ public:
 
     void Archive(Archiver& arc) override;
 
+public:
+    //
+    // Added in OPM
+    //
+
+    Listener *GetScriptOwner() override;
+    void SetScriptOwner(Listener *newOwner) override;
+
 #ifdef OPM_FEATURES
     //
     // Custom openmohaa stuff

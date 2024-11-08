@@ -903,6 +903,21 @@ void Item::Landed(Event *ev)
     setMoveType(MOVETYPE_NONE);
 }
 
+Listener *Item::GetScriptOwner()
+{
+    return owner;
+}
+
+void Item::SetScriptOwner(Listener *newOwner)
+{
+    if (!newOwner || !newOwner->isSubclassOf(Sentient)) {
+        owner = NULL;
+        return;
+    }
+
+    owner = static_cast<Sentient*>(newOwner);
+}
+
 #ifdef OPM_FEATURES
 void Item::EventViewModelPrefix(Event *ev)
 {

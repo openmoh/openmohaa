@@ -481,6 +481,7 @@ public:
 #endif
 
     virtual Listener *GetScriptOwner(void);
+    virtual void SetScriptOwner(Listener *newOwner);
 
     Listener();
     virtual ~Listener();
