@@ -62,6 +62,10 @@ SkelMat4 *TIKI_TransformInternal(dtiki_t *tiki, int entnum, int tagnum)
     }
 
     skeletor = (skeletor_c *)TIKI_GetSkeletor(tiki, entnum);
+    if (!skeletor) {
+        return NULL;
+    }
+
     return &skeletor->GetBoneFrame(tagnum);
 }
 
@@ -94,6 +98,10 @@ orientation_t TIKI_OrientationInternal(dtiki_t *tiki, int entnum, int tagnum, fl
     }
 
     const skeletor_c *skeletor   = (skeletor_c *)TIKI_GetSkeletor(tiki, entnum);
+    if (!skeletor) {
+        return orientation_t {};
+    }
+
     const SkelMat4  & pTransform = skeletor->GetBoneFrame(tagnum);
 
     orientation_t orient;
