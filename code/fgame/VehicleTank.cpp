@@ -334,6 +334,9 @@ void VehicleTank::Postthink()
             //  the tank was non-solid with a player driver,
             //  instead of the driver being non-solid.
             //setSolidType(SOLID_NOT);
+
+            // Fixed in OPM
+            // Driver is made non-solid in Vehicle::MoveThink
             //driver.ent->setSolidType(SOLID_NOT);
         } else {
             driver.ent->takedamage = DAMAGE_NO;
