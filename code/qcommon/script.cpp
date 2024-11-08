@@ -1131,6 +1131,10 @@ void Script::LoadFile(const char *name)
     Close();
 
     length = FILE_FS_ReadFile(name, (void **)&tempbuf);
+    if (length == -1) {
+        error("LoadFile", "Couldn't load %s\n", name);
+        return;
+    }
 
     hasError = false;
 
