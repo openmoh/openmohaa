@@ -522,10 +522,10 @@ void Trigger::TriggerStuff(Event *ev)
         event = new Event(EV_Trigger_StartThread);
         if (activator) {
             event->AddEntity(activator);
-        }
-        if (activator->IsSubclassOfProjectile()) {
-            Projectile *proj = static_cast<Projectile *>(activator);
-            event->AddEntity(G_GetEntity(proj->owner));
+            if (activator->IsSubclassOfProjectile()) {
+                Projectile* proj = static_cast<Projectile*>(activator);
+                event->AddEntity(G_GetEntity(proj->owner));
+            }
         }
         PostEvent(event, delay);
     }
@@ -980,10 +980,14 @@ void TriggerAll::TriggerStuff(Event *ev)
     PostEvent(event, delay);
 
     // don't trigger the thread if we were triggered by the world touching us
-    if ((activator != world) || (ev->eventnum != EV_Touch.eventnum)) {
+    if ((activator != world) || (*ev != EV_Touch)) {
         event = new Event(EV_Trigger_StartThread);
         if (activator) {
             event->AddEntity(activator);
+            if (activator->IsSubclassOfProjectile()) {
+                Projectile* proj = static_cast<Projectile*>(activator);
+                event->AddEntity(G_GetEntity(proj->owner));
+            }
         }
         PostEvent(event, delay);
     }
