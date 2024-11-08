@@ -2038,7 +2038,7 @@ bool Vehicle::FindExitPosition(Entity *pEnt, const Vector& vOrigin, const Vector
         return false;
     }
 
-    if (g_target_game < target_game_e::TG_MOHTA || (!pEnt->IsSubclassOfPlayer() && vOrigin != vec_zero)) {
+    if ((g_target_game < target_game_e::TG_MOHTA || !pEnt->IsSubclassOfPlayer()) && vOrigin != vec_zero) {
         if (vAngles) {
             pEnt->setAngles(*vAngles);
         }
