@@ -2378,11 +2378,10 @@ float BulletAttack(
                     if (trace.surfaceFlags & (SURF_FOLIAGE | SURF_GLASS | SURF_PUDDLE | SURF_PAPER)
                         || trace.contents & (CONTENTS_CLAYPIDGEON | CONTENTS_WATER)
                         || (g_protocol < protocol_e::PROTOCOL_MOHTA && trace.startsolid)
-                        || (bulletlarge && trace.ent && trace.ent->r.contents & CONTENTS_BBOX && !trace.ent->r.bmodel
+                        || (bulletlarge && trace.ent && (g_protocol < protocol_e::PROTOCOL_MOHTA || (trace.ent->r.contents & CONTENTS_BBOX)) && !trace.ent->r.bmodel
                             && trace.ent->entity->takedamage)
                         || ((trace.surfaceFlags & SURF_WOOD) && bulletthroughwood)
-                        || ((trace.surfaceFlags & (SURF_GRILL | SURF_METAL)) && bulletthroughmetal)
-                               && iContinueCount < 5) {
+                        || ((trace.surfaceFlags & (SURF_GRILL | SURF_METAL)) && bulletthroughmetal && iContinueCount < 5)) {
                         if (((trace.surfaceFlags & SURF_WOOD) && bulletthroughwood)
                             || ((trace.surfaceFlags & (SURF_GRILL | SURF_METAL)) && bulletthroughmetal)) {
                             if (trace.contents & CONTENTS_FENCE) {
@@ -2406,7 +2405,7 @@ float BulletAttack(
                                         VectorAdd(tracethrough.endpos, vTmpEnd, tracethrough.endpos);
                                     }
                                 } else {
-                                    trace.fraction = 1.f;
+                                    trace.fraction = 1;
                                     bBulletDone    = qtrue;
 
                                     if (g_showbullettrace->integer) {
@@ -2439,7 +2438,7 @@ float BulletAttack(
                             iContinueCount++;
                         }
                     } else {
-                        trace.fraction = 1.f;
+                        trace.fraction = 1;
                         bBulletDone    = qtrue;
                     }
                 }
@@ -2447,7 +2446,7 @@ float BulletAttack(
                 if (oldfrac != trace.fraction) {
                     oldfrac = trace.fraction;
                 } else {
-                    trace.fraction = 1.f;
+                    trace.fraction = 1;
                 }
             }
         }
