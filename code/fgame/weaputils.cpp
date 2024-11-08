@@ -1296,15 +1296,19 @@ void Projectile::Touch(Event *ev)
     explEv->AddEntity(other);
     ProcessEvent(explEv);
 
+    //
+    // Added in 2.30
+    //  Check for projectile vulnerability
+    //
+
     Vehicle* pVehicle = NULL;
 
-    // Added in 2.30
     if (other->IsSubclassOfVehicle()) {
         pVehicle = static_cast<Vehicle*>(other);
     } else if (other->IsSubclassOfVehicleTurretGun()) {
         VehicleTurretGun* pTurret = static_cast<VehicleTurretGun*>(other);
         Entity* pEnt = pTurret->GetVehicle();
-        if (pEnt->IsSubclassOfVehicle()) {
+        if (pEnt && pEnt->IsSubclassOfVehicle()) {
             pVehicle = static_cast<Vehicle*>(pEnt);
         }
     } else if (other->isSubclassOf(VehicleCollisionEntity)) {
