@@ -616,6 +616,10 @@ PF_NumAnims
 */
 int PF_NumAnims( dtiki_t *tiki )
 {
+    if (!tiki) {
+        return 0;
+    }
+
 	return TIKI_NumAnims( tiki );
 }
 
@@ -626,6 +630,10 @@ PF_NumSurfaces
 */
 int PF_NumSurfaces( dtiki_t *tiki )
 {
+    if (!tiki) {
+        return 0;
+    }
+
 	return TIKI_NumSurfaces( tiki );
 }
 
@@ -636,6 +644,10 @@ PF_NumTags
 */
 int PF_NumTags( dtiki_t *tiki )
 {
+    if (!tiki) {
+        return 0;
+    }
+
 	return TIKI_NumTags( tiki );
 }
 
@@ -646,6 +658,10 @@ PF_Cross_Time
 */
 float PF_Cross_Time( dtiki_t *tiki, int anim )
 {
+    if (!tiki) {
+        return 0;
+    }
+
 	return TIKI_Anim_CrossblendTime( tiki, anim );
 }
 
@@ -656,6 +672,10 @@ PF_CalculateBounds
 */
 void PF_CalculateBounds( dtiki_t *tiki, float scale, vec3_t mins, vec3_t maxs )
 {
+    if (!tiki) {
+        return;
+    }
+
 	TIKI_CalculateBounds( tiki, scale, mins, maxs );
 }
 
@@ -666,6 +686,10 @@ PF_Anim_NameForNum
 */
 const char *PF_Anim_NameForNum( dtiki_t *tiki, int animnum )
 {
+    if (!tiki) {
+        return 0;
+    }
+
 	return TIKI_Anim_NameForNum( tiki, animnum );
 }
 
@@ -676,6 +700,10 @@ PF_Anim_NumForName
 */
 int PF_Anim_NumForName( dtiki_t *tiki, const char *name )
 {
+    if (!tiki) {
+        return -1;
+    }
+
 	return TIKI_Anim_NumForName( tiki, name );
 }
 
@@ -686,6 +714,10 @@ PF_Anim_Random
 */
 int PF_Anim_Random( dtiki_t *tiki, const char *name )
 {
+    if (!tiki) {
+        return -1;
+    }
+
 	return TIKI_Anim_Random( tiki, name );
 }
 
@@ -696,6 +728,10 @@ PF_Anim_NumFrames
 */
 int PF_Anim_NumFrames( dtiki_t *tiki, int animnum )
 {
+    if (!tiki) {
+        return 0;
+    }
+
 	return TIKI_Anim_NumFrames( tiki, animnum );
 }
 
@@ -706,6 +742,10 @@ PF_Anim_Time
 */
 float PF_Anim_Time( dtiki_t *tiki, int animnum )
 {
+    if (!tiki) {
+        return 0;
+    }
+
 	return TIKI_Anim_Time( tiki, animnum );
 }
 
@@ -716,6 +756,10 @@ PF_Anim_Frametime
 */
 float PF_Anim_Frametime( dtiki_t *tiki, int animnum )
 {
+	if (!tiki) {
+		return 0;
+	}
+
 	return TIKI_Anim_Frametime( tiki, animnum );
 }
 
@@ -726,6 +770,10 @@ PF_Anim_Delta
 */
 void PF_Anim_Delta( dtiki_t *tiki, int animnum, vec3_t delta )
 {
+	if (!tiki) {
+		return;
+	}
+
 	TIKI_Anim_Delta( tiki, animnum, delta );
 }
 
@@ -736,6 +784,10 @@ PF_Anim_HasDelta
 */
 qboolean PF_Anim_HasDelta( dtiki_t *tiki, int animnum )
 {
+    if (!tiki) {
+        return qfalse;
+    }
+
 	return TIKI_Anim_HasDelta( tiki, animnum );
 }
 
@@ -746,6 +798,10 @@ PF_Anim_DeltaOverTime
 */
 void PF_Anim_DeltaOverTime( dtiki_t *tiki, int iAnimnum, float fTime1, float fTime2, vec3_t vDelta )
 {
+    if (!tiki) {
+        return;
+    }
+
 	TIKI_Anim_DeltaOverTime( tiki, iAnimnum, fTime1, fTime2, vDelta );
 }
 
@@ -756,6 +812,10 @@ PF_Anim_AngularDeltaOverTime
 */
 void PF_Anim_AngularDeltaOverTime(dtiki_t* tiki, int iAnimnum, float fTime1, float fTime2, float * fDelta)
 {
+    if (!tiki) {
+        return;
+    }
+
 	TIKI_Anim_AngularDeltaOverTime(tiki, iAnimnum, fTime1, fTime2, fDelta);
 }
 
@@ -766,6 +826,10 @@ PF_Anim_Flags
 */
 int PF_Anim_Flags( dtiki_t *tiki, int animnum )
 {
+    if (!tiki) {
+        return 0;
+    }
+
 	return TIKI_Anim_Flags( tiki, animnum );
 }
 
@@ -776,6 +840,10 @@ PF_Anim_FlagsSkel
 */
 int PF_Anim_FlagsSkel( dtiki_t *tiki, int animnum )
 {
+    if (!tiki) {
+        return 0;
+    }
+
 	return TIKI_Anim_FlagsSkel( tiki, animnum );
 }
 
@@ -786,6 +854,10 @@ PF_Anim_HasCommands
 */
 qboolean PF_Anim_HasCommands( dtiki_t *tiki, int animnum )
 {
+    if (!tiki) {
+        return qfalse;
+    }
+
 	return TIKI_Anim_HasServerCommands( tiki, animnum );
 }
 
@@ -796,6 +868,10 @@ PF_Anim_HasCommands
 */
 qboolean PF_Anim_HasCommands_Client(dtiki_t* tiki, int animnum)
 {
+    if (!tiki) {
+        return qfalse;
+    }
+
     return TIKI_Anim_HasClientCommands(tiki, animnum);
 }
 
@@ -1038,15 +1114,15 @@ PF_Alias_FindRandom
 */
 const char *PF_Alias_FindRandom( dtiki_t *tiki, const char *alias, AliasListNode_t **ret )
 {
-	AliasList_t *alias_list = tiki->a->alias_list;
+	AliasList_t* alias_list = NULL;
 
-	alias_list = ( AliasList_t * )tiki->a->alias_list;
-	if( alias_list )
-	{
-		return Alias_ListFindRandom( alias_list, alias, ret );
+	if (tiki) {
+		alias_list = tiki->a->alias_list;
 	}
-	else
-	{
+
+	if (alias_list) {
+		return Alias_ListFindRandom(alias_list, alias, ret);
+	} else {
 		return NULL;
 	}
 }
@@ -1059,12 +1135,15 @@ PF_Alias_UpdateDialog
 */
 void PF_Alias_UpdateDialog( dtikianim_t *tiki, const char *alias )
 {
-	AliasList_t *alias_list = tiki->alias_list;
-
-	if( alias_list )
-	{
-		Alias_ListUpdateDialog( alias_list, alias );
+	AliasList_t* alias_list = NULL;
+	
+	if (tiki) {
+		alias_list = tiki->alias_list;
 	}
+
+    if (alias_list) {
+        Alias_ListUpdateDialog(alias_list, alias);
+    }
 }
 
 /*
@@ -1075,12 +1154,15 @@ PF_Alias_Dump
 */
 void PF_Alias_Dump( dtiki_t *tiki )
 {
-	AliasList_t *alias_list = tiki->a->alias_list;
+    AliasList_t* alias_list = NULL;
 
-	if( alias_list )
-	{
-		Alias_ListDump( tiki->a->alias_list );
-	}
+    if (tiki) {
+        alias_list = tiki->a->alias_list;
+    }
+
+    if (alias_list) {
+        Alias_ListDump(tiki->a->alias_list);
+    }
 }
 
 /*
@@ -1101,6 +1183,10 @@ PF_NameForNum
 */
 const char *PF_NameForNum( dtiki_t *tiki )
 {
+	if (!tiki) {
+		return NULL;
+	}
+
 	return TIKI_Name( tiki );
 }
 
@@ -1205,6 +1291,10 @@ PF_GetSkeletor
 */
 void *PF_GetSkeletor( dtiki_t *tiki, int entnum )
 {
+	if (!tiki) {
+		return NULL;
+	}
+
 	return TIKI_GetSkeletor( tiki, entnum );
 }
 
