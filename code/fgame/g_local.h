@@ -132,15 +132,6 @@ typedef struct {
 #define MAX_NETNAME    32
 #define MAX_VOTE_COUNT 3
 
-typedef enum {
-    CS_FREE,
-    CS_ZOMBIE,
-    CS_CONNECTED,
-    CS_PRIMED,
-    CS_ACTIVE
-
-} clientState_t;
-
 //
 // g_spawn.c
 //
