@@ -1174,19 +1174,22 @@ Event EV_GetFireHeld
     EV_GETTER
 );
 Event EV_GetPrimaryFireHeld // Added in 2.30
-    ("primaryfireheld",
+(
+    "primaryfireheld",
      EV_DEFAULT,
      NULL,
      NULL,
      "returns 1 if this player is holding the primary fire, or 0 if not",
      EV_GETTER);
 Event EV_GetSecondaryFireHeld // Added in 2.30
-    ("secondaryfireheld",
+(
+    "secondaryfireheld",
      EV_DEFAULT,
      NULL,
      NULL,
      "returns 1 if this player is holding the secondary fire, or 0 if not",
-     EV_GETTER);
+     EV_GETTER
+);
 Event EV_Player_GetReady
 (
     "ready",
@@ -12160,7 +12163,10 @@ void Player::FreezeControls(Event *ev)
 
 void Player::GetConnState(Event *ev)
 {
-    ScriptDeprecated("Player::GetConnState");
+    // Assume CS_ACTIVE
+    ev->AddInteger(4);
+
+    gi.DPrintf("getconnstate is deprecated and will always return 4 (CS_ACTIVE).\nThe player is created only when the client begins (CS_ACTIVE state).\n");
 }
 
 void Player::GetDamageMultiplier(Event *ev)
