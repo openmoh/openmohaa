@@ -5998,20 +5998,119 @@ void Entity::DrawBoundingBox(int showbboxes)
         }
         break;
     default:
-        if (IsSubclassOfAnimate() && edict->tiki) {
-            Animate *anim;
-            vec3_t   mins, maxs;
-
-            anim = (Animate *)this;
-            // FIXME
-            G_DebugBBox(origin, mins, maxs, 0, 1, 0, 1);
-        } else {
-            G_DebugBBox(origin, mins, maxs, 1, 1, 0, 1);
-        }
         break;
     }
 
-    // FIXME: not implemented (implement the rest...)
+    if ((showbboxes >= 9 && showbboxes <= 28) || (showbboxes >= -28 && showbboxes <= -9)) {
+        qboolean bDoPlayer = qfalse;
+        
+        if (showbboxes >= 0) {
+            bDoPlayer = qfalse;
+        } else {
+            showbboxes = -showbboxes;
+            bDoPlayer = qtrue;
+        }
+
+        if (edict->s.solid == SOLID_NOT) {
+            return;
+        }
+
+        if ((edict != g_entities && !bDoPlayer) || (edict == g_entities && bDoPlayer)) {
+            int i, j;
+            int iTagNum;
+            int iCap;
+            float fRadius;
+            const char *pszTagName;
+            vec3_t vOffset;
+            vec3_t vPos;
+            vec3_t vColor;
+            orientation_t orTag;
+            orientation_t orPosition;
+
+            if (!IsSubclassOfSentient() || !edict->tiki) {
+                G_DebugBBox(origin, mins, maxs, 1.0, 1.0, 0.0, 1.0);
+                return;
+            }
+
+            AnglesToAxis(angles, orientation);
+
+            if (showbboxes <= 9 && showbboxes >= -9) {
+                i = 0;
+                iCap = 19;
+            } else {
+                i = showbboxes - 10;
+                if (i >= 18) {
+                    return;
+                }
+
+                iCap = i + 1;
+            }
+
+            for (; i < iCap; i++) {
+                pszTagName = gi.CM_GetHitLocationInfo(i, &fRadius, vOffset);
+
+                if (sv_testloc_num->integer - 1 == i || (sv_testloc_num->integer && (showbboxes > 9 || showbboxes < -9))) {
+                    fRadius = sv_testloc_radius->value;
+                    vOffset[0] = sv_testloc_offset_x->value;
+                    vOffset[1] = sv_testloc_offset_y->value;
+                    vOffset[2] = sv_testloc_offset_z->value;
+                    vColor[0] = 1.0;
+                    vColor[1] = 0.5;
+                    vColor[2] = 0.0;
+                } else {
+                    vColor[0] = 0.0;
+                    vColor[1] = 0.5;
+                    vColor[2] = 1.0;
+                }
+
+                iTagNum = gi.Tag_NumForName(edict->tiki, pszTagName);
+                if (iTagNum < 0) {
+                    return;
+                }
+
+                orTag = G_TIKI_Orientation(edict, iTagNum & TAG_MASK);
+                VectorCopy(origin, orPosition.origin);
+
+                for (j = 0; j < 3; j++) {
+                    VectorMA(orPosition.origin, orTag.origin[j], orientation[j], orPosition.origin);
+                }
+
+                MatrixMultiply(orTag.axis, orientation, orPosition.axis);
+                MatrixTransformVector(vOffset, orPosition.axis, vPos);
+                VectorAdd(orPosition.origin, vPos, vPos);
+
+                G_DebugCircle(vPos, fRadius, vColor[0], vColor[1], vColor[2], 1.0);
+
+                pszTagName = gi.CM_GetHitLocationInfoSecondary(i, &fRadius, vOffset);
+                vColor[0] = 0.5;
+                vColor[1] = 0.0;
+                vColor[2] = 1.0;
+
+                if (!pszTagName || sv_testloc_num->integer - 1 == i || (sv_testloc_num->integer && (showbboxes > 9 || showbboxes < -9))) {
+                    if (!sv_testloc_secondary->integer) {
+                        continue;
+                    }
+
+                    if (sv_testloc_num->integer - 1 != i && (!sv_testloc_num->integer || (showbboxes <= 9 && showbboxes >= -9))) {
+                        continue;
+                    }
+
+                    fRadius = sv_testloc_radius2->value;
+                    vOffset[0] = sv_testloc_offset2_x->value;
+                    vOffset[1] = sv_testloc_offset2_y->value;
+                    vOffset[2] = sv_testloc_offset2_z->value;
+                    vColor[0] = 1.0;
+                    vColor[1] = 0.0;
+                    vColor[2] = 0.5;
+                }
+
+                MatrixTransformVector(vOffset, orPosition.axis, vPos);
+                VectorAdd(orPosition.origin, vPos, vPos);
+
+                G_DebugCircle(vPos, fRadius, vColor[0], vColor[1], vColor[2], 1.0);
+            }
+        }
+    }
 }
 
 qboolean Entity::IsDead(void) const
