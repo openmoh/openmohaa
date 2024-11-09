@@ -145,31 +145,31 @@ void Actor::ThinkHoldGun_TurretGun(void)
         if (m_State == ACTOR_STATE_MACHINE_GUNNER_RELOADING) {
             m_fCrouchWeight = 0;
 
-            temp = (origin[2] + 71.6f - m_pTurret->origin[2]) / 39.f;
+            temp = (origin[2] + 71.6f - m_pTurret->origin[2]) / 39.0f;
             if (temp >= -1.0 && temp <= 1.0) {
                 m_pTurret->angles[0] = RAD2DEG(atan(temp / sqrt(temp * -temp + 1)));
                 m_pTurret->setAngles(m_pTurret->angles);
             }
         } else {
             m_fCrouchWeight = machine_gunner_hands_up_stand / 17.1f;
-            if (m_fCrouchWeight < -1.0) {
-                m_fCrouchWeight = -1.0;
+            if (m_fCrouchWeight < -1.0f) {
+                m_fCrouchWeight = -1.0f;
             }
         }
 
-        VectorScale2D(orientation[0], -(m_fCrouchWeight * -9.3f + 23.4f), offset);
+        VectorScale2D(orientation[0], -(23.4 - m_fCrouchWeight * 9.3), offset);
         VectorAdd2D(newOrigin, offset, newOrigin);
-        VectorScale2D(orientation[1], m_fCrouchWeight * 2.6f + 10.3f, offset);
+        VectorScale2D(orientation[1], 10.3 + m_fCrouchWeight * 2.6, offset);
         VectorAdd2D(newOrigin, offset, newOrigin);
     } else {
-        m_fCrouchWeight = machine_gunner_hands_up_stand / (heightDiff - 38.7f);
+        m_fCrouchWeight = machine_gunner_hands_up_stand / (heightDiff - 38.7);
         if (m_fCrouchWeight > 1.0) {
             m_fCrouchWeight = 1.0;
         }
 
-        VectorScale2D(orientation[0], -(m_fCrouchWeight * -3.f + 23.4f), offset);
+        VectorScale2D(orientation[0], -(23.4 - m_fCrouchWeight * 3.0), offset);
         VectorAdd2D(newOrigin, offset, newOrigin);
-        VectorScale2D(orientation[1], m_fCrouchWeight * -1.6f + 10.3f, offset);
+        VectorScale2D(orientation[1], 10.3 - m_fCrouchWeight * 1.6, offset);
         VectorAdd2D(newOrigin, offset, newOrigin);
     }
 
@@ -182,11 +182,11 @@ void Actor::ThinkHoldGun_TurretGun(void)
     UpdateAimMotion();
     UpdateAnim();
 
-    newOrigin[2] += 18;
+    newOrigin[2] = origin[2] + 18.0;
 
     end[0] = newOrigin[0];
     end[1] = newOrigin[1];
-    end[2] = newOrigin[2] - 94;
+    end[2] = origin[2] - 94.0;
     trace  = G_Trace(newOrigin, MINS, MAXS, end, this, MASK_PATHSOLID, qfalse, "Actor::ThinkHoldGun_TurretGun");
 
     if (trace.fraction != 1.0 && !trace.startsolid && !trace.allsolid && trace.ent) {
