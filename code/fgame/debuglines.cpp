@@ -287,6 +287,8 @@ void G_DebugBBox(Vector org, Vector mins, Vector maxs, float r, float g, float b
     G_Vertex(points[4]);
     G_EndLine();
 
+    G_Color4f(0, 0, 1, alpha);
+
     for (i = 0; i < 4; i++) {
         G_BeginLine();
         G_Vertex(points[i]);
@@ -348,6 +350,8 @@ void G_DebugRotatedBBox(Vector org, Vector ang, Vector mins, Vector maxs, float 
     G_Vertex(points[6]);
     G_Vertex(points[4]);
     G_EndLine();
+
+    G_Color4f(0, 0, 1, alpha);
 
     for (i = 0; i < 4; i++) {
         G_BeginLine();
