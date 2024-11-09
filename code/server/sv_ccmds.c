@@ -1697,11 +1697,9 @@ void SV_AddOperatorCommands(void) {
 	Cmd_AddCommand("difficultyMedium", SV_MediumMode_f);
 	Cmd_AddCommand("difficultyHard", SV_HardMode_f);
 
-	if (developer->integer) {
-		SV_MediumMode_f();
-	} else {
-		SV_EasyMode_f();
-	}
+	// Changed in 2.0
+	//  Set medium mode regardless of if the developer mode is set
+	SV_MediumMode_f();
 }
 
 /*
