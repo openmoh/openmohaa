@@ -47,7 +47,7 @@ public:
     UIFont();
     UIFont(const char *fn);
 
-    void Print(float x, float y, const char *text, size_t maxlen, qboolean bVirtualScreen);
+    void Print(float x, float y, const char *text, size_t maxlen = -1, qboolean bVirtualScreen = qfalse);
     void PrintJustified(
         const UIRect2D& rect, fonthorzjustify_t horz, fontvertjustify_t vert, const char *text, float *vVirtualScale
     );
