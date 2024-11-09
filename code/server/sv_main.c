@@ -530,7 +530,7 @@ void SVC_Status( netadr_t from ) {
 		}
 	}
 
-	NET_OutOfBandPrint( NS_SERVER, from, "statusResponse\n%s\n%s", infostring, status );
+	SV_NET_OutOfBandPrint( &svs.netprofile, from, "statusResponse\n%s\n%s", infostring, status );
 }
 
 /*
@@ -618,7 +618,7 @@ void SVC_Info( netadr_t from ) {
 	Info_SetValueForKey(infostring, "gamever", com_target_version->string);
 	Info_SetValueForKey(infostring, "serverType", va("%i", com_target_game->integer));
 
-	NET_OutOfBandPrint( NS_SERVER, from, "infoResponse\n%s", infostring );
+	SV_NET_OutOfBandPrint( &svs.netprofile, from, "infoResponse\n%s", infostring );
 }
 
 /*
@@ -628,7 +628,7 @@ SVC_FlushRedirect
 ================
 */
 static void SV_FlushRedirect( char *outputbuf ) {
-	NET_OutOfBandPrint( NS_SERVER, svs.redirectAddress, "print\n%s", outputbuf );
+	SV_NET_OutOfBandPrint( &svs.netprofile, svs.redirectAddress, "print\n%s", outputbuf );
 }
 
 /*
@@ -719,6 +719,10 @@ connectionless packets.
 void SV_ConnectionlessPacket( netadr_t from, msg_t *msg ) {
 	char	*s;
 	char	*c;
+
+	if (sv_netprofile->integer) {
+		NetProfileAddPacket(&svs.netprofile.inPackets, msg->cursize, NETPROF_PACKET_MESSAGE);
+	}
 
 	MSG_BeginReadingOOB( msg );
 	MSG_ReadLong( msg );		// skip the -1 marker
@@ -818,7 +822,7 @@ void SV_PacketEvent( netadr_t from, msg_t *msg ) {
 	
 	// if we received a sequenced packet from an address we don't recognize,
 	// send an out of band disconnect packet to it
-	NET_OutOfBandPrint( NS_SERVER, from, "disconnect" );
+	SV_NET_OutOfBandPrint( &svs.netprofile, from, "disconnect" );
 }
 
 
@@ -1022,6 +1026,8 @@ void SV_Frame( int msec ) {
 
 		return;
 	}
+
+	SV_NET_UpdateAllNetProfileInfo();
 
 	// allow pause if only the local client is connected
 	if ( SV_CheckPaused() ) {

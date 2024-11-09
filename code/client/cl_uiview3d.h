@@ -51,6 +51,9 @@ protected:
     void OnDeactivate(Event *ev);
     void DrawSubtitleOverlay(void);
 
+    // Added in 2.0
+    void DrawNetProfile(void);
+
 public:
     View3D();
 

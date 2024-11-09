@@ -132,7 +132,7 @@ CL_Netchan_TransmitNextFragment
 =================
 */
 void CL_Netchan_TransmitNextFragment( netchan_t *chan ) {
-	Netchan_TransmitNextFragment( chan );
+	Netchan_TransmitNextFragment( chan, cl_netprofile->integer ? &cls.netprofile.inPackets : NULL );
 }
 
 /*
@@ -144,7 +144,7 @@ void CL_Netchan_Transmit( netchan_t *chan, msg_t* msg ) {
 	MSG_WriteByte( msg, clc_EOF );
 
 	CL_Netchan_Encode( msg );
-	Netchan_Transmit( chan, msg->cursize, msg->data );
+	Netchan_Transmit( chan, msg->cursize, msg->data, cl_netprofile->integer ? &cls.netprofile.inPackets : NULL );
 }
 
 extern 	int oldsize;
@@ -158,10 +158,30 @@ CL_Netchan_Process
 qboolean CL_Netchan_Process( netchan_t *chan, msg_t *msg ) {
 	int ret;
 
-	ret = Netchan_Process( chan, msg );
+	ret = Netchan_Process( chan, msg, cl_netprofile->integer ? &cls.netprofile.outPackets : NULL );
 	if (!ret)
 		return qfalse;
 	CL_Netchan_Decode( msg );
 	newsize += msg->cursize;
 	return qtrue;
+}
+
+/*
+=================
+CL_NET_OutOfBandPrint
+=================
+*/
+void CL_NET_OutOfBandPrint(netadr_t adr, const char* format, ...) {
+    va_list	argptr;
+    char	string[MAX_MSGLEN];
+
+    va_start(argptr, format);
+    Q_vsnprintf(string, sizeof(string), format, argptr);
+    va_end(argptr);
+
+	NET_OutOfBandPrint(NS_CLIENT, adr, "%s", string);
+
+	if (cl_netprofile->integer) {
+		NetProfileAddPacket(&cls.netprofile.inPackets, strlen(string), NETPROF_PACKET_MESSAGE);
+	}
 }

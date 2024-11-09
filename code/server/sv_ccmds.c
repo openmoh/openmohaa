@@ -502,7 +502,7 @@ static void SV_Ban_f( void ) {
 
 	// otherwise send their ip to the authorize server
 	if ( svs.authorizeAddress.type != NA_BAD ) {
-		NET_OutOfBandPrint( NS_SERVER, svs.authorizeAddress,
+		SV_NET_OutOfBandPrint( &svs.netprofile, svs.authorizeAddress,
 			"banUser %i.%i.%i.%i", cl->netchan.remoteAddress.ip[0], cl->netchan.remoteAddress.ip[1], 
 								   cl->netchan.remoteAddress.ip[2], cl->netchan.remoteAddress.ip[3] );
 		Com_Printf("%s was banned from coming back\n", cl->name);
@@ -556,7 +556,7 @@ static void SV_BanNum_f( void ) {
 
 	// otherwise send their ip to the authorize server
 	if ( svs.authorizeAddress.type != NA_BAD ) {
-		NET_OutOfBandPrint( NS_SERVER, svs.authorizeAddress,
+		SV_NET_OutOfBandPrint( &svs.netprofile, svs.authorizeAddress,
 			"banUser %i.%i.%i.%i", cl->netchan.remoteAddress.ip[0], cl->netchan.remoteAddress.ip[1], 
 								   cl->netchan.remoteAddress.ip[2], cl->netchan.remoteAddress.ip[3] );
 		Com_Printf("%s was banned from coming back\n", cl->name);
@@ -1575,6 +1575,120 @@ void SV_LoadLastGame_f( void )
 
 /*
 =================
+SV_NetProfileDump_PrintProf
+=================
+*/
+void SV_NetProfileDump_PrintProf(fileHandle_t file, netprofclient_t* netprofile)
+{
+    size_t totalProcessed;
+    char buffer[2048];
+
+	totalProcessed = netprofile->outPackets.totalProcessed + netprofile->inPackets.totalProcessed;
+
+    Com_sprintf(
+        buffer,
+        sizeof(buffer),
+        "%4i %4i %4i | %3i %3i %3i | %3i %3i %3i | %3i %3i %3i | %7i %7i %7i\n",
+        netprofile->inPackets.packetsPerSec,
+        netprofile->outPackets.packetsPerSec,
+        netprofile->outPackets.packetsPerSec + netprofile->inPackets.packetsPerSec,
+        netprofile->inPackets.percentFragmented,
+        netprofile->outPackets.percentFragmented,
+        (unsigned int)((float)(netprofile->outPackets.numFragmented + netprofile->inPackets.numFragmented) / totalProcessed),
+        netprofile->inPackets.percentDropped,
+        netprofile->outPackets.percentDropped,
+        (unsigned int)((float)(netprofile->outPackets.numDropped + netprofile->inPackets.numDropped) / totalProcessed),
+        netprofile->inPackets.percentDropped,
+        netprofile->outPackets.percentDropped,
+        (unsigned int)((float)(netprofile->outPackets.totalLengthConnectionLess + netprofile->inPackets.totalLengthConnectionLess) / (float)(netprofile->outPackets.totalSize + netprofile->inPackets.totalSize)),
+        netprofile->inPackets.bytesPerSec,
+        netprofile->outPackets.bytesPerSec,
+        netprofile->outPackets.bytesPerSec + netprofile->inPackets.bytesPerSec
+	);
+
+    FS_Write(buffer, strlen(buffer), file);
+}
+
+/*
+=================
+SV_NetProfileDump_f
+=================
+*/
+void SV_NetProfileDump_f(void)
+{
+	static fileHandle_t hFile = 0;
+	client_t *client;
+	int i;
+	char buffer[2048];
+	netprofclient_t netproftotal;
+
+	if (!hFile) {
+		hFile = FS_FOpenTextFileWrite("netprofile.log");
+        FS_ForceFlush(hFile);
+        
+		Com_sprintf(buffer, sizeof(buffer), "NetProfile.log\n\n");
+        FS_Write(buffer, strlen(buffer), hFile);
+		
+		Com_sprintf(buffer, sizeof(buffer), "Log Format:\n");
+        FS_Write(buffer, strlen(buffer), hFile);
+		
+		Com_sprintf(
+            buffer,
+			sizeof(buffer),
+            "Source: Packets per Second In/Out/Total | %%Fragments In/Out/Total | %%Dropped In/Out/Total | %%OOB Data In/Out/Total"
+            " | Data per Second In/Out/Total\n"
+            "\n");
+        FS_Write(buffer, strlen(buffer), hFile);
+	}
+
+	if (!sv_netprofile->integer) {
+		return;
+	}
+
+#ifndef DEDICATED
+    if (!com_cl_running->integer || com_sv_running->integer) {
+#else
+    if (com_sv_running->integer) {
+#endif
+		Com_sprintf(buffer, sizeof(buffer), "------------------\nServer Net Profile\n");
+		FS_Write(buffer, strlen(buffer), hFile);
+		SV_NET_CalcTotalNetProfile(&netproftotal, 1);
+
+		Com_sprintf(buffer, sizeof(buffer), "Total:        ");
+		FS_Write(buffer, strlen(buffer), hFile);
+		SV_NetProfileDump_PrintProf(hFile, &netproftotal);
+
+		Com_sprintf(buffer, sizeof(buffer), "Clientless:   ");
+		FS_Write(buffer, strlen(buffer), hFile);
+		SV_NetProfileDump_PrintProf(hFile, &svs.netprofile);
+
+		for (i = 0; i < svs.iNumClients; i++) {
+            client = &svs.clients[i];
+            if (client->state != CS_ACTIVE || !client->gentity) {
+                continue;
+            }
+
+			if (client->netchan.remoteAddress.type == NA_LOOPBACK) {
+				Com_sprintf(buffer, sizeof(buffer), "#%2i-Loopback: ");
+			} else {
+				Com_sprintf(buffer, sizeof(buffer), "Client #%2i:   ");
+			}
+
+			FS_Write(buffer, strlen(buffer), hFile);
+			SV_NetProfileDump_PrintProf(hFile, &client->netprofile);
+		}
+	}
+#ifndef DEDICATED
+	else if (com_cl_running->integer && cl_netprofile->integer) {
+        Com_sprintf(buffer, sizeof(buffer), "------------------\nClient Net Profile\n");
+        FS_Write(buffer, strlen(buffer), hFile);
+        SV_NetProfileDump_PrintProf(hFile, &cls.netprofile);
+	}
+#endif
+}
+
+/*
+=================
 SV_ReloadMap_f
 
 Added in 2.30
@@ -1730,6 +1844,8 @@ void SV_AddOperatorCommands(void) {
 	Cmd_AddCommand("difficultyMedium", SV_MediumMode_f);
 	Cmd_AddCommand("difficultyHard", SV_HardMode_f);
 
+	// Added in 2.0
+    Cmd_AddCommand("netprofiledump", SV_NetProfileDump_f);
 	// Added in 2.30
     Cmd_AddCommand("reloadmap", SV_ReloadMap_f);
 

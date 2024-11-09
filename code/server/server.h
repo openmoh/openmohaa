@@ -192,7 +192,9 @@ typedef struct client_s {
 	int				snapshotMsec;		// requests a snapshot every snapshotMsec unless rate choked
 	int				pureAuthentic;
 	qboolean  gotCP; // TTimo - additional flag to distinguish between a bad pure checksum, and no cp command at all
-	netchan_t		netchan;
+    netchan_t		netchan;
+	// Added in 2.0
+    netprofclient_t netprofile;
 	// TTimo
 	// queuing outgoing fragmented messages to send them properly, without udp packet bursts
 	// in case large fragmented messages are stacking up
@@ -319,6 +321,8 @@ typedef struct {
 #ifndef DEDICATED
 	soundsystemsavegame_t	soundSystem;
 #endif
+	// Added in 2.0
+	netprofclient_t netprofile;
 } serverStatic_t;
 
 #define SERVER_MAXBANS	1024
@@ -621,6 +625,10 @@ void SV_Netchan_Transmit( client_t *client, msg_t *msg);
 int SV_Netchan_TransmitNextFragment( client_t *client );
 qboolean SV_Netchan_Process( client_t *client, msg_t *msg );
 void SV_Netchan_FreeQueue(client_t *client);
+void SV_NET_OutOfBandPrint(netprofclient_t* netprof, netadr_t adr, const char* format, ...);
+void SV_NET_UpdateClientNetProfileInfo(netprofclient_t* netprofile, int rate);
+void SV_NET_UpdateAllNetProfileInfo();
+void SV_NET_CalcTotalNetProfile(netprofclient_t* netprofile, qboolean server);
 
 //
 // sv_gamespy.c

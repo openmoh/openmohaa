@@ -382,7 +382,7 @@ void AuthenticateCallback(int gameid, int localid, int authenticated, char* errm
         challenge->cdkeyState = 2;
         challenge->pingTime = svs.time;
 
-        NET_OutOfBandPrint(NS_SERVER, challenge->adr, "challengeResponse %i", challenge->challenge);
+        SV_NET_OutOfBandPrint(&svs.netprofile, challenge->adr, "challengeResponse %i", challenge->challenge);
     }
     else
     {
@@ -396,7 +396,7 @@ void AuthenticateCallback(int gameid, int localid, int authenticated, char* errm
         Com_Printf("%s failed cdkey authorization\n", buf);
         challenge->cdkeyState = 3;
         // tell the client about the reason
-        NET_OutOfBandPrint(NS_SERVER, challenge->adr, "droperror\nServer rejected connection:\n%s", errmsg);
+        SV_NET_OutOfBandPrint(&svs.netprofile, challenge->adr, "droperror\nServer rejected connection:\n%s", errmsg);
     }
 }
 
@@ -437,18 +437,18 @@ void SV_GamespyAuthorize(netadr_t from, const char* response)
             Com_DPrintf("authorize server timed out\n");
             challenge->cdkeyState = CDKS_AUTHENTICATED;
             challenge->pingTime = svs.time;
-            NET_OutOfBandPrint(NS_SERVER, from, "challengeResponse %i", challenge->challenge);
+            SV_NET_OutOfBandPrint(&svs.netprofile, from, "challengeResponse %i", challenge->challenge);
         }
         break;
     case CDKS_AUTHENTICATED:
-        NET_OutOfBandPrint(NS_SERVER, from, "challengeResponse %i", challenge->challenge);
+        SV_NET_OutOfBandPrint(&svs.netprofile, from, "challengeResponse %i", challenge->challenge);
         break;
     case CDKS_FAILED:
         // authentication server told the cdkey was invalid
         Com_sprintf(buf, sizeof(buf), "%d.%d.%d.%d", challenge->adr.ip[0], challenge->adr.ip[1], challenge->adr.ip[2], challenge->adr.ip[3]);
         Com_Printf("%s failed cdkey authorization\n", buf);
         // reject the client
-        NET_OutOfBandPrint(NS_SERVER, from, "droperror\nServer rejected connection:\nInvalid CD Key");
+        SV_NET_OutOfBandPrint(&svs.netprofile, from, "droperror\nServer rejected connection:\nInvalid CD Key");
         break;
     default:
         break;

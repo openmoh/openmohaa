@@ -383,8 +383,8 @@ typedef struct {
 	void* savedCgameState;
 	size_t savedCgameStateSize;
 	char gcdResponse[73];
-	int unknown3_0;
-	int currentRate;
+	// Added in 2.0
+	netprofclient_t netprofile;
 	qhandle_t	charSetShader;
 	qhandle_t	whiteShader;
 	qhandle_t	consoleShader;
@@ -415,6 +415,8 @@ extern	cvar_t	*cl_connect_timeout;
 extern	cvar_t	*cl_maxpackets;
 extern	cvar_t	*cl_packetdup;
 extern	cvar_t	*cl_shownet;
+extern	cvar_t	*cl_netprofile;
+extern	cvar_t	*cl_netprofileoverlay;
 extern	cvar_t	*cl_showSend;
 extern	cvar_t	*cl_timeNudge;
 extern	cvar_t	*cl_showTimeDelta;
@@ -732,6 +734,7 @@ void LAN_SaveServersToCache( void );
 void CL_Netchan_Transmit( netchan_t *chan, msg_t* msg);	//int length, const byte *data );
 void CL_Netchan_TransmitNextFragment( netchan_t *chan );
 qboolean CL_Netchan_Process( netchan_t *chan, msg_t *msg );
+void CL_NET_OutOfBandPrint( netadr_t adr, const char* format, ... );
 
 //
 // cl_avi.c

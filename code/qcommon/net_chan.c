@@ -99,6 +99,126 @@ void Netchan_Setup(netsrc_t sock, netchan_t *chan, netadr_t adr, int qport, int 
 #endif
 }
 
+/*
+==============
+NetProfileAddPacket
+==============
+*/
+void NetProfileAddPacket(netprofpacketlist_t* list, size_t size, int type)
+{
+    list->index = (list->index + 1) % 64;
+    list->packets[list->index].updateTime = Com_Milliseconds();
+    list->packets[list->index].size = size;
+    list->packets[list->index].flags = type;
+}
+
+/*
+==============
+NetProfileSetPacketFlags
+==============
+*/
+void NetProfileSetPacketFlags(netprofpacketlist_t* list, int flags)
+{
+	list->packets[list->index].flags |= flags;
+}
+
+/*
+==============
+NetProfileCalcStats
+==============
+*/
+void NetProfileCalcStats(netprofpacketlist_t* list, int time)
+{
+    netprofpacket_t* packet;
+    int i;
+    float frequency;
+
+	if (list->updateTime < time + list->lastCalcTime) {
+		return;
+	}
+
+    list->lastCalcTime = list->updateTime;
+    list->lowestUpdateTime = list->updateTime;
+    list->highestUpdateTime = 0;
+    list->totalProcessed = 0;
+    list->totalSize = 0;
+    list->numFragmented = 0;
+    list->numDropped = 0;
+    list->numConnectionLess = 0;
+    list->totalLengthConnectionLess = 0;
+
+	for (i = 0; i < ARRAY_LEN(list->packets); i++) {
+		packet = &list->packets[i];
+		if (!packet->size) {
+			continue;
+		}
+
+		if (list->updateTime > packet->updateTime + 1000) {
+			packet->size = 0;
+			continue;
+		}
+
+		if (list->lowestUpdateTime > packet->updateTime) {
+			list->lowestUpdateTime = packet->updateTime;
+		}
+		if (list->highestUpdateTime < packet->updateTime) {
+			list->highestUpdateTime = packet->updateTime;
+		}
+
+		list->totalProcessed++;
+		list->totalSize += packet->size;
+
+		if (packet->flags & NETPROF_PACKET_FRAGMENTED) {
+			list->numFragmented++;
+		}
+		if (packet->flags & NETPROF_PACKET_DROPPED) {
+			list->numDropped++;
+		}
+		if (packet->flags & NETPROF_PACKET_MESSAGE) {
+			list->numConnectionLess++;
+			list->totalLengthConnectionLess += packet->size;
+		}
+	}
+
+    if (!list->totalProcessed) {
+        list->packetsPerSec = 0;
+        list->highestUpdateTime = list->lowestUpdateTime;
+        list->bytesPerSec = 0;
+        list->percentFragmented = 0;
+        list->percentDropped = 0;
+        list->percentConnectionLess = 0;
+
+		return;
+	}
+
+	if (list->lowestUpdateTime == list->highestUpdateTime) {
+		list->latency = 0.0;
+		frequency = 1.0;
+	} else {
+		list->latency = (list->highestUpdateTime - list->lowestUpdateTime) / 1000.0;
+		frequency = 1.0 / list->latency;
+	}
+
+	list->packetsPerSec = list->totalProcessed * frequency;
+	list->bytesPerSec = list->totalSize * frequency;
+
+	if (list->numFragmented) {
+		list->percentFragmented = (float)list->numFragmented / list->totalProcessed * 100.0;
+	} else {
+		list->percentFragmented = 0;
+	}
+
+	if (list->numDropped) {
+		list->percentDropped = (float)list->numDropped / list->totalProcessed * 100.0;
+	} else {
+		list->percentDropped = 0;
+	}
+
+	if (list->totalLengthConnectionLess) {
+		list->percentConnectionLess = (float)list->totalLengthConnectionLess / list->totalSize * 100.0;
+	}
+}
+
 // TTimo: unused, commenting out to make gcc happy
 #if 0
 /*
@@ -192,7 +312,7 @@ Netchan_TransmitNextFragment
 Send one fragment of the current message
 =================
 */
-void Netchan_TransmitNextFragment( netchan_t *chan ) {
+void Netchan_TransmitNextFragment( netchan_t *chan, netprofpacketlist_t *packetlist ) {
 	msg_t		send;
 	byte		send_buf[MAX_PACKETLEN];
 	size_t		fragmentLength;
@@ -228,6 +348,10 @@ void Netchan_TransmitNextFragment( netchan_t *chan ) {
 			, chan->unsentFragmentStart, fragmentLength);
 	}
 
+	if (packetlist) {
+		NetProfileAddPacket(packetlist, send.cursize, NETPROF_PACKET_FRAGMENTED);
+	}
+
 	chan->unsentFragmentStart += fragmentLength;
 
 	// this exit condition is a little tricky, because a packet
@@ -249,7 +373,7 @@ Sends a message to a connection, fragmenting if necessary
 A 0 length will still generate a packet.
 ================
 */
-void Netchan_Transmit( netchan_t *chan, size_t length, const byte *data ) {
+void Netchan_Transmit( netchan_t *chan, size_t length, const byte *data, netprofpacketlist_t *packetlist ) {
 	msg_t			send;
 	byte			send_buf[MAX_PACKETLEN];
 
@@ -265,7 +389,7 @@ void Netchan_Transmit( netchan_t *chan, size_t length, const byte *data ) {
 		Com_Memcpy( chan->unsentBuffer, data, length );
 
 		// only send the first fragment now
-		Netchan_TransmitNextFragment( chan );
+		Netchan_TransmitNextFragment( chan, packetlist );
 
 		return;
 	}
@@ -293,6 +417,10 @@ void Netchan_Transmit( netchan_t *chan, size_t length, const byte *data ) {
 			, chan->outgoingSequence - 1
 			, chan->incomingSequence );
 	}
+
+	if (packetlist) {
+		NetProfileAddPacket(packetlist, send.cursize, 0);
+	}
 }
 
 /*
@@ -307,7 +435,7 @@ final fragment of a multi-part message, the entire thing will be
 copied out.
 =================
 */
-qboolean Netchan_Process( netchan_t *chan, msg_t *msg ) {
+qboolean Netchan_Process( netchan_t *chan, msg_t *msg, netprofpacketlist_t *packetlist ) {
 	int			sequence;
 	int			qport;
 	int			fragmentStart, fragmentLength;
@@ -355,6 +483,10 @@ qboolean Netchan_Process( netchan_t *chan, msg_t *msg ) {
 				, msg->cursize
 				, sequence );
 		}
+	}
+
+	if (packetlist) {
+		NetProfileAddPacket(packetlist, msg->cursize, fragmented ? NETPROF_PACKET_FRAGMENTED : 0);
 	}
 
 	//

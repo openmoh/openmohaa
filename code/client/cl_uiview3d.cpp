@@ -23,6 +23,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "cl_ui.h"
 #include "../qcommon/localization.h"
 
+#include "../server/server.h"
+
 CLASS_DECLARATION(UIWidget, View3D, NULL) {
     {&W_Activated,     &View3D::OnActivate  },
     {&W_Deactivated,   &View3D::OnDeactivate},
@@ -241,10 +243,259 @@ void View3D::DrawSoundOverlay(void)
     setFont("verdana-14");
     m_font->setColor(UWhite);
 
-    // FIXME: TODO
+    // FIXME: Unimplemented
     if (sound_overlay->integer) {
         Com_Printf("sound_overlay isn't supported with OpenAL/SDL right now.\n");
         Cvar_Set("sound_overlay", "0");
+    }
+}
+
+void DisplayServerNetProfileInfo(UIFont *font, float y, netprofclient_t *netprofile)
+{
+    font->Print(104, y, va("%i", netprofile->inPackets.packetsPerSec));
+    font->Print(144, y, va("%i", netprofile->outPackets.packetsPerSec));
+    font->Print(184, y, va("%i", netprofile->inPackets.packetsPerSec + netprofile->outPackets.packetsPerSec));
+    font->Print(234, y, va("%i", netprofile->inPackets.percentFragmented));
+    font->Print(264, y, va("%i", netprofile->outPackets.percentFragmented));
+    font->Print(
+        294,
+        y,
+        va("%i",
+           (unsigned int)((float)(netprofile->outPackets.numFragmented + netprofile->inPackets.numFragmented)
+                          / (float)(netprofile->inPackets.totalProcessed + netprofile->outPackets.totalProcessed)
+           )),
+        -1,
+        qfalse
+    );
+    font->Print(334, y, va("%i", netprofile->inPackets.percentDropped));
+    font->Print(364, y, va("%i", netprofile->outPackets.percentDropped));
+    font->Print(
+        394,
+        y,
+        va("%i",
+           (unsigned int)((float)(netprofile->outPackets.numDropped + netprofile->inPackets.numDropped)
+                          / (float)(netprofile->inPackets.totalProcessed + netprofile->outPackets.totalProcessed)
+           )),
+        -1,
+        qfalse
+    );
+    font->Print(434, y, va("%i", netprofile->inPackets.percentDropped));
+    font->Print(464, y, va("%i", netprofile->outPackets.percentDropped));
+    font->Print(
+        494,
+        y,
+        va("%i",
+           (unsigned int)((float)(netprofile->outPackets.totalLengthConnectionLess
+                                  + netprofile->inPackets.totalLengthConnectionLess)
+                          / (float)(netprofile->outPackets.totalSize + netprofile->inPackets.totalSize))),
+        -1,
+        qfalse
+    );
+    font->Print(534, y, va("%i", netprofile->inPackets.bytesPerSec));
+    font->Print(594, y, va("%i", netprofile->outPackets.bytesPerSec));
+    font->Print(654, y, va("%i", netprofile->outPackets.bytesPerSec + netprofile->inPackets.bytesPerSec));
+    font->Print(714, y, va("%i", netprofile->rate));
+}
+
+void DisplayClientNetProfile(UIFont *font, float x, float y, netprofclient_t *netprofile)
+{
+    float columns[5];
+    float fontHeight;
+    float columnHeight;
+
+    fontHeight   = font->getHeight(qfalse);
+    columns[0]   = x + 120;
+    columns[1]   = x + 230;
+    columns[2]   = x + 330;
+    columns[3]   = x + 430;
+    columns[4]   = x + 530;
+    columnHeight = y;
+
+    font->Print(x, y, va("Rate: %i", netprofile->rate));
+
+    columnHeight += fontHeight * 1.5;
+    font->Print(x, columnHeight, "Data Type");
+    font->Print(columns[0], columnHeight, "Packets per Sec");
+    font->Print(columns[1], columnHeight, "% Fragmented");
+    font->Print(columns[2], columnHeight, "% Dropped");
+    font->Print(columns[3], columnHeight, "% OOB data");
+    font->Print(columns[4], columnHeight, "Data per Sec");
+
+    columnHeight += fontHeight * 0.5;
+    font->Print(x, columnHeight, "----------");
+    font->Print(columns[0], columnHeight, "----------");
+    font->Print(columns[1], columnHeight, "----------");
+    font->Print(columns[2], columnHeight, "----------");
+    font->Print(columns[3], columnHeight, "----------");
+    font->Print(columns[4], columnHeight, "----------");
+
+    columnHeight += fontHeight;
+    font->Print(x, columnHeight, "Data In");
+    font->Print(columns[0], columnHeight, va("%i", netprofile->outPackets.packetsPerSec));
+    font->Print(columns[1], columnHeight, va("%i%%", netprofile->outPackets.percentFragmented));
+    font->Print(columns[2], columnHeight, va("%i%%", netprofile->outPackets.percentDropped));
+    font->Print(columns[3], columnHeight, va("%i%%", netprofile->outPackets.percentConnectionLess));
+    font->Print(columns[4], columnHeight, va("%i", netprofile->outPackets.bytesPerSec));
+
+    columnHeight += fontHeight;
+    font->Print(x, columnHeight, "Data Out");
+    font->Print(columns[0], columnHeight, va("%i", netprofile->inPackets.packetsPerSec));
+    font->Print(columns[1], columnHeight, va("%i%%", netprofile->inPackets.percentFragmented));
+    font->Print(columns[2], columnHeight, va("%i%%", netprofile->inPackets.percentDropped));
+    font->Print(columns[3], columnHeight, va("%i%%", netprofile->inPackets.percentConnectionLess));
+    font->Print(columns[4], columnHeight, va("%i", netprofile->inPackets.bytesPerSec));
+
+    columnHeight += fontHeight;
+
+    font->Print(x, columnHeight, "Total Data");
+
+    font->Print(
+        columns[0],
+        columnHeight,
+        va("%i", netprofile->inPackets.packetsPerSec + netprofile->outPackets.packetsPerSec)
+    );
+    font->Print(
+        columns[1],
+        columnHeight,
+        va("%i%%",
+           (unsigned int)((float)(netprofile->outPackets.numFragmented + netprofile->inPackets.numFragmented)
+                          / (float)(netprofile->inPackets.totalProcessed + netprofile->outPackets.totalProcessed)
+           ))
+    );
+    font->Print(
+        columns[2],
+        columnHeight,
+        va("%i%%",
+           (unsigned int)((float)(netprofile->outPackets.numDropped + netprofile->inPackets.numDropped)
+                          / (double)(netprofile->inPackets.totalProcessed + netprofile->outPackets.totalProcessed
+                          )))
+    );
+    font->Print(
+        columns[3],
+        columnHeight,
+        va("%i%%",
+           (unsigned int)((float)(netprofile->outPackets.totalLengthConnectionLess
+                                  + netprofile->inPackets.totalLengthConnectionLess)
+                          / (float)(netprofile->outPackets.totalSize + netprofile->inPackets.totalSize)))
+    );
+    font->Print(
+        columns[4],
+        columnHeight,
+        va("%i", netprofile->inPackets.bytesPerSec + netprofile->outPackets.bytesPerSec)
+    );
+}
+
+void View3D::DrawNetProfile(void)
+{
+    float fontHeight;
+    float yOffset;
+    int   i;
+
+    if (sv_netprofileoverlay->integer && sv_netprofile->integer && com_sv_running->integer) {
+        float           columnHeight;
+        float           valueHeight;
+        float           separatorHeight;
+        float           categoryHeight;
+        float           currentHeight;
+        netprofclient_t netproftotal;
+
+        setFont("verdana-14");
+        m_font->setColor(UWhite);
+
+        fontHeight = m_font->getHeight(qfalse);
+        yOffset    = sv_netprofileoverlay->integer + 8;
+
+        if (svs.netprofile.rate) {
+            m_font->Print(8, yOffset, va("Server Net Profile          Max Rate: %i", svs.netprofile.rate), -1, qfalse);
+        } else {
+            m_font->Print(8, yOffset, "Server Net Profile          Max Rate: none", -1, qfalse);
+        }
+
+        columnHeight    = fontHeight + fontHeight + yOffset;
+        valueHeight     = columnHeight + fontHeight;
+        separatorHeight = fontHeight * 1.5 + columnHeight;
+        categoryHeight  = fontHeight * 0.5 + columnHeight;
+
+        m_font->Print(8, categoryHeight, "Data Source");
+        m_font->Print(8, separatorHeight, "---------------");
+        m_font->Print(104, columnHeight, "Packets per Sec");
+        m_font->Print(104, valueHeight, "In");
+        m_font->Print(144, valueHeight, "Out");
+        m_font->Print(184, valueHeight, "Total");
+        m_font->Print(104, separatorHeight, "---");
+        m_font->Print(144, separatorHeight, "-----");
+        m_font->Print(184, separatorHeight, "------");
+        m_font->Print(234, columnHeight, "% Fragmented");
+        m_font->Print(234, valueHeight, "In");
+        m_font->Print(264, valueHeight, "Out");
+        m_font->Print(294, valueHeight, "Total");
+        m_font->Print(234, separatorHeight, "---");
+        m_font->Print(264, separatorHeight, "-----");
+        m_font->Print(294, separatorHeight, "------");
+        m_font->Print(334, columnHeight, "% Dropped");
+        m_font->Print(334, valueHeight, "In");
+        m_font->Print(364, valueHeight, "Out");
+        m_font->Print(394, valueHeight, "Total");
+        m_font->Print(334, separatorHeight, "---");
+        m_font->Print(364, separatorHeight, "-----");
+        m_font->Print(394, separatorHeight, "------");
+        m_font->Print(434, columnHeight, "% OOB Data");
+        m_font->Print(434, valueHeight, "In");
+        m_font->Print(464, valueHeight, "Out");
+        m_font->Print(494, valueHeight, "Total");
+        m_font->Print(434, separatorHeight, "---");
+        m_font->Print(464, separatorHeight, "-----");
+        m_font->Print(494, separatorHeight, "------");
+        m_font->Print(534, columnHeight, "Data per Sec");
+        m_font->Print(534, valueHeight, "In");
+        m_font->Print(594, valueHeight, "Out");
+        m_font->Print(654, valueHeight, "Total");
+        m_font->Print(534, separatorHeight, "---");
+        m_font->Print(594, separatorHeight, "-----");
+        m_font->Print(654, separatorHeight, "------");
+        m_font->Print(714, categoryHeight, "Rate");
+        m_font->Print(714, separatorHeight, "------");
+
+        currentHeight = fontHeight * 2.5 + columnHeight;
+        SV_NET_CalcTotalNetProfile(&netproftotal, qfalse);
+        m_font->Print(8, columnHeight + fontHeight * 2.5, "Total");
+        DisplayServerNetProfileInfo(m_font, currentHeight, &netproftotal);
+
+        currentHeight += fontHeight * 1.5;
+        m_font->Print(8, currentHeight, "Clientless");
+        DisplayServerNetProfileInfo(m_font, currentHeight, &svs.netprofile);
+
+        currentHeight += fontHeight;
+
+        for (i = 0; i < svs.iNumClients; i++) {
+            client_t *client = &svs.clients[i];
+            if (client->state != CS_ACTIVE || !client->gentity) {
+                continue;
+            }
+
+            if (client->netchan.remoteAddress.type == NA_LOOPBACK) {
+                m_font->Print(8.0, currentHeight, va("#%i-Loopback", i), -1, 0);
+
+            } else {
+                m_font->Print(8.0, currentHeight, va("Client #%i", i), -1, 0);
+            }
+
+            DisplayServerNetProfileInfo(m_font, currentHeight, &client->netprofile);
+            currentHeight = currentHeight + fontHeight;
+        }
+    } else if (cl_netprofileoverlay->integer && cl_netprofile->integer && com_cl_running->integer) {
+        setFont("verdana-14");
+        m_font->setColor(UWhite);
+
+        fontHeight = m_font->getHeight(qfalse);
+        yOffset    = cl_netprofileoverlay->integer + 16;
+
+        m_font->Print(16, yOffset, "Client Net Profile", -1, qfalse);
+
+        NetProfileCalcStats(&cls.netprofile.outPackets, 500);
+        NetProfileCalcStats(&cls.netprofile.inPackets, 500);
+
+        DisplayClientNetProfile(m_font, 16, yOffset + fontHeight * 2, &cls.netprofile);
     }
 }
 
@@ -271,6 +522,7 @@ void View3D::Draw2D(void)
 
         if (!cls.no_menus) {
             DrawSoundOverlay();
+            DrawNetProfile();
             DrawSubtitleOverlay();
         }
     }

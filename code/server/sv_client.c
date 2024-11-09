@@ -89,7 +89,7 @@ void SV_GetChallenge(netadr_t from)
 	// it's also way more cool this way :)
 	if ( Sys_IsLANAddress( from ) ) {
 		challenge->pingTime = svs.time;
-		NET_OutOfBandPrint( NS_SERVER, from, "challengeResponse %i", challenge->challenge );
+		SV_NET_OutOfBandPrint( &svs.netprofile, from, "challengeResponse %i", challenge->challenge );
 		return;
 	}
 
@@ -97,7 +97,7 @@ void SV_GetChallenge(netadr_t from)
 		// mohaa below 2.0 doesn't handle gamespy key
         // so send the challenge response directly
         challenge->pingTime = svs.time;
-        NET_OutOfBandPrint(NS_SERVER, from, "challengeResponse %i", challenge->challenge);
+        SV_NET_OutOfBandPrint( &svs.netprofile, from, "challengeResponse %i", challenge->challenge);
         return;
 	}
 
@@ -106,12 +106,12 @@ void SV_GetChallenge(netadr_t from)
 		// however, it could be an useful feature for a far future
 		// where players could be authenticated
         challenge->pingTime = svs.time;
-        NET_OutOfBandPrint(NS_SERVER, from, "challengeResponse %i", challenge->challenge);
+        SV_NET_OutOfBandPrint( &svs.netprofile, from, "challengeResponse %i", challenge->challenge);
         return;
 	}
 
 	// check client's cd key
-	NET_OutOfBandPrint(NS_SERVER, from, "getKey %s", challenge->gsChallenge);
+	SV_NET_OutOfBandPrint( &svs.netprofile, from, "getKey %s", challenge->gsChallenge);
 	challenge->pingTime = svs.time;
 }
 
@@ -158,21 +158,21 @@ void SV_AuthorizeIpPacket( netadr_t from ) {
 
 	if ( !Q_stricmp( s, "demo" ) ) {
 		// they are a demo client trying to connect to a real server
-		NET_OutOfBandPrint( NS_SERVER, challengeptr->adr, "print\nServer is not a demo server\n" );
+		SV_NET_OutOfBandPrint( &svs.netprofile, challengeptr->adr, "print\nServer is not a demo server\n" );
 		// clear the challenge record so it won't timeout and let them through
 		Com_Memset( challengeptr, 0, sizeof( *challengeptr ) );
 		return;
 	}
 	if ( !Q_stricmp( s, "accept" ) ) {
-		NET_OutOfBandPrint(NS_SERVER, challengeptr->adr,
+		SV_NET_OutOfBandPrint( &svs.netprofile, challengeptr->adr,
 			"challengeResponse %d %d %d", challengeptr->challenge, challengeptr->clientChallenge, com_protocol->integer);
 		return;
 	}
 	if ( !Q_stricmp( s, "unknown" ) ) {
 		if (!r) {
-			NET_OutOfBandPrint( NS_SERVER, challengeptr->adr, "print\nAwaiting CD key authorization\n" );
+			SV_NET_OutOfBandPrint( &svs.netprofile, challengeptr->adr, "print\nAwaiting CD key authorization\n" );
 		} else {
-			NET_OutOfBandPrint( NS_SERVER, challengeptr->adr, "print\n%s\n", r);
+			SV_NET_OutOfBandPrint( &svs.netprofile, challengeptr->adr, "print\n%s\n", r);
 		}
 		// clear the challenge record so it won't timeout and let them through
 		Com_Memset( challengeptr, 0, sizeof( *challengeptr ) );
@@ -181,9 +181,9 @@ void SV_AuthorizeIpPacket( netadr_t from ) {
 
 	// authorization failed
 	if (!r) {
-		NET_OutOfBandPrint( NS_SERVER, challengeptr->adr, "print\nSomeone is using this CD Key\n" );
+		SV_NET_OutOfBandPrint( &svs.netprofile, challengeptr->adr, "print\nSomeone is using this CD Key\n" );
 	} else {
-		NET_OutOfBandPrint( NS_SERVER, challengeptr->adr, "print\n%s\n", r );
+		SV_NET_OutOfBandPrint( &svs.netprofile, challengeptr->adr, "print\n%s\n", r );
 	}
 
 	// clear the challenge record so it won't timeout and let them through
@@ -317,7 +317,7 @@ void SV_DirectConnect( netadr_t from ) {
 	// Check whether this client is banned.
 	if(SV_IsBanned(&from, qfalse))
 	{
-		NET_OutOfBandPrint(NS_SERVER, from, "droperror\nYou are banned from this server.\n");
+		SV_NET_OutOfBandPrint( &svs.netprofile, from, "droperror\nYou are banned from this server.\n");
 		return;
 	}
 
@@ -330,7 +330,7 @@ void SV_DirectConnect( netadr_t from ) {
 		// Added in 2.30
 		//  Only allow breakthrough clients when targeting mohaab
 		if (strcmp(clientType, "Breakthrough")) {
-			NET_OutOfBandPrint(NS_SERVER, from, "droperror\nRequires Medal of Honor Allied Assault Breakthrough\n");
+			SV_NET_OutOfBandPrint( &svs.netprofile, from, "droperror\nRequires Medal of Honor Allied Assault Breakthrough\n");
 			Com_DPrintf("    rejected connect - only Breakthrough clients allowed.\n");
 			return;
 		}
@@ -346,7 +346,7 @@ void SV_DirectConnect( netadr_t from ) {
 	{
 		if(version != com_protocol->integer)
 		{
-			NET_OutOfBandPrint(NS_SERVER, from, "droperror\nServer uses protocol version %i "
+			SV_NET_OutOfBandPrint( &svs.netprofile, from, "droperror\nServer uses protocol version %i "
 					   "(yours is %i).\n", com_protocol->integer, version);
 			Com_DPrintf("    rejected connect from version %i\n", version);
 			return;
@@ -379,7 +379,7 @@ void SV_DirectConnect( netadr_t from ) {
 	else
 		ip = (char *)NET_AdrToString( from );
 	if( ( strlen( ip ) + strlen( userinfo ) + 4 ) >= MAX_INFO_STRING ) {
-		NET_OutOfBandPrint( NS_SERVER, from,
+		SV_NET_OutOfBandPrint( &svs.netprofile, from,
 			"droperror\nUserinfo string length exceeded.  "
 			"Try removing setu cvars from your config.\n" );
 		return;
@@ -403,7 +403,7 @@ void SV_DirectConnect( netadr_t from ) {
 
 		if (i == MAX_CHALLENGES)
 		{
-			NET_OutOfBandPrint( NS_SERVER, from, "print\nNo or bad challenge for your address.\n" );
+			SV_NET_OutOfBandPrint( &svs.netprofile, from, "print\nNo or bad challenge for your address.\n" );
 			return;
 		}
 	
@@ -420,13 +420,13 @@ void SV_DirectConnect( netadr_t from ) {
 		// never reject a LAN client based on ping
 		if ( !Sys_IsLANAddress( from ) ) {
 			if ( sv_minPing->value && ping < sv_minPing->value ) {
-				NET_OutOfBandPrint( NS_SERVER, from, "print\nServer is for high pings only\n" );
+				SV_NET_OutOfBandPrint( &svs.netprofile, from, "print\nServer is for high pings only\n" );
 				Com_DPrintf ("Client %i rejected on a too low ping\n", i);
 				challengeptr->wasrefused = qtrue;
 				return;
 			}
 			if ( sv_maxPing->value && ping > sv_maxPing->value ) {
-				NET_OutOfBandPrint( NS_SERVER, from, "print\nServer is for low pings only\n" );
+				SV_NET_OutOfBandPrint( &svs.netprofile, from, "print\nServer is for low pings only\n" );
 				Com_DPrintf ("Client %i rejected on a too high ping\n", i);
 				challengeptr->wasrefused = qtrue;
 				return;
@@ -509,7 +509,7 @@ void SV_DirectConnect( netadr_t from ) {
 			}
 		}
 		else {
-			NET_OutOfBandPrint( NS_SERVER, from, "droperror\nServer is full.\n" );
+			SV_NET_OutOfBandPrint( &svs.netprofile, from, "droperror\nServer is full.\n" );
 			Com_DPrintf ("Rejected a connection.\n");
 			return;
 		}
@@ -548,7 +548,7 @@ gotnewcl:
 	// get the game a chance to reject this connection or modify the userinfo
 	denied = ge->ClientConnect( clientNum, qtrue, qfalse );
 	if ( denied ) {
-		NET_OutOfBandPrint( NS_SERVER, from, "droperror\n%s\n", denied );
+		SV_NET_OutOfBandPrint( &svs.netprofile, from, "droperror\n%s\n", denied );
 		Com_DPrintf ( "Game rejected a connection: %s.\n", denied );
 		return;
 	}
@@ -560,8 +560,12 @@ gotnewcl:
 
 	SV_UserinfoChanged( newcl );
 
+	if (sv_netprofile->integer) {
+		SV_NET_UpdateClientNetProfileInfo(&newcl->netprofile, newcl->rate);
+	}
+
 	// send the connect packet to the client
-	NET_OutOfBandPrint(NS_SERVER, from, "connectResponse %d", challenge);
+	SV_NET_OutOfBandPrint( &svs.netprofile, from, "connectResponse %d", challenge);
 
 	Com_DPrintf( "Going from CS_FREE to CS_CONNECTED for %s\n", newcl->name );
 

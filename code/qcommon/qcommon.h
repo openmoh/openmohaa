@@ -299,14 +299,61 @@ typedef struct {
 #endif
 } netchan_t;
 
+/*
+Packet profiling
+*/
+
+#define NETPROF_PACKET_FRAGMENTED 1
+#define NETPROF_PACKET_DROPPED    2
+#define NETPROF_PACKET_MESSAGE    4
+
+#define NETPROX_MAX_PACKETS       64
+
+typedef struct {
+	int updateTime;
+	int size;
+	int flags;
+} netprofpacket_t;
+
+typedef struct {
+	int updateTime;
+	int index;
+	netprofpacket_t packets[NETPROX_MAX_PACKETS];
+	int lastCalcTime;
+	int lowestUpdateTime;
+	int highestUpdateTime;
+	int totalProcessed;
+	int totalSize;
+	int numFragmented;
+	int numDropped;
+	int numConnectionLess;
+	int totalLengthConnectionLess;
+	int packetsPerSec;
+	int bytesPerSec;
+	int percentFragmented;
+	int percentDropped;
+	int percentConnectionLess;
+	float latency;
+} netprofpacketlist_t;
+
+typedef struct {
+	qboolean initialized;
+	int rate;
+	netprofpacketlist_t outPackets;
+	netprofpacketlist_t inPackets;
+} netprofclient_t;
+
 void Netchan_Init( int qport );
 void Netchan_Setup(netsrc_t sock, netchan_t *chan, netadr_t adr, int qport, int challenge, qboolean compat);
 
-void Netchan_Transmit( netchan_t *chan, size_t length, const byte *data );
-void Netchan_TransmitNextFragment( netchan_t *chan );
+void Netchan_Transmit( netchan_t *chan, size_t length, const byte *data, netprofpacketlist_t *packetlist );
+void Netchan_TransmitNextFragment( netchan_t *chan, netprofpacketlist_t *packetlist );
 
-qboolean Netchan_Process( netchan_t *chan, msg_t *msg );
+qboolean Netchan_Process( netchan_t *chan, msg_t *msg, netprofpacketlist_t *packetlist );
 
+void NetProfileAddPacket(netprofpacketlist_t* list, size_t size, int flags);
+void NetProfileSetPacketFlags(netprofpacketlist_t* list, int flags);
+void NetProfileCalcStats(netprofpacketlist_t* list, int time);
 
 /*
 ==============================================================

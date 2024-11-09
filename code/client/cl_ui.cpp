@@ -3041,14 +3041,14 @@ void CL_PingServers_f(void)
     if (!noudp->integer) {
         adr.type = NA_BROADCAST;
         adr.port = BigShort(12203);
-        NET_OutOfBandPrint(NS_SERVER, adr, "info %i", 8);
+        CL_NET_OutOfBandPrint(adr, "info %i", 8);
     }
 
     noipx = Cvar_Get("noipx", "0", CVAR_INIT);
     if (!noipx->integer) {
         adr.type = NA_BROADCAST_IPX;
         adr.port = BigShort(12203);
-        NET_OutOfBandPrint(NS_SERVER, adr, "info %i", 8);
+        CL_NET_OutOfBandPrint(adr, "info %i", 8);
     }
 
     for (i = 0; i < 16; i++) {
@@ -3063,7 +3063,7 @@ void CL_PingServers_f(void)
                     adr.port = BigShort(12203);
                 }
 
-                NET_OutOfBandPrint(NS_SERVER, adr, "info %i", 8);
+                CL_NET_OutOfBandPrint(adr, "info %i", 8);
             } else {
                 Com_Printf("Bad address: %s\n", adrstring);
             }

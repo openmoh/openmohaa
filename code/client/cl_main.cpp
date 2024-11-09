@@ -56,6 +56,8 @@ cvar_t	*cl_showTimeDelta;
 cvar_t	*cl_freezeDemo;
 
 cvar_t	*cl_shownet;
+cvar_t	*cl_netprofile;
+cvar_t	*cl_netprofileoverlay;
 cvar_t	*cl_showSend;
 cvar_t	*cl_timedemo;
 cvar_t	*cl_timedemoLog;
@@ -118,6 +120,7 @@ cvar_t	*cl_r_fullscreen;
 
 cvar_t	*cl_consoleKeys;
 cvar_t	*name;
+cvar_t	*cl_rate;
 
 clientActive_t		cl;
 clientConnection_t	clc;
@@ -1057,7 +1060,7 @@ void CL_RequestMotd( void ) {
 	Info_SetValueForKey( info, "renderer", cls.glconfig.renderer_string );
 	Info_SetValueForKey( info, "version", com_version->string );
 
-	NET_OutOfBandPrint( NS_CLIENT, cls.updateServer, "getmotd \"%s\"\n", info );
+	CL_NET_OutOfBandPrint( cls.updateServer, "getmotd \"%s\"\n", info );
 }
 
 /*
@@ -1140,7 +1143,7 @@ void CL_RequestAuthorization( void ) {
 
 	fs = Cvar_Get ("cl_anonymous", "0", CVAR_INIT|CVAR_SYSTEMINFO );
 
-	NET_OutOfBandPrint(NS_CLIENT, cls.authorizeServer, "getKeyAuthorize %i %s", fs->integer, nums );
+	CL_NET_OutOfBandPrint(cls.authorizeServer, "getKeyAuthorize %i %s", fs->integer, nums );
 }
 
 /*
@@ -1476,7 +1479,11 @@ void CL_Rcon_f( void ) {
 		}
 	}
 
-	NET_SendPacket (NS_CLIENT, strlen(message)+1, message, to);
+	NET_SendPacket (NS_CLIENT, strlen(message) + 1, message, to);
+
+	if (cl_netprofile->integer) {
+		NetProfileAddPacket(&cls.netprofile.inPackets, strlen(message) + 1, NETPROF_PACKET_MESSAGE);
+	}
 }
 
 /*
@@ -1979,12 +1986,12 @@ void CL_CheckForResend( void ) {
 //		if ( !Sys_IsLANAddress( clc.serverAddress ) ) {
 //			CL_RequestAuthorization();
 //		}
-		NET_OutOfBandPrint(NS_CLIENT, clc.serverAddress, "getchallenge");
+		CL_NET_OutOfBandPrint(clc.serverAddress, "getchallenge");
 		break;
 	case CA_AUTHORIZING:
 		// resend the cd key authorization
 		gcd_compute_response(cl_cdkey, Cmd_Argv(1), cls.gcdResponse, CDResponseMethod_REAUTH);
-		NET_OutOfBandPrint(NS_CLIENT, clc.serverAddress, "authorizeThis %s", cls.gcdResponse);
+		CL_NET_OutOfBandPrint(clc.serverAddress, "authorizeThis %s", cls.gcdResponse);
 		break;
 	case CA_CHALLENGING:
 /*
@@ -2247,6 +2254,10 @@ void CL_ConnectionlessPacket( netadr_t from, msg_t *msg ) {
 	char	*s;
 	char	*c;
 	const char	*reason;
+	
+	if (cl_netprofile->integer) {
+		NetProfileAddPacket(&cls.netprofile.inPackets, msg->cursize, NETPROF_PACKET_MESSAGE);
+	}
 
 	MSG_BeginReadingOOB( msg );
 	MSG_ReadLong( msg );	// skip the -1
@@ -2331,7 +2342,7 @@ void CL_ConnectionlessPacket( netadr_t from, msg_t *msg ) {
 
 	// echo request from server
 	if ( !Q_stricmp(c, "echo") ) {
-		NET_OutOfBandPrint( NS_CLIENT, from, "%s", Cmd_Argv(1) );
+		CL_NET_OutOfBandPrint(from, "%s", Cmd_Argv(1) );
 		return;
 	}
 
@@ -2339,7 +2350,7 @@ void CL_ConnectionlessPacket( netadr_t from, msg_t *msg ) {
 	if ( !Q_stricmp(c, "getKey") ) {
 		clc.state = CA_AUTHORIZING;
 		gcd_compute_response(cl_cdkey, Cmd_Argv(1), cls.gcdResponse, CDResponseMethod_NEWAUTH);
-		NET_OutOfBandPrint(NS_CLIENT, from, "authorizeThis %s", cls.gcdResponse);
+		CL_NET_OutOfBandPrint(from, "authorizeThis %s", cls.gcdResponse);
 		return;
 	}
 
@@ -2665,6 +2676,31 @@ void CL_Frame ( int msec ) {
 	}
 
 	cls.timeScaled = com_timescale->integer != 1;
+
+	//
+	// Added in 2.0: network profiling
+	//
+	if (cl_netprofile->integer) {
+		if (!cls.netprofile.initialized) {
+			memset(&cls.netprofile, 0, sizeof(cls.netprofile));
+			cls.netprofile.initialized = qtrue;
+		}
+
+		if (cls.netprofile.rate != cl_rate->integer) {
+            cls.netprofile.rate = cl_rate->integer;
+
+            if (cls.netprofile.rate < 1000) {
+				cls.netprofile.rate = 1000;
+            } else if (cls.netprofile.rate > 90000) {
+				cls.netprofile.rate = 90000;
+			}
+		}
+
+		cls.netprofile.outPackets.updateTime = Com_Milliseconds();
+		cls.netprofile.inPackets.updateTime = cls.netprofile.outPackets.updateTime;
+	} else {
+		cls.netprofile.initialized = qfalse;
+	}
 
 	// see if we need to update any userinfo
 	CL_CheckUserinfo();
@@ -3330,6 +3366,8 @@ void CL_Init( void ) {
 	cl_master = Cvar_Get ("cl_master", MASTER_SERVER_NAME, CVAR_ARCHIVE);
 	cl_timeNudge = Cvar_Get ("cl_timeNudge", "0", CVAR_TEMP );
 	cl_shownet = Cvar_Get ("cl_shownet", "0", CVAR_TEMP );
+	cl_netprofile = Cvar_Get("cl_netprofile", "0", CVAR_TEMP);
+	cl_netprofileoverlay = Cvar_Get("cl_netprofileoverlay", "0", CVAR_TEMP);
 	cl_showSend = Cvar_Get ("cl_showSend", "0", CVAR_TEMP );
 	cl_showTimeDelta = Cvar_Get ("cl_showTimeDelta", "0", CVAR_TEMP );
 	cl_freezeDemo = Cvar_Get ("cl_freezeDemo", "0", CVAR_TEMP );
@@ -3445,7 +3483,7 @@ void CL_Init( void ) {
 
 	// userinfo
 	name = Cvar_Get ("name", "UnnamedSoldier", CVAR_USERINFO | CVAR_ARCHIVE );
-	Cvar_Get ("rate", "5000", CVAR_USERINFO | CVAR_ARCHIVE );
+	cl_rate = Cvar_Get ("rate", "5000", CVAR_USERINFO | CVAR_ARCHIVE );
 	Cvar_Get ("snaps", "20", CVAR_USERINFO | CVAR_ARCHIVE );
 	Cvar_Get ("password", "", CVAR_USERINFO);
 	Cvar_Get ("dm_playermodel", "american_army", CVAR_USERINFO | CVAR_ARCHIVE );
@@ -3830,7 +3868,7 @@ int CL_ServerStatus( const char *serverAddress, char *serverStatusString, int ma
 			serverStatus->retrieved = qfalse;
 			serverStatus->time = 0;
 			serverStatus->startTime = Com_Milliseconds();
-			NET_OutOfBandPrint( NS_CLIENT, to, "getstatus" );
+			CL_NET_OutOfBandPrint(to, "getstatus" );
 			return qfalse;
 		}
 	}
@@ -3842,7 +3880,7 @@ int CL_ServerStatus( const char *serverAddress, char *serverStatusString, int ma
 		serverStatus->retrieved = qfalse;
 		serverStatus->startTime = Com_Milliseconds();
 		serverStatus->time = 0;
-		NET_OutOfBandPrint( NS_CLIENT, to, "getstatus" );
+		CL_NET_OutOfBandPrint(to, "getstatus" );
 		return qfalse;
 	}
 	return qfalse;
@@ -3981,9 +4019,18 @@ void CL_LocalServers_f( void ) {
 
 			to.type = NA_BROADCAST;
 			NET_SendPacket( NS_CLIENT, strlen( message ), message, to );
+
+			if (cl_netprofile->integer) {
+				NetProfileAddPacket(&cls.netprofile.inPackets, strlen( message ), NETPROF_PACKET_MESSAGE);
+			}
+			
 			// Added in OPM (from ioquake3)
 			to.type = NA_MULTICAST6;
 			NET_SendPacket( NS_CLIENT, strlen( message ), message, to );
+
+			if (cl_netprofile->integer) {
+				NetProfileAddPacket(&cls.netprofile.inPackets, strlen(message), NETPROF_PACKET_MESSAGE);
+			}
 		}
 	}
 }
@@ -4087,7 +4134,7 @@ void CL_GlobalServers_f( void ) {
 		Q_strcat(command, sizeof(command), Cmd_Argv(i));
 	}
 
-	NET_OutOfBandPrint( NS_SERVER, to, "%s", command );
+	CL_NET_OutOfBandPrint( to, "%s", command );
 }
 
 
@@ -4307,7 +4354,7 @@ void CL_Ping_f( void ) {
 
 	CL_SetServerInfoByAddress(pingptr->adr, NULL, 0);
 		
-	NET_OutOfBandPrint( NS_CLIENT, to, "\x02getinfo xxx" );
+	CL_NET_OutOfBandPrint( to, "\x02getinfo xxx" );
 }
 
 /*
@@ -4477,7 +4524,7 @@ qboolean CL_UpdateVisiblePings_f(int source) {
 						memcpy(&cl_pinglist[j].adr, &server[i].adr, sizeof(netadr_t));
 						cl_pinglist[j].start = Sys_Milliseconds();
 						cl_pinglist[j].time = 0;
-						NET_OutOfBandPrint( NS_CLIENT, cl_pinglist[j].adr, "getinfo xxx" );
+						CL_NET_OutOfBandPrint( cl_pinglist[j].adr, "getinfo xxx" );
 						slots++;
 					}
 				}
@@ -4565,7 +4612,7 @@ void CL_ServerStatus_f(void) {
 			return;
 	}
 
-	NET_OutOfBandPrint( NS_CLIENT, *toptr, "getstatus" );
+	CL_NET_OutOfBandPrint( *toptr, "getstatus" );
 
 	serverStatus = CL_GetServerStatus( *toptr );
 	serverStatus->address = *toptr;
