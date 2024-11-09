@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2024 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -50,16 +50,6 @@ View3D::View3D()
     m_locationprint = qfalse;
 }
 
-void View3D::UpdateLocationPrint(int x, int y, const char *s, float alpha)
-{
-    m_printstring   = s;
-    m_printalpha    = alpha;
-    m_printfadetime = 4000.0;
-    m_x_coord       = x;
-    m_y_coord       = y;
-    m_locationprint = qtrue;
-}
-
 void View3D::UpdateCenterPrint(const char *s, float alpha)
 {
     m_printstring = s;
@@ -73,6 +63,140 @@ void View3D::UpdateCenterPrint(const char *s, float alpha)
     m_printalpha    = alpha;
     m_printfadetime = 4000.0;
     m_locationprint = qfalse;
+}
+
+void View3D::UpdateLocationPrint(int x, int y, const char *s, float alpha)
+{
+    m_printstring   = s;
+    m_printalpha    = alpha;
+    m_printfadetime = 4000.0;
+    m_x_coord       = x;
+    m_y_coord       = y;
+    m_locationprint = qtrue;
+}
+
+void View3D::FrameInitialized(void)
+{
+    Connect(this, W_Activated, W_Activated);
+    Connect(this, W_Deactivated, W_Deactivated);
+}
+
+void View3D::Pressed(Event *ev)
+{
+    IN_MouseOff();
+    OnActivate(ev);
+}
+
+void View3D::OnActivate(Event *ev)
+{
+    UIWidget         *wid;
+    UList<UIWidget *> widgets;
+
+    UI_CloseInventory();
+    Key_SetCatcher(Key_GetCatcher() & ~KEYCATCH_UI);
+
+    for (wid = getParent()->getFirstChild(); wid; wid = getParent()->getNextChild(wid)) {
+        if (wid->getAlwaysOnBottom() && wid != this) {
+            widgets.AddTail(wid);
+        }
+    }
+
+    widgets.IterateFromHead();
+    while (widgets.IsCurrentValid()) {
+        widgets.getCurrent()->BringToFrontPropogated();
+        widgets.IterateNext();
+    }
+}
+
+void View3D::OnDeactivate(Event *ev)
+{
+    Key_SetCatcher(Key_GetCatcher() | KEYCATCH_UI);
+}
+
+void View3D::DrawFPS(void)
+{
+    char string[128];
+
+    setFont("verdana-14");
+    if (fps->integer == 2) {
+        re.SetColor(UBlack);
+        re.DrawBox(
+            0.0,
+            m_frame.pos.y + m_frame.size.height - m_font->getHeight(qfalse) * 4.0,
+            m_frame.pos.x + m_frame.size.width,
+            m_font->getHeight(qfalse) * 4.0
+        );
+    }
+
+    Com_sprintf(string, sizeof(string), "FPS %4.1f", currentfps);
+    if (currentfps > 23.94) {
+        if (cl_greenfps->integer) {
+            m_font->setColor(UGreen);
+        } else {
+            m_font->setColor(UWhite);
+        }
+    } else if (currentfps > 18.0) {
+        m_font->setColor(UYellow);
+    } else {
+        // low fps
+        m_font->setColor(URed);
+    }
+
+    m_font->Print(
+        m_font->getHeight(qfalse) * 10.0,
+        m_frame.pos.y + m_frame.size.height - m_font->getHeight(qfalse) * 3.0,
+        string,
+        -1,
+        qfalse
+    );
+
+    // Draw elements count
+    if (cl_greenfps->integer) {
+        m_font->setColor(UGreen);
+    } else {
+        m_font->setColor(UWhite);
+    }
+
+    Com_sprintf(string, sizeof(string), "wt%5d wv%5d cl%d", cls.world_tris, cls.world_verts, cls.character_lights);
+
+    m_font->Print(
+        m_font->getHeight(qfalse) * 10.0,
+        m_frame.pos.y + m_frame.size.height - m_font->getHeight(qfalse) * 2.0,
+        string,
+        -1,
+        qfalse
+    );
+
+    Com_sprintf(
+        string,
+        sizeof(string),
+        "t%5d v%5d Mtex%5.2f",
+        cls.total_tris,
+        cls.total_verts,
+        (float)cls.total_texels * 0.00000095367432
+    );
+
+    m_font->Print(
+        m_font->getHeight(qfalse) * 10.0,
+        m_frame.pos.y + m_frame.size.height - m_font->getHeight(qfalse),
+        string,
+        -1,
+        qfalse
+    );
+
+    m_font->setColor(UBlack);
+}
+
+/*
+void ProfPrint(UIFont* m_font, float minY, int line, char* label, prof_var_t* var, int level)
+{
+
+}
+*/
+
+void View3D::DrawProf(void)
+{
+    // FIXME: unimplemented
 }
 
 void View3D::PrintSound(int channel, const char *name, float vol, int rvol, float pitch, float base, int& line)
@@ -112,35 +236,114 @@ void View3D::PrintSound(int channel, const char *name, float vol, int rvol, floa
     line++;
 }
 
-void View3D::Pressed(Event *ev)
+void View3D::DrawSoundOverlay(void)
 {
-    IN_MouseOff();
-    OnActivate(ev);
+    setFont("verdana-14");
+    m_font->setColor(UWhite);
+
+    // FIXME: TODO
+    if (sound_overlay->integer) {
+        Com_Printf("sound_overlay isn't supported with OpenAL/SDL right now.\n");
+        Cvar_Set("sound_overlay", "0");
+    }
 }
 
-void View3D::OnDeactivate(Event *ev)
+void View3D::Draw2D(void)
 {
-    Key_SetCatcher(Key_GetCatcher() | KEYCATCH_UI);
-}
+    if (!cls.no_menus) {
+        DrawFades();
+    }
 
-void View3D::OnActivate(Event *ev)
-{
-    UIWidget         *wid;
-    UList<UIWidget *> widgets;
+    DrawLetterbox();
 
-    UI_CloseInventory();
-    Key_SetCatcher(Key_GetCatcher() & ~KEYCATCH_UI);
+    if ((cl_debuggraph->integer || cl_timegraph->integer) && !cls.no_menus) {
+        SCR_DrawDebugGraph();
+    } else if (!cls.no_menus) {
+        if (cge) {
+            cge->CG_Draw2D();
+        }
 
-    for (wid = getParent()->getFirstChild(); wid; wid = getParent()->getNextChild(wid)) {
-        if (wid->getAlwaysOnBottom() && wid != this) {
-            widgets.AddTail(wid);
+        if (m_locationprint) {
+            LocationPrint();
+        } else {
+            CenterPrint();
+        }
+
+        if (!cls.no_menus) {
+            DrawSoundOverlay();
+            DrawSubtitleOverlay();
         }
     }
 
-    widgets.IterateFromHead();
-    while (widgets.IsCurrentValid()) {
-        widgets.getCurrent()->BringToFrontPropogated();
-        widgets.IterateNext();
+    if (fps->integer && !cls.no_menus) {
+        DrawFPS();
+        DrawProf();
+    }
+}
+
+void View3D::CenterPrint(void)
+{
+    float       alpha;
+    const char *p;
+    qhandle_t   mat;
+    float       x, y;
+    float       w, h;
+
+    if (!m_printfadetime) {
+        return;
+    }
+
+    p = Sys_LV_CL_ConvertString(m_printstring);
+    if (m_printfadetime > 3250) {
+        alpha = 1.f - (m_printfadetime - 3250.f) / 750.f * m_printalpha;
+    } else if (m_printfadetime >= 750) {
+        alpha = 1.f;
+    } else {
+        alpha = m_printfadetime / 750.f * m_printalpha;
+    }
+
+    alpha = Q_clamp_float(alpha, 0, 1);
+
+    if (!m_print_mat) {
+        UIRect2D frame;
+        m_font->setColor(UColor(0, 0, 0, alpha));
+
+        frame = getClientFrame();
+
+        m_font->PrintJustified(
+            UIRect2D(frame.pos.x + 1, frame.pos.y + 1, frame.size.width, frame.size.height),
+            m_iFontAlignmentHorizontal,
+            m_iFontAlignmentVertical,
+            p,
+            m_bVirtual ? m_vVirtualScale : NULL
+        );
+
+        m_font->setColor(UColor(1, 1, 1, alpha));
+
+        frame = getClientFrame();
+
+        m_font->PrintJustified(
+            frame, m_iFontAlignmentHorizontal, m_iFontAlignmentVertical, p, m_bVirtual ? m_vVirtualScale : NULL
+        );
+
+        m_font->setColor(UBlack);
+    } else if ((mat = m_print_mat->GetMaterial())) {
+        vec4_t col {alpha, alpha, alpha, alpha};
+
+        re.SetColor(col);
+
+        w = re.GetShaderWidth(mat);
+        h = re.GetShaderHeight(mat);
+        x = (m_frame.pos.x + m_frame.size.width - w) * 0.5f;
+        y = (m_frame.pos.y + m_frame.size.height - h) * 0.5f;
+
+        re.DrawStretchPic(x, y, w, h, 0, 0, 1, 1, mat);
+    }
+
+    m_printfadetime -= cls.frametime;
+
+    if (m_printfadetime < 0) {
+        m_printfadetime = 0;
     }
 }
 
@@ -214,9 +417,55 @@ void View3D::LocationPrint(void)
     }
 }
 
-qboolean View3D::LetterboxActive(void)
+void View3D::DrawLetterbox(void)
 {
-    return m_letterbox_active;
+    float  frac;
+    vec4_t col;
+
+    col[0] = col[1] = col[2] = 0;
+    col[3]                   = 1;
+
+    frac = (float)cl.snap.ps.stats[STAT_LETTERBOX] / MAX_LETTERBOX_SIZE;
+    if (frac <= 0) {
+        m_letterbox_active = false;
+        return;
+    }
+
+    m_letterbox_active = true;
+    re.SetColor(col);
+
+    re.DrawBox(0.0, 0.0, m_screenframe.size.width, m_screenframe.size.height * frac);
+    re.DrawBox(
+        0.0,
+        m_screenframe.size.height - m_screenframe.size.height * frac,
+        m_screenframe.size.width,
+        m_screenframe.size.height
+    );
+}
+
+void View3D::DrawFades(void)
+{
+    if (cl.snap.ps.blend[3] > 0) {
+        re.SetColor(cl.snap.ps.blend);
+        if (cl.snap.ps.stats[STAT_ADDFADE]) {
+            re.AddBox(0.0, 0.0, m_screenframe.size.width, m_screenframe.size.height);
+        } else {
+            re.DrawBox(0.0, 0.0, m_screenframe.size.width, m_screenframe.size.height);
+        }
+    }
+}
+
+void View3D::Draw(void)
+{
+    if (clc.state != CA_DISCONNECTED) {
+        SCR_DrawScreenField();
+    }
+
+    set2D();
+
+    re.SavePerformanceCounters();
+
+    Draw2D();
 }
 
 float avWidth = 0.0;
@@ -239,12 +488,6 @@ void View3D::InitSubtitle(void)
     }
 
     avWidth = totalWidth / 26.0;
-}
-
-void View3D::FrameInitialized(void)
-{
-    Connect(this, W_Activated, W_Activated);
-    Connect(this, W_Deactivated, W_Deactivated);
 }
 
 void View3D::DrawSubtitleOverlay(void)
@@ -363,250 +606,14 @@ void View3D::DrawSubtitleOverlay(void)
     }
 }
 
-void View3D::DrawSoundOverlay(void)
-{
-    setFont("verdana-14");
-    m_font->setColor(UWhite);
-
-    // FIXME: TODO
-    if (sound_overlay->integer) {
-        Com_Printf("sound_overlay isn't supported with OpenAL/SDL right now.\n");
-        Cvar_Set("sound_overlay", "0");
-    }
-}
-
-void View3D::DrawProf(void)
-{
-    // Normal empty function
-}
-
-void View3D::DrawLetterbox(void)
-{
-    float  frac;
-    vec4_t col;
-
-    col[0] = col[1] = col[2] = 0;
-    col[3]                   = 1;
-
-    frac = (float)cl.snap.ps.stats[STAT_LETTERBOX] / MAX_LETTERBOX_SIZE;
-    if (frac <= 0) {
-        m_letterbox_active = false;
-        return;
-    }
-
-    m_letterbox_active = true;
-    re.SetColor(col);
-
-    re.DrawBox(0.0, 0.0, m_screenframe.size.width, m_screenframe.size.height * frac);
-    re.DrawBox(
-        0.0,
-        m_screenframe.size.height - m_screenframe.size.height * frac,
-        m_screenframe.size.width,
-        m_screenframe.size.height
-    );
-}
-
-void View3D::DrawFades(void)
-{
-    if (cl.snap.ps.blend[3] > 0) {
-        re.SetColor(cl.snap.ps.blend);
-        if (cl.snap.ps.stats[STAT_ADDFADE]) {
-            re.AddBox(0.0, 0.0, m_screenframe.size.width, m_screenframe.size.height);
-        } else {
-            re.DrawBox(0.0, 0.0, m_screenframe.size.width, m_screenframe.size.height);
-        }
-    }
-}
-
-void View3D::DrawFPS(void)
-{
-    char string[128];
-
-    setFont("verdana-14");
-    if (fps->integer == 2) {
-        re.SetColor(UBlack);
-        re.DrawBox(
-            0.0,
-            m_frame.pos.y + m_frame.size.height - m_font->getHeight(qfalse) * 4.0,
-            m_frame.pos.x + m_frame.size.width,
-            m_font->getHeight(qfalse) * 4.0
-        );
-    }
-
-    Com_sprintf(string, sizeof(string), "FPS %4.1f", currentfps);
-    if (currentfps > 23.94) {
-        if (cl_greenfps->integer) {
-            m_font->setColor(UGreen);
-        } else {
-            m_font->setColor(UWhite);
-        }
-    } else if (currentfps > 18.0) {
-        m_font->setColor(UYellow);
-    } else {
-        // low fps
-        m_font->setColor(URed);
-    }
-
-    m_font->Print(
-        m_font->getHeight(qfalse) * 10.0,
-        m_frame.pos.y + m_frame.size.height - m_font->getHeight(qfalse) * 3.0,
-        string,
-        -1,
-        qfalse
-    );
-
-    // Draw elements count
-    if (cl_greenfps->integer) {
-        m_font->setColor(UGreen);
-    } else {
-        m_font->setColor(UWhite);
-    }
-
-    Com_sprintf(string, sizeof(string), "wt%5d wv%5d cl%d", cls.world_tris, cls.world_verts, cls.character_lights);
-
-    m_font->Print(
-        m_font->getHeight(qfalse) * 10.0,
-        m_frame.pos.y + m_frame.size.height - m_font->getHeight(qfalse) * 2.0,
-        string,
-        -1,
-        qfalse
-    );
-
-    Com_sprintf(
-        string,
-        sizeof(string),
-        "t%5d v%5d Mtex%5.2f",
-        cls.total_tris,
-        cls.total_verts,
-        (float)cls.total_texels * 0.00000095367432
-    );
-
-    m_font->Print(
-        m_font->getHeight(qfalse) * 10.0,
-        m_frame.pos.y + m_frame.size.height - m_font->getHeight(qfalse),
-        string,
-        -1,
-        qfalse
-    );
-
-    m_font->setColor(UBlack);
-}
-
-void View3D::Draw2D(void)
-{
-    if (!cls.no_menus) {
-        DrawFades();
-    }
-
-    DrawLetterbox();
-
-    if ((cl_debuggraph->integer || cl_timegraph->integer) && !cls.no_menus) {
-        SCR_DrawDebugGraph();
-    } else if (!cls.no_menus) {
-        if (cge) {
-            cge->CG_Draw2D();
-        }
-
-        if (m_locationprint) {
-            LocationPrint();
-        } else {
-            CenterPrint();
-        }
-
-        if (!cls.no_menus) {
-            DrawSoundOverlay();
-            DrawSubtitleOverlay();
-        }
-    }
-
-    if (fps->integer && !cls.no_menus) {
-        DrawFPS();
-        DrawProf();
-    }
-}
-
-void View3D::Draw(void)
-{
-    if (clc.state != CA_DISCONNECTED) {
-        SCR_DrawScreenField();
-    }
-
-    set2D();
-
-    re.SavePerformanceCounters();
-
-    Draw2D();
-}
-
 void View3D::ClearCenterPrint(void)
 {
     m_printfadetime = 0.0;
 }
 
-void View3D::CenterPrint(void)
+qboolean View3D::LetterboxActive(void)
 {
-    float       alpha;
-    const char *p;
-    qhandle_t   mat;
-    float       x, y;
-    float       w, h;
-
-    if (!m_printfadetime) {
-        return;
-    }
-
-    p = Sys_LV_CL_ConvertString(m_printstring);
-    if (m_printfadetime > 3250) {
-        alpha = 1.f - (m_printfadetime - 3250.f) / 750.f * m_printalpha;
-    } else if (m_printfadetime >= 750) {
-        alpha = 1.f;
-    } else {
-        alpha = m_printfadetime / 750.f * m_printalpha;
-    }
-
-    alpha = Q_clamp_float(alpha, 0, 1);
-
-    if (!m_print_mat) {
-        UIRect2D frame;
-        m_font->setColor(UColor(0, 0, 0, alpha));
-
-        frame = getClientFrame();
-
-        m_font->PrintJustified(
-            UIRect2D(frame.pos.x + 1, frame.pos.y + 1, frame.size.width, frame.size.height),
-            m_iFontAlignmentHorizontal,
-            m_iFontAlignmentVertical,
-            p,
-            m_bVirtual ? m_vVirtualScale : NULL
-        );
-
-        m_font->setColor(UColor(1, 1, 1, alpha));
-
-        frame = getClientFrame();
-
-        m_font->PrintJustified(
-            frame, m_iFontAlignmentHorizontal, m_iFontAlignmentVertical, p, m_bVirtual ? m_vVirtualScale : NULL
-        );
-
-        m_font->setColor(UBlack);
-    } else if ((mat = m_print_mat->GetMaterial())) {
-        vec4_t col {alpha, alpha, alpha, alpha};
-
-        re.SetColor(col);
-
-        w = re.GetShaderWidth(mat);
-        h = re.GetShaderHeight(mat);
-        x = (m_frame.pos.x + m_frame.size.width - w) * 0.5f;
-        y = (m_frame.pos.y + m_frame.size.height - h) * 0.5f;
-
-        re.DrawStretchPic(x, y, w, h, 0, 0, 1, 1, mat);
-    }
-
-    m_printfadetime -= cls.frametime;
-
-    if (m_printfadetime < 0) {
-        m_printfadetime = 0;
-    }
+    return m_letterbox_active;
 }
 
 CLASS_DECLARATION(UIWidget, ConsoleView, NULL) {
