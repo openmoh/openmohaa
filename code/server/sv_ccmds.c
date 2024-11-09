@@ -1573,6 +1573,39 @@ void SV_LoadLastGame_f( void )
 	Cbuf_AddText( va( "loadgame %s\n", Cvar_Get( "g_lastsave", "", 0 )->string ) );
 }
 
+/*
+=================
+SV_ReloadMap_f
+
+Added in 2.30
+Reload the whole map.
+=================
+*/
+void SV_ReloadMap_f(void)
+{
+	qboolean bTransition;
+
+	Com_DPrintf("SV_ReloadMap\n");
+
+	if (!svs.mapName[0]) {
+		return;
+	}
+
+    Q_strncpyz(svs.gameName, "current", sizeof(svs.gameName));
+	Cvar_SaveGameRestart_f();
+
+	bTransition = sv.state == SS_GAME;
+	if (bTransition) {
+		SV_ArchivePersistantFile(qfalse);
+	}
+
+	SV_SpawnServer(svs.mapName, qfalse, qfalse, bTransition);
+
+	if (g_gametype->integer == GT_SINGLE_PLAYER) {
+		svs.autosave = qtrue;
+	}
+}
+
 #if 0
 
 /*
@@ -1696,6 +1729,9 @@ void SV_AddOperatorCommands(void) {
 	Cmd_AddCommand("difficultyEasy", SV_EasyMode_f);
 	Cmd_AddCommand("difficultyMedium", SV_MediumMode_f);
 	Cmd_AddCommand("difficultyHard", SV_HardMode_f);
+
+	// Added in 2.30
+    Cmd_AddCommand("reloadmap", SV_ReloadMap_f);
 
 	// Changed in 2.0
 	//  Set medium mode regardless of if the developer mode is set
