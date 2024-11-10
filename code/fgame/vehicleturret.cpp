@@ -810,7 +810,8 @@ void VehicleTurretGun::UpdateSound(void)
 
     case STT_OFF_TRANS_MOVING:
         m_fNextSoundState = level.time;
-        m_eSoundState     = STT_OFF;
+        m_eSoundState     = STT_MOVING;
+        Sound(m_sSoundSet + "snd_move_start");
         break;
 
     case STT_MOVING:
@@ -824,6 +825,7 @@ void VehicleTurretGun::UpdateSound(void)
     case STT_MOVING_TRANS_OFF:
         m_fNextSoundState = level.time;
         m_eSoundState     = STT_OFF;
+        StopLoopSound();
         Sound(m_sSoundSet + "snd_move_stop");
         break;
 
