@@ -1699,6 +1699,12 @@ void SV_ReloadMap_f(void)
 {
 	qboolean bTransition;
 
+	if (!com_sv_running->integer) {
+		// Fixed in OPM
+		Com_Printf("Server is not running.\n");
+		return;
+	}
+
 	Com_DPrintf("SV_ReloadMap\n");
 
 	if (!svs.mapName[0]) {
