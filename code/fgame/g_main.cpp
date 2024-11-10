@@ -1793,10 +1793,7 @@ void G_BeginIntermission2(void)
             continue;
         }
 
-        ent = client->entity;
-
-        G_DisplayScores(ent);
-        ent->flags |= FL_IMMOBILE;
+        G_MoveClientToIntermission(client->entity);
     }
 }
 
