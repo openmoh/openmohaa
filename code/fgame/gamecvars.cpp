@@ -490,11 +490,14 @@ void CVAR_Init(void)
     g_teamkillwarn     = gi.Cvar_Get("g_teamkillwarn", "3", CVAR_ARCHIVE);
     g_teamkillkick     = gi.Cvar_Get("g_teamkillkick", "5", CVAR_ARCHIVE);
     g_teamswitchdelay  = gi.Cvar_Get("g_teamswitchdelay", "15", CVAR_ARCHIVE);
-    if (developer->integer) {
-        g_shownpc = gi.Cvar_Get("g_shownpc", "1", 0);
-    } else {
-        g_shownpc = gi.Cvar_Get("g_shownpc", "0", 0);
-    }
+    g_shownpc          = gi.Cvar_Get("g_shownpc", "0", 0);
+
+    // Removed in OPM
+    //if (developer->integer) {
+    //    g_shownpc = gi.Cvar_Get("g_shownpc", "1", 0);
+    //} else {
+    //    g_shownpc = gi.Cvar_Get("g_shownpc", "0", 0);
+    //}
 
     s_debugmusic = gi.Cvar_Get("s_debugmusic", "0", 0);
 
