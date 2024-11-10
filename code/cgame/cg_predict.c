@@ -501,8 +501,13 @@ void CG_PredictPlayerState(void)
         cg_pmove.leanSpeed = 2.f;
     } else {
         cg_pmove.alwaysAllowLean = qtrue;
+        if (cgs.gametype != GT_SINGLE_PLAYER) {
+            cg_pmove.leanMax = 40.f;
+        } else {
+            // Don't allow lean in single-player, like in the original game
+            cg_pmove.leanMax = 0;
+        }
 
-        cg_pmove.leanMax = 40.f;
         cg_pmove.leanAdd = 10.f;
         cg_pmove.leanRecoverSpeed = 15.f;
         cg_pmove.leanSpeed = 4.f;
