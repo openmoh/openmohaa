@@ -24,7 +24,6 @@ Overall, better compatibility on modern systems and bugfixes.
 
 ### Client-side
 
-- Fixed background ambient sounds being muted when restarting
 - OpenAL and SDL are used
 - Smoother animations
 - Stufftext protection: commands that the server want clients to execute are now filtered
@@ -48,6 +47,7 @@ Enable this feature with `set sv_netoptimize 2`.
 
 ### Client-side and server-side
 
+- Fixed background ambient sounds being muted when restarting
 - Fixes from SH 2.15, BT 2.40 and ioquake3
 - Buffer overflow fixes
 - Directory traversal fix
@@ -63,6 +63,8 @@ Enable this feature with `set sv_netoptimize 2`.
 - Fix to prevent being able to spectate while still in the team
 - Fix to prevent throwing a projectile and going into spectator to kill anyone
 - Fix for `sv_fps` (tickrate), higher values won't cause animation issues anymore
+- Fix for ladders to prevent sharking
+- Prevent crashing when the last weapon has no ammo and other weapons are inventory items
 
 ## Planned features
 
