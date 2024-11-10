@@ -87,7 +87,7 @@ const char *pInstantMsgEng[6][9] = {
      "You mess with the best, you die like the rest.", "Watch that friendly fire!",
      "Hey!  I'm on your team!", "Come on out you cowards!",
      "Where are you hiding?", NULL},
- // Added in 2.30
+    // Added in 2.30
     {"Guard our jail!",
      "Capture the enemy jail!", "I'm defending our jail!",
      "I'm attacking the enemy jail!", "Rescue the Prisoners!",
@@ -2022,13 +2022,13 @@ Player::Player()
     // Added in OPM
     //====
 #ifdef OPM_FEATURES
-    m_bShowingHint      = false;
+    m_bShowingHint = false;
 #endif
-    m_fpsTiki           = NULL;
-    m_bConnected        = false;
+    m_fpsTiki    = NULL;
+    m_bConnected = false;
 
     m_iInstantMessageTime = 0;
-    m_iTextChatTime = 0;
+    m_iTextChatTime       = 0;
     //====
 
     if (LoadingSavegame) {
@@ -3111,7 +3111,7 @@ void Player::Killed(Event *ev)
     RemoveFromVehiclesAndTurrets();
 
     if (g_gametype->integer != GT_SINGLE_PLAYER && attacker && attacker->IsSubclassOfPlayer()) {
-        static_cast<Player*>(attacker)->KilledPlayerInDeathmatch(this, (meansOfDeath_t)meansofdeath);
+        static_cast<Player *>(attacker)->KilledPlayerInDeathmatch(this, (meansOfDeath_t)meansofdeath);
     }
 
     deadflag = DEAD_DYING;
@@ -3462,7 +3462,7 @@ void Player::DoUse(Event *ev)
                 continue;
             }
 
-            Event* event = new Event(EV_Use);
+            Event *event = new Event(EV_Use);
             event->AddListener(this);
 
             hit->entity->ProcessEvent(event);
@@ -3483,7 +3483,7 @@ void Player::DoUse(Event *ev)
                 continue;
             }
 
-            Event* event = new Event(EV_Use);
+            Event *event = new Event(EV_Use);
             event->AddListener(this);
 
             hit->entity->ProcessEvent(event);
@@ -3950,13 +3950,12 @@ void Player::ClientMove(usercmd_t *ucmd)
         m_bShowingHint = false;
 
         // FIXME: delete
-        if (sv_specialgame->integer)
-        {
+        if (sv_specialgame->integer) {
             gi.MSG_SetClient(edict - g_entities);
 
             // Send the hint string once
             gi.MSG_StartCGM(CGM_HINTSTRING);
-                gi.MSG_WriteString("");
+            gi.MSG_WriteString("");
             gi.MSG_EndCGM();
         }
     }
@@ -3967,8 +3966,8 @@ void Player::ClientMove(usercmd_t *ucmd)
     client->ps.pm_type = GetMovePlayerMoveType();
     // set move flags
     client->ps.pm_flags &=
-        ~(PMF_FROZEN | PMF_NO_PREDICTION | PMF_NO_MOVE | PMF_DUCKED | PMF_TURRET | PMF_VIEW_PRONE
-          | PMF_VIEW_DUCK_RUN | PMF_VIEW_JUMP_START);
+        ~(PMF_FROZEN | PMF_NO_PREDICTION | PMF_NO_MOVE | PMF_DUCKED | PMF_TURRET | PMF_VIEW_PRONE | PMF_VIEW_DUCK_RUN
+          | PMF_VIEW_JUMP_START);
 
     if (level.playerfrozen || m_bFrozen) {
         client->ps.pm_flags |= PMF_FROZEN;
@@ -3987,7 +3986,7 @@ void Player::ClientMove(usercmd_t *ucmd)
         client->ps.pm_flags |= PMF_NO_PREDICTION;
         client->ps.pm_flags |= PMF_NO_MOVE;
     }
-    
+
     if (g_protocol >= protocol_e::PROTOCOL_MOHTA_MIN) {
         if (maxs.z == 54.0f || maxs.z == 60.0f) {
             client->ps.pm_flags |= PMF_DUCKED;
@@ -4156,8 +4155,8 @@ void Player::VehicleMove(usercmd_t *ucmd)
 
     // set move flags
     client->ps.pm_flags &=
-        ~(PMF_FROZEN | PMF_NO_PREDICTION | PMF_NO_MOVE | PMF_DUCKED | PMF_TURRET | PMF_VIEW_PRONE
-          | PMF_VIEW_DUCK_RUN | PMF_VIEW_JUMP_START);
+        ~(PMF_FROZEN | PMF_NO_PREDICTION | PMF_NO_MOVE | PMF_DUCKED | PMF_TURRET | PMF_VIEW_PRONE | PMF_VIEW_DUCK_RUN
+          | PMF_VIEW_JUMP_START);
 
     // disable prediction
     client->ps.pm_flags |= PMF_TURRET | PMF_NO_PREDICTION;
@@ -4173,7 +4172,7 @@ void Player::VehicleMove(usercmd_t *ucmd)
         // Added in OPM
         //  The player can't walk while attached to a vehicle
         client->ps.groundEntityNum = ENTITYNUM_NONE;
-        client->ps.walking = false;
+        client->ps.walking         = false;
     } else {
         ClientMove(ucmd);
     }
@@ -4191,8 +4190,8 @@ void Player::TurretMove(usercmd_t *ucmd)
 
     // set move flags
     client->ps.pm_flags &=
-        ~(PMF_FROZEN | PMF_NO_PREDICTION | PMF_NO_MOVE | PMF_DUCKED | PMF_TURRET | PMF_VIEW_PRONE
-          | PMF_VIEW_DUCK_RUN | PMF_VIEW_JUMP_START);
+        ~(PMF_FROZEN | PMF_NO_PREDICTION | PMF_NO_MOVE | PMF_DUCKED | PMF_TURRET | PMF_VIEW_PRONE | PMF_VIEW_DUCK_RUN
+          | PMF_VIEW_JUMP_START);
 
     // disable prediction
     client->ps.pm_flags |= PMF_TURRET | PMF_NO_PREDICTION;
@@ -4216,7 +4215,7 @@ void Player::TurretMove(usercmd_t *ucmd)
         // Added in OPM
         //  The player can't walk while attached to a turret
         client->ps.groundEntityNum = ENTITYNUM_NONE;
-        client->ps.walking = false;
+        client->ps.walking         = false;
     } else {
         ClientMove(ucmd);
     }
@@ -4747,7 +4746,8 @@ void Player::Think(void)
                     if (!ent->inuse || !ent->entity) {
                         // Invalid spectate entity
                         SetPlayerSpectateRandom();
-                    } else if (ent->entity->deadflag >= DEAD_DEAD || static_cast<Player *>(ent->entity)->IsSpectator() || !IsValidSpectatePlayer(static_cast<Player *>(ent->entity))) {
+                    } else if (ent->entity->deadflag >= DEAD_DEAD || static_cast<Player *>(ent->entity)->IsSpectator()
+                               || !IsValidSpectatePlayer(static_cast<Player *>(ent->entity))) {
                         SetPlayerSpectateRandom();
                     }
                 }
@@ -4770,9 +4770,11 @@ void Player::Think(void)
                     if (!ent->inuse || !ent->entity) {
                         // Invalid spectate entity
                         SetPlayerSpectateRandom();
-                    } else if (ent->entity->deadflag >= DEAD_DEAD || static_cast<Player *>(ent->entity)->IsSpectator() || !IsValidSpectatePlayer(static_cast<Player *>(ent->entity))) {
+                    } else if (ent->entity->deadflag >= DEAD_DEAD || static_cast<Player *>(ent->entity)->IsSpectator()
+                               || !IsValidSpectatePlayer(static_cast<Player *>(ent->entity))) {
                         SetPlayerSpectateRandom();
-                    } else if (g_gametype->integer >= GT_TEAM && GetTeam() > TEAM_FREEFORALL && static_cast<Player*>(ent->entity)->GetTeam() != GetTeam()) {
+                    } else if (g_gametype->integer >= GT_TEAM && GetTeam() > TEAM_FREEFORALL
+                               && static_cast<Player *>(ent->entity)->GetTeam() != GetTeam()) {
                         SetPlayerSpectateRandom();
                     }
                 }
@@ -4984,8 +4986,8 @@ void Player::InitTorsoStateTable(void)
 
 void Player::LoadStateTable(void)
 {
-    int i;
-    Conditional* cond;
+    int          i;
+    Conditional *cond;
 
     statemap_Legs  = NULL;
     statemap_Torso = NULL;
@@ -5007,8 +5009,9 @@ void Player::LoadStateTable(void)
 
     statemap_Legs =
         GetStatemap(str(g_statefile->string) + "_Legs.st", (Condition<Class> *)m_conditions, &legs_conditionals, false);
-    statemap_Torso =
-        GetStatemap(str(g_statefile->string) + "_Torso.st", (Condition<Class> *)m_conditions, &torso_conditionals, false);
+    statemap_Torso = GetStatemap(
+        str(g_statefile->string) + "_Torso.st", (Condition<Class> *)m_conditions, &torso_conditionals, false
+    );
 
     movecontrol = MOVECONTROL_LEGS;
 
@@ -5317,7 +5320,7 @@ void Player::EvaluateState(State *forceTorso, State *forceLegs)
         // Added in 2.0
         //  Animations are handled hardcodedly
         currentState_Torso = NULL;
-        currentState_Legs = NULL;
+        currentState_Legs  = NULL;
         return;
     }
 
@@ -5589,26 +5592,38 @@ void Player::SelectNextItem(Event *ev)
 
 void Player::SelectPreviousWeapon(Event *ev)
 {
+    Weapon *weapon;
+    Weapon *initialWeapon;
+    Weapon *activeWeapon;
+
     if (deadflag) {
         return;
     }
 
-    Weapon *weapon       = GetActiveWeapon(WEAPON_MAIN);
-    Weapon *activeWeapon = weapon;
+    activeWeapon = GetActiveWeapon(WEAPON_MAIN);
+    if (activeWeapon && activeWeapon->IsSubclassOfInventoryItem()) {
+        activeWeapon = NULL;
+    }
 
-    if (weapon) {
-        weapon = PreviousWeapon(weapon);
+    if (!activeWeapon) {
+        activeWeapon = newActiveWeapon.weapon;
+        if (activeWeapon && activeWeapon->IsSubclassOfInventoryItem()) {
+            activeWeapon = NULL;
+        }
+    }
 
-        if (g_gametype->integer != GT_SINGLE_PLAYER) {
-            while (weapon && weapon != activeWeapon && weapon->IsSubclassOfInventoryItem()) {
-                Weapon *prev = PreviousWeapon(weapon);
-                // Added in OPM
-                //  Fixes the bug that cause infinite loop when the last weapon has no ammo
-                //  and the only weapon is an inventory item
-                if (prev == weapon) {
-                    break;
-                }
-                weapon = prev;
+    if (activeWeapon) {
+        // Fixed in OPM
+        //  Fixes the bug that cause infinite loop when the last weapon has no ammo
+        //  and the only weapon is an inventory item
+        for (weapon = initialWeapon = PreviousWeapon(activeWeapon); weapon && weapon != activeWeapon; ) {
+            if (g_gametype->integer == GT_SINGLE_PLAYER || !weapon->IsSubclassOfInventoryItem()) {
+                break;
+            }
+
+            weapon = PreviousWeapon(weapon);
+            if (weapon == initialWeapon) {
+                break;
             }
         }
     } else {
@@ -5618,30 +5633,46 @@ void Player::SelectPreviousWeapon(Event *ev)
     if (weapon && weapon != activeWeapon) {
         useWeapon(weapon);
     }
+
+    if (deadflag) {
+        return;
+    }
 }
 
 void Player::SelectNextWeapon(Event *ev)
 {
+    Weapon *weapon;
+    Weapon *initialWeapon;
+    Weapon *activeWeapon;
+
     if (deadflag) {
         return;
     }
 
-    Weapon *weapon       = GetActiveWeapon(WEAPON_MAIN);
-    Weapon *activeWeapon = weapon;
+    activeWeapon = GetActiveWeapon(WEAPON_MAIN);
+    if (activeWeapon && activeWeapon->IsSubclassOfInventoryItem()) {
+        activeWeapon = NULL;
+    }
 
-    if (weapon) {
-        weapon = NextWeapon(weapon);
+    if (!activeWeapon) {
+        activeWeapon = newActiveWeapon.weapon;
+        if (activeWeapon && activeWeapon->IsSubclassOfInventoryItem()) {
+            activeWeapon = NULL;
+        }
+    }
 
-        if (g_gametype->integer != GT_SINGLE_PLAYER) {
-            while (weapon && weapon != activeWeapon && weapon->IsSubclassOfInventoryItem()) {
-                Weapon *next = NextWeapon(weapon);
-                // Added in OPM
-                //  Fixes the bug that cause infinite loop when the last weapon has no ammo
-                //  and the only weapon is an inventory item
-                if (next == weapon) {
-                    break;
-                }
-                weapon = next;
+    if (activeWeapon) {
+        // Fixed in OPM
+        //  Fixes the bug that cause infinite loop when the last weapon has no ammo
+        //  and the only weapon is an inventory item
+        for (weapon = initialWeapon = NextWeapon(activeWeapon); weapon && weapon != activeWeapon; ) {
+            if (g_gametype->integer == GT_SINGLE_PLAYER || !weapon->IsSubclassOfInventoryItem()) {
+                break;
+            }
+
+            weapon = NextWeapon(weapon);
+            if (weapon == initialWeapon) {
+                break;
             }
         }
     } else {
@@ -6423,9 +6454,9 @@ void Player::DamageFeedback(void)
         //
 
         if (IsSubclassOfPlayer()) {
-            damage_count = 0;
-            damage_blood = 0;
-            damage_alpha = 0;
+            damage_count  = 0;
+            damage_blood  = 0;
+            damage_alpha  = 0;
             damage_angles = vec_zero;
         }
     }
@@ -7055,7 +7086,7 @@ void Player::CopyStats(Player *player)
     VectorCopy(player->client->ps.origin, client->ps.origin);
     VectorCopy(player->client->ps.velocity, client->ps.velocity);
 
-    client->ps.iViewModelAnim = player->client->ps.iViewModelAnim;
+    client->ps.iViewModelAnim        = player->client->ps.iViewModelAnim;
     client->ps.iViewModelAnimChanged = player->client->ps.iViewModelAnimChanged;
 
     client->ps.gravity = player->client->ps.gravity;
@@ -8096,7 +8127,7 @@ void Player::ArchivePersistantData(Archiver& arc)
 
     arc.ArchiveString(&name);
     if (arc.Loading() && name != "none") {
-        holsteredWeapon = (Weapon*)FindItem(name);
+        holsteredWeapon = (Weapon *)FindItem(name);
     }
 
     UpdateWeapons();
@@ -9999,20 +10030,34 @@ void Player::EventPrimaryDMWeapon(Event *ev)
     } else if (!str::icmp(dm_weapon, "landmine")) {
         bIsBanned = (dmflags->integer & DF_WEAPON_NO_LANDMINE) || !QueryLandminesAllowed();
     } else if (!str::icmp(dm_weapon, "auto")) {
-        const char* primaryList[7];
-        size_t numPrimaries = 0;
+        const char *primaryList[7];
+        size_t      numPrimaries = 0;
 
         //
         // Added in OPM
         //  Choose a random allowed weapon
         //
-        if (!(dmflags->integer & DF_WEAPON_NO_SHOTGUN)) { primaryList[numPrimaries++] = "shotgun"; }
-        if (!(dmflags->integer & DF_WEAPON_NO_RIFLE)) { primaryList[numPrimaries++] = "rifle"; }
-        if (!(dmflags->integer & DF_WEAPON_NO_SNIPER)) { primaryList[numPrimaries++] = "sniper"; }
-        if (!(dmflags->integer & DF_WEAPON_NO_SMG)) { primaryList[numPrimaries++] = "smg"; }
-        if (!(dmflags->integer & DF_WEAPON_NO_MG)) { primaryList[numPrimaries++] = "mg"; }
-        if (!(dmflags->integer & DF_WEAPON_NO_ROCKET)) { primaryList[numPrimaries++] = "heavy"; }
-        if (!(dmflags->integer & DF_WEAPON_NO_LANDMINE) && QueryLandminesAllowed()) { primaryList[numPrimaries++] = "landmine"; }
+        if (!(dmflags->integer & DF_WEAPON_NO_SHOTGUN)) {
+            primaryList[numPrimaries++] = "shotgun";
+        }
+        if (!(dmflags->integer & DF_WEAPON_NO_RIFLE)) {
+            primaryList[numPrimaries++] = "rifle";
+        }
+        if (!(dmflags->integer & DF_WEAPON_NO_SNIPER)) {
+            primaryList[numPrimaries++] = "sniper";
+        }
+        if (!(dmflags->integer & DF_WEAPON_NO_SMG)) {
+            primaryList[numPrimaries++] = "smg";
+        }
+        if (!(dmflags->integer & DF_WEAPON_NO_MG)) {
+            primaryList[numPrimaries++] = "mg";
+        }
+        if (!(dmflags->integer & DF_WEAPON_NO_ROCKET)) {
+            primaryList[numPrimaries++] = "heavy";
+        }
+        if (!(dmflags->integer & DF_WEAPON_NO_LANDMINE) && QueryLandminesAllowed()) {
+            primaryList[numPrimaries++] = "landmine";
+        }
 
         if (numPrimaries) {
             dm_weapon = primaryList[rand() % numPrimaries];
@@ -10487,7 +10532,7 @@ void Player::PlayInstantMessageSound(const char *name)
 
 void Player::EventDMMessage(Event *ev)
 {
-    int              i;
+    int i;
     //int              iStringLength;
     int              iMode = 0;
     str              sToken;
@@ -10539,7 +10584,7 @@ void Player::EventDMMessage(Event *ev)
         } else {
             sAliasName += va("%c%c", (sToken[1] + '0'), (sToken[2] + '0'));
         }
-        
+
         sRandomAlias = GetRandomAlias(sAliasName, &pSoundAlias);
 
         // find a random alias
@@ -10588,7 +10633,7 @@ void Player::EventDMMessage(Event *ev)
         if (!g_textmsg_allowed->integer) {
             // Added in OPM
 
-            str errorString = gi.LV_ConvertString("Message Error");
+            str errorString  = gi.LV_ConvertString("Message Error");
             str reasonString = gi.LV_ConvertString("Text chat is disabled on this server");
 
             gi.SendServerCommand(
@@ -11412,7 +11457,8 @@ int Player::GetMoveResult(void)
     return moveresult;
 }
 
-qboolean Player::CheckCanSwitchTeam(teamtype_t team) {
+qboolean Player::CheckCanSwitchTeam(teamtype_t team)
+{
     float startTime;
 
     startTime = dmManager.GetMatchStartTime();
@@ -11434,12 +11480,12 @@ qboolean Player::CheckCanSwitchTeam(teamtype_t team) {
     // Added in OPM
     //  Check and prevent joining the team with the highest number of players
     if (g_teambalance->integer && g_gametype->integer >= GT_TEAM && !dmManager.WaitingForPlayers()) {
-        DM_Team* pNewTeam = dmManager.GetTeam(team);
-        int i;
+        DM_Team *pNewTeam = dmManager.GetTeam(team);
+        int      i;
 
         for (i = 0; i < 2; i++) {
-            DM_Team* pTeam = dmManager.GetTeam((teamtype_t)(TEAM_ALLIES + i));
-            int numTeamPlayers = pTeam->m_players.NumObjects();
+            DM_Team *pTeam          = dmManager.GetTeam((teamtype_t)(TEAM_ALLIES + i));
+            int      numTeamPlayers = pTeam->m_players.NumObjects();
 
             if (pTeam->m_players.IndexOfObject(this)) {
                 // Don't count the current player
@@ -11450,7 +11496,9 @@ qboolean Player::CheckCanSwitchTeam(teamtype_t team) {
                 gi.SendServerCommand(
                     edict - g_entities,
                     "print \"" HUD_MESSAGE_WHITE "%s\n\"",
-                    gi.LV_ConvertString("That team has enough players. Choose the team that has the lowest number of players.")
+                    gi.LV_ConvertString(
+                        "That team has enough players. Choose the team that has the lowest number of players."
+                    )
                 );
                 return qfalse;
             }
@@ -12042,23 +12090,23 @@ void Player::Postthink(void)
     }
 }
 
-void Player::AdminRights(Event* ev)
+void Player::AdminRights(Event *ev)
 {
     // FIXME: Admin manager ?
     ev->AddInteger(0);
     UNIMPLEMENTED();
 }
 
-void Player::IsAdmin(Event* ev)
+void Player::IsAdmin(Event *ev)
 {
     // FIXME: Admin manager ?
     ev->AddInteger(0);
     UNIMPLEMENTED();
 }
 
-void Player::BindWeap(Event* ev)
+void Player::BindWeap(Event *ev)
 {
-    Entity *ent = ev->GetEntity(1);
+    Entity   *ent = ev->GetEntity(1);
     Listener *scriptOwner;
 
     //
@@ -12189,7 +12237,10 @@ void Player::GetConnState(Event *ev)
     // Assume CS_ACTIVE
     ev->AddInteger(4);
 
-    gi.DPrintf("getconnstate is deprecated and will always return 4 (CS_ACTIVE).\nThe player is created only when the client begins (CS_ACTIVE state).\n");
+    gi.DPrintf(
+        "getconnstate is deprecated and will always return 4 (CS_ACTIVE).\nThe player is created only when the client "
+        "begins (CS_ACTIVE state).\n"
+    );
 }
 
 void Player::GetDamageMultiplier(Event *ev)
@@ -12396,16 +12447,16 @@ void Player::PlayLocalSound(Event *ev)
     }
 
 #ifdef OPM_FEATURES
-        gi.MSG_SetClient( client->ps.clientNum );
+    gi.MSG_SetClient(client->ps.clientNum);
 
-        gi.MSG_StartCGM( CGM_PLAYLOCALSOUND );
-        gi.MSG_WriteString( found );
-        gi.MSG_WriteBits( !!loop, 1 );
-        gi.MSG_WriteFloat( time );
-        gi.MSG_WriteFloat( alias->volume );
-        gi.MSG_EndCGM();
+    gi.MSG_StartCGM(CGM_PLAYLOCALSOUND);
+    gi.MSG_WriteString(found);
+    gi.MSG_WriteBits(!!loop, 1);
+    gi.MSG_WriteFloat(time);
+    gi.MSG_WriteFloat(alias->volume);
+    gi.MSG_EndCGM();
 
-        return;
+    return;
 #endif
 
     if (loop) {

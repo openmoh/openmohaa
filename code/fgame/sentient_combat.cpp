@@ -863,15 +863,32 @@ Weapon *Sentient::BestWeapon(Weapon *ignore, qboolean bGetItem, int iIgnoreClass
         next = (Weapon *)G_GetEntity(inventory.ObjectAt(j));
 
         assert(next);
-
-        if ((next != ignore)
-            && ((next->IsSubclassOfWeapon() && !(next->GetWeaponClass() & iIgnoreClass))
-                || (next->IsSubclassOfItem() && bGetItem))
-            && (next->GetRank() > bestrank)
-            && (next->HasAmmo(FIRE_PRIMARY) || next->GetFireType(FIRE_SECONDARY) == FT_MELEE)) {
-            bestweapon = (Weapon *)next;
-            bestrank   = bestweapon->GetRank();
+        if (next == ignore) {
+            continue;
         }
+
+        if (!next->IsSubclassOfWeapon() && (!bGetItem || !next->IsSubclassOfInventoryItem())) {
+            continue;
+        }
+
+        if (!bGetItem && next->IsSubclassOfInventoryItem()) {
+            continue;
+        }
+
+        if (next->GetWeaponClass() & iIgnoreClass) {
+            continue;
+        }
+
+        if (next->GetRank() < bestrank) {
+            continue;
+        }
+
+        if (!next->HasAmmo(FIRE_PRIMARY) && !next->GetUseNoAmmo()) {
+            continue;
+        }
+
+        bestweapon = (Weapon*)next;
+        bestrank = bestweapon->GetRank();
     }
 
     return bestweapon;
@@ -895,14 +912,32 @@ Weapon *Sentient::WorstWeapon(Weapon *ignore, qboolean bGetItem, int iIgnoreClas
 
         assert(next);
 
-        if ((next != ignore)
-            && ((next->IsSubclassOfWeapon() && !(next->GetWeaponClass() & iIgnoreClass))
-                || (next->IsSubclassOfWeapon() && bGetItem))
-            && (next->GetRank() < iWorstRank)
-            && (next->HasAmmo(FIRE_PRIMARY) || next->GetFireType(FIRE_SECONDARY) == FT_MELEE)) {
-            worstweapon = (Weapon *)next;
-            iWorstRank  = worstweapon->GetRank();
+        if (next == ignore) {
+            continue;
         }
+
+        if (!next->IsSubclassOfWeapon()) {
+            continue;
+        }
+
+        if (!bGetItem && next->IsSubclassOfInventoryItem()) {
+            continue;
+        }
+
+        if (next->GetWeaponClass() & iIgnoreClass) {
+            continue;
+        }
+
+        if (next->GetRank() >= iWorstRank) {
+            continue;
+        }
+
+        if (!next->HasAmmo(FIRE_PRIMARY) && !next->GetUseNoAmmo()) {
+            continue;
+        }
+
+        worstweapon = (Weapon*)next;
+        iWorstRank = worstweapon->GetRank();
     }
 
     return worstweapon;
