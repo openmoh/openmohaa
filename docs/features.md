@@ -17,14 +17,16 @@ Overall, better compatibility on modern systems and bugfixes.
 
 ### Client-side and server-side
 
-- Features from ioquake3
-- IPv6 support (from ioquake3)
-- Features from MOH: Spearhead 2.15 and MOH: Breakthrough 2.40
 - Demo recording
+- Features from ioquake3
+- Features from MOH: Spearhead 2.15 and MOH: Breakthrough 2.40
+- IPv6 support (from ioquake3)
 
 ### Client-side
 
+- Fixed background ambient sounds being muted when restarting
 - OpenAL and SDL are used
+- Smoother animations
 - Stufftext protection: commands that the server want clients to execute are now filtered
 
 ### Server-side
