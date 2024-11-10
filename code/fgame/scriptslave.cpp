@@ -2149,6 +2149,12 @@ void ScriptOrigin::SetAngleEvent(Event* ev)
 {
     float angle;
 
+    if (g_target_game < target_game_e::TG_MOHTT) {
+        // Restore the old behavior on previous versions (below 2.30).
+        // For example, higgins rangers in m3l1a would not face forward
+        return ScriptSlave::SetAngleEvent(ev);
+    }
+
     angle = ev->GetFloat(1);
     if (angle == -1) {
         ForwardDir = Vector(0, 0, 90);
