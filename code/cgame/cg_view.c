@@ -242,6 +242,7 @@ void CG_OffsetFirstPersonView(refEntity_t *pREnt, qboolean bUseWorldPosition)
     float      mat[3][3];
     vec3_t     vOldOrigin;
     vec3_t     vStart, vEnd, vMins, vMaxs;
+    vec3_t     vVelocity;
     trace_t    trace;
 
     VectorSet(vMins, -6, -6, -6);
@@ -296,6 +297,15 @@ void CG_OffsetFirstPersonView(refEntity_t *pREnt, qboolean bUseWorldPosition)
     }
 
     VectorCopy(origin, vOldOrigin);
+
+    if (!cg.predicted_player_state.walking || !(cg.predicted_player_state.pm_flags & PMF_FROZEN)) {
+        VectorCopy(cg.predicted_player_state.velocity, vVelocity);
+    } else {
+        //
+        // Added in OPM
+        //  When frozen, there must be no movement at all
+        VectorClear(vVelocity);
+    }
 
     if (bUseWorldPosition) {
         iMask = MASK_VIEWSOLID;
@@ -367,7 +377,7 @@ void CG_OffsetFirstPersonView(refEntity_t *pREnt, qboolean bUseWorldPosition)
         }
 
         if (cg.predicted_player_state.walking) {
-            fVel   = VectorLength(cg.predicted_player_state.velocity);
+            fVel   = VectorLength(vVelocity);
             fPhase = fVel * 0.0015 + 0.9;
             cg.fCurrentViewBobPhase += (cg.frametime / 1000.0 + cg.frametime / 1000.0) * M_PI * fPhase;
 
@@ -446,7 +456,7 @@ void CG_OffsetFirstPersonView(refEntity_t *pREnt, qboolean bUseWorldPosition)
         AngleVectorsLeft(vDelta, mat[0], mat[1], mat[2]);
 
         CG_CalcViewModelMovement(
-            cg.fCurrentViewBobPhase, cg.fCurrentViewBobAmp, cg.predicted_player_state.velocity, vDelta
+            cg.fCurrentViewBobPhase, cg.fCurrentViewBobAmp, vVelocity, vDelta
         );
 
         VectorMA(pREnt->origin, vDelta[0], mat[0], pREnt->origin);
