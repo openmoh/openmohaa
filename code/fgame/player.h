@@ -1147,11 +1147,6 @@ inline void Player::Archive(Archiver& arc)
     arc.ArchiveBool(&m_bHasJumped);
     //====
 
-    // make sure we have the state machine loaded up
-    if (arc.Loading()) {
-        LoadStateTable();
-    }
-
     if (arc.Saving()) {
         if (currentState_Legs) {
             tempStr = currentState_Legs->getName();
