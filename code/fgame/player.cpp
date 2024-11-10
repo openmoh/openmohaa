@@ -4494,6 +4494,7 @@ void Player::ClientThink(void)
         if (g_gametype->integer != GT_SINGLE_PLAYER) {
             client->ps.pm_flags |= PMF_FROZEN;
             client->ps.pm_flags |= PMF_INTERMISSION;
+            VectorClear(client->ps.velocity);
 
             if (level.time - level.intermissiontime > 5.0f
                 && (new_buttons & (BUTTON_ATTACKLEFT | BUTTON_ATTACKRIGHT))) {
@@ -4521,6 +4522,7 @@ void Player::ClientThink(void)
             }
 
             client->ps.pm_flags |= PMF_FROZEN;
+            VectorClear(client->ps.velocity);
 
             if (level.time - level.intermissiontime > 4.0f) {
                 if (level.intermissiontype) {
