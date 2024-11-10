@@ -2207,6 +2207,8 @@ float BulletAttack(
             oldfrac = -1;
 
             while (trace.fraction < 1.0f) {
+                Vector vDeltaTrace;
+
                 trace = G_Trace(
                     vTraceStart, vec_zero, vec_zero, vTraceEnd, newowner, MASK_SHOT_TRIG, false, "BulletAttack", true
                 );
@@ -2451,6 +2453,13 @@ float BulletAttack(
                     oldfrac = trace.fraction;
                 } else {
                     trace.fraction = 1;
+                }
+
+                vDeltaTrace = vTmpEnd - vTraceStart;
+                if (!bBulletDone && DotProduct(vDeltaTrace, vDir) < 0) {
+                    // Fixed in OPM
+                    //  This can happen in rare circumstances if the trace is out of the world limit
+                    break;
                 }
             }
         }
