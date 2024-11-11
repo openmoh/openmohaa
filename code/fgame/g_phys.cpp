@@ -86,7 +86,7 @@ Entity *G_FixEntityPosition
 
 	start = ent->origin;
 	start.z += radius;
-	if( ent->IsSubclassOfPlayer() )
+	if( ent->IsSubclassOfSentient() )
 	{
 		trace = G_Trace( start, ent->mins, ent->maxs, ent->origin, ent, mask, true, "G_FixEntityPosition1" );
 	}
