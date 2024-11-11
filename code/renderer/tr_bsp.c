@@ -1517,6 +1517,9 @@ int R_TryStitchingPatch( int grid1num ) {
         {
             numstitches++;
         }
+
+        // the grid1 could be reallocated again
+        grid1 = (srfGridMesh_t *) s_worldData.surfaces[grid1num].data;
     }
     return numstitches;
 }
