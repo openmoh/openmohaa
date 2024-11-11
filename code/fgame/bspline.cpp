@@ -604,9 +604,11 @@ void SplinePath::CreatePath(Event *ev)
     target = Target();
     if (target[0]) {
         ent = (Entity *)G_FindTarget(NULL, target);
-        if (ent) {
+        if (ent && ent->IsSubclassOfSplinePath()) {
             next        = (SplinePath *)ent;
             next->owner = this;
+        } else if (ent) {
+            ScriptError("SplinePath::CreatePath: target '%s' for '%s' not found (cannot connect to class '%s')\n", target, targetname.c_str(), ent->getClassname());
         } else {
             ScriptError("SplinePath::CreatePath: target %s not found\n", target);
         }
