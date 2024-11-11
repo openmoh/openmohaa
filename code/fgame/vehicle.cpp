@@ -6782,7 +6782,19 @@ void Vehicle::Archive(Archiver& arc)
     arc.ArchiveBoolean(&m_bRemoveOnDeath);
     arc.ArchiveBoolean(&m_bStopEnabled);
     arc.ArchiveBoolean(&m_bEnableSkidding);
-    arc.ArchiveRaw(&vs, sizeof(vehicleState_t));
+
+    arc.ArchiveVec3(vs.origin);
+    arc.ArchiveVec3(vs.velocity);
+    arc.ArchiveInteger(&vs.groundEntityNum);
+    arc.ArchiveBoolean(&vs.walking);
+    arc.ArchiveBoolean(&vs.groundPlane);
+    G_ArchiveTrace(arc, &vs.groundTrace);
+    arc.ArchiveInteger(&vs.entityNum);
+    arc.ArchiveVec2(vs.desired_dir);
+    arc.ArchiveBoolean(&vs.hit_obstacle);
+    arc.ArchiveVec3(vs.hit_origin);
+    arc.ArchiveVec3(vs.obstacle_normal);
+    arc.ArchiveBoolean(&vs.useGravity);
 
     if (!arc.Saving()) {
         m_sMoveGrid = new cMoveGrid(3, 3, 1);

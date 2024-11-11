@@ -121,7 +121,7 @@ void Game::Archive(Archiver& arc)
     }
 
     for (i = 0; i < maxclients; i++) {
-        arc.ArchiveRaw(&clients[i], sizeof(gclient_t));
+        G_ArchiveClient(arc, &clients[i]);
     }
 }
 

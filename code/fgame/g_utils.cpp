@@ -1145,6 +1145,40 @@ Vector G_PredictPosition(Vector start, Vector target, Vector targetvelocity, flo
 
 /*
 ==============
+G_ArchiveTrace
+==============
+*/
+void G_ArchiveTrace(Archiver& arc, trace_t *trace)
+{
+    arc.ArchiveBoolean(&trace->allsolid);
+    arc.ArchiveBoolean(&trace->startsolid);
+    arc.ArchiveFloat(&trace->fraction);
+    arc.ArchiveVec3(trace->endpos);
+    arc.ArchiveVec3(trace->plane.normal);
+    arc.ArchiveFloat(&trace->plane.dist);
+    arc.ArchiveByte(&trace->plane.type);
+    arc.ArchiveByte(&trace->plane.signbits);
+    arc.ArchiveInteger(&trace->surfaceFlags);
+    arc.ArchiveInteger(&trace->shaderNum);
+    arc.ArchiveInteger(&trace->contents);
+    arc.ArchiveInteger(&trace->entityNum);
+    arc.ArchiveInteger(&trace->location);
+}
+
+/*
+==============
+G_ArchiveClient
+==============
+*/
+void G_ArchiveClient(Archiver& arc, gclient_t* client)
+{
+    arc.ArchiveVec3(client->cmd_angles);
+    arc.ArchiveInteger(&client->lastActiveTime);
+    arc.ArchiveInteger(&client->activeWarning);
+}
+
+/*
+==============
 G_ArchiveEdict
 ==============
 */
@@ -1160,7 +1194,7 @@ void G_ArchiveEdict(Archiver& arc, gentity_t *edict)
     //
 
     if (edict->client) {
-        arc.ArchiveRaw(edict->client, sizeof(*edict->client));
+        G_ArchiveClient(arc, edict->client);
     }
 
     arc.ArchiveInteger(&edict->s.beam_entnum);

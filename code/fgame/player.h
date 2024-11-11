@@ -1219,6 +1219,9 @@ inline void Player::Archive(Archiver& arc)
     for (int i = 0; i < MAX_SPEED_MULTIPLIERS; i++) {
         arc.ArchiveFloat(&speed_multiplier[i]);
     }
+
+    arc.ArchiveInteger(&client->ps.iViewModelAnim);
+    arc.ArchiveInteger(&client->ps.iViewModelAnimChanged);
 }
 
 inline Camera *Player::CurrentCamera(void)

@@ -218,10 +218,23 @@ qboolean cMoveGrid::CheckStuck(void)
 
 void cMoveGrid::Archive(Archiver& arc)
 {
+    int i;
+
     arc.ArchiveInteger(&m_iXRes);
     arc.ArchiveInteger(&m_iYRes);
     arc.ArchiveInteger(&m_iZRes);
-    arc.ArchiveRaw(&v, sizeof(vmove_t));
+
+    arc.ArchiveFloat(&v.frametime);
+    arc.ArchiveFloat(&v.desired_speed);
+    arc.ArchiveInteger(&v.tracemask);
+    arc.ArchiveInteger(&v.numtouch);
+
+    for (i = 0; i < ARRAY_LEN(v.touchents); i++) {
+        arc.ArchiveInteger(&v.touchents[i]);
+    }
+    arc.ArchiveVec3(v.mins);
+    arc.ArchiveVec3(v.maxs);
+
     arc.ArchiveVec3(orientation[0]);
     arc.ArchiveVec3(orientation[1]);
     arc.ArchiveVec3(orientation[2]);

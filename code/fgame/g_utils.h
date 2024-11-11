@@ -30,6 +30,8 @@ class SimpleEntity;
 class SimpleArchivedEntity;
 class ScriptThread;
 
+void G_ArchiveTrace(Archiver& arc, trace_t* trace);
+void G_ArchiveClient(Archiver& arc, gclient_t* client);
 void G_ArchiveEdict(Archiver& arc, gentity_t *edict);
 
 void G_AllocDebugLines(void);

@@ -39,7 +39,7 @@ typedef struct vehicleState_s {
     int      entityNum;
     vec2_t   desired_dir;
     qboolean hit_obstacle;
-    float    hit_origin[3];
+    vec3_t   hit_origin;
     vec3_t   obstacle_normal;
     qboolean useGravity;
 } vehicleState_t;
