@@ -1598,9 +1598,6 @@ void PmoveAdjustAngleSettings(vec_t *vViewAngles, vec_t *vAngles, playerState_t 
 
         EulerToQuat(headAngles, pEntState->bone_quat[HEAD_TAG]);
     } else {
-        fTmp = AngleMod(vViewAngles[1]);
-        VectorSet(vAngles, 0, fTmp, 0);
-
         if (pPlayerState->pm_flags & PMF_TURRET) {
             vAngles[2] = 0;
             // Added in 2.0
@@ -1632,8 +1629,8 @@ void PmoveAdjustAngleSettings(vec_t *vViewAngles, vec_t *vAngles, playerState_t 
                 headAngles[1] = -90;
             }
 
-            VectorSet(pEntState->bone_angles[HEAD_TAG], 0, 0, 0);
-            EulerToQuat(headAngles, pEntState->bone_quat[HEAD_TAG]);
+            VectorCopy(headAngles, pEntState->bone_angles[HEAD_TAG]);
+            EulerToQuat(pEntState->bone_angles[HEAD_TAG], pEntState->bone_quat[HEAD_TAG]);
             return;
         }
 
