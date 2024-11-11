@@ -1317,6 +1317,7 @@ default values.
 
 #define CVAR_VM_CREATED		0x8000	// cvar was created exclusively in one of the VMs.
 #define CVAR_PROTECTED		0x10000	// prevent modifying this var from VMs or the server
+#define CVAR_RESETSTRING	0x20000	// force the cvar's reset string to be set
 // These flags are only returned by the Cvar_Flags() function
 #define CVAR_MODIFIED		0x40000000	// Cvar was modified
 #define CVAR_NONEXISTENT	0x80000000	// Cvar doesn't exist.

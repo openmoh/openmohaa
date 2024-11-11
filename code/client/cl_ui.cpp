@@ -1467,7 +1467,7 @@ void UI_FocusMenuIfExists(void)
         currentMenu->ActivateMenu();
 
         if (ui_newvidmode->integer == -1) {
-            Cvar_Get("ui_newvidmode", va("%d", r_mode), CVAR_SERVER_CREATED);
+            Cvar_Get("ui_newvidmode", va("%d", r_mode), CVAR_RESETSTRING);
             Cvar_SetValue("ui_newvidmode", r_mode);
         }
     } else {

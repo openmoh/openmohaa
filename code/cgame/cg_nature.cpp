@@ -60,7 +60,7 @@ void ClientGameCommandManager::InitializeRainCvars()
 
     cg_rain = cgi.Cvar_Get("cg_rain", "1", CVAR_ARCHIVE);
     cg_rain_drawcoverage =
-        cgi.Cvar_Get("cg_rain_drawcoverage", "0", CVAR_SAVEGAME | CVAR_SERVER_CREATED | CVAR_SYSTEMINFO);
+        cgi.Cvar_Get("cg_rain_drawcoverage", "0", CVAR_SAVEGAME | CVAR_RESETSTRING | CVAR_SYSTEMINFO);
 
     cg.rain.density    = 0.0;
     cg.rain.speed      = 2048.0f;
