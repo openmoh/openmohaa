@@ -2167,6 +2167,8 @@ void VehicleTurretGunTandem::Archive(Archiver& arc)
     arc.ArchiveSafePointer(&m_ActiveTurret);
     arc.ArchiveFloat(&m_fSwitchTimeRemaining);
     arc.ArchiveFloat(&m_fSwitchDelay);
+    // Added in 2.30
+    m_SwitchLabel.Archive(arc);
 }
 
 VehicleTurretGunTandem *VehicleTurretGunTandem::GetPrimaryTurret()
