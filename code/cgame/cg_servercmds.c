@@ -514,6 +514,7 @@ Returns whether or not the variable should be filtered
 */
 static qboolean CG_IsVariableFiltered(const char *name)
 {
+    cvar_t *var;
     size_t i;
 
     for (i = 0; i < ARRAY_LEN(whiteListedVariables); i++) {
@@ -530,6 +531,42 @@ static qboolean CG_IsVariableFiltered(const char *name)
         }
     }
 
+    // Filtered
+    return qtrue;
+}
+
+/*
+====================
+CG_IsSetVariableFiltered
+
+Returns whether or not the variable should be filtered
+====================
+*/
+static qboolean CG_IsSetVariableFiltered(const char *name, char type)
+{
+    cvar_t *var;
+
+    if (!CG_IsVariableFiltered(name)) {
+        return qfalse;
+    }
+
+    if (type != 'u' && type != 's') {
+        // Don't allow custom info variables to avoid flooding
+        // the client with many serverinfo and userinfo variables
+
+        var = cgi.Cvar_Find(name);
+        if (!var) {
+            // Allow as it doesn't exist
+            return qfalse;
+        }
+
+        if (var->flags & CVAR_USER_CREATED) {
+            // Allow, it's user-created, wouldn't cause issues
+            return qfalse;
+        }
+    }
+
+    // Filtered
     return qtrue;
 }
 
@@ -609,6 +646,8 @@ static qboolean CG_IsStatementFiltered(char *cmd)
 
         if (!Q_stricmp(com_token, "set") || !Q_stricmp(com_token, "setu") || !Q_stricmp(com_token, "seta")
             || !Q_stricmp(com_token, "sets")) {
+            char type = com_token[3];
+
             //
             // variable
             //
@@ -618,7 +657,7 @@ static qboolean CG_IsStatementFiltered(char *cmd)
                 continue;
             }
 
-            if (CG_IsVariableFiltered(com_token)) {
+            if (CG_IsSetVariableFiltered(com_token, type)) {
                 return qtrue;
             }
         } else {

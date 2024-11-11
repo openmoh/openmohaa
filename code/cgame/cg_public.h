@@ -120,6 +120,7 @@ functions exported to the main executable
 
         // console variable interaction
         cvar_t *(*Cvar_Get)(const char *var_name, const char *value, int flags);
+        cvar_t *(*Cvar_Find)(const char *var_name);
         void (*Cvar_Set)(const char *var_name, const char *value);
 
         // ClientCommand and ConsoleCommand parameter access
