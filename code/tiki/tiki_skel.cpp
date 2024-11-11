@@ -673,16 +673,16 @@ qboolean TIKI_LoadSKB(const char *path, skelcache_t *cache)
         if (newSurf->ofsCollapseIndex > LongNoSwapPtr(&newSurf->ofsVerts)) {
             int newOffset =
                 LongNoSwapPtr(&newSurf->ofsCollapseIndex) + sizeof(unsigned int) * LongNoSwapPtr(&newSurf->numVerts);
-            memcpy(&newSurf->ofsCollapse, &newOffset, sizeof(newSurf->ofsCollapseIndex));
+            memcpy(&newSurf->ofsCollapseIndex, &newOffset, sizeof(newSurf->ofsCollapseIndex));
         }
         if (newSurf->ofsTriangles > LongNoSwapPtr(&newSurf->ofsVerts)) {
             int newOffset =
                 LongNoSwapPtr(&newSurf->ofsTriangles) + sizeof(unsigned int) * LongNoSwapPtr(&newSurf->numVerts);
-            memcpy(&newSurf->ofsCollapse, &newOffset, sizeof(newSurf->ofsTriangles));
+            memcpy(&newSurf->ofsTriangles, &newOffset, sizeof(newSurf->ofsTriangles));
         }
         if (newSurf->ofsEnd > LongNoSwapPtr(&newSurf->ofsVerts)) {
             int newOffset = LongNoSwapPtr(&newSurf->ofsEnd) + sizeof(unsigned int) * LongNoSwapPtr(&newSurf->numVerts);
-            memcpy(&newSurf->ofsCollapse, &newOffset, sizeof(newSurf->ofsEnd));
+            memcpy(&newSurf->ofsEnd, &newOffset, sizeof(newSurf->ofsEnd));
         }
 
         oldVerts = (skelVertex_t *)((byte *)oldSurf + oldSurf->ofsVerts);
