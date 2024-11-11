@@ -576,6 +576,8 @@ SplinePath::~SplinePath()
 
     assert(owner == this);
     assert(next == NULL);
+
+    entflags &= ~ECF_SPLINEPATH;
 }
 
 void SplinePath::SetLoop(Event *ev)
