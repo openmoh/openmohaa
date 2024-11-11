@@ -1780,6 +1780,8 @@ Event EV_VTGP_LinkTurret
     "Sets the next turret in the link.",
     EV_NORMAL
 );
+
+// Added in 2.30
 Event EV_VTGP_SetSwitchThread
 (
     "setswitchthread",
@@ -1792,6 +1794,8 @@ Event EV_VTGP_SetSwitchThread
 
 CLASS_DECLARATION(VehicleTurretGun, VehicleTurretGunTandem, "VehicleTurretGunTandem") {
     {&EV_VTGP_LinkTurret,      &VehicleTurretGunTandem::EventLinkTurret     },
+
+    // Added in 2.30
     {&EV_VTGP_SetSwitchThread, &VehicleTurretGunTandem::EventSetSwitchThread},
     {NULL,                     NULL                                         }
 };
@@ -2121,10 +2125,12 @@ void VehicleTurretGunTandem::SwitchToLinkedTurret()
 
     if (m_Slot.ent) {
         pTurret = static_cast<VehicleTurretGunTandem*>(m_Slot.ent.Pointer());
-        m_SwitchLabel.Execute(pTurret, NULL);
+        // Added in 2.30
+        m_SwitchLabel.Execute(this, pTurret, NULL);
     } else {
         pTurret = m_PrimaryTurret;
-        m_PrimaryTurret->m_SwitchLabel.Execute(pTurret, NULL);
+        // Added in 2.30
+        m_PrimaryTurret->m_SwitchLabel.Execute(this, pTurret, NULL);
     }
 
     SetActiveTurret(pTurret);

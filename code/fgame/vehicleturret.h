@@ -160,6 +160,9 @@ public:
     void Archive(Archiver& arc) override;
 };
 
+//
+// Added in 2.0
+//
 class VehicleTurretGunTandem : public VehicleTurretGun
 {
 private:
@@ -179,7 +182,7 @@ public:
     ~VehicleTurretGunTandem();
 
     virtual void EventLinkTurret(Event *ev);
-    virtual void EventSetSwitchThread(Event *ev);
+    virtual void EventSetSwitchThread(Event *ev); // Added in 2.30
     virtual void AttachLinkedTurret(Entity *ent);
     virtual void UpdateLinkedTurret();
     virtual void OpenSlotsByModel();
