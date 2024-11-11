@@ -1879,6 +1879,14 @@ void TurretGun::Archive(Archiver& arc)
     arc.ArchiveFloat(&m_fAISuppressHeight);
     arc.ArchiveVec3(m_vMuzzlePosition);
     arc.ArchiveFloat(&m_fMaxUseAngle);
+
+    //
+    // Added in 2.30
+    //  Clear the last command angles when loading
+    //  otherwise it would cause the player to face (0,0,0) when loading
+    if (arc.Loading()) {
+        m_vUserLastCmdAng = vec_zero;
+    }
 }
 
 qboolean TurretGun::AI_SetWeaponAnim(const char *anim, Event *ev)
