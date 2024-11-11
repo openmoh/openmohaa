@@ -236,6 +236,16 @@ void TIKI_CacheFileSkel(skelHeader_t *pHeader, skelcache_t *cache, int length)
     byte *ptr           = start_ptr + sizeof(skelHeaderGame_t);
 
     pSkel->version     = pHeader->version;
+
+    //
+    // Added in 2.0
+    //
+    if (pHeader->version >= TIKI_SKD_HEADER_VERSION) {
+        pSkel->scale = pHeader->scale * 0.52;
+    } else {
+        pSkel->scale = 0.52;
+    }
+
     pSkel->numSurfaces = pHeader->numSurfaces;
     pSkel->numBones    = pHeader->numBones;
     pSkel->pSurfaces   = (skelSurfaceGame_t *)ptr;

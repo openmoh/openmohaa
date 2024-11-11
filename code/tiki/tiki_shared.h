@@ -267,6 +267,7 @@ typedef struct skelHeaderGame_s {
     struct lodControl_s *pLOD;
     int                  numMorphTargets;
     char                *pMorphTargets;
+    float                scale;
 } skelHeaderGame_t;
 
 typedef struct boneData_s {
