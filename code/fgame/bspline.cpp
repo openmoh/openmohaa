@@ -605,7 +605,14 @@ void SplinePath::CreatePath(Event *ev)
     if (target[0]) {
         ent = (Entity *)G_FindTarget(NULL, target);
         if (ent && ent->IsSubclassOfSplinePath()) {
-            next        = (SplinePath *)ent;
+            next = (SplinePath *)ent;
+
+            if (next->owner != next) {
+                // Fixed in OPM
+                //  If the target already has an owner, make sure to properly remove the owner
+                next->owner->SetNext(NULL);
+            }
+
             next->owner = this;
         } else if (ent) {
             ScriptError("SplinePath::CreatePath: target '%s' for '%s' not found (cannot connect to class '%s')\n", target, targetname.c_str(), ent->getClassname());
