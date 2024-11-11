@@ -427,7 +427,7 @@ static void CG_BulletTracerEffect(const vec3_t i_vStart, const vec3_t i_vEnd, in
         0,
         1,
         1.0,
-        1.0,
+        scale,
         BEAM_INVERTED,
         1000.0,
         iLife,
