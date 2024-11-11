@@ -569,7 +569,7 @@ qboolean Door::isCompletelyClosed(void)
 
 void Door::GetIsOpen(Event *ev)
 {
-    ev->AddInteger(isOpen());
+    ev->AddInteger(!isCompletelyClosed());
 }
 
 void Door::OpenEnd(Event *ev)
