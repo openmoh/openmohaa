@@ -1712,10 +1712,9 @@ typedef struct usereyes_s {
 
 // bit field limits
 #define	MAX_STATS				32
-#define	MAX_ACTIVEITEMS			8
+#define	MAX_ACTIVE_ITEMS		8
 #define	MAX_AMMO				16
-#define	MAX_AMMO_AMOUNT			16
-#define MAX_MAX_AMMO_AMOUNT		16
+#define	MAX_AMMOCOUNT			16
 
 #define	MAX_PERSISTANT			16
 #define	MAX_POWERUPS			16
@@ -1769,27 +1768,31 @@ typedef struct playerState_s {
 	int			iViewModelAnim;
 	int			iViewModelAnimChanged;
 
-	int			stats[ MAX_STATS ];
-	int			activeItems[ 8 ];
-	int			ammo_name_index[ 16 ];
-	int			ammo_amount[ 16 ];
-	int			max_ammo_amount[ 16 ];
+	int			stats[MAX_STATS];
+	int			activeItems[MAX_ACTIVE_ITEMS];
+	int			ammo_name_index[MAX_AMMO];
+	int			ammo_amount[MAX_AMMOCOUNT];
+	int			max_ammo_amount[MAX_AMMOCOUNT];
 
 	int			current_music_mood;
 	int			fallback_music_mood;
 	float		music_volume;
 	float		music_volume_fade_time;
+
 	int			reverb_type;
 	float		reverb_level;
-	float		blend[4];
-	float		fov;
-	float		camera_origin[3];
-	float		camera_angles[3];
+
+	float		blend[4];			// rgba full screen effect
+	float		fov;				// fov of the player
+
+    vec3_t		camera_origin;	// origin for camera view
+    vec3_t		camera_angles;	// angles for camera view
 	float		camera_time;
-	float		camera_offset[3];
-	float		camera_posofs[3];
-	int			camera_flags;
-	float		damage_angles[3];
+
+	vec3_t		camera_offset;	// angular offset for camera
+	vec3_t		camera_posofs;
+	int			camera_flags;	// third-person camera flags
+	vec3_t		damage_angles;	// these angles are added directly to the view, without lerping
 	// --
 	// Team Assault
 	int			radarInfo;

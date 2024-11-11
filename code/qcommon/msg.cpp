@@ -3398,13 +3398,13 @@ void MSG_WriteDeltaPlayerstate(msg_t *msg, struct playerState_s *from, struct pl
 		}
 	}
 	activeitemsbits = 0;
-	for (i=0 ; i<MAX_ACTIVEITEMS ; i++) {
+	for (i=0 ; i<MAX_ACTIVE_ITEMS ; i++) {
 		if (to->activeItems[i] != from->activeItems[i]) {
 			activeitemsbits |= 1<<i;
 		}
 	}
 	ammo_amountbits = 0;
-	for (i=0 ; i<MAX_AMMO_AMOUNT ; i++) {
+	for (i=0 ; i<MAX_AMMOCOUNT ; i++) {
 		if (to->ammo_amount[i] != from->ammo_amount[i]) {
 			ammo_amountbits |= 1<<i;
 		}
@@ -3416,7 +3416,7 @@ void MSG_WriteDeltaPlayerstate(msg_t *msg, struct playerState_s *from, struct pl
 		}
 	}
 	max_ammo_amountbits = 0;
-	for (i=0 ; i<MAX_MAX_AMMO_AMOUNT ; i++) {
+	for (i=0 ; i<MAX_AMMOCOUNT ; i++) {
 		if (to->max_ammo_amount[i] != from->max_ammo_amount[i]) {
 			max_ammo_amountbits |= 1<<i;
 		}
@@ -3443,8 +3443,8 @@ void MSG_WriteDeltaPlayerstate(msg_t *msg, struct playerState_s *from, struct pl
 
 	if ( activeitemsbits ) {
 		MSG_WriteBits( msg, 1, 1 );	// changed
-		MSG_WriteBits( msg, activeitemsbits, MAX_ACTIVEITEMS );
-		for (i=0 ; i<MAX_ACTIVEITEMS ; i++)
+		MSG_WriteBits( msg, activeitemsbits, MAX_ACTIVE_ITEMS );
+		for (i=0 ; i<MAX_ACTIVE_ITEMS ; i++)
 			if (activeitemsbits & (1<<i) )
 				MSG_WriteShort (msg, to->activeItems[i]);
 	} else {
@@ -3453,8 +3453,8 @@ void MSG_WriteDeltaPlayerstate(msg_t *msg, struct playerState_s *from, struct pl
 
 	if ( ammo_amountbits ) {
 		MSG_WriteBits( msg, 1, 1 );	// changed
-		MSG_WriteBits( msg, ammo_amountbits, MAX_AMMO_AMOUNT );
-		for (i=0 ; i<MAX_AMMO_AMOUNT ; i++)
+		MSG_WriteBits( msg, ammo_amountbits, MAX_AMMOCOUNT );
+		for (i=0 ; i<MAX_AMMOCOUNT ; i++)
 			if (ammo_amountbits & (1<<i) )
 				MSG_WriteShort (msg, to->ammo_amount[i]);
 	} else {
@@ -3475,8 +3475,8 @@ void MSG_WriteDeltaPlayerstate(msg_t *msg, struct playerState_s *from, struct pl
 
 	if ( max_ammo_amountbits ) {
 		MSG_WriteBits( msg, 1, 1 );	// changed
-		MSG_WriteBits( msg, max_ammo_amountbits, MAX_MAX_AMMO_AMOUNT );
-		for (i=0 ; i<MAX_MAX_AMMO_AMOUNT ; i++)
+		MSG_WriteBits( msg, max_ammo_amountbits, MAX_AMMOCOUNT );
+		for (i=0 ; i<MAX_AMMOCOUNT ; i++)
 			if (max_ammo_amountbits & (1<<i) )
 				MSG_WriteShort( msg, to->max_ammo_amount[i] );
 	} else {
@@ -3585,7 +3585,7 @@ void MSG_ReadDeltaPlayerstate(msg_t *msg, playerState_t *from, playerState_t *to
 		if ( MSG_ReadBits( msg, 1 ) ) {
 			LOG("PS_ITEMS");
 			bits = MSG_ReadByte(msg);
-			for (i=0 ; i<MAX_ACTIVEITEMS ; i++) {
+			for (i=0 ; i<MAX_ACTIVE_ITEMS ; i++) {
 				if (bits & (1<<i) ) {
 					to->activeItems[i] = MSG_ReadShort(msg);
 				}
@@ -3596,7 +3596,7 @@ void MSG_ReadDeltaPlayerstate(msg_t *msg, playerState_t *from, playerState_t *to
 		if ( MSG_ReadBits( msg, 1 ) ) {
 			LOG("PS_AMMO_AMOUNT");
 			bits = MSG_ReadShort(msg);
-			for (i=0 ; i<MAX_AMMO_AMOUNT ; i++) {
+			for (i=0 ; i<MAX_AMMOCOUNT ; i++) {
 				if (bits & (1<<i) ) {
 					to->ammo_amount[i] = MSG_ReadShort(msg);
 				}
@@ -3616,9 +3616,9 @@ void MSG_ReadDeltaPlayerstate(msg_t *msg, playerState_t *from, playerState_t *to
 
 		// parse powerups
 		if ( MSG_ReadBits( msg, 1 ) ) {
-			LOG("PS_MAX_AMMO_AMOUNT");
+			LOG("PS_MAX_AMMOCOUNT");
 			bits = MSG_ReadShort(msg);
-			for (i=0 ; i<MAX_MAX_AMMO_AMOUNT ; i++) {
+			for (i=0 ; i<MAX_AMMOCOUNT ; i++) {
 				if (bits & (1<<i) ) {
 					to->max_ammo_amount[i] = MSG_ReadShort(msg);
 				}
