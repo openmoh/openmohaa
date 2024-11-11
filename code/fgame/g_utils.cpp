@@ -1148,6 +1148,82 @@ Vector G_PredictPosition(Vector start, Vector target, Vector targetvelocity, flo
 G_ArchiveTrace
 ==============
 */
+void G_ArchivePlayerState(Archiver& arc, playerState_t *ps)
+{
+    int i;
+
+    // Movement
+    arc.ArchiveInteger(&ps->commandTime);
+    arc.ArchiveInteger(&ps->pm_type);
+    arc.ArchiveInteger(&ps->pm_flags);
+    arc.ArchiveInteger(&ps->pm_time);
+    arc.ArchiveVec3(ps->origin);
+    arc.ArchiveVec3(ps->velocity);
+    arc.ArchiveInteger(&ps->gravity);
+    arc.ArchiveInteger(&ps->speed);
+    arc.ArchiveInteger(&ps->delta_angles[0]);
+    arc.ArchiveInteger(&ps->delta_angles[1]);
+    arc.ArchiveInteger(&ps->delta_angles[2]);
+
+    // Trace
+    arc.ArchiveInteger(&ps->groundEntityNum);
+    arc.ArchiveBoolean(&ps->walking);
+    arc.ArchiveBoolean(&ps->groundPlane);
+    arc.ArchiveInteger(&ps->feetfalling);
+    arc.ArchiveVec3(ps->falldir);
+    G_ArchiveTrace(arc, &ps->groundTrace);
+    arc.ArchiveVec3(ps->viewangles);
+    arc.ArchiveInteger(&ps->viewheight);
+
+    // View
+    arc.ArchiveFloat(&ps->fLeanAngle);
+    arc.ArchiveInteger(&ps->iViewModelAnim);
+    arc.ArchiveInteger(&ps->iViewModelAnimChanged);
+
+    // Stats
+    for (i = 0; i < ARRAY_LEN(ps->stats); i++) {
+        arc.ArchiveInteger(&ps->stats[i]);
+    }
+    for (i = 0; i < ARRAY_LEN(ps->activeItems); i++) {
+        arc.ArchiveInteger(&ps->activeItems[i]);
+    }
+    for (i = 0; i < ARRAY_LEN(ps->ammo_name_index); i++) {
+        arc.ArchiveInteger(&ps->ammo_name_index[i]);
+    }
+    for (i = 0; i < ARRAY_LEN(ps->ammo_amount); i++) {
+        arc.ArchiveInteger(&ps->ammo_amount[i]);
+    }
+    for (i = 0; i < ARRAY_LEN(ps->max_ammo_amount); i++) {
+        arc.ArchiveInteger(&ps->max_ammo_amount[i]);
+    }
+
+    // Music
+    arc.ArchiveInteger(&ps->current_music_mood);
+    arc.ArchiveInteger(&ps->fallback_music_mood);
+    arc.ArchiveFloat(&ps->music_volume);
+    arc.ArchiveFloat(&ps->music_volume_fade_time);
+    arc.ArchiveInteger(&ps->reverb_type);
+    arc.ArchiveFloat(&ps->reverb_level);
+
+    // View
+    arc.ArchiveVec4(ps->blend);
+    arc.ArchiveFloat(&ps->fov);
+
+    // Camera
+    arc.ArchiveVec3(ps->camera_origin);
+    arc.ArchiveFloat(&ps->camera_time);
+    arc.ArchiveVec3(ps->camera_angles);
+    arc.ArchiveVec3(ps->camera_offset);
+    arc.ArchiveVec3(ps->camera_posofs);
+    arc.ArchiveInteger(&ps->camera_flags);
+    arc.ArchiveVec3(ps->damage_angles);
+}
+
+/*
+==============
+G_ArchiveTrace
+==============
+*/
 void G_ArchiveTrace(Archiver& arc, trace_t *trace)
 {
     arc.ArchiveBoolean(&trace->allsolid);
@@ -1170,8 +1246,9 @@ void G_ArchiveTrace(Archiver& arc, trace_t *trace)
 G_ArchiveClient
 ==============
 */
-void G_ArchiveClient(Archiver& arc, gclient_t* client)
+void G_ArchiveClient(Archiver& arc, gclient_t *client)
 {
+    G_ArchivePlayerState(arc, &client->ps);
     arc.ArchiveVec3(client->cmd_angles);
     arc.ArchiveInteger(&client->lastActiveTime);
     arc.ArchiveInteger(&client->activeWarning);
@@ -1194,7 +1271,10 @@ void G_ArchiveEdict(Archiver& arc, gentity_t *edict)
     //
 
     if (edict->client) {
-        G_ArchiveClient(arc, edict->client);
+        // Removed in OPM
+        //  Commented out because clients are already archived
+        //  by Game::Archive()
+        //G_ArchiveClient(arc, edict->client);
     }
 
     arc.ArchiveInteger(&edict->s.beam_entnum);
