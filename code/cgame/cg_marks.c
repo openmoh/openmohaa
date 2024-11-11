@@ -425,6 +425,8 @@ void CG_FreeMarkObj(markObj_t *pMark)
     markPoly_t *pPoly;
     markPoly_t *pNextPoly;
 
+    assert(pMark != &cg_activeMarkObjs);
+
     for (pPoly = pMark->markPolys; pPoly; pPoly = pNextPoly) {
         pNextPoly = pPoly->nextPoly;
         CG_FreeMarkPoly(pPoly);
@@ -486,6 +488,12 @@ markObj_t *CG_AllocMark(int iNumPolys)
     }
 
     if (iNumPolys < 1) {
+        return NULL;
+    }
+
+    if (iNumPolys > cg_iNumMarkPolys) {
+        // Added in OPM
+        //  Make sure to not over allocate polys
         return NULL;
     }
 
