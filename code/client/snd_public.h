@@ -150,6 +150,7 @@ void S_TriggeredMusic_SetupHandle(const char* pszName, int iLoopCount, int iOffs
 void S_TriggeredMusic_Start();
 void S_TriggeredMusic_StartLoop();
 void S_TriggeredMusic_Stop();
+void S_TriggeredMusic_Volume();
 void S_TriggeredMusic_Pause();
 void S_TriggeredMusic_Unpause();
 void S_TriggeredMusic_PlayIntroMusic();

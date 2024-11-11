@@ -646,6 +646,8 @@ qboolean S_OPENAL_Init()
     Cmd_AddCommand("tmstart", S_TriggeredMusic_Start);
     Cmd_AddCommand("tmstartloop", S_TriggeredMusic_StartLoop);
     Cmd_AddCommand("tmstop", S_TriggeredMusic_Stop);
+    // Added in 2.0
+    Cmd_AddCommand("tmvolume", S_TriggeredMusic_Volume);
 
     S_OPENAL_ClearLoopingSounds();
     load_sfx_info();
@@ -3049,7 +3051,13 @@ bool openal_channel::set_sfx(sfx_t *pSfx)
             qalGenBuffers(1, &pSfx->buffer);
             alDieIfError();
 
-            qalBufferData(pSfx->buffer, fmt, &pSfx->data[pSfx->info.dataofs], pSfx->info.datasize - pSfx->info.dataofs, pSfx->info.rate);
+            qalBufferData(
+                pSfx->buffer,
+                fmt,
+                &pSfx->data[pSfx->info.dataofs],
+                pSfx->info.datasize - pSfx->info.dataofs,
+                pSfx->info.rate
+            );
             alDieIfError();
         }
     }
@@ -4141,6 +4149,28 @@ void S_TriggeredMusic_Stop()
 
 /*
 ==============
+S_TriggeredMusic_Volume
+
+Added in 2.0
+==============
+*/
+void S_TriggeredMusic_Volume()
+{
+    if (!s_bSoundStarted) {
+        return;
+    }
+
+    if (Cmd_Argc() != 2) {
+        Com_Printf("tmvolume <0-1>\n\n");
+        return;
+    }
+
+    openal.chan_trig_music.fVolume = atof(Cmd_Argv(1));
+    music_volume_changed           = true;
+}
+
+/*
+==============
 S_TriggeredMusic_Pause
 ==============
 */
@@ -4565,7 +4595,7 @@ U32 openal_channel_two_d_stream::sample_offset()
     alDieIfError();
 
     totalQueueLength = getQueueLength();
-    bytesPerSample = getBytesPerSample();
+    bytesPerSample   = getBytesPerSample();
 
     assert(playerByteOffset < totalQueueLength);
     assert(streamNextOffset >= totalQueueLength || stream);
@@ -4878,7 +4908,7 @@ unsigned int openal_channel_two_d_stream::getCurrentStreamPosition() const
     if (streamNextOffset >= queueLength) {
         return streamNextOffset - queueLength;
     } else if (streamHandle) {
-        snd_stream_t* stream = (snd_stream_t*)streamHandle;
+        snd_stream_t *stream = (snd_stream_t *)streamHandle;
         return (stream->info.size + streamNextOffset - queueLength) % stream->info.size;
     } else {
         return queueLength - streamNextOffset;
