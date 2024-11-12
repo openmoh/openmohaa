@@ -1094,6 +1094,15 @@ Event EV_Client_Print
     "string",
     "Prints a string."
 );
+// Added in 2.0
+Event EV_Client_PrintDeathMsg
+(
+    "printdeathmsg",
+    EV_DEFAULT,
+    "sssss",
+    "msg1, msg2, killer, victim, deathType",
+    "Prints a death message string.  Used to allow death messages to appear in their correct language on client machines.."
+);
 Event EV_Client_SetVolumetric
 (
     "volumetric",
@@ -1341,6 +1350,7 @@ CLASS_DECLARATION(Listener, ClientGameCommandManager, NULL) {
     {&EV_Client_SetClampVelocity,           &ClientGameCommandManager::SetClampVel               },
     {&EV_Client_SetClampVelocityAxis,       &ClientGameCommandManager::SetClampVelAxis           },
     {&EV_Client_Print,                      &ClientGameCommandManager::Print                     },
+    {&EV_Client_PrintDeathMsg,              &ClientGameCommandManager::PrintDeathMsg             },
     {&EV_Client_EyeLimits,                  &ClientGameCommandManager::SetEyeLimits              },
     {&EV_Client_EyeMovement,                &ClientGameCommandManager::SetEyeMovement            },
     {&EV_Client_SFXStart,                   &ClientGameCommandManager::StartSFX                  },
@@ -1487,6 +1497,13 @@ ClientGameCommandManager::ClientGameCommandManager()
 }
 
 void ClientGameCommandManager::Print(Event *ev)
+{
+    if (current_entity) {
+        cgi.DPrintf("%d:%s\n", current_entity->entityNumber, ev->GetString(1).c_str());
+    }
+}
+
+void ClientGameCommandManager::PrintDeathMsg(Event* ev)
 {
     if (current_entity) {
         cgi.DPrintf("%d:%s\n", current_entity->entityNumber, ev->GetString(1).c_str());

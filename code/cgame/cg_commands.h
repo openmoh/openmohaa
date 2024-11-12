@@ -764,6 +764,7 @@ private:
     void          SpawnVSSSource(int count, int timealive);
     void          EventViewKick(Event *ev);
     void          Print(Event *ev);
+    void          PrintDeathMsg(Event *ev); // Added in 2.0
     void          StartBlock(Event *ev);
     void          EndBlock(Event *ev);
     void          UpdateSpawnThing(spawnthing_t *ep);
