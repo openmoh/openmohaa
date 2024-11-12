@@ -1479,7 +1479,164 @@ netField_t	entityStateFields_ver_15[] =
 };
 static constexpr unsigned long numEntityStateFields_ver_15 = sizeof(entityStateFields_ver_15) / sizeof(entityStateFields_ver_15[0]);
 
+//
+// Protocol version 6
+//
 netField_t	entityStateFields_ver_6[] = 
+{
+{ NETF(netorigin[0]), 0, netFieldType_t::coord },
+{ NETF(netorigin[1]), 0, netFieldType_t::coord },
+{ NETF(netangles[1]), 12, netFieldType_t::angle },
+{ NETF(frameInfo[0].time), 0, netFieldType_t::animTime },
+{ NETF(frameInfo[1].time), 0, netFieldType_t::animTime },
+{ NETF(bone_angles[0][0]), -13, netFieldType_t::angle },
+{ NETF(bone_angles[3][0]), -13, netFieldType_t::angle },
+{ NETF(bone_angles[1][0]), -13, netFieldType_t::angle },
+{ NETF(bone_angles[2][0]), -13, netFieldType_t::angle },
+{ NETF(netorigin[2]), 0, netFieldType_t::coord },
+{ NETF(frameInfo[0].weight), 0, netFieldType_t::animWeight },
+{ NETF(frameInfo[1].weight), 0, netFieldType_t::animWeight},
+{ NETF(frameInfo[2].time), 0, netFieldType_t::animTime },
+{ NETF(frameInfo[3].time), 0, netFieldType_t::animTime },
+{ NETF(frameInfo[0].index), 12, netFieldType_t::regular },
+{ NETF(frameInfo[1].index), 12, netFieldType_t::regular },
+{ NETF(actionWeight), 0, netFieldType_t::animWeight },
+{ NETF(frameInfo[2].weight), 0, netFieldType_t::animWeight },
+{ NETF(frameInfo[3].weight), 0, netFieldType_t::animWeight },
+{ NETF(frameInfo[2].index), 12, netFieldType_t::regular },
+{ NETF(frameInfo[3].index), 12, netFieldType_t::regular },
+{ NETF(eType), 8, netFieldType_t::regular },
+{ NETF(modelindex), 16, netFieldType_t::regular },
+{ NETF(parent), 16, netFieldType_t::regular },
+{ NETF(constantLight), 32, netFieldType_t::regular },
+{ NETF(renderfx), 32, netFieldType_t::regular },
+{ NETF(bone_tag[0]), -8, netFieldType_t::regular },
+{ NETF(bone_tag[1]), -8, netFieldType_t::regular },
+{ NETF(bone_tag[2]), -8, netFieldType_t::regular },
+{ NETF(bone_tag[3]), -8, netFieldType_t::regular },
+{ NETF(bone_tag[4]), -8, netFieldType_t::regular },
+{ NETF(scale), 0, netFieldType_t::scale },
+{ NETF(alpha), 0, netFieldType_t::alpha },
+{ NETF(usageIndex), 16, netFieldType_t::regular },
+{ NETF(eFlags), 16, netFieldType_t::regular },
+{ NETF(solid), 32, netFieldType_t::regular },
+{ NETF(netangles[2]), 12, netFieldType_t::angle },
+{ NETF(netangles[0]), 12, netFieldType_t::angle },
+{ NETF(tag_num), 10, netFieldType_t::regular },
+{ NETF(bone_angles[1][2]), -13, netFieldType_t::angle },
+{ NETF(attach_use_angles), 1, netFieldType_t::regular },
+{ NETF(origin2[1]), 0, netFieldType_t::coord },
+{ NETF(origin2[0]), 0, netFieldType_t::coord },
+{ NETF(origin2[2]), 0, netFieldType_t::coord },
+{ NETF(bone_angles[0][2]), -13, netFieldType_t::angle },
+{ NETF(bone_angles[2][2]), -13, netFieldType_t::angle },
+{ NETF(bone_angles[3][2]), -13, netFieldType_t::angle },
+{ NETF(surfaces[0]), 8, netFieldType_t::regular },
+{ NETF(surfaces[1]), 8, netFieldType_t::regular },
+{ NETF(surfaces[2]), 8, netFieldType_t::regular },
+{ NETF(surfaces[3]), 8, netFieldType_t::regular },
+{ NETF(bone_angles[0][1]), -13, netFieldType_t::angle },
+{ NETF(surfaces[4]), 8, netFieldType_t::regular },
+{ NETF(surfaces[5]), 8, netFieldType_t::regular },
+{ NETF(loopSound), 16, netFieldType_t::regular },
+{ NETF(loopSoundVolume), 0, netFieldType_t::regular },
+{ NETF(loopSoundMinDist), 0, netFieldType_t::regular },
+{ NETF(loopSoundMaxDist), 0, netFieldType_t::regular },
+{ NETF(loopSoundPitch), 0, netFieldType_t::regular },
+{ NETF(loopSoundFlags), 8, netFieldType_t::regular },
+{ NETF(attach_offset[0]), 0, netFieldType_t::regular },
+{ NETF(attach_offset[1]), 0, netFieldType_t::regular },
+{ NETF(attach_offset[2]), 0, netFieldType_t::regular },
+{ NETF(beam_entnum), 16, netFieldType_t::regular },
+{ NETF(skinNum), 16, netFieldType_t::regular },
+{ NETF(wasframe), 10, netFieldType_t::regular },
+{ NETF(frameInfo[4].index), 12, netFieldType_t::regular },
+{ NETF(frameInfo[5].index), 12, netFieldType_t::regular },
+{ NETF(frameInfo[6].index), 12, netFieldType_t::regular },
+{ NETF(frameInfo[7].index), 12, netFieldType_t::regular },
+{ NETF(frameInfo[8].index), 12, netFieldType_t::regular },
+{ NETF(frameInfo[9].index), 12, netFieldType_t::regular },
+{ NETF(frameInfo[10].index), 12, netFieldType_t::regular },
+{ NETF(frameInfo[11].index), 12, netFieldType_t::regular },
+{ NETF(frameInfo[12].index), 12, netFieldType_t::regular },
+{ NETF(frameInfo[13].index), 12, netFieldType_t::regular },
+{ NETF(frameInfo[14].index), 12, netFieldType_t::regular },
+{ NETF(frameInfo[15].index), 12, netFieldType_t::regular },
+{ NETF(frameInfo[4].time), 0, netFieldType_t::animTime },
+{ NETF(frameInfo[5].time), 0, netFieldType_t::animTime },
+{ NETF(frameInfo[6].time), 0, netFieldType_t::animTime },
+{ NETF(frameInfo[7].time), 0, netFieldType_t::animTime },
+{ NETF(frameInfo[8].time), 0, netFieldType_t::animTime },
+{ NETF(frameInfo[9].time), 0, netFieldType_t::animTime },
+{ NETF(frameInfo[10].time), 0, netFieldType_t::animTime },
+{ NETF(frameInfo[11].time), 0, netFieldType_t::animTime },
+{ NETF(frameInfo[12].time), 0, netFieldType_t::animTime },
+{ NETF(frameInfo[13].time), 0, netFieldType_t::animTime },
+{ NETF(frameInfo[14].time), 0, netFieldType_t::animTime },
+{ NETF(frameInfo[15].time), 0, netFieldType_t::animTime },
+{ NETF(frameInfo[4].weight), 0, netFieldType_t::animWeight },
+{ NETF(frameInfo[5].weight), 0, netFieldType_t::animWeight },
+{ NETF(frameInfo[6].weight), 0, netFieldType_t::animWeight },
+{ NETF(frameInfo[7].weight), 0, netFieldType_t::animWeight },
+{ NETF(frameInfo[8].weight), 0, netFieldType_t::animWeight },
+{ NETF(frameInfo[9].weight), 0, netFieldType_t::animWeight },
+{ NETF(frameInfo[10].weight), 0, netFieldType_t::animWeight },
+{ NETF(frameInfo[11].weight), 0, netFieldType_t::animWeight },
+{ NETF(frameInfo[12].weight), 0, netFieldType_t::animWeight },
+{ NETF(frameInfo[13].weight), 0, netFieldType_t::animWeight },
+{ NETF(frameInfo[14].weight), 0, netFieldType_t::animWeight },
+{ NETF(frameInfo[15].weight), 0, netFieldType_t::animWeight },
+{ NETF(bone_angles[1][1]), -13, netFieldType_t::angle },
+{ NETF(bone_angles[2][1]), -13, netFieldType_t::angle },
+{ NETF(bone_angles[3][1]), -13, netFieldType_t::angle },
+{ NETF(bone_angles[4][0]), -13, netFieldType_t::angle },
+{ NETF(bone_angles[4][1]), -13, netFieldType_t::angle },
+{ NETF(bone_angles[4][2]), -13, netFieldType_t::angle },
+{ NETF(clientNum), 8, netFieldType_t::regular },
+{ NETF(groundEntityNum), GENTITYNUM_BITS, netFieldType_t::regular },
+{ NETF(shader_data[0]), 0, netFieldType_t::regular },
+{ NETF(shader_data[1]), 0, netFieldType_t::regular },
+{ NETF(shader_time), 0, netFieldType_t::regular },
+{ NETF(eyeVector[0]), 0, netFieldType_t::regular },
+{ NETF(eyeVector[1]), 0, netFieldType_t::regular },
+{ NETF(eyeVector[2]), 0, netFieldType_t::regular },
+{ NETF(surfaces[6]), 8, netFieldType_t::regular },
+{ NETF(surfaces[7]), 8, netFieldType_t::regular },
+{ NETF(surfaces[8]), 8, netFieldType_t::regular },
+{ NETF(surfaces[9]), 8, netFieldType_t::regular },
+{ NETF(surfaces[10]), 8, netFieldType_t::regular },
+{ NETF(surfaces[11]), 8, netFieldType_t::regular },
+{ NETF(surfaces[12]), 8, netFieldType_t::regular },
+{ NETF(surfaces[13]), 8, netFieldType_t::regular },
+{ NETF(surfaces[14]), 8, netFieldType_t::regular },
+{ NETF(surfaces[15]), 8, netFieldType_t::regular },
+{ NETF(surfaces[16]), 8, netFieldType_t::regular },
+{ NETF(surfaces[17]), 8, netFieldType_t::regular },
+{ NETF(surfaces[18]), 8, netFieldType_t::regular },
+{ NETF(surfaces[19]), 8, netFieldType_t::regular },
+{ NETF(surfaces[20]), 8, netFieldType_t::regular },
+{ NETF(surfaces[21]), 8, netFieldType_t::regular },
+{ NETF(surfaces[22]), 8, netFieldType_t::regular },
+{ NETF(surfaces[23]), 8, netFieldType_t::regular },
+{ NETF(surfaces[24]), 8, netFieldType_t::regular },
+{ NETF(surfaces[25]), 8, netFieldType_t::regular },
+{ NETF(surfaces[26]), 8, netFieldType_t::regular },
+{ NETF(surfaces[27]), 8, netFieldType_t::regular },
+{ NETF(surfaces[28]), 8, netFieldType_t::regular },
+{ NETF(surfaces[29]), 8, netFieldType_t::regular },
+{ NETF(surfaces[30]), 8, netFieldType_t::regular },
+{ NETF(surfaces[31]), 8, netFieldType_t::regular }
+};
+
+//
+// Protocol version 8
+// It adds the following fields:
+// - pos.trTime
+// - pos.trDelta[0]
+// - pos.trDelta[1]
+// - pos.trDelta[2]
+//
+netField_t	entityStateFields_ver_8[] = 
 {
 { NETF(netorigin[0]), 0, netFieldType_t::coord },
 { NETF(netorigin[1]), 0, netFieldType_t::coord },
@@ -1629,7 +1786,8 @@ netField_t	entityStateFields_ver_6[] =
 { NETF(surfaces[31]), 8, netFieldType_t::regular }
 };
 static constexpr unsigned long numEntityStateFields_ver_6 = sizeof(entityStateFields_ver_6) / sizeof(entityStateFields_ver_6[0]);
-static constexpr unsigned long numBiggestEntityStateFields = numEntityStateFields_ver_15 >= numEntityStateFields_ver_6 ? numEntityStateFields_ver_15 : numEntityStateFields_ver_6;
+static constexpr unsigned long numEntityStateFields_ver_8 = sizeof(entityStateFields_ver_8) / sizeof(entityStateFields_ver_8[0]);
+static constexpr unsigned long numBiggestEntityStateFields = numEntityStateFields_ver_15 >= numEntityStateFields_ver_8 ? numEntityStateFields_ver_15 : numEntityStateFields_ver_8;
 
 netField_t* MSG_GetEntityStateFields(size_t& outNumFields)
 {
@@ -1638,11 +1796,16 @@ netField_t* MSG_GetEntityStateFields(size_t& outNumFields)
         outNumFields = sizeof(entityStateFields_ver_15) / sizeof(entityStateFields_ver_15[0]);
         return entityStateFields_ver_15;
     }
-    else
+    else if (com_protocol->integer >= protocol_e::PROTOCOL_MOH)
+    {
+        outNumFields = sizeof(entityStateFields_ver_8) / sizeof(entityStateFields_ver_8[0]);
+        return entityStateFields_ver_8;
+    }
+	else
     {
         outNumFields = sizeof(entityStateFields_ver_6) / sizeof(entityStateFields_ver_6[0]);
         return entityStateFields_ver_6;
-    }
+	}
 }
 
 // if (int)f == f and (int)f + ( 1<<(FLOAT_INT_BITS-1) ) < ( 1 << FLOAT_INT_BITS )
