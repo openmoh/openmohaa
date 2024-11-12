@@ -851,6 +851,7 @@ private:
     void          StopSound(Event *ev);
     void          StopAliasChannel(Event *ev);
     void          LoopSound(Event *ev);
+    void          StopLoopSound(Event *ev); // Added in 2.0
     void          Cache(Event *ev);
     void          CacheImage(Event *ev);
     void          CacheFont(Event *ev);

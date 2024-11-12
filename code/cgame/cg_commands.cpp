@@ -566,6 +566,15 @@ Event EV_Client_LoopSound
     "soundName volume min_distance pitch",
     "Play the specified sound as a looping sound"
 );
+// Added in 2.0
+Event EV_Client_StopLoopSound
+(
+    "stoploopsound",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Stop the looping sound"
+);
 Event EV_Client_Cache
 (
     "cache",
@@ -1269,6 +1278,7 @@ CLASS_DECLARATION(Listener, ClientGameCommandManager, NULL) {
     {&EV_Client_StopSound,                  &ClientGameCommandManager::StopSound                 },
     {&EV_Client_StopAliasChannel,           &ClientGameCommandManager::StopAliasChannel          },
     {&EV_Client_LoopSound,                  &ClientGameCommandManager::LoopSound                 },
+    {&EV_Client_StopLoopSound,              &ClientGameCommandManager::StopLoopSound             },
     {&EV_Client_Cache,                      &ClientGameCommandManager::Cache                     },
     {&EV_Client_CacheImage,                 &ClientGameCommandManager::CacheImage                },
     {&EV_Client_CacheFont,                  &ClientGameCommandManager::CacheFont                 },
@@ -4010,6 +4020,9 @@ void ClientGameCommandManager::StopSound(Event *ev)
     cgi.S_StopSound(current_entity_number, channel);
 }
 
+//===============
+// StopAliasChannel
+//===============
 void ClientGameCommandManager::StopAliasChannel(Event *ev)
 {
     str              sound_name;
@@ -4103,6 +4116,20 @@ void ClientGameCommandManager::LoopSound(Event *ev)
     current_centity->tikiLoopSoundMaxDist = max_dist;
     current_centity->tikiLoopSoundPitch   = pitch;
     current_centity->tikiLoopSoundFlags   = 0;
+}
+
+//===============
+// StopLoopSound
+//===============
+void ClientGameCommandManager::StopLoopSound(Event* ev)
+{
+    if (!current_centity) {
+        cgi.DPrintf("CCM::StopLoopSound : StopLoopSound in %s without current_centity\n", cgi.TIKI_Name(current_tiki));
+        return;
+    }
+
+    Com_Printf("\n\nClientGameCommandManager::StopLoopSound\n\n");
+    current_centity->tikiLoopSound = NULL;
 }
 
 //===============
