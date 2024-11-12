@@ -495,6 +495,10 @@ void R_LevelMarksLoad(const char *szBSPName)
             if (Q_stricmp(savePoly.shader, szLastShaderName)) {
                 hShader = RE_RegisterShader(savePoly.shader);
                 if (!hShader) {
+                    // Added in 2.30
+                    //  Don't mess with decal loading, so drop immediately
+                    Com_Error(ERR_DROP, "Decal file lists non-existant shader: %s", savePoly.shader);
+
                     pPoly->shader           = tr.defaultShader;
                     pPoly->surf.iIndex      = 0;
                     pPoly->surf.surfaceType = SF_SKIP;
