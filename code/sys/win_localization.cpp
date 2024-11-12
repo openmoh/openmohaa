@@ -55,6 +55,10 @@ const char *Sys_LV_ConvertString( const char *var )
 
 const char *Sys_LV_CL_ConvertString( const char *var )
 {
+	if (!g_localization) {
+		return var;
+	}
+
 	return g_localization->ConvertString( var );
 }
 
