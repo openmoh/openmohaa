@@ -69,6 +69,13 @@ static const char *GS_GAME_VERSION[] =
     TARGET_GAME_VERSION_MOHTT,
 };
 
+static const char* GS_GAME_VERSION_DEMO[] =
+{
+    TARGET_GAME_VERSION_MOH,
+    "d" TARGET_GAME_VERSION_MOHTA,
+    "d" TARGET_GAME_VERSION_MOHTT_DEMO,
+};
+
 static const unsigned int GAMESPY_DEFAULT_PORT = 12300;
 
 void qr_send_statechanged(qr_t qrec);
@@ -117,15 +124,15 @@ const char* GS_GetCurrentGameName() {
 }
 
 const char* GS_GetGameVersion(unsigned int index) {
-    return GS_GAME_VERSION[index];
+    if (!com_target_demo->integer) {
+        return GS_GAME_VERSION[index];
+    } else {
+        return GS_GAME_VERSION_DEMO[index];
+    }
 }
 
 const char* GS_GetCurrentGameVersion() {
-    if (!com_target_demo->integer || com_target_game->integer <= TG_MOH) {
-        return GS_GetGameVersion(com_target_game->integer);
-    } else {
-        return va("d%s", GS_GetGameVersion(com_target_game->integer));
-    }
+    return GS_GetGameVersion(com_target_game->integer);
 }
 
 static const char *ConvertMapFilename(const char *mapname)
