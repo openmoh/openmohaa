@@ -365,8 +365,8 @@ typedef struct {
 #define BSP_IDENT	(('5'<<24)+('1'<<16)+('0'<<8)+'2')
 		// little-endian "2015"
 
-#define BSP_BETA_VERSION	18	// Beta Allied Assault
-#define BSP_MIN_VERSION		18	// Beta Allied Assault
+#define BSP_BETA_VERSION	17	// Beta Allied Assault
+#define BSP_MIN_VERSION		17	// Beta Allied Assault
 #define BSP_VERSION			19	// Allied Assault
 #define BSP_MAX_VERSION		21	// Breakthrough
 
@@ -491,8 +491,8 @@ typedef struct {
 #define LUMP_BRUSHSIDES			11
 #define LUMP_BRUSHES			12
 /*
-// FOG seems to be handled differently in MOHAA - no fog lump found yet
-#define LUMP_FOGS				0
+#define LUMP_FOGS				13
+LUMP_FOGS was removed in BSP version 19, since moh version 1.10
 */
 #define LUMP_MODELS				13
 #define LUMP_ENTITIES			14
@@ -519,6 +519,18 @@ typedef struct {
 
 	lump_t		lumps[ HEADER_LUMPS ];
 } dheader_t;
+
+static lump_t *Q_GetLumpByVersion(dheader_t *header, int lump)
+{
+	if (header->version <= 18) {
+		if (lump > LUMP_BRUSHES) {
+			return &header->lumps[lump + 1];
+        }
+        return &header->lumps[lump];
+	}
+
+    return &header->lumps[lump];
+}
 
 typedef struct {
 	float		mins[3], maxs[3];
