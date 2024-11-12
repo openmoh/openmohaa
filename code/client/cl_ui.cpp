@@ -4988,6 +4988,20 @@ void UI_HideStatistics_f()
 
 /*
 ====================
+UI_SalesScreen_f
+====================
+*/
+void UI_SalesScreen_f()
+{
+    if (random() > 0.5) {
+        Cbuf_AddText("pushmenu sales_splash1\n");
+    } else {
+        Cbuf_AddText("pushmenu sales_splash2\n");
+    }
+}
+
+/*
+====================
 CL_ShutdownUI
 ====================
 */
@@ -5256,6 +5270,7 @@ void CL_InitializeUI(void)
     Cmd_AddCommand("-statistics", UI_HideStatistics_f);
     Cmd_AddCommand("setreturnmenu", UI_SetReturnMenuToCurrent);
     Cmd_AddCommand("gotoreturnmenu", UI_PushReturnMenu_f);
+    Cmd_AddCommand("salesscreen", UI_SalesScreen_f);
 
     if (developer->integer) {
         UColor bgColor;

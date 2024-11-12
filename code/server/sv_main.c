@@ -615,8 +615,15 @@ void SVC_Info( netadr_t from ) {
 		Info_SetValueForKey( infostring, "game", gamedir );
 	}
 
-	Info_SetValueForKey(infostring, "gamever", com_target_version->string);
-	Info_SetValueForKey(infostring, "serverType", va("%i", com_target_game->integer));
+    if (!com_target_demo->integer || com_target_game->integer <= TG_MOH) {
+        Info_SetValueForKey(infostring, "gamever", com_target_version->string);
+	} else {
+		Info_SetValueForKey(infostring, "gamever", va("d%s", com_target_version->string));
+	}
+
+	if (com_target_game->integer >= TG_MOHTT) {
+		Info_SetValueForKey(infostring, "serverType", va("%i", com_target_game->integer));
+	}
 
 	SV_NET_OutOfBandPrint( &svs.netprofile, from, "infoResponse\n%s", infostring );
 }

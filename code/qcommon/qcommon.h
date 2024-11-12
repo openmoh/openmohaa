@@ -1056,6 +1056,10 @@ extern  cvar_t* con_autochat;
 #endif
 extern	cvar_t* com_target_version;
 extern	cvar_t* com_target_game;
+extern	cvar_t* com_target_demo;
+
+extern	int		protocol_version_demo;
+extern	int		protocol_version_full;
 
 // com_speeds times
 extern	int		time_game;

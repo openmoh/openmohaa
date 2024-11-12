@@ -19,6 +19,10 @@ On Windows, a shortcut can be created to the `openmohaa` executable, with the co
 
 You can now start a local OpenMOHAA server or play on a server.
 
+### Playing with the downloadable demo
+
+The argument `+set com_target_demo 1` must be appended to command-line to play the game/host a server using demo assets: Allied Assault, Spearhead and Breakthrough demo are supported.
+
 ### From the launchers
 
 For simplicity, there are 3 launchers for the standalone game:

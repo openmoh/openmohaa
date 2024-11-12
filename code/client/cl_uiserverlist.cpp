@@ -1040,6 +1040,7 @@ void UpdateServerListCallBack(GServerList serverlist, int msg, void* instance, v
     {
         const char* pszHostName;
         bool bDiffVersion;
+        bool bIsDemo;
         str sServerName;
         str sPlayers;
         const char* pszGameVer;
@@ -1047,12 +1048,14 @@ void UpdateServerListCallBack(GServerList serverlist, int msg, void* instance, v
 
         pszHostName = ServerGetStringValue(server, "hostname", "(NONE)");
         bDiffVersion = false;
+        bIsDemo = false;
         pszGameVer = ServerGetStringValue(server, "gamever", "1.00");
         pszGameVerNumber = pszGameVer;
 
         if (pszGameVerNumber[0] == 'd') {
             // demo server
             pszGameVerNumber++;
+            bIsDemo = true;
         }
 
         if (com_target_game->integer >= target_game_e::TG_MOHTT) {
@@ -1077,7 +1080,11 @@ void UpdateServerListCallBack(GServerList serverlist, int msg, void* instance, v
             }
         }
         // always show the version
-        sServerName = va(" (%s) %s", pszGameVer, pszHostName);
+        if (!bIsDemo) {
+            sServerName = va(" (%s) %s", pszGameVerNumber, pszHostName);
+        } else {
+            sServerName = va(" (d%s) %s", pszGameVerNumber, pszHostName);
+        }
 
         iRealIP = inet_addr(ServerGetAddress(server));
         iPort = ServerGetIntValue(server, "hostport", PORT_SERVER);

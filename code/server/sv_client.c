@@ -286,6 +286,28 @@ challenge_t* FindChallenge(netadr_t from, qboolean connecting) {
 
 /*
 ==================
+SV_IsDemoClient
+
+Returns whether or not the client is using the demo version of the game
+==================
+*/
+
+qboolean SV_IsDemoClient(const char *userinfo)
+{
+	int version;
+
+	if (protocol_version_demo == protocol_version_full) {
+		// Older versions don't check for network demo
+		return qfalse;
+	}
+
+    version = atoi(Info_ValueForKey(userinfo, "protocol"));
+
+	return version == protocol_version_demo;
+}
+
+/*
+==================
 SV_DirectConnect
 
 A "connect" OOB command has been received
@@ -334,9 +356,20 @@ void SV_DirectConnect( netadr_t from ) {
 			Com_DPrintf("    rejected connect - only Breakthrough clients allowed.\n");
 			return;
 		}
-	}
+    }
 
-	version = atoi(Info_ValueForKey(userinfo, "protocol"));
+    version = atoi(Info_ValueForKey(userinfo, "protocol"));
+
+	if (!com_target_demo->integer && SV_IsDemoClient(userinfo)) {
+        SV_NET_OutOfBandPrint(&svs.netprofile, from, "print\nThe Multiplayer Demo can not connect to full version games.\n");
+		Com_DPrintf("    rejected connect from version %i\n", version);
+		return;
+    }
+
+    if (com_target_demo->integer && version == protocol_version_full) {
+		// Make sure to make the full game compatible with the demo game protocol
+        version = com_protocol->integer;
+    }
 	
 #ifdef LEGACY_PROTOCOL
 	if(version > 0 && com_legacyprotocol->integer == version)

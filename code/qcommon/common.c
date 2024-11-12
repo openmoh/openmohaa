@@ -123,6 +123,10 @@ cvar_t  *con_autochat;
 cvar_t	*precache;
 cvar_t	*com_target_game;
 cvar_t	*com_target_version;
+cvar_t	*com_target_demo;
+
+int protocol_version_demo;
+int protocol_version_full;
 
 // com_speeds times
 int		time_game;
@@ -1652,6 +1656,7 @@ void Com_Init( char *commandLine ) {
 	CL_InitKeyCommands();
 
 	com_target_game = Cvar_Get("com_target_game", "0", CVAR_LATCH | CVAR_PROTECTED);
+	com_target_demo = Cvar_Get("com_target_demo", "0", CVAR_LATCH | CVAR_PROTECTED);
 	com_target_version = Cvar_Get("com_target_version", "0.00", CVAR_ROM);
 	com_standalone = Cvar_Get("com_standalone", "0", CVAR_ROM);
 	com_basegame = Cvar_Get("com_basegame", BASEGAME, CVAR_INIT);
@@ -2996,15 +3001,21 @@ int QDECL Com_strCompare( const void *a, const void *b )
     return strcmp( *pa, *pb );
 }
 
-void Com_InitTargetGameWithType(target_game_e target_game)
+void Com_InitTargetGameWithType(target_game_e target_game, qboolean bIsDemo)
 {
 	const char* protocol;
 
     switch (target_game)
     {
     case TG_MOH:
-        Cvar_Set("com_protocol", va("%i", PROTOCOL_MOH));
-        Cvar_Set("com_legacyprotocol", va("%i", PROTOCOL_MOH));
+		if (!bIsDemo) {
+			Cvar_Set("com_protocol", va("%i", PROTOCOL_MOH));
+			Cvar_Set("com_legacyprotocol", va("%i", PROTOCOL_MOH));
+		} else {
+			Cvar_Set("com_protocol", va("%i", PROTOCOL_MOH_DEMO));
+			Cvar_Set("com_legacyprotocol", va("%i", PROTOCOL_MOH_DEMO));
+        }
+		protocol_version_demo = protocol_version_full = PROTOCOL_MOH;
 		Cvar_Set("com_target_version", TARGET_GAME_VERSION_MOH);
 		Cvar_Set("com_target_extension", PRODUCT_EXTENSION_MOH);
 		Cvar_Set("com_gamename", TARGET_GAME_NAME_MOH);
@@ -3013,22 +3024,50 @@ void Com_InitTargetGameWithType(target_game_e target_game)
         break;
 
     case TG_MOHTA:
-        Cvar_Set("com_protocol", va("%i", PROTOCOL_MOHTA));
-        Cvar_Set("com_legacyprotocol", va("%i", PROTOCOL_MOHTA));
+		if (!bIsDemo) {
+			Cvar_Set("com_protocol", va("%i", PROTOCOL_MOHTA));
+            Cvar_Set("com_legacyprotocol", va("%i", PROTOCOL_MOHTA));
+		} else {
+			Cvar_Set("com_protocol", va("%i", PROTOCOL_MOHTA_DEMO));
+            Cvar_Set("com_legacyprotocol", va("%i", PROTOCOL_MOHTA_DEMO));
+		}
+		protocol_version_demo = PROTOCOL_MOHTA_DEMO;
+		protocol_version_full = PROTOCOL_MOHTA;
 		Cvar_Set("com_target_version", TARGET_GAME_VERSION_MOHTA);
 		Cvar_Set("com_target_extension", PRODUCT_EXTENSION_MOHTA);
 		Cvar_Set("com_gamename", TARGET_GAME_NAME_MOHTA);
-        Cvar_Set("fs_basegame", "mainta");
+		if (!bIsDemo) {
+			Cvar_Set("fs_basegame", "mainta");
+		} else {
+			// Targeting a demo
+			Cvar_Set("fs_basegame", "demota");
+		}
         break;
 
     case TG_MOHTT:
 		// mohta and mohtt use the same protocol version number
-        Cvar_Set("com_protocol", va("%i", PROTOCOL_MOHTA));
-        Cvar_Set("com_legacyprotocol", va("%i", PROTOCOL_MOHTA));
-		Cvar_Set("com_target_version", TARGET_GAME_VERSION_MOHTT);
+		if (!bIsDemo) {
+			Cvar_Set("com_protocol", va("%i", PROTOCOL_MOHTA));
+            Cvar_Set("com_legacyprotocol", va("%i", PROTOCOL_MOHTA));
+            Cvar_Set("com_protocol_alt", va("%i", PROTOCOL_MOHTA_DEMO));
+            Cvar_Set("com_target_version", TARGET_GAME_VERSION_MOHTT);
+		} else {
+			Cvar_Set("com_protocol", va("%i", PROTOCOL_MOHTA_DEMO));
+            Cvar_Set("com_legacyprotocol", va("%i", PROTOCOL_MOHTA_DEMO));
+            Cvar_Set("com_protocol_alt", va("%i", PROTOCOL_MOHTA));
+            Cvar_Set("com_target_version", TARGET_GAME_VERSION_MOHTT_DEMO);
+        }
+        protocol_version_demo = PROTOCOL_MOHTA_DEMO;
+        protocol_version_full = PROTOCOL_MOHTA;
+        Cvar_Set("com_protocol_alt", va("%i", PROTOCOL_MOHTA));
 		Cvar_Set("com_target_extension", PRODUCT_EXTENSION_MOHTT);
 		Cvar_Set("com_gamename", TARGET_GAME_NAME_MOHTT);
-        Cvar_Set("fs_basegame", "maintt");
+		if (!bIsDemo) {
+			Cvar_Set("fs_basegame", "maintt");
+		} else {
+			// Targeting a demo
+			Cvar_Set("fs_basegame", "demott");
+		}
         break;
 
     default:
@@ -3045,7 +3084,7 @@ Com_InitTargetGame
 ===============
 */
 void Com_InitTargetGame() {
-	Com_InitTargetGameWithType((target_game_e)com_target_game->integer);
+	Com_InitTargetGameWithType((target_game_e)com_target_game->integer, com_target_demo->integer);
 }
 
 #ifdef __cplusplus

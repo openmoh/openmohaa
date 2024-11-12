@@ -55,6 +55,13 @@ static const char *GS_GAME_NAME[] =
     "mohaab"
 };
 
+static const char *GS_GAME_NAME_DEMO[] =
+{
+    "mohaa",
+    "mohaas",
+    "mohaabd"
+};
+
 static const char *GS_GAME_VERSION[] =
 {
     TARGET_GAME_VERSION_MOH,
@@ -98,7 +105,11 @@ unsigned int GS_GetCurrentGameID() {
 }
 
 const char* GS_GetGameName(unsigned int index) {
-    return GS_GAME_NAME[index];
+    if (!com_target_demo->integer) {
+        return GS_GAME_NAME[index];
+    } else {
+        return GS_GAME_NAME_DEMO[index];
+    }
 }
 
 const char* GS_GetCurrentGameName() {
@@ -110,7 +121,11 @@ const char* GS_GetGameVersion(unsigned int index) {
 }
 
 const char* GS_GetCurrentGameVersion() {
-    return GS_GetGameVersion(com_target_game->integer);
+    if (!com_target_demo->integer || com_target_game->integer <= TG_MOH) {
+        return GS_GetGameVersion(com_target_game->integer);
+    } else {
+        return va("d%s", GS_GetGameVersion(com_target_game->integer));
+    }
 }
 
 static const char *ConvertMapFilename(const char *mapname)
@@ -130,7 +145,6 @@ static void basic_callback(char *outbuf, int maxlen, void *userdata)
 {
     Info_SetValueForKey(outbuf, "gamename", GS_GetCurrentGameName());
     Info_SetValueForKey(outbuf, "gamever", GS_GetCurrentGameVersion());
-
     Info_SetValueForKey(outbuf, "location", va("%i", sv_location->integer));
 
     if (sv_debug_gamespy->integer) {

@@ -3689,6 +3689,8 @@ void CL_ServerInfoPacket( netadr_t from, msg_t *msg ) {
 	char	*infoString;
 	int		prot;
 	char	*gamename;
+	char	*pszVersion;
+	char	*pszServerType;
 	qboolean gameMismatch;
 
 	infoString = MSG_ReadString( msg );
@@ -3717,11 +3719,43 @@ void CL_ServerInfoPacket( netadr_t from, msg_t *msg ) {
 #ifdef LEGACY_PROTOCOL
 	   && prot != com_legacyprotocol->integer
 #endif
+		&& (com_target_demo->integer || prot != protocol_version_demo)
 	  )
 	{
 		Com_DPrintf( "Different protocol info packet: %s\n", infoString );
 		return;
 	}
+
+	if (!com_target_demo->integer && prot == protocol_version_demo) {
+		Com_DPrintf("Full version found compatible demo protocol version. %s\n", infoString);
+	}
+
+    pszVersion = Info_ValueForKey(infoString, "gamever");
+    pszServerType = Info_ValueForKey(infoString, "serverType");
+
+	if (!*pszVersion) {
+		return;
+	}
+
+	if (*pszVersion == 'd') {
+		pszVersion++;
+	}
+
+    if (com_target_game->integer >= target_game_e::TG_MOHTT) {
+        if (atoi(pszServerType) == target_game_e::TG_MOHTT) {
+            if (fabs(atof(pszVersion)) < 2.3f) {
+				return;
+            }
+        } else {
+            if (fabs(atof(pszVersion)) < 2.1f) {
+				return;
+            }
+        }
+    } else {
+        if (fabs(atof(pszVersion) - com_target_version->value) > 0.1f) {
+			return;
+        }
+    }
 
 	// iterate servers waiting for ping response
 	for (i=0; i<MAX_PINGREQUESTS; i++)
