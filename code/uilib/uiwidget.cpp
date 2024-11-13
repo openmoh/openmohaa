@@ -428,6 +428,7 @@ Event EV_Layout_DontLocalize
 	"Disables localization for this widget"
 	);
 
+// Added in 2.0
 Event EV_Layout_FadeSequence
 	(
 	"fadesequence",
@@ -502,6 +503,11 @@ CLASS_DECLARATION( USignal, UIWidget, NULL )
 	{ &EV_Widget_Disable,				&UIWidget::DisableEvent },
 	{ &EV_Widget_EnabledCvar,			&UIWidget::SetEnabledCvar },
 	{ &EV_Widget_ScaleCvar,				&UIWidget::SetScaleCvar },
+
+	//
+	// Added in 2.0
+	//
+
 	{ &EV_Layout_DontLocalize,			&UIWidget::SetDontLocalize },
 	{ &EV_Layout_FadeSequence,			&UIWidget::EventFadeSequence },
 
@@ -706,12 +712,12 @@ UIWidget::UIWidget()
 	m_scaleCvar = NULL;
 	m_enabledCvar = "";
 
-	m_fadeSequenceDelayStart = 0;
+	m_fadeSequenceDelay = 0;
 	m_fadeSequenceFadeIn = 0;
 	m_fadeSequenceHold = 0;
 	m_fadeSequenceFadeOut = 0;
 	m_fadeSequenceState = fadesequence_t::SEQUENCE_NONE;
-	m_fadeSequenceAlpha = 0;
+	m_fadeSequenceLastTime = 0;
 
 	UIRect2D frame( 6.0f, 6.0f, 100.0f, 13.0f );
 	setFrame( frame );
@@ -904,9 +910,9 @@ void UIWidget::FrameInitialized
 	)
 
 {
-	if (m_fadeSequenceDelayStart || m_fadeSequenceFadeIn || m_fadeSequenceHold || m_fadeSequenceFadeOut) {
-		m_fadeSequenceDelayEnd = m_fadeSequenceDelayStart;
-		m_fadeSequenceState = fadesequence_t::SEQUENCE_FADEIN;
+	if (m_fadeSequenceDelay || m_fadeSequenceFadeIn || m_fadeSequenceHold || m_fadeSequenceFadeOut) {
+		m_fadeSequenceRemainingTime = m_fadeSequenceDelay;
+		m_fadeSequenceState = fadesequence_t::SEQUENCE_STARTING;
 	}
 }
 
@@ -936,59 +942,54 @@ void UIWidget::Motion
 
 	if (m_fadeSequenceState != fadesequence_t::SEQUENCE_NONE)
 	{
+		// Added in 2.0
+		//  Process fade sequence
 		if (!paused->integer) {
 			switch (m_fadeSequenceState)
 			{
 			case fadesequence_t::SEQUENCE_STARTING:
-				m_alpha = 0.f;
-				m_fadeSequenceDelayEnd -= t - m_fadeSequenceAlpha;
-				if (m_fadeSequenceDelayEnd >= 0.f) {
-					m_fadeSequenceAlpha = t;
-				} else {
+				m_alpha = 0.0;
+
+				m_fadeSequenceRemainingTime -= t - m_fadeSequenceLastTime;
+				if (m_fadeSequenceRemainingTime < 0) {
 					m_fadeSequenceState = fadesequence_t::SEQUENCE_FADEIN;
-					m_fadeSequenceAlpha = t;
-					m_fadeSequenceDelayEnd = m_fadeSequenceFadeIn;
+					m_fadeSequenceRemainingTime = m_fadeSequenceFadeIn;
 				}
 				break;
 			case fadesequence_t::SEQUENCE_FADEIN:
-				m_alpha = 1.f - m_fadeSequenceDelayEnd / m_fadeSequenceFadeIn;
-				m_fadeSequenceDelayEnd -= t - m_fadeSequenceAlpha;
-				if (m_fadeSequenceDelayEnd >= 0.f) {
-					m_fadeSequenceAlpha = t;
-				} else {
+				m_alpha = 1.0 - m_fadeSequenceRemainingTime / m_fadeSequenceFadeIn;
+
+				m_fadeSequenceRemainingTime -= t - m_fadeSequenceLastTime;
+				if (m_fadeSequenceRemainingTime < 0) {
 					m_fadeSequenceState = fadesequence_t::SEQUENCE_HOLD;
-					m_fadeSequenceAlpha = t;
-					m_fadeSequenceDelayEnd = m_fadeSequenceHold;
+					m_fadeSequenceRemainingTime = m_fadeSequenceHold;
 				}
 				break;
 			case fadesequence_t::SEQUENCE_HOLD:
-				m_alpha = 1.f;
-				m_fadeSequenceDelayEnd -= t - m_fadeSequenceAlpha;
-				if (m_fadeSequenceDelayEnd >= 0.f) {
-					m_fadeSequenceAlpha = t;
-				} else {
+				m_alpha = 1.0;
+
+				m_fadeSequenceRemainingTime -= t - m_fadeSequenceLastTime;
+				if (m_fadeSequenceRemainingTime < 0) {
 					m_fadeSequenceState = fadesequence_t::SEQUENCE_FADEOUT;
-					m_fadeSequenceAlpha = t;
-					m_fadeSequenceDelayEnd = m_fadeSequenceFadeOut;
+					m_fadeSequenceRemainingTime = m_fadeSequenceFadeOut;
 				}
 				break;
 			case fadesequence_t::SEQUENCE_FADEOUT:
-				m_alpha = m_fadeSequenceDelayEnd / m_fadeSequenceFadeOut;
-				m_fadeSequenceDelayEnd -= (t - m_fadeSequenceAlpha);
-                if (m_fadeSequenceDelayEnd >= 0.f) {
-                    m_fadeSequenceAlpha = t;
-				} else {
-					m_alpha = 0.f;
+				m_alpha = m_fadeSequenceRemainingTime / m_fadeSequenceFadeOut;
+
+				m_fadeSequenceRemainingTime -= (t - m_fadeSequenceLastTime);
+                if (m_fadeSequenceRemainingTime < 0) {
+					// Fade sequence has finished fading
+					m_alpha = 0;
 					m_fadeSequenceState = fadesequence_t::SEQUENCE_NONE;
-				}
+                }
 				break;
             default:
-                m_fadeSequenceAlpha = t;
 				break;
 			}
-		} else {
-			m_fadeSequenceAlpha = t;
 		}
+
+        m_fadeSequenceLastTime = t;
 	} else if( m_fadetime >= 0.0 ) {
 		frac = ( t - m_starttime ) / m_fadetime;
 
@@ -2730,6 +2731,8 @@ void UIWidget::ResetMotion
 	}
 
 	m_starttime = uid.time / 1000.0;
+	// Added in 2.0
+	m_fadeSequenceLastTime = uid.time / 1000.0;
 }
 
 void UIWidget::Realign
@@ -3155,12 +3158,12 @@ void UIWidget::SetDontLocalize(Event* ev)
 
 void UIWidget::EventFadeSequence(Event* ev)
 {
-	m_fadeSequenceDelayStart = ev->GetFloat(1);
+	m_fadeSequenceDelay = ev->GetFloat(1);
 	m_fadeSequenceFadeIn = ev->GetFloat(2);
 	m_fadeSequenceHold = ev->GetFloat(3);
 	m_fadeSequenceFadeOut = ev->GetFloat(4);
-	m_fadeSequenceDelayEnd = m_fadeSequenceDelayStart;
-	m_fadeSequenceState = fadesequence_t::SEQUENCE_FADEIN;
+	m_fadeSequenceRemainingTime = m_fadeSequenceDelay;
+	m_fadeSequenceState = fadesequence_t::SEQUENCE_STARTING;
 }
 
 void UIWidget::SetDontLocalize()
