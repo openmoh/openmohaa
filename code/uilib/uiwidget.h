@@ -143,12 +143,12 @@ protected:
 	float m_alpha;
 	float m_local_alpha;
 	float m_motiontime;
-    float m_fadeSequenceDelayStart;
+    float m_fadeSequenceDelay;
     float m_fadeSequenceFadeIn;
     float m_fadeSequenceHold;
     float m_fadeSequenceFadeOut;
-    float m_fadeSequenceDelayEnd;
-    float m_fadeSequenceAlpha;
+    float m_fadeSequenceRemainingTime;
+    float m_fadeSequenceLastTime;
     int m_fadeSequenceState;
 	str m_stopsound;
 	str m_clicksound;
@@ -226,8 +226,12 @@ public:
 	void				LayoutAliasCache( Event *ev );
 	void				SetEnabledCvar( Event *ev );
 	void				SetScaleCvar( Event *ev );
+
+	// Added in 2.0
+	//====
 	void				SetDontLocalize( Event *ev );
 	void				EventFadeSequence( Event *ev );
+	//====
 
 	void				SetVirtualScale(vec2_t out);
 	void				SetDontLocalize();
