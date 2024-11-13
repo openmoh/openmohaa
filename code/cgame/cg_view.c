@@ -911,13 +911,13 @@ void CG_DrawActiveFrame(int serverTime, int frameTime, stereoFrame_t stereoView,
                     {
                     default:
                     case 0:
-                        cgi.UI_HideMenu("mission_success_1", CVAR_ARCHIVE);
+                        cgi.UI_HideMenu("mission_success_1", qtrue);
                         break;
                     case 2:
-                        cgi.UI_HideMenu("mission_success_2", CVAR_ARCHIVE);
+                        cgi.UI_HideMenu("mission_success_2", qtrue);
                         break;
                     case 3:
-                        cgi.UI_HideMenu("mission_success_3", CVAR_ARCHIVE);
+                        cgi.UI_HideMenu("mission_success_3", qtrue);
                         break;
                     }
                 } else {
@@ -925,21 +925,21 @@ void CG_DrawActiveFrame(int serverTime, int frameTime, stereoFrame_t stereoView,
                     {
                     default:
                     case 0:
-                        cgi.UI_HideMenu("mission_failed_1", CVAR_ARCHIVE);
+                        cgi.UI_HideMenu("mission_failed_1", qtrue);
                         break;
                     case 2:
-                        cgi.UI_HideMenu("mission_failed_2", CVAR_ARCHIVE);
+                        cgi.UI_HideMenu("mission_failed_2", qtrue);
                         break;
                     case 3:
-                        cgi.UI_HideMenu("mission_failed_3", CVAR_ARCHIVE);
+                        cgi.UI_HideMenu("mission_failed_3", qtrue);
                         break;
                     }
                 }
             } else {
                 if (cgi.Cvar_Get("g_success", "", 0)->integer) {
-                    cgi.UI_HideMenu("StatsScreen_Success", qfalse);
+                    cgi.UI_HideMenu("StatsScreen_Success", qtrue);
                 } else {
-                    cgi.UI_HideMenu("StatsScreen_Failed", qfalse);
+                    cgi.UI_HideMenu("StatsScreen_Failed", qtrue);
                 }
             }
         }
