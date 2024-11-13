@@ -3425,6 +3425,10 @@ static void FS_Startup(const char* gameName)
 	homePath = Sys_DefaultHomePath();
 	if (!homePath || !homePath[0]) {
 		homePath = fs_basepath->string;
+	} else if (com_target_demo->integer) {
+		// As full and demo are different products,
+		// it's better for them to have separate location for configs and saves
+		homePath = va("%s-demo", homePath);
 	}
 	fs_homepath = Cvar_Get ("fs_homepath", homePath, CVAR_INIT|CVAR_PROTECTED );
 	fs_gamedirvar = Cvar_Get ("fs_game", "", CVAR_INIT|CVAR_SYSTEMINFO );
