@@ -1381,14 +1381,14 @@ void ScriptSlave::CreatePath(SplinePath *path, splinetype_t type)
 
 void ScriptSlave::FollowPath(Event *ev)
 {
-    int         i, argnum;
-    Entity     *ent;
-    str         token;
-    SplinePath *path;
-    qboolean    clamp;
-    float       starttime;
+    int               i, argnum;
+    SimpleEntity     *ent;
+    str               token;
+    SplinePath       *path;
+    qboolean          clamp;
+    float             starttime;
 
-    ent             = ev->GetEntity(1);
+    ent             = ev->GetSimpleEntity(1);
     argnum          = 2;
     starttime       = -2;
     clamp           = true;
@@ -1422,6 +1422,7 @@ void ScriptSlave::FollowPath(Event *ev)
             ScriptError("Unknown followpath command %s.", token.c_str());
         }
     }
+
     if (ent && ent->IsSubclassOfSplinePath()) {
         path = (SplinePath *)ent;
         if (clamp) {
