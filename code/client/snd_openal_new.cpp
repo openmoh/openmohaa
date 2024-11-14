@@ -895,70 +895,6 @@ static bool S_OPENAL_LoadMP3(const char *_path, openal_channel *chan)
     chan->set_no_3d();
 
     return true;
-
-#if 0
-    char   path[MAX_QPATH];
-    FILE  *in;
-    size_t len;
-    size_t rc;
-    bool   failed;
-
-    chan->stop();
-
-    qalSourcei(chan->source, AL_BUFFER, 0);
-    alDieIfError();
-
-    S_OPENAL_NukeBuffer(&chan->buffer);
-    alDieIfError();
-
-    Q_strncpyz(path, _path, sizeof(path));
-    path[MAX_QPATH - 1] = 0;
-
-    FS_CorrectCase(path);
-
-    in = fopen(path, "rb");
-    if (!in) {
-        Com_DPrintf("Failed to open MP3 \"%s\" for playback\n", path);
-        return false;
-    }
-
-    fseek(in, 0, SEEK_END);
-    len = ftell(in);
-    fseek(in, 0, SEEK_SET);
-
-    chan->bufferdata = new ALubyte[len];
-    rc               = fread(chan->bufferdata, 1, len, in);
-    fclose(in);
-
-    if (rc != len) {
-        delete[] chan->bufferdata;
-        chan->bufferdata = NULL;
-        Com_DPrintf("Failed to read MP3 \"%s\" from disk\n", path);
-
-        return false;
-    }
-
-    qalGenBuffers(1, &chan->buffer);
-    alDieIfError();
-
-    failed = !_alutLoadMP3_LOKI(chan->buffer, chan->bufferdata, rc);
-    alDieIfError();
-
-    delete[] chan->bufferdata;
-    chan->bufferdata = NULL;
-
-    if (failed) {
-        Com_DPrintf("Failed to decode MP3 file \"%s\"\n", path);
-        return false;
-    }
-
-    qalSourcei(chan->source, AL_BUFFER, chan->buffer);
-    alDieIfError();
-
-    chan->set_no_3d();
-
-    return true;
-#endif
 }
 
 /*
@@ -1330,7 +1266,7 @@ static void S_OPENAL_Start2DSound(
 
     if (iFreeChannel < 0) {
         Com_DPrintf(
-            "Couldn't play %s sound '%s' for entity %i on channel %s\n",
+            "OpenAL: Couldn't play %s sound '%s' for entity %i on channel %s\n",
             (pSfx->iFlags & SFX_FLAG_STREAMED) ? "2Dstreamed" : "2D",
             pSfx->name,
             iRealEntNum,
@@ -1412,7 +1348,7 @@ static void S_OPENAL_Start2DSound(
     if (iFreeChannel > MAX_OPENAL_CHANNELS_3D + MAX_OPENAL_CHANNELS_2D) {
         // streamed
         if (!pChannel->set_sfx(pSfx)) {
-            Com_DPrintf("Set stream error - %s\n", pSfx->name);
+            Com_DPrintf("OpenAL: Set stream error - %s\n", pSfx->name);
             return;
         }
 
@@ -1431,7 +1367,7 @@ static void S_OPENAL_Start2DSound(
 
     if (s_show_sounds->integer > 0) {
         Com_DPrintf(
-            "2D - %d (#%i) - %s (vol %f, mindist %f, maxdist %f)\n",
+            "OpenAL: 2D - %d (#%i) - %s (vol %f, mindist %f, maxdist %f)\n",
             cl.serverTime,
             iFreeChannel,
             pSfx->name,
@@ -1474,7 +1410,7 @@ void S_OPENAL_StartSound(
     }
 
     if (!S_OPENAL_ShouldPlay(pSfx)) {
-        Com_DPrintf("^~^~^ Not playing sound '%s'\n", pSfx->name);
+        Com_DPrintf("OpenAL: ^~^~^ Not playing sound '%s'\n", pSfx->name);
         return;
     }
 
@@ -1489,14 +1425,14 @@ void S_OPENAL_StartSound(
 
     pSfxInfo = &sfx_infos[pSfx->sfx_info_index];
     if (pSfx->iFlags & SFX_FLAG_STREAMED) {
-        Com_DPrintf("3D sounds not supported - couldn't play '%s'\n", pSfx->name);
+        Com_DPrintf("OpenAL: 3D sounds not supported - couldn't play '%s'\n", pSfx->name);
         return;
     }
 
     iChannel = S_OPENAL_PickChannel3D(iEntNum, iEntChannel);
     if (iChannel < 0) {
         Com_DPrintf(
-            "Couldn't play %s sound '%s' for entity %i on channel %s\n",
+            "OpenAL: Couldn't play %s sound '%s' for entity %i on channel %s\n",
             (pSfx->iFlags & SFX_FLAG_STREAMED) ? "3Dstreamed" : "3D",
             pSfx->name,
             iEntNum,
@@ -1521,7 +1457,7 @@ void S_OPENAL_StartSound(
         pChannel->stop();
         pChannel->iFlags &= ~(CHANNEL_FLAG_LOOPING | CHANNEL_FLAG_PAUSED | CHANNEL_FLAG_LOCAL_LISTENER);
         if (!pChannel->set_sfx(pSfx)) {
-            Com_DPrintf("Set sample error - %s\n", pSfx->name);
+            Com_DPrintf("OpenAL: Set sample error - %s\n", pSfx->name);
             return;
         }
     }
@@ -1546,7 +1482,7 @@ void S_OPENAL_StartSound(
 
     if (s_show_sounds->integer > 0) {
         Com_DPrintf(
-            "%d (#%i) - %s (vol %f, mindist %f, maxdist %f)\n",
+            "OpenAL: %d (#%i) - %s (vol %f, mindist %f, maxdist %f)\n",
             cl.serverTime,
             iChannel,
             pSfx->name,
@@ -1601,7 +1537,7 @@ void S_OPENAL_StartSound(
 
         pChannel->iFlags |= CHANNEL_FLAG_LOOPING;
         if (s_show_sounds->integer) {
-            Com_DPrintf("loopblock - %d to %d\n", pSfxInfo->loop_start, pSfxInfo->loop_end);
+            Com_DPrintf("OpenAL: loopblock - %d to %d\n", pSfxInfo->loop_start, pSfxInfo->loop_end);
         }
     } else {
         pChannel->set_sample_loop_count(1);
@@ -1668,7 +1604,7 @@ void S_OPENAL_AddLoopingSound(
 
     if (iFreeLoopSound < 0) {
         if (cls.realtime >= s_iNextLoopingWarning) {
-            Com_DPrintf("Too many looping sounds\n");
+            Com_DPrintf("OpenAL: Too many looping sounds\n");
             s_iNextLoopingWarning = cls.realtime + 1000;
         }
         return;
@@ -1728,7 +1664,7 @@ void S_OPENAL_StopLoopingSound(openal_loop_sound_t *pLoopSound)
     if (bMayStop) {
         if (s_show_sounds->integer > 0) {
             Com_DPrintf(
-                "%d (#%i) - stopped loop - %s\n",
+                "OpenAL: %d (#%i) - stopped loop - %s\n",
                 cl.serverTime,
                 pLoopSound->iChannel,
                 openal.channel[pLoopSound->iChannel]->pSfx->name
@@ -1844,7 +1780,7 @@ static int S_OPENAL_Start2DLoopSound(
     }
 
     if (iChannel < 0) {
-        Com_DPrintf("Could not find a free 2D sound channel\n");
+        Com_DPrintf("OpenAL: Could not find a free 2D sound channel\n");
         return iChannel;
     }
 
@@ -1860,7 +1796,7 @@ static int S_OPENAL_Start2DLoopSound(
     pChannel->fMinDist = fMinDistance;
 
     if (!pChannel->set_sfx(pLoopSound->pSfx)) {
-        Com_DPrintf("Set sample error\n");
+        Com_DPrintf("OpenAL: Set sample error (loopsound) - %s\n", pLoopSound->pSfx->name);
         pChannel->iFlags &= ~CHANNEL_FLAG_PLAY_DEFERRED;
         return -1;
     }
@@ -1880,7 +1816,7 @@ static int S_OPENAL_Start2DLoopSound(
     pChannel->set_gain(fVolumeToPlay);
     pChannel->start_sample();
     if (s_show_sounds->integer > 0) {
-        Com_DPrintf("%d (#%i) - %s (vol %f)\n", cl.serverTime, pLoopSound->iChannel, pLoopSound->pSfx->name, fVolume);
+        Com_DPrintf("OpenAL: %d (#%i) - %s (vol %f)\n", cl.serverTime, pLoopSound->iChannel, pLoopSound->pSfx->name, fVolume);
     }
 
     return iChannel;
@@ -1915,7 +1851,7 @@ static int S_OPENAL_Start3DLoopSound(
 
     iChannel = S_OPENAL_PickChannel3D(0, 0);
     if (iChannel < 0) {
-        Com_DPrintf("Could not find a free channel\n");
+        Com_DPrintf("OpenAL: Could not find a free channel\n");
         return iChannel;
     }
 
@@ -1928,7 +1864,7 @@ static int S_OPENAL_Start3DLoopSound(
     pChan3D->set_3d();
 
     if (!pChan3D->set_sfx(pLoopSound->pSfx)) {
-        Com_DPrintf("Set sample error - %s\n", pLoopSound->pSfx->name);
+        Com_DPrintf("OpenAL: Set sample error - %s\n", pLoopSound->pSfx->name);
         return -1;
     }
 
@@ -2140,7 +2076,7 @@ void S_OPENAL_AddLoopSounds(const vec3_t vTempAxis)
             if (pLoopSound->bPlaying) {
                 if (s_show_sounds->integer > 0) {
                     Com_DPrintf(
-                        "%d (#%i) - stopped loop - %s\n",
+                        "OpenAL: %d (#%i) - stopped loop - %s\n",
                         cl.serverTime,
                         pLoopSound->iChannel,
                         openal.channel[pLoopSound->iChannel]->pSfx->name
@@ -2200,7 +2136,7 @@ void S_OPENAL_AddLoopSounds(const vec3_t vTempAxis)
         }
 
         if (s_show_sounds->integer > 0) {
-            Com_DPrintf("%d (#%i) - started loop - %s\n", cl.serverTime, pLoopSound->iChannel, pLoopSound->pSfx->name);
+            Com_DPrintf("OpenAL: %d (#%i) - started loop - %s\n", cl.serverTime, pLoopSound->iChannel, pLoopSound->pSfx->name);
         }
 
         if (pLoopSound->pSfx->iFlags & (SFX_FLAG_NO_OFFSET)
@@ -2549,7 +2485,7 @@ void S_OPENAL_Update()
                 ++num;
             }
         }
-        Com_DPrintf("Number of active sounds = %d\n", num);
+        Com_DPrintf("OpenAL: Number of active sounds = %d\n", num);
     }
 
     Music_Update();
@@ -2688,7 +2624,7 @@ static void
 S_StartSoundFromBase(channelbasesavegame_t *pBase, openal_channel *pChannel, sfx_t *pSfx, bool bStartUnpaused)
 {
     if (!pChannel->set_sfx(pSfx)) {
-        Com_DPrintf("Set sample error - %s\n", pSfx->name);
+        Com_DPrintf("OpenAL: Set sample error - %s\n", pSfx->name);
         pChannel->iFlags &= ~CHANNEL_FLAG_PLAY_DEFERRED;
         return;
     }
@@ -2703,7 +2639,7 @@ S_StartSoundFromBase(channelbasesavegame_t *pBase, openal_channel *pChannel, sfx
         pChannel->iFlags |= CHANNEL_FLAG_LOOPING;
         if (s_show_sounds->integer > 0) {
             Com_DPrintf(
-                "loopblock - %d to %d\n",
+                "OpenAL: loopblock - %d to %d\n",
                 sfx_infos[pSfx->sfx_info_index].loop_start,
                 sfx_infos[pSfx->sfx_info_index].loop_end
             );
@@ -3365,7 +3301,7 @@ qboolean MUSIC_LoadSoundtrackFile(const char *filename)
 
     FS_ReadFile(path, (void **)&data);
     if (!data) {
-        Com_DPrintf("Couldn't load %s\n", path);
+        Com_DPrintf("OpenAL: Couldn't load %s\n", path);
         return false;
     }
     Com_DPrintf("SOUNDTRACK: Loading %s\n", path);
@@ -4373,7 +4309,7 @@ bool openal_channel_two_d_stream::set_sfx(sfx_t *pSfx)
 
     streamHandle = S_CodecLoad(pSfx->name, NULL);
     if (!streamHandle) {
-        Com_DPrintf("OpenAL: Failed to load MP3.\n");
+        Com_DPrintf("OpenAL: Failed to load sound file.\n");
         return false;
     }
 
