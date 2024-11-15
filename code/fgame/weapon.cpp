@@ -2425,6 +2425,13 @@ qboolean Weapon::Drop(void)
         }
     }
 
+    if (!startammo[FIRE_PRIMARY] && !startammo[FIRE_SECONDARY]) {
+        // Fixed in OPM
+        //  Don't drop the weapon at all if it has no ammo
+        PostEvent(EV_Remove, 0);
+        return false;
+    }
+
     // Wait some time before the last owner can pickup this weapon
     last_owner              = owner;
     last_owner_trigger_time = level.time + 2.0f;
