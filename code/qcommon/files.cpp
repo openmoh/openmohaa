@@ -3236,7 +3236,7 @@ qboolean FS_ComparePaks( char *neededpaks, int len, qboolean dlstring ) {
 		havepak = qfalse;
 
 		// never autodownload any of the id paks
-		if ( FS_idPak(fs_serverReferencedPakNames[i], BASEGAME) || FS_idPak(fs_serverReferencedPakNames[i], "missionpack") ) {
+		if ( FS_idPak(fs_serverReferencedPakNames[i], com_basegame->string) || FS_idPak(fs_serverReferencedPakNames[i], "missionpack") ) {
 			continue;
 		}
 
@@ -3520,7 +3520,7 @@ static void FS_Startup(const char* gameName)
 
 #ifndef STANDALONE
 	if (!com_standalone->integer) {
-		Com_ReadCDKey(BASEGAME);
+		Com_ReadCDKey(com_basegame->string);
 		if (fs_gamedirvar->string[0]) {
 			Com_AppendCDKey(fs_gamedirvar->string);
 		}
@@ -3716,7 +3716,7 @@ const char *FS_ReferencedPakChecksums( void ) {
 	for ( search = fs_searchpaths ; search ; search = search->next ) {
 		// is the element a pak file?
 		if ( search->pack ) {
-			if (search->pack->referenced || Q_stricmpn(search->pack->pakGamename, BASEGAME, strlen(BASEGAME))) {
+			if (search->pack->referenced || Q_stricmpn(search->pack->pakGamename, com_basegame->string, strlen(com_basegame->string))) {
 				Q_strcat( info, sizeof( info ), va("%i ", search->pack->checksum ) );
 			}
 		}
@@ -3796,7 +3796,7 @@ const char *FS_ReferencedPakNames( void ) {
 			if (*info) {
 				Q_strcat(info, sizeof( info ), " " );
 			}
-			if (search->pack->referenced || Q_stricmpn(search->pack->pakGamename, BASEGAME, strlen(BASEGAME))) {
+			if (search->pack->referenced || Q_stricmpn(search->pack->pakGamename, com_basegame->string, strlen(com_basegame->string))) {
 				Q_strcat( info, sizeof( info ), search->pack->pakGamename );
 				Q_strcat( info, sizeof( info ), "/" );
 				Q_strcat( info, sizeof( info ), search->pack->pakBasename );
