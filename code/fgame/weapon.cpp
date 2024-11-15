@@ -2372,23 +2372,27 @@ qboolean Weapon::Drop(void)
             int ammo;
 
             if (ammo_clip_size[FIRE_PRIMARY]) {
-                startammo[FIRE_PRIMARY] = g_dropclips->integer * ammo_in_clip[FIRE_PRIMARY];
+                // Fixed in OPM
+                //  Always drop at least 1 because of grenades
+                startammo[FIRE_PRIMARY] = g_dropclips->integer * Q_max(ammo_in_clip[FIRE_PRIMARY], 1);
             } else {
                 startammo[FIRE_PRIMARY] = g_dropclips->integer;
             }
 
-            ammo = AmmoAvailable(FIRE_PRIMARY);
+            // Fixed in OPM
+            //  Use the max between the available ammo and the ammo in clip
+            ammo = Q_max(AmmoAvailable(FIRE_PRIMARY), ammo_in_clip[FIRE_PRIMARY]);
             if (startammo[FIRE_PRIMARY] > ammo) {
                 startammo[FIRE_PRIMARY] = ammo;
             }
 
             if (ammo_clip_size[FIRE_SECONDARY]) {
-                startammo[FIRE_SECONDARY] = g_dropclips->integer * ammo_in_clip[FIRE_SECONDARY];
+                startammo[FIRE_SECONDARY] = g_dropclips->integer * Q_max(ammo_in_clip[FIRE_SECONDARY], 1);
             } else {
                 startammo[FIRE_SECONDARY] = g_dropclips->integer;
             }
 
-            ammo = AmmoAvailable(FIRE_SECONDARY);
+            ammo = Q_max(AmmoAvailable(FIRE_SECONDARY), ammo_in_clip[FIRE_SECONDARY]);
             if (startammo[FIRE_SECONDARY] > ammo) {
                 startammo[FIRE_SECONDARY] = ammo;
             }
