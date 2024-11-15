@@ -875,12 +875,22 @@ void SV_SpawnServer( const char *server, qboolean loadgame, qboolean restart, qb
 			Cvar_Set( "sv_paks", "" );
 			Cvar_Set( "sv_pakNames", "" );
 		}
-		// the server sends these to the clients so they can figure
-		// out which pk3s should be auto-downloaded
-		p = FS_ReferencedPakChecksums();
-		Cvar_Set( "sv_referencedPaks", p );
-		p = FS_ReferencedPakNames();
-		Cvar_Set( "sv_referencedPakNames", p );
+
+		if (sv_allowDownload->integer) {
+			// the server sends these to the clients so they can figure
+			// out which pk3s should be auto-downloaded
+			p = FS_ReferencedPakChecksums();
+			Cvar_Set("sv_referencedPaks", p);
+			p = FS_ReferencedPakNames();
+			Cvar_Set("sv_referencedPakNames", p);
+        }
+        else {
+            // Changed in OPM
+            //  Don't export the pak list if download is disabled
+
+			Cvar_Set("sv_referencedPaks", "");
+			Cvar_Set("sv_referencedPakNames", "");
+		}
 
 		// save systeminfo and serverinfo strings
 		Q_strncpyz( systemInfo, Cvar_InfoString_Big( CVAR_SYSTEMINFO ), sizeof( systemInfo ) );
