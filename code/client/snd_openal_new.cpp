@@ -682,6 +682,8 @@ void S_OPENAL_Shutdown()
     Cmd_RemoveCommand("tmstart");
     Cmd_RemoveCommand("tmstartloop");
     Cmd_RemoveCommand("tmstop");
+    // Added in 2.0
+    Cmd_RemoveCommand("tmvolume");
 
     S_OPENAL_NukeContext();
 
