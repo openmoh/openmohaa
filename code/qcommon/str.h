@@ -590,39 +590,30 @@ inline bool operator!=(const char *a, const str& b)
 
 inline int str::icmpn(const char *text, size_t n) const
 {
-    assert(m_data);
     assert(text);
 
-    return str::icmpn(m_data->data, text, n);
+    return str::icmpn(c_str(), text, n);
 }
 
 inline int str::icmpn(const str& text, size_t n) const
 {
-    assert(m_data);
-    assert(text.m_data);
-
-    return str::icmpn(m_data->data, text.m_data->data, n);
+    return str::icmpn(c_str(), text.c_str(), n);
 }
 
 inline int str::icmp(const char *text) const
 {
-    assert(m_data);
     assert(text);
 
-    return str::icmp(m_data->data, text);
+    return str::icmp(c_str(), text);
 }
 
 inline int str::icmp(const str& text) const
 {
-    assert(c_str());
-    assert(text.c_str());
-
     return str::icmp(c_str(), text.c_str());
 }
 
 inline int str::cmpn(const char *text, size_t n) const
 {
-    assert(c_str());
     assert(text);
 
     return str::cmpn(c_str(), text, n);
@@ -630,9 +621,6 @@ inline int str::cmpn(const char *text, size_t n) const
 
 inline int str::cmpn(const str& text, size_t n) const
 {
-    assert(c_str());
-    assert(text.c_str());
-
     return str::cmpn(c_str(), text.c_str(), n);
 }
 
