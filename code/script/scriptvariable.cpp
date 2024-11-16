@@ -1547,12 +1547,14 @@ void ScriptVariable::operator+=(const ScriptVariable& value)
 
 void ScriptVariable::operator-=(const ScriptVariable& value)
 {
-    switch (GetType() + value.GetType() * VARIABLE_MAX) {
+    int type = GetType();
+
+    switch (type + value.GetType() * VARIABLE_MAX) {
     default:
         Clear();
 
         throw ScriptException(
-            "binary '-' applied to incompatible types '%s' and '%s'", typenames[GetType()], typenames[value.GetType()]
+            "binary '-' applied to incompatible types '%s' and '%s'", typenames[type], typenames[value.GetType()]
         );
 
         break;
@@ -1581,12 +1583,14 @@ void ScriptVariable::operator-=(const ScriptVariable& value)
 
 void ScriptVariable::operator*=(const ScriptVariable& value)
 {
-    switch (GetType() + value.GetType() * VARIABLE_MAX) {
+    int type = GetType();
+
+    switch (type + value.GetType() * VARIABLE_MAX) {
     default:
         Clear();
 
         throw ScriptException(
-            "binary '*' applied to incompatible types '%s' and '%s'", typenames[GetType()], typenames[value.GetType()]
+            "binary '*' applied to incompatible types '%s' and '%s'", typenames[type], typenames[value.GetType()]
         );
 
         break;
@@ -1631,12 +1635,14 @@ void ScriptVariable::operator*=(const ScriptVariable& value)
 
 void ScriptVariable::operator/=(const ScriptVariable& value)
 {
-    switch (GetType() + value.GetType() * VARIABLE_MAX) {
+    int type = GetType();
+
+    switch (type + value.GetType() * VARIABLE_MAX) {
     default:
         Clear();
 
         throw ScriptException(
-            "binary '/' applied to incompatible types '%s' and '%s'", typenames[GetType()], typenames[value.GetType()]
+            "binary '/' applied to incompatible types '%s' and '%s'", typenames[type], typenames[value.GetType()]
         );
 
         break;
@@ -1728,13 +1734,14 @@ void ScriptVariable::operator/=(const ScriptVariable& value)
 void ScriptVariable::operator%=(const ScriptVariable& value)
 {
     float mult = 0.0f;
+    int type = GetType();
 
-    switch (GetType() + value.GetType() * VARIABLE_MAX) {
+    switch (type + value.GetType() * VARIABLE_MAX) {
     default:
         Clear();
 
         throw ScriptException(
-            "binary '%%' applied to incompatible types '%s' and '%s'", typenames[GetType()], typenames[value.GetType()]
+            "binary '%' applied to incompatible types '%s' and '%s'", typenames[type], typenames[value.GetType()]
         );
 
         break;
@@ -2245,15 +2252,13 @@ void ScriptVariable::complement(void)
 
 void ScriptVariable::greaterthan(ScriptVariable& variable)
 {
-    switch (GetType() + variable.GetType() * VARIABLE_MAX) {
+    int type = GetType();
+
+    switch (type + variable.GetType() * VARIABLE_MAX) {
     default:
         Clear();
 
-        throw ScriptException(
-            "binary '>' applied to incompatible types '%s' and '%s'",
-            typenames[GetType()],
-            typenames[variable.GetType()]
-        );
+        throw ScriptException("binary '>' applied to incompatible types '%s' and '%s'", typenames[type], typenames[variable.GetType()]);
 
         break;
 
@@ -2284,15 +2289,13 @@ void ScriptVariable::greaterthan(ScriptVariable& variable)
 
 void ScriptVariable::greaterthanorequal(ScriptVariable& variable)
 {
-    switch (GetType() + variable.GetType() * VARIABLE_MAX) {
+    int type = GetType();
+
+    switch (type + variable.GetType() * VARIABLE_MAX) {
     default:
         Clear();
 
-        throw ScriptException(
-            "binary '>=' applied to incompatible types '%s' and '%s'",
-            typenames[GetType()],
-            typenames[variable.GetType()]
-        );
+        throw ScriptException("binary '>=' applied to incompatible types '%s' and '%s'", typenames[type], typenames[variable.GetType()]);
 
         break;
 
@@ -2323,15 +2326,13 @@ void ScriptVariable::greaterthanorequal(ScriptVariable& variable)
 
 void ScriptVariable::lessthan(ScriptVariable& variable)
 {
-    switch (GetType() + variable.GetType() * VARIABLE_MAX) {
+    int type = GetType();
+
+    switch (type + variable.GetType() * VARIABLE_MAX) {
     default:
         Clear();
 
-        throw ScriptException(
-            "binary '<' applied to incompatible types '%s' and '%s'",
-            typenames[GetType()],
-            typenames[variable.GetType()]
-        );
+        throw ScriptException("binary '<' applied to incompatible types '%s' and '%s'", typenames[type], typenames[variable.GetType()]);
 
         break;
 
@@ -2362,15 +2363,13 @@ void ScriptVariable::lessthan(ScriptVariable& variable)
 
 void ScriptVariable::lessthanorequal(ScriptVariable& variable)
 {
-    switch (GetType() + variable.GetType() * VARIABLE_MAX) {
+    int type = GetType();
+
+    switch (type + variable.GetType() * VARIABLE_MAX) {
     default:
         Clear();
 
-        throw ScriptException(
-            "binary '<=' applied to incompatible types '%s' and '%s'",
-            typenames[GetType()],
-            typenames[variable.GetType()]
-        );
+        throw ScriptException("binary '<=' applied to incompatible types '%s' and '%s'", typenames[type], typenames[variable.GetType()]);
 
         break;
 
