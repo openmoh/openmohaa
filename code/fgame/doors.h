@@ -150,8 +150,9 @@ inline void Door::Archive(Archiver& arc)
     arc.ArchiveInteger(&trigger);
     arc.ArchiveInteger(&nextdoor);
     arc.ArchiveSafePointer(&master);
-    arc.ArchiveBoolean(&locked);
     arc.ArchiveFloat(&next_locked_time);
+    arc.ArchiveBoolean(&locked);
+    arc.ArchiveBool(&m_bAlwaysAway);
 }
 
 class RotatingDoor : public Door
