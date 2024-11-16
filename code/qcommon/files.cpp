@@ -1494,7 +1494,11 @@ long FS_FOpenFileReadDir(const char *filename, searchpath_t *search, fileHandle_
 			   !FS_IsExt(filename, ".menu", len) &&		// menu files
 			   !FS_IsExt(filename, ".game", len) &&		// menu files
 			   !FS_IsExt(filename, ".dat", len) &&		// for journal files
-			   !FS_IsDemoExt(filename, len))			// demos
+			   !FS_IsExt(filename, ".wav", len) &&		// sound files
+			   !FS_IsExt(filename, ".mp3", len) &&		// sound files
+			   !FS_IsExt(filename, ".ogg", len) &&		// sound files
+			   !FS_IsDemoExt(filename, len)			// demos
+				)
 			{
 				*file = 0;
 				return -1;
