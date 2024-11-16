@@ -295,7 +295,7 @@ identifier
 	;
 
 listener_identifier
-	: identifier_prim { $$ = node_listener($1, TOKPOS(@1)); }
+	: identifier { $$ = node_listener($1, TOKPOS(@1)); }
 	| TOKEN_LEFT_BRACKET expr TOKEN_RIGHT_BRACKET { $$ = $2; }
 	;
 
