@@ -2455,9 +2455,10 @@ float BulletAttack(
                     trace.fraction = 1;
                 }
 
-                vDeltaTrace = vTmpEnd - vTraceStart;
+                vDeltaTrace = vTraceStart - vTmpEnd;
                 if (!bBulletDone && DotProduct(vDeltaTrace, vDir) < 0) {
                     // Fixed in OPM
+                    //  Make sure the new trace doesn't start behind the end
                     //  This can happen in rare circumstances if the trace is out of the world limit
                     break;
                 }
