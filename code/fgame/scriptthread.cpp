@@ -2711,12 +2711,17 @@ void ScriptThread::EventDelayThrow(Event *ev)
 
 void ScriptThread::EventWait(Event *ev)
 {
-    Wait((int)roundf(ev->GetFloat(1) * 1000.0f));
+    float timeSeconds;
+
+    // Fixed in OPM
+    //  Clamp to make sure to not overflow when converting to integer
+    timeSeconds = Q_clamp_float(ev->GetFloat(1), 0, 2000000);
+    Wait((int)roundf(timeSeconds * 1000));
 }
 
 void ScriptThread::EventWaitFrame(Event *ev)
 {
-    Wait((int)roundf(level.frametime * 1000.0f));
+    Wait((int)roundf(level.frametime * 1000));
 }
 
 void ScriptThread::EventResume(Event *ev)
