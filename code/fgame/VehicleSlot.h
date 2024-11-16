@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2024 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -46,12 +46,19 @@ protected:
     solid_t  prev_solid;
     int      prev_contents;
 
+    //
+    // Added in OPM
+    //  Used for properly saving and restoring children solidity
+    Entity *prev_children_ent[MAX_MODEL_CHILDREN];
+    solid_t prev_children_solid[MAX_MODEL_CHILDREN];
+    int     prev_num_children;
+
 public:
     cVehicleSlot();
 
     virtual void NotSolid(void);
     virtual void Solid(void);
-    void         Archive(Archiver        &arc) override;
+    void         Archive(Archiver& arc) override;
 };
 
 inline void cVehicleSlot::Archive(Archiver& arc)

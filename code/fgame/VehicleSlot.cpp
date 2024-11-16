@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2024 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -31,6 +31,8 @@ cVehicleSlot::cVehicleSlot()
     prev_takedamage = (damage_t)-1;
     prev_solid      = (solid_t)-1;
     prev_contents   = -1;
+
+    prev_num_children = 0;
 }
 
 void cVehicleSlot::NotSolid(void)
@@ -52,9 +54,19 @@ void cVehicleSlot::NotSolid(void)
 
     ent->takedamage = DAMAGE_NO;
 
+    prev_num_children = 0;
+
     for (i = 0; i < ent->numchildren; i++) {
         Entity *sub = G_GetEntity(ent->children[i]);
-        if (sub && !sub->IsSubclassOfWeapon()) {
+        // Fixed in OPM
+        //  Check for solidity
+        if (sub && !sub->IsSubclassOfWeapon() && sub->getSolidType() != SOLID_NOT) {
+            // Fixed in OPM
+            //  Save children solidity so it can properly be restored later
+            prev_children_ent[prev_num_children]   = sub;
+            prev_children_solid[prev_num_children] = (solid_t)sub->getSolidType();
+            prev_num_children++;
+
             sub->setSolidType(SOLID_NOT);
         }
     }
@@ -66,7 +78,7 @@ void cVehicleSlot::NotSolid(void)
 
 void cVehicleSlot::Solid(void)
 {
-    int i;
+    int i, j;
 
     if (!(flags & FL_SWIM)) {
         return;
@@ -86,12 +98,24 @@ void cVehicleSlot::Solid(void)
     prev_solid      = (solid_t)-1;
     prev_contents   = -1;
 
+    //
+    // Fixed in OPM
+    //  Restore children solidity
+    //
     for (i = 0; i < ent->numchildren; i++) {
         Entity *sub = G_GetEntity(ent->children[i]);
         if (sub && !sub->IsSubclassOfWeapon()) {
-            sub->setSolidType(SOLID_BBOX);
+            for (j = 0; j < prev_num_children; j++) {
+                if (prev_children_ent[j] == sub) {
+                    sub->setSolidType(prev_children_solid[j]);
+                }
+            }
+
+            //sub->setSolidType(SOLID_NOT);
         }
     }
+
+    prev_num_children = 0;
 }
 
 cTurretSlot::cTurretSlot()
@@ -135,9 +159,19 @@ void cTurretSlot::NotSolid(void)
         }
     }
 
+    prev_num_children = 0;
+
     for (i = 0; i < ent->numchildren; i++) {
         Entity *sub = G_GetEntity(ent->children[i]);
-        if (sub && !sub->IsSubclassOfWeapon()) {
+        // Fixed in OPM
+        //  Check for solidity
+        if (sub && !sub->IsSubclassOfWeapon() && sub->getSolidType() != SOLID_NOT) {
+            // Fixed in OPM
+            //  Save children solidity so it can properly be restored later
+            prev_children_ent[prev_num_children]   = sub;
+            prev_children_solid[prev_num_children] = (solid_t)sub->getSolidType();
+            prev_num_children++;
+
             sub->setSolidType(SOLID_NOT);
         }
     }
@@ -145,7 +179,7 @@ void cTurretSlot::NotSolid(void)
 
 void cTurretSlot::Solid(void)
 {
-    int i;
+    int i, j;
 
     if (!(flags & FL_SWIM)) {
         return;
@@ -176,10 +210,22 @@ void cTurretSlot::Solid(void)
         }
     }
 
+    //
+    // Fixed in OPM
+    //  Restore children solidity
+    //
     for (i = 0; i < ent->numchildren; i++) {
         Entity *sub = G_GetEntity(ent->children[i]);
         if (sub && !sub->IsSubclassOfWeapon()) {
-            sub->setSolidType(SOLID_BBOX);
+            for (j = 0; j < prev_num_children; j++) {
+                if (prev_children_ent[j] == sub) {
+                    sub->setSolidType(prev_children_solid[j]);
+                }
+            }
+
+            //sub->setSolidType(SOLID_NOT);
         }
     }
+
+    prev_num_children = 0;
 }
