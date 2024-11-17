@@ -10764,7 +10764,7 @@ void Player::EventDMMessage(Event *ev)
 
     if (iMode == 0) {
         //
-        // team message
+        // everyone
         //
         if (!IsSpectator() || g_spectate_allow_full_chat->integer) {
             for (i = 0; i < game.maxclients; i++) {
@@ -10826,27 +10826,18 @@ void Player::EventDMMessage(Event *ev)
             }
         } else {
             for (i = 0; i < game.maxclients; i++) {
+                bool bSameTeam;
+
                 ent = &g_entities[i];
 
                 if (!ent->inuse || !ent->entity) {
                     continue;
                 }
 
-                if (static_cast<Player *>(ent->entity)->GetTeam() != GetTeam()) {
-                    gi.MSG_SetClient(i);
-                    gi.MSG_StartCGM(BG_MapCGMToProtocol(g_protocol, CGM_VOICE_CHAT));
-                    gi.MSG_WriteCoord(m_vViewPos[0]);
-                    gi.MSG_WriteCoord(m_vViewPos[1]);
-                    gi.MSG_WriteCoord(m_vViewPos[2]);
-                    gi.MSG_WriteBits(qtrue, 1);
-                    gi.MSG_WriteBits(edict - g_entities, 6);
-                    gi.MSG_WriteString(sAliasName.c_str());
-                    gi.MSG_EndCGM();
-
-                    continue;
+                bSameTeam = static_cast<Player*>(ent->entity)->GetTeam() == GetTeam();
+                if (bSameTeam) {
+                    gi.SendServerCommand(i, "%s", szPrintString);
                 }
-
-                gi.SendServerCommand(i, "%s", szPrintString);
 
                 if (bInstaMessage) {
                     gi.MSG_SetClient(i);
@@ -10854,7 +10845,7 @@ void Player::EventDMMessage(Event *ev)
                     gi.MSG_WriteCoord(m_vViewPos[0]);
                     gi.MSG_WriteCoord(m_vViewPos[1]);
                     gi.MSG_WriteCoord(m_vViewPos[2]);
-                    gi.MSG_WriteBits(qfalse, 1);
+                    gi.MSG_WriteBits(!bSameTeam, 1);
                     gi.MSG_WriteBits(edict - g_entities, 6);
                     gi.MSG_WriteString(sAliasName.c_str());
                     gi.MSG_EndCGM();
