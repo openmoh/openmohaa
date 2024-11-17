@@ -3006,6 +3006,9 @@ bool openal_channel::set_sfx(sfx_t *pSfx)
     qalSourcei(source, AL_BUFFER, pSfx->buffer);
     alDieIfError();
 
+    qalSourcef(source, AL_PITCH, 1.0);
+    alDieIfError();
+
     // Get the base frequency
     qalGetBufferi(pSfx->buffer, AL_FREQUENCY, &freq);
     alDieIfError();
