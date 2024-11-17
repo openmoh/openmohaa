@@ -11606,7 +11606,7 @@ void Actor::DontFaceWall(void)
     start.y -= origin.y;
     fEyeRadius = VectorLength2D(start);
     start.x    = origin.x + fEyeRadius * fCosAngle;
-    start.y    = origin.x + fEyeRadius * fSinAngle;
+    start.y    = origin.y + fEyeRadius * fSinAngle;
     end.x      = start.x + fCosAngle * 64;
     end.y      = start.y + fSinAngle * 64;
     end.z      = start.z;
