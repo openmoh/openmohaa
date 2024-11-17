@@ -2659,6 +2659,10 @@ S_StartSoundFromBase(channelbasesavegame_t *pBase, openal_channel *pChannel, sfx
     } else {
         pChannel->iFlags |= CHANNEL_FLAG_PLAY_DEFERRED;
     }
+
+    if (pChannel->iEntNum != ENTITYNUM_NONE) {
+        s_entity[pChannel->iEntNum].time = pChannel->iTime;
+    }
 }
 
 /*
