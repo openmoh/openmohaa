@@ -2293,9 +2293,9 @@ void ScriptVariable::greaterthan(ScriptVariable& variable)
         m_data.intValue = m_data.floatValue > variable.m_data.intValue;
         break;
 
-    case VARIABLE_CHAR + VARIABLE_CHAR *VARIABLE_MAX: // ( char ) >= ( char )
+    case VARIABLE_CHAR + VARIABLE_CHAR *VARIABLE_MAX: // ( char ) > ( char )
         type            = VARIABLE_INTEGER;
-        m_data.intValue = m_data.charValue >= variable.m_data.charValue;
+        m_data.intValue = m_data.charValue > variable.m_data.charValue;
         break;
     }
 }
