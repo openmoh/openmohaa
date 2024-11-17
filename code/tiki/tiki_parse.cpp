@@ -1044,7 +1044,7 @@ qboolean TIKI_ParseSetup(dloaddef_t *ld)
             if (*token != '/' && *token != '\\') {
                 Q_strcat(ld->tikiFile.currentScript->path, sizeof(ld->tikiFile.currentScript->path), "/");
             }
-        } else if (!Q_stricmp(token, "orgin")) {
+        } else if (!Q_stricmp(token, "origin")) {
             tmpVec[0] = ld->tikiFile.GetFloat(false);
             tmpVec[1] = ld->tikiFile.GetFloat(false);
             tmpVec[2] = ld->tikiFile.GetFloat(false);
