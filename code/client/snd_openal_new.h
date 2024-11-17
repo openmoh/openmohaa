@@ -29,22 +29,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 typedef int          S32;
 typedef unsigned int U32;
 
-#define MAX_OPENAL_CHANNELS_3D        32
-#define MAX_OPENAL_CHANNELS_2D        32
-#define MAX_OPENAL_CHANNELS_2D_STREAM 32
-#define MAX_OPENAL_POSITION_CHANNELS  (MAX_OPENAL_CHANNELS_3D + MAX_OPENAL_CHANNELS_2D + MAX_OPENAL_CHANNELS_2D_STREAM)
-#define MAX_OPENAL_SONGS              2
-#define MAX_OPENAL_MISC_CHANNELS      3
-#define MAX_OPENAL_CHANNELS                                                                             \
-    (MAX_OPENAL_CHANNELS_3D + MAX_OPENAL_CHANNELS_2D + MAX_OPENAL_CHANNELS_2D_STREAM + MAX_OPENAL_SONGS \
-     + MAX_OPENAL_MISC_CHANNELS)
-#define MAX_OPENAL_LOOP_SOUNDS 64
-
-#define OPENAL_CHANNEL_MP3_ID \
-    (MAX_OPENAL_CHANNELS_3D + MAX_OPENAL_CHANNELS_2D + MAX_OPENAL_CHANNELS_2D_STREAM + MAX_OPENAL_SONGS)
-#define OPENAL_CHANNEL_TRIGGER_MUSIC_ID (OPENAL_CHANNEL_MP3_ID + 1)
-#define OPENAL_CHANNEL_MOVIE_ID         (OPENAL_CHANNEL_TRIGGER_MUSIC_ID + 1)
-
 #define MAX_STREAM_BUFFERS              16
 #define MAX_BUFFER_SAMPLES              16384
 
@@ -189,18 +173,18 @@ struct openal_movie_channel : public openal_channel {
 };
 
 struct openal_internal_t {
-    openal_channel              chan_3D[MAX_OPENAL_CHANNELS_3D];
-    openal_channel              chan_2D[MAX_OPENAL_CHANNELS_2D];
-    openal_channel_two_d_stream chan_2D_stream[MAX_OPENAL_CHANNELS_2D_STREAM];
-    openal_channel_two_d_stream chan_song[MAX_OPENAL_SONGS];
+    openal_channel              chan_3D[MAX_SOUNDSYSTEM_CHANNELS_3D];
+    openal_channel              chan_2D[MAX_SOUNDSYSTEM_CHANNELS_2D];
+    openal_channel_two_d_stream chan_2D_stream[MAX_SOUNDSYSTEM_CHANNELS_2D_STREAM];
+    openal_channel_two_d_stream chan_song[MAX_SOUNDSYSTEM_SONGS];
     openal_channel_two_d_stream chan_mp3;
     openal_channel_two_d_stream chan_trig_music;
     openal_channel_two_d_stream chan_movie;
 
     // Pointers to channels
-    openal_channel *channel[MAX_OPENAL_CHANNELS];
+    openal_channel *channel[MAX_SOUNDSYSTEM_CHANNELS];
 
-    openal_loop_sound_t loop_sounds[MAX_OPENAL_LOOP_SOUNDS];
+    openal_loop_sound_t loop_sounds[MAX_SOUNDSYSTEM_LOOP_SOUNDS];
 
     openal_channel movieChannel;
     sfx_t          movieSFX;

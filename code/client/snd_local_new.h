@@ -36,6 +36,22 @@ extern cvar_t *s_separation;
 extern cvar_t *s_musicVolume;
 extern cvar_t *s_ambientVolume;
 
+#define MAX_SOUNDSYSTEM_CHANNELS_3D        32
+#define MAX_SOUNDSYSTEM_CHANNELS_2D        32
+#define MAX_SOUNDSYSTEM_CHANNELS_2D_STREAM 32
+#define MAX_SOUNDSYSTEM_POSITION_CHANNELS  (MAX_SOUNDSYSTEM_CHANNELS_3D + MAX_SOUNDSYSTEM_CHANNELS_2D + MAX_SOUNDSYSTEM_CHANNELS_2D_STREAM)
+#define MAX_SOUNDSYSTEM_SONGS              2
+#define MAX_SOUNDSYSTEM_MISC_CHANNELS      3
+#define MAX_SOUNDSYSTEM_CHANNELS                                                                             \
+    (MAX_SOUNDSYSTEM_CHANNELS_3D + MAX_SOUNDSYSTEM_CHANNELS_2D + MAX_SOUNDSYSTEM_CHANNELS_2D_STREAM + MAX_SOUNDSYSTEM_SONGS \
+     + MAX_SOUNDSYSTEM_MISC_CHANNELS)
+#define MAX_SOUNDSYSTEM_LOOP_SOUNDS 64
+
+#define SOUNDSYSTEM_CHANNEL_MP3_ID \
+    (MAX_SOUNDSYSTEM_CHANNELS_3D + MAX_SOUNDSYSTEM_CHANNELS_2D + MAX_SOUNDSYSTEM_CHANNELS_2D_STREAM + MAX_SOUNDSYSTEM_SONGS)
+#define SOUNDSYSTEM_CHANNEL_TRIGGER_MUSIC_ID (SOUNDSYSTEM_CHANNEL_MP3_ID + 1)
+#define SOUNDSYSTEM_CHANNEL_MOVIE_ID         (SOUNDSYSTEM_CHANNEL_TRIGGER_MUSIC_ID + 1)
+
 typedef struct {
     int   format;
     float rate;
@@ -134,7 +150,7 @@ typedef struct {
 } channelbasesavegame_t;
 
 typedef struct {
-    channelbasesavegame_t Channels[96];
+    channelbasesavegame_t Channels[MAX_SOUNDSYSTEM_CHANNELS];
 } soundsystemsavegame_t;
 
 enum channel_flags_t {

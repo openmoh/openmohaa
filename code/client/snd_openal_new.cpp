@@ -227,7 +227,7 @@ static void S_OPENAL_NukeContext()
 
     Com_Printf("OpenAL: Destroying channels...\n");
 
-    for (i = 0; i < MAX_OPENAL_CHANNELS; ++i) {
+    for (i = 0; i < MAX_SOUNDSYSTEM_CHANNELS; ++i) {
         S_OPENAL_NukeChannel(openal.channel[i]);
     }
 
@@ -541,11 +541,11 @@ qboolean S_OPENAL_Init()
         return qtrue;
     }
 
-    for (i = 0; i < MAX_OPENAL_CHANNELS; i++) {
+    for (i = 0; i < MAX_SOUNDSYSTEM_CHANNELS; i++) {
         openal.channel[i] = NULL;
     }
 
-    for (i = 0; i < MAX_OPENAL_LOOP_SOUNDS; i++) {
+    for (i = 0; i < MAX_SOUNDSYSTEM_LOOP_SOUNDS; i++) {
         openal.loop_sounds[i] = {};
     }
 
@@ -599,42 +599,42 @@ qboolean S_OPENAL_Init()
     qalListenerf(AL_GAIN, al_current_volume);
     alDieIfError();
 
-    for (i = 0; i < MAX_OPENAL_CHANNELS_3D; i++) {
+    for (i = 0; i < MAX_SOUNDSYSTEM_CHANNELS_3D; i++) {
         if (!S_OPENAL_InitChannel(i, &openal.chan_3D[i])) {
             return false;
         }
     }
 
-    for (i = 0; i < MAX_OPENAL_CHANNELS_2D; i++) {
-        if (!S_OPENAL_InitChannel(i + MAX_OPENAL_CHANNELS_3D, &openal.chan_2D[i])) {
+    for (i = 0; i < MAX_SOUNDSYSTEM_CHANNELS_2D; i++) {
+        if (!S_OPENAL_InitChannel(i + MAX_SOUNDSYSTEM_CHANNELS_3D, &openal.chan_2D[i])) {
             return false;
         }
     }
 
-    for (i = 0; i < MAX_OPENAL_CHANNELS_2D_STREAM; i++) {
-        if (!S_OPENAL_InitChannel(i + MAX_OPENAL_CHANNELS_3D + MAX_OPENAL_CHANNELS_2D, &openal.chan_2D_stream[i])) {
+    for (i = 0; i < MAX_SOUNDSYSTEM_CHANNELS_2D_STREAM; i++) {
+        if (!S_OPENAL_InitChannel(i + MAX_SOUNDSYSTEM_CHANNELS_3D + MAX_SOUNDSYSTEM_CHANNELS_2D, &openal.chan_2D_stream[i])) {
             return false;
         }
     }
 
-    for (i = 0; i < MAX_OPENAL_SONGS; i++) {
+    for (i = 0; i < MAX_SOUNDSYSTEM_SONGS; i++) {
         if (!S_OPENAL_InitChannel(
-                i + MAX_OPENAL_CHANNELS_3D + MAX_OPENAL_CHANNELS_2D + MAX_OPENAL_CHANNELS_2D_STREAM,
+                i + MAX_SOUNDSYSTEM_CHANNELS_3D + MAX_SOUNDSYSTEM_CHANNELS_2D + MAX_SOUNDSYSTEM_CHANNELS_2D_STREAM,
                 &openal.chan_song[i]
             )) {
             return false;
         }
     }
 
-    if (!S_OPENAL_InitChannel(OPENAL_CHANNEL_MP3_ID, &openal.chan_mp3)) {
+    if (!S_OPENAL_InitChannel(SOUNDSYSTEM_CHANNEL_MP3_ID, &openal.chan_mp3)) {
         return false;
     }
 
-    if (!S_OPENAL_InitChannel(OPENAL_CHANNEL_TRIGGER_MUSIC_ID, &openal.chan_trig_music)) {
+    if (!S_OPENAL_InitChannel(SOUNDSYSTEM_CHANNEL_TRIGGER_MUSIC_ID, &openal.chan_trig_music)) {
         return false;
     }
 
-    if (!S_OPENAL_InitChannel(OPENAL_CHANNEL_MOVIE_ID, &openal.chan_movie)) {
+    if (!S_OPENAL_InitChannel(SOUNDSYSTEM_CHANNEL_MOVIE_ID, &openal.chan_movie)) {
         return false;
     }
 
@@ -811,23 +811,23 @@ void S_DumpInfo()
 {
     int i;
 
-    for (i = 0; i < MAX_OPENAL_CHANNELS_3D; i++) {
+    for (i = 0; i < MAX_SOUNDSYSTEM_CHANNELS_3D; i++) {
         S_DumpStatus("3D", i, openal.channel[i]);
     }
 
-    for (i = 0; i < MAX_OPENAL_CHANNELS_2D; i++) {
-        S_DumpStatus("2D", i, openal.channel[MAX_OPENAL_CHANNELS_3D + i]);
+    for (i = 0; i < MAX_SOUNDSYSTEM_CHANNELS_2D; i++) {
+        S_DumpStatus("2D", i, openal.channel[MAX_SOUNDSYSTEM_CHANNELS_3D + i]);
     }
 
-    for (i = 0; i < MAX_OPENAL_CHANNELS_2D_STREAM; i++) {
-        S_DumpStatus("2D stream", i, openal.channel[MAX_OPENAL_CHANNELS_3D + MAX_OPENAL_CHANNELS_2D + i]);
+    for (i = 0; i < MAX_SOUNDSYSTEM_CHANNELS_2D_STREAM; i++) {
+        S_DumpStatus("2D stream", i, openal.channel[MAX_SOUNDSYSTEM_CHANNELS_3D + MAX_SOUNDSYSTEM_CHANNELS_2D + i]);
     }
 
-    for (i = 0; i < MAX_OPENAL_MISC_CHANNELS; i++) {
+    for (i = 0; i < MAX_SOUNDSYSTEM_MISC_CHANNELS; i++) {
         S_DumpStatus(
             "Misc",
             i,
-            openal.channel[MAX_OPENAL_CHANNELS_3D + MAX_OPENAL_CHANNELS_2D + MAX_OPENAL_CHANNELS_2D_STREAM + i]
+            openal.channel[MAX_SOUNDSYSTEM_CHANNELS_3D + MAX_SOUNDSYSTEM_CHANNELS_2D + MAX_SOUNDSYSTEM_CHANNELS_2D_STREAM + i]
         );
     }
 }
@@ -942,7 +942,7 @@ void MUSIC_Pause()
 {
     int i;
 
-    for (i = 0; i < MAX_OPENAL_SONGS; i++) {
+    for (i = 0; i < MAX_SOUNDSYSTEM_SONGS; i++) {
         openal.chan_song[i].pause();
     }
 }
@@ -956,7 +956,7 @@ void MUSIC_Unpause()
 {
     int i;
 
-    for (i = 0; i < MAX_OPENAL_SONGS; i++) {
+    for (i = 0; i < MAX_SOUNDSYSTEM_SONGS; i++) {
         if (openal.chan_song[i].is_paused()) {
             openal.chan_song[i].play();
         }
@@ -978,7 +978,7 @@ void S_PauseSound()
 
     s_bSoundPaused = true;
 
-    for (i = 0; i < MAX_OPENAL_POSITION_CHANNELS; i++) {
+    for (i = 0; i < MAX_SOUNDSYSTEM_POSITION_CHANNELS; i++) {
         openal_channel *pChannel = openal.channel[i];
         if (!pChannel) {
             continue;
@@ -1016,7 +1016,7 @@ void S_UnpauseSound()
         return;
     }
 
-    for (i = 0; i < MAX_OPENAL_POSITION_CHANNELS; i++) {
+    for (i = 0; i < MAX_SOUNDSYSTEM_POSITION_CHANNELS; i++) {
         openal_channel *pChannel = openal.channel[i];
         if (!pChannel) {
             continue;
@@ -1054,7 +1054,7 @@ static qboolean S_OPENAL_ShouldPlay(sfx_t *pSfx)
 
     iRemainingTimesToPlay = sfx_infos[pSfx->sfx_info_index].max_number_playing;
 
-    for (i = 0; i < MAX_OPENAL_POSITION_CHANNELS; i++) {
+    for (i = 0; i < MAX_SOUNDSYSTEM_POSITION_CHANNELS; i++) {
         openal_channel *pChannel = openal.channel[i];
         if (!pChannel) {
             continue;
@@ -1142,7 +1142,7 @@ static int S_OPENAL_PickChannelBase(int iEntNum, int iEntChannel, int iFirstChan
             }
 
             if (!bStoppedChannel) {
-                for (i = iLastChannel + 1; i < MAX_OPENAL_POSITION_CHANNELS; i++) {
+                for (i = iLastChannel + 1; i < MAX_SOUNDSYSTEM_POSITION_CHANNELS; i++) {
                     pChannel = openal.channel[i];
                     if (!pChannel || pChannel->is_free()) {
                         continue;
@@ -1192,7 +1192,7 @@ S_OPENAL_PickChannel3D
 */
 static int S_OPENAL_PickChannel3D(int iEntNum, int iEntChannel)
 {
-    return S_OPENAL_PickChannelBase(iEntNum, iEntChannel, 0, MAX_OPENAL_CHANNELS_3D - 1);
+    return S_OPENAL_PickChannelBase(iEntNum, iEntChannel, 0, MAX_SOUNDSYSTEM_CHANNELS_3D - 1);
 }
 
 /*
@@ -1203,7 +1203,7 @@ S_OPENAL_PickChannel2D
 static int S_OPENAL_PickChannel2D(int iEntNum, int iEntChannel)
 {
     return S_OPENAL_PickChannelBase(
-        iEntNum, iEntChannel, MAX_OPENAL_CHANNELS_3D, MAX_OPENAL_CHANNELS_3D + MAX_OPENAL_CHANNELS_2D - 1
+        iEntNum, iEntChannel, MAX_SOUNDSYSTEM_CHANNELS_3D, MAX_SOUNDSYSTEM_CHANNELS_3D + MAX_SOUNDSYSTEM_CHANNELS_2D - 1
     );
 }
 
@@ -1217,8 +1217,8 @@ static int S_OPENAL_PickChannel2DStreamed(int iEntNum, int iEntChannel)
     return S_OPENAL_PickChannelBase(
         iEntNum,
         iEntChannel,
-        MAX_OPENAL_CHANNELS_3D + MAX_OPENAL_CHANNELS_2D,
-        MAX_OPENAL_CHANNELS_3D + MAX_OPENAL_CHANNELS_2D + MAX_OPENAL_CHANNELS_2D_STREAM - 1
+        MAX_SOUNDSYSTEM_CHANNELS_3D + MAX_SOUNDSYSTEM_CHANNELS_2D,
+        MAX_SOUNDSYSTEM_CHANNELS_3D + MAX_SOUNDSYSTEM_CHANNELS_2D + MAX_SOUNDSYSTEM_CHANNELS_2D_STREAM - 1
     );
 }
 
@@ -1347,7 +1347,7 @@ static void S_OPENAL_Start2DSound(
     pChannel->iStartTime = cl.serverTime;
     pChannel->iEndTime   = (int)(cl.serverTime + pSfx->time_length + 250.f);
 
-    if (iFreeChannel > MAX_OPENAL_CHANNELS_3D + MAX_OPENAL_CHANNELS_2D) {
+    if (iFreeChannel > MAX_SOUNDSYSTEM_CHANNELS_3D + MAX_SOUNDSYSTEM_CHANNELS_2D) {
         // streamed
         if (!pChannel->set_sfx(pSfx)) {
             Com_DPrintf("OpenAL: Set stream error - %s\n", pSfx->name);
@@ -1585,7 +1585,7 @@ void S_OPENAL_AddLoopingSound(
         return;
     }
 
-    for (i = 0; i < (MAX_OPENAL_CHANNELS_3D + MAX_OPENAL_CHANNELS_2D); i++) {
+    for (i = 0; i < (MAX_SOUNDSYSTEM_CHANNELS_3D + MAX_SOUNDSYSTEM_CHANNELS_2D); i++) {
         pLoopSound = &openal.loop_sounds[i];
         if (pLoopSound->pSfx == pSfx && !pLoopSound->bInUse) {
             iFreeLoopSound = i;
@@ -1594,7 +1594,7 @@ void S_OPENAL_AddLoopingSound(
     }
 
     if (iFreeLoopSound < 0) {
-        for (i = 0; i < (MAX_OPENAL_CHANNELS_3D + MAX_OPENAL_CHANNELS_2D); i++) {
+        for (i = 0; i < (MAX_SOUNDSYSTEM_CHANNELS_3D + MAX_SOUNDSYSTEM_CHANNELS_2D); i++) {
             pLoopSound = &openal.loop_sounds[i];
             if (!pLoopSound->pSfx && !pLoopSound->bInUse) {
                 iFreeLoopSound       = i;
@@ -1626,7 +1626,7 @@ void S_OPENAL_AddLoopingSound(
     pLoopSound->bCombine    = VectorCompare(vVelocity, vec_zero) == 0;
 
     if (pLoopSound->bCombine) {
-        for (i = 0; i < (MAX_OPENAL_CHANNELS_3D + MAX_OPENAL_CHANNELS_2D); i++) {
+        for (i = 0; i < (MAX_SOUNDSYSTEM_CHANNELS_3D + MAX_SOUNDSYSTEM_CHANNELS_2D); i++) {
             if (openal.loop_sounds[i].pSfx == pSfx && openal.loop_sounds[i].bInUse) {
                 pLoopSound->iStartTime = openal.loop_sounds[i].iStartTime;
                 if (openal.loop_sounds[i].bPlaying) {
@@ -1655,7 +1655,7 @@ void S_OPENAL_StopLoopingSound(openal_loop_sound_t *pLoopSound)
     bMayStop = true;
 
     if (pLoopSound->bCombine) {
-        for (i = 0; i < (MAX_OPENAL_CHANNELS_3D + MAX_OPENAL_CHANNELS_2D); i++) {
+        for (i = 0; i < (MAX_SOUNDSYSTEM_CHANNELS_3D + MAX_SOUNDSYSTEM_CHANNELS_2D); i++) {
             if (openal.loop_sounds[i].pSfx == pLoopSound->pSfx && openal.loop_sounds[i].bInUse) {
                 bMayStop = false;
                 break;
@@ -1678,7 +1678,7 @@ void S_OPENAL_StopLoopingSound(openal_loop_sound_t *pLoopSound)
     pLoopSound->bPlaying = false;
 
     if (pLoopSound->bCombine) {
-        for (i = 0; i < (MAX_OPENAL_CHANNELS_3D + MAX_OPENAL_CHANNELS_2D); i++) {
+        for (i = 0; i < (MAX_SOUNDSYSTEM_CHANNELS_3D + MAX_SOUNDSYSTEM_CHANNELS_2D); i++) {
             if (openal.loop_sounds[i].pSfx == pLoopSound->pSfx) {
                 openal.loop_sounds[i].bPlaying = false;
                 openal.loop_sounds[i].pSfx     = NULL;
@@ -1696,7 +1696,7 @@ void S_OPENAL_ClearLoopingSounds()
 {
     int i;
 
-    for (i = 0; i < (MAX_OPENAL_CHANNELS_3D + MAX_OPENAL_CHANNELS_2D); i++) {
+    for (i = 0; i < (MAX_SOUNDSYSTEM_CHANNELS_3D + MAX_SOUNDSYSTEM_CHANNELS_2D); i++) {
         openal.loop_sounds[i].bInUse = false;
     }
 }
@@ -1710,7 +1710,7 @@ void S_OPENAL_StopLoopingSounds()
 {
     int i;
 
-    for (i = 0; i < (MAX_OPENAL_CHANNELS_3D + MAX_OPENAL_CHANNELS_2D); i++) {
+    for (i = 0; i < (MAX_SOUNDSYSTEM_CHANNELS_3D + MAX_SOUNDSYSTEM_CHANNELS_2D); i++) {
         openal.loop_sounds[i].bInUse = false;
         S_OPENAL_StopLoopingSound(&openal.loop_sounds[i]);
     }
@@ -1725,7 +1725,7 @@ void S_OPENAL_StopSound(int iEntNum, int iEntChannel)
 {
     int i;
 
-    for (i = 0; i < MAX_OPENAL_POSITION_CHANNELS; i++) {
+    for (i = 0; i < MAX_SOUNDSYSTEM_POSITION_CHANNELS; i++) {
         openal_channel *pChannel = openal.channel[i];
         if (!pChannel->is_free() && pChannel->iEntNum == iEntNum && pChannel->iEntChannel == iEntChannel) {
             pChannel->end_sample();
@@ -1749,7 +1749,7 @@ void S_OPENAL_StopAllSounds(qboolean bStopMusic)
 
     S_OPENAL_StopLoopingSounds();
 
-    for (i = 0; i < MAX_OPENAL_POSITION_CHANNELS; i++) {
+    for (i = 0; i < MAX_SOUNDSYSTEM_POSITION_CHANNELS; i++) {
         openal_channel *pChannel = openal.channel[i];
         if (pChannel) {
             pChannel->force_free();
@@ -1987,13 +1987,13 @@ void S_OPENAL_AddLoopSounds(const vec3_t vTempAxis)
     float                fPitch;
     float                fMaxVolume, fMaxFactor;
     openal_channel      *pChannel;
-    bool                 bAlreadyAdded[MAX_OPENAL_LOOP_SOUNDS] = {false};
+    bool                 bAlreadyAdded[MAX_SOUNDSYSTEM_LOOP_SOUNDS] = {false};
     vec3_t               alvec;
 
     qalGetListenerfv(AL_POSITION, alvec);
     VectorCopy(alvec, vListenerOrigin);
 
-    for (i = 0; i < MAX_OPENAL_LOOP_SOUNDS; i++) {
+    for (i = 0; i < MAX_SOUNDSYSTEM_LOOP_SOUNDS; i++) {
         vec3_t vDir;
 
         if (bAlreadyAdded[i]) {
@@ -2241,7 +2241,7 @@ void S_OPENAL_Respatialize(int iEntNum, const vec3_t vHeadPos, const vec3_t vAxi
     fVolume = 1;
     iPan    = 64;
 
-    for (i = 0; i < MAX_OPENAL_POSITION_CHANNELS; i++) {
+    for (i = 0; i < MAX_SOUNDSYSTEM_POSITION_CHANNELS; i++) {
         pChannel   = openal.channel[i];
         fMaxVolume = S_GetBaseVolume() * pChannel->fVolume;
 
@@ -2262,14 +2262,14 @@ void S_OPENAL_Respatialize(int iEntNum, const vec3_t vHeadPos, const vec3_t vAxi
 
             if (pChannel->iFlags & CHANNEL_FLAG_LOCAL_LISTENER) {
                 VectorCopy(vListenerOrigin, vOrigin);
-                if (i >= MAX_OPENAL_CHANNELS_3D) {
+                if (i >= MAX_SOUNDSYSTEM_CHANNELS_3D) {
                     fVolume = fMaxVolume;
                     iPan    = 64;
                 } else {
                     pChannel->set_position(vOrigin[0], vOrigin[1], vOrigin[2]);
                 }
             } else {
-                if (i >= MAX_OPENAL_CHANNELS_3D) {
+                if (i >= MAX_SOUNDSYSTEM_CHANNELS_3D) {
                     iPan = S_OPENAL_SpatializeStereoSound(vListenerOrigin, vTempAxis, vOrigin);
                     VectorSubtract(vListenerOrigin, vOrigin, vDir);
 
@@ -2288,7 +2288,7 @@ void S_OPENAL_Respatialize(int iEntNum, const vec3_t vHeadPos, const vec3_t vAxi
             }
         } else if (pChannel->iFlags & CHANNEL_FLAG_LOCAL_LISTENER) {
             VectorCopy(vListenerOrigin, vOrigin);
-            if (i >= MAX_OPENAL_CHANNELS_3D) {
+            if (i >= MAX_SOUNDSYSTEM_CHANNELS_3D) {
                 fVolume = fMaxVolume;
                 iPan    = 64;
             } else {
@@ -2324,7 +2324,7 @@ void S_OPENAL_Respatialize(int iEntNum, const vec3_t vHeadPos, const vec3_t vAxi
                 }
             }
 
-            if (i >= MAX_OPENAL_CHANNELS_3D) {
+            if (i >= MAX_SOUNDSYSTEM_CHANNELS_3D) {
                 iPan = S_OPENAL_SpatializeStereoSound(vListenerOrigin, vTempAxis, vOrigin);
                 VectorSubtract(vListenerOrigin, vOrigin, vDir);
                 fDist = VectorLength(vDir);
@@ -2345,7 +2345,7 @@ void S_OPENAL_Respatialize(int iEntNum, const vec3_t vHeadPos, const vec3_t vAxi
             }
         }
 
-        if (i >= MAX_OPENAL_CHANNELS_3D) {
+        if (i >= MAX_SOUNDSYSTEM_CHANNELS_3D) {
             pChannel->set_gain(fVolume);
             pChannel->set_sample_pan(iPan);
         }
@@ -2450,7 +2450,7 @@ void S_OPENAL_Update()
         alDieIfError();
     }
 
-    for (i = 0; i < MAX_OPENAL_POSITION_CHANNELS; i++) {
+    for (i = 0; i < MAX_SOUNDSYSTEM_POSITION_CHANNELS; i++) {
         pChannel = openal.channel[i];
         if (!pChannel) {
             continue;
@@ -2481,7 +2481,7 @@ void S_OPENAL_Update()
     if (s_show_num_active_sounds->integer == 1) {
         int num = 0;
 
-        for (i = 0; i < MAX_OPENAL_POSITION_CHANNELS; i++) {
+        for (i = 0; i < MAX_SOUNDSYSTEM_POSITION_CHANNELS; i++) {
             pChannel = openal.channel[i];
             if (pChannel && pChannel->is_playing()) {
                 ++num;
@@ -2498,7 +2498,7 @@ void S_OPENAL_Update()
         }
     }
 
-    for (i = 0; i < MAX_OPENAL_CHANNELS; i++) {
+    for (i = 0; i < MAX_SOUNDSYSTEM_CHANNELS; i++) {
         openal.channel[i]->update();
     }
 }
@@ -2720,7 +2720,7 @@ void S_SaveData(soundsystemsavegame_t *pSave)
         S_PauseSound();
     }
 
-    for (i = 0; i < MAX_OPENAL_POSITION_CHANNELS; i++) {
+    for (i = 0; i < MAX_SOUNDSYSTEM_POSITION_CHANNELS; i++) {
         S_StoreBase(&pSave->Channels[i], openal.channel[i]);
     }
 
@@ -2744,7 +2744,7 @@ void S_ReLoad(soundsystemsavegame_t *pSave)
         S_PauseSound();
     }
 
-    for (i = 0; i < MAX_OPENAL_POSITION_CHANNELS; i++) {
+    for (i = 0; i < MAX_SOUNDSYSTEM_POSITION_CHANNELS; i++) {
         S_LoadBase(&pSave->Channels[i], openal.channel[i], bSoundWasUnpaused);
     }
 
@@ -2782,7 +2782,7 @@ void S_LoadData(soundsystemsavegame_t *pSave)
 {
     int i;
 
-    for (i = 0; i < MAX_OPENAL_POSITION_CHANNELS; i++) {
+    for (i = 0; i < MAX_SOUNDSYSTEM_POSITION_CHANNELS; i++) {
         S_InitBase(&pSave->Channels[i]);
     }
 }
@@ -3662,7 +3662,7 @@ MUSIC_StopAllSongs
 */
 void MUSIC_StopAllSongs()
 {
-    for (int i = 0; i < MAX_OPENAL_SONGS; i++) {
+    for (int i = 0; i < MAX_SOUNDSYSTEM_SONGS; i++) {
         MUSIC_StopChannel(i);
     }
 
@@ -3768,7 +3768,7 @@ int MUSIC_CurrentSongChannel()
     int channel_number = -1;
     int ch_idx         = 0;
 
-    for (ch_idx = 0; ch_idx < MAX_OPENAL_SONGS; ch_idx++) {
+    for (ch_idx = 0; ch_idx < MAX_SOUNDSYSTEM_SONGS; ch_idx++) {
         if (openal.chan_song[ch_idx].is_playing() && openal.chan_song[ch_idx].song_number == music_currentsong) {
             channel_number = ch_idx;
         }
@@ -3896,7 +3896,7 @@ void MUSIC_UpdateMusicVolumes()
     if (s_ambientVolume->modified || music_volume_changed) {
         s_ambientVolume->modified = false;
 
-        for (i = 0; i < MAX_OPENAL_SONGS; i++) {
+        for (i = 0; i < MAX_SOUNDSYSTEM_SONGS; i++) {
             if (!openal.chan_song[i].is_playing() && !openal.chan_song[i].is_paused()) {
                 continue;
             }
@@ -3912,7 +3912,7 @@ void MUSIC_UpdateMusicVolumes()
         }
     }
 
-    for (i = 0; i < MAX_OPENAL_SONGS; i++) {
+    for (i = 0; i < MAX_SOUNDSYSTEM_SONGS; i++) {
         if (!openal.chan_song[i].is_playing() && !openal.chan_song[i].is_paused()) {
             continue;
         }
@@ -3967,7 +3967,7 @@ void MUSIC_CheckForStoppedSongs()
 {
     int i;
 
-    for (i = 0; i < MAX_OPENAL_SONGS; i++) {
+    for (i = 0; i < MAX_SOUNDSYSTEM_SONGS; i++) {
         if (!openal.chan_song[i].is_playing()) {
             continue;
         }
@@ -4024,7 +4024,7 @@ void S_TriggeredMusic_SetupHandle(const char *pszName, int iLoopCount, int iOffs
     pszFilename = FS_BuildOSPath(Cvar_VariableString("fs_basepath"), FS_Gamedir(), pszRealName);
 
     if (!openal.chan_trig_music.queue_stream(pszRealName)) {
-        S_OPENAL_InitChannel(OPENAL_CHANNEL_TRIGGER_MUSIC_ID, &openal.chan_trig_music);
+        S_OPENAL_InitChannel(SOUNDSYSTEM_CHANNEL_TRIGGER_MUSIC_ID, &openal.chan_trig_music);
         Com_DPrintf("Could not start triggered music '%s'\n", pszName);
         return;
     }
