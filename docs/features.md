@@ -60,10 +60,12 @@ Enable this feature with `set sv_netoptimize 2`.
 - Fixed grenade crash bug
 - Fixed grenade spectator charge bug
 - Fixed `leave_team` bug
-- Fix to prevent being able to spectate while still in the team
+- Fixed memory leaks issues in long matches
+- Fixed sharking issues with ladders
+- Fix to prevent being able to spectate while still in the team with a NULL primary deathmatch weapon
 - Fix to prevent throwing a projectile and going into spectator to kill anyone
 - Fix for `sv_fps` (tickrate), higher values won't cause animation issues anymore
-- Fix for ladders to prevent sharking
+- Grenades with 1 ammo can now be picked up
 - Prevent crashing when the last weapon has no ammo and other weapons are inventory items
 
 ## Planned features
