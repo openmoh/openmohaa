@@ -535,8 +535,8 @@ inline void Weapon::Archive(Archiver& arc)
     arc.ArchiveFloat(&bulletknockback[0]);
     arc.ArchiveFloat(&bulletknockback[1]);
     arc.ArchiveFloat(&bulletthroughwood[0]);
-    arc.ArchiveFloat(&bulletthroughwood[0]);
-    arc.ArchiveFloat(&bulletthroughmetal[1]);
+    arc.ArchiveFloat(&bulletthroughwood[1]);
+    arc.ArchiveFloat(&bulletthroughmetal[0]);
     arc.ArchiveFloat(&bulletthroughmetal[1]);
     arc.ArchiveFloat(&projectilespeed[0]);
     arc.ArchiveFloat(&projectilespeed[1]);
