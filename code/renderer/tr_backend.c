@@ -802,7 +802,7 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 				if ( depthRange ) {
 					qglDepthRange (0, 0.3);
 				} else {
-					qglDepthRange (0, 1.875);
+					qglDepthRange (0, 1.0);
 				}
 				oldDepthRange = depthRange;
 			}
