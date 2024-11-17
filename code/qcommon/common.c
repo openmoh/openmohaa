@@ -1655,8 +1655,8 @@ void Com_Init( char *commandLine ) {
 	// done early so bind command exists
 	CL_InitKeyCommands();
 
-	com_target_game = Cvar_Get("com_target_game", "0", CVAR_LATCH | CVAR_PROTECTED);
-	com_target_demo = Cvar_Get("com_target_demo", "0", CVAR_LATCH | CVAR_PROTECTED);
+	com_target_game = Cvar_Get("com_target_game", "0", CVAR_INIT|CVAR_PROTECTED);
+	com_target_demo = Cvar_Get("com_target_demo", "0", CVAR_INIT|CVAR_PROTECTED);
 	com_target_version = Cvar_Get("com_target_version", "0.00", CVAR_ROM);
 	com_standalone = Cvar_Get("com_standalone", "0", CVAR_ROM);
 	com_basegame = Cvar_Get("com_basegame", BASEGAME, CVAR_INIT);
