@@ -883,7 +883,7 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 	// go back to the world modelview matrix
 	qglLoadMatrixf( backEnd.viewParms.world.modelMatrix );
 	if ( depthRange ) {
-		qglDepthRange (0, 1.875);
+		qglDepthRange (0, 1.0);
 	}
 
 	RB_ShadowFinish();
