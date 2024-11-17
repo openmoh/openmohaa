@@ -3430,6 +3430,15 @@ void Player::DoUse(Event *ev)
         return;
     }
 
+    if (edict->r.svFlags & SVF_NOCLIENT) {
+        // Fixed in OPM
+        //  Clients that are not sent to other clients cannot use objects.
+        //  Some mods make players non-solid, hide them and turn physics off
+        //  as a way to spectate other players or for cinematics.
+        //  This prevent players to use objects such as doors
+        return;
+    }
+
     bWasInTurretOrVehicle = m_pVehicle || m_pTurret;
 
     if (bWasInTurretOrVehicle) {
