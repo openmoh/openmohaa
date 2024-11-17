@@ -2264,6 +2264,11 @@ float BulletAttack(
                     }
 
                     newdamage -= damage * bulletdist * throughThingFrac;
+
+                    if (g_showbullettrace->integer) {
+                        gi.Printf("%.2f\n", newdamage);
+                    }
+                    
                     if (newdamage < 1.f) {
                         vTmpEnd        = vTraceStart + vDir * -4;
                         trace.fraction = 1.f;
