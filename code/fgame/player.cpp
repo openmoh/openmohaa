@@ -10566,6 +10566,12 @@ void Player::EventDMMessage(Event *ev)
             return;
         }
 
+        if (edict->r.svFlags & SVF_NOCLIENT) {
+            // Changed in OPM
+            //  Don't send a voice chat message if the entity is not sent to client
+            return;
+        }
+
         if (!g_instamsg_allowed->integer) {
             // Added in OPM
             return;
