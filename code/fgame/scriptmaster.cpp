@@ -346,7 +346,7 @@ const char *ScriptMaster::ConstStrings[] = {
     "anim/fullbody.scr",
     "salute",
     "sentry",
-    "officier",
+    "officer",
     "rover",
     "none",
     "machinegunner",
