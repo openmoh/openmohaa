@@ -1922,7 +1922,7 @@ void SV_ArchiveHudDrawElements(qboolean loading)
 SV_HudDrawShader
 ==================
 */
-void SV_HudDrawShader(int iInfo, char *name)
+void SV_HudDrawShader(int iInfo, const char *name)
 {
 #ifndef DEDICATED
 	Q_strncpyz(cls.HudDrawElements[iInfo].shaderName, name, sizeof(cls.HudDrawElements[iInfo].shaderName));

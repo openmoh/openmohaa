@@ -45,7 +45,11 @@ void HudDrawShader( int info, const char *name )
 	gi.MSG_StartCGM(BG_MapCGMToProtocol(g_protocol, CGM_HUDDRAW_SHADER));
 	HudWriteNumber( info );		// c = info
 	gi.MSG_WriteString(name);		// s = name (shader_name)
-	gi.MSG_EndCGM();
+    gi.MSG_EndCGM();
+
+    if (g_gametype->integer == GT_SINGLE_PLAYER) {
+        gi.HudDrawShader(info, name);
+    }
 }
 
 void HudDrawAlign( int info, int horizontalAlign, int verticalAlign )
@@ -65,6 +69,10 @@ void HudDrawAlign( int info, int horizontalAlign, int verticalAlign )
 	
 	gi.MSG_EndCGM();
 	
+	if (g_gametype->integer == GT_SINGLE_PLAYER) {
+		gi.HudDrawAlign(info, horizontalAlign, verticalAlign);
+	}
+	
 }
 
 void HudDrawRect(int info, int x, int y, int width, int height)
@@ -77,7 +85,10 @@ void HudDrawRect(int info, int x, int y, int width, int height)
 	gi.MSG_WriteShort(width);		// c = probably "width"
 	gi.MSG_WriteShort(height);		// c = probably "height"
 	gi.MSG_EndCGM();
-	
+
+    if (g_gametype->integer == GT_SINGLE_PLAYER) {
+        gi.HudDrawRect(info, x, y, width, height);
+    }
 }
 
 void HudDrawVirtualSize(int info, int virtualScreen)
@@ -85,20 +96,7 @@ void HudDrawVirtualSize(int info, int virtualScreen)
 	gi.SetBroadcastAll();
 	gi.MSG_StartCGM(BG_MapCGMToProtocol(g_protocol, CGM_HUDDRAW_VIRTUALSIZE));
 	HudWriteNumber( info );					// c = info
-	
-	/*__asm
-	{
-		pushad
-		pushfd
-		mov eax, virtualScreen
-		NEG eax
-		SBB eax, eax
-		NEG eax
-		mov virtualScreen, eax
-		popfd
-		popad
-	}*/
-	
+
 	gi.MSG_WriteBits(!!virtualScreen, 1);	// value = ?	bits = 1
 											// value = esi
 											// esi = virtualScreen
@@ -108,7 +106,10 @@ void HudDrawVirtualSize(int info, int virtualScreen)
 											// call
 	
 	gi.MSG_EndCGM();
-	
+
+    if (g_gametype->integer == GT_SINGLE_PLAYER) {
+        gi.HudDrawVirtualSize(info, virtualScreen);
+    }
 }
 
 void HudDrawColor(int info, float *color)
@@ -125,7 +126,11 @@ void HudDrawColor(int info, float *color)
 	gi.MSG_WriteByte(temp[0]);		// c = color[2]		
 	gi.MSG_WriteByte(temp[1]);		// c = color[1]		 - Values can be messed up. To be tested.
 	gi.MSG_WriteByte(temp[2]);		// c = color[3]		/
-	gi.MSG_EndCGM();
+    gi.MSG_EndCGM();
+
+    if (g_gametype->integer == GT_SINGLE_PLAYER) {
+        gi.HudDrawColor(info, color);
+    }
 
 	// Note: Each float value is multiplied by 255.0 and converted to long using ftol function, thats why it's using WriteByte
 }
@@ -141,6 +146,10 @@ void HudDrawAlpha(int info, float alpha)
 	gi.MSG_WriteByte(temp);		// c = alpha
 	gi.MSG_EndCGM();
 	
+	if (g_gametype->integer == GT_SINGLE_PLAYER) {
+		gi.HudDrawAlpha(info, alpha);
+	}
+
 	// Note: alpha is multiplied by 255.0 and converted to long using ftol function
 	
 }
@@ -153,6 +162,9 @@ void HudDrawString(int info, const char *string)
 	gi.MSG_WriteString(string);	// s = string (to show)
 	gi.MSG_EndCGM();
 
+    if (g_gametype->integer == GT_SINGLE_PLAYER) {
+        gi.HudDrawString(info, string);
+    }
 }
 
 void HudDrawFont(int info, const char *fontName)
@@ -162,7 +174,10 @@ void HudDrawFont(int info, const char *fontName)
 	HudWriteNumber( info );			// c = info
 	gi.MSG_WriteString(fontName);	// s = fontName (to use)
 	gi.MSG_EndCGM();
-	
+
+    if (g_gametype->integer == GT_SINGLE_PLAYER) {
+        gi.HudDrawFont(info, fontName);
+    }
 }
 
 void HudDraw3d( int index, vec3_t vector, int ent_num, qboolean bAlwaysShow, qboolean depth )

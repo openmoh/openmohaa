@@ -470,7 +470,7 @@ typedef struct gameImport_s {
     void (*Key_GetKeysForCommand)(const char *command, int *key1, int *key2);
     void (*ArchiveLevel)(qboolean loading);
     void (*AddSvsTimeFixup)(int *piTime);
-    void (*HudDrawShader)(int info, char *name);
+    void (*HudDrawShader)(int info, const char *name);
     void (*HudDrawAlign)(int info, int horizontalAlign, int verticalAlign);
     void (*HudDrawRect)(int info, int x, int y, int width, int height);
     void (*HudDrawVirtualSize)(int info, qboolean virtualScreen);

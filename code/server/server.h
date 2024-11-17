@@ -437,7 +437,7 @@ void SV_MasterShutdown (void);
 int SV_RateMsec(client_t *client);
 
 void SV_ArchiveHudDrawElements( qboolean loading );
-void SV_HudDrawShader( int iInfo, char *name );
+void SV_HudDrawShader( int iInfo, const char *name );
 void SV_HudDrawAlign( int iInfo, int iHorizontalAlign, int iVerticalAlign );
 void SV_HudDrawRect( int iInfo, int iX, int iY, int iWidth, int iHeight );
 void SV_HudDrawVirtualSize( int iInfo, qboolean bVirtualScreen );
