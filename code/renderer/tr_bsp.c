@@ -506,7 +506,7 @@ void R_UnpackTerraPatch(cTerraPatch_t* pPacked, cTerraPatchUnpacked_t* pUnpacked
     pUnpacked->iSouth = pPacked->iSouth;
     pUnpacked->iWest = pPacked->iWest;
 
-    for (i = 0; i < 63; i++)
+    for (i = 0; i < MAX_TERRAIN_VARNODES; i++)
     {
         flags.v = pPacked->varTree[0][i].flags;
         flags.b[1] &= 7;
@@ -519,14 +519,14 @@ void R_UnpackTerraPatch(cTerraPatch_t* pPacked, cTerraPatchUnpacked_t* pUnpacked
         pUnpacked->varTree[1][i].s.flags = pPacked->varTree[1][i].flags >> 12;
     }
 
-    for (i = 0; i < sizeof(pUnpacked->heightmap) / sizeof(pUnpacked->heightmap[0]); i++) {
+    for (i = 0; i < ARRAY_LEN(pUnpacked->heightmap); i++) {
         pUnpacked->heightmap[i] = pPacked->heightmap[i];
     }
 
     pUnpacked->zmax = 0;
     pUnpacked->flags = pPacked->flags;
 
-    for (i = 0; i < sizeof(pUnpacked->heightmap) / sizeof(pUnpacked->heightmap[0]); i++)
+    for (i = 0; i < ARRAY_LEN(pUnpacked->heightmap); i++)
     {
         if (pUnpacked->zmax < pUnpacked->heightmap[i]) {
             pUnpacked->zmax = pUnpacked->heightmap[i];
