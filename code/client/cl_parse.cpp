@@ -223,13 +223,13 @@ qboolean CL_UnpackNonPVSClient(int* packed, radarUnpacked_t* unpacked) {
 		range = 0;
 	}
 
-	unpacked->x = x * range / 63.f;
-	unpacked->y = y * range / 63.f;
+	unpacked->x = x * range / (MAX_CLIENTS - 1);
+	unpacked->y = y * range / (MAX_CLIENTS - 1);
 
 	if (!bValid)
 	{
-		unpacked->x = x * range / 63.f * 1024;
-		unpacked->y = y * range / 63.f * 1024;
+		unpacked->x = x * range / (MAX_CLIENTS - 1) * 1024.0;
+		unpacked->y = y * range / (MAX_CLIENTS - 1) * 1024.0;
 	}
 
 	unpacked->yaw = yaw * 11.25f;
