@@ -104,8 +104,10 @@ void FilePickerClass::Initialize(
         currentDirectory += "/";
     }
 
-    extension    = ext;
-    ignoredFiles = ignore_files;
+    extension = ext;
+    if (ignore_files) {
+        ignoredFiles = ignore_files;
+    }
 
     SetupFiles();
 }
