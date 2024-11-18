@@ -1,6 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
+Copyright (C) 2024 the OpenMoHAA team
 
 This file is part of Quake III Arena source code.
 
@@ -504,17 +505,17 @@ void R_UnpackTerraPatch(cTerraPatch_t* pPacked, cTerraPatchUnpacked_t* pUnpacked
 
     for (i = 0; i < MAX_TERRAIN_VARNODES; i++)
     {
-        int flags;
+        varnode_t *packedVarTree;
 
-        flags = pPacked->varTree[0][i].flags;
-        pUnpacked->varTree[0][i].fVariance = flags & 0x7FF;
+        packedVarTree = &pPacked->varTree[0][i];
+        pUnpacked->varTree[0][i].fVariance = packedVarTree->flags & 0x7FF;
         pUnpacked->varTree[0][i].flags &= ~0xFF;
-        pUnpacked->varTree[0][i].flags |= (flags >> 12) & 0xFF;
+        pUnpacked->varTree[0][i].flags |= (packedVarTree->flags >> 12) & 0xFF;
 
-        flags = pPacked->varTree[1][i].flags;
-        pUnpacked->varTree[1][i].fVariance = flags & 0x7FF;
+        packedVarTree = &pPacked->varTree[1][i];
+        pUnpacked->varTree[1][i].fVariance = packedVarTree->flags & 0x7FF;
         pUnpacked->varTree[1][i].flags &= ~0xFF;
-        pUnpacked->varTree[1][i].flags |= (flags >> 12) & 0xFF;
+        pUnpacked->varTree[1][i].flags |= (packedVarTree->flags >> 12) & 0xFF;
     }
 
     for (i = 0; i < ARRAY_LEN(pUnpacked->heightmap); i++) {
