@@ -128,10 +128,13 @@ void UIRadar::Draw(void)
 			// make the icon blink
 			if (delta >= 0 && delta < speakTime && ((delta / blinkTime) % 2) == 0) {
 				continue;
+            }
+
+			if (delta < 0 || delta >= speakTime) {
+				radar->lastSpeakTime = 0;
 			}
 		}
 
-		radar->lastSpeakTime = 0;
 		delta[0] = radar->origin[0] - origin[0];
 		delta[1] = radar->origin[1] - origin[1];
 		newOrg[0] = -(delta[0] * axis[0] + delta[1] * axis[1]) * inv;
