@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015-2024 the OpenMoHAA team
+Copyright (C) 2024 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -263,13 +263,14 @@ static int R_ConstChecksForTri(terraTri_t *pTri)
     }
 
     vn = *pTri->varnode;
-    vn.s.flags &= 0xF0u;
+    //vn.s.flags &= 0xF0;
+    vn.flags &= 0xFFFFFFF0;
 
-    if (vn.fVariance == 0.0 && !(pTri->varnode->s.flags & 8)) {
+    if (vn.fVariance == 0.0 && !(pTri->varnode->flags & 8)) {
         return 2;
-    } else if (pTri->varnode->s.flags & 8) {
+    } else if (pTri->varnode->flags & 8) {
         return 3;
-    } else if ((pTri->byConstChecks & 4) && !(pTri->varnode->s.flags & 4) && pTri->lod < ter_maxlod->integer) {
+    } else if ((pTri->byConstChecks & 4) && !(pTri->varnode->flags & 4) && pTri->lod < ter_maxlod->integer) {
         return 0;
     }
 
@@ -457,12 +458,20 @@ R_ForceSplit
 */
 static void R_ForceSplit(terraInt iTri)
 {
-    terraTri_t *pTri = &g_pTris[iTri];
+    terraTri_t    *pTri = &g_pTris[iTri];
+    terraTri_t    *pBase;
+    terrainVert_t *pVert;
+    terraInt       iBase;
+    terraInt       iTriLeft, iTriRight;
+    terraInt       iNewPt;
+    terraInt       iBaseLeft = 0, iBaseRight = 0;
+    terraInt       iNewBasePt;
+    uint32_t       flags, flags2;
 
     g_nSplit++;
 
-    terraInt    iBase = pTri->iBase;
-    terraTri_t *pBase = &g_pTris[iBase];
+    iBase = pTri->iBase;
+    pBase = &g_pTris[iBase];
     if (iBase && pBase->lod != pTri->lod) {
         assert(g_pTris[pTri->iBase].iBase != iTri);
         assert(g_tri.nFree >= 8);
@@ -475,30 +484,30 @@ static void R_ForceSplit(terraInt iTri)
         pBase = &g_pTris[iBase];
     }
 
-    uint8_t flags = pTri->varnode->s.flags;
+    flags = pTri->varnode->flags;
 
-    terraInt iTriLeft  = R_AllocateTri(pTri->patch, (flags & 2));
-    terraInt iTriRight = R_AllocateTri(pTri->patch, (flags & 1));
+    iTriLeft  = R_AllocateTri(pTri->patch, (flags & 2));
+    iTriRight = R_AllocateTri(pTri->patch, (flags & 1));
 
-    terraInt iNewPt = R_AllocateVert(pTri->patch);
+    iNewPt = R_AllocateVert(pTri->patch);
     R_InterpolateVert(pTri, &g_pVert[iNewPt]);
 
     g_pVert[iNewPt].fVariance = pTri->varnode->fVariance;
 
-    terraInt iBaseLeft  = 0;
-    terraInt iBaseRight = 0;
+    iBaseLeft  = 0;
+    iBaseRight = 0;
 
     if (iBase) {
-        uint8_t flags2 = pBase->varnode->s.flags;
+        flags2 = pBase->varnode->flags;
         flags |= flags2;
 
         iBaseLeft  = R_AllocateTri(pBase->patch, (flags2 & 2));
         iBaseRight = R_AllocateTri(pBase->patch, (flags2 & 1));
 
-        terraInt iNewBasePt = iNewPt;
+        iNewBasePt = iNewPt;
         if (pBase->patch != pTri->patch) {
-            iNewBasePt           = R_AllocateVert(pBase->patch);
-            terrainVert_t *pVert = &g_pVert[iNewBasePt];
+            iNewBasePt = R_AllocateVert(pBase->patch);
+            pVert      = &g_pVert[iNewBasePt];
             R_InterpolateVert(pBase, pVert);
 
             pVert->fVariance = g_pVert[iNewPt].fVariance;
@@ -520,7 +529,7 @@ static void R_ForceSplit(terraInt iTri)
     }
 
     if (flags & 8) {
-        terrainVert_t *pVert = &g_pVert[iNewPt];
+        pVert = &g_pVert[iNewPt];
         pVert->fHgtAvg += pVert->fHgtAdd;
         pVert->fHgtAdd   = 0.0;
         pVert->fVariance = 0.0;
@@ -1090,7 +1099,7 @@ static qboolean R_MergeInternalCautious()
         return qfalse;
     }
 
-    if (pTri->varnode->s.flags & 8) {
+    if (pTri->varnode->flags & 8) {
         return qfalse;
     }
 
@@ -1100,7 +1109,7 @@ static qboolean R_MergeInternalCautious()
 
     if (pTri->iBase) {
         pBase = &g_pTris[pTri->iBase];
-        if (pBase->nSplit || (pBase->varnode->s.flags & 8)) {
+        if (pBase->nSplit || (pBase->varnode->flags & 8)) {
             return qfalse;
         }
 

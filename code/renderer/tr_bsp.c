@@ -465,10 +465,6 @@ R_UnpackTerraPatch
 */
 void R_UnpackTerraPatch(cTerraPatch_t* pPacked, cTerraPatchUnpacked_t* pUnpacked) {
     int i, j;
-    union {
-        int16_t v;
-        uint8_t b[2];
-    } flags;
 
     pUnpacked->byDirty = qfalse;
     pUnpacked->visCountCheck = 0;
@@ -508,15 +504,17 @@ void R_UnpackTerraPatch(cTerraPatch_t* pPacked, cTerraPatchUnpacked_t* pUnpacked
 
     for (i = 0; i < MAX_TERRAIN_VARNODES; i++)
     {
-        flags.v = pPacked->varTree[0][i].flags;
-        flags.b[1] &= 7;
-        pUnpacked->varTree[0][i].fVariance = flags.v;
-        pUnpacked->varTree[0][i].s.flags = pPacked->varTree[0][i].flags >> 12;
+        int flags;
 
-        flags.v = pPacked->varTree[1][i].flags;
-        flags.b[1] &= 7;
-        pUnpacked->varTree[1][i].fVariance = flags.v;
-        pUnpacked->varTree[1][i].s.flags = pPacked->varTree[1][i].flags >> 12;
+        flags = pPacked->varTree[0][i].flags;
+        pUnpacked->varTree[0][i].fVariance = flags & 0x7FF;
+        pUnpacked->varTree[0][i].flags &= ~0xFF;
+        pUnpacked->varTree[0][i].flags |= (flags >> 12) & 0xFF;
+
+        flags = pPacked->varTree[1][i].flags;
+        pUnpacked->varTree[1][i].fVariance = flags & 0x7FF;
+        pUnpacked->varTree[1][i].flags &= ~0xFF;
+        pUnpacked->varTree[1][i].flags |= (flags >> 12) & 0xFF;
     }
 
     for (i = 0; i < ARRAY_LEN(pUnpacked->heightmap); i++) {

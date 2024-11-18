@@ -878,10 +878,18 @@ typedef struct {
 
 typedef union varnodeUnpacked_u {
     float fVariance;
-	struct {
+    int flags;
+	/*
+    struct {
+#if !Q3_BIG_ENDIAN
 		byte flags;
-		unsigned char unused[3];
-	} s;
+        unsigned char unused[3];
+#else
+        unsigned char unused[3];
+        byte flags;
+#endif
+    } s;
+	*/
 } varnodeUnpacked_t;
 
 typedef unsigned short terraInt;
