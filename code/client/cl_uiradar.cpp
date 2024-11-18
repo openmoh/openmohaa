@@ -58,7 +58,7 @@ void UIRadar::Draw(void)
 	float inv;
 	float iconSize;
 	int blinkTime, speakTime;
-	float origin[2], axis[2];
+	vec2_t origin, axis;
 	float halfScale;
 	int i;
 
@@ -105,17 +105,17 @@ void UIRadar::Draw(void)
 	halfScale = iconSize * 0.5f;
 
 	for (i = 0; i < MAX_CLIENTS; i++) {
-		float delta[2];
-		float newOrg[2];
-		float screenOrg[2];
-		float length;
+		vec2_t delta;
+		vec2_t newOrg;
+		vec2_t screenOrg;
+		float  length;
 
 		radar = &g_radarClients[i];
 		if (i == g_radarClientNum) {
 			continue;
 		}
 
-		if (!g_radarClients[i].time) {
+		if (!radar->time) {
 			continue;
 		}
 
@@ -143,12 +143,12 @@ void UIRadar::Draw(void)
 
 		if (length > 1)
 		{
-			newOrg[0] = -(delta[0] * axis[0] + delta[1] * axis[1]) * inv * (1.f / length);
-			newOrg[1] = (delta[0] * axis[1] + delta[1] * -axis[0]) * inv * (1.f / length);
+			newOrg[0] *= 1.f / length;
+			newOrg[1] *= 1.f / length;
 		}
 
-		screenOrg[0] = -((halfScale * (1.141f * newOrg[1] + m_vVirtualScale[0])) - ((1.f + newOrg[1]) * 0.5f * m_frame.size.width));
-		screenOrg[1] = -((halfScale * (1.141f * newOrg[0] + m_vVirtualScale[1])) - ((1.f + newOrg[0]) * 0.5f * m_frame.size.height));
+		screenOrg[0] = -((halfScale * (1.414f * newOrg[1] + m_vVirtualScale[0])) - ((1.f + newOrg[1]) * 0.5f * m_frame.size.width));
+		screenOrg[1] = -((halfScale * (1.414f * newOrg[0] + m_vVirtualScale[1])) - ((1.f + newOrg[0]) * 0.5f * m_frame.size.height));
 
 		uii.Rend_DrawPicStretched2(
 			screenOrg[0],
