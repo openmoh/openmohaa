@@ -3141,14 +3141,20 @@ void UIWidget::SetScaleCvar
 
 void UIWidget::SetVirtualScale(vec2_t out)
 {
-    out[0] = uid.vidWidth / 640.0;
-    out[1] = uid.vidHeight / 480.0;
-
     if (m_scaleCvar)
     {
-        out[0] *= m_scaleCvar->value;
-        out[1] *= m_scaleCvar->value;
+        const float vidRatio = (float)uid.vidWidth / (float)uid.vidHeight;
+        const float minHeight = 480;
+        const float minWidth = minHeight * vidRatio;
+
+        out[0] = uid.vidWidth / minWidth * m_scaleCvar->value;
+        out[1] = uid.vidHeight / minHeight * m_scaleCvar->value;
     }
+	else
+    {
+        out[0] = uid.vidWidth / 640.0;
+        out[1] = uid.vidHeight / 480.0;
+	}
 }
 
 void UIWidget::SetDontLocalize(Event* ev)
