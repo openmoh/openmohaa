@@ -56,6 +56,7 @@ const char *CvarGetForUI(const char *name, const char *defval);
 void        UI_ClearState(void);
 void        CL_BeginRegistration(void);
 void        CL_EndRegistration(void);
+float       UI_GetObjectivesTop(void);
 
 //
 // menu

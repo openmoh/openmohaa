@@ -773,6 +773,7 @@ void CL_InitCGameDLL( clientGameImport_t *cgi, clientGameExport_t **cge ) {
 	cgi->UI_ShowMenu				= UI_ShowMenu;
 	cgi->UI_HideMenu				= UI_HideMenu;
 	cgi->UI_FontStringWidth			= CL_FontStringWidth;
+	cgi->UI_GetObjectivesTop		= UI_GetObjectivesTop;
 	cgi->Key_StringToKeynum			= Key_StringToKeynum;
 	cgi->Key_KeynumToBindString		= Key_KeynumToBindString;
 	cgi->Key_GetKeysForCommand		= Key_GetKeysForCommand;

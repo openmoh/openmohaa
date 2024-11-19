@@ -1213,6 +1213,16 @@ static UIRect2D getDefaultDMBoxRectangle(void)
 
 /*
 ====================
+UI_GetObjectivesTop
+====================
+*/
+float UI_GetObjectivesTop(void)
+{
+    return getDefaultGMBoxRectangle().pos.y;
+}
+
+/*
+====================
 UI_ShowHudList
 ====================
 */

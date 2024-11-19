@@ -675,14 +675,17 @@ void CG_DrawObjectives()
 {
     float        vColor[4];
     float        fX, fY;
+    int          iNumObjectives;
+    float        fObjectivesTop;
     static float fWidth;
     float        fHeight;
     int          iNumLines[20];
     int          iTotalNumLines;
     int          i;
-    int          ii;
     int          iCurrentObjective;
     float        fTimeDelta;
+    const char   *pszLocalizedText;
+    const char   *pszLine;
 
     iTotalNumLines = 0;
     for (i = CS_OBJECTIVES; i < CS_OBJECTIVES + MAX_OBJECTIVES; ++i) {
@@ -702,26 +705,30 @@ void CG_DrawObjectives()
         return;
     }
 
-    for (i = 0; i < MAX_OBJECTIVES; i++) {
-        if ((cg.Objectives[i].flags & 0xFFFFFFFE)) {
-            iNumLines[i] = 0;
+    // Added in 2.0
+    //  Get the minimum Y value, it should be below the compass
+    fObjectivesTop = cgi.UI_GetObjectivesTop();
+    iNumObjectives = 0;
 
-            for (ii = 0; ii < MAX_STRING_CHARS; ii++) {
-                if (cg.Objectives[i].text[ii] == '\n') {
-                    iTotalNumLines++;
-                    iNumLines[i]++;
-                } else if (!cg.Objectives[i].text[ii]) {
-                    iTotalNumLines++;
-                    iNumLines[i]++;
-                    break;
-                }
-            }
+    for (i = 0; i < MAX_OBJECTIVES; i++) {
+        if ((cg.Objectives[i].flags == OBJ_FLAG_NONE) || (cg.Objectives[i].flags & OBJ_FLAG_HIDDEN)) {
+            continue;
         }
+
+        iNumObjectives++;
+        iNumLines[i] = 0;
+        pszLocalizedText = cgi.LV_ConvertString(cg.Objectives[i].text);
+        
+        for (pszLine = strchr(pszLocalizedText, '\n'); pszLine; pszLine = strchr(pszLine, '\n')) {
+            iNumLines[i]++;
+        }
+
+        iTotalNumLines += iNumLines[i];
     }
 
     fX        = 25.0;
-    fY        = 125.0;
-    fWidth    = (float)(25 * iTotalNumLines + 155) + 5.0 - 130.0;
+    fY        = fObjectivesTop + 5;
+    fWidth    = (float)(iTotalNumLines * 12 + fObjectivesTop + iNumObjectives * 25 + 32) - fY;
     vColor[2] = 0.2f;
     vColor[1] = 0.2f;
     vColor[0] = 0.2f;
@@ -730,7 +737,7 @@ void CG_DrawObjectives()
     cgi.R_DrawStretchPic(fX, fY, 450.0, fWidth, 0.0, 0.0, 1.0, 1.0, cgs.media.objectivesBackShader);
 
     fX        = 30.0;
-    fY        = 130.0;
+    fY        = fObjectivesTop + 10;
     vColor[0] = 1.0;
     vColor[1] = 1.0;
     vColor[2] = 1.0;
@@ -740,12 +747,12 @@ void CG_DrawObjectives()
     fY = fY + 5.0;
 
     cgi.R_DrawString(cgs.media.objectiveFont, "_______________________________________________________", fX, fY, -1, 0);
-    fHeight = 155.0;
+    fHeight = fObjectivesTop + 35;
 
     for (i = 0; i < MAX_OBJECTIVES; ++i) {
         qhandle_t hBoxShader;
-
-        if ((cg.Objectives[i].flags & OBJ_FLAG_HIDDEN) || !cg.Objectives[i].flags) {
+        
+        if ((cg.Objectives[i].flags == OBJ_FLAG_NONE) || (cg.Objectives[i].flags & OBJ_FLAG_HIDDEN)) {
             continue;
         }
 
@@ -789,7 +796,7 @@ void CG_DrawObjectives()
         cgi.R_SetColor(vColor);
         cgi.R_DrawStretchPic(fX, fY, 16.0, 16.0, 0.0, 0.0, 1.0, 1.0, hBoxShader);
 
-        fHeight += 25 * iNumLines[i];
+        fHeight += iNumLines[i] * 12 + 25;
     }
 }
 

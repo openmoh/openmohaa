@@ -361,6 +361,8 @@ functions exported to the main executable
         void (*UI_ShowMenu)(const char *name, qboolean bForce);
         void (*UI_HideMenu)(const char *name, qboolean bForce);
         int (*UI_FontStringWidth)(fontheader_t *font, const char *string, int maxLen);
+        // Added in 2.0
+        float (*UI_GetObjectivesTop)(void);
 
         int (*Key_StringToKeynum)(const char *str);
         const char *(*Key_KeynumToBindString)(int keyNum);
