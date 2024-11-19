@@ -23,6 +23,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../sys_local.h"
 
 #include <Windows.h>
+#include <dbghelp.h>
+
 #ifdef _MSC_VER
 #  ifdef _DEBUG_MEM
 #    include <crtdbg.h>
@@ -51,6 +53,34 @@ Sys_PrintBackTrace
 ==============
 */
 void Sys_PrintBackTrace() {
+    void* backtrace[128];
+    SYMBOL_INFO* symbol;
+    HANDLE hProcess;
+    unsigned int i;
+    unsigned short frames;
+
+    hProcess = GetCurrentProcess();
+
+    // Initialize the symbol handler
+    SymInitialize(hProcess, NULL, TRUE);
+
+    // Gather the list of frames
+    frames = CaptureStackBackTrace(0, ARRAY_LEN(backtrace), backtrace, NULL);
+    // Allocate a symbol structure to get the name of each symbol
+    // with a maximum of 127 characters per symbol
+    symbol = (SYMBOL_INFO*)malloc(sizeof(SYMBOL_INFO) + 128 * sizeof(char));
+    symbol->MaxNameLen = 127;
+    symbol->SizeOfStruct = sizeof(SYMBOL_INFO);
+
+    for (i = 0; i < frames; i++)
+    {
+        // Try to translate the address to a symbol with a name
+        SymFromAddr(hProcess, (DWORD64)(backtrace[i]), 0, symbol);
+
+        fprintf(stderr, "=> %s[0x%p]\n", symbol->Name, (void*)symbol->Address);
+    }
+
+    free(symbol);
 }
 
 /*

@@ -49,14 +49,18 @@ Sys_PrintBackTrace
 ==================
 */
 void Sys_PrintBackTrace() {
-    void* backtrace_arr[64];
+    void* backtrace_arr[128];
+    char** backtrace_symbols_arr;
     size_t backtrace_size;
+    size_t i;
 
-    printf("----\nBacktrace:\n");
-    // get void*'s for all entries on the stack
-    backtrace_size = backtrace(backtrace_arr, sizeof(backtrace_arr) / sizeof(backtrace_arr[0]));
-    backtrace_symbols_fd(backtrace_arr, backtrace_size, STDERR_FILENO);
-    printf("----\n");
+    // Fetch the backtrace starting from the current function
+    backtrace_size = backtrace(backtrace_arr, ARRAY_LEN(backtrace_arr));
+    backtrace_symbols_arr = backtrace_symbols(backtrace_arr, ARRAY_LEN(backtrace_arr));
+
+    for (i = 0; i < backtrace_size; i++) {
+        fprintf(stderr, "=> %s\n", backtrace_symbols_arr[i]);
+    }
 }
 
 /*

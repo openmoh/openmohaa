@@ -715,7 +715,7 @@ char *Sys_ParseProtocolUri( const char *uri )
 Sys_SigHandler
 =================
 */
-void Sys_SigHandler( int signal )
+void Sys_SigHandler( int signum )
 {
 	static qboolean signalcaught = qfalse;
 
@@ -727,7 +727,13 @@ void Sys_SigHandler( int signal )
 	else
 	{
 		signalcaught = qtrue;
-		Sys_PrintBackTrace();
+
+        printf("----\nBacktrace:\n");
+        Sys_PrintBackTrace();
+        printf("----\n");
+		// Call the default signal handler to generate a core dump
+		SIG_DFL(signum);
+
 		VM_Forced_Unload_Start();
 #ifndef DEDICATED
 		CL_Shutdown(va("Received signal %d", signal), qtrue, qtrue);
