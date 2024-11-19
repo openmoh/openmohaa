@@ -3725,36 +3725,34 @@ void CL_ServerInfoPacket( netadr_t from, msg_t *msg ) {
 		return;
 	}
 
-	if (!com_target_demo->integer && prot == protocol_version_demo) {
+	if (!com_target_demo->integer && protocol_version_demo != protocol_version_full && prot == protocol_version_demo) {
 		Com_DPrintf("Full version found compatible demo protocol version. %s\n", infoString);
 	}
 
     pszVersion = Info_ValueForKey(infoString, "gamever");
     pszServerType = Info_ValueForKey(infoString, "serverType");
 
-	if (!*pszVersion) {
-		return;
-	}
-
-	if (*pszVersion == 'd') {
-		pszVersion++;
-	}
-
-    if (com_target_game->integer >= target_game_e::TG_MOHTT) {
-        if (atoi(pszServerType) == target_game_e::TG_MOHTT) {
-            if (fabs(atof(pszVersion)) < 2.3f) {
-				return;
-            }
-        } else {
-            if (fabs(atof(pszVersion)) < 2.1f) {
-				return;
-            }
+    if (*pszVersion) {
+        if (*pszVersion == 'd') {
+            pszVersion++;
         }
-    } else {
-        if (fabs(atof(pszVersion) - com_target_version->value) > 0.1f) {
-			return;
-        }
-    }
+
+		if (com_target_game->integer >= target_game_e::TG_MOHTT) {
+			if (atoi(pszServerType) == target_game_e::TG_MOHTT) {
+				if (fabs(atof(pszVersion)) < 2.3f) {
+					return;
+				}
+			} else {
+				if (fabs(atof(pszVersion)) < 2.1f) {
+					return;
+				}
+			}
+		} else {
+			if (fabs(atof(pszVersion) - com_target_version->value) > 0.1f) {
+				return;
+			}
+		}
+	}
 
 	// iterate servers waiting for ping response
 	for (i=0; i<MAX_PINGREQUESTS; i++)
