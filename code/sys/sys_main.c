@@ -722,7 +722,7 @@ void Sys_SigHandler( int signum )
 	if( signalcaught )
 	{
 		fprintf( stderr, "DOUBLE SIGNAL FAULT: Received signal %d, exiting...\n",
-			signal );
+			signum );
 	}
 	else
 	{
@@ -731,18 +731,22 @@ void Sys_SigHandler( int signum )
         printf("----\nBacktrace:\n");
         Sys_PrintBackTrace();
         printf("----\n");
-		// Call the default signal handler to generate a core dump
-		SIG_DFL(signum);
+
+		//
+		// Abort to generate a core dump and exit
+		//
+		signal(SIGABRT, SIG_DFL);
+		abort();
 
 		VM_Forced_Unload_Start();
 #ifndef DEDICATED
-		CL_Shutdown(va("Received signal %d", signal), qtrue, qtrue);
+		CL_Shutdown(va("Received signal %d", signum), qtrue, qtrue);
 #endif
-		SV_Shutdown(va("Received signal %d", signal) );
+		SV_Shutdown(va("Received signal %d", signum) );
 		VM_Forced_Unload_Done();
 	}
 
-	if( signal == SIGTERM || signal == SIGINT )
+	if( signum == SIGTERM || signum == SIGINT )
 		Sys_Exit( 1 );
 	else
 		Sys_Exit( 2 );
