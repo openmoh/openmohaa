@@ -3832,7 +3832,13 @@ void UI_ResolutionChange(void)
 {
     UIRect2D frame;
 
-    ui_compass_scale = Cvar_Get("ui_compass_scale", "0.75", CVAR_ARCHIVE | CVAR_LATCH);
+    if (com_target_game->integer >= TG_MOHTA) {
+        ui_compass_scale = Cvar_Get("ui_compass_scale", "0.75", CVAR_ARCHIVE | CVAR_LATCH);
+    } else {
+        // Older version doesn't have an adjustable compass, so assume 0.5 by default
+        ui_compass_scale = Cvar_Get("ui_compass_scale", "0.5", CVAR_ARCHIVE | CVAR_LATCH);
+    }
+
     CL_FillUIImports();
     CL_FillUIDef();
 
@@ -5446,7 +5452,6 @@ UI_EndLoadResource
 void UI_EndLoadResource(void)
 {
     clock_t time;
-    int     i;
 
     time = clock() - (((clock_t)startCountHigh << 32) | startCountLow) + (((clock_t)loadCountHigh << 32) | loadCountLow);
 
