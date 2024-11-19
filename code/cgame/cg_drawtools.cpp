@@ -719,7 +719,7 @@ void CG_DrawObjectives()
         iNumLines[i] = 0;
         pszLocalizedText = cgi.LV_ConvertString(cg.Objectives[i].text);
         
-        for (pszLine = strchr(pszLocalizedText, '\n'); pszLine; pszLine = strchr(pszLine, '\n')) {
+        for (pszLine = strchr(pszLocalizedText, '\n'); pszLine; pszLine = strchr(pszLine + 1, '\n')) {
             iNumLines[i]++;
         }
 
