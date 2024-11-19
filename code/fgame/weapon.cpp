@@ -2427,13 +2427,6 @@ qboolean Weapon::Drop(void)
         }
     }
 
-    if (!startammo[FIRE_PRIMARY] && !startammo[FIRE_SECONDARY]) {
-        // Fixed in OPM
-        //  Don't drop the weapon at all if it has no ammo
-        PostEvent(EV_Remove, 0);
-        return false;
-    }
-
     // Wait some time before the last owner can pickup this weapon
     last_owner              = owner;
     last_owner_trigger_time = level.time + 2.0f;
@@ -3006,6 +2999,16 @@ void Weapon::PickupWeapon(Event *ev)
             startammo[FIRE_SECONDARY] = 0;
         }
 
+        iGiveAmmo = ammo_in_clip[FIRE_PRIMARY] + startammo[FIRE_PRIMARY];
+
+        if (!iGiveAmmo && !startammo[FIRE_SECONDARY]) {
+            // Fixed in OPM
+            //  Don't let the sentient pick the ammo up if it already has the weapon in inventory
+            //  and the player would get no ammo.
+            //  This can only be picked up as a new weapon.
+            return;
+        }
+
         setSolidType(SOLID_NOT);
         hideModel();
 
@@ -3017,12 +3020,9 @@ void Weapon::PickupWeapon(Event *ev)
 
         if (Respawnable()) {
             PostEvent(EV_Item_Respawn, 0);
-        }
-        else {
+        } else {
             PostEvent(EV_Remove, 0);
         }
-
-        iGiveAmmo = ammo_in_clip[FIRE_PRIMARY] + startammo[FIRE_PRIMARY];
 
         Sound(m_sAmmoPickupSound);
     }
@@ -3032,18 +3032,6 @@ void Weapon::PickupWeapon(Event *ev)
         const str& sAmmoType = ammo_type[FIRE_PRIMARY];
 
         sen->GiveAmmo(sAmmoType, iGiveAmmo);
-
-        /*
-        if (!g_gametype->integer && other->IsSubclassOfPlayer()) {
-            if (!sAmmoType.icmp("agrenade")) {
-                if (iGiveAmmo == 1) {
-                    sMessage = gi.LV_ConvertString("Got 1 Grenade");
-                } else {
-                    sMessage = gi.LV_ConvertString(va("Got %i Grenades", iGiveAmmo));
-                }
-            }
-        }
-        */
 
         if (!sAmmoType.icmp("grenade") || !sAmmoType.icmp("agrenade")) {
             if (iGiveAmmo == 1) {
@@ -3066,18 +3054,6 @@ void Weapon::PickupWeapon(Event *ev)
             iGiveAmmo = startammo[FIRE_SECONDARY];
 
             sen->GiveAmmo(sAmmoType, iGiveAmmo);
-
-            /*
-            if (!g_gametype->integer && other->IsSubclassOfPlayer()) {
-                if (!sAmmoType.icmp("agrenade")) {
-                    if (iGiveAmmo == 1) {
-                        sMessage = gi.LV_ConvertString("Got 1 Grenade");
-                    } else {
-                        sMessage = gi.LV_ConvertString(va("Got %i Grenades", iGiveAmmo));
-                    }
-                }
-            }
-            */
 
             if (!sAmmoType.icmp("grenade") || !sAmmoType.icmp("agrenade")) {
                 if (iGiveAmmo == 1) {
