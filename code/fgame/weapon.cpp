@@ -1887,7 +1887,9 @@ void Weapon::Shoot(Event *ev)
                     vSpread = (bulletspreadmax[mode] + bulletspread[mode]) * 0.5f;
                 }
 
-                if (!g_gametype->integer && owner && owner->IsSubclassOfPlayer()) {
+                // Don't display tracers if the owner is a player for non-turret weapons
+                // It would have some artifacts for the first person model, as the tracer is created from the world model
+                if ((g_target_game == TG_MOH || g_gametype->integer == GT_SINGLE_PLAYER) && owner && owner->IsSubclassOfPlayer()) {
                     if (IsSubclassOfTurretGun()) {
                         tracerFrequency = 3;
                     } else {
