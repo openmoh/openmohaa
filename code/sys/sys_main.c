@@ -732,11 +732,13 @@ void Sys_SigHandler( int signum )
         Sys_PrintBackTrace();
         printf("----\n");
 
-		//
-		// Abort to generate a core dump and exit
-		//
-		signal(SIGABRT, SIG_DFL);
-		abort();
+		if (signum != SIGTERM && signum != SIGINT) {
+			//
+			// Abort to generate a core dump and exit
+			//
+			signal(SIGABRT, SIG_DFL);
+			abort();
+		}
 
 		VM_Forced_Unload_Start();
 #ifndef DEDICATED
