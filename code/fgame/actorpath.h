@@ -105,8 +105,8 @@ public:
 
 inline void ActorPath::Archive(Archiver& arc)
 {
-    int pos;
-    int startpathpos;
+    int index;
+    int i;
 
     arc.ArchiveInteger(&m_pathlen);
 
@@ -115,42 +115,40 @@ inline void ActorPath::Archive(Archiver& arc)
             m_path = new PathInfo[m_pathlen];
         }
 
-        if (m_pathlen > 0) {
-            for (int i = 0; i < m_pathlen; i++) {
-                m_path->Archive(arc);
-            }
+        for (i = 0; i < m_pathlen; i++) {
+            m_path[i].Archive(arc);
         }
 
         if (!arc.Saving()) {
-            arc.ArchiveInteger(&pos);
-            if (pos == -1) {
+            arc.ArchiveInteger(&index);
+            if (index == -1) {
                 m_pathpos = NULL;
             } else {
-                m_pathpos = &m_path[pos];
+                m_pathpos = &m_path[index];
             }
 
-            arc.ArchiveInteger(&startpathpos);
-            if (startpathpos == -1) {
+            arc.ArchiveInteger(&index);
+            if (index == -1) {
                 m_startpathpos = NULL;
             } else {
-                m_startpathpos = &m_path[pos];
+                m_startpathpos = &m_path[index];
             }
         } else {
             if (m_pathpos) {
-                pos = m_pathpos - m_path;
+                index = m_pathpos - m_path;
             } else {
-                pos = -1;
+                index = -1;
             }
 
-            arc.ArchiveInteger(&pos);
+            arc.ArchiveInteger(&index);
 
             if (m_startpathpos) {
-                pos = m_startpathpos - m_path;
+                index = m_startpathpos - m_path;
             } else {
-                pos = -1;
+                index = -1;
             }
 
-            arc.ArchiveInteger(&pos);
+            arc.ArchiveInteger(&index);
         }
     } else if (arc.Loading()) {
         m_pathpos = 0;
