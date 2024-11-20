@@ -145,7 +145,7 @@ INSTALL(TARGETS omohaaded DESTINATION "./")
 
 if (NOT BUILD_NO_CLIENT)
 	## Client app
-	
+
 	add_subdirectory("code/client")
 	add_subdirectory("code/renderer")
 	add_subdirectory("code/sdl")
@@ -166,6 +166,40 @@ if (NOT BUILD_NO_CLIENT)
 	target_include_directories(openmohaa PUBLIC "code/qcommon" "code/script" "code/gamespy" "code/server" "code/client" "code/uilib")
 	set_target_properties(openmohaa PROPERTIES OUTPUT_NAME "openmohaa${TARGET_BIN_SUFFIX}")
 	set_target_properties(openmohaa PROPERTIES DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX})
+
+	if(UNIX AND NOT APPLE)
+
+		set(TARGET_ARCH ${TARGET_BIN_SUFFIX})
+
+		# Configure the .desktop entries with the arch suffix
+		configure_file(
+			misc/linux/org.openmoh.openmohaa.desktop.in
+			${CMAKE_BINARY_DIR}/misc/linux/org.openmoh.openmohaa.desktop
+			@ONLY
+		)
+		configure_file(
+			misc/linux/org.openmoh.openmohaab.desktop.in
+			${CMAKE_BINARY_DIR}/misc/linux/org.openmoh.openmohaab.desktop
+			@ONLY
+		)
+		configure_file(
+			misc/linux/org.openmoh.openmohaas.desktop.in
+			${CMAKE_BINARY_DIR}/misc/linux/org.openmoh.openmohaas.desktop
+			@ONLY
+		)
+
+		# Set destination directory for .desktop files
+		set(DESKTOP_INSTALL_DIR ${CMAKE_INSTALL_PREFIX}/share/applications)
+
+		# Install .desktop entries
+		install(FILES ${CMAKE_BINARY_DIR}/misc/linux/org.openmoh.openmohaa.desktop DESTINATION ${DESKTOP_INSTALL_DIR})
+		install(FILES ${CMAKE_BINARY_DIR}/misc/linux/org.openmoh.openmohaab.desktop DESTINATION ${DESKTOP_INSTALL_DIR})
+		install(FILES ${CMAKE_BINARY_DIR}/misc/linux/org.openmoh.openmohaas.desktop DESTINATION ${DESKTOP_INSTALL_DIR})
+
+		install(FILES misc/linux/org.openmoh.openmohaa.metainfo.xml DESTINATION share/metainfo)
+
+		install(FILES misc/openmohaa.svg DESTINATION share/icons/hicolor/symbolic/apps/ RENAME org.openmoh.openmohaa.svg)
+	endif()
 
 	if(USE_INTERNAL_JPEG)
 		target_include_directories(openmohaa PUBLIC "code/jpeg-8c")

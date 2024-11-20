@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>org.openmoh.openmohaa</id>
+
+  <name>OpenMoHAA</name>
+  <summary>An open-source game engine compatible with Medal of Honor: Allied Assault and its expansions (Spearhead and Breakthrough)</summary>
+
+  <metadata_license>FSFAP</metadata_license>
+  <project_license>GPL-2.0-or-later</project_license>
+
+  <description>
+    <p>
+      The main goal of OpenMoHAA is to ensure the future and continuity of Medal of Honor: Allied Assault. It has always been a dream in the community to provide patches and security fixes for the game. Thanks to the ioquake3 project, F.A.K.K SDK and other quality tools, OpenMoHAA has already reached more than half of its goal: to create an open-source version of MoH:AA (based on version 2.40) that is fully compatible with the original game (in terms of protocol, assets, and scripts).
+    </p>
+  </description>
+
+  <launchable type="desktop-id">org.openmoh.openmohaa.desktop</launchable>
+  <screenshots>
+    <screenshot type="default">
+      <image>https://github.com/openmoh/openmohaa/blob/main/docs/images/v0.60.0-x86_64/mohdm1_1.png?raw=true</image>
+      <caption>Shows a smoke being deployed during multiplayer gameplay</caption>
+    </screenshot>
+    <screenshot>
+      <image>https://github.com/openmoh/openmohaa/blob/main/docs/images/v0.60.0-x86_64/flughafen_1.png?raw=true</image>
+      <caption>Shows a turret firing during multiplayer gameplay</caption>
+    </screenshot>
+    <screenshot>
+      <image>https://github.com/openmoh/openmohaa/blob/main/docs/images/v0.60.0-x86_64/flughafen_3.png?raw=true</image>
+      <caption>Shows a mortar firing during multiplayer gameplay</caption>
+    </screenshot>
+  </screenshots>
+
+  <content_rating type="oars-1.0">
+    <content_attribute id="violence-realistic">moderate</content_attribute>
+    <content_attribute id="social-chat">moderate</content_attribute>
+    <content_attribute id="social-audio">intense</content_attribute>
+  </content_rating>
+</component>
