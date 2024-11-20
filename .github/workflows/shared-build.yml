@@ -139,8 +139,11 @@ jobs:
       run: |
         cmake --install ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
         # Copy libraries
-        cp -l ${{steps.sdl.outputs.prefix}}/lib/libSDL2-2.0.so.0 '${{github.workspace}}/install/'
-        cp -l ${{github.workspace}}/thirdparties/soft-oal/install/lib/libopenal.so.1 '${{github.workspace}}/install/'
+        mkdir ${{github.workspace}}/package
+        cp -l ${{steps.sdl.outputs.prefix}}/lib/libSDL2-2.0.so.0 '${{github.workspace}}/package/'
+        cp -l ${{github.workspace}}/thirdparties/soft-oal/install/lib/libopenal.so.1 '${{github.workspace}}/package/'
+        if [ -d ${{github.workspace}}/install/bin ]; then cp -r ${{github.workspace}}/install/bin/. '${{github.workspace}}/package'; fi
+        if [ -d ${{github.workspace}}/install/lib ]; then cp -r ${{github.workspace}}/install/lib/. '${{github.workspace}}/package'; fi
 
     ###
     # Artifacts
@@ -151,7 +154,7 @@ jobs:
         name: out-linux-${{matrix.architecture.name}}
         if-no-files-found: error
         path:
-          ${{github.workspace}}/install
+          ${{github.workspace}}/package
 
   ##########################
   #
@@ -306,8 +309,11 @@ jobs:
       # Install to the directory defined in CMAKE_INSTALL_PREFIX
       run: |
         cmake --install ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
-        Copy-Item '${{steps.sdl.outputs.prefix}}/bin/*.dll' -Destination '${{github.workspace}}/install'
-        Copy-Item '${{github.workspace}}/thirdparties/soft-oal/install/bin/*.dll' -Destination '${{github.workspace}}/install'
+        New-Item -ItemType Directory '${{github.workspace}}/package'
+        Copy-Item '${{steps.sdl.outputs.prefix}}/bin/*.dll' -Destination '${{github.workspace}}/package'
+        Copy-Item '${{github.workspace}}/thirdparties/soft-oal/install/bin/*.dll' -Destination '${{github.workspace}}/package'
+        if (Test-Path ${{github.workspace}}/install/bin) { Copy-Item '${{github.workspace}}/install/bin/*' -Include '*.dll','*.exe' -Destination '${{github.workspace}}/package' }
+        if (Test-Path ${{github.workspace}}/install/lib) { Copy-Item '${{github.workspace}}/install/lib/*' -Include '*.dll','*.exe' -Destination '${{github.workspace}}/package' }
 
     ###
     # Artifact
@@ -318,15 +324,15 @@ jobs:
         name: out-windows-${{matrix.architecture.name}}
         if-no-files-found: error
         path: |
-          ${{github.workspace}}/install
-          !${{github.workspace}}/install/**/*.pdb
+          ${{github.workspace}}/package
+          !${{github.workspace}}/package/**/*.pdb
 
     - uses: actions/upload-artifact@v4
       with:
         name: out-windows-${{matrix.architecture.name}}-pdb
         if-no-files-found: error
         path: |
-          ${{github.workspace}}/install
+          ${{github.workspace}}/package
 
   ##########################
   #
@@ -447,8 +453,11 @@ jobs:
       run: |
         cmake --install ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
         # Create hard-link and copy symbolic links
-        cp -l ${{steps.sdl.outputs.prefix}}/lib/libSDL2-2.0.0.dylib '${{github.workspace}}/install/'
-        cp -l ${{github.workspace}}/thirdparties/soft-oal/install/lib/libopenal.1.dylib '${{github.workspace}}/install/'
+        mkdir ${{github.workspace}}/package
+        cp -l ${{steps.sdl.outputs.prefix}}/lib/libSDL2-2.0.0.dylib '${{github.workspace}}/package/'
+        cp -l ${{github.workspace}}/thirdparties/soft-oal/install/lib/libopenal.1.dylib '${{github.workspace}}/package/'
+        if [ -d ${{github.workspace}}/install/bin ]; then cp -r ${{github.workspace}}/install/bin/. '${{github.workspace}}/package'; fi
+        if [ -d ${{github.workspace}}/install/lib ]; then cp -r ${{github.workspace}}/install/lib/. '${{github.workspace}}/package'; fi
 
     ###
     # Artifacts
@@ -459,4 +468,4 @@ jobs:
         name: out-macos-${{matrix.architecture.name}}
         if-no-files-found: error
         path:
-          ${{github.workspace}}/install
+          ${{github.workspace}}/package

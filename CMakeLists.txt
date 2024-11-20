@@ -14,6 +14,10 @@ option(USE_INTERNAL_JPEG "If set, use bundled libjpeg." ${USE_INTERNAL_LIBS})
 option(USE_INTERNAL_MAD  "If set, use bundled libmad."  ${USE_INTERNAL_LIBS})
 option(USE_INTERNAL_ZLIB "If set, use bundled zlib."    ${USE_INTERNAL_LIBS})
 
+# Installation directory
+set(CMAKE_INSTALL_BINDIR bin CACHE PATH "Binary dir")
+set(CMAKE_INSTALL_LIBDIR ${CMAKE_INSTALL_BINDIR} CACHE PATH "Library dir")
+include(GNUInstallDirs)
 
 if(TARGET_GAME_TYPE)
 	message(SEND_ERROR "TARGET_GAME_TYPE is now unsupported, it is now done at runtime.")
@@ -138,10 +142,10 @@ set_target_properties(omohaaded PROPERTIES DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX})
 
 if (MSVC)
 	target_link_options(omohaaded PRIVATE "/MANIFEST:NO")
-	INSTALL(FILES $<TARGET_PDB_FILE:omohaaded> DESTINATION "./" OPTIONAL)
+	INSTALL(FILES $<TARGET_PDB_FILE:omohaaded> DESTINATION bin OPTIONAL)
 endif()
 
-INSTALL(TARGETS omohaaded DESTINATION "./")
+INSTALL(TARGETS omohaaded)
 
 if (NOT BUILD_NO_CLIENT)
 	## Client app
@@ -212,10 +216,10 @@ if (NOT BUILD_NO_CLIENT)
 
 	if (MSVC)
 		target_link_options(openmohaa PRIVATE "/MANIFEST:NO")
-		INSTALL(FILES $<TARGET_PDB_FILE:openmohaa> DESTINATION "./" OPTIONAL)
+		INSTALL(FILES $<TARGET_PDB_FILE:openmohaa> DESTINATION bin OPTIONAL)
 	endif()
 
-	INSTALL(TARGETS openmohaa DESTINATION "./")
+	INSTALL(TARGETS openmohaa)
 endif()
 
 # Launcher

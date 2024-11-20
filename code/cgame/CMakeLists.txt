@@ -27,16 +27,11 @@ target_compile_features(cgame PUBLIC cxx_nullptr)
 target_compile_features(cgame PUBLIC c_variadic_macros)
 target_link_libraries(cgame PUBLIC qcommon)
 
-set_target_properties(cgame PROPERTIES PREFIX "${TARGET_PLATFORM_PREFIX}")
+set_target_properties(cgame PROPERTIES PREFIX "")
 set_target_properties(cgame PROPERTIES OUTPUT_NAME "cgame${TARGET_BIN_SUFFIX}")
-set_target_properties(cgame PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${TARGET_BASE_GAME}")
 
-INSTALL(
-	TARGETS cgame
-	LIBRARY DESTINATION "${TARGET_BASE_GAME}"
-	RUNTIME DESTINATION "${TARGET_BASE_GAME}"
-)
+INSTALL(TARGETS cgame)
 
 if(MSVC)
-	INSTALL(FILES $<TARGET_PDB_FILE:cgame> DESTINATION "${TARGET_BASE_GAME}" OPTIONAL)
+	INSTALL(FILES $<TARGET_PDB_FILE:cgame> DESTINATION bin OPTIONAL)
 endif()

@@ -18,7 +18,7 @@ function (create_launcher name type)
     target_compile_features(openmohaa_launcher_${name} PRIVATE cxx_std_17)
     set_target_properties(openmohaa_launcher_${name} PROPERTIES OUTPUT_NAME "launch_openmohaa_${name}${TARGET_BIN_SUFFIX}")
 
-    INSTALL(TARGETS openmohaa_launcher_${name} DESTINATION "./")
+    INSTALL(TARGETS openmohaa_launcher_${name})
 
     #add_executable(omohaaded_launcher_${name} ${LAUNCHER_SOURCES})
     #target_include_directories(omohaaded_launcher_${name} PUBLIC "../qcommon")
@@ -26,7 +26,7 @@ function (create_launcher name type)
     #target_compile_features(omohaaded_launcher_${name} PRIVATE cxx_std_17)
     #set_target_properties(omohaaded_launcher_${name} PROPERTIES OUTPUT_NAME "launch_omohaaded_${name}${TARGET_BIN_SUFFIX}")
     #
-    #INSTALL(TARGETS omohaaded_launcher_${name} DESTINATION "./")
+    #INSTALL(TARGETS omohaaded_launcher_${name})
 endfunction()
 
 create_launcher(base 0)
