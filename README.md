@@ -10,7 +10,7 @@
 
 ## Intro
 
-The main goal of OpenMoHAA is to ensure the future and continuity of **Medal of Honor: Allied Assault**. It has always been a dream in the community to provide patches and security fixes for the game. Thanks to the ioquake3 project, F.A.K.K SDK and other quality tools, OpenMoHAA has already reached more than half of its goal: to create an open-source version of MoH:AA (based on version 2.40) that is fully compatible with the original game (in terms of protocol, assets, and scripts).
+The main goal of OpenMoHAA is to ensure the future and continuity of **Medal of Honor: Allied Assault** on all platforms/architectures by providing new patches/features. Thanks to the ioquake3 project and the F.A.K.K SDK, OpenMoHAA has already reached more than half of its goal: an open-source version of MoH:AA (based on version 2.40) that is fully compatible with the original game (in terms of protocol, assets, and scripts).
 
 ## Getting started
 
@@ -22,7 +22,7 @@ The main goal of OpenMoHAA is to ensure the future and continuity of **Medal of 
 
 ### Single-player
 
-The entire single-player campaign can be played from start to end. There may be occasional bugs though; if you encounter any, please create a new [GitHub issue](https://github.com/openmoh/openmohaa/issues) describing them.
+The entire single-player campaign should work (Allied Assault, Spearhead and Breakthrough). If you encounter any bug, please create a new [GitHub issue](https://github.com/openmoh/openmohaa/issues) describing them.
 
 ### Multiplayer
 
