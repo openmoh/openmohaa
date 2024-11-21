@@ -2140,6 +2140,7 @@ float BulletAttack(
 {
     Vector  vDir;
     Vector  vTmpEnd;
+    Vector  vOldTmpEnd;
     Vector  vTraceStart;
     Vector  vTraceEnd;
     int     i;
@@ -2201,6 +2202,7 @@ float BulletAttack(
             iTravelDist += MAX_TRAVEL_DIST;
             vTraceStart = start;
             vTraceEnd   = start + vDir * iTravelDist;
+            vOldTmpEnd  = vTraceStart;
 
             memset(&trace, 0, sizeof(trace_t));
 
@@ -2460,13 +2462,16 @@ float BulletAttack(
                     trace.fraction = 1;
                 }
 
-                vDeltaTrace = vTraceStart - vTmpEnd;
+                vDeltaTrace = vTmpEnd - vOldTmpEnd;
                 if (!bBulletDone && DotProduct(vDeltaTrace, vDir) < 0) {
                     // Fixed in OPM
-                    //  Make sure the new trace doesn't start behind the end
+                    //  Make sure the new trace doesn't start behind the last one
                     //  This can happen in rare circumstances if the trace is out of the world limit
+                    //  Or if entities being shot are almost at the same origin
                     break;
                 }
+
+                vOldTmpEnd = vTmpEnd;
             }
         }
 
