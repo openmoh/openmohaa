@@ -14,11 +14,6 @@ option(USE_INTERNAL_JPEG "If set, use bundled libjpeg." ${USE_INTERNAL_LIBS})
 option(USE_INTERNAL_MAD  "If set, use bundled libmad."  ${USE_INTERNAL_LIBS})
 option(USE_INTERNAL_ZLIB "If set, use bundled zlib."    ${USE_INTERNAL_LIBS})
 
-# Installation directory
-set(CMAKE_INSTALL_BINDIR bin CACHE PATH "Binary dir")
-set(CMAKE_INSTALL_LIBDIR ${CMAKE_INSTALL_BINDIR} CACHE PATH "Library dir")
-include(GNUInstallDirs)
-
 if(TARGET_GAME_TYPE)
 	message(SEND_ERROR "TARGET_GAME_TYPE is now unsupported, it is now done at runtime.")
 endif()
@@ -115,16 +110,41 @@ if(APPLE)
 	endif()
 endif()
 
-# Common stuff
+#
+# Setup the installation directory
+#
+if(WIN32)
+	# By default, both DLLs and EXEs are in the same directory
+	set(CMAKE_DEFAULT_INSTALL_RUNTIME_DIR bin)
+	set(BIN_INSTALL_SUBDIR ".")
+	set(LIB_INSTALL_SUBDIR ".")
+else()
+	# Unix
+	set(CMAKE_DEFAULT_INSTALL_RUNTIME_DIR lib)
+	set(BIN_INSTALL_SUBDIR ${CMAKE_PROJECT_NAME})
+	set(LIB_INSTALL_SUBDIR ${CMAKE_PROJECT_NAME})
+endif()
 
+# By default, put both binaries and shared libraries in the same directory
+# the game uses internal shared libraries that must be in the same folder as the binaries
+set(CMAKE_INSTALL_BINDIR ${CMAKE_DEFAULT_INSTALL_RUNTIME_DIR} CACHE PATH "Binary dir")
+set(CMAKE_INSTALL_LIBDIR ${CMAKE_INSTALL_BINDIR} CACHE PATH "Library dir")
+include(GNUInstallDirs)
+
+#
+# Common stuff
+#
 add_subdirectory("code/qcommon")
 add_subdirectory("code/gamespy")
 
+#
 # Application
-
+#
 add_subdirectory("code/sys")
 
+##
 ## Server app
+##
 add_subdirectory("code/server")
 
 add_executable(omohaaded "code/null/null_client.c" "code/null/null_input.c" "code/null/null_snddma.c")
@@ -135,20 +155,22 @@ target_link_libraries(omohaaded PRIVATE omohserver)
 target_link_libraries(omohaaded PRIVATE syslib)
 target_link_libraries(omohaaded PRIVATE qcommon qcommon_standalone)
 
-# Gamespy dependency
+# Add the gamespy dependency
 target_include_directories(omohaaded PUBLIC "code/qcommon" "code/script" "code/gamespy" "code/server")
 set_target_properties(omohaaded PROPERTIES OUTPUT_NAME "omohaaded${TARGET_BIN_SUFFIX}")
 set_target_properties(omohaaded PROPERTIES DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX})
 
+INSTALL(TARGETS omohaaded DESTINATION ${CMAKE_INSTALL_BINDIR}/${BIN_INSTALL_SUBDIR})
+
 if (MSVC)
 	target_link_options(omohaaded PRIVATE "/MANIFEST:NO")
-	INSTALL(FILES $<TARGET_PDB_FILE:omohaaded> DESTINATION bin OPTIONAL)
+	INSTALL(FILES $<TARGET_PDB_FILE:omohaaded> DESTINATION ${CMAKE_INSTALL_BINDIR}/${BIN_INSTALL_SUBDIR} OPTIONAL)
 endif()
 
-INSTALL(TARGETS omohaaded)
-
 if (NOT BUILD_NO_CLIENT)
+	##
 	## Client app
+	##
 
 	add_subdirectory("code/client")
 	add_subdirectory("code/renderer")
@@ -165,14 +187,32 @@ if (NOT BUILD_NO_CLIENT)
 	target_link_libraries(openmohaa PRIVATE omohclient)
 	target_link_libraries(openmohaa PRIVATE omohrenderer omohsdl)
 	target_link_libraries(openmohaa PRIVATE qcommon qcommon_standalone)
-
-	### Gamespy dependency
+	
+	# Add the gamespy dependency
 	target_include_directories(openmohaa PUBLIC "code/qcommon" "code/script" "code/gamespy" "code/server" "code/client" "code/uilib")
 	set_target_properties(openmohaa PROPERTIES OUTPUT_NAME "openmohaa${TARGET_BIN_SUFFIX}")
 	set_target_properties(openmohaa PROPERTIES DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX})
 
-	if(UNIX AND NOT APPLE)
+	if(USE_INTERNAL_JPEG)
+		target_include_directories(openmohaa PUBLIC "code/jpeg-8c")
+		target_link_libraries(openmohaa PRIVATE jpeg8)
+	else()
+		find_package(JPEG REQUIRED)
+		target_include_directories(openmohaa PUBLIC ${JPEG_INCLUDE_DIRS})
+		target_link_libraries(openmohaa PRIVATE ${JPEG_LIBRARIES})
+	endif()
 
+	INSTALL(TARGETS openmohaa DESTINATION ${CMAKE_INSTALL_BINDIR}/${BIN_INSTALL_SUBDIR})
+
+	if (MSVC)
+		target_link_options(openmohaa PRIVATE "/MANIFEST:NO")
+		INSTALL(FILES $<TARGET_PDB_FILE:openmohaa> DESTINATION ${CMAKE_INSTALL_BINDIR}/${BIN_INSTALL_SUBDIR} OPTIONAL)
+	endif()
+
+	if(UNIX AND NOT APPLE)
+		#
+		# Desktop entries installation on Unix
+		#
 		set(TARGET_ARCH ${TARGET_BIN_SUFFIX})
 
 		# Configure the .desktop entries with the arch suffix
@@ -192,41 +232,25 @@ if (NOT BUILD_NO_CLIENT)
 			@ONLY
 		)
 
-		# Set destination directory for .desktop files
-		set(DESKTOP_INSTALL_DIR ${CMAKE_INSTALL_PREFIX}/share/applications)
-
 		# Install .desktop entries
-		install(FILES ${CMAKE_BINARY_DIR}/misc/linux/org.openmoh.openmohaa.desktop DESTINATION ${DESKTOP_INSTALL_DIR})
-		install(FILES ${CMAKE_BINARY_DIR}/misc/linux/org.openmoh.openmohaab.desktop DESTINATION ${DESKTOP_INSTALL_DIR})
-		install(FILES ${CMAKE_BINARY_DIR}/misc/linux/org.openmoh.openmohaas.desktop DESTINATION ${DESKTOP_INSTALL_DIR})
+		install(FILES ${CMAKE_BINARY_DIR}/misc/linux/org.openmoh.openmohaa.desktop  DESTINATION ${CMAKE_INSTALL_DATADIR}/applications)
+		install(FILES ${CMAKE_BINARY_DIR}/misc/linux/org.openmoh.openmohaab.desktop DESTINATION ${CMAKE_INSTALL_DATADIR}/applications)
+		install(FILES ${CMAKE_BINARY_DIR}/misc/linux/org.openmoh.openmohaas.desktop DESTINATION ${CMAKE_INSTALL_DATADIR}/applications)
 
-		install(FILES misc/linux/org.openmoh.openmohaa.metainfo.xml DESTINATION share/metainfo)
+		install(FILES misc/linux/org.openmoh.openmohaa.metainfo.xml DESTINATION ${CMAKE_INSTALL_DATADIR}/metainfo)
 
-		install(FILES misc/openmohaa.svg DESTINATION share/icons/hicolor/symbolic/apps/ RENAME org.openmoh.openmohaa.svg)
+		install(FILES misc/openmohaa.svg DESTINATION ${CMAKE_INSTALL_DATADIR}/icons/hicolor/symbolic/apps/ RENAME org.openmoh.openmohaa.svg)
 	endif()
-
-	if(USE_INTERNAL_JPEG)
-		target_include_directories(openmohaa PUBLIC "code/jpeg-8c")
-		target_link_libraries(openmohaa PRIVATE jpeg8)
-	else()
-		find_package(JPEG REQUIRED)
-		target_include_directories(openmohaa PUBLIC ${JPEG_INCLUDE_DIRS})
-		target_link_libraries(openmohaa PRIVATE ${JPEG_LIBRARIES})
-	endif()
-
-	if (MSVC)
-		target_link_options(openmohaa PRIVATE "/MANIFEST:NO")
-		INSTALL(FILES $<TARGET_PDB_FILE:openmohaa> DESTINATION bin OPTIONAL)
-	endif()
-
-	INSTALL(TARGETS openmohaa)
 endif()
 
+#
 # Launcher
-
+#
 add_subdirectory(code/Launcher)
 
+#
 # uninstall target
+#
 if(NOT TARGET uninstall)
   configure_file(
     "${CMAKE_CURRENT_SOURCE_DIR}/cmake_uninstall.cmake.in"
