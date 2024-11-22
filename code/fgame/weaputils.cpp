@@ -1255,7 +1255,7 @@ void Projectile::Touch(Event *ev)
         );
     }
 
-    if (!g_gametype->integer && weap) {
+    if (g_gametype->integer == GT_SINGLE_PLAYER && weap) {
         if (other->IsSubclassOfPlayer() || other->IsSubclassOfVehicle() || other->IsSubclassOfVehicleTank()
             || other->isSubclassOf(VehicleCollisionEntity)) {
             weap->m_iNumHits++;
@@ -2795,7 +2795,7 @@ Projectile *HeavyAttack(Vector start, Vector dir, str projectileModel, float rea
 
     // Calc the life of the projectile
     if (proj->projFlags & P_CHARGE_LIFE) {
-        if (g_gametype->integer && proj->dmlife) {
+        if (g_gametype->integer != GT_SINGLE_PLAYER && proj->dmlife) {
             newlife = proj->dmlife;
         } else {
             newlife = proj->life;
@@ -2805,7 +2805,7 @@ Projectile *HeavyAttack(Vector start, Vector dir, str projectileModel, float rea
             newlife = proj->minlife;
         }
     } else {
-        if (g_gametype->integer && proj->dmlife) {
+        if (g_gametype->integer != GT_SINGLE_PLAYER && proj->dmlife) {
             newlife = proj->dmlife;
         } else {
             newlife = proj->life;
@@ -2818,7 +2818,7 @@ Projectile *HeavyAttack(Vector start, Vector dir, str projectileModel, float rea
 
     proj->NewAnim("idle");
 
-    if (!g_gametype->integer) {
+    if (g_gametype->integer == GT_SINGLE_PLAYER) {
         if (weap) {
             weap->m_iNumShotsFired++;
             if (owner->IsSubclassOfPlayer() && weap->IsSubclassOfTurretGun()) {
@@ -2948,10 +2948,10 @@ void ExplosionAttack(
             }
 
             // Remove explosion after the life has expired
-            if (explosion->life || (g_gametype->integer && explosion->dmlife)) {
+            if (explosion->life || (g_gametype->integer != GT_SINGLE_PLAYER && explosion->dmlife)) {
                 ev = new Event(EV_Remove);
 
-                if (g_gametype->integer && explosion->dmlife) {
+                if (g_gametype->integer != GT_SINGLE_PLAYER && explosion->dmlife) {
                     explosion->PostEvent(ev, explosion->dmlife);
                 } else {
                     explosion->PostEvent(ev, explosion->life);

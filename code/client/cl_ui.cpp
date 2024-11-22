@@ -2676,7 +2676,7 @@ void UI_PushMenuSP_f(void)
     }
 
     if ((!com_cl_running || !com_cl_running->integer || clc.state == CA_DISCONNECTED || !cg_gametype->integer)
-        && (!com_sv_running || !com_sv_running->integer || !g_gametype->integer)) {
+        && (!com_sv_running || !com_sv_running->integer || g_gametype->integer == GT_SINGLE_PLAYER)) {
         UI_PushMenu(Cmd_Argv(1));
     }
 }
@@ -2697,7 +2697,7 @@ void UI_PushMenuMP_f(void)
     }
 
     if (com_cl_running && com_cl_running->integer && clc.state != CA_DISCONNECTED && cg_gametype->integer
-        && com_sv_running && com_sv_running->integer && g_gametype->integer) {
+        && com_sv_running && com_sv_running->integer && g_gametype->integer != GT_SINGLE_PLAYER) {
         cmd = Cmd_Argv(1);
 
         //

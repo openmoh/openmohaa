@@ -298,7 +298,7 @@ static void SV_GameMap_f( void ) {
 
 	SV_SpawnServer( map, qfalse, qfalse, bTransition );
 
-	if( !g_gametype->integer ) {
+	if( g_gametype->integer == GT_SINGLE_PLAYER ) {
 		svs.autosave = qtrue;
 	}
 }

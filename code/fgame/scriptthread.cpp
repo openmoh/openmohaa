@@ -5311,13 +5311,13 @@ void ScriptThread::TeamSetScore(Event *ev)
     if (bAdd) {
         team->m_iKills += score;
 
-        if (g_gametype->integer < 3) {
+        if (g_gametype->integer < GT_TEAM_ROUNDS) {
             team->m_teamwins += score;
         }
     } else {
         team->m_iKills = score;
 
-        if (g_gametype->integer < 3) {
+        if (g_gametype->integer < GT_TEAM_ROUNDS) {
             team->m_teamwins = score;
         }
     }

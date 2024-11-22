@@ -1864,7 +1864,7 @@ void TriggerChangeLevel::ChangeLevel(Event *ev)
     //
     m_Thread.Execute();
 
-    if (g_gametype->integer) {
+    if (g_gametype->integer != GT_SINGLE_PLAYER) {
         G_BeginIntermission2();
         return;
     }

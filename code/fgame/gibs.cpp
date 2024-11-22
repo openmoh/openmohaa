@@ -147,7 +147,7 @@ void Gib::Splat
 	)
 
    {
-   if ( g_gametype->integer )
+   if ( g_gametype->integer != GT_SINGLE_PLAYER )
       return;
 
    if ( sprayed > 3 )
