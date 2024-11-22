@@ -11619,7 +11619,7 @@ void Actor::DontFaceWall(void)
         return;
     }
 
-    if (trace.entityNum != ENTITYNUM_WORLD && trace.ent->entity->AIDontFace()) {
+    if (trace.entityNum != ENTITYNUM_WORLD && !trace.ent->entity->AIDontFace()) {
         m_eDontFaceWallMode = 4;
         m_fDfwDerivedYaw    = m_fDfwRequestedYaw;
         return;
