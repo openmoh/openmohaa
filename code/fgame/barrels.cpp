@@ -195,52 +195,7 @@ void BarrelObject::BarrelThink(Event *ev)
         }
 
         // Send infos to clients
-        if (m_vLeaks[i][2] <= fFluidTop) {
-            gi.SetBroadcastVisible(m_vLeaks[i], m_vLeaks[i]);
-
-            if (m_vLeaks[i][2] <= fFluidTop - 1.3f) {
-                if (m_vLeaks[i][2] <= fFluidTop - 3.0f) {
-                    // big leak
-
-                    if (m_iBarrelType == BARREL_OIL) {
-                        gi.MSG_StartCGM(BG_MapCGMToProtocol(g_protocol, CGM_MAKE_EFFECT_1));
-                    } else {
-                        gi.MSG_StartCGM(BG_MapCGMToProtocol(g_protocol, CGM_MAKE_EFFECT_5));
-                    }
-
-                    m_fFluidAmount -= 1.0f;
-                    iBiggestLeak |= 4;
-                } else {
-                    // medium leak
-
-                    if (m_iBarrelType == BARREL_OIL) {
-                        gi.MSG_StartCGM(BG_MapCGMToProtocol(g_protocol, CGM_MAKE_EFFECT_2));
-                    } else {
-                        gi.MSG_StartCGM(BG_MapCGMToProtocol(g_protocol, CGM_MAKE_EFFECT_6));
-                    }
-
-                    m_fFluidAmount -= 0.75f;
-                    iBiggestLeak |= 2;
-                }
-            } else {
-                // small leak
-
-                if (m_iBarrelType == BARREL_OIL) {
-                    gi.MSG_StartCGM(BG_MapCGMToProtocol(g_protocol, CGM_MAKE_EFFECT_3));
-                } else {
-                    gi.MSG_StartCGM(BG_MapCGMToProtocol(g_protocol, CGM_MAKE_EFFECT_7));
-                }
-
-                m_fFluidAmount -= 0.5f;
-                iBiggestLeak |= 1;
-            }
-
-            gi.MSG_WriteCoord(m_vLeaks[i][0]);
-            gi.MSG_WriteCoord(m_vLeaks[i][1]);
-            gi.MSG_WriteCoord(m_vLeaks[i][2]);
-            gi.MSG_WriteDir(m_vLeakNorms[i]);
-            gi.MSG_EndCGM();
-        } else {
+        if (m_vLeaks[i][2] > fFluidTop) {
             gi.SetBroadcastVisible(m_vLeaks[i], m_vLeaks[i]);
 
             if (m_iBarrelType == BARREL_OIL) {
@@ -256,6 +211,49 @@ void BarrelObject::BarrelThink(Event *ev)
             gi.MSG_EndCGM();
 
             m_bLeaksActive[i] = qfalse;
+        } else {
+            gi.SetBroadcastVisible(m_vLeaks[i], m_vLeaks[i]);
+
+            if (m_vLeaks[i][2] > fFluidTop - 1.3f) {
+                // small leak
+
+                if (m_iBarrelType == BARREL_OIL) {
+                    gi.MSG_StartCGM(BG_MapCGMToProtocol(g_protocol, CGM_MAKE_EFFECT_3));
+                } else {
+                    gi.MSG_StartCGM(BG_MapCGMToProtocol(g_protocol, CGM_MAKE_EFFECT_7));
+                }
+
+                m_fFluidAmount -= 0.5f;
+                iBiggestLeak |= 1;
+            } else if (m_vLeaks[i][2] > fFluidTop - 3.0f) {
+                // medium leak
+
+                if (m_iBarrelType == BARREL_OIL) {
+                    gi.MSG_StartCGM(BG_MapCGMToProtocol(g_protocol, CGM_MAKE_EFFECT_2));
+                } else {
+                    gi.MSG_StartCGM(BG_MapCGMToProtocol(g_protocol, CGM_MAKE_EFFECT_6));
+                }
+
+                m_fFluidAmount -= 0.75f;
+                iBiggestLeak |= 2;
+            } else {
+                // big leak
+
+                if (m_iBarrelType == BARREL_OIL) {
+                    gi.MSG_StartCGM(BG_MapCGMToProtocol(g_protocol, CGM_MAKE_EFFECT_1));
+                } else {
+                    gi.MSG_StartCGM(BG_MapCGMToProtocol(g_protocol, CGM_MAKE_EFFECT_5));
+                }
+
+                m_fFluidAmount -= 1.0f;
+                iBiggestLeak |= 4;
+            }
+
+            gi.MSG_WriteCoord(m_vLeaks[i][0]);
+            gi.MSG_WriteCoord(m_vLeaks[i][1]);
+            gi.MSG_WriteCoord(m_vLeaks[i][2]);
+            gi.MSG_WriteDir(m_vLeakNorms[i]);
+            gi.MSG_EndCGM();
         }
     }
 

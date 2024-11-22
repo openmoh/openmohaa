@@ -1492,7 +1492,7 @@ void CG_ParseCGMessage_ver_15()
             vStart[2] = cgi.MSG_ReadCoord();
             cgi.MSG_ReadDir(vEnd);
 
-            sfxManager.MakeEffect_Normal(SFX_EXP_GREN_PUDDLE + iType, vStart, vEnd);
+            sfxManager.MakeEffect_Normal((iType - CGM_MAKE_EFFECT_1) + SFX_OIL_LEAK_BIG, vStart, vEnd);
             break;
 
         case CGM_MAKE_CRATE_DEBRIS:
@@ -1903,7 +1903,7 @@ void CG_ParseCGMessage_ver_6()
             vStart[2] = cgi.MSG_ReadCoord();
             cgi.MSG_ReadDir(vEnd);
 
-            sfxManager.MakeEffect_Normal(SFX_EXP_GREN_PUDDLE + iType, vStart, vEnd);
+            sfxManager.MakeEffect_Normal((iType - CGM6_MAKE_EFFECT_1) + SFX_OIL_LEAK_BIG, vStart, vEnd);
             break;
 
         case CGM6_MAKE_CRATE_DEBRIS:
