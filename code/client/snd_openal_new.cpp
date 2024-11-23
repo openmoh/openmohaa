@@ -4428,7 +4428,7 @@ void openal_channel_two_d_stream::update()
     // 2 channels with a width of 2
     char rawData[MAX_BUFFER_SAMPLES * 2 * 2];
 
-    if (!streaming || is_paused()) {
+    if (!streaming || is_paused() || state == AL_INITIAL) {
         return;
     }
 
