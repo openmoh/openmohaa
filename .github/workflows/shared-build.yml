@@ -51,7 +51,7 @@ jobs:
       name: Install required cross-platform packages (${{ matrix.architecture.triple }})
       if: matrix.architecture.name != 'amd64'
       with:
-        packages: gcc-12-${{ matrix.architecture.triple }} g++-12-${{ matrix.architecture.triple }}
+        packages: gcc-14-${{ matrix.architecture.triple }} g++-14-${{ matrix.architecture.triple }}
         version: "0.1"
 
     - name: Settings
@@ -339,8 +339,7 @@ jobs:
   # Apple macOS
   # macOS 14
   #
-  # It uses this version because older versions are slower,
-  # at least in Actions.
+  # This version is used as the OS, as older versions are slower.
   ##########################
   build-platform-macos:
     strategy:
