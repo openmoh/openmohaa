@@ -2662,6 +2662,7 @@ S_StartSoundFromBase(channelbasesavegame_t *pBase, openal_channel *pChannel, sfx
 
     if (pChannel->iEntNum != ENTITYNUM_NONE) {
         s_entity[pChannel->iEntNum].time = pChannel->iTime;
+        VectorCopy(pChannel->vOrigin, s_entity[pChannel->iEntNum].position);
     }
 }
 
