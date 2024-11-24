@@ -16,8 +16,9 @@ jobs:
   ##########################
   #
   # Linux
-  # Ubuntu 24.04
+  # Ubuntu 22.04
   #
+  # Using this version instead of 24.04 to use a lower GLIBC version (2.34)
   ##########################
   build-platform-linux:
     strategy:
@@ -33,7 +34,7 @@ jobs:
         ]
 
     name: "Building for platform linux-${{matrix.architecture.name}}"
-    runs-on: "ubuntu-24.04"
+    runs-on: "ubuntu-22.04"
     environment: ${{ inputs.environment }}
 
     steps:
@@ -51,7 +52,7 @@ jobs:
       name: Install required cross-platform packages (${{ matrix.architecture.triple }})
       if: matrix.architecture.name != 'amd64'
       with:
-        packages: gcc-14-${{ matrix.architecture.triple }} g++-14-${{ matrix.architecture.triple }}
+        packages: gcc-12-${{ matrix.architecture.triple }} g++-12-${{ matrix.architecture.triple }}
         version: "0.1"
 
     - name: Settings
@@ -81,7 +82,8 @@ jobs:
       with:
         version: 2-latest
         build-type: Release
-        cmake-arguments: ""
+        # Workaround for when changing the runner OS version
+        cmake-arguments: "-DCACHE_OS_VERSION=Ubuntu_22.04"
 
     ###
     # OpenAL
