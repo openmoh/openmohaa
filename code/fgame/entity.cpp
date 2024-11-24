@@ -3596,7 +3596,7 @@ void Entity::Sound(
         _tmp       = true;
     }
 
-    if (doCallback && g_gametype->integer) {
+    if (doCallback && g_gametype->integer != GT_SINGLE_PLAYER) {
         Com_Printf("^~^~^ Callback of sound '%s' ignored.\n", sound_name.c_str());
         doCallback = 0;
     }
@@ -5078,7 +5078,7 @@ void Entity::TouchTriggersEvent(Event *ev)
 
 void Entity::DeathSinkStart(Event *ev)
 {
-    if (g_gametype->integer) {
+    if (g_gametype->integer != GT_SINGLE_PLAYER) {
         PostEvent(EV_Remove, 5.0f);
     } else {
         // Start the sinking
@@ -5090,7 +5090,7 @@ void Entity::DeathSink(Event *ev)
 {
     // Sink just a little
 
-    if (g_gametype->integer) {
+    if (g_gametype->integer != GT_SINGLE_PLAYER) {
         origin[2] -= 0.2f;
         setOrigin(origin);
 

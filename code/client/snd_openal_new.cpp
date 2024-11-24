@@ -2662,6 +2662,7 @@ S_StartSoundFromBase(channelbasesavegame_t *pBase, openal_channel *pChannel, sfx
 
     if (pChannel->iEntNum != ENTITYNUM_NONE) {
         s_entity[pChannel->iEntNum].time = pChannel->iTime;
+        VectorCopy(pChannel->vOrigin, s_entity[pChannel->iEntNum].position);
     }
 }
 
@@ -4428,7 +4429,7 @@ void openal_channel_two_d_stream::update()
     // 2 channels with a width of 2
     char rawData[MAX_BUFFER_SAMPLES * 2 * 2];
 
-    if (!streaming || is_paused()) {
+    if (!streaming || is_paused() || state == AL_INITIAL) {
         return;
     }
 

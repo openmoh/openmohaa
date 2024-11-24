@@ -812,7 +812,7 @@ void Item::SetMaxAmount(Event *ev)
 
 void Item::SetDMAmountEvent(Event *ev)
 {
-    if (!g_gametype->integer) {
+    if (g_gametype->integer == GT_SINGLE_PLAYER) {
         return;
     }
     setAmount(ev->GetInteger(1));
@@ -820,7 +820,7 @@ void Item::SetDMAmountEvent(Event *ev)
 
 void Item::SetDMMaxAmount(Event *ev)
 {
-    if (!g_gametype->integer) {
+    if (g_gametype->integer == GT_SINGLE_PLAYER) {
         return;
     }
     setAmount(ev->GetInteger(1));

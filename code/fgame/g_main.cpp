@@ -1438,11 +1438,12 @@ qboolean G_ArchiveLevel(
         if (arc.Saving()) {
             // count the entities
             num = 0;
-            for (i = 0; i < globals.num_entities; i++) {
-                edict = &g_entities[i];
-                if (edict->inuse && edict->entity && !(edict->entity->flags & FL_DONTSAVE)) {
-                    num++;
+            for (edict = active_edicts.next; edict != &active_edicts; edict = edict->next) {
+                if (edict == world->edict || !edict->entity || (edict->entity->flags & FL_DONTSAVE)) {
+                    continue;
                 }
+
+                num++;
             }
         }
 
@@ -1454,11 +1455,12 @@ qboolean G_ArchiveLevel(
             // write out the world
             arc.ArchiveObject(world);
 
-            for (i = 0; i < globals.num_entities; i++) {
-                edict = &g_entities[i];
-                if (edict->inuse && edict->entity && !(edict->entity->flags & FL_DONTSAVE)) {
-                    arc.ArchiveObject(edict->entity);
+            for (edict = active_edicts.next; edict != &active_edicts; edict = edict->next) {
+                if (edict == world->edict || !edict->entity || (edict->entity->flags & FL_DONTSAVE)) {
+                    continue;
                 }
+
+                arc.ArchiveObject(edict->entity);
             }
         } else {
             // Tell the server about our data

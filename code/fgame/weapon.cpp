@@ -1318,7 +1318,7 @@ void Weapon::SetUseNoAmmo(Event *ev)
 //======================
 void Weapon::SetStartAmmo(Event *ev)
 {
-    if (g_protocol <= protocol_e::PROTOCOL_MOH && g_gametype->integer) {
+    if (g_protocol <= protocol_e::PROTOCOL_MOH && g_gametype->integer != GT_SINGLE_PLAYER) {
         return;
     }
 
@@ -1331,7 +1331,7 @@ void Weapon::SetStartAmmo(Event *ev)
 //======================
 void Weapon::SetDMStartAmmo(Event *ev)
 {
-    if (!g_gametype->integer) {
+    if (g_gametype->integer == GT_SINGLE_PLAYER) {
         return;
     }
 
@@ -1380,7 +1380,7 @@ float Weapon::GetMaxChargeTime(firemode_t mode)
 //======================
 void Weapon::SetAmmoRequired(Event *ev)
 {
-    if (g_protocol <= protocol_e::PROTOCOL_MOH && g_gametype->integer) {
+    if (g_protocol <= protocol_e::PROTOCOL_MOH && g_gametype->integer != GT_SINGLE_PLAYER) {
         return;
     }
 
@@ -1393,7 +1393,7 @@ void Weapon::SetAmmoRequired(Event *ev)
 //======================
 void Weapon::SetDMAmmoRequired(Event *ev)
 {
-    if (!g_gametype->integer) {
+    if (g_gametype->integer == GT_SINGLE_PLAYER) {
         return;
     }
 
@@ -2775,7 +2775,7 @@ void Weapon::AttachToHand(Event *ev)
 //======================
 void Weapon::SetCantPartialReload(Event *ev)
 {
-    if (g_protocol <= protocol_e::PROTOCOL_MOH && g_gametype->integer) {
+    if (g_protocol <= protocol_e::PROTOCOL_MOH && g_gametype->integer != GT_SINGLE_PLAYER) {
         return;
     }
 
@@ -2787,7 +2787,7 @@ void Weapon::SetCantPartialReload(Event *ev)
 //======================
 void Weapon::SetDMCantPartialReload(Event *ev)
 {
-    if (!g_gametype->integer) {
+    if (g_gametype->integer == GT_SINGLE_PLAYER) {
         return;
     }
 
@@ -3594,7 +3594,7 @@ int Weapon::ClipAmmo(firemode_t mode)
 //======================
 void Weapon::SetFireDelay(Event *ev)
 {
-    if (g_protocol <= protocol_e::PROTOCOL_MOH && g_gametype->integer) {
+    if (g_protocol <= protocol_e::PROTOCOL_MOH && g_gametype->integer != GT_SINGLE_PLAYER) {
         return;
     }
 
@@ -3606,7 +3606,7 @@ void Weapon::SetFireDelay(Event *ev)
 //======================
 void Weapon::SetDMFireDelay(Event *ev)
 {
-    if (!g_gametype->integer) {
+    if (g_gametype->integer == GT_SINGLE_PLAYER) {
         return;
     }
 
@@ -3687,7 +3687,7 @@ firemode_t Weapon::GetFireMode()
 //======================
 void Weapon::SetProjectile(Event *ev)
 {
-    if (g_protocol <= protocol_e::PROTOCOL_MOH && g_gametype->integer) {
+    if (g_protocol <= protocol_e::PROTOCOL_MOH && g_gametype->integer != GT_SINGLE_PLAYER) {
         return;
     }
 
@@ -3701,7 +3701,7 @@ void Weapon::SetProjectile(Event *ev)
 //======================
 void Weapon::SetDMProjectile(Event *ev)
 {
-    if (!g_gametype->integer) {
+    if (g_gametype->integer == GT_SINGLE_PLAYER) {
         return;
     }
 
@@ -3740,7 +3740,7 @@ void Weapon::SetTracerSpeed(Event *ev)
 //======================
 void Weapon::SetDMBulletDamage(Event *ev)
 {
-    if (!g_gametype->integer) {
+    if (g_gametype->integer == GT_SINGLE_PLAYER) {
         return;
     }
 
@@ -3762,7 +3762,7 @@ void Weapon::SetBulletKnockback(Event *ev)
 //======================
 void Weapon::SetDMBulletKnockback(Event *ev)
 {
-    if (!g_gametype->integer) {
+    if (g_gametype->integer == GT_SINGLE_PLAYER) {
         return;
     }
 
@@ -3791,7 +3791,7 @@ void Weapon::SetBulletThroughMetal(Event *ev)
 //======================
 void Weapon::SetBulletRange(Event *ev)
 {
-    if (g_protocol <= protocol_e::PROTOCOL_MOH && g_gametype->integer) {
+    if (g_protocol <= protocol_e::PROTOCOL_MOH && g_gametype->integer != GT_SINGLE_PLAYER) {
         return;
     }
 
@@ -3804,7 +3804,7 @@ void Weapon::SetBulletRange(Event *ev)
 //======================
 void Weapon::SetDMBulletRange(Event *ev)
 {
-    if (!g_gametype->integer) {
+    if (g_gametype->integer == GT_SINGLE_PLAYER) {
         return;
     }
 
@@ -3825,7 +3825,7 @@ void Weapon::SetRange(Event *ev)
 //======================
 void Weapon::SetBulletCount(Event *ev)
 {
-    if (g_protocol <= protocol_e::PROTOCOL_MOH && g_gametype->integer) {
+    if (g_protocol <= protocol_e::PROTOCOL_MOH && g_gametype->integer != GT_SINGLE_PLAYER) {
         return;
     }
 
@@ -3838,7 +3838,7 @@ void Weapon::SetBulletCount(Event *ev)
 //======================
 void Weapon::SetDMBulletCount(Event *ev)
 {
-    if (!g_gametype->integer) {
+    if (g_gametype->integer == GT_SINGLE_PLAYER) {
         return;
     }
 
@@ -3851,7 +3851,7 @@ void Weapon::SetDMBulletCount(Event *ev)
 //======================
 void Weapon::SetBulletSpread(Event *ev)
 {
-    if (g_protocol <= protocol_e::PROTOCOL_MOH && g_gametype->integer) {
+    if (g_protocol <= protocol_e::PROTOCOL_MOH && g_gametype->integer != GT_SINGLE_PLAYER) {
         return;
     }
 
@@ -3870,7 +3870,7 @@ void Weapon::SetBulletSpread(Event *ev)
 //======================
 void Weapon::SetDMBulletSpread(Event *ev)
 {
-    if (!g_gametype->integer) {
+    if (g_gametype->integer == GT_SINGLE_PLAYER) {
         return;
     }
 
@@ -3889,7 +3889,7 @@ void Weapon::SetDMBulletSpread(Event *ev)
 //======================
 void Weapon::SetZoomSpreadMult(Event *ev)
 {
-    if (g_protocol <= protocol_e::PROTOCOL_MOH && g_gametype->integer) {
+    if (g_protocol <= protocol_e::PROTOCOL_MOH && g_gametype->integer != GT_SINGLE_PLAYER) {
         return;
     }
 
@@ -3901,7 +3901,7 @@ void Weapon::SetZoomSpreadMult(Event *ev)
 //======================
 void Weapon::SetDMZoomSpreadMult(Event *ev)
 {
-    if (!g_gametype->integer) {
+    if (g_gametype->integer == GT_SINGLE_PLAYER) {
         return;
     }
 
@@ -3914,7 +3914,7 @@ void Weapon::SetDMZoomSpreadMult(Event *ev)
 //======================
 void Weapon::SetFireSpreadMult(Event *ev)
 {
-    if (g_protocol <= protocol_e::PROTOCOL_MOH && g_gametype->integer) {
+    if (g_protocol <= protocol_e::PROTOCOL_MOH && g_gametype->integer != GT_SINGLE_PLAYER) {
         return;
     }
 
@@ -3930,7 +3930,7 @@ void Weapon::SetFireSpreadMult(Event *ev)
 //======================
 void Weapon::SetDMFireSpreadMult(Event *ev)
 {
-    if (!g_gametype->integer) {
+    if (g_gametype->integer == GT_SINGLE_PLAYER) {
         return;
     }
 
@@ -3990,7 +3990,7 @@ void Weapon::Crosshair(Event *ev)
 //====================
 void Weapon::DMCrosshair(Event *ev)
 {
-    if (!g_gametype->integer) {
+    if (g_gametype->integer == GT_SINGLE_PLAYER) {
         return;
     }
 
@@ -4295,7 +4295,7 @@ void Weapon::SetViewKick(Event *ev)
 //======================
 void Weapon::SetMovementSpeed(Event *ev)
 {
-    if (g_protocol <= protocol_e::PROTOCOL_MOH && g_gametype->integer) {
+    if (g_protocol <= protocol_e::PROTOCOL_MOH && g_gametype->integer != GT_SINGLE_PLAYER) {
         return;
     }
 
@@ -4307,7 +4307,7 @@ void Weapon::SetMovementSpeed(Event *ev)
 //======================
 void Weapon::SetDMMovementSpeed(Event *ev)
 {
-    if (!g_gametype->integer) {
+    if (g_gametype->integer == GT_SINGLE_PLAYER) {
         return;
     }
 

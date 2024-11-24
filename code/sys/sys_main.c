@@ -728,9 +728,9 @@ void Sys_SigHandler( int signum )
 	{
 		signalcaught = qtrue;
 
-        printf("----\nBacktrace:\n");
+        fprintf(stderr, "----\nBacktrace:\n");
         Sys_PrintBackTrace();
-        printf("----\n");
+		fprintf(stderr, "----\n");
 
 		if (signum != SIGTERM && signum != SIGINT) {
 			//

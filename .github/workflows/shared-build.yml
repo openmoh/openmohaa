@@ -51,7 +51,7 @@ jobs:
       name: Install required cross-platform packages (${{ matrix.architecture.triple }})
       if: matrix.architecture.name != 'amd64'
       with:
-        packages: gcc-12-${{ matrix.architecture.triple }} g++-12-${{ matrix.architecture.triple }}
+        packages: gcc-14-${{ matrix.architecture.triple }} g++-14-${{ matrix.architecture.triple }}
         version: "0.1"
 
     - name: Settings
@@ -62,6 +62,13 @@ jobs:
         echo "CXX=clang++" >> $GITHUB_ENV
         echo "CFLAGS='--target=${{ matrix.architecture.triple }}'" >> $GITHUB_ENV
         echo "CXXFLAGS='--target=${{ matrix.architecture.triple }}'" >> $GITHUB_ENV
+        # Temporary workaround for PowerPC as the 1.24.0 version doesn't check for altivec
+        # Will use older versions until a new tag is created with this issue resolved
+        if [ ${{ matrix.architecture.name }} != 'powerpc' ] && [ ${{ matrix.architecture.name }} != 'ppc64' ] &&  [ ${{ matrix.architecture.name }} != 'ppc64el' ]; then
+            echo "OPENAL_REF=1.24.0" >> $GITHUB_ENV
+        else
+            echo "OPENAL_REF=1.23.1" >> $GITHUB_ENV
+        fi
 
     ###
     # SDL
@@ -81,14 +88,12 @@ jobs:
     ###
 
     # soft-oal setup
-    # Use GCC instead of Clang because of missing SSE intrinsics
-    # It also doesn't enable altivec support on PowerPC by default
     - name: Checkout soft-oal
       uses: actions/checkout@v4
       with:
         repository: 'kcat/openal-soft'
         path: 'thirdparties/soft-oal'
-        ref: '1.23.1'
+        ref: ${{ env.OPENAL_REF }}
 
     - name: Configure and install soft-oal
       working-directory: ${{github.workspace}}/thirdparties/soft-oal
@@ -142,8 +147,8 @@ jobs:
         mkdir ${{github.workspace}}/package
         cp -l ${{steps.sdl.outputs.prefix}}/lib/libSDL2-2.0.so.0 '${{github.workspace}}/package/'
         cp -l ${{github.workspace}}/thirdparties/soft-oal/install/lib/libopenal.so.1 '${{github.workspace}}/package/'
-        if [ -d ${{github.workspace}}/install/bin ]; then cp -r ${{github.workspace}}/install/bin/. '${{github.workspace}}/package'; fi
-        if [ -d ${{github.workspace}}/install/lib ]; then cp -r ${{github.workspace}}/install/lib/. '${{github.workspace}}/package'; fi
+        if [ -d ${{github.workspace}}/install/bin ]; then cp -r ${{github.workspace}}/install/bin/openmohaa/. '${{github.workspace}}/package'; fi
+        if [ -d ${{github.workspace}}/install/lib ]; then cp -r ${{github.workspace}}/install/lib/openmohaa/. '${{github.workspace}}/package'; fi
 
     ###
     # Artifacts
@@ -242,7 +247,7 @@ jobs:
       with:
         repository: 'kcat/openal-soft'
         path: 'thirdparties/soft-oal'
-        ref: '1.23.1'
+        ref: '1.24.0'
 
     # soft-oal build
     # Statically link the CRT runtime into OAL as a workaround to prevent crashes
@@ -312,8 +317,8 @@ jobs:
         New-Item -ItemType Directory '${{github.workspace}}/package'
         Copy-Item '${{steps.sdl.outputs.prefix}}/bin/*.dll' -Destination '${{github.workspace}}/package'
         Copy-Item '${{github.workspace}}/thirdparties/soft-oal/install/bin/*.dll' -Destination '${{github.workspace}}/package'
-        if (Test-Path ${{github.workspace}}/install/bin) { Copy-Item '${{github.workspace}}/install/bin/*' -Include '*.dll','*.exe' -Destination '${{github.workspace}}/package' }
-        if (Test-Path ${{github.workspace}}/install/lib) { Copy-Item '${{github.workspace}}/install/lib/*' -Include '*.dll','*.exe' -Destination '${{github.workspace}}/package' }
+        if (Test-Path ${{github.workspace}}/install/bin) { Copy-Item '${{github.workspace}}/install/bin/*' -Include '*.dll','*.exe','*.pdb' -Destination '${{github.workspace}}/package' }
+        if (Test-Path ${{github.workspace}}/install/lib) { Copy-Item '${{github.workspace}}/install/lib/*' -Include '*.dll','*.exe','*.pdb' -Destination '${{github.workspace}}/package' }
 
     ###
     # Artifact
@@ -339,8 +344,7 @@ jobs:
   # Apple macOS
   # macOS 14
   #
-  # It uses this version because older versions are slower,
-  # at least in Actions.
+  # This version is used as the OS, as older versions are slower.
   ##########################
   build-platform-macos:
     strategy:
@@ -398,7 +402,7 @@ jobs:
       with:
         repository: 'kcat/openal-soft'
         path: 'thirdparties/soft-oal'
-        ref: '1.23.1'
+        ref: '1.24.0'
 
     - name: Configure and install soft-oal
       working-directory: ${{github.workspace}}/thirdparties/soft-oal
@@ -456,8 +460,8 @@ jobs:
         mkdir ${{github.workspace}}/package
         cp -l ${{steps.sdl.outputs.prefix}}/lib/libSDL2-2.0.0.dylib '${{github.workspace}}/package/'
         cp -l ${{github.workspace}}/thirdparties/soft-oal/install/lib/libopenal.1.dylib '${{github.workspace}}/package/'
-        if [ -d ${{github.workspace}}/install/bin ]; then cp -r ${{github.workspace}}/install/bin/. '${{github.workspace}}/package'; fi
-        if [ -d ${{github.workspace}}/install/lib ]; then cp -r ${{github.workspace}}/install/lib/. '${{github.workspace}}/package'; fi
+        if [ -d ${{github.workspace}}/install/bin ]; then cp -r ${{github.workspace}}/install/bin/openmohaa/. '${{github.workspace}}/package'; fi
+        if [ -d ${{github.workspace}}/install/lib ]; then cp -r ${{github.workspace}}/install/lib/openmohaa/. '${{github.workspace}}/package'; fi
 
     ###
     # Artifacts

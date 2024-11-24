@@ -13,9 +13,9 @@ Ensure that you download the binaries compatible with your platform in the [rele
 
 ## Requirements
 
-- A valid MOH:AA installation, a MOH:AA Warchest copy can be acquired from GOG [here](https://www.gog.com/en/game/medal_of_honor_allied_assault_war_chest).
-  - [Extracting GOG Installer on Linux and macOS](#extracting-gog-setup-file-on-linux-and-macos). The demo version can also be used.
-- On Windows, Microsoft Visual C++ 2015/2017/2019/2022 Redistributable from https://learn.microsoft.com/en-US/cpp/windows/latest-supported-vc-redist?view=msvc-170 may be required.
+- A valid MOH:AA installation. A fully patched MOH:AA War Chest copy can be acquired from GOG [here](https://www.gog.com/en/game/medal_of_honor_allied_assault_war_chest). Demo versions are also valid, see [obtaining a demo version](#obtaining-a-demo-version).
+  - [Extracting GOG Installer on Linux and macOS](#extracting-gog-setup-file-on-linux-and-macos).
+- On Windows, Microsoft Visual C++ 2015/2017/2019/2022 Redistributable from https://learn.microsoft.com/en-US/cpp/windows/latest-supported-vc-redist?view=msvc-170 is required.
 
 ## System requirements
 
@@ -133,3 +133,26 @@ The MOH:AA Warchest installer files on GOG are Windows binaries. To attain the g
 - Once installed run the command `innoextract setup_medal_of_honor_2.0.0.21.exe`. The MoH:AA game files will be extracted into a folder called 'app'.
 
 Alternatively, you can use [WINE](https://www.winehq.org/) as well, but this process may take longer if you do not already have WINE installed and configured. 
+
+## Obtaining a demo version
+
+Alternatively, free demo versions are available online. Here are the links to the demos:
+
+|Game                |Type                               |Link                                                                                                    |
+|--------------------|-----------------------------------|--------------------------------------------------------------------------------------------------------|
+|MOH:AA              | Single-player (0.05)              |https://www.fileplanet.com/archive/p-54011/Medal-of-Honor-Single-Player-Demo                            |
+|MOH:AA              | Multiplayer<sup>1</sup> (1.00)    |https://www.fileplanet.com/archive/p-8725/Medal-of-Honor-Allied-Assault-Multiplayer-Demo                |
+|MOH:AA Spearhead    | Multiplayer<sup>2</sup> (2.11)    |https://www.fileplanet.com/archive/p-68997/Medal-of-Honor-Allied-Assault-Spearhead-Demo                 |
+|MOH:AA Breakthrough | Multiplayer<sup>2</sup> (0.30)    |https://www.fileplanet.com/archive/p-50953/Medal-of-Honor-Allied-Assault-Breakthrough-Multiplayer-Demo  |
+
+- MOH:AA singleplayer demo ships with **Mission 3: Level 3**
+- MOH:AA multiplayer demo ships with **Stalingrad**
+- MOH:AA Spearhead multiplayer demo ships with **Malta** and **Druckkammern**
+- MOH:AA Breakthrough multiplayer demo ships with **Anzio** and **Palermo**
+
+--------
+
+**Notes:**
+
+1. Can play on MOH:AA 1.00 servers only.
+2. Only compatible with demo servers. These servers can be identified by having the letter `d` at the start of their version number (e.g: `(d2.11)`).

@@ -2,6 +2,14 @@
 
 ## Game selection
 
+### From the launchers
+
+For simplicity, base game and expansions can be started from one of the 3 launchers:
+
+- `launch_openmohaa_base`, this starts OpenMoHAA in **Medal of Honor: Allied Assault** mode which is the base game
+- `launch_openmohaa_spearhead`, this starts OpenMoHAA in **Medal of Honor: Allied Assault: Spearhead** mode
+- `launch_openmohaa_breakthrough`, this starts OpenMoHAA in **Medal of Honor: Allied Assault: Breakthrough** mode
+
 ### From command-line
 
 **Medal of Honor: Allied Assault** is the default game, but expansions are also supported.
@@ -19,17 +27,9 @@ On Windows, a shortcut can be created to the `openmohaa` executable, with the co
 
 You can now start a local OpenMOHAA server or play on a server.
 
-### Playing with the downloadable demo
+### Playing with a demo version
 
-The argument `+set com_target_demo 1` must be appended to command-line to play the game/host a server using demo assets: Allied Assault, Spearhead and Breakthrough demo are supported as long as `com_target_game` is set (see above).
-
-### From the launchers
-
-For simplicity, there are 3 launchers for the standalone game:
-
-- `launch_openmohaa_base`, this starts OpenMoHAA in **Medal of Honor: Allied Assault** mode which is the base game
-- `launch_openmohaa_spearhead`, this starts OpenMoHAA in **Medal of Honor: Allied Assault: Spearhead** mode
-- `launch_openmohaa_breakthrough`, this starts OpenMoHAA in **Medal of Honor: Allied Assault: Breakthrough** mode
+The argument `+set com_target_demo 1` must be appended to command-line to play the game or host a server using demo assets. Allied Assault, Spearhead and Breakthrough demos are supported as long as `com_target_game` is set (see above).
 
 ## User data location
 

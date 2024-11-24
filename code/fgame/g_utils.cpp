@@ -1217,6 +1217,11 @@ void G_ArchivePlayerState(Archiver& arc, playerState_t *ps)
     arc.ArchiveVec3(ps->camera_posofs);
     arc.ArchiveInteger(&ps->camera_flags);
     arc.ArchiveVec3(ps->damage_angles);
+
+    if (arc.Loading()) {
+        VectorCopy(ps->origin, ps->vEyePos);
+        ps->vEyePos[2] += ps->viewheight;
+    }
 }
 
 /*

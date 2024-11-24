@@ -4328,7 +4328,15 @@ void Vehicle::MoveVehicle(void)
                             );
                         }
 
-                        break;
+                        // Added in OPM
+                        //  Skip the entity if the sentient is dead.
+                        //  This is a workaround against sentients getting in path of vehicles
+                        //  and thus blocking them temporarily while dying.
+                        //  For example in e1l1, the first tank would get stuck, because sometimes
+                        //  there are too many actors moving in the path of the vehicle
+                        if (!bHitPerson || !tr.ent->entity->IsDead()) {
+                            break;
+                        }
                     }
 
                     pSkippedEntities[iNumSkippedEntities]  = tr.ent->entity;
@@ -4411,11 +4419,7 @@ void Vehicle::MoveVehicle(void)
                     }
 
                     // Added in OPM
-                    //  Skip the entity if the sentient is dead.
-                    //  This is a workaround against sentients getting in path of vehicles
-                    //  and thus blocking them temporarily while dying.
-                    //  For example in e1l1, the first tank would get stuck, because sometimes
-                    //  there are too many actors moving in the path of the vehicle
+                    //  (see the comment above)
                     if (!bHitPerson || !tr.ent->entity->IsDead()) {
                         break;
                     }
@@ -4503,7 +4507,11 @@ void Vehicle::MoveVehicle(void)
                         );
                     }
 
-                    break;
+                    // Added in OPM
+                    //  (see the comment above)
+                    if (!bHitPerson || !tr.ent->entity->IsDead()) {
+                        break;
+                    }
                 }
 
                 pSkippedEntities[iNumSkippedEntities]  = tr.ent->entity;
