@@ -126,6 +126,7 @@ static void R_InterpolateVert(terraTri_t *pTri, terrainVert_t *pVert)
     const terrainVert_t         *pVert0 = &g_pVert[pTri->iPt[0]];
     const terrainVert_t         *pVert1 = &g_pVert[pTri->iPt[1]];
     const cTerraPatchUnpacked_t *pPatch = pTri->patch;
+    const byte                  *pMinHeight, *pMaxHeight;
 
     // Interpolate texture coordinates
     pVert->texCoords[0][0] = (pVert0->texCoords[0][0] + pVert1->texCoords[0][0]) * 0.5f;
@@ -133,10 +134,20 @@ static void R_InterpolateVert(terraTri_t *pTri, terrainVert_t *pVert)
     pVert->texCoords[1][0] = (pVert0->texCoords[1][0] + pVert1->texCoords[1][0]) * 0.5f;
     pVert->texCoords[1][1] = (pVert0->texCoords[1][1] + pVert1->texCoords[1][1]) * 0.5f;
 
-    pVert->pHgt    = (uint8_t *)(((size_t)pVert0->pHgt + (size_t)pVert1->pHgt) >> 1);
+    // Fixed in OPM
+    //  Use the delta of the two pointers instead of adding them + divide to get the average height,
+    //  otherwise the resulting integer would overflow/warp and cause a segmentation fault.
+    //  Although rare, the overflow issue can occur in the original game
+    pMinHeight  = (byte *)Q_min((uintptr_t)pVert0->pHgt, (uintptr_t)pVert1->pHgt);
+    pMaxHeight  = (byte *)Q_max((uintptr_t)pVert0->pHgt, (uintptr_t)pVert1->pHgt);
+    pVert->pHgt = (byte *)(pMinHeight + ((pMaxHeight - pMinHeight) >> 1));
+    assert(pVert->pHgt >= pMinHeight && pVert->pHgt < pMaxHeight);
+
+    // Calculate the average Z 
     pVert->fHgtAvg = (float)(*pVert0->pHgt + *pVert1->pHgt);
     pVert->fHgtAdd = (float)(*pVert->pHgt * 2) - pVert->fHgtAvg;
     pVert->fHgtAvg += pPatch->z0;
+    // Calculate the average position
     pVert->xyz[0] = (pVert0->xyz[0] + pVert1->xyz[0]) * 0.5f;
     pVert->xyz[1] = (pVert0->xyz[1] + pVert1->xyz[1]) * 0.5f;
     pVert->xyz[2] = pVert->fHgtAvg;
