@@ -11195,17 +11195,18 @@ str Player::TranslateBattleLanguageTokens(const char *string)
 
 void Player::EventIPrint(Event *ev)
 {
-    str      sString = ev->GetString(1);
-    qboolean iBold   = qfalse;
+    str         sString = ev->GetString(1);
+    const char *pszLocalized;
+    qboolean    iBold   = qfalse;
 
     if (ev->NumArgs() > 1) {
         iBold = ev->GetInteger(2);
     }
 
     if (iBold) {
-        gi.SendServerCommand(edict - g_entities, "print \"" HUD_MESSAGE_WHITE "%s\n\"", sString.c_str());
+        gi.SendServerCommand(edict - g_entities, "print \"" HUD_MESSAGE_WHITE "%s\n\"", gi.LV_ConvertString(sString.c_str()));
     } else {
-        gi.SendServerCommand(edict - g_entities, "print \"" HUD_MESSAGE_YELLOW "%s\n\"", sString.c_str());
+        gi.SendServerCommand(edict - g_entities, "print \"" HUD_MESSAGE_YELLOW "%s\n\"", gi.LV_ConvertString(sString.c_str()));
     }
 }
 
