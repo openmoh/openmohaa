@@ -2413,6 +2413,12 @@ void Player::InitHealth(void)
     //
     m_fHealRate = 0;
     edict->s.eFlags &= ~EF_DEAD;
+
+    // Fixed in OPM
+    //  This avoid losing weapons when dying and then immediately respawning
+    CancelEventsOfType(EV_Player_DMDeathDrop);
+    //  And this prevents the player from dying when respawning immediately after getting killed
+    CancelEventsOfType(EV_Player_Dead);
 }
 
 void Player::InitModel(void)
@@ -11196,7 +11202,6 @@ str Player::TranslateBattleLanguageTokens(const char *string)
 void Player::EventIPrint(Event *ev)
 {
     str         sString = ev->GetString(1);
-    const char *pszLocalized;
     qboolean    iBold   = qfalse;
 
     if (ev->NumArgs() > 1) {
