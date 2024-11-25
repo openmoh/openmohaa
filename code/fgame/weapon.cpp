@@ -1640,7 +1640,6 @@ void Weapon::GetMuzzlePosition(vec3_t position, vec3_t vBarrelPos, vec3_t forwar
     int           i;
 
     owner = (Player *)this->owner.Pointer();
-    assert(owner);
 
     // We should always have an owner
     if (!owner) {
