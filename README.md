@@ -10,7 +10,7 @@
 
 ## Intro
 
-The main goal of OpenMoHAA is to ensure the future and continuity of **Medal of Honor: Allied Assault** on all platforms/architectures by providing new patches/features. Thanks to the ioquake3 project and the F.A.K.K SDK, OpenMoHAA has already reached more than half of its goal: an open-source version of MoH:AA (based on version 2.40) that is fully compatible with the original game (in terms of protocol, assets, and scripts).
+The main goal of OpenMoHAA is to ensure the future and continuity of **Medal of Honor: Allied Assault** (including Spearhead and Breakthrough expansions) on all platforms/architectures by providing new patches/features. Thanks to the ioquake3 project and the F.A.K.K SDK, OpenMoHAA has already reached more than half of its goal: an open-source version of MoH:AA (based on version 2.40) that is fully compatible with both the original game and expansions, in terms of network protocol, assets, and scripts. OpenMoHAA is compatible with both MOH:AA servers and clients (Spearhead and Breakthrough included).
 
 ## Getting started
 
