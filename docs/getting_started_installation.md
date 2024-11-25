@@ -13,8 +13,11 @@ Ensure that you download the binaries compatible with your platform in the [rele
 
 ## Requirements
 
-- A valid MOH:AA installation. A fully patched MOH:AA War Chest copy can be acquired from GOG [here](https://www.gog.com/en/game/medal_of_honor_allied_assault_war_chest). Demo versions are also valid, see [obtaining a demo version](#obtaining-a-demo-version).
-  - [Extracting GOG Installer on Linux and macOS](#extracting-gog-setup-file-on-linux-and-macos).
+- A MOH:AA installation. Common installations include:
+  - GOG copy (recommended). A fully patched MOH:AA War Chest copy can be acquired [here](https://www.gog.com/en/game/medal_of_honor_allied_assault_war_chest).
+    - For Linux/macOS, see [Extracting GOG Installer on Linux and macOS](#extracting-gog-setup-file-on-linux-and-macos).
+  - From a CD
+  - Demo. See [obtaining a demo version](#obtaining-a-demo-version)
 - On Windows, Microsoft Visual C++ 2015/2017/2019/2022 Redistributable from https://learn.microsoft.com/en-US/cpp/windows/latest-supported-vc-redist?view=msvc-170 is required.
 
 ## System requirements
@@ -125,6 +128,8 @@ Only `omohaaded*` and `game*` binaries are required for the server version, othe
 
 
 ## Extracting GOG setup file on Linux and macOS
+
+If your MOH:AA copy was acquired from GOG then this section will be relevant.
 
 The MOH:AA Warchest installer files on GOG are Windows binaries. To attain the game files, you can quickly extract them using [Innoextract](https://github.com/dscharrer/innoextract). 
 
