@@ -2797,7 +2797,7 @@ void ScriptThread::IPrintln(Event *ev)
         sString += ev->GetString(i);
     }
 
-    G_PrintToAllClients(gi.LV_ConvertString(sString), false);
+    gi.SendServerCommand(-1, "print \"" HUD_MESSAGE_YELLOW "%s\n\"", gi.LV_ConvertString(sString.c_str()));
 }
 
 void ScriptThread::IPrintlnBold(Event *ev)
@@ -2810,7 +2810,7 @@ void ScriptThread::IPrintlnBold(Event *ev)
         sString += ev->GetString(i);
     }
 
-    G_PrintToAllClients(gi.LV_ConvertString(sString), true);
+    gi.SendServerCommand(-1, "print \"" HUD_MESSAGE_WHITE "%s\n\"", gi.LV_ConvertString(sString.c_str()));
 }
 
 void ScriptThread::IPrintln_NoLoc(Event *ev)
@@ -2823,7 +2823,7 @@ void ScriptThread::IPrintln_NoLoc(Event *ev)
         sString += ev->GetString(i);
     }
 
-    G_PrintToAllClients(sString, false);
+    gi.SendServerCommand(-1, "print \"" HUD_MESSAGE_YELLOW "%s\n\"", sString.c_str());
 }
 
 void ScriptThread::IPrintlnBold_NoLoc(Event *ev)
@@ -2836,7 +2836,7 @@ void ScriptThread::IPrintlnBold_NoLoc(Event *ev)
         sString += ev->GetString(i);
     }
 
-    G_PrintToAllClients(sString, true);
+    gi.SendServerCommand(-1, "print \"" HUD_MESSAGE_WHITE "%s\n\"", sString.c_str());
 }
 
 void ScriptThread::MPrint(Event *ev)
