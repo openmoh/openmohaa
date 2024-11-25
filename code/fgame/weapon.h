@@ -461,6 +461,8 @@ public:
     qboolean   IsSemiAuto(void);
     void       DoneAnimating(Event *ev);
 
+    float GetMaxFireMovementMult() const;
+    float GetZoomMovement() const;
     float GetMaxFireMovement() const;
 };
 

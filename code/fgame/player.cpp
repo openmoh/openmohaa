@@ -4057,9 +4057,9 @@ void Player::ClientMove(usercmd_t *ucmd)
             // Also use the weapon movement speed
             //
             if (!IsZoomed()) {
-                client->ps.speed = (float)client->ps.speed * pWeap->m_fMovementSpeed;
+                client->ps.speed = (float)client->ps.speed * pWeap->GetMovementSpeed();
             } else {
-                client->ps.speed = (float)client->ps.speed * pWeap->m_fZoomMovement * pWeap->m_fMovementSpeed;
+                client->ps.speed = (float)client->ps.speed * pWeap->GetZoomMovement();
             }
         }
     }

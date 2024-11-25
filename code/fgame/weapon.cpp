@@ -4636,6 +4636,20 @@ void Weapon::DoneAnimating(Event* ev) {
 }
 
 //======================
+//Weapon::GetMaxFireMovementMult
+//======================
+float Weapon::GetMaxFireMovementMult() const {
+    return m_fMaxFireMovement * m_fMovementSpeed;
+}
+
+//======================
+//Weapon::GetMaxFireMovementMult
+//======================
+float Weapon::GetZoomMovement() const {
+    return m_fZoomMovement * m_fMovementSpeed;
+}
+
+//======================
 //Weapon::GetMaxFireMovement
 //======================
 float Weapon::GetMaxFireMovement() const {
