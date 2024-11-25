@@ -1657,7 +1657,7 @@ typedef enum
 #define	MAX_CLIENTS			64		// absolute limit
 #define MAX_LOCATIONS		64
 
-#define MAX_MAP_BOUNDS          16384
+#define MAX_MAP_BOUNDS          8192
 #define MIN_MAP_BOUNDS          ( -MAX_MAP_BOUNDS )
 #define MAP_SIZE                ( MAX_MAP_BOUNDS - MIN_MAP_BOUNDS )
 
