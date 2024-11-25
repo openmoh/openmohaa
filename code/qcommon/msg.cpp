@@ -2391,27 +2391,35 @@ int MSG_PackAlpha(float alpha, int bits)
 
 int MSG_PackCoord(float coord)
 {
-	unsigned int packed = (unsigned int)round(coord * 4.0 + MAX_PACKED_COORD_HALF);
-	if (packed >= MAX_PACKED_COORD) {
-		Com_DPrintf("Illegal XYZ coordinates for an entity, small information lost in transmission\n");
-	} else {
+	unsigned int packed;
+
+	packed = (unsigned int)round(coord * 4.0 + MAX_PACKED_COORD_HALF);
+
+	if (packed < MAX_PACKED_COORD) {
 		coordstats[packed]++;
 	}
+// 	else {
+// 		Com_DPrintf("Illegal XYZ coordinates for an entity, small information lost in transmission\n");
+// 	}
 
 	return packed;
 }
 
 int MSG_PackCoordExtra(float coord)
 {
-	unsigned int packed = (unsigned int)round(coord * 16.0 + MAX_PACKED_COORD_EXTRA_HALF);
-	if (packed >= MAX_PACKED_COORD_EXTRA) {
-		Com_DPrintf("Illegal XYZ coordinates for an entity, information lost in transmission\n");
-	}
-	else {
-		// This check wasn't added in >= 2.0
-		// which means a player could crash a server when out of bounds
+	unsigned int packed;
+
+	packed = (unsigned int)round(coord * 16.0 + MAX_PACKED_COORD_EXTRA_HALF);
+
+	// Fixed in OPM
+	//  This check wasn't added in >= 2.0
+	//  which means a player could crash a server when out of bounds
+	if (packed < MAX_PACKED_COORD_EXTRA) {
 		++coordextrastats[packed];
 	}
+//	else {
+//		Com_DPrintf("Illegal XYZ coordinates for an entity, information lost in transmission\n");
+//	}
 
 	return packed;
 }
