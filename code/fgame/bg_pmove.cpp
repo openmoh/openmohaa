@@ -717,6 +717,16 @@ static void PM_NoclipMove(void)
 
     // move
     VectorMA(pm->ps->origin, pml.frametime, pm->ps->velocity, pm->ps->origin);
+
+    // Added in 2.0
+    //  If the player is out of bounds in noclip mode,
+    //  teleport it back to the (0,0,0) coordinates
+    for (i = 0; i < 3; i++) {
+        if (fabs(pm->ps->origin[i]) >= MAX_MAP_BOUNDS - 512) {
+            VectorClear(pm->ps->origin);
+            break;
+        }
+    }
 }
 
 //============================================================================
