@@ -552,7 +552,7 @@ void S_StartLocalSound(const char *sound_name, qboolean force_load)
     }
 
     S_StartSound(
-        0,
+        NULL,
         s_iListenerNumber,
         CHAN_MENU,
         sfxHandle,
@@ -748,6 +748,10 @@ void S_Play()
 {
     int  i;
     char name[MAX_QPATH];
+
+    if (Cmd_Argc() < 2) {
+        return;
+    }
 
     for (i = 1; i < Cmd_Argc(); i++) {
         if (strrchr(Cmd_Argv(i), '.')) {
