@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2023 the OpenMoHAA team
+Copyright (C) 2024 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -122,106 +122,107 @@ Event EV_SmokeGrenade_SetMaxAlpha
     "sets maximum opacity of an individual smoke particle, in 0-1 range"
 );
 
-CLASS_DECLARATION(EffectEntity, SmokeGrenade, "smokegrenade")
-{
-    { &EV_SmokeGrenade_SetSpawnRate,        &SmokeGrenade::EventSetSpawnrate },
-    { &EV_SmokeGrenade_SetBouncefactor,     &SmokeGrenade::EventSetBouncefactor },
-    { &EV_SmokeGrenade_SetLife,             &SmokeGrenade::EventSetLife },
-    { &EV_SmokeGrenade_SetSpawnLife,        &SmokeGrenade::EventSetSpawnLife },
-    { &EV_SmokeGrenade_SetScalerate,        &SmokeGrenade::EventSetScalerate },
-    { &EV_SmokeGrenade_SetVelocity,         &SmokeGrenade::EventSetVelocity },
-    { &EV_SmokeGrenade_SetSpin,             &SmokeGrenade::EventSetSpin },
-    { &EV_SmokeGrenade_SetOffset,           &SmokeGrenade::EventSetOffset },
-    { &EV_SmokeGrenade_SetScale,            &SmokeGrenade::EventSetScale },
-    { &EV_SmokeGrenade_SetFadein,           &SmokeGrenade::EventSetFadein },
-    { &EV_SmokeGrenade_SetFadedelay,        &SmokeGrenade::EventSetFadedelay },
-    { &EV_SmokeGrenade_SetMaxAlpha,         &SmokeGrenade::EventSetMaxAlpha },
-    { NULL, NULL }
+CLASS_DECLARATION(EffectEntity, SmokeGrenade, "smokegrenade") {
+    {&EV_SmokeGrenade_SetSpawnRate,    &SmokeGrenade::EventSetSpawnrate   },
+    {&EV_SmokeGrenade_SetBouncefactor, &SmokeGrenade::EventSetBouncefactor},
+    {&EV_SmokeGrenade_SetLife,         &SmokeGrenade::EventSetLife        },
+    {&EV_SmokeGrenade_SetSpawnLife,    &SmokeGrenade::EventSetSpawnLife   },
+    {&EV_SmokeGrenade_SetScalerate,    &SmokeGrenade::EventSetScalerate   },
+    {&EV_SmokeGrenade_SetVelocity,     &SmokeGrenade::EventSetVelocity    },
+    {&EV_SmokeGrenade_SetSpin,         &SmokeGrenade::EventSetSpin        },
+    {&EV_SmokeGrenade_SetOffset,       &SmokeGrenade::EventSetOffset      },
+    {&EV_SmokeGrenade_SetScale,        &SmokeGrenade::EventSetScale       },
+    {&EV_SmokeGrenade_SetFadein,       &SmokeGrenade::EventSetFadein      },
+    {&EV_SmokeGrenade_SetFadedelay,    &SmokeGrenade::EventSetFadedelay   },
+    {&EV_SmokeGrenade_SetMaxAlpha,     &SmokeGrenade::EventSetMaxAlpha    },
+    {NULL,                             NULL                               }
 };
 
-void SmokeGrenade::EventSetSpawnrate(Event* ev)
+void SmokeGrenade::EventSetSpawnrate(Event *ev)
 {
     float rate = ev->GetFloat(1);
-    if (rate < 0.001f) rate = 0.001f;
+    if (rate < 0.001f) {
+        rate = 0.001f;
+    }
 
     spawnRate = 1000.0f / rate;
 }
 
-void SmokeGrenade::EventSetBouncefactor(Event* ev)
+void SmokeGrenade::EventSetBouncefactor(Event *ev)
 {
     bounceFactor = ev->GetFloat(1);
 }
 
-void SmokeGrenade::EventSetLife(Event* ev)
+void SmokeGrenade::EventSetLife(Event *ev)
 {
     nextRemoveTime = level.time + ev->GetFloat(1);
 }
 
-void SmokeGrenade::EventSetSpawnLife(Event* ev)
+void SmokeGrenade::EventSetSpawnLife(Event *ev)
 {
     spawnLife = ev->GetFloat(1);
 }
 
-void SmokeGrenade::EventSetScalerate(Event* ev)
+void SmokeGrenade::EventSetScalerate(Event *ev)
 {
     scaleRate = ev->GetFloat(1);
 }
 
-void SmokeGrenade::EventSetVelocity(Event* ev)
+void SmokeGrenade::EventSetVelocity(Event *ev)
 {
     velocity[0] = ev->GetFloat(1);
     velocity[1] = ev->GetFloat(2);
     velocity[2] = ev->GetFloat(3);
 }
 
-void SmokeGrenade::EventSetSpin(Event* ev)
+void SmokeGrenade::EventSetSpin(Event *ev)
 {
     spinRate = ev->GetFloat(1);
 }
 
-void SmokeGrenade::EventSetOffset(Event* ev)
+void SmokeGrenade::EventSetOffset(Event *ev)
 {
     offset[0] = ev->GetFloat(1);
     offset[1] = ev->GetFloat(2);
     offset[2] = ev->GetFloat(3);
 }
 
-void SmokeGrenade::EventSetScale(Event* ev)
+void SmokeGrenade::EventSetScale(Event *ev)
 {
     scale = ev->GetFloat(1) * 0.5;
 }
 
-void SmokeGrenade::EventSetFadein(Event* ev)
+void SmokeGrenade::EventSetFadein(Event *ev)
 {
     fadeIn = ev->GetFloat(1);
 }
 
-void SmokeGrenade::EventSetFadedelay(Event* ev)
+void SmokeGrenade::EventSetFadedelay(Event *ev)
 {
     fadeDelay = ev->GetFloat(1);
 }
 
-void SmokeGrenade::EventSetMaxAlpha(Event* ev)
+void SmokeGrenade::EventSetMaxAlpha(Event *ev)
 {
     maxAlpha = ev->GetFloat(1);
 }
 
 SmokeGrenade::SmokeGrenade()
 {
-    flags           |= FL_THINK;
-    nextRemoveTime  = level.time + 1.0;
-    spawnRate       = 1000;
-    bounceFactor    = 0.0;
-    spawnLife       = 1.0;
-    scaleRate       = 1.0;
-    velocity        = vec_zero;
-    offset          = vec_zero;
-    spinRate        = 0.0;
-    scale           = 1.0;
-    fadeIn          = 0.0;
-    fadeDelay       = spawnLife;
-    maxAlpha        = 1.0;
-    lastSpawnTime   = level.inttime + 150;
+    flags |= FL_THINK;
+    nextRemoveTime = level.time + 1.0;
+    spawnRate      = 1000;
+    bounceFactor   = 0.0;
+    spawnLife      = 1.0;
+    scaleRate      = 1.0;
+    velocity       = vec_zero;
+    offset         = vec_zero;
+    spinRate       = 0.0;
+    scale          = 1.0;
+    fadeIn         = 0.0;
+    fadeDelay      = spawnLife;
+    maxAlpha       = 1.0;
+    lastSpawnTime  = level.inttime + 150;
 }
 
 void SmokeGrenade::Think()
@@ -233,42 +234,57 @@ void SmokeGrenade::Think()
 
     if (level.inttime >= lastSpawnTime + spawnRate) {
         SmokeSprite sp;
-        float degrees;
+        float       degrees;
 
         lastSpawnTime += spawnRate;
 
-        sp.origin = origin;
+        sp.origin    = origin;
         sp.spawnTime = level.time;
-        sp.scale = scale;
+        sp.scale     = scale;
 
         degrees = angles.y + (((level.inttime / 1000.0 - 176.0) * spinRate) * -0.36);
-        
-        RotatePointAroundAxis(
-            sp.velocity,
-            2,
-            velocity,
-            degrees
-        );
 
-        sp.spawnLife = spawnLife;
+        RotatePointAroundAxis(sp.velocity, 2, velocity, degrees);
+
+        sp.spawnLife    = spawnLife;
         sp.bounceFactor = bounceFactor;
-        sp.scaleStart = scale;
-        sp.scaleRate = scaleRate;
-        sp.fadeIn = fadeIn;
-        sp.fadeDelay = fadeDelay;
-        sp.maxAlpha = maxAlpha;
-        sp.owner = owner;
+        sp.scaleStart   = scale;
+        sp.scaleRate    = scaleRate;
+        sp.fadeIn       = fadeIn;
+        sp.fadeDelay    = fadeDelay;
+        sp.maxAlpha     = maxAlpha;
+        sp.owner        = owner;
 
         G_AddSmokeSprite(&sp);
     }
 }
 
-void SmokeGrenade::setOwner(Sentient* other)
+void SmokeGrenade::Archive(Archiver& arc)
+{
+    EffectEntity::Archive(arc);
+
+    arc.ArchiveFloat(&nextRemoveTime);
+    arc.ArchiveInteger(&spawnRate);
+    arc.ArchiveFloat(&bounceFactor);
+    arc.ArchiveFloat(&spawnLife);
+    arc.ArchiveFloat(&scaleRate);
+    arc.ArchiveVector(&velocity);
+    arc.ArchiveFloat(&spinRate);
+    arc.ArchiveVector(&offset);
+    arc.ArchiveFloat(&scale);
+    arc.ArchiveFloat(&fadeIn);
+    arc.ArchiveFloat(&fadeDelay);
+    arc.ArchiveFloat(&maxAlpha);
+    arc.ArchiveInteger(&lastSpawnTime);
+    arc.ArchiveSafePointer(&owner);
+}
+
+void SmokeGrenade::setOwner(Sentient *other)
 {
     owner = other;
 }
 
-Sentient* SmokeGrenade::getOwner() const
+Sentient *SmokeGrenade::getOwner() const
 {
     return owner;
 }
