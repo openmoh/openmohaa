@@ -5298,7 +5298,7 @@ qboolean CG_ProcessEntityCommands(int frame, int anim, int entnum, refEntity_t *
         current_centity       = cent;
         current_entity_number = entnum;
         current_tiki          = ent->tiki;
-        CG_AnimationDebugMessage(entnum, "Processing Ent Commands: Entity: %3d Anim:#(%i) Frame:#(%i)\n", anim, frame);
+        CG_AnimationDebugMessage(entnum, "Processing Ent Commands: Entity: %3d Anim:#(%i) Frame:#(%i)\n", entnum, anim, frame);
 
         for (i = 0; i < tikicmds.num_cmds; i++) {
             Event *ev;
