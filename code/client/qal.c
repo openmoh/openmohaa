@@ -81,6 +81,7 @@ LPALGENBUFFERS qalGenBuffers;
 LPALDELETEBUFFERS qalDeleteBuffers;
 LPALISBUFFER qalIsBuffer;
 LPALBUFFERDATA qalBufferData;
+LPALBUFFERI qalBufferi;
 LPALGETBUFFERF qalGetBufferf;
 LPALGETBUFFERFV qalGetBufferfv;
 LPALGETBUFFERI qalGetBufferi;
@@ -201,6 +202,7 @@ qboolean QAL_Init(const char *libname)
 	qalDeleteBuffers = GPA("alDeleteBuffers");
 	qalIsBuffer = GPA("alIsBuffer");
 	qalBufferData = GPA("alBufferData");
+	qalBufferi = GPA("alBufferi");
 	qalGetBufferf = GPA("alGetBufferf");
 	qalGetBufferfv = GPA("alGetBufferfv");
 	qalGetBufferi = GPA("alGetBufferi");

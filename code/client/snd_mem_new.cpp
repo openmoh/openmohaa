@@ -43,13 +43,13 @@ short int GetLittleShort()
         byte  bytes[2];
     } val;
 
-#    ifdef Q3_LITTLE_ENDIAN
+#ifdef Q3_LITTLE_ENDIAN
     val.bytes[0] = data_p[0];
     val.bytes[1] = data_p[1];
-#    else
+#else
     val.bytes[0] = data_p[1];
     val.bytes[1] = data_p[0];
-#    endif
+#endif
 
     data_p += sizeof(short);
     return val.value;
@@ -67,17 +67,17 @@ int GetLittleLong()
         byte bytes[4];
     } val;
 
-#    ifdef Q3_LITTLE_ENDIAN
+#ifdef Q3_LITTLE_ENDIAN
     val.bytes[0] = data_p[0];
     val.bytes[1] = data_p[1];
     val.bytes[2] = data_p[2];
     val.bytes[3] = data_p[3];
-#    else
+#else
     val.bytes[0] = data_p[3];
     val.bytes[1] = data_p[2];
     val.bytes[2] = data_p[1];
     val.bytes[3] = data_p[0];
-#    endif
+#endif
 
     data_p += sizeof(int);
     return val.value;
@@ -97,13 +97,13 @@ void SetLittleShort(int i)
 
     val.value = i;
 
-#    ifdef Q3_LITTLE_ENDIAN
+#ifdef Q3_LITTLE_ENDIAN
     data_p[0] = val.bytes[0];
     data_p[1] = val.bytes[1];
-#    else
+#else
     data_p[0] = val.bytes[1];
     data_p[1] = val.bytes[0];
-#    endif
+#endif
 
     data_p += sizeof(short);
 }
@@ -122,17 +122,17 @@ void SetLittleLong(int i)
 
     val.value = i;
 
-#    ifdef Q3_LITTLE_ENDIAN
+#ifdef Q3_LITTLE_ENDIAN
     data_p[0] = val.bytes[0];
     data_p[1] = val.bytes[1];
     data_p[2] = val.bytes[2];
     data_p[3] = val.bytes[3];
-#    else
+#else
     data_p[0] = val.bytes[3];
     data_p[1] = val.bytes[2];
     data_p[2] = val.bytes[1];
     data_p[3] = val.bytes[0];
-#    endif
+#endif
 
     data_p += sizeof(int);
 }
@@ -218,6 +218,7 @@ wavinfo_t GetWavinfo(const char *name, byte *wav, int wavlength)
 {
     wavinfo_t info;
     int       samples;
+    short     bytealign;
 
     memset(&info, 0, sizeof(wavinfo_t));
 
@@ -247,7 +248,9 @@ wavinfo_t GetWavinfo(const char *name, byte *wav, int wavlength)
     if (info.format == 17) {
         info.channels = GetLittleShort();
         info.rate     = (float)GetLittleLong();
-        data_p += 6;
+        data_p += 4;
+
+        bytealign  = GetLittleShort();
         info.width = (float)GetLittleShort() / 8.f;
         data_p += 2;
 
@@ -270,12 +273,16 @@ wavinfo_t GetWavinfo(const char *name, byte *wav, int wavlength)
             Com_Error(ERR_DROP, "Sound %s has a bad loop length", name);
         }
 
-        info.dataofs = 0;
+        info.dataofs   = data_p - wav;
+        info.datasize  = iff_chunk_len - bytealign + info.dataofs;
+        info.dataalign = (bytealign / info.channels - 4) / 4 * 8 + 1;
     } else if (info.format == 1) {
         info.channels = GetLittleShort();
         info.rate     = (float)GetLittleLong();
-        data_p += 6;
-        info.width = (float)(GetLittleShort() / 8);
+        data_p += 4;
+
+        bytealign  = GetLittleShort();
+        info.width = (float)GetLittleShort() / 8.f;
 
         FindChunk("data");
         if (!data_p) {
@@ -292,13 +299,15 @@ wavinfo_t GetWavinfo(const char *name, byte *wav, int wavlength)
             Com_Error(ERR_DROP, "Sound %s has a bad loop length", name);
         }
 
-        info.dataofs = data_p - wav;
+        info.dataofs   = data_p - wav;
+        info.datasize  = iff_chunk_len;
+        info.dataalign = (bytealign / info.channels - 4) / 4 * 8 + 1;
+        // dataalign should always be 1
+        assert(info.dataalign == 1);
     } else {
         Com_Printf("Microsoft PCM format only\n");
         return info;
     }
-
-    info.datasize = iff_chunk_len;
 
     return info;
 }
@@ -310,26 +319,24 @@ DownSampleWav
 */
 qboolean DownSampleWav(wavinfo_t *info, byte *wav, int wavlength, int newkhz, byte **newdata)
 {
-    int newdatasize;
-    byte* datap;
-    int i;
-    int ii;
-    int error;
-    int width;
-    int oldsamples;
-    int oldrate;
+    int   newdatasize;
+    byte *datap;
+    int   i;
+    int   ii;
+    int   error;
+    int   width;
+    int   oldsamples;
+    int   oldrate;
 
     newdatasize = 0;
-    datap = &wav[info->dataofs];
+    datap       = &wav[info->dataofs];
 
-    if (info->channels > 1)
-    {
+    if (info->channels > 1) {
         Com_DPrintf("Could not downsample WAV file. Stereo WAVs not supported!\n");
         return 0;
     }
 
-    if (info->format != 1 || !info->dataofs)
-    {
+    if (info->format != 1 || !info->dataofs) {
         Com_DPrintf("Could not downsample WAV file. Not PCM format!\n");
         return 0;
     }
@@ -348,29 +355,27 @@ qboolean DownSampleWav(wavinfo_t *info, byte *wav, int wavlength, int newkhz, by
         }
     }
 
-    oldsamples = info->samples;
-    oldrate = info->rate;
+    oldsamples    = info->samples;
+    oldrate       = info->rate;
     info->samples = newdatasize / width;
-    info->rate = (float)newkhz;
+    info->rate    = (float)newkhz;
     newdatasize += info->dataofs;
 
-    *newdata = (byte*)Z_TagMalloc(newdatasize, TAG_SOUND);
+    *newdata = (byte *)Z_TagMalloc(newdatasize, TAG_SOUND);
     memcpy(*newdata, wav, info->dataofs);
 
     iff_data = *newdata;
-    iff_end = *newdata + newdatasize;
+    iff_end  = *newdata + newdatasize;
     FindChunk("RIFF");
 
-    if (!data_p || strncmp((const char*)data_p + 8, "WAVE", 4u))
-    {
+    if (!data_p || strncmp((const char *)data_p + 8, "WAVE", 4u)) {
         Com_DPrintf("Missing RIFF/WAVE chunks\n");
         return 0;
     }
 
     iff_data = data_p + 12;
     FindChunk("fmt ");
-    if (!data_p)
-    {
+    if (!data_p) {
         Com_DPrintf("Missing fmt chunk\n");
         return 0;
     }
@@ -380,8 +385,7 @@ qboolean DownSampleWav(wavinfo_t *info, byte *wav, int wavlength, int newkhz, by
     data_p += 8;
 
     FindChunk("data");
-    if (!data_p)
-    {
+    if (!data_p) {
         Com_DPrintf("Missing data chunk\n");
         return 0;
     }
@@ -427,10 +431,10 @@ S_LoadSound
 */
 qboolean S_LoadSound(const char *fileName, sfx_t *sfx, int streamed, qboolean force_load)
 {
-    int size;
+    int          size;
     fileHandle_t file_handle;
-    char tempName[MAX_RES_NAME + 1];
-    int realKhz;
+    char         tempName[MAX_RES_NAME + 1];
+    int          realKhz;
 
     sfx->buffer = 0;
 
@@ -440,10 +444,10 @@ qboolean S_LoadSound(const char *fileName, sfx_t *sfx, int streamed, qboolean fo
 
     if (streamed) {
         sfx->length = 5000;
-        sfx->width = 1;
+        sfx->width  = 1;
         sfx->iFlags |= SFX_FLAG_STREAMED;
         sfx->time_length = 5000.0;
-        sfx->data = NULL;
+        sfx->data        = NULL;
         return qtrue;
     }
 
@@ -456,22 +460,20 @@ qboolean S_LoadSound(const char *fileName, sfx_t *sfx, int streamed, qboolean fo
     }
 
     size = FS_FOpenFileRead(fileName, &file_handle, qfalse, qtrue);
-    if (size <= 0)
-    {
+    if (size <= 0) {
         if (file_handle) {
             FS_FCloseFile(file_handle);
         }
         return qfalse;
     }
 
-    sfx->data = (byte*)Z_TagMalloc(size, TAG_SOUND);
+    sfx->data = (byte *)Z_TagMalloc(size, TAG_SOUND);
 
     FS_Read(sfx->data, size, file_handle);
     FS_FCloseFile(file_handle);
     sfx->info = GetWavinfo(fileName, sfx->data, size);
 
-    if (sfx->info.channels != 1 && !streamed)
-    {
+    if (sfx->info.channels != 1 && !streamed) {
         Com_Printf("%s is a stereo wav file\n", fileName);
         Z_Free(sfx->data);
         sfx->data = NULL;
@@ -496,8 +498,8 @@ qboolean S_LoadSound(const char *fileName, sfx_t *sfx, int streamed, qboolean fo
     }
 
     if (!(sfx->iFlags & SFX_FLAG_STREAMED) && realKhz < sfx->info.rate) {
-        byte* newdata;
-        int newdatasize;
+        byte *newdata;
+        int   newdatasize;
 
         newdata = NULL;
         if (sfx->iFlags & SFX_FLAG_NO_OFFSET) {
@@ -508,13 +510,13 @@ qboolean S_LoadSound(const char *fileName, sfx_t *sfx, int streamed, qboolean fo
 
         if (newdatasize) {
             Z_Free(sfx->data);
-            sfx->data = newdata;
+            sfx->data          = newdata;
             sfx->info.datasize = newdatasize;
         }
     }
 
-    sfx->length = sfx->info.samples;
-    sfx->width = sfx->info.width;
+    sfx->length      = sfx->info.samples;
+    sfx->width       = sfx->info.width;
     sfx->time_length = sfx->info.samples / sfx->info.rate * 1000.f;
 
     if (sfx->iFlags & SFX_FLAG_STREAMED) {
@@ -540,7 +542,7 @@ S_LoadMP3
 */
 qboolean S_LoadMP3(const char *fileName, sfx_t *sfx)
 {
-    int length;
+    int          length;
     fileHandle_t file_handle;
 
     length = FS_FOpenFileRead(fileName, &file_handle, 0, 1);
@@ -552,9 +554,9 @@ qboolean S_LoadMP3(const char *fileName, sfx_t *sfx)
     }
 
     memset(&sfx->info, 0, sizeof(sfx->info));
-    sfx->data = (byte*)Z_TagMalloc(length, TAG_SOUND);
+    sfx->data   = (byte *)Z_TagMalloc(length, TAG_SOUND);
     sfx->length = length;
-    sfx->width = 1;
+    sfx->width  = 1;
     FS_Read(sfx->data, length, file_handle);
     FS_FCloseFile(file_handle);
 
