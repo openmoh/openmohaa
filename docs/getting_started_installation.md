@@ -119,13 +119,12 @@ b) extract archive somewhere on your hard drive, create a shortcut to openmohaa 
 
 ## Server
 
-Extract the archive to your MOHAA server installation directory. Then proceed like you would do with mohaa server:
+Extract `omohaaded.*` and `game.*` binaries from the archive to your MOHAA server installation directory. Then proceed like you would do with mohaa server:
 
-- `.\omohaaded.exe +exec server.cfg` on Windows
-- `./omohaaded +exec server.cfg` on Linux
+- `.\omohaaded.*.exe +exec server.cfg` on Windows
+- `./omohaaded.* +exec server.cfg` on Linux
 
-Only `omohaaded*` and `game*` binaries are required for the server version, other binaries can be omitted.
-
+Make sure to replace '*' with the correct name in the binary.
 
 ## Extracting GOG setup file on Linux and macOS
 
