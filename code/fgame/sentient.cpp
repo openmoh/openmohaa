@@ -531,7 +531,7 @@ Event EV_Sentient_ForceDropWeapon2
 );
 Event EV_Sentient_ForceDropHealth
 (
-    "forcedropweapon",
+    "forcedrophealth",
     EV_DEFAULT,
     NULL,
     NULL,
@@ -540,7 +540,7 @@ Event EV_Sentient_ForceDropHealth
 );
 Event EV_Sentient_ForceDropHealth2
 (
-    "forcedropweapon",
+    "forcedrophealth",
     EV_DEFAULT,
     NULL,
     NULL,
