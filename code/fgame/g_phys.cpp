@@ -865,12 +865,6 @@ qboolean G_Push(Entity *pusher, Vector pushermove, Vector pusheramove)
             continue;
         }
 
-        // L: don't make the pusher teleport through anything that block
-        if (block != pusher) {
-            pusher_p->ent->setOrigin(pusher_p->origin);
-            continue;
-        }
-
         // save off the obstacle so we can call the block function
         obstacle = check;
 
