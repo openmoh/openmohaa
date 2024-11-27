@@ -1181,6 +1181,11 @@ void UpdateServerListCallBack(GServerList serverlist, int msg, void* instance, v
         }
 
         iServerTotalCount += ServerListCount(serverlist);
+
+        // Removed in 2.0
+        //  Only add entries for servers that are queried successfully
+        //  it avoids unnecessary entries
+#if 0
         for (j = 0; j < ServerListCount(serverlist); j++) {
             GServer arrayServer = ServerListGetServer(serverlist, j);
         
@@ -1208,6 +1213,7 @@ void UpdateServerListCallBack(GServerList serverlist, int msg, void* instance, v
 
             uiServerList->AddItem(pNewServerItem);
         }
+#endif
 
         /*
         for (i = 1; i <= uiServerList->getNumItems(); i++)
