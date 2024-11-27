@@ -120,7 +120,7 @@ if(WIN32)
 	set(LIB_INSTALL_SUBDIR ".")
 else()
 	# Unix
-	set(CMAKE_DEFAULT_INSTALL_RUNTIME_DIR lib)
+	set(CMAKE_DEFAULT_INSTALL_RUNTIME_DIR lib${CMAKE_LIB_SUFFIX})
 	set(BIN_INSTALL_SUBDIR ${CMAKE_PROJECT_NAME})
 	set(LIB_INSTALL_SUBDIR ${CMAKE_PROJECT_NAME})
 endif()
@@ -187,7 +187,7 @@ if (NOT BUILD_NO_CLIENT)
 	target_link_libraries(openmohaa PRIVATE omohclient)
 	target_link_libraries(openmohaa PRIVATE omohrenderer omohsdl)
 	target_link_libraries(openmohaa PRIVATE qcommon qcommon_standalone)
-	
+
 	# Add the gamespy dependency
 	target_include_directories(openmohaa PUBLIC "code/qcommon" "code/script" "code/gamespy" "code/server" "code/client" "code/uilib")
 	set_target_properties(openmohaa PROPERTIES OUTPUT_NAME "openmohaa${TARGET_BIN_SUFFIX}")
@@ -260,4 +260,3 @@ if(NOT TARGET uninstall)
   add_custom_target(uninstall
     COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
 endif()
-
