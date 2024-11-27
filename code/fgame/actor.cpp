@@ -8389,7 +8389,7 @@ bool Actor::AttackEntryAnimation(void)
                 m_bNewEnemy   = true;
                 return true;
             }
-        } else if (fDistSquared > Square(1024)) {
+        } else if (fDistSquared > Square(1024) && (rand() % 4) == 0) {
             Sentient *pSquadMate;
 
             for (pSquadMate = m_pNextSquadMate; pSquadMate != this; pSquadMate = pSquadMate->m_pNextSquadMate) {
