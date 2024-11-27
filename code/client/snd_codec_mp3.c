@@ -622,7 +622,7 @@ int S_MP3_CodecReadStream(snd_stream_t* stream, int bytes, void* buffer)
     mp3info = stream->ptr;
 
     // Make sure we get complete frames all the way through.
-    bytes -= bytes % (stream->info.channels * stream->info.width);
+    bytes -= fmod(bytes, (stream->info.channels * stream->info.width));
 
     if (mp3info->buflen)
     {

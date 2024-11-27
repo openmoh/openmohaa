@@ -62,6 +62,7 @@ typedef struct {
 
     int dataofs;
     int datasize;
+    int dataalign;
 } wavinfo_t;
 
 typedef struct sfx_s {

@@ -120,7 +120,7 @@ extern LPALBUFFERDATA qalBufferData;
 extern LPALBUFFERF qalBufferf;
 extern LPALBUFFER3F qalBuffer3f;
 extern LPALBUFFERFV qalBufferfv;
-extern LPALBUFFERF qalBufferi;
+extern LPALBUFFERI qalBufferi;
 extern LPALBUFFER3F qalBuffer3i;
 extern LPALBUFFERFV qalBufferiv;
 extern LPALGETBUFFERF qalGetBufferf;

@@ -133,6 +133,7 @@ static qboolean S_ReadRIFFHeader(fileHandle_t file, snd_info_t *info)
 	char dump[16];
 	int bits;
 	int fmtlen = 0;
+	int bytealign;
 
 	// skip the riff wav header
 	FS_Read(dump, 12, file);
@@ -149,17 +150,22 @@ static qboolean S_ReadRIFFHeader(fileHandle_t file, snd_info_t *info)
 	info->channels = FGetLittleShort(file);
 	info->rate = FGetLittleLong(file);
 	FGetLittleLong(file);
-	FGetLittleShort(file);
+	bytealign = FGetLittleShort(file);
 	bits = FGetLittleShort(file);
 
-	if( bits < 8 )
-	{
-	  Com_Printf( S_COLOR_RED "ERROR: Less than 8 bit sound is not supported\n");
-	  return qfalse;
-	}
+	//if( bits < 8 )
+	//{
+	//  Com_Printf( S_COLOR_RED "ERROR: Less than 8 bit sound is not supported\n");
+	//  return qfalse;
+	//}
 
-	info->width = bits / 8;
+	info->width = bits / 8.0;
 	info->dataofs = 0;
+	if (bits == 16) {
+		info->dataalign = 1;
+	} else {
+		info->dataalign = (bytealign / info->channels - 4) / 4 * 8 + 1;
+	}
 
 	// Skip the rest of the format chunk if required
 	if(fmtlen > 16)

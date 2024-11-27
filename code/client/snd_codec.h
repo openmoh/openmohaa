@@ -34,11 +34,12 @@ extern "C" {
 typedef struct snd_info_s
 {
 	int rate;
-	int width;
+	float width;
 	int channels;
 	int samples;
 	int size;
 	int dataofs;
+	int dataalign;
 } snd_info_t;
 
 typedef struct snd_codec_s snd_codec_t;

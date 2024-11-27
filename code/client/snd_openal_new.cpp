@@ -100,6 +100,9 @@ int             music_currentsong       = 0;
 static qboolean enumeration_ext     = qfalse;
 static qboolean enumeration_all_ext = qfalse;
 
+static qboolean ima4_ext         = qfalse;
+static qboolean soft_block_align = qfalse;
+
 song_t            music_songs[MAX_MUSIC_SONGS];
 openal_internal_t openal;
 static float      s_fFadeStartTime;
@@ -113,7 +116,7 @@ static int
 S_OPENAL_SpatializeStereoSound(const vec3_t listener_origin, const vec3_t listener_left, const vec3_t origin);
 static void   S_OPENAL_reverb(int iChannel, int iReverbType, float fReverbLevel);
 static bool   S_OPENAL_LoadMP3_Codec(const char *_path, sfx_t *pSfx);
-static ALuint S_OPENAL_Format(int width, int channels);
+static ALuint S_OPENAL_Format(float width, int channels);
 
 #define alDieIfError() __alDieIfError(__FILE__, __LINE__)
 
@@ -449,7 +452,9 @@ S_OPENAL_InitExtensions
 */
 static bool S_OPENAL_InitExtensions()
 {
-    Com_Printf("AL extensions ignored\n");
+    ima4_ext         = qalIsExtensionPresent("AL_EXT_IMA4");
+    soft_block_align = qalIsExtensionPresent("AL_SOFT_block_alignment");
+
     return true;
 
     extensions_table_t extensions_table[4] = {
@@ -612,7 +617,9 @@ qboolean S_OPENAL_Init()
     }
 
     for (i = 0; i < MAX_SOUNDSYSTEM_CHANNELS_2D_STREAM; i++) {
-        if (!S_OPENAL_InitChannel(i + MAX_SOUNDSYSTEM_CHANNELS_3D + MAX_SOUNDSYSTEM_CHANNELS_2D, &openal.chan_2D_stream[i])) {
+        if (!S_OPENAL_InitChannel(
+                i + MAX_SOUNDSYSTEM_CHANNELS_3D + MAX_SOUNDSYSTEM_CHANNELS_2D, &openal.chan_2D_stream[i]
+            )) {
             return false;
         }
     }
@@ -827,7 +834,8 @@ void S_DumpInfo()
         S_DumpStatus(
             "Misc",
             i,
-            openal.channel[MAX_SOUNDSYSTEM_CHANNELS_3D + MAX_SOUNDSYSTEM_CHANNELS_2D + MAX_SOUNDSYSTEM_CHANNELS_2D_STREAM + i]
+            openal.channel
+                [MAX_SOUNDSYSTEM_CHANNELS_3D + MAX_SOUNDSYSTEM_CHANNELS_2D + MAX_SOUNDSYSTEM_CHANNELS_2D_STREAM + i]
         );
     }
 }
@@ -1818,7 +1826,9 @@ static int S_OPENAL_Start2DLoopSound(
     pChannel->set_gain(fVolumeToPlay);
     pChannel->start_sample();
     if (s_show_sounds->integer > 0) {
-        Com_DPrintf("OpenAL: %d (#%i) - %s (vol %f)\n", cl.serverTime, pLoopSound->iChannel, pLoopSound->pSfx->name, fVolume);
+        Com_DPrintf(
+            "OpenAL: %d (#%i) - %s (vol %f)\n", cl.serverTime, pLoopSound->iChannel, pLoopSound->pSfx->name, fVolume
+        );
     }
 
     return iChannel;
@@ -2138,7 +2148,9 @@ void S_OPENAL_AddLoopSounds(const vec3_t vTempAxis)
         }
 
         if (s_show_sounds->integer > 0) {
-            Com_DPrintf("OpenAL: %d (#%i) - started loop - %s\n", cl.serverTime, pLoopSound->iChannel, pLoopSound->pSfx->name);
+            Com_DPrintf(
+                "OpenAL: %d (#%i) - started loop - %s\n", cl.serverTime, pLoopSound->iChannel, pLoopSound->pSfx->name
+            );
         }
 
         if (pLoopSound->pSfx->iFlags & (SFX_FLAG_NO_OFFSET)
@@ -2991,8 +3003,20 @@ bool openal_channel::set_sfx(sfx_t *pSfx)
                 return false;
             }
 
+            if (pSfx->info.dataalign > 1 && !soft_block_align) {
+                Com_DPrintf(
+                    "OpenAL: Alignment specified but AL doesn't support block alignment (%d).", pSfx->info.dataalign
+                );
+                return false;
+            }
+
             qalGenBuffers(1, &pSfx->buffer);
             alDieIfError();
+
+            if (pSfx->info.dataalign > 1) {
+                qalBufferi(pSfx->buffer, AL_UNPACK_BLOCK_ALIGNMENT_SOFT, pSfx->info.dataalign);
+                alDieIfError();
+            }
 
             qalBufferData(
                 pSfx->buffer,
@@ -4216,7 +4240,7 @@ int S_CurrentMoviePosition()
 S_AL_Format
 =================
 */
-static ALuint S_OPENAL_Format(int width, int channels)
+static ALuint S_OPENAL_Format(float width, int channels)
 {
     ALuint format = AL_FORMAT_MONO16;
 
@@ -4232,6 +4256,17 @@ static ALuint S_OPENAL_Format(int width, int channels)
             format = AL_FORMAT_MONO16;
         } else if (channels == 2) {
             format = AL_FORMAT_STEREO16;
+        }
+    } else if (width == 0.5) {
+        if (ima4_ext && soft_block_align) {
+            if (channels == 1) {
+                format = AL_FORMAT_MONO_IMA4;
+            } else if (channels == 2) {
+                format = AL_FORMAT_STEREO_IMA4;
+            }
+        } else {
+            // unsupported
+            format = 0;
         }
     }
 
@@ -4358,6 +4393,11 @@ bool openal_channel_two_d_stream::set_sfx(sfx_t *pSfx)
         // Valid stream but no data?
         S_CodecCloseStream(stream);
         return true;
+    }
+
+    if (stream->info.dataalign > 1 && soft_block_align) {
+        qalBufferi(buffers[currentBuf], AL_UNPACK_BLOCK_ALIGNMENT_SOFT, stream->info.dataalign);
+        alDieIfError();
     }
 
     qalBufferData(buffers[currentBuf], pSfx->info.format, rawData, bytesRead, stream->info.rate);
@@ -4497,6 +4537,11 @@ void openal_channel_two_d_stream::update()
             streamHandle = NULL;
             return;
         }
+    }
+
+    if (stream->info.dataalign > 1 && soft_block_align) {
+        qalBufferi(buffers[currentBuf], AL_UNPACK_BLOCK_ALIGNMENT_SOFT, stream->info.dataalign);
+        alDieIfError();
     }
 
     qalBufferData(buffers[currentBuf], format, rawData, bytesRead, stream->info.rate);
