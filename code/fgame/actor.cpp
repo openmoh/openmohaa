@@ -8701,7 +8701,7 @@ void Actor::FaceEnemyOrMotion(int iTimeIntoMove)
 {
     vec2_t vDelta;
 
-    VectorCopy2D(origin, vDelta);
+    VectorSub2D(origin, m_vLastEnemyPos, vDelta);
 
     if (iTimeIntoMove <= 999) {
         m_bFaceEnemy = true;
