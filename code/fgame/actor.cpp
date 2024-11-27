@@ -2993,6 +2993,7 @@ Actor::Actor()
     //  The variable isn't set in original
     //
     m_bSilent = false;
+    m_bMumble = true;
 }
 
 /*
