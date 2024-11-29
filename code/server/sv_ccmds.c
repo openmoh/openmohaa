@@ -1669,9 +1669,9 @@ void SV_NetProfileDump_f(void)
             }
 
 			if (client->netchan.remoteAddress.type == NA_LOOPBACK) {
-				Com_sprintf(buffer, sizeof(buffer), "#%2i-Loopback: ");
+				Com_sprintf(buffer, sizeof(buffer), "#%2i-Loopback: ", i);
 			} else {
-				Com_sprintf(buffer, sizeof(buffer), "Client #%2i:   ");
+				Com_sprintf(buffer, sizeof(buffer), "Client #%2i:   ", i);
 			}
 
 			FS_Write(buffer, strlen(buffer), hFile);
