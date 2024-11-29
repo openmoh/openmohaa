@@ -7285,7 +7285,7 @@ void Player::UpdateStats(void)
 
                 trace = G_Trace(m_vViewPos, vec_zero, vec_zero, vEnd, this, MASK_BEAM, qfalse, "infoclientcheck");
 
-                if (trace.ent && trace.ent->entity->IsSubclassOfPlayer()) {
+                if (trace.ent && trace.ent->entity->IsSubclassOfPlayer() && !(trace.ent->r.svFlags & SVF_NOCLIENT)) {
                     Player *p = static_cast<Player *>(trace.ent->entity);
 
                     if (IsSpectator() || p->GetTeam() == GetTeam()) {
