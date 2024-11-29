@@ -63,13 +63,6 @@ jobs:
         echo "CXX=clang++" >> $GITHUB_ENV
         echo "CFLAGS='--target=${{ matrix.architecture.triple }}'" >> $GITHUB_ENV
         echo "CXXFLAGS='--target=${{ matrix.architecture.triple }}'" >> $GITHUB_ENV
-        # Temporary workaround for PowerPC as the 1.24.0 version doesn't check for altivec
-        # Will use older versions until a new tag is created with this issue resolved
-        if [ ${{ matrix.architecture.name }} != 'powerpc' ] && [ ${{ matrix.architecture.name }} != 'ppc64' ] &&  [ ${{ matrix.architecture.name }} != 'ppc64el' ]; then
-            echo "OPENAL_REF=1.24.0" >> $GITHUB_ENV
-        else
-            echo "OPENAL_REF=1.23.1" >> $GITHUB_ENV
-        fi
 
     ###
     # SDL
@@ -95,7 +88,7 @@ jobs:
       with:
         repository: 'kcat/openal-soft'
         path: 'thirdparties/soft-oal'
-        ref: ${{ env.OPENAL_REF }}
+        ref: '1.24.1'
 
     - name: Configure and install soft-oal
       working-directory: ${{github.workspace}}/thirdparties/soft-oal
@@ -249,7 +242,7 @@ jobs:
       with:
         repository: 'kcat/openal-soft'
         path: 'thirdparties/soft-oal'
-        ref: '1.24.0'
+        ref: '1.24.1'
 
     # soft-oal build
     # Statically link the CRT runtime into OAL as a workaround to prevent crashes
@@ -404,7 +397,7 @@ jobs:
       with:
         repository: 'kcat/openal-soft'
         path: 'thirdparties/soft-oal'
-        ref: '1.24.0'
+        ref: '1.24.1'
 
     - name: Configure and install soft-oal
       working-directory: ${{github.workspace}}/thirdparties/soft-oal
