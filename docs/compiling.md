@@ -8,11 +8,7 @@ The following tools are required for all platforms:
 - A C++11 compiler
 - OpenAL SDK (can be found [here](https://github.com/kcat/openal-soft))
 
-The installation directory can be set to the MOHAA directory.
-
-By default, the build will produce both the client and dedicated server versions. The client can be omitted from the build by appending `-DBUILD_NO_CLIENT=1` to the CMake command-line arguments. Using this parameter will result in only the server portion being built.
-
-OpenAL can be disabled by appending `-DNO_OPENAL=1` to the CMake command-line arguments. The old SDL-based sound system will be used instead, it lacks some features such as ambient sounds.
+The installation directory can be set to the MOHAA directory with `-DCMAKE_INSTALL_PREFIX=/path/to/mohaa`.
 
 ## Compiling for Linux
 
@@ -46,3 +42,11 @@ Flex and Bison can be downloaded from here: https://github.com/lexxmark/winflexb
 OpenAL can be downloaded from here: https://github.com/kcat/openal-soft/releases/tag/1.23.1 rename `soft_oal.dll` to `OpenAL64.dll` on 64-bit and `OpenAL32.dll` on 32-bit
 
 Append `-DFLEX_EXECUTABLE=...\win_flex.exe -DBISON_EXECUTABLE=...\win_bison.exe -DOPENAL_INCLUDE_DIR="path/to/oal/include" -DOPENAL_LIBRARY="path/to/oal"` to the CMake command-line to use the package from the link above.
+
+## Tweaking the build
+
+- `-DBUILD_NO_CLIENT=1` Don't build client binaries. This will only build the dedicated server binaries.
+- `-DCMAKE_LIB_SUFFIX=suffix` Default suffix to use for the default `lib` directory. For example `-DCMAKE_LIB_SUFFIX=64`
+- `-DNO_MODERN_DMA=1` Use the basic DMA sound system from quake3. This lacks many features such as soundtracks and movie audio from the modern OpenAL-based DMA sound system. This option is not recommended, unless openal is not available.
+- `-DTARGET_LOCAL_SYSTEM=1` for compiling and installing on the local system. This will remove the architecture suffix at the end of each binary. This option can be useful for packaging builds.
+- `-DUSE_SYSTEM_LIBS=1` for third-party libraries, this will make use of system libraries instead of libraries that are embedded within the project.
