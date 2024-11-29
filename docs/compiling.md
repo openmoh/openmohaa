@@ -3,23 +3,23 @@
 OpenMoHAA supports any architecture, thanks to the CMake build system and cross-platform code/libraries. While the most common little-Endian architectures (arm, aarch64, x86, x86_64) have been tested and confirmed to work, big-Endian architectures should be supported as well; however, they remain untested.
 
 The following tools are required for all platforms:
-- CMake >= 3.5
+- CMake >= 3.12
 - Flex (>= 2.6.4) and Bison (>= 3.5.1)
 - A C++11 compiler
 - OpenAL SDK (can be found [here](https://github.com/kcat/openal-soft))
 
 The installation directory can be set to the MOHAA directory with `-DCMAKE_INSTALL_PREFIX=/path/to/mohaa`.
 
+Compiling debug binaries will result in a `-dbg` suffix appended to the name of the binaries to avoid mixing debug/release code.
+
 ## Compiling for Linux
 
 These are the tools required on Linux :
-- Clang >= 3.3 or GCC >= 4.8.5
+- Clang >= 7.0.1 or GCC >= 9.4.0
 - libsdl2-dev
 - libopenal-dev
 
-**clang-3.5** and **gcc-4.8.5** should work (tested on Ubuntu 16.04), but the latest version should be used.
-
-Ubuntu 20.04 is the minimum version required to fully compile the project successfully.
+**clang-7** and **gcc-9** has been tested to work on Ubuntu 20.04. Although it's best to use the latest versions.
 
 1 line install command with clang:
 ```sh
@@ -39,7 +39,7 @@ Other compilers can be specified by appending `-DCMAKE_C_COMPILER=/path/to/compi
 Visual Studio (2019 or 2022) is generally preferred.
 
 Flex and Bison can be downloaded from here: https://github.com/lexxmark/winflexbison/releases/tag/v2.5.25
-OpenAL can be downloaded from here: https://github.com/kcat/openal-soft/releases/tag/1.23.1 rename `soft_oal.dll` to `OpenAL64.dll` on 64-bit and `OpenAL32.dll` on 32-bit
+OpenAL can be downloaded from here: https://github.com/kcat/openal-soft/releases/tag/1.24.1 rename `soft_oal.dll` to `OpenAL64.dll` on 64-bit and `OpenAL32.dll` on 32-bit
 
 Append `-DFLEX_EXECUTABLE=...\win_flex.exe -DBISON_EXECUTABLE=...\win_bison.exe -DOPENAL_INCLUDE_DIR="path/to/oal/include" -DOPENAL_LIBRARY="path/to/oal"` to the CMake command-line to use the package from the link above.
 
