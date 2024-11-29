@@ -38,9 +38,9 @@ const char* targetGameList[] =
 int main(int argc, const char* argv[]) {
     std::vector<std::string> argumentList;
 #if !defined(DEDICATED) || !DEDICATED
-    const char* programName = "openmohaa" "." ARCH_STRING DLL_SUFFIX EXE_EXT;
+    const char* programName = "openmohaa" ARCH_SUFFIX DLL_SUFFIX EXE_EXT;
 #else
-    const char* programName = "omohaaded" "." ARCH_STRING DLL_SUFFIX EXE_EXT;
+    const char* programName = "omohaaded" ARCH_SUFFIX DLL_SUFFIX EXE_EXT;
 #endif
 
     argumentList.push_back("+set");

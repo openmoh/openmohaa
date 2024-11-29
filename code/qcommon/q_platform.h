@@ -86,6 +86,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define DLL_SUFFIX
 #endif
 
+#if !defined(TARGET_LOCAL_SYSTEM)
+#  define ARCH_SUFFIX "." ARCH_STRING
+#else
+#  define ARCH_SUFFIX
+#endif
+
 // alloca
 #ifdef _MSC_VER
 #  include <malloc.h>

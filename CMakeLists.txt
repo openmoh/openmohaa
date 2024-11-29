@@ -13,11 +13,11 @@ endif()
 option(USE_INTERNAL_JPEG "If set, use bundled libjpeg." ${USE_INTERNAL_LIBS})
 option(USE_INTERNAL_MAD  "If set, use bundled libmad."  ${USE_INTERNAL_LIBS})
 option(USE_INTERNAL_ZLIB "If set, use bundled zlib."    ${USE_INTERNAL_LIBS})
+option(TARGET_LOCAL_SYSTEM "Indicate that the project will be compiled and installed for the local system" OFF)
 
 if(TARGET_GAME_TYPE)
 	message(SEND_ERROR "TARGET_GAME_TYPE is now unsupported, it is now done at runtime.")
 endif()
-
 
 set(TARGET_BASE_GAME "./")
 set(CMAKE_DEBUG_POSTFIX "-dbg")
@@ -68,9 +68,17 @@ ELSE()
 	set(TARGET_ARCH_SUFFIX ${TARGET_ARCH})
 ENDIF()
 
-set(TARGET_BIN_SUFFIX ".${TARGET_ARCH}")
+message(STATUS "Architecture detected: ${TARGET_ARCH}")
 
-message(STATUS "Architecture detected: ${TARGET_ARCH}, suffix set to ${TARGET_ARCH_SUFFIX}.")
+if(TARGET_LOCAL_SYSTEM)
+	add_definitions(-DTARGET_LOCAL_SYSTEM)
+	# As it targets the local system, no need to know about the architecture used
+	set(TARGET_BIN_SUFFIX "")
+	message(STATUS "Suffix will not be used as the local system is the target")
+else()
+	set(TARGET_BIN_SUFFIX ".${TARGET_ARCH}")
+	message(STATUS "Suffix set to ${TARGET_ARCH_SUFFIX}.")
+endif()
 
 IF(WIN32)
 	set(TARGET_PLATFORM_PREFIX "")
