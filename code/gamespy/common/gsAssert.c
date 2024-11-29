@@ -96,7 +96,7 @@ void  gsDebugAssert				(const char *szError,const char *szText, const char *szFi
 	// continues rendering
 	void  _gsDebugAssert			(const char *string)
 	{
-		printf(string);
+		printf("%s", string);
 		
 		while(1)
 		{
@@ -118,7 +118,7 @@ void  gsDebugAssert				(const char *szError,const char *szText, const char *szFi
 	void  _gsDebugAssert			(const char *string)
 	{
 
-		scePrintf(string);
+		scePrintf("%s", string);
 		while(1);;
 	}
 
@@ -127,7 +127,7 @@ void  gsDebugAssert				(const char *szError,const char *szText, const char *szFi
 #elif defined _MACOSX
 	void  _gsDebugAssert			(const char *string)
 	{
-		printf(string);
+		printf("%s", string);
 		
 		while(1)
 		{
@@ -139,7 +139,7 @@ void  gsDebugAssert				(const char *szError,const char *szText, const char *szFi
 #elif defined _LINUX
 	void  _gsDebugAssert			(const char *string)
 	{
-		printf(string);
+		printf("%s", string);
 		
 		while(1)
 		{
@@ -170,7 +170,7 @@ void  gsDebugAssert				(const char *szError,const char *szText, const char *szFi
 	void  _gsDebugAssert			(const char *string)
 	{
 
-		printf(string);
+		printf("%s", string);
 		while(1);;
 
 	}
