@@ -1,4 +1,5 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.12)
+
 project(qcommon)
 
 if(${CMAKE_VERSION} VERSION_GREATER "3.12")

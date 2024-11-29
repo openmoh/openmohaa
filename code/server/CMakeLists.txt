@@ -1,4 +1,5 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.12)
+
 project(omohserver)
 
 add_subdirectory("../fgame" "./fgame")

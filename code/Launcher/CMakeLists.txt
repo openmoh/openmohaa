@@ -1,3 +1,5 @@
+cmake_minimum_required(VERSION 3.12)
+
 project(Launcher)
 
 set(LAUNCHER_SOURCES "${CMAKE_SOURCE_DIR}/code/Launcher/launch_main.cpp")
