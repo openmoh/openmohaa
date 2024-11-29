@@ -1,8 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 project(omohclient)
 
-option(NO_OPENAL "Use older sound-system" FALSE)
-
 add_subdirectory("../cgame" "./cgame")
 
 file(GLOB SOURCES_CLIENT "./*.c*")
@@ -19,7 +17,7 @@ target_link_libraries(omohclient INTERFACE gcd)
 # Sound stuff
 target_compile_definitions(omohclient INTERFACE USE_CODEC_MP3)
 
-if (NOT NO_OPENAL)
+if (NOT NO_MODERN_DMA)
 	# Use OpenAL
 	find_package(OpenAL REQUIRED)
 

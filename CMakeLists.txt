@@ -179,6 +179,7 @@ if (NOT BUILD_NO_CLIENT)
 	##
 	## Client app
 	##
+	option(NO_MODERN_DMA "Use older sound-system" FALSE)
 
 	add_subdirectory("code/client")
 	add_subdirectory("code/renderer")
