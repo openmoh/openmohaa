@@ -11,7 +11,6 @@ file(GLOB_RECURSE SOURCES_UILIB "../uilib/*.c*")
 # Made as an interface and not static, as static only links used methods
 add_library(omohclient INTERFACE)
 target_compile_definitions(omohclient INTERFACE APP_MODULE)
-target_compile_definitions(omohclient INTERFACE USE_OPENAL_DLOPEN=1)
 target_compile_features(omohclient INTERFACE cxx_nullptr)
 target_compile_features(omohclient INTERFACE c_variadic_macros)
 target_link_libraries(omohclient INTERFACE omohsdl)
@@ -31,7 +30,13 @@ if (NOT NO_OPENAL)
 		else()
 			target_include_directories(omohclient INTERFACE ${OPENAL_INCLUDE_DIR})
 		endif()
-		target_link_libraries(omohclient INTERFACE ${OPENAL_LIBRARY})
+
+		if(NOT USE_SYSTEM_LIBS)
+			target_compile_definitions(omohclient INTERFACE USE_OPENAL_DLOPEN=1)
+		else()
+			# Link against system OpenAL
+			target_link_libraries(omohclient INTERFACE OpenAL::OpenAL)
+		endif()
 	endif()
 
 	list(FILTER SOURCES_CLIENT EXCLUDE REGEX "./snd_([a-zA-Z0-9_]+)\.c$")
