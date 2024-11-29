@@ -114,10 +114,10 @@ void ScriptConstArrayHolder::Archive(Archiver& arc)
     arc.ArchiveUnsigned(&size);
 
     if (arc.Loading()) {
-        constArrayValue = new ScriptVariable[size + 1] - 1;
+        constArrayValue = new ScriptVariable[size + 1];
     }
 
-    for (unsigned int i = 1; i <= size; i++) {
+    for (unsigned int i = 0; i < size; i++) {
         constArrayValue[i].ArchiveInternal(arc);
     }
 }
@@ -307,9 +307,9 @@ ScriptConstArrayHolder::ScriptConstArrayHolder(ScriptVariable *pVar, unsigned in
     refCount   = 0;
     this->size = size;
 
-    constArrayValue = new ScriptVariable[size + 1] - 1;
+    constArrayValue = new ScriptVariable[size + 1];
 
-    for (unsigned int i = 1; i <= size; i++) {
+    for (unsigned int i = 0; i < size; i++) {
         constArrayValue[i] = pVar[i];
     }
 }
@@ -319,7 +319,7 @@ ScriptConstArrayHolder::ScriptConstArrayHolder(unsigned int size)
     refCount   = 0;
     this->size = size;
 
-    constArrayValue = new ScriptVariable[size + 1] - 1;
+    constArrayValue = new ScriptVariable[size + 1];
 }
 
 ScriptConstArrayHolder::ScriptConstArrayHolder()
@@ -332,8 +332,7 @@ ScriptConstArrayHolder::ScriptConstArrayHolder()
 ScriptConstArrayHolder::~ScriptConstArrayHolder()
 {
     if (constArrayValue) {
-        ScriptVariable *const offset = constArrayValue + 1;
-        delete[] offset;
+        delete[] constArrayValue;
     }
 }
 
@@ -451,11 +450,10 @@ void ScriptVariable::CastConstArrayValue(void)
 
         en = m_data.arrayValue->arrayValue;
 
-        i = 0;
+        i = 1;
 
-        for (value = en.NextValue(); value != NULL; value = en.NextValue()) {
-            i++;
-            constArrayValue->constArrayValue[i] = *value;
+        for (value = en.NextValue(); value != NULL; value = en.NextValue(), i++) {
+            constArrayValue->constArrayValue[i - 1] = *value;
         }
 
         break;
@@ -464,7 +462,7 @@ void ScriptVariable::CastConstArrayValue(void)
         constArrayValue = new ScriptConstArrayHolder(m_data.containerValue->NumObjects());
 
         for (int i = m_data.containerValue->NumObjects(); i > 0; i--) {
-            constArrayValue->constArrayValue[i].setListenerValue(m_data.containerValue->ObjectAt(i));
+            constArrayValue->constArrayValue[i - 1].setListenerValue(m_data.containerValue->ObjectAt(i));
         }
         break;
 
@@ -475,7 +473,7 @@ void ScriptVariable::CastConstArrayValue(void)
             constArrayValue = new ScriptConstArrayHolder(listeners->NumObjects());
 
             for (int i = listeners->NumObjects(); i > 0; i--) {
-                constArrayValue->constArrayValue[i].setListenerValue(listeners->ObjectAt(i));
+                constArrayValue->constArrayValue[i - 1].setListenerValue(listeners->ObjectAt(i));
             }
         } else {
             constArrayValue = new ScriptConstArrayHolder(0);
@@ -484,7 +482,7 @@ void ScriptVariable::CastConstArrayValue(void)
 
     default:
         constArrayValue                     = new ScriptConstArrayHolder(1);
-        constArrayValue->constArrayValue[1] = *this;
+        constArrayValue->constArrayValue[0] = *this;
 
         break;
     }
@@ -987,11 +985,11 @@ void ScriptVariable::evalArrayAt(ScriptVariable& var)
     case VARIABLE_CONSTARRAY:
         index = var.intValue();
 
-        if (!index || index > m_data.constArrayValue->size) {
+        if (index == 0 || index > m_data.constArrayValue->size) {
             throw ScriptException("array index %d out of range", index);
         }
 
-        *this = m_data.constArrayValue->constArrayValue[index];
+        *this = m_data.constArrayValue->constArrayValue[index - 1];
         break;
 
     case VARIABLE_CONTAINER:
@@ -1095,7 +1093,7 @@ Listener *ScriptVariable::listenerAt(uintptr_t index) const
 {
     switch (type) {
     case VARIABLE_CONSTARRAY:
-        return m_data.constArrayValue->constArrayValue[index].listenerValue();
+        return m_data.constArrayValue->constArrayValue[index - 1].listenerValue();
 
     case VARIABLE_CONTAINER:
         return m_data.containerValue->ObjectAt(index);
@@ -1332,14 +1330,14 @@ void ScriptVariable::setArrayAtRef(ScriptVariable& index, ScriptVariable& value)
     case VARIABLE_CONSTARRAY:
         intValue = index.intValue();
 
-        if (!intValue || intValue > m_data.constArrayValue->size) {
+        if (intValue == 0 || intValue > m_data.constArrayValue->size) {
             throw ScriptException("array index %d out of range", intValue);
         }
 
         if (value.GetType()) {
-            m_data.constArrayValue->constArrayValue[intValue] = value;
+            m_data.constArrayValue->constArrayValue[intValue - 1] = value;
         } else {
-            m_data.constArrayValue->constArrayValue[intValue].Clear();
+            m_data.constArrayValue->constArrayValue[intValue - 1].Clear();
         }
 
         break;
@@ -1385,7 +1383,7 @@ void ScriptVariable::setSafeContainerValue(ConList *newvalue)
 
 void ScriptVariable::setConstArrayValue(ScriptVariable *pVar, unsigned int size)
 {
-    ScriptConstArrayHolder *constArray = new ScriptConstArrayHolder(pVar - 1, size);
+    ScriptConstArrayHolder *constArray = new ScriptConstArrayHolder(pVar, size);
 
     ClearInternal();
     type = VARIABLE_CONSTARRAY;
@@ -2230,7 +2228,7 @@ ScriptVariable& ScriptVariable::operator[](ScriptVariable& index)
             throw ScriptException("array index %d out of range", i);
         }
 
-        return m_data.constArrayValue->constArrayValue[i];
+        return m_data.constArrayValue->constArrayValue[i - 1];
 
     default:
         throw ScriptException("[] applied to invalid type '%s'", typenames[GetType()]);
@@ -2239,7 +2237,7 @@ ScriptVariable& ScriptVariable::operator[](ScriptVariable& index)
 
 ScriptVariable *ScriptVariable::operator[](unsigned index) const
 {
-    return &m_data.constArrayValue->constArrayValue[index];
+    return &m_data.constArrayValue->constArrayValue[index - 1];
 }
 
 ScriptVariable *ScriptVariable::operator*()
