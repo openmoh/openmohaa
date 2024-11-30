@@ -4572,7 +4572,7 @@ U32 openal_channel_two_d_stream::sample_offset()
     ALint         numProcessedBuffers = 0;
     ALint         numQueuedBuffers    = 0;
     unsigned int  totalQueueLength    = 0;
-    unsigned int  bytesPerSample      = 0;
+    unsigned int  bitsPerSample       = 0;
     unsigned int  offset              = 0;
     ALint         bits = 0, channels = 0;
 
@@ -4586,7 +4586,7 @@ U32 openal_channel_two_d_stream::sample_offset()
     alDieIfError();
 
     totalQueueLength = getQueueLength();
-    bytesPerSample   = getBytesPerSample();
+    bitsPerSample    = getBitsPerSample();
 
     assert(playerByteOffset < totalQueueLength);
     assert(streamNextOffset >= totalQueueLength || stream);
@@ -4614,7 +4614,7 @@ U32 openal_channel_two_d_stream::sample_offset()
         offset = totalQueueLength - streamNextOffset + playerByteOffset;
     }
 
-    return offset / bytesPerSample;
+    return offset * 8 / bitsPerSample;
 }
 
 /*
@@ -4644,7 +4644,7 @@ void openal_channel_two_d_stream::set_sample_offset(U32 offset)
     snd_stream_t *stream;
     unsigned int  bytesToRead, bytesRead;
     unsigned int  byteOffset;
-    unsigned int  bytesPerSample;
+    unsigned int  bitsPerSample;
     unsigned int  streamPosition;
     ALuint        format;
     ALint         numQueuedBuffers;
@@ -4657,8 +4657,8 @@ void openal_channel_two_d_stream::set_sample_offset(U32 offset)
 
     stream         = (snd_stream_t *)streamHandle;
     streamPosition = getCurrentStreamPosition();
-    bytesPerSample = getBytesPerSample();
-    byteOffset     = offset * bytesPerSample;
+    bitsPerSample  = getBitsPerSample();
+    byteOffset     = offset * bitsPerSample / 8;
 
     if (byteOffset >= streamPosition && byteOffset < streamNextOffset) {
         //
@@ -4908,13 +4908,13 @@ unsigned int openal_channel_two_d_stream::getCurrentStreamPosition() const
 
 /*
 ==============
-openal_channel_two_d_stream::getBytesPerSample
+openal_channel_two_d_stream::getBitsPerSample
 
 Return the number of bytes per sample.
 It assumes that all pending buffers have the same channels and bits.
 ==============
 */
-unsigned int openal_channel_two_d_stream::getBytesPerSample() const
+unsigned int openal_channel_two_d_stream::getBitsPerSample() const
 {
     unsigned int bufferId;
     ALint        bits = 0, channels = 0;
@@ -4925,5 +4925,5 @@ unsigned int openal_channel_two_d_stream::getBytesPerSample() const
     qalGetBufferi(buffers[bufferId], AL_CHANNELS, &channels);
     alDieIfError();
 
-    return bits * channels / 8;
+    return bits * channels;
 }

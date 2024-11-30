@@ -165,7 +165,7 @@ private:
 
     unsigned int getQueueLength() const;
     unsigned int getCurrentStreamPosition() const;
-    unsigned int getBytesPerSample() const;
+    unsigned int getBitsPerSample() const;
 };
 
 struct openal_movie_channel : public openal_channel {
