@@ -38,7 +38,7 @@ void UIField::Draw(void)
     UpdateData();
 
     // the width of the widget that can be filled with valid text
-    float fVirtualWidth = m_frame.size.width / m_vVirtualScale[0] - m_font->getWidth(" ..", -1);
+    float fVirtualWidth = m_frame.size.width / getVirtualScale()[0] - m_font->getWidth(" ..", -1);
     float indentLength  = m_indent;
     float cursorSize    = m_font->getCharWidth('_');
 
@@ -125,7 +125,7 @@ void UIField::Draw(void)
     cursorPos = Q_min(cursorPos, fVirtualWidth);
 
     // Calculate text height
-    float y = m_frame.size.height / m_vVirtualScale[1] - m_font->getHeight(qfalse);
+    float y = m_frame.size.height / getVirtualScale()[1] - m_font->getHeight();
     if (m_bottomindent * 2 <= y) // upper and lower margin
     {
         y -= m_bottomindent;
@@ -135,27 +135,27 @@ void UIField::Draw(void)
 
     // Show text
     m_font->setColor(m_foreground_color);
-    m_font->Print(m_indent, y, temptext, -1, m_bVirtual);
+    m_font->Print(m_indent, y, temptext, -1, getVirtualScale());
 
     // Display blinking cursor if field is in focus
     if (IsActive()) {
         const char *cursorChar = (uid.time / 250) & 1 ? "|" : "_";
-        m_font->Print(cursorPos, y, cursorChar, -1, m_bVirtual);
+        m_font->Print(cursorPos, y, cursorChar, -1, getVirtualScale());
     }
 
     Q_strncpyz(temptext, "..", EDITFIELD_BUFSIZE);
 
     if (m_iPreStep) {
         // Display leading dots if not starting from the beginning
-        m_font->Print(2.0f, y, temptext, -1, m_bVirtual);
+        m_font->Print(2.0f, y, temptext, -1, getVirtualScale());
     }
 
     // Added in OPM
     // new iLastChar < EDITFIELD_BUFSIZE check for extra safety
     if (iLastChar < EDITFIELD_BUFSIZE && m_edit.m_buffer[iLastChar]) {
         // Display trailing dots if not ending at the end
-        fVirtualWidth = m_frame.size.width / m_vVirtualScale[0] - m_font->getWidth(temptext, -1) - 2.0f;
-        m_font->Print(fVirtualWidth, y, temptext, -1, m_bVirtual);
+        fVirtualWidth = m_frame.size.width / getVirtualScale()[0] - m_font->getWidth(temptext, -1) - 2.0f;
+        m_font->Print(fVirtualWidth, y, temptext, -1, getVirtualScale());
     }
 }
 
@@ -306,7 +306,7 @@ void UIField::UpdateData(void)
 void UIField::Pressed(Event *ev)
 {
     float xpos  = ev->GetFloat(1);
-    float point = (xpos - m_frame.pos.x) / m_vVirtualScale[0];
+    float point = (xpos - m_frame.pos.x) / getVirtualScale()[0];
     point       = Q_max(point, 0.0f); // added in 2.15
 
     int   iStep        = m_iPreStep;

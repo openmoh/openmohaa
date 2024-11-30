@@ -155,13 +155,15 @@ void UIConsole::DrawBottomLine
 	int promptwidth;
 	static str prompt = ">";
 	int top;
+	float topScaled;
 	int iXPos;
 	int iMaxStringWidth;
 	int widthbeforecaret;
 
 	promptwidth = m_font->getWidth(prompt.c_str(), -1);
-	top = m_frame.size.height - m_font->getHeight(qfalse);
-	m_font->Print(0.0, top, prompt.c_str(), -1, qfalse);
+	top = m_frame.size.height - m_font->getHeight(getHighResScale());
+	topScaled = top / getHighResScale()[1];
+	m_font->Print(0.0, topScaled, prompt.c_str(), -1, getHighResScale());
 
 	iXPos = promptwidth + 1;
 	iMaxStringWidth = m_frame.size.width - iXPos - m_scroll->getSize().width;
@@ -187,12 +189,12 @@ void UIConsole::DrawBottomLine
 
 		if (widthbeforecaret < iMaxStringWidth)
 		{
-			m_font->Print(iXPos, top, m_currentline.c_str(), -1, qfalse);
+			m_font->Print(iXPos, topScaled, m_currentline.c_str(), -1, getHighResScale());
 		}
 		else
 		{
 			indicatorwidth = m_font->getWidth(indicator.c_str(), -1);
-			m_font->Print(iXPos, top, indicator.c_str(), -1, 0);
+			m_font->Print(iXPos, topScaled, indicator.c_str(), -1, getHighResScale());
 
 			iXPos += indicatorwidth;
 			iMaxStringWidth -= indicatorwidth;
@@ -207,7 +209,7 @@ void UIConsole::DrawBottomLine
 				iCharLength = m_font->getCharWidth(pString[iChar - 1]);
 			}
 
-			m_font->Print(iXPos, top, pString + 1, -1, qfalse);
+			m_font->Print(iXPos, topScaled, pString + 1, -1, getHighResScale());
 			widthbeforecaret = iXPos + m_font->getWidth(pString + 1, m_caret - iChar);
 		}
 	}
@@ -218,19 +220,19 @@ void UIConsole::DrawBottomLine
 
 		completewidth = m_font->getWidth(m_completionbuffer.c_str(), -1);
 		linewidth = m_font->getWidth(&m_currentline[m_completionbuffer.length()], -1);
-		m_font->Print(iXPos, top, m_completionbuffer.c_str(), -1, qfalse);
+		m_font->Print(iXPos, topScaled, m_completionbuffer.c_str(), -1, getHighResScale());
 
 		iXPos += completewidth;
-		m_font->Print(iXPos, top, &m_currentline[m_completionbuffer.length()], -1, 0);
+		m_font->Print(iXPos, topScaled, &m_currentline[m_completionbuffer.length()], -1, getHighResScale());
 
-		DrawBoxWithSolidBorder(UIRect2D(iXPos, top, linewidth, m_font->getHeight(qfalse)), UBlack, URed, 1, 2, 1.0);
+		DrawBoxWithSolidBorder(UIRect2D(iXPos * getHighResScale()[0], top, linewidth * getHighResScale()[0], m_font->getHeight(getHighResScale())), UBlack, URed, 1, 2, 1.0);
 	}
 
 	//
 	// Make the caret blink
 	//
 	if ((uid.time % 750) > 375 && IsActive()) {
-		DrawBox(UIRect2D(widthbeforecaret, top, 1.0, m_font->getHeight(qfalse)), m_foreground_color, 1.0);
+		DrawBox(UIRect2D(widthbeforecaret * getHighResScale()[0], top, 1.0, m_font->getHeight(getHighResScale())), m_foreground_color, 1.0);
 	}
 }
 
@@ -503,7 +505,7 @@ void UIConsole::Draw
 		int lines_drawn, at_line;
 		int topitem;
 
-		top = (int)(m_frame.size.height - m_font->getHeight(false) * (m_scroll->getPageHeight() + 2));
+		top = (int)(m_frame.size.height - m_font->getHeight(getHighResScale()) * (m_scroll->getPageHeight() + 2));
 		item = m_firstitem;
 		topitem = m_scroll->getTopItem() - 1;
 
@@ -553,10 +555,10 @@ void UIConsole::Draw
 				}
 
 				m_font->setAlpha(m_alpha);
-				m_font->Print(0.0, top, &theItem->string.c_str()[theItem->begins[at_line]], theItem->breaks[at_line], 0);
+				m_font->Print(0.0, top / getHighResScale()[1], &theItem->string.c_str()[theItem->begins[at_line]], theItem->breaks[at_line], getHighResScale());
 			}
 
-			top += m_font->getHeight(false);
+			top += m_font->getHeight(getHighResScale());
 			lines_drawn++;
 			at_line++;
 		}
@@ -813,7 +815,7 @@ void UIConsole::OnSizeChanged
 	attop = false;
 	atbottom = false;
 
-	linesperpage = (m_frame.size.height / (float)m_font->getHeight(qfalse));
+	linesperpage = (m_frame.size.height / (float)m_font->getHeight(getHighResScale()));
 	m_scroll->InitFrameAlignRight(this, 0, 0);
 
 	if (ev)
@@ -906,13 +908,13 @@ void UIFloatingConsole::FrameInitialized
 	// call the parent initialisation
 	UIFloatingWindow::FrameInitialized();
 
-	m_status = new UIStatusBar(alignment_t::WND_ALIGN_BOTTOM, 20.0);
-	m_status->InitFrame(getChildSpace(), UIRect2D(0, 0, 20.0, 20.0), 0, "verdana-12");
+	m_status = new UIStatusBar(alignment_t::WND_ALIGN_BOTTOM, 20.0 * getHighResScale()[1]);
+	m_status->InitFrame(getChildSpace(), UIRect2D(0, 0, 20.0 * getHighResScale()[0], 20.0 * getHighResScale()[1]), 0, "verdana-12");
 	m_status->EnableSizeBox(this);
 	m_status->setTitle(str());
 
 	m_console = new UIConsole();
-	m_console->InitFrame(getChildSpace(), UIRect2D(0, 0, 20.0, 20.0), 0, "verdana-14");
+	m_console->InitFrame(getChildSpace(), UIRect2D(0, 0, 20.0 * getHighResScale()[0], 20.0 * getHighResScale()[1]), 0, "verdana-14");
 	setConsoleColor(m_consoleColor);
 	setConsoleBackground(m_consoleBackground, m_consoleAlpha);
 	m_console->setConsoleHandler(m_handler);
@@ -1423,7 +1425,7 @@ void UIFloatingDMConsole::FrameInitialized
 	UIFloatingWindow::FrameInitialized();
 
 	m_console = new UIDMConsole();
-	m_console->InitFrame(getChildSpace(), UIRect2D(0, 0, 20.0, 20.0), 0, "facfont-20");
+	m_console->InitFrame(getChildSpace(), UIRect2D(0, 0, 20.0 * getHighResScale()[0], 20.0 * getHighResScale()[1]), 0, "facfont-20");
 
 	m_console->Connect(this, W_Deactivated, W_Deactivated);
 	setConsoleColor(m_consoleColor);
@@ -1456,7 +1458,6 @@ void UIFloatingDMConsole::OnChildSizeChanged
 	}
 	else
 	{
-
 		m_console->setFrame(UIRect2D(UIPoint2D(0, 0), childSpaceSize));
 	}
 }

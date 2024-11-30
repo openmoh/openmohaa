@@ -269,7 +269,7 @@ void UIWindowManager::UpdateViews(void)
         if (UI_GetCvarInt("ui_drawcoords", 0)) {
             x = uid.mouseX + 10;
             y = uid.mouseY - 10;
-            m_font->Print(x, y, va("%d:%d", uid.mouseX, uid.mouseY), -1, m_bVirtual);
+            m_font->Print(x, y, va("%d:%d", uid.mouseX, uid.mouseY), -1, m_bVirtual ? m_vVirtualScale : NULL);
         }
     }
 }

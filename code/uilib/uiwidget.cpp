@@ -607,6 +607,23 @@ void DrawBoxWithSolidBorder( const UIRect2D& rect, const UColor& inside, const U
 	}
 }
 
+static bool scaleFrameVirtualRes(UIRect2D& frame, vec3_t outScale, const vec3_t newScale)
+{
+	if (!VectorCompare2D(outScale, newScale))
+	{
+        frame.pos.x = frame.pos.x / outScale[0] * newScale[0];
+        frame.pos.y = frame.pos.y / outScale[1] * newScale[1];
+        frame.size.width = frame.size.width / outScale[0] * newScale[0];
+        frame.size.height = frame.size.height / outScale[1] * newScale[1];
+		outScale[0] = newScale[0];
+		outScale[1] = newScale[1];
+
+		return true;
+	}
+
+	return false;
+}
+
 UIReggedMaterial::UIReggedMaterial()
 {
 	hMat = 0;
@@ -924,7 +941,7 @@ void UIWidget::DrawTitle
 
 {
 	m_font->setColor( m_foreground_color );
-	m_font->Print( x, y, Sys_LV_CL_ConvertString( m_title ), -1, m_bVirtual );
+	m_font->Print( x, y, Sys_LV_CL_ConvertString( m_title ), -1, getVirtualScale() );
 }
 
 void UIWidget::Motion
@@ -1108,16 +1125,17 @@ void UIWidget::AlignPosition
 
         SetVirtualScale(vNewVirtualScale);
 
-		if (!VectorCompare2D(m_vVirtualScale, vNewVirtualScale))
-		{
-			m_frame.pos.x = m_frame.pos.x / m_vVirtualScale[0] * vNewVirtualScale[0];
-			m_frame.pos.y = m_frame.pos.y / m_vVirtualScale[1] * vNewVirtualScale[1];
-			m_frame.size.width = m_frame.size.width / m_vVirtualScale[0] * vNewVirtualScale[0];
-			m_frame.size.height = m_frame.size.height / m_vVirtualScale[1] * vNewVirtualScale[1];
-			m_vVirtualScale[0] = vNewVirtualScale[0];
-			m_vVirtualScale[1] = vNewVirtualScale[1];
-		}
+		scaleFrameVirtualRes(m_frame, m_vVirtualScale, vNewVirtualScale);
 	}
+	else if (uid.bHighResScaling)
+    {
+        scaleFrameVirtualRes(m_frame, m_vVirtualScale, uid.scaleRes);
+	}
+    else
+    {
+		vec2_t vNewVirtualScale = { 1.0, 1.0 };
+		scaleFrameVirtualRes(m_frame, m_vVirtualScale, vNewVirtualScale);
+    }
 
 	if (m_flags & WF_STRETCH_VERTICAL)
 	{
@@ -1330,7 +1348,7 @@ void UIWidget::InitFrame
 		setParent( parentview );
 	}
 	else if( this != &uWinMan )
-	{
+    {
 		setParent( &uWinMan );
 	}
 
@@ -2473,7 +2491,7 @@ void UIWidget::Display
 
 		if( m_flags & WF_TILESHADER )
 		{
-               if (m_bVirtual) {
+            if (m_bVirtual) {
 				float fvWidth = m_frame.size.width / m_vVirtualScale[0] / uii.Rend_GetShaderWidth(m_material->GetMaterial());
 				float fvHeight = m_frame.size.height / m_vVirtualScale[1] / uii.Rend_GetShaderHeight(m_material->GetMaterial());
                    
@@ -2555,7 +2573,7 @@ float UIWidget::getTitleHeight
 	)
 
 {
-	return m_font->getHeight( m_bVirtual );
+	return m_font->getHeight(getVirtualScale());
 }
 
 bool UIWidget::CanActivate
@@ -2741,22 +2759,27 @@ void UIWidget::Realign
 	)
 
 {
+	bool bScaled = false;
+
 	if (m_bVirtual)
 	{
 		vec2_t vNewVirtualScale;
 
-		SetVirtualScale(vNewVirtualScale);
+        SetVirtualScale(vNewVirtualScale);
 
-		if (!VectorCompare2D(m_vVirtualScale, vNewVirtualScale))
-		{
-			m_frame.pos.x = m_frame.pos.x / m_vVirtualScale[0] * vNewVirtualScale[0];
-			m_frame.pos.y = m_frame.pos.y / m_vVirtualScale[1] * vNewVirtualScale[1];
-			m_frame.size.width = m_frame.size.width / m_vVirtualScale[0] * vNewVirtualScale[0];
-			m_frame.size.height = m_frame.size.height / m_vVirtualScale[1] * vNewVirtualScale[1];
-			m_vVirtualScale[0] = vNewVirtualScale[0];
-			m_vVirtualScale[1] = vNewVirtualScale[1];
-		}
+		scaleFrameVirtualRes(m_frame, m_vVirtualScale, vNewVirtualScale);
+		bScaled = true;
 	}
+	else if (uid.bHighResScaling)
+    {
+        scaleFrameVirtualRes(m_frame, m_vVirtualScale, uid.scaleRes);
+        bScaled = true;
+    }
+    else
+    {
+		vec2_t vNewVirtualScale = { 1.0, 1.0 };
+		bScaled = scaleFrameVirtualRes(m_frame, m_vVirtualScale, vNewVirtualScale);
+    }
 
 	if (m_flags & WF_STRETCH_VERTICAL)
 	{
@@ -2797,7 +2820,7 @@ void UIWidget::Realign
 		m_frame.pos.y = 0;
 	}
 
-	if ((m_align & WA_FULL) || (m_flags & (WF_STRETCH_HORIZONTAL | WF_STRETCH_VERTICAL)) || (m_bVirtual))
+	if ((m_align & WA_FULL) || (m_flags & (WF_STRETCH_HORIZONTAL | WF_STRETCH_VERTICAL)) || bScaled)
 	{
 		setFrame(m_frame);
 		m_startingpos = m_frame.pos;
@@ -3119,7 +3142,16 @@ bool UIWidget::isVirtual() const
 
 const vec2_t& UIWidget::getVirtualScale() const
 {
-	return m_vVirtualScale;
+	if (m_bVirtual) {
+		return m_vVirtualScale;
+	} else {
+		return uid.scaleRes;
+	}
+}
+
+const vec2_t& UIWidget::getHighResScale() const
+{
+	return uid.scaleRes;
 }
 
 void UIWidget::SetEnabledCvar
@@ -3208,16 +3240,17 @@ void UIWidgetContainer::AlignPosition
 
         SetVirtualScale(vNewVirtualScale);
 
-		if (!VectorCompare2D(m_vVirtualScale, vNewVirtualScale))
-		{
-			m_frame.pos.x = m_frame.pos.x / m_vVirtualScale[0] * vNewVirtualScale[0];
-			m_frame.pos.y = m_frame.pos.y / m_vVirtualScale[1] * vNewVirtualScale[1];
-			m_frame.size.width = m_frame.size.width / m_vVirtualScale[0] * vNewVirtualScale[0];
-			m_frame.size.height = m_frame.size.height / m_vVirtualScale[1] * vNewVirtualScale[1];
-			m_vVirtualScale[0] = vNewVirtualScale[0];
-			m_vVirtualScale[1] = vNewVirtualScale[1];
-		}
+        scaleFrameVirtualRes(m_frame, m_vVirtualScale, vNewVirtualScale);
 	}
+	else if (uid.bHighResScaling)
+    {
+        scaleFrameVirtualRes(m_frame, m_vVirtualScale, uid.scaleRes);
+    }
+    else
+    {
+		vec2_t vNewVirtualScale = { 1.0, 1.0 };
+		scaleFrameVirtualRes(m_frame, m_vVirtualScale, vNewVirtualScale);
+    }
 
 	if (m_align & WA_LEFT)
 	{

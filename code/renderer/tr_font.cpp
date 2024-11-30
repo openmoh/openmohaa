@@ -525,7 +525,7 @@ void R_LoadFontShader(fontheader_sgl_t* font)
     }
 }
 
-void R_DrawString_sgl(fontheader_sgl_t* font, const char* text, float x, float y, int maxlen, qboolean bVirtualScreen) {
+void R_DrawString_sgl(fontheader_sgl_t* font, const char* text, float x, float y, int maxlen, const float *pvVirtualScreen) {
     float charHeight;
     float startx, starty;
     int i;
@@ -534,8 +534,19 @@ void R_DrawString_sgl(fontheader_sgl_t* font, const char* text, float x, float y
     i = 0;
     startx = x;
     starty = y;
-    fWidthScale = (double)glConfig.vidWidth / 640.0;
-    fHeightScale = (double)glConfig.vidHeight / 480.0;
+    if (pvVirtualScreen) {
+        if (pvVirtualScreen[0]) {
+            fWidthScale = pvVirtualScreen[0];
+        } else {
+            fWidthScale = (double)glConfig.vidWidth / 640.0;
+        }
+
+        if (pvVirtualScreen[1]) {
+            fHeightScale = pvVirtualScreen[1];
+        } else {
+            fHeightScale = (double)glConfig.vidHeight / 480.0;
+        }
+    }
 
     if (!font) {
         return;
@@ -636,7 +647,7 @@ void R_DrawString_sgl(fontheader_sgl_t* font, const char* text, float x, float y
             tess.indexes[tess.numIndexes + 4] = tess.numVertexes + 3;
             tess.indexes[tess.numIndexes + 5] = tess.numVertexes + 2;
 
-            if (bVirtualScreen)
+            if (pvVirtualScreen)
             {
                 // scale the string properly if virtual screen
                 tess.xyz[tess.numVertexes][0] *= fWidthScale;
@@ -659,7 +670,7 @@ void R_DrawString_sgl(fontheader_sgl_t* font, const char* text, float x, float y
     RB_EndSurface();
 }
 
-void R_DrawString(fontheader_t* font, const char* text, float x, float y, int maxlen, qboolean bVirtualScreen) {
+void R_DrawString(fontheader_t* font, const char* text, float x, float y, int maxlen, const float *pvVirtualScreen) {
     int i;
     int code;
     unsigned short uch;
@@ -671,7 +682,7 @@ void R_DrawString(fontheader_t* font, const char* text, float x, float y, int ma
     
     if (!font->numPages) {
         if (font->sgl[0]) {
-            R_DrawString_sgl(font->sgl[0], text, x, y, maxlen, bVirtualScreen);
+            R_DrawString_sgl(font->sgl[0], text, x, y, maxlen, pvVirtualScreen);
         }
         return;
     }
@@ -704,7 +715,7 @@ void R_DrawString(fontheader_t* font, const char* text, float x, float y, int ma
 
         if (uch == '\n' || uch == '\r') {
             buffer[buflen] = 0;
-            R_DrawString_sgl(font->sgl[cursgl], buffer, curX, curY, maxlen, bVirtualScreen);
+            R_DrawString_sgl(font->sgl[cursgl], buffer, curX, curY, maxlen, pvVirtualScreen);
             
             curX = x;
             curHeight = 0.f;
@@ -728,7 +739,7 @@ void R_DrawString(fontheader_t* font, const char* text, float x, float y, int ma
         ct = &font->charTable[code];
         if (cursgl != ct->index || buflen >= ARRAY_LEN(buffer) - 2) {
             buffer[buflen] = 0;
-            R_DrawString_sgl(font->sgl[cursgl], buffer, curX, curY, maxlen, bVirtualScreen);
+            R_DrawString_sgl(font->sgl[cursgl], buffer, curX, curY, maxlen, pvVirtualScreen);
 
             curX += curHeight;
             curHeight = 0.f;
@@ -744,7 +755,7 @@ void R_DrawString(fontheader_t* font, const char* text, float x, float y, int ma
     if (buflen)
     {
         buffer[buflen] = 0;
-        R_DrawString_sgl(font->sgl[cursgl], buffer, curX, y, buflen, bVirtualScreen);
+        R_DrawString_sgl(font->sgl[cursgl], buffer, curX, y, buflen, pvVirtualScreen);
     }
 }
 

@@ -333,6 +333,7 @@ public:
 	// Added in OPM
 	bool				isVirtual() const;
 	const vec2_t&		getVirtualScale() const;
+	const vec2_t&		getHighResScale() const;
 };
 
 class UIWidgetContainer : public UIWidget {

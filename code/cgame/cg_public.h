@@ -312,7 +312,7 @@ functions exported to the main executable
         ); // 0 = white
         fontheader_t *(*R_LoadFont)(const char *name);
         void (*R_DrawString)(
-            fontheader_t *font, const char *text, float x, float y, int maxLen, qboolean virtualScreen
+            fontheader_t *font, const char *text, float x, float y, int maxLen, const float *pvVirtualScreen
         );
         refEntity_t *(*R_GetRenderEntity)(int entityNumber);
         void (*R_ModelBounds)(clipHandle_t model, vec3_t mins, vec3_t maxs);
@@ -363,6 +363,7 @@ functions exported to the main executable
         int (*UI_FontStringWidth)(fontheader_t *font, const char *string, int maxLen);
         // Added in 2.0
         float (*UI_GetObjectivesTop)(void);
+        void (*UI_GetHighResolutionScale)(vec2_t scale);
 
         int (*Key_StringToKeynum)(const char *str);
         const char *(*Key_KeynumToBindString)(int keyNum);

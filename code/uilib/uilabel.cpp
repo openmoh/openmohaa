@@ -318,7 +318,7 @@ void UILabel::Draw(void)
                 m_iFontAlignmentVertical,
                 string,
                 UBlack,
-                m_bVirtual ? m_vVirtualScale : NULL
+                getVirtualScale()
             );
         } else {
             // print the text
@@ -327,7 +327,7 @@ void UILabel::Draw(void)
                 m_iFontAlignmentHorizontal,
                 m_iFontAlignmentVertical,
                 string,
-                m_bVirtual ? m_vVirtualScale : NULL
+                getVirtualScale()
             );
         }
     }

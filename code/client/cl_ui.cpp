@@ -1009,7 +1009,7 @@ static UIRect2D getQuickMessageDMConsoleRectangle(void)
         //  Was 38.0 in 1.11 and below
         //  This prevents characters to be seen from the DM console
         //  in the quick message console
-        rect.size.height = 36.0;
+        rect.size.height = 36.0 * uid.scaleRes[1];
     }
 
     return rect;
@@ -1196,7 +1196,7 @@ static UIRect2D getDefaultGMBoxRectangle(void)
         height = y;
     }
 
-    return UIRect2D(20.0f, height, uid.vidWidth - 20, 128.0f);
+    return UIRect2D(20.0f, height, (uid.vidWidth - 20) * uid.scaleRes[0], 128.0f * uid.scaleRes[1]);
 }
 
 /*
@@ -1206,9 +1206,9 @@ getDefaultDMBoxRectangle
 */
 static UIRect2D getDefaultDMBoxRectangle(void)
 {
-    float width = uid.vidWidth * ui_compass_scale->value * 0.2f;
+    float width = uid.vidWidth * uid.scaleRes[0] * ui_compass_scale->value * 0.2f;
 
-    return UIRect2D(width, 0, uid.vidWidth - (width + 192.0f), 120.0f);
+    return UIRect2D(width, 0, (uid.vidWidth - (width + 192.0f)) * uid.scaleRes[0], 120.0f * uid.scaleRes[1]);
 }
 
 /*
@@ -1219,6 +1219,21 @@ UI_GetObjectivesTop
 float UI_GetObjectivesTop(void)
 {
     return getDefaultGMBoxRectangle().pos.y;
+}
+
+/*
+====================
+UI_GetObjectivesTop
+====================
+*/
+void UI_GetHighResolutionScale(vec2_t scale)
+{
+    if (uid.bHighResScaling) {
+        scale[0] = uid.scaleRes[0];
+        scale[1] = uid.scaleRes[1];
+    } else {
+        scale[0] = scale[1] = 1.0;
+    }
 }
 
 /*
@@ -3831,6 +3846,8 @@ UI_ResolutionChange
 void UI_ResolutionChange(void)
 {
     UIRect2D frame;
+    const float maxWidthRes = 1920;
+    const float maxHeightRes = 1080;
 
     if (com_target_game->integer >= TG_MOHTA) {
         ui_compass_scale = Cvar_Get("ui_compass_scale", "0.75", CVAR_ARCHIVE | CVAR_LATCH);
@@ -3841,6 +3858,22 @@ void UI_ResolutionChange(void)
 
     CL_FillUIImports();
     CL_FillUIDef();
+
+    // Added in OPM
+    //  Scaling for high resolutions
+    if (uid.vidWidth > maxWidthRes && uid.vidHeight > maxHeightRes) {
+        const float vidRatio = (float)uid.vidWidth / (float)uid.vidHeight;
+
+        uid.scaleRes[0] = (float)uid.vidWidth / (maxHeightRes * vidRatio);
+        uid.scaleRes[1] = (float)uid.vidHeight / maxHeightRes;
+        //uid.scaleRes[0] = (float)uid.vidWidth / maxWidthRes;
+        //uid.scaleRes[1] = (float)uid.vidHeight / maxHeightRes;
+        uid.bHighResScaling = qtrue;
+    } else {
+        uid.scaleRes[0] = 1;
+        uid.scaleRes[1] = 1;
+        uid.bHighResScaling = qfalse;
+    }
 
     if (!uie.ResolutionChange) {
         return;
@@ -4409,7 +4442,7 @@ void ScoreboardListItem::DrawListItem(int iColumn, const UIRect2D& drawRect, boo
 {
     DrawBox(drawRect, backColor, 1.0);
     pFont->setColor(textColor);
-    pFont->Print(drawRect.pos.x + 1, drawRect.pos.y, Sys_LV_CL_ConvertString(getListItemString(iColumn)), -1, qfalse);
+    pFont->Print((drawRect.pos.x + 1) / uid.scaleRes[0], drawRect.pos.y / uid.scaleRes[1], Sys_LV_CL_ConvertString(getListItemString(iColumn)), -1, uid.scaleRes);
 
     if (bTitleItem) {
         UIRect2D lineRect;

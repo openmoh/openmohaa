@@ -146,7 +146,7 @@ void UIMultiLineEdit::FrameInitialized(void)
 {
     delete m_vertscroll;
     m_vertscroll = new UIVertScroll();
-    m_vertscroll->setPageHeight(m_frame.size.height / m_font->getHeight(false));
+    m_vertscroll->setPageHeight(m_frame.size.height / m_font->getHeight(getHighResScale()));
     m_vertscroll->setTopItem(0);
     m_vertscroll->setNumItems(m_lines.getCount());
     m_vertscroll->InitFrameAlignRight(this, 0, 0);
@@ -157,7 +157,7 @@ void UIMultiLineEdit::FrameInitialized(void)
 
 void UIMultiLineEdit::SizeChanged(Event *ev)
 {
-    m_vertscroll->setPageHeight(m_frame.size.height / m_font->getHeight(m_bVirtual));
+    m_vertscroll->setPageHeight(m_frame.size.height / m_font->getHeight(getVirtualScale()));
     m_vertscroll->InitFrameAlignRight(this, 0, 0);
 }
 
@@ -209,7 +209,7 @@ void UIMultiLineEdit::Draw(void)
         if (i < topsel->line || i > botsel->line) {
             // Print regular line without any selection or cursor present
             m_font->setColor(m_foreground_color);
-            m_font->Print(0, aty, cur, -1, m_bVirtual);
+            m_font->Print(0, aty / getVirtualScale()[1], cur, -1, getVirtualScale());
         } else {
             // Current line contains cursor and/or selected text
             float linewidth = m_font->getWidth(cur, -1);
@@ -217,13 +217,13 @@ void UIMultiLineEdit::Draw(void)
             if (i > topsel->line && i < botsel->line) {
                 // all text in current line is selected, it's part of a larger selection,
                 // print entire line with the selection highlight box around it
-                DrawBox(0.0f, aty, linewidth, m_font->getHeight(m_bVirtual), selectionBG, 1.f);
+                DrawBox(0.0f, aty, linewidth * getVirtualScale()[0], m_font->getHeight(getVirtualScale()), selectionBG, 1.f);
                 m_font->setColor(selectionColor);
                 // Fixed in OPM:
                 // don't spam LOCALIZATION ERROR messages to console
                 // for clicking lines in the opened text document
                 //m_font->Print(0, aty, Sys_LV_CL_ConvertString(cur), -1, m_bVirtual);
-                m_font->Print(0, aty, cur, -1, m_bVirtual);
+                m_font->Print(0, aty / getVirtualScale()[1], cur, -1, getVirtualScale());
             } else if (i != topsel->line) {
                 // part of this line is selected, and selection continues/began above
                 if (i == botsel->line) { // sanity check, should always be true
@@ -232,13 +232,13 @@ void UIMultiLineEdit::Draw(void)
                         // selection contains text from the beginning of the line,
                         // print it with the selection highlight box around it
                         m_font->setColor(selectionColor);
-                        DrawBox(0, aty, toplen, m_font->getHeight(m_bVirtual), selectionBG, 1.f);
-                        m_font->Print(0, aty, cur, botsel->column, m_bVirtual);
+                        DrawBox(0, aty, toplen * getVirtualScale()[0], m_font->getHeight(getVirtualScale()), selectionBG, 1.f);
+                        m_font->Print(0, aty / getVirtualScale()[1], cur, botsel->column, getVirtualScale());
                     }
 
                     if (toplen < linewidth) { // is there still text on this line after the selection?
                         m_font->setColor(m_foreground_color);
-                        m_font->Print(toplen, aty, &cur[botsel->column], -1, m_bVirtual);
+                        m_font->Print(toplen, aty / getVirtualScale()[1], &cur[botsel->column], -1, getVirtualScale());
                     }
 
                     if (botsel == &m_selection.end) {
@@ -251,14 +251,14 @@ void UIMultiLineEdit::Draw(void)
                 int toplen = m_font->getWidth(cur, topsel->column); // X coord of highlighting start
                 if (topsel->column) { // is there any text on this line before the selection?
                     m_font->setColor(m_foreground_color);
-                    m_font->Print(0, aty, cur, topsel->column, m_bVirtual);
+                    m_font->Print(0, aty / getVirtualScale()[1], cur, topsel->column, getVirtualScale());
                 }
 
                 if (toplen < linewidth) { // is there any selected text before the end of the line?
                     // print the selected text with the selection highlight box around it
                     m_font->setColor(selectionColor);
-                    DrawBox(toplen, aty, linewidth - toplen, m_font->getHeight(m_bVirtual), selectionBG, 1.f);
-                    m_font->Print(toplen, aty, &cur[topsel->column], -1, m_bVirtual);
+                    DrawBox(toplen * getVirtualScale()[0], aty, (linewidth - toplen) * getVirtualScale()[0], m_font->getHeight(getVirtualScale()), selectionBG, 1.f);
+                    m_font->Print(toplen, aty / getVirtualScale()[1], &cur[topsel->column], -1, getVirtualScale());
                 }
 
                 if (topsel == &m_selection.end) {
@@ -275,7 +275,7 @@ void UIMultiLineEdit::Draw(void)
                     // don't spam LOCALIZATION ERROR messages to console
                     // for clicking lines in the opened text document
                     //m_font->Print(0, aty, Sys_LV_CL_ConvertString(cur), -1, m_bVirtual);
-                    m_font->Print(0, aty, cur, -1, m_bVirtual);
+                    m_font->Print(0, aty / getVirtualScale()[1], cur, -1, getVirtualScale());
                 } else {
                     // selection starts and ends on this line
                     int toplen = m_font->getWidth(cur, topsel->column); // X coord of highlighting start
@@ -283,14 +283,14 @@ void UIMultiLineEdit::Draw(void)
 
                     if (toplen) { // is there any text on this line before the selection?
                         m_font->setColor(m_foreground_color);
-                        m_font->Print(0, aty, cur, topsel->column, m_bVirtual);
+                        m_font->Print(0, aty / getVirtualScale()[1], cur, topsel->column, getVirtualScale());
                     }
 
                     if (botlen != toplen) { // is the selection wider than 0 pixels? (sanity check, always true)
                         // print the selected text with the selection highlight box around it
-                        DrawBox(toplen, aty, botlen - toplen, m_font->getHeight(m_bVirtual), selectionBG, 1.f);
+                        DrawBox(toplen * getVirtualScale()[0], aty, (botlen - toplen) * getVirtualScale()[0], m_font->getHeight(getVirtualScale()), selectionBG, 1.f);
                         m_font->setColor(selectionColor);
-                        m_font->Print(toplen, aty, &cur[topsel->column], botsel->column - topsel->column, m_bVirtual);
+                        m_font->Print(toplen, aty / getVirtualScale()[1], &cur[topsel->column], botsel->column - topsel->column, getVirtualScale());
                     }
 
                     if (cur.length() != botsel->column) { // is there still text on this line after the selection?
@@ -302,7 +302,7 @@ void UIMultiLineEdit::Draw(void)
                         // Cause: the last two arguments were incorrectly passed in originally,
                         // always specifying maxlen as m_bVirtual (which is usually zero).
                         // m_font->Print(botlen, aty, &cur[botsel->column], m_bVirtual, false);
-                        m_font->Print(botlen, aty, &cur[botsel->column], -1, m_bVirtual);
+                        m_font->Print(botlen, aty / getVirtualScale()[1], &cur[botsel->column], -1, getVirtualScale());
                     }
 
                     // Place the cursor at the end of the selection...
@@ -320,10 +320,10 @@ void UIMultiLineEdit::Draw(void)
 
         if (m_selection.end.line == i && (uid.time % 750) >= 375 && IsActive()) {
             // draw cursor caret
-            DrawBox(caret, aty, 2.f, m_font->getHeight(m_bVirtual), UBlack, 1.f);
+            DrawBox(caret * getVirtualScale()[0], aty, 2.f, m_font->getHeight(getVirtualScale()), UBlack, 1.f);
         }
 
-        aty += m_font->getHeight(m_bVirtual);
+        aty += m_font->getHeight(getVirtualScale());
     }
 }
 
@@ -363,7 +363,7 @@ void UIMultiLineEdit::PointToSelectionPoint(const UIPoint2D& p, selectionpoint_t
     float totalWidth = 0;
     float lastWidth  = 0;
 
-    clickedLine = m_vertscroll->getTopItem() + p.y / m_font->getHeight(m_bVirtual);
+    clickedLine = m_vertscroll->getTopItem() + p.y / m_font->getHeight(getVirtualScale());
     clickedLine = Q_min(clickedLine, m_lines.getCount() - 1);
 
     if (clickedLine < 0) {
@@ -374,7 +374,7 @@ void UIMultiLineEdit::PointToSelectionPoint(const UIPoint2D& p, selectionpoint_t
 
     const char *line = LineFromLineNumber(clickedLine, true).c_str();
     for (i = 0; line[i] && totalWidth < p.x; i++) {
-        lastWidth = m_font->getCharWidth(line[i]);
+        lastWidth = m_font->getCharWidth(line[i]) * getVirtualScale()[0];
         totalWidth += lastWidth;
     }
 

@@ -112,7 +112,7 @@ void FakkMiniconsole::PostMoveinEvent(void)
 
 void FakkMiniconsole::OnSizeChanged(Event *ev)
 {
-    m_maxlines = m_frame.size.height / m_font->getHeight(false);
+    m_maxlines = m_frame.size.height / m_font->getHeight(getHighResScale());
 }
 
 void FakkMiniconsole::MoveInEvent(Event *ev)
@@ -163,14 +163,14 @@ void FakkMiniconsole::Draw(void)
     HandleBoxMoving();
 
     m_font->setColor(m_foreground_color);
-    aty = m_frame.size.height - m_font->getHeight(false);
+    aty = m_frame.size.height - m_font->getHeight(getHighResScale());
     for (i = m_lines.NumObjects(); i > 0; i--) {
-        if (-m_font->getHeight(false) >= aty) {
+        if (-m_font->getHeight(getHighResScale()) >= aty) {
             break;
         }
 
-        m_font->Print(0, aty, m_lines.ObjectAt(i), -1, false);
-        aty -= m_font->getHeight(false);
+        m_font->Print(0, aty / getHighResScale()[1], m_lines.ObjectAt(i), -1, getHighResScale());
+        aty -= m_font->getHeight(getHighResScale());
     }
 }
 

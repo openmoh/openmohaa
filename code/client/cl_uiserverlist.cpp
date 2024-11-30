@@ -177,6 +177,9 @@ void FAKKServerListItem::DrawListItem(int iColumn, const UIRect2D& drawRect, boo
         newRect.size.height *= uid.vidHeight / 768;
     }
     */
+
+    virtualScale[0] = m_parent->getHighResScale()[0];
+    virtualScale[1] = m_parent->getHighResScale()[1];
     
     if (!pColoringType->integer) {
         if (IfQueryFailed() || (IsDifferentVersion() && IsQueried())) {
@@ -210,7 +213,7 @@ void FAKKServerListItem::DrawListItem(int iColumn, const UIRect2D& drawRect, boo
             newRect.pos.y / virtualScale[1],
             getListItemString(iColumn).c_str(),
             -1,
-            false //m_parent->isVirtual()
+            virtualScale
         );
     } else {
         if (IsDifferentVersion()) {
@@ -266,7 +269,7 @@ void FAKKServerListItem::DrawListItem(int iColumn, const UIRect2D& drawRect, boo
                 newRect.pos.y / virtualScale[1],
                 getListItemString(iColumn).c_str(),
                 -1,
-                false //m_parent->isVirtual()
+                virtualScale
             );
 
             if (IsDifferentVersion()) {

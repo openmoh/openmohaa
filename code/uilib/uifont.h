@@ -47,12 +47,12 @@ public:
     UIFont();
     UIFont(const char *fn);
 
-    void Print(float x, float y, const char *text, size_t maxlen = -1, qboolean bVirtualScreen = qfalse);
+    void Print(float x, float y, const char *text, size_t maxlen = -1, const float *virtualScreen = NULL);
     void PrintJustified(
-        const UIRect2D& rect, fonthorzjustify_t horz, fontvertjustify_t vert, const char *text, float *vVirtualScale
+        const UIRect2D& rect, fonthorzjustify_t horz, fontvertjustify_t vert, const char *text, const float *vVirtualScale
     );
     void PrintOutlinedJustified(
-        const UIRect2D& rect, fonthorzjustify_t horz, fontvertjustify_t vert, const char* text, const UColor& outlineColor, float* vVirtualScale
+        const UIRect2D& rect, fonthorzjustify_t horz, fontvertjustify_t vert, const char* text, const UColor& outlineColor, const float* vVirtualScale
     );
     void setColor(UColor col);
     void setAlpha(float alpha);
@@ -60,8 +60,8 @@ public:
     int  getMaxWidthIndex(const char* text, int maxlen);
     int  getWidth(const char *text, int maxlen);
     int  getCharWidth(unsigned short ch);
-    int  getHeight(const char *text, int maxlen, qboolean bVirtual);
-    int  getHeight(qboolean bVirtual);
+    int  getHeight(const char *text, int maxlen, const float* virtualScale = NULL);
+    int  getHeight(const float* virtualScale = NULL);
     int  CodeSearch(unsigned short uch);
     bool DBCSIsLeadByte(unsigned short uch);
     bool DBCSIsMaekin(unsigned short uch);

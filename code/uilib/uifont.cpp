@@ -274,14 +274,14 @@ void UIFont::setFont(const char *fontname)
     }
 }
 
-void UIFont::Print(float x, float y, const char *text, size_t maxlen, qboolean bVirtualScreen)
+void UIFont::Print(float x, float y, const char *text, size_t maxlen, const float *virtualScreen)
 {
     uii.Rend_SetColor(color);
-    uii.Rend_DrawString(m_font, text, x, y, maxlen, bVirtualScreen);
+    uii.Rend_DrawString(m_font, text, x, y, maxlen, virtualScreen);
 }
 
 void UIFont::PrintJustified(
-    const UIRect2D& rect, fonthorzjustify_t horz, fontvertjustify_t vert, const char *text, float *vVirtualScale
+    const UIRect2D& rect, fonthorzjustify_t horz, fontvertjustify_t vert, const char *text, const float *vVirtualScale
 )
 {
     float       newx, newy;
@@ -302,11 +302,11 @@ void UIFont::PrintJustified(
 
     if (horz == FONT_JUSTHORZ_LEFT && vert == FONT_JUSTVERT_TOP) {
         // no need to justify
-        Print(sizedRect.pos.x, sizedRect.pos.y, text, -1, vVirtualScale != NULL);
+        Print(sizedRect.pos.x, sizedRect.pos.y, text, -1, vVirtualScale);
         return;
     }
 
-    textheight = getHeight(text, -1, qfalse);
+    textheight = getHeight(text, -1);
 
     switch (vert) {
     case FONT_JUSTVERT_TOP:
@@ -360,10 +360,10 @@ void UIFont::PrintJustified(
             break;
         }
 
-        Print(newx, newy, string, -1, vVirtualScale != NULL);
+        Print(newx, newy, string, -1, vVirtualScale);
 
         // expand for newline
-        newy += getHeight(" ", -1, qfalse);
+        newy += getHeight(" ", -1);
     }
 }
 
@@ -373,7 +373,7 @@ void UIFont::PrintOutlinedJustified(
     fontvertjustify_t vert,
     const char       *text,
     const UColor    & outlineColor,
-    float            *vVirtualScale
+    const float      *vVirtualScale
 )
 {
     float       newx, newy;
@@ -398,11 +398,11 @@ void UIFont::PrintOutlinedJustified(
 
     if (horz == FONT_JUSTHORZ_LEFT && vert == FONT_JUSTVERT_TOP) {
         // no need to justify
-        Print(sizedRect.pos.x, sizedRect.pos.y, text, -1, vVirtualScale != NULL);
+        Print(sizedRect.pos.x, sizedRect.pos.y, text, -1, vVirtualScale);
         return;
     }
 
-    textheight = getHeight(text, -1, qfalse);
+    textheight = getHeight(text, -1);
 
     switch (vert) {
     case FONT_JUSTVERT_TOP:
@@ -464,26 +464,26 @@ void UIFont::PrintOutlinedJustified(
         // draw the outline
         //
         setColor(outlineColor);
-        Print(newx + 1, newy + 2, string, -1, bVirtual);
-        Print(newx + 2, newy + 1, string, -1, bVirtual);
-        Print(newx - 1, newy + 2, string, -1, bVirtual);
-        Print(newx - 2, newy + 1, string, -1, bVirtual);
-        Print(newx - 1, newy - 2, string, -1, bVirtual);
-        Print(newx - 2, newy - 1, string, -1, bVirtual);
-        Print(newx + 1, newy - 2, string, -1, bVirtual);
-        Print(newx + 2, newy - 1, string, -1, bVirtual);
-        Print(newx + 2, newy, string, -1, bVirtual);
-        Print(newx - 2, newy, string, -1, bVirtual);
-        Print(newx, newy + 2, string, -1, bVirtual);
-        Print(newx, newy - 2, string, -1, bVirtual);
+        Print(newx + 1, newy + 2, string, -1, vVirtualScale);
+        Print(newx + 2, newy + 1, string, -1, vVirtualScale);
+        Print(newx - 1, newy + 2, string, -1, vVirtualScale);
+        Print(newx - 2, newy + 1, string, -1, vVirtualScale);
+        Print(newx - 1, newy - 2, string, -1, vVirtualScale);
+        Print(newx - 2, newy - 1, string, -1, vVirtualScale);
+        Print(newx + 1, newy - 2, string, -1, vVirtualScale);
+        Print(newx + 2, newy - 1, string, -1, vVirtualScale);
+        Print(newx + 2, newy, string, -1, vVirtualScale);
+        Print(newx - 2, newy, string, -1, vVirtualScale);
+        Print(newx, newy + 2, string, -1, vVirtualScale);
+        Print(newx, newy - 2, string, -1, vVirtualScale);
         //
         // draw the text
         //
         setColor(originalColor);
-        Print(newx, newy, string, -1, bVirtual);
+        Print(newx, newy, string, -1, vVirtualScale);
 
         // expand for newline
-        newy += getHeight(" ", -1, qfalse);
+        newy += getHeight(" ", -1);
     }
 }
 
@@ -532,7 +532,7 @@ int UIFont::getCharWidth(unsigned short ch)
     return m_font->sgl[index]->locations[indirected].size[0] * 256.0 * widthMul;
 }
 
-int UIFont::getHeight(const char *text, int maxlen, qboolean bVirtual)
+int UIFont::getHeight(const char *text, int maxlen, const float* virtualScale)
 {
     float height;
     int   i;
@@ -541,7 +541,7 @@ int UIFont::getHeight(const char *text, int maxlen, qboolean bVirtual)
         return 0;
     }
 
-    height = getHeight(bVirtual);
+    height = getHeight(virtualScale);
 
     for (i = 0; text[i]; i++) {
         if (maxlen != -1 && i > maxlen) {
@@ -549,20 +549,20 @@ int UIFont::getHeight(const char *text, int maxlen, qboolean bVirtual)
         }
 
         if (text[i] == '\n') {
-            height += getHeight(bVirtual);
+            height += getHeight(virtualScale);
         }
     }
 
     return height;
 }
 
-int UIFont::getHeight(qboolean bVirtual)
+int UIFont::getHeight(const float* virtualScale)
 {
-    if (bVirtual) {
+    if (virtualScale) {
         if (m_font) {
-            return (m_font->sgl[0]->height * uid.vidHeight / 480.0);
+            return (m_font->sgl[0]->height * virtualScale[0]);
         } else {
-            return (16.0 * uid.vidHeight / 480.0);
+            return (16.0 * uid.vidHeight * virtualScale[1]);
         }
     } else {
         if (m_font) {

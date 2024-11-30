@@ -570,6 +570,7 @@ void CG_GetRendererConfig(void)
     cgi.GetGlconfig(&cgs.glconfig);
     cgs.screenXScale = cgs.glconfig.vidWidth / 640.0;
     cgs.screenYScale = cgs.glconfig.vidHeight / 480.0;
+    cgi.UI_GetHighResolutionScale(&cgs.uiHiResScale);
 }
 
 /*

@@ -303,7 +303,7 @@ void UIListBox::Draw(void)
                 0,
                 aty * m_vVirtualScale[1],
                 m_frame.size.width - m_vVirtualScale[0] * 16,
-                m_font->getHeight(m_bVirtual),
+                m_font->getHeight(getVirtualScale()),
                 selectedBG,
                 1.f
             );
@@ -318,7 +318,7 @@ void UIListBox::Draw(void)
         } else {
             str = li->string;
         }
-        m_font->Print(m_indent, aty, str, -1, m_bVirtual);
+        m_font->Print(m_indent, aty, str, -1, m_bVirtual ? m_vVirtualScale : NULL);
 
         if (i == m_currentItem) {
             DrawBoxWithSolidBorder(
@@ -326,7 +326,7 @@ void UIListBox::Draw(void)
                     0,
                     aty * m_vVirtualScale[1],
                     m_frame.size.width - m_vVirtualScale[0] * 16,
-                    m_font->getHeight(m_bVirtual)
+                    m_font->getHeight(getVirtualScale())
                 ),
                 UWhite,
                 selectedBorder,
@@ -336,7 +336,7 @@ void UIListBox::Draw(void)
             );
         }
 
-        aty += m_font->getHeight(false);
+        aty += m_font->getHeight(getHighResScale());
         i++;
     }
 }
@@ -349,9 +349,9 @@ void UIListBox::MousePressed(Event *ev)
     p.y = ev->GetFloat(2) - m_screenframe.pos.y;
 
     if (m_vertscroll) {
-        TrySelectItem((m_vertscroll->getTopItem() + 1) + p.y / m_font->getHeight(m_bVirtual));
+        TrySelectItem((m_vertscroll->getTopItem() + 1) + p.y / m_font->getHeight(getVirtualScale()));
     } else {
-        TrySelectItem(p.y / m_font->getHeight(m_bVirtual) + 1);
+        TrySelectItem(p.y / m_font->getHeight(getVirtualScale()) + 1);
     }
 
     if (m_clickState.time + 500 > uid.time && m_currentItem == m_clickState.selected) {
@@ -409,7 +409,7 @@ void UIListBox::SetListFont(Event *ev)
     LayoutFont(ev);
 
     if (m_vertscroll) {
-        m_vertscroll->setPageHeight(m_frame.size.height / m_font->getHeight(m_bVirtual));
+        m_vertscroll->setPageHeight(m_frame.size.height / m_font->getHeight(getVirtualScale()));
     }
 
     FrameInitialized();
@@ -483,7 +483,7 @@ void UIListBox::FrameInitialized(void)
     UIListBase::FrameInitialized();
 
     if (m_vertscroll) {
-        m_vertscroll->setPageHeight(m_frame.size.height / m_font->getHeight(m_bVirtual));
+        m_vertscroll->setPageHeight(m_frame.size.height / m_font->getHeight(getVirtualScale()));
         m_vertscroll->setNumItems(m_itemlist.NumObjects());
     }
 }

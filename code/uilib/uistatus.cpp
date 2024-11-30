@@ -51,10 +51,10 @@ void UIWindowSizer::Draw
 
 {
 	m_font->setColor(UWhite);
-	m_font->Print(0, 0, "o", -1, m_bVirtual);
+	m_font->Print(0, 0, "o", -1, getVirtualScale());
 
 	m_font->setColor(UBlack);
-	m_font->Print(0, 0, "p", -1, m_bVirtual);
+	m_font->Print(0, 0, "p", -1, getVirtualScale());
 }
 
 void UIWindowSizer::FrameInitialized
@@ -202,7 +202,7 @@ void UIStatusBar::Draw
 		m_iFontAlignmentHorizontal,
 		m_iFontAlignmentVertical,
 		Sys_LV_CL_ConvertString(m_title.c_str()),
-		m_bVirtual ? m_vVirtualScale : NULL
+		getVirtualScale()
 	);
 
 	if (m_sizer)
@@ -267,16 +267,13 @@ void UIStatusBar::SelfSized
 {
 	if (m_sizeenabled)
 	{
-		if (m_sizer) {
-			if (m_sizer->getDraggingWidget() != m_sizeenabled) {
-				m_sizer->setDraggingWidget(m_sizeenabled);
-			}
-		}
-		else {
-			m_sizer = new UIWindowSizer(m_sizeenabled);
-			m_sizer->InitFrame(this, 0, 0, 16.0, 16.0, 0);
-		}
-
+        if (!m_sizer) {
+            m_sizer = new UIWindowSizer(m_sizeenabled);
+            m_sizer->InitFrame(this, 0, 0, 16.0 * getHighResScale()[0], 16.0 * getHighResScale()[1], 0);
+			
+		} else if (m_sizer->getDraggingWidget() != m_sizeenabled) {
+            m_sizer->setDraggingWidget(m_sizeenabled);
+        }
 
 		UISize2D sizerFrame = m_sizer->getSize();
 

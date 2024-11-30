@@ -191,8 +191,8 @@ void CG_DrawDisconnect(void)
     }
 
     handle = cgi.R_RegisterShader("gfx/2d/net.tga");
-    w      = cgi.R_GetShaderWidth(handle);
-    h      = cgi.R_GetShaderHeight(handle);
+    w      = cgi.R_GetShaderWidth(handle) * cgs.uiHiResScale[0];
+    h      = cgi.R_GetShaderHeight(handle) * cgs.uiHiResScale[1];
     x      = ((float)cgs.glconfig.vidWidth - w) * 0.5;
     y      = (float)cgs.glconfig.vidHeight - h;
 
@@ -331,7 +331,7 @@ static void CG_DrawPauseIcon()
     x = (cgs.glconfig.vidWidth - w) / 2.f;
 
     cgi.R_SetColor(colorWhite);
-    cgi.R_DrawStretchPic(x, y, w, h, 0, 0, 1, 1, handle);
+    cgi.R_DrawStretchPic(x, y, w * cgs.uiHiResScale[0], h * cgs.uiHiResScale[1], 0, 0, 1, 1, handle);
 }
 
 static void CG_DrawServerLag()
@@ -362,8 +362,8 @@ static void CG_DrawServerLag()
     }
 
     handle = cgi.R_RegisterShader("gfx/2d/slowserver");
-    w      = (float)cgi.R_GetShaderWidth(handle) / 4;
-    h      = (float)cgi.R_GetShaderHeight(handle) / 4;
+    w      = (float)cgi.R_GetShaderWidth(handle) * cgs.uiHiResScale[0] / 4;
+    h      = (float)cgi.R_GetShaderHeight(handle) * cgs.uiHiResScale[1] / 4;
     x      = ((float)cgs.glconfig.vidWidth - w) / 2;
     y      = (float)cgs.glconfig.vidHeight - h;
     cgi.R_DrawStretchPic(x, y, w, h, 0.0, 0.0, 1.0, 1.0, handle);
@@ -580,10 +580,14 @@ void CG_HudDrawElements()
     int   i;
     float fX, fY;
     float fWidth, fHeight;
+    vec2_t virtualScale;
 
     if (!cg_huddraw_force->integer && !cg_hud->integer) {
         return;
     }
+
+    virtualScale[0] = cgs.glconfig.vidWidth / 640.0;
+    virtualScale[1] = cgs.glconfig.vidWidth / 480.0;
 
     for (i = 0; i < MAX_HUDDRAW_ELEMENTS; i++) {
         if ((!cgi.HudDrawElements[i].hShader && !cgi.HudDrawElements[i].string[0])
@@ -634,7 +638,7 @@ void CG_HudDrawElements()
                     fX,
                     fY,
                     -1,
-                    cgi.HudDrawElements[i].bVirtualScreen
+                    cgi.HudDrawElements[i].bVirtualScreen ? virtualScale : cgs.uiHiResScale
                 );
             } else {
                 cgi.R_DrawString(
@@ -643,7 +647,7 @@ void CG_HudDrawElements()
                     fX,
                     fY,
                     -1,
-                    cgi.HudDrawElements[i].bVirtualScreen
+                    cgi.HudDrawElements[i].bVirtualScreen ? virtualScale : cgs.uiHiResScale
                 );
             }
         } else {
@@ -734,7 +738,7 @@ void CG_DrawObjectives()
     vColor[0] = 0.2f;
     vColor[3] = cg.ObjectivesCurrentAlpha * 0.75;
     cgi.R_SetColor(vColor);
-    cgi.R_DrawStretchPic(fX, fY, 450.0, fWidth, 0.0, 0.0, 1.0, 1.0, cgs.media.objectivesBackShader);
+    cgi.R_DrawStretchPic(fX, fY, 450.0 * cgs.uiHiResScale[0], fWidth * cgs.uiHiResScale[1], 0.0, 0.0, 1.0, 1.0, cgs.media.objectivesBackShader);
 
     fX        = 30.0;
     fY        = fObjectivesTop + 10;
@@ -743,11 +747,11 @@ void CG_DrawObjectives()
     vColor[2] = 1.0;
     vColor[3] = cg.ObjectivesCurrentAlpha;
     cgi.R_SetColor(vColor);
-    cgi.R_DrawString(cgs.media.objectiveFont, cgi.LV_ConvertString("Mission Objectives:"), fX, fY, -1, 0);
+    cgi.R_DrawString(cgs.media.objectiveFont, cgi.LV_ConvertString("Mission Objectives:"), fX, fY / cgs.uiHiResScale[1], -1, cgs.uiHiResScale);
     fY = fY + 5.0;
 
-    cgi.R_DrawString(cgs.media.objectiveFont, "_______________________________________________________", fX, fY, -1, 0);
-    fHeight = fObjectivesTop + 35;
+    cgi.R_DrawString(cgs.media.objectiveFont, "_______________________________________________________", fX, fY / cgs.uiHiResScale[1], -1, cgs.uiHiResScale);
+    fHeight = fObjectivesTop + 35 * cgs.uiHiResScale[1];
 
     for (i = 0; i < MAX_OBJECTIVES; ++i) {
         qhandle_t hBoxShader;
@@ -785,7 +789,14 @@ void CG_DrawObjectives()
         cgi.R_SetColor(vColor);
         fX = 55.0;
         fY = fHeight;
-        cgi.R_DrawString(cgs.media.objectiveFont, cgi.LV_ConvertString(cg.Objectives[i].text), 55.0, fHeight, -1, 0);
+        cgi.R_DrawString(
+            cgs.media.objectiveFont,
+            cgi.LV_ConvertString(cg.Objectives[i].text),
+            55.0,
+            fY / cgs.uiHiResScale[1],
+            -1,
+            cgs.uiHiResScale
+        );
 
         fX        = 30.0;
         fY        = fHeight;
@@ -794,9 +805,19 @@ void CG_DrawObjectives()
         vColor[2] = 1.0;
         vColor[3] = cg.ObjectivesCurrentAlpha;
         cgi.R_SetColor(vColor);
-        cgi.R_DrawStretchPic(fX, fY, 16.0, 16.0, 0.0, 0.0, 1.0, 1.0, hBoxShader);
+        cgi.R_DrawStretchPic(
+            fX * cgs.uiHiResScale[0],
+            fY,
+            16.0 * cgs.uiHiResScale[0],
+            16.0 * cgs.uiHiResScale[1],
+            0.0,
+            0.0,
+            1.0,
+            1.0,
+            hBoxShader
+        );
 
-        fHeight += iNumLines[i] * 12 + 25;
+        fHeight += iNumLines[i] * 12 + 25 * cgs.uiHiResScale[1];
     }
 }
 
@@ -820,7 +841,17 @@ void CG_DrawPlayerTeam()
 
     if (handle) {
         cgi.R_SetColor(NULL);
-        cgi.R_DrawStretchPic(96.0, cgs.glconfig.vidHeight - 46, 24.0, 24.0, 0.0, 0.0, 1.0, 1.0, handle);
+        cgi.R_DrawStretchPic(
+            96.0 * cgs.uiHiResScale[0],
+            cgs.glconfig.vidHeight - 46 * cgs.uiHiResScale[1],
+            24.0 * cgs.uiHiResScale[0],
+            24.0 * cgs.uiHiResScale[1],
+            0.0,
+            0.0,
+            1.0,
+            1.0,
+            handle
+        );
     }
 }
 
@@ -862,13 +893,12 @@ void CG_DrawPlayerEntInfo()
 
     if (handle) {
         cgi.R_SetColor(0);
-        cgi.R_DrawStretchPic(56.0, fY, 16.0, 16.0, 0.0, 0.0, 1.0, 1.0, handle);
-        fX = 56.0 + 24.0;
+        cgi.R_DrawStretchPic(fX, fY, 16.0 * cgs.uiHiResScale[0], 16.0 * cgs.uiHiResScale[1], 0.0, 0.0, 1.0, 1.0, handle);
     }
 
     cgi.R_SetColor(color);
-    cgi.R_DrawString(cgs.media.hudDrawFont, (char *)pszName, fX, fY, -1, 0);
-    cgi.R_DrawString(cgs.media.hudDrawFont, va("%i", cg.snap->ps.stats[STAT_INFOCLIENT_HEALTH]), fX, fY + 20.0, -1, 0);
+    cgi.R_DrawString(cgs.media.hudDrawFont, (char *)pszName, fX / cgs.uiHiResScale[0] + 24.0, fY / cgs.uiHiResScale[1], -1, cgs.uiHiResScale);
+    cgi.R_DrawString(cgs.media.hudDrawFont, va("%i", cg.snap->ps.stats[STAT_INFOCLIENT_HEALTH]), fX / cgs.uiHiResScale[0] + 24.0, fY / cgs.uiHiResScale[1] + 20.0, -1, cgs.uiHiResScale);
 }
 
 void CG_UpdateAttackerDisplay()
@@ -907,7 +937,17 @@ void CG_UpdateAttackerDisplay()
 
         if (handle) {
             cgi.R_SetColor(0);
-            cgi.R_DrawStretchPic(56.0, fY, 24.0, 24.0, 0.0, 0.0, 1.0, 1.0, handle);
+            cgi.R_DrawStretchPic(
+                56.0 * cgs.uiHiResScale[0],
+                fY,
+                24.0 * cgs.uiHiResScale[0],
+                24.0 * cgs.uiHiResScale[1],
+                0.0,
+                0.0,
+                1.0,
+                1.0,
+                handle
+            );
         }
 
         if ((cg.snap->ps.stats[STAT_TEAM] == TEAM_ALLIES || cg.snap->ps.stats[STAT_TEAM] == TEAM_AXIS)
@@ -921,7 +961,7 @@ void CG_UpdateAttackerDisplay()
             color[2] = 0.5;
         }
 
-        fX = 56.0 + 32.0;
+        fX = 56.0;
     } else {
         color[0] = 1.0;
         color[1] = 0.5;
@@ -929,7 +969,7 @@ void CG_UpdateAttackerDisplay()
     }
 
     cgi.R_SetColor(color);
-    cgi.R_DrawString(cgs.media.attackerFont, pszName, fX, fY, -1, 0);
+    cgi.R_DrawString(cgs.media.attackerFont, pszName, fX / cgs.uiHiResScale[0] + 32.0, fY / cgs.uiHiResScale[1], -1, cgs.uiHiResScale);
 }
 
 void CG_UpdateCountdown()
@@ -1043,7 +1083,7 @@ void CG_DrawInstantMessageMenu()
     x = 8.0;
     y = ((float)cgs.glconfig.vidHeight - h) * 0.5;
     cgi.R_SetColor(0);
-    cgi.R_DrawStretchPic(x, y, w, h, 0.0, 0.0, 1.0, 1.0, handle);
+    cgi.R_DrawStretchPic(x * cgs.uiHiResScale[0], y, w * cgs.uiHiResScale[0], h * cgs.uiHiResScale[1], 0.0, 0.0, 1.0, 1.0, handle);
 }
 
 void CG_DrawSpectatorView_ver_15()
@@ -1069,7 +1109,7 @@ void CG_DrawSpectatorView_ver_15()
         fX = (float)(cgs.glconfig.vidWidth - cgi.UI_FontStringWidth(cgs.media.attackerFont, pszString, -1)) * 0.5;
         fY = cgs.glconfig.vidHeight - 64.0;
         cgi.R_SetColor(NULL);
-        cgi.R_DrawString(cgs.media.attackerFont, pszString, fX, fY, -1, qfalse);
+        cgi.R_DrawString(cgs.media.attackerFont, pszString, fX / cgs.uiHiResScale[0], fY / cgs.uiHiResScale[1], -1, cgs.uiHiResScale);
     }
 
     if (cg.predicted_player_state.pm_flags & PMF_CAMERA_VIEW) {
@@ -1085,7 +1125,7 @@ void CG_DrawSpectatorView_ver_15()
         fX = (float)(cgs.glconfig.vidWidth - cgi.UI_FontStringWidth(cgs.media.attackerFont, pszString, -1)) * 0.5;
         fY = (float)cgs.glconfig.vidHeight - 40.0;
         cgi.R_SetColor(0);
-        cgi.R_DrawString(cgs.media.attackerFont, pszString, fX, fY, -1, 0);
+        cgi.R_DrawString(cgs.media.attackerFont, pszString, fX / cgs.uiHiResScale[0], fY / cgs.uiHiResScale[1], -1, cgs.uiHiResScale);
     }
 
     if (!bOnTeam && (cg.predicted_player_state.pm_flags & PMF_CAMERA_VIEW)) {
@@ -1096,7 +1136,7 @@ void CG_DrawSpectatorView_ver_15()
         fX = (float)(cgs.glconfig.vidWidth - cgi.UI_FontStringWidth(cgs.media.attackerFont, pszString, -1)) * 0.5;
         fY = (float)cgs.glconfig.vidHeight - 24.0;
         cgi.R_SetColor(0);
-        cgi.R_DrawString(cgs.media.attackerFont, pszString, fX, fY, -1, 0);
+        cgi.R_DrawString(cgs.media.attackerFont, pszString, fX / cgs.uiHiResScale[0], fY / cgs.uiHiResScale[1], -1, cgs.uiHiResScale);
     }
 
     if (!(cg.predicted_player_state.pm_flags & PMF_CAMERA_VIEW)) {
@@ -1109,10 +1149,10 @@ void CG_DrawSpectatorView_ver_15()
         fX = (float)(cgs.glconfig.vidWidth - cgi.UI_FontStringWidth(cgs.media.attackerFont, pszString, -1)) * 0.5;
         fY = (float)cgs.glconfig.vidHeight - 24.0;
         cgi.R_SetColor(0);
-        cgi.R_DrawString(cgs.media.attackerFont, pszString, fX, fY, -1, 0);
+        cgi.R_DrawString(cgs.media.attackerFont, pszString, fX / cgs.uiHiResScale[0], fY / cgs.uiHiResScale[1], -1, cgs.uiHiResScale);
     }
 
-    if ((cg.predicted_player_state.pm_flags & 0x80) != 0 && cg.snap && cg.snap->ps.stats[STAT_INFOCLIENT] != -1) {
+    if ((cg.predicted_player_state.pm_flags & PMF_CAMERA_VIEW) != 0 && cg.snap && cg.snap->ps.stats[STAT_INFOCLIENT] != -1) {
         int       iClientNum;
         qhandle_t hShader;
         vec4_t    color;
@@ -1130,7 +1170,7 @@ void CG_DrawSpectatorView_ver_15()
         fX = (float)(cgs.glconfig.vidWidth - cgi.UI_FontStringWidth(cgs.media.attackerFont, pszString, -1) - 16) * 0.5;
         fY = (float)cgs.glconfig.vidHeight - 80.0;
         cgi.R_SetColor(color);
-        cgi.R_DrawString(cgs.media.attackerFont, buf, fX, fY, -1, 0);
+        cgi.R_DrawString(cgs.media.attackerFont, buf, fX / cgs.uiHiResScale[0], fY / cgs.uiHiResScale[1], -1, cgs.uiHiResScale);
 
         if (cg.clientinfo[iClientNum].team == TEAM_ALLIES) {
             hShader = cgi.R_RegisterShader("textures/hud/allies");
@@ -1139,9 +1179,18 @@ void CG_DrawSpectatorView_ver_15()
         }
 
         if (hShader) {
-            fX -= 20.0;
             cgi.R_SetColor(NULL);
-            cgi.R_DrawStretchPic(fX, fY, 16.0, 16.0, 0.0, 0.0, 1.0, 1.0, hShader);
+            cgi.R_DrawStretchPic(
+                fX - 20.0 * cgs.uiHiResScale[0],
+                fY,
+                16.0 * cgs.uiHiResScale[0],
+                16.0 * cgs.uiHiResScale[1],
+                0.0,
+                0.0,
+                1.0,
+                1.0,
+                hShader
+            );
         }
     }
 }
@@ -1176,7 +1225,7 @@ void CG_DrawSpectatorView_ver_6()
     fX = (float)(cgs.glconfig.vidWidth - cgi.UI_FontStringWidth(cgs.media.attackerFont, pszString, -1)) * 0.5;
     fY = (float)cgs.glconfig.vidHeight - 40.0;
     cgi.R_SetColor(0);
-    cgi.R_DrawString(cgs.media.attackerFont, pszString, fX, fY, -1, 0);
+    cgi.R_DrawString(cgs.media.attackerFont, pszString, fX / cgs.uiHiResScale[0], fY / cgs.uiHiResScale[1], -1, cgs.uiHiResScale);
 
     if (!bOnTeam && (cg.predicted_player_state.pm_flags & PMF_CAMERA_VIEW)) {
         cgi.Key_GetKeysForCommand("+moveup", &iKey1, &iKey2);
@@ -1190,7 +1239,7 @@ void CG_DrawSpectatorView_ver_6()
         fX = (float)(cgs.glconfig.vidWidth - cgi.UI_FontStringWidth(cgs.media.attackerFont, pszString, -1)) * 0.5;
         fY = (float)cgs.glconfig.vidHeight - 24.0;
         cgi.R_SetColor(0);
-        cgi.R_DrawString(cgs.media.attackerFont, pszString, fX, fY, -1, 0);
+        cgi.R_DrawString(cgs.media.attackerFont, pszString, fX / cgs.uiHiResScale[0], fY / cgs.uiHiResScale[1], -1, cgs.uiHiResScale);
     }
 }
 
@@ -1287,7 +1336,17 @@ void CG_DrawCrosshair()
         y      = (cgs.glconfig.vidHeight - height) * 0.5f;
 
         cgi.R_SetColor(NULL);
-        cgi.R_DrawStretchPic(x, y, width, height, 0, 0, 1, 1, shader);
+        cgi.R_DrawStretchPic(
+            x,
+            y,
+            width * cgs.uiHiResScale[0],
+            height * cgs.uiHiResScale[1],
+            0,
+            0,
+            1,
+            1,
+            shader
+        );
     }
 }
 
@@ -1324,7 +1383,7 @@ void CG_DrawVote()
     cgi.R_SetColor(NULL);
 
     text = va("%s: %s", cgi.LV_ConvertString("Vote Running"), cgs.voteString);
-    cgi.R_DrawString(cgs.media.attackerFont, text, x, y, -1, qfalse);
+    cgi.R_DrawString(cgs.media.attackerFont, text, x, y, -1, cgs.uiHiResScale);
 
     y += 12;
 
@@ -1338,7 +1397,7 @@ void CG_DrawVote()
            percentNo,
            cgi.LV_ConvertString("Undecided"),
            percentUndecided);
-    cgi.R_DrawString(cgs.media.attackerFont, text, x, y, -1, qfalse);
+    cgi.R_DrawString(cgs.media.attackerFont, text, x, y, -1, cgs.uiHiResScale);
 
     if (cg.snap && !cg.snap->ps.voted) {
         col[0] = 0.5;
@@ -1350,12 +1409,12 @@ void CG_DrawVote()
         y += 12;
 
         text = cgi.LV_ConvertString("Vote now, it's your patriotic duty!");
-        cgi.R_DrawString(cgs.media.attackerFont, text, x, y, -1, qfalse);
+        cgi.R_DrawString(cgs.media.attackerFont, text, x, y, -1, cgs.uiHiResScale);
 
         y += 12;
 
         text = cgi.LV_ConvertString("To vote Yes, press F1. To vote No, press F2.");
-        cgi.R_DrawString(cgs.media.attackerFont, text, x, y, -1, qfalse);
+        cgi.R_DrawString(cgs.media.attackerFont, text, x, y, -1, cgs.uiHiResScale);
         cgi.R_SetColor(NULL);
     }
 }

@@ -115,10 +115,10 @@ void UIFloatingWindow::FrameInitialized
 	//
 	m_closeButton->InitFrame(
 		this,
-		m_frame.size.width - 18.0,
+		m_frame.size.width - 18.0 * getHighResScale()[0],
 		2.0,
-		16.0,
-		16.0,
+		16.0 * getHighResScale()[0],
+		16.0 * getHighResScale()[1],
 		-1,
 		"marlett"
 	);
@@ -131,10 +131,10 @@ void UIFloatingWindow::FrameInitialized
 	//
 	m_minimizeButton->InitFrame(
 		this,
-		m_frame.size.width - 36.0,
+		m_frame.size.width - 36.0 * getHighResScale()[0],
 		2.0,
-		16.0,
-		16.0,
+		16.0 * getHighResScale()[0],
+		16.0 * getHighResScale()[1],
 		-1,
 		"marlett"
 	);
@@ -156,7 +156,7 @@ void UIFloatingWindow::FrameInitialized
 	{
 		m_childspace->InitFrame(
 			this,
-			UIRect2D(2.0, 20.0, m_frame.size.width - 4.0, m_frame.size.height - 22.0),
+			UIRect2D(2.0, 20.0 * getHighResScale()[1], m_frame.size.width - 4.0, m_frame.size.height - 22.0 * getHighResScale()[1]),
 			0,
 			"verdana-12"
 		);
@@ -198,7 +198,7 @@ void UIFloatingWindow::MinimizePressed
 		// save the hold height
 		// so the window can be restored later
 		m_restoredHeight = size.height;
-		size.height = 20.0;
+		size.height = 20.0 * getHighResScale()[1];
 		m_minimizeButton->setTitle("1");
 	}
 	else
@@ -288,17 +288,17 @@ void UIFloatingWindow::SizeChanged
 {
 	UIRect2D childRect;
 	childRect.pos.x = 2.0;
-	childRect.pos.y = 20.0;
-	childRect.size.width = m_frame.size.width - 4.0;
-	childRect.size.height = m_frame.size.height - 22.0;
+	childRect.pos.y = 20.0 * getHighResScale()[1];
+	childRect.size.width = m_frame.size.width - 4.0 * getHighResScale()[0];
+	childRect.size.height = m_frame.size.height - 22.0 * getHighResScale()[1];
 
 	if (childRect.size.width <= 0.0 || childRect.size.height <= 0.0) {
 		return;
 	}
 
 	m_childspace->setFrame(childRect);
-	m_closeButton->setFrame(UIRect2D(m_frame.size.width - 18.0, 2.0, 16.0, 16.0));
-	m_minimizeButton->setFrame(UIRect2D(m_frame.size.width - 36.0, 2.0, 16.0, 16.0));
+	m_closeButton->setFrame(UIRect2D(m_frame.size.width - 18.0 * getHighResScale()[0], 2.0, 16.0 * getHighResScale()[0], 16.0 * getHighResScale()[1]));
+	m_minimizeButton->setFrame(UIRect2D(m_frame.size.width - 36.0 * getHighResScale()[0], 2.0, 16.0 * getHighResScale()[0], 16.0 * getHighResScale()[1]));
 }
 
 void UIFloatingWindow::OnActivated
@@ -414,11 +414,13 @@ void UIFloatingWindow::Draw
 		);
 	}
 
+	const float maxTitleBarHeight = 20 * getHighResScale()[1];
+
 	DrawBox(
 		0.0,
 		0.0,
 		m_frame.size.width,
-		m_frame.size.height > 20.0 ? 20.0 : m_frame.size.height,
+		m_frame.size.height > maxTitleBarHeight ? maxTitleBarHeight : m_frame.size.height,
 		titleBar,
 		1.0
 	);
@@ -427,7 +429,7 @@ void UIFloatingWindow::Draw
 		0.0,
 		0.0,
 		m_frame.size.width,
-		m_frame.size.height > 20.0 ? 20.0 : m_frame.size.height,
+		m_frame.size.height > maxTitleBarHeight ? maxTitleBarHeight : m_frame.size.height,
 		false,
 		titleBorder,
 		1.0

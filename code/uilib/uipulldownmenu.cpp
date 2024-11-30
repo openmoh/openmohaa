@@ -115,7 +115,7 @@ UIRect2D UIPulldownMenu::getAlignmentRect
 		m_vVirtualScale[1] = (float)uid.vidHeight / SCREEN_HEIGHT;
 	}
 
-	int maxheight = m_font->getHeight(m_bVirtual);
+	int maxheight = m_font->getHeight(m_bVirtual ? m_vVirtualScale : NULL);
 	for (int i = 1; i <= m_desc.NumObjects(); i++)
 	{
 		uipull_describe *uipd = m_desc.ObjectAt(i);
@@ -164,7 +164,7 @@ float UIPulldownMenu::getDescHeight
 		return uii.Rend_GetShaderHeight(mat->GetMaterial());
 	}
 
-	return m_font->getHeight(m_bVirtual);
+	return m_font->getHeight(m_bVirtual ? m_vVirtualScale : NULL);
 }
 
 uipull_describe *UIPulldownMenu::getPulldown
@@ -590,7 +590,7 @@ void UIPulldownMenu::Draw
 			const char *text = Sys_LV_CL_ConvertString(desc->title);
 			float text_xpos = m_vVirtualScale[0] * 4.0f + atx;
 			float text_ypos = m_vVirtualScale[1] * 2.0f;
-			m_font->Print(text_xpos, text_ypos, text, -1, m_bVirtual);
+			m_font->Print(text_xpos, text_ypos, text, -1, m_bVirtual ? m_vVirtualScale : NULL);
 		}
 
 		atx += width;

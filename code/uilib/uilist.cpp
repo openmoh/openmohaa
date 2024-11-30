@@ -92,10 +92,10 @@ void UIList::Draw
 		}
 
 		float textX = 0.5f * m_frame.size.width - 0.5f * m_font->getWidth(itemText, -1);
-		float textY = 0.5f * (m_frame.size.height - m_font->getHeight(m_bVirtual)) - 1.0f;
+		float textY = 0.5f * (m_frame.size.height - m_font->getHeight(m_bVirtual ? m_vVirtualScale : uid.scaleRes)) - 1.0f;
 		m_font->setColor(m_foreground_color);
 		const char *text = Sys_LV_CL_ConvertString(itemText);
-		m_font->Print(textX, textY, text, -1, m_bVirtual);
+		m_font->Print(textX, textY, text, -1, m_bVirtual ? m_vVirtualScale : NULL);
 	}
 
 	// draw the previous arrow

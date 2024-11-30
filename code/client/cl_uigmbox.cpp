@@ -260,15 +260,15 @@ float UIGMBox::PrintWrap( UIFont *font, float x, float y, str text )
 			break;
 		}
 
-		font->Print(x, fY, p1, p2 - p1, qfalse);
+		font->Print(x, fY, p1, p2 - p1, getHighResScale());
 		p1 = p2 + 1;
 		l -= n;
-		fY += font->getHeight(qfalse);
+		fY += font->getHeight();
 	}
 
-	font->Print(x, fY, p1, l, qfalse);
+	font->Print(x, fY, p1, l, getHighResScale());
 
-	return font->getHeight(qfalse) + (fY - y);
+	return font->getHeight() + (fY - y);
 }
 
 float UIGMBox::DrawItem( item_t *in, float x, float y, float alpha )

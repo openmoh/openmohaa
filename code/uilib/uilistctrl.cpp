@@ -155,14 +155,14 @@ int UIListCtrl::getHeaderHeight
 	}
 
 	if (m_headerfont) {
-		return (int)(m_headerfont->getHeight(m_bVirtual) + (s_columnpadding.height + s_columnpadding.height) * m_vVirtualScale[1]);
+		return (int)(m_headerfont->getHeight(getVirtualScale()) + (s_columnpadding.height + s_columnpadding.height) * getVirtualScale()[1]);
 	}
 
 	if (m_font) {
-		return (int)(m_font->getHeight(m_bVirtual) + (s_columnpadding.height + s_columnpadding.height) * m_vVirtualScale[1]);
+		return (int)(m_font->getHeight(getVirtualScale()) + (s_columnpadding.height + s_columnpadding.height) * getVirtualScale()[1]);
 	}
 
-	return (int)((s_columnpadding.height + s_columnpadding.height) * m_vVirtualScale[1]);
+	return (int)((s_columnpadding.height + s_columnpadding.height) * getVirtualScale()[1]);
 }
 
 void UIListCtrl::MousePressed
@@ -215,9 +215,9 @@ void UIListCtrl::MousePressed
 	else
 	{
 		if (m_vertscroll) {
-			TrySelectItem((m_vertscroll->getTopItem() + 1) + (p.y - getHeaderHeight()) / m_font->getHeight(m_bVirtual));
+			TrySelectItem((m_vertscroll->getTopItem() + 1) + (p.y - getHeaderHeight()) / m_font->getHeight(getVirtualScale()));
 		} else {
-			TrySelectItem(1.0 + (p.y - getHeaderHeight()) / m_font->getHeight(m_bVirtual));
+			TrySelectItem(1.0 + (p.y - getHeaderHeight()) / m_font->getHeight(getVirtualScale()));
 		}
 
 		if (m_clickState.time + 500 > uid.time
@@ -298,7 +298,7 @@ void UIListCtrl::OnSizeChanged
 	}
 
 	m_vertscroll->InitFrame(this, m_frame.size.width - 16.0, 0.0, 16.0, m_frame.size.height, -1);
-	m_vertscroll->setPageHeight((m_frame.size.height - getHeaderHeight()) / m_font->getHeight(m_bVirtual));
+	m_vertscroll->setPageHeight((m_frame.size.height - getHeaderHeight()) / m_font->getHeight(getVirtualScale()));
 	m_vertscroll->setNumItems(m_itemlist.NumObjects());
 }
 
@@ -321,7 +321,7 @@ void UIListCtrl::DrawColumns
 	pFont = m_headerfont;
 	if (!pFont) pFont = m_font;
 
-	height = (s_columnpadding.height + s_columnpadding.height) * m_vVirtualScale[1] + pFont->getHeight(m_bVirtual);
+	height = (s_columnpadding.height + s_columnpadding.height) * getVirtualScale()[1] + pFont->getHeight(getVirtualScale());
 	pFont->setColor(textColor);
 
 	for (i = 1; i <= m_columnlist.NumObjects(); i++)
@@ -329,7 +329,7 @@ void UIListCtrl::DrawColumns
 		const columndef_t& column = m_columnlist.ObjectAt(i);
 
 		DrawBoxWithSolidBorder(
-			UIRect2D(atleft, 0, column.width + m_vVirtualScale[1], height),
+			UIRect2D(atleft, 0, column.width + getVirtualScale()[1], height),
 			columnColor,
 			textColor,
 			1,
@@ -338,11 +338,11 @@ void UIListCtrl::DrawColumns
 		);
 
 		pFont->Print(
-			atleft / m_vVirtualScale[0] + s_columnpadding.width,
+			atleft / getVirtualScale()[0] + s_columnpadding.width,
 			s_columnpadding.height,
 			Sys_LV_CL_ConvertString(column.title.c_str()),
 			-1,
-			m_bVirtual
+			getVirtualScale()
 		);
 
 		atleft += column.width;
@@ -374,14 +374,14 @@ void UIListCtrl::DrawContent
 	UColor selColor, selText;
 	UColor backColor, textColor;
 
-	height = m_font->getHeight(m_bVirtual);
+	height = m_font->getHeight(getVirtualScale());
 	selColor = UColor(0.21f, 0.18f, 0.015f, 1.0f);
 	selText = UColor(0.9f, 0.8f, 0.6f, 1.0f);
 	backColor = m_background_color;
 	textColor = m_foreground_color;
 
 	if (m_headerfont) {
-		headerheight = m_headerfont->getHeight(m_bVirtual);
+		headerheight = m_headerfont->getHeight(getVirtualScale());
 	} else {
 		headerheight = 0;
 	}
@@ -439,11 +439,11 @@ void UIListCtrl::DrawContent
 			case TYPE_STRING:
 				DrawBox(drawRect, *itemBg, m_local_alpha);
 				pFont->Print(
-					drawRect.pos.x / m_vVirtualScale[0] + 1.0,
-					drawRect.pos.y / m_vVirtualScale[1],
+					drawRect.pos.x / getVirtualScale()[0] + 1.0,
+					drawRect.pos.y / getVirtualScale()[1],
 					Sys_LV_CL_ConvertString(theitem->getListItemString(column.name)),
 					-1,
-					m_bVirtual
+					getVirtualScale()
 				);
 				break;
 			case TYPE_OWNERDRAW:

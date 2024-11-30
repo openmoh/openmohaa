@@ -152,7 +152,7 @@ typedef struct {
     float   (*ModelRadius)(qhandle_t handle);
 
     dtiki_t*        (*R_Model_GetHandle)(qhandle_t handle);
-    void            (*DrawString)(fontheader_t* font, const char* text, float x, float y, int maxLen, qboolean virtualScreen);
+    void            (*DrawString)(fontheader_t* font, const char* text, float x, float y, int maxLen, const float *pvVirtualScreen);
     float           (*GetFontHeight)(const fontheader_t* font);
     float           (*GetFontStringWidth)(const fontheader_t* font, const char* string);
     fontheader_t*   (*LoadFont)(const char* name);

@@ -443,6 +443,7 @@ void UIFakkLabel::DrawStatbar(float frac)
     float     alpha;
     qhandle_t hMat;
     float     w, h;
+    float     fvWidth, fvHeight;
 
     col[0] = col[1] = col[2] = col[3] = 1.0;
 
@@ -488,11 +489,20 @@ void UIFakkLabel::DrawStatbar(float frac)
                 {
                     float width = frac * m_frame.size.width;
 
-                    re.DrawTilePic(0.0, 0.0, width, m_frame.size.height, m_statbar_material->GetMaterial());
+                    fvWidth = m_frame.size.width / m_vVirtualScale[0] / uii.Rend_GetShaderWidth(m_statbar_material->GetMaterial());
+                    fvHeight = m_frame.size.height / m_vVirtualScale[1] / uii.Rend_GetShaderHeight(m_statbar_material->GetMaterial());
+
+                    re.DrawStretchPic(0.0, 0.0, width, m_frame.size.height, 0, 0, fvWidth, fvHeight, m_statbar_material->GetMaterial());
+                    //re.DrawTilePic(0.0, 0.0, width, m_frame.size.height, m_statbar_material->GetMaterial());
 
                     if (alpha != 0.0 && m_statbar_material_flash) {
                         re.SetColor(col);
-                        re.DrawTilePic(0.0, 0.0, width, m_frame.size.height, m_statbar_material_flash->GetMaterial());
+
+                        fvWidth = m_frame.size.width / m_vVirtualScale[0] / uii.Rend_GetShaderWidth(m_statbar_material_flash->GetMaterial());
+                        fvHeight = m_frame.size.height / m_vVirtualScale[1] / uii.Rend_GetShaderHeight(m_statbar_material_flash->GetMaterial());
+
+                        re.DrawStretchPic(0.0, 0.0, width, m_frame.size.height, 0, 0, fvWidth, fvHeight, m_statbar_material_flash->GetMaterial());
+                        //re.DrawTilePic(0.0, 0.0, width, m_frame.size.height, m_statbar_material_flash->GetMaterial());
                     }
 
                     if (m_statbar_material_marker) {
@@ -521,13 +531,22 @@ void UIFakkLabel::DrawStatbar(float frac)
                 {
                     float y = m_frame.size.height * (1.0 - frac);
 
-                    re.DrawTilePic(0.0, y, m_frame.size.width, m_frame.size.height, m_statbar_material->GetMaterial());
+                    fvWidth = m_frame.size.width / m_vVirtualScale[0] / uii.Rend_GetShaderWidth(m_statbar_material->GetMaterial());
+                    fvHeight = m_frame.size.height / m_vVirtualScale[1] / uii.Rend_GetShaderHeight(m_statbar_material->GetMaterial());
+
+                    re.DrawStretchPic(0.0, y, m_frame.size.width, m_frame.size.height, 0, 0, fvWidth, fvHeight, m_statbar_material->GetMaterial());
+                    //re.DrawTilePic(0.0, y, m_frame.size.width, m_frame.size.height, m_statbar_material->GetMaterial());
 
                     if (alpha != 0.0 && m_statbar_material_flash) {
                         re.SetColor(col);
-                        re.DrawTilePic(
-                            0.0, y, m_frame.size.width, m_frame.size.height, m_statbar_material_flash->GetMaterial()
-                        );
+
+                        fvWidth = m_frame.size.width / m_vVirtualScale[0] / uii.Rend_GetShaderWidth(m_statbar_material_flash->GetMaterial());
+                        fvHeight = m_frame.size.height / m_vVirtualScale[1] / uii.Rend_GetShaderHeight(m_statbar_material_flash->GetMaterial());
+
+                        re.DrawStretchPic(0.0, y, m_frame.size.width, m_frame.size.height, 0, 0, fvWidth, fvHeight, m_statbar_material_flash->GetMaterial());
+                        //re.DrawTilePic(
+                        //    0.0, y, m_frame.size.width, m_frame.size.height, m_statbar_material_flash->GetMaterial()
+                        //);
                     }
 
                     if (m_statbar_material_marker) {
@@ -961,8 +980,8 @@ void UIFakkLabel::DrawStatRotator(float frac)
     vNeedleDir[0] = fSinVal;
     vNeedleDir[1] = -fCosVal;
 
-    vSize[0] = (m_frame.size.width + m_frame.size.height) / m_frame.size.width * m_angles[2] * m_vVirtualScale[0];
-    vSize[1] = (m_frame.size.width + m_frame.size.height) / m_frame.size.height * m_scale * m_vVirtualScale[1];
+    vSize[0] = (m_frame.size.width + m_frame.size.height) / m_frame.size.width * m_angles[2] * getVirtualScale()[0];
+    vSize[1] = (m_frame.size.width + m_frame.size.height) / m_frame.size.height * m_scale * getVirtualScale()[1];
 
     vCenter[0] = (m_frame.size.width * 0.5f - vSize[0]) * vNeedleDir[0] + m_frame.size.width * 0.5f;
     vCenter[1] = (m_frame.size.height * 0.5f - vSize[1]) * vNeedleDir[1] + m_frame.size.height * 0.5f;
@@ -1357,7 +1376,7 @@ void UIFakkLabel::Draw(void)
                 m_iFontAlignmentVertical,
                 Sys_LV_CL_ConvertString(va("%s", CL_ConfigString(cl.snap.ps.stats[m_stat_configstring]))),
                 UBlack,
-                m_bVirtual ? m_vVirtualScale : NULL
+                getVirtualScale()
             );
         } else {
             m_font->PrintJustified(
@@ -1365,7 +1384,7 @@ void UIFakkLabel::Draw(void)
                 m_iFontAlignmentHorizontal,
                 m_iFontAlignmentVertical,
                 Sys_LV_CL_ConvertString(va("%s", CL_ConfigString(cl.snap.ps.stats[m_stat_configstring]))),
-                m_bVirtual ? m_vVirtualScale : NULL
+                getVirtualScale()
             );
         }
         return;
@@ -1384,7 +1403,7 @@ void UIFakkLabel::Draw(void)
                     m_iFontAlignmentVertical,
                     va("%d", delta),
                     UBlack,
-                    m_bVirtual ? m_vVirtualScale : NULL
+                    getVirtualScale()
                 );
             } else {
                 m_font->PrintJustified(
@@ -1392,7 +1411,7 @@ void UIFakkLabel::Draw(void)
                     m_iFontAlignmentHorizontal,
                     m_iFontAlignmentVertical,
                     va("%d", delta),
-                    m_bVirtual ? m_vVirtualScale : NULL
+                    getVirtualScale()
                 );
             }
             return;
@@ -1478,7 +1497,7 @@ void UIFakkLabel::Draw(void)
                 m_iFontAlignmentVertical,
                 Sys_LV_CL_ConvertString(va("%s", CL_ConfigString(CS_WEAPONS + cl.snap.ps.activeItems[m_itemindex]))),
                 UBlack,
-                m_bVirtual ? m_vVirtualScale : NULL
+                getVirtualScale()
             );
         } else {
             m_font->PrintJustified(
@@ -1486,7 +1505,7 @@ void UIFakkLabel::Draw(void)
                 m_iFontAlignmentHorizontal,
                 m_iFontAlignmentVertical,
                 Sys_LV_CL_ConvertString(va("%s", CL_ConfigString(CS_WEAPONS + cl.snap.ps.activeItems[m_itemindex]))),
-                m_bVirtual ? m_vVirtualScale : NULL
+                getVirtualScale()
             );
         }
 

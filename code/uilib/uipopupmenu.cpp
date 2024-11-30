@@ -100,7 +100,7 @@ uipopup_describe *UIPopupMenu::getDescribeFromPoint
 		return NULL;
 	}
 
-	float top = m_vVirtualScale[1] * 4.0f;
+	float top = getVirtualScale()[1] * 4.0f;
 	for (int i = 1; i <= m_describe->NumObjects(); i++)
 	{
 		uipopup_describe* desc = m_describe->ObjectAt(i);
@@ -163,10 +163,10 @@ float UIPopupMenu::getDescribeHeight
 {
 	if (d->type == UIP_SEPARATOR)
 	{
-		return 8.0f;
+		return 8.0f * getVirtualScale()[0];
 	}
 	
-	return m_font->getHeight(m_bVirtual);
+	return m_font->getHeight(getVirtualScale());
 }
 
 float UIPopupMenu::getDescribeWidth
@@ -175,7 +175,7 @@ float UIPopupMenu::getDescribeWidth
 	)
 
 {
-	return m_font->getWidth(d->title, -1);
+	return m_font->getWidth(d->title, -1) * getVirtualScale()[0];
 }
 
 bool UIPopupMenu::MouseInSubmenus
@@ -251,7 +251,7 @@ void UIPopupMenu::Create
 		}
 	}
 
-	totalSize.height /= m_vVirtualScale[1];
+	totalSize.height /= getVirtualScale()[1];
 
 	if (width != -1.0f)
 	{
@@ -266,11 +266,11 @@ void UIPopupMenu::Create
 	totalSize.width += 24.0f;
 	totalSize.height += 8.0f;
 
-	if (m_bVirtual)
-	{
-		totalSize.width *= m_vVirtualScale[0];
-		totalSize.height *= m_vVirtualScale[1];
-	}
+	//if (m_bVirtual)
+	//{
+		totalSize.width *= getVirtualScale()[0];
+		totalSize.height *= getVirtualScale()[1];
+	//}
 
 	UIPoint2D place;
 	place.x = (where) ? createRect.pos.x : createRect.size.width + createRect.pos.x;
@@ -326,10 +326,10 @@ void UIPopupMenu::Draw
 	)
 
 {
-	const float originX = m_vVirtualScale[0] * 4.0f;
-	const float originY = m_vVirtualScale[1] * 4.0f;
+	const float originX = getVirtualScale()[0] * 4.0f;
+	const float originY = getVirtualScale()[1] * 4.0f;
 
-	float fFontHeight = m_font->getHeight(m_bVirtual);
+	float fFontHeight = m_font->getHeight(getVirtualScale());
 	float top = originY;
 	for (int i = 1; i <= m_describe->NumObjects(); i++)
 	{
@@ -369,7 +369,7 @@ void UIPopupMenu::Draw
 			m_font->setColor(textColor);
 			m_marlett.setColor(textColor);
 			const char *text = Sys_LV_CL_ConvertString(desc->title);
-			m_font->Print(4.0f, top / m_vVirtualScale[1], text, -1, m_bVirtual);
+			m_font->Print(4.0f, top / getVirtualScale()[1], text, -1, getVirtualScale());
 
 			if (desc->type == UIP_SUBMENU)
 			{
@@ -378,7 +378,7 @@ void UIPopupMenu::Draw
 					m_iFontAlignmentHorizontal,
 					m_iFontAlignmentVertical,
 					"4",
-					m_bVirtual ? m_vVirtualScale : NULL
+					getVirtualScale()
 				);
 			}
 		}

@@ -74,7 +74,7 @@ int UIVertScroll::getItemFromHeight
 	)
 
 {
-	return (int)((height - 16.0) * (float)this->m_numitems / (m_frame.size.height - 32.0));
+	return (int)((height - 16.0 * uid.scaleRes[1]) * (float)this->m_numitems / (m_frame.size.height - 32.0 * uid.scaleRes[1]));
 }
 
 bool UIVertScroll::isEnoughItems
@@ -102,7 +102,7 @@ void UIVertScroll::Draw
 	);
 
 	DrawArrow(0.0, "5", m_pressed == VS_UP_ARROW);
-	DrawArrow(m_frame.size.height - m_vVirtualScale[1] * 16.0, "6", m_pressed == VS_DOWN_ARROW);
+	DrawArrow(m_frame.size.height - getVirtualScale()[1] * 16.0, "6", m_pressed == VS_DOWN_ARROW);
 
 	if (m_numitems > m_pageheight) {
 		DrawThumb();
@@ -123,7 +123,7 @@ void UIVertScroll::DrawArrow
 	arrowRect.pos.x = 0.0;
 	arrowRect.pos.y = top;
 	arrowRect.size.width = m_frame.size.width;
-	arrowRect.size.height = m_vVirtualScale[1] * 16.0;
+	arrowRect.size.height = getVirtualScale()[1] * 16.0;
 
 	innerColor = getBackgroundColor();
 	m_marlett.setColor(getForegroundColor());
@@ -150,7 +150,7 @@ void UIVertScroll::DrawArrow
 		m_iFontAlignmentHorizontal,
 		m_iFontAlignmentVertical,
 		Sys_LV_CL_ConvertString(text),
-		m_bVirtual ? m_vVirtualScale : NULL
+		getVirtualScale()
 	);
 }
 
@@ -164,10 +164,10 @@ void UIVertScroll::DrawThumb
 	float thumbHeight, thumbdiff;
 	UColor thumbInside;
 
-	thumbdiff = m_frame.size.height - m_vVirtualScale[1] * 32.0;
+	thumbdiff = m_frame.size.height - getVirtualScale()[1] * 32.0;
 
 	inbarrect.pos.x = 0.0;
-	inbarrect.pos.y = m_vVirtualScale[1] * 16.0;
+	inbarrect.pos.y = getVirtualScale()[1] * 16.0;
 	inbarrect.size.width = m_frame.size.width;
 	inbarrect.size.height = m_frame.size.height - thumbdiff;
 
@@ -500,10 +500,10 @@ void UIVertScroll::InitFrameAlignRight
 	UIRect2D frame, frameOut;
 
 	frame = parent->getClientFrame();
-	frameOut.pos.x = frame.pos.x + frame.size.width - (fWidthPadding + 16.0) * m_vVirtualScale[0];
-	frameOut.pos.y = fHeightPadding * m_vVirtualScale[1];
-	frameOut.size.width = m_vVirtualScale[0] * 16.0;
-	frameOut.size.height = frame.size.height - (fHeightPadding * 2) * m_vVirtualScale[1];
+	frameOut.pos.x = frame.pos.x + frame.size.width - (fWidthPadding + 16.0) * getVirtualScale()[0];
+	frameOut.pos.y = fHeightPadding * getVirtualScale()[1];
+	frameOut.size.width = getVirtualScale()[0] * 16.0;
+	frameOut.size.height = frame.size.height - (fHeightPadding * 2) * getVirtualScale()[1];
 
 	if (!m_frameinitted)
 	{
@@ -513,4 +513,9 @@ void UIVertScroll::InitFrameAlignRight
 	else {
 		setFrame(frameOut);
 	}
+}
+
+void UIVertScroll::FrameInitialized()
+{
+	UIWidget::FrameInitialized();
 }

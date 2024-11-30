@@ -258,7 +258,7 @@ void UIButton::DrawPressed
 		m_iFontAlignmentHorizontal,
 		m_iFontAlignmentVertical,
 		Sys_LV_CL_ConvertString(m_title.c_str()),
-		m_bVirtual ? m_vVirtualScale : NULL
+		getVirtualScale()
 	);
 }
 
@@ -278,7 +278,7 @@ void UIButton::DrawUnpressed
 		m_iFontAlignmentHorizontal,
 		m_iFontAlignmentVertical,
 		Sys_LV_CL_ConvertString(m_title.c_str()),
-		m_bVirtual ? m_vVirtualScale : NULL
+		getVirtualScale()
 	);
 }
 

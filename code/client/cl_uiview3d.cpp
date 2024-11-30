@@ -124,9 +124,9 @@ void View3D::DrawFPS(void)
         re.SetColor(UBlack);
         re.DrawBox(
             0.0,
-            m_frame.pos.y + m_frame.size.height - m_font->getHeight(qfalse) * 4.0,
+            m_frame.pos.y + m_frame.size.height - m_font->getHeight() * 4.0,
             m_frame.pos.x + m_frame.size.width,
-            m_font->getHeight(qfalse) * 4.0
+            m_font->getHeight() * 4.0
         );
     }
 
@@ -145,11 +145,11 @@ void View3D::DrawFPS(void)
     }
 
     m_font->Print(
-        m_font->getHeight(qfalse) * 10.0,
-        m_frame.pos.y + m_frame.size.height - m_font->getHeight(qfalse) * 3.0,
+        m_font->getHeight(getHighResScale()) * 10.0 / getHighResScale()[0],
+        (m_frame.pos.y + m_frame.size.height - m_font->getHeight(getHighResScale()) * 3.0) / getHighResScale()[1],
         string,
         -1,
-        qfalse
+        getHighResScale()
     );
 
     // Draw elements count
@@ -162,11 +162,11 @@ void View3D::DrawFPS(void)
     Com_sprintf(string, sizeof(string), "wt%5d wv%5d cl%d", cls.world_tris, cls.world_verts, cls.character_lights);
 
     m_font->Print(
-        m_font->getHeight(qfalse) * 10.0,
-        m_frame.pos.y + m_frame.size.height - m_font->getHeight(qfalse) * 2.0,
+        (m_font->getHeight(getHighResScale()) * 10.0) / getHighResScale()[0],
+        (m_frame.pos.y + m_frame.size.height - m_font->getHeight(getHighResScale()) * 2.0) / getHighResScale()[1],
         string,
         -1,
-        qfalse
+        getHighResScale()
     );
 
     Com_sprintf(
@@ -179,11 +179,11 @@ void View3D::DrawFPS(void)
     );
 
     m_font->Print(
-        m_font->getHeight(qfalse) * 10.0,
-        m_frame.pos.y + m_frame.size.height - m_font->getHeight(qfalse),
+        (m_font->getHeight(getHighResScale()) * 10.0) / getHighResScale()[0],
+        (m_frame.pos.y + m_frame.size.height - m_font->getHeight(getHighResScale())) / getHighResScale()[1],
         string,
         -1,
-        qfalse
+        getHighResScale()
     );
 
     m_font->setColor(UBlack);
@@ -208,32 +208,32 @@ void View3D::PrintSound(int channel, const char *name, float vol, int rvol, floa
     float xStep;
     float height;
 
-    height = m_font->getHeight(false);
+    height = m_font->getHeight(getHighResScale());
     xStep  = height;
 
     x = 0;
     Com_sprintf(buf, sizeof(buf), "%d", channel);
-    m_font->Print(x, height * line + m_frame.pos.y, buf, -1, false);
+    m_font->Print(x, height * line + m_frame.pos.y, buf, -1, getHighResScale());
 
     x += xStep + xStep;
     Com_sprintf(buf, sizeof(buf), "%s", name);
-    m_font->Print(x, height * line + m_frame.pos.y, buf, -1, false);
+    m_font->Print(x, height * line + m_frame.pos.y, buf, -1, getHighResScale());
 
     x += xStep * 30.0;
     Com_sprintf(buf, sizeof(buf), "vol:%.2f", vol);
-    m_font->Print(x, height * line + m_frame.pos.y, buf, -1, false);
+    m_font->Print(x, height * line + m_frame.pos.y, buf, -1, getHighResScale());
 
     x += xStep * 8;
     Com_sprintf(buf, sizeof(buf), "rvol:%.2f", (float)(rvol / 128.f));
-    m_font->Print(x, height * line + m_frame.pos.y, buf, -1, false);
+    m_font->Print(x, height * line + m_frame.pos.y, buf, -1, getHighResScale());
 
     x += xStep * 5;
     Com_sprintf(buf, sizeof(buf), "pit:%.2f", pitch);
-    m_font->Print(x, height * line + m_frame.pos.y, buf, -1, false);
+    m_font->Print(x, height * line + m_frame.pos.y, buf, -1, getHighResScale());
 
     x += xStep * 5;
     Com_sprintf(buf, sizeof(buf), "base:%d", (int)base);
-    m_font->Print(x, height * line + m_frame.pos.y, buf, -1, false);
+    m_font->Print(x, height * line + m_frame.pos.y, buf, -1, getHighResScale());
 
     line++;
 }
@@ -264,8 +264,7 @@ void DisplayServerNetProfileInfo(UIFont *font, float y, netprofclient_t *netprof
            (unsigned int)((float)(netprofile->outPackets.numFragmented + netprofile->inPackets.numFragmented)
                           / (float)(netprofile->inPackets.totalProcessed + netprofile->outPackets.totalProcessed)
            )),
-        -1,
-        qfalse
+        -1
     );
     font->Print(334, y, va("%i", netprofile->inPackets.percentDropped));
     font->Print(364, y, va("%i", netprofile->outPackets.percentDropped));
@@ -276,8 +275,7 @@ void DisplayServerNetProfileInfo(UIFont *font, float y, netprofclient_t *netprof
            (unsigned int)((float)(netprofile->outPackets.numDropped + netprofile->inPackets.numDropped)
                           / (float)(netprofile->inPackets.totalProcessed + netprofile->outPackets.totalProcessed)
            )),
-        -1,
-        qfalse
+        -1
     );
     font->Print(434, y, va("%i", netprofile->inPackets.percentDropped));
     font->Print(464, y, va("%i", netprofile->outPackets.percentDropped));
@@ -288,8 +286,7 @@ void DisplayServerNetProfileInfo(UIFont *font, float y, netprofclient_t *netprof
            (unsigned int)((float)(netprofile->outPackets.totalLengthConnectionLess
                                   + netprofile->inPackets.totalLengthConnectionLess)
                           / (float)(netprofile->outPackets.totalSize + netprofile->inPackets.totalSize))),
-        -1,
-        qfalse
+        -1
     );
     font->Print(534, y, va("%i", netprofile->inPackets.bytesPerSec));
     font->Print(594, y, va("%i", netprofile->outPackets.bytesPerSec));
@@ -303,7 +300,7 @@ void DisplayClientNetProfile(UIFont *font, float x, float y, netprofclient_t *ne
     float fontHeight;
     float columnHeight;
 
-    fontHeight   = font->getHeight(qfalse);
+    fontHeight   = font->getHeight();
     columns[0]   = x + 120;
     columns[1]   = x + 230;
     columns[2]   = x + 330;
@@ -402,13 +399,13 @@ void View3D::DrawNetProfile(void)
         setFont("verdana-14");
         m_font->setColor(UWhite);
 
-        fontHeight = m_font->getHeight(qfalse);
+        fontHeight = m_font->getHeight();
         yOffset    = sv_netprofileoverlay->integer + 8;
 
         if (svs.netprofile.rate) {
-            m_font->Print(8, yOffset, va("Server Net Profile          Max Rate: %i", svs.netprofile.rate), -1, qfalse);
+            m_font->Print(8, yOffset, va("Server Net Profile          Max Rate: %i", svs.netprofile.rate), -1);
         } else {
-            m_font->Print(8, yOffset, "Server Net Profile          Max Rate: none", -1, qfalse);
+            m_font->Print(8, yOffset, "Server Net Profile          Max Rate: none", -1);
         }
 
         columnHeight    = fontHeight + fontHeight + yOffset;
@@ -487,10 +484,10 @@ void View3D::DrawNetProfile(void)
         setFont("verdana-14");
         m_font->setColor(UWhite);
 
-        fontHeight = m_font->getHeight(qfalse);
+        fontHeight = m_font->getHeight();
         yOffset    = cl_netprofileoverlay->integer + 16;
 
-        m_font->Print(16, yOffset, "Client Net Profile", -1, qfalse);
+        m_font->Print(16, yOffset, "Client Net Profile", -1);
 
         NetProfileCalcStats(&cls.netprofile.outPackets, 500);
         NetProfileCalcStats(&cls.netprofile.inPackets, 500);
@@ -567,7 +564,7 @@ void View3D::CenterPrint(void)
             m_iFontAlignmentHorizontal,
             m_iFontAlignmentVertical,
             p,
-            m_bVirtual ? m_vVirtualScale : NULL
+            getVirtualScale()
         );
 
         m_font->setColor(UColor(1, 1, 1, alpha));
@@ -575,7 +572,7 @@ void View3D::CenterPrint(void)
         frame = getClientFrame();
 
         m_font->PrintJustified(
-            frame, m_iFontAlignmentHorizontal, m_iFontAlignmentVertical, p, m_bVirtual ? m_vVirtualScale : NULL
+            frame, m_iFontAlignmentHorizontal, m_iFontAlignmentVertical, p, getVirtualScale()
         );
 
         m_font->setColor(UBlack);
@@ -628,7 +625,7 @@ void View3D::LocationPrint(void)
     alpha = Q_clamp_float(alpha, 0, 1);
 
     x = m_x_coord / 640.f * m_screenframe.size.width;
-    y = (480 - m_font->getHeight(false) - m_y_coord) / 480.f * m_screenframe.size.height;
+    y = (480 - m_font->getHeight(getHighResScale()) - m_y_coord) / 480.f * m_screenframe.size.height;
 
     if (m_x_coord == -1) {
         horiz = FONT_JUSTHORZ_CENTER;
@@ -647,7 +644,7 @@ void View3D::LocationPrint(void)
         horiz,
         vert,
         p,
-        m_bVirtual ? m_vVirtualScale : NULL
+        getVirtualScale()
     );
 
     m_font->setColor(UColor(1, 1, 1, alpha));
@@ -658,7 +655,7 @@ void View3D::LocationPrint(void)
         horiz,
         vert,
         p,
-        m_bVirtual ? m_vVirtualScale : NULL
+        getVirtualScale()
     );
 
     m_font->setColor(UBlack);
@@ -746,7 +743,7 @@ void View3D::DrawSubtitleOverlay(void)
 {
     cvar_t *subAlpha;
     int     i;
-    float   minX, maxY;
+    float   minX, maxX;
     int     line;
 
     subAlpha = Cvar_Get("subAlpha", "0.5", 0);
@@ -781,8 +778,8 @@ void View3D::DrawSubtitleOverlay(void)
         }
     }
 
-    minX = m_screenframe.size.height - m_font->getHeight(false) * 10;
-    maxY = (m_frame.pos.x + m_frame.size.width) - (m_frame.pos.x + m_frame.size.width) * 0.2f;
+    minX = m_screenframe.size.height - m_font->getHeight(getHighResScale()) * 10;
+    maxX = ((m_frame.pos.x + m_frame.size.width) - (m_frame.pos.x + m_frame.size.width) * 0.2f) / getHighResScale()[0];
     line = 0;
 
     for (i = 0; i < MAX_SUBTITLES; i++) {
@@ -790,7 +787,7 @@ void View3D::DrawSubtitleOverlay(void)
             continue;
         }
 
-        if (m_font->getWidth(subs[i]->string, sizeof(oldStrings[i])) > maxY) {
+        if (m_font->getWidth(subs[i]->string, sizeof(oldStrings[i])) > maxX) {
             char  buf[2048];
             char *c;
             char *end;
@@ -813,12 +810,12 @@ void View3D::DrawSubtitleOverlay(void)
 
                 width = m_font->getWidth(c, blockcount);
 
-                if (total + width > maxY) {
+                if (total + width > maxX) {
                     m_font->setColor(UColor(0, 0, 0, alpha[i] * subAlpha->value));
-                    m_font->Print(18, m_font->getHeight(false) * line + minX + 1.f, buf, -1, false);
+                    m_font->Print(18, (m_font->getHeight(getHighResScale()) * line + minX + 1.f) / getHighResScale()[1], buf, -1, getHighResScale());
 
                     m_font->setColor(UColor(1, 1, 1, alpha[i] * subAlpha->value));
-                    m_font->Print(20, m_font->getHeight(false) * line + minX, buf, -1, false);
+                    m_font->Print(20, (m_font->getHeight(getHighResScale()) * line + minX) / getHighResScale()[1], buf, -1, getHighResScale());
 
                     line++;
 
@@ -841,17 +838,17 @@ void View3D::DrawSubtitleOverlay(void)
             }
 
             m_font->setColor(UColor(0, 0, 0, alpha[i] * subAlpha->value));
-            m_font->Print(18, m_font->getHeight(false) * line + minX + 1.f, buf, -1, qfalse);
+            m_font->Print(18, (m_font->getHeight(getHighResScale()) * line + minX + 1.f) / getHighResScale()[1], buf, -1, getHighResScale());
 
             m_font->setColor(UColor(1, 1, 1, alpha[i] * subAlpha->value));
-            m_font->Print(20, m_font->getHeight(false) * line + minX, buf, -1, qfalse);
+            m_font->Print(20, (m_font->getHeight(getHighResScale()) * line + minX) / getHighResScale()[1], buf, -1, getHighResScale());
             line++;
         } else {
             m_font->setColor(UColor(0, 0, 0, alpha[i] * subAlpha->value));
-            m_font->Print(18, m_font->getHeight(false) * line + minX + 1.f, subs[i]->string, -1, qfalse);
+            m_font->Print(18, (m_font->getHeight(getHighResScale()) * line + minX + 1.f) / getHighResScale()[1], subs[i]->string, -1, getHighResScale());
 
             m_font->setColor(UColor(1, 1, 1, alpha[i] * subAlpha->value));
-            m_font->Print(20, m_font->getHeight(false) * line + minX, subs[i]->string, -1, qfalse);
+            m_font->Print(20, (m_font->getHeight(getHighResScale()) * line + minX) / getHighResScale()[1], subs[i]->string, -1, getHighResScale());
 
             line++;
         }

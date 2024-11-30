@@ -70,5 +70,6 @@ public:
 	void			setThumbColor( const UColor& thumb );
 	void			setSolidBorderColor( const UColor& col );
 	void			InitFrameAlignRight( UIWidget *parent, float fWidthPadding, float fHeightPadding );
+	void			FrameInitialized() override;
 };
 

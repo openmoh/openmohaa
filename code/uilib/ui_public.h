@@ -80,7 +80,7 @@ typedef struct uiimport_s {
 	void( *Rend_DrawPicStretched2 )( float x, float y, float w, float h, float s1, float t1, float s2, float t2, float sx, float sy, qhandle_t hShader );
 	void( *Rend_DrawPicTiled )( float x, float y, float w, float h, qhandle_t hShader );
 	fontheader_t *( *Rend_LoadFont )( const char *name );
-	void( *Rend_DrawString )( fontheader_t *font, const char *text, float x, float y, int maxlen, qboolean bVirtualScreen );
+	void( *Rend_DrawString )( fontheader_t *font, const char *text, float x, float y, int maxlen, const float *pvVirtualScreen );
 	void( *Rend_DrawBox )( float x, float y, float w, float h );
 	int( *Rend_GetShaderWidth )( qhandle_t hShader );
 	int( *Rend_GetShaderHeight )( qhandle_t hShader );
@@ -162,7 +162,9 @@ typedef struct uidef_s {
 	int mouseX;
 	int mouseY;
 	unsigned int mouseFlags;
-	int uiHasMouse;
+    qboolean uiHasMouse;
+    qboolean bHighResScaling;
+    vec2_t scaleRes;
 } uidef_t;
 
 extern uidef_t uid;
