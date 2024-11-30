@@ -601,6 +601,13 @@ void CG_HudDrawElements()
         fWidth  = cgi.HudDrawElements[i].iWidth;
         fHeight = cgi.HudDrawElements[i].iHeight;
 
+        if (!cgi.HudDrawElements[i].bVirtualScreen) {
+            fWidth *= cgs.uiHiResScale[0];
+            fHeight *= cgs.uiHiResScale[1];
+            fX *= cgs.uiHiResScale[0];
+            fY *= cgs.uiHiResScale[1];
+        }
+
         if (cgi.HudDrawElements[i].iHorizontalAlign == HUD_ALIGN_X_CENTER) {
             if (cgi.HudDrawElements[i].bVirtualScreen) {
                 fX += 320.0 - fWidth * 0.5;
@@ -636,14 +643,25 @@ void CG_HudDrawElements()
                 pFont = cgs.media.hudDrawFont;
             }
 
-            cgi.R_DrawString(
-                pFont,
-                cgi.LV_ConvertString(cgi.HudDrawElements[i].string),
-                fX,
-                fY,
-                -1,
-                cgi.HudDrawElements[i].bVirtualScreen ? virtualScale : cgs.uiHiResScale
-            );
+            if (cgi.HudDrawElements[i].bVirtualScreen) {
+                cgi.R_DrawString(
+                    pFont,
+                    cgi.LV_ConvertString(cgi.HudDrawElements[i].string),
+                    fX,
+                    fY,
+                    -1,
+                    virtualScale
+                );
+            } else {
+                cgi.R_DrawString(
+                    pFont,
+                    cgi.LV_ConvertString(cgi.HudDrawElements[i].string),
+                    fX / cgs.uiHiResScale[0],
+                    fY / cgs.uiHiResScale[1],
+                    -1,
+                    cgs.uiHiResScale
+                );
+            }
         } else {
             if (cgi.HudDrawElements[i].bVirtualScreen) {
                 CG_AdjustFrom640(&fX, &fY, &fWidth, &fHeight);
