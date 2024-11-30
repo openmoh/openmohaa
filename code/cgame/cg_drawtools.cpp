@@ -587,7 +587,7 @@ void CG_HudDrawElements()
     }
 
     virtualScale[0] = cgs.glconfig.vidWidth / 640.0;
-    virtualScale[1] = cgs.glconfig.vidWidth / 480.0;
+    virtualScale[1] = cgs.glconfig.vidHeight / 480.0;
 
     for (i = 0; i < MAX_HUDDRAW_ELEMENTS; i++) {
         if ((!cgi.HudDrawElements[i].hShader && !cgi.HudDrawElements[i].string[0])
@@ -631,25 +631,19 @@ void CG_HudDrawElements()
 
         cgi.R_SetColor(cgi.HudDrawElements[i].vColor);
         if (cgi.HudDrawElements[i].string[0]) {
-            if (cgi.HudDrawElements[i].pFont) {
-                cgi.R_DrawString(
-                    cgi.HudDrawElements[i].pFont,
-                    cgi.LV_ConvertString(cgi.HudDrawElements[i].string),
-                    fX,
-                    fY,
-                    -1,
-                    cgi.HudDrawElements[i].bVirtualScreen ? virtualScale : cgs.uiHiResScale
-                );
-            } else {
-                cgi.R_DrawString(
-                    cgs.media.hudDrawFont,
-                    cgi.LV_ConvertString(cgi.HudDrawElements[i].string),
-                    fX,
-                    fY,
-                    -1,
-                    cgi.HudDrawElements[i].bVirtualScreen ? virtualScale : cgs.uiHiResScale
-                );
+            fontheader_t* pFont = cgi.HudDrawElements[i].pFont;
+            if (!pFont) {
+                pFont = cgs.media.hudDrawFont;
             }
+
+            cgi.R_DrawString(
+                pFont,
+                cgi.LV_ConvertString(cgi.HudDrawElements[i].string),
+                fX,
+                fY,
+                -1,
+                cgi.HudDrawElements[i].bVirtualScreen ? virtualScale : cgs.uiHiResScale
+            );
         } else {
             if (cgi.HudDrawElements[i].bVirtualScreen) {
                 CG_AdjustFrom640(&fX, &fY, &fWidth, &fHeight);
