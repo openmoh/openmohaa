@@ -4146,7 +4146,7 @@ void ClientGameCommandManager::StopLoopSound(Event* ev)
     }
 
     Com_Printf("\n\nClientGameCommandManager::StopLoopSound\n\n");
-    current_centity->tikiLoopSound = NULL;
+    current_centity->tikiLoopSound = (sfxHandle_t)0;
 }
 
 //===============
