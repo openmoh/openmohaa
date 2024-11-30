@@ -295,7 +295,7 @@ void UI_DoInventory(qboolean activate_mouse)
     if (client_inv.align == INV_ALIGN_RIGHT) {
         s_main_inv->InitFrame(
             NULL,
-            client_inv.horizoffset + cls.glconfig.vidWidth - client_inv.typewidth,
+            client_inv.horizoffset + uid.vidWidth - client_inv.typewidth,
             client_inv.vertoffset,
             client_inv.typewidth,
             client_inv.typeheight * client_inv.types.NumObjects(),

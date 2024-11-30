@@ -51,7 +51,7 @@ MpMapPickerClass::MpMapPickerClass()
     window = new UIFloatingWindow();
     window->Create(
         NULL,
-        UIRect2D((cls.glconfig.vidWidth - 300) / 2, (cls.glconfig.vidHeight - 200) / 2, 300, 200),
+        UIRect2D((uid.vidWidth - 300) / 2, (uid.vidHeight - 200) / 2, 300, 200),
         "Select a Map",
         UColor(0.15f, 0.195f, 0.278f),
         UHudColor

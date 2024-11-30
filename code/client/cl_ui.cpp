@@ -212,15 +212,15 @@ static UIRect2D getDefaultConsoleRectangle(void)
             f[i] = floor(f[i]);
         }
 
-        rect.pos.x       = f[0] - cls.glconfig.vidWidth;
-        rect.pos.y       = f[1] - cls.glconfig.vidHeight;
+        rect.pos.x       = f[0] - uid.vidWidth;
+        rect.pos.y       = f[1] - uid.vidHeight;
         rect.size.width  = f[2] + 50.0;
         rect.size.height = f[3] + 50.0;
     } else {
         rect.pos.x       = 25.0;
         rect.pos.y       = 25.0;
-        rect.size.width  = (cls.glconfig.vidWidth - 50);
-        rect.size.height = (cls.glconfig.vidHeight / 2);
+        rect.size.width  = (uid.vidWidth - 50);
+        rect.size.height = (uid.vidHeight / 2);
     }
 
     return rect;
@@ -967,15 +967,15 @@ static UIRect2D getDefaultDMConsoleRectangle(void)
             f[i] = floor(f[i]);
         }
 
-        rect.pos.x       = f[0] - cls.glconfig.vidWidth;
-        rect.pos.y       = f[1] - cls.glconfig.vidHeight;
+        rect.pos.x       = f[0] - uid.vidWidth;
+        rect.pos.y       = f[1] - uid.vidHeight;
         rect.size.width  = f[2] + 50.0;
         rect.size.height = f[3] + 50.0;
     } else {
         rect.pos.x       = 0;
-        rect.pos.y       = cls.glconfig.vidHeight * 0.58;
-        rect.size.width  = cls.glconfig.vidWidth;
-        rect.size.height = cls.glconfig.vidHeight * 0.415;
+        rect.pos.y       = uid.vidHeight * 0.58;
+        rect.size.width  = uid.vidWidth;
+        rect.size.height = uid.vidHeight * 0.415;
     }
 
     return rect;
@@ -997,14 +997,14 @@ static UIRect2D getQuickMessageDMConsoleRectangle(void)
             f[i] = floor(f[i]);
         }
 
-        rect.pos.x       = f[0] - cls.glconfig.vidWidth;
-        rect.pos.y       = f[1] - cls.glconfig.vidHeight;
+        rect.pos.x       = f[0] - uid.vidWidth;
+        rect.pos.y       = f[1] - uid.vidHeight;
         rect.size.width  = f[2] + 50.0;
         rect.size.height = f[3] + 50.0;
     } else {
         rect.pos.x      = 0;
-        rect.pos.y      = cls.glconfig.vidHeight * 0.66;
-        rect.size.width = cls.glconfig.vidWidth;
+        rect.pos.y      = uid.vidHeight * 0.66;
+        rect.size.width = uid.vidWidth;
         // Fixed in 2.0
         //  Was 38.0 in 1.11 and below
         //  This prevents characters to be seen from the DM console
@@ -1189,14 +1189,14 @@ getDefaultGMBoxRectangle
 static UIRect2D getDefaultGMBoxRectangle(void)
 {
     UIRect2D dmRect = getDefaultDMBoxRectangle();
-    float    height = cls.glconfig.vidHeight * ui_compass_scale->value * 0.25f;
+    float    height = uid.vidHeight * ui_compass_scale->value * 0.25f;
     float    y      = dmRect.size.height + dmRect.pos.y;
 
     if (height < y) {
         height = y;
     }
 
-    return UIRect2D(20.0f, height, cls.glconfig.vidWidth - 20, 128.0f);
+    return UIRect2D(20.0f, height, uid.vidWidth - 20, 128.0f);
 }
 
 /*
@@ -1206,9 +1206,9 @@ getDefaultDMBoxRectangle
 */
 static UIRect2D getDefaultDMBoxRectangle(void)
 {
-    float width = cls.glconfig.vidWidth * ui_compass_scale->value * 0.2f;
+    float width = uid.vidWidth * ui_compass_scale->value * 0.2f;
 
-    return UIRect2D(width, 0, cls.glconfig.vidWidth - (width + 192.0f), 120.0f);
+    return UIRect2D(width, 0, uid.vidWidth - (width + 192.0f), 120.0f);
 }
 
 /*
@@ -1681,11 +1681,11 @@ UI_ClearBackground
 void UI_ClearBackground(void)
 {
     re.Set2DWindow(
-        0, 0, cls.glconfig.vidWidth, cls.glconfig.vidHeight, 0, cls.glconfig.vidWidth, cls.glconfig.vidHeight, 0, -1, 1
+        0, 0, uid.vidWidth, uid.vidHeight, 0, uid.vidWidth, uid.vidHeight, 0, -1, 1
     );
-    re.Scissor(0, 0, cls.glconfig.vidWidth, cls.glconfig.vidHeight);
+    re.Scissor(0, 0, uid.vidWidth, uid.vidHeight);
     re.SetColor(g_color_table[0]);
-    re.DrawBox(0, 0, cls.glconfig.vidWidth, cls.glconfig.vidHeight);
+    re.DrawBox(0, 0, uid.vidWidth, uid.vidHeight);
     re.SetColor(NULL);
 }
 
@@ -3098,7 +3098,7 @@ void UI_MapList_f(void)
     MapRunnerClass *map = new MapRunnerClass;
     map->Setup("maps", mappath, ".bsp", "_sml");
 
-    CL_SetMousePos(cls.glconfig.vidWidth / 2, cls.glconfig.vidHeight / 2);
+    CL_SetMousePos(uid.vidWidth / 2, uid.vidHeight / 2);
 }
 
 /*
@@ -3138,7 +3138,7 @@ void UI_DMMapSelect_f(void)
     MpMapPickerClass *map = new MpMapPickerClass;
     map->Setup(basepath, mappath, gametype);
 
-    CL_SetMousePos(cls.glconfig.vidWidth / 2, cls.glconfig.vidHeight / 2);
+    CL_SetMousePos(uid.vidWidth / 2, uid.vidHeight / 2);
 }
 
 /*
@@ -3322,7 +3322,7 @@ void UI_PlayerModel_f(void)
     PlayerModelPickerClass *picker = new PlayerModelPickerClass;
     picker->Setup("models/player", modelpath, bGermanModel);
 
-    CL_SetMousePos(cls.glconfig.vidWidth / 2, cls.glconfig.vidHeight / 2);
+    CL_SetMousePos(uid.vidWidth / 2, uid.vidHeight / 2);
 }
 
 /*
@@ -3806,7 +3806,7 @@ void UI_CreateDialog(
 {
     UIDialog *dlg = new UIDialog;
     UIRect2D  rect =
-        UIRect2D((cls.glconfig.vidWidth - width) >> 1, (cls.glconfig.vidHeight - height) >> 1, width, height);
+        UIRect2D((uid.vidWidth - width) / 2, (uid.vidHeight - height) / 2, width, height);
     UColor bgColor = UWindowColor;
 
     dlg->Create(NULL, rect, title, bgColor, UHudColor);
@@ -3876,7 +3876,7 @@ void UI_ResolutionChange(void)
     menuManager.RealignMenus();
 
     if (view3d) {
-        frame = UIRect2D(0, 0, cls.glconfig.vidWidth, cls.glconfig.vidHeight);
+        frame = UIRect2D(0, 0, uid.vidWidth, uid.vidHeight);
         view3d->setFrame(frame);
     }
 
@@ -4462,7 +4462,7 @@ void UI_CreateScoreboard(void)
     scoreboard_h = h;
 
     SCR_AdjustFrom640(&x, &y, &w, &h);
-    fColumnScale = cls.glconfig.vidWidth / 640.0;
+    fColumnScale = uid.vidWidth / 640.0;
     cge->CG_GetScoreBoardColor(&fR, &fG, &fB, &fA);
     cge->CG_GetScoreBoardFontColor(&fFontR, &fFontG, &fFontB, &fFontA);
 
@@ -5308,7 +5308,7 @@ void CL_InitializeUI(void)
     // Create the 3D view
     view3d = new View3D;
     view3d->setAlwaysOnBottom(true);
-    view3d->InitFrame(NULL, 0, 0, cls.glconfig.vidWidth, cls.glconfig.vidHeight, -1, "facfont-20");
+    view3d->InitFrame(NULL, 0, 0, uid.vidWidth, uid.vidHeight, -1, "facfont-20");
     view3d->setName("view3d");
     view3d->InitSubtitle();
 

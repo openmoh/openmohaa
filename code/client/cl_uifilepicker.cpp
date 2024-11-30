@@ -47,7 +47,7 @@ FilePickerClass::FilePickerClass()
     window = new UIFloatingWindow();
     window->Create(
         NULL,
-        UIRect2D((cls.glconfig.vidWidth - 400) / 2, (cls.glconfig.vidHeight - 300) / 2, 400, 300),
+        UIRect2D((uid.vidWidth - 400) / 2, (uid.vidHeight - 300) / 2, 400, 300),
         "File Picker",
         UColor(0.15f, 0.195f, 0.278f),
         UHudColor
