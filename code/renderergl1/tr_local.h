@@ -27,6 +27,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../qcommon/qcommon.h"
 #include "tr_public.h"
 #include "../renderercommon/qgl.h"
+#include "../renderercommon/tr_common.h"
 #include "qgl.h"
 
 #ifdef __cplusplus
@@ -217,6 +218,7 @@ typedef struct {
 	float		modelMatrix[16];
 } orientationr_t;
 
+/*
 typedef struct image_s {
 	char		imgName[MAX_QPATH];		// game path, including extension
 	int			width, height;				// source image
@@ -240,6 +242,7 @@ typedef struct image_s {
 
 	struct image_s*	next;
 } image_t;
+*/
 
 //===============================================================================
 
@@ -632,6 +635,8 @@ typedef struct {
 	float		fov_x, fov_y;
 	vec3_t		vieworg;
 	vec3_t		viewaxis[3];		// transformation matrix
+
+	stereoFrame_t	stereoFrame;
 
 	int			time;				// time in milliseconds for shader effects and other time dependent rendering issues
 	int			rdflags;			// RDF_NOWORLDMODEL, etc
@@ -1540,9 +1545,9 @@ extern	cvar_t	*r_portalOnly;
 
 extern	cvar_t	*r_subdivisions;
 extern	cvar_t	*r_lodCurveError;
-extern	cvar_t	*r_smp;
-extern	cvar_t	*r_showSmp;
 extern	cvar_t	*r_skipBackEnd;
+
+extern	cvar_t	*r_anaglyphMode;
 
 extern	cvar_t	*r_ignoreGLErrors;
 
@@ -1641,10 +1646,7 @@ extern  cvar_t* r_showSkeleton;
 
 //====================================================================
 
-float R_NoiseGet4f( float x, float y, float z, float t );
 void  R_NoiseInit( void );
-
-void R_SwapBuffers( int );
 
 void R_DebugCircle(const vec3_t org, float radius, float r, float g, float b, float alpha, qboolean horizontal);
 void R_DebugLine(const vec3_t start, const vec3_t end, float r, float g, float b, float alpha);
@@ -1775,23 +1777,7 @@ qboolean	R_GetEntityToken( char *buffer, int size );
 model_t		*R_AllocModel( void );
 
 void    	R_Init( void );
-image_t		*R_FindImageFile(const char* name, qboolean mipmap, qboolean allowPicmip, qboolean force32bit, int glWrapClampModeX, int glWrapClampModeY);
-image_t		*R_RefreshImageFile(const char* name, qboolean mipmap, qboolean allowPicmip, qboolean force32bit, int glWrapClampModeX, int glWrapClampModeY);
 
-image_t* R_CreateImage(
-	const char* name,
-	byte* pic,
-	int width,
-	int height,
-	int numMipmaps,
-	int iMipmapsAvailable,
-	qboolean allowPicmip,
-	qboolean force32bit,
-	qboolean hasAlpha,
-	int glCompressMode,
-	int glWrapClampModeX,
-	int glWrapClampModeY
-);
 qboolean	R_GetModeInfo( int *width, int *height, float *windowAspect, int mode );
 
 void		R_SetColorMappings( void );
@@ -1810,6 +1796,7 @@ void    R_FreeUnusedImages( void );
 int		R_SumOfUsedImages( void );
 skin_t	*R_GetSkinByHandle( qhandle_t hSkin );
 
+const void *RB_TakeVideoFrameCmd( const void *data );
 
 //
 // tr_shader.c
@@ -2052,7 +2039,7 @@ SCENE GENERATION
 ============================================================
 */
 
-void R_ToggleSmpFrame( void );
+void R_InitNextFrame( void );
 
 void RE_ClearScene( void );
 void RE_AddRefEntityToScene( const refEntity_t *ent, int parentEntityNumber);
@@ -2389,6 +2376,27 @@ typedef struct {
 	qboolean jpeg;
 } screenshotCommand_t;
 
+typedef struct {
+	int						commandId;
+	int						width;
+	int						height;
+	byte					*captureBuffer;
+	byte					*encodeBuffer;
+	qboolean			motionJpeg;
+} videoFrameCommand_t;
+
+typedef struct
+{
+	int commandId;
+
+	GLboolean rgba[4];
+} colorMaskCommand_t;
+
+typedef struct
+{
+	int commandId;
+} clearDepthCommand_t;
+
 typedef enum {
 	RC_END_OF_LIST,
 	RC_SET_COLOR,
@@ -2397,7 +2405,10 @@ typedef enum {
 	RC_SPRITE_SURFS,
 	RC_DRAW_BUFFER,
 	RC_SWAP_BUFFERS,
-	RC_SCREENSHOT
+	RC_SCREENSHOT,
+	RC_VIDEOFRAME,
+	RC_COLORMASK,
+	RC_CLEARDEPTH
 } renderCommand_t;
 
 
@@ -2430,7 +2441,7 @@ extern	int		max_polys;
 extern	int		max_polyverts;
 extern	int		max_termarks;
 
-extern	backEndData_t	*backEndData[SMP_FRAMES];	// the second one may not be allocated
+extern	backEndData_t	*backEndData;	// the second one may not be allocated
 
 extern	volatile renderCommandList_t	*renderCommandList;
 

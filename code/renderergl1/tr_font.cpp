@@ -552,7 +552,7 @@ void R_DrawString_sgl(fontheader_sgl_t* font, const char* text, float x, float y
         return;
     }
 
-    R_SyncRenderThread();
+    R_IssuePendingRenderCommands();
 
     if (font->trhandle != r_sequencenumber) {
         font->shader = NULL;
@@ -771,7 +771,7 @@ void R_DrawFloatingString_sgl(fontheader_sgl_t* font, const char* text, const ve
         return;
     }
 
-    R_SyncRenderThread();
+    R_IssuePendingRenderCommands();
     if (font->trhandle != r_sequencenumber) {
         font->shader = NULL;
     }

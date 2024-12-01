@@ -206,7 +206,7 @@ static	void R_LoadLightmaps(gamelump_t* l) {
     buf = l->buffer;
 
     // we are about to upload textures
-    R_SyncRenderThread();
+    R_IssuePendingRenderCommands();
 
     // create all the lightmaps
     tr.numLightmaps = len / (LIGHTMAP_SIZE * LIGHTMAP_SIZE * 3);

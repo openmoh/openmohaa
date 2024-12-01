@@ -55,7 +55,7 @@ void Draw_StretchPic(float x, float y, float w, float h, float s1, float t1, flo
 #if 1
 	shader_t* shader;
 
-	R_SyncRenderThread();
+	R_IssuePendingRenderCommands();
 
 	if (hShader) {
 		shader = R_GetShaderByHandle(hShader);
@@ -102,7 +102,7 @@ void Draw_StretchPic2(float x, float y, float w, float h, float s1, float t1, fl
 	float scaledWidth1, scaledHeight1;
 	float scaledWidth2, scaledHeight2;
 
-	R_SyncRenderThread();
+	R_IssuePendingRenderCommands();
 
 	if (hShader) {
 		shader = R_GetShaderByHandle(hShader);
@@ -152,7 +152,7 @@ void Draw_TilePic(float x, float y, float w, float h, qhandle_t hShader) {
 	shader_t* shader;
 	float		picw, pich;
 
-	R_SyncRenderThread();
+	R_IssuePendingRenderCommands();
 
 	if (hShader) {
 		shader = R_GetShaderByHandle(hShader);
@@ -198,7 +198,7 @@ void Draw_TilePicOffset(float x, float y, float w, float h, qhandle_t hShader, i
 	shader_t* shader;
 	float		picw, pich;
 
-	R_SyncRenderThread();
+	R_IssuePendingRenderCommands();
 
 	if (hShader) {
 		shader = R_GetShaderByHandle(hShader);
@@ -244,7 +244,7 @@ void Draw_TrianglePic(const vec2_t vPoints[3], const vec2_t vTexCoords[3], qhand
 	int			i;
 	shader_t* shader;
 
-	R_SyncRenderThread();
+	R_IssuePendingRenderCommands();
 
 	if (hShader) {
 		shader = R_GetShaderByHandle(hShader);
@@ -278,7 +278,7 @@ void RE_DrawBackground_TexSubImage(int cols, int rows, int bgr, byte* data) {
 	w = glConfig.vidWidth;
 	h = glConfig.vidHeight;
 
-	R_SyncRenderThread();
+	R_IssuePendingRenderCommands();
 	qglFinish();
 
 	if (bgr) {
@@ -331,7 +331,7 @@ RE_DrawBackground_DrawPixels
 ================
 */
 void RE_DrawBackground_DrawPixels(int cols, int rows, int bgr, byte* data) {
-	R_SyncRenderThread();
+	R_IssuePendingRenderCommands();
 
 	GL_State(0);
 	qglDisable(GL_TEXTURE_2D);
@@ -355,7 +355,7 @@ AddBox
 ================
 */
 void AddBox(float x, float y, float w, float h) {
-	R_SyncRenderThread();
+	R_IssuePendingRenderCommands();
 
 	qglColor4ubv(backEnd.color2D);
 	qglDisable(GL_TEXTURE_2D);
@@ -379,7 +379,7 @@ DrawBox
 ================
 */
 void DrawBox(float x, float y, float w, float h) {
-	R_SyncRenderThread();
+	R_IssuePendingRenderCommands();
 
 	qglColor4ubv(backEnd.color2D);
 	qglDisable(GL_TEXTURE_2D);
@@ -405,7 +405,7 @@ DrawLineLoop
 void DrawLineLoop(const vec2_t* points, int count, int stipple_factor, int stipple_mask) {
 	int		i;
 
-	R_SyncRenderThread();
+	R_IssuePendingRenderCommands();
 
 	qglDisable(GL_TEXTURE_2D);
 
@@ -435,7 +435,7 @@ Set2DWindow
 ================
 */
 void Set2DWindow(int x, int y, int w, int h, float left, float right, float bottom, float top, float n, float f) {
-	R_SyncRenderThread();
+	R_IssuePendingRenderCommands();
 	qglViewport(x, y, w, h);
 	qglScissor(x, y, w, h);
 	qglMatrixMode(GL_PROJECTION);

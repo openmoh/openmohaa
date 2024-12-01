@@ -1678,7 +1678,7 @@ void R_DebugGraphics( void ) {
 	}
 
 	// the render thread can't make callbacks to the main thread
-	R_SyncRenderThread();
+	R_IssuePendingRenderCommands();
 
 	GL_Bind( tr.whiteImage);
 	GL_Cull( CT_FRONT_SIDED );
@@ -1804,7 +1804,7 @@ void R_DrawDebugLines(void) {
 		return;
 	}
 
-    R_SyncRenderThread();
+	R_IssuePendingRenderCommands();
     GL_Bind(tr.whiteImage);
 	if (r_debuglines_depthmask->integer) {
 		GL_State(GLS_POLYMODE_LINE | GLS_DEPTHMASK_TRUE);

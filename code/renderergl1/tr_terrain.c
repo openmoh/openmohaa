@@ -681,7 +681,7 @@ static void R_PreTessellateTerrain()
         return;
     }
 
-    R_SyncRenderThread();
+    R_IssuePendingRenderCommands();
 
     if (ter_maxtris->integer < 4 * numTerrainPatches) {
         Cvar_SetValue("ter_maxtris", 4 * numTerrainPatches);
@@ -1167,10 +1167,6 @@ R_TessellateTerrain
 */
 void R_TessellateTerrain()
 {
-    if (glConfig.smpActive) {
-        R_SyncRenderThread();
-    }
-
     R_DoTriSplitting();
     // Morph geometry according to the view
     R_DoGeomorphs();

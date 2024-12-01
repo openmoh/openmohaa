@@ -65,6 +65,16 @@ typedef struct image_s {
 	imgFlags_t  flags;
 
 	struct image_s*	next;
+
+    int			bytesUsed;
+    int			numMipmaps;
+	qboolean	dynamicallyUpdated;
+	qboolean	allowPicmip;
+	qboolean	force32bit;
+    int			wrapClampModeX;
+    int			wrapClampModeY;
+	int			r_sequence;
+	int			UseCount;
 } image_t;
 
 // any change in the LIGHTMAP_* defines here MUST be reflected in
@@ -124,8 +134,22 @@ qboolean	R_GetModeInfo( int *width, int *height, float *windowAspect, int mode )
 float R_NoiseGet4f( float x, float y, float z, double t );
 void  R_NoiseInit( void );
 
-image_t     *R_FindImageFile( const char *name, imgType_t type, imgFlags_t flags );
-image_t *R_CreateImage( const char *name, byte *pic, int width, int height, imgType_t type, imgFlags_t flags, int internalFormat );
+image_t		*R_FindImageFile(const char* name, qboolean mipmap, qboolean allowPicmip, qboolean force32bit, int glWrapClampModeX, int glWrapClampModeY);
+image_t		*R_RefreshImageFile(const char* name, qboolean mipmap, qboolean allowPicmip, qboolean force32bit, int glWrapClampModeX, int glWrapClampModeY);
+image_t* R_CreateImage(
+	const char* name,
+	byte* pic,
+	int width,
+	int height,
+	int numMipmaps,
+	int iMipmapsAvailable,
+	qboolean allowPicmip,
+	qboolean force32bit,
+	qboolean hasAlpha,
+	int glCompressMode,
+	int glWrapClampModeX,
+	int glWrapClampModeY
+);
 
 void R_IssuePendingRenderCommands( void );
 qhandle_t		 RE_RegisterShaderLightMap( const char *name, int lightmapIndex );

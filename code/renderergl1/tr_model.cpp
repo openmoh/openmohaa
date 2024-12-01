@@ -203,7 +203,7 @@ static qhandle_t R_RegisterModelInternal( const char *name, qboolean bBeginTiki,
 
 
 	// make sure the render thread is stopped
-	R_SyncRenderThread();
+	R_IssuePendingRenderCommands();
 
 	mod->serveronly = qtrue;
 
@@ -1607,13 +1607,13 @@ void RB_StaticMesh(staticSurface_t *staticSurf)
         tess.texCoords[baseVertex + j][1][1] = surf->pStaticTexCoords[j][1][1];
     }
 
-    if (backEndData[backEnd.smpFrame]->staticModelData) {
+    if (backEndData->staticModelData) {
         const size_t offset =
             backEnd.currentStaticModel->firstVertexData + staticSurf->ofsStaticData * sizeof(color4ub_t);
         assert(offset < tr.world->numStaticModelData * sizeof(color4ub_t));
         assert(offset + render_count * sizeof(color4ub_t) <= tr.world->numStaticModelData * sizeof(color4ub_t));
 
-        const color4ub_t *in = (const color4ub_t *)&backEndData[backEnd.smpFrame]->staticModelData[offset];
+        const color4ub_t *in = (const color4ub_t *)&backEndData->staticModelData[offset];
 
         for (i = 0; i < render_count; i++) {
             tess.vertexColors[baseVertex + i][0] = in[i][0];
@@ -1789,7 +1789,7 @@ void R_DebugSkeleton(void) {
         return;
     }
 
-	R_SyncRenderThread();
+	R_IssuePendingRenderCommands();
 
 	GL_Bind( tr.whiteImage );
 	GL_State( GLS_POLYMODE_LINE );

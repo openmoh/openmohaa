@@ -317,7 +317,7 @@ functions exported to the main executable
         refEntity_t *(*R_GetRenderEntity)(int entityNumber);
         void (*R_ModelBounds)(clipHandle_t model, vec3_t mins, vec3_t maxs);
         float (*R_ModelRadius)(clipHandle_t model);
-        float (*R_Noise)(float x, float y, float z, float t);
+        float (*R_Noise)(float x, float y, float z, double t);
         void (*R_DebugLine)(const vec3_t start, const vec3_t end, float r, float g, float b, float alpha);
         baseshader_t *(*GetShader)(int shaderNum);
         // =========== Swipes =============

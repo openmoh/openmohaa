@@ -21,7 +21,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include "tr_local.h"
 
-backEndData_t	*backEndData[SMP_FRAMES];
+backEndData_t	*backEndData;
 backEndState_t	backEnd;
 
 
@@ -1012,7 +1012,7 @@ void RE_StretchRaw (int x, int y, int w, int h, int cols, int rows, int componen
 	if ( !tr.registered ) {
 		return;
 	}
-	R_SyncRenderThread();
+	R_IssuePendingRenderCommands();
 
 	// we definately want to sync every frame for the cinematics
 	qglFinish();
@@ -1325,6 +1325,43 @@ void RB_ShowImages( qboolean quiet ) {
     }
 }
 
+/*
+=============
+RB_ColorMask
+
+=============
+*/
+const void *RB_ColorMask(const void *data)
+{
+	const colorMaskCommand_t *cmd = data;
+	
+	qglColorMask(cmd->rgba[0], cmd->rgba[1], cmd->rgba[2], cmd->rgba[3]);
+	
+	return (const void *)(cmd + 1);
+}
+
+/*
+=============
+RB_ClearDepth
+
+=============
+*/
+const void *RB_ClearDepth(const void *data)
+{
+	const clearDepthCommand_t *cmd = data;
+	
+	if(tess.numIndexes)
+		RB_EndSurface();
+
+	// texture swapping test
+	if (r_showImages->integer)
+		RB_ShowImages(qtrue);
+
+	qglClear(GL_DEPTH_BUFFER_BIT);
+	
+	return (const void *)(cmd + 1);
+}
+
 
 /*
 =============
@@ -1392,13 +1429,9 @@ void RB_ExecuteRenderCommands( const void *data ) {
 
 	t1 = ri.Milliseconds ();
 
-	if ( !r_smp->integer || data == backEndData[0]->commands.cmds ) {
-		backEnd.smpFrame = 0;
-	} else {
-		backEnd.smpFrame = 1;
-	}
-
 	while ( 1 ) {
+		data = PADP(data, sizeof(void *));
+
 		switch ( *(const int *)data ) {
 		case RC_SET_COLOR:
 			data = RB_SetColor( data );
@@ -1421,10 +1454,18 @@ void RB_ExecuteRenderCommands( const void *data ) {
 		case RC_SCREENSHOT:
 			data = RB_TakeScreenshotCmd( data );
 			break;
-
+		case RC_VIDEOFRAME:
+			data = RB_TakeVideoFrameCmd( data );
+			break;
+		case RC_COLORMASK:
+			data = RB_ColorMask(data);
+			break;
+		case RC_CLEARDEPTH:
+			data = RB_ClearDepth(data);
+			break;
 		case RC_END_OF_LIST:
 		default:
-			// stop rendering on this thread
+			// stop rendering
 			t2 = ri.Milliseconds ();
 			backEnd.pc.msec = t2 - t1;
 			return;
@@ -1432,30 +1473,3 @@ void RB_ExecuteRenderCommands( const void *data ) {
 	}
 
 }
-
-
-/*
-================
-RB_RenderThread
-================
-*/
-void RB_RenderThread( void ) {
-	const void	*data;
-
-	// wait for either a rendering command or a quit command
-	while ( 1 ) {
-		// sleep until we have work to do
-		data = GLimp_RendererSleep();
-
-		if ( !data ) {
-			return;	// all done, renderer is shutting down
-		}
-
-		renderThreadActive = qtrue;
-
-		RB_ExecuteRenderCommands( data );
-
-		renderThreadActive = qfalse;
-	}
-}
-

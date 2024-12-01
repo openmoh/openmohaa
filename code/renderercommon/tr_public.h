@@ -160,7 +160,7 @@ typedef struct {
     void            (*SwipePoint)(vec3_t point1, vec3_t point2, float time);
     void            (*SwipeEnd)();
     void            (*SetRenderTime)(int t);
-    float           (*Noise)(float x, float y, float z, float t);
+    float           (*Noise)(float x, float y, float z, double t);
     qboolean        (*SetMode)(int mode, const glconfig_t* glConfig);
     void            (*SetFullscreen)(qboolean fullScreen);
     int             (*GetShaderWidth)(qhandle_t hShader);

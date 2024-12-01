@@ -45,8 +45,6 @@ cvar_t	*r_displayRefresh;
 
 cvar_t	*r_znear;
 
-cvar_t	*r_smp;
-cvar_t	*r_showSmp;
 cvar_t	*r_skipBackEnd;
 
 cvar_t	*r_ignorehwgamma;
@@ -265,7 +263,9 @@ cvar_t* r_ext_multisample;
 cvar_t* r_noborder;
 cvar_t* r_ext_texture_filter_anisotropic;
 cvar_t* r_stereoEnabled;
+cvar_t* r_anaglyphMode;
 
+cvar_t* r_aviMotionJpegQuality;
 cvar_t* r_screenshotJpegQuality;
 
 static char infostring[8192];
@@ -341,9 +341,6 @@ static void InitOpenGL( void )
 			ri.Cvar_Set("r_forceClampToEdge", "1");
 		}
 	}
-
-	// init command buffers and SMP
-	R_InitCommandBuffers();
 
 	// print info
 	GfxInfo_f();
@@ -973,6 +970,85 @@ void R_ScreenShotJPEG_f (void) {
 //============================================================================
 
 /*
+==================
+RB_TakeVideoFrameCmd
+==================
+*/
+const void *RB_TakeVideoFrameCmd( const void *data )
+{
+	const videoFrameCommand_t	*cmd;
+	byte				*cBuf;
+	size_t				memcount, linelen;
+	int				padwidth, avipadwidth, padlen, avipadlen;
+	GLint packAlign;
+	
+	cmd = (const videoFrameCommand_t *)data;
+	
+	qglGetIntegerv(GL_PACK_ALIGNMENT, &packAlign);
+
+	linelen = cmd->width * 3;
+
+	// Alignment stuff for glReadPixels
+	padwidth = PAD(linelen, packAlign);
+	padlen = padwidth - linelen;
+	// AVI line padding
+	avipadwidth = PAD(linelen, AVI_LINE_PADDING);
+	avipadlen = avipadwidth - linelen;
+
+	cBuf = PADP(cmd->captureBuffer, packAlign);
+		
+	qglReadPixels(0, 0, cmd->width, cmd->height, GL_RGB,
+		GL_UNSIGNED_BYTE, cBuf);
+
+	memcount = padwidth * cmd->height;
+
+	// gamma correct
+	if(glConfig.deviceSupportsGamma)
+		R_GammaCorrect(cBuf, memcount);
+
+	if(cmd->motionJpeg)
+	{
+		memcount = RE_SaveJPGToBuffer(cmd->encodeBuffer, linelen * cmd->height,
+			r_aviMotionJpegQuality->integer,
+			cmd->width, cmd->height, cBuf, padlen);
+		ri.CL_WriteAVIVideoFrame(cmd->encodeBuffer, memcount);
+	}
+	else
+	{
+		byte *lineend, *memend;
+		byte *srcptr, *destptr;
+	
+		srcptr = cBuf;
+		destptr = cmd->encodeBuffer;
+		memend = srcptr + memcount;
+		
+		// swap R and B and remove line paddings
+		while(srcptr < memend)
+		{
+			lineend = srcptr + linelen;
+			while(srcptr < lineend)
+			{
+				*destptr++ = srcptr[2];
+				*destptr++ = srcptr[1];
+				*destptr++ = srcptr[0];
+				srcptr += 3;
+			}
+			
+			Com_Memset(destptr, '\0', avipadlen);
+			destptr += avipadlen;
+			
+			srcptr += padlen;
+		}
+		
+		ri.CL_WriteAVIVideoFrame(cmd->encodeBuffer, avipadwidth * cmd->height);
+	}
+
+	return (const void *)(cmd + 1);	
+}
+
+//============================================================================
+
+/*
 ** GL_SetDefaultState
 */
 void GL_SetDefaultState( void )
@@ -1303,12 +1379,6 @@ void R_Register( void )
 	r_customheight = ri.Cvar_Get( "r_customheight", "1024", CVAR_ARCHIVE | CVAR_LATCH );
 	r_customaspect = ri.Cvar_Get( "r_customaspect", "1", CVAR_ARCHIVE | CVAR_LATCH );
 	r_vertexLight = ri.Cvar_Get("r_vertexLight", "0", CVAR_ARCHIVE | CVAR_LATCH);
-#if (defined(MACOS_X) || defined(__linux__)) && defined(SMP)
-  // Default to using SMP on Mac OS X or Linux if we have multiple processors
-	r_smp = ri.Cvar_Get( "r_smp", Sys_ProcessorCount() > 1 ? "1" : "0", CVAR_ARCHIVE | CVAR_LATCH);
-#else		
-	r_smp = ri.Cvar_Get( "r_smp", "0", CVAR_ARCHIVE | CVAR_LATCH);
-#endif
 	r_ignoreFastPath = ri.Cvar_Get("r_ignoreFastPath", "0", CVAR_ARCHIVE | CVAR_LATCH);
 	r_subdivisions = ri.Cvar_Get("r_subdivisions", "4", CVAR_ARCHIVE | CVAR_LATCH);
 
@@ -1346,6 +1416,8 @@ void R_Register( void )
 
 	r_ambientScale = ri.Cvar_Get( "r_ambientScale", "0.6", CVAR_CHEAT );
 	r_directedScale = ri.Cvar_Get( "r_directedScale", "1", CVAR_CHEAT );
+
+	r_anaglyphMode = ri.Cvar_Get("r_anaglyphMode", "0", CVAR_ARCHIVE);
 
 	//
 	// temporary variables that can change at any time
@@ -1395,7 +1467,6 @@ void R_Register( void )
 	r_flareSize = ri.Cvar_Get ("r_flareSize", "40", CVAR_CHEAT);
 	r_flareFade = ri.Cvar_Get ("r_flareFade", "7", CVAR_CHEAT);
 
-	r_showSmp = ri.Cvar_Get ("r_showSmp", "0", CVAR_CHEAT);
 	r_skipBackEnd = ri.Cvar_Get ("r_skipBackEnd", "0", CVAR_CHEAT);
 
 	r_measureOverdraw = ri.Cvar_Get( "r_measureOverdraw", "0", CVAR_CHEAT );
@@ -1516,6 +1587,7 @@ void R_Register( void )
 	//
 
     r_showSkeleton = ri.Cvar_Get("r_showSkeleton", "0", CVAR_CHEAT);
+	r_aviMotionJpegQuality = ri.Cvar_Get("r_aviMotionJpegQuality", "90", CVAR_ARCHIVE);
     r_screenshotJpegQuality = ri.Cvar_Get("r_screenshotJpegQuality", "90", CVAR_ARCHIVE);
 
 	ri.Cmd_AddCommand( "ter_crater", R_TerrainCrater_f );
@@ -1616,26 +1688,14 @@ void R_Init( void ) {
 	if (max_termarks < MAX_TERMARKS)
 		max_termarks = MAX_TERMARKS;
 
-	ptr = ri.Malloc(sizeof(*backEndData[0]) + sizeof(srfPoly_t) * max_polys + sizeof(polyVert_t) * max_polyverts + sizeof(srfMarkFragment_t) * max_termarks);
-	backEndData[0] = (backEndData_t*)ptr;
-	backEndData[0]->polys = (srfPoly_t*)((char*)ptr + sizeof(*backEndData[0]));
-	backEndData[0]->polyVerts = (polyVert_t*)((char*)ptr + sizeof(*backEndData[0]) + sizeof(srfPoly_t) * max_polys);
-	backEndData[0]->terMarks = (srfMarkFragment_t*)((char*)ptr + sizeof(*backEndData[0]) + sizeof(srfPoly_t) * max_polys + sizeof(polyVert_t) * max_polyverts);
-	backEndData[0]->staticModels = NULL;
-	backEndData[0]->staticModelData = NULL;
-	if (r_smp->integer) {
-		ptr = ri.Malloc(sizeof(*backEndData[1]) + sizeof(srfPoly_t) * max_polys + sizeof(polyVert_t) * max_polyverts);
-		backEndData[1] = (backEndData_t*)ptr;
-		backEndData[1]->polys = (srfPoly_t*)((char*)ptr + sizeof(*backEndData[1]));
-		backEndData[1]->polyVerts = (polyVert_t*)((char*)ptr + sizeof(*backEndData[1]) + sizeof(srfPoly_t) * max_polys);
-		backEndData[1]->terMarks = (srfMarkFragment_t*)((char*)ptr + sizeof(*backEndData[1]) + sizeof(srfPoly_t) * max_polys + sizeof(polyVert_t) * max_polyverts);
-		backEndData[1]->staticModels = NULL;
-		backEndData[1]->staticModelData = NULL;
-	}
-	else {
-		backEndData[1] = NULL;
-	}
-	R_ToggleSmpFrame();
+	ptr = ri.Malloc(sizeof(*backEndData) + sizeof(srfPoly_t) * max_polys + sizeof(polyVert_t) * max_polyverts + sizeof(srfMarkFragment_t) * max_termarks);
+	backEndData = (backEndData_t*)ptr;
+	backEndData->polys = (srfPoly_t*)((char*)ptr + sizeof(*backEndData));
+	backEndData->polyVerts = (polyVert_t*)((char*)ptr + sizeof(*backEndData) + sizeof(srfPoly_t) * max_polys);
+	backEndData->terMarks = (srfMarkFragment_t*)((char*)ptr + sizeof(*backEndData) + sizeof(srfPoly_t) * max_polys + sizeof(polyVert_t) * max_polyverts);
+	backEndData->staticModels = NULL;
+	backEndData->staticModelData = NULL;
+	R_InitNextFrame();
 
 	InitOpenGL();
 
@@ -1680,8 +1740,7 @@ void RE_Shutdown( qboolean destroyWindow ) {
 
 
 	if ( tr.registered ) {
-		R_SyncRenderThread();
-		R_ShutdownCommandBuffers();
+		R_IssuePendingRenderCommands();
 		R_DeleteTextures();
 	}
 
@@ -1711,7 +1770,7 @@ void RE_BeginRegistration(glconfig_t* glconfigOut) {
 	UI_LoadResource("*123");
 	scr_initialized = 0;
 
-	R_SyncRenderThread();
+	R_IssuePendingRenderCommands();
 
 	R_LevelMarksFree();
 	ri.Hunk_Clear();
@@ -1747,7 +1806,7 @@ Touch all images to make sure they are resident
 =============
 */
 void RE_EndRegistration( void ) {
-	R_SyncRenderThread();
+	R_IssuePendingRenderCommands();
 	if (r_precacheimages->integer) {
 		int start, end;
 
