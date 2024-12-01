@@ -182,7 +182,7 @@ if (NOT BUILD_NO_CLIENT)
 	option(NO_MODERN_DMA "Use older sound-system" FALSE)
 
 	add_subdirectory("code/client")
-	add_subdirectory("code/renderer")
+	add_subdirectory("code/renderergl1")
 	add_subdirectory("code/sdl")
 
 	#include("code/renderergl2/glsl/shaders.cmake")

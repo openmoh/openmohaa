@@ -15,20 +15,29 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with Quake III Arena source code; if not, write to the Free Software
+along with Foobar; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
 #include "tr_local.h"
+#include "tr_vis.h"
+#include "tiki.h"
 
 int			r_firstSceneDrawSurf;
+int			r_firstSceneSpriteSurf;
 
 int			r_numdlights;
 int			r_firstSceneDlight;
 
 int			r_numentities;
 int			r_firstSceneEntity;
+
+int			r_numsprites;
+int			r_firstSceneSprite;
+
+int			r_numtermarks;
+int			r_firstSceneTerMark;
 
 int			r_numpolys;
 int			r_firstScenePoly;
@@ -38,20 +47,35 @@ int			r_numpolyverts;
 
 /*
 ====================
-R_InitNextFrame
+R_ToggleSmpFrame
 
 ====================
 */
-void R_InitNextFrame( void ) {
-	backEndData->commands.used = 0;
+void R_ToggleSmpFrame( void ) {
+	if ( r_smp->integer ) {
+		// use the other buffers next frame, because another CPU
+		// may still be rendering into the current ones
+		tr.smpFrame ^= 1;
+	} else {
+		tr.smpFrame = 0;
+	}
+
+	backEndData[tr.smpFrame]->commands.used = 0;
 
 	r_firstSceneDrawSurf = 0;
+	r_firstSceneSpriteSurf = 0;
 
 	r_numdlights = 0;
 	r_firstSceneDlight = 0;
 
 	r_numentities = 0;
 	r_firstSceneEntity = 0;
+
+	r_numsprites = 0;
+	r_firstSceneSprite = 0;
+
+	r_numtermarks = 0;
+	r_firstSceneTerMark = 0;
 
 	r_numpolys = 0;
 	r_firstScenePoly = 0;
@@ -69,6 +93,8 @@ RE_ClearScene
 void RE_ClearScene( void ) {
 	r_firstSceneDlight = r_numdlights;
 	r_firstSceneEntity = r_numentities;
+	r_firstSceneSprite = r_numsprites;
+	r_firstSceneTerMark = r_numtermarks;
 	r_firstScenePoly = r_numpolys;
 }
 
@@ -92,12 +118,12 @@ void R_AddPolygonSurfaces( void ) {
 	shader_t	*sh;
 	srfPoly_t	*poly;
 
-	tr.currentEntityNum = REFENTITYNUM_WORLD;
-	tr.shiftedEntityNum = tr.currentEntityNum << QSORT_REFENTITYNUM_SHIFT;
+	tr.currentEntityNum = ENTITYNUM_WORLD;
+	tr.shiftedEntityNum = tr.currentEntityNum << QSORT_ENTITYNUM_SHIFT;
 
 	for ( i = 0, poly = tr.refdef.polys; i < tr.refdef.numPolys ; i++, poly++ ) {
 		sh = R_GetShaderByHandle( poly->hShader );
-		R_AddDrawSurf( ( void * )poly, sh, poly->fogIndex, qfalse );
+		R_AddDrawSurf( ( void * )poly, sh, qfalse );
 	}
 }
 
@@ -107,88 +133,98 @@ RE_AddPolyToScene
 
 =====================
 */
-void RE_AddPolyToScene( qhandle_t hShader, int numVerts, const polyVert_t *verts, int numPolys ) {
+qboolean RE_AddPolyToScene(qhandle_t hShader, int numVerts, const polyVert_t* verts, int renderfx) {
 	srfPoly_t	*poly;
-	int			i, j;
-	int			fogIndex;
-	fog_t		*fog;
-	vec3_t		bounds[2];
 
 	if ( !tr.registered ) {
-		return;
+		return qfalse;
 	}
 
-	if ( !hShader ) {
-		ri.Printf( PRINT_WARNING, "WARNING: RE_AddPolyToScene: NULL poly shader\n");
-		return;
+	if (numVerts + r_numpolyverts > max_polyverts || r_numpolys >= max_polys) {
+		ri.Printf(PRINT_WARNING, "Exceeded MAX POLYS\n");
+		return qfalse;
 	}
 
-	for ( j = 0; j < numPolys; j++ ) {
-		if ( r_numpolyverts + numVerts > max_polyverts || r_numpolys >= max_polys ) {
-      /*
-      NOTE TTimo this was initially a PRINT_WARNING
-      but it happens a lot with high fighting scenes and particles
-      since we don't plan on changing the const and making for room for those effects
-      simply cut this message to developer only
-      */
-			ri.Printf( PRINT_DEVELOPER, "WARNING: RE_AddPolyToScene: r_max_polys or r_max_polyverts reached\n");
-			return;
-		}
+	poly = &backEndData[tr.smpFrame]->polys[r_numpolys];
+	poly->surfaceType = SF_POLY;
+	poly->hShader = hShader;
+	poly->numVerts = numVerts;
+	poly->verts = &backEndData[tr.smpFrame]->polyVerts[r_numpolyverts];
+	poly->renderfx = renderfx;
 
-		poly = &backEndData->polys[r_numpolys];
-		poly->surfaceType = SF_POLY;
-		poly->hShader = hShader;
-		poly->numVerts = numVerts;
-		poly->verts = &backEndData->polyVerts[r_numpolyverts];
-		
-		Com_Memcpy( poly->verts, &verts[numVerts*j], numVerts * sizeof( *verts ) );
+	Com_Memcpy(poly->verts, verts, sizeof(polyVert_t) * numVerts);
+	++r_numpolys;
+	r_numpolyverts += numVerts;
 
-		if ( glConfig.hardwareType == GLHW_RAGEPRO ) {
-			poly->verts->modulate[0] = 255;
-			poly->verts->modulate[1] = 255;
-			poly->verts->modulate[2] = 255;
-			poly->verts->modulate[3] = 255;
-		}
-		// done.
-		r_numpolys++;
-		r_numpolyverts += numVerts;
-
-		// if no world is loaded
-		if ( tr.world == NULL ) {
-			fogIndex = 0;
-		}
-		// see if it is in a fog volume
-		else if ( tr.world->numfogs == 1 ) {
-			fogIndex = 0;
-		} else {
-			// find which fog volume the poly is in
-			VectorCopy( poly->verts[0].xyz, bounds[0] );
-			VectorCopy( poly->verts[0].xyz, bounds[1] );
-			for ( i = 1 ; i < poly->numVerts ; i++ ) {
-				AddPointToBounds( poly->verts[i].xyz, bounds[0], bounds[1] );
-			}
-			for ( fogIndex = 1 ; fogIndex < tr.world->numfogs ; fogIndex++ ) {
-				fog = &tr.world->fogs[fogIndex]; 
-				if ( bounds[1][0] >= fog->bounds[0][0]
-					&& bounds[1][1] >= fog->bounds[0][1]
-					&& bounds[1][2] >= fog->bounds[0][2]
-					&& bounds[0][0] <= fog->bounds[1][0]
-					&& bounds[0][1] <= fog->bounds[1][1]
-					&& bounds[0][2] <= fog->bounds[1][2] ) {
-					break;
-				}
-			}
-			if ( fogIndex == tr.world->numfogs ) {
-				fogIndex = 0;
-			}
-		}
-		poly->fogIndex = fogIndex;
-	}
+	return qtrue;
 }
 
+/*
+=====================
+R_AddTerrainMarkSurfaces
+=====================
+*/
+void R_AddTerrainMarkSurfaces(void) {
+    srfMarkFragment_t* terMark;
+    int j;
+    shader_t* shader;
+
+    for (j = 0; j < tr.refdef.numTerMarks; j++)
+    {
+        terMark = &tr.refdef.terMarks[j];
+
+        shader = R_GetShaderByHandle(terMark->surfaceType);
+        terMark->surfaceType = SF_MARK_FRAG;
+        R_AddDrawSurf(&terMark->surfaceType, shader, 0);
+    }
+}
+
+/*
+=====================
+RE_AddTerrainMarkToScene
+=====================
+*/
+void RE_AddTerrainMarkToScene(int iTerrainIndex, qhandle_t hShader, int numVerts, const polyVert_t* verts, int renderfx) {
+    srfMarkFragment_t* terMark;
+
+    if (!tr.registered) {
+        return;
+    }
+
+    if (numVerts + r_numpolyverts > max_polyverts || r_numtermarks >= max_termarks) {
+        ri.Printf(PRINT_WARNING, "Exceeded MAX TERRAIN MARKS\n");
+        return;
+    }
+
+    terMark = &backEndData[tr.smpFrame]->terMarks[r_numtermarks];
+    terMark->surfaceType = hShader;
+    terMark->iIndex = iTerrainIndex;
+    terMark->numVerts = numVerts;
+    terMark->verts = &backEndData[tr.smpFrame]->polyVerts[r_numpolyverts];
+    memcpy(terMark->verts, verts, sizeof(polyVert_t) * numVerts);
+
+    r_numtermarks++;
+    r_numpolyverts += numVerts;
+}
 
 //=================================================================================
 
+/*
+=====================
+RE_GetRenderEntity
+=====================
+*/
+refEntity_t* RE_GetRenderEntity(int entityNumber) {
+    int i;
+
+    for (i = 0; i < r_numentities; i++) {
+        if (backEndData[0]->entities[i].e.entityNumber == entityNumber) {
+            return &backEndData[0]->entities[i].e;
+        }
+    }
+
+    return NULL;
+}
 
 /*
 =====================
@@ -196,32 +232,77 @@ RE_AddRefEntityToScene
 
 =====================
 */
-void RE_AddRefEntityToScene( const refEntity_t *ent ) {
+void RE_AddRefEntityToScene( const refEntity_t *ent, int parentEntityNumber) {
 	if ( !tr.registered ) {
 		return;
 	}
-	if ( r_numentities >= MAX_REFENTITIES ) {
-		ri.Printf(PRINT_DEVELOPER, "RE_AddRefEntityToScene: Dropping refEntity, reached MAX_REFENTITIES\n");
+  // https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=402
+	if ( r_numentities >= ENTITYNUM_WORLD ) {
 		return;
 	}
-	if ( Q_isnan(ent->origin[0]) || Q_isnan(ent->origin[1]) || Q_isnan(ent->origin[2]) ) {
-		static qboolean firstTime = qtrue;
-		if (firstTime) {
-			firstTime = qfalse;
-			ri.Printf( PRINT_WARNING, "RE_AddRefEntityToScene passed a refEntity which has an origin with a NaN component\n");
-		}
-		return;
-	}
-	if ( (int)ent->reType < 0 || ent->reType >= RT_MAX_REF_ENTITY_TYPE ) {
+	if ( ent->reType < 0 || ent->reType >= RT_MAX_REF_ENTITY_TYPE ) {
 		ri.Error( ERR_DROP, "RE_AddRefEntityToScene: bad reType %i", ent->reType );
 	}
 
-	backEndData->entities[r_numentities].e = *ent;
-	backEndData->entities[r_numentities].lightingCalculated = qfalse;
+	backEndData[tr.smpFrame]->entities[r_numentities].e = *ent;
+	backEndData[tr.smpFrame]->entities[r_numentities].bLightGridCalculated = qfalse;
+	backEndData[tr.smpFrame]->entities[r_numentities].sphereCalculated = qfalse;
+
+	if (parentEntityNumber != ENTITYNUM_NONE)
+	{
+		int i;
+
+		//
+		// Find the parent entity to attach to
+		//
+		for (i = r_firstSceneEntity; i < r_numentities; i++)
+		{
+			if (backEndData[tr.smpFrame]->entities[i].e.entityNumber == parentEntityNumber)
+			{
+				backEndData[tr.smpFrame]->entities[r_numentities].e.parentEntity = i - r_firstSceneEntity;
+				break;
+			}
+		}
+
+		if (i == r_numentities) {
+			backEndData[tr.smpFrame]->entities[i].e.parentEntity = ENTITYNUM_NONE;
+		}
+	}
+	else
+	{
+		backEndData[tr.smpFrame]->entities[r_numentities].e.parentEntity = ENTITYNUM_NONE;
+	}
 
 	r_numentities++;
 }
 
+void RE_AddRefSpriteToScene(const refEntity_t* ent) {
+	refSprite_t* spr;
+	int i;
+
+	if (!tr.registered) {
+		return;
+	}
+
+	if (r_numsprites >= MAX_SPRITES) {
+		return;
+	}
+
+	spr = &backEndData[tr.smpFrame]->sprites[r_numsprites];
+	VectorCopy(ent->origin, spr->origin);
+	spr->surftype = SF_SPRITE;
+    spr->hModel = ent->hModel;
+    spr->scale = ent->scale;
+    spr->renderfx = ent->renderfx;
+    spr->shaderTime = ent->shaderTime;
+	AxisCopy(ent->axis, spr->axis);
+
+	for (i = 0; i < 4; ++i) {
+		spr->shaderRGBA[i] = ent->shaderRGBA[i];
+	}
+
+    ++r_numsprites;
+}
 
 /*
 =====================
@@ -229,7 +310,7 @@ RE_AddDynamicLightToScene
 
 =====================
 */
-void RE_AddDynamicLightToScene( const vec3_t org, float intensity, float r, float g, float b, int additive ) {
+void RE_AddDynamicLightToScene( const vec3_t org, float intensity, float r, float g, float b, int type ) {
 	dlight_t	*dl;
 
 	if ( !tr.registered ) {
@@ -241,17 +322,13 @@ void RE_AddDynamicLightToScene( const vec3_t org, float intensity, float r, floa
 	if ( intensity <= 0 ) {
 		return;
 	}
-	// these cards don't have the correct blend mode
-	if ( glConfig.hardwareType == GLHW_RIVA128 || glConfig.hardwareType == GLHW_PERMEDIA2 ) {
-		return;
-	}
-	dl = &backEndData->dlights[r_numdlights++];
+	dl = &backEndData[tr.smpFrame]->dlights[r_numdlights++];
 	VectorCopy (org, dl->origin);
 	dl->radius = intensity;
 	dl->color[0] = r;
 	dl->color[1] = g;
 	dl->color[2] = b;
-	dl->additive = additive;
+	dl->type = type;
 }
 
 /*
@@ -260,8 +337,93 @@ RE_AddLightToScene
 
 =====================
 */
-void RE_AddLightToScene( const vec3_t org, float intensity, float r, float g, float b ) {
-	RE_AddDynamicLightToScene( org, intensity, r, g, b, qfalse );
+void RE_AddLightToScene( const vec3_t org, float intensity, float r, float g, float b, int type ) {
+	RE_AddDynamicLightToScene( org, intensity, r, g, b, type );
+}
+
+/*
+=====================
+R_AddLightGridSurfacesToScene
+
+Draw small dots to make a grid.
+A dot matches the calculated color of the light at its location
+=====================
+*/
+void R_AddLightGridSurfacesToScene() {
+    vec3_t vMin, vMax;
+    vec3_t vPos;
+    vec3_t vLight;
+    int i;
+    qhandle_t hShader;
+    polyVert_t verts[4];
+
+    if (!tr.world) {
+        return;
+    }
+    if (!tr.world->lightGridData) {
+        return;
+    }
+    if (!tr.world->lightGridOffsets) {
+        return;
+    }
+
+    hShader = RE_RegisterShader("showgrid");
+    R_GetShaderByHandle(hShader);
+
+    for (i = 0; i < 3; i++) {
+        vMin[i] = tr.world->lightGridMins[i] + floor((tr.refdef.vieworg[i] - 256.0 - tr.world->lightGridMins[i]) * tr.world->lightGridOOSize[i]) * tr.world->lightGridSize[i];
+        vMax[i] = tr.world->lightGridMins[i] + floor((tr.refdef.vieworg[i] + 256.0 - tr.world->lightGridMins[i]) * tr.world->lightGridOOSize[i]) * tr.world->lightGridSize[i];
+    }
+
+    for (vPos[2] = vMin[2]; vPos[2] < vMax[2]; vPos[2] += tr.world->lightGridSize[2]) {
+        for (vPos[1] = vMin[1]; vPos[1] < vMax[1]; vPos[1] += tr.world->lightGridSize[1]) {
+            for (vPos[0] = vMin[0]; vPos[0] < vMax[0]; vPos[0] += tr.world->lightGridSize[0]) {
+                R_GetLightingGridValueFast(vPos, vLight);
+
+                verts[0].xyz[0] = vPos[0] - 2.0;
+                verts[0].xyz[1] = vPos[1] - 2.0;
+                verts[0].xyz[2] = vPos[2];
+                verts[0].st[0] = 0.0;
+                verts[0].st[1] = 0.0;
+                verts[0].modulate[0] = vLight[0];
+                verts[0].modulate[1] = vLight[1];
+                verts[0].modulate[2] = vLight[2];
+                verts[0].modulate[3] = 0xff;
+
+                verts[1].xyz[0] = vPos[0] + 2.0;
+                verts[1].xyz[1] = vPos[1] - 2.0;
+                verts[1].xyz[2] = vPos[2];
+                verts[1].st[0] = 0.0;
+                verts[1].st[1] = 1.0;
+                verts[1].modulate[0] = vLight[0];
+                verts[1].modulate[1] = vLight[1];
+                verts[1].modulate[2] = vLight[2];
+                verts[1].modulate[3] = 0xff;
+
+                verts[2].xyz[0] = vPos[0] + 2.0;
+                verts[2].xyz[1] = vPos[1] + 2.0;
+                verts[2].xyz[2] = vPos[2];
+                verts[2].st[0] = 1.0;
+                verts[2].st[1] = 1.0;
+                verts[2].modulate[0] = vLight[0];
+                verts[2].modulate[1] = vLight[1];
+                verts[2].modulate[2] = vLight[2];
+                verts[2].modulate[3] = 0xff;
+
+                verts[3].xyz[0] = vPos[0] - 2.0;
+                verts[3].xyz[1] = vPos[1] + 2.0;
+                verts[3].xyz[2] = vPos[2];
+                verts[3].st[0] = 1.0;
+                verts[3].st[1] = 0.0;
+                verts[3].modulate[0] = vLight[0];
+                verts[3].modulate[1] = vLight[1];
+                verts[3].modulate[2] = vLight[2];
+                verts[3].modulate[3] = 0xff;
+
+                RE_AddPolyToScene(hShader, 4, verts, 0);
+            }
+        }
+    }
 }
 
 /*
@@ -304,8 +466,14 @@ void RE_RenderScene( const refdef_t *fd ) {
 		ri.Error (ERR_DROP, "R_RenderScene: NULL worldmodel");
 	}
 
-	Com_Memcpy( tr.refdef.text, fd->text, sizeof( tr.refdef.text ) );
+	if (r_light_showgrid->integer) {
+		R_AddLightGridSurfacesToScene();
+	}
 
+	R_VisDebug();
+	TIKI_Reset_Caches();
+
+	backEnd.in2D = qfalse;
 	tr.refdef.x = fd->x;
 	tr.refdef.y = fd->y;
 	tr.refdef.width = fd->width;
@@ -341,28 +509,45 @@ void RE_RenderScene( const refdef_t *fd ) {
 		}
 	}
 
+	// copy the sky data
+	tr.refdef.sky_alpha = fd->sky_alpha;
+	tr.refdef.sky_portal = fd->sky_portal;
+
+	VectorCopy(fd->sky_origin, tr.refdef.sky_origin);
+	VectorCopy(fd->sky_axis[0], tr.refdef.sky_axis[0]);
+	VectorCopy(fd->sky_axis[1], tr.refdef.sky_axis[1]);
+	VectorCopy(fd->sky_axis[2], tr.refdef.sky_axis[2]);
 
 	// derived info
 
-	tr.refdef.floatTime = tr.refdef.time * 0.001;
+	tr.refdef.floatTime = tr.refdef.time * 0.001f;
 
 	tr.refdef.numDrawSurfs = r_firstSceneDrawSurf;
-	tr.refdef.drawSurfs = backEndData->drawSurfs;
+	tr.refdef.drawSurfs = backEndData[tr.smpFrame]->drawSurfs;
+
+    tr.refdef.numSpriteSurfs = r_firstSceneSpriteSurf;
+    tr.refdef.spriteSurfs = backEndData[tr.smpFrame]->spriteSurfs;
 
 	tr.refdef.num_entities = r_numentities - r_firstSceneEntity;
-	tr.refdef.entities = &backEndData->entities[r_firstSceneEntity];
+	tr.refdef.entities = &backEndData[tr.smpFrame]->entities[r_firstSceneEntity];
+
+	tr.refdef.num_sprites = r_numsprites - r_firstSceneSprite;
+	tr.refdef.sprites = &backEndData[tr.smpFrame]->sprites[r_firstSceneSprite];
 
 	tr.refdef.num_dlights = r_numdlights - r_firstSceneDlight;
-	tr.refdef.dlights = &backEndData->dlights[r_firstSceneDlight];
+	tr.refdef.dlights = &backEndData[tr.smpFrame]->dlights[r_firstSceneDlight];
+
+	tr.refdef.numTerMarks = r_numtermarks - r_firstSceneTerMark;
+	tr.refdef.terMarks = &backEndData[tr.smpFrame]->terMarks[r_firstSceneTerMark];
 
 	tr.refdef.numPolys = r_numpolys - r_firstScenePoly;
-	tr.refdef.polys = &backEndData->polys[r_firstScenePoly];
+	tr.refdef.polys = &backEndData[tr.smpFrame]->polys[r_firstScenePoly];
+
+	backEndData[tr.smpFrame]->staticModelData = tr.refdef.staticModelData;
 
 	// turn off dynamic lighting globally by clearing all the
 	// dlights if it needs to be disabled or if vertex lighting is enabled
-	if ( r_dynamiclight->integer == 0 ||
-		 r_vertexLight->integer == 1 ||
-		 glConfig.hardwareType == GLHW_PERMEDIA2 ) {
+	if (r_vertexLight->integer == 1 ) {
 		tr.refdef.num_dlights = 0;
 	}
 
@@ -380,6 +565,8 @@ void RE_RenderScene( const refdef_t *fd ) {
 	// The refdef takes 0-at-the-top y coordinates, so
 	// convert to GL's 0-at-the-bottom space
 	//
+	tr.skyRendered = qfalse;
+	tr.portalRendered = qfalse;
 	Com_Memset( &parms, 0, sizeof( parms ) );
 	parms.viewportX = tr.refdef.x;
 	parms.viewportY = glConfig.vidHeight - ( tr.refdef.y + tr.refdef.height );
@@ -389,22 +576,81 @@ void RE_RenderScene( const refdef_t *fd ) {
 
 	parms.fovX = tr.refdef.fov_x;
 	parms.fovY = tr.refdef.fov_y;
-	
-	parms.stereoFrame = tr.refdef.stereoFrame;
 
-	VectorCopy( fd->vieworg, parms.or.origin );
-	VectorCopy( fd->viewaxis[0], parms.or.axis[0] );
-	VectorCopy( fd->viewaxis[1], parms.or.axis[1] );
-	VectorCopy( fd->viewaxis[2], parms.or.axis[2] );
+	VectorCopy( fd->vieworg, parms.ori.origin );
+	VectorCopy( fd->viewaxis[0], parms.ori.axis[0] );
+	VectorCopy( fd->viewaxis[1], parms.ori.axis[1] );
+	VectorCopy( fd->viewaxis[2], parms.ori.axis[2] );
 
 	VectorCopy( fd->vieworg, parms.pvsOrigin );
 
+	// copy the farplane data
+	parms.farplane_distance = fd->farplane_distance;
+	parms.farplane_bias = fd->farplane_bias;
+	parms.farplane_color[0] = fd->farplane_color[0];
+	parms.farplane_color[1] = fd->farplane_color[1];
+	parms.farplane_color[2] = fd->farplane_color[2];
+	parms.farplane_cull = fd->farplane_cull;
+	parms.renderTerrain = fd->renderTerrain;
+
+	tr.refdef.skybox_farplane = fd->skybox_farplane;
+	tr.refdef.render_terrain = parms.renderTerrain;
+
+	if (fd->farclipOverride >= 15900 || fd->farclipOverride <= -0.99) {
+		tr.farclip = 0;
+	} else {
+		tr.farclip = r_farclip->integer;
+		if (!tr.farclip && (r_picmip->integer > 1 || r_colorbits->integer == 16)) {
+			tr.farclip = 2800;
+		}
+	}
+
+	if (tr.farclip) {
+        if (fd->farclipOverride != 0) {
+            parms.farplane_distance = fd->farclipOverride;
+		} else {
+			parms.farplane_distance = tr.farclip;
+		}
+
+		if (fd->farplane_color[0] >= 0 && fd->farplane_color[1] >= 0 && fd->farplane_color[2] >= 0) {
+            parms.farplane_color[0] = fd->farplane_color[0];
+            parms.farplane_color[1] = fd->farplane_color[1];
+            parms.farplane_color[2] = fd->farplane_color[2];
+		}
+
+		if (fd->farplaneColorOverride[0] >= 0 && fd->farplaneColorOverride[1] >= 0 && fd->farplaneColorOverride[2] >= 0) {
+			parms.farplane_color[0] = fd->farplaneColorOverride[0];
+			parms.farplane_color[1] = fd->farplaneColorOverride[1];
+			parms.farplane_color[2] = fd->farplaneColorOverride[2];
+		}
+
+		parms.farplane_cull = qtrue;
+
+        if (fd->farplane_distance > 0 && fd->farplane_distance < parms.farplane_distance) {
+            parms.farplane_distance = fd->farplane_distance;
+		} else {
+			if (fd->farplane_bias == 0) {
+				parms.farplane_bias = parms.farplane_distance * 0.18f;
+			} else if (fd->farplane_distance <= 500.f) {
+				parms.farplane_bias = parms.farplane_distance * 0.18f;
+			} else {
+				parms.farplane_bias = parms.farplane_distance / fd->farplane_distance;
+			}
+		}
+	} else if (parms.farplane_bias == 0) {
+		parms.farplane_bias = parms.farplane_distance * 0.18f;
+	}
+
+	R_ClearRealDlights();
 	R_RenderView( &parms );
 
 	// the next scene rendered in this frame will tack on after this one
 	r_firstSceneDrawSurf = tr.refdef.numDrawSurfs;
+	r_firstSceneSpriteSurf = tr.refdef.numSpriteSurfs;
 	r_firstSceneEntity = r_numentities;
+	r_firstSceneSprite = r_numsprites;
 	r_firstSceneDlight = r_numdlights;
+	r_firstSceneTerMark = r_numtermarks;
 	r_firstScenePoly = r_numpolys;
 
 	tr.frontEndMsec += ri.Milliseconds() - startTime;

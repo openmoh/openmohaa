@@ -15,11 +15,26 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with Quake III Arena source code; if not, write to the Free Software
+along with Foobar; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 #include "tr_local.h"
+
+volatile renderCommandList_t	*renderCommandList;
+
+volatile qboolean	renderThreadActive;
+
+static backEndCounters_t pc_save;
+
+/*
+=====================
+R_PerformanceCounters
+=====================
+*/
+void R_SavePerformanceCounters(void) {
+    memcpy(&pc_save, &backEnd.pc, sizeof(pc_save));
+}
 
 /*
 =====================
@@ -27,6 +42,16 @@ R_PerformanceCounters
 =====================
 */
 void R_PerformanceCounters( void ) {
+	if (fps->integer) {
+		ri.SetPerformanceCounters(
+			backEnd.pc.c_totalIndexes / 3,
+			backEnd.pc.c_vertexes,
+			R_SumOfUsedImages(),
+			pc_save.c_totalIndexes / 3,
+			pc_save.c_vertexes,
+			backEnd.pc.c_characterlights
+			);
+	}
 	if ( !r_speeds->integer ) {
 		// clear the counters even if we aren't printing
 		Com_Memset( &tr.pc, 0, sizeof( tr.pc ) );
@@ -72,20 +97,74 @@ void R_PerformanceCounters( void ) {
 
 /*
 ====================
+R_InitCommandBuffers
+====================
+*/
+void R_InitCommandBuffers( void ) {
+	glConfig.smpActive = qfalse;
+	if ( r_smp->integer ) {
+		ri.Printf( PRINT_ALL, "Trying SMP acceleration...\n" );
+		if ( GLimp_SpawnRenderThread( RB_RenderThread ) ) {
+			ri.Printf( PRINT_ALL, "...succeeded.\n" );
+			glConfig.smpActive = qtrue;
+		} else {
+			ri.Printf( PRINT_ALL, "...failed.\n" );
+		}
+	}
+}
+
+/*
+====================
+R_ShutdownCommandBuffers
+====================
+*/
+void R_ShutdownCommandBuffers( void ) {
+	// kill the rendering thread
+	if ( glConfig.smpActive ) {
+		GLimp_WakeRenderer( NULL );
+		glConfig.smpActive = qfalse;
+	}
+}
+
+/*
+====================
 R_IssueRenderCommands
 ====================
 */
+int	c_blockedOnRender;
+int	c_blockedOnMain;
+
 void R_IssueRenderCommands( qboolean runPerformanceCounters ) {
 	renderCommandList_t	*cmdList;
 
-	cmdList = &backEndData->commands;
-	assert(cmdList);
+	cmdList = &backEndData[tr.smpFrame]->commands;
+	assert(cmdList); // bk001205
 	// add an end-of-list command
 	*(int *)(cmdList->cmds + cmdList->used) = RC_END_OF_LIST;
 
 	// clear it out, in case this is a sync and not a buffer flip
 	cmdList->used = 0;
 
+	if ( glConfig.smpActive ) {
+		// if the render thread is not idle, wait for it
+		if ( renderThreadActive ) {
+			c_blockedOnRender++;
+			if ( r_showSmp->integer ) {
+				ri.Printf( PRINT_ALL, "R" );
+			}
+		} else {
+			c_blockedOnMain++;
+			if ( r_showSmp->integer ) {
+				ri.Printf( PRINT_ALL, "." );
+			}
+		}
+
+		// sleep until the renderer has completed
+		GLimp_FrontEndSleep();
+	}
+
+	// at this point, the back end thread is idle, so it is ok
+	// to look at it's performance counters
 	if ( runPerformanceCounters ) {
 		R_PerformanceCounters();
 	}
@@ -93,41 +172,53 @@ void R_IssueRenderCommands( qboolean runPerformanceCounters ) {
 	// actually start the commands going
 	if ( !r_skipBackEnd->integer ) {
 		// let it start on the new batch
-		RB_ExecuteRenderCommands( cmdList->cmds );
+		if ( !glConfig.smpActive ) {
+			RB_ExecuteRenderCommands( cmdList->cmds );
+		} else {
+			GLimp_WakeRenderer( cmdList );
+		}
 	}
 }
 
 
 /*
 ====================
-R_IssuePendingRenderCommands
+R_SyncRenderThread
 
 Issue any pending commands and wait for them to complete.
+After exiting, the render thread will have completed its work
+and will remain idle and the main thread is free to issue
+OpenGL calls until R_IssueRenderCommands is called.
 ====================
 */
-void R_IssuePendingRenderCommands( void ) {
+void R_SyncRenderThread( void ) {
 	if ( !tr.registered ) {
 		return;
 	}
 	R_IssueRenderCommands( qfalse );
+
+	if ( !glConfig.smpActive ) {
+		return;
+	}
+	GLimp_FrontEndSleep();
 }
 
 /*
 ============
-R_GetCommandBufferReserved
+R_GetCommandBuffer
 
-make sure there is enough command space
+make sure there is enough command space, waiting on the
+render thread if needed.
 ============
 */
-void *R_GetCommandBufferReserved( int bytes, int reservedBytes ) {
+void *R_GetCommandBuffer( int bytes ) {
 	renderCommandList_t	*cmdList;
 
-	cmdList = &backEndData->commands;
-	bytes = PAD(bytes, sizeof(void *));
+	cmdList = &backEndData[tr.smpFrame]->commands;
 
 	// always leave room for the end of list command
-	if ( cmdList->used + bytes + sizeof( int ) + reservedBytes > MAX_RENDER_COMMANDS ) {
-		if ( bytes > MAX_RENDER_COMMANDS - sizeof( int ) ) {
+	if ( cmdList->used + bytes + 4 > MAX_RENDER_COMMANDS ) {
+		if ( bytes > MAX_RENDER_COMMANDS - 4 ) {
 			ri.Error( ERR_FATAL, "R_GetCommandBuffer: bad size %i", bytes );
 		}
 		// if we run out of room, just start dropping commands
@@ -137,17 +228,6 @@ void *R_GetCommandBufferReserved( int bytes, int reservedBytes ) {
 	cmdList->used += bytes;
 
 	return cmdList->cmds + cmdList->used - bytes;
-}
-
-/*
-=============
-R_GetCommandBuffer
-
-returns NULL if there is not enough space for important commands
-=============
-*/
-void *R_GetCommandBuffer( int bytes ) {
-	return R_GetCommandBufferReserved( bytes, PAD( sizeof( swapBuffersCommand_t ), sizeof(void *) ) );
 }
 
 
@@ -171,6 +251,29 @@ void	R_AddDrawSurfCmd( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 
 	cmd->refdef = tr.refdef;
 	cmd->viewParms = tr.viewParms;
+}
+
+
+/*
+=============
+R_AddSpriteSurfCmd
+
+=============
+*/
+void	R_AddSpriteSurfCmd(drawSurf_t* drawSurfs, int numDrawSurfs) {
+    drawSurfsCommand_t* cmd;
+
+    cmd = R_GetCommandBuffer(sizeof(*cmd));
+    if (!cmd) {
+        return;
+    }
+    cmd->commandId = RC_SPRITE_SURFS;
+
+    cmd->drawSurfs = drawSurfs;
+    cmd->numDrawSurfs = numDrawSurfs;
+
+    cmd->refdef = tr.refdef;
+    cmd->viewParms = tr.viewParms;
 }
 
 
@@ -233,49 +336,6 @@ void RE_StretchPic ( float x, float y, float w, float h,
 	cmd->t2 = t2;
 }
 
-#define MODE_RED_CYAN	1
-#define MODE_RED_BLUE	2
-#define MODE_RED_GREEN	3
-#define MODE_GREEN_MAGENTA 4
-#define MODE_MAX	MODE_GREEN_MAGENTA
-
-void R_SetColorMode(GLboolean *rgba, stereoFrame_t stereoFrame, int colormode)
-{
-	rgba[0] = rgba[1] = rgba[2] = rgba[3] = GL_TRUE;
-	
-	if(colormode > MODE_MAX)
-	{
-		if(stereoFrame == STEREO_LEFT)
-			stereoFrame = STEREO_RIGHT;
-		else if(stereoFrame == STEREO_RIGHT)
-			stereoFrame = STEREO_LEFT;
-		
-		colormode -= MODE_MAX;
-	}
-	
-	if(colormode == MODE_GREEN_MAGENTA)
-	{
-		if(stereoFrame == STEREO_LEFT)
-			rgba[0] = rgba[2] = GL_FALSE;
-		else if(stereoFrame == STEREO_RIGHT)
-			rgba[1] = GL_FALSE;
-	}
-	else
-	{
-		if(stereoFrame == STEREO_LEFT)
-			rgba[1] = rgba[2] = GL_FALSE;
-		else if(stereoFrame == STEREO_RIGHT)
-		{
-			rgba[0] = GL_FALSE;
-		
-			if(colormode == MODE_RED_BLUE)
-				rgba[1] = GL_FALSE;
-			else if(colormode == MODE_RED_GREEN)
-				rgba[2] = GL_FALSE;
-		}
-	}
-}
-
 
 /*
 ====================
@@ -286,8 +346,7 @@ for each RE_EndFrame
 ====================
 */
 void RE_BeginFrame( stereoFrame_t stereoFrame ) {
-	drawBufferCommand_t	*cmd = NULL;
-	colorMaskCommand_t *colcmd = NULL;
+	drawBufferCommand_t	*cmd;
 
 	if ( !tr.registered ) {
 		return;
@@ -296,6 +355,7 @@ void RE_BeginFrame( stereoFrame_t stereoFrame ) {
 
 	tr.frameCount++;
 	tr.frameSceneNum = 0;
+	g_nStaticSurfaces = 0;
 
 	//
 	// do overdraw measurement
@@ -316,7 +376,7 @@ void RE_BeginFrame( stereoFrame_t stereoFrame ) {
 		}
 		else
 		{
-			R_IssuePendingRenderCommands();
+			R_SyncRenderThread();
 			qglEnable( GL_STENCIL_TEST );
 			qglStencilMask( ~0U );
 			qglClearStencil( 0U );
@@ -329,7 +389,7 @@ void RE_BeginFrame( stereoFrame_t stereoFrame ) {
 	{
 		// this is only reached if it was on and is now off
 		if ( r_measureOverdraw->modified ) {
-			R_IssuePendingRenderCommands();
+			R_SyncRenderThread();
 			qglDisable( GL_STENCIL_TEST );
 		}
 		r_measureOverdraw->modified = qfalse;
@@ -339,7 +399,7 @@ void RE_BeginFrame( stereoFrame_t stereoFrame ) {
 	// texturemode stuff
 	//
 	if ( r_textureMode->modified ) {
-		R_IssuePendingRenderCommands();
+		R_SyncRenderThread();
 		GL_TextureMode( r_textureMode->string );
 		r_textureMode->modified = qfalse;
 	}
@@ -350,26 +410,30 @@ void RE_BeginFrame( stereoFrame_t stereoFrame ) {
 	if ( r_gamma->modified ) {
 		r_gamma->modified = qfalse;
 
-		R_IssuePendingRenderCommands();
+		R_SyncRenderThread();
 		R_SetColorMappings();
 	}
 
-	// check for errors
-	if ( !r_ignoreGLErrors->integer )
-	{
-		int	err;
+    // check for errors
+    if ( !r_ignoreGLErrors->integer ) {
+        int	err;
 
-		R_IssuePendingRenderCommands();
-		if ((err = qglGetError()) != GL_NO_ERROR)
-			ri.Error(ERR_FATAL, "RE_BeginFrame() - glGetError() failed (0x%x)!", err);
+		R_SyncRenderThread();
+        if ( ( err = qglGetError() ) != GL_NO_ERROR ) {
+            ri.Error( ERR_FATAL, "RE_BeginFrame() - glGetError() failed (0x%x)!\n", err );
+        }
+    }
+
+	//
+	// draw buffer stuff
+	//
+	cmd = R_GetCommandBuffer( sizeof( *cmd ) );
+	if ( !cmd ) {
+		return;
 	}
+	cmd->commandId = RC_DRAW_BUFFER;
 
-	if (glConfig.stereoEnabled) {
-		if( !(cmd = R_GetCommandBuffer(sizeof(*cmd))) )
-			return;
-			
-		cmd->commandId = RC_DRAW_BUFFER;
-		
+	if ( glConfig.stereoEnabled ) {
 		if ( stereoFrame == STEREO_LEFT ) {
 			cmd->buffer = (int)GL_BACK_LEFT;
 		} else if ( stereoFrame == STEREO_RIGHT ) {
@@ -377,78 +441,16 @@ void RE_BeginFrame( stereoFrame_t stereoFrame ) {
 		} else {
 			ri.Error( ERR_FATAL, "RE_BeginFrame: Stereo is enabled, but stereoFrame was %i", stereoFrame );
 		}
-	}
-	else
-	{
-		if(r_anaglyphMode->integer)
-		{
-			if(r_anaglyphMode->modified)
-			{
-				// clear both, front and backbuffer.
-				qglColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-				qglClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-				
-				qglDrawBuffer(GL_FRONT);
-				qglClear(GL_COLOR_BUFFER_BIT);
-				qglDrawBuffer(GL_BACK);
-				qglClear(GL_COLOR_BUFFER_BIT);
-				
-				r_anaglyphMode->modified = qfalse;
-			}
-			
-			if(stereoFrame == STEREO_LEFT)
-			{
-				if( !(cmd = R_GetCommandBuffer(sizeof(*cmd))) )
-					return;
-				
-				if( !(colcmd = R_GetCommandBuffer(sizeof(*colcmd))) )
-					return;
-			}
-			else if(stereoFrame == STEREO_RIGHT)
-			{
-				clearDepthCommand_t *cldcmd;
-				
-				if( !(cldcmd = R_GetCommandBuffer(sizeof(*cldcmd))) )
-					return;
-
-				cldcmd->commandId = RC_CLEARDEPTH;
-
-				if( !(colcmd = R_GetCommandBuffer(sizeof(*colcmd))) )
-					return;
-			}
-			else
-				ri.Error( ERR_FATAL, "RE_BeginFrame: Stereo is enabled, but stereoFrame was %i", stereoFrame );
-
-			R_SetColorMode(colcmd->rgba, stereoFrame, r_anaglyphMode->integer);
-			colcmd->commandId = RC_COLORMASK;
+	} else {
+		if ( stereoFrame != STEREO_CENTER ) {
+			ri.Error( ERR_FATAL, "RE_BeginFrame: Stereo is disabled, but stereoFrame was %i", stereoFrame );
 		}
-		else
-		{
-			if(stereoFrame != STEREO_CENTER)
-				ri.Error( ERR_FATAL, "RE_BeginFrame: Stereo is disabled, but stereoFrame was %i", stereoFrame );
-
-			if( !(cmd = R_GetCommandBuffer(sizeof(*cmd))) )
-				return;
-		}
-
-		if(cmd)
-		{
-			cmd->commandId = RC_DRAW_BUFFER;
-
-			if(r_anaglyphMode->modified)
-			{
-				qglColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-				r_anaglyphMode->modified = qfalse;
-			}
-
-			if (!Q_stricmp(r_drawBuffer->string, "GL_FRONT"))
-				cmd->buffer = (int)GL_FRONT;
-			else
-				cmd->buffer = (int)GL_BACK;
+		if ( !Q_stricmp( r_drawBuffer->string, "GL_FRONT" ) ) {
+			cmd->buffer = (int)GL_FRONT;
+		} else {
+			cmd->buffer = (int)GL_BACK;
 		}
 	}
-	
-	tr.refdef.stereoFrame = stereoFrame;
 }
 
 
@@ -465,7 +467,7 @@ void RE_EndFrame( int *frontEndMsec, int *backEndMsec ) {
 	if ( !tr.registered ) {
 		return;
 	}
-	cmd = R_GetCommandBufferReserved( sizeof( *cmd ), 0 );
+	cmd = R_GetCommandBuffer( sizeof( *cmd ) );
 	if ( !cmd ) {
 		return;
 	}
@@ -473,7 +475,9 @@ void RE_EndFrame( int *frontEndMsec, int *backEndMsec ) {
 
 	R_IssueRenderCommands( qtrue );
 
-	R_InitNextFrame();
+	// use the other buffers next frame, because another CPU
+	// may still be rendering into the current ones
+	R_ToggleSmpFrame();
 
 	if ( frontEndMsec ) {
 		*frontEndMsec = tr.frontEndMsec;
@@ -485,30 +489,3 @@ void RE_EndFrame( int *frontEndMsec, int *backEndMsec ) {
 	backEnd.pc.msec = 0;
 }
 
-/*
-=============
-RE_TakeVideoFrame
-=============
-*/
-void RE_TakeVideoFrame( int width, int height,
-		byte *captureBuffer, byte *encodeBuffer, qboolean motionJpeg )
-{
-	videoFrameCommand_t	*cmd;
-
-	if( !tr.registered ) {
-		return;
-	}
-
-	cmd = R_GetCommandBuffer( sizeof( *cmd ) );
-	if( !cmd ) {
-		return;
-	}
-
-	cmd->commandId = RC_VIDEOFRAME;
-
-	cmd->width = width;
-	cmd->height = height;
-	cmd->captureBuffer = captureBuffer;
-	cmd->encodeBuffer = encodeBuffer;
-	cmd->motionJpeg = motionJpeg;
-}
