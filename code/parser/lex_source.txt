@@ -205,7 +205,7 @@ varname		[a-zA-Z0-9_\"\$]+
 "//"[^\r\n]*					{ if( prev_yylex != TOKEN_EOL ) YYLEX( TOKEN_EOL ); }
 
 <VARIABLES>"size"							{ BEGIN(INITIAL); YYLEX(TOKEN_SIZE); }
-<VARIABLES>[ ]*\./([0-9]*[^0-9[:space:]])	{ YYLEX(TOKEN_PERIOD); }
+<VARIABLES>[ \t]*\./([0-9]*[^0-9[:space:]])	{ YYLEX(TOKEN_PERIOD); }
 <VARIABLES>\"{string}\"						{ BEGIN(INITIAL); TextEscapeValue(yytext + 1, strlen( yytext ) - 2 ); YYLEX(TOKEN_STRING); }
 <VARIABLES>{varname}						{
 												TextValue(yytext, strlen(yytext));
@@ -264,15 +264,15 @@ varname		[a-zA-Z0-9_\"\$]+
 ">"								{ YYLEX( TOKEN_GREATER_THAN ); }
 "<="							{ YYLEX( TOKEN_LESS_THAN_OR_EQUAL ); }
 ">="							{ YYLEX( TOKEN_GREATER_THAN_OR_EQUAL ); }
-[ ]"-"							{ YYLEX( TOKEN_NEG ); }
+[ \t]"-"						{ YYLEX( TOKEN_NEG ); }
 
 "+"								{ YYLEX( TOKEN_PLUS ); }
 "+="							{ YYLEX( TOKEN_PLUS_EQUALS ); }
-"++"|[ ]"++"					{ YYLEX( TOKEN_INCREMENT ); }
-"-"|"-"[ ]|[ ]"-"[ ]			{ YYLEX( TOKEN_MINUS ); }
+"++"|[ \t]"++"					{ YYLEX( TOKEN_INCREMENT ); }
+"-"|"-"[ \t]|[ \t]"-"[ \t]		{ YYLEX( TOKEN_MINUS ); }
 "-="							{ YYLEX( TOKEN_MINUS_EQUALS ); }
-[ ]"-="							{ YYLEX( TOKEN_MINUS_EQUALS ); }
-"--"|[ ]"--"					{ YYLEX( TOKEN_DECREMENT ); }
+[ \t]"-="						{ YYLEX( TOKEN_MINUS_EQUALS ); }
+"--"|[ \t]"--"					{ YYLEX( TOKEN_DECREMENT ); }
 "*"								{ YYLEX( TOKEN_MULTIPLY ); }
 "*="							{ YYLEX( TOKEN_MULTIPLY_EQUALS ); }
 "/"								{ YYLEX( TOKEN_DIVIDE ); }
