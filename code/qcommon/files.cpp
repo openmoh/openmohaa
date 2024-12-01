@@ -2367,6 +2367,9 @@ char **FS_ListFilteredFiles( const char *path, const char *extension, const char
 	}
 
 	pathLength = strlen( path );
+	if ( path[pathLength-1] == '\\' || path[pathLength-1] == '/' ) {
+		pathLength--;
+	}
 	extensionLength = strlen( extension );
 	nfiles = 0;
 	FS_ReturnPath(path, zpath, &pathDepth);
@@ -2451,7 +2454,11 @@ char **FS_ListFilteredFiles( const char *path, const char *extension, const char
 							nfiles = FS_AddFileToList(zpath, list, nfiles);
 						}
 						else {
-							nfiles = FS_AddFileToList(name + pathLength, list, nfiles);
+							temp = pathLength;
+							if (pathLength) {
+								temp++; // include the '/'
+							}
+							nfiles = FS_AddFileToList(name + temp, list, nfiles);
 						}
 					}
 				}
