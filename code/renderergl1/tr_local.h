@@ -1778,6 +1778,27 @@ model_t		*R_AllocModel( void );
 
 void    	R_Init( void );
 
+image_t		*R_FindImageFileOld(const char* name, qboolean mipmap, qboolean allowPicmip, qboolean force32bit, int glWrapClampModeX, int glWrapClampModeY);
+image_t		*R_RefreshImageFileOld(const char* name, qboolean mipmap, qboolean allowPicmip, qboolean force32bit, int glWrapClampModeX, int glWrapClampModeY);
+
+image_t* R_CreateImageOld(
+    const char* name,
+    byte* pic,
+    int width,
+    int height,
+    int numMipmaps,
+    int iMipmapsAvailable,
+    qboolean allowPicmip,
+    qboolean force32bit,
+    qboolean hasAlpha,
+    int glCompressMode,
+    int glWrapClampModeX,
+    int glWrapClampModeY
+);
+
+qboolean R_ImageExists(const char* name);
+int R_CountTextureMemory();
+
 qboolean	R_GetModeInfo( int *width, int *height, float *windowAspect, int mode );
 
 void		R_SetColorMappings( void );

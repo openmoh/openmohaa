@@ -1931,5 +1931,8 @@ refexport_t *GetRefAPI ( int apiVersion, refimport_t *rimp ) {
 	re.TIKI_IsOnGround = RE_TIKI_IsOnGround;
 	re.SetFrameNumber = RE_SetFrameNumber;
 
+	re.ImageExists = R_ImageExists;
+	re.CountTextureMemory = R_CountTextureMemory;
+
 	return &re;
 }

@@ -243,8 +243,6 @@ typedef struct {
 // returned.
 refexport_t*GetRefAPI( int apiVersion, refimport_t *rimp );
 
-qboolean R_ImageExists(const char* name);
-
 #ifdef __cplusplus
 }
 #endif

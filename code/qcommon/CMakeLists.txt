@@ -18,6 +18,7 @@ set(SOURCES_SHARED
 	"${CMAKE_SOURCE_DIR}/code/qcommon/lz77.cpp"
 	"${CMAKE_SOURCE_DIR}/code/qcommon/mem_blockalloc.cpp"
 	"${CMAKE_SOURCE_DIR}/code/qcommon/mem_tempalloc.cpp"
+	"${CMAKE_SOURCE_DIR}/code/qcommon/puff.c"
 	"${CMAKE_SOURCE_DIR}/code/qcommon/q_math.c"
 	"${CMAKE_SOURCE_DIR}/code/qcommon/q_shared.c"
 	"${CMAKE_SOURCE_DIR}/code/qcommon/script.cpp"

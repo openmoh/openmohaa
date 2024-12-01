@@ -172,6 +172,9 @@ typedef struct {
     orientation_t   (*TIKI_Orientation)(refEntity_t* model, int tagNum);
     qboolean        (*TIKI_IsOnGround)(refEntity_t* model, int tagNum, float threshold);
     void            (*SetFrameNumber)(int frameNumber);
+
+	qboolean (*ImageExists)(const char* name);
+	int (*CountTextureMemory)();
 } refexport_t;
 
 //

@@ -84,6 +84,7 @@ typedef struct uiimport_s {
 	void( *Rend_DrawBox )( float x, float y, float w, float h );
 	int( *Rend_GetShaderWidth )( qhandle_t hShader );
 	int( *Rend_GetShaderHeight )( qhandle_t hShader );
+    qboolean ( *Rend_ImageExists )( const char* name );
 #ifdef __cplusplus
 	void ( *File_PickFile )( const char *name, Listener *obj, Event& event );
 #else

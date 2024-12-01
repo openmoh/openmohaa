@@ -255,7 +255,7 @@ static	void R_LoadLightmaps(gamelump_t* l) {
                 image[j*4+3] = 255;
             }
         }
-        tr.lightmaps[i] = R_CreateImage(va("*lightmap%d", i), image,
+        tr.lightmaps[i] = R_CreateImageOld(va("*lightmap%d", i), image,
             LIGHTMAP_SIZE, LIGHTMAP_SIZE, 0, 1, qfalse, qfalse, qfalse, qfalse, GL_CLAMP, GL_CLAMP);
     }
 

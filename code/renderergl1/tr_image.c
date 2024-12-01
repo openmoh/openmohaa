@@ -833,7 +833,7 @@ R_CreateImage
 This is the only way any image_t are created
 ================
 */
-image_t* R_CreateImage(
+image_t* R_CreateImageOld(
 	const char* name,
 	byte* pic,
 	int width,
@@ -2477,7 +2477,7 @@ Finds or loads the given image.
 Returns NULL if it fails, not a default image.
 ==============
 */
-image_t* R_FindImageFile(const char* name, qboolean mipmap, qboolean allowPicmip, qboolean force32bit, int glWrapClampModeX, int glWrapClampModeY) {
+image_t* R_FindImageFileOld(const char* name, qboolean mipmap, qboolean allowPicmip, qboolean force32bit, int glWrapClampModeX, int glWrapClampModeY) {
 	image_t	*image;
 	int		width, height;
 	byte	*pic;
@@ -2528,7 +2528,7 @@ image_t* R_FindImageFile(const char* name, qboolean mipmap, qboolean allowPicmip
 		return NULL;
 	}
 
-	image = R_CreateImage(
+	image = R_CreateImageOld(
 		name,
 		pic,
 		width,
@@ -2556,7 +2556,7 @@ image_t* R_FindImageFile(const char* name, qboolean mipmap, qboolean allowPicmip
 R_RefreshImageFile
 ================
 */
-image_t* R_RefreshImageFile(const char* name, qboolean mipmap, qboolean allowPicmip, qboolean force32bit, int glWrapClampModeX, int glWrapClampModeY) {
+image_t* R_RefreshImageFileOld(const char* name, qboolean mipmap, qboolean allowPicmip, qboolean force32bit, int glWrapClampModeX, int glWrapClampModeY) {
 	char imagename[64];
 	image_t* image;
 	long hash;
@@ -2575,7 +2575,7 @@ image_t* R_RefreshImageFile(const char* name, qboolean mipmap, qboolean allowPic
         {
             image = image->next;
 			if (!image) {
-				return R_FindImageFile(
+				return R_FindImageFileOld(
 					imagename,
 					mipmap,
 					allowPicmip,
@@ -2589,7 +2589,7 @@ image_t* R_RefreshImageFile(const char* name, qboolean mipmap, qboolean allowPic
         R_FreeImage(image);
     }
 
-    return R_FindImageFile(
+    return R_FindImageFileOld(
 		imagename,
 		mipmap,
 		allowPicmip,
@@ -2657,7 +2657,7 @@ static void R_CreateDlightImage( void ) {
 			data[y][x][3] = 255;			
 		}
 	}
-	tr.dlightImage = R_CreateImage("*dlight", (byte *)data, DLIGHT_SIZE, DLIGHT_SIZE, 0, 1, qfalse, qfalse, qfalse, qfalse, GL_CLAMP, GL_CLAMP);
+	tr.dlightImage = R_CreateImageOld("*dlight", (byte *)data, DLIGHT_SIZE, DLIGHT_SIZE, 0, 1, qfalse, qfalse, qfalse, qfalse, GL_CLAMP, GL_CLAMP);
 	tr.dlightImage->r_sequence = -1;
 }
 
@@ -2694,7 +2694,7 @@ static void R_CreateDefaultImage( void ) {
 		data[x][DEFAULT_SIZE-1][2] =
 		data[x][DEFAULT_SIZE-1][3] = 255;
 	}
-	tr.defaultImage = R_CreateImage("*default", (byte *)data, DEFAULT_SIZE, DEFAULT_SIZE, 1, 1, qfalse, qfalse, qfalse, qfalse, GL_REPEAT, GL_REPEAT);
+	tr.defaultImage = R_CreateImageOld("*default", (byte *)data, DEFAULT_SIZE, DEFAULT_SIZE, 1, 1, qfalse, qfalse, qfalse, qfalse, GL_REPEAT, GL_REPEAT);
 	tr.defaultImage->r_sequence = -1;
 }
 
@@ -2713,7 +2713,7 @@ void R_CreateBuiltinImages(void) {
 
 	// we use a solid white image instead of disabling texturing
 	Com_Memset( data, 255, sizeof( data ) );
-	tr.whiteImage = R_CreateImage("*white", (byte *)data, 8, 8, 0, 1, qfalse, qfalse, qfalse, qfalse, GL_REPEAT, GL_REPEAT);
+	tr.whiteImage = R_CreateImageOld("*white", (byte *)data, 8, 8, 0, 1, qfalse, qfalse, qfalse, qfalse, GL_REPEAT, GL_REPEAT);
 	tr.whiteImage->r_sequence = -1;
 
 	// with overbright bits active, we need an image which is some fraction of full color,
@@ -2732,14 +2732,14 @@ void R_CreateBuiltinImages(void) {
 		char filename[64];
 
 		Com_sprintf(filename, sizeof(filename), "*lightmapD%i", i);
-		tr.dlightImages[i] = R_CreateImage(filename, lightmap_buffer, LIGHTMAP_SIZE, LIGHTMAP_SIZE, 0, 1, qfalse, qfalse, qfalse, 0, GL_CLAMP, GL_CLAMP);
+		tr.dlightImages[i] = R_CreateImageOld(filename, lightmap_buffer, LIGHTMAP_SIZE, LIGHTMAP_SIZE, 0, 1, qfalse, qfalse, qfalse, 0, GL_CLAMP, GL_CLAMP);
 		tr.dlightImages[i]->r_sequence = -1;
 	}
 
-	tr.identityLightImage = R_CreateImage("*identityLight", (byte *)data, 8, 8, 0, 1, qfalse, qfalse, qfalse, qfalse, GL_REPEAT, GL_REPEAT);
+	tr.identityLightImage = R_CreateImageOld("*identityLight", (byte *)data, 8, 8, 0, 1, qfalse, qfalse, qfalse, qfalse, GL_REPEAT, GL_REPEAT);
 	tr.identityLightImage->r_sequence = -1;
 
-	tr.scratchImage = R_CreateImage("*scratch", (byte*)data, DEFAULT_SIZE, DEFAULT_SIZE, 0, 1, qtrue, qfalse, qfalse, qfalse, GL_CLAMP, GL_CLAMP);
+	tr.scratchImage = R_CreateImageOld("*scratch", (byte*)data, DEFAULT_SIZE, DEFAULT_SIZE, 0, 1, qtrue, qfalse, qfalse, qfalse, GL_CLAMP, GL_CLAMP);
 	tr.scratchImage->r_sequence = -1;
 
 	R_CreateDlightImage();

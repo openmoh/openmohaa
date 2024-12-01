@@ -25,6 +25,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "q_shared.h"
 #include "qcommon.h"
 
+#ifdef STANDALONE
+#  include "../client/client.h"
+#endif
+
 #define	ZONEID			0x7331
 #define ZONEID_CONST	0xC057
 
@@ -349,8 +353,13 @@ void Z_Meminfo_f( void )
 
 	Com_Printf( "\n%.2f Kbytes in %zu blocks in all memory pools\n", ( float )totalBytes / 1024.0f, totalBlocks );
 	Com_Printf( "\n%.2f megabytes in 'new' system memory\n", 1.024f );
-	Com_Printf( "\n%.2f megabytes in texture memory\n", ( float )R_CountTextureMemory() / 1024.0f );
-	Com_Printf( "\n%.1f megabytes in total allocations\n", ( float )R_CountTextureMemory() + totalBytes - 1 / 1024.0f );
+
+#ifdef STANDALONE
+	if (re.CountTextureMemory) {
+		Com_Printf( "\n%.2f megabytes in texture memory\n", ( float )re.CountTextureMemory() / 1024.0f );
+		Com_Printf( "\n%.1f megabytes in total allocations\n", ( float )re.CountTextureMemory() + totalBytes - 1 / 1024.0f );
+	}
+#endif
 }
 
 /*

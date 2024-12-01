@@ -183,12 +183,8 @@ if (NOT BUILD_NO_CLIENT)
 
 	add_subdirectory("code/client")
 	add_subdirectory("code/renderergl1")
+	#add_subdirectory("code/renderergl2")
 	add_subdirectory("code/sdl")
-
-	#include("code/renderergl2/glsl/shaders.cmake")
-	#file(GLOB_RECURSE SOURCES_RENDERER "code/sdl/*.c" "code/renderercommon/*.c" "code/renderergl2/*.c" "code/renderergl2/*.cpp")
-	#list(FILTER SOURCES_RENDERER EXCLUDE REGEX "code/renderergl2/tr_subs.c")
-	#list(FILTER SOURCES_RENDERER EXCLUDE REGEX "code/renderergl2/tr_model.c")
 
 	add_executable(openmohaa "misc/dummy.c")
 	target_link_libraries(openmohaa PRIVATE syslib)

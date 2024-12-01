@@ -134,22 +134,9 @@ qboolean	R_GetModeInfo( int *width, int *height, float *windowAspect, int mode )
 float R_NoiseGet4f( float x, float y, float z, double t );
 void  R_NoiseInit( void );
 
-image_t		*R_FindImageFile(const char* name, qboolean mipmap, qboolean allowPicmip, qboolean force32bit, int glWrapClampModeX, int glWrapClampModeY);
-image_t		*R_RefreshImageFile(const char* name, qboolean mipmap, qboolean allowPicmip, qboolean force32bit, int glWrapClampModeX, int glWrapClampModeY);
-image_t* R_CreateImage(
-	const char* name,
-	byte* pic,
-	int width,
-	int height,
-	int numMipmaps,
-	int iMipmapsAvailable,
-	qboolean allowPicmip,
-	qboolean force32bit,
-	qboolean hasAlpha,
-	int glCompressMode,
-	int glWrapClampModeX,
-	int glWrapClampModeY
-);
+image_t     *R_FindImageFile( const char *name, imgType_t type, imgFlags_t flags );
+image_t     *R_RefreshImageFile( const char *name, imgType_t type, imgFlags_t flags );
+image_t *R_CreateImage( const char *name, byte *pic, int width, int height, imgType_t type, imgFlags_t flags, int internalFormat );
 
 void R_IssuePendingRenderCommands( void );
 qhandle_t		 RE_RegisterShaderLightMap( const char *name, int lightmapIndex );

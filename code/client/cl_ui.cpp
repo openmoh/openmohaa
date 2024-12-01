@@ -3727,6 +3727,7 @@ void CL_FillUIImports(void)
     uii.Rend_Scissor           = re.Scissor;
     uii.Rend_Set2D             = re.Set2DWindow;
     uii.Rend_SetColor          = re.SetColor;
+    uii.Rend_ImageExists       = re.ImageExists;
 
     uii.Cmd_Stuff                   = Cbuf_AddText;
     uii.Cvar_GetString              = CvarGetForUI;
@@ -5537,7 +5538,7 @@ qboolean UI_IsResourceLoaded(const char *name)
     case 107:
         return S_IsSoundRegistered(name + 1);
     case 110:
-        return R_ImageExists(name + 1);
+        return uii.Rend_ImageExists(name + 1);
     default:
         return qfalse;
     }
