@@ -47,6 +47,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "../gamespy/q_gamespy.h"
 
+#include <tracy/TracyC.h>
+
 qboolean CL_FinishedIntro(void);
 
 #ifdef __cplusplus
@@ -2244,6 +2246,8 @@ void Com_Frame( void ) {
 	if ( setjmp (abortframe) ) {
 		return;			// an ERR_DROP was thrown
 	}
+
+	TracyCFrameMark
 
 	SV_SetFrameNumber(com_frameNumber);
 
