@@ -1167,8 +1167,7 @@ typedef struct pc_token_s
 
 void	COM_MatchToken( char**buf_p, char *match );
 
-qboolean SkipBracedSection (char **program);
-qboolean SkipBracedSectionEx (char **program, int depth);
+qboolean SkipBracedSection (char **program, int depth);
 void SkipRestOfLine ( char **data );
 
 void Parse1DMatrix (char **buf_p, int x, float *m);

@@ -3721,7 +3721,7 @@ static void FindShadersInShaderText()
         if (*token == '{')
         {
             p = oldp;
-            SkipBracedSection(&p);
+            SkipBracedSection(&p, 0);
         }
         else
         {
