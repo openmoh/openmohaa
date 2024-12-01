@@ -12,7 +12,7 @@ add_library(omohclient INTERFACE)
 target_compile_definitions(omohclient INTERFACE APP_MODULE)
 target_compile_features(omohclient INTERFACE cxx_nullptr)
 target_compile_features(omohclient INTERFACE c_variadic_macros)
-target_link_libraries(omohclient INTERFACE omohsdl)
+target_link_libraries(omohclient INTERFACE omohsdl_client)
 target_link_libraries(omohclient INTERFACE gcd)
 
 # Sound stuff

@@ -2,39 +2,47 @@ cmake_minimum_required(VERSION 3.12)
 
 project(omohsdl)
 
-file(GLOB SOURCES_SDL
+file(GLOB SOURCES_SDL_CLIENT
+"./sdl_input.c"
+)
+
+file(GLOB SOURCES_SDL_GL
 "./sdl_gamma.c"
 "./sdl_glimp.c"
-"./sdl_input.c"
 )
 
 if (NO_MODERN_DMA)
 	list(APPEND SOURCES_SDL "./sdl_snd.c")
 endif()
 
-add_library(omohsdl STATIC ${SOURCES_SDL})
-target_compile_features(omohsdl PUBLIC c_variadic_macros)
-target_link_libraries(omohsdl PRIVATE qcommon qcommon_standalone)
+add_library(omohsdl_client STATIC ${SOURCES_SDL_CLIENT})
+target_compile_features(omohsdl_client PUBLIC c_variadic_macros)
+target_link_libraries(omohsdl_client PRIVATE qcommon qcommon_standalone)
 
 if (NO_MODERN_DMA)
-	target_compile_definitions(omohsdl PRIVATE NO_MODERN_DMA=1)
+	target_compile_definitions(omohsdl_client PRIVATE NO_MODERN_DMA=1)
 endif()
+
+add_library(omohsdl_gl STATIC ${SOURCES_SDL_GL})
+target_link_libraries(omohsdl_gl PRIVATE qcommon)
 
 if(${CMAKE_VERSION} VERSION_GREATER "3.11")
 	cmake_policy(SET CMP0074 NEW)
 endif()
+
+add_library(sdllib INTERFACE)
 
 if(WIN32)
 	find_package(SDL2)
 
 	if (SDL2_FOUND)
 		string(STRIP "${SDL2_LIBRARIES}" SDL2_LIBRARIES)
-		target_include_directories(omohsdl PUBLIC ${SDL2_INCLUDE_DIRS})
-		target_link_libraries(omohsdl PRIVATE ${SDL2_LIBRARIES})
+		target_include_directories(sdllib INTERFACE ${SDL2_INCLUDE_DIRS})
+		target_link_libraries(sdllib INTERFACE ${SDL2_LIBRARIES})
 	else()
 		message(WARNING "SDL2 not found, falling back to using SDL2 from the source tree")
 
-		target_include_directories(omohsdl PUBLIC "../SDL2/include-2.0.22")
+		target_include_directories(sdllib INTERFACE "../SDL2/include-2.0.22")
 
 		if (MSVC)
 			if(CMAKE_SIZEOF_VOID_P EQUAL 8)
@@ -59,7 +67,7 @@ if(WIN32)
 				)
 			endif()
 
-			target_link_libraries(omohsdl PRIVATE sdl2 sdl2main)
+			target_link_libraries(sdllib INTERFACE sdl2 sdl2main)
 		endif()
 	endif()
 
@@ -68,7 +76,10 @@ elseif(UNIX)
 	
 	if (SDL2_FOUND)
 		string(STRIP "${SDL2_LIBRARIES}" SDL2_LIBRARIES)
-		target_include_directories(omohsdl PUBLIC ${SDL2_INCLUDE_DIRS})
-		target_link_libraries(omohsdl PRIVATE ${SDL2_LIBRARIES})
+		target_include_directories(sdllib INTERFACE ${SDL2_INCLUDE_DIRS})
+		target_link_libraries(sdllib INTERFACE ${SDL2_LIBRARIES})
 	endif()
 endif()
+
+target_link_libraries(omohsdl_client PUBLIC sdllib)
+target_link_libraries(omohsdl_gl PUBLIC sdllib)

@@ -190,7 +190,7 @@ if (NOT BUILD_NO_CLIENT)
 	target_link_libraries(openmohaa PRIVATE syslib)
 	target_link_libraries(openmohaa PRIVATE omohserver)
 	target_link_libraries(openmohaa PRIVATE omohclient)
-	target_link_libraries(openmohaa PRIVATE omohrenderer omohsdl)
+	target_link_libraries(openmohaa PRIVATE omohrenderer)
 	target_link_libraries(openmohaa PRIVATE qcommon qcommon_standalone)
 
 	# Add the gamespy dependency
