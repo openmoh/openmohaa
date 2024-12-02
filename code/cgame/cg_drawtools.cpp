@@ -1294,6 +1294,9 @@ void CG_DrawCrosshair()
         return;
     }
 
+    // Fixed in OPM: R_RegisterShaderNoMip
+    //  Use R_RegisterShaderNoMip, as it's UI stuff
+
     if (cgs.gametype != GT_FFA) {
         AngleVectorsLeft(cg.refdefViewAngles, forward, NULL, NULL);
 
@@ -1321,23 +1324,23 @@ void CG_DrawCrosshair()
                 || ((myFlags & EF_AXIS) && (friendEnt->currentState.eFlags & EF_AXIS))) {
                 // friend
                 if (cg.snap->ps.stats[STAT_CROSSHAIR]) {
-                    shader = cgi.R_RegisterShader(cg_crosshair_friend->string);
+                    shader = cgi.R_RegisterShaderNoMip(cg_crosshair_friend->string);
                 }
             } else {
                 // enemy
                 if (cg.snap->ps.stats[STAT_CROSSHAIR]) {
-                    shader = cgi.R_RegisterShader(cg_crosshair->string);
+                    shader = cgi.R_RegisterShaderNoMip(cg_crosshair->string);
                 }
             }
         } else {
             if (cg.snap->ps.stats[STAT_CROSSHAIR]) {
-                shader = cgi.R_RegisterShader(cg_crosshair->string);
+                shader = cgi.R_RegisterShaderNoMip(cg_crosshair->string);
             }
         }
     } else {
         // FFA
         if (cg.snap->ps.stats[STAT_CROSSHAIR]) {
-            shader = cgi.R_RegisterShader(cg_crosshair->string);
+            shader = cgi.R_RegisterShaderNoMip(cg_crosshair->string);
         }
     }
 
