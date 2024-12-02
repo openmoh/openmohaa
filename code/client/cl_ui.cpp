@@ -5799,8 +5799,15 @@ void UI_BeginLoad(const char *pszMapName)
 
         loadName = "maps/";
         loadName += pszMapName;
+        mapfile = loadName;
         loadName += ".min";
-        mapfile = loadName + ".bsp";
+
+        if (CL_UseLargeLightmap(pszMapName)) {
+            mapfile += ".bsp";
+        } else {
+            // Added in 2.0
+            mapfile += "_sml.bsp";
+        }
 
         if (UI_ArchiveLoadMapinfo(mapfile)) {
             cls.loading = SS_LOADING2;

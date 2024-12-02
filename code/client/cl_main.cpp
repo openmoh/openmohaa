@@ -174,6 +174,26 @@ static qboolean cl_bCLSystemStarted = qfalse;
 
 /*
 ===============
+CL_UseLargeLightmap
+
+Added in 2.0
+Returns true if the standard BSP file should be used, false if the smaller lightmap BSP file should be used
+===============
+*/
+qboolean CL_UseLargeLightmap(const char* mapName) {
+	char buffer[MAX_QPATH];
+
+	Com_sprintf(buffer, sizeof(buffer), "maps/%s_sml.bsp", mapName);
+
+	if (FS_ReadFileEx(buffer, NULL, qtrue) == -1) {
+		return qtrue;
+	}
+
+	return Cvar_Get("r_largemap", "0", 0)->integer;
+}
+
+/*
+===============
 CL_CDDialog
 
 Called by Com_Error when a cd is needed

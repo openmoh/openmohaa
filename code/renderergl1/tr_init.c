@@ -102,6 +102,7 @@ cvar_t	*r_depthbits;
 cvar_t	*r_colorbits;
 cvar_t	*r_stereo;
 cvar_t	*r_primitives;
+cvar_t	*r_largemap;
 cvar_t	*r_textureDetails;
 cvar_t	*r_texturebits;
 
@@ -1346,11 +1347,18 @@ void R_Register( void )
 
 	r_picmip = ri.Cvar_Get ("r_picmip", "1", CVAR_ARCHIVE | CVAR_LATCH );
 	r_picmip_cap = ri.Cvar_Get ("r_picmip_cap", "0", CVAR_ARCHIVE | CVAR_LATCH );
+    if (r_picmip->integer < r_picmip_cap->integer) {
+        ri.Cvar_Set("r_picmip", r_picmip_cap->string);
+    }
+
+    if (r_picmip->integer < 2) {
+        r_largemap = ri.Cvar_Get("r_largemap", "1", 0);
+	} else {
+		r_largemap = ri.Cvar_Get("r_largemap", "0", 0);
+	}
+	
 	r_roundImagesDown = ri.Cvar_Get ("r_roundImagesDown", "1", CVAR_ARCHIVE | CVAR_LATCH );
 	r_colorMipLevels = ri.Cvar_Get ("r_colorMipLevels", "0", CVAR_LATCH );
-	if (r_picmip->integer < r_picmip_cap->integer) {
-		ri.Cvar_Set("r_picmip", r_picmip_cap->integer);
-	}
 	AssertCvarRange( r_picmip, 0, 16, qtrue );
 	r_textureDetails = ri.Cvar_Get("r_textureDetails", "1", 33);
 	r_texturebits = ri.Cvar_Get( "r_texturebits", "0", CVAR_ARCHIVE | CVAR_LATCH );

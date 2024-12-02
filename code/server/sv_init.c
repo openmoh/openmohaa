@@ -697,7 +697,12 @@ void SV_SpawnServer( const char *server, qboolean loadgame, qboolean restart, qb
 		char filename[ MAX_QPATH ];
 
 		TIKI_FreeAll();
-		Com_sprintf( filename, sizeof( filename ), "maps/%s.bsp", mapname );
+		if ( CL_UseLargeLightmap( mapname ) ) {
+			Com_sprintf( filename, sizeof( filename ), "maps/%s.bsp", mapname );
+		} else {
+			// Added in 2.0
+			Com_sprintf( filename, sizeof( filename ), "maps/%s_sml.bsp", mapname );
+		}
 		CM_LoadMap( filename, qfalse, &checksum );
 
 		// set checksum

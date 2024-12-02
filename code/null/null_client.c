@@ -129,3 +129,7 @@ qboolean CL_FinishedIntro( void ) {
 int R_CountTextureMemory() {
     return 0;
 }
+
+qboolean CL_UseLargeLightmap(const char* mapName) {
+	return qtrue;
+}

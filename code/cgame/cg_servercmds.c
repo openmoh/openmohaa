@@ -190,8 +190,12 @@ void CG_ParseServerinfo(void)
         Q_strncpyz(map, mapname, sizeof(map));
     }
 
-    Com_sprintf(cgs.mapname, sizeof(cgs.mapname), "maps/%s.bsp", map);
-
+    if (CG_UseLargeLightmaps(mapname)) {
+        Com_sprintf(cgs.mapname, sizeof(cgs.mapname), "maps/%s.bsp", map);
+    } else {
+        Com_sprintf(cgs.mapname, sizeof(cgs.mapname), "maps/%s_sml.bsp", map);
+    }
+    
     // hide/show huds
     if (cgs.gametype) {
         cgi.Cmd_Execute(EXEC_NOW, "ui_addhud hud_timelimit\n");

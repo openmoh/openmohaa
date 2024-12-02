@@ -1217,6 +1217,9 @@ void	CL_ForwardCommandToServer( const char *string );
 // things like godmode, noclip, etc, are commands directed to the server,
 // so when they are typed in at the console, they will need to be forwarded.
 
+qboolean CL_UseLargeLightmap(const char* mapName);
+// returns true if the standard BSP file should be used
+
 void CL_CDDialog( void );
 // bring up the "need a cd to play" dialog
 

@@ -509,6 +509,7 @@ extern "C" {
     //
     // cg_main.c
     //
+    qboolean    CG_UseLargeLightmaps(const char* mapName);
     void        CG_ProcessConfigString(int num, qboolean modelOnly);
     const char *CG_ConfigString(int index);
     void        CG_AddToTeamChat(const char *str);

@@ -204,6 +204,25 @@ void CG_RegisterCvars(void)
     temp            = cgi.Cvar_Get("sv_running", "0", 0);
     cgs.localServer = temp->integer;
 }
+/*
+===============
+CG_UseLargeLightmaps
+
+Added in 2.0
+Returns true if the standard BSP file should be used, false if the smaller lightmap BSP file should be used
+===============
+*/
+qboolean CG_UseLargeLightmaps(const char* mapName) {
+	char buffer[MAX_QPATH];
+
+	Com_sprintf(buffer, sizeof(buffer), "maps/%s_sml.bsp", mapName);
+
+	if (cgi.FS_ReadFile(buffer, NULL, qtrue) == -1) {
+		return qtrue;
+	}
+
+	return cgi.Cvar_Get("r_largemap", "0", 0)->integer;
+}
 
 /*
 ================

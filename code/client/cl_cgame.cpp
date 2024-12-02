@@ -923,7 +923,13 @@ void CL_InitCGame( void ) {
 	// find the current mapname
 	info = cl.gameState.stringData + cl.gameState.stringOffsets[ CS_SERVERINFO ];
 	mapname = Info_ValueForKey( info, "mapname" );
-	Com_sprintf( cl.mapname, sizeof( cl.mapname ), "maps/%s.bsp", mapname );
+
+	if (CL_UseLargeLightmap(mapname)) {
+		Com_sprintf(cl.mapname, sizeof(cl.mapname), "maps/%s.bsp", mapname);
+	} else {
+		// Added in 2.0
+		Com_sprintf(cl.mapname, sizeof(cl.mapname), "maps/%s_sml.bsp", mapname);
+	}
 
 	S_BeginRegistration();
 	CL_ShutdownCGame();
