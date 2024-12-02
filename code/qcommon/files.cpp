@@ -2448,16 +2448,17 @@ char **FS_ListFilteredFiles( const char *path, const char *extension, const char
 						}
 						// unique the match
 
+						temp = pathLength;
+						if (pathLength) {
+							temp++; // include the '/'
+						}
+
 						if (bDirSearch) {
-							strcpy(zpath, name + pathLength);
-							zpath[length - pathLength - 1] = 0;
+							strcpy(zpath, name + temp);
+							zpath[length - temp - 1] = 0;
 							nfiles = FS_AddFileToList(zpath, list, nfiles);
 						}
 						else {
-							temp = pathLength;
-							if (pathLength) {
-								temp++; // include the '/'
-							}
 							nfiles = FS_AddFileToList(name + temp, list, nfiles);
 						}
 					}
