@@ -494,8 +494,8 @@ static void Upload32(
 	// perform optional picmip operation
 	//
 	if ( picmip ) {
-		scaled_width >>= r_picmip->integer;
-		scaled_height >>= r_picmip->integer;
+		scaled_width >>= picmip;
+		scaled_height >>= picmip;
 	}
 
 	//
@@ -729,8 +729,8 @@ static void UploadCompressed(
 
 	offset = data;
 	iStartImage = 0;
-	if (picmip) {
-		iStartImage = r_picmip->integer;
+	if (picmip > 0) {
+		iStartImage = picmip;
 	}
 
 	if (iStartImage > 0 && iStartImage >= iMipmapsAvailable) {
@@ -2739,7 +2739,7 @@ void R_CreateBuiltinImages(void) {
 	tr.identityLightImage = R_CreateImageOld("*identityLight", (byte *)data, 8, 8, 0, 1, qfalse, qfalse, qfalse, qfalse, GL_REPEAT, GL_REPEAT);
 	tr.identityLightImage->r_sequence = -1;
 
-	tr.scratchImage = R_CreateImageOld("*scratch", (byte*)data, DEFAULT_SIZE, DEFAULT_SIZE, 0, 1, qtrue, qfalse, qfalse, qfalse, GL_CLAMP, GL_CLAMP);
+	tr.scratchImage = R_CreateImageOld("*scratch", (byte*)data, DEFAULT_SIZE, DEFAULT_SIZE, 0, 1, r_picmip->integer, qfalse, qfalse, qfalse, GL_CLAMP, GL_CLAMP);
 	tr.scratchImage->r_sequence = -1;
 
 	R_CreateDlightImage();

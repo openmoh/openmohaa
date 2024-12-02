@@ -126,6 +126,7 @@ cvar_t	*r_lerpmodels;
 cvar_t	*r_roundImagesDown;
 cvar_t	*r_colorMipLevels;
 cvar_t	*r_picmip;
+cvar_t	*r_picmip_cap;
 cvar_t	*r_showtris;
 cvar_t	*r_showsky;
 cvar_t	*r_shownormals;
@@ -1344,8 +1345,12 @@ void R_Register( void )
 	r_reset_tc_array = ri.Cvar_Get("r_reset_tc_array", "1", CVAR_ARCHIVE);
 
 	r_picmip = ri.Cvar_Get ("r_picmip", "1", CVAR_ARCHIVE | CVAR_LATCH );
+	r_picmip_cap = ri.Cvar_Get ("r_picmip_cap", "0", CVAR_ARCHIVE | CVAR_LATCH );
 	r_roundImagesDown = ri.Cvar_Get ("r_roundImagesDown", "1", CVAR_ARCHIVE | CVAR_LATCH );
 	r_colorMipLevels = ri.Cvar_Get ("r_colorMipLevels", "0", CVAR_LATCH );
+	if (r_picmip->integer < r_picmip_cap->integer) {
+		ri.Cvar_Set("r_picmip", r_picmip_cap->integer);
+	}
 	AssertCvarRange( r_picmip, 0, 16, qtrue );
 	r_textureDetails = ri.Cvar_Get("r_textureDetails", "1", 33);
 	r_texturebits = ri.Cvar_Get( "r_texturebits", "0", CVAR_ARCHIVE | CVAR_LATCH );

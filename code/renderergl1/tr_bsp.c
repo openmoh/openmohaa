@@ -449,7 +449,7 @@ static shader_t *ShaderForShaderNum( int shaderNum, int lightmapNum ) {
         lightmapNum = LIGHTMAP_WHITEIMAGE;
     }
 
-    shader = R_FindShader( dsh->shader, lightmapNum, qtrue, qtrue, qtrue, qtrue);
+    shader = R_FindShader( dsh->shader, lightmapNum, qtrue, r_picmip->integer, qtrue, qtrue);
 
     // if the shader had errors, just use default shader
     if ( shader->defaultShader ) {

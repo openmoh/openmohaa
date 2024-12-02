@@ -136,7 +136,7 @@ void R_RegisterShaders( model_t *mod ) {
 		for( j = 0; j < psurface->numskins; j++ )
 		{
 			if( psurface->shader[ j ][ 0 ] ) {
-				sh = R_FindShader( psurface->shader[ j ], LIGHTMAP_NONE, !( psurface->flags & TIKI_SURF_NOMIPMAPS), !(psurface->flags & TIKI_SURF_NOPICMIP), qtrue, qtrue );
+				sh = R_FindShader( psurface->shader[ j ], LIGHTMAP_NONE, !( psurface->flags & TIKI_SURF_NOMIPMAPS), r_picmip->integer, qtrue, qtrue );
 				psurface->hShader[ j ] = sh->index;
 			} else {
 				psurface->hShader[ j ] = 0;

@@ -173,7 +173,7 @@ void InitStaticShaders()
 		}
 
         strncpy(shadername, token, 0x40u);
-		if (!R_FindShader(shadername, -1, 1, 1, 1, 1)) {
+		if (!R_FindShader(shadername, -1, 1, r_picmip->integer, 1, 1)) {
 			ri.Printf(3, "InitStaticShaders: Couldn't find shader: %s\n", shadername);
 		}
     }
@@ -878,7 +878,7 @@ static qboolean ParseStage(shaderStage_t* stage, char** text, qboolean picmip)
 			}
 			else
 			{
-				stage->bundle[cntBundle].image[0] = R_FindImageFileOld(token, !stage->noMipMaps, (!stage->noPicMip ? picmip : 0), stage->force32bit, GL_REPEAT, GL_REPEAT);
+				stage->bundle[cntBundle].image[0] = R_FindImageFileOld(token, !stage->noMipMaps, stage->noPicMip ? qfalse : picmip, stage->force32bit, GL_REPEAT, GL_REPEAT);
 				if (!stage->bundle[cntBundle].image[0])
 				{
 					ri.Printf(PRINT_WARNING, "WARNING: R_FindImageFile could not find '%s' in shader '%s'\n", token, shader.name);
@@ -1984,7 +1984,7 @@ static void ParseSkyParms( char **text ) {
 				shader.sky.outerbox[i] = R_FindImageFileOld((char*)pathname, qtrue, qtrue, shader_force32bit, GL_CLAMP, GL_CLAMP);
 			}
 			else {
-				shader.sky.outerbox[i] = R_FindImageFileOld((char*)pathname, qtrue, qtrue, shader_force32bit, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
+				shader.sky.outerbox[i] = R_FindImageFileOld((char*)pathname, qtrue, r_picmip->integer, shader_force32bit, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
 			}
 			if ( !shader.sky.outerbox[i] ) {
 				shader.sky.outerbox[i] = tr.defaultImage;
@@ -2015,7 +2015,11 @@ static void ParseSkyParms( char **text ) {
 		for (i=0 ; i<6 ; i++) {
 			Com_sprintf( pathname, sizeof(pathname), "%s_%s.tga"
 				, token, suf[i] );
-			shader.sky.outerbox[i] = R_FindImageFileOld( ( char * ) pathname, qtrue, qtrue, shader_force32bit, GL_REPEAT, GL_REPEAT );
+			if (!haveClampToEdge) {
+				shader.sky.outerbox[i] = R_FindImageFileOld((char*)pathname, qtrue, qtrue, shader_force32bit, GL_CLAMP, GL_CLAMP);
+			} else {
+				shader.sky.outerbox[i] = R_FindImageFileOld((char*)pathname, qtrue, r_picmip->integer, shader_force32bit, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
+			}
 			if ( !shader.sky.innerbox[i] ) {
 				shader.sky.innerbox[i] = tr.defaultImage;
 			}
@@ -3450,7 +3454,7 @@ qhandle_t RE_RegisterShader( const char *name ) {
 		return 0;
 	}
 
-	sh = R_FindShader( name, LIGHTMAP_2D, qtrue, qtrue, qtrue, qtrue);
+	sh = R_FindShader( name, LIGHTMAP_2D, qtrue, r_picmip->integer, qtrue, qtrue);
 
 	// we want to return 0 if the shader failed to
 	// load for some reason, but R_FindShader should
@@ -3769,7 +3773,7 @@ static void CreateInternalShaders( void ) {
 }
 
 static void CreateExternalShaders( void ) {
-	tr.flareShader = R_FindShader( "flareShader", LIGHTMAP_NONE, qtrue, qtrue, qtrue, qtrue);
+	tr.flareShader = R_FindShader( "flare", LIGHTMAP_NONE, qtrue, r_picmip->integer, qtrue, qtrue);
 }
 
 void R_StartupShaders()

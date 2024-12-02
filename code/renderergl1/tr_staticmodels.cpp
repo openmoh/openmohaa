@@ -109,7 +109,7 @@ void R_InitStaticModels(void)
                         surf->shader[k],
                         -1,
                         !(surf->flags & TIKI_SURF_NOMIPMAPS),
-                        !(surf->flags & TIKI_SURF_NOPICMIP),
+                        r_picmip->integer,
                         qtrue,
                         qtrue
                     );
