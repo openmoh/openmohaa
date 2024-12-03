@@ -1,22 +1,11 @@
 # Installation
 
-Ensure that you download the binaries compatible with your platform in the [releases](https://github.com/openmoh/openmohaa/releases) section.
-
-## Which release should be downloaded?
-
-- If running Windows on AMD/Intel, CPU then `*-windows-x64.zip` is recommended
-- If running Windows on Qualcomm/Snapdragon (ARM-based) CPU, then `*-windows-arm64.zip` is the way to go
-- If running MacOS on Apple Silicon hardware, choose `*-macos-arm64.zip`
-- If running MacOS on AMD/Intel CPU, choose `*-macos-x86_64.zip`
-- If running Linux on AMD/Intel CPU, then `*-linux-amd64` is generally fine. Choose the i686 version for CPUs that don't support 64-bit instructions.
-- If running Linux on a Raspberry Pi 4 or 5, then `*-linux-arm64` (if running ARM64) is the way to go
-
 ## Requirements
 
 - A MOH:AA installation. Common installations include:
   - GOG copy (recommended). A fully patched MOH:AA War Chest copy can be acquired [here](https://www.gog.com/en/game/medal_of_honor_allied_assault_war_chest).
     - For Linux/macOS, see [Extracting GOG Installer on Linux and macOS](#extracting-gog-setup-file-on-linux-and-macos).
-  - From a CD
+  - From a CD. Make sure to [patch your installed copy](#installing-official-patches)
   - Demo. See [obtaining a demo version](#obtaining-a-demo-version)
 - On Windows, Microsoft Visual C++ 2015/2017/2019/2022 Redistributable from https://learn.microsoft.com/en-US/cpp/windows/latest-supported-vc-redist?view=msvc-170 is required.
 
@@ -109,22 +98,52 @@ This matches the hardware requirements (x86) of the original game.
 |Memory         |256MB                                               |256MB
 |GPU            |16MB                                                |32MB
 
-## Client
+## Installing official patches
 
-a) extract archive to your MOHAA installation directory.
+Skip directly to the [OpenMoHAA installation](#downloadinginstalling) section if the **MOH: Warchest** copy is installed.
+
+Otherwise, install the following patches:
+
+|Game           |Patch to download and install
+|---------------|------------------
+|Allied Assault |Depends on the installed language: [English](https://web.archive.org/web/20160229203048/http://largedownloads.ea.com/pub/patches/MOHAA_UKUS_ONLY_patch111v9safedisk.exe), [German](https://web.archive.org/web/20160229203013/http://largedownloads.ea.com/pub/patches/MOHAA_DE_ONLY_patch111v9safedisk.exe), [French](https://web.archive.org/web/20151201080806/http://largedownloads.ea.com/pub/patches/MOHAA_FR_ONLY_patch111v9safedisk.exe) [Italian](https://web.archive.org/web/20141205065317/http://largedownloads.ea.com/pub/patches/MOHAA_IT_ONLY_patch111v9safedisk.exe), [Spanish](https://web.archive.org/web/20151201080738/http://largedownloads.ea.com/pub/patches/MOHAA_ES_ONLY_patch111v9safedisk.exe), or [Dutch](https://web.archive.org/web/20151201080902/http://largedownloads.ea.com/pub/patches/MOHAA_NL_ONLY_patch111v9safedisk.exe)
+|Spearhead      |[2.0 to 2.11](https://web.archive.org/web/20170130184731/ftp://ftp.ea.com/pub/ea/patches/mohaa_spearhead/mohaas_patch_20_to_211.exe), followed by [2.11 to 2.15](https://web.archive.org/web/20170130184725/ftp://ftp.ea.com/pub/ea/patches/mohaa_spearhead/MOHAAS_Patch_211_to_215.exe)
+|Breakthrough   |[2.40b](https://web.archive.org/web/20160301122255/http://largedownloads.ea.com/pub/patches/medal_of_honor_allied_assault_breakthrough_patch_2_40.exe)
+
+These patches are required to connect to multiplayer servers and ensure a smooth, bug-free single-player experience.
+
+## Downloading/installing
+
+Ensure that you download the binaries compatible with your platform in the [releases](https://github.com/openmoh/openmohaa/releases) section.
+
+### Which release should be downloaded?
+
+It depends on the OS that is installed on your device:
+
+|OS       |Kind of hardware (CPU, platform...)        |Archive
+|---------|-------------------------------------------|-----------------------
+|Windows  |AMD/Intel                                  |`*-windows-x64.zip`
+|Windows  |Qualcomm/Snapdragon (ARM-based)            |`*-windows-arm64.zip`
+|macOS    |Apple Silicon (ARM)                        |`*-macos-arm64.zip`
+|macOS    |Intel                                      |`*-macos-x86_64.zip`
+|Linux    |AMD/Intel                                  |`*-linux-amd64`
+|Linux    |Raspberry Pi 4 or 5                        |`*-linux-arm64`
+
+Once the correct archive was downloaded:
+
+a) Extract the archive<sup>1</sup> to your MOHAA installation directory.
 
 -or-
 
-b) extract archive somewhere on your hard drive, create a shortcut to openmohaa (or omohaaded), and set the start directory on the shortcut to your MOHAA installation directory.
+b) Extract the archive<sup>1</sup> somewhere on your hard drive, create a shortcut to each of the **launch_openmohaa_\*** executables (or omohaaded.exe), and set the shortcut's 'Start in' directory to your MOHAA installation directory.
 
-## Server
+Once you're ready, start one of the three launchers based on whether you want to play the base game, Spearhead, or Breakthrough, and then you can start playing.
 
-Extract `omohaaded.*` and `game.*` binaries from the archive to your MOHAA server installation directory. Then proceed like you would do with mohaa server:
+----
 
-- `.\omohaaded.*.exe +exec server.cfg` on Windows
-- `./omohaaded.* +exec server.cfg` on Linux
+**Notes:**
 
-Make sure to replace '*' with the correct name in the binary.
+1. For servers, only the `omohaaded.*` and `game.*` binaries from the archive are required.
 
 ## Cleaning up the game installation directory
 
