@@ -126,6 +126,26 @@ Extract `omohaaded.*` and `game.*` binaries from the archive to your MOHAA serve
 
 Make sure to replace '*' with the correct name in the binary.
 
+## Cleaning up the game installation directory
+
+If you want to clean up the mohaa installation directory by keeping only what is needed for OpenMoHAA, the following files/directories can be kept:
+```cpp
+[MOHAA]
+├── [main]
+|   ├── [sound]
+|   ├── [video]
+│   ├── Pak*.pk3 // all pak files
+├── [mainta]
+|   ├── [sound]
+|   ├── [video]
+│   ├── pak*.pk3 // all pak files
+├── [maintt]
+|   ├── [sound]
+|   ├── [video]
+│   ├── pak*.pk3 // all pak files
+├── All files from the OpenMoHAA archive
+```
+
 ## Extracting GOG setup file on Linux and macOS
 
 If your MOH:AA copy was acquired from GOG then this section will be relevant.
@@ -149,10 +169,10 @@ Alternatively, free demo versions are available online. Here are the links to th
 |MOH:AA Spearhead    | Multiplayer<sup>2</sup> (2.11)    |https://www.fileplanet.com/archive/p-68997/Medal-of-Honor-Allied-Assault-Spearhead-Demo                 |
 |MOH:AA Breakthrough | Multiplayer<sup>2</sup> (0.30)    |https://www.fileplanet.com/archive/p-50953/Medal-of-Honor-Allied-Assault-Breakthrough-Multiplayer-Demo  |
 
-- MOH:AA singleplayer demo ships with **Mission 3: Level 3**
-- MOH:AA multiplayer demo ships with **Stalingrad**
-- MOH:AA Spearhead multiplayer demo ships with **Malta** and **Druckkammern**
-- MOH:AA Breakthrough multiplayer demo ships with **Anzio** and **Palermo**
+- MOH:AA singleplayer demo ships with the level: **Mission 3: Level 3**
+- MOH:AA multiplayer demo ships with the level: **Stalingrad**
+- MOH:AA Spearhead multiplayer demo ships with multiplayer maps: **Malta** and **Druckkammern**
+- MOH:AA Breakthrough multiplayer demo ships with multiplayer maps: **Anzio** and **Palermo**
 
 --------
 
