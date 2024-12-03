@@ -162,17 +162,17 @@ Alternatively, you can use [WINE](https://www.winehq.org/) as well, but this pro
 
 Alternatively, free demo versions are available online. Here are the links to the demos:
 
-|Game                |Type                               |Link                                                                                                    |
-|--------------------|-----------------------------------|--------------------------------------------------------------------------------------------------------|
-|MOH:AA              | Single-player (0.05)              |https://www.fileplanet.com/archive/p-54011/Medal-of-Honor-Single-Player-Demo                            |
-|MOH:AA              | Multiplayer<sup>1</sup> (1.00)    |https://www.fileplanet.com/archive/p-8725/Medal-of-Honor-Allied-Assault-Multiplayer-Demo                |
-|MOH:AA Spearhead    | Multiplayer<sup>2</sup> (2.11)    |https://www.fileplanet.com/archive/p-68997/Medal-of-Honor-Allied-Assault-Spearhead-Demo                 |
-|MOH:AA Breakthrough | Multiplayer<sup>2</sup> (0.30)    |https://www.fileplanet.com/archive/p-50953/Medal-of-Honor-Allied-Assault-Breakthrough-Multiplayer-Demo  |
+|Game                |Type                               |Link                                                                                  |
+|--------------------|-----------------------------------|--------------------------------------------------------------------------------------|
+|MOH:AA              | Single-player (0.05)              |https://www.gamefront.com/games/medal-of-honor/file/single-player-demo                |
+|MOH:AA              | Multiplayer<sup>1</sup> (1.00)    |https://www.gamefront.com/games/medal-of-honor/file/multiplayer-demo                  |
+|MOH:AA Spearhead    | Multiplayer<sup>2</sup> (2.11)    |https://www.gamefront.com/games/medal-of-honor/file/mohaa-spearhead-demo-eng          |
+|MOH:AA Breakthrough | Multiplayer<sup>2</sup> (0.30)    |https://www.gamefront.com/games/medal-of-honor/file/mohaa-breakthrough-demo           |
 
-- MOH:AA singleplayer demo ships with the level: **Mission 3: Level 3**
-- MOH:AA multiplayer demo ships with the level: **Stalingrad**
-- MOH:AA Spearhead multiplayer demo ships with multiplayer maps: **Malta** and **Druckkammern**
-- MOH:AA Breakthrough multiplayer demo ships with multiplayer maps: **Anzio** and **Palermo**
+- MOH:AA singleplayer demo ships with the level: **Mission 3: Level 3**.
+- MOH:AA multiplayer demo ships with the level: **Stalingrad**. **The Hunt** can be added with the [MP Demo addon](https://www.gamefront.com/games/medal-of-honor/file/mp-demo-add-on-the-hunt). 
+- MOH:AA Spearhead multiplayer demo ships with multiplayer maps: **Malta** and **Druckkammern**.
+- MOH:AA Breakthrough multiplayer demo ships with multiplayer maps: **Anzio** and **Palermo**.
 
 --------
 
