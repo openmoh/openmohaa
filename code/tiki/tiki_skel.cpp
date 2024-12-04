@@ -1103,6 +1103,9 @@ int TIKI_RegisterSkel(const char *path, dtiki_t *tiki)
         if (!TIKI_LoadSKD(path, cache)) {
             return -1;
         }
+    } else {
+        TIKI_Error("TIKI_RegisterSkel: Unknown extension %s\n", extension);
+        return -1;
     }
 
     Com_sprintf(tempName, sizeof(tempName), "l%s", path);
