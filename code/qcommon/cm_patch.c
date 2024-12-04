@@ -783,7 +783,7 @@ static qboolean CM_ValidateFacet( facet_t *facet ) {
 	FreeWinding( w );
 	
 	for ( j = 0 ; j < 3 ; j++ ) {
-		if ( bounds[1][j] - bounds[0][j] > MAX_MAP_BOUNDS ) {
+		if ( bounds[1][j] - bounds[0][j] > MAP_SIZE ) {
 			return qfalse;		// we must be missing a plane
 		}
 	}

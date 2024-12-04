@@ -160,8 +160,8 @@ void	WindingBounds (winding_t *w, vec3_t mins, vec3_t maxs)
 	vec_t	v;
 	int		i,j;
 
-	mins[0] = mins[1] = mins[2] = MAX_MAP_BOUNDS;
-	maxs[0] = maxs[1] = maxs[2] = -MAX_MAP_BOUNDS;
+	mins[0] = mins[1] = mins[2] = 99999;
+	maxs[0] = maxs[1] = maxs[2] = -99999;
 
 	for (i=0 ; i<w->numpoints ; i++)
 	{
@@ -208,7 +208,7 @@ winding_t *BaseWindingForPlane (vec3_t normal, vec_t dist)
 	
 // find the major axis
 
-	max = -MAX_MAP_BOUNDS;
+	max = -MAP_SIZE;
 	x = -1;
 	for (i=0 ; i<3; i++)
 	{
@@ -242,8 +242,8 @@ winding_t *BaseWindingForPlane (vec3_t normal, vec_t dist)
 	
 	CrossProduct (vup, normal, vright);
 	
-	VectorScale (vup, MAX_MAP_BOUNDS, vup);
-	VectorScale (vright, MAX_MAP_BOUNDS, vright);
+	VectorScale (vup, MAP_SIZE, vup);
+	VectorScale (vright, MAP_SIZE, vright);
 
 // project a really big	axis aligned box onto the plane
 	w = AllocWinding (4);
@@ -564,7 +564,7 @@ void CheckWinding (winding_t *w)
 		p1 = w->p[i];
 
 		for (j=0 ; j<3 ; j++)
-			if (p1[j] > MAX_MAP_BOUNDS || p1[j] < -MAX_MAP_BOUNDS)
+			if (p1[j] > MAP_SIZE || p1[j] < -MAP_SIZE)
 				Com_Error (ERR_DROP, "CheckFace: BUGUS_RANGE: %f",p1[j]);
 
 		j = i+1 == w->numpoints ? 0 : i+1;
