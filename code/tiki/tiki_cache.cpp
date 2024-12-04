@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2023 the OpenMoHAA team
+Copyright (C) 2024 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -245,14 +245,15 @@ void TIKI_FreeAll()
             }
 
             tiki->m_boneList.CleanUpChannels();
+            // Fixed in OPM
+            //  It's better to free aliases when actually clearing the anim cache
             /*
-			if( tiki->a->m_aliases )
-			{
-				TIKI_Free( tiki->a->m_aliases );
-				tiki->a->m_aliases = NULL;
-				tiki->a->num_anims = 0;
-			}
-			*/
+            if (tiki->a->m_aliases) {
+                TIKI_Free(tiki->a->m_aliases);
+                tiki->a->m_aliases = NULL;
+                tiki->a->num_anims = 0;
+            }
+            */
 
             TIKI_Free(tiki);
         }
@@ -268,6 +269,8 @@ void TIKI_FreeAll()
 
             TIKI_RemoveTiki(tikianim);
 
+            // Fixed in OPM
+            //  Each tikianim should free their aliases
             if (tikianim->m_aliases) {
                 TIKI_Free(tikianim->m_aliases);
                 tikianim->m_aliases = NULL;
@@ -281,12 +284,10 @@ void TIKI_FreeAll()
     }
 
     tiki_loading = true;
-    if (skelcache) {
-        for (i = 0; i < cache_maxskel; i++) {
-            if (skelcache->skel) {
-                TIKI_FreeSkel(i);
-            }
-        }
+
+    for (i = 0; i < cache_maxskel; i++) {
+        assert(skelcache[i].skel);
+        TIKI_FreeSkel(i);
     }
 }
 
@@ -300,8 +301,8 @@ static qboolean tiki_started;
 void *TIKI_GetSkeletor(dtiki_t *tiki, int entnum)
 {
     skeletor_c *skel;
-    int i;
-    int index;
+    int         i;
+    int         index;
 
     if (entnum == ENTITYNUM_NONE) {
         if (!tiki->skeletor) {
@@ -329,13 +330,13 @@ void *TIKI_GetSkeletor(dtiki_t *tiki, int entnum)
         }
 
         index = ((entnum % TIKI_MAX_ENTITIES) * TIKI_MAX_ENTITY_CACHE_PER_ENT) + i;
-        skel = skel_entity_cache[index];
+        skel  = skel_entity_cache[index];
 
         if (skel) {
             delete skel;
         }
 
-        skel                      = new skeletor_c(tiki);
+        skel                     = new skeletor_c(tiki);
         skel_entity_cache[index] = skel;
     }
 
@@ -350,7 +351,7 @@ TIKI_DeleteSkeletor
 static void TIKI_DeleteSkeletor(int entnum)
 {
     skeletor_c *skel;
-    int i;
+    int         i;
 
     if (entnum == ENTITYNUM_NONE) {
         return;
