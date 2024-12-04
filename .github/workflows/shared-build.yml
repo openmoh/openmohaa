@@ -350,7 +350,7 @@ jobs:
         ]
 
     name: "Building for platform macos-${{matrix.architecture.name}}"
-    runs-on: "macos-14"
+    runs-on: "macos-15"
     environment: ${{inputs.environment}}
 
     steps:
