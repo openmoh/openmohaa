@@ -1026,7 +1026,10 @@ TIKI_FindSkel
 skelcache_t *TIKI_FindSkel(const char *path)
 {
     int          i;
+    int          num;
     skelcache_t *cache;
+
+    num = cache_numskel;
 
     for (i = 0; i < TIKI_MAX_SKELCACHE; i++) {
         cache = &skelcache[i];
@@ -1038,6 +1041,11 @@ skelcache_t *TIKI_FindSkel(const char *path)
         if (!strcmp(path, cache->path)) {
             return cache;
         }
+
+        if (num == 0) {
+            break;
+        }
+        num--;
     }
 
     return NULL;

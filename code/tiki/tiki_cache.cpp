@@ -286,8 +286,9 @@ void TIKI_FreeAll()
     tiki_loading = true;
 
     for (i = 0; i < cache_maxskel; i++) {
-        assert(skelcache[i].skel);
-        TIKI_FreeSkel(i);
+        if (skelcache[i].skel) {
+            TIKI_FreeSkel(i);
+        }
     }
 }
 
