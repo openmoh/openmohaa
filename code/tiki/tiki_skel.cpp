@@ -1087,6 +1087,8 @@ int TIKI_RegisterSkel(const char *path, dtiki_t *tiki)
         TIKI_Error("TIKI_RegisterSkel: No free spots open in skel cache for %s\n", path);
         return -1;
     }
+    
+    cache->numuses = 0;
 
     if (cache - skelcache + 1 > cache_maxskel) {
         cache_maxskel = cache - skelcache + 1;
