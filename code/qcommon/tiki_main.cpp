@@ -67,7 +67,7 @@ void TIKI_Message(const char *fmt, ...)
     va_start(va, fmt);
     Q_vsnprintf(msg, sizeof(msg), fmt, va);
     va_end(va);
-    Skel_DPrintf(msg);
+    TIKI_DPrintf(msg);
 }
 
 /*
@@ -83,7 +83,7 @@ void TIKI_Warning(const char *fmt, ...)
     va_start(va, fmt);
     Q_vsnprintf(msg, sizeof(msg), fmt, va);
     va_end(va);
-    Skel_DPrintf(msg);
+    TIKI_DPrintf(msg);
 }
 
 /*
@@ -99,7 +99,7 @@ void TIKI_Error(const char *fmt, ...)
     va_start(va, fmt);
     Q_vsnprintf(msg, sizeof(msg), fmt, va);
     va_end(va);
-    Skel_DPrintf(msg);
+    TIKI_DPrintf(msg);
 }
 
 /*
