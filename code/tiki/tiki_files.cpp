@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2023 the OpenMoHAA team
+Copyright (C) 2024 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -742,9 +742,10 @@ void SkeletorCacheUnloadData(int index)
     }
 
     m_cachedData[m_cachedDataLookup[index]].lookup = -1;
-    for (i = index + 1; i < m_numInCache; i++) {
-        m_cachedDataLookup[i - 1]                  = m_cachedDataLookup[i];
-        m_cachedData[m_cachedDataLookup[i]].lookup = i - 1;
+
+    for (i = index; i < m_numInCache; i++) {
+        m_cachedDataLookup[i] = m_cachedDataLookup[i + 1];
+        m_cachedData[m_cachedDataLookup[i]].lookup = i;
     }
 }
 
@@ -757,9 +758,12 @@ void SkeletorCacheCleanCache()
 {
     int i;
 
-    for (i = m_numInCache - 1; i >= 0; i--) {
-        if (!m_cachedData[m_cachedDataLookup[i]].numusers) {
-            SkeletorCacheUnloadData(i);
+    // Fixed in OPM
+    //  In original, i starts from 0 up to m_numInCache
+    //  the problem is that m_numInCache can decrement
+    for (i = m_numInCache; i > 0; i--) {
+        if (!m_cachedData[m_cachedDataLookup[i - 1]].numusers) {
+            SkeletorCacheUnloadData(i - 1);
         }
     }
 }
