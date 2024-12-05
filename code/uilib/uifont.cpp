@@ -616,7 +616,7 @@ int UIFont::getHeight(const float* virtualScale)
         if (m_font) {
             return (m_font->sgl[0]->height * virtualScale[0]);
         } else {
-            return (16.0 * uid.vidHeight * virtualScale[1]);
+            return (16.0 * virtualScale[1]);
         }
     } else {
         if (m_font) {
@@ -789,7 +789,7 @@ int UI_FontStringWidth(fontheader_t *pFont, const char *pszString, int iMaxLen)
 void UIFont::CheckRefreshFont() {
     if (refHandle != uii.GetRefSequence()) {
         setFont(name);
-    } else if (!uii.IsRendererRegistered()) {
+    } else if (!uii.IsRendererLoaded()) {
         m_font = NULL;
     }
 }

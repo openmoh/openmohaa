@@ -131,7 +131,7 @@ typedef struct uiimport_s {
 	// Added in OPM
 	//
 	int (*GetRefSequence)(void);
-	qboolean (*IsRendererRegistered)(void);
+	qboolean (*IsRendererLoaded)(void);
 } uiimport_t;
 
 #if 1

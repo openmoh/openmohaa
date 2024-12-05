@@ -3092,11 +3092,11 @@ int CL_GetRefSequence(void) {
 
 /*
 ============
-CL_IsRendererRegistered
+CL_IsRendererLoaded
 ============
 */
-qboolean CL_IsRendererRegistered(void) {
-    return cls.rendererRegistered;
+qboolean CL_IsRendererLoaded(void) {
+	return re.Shutdown != NULL;
 }
 
 /*

@@ -560,7 +560,7 @@ void UI_LoadResource( const char *name );
 qboolean CL_CheckPaused(void);
 
 int CL_GetRefSequence(void);
-qboolean CL_IsRendererRegistered(void);
+qboolean CL_IsRendererLoaded(void);
 
 //
 // cl_input
