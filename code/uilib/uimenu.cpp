@@ -639,6 +639,14 @@ void MenuManager::DeleteAllMenus
 		Menu *menu = m_menulist.ObjectAt( i );
 		delete menu;
 	}
+
+	//
+	// Added in OPM
+	//  Make sure to clear the menu list and stack
+	m_menulist.FreeObjectList();
+
+	m_menustack.Clear();
+	m_showmenustack.Clear();
 }
 
 Menu *MenuManager::FindMenu

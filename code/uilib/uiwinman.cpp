@@ -910,6 +910,8 @@ void UIWindowManager::Shutdown(void)
         delete b;
     }
 
+    m_cursor = NULL;
+
     UIWidget::Shutdown();
 }
 
