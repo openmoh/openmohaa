@@ -50,7 +50,7 @@ void R_ShutdownFont() {
         memset(header, 0, sizeof(*header));
     }
 
-    for (i = 0; i < s_numLoadedFonts; i++)
+    for (i = 0; i < s_numLoadedFonts_sgl; i++)
     {
         header_sgl = &s_loadedFonts_sgl[i];
         memset(header_sgl, 0, sizeof(*header_sgl));
