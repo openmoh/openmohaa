@@ -270,6 +270,9 @@ cvar_t* r_anaglyphMode;
 cvar_t* r_aviMotionJpegQuality;
 cvar_t* r_screenshotJpegQuality;
 
+cvar_t* r_developer;
+cvar_t* r_fps;
+
 static char infostring[8192];
 
 static void AssertCvarRange( cvar_t *cv, float minVal, float maxVal, qboolean shouldBeIntegral )
@@ -1564,14 +1567,14 @@ void R_Register( void )
 	r_static_shadermultiplier1 = ri.Cvar_Get("r_static_shadermultiplier1", "1", CVAR_SYSTEMINFO);
 	r_static_shadermultiplier2 = ri.Cvar_Get("r_static_shadermultiplier2", "1", CVAR_SYSTEMINFO);
 	r_static_shadermultiplier3 = ri.Cvar_Get("r_static_shadermultiplier3", "1", CVAR_SYSTEMINFO);
-	r_precacheimages = (cvar_t*)Cvar_Get("r_precacheimages", "0", 0);
+	r_precacheimages = ri.Cvar_Get("r_precacheimages", "0", 0);
 	ter_minMarkRadius = ri.Cvar_Get("ter_minMarkRadius", "8", CVAR_ARCHIVE);
 	ter_fastMarks = ri.Cvar_Get("ter_fastMarks", "1", CVAR_ARCHIVE);
 	r_alpha_foliage1 = ri.Cvar_Get("r_alpha_foliage1", "0.75", CVAR_CHEAT);
 	r_alpha_foliage2 = ri.Cvar_Get("r_alpha_foliage2", "0.75", CVAR_CHEAT);
 	r_blendtrees = ri.Cvar_Get("r_blendtrees", "0", CVAR_LATCH);
 	r_blendbushes = ri.Cvar_Get("r_blendbushes", "0", CVAR_LATCH);
-	fps = ri.Cvar_Get("fps", "0", 0);
+	r_fps = ri.Cvar_Get("fps", "0", 0);
 	r_loadjpg = ri.Cvar_Get("r_loadjpg", "1", CVAR_LATCH);
 	r_loadftx = ri.Cvar_Get("r_loadftx", "0", CVAR_LATCH);
 
@@ -1599,6 +1602,7 @@ void R_Register( void )
 	// Added in OPM
 	//
 
+	r_developer = ri.Cvar_Get("developer", "", 0);
     r_showSkeleton = ri.Cvar_Get("r_showSkeleton", "0", CVAR_CHEAT);
 	r_aviMotionJpegQuality = ri.Cvar_Get("r_aviMotionJpegQuality", "90", CVAR_ARCHIVE);
     r_screenshotJpegQuality = ri.Cvar_Get("r_screenshotJpegQuality", "90", CVAR_ARCHIVE);
@@ -1770,18 +1774,20 @@ void RE_Shutdown( qboolean destroyWindow ) {
 		Com_Memset( &glState, 0, sizeof( glState ) );
 	}
 
+	R_ShutdownFont();
+
 	tr.registered = qfalse;
 }
 
-extern qboolean scr_initialized;
+//extern qboolean scr_initialized;
 
 /*
 ** RE_BeginRegistration
 */
 void RE_BeginRegistration(glconfig_t* glconfigOut) {
 
-	UI_LoadResource("*123");
-	scr_initialized = 0;
+	ri.UI_LoadResource("*123");
+	//scr_initialized = 0;
 
 	R_IssuePendingRenderCommands();
 
@@ -1807,8 +1813,8 @@ void RE_BeginRegistration(glconfig_t* glconfigOut) {
 
 	tr.registered = qtrue;
 
-	scr_initialized = 1;
-	UI_LoadResource("*124");
+	//scr_initialized = 1;
+	ri.UI_LoadResource("*124");
 }
 
 /*
@@ -1823,11 +1829,11 @@ void RE_EndRegistration( void ) {
 	if (r_precacheimages->integer) {
 		int start, end;
 
-		start = Sys_Milliseconds();
+		start = ri.Milliseconds();
 
 		RB_ShowImages(qtrue);
 
-		end = Sys_Milliseconds();
+		end = ri.Milliseconds();
 
 		Com_Printf("RB_ShowImages: %5.2f seconds\n", (float)((end - start) / 1000.f));
 	}
@@ -1851,7 +1857,12 @@ GetRefAPI
 
 @@@@@@@@@@@@@@@@@@@@@
 */
+#ifdef USE_RENDERER_DLOPEN
+Q_EXPORT refexport_t* QDECL GetRefAPI ( int apiVersion, refimport_t *rimp ) {
+#else
 refexport_t *GetRefAPI ( int apiVersion, refimport_t *rimp ) {
+#endif
+
 	static refexport_t	re;
 
 	ri = *rimp;

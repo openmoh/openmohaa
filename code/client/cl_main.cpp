@@ -29,13 +29,18 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../qcommon/localization.h"
 #include "../qcommon/bg_compat.h"
 #include "../sys/sys_local.h"
-#ifdef USE_RENDERER_DLL
-#include "../sys/sys_loadlib.h"
-#endif
+
+extern "C" {
+	#include "../sys/sys_loadlib.h"
+}
 
 #include "../gamespy/gcdkey/gcdkeyc.h"
 
 #include <climits>
+
+#ifdef USE_RENDERER_DLOPEN
+cvar_t* cl_renderer;
+#endif
 
 cvar_t	*cl_nodelta;
 cvar_t	*cl_debugMove;
@@ -130,18 +135,13 @@ clientGameExport_t	*cge;
 
 // Structure containing functions exported from refresh DLL
 refexport_t	re;
+#ifdef USE_RENDERER_DLOPEN
+static void	*rendererLib = NULL;
+#endif
 
 qboolean camera_reset;
 qboolean camera_active;
 vec3_t camera_offset;
-
-#ifdef USE_RENDERER_DLL
-// su44: for plugable renderer system
-refexport_t* (*DGetRefAPI)(int apiVersion, refimport_t * rimp) = NULL;
-static cvar_t  *cl_renderer = NULL;
-static void    *rendererLib = NULL;
-#endif // USE_RENDERER_DLL
-
 
 ping_t	cl_pinglist[MAX_PINGREQUESTS];
 
@@ -802,9 +802,10 @@ void CL_ShutdownAll(qboolean shutdownRef) {
 	TIKI_FreeAll();
 
 	// shutdown the renderer
-	if ( re.Shutdown ) {
-		re.Shutdown( qfalse );		// don't destroy window or context
-	}
+	if(shutdownRef)
+		CL_ShutdownRef();
+	else if(re.Shutdown)
+		re.Shutdown(qfalse);		// don't destroy window or context
 
 	cls.uiStarted = qfalse;
 	cls.cgameStarted = qfalse;
@@ -1580,18 +1581,23 @@ void CL_Vid_Restart_f( void ) {
 
 	S_BeginRegistration();
 
+	// shutdown the UI
+	//CL_ShutdownUI();
 	// shutdown the renderer and clear the renderer interface
-	CL_ShutdownRef();
+    CL_ShutdownRef();
+
+    cls.rendererRegistered = qfalse;
+
 	// shutdown the CGame
 	CL_ShutdownCGame();
 	// initialize the renderer interface
 	CL_InitRef();
+	// initialize the UI
+	//CL_InitializeUI();
 	// initialize the ui library
 	UI_ResolutionChange();
 	// clear aliases
 	Alias_Clear();
-
-	cls.rendererRegistered = qfalse;
 
 	// unpause so the cgame definately gets a snapshot and renders a frame
 	Com_Unpause();
@@ -2809,15 +2815,15 @@ CL_ShutdownRef
 ============
 */
 void CL_ShutdownRef( void ) {
-	if ( !re.Shutdown ) {
-		return;
+	if ( re.Shutdown ) {
+		re.Shutdown( qtrue );
 	}
-	re.Shutdown( qtrue );
+
 	Com_Memset( &re, 0, sizeof( re ) );
-#ifdef USE_RENDERER_DLL
-	// su44: remember to unload renderer library
-	if(rendererLib) {
-		Sys_UnloadLibrary(rendererLib);
+
+#ifdef USE_RENDERER_DLOPEN
+	if ( rendererLib ) {
+		Sys_UnloadLibrary( rendererLib );
 		rendererLib = NULL;
 	}
 #endif
@@ -2994,20 +3000,103 @@ void CL_CG_EndTiki( dtiki_t *tiki ) {
 	}
 }
 
+/*
+============
+CL_CG_EndTiki
+============
+*/
 extern "C"
 int CL_ScaledMilliseconds(void) {
 	return Sys_Milliseconds()*com_timescale->value;
 }
 
+/*
+============
+CL_RefFS_WriteFile
+============
+*/
 void CL_RefFS_WriteFile(const char* qpath, const void* buffer, int size) {
 	FS_WriteFile(qpath, buffer, size);
 }
 
+/*
+============
+CL_RefFS_ListFiles
+============
+*/
 char** CL_RefFS_ListFiles(const char* name, const char* extension, int* numfilesfound) {
 	return FS_ListFiles(name, extension, qtrue, numfilesfound);
 }
 
+/*
+============
+CL_RefCIN_UploadCinematic
+============
+*/
 void CL_RefCIN_UploadCinematic(int handle) {
+}
+
+/*
+============
+CL_RefTIKI_GetNumChannels
+============
+*/
+int CL_RefTIKI_GetNumChannels(dtiki_t* tiki) {
+	return tiki->m_boneList.NumChannels();
+}
+
+/*
+============
+CL_RefTIKI_GetLocalChannel
+============
+*/
+int CL_RefTIKI_GetLocalChannel(dtiki_t* tiki, int channel) {
+	return tiki->m_boneList.LocalChannel(channel);
+}
+
+/*
+============
+CL_RefTIKI_GetLocalFromGlobal
+============
+*/
+int CL_RefTIKI_GetLocalFromGlobal(dtiki_t* tiki, int channel) {
+    return tiki->m_boneList.GetLocalFromGlobal(channel);
+}
+
+/*
+============
+CL_RefSKEL_GetMorphWeightFrame
+============
+*/
+int CL_RefSKEL_GetMorphWeightFrame(void* skeletor, int index, float time, int* data) {
+    return ((skeletor_c*)skeletor)->GetMorphWeightFrame(index, time, data);
+}
+
+/*
+============
+CL_RefSKEL_GetBoneParent
+============
+*/
+int CL_RefSKEL_GetBoneParent(void* skeletor, int boneIndex) {
+	return ((skeletor_c*)skeletor)->GetBoneParent(boneIndex);
+}
+
+/*
+============
+CL_GetRefSequence
+============
+*/
+int CL_GetRefSequence(void) {
+	return cls.refSequence;
+}
+
+/*
+============
+CL_IsRendererRegistered
+============
+*/
+qboolean CL_IsRendererRegistered(void) {
+    return cls.rendererRegistered;
 }
 
 /*
@@ -3018,11 +3107,39 @@ CL_InitRef
 void CL_InitRef( void ) {
 	refimport_t	ri;
 	refexport_t	*ret;
-#ifdef USE_RENDERER_DLL
-	char dllName[256];
+#ifdef USE_RENDERER_DLOPEN
+	GetRefAPI_t		GetRefAPI;
+	char			dllName[MAX_OSPATH];
 #endif
 
 	Com_Printf( "----- Initializing Renderer ----\n" );
+
+#ifdef USE_RENDERER_DLOPEN
+	cl_renderer = Cvar_Get("cl_renderer", "opengl1", CVAR_ARCHIVE | CVAR_LATCH);
+
+	Com_sprintf(dllName, sizeof(dllName), "renderer_%s" ARCH_SUFFIX DLL_SUFFIX DLL_EXT, cl_renderer->string);
+
+	if(!(rendererLib = Sys_LoadDll(dllName, qfalse)) && strcmp(cl_renderer->string, cl_renderer->resetString))
+	{
+		Com_Printf("failed:\n\"%s\"\n", Sys_LibraryError());
+		Cvar_ForceReset("cl_renderer");
+
+		Com_sprintf(dllName, sizeof(dllName), "renderer_opengl1" ARCH_SUFFIX DLL_SUFFIX DLL_EXT);
+		rendererLib = Sys_LoadDll(dllName, qfalse);
+	}
+
+	if(!rendererLib)
+	{
+		Com_Printf("failed:\n\"%s\"\n", Sys_LibraryError());
+		Com_Error(ERR_FATAL, "Failed to load renderer");
+	}
+
+	GetRefAPI = (GetRefAPI_t)Sys_LoadFunction(rendererLib, "GetRefAPI");
+	if(!GetRefAPI)
+	{
+		Com_Error(ERR_FATAL, "Can't load symbol GetRefAPI: '%s'",  Sys_LibraryError());
+	}
+#endif
 
 	ri.Cmd_AddCommand = Cmd_AddCommand;
 	ri.Cmd_RemoveCommand = Cmd_RemoveCommand;
@@ -3047,8 +3164,10 @@ void CL_InitRef( void ) {
 	ri.CM_DrawDebugSurface = CM_DrawDebugSurface;
 
 	ri.FS_OpenFile = FS_FOpenFileRead;
+	ri.FS_OpenFileWrite = FS_FOpenFileWrite;
 	ri.FS_CloseFile = FS_FCloseFile;
 	ri.FS_Read = FS_Read;
+	ri.FS_Write = FS_Write;
 	ri.FS_Seek = FS_Seek;
 	ri.FS_ReadFile = FS_ReadFile;
 	ri.FS_ReadFileEx = FS_ReadFileEx;
@@ -3058,6 +3177,7 @@ void CL_InitRef( void ) {
 	ri.FS_ListFiles = CL_RefFS_ListFiles;
 	ri.FS_FileIsInPAK = FS_FileIsInPAK;
 	ri.FS_FileExists = FS_FileExists;
+	ri.FS_CanonicalFilename = FS_CanonicalFilename;
 	ri.Cvar_Get = Cvar_Get;
 	ri.Cvar_Set = Cvar_Set;
 	ri.Cvar_SetDefault = Cvar_SetDefault;
@@ -3108,40 +3228,30 @@ void CL_InitRef( void ) {
     ri.Sys_GLimpInit = Sys_GLimpInit;
     ri.Sys_LowPhysicalMemory = Sys_LowPhysicalMemory;
 
-#ifdef USE_RENDERER_DLL
-	// su44: load renderer dll
-	cl_renderer = Cvar_Get("cl_renderer", "glom", CVAR_ARCHIVE);
-	Q_snprintf(dllName, sizeof(dllName), "renderer_%s" ARCH_STRING DLL_EXT, cl_renderer->string); 
-	Com_Printf("Loading \"%s\"...", dllName);
-	if((rendererLib = Sys_LoadLibrary(dllName)) == 0) {
-#ifdef _WIN32
-		Com_Error(ERR_FATAL, "failed:\n\"%s\"\n", Sys_LibraryError());
-#else
-		char            fn[1024];
+	//
+	// Added in OPM
+	//
+	ri.UI_LoadResource = UI_LoadResource;
+	ri.CM_PointLeafnum = CM_PointLeafnum;
+	ri.CM_LeafCluster = CM_LeafCluster;
 
-		Q_strncpyz(fn, Sys_Cwd(), sizeof(fn));
-		strncat(fn, "/", sizeof(fn) - strlen(fn) - 1);
-		strncat(fn, dllName, sizeof(fn) - strlen(fn) - 1);
+    ri.TIKI_CalcLodConsts = TIKI_CalcLodConsts;
+    ri.TIKI_CalculateBounds = TIKI_CalculateBounds;
+    ri.TIKI_FindTiki = TIKI_FindTiki;
+    ri.TIKI_RegisterTikiFlags = TIKI_RegisterTikiFlags;
+    ri.TIKI_GetSkeletor = TIKI_GetSkeletor;
+    ri.TIKI_GetSkel = TIKI_GetSkel;
+    ri.TIKI_GetSkelAnimFrame = TIKI_GetSkelAnimFrame;
+    ri.TIKI_GlobalRadius = TIKI_GlobalRadius;
+    ri.TIKI_FindSkelByHeader = TIKI_FindSkelByHeader;
+	ri.TIKI_GetNumChannels = CL_RefTIKI_GetNumChannels;
+    ri.TIKI_GetLocalChannel = CL_RefTIKI_GetLocalChannel;
+    ri.TIKI_GetLocalFromGlobal = CL_RefTIKI_GetLocalFromGlobal;
 
-		Com_Printf("Loading \"%s\"...", fn);
-		if((rendererLib = Sys_LoadLibrary(fn)) == 0)
-		{
-			Com_Error(ERR_FATAL, "failed:\n\"%s\"", Sys_LibraryError());
-		}
-#endif	/* _WIN32 */
-	}
+	ri.SKEL_GetBoneParent = CL_RefSKEL_GetBoneParent;
+	ri.SKEL_GetMorphWeightFrame = CL_RefSKEL_GetMorphWeightFrame;
 
-	Com_Printf("done\n");
-
-	DGetRefAPI = Sys_LoadFunction(rendererLib, "GetRefAPI");
-	if(!DGetRefAPI)
-	{
-		Com_Error(ERR_FATAL, "Can't load symbol GetRefAPI: '%s'",  Sys_LibraryError());
-	}
-	ret = DGetRefAPI( REF_API_VERSION, &ri );
-#else
 	ret = GetRefAPI( REF_API_VERSION, &ri );
-#endif
 
 #if defined __USEA3D && defined __A3D_GEOM
 	hA3Dg_ExportRenderGeom (ret);
@@ -3157,6 +3267,8 @@ void CL_InitRef( void ) {
 
 	// unpause so the cgame definately gets a snapshot and renders a frame
 	Cvar_Set( "cl_paused", "0" );
+
+	cls.refSequence++;
 }
 
 

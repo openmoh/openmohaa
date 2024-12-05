@@ -9,7 +9,7 @@ endif()
 include("./q_version.cmake")
 
 # Shared source files for modules
-set(SOURCES_SHARED
+set(SOURCES_SHARED_UBER
 	"${CMAKE_SOURCE_DIR}/code/qcommon/class.cpp"
 	"${CMAKE_SOURCE_DIR}/code/qcommon/con_set.cpp"
 	"${CMAKE_SOURCE_DIR}/code/qcommon/con_timer.cpp"
@@ -18,26 +18,35 @@ set(SOURCES_SHARED
 	"${CMAKE_SOURCE_DIR}/code/qcommon/lz77.cpp"
 	"${CMAKE_SOURCE_DIR}/code/qcommon/mem_blockalloc.cpp"
 	"${CMAKE_SOURCE_DIR}/code/qcommon/mem_tempalloc.cpp"
-	"${CMAKE_SOURCE_DIR}/code/qcommon/puff.c"
-	"${CMAKE_SOURCE_DIR}/code/qcommon/q_math.c"
-	"${CMAKE_SOURCE_DIR}/code/qcommon/q_shared.c"
 	"${CMAKE_SOURCE_DIR}/code/qcommon/script.cpp"
 	"${CMAKE_SOURCE_DIR}/code/qcommon/str.cpp"
 	"${CMAKE_SOURCE_DIR}/code/script/scriptexception.cpp"
 	"${CMAKE_SOURCE_DIR}/code/script/scriptvariable.cpp"
 )
 
-add_library(qcommon INTERFACE)
-target_sources(qcommon INTERFACE ${SOURCES_SHARED})
+add_library(qcommon_uber INTERFACE)
+target_sources(qcommon_uber INTERFACE ${SOURCES_SHARED_UBER})
+target_compile_features(qcommon_uber INTERFACE cxx_nullptr)
+target_include_directories(qcommon_uber INTERFACE "../qcommon" "../script")
 
 if(DEBUG_MEM_BLOCK)
-	target_compile_definitions(qcommon INTERFACE _DEBUG_MEMBLOCK=1)
+	target_compile_definitions(qcommon_uber INTERFACE _DEBUG_MEMBLOCK=1)
 endif()
 
-target_include_directories(qcommon INTERFACE "../qcommon" "../script")
-target_compile_features(qcommon INTERFACE cxx_nullptr)
-target_compile_features(qcommon INTERFACE c_variadic_macros)
-target_link_libraries(qcommon INTERFACE qcommon_version)
+set(SOURCES_SHARED
+	"${CMAKE_SOURCE_DIR}/code/qcommon/puff.c"
+	"${CMAKE_SOURCE_DIR}/code/qcommon/q_math.c"
+	"${CMAKE_SOURCE_DIR}/code/qcommon/q_shared.c"
+)
+
+add_library(qcommon_shared INTERFACE)
+target_sources(qcommon_shared INTERFACE ${SOURCES_SHARED})
+target_compile_features(qcommon_shared INTERFACE c_variadic_macros)
+target_include_directories(qcommon_shared INTERFACE "../qcommon")
+target_link_libraries(qcommon_shared INTERFACE qcommon_version)
+
+add_library(qcommon INTERFACE)
+target_link_libraries(qcommon INTERFACE qcommon_shared qcommon_uber)
 
 # Source files for standalone executable
 set(SOURCES_COMMON

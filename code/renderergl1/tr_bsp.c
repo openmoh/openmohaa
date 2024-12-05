@@ -2189,13 +2189,13 @@ int R_LoadLump(fileHandle_t handle, lump_t* lump, gamelump_t* glump, int size)
     glump->length = lump->filelen;
 
     if (lump->filelen) {
-        glump->buffer = Hunk_AllocateTempMemory(lump->filelen);
+        glump->buffer = ri.Hunk_AllocateTempMemory(lump->filelen);
 
-        if (FS_Seek(handle, lump->fileofs, FS_SEEK_SET) < 0) {
+        if (ri.FS_Seek(handle, lump->fileofs, FS_SEEK_SET) < 0) {
             Com_Error(ERR_DROP, "R_LoadLump: Error seeking to lump.");
         }
 
-        FS_Read(glump->buffer, lump->filelen, handle);
+        ri.FS_Read(glump->buffer, lump->filelen, handle);
 
         if (size) {
             return lump->filelen / size;
@@ -2216,13 +2216,13 @@ void R_FreeLump(gamelump_t* lump)
 {
     if (lump->buffer)
     {
-        Hunk_FreeTempMemory(lump->buffer);
+        ri.Hunk_FreeTempMemory(lump->buffer);
         lump->buffer = NULL;
         lump->length = 0;
     }
 }
 
-#define _R( id ) UI_LoadResource( "*" #id )
+#define _R( id ) ri.UI_LoadResource( "*" #id )
 
 /*
 =================
@@ -2424,17 +2424,17 @@ void RE_LoadWorldMap( const char *name ) {
 
     ri.FS_CloseFile(h);
 
-    UI_LoadResource("*111");
+    ri.UI_LoadResource("*111");
     R_Sphere_InitLights();
-    UI_LoadResource("*112");
+    ri.UI_LoadResource("*112");
     R_InitTerrain();
-    UI_LoadResource("*113");
+    ri.UI_LoadResource("*113");
     R_InitStaticModels();
-    UI_LoadResource("*114");
+    ri.UI_LoadResource("*114");
     R_LevelMarksLoad(name);
-    UI_LoadResource("*115");
+    ri.UI_LoadResource("*115");
     R_VisDebugLoad(name);
-    UI_LoadResource("*116");
+    ri.UI_LoadResource("*116");
 }
 
 /*

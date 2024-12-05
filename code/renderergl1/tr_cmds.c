@@ -38,7 +38,7 @@ R_PerformanceCounters
 =====================
 */
 void R_PerformanceCounters( void ) {
-	if (fps->integer) {
+	if (r_fps->integer) {
 		ri.SetPerformanceCounters(
 			backEnd.pc.c_totalIndexes / 3,
 			backEnd.pc.c_vertexes,

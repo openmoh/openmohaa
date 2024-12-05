@@ -14,6 +14,7 @@ endif()
 option(USE_INTERNAL_JPEG "If set, use bundled libjpeg." ${USE_INTERNAL_LIBS})
 option(USE_INTERNAL_MAD  "If set, use bundled libmad."  ${USE_INTERNAL_LIBS})
 option(USE_INTERNAL_ZLIB "If set, use bundled zlib."    ${USE_INTERNAL_LIBS})
+option(USE_RENDERER_DLOPEN "Whether to compile the renderer as separate pluggable modules" OFF)
 option(TARGET_LOCAL_SYSTEM "Indicate that the project will be compiled and installed for the local system" OFF)
 
 if(TARGET_GAME_TYPE)

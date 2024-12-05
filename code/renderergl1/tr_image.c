@@ -2373,7 +2373,7 @@ void SaveJPG(char * filename, int quality, int image_width, int image_height, un
 
   jpeg_finish_compress(&cinfo);
   /* After finish_compress, we can close the output file. */
-  ri.FS_WriteFile( filename, out, hackSize );
+  ri.ri.FS_WriteFile( filename, out, hackSize );
 
   ri.Hunk_FreeTempMemory(out);
 
@@ -2461,10 +2461,10 @@ static void R_LoadImage(const char* name, byte** pic, int* width, int* height, q
         }
 	}
 
-	if (scr_initialized)
+	if (tr.registered)
 	{
 		Com_sprintf(tempName, sizeof(tempName), "n%s", name);
-		UI_LoadResource(tempName);
+		ri.UI_LoadResource(tempName);
 	}
 }
 
@@ -2943,32 +2943,32 @@ void R_DumpTextureMemory() {
     char* Label1, * Label2;
     fileHandle_t stat_file;
 
-    stat_file = FS_SV_FOpenFileWrite("textureuse.csv");
+    stat_file = ri.FS_OpenFileWrite("textureuse.csv");
 
     Label1 = "Texture Name,";
-    FS_Write(Label1, strlen(Label1), stat_file);
+    ri.FS_Write(Label1, strlen(Label1), stat_file);
     Label2 = "Size (kb),";
-    FS_Write(Label2, strlen(Label2), stat_file);
+    ri.FS_Write(Label2, strlen(Label2), stat_file);
     Label1 = "Num Uses,";
-    FS_Write(Label1, strlen(Label1), stat_file);
+    ri.FS_Write(Label1, strlen(Label1), stat_file);
     Label2 = "Miplevels\n";
-    FS_Write(Label2, strlen(Label2), stat_file);
+    ri.FS_Write(Label2, strlen(Label2), stat_file);
 
     for (i = 0; i < tr.numImages; i++) {
         image_t* image = &tr.images[i];
 
-        FS_Write(image->imgName, strlen(image->imgName), stat_file);
-        FS_Write(", ", 2, stat_file);
+        ri.FS_Write(image->imgName, strlen(image->imgName), stat_file);
+        ri.FS_Write(", ", 2, stat_file);
 
         // Write the number of bytes (in KiB)
         Q_snprintf(str_buffer, sizeof(str_buffer), "%d", image->bytesUsed >> 10);
-        FS_Write(str_buffer, strlen(str_buffer), stat_file);
-        FS_Write(", ", 2, stat_file);
+        ri.FS_Write(str_buffer, strlen(str_buffer), stat_file);
+        ri.FS_Write(", ", 2, stat_file);
 
         // Write the sequence
         Q_snprintf(str_buffer, sizeof(str_buffer), "%d", image->r_sequence);
-        FS_Write(str_buffer, strlen(str_buffer), stat_file);
-        FS_Write(", ", 2, stat_file);
+        ri.FS_Write(str_buffer, strlen(str_buffer), stat_file);
+        ri.FS_Write(", ", 2, stat_file);
     }
 }
 

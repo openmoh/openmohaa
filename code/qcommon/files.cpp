@@ -4012,7 +4012,9 @@ void FS_Restart( int checksumFeed ) {
 	// try to start up normally
 	FS_Startup(com_basegame->string);
 
+#ifndef STANDALONE
 	FS_CheckPak0( );
+#endif
 
 	// if we can't find default.cfg, assume that the paths are
 	// busted and error out now, rather than getting an unreadable

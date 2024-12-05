@@ -335,8 +335,8 @@ void R_VisDebug()
         LoadPortals(buffer);
     }
 
-    leafnum = CM_PointLeafnum(tr.refdef.vieworg);
-    cluster = CM_LeafCluster(leafnum);
+    leafnum = ri.CM_PointLeafnum(tr.refdef.vieworg);
+    cluster = ri.CM_LeafCluster(leafnum);
     if (cluster < 0) {
         return;
     }

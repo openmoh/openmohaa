@@ -3766,6 +3766,9 @@ void CL_FillUIImports(void)
 
     uii.GetConfigstring   = CL_ConfigString;
     uii.UI_CloseDMConsole = UI_CloseDMConsole;
+
+    uii.GetRefSequence = CL_GetRefSequence;
+    uii.IsRendererRegistered = CL_IsRendererRegistered;
 }
 
 /*

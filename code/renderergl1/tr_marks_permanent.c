@@ -160,7 +160,7 @@ void DCLC_Save(void)
     char               map_time[32];
     int                littleValue;
 
-    hFile = FS_FOpenFileWrite(lm.szDCLFilename);
+    hFile = ri.FS_OpenFileWrite(lm.szDCLFilename);
     if (!hFile) {
         ri.Printf(PRINT_ALL, "R_SaveDCLFile: couldn't write to %s\n", lm.szDCLFilename);
     }
@@ -182,20 +182,20 @@ void DCLC_Save(void)
     header.iNumDecals    = LittleLong(iNumDecals);
     header.iNumFragments = LittleLong(iNumFragments);
 
-    FS_Write(&header, sizeof(header), hFile);
+    ri.FS_Write(&header, sizeof(header), hFile);
 
     //
     // Write the map time
     //
     memset(map_time, 0, sizeof(map_time));
     Q_strncpyz(map_time, ri.CM_MapTime(), sizeof(map_time));
-    FS_Write(map_time, sizeof(map_time), hFile);
+    ri.FS_Write(map_time, sizeof(map_time), hFile);
 
     if (!iNumDecals) {
         //
         // Nothing to write
         //
-        FS_FCloseFile(hFile);
+        ri.FS_CloseFile(hFile);
         return;
     }
 
@@ -221,7 +221,7 @@ void DCLC_Save(void)
 
         saveMark.bDoLighting = LittleLong(pMark->bDoLighting);
 
-        FS_Write(&saveMark, sizeof(saveMark), hFile);
+        ri.FS_Write(&saveMark, sizeof(saveMark), hFile);
     }
 
     for (pMark = lm.activeMarkDefs.pNextMark; pMark != &lm.activeMarkDefs; pMark = pMark->pNextMark) {
@@ -232,8 +232,8 @@ void DCLC_Save(void)
             savePoly.iIndex    = LittleLong(pPoly->surf.iIndex);
             savePoly.iNumVerts = LittleLong(pPoly->surf.numVerts);
 
-            FS_Write(&savePoly, sizeof(savePoly), hFile);
-            FS_Write(pPoly->verts, sizeof(pPoly->verts[0]) * savePoly.iNumVerts, hFile);
+            ri.FS_Write(&savePoly, sizeof(savePoly), hFile);
+            ri.FS_Write(pPoly->verts, sizeof(pPoly->verts[0]) * savePoly.iNumVerts, hFile);
         }
     }
 
@@ -245,16 +245,16 @@ void DCLC_Save(void)
             // No fragment to save
             //
             littleValue = 0;
-            FS_Write(&littleValue, sizeof(littleValue), hFile);
+            ri.FS_Write(&littleValue, sizeof(littleValue), hFile);
             continue;
         }
 
         littleValue = LittleLong(pBmodel->iNumMarkFragment);
-        FS_Write(&littleValue, sizeof(int), hFile);
+        ri.FS_Write(&littleValue, sizeof(int), hFile);
 
         for (j = 0; j < pBmodel->iNumMarkFragment; i++) {
             littleValue = ((lmPoly_t *)pBmodel->pFirstMarkFragment[j])->viewCount;
-            FS_Write(&littleValue, sizeof(int), hFile);
+            ri.FS_Write(&littleValue, sizeof(int), hFile);
         }
     }
 
@@ -266,20 +266,20 @@ void DCLC_Save(void)
             // No fragment to save
             //
             littleValue = 0;
-            FS_Write(&littleValue, sizeof(littleValue), hFile);
+            ri.FS_Write(&littleValue, sizeof(littleValue), hFile);
             continue;
         }
 
         littleValue = LittleLong(pLeaf->iNumMarkFragment);
-        FS_Write(&littleValue, sizeof(int), hFile);
+        ri.FS_Write(&littleValue, sizeof(int), hFile);
 
         for (j = 0; j < pLeaf->iNumMarkFragment; j++) {
             littleValue = ((lmPoly_t *)pLeaf->pFirstMarkFragment[j])->viewCount;
-            FS_Write(&littleValue, sizeof(int), hFile);
+            ri.FS_Write(&littleValue, sizeof(int), hFile);
         }
     }
 
-    FS_FCloseFile(hFile);
+    ri.FS_CloseFile(hFile);
 }
 
 /*
@@ -1361,23 +1361,23 @@ void DCLC_GetInfo(void)
     }
 
     if (lm.pCurrentMark->fRotation == -1) {
-        Cvar_Set("dcl_shader", lm.pCurrentMark->markShader->name);
-        Cvar_SetValue("dcl_radius", lm.pCurrentMark->fRadius);
-        Cvar_SetValue("dcl_widthscale", lm.pCurrentMark->fWidthScale);
+        ri.Cvar_Set("dcl_shader", lm.pCurrentMark->markShader->name);
+        ri.Cvar_SetValue("dcl_radius", lm.pCurrentMark->fRadius);
+        ri.Cvar_SetValue("dcl_widthscale", lm.pCurrentMark->fWidthScale);
     } else {
-        Cvar_Set("dcl_shader", lm.pCurrentMark->markShader->name);
-        Cvar_SetValue("dcl_radius", lm.pCurrentMark->fRadius);
-        Cvar_SetValue("dcl_heightscale", lm.pCurrentMark->fHeightScale);
-        Cvar_SetValue("dcl_heightscale", lm.pCurrentMark->fHeightScale);
-        Cvar_SetValue("dcl_widthscale", lm.pCurrentMark->fWidthScale);
-        Cvar_SetValue("dcl_rotation", lm.pCurrentMark->fRotation);
-        Cvar_SetValue("dcl_r", lm.pCurrentMark->color[0]);
-        Cvar_SetValue("dcl_g", lm.pCurrentMark->color[1]);
-        Cvar_SetValue("dcl_b", lm.pCurrentMark->color[2]);
+        ri.Cvar_Set("dcl_shader", lm.pCurrentMark->markShader->name);
+        ri.Cvar_SetValue("dcl_radius", lm.pCurrentMark->fRadius);
+        ri.Cvar_SetValue("dcl_heightscale", lm.pCurrentMark->fHeightScale);
+        ri.Cvar_SetValue("dcl_heightscale", lm.pCurrentMark->fHeightScale);
+        ri.Cvar_SetValue("dcl_widthscale", lm.pCurrentMark->fWidthScale);
+        ri.Cvar_SetValue("dcl_rotation", lm.pCurrentMark->fRotation);
+        ri.Cvar_SetValue("dcl_r", lm.pCurrentMark->color[0]);
+        ri.Cvar_SetValue("dcl_g", lm.pCurrentMark->color[1]);
+        ri.Cvar_SetValue("dcl_b", lm.pCurrentMark->color[2]);
     }
 
-    Cvar_SetValue("dcl_alpha", lm.pCurrentMark->color[3]);
-    Cvar_SetValue("dcl_dolighting", lm.pCurrentMark->bDoLighting);
+    ri.Cvar_SetValue("dcl_alpha", lm.pCurrentMark->color[3]);
+    ri.Cvar_SetValue("dcl_dolighting", lm.pCurrentMark->bDoLighting);
 
     lm.bAutoApplySettings = qtrue;
 }
@@ -1494,7 +1494,7 @@ DCLC_RandomRoll
 */
 void DCLC_RandomRoll(void)
 {
-    Cvar_SetValue("dcl_rotation", random() * 360.0);
+    ri.Cvar_SetValue("dcl_rotation", random() * 360.0);
 }
 
 /*
@@ -1735,14 +1735,14 @@ void R_UpdateLevelMarksSystem()
                 if (shader != tr.defaultShader && lm.pCurrentMark->markShader != shader) {
                     lm.pCurrentMark->markShader = shader;
                     // Set the decal radius
-                    Cvar_SetValue("dcl_radius", 16.0);
+                    ri.Cvar_SetValue("dcl_radius", 16.0);
                     dcl_radius->modified = qfalse;
 
                     // Set the decal scale
-                    Cvar_SetValue(
+                    ri.Cvar_SetValue(
                         "dcl_heightscale", shader->unfoggedStages[0]->bundle[0].image[0]->height / 16.0 * 0.5
                     );
-                    Cvar_SetValue("dcl_widthscale", shader->unfoggedStages[0]->bundle[0].image[0]->width / 16.0 * 0.5);
+                    ri.Cvar_SetValue("dcl_widthscale", shader->unfoggedStages[0]->bundle[0].image[0]->width / 16.0 * 0.5);
 
                     bDoUpdate = qtrue;
                 }

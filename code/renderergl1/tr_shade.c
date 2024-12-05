@@ -1860,10 +1860,10 @@ void RB_EndSurface( void ) {
 		//
 		// draw debugging stuff
 		//
-		if (r_showtris->integer && developer->integer) {
+		if (r_showtris->integer && r_developer->integer) {
 			DrawTris(input, r_showtris->integer);
 		}
-		if (r_shownormals->integer && developer->integer) {
+		if (r_shownormals->integer && r_developer->integer) {
 			DrawNormals(input);
 		}
 	}

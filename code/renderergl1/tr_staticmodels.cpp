@@ -86,16 +86,16 @@ void R_InitStaticModels(void)
             Com_sprintf(szTemp, sizeof(szTemp), "models/%s", pSM->model);
         }
 
-        FS_CanonicalFilename(szTemp);
-        exists    = TIKI_FindTiki(szTemp) != NULL;
-        pSM->tiki = TIKI_RegisterTiki(szTemp);
+        ri.FS_CanonicalFilename(szTemp);
+        exists    = ri.TIKI_FindTiki(szTemp) != NULL;
+        pSM->tiki = ri.TIKI_RegisterTikiFlags(szTemp, qfalse);
 
         if (!pSM->tiki) {
             ri.Printf(PRINT_WARNING, "^~^~^: Warning: Cannot Load Static Model %s\n", szTemp);
             continue;
         }
 
-        pSM->radius = TIKI_GlobalRadius(pSM->tiki);
+        pSM->radius = ri.TIKI_GlobalRadius(pSM->tiki);
 
         //
         // register shaders
@@ -121,7 +121,7 @@ void R_InitStaticModels(void)
         }
 
         // prepare the skeleton frame for the static model
-        TIKI_GetSkelAnimFrame(pSM->tiki, bones, &radius, &mins, &maxs);
+        ri.TIKI_GetSkelAnimFrame(pSM->tiki, bones, &radius, &mins, &maxs);
         pSM->cull_radius = radius * pSM->tiki->load_scale * pSM->scale;
 
         // Suggestion:
@@ -129,7 +129,7 @@ void R_InitStaticModels(void)
 
         if (!exists) {
             for (j = 0; j < pSM->tiki->numMeshes; j++) {
-                skelHeaderGame_t  *skelmodel = TIKI_GetSkel(pSM->tiki->mesh[j]);
+                skelHeaderGame_t  *skelmodel = ri.TIKI_GetSkel(pSM->tiki->mesh[j]);
                 skelSurfaceGame_t *surf;
 
                 if (!skelmodel) {
@@ -168,8 +168,7 @@ void R_InitStaticModels(void)
                                                   + vert->numMorphs * sizeof(skeletorMorph_t));
 
                         if (j > 0) {
-                            channel =
-                                pSM->tiki->m_boneList.GetLocalFromGlobal(skelmodel->pBones[weight->boneIndex].channel);
+                            channel = ri.TIKI_GetLocalChannel(pSM->tiki, skelmodel->pBones[weight->boneIndex].channel);
                         } else {
                             channel = weight->boneIndex;
                         }
@@ -365,7 +364,7 @@ void R_AddStaticModelSurfaces(void)
             //
             dsurf = tiki->surfaces;
             for (int mesh = 0; mesh < tiki->numMeshes; mesh++) {
-                skelHeaderGame_t  *skelmodel = TIKI_GetSkel(tiki->mesh[mesh]);
+                skelHeaderGame_t  *skelmodel = ri.TIKI_GetSkel(tiki->mesh[mesh]);
                 skelSurfaceGame_t *surface;
                 staticSurface_t   *s_surface;
                 shader_t          *shader;
@@ -572,7 +571,7 @@ void R_PrintInfoStaticModels()
     Com_Printf("Total static models rendered: %d\n", iRenderCount);
 
     for (i = 0; i < count; i++) {
-        skelHeaderGame_t *skelmodel = TIKI_GetSkel(tikis[i]->mesh[0]);
+        skelHeaderGame_t *skelmodel = ri.TIKI_GetSkel(tikis[i]->mesh[0]);
 
         Com_Printf(
             "model: %s, version: %d, count: %d,\n culling min %.1f %.1f %.1f, max %.1f %.1f %.1f, radius %.1f\n",

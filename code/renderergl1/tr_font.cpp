@@ -34,6 +34,29 @@ static float s_fontHeightScale = 1.0;
 static float s_fontGeneralScale = 1.0;
 static float s_fontZ = 0.0;
 
+void R_ShutdownFont() {
+    int i;
+    fontheader_t *header;
+    fontheader_sgl_t *header_sgl;
+
+    for (i = 0; i < s_numLoadedFonts; i++)
+    {
+        header = &s_loadedFonts[i];
+        if (header->charTable) {
+            ri.Free(header->charTable);
+            header->charTable = NULL;
+        }
+
+        memset(header, 0, sizeof(*header));
+    }
+
+    for (i = 0; i < s_numLoadedFonts; i++)
+    {
+        header_sgl = &s_loadedFonts_sgl[i];
+        memset(header_sgl, 0, sizeof(*header_sgl));
+    }
+}
+
 void R_SetFontHeightScale(float scale)
 {
     s_fontHeightScale = scale;
@@ -331,7 +354,7 @@ fontheader_t* R_LoadFont(const char* name) {
             else if (!Q_stricmp(token, "Chars"))
             {
                 header->charTableLength = atoi(COM_Parse(&ref));
-                header->charTable = (fontchartable_t*)Z_Malloc(header->charTableLength * sizeof(fontchartable_t));
+                header->charTable = (fontchartable_t*)ri.Malloc(header->charTableLength * sizeof(fontchartable_t));
                 if (!header->charTable)
                 {
                     ri.Printf(PRINT_WARNING, "LoadFont: Couldn't alloc mem %s\n", name);
@@ -363,7 +386,7 @@ fontheader_t* R_LoadFont(const char* name) {
                         break;
                     }
 
-                    pRitFontNames[i] = (char*)Z_Malloc(strlen(token) + 1);
+                    pRitFontNames[i] = (char*)ri.Malloc(strlen(token) + 1);
                     if (!pRitFontNames[i])
                     {
                         ri.Printf(PRINT_WARNING, "LoadFont: Couldn't alloc mem %s\n", name);
@@ -468,13 +491,13 @@ fontheader_t* R_LoadFont(const char* name) {
 
         // Free all allocated strings
         for (i = 0; i < header->numPages; i++) {
-            Z_Free(pRitFontNames[i]);
+            ri.Free(pRitFontNames[i]);
         }
 
         if (error)
         {
             if (header->charTable) {
-                Z_Free(header->charTable);
+                ri.Free(header->charTable);
             }
 
             header->numPages = 0;

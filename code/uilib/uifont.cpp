@@ -83,11 +83,23 @@ const unsigned char DBCS_Tokin_Korean[] = {
 
 int UIFont::CodeSearch(unsigned short uch)
 {
+    CheckRefreshFont();
+
+    if (!m_font) {
+        return -1;
+    }
+
     return UI_FontCodeSearch(m_font, uch);
 }
 
 bool UIFont::DBCSIsLeadByte(unsigned short uch)
 {
+    CheckRefreshFont();
+
+    if (!m_font) {
+        return false;
+    }
+
     return UI_FontDBCSIsLeadByte(m_font, uch);
 }
 
@@ -96,6 +108,12 @@ bool UIFont::DBCSIsMaekin(unsigned short uch)
     const unsigned char   *tokinList;
     const unsigned char   *p;
     unsigned char ch;
+
+    CheckRefreshFont();
+
+    if (!m_font) {
+        return false;
+    }
 
     if (uch < 0x100) {
         return false;
@@ -134,6 +152,12 @@ bool UIFont::DBCSIsAtokin(unsigned short uch)
     const unsigned char   *tokinList;
     const unsigned char   *p;
     unsigned char ch;
+
+    CheckRefreshFont();
+
+    if (!m_font) {
+        return false;
+    }
 
     if (uch < 0x100) {
         return false;
@@ -249,6 +273,9 @@ UIFont::UIFont()
 
     color = UBlack;
     setColor(color);
+
+    refHandle = uii.GetRefSequence();
+    name = "verdana-14";
 }
 
 UIFont::UIFont(const char *fn)
@@ -272,10 +299,19 @@ void UIFont::setFont(const char *fontname)
     if (!m_font) {
         uii.Sys_Error(ERR_DROP, "Couldn't load font %s\n", fontname);
     }
+
+    refHandle = uii.GetRefSequence();
+    name = fontname;
 }
 
 void UIFont::Print(float x, float y, const char *text, size_t maxlen, const float *virtualScreen)
 {
+    CheckRefreshFont();
+
+    if (!m_font) {
+        return;
+    }
+
     uii.Rend_SetColor(color);
     uii.Rend_DrawString(m_font, text, x, y, maxlen, virtualScreen);
 }
@@ -489,11 +525,23 @@ void UIFont::PrintOutlinedJustified(
 
 int UIFont::getMaxWidthIndex(const char *text, int maxlen)
 {
+    CheckRefreshFont();
+
+    if (!m_font) {
+        return 0;
+    }
+
     return UI_FontStringMaxWidth(m_font, text, maxlen);
 }
 
 int UIFont::getWidth(const char *text, int maxlen)
 {
+    CheckRefreshFont();
+
+    if (!m_font) {
+        return 0;
+    }
+
     return UI_FontStringWidth(m_font, text, maxlen);
 }
 
@@ -503,8 +551,10 @@ int UIFont::getCharWidth(unsigned short ch)
     int indirected;
     float widthMul = 1.0f; // Added in OPM for easier readability
 
+    CheckRefreshFont();
+
     if (!m_font) {
-        return 0;
+        return 4;
     }
 
     if (ch == '\t') {
@@ -537,6 +587,8 @@ int UIFont::getHeight(const char *text, int maxlen, const float* virtualScale)
     float height;
     int   i;
 
+    CheckRefreshFont();
+
     if (!m_font) {
         return 0;
     }
@@ -558,6 +610,8 @@ int UIFont::getHeight(const char *text, int maxlen, const float* virtualScale)
 
 int UIFont::getHeight(const float* virtualScale)
 {
+    CheckRefreshFont();
+
     if (virtualScale) {
         if (m_font) {
             return (m_font->sgl[0]->height * virtualScale[0]);
@@ -730,4 +784,12 @@ int UI_FontStringWidth(fontheader_t *pFont, const char *pszString, int iMaxLen)
     }
 
     return maxwidths * 256.0;
+}
+
+void UIFont::CheckRefreshFont() {
+    if (refHandle != uii.GetRefSequence()) {
+        setFont(name);
+    } else if (!uii.IsRendererRegistered()) {
+        m_font = NULL;
+    }
 }

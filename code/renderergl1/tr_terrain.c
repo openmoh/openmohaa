@@ -684,9 +684,9 @@ static void R_PreTessellateTerrain()
     R_IssuePendingRenderCommands();
 
     if (ter_maxtris->integer < 4 * numTerrainPatches) {
-        Cvar_SetValue("ter_maxtris", 4 * numTerrainPatches);
+        ri.Cvar_SetValue("ter_maxtris", 4 * numTerrainPatches);
     } else if (ter_maxtris->integer > 65535) {
-        Cvar_SetValue("ter_maxtris", 65535);
+        ri.Cvar_SetValue("ter_maxtris", 65535);
     }
 
     Com_DPrintf("Using ter_maxtris = %d\n", ter_maxtris->integer);
@@ -1602,7 +1602,7 @@ void R_TerrainCrater_f(void)
 {
     vec3_t dir;
 
-    if (!Cvar_VariableIntegerValue("cheats")) {
+    if (!ri.Cvar_VariableIntegerValue("cheats")) {
         //
         // Added in OPM
         //  This command may be used for debugging purposes.
@@ -1634,7 +1634,7 @@ void R_InitTerrain()
     ter_maxtris        = ri.Cvar_Get("ter_maxtris", "24576", CVAR_TERRAIN_LATCH);
     ter_count          = ri.Cvar_Get("ter_count", "0", 0);
 
-    Cmd_AddCommand("ter_restart", R_TerrainRestart_f);
+    ri.Cmd_AddCommand("ter_restart", R_TerrainRestart_f);
     R_PreTessellateTerrain();
 
     for (i = 0; i < TERRAIN_TABLE_SIZE; i++) {

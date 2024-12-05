@@ -126,6 +126,12 @@ typedef struct uiimport_s {
 	const char *( *GetConfigstring )( int index );
 	void ( *UI_CloseDMConsole )( void );
 	void ( *GetClipboardData )( char *buf, int buflen );
+
+	//
+	// Added in OPM
+	//
+	int (*GetRefSequence)(void);
+	qboolean (*IsRendererRegistered)(void);
 } uiimport_t;
 
 #if 1

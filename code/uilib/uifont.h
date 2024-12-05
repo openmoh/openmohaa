@@ -43,6 +43,12 @@ protected:
     UColor        color;
     fontheader_t *m_font;
 
+    //
+    // Added in OPM
+    //
+    str           name;
+    int           refHandle;
+
 public:
     UIFont();
     UIFont(const char *fn);
@@ -67,6 +73,9 @@ public:
     bool DBCSIsMaekin(unsigned short uch);
     bool DBCSIsAtokin(unsigned short uch);
     int DBCSGetWordBlockCount(const char* text, int maxlen);
+
+private:
+    void CheckRefreshFont();
 };
 
 int UI_FontStringWidth(fontheader_t *pFont, const char *pszString, int iMaxLen);

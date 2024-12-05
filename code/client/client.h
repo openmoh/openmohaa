@@ -389,6 +389,8 @@ typedef struct {
 	qhandle_t	whiteShader;
 	qhandle_t	consoleShader;
 	fontInfo_t	consoleFont;
+
+	int refSequence;
 } clientStatic_t;
 
 extern clientStatic_t	cls;
@@ -556,6 +558,9 @@ void UI_ClearResource( void );
 void UI_LoadResource( const char *name );
 
 qboolean CL_CheckPaused(void);
+
+int CL_GetRefSequence(void);
+qboolean CL_IsRendererRegistered(void);
 
 //
 // cl_input

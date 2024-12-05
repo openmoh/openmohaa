@@ -266,10 +266,13 @@ typedef struct {
     void (*Cvar_SetDefault)(cvar_t* var, const char* varValue);
 
     long    (*FS_OpenFile)(const char* qpath, fileHandle_t *file, qboolean uniqueFILE, qboolean quiet);
+	fileHandle_t (*FS_OpenFileWrite)(const char* filename);
     size_t  (*FS_Read)(void* buffer, size_t len, fileHandle_t fileHandle);
+	size_t (*FS_Write)(const void* buffer, size_t len, fileHandle_t h);
     void    (*FS_CloseFile)(fileHandle_t fileHandle);
     int     (*FS_Seek)(fileHandle_t fileHandle, long offset, int origin);
     long     (*FS_ReadFileEx)(const char* qpath, void** buffer, qboolean quiet);
+	void	(*FS_CanonicalFilename)(char* filename);
 
     void        (*CM_BoxTrace)(trace_t* results, const vec3_t start, const vec3_t end, const vec3_t mins, const vec3_t maxs, int model, int brushMask, int cylinder);
     int         (*CM_TerrainSquareType)(int terrainPatch, int i, int j);
@@ -287,13 +290,42 @@ typedef struct {
     debugstring_t** DebugStrings;
     int* numDebugStrings;
 
-    orientation_t   (*TIKI_OrientationInternal)(dtiki_t* tiki, int entNum, int tagNum, float scale);
-    qboolean        (*TIKI_IsOnGroundInternal)(dtiki_t* tiki, int entNum, int tagNum, float thresHold);
-    void            (*TIKI_SetPoseInternal)(void* skeletor, const frameInfo_t* frameInfo, const int* boneTag, const vec4_t *boneQuat, float actionWeight);
-    void*           (*TIKI_Alloc)(size_t size);
-    float           (*GetRadiusInternal)(dtiki_t* tiki, int entNum, float scale);
-    float           (*GetCentroidRadiusInternal)(dtiki_t* tiki, int entNum, float scale, vec3_t centroid);
-    void            (*GetFrameInternal)(dtiki_t* tiki, int entNum, skelAnimFrame_t* newFrame);
+    orientation_t (*TIKI_OrientationInternal)(dtiki_t *tiki, int entNum, int tagNum, float scale);
+    qboolean (*TIKI_IsOnGroundInternal)(dtiki_t *tiki, int entNum, int tagNum, float thresHold);
+    void (*TIKI_SetPoseInternal)(
+        void *skeletor, const frameInfo_t *frameInfo, const int *boneTag, const vec4_t *boneQuat, float actionWeight
+    );
+    void *(*TIKI_Alloc)(size_t size);
+    float (*GetRadiusInternal)(dtiki_t *tiki, int entNum, float scale);
+    float (*GetCentroidRadiusInternal)(dtiki_t *tiki, int entNum, float scale, vec3_t centroid);
+    void (*GetFrameInternal)(dtiki_t *tiki, int entNum, skelAnimFrame_t *newFrame);
+
+    void (*UI_LoadResource)(const char *name);
+
+    int (*CM_PointLeafnum)(const vec3_t p);
+    int (*CM_LeafCluster)(int leafnum);
+
+    //
+    // TIKI imports
+    //
+    void (*TIKI_CalcLodConsts)(lodControl_t *LOD);
+    void (*TIKI_CalculateBounds)(dtiki_t *pmdl, float scale, vec3_t mins, vec3_t maxs);
+    dtiki_t *(*TIKI_FindTiki)(const char *path);
+    dtiki_t *(*TIKI_RegisterTikiFlags)(const char *path, qboolean use);
+    void *(*TIKI_GetSkeletor)(dtiki_t *tiki, int entnum);
+    skelHeaderGame_t *(*TIKI_GetSkel)(int index);
+    void (*TIKI_GetSkelAnimFrame)(dtiki_t *tiki, skelBoneCache_t *bones, float *radius, vec3_t *mins, vec3_t *maxes);
+    float (*TIKI_GlobalRadius)(dtiki_t *pmdl);
+    skelcache_t *(*TIKI_FindSkelByHeader)(skelHeaderGame_t *skelmodel);
+    int (*TIKI_GetNumChannels)(dtiki_t *tiki);
+    int (*TIKI_GetLocalChannel)(dtiki_t *tiki, int channel);
+    int (*TIKI_GetLocalFromGlobal)(dtiki_t *tiki, int channel);
+
+    //
+    // Skeletor imports
+    //
+    int (*SKEL_GetMorphWeightFrame)(void *skeletor, int index, float time, int *data);
+    int (*SKEL_GetBoneParent)(void *skeletor, int boneIndex);
 } refimport_t;
 
 

@@ -37,6 +37,7 @@ extern "C" {
     void              TIKI_FreeSkel(int index);
     void              TIKI_FreeSkelCache(skelcache_t *cache);
     skelcache_t      *TIKI_FindSkel(const char *path);
+    skelcache_t      *TIKI_FindSkelByHeader(skelHeaderGame_t *skelmodel);
     skelcache_t      *TIKI_FindFreeSkel(void);
     int               TIKI_RegisterSkel(const char *path, dtiki_t *tiki);
 

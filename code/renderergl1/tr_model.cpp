@@ -229,7 +229,7 @@ static qhandle_t R_RegisterModelInternal( const char *name, qboolean bBeginTiki,
 		}
 		else if( !stricmp( ptr, "tik" ) )
 		{
-			mod->d.tiki = TIKI_RegisterTikiFlags( name, use );
+			mod->d.tiki = ri.TIKI_RegisterTikiFlags( name, use );
 			Q_strncpyz( mod->name, name, sizeof( mod->name ) );
 
 			if( mod->d.tiki )
@@ -373,7 +373,7 @@ float R_ModelRadius( qhandle_t handle ) {
 		}
 		break;
 	case MOD_TIKI:
-		return TIKI_GlobalRadius( model->d.tiki );
+		return ri.TIKI_GlobalRadius( model->d.tiki );
 	case MOD_SPRITE:
 		maxRadius = model->d.sprite->width * model->d.sprite->scale * 0.5;
 		w = model->d.sprite->height * model->d.sprite->scale * 0.5;
@@ -411,7 +411,7 @@ void R_ModelBounds( qhandle_t handle, vec3_t mins, vec3_t maxs ) {
 		VectorCopy( model->d.bmodel->bounds[ 1 ], maxs );
 		break;
 	case MOD_TIKI:
-		TIKI_CalculateBounds( model->d.tiki, 1.0, mins, maxs );
+		ri.TIKI_CalculateBounds( model->d.tiki, 1.0, mins, maxs );
 		break;
 	case MOD_SPRITE:
 		mins[ 0 ] = -model->d.sprite->width * model->d.sprite->scale * 0.5;
@@ -424,6 +424,8 @@ void R_ModelBounds( qhandle_t handle, vec3_t mins, vec3_t maxs ) {
 	}
 }
 
+#if 0
+// Replaced by TIKI_FindSkelByHeader
 /*
 ====================
 GetModelPath
@@ -455,6 +457,7 @@ const char *GetModelPath( skelHeaderGame_t *skelmodel ) {
 
 	return NULL;
 }
+#endif
 
 /*
 ====================
@@ -509,6 +512,22 @@ int GetLodCutoff( skelHeaderGame_t *skelmodel, float lod_val, int renderfx ) {
 }
 
 /*
+===============
+R_SaveLODFile
+===============
+*/
+static void R_SaveLODFile(const char *path, lodControl_t *LOD)
+{
+    fileHandle_t file = ri.FS_OpenFileWrite(path);
+    if (!file) {
+        ri.Printf(PRINT_WARNING, "SaveLODFile: Failed to open file %s\n", path);
+        return;
+    }
+
+    ri.FS_Write(LOD, sizeof(lodControl_t), file);
+}
+
+/*
 ====================
 GetToolLodCutoff
 ====================
@@ -532,32 +551,32 @@ int GetToolLodCutoff( skelHeaderGame_t *skelmodel, float lod_val ) {
 
 	if( lod_save->integer == 1 )
 	{
-		Cvar_Set( "lod_save", "0" );
-		Q_strncpyz( lodPath, GetModelPath( skelmodel ), sizeof( lodPath ) );
+		ri.Cvar_Set( "lod_save", "0" );
+		Q_strncpyz( lodPath, ri.TIKI_FindSkelByHeader( skelmodel )->path, sizeof( lodPath ) );
 		ext = strstr( lodPath, "skd" );
 		strcpy( ext, "lod" );
-		SaveLODFile( lodPath, LOD );
+		R_SaveLODFile( lodPath, LOD );
 	}
 
 	if( lod_mesh->modified )
 	{
 		lod_mesh->modified = qfalse;
-		Cvar_Set( "lod_minLOD", va( "%f", LOD->minMetric ) );
-		Cvar_Set( "lod_maxLOD", va( "%f", LOD->maxMetric ) );
-		Cvar_Set( "lod_LOD_slider", va( "%f", 0.5 ) );
-		Cvar_Set( "lod_curve_0_slider", va( "%f", LOD->curve[ 0 ].val / totalRange ) );
-		Cvar_Set( "lod_curve_1_slider", va( "%f", LOD->curve[ 1 ].val / totalRange ) );
-		Cvar_Set( "lod_curve_2_slider", va( "%f", LOD->curve[ 2 ].val / totalRange ) );
-		Cvar_Set( "lod_curve_3_slider", va( "%f", LOD->curve[ 3 ].val / totalRange ) );
-		Cvar_Set( "lod_curve_4_slider", va( "%f", LOD->curve[ 4 ].val / totalRange ) );
+		ri.Cvar_Set( "lod_minLOD", va( "%f", LOD->minMetric ) );
+		ri.Cvar_Set( "lod_maxLOD", va( "%f", LOD->maxMetric ) );
+		ri.Cvar_Set( "lod_LOD_slider", va( "%f", 0.5 ) );
+		ri.Cvar_Set( "lod_curve_0_slider", va( "%f", LOD->curve[ 0 ].val / totalRange ) );
+		ri.Cvar_Set( "lod_curve_1_slider", va( "%f", LOD->curve[ 1 ].val / totalRange ) );
+		ri.Cvar_Set( "lod_curve_2_slider", va( "%f", LOD->curve[ 2 ].val / totalRange ) );
+		ri.Cvar_Set( "lod_curve_3_slider", va( "%f", LOD->curve[ 3 ].val / totalRange ) );
+		ri.Cvar_Set( "lod_curve_4_slider", va( "%f", LOD->curve[ 4 ].val / totalRange ) );
 	}
 
 
-	Cvar_Set( "lod_curve_0_val", va( "%f", lod_curve_0_slider->value * totalRange ) );
-	Cvar_Set( "lod_curve_1_val", va( "%f", lod_curve_1_slider->value * totalRange ) );
-	Cvar_Set( "lod_curve_2_val", va( "%f", lod_curve_2_slider->value * totalRange ) );
-	Cvar_Set( "lod_curve_3_val", va( "%f", lod_curve_3_slider->value * totalRange ) );
-	Cvar_Set( "lod_curve_4_val", va( "%f", lod_curve_4_slider->value * totalRange ) );
+	ri.Cvar_Set( "lod_curve_0_val", va( "%f", lod_curve_0_slider->value * totalRange ) );
+	ri.Cvar_Set( "lod_curve_1_val", va( "%f", lod_curve_1_slider->value * totalRange ) );
+	ri.Cvar_Set( "lod_curve_2_val", va( "%f", lod_curve_2_slider->value * totalRange ) );
+	ri.Cvar_Set( "lod_curve_3_val", va( "%f", lod_curve_3_slider->value * totalRange ) );
+	ri.Cvar_Set( "lod_curve_4_val", va( "%f", lod_curve_4_slider->value * totalRange ) );
 
 	LOD->minMetric = lod_minLOD->value;
 	LOD->maxMetric = lod_maxLOD->value;
@@ -567,7 +586,7 @@ int GetToolLodCutoff( skelHeaderGame_t *skelmodel, float lod_val ) {
 	LOD->curve[ 3 ].val = lod_curve_3_val->value;
 	LOD->curve[ 4 ].val = lod_curve_4_val->value;
 
-	TIKI_CalcLodConsts( LOD );
+	ri.TIKI_CalcLodConsts( LOD );
 	return GetLodCutoff( skelmodel, lod_val, 0 );
 }
 
@@ -604,7 +623,7 @@ void RB_DrawSkeletor(trRefEntity_t* ent) {
 	skeletor_c	*skeletor;
 
 	tiki = R_Model_GetHandle( ent->e.hModel );
-	skeletor = ( skeletor_c * )TIKI_GetSkeletor( tiki, ENTITYNUM_NONE );
+	skeletor = ( skeletor_c * )ri.TIKI_GetSkeletor( tiki, ENTITYNUM_NONE );
 
 	if( r_showSkeleton->integer == 1 ) {
 		//vec3_t vForward, vRight, vUp;
@@ -615,11 +634,10 @@ void RB_DrawSkeletor(trRefEntity_t* ent) {
 		qglLineWidth( 3 );
 		qglBegin( GL_LINES );
 
-
-		for( i = 0; i < tiki->m_boneList.NumChannels(); i++ ) { // draw a skeleton
+		for( i = 0; i < ri.TIKI_GetNumChannels(tiki); i++ ) { // draw a skeleton
 
 			ori = R_GetTagPositionAndOrientation( &ent->e, i );
-			iParentBone = skeletor->GetBoneParent( i );
+			iParentBone = ri.SKEL_GetBoneParent(skeletor, i);
 
 			if( iParentBone != -1 ) {
 				parent_or = R_GetTagPositionAndOrientation( &ent->e, iParentBone );
@@ -665,8 +683,8 @@ void RB_DrawSkeletor(trRefEntity_t* ent) {
 
 		qglLineWidth( 3 );
 		qglBegin( GL_LINES );
-		for( i = 0; i < tiki->m_boneList.NumChannels(); i++ ) {
-			iParentBone = skeletor->GetBoneParent( i );
+		for( i = 0; i < ri.TIKI_GetNumChannels(tiki); i++ ) {
+			iParentBone = ri.SKEL_GetBoneParent(skeletor, i);
 
 			if( iParentBone > 0 )	{
 				ori = R_GetTagPositionAndOrientation( &ent->e, i );
@@ -680,7 +698,7 @@ void RB_DrawSkeletor(trRefEntity_t* ent) {
 		qglEnd();
 
 		qglBegin( GL_LINES );
-		for( i = 0; i < tiki->m_boneList.NumChannels(); i++ ) {
+		for( i = 0; i < ri.TIKI_GetNumChannels(tiki); i++ ) {
 			vec3_t up, down, front;
 			ori = R_GetTagPositionAndOrientation( &ent->e, i );
 
@@ -754,7 +772,7 @@ void R_AddSkelSurfaces( trRefEntity_t *ent ) {
 
 	outbones = &TIKI_Skel_Bones[ TIKI_Skel_Bones_Index ];
 
-	num_tags = tiki->m_boneList.NumChannels();
+	num_tags = ri.TIKI_GetNumChannels(tiki);
 
 	if( num_tags + TIKI_Skel_Bones_Index > MAX_SKELBONES )
 	{
@@ -815,7 +833,7 @@ void R_AddSkelSurfaces( trRefEntity_t *ent ) {
 		}
 	}
 
-	newFrame = ( skelAnimFrame_t * )ri.Hunk_AllocateTempMemory( sizeof( skelAnimFrame_t ) + tiki->m_boneList.NumChannels() * sizeof( SkelMat4 ) );
+	newFrame = ( skelAnimFrame_t * )ri.Hunk_AllocateTempMemory( sizeof( skelAnimFrame_t ) + ri.TIKI_GetNumChannels(tiki) * sizeof( SkelMat4 ) );
 	R_GetFrame( &ent->e, newFrame );
 
 	if (lod_tool->integer || iRadiusCull != CULL_CLIP || R_CullSkelModel(tiki, &ent->e, newFrame, tiki_scale, tiki_localorigin) != CULL_OUT)
@@ -852,12 +870,12 @@ void R_AddSkelSurfaces( trRefEntity_t *ent ) {
 	//
 	// get the skeletor
 	//
-	skeletor = ( skeletor_c * )TIKI_GetSkeletor( tiki, ent->e.entityNumber );
+	skeletor = ( skeletor_c * )ri.TIKI_GetSkeletor( tiki, ent->e.entityNumber );
 
 	//
 	// add morphs
 	//
-	added = skeletor->GetMorphWeightFrame( ent->e.frameInfo[ 0 ].index, ent->e.frameInfo[ 0 ].time, &skeletorMorphCache[ skeletorMorphCacheIndex ] );
+	added = ri.SKEL_GetMorphWeightFrame( skeletor, ent->e.frameInfo[ 0 ].index, ent->e.frameInfo[ 0 ].time, &skeletorMorphCache[ skeletorMorphCacheIndex ] );
 	ent->e.morphstart = skeletorMorphCacheIndex;
 
 	if( added )
@@ -874,7 +892,7 @@ void R_AddSkelSurfaces( trRefEntity_t *ent ) {
 	bsurf = &ent->e.surfaces[ 0 ];
 	for( mesh = 0; mesh < tiki->numMeshes; mesh++ )
 	{
-		skelHeaderGame_t *skelmodel = TIKI_GetSkel( tiki->mesh[ mesh ] );
+		skelHeaderGame_t *skelmodel = ri.TIKI_GetSkel( tiki->mesh[ mesh ] );
 
 		if( !skelmodel )
 		{
@@ -1064,7 +1082,7 @@ void RB_SkelMesh( skelSurfaceGame_t *sf ) {
 	bFound = qfalse;
 	for( mesh = 0; mesh < tiki->numMeshes; mesh++ )
 	{
-		skelmodel = TIKI_GetSkel( tiki->mesh[ mesh ] );
+		skelmodel = ri.TIKI_GetSkel( tiki->mesh[ mesh ] );
 		psurface = skelmodel->pSurfaces;
 
 		// find the surface
@@ -1246,14 +1264,14 @@ void RB_SkelMesh( skelSurfaceGame_t *sf ) {
 					channelNum = skelmodel->pBones[weight->boneIndex].channel;
 				}
 
-				boneNum = tiki->m_boneList.LocalChannel(channelNum);
+				boneNum = ri.TIKI_GetLocalChannel(tiki, channelNum);
 				bone = &bones[boneNum];
 
 				SkelVertGetNormal(newVerts, bone, normal);
 
 				for (weightNum = 0; weightNum < newVerts->numWeights; weightNum++) {
 					channelNum = skelmodel->pBones[weight->boneIndex].channel;
-					boneNum = tiki->m_boneList.LocalChannel(channelNum);
+					boneNum = ri.TIKI_GetLocalChannel(tiki, channelNum);
 					bone = &bones[boneNum];
 
 					if (!weightNum) {
@@ -1352,14 +1370,14 @@ void RB_SkelMesh( skelSurfaceGame_t *sf ) {
 				weight = (skelWeight_t*)((byte*)newVerts + sizeof(skeletorVertex_t) + sizeof(skeletorMorph_t) * newVerts->numMorphs);
 
 				channelNum = skelmodel->pBones[weight->boneIndex].channel;
-				boneNum = tiki->m_boneList.LocalChannel(channelNum);
+				boneNum = ri.TIKI_GetLocalChannel(tiki, channelNum);
 				bone = &bones[boneNum];
 
 				SkelVertGetNormal(newVerts, bone, normal);
 
 				for (weightNum = 0; weightNum < newVerts->numWeights; weightNum++) {
 					channelNum = skelmodel->pBones[weight->boneIndex].channel;
-					boneNum = tiki->m_boneList.LocalChannel(channelNum);
+					boneNum = ri.TIKI_GetLocalChannel(tiki, channelNum);
 					bone = &bones[boneNum];
 
 					SkelWeightGetXyz(weight, bone, out);
@@ -1501,7 +1519,7 @@ void RB_StaticMesh(staticSurface_t *staticSurf)
     assert(surf->pStaticXyz);
 
     meshNum   = staticSurf->meshNum;
-    skelmodel = TIKI_GetSkel(tiki->mesh[meshNum]);
+    skelmodel = ri.TIKI_GetSkel(tiki->mesh[meshNum]);
 
     //
     // Process LOD
@@ -1673,7 +1691,7 @@ void R_PrintInfoWorldtris( void ) {
 
         totalNumTris += numTris;
         tiki = backEnd.refdef.entities[i].e.tiki;
-        skelmodel = TIKI_GetSkel(tiki->mesh[0]);
+        skelmodel = ri.TIKI_GetSkel(tiki->mesh[0]);
         Com_Printf("ent: %i, tris: %i, %s, version: %i\n", i, numTris, tiki->a->name, skelmodel->version);
     }
 
@@ -1690,7 +1708,7 @@ void R_PrintInfoWorldtris( void ) {
 
         totalNumTris += numTris;
         tiki = backEnd.refdef.staticModels[i].tiki;
-        skelmodel = TIKI_GetSkel(tiki->mesh[0]);
+        skelmodel = ri.TIKI_GetSkel(tiki->mesh[0]);
         Com_Printf("sm: %i, tris: %i, %s, version: %i\n", i, numTris, tiki->a->name, skelmodel->version);
     }
 
@@ -1719,7 +1737,7 @@ void R_UpdatePoseInternal( refEntity_t *model ) {
 		tr.skel_index[ model->entityNumber ] = tr.frame_skel_index;
 	}
 
-	ri.TIKI_SetPoseInternal( TIKI_GetSkeletor( model->tiki, model->entityNumber ), model->frameInfo, model->bone_tag, model->bone_quat, model->actionWeight );
+	ri.TIKI_SetPoseInternal( ri.TIKI_GetSkeletor( model->tiki, model->entityNumber ), model->frameInfo, model->bone_tag, model->bone_quat, model->actionWeight );
 }
 
 /*
@@ -1732,7 +1750,7 @@ void RE_ForceUpdatePose( refEntity_t *model ) {
 		tr.skel_index[ model->entityNumber ] = tr.frame_skel_index;
 	}
 
-	ri.TIKI_SetPoseInternal( TIKI_GetSkeletor( model->tiki, model->entityNumber ), model->frameInfo, model->bone_tag, model->bone_quat, model->actionWeight );
+	ri.TIKI_SetPoseInternal( ri.TIKI_GetSkeletor( model->tiki, model->entityNumber ), model->frameInfo, model->bone_tag, model->bone_quat, model->actionWeight );
 }
 
 /*
@@ -1940,7 +1958,7 @@ void R_CountTikiLodTris(dtiki_t* tiki, float lodpercentage, int* render_tris, in
 
 	for (int i = 0; i < tiki->numMeshes; i++)
 	{
-		skelHeaderGame_t *skelmodel = TIKI_GetSkel(tiki->mesh[i]);
+		skelHeaderGame_t *skelmodel = ri.TIKI_GetSkel(tiki->mesh[i]);
 		skelSurfaceGame_t *surface = skelmodel->pSurfaces;
 
 		for (int j = 0; j < skelmodel->numSurfaces; j++)

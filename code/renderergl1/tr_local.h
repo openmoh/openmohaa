@@ -1644,6 +1644,8 @@ extern	cvar_t* r_loadjpg;
 extern	cvar_t* r_loadftx;
 
 extern  cvar_t* r_showSkeleton;
+extern  cvar_t* r_developer;
+extern  cvar_t* r_fps;
 
 //====================================================================
 
@@ -2091,6 +2093,7 @@ FONT
 
 =============================================================
 */
+void R_ShutdownFont();
 fontheader_t* R_LoadFont(const char* name);
 void R_LoadFontShader(fontheader_sgl_t* font);
 void R_DrawString(fontheader_t* font, const char* text, float x, float y, int maxlen, const float *pvVirtualScreen);

@@ -2,11 +2,11 @@ cmake_minimum_required(VERSION 3.12)
 
 project(omohsdl)
 
-file(GLOB SOURCES_SDL_CLIENT
+set(SOURCES_SDL_CLIENT
 "./sdl_input.c"
 )
 
-file(GLOB SOURCES_SDL_GL
+set(SOURCES_SDL_GL
 "./sdl_gamma.c"
 "./sdl_glimp.c"
 )
