@@ -345,8 +345,12 @@ jobs:
     strategy:
       matrix:
         architecture: [
-          {name: 'x86_64',   triple: 'x86_64-apple-macos10.8'},
-          {name: 'arm64',    triple: 'arm64-apple-macos11'}
+          #{name: 'x86_64',   triple: 'x86_64-apple-macos10.8'},
+          #{name: 'arm64',    triple: 'arm64-apple-macos11'}
+          #{name: 'x86_64',    build_name: 'x86_64'},
+          #{name: 'arm64',     build_name: 'arm64'},
+          # Compile into an universal binary
+          {name: 'multiarch(arm64-x86_64)', build_name: 'arm64;x86_64' }
         ]
 
     name: "Building for platform macos-${{matrix.architecture.name}}"
@@ -383,7 +387,7 @@ jobs:
       with:
         version: 2-latest
         build-type: Release
-        cmake-arguments: "-DCMAKE_OSX_ARCHITECTURES=${{ matrix.architecture.name }}
+        cmake-arguments: "-DCMAKE_OSX_ARCHITECTURES='${{ matrix.architecture.build_name }}'
           -DCMAKE_VERBOSE_MAKEFILE=on"
     ###
     # OpenAL
@@ -404,7 +408,7 @@ jobs:
       run: |
         cmake -B ./build \
         -DCMAKE_INSTALL_PREFIX='${{github.workspace}}/thirdparties/soft-oal/install' \
-        -DCMAKE_OSX_ARCHITECTURES=${{ matrix.architecture.name }} \
+        -DCMAKE_OSX_ARCHITECTURES='${{ matrix.architecture.build_name }}' \
         -DCMAKE_VERBOSE_MAKEFILE=on
         cmake --build ./build --config Release --parallel
         cmake --install ./build --config Release
@@ -422,7 +426,7 @@ jobs:
         echo "CMAKE_PARAM=--log-level=VERBOSE \
         -DCMAKE_INSTALL_PREFIX='${{github.workspace}}/install' \
         -DCMAKE_VERBOSE_MAKEFILE=on \
-        -DCMAKE_OSX_ARCHITECTURES=${{ matrix.architecture.name }} \
+        -DCMAKE_OSX_ARCHITECTURES='${{ matrix.architecture.build_name }}' \
         -DOPENAL_LIBRARY='${{github.workspace}}/thirdparties/soft-oal/install' \
         -DOPENAL_INCLUDE_DIR='${{github.workspace}}/thirdparties/soft-oal/install/include/AL' \
         -DGIT_REVISION_BUILD_NUMBER=${{ github.run_number }} \

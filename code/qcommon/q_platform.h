@@ -86,10 +86,14 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define DLL_SUFFIX
 #endif
 
-#if !defined(TARGET_LOCAL_SYSTEM)
-#  define ARCH_SUFFIX "." ARCH_STRING
-#else
+#if defined(TARGET_LOCAL_SYSTEM)
 #  define ARCH_SUFFIX
+#elif defined(TARGET_MULTIPLE_ARCHITECTURES)
+// Targeting multiple architecture in a single binary.
+// For example, OSX supports compiling multiple architectures in a single binary
+#  define ARCH_SUFFIX ".multiarch"
+#else
+#  define ARCH_SUFFIX "." ARCH_STRING
 #endif
 
 // alloca
