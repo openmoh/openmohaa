@@ -3866,7 +3866,7 @@ void ClientGameCommandManager::PlaySound(
     }
 
     if (!name || !soundAlias) {
-        Com_Printf(
+        cgi.DPrintf(
             "\nERROR PlaySound: %s needs an alias in ubersound.scr or uberdialog.scr - Please fix.\n",
             sound_name.c_str()
         );
@@ -4066,7 +4066,7 @@ void ClientGameCommandManager::StopAliasChannel(Event *ev)
     }
 
     if (!name || !soundAlias) {
-        Com_Printf("\nERROR stopaliaschannel: couldn't find alias %s\n", sound_name.c_str());
+        cgi.DPrintf("\nERROR stopaliaschannel: couldn't find alias %s\n", sound_name.c_str());
         return;
     }
 
@@ -4145,7 +4145,7 @@ void ClientGameCommandManager::StopLoopSound(Event* ev)
         return;
     }
 
-    Com_Printf("\n\nClientGameCommandManager::StopLoopSound\n\n");
+    cgi.DPrintf("\n\nClientGameCommandManager::StopLoopSound\n\n");
     current_centity->tikiLoopSound = (sfxHandle_t)0;
 }
 
@@ -4265,7 +4265,7 @@ qboolean bLoadForMap(const char *psMapsBuffer, const char *name)
     }
 
     if (!token || !token[0]) {
-        Com_Printf("ERROR bLoadForMap: %s alias with empty maps specification.\n", name);
+        cgi.DPrintf("ERROR bLoadForMap: %s alias with empty maps specification.\n", name);
         return false;
     }
 
@@ -5179,7 +5179,7 @@ void CG_ProcessInitCommands(dtiki_t *tiki, refEntity_t *ent)
         }
 
         if (!commandManager.SelectProcessEvent(ev)) {
-            Com_Printf(
+            cgi.DPrintf(
                 "^~^~^ CG_ProcessInitCommands: Bad init client command '%s' in '%s'\n", pcmd->args[0], tiki->name
             );
         }
@@ -5225,7 +5225,7 @@ void CG_ProcessCacheInitCommands(dtiki_t *tiki)
             }
 
             if (!commandManager.SelectProcessEvent(ev)) {
-                Com_Printf(
+                cgi.DPrintf(
                     "^~^~^ CG_ProcessInitCommands: Bad init client command '%s' in '%s'\n", pcmd->args[0], tiki->name
                 );
             }
@@ -5840,7 +5840,7 @@ void ClientGameCommandManager::SetCurrentTiki(Event *ev)
     str tikiName;
 
     if (ev->NumArgs() != 1) {
-        Com_Printf("ERROR: settiki command takes 1 parameter.\n");
+        cgi.DPrintf("ERROR: settiki command takes 1 parameter.\n");
         return;
     }
 

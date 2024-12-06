@@ -637,7 +637,7 @@ extern MEM_BlockAlloc<Event> Event_allocator;
 // cgame dll specific defines
 //
 #    define EVENT_DebugPrintf cgi.DebugPrintf
-#    define EVENT_DPrintf     cgi.Printf
+#    define EVENT_DPrintf     cgi.DPrintf
 #    define EVENT_Printf      cgi.Printf
 #    define EVENT_time        (((float)cg.time / 1000.0f))
 #    define EVENT_msec        cg.time
@@ -649,7 +649,7 @@ extern MEM_BlockAlloc<Event> Event_allocator;
 #elif defined(UI_LIB)
 
 #    define EVENT_DebugPrintf Com_DebugPrintf
-#    define EVENT_DPrintf     Com_Printf
+#    define EVENT_DPrintf     Com_DPrintf
 #    define EVENT_Printf      Com_Printf
 #    define EVENT_time        (((float)cls.realtime / 1000.0f))
 #    define EVENT_msec        cls.realtime
@@ -663,7 +663,7 @@ extern MEM_BlockAlloc<Event> Event_allocator;
 // client specific defines
 //
 #    define EVENT_DebugPrintf Com_DebugPrintf
-#    define EVENT_DPrintf     Com_Printf
+#    define EVENT_DPrintf     Com_DPrintf
 #    define EVENT_Printf      Com_Printf
 #    define EVENT_time        (((float)cls.realtime / 1000.0f))
 #    define EVENT_msec        cls.realtime
