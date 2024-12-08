@@ -1097,6 +1097,12 @@ void Level::SpawnEntities(char *entities, int svsTime)
     int         start, end;
     char        name[128];
 
+    if (gi.Cvar_Get("g_invulnoverride", "0", 0)->integer == 1) {
+        // Added in 2.30
+        //  Clear the invulnerable override when loading
+        gi.cvar_set("g_invulnoverride", "0");
+    }
+
     Com_Printf("-------------------- Spawning Entities -----------------------\n");
 
     t1 = gi.Milliseconds();
