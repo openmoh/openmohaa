@@ -1676,7 +1676,9 @@ void Com_Init( char *commandLine ) {
 
 	Cbuf_AddText( "exec menu.cfg\n" );
 
-	Cbuf_AddText ("exec newconfig.cfg\n");
+	// Removed in OPM
+	//  Not relevant as there is no auto-configurator
+	//Cbuf_AddText ("exec newconfig.cfg\n");
 
 	cvar_global_force = qtrue;
 	Cbuf_Execute( 0 );
