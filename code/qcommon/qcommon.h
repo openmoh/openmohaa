@@ -1181,6 +1181,7 @@ void CL_InitKeyCommands( void );
 
 void CL_Init( void );
 void CL_Disconnect();
+void CL_AbnormalDisconnect();
 void CL_Shutdown(const char *finalmsg, qboolean disconnect, qboolean quit);
 qboolean CL_FinishedIntro(void);
 void CL_FinishedStartStage(void);
