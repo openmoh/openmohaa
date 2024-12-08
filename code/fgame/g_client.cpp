@@ -772,7 +772,7 @@ void G_ClientUserinfoChanged(gentity_t *ent, const char *u)
 
     clientnum = ent - g_entities;
 
-    if (gi.SanitizeName(s, client->pers.netname)) {
+    if (gi.SanitizeName(s, client->pers.netname, sizeof(client->pers.netname))) {
         gi.Printf("WARNING: had to sanitize the name for client %i\n", clientnum);
     }
 

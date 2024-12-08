@@ -478,7 +478,7 @@ typedef struct gameImport_s {
     void (*HudDrawAlpha)(int info, float alpha);
     void (*HudDrawString)(int info, const char *string);
     void (*HudDrawFont)(int info, const char *fontName);
-    qboolean (*SanitizeName)(const char *oldName, char *newName);
+    qboolean (*SanitizeName)(const char *oldName, char *newName, size_t bufferSize);
 
     //
     // Added in OPM

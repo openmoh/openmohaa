@@ -2580,7 +2580,7 @@ void CL_CheckUserinfo( void ) {
 	// send a reliable userinfo update if needed
 	if(cvar_modifiedFlags & CVAR_USERINFO)
 	{
-		if (Com_SanitizeName(name->string, szSanitizedName)) {
+		if (Com_SanitizeName(name->string, szSanitizedName, sizeof(szSanitizedName))) {
 			Cvar_Set("name", szSanitizedName);
 		}
 
