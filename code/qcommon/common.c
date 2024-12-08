@@ -419,30 +419,40 @@ void QDECL Com_Error( int code, const char *fmt, ... ) {
 		Cvar_Set("com_errorMessage", com_errorMessage);
 
 	if (code == ERR_DISCONNECT || code == ERR_SERVERDISCONNECT) {
-		CL_Disconnect();
-		CL_FlushMemory( );
+		if (com_cl_running && com_cl_running->integer) {
+			CL_AbnormalDisconnect();
+			CL_FlushMemory();
+			CL_StartHunkUsers(qfalse);
+		} else {
+            SV_Shutdown(va("Server disconnected: %s", com_errorMessage));
+		}
 		// make sure we can get at our local stuff
 		FS_PureServerSetLoadedPaks("", "");
 		com_errorEntered = qfalse;
 		longjmp (abortframe, -1);
 	} else if (code == ERR_DROP) {
 		Com_Printf ("********************\nERROR: %s\n********************\n", com_errorMessage);
-		SV_Shutdown (va("Server crashed: %s",  com_errorMessage));
-		CL_Disconnect();
-		CL_FlushMemory( );
+        SV_Shutdown(va("Server crashed: %s", com_errorMessage));
+#ifndef DEDICATED
+		if (com_cl_running && com_cl_running->integer) {
+			CL_AbnormalDisconnect();
+			CL_FlushMemory();
+			CL_StartHunkUsers(qfalse);
+		}
+#endif
 		FS_PureServerSetLoadedPaks("", "");
 		com_errorEntered = qfalse;
 		longjmp (abortframe, -1);
 	} else if ( code == ERR_NEED_CD ) {
-		SV_Shutdown( "Server didn't have CD" );
-		if ( com_cl_running && com_cl_running->integer ) {
-			CL_Disconnect();
-			CL_FlushMemory( );
-			com_errorEntered = qfalse;
-			CL_CDDialog();
-		} else {
-			Com_Printf("Server didn't have CD\n" );
-		}
+        SV_Shutdown("Server didn't have CD");
+        if (com_cl_running && com_cl_running->integer) {
+            CL_Disconnect();
+            CL_FlushMemory();
+            com_errorEntered = qfalse;
+            CL_CDDialog();
+        } else {
+            Com_Printf("Server didn't have CD\n");
+        }
 		FS_PureServerSetLoadedPaks("", "");
 		longjmp (abortframe, -1);
 	} else {
