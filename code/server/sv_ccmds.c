@@ -1242,7 +1242,7 @@ static void SV_Status_f(void) {
 
 		Com_Printf("%*u ", colSize[4], svs.time - cl->lastPacketTime);
 
-		s = NET_AdrToString(cl->netchan.remoteAddress);
+		s = NET_AdrToStringwPort(cl->netchan.remoteAddress);
 		Com_Printf("%s ", s);
 
 		len = strlen(s);
