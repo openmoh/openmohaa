@@ -190,6 +190,7 @@ static bool UseField( void )
 
 string		([^\\\"\r\n]|\\.)*
 identifier	[^\{\}\(\)\[\]\r\n\,:; \t]
+nonexpr		[0-9a-zA-Z_\"'?@#`\.\x80-\xff]
 nonnumeric	[a-zA-Z_\"'?@#`\x80-\xff]
 alphanum	[a-zA-Z0-9_]+
 varname		[a-zA-Z0-9_\"\$]+
@@ -222,9 +223,15 @@ varname		[a-zA-Z0-9_\"\$]+
 												unput(yytext[yyleng - 1]);
 												yyreducepos(1);
 											}
-								
-\"{string}\"					{ TextEscapeValue( yytext + 1, yyleng - 2 ); YYLEX( TOKEN_STRING ); }
 
+											
+
+\"{string}\"{nonexpr}			{
+									BEGIN(IDENTIFIER);
+									yymore();
+								}
+
+\"{string}\"					{ TextEscapeValue( yytext + 1, yyleng - 2 ); YYLEX( TOKEN_STRING ); }
 
 "?"								{ YYLEX( TOKEN_TERNARY ); }
 "if"							{ YYLEX( TOKEN_IF ); }
