@@ -1155,7 +1155,7 @@ void Com_Init( char *commandLine );
 void Com_Frame( void );
 void Com_Shutdown( void );
 
-qboolean Com_SanitizeName( const char *pszOldName, char *pszNewName );
+qboolean Com_SanitizeName( const char *pszOldName, char *pszNewName, size_t bufferSize );
 const char *Com_GetArchiveFileName( const char *filename, const char *extension );
 const char *Com_GetArchiveFolder();
 void Com_WipeSavegame( const char *savename );

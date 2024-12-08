@@ -2372,11 +2372,14 @@ void Com_Shutdown (void) {
 
 }
 
-qboolean Com_SanitizeName( const char *pszOldName, char *pszNewName )
+qboolean Com_SanitizeName( const char *pszOldName, char *pszNewName, size_t bufferSize )
 {
 	int i;
 	qboolean bBadName = qfalse;
 	const char *p = pszOldName;
+	size_t maxLength;
+
+	maxLength = (bufferSize / sizeof(char)) - 1;
 
 	if( *pszOldName && *pszOldName <= ' ' )
 	{
@@ -2389,7 +2392,7 @@ qboolean Com_SanitizeName( const char *pszOldName, char *pszNewName )
 	}
 
 	i = 0;
-	for( i = 0; *p && *p >= ' '; p++, i++ )
+	for( i = 0; *p && *p >= ' ' && i < maxLength; p++, i++ )
 	{
 		if( *p == '~' || *p == '`' )
 		{
