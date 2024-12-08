@@ -57,8 +57,8 @@ jobs:
         path: ${{github.workspace}}/${{matrix.target_os}}
 
     - name: Zip
-      working-directory: ${{github.workspace}}/${{matrix.target_os}}
-      run: zip -r ../${{ env.RELEASE_NAME }}.zip ./
+      working-directory: '${{github.workspace}}/${{matrix.target_os}}'
+      run: zip -r "../${{ env.RELEASE_NAME }}.zip" ./
 
     - name: Release
       uses: softprops/action-gh-release@v2
