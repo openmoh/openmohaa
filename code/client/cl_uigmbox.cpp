@@ -40,394 +40,370 @@ Event EV_GMBox_Decay
 	"Event to make the gmbox console line decay"
 );
 
-static float s_gmboxWidth = 640.0;
+static float s_gmboxWidth   = 640.0;
 static float s_gmboxOffsetX = 3.0f;
 static float s_gmboxOffsetY = 0.0f;
 
-CLASS_DECLARATION( UIWidget, UIGMBox, NULL )
-{
-	{ &W_SizeChanged,		&UIGMBox::OnSizeChanged },
-	{ &EV_GMBox_Goin,		&UIGMBox::MoveInEvent },
-	{ &EV_GMBox_Decay,		&UIGMBox::DecayEvent },
-	{ NULL, NULL }
+CLASS_DECLARATION(UIWidget, UIGMBox, NULL) {
+    {&W_SizeChanged,  &UIGMBox::OnSizeChanged},
+    {&EV_GMBox_Goin,  &UIGMBox::MoveInEvent  },
+    {&EV_GMBox_Decay, &UIGMBox::DecayEvent   },
+    {NULL,            NULL                   }
 };
 
 UIGMBox::UIGMBox()
 {
-	m_numitems = 0;
-	m_reallyshown = true;
-	m_fontbold = NULL;
-	m_boxstate = boxstate_t::box_out;
-	m_iBeginDecay = 0;
-	m_boxtime = uid.time;
-	m_movespeed = 500;
-	m_drawoutline = com_target_game->integer >= target_game_e::TG_MOHTA;
+    m_numitems    = 0;
+    m_reallyshown = true;
+    m_fontbold    = NULL;
+    m_boxstate    = boxstate_t::box_out;
+    m_iBeginDecay = 0;
+    m_boxtime     = uid.time;
+    m_movespeed   = 500;
+    m_drawoutline = com_target_game->integer >= target_game_e::TG_MOHTA;
 }
 
-void UIGMBox::VerifyBoxOut( void )
+void UIGMBox::VerifyBoxOut(void)
 {
-	PostMoveinEvent();
-	if (m_boxstate != boxstate_t::box_moving_out && m_boxstate != boxstate_t::box_out)
-	{
-		ChangeBoxState(boxstate_t::box_moving_out);
-	}
+    PostMoveinEvent();
+    if (m_boxstate != boxstate_t::box_moving_out && m_boxstate != boxstate_t::box_out) {
+        ChangeBoxState(boxstate_t::box_moving_out);
+    }
 }
 
-void UIGMBox::ChangeBoxState( boxstate_t state )
+void UIGMBox::ChangeBoxState(boxstate_t state)
 {
-	m_boxstate = state;
-	m_boxtime = uid.time;
-	setShowState();
+    m_boxstate = state;
+    m_boxtime  = uid.time;
+    setShowState();
 
-	if (state == box_out) {
-		PostMoveinEvent();
-	}
+    if (state == box_out) {
+        PostMoveinEvent();
+    }
 }
 
-void UIGMBox::HandleBoxMoving( void )
+void UIGMBox::HandleBoxMoving(void)
 {
-	int delta;
-	UIRect2D newRect;
+    int      delta;
+    UIRect2D newRect;
 
-	if (m_boxstate != boxstate_t::box_moving_out && m_boxstate != boxstate_t::box_moving_in) {
-		return;
-	}
+    if (m_boxstate != boxstate_t::box_moving_out && m_boxstate != boxstate_t::box_moving_in) {
+        return;
+    }
 
-	delta = m_movespeed * (uid.time - m_boxtime) / 1000;
-	m_boxtime = 1000 * delta / m_movespeed + m_boxtime;
-	if (m_boxstate == boxstate_t::box_moving_out)
-	{
-		newRect.size.width = m_frame.size.width;
-		newRect.size.height = m_frame.size.height;
-		newRect.pos.x = m_frame.pos.x;
-		newRect.pos.y = delta + m_frame.pos.y;
+    delta     = m_movespeed * (uid.time - m_boxtime) / 1000;
+    m_boxtime = 1000 * delta / m_movespeed + m_boxtime;
+    if (m_boxstate == boxstate_t::box_moving_out) {
+        newRect.size.width  = m_frame.size.width;
+        newRect.size.height = m_frame.size.height;
+        newRect.pos.x       = m_frame.pos.x;
+        newRect.pos.y       = delta + m_frame.pos.y;
 
-		if (newRect.pos.y <= 0.0)
-		{
-			newRect.pos.y = 0.0;
-			ChangeBoxState(boxstate_t::box_out);
-		}
-	}
-	else if (m_boxstate == boxstate_t::box_moving_in)
-	{
-		newRect.size.width = m_frame.size.width;
-		newRect.size.height = m_frame.size.height;
-		newRect.pos.x = m_frame.pos.x;
-		newRect.pos.y = delta - m_frame.pos.y;
+        if (newRect.pos.y <= 0.0) {
+            newRect.pos.y = 0.0;
+            ChangeBoxState(boxstate_t::box_out);
+        }
+    } else if (m_boxstate == boxstate_t::box_moving_in) {
+        newRect.size.width  = m_frame.size.width;
+        newRect.size.height = m_frame.size.height;
+        newRect.pos.x       = m_frame.pos.x;
+        newRect.pos.y       = delta - m_frame.pos.y;
 
-		if (newRect.pos.y <= -newRect.size.height)
-		{
-			newRect.pos.y = -newRect.size.height;
-			ChangeBoxState(boxstate_t::box_in);
-		}
-	} else {
-		newRect = m_frame;
-	}
+        if (newRect.pos.y <= -newRect.size.height) {
+            newRect.pos.y = -newRect.size.height;
+            ChangeBoxState(boxstate_t::box_in);
+        }
+    } else {
+        newRect = m_frame;
+    }
 
-	setFrame(newRect);
+    setFrame(newRect);
 }
 
-void UIGMBox::PostMoveinEvent( void )
+void UIGMBox::PostMoveinEvent(void)
 {
-	if (m_boxstate != boxstate_t::box_out) {
-		return;
-	}
+    if (m_boxstate != boxstate_t::box_out) {
+        return;
+    }
 
-	if (!EventPending(EV_GMBox_Goin)) {
-		PostEvent(EV_GMBox_Goin, 10.0);
-	} else {
-		PostponeEvent(EV_GMBox_Goin, 10.0);
-	}
+    if (!EventPending(EV_GMBox_Goin)) {
+        PostEvent(EV_GMBox_Goin, 10.0);
+    } else {
+        PostponeEvent(EV_GMBox_Goin, 10.0);
+    }
 }
 
-void UIGMBox::PostDecayEvent( void )
+void UIGMBox::PostDecayEvent(void)
 {
-	if (!EventPending(EV_GMBox_Decay))
-	{
-		float fDelayTime;
-		int iNumLines;
-		int i;
-		const char* pszString = m_items[0].string.c_str();
+    if (!EventPending(EV_GMBox_Decay)) {
+        float       fDelayTime;
+        int         iNumLines;
+        int         i;
+        const char *pszString = m_items[0].string.c_str();
 
-		//
-		// Calculate the number of lines
-		//
-		iNumLines = 1;
-		for (i = 0; pszString[i]; i++)
-		{
-			if (pszString[i] == '\n') {
-				iNumLines++;
-			}
-		}
+        //
+        // Calculate the number of lines
+        //
+        iNumLines = 1;
+        for (i = 0; pszString[i]; i++) {
+            if (pszString[i] == '\n') {
+                iNumLines++;
+            }
+        }
 
-		//
-		// Bold as twice more decay
-		//
-		if (m_items[0].flags & GMBOX_ITEM_FLAG_BOLD) {
-			fDelayTime = iNumLines * 10.0;
-		} else {
-			fDelayTime = iNumLines * 5.0;
-		}
+        //
+        // Bold as twice more decay
+        //
+        if (m_items[0].flags & GMBOX_ITEM_FLAG_BOLD) {
+            fDelayTime = iNumLines * 10.0;
+        } else {
+            fDelayTime = iNumLines * 5.0;
+        }
 
-		m_iBeginDecay = cls.realtime;
-		m_iEndDecay = (int)(fDelayTime * 1000.0);
+        m_iBeginDecay = cls.realtime;
+        m_iEndDecay   = (int)(fDelayTime * 1000.0);
 
-		PostEvent(EV_GMBox_Decay, fDelayTime);
-	}
+        PostEvent(EV_GMBox_Decay, fDelayTime);
+    }
 }
 
-void UIGMBox::setShowState( void )
+void UIGMBox::setShowState(void)
 {
-	if (m_reallyshown) {
-		setShow(m_boxstate != box_in);
-	} else {
-		setShow(false);
-	}
+    if (m_reallyshown) {
+        setShow(m_boxstate != box_in);
+    } else {
+        setShow(false);
+    }
 }
 
-void UIGMBox::RemoveTopItem( void )
+void UIGMBox::RemoveTopItem(void)
 {
-	int i;
+    int i;
 
-	if (m_numitems > 0) {
-		for (i = 0; i < m_numitems - 1; i++) {
-			m_items[i] = m_items[i + 1];
-		}
+    if (m_numitems > 0) {
+        for (i = 0; i < m_numitems - 1; i++) {
+            m_items[i] = m_items[i + 1];
+        }
 
-		m_numitems--;
-	}
+        m_numitems--;
+    }
 }
 
-str UIGMBox::CalculateBreaks( UIFont *font, str text, float max_width )
+str UIGMBox::CalculateBreaks(UIFont *font, str text, float max_width)
 {
-	str newText, sTmp;
-	int i;
-	float fX;
-	float fwX, fsX;
+    str         newText;
+    float       fX;
+    float       fwX;
+    const char *current;
+    int         count;
 
-	Cmd_TokenizeString(text.c_str());
-	if (Cmd_Argc())
-	{
-		fX = 0.0;
-		fsX = font->getCharWidth(' ');
+    current = text;
+    fX      = 0.0;
 
-		for (i = 0; i < Cmd_Argc(); i++)
-		{
-			sTmp = Cmd_Argv(i);
+    for (count = font->DBCSGetWordBlockCount(current, -1); count;
+         current += count, count = font->DBCSGetWordBlockCount(current, -1)) {
+        fwX = font->getWidth(current, count);
 
-			fwX = font->getWidth(sTmp.c_str(), -1);
-			if (fwX + i <= max_width)
-			{
-				if (fwX + i + fX <= max_width)
-				{
-					newText += sTmp + " ";
-				} else {
-					newText += "\n" + sTmp + " ";
-				}
-			}
-			else
-			{
-				sTmp += "\n";
-				fX = 0.0;
-			}
-		}
-	} else {
-		newText = "";
-	}
+        if (fX + fwX > max_width) {
+            newText += "\n" + str(current, 0, count);
+            fX = 0;
+        } else {
+            newText += str(current, 0, count);
+        }
 
-	return newText;
+        fX += fwX;
+    }
+
+    return newText;
 }
 
-float UIGMBox::PrintWrap( UIFont *font, float x, float y, str text )
+float UIGMBox::PrintWrap(UIFont *font, float x, float y, str text)
 {
-	const char* p1, * p2;
-	size_t n, l;
-	float fY;
+    const char *p1, *p2;
+    size_t      n, l;
+    float       fY;
 
-	fY = y;
-	p1 = text.c_str();
-	l = text.length();
+    fY = y;
+    p1 = text.c_str();
+    l  = text.length();
 
-	for (;;)
-	{
-		p2 = strchr(p1, '\n');
-		if (!p2) {
-			break;
-		}
+    for (;;) {
+        p2 = strchr(p1, '\n');
+        if (!p2) {
+            break;
+        }
 
-		n = p2 - p1;
-		if (n >= l) {
-			break;
-		}
+        n = p2 - p1;
+        if (n >= l) {
+            break;
+        }
 
-		font->Print(x, fY, p1, p2 - p1, getHighResScale());
-		p1 = p2 + 1;
-		l -= n;
-		fY += font->getHeight();
-	}
+        font->Print(x, fY, p1, p2 - p1, getHighResScale());
+        p1 = p2 + 1;
+        l -= n;
+        fY += font->getHeight();
+    }
 
-	font->Print(x, fY, p1, l, getHighResScale());
+    if (*p1) {
+        font->Print(x, fY, p1, l, getHighResScale());
+        fY += font->getHeight();
+    }
 
-	return font->getHeight() + (fY - y);
+    return fY - y;
 }
 
-float UIGMBox::DrawItem( item_t *in, float x, float y, float alpha )
+float UIGMBox::DrawItem(item_t *in, float x, float y, float alpha)
 {
-	if (m_drawoutline) {
-		//
-		// Draw an outline
-		//
+    if (m_drawoutline) {
+        //
+        // Draw an outline
+        //
 
-		in->font->setColor(UBlack);
-		in->font->setAlpha(alpha);
+        in->font->setColor(UBlack);
+        in->font->setAlpha(alpha);
 
-		PrintWrap(in->font, x + 1, y + 2, in->string);
-		PrintWrap(in->font, x + 2, y + 1, in->string);
-		PrintWrap(in->font, x - 1, y + 2, in->string);
-		PrintWrap(in->font, x - 2, y + 1, in->string);
-		PrintWrap(in->font, x - 1, y - 2, in->string);
-		PrintWrap(in->font, x - 2, y - 1, in->string);
-		PrintWrap(in->font, x + 1, y - 2, in->string);
-		PrintWrap(in->font, x + 2, y - 1, in->string);
-		PrintWrap(in->font, x + 2, y, in->string);
-		PrintWrap(in->font, x - 2, y, in->string);
-		PrintWrap(in->font, x, y + 2, in->string);
-		PrintWrap(in->font, x, y - 2, in->string);
-	}
+        PrintWrap(in->font, x + 1, y + 2, in->string);
+        PrintWrap(in->font, x + 2, y + 1, in->string);
+        PrintWrap(in->font, x - 1, y + 2, in->string);
+        PrintWrap(in->font, x - 2, y + 1, in->string);
+        PrintWrap(in->font, x - 1, y - 2, in->string);
+        PrintWrap(in->font, x - 2, y - 1, in->string);
+        PrintWrap(in->font, x + 1, y - 2, in->string);
+        PrintWrap(in->font, x + 2, y - 1, in->string);
+        PrintWrap(in->font, x + 2, y, in->string);
+        PrintWrap(in->font, x - 2, y, in->string);
+        PrintWrap(in->font, x, y + 2, in->string);
+        PrintWrap(in->font, x, y - 2, in->string);
+    }
 
-	in->font->setColor(in->color);
-	in->font->setAlpha(alpha);
+    in->font->setColor(in->color);
+    in->font->setAlpha(alpha);
 
-	return PrintWrap(in->font, x, y, in->string);
+    return PrintWrap(in->font, x, y, in->string);
 }
 
-void UIGMBox::Print( const char *text )
+void UIGMBox::Print(const char *text)
 {
-	const char* text1 = text;
+    const char *text1 = text;
 
-	if (m_numitems > 4)
-	{
-		//
-		// Overwrite an item
-		//
-		RemoveTopItem();
-	}
+    if (m_numitems > 4) {
+        //
+        // Overwrite an item
+        //
+        RemoveTopItem();
+    }
 
-	m_items[m_numitems].flags = 0;
+    m_items[m_numitems].flags = 0;
 
-	if (*text == 3)
-	{
-		m_items[m_numitems].color = UWhite;
-		m_items[m_numitems].font = m_fontbold;
-		m_items[m_numitems].flags |= GMBOX_ITEM_FLAG_BOLD;
+    if (*text == 3) {
+        m_items[m_numitems].color = UWhite;
+        m_items[m_numitems].font  = m_fontbold;
+        m_items[m_numitems].flags |= GMBOX_ITEM_FLAG_BOLD;
 
-		text1 = text + 1;
-	}
-	else
-	{
-		m_items[m_numitems].color = m_foreground_color;
-		m_items[m_numitems].font = m_font;
-	}
+        text1 = text + 1;
+    } else {
+        m_items[m_numitems].color = m_foreground_color;
+        m_items[m_numitems].font  = m_font;
+    }
 
-	m_items[m_numitems].string = CalculateBreaks(m_items[m_numitems].font, text1, s_gmboxWidth);
+    m_items[m_numitems].string = CalculateBreaks(m_items[m_numitems].font, text1, s_gmboxWidth);
 
-	m_numitems++;
-	VerifyBoxOut();
-	PostDecayEvent();
+    m_numitems++;
+    VerifyBoxOut();
+    PostDecayEvent();
 }
 
-void UIGMBox::OnSizeChanged( Event *ev )
+void UIGMBox::OnSizeChanged(Event *ev)
 {
-	s_gmboxWidth = m_frame.size.width;
+    s_gmboxWidth = m_frame.size.width;
 }
 
-void UIGMBox::Create( const UIRect2D& rect, const UColor& fore, const UColor& back, float alpha )
+void UIGMBox::Create(const UIRect2D& rect, const UColor& fore, const UColor& back, float alpha)
 {
-	InitFrame(NULL, rect, 0, "facfont-20");
+    InitFrame(NULL, rect, 0, "facfont-20");
 
-	if (!m_fontbold) {
-		m_fontbold = new UIFont("facfont-20");
-	}
+    if (!m_fontbold) {
+        m_fontbold = new UIFont("facfont-20");
+    }
 
-	m_fontbold->setColor(URed);
-	setBackgroundColor(back, true);
-	setForegroundColor(fore);
-	setBackgroundAlpha(alpha);
+    m_fontbold->setColor(URed);
+    setBackgroundColor(back, true);
+    setForegroundColor(fore);
+    setBackgroundAlpha(alpha);
 
-	Connect(this, W_SizeChanged, W_SizeChanged);
-	OnSizeChanged(NULL);
+    Connect(this, W_SizeChanged, W_SizeChanged);
+    OnSizeChanged(NULL);
 
-	m_movespeed = rect.size.height * 3.0;
+    m_movespeed = rect.size.height * 3.0;
 
-	setShowState();
+    setShowState();
 }
 
-void UIGMBox::MoveInEvent( Event *ev )
+void UIGMBox::MoveInEvent(Event *ev) {}
+
+void UIGMBox::DecayEvent(Event *ev)
 {
+    RemoveTopItem();
+    if (m_numitems) {
+        PostDecayEvent();
+    }
 }
 
-void UIGMBox::DecayEvent( Event *ev )
+void UIGMBox::Draw(void)
 {
-	RemoveTopItem();
-	if (m_numitems) {
-		PostDecayEvent();
-	}
+    float fsY;
+    int   i;
+    float alpha;
+    float alphaScale;
+
+    alphaScale = 1.0;
+    HandleBoxMoving();
+
+    if (!m_numitems) {
+        //
+        // Nothing to show
+        //
+        return;
+    }
+
+    m_font->setColor(m_foreground_color);
+    alpha = (float)(cls.realtime - m_iBeginDecay) / (float)m_iEndDecay;
+    if (alpha > 1.0) {
+        alpha = 1.0;
+    }
+
+    alpha = (1.0 - alpha) * 4.0;
+    if (alpha > 1.0) {
+        alpha = 1.0;
+    }
+
+    if (cge) {
+        alphaScale = 1.0 - cge->CG_GetObjectiveAlpha();
+    }
+
+    fsY = DrawItem(m_items, s_gmboxOffsetX, s_gmboxOffsetY, alpha * alphaScale);
+    fsY = alpha <= 0.2 ? s_gmboxOffsetY : fsY + s_gmboxOffsetY;
+
+    for (i = 1; i < m_numitems; i++) {
+        fsY += DrawItem(&m_items[i], s_gmboxOffsetX, fsY, alphaScale);
+        if (fsY > m_frame.size.height) {
+            if (EventPending(EV_GMBox_Decay)) {
+                CancelEventsOfType(EV_GMBox_Decay);
+            }
+
+            PostEvent(EV_GMBox_Decay, 0.0);
+            break;
+        }
+    }
 }
 
-void UIGMBox::Draw( void )
+void UIGMBox::setRealShow(bool b)
 {
-	float fsY;
-	int i;
-	float alpha;
-	float alphaScale;
-
-	alphaScale = 1.0;
-	HandleBoxMoving();
-
-	if (!m_numitems) {
-		//
-		// Nothing to show
-		//
-		return;
-	}
-
-	m_font->setColor(m_foreground_color);
-	alpha = (float)(cls.realtime - m_iBeginDecay) / (float)m_iEndDecay;
-	if (alpha > 1.0) alpha = 1.0;
-
-	alpha = (1.0 - alpha) * 4.0;
-	if (alpha > 1.0) alpha = 1.0;
-
-	if (cge) {
-		alphaScale = 1.0 - cge->CG_GetObjectiveAlpha();
-	}
-
-	fsY = DrawItem(m_items, s_gmboxOffsetX, s_gmboxOffsetY, alpha * alphaScale);
-	fsY = alpha <= 0.2 ? s_gmboxOffsetY : fsY + s_gmboxOffsetY;
-
-	for (i = 1; i < m_numitems; i++)
-	{
-		fsY += DrawItem(&m_items[i], s_gmboxOffsetX, fsY, alphaScale);
-		if (fsY > m_frame.size.height)
-		{
-			if (EventPending(EV_GMBox_Decay)) {
-				CancelEventsOfType(EV_GMBox_Decay);
-			}
-
-			PostEvent(EV_GMBox_Decay, 0.0);
-			break;
-		}
-	}
+    this->m_reallyshown = b;
+    setShowState();
 }
 
-void UIGMBox::setRealShow( bool b )
+void UIGMBox::Clear(void)
 {
-	this->m_reallyshown = b;
-	setShowState();
+    m_numitems = 0;
 }
-
-void UIGMBox::Clear( void )
-{
-	m_numitems = 0;
-}
-
