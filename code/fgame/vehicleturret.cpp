@@ -2130,7 +2130,11 @@ void VehicleTurretGunTandem::SwitchToLinkedTurret()
     } else {
         pTurret = m_PrimaryTurret;
         // Added in 2.30
-        m_PrimaryTurret->m_SwitchLabel.Execute(this, pTurret, NULL);
+        if (m_PrimaryTurret) {
+            // Fixed in OPM
+            //  Check for primary turret before setting the switch label
+            m_PrimaryTurret->m_SwitchLabel.Execute(this, pTurret, NULL);
+        }
     }
 
     SetActiveTurret(pTurret);
