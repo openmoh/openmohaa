@@ -104,7 +104,7 @@ void S_Init(qboolean full_startup)
     s_musicVolume    = Cvar_Get("s_musicvolume", "0.9", CVAR_ARCHIVE);
     s_ambientVolume  = Cvar_Get("s_ambientvolume", "1.00", CVAR_ARCHIVE);
     s_separation     = Cvar_Get("s_separation", "0.5", CVAR_ARCHIVE);
-    s_khz            = Cvar_Get("s_khz", "11", CVAR_ARCHIVE | CVAR_SOUND_LATCH);
+    s_khz            = Cvar_Get("s_khz", "44", CVAR_ARCHIVE | CVAR_SOUND_LATCH);
     s_loadas8bit     = Cvar_Get("s_loadas8bit", "0", CVAR_ARCHIVE | CVAR_LATCH);
     s_mixPreStep     = Cvar_Get("s_mixPreStep", "0.05", CVAR_ARCHIVE);
     s_show           = Cvar_Get("s_show", "0", CVAR_CHEAT);
