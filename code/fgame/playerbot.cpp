@@ -177,7 +177,7 @@ void BotController::CheckUse(void)
     trace = G_Trace(start, vec_zero, vec_zero, end, controlledEnt, MASK_USABLE, false, "BotController::CheckUse");
 
     // It may be a door
-    if ((trace.allsolid || trace.startsolid || trace.fraction != 1.0f) && trace.entityNum) {
+    if ((trace.allsolid || trace.startsolid || trace.fraction != 1.0f) && trace.ent) {
         if (trace.ent->entity->IsSubclassOfDoor()) {
             Door *door = static_cast<Door *>(trace.ent->entity);
             if (door->isOpen()) {
