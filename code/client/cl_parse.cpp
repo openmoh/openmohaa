@@ -538,6 +538,7 @@ void CL_ParseGamestate( msg_t *msg ) {
 	entityState_t	nullstate;
 	int				cmd;
 	char			*s;
+	cvar_t			*sv_paks;
 
 	UI_CloseConsole();
 
@@ -606,9 +607,14 @@ void CL_ParseGamestate( msg_t *msg ) {
 	// stop recording now so the demo won't have an unnecessary level load at the end.
 	if(cl_autoRecordDemo->integer && clc.demorecording)
 		CL_StopRecord_f();
-	
-	// reinitialize the filesystem if the game directory has changed
-	FS_ConditionalRestart( clc.checksumFeed, qfalse );
+
+	if (clc.state == CA_CONNECTED && !Cvar_Get("sv_paks", "", 0)->string[0]) {
+		// Added in 2.30
+		FS_Restart(clc.checksumFeed);
+	} else {
+		// reinitialize the filesystem if the game directory has changed
+		FS_ConditionalRestart(clc.checksumFeed, qfalse);
+	}
 
 	clc.state = CA_LOADING;
     if (!com_sv_running->integer)
