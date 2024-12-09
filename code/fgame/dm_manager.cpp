@@ -1254,7 +1254,7 @@ bool DM_Manager::CheckEndMatch()
 
                     m_bIgnoringClockForBomb = false;
                 } else if (m_iNumBombsPlanted > 0) {
-                    G_PrintToAllClients("A bomb is still set!");
+                    G_PrintToAllClients(va("%s\n", gi.LV_ConvertString("A Bomb is Still Set!")));
                     m_bIgnoringClockForBomb = true;
                     return false;
                 }
@@ -1328,7 +1328,7 @@ bool DM_Manager::CheckEndMatch()
             return true;
         } else if (m_iNumBombsPlanted >= m_iNumTargetsToDestroy - m_iNumTargetsDestroyed) {
             if (!m_bIgnoringClockForBomb) {
-                G_PrintToAllClients("A bomb is still set!");
+                G_PrintToAllClients(va("%s\n", gi.LV_ConvertString("A Bomb is Still Set!")));
                 m_bIgnoringClockForBomb = true;
             }
         } else {

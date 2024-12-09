@@ -4256,7 +4256,7 @@ void Player::ClientInactivityTimer(void)
         //
         // The player reached maximum team kills
         //
-        G_PrintToAllClients(va("%s %s", client->pers.netname, message.c_str()), 2);
+        G_PrintToAllClients(va("%s %s\n", client->pers.netname, message.c_str()), 2);
 
         if (Q_stricmp(Info_ValueForKey(client->pers.userinfo, "ip"), "localhost")) {
             //

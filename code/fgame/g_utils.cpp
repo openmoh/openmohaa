@@ -2171,9 +2171,9 @@ void G_PrintToAllClients(const char *pszString, int iType)
         }
     } else {
         if (iType == 0) {
-            gi.SendServerCommand(-1, "print \"" HUD_MESSAGE_YELLOW "%s\n\"", pszString);
+            gi.SendServerCommand(-1, "print \"" HUD_MESSAGE_YELLOW "%s\"", pszString);
         } else {
-            gi.SendServerCommand(-1, "print \"" HUD_MESSAGE_WHITE "%s\n\"", pszString);
+            gi.SendServerCommand(-1, "print \"" HUD_MESSAGE_WHITE "%s\"", pszString);
         }
     }
 }
