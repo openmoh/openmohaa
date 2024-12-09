@@ -3857,7 +3857,7 @@ void UI_ResolutionChange(void)
         ui_compass_scale = Cvar_Get("ui_compass_scale", "0.75", CVAR_ARCHIVE | CVAR_LATCH);
     } else {
         // Older version doesn't have an adjustable compass, so assume 0.5 by default
-        ui_compass_scale = Cvar_Get("ui_compass_scale", "0.5", CVAR_ARCHIVE | CVAR_LATCH);
+        ui_compass_scale = Cvar_Get("ui_compass_scale", "0.55", CVAR_ARCHIVE | CVAR_LATCH);
     }
 
     CL_FillUIImports();
