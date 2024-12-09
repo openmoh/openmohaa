@@ -944,10 +944,17 @@ void CL_InitCGame( void ) {
 		CL_InitClientSavedData();
 	}
 
-	// init for this gamestate
-	// use the lastExecutedServerCommand instead of the serverCommandSequence
-	// otherwise server commands sent just before a gamestate are dropped
-	cge->CG_Init( &cgi, clc.serverMessageSequence, clc.lastExecutedServerCommand, clc.clientNum );
+	if (cl.snap.valid) {
+		// init for this gamestate
+		// use the lastExecutedServerCommand instead of the serverCommandSequence
+		// otherwise server commands sent just before a gamestate are dropped
+		cge->CG_Init(&cgi, clc.serverMessageSequence, clc.lastExecutedServerCommand, clc.clientNum);
+	} else {
+		// executing client commands from previous map/server might be an issue, some commands might be cs commands,
+		// like old CS_SYSTEMINFO configstrings which still contain the sv_serverId from previous map.
+		// It would cause the client to lose the game state number
+		cge->CG_Init(&cgi, clc.serverMessageSequence, clc.serverCommandSequence, clc.clientNum);
+	}
 
 	ClearNewConfigFlag();
 	TIKI_FinishLoad();
