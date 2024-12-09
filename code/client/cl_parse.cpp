@@ -620,8 +620,12 @@ void CL_ParseGamestate( msg_t *msg ) {
     if (!com_sv_running->integer)
     {
         const char *info = cl.gameState.stringData + cl.gameState.stringOffsets[CS_SERVERINFO];
-        UI_ClearState();
-        UI_BeginLoad(Info_ValueForKey(info, "mapname"));
+		const char *mapname = Info_ValueForKey(info, "mapname");
+		// Added in 2.0
+		Cvar_Set("mapname", mapname);
+
+		UI_ClearState();
+        UI_BeginLoad(mapname);
     }
 
 	// This used to call CL_StartHunkUsers, but now we enter the download state before loading the
