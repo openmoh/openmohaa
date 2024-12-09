@@ -1245,7 +1245,7 @@ bool DM_Manager::CheckEndMatch()
     if (AllowRespawn() || (!m_team_axis.IsDead() && !m_team_allies.IsDead())) {
         int roundLimit = GetRoundLimit();
 
-        if (roundLimit > 0 && level.time >= m_iDefaultRoundLimit * 60 + m_fRoundTime) {
+        if (roundLimit > 0 && level.time >= roundLimit * 60 + m_fRoundTime) {
             if (m_csTeamBombPlantSide != STRING_DRAW) {
                 if (m_bIgnoringClockForBomb) {
                     if (m_iNumBombsPlanted > 0) {
