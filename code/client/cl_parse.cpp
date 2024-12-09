@@ -538,7 +538,6 @@ void CL_ParseGamestate( msg_t *msg ) {
 	entityState_t	nullstate;
 	int				cmd;
 	char			*s;
-	cvar_t			*sv_paks;
 
 	UI_CloseConsole();
 
@@ -569,6 +568,7 @@ void CL_ParseGamestate( msg_t *msg ) {
             csNum = CPT_NormalizeConfigstring(i);
             if (csNum < 0 || csNum >= MAX_CONFIGSTRINGS) {
                 Com_Error(ERR_DROP, "configstring > MAX_CONFIGSTRINGS");
+				return;
             }
             s = MSG_ReadScrambledBigString(msg);
             len = strlen(s);
@@ -589,8 +589,7 @@ void CL_ParseGamestate( msg_t *msg ) {
 			//Com_Memset (&nullstate, 0, sizeof(nullstate));
 			MSG_GetNullEntityState(&nullstate);
 			es = &cl.entityBaselines[ newnum ];
-			// FIXME: frametime
-			MSG_ReadDeltaEntity( msg, &nullstate, es, newnum, 0.0);
+			MSG_ReadDeltaEntity( msg, &nullstate, es, newnum, cls.serverFrameTime);
 		} else {
 			Com_Error( ERR_DROP, "CL_ParseGamestate: bad command byte %i", cmd );
 		}
