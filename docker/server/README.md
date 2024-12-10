@@ -6,13 +6,18 @@ Contains Dockerfile for building openmohaa-based server on Debian Bookworm. MOHA
 ```
 [/usr/local/share/mohaa]
 ├── [main]
-│   └── Pakx.pk3
+│   └── Pak*.pk3
 ├── [mainta]
-│   └── pakx.pk3
+│   └── pak*.pk3
 ├── [maintt]
-│   └── pakx.pk3
+│   └── pak*.pk3
 └── [mods]
-    └── Custom PK3s go here
+    ├── [main]
+    │   └── Custom PK3s go here
+    ├── [mainta]
+    │   └── Custom PK3s go here
+    └── [maintt]
+        └── Custom PK3s go here
 ```
 
 `sound` and `video` folders are not needed.

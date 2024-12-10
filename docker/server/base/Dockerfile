@@ -24,7 +24,7 @@ FROM debian:bookworm
 COPY --from=0 /usr/local/games/openmohaa /usr/local/games/openmohaa
 
 # MOHAA data (main, mainta and maintt) goes inside this directory
-# mods can go inside a subdirectory called "mods"
+# mods can go inside a subdirectory called "home"
 VOLUME "/usr/local/share/mohaa"
 
 # Create an user for starting the server
@@ -33,4 +33,4 @@ RUN useradd -m openmohaa
 USER openmohaa
 
 WORKDIR "/usr/local/share/mohaa"
-ENTRYPOINT [ "/usr/local/games/openmohaa/lib/openmohaa/omohaaded", "+set", "fs_game", "mods" ]
+ENTRYPOINT [ "/usr/local/games/openmohaa/lib/openmohaa/omohaaded", "+set", "fs_homepath", "home" ]
