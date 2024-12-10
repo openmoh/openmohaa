@@ -1,9 +1,6 @@
 # Docker
 
-Run with
-```sh
-mkdir .cmake
-cd .cmake
-cmake -DCMAKE_C_COMPILER=clang-15 -DCMAKE_CXX_COMPILER=clang++-15 -G Ninja ../
-ninja
-```
+This contains Docker files for openmohaa development and server.
+
+- See [Development](dev/README.md) to build dev containers.
+- See [Server](server/README.md) to containers for hosting an OpenMoHAA server.
