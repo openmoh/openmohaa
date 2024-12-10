@@ -11,7 +11,7 @@ Contains Dockerfile for building openmohaa-based server on Debian Bookworm. MOHA
 │   └── pak*.pk3
 ├── [maintt]
 │   └── pak*.pk3
-└── [mods]
+└── [home]
     ├── [main]
     │   └── Custom PK3s go here
     ├── [mainta]
@@ -23,7 +23,7 @@ Contains Dockerfile for building openmohaa-based server on Debian Bookworm. MOHA
 `sound` and `video` folders are not needed.
 
 There are two ways to handle game data:
-1) Create a new image based on this image (with a new Dockerfile) and copy the game directory in `/usr/local/share/mohaa`. This is the recommended solution because game data should be immutable. For mods, a base image can be created, or a volume can be mounted to `/usr/local/share/mohaa/mods` which contains files that will modify the game.
+1) Create a new image based on this image (with a new Dockerfile) and copy the game directory in `/usr/local/share/mohaa`. This is the recommended solution because game data should be immutable. For mods, a base image can be created, or a volume can be mounted to `/usr/local/share/mohaa/home` which contains files (in main, mainta or maintt subdir) that will modify the game.
 
 or
 
