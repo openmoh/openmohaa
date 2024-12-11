@@ -61,7 +61,10 @@ properly.
 
 
 #define	MAX_FACETS			1024
-#define	MAX_PATCH_PLANES	4096 // 2048 su44: increased for m1l2a
+// Changed in OPM
+//  In OG it's 4096, however due to a tiny floating point difference
+//  between x86 and x64, more patch planes can appear in x64
+#define	MAX_PATCH_PLANES	6144
 
 typedef struct {
 	float	plane[4];
