@@ -1238,15 +1238,9 @@ void Weapon::Delete(void)
 {
     if (g_iInThinks) {
         DetachGun();
-
-        if (owner) {
-            RemoveFromOwner();
-        }
-
-        PostEvent(EV_Remove, 0);
-    } else {
-        delete this;
     }
+
+    Item::Delete();
 }
 
 //======================

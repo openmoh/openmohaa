@@ -5721,6 +5721,14 @@ void Entity::Delete(void)
     // Delete the entity the next frame
 
     if (g_iInThinks) {
+        if (ProcessingEvents) {
+            // Fixed in OPM
+            //  Add a slight delay because otherwise this would cause an infinite loop
+            //  when processing pending events
+            PostEvent(EV_Remove, 0.001);
+            return;
+        }
+
         PostEvent(EV_Remove, 0);
     } else {
         delete this;

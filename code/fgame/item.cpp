@@ -418,15 +418,11 @@ void Item::RemoveFromOwner(void)
 
 void Item::Delete(void)
 {
-    if (g_iInThinks) {
-        if (owner) {
-            RemoveFromOwner();
-        }
-
-        PostEvent(EV_Remove, 0);
-    } else {
-        delete this;
+    if (g_iInThinks && owner) {
+        RemoveFromOwner();
     }
+
+    Animate::Delete();
 }
 
 void Item::SetNoRemove(Event *ev)
