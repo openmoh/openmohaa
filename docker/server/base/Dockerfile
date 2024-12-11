@@ -27,6 +27,11 @@ COPY --from=0 /usr/local/games/openmohaa /usr/local/games/openmohaa
 # mods can go inside a subdirectory called "home"
 VOLUME "/usr/local/share/mohaa"
 
+# Install tools to check for the health
+RUN apt update && apt install -y socat
+COPY "health_check.sh" "/usr/local/bin/health_check.sh"
+HEALTHCHECK --interval=15s --timeout=20s --start-period=10s --retries=3 CMD [ "bash", "/usr/local/bin/health_check.sh" ]
+
 # Create an user for starting the server
 # This improves the overall security of the server instance
 RUN useradd -m openmohaa
