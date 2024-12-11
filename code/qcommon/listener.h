@@ -457,6 +457,7 @@ public:
 #endif
 
     static bool EventSystemStarted;
+    static bool ProcessingEvents;
 
 private:
 #ifdef WITH_SCRIPT_ENGINE

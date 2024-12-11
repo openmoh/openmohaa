@@ -73,7 +73,8 @@ EventQueueNode Event::EventQueue;
 
 int DisableListenerNotify = 0;
 
-bool Listener::EventSystemStarted = 0;
+bool Listener::EventSystemStarted = false;
+bool Listener::ProcessingEvents = false;
 
 Event EV_Listener_CancelFor
 (
@@ -575,6 +576,8 @@ void L_ProcessPendingEvents()
 {
     EventQueueNode *node;
 
+    Listener::ProcessingEvents = true;
+
     int t = EVENT_msec;
     while (!LL_Empty(&Event::EventQueue, next, prev)) {
         Listener *obj;
@@ -600,6 +603,8 @@ void L_ProcessPendingEvents()
 
         delete node;
     }
+
+    Listener::ProcessingEvents = false;
 }
 
 void L_ShutdownEvents(void)
@@ -3007,6 +3012,8 @@ qboolean Listener::ProcessPendingEvents(void)
 
     t = EVENT_msec;
 
+    Listener::ProcessingEvents = true;
+
     event = Event::EventQueue.next;
     while (event != &Event::EventQueue) {
         Listener *obj;
@@ -3038,6 +3045,8 @@ qboolean Listener::ProcessPendingEvents(void)
             processedEvents = true;
         }
     }
+
+    Listener::ProcessingEvents = false;
 
     return processedEvents;
 }
