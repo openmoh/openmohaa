@@ -298,7 +298,7 @@ void CG_OffsetFirstPersonView(refEntity_t *pREnt, qboolean bUseWorldPosition)
 
     VectorCopy(origin, vOldOrigin);
 
-    if (!cg.predicted_player_state.walking || !(cg.predicted_player_state.pm_flags & PMF_FROZEN)) {
+    if (!cg.predicted_player_state.walking || (!(cg.predicted_player_state.pm_flags & PMF_FROZEN) && !(cg.predicted_player_state.pm_flags & PMF_NO_MOVE))) {
         VectorCopy(cg.predicted_player_state.velocity, vVelocity);
     } else {
         //
