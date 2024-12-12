@@ -2126,7 +2126,8 @@ Event EV_ScriptOrigin_GetAngle
     NULL,
     "get the angles of the entity using just one value.\n"
     "Gets the yaw of the entity or an up and down\n"
-    "direction if newAngle is [0-359] or -1 or -2"
+    "direction if newAngle is [0-359] or -1 or -2",
+    EV_GETTER
 );
 
 CLASS_DECLARATION(ScriptSlave, ScriptOrigin, "script_origin") {
@@ -2173,7 +2174,10 @@ void ScriptOrigin::SetAngleEvent(Event* ev)
 
 void ScriptOrigin::GetAngleEvent(Event* ev)
 {
-    ev->AddFloat(G_GetAngle(angles));
+    Vector forward;
+
+    angles.AngleVectorsLeft(&forward);
+    ev->AddFloat(G_GetAngle(forward));
 }
 
 /*****************************************************************************/
