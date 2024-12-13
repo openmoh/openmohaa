@@ -71,7 +71,7 @@ This matches the hardware requirements (x86) of the original game.
 
 ### Breakthrough expansion
 
-800 MB of free disk space is required to install Spearhead on top of the base game.
+800 MB of free disk space is required to install Breakthrough on top of the base game.
 
 #### x86 (AMD and Intel)
 
