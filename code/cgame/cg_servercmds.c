@@ -465,6 +465,10 @@ void CG_ExecuteNewServerCommands(int latestSequence, qboolean differentServer)
 static const char *whiteListedVariables[] = {
     "r_fastsky", // some mods set this variable to make the sky uniform
     "ui_hud",
+    "subtitle0",
+    "subtitle1",
+    "subtitle2",
+    "subtitle3"
 };
 
 //
