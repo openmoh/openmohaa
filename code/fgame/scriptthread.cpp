@@ -2478,7 +2478,7 @@ void ScriptThread::Stop(void)
     }
 }
 
-void ScriptThread::Wait(float time)
+void ScriptThread::Wait(int time)
 {
     StartTiming(level.inttime + time);
     m_ScriptVM->Suspend();

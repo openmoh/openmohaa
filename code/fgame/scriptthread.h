@@ -196,7 +196,7 @@ public:
     void                  Execute(Event *ev);
     void                  Execute();
     void                  Execute(ScriptVariable *data, int dataSize);
-    void                  Wait(float time);
+    void                  Wait(int time);
     void                  Pause(void);
     void                  ScriptExecute(ScriptVariable *data, int dataSize, ScriptVariable& returnValue);
     void                  ScriptExecuteInternal(ScriptVariable *data = NULL, int dataSize = 0);
