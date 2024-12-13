@@ -3094,7 +3094,7 @@ void FuncLadder::AdjustPositionOnLadder(Entity *pUser)
         );
     }
 
-    pUser->setOrigin(trace.endpos + m_vFacingDir * 0.005);
+    pUser->setOrigin(trace.endpos);
 }
 
 void FuncLadder::EnsureOverLadder(Entity *pUser)

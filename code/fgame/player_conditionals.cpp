@@ -1515,7 +1515,7 @@ qboolean Player::CondCanGetOffLadderTop(Conditional& condition)
 
     angles.AngleVectorsLeft(&vForward);
 
-    vStart = origin - vForward * 12.0f;
+    vStart = origin - vForward * 12.0f * 1.005f;
     vStart[2] += maxs[2] - 8.0f;
 
     vEnd = vStart + vForward * 40.0f;
