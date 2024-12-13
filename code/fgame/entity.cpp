@@ -2996,7 +2996,6 @@ void Entity::FadeIn(Event *ev)
 
     if (ev->NumArgs() > 0) {
         rate = ev->GetFloat(1);
-        assert(rate);
         if (rate > 0) {
             rate = FRAMETIME / rate;
         }
@@ -3032,7 +3031,6 @@ void Entity::Fade(Event *ev)
 
     if (ev->NumArgs() > 0) {
         rate = ev->GetFloat(1);
-        assert(rate);
         if (rate > 0) {
             rate = FRAMETIME / rate;
         }
