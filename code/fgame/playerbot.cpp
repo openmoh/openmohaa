@@ -648,6 +648,7 @@ bool BotController::CheckCondition_Attack(void)
 
         if (controlledEnt->CanSee(sent, 80, maxDistance, false)) {
             m_pEnemy      = sent;
+            m_vLastEnemyPos = m_pEnemy->centroid;
             m_iAttackTime = level.inttime + 1000;
             return true;
         }
@@ -674,6 +675,7 @@ void BotController::State_EndAttack(void)
 void BotController::State_Attack(void)
 {
     bool    bMelee              = false;
+    bool    bCanSee             = false;
     float   fMinDistance        = 128;
     float   fMinDistanceSquared = fMinDistance * fMinDistance;
     Weapon *pWeap               = controlledEnt->GetActiveWeapon(WEAPON_MAIN);
@@ -686,9 +688,10 @@ void BotController::State_Attack(void)
     }
     float fDistanceSquared = (m_pEnemy->origin - controlledEnt->origin).lengthSquared();
 
-    if (controlledEnt->CanSee(
-            m_pEnemy, 20, Q_min(world->m_fAIVisionDistance, world->farplane_distance * 0.828), false
-        )) {
+    m_vOldEnemyPos = m_vLastEnemyPos;
+
+    bCanSee = controlledEnt->CanSee(m_pEnemy, 20, Q_min(world->m_fAIVisionDistance, world->farplane_distance * 0.828), false);
+    if (bCanSee) {
         if (!pWeap) {
             return;
         }
@@ -761,15 +764,19 @@ void BotController::State_Attack(void)
             controlledEnt->ZoomOff();
         }
 
-        m_iAttackTime   = level.inttime + 1000;
-        m_vOldEnemyPos  = m_vLastEnemyPos;
-        m_vLastEnemyPos = m_pEnemy->centroid;
+        m_iAttackTime           = level.inttime + 1000;
+        m_iAttackStopAimTime    = level.inttime + 3000;
+        m_vLastEnemyPos         = m_pEnemy->centroid;
     } else {
         m_botCmd.buttons &= ~(BUTTON_ATTACKLEFT | BUTTON_ATTACKRIGHT);
         fMinDistanceSquared = 0;
     }
 
-    rotation.AimAt(m_pEnemy->centroid + Vector(G_CRandom(8), G_CRandom(8), G_CRandom(8)));
+    if (bCanSee || level.inttime < m_iAttackStopAimTime) {
+        rotation.AimAt(m_vLastEnemyPos + Vector(G_CRandom(8), G_CRandom(8), G_CRandom(8)));
+    } else {
+        AimAtAimNode();
+    }
 
     if (bNoMove) {
         return;
@@ -777,14 +784,21 @@ void BotController::State_Attack(void)
 
     if ((!movement.MoveToBestAttractivePoint(5) && !movement.IsMoving())
         || (m_vOldEnemyPos != m_vLastEnemyPos && !movement.MoveDone())) {
-        if (!bMelee) {
+        if (!bMelee || !bCanSee) {
             if ((controlledEnt->origin - m_vLastEnemyPos).lengthSquared() < fMinDistanceSquared) {
                 Vector vDir = controlledEnt->origin - m_vLastEnemyPos;
                 VectorNormalizeFast(vDir);
 
                 movement.AvoidPath(m_vLastEnemyPos, fMinDistance, Vector(controlledEnt->orientation[1]) * 512);
             } else {
-                movement.MoveNear(m_vLastEnemyPos, fMinDistance);
+                movement.MoveTo(m_vLastEnemyPos);
+            }
+
+            if (!bCanSee && movement.MoveDone()) {
+                // Lost track of the enemy
+                m_pEnemy = NULL;
+                m_iAttackTime = 0;
+                return;
             }
         } else {
             movement.MoveTo(m_vLastEnemyPos);

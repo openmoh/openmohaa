@@ -137,6 +137,7 @@ private:
     // States
     int               m_iCuriousTime;
     int               m_iAttackTime;
+    int               m_iAttackStopAimTime;
     Vector            m_vLastCuriousPos;
     Vector            m_vNewCuriousPos;
     Vector            m_vOldEnemyPos;
