@@ -2232,9 +2232,12 @@ G_PrintDeathMessageEmulated(const char *s1, const char *s2, char *attackerName, 
     result2 = NULL;
 
     if (type == tolower(type)) {
+        // Enemy
         hudColor = 4;
     } else {
-        hudColor = 5;
+        // Friend
+        //hudColor = 5;
+        hudColor = 4;
     }
 
     if (*s1 != 'x') {
@@ -2327,7 +2330,7 @@ void G_PrintDeathMessage_Old(const char *pszString)
             continue;
         }
 
-        gi.SendServerCommand(ent - g_entities, "print \"" HUD_MESSAGE_CHAT_RED "%s\"", pszString);
+        gi.SendServerCommand(ent - g_entities, "print \"%s\"", pszString);
     }
 }
 
