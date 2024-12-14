@@ -1863,7 +1863,9 @@ void Com_Init( char *commandLine ) {
 
 	Sys_Init();
 
-	//Sys_InitPIDFile(FS_GetCurrentGameDir());
+#ifndef NDEBUG
+	Sys_InitPIDFile(FS_GetCurrentGameDir());
+#endif
 
 	// Pick a random port value
 	Com_RandomBytes((byte*)&qport, sizeof(int));
