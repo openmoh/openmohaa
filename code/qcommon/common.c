@@ -1863,7 +1863,7 @@ void Com_Init( char *commandLine ) {
 
 	Sys_Init();
 
-#ifndef NDEBUG
+#ifdef NDEBUG
 	Sys_InitPIDFile(FS_GetCurrentGameDir());
 #endif
 
