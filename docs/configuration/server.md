@@ -2,6 +2,8 @@
 
 This documentation currently only lists new changes that were introduced in OpenMoHAA.
 
+If you want to use containers, see [Building a server container in Docker](../../docker/server/README.md) to build an image for your dedicated server.
+
 ## Home directory
 
 In original MOH:AA, the game installation directory is used to store mods and data, it's not the case in OpenMoHAA as it uses the home directory by default to write data in here, and the home directory can be used to store mods. This behavior can be changed:
