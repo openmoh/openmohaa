@@ -1614,6 +1614,22 @@ static void Com_InitRand(void)
 
 /*
 =================
+Com_ConfigExists
+=================
+*/
+qboolean Com_ConfigExists(const char* configname) {
+	fileHandle_t handle = (fileHandle_t)0;
+
+    if (FS_FOpenFileRead(va("configs/%s", configname), &handle, qfalse, qfalse) == -1) {
+		return qfalse;
+    }
+
+	FS_FCloseFile(handle);
+	return qtrue;
+}
+
+/*
+=================
 Com_Init
 =================
 */
@@ -1701,27 +1717,33 @@ void Com_Init( char *commandLine ) {
 
 	config = Cvar_Get( "config", "omconfig.cfg", 0 );
 
-	if( strlen( config->string ) <= 1 )
+	if( strlen( config->string ) > 1 )
+	{
+		size_t len = strlen( config->string );
+
+		Q_strncpyz( configname, config->string, len >= sizeof( configname ) ? sizeof( configname ) : len );
+		COM_StripExtension( configname, configname, sizeof( configname ) );
+		Q_strcat( configname, sizeof( configname ), ".cfg" );
+		SaveRegistryInfo( 1, "config", configname, sizeof( configname ) );
+	}
+	else
 	{
 		long size = sizeof( configname );
 		LoadRegistryInfo(1, "config", configname, &size );
 		COM_DefaultExtension( configname, sizeof( configname ), ".cfg" );
 	}
-	else
-	{
-		size_t len = strlen( config->string );
-
-		strncpy( configname, config->string, len >= sizeof( configname ) ? sizeof( configname ) : len );
-		COM_StripExtension( configname, configname, sizeof( configname ) );
-		strcat( configname, ".cfg" );
-		SaveRegistryInfo( 1, "config", configname, sizeof( configname ) );
-	}
 
 	SaveRegistryInfo( 1, "config", configname, sizeof( configname ) );
+
 	Cvar_Set( "config", configname );
 	Com_Printf( "Config: %s\n", configname );
 
-	Cbuf_AddText( va( "exec configs/%s\n", configname ) );
+	if ( !Com_ConfigExists( configname )) {
+		Com_Printf( "The config file '%s' doesn't exist, using unnamedsoldier.cfg as a template\n", configname );
+		Cbuf_AddText( va( "exec configs/unnamedsoldier.cfg\n", configname ) );
+	} else {
+		Cbuf_AddText( va( "exec configs/%s\n", configname ) );
+	}
 
 	if( Com_SafeMode() )
 	{
