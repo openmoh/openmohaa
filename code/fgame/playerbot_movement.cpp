@@ -118,14 +118,44 @@ void BotMovement::MoveThink(usercmd_t& botcmd)
         }
 
         if (m_bTempAway) {
+            Vector nextPos;
+            Vector dir;
+
             m_bTempAway     = true;
             m_iTempAwayTime = level.inttime + 750;
             m_iNumBlocks++;
 
             // Try to backward a little
+            if (m_Path.CurrentNode()) {
+                nextPos = m_Path.CurrentNode()->point;
+            } else {
+                nextPos = m_vTargetPos;
+            }
+
             m_Path.Clear();
             m_Path.ForceShortLookahead();
-            m_vCurrentGoal = controlledEntity->origin + Vector(G_CRandom(512), G_CRandom(512), G_CRandom(512));
+
+            if (rand() % 10 != 0) {
+                dir = nextPos - controlledEntity->origin;
+                dir.z = 0;
+                dir.normalize();
+
+                if (dir.x < -0.5 || dir.x > 0.5) {
+                    dir.x *= 4;
+                    dir.y /= 4;
+                } else if (dir.y < -0.5 || dir.y > 0.5) {
+                    dir.x /= 4;
+                    dir.y *= 4;
+                } else {
+                    dir.x = G_CRandom(2);
+                    dir.y = G_CRandom(2);
+                }
+
+                m_vCurrentGoal = nextPos + dir * 128;
+            } else {
+                m_vCurrentGoal = controlledEntity->origin + Vector(G_CRandom(512), G_CRandom(512), G_CRandom(512));
+            }
+
         } else {
             m_iNumBlocks = 0;
 
