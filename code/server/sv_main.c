@@ -510,6 +510,14 @@ void SVC_Status( netadr_t from ) {
 	// to prevent timed spoofed reply packets that add ghost servers
 	Info_SetValueForKey( infostring, "challenge", Cmd_Argv(1) );
 
+	if (Cvar_VariableIntegerValue("fs_restrict")) {
+		char keywords[MAX_INFO_STRING];
+
+		// Append "demo" at the beginning of the keywords
+		Com_sprintf(keywords, sizeof(keywords), "demo %s", Info_ValueForKey(infostring, "sv_keywords"));
+		Info_SetValueForKey(infostring, "sv_keywords", keywords);
+	}
+
 	status[0] = 0;
 	statusLength = 0;
 
