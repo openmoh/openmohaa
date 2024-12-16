@@ -144,6 +144,7 @@ private:
     Vector            m_vLastEnemyPos;
     Vector            m_vLastDeathPos;
     SafePtr<Sentient> m_pEnemy;
+    int               m_iEnemyEyesTag;
 
     // Input
     usercmd_t  m_botCmd;
