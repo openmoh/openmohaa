@@ -1881,8 +1881,8 @@ void G_ExitLevel(void)
             // The nextmap cvar was set (possibly by a vote - so go ahead and use it)
             level.nextmap = sv_nextmap->string;
             gi.cvar_set("nextmap", "");
-        } else // Use the next map in the maplist
-        {
+        } else {
+            // Use the next map in the maplist
             char *s, *f, *t;
 
             f = NULL;
@@ -1892,19 +1892,17 @@ void G_ExitLevel(void)
                 if (!Q_stricmp(t, level.mapname.c_str())) {
                     // it's in the list, go to the next one
                     t = strtok(NULL, seps);
-                    if (t == NULL) // end of list, go to first one
-                    {
-                        if (f == NULL) // there isn't a first one, same level
-                        {
-                            level.nextmap = level.mapname;
-                        } else {
-                            level.nextmap = f;
-                        }
-                    } else {
+                    if (t) {
                         level.nextmap = t;
+                    } else if (f) {
+                        // end of list, go to first one
+                        level.nextmap = f;
+                    } else {
+                        // there isn't a first one, same level
+                        level.nextmap = level.mapname;
                     }
-                    free(s);
-                    goto out;
+
+                    break;
                 }
 
                 // set the first map
@@ -1915,7 +1913,7 @@ void G_ExitLevel(void)
             }
             free(s);
         }
-    out:
+
         // level.nextmap should be set now, but if it isn't use the same map
         if (level.nextmap.length() == 0) {
             // Stay on the same map since no nextmap was set
@@ -1929,8 +1927,8 @@ void G_ExitLevel(void)
             // alias on another map
             Q_strncpyz(command, level.nextmap, sizeof(command));
             gi.SendConsoleCommand(command);
-        } else // use the level.nextmap variable
-        {
+        } else {
+            // use the level.nextmap variable
             Com_sprintf(command, sizeof(command), "gamemap \"%s\"\n", level.nextmap.c_str());
             gi.SendConsoleCommand(command);
         }
