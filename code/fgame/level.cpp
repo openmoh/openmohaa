@@ -969,8 +969,8 @@ void Level::CleanUp(qboolean samemap, qboolean resetConfigStrings)
         gi.setConfigstring(CS_RAIN_NUMSHADERS, "0");
         gi.setConfigstring(CS_CURRENT_OBJECTIVE, "");
 
-        for (int i = CS_OBJECTIVES; i < CS_OBJECTIVES + MAX_OBJECTIVES; i++) {
-            gi.setConfigstring(i, "");
+        for (i = 0; i < MAX_OBJECTIVES; i++) {
+            gi.setConfigstring(CS_OBJECTIVES + i, "");
         }
 
         gi.setConfigstring(CS_VOTE_TIME, "");
