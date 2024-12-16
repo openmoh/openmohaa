@@ -62,7 +62,7 @@ void BotRotation::TurnThink(usercmd_t& botcmd, usereyes_t& eyeinfo)
         m_vTargetAng[PITCH] -= 360;
     }
 
-    factor    = 0.25f;
+    factor    = 0.5f;
     maxchange = 360;
 
     if (maxchange < 240) {
@@ -84,7 +84,7 @@ void BotRotation::TurnThink(usercmd_t& botcmd, usereyes_t& eyeinfo)
         m_vCurrentAng[i] += anglespeed;
         m_vCurrentAng[i] = AngleMod(m_vCurrentAng[i]);
 
-        //demping
+        //damping
         m_vAngSpeed[i] *= 0.2 * (1 - factor);
     }
 
@@ -132,7 +132,7 @@ Make the bot face to the specified direction
 */
 void BotRotation::AimAt(Vector vPos)
 {
-    Vector vDelta = vPos - controlledEntity->centroid;
+    Vector vDelta = vPos - controlledEntity->EyePosition();
 
     VectorNormalize(vDelta);
     vectoangles(vDelta, m_vTargetAng);
