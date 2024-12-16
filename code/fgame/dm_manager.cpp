@@ -677,6 +677,7 @@ DM_Manager::DM_Manager()
     m_bAllowAxisRespawn    = true;
     m_bAllowAlliedRespawn  = true;
     m_bRoundActive         = false;
+    m_iTotalMapTime        = 0;
 }
 
 DM_Manager::~DM_Manager() {}
