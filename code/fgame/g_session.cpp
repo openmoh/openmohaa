@@ -87,6 +87,13 @@ Called on a first-time connect
 */
 void G_InitClientPersistant( gclient_t *client, const char *userinfo )
 {
+	// Clear the persistent data
+	client->pers = {};
+
+	// Added in OPM
+	//  Reset the persistent session data.
+	//  This fixes some bugs like the player getting score
+	//  from previous maps
 	G_WriteClientSessionData( client );
 }
 
