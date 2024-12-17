@@ -457,8 +457,7 @@ PlayerStart *DM_Team::GetRandomSpawnpointWithMetric(
                     vNewSpawn, player->mins, player->maxs, vEnd, player, MASK_PLAYERSOLID, qfalse, "TempSpawnPoint"
                 );
 
-                if (!trace.allsolid && !trace.startsolid && trace.fraction != 1.0f && trace.fraction != 1.0f
-                    && trace.plane.dist >= 0.8f) {
+                if (!trace.allsolid && !trace.startsolid && trace.fraction != 1.0f && trace.plane.dist >= 0.8f) {
                     points[numSpots].spawnpoint = new PlayerStart;
                     points[numSpots].spawnpoint->setOrigin(trace.endpos);
                     points[numSpots].spawnpoint->setAngles(spot->angles);
