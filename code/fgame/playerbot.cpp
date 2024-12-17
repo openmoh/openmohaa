@@ -659,6 +659,7 @@ bool BotController::CheckCondition_Attack(void)
             if (!m_pEnemy) {
                 // Slight reaction time
                 m_iConfirmTime = level.inttime + (200 + G_Random(200));
+                m_iAttackTime = 0;
             }
 
             m_pEnemy        = sent;
