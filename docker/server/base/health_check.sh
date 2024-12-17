@@ -6,7 +6,7 @@ header=$'\xff\xff\xff\xff\x01disconnect'
 # so the server will return the disconnect message
 message=$'none'
 
-query_port=12203
+query_port=${GAME_PORT:-12203}
 data=""
 
 while [ -z "$data" ]

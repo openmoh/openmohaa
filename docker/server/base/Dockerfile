@@ -37,5 +37,9 @@ HEALTHCHECK --interval=15s --timeout=20s --start-period=10s --retries=3 CMD [ "b
 RUN useradd -m openmohaa
 USER openmohaa
 
+ENV GAME_PORT=12203
+
+COPY "entrypoint.sh" "/usr/local/bin/entrypoint.sh"
 WORKDIR "/usr/local/share/mohaa"
-ENTRYPOINT [ "/usr/local/games/openmohaa/lib/openmohaa/omohaaded", "+set", "fs_homepath", "home" ]
+
+ENTRYPOINT [ "bash", "entrypoint.sh" ]
