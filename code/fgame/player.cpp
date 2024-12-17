@@ -11992,10 +11992,6 @@ void Player::Spawned(void)
 void Player::AddKills(int num)
 {
     num_kills += num;
-
-    if (g_gametype->integer >= GT_TEAM_ROUNDS) {
-        num_deaths += num;
-    }
 }
 
 void Player::AddDeaths(int num)
