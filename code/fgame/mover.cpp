@@ -72,8 +72,14 @@ void Mover::MoveDone(Event *ev)
     aaccel = vec_zero;
 
     if (!G_PushMove(this, move, amove)) {
-        // Delay finish till we can move into the final position
-        PostEvent(EV_MoveDone, FRAMETIME);
+        // Added in OPM
+        //  Check to make sure the event isn't pending
+        //  blocked events called by G_PushMove() might alter
+        //  the mover
+        if (!EventPending(EV_MoveDone)) {
+            // Delay finish till we can move into the final position
+            PostEvent(EV_MoveDone, FRAMETIME);
+        }
         return;
     }
 
