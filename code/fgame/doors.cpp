@@ -848,6 +848,15 @@ void Door::DoorBlocked(Event *ev)
         if (state == STATE_OPENING || state == STATE_OPEN) {
             spawnflags &= ~DOOR_START_OPEN;
             ProcessEvent(EV_Door_Close);
+
+            // Added in OPM
+            //  Reopen to the other side
+            //  so the door cannot be blocked by a player
+            //  in multiplayer
+            diropened = -diropened;
+            e = new Event(EV_Door_Open);
+            e->AddEntity(other);
+            ProcessEvent(e);
         } else {
             e = new Event(EV_Door_Open);
             e->AddEntity(other);
