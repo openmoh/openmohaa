@@ -190,7 +190,7 @@ float SpawnpointMetric_Team(const vec3_t origin, DM_Team *dmTeam, const Player *
 
 float SpawnpointMetric_Objective(const vec3_t origin, DM_Team *dmTeam, const Player *player)
 {
-    return rand() * 0.0000000005f;
+    return rand() / (float)RAND_MAX;
 }
 
 CLASS_DECLARATION(Listener, DM_Team, NULL) {
