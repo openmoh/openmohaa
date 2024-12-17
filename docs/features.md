@@ -68,6 +68,7 @@ Enable this feature with `set sv_netoptimize 2`.
 - Fix for `sv_fps` (tickrate), higher values won't cause animation issues anymore
 - Grenades with 1 ammo can now be picked up
 - Prevent crashing when the last weapon has no ammo and other weapons are inventory items
+- Prevent doors from getting blocked
 
 ## Planned features
 
