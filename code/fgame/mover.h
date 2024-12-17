@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // Base class for any object that needs to move to specific locations over a
 // period of time.  This class is kept separate from most entities to keep
 // class size down for objects that don't need such behavior.
-// 
+//
 
 #pragma once
 
@@ -33,33 +33,30 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "trigger.h"
 
 class Mover : public Trigger
-	{		
-	private:
-      Vector				finaldest;
-		Vector				angledest;
-		Event					*endevent;
-		int					moveflags;
+{
+private:
+    Vector finaldest;
+    Vector angledest;
+    Event *endevent;
+    int    moveflags;
 
-	public:
-		CLASS_PROTOTYPE( Mover );
+public:
+    CLASS_PROTOTYPE(Mover);
 
-								Mover();
-		virtual				~Mover();
-		void					MoveDone( Event *ev );
-		void					MoveTo( Vector tdest, Vector angdest, float tspeed, Event &event );
-		void					LinearInterpolate( Vector tdest, Vector angdest, float time, Event &event );
-	   void Archive( Archiver &arc ) override;
-   };
+    Mover();
+    virtual ~Mover();
+    void MoveDone(Event *ev);
+    void MoveTo(Vector tdest, Vector angdest, float tspeed, Event& event);
+    void LinearInterpolate(Vector tdest, Vector angdest, float time, Event& event);
+    void Archive(Archiver& arc) override;
+};
 
-inline void Mover::Archive
-	(
-	Archiver &arc
-	)
-   {
-   Trigger::Archive( arc );
+inline void Mover::Archive(Archiver& arc)
+{
+    Trigger::Archive(arc);
 
-   arc.ArchiveVector( &finaldest );
-   arc.ArchiveVector( &angledest );
-   arc.ArchiveEventPointer( &endevent );
-   arc.ArchiveInteger( &moveflags );
-   }
+    arc.ArchiveVector(&finaldest);
+    arc.ArchiveVector(&angledest);
+    arc.ArchiveEventPointer(&endevent);
+    arc.ArchiveInteger(&moveflags);
+}
