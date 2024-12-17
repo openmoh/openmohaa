@@ -130,14 +130,14 @@ static PlayerStart *GetRandomSpawnpointFromList(spawnsort_t *pSpots, int nSpots)
     }
 }
 
-float SpawnpointMetric_Ffa(const float *origin, DM_Team *dmTeam, const Player *player)
+float SpawnpointMetric_Ffa(const vec3_t origin, DM_Team *dmTeam, const Player *player)
 {
-    float fMinEnemyDistSquared = 23170.0f * 23170.0f;
+    float fMinEnemyDistSquared = Square(23170);
     int   i;
     int   nPlayers = dmManager.PlayerCount();
     float fDist;
 
-    for (i = 1; i < nPlayers; i++) {
+    for (i = 1; i <= nPlayers; i++) {
         Player *teammate = dmManager.GetPlayer(i);
         if (teammate == player || teammate->IsDead() || teammate->IsSpectator()) {
             continue;
@@ -150,12 +150,12 @@ float SpawnpointMetric_Ffa(const float *origin, DM_Team *dmTeam, const Player *p
         }
     }
 
-    return fMinEnemyDistSquared - (G_Random(0.25f) + 1.0f) * (1024.0f * 1024.0f);
+    return fMinEnemyDistSquared - (G_Random(0.25f) + 1.0f) * Square(1024);
 }
 
-float SpawnpointMetric_Team(const float *origin, DM_Team *dmTeam, const Player *player)
+float SpawnpointMetric_Team(const vec3_t origin, DM_Team *dmTeam, const Player *player)
 {
-    float fMinEnemyDistSquared  = 23170.0f * 23170.0f;
+    float fMinEnemyDistSquared  = Square(23170);
     float fSumFriendDistSquared = 0.0f;
     float fDistSquared;
     float fMetric;
@@ -163,7 +163,7 @@ float SpawnpointMetric_Team(const float *origin, DM_Team *dmTeam, const Player *
     int   nPlayers = dmManager.PlayerCount();
     int   nFriends = 0;
 
-    for (i = 1; i < nPlayers; i++) {
+    for (i = 1; i <= nPlayers; i++) {
         Player *teammate = dmManager.GetPlayer(i);
         if (teammate == player || teammate->IsDead() || teammate->IsSpectator()) {
             continue;
@@ -174,14 +174,12 @@ float SpawnpointMetric_Team(const float *origin, DM_Team *dmTeam, const Player *
         if (teammate->GetDM_Team() == dmTeam) {
             nFriends++;
             fSumFriendDistSquared += fDistSquared;
-        } else {
-            if (fMinEnemyDistSquared > fDistSquared) {
-                fMinEnemyDistSquared = fDistSquared;
-            }
+        } else if (fMinEnemyDistSquared > fDistSquared) {
+            fMinEnemyDistSquared = fDistSquared;
         }
     }
 
-    fMetric = fMinEnemyDistSquared - (G_Random(0.25f) + 1.0f) * (1024.0f * 1024.0f);
+    fMetric = fMinEnemyDistSquared - (G_Random(0.25f) + 1.0f) * Square(1024);
 
     if (nFriends) {
         fMetric += 0.25f * ((23170.0f * 23170.0f) - fSumFriendDistSquared / nFriends);
@@ -190,7 +188,7 @@ float SpawnpointMetric_Team(const float *origin, DM_Team *dmTeam, const Player *
     return fMetric;
 }
 
-float SpawnpointMetric_Objective(const float *origin, DM_Team *dmTeam, const Player *player)
+float SpawnpointMetric_Objective(const vec3_t origin, DM_Team *dmTeam, const Player *player)
 {
     return rand() * 0.0000000005f;
 }
