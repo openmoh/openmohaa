@@ -83,6 +83,9 @@ dtiki_t *TIKI_FindTiki(const char *path)
     if (tikicache) {
         dtiki_t **t;
 
+        Q_strncpyz(filename, path, sizeof(filename));
+        FS_CanonicalFilename(filename);
+
         t = tikicache->find(filename);
         if (t) {
             return *t;
