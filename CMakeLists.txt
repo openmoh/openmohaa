@@ -188,8 +188,7 @@ if (NOT BUILD_NO_CLIENT)
 	option(NO_MODERN_DMA "Use older sound-system" FALSE)
 
 	add_subdirectory("code/client")
-	add_subdirectory("code/renderergl1")
-	#add_subdirectory("code/renderergl2")
+	add_subdirectory("code/renderercommon")
 	add_subdirectory("code/sdl")
 
 	add_executable(openmohaa "misc/dummy.c")
