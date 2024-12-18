@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015-2024 the OpenMoHAA team
+Copyright (C) 2024 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -41,7 +41,6 @@ void R_InitStaticModels(void)
 {
     cStaticModelUnpacked_t *pSM;
     char                    szTemp[1024];
-    bool                    exists;
     skelBoneCache_t         bones[128];
     float                   radius;
     int                     i, j, k, l;
@@ -87,7 +86,7 @@ void R_InitStaticModels(void)
         }
 
         ri.FS_CanonicalFilename(szTemp);
-        exists    = ri.TIKI_FindTiki(szTemp) != NULL;
+        //const bool exists = ri.TIKI_FindTiki(szTemp) != NULL;
         pSM->tiki = ri.TIKI_RegisterTikiFlags(szTemp, qfalse);
 
         if (!pSM->tiki) {
@@ -106,12 +105,7 @@ void R_InitStaticModels(void)
             for (k = 0; k < surf->numskins; k++) {
                 if (surf->shader[k][0]) {
                     shader_t *sh = R_FindShader(
-                        surf->shader[k],
-                        -1,
-                        !(surf->flags & TIKI_SURF_NOMIPMAPS),
-                        r_picmip->integer,
-                        qtrue,
-                        qtrue
+                        surf->shader[k], -1, !(surf->flags & TIKI_SURF_NOMIPMAPS), r_picmip->integer, qtrue, qtrue
                     );
                     surf->hShader[k] = sh->index;
                 } else {
@@ -127,91 +121,96 @@ void R_InitStaticModels(void)
         // Suggestion:
         // It would be cool to have animated static model in the future
 
-        if (!exists) {
-            for (j = 0; j < pSM->tiki->numMeshes; j++) {
-                skelHeaderGame_t  *skelmodel = ri.TIKI_GetSkel(pSM->tiki->mesh[j]);
-                skelSurfaceGame_t *surf;
+        // Removed in 2.0
+        //  This only leads to issues where pStaticXyz is not initialized
+        //  and it can occurs if the TIKI model is registered before the static model
+        //if (exists) {
+        //    continue;
+        //}
 
-                if (!skelmodel) {
-                    ri.Printf(PRINT_WARNING, "^~^~^: Warning: Missing mesh in Static Model %s\n", skelmodel->name);
+        for (j = 0; j < pSM->tiki->numMeshes; j++) {
+            skelHeaderGame_t  *skelmodel = ri.TIKI_GetSkel(pSM->tiki->mesh[j]);
+            skelSurfaceGame_t *surf;
+
+            if (!skelmodel) {
+                ri.Printf(PRINT_WARNING, "^~^~^: Warning: Missing mesh in Static Model %s\n", skelmodel->name);
+                continue;
+            }
+
+            surf = skelmodel->pSurfaces;
+
+            for (k = 0; k < skelmodel->numSurfaces; k++, surf = surf->pNext) {
+                byte             *buf;
+                byte             *p;
+                skelWeight_t     *weight;
+                skeletorVertex_t *vert;
+
+                if (surf->pStaticXyz) {
                     continue;
                 }
 
-                surf = skelmodel->pSurfaces;
+                // allocate static vectors
+                p = buf =
+                    (byte *)ri.TIKI_Alloc((sizeof(vec4_t) + sizeof(vec4_t) + sizeof(vec2_t) * 2) * surf->numVerts);
+                surf->pStaticXyz = (vec4_t *)p;
+                p += sizeof(vec4_t) * surf->numVerts;
+                surf->pStaticNormal = (vec4_t *)p;
+                p += sizeof(vec4_t) * surf->numVerts;
+                surf->pStaticTexCoords = (vec2_t(*)[2])p;
 
-                for (k = 0; k < skelmodel->numSurfaces; k++, surf = surf->pNext) {
-                    byte             *buf;
-                    byte             *p;
-                    skelWeight_t     *weight;
-                    skeletorVertex_t *vert;
+                vert = surf->pVerts;
 
-                    if (surf->pStaticXyz) {
-                        continue;
+                for (l = 0; l < surf->numVerts; l++) {
+                    int              channel;
+                    skelBoneCache_t *bone;
+
+                    weight = (skelWeight_t *)((byte *)vert + sizeof(skeletorVertex_t)
+                                              + vert->numMorphs * sizeof(skeletorMorph_t));
+
+                    if (j > 0) {
+                        channel = ri.TIKI_GetLocalChannel(pSM->tiki, skelmodel->pBones[weight->boneIndex].channel);
+                    } else {
+                        channel = weight->boneIndex;
                     }
 
-                    // allocate static vectors
-                    p = buf =
-                        (byte *)ri.TIKI_Alloc((sizeof(vec4_t) + sizeof(vec4_t) + sizeof(vec2_t) * 2) * surf->numVerts);
-                    surf->pStaticXyz = (vec4_t *)p;
-                    p += sizeof(vec4_t) * surf->numVerts;
-                    surf->pStaticNormal = (vec4_t *)p;
-                    p += sizeof(vec4_t) * surf->numVerts;
-                    surf->pStaticTexCoords = (vec2_t(*)[2])p;
+                    bone = &bones[channel];
 
-                    vert = surf->pVerts;
+                    surf->pStaticXyz[l][0] =
+                        ((weight->offset[0] * bone->matrix[0][0] + weight->offset[1] * bone->matrix[1][0]
+                          + weight->offset[2] * bone->matrix[2][0])
+                         + bone->offset[0])
+                        * weight->boneWeight;
+                    surf->pStaticXyz[l][1] =
+                        ((weight->offset[0] * bone->matrix[0][1] + weight->offset[1] * bone->matrix[1][1]
+                          + weight->offset[2] * bone->matrix[2][1])
+                         + bone->offset[1])
+                        * weight->boneWeight;
+                    surf->pStaticXyz[l][2] =
+                        ((weight->offset[0] * bone->matrix[0][2] + weight->offset[1] * bone->matrix[1][2]
+                          + weight->offset[2] * bone->matrix[2][2])
+                         + bone->offset[2])
+                        * weight->boneWeight;
+                    surf->pStaticXyz[l][3] = 0.f;
 
-                    for (l = 0; l < surf->numVerts; l++) {
-                        int              channel;
-                        skelBoneCache_t *bone;
+                    surf->pStaticNormal[l][0] = vert->normal[0] * bone->matrix[0][0]
+                                              + vert->normal[1] * bone->matrix[1][0]
+                                              + vert->normal[2] * bone->matrix[2][0];
+                    surf->pStaticNormal[l][1] = vert->normal[0] * bone->matrix[0][1]
+                                              + vert->normal[1] * bone->matrix[1][1]
+                                              + vert->normal[2] * bone->matrix[2][1];
+                    surf->pStaticNormal[l][2] = vert->normal[0] * bone->matrix[0][2]
+                                              + vert->normal[1] * bone->matrix[1][2]
+                                              + vert->normal[2] * bone->matrix[2][2];
+                    surf->pStaticNormal[l][3] = 0.f;
 
-                        weight = (skelWeight_t *)((byte *)vert + sizeof(skeletorVertex_t)
-                                                  + vert->numMorphs * sizeof(skeletorMorph_t));
+                    surf->pStaticTexCoords[l][0][0] = vert->texCoords[0];
+                    surf->pStaticTexCoords[l][0][1] = vert->texCoords[1];
+                    surf->pStaticTexCoords[l][1][0] = vert->texCoords[0];
+                    surf->pStaticTexCoords[l][1][1] = vert->texCoords[1];
 
-                        if (j > 0) {
-                            channel = ri.TIKI_GetLocalChannel(pSM->tiki, skelmodel->pBones[weight->boneIndex].channel);
-                        } else {
-                            channel = weight->boneIndex;
-                        }
-
-                        bone = &bones[channel];
-
-                        surf->pStaticXyz[l][0] =
-                            ((weight->offset[0] * bone->matrix[0][0] + weight->offset[1] * bone->matrix[1][0]
-                              + weight->offset[2] * bone->matrix[2][0])
-                             + bone->offset[0])
-                            * weight->boneWeight;
-                        surf->pStaticXyz[l][1] =
-                            ((weight->offset[0] * bone->matrix[0][1] + weight->offset[1] * bone->matrix[1][1]
-                              + weight->offset[2] * bone->matrix[2][1])
-                             + bone->offset[1])
-                            * weight->boneWeight;
-                        surf->pStaticXyz[l][2] =
-                            ((weight->offset[0] * bone->matrix[0][2] + weight->offset[1] * bone->matrix[1][2]
-                              + weight->offset[2] * bone->matrix[2][2])
-                             + bone->offset[2])
-                            * weight->boneWeight;
-                        surf->pStaticXyz[l][3] = 0.f;
-
-                        surf->pStaticNormal[l][0] = vert->normal[0] * bone->matrix[0][0]
-                                                  + vert->normal[1] * bone->matrix[1][0]
-                                                  + vert->normal[2] * bone->matrix[2][0];
-                        surf->pStaticNormal[l][1] = vert->normal[0] * bone->matrix[0][1]
-                                                  + vert->normal[1] * bone->matrix[1][1]
-                                                  + vert->normal[2] * bone->matrix[2][1];
-                        surf->pStaticNormal[l][2] = vert->normal[0] * bone->matrix[0][2]
-                                                  + vert->normal[1] * bone->matrix[1][2]
-                                                  + vert->normal[2] * bone->matrix[2][2];
-                        surf->pStaticNormal[l][3] = 0.f;
-
-                        surf->pStaticTexCoords[l][0][0] = vert->texCoords[0];
-                        surf->pStaticTexCoords[l][0][1] = vert->texCoords[1];
-                        surf->pStaticTexCoords[l][1][0] = vert->texCoords[0];
-                        surf->pStaticTexCoords[l][1][1] = vert->texCoords[1];
-
-                        vert = (skeletorVertex_t *)((byte *)vert + sizeof(skeletorVertex_t)
-                                                    + sizeof(skeletorMorph_t) * vert->numMorphs
-                                                    + sizeof(skelWeight_t) * vert->numWeights);
-                    }
+                    vert = (skeletorVertex_t *)((byte *)vert + sizeof(skeletorVertex_t)
+                                                + sizeof(skeletorMorph_t) * vert->numMorphs
+                                                + sizeof(skelWeight_t) * vert->numWeights);
                 }
             }
         }
@@ -338,8 +337,7 @@ void R_AddStaticModelSurfaces(void)
         iRadiusCull = R_CullPointAndRadius(tiki_worldorigin, SM->cull_radius);
 
         if (r_showcull->integer & 8) {
-            switch (iRadiusCull)
-            {
+            switch (iRadiusCull) {
             case CULL_IN:
                 R_DebugCircle(tiki_worldorigin, SM->cull_radius * 1.2, 0.0, 1.0, 0.0, 0.5, 0);
                 break;
