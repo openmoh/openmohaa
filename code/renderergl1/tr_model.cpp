@@ -1517,6 +1517,9 @@ void RB_StaticMesh(staticSurface_t *staticSurf)
     surf = staticSurf->surface;
 
     assert(surf->pStaticXyz);
+	if (!surf->pStaticXyz) {
+		return;
+	}
 
     meshNum   = staticSurf->meshNum;
     skelmodel = ri.TIKI_GetSkel(tiki->mesh[meshNum]);
