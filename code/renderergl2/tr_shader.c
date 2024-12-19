@@ -4025,3 +4025,38 @@ void R_InitShaders( void ) {
 
 	CreateExternalShaders();
 }
+
+qhandle_t RE_RefreshShaderNoMip(const char* name) {
+	shader_t* sh;
+	char strippedName[64];
+	int hash;
+
+	if (!name || !*name) {
+		return 0;
+	}
+
+    COM_StripExtension(name, strippedName, sizeof(strippedName));
+
+	hash = generateHashValue(strippedName, FILE_HASH_SIZE);
+	
+	for (sh = hashTable[hash]; sh; sh = sh->next) {
+		if (Q_stricmp(sh->name, strippedName) == 0) {
+			image_t* image;
+
+			image = sh->stages[0]->bundle[0].image[0];
+
+			if (image) {
+				sh->stages[0]->bundle[0].image[0] = R_RefreshImageFile(image->imgName, IMGTYPE_COLORALPHA, image->flags);
+			}
+
+			return sh->index;
+		}
+	}
+
+    sh = R_FindShader(name, -4, qfalse);
+	if (sh->defaultShader) {
+		return 0;
+	}
+
+    return sh->index;
+}

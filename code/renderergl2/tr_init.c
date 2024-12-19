@@ -236,6 +236,86 @@ int		max_polys;
 cvar_t	*r_maxpolyverts;
 int		max_polyverts;
 
+//
+// OPENMOHAA-specific stuff
+//=========================
+
+int r_sequencenumber;
+
+// DRAWING
+
+cvar_t *r_drawentitypoly;
+cvar_t *r_drawstaticmodels;
+cvar_t *r_drawstaticmodelpoly;
+cvar_t *r_drawstaticdecals;
+cvar_t *r_drawterrain;
+cvar_t *r_drawsprites;
+cvar_t *r_drawspherelights;
+
+cvar_t *r_numdebuglines;
+cvar_t *r_stipplelines;
+cvar_t *r_debuglines_depthmask;
+
+cvar_t	*r_maxpolys;
+int		max_polys;
+cvar_t	*r_maxpolyverts;
+int		max_polyverts;
+cvar_t* r_maxtermarks;
+int		max_termarks;
+
+cvar_t* r_skyportal;
+cvar_t* r_skyportal_origin;
+cvar_t* r_lightcoronasize;
+
+// LOD
+
+cvar_t* r_staticlod;
+cvar_t* r_lodscale;
+cvar_t* r_lodcap;
+cvar_t* r_lodviewmodelcap;
+
+cvar_t* r_uselod;
+cvar_t* lod_LOD;
+cvar_t* lod_minLOD;
+cvar_t* lod_maxLOD;
+cvar_t* lod_LOD_slider;
+cvar_t* lod_curve_0_val;
+cvar_t* lod_curve_1_val;
+cvar_t* lod_curve_2_val;
+cvar_t* lod_curve_3_val;
+cvar_t* lod_curve_4_val;
+cvar_t* lod_edit_0;
+cvar_t* lod_edit_1;
+cvar_t* lod_edit_2;
+cvar_t* lod_edit_3;
+cvar_t* lod_edit_4;
+cvar_t* lod_curve_0_slider;
+cvar_t* lod_curve_1_slider;
+cvar_t* lod_curve_2_slider;
+cvar_t* lod_curve_3_slider;
+cvar_t* lod_curve_4_slider;
+cvar_t* lod_pitch_val;
+cvar_t* lod_zee_val;
+cvar_t* lod_mesh;
+cvar_t* lod_meshname;
+cvar_t* lod_tikiname;
+cvar_t* lod_metric;
+cvar_t* lod_tris;
+cvar_t* lod_position;
+cvar_t* lod_save;
+cvar_t* lod_tool;
+
+// Utils
+
+cvar_t* r_developer;
+cvar_t* r_fps;
+cvar_t* r_showstaticbboxes;
+cvar_t* r_showcull;
+cvar_t* r_showlod;
+cvar_t* r_showstaticlod;
+
+//=========================
+
 /*
 ** InitOpenGL
 **
@@ -1452,6 +1532,77 @@ void R_Register( void )
 	ri.Cmd_AddCommand( "minimize", GLimp_Minimize );
 	ri.Cmd_AddCommand( "gfxmeminfo", GfxMemInfo_f );
 	ri.Cmd_AddCommand( "exportCubemaps", R_ExportCubemaps_f );
+
+	//
+	// OPENMOHAA-specific stuff
+	//
+
+	// Draw
+
+    r_drawentitypoly = ri.Cvar_Get("r_drawentitypoly", "1", CVAR_CHEAT);
+    r_drawstaticmodels = ri.Cvar_Get("r_drawstaticmodels", "1", CVAR_CHEAT);
+    r_drawstaticmodelpoly = ri.Cvar_Get("r_drawstaticmodelpoly", "1", CVAR_CHEAT);
+    r_drawstaticdecals = ri.Cvar_Get("r_drawstaticdecals", "0", 0);
+    r_drawterrain = ri.Cvar_Get("r_drawterrain", "1", CVAR_CHEAT);
+    r_drawsprites = ri.Cvar_Get("r_drawsprites", "1", CVAR_CHEAT);
+    r_drawspherelights = ri.Cvar_Get("r_drawspherelights", "1", CVAR_CHEAT);
+
+    r_debuglines_depthmask = ri.Cvar_Get("r_debuglines_depthmask", "0", CVAR_ARCHIVE);
+    r_stipplelines = ri.Cvar_Get("r_stipplelines", "1", CVAR_ARCHIVE);
+    r_numdebuglines = ri.Cvar_Get("g_numdebuglines", "4096", CVAR_LATCH);
+
+	r_maxtermarks = ri.Cvar_Get("r_maxtermarks", va("%d", MAX_TERMARKS), 0);
+
+    r_skyportal = ri.Cvar_Get("r_skyportal", "0", 0);
+    r_skyportal_origin = ri.Cvar_Get("r_skyportal_origin", "0 0 0", 0);
+    r_lightcoronasize = ri.Cvar_Get("r_lightcoronasize", ".1", CVAR_ARCHIVE);
+
+	// LOD
+
+	r_staticlod = ri.Cvar_Get("r_staticlod", "1", CVAR_CHEAT);
+	r_lodscale = ri.Cvar_Get("r_lodscale", "5", CVAR_ARCHIVE);
+	r_lodcap = ri.Cvar_Get("r_lodcap", "0.35", CVAR_ARCHIVE);
+	r_lodviewmodelcap = ri.Cvar_Get("r_lodviewmodelcap", "0.25", CVAR_ARCHIVE);
+	
+	r_uselod = ri.Cvar_Get("r_uselod", "1", CVAR_TEMP);
+	lod_LOD = ri.Cvar_Get("lod_LOD", "0", CVAR_TEMP);
+	lod_minLOD = ri.Cvar_Get("lod_minLOD", "1.0", CVAR_TEMP);
+	lod_maxLOD = ri.Cvar_Get("lod_maxLOD", "0.3", CVAR_TEMP);
+	lod_LOD_slider = ri.Cvar_Get("lod_LOD_slider", "0.5", CVAR_TEMP);
+	lod_edit_0 = ri.Cvar_Get("lod_edit_0", "0", CVAR_TEMP);
+	lod_edit_1 = ri.Cvar_Get("lod_edit_1", "0", CVAR_TEMP);
+	lod_edit_2 = ri.Cvar_Get("lod_edit_2", "0", CVAR_TEMP);
+	lod_edit_3 = ri.Cvar_Get("lod_edit_3", "0", CVAR_TEMP);
+	lod_edit_4 = ri.Cvar_Get("lod_edit_4", "0", CVAR_TEMP);
+	lod_curve_0_val = ri.Cvar_Get("lod_curve_0_val", "0", CVAR_TEMP);
+	lod_curve_1_val = ri.Cvar_Get("lod_curve_1_val", "0", CVAR_TEMP);
+	lod_curve_2_val = ri.Cvar_Get("lod_curve_2_val", "0", CVAR_TEMP);
+	lod_curve_3_val = ri.Cvar_Get("lod_curve_3_val", "0", CVAR_TEMP);
+	lod_curve_4_val = ri.Cvar_Get("lod_curve_4_val", "0", CVAR_TEMP);
+	lod_curve_0_slider = ri.Cvar_Get("lod_curve_0_slider", "0", CVAR_TEMP);
+	lod_curve_1_slider = ri.Cvar_Get("lod_curve_1_slider", "0", CVAR_TEMP);
+	lod_curve_2_slider = ri.Cvar_Get("lod_curve_2_slider", "0", CVAR_TEMP);
+	lod_curve_3_slider = ri.Cvar_Get("lod_curve_3_slider", "0", CVAR_TEMP);
+	lod_curve_4_slider = ri.Cvar_Get("lod_curve_4_slider", "0", CVAR_TEMP);
+	lod_pitch_val = ri.Cvar_Get("lod_pitch_val", "0", CVAR_TEMP);
+	lod_zee_val = ri.Cvar_Get("lod_zee_val", "0", CVAR_TEMP);
+	lod_mesh = ri.Cvar_Get("lod_mesh", "0", CVAR_TEMP);
+	lod_meshname = ri.Cvar_Get("lod_meshname", "", CVAR_TEMP);
+	lod_tikiname = ri.Cvar_Get("lod_tikiname", "", CVAR_TEMP);
+	lod_metric = ri.Cvar_Get("lod_metric", "0.0", CVAR_TEMP);
+	lod_tris = ri.Cvar_Get("lod_tris", "", CVAR_TEMP);
+	lod_save = ri.Cvar_Get("lod_save", "0", CVAR_TEMP);
+	lod_position = ri.Cvar_Get("lod_position", "0 0 0", CVAR_TEMP);
+	lod_tool = ri.Cvar_Get("lod_tool", "0", CVAR_TEMP);
+
+	// Utils
+
+    r_fps = ri.Cvar_Get("fps", "0", 0);
+    r_developer = ri.Cvar_Get("developer", "", 0);
+    r_showstaticbboxes = ri.Cvar_Get("r_showstaticbboxes", "0", CVAR_CHEAT);
+    r_showcull = ri.Cvar_Get("r_showcull", "0", CVAR_CHEAT);
+    r_showlod = ri.Cvar_Get("r_showlod", "0", CVAR_TEMP);
+    r_showstaticlod = ri.Cvar_Get("r_showstaticlod", "0", CVAR_TEMP);
 }
 
 void R_InitQueries(void)
@@ -1628,6 +1779,28 @@ void RE_Shutdown( qboolean destroyWindow ) {
 	tr.registered = qfalse;
 }
 
+//
+// OPENMOHAA-specific stuff
+//=========================
+
+/*
+** RE_BeginRegistration
+*/
+void RE_BeginRegistration(glconfig_t* glconfigOut) {
+
+    R_Init();
+
+    *glconfigOut = glConfig;
+
+    R_IssuePendingRenderCommands();
+
+    tr.viewCluster = -1;		// force markleafs to regenerate
+    R_ClearFlares();
+    RE_ClearScene();
+
+    tr.registered = qtrue;
+}
+//=========================
 
 /*
 =============
@@ -1643,6 +1816,52 @@ void RE_EndRegistration( void ) {
 	}
 }
 
+//
+// OPENMOHAA-specific stuff
+//=========================
+
+/*
+==================
+R_SetMode
+==================
+*/
+qboolean R_SetMode(int mode, const glconfig_t* glConfig) {
+    // FIXME: unimplemented (GL2)
+	ri.Printf(PRINT_WARNING, "R_SetMode is unimplemented. To change the video mode, set the \"r_mode\" variable and execute the \"vid_restart\" command.\n");
+	return qfalse;
+}
+
+/*
+==================
+R_SetFullscreen
+==================
+*/
+void R_SetFullscreen(qboolean fullscreen) {
+    // FIXME: unimplemented (GL2)
+    ri.Printf(PRINT_WARNING, "R_SetFullscreen is unimplemented. To change the fullscreen mode, set the \"r_fullscreen\" variable and execute the \"vid_restart\" command.\n");
+}
+
+/*
+=============
+RE_SetRenderTime
+=============
+*/
+void RE_SetRenderTime(int t) {
+    backEnd.refdef.floatTime = (long double)t / 1000.0;
+    R_UpdateGhostTextures();
+}
+
+/*
+==================
+RE_GetGraphicsInfo
+==================
+*/
+const char* RE_GetGraphicsInfo() {
+	// FIXME: unimplemented (GL2)
+	// Looks like it's unused anyway
+}
+
+//=========================
 
 /*
 @@@@@@@@@@@@@@@@@@@@@
@@ -1707,6 +1926,71 @@ refexport_t *GetRefAPI ( int apiVersion, refimport_t *rimp ) {
 	re.inPVS = R_inPVS;
 
 	re.TakeVideoFrame = RE_TakeVideoFrame;
+
+	//
+	// After ioquake3 imports
+	//
+
+    re.FreeModels = RE_FreeModels;
+	re.EndRegistration = RE_EndRegistration;
+    re.SpawnEffectModel = RE_SpawnEffectModel;
+    re.RegisterServerModel = RE_RegisterServerModel;
+    re.UnregisterServerModel = RE_UnregisterServerModel;
+	re.RefreshShaderNoMip = RE_RefreshShaderNoMip;
+	re.PrintBSPFileSizes = RE_PrintBSPFileSizes;
+	re.MapVersion = RE_MapVersion;
+    re.LoadFont = R_LoadFont;
+
+    re.MarkFragmentsForInlineModel = R_MarkFragmentsForInlineModel;
+    re.GetInlineModelBounds = R_GetInlineModelBounds;
+    re.GetLightingForDecal = R_GetLightingForDecal;
+    re.GetLightingForSmoke = R_GetLightingForSmoke;
+    re.R_GatherLightSources = R_GatherLightSources;
+    re.ModelRadius = R_ModelRadius;
+    re.AddRefSpriteToScene = RE_AddRefSpriteToScene;
+    re.AddTerrainMarkToScene = RE_AddTerrainMarkToScene;
+
+    re.GetRenderEntity = RE_GetRenderEntity;
+
+	re.SavePerformanceCounters = R_SavePerformanceCounters;
+
+	re.R_Model_GetHandle = R_Model_GetHandle;
+	re.SetColor = Draw_SetColor;
+	re.DrawStretchPic = Draw_StretchPic;
+	re.DrawStretchPic2 = Draw_StretchPic2;
+	re.DrawStretchRaw = RE_StretchRaw;
+	re.DebugLine = R_DebugLine;
+	re.DrawTilePic = Draw_TilePic;
+	re.DrawTilePicOffset = Draw_TilePicOffset;
+	re.DrawTrianglePic = Draw_TrianglePic;
+	re.DrawBox = DrawBox;
+	re.AddBox = AddBox;
+	re.Set2DWindow = Set2DWindow;
+	re.Scissor = RE_Scissor;
+	re.DrawLineLoop = DrawLineLoop;
+	re.DrawString = R_DrawString;
+	re.GetFontHeight = R_GetFontHeight;
+	re.GetFontStringWidth = R_GetFontStringWidth;
+	re.SwipeBegin = RE_SwipeBegin;
+	re.SwipeEnd = RE_SwipeEnd;
+	re.SetRenderTime = RE_SetRenderTime;
+	re.Noise = R_NoiseGet4f;
+
+	re.SetMode = R_SetMode;
+	re.SetFullscreen = R_SetFullscreen;
+
+	re.GetShaderHeight = RE_GetShaderHeight;
+	re.GetShaderWidth = RE_GetShaderWidth;
+	re.GetShaderName = RE_GetShaderName;
+	re.GetModelName = RE_GetModelName;
+	re.GetGraphicsInfo = RE_GetGraphicsInfo;
+	re.ForceUpdatePose = RE_ForceUpdatePose;
+	re.TIKI_Orientation = RE_TIKI_Orientation;
+	re.TIKI_IsOnGround = RE_TIKI_IsOnGround;
+	re.SetFrameNumber = RE_SetFrameNumber;
+
+	re.ImageExists = R_ImageExists;
+	re.CountTextureMemory = R_CountTextureMemory;
 
 	return &re;
 }

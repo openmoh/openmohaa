@@ -43,6 +43,42 @@ static	byte		*fileBase;
 int			c_subdivisions;
 int			c_gridVerts;
 
+//
+// OPENMOHAA-specific stuff
+//=========================
+
+static int map_length;
+static int nummodels;
+static int numShaders;
+static int numbrushes;
+static int numbrushsides;
+static int numFogs;
+static int numplanes;
+static int num_entities;
+static int numnodes;
+static int numleafs;
+static int numleafsurfaces;
+static int numDrawVerts;
+static int numDrawIndexes;
+static int numDrawSurfaces;
+static int numLightDefs;
+static int numLightBytes;
+static int numVisBytes;
+static int numSLights;
+static int entLightVisSize;
+static int g_iGridArraySize;
+static int g_iGridDataSize;
+static int g_iGridPaletteBytes;
+static int g_iGridOffsets;
+static int g_nStaticModelData;
+static int map_version;
+static int g_nStaticModelIndices;
+static int g_nStaticModels;
+static int g_nTerPatchIndices;
+static int g_nTerraPatches;
+
+//=========================
+
 //===============================================================================
 
 static void HSVtoRGB( float h, float s, float v, float rgb[3] )
@@ -3015,4 +3051,67 @@ void RE_LoadWorldMap( const char *name ) {
 	}
 
     ri.FS_FreeFile( buffer.v );
+}
+
+//
+// OPENMOHAA-specific stuff
+//
+
+/*
+=================
+RE_MapVersion
+
+=================
+*/
+int RE_MapVersion(void)
+{
+	return map_version;
+}
+
+/*
+=================
+RE_PrintBSPFileSizes
+
+=================
+*/
+void RE_PrintBSPFileSizes(void)
+{
+  ri.Printf(PRINT_ALL, "%s: %i\n", s_worldData.name, map_length);
+  ri.Printf(PRINT_ALL, "%6i   models                %7i\n", nummodels, 40 * nummodels);
+  ri.Printf(PRINT_ALL, "%6i   shaders               %7i\n", numShaders, 140 * numShaders);
+  ri.Printf(PRINT_ALL, "%6i   brushes               %7i\n", numbrushes, 12 * numbrushes);
+  ri.Printf(PRINT_ALL, "%6i   brushsides            %7i\n", numbrushsides, 12 * numbrushsides);
+  ri.Printf(PRINT_ALL, "%6i   fogs                  %7i\n", numFogs, 72 * numFogs);
+  ri.Printf(PRINT_ALL, "%6i   planes                %7i\n", numplanes, 16 * numplanes);
+  ri.Printf(PRINT_ALL, "%6i   nodes                 %7i\n", numnodes, 36 * numnodes);
+  ri.Printf(PRINT_ALL, "%6i   leafs                 %7i\n", numleafs, numleafs << 6);
+  ri.Printf(PRINT_ALL, "%6i   leafsurfaces          %7i\n", numleafsurfaces, 4 * numleafsurfaces);
+  ri.Printf(PRINT_ALL, "%6i   drawverts             %7i\n", numDrawVerts, 44 * numDrawVerts);
+  ri.Printf(PRINT_ALL, "%6i   drawindexes           %7i\n", numDrawIndexes, 4 * numDrawIndexes);
+  ri.Printf(PRINT_ALL, "%6i   drawsurfaces          %7i\n", numDrawSurfaces, 108 * numDrawSurfaces);
+  ri.Printf(PRINT_ALL, "%6i   lightdefs             %7i\n", numLightDefs, 52 * numLightDefs);
+  ri.Printf(PRINT_ALL, "%6i   lightmaps             %7i\n", numLightBytes / 49152, numLightBytes);
+  ri.Printf(PRINT_ALL, "         visibility            %7i\n", numVisBytes);
+  ri.Printf(PRINT_ALL, "%6i   entitylights          %7i\n", numSLights, 56 * numSLights);
+  ri.Printf(PRINT_ALL, "         entitylightvis        %7i\n", entLightVisSize);
+  ri.Printf(PRINT_ALL, "         light grid palette    %7i\n", g_iGridPaletteBytes);
+  ri.Printf(PRINT_ALL, "%6i   light grid offsets    %7i\n", g_iGridOffsets, 2 * g_iGridOffsets);
+  ri.Printf(PRINT_ALL, "         light grid data       %7i\n", g_iGridDataSize);
+  ri.Printf(PRINT_ALL, "%6i   terrain               %7i\n", g_nTerraPatches, 388 * g_nTerraPatches);
+  ri.Printf(PRINT_ALL, "%6i   terrain indexes       %7i\n", g_nTerPatchIndices, 2 * g_nTerPatchIndices);
+  ri.Printf(PRINT_ALL, "         static model data     %7i\n", g_nStaticModelData);
+  ri.Printf(PRINT_ALL, "%6i   static models defs    %7i\n", g_nStaticModels, 164 * g_nStaticModels);
+  ri.Printf(PRINT_ALL, "         static model indexes  %7i\n", g_nStaticModelIndices);
+}
+
+/*
+=================
+R_ClearWorld
+
+Set the world to NULL to prevent anyone from accessing
+freed world data
+=================
+*/
+void R_ClearWorld(void) {
+    tr.world = NULL;
 }

@@ -21,12 +21,34 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include "tr_local.h"
 
+static backEndCounters_t pc_save;
+
+/*
+=====================
+R_SavePerformanceCounters
+=====================
+*/
+void R_SavePerformanceCounters(void) {
+    memcpy(&pc_save, &backEnd.pc, sizeof(pc_save));
+}
+
 /*
 =====================
 R_PerformanceCounters
 =====================
 */
 void R_PerformanceCounters( void ) {
+	if (r_fps->integer) {
+		ri.SetPerformanceCounters(
+			backEnd.pc.c_totalIndexes / 3,
+			backEnd.pc.c_vertexes,
+			R_SumOfUsedImages(),
+			pc_save.c_totalIndexes / 3,
+			pc_save.c_vertexes,
+			backEnd.pc.c_characterlights
+			);
+	}
+
 	if ( !r_speeds->integer ) {
 		// clear the counters even if we aren't printing
 		Com_Memset( &tr.pc, 0, sizeof( tr.pc ) );

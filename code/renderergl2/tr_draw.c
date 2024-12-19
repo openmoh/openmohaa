@@ -21,7 +21,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 // tr_draw.c -- drawing
 
-#include "../tr_local.h"
+#include "tr_local.h"
 
 vec4_t r_colorWhite = { 1.0, 1.0, 1.0, 1.0 };
 
@@ -40,6 +40,7 @@ void Draw_SetColor(const vec4_t rgba) {
 	backEnd.color2D[1] = (byte)(rgba[1] * tr.identityLightByte);
 	backEnd.color2D[2] = (byte)(rgba[2] * tr.identityLightByte);
 	backEnd.color2D[3] = (byte)(rgba[3] * 255.0);
+	//qglColor4ubv(backEnd.color2D);
 #else
 	RE_SetColor(rgba);
 #endif
@@ -54,7 +55,7 @@ void Draw_StretchPic(float x, float y, float w, float h, float s1, float t1, flo
 #if 1
 	shader_t* shader;
 
-	R_SyncRenderThread();
+	R_IssuePendingRenderCommands();
 
 	if (hShader) {
 		shader = R_GetShaderByHandle(hShader);
@@ -92,6 +93,58 @@ void Draw_StretchPic(float x, float y, float w, float h, float s1, float t1, flo
 
 /*
 ================
+Draw_StretchPic2
+================
+*/
+void Draw_StretchPic2(float x, float y, float w, float h, float s1, float t1, float s2, float t2, float sx, float sy, qhandle_t hShader) {
+	shader_t* shader;
+	float halfWidth, halfHeight;
+	float scaledWidth1, scaledHeight1;
+	float scaledWidth2, scaledHeight2;
+
+	R_IssuePendingRenderCommands();
+
+	if (hShader) {
+		shader = R_GetShaderByHandle(hShader);
+	}
+	else {
+		shader = tr.defaultShader;
+	}
+
+	if (w <= 0) {
+		w = shader->stages[0]->bundle[0].image[0]->width;
+		h = shader->stages[0]->bundle[0].image[0]->height;
+	}
+
+	halfWidth = w * 0.5f;
+	halfHeight = h * 0.5f;
+	scaledWidth1 = halfWidth * sy;
+	scaledHeight1 = halfHeight * sx;
+	scaledWidth2 = halfWidth * sx;
+	scaledHeight2 = halfHeight * sy;
+
+	// draw the pic
+	RB_Color4f(backEnd.color2D[0], backEnd.color2D[1], backEnd.color2D[2], backEnd.color2D[3]);
+	RB_BeginSurface(shader, 0, 0);
+
+	RB_Texcoord2f(s1, t1);
+	RB_Vertex3f(x + halfWidth - (scaledWidth2 + -scaledHeight2), y + halfWidth - scaledHeight1 - scaledWidth1, 0);
+
+	RB_Texcoord2f(t2, t1);
+	RB_Vertex3f(scaledWidth2 - -scaledHeight2 + x + halfWidth, scaledWidth1 - scaledHeight1 + y + halfWidth, 0);
+
+	RB_Texcoord2f(s1, s2);
+	RB_Vertex3f(x+ halfWidth - (scaledWidth2 + scaledHeight2), scaledHeight1 - scaledWidth1 + y + halfWidth, 0);
+
+	RB_Texcoord2f(t2, s2);
+	RB_Vertex3f(scaledWidth2 - scaledHeight2 + x + halfWidth, scaledWidth1 + scaledHeight1 + y + halfWidth, 0);
+
+	RB_StreamEnd();
+}
+
+
+/*
+================
 Draw_TilePic
 ================
 */
@@ -99,7 +152,7 @@ void Draw_TilePic(float x, float y, float w, float h, qhandle_t hShader) {
 	shader_t* shader;
 	float		picw, pich;
 
-	R_SyncRenderThread();
+	R_IssuePendingRenderCommands();
 
 	if (hShader) {
 		shader = R_GetShaderByHandle(hShader);
@@ -145,7 +198,7 @@ void Draw_TilePicOffset(float x, float y, float w, float h, qhandle_t hShader, i
 	shader_t* shader;
 	float		picw, pich;
 
-	R_SyncRenderThread();
+	R_IssuePendingRenderCommands();
 
 	if (hShader) {
 		shader = R_GetShaderByHandle(hShader);
@@ -191,7 +244,7 @@ void Draw_TrianglePic(const vec2_t vPoints[3], const vec2_t vTexCoords[3], qhand
 	int			i;
 	shader_t* shader;
 
-	R_SyncRenderThread();
+	R_IssuePendingRenderCommands();
 
 	if (hShader) {
 		shader = R_GetShaderByHandle(hShader);
@@ -219,15 +272,15 @@ RE_DrawBackground_TexSubImage
 ================
 */
 void RE_DrawBackground_TexSubImage(int cols, int rows, int bgr, byte* data) {
+	// FIXME: unimplemented (GL2)
+#if 0
 	GLenum	format;
-    int		w, h;
-    vec4_t quadVerts[4];
-    vec2_t texCoords[4];
+	int		w, h;
 
 	w = glConfig.vidWidth;
 	h = glConfig.vidHeight;
 
-	R_SyncRenderThread();
+	R_IssuePendingRenderCommands();
 	qglFinish();
 
 	if (bgr) {
@@ -237,17 +290,17 @@ void RE_DrawBackground_TexSubImage(int cols, int rows, int bgr, byte* data) {
 		format = GL_RGB;
 	}
 
-	GL_BindToTMU(tr.scratchImage[0], TB_COLORMAP);
+	GL_Bind(tr.scratchImage);
 
-	if (cols == tr.scratchImage[0]->width && rows == tr.scratchImage[0]->height && format == tr.scratchImage[0]->internalFormat)
+	if (cols == tr.scratchImage->width && rows == tr.scratchImage->height && format == tr.scratchImage->internalFormat)
 	{
 		qglTexSubImage2D(3553, 0, 0, 0, cols, rows, format, 5121, data);
 	}
 	else
 	{
-		tr.scratchImage[0]->uploadWidth = cols;
-		tr.scratchImage[0]->uploadHeight = rows;
-		tr.scratchImage[0]->internalFormat = format;
+		tr.scratchImage->uploadWidth = cols;
+		tr.scratchImage->uploadHeight = rows;
+		tr.scratchImage->internalFormat = format;
 		qglTexImage2D(GL_TEXTURE_2D, 0, 3, cols, rows, 0, format, 5121, data);
 		qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, 9729.0);
 		qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, 9729.0);
@@ -257,22 +310,22 @@ void RE_DrawBackground_TexSubImage(int cols, int rows, int bgr, byte* data) {
 	qglDisable(GL_DEPTH_TEST);
 	qglEnable(GL_TEXTURE_2D);
 
-	VectorSet4(quadVerts[0], 0.0f, 0.0f, 0.0f, 1.0f);
-	VectorSet4(quadVerts[1], w, 0.0f, 0.0f, 1.0f);
-	VectorSet4(quadVerts[2], w, h, 0.0f, 1.0f);
-    VectorSet4(quadVerts[3], 0.0f, h, 0.0f, 1.0f);
+	qglBegin(GL_QUADS);
 
-    VectorSet2(texCoords[0], 0.5f / cols, (rows - 0.5f) / rows);
-    VectorSet2(texCoords[1], (cols - 0.5f) / cols, (rows - 0.5f) / rows);
-    VectorSet2(texCoords[2], (cols - 0.5f) / cols, 0.5f / rows);
-    VectorSet2(texCoords[3], 0.5f / cols, 0.5f / rows);
+	qglTexCoord2f(0.5 / (GLfloat)cols, ((GLfloat)rows - 0.5) / rows);
+	qglVertex2f(0, 0);
 
-    GLSL_BindProgram(&tr.textureColorShader);
+	qglTexCoord2f(((GLfloat)cols - 0.5) / cols, ((GLfloat)rows - 0.5) / rows);
+	qglVertex2f(w, 0);
 
-    GLSL_SetUniformMat4(&tr.textureColorShader, UNIFORM_MODELVIEWPROJECTIONMATRIX, glState.modelviewProjection);
-    GLSL_SetUniformVec4(&tr.textureColorShader, UNIFORM_COLOR, colorWhite);
+	qglTexCoord2f(((GLfloat)cols - 0.5) / cols, 0.5 / (GLfloat)rows);
+	qglVertex2f(w, h);
 
-    RB_InstantQuad2(quadVerts, texCoords);
+	qglTexCoord2f(0.5 / (GLfloat)rows, 0.5 / (GLfloat)rows);
+	qglVertex2f(0, h);
+
+	qglEnd();
+#endif
 }
 
 /*
@@ -281,7 +334,25 @@ RE_DrawBackground_DrawPixels
 ================
 */
 void RE_DrawBackground_DrawPixels(int cols, int rows, int bgr, byte* data) {
-	// FIXME: stub
+    // FIXME: unimplemented (GL2)
+#if 0
+	R_IssuePendingRenderCommands();
+
+	GL_State(0);
+	qglDisable(GL_TEXTURE_2D);
+
+	qglPixelZoom(glConfig.vidWidth / rows, glConfig.vidHeight / cols);
+
+	if (bgr) {
+		qglDrawPixels(cols, rows, GL_BGR, GL_UNSIGNED_BYTE, data);
+	} else {
+		qglDrawPixels(cols, rows, GL_RGB, GL_UNSIGNED_BYTE, data);
+	}
+
+	qglPixelZoom(1.0, 1.0);
+
+	qglEnable(GL_TEXTURE_2D);
+#endif
 }
 
 /*
@@ -290,36 +361,25 @@ AddBox
 ================
 */
 void AddBox(float x, float y, float w, float h) {
-	R_SyncRenderThread();
+    // FIXME: unimplemented (GL2)
+#if 0
+	R_IssuePendingRenderCommands();
 
+	qglColor4ubv(backEnd.color2D);
 	qglDisable(GL_TEXTURE_2D);
 	GL_State(GLS_DEPTHTEST_DISABLE | GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE);
 
-    {
-        shaderProgram_t* sp = &tr.textureColorShader;
-        vec4_t color = { backEnd.color2D[0] / 255.0f, backEnd.color2D[1] / 255.0f, backEnd.color2D[2] / 255.0f, backEnd.color2D[3] / 255.0f };
-        vec4_t quadVerts[4];
-        vec2_t texCoords[4];
+	qglBegin(GL_QUADS);
 
-        VectorSet4(quadVerts[0], x, y, 0.0f, 1.0f);
-        VectorSet4(quadVerts[1], x + w, y, 0.0f, 1.0f);
-        VectorSet4(quadVerts[2], x + w, y + h, 0.0f, 1.0f);
-        VectorSet4(quadVerts[3], x, y + h, 0.0f, 1.0f);
+	qglVertex2f(x, y);
+	qglVertex2f(x + w, y);
+	qglVertex2f(x + w, y + h);
+	qglVertex2f(x, y + h);
 
-        VectorSet2(texCoords[0], 0.0f, 0.0f);
-        VectorSet2(texCoords[1], 1.0f, 0.0f);
-        VectorSet2(texCoords[2], 1.0f, 1.0f);
-        VectorSet2(texCoords[3], 0.0f, 1.0f);
-
-        GLSL_BindProgram(sp);
-
-        GLSL_SetUniformMat4(sp, UNIFORM_MODELVIEWPROJECTIONMATRIX, glState.modelviewProjection);
-        GLSL_SetUniformVec4(sp, UNIFORM_COLOR, color);
-
-        RB_InstantQuad2(quadVerts, texCoords);
-    }
+	qglEnd();
 
 	qglEnable(GL_TEXTURE_2D);
+#endif
 }
 
 /*
@@ -328,36 +388,25 @@ DrawBox
 ================
 */
 void DrawBox(float x, float y, float w, float h) {
-	R_SyncRenderThread();
+    // FIXME: unimplemented (GL2)
+#if 0
+	R_IssuePendingRenderCommands();
 
+	qglColor4ubv(backEnd.color2D);
 	qglDisable(GL_TEXTURE_2D);
 	GL_State(GLS_DEPTHTEST_DISABLE | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA | GLS_SRCBLEND_SRC_ALPHA);
 
-    {
-        shaderProgram_t* sp = &tr.textureColorShader;
-        vec4_t color = { backEnd.color2D[0] / 255.0f, backEnd.color2D[1] / 255.0f, backEnd.color2D[2] / 255.0f, backEnd.color2D[3] / 255.0f };
-        vec4_t quadVerts[4];
-        vec2_t texCoords[4];
+	qglBegin(GL_QUADS);
 
-        VectorSet4(quadVerts[0], x, y, 0.0f, 1.0f);
-        VectorSet4(quadVerts[1], x + w, y, 0.0f, 1.0f);
-        VectorSet4(quadVerts[2], x + w, y + h, 0.0f, 1.0f);
-        VectorSet4(quadVerts[3], x, y + h, 0.0f, 1.0f);
+	qglVertex2f(x, y);
+	qglVertex2f(x + w, y);
+	qglVertex2f(x + w, y + h);
+	qglVertex2f(x, y + h);
 
-        VectorSet2(texCoords[0], 0.0f, 0.0f);
-        VectorSet2(texCoords[1], 1.0f, 0.0f);
-        VectorSet2(texCoords[2], 1.0f, 1.0f);
-        VectorSet2(texCoords[3], 0.0f, 1.0f);
-
-        GLSL_BindProgram(sp);
-
-        GLSL_SetUniformMat4(sp, UNIFORM_MODELVIEWPROJECTIONMATRIX, glState.modelviewProjection);
-        GLSL_SetUniformVec4(sp, UNIFORM_COLOR, color);
-
-        RB_InstantQuad2(quadVerts, texCoords);
-    }
+	qglEnd();
 
 	qglEnable(GL_TEXTURE_2D);
+#endif
 }
 
 /*
@@ -366,19 +415,19 @@ DrawLineLoop
 ================
 */
 void DrawLineLoop(const vec2_t* points, int count, int stipple_factor, int stipple_mask) {
+    // FIXME: unimplemented (GL2)
+#if 0
 	int		i;
 
-	R_SyncRenderThread();
+	R_IssuePendingRenderCommands();
 
 	qglDisable(GL_TEXTURE_2D);
 
 	if (stipple_factor) {
 		qglEnable(GL_LINE_STIPPLE);
-		glLineStipple(stipple_factor, stipple_mask);
+		qglLineStipple(stipple_factor, stipple_mask);
 	}
 
-	// FIXME: unimplemented
-	/*
 	qglBegin(GL_LINE_LOOP);
 
 	for (i = 0; i < count; i++) {
@@ -386,13 +435,13 @@ void DrawLineLoop(const vec2_t* points, int count, int stipple_factor, int stipp
 	}
 
 	qglEnd();
-	*/
 
 	qglEnable(GL_TEXTURE_2D);
 
 	if (stipple_factor) {
 		qglDisable(GL_LINE_STIPPLE);
 	}
+#endif
 }
 
 /*
@@ -401,32 +450,36 @@ Set2DWindow
 ================
 */
 void Set2DWindow(int x, int y, int w, int h, float left, float right, float bottom, float top, float n, float f) {
-	mat4_t matrix;
-
-	R_SyncRenderThread();
+    // FIXME: unimplemented (GL2)
+#if 0
+	R_IssuePendingRenderCommands();
 	qglViewport(x, y, w, h);
 	qglScissor(x, y, w, h);
+	qglMatrixMode(GL_PROJECTION);
+	qglLoadIdentity();
+	qglOrtho(left, right, bottom, top, n, f);
+	qglMatrixMode(GL_MODELVIEW);
 
-    Mat4Ortho(left, right, bottom, top, n, f, matrix);
-    GL_SetProjectionMatrix(matrix);
-    Mat4Identity(matrix);
-    GL_SetModelviewMatrix(matrix);
-
+	qglLoadIdentity();
 	GL_State(GLS_DEPTHTEST_DISABLE | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA | GLS_SRCBLEND_SRC_ALPHA);
 	qglEnable(GL_BLEND);
 	qglDisable(GL_CULL_FACE);
 	qglDisable(GL_CLIP_PLANE0);
+	// Make sure to disable the fog to avoid messing up with the UI
+	qglDisable(GL_FOG);
+	qglFogf(GL_FOG_START, 0);
 
-	//if (r_reset_tc_array->integer) {
-	//	qglDisableClientState(GL_TEXTURE_COORD_ARRAY);
-	//}
+	if (r_reset_tc_array->integer) {
+		qglDisableClientState(GL_TEXTURE_COORD_ARRAY);
+	}
 
-	if (!backEnd.projection2D)
+	if (!backEnd.in2D)
 	{
 		backEnd.refdef.time = ri.Milliseconds();
-		backEnd.projection2D = qtrue;
+		backEnd.in2D = qtrue;
 		backEnd.refdef.floatTime = backEnd.refdef.time / 1000.0;
 	}
+#endif
 }
 
 /*
@@ -435,6 +488,9 @@ RE_Scissor
 ================
 */
 void RE_Scissor(int x, int y, int width, int height) {
+    // FIXME: unimplemented (GL2)
+#if 0
 	qglEnable(GL_SCISSOR_TEST);
 	qglScissor(x, y, width, height);
+#endif
 }

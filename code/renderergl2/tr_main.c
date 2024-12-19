@@ -1729,6 +1729,220 @@ void R_DebugGraphics( void ) {
 	ri.CM_DrawDebugSurface( R_DebugPolygon );
 }
 
+#define CIRCLE_LENGTH		25
+
+/*
+================
+R_DebugCircle
+================
+*/
+void R_DebugCircle(const vec3_t org, float radius, float r, float g, float b, float alpha, qboolean horizontal) {
+    int				i;
+    float			ang;
+	debugline_t* line;
+	vec3_t			forward, right;
+	vec3_t			pos, lastpos;
+
+	if (!ri.DebugLines || !ri.numDebugLines) {
+		return;
+	}
+
+	if (horizontal)
+	{
+		VectorSet(forward, 1, 0, 0);
+		VectorSet(right, 0, 1, 0);
+	}
+	else
+	{
+		VectorCopy(tr.refdef.viewaxis[1], right);
+		VectorCopy(tr.refdef.viewaxis[2], forward);
+	}
+
+	VectorClear(pos);
+	VectorClear(lastpos);
+
+	for (i = 0; i < CIRCLE_LENGTH; i++) {
+		VectorCopy(pos, lastpos);
+
+		ang = DEG2RAD((float)(i * 15));
+		pos[0] = (org[0] + sin(ang) * radius * forward[0]) +
+			cos(ang) * radius * right[0];
+		pos[1] = (org[1] + sin(ang) * radius * forward[1]) +
+			cos(ang) * radius * right[1];
+		pos[2] = (org[2] + sin(ang) * radius * forward[2]) +
+			cos(ang) * radius * right[2];
+
+		if (i > 0)
+		{
+			if (*ri.numDebugLines >= r_numdebuglines->integer) {
+				ri.Printf(PRINT_ALL, "R_DebugCircle: Exceeded MAX_DEBUG_LINES\n");
+				return;
+			}
+
+			line = &(*ri.DebugLines)[*ri.numDebugLines];
+			(*ri.numDebugLines)++;
+			VectorCopy(lastpos, line->start);
+			VectorCopy(pos, line->end);
+			VectorSet(line->color, r, g, b);
+			line->alpha = alpha;
+			line->width = 1.0;
+			line->factor = 1;
+			line->pattern = -1;
+		}
+	}
+}
+
+/*
+================
+R_DebugLine
+================
+*/
+void R_DebugLine(const vec3_t start, const vec3_t end, float r, float g, float b, float alpha) {
+	debugline_t* line;
+
+	if (!ri.DebugLines || !ri.numDebugLines) {
+		return;
+	}
+
+	if (*ri.numDebugLines >= r_numdebuglines->integer) {
+		ri.Printf(PRINT_ALL, "R_DebugLine: Exceeded MAX_DEBUG_LINES\n");
+		return;
+	}
+
+	line = &(*ri.DebugLines)[*ri.numDebugLines];
+	(*ri.numDebugLines)++;
+	VectorCopy(start, line->start);
+	VectorCopy(end, line->end);
+	VectorSet(line->color, r, g, b);
+	line->alpha = alpha;
+	line->width = 1.0;
+	line->factor = 1;
+	line->pattern = -1;
+}
+
+/*
+================
+R_DrawDebugLines
+================
+*/
+void R_DrawDebugLines(void) {
+	debugline_t* line;
+	int i;
+	float width;
+	int factor;
+	unsigned short pattern;
+
+	if (!ri.DebugLines || !ri.numDebugLines) {
+		return;
+	}
+
+	if (!*ri.numDebugLines) {
+		return;
+	}
+
+	if (tr.refdef.rdflags & RDF_NOWORLDMODEL) {
+		return;
+	}
+
+	if (tr.viewParms.isPortalSky) {
+		return;
+	}
+
+	R_IssuePendingRenderCommands();
+    GL_BindToTMU(tr.whiteImage, 0);
+	if (r_debuglines_depthmask->integer) {
+		GL_State(GLS_POLYMODE_LINE | GLS_DEPTHMASK_TRUE);
+	} else {
+		GL_State(GLS_POLYMODE_LINE);
+	}
+
+    qglDisableClientState(GL_COLOR_ARRAY);
+    qglDisableClientState(GL_TEXTURE_COORD_ARRAY);
+
+    width = 1.0;
+    factor = 4;
+    pattern = -1;
+
+    if (r_stipplelines->integer)
+    {
+        qglEnable(GL_LINE_STIPPLE);
+        qglLineStipple(4, -1);
+        qglLineWidth(1.0f);
+    }
+
+	qglBegin(GL_LINES);
+
+	for (i = 0; i < *ri.numDebugLines; i++) {
+		line = &(*ri.DebugLines)[i];
+
+		if (r_stipplelines->integer) {
+			if (line->width != width || line->factor != factor || line->pattern != pattern) {
+				qglEnd();
+				qglLineStipple(line->factor, line->pattern);
+                qglLineWidth(line->width);
+                qglBegin(GL_LINES);
+                factor = line->factor;
+                width = line->width;
+                pattern = line->pattern;
+			}
+		}
+
+		qglColor4f(line->color[0], line->color[1], line->color[2], line->alpha);
+        qglVertex3fv(line->start);
+        qglVertex3fv(line->end);
+	}
+
+    qglEnd();
+
+    if (r_stipplelines->integer)
+    {
+        qglDisable(GL_LINE_STIPPLE);
+        qglLineStipple(1, -1);
+        qglLineWidth(1.0);
+    }
+
+    qglDepthRange(0.0, 1.0);
+}
+
+/*
+================
+R_DrawDebugLines
+================
+*/
+void R_DrawDebugStrings(void) {
+	int i;
+	debugstring_t* string;
+
+	if (!ri.DebugStrings || !ri.numDebugStrings) {
+		return;
+	}
+
+	if (!*ri.numDebugStrings) {
+		return;
+	}
+
+    if (tr.refdef.rdflags & RDF_NOWORLDMODEL) {
+        return;
+    }
+
+    if (tr.viewParms.isPortalSky) {
+        return;
+    }
+
+	for (i = 0; i < *ri.numDebugStrings; i++) {
+		string = &(*ri.DebugStrings)[i];
+
+		R_DrawFloatingString(
+			tr.pFontDebugStrings,
+			string->szText,
+			string->pos,
+			string->color,
+			string->scale,
+			64
+		);
+	}
+}
+
 
 /*
 ================
@@ -2671,4 +2885,208 @@ void R_RenderCubemapSide( int cubemapIndex, int cubemapSide, qboolean subscene )
 
 	if (!subscene)
 		RE_EndScene();
+}
+
+//
+// OPENMOHAA-specific stuff
+//
+
+/*
+=================
+R_RotateForStaticModel
+
+Generates an orientation for a static model and viewParms
+=================
+*/
+void R_RotateForStaticModel( cStaticModelUnpacked_t *SM, const viewParms_t *viewParms,
+					   orientationr_t *ori ) {
+	float	glMatrix[16];
+	vec3_t	delta;
+	float	tiki_scale;
+
+	tiki_scale = SM->tiki->load_scale * SM->scale;
+
+	VectorCopy( SM->origin, ori->origin );
+
+	VectorCopy( SM->axis[0], ori->axis[0] );
+	VectorCopy( SM->axis[1], ori->axis[1] );
+	VectorCopy( SM->axis[2], ori->axis[2] );
+
+	glMatrix[0]  = ori->axis[0][0] * tiki_scale;
+	glMatrix[4]  = ori->axis[1][0] * tiki_scale;
+	glMatrix[8]  = ori->axis[2][0] * tiki_scale;
+	glMatrix[12] = ori->origin[0];
+
+	glMatrix[1]  = ori->axis[0][1] * tiki_scale;
+	glMatrix[5]  = ori->axis[1][1] * tiki_scale;
+	glMatrix[9]  = ori->axis[2][1] * tiki_scale;
+	glMatrix[13] = ori->origin[1];
+
+	glMatrix[2]  = ori->axis[0][2] * tiki_scale;
+	glMatrix[6]  = ori->axis[1][2] * tiki_scale;
+	glMatrix[10] = ori->axis[2][2] * tiki_scale;
+	glMatrix[14] = ori->origin[2];
+
+	glMatrix[3]  = 0;
+	glMatrix[7]  = 0;
+	glMatrix[11] = 0;
+	glMatrix[15] = 1;
+
+	myGlMultMatrix( glMatrix, viewParms->world.modelMatrix, ori->modelMatrix );
+
+	// calculate the viewer origin in the model's space
+	// needed for fog, specular, and environment mapping
+	VectorSubtract( viewParms->or.origin, ori->origin, delta );
+
+	ori->viewOrigin[0] = DotProduct( delta, ori->axis[0] );
+	ori->viewOrigin[1] = DotProduct( delta, ori->axis[1] );
+	ori->viewOrigin[2] = DotProduct( delta, ori->axis[2] );
+}
+
+int R_DistanceCullLocalPointAndRadius(float fDist, const vec3_t pt, float radius) {
+	vec3_t transformed;
+
+	R_LocalPointToWorld(pt, transformed);
+
+	return R_DistanceCullPointAndRadius(fDist, transformed, radius);
+}
+
+int R_DistanceCullPointAndRadius(float fDist, const vec3_t pt, float radius) {
+	if (!r_nocull->integer)
+	{
+		vec3_t vDelta;
+		float fLengthSquared;
+		float fTotalDistSquared;
+
+		VectorSubtract(pt, tr.viewParms.or.origin, vDelta);
+		fLengthSquared = VectorLengthSquared(vDelta);
+		fTotalDistSquared = Square(fDist + radius);
+
+		if (Square(fDist + radius) < Square(vDelta[2]) + fLengthSquared) {
+			return CULL_OUT;
+		} else if (Square(fDist - radius) > Square(vDelta[2]) + fLengthSquared) {
+			return CULL_IN;
+		}
+	}
+
+	return CULL_CLIP;
+}
+
+/*
+** SurfIsOffscreen
+**
+** Determines if a surface is completely offscreen.
+*/
+qboolean SurfIsOffscreen2(const srfBspSurface_t* surface, shader_t* shader, int entityNum) {
+	float shortest = 100000000;
+	int numTriangles;
+	qboolean doRange;
+	orientationr_t surfOr;
+	unsigned int* indices;
+	vec4_t clip, eye;
+	int i;
+	unsigned int pointOr = 0;
+	unsigned int pointAnd = (unsigned int)~0;
+
+	if (surface->surfaceType != SF_FACE) {
+		ri.Printf(PRINT_WARNING, "WARNING: SurfIsOffscreen called on non-bmodel!\n");
+		return qfalse;
+	}
+	
+	if ( glConfig.smpActive ) {		// FIXME!  we can't do RB_BeginSurface/RB_EndSurface stuff with smp!
+		return qfalse;
+	}
+
+	if (entityNum == ENTITYNUM_WORLD) {
+		surfOr = tr.viewParms.world;
+	} else {
+		R_RotateForEntity(&tr.refdef.entities[entityNum], &tr.viewParms, &surfOr);
+	}
+
+	for ( i = 0; i < surface->numVerts; i++ )
+	{
+		int j;
+		unsigned int pointFlags = 0;
+
+		R_TransformModelToClip( surface->verts[i].xyz, surfOr.modelMatrix, tr.viewParms.projectionMatrix, eye, clip );
+
+		for ( j = 0; j < 3; j++ )
+		{
+			if ( clip[j] >= clip[3] )
+			{
+				pointFlags |= (1 << (j*2));
+			}
+			else if ( clip[j] <= -clip[3] )
+			{
+				pointFlags |= ( 1 << (j*2+1));
+			}
+		}
+		pointAnd &= pointFlags;
+		pointOr |= pointFlags;
+	}
+
+	// trivially reject
+	if ( pointAnd )
+	{
+		return qtrue;
+	}
+
+	// determine if this surface is backfaced and also determine the distance
+	// to the nearest vertex so we can cull based on portal range.  Culling
+	// based on vertex distance isn't 100% correct (we should be checking for
+	// range to the surface), but it's good enough for the types of portals
+	// we have in the game right now.
+	numTriangles = surface->numIndexes / 3;
+
+	for ( i = 0; i < surface->numIndexes; i += 3 )
+	{
+		vec3_t normal;
+		float dot;
+		float len;
+		unsigned* indices;
+
+		indices = surface->indexes; // (unsigned*)(((char*)surface) + surface->ofsIndices);
+
+		VectorSubtract( surface->verts[indices[i]].xyz, surfOr.viewOrigin, normal);
+
+		if (shader->fDistRange > 0) {
+			len = VectorLengthSquared(normal);			// lose the sqrt
+			if (len < shortest)
+			{
+				shortest = len;
+			}
+		}
+
+		if ( ( dot = DotProduct( normal, surface->cullPlane.normal ) ) >= 0 )
+		{
+			numTriangles--;
+		}
+	}
+	if ( !numTriangles )
+	{
+		return qtrue;
+	}
+
+	if (shader->fDistRange > 0.0)
+	{
+		if (shortest > Square(shader->fDistRange))
+		{
+			return qtrue;
+		}
+	}
+
+	return qfalse;
+}
+
+static qboolean DrawSurfIsOffscreen(drawSurf_t* drawSurf) {
+	// FIXME: unimplemented (GL2)
+#if 0
+	int entityNum;
+	shader_t* shader;
+	int dlighted;
+	qboolean bStaticModel;
+
+	R_DecomposeSort(drawSurf->sort, &entityNum, &shader, &dlighted, &bStaticModel);
+	return SurfIsOffscreen2((srfBspSurface_t*)drawSurf->surface, shader, entityNum);
+#endif
 }

@@ -509,3 +509,27 @@ int R_CubemapForPoint( vec3_t point )
 
 	return cubemapIndex + 1;
 }
+
+//
+// OPENMOHAA-specific stuff
+//
+
+/*
+===============
+R_GetLightingForDecal
+===============
+*/
+void R_GetLightingForDecal(vec3_t vLight, const vec3_t vFacing, const vec3_t vOrigin)
+{
+    // FIXME: unimplemented (GL2)
+}
+
+/*
+===============
+R_GetLightingForSmoke
+===============
+*/
+void R_GetLightingForSmoke(vec3_t vLight, const vec3_t vOrigin)
+{
+	// FIXME: unimplemented (GL2)
+}

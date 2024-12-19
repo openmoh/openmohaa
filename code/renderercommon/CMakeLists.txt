@@ -10,6 +10,8 @@ set(SOURCES_RENDERER_COMMON ${SOURCES_RENDERER_COMMON}
 
 add_library(omohrenderer_common STATIC ${SOURCES_RENDERER_COMMON})
 target_include_directories(omohrenderer_common PUBLIC "../sdl" "./")
+target_compile_features(omohrenderer_common PUBLIC cxx_nullptr)
+target_compile_features(omohrenderer_common PUBLIC c_variadic_macros)
 target_link_libraries(omohrenderer_common PUBLIC qcommon_shared)
 target_link_libraries(omohrenderer_common PUBLIC omohsdl_gl)
 target_compile_definitions(omohrenderer_common PRIVATE USE_INTERNAL_JPEG=1)

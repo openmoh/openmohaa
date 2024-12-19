@@ -589,7 +589,7 @@ static void R_RecursiveWorldNode( mnode_t *node, uint32_t planeBits, uint32_t dl
 R_PointInLeaf
 ===============
 */
-static mnode_t *R_PointInLeaf( const vec3_t p ) {
+mnode_t *R_PointInLeaf( const vec3_t p ) {
 	mnode_t		*node;
 	float		d;
 	cplane_t	*plane;
@@ -806,4 +806,17 @@ void R_AddWorldSurfaces (void) {
 
 		tr.refdef.dlightMask = ~tr.refdef.dlightMask;
 	}
+}
+
+//
+// OPENMOHAA-specific stuff
+//
+
+void R_GetInlineModelBounds(int iIndex, vec3_t vMins, vec3_t vMaxs)
+{
+    bmodel_t* bmodel;
+
+    bmodel = &tr.world->bmodels[iIndex];
+    VectorCopy(bmodel->bounds[0], vMins);
+    VectorCopy(bmodel->bounds[1], vMaxs);
 }

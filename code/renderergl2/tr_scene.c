@@ -35,6 +35,17 @@ int			r_firstScenePoly;
 
 int			r_numpolyverts;
 
+//
+// OPENMOHAA-specific stuff
+//=========================
+
+int			r_numsprites;
+int			r_firstSceneSprite;
+
+int			r_numtermarks;
+int			r_firstSceneTerMark;
+
+//=========================
 
 /*
 ====================
@@ -57,6 +68,16 @@ void R_InitNextFrame( void ) {
 	r_firstScenePoly = 0;
 
 	r_numpolyverts = 0;
+
+    //
+    // OPENMOHAA-specific stuff
+	//
+
+	r_numsprites = 0;
+	r_firstSceneSprite = 0;
+
+	r_numtermarks = 0;
+	r_firstSceneTerMark = 0;
 }
 
 
@@ -570,4 +591,135 @@ void RE_RenderScene( const refdef_t *fd ) {
 	RE_EndScene();
 
 	tr.frontEndMsec += ri.Milliseconds() - startTime;
+}
+
+//
+// OPENMOHAA-specific stuff
+//
+
+void RE_AddRefSpriteToScene(const refEntity_t* ent) {
+	refSprite_t* spr;
+	int i;
+
+	if (!tr.registered) {
+		return;
+	}
+
+	if (r_numsprites >= MAX_SPRITES) {
+		return;
+	}
+
+	spr = &backEndData->sprites[r_numsprites];
+	VectorCopy(ent->origin, spr->origin);
+	spr->surftype = SF_SPRITE;
+    spr->hModel = ent->hModel;
+    spr->scale = ent->scale;
+    spr->renderfx = ent->renderfx;
+    spr->shaderTime = ent->shaderTime;
+	AxisCopy(ent->axis, spr->axis);
+
+	for (i = 0; i < 4; ++i) {
+		spr->shaderRGBA[i] = ent->shaderRGBA[i];
+	}
+
+    ++r_numsprites;
+}
+
+/*
+=====================
+RE_AddPolyToScene
+
+=====================
+*/
+qboolean RE_AddPolyToScene2(qhandle_t hShader, int numVerts, const polyVert_t* verts, int renderfx) {
+	srfPoly_t	*poly;
+
+	if ( !tr.registered ) {
+		return qfalse;
+	}
+
+	if (numVerts + r_numpolyverts > max_polyverts || r_numpolys >= max_polys) {
+		ri.Printf(PRINT_WARNING, "Exceeded MAX POLYS\n");
+		return qfalse;
+	}
+
+	poly = &backEndData->polys[r_numpolys];
+	poly->surfaceType = SF_POLY;
+	poly->hShader = hShader;
+	poly->numVerts = numVerts;
+	poly->verts = &backEndData->polyVerts[r_numpolyverts];
+	poly->renderfx = renderfx;
+
+	Com_Memcpy(poly->verts, verts, sizeof(polyVert_t) * numVerts);
+	++r_numpolys;
+	r_numpolyverts += numVerts;
+
+	return qtrue;
+}
+
+/*
+=====================
+R_AddTerrainMarkSurfaces
+=====================
+*/
+void R_AddTerrainMarkSurfaces(void) {
+    srfMarkFragment_t* terMark;
+    int j;
+    shader_t* shader;
+
+    for (j = 0; j < tr.refdef.numTerMarks; j++)
+    {
+        terMark = &tr.refdef.terMarks[j];
+
+        shader = R_GetShaderByHandle(terMark->surfaceType);
+        terMark->surfaceType = SF_MARK_FRAG;
+        R_AddDrawSurf(&terMark->surfaceType, shader, 0, 0, 0, 0);
+    }
+}
+
+/*
+=====================
+RE_AddTerrainMarkToScene
+=====================
+*/
+void RE_AddTerrainMarkToScene(int iTerrainIndex, qhandle_t hShader, int numVerts, const polyVert_t* verts, int renderfx) {
+    srfMarkFragment_t* terMark;
+
+    if (!tr.registered) {
+        return;
+    }
+
+    if (numVerts + r_numpolyverts > max_polyverts || r_numtermarks >= max_termarks) {
+        ri.Printf(PRINT_WARNING, "Exceeded MAX TERRAIN MARKS\n");
+        return;
+    }
+
+    terMark = &backEndData->terMarks[r_numtermarks];
+    terMark->surfaceType = hShader;
+    terMark->iIndex = iTerrainIndex;
+    terMark->numVerts = numVerts;
+    terMark->verts = &backEndData->polyVerts[r_numpolyverts];
+    memcpy(terMark->verts, verts, sizeof(polyVert_t) * numVerts);
+
+    r_numtermarks++;
+    r_numpolyverts += numVerts;
+}
+
+//=================================================================================
+
+/*
+=====================
+RE_GetRenderEntity
+=====================
+*/
+refEntity_t* RE_GetRenderEntity(int entityNumber) {
+    int i;
+
+    for (i = 0; i < r_numentities; i++) {
+        if (backEndData->entities[i].e.entityNumber == entityNumber) {
+            return &backEndData->entities[i].e;
+        }
+    }
+
+    return NULL;
 }

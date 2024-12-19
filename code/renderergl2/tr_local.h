@@ -36,7 +36,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../renderercommon/iqm.h"
 #include "../renderercommon/qgl.h"
 
+#ifdef __cplusplus
+#define GLE(ret, name, ...) extern "C" name##proc * qgl##name;
+#else
 #define GLE(ret, name, ...) extern name##proc * qgl##name;
+#endif
 QGL_1_1_PROCS;
 QGL_DESKTOP_1_1_PROCS;
 QGL_1_3_PROCS;
@@ -48,6 +52,10 @@ QGL_ARB_framebuffer_object_PROCS;
 QGL_ARB_vertex_array_object_PROCS;
 QGL_EXT_direct_state_access_PROCS;
 #undef GLE
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #define GL_INDEX_TYPE		GL_UNSIGNED_SHORT
 typedef unsigned short glIndex_t;
@@ -84,6 +92,12 @@ typedef struct dlight_s {
 
 	vec3_t	transformed;		// origin in local coordinate system
 	int		additive;			// texture detail is lost tho when the lightmap is dark
+
+	//
+	// OPENMOHAA-specific stuff
+	//
+
+    dlighttype_t type;
 } dlight_t;
 
 
@@ -102,6 +116,12 @@ typedef struct {
 	vec3_t		ambientLight;	// color normalized to 0-255
 	int			ambientLightInt;	// 32 bit rgba packed
 	vec3_t		directedLight;
+
+	//
+	// OPENMOHAA-specific stuff
+	//
+
+    float		lodpercentage[2];
 } trRefEntity_t;
 
 
@@ -243,7 +263,17 @@ typedef enum {
 	AGEN_LIGHTING_SPECULAR,
 	AGEN_WAVEFORM,
 	AGEN_PORTAL,
-	AGEN_CONST,
+    AGEN_CONST,
+
+    //
+    // OPENMOHAA-specific stuff
+    //
+
+    AGEN_GLOBAL_ALPHA,
+    AGEN_DIST_FADE,
+    AGEN_ONE_MINUS_DIST_FADE,
+    AGEN_TIKI_DIST_FADE,
+    AGEN_ONE_MINUS_TIKI_DIST_FADE,
 } alphaGen_t;
 
 typedef enum {
@@ -260,7 +290,13 @@ typedef enum {
 	CGEN_WAVEFORM,			// programmatically generated
 	CGEN_LIGHTING_DIFFUSE,
 	CGEN_FOG,				// standard fog
-	CGEN_CONST				// fixed color
+	CGEN_CONST,				// fixed color
+
+	//
+	// OPENMOHAA-specific stuff
+	//
+
+    CGEN_GLOBAL_COLOR,
 } colorGen_t;
 
 typedef enum {
@@ -439,6 +475,24 @@ typedef struct {
 	float	depthForOpaque;
 } fogParms_t;
 
+//
+// OPENMOHAA-specific stuff
+//
+//=============================
+
+typedef enum {
+	SPRITE_PARALLEL,
+	SPRITE_PARALLEL_ORIENTED,
+	SPRITE_ORIENTED,
+	SPRITE_PARALLEL_UPRIGHT
+} spriteType_t;
+
+typedef struct {
+  spriteType_t type;
+  float scale;
+} spriteParms_t;
+
+//=============================
 
 typedef struct shader_s {
 	char		name[MAX_QPATH];		// game path, including extension
@@ -492,6 +546,14 @@ typedef struct shader_s {
   struct shader_s *remappedShader;                  // current shader this one is remapped too
 
 	struct	shader_s	*next;
+
+	//
+	// OPENMOHAA-specific stuff
+	//
+
+    float fDistRange;
+    float fDistNear;
+    spriteParms_t sprite;
 } shader_t;
 
 enum
@@ -775,6 +837,30 @@ typedef struct {
 
 	float       autoExposureMinMax[2];
 	float       toneMinAvgMaxLinear[3];
+
+	
+	//
+	// OPENMOHAA-specific stuff
+	//
+
+	int numTerMarks;
+	struct srfMarkFragment_s *terMarks;
+
+	int numSpriteSurfs;
+	struct drawSurf_s *spriteSurfs;
+
+    int numStaticModels;
+    struct cStaticModelUnpacked_s *staticModels;
+
+    int numStaticModelData;
+    unsigned char *staticModelData;
+
+    qboolean sky_portal;
+    float sky_alpha;
+    vec3_t sky_origin;
+    vec3_t sky_axis[3];
+    qboolean skybox_farplane;
+    qboolean render_terrain;
 } trRefdef_t;
 
 
@@ -812,6 +898,19 @@ typedef struct {
 	float		surface[4];
 } fog_t;
 
+//
+// OPENMOHAA-specific stuff
+// 
+//=========================
+typedef struct depthfog_s {
+	float len;
+	float oolen;
+	int enabled;
+	int extrafrustums;
+} depthfog_t;
+
+//=========================
+
 typedef enum {
 	VPF_NONE            = 0x00,
 	VPF_NOVIEWMODEL     = 0x01,
@@ -845,6 +944,18 @@ typedef struct {
 	float		zFar;
 	float       zNear;
 	stereoFrame_t	stereoFrame;
+
+	//
+	// OPENMOHAA-specific stuff
+	//
+
+    qboolean	isPortalSky;		// since 2.0 whether or not this view is a portal sky
+    depthfog_t	fog;
+    float		farplane_distance;
+    float		farplane_bias; // added in 2.0
+    float		farplane_color[3];
+    qboolean	farplane_cull;
+    qboolean	renderTerrain; // added in 2.0
 } viewParms_t;
 
 
@@ -873,6 +984,17 @@ typedef enum {
 	SF_VAO_MDVMESH,
 	SF_VAO_IQM,
 
+	//
+	// OPENMOHAA-specific stuff
+	//
+
+    SF_MARK_FRAG,
+    SF_DISPLAY_LIST,
+    SF_TIKI_SKEL,
+    SF_TIKI_STATIC,
+    SF_SWIPE,
+    SF_SPRITE,
+    SF_TERRAIN_PATCH,
 	SF_NUM_SURFACE_TYPES,
 	SF_MAX = 0x7fffffff			// ensures that sizeof( surfaceType_t ) == sizeof( int )
 } surfaceType_t;
@@ -896,6 +1018,12 @@ typedef struct srfPoly_s {
 	int				fogIndex;
 	int				numVerts;
 	polyVert_t		*verts;
+
+	//
+	// OPENMOHAA-specific stuff
+	//
+
+    int renderfx;
 } srfPoly_t;
 
 
@@ -1054,6 +1182,210 @@ typedef struct srfVaoMdvMesh_s
 
 extern	void (*rb_surfaceTable[SF_NUM_SURFACE_TYPES])(void *);
 
+//
+// OPENMOHAA-specific stuff
+//
+
+typedef struct {
+    struct mnode_s* cntNode;
+    struct msurface_s* skySurfs[32];
+    int numSurfs;
+    vec3_t offset;
+    vec3_t mins;
+    vec3_t maxs;
+} portalsky_t;
+
+typedef struct {
+    vec3_t transformed;
+    int index;
+} sphere_dlight_t;
+
+typedef enum {
+    LIGHT_POINT,
+    LIGHT_DIRECTIONAL,
+    LIGHT_SPOT,
+    LIGHT_SPOT_FAST
+} lighttype_t;
+
+typedef struct reallightinfo_s {
+    vec3_t color;
+    lighttype_t eType;
+    float fIntensity;
+    float fDist;
+    float fSpotSlope;
+    float fSpotConst;
+    float fSpotScale;
+    vec3_t vOrigin;
+    vec3_t vDirection;
+} reallightinfo_t;
+
+typedef float cube_entry_t[3][4];
+
+typedef struct {
+    vec3_t origin;
+    vec3_t worldOrigin;
+    vec3_t traceOrigin;
+    float radius;
+    struct mnode_s* leaves[8];
+    void(*TessFunction) (unsigned char* dstColors);
+    union {
+        unsigned char level[4];
+        int value;
+    } ambient;
+    int numRealLights;
+    reallightinfo_t light[MAX_REAL_LIGHTS];
+    int bUsesCubeMap;
+    float cubemap[24][3][4];
+} sphereor_t;
+
+typedef struct spherel_s {
+    vec3_t origin;
+	vec3_t color;
+    float intensity;
+    struct mnode_s* leaf;
+    int needs_trace;
+    int spot_light;
+    float spot_radiusbydistance;
+	vec3_t spot_dir;
+    int reference_count;
+} spherel_t;
+
+typedef struct suninfo_s {
+	vec3_t color;
+	vec3_t direction;
+	vec3_t flaredirection;
+	char szFlareName[64];
+	qboolean exists;
+} suninfo_t;
+
+typedef union varnodeUnpacked_u {
+    float fVariance;
+    int flags;
+} varnodeUnpacked_t;
+
+typedef unsigned short terraInt;
+
+typedef struct terrainVert_s {
+    vec3_t xyz;
+    vec2_t texCoords[2];
+    float fVariance;
+    float fHgtAvg;
+    float fHgtAdd;
+    unsigned int uiDistRecalc;
+    terraInt nRef;
+    terraInt iVertArray;
+    byte* pHgt;
+    terraInt iNext;
+    terraInt iPrev;
+} terrainVert_t;
+
+typedef struct terraTri_s {
+    unsigned short iPt[3];
+    terraInt nSplit;
+    unsigned int uiDistRecalc;
+    struct cTerraPatchUnpacked_s* patch;
+    varnodeUnpacked_t* varnode;
+    terraInt index;
+    byte lod;
+    byte byConstChecks;
+    terraInt iLeft;
+    terraInt iRight;
+    terraInt iBase;
+    terraInt iLeftChild;
+    terraInt iRightChild;
+    terraInt iParent;
+    terraInt iPrev;
+    terraInt iNext;
+} terraTri_t;
+
+typedef struct srfTerrain_s {
+    surfaceType_t surfaceType;
+    terraInt iVertHead;
+    terraInt iTriHead;
+    terraInt iTriTail;
+    terraInt iMergeHead;
+    int nVerts;
+    int nTris;
+    int lmapSize;
+    int dlightBits[2];
+    float lmapStep;
+    int dlightMap[2];
+    byte* lmData;
+    float lmapX;
+    float lmapY;
+} srfTerrain_t;
+
+typedef struct cTerraPatchUnpacked_s {
+    srfTerrain_t drawinfo;
+    int viewCount;
+    int visCountCheck;
+    int visCountDraw;
+    int frameCount;
+    unsigned int uiDistRecalc;
+    float s;
+    float t;
+    vec2_t texCoord[2][2];
+    float x0;
+    float y0;
+    float z0;
+    float zmax;
+    shader_t* shader;
+    short int iNorth;
+    short int iEast;
+    short int iSouth;
+    short int iWest;
+    struct cTerraPatchUnpacked_s* pNextActive;
+    varnodeUnpacked_t varTree[2][63];
+    unsigned char heightmap[81];
+    byte flags;
+    byte byDirty;
+} cTerraPatchUnpacked_t;
+
+typedef struct srfStaticModel_s {
+    surfaceType_t surfaceType;
+    struct cStaticModelUnpacked_s* parent;
+} srfStaticModel_t;
+
+typedef struct srfMarkFragment_s {
+	surfaceType_t surfaceType;
+	int iIndex;
+	int numVerts;
+	polyVert_t* verts;
+} srfMarkFragment_t;
+
+typedef struct cStaticModelUnpacked_s {
+    qboolean useSpecialLighting;
+    qboolean bLightGridCalculated;
+    qboolean bRendered;
+    char model[128];
+    vec3_t origin;
+    vec3_t angles;
+    vec3_t axis[3];
+    float scale;
+    int firstVertexData;
+    int numVertexData;
+    int visCount;
+    dtiki_t* tiki;
+    sphere_dlight_t dlights[MAX_DLIGHTS];
+    int numdlights;
+    float radius;
+    float cull_radius;
+    int iGridLighting;
+    float lodpercentage[2];
+} cStaticModelUnpacked_t;
+
+typedef struct refSprite_s {
+    surfaceType_t surftype;
+    int hModel;
+    int shaderNum;
+    float origin[3];
+    float scale;
+    float axis[3][3];
+    byte shaderRGBA[4];
+    int renderfx;
+    float shaderTime;
+} refSprite_t;
+
 /*
 ==============================================================================
 
@@ -1140,12 +1472,35 @@ typedef struct mnode_s {
 
 	int         firstmarksurface;
 	int			nummarksurfaces;
+
+	//
+	// OPENMOHAA-specific stuff
+	//
+
+    spherel_t**	lights;
+    int			numlights;
+
+    int			firstTerraPatch;
+    int			numTerraPatches;
+    int			firstStaticModel;
+    int			numStaticModels;
+    void**		pFirstMarkFragment;
+    int			iNumMarkFragment;
 } mnode_t;
 
 typedef struct {
 	vec3_t		bounds[2];		// for culling
 	int	        firstSurface;
 	int			numSurfaces;
+
+	//
+	// OPENMOHAA-specific stuff
+	//
+
+    void** pFirstMarkFragment;
+    int iNumMarkFragment;
+    int frameCount;
+    qboolean hasLightmap;
 } bmodel_t;
 
 typedef struct {
@@ -1195,8 +1550,39 @@ typedef struct {
 
 	char		*entityString;
 	char		*entityParsePoint;
+	
+	//
+	// OPENMOHAA-specific stuff
+	//
+
+    int numTerraPatches;
+    cTerraPatchUnpacked_t* terraPatches;
+    cTerraPatchUnpacked_t* activeTerraPatches;
+
+    int numVisTerraPatches;
+    cTerraPatchUnpacked_t** visTerraPatches;
+
+    int numStaticModelData;
+    byte* staticModelData;
+
+    int numStaticModels;
+    cStaticModelUnpacked_t* staticModels;
+
+    int numVisStaticModels;
+    cStaticModelUnpacked_t** visStaticModels;
 } world_t;
 
+//
+// OPENMOHAA-specific stuff
+//
+typedef struct {
+    float width;
+    float height;
+    float origin_x;
+    float origin_y;
+    float scale;
+    shader_t* shader;
+} sprite_t;
 
 /*
 ==============================================================================
@@ -1278,7 +1664,10 @@ typedef enum {
 	MOD_BRUSH,
 	MOD_MESH,
 	MOD_MDR,
-	MOD_IQM
+	MOD_IQM,
+	// OPENMOHAA-specific stuff
+    MOD_TIKI,
+    MOD_SPRITE
 } modtype_t;
 
 typedef struct model_s {
@@ -1292,6 +1681,13 @@ typedef struct model_s {
 	void	*modelData;			// only if type == (MOD_MDR | MOD_IQM)
 
 	int			 numLods;
+
+	// OPENMOHAA-specific stuff
+    union {
+        dtiki_t* tiki;
+        sprite_t* sprite;
+    } d;
+    qboolean serveronly;
 } model_t;
 
 
@@ -1341,8 +1737,9 @@ the bits are allocated as follows:
 0     : dlight flag
 */
 #define	QSORT_FOGNUM_SHIFT	2
-#define	QSORT_REFENTITYNUM_SHIFT	7
-#define	QSORT_SHADERNUM_SHIFT	(QSORT_REFENTITYNUM_SHIFT+REFENTITYNUM_BITS)
+#define	QSORT_REFENTITYNUM_SHIFT	4
+#define	QSORT_STATICMODEL_SHIFT	(QSORT_REFENTITYNUM_SHIFT+REFENTITYNUM_BITS)
+#define	QSORT_SHADERNUM_SHIFT	(QSORT_STATICMODEL_SHIFT+1)
 #if (QSORT_SHADERNUM_SHIFT+SHADERNUM_BITS) > 32
 	#error "Need to update sorting, too many bits."
 #endif
@@ -1473,6 +1870,12 @@ typedef struct {
 	int     c_dlightDraws;
 
 	int		msec;			// total msec for backend run
+
+	//
+	// OPENMOHAA-specific stuff
+	//
+
+	int		c_characterlights;
 } backEndCounters_t;
 
 // all state modified by the back end is separated
@@ -1494,6 +1897,11 @@ typedef struct {
 	FBO_t *last2DFBO;
 	qboolean    colorMask[4];
 	qboolean    depthFill;
+
+	//
+	// OPENMOHAA-specific stuff
+	//
+    cStaticModelUnpacked_t* currentStaticModel;
 } backEndState_t;
 
 /*
@@ -1677,6 +2085,28 @@ typedef struct {
 	float					sawToothTable[FUNCTABLE_SIZE];
 	float					inverseSawToothTable[FUNCTABLE_SIZE];
 	float					fogTable[FOG_TABLE_SIZE];
+
+	//
+	// OPENMOHAA-specific stuff
+    //
+
+    int shiftedIsStatic;
+
+    int overbrightShift;
+    float overbrightMult;
+
+    portalsky_t portalsky;
+    qboolean skyRendered;
+    qboolean portalRendered;
+
+    spherel_t sSunLight;
+    spherel_t sLights[1532];
+    int numSLights;
+    int rendererhandle;
+    qboolean shadersParsed;
+    int frame_skel_index;
+    int skel_index[1024];
+    fontheader_t* pFontDebugStrings;
 } trGlobals_t;
 
 extern backEndState_t	backEnd;
@@ -1848,6 +2278,86 @@ extern	cvar_t	*r_printShaders;
 
 extern cvar_t	*r_marksOnTriangleMeshes;
 
+//
+// OPENMOHAA-specific stuff
+//=========================
+
+extern int r_sequencenumber;
+
+// DRAWING
+
+extern cvar_t	*r_drawentitypoly;
+extern cvar_t	*r_drawstaticmodels;
+extern cvar_t	*r_drawstaticmodelpoly;
+extern cvar_t	*r_drawstaticdecals;
+extern cvar_t	*r_drawterrain;
+extern cvar_t	*r_drawsprites;
+extern cvar_t	*r_drawspherelights;
+
+extern cvar_t	*r_numdebuglines;
+extern cvar_t	*r_stipplelines;
+extern cvar_t	*r_debuglines_depthmask;
+
+extern cvar_t	*r_maxpolys;
+extern int		max_polys;
+extern cvar_t	*r_maxpolyverts;
+extern int		max_polyverts;
+extern cvar_t* r_maxtermarks;
+extern int		max_termarks;
+
+extern cvar_t* r_skyportal;
+extern cvar_t* r_skyportal_origin;
+extern cvar_t* r_lightcoronasize;
+
+// LOD
+
+extern cvar_t* r_staticlod;
+extern cvar_t* r_lodscale;
+extern cvar_t* r_lodcap;
+extern cvar_t* r_lodviewmodelcap;
+
+extern cvar_t* r_uselod;
+extern cvar_t* lod_LOD;
+extern cvar_t* lod_minLOD;
+extern cvar_t* lod_maxLOD;
+extern cvar_t* lod_LOD_slider;
+extern cvar_t* lod_curve_0_val;
+extern cvar_t* lod_curve_1_val;
+extern cvar_t* lod_curve_2_val;
+extern cvar_t* lod_curve_3_val;
+extern cvar_t* lod_curve_4_val;
+extern cvar_t* lod_edit_0;
+extern cvar_t* lod_edit_1;
+extern cvar_t* lod_edit_2;
+extern cvar_t* lod_edit_3;
+extern cvar_t* lod_edit_4;
+extern cvar_t* lod_curve_0_slider;
+extern cvar_t* lod_curve_1_slider;
+extern cvar_t* lod_curve_2_slider;
+extern cvar_t* lod_curve_3_slider;
+extern cvar_t* lod_curve_4_slider;
+extern cvar_t* lod_pitch_val;
+extern cvar_t* lod_zee_val;
+extern cvar_t* lod_mesh;
+extern cvar_t* lod_meshname;
+extern cvar_t* lod_tikiname;
+extern cvar_t* lod_metric;
+extern cvar_t* lod_tris;
+extern cvar_t* lod_position;
+extern cvar_t* lod_save;
+extern cvar_t* lod_tool;
+
+// UTILS
+
+extern cvar_t* r_developer;
+extern cvar_t* r_fps;
+extern cvar_t* r_showstaticbboxes;
+extern cvar_t* r_showcull;
+extern cvar_t* r_showlod;
+extern cvar_t* r_showstaticlod;
+
+//=========================
+
 //====================================================================
 
 static ID_INLINE qboolean ShaderRequiresCPUDeforms(const shader_t * shader)
@@ -2018,6 +2528,42 @@ void		R_InitShaders( void );
 void		R_ShaderList_f( void );
 void    R_RemapShader(const char *oldShader, const char *newShader, const char *timeOffset);
 
+//
+// OPENMOHAA-specific stuff
+//=========================
+
+void R_RotateForStaticModel(cStaticModelUnpacked_t* SM, const viewParms_t* viewParms, orientationr_t* ori);
+void R_RotateForViewer(void);
+void R_SetupFrustum(void);
+int R_DistanceCullLocalPointAndRadius(float fDist, const vec3_t pt, float radius);
+int R_DistanceCullPointAndRadius(float fDist, const vec3_t pt, float radius);
+qboolean R_ImageExists(const char* name);
+int R_CountTextureMemory();
+
+//
+// tr_bsp.c
+//
+void		RE_PrintBSPFileSizes(void);
+int			RE_MapVersion(void);
+
+//
+// tr_cmds.c
+//
+void R_SavePerformanceCounters(void);
+
+//
+// tr_main.c
+//
+
+qboolean SurfIsOffscreen2(const srfBspSurface_t* surface, shader_t* shader, int entityNum);
+
+//
+// tr_shader.c
+//
+qhandle_t		RE_RefreshShaderNoMip(const char* name);
+//=========================
+
+
 /*
 ====================================================================
 
@@ -2079,6 +2625,12 @@ typedef struct shaderCommands_s
 	int			numPasses;
 	void		(*currentStageIteratorFunc)( void );
 	shaderStage_t	**xstages;
+
+	//
+	// OPENMOHAA-specific stuff
+	//
+
+    qboolean no_global_fog;
 } shaderCommands_t;
 
 extern	shaderCommands_t	tess;
@@ -2111,9 +2663,10 @@ WORLD MAP
 ============================================================
 */
 
-void R_AddBrushModelSurfaces( trRefEntity_t *e );
-void R_AddWorldSurfaces( void );
+void R_AddBrushModelSurfaces(trRefEntity_t* e);
+void R_AddWorldSurfaces(void);
 qboolean R_inPVS( const vec3_t p1, const vec3_t p2 );
+mnode_t* R_PointInLeaf(const vec3_t p);
 
 
 /*
@@ -2144,7 +2697,6 @@ void R_TransformDlights( int count, dlight_t *dl, orientationr_t *or );
 int R_LightForPoint( vec3_t point, vec3_t ambientLight, vec3_t directedLight, vec3_t lightDir );
 int R_LightDirForPoint( vec3_t point, vec3_t lightDir, vec3_t normal, world_t *world );
 int R_CubemapForPoint( vec3_t point );
-
 
 /*
 ============================================================
@@ -2195,8 +2747,12 @@ MARKERS, POLYGON PROJECTION ON WORLD POLYGONS
 ============================================================
 */
 
-int R_MarkFragments( int numPoints, const vec3_t *points, const vec3_t projection,
-				   int maxPoints, vec3_t pointBuffer, int maxFragments, markFragment_t *fragmentBuffer );
+int R_MarkFragments(int numPoints, const vec3_t *points, const vec3_t projection,
+				   int maxPoints, vec3_t pointBuffer, int maxFragments, markFragment_t *fragmentBuffer, float fRadiusSquared);
+
+int R_MarkFragmentsForInlineModel(clipHandle_t bmodel, const vec3_t vAngles, const vec3_t vOrigin, int numPoints,
+	const vec3_t* points, const vec3_t projection, int maxPoints, vec3_t pointBuffer,
+	int maxFragments, markFragment_t* fragmentBuffer, float fRadiusSquared);
 
 
 /*
@@ -2316,6 +2872,248 @@ void RB_IQMSurfaceAnimVao( srfVaoIQModel_t *surface );
 int R_IQMLerpTag( orientation_t *tag, iqmData_t *data,
                   int startFrame, int endFrame,
                   float frac, const char *tagName );
+
+//
+// OPENMOHAA-specific stuff
+//=========================
+
+
+/*
+=============================================================
+
+DRAWING
+
+=============================================================
+*/
+
+void Draw_SetColor(const vec4_t rgba);
+void Draw_StretchPic(float x, float y, float w, float h, float s1, float t1, float s2, float t2, qhandle_t hShader);
+void Draw_StretchPic2(float x, float y, float w, float h, float s1, float t1, float s2, float t2, float sx, float sy, qhandle_t hShader);
+void Draw_TilePic(float x, float y, float w, float h, qhandle_t hShader);
+void Draw_TilePicOffset(float x, float y, float w, float h, qhandle_t hShader, int offsetX, int offsetY);
+void Draw_TrianglePic(const vec2_t vPoints[3], const vec2_t vTexCoords[3], qhandle_t hShader);
+void DrawBox(float x, float y, float w, float h);
+void AddBox(float x, float y, float w, float h);
+void Set2DWindow(int x, int y, int w, int h, float left, float right, float bottom, float top, float n, float f);
+void RE_Scissor(int x, int y, int width, int height);
+void DrawLineLoop(const vec2_t* points, int count, int stipple_factor, int stipple_mask);
+
+/*
+=============================================================
+
+FONT
+
+=============================================================
+*/
+void R_ShutdownFont();
+fontheader_t* R_LoadFont(const char* name);
+void R_LoadFontShader(fontheader_sgl_t* font);
+void R_DrawString(fontheader_t* font, const char* text, float x, float y, int maxlen, const float *pvVirtualScreen);
+void R_DrawFloatingString(fontheader_t* font, const char* text, const vec3_t org, const vec4_t color, float scale, int maxlen);
+float R_GetFontHeight(const fontheader_t* font);
+float R_GetFontStringWidth(const fontheader_t* font, const char* s);
+
+/*
+=============================================================
+
+GHOST
+
+=============================================================
+*/
+
+void R_UpdateGhostTextures();
+void R_SetGhostImage(const char* name, image_t* image);
+void LoadGHOST(const char* name, byte** pic, int* width, int* height);
+
+/*
+============================================================
+
+LIGHTS
+
+============================================================
+*/
+
+void R_GetLightingForDecal(vec3_t vLight, const vec3_t vFacing, const vec3_t vOrigin);
+void R_GetLightingForSmoke(vec3_t vLight, const vec3_t vOrigin);
+int R_GatherLightSources(const vec3_t vPos, vec3_t* pvLightPos, vec3_t* pvLightIntensity, int iMaxLights);
+
+extern suninfo_t s_sun;
+
+/*
+=============================================================
+
+MARKS
+
+=============================================================
+*/
+void R_LevelMarksLoad(const char* szBSPName);
+void R_LevelMarksInit();
+void R_LevelMarksFree();
+void R_UpdateLevelMarksSystem();
+void R_AddPermanentMarkFragmentSurfaces(void** pFirstMarkFragment, int iNumMarkFragment);
+
+/*
+============================================================
+
+SCENE
+
+============================================================
+*/
+
+void RE_AddRefSpriteToScene(const refEntity_t* ent);
+void RE_AddTerrainMarkToScene(int iTerrainIndex, qhandle_t hShader, int numVerts, const polyVert_t* verts, int renderfx);
+refEntity_t* RE_GetRenderEntity(int entityNumber);
+qboolean RE_AddPolyToScene2(qhandle_t hShader, int numVerts, const polyVert_t* verts, int renderfx);
+
+/*
+=============================================================
+
+SKY PORTALS
+
+=============================================================
+*/
+void R_Sky_Init();
+void R_Sky_Reset();
+void R_Sky_AddSurf(msurface_t* surf);
+void R_Sky_Render();
+
+/*
+=============================================================
+
+SPRITE
+
+=============================================================
+*/
+sprite_t* SPR_RegisterSprite(const char* name);
+void RB_DrawSprite(const refSprite_t* spr);
+
+
+/*
+=============================================================
+
+SUN FLARE
+
+=============================================================
+*/
+void R_InitLensFlare();
+void R_DrawLensFlares();
+
+/*
+=============================================================
+
+SWIPE
+
+=============================================================
+*/
+void RB_DrawSwipeSurface(surfaceType_t* pswipe);
+void RE_SwipeBegin(float thistime, float life, qhandle_t shader);
+void RE_SwipeEnd();
+void R_AddSwipeSurfaces();
+
+/*
+=============================================================
+
+TERRAIN
+
+=============================================================
+*/
+void R_MarkTerrainPatch(cTerraPatchUnpacked_t* pPatch);
+void R_AddTerrainSurfaces();
+void R_AddTerrainMarkSurfaces();
+void R_InitTerrain();
+void R_TerrainPrepareFrame();
+qboolean R_TerrainHeightForPoly(cTerraPatchUnpacked_t* pPatch, polyVert_t* pVerts, int nVerts);
+void R_SwapTerraPatch(cTerraPatch_t* pPatch);
+
+void R_TerrainCrater_f(void);
+
+/*
+=============================================================
+
+TIKI
+
+=============================================================
+*/
+struct skelHeaderGame_s;
+struct skelAnimFrame_s;
+
+void R_InitStaticModels(void);
+void RE_FreeModels(void);
+qhandle_t RE_SpawnEffectModel(const char* szModel, vec3_t vPos, vec3_t* axis);
+qhandle_t RE_RegisterServerModel(const char* name);
+void RE_UnregisterServerModel(qhandle_t hModel);
+orientation_t RE_TIKI_Orientation(refEntity_t* model, int tagnum);
+qboolean RE_TIKI_IsOnGround(refEntity_t* model, int tagnum, float threshold);
+float R_ModelRadius(qhandle_t handle);
+void R_ModelBounds(qhandle_t handle, vec3_t mins, vec3_t maxs);
+dtiki_t* R_Model_GetHandle(qhandle_t handle);
+
+float R_GetRadius(refEntity_t* model);
+void R_GetFrame(refEntity_t* model, struct skelAnimFrame_s* newFrame);
+void RE_ForceUpdatePose(refEntity_t* model);
+void RE_SetFrameNumber(int frameNumber);
+void R_UpdatePoseInternal(refEntity_t* model);
+void RB_SkelMesh(skelSurfaceGame_t* sf);
+void RB_StaticMesh(staticSurface_t* staticSurf);
+void RB_Static_BuildDLights();
+void R_InfoStaticModels_f(void);
+void R_PrintInfoStaticModels();
+void R_AddSkelSurfaces(trRefEntity_t* ent);
+void R_AddStaticModelSurfaces(void);
+void R_CountTikiLodTris(dtiki_t* tiki, float lodpercentage, int* render_tris, int* total_tris);
+float R_CalcLod(const vec3_t origin, float radius);
+int GetLodCutoff(struct skelHeaderGame_s* skelmodel, float lod_val, int renderfx);
+int GetToolLodCutoff(struct skelHeaderGame_s* skelmodel, float lod_val);
+void R_InfoWorldTris_f(void);
+void R_PrintInfoWorldtris(void);
+void R_DebugSkeleton(void);
+
+extern int g_nStaticSurfaces;
+extern qboolean g_bInfostaticmodels;
+extern qboolean g_bInfoworldtris;
+
+/*
+=============================================================
+
+UTIL
+
+=============================================================
+*/
+
+void RB_StreamBegin(shader_t* shader);
+void RB_StreamEnd(void);
+void RB_StreamBeginDrawSurf(void);
+void RB_StreamEndDrawSurf(void);
+static void addTriangle(void);
+void RB_Vertex3fv(vec3_t v);
+void RB_Vertex3f(vec_t x, vec_t y, vec_t z);
+void RB_Vertex2f(vec_t x, vec_t y);
+void RB_Color4f(vec_t r, vec_t g, vec_t b, vec_t a);
+void RB_Color3f(vec_t r, vec_t g, vec_t b);
+void RB_Color3fv(vec3_t col);
+void RB_Color4bv(unsigned char* colors);
+void RB_Texcoord2f(float s, float t);
+void RB_Texcoord2fv(vec2_t st);
+void R_DrawDebugNumber(const vec3_t org, float number, float scale, float r, float g, float b, int precision);
+void R_DebugRotatedBBox(const vec3_t org, const vec3_t ang, const vec3_t mins, const vec3_t maxs, float r, float g, float b, float alpha);
+void R_DebugCircle(const vec3_t org, float radius, float r, float g, float b, float alpha, qboolean horizontal);
+void R_DebugLine(const vec3_t start, const vec3_t end, float r, float g, float b, float alpha);
+int RE_GetShaderWidth(qhandle_t hShader);
+int RE_GetShaderHeight(qhandle_t hShader);
+const char* RE_GetShaderName(qhandle_t hShader);
+const char* RE_GetModelName(qhandle_t hModel);
+
+/*
+============================================================
+
+WORLD MAP
+
+============================================================
+*/
+void R_GetInlineModelBounds(int iIndex, vec3_t vMins, vec3_t vMaxs);
+mnode_t* R_PointInLeaf(const vec3_t p);
+
+//=========================
 
 /*
 =============================================================
@@ -2478,6 +3276,7 @@ typedef enum {
 // the main view, all the 3D icons, etc
 #define	MAX_POLYS		600
 #define	MAX_POLYVERTS	3000
+#define	MAX_TERMARKS	1024
 
 // all of the information needed by the back end must be
 // contained in a backEndData_t
@@ -2489,6 +3288,14 @@ typedef struct {
 	polyVert_t	*polyVerts;//[MAX_POLYVERTS];
 	pshadow_t pshadows[MAX_CALC_PSHADOWS];
 	renderCommandList_t	commands;
+
+	//
+	// OPENMOHAA-specific stuff
+	//
+	srfMarkFragment_t* terMarks;
+    refSprite_t sprites[2048];
+    cStaticModelUnpacked_t* staticModels;
+    byte* staticModelData;
 } backEndData_t;
 
 extern	int		max_polys;
@@ -2520,5 +3327,8 @@ void RE_TakeVideoFrame( int width, int height,
 
 void R_ConvertTextureFormat( const byte *in, int width, int height, GLenum format, GLenum type, byte *out );
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif //TR_LOCAL_H

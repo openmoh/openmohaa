@@ -3388,4 +3388,99 @@ void	R_SkinList_f( void ) {
 	ri.Printf (PRINT_ALL, "------------------\n");
 }
 
+//
+// OPENMOHAA-specific stuff
+//
 
+image_t* R_RefreshImageFile(const char* name, imgType_t type, imgFlags_t flags) {
+	// FIXME: unimplemented (GL2)
+	return NULL;
+}
+
+/*
+================
+R_ImageExists
+================
+*/
+qboolean R_ImageExists(const char* name) {
+    image_t* image;
+    long int hash;
+
+    if (name)
+    {
+        hash = generateHashValue(name);
+        image = hashTable[hash];
+
+        if (hash)
+        {
+            for (; image != NULL; image = image->next)
+            {
+                if (!strcmp(name, image->imgName)) {
+                    return qtrue;
+                }
+            }
+        }
+    }
+
+    return qfalse;
+}
+
+/*
+===============
+R_DumpTextureMemory
+===============
+*/
+void R_DumpTextureMemory() {
+    int i;
+    char str_buffer[32];
+    char* Label1, * Label2;
+    fileHandle_t stat_file;
+
+    stat_file = ri.FS_OpenFileWrite("textureuse.csv");
+
+    Label1 = "Texture Name,";
+    ri.FS_Write(Label1, strlen(Label1), stat_file);
+    Label2 = "Size (kb),";
+    ri.FS_Write(Label2, strlen(Label2), stat_file);
+    Label1 = "Num Uses,";
+    ri.FS_Write(Label1, strlen(Label1), stat_file);
+    Label2 = "Miplevels\n";
+    ri.FS_Write(Label2, strlen(Label2), stat_file);
+
+    for (i = 0; i < tr.numImages; i++) {
+        image_t* image = tr.images[i];
+
+        ri.FS_Write(image->imgName, strlen(image->imgName), stat_file);
+        ri.FS_Write(", ", 2, stat_file);
+
+        // Write the number of bytes (in KiB)
+        Q_snprintf(str_buffer, sizeof(str_buffer), "%d", image->bytesUsed >> 10);
+        ri.FS_Write(str_buffer, strlen(str_buffer), stat_file);
+        ri.FS_Write(", ", 2, stat_file);
+
+        // Write the sequence
+        Q_snprintf(str_buffer, sizeof(str_buffer), "%d", image->r_sequence);
+        ri.FS_Write(str_buffer, strlen(str_buffer), stat_file);
+        ri.FS_Write(", ", 2, stat_file);
+    }
+}
+
+/*
+===============
+R_CountTextureMemory
+===============
+*/
+int R_CountTextureMemory() {
+    int total_bytes;
+    int i;
+
+    R_DumpTextureMemory();
+
+    total_bytes = 0;
+
+    for (i = 0; i < tr.numImages; i++) {
+        total_bytes = tr.images[i]->bytesUsed;
+    }
+
+    return total_bytes;
+}
