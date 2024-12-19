@@ -32,8 +32,8 @@ R_Sky_Init
 */
 void R_Sky_Init()
 {
-	tr.viewParms.isPortalSky = qfalse;
-	tr.portalsky.numSurfs = 0;
+    tr.viewParms.isPortalSky = qfalse;
+    tr.portalsky.numSurfs    = 0;
 }
 
 /*
@@ -48,14 +48,14 @@ void R_Sky_Reset()
         return;
     }
 
-	tr.portalsky.mins[0] = 8192.0;
-	tr.portalsky.mins[1] = 8192.0;
-	tr.portalsky.mins[2] = 8192.0;
-	tr.portalsky.maxs[0] = -8192.0;
-	tr.portalsky.maxs[1] = -8192.0;
-	tr.portalsky.maxs[2] = -8192.0;
-	tr.portalsky.cntNode = 0;
-	tr.portalsky.numSurfs = 0;
+    tr.portalsky.mins[0]  = 8192.0;
+    tr.portalsky.mins[1]  = 8192.0;
+    tr.portalsky.mins[2]  = 8192.0;
+    tr.portalsky.maxs[0]  = -8192.0;
+    tr.portalsky.maxs[1]  = -8192.0;
+    tr.portalsky.maxs[2]  = -8192.0;
+    tr.portalsky.cntNode  = 0;
+    tr.portalsky.numSurfs = 0;
 }
 
 /*
@@ -64,39 +64,36 @@ R_Sky_AddSurf
 
 =================
 */
-void R_Sky_AddSurf(msurface_t* surf)
+void R_Sky_AddSurf(msurface_t *surf)
 {
-	if (tr.viewParms.isPortalSky)
-	{
-		static int last_sky_warning = 0;
+    if (tr.viewParms.isPortalSky) {
+        static int last_sky_warning = 0;
 
-		if (tr.refdef.time - 1000 > last_sky_warning)
-		{
-			ri.Printf(3, "WARNING: sky being drawn in a sky portal!  Bad!  Bad!\n");
-			last_sky_warning = tr.refdef.time;
-		}
+        if (tr.refdef.time - 1000 > last_sky_warning) {
+            ri.Printf(3, "WARNING: sky being drawn in a sky portal!  Bad!  Bad!\n");
+            last_sky_warning = tr.refdef.time;
+        }
 
-		return;
-	}
+        return;
+    }
 
-	if (tr.portalsky.numSurfs < 32) {
-		tr.portalsky.skySurfs[tr.portalsky.numSurfs++] = surf;
-	}
+    if (tr.portalsky.numSurfs < 32) {
+        tr.portalsky.skySurfs[tr.portalsky.numSurfs++] = surf;
+    }
 
-	if (tr.portalsky.cntNode)
-	{
-		int i;
+    if (tr.portalsky.cntNode) {
+        int i;
 
-		for (i = 0; i < 3; i++) {
-			if (tr.portalsky.mins[i] >= tr.portalsky.cntNode->mins[i]) {
-				tr.portalsky.mins[i] = tr.portalsky.cntNode->mins[i];
-			}
+        for (i = 0; i < 3; i++) {
+            if (tr.portalsky.mins[i] >= tr.portalsky.cntNode->mins[i]) {
+                tr.portalsky.mins[i] = tr.portalsky.cntNode->mins[i];
+            }
 
-			if (tr.portalsky.maxs[i] >= tr.portalsky.cntNode->maxs[i]) {
-				tr.portalsky.maxs[i] = tr.portalsky.cntNode->maxs[i];
-			}
-		}
-	}
+            if (tr.portalsky.maxs[i] >= tr.portalsky.cntNode->maxs[i]) {
+                tr.portalsky.maxs[i] = tr.portalsky.cntNode->maxs[i];
+            }
+        }
+    }
 }
 
 /*
@@ -105,10 +102,11 @@ R_Sky_Render
 
 =================
 */
-void R_Sky_Render() {
-    int i;
+void R_Sky_Render()
+{
+    int         i;
     viewParms_t newParms, oldParms;
-    mnode_t* leaf;
+    mnode_t    *leaf;
 
     if (!tr.portalsky.numSurfs) {
         return;
@@ -123,12 +121,16 @@ void R_Sky_Render() {
         return;
     }
 
-	if (tr.viewParms.isPortalSky) {
-		return;
-	}
+    if (tr.viewParms.isPortalSky) {
+        return;
+    }
 
     for (i = 0; i < tr.portalsky.numSurfs; i++) {
-        if (!SurfIsOffscreen((const srfSurfaceFace_t*)tr.portalsky.skySurfs[i]->data, tr.portalsky.skySurfs[i]->shader, ENTITYNUM_WORLD)) {
+        if (!SurfIsOffscreen(
+                (const srfSurfaceFace_t *)tr.portalsky.skySurfs[i]->data,
+                tr.portalsky.skySurfs[i]->shader,
+                ENTITYNUM_WORLD
+            )) {
             break;
         }
     }
@@ -140,30 +142,33 @@ void R_Sky_Render() {
     oldParms = tr.viewParms;
     newParms = tr.viewParms;
 
-	if (r_skyportal->integer)
-	{
-		if (sscanf(r_skyportal_origin->string, "%f %f %f", &newParms.ori.origin[0], &newParms.ori.origin[1], &newParms.ori.origin[2]) != 3)
-		{
-			ri.Printf(PRINT_WARNING, "WARNING: Invalid sky portal origin: %s\n", r_skyportal_origin->string);
-			return;
-		}
-	}
-	else
-	{
+    if (r_skyportal->integer) {
+        if (sscanf(
+                r_skyportal_origin->string,
+                "%f %f %f",
+                &newParms.ori.origin[0],
+                &newParms.ori.origin[1],
+                &newParms.ori.origin[2]
+            )
+            != 3) {
+            ri.Printf(PRINT_WARNING, "WARNING: Invalid sky portal origin: %s\n", r_skyportal_origin->string);
+            return;
+        }
+    } else {
         VectorCopy(tr.refdef.sky_origin, newParms.ori.origin);
-		MatrixMultiply(newParms.ori.axis, tr.refdef.sky_axis, newParms.ori.axis);
-	}
+        MatrixMultiply(newParms.ori.axis, tr.refdef.sky_axis, newParms.ori.axis);
+    }
 
     VectorCopy(newParms.ori.origin, newParms.pvsOrigin);
-	newParms.isPortalSky = qtrue;
-	newParms.farplane_distance = tr.refdef.skybox_farplane;
-	newParms.renderTerrain = tr.refdef.render_terrain;
+    newParms.isPortalSky       = qtrue;
+    newParms.farplane_distance = tr.refdef.skybox_farplane;
+    newParms.renderTerrain     = tr.refdef.render_terrain;
 
-	if (oldParms.farplane_bias == 0.0 || oldParms.farplane_distance == 0.0) {
-		newParms.farplane_bias = 0.0;
-	} else {
-		newParms.farplane_bias = newParms.farplane_distance / oldParms.farplane_distance * oldParms.farplane_bias;
-	}
+    if (oldParms.farplane_bias == 0.0 || oldParms.farplane_distance == 0.0) {
+        newParms.farplane_bias = 0.0;
+    } else {
+        newParms.farplane_bias = newParms.farplane_distance / oldParms.farplane_distance * oldParms.farplane_bias;
+    }
 
     leaf = R_PointInLeaf(newParms.pvsOrigin);
     if (leaf) {
@@ -172,11 +177,11 @@ void R_Sky_Render() {
 
     tr.viewParms = oldParms;
 
-	tr.portalsky.numSurfs = 0;
-	tr.skyRendered = qtrue;
+    tr.portalsky.numSurfs = 0;
+    tr.skyRendered        = qtrue;
 
-	R_RotateForViewer();
-	R_SetupFrustum();
+    R_RotateForViewer();
+    R_SetupFrustum();
 }
 
 /*
@@ -185,12 +190,13 @@ R_Sky_ChangeFrustum
 
 =================
 */
-void R_Sky_ChangeFrustum() {
-    cplane_t* frust;
-    int i;
-    vec3_t bounds[2];
-    vec3_t origin;
-    cplane_t abouts[4];
+void R_Sky_ChangeFrustum()
+{
+    cplane_t *frust;
+    int       i;
+    vec3_t    bounds[2];
+    vec3_t    origin;
+    cplane_t  abouts[4];
 
     VectorCopy(tr.portalsky.mins, bounds[0]);
     VectorCopy(tr.portalsky.maxs, bounds[1]);
@@ -203,8 +209,8 @@ void R_Sky_ChangeFrustum() {
 
     for (i = 0; i < 4; i++) {
         cplane_t out;
-        int i1;
-        float leastfov = 99999;
+        int      i1;
+        float    leastfov = 99999;
 
         frust = &tr.viewParms.frustum[i];
 
@@ -213,9 +219,9 @@ void R_Sky_ChangeFrustum() {
 
         for (i1 = 0; i1 < 8; i1++) {
             vec3_t point;
-            vec_t distFromFrustum;
-            float angle;
-            int i2;
+            vec_t  distFromFrustum;
+            float  angle;
+            int    i2;
 
             for (i2 = 0; i2 < 3; i2++) {
                 point[i2] = bounds[i1 % 3][i2];

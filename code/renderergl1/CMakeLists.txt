@@ -3,7 +3,6 @@ cmake_minimum_required(VERSION 3.12)
 project(omohrenderergl1)
 
 file(GLOB_RECURSE SOURCES_RENDERER "./*.c" "./*.cpp")
-list(REMOVE_ITEM SOURCES_RENDERER "./tr_subs.c")
 
 set(SOURCES_RENDERER ${SOURCES_RENDERER}
 	"../tiki/tiki_mesh.cpp"

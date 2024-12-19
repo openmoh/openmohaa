@@ -1651,8 +1651,6 @@ extern  cvar_t* r_fps;
 
 void  R_NoiseInit( void );
 
-void R_DebugCircle(const vec3_t org, float radius, float r, float g, float b, float alpha, qboolean horizontal);
-void R_DebugLine(const vec3_t start, const vec3_t end, float r, float g, float b, float alpha);
 void R_RenderView( viewParms_t *parms );
 
 qboolean SurfIsOffscreen(const srfSurfaceFace_t* surface, shader_t* shader, int entityNum);
@@ -2106,6 +2104,18 @@ float R_GetFontStringWidth(const fontheader_t* font, const char* s);
 /*
 =============================================================
 
+GHOST
+
+=============================================================
+*/
+
+void R_UpdateGhostTextures();
+void R_SetGhostImage(const char* name, image_t* image);
+void LoadGHOST(const char* name, byte** pic, int* width, int* height);
+
+/*
+=============================================================
+
 MARKS
 
 =============================================================
@@ -2230,6 +2240,7 @@ UTIL
 
 =============================================================
 */
+
 void RB_StreamBegin(shader_t* shader);
 void RB_StreamEnd(void);
 void RB_StreamBeginDrawSurf(void);
@@ -2246,22 +2257,12 @@ void RB_Texcoord2f(float s, float t);
 void RB_Texcoord2fv(vec2_t st);
 void R_DrawDebugNumber(const vec3_t org, float number, float scale, float r, float g, float b, int precision);
 void R_DebugRotatedBBox(const vec3_t org, const vec3_t ang, const vec3_t mins, const vec3_t maxs, float r, float g, float b, float alpha);
+void R_DebugCircle(const vec3_t org, float radius, float r, float g, float b, float alpha, qboolean horizontal);
+void R_DebugLine(const vec3_t start, const vec3_t end, float r, float g, float b, float alpha);
 int RE_GetShaderWidth(qhandle_t hShader);
 int RE_GetShaderHeight(qhandle_t hShader);
 const char* RE_GetShaderName(qhandle_t hShader);
 const char* RE_GetModelName(qhandle_t hModel);
-
-/*
-=============================================================
-
-GHOST
-
-=============================================================
-*/
-
-void R_UpdateGhostTextures();
-void R_SetGhostImage(const char* name, image_t* image);
-void LoadGHOST(const char* name, byte** pic, int* width, int* height);
 
 /*
 =============================================================
