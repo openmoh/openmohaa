@@ -4,10 +4,6 @@ project(omohrenderergl1)
 
 file(GLOB_RECURSE SOURCES_RENDERER "./*.c" "./*.cpp")
 
-set(SOURCES_RENDERER ${SOURCES_RENDERER}
-	"../tiki/tiki_mesh.cpp"
-)
-
 if (${USE_RENDERER_DLOPEN})
 	add_library(omohrenderergl1 SHARED ${SOURCES_RENDERER})
 else()

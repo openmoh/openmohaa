@@ -4,6 +4,10 @@ project(omohrenderer)
 
 file(GLOB_RECURSE SOURCES_RENDERER_COMMON "./*.c" "./*.cpp")
 
+set(SOURCES_RENDERER_COMMON ${SOURCES_RENDERER_COMMON}
+	"../tiki/tiki_mesh.cpp"
+)
+
 add_library(omohrenderer_common STATIC ${SOURCES_RENDERER_COMMON})
 target_include_directories(omohrenderer_common PUBLIC "../sdl" "./")
 target_link_libraries(omohrenderer_common PUBLIC qcommon_shared)
