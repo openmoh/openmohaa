@@ -1681,6 +1681,10 @@ void VehicleTurretGun::EndRemoteControl()
     m_iFiring           = 0;
     m_vTargetAngles     = m_vLocalAngles;
 
+    // Added in OPM
+    //  Clear the camera shake/jitter
+    m_fCurrViewJitter = 0;
+
     //
     // Added in OPM.
     //  The camera must be removed after ending the remote control.
