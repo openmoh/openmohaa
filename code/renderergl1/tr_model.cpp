@@ -2024,3 +2024,14 @@ void R_CountTikiLodTris(dtiki_t* tiki, float lodpercentage, int* render_tris, in
 	*render_tris = numtris;
 	*total_tris = totaltris;
 }
+
+/*
+==================
+R_LerpTag
+==================
+*/
+int R_LerpTag(orientation_t* tag, qhandle_t handle, int startFrame, int endFrame,
+	float frac, const char* tagName) {
+	// stub
+	return 0;
+}

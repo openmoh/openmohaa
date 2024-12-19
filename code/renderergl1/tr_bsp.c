@@ -2177,6 +2177,16 @@ void R_LoadStaticModelIndexes(gamelump_t* lump) {
 }
 
 /*
+=================
+R_GetEntityToken
+=================
+*/
+qboolean R_GetEntityToken( char *buffer, int size ) {
+    // Stub
+    return qfalse;
+}
+
+/*
 ==================
 R_LoadLump
 

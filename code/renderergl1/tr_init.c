@@ -1881,42 +1881,66 @@ refexport_t *GetRefAPI ( int apiVersion, refimport_t *rimp ) {
 
 	re.Shutdown = RE_Shutdown;
 
-	re.FreeModels = RE_FreeModels;
 	re.BeginRegistration = RE_BeginRegistration;
-	re.EndRegistration = RE_EndRegistration;
 	re.RegisterModel = RE_RegisterModel;
-	re.SpawnEffectModel = RE_SpawnEffectModel;
-	re.RegisterServerModel = RE_RegisterServerModel;
-	re.UnregisterServerModel = RE_UnregisterServerModel;
+	re.RegisterSkin = RE_RegisterSkin;
 	re.RegisterShader = RE_RegisterShader;
 	re.RegisterShaderNoMip = RE_RegisterShaderNoMip;
-	re.RefreshShaderNoMip = RE_RefreshShaderNoMip;
 	re.LoadWorld = RE_LoadWorldMap;
-	re.PrintBSPFileSizes = RE_PrintBSPFileSizes;
-	re.MapVersion = RE_MapVersion;
-	re.LoadFont = R_LoadFont;
 	re.SetWorldVisData = RE_SetWorldVisData;
+	re.EndRegistration = RE_EndRegistration;
 
 	re.BeginFrame = RE_BeginFrame;
 	re.EndFrame = RE_EndFrame;
 
 	re.MarkFragments = R_MarkFragments;
-	re.MarkFragmentsForInlineModel = R_MarkFragmentsForInlineModel;
-	re.GetInlineModelBounds = R_GetInlineModelBounds;
-	re.GetLightingForDecal = R_GetLightingForDecal;
-	re.GetLightingForSmoke = R_GetLightingForSmoke;
-	re.R_GatherLightSources = R_GatherLightSources;
+	re.LerpTag = R_LerpTag;
 	re.ModelBounds = R_ModelBounds;
-	re.ModelRadius = R_ModelRadius;
 
 	re.ClearScene = RE_ClearScene;
 	re.AddRefEntityToScene = RE_AddRefEntityToScene;
-	re.AddRefSpriteToScene = RE_AddRefSpriteToScene;
 	re.AddPolyToScene = RE_AddPolyToScene;
-	re.AddTerrainMarkToScene = RE_AddTerrainMarkToScene;
+	re.LightForPoint = R_LightForPoint;
 	re.AddLightToScene = RE_AddLightToScene;
+	re.AddAdditiveLightToScene = RE_AddAdditiveLightToScene;
 	re.RenderScene = RE_RenderScene;
-	re.GetRenderEntity = RE_GetRenderEntity;
+
+	re.SetColor = RE_SetColor;
+	re.DrawStretchPic = RE_StretchPic;
+	re.DrawStretchRaw = RE_StretchRaw;
+	re.UploadCinematic = RE_UploadCinematic;
+
+	re.RegisterFont = RE_RegisterFont;
+	re.RemapShader = R_RemapShader;
+	re.GetEntityToken = R_GetEntityToken;
+	re.inPVS = R_inPVS;
+
+	re.TakeVideoFrame = RE_TakeVideoFrame;
+
+	//
+	// After ioquake3 imports
+	//
+
+    re.FreeModels = RE_FreeModels;
+	re.EndRegistration = RE_EndRegistration;
+    re.SpawnEffectModel = RE_SpawnEffectModel;
+    re.RegisterServerModel = RE_RegisterServerModel;
+    re.UnregisterServerModel = RE_UnregisterServerModel;
+	re.RefreshShaderNoMip = RE_RefreshShaderNoMip;
+	re.PrintBSPFileSizes = RE_PrintBSPFileSizes;
+	re.MapVersion = RE_MapVersion;
+    re.LoadFont = R_LoadFont;
+
+    re.MarkFragmentsForInlineModel = R_MarkFragmentsForInlineModel;
+    re.GetInlineModelBounds = R_GetInlineModelBounds;
+    re.GetLightingForDecal = R_GetLightingForDecal;
+    re.GetLightingForSmoke = R_GetLightingForSmoke;
+    re.R_GatherLightSources = R_GatherLightSources;
+    re.ModelRadius = R_ModelRadius;
+    re.AddRefSpriteToScene = RE_AddRefSpriteToScene;
+    re.AddTerrainMarkToScene = RE_AddTerrainMarkToScene;
+
+    re.GetRenderEntity = RE_GetRenderEntity;
 
 	re.SavePerformanceCounters = R_SavePerformanceCounters;
 

@@ -1606,3 +1606,8 @@ qboolean R_DlightSample(byte *src, const vec3_t vec, byte *dst)
 
     return added;
 }
+
+int R_LightForPoint(vec3_t point, vec3_t ambientLight, vec3_t directedLight, vec3_t lightDir) {
+    // Stub
+    return 0;
+}

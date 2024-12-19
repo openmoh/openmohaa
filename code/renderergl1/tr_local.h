@@ -1836,6 +1836,7 @@ shader_t	*R_GetShaderByState( int index, long *cycleTime );
 void R_StartupShaders();
 void R_ShutdownShaders();
 void R_SetupShaders();
+shader_t *R_FindShaderByName( const char *name );
 void		R_ShaderList_f( void );
 void    R_RemapShader(const char *oldShader, const char *newShader, const char *timeOffset);
 
@@ -1995,6 +1996,7 @@ int R_GatherLightSources(const vec3_t vPos, vec3_t* pvLightPos, vec3_t* pvLightI
 void R_ClearRealDlights();
 void R_UploadDlights();
 
+int R_LightForPoint(vec3_t point, vec3_t ambientLight, vec3_t directedLight, vec3_t lightDir);
 
 /*
 ============================================================
@@ -2495,6 +2497,8 @@ void RE_SaveJPG(char* filename, int quality, int image_width, int image_height,
     unsigned char* image_buffer, int padding);
 size_t RE_SaveJPGToBuffer(byte* buffer, size_t bufSize, int quality,
     int image_width, int image_height, byte* image_buffer, int padding);
+void RE_TakeVideoFrame( int width, int height,
+		byte *captureBuffer, byte *encodeBuffer, qboolean motionJpeg );
 
 void SaveJPG(char * filename, int quality, int image_width, int image_height, unsigned char *image_buffer);
 
