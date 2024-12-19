@@ -525,8 +525,8 @@ void R_PrintInfoStaticModels()
     cStaticModelUnpacked_t *pSM[MAX_DISTINCT_STATIC_MODELS];
     int                     count;
 
-    Com_Printf("Static model info:\n");
-    Com_Printf("------------------\n");
+    ri.Printf(PRINT_ALL, "Static model info:\n");
+    ri.Printf(PRINT_ALL, "------------------\n");
 
     count        = 0;
     iRenderCount = 0;
@@ -541,7 +541,7 @@ void R_PrintInfoStaticModels()
         iRenderCount++;
 
         if (!SM->tiki) {
-            Com_Printf("ERROR: static model with no tiki\n");
+            ri.Printf(PRINT_ALL, "ERROR: static model with no tiki\n");
             continue;
         }
 
@@ -553,7 +553,7 @@ void R_PrintInfoStaticModels()
         }
 
         if (count >= MAX_DISTINCT_STATIC_MODELS) {
-            Com_Printf("R_PrintInfoStaticModels: MAX_DISTINCT_STATIC_MODELS exceeded - increase and recompile\n");
+            ri.Printf(PRINT_ALL, "R_PrintInfoStaticModels: MAX_DISTINCT_STATIC_MODELS exceeded - increase and recompile\n");
             break;
         }
 
@@ -566,12 +566,12 @@ void R_PrintInfoStaticModels()
         }
     }
 
-    Com_Printf("Total static models rendered: %d\n", iRenderCount);
+    ri.Printf(PRINT_ALL, "Total static models rendered: %d\n", iRenderCount);
 
     for (i = 0; i < count; i++) {
         skelHeaderGame_t *skelmodel = ri.TIKI_GetSkel(tikis[i]->mesh[0]);
 
-        Com_Printf(
+        ri.Printf(PRINT_ALL, 
             "model: %s, version: %d, count: %d,\n culling min %.1f %.1f %.1f, max %.1f %.1f %.1f, radius %.1f\n",
             tikis[i]->a->name,
             skelmodel ? skelmodel->version : -1,

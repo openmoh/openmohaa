@@ -604,7 +604,7 @@ void R_DrawString_sgl(fontheader_sgl_t* font, const char* text, float x, float y
         case '\t':
             indirected = font->indirection[32];
             if (indirected == -1) {
-                Com_DPrintf("R_DrawString: no space-character in font!\n");
+                ri.Printf(PRINT_DEVELOPER, "R_DrawString: no space-character in font!\n");
             } else {
                 x = s_fontGeneralScale * font->locations[indirected].size[0] * 256.0 * 3.0 + x;
             }
@@ -624,10 +624,10 @@ void R_DrawString_sgl(fontheader_sgl_t* font, const char* text, float x, float y
             indirected = font->indirection[c];
             if (indirected == -1)
             {
-                Com_DPrintf("R_DrawString: no 0x%02x-character in font!\n", c);
+                ri.Printf(PRINT_DEVELOPER, "R_DrawString: no 0x%02x-character in font!\n", c);
                 indirected = font->indirection['?'];
                 if (indirected == -1) {
-                    Com_DPrintf("R_DrawString: no '?' character in font!\n");
+                    ri.Printf(PRINT_DEVELOPER, "R_DrawString: no '?' character in font!\n");
                     break;
 				}
                 // set the indirection for the next time
@@ -829,7 +829,7 @@ void R_DrawFloatingString_sgl(fontheader_sgl_t* font, const char* text, const ve
         indirected = font->indirection[c];
         if (indirected == -1)
         {
-            Com_Printf("R_DrawFloatingString: no 0x%02x-character in font!\n", c);
+            ri.Printf(PRINT_ALL, "R_DrawFloatingString: no 0x%02x-character in font!\n", c);
             continue;
         }
 
@@ -920,7 +920,7 @@ float R_GetFontStringWidth_sgl(const fontheader_sgl_t* font, const char* s)
             if (indirected != -1) {
                 widths += font->locations[indirected].size[0] * 3.0;
             } else {
-                Com_Printf("R_GetFontStringWidth: no space-character in font!\n");
+                ri.Printf(PRINT_ALL, "R_GetFontStringWidth: no space-character in font!\n");
             }
         }
         else
@@ -929,7 +929,7 @@ float R_GetFontStringWidth_sgl(const fontheader_sgl_t* font, const char* s)
             if (indirected != -1) {
                 widths += font->locations[indirected].size[0];
             } else {
-                Com_Printf("R_GetFontStringWidth: no 0x%02x-character in font!\n", c);
+                ri.Printf(PRINT_ALL, "R_GetFontStringWidth: no 0x%02x-character in font!\n", c);
             }
         }
     }

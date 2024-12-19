@@ -1285,17 +1285,17 @@ FarPlaneInfo_f
 ==================
 */
 void FarPlaneInfo_f(void) {
-	Com_Printf("Current fog settings:\n");
-	Com_Printf("Distance: %i\n", (int)tr.viewParms.farplane_distance);
-	Com_Printf(
+	ri.Printf(PRINT_ALL, "Current fog settings:\n");
+	ri.Printf(PRINT_ALL, "Distance: %i\n", (int)tr.viewParms.farplane_distance);
+	ri.Printf(PRINT_ALL, 
 		"Color: %f  %f  %f\n",
 		tr.viewParms.farplane_color[0],
 		tr.viewParms.farplane_color[1],
 		tr.viewParms.farplane_color[2]);
 	if (tr.viewParms.farplane_cull) {
-		Com_Printf("Cull: on\n");
+		ri.Printf(PRINT_ALL, "Cull: on\n");
 	} else {
-		Com_Printf("Cull: off\n");
+		ri.Printf(PRINT_ALL, "Cull: off\n");
 	}
 }
 
@@ -1645,7 +1645,7 @@ void R_Init( void ) {
 //	Swap_Init();
 
 	if ( (intptr_t)tess.xyz & 15 ) {
-		Com_Printf( "WARNING: tess.xyz not 16 byte aligned\n" );
+		ri.Printf(PRINT_ALL,  "WARNING: tess.xyz not 16 byte aligned\n" );
 	}
 	Com_Memset( tess.constantColor255, 255, sizeof( tess.constantColor255 ) );
 
@@ -1835,7 +1835,7 @@ void RE_EndRegistration( void ) {
 
 		end = ri.Milliseconds();
 
-		Com_Printf("RB_ShowImages: %5.2f seconds\n", (float)((end - start) / 1000.f));
+		ri.Printf(PRINT_ALL, "RB_ShowImages: %5.2f seconds\n", (float)((end - start) / 1000.f));
 	}
 
 	R_FreeUnusedImages();

@@ -689,7 +689,7 @@ static void R_PreTessellateTerrain()
         ri.Cvar_SetValue("ter_maxtris", 65535);
     }
 
-    Com_DPrintf("Using ter_maxtris = %d\n", ter_maxtris->integer);
+    ri.Printf(PRINT_DEVELOPER, "Using ter_maxtris = %d\n", ter_maxtris->integer);
 
     g_nTris  = ter_maxtris->integer * 2 + 1;
     g_nVerts = ter_maxtris->integer + 1;
@@ -999,7 +999,7 @@ static void R_DoTriSplitting()
                 // make sure there are sufficient number of tris
                 //
                 if (g_tri.nFree < 14 || g_vert.nFree < 14) {
-                    Com_DPrintf("WARNING: aborting terrain tessellation -- insufficient tris\n");
+                    ri.Printf(PRINT_DEVELOPER, "WARNING: aborting terrain tessellation -- insufficient tris\n");
                     return;
                 }
 
@@ -1336,7 +1336,7 @@ void R_AddTerrainSurfaces()
 
             if (ter_count->integer && (g_nSplit || g_nMerge)) {
                 if (ter_count->integer == 1 || g_nSplit * 2 != g_nMerge) {
-                    Com_DPrintf(
+                    ri.Printf(PRINT_DEVELOPER, 
                         "%5zu tris / %5zu verts / %4d splits / %4d merges\n",
                         g_nTris - g_tri.nFree,
                         g_nVerts - g_vert.nFree,

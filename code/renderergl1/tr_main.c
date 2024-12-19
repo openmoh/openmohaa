@@ -1531,7 +1531,7 @@ void R_AddEntitySurfaces (void) {
 			} else {
 				switch ( tr.currentModel->type ) {
 				case MOD_SPRITE:
-					Com_Printf("sprite model '%s' being added to renderer!\n", tr.currentModel->name);
+					ri.Printf(PRINT_ALL, "sprite model '%s' being added to renderer!\n", tr.currentModel->name);
 					break;
 				case MOD_TIKI:
 					R_AddSkelSurfaces( ent );

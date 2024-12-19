@@ -1726,7 +1726,7 @@ void RB_CalcLightGridColor(unsigned char* colors)
 		}
 	}
 	else {
-		Com_Printf(
+		ri.Printf(PRINT_ALL, 
 			"##### shader '%s' incorrectly uses rgbGen lightingGrid or lightingSpherical; was rgbGen vertex intended?\n",
 			tess.shader->name);
 
@@ -1755,7 +1755,7 @@ void RB_CalcAlphaFromDotView(unsigned char* colors, float alphaMin, float alphaM
 
         u.f = DotProduct(viewInModel, tess.normal[i]);
         u.f = fabs(u.f);
-        Com_Printf("normal: %f %f %f  dot: %f  i %d\n", tess.normal[i][0], tess.normal[i][1], tess.normal[i][2], u.f, i);
+        ri.Printf(PRINT_ALL, "normal: %f %f %f  dot: %f  i %d\n", tess.normal[i][0], tess.normal[i][1], tess.normal[i][2], u.f, i);
 
 		u.f = ((alphaMax - alphaMin) * u.f + alphaMin) * 255.0;
         u.f = u.f - (float)(~((int)(u.f - 255.0) >> 31) & (int)(u.f - 255.0));
@@ -1782,7 +1782,7 @@ void RB_CalcAlphaFromOneMinusDotView(unsigned char* colors, float alphaMin, floa
         u.f = DotProduct(viewInModel, tess.normal[i]);
         u.f = fabs(u.f);
 		u.f = 1.0 - u.f;
-        Com_Printf("normal: %f %f %f  dot: %f  i %d\n", tess.normal[i][0], tess.normal[i][1], tess.normal[i][2], u.f, i);
+        ri.Printf(PRINT_ALL, "normal: %f %f %f  dot: %f  i %d\n", tess.normal[i][0], tess.normal[i][1], tess.normal[i][2], u.f, i);
         
         u.f = ((alphaMax - alphaMin) * u.f + alphaMin) * 255.0;
         u.f = u.f - (long double)(~((int)(u.f - 255.0) >> 31) & (int)(u.f - 255.0));

@@ -183,7 +183,7 @@ static qhandle_t R_RegisterModelInternal(const char *name, qboolean bBeginTiki, 
     }
 
     if (strlen(name) >= 128) {
-        Com_Printf("Model name exceeds MAX_MODEL_NAME\n");
+        ri.Printf(PRINT_ALL, "Model name exceeds MAX_MODEL_NAME\n");
         return 0;
     }
 
@@ -1661,10 +1661,10 @@ void R_PrintInfoWorldtris(void)
         totalNumTris += numTris;
         tiki      = backEnd.refdef.entities[i].e.tiki;
         skelmodel = ri.TIKI_GetSkel(tiki->mesh[0]);
-        Com_Printf("ent: %i, tris: %i, %s, version: %i\n", i, numTris, tiki->a->name, skelmodel->version);
+        ri.Printf(PRINT_ALL, "ent: %i, tris: %i, %s, version: %i\n", i, numTris, tiki->a->name, skelmodel->version);
     }
 
-    Com_Printf("total entity tris: %i\n\n", totalNumTris);
+    ri.Printf(PRINT_ALL, "total entity tris: %i\n\n", totalNumTris);
 
     totalNumTris = 0;
 
@@ -1677,10 +1677,10 @@ void R_PrintInfoWorldtris(void)
         totalNumTris += numTris;
         tiki      = backEnd.refdef.staticModels[i].tiki;
         skelmodel = ri.TIKI_GetSkel(tiki->mesh[0]);
-        Com_Printf("sm: %i, tris: %i, %s, version: %i\n", i, numTris, tiki->a->name, skelmodel->version);
+        ri.Printf(PRINT_ALL, "sm: %i, tris: %i, %s, version: %i\n", i, numTris, tiki->a->name, skelmodel->version);
     }
 
-    Com_Printf("total static model tris: %i\n\n", totalNumTris);
+    ri.Printf(PRINT_ALL, "total static model tris: %i\n\n", totalNumTris);
 }
 
 /*

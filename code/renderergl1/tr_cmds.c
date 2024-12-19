@@ -25,7 +25,7 @@ static backEndCounters_t pc_save;
 
 /*
 =====================
-R_PerformanceCounters
+R_SavePerformanceCounters
 =====================
 */
 void R_SavePerformanceCounters(void) {
