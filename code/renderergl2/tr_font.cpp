@@ -535,8 +535,8 @@ void R_LoadFontShader(fontheader_sgl_t* font)
         {
             if (fontshader->stages[0] != NULL && fontshader->stages[0]->active)
             {
-                fontshader->stages[0]->rgbGen = CGEN_GLOBAL_COLOR;
-                fontshader->stages[0]->alphaGen = AGEN_GLOBAL_ALPHA;
+                fontshader->stages[0]->rgbGen = CGEN_ENTITY;
+                fontshader->stages[0]->alphaGen = AGEN_ENTITY;
             }
         }
 
@@ -584,6 +584,9 @@ void R_DrawString_sgl(fontheader_sgl_t* font, const char* text, float x, float y
     if (!font->shader) {
         R_LoadFontShader(font);
     }
+
+    Vector4Copy(backEnd.color2D, backEnd.entity2D.e.shaderRGBA);
+    backEnd.currentEntity = &backEnd.entity2D;
 
     charHeight = s_fontHeightScale * font->height * s_fontGeneralScale;
     RB_BeginSurface((shader_t*)font->shader, 0, 0);
