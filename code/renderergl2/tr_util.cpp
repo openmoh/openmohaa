@@ -103,7 +103,7 @@ RB_StreamBeginDrawSurf
 */
 void RB_StreamBeginDrawSurf(void)
 {
-    // FIXME: unimplemented (GL2)
+    backEnd.dsStreamVert = tess.numVertexes;
 }
 
 /*
@@ -113,7 +113,21 @@ RB_StreamEndDrawSurf
 */
 void RB_StreamEndDrawSurf(void)
 {
-    // FIXME: unimplemented (GL2)
+    int numverts;
+    int i;
+
+    if (tess.numVertexes - backEnd.dsStreamVert <= 2) {
+        tess.numVertexes = backEnd.dsStreamVert;
+        return;
+    }
+
+    numverts = tess.numVertexes - backEnd.dsStreamVert - 2;
+    for (i = 0; i < numverts; i++) {
+        tess.indexes[i + tess.numIndexes]     = (i & 1) + i + backEnd.dsStreamVert;
+        tess.indexes[i + tess.numIndexes + 1] = i + backEnd.dsStreamVert - ((i & 1) - 1);
+        tess.indexes[i + tess.numIndexes + 2] = i + backEnd.dsStreamVert + 2;
+        tess.numIndexes += 3;
+    }
 }
 
 /*
@@ -125,10 +139,10 @@ static void addTriangle(void)
 {
     tess.texCoords[tess.numVertexes][0] = cntSt[0];
     tess.texCoords[tess.numVertexes][1] = cntSt[1];
-    tess.color[tess.numVertexes][0] = cntColor[0];
-    tess.color[tess.numVertexes][1] = cntColor[1];
-    tess.color[tess.numVertexes][2] = cntColor[2];
-    tess.color[tess.numVertexes][3] = cntColor[3];
+    tess.color[tess.numVertexes][0] = cntColor[0] * 65535 / 255;
+    tess.color[tess.numVertexes][1] = cntColor[1] * 65535 / 255;
+    tess.color[tess.numVertexes][2] = cntColor[2] * 65535 / 255;
+    tess.color[tess.numVertexes][3] = cntColor[3] * 65535 / 255;
     tess.numVertexes++;
 }
 

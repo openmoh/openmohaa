@@ -1902,6 +1902,7 @@ typedef struct {
 	// OPENMOHAA-specific stuff
 	//
     cStaticModelUnpacked_t* currentStaticModel;
+    int dsStreamVert;
 } backEndState_t;
 
 /*
