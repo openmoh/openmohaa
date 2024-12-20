@@ -794,7 +794,7 @@ void G_ClientUserinfoChanged(gentity_t *ent, const char *u)
 
     Q_strncpyz(client->pers.dm_playergermanmodel, s, sizeof(client->pers.dm_playergermanmodel));
 
-    gi.setConfigstring(CS_PLAYERS + clientnum, va("name\\%s", client->pers.netname));
+    G_SetClientConfigString(ent);
 
     if (ent->entity) {
         float fov;
