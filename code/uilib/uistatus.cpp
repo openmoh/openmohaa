@@ -35,6 +35,10 @@ UIWindowSizer::UIWindowSizer()
 {
 	m_draggingwidget = NULL;
 	m_mouseState = M_NONE;
+
+	// Added in OPM
+	//  So this can be made as the first responder
+	m_canactivate = true;
 }
 
 
