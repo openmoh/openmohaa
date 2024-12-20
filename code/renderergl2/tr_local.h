@@ -268,12 +268,23 @@ typedef enum {
     //
     // OPENMOHAA-specific stuff
     //
-
-    AGEN_GLOBAL_ALPHA,
-    AGEN_DIST_FADE,
+	
+	AGEN_NOISE,
+	AGEN_DOT,
+	AGEN_ONE_MINUS_DOT,
+	AGEN_CONSTANT,
+	AGEN_GLOBAL_ALPHA,
+	AGEN_SKYALPHA,
+	AGEN_ONE_MINUS_SKYALPHA,
+	AGEN_SCOORD,
+	AGEN_TCOORD,
+	AGEN_DIST_FADE,
     AGEN_ONE_MINUS_DIST_FADE,
     AGEN_TIKI_DIST_FADE,
     AGEN_ONE_MINUS_TIKI_DIST_FADE,
+	AGEN_DOT_VIEW,
+	AGEN_ONE_MINUS_DOT_VIEW,
+	AGEN_HEIGHT_FADE,
 } alphaGen_t;
 
 typedef enum {
@@ -295,8 +306,17 @@ typedef enum {
 	//
 	// OPENMOHAA-specific stuff
 	//
-
+	
+    CGEN_MULTIPLY_BY_WAVEFORM,
+    CGEN_LIGHTING_GRID,
+    CGEN_LIGHTING_SPHERICAL,
+    CGEN_NOISE,
     CGEN_GLOBAL_COLOR,
+    CGEN_STATIC,
+    CGEN_SCOORD,
+    CGEN_TCOORD,
+    CGEN_DOT,
+    CGEN_ONE_MINUS_DOT,
 } colorGen_t;
 
 typedef enum {
@@ -449,6 +469,17 @@ typedef struct {
 	vec4_t normalScale;
 	vec4_t specularScale;
 
+	//
+	// OPENMOHAA-SPECIFIC stuff
+	//
+
+	float			alphaMin;
+	float			alphaMax;
+	vec3_t			specOrigin;
+
+    byte			colorConst[4];			// for CGEN_CONST and AGEN_CONST
+	byte			alphaConst;
+	byte			alphaConstMin;
 } shaderStage_t;
 
 struct shaderCommands_s;
@@ -550,7 +581,7 @@ typedef struct shader_s {
 	//
 	// OPENMOHAA-specific stuff
 	//
-
+	qboolean force32bit;
     float fDistRange;
     float fDistNear;
     spriteParms_t sprite;
@@ -2532,6 +2563,17 @@ void    R_RemapShader(const char *oldShader, const char *newShader, const char *
 //
 // OPENMOHAA-specific stuff
 //=========================
+
+#define GLS_MULTITEXTURE						0x00004000
+#define GLS_MULTITEXTURE_ENV					0x00008000
+#define GLS_FOG									0x00080000
+
+#define GLS_FOG_ENABLED							0x00100000
+#define GLS_FOG_BLACK							0x00200000
+#define GLS_FOG_WHITE							0x00400000
+#define GLS_FOG_COLOR							(GLS_FOG_BLACK | GLS_FOG_WHITE)
+#define GLS_FOG_BITS							(GLS_FOG_WHITE|GLS_FOG_BLACK|GLS_FOG_ENABLED)
+#define GLS_COLOR_NOMASK						0x00800000
 
 void R_RotateForStaticModel(cStaticModelUnpacked_t* SM, const viewParms_t* viewParms, orientationr_t* ori);
 void R_RotateForViewer(void);

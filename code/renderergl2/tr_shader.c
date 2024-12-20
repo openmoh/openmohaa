@@ -117,6 +117,7 @@ ParseVector
 ===============
 */
 static qboolean ParseVector( char **text, int count, float *v ) {
+#if 0
 	char	*token;
 	int		i;
 
@@ -143,6 +144,25 @@ static qboolean ParseVector( char **text, int count, float *v ) {
 	}
 
 	return qtrue;
+#endif
+
+	//
+	// OPENMOHAA-specific stuff
+	//
+	char	*token;
+	int		i;
+
+	for ( i = 0 ; i < count ; i++ ) {
+		token = COM_ParseExt( text, qfalse );
+		if ( !token[0] ) {
+			ri.Printf( PRINT_WARNING, "WARNING: missing vector element in shader '%s'\n", shader.name );
+			return qfalse;
+		}
+		v[i] = atof( token );
+	}
+
+	return qtrue;
+
 }
 
 
@@ -604,6 +624,15 @@ static qboolean ParseStage( shaderStage_t *stage, char **text )
 	char *token;
 	int depthMaskBits = GLS_DEPTHMASK_TRUE, blendSrcBits = 0, blendDstBits = 0, atestBits = 0, depthFuncBits = 0;
 	qboolean depthMaskExplicit = qfalse;
+	//
+	// OPENMOHAA-specific stuff
+	//=========================
+	int colorBits;
+	int cntBundle = 0;
+	int depthTestBits = 0;
+	int fogBits = 0;
+	qboolean shouldProcess = qtrue;
+	//=========================
 
 	stage->active = qtrue;
 
@@ -875,6 +904,13 @@ static qboolean ParseStage( shaderStage_t *stage, char **text )
 			} else if ( !Q_stricmp( token, "blend" ) ) {
 				blendSrcBits = GLS_SRCBLEND_SRC_ALPHA;
 				blendDstBits = GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA;
+			//
+			// OPENMOHAA-specific stuff
+			//=========================
+			} else if ( !Q_stricmp( token, "alphaadd" ) ) {
+				blendSrcBits = GLS_SRCBLEND_SRC_ALPHA;
+                blendDstBits = GLS_DSTBLEND_ONE;
+			//=========================
 			} else {
 				// complex double blends
 				blendSrcBits = NameToSrcBlendMode( token );
@@ -1214,6 +1250,142 @@ static qboolean ParseStage( shaderStage_t *stage, char **text )
 			{
 				stage->rgbGen = CGEN_ONE_MINUS_VERTEX;
 			}
+			//
+			// OPENMOHAA-specific stuff
+			//=========================
+			else if (!Q_stricmp(token, "colorwave"))
+			{
+				vec3_t v;
+
+				ParseVector(text, 3, v);
+				stage->colorConst[0] = v[0] * 255.0;
+				stage->colorConst[1] = v[1] * 255.0;
+				stage->colorConst[2] = v[2] * 255.0;
+				stage->rgbGen = CGEN_MULTIPLY_BY_WAVEFORM;
+			}
+			else if (!Q_stricmp(token, "global"))
+			{
+				stage->rgbGen = CGEN_GLOBAL_COLOR;
+            }
+            else if (!Q_stricmp(token, "fromentity"))
+            {
+                stage->rgbGen = CGEN_ENTITY;
+            }
+			else if (!Q_stricmp(token, "fromclient"))
+			{
+				stage->rgbGen = CGEN_VERTEX;
+				if (stage->alphaGen == 0) {
+					stage->alphaGen = AGEN_VERTEX;
+				}
+			}
+			else if (!Q_stricmp(token, "lightingGrid"))
+			{
+				stage->rgbGen = CGEN_LIGHTING_GRID;
+			}
+			else if (!Q_stricmp(token, "lightingSpherical"))
+			{
+				stage->rgbGen = CGEN_LIGHTING_SPHERICAL;
+			}
+			else if (!Q_stricmp(token, "constant"))
+			{
+				vec3_t	color;
+
+				VectorClear( color );
+
+				ParseVector( text, 3, color );
+				stage->constantColor[0] = 255 * color[0];
+				stage->constantColor[1] = 255 * color[1];
+				stage->constantColor[2] = 255 * color[2];
+
+				stage->rgbGen = CGEN_CONST;
+			}
+			else if (!Q_stricmp(token, "static"))
+			{
+				stage->rgbGen = CGEN_STATIC;
+				if (stage->alphaGen == AGEN_IDENTITY) {
+					stage->alphaGen = AGEN_VERTEX;
+				}
+			}
+			else if (!Q_stricmp(token, "sCoord") || !Q_stricmp(token, "tCoord"))
+			{
+				if (!Q_stricmp(token, "sCoord")) {
+					stage->rgbGen = CGEN_SCOORD;
+				}
+				else {
+					stage->rgbGen = CGEN_TCOORD;
+				}
+
+				stage->alphaMin = 0.0;
+				stage->alphaMax = 1.0;
+				stage->alphaConstMin = 0;
+				stage->alphaConst = -1;
+
+				token = COM_ParseExt(text, qfalse);
+				if (token[0] == 0) {
+					continue;
+				}
+
+				stage->alphaMin = atof(token);
+
+				token = COM_ParseExt(text, qfalse);
+				if (token[0] == 0) {
+					continue;
+				}
+
+				stage->alphaMax = atof(token);
+
+				token = COM_ParseExt(text, qfalse);
+				if (token[0] == 0) {
+					continue;
+				}
+
+				stage->alphaConstMin = atof(token) * 255.0;
+
+				token = COM_ParseExt(text, qfalse);
+				if (token[0] == 0) {
+					ri.Printf(PRINT_WARNING, "WARNING: missing rgbGen sCoord or tCoord parm 'max' in shader '%s'\n", shader.name);
+					continue;
+				}
+
+				stage->alphaConst = atof(token) * 255.0;
+			}
+			else if (!Q_stricmp(token, "dot"))
+			{
+				stage->rgbGen = CGEN_DOT;
+				stage->alphaMin = 0.0;
+				stage->alphaMax = 1.0;
+
+				token = COM_ParseExt(text, qfalse);
+				if (token[0] == 0) {
+					continue;
+				}
+				stage->alphaMin = atof(token);
+
+				token = COM_ParseExt(text, qfalse);
+				if (token[0] == 0) {
+					continue;
+				}
+				stage->alphaMax = atof(token);
+			}
+			else if (!Q_stricmp(token, "oneminusdot"))
+			{
+				stage->rgbGen = CGEN_ONE_MINUS_DOT;
+				stage->alphaMin = 0.0;
+				stage->alphaMax = 1.0;
+
+				token = COM_ParseExt(text, qfalse);
+				if (token[0] == 0) {
+					continue;
+				}
+				stage->alphaMin = atof(token);
+
+				token = COM_ParseExt(text, qfalse);
+				if (token[0] == 0) {
+					continue;
+				}
+				stage->alphaMax = atof(token);
+            }
+            //=========================
 			else
 			{
 				ri.Printf( PRINT_WARNING, "WARNING: unknown rgbGen parameter '%s' in shader '%s'\n", token, shader.name );
@@ -1261,7 +1433,21 @@ static qboolean ParseStage( shaderStage_t *stage, char **text )
 			}
 			else if ( !Q_stricmp( token, "lightingSpecular" ) )
 			{
-				stage->alphaGen = AGEN_LIGHTING_SPECULAR;
+                stage->alphaGen = AGEN_LIGHTING_SPECULAR;
+                //
+                // OPENMOHAA-specific stuff
+                //=========================
+				stage->alphaMax = 255;
+				stage->specOrigin[0] = -960;
+				stage->specOrigin[1] = 1980;
+				stage->specOrigin[2] = 96;
+
+				token = COM_ParseExt(text, qfalse);
+				if (token[0]) {
+					stage->alphaMax = atof(token) * 255.0;
+					ParseVector(text, 3, stage->specOrigin);
+                }
+                //=========================
 			}
 			else if ( !Q_stricmp( token, "oneMinusVertex" ) )
 			{
@@ -1281,6 +1467,196 @@ static qboolean ParseStage( shaderStage_t *stage, char **text )
 					shader.portalRange = atof( token );
 				}
 			}
+			//
+			// OPENMOHAA-specific stuff
+			//=========================
+			else if (!Q_stricmp(token, "global"))
+			{
+				stage->alphaGen = AGEN_GLOBAL_ALPHA;
+			}
+			else if (!Q_stricmp(token, "fromentity"))
+			{
+				stage->alphaGen = AGEN_ENTITY;
+			}
+			else if (!Q_stricmp(token, "fromclient"))
+			{
+				stage->alphaGen = AGEN_VERTEX;
+			}
+			else if (!Q_stricmp(token, "oneMinusFromClient"))
+			{
+				stage->alphaGen = AGEN_ONE_MINUS_VERTEX;
+			}
+			else if (!Q_stricmp(token, "distFade") || !Q_stricmp(token, "oneMinusDistFade")
+				|| !Q_stricmp(token, "tikiDistFade") || !Q_stricmp(token, "oneMinusTikiDistFade"))
+			{
+				if (!Q_stricmp(token, "distFade")) {
+					stage->alphaGen = AGEN_DIST_FADE;
+				} else if (!Q_stricmp(token, "oneMinusDistFade")) {
+					stage->alphaGen = AGEN_ONE_MINUS_DIST_FADE;
+				} else if (!Q_stricmp(token, "tikiDistFade")) {
+                    stage->alphaGen = AGEN_TIKI_DIST_FADE;
+                } else {
+                    stage->alphaGen = AGEN_ONE_MINUS_TIKI_DIST_FADE;
+                }
+
+				shader.fDistNear = 256.0;
+				shader.fDistRange = 256.0;
+
+				token = COM_ParseExt(text, qfalse);
+				if (token[0] == 0) {
+					continue;
+				}
+				shader.fDistNear = atof(token);
+
+				token = COM_ParseExt(text, qfalse);
+				if (token[0] == 0) {
+					continue;
+				}
+				shader.fDistRange = atof(token);
+			}
+			else if (!Q_stricmp(token, "dot"))
+			{
+				stage->alphaMin = 0.0;
+				stage->alphaMax = 1.0;
+				stage->alphaGen = AGEN_DOT;
+
+				token = COM_ParseExt(text, qfalse);
+				if (token[0] == 0) {
+					continue;
+				}
+				stage->alphaMin = atof(token);
+
+				token = COM_ParseExt(text, qfalse);
+				if (token[0] == 0) {
+					continue;
+				}
+				stage->alphaMax = atof(token);
+			}
+			else if (!Q_stricmp(token, "heightFade"))
+            {
+                stage->alphaMin = 256.0f;
+                stage->alphaMax = 512.0f;
+                stage->alphaGen = AGEN_HEIGHT_FADE;
+
+                token = COM_ParseExt(text, qfalse);
+                if (token[0] == 0) {
+                    continue;
+                }
+                stage->alphaMin = atof(token);
+
+                token = COM_ParseExt(text, qfalse);
+                if (token[0] == 0) {
+                    continue;
+                }
+                stage->alphaMax = atof(token);
+			}
+			else if (!Q_stricmp(token, "oneMinusDot"))
+			{
+				stage->alphaMin = 0.0;
+				stage->alphaMax = 1.0;
+				stage->alphaGen = AGEN_ONE_MINUS_DOT;
+
+				token = COM_ParseExt(text, qfalse);
+				if (token[0] == 0) {
+					continue;
+				}
+				stage->alphaMin = atof(token);
+
+				token = COM_ParseExt(text, qfalse);
+				if (token[0] == 0) {
+					continue;
+				}
+				stage->alphaMax = atof(token);
+			}
+			else if (!Q_stricmp(token, "dotView"))
+			{
+				stage->alphaMin = 0.0;
+				stage->alphaMax = 1.0;
+				stage->alphaGen = AGEN_DOT_VIEW;
+
+				token = COM_ParseExt(text, qfalse);
+				if (token[0] == 0) {
+					continue;
+				}
+				stage->alphaMin = atof(token);
+
+				token = COM_ParseExt(text, qfalse);
+				if (token[0] == 0) {
+					continue;
+				}
+				stage->alphaMax = atof(token);
+			}
+			else if (!Q_stricmp(token, "oneMinusDotView"))
+			{
+				stage->alphaMin = 0.0;
+				stage->alphaMax = 1.0;
+				stage->alphaGen = AGEN_ONE_MINUS_DOT_VIEW;
+
+				token = COM_ParseExt(text, qfalse);
+				if (token[0] == 0) {
+					continue;
+				}
+				stage->alphaMin = atof(token);
+
+				token = COM_ParseExt(text, qfalse);
+				if (token[0] == 0) {
+					continue;
+				}
+				stage->alphaMax = atof(token);
+			}
+			else if (!Q_stricmp(token, "constant"))
+			{
+				token = COM_ParseExt(text, qfalse);
+				stage->constantColor[3] = 255 * atof(token);
+				stage->alphaGen = AGEN_CONST;
+			}
+			else if (!Q_stricmp(token, "skyAlpha"))
+			{
+				stage->alphaGen = AGEN_SKYALPHA;
+			}
+			else if (!Q_stricmp(token, "oneMinusSkyAlpha"))
+			{
+				stage->alphaGen = AGEN_ONE_MINUS_SKYALPHA;
+			}
+			else if (!Q_stricmp(token, "sCoord") || !Q_stricmp(token, "tCoord"))
+			{
+				if (!Q_stricmp(token, "sCoord")) {
+					stage->alphaGen = AGEN_SCOORD;
+				} else {
+					stage->alphaGen = AGEN_TCOORD;
+				}
+
+				stage->alphaMin = 0.0;
+				stage->alphaMax = 1.0;
+				stage->alphaConstMin = 0;
+				stage->alphaConst = -1;
+
+				token = COM_ParseExt(text, qfalse);
+				if (token[0] == 0) {
+					continue;
+				}
+				stage->alphaMin = atof(token);
+
+				token = COM_ParseExt(text, qfalse);
+				if (token[0] == 0) {
+					continue;
+				}
+				stage->alphaMax = atof(token);
+
+				token = COM_ParseExt(text, qfalse);
+				if (token[0] == 0) {
+					continue;
+				}
+				stage->alphaConstMin = atof(token) * 255.0;
+
+				token = COM_ParseExt(text, qfalse);
+				if (token[0] == 0) {
+					ri.Printf(PRINT_WARNING, "WARNING: missing alphaGen s or tCoord parm 'max' in shader '%s'\n", shader.name);
+					continue;
+				}
+				stage->alphaConst = atof(token) * 255.0;
+			}
+			//=========================
 			else
 			{
 				ri.Printf( PRINT_WARNING, "WARNING: unknown alphaGen parameter '%s' in shader '%s'\n", token, shader.name );
@@ -1352,6 +1728,92 @@ static qboolean ParseStage( shaderStage_t *stage, char **text )
 			depthMaskExplicit = qtrue;
 
 			continue;
+		}
+		//
+		// OPENMOHAA-specific stuff
+		//
+		else if (!Q_stricmp(token, "depthmask"))
+		{
+			depthMaskBits = GLS_DEPTHMASK_TRUE;
+			depthMaskExplicit = qtrue;
+
+			continue;
+        }
+        else if (!Q_stricmp(token, "nodepthwrite") || !Q_stricmp(token, "nodepthmask"))
+        {
+            depthMaskBits = 0;
+            depthMaskExplicit = qtrue;
+
+            continue;
+        }
+        else if (!Q_stricmp(token, "nocolorwrite") || !Q_stricmp(token, "nocolormask"))
+        {
+            colorBits = GLS_COLOR_NOMASK;
+
+            continue;
+        }
+		else if (!Q_stricmp(token, "noDepthTest"))
+		{
+			depthFuncBits = GLS_DEPTHTEST_DISABLE;
+			continue;
+        }
+        else if (!Q_stricmp(token, "nextBundle"))
+        {
+			if (!qglActiveTextureARB) {
+				ri.Printf(PRINT_ALL, "WARNING: " PRODUCT_NAME " requires a video card with multitexturing capability\n");
+				return qfalse;
+			}
+
+			token = COM_ParseExt(text, qfalse);
+			if (token[0] && !Q_stricmp(token, "add")) {
+				//stage->multitextureEnv = GL_ADD;
+			} else {
+				//stage->multitextureEnv = GL_MODULATE;
+			}
+
+			cntBundle++;
+			if (cntBundle > NUM_TEXTURE_BUNDLES) {
+				ri.Printf(PRINT_WARNING, "WARNING: too many nextBundle commands in shader '%s'\n", shader.name);
+				return qfalse;
+			}
+            continue;
+        }
+		//
+		// Added in 2.0
+		//
+		else if (!Q_stricmp(token, "ifCvar") || !Q_stricmp(token, "ifCvarnot"))
+		{
+			cvar_t* var;
+			qboolean isNot = token[6] != 0;
+			qboolean evaluatedValue;
+
+			token = COM_ParseExt(text, qfalse);
+			if (!token[0]) {
+				ri.Printf(PRINT_WARNING, "WARNING: missing cvar name in %s", isNot ? "ifCvarnot" : "ifCvar");
+				return qfalse;
+			}
+
+			var = ri.Cvar_Get(token, "0", 0);
+
+			token = COM_ParseExt(text, qfalse);
+			if (!token[0]) {
+				ri.Printf(PRINT_WARNING, "WARNING: missing cvar value in %s", isNot ? "ifCvarnot" : "ifCvar");
+				return qfalse;
+			}
+
+			if (atof(token) != var->value) {
+				evaluatedValue = qfalse;
+			} else if (var->value) {
+				evaluatedValue = qtrue;
+			} else if (token[0] == '0' || (token[0] == '.' && token[1] == '0')) {
+				evaluatedValue = qtrue;
+			} else if (!Q_stricmp(var->string, token)) {
+				evaluatedValue = qtrue;
+			} else {
+				return qfalse;
+			}
+
+			shouldProcess &= evaluatedValue ^ isNot;
 		}
 		else
 		{
@@ -2009,6 +2471,16 @@ static qboolean ParseShader( char **text )
 			ParseSort( text );
 			continue;
 		}
+		//
+		// OPENMOHAA-specific stuff
+		//=========================
+		// force 32 bit images
+		if (!Q_stricmp(token, "force32bit"))
+		{
+			shader.force32bit = qtrue;
+			continue;
+		}
+		//=========================
 		else
 		{
 			ri.Printf( PRINT_WARNING, "WARNING: unknown general shader parameter '%s' in '%s'\n", token, shader.name );
