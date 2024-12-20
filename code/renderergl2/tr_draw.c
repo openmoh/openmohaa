@@ -40,7 +40,6 @@ void Draw_SetColor(const vec4_t rgba) {
 	backEnd.color2D[1] = (byte)(rgba[1] * tr.identityLightByte);
 	backEnd.color2D[2] = (byte)(rgba[2] * tr.identityLightByte);
 	backEnd.color2D[3] = (byte)(rgba[3] * 255.0);
-	//qglColor4ubv(backEnd.color2D);
 #else
 	RE_SetColor(rgba);
 #endif
@@ -55,7 +54,10 @@ void Draw_StretchPic(float x, float y, float w, float h, float s1, float t1, flo
 #if 1
 	shader_t* shader;
 
-	R_IssuePendingRenderCommands();
+    R_IssuePendingRenderCommands();
+
+    if (glRefConfig.framebufferObject)
+        FBO_Bind(tr.renderFbo);
 
 	if (hShader) {
 		shader = R_GetShaderByHandle(hShader);
@@ -70,8 +72,9 @@ void Draw_StretchPic(float x, float y, float w, float h, float s1, float t1, flo
 	}
 
 	// draw the pic
-	RB_Color4f(backEnd.color2D[0], backEnd.color2D[1], backEnd.color2D[2], backEnd.color2D[3]);
 	RB_BeginSurface(shader, 0, 0);
+
+    RB_Color4f(backEnd.color2D[0], backEnd.color2D[1], backEnd.color2D[2], backEnd.color2D[3]);
 
 	RB_Texcoord2f(s1, t1);
 	RB_Vertex2f(x, y);
@@ -361,25 +364,41 @@ AddBox
 ================
 */
 void AddBox(float x, float y, float w, float h) {
-    // FIXME: unimplemented (GL2)
-#if 0
+    vec4_t quadVerts[4];
+    vec2_t texCoords[4];
+	vec4_t color;
+
 	R_IssuePendingRenderCommands();
 
-	qglColor4ubv(backEnd.color2D);
-	qglDisable(GL_TEXTURE_2D);
-	GL_State(GLS_DEPTHTEST_DISABLE | GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE);
+    GL_BindToTMU(tr.whiteImage, TB_COLORMAP);
+    GL_State(GLS_DEPTHTEST_DISABLE | GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE);
 
-	qglBegin(GL_QUADS);
+	if (glRefConfig.framebufferObject)
+	{
+		FBO_Bind(tr.renderFbo);
+	}
 
-	qglVertex2f(x, y);
-	qglVertex2f(x + w, y);
-	qglVertex2f(x + w, y + h);
-	qglVertex2f(x, y + h);
+	color[0] = backEnd.color2D[0] / 255.0;
+	color[1] = backEnd.color2D[1] / 255.0;
+	color[2] = backEnd.color2D[2] / 255.0;
+	color[3] = backEnd.color2D[3] / 255.0;
+	
+	VectorSet4(quadVerts[0], x,     y,     0.0f, 1.0f);
+	VectorSet4(quadVerts[1], x + w, y,     0.0f, 1.0f);
+	VectorSet4(quadVerts[2], x + w, y + h, 0.0f, 1.0f);
+	VectorSet4(quadVerts[3], x,     y + h, 0.0f, 1.0f);
 
-	qglEnd();
+	VectorSet2(texCoords[0], 0.0f, 0.0f);
+	VectorSet2(texCoords[1], 1.0f, 0.0f);
+	VectorSet2(texCoords[2], 1.0f, 1.0f);
+	VectorSet2(texCoords[3], 0.0f, 1.0f);
 
-	qglEnable(GL_TEXTURE_2D);
-#endif
+	GLSL_BindProgram(&tr.textureColorShader);
+	
+	GLSL_SetUniformMat4(&tr.textureColorShader, UNIFORM_MODELVIEWPROJECTIONMATRIX, glState.modelviewProjection);
+	GLSL_SetUniformVec4(&tr.textureColorShader, UNIFORM_COLOR, color);
+
+    RB_InstantQuad2(quadVerts, texCoords);
 }
 
 /*
@@ -388,25 +407,41 @@ DrawBox
 ================
 */
 void DrawBox(float x, float y, float w, float h) {
-    // FIXME: unimplemented (GL2)
-#if 0
+    vec4_t quadVerts[4];
+    vec2_t texCoords[4];
+	vec4_t color;
+
 	R_IssuePendingRenderCommands();
 
-	qglColor4ubv(backEnd.color2D);
-	qglDisable(GL_TEXTURE_2D);
-	GL_State(GLS_DEPTHTEST_DISABLE | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA | GLS_SRCBLEND_SRC_ALPHA);
+    GL_BindToTMU(tr.whiteImage, TB_COLORMAP);
+    GL_State(GLS_DEPTHTEST_DISABLE | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA | GLS_SRCBLEND_SRC_ALPHA);
 
-	qglBegin(GL_QUADS);
+	if (glRefConfig.framebufferObject)
+	{
+		FBO_Bind(tr.renderFbo);
+	}
 
-	qglVertex2f(x, y);
-	qglVertex2f(x + w, y);
-	qglVertex2f(x + w, y + h);
-	qglVertex2f(x, y + h);
+	color[0] = backEnd.color2D[0] / 255.0;
+	color[1] = backEnd.color2D[1] / 255.0;
+	color[2] = backEnd.color2D[2] / 255.0;
+	color[3] = backEnd.color2D[3] / 255.0;
+	
+	VectorSet4(quadVerts[0], x,     y,     0.0f, 1.0f);
+	VectorSet4(quadVerts[1], x + w, y,     0.0f, 1.0f);
+	VectorSet4(quadVerts[2], x + w, y + h, 0.0f, 1.0f);
+	VectorSet4(quadVerts[3], x,     y + h, 0.0f, 1.0f);
 
-	qglEnd();
+	VectorSet2(texCoords[0], 0.0f, 0.0f);
+	VectorSet2(texCoords[1], 1.0f, 0.0f);
+	VectorSet2(texCoords[2], 1.0f, 1.0f);
+	VectorSet2(texCoords[3], 0.0f, 1.0f);
 
-	qglEnable(GL_TEXTURE_2D);
-#endif
+	GLSL_BindProgram(&tr.textureColorShader);
+	
+	GLSL_SetUniformMat4(&tr.textureColorShader, UNIFORM_MODELVIEWPROJECTIONMATRIX, glState.modelviewProjection);
+	GLSL_SetUniformVec4(&tr.textureColorShader, UNIFORM_COLOR, color);
+
+    RB_InstantQuad2(quadVerts, texCoords);
 }
 
 /*
@@ -450,17 +485,19 @@ Set2DWindow
 ================
 */
 void Set2DWindow(int x, int y, int w, int h, float left, float right, float bottom, float top, float n, float f) {
-    // FIXME: unimplemented (GL2)
-#if 0
+	mat4_t    oldmodelview, oldprojection, matrix;
+
 	R_IssuePendingRenderCommands();
 	qglViewport(x, y, w, h);
 	qglScissor(x, y, w, h);
-	qglMatrixMode(GL_PROJECTION);
-	qglLoadIdentity();
-	qglOrtho(left, right, bottom, top, n, f);
-	qglMatrixMode(GL_MODELVIEW);
 
-	qglLoadIdentity();
+	Mat4Copy(glState.projection, oldprojection);
+	Mat4Copy(glState.modelview, oldmodelview);
+	Mat4Identity(matrix);
+	GL_SetProjectionMatrix(matrix);
+	Mat4Ortho(left, right, bottom, top, n, f, matrix);
+	GL_SetModelviewMatrix(matrix);
+
 	GL_State(GLS_DEPTHTEST_DISABLE | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA | GLS_SRCBLEND_SRC_ALPHA);
 	qglEnable(GL_BLEND);
 	qglDisable(GL_CULL_FACE);
@@ -469,17 +506,13 @@ void Set2DWindow(int x, int y, int w, int h, float left, float right, float bott
 	qglDisable(GL_FOG);
 	qglFogf(GL_FOG_START, 0);
 
-	if (r_reset_tc_array->integer) {
-		qglDisableClientState(GL_TEXTURE_COORD_ARRAY);
-	}
 
-	if (!backEnd.in2D)
+	if (!backEnd.projection2D)
 	{
 		backEnd.refdef.time = ri.Milliseconds();
-		backEnd.in2D = qtrue;
+		backEnd.projection2D = qtrue;
 		backEnd.refdef.floatTime = backEnd.refdef.time / 1000.0;
 	}
-#endif
 }
 
 /*
@@ -488,9 +521,6 @@ RE_Scissor
 ================
 */
 void RE_Scissor(int x, int y, int width, int height) {
-    // FIXME: unimplemented (GL2)
-#if 0
 	qglEnable(GL_SCISSOR_TEST);
 	qglScissor(x, y, width, height);
-#endif
 }
