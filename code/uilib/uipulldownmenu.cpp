@@ -84,6 +84,11 @@ UIPulldownMenu::UIPulldownMenu()
 
 	// uninitialized in original game
 	m_submenuptr = NULL;
+
+	// Added in OPM
+	//  This is so the window manager knows it can be activated
+	//  and appropriately handle this as the first responder
+	m_canactivate = true;
 }
 
 UIPulldownMenu::~UIPulldownMenu()
