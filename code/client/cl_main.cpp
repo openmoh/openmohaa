@@ -3184,6 +3184,7 @@ void CL_InitRef( void ) {
 	ri.FS_CanonicalFilename = FS_CanonicalFilename;
 	ri.Cvar_Get = Cvar_Get;
 	ri.Cvar_Set = Cvar_Set;
+	ri.Cvar_SetValue = Cvar_SetValue;
 	ri.Cvar_SetDefault = Cvar_SetDefault;
 
     ri.CM_EntityString = CM_EntityString;
