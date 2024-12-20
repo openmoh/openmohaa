@@ -2484,6 +2484,40 @@ void R_LoadImage( const char *name, byte **pic, int *width, int *height, GLenum 
 			return;
 	}
 
+	//
+	// OPENMOHAA-specific stuff
+	//=========================
+	// The original game will first try to load the JPG file before the TGA
+	// this is really dirty, but unfortunately without it,
+	// some unexpected artifacts (like broken UI elements) will appear
+    if (!Q_stricmp(ext, "tga")) {
+        char altJPEGName[MAX_QPATH];
+		int len;
+
+        Q_strncpyz(altJPEGName, name, sizeof(altJPEGName));
+
+        len = strlen(altJPEGName);
+		altJPEGName[len - 3] = 'j';
+		altJPEGName[len - 2] = 'p';
+		altJPEGName[len - 1] = 'g';
+
+		// Look for the correct loader and use it
+		for (i = 0; i < numImageLoaders; i++)
+		{
+			if (!Q_stricmp(imageLoaders[i].ext, "jpg"))
+			{
+				// Load
+				imageLoaders[i].ImageLoader(altJPEGName, pic, width, height);
+				break;
+			}
+		}
+
+		if (*pic) {
+			return;
+        }
+    }
+    //=========================
+
 	if( *ext )
 	{
 		// Look for the correct loader and use it
