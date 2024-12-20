@@ -74,7 +74,7 @@ void Draw_StretchPic(float x, float y, float w, float h, float s1, float t1, flo
 	// draw the pic
 	RB_BeginSurface(shader, 0, 0);
 
-    RB_Color4f(backEnd.color2D[0], backEnd.color2D[1], backEnd.color2D[2], backEnd.color2D[3]);
+    RB_Color4bv(backEnd.color2D);
 
 	RB_Texcoord2f(s1, t1);
 	RB_Vertex2f(x, y);
@@ -126,8 +126,8 @@ void Draw_StretchPic2(float x, float y, float w, float h, float s1, float t1, fl
 	scaledWidth2 = halfWidth * sx;
 	scaledHeight2 = halfHeight * sy;
 
-	// draw the pic
-	RB_Color4f(backEnd.color2D[0], backEnd.color2D[1], backEnd.color2D[2], backEnd.color2D[3]);
+    // draw the pic
+    RB_Color4bv(backEnd.color2D);
 	RB_BeginSurface(shader, 0, 0);
 
 	RB_Texcoord2f(s1, t1);
@@ -172,8 +172,8 @@ void Draw_TilePic(float x, float y, float w, float h, qhandle_t hShader) {
 	picw = shader->stages[0]->bundle[0].image[0]->uploadWidth;
 	pich = shader->stages[0]->bundle[0].image[0]->uploadHeight;
 
-	// draw the pic
-	RB_Color4f(backEnd.color2D[0], backEnd.color2D[1], backEnd.color2D[2], backEnd.color2D[3]);
+    // draw the pic
+    RB_Color4bv(backEnd.color2D);
 
 	RB_StreamBegin(shader);
 
@@ -218,8 +218,8 @@ void Draw_TilePicOffset(float x, float y, float w, float h, qhandle_t hShader, i
 	picw = shader->stages[0]->bundle[0].image[0]->uploadWidth;
 	pich = shader->stages[0]->bundle[0].image[0]->uploadHeight;
 
-	// draw the pic
-	RB_Color4f(backEnd.color2D[0], backEnd.color2D[1], backEnd.color2D[2], backEnd.color2D[3]);
+    // draw the pic
+    RB_Color4bv(backEnd.color2D);
 
 	RB_StreamBegin(shader);
 
@@ -256,8 +256,8 @@ void Draw_TrianglePic(const vec2_t vPoints[3], const vec2_t vTexCoords[3], qhand
 		shader = tr.defaultShader;
 	}
 
-	// draw the pic
-	RB_Color4f(backEnd.color2D[0], backEnd.color2D[1], backEnd.color2D[2], backEnd.color2D[3]);
+    // draw the pic
+    RB_Color4bv(backEnd.color2D);
 
 	RB_BeginSurface(shader, 0, 0);
 
@@ -485,27 +485,20 @@ Set2DWindow
 ================
 */
 void Set2DWindow(int x, int y, int w, int h, float left, float right, float bottom, float top, float n, float f) {
-	mat4_t    oldmodelview, oldprojection, matrix;
+	mat4_t matrix;
 
 	R_IssuePendingRenderCommands();
 	qglViewport(x, y, w, h);
 	qglScissor(x, y, w, h);
 
-	Mat4Copy(glState.projection, oldprojection);
-	Mat4Copy(glState.modelview, oldmodelview);
-	Mat4Identity(matrix);
+    Mat4Ortho(left, right, bottom, top, n, f, matrix);
 	GL_SetProjectionMatrix(matrix);
-	Mat4Ortho(left, right, bottom, top, n, f, matrix);
+	Mat4Identity(matrix);
 	GL_SetModelviewMatrix(matrix);
 
-	GL_State(GLS_DEPTHTEST_DISABLE | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA | GLS_SRCBLEND_SRC_ALPHA);
-	qglEnable(GL_BLEND);
-	qglDisable(GL_CULL_FACE);
-	qglDisable(GL_CLIP_PLANE0);
-	// Make sure to disable the fog to avoid messing up with the UI
-	qglDisable(GL_FOG);
-	qglFogf(GL_FOG_START, 0);
+	GL_State(GLS_DEPTHTEST_DISABLE | GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA);
 
+    GL_Cull(CT_TWO_SIDED);
 
 	if (!backEnd.projection2D)
 	{
