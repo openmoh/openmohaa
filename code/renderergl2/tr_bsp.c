@@ -3163,8 +3163,8 @@ void R_LoadLightGrid2(lump_t* plPal, lump_t* plOffsets, lump_t* plData) {
     }
     Com_Memcpy(w->lightGridPalette, fileBase + plPal->fileofs, sizeof(s_worldData.lightGridPalette));
 
-    //w->lightGridData = ri.Hunk_Alloc(plData->filelen, h_dontcare);
-    //Com_Memcpy(w->lightGridData, fileBase + plData->fileofs, plData->filelen);
+    w->lightGridData = ri.Hunk_Alloc(plData->filelen, h_dontcare);
+    Com_Memcpy(w->lightGridData, fileBase + plData->fileofs, plData->filelen);
 }
 
 /*
@@ -3480,6 +3480,9 @@ void RE_LoadWorldMap( const char *name ) {
         g_nStaticModels = 0;
         g_nStaticModelIndices = 0;
     }
+
+    ri.UI_LoadResource("*111");
+    R_Sphere_InitLights();
 	//=========================
 
 	// determine vertex light directions
@@ -3715,8 +3718,6 @@ void RE_LoadWorldMap( const char *name ) {
 	//
 	// OPENMOHAA-specific stuff
 	//=========================
-    ri.UI_LoadResource("*111");
-    R_Sphere_InitLights();
     ri.UI_LoadResource("*112");
     R_InitTerrain();
     ri.UI_LoadResource("*113");

@@ -36,6 +36,13 @@ static float	s_flipMatrix[16] = {
 	0, 0, 0, 1
 };
 
+//
+// OPENMOHAA-specific stuff
+//=========================
+
+const void* RB_SpriteSurfs(const void* data);
+
+//=========================
 
 /*
 ** GL_BindToTMU
@@ -1839,6 +1846,13 @@ void RB_ExecuteRenderCommands( const void *data ) {
 		case RC_EXPORT_CUBEMAPS:
 			data = RB_ExportCubemaps(data);
 			break;
+		//
+		// OPENMOHAA-specific stuff
+		//=========================
+		case RC_SPRITE_SURFS:
+			data = RB_SpriteSurfs( data );
+			break;
+		//=========================
 		case RC_END_OF_LIST:
 		default:
 			// finish any 2D drawing if needed
@@ -1852,4 +1866,103 @@ void RB_ExecuteRenderCommands( const void *data ) {
 		}
 	}
 
+}
+
+//
+// OPENMOHAA-specific stuff
+//
+
+
+
+/*
+==================
+RB_RenderSpriteSurfList
+==================
+*/
+void RB_RenderSpriteSurfList(drawSurf_t* drawSurfs, int numDrawSurfs) {
+	shader_t	*shader;
+	shader_t	*oldShader;
+	qboolean	depthRange;
+	qboolean	oldDepthRange;
+	int			i;
+	drawSurf_t	*drawSurf;
+
+    backEnd.currentEntity = &tr.worldEntity;
+    backEnd.currentStaticModel = NULL;
+
+	backEnd.pc.c_surfaces += numDrawSurfs;
+	backEnd.or = backEnd.viewParms.world;
+
+	oldShader = NULL;
+    depthRange = qfalse;
+    oldDepthRange = qfalse;
+
+    for (i = 0, drawSurf = drawSurfs; i < numDrawSurfs; i++, drawSurf++) {
+		shader = tr.sortedShaders[((refSprite_t*)drawSurf->surface)->shaderNum];
+		depthRange = (((refSprite_t*)drawSurf->surface)->renderfx & RF_DEPTHHACK) != 0;
+
+        if (shader != oldShader)
+        {
+			if (oldShader) {
+				RB_EndSurface();
+			}
+
+            RB_BeginSurface(shader, 0, 0);
+            oldShader = shader;
+        }
+		
+		GL_SetModelviewMatrix( backEnd.or.modelMatrix );
+
+        if (oldDepthRange != depthRange)
+        {
+			if (depthRange) {
+				qglDepthRange(0.0, 0.3);
+			} else {
+                qglDepthRange(0.0, 1.0);
+			}
+
+            oldDepthRange = depthRange;
+        }
+
+        backEnd.shaderStartTime = ((refSprite_t*)drawSurf->surface)->shaderTime;
+
+        // add the triangles for this surface
+        rb_surfaceTable[*drawSurf->surface](drawSurf->surface);
+	}
+
+	if (oldShader) {
+		RB_EndSurface();
+	}
+
+    // go back to the world modelview matrix
+	GL_SetModelviewMatrix( backEnd.viewParms.world.modelMatrix );
+	// go back to the previous depth range
+	if (depthRange) {
+		qglDepthRange(0.0, 1.0);
+	}
+}
+
+/*
+=============
+RB_SpriteSurfs
+
+=============
+*/
+const void* RB_SpriteSurfs(const void* data) {
+    const drawSurfsCommand_t* cmd;
+
+    // finish any 2D drawing if needed
+    if (tess.numIndexes) {
+        RB_EndSurface();
+    }
+
+    cmd = (const drawSurfsCommand_t*)data;
+
+    backEnd.refdef = cmd->refdef;
+    backEnd.viewParms = cmd->viewParms;
+	
+	//RB_SetupFog();
+    RB_RenderSpriteSurfList(cmd->drawSurfs, cmd->numDrawSurfs);
+
+    return (const void*)(cmd + 1);
 }

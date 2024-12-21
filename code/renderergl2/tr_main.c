@@ -1586,7 +1586,9 @@ void R_DecomposeSort( unsigned sort, int *entityNum, shader_t **shader,
 R_SortDrawSurfs
 =================
 */
-void R_SortDrawSurfs( drawSurf_t *drawSurfs, int numDrawSurfs ) {
+void R_SortDrawSurfs( drawSurf_t *drawSurfs, int numDrawSurfs,
+	drawSurf_t *spriteSurfs, int numSpriteSurfs
+) {
 	shader_t		*shader;
 	int				fogNum;
 	int				entityNum;
@@ -1601,11 +1603,13 @@ void R_SortDrawSurfs( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 	if ( numDrawSurfs < 1 ) {
 		// we still need to add it for hyperspace cases
 		R_AddDrawSurfCmd( drawSurfs, numDrawSurfs );
+		R_AddSpriteSurfCmd( spriteSurfs, numSpriteSurfs );
 		return;
 	}
 
 	// sort the drawsurfs by sort type, then orientation, then shader
 	R_RadixSort( drawSurfs, numDrawSurfs );
+	R_RadixSort( spriteSurfs, numSpriteSurfs );
 
 	// skip pass through drawing if rendering a shadow map
 	if (tr.viewParms.flags & (VPF_SHADOWMAP | VPF_DEPTHSHADOW))
@@ -1639,6 +1643,7 @@ void R_SortDrawSurfs( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 	}
 
 	R_AddDrawSurfCmd( drawSurfs, numDrawSurfs );
+    R_AddSpriteSurfCmd( spriteSurfs, numSpriteSurfs );
 }
 
 static void R_AddEntitySurface (int entityNum)
@@ -1780,6 +1785,12 @@ void R_GenerateDrawSurfs( void ) {
 	R_SetupProjectionZ (&tr.viewParms);
 
 	R_AddEntitySurfaces ();
+
+	//
+	// OPENMOHAA-specific stuff
+    //=========================
+    R_AddSpriteSurfaces();
+	//=========================
 }
 
 /*
@@ -2066,7 +2077,8 @@ or a mirror / remote location
 */
 void R_RenderView (viewParms_t *parms) {
 	int		firstDrawSurf;
-	int		numDrawSurfs;
+    int		numDrawSurfs;
+    int		firstSpriteSurf;
 
 	if ( parms->viewportWidth <= 0 || parms->viewportHeight <= 0 ) {
 		return;
@@ -2078,7 +2090,8 @@ void R_RenderView (viewParms_t *parms) {
 	tr.viewParms.frameSceneNum = tr.frameSceneNum;
 	tr.viewParms.frameCount = tr.frameCount;
 
-	firstDrawSurf = tr.refdef.numDrawSurfs;
+    firstDrawSurf = tr.refdef.numDrawSurfs;
+    firstSpriteSurf = tr.refdef.numSpriteSurfs;
 
 	tr.viewCount++;
 
@@ -2097,7 +2110,9 @@ void R_RenderView (viewParms_t *parms) {
 		numDrawSurfs = MAX_DRAWSURFS;
 	}
 
-	R_SortDrawSurfs( tr.refdef.drawSurfs + firstDrawSurf, numDrawSurfs - firstDrawSurf );
+	R_SortDrawSurfs( tr.refdef.drawSurfs + firstDrawSurf, numDrawSurfs - firstDrawSurf,
+        tr.refdef.spriteSurfs + firstSpriteSurf, tr.refdef.numSpriteSurfs - firstSpriteSurf
+	);
 
 	// draw main system development information (surface outlines, etc)
 	R_DebugGraphics();
@@ -2248,6 +2263,24 @@ void R_RenderPshadowMaps(const refdef_t *fd)
 					radius = 0.5f * VectorLength( diag );
 				}
 				break;
+				// OPENMOHAA-specific stuff
+				//=========================
+				case MOD_TIKI:
+					radius = ri.TIKI_GlobalRadius(model->d.tiki);
+                    break;
+				case MOD_SPRITE:
+				{
+					float w;
+
+					radius = model->d.sprite->width * model->d.sprite->scale * 0.5;
+					w = model->d.sprite->height * model->d.sprite->scale * 0.5;
+
+					if (radius <= w) {
+						radius = w;
+					}
+				}
+					break;
+				//=========================
 
 				default:
 					break;
@@ -2401,6 +2434,7 @@ void R_RenderPshadowMaps(const refdef_t *fd)
 	for ( i = 0; i < tr.refdef.num_pshadows; i++)
 	{
 		int firstDrawSurf;
+		int firstSpriteSurf;
 		pshadow_t *shadow = &tr.refdef.pshadows[i];
 		int j;
 
@@ -2443,7 +2477,8 @@ void R_RenderPshadowMaps(const refdef_t *fd)
 			tr.viewParms.frameSceneNum = tr.frameSceneNum;
 			tr.viewParms.frameCount = tr.frameCount;
 
-			firstDrawSurf = tr.refdef.numDrawSurfs;
+            firstDrawSurf = tr.refdef.numDrawSurfs;
+            firstSpriteSurf = tr.refdef.numSpriteSurfs;
 
 			tr.viewCount++;
 
@@ -2514,7 +2549,9 @@ void R_RenderPshadowMaps(const refdef_t *fd)
 				R_AddEntitySurface(shadow->entityNums[j]);
 			}
 
-			R_SortDrawSurfs( tr.refdef.drawSurfs + firstDrawSurf, tr.refdef.numDrawSurfs - firstDrawSurf );
+			R_SortDrawSurfs( tr.refdef.drawSurfs + firstDrawSurf, tr.refdef.numDrawSurfs - firstDrawSurf,
+				tr.refdef.spriteSurfs + firstSpriteSurf, tr.refdef.numSpriteSurfs - firstSpriteSurf
+			);
 
 			if (!glRefConfig.framebufferObject)
 				R_AddCapShadowmapCmd( i, -1 );
@@ -2810,6 +2847,7 @@ void R_RenderSunShadowMaps(const refdef_t *fd, int level)
 
 	{
 		int firstDrawSurf;
+		int firstSpriteSurf;
 
 		Com_Memset( &shadowParms, 0, sizeof( shadowParms ) );
 
@@ -2853,6 +2891,7 @@ void R_RenderSunShadowMaps(const refdef_t *fd, int level)
 			tr.viewParms.frameCount = tr.frameCount;
 
 			firstDrawSurf = tr.refdef.numDrawSurfs;
+			firstSpriteSurf = tr.refdef.numSpriteSurfs;
 
 			tr.viewCount++;
 
@@ -2867,7 +2906,8 @@ void R_RenderSunShadowMaps(const refdef_t *fd, int level)
 
 			R_AddEntitySurfaces ();
 
-			R_SortDrawSurfs( tr.refdef.drawSurfs + firstDrawSurf, tr.refdef.numDrawSurfs - firstDrawSurf );
+			R_SortDrawSurfs( tr.refdef.drawSurfs + firstDrawSurf, tr.refdef.numDrawSurfs - firstDrawSurf,
+				tr.refdef.spriteSurfs + firstSpriteSurf, tr.refdef.numSpriteSurfs - firstSpriteSurf );
 		}
 
 		Mat4Multiply(tr.viewParms.projectionMatrix, tr.viewParms.world.modelMatrix, tr.refdef.sunShadowMvp[level]);
@@ -3003,6 +3043,29 @@ void R_RenderCubemapSide( int cubemapIndex, int cubemapSide, qboolean subscene )
 // OPENMOHAA-specific stuff
 //
 
+void R_AdjustVisBoundsForSprite(refSprite_t* ent, viewParms_t* viewParms, orientationr_t* or )
+{
+	if (tr.viewParms.visBounds[0][0] > ent->origin[0] - ent->scale) {
+		tr.viewParms.visBounds[0][0] = ent->origin[0] - ent->scale;
+    }
+    if (tr.viewParms.visBounds[0][1] > ent->origin[1] - ent->scale) {
+        tr.viewParms.visBounds[0][1] = ent->origin[1] - ent->scale;
+    }
+    if (tr.viewParms.visBounds[0][2] > ent->origin[2] - ent->scale) {
+        tr.viewParms.visBounds[0][2] = ent->origin[2] - ent->scale;
+    }
+
+	if (tr.viewParms.visBounds[1][0] < ent->origin[0] + ent->scale) {
+        tr.viewParms.visBounds[1][0] = ent->origin[0] + ent->scale;
+    }
+    if (tr.viewParms.visBounds[1][1] < ent->origin[1] + ent->scale) {
+        tr.viewParms.visBounds[1][1] = ent->origin[1] + ent->scale;
+    }
+    if (tr.viewParms.visBounds[1][2] < ent->origin[2] + ent->scale) {
+        tr.viewParms.visBounds[1][2] = ent->origin[2] + ent->scale;
+    }
+}
+
 /*
 =================
 R_AddSpriteSurf
@@ -3020,6 +3083,58 @@ void R_AddSpriteSurf(surfaceType_t* surface, shader_t* shader, float zDistance)
     tr.refdef.spriteSurfs[index].sort = (int)(MAX_SPRITE_DIST_SQUARED - zDistance) | (shader->sortedIndex << QSORT_SHADERNUM_SHIFT);
     tr.refdef.spriteSurfs[index].surface = surface;
     tr.refdef.numSpriteSurfs++;
+}
+
+void R_AddSpriteSurfaces()
+{
+	refSprite_t* sprite;
+	vec3_t delta;
+
+	if (!r_drawsprites->integer) {
+		return;
+	}
+
+	// FIXME: fix buggy sprites causing annoying crashes
+	return;
+
+	for (tr.currentSpriteNum = 0; tr.currentSpriteNum < tr.refdef.num_sprites; ++tr.currentSpriteNum)
+	{
+		sprite = &tr.refdef.sprites[tr.currentSpriteNum];
+
+        if (tr.viewParms.isPortalSky) {
+			if (!(sprite->renderfx & RF_SKYENTITY)) {
+				continue;
+			}
+        } else {
+			if (sprite->renderfx & RF_SKYENTITY) {
+				continue;
+			}
+		}
+        
+		if (tr.viewParms.isPortal) {
+			if (!(sprite->renderfx & (RF_SHADOW_PLANE | RF_WRAP_FRAMES))) {
+				continue;
+			}
+		} else {
+			if (sprite->renderfx & RF_SHADOW_PLANE) {
+				continue;
+			}
+		}
+
+		tr.currentEntityNum = ENTITYNUM_WORLD;
+        tr.shiftedEntityNum = tr.currentEntityNum << QSORT_REFENTITYNUM_SHIFT;
+		if (sprite->hModel && sprite->hModel < tr.numModels) {
+			tr.currentModel = tr.models[sprite->hModel];
+		} else {
+			tr.currentModel = tr.models[0];
+		}
+
+		R_AdjustVisBoundsForSprite(&tr.refdef.sprites[tr.currentSpriteNum], &tr.viewParms, &tr.or );
+		sprite->shaderNum = tr.currentModel->d.sprite->shader->sortedIndex;
+
+		VectorSubtract(sprite->origin, tr.refdef.vieworg, delta);
+		R_AddSpriteSurf(&sprite->surftype, tr.currentModel->d.sprite->shader, VectorLengthSquared(delta));
+	}
 }
 
 /*

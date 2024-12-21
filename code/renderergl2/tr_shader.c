@@ -38,6 +38,12 @@ static	shader_t*		hashTable[FILE_HASH_SIZE];
 #define MAX_SHADERTEXT_HASH		2048
 static char **shaderTextHashTable[MAX_SHADERTEXT_HASH];
 
+//
+// OPENMOHAA-specific stuff
+//=========================
+static void CreateMultistageFromBundle();
+//=========================
+
 /*
 ================
 return a hash value for the filename
@@ -663,16 +669,16 @@ static qboolean ParseStage( shaderStage_t *stage, char **text )
 
 			if ( !Q_stricmp( token, "$whiteimage" ) )
 			{
-				stage->bundle[0].image[0] = tr.whiteImage;
+				stage->bundle[cntBundle].image[0] = tr.whiteImage;
 				continue;
 			}
 			else if ( !Q_stricmp( token, "$lightmap" ) )
 			{
-				stage->bundle[0].isLightmap = qtrue;
+				stage->bundle[cntBundle].isLightmap = qtrue;
 				if ( shader.lightmapIndex < 0 || !tr.lightmaps ) {
-					stage->bundle[0].image[0] = tr.whiteImage;
+					stage->bundle[cntBundle].image[0] = tr.whiteImage;
 				} else {
-					stage->bundle[0].image[0] = tr.lightmaps[shader.lightmapIndex];
+					stage->bundle[cntBundle].image[0] = tr.lightmaps[shader.lightmapIndex];
 				}
 				continue;
 			}
@@ -684,11 +690,11 @@ static qboolean ParseStage( shaderStage_t *stage, char **text )
 					return qfalse;
 				}
 
-				stage->bundle[0].isLightmap = qtrue;
+				stage->bundle[cntBundle].isLightmap = qtrue;
 				if ( shader.lightmapIndex < 0 ) {
-					stage->bundle[0].image[0] = tr.whiteImage;
+					stage->bundle[cntBundle].image[0] = tr.whiteImage;
 				} else {
-					stage->bundle[0].image[0] = tr.deluxemaps[shader.lightmapIndex];
+					stage->bundle[cntBundle].image[0] = tr.deluxemaps[shader.lightmapIndex];
 				}
 				continue;
 			}
@@ -717,9 +723,9 @@ static qboolean ParseStage( shaderStage_t *stage, char **text )
 						flags |= IMGFLAG_GENNORMALMAP;
 				}
 
-				stage->bundle[0].image[0] = R_FindImageFile( token, type, flags );
+				stage->bundle[cntBundle].image[0] = R_FindImageFile( token, type, flags );
 
-				if ( !stage->bundle[0].image[0] )
+				if ( !stage->bundle[cntBundle].image[0] )
 				{
 					ri.Printf( PRINT_WARNING, "WARNING: R_FindImageFile could not find '%s' in shader '%s'\n", token, shader.name );
 					return qfalse;
@@ -762,8 +768,8 @@ static qboolean ParseStage( shaderStage_t *stage, char **text )
 			}
 
 
-			stage->bundle[0].image[0] = R_FindImageFile( token, type, flags );
-			if ( !stage->bundle[0].image[0] )
+			stage->bundle[cntBundle].image[0] = R_FindImageFile( token, type, flags );
+			if ( !stage->bundle[cntBundle].image[0] )
 			{
 				ri.Printf( PRINT_WARNING, "WARNING: R_FindImageFile could not find '%s' in shader '%s'\n", token, shader.name );
 				return qfalse;
@@ -782,7 +788,7 @@ static qboolean ParseStage( shaderStage_t *stage, char **text )
 				ri.Printf( PRINT_WARNING, "WARNING: missing parameter for 'animMap' keyword in shader '%s'\n", shader.name );
 				return qfalse;
 			}
-			stage->bundle[0].imageAnimationSpeed = atof( token );
+			stage->bundle[cntBundle].imageAnimationSpeed = atof( token );
 
 			// parse up to MAX_IMAGE_ANIMATIONS animations
 			while ( 1 ) {
@@ -792,7 +798,7 @@ static qboolean ParseStage( shaderStage_t *stage, char **text )
 				if ( !token[0] ) {
 					break;
 				}
-				num = stage->bundle[0].numImageAnimations;
+				num = stage->bundle[cntBundle].numImageAnimations;
 				if ( num < MAX_IMAGE_ANIMATIONS ) {
 					imgFlags_t flags = IMGFLAG_NONE;
 
@@ -802,13 +808,13 @@ static qboolean ParseStage( shaderStage_t *stage, char **text )
 					if (!shader.noPicMip)
 						flags |= IMGFLAG_PICMIP;
 
-					stage->bundle[0].image[num] = R_FindImageFile( token, IMGTYPE_COLORALPHA, flags );
-					if ( !stage->bundle[0].image[num] )
+					stage->bundle[cntBundle].image[num] = R_FindImageFile( token, IMGTYPE_COLORALPHA, flags );
+					if ( !stage->bundle[cntBundle].image[num] )
 					{
 						ri.Printf( PRINT_WARNING, "WARNING: R_FindImageFile could not find '%s' in shader '%s'\n", token, shader.name );
 						return qfalse;
 					}
-					stage->bundle[0].numImageAnimations++;
+					stage->bundle[cntBundle].numImageAnimations++;
 				}
 				totalImages++;
 			}
@@ -826,10 +832,10 @@ static qboolean ParseStage( shaderStage_t *stage, char **text )
 				ri.Printf( PRINT_WARNING, "WARNING: missing parameter for 'videoMap' keyword in shader '%s'\n", shader.name );
 				return qfalse;
 			}
-			stage->bundle[0].videoMapHandle = ri.CIN_PlayCinematic( token, 0, 0, 256, 256, (CIN_loop | CIN_silent | CIN_shader));
-			if (stage->bundle[0].videoMapHandle != -1) {
-				stage->bundle[0].isVideoMap = qtrue;
-				stage->bundle[0].image[0] = tr.scratchImage[stage->bundle[0].videoMapHandle];
+			stage->bundle[cntBundle].videoMapHandle = ri.CIN_PlayCinematic( token, 0, 0, 256, 256, (CIN_loop | CIN_silent | CIN_shader));
+			if (stage->bundle[cntBundle].videoMapHandle != -1) {
+				stage->bundle[cntBundle].isVideoMap = qtrue;
+				stage->bundle[cntBundle].image[0] = tr.scratchImage[stage->bundle[cntBundle].videoMapHandle];
 			} else {
 				ri.Printf( PRINT_WARNING, "WARNING: could not load '%s' for 'videoMap' keyword in shader '%s'\n", token, shader.name );
 			}
@@ -1677,22 +1683,22 @@ static qboolean ParseStage( shaderStage_t *stage, char **text )
 
 			if ( !Q_stricmp( token, "environment" ) )
 			{
-				stage->bundle[0].tcGen = TCGEN_ENVIRONMENT_MAPPED;
+				stage->bundle[cntBundle].tcGen = TCGEN_ENVIRONMENT_MAPPED;
 			}
 			else if ( !Q_stricmp( token, "lightmap" ) )
 			{
-				stage->bundle[0].tcGen = TCGEN_LIGHTMAP;
+				stage->bundle[cntBundle].tcGen = TCGEN_LIGHTMAP;
 			}
 			else if ( !Q_stricmp( token, "texture" ) || !Q_stricmp( token, "base" ) )
 			{
-				stage->bundle[0].tcGen = TCGEN_TEXTURE;
+				stage->bundle[cntBundle].tcGen = TCGEN_TEXTURE;
 			}
 			else if ( !Q_stricmp( token, "vector" ) )
 			{
-				ParseVector( text, 3, stage->bundle[0].tcGenVectors[0] );
-				ParseVector( text, 3, stage->bundle[0].tcGenVectors[1] );
+				ParseVector( text, 3, stage->bundle[cntBundle].tcGenVectors[0] );
+				ParseVector( text, 3, stage->bundle[cntBundle].tcGenVectors[1] );
 
-				stage->bundle[0].tcGen = TCGEN_VECTOR;
+				stage->bundle[cntBundle].tcGen = TCGEN_VECTOR;
 			}
 			else 
 			{
@@ -1731,7 +1737,70 @@ static qboolean ParseStage( shaderStage_t *stage, char **text )
 		}
 		//
 		// OPENMOHAA-specific stuff
-		//
+		//=========================
+		else if ( !Q_stricmp(token, "animMapOnce") || !Q_stricmp(token, "animMapPhase"))
+		{
+			qboolean phased;
+
+			if (!Q_stricmp(token, "animMapOnce")) {
+				stage->bundle[cntBundle].flags |= BUNDLE_ANIMATE_ONCE;
+			}
+
+			phased = !Q_stricmp(token, "animMapPhase");
+
+			token = COM_ParseExt( text, qfalse );
+			if ( !token[0] )
+			{
+				ri.Printf( PRINT_WARNING, "WARNING: missing parameter for 'animMmap' keyword in shader '%s'\n", shader.name );
+				return qfalse;
+			}
+			stage->bundle[cntBundle].imageAnimationSpeed = atof( token );
+			stage->bundle[cntBundle].imageAnimationPhase = 0;
+
+			if (phased)
+            {
+                token = COM_ParseExt(text, qfalse);
+                if (!token[0])
+                {
+                    ri.Printf(PRINT_WARNING, "WARNING: missing phase for 'animMapPhase' keyword in shader '%s'\n", shader.name);
+                    return qfalse;
+                }
+
+				stage->bundle[cntBundle].imageAnimationPhase = atof(token);
+			}
+			// parse up to MAX_IMAGE_ANIMATIONS animations
+			while ( 1 ) {
+				int		num;
+
+				token = COM_ParseExt( text, qfalse );
+				if ( !token[0] ) {
+					break;
+				}
+				num = stage->bundle[cntBundle].numImageAnimations;
+				if ( num < MAX_IMAGE_ANIMATIONS ) {
+					imgFlags_t flags = IMGFLAG_NONE;
+
+					if (!shader.noMipMaps)
+						flags |= IMGFLAG_MIPMAP;
+
+					if (!shader.noPicMip)
+						flags |= IMGFLAG_PICMIP;
+
+					stage->bundle[cntBundle].image[num] = R_FindImageFile( token, IMGTYPE_COLORALPHA, flags );
+					if ( !stage->bundle[cntBundle].image[num] )
+					{
+						ri.Printf( PRINT_WARNING, "WARNING: R_FindImageFile could not find '%s' in shader '%s'\n", token, shader.name );
+						return qfalse;
+					}
+					stage->bundle[cntBundle].numImageAnimations++;
+				}
+			}
+		}
+		else if (!Q_stricmp(token, "nofog"))
+		{
+			// FIXME: unimplemented
+			continue;
+		}
 		else if (!Q_stricmp(token, "depthmask"))
 		{
 			depthMaskBits = GLS_DEPTHMASK_TRUE;
@@ -1759,10 +1828,10 @@ static qboolean ParseStage( shaderStage_t *stage, char **text )
         }
         else if (!Q_stricmp(token, "nextBundle"))
         {
-			if (!qglActiveTextureARB) {
-				ri.Printf(PRINT_ALL, "WARNING: " PRODUCT_NAME " requires a video card with multitexturing capability\n");
-				return qfalse;
-			}
+			//if (!qglActiveTextureARB) {
+			//	ri.Printf(PRINT_ALL, "WARNING: " PRODUCT_NAME " requires a video card with multitexturing capability\n");
+			//	return qfalse;
+			//}
 
 			token = COM_ParseExt(text, qfalse);
 			if (token[0] && !Q_stricmp(token, "add")) {
@@ -1814,7 +1883,8 @@ static qboolean ParseStage( shaderStage_t *stage, char **text )
 			}
 
 			shouldProcess &= evaluatedValue ^ isNot;
-		}
+        }
+        //=========================
 		else
 		{
 			ri.Printf( PRINT_WARNING, "WARNING: unknown parameter '%s' in shader '%s'\n", token, shader.name );
@@ -2015,6 +2085,72 @@ static void ParseDeform( char **text ) {
 		ds->deformation = DEFORM_MOVE;
 		return;
 	}
+
+	//
+	// OPENMOHAA-specific stuff
+	//=========================
+	if (!Q_stricmp(token, "lightglow")) {
+		ds->deformation = DEFORM_LIGHTGLOW;
+		return;
+	}
+
+	if (!Q_stricmp(token, "flap")) {
+		texDirection_t coordDirection;
+
+		token = COM_ParseExt(text, qfalse);
+		if (token[0] == 's') {
+			coordDirection = USE_S_COORDS;
+		}
+		else if (token[0] == 't') {
+			coordDirection = USE_T_COORDS;
+		}
+		else {
+			ri.Printf(PRINT_WARNING, "WARNING: deformVertexes flap requires 's' or 't' in shader '%s'\n", shader.name);
+			return;
+		}
+
+		token = COM_ParseExt(text, qfalse);
+		if (token[0] == 0) {
+			ri.Printf(PRINT_WARNING, "WARNING: missing deformVertexes flap parm in shader '%s'\n", shader.name);
+			return;
+		}
+
+		if (!atof(token)) {
+			ds->deformationSpread = 100.0;
+			ri.Printf(PRINT_WARNING, "WARNING: illegal div value of 0 in deformVertexes command for shader '%s'\n", shader.name);
+		}
+		else {
+			ds->deformationSpread = 1.0 / atof(token);
+		}
+
+		ParseWaveForm(text, &ds->deformationWave);
+
+		if (coordDirection == USE_T_COORDS) {
+			ds->deformation = DEFORM_FLAP_T;
+		}
+		else {
+			ds->deformation = DEFORM_FLAP_S;
+		}
+
+		token = COM_ParseExt(text, qfalse);
+		if (token[0] == 0)
+		{
+			ds->bulgeWidth = 0.0;
+			ds->bulgeHeight = 1.0;
+			return;
+		}
+		ds->bulgeWidth = atof(token);
+
+		token = COM_ParseExt(text, qfalse);
+		if (token[0] == 0)
+		{
+			ri.Printf(PRINT_WARNING, "WARNING: missing deformVertexes parm 'max' in shader '%s'\n\n", shader.name);
+			return;
+		}
+		ds->bulgeHeight = atof(token);
+		return;
+    }
+    //=========================
 
 	ri.Printf( PRINT_WARNING, "WARNING: unknown deformVertexes subtype '%s' found in shader '%s'\n", token, shader.name );
 }
@@ -2473,7 +2609,44 @@ static qboolean ParseShader( char **text )
 		}
 		//
 		// OPENMOHAA-specific stuff
-		//=========================
+        //=========================
+        else if (!Q_stricmp(token, "noMerge"))
+        {
+			// FIXME: unimplemented
+            continue;
+		}
+		else if (!Q_stricmp(token, "spritegen"))
+		{
+			token = COM_ParseExt(text, qfalse);
+			if (token[0] == 0) {
+				ri.Printf(PRINT_WARNING, "WARNING: missing spritegen parm in shader '%s'\n", shader.name);
+				continue;
+			}
+
+			if (!Q_stricmp(token, "parallel")) {
+				shader.sprite.type = SPRITE_PARALLEL;
+			} else if (!Q_stricmp(token, "parallel_oriented")) {
+				shader.sprite.type = SPRITE_PARALLEL_ORIENTED;
+			} else if (!Q_stricmp(token, "parallel_upright")) {
+				shader.sprite.type = SPRITE_PARALLEL_UPRIGHT;
+			} else if (!Q_stricmp(token, "oriented")) {
+				shader.sprite.type = SPRITE_ORIENTED;
+			}
+
+			shader.sprite.scale = 1.0;
+			continue;
+		}
+		else if (!Q_stricmp(token, "spritescale"))
+		{
+			token = COM_ParseExt(text, qfalse);
+			if (token[0] == 0) {
+				ri.Printf(PRINT_WARNING, "WARNING: missing spritescale parm in shader '%s'\n", shader.name);
+				continue;
+			}
+
+			shader.sprite.scale = atof(token);
+			continue;
+		}
 		// force 32 bit images
 		if (!Q_stricmp(token, "force32bit"))
 		{
@@ -3535,6 +3708,12 @@ static shader_t *FinishShader( void ) {
 	hasLightmapStage = qfalse;
 	vertexLightmap = qfalse;
 
+    //
+    // OPENMOHAA-specific stuff
+    //=========================
+    CreateMultistageFromBundle();
+    //=========================
+
 	//
 	// set sky stuff appropriate
 	//
@@ -4499,6 +4678,46 @@ void R_InitShaders( void ) {
 
 	CreateExternalShaders();
 }
+
+//
+// OPENMOHAA-specific stuff
+//=========================
+
+static void CreateMultistageFromBundle() {
+    int stage, bundle;
+	int i;
+
+	for (stage = 0; stage < MAX_SHADER_STAGES; stage++ ) {
+		shaderStage_t* pStage = &stages[stage];
+
+		if (!pStage->active) {
+			break;
+		}
+
+        if (pStage->bundle[TB_LIGHTMAP].isLightmap) {
+			shaderStage_t* newStage = NULL;
+
+			for (i = stage; i < MAX_SHADER_STAGES; i++) {
+				if (!stages[i].active) {
+					newStage = &stages[i];
+					break;
+				}
+			}
+
+			if (newStage) {
+				*newStage = *pStage;
+				newStage->stateBits = GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ZERO | GLS_DEPTHFUNC_EQUAL;
+
+                newStage->bundle[TB_COLORMAP] = pStage->bundle[TB_LIGHTMAP];
+                memset(&newStage->bundle[TB_LIGHTMAP], 0, sizeof(textureBundle_t));
+				memset(&pStage->bundle[TB_LIGHTMAP], 0, sizeof(textureBundle_t));
+				stage = i;
+			}
+		}
+	}
+}
+
+//=========================
 
 qhandle_t RE_RefreshShaderNoMip(const char* name) {
 	shader_t* sh;

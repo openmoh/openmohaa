@@ -72,8 +72,6 @@ static vec3_t offsets[26] = {
     {-one_third_root, -one_third_root, -one_third_root}
 };
 
-#if 0
-
 int compare_light_intensities(const void *p1, const void *p2)
 {
     return *(int *)&((const reallightinfo_t *)p2)->fIntensity - *(int *)&((const reallightinfo_t *)p1)->fIntensity;
@@ -624,9 +622,11 @@ static void RB_Sphere_Light_Sun()
 
                 GL_State(GLS_POLYMODE_LINE | GLS_DEPTHMASK_TRUE);
 
+                // FIXME: unimplemented
+#if 0
                 qglPushMatrix();
 
-                qglLoadMatrixf(backEnd.ori.modelMatrix);
+                qglLoadMatrixf(backEnd.or.modelMatrix);
                 // Clear the depth range
                 qglDepthRange(0.0, 0.0);
 
@@ -645,6 +645,7 @@ static void RB_Sphere_Light_Sun()
                 qglDepthRange(0.0, 1.0);
 
                 qglPopMatrix();
+#endif
             }
 
             return;
@@ -666,9 +667,11 @@ static void RB_Sphere_Light_Sun()
 
         GL_State(GLS_POLYMODE_LINE | GLS_DEPTHMASK_TRUE);
 
+        // FIXME: unimplemented
+#if 0
         qglPushMatrix();
 
-        qglLoadMatrixf(backEnd.ori.modelMatrix);
+        qglLoadMatrixf(backEnd.or.modelMatrix);
         // Clear the depth range
         qglDepthRange(0.0, 0.0);
 
@@ -693,6 +696,7 @@ static void RB_Sphere_Light_Sun()
         qglDepthRange(0.0, 1.0);
 
         qglPopMatrix();
+#endif
     }
 
     if (hitSun) {
@@ -771,7 +775,7 @@ static bool RB_Sphere_SetupGlobals()
     } else if (!RB_Sphere_CalculateSphereOrigin()) {
         backEnd.currentSphere->TessFunction = &RB_CalcLightGridColor;
 
-        if (!backEnd.currentEntity->bLightGridCalculated) {
+        if (!backEnd.currentEntity->lightingCalculated) {
             RB_SetupEntityGridLighting();
         }
 
@@ -793,9 +797,9 @@ static bool RB_Sphere_SetupGlobals()
 
 static bool RB_Sphere_ResetPointColors()
 {
-    vec3_t light_offset, amb;
+    vec3_t light_offset, amb_light_offset, amb;
 
-    R_GetLightingGridValue(backEnd.currentSphere->worldOrigin, light_offset);
+    R_GetLightingGridValue(tr.world, backEnd.currentSphere->worldOrigin, light_offset, amb_light_offset);
     light_offset[0] = ambientlight[0] + light_offset[0] * 0.18;
     light_offset[1] = ambientlight[1] + light_offset[1] * 0.18;
     light_offset[2] = ambientlight[2] + light_offset[2] * 0.18;
@@ -809,7 +813,7 @@ static bool RB_Sphere_ResetPointColors()
         }
     }
 
-    VectorScale(light_offset, tr.overbrightMult * r_entlight_scale->value, amb);
+    VectorScale(amb_light_offset, tr.overbrightMult * r_entlight_scale->value, amb);
     backEnd.currentSphere->ambient.level[0] = Q_min(amb[0], 0xff);
     backEnd.currentSphere->ambient.level[1] = Q_min(amb[1], 0xff);
     backEnd.currentSphere->ambient.level[2] = Q_min(amb[2], 0xff);
@@ -828,9 +832,11 @@ static void RB_Sphere_DrawDebugLine(const spherel_t *thislight, float falloff, c
         return;
     }
 
+    // FIXME: unimplemented
+#if 0
     qglPushMatrix();
 
-    qglLoadMatrixf(backEnd.ori.modelMatrix);
+    qglLoadMatrixf(backEnd.or.modelMatrix);
     // Clear the depth range
     qglDepthRange(0.0, 0.0);
 
@@ -883,6 +889,7 @@ static void RB_Sphere_DrawDebugLine(const spherel_t *thislight, float falloff, c
     // Restore depth
     qglDepthRange(0.0, 1.0);
     qglPopMatrix();
+#endif
 }
 
 static void RB_Sphere_AddSpotLight(const spherel_t *thislight)
@@ -1344,23 +1351,10 @@ static void R_InsertLightIntoList(spherel_t *pLight, float fIntensity, gatheredL
     pCurrLight->pLight           = pLight;
 }
 
-#else
-
-void R_Sphere_InitLights()
-{
-    // UNIMPLEMENTED
-}
-
-#endif
-
 #define MAX_GATHERED_LIGHTS 8
 
 int R_GatherLightSources(const vec3_t vPos, vec3_t *pvLightPos, vec3_t *pvLightIntensity, int iMaxLights)
 {
-    // FIXME: unimplemented (GL2)
-    return 0;
-
-#if 0
     int              i, j;
     int              iLightCount;
     vec3_t           vEnd;
@@ -1468,5 +1462,4 @@ int R_GatherLightSources(const vec3_t vPos, vec3_t *pvLightPos, vec3_t *pvLightI
     }
 
     return iLightCount;
-#endif
 }

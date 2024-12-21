@@ -624,3 +624,29 @@ void RE_TakeVideoFrame( int width, int height,
 	cmd->encodeBuffer = encodeBuffer;
 	cmd->motionJpeg = motionJpeg;
 }
+
+//
+// OPENMOHAA-specific stuff
+//
+
+/*
+=============
+R_AddSpriteSurfCmd
+
+=============
+*/
+void	R_AddSpriteSurfCmd(drawSurf_t* drawSurfs, int numDrawSurfs) {
+    drawSurfsCommand_t* cmd;
+
+    cmd = R_GetCommandBuffer(sizeof(*cmd));
+    if (!cmd) {
+        return;
+    }
+    cmd->commandId = RC_SPRITE_SURFS;
+
+    cmd->drawSurfs = drawSurfs;
+    cmd->numDrawSurfs = numDrawSurfs;
+
+    cmd->refdef = tr.refdef;
+    cmd->viewParms = tr.viewParms;
+}

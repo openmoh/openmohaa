@@ -272,7 +272,20 @@ cvar_t* r_farplane_nocull;
 cvar_t* r_farplane_nofog;
 cvar_t* r_skybox_farplane;
 cvar_t* r_farclip;
+
+// Lighting
+
 cvar_t* r_lightcoronasize;
+cvar_t *r_entlight_scale;
+cvar_t *r_entlight_errbound;
+cvar_t *r_entlight_cubelevel;
+cvar_t *r_entlight_cubefraction;
+cvar_t *r_entlight_maxcalc;
+cvar_t *r_light_lines;
+cvar_t *r_light_sun_line;
+cvar_t *r_light_int_scale;
+cvar_t *r_light_nolight;
+cvar_t *r_light_showgrid;
 
 // LOD
 
@@ -1560,7 +1573,7 @@ void R_Register( void )
     r_numdebuglines = ri.Cvar_Get("g_numdebuglines", "4096", CVAR_LATCH);
 
 	r_maxtermarks = ri.Cvar_Get("r_maxtermarks", va("%d", MAX_TERMARKS), 0);
-
+	
     r_skyportal = ri.Cvar_Get("r_skyportal", "0", 0);
     r_skyportal_origin = ri.Cvar_Get("r_skyportal_origin", "0 0 0", 0);
 	r_farplane = ri.Cvar_Get("r_farplane", "0", CVAR_CHEAT);
@@ -1570,7 +1583,20 @@ void R_Register( void )
 	r_farplane_nofog = ri.Cvar_Get("r_farplane_nofog", "0", CVAR_CHEAT);
 	r_skybox_farplane = ri.Cvar_Get("r_skybox_farplane", "0", CVAR_CHEAT);
 	r_farclip = ri.Cvar_Get("r_farclip", "0", CVAR_CHEAT);
+
+	// Lighting
+
     r_lightcoronasize = ri.Cvar_Get("r_lightcoronasize", ".1", CVAR_ARCHIVE);
+    r_light_lines = ri.Cvar_Get("r_light_lines", "0", CVAR_CHEAT);
+    r_light_sun_line = ri.Cvar_Get("r_light_sun_line", "0", CVAR_CHEAT);
+    r_light_int_scale = ri.Cvar_Get("r_light_int_scale", "0.05", CVAR_ARCHIVE);
+    r_light_nolight = ri.Cvar_Get("r_light_nolight", "0", CVAR_CHEAT | CVAR_ARCHIVE);
+    r_light_showgrid = ri.Cvar_Get("r_light_showgrid", "0", CVAR_CHEAT);
+    r_entlight_scale = ri.Cvar_Get("r_entlight_scale", "1.3", CVAR_CHEAT);
+    r_entlight_errbound = ri.Cvar_Get("r_entlight_errbound", "6", CVAR_ARCHIVE);
+    r_entlight_cubelevel = ri.Cvar_Get("r_entlight_cubelevel", "0", CVAR_ARCHIVE);
+    r_entlight_cubefraction = ri.Cvar_Get("r_entlight_cubefraction", "0.5", CVAR_ARCHIVE);
+    r_entlight_maxcalc = ri.Cvar_Get("r_entlight_maxcalc", "2", CVAR_ARCHIVE);
 
 	// LOD
 

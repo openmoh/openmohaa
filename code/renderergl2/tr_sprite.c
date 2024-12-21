@@ -96,7 +96,7 @@ void RB_DrawSprite( const refSprite_t *spr ) {
 
     model = tr.models;
 	if (spr->hModel > 0 && spr->hModel < tr.numModels) {
-		model = &tr.models[spr->hModel];
+		model = tr.models[spr->hModel];
 	}
 
 	scale = spr->scale * model->d.sprite->scale;

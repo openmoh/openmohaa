@@ -88,6 +88,13 @@ typedef unsigned int vaoCacheGlIndex_t;
 #define MAX_SPRITE_DIST				16384.0f
 #define MAX_SPRITE_DIST_SQUARED		(MAX_SPRITE_DIST * MAX_SPRITE_DIST)
 
+typedef enum {
+    USE_S_COORDS,
+    USE_T_COORDS
+} texDirection_t;
+
+#define BUNDLE_ANIMATE_ONCE		1
+
 //=========================
 
 typedef struct cubemap_s {
@@ -133,6 +140,7 @@ typedef struct {
 	// OPENMOHAA-specific stuff
 	//
 
+    int			iGridLighting;
     float		lodpercentage[2];
 } trRefEntity_t;
 
@@ -243,7 +251,14 @@ typedef enum {
 	DEFORM_TEXT4,
 	DEFORM_TEXT5,
 	DEFORM_TEXT6,
-	DEFORM_TEXT7
+	DEFORM_TEXT7,
+	//
+	// OPENMOHAA-specific stuff
+	//=========================
+	DEFORM_LIGHTGLOW,
+	DEFORM_FLAP_S,
+	DEFORM_FLAP_T,
+	//=========================
 } deform_t;
 
 // deformVertexes types that can be handled by the GPU
@@ -409,7 +424,12 @@ typedef struct {
 } texModInfo_t;
 
 
-#define	MAX_IMAGE_ANIMATIONS	8
+//#define	MAX_IMAGE_ANIMATIONS	8
+//
+// OPENMOHAA-specific stuff
+//=========================
+#define	MAX_IMAGE_ANIMATIONS	64
+//=========================
 
 typedef struct {
 	image_t			*image[MAX_IMAGE_ANIMATIONS];
@@ -425,6 +445,13 @@ typedef struct {
 	int				videoMapHandle;
 	qboolean		isLightmap;
 	qboolean		isVideoMap;
+
+	//
+	// OPENMOHAA-specific stuff
+    //=========================
+    float imageAnimationPhase;
+    int flags;
+    //=========================
 } textureBundle_t;
 
 enum
@@ -2156,6 +2183,7 @@ typedef struct {
 	// OPENMOHAA-specific stuff
     //
 
+    int currentSpriteNum;
     int shiftedIsStatic;
 
     int overbrightShift;
@@ -2381,7 +2409,20 @@ extern cvar_t* r_farplane_nocull;
 extern cvar_t* r_farplane_nofog;
 extern cvar_t* r_skybox_farplane;
 extern cvar_t* r_farclip;
+
+// Lighting
+
 extern cvar_t* r_lightcoronasize;
+extern cvar_t *r_entlight_scale;
+extern cvar_t *r_entlight_errbound;
+extern cvar_t *r_entlight_cubelevel;
+extern cvar_t *r_entlight_cubefraction;
+extern cvar_t *r_entlight_maxcalc;
+extern cvar_t *r_light_lines;
+extern cvar_t *r_light_sun_line;
+extern cvar_t *r_light_int_scale;
+extern cvar_t *r_light_nolight;
+extern cvar_t *r_light_showgrid;
 
 // LOD
 
@@ -2641,6 +2682,7 @@ void R_SavePerformanceCounters(void);
 // tr_main.c
 //
 
+void R_AddSpriteSurfaces();
 qboolean SurfIsOffscreen2(const srfBspSurface_t* surface, shader_t* shader, int entityNum);
 
 //
@@ -2783,8 +2825,6 @@ void R_TransformDlights( int count, dlight_t *dl, orientationr_t *or );
 int R_LightForPoint( vec3_t point, vec3_t ambientLight, vec3_t directedLight, vec3_t lightDir );
 int R_LightDirForPoint( vec3_t point, vec3_t lightDir, vec3_t normal, world_t *world );
 int R_CubemapForPoint( vec3_t point );
-
-void R_Sphere_InitLights();
 
 /*
 ============================================================
@@ -3022,6 +3062,17 @@ LIGHTS
 
 void R_GetLightingForDecal(vec3_t vLight, const vec3_t vFacing, const vec3_t vOrigin);
 void R_GetLightingForSmoke(vec3_t vLight, const vec3_t vOrigin);
+void R_GetLightingGridValue(world_t* world, const vec3_t vPos, vec3_t vAmbientLight, vec3_t vDirectedLight);
+void RB_SetupEntityGridLighting();
+void RB_SetupStaticModelGridLighting(trRefdef_t* refdef, cStaticModelUnpacked_t* ent, const vec3_t lightOrigin);
+
+void RB_Light_Real(unsigned char* colors);
+void RB_Sphere_BuildDLights();
+void RB_Sphere_SetupEntity();
+void RB_Grid_SetupEntity();
+void RB_Grid_SetupStaticModel();
+void RB_Light_Fullbright(unsigned char* colors);
+void R_Sphere_InitLights();
 int R_GatherLightSources(const vec3_t vPos, vec3_t* pvLightPos, vec3_t* pvLightIntensity, int iMaxLights);
 
 extern suninfo_t s_sun;
@@ -3051,6 +3102,17 @@ void RE_AddRefSpriteToScene(const refEntity_t* ent);
 void RE_AddTerrainMarkToScene(int iTerrainIndex, qhandle_t hShader, int numVerts, const polyVert_t* verts, int renderfx);
 refEntity_t* RE_GetRenderEntity(int entityNumber);
 qboolean RE_AddPolyToScene2(qhandle_t hShader, int numVerts, const polyVert_t* verts, int renderfx);
+
+
+/*
+============================================================
+
+SHADE CALC
+
+============================================================
+*/
+
+void RB_CalcLightGridColor(unsigned char* colors);
 
 /*
 =============================================================
@@ -3202,8 +3264,11 @@ WORLD MAP
 ============================================================
 */
 void R_GetInlineModelBounds(int iIndex, vec3_t vMins, vec3_t vMaxs);
+int R_SphereInLeafs(const vec3_t p, float r, mnode_t** nodes, int nMaxNodes);
 mnode_t* R_PointInLeaf(const vec3_t p);
 int R_CheckDlightTerrain(cTerraPatchUnpacked_t* surf, int dlightBits);
+
+void R_AddSpriteSurfCmd(drawSurf_t* drawSurfs, int numDrawSurfs);
 
 //=========================
 
@@ -3359,7 +3424,13 @@ typedef enum {
 	RC_CLEARDEPTH,
 	RC_CAPSHADOWMAP,
 	RC_POSTPROCESS,
-	RC_EXPORT_CUBEMAPS
+	RC_EXPORT_CUBEMAPS,
+
+	//
+	// OPENMOHAA-specific stuff
+	//
+
+	RC_SPRITE_SURFS,
 } renderCommand_t;
 
 

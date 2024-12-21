@@ -400,9 +400,19 @@ static void AutospriteDeform( void ) {
 		}
 
 	  // compensate for scale in the axes if necessary
-  	if ( backEnd.currentEntity->e.nonNormalizedAxes ) {
+  	if ( backEnd.currentStaticModel || backEnd.currentEntity->e.nonNormalizedAxes ) {
       float axisLength;
-		  axisLength = VectorLength( backEnd.currentEntity->e.axis[0] );
+
+          // OPENMOHAA-specific stuff
+	      //=========================
+          if (backEnd.currentStaticModel) {
+              axisLength = VectorLength(backEnd.currentStaticModel->axis[0]);
+          }
+          else
+          //=========================
+		  {
+              axisLength = VectorLength(backEnd.currentEntity->e.axis[0]);
+          }
   		if ( !axisLength ) {
 	  		axisLength = 0;
   		} else {
@@ -815,4 +825,42 @@ void RB_CalcRotateTexMatrix( float degsPerSecond, float *matrix )
 
 	matrix[0] = cosValue; matrix[2] = -sinValue; matrix[4] = 0.5 - 0.5 * cosValue + 0.5 * sinValue;
 	matrix[1] = sinValue; matrix[3] = cosValue;  matrix[5] = 0.5 - 0.5 * sinValue - 0.5 * cosValue;
+}
+
+//
+// OPENMOHAA-specific stuff
+//
+
+void RB_CalcLightGridColor(unsigned char* colors)
+{
+    int i;
+
+    if (!backEnd.currentEntity) {
+        for (i = 0; i < tess.numVertexes; i++) {
+            colors[i * 4] = ((byte*)&backEnd.currentStaticModel->iGridLighting)[0];
+            colors[i * 4 + 1] = ((byte*)&backEnd.currentStaticModel->iGridLighting)[1];
+            colors[i * 4 + 2] = ((byte*)&backEnd.currentStaticModel->iGridLighting)[2];
+            colors[i * 4 + 3] = ((byte*)&backEnd.currentStaticModel->iGridLighting)[3];
+        }
+    }
+    else if (backEnd.currentEntity != &tr.worldEntity) {
+        for (i = 0; i < tess.numVertexes; i++) {
+            colors[i * 4] = ((byte*)&backEnd.currentEntity->iGridLighting)[0];
+            colors[i * 4 + 1] = ((byte*)&backEnd.currentEntity->iGridLighting)[1];
+            colors[i * 4 + 2] = ((byte*)&backEnd.currentEntity->iGridLighting)[2];
+            colors[i * 4 + 3] = ((byte*)&backEnd.currentEntity->iGridLighting)[3];
+        }
+    }
+    else {
+        ri.Printf(PRINT_ALL,
+            "##### shader '%s' incorrectly uses rgbGen lightingGrid or lightingSpherical; was rgbGen vertex intended?\n",
+            tess.shader->name);
+
+        for (i = 0; i < tess.numVertexes; i++) {
+            colors[i * 4] = 0xFF;
+            colors[i * 4 + 1] = 0xFF;
+            colors[i * 4 + 2] = 0xFF;
+            colors[i * 4 + 3] = 0xFF;
+        }
+    }
 }
