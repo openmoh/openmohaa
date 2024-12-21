@@ -265,6 +265,13 @@ int		max_termarks;
 
 cvar_t* r_skyportal;
 cvar_t* r_skyportal_origin;
+cvar_t* r_farplane;
+cvar_t* r_farplane_bias;
+cvar_t* r_farplane_color;
+cvar_t* r_farplane_nocull;
+cvar_t* r_farplane_nofog;
+cvar_t* r_skybox_farplane;
+cvar_t* r_farclip;
 cvar_t* r_lightcoronasize;
 
 // LOD
@@ -313,6 +320,7 @@ cvar_t* r_showstaticbboxes;
 cvar_t* r_showcull;
 cvar_t* r_showlod;
 cvar_t* r_showstaticlod;
+cvar_t* r_showportal;
 
 //=========================
 
@@ -1555,6 +1563,13 @@ void R_Register( void )
 
     r_skyportal = ri.Cvar_Get("r_skyportal", "0", 0);
     r_skyportal_origin = ri.Cvar_Get("r_skyportal_origin", "0 0 0", 0);
+	r_farplane = ri.Cvar_Get("r_farplane", "0", CVAR_CHEAT);
+	r_farplane_bias = ri.Cvar_Get("r_farplane_bias", "0", CVAR_CHEAT);
+	r_farplane_color = ri.Cvar_Get("r_farplane_color", ".5 .5 .5", CVAR_CHEAT);
+	r_farplane_nocull = ri.Cvar_Get("r_farplane_nocull", "0", CVAR_CHEAT);
+	r_farplane_nofog = ri.Cvar_Get("r_farplane_nofog", "0", CVAR_CHEAT);
+	r_skybox_farplane = ri.Cvar_Get("r_skybox_farplane", "0", CVAR_CHEAT);
+	r_farclip = ri.Cvar_Get("r_farclip", "0", CVAR_CHEAT);
     r_lightcoronasize = ri.Cvar_Get("r_lightcoronasize", ".1", CVAR_ARCHIVE);
 
 	// LOD
@@ -1603,6 +1618,7 @@ void R_Register( void )
     r_showcull = ri.Cvar_Get("r_showcull", "0", CVAR_CHEAT);
     r_showlod = ri.Cvar_Get("r_showlod", "0", CVAR_TEMP);
     r_showstaticlod = ri.Cvar_Get("r_showstaticlod", "0", CVAR_TEMP);
+    r_showportal = ri.Cvar_Get("r_showportal", "0", 0);
 }
 
 void R_InitQueries(void)
@@ -1718,6 +1734,22 @@ void R_Init( void ) {
 
 	R_InitQueries();
 
+	//
+	// OPENMOHAA-specific stuff
+    //=========================
+
+    R_Sky_Init();
+
+    max_termarks = r_maxtermarks->integer;
+    if (max_termarks < MAX_TERMARKS)
+        max_termarks = MAX_TERMARKS;
+
+    R_LevelMarksInit();
+
+    tr.pFontDebugStrings = R_LoadFont("verdana-14");
+    g_bInfoworldtris = qfalse;
+
+	//=========================
 
 	err = qglGetError();
 	if ( err != GL_NO_ERROR )

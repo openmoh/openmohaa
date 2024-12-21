@@ -541,6 +541,21 @@ static void ComputeShaderColors( shaderStage_t *pStage, vec4_t baseColor, vec4_t
 		case CGEN_IDENTITY_LIGHTING:
 		case CGEN_BAD:
 			break;
+		//
+		// OPENMOHAA-specific stuff
+		//=========================
+		case CGEN_STATIC:
+			baseColor[0] =
+			baseColor[1] =
+			baseColor[2] =
+			baseColor[3] = 0.0f;
+
+			vertColor[0] =
+			vertColor[1] =
+			vertColor[2] =
+			vertColor[3] = 1.0f;
+			break;
+		//=========================
 	}
 
 	//

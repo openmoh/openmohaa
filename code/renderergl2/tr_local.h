@@ -78,6 +78,18 @@ typedef unsigned int vaoCacheGlIndex_t;
 #define MAX_DRAWN_PSHADOWS    16 // do not increase past 32, because bit flags are used on surfaces
 #define PSHADOW_MAP_SIZE      512
 
+//
+// OPENMOHAA-specific stuff
+//=========================
+
+#define MAX_SPHERE_LIGHTS		512
+#define	MAX_SPRITESURFS			0x8000
+
+#define MAX_SPRITE_DIST				16384.0f
+#define MAX_SPRITE_DIST_SQUARED		(MAX_SPRITE_DIST * MAX_SPRITE_DIST)
+
+//=========================
+
 typedef struct cubemap_s {
 	char name[MAX_QPATH];
 	vec3_t origin;
@@ -874,6 +886,9 @@ typedef struct {
 	// OPENMOHAA-specific stuff
 	//
 
+    int num_sprites;
+	struct refSprite_s *sprites;
+
 	int numTerMarks;
 	struct srfMarkFragment_s *terMarks;
 
@@ -1020,7 +1035,6 @@ typedef enum {
 	//
 
     SF_MARK_FRAG,
-    SF_DISPLAY_LIST,
     SF_TIKI_SKEL,
     SF_TIKI_STATIC,
     SF_SWIPE,
@@ -1215,7 +1229,7 @@ extern	void (*rb_surfaceTable[SF_NUM_SURFACE_TYPES])(void *);
 
 //
 // OPENMOHAA-specific stuff
-//
+//=========================
 
 typedef struct {
     struct mnode_s* cntNode;
@@ -1417,6 +1431,8 @@ typedef struct refSprite_s {
     float shaderTime;
 } refSprite_t;
 
+//=========================
+
 /*
 ==============================================================================
 
@@ -1586,6 +1602,9 @@ typedef struct {
 	// OPENMOHAA-specific stuff
 	//
 
+	unsigned short* lightGridOffsets;
+	byte        lightGridPalette[768];
+
     int numTerraPatches;
     cTerraPatchUnpacked_t* terraPatches;
     cTerraPatchUnpacked_t* activeTerraPatches;
@@ -1605,7 +1624,7 @@ typedef struct {
 
 //
 // OPENMOHAA-specific stuff
-//
+//=========================
 typedef struct {
     float width;
     float height;
@@ -1614,6 +1633,7 @@ typedef struct {
     float scale;
     shader_t* shader;
 } sprite_t;
+//=========================
 
 /*
 ==============================================================================
@@ -1696,7 +1716,10 @@ typedef enum {
 	MOD_MESH,
 	MOD_MDR,
 	MOD_IQM,
+
+	//
 	// OPENMOHAA-specific stuff
+	//
     MOD_TIKI,
     MOD_SPRITE
 } modtype_t;
@@ -1766,6 +1789,11 @@ the bits are allocated as follows:
 2-6   : fog index
 1     : pshadow flag
 0     : dlight flag
+*/
+/*
+#define	QSORT_FOGNUM_SHIFT	2
+#define	QSORT_REFENTITYNUM_SHIFT	7
+#define	QSORT_SHADERNUM_SHIFT	(QSORT_REFENTITYNUM_SHIFT+REFENTITYNUM_BITS)
 */
 #define	QSORT_FOGNUM_SHIFT	2
 #define	QSORT_REFENTITYNUM_SHIFT	4
@@ -1932,7 +1960,13 @@ typedef struct {
 	//
 	// OPENMOHAA-specific stuff
 	//
+    sphereor_t spheres[MAX_SPHERE_LIGHTS];
+    unsigned short numSpheresUsed;
+    sphereor_t* currentSphere;
+    sphereor_t spareSphere;
+    sphereor_t hudSphere;
     cStaticModelUnpacked_t* currentStaticModel;
+    float shaderStartTime;
     int dsStreamVert;
 } backEndState_t;
 
@@ -2139,6 +2173,7 @@ typedef struct {
     int frame_skel_index;
     int skel_index[1024];
     fontheader_t* pFontDebugStrings;
+    int farclip;
 } trGlobals_t;
 
 extern backEndState_t	backEnd;
@@ -2339,6 +2374,13 @@ extern int		max_termarks;
 
 extern cvar_t* r_skyportal;
 extern cvar_t* r_skyportal_origin;
+extern cvar_t* r_farplane;
+extern cvar_t* r_farplane_bias;
+extern cvar_t* r_farplane_color;
+extern cvar_t* r_farplane_nocull;
+extern cvar_t* r_farplane_nofog;
+extern cvar_t* r_skybox_farplane;
+extern cvar_t* r_farclip;
 extern cvar_t* r_lightcoronasize;
 
 // LOD
@@ -2387,6 +2429,7 @@ extern cvar_t* r_showstaticbboxes;
 extern cvar_t* r_showcull;
 extern cvar_t* r_showlod;
 extern cvar_t* r_showstaticlod;
+extern cvar_t* r_showportal;
 
 //=========================
 
@@ -2435,7 +2478,7 @@ void R_AddLightningBoltSurfaces( trRefEntity_t *e );
 void R_AddPolygonSurfaces( void );
 
 void R_DecomposeSort( unsigned sort, int *entityNum, shader_t **shader, 
-					 int *fogNum, int *dlightMap, int *pshadowMap );
+					 int *fogNum, int *dlightMap, int *pshadowMap, qboolean *bStaticModel );
 
 void R_AddDrawSurf( surfaceType_t *surface, shader_t *shader, 
 				   int fogIndex, int dlightMap, int pshadowMap, int cubemap );
@@ -2741,6 +2784,8 @@ int R_LightForPoint( vec3_t point, vec3_t ambientLight, vec3_t directedLight, ve
 int R_LightDirForPoint( vec3_t point, vec3_t lightDir, vec3_t normal, world_t *world );
 int R_CubemapForPoint( vec3_t point );
 
+void R_Sphere_InitLights();
+
 /*
 ============================================================
 
@@ -2920,7 +2965,6 @@ int R_IQMLerpTag( orientation_t *tag, iqmData_t *data,
 // OPENMOHAA-specific stuff
 //=========================
 
-
 /*
 =============================================================
 
@@ -3060,6 +3104,10 @@ TERRAIN
 
 =============================================================
 */
+
+extern terraTri_t* g_pTris;
+extern terrainVert_t* g_pVert;
+
 void R_MarkTerrainPatch(cTerraPatchUnpacked_t* pPatch);
 void R_AddTerrainSurfaces();
 void R_AddTerrainMarkSurfaces();
@@ -3335,7 +3383,8 @@ typedef struct {
 
 	//
 	// OPENMOHAA-specific stuff
-	//
+    //
+    drawSurf_t  spriteSurfs[MAX_SPRITESURFS];
 	srfMarkFragment_t* terMarks;
     refSprite_t sprites[2048];
     cStaticModelUnpacked_t* staticModels;

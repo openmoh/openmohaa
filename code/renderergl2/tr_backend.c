@@ -433,6 +433,7 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 	int				oldSort;
 	double			originalTime;
 	FBO_t*			fbo = NULL;
+	qboolean		bStaticModel, oldbStaticModel;
 
 	// save original time for entity shader offsets
 	originalTime = backEnd.refdef.floatTime;
@@ -450,6 +451,10 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 	oldPshadowed = qfalse;
 	oldCubemapIndex = -1;
 	oldSort = -1;
+	// OPENMOHAA-specific stuff
+	//=========================
+    oldbStaticModel = -1;
+    //=========================
 
 	backEnd.pc.c_surfaces += numDrawSurfs;
 
@@ -463,7 +468,19 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 			continue;
 		}
 		oldSort = drawSurf->sort;
-		R_DecomposeSort( drawSurf->sort, &entityNum, &shader, &fogNum, &dlighted, &pshadowed );
+		//
+		// OPENMOHAA-specific stuff
+		//=========================
+		if (*drawSurf->surface != SF_SPRITE) {
+			R_DecomposeSort( drawSurf->sort, &entityNum, &shader, &fogNum, &dlighted, &pshadowed,
+				&bStaticModel );
+		} else {
+			shader = tr.sortedShaders[((refSprite_t*)drawSurf->surface)->shaderNum];
+			entityNum = ENTITYNUM_WORLD;
+			dlighted = 0;
+			bStaticModel = qfalse;
+        }
+        //=========================
 		cubemapIndex = drawSurf->cubemapIndex;
 
 		//
@@ -471,7 +488,9 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 		// a "entityMergable" shader is a shader that can have surfaces from separate
 		// entities merged into a single batch, like smoke and blood puff sprites
 		if ( shader != NULL && ( shader != oldShader || fogNum != oldFogNum || dlighted != oldDlighted || pshadowed != oldPshadowed || cubemapIndex != oldCubemapIndex
-			|| ( entityNum != oldEntityNum && !shader->entityMergable ) ) ) {
+			|| ( entityNum != oldEntityNum && !shader->entityMergable )
+			|| ( bStaticModel != oldbStaticModel && !shader->entityMergable )
+			) ) {
 			if (oldShader != NULL) {
 				RB_EndSurface();
 			}
@@ -490,43 +509,60 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 		//
 		// change the modelview matrix if needed
 		//
-		if ( entityNum != oldEntityNum ) {
+		if ( entityNum != oldEntityNum
+			|| bStaticModel != oldbStaticModel ) {
 			depthRange = isCrosshair = qfalse;
+			
+			//
+			// OPENMOHAA-specific stuff
+			//=========================
+			if (bStaticModel) {
+				backEnd.shaderStartTime = 0.0;
+				backEnd.currentEntity = 0;
+				backEnd.spareSphere.TessFunction = 0;
+				backEnd.currentStaticModel = &backEnd.refdef.staticModels[entityNum];
+				R_RotateForStaticModel(backEnd.currentStaticModel, &backEnd.viewParms, &backEnd.or);
+			}
+			else {
+                backEnd.currentStaticModel = NULL;
+                oldbStaticModel = bStaticModel;
+			//=========================
 
-			if ( entityNum != REFENTITYNUM_WORLD ) {
-				backEnd.currentEntity = &backEnd.refdef.entities[entityNum];
+				if ( entityNum != REFENTITYNUM_WORLD ) {
+					backEnd.currentEntity = &backEnd.refdef.entities[entityNum];
 
-				// FIXME: e.shaderTime must be passed as int to avoid fp-precision loss issues
-				backEnd.refdef.floatTime = originalTime - (double)backEnd.currentEntity->e.shaderTime;
+					// FIXME: e.shaderTime must be passed as int to avoid fp-precision loss issues
+					backEnd.refdef.floatTime = originalTime - (double)backEnd.currentEntity->e.shaderTime;
 
-				// we have to reset the shaderTime as well otherwise image animations start
-				// from the wrong frame
-				tess.shaderTime = backEnd.refdef.floatTime - tess.shader->timeOffset;
+					// we have to reset the shaderTime as well otherwise image animations start
+					// from the wrong frame
+					tess.shaderTime = backEnd.refdef.floatTime - tess.shader->timeOffset;
 
-				// set up the transformation matrix
-				R_RotateForEntity( backEnd.currentEntity, &backEnd.viewParms, &backEnd.or );
+					// set up the transformation matrix
+					R_RotateForEntity( backEnd.currentEntity, &backEnd.viewParms, &backEnd.or );
 
-				// set up the dynamic lighting if needed
-				if ( backEnd.currentEntity->needDlights ) {
+					// set up the dynamic lighting if needed
+					if ( backEnd.currentEntity->needDlights ) {
+						R_TransformDlights( backEnd.refdef.num_dlights, backEnd.refdef.dlights, &backEnd.or );
+					}
+
+					if(backEnd.currentEntity->e.renderfx & RF_DEPTHHACK)
+					{
+						// hack the depth range to prevent view model from poking into walls
+						depthRange = qtrue;
+					
+						if(backEnd.currentEntity->e.renderfx & RF_CROSSHAIR)
+							isCrosshair = qtrue;
+					}
+				} else {
+					backEnd.currentEntity = &tr.worldEntity;
+					backEnd.refdef.floatTime = originalTime;
+					backEnd.or = backEnd.viewParms.world;
+					// we have to reset the shaderTime as well otherwise image animations on
+					// the world (like water) continue with the wrong frame
+					tess.shaderTime = backEnd.refdef.floatTime - tess.shader->timeOffset;
 					R_TransformDlights( backEnd.refdef.num_dlights, backEnd.refdef.dlights, &backEnd.or );
 				}
-
-				if(backEnd.currentEntity->e.renderfx & RF_DEPTHHACK)
-				{
-					// hack the depth range to prevent view model from poking into walls
-					depthRange = qtrue;
-					
-					if(backEnd.currentEntity->e.renderfx & RF_CROSSHAIR)
-						isCrosshair = qtrue;
-				}
-			} else {
-				backEnd.currentEntity = &tr.worldEntity;
-				backEnd.refdef.floatTime = originalTime;
-				backEnd.or = backEnd.viewParms.world;
-				// we have to reset the shaderTime as well otherwise image animations on
-				// the world (like water) continue with the wrong frame
-				tess.shaderTime = backEnd.refdef.floatTime - tess.shader->timeOffset;
-				R_TransformDlights( backEnd.refdef.num_dlights, backEnd.refdef.dlights, &backEnd.or );
 			}
 
 			GL_SetModelviewMatrix( backEnd.or.modelMatrix );
@@ -578,6 +614,10 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 
 			oldEntityNum = entityNum;
 		}
+
+        if (*drawSurf->surface == SF_SPRITE) {
+            backEnd.shaderStartTime = ((refSprite_t*)drawSurf->surface)->shaderTime;
+        }
 
 		// add the triangles for this surface
 		rb_surfaceTable[ *drawSurf->surface ]( drawSurf->surface );

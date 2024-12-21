@@ -37,6 +37,8 @@ void RE_LoadWorldMap( const char *name );
 
 */
 
+#define _R( id ) ri.UI_LoadResource( "*" #id )
+
 static	world_t		s_worldData;
 static	byte		*fileBase;
 
@@ -1982,6 +1984,16 @@ static	void R_LoadNodesAndLeafs (lump_t *nodeLump, lump_t *leafLump) {
 
 		out->firstmarksurface = LittleLong(inLeaf->firstLeafSurface);
 		out->nummarksurfaces = LittleLong(inLeaf->numLeafSurfaces);
+	
+		//
+		// OPENMOHAA-specific stuff
+		//=========================
+        out->firstTerraPatch = LittleLong(inLeaf->firstTerraPatch);
+        out->numTerraPatches = LittleLong(inLeaf->numTerraPatches);
+
+        out->firstStaticModel = LittleLong(inLeaf->firstStaticModel);
+        out->numStaticModels = LittleLong(inLeaf->numStaticModels);
+		//=========================
 	}	
 
 	// chain descendants
@@ -2319,6 +2331,29 @@ void R_LoadEntities( lump_t *l ) {
 	w->lightGridSize[0] = 64;
 	w->lightGridSize[1] = 64;
 	w->lightGridSize[2] = 128;
+
+	//
+	// OPENMOHAA-specific stuff
+	//=========================
+    switch (map_version)
+    {
+    case 21:
+        w->lightGridSize[0] = 80.0;
+        w->lightGridSize[1] = 80.0;
+        w->lightGridSize[2] = 80.0;
+        break;
+    case 20:
+        w->lightGridSize[0] = 48.0;
+        w->lightGridSize[1] = 48.0;
+        w->lightGridSize[2] = 64.0;
+        break;
+    default:
+        w->lightGridSize[0] = 32.0;
+        w->lightGridSize[1] = 32.0;
+        w->lightGridSize[2] = 32.0;
+        break;
+    }
+    //=========================
 
 	p = (char *)(fileBase + l->fileofs);
 
@@ -2730,6 +2765,530 @@ void R_CalcVertexLightDirs( void )
 	}
 }
 
+//
+// OPENMOHAA-specific stuff
+//=========================
+
+/*
+================
+R_LoadSphereLights
+================
+*/
+void R_LoadSphereLights(lump_t* l) {
+    int				i, j;
+    mapspherel_t* at;
+    spherel_t* light;
+
+    if (l->filelen % sizeof(mapspherel_t)) {
+        Com_Error(ERR_DROP, "LoadMap: funny lump size in spherelight data for %s\n", s_worldData.name);
+    }
+
+    tr.numSLights = l->filelen / sizeof(mapspherel_t);
+
+    if (tr.numSLights >= MAX_MAP_SPHERE_L_SIZE) {
+        Com_Error(ERR_DROP, "LoadMap: Too many spherelights on map %s, limit is %d\n", s_worldData.name, MAX_MAP_SPHERE_L_SIZE);
+    }
+
+	at = (mapspherel_t*)(fileBase + l->fileofs);
+    light = tr.sLights;
+
+    for (i = 0; i < tr.numSLights; at++, light++, i++) {
+        VectorCopy(at->origin, light->origin);
+        VectorCopy(at->color, light->color);
+        VectorCopy(at->spot_dir, light->spot_dir);
+
+        for (j = 0; j < 3; j++) {
+            light->origin[j] = LittleFloat(light->origin[j]);
+            light->color[j] = LittleFloat(light->color[j]);
+            light->spot_dir[j] = LittleFloat(light->spot_dir[j]);
+        }
+
+        light->spot_radiusbydistance = LittleFloat(at->spot_radiusbydistance);
+        light->intensity = LittleFloat(at->intensity);
+        light->spot_light = LittleLong(at->spot_light);
+        light->needs_trace = LittleLong(at->needs_trace);
+        light->leaf = &s_worldData.nodes[s_worldData.numDecisionNodes + LittleLong(at->leaf)];
+    }
+}
+
+/*
+================
+R_LoadSphereLightVis
+================
+*/
+void R_LoadSphereLightVis(lump_t* l) {
+    int i;
+    int j;
+    int h;
+    mnode_t* node;
+    int numentries;
+    int* entries;
+
+    memset(&tr.sSunLight, 0, sizeof(spherel_t));
+
+    if (l->filelen % 4) {
+        ri.Error(ERR_DROP, "LoadMap: funny lump size in spherelight vis data for %s\n",
+            s_worldData.name);
+    }
+    else {
+        entries = (int*)(fileBase + l->fileofs);
+        numentries = l->filelen / sizeof(int);
+
+        if (numentries) {
+            if (numentries != s_worldData.numnodes - s_worldData.numDecisionNodes) {
+                for (i = 0; i < numentries; ++i)
+                    entries[i] = LittleLong(entries[i]);
+
+                for (node = &s_worldData.nodes[s_worldData.numDecisionNodes]; numentries; node++) {
+                    j = 0;
+                    if (entries[0] != -1) {
+                        do
+                            ++j;
+                        while (entries[j] != -1);
+                    }
+                    if (j) {
+                        node->lights = ri.Hunk_Alloc(j * sizeof(spherel_t*), h_dontcare);
+                        node->numlights = j;
+                        h = 0;
+                        if (entries[0] == -2) {
+                            node->lights[0] = &tr.sSunLight;
+                            tr.sSunLight.leaf = (mnode_t*)-1;
+                            h = 1;
+                        }
+                        while (entries[h] != -1) {
+                            node->lights[h] = &tr.sLights[entries[h]];
+                            h++;
+                        }
+                        entries += h + 1;
+                        numentries = numentries - 1 - h;
+                    }
+                    else {
+                        numentries--;
+                        entries++;
+                    }
+                }
+            }
+        }
+    }
+}
+
+/*
+=================
+R_LoadNodesAndLeafsOld
+=================
+*/
+static	void R_LoadNodesAndLeafsOld(lump_t* nodeLump, lump_t* leafLump) {
+    int			i, j, p;
+    dnode_t* in;
+    dleaf_t_ver17* inLeaf;
+    mnode_t* out;
+    int			numNodes, numLeafs;
+
+    in = (dnode_t*)(fileBase + nodeLump->fileofs);
+    if (nodeLump->filelen % sizeof(dnode_t) ||
+        leafLump->filelen % sizeof(dleaf_t)) {
+        ri.Error(ERR_DROP, "LoadMap: funny lump size in %s", s_worldData.name);
+    }
+    numNodes = nodeLump->filelen / sizeof(dnode_t);
+    numLeafs = leafLump->filelen / sizeof(dleaf_t);
+
+    out = ri.Hunk_Alloc((numNodes + numLeafs) * sizeof(*out), h_dontcare);
+
+    s_worldData.nodes = out;
+    s_worldData.numnodes = numNodes + numLeafs;
+    s_worldData.numDecisionNodes = numNodes;
+
+    // load nodes
+    for (i = 0; i < numNodes; i++, in++, out++)
+    {
+        for (j = 0; j < 3; j++)
+        {
+            out->mins[j] = LittleLong(in->mins[j]);
+            out->maxs[j] = LittleLong(in->maxs[j]);
+        }
+
+        p = LittleLong(in->planeNum);
+        out->plane = s_worldData.planes + p;
+
+        out->contents = CONTENTS_NODE;	// differentiate from leafs
+
+        for (j = 0; j < 2; j++)
+        {
+            p = LittleLong(in->children[j]);
+            if (p >= 0)
+                out->children[j] = s_worldData.nodes + p;
+            else
+                out->children[j] = s_worldData.nodes + numNodes + (-1 - p);
+        }
+    }
+
+    // load leafs
+    inLeaf = (dleaf_t_ver17*)(fileBase + leafLump->fileofs);
+    for (i = 0; i < numLeafs; i++, inLeaf++, out++)
+    {
+        for (j = 0; j < 3; j++)
+        {
+            out->mins[j] = LittleLong(inLeaf->mins[j]);
+            out->maxs[j] = LittleLong(inLeaf->maxs[j]);
+        }
+
+        out->cluster = LittleLong(inLeaf->cluster);
+        out->area = LittleLong(inLeaf->area);
+
+        if (out->cluster >= s_worldData.numClusters) {
+            s_worldData.numClusters = out->cluster + 1;
+        }
+
+        out->firstmarksurface = s_worldData.marksurfaces +
+            LittleLong(inLeaf->firstLeafSurface);
+        out->nummarksurfaces = LittleLong(inLeaf->numLeafSurfaces);
+
+        out->firstTerraPatch = LittleLong(inLeaf->firstTerraPatch);
+        out->numTerraPatches = LittleLong(inLeaf->numTerraPatches);
+    }
+
+    // chain decendants
+    R_SetParent(s_worldData.nodes, NULL);
+}
+
+/*
+================
+R_UnpackTerraPatch
+================
+*/
+void R_UnpackTerraPatch(cTerraPatch_t* pPacked, cTerraPatchUnpacked_t* pUnpacked) {
+    int i, j;
+
+    pUnpacked->byDirty = qfalse;
+    pUnpacked->visCountCheck = 0;
+    pUnpacked->visCountDraw = 0;
+    pUnpacked->uiDistRecalc = 0;
+
+    if (pPacked->lmapScale <= 0) {
+        Com_Error(ERR_DROP, "invalid map: terrain has lmapScale <= 0");
+    }
+
+    pUnpacked->drawinfo.lmapStep = (float)(64 / pPacked->lmapScale);
+    pUnpacked->drawinfo.lmapSize = pPacked->lmapScale * 8 + 1;
+    pUnpacked->s = ((float)pPacked->s + 0.5) / LIGHTMAP_SIZE;
+    pUnpacked->t = ((float)pPacked->t + 0.5) / LIGHTMAP_SIZE;
+    pUnpacked->drawinfo.lmData = NULL;
+
+    for (i = 0; i < 2; i++) {
+        for (j = 0; j < 2; j++) {
+            pUnpacked->texCoord[i][j][0] = pPacked->texCoord[i][j][0];
+            pUnpacked->texCoord[i][j][1] = pPacked->texCoord[i][j][1];
+        }
+    }
+
+    pUnpacked->x0 = ((int)pPacked->x << 6);
+    pUnpacked->y0 = ((int)pPacked->y << 6);
+    pUnpacked->z0 = pPacked->iBaseHeight;
+    pUnpacked->shader = ShaderForShaderNum(pPacked->iShader, pPacked->iLightMap);
+    pUnpacked->iNorth = pPacked->iNorth;
+    pUnpacked->iEast = pPacked->iEast;
+    pUnpacked->iSouth = pPacked->iSouth;
+    pUnpacked->iWest = pPacked->iWest;
+
+    for (i = 0; i < MAX_TERRAIN_VARNODES; i++)
+    {
+        varnode_t *packedVarTree;
+
+        packedVarTree = &pPacked->varTree[0][i];
+        pUnpacked->varTree[0][i].fVariance = packedVarTree->flags & 0x7FF;
+        pUnpacked->varTree[0][i].flags &= ~0xFF;
+        pUnpacked->varTree[0][i].flags |= (packedVarTree->flags >> 12) & 0xFF;
+
+        packedVarTree = &pPacked->varTree[1][i];
+        pUnpacked->varTree[1][i].fVariance = packedVarTree->flags & 0x7FF;
+        pUnpacked->varTree[1][i].flags &= ~0xFF;
+        pUnpacked->varTree[1][i].flags |= (packedVarTree->flags >> 12) & 0xFF;
+    }
+
+    for (i = 0; i < ARRAY_LEN(pUnpacked->heightmap); i++) {
+        pUnpacked->heightmap[i] = pPacked->heightmap[i];
+    }
+
+    pUnpacked->zmax = 0;
+    pUnpacked->flags = pPacked->flags;
+
+    for (i = 0; i < ARRAY_LEN(pUnpacked->heightmap); i++)
+    {
+        if (pUnpacked->zmax < pUnpacked->heightmap[i]) {
+            pUnpacked->zmax = pUnpacked->heightmap[i];
+        }
+    }
+
+    pUnpacked->frameCount = 0;
+    pUnpacked->zmax += pUnpacked->zmax;
+}
+
+/*
+================
+R_LoadTerrain
+================
+IneQuation was here
+*/
+void R_LoadTerrain(lump_t* lump) {
+    int		i;
+    cTerraPatch_t* in;
+    cTerraPatchUnpacked_t* out;
+
+    if (!lump->filelen) {
+        s_worldData.numTerraPatches = 0;
+        s_worldData.terraPatches = NULL;
+        return;
+    }
+
+    if (lump->filelen % sizeof(cTerraPatch_t)) {
+        Com_Error(ERR_DROP, "R_LoadTerrain: funny lump size");
+    }
+
+    s_worldData.numTerraPatches = lump->filelen / sizeof(cTerraPatch_t);
+    s_worldData.terraPatches = ri.Hunk_Alloc(s_worldData.numTerraPatches * sizeof(cTerraPatchUnpacked_t), h_dontcare);
+
+    in = (cTerraPatch_t*)(fileBase + lump->fileofs);
+    out = s_worldData.terraPatches;
+
+    for (i = 0; i < s_worldData.numTerraPatches; in++, out++, i++) {
+        R_SwapTerraPatch(in);
+        R_UnpackTerraPatch(in, out);
+    }
+}
+
+/*
+================
+R_LoadTerrainIndexes
+================
+*/
+void R_LoadTerrainIndexes(lump_t* lump) {
+    int		i;
+    short* in;
+    cTerraPatchUnpacked_t** out;
+
+    if (!lump->filelen) {
+        s_worldData.numVisTerraPatches = 0;
+        s_worldData.visTerraPatches = NULL;
+        return;
+    }
+
+    if (lump->filelen % sizeof(short)) {
+        Com_Error(ERR_DROP, "R_LoadTerrainIndexes: funny lump size");
+    }
+
+    s_worldData.numVisTerraPatches = lump->filelen / sizeof(short);
+    s_worldData.visTerraPatches = ri.Hunk_Alloc(s_worldData.numVisTerraPatches * sizeof(cTerraPatchUnpacked_t*), h_dontcare);
+
+    in = (short*)(fileBase + lump->fileofs);
+    out = s_worldData.visTerraPatches;
+
+    for (i = 0; i < s_worldData.numVisTerraPatches; in++, out++, i++) {
+        *out = &s_worldData.terraPatches[LittleShort(*in)];
+    }
+}
+
+/*
+================
+R_LoadLightGrid2
+
+================
+*/
+void R_LoadLightGrid2(lump_t* plPal, lump_t* plOffsets, lump_t* plData) {
+    int		i;
+    vec3_t	maxs;
+    int		numGridPoints;
+    world_t	*w;
+    float	*wMins, *wMaxs;
+
+    w = &s_worldData;
+
+    if (!plPal->filelen || !plOffsets->filelen || !plData->filelen) {
+        ri.Printf(PRINT_WARNING, "WARNING: No light grid data present\n");
+        w->lightGridOffsets = 0;
+        w->lightGridData = 0;
+        return;
+    }
+
+    switch (map_version)
+    {
+    case 21:
+        w->lightGridSize[0] = 80.0;
+        w->lightGridSize[1] = 80.0;
+        w->lightGridSize[2] = 80.0;
+        break;
+    case 20:
+        w->lightGridSize[0] = 48.0;
+        w->lightGridSize[1] = 48.0;
+        w->lightGridSize[2] = 64.0;
+        break;
+    default:
+        w->lightGridSize[0] = 32.0;
+        w->lightGridSize[1] = 32.0;
+        w->lightGridSize[2] = 32.0;
+        break;
+    }
+
+    w->lightGridInverseSize[0] = 1.0f / w->lightGridSize[0];
+    w->lightGridInverseSize[1] = 1.0f / w->lightGridSize[1];
+    w->lightGridInverseSize[2] = 1.0f / w->lightGridSize[2];
+
+    wMins = w->bmodels[0].bounds[0];
+    wMaxs = w->bmodels[0].bounds[1];
+
+	for ( i = 0 ; i < 3 ; i++ ) {
+		w->lightGridOrigin[i] = w->lightGridSize[i] * ceil( wMins[i] / w->lightGridSize[i] );
+		maxs[i] = w->lightGridSize[i] * floor( wMaxs[i] / w->lightGridSize[i] );
+		w->lightGridBounds[i] = (maxs[i] - w->lightGridOrigin[i])/w->lightGridSize[i] + 1;
+	}
+
+    numGridPoints = w->lightGridBounds[0] * w->lightGridBounds[1] + w->lightGridBounds[0];
+
+    if (plOffsets->filelen != numGridPoints * 2) {
+        ri.Printf(PRINT_WARNING, "WARNING: light grid offset size mismatch\n");
+        w->lightGridOffsets = NULL;
+        w->lightGridData = NULL;
+        return;
+    }
+
+    if (plPal->filelen != 768) {
+        ri.Printf(PRINT_WARNING, "WARNING: light grid palette size mismatch\n");
+        w->lightGridOffsets = NULL;
+        w->lightGridData = NULL;
+        return;
+    }
+
+    w->lightGridOffsets = ri.Hunk_Alloc(plOffsets->filelen, h_dontcare);
+    for (i = 0; i < plOffsets->filelen / 2; i++) {
+        w->lightGridOffsets[i] = LittleUnsignedShort(((short*)(fileBase + plOffsets->fileofs))[i]);
+    }
+    Com_Memcpy(w->lightGridPalette, fileBase + plPal->fileofs, sizeof(s_worldData.lightGridPalette));
+
+    //w->lightGridData = ri.Hunk_Alloc(plData->filelen, h_dontcare);
+    //Com_Memcpy(w->lightGridData, fileBase + plData->fileofs, plData->filelen);
+}
+
+/*
+================
+R_LoadStaticModelData
+================
+*/
+void R_LoadStaticModelData(lump_t* lump) {
+    int		i;
+    byte* pDstColors;
+    byte* pSrcColors;
+
+    if (!lump->filelen) {
+        s_worldData.numStaticModelData = 0;
+        s_worldData.staticModelData = 0;
+        return;
+    }
+
+
+    if (lump->filelen % (sizeof(byte) * 3)) {
+        Com_Error(1, "R_LoadStaticModelData: funny lump size");
+    }
+
+    s_worldData.numStaticModelData = lump->filelen / (sizeof(byte) * 3);
+    s_worldData.staticModelData = (byte*)ri.Hunk_Alloc(s_worldData.numStaticModelData * sizeof(color4ub_t), h_dontcare);
+
+    pSrcColors = (byte*)(fileBase + lump->fileofs);
+    pDstColors = s_worldData.staticModelData;
+
+    for (i = 0; i < lump->filelen; i += sizeof(byte) * 3)
+    { 
+        // Colors are stored as integers
+        pDstColors[0] = pSrcColors[0];
+        pDstColors[1] = pSrcColors[1];
+        pDstColors[2] = pSrcColors[2];
+        pDstColors[3] = 0xFF;
+
+        pSrcColors += sizeof(byte) * 3;
+        pDstColors += sizeof(byte) * 4;
+    }
+}
+
+/*
+================
+R_CopyStaticModel
+================
+*/
+void R_CopyStaticModel(cStaticModel_t* pSM, cStaticModelUnpacked_t* pUnpackedSM) {
+    pUnpackedSM->visCount = 0;
+    pUnpackedSM->angles[0] = LittleFloat(pSM->angles[0]);
+    pUnpackedSM->angles[1] = LittleFloat(pSM->angles[1]);
+    pUnpackedSM->angles[2] = LittleFloat(pSM->angles[2]);
+    pUnpackedSM->origin[0] = LittleFloat(pSM->origin[0]);
+    pUnpackedSM->origin[1] = LittleFloat(pSM->origin[1]);
+    pUnpackedSM->origin[2] = LittleFloat(pSM->origin[2]);
+    pUnpackedSM->scale = LittleFloat(pSM->scale);
+    pUnpackedSM->firstVertexData = LittleLong(pSM->firstVertexData) * sizeof(color4ub_t) / (sizeof(byte) * 3);
+    pUnpackedSM->numVertexData = LittleLong(pSM->numVertexData);
+    memcpy(pUnpackedSM->model, pSM->model, sizeof(pUnpackedSM->model));
+}
+
+/*
+================
+R_LoadStaticModelDefs
+================
+*/
+void R_LoadStaticModelDefs(lump_t* lump) {
+    int		i;
+    cStaticModel_t* in;
+    cStaticModelUnpacked_t* out;
+
+    if (!lump->filelen) {
+        s_worldData.numStaticModels = 0;
+        s_worldData.staticModels = NULL;
+        return;
+    }
+
+    if (lump->filelen % sizeof(cStaticModel_t)) {
+        Com_Error(ERR_DROP, "R_LoadStaticModelDefs: funny lump size");
+    }
+
+    s_worldData.numStaticModels = lump->filelen / sizeof(cStaticModel_t);
+    s_worldData.staticModels = ri.Hunk_Alloc(s_worldData.numStaticModels * sizeof(cStaticModelUnpacked_t), h_dontcare);
+
+    in = (cStaticModel_t*)(fileBase + lump->fileofs);
+    out = s_worldData.staticModels;
+
+    for (i = 0; i < s_worldData.numStaticModels; in++, out++, i++) {
+        R_CopyStaticModel(in, out);
+    }
+}
+
+/*
+================
+R_LoadStaticModelIndexes
+================
+*/
+void R_LoadStaticModelIndexes(lump_t* lump) {
+    int i;
+    unsigned short* in;
+    cStaticModelUnpacked_t** out;
+
+    if (lump->filelen % sizeof(short)) {
+        Com_Error(ERR_DROP, "R_LoadStaticModelDefs: funny lump size");
+    }
+
+    s_worldData.numVisStaticModels = lump->filelen / sizeof(short);
+    s_worldData.visStaticModels = ri.Hunk_Alloc(s_worldData.numVisStaticModels * sizeof(cStaticModelUnpacked_t*), h_dontcare);
+
+    in = (unsigned short*)(fileBase + lump->fileofs);
+    out = s_worldData.visStaticModels;
+
+    for (i = 0; i < s_worldData.numVisStaticModels; in++, out++, i++) {
+        unsigned short index = LittleUnsignedShort(*in);
+        if (index >= s_worldData.numStaticModels) {
+            // Added in OPM
+            Com_Error(ERR_DROP, "R_LoadStaticModelIndexes: bad static model index %d", index);
+        }
+
+        *out = &s_worldData.staticModels[index];
+    }
+}
+
+//=========================
 
 /*
 =================
@@ -2809,18 +3368,119 @@ void RE_LoadWorldMap( const char *name ) {
 		((int *)header)[i] = LittleLong ( ((int *)header)[i]);
 	}
 
+	//
+	// OPENMOHAA-specific stuff
+	//=========================
+    map_version = header->version;
+    //=========================
+
 	// load into heap
+#if 0
 	R_LoadEntities( &header->lumps[LUMP_ENTITIES] );
 	R_LoadShaders( &header->lumps[LUMP_SHADERS] );
 	R_LoadLightmaps( &header->lumps[LUMP_LIGHTMAPS], &header->lumps[LUMP_SURFACES] );
 	R_LoadPlanes (&header->lumps[LUMP_PLANES]);
-	R_LoadFogs( &header->lumps[LUMP_FOGS], &header->lumps[LUMP_BRUSHES], &header->lumps[LUMP_BRUSHSIDES] );
+	//R_LoadFogs( &header->lumps[LUMP_FOGS], &header->lumps[LUMP_BRUSHES], &header->lumps[LUMP_BRUSHSIDES] );
 	R_LoadSurfaces( &header->lumps[LUMP_SURFACES], &header->lumps[LUMP_DRAWVERTS], &header->lumps[LUMP_DRAWINDEXES] );
 	R_LoadMarksurfaces (&header->lumps[LUMP_LEAFSURFACES]);
 	R_LoadNodesAndLeafs (&header->lumps[LUMP_NODES], &header->lumps[LUMP_LEAFS]);
 	R_LoadSubmodels (&header->lumps[LUMP_MODELS]);
 	R_LoadVisibility( &header->lumps[LUMP_VISIBILITY] );
 	R_LoadLightGrid( &header->lumps[LUMP_LIGHTGRID] );
+#endif
+
+	//
+	// OPENMOHAA-specific stuff
+	//=========================
+	_R(53);
+    _R(54);
+    R_LoadShaders(Q_GetLumpByVersion(header, LUMP_SHADERS));
+    _R(55);
+    _R(56);
+    R_LoadPlanes(Q_GetLumpByVersion(header, LUMP_PLANES));
+    _R(57);
+    _R(58);
+    _R(59);
+    R_LoadLightmaps(Q_GetLumpByVersion(header, LUMP_LIGHTMAPS), Q_GetLumpByVersion(header, LUMP_SURFACES));
+    _R(60);
+    _R(61);
+    _R(62);
+    _R(63);
+    _R(64);
+    R_LoadSurfaces(Q_GetLumpByVersion(header, LUMP_SURFACES), Q_GetLumpByVersion(header, LUMP_DRAWVERTS), Q_GetLumpByVersion(header, LUMP_DRAWINDEXES));
+    _R(65);
+    _R(66);
+    _R(67);
+    _R(68);
+    _R(69);
+    R_LoadMarksurfaces(Q_GetLumpByVersion(header, LUMP_LEAFSURFACES));
+    _R(70);
+    _R(71);
+    _R(72);
+    _R(73);
+    if (header->version > BSP_BETA_VERSION) {
+        R_LoadNodesAndLeafs(Q_GetLumpByVersion(header, LUMP_NODES), Q_GetLumpByVersion(header, LUMP_LEAFS));
+    } else {
+        R_LoadNodesAndLeafsOld(Q_GetLumpByVersion(header, LUMP_NODES), Q_GetLumpByVersion(header, LUMP_LEAFS));
+    }
+    _R(74);
+    _R(75);
+    _R(76);
+    numFogs = 0;
+    _R(77);
+    R_LoadSubmodels(Q_GetLumpByVersion(header, LUMP_MODELS));
+    _R(78);
+    _R(79);
+    _R(80);
+    R_LoadVisibility(Q_GetLumpByVersion(header, LUMP_VISIBILITY));
+    _R(81);
+    _R(82);
+    _R(83);
+    _R(84);
+    _R(85);
+    R_LoadLightGrid2(Q_GetLumpByVersion(header, LUMP_LIGHTGRIDPALETTE), Q_GetLumpByVersion(header, LUMP_LIGHTGRIDOFFSETS), Q_GetLumpByVersion(header, LUMP_LIGHTGRIDDATA));
+    _R(86);
+    _R(87);
+    _R(88);
+    _R(89);
+    _R(90);
+    R_LoadSphereLights(Q_GetLumpByVersion(header, LUMP_SPHERELIGHTS));
+    _R(91);
+    _R(92);
+    _R(93);
+    R_LoadSphereLightVis(Q_GetLumpByVersion(header, LUMP_SPHERELIGHTVIS));
+    _R(94);
+    _R(95);
+    _R(96);
+    R_LoadTerrain(Q_GetLumpByVersion(header, LUMP_TERRAIN));
+    _R(97);
+    _R(98);
+    _R(99);
+    R_LoadTerrainIndexes(Q_GetLumpByVersion(header, LUMP_TERRAININDEXES));
+    _R(100);
+    _R(101);
+    if (header->version > BSP_BETA_VERSION)
+    {
+        _R(102);
+        R_LoadStaticModelData(Q_GetLumpByVersion(header, LUMP_STATICMODELDATA));
+        _R(103);
+        _R(104);
+        _R(105);
+        R_LoadStaticModelDefs(Q_GetLumpByVersion(header, LUMP_STATICMODELDEF));
+        _R(106);
+        _R(107);
+        _R(108);
+        R_LoadStaticModelIndexes(Q_GetLumpByVersion(header, LUMP_STATICMODELINDEXES));
+        _R(109);
+        _R(110);
+    }
+    else
+    {
+        g_nStaticModelData = 0;
+        g_nStaticModels = 0;
+        g_nStaticModelIndices = 0;
+    }
+	//=========================
 
 	// determine vertex light directions
 	R_CalcVertexLightDirs();
@@ -3051,6 +3711,22 @@ void RE_LoadWorldMap( const char *name ) {
 	}
 
     ri.FS_FreeFile( buffer.v );
+
+	//
+	// OPENMOHAA-specific stuff
+	//=========================
+    ri.UI_LoadResource("*111");
+    R_Sphere_InitLights();
+    ri.UI_LoadResource("*112");
+    R_InitTerrain();
+    ri.UI_LoadResource("*113");
+    R_InitStaticModels();
+    ri.UI_LoadResource("*114");
+    R_LevelMarksLoad(name);
+    ri.UI_LoadResource("*115");
+    R_VisDebugLoad(name);
+    ri.UI_LoadResource("*116");
+    //=========================
 }
 
 //

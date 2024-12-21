@@ -243,6 +243,7 @@ void R_AddMarkFragments(int numClipPoints, vec3_t clipPoints[2][MAX_VERTS_ON_POL
 	mf = fragmentBuffer + (*returnedFragments);
 	mf->firstPoint = (*returnedPoints);
 	mf->numPoints = numClipPoints;
+	mf->iIndex = 0; // OPENMOHAA-specific stuff
 	Com_Memcpy( pointBuffer + (*returnedPoints) * 3, clipPoints[pingPong], numClipPoints * sizeof(vec3_t) );
 
 	(*returnedPoints) += numClipPoints;

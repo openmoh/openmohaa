@@ -581,6 +581,35 @@ static void R_RecursiveWorldNode( mnode_t *node, uint32_t planeBits, uint32_t dl
 		}
 	}
 
+
+	//
+	// OPENMOHAA-specific stuff
+	//=========================
+
+	if (r_drawterrain->integer && tr.refdef.render_terrain && !tr.viewParms.isPortalSky)
+	{
+		int i;
+
+		for (i = 0; i < node->numTerraPatches; i++) {
+			R_MarkTerrainPatch(tr.world->visTerraPatches[node->firstTerraPatch + i]);
+		}
+	}
+
+	if (r_drawstaticdecals->integer) {
+		if (node->pFirstMarkFragment) {
+			R_AddPermanentMarkFragmentSurfaces(node->pFirstMarkFragment, node->iNumMarkFragment);
+		}
+	}
+
+	if (r_drawstaticmodels->integer) {
+		int i;
+
+		for (i = 0; i < node->numStaticModels; i++) {
+			tr.world->visStaticModels[node->firstStaticModel + i]->visCount = tr.visCounts[tr.visIndex];
+		}
+    }
+
+    //=========================
 }
 
 
@@ -752,6 +781,14 @@ void R_AddWorldSurfaces (void) {
 	tr.currentEntityNum = REFENTITYNUM_WORLD;
 	tr.shiftedEntityNum = tr.currentEntityNum << QSORT_REFENTITYNUM_SHIFT;
 
+	//
+	// OPENMOHAA-specific stuff
+	//=========================
+    if (r_drawterrain->integer && tr.refdef.render_terrain && !tr.viewParms.isPortalSky) {
+        R_TerrainPrepareFrame();
+    }
+    //=========================
+
 	// determine which leaves are in the PVS / areamask
 	if (!(tr.viewParms.flags & VPF_DEPTHSHADOW))
 		R_MarkLeaves ();
@@ -806,6 +843,26 @@ void R_AddWorldSurfaces (void) {
 
 		tr.refdef.dlightMask = ~tr.refdef.dlightMask;
 	}
+
+    //
+    // OPENMOHAA-specific stuff
+    //=========================
+
+	if (r_drawterrain->integer && tr.refdef.render_terrain && !tr.viewParms.isPortalSky) {
+		R_AddTerrainSurfaces();
+	}
+	if (r_drawstaticmodels->integer) {
+		R_AddStaticModelSurfaces();
+	}
+
+	if (g_bInfostaticmodels) {
+		g_bInfostaticmodels = 0;
+		R_PrintInfoStaticModels();
+	}
+
+    R_UpdateLevelMarksSystem();
+
+    //=========================
 }
 
 //

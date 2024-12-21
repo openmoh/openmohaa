@@ -1344,6 +1344,13 @@ static void R_InsertLightIntoList(spherel_t *pLight, float fIntensity, gatheredL
     pCurrLight->pLight           = pLight;
 }
 
+#else
+
+void R_Sphere_InitLights()
+{
+    // UNIMPLEMENTED
+}
+
 #endif
 
 #define MAX_GATHERED_LIGHTS 8

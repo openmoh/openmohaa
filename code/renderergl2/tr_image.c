@@ -3098,6 +3098,13 @@ void R_SetColorMappings( void ) {
 	{
 		GLimp_SetGamma( s_gammatable, s_gammatable, s_gammatable );
 	}
+
+	//
+	// OPENMOHAA-specific stuff
+	//=========================
+    tr.overbrightShift = r_mapOverBrightBits->integer - tr.overbrightBits;
+    tr.overbrightMult = (float)(1 << tr.overbrightShift);
+    //=========================
 }
 
 /*

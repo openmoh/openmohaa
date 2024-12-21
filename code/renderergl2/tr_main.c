@@ -743,6 +743,86 @@ void R_SetupFrustum (viewParms_t *dest, float xmin, float xmax, float ymax, floa
 		SetPlaneSignbits( &dest->frustum[4] );
 		dest->flags |= VPF_FARPLANEFRUSTUM;
 	}
+
+	//
+	// OPENMOHAA-specific stuff
+	//=========================
+	
+	if (dest->isPortalSky) {
+		// since 2.0: skybox farplane
+		if (r_skybox_farplane->integer) {
+			dest->farplane_distance = r_skybox_farplane->value;
+
+            sscanf(
+                r_farplane_color->string,
+                "%f %f %f",
+                &dest->farplane_color[0],
+                &dest->farplane_color[1],
+                &dest->farplane_color[2]
+			);
+
+			if (r_farplane_nocull->integer > 0) {
+				dest->farplane_cull = 0;
+			} else if (r_farplane_nocull->integer == 0) {
+				dest->farplane_cull = 1;
+            } else {
+                dest->farplane_cull = 2;
+            }
+		}
+	}
+	else if (r_farplane->integer)
+	{
+		dest->farplane_distance = r_farplane->value;
+		dest->farplane_bias = r_farplane_bias->value;
+
+		sscanf(
+			r_farplane_color->string,
+			"%f %f %f",
+			&dest->farplane_color[0],
+			&dest->farplane_color[1],
+			&dest->farplane_color[2]);
+
+			if (r_farplane_nocull->integer > 0) {
+				dest->farplane_cull = 0;
+			} else if (r_farplane_nocull->integer == 0) {
+				dest->farplane_cull = 1;
+            } else {
+                dest->farplane_cull = 2;
+            }
+	}
+
+	if (dest->farplane_distance)
+	{
+		vec3_t farPoint;
+		float realPlaneLen;
+		float tmp;
+		vec4_t fogColor;
+
+		dest->fog.len = dest->farplane_distance;
+		dest->fog.oolen = 1.0 / dest->farplane_distance;
+		VectorMA(dest->or.origin, dest->farplane_distance, dest->or.axis[0], farPoint);
+
+		VectorNegate(dest->or.axis[0], dest->frustum[4].normal);
+		dest->frustum[4].type = PLANE_NON_AXIAL;
+		dest->frustum[4].dist = DotProduct(farPoint, dest->frustum[4].normal);
+		SetPlaneSignbits(&dest->frustum[4]);
+
+		dest->fog.enabled = r_farplane_nofog->integer == 0;
+		if (dest->farplane_cull) {
+            // extra fustum for culling
+            dest->flags |= VPF_FARPLANEFRUSTUM;
+			dest->fog.extrafrustums = 1;
+		} else {
+			dest->fog.extrafrustums = 0;
+		}
+	}
+	else
+	{
+		dest->fog.enabled = 0;
+		dest->fog.extrafrustums = 0;
+    }
+
+    //=========================
 }
 
 /*
@@ -1208,10 +1288,12 @@ static qboolean SurfIsOffscreen( const drawSurf_t *drawSurf, vec4_t clipDest[128
 	int i;
 	unsigned int pointOr = 0;
 	unsigned int pointAnd = (unsigned int)~0;
+	qboolean bStaticModel;
 
 	R_RotateForViewer();
 
-	R_DecomposeSort( drawSurf->sort, &entityNum, &shader, &fogNum, &dlighted, &pshadowed );
+	R_DecomposeSort( drawSurf->sort, &entityNum, &shader, &fogNum, &dlighted, &pshadowed,
+			&bStaticModel );
 	RB_BeginSurface( shader, fogNum, drawSurf->cubemapIndex);
 	rb_surfaceTable[ *drawSurf->surface ]( drawSurf->surface );
 
@@ -1469,7 +1551,8 @@ void R_AddDrawSurf( surfaceType_t *surface, shader_t *shader,
 	// compared quickly during the qsorting process
 	tr.refdef.drawSurfs[index].sort = (shader->sortedIndex << QSORT_SHADERNUM_SHIFT) 
 		| tr.shiftedEntityNum | ( fogIndex << QSORT_FOGNUM_SHIFT ) 
-		| ((int)pshadowMap << QSORT_PSHADOW_SHIFT) | (int)dlightMap;
+		| ((int)pshadowMap << QSORT_PSHADOW_SHIFT) | (int)dlightMap
+		| tr.shiftedIsStatic;
 	tr.refdef.drawSurfs[index].cubemapIndex = cubemap;
 	tr.refdef.drawSurfs[index].surface = surface;
 	tr.refdef.numDrawSurfs++;
@@ -1481,12 +1564,21 @@ R_DecomposeSort
 =================
 */
 void R_DecomposeSort( unsigned sort, int *entityNum, shader_t **shader, 
-					 int *fogNum, int *dlightMap, int *pshadowMap ) {
+					 int *fogNum, int *dlightMap, int *pshadowMap,
+                     qboolean *bStaticModel
+			) {
 	*fogNum = ( sort >> QSORT_FOGNUM_SHIFT ) & 31;
 	*shader = tr.sortedShaders[ ( sort >> QSORT_SHADERNUM_SHIFT ) & (MAX_SHADERS-1) ];
 	*entityNum = ( sort >> QSORT_REFENTITYNUM_SHIFT ) & REFENTITYNUM_MASK;
 	*pshadowMap = (sort >> QSORT_PSHADOW_SHIFT ) & 1;
-	*dlightMap = sort & 1;
+    *dlightMap = sort & 1;
+
+	//
+	// OPENMOHAA-specific stuff
+	//=========================
+	*fogNum = 0;
+    *bStaticModel = sort & (1 << QSORT_STATICMODEL_SHIFT);
+    //=========================
 }
 
 /*
@@ -1500,7 +1592,8 @@ void R_SortDrawSurfs( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 	int				entityNum;
 	int				dlighted;
 	int             pshadowed;
-	int				i;
+    int				i;
+    qboolean		bStaticModel;
 
 	//ri.Printf(PRINT_ALL, "firstDrawSurf %d numDrawSurfs %d\n", (int)(drawSurfs - tr.refdef.drawSurfs), numDrawSurfs);
 
@@ -1524,7 +1617,7 @@ void R_SortDrawSurfs( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 	// check for any pass through drawing, which
 	// may cause another view to be rendered first
 	for ( i = 0 ; i < numDrawSurfs ; i++ ) {
-		R_DecomposeSort( (drawSurfs+i)->sort, &entityNum, &shader, &fogNum, &dlighted, &pshadowed );
+		R_DecomposeSort( (drawSurfs+i)->sort, &entityNum, &shader, &fogNum, &dlighted, &pshadowed, &bStaticModel );
 
 		if ( shader->sort > SS_PORTAL ) {
 			break;
@@ -1611,6 +1704,16 @@ static void R_AddEntitySurface (int entityNum)
 			case MOD_BRUSH:
 				R_AddBrushModelSurfaces( ent );
 				break;
+			//
+			// OPENMOHAA-specific stuff
+			//=========================
+			case MOD_SPRITE:
+				ri.Printf(PRINT_ALL, "sprite model '%s' being added to renderer!\n", tr.currentModel->name);
+                break;
+            case MOD_TIKI:
+                R_AddSkelSurfaces(ent);
+                break;
+			//=========================
 			case MOD_BAD:		// null model axis
 				if ( (ent->e.renderfx & RF_THIRD_PERSON) && !tr.viewParms.isPortal) {
 					break;
@@ -1639,6 +1742,12 @@ void R_AddEntitySurfaces (void) {
 	if ( !r_drawentities->integer ) {
 		return;
 	}
+
+	//
+	// OPENMOHAA-specific stuff
+	//=========================
+    tr.shiftedIsStatic = 0;
+    //=========================
 
 	for ( i = 0; i < tr.refdef.num_entities; i++)
 		R_AddEntitySurface(i);
@@ -1826,6 +1935,8 @@ R_DrawDebugLines
 ================
 */
 void R_DrawDebugLines(void) {
+	// FIXME: unimplemented
+#if 0
 	debugline_t* line;
 	int i;
 	float width;
@@ -1902,6 +2013,7 @@ void R_DrawDebugLines(void) {
     }
 
     qglDepthRange(0.0, 1.0);
+#endif
 }
 
 /*
@@ -2890,6 +3002,25 @@ void R_RenderCubemapSide( int cubemapIndex, int cubemapSide, qboolean subscene )
 //
 // OPENMOHAA-specific stuff
 //
+
+/*
+=================
+R_AddSpriteSurf
+=================
+*/
+void R_AddSpriteSurf(surfaceType_t* surface, shader_t* shader, float zDistance)
+{
+	int index;
+
+	if (zDistance > MAX_SPRITE_DIST_SQUARED) {
+		zDistance = MAX_SPRITE_DIST_SQUARED;
+	}
+
+	index = tr.refdef.numSpriteSurfs % MAX_SPRITES;
+    tr.refdef.spriteSurfs[index].sort = (int)(MAX_SPRITE_DIST_SQUARED - zDistance) | (shader->sortedIndex << QSORT_SHADERNUM_SHIFT);
+    tr.refdef.spriteSurfs[index].surface = surface;
+    tr.refdef.numSpriteSurfs++;
+}
 
 /*
 =================

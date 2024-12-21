@@ -1299,6 +1299,128 @@ void RB_SurfaceVaoMdvMesh(srfVaoMdvMesh_t * surface)
 static void RB_SurfaceSkip( void *surf ) {
 }
 
+//
+// OPENMOHAA-specific stuff
+//=========================
+
+/*
+=============
+RB_SurfaceMarkFragment
+=============
+*/
+void RB_SurfaceMarkFragment(srfMarkFragment_t* p) {
+	int i;
+	int numv;
+
+	RB_CHECKOVERFLOW( p->numVerts, 3*(p->numVerts - 2) );
+
+	if (p->iIndex <= 0 || R_TerrainHeightForPoly(&tr.world->terraPatches[p->iIndex - 1], p->verts, p->numVerts))
+	{
+		// FIXME: from here on out, it's mostly the same code as in RB_SurfacePolychain,
+		// common part could be extracted into an inline func
+
+		// fan triangles into the tess array
+		numv = tess.numVertexes;
+		for ( i = 0; i < p->numVerts; i++ )
+		{
+			VectorCopy( p->verts[i].xyz, tess.xyz[numv] );
+            tess.texCoords[numv][0] = p->verts[i].st[0];
+            tess.texCoords[numv][1] = p->verts[i].st[1];
+			tess.color[numv][0] = p->verts[i].modulate[0] * 65535 / 255;
+            tess.color[numv][1] = p->verts[i].modulate[1] * 65535 / 255;
+            tess.color[numv][2] = p->verts[i].modulate[2] * 65535 / 255;
+            tess.color[numv][3] = p->verts[i].modulate[3] * 65535 / 255;
+
+			numv++;
+		}
+
+		// generate fan indexes into the tess array
+		for ( i = 0; i < p->numVerts - 2; i++ ) {
+			tess.indexes[tess.numIndexes + 0] = tess.numVertexes;
+			tess.indexes[tess.numIndexes + 1] = tess.numVertexes + i + 1;
+			tess.indexes[tess.numIndexes + 2] = tess.numVertexes + i + 2;
+			tess.numIndexes += 3;
+		}
+
+		tess.numVertexes = numv;
+	}
+}
+
+void RB_DrawTerrainTris(srfTerrain_t* p) {
+	int i;
+	terraInt numv;
+	int dlightBits;
+
+	RB_CHECKOVERFLOW(p->nVerts, p->nTris * 3);
+
+	dlightBits = p->dlightBits[0];
+	tess.dlightBits |= dlightBits;
+	if (p->dlightMap[0])
+	{
+		float lmScale = (1.0 / LIGHTMAP_SIZE) / p->lmapStep;
+
+		for (i = p->iVertHead; i; i = g_pVert[i].iNext) {
+			assert(tess.numVertexes < SHADER_MAX_VERTEXES);
+
+			VectorCopy(g_pVert[i].xyz, tess.xyz[tess.numVertexes]);
+            tess.texCoords[tess.numVertexes][0] = g_pVert[i].texCoords[0][0];
+            tess.texCoords[tess.numVertexes][1] = g_pVert[i].texCoords[0][1];
+            tess.lightCoords[tess.numVertexes][0] = g_pVert[i].xyz[0] * lmScale + p->lmapX;
+            tess.lightCoords[tess.numVertexes][1] = g_pVert[i].xyz[1] * lmScale + p->lmapY;
+			tess.normal[tess.numVertexes][0] = 0;
+			tess.normal[tess.numVertexes][1] = 0;
+			tess.normal[tess.numVertexes][2] = 1.0;
+			tess.color[tess.numVertexes][0] = 0xffff;
+			tess.color[tess.numVertexes][1] = 0xffff;
+			tess.color[tess.numVertexes][2] = 0xffff;
+			tess.color[tess.numVertexes][3] = 0xffff;
+
+			g_pVert[i].iVertArray = tess.numVertexes;
+			tess.numVertexes++;
+		}
+	}
+	else
+	{
+		for (i = p->iVertHead; i; i = g_pVert[i].iNext) {
+			assert(tess.numVertexes < SHADER_MAX_VERTEXES);
+
+			VectorCopy(g_pVert[i].xyz, tess.xyz[tess.numVertexes]);
+            tess.texCoords[tess.numVertexes][0] = g_pVert[i].texCoords[0][0];
+            tess.texCoords[tess.numVertexes][1] = g_pVert[i].texCoords[0][1];
+            tess.lightCoords[tess.numVertexes][0] = g_pVert[i].texCoords[1][0];
+            tess.lightCoords[tess.numVertexes][1] = g_pVert[i].texCoords[1][1];
+			//tess.vertexDlightBits[tess.numVertexes] = dlightBits;
+			tess.normal[tess.numVertexes][0] = 0;
+			tess.normal[tess.numVertexes][1] = 0;
+			tess.normal[tess.numVertexes][2] = 1.0;
+            tess.color[tess.numVertexes][0] = 0xffff;
+            tess.color[tess.numVertexes][1] = 0xffff;
+            tess.color[tess.numVertexes][2] = 0xffff;
+            tess.color[tess.numVertexes][3] = 0xffff;
+
+			g_pVert[i].iVertArray = tess.numVertexes;
+			tess.numVertexes++;
+		}
+	}
+
+	for (i = p->iTriHead; i; i = g_pTris[i].iNext)
+	{
+		assert(tess.numVertexes < SHADER_MAX_INDEXES);
+
+		//
+		// Make sure these can be drawn
+		//
+		if (g_pTris[i].byConstChecks & 4)
+		{
+			tess.indexes[tess.numIndexes] = g_pVert[g_pTris[i].iPt[0]].iVertArray;
+			tess.indexes[tess.numIndexes + 1] = g_pVert[g_pTris[i].iPt[1]].iVertArray;
+			tess.indexes[tess.numIndexes + 2] = g_pVert[g_pTris[i].iPt[2]].iVertArray;
+			tess.numIndexes += 3;
+		}
+	}
+}
+
+//=========================
 
 void (*rb_surfaceTable[SF_NUM_SURFACE_TYPES])( void *) = {
 	(void(*)(void*))RB_SurfaceBad,			// SF_BAD, 
@@ -1313,5 +1435,15 @@ void (*rb_surfaceTable[SF_NUM_SURFACE_TYPES])( void *) = {
 	(void(*)(void*))RB_SurfaceFlare,		// SF_FLARE,
 	(void(*)(void*))RB_SurfaceEntity,		// SF_ENTITY
 	(void(*)(void*))RB_SurfaceVaoMdvMesh,   // SF_VAO_MDVMESH
-	(void(*)(void*))RB_IQMSurfaceAnimVao,   // SF_VAO_IQM
+    (void(*)(void*))RB_IQMSurfaceAnimVao,   // SF_VAO_IQM
+    //
+    // OPENMOHAA-specific stuff
+    //=========================
+    (void(*)(void*))RB_SurfaceMarkFragment, // SF_MARK_FRAG
+	(void(*)(void*))RB_SkelMesh,			// SF_TIKI_SKEL
+	(void(*)(void*))RB_StaticMesh,			// SF_TIKI_STATIC
+	(void(*)(void*))RB_DrawSwipeSurface,	// SF_SWIPE
+	(void(*)(void*))RB_DrawSprite,			// SF_SPRITE
+    (void(*)(void*))RB_DrawTerrainTris,		// SF_TERRAIN_PATCH
+    //=========================
 };

@@ -554,7 +554,13 @@ void RE_BeginFrame( stereoFrame_t stereoFrame ) {
 		}
 	}
 	
-	tr.refdef.stereoFrame = stereoFrame;
+    tr.refdef.stereoFrame = stereoFrame;
+
+	//
+	// OPENMOHAA-specific stuff
+	//
+
+    g_nStaticSurfaces = 0;
 }
 
 

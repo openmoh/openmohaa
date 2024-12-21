@@ -39,6 +39,8 @@ int			r_numpolyverts;
 // OPENMOHAA-specific stuff
 //=========================
 
+int			r_firstSceneSpriteSurf;
+
 int			r_numsprites;
 int			r_firstSceneSprite;
 
@@ -453,6 +455,35 @@ void RE_BeginScene(const refdef_t *fd)
 	// each scene / view.
 	tr.frameSceneNum++;
 	tr.sceneCount++;
+
+	//
+	// OPENMOHAA-specific stuff
+    //=========================
+    TIKI_Reset_Caches();
+
+    // copy the sky data
+    tr.refdef.sky_alpha = fd->sky_alpha;
+    tr.refdef.sky_portal = fd->sky_portal;
+
+    VectorCopy(fd->sky_origin, tr.refdef.sky_origin);
+    VectorCopy(fd->sky_axis[0], tr.refdef.sky_axis[0]);
+    VectorCopy(fd->sky_axis[1], tr.refdef.sky_axis[1]);
+    VectorCopy(fd->sky_axis[2], tr.refdef.sky_axis[2]);
+
+    tr.refdef.numSpriteSurfs = r_firstSceneSpriteSurf;
+    tr.refdef.spriteSurfs = backEndData->spriteSurfs;
+
+    tr.refdef.num_sprites = r_numsprites - r_firstSceneSprite;
+    tr.refdef.sprites = &backEndData->sprites[r_firstSceneSprite];
+
+    tr.refdef.numTerMarks = r_numtermarks - r_firstSceneTerMark;
+    tr.refdef.terMarks = &backEndData->terMarks[r_firstSceneTerMark];
+
+    backEndData->staticModelData = tr.refdef.staticModelData;
+	
+    tr.skyRendered = qfalse;
+    tr.portalRendered = qfalse;
+	//=========================
 }
 
 
@@ -463,6 +494,14 @@ void RE_EndScene(void)
 	r_firstSceneEntity = r_numentities;
 	r_firstSceneDlight = r_numdlights;
 	r_firstScenePoly = r_numpolys;
+
+	//
+	// OPENMOHAA-specific stuff
+    //
+
+    r_firstSceneSpriteSurf = tr.refdef.numSpriteSurfs;
+    r_firstSceneSprite = r_numsprites;
+    r_firstSceneTerMark = r_numtermarks;
 }
 
 /*
@@ -582,6 +621,68 @@ void RE_RenderScene( const refdef_t *fd ) {
 	{
 		parms.flags = VPF_USESUNLIGHT;
 	}
+
+	//
+	// OPENMOHAA-specific stuff
+	//=========================
+
+	// copy the farplane data
+	parms.farplane_distance = fd->farplane_distance;
+	parms.farplane_bias = fd->farplane_bias;
+	parms.farplane_color[0] = fd->farplane_color[0];
+	parms.farplane_color[1] = fd->farplane_color[1];
+	parms.farplane_color[2] = fd->farplane_color[2];
+	parms.farplane_cull = fd->farplane_cull;
+	parms.renderTerrain = fd->renderTerrain;
+
+	tr.refdef.skybox_farplane = fd->skybox_farplane;
+	tr.refdef.render_terrain = parms.renderTerrain;
+
+	if (fd->farclipOverride >= 15900 || fd->farclipOverride <= -0.99) {
+		tr.farclip = 0;
+	} else {
+		tr.farclip = r_farclip->integer;
+		if (!tr.farclip && (r_picmip->integer > 1 || r_colorbits->integer == 16)) {
+			tr.farclip = 2800;
+		}
+	}
+
+	if (tr.farclip) {
+        if (fd->farclipOverride != 0) {
+            parms.farplane_distance = fd->farclipOverride;
+		} else {
+			parms.farplane_distance = tr.farclip;
+		}
+
+		if (fd->farplane_color[0] >= 0 && fd->farplane_color[1] >= 0 && fd->farplane_color[2] >= 0) {
+            parms.farplane_color[0] = fd->farplane_color[0];
+            parms.farplane_color[1] = fd->farplane_color[1];
+            parms.farplane_color[2] = fd->farplane_color[2];
+		}
+
+		if (fd->farplaneColorOverride[0] >= 0 && fd->farplaneColorOverride[1] >= 0 && fd->farplaneColorOverride[2] >= 0) {
+			parms.farplane_color[0] = fd->farplaneColorOverride[0];
+			parms.farplane_color[1] = fd->farplaneColorOverride[1];
+			parms.farplane_color[2] = fd->farplaneColorOverride[2];
+		}
+
+		parms.farplane_cull = qtrue;
+
+        if (fd->farplane_distance > 0 && fd->farplane_distance < parms.farplane_distance) {
+            parms.farplane_distance = fd->farplane_distance;
+		} else {
+			if (fd->farplane_bias == 0) {
+				parms.farplane_bias = parms.farplane_distance * 0.18f;
+			} else if (fd->farplane_distance <= 500.f) {
+				parms.farplane_bias = parms.farplane_distance * 0.18f;
+			} else {
+				parms.farplane_bias = parms.farplane_distance / fd->farplane_distance;
+			}
+		}
+	} else if (parms.farplane_bias == 0) {
+		parms.farplane_bias = parms.farplane_distance * 0.18f;
+	}
+	//=========================
 
 	R_RenderView( &parms );
 
