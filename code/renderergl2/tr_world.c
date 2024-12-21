@@ -820,3 +820,79 @@ void R_GetInlineModelBounds(int iIndex, vec3_t vMins, vec3_t vMaxs)
     VectorCopy(bmodel->bounds[0], vMins);
     VectorCopy(bmodel->bounds[1], vMaxs);
 }
+
+/*
+======================
+R_FastDlightTerrain
+======================
+*/
+static int R_FastDlightTerrain(cTerraPatchUnpacked_t* srf, int dlightBits) {
+    dlight_t* dl;
+    float* origin;
+    int i;
+
+    for (i = 0; i < tr.refdef.num_dlights; i++) {
+        dl = &tr.refdef.dlights[i];
+        origin = dl->transformed;
+
+        if (srf->x0 - origin[0] > dl->radius
+            || srf->x0 - origin[0] < -512.0 - dl->radius
+            || srf->y0 - origin[1] > dl->radius
+            || srf->y0 - origin[1] < -512.0 - dl->radius
+            || srf->z0 - origin[2] > dl->radius
+            || srf->z0 - origin[2] < -srf->zmax - dl->radius
+            ) {
+            // dlight doesn't reach the bounds
+            dlightBits &= ~(1 << i);
+        }
+    }
+
+    if (!dlightBits) {
+        tr.pc.c_dlightSurfacesCulled++;
+    }
+
+    srf->drawinfo.dlightBits[0] = dlightBits;
+    return dlightBits;
+}
+
+/*
+======================
+R_DlightTerrain
+======================
+*/
+int R_DlightTerrain(cTerraPatchUnpacked_t* surf, int dlightBits)
+{
+	int dlightMap = 0;
+
+	// FIXME: unimplemented
+	// Fast Dlight only
+
+	if (R_FastDlightTerrain(surf, dlightBits)) {
+		++tr.pc.c_dlightSurfaces;
+		dlightMap = 1;
+	}
+
+    return dlightMap;
+}
+
+
+/*
+======================
+R_CheckDlightTerrain
+======================
+*/
+int R_CheckDlightTerrain(cTerraPatchUnpacked_t* surf, int dlightBits)
+{
+	if (surf->frameCount == tr.frameCount) {
+		return surf->drawinfo.dlightMap[0];
+	}
+
+	surf->frameCount = tr.frameCount;
+	if (dlightBits) {
+		return R_DlightTerrain(surf, dlightBits);
+	}
+
+	surf->drawinfo.dlightMap[0] = 0;
+	surf->drawinfo.dlightBits[0] = 0;
+	return 0;
+}

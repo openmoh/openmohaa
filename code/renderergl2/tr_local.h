@@ -3155,6 +3155,7 @@ WORLD MAP
 */
 void R_GetInlineModelBounds(int iIndex, vec3_t vMins, vec3_t vMaxs);
 mnode_t* R_PointInLeaf(const vec3_t p);
+int R_CheckDlightTerrain(cTerraPatchUnpacked_t* surf, int dlightBits);
 
 //=========================
 
