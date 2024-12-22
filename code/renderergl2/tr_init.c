@@ -2005,6 +2005,7 @@ refexport_t *GetRefAPI ( int apiVersion, refimport_t *rimp ) {
     re.GetLightingForSmoke = R_GetLightingForSmoke;
     re.R_GatherLightSources = R_GatherLightSources;
     re.ModelRadius = R_ModelRadius;
+    re.AddPolyToScene = RE_AddPolyToScene2;
     re.AddRefSpriteToScene = RE_AddRefSpriteToScene;
     re.AddTerrainMarkToScene = RE_AddTerrainMarkToScene;
 
