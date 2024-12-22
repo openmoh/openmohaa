@@ -30,6 +30,8 @@ The Multiplayer part is almost fully stable, all game modes including `Tug-of-Wa
 
 OpenMoHAA can be used to [host](docs/getting_started_installation.md#server) a mohaa/mohaas/mohaab server and players can use OpenMoHAA to [play](docs/getting_started_installation.md#client) on any server. If some bugs/strange behavior occurs, the best way to report them is by [creating a new issue](https://github.com/openmoh/openmohaa/issues) on the [OpenMoHAA GitHub](https://github.com/openmoh/openmohaa) project with the steps to reproduce (with eventually the problematic mods).
 
+One of the big multiplayer features are bots. They were introduced for testing and for entertainment purposes so players can have fun alone. See [Configuring bots](docs/configuration/server.md#bots) in the dedicated server configuration documentation to set them up.
+
 ## Features
 
 - [List of new features](docs/features.md)
