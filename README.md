@@ -28,7 +28,7 @@ The entire single-player campaign should work (Allied Assault, Spearhead and Bre
 
 The Multiplayer part is almost fully stable, all game modes including `Tug-of-War` from Medal of Honor: Spearhead, and `Liberation` from Medal of Honor: Breakthrough are implemented and are working as intended. Mods like `Freeze-Tag` are working as well.
 
-OpenMoHAA can be used to [host](docs/getting_started_installation.md#server) a mohaa/mohaas/mohaab server and players can use OpenMoHAA to [play](docs/getting_started_installation.md#client) on any server. Unfortunately, some bugs/strange behaviors and crashes can occur especially for servers hosting some specific mods. The best way to report bugs is by [creating a new issue](https://github.com/openmoh/openmohaa/issues) on the [OpenMoHAA GitHub](https://github.com/openmoh/openmohaa) project with the steps to reproduce (with eventually the problematic mods).
+OpenMoHAA can be used to [host](docs/getting_started_installation.md#server) a mohaa/mohaas/mohaab server and players can use OpenMoHAA to [play](docs/getting_started_installation.md#client) on any server. If some bugs/strange behavior occurs, the best way to report them is by [creating a new issue](https://github.com/openmoh/openmohaa/issues) on the [OpenMoHAA GitHub](https://github.com/openmoh/openmohaa) project with the steps to reproduce (with eventually the problematic mods).
 
 ## Features
 
