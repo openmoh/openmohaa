@@ -3094,9 +3094,6 @@ void R_AddSpriteSurfaces()
 		return;
 	}
 
-	// FIXME: fix buggy sprites causing annoying crashes
-	return;
-
 	for (tr.currentSpriteNum = 0; tr.currentSpriteNum < tr.refdef.num_sprites; ++tr.currentSpriteNum)
 	{
 		sprite = &tr.refdef.sprites[tr.currentSpriteNum];

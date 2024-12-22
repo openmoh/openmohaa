@@ -73,7 +73,9 @@ void R_InitNextFrame( void ) {
 
     //
     // OPENMOHAA-specific stuff
-	//
+    //
+
+    r_firstSceneSpriteSurf = 0;
 
 	r_numsprites = 0;
 	r_firstSceneSprite = 0;
