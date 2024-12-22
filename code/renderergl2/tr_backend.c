@@ -532,7 +532,6 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 			}
 			else {
                 backEnd.currentStaticModel = NULL;
-                oldbStaticModel = bStaticModel;
 			//=========================
 
 				if ( entityNum != REFENTITYNUM_WORLD ) {
@@ -619,7 +618,12 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 				wasCrosshair = isCrosshair;
 			}
 
-			oldEntityNum = entityNum;
+            oldEntityNum = entityNum;
+			//
+			// OPENMOHAA-specific stuff
+			//=========================
+            oldbStaticModel = bStaticModel;
+            //=========================
 		}
 
         if (*drawSurf->surface == SF_SPRITE) {
