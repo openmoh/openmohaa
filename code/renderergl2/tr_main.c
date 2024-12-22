@@ -3126,6 +3126,10 @@ void R_AddSpriteSurfaces()
 			tr.currentModel = tr.models[0];
 		}
 
+		if (tr.currentModel->type != MOD_SPRITE) {
+			continue;
+		}
+
 		R_AdjustVisBoundsForSprite(&tr.refdef.sprites[tr.currentSpriteNum], &tr.viewParms, &tr.or );
 		sprite->shaderNum = tr.currentModel->d.sprite->shader->sortedIndex;
 
