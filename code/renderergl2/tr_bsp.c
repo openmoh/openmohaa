@@ -3358,10 +3358,20 @@ void RE_LoadWorldMap( const char *name ) {
 	fileBase = (byte *)header;
 
 	i = LittleLong (header->version);
+#if 0
 	if ( i != BSP_VERSION ) {
 		ri.Error (ERR_DROP, "RE_LoadWorldMap: %s has wrong version number (%i should be %i)", 
 			name, i, BSP_VERSION);
 	}
+#endif
+	//
+	// OPENMOHAA-specific stuff
+	//=========================
+    if (i < BSP_MIN_VERSION || i > BSP_MAX_VERSION) {
+        ri.Error(ERR_DROP, "RE_LoadWorldMap: %s has wrong version number (%i should be between %i and %i)",
+            name, i, BSP_MIN_VERSION, BSP_MAX_VERSION);
+    }
+    //=========================
 
 	// swap all the lumps
 	for (i=0 ; i<sizeof(dheader_t)/4 ; i++) {
