@@ -112,6 +112,11 @@ cvar_t *cg_shadowscount;
 cvar_t *cg_shadowdebug;
 cvar_t *ui_timemessage;
 
+//
+// Added in OPM
+//
+cvar_t *cg_fov;
+
 /*
 =================
 CG_RegisterCvars
@@ -203,6 +208,12 @@ void CG_RegisterCvars(void)
     // see if we are also running the server on this machine
     temp            = cgi.Cvar_Get("sv_running", "0", 0);
     cgs.localServer = temp->integer;
+
+    //
+    // Added in OPM
+    //
+
+    cg_fov = cgi.Cvar_Get("cg_fov", "80", CVAR_ARCHIVE);
 }
 /*
 ===============
