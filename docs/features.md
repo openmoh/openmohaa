@@ -16,7 +16,7 @@ Overall, better compatibility on modern systems and bugfixes.
 
 ## Additions
 
-### Client-side and server-side
+### General
 
 - Demo recording
 - Features from ioquake3
@@ -25,6 +25,7 @@ Overall, better compatibility on modern systems and bugfixes.
 
 ### Client-side
 
+- Customizable FOV
 - OpenAL and SDL are used
 - Smoother animations
 - Stufftext protection: commands that the server want clients to execute are now filtered
