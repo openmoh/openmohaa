@@ -330,8 +330,18 @@ static void CG_InterpolatePlayerStateCamera(void)
     //
     VectorCopy(cg.predicted_player_state.camera_angles, cg.camera_angles);
     VectorCopy(cg.predicted_player_state.camera_origin, cg.camera_origin);
-    cg.camera_fov = cg.predicted_player_state.fov;
 
+    //
+    // Added in OPM
+    //  Use the specified fov specified by the server
+    //  when zooming
+    //
+    if (cg.predicted_player_state.stats[STAT_INZOOM]) {
+        cg.camera_fov = cg.predicted_player_state.fov;
+    } else {
+        cg.camera_fov = cg_fov->value;
+    }
+    
     // if the next frame is a teleport, we can't lerp to it
     if (cg.nextFrameCameraCut) {
         return;
@@ -343,8 +353,12 @@ static void CG_InterpolatePlayerStateCamera(void)
 
     f = (float)(cg.time - prev->serverTime) / (next->serverTime - prev->serverTime);
 
-    // interpolate fov
-    cg.camera_fov = prev->ps.fov + f * (next->ps.fov - prev->ps.fov);
+    if (cg.predicted_player_state.stats[STAT_INZOOM]) {
+        // interpolate fov
+        cg.camera_fov = prev->ps.fov + f * (next->ps.fov - prev->ps.fov);
+    } else {
+        cg.camera_fov = cg_fov->value;
+    }
 
     if (!(cg.snap->ps.pm_flags & PMF_CAMERA_VIEW)) {
         return;

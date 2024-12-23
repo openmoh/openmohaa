@@ -507,6 +507,11 @@ extern "C" {
     extern cvar_t *ui_timemessage;
 
     //
+    // Added in OPM
+    //
+    extern cvar_t *cg_fov;
+
+    //
     // cg_main.c
     //
     qboolean    CG_UseLargeLightmaps(const char* mapName);

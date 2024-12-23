@@ -840,6 +840,15 @@ void CG_DrawActiveFrame(int serverTime, int frameTime, stereoFrame_t stereoView,
         // no entities should be marked as interpolating
     }
 
+    //
+    // Added in OPM
+    //  Clamp the fov to avoid artifacts
+    if (cg_fov->value < 65) {
+        cgi.Cvar_Set("cg_fov", "65");
+    } else if (cg_fov->value > 140) {
+        cgi.Cvar_Set("cg_fov", "120");
+    }
+
     // update cg.predicted_player_state
     CG_PredictPlayerState();
 
