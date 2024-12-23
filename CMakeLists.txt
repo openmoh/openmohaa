@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.12)
 project(openmohaa)
 
-include(TargetArch.cmake)
+include(misc/cmake/TargetArch.cmake)
 
 target_architecture(TARGET_ARCH)
 list(LENGTH TARGET_ARCH TARGET_ARCH_COUNT)
