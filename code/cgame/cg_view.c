@@ -845,7 +845,7 @@ void CG_DrawActiveFrame(int serverTime, int frameTime, stereoFrame_t stereoView,
     //  Clamp the fov to avoid artifacts
     if (cg_fov->value < 65) {
         cgi.Cvar_Set("cg_fov", "65");
-    } else if (cg_fov->value > 140) {
+    } else if (cg_fov->value > 120) {
         cgi.Cvar_Set("cg_fov", "120");
     }
 
