@@ -776,17 +776,27 @@ void BotController::State_Attack(void)
                 m_botCmd.buttons &= ~(BUTTON_ATTACKLEFT | BUTTON_ATTACKRIGHT);
                 controlledEnt->ZoomOff();
             }
-        } else if (pWeap->GetFireType(FIRE_SECONDARY) == FT_MELEE) {
-            bMelee = true;
+        } else {
+            m_botCmd.buttons &= ~(BUTTON_ATTACKLEFT | BUTTON_ATTACKRIGHT);
+            controlledEnt->ZoomOff();
+        }
+
+        if (pWeap->GetFireType(FIRE_SECONDARY) == FT_MELEE) {
+            if (controlledEnt->client->ps.stats[STAT_AMMO] <= 0 && controlledEnt->client->ps.stats[STAT_CLIPAMMO] <= 0) {
+                bMelee = true;
+            } else if (fDistanceSquared <= fSecondaryBulletRangeSquared) {
+                bMelee = true;
+            }
+        }
+
+        if (bMelee) {
+            m_botCmd.buttons &= ~BUTTON_ATTACKLEFT;
 
             if (fDistanceSquared <= fSecondaryBulletRangeSquared) {
                 m_botCmd.buttons ^= BUTTON_ATTACKRIGHT;
             } else {
                 m_botCmd.buttons &= ~BUTTON_ATTACKRIGHT;
             }
-        } else {
-            m_botCmd.buttons &= ~(BUTTON_ATTACKLEFT | BUTTON_ATTACKRIGHT);
-            controlledEnt->ZoomOff();
         }
 
         m_iAttackTime        = level.inttime + 1000;
