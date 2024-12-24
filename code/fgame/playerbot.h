@@ -161,7 +161,12 @@ private:
     int m_iNextTauntTime;
 
 private:
+    Weapon* FindWeaponWithAmmo(void);
+    Weapon* FindMeleeWeapon(void);
+    void UseWeaponWithAmmo(void);
+
     void CheckUse(void);
+    void CheckValidWeapon(void);
 
     void State_DefaultBegin(void);
     void State_DefaultEnd(void);

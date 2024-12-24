@@ -93,7 +93,7 @@ void BotController::Init(void)
     InitState_Curious(&botfuncs[1]);
     InitState_Grenade(&botfuncs[2]);
     InitState_Idle(&botfuncs[3]);
-    InitState_Weapon(&botfuncs[4]);
+    //InitState_Weapon(&botfuncs[4]);
 }
 
 void BotController::GetUsercmd(usercmd_t *ucmd)
@@ -162,6 +162,8 @@ void BotController::UpdateBotStates(void)
     movement.MoveThink(m_botCmd);
     rotation.TurnThink(m_botCmd, m_botEyes);
     CheckUse();
+
+    CheckValidWeapon();
 }
 
 void BotController::CheckUse(void)
@@ -194,6 +196,17 @@ void BotController::CheckUse(void)
         m_botCmd.buttons ^= BUTTON_USE;
     } else {
         m_botCmd.buttons &= ~BUTTON_USE;
+    }
+}
+
+void BotController::CheckValidWeapon() {
+    Weapon* weapon = controlledEnt->GetActiveWeapon(WEAPON_MAIN);
+    if (!weapon) {
+        // If holstered, use the best weapon available
+        UseWeaponWithAmmo();
+    } else if (!weapon->HasAmmo(FIRE_PRIMARY) && !controlledEnt->GetNewActiveWeapon()) {
+        // In case the current weapon has no ammo, use the best available weapon
+        UseWeaponWithAmmo();
     }
 }
 
@@ -920,6 +933,102 @@ void BotController::State_BeginWeapon(void)
     }
 
     SendCommand(va("use \"%s\"", weap->model.c_str()));
+}
+
+Weapon* BotController::FindWeaponWithAmmo() {
+  
+    Weapon *next;
+    int     n;
+    int     j;
+    int     bestrank;
+    Weapon *bestweapon;
+    const Container<int>& inventory = controlledEnt->getInventory();
+
+    n = inventory.NumObjects();
+
+    // Search until we find the best weapon with ammo
+    bestweapon = NULL;
+    bestrank   = -999999;
+
+    for (j = 1; j <= n; j++) {
+        next = (Weapon *)G_GetEntity(inventory.ObjectAt(j));
+
+        assert(next);
+        if (!next->IsSubclassOfWeapon() || next->IsSubclassOfInventoryItem()) {
+            continue;
+        }
+
+        if (next->GetWeaponClass() & WEAPON_CLASS_THROWABLE) {
+            continue;
+        }
+
+        if (next->GetRank() < bestrank) {
+            continue;
+        }
+
+        if (!next->HasAmmo(FIRE_PRIMARY)) {
+            continue;
+        }
+
+        bestweapon = (Weapon*)next;
+        bestrank = bestweapon->GetRank();
+    }
+
+    return bestweapon;
+}
+
+Weapon* BotController::FindMeleeWeapon() {
+  
+    Weapon *next;
+    int     n;
+    int     j;
+    int     bestrank;
+    Weapon *bestweapon;
+    const Container<int>& inventory = controlledEnt->getInventory();
+
+    n = inventory.NumObjects();
+
+    // Search until we find the best weapon with ammo
+    bestweapon = NULL;
+    bestrank   = -999999;
+
+    for (j = 1; j <= n; j++) {
+        next = (Weapon *)G_GetEntity(inventory.ObjectAt(j));
+
+        assert(next);
+        if (!next->IsSubclassOfWeapon() || next->IsSubclassOfInventoryItem()) {
+            continue;
+        }
+
+        if (next->GetRank() < bestrank) {
+            continue;
+        }
+
+        if (next->GetFireType(FIRE_SECONDARY) != FT_MELEE) {
+            continue;
+        }
+
+        bestweapon = (Weapon*)next;
+        bestrank = bestweapon->GetRank();
+    }
+
+    return bestweapon;
+}
+
+void BotController::UseWeaponWithAmmo() {
+    Weapon* bestWeapon = FindWeaponWithAmmo();
+    if (!bestWeapon) {
+        //
+        // If there is no weapon with ammo, fallback to a weapon that can melee
+        //
+        bestWeapon = FindMeleeWeapon();
+    }
+
+    if (!bestWeapon || bestWeapon == controlledEnt->GetActiveWeapon(WEAPON_MAIN)) {
+        return;
+    }
+
+    controlledEnt->useWeapon(bestWeapon, WEAPON_MAIN);
 }
 
 void BotController::Spawned(void)
