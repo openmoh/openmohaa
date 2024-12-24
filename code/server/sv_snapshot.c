@@ -1242,18 +1242,15 @@ void SV_SendClientSnapshot( client_t *client ) {
 		// su44: write any pending MoHAA cg messages
 		SV_WriteCGMToClient( client, &msg );
 
-		// Add any download data if the client is downloading
-		SV_WriteDownloadToClient( client, &msg );
+#ifdef USE_VOIP
+		SV_WriteVoipToClient(client, &msg);
+#endif
 	} else {
 		// Fixed in 2.0
 		//  Don't send snapshots until the player has acknowledged the server id (which happens when the client enters the world).
 		//  This also prevent sending CG messages while the client connects, as the cgame module is loaded when parsing the gamestate
 		MSG_WriteSVC(&msg, svc_nop);
 	}
-
-#ifdef USE_VOIP
-	SV_WriteVoipToClient( client, &msg );
-#endif
 
 	// check for overflow
 	if ( msg.overflowed ) {
