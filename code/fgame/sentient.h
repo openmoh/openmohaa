@@ -361,6 +361,9 @@ public:
     void FootstepMain(trace_t *trace, int iRunning, int iEquipment);
     void Footstep(const char *szTagName, int iRunning, int iEquipment);
     void LandingSound(float volume, int iEquipment);
+
+    const Container<int>& getInventory() const;
+    const Container<Ammo*>& getAmmoInventory() const;
 };
 
 typedef SafePtr<Sentient> SentientPtr;

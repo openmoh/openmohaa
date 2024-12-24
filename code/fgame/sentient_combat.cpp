@@ -1308,3 +1308,11 @@ void Sentient::GetActiveWeap(Event *ev)
 
     ev->AddEntity(weapon);
 }
+
+const Container<int>& Sentient::getInventory() const {
+    return inventory;
+}
+
+const Container<Ammo*>& Sentient::getAmmoInventory() const {
+    return ammo_inventory;
+}
