@@ -1218,31 +1218,38 @@ void SV_SendClientSnapshot( client_t *client ) {
 		return;
 	}
 
-	MSG_Init (&msg, msg_buf, sizeof(msg_buf));
-	msg.allowoverflow = qtrue;
+    MSG_Init(&msg, msg_buf, sizeof(msg_buf));
+    msg.allowoverflow = qtrue;
 
-	// NOTE, MRE: all server->client messages now acknowledge
-	// let the client know which reliable clientCommands we have received
-	MSG_WriteLong( &msg, client->lastClientCommand );
+    // NOTE, MRE: all server->client messages now acknowledge
+    // let the client know which reliable clientCommands we have received
+    MSG_WriteLong(&msg, client->lastClientCommand);
 
-	// (re)send any reliable server commands
-	SV_UpdateServerCommandsToClient( client, &msg );
+	if (g_gametype->integer <= GT_SINGLE_PLAYER || client->serverIdAcknowledge == sv.serverId || client->serverIdAcknowledge == sv.restartedServerId) {
+		// (re)send any reliable server commands
+		SV_UpdateServerCommandsToClient( client, &msg );
 
-	// send over all the relevant entityState_t
-	// and the playerState_t
-	SV_WriteSnapshotToClient( client, &msg );
+		// send over all the relevant entityState_t
+		// and the playerState_t
+		SV_WriteSnapshotToClient( client, &msg );
 
-	// clear the sounds on the client, preventing them to be sent each at packet
-	SV_ClearSounds( client );
+		// clear the sounds on the client, preventing them to be sent each at packet
+		SV_ClearSounds( client );
 
-	// clear center print, preventing it to be sent at each packet
-	client->stringToPrint[ 0 ] = 0;
+		// clear center print, preventing it to be sent at each packet
+		client->stringToPrint[ 0 ] = 0;
 
-	// su44: write any pending MoHAA cg messages
-	SV_WriteCGMToClient( client, &msg );
+		// su44: write any pending MoHAA cg messages
+		SV_WriteCGMToClient( client, &msg );
 
-	// Add any download data if the client is downloading
-	SV_WriteDownloadToClient( client, &msg );
+		// Add any download data if the client is downloading
+		SV_WriteDownloadToClient( client, &msg );
+	} else {
+		// Fixed in 2.0
+		//  Don't send snapshots until the player has acknowledged the server id (which happens when the client enters the world).
+		//  This also prevent sending CG messages while the client connects, as the cgame module is loaded when parsing the gamestate
+		MSG_WriteSVC(&msg, svc_nop);
+	}
 
 #ifdef USE_VOIP
 	SV_WriteVoipToClient( client, &msg );
@@ -1264,10 +1271,9 @@ SV_SendClientMessages
 */
 void SV_SendClientMessages(void)
 {
-	int				i, j;
+	int				i;
 	int				rate;
 	client_t		*c;
-	gentity_t		*ent;
 
 	// send a message to each connected client
 	for(i=0; i < sv_maxclients->integer; i++)
