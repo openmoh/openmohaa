@@ -4748,7 +4748,7 @@ void Player::Think(void)
                 }
             } else {
                 if ((server_new_buttons & BUTTON_USE)) {
-                    SetPlayerSpectateRandom();
+                    SetPlayerSpectate(true);
                 }
             }
 
