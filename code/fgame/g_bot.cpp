@@ -43,7 +43,7 @@ Return whether or not the specified filename is for allies
 */
 bool IsAlliedPlayerModel(const char *filename)
 {
-    return !Q_stricmpn(filename, "/allied_", 8) || !Q_stricmpn(filename, "/american_", 10);
+    return !Q_stricmpn(filename, "allied_", 7) || !Q_stricmpn(filename, "american_", 9);
 }
 
 /*
@@ -55,7 +55,7 @@ Return whether or not the specified filename is for axis
 */
 bool IsGermanPlayerModel(const char *filename)
 {
-    return !Q_stricmpn(filename, "/german_", 8) || !Q_stricmpn(filename, "/IT_", 4) || !Q_stricmpn(filename, "/SC_", 4);
+    return !Q_stricmpn(filename, "german_", 7) || !Q_stricmpn(filename, "IT_", 3) || !Q_stricmpn(filename, "SC_", 3);
 }
 
 /*
@@ -140,9 +140,9 @@ void InitModelList()
         }
 
         if (IsAlliedPlayerModel(filename)) {
-            alliedModelList.AddObject(str(filename + 1, 0, len - 5));
+            alliedModelList.AddObject(str(filename, 0, len - 4));
         } else {
-            germanModelList.AddObject(str(filename + 1, 0, len - 5));
+            germanModelList.AddObject(str(filename, 0, len - 4));
         }
     }
 
