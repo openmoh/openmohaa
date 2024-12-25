@@ -385,6 +385,36 @@ bool G_IsPlayer(gentity_t *ent)
 
 /*
 ===========
+G_GetRandomAlliedPlayerModel
+============
+*/
+const char* G_GetRandomAlliedPlayerModel()
+{
+    if (!alliedModelList.NumObjects()) {
+        return "";
+    }
+
+    const unsigned int index = rand() % alliedModelList.NumObjects();
+    return alliedModelList[index];
+}
+
+/*
+===========
+G_GetRandomGermanPlayerModel
+============
+*/
+const char* G_GetRandomGermanPlayerModel()
+{
+    if (!germanModelList.NumObjects()) {
+        return "";
+    }
+
+    const unsigned int index = rand() % germanModelList.NumObjects();
+    return germanModelList[index];
+}
+
+/*
+===========
 G_AddBot
 
 Add the specified bot, optionally its saved state
@@ -429,14 +459,8 @@ void G_AddBot(const saved_bot_t *saved)
     //
     // Choose a random model
     //
-    if (alliedModelList.NumObjects()) {
-        const unsigned int index = rand() % alliedModelList.NumObjects();
-        Info_SetValueForKey(userinfo, "dm_playermodel", alliedModelList[index]);
-    }
-    if (germanModelList.NumObjects()) {
-        const unsigned int index = rand() % germanModelList.NumObjects();
-        Info_SetValueForKey(userinfo, "dm_playergermanmodel", germanModelList[index]);
-    }
+    Info_SetValueForKey(userinfo, "dm_playermodel", G_GetRandomAlliedPlayerModel());
+    Info_SetValueForKey(userinfo, "dm_playergermanmodel", G_GetRandomGermanPlayerModel());
 
     Info_SetValueForKey(userinfo, "fov", "80");
     Info_SetValueForKey(userinfo, "ip", "localhost");

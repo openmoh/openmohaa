@@ -29,6 +29,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "scriptexception.h"
 #include "vehicleturret.h"
 #include "weaputils.h"
+#include "g_bot.h"
 
 // We assume that we have limited access to the server-side
 // and that most logic come from the playerstate_s structure
@@ -1081,6 +1082,15 @@ void BotController::Killed(Event *ev)
     event.AddString("auto");
 
     controlledEnt->ProcessEvent(event);
+
+    //
+    // This is useful to change nationality in Spearhead and Breakthrough
+    // this allows the AI to use more weapons
+    //
+    Info_SetValueForKey(controlledEnt->client->pers.userinfo, "dm_playermodel", G_GetRandomAlliedPlayerModel());
+    Info_SetValueForKey(controlledEnt->client->pers.userinfo, "dm_playergermanmodel", G_GetRandomGermanPlayerModel());
+
+    G_ClientUserinfoChanged(controlledEnt->edict, controlledEnt->client->pers.userinfo);
 }
 
 void BotController::GotKill(Event *ev)
