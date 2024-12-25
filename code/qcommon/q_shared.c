@@ -1853,9 +1853,8 @@ void Info_RemoveKey( char *s, const char *key ) {
 
 		if (!strcmp (key, pkey) )
 		{
-			//strcpy (start, s);	// remove this part
-			// Fixed in OPM
-			memmove(start, s, strlen(s));
+			memmove(start, s, strlen(s) + 1); // remove this part
+			
 			return;
 		}
 
