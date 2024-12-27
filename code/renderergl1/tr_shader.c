@@ -131,10 +131,11 @@ static shadertext_t* FindShaderText(const char* name)
 }
 
 void R_RemapShader(const char *shaderName, const char *newShaderName, const char *timeOffset) {
-	char		strippedName[MAX_QPATH];
-	int			hash;
-	shader_t	*sh, *sh2;
-	qhandle_t	h;
+	char			strippedName[MAX_QPATH];
+	int				hash;
+	shader_t		*sh, *sh2;
+	shadertext_t	*sht;
+	qhandle_t		h;
 
 	sh = R_FindShaderByName( shaderName );
 	if (sh == NULL || sh == tr.defaultShader) {
@@ -161,12 +162,12 @@ void R_RemapShader(const char *shaderName, const char *newShaderName, const char
 	// even tho they might have different lightmaps
 	COM_StripExtension(shaderName, strippedName, sizeof(strippedName));
 	hash = generateHashValue(strippedName);
-	for (sh = hashTable[hash]; sh; sh = sh->next) {
+	for (sht = hashTable[hash]; sht; sht = sht->next) {
 		if (Q_stricmp(sh->name, strippedName) == 0) {
-			if (sh != sh2) {
-				sh->remappedShader = sh2;
+			if (sht->shader != sh2) {
+				sht->shader->remappedShader = sh2;
 			} else {
-				sh->remappedShader = NULL;
+				sht->shader->remappedShader = NULL;
 			}
 		}
 	}
@@ -3288,9 +3289,9 @@ default shader if the real one can't be found.
 ==================
 */
 shader_t *R_FindShaderByName( const char *name ) {
-	char		strippedName[MAX_QPATH];
-	int			hash;
-	shader_t	*sh;
+	char			strippedName[MAX_QPATH];
+	int				hash;
+	shadertext_t	*sh;
 
 	if ( (name==NULL) || (name[0] == 0) ) {
 		return tr.defaultShader;
@@ -3310,7 +3311,7 @@ shader_t *R_FindShaderByName( const char *name ) {
 		// with that same strippedName a new default shader is created.
 		if (Q_stricmp(sh->name, strippedName) == 0) {
 			// match found
-			return sh;
+			return sh->shader;
 		}
 	}
 
