@@ -11687,6 +11687,13 @@ void Player::FireWeapon(int number, firemode_t mode)
         return;
     }
 
+    if ((last_ucmd.buttons & WEAPON_COMMAND_MASK) >> 7) {
+        // Added in OPM
+        //  If there is a weapon command (like DROP), then remove don't fire
+        //  this prevent tricky behaviors, like silent firing
+        return;
+    }
+
     Sentient::FireWeapon(number, mode);
 
     if (g_gametype->integer != GT_SINGLE_PLAYER) {
