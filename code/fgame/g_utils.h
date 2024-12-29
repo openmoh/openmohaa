@@ -327,3 +327,4 @@ const char  *WeaponHandNumToName(weaponhand_t hand);
 weaponhand_t WeaponHandNameToNum(str side);
 void         G_DebugTargets(Entity *e, str from);
 void         G_DebugDamage(float damage, Entity *victim, Entity *attacker, Entity *inflictor);
+unsigned int G_GetWeaponCommand(unsigned int buttons);

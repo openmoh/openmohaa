@@ -4807,7 +4807,7 @@ void Player::Think(void)
     }
 
     if (!IsDead()) {
-        m_iClientWeaponCommand = (server_new_buttons & WEAPON_COMMAND_MASK) >> 7;
+        m_iClientWeaponCommand = G_GetWeaponCommand(server_new_buttons);
 
         switch (m_iClientWeaponCommand) {
         case 0:
@@ -11713,9 +11713,9 @@ void Player::FireWeapon(int number, firemode_t mode)
         return;
     }
 
-    if ((last_ucmd.buttons & WEAPON_COMMAND_MASK) >> 7) {
+    if (G_GetWeaponCommand(last_ucmd.buttons)) {
         // Added in OPM
-        //  If there is a weapon command (like DROP), then remove don't fire
+        //  If there is a weapon command (like DROP), then just don't fire
         //  this prevent tricky behaviors, like silent firing
         return;
     }

@@ -705,5 +705,5 @@ int CG_WeaponCommandButtonBits(void)
         cg.iWeaponCommand = 0;
     }
 
-    return iShiftedWeaponCommand & WEAPON_COMMAND_MASK;
+    return iShiftedWeaponCommand & GetWeaponCommandMask(cg_protocol >= PROTOCOL_MOHTA_MIN ? WEAPON_COMMAND_MAX_VER17 : WEAPON_COMMAND_MAX_VER6);
 }

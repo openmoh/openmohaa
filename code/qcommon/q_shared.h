@@ -1840,30 +1840,35 @@ typedef struct playerState_s {
 #define	BUTTON_ANY			   (1 << BUTTON_ANY_BITINDEX)		   // any key whatsoever
 #define BUTTON_MOUSE           (1 << BUTTON_MOUSE_BITINDEX)
 
-#define WEAPON_COMMAND_USE_PISTOL               1
-#define WEAPON_COMMAND_USE_RIFLE                2
-#define WEAPON_COMMAND_USE_SMG                  3
-#define WEAPON_COMMAND_USE_MG                   4
-#define WEAPON_COMMAND_USE_GRENADE              5
-#define WEAPON_COMMAND_USE_HEAVY                6
-#define WEAPON_COMMAND_USE_ITEM1                7
-#define WEAPON_COMMAND_USE_ITEM2                8
-#define WEAPON_COMMAND_USE_ITEM3                9
-#define WEAPON_COMMAND_USE_ITEM4                10
-#define WEAPON_COMMAND_USE_PREV_WEAPON          11
-#define WEAPON_COMMAND_USE_NEXT_WEAPON          12
-#define WEAPON_COMMAND_USE_LAST_WEAPON          13
-#define WEAPON_COMMAND_HOLSTER                  14
-#define WEAPON_COMMAND_DROP                     15
+typedef enum {
+    WEAPON_COMMAND_NONE,
+	WEAPON_COMMAND_USE_PISTOL,
+	WEAPON_COMMAND_USE_RIFLE,
+	WEAPON_COMMAND_USE_SMG,
+	WEAPON_COMMAND_USE_MG,
+	WEAPON_COMMAND_USE_GRENADE,
+	WEAPON_COMMAND_USE_HEAVY,
+	WEAPON_COMMAND_USE_ITEM1,
+	WEAPON_COMMAND_USE_ITEM2,
+	WEAPON_COMMAND_USE_ITEM3,
+	WEAPON_COMMAND_USE_ITEM4,
+    WEAPON_COMMAND_USE_PREV_WEAPON,
+    WEAPON_COMMAND_USE_NEXT_WEAPON,
+    WEAPON_COMMAND_USE_LAST_WEAPON,
+	WEAPON_COMMAND_HOLSTER,
+    WEAPON_COMMAND_DROP,
+} weaponcommand_t;
 
-#if TARGET_GAME_PROTOCOL >= 15
-#define WEAPON_COMMAND_MAX						31
-#else
-#define WEAPON_COMMAND_MAX						15
-#endif
+#define WEAPON_COMMAND_MAX_VER6		15
+#define WEAPON_COMMAND_MAX_VER17	31
 
-#define WEAPON_COMMAND_MASK						(WEAPON_COMMAND_MAX << 7)
+static unsigned int GetWeaponCommandMask(unsigned int maxCmds) {
+	return maxCmds << 7;
+}
 
+static unsigned int GetWeaponCommand(unsigned int buttons, unsigned int maxCmds) {
+    return (buttons & (maxCmds << 7)) >> 7;
+}
 
 #define	MOVE_RUN			120			// if forwardmove or rightmove are >= MOVE_RUN,
 										// then BUTTON_WALKING should be set

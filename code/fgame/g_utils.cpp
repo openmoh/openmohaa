@@ -2452,3 +2452,7 @@ gentity_t *G_GetGEntity(int ent_num)
 
     return ent;
 }
+
+unsigned int G_GetWeaponCommand(unsigned int buttons) {
+    return GetWeaponCommand(buttons, g_protocol >= PROTOCOL_MOHTA_MIN ? WEAPON_COMMAND_MAX_VER17 : WEAPON_COMMAND_MAX_VER6);
+}
