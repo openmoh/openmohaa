@@ -10783,10 +10783,29 @@ void Player::EventDMMessage(Event *ev)
         return;
     }
 
+    //
+    // Added in OPM
+    //=============
+    // Print the dm message to console
+    sToken = "";
+
+    for (i = 2; i <= ev->NumArgs(); i++) {
+        if (i != 2) {
+            sToken += " ";
+        }
+
+        sToken += ev->GetString(i);
+    }
+    //=============
+
     if (iMode == 0) {
         //
         // everyone
         //
+
+        // Added in OPM
+        gi.Printf("%s (%zu) says to everyone: %s\n", client->pers.netname, edict - g_entities, sToken.c_str());
+
         if (!IsSpectator() || g_spectate_allow_full_chat->integer) {
             for (i = 0; i < game.maxclients; i++) {
                 ent = &g_entities[i];
@@ -10831,6 +10850,10 @@ void Player::EventDMMessage(Event *ev)
         //
         // team message
         //
+
+        // Added in OPM
+        gi.Printf("%s (%zu) says to team: %s\n", client->pers.netname, edict - g_entities, sToken.c_str());
+
         if (IsSpectator()) {
             for (i = 0; i < game.maxclients; i++) {
                 ent = &g_entities[i];
@@ -10889,6 +10912,9 @@ void Player::EventDMMessage(Event *ev)
             );
             return;
         }
+
+        // Added in OPM
+        gi.Printf("%s (%zu) says to client #%d: %s\n", client->pers.netname, edict - g_entities, iMode - 1, sToken.c_str());
 
         gi.SendServerCommand(iMode - 1, "%s", szPrintString);
 

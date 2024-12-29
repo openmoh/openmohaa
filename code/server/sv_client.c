@@ -1641,12 +1641,14 @@ void SV_ExecuteClientCommand( client_t *cl, const char *s, qboolean clientOK ) {
 		}
 	}
 
-	// Added in 1.11 MAC server
-	//  Display chat messages
-	//  NOTE: this should be handled by fgame, not server
-	if (!Q_stricmp(Cmd_Argv(0), "dmmessage")) {
-		Com_Printf("%s (%zu): %s", cl->name, (size_t)(cl - svs.clients), s);
-	}
+	// Removed in OPM
+	//  Message printing is now handled by fgame
+    //// Added in 1.11 MAC server
+    ////  Display chat messages
+    ////  NOTE: this should be handled by fgame, not server
+    ////if (!Q_stricmp(Cmd_Argv(0), "dmmessage")) {
+    ////	Com_Printf("%s (%zu): %s", cl->name, (size_t)(cl - svs.clients), s);
+    ////}
 
 	if (clientOK) {
 		// pass unknown strings to the game
