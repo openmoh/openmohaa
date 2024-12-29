@@ -120,7 +120,7 @@ void CG_MessageSingleClient_f(void)
 
         // copy the rest
         for (i = 2; i < cgi.Argc(); i++) {
-            sString += va("%s", cgi.Argv(i));
+            sString += va(" %s", cgi.Argv(i));
         }
 
         sString += "\n";
