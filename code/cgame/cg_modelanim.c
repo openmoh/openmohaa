@@ -1200,7 +1200,9 @@ void CG_ModelAnim(centity_t *cent, qboolean bDoShaderTime)
             if (!cg.pLastPlayerWorldModel || cg.pLastPlayerWorldModel != model.tiki) {
                 qhandle_t hModel;
                 char      fpsname[128];
+
                 COM_StripExtension(model.tiki->a->name, fpsname, sizeof(fpsname));
+                Q_strcat(fpsname, sizeof(fpsname), "_fps.tik");
 
                 hModel = cgi.R_RegisterModel(fpsname);
                 if (hModel) {
