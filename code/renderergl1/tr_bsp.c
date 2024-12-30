@@ -630,8 +630,8 @@ static void ParseFace( dsurface_t *ds, drawVert_t *verts, msurface_t *surf, int 
     numPoints = LittleLong( ds->numVerts );
     if (numPoints > MAX_FACE_POINTS) {
         ri.Printf( PRINT_WARNING, "WARNING: MAX_FACE_POINTS exceeded: %i\n", numPoints);
-    numPoints = MAX_FACE_POINTS;
-    surf->shader = tr.defaultShader;
+        numPoints = MAX_FACE_POINTS;
+        surf->shader = tr.defaultShader;
     }
 
     numIndexes = LittleLong( ds->numIndexes );

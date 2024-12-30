@@ -1754,6 +1754,8 @@ void RE_Shutdown( qboolean destroyWindow ) {
 
 	R_ShutdownFont();
 
+	R_ShutdownTerrain();
+
 	tr.registered = qfalse;
 }
 
@@ -1770,6 +1772,8 @@ void RE_BeginRegistration(glconfig_t* glconfigOut) {
 	R_IssuePendingRenderCommands();
 
 	R_LevelMarksFree();
+	R_TerrainFree();
+
 	ri.Hunk_Clear();
 
 	*glconfigOut = glConfig;

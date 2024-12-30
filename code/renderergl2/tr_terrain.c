@@ -1489,15 +1489,8 @@ void R_TerrainRestart_f(void)
     if (tr.world->numTerraPatches < 0) {
         return;
     }
-
-    if (g_pVert) {
-        ri.Free(g_pVert);
-        g_pVert = NULL;
-    }
-    if (g_pTris) {
-        ri.Free(g_pTris);
-        g_pTris = NULL;
-    }
+    
+    R_TerrainFree();
 
     R_PreTessellateTerrain();
 }
@@ -1651,6 +1644,36 @@ void R_InitTerrain()
         g_fClipDotSquaredTable[i] = dot;
         g_fClipDotProductTable[i] = sqrt(dot);
         g_fDistanceTable[i]       = 443.5 / sqrt(1.0 - dot);
+    }
+}
+
+/*
+================
+R_ShutdownTerrain
+================
+*/
+void R_ShutdownTerrain()
+{
+    ri.Cmd_RemoveCommand("ter_restart");
+
+    R_TerrainFree();
+}
+/*
+================
+R_TerrainFree
+
+Frees terrain memory
+================
+*/
+void R_TerrainFree()
+{
+    if (g_pVert) {
+        ri.Free(g_pVert);
+        g_pVert = NULL;
+    }
+    if (g_pTris) {
+        ri.Free(g_pTris);
+        g_pTris = NULL;
     }
 }
 

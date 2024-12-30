@@ -1836,6 +1836,12 @@ void RE_Shutdown( qboolean destroyWindow ) {
 		Com_Memset( &glState, 0, sizeof( glState ) );
 	}
 
+	//
+	// OPENMOHAA-specific stuff
+	//=========================
+    R_ShutdownTerrain();
+    //=========================
+
 	tr.registered = qfalse;
 }
 
@@ -1857,6 +1863,18 @@ void RE_BeginRegistration(glconfig_t* glconfigOut) {
     tr.viewCluster = -1;		// force markleafs to regenerate
     R_ClearFlares();
     RE_ClearScene();
+
+	//
+	// OPENMOHAA-specific stuff
+    //=========================
+    R_LevelMarksFree();
+    R_TerrainFree();
+
+    R_InitLensFlare();
+    R_LevelMarksInit();
+
+    ri.UI_LoadResource("*124");
+	//=========================
 
     tr.registered = qtrue;
 }

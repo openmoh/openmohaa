@@ -3174,6 +3174,8 @@ void R_MarkTerrainPatch(cTerraPatchUnpacked_t* pPatch);
 void R_AddTerrainSurfaces();
 void R_AddTerrainMarkSurfaces();
 void R_InitTerrain();
+void R_ShutdownTerrain();
+void R_TerrainFree();
 void R_TerrainPrepareFrame();
 qboolean R_TerrainHeightForPoly(cTerraPatchUnpacked_t* pPatch, polyVert_t* pVerts, int nVerts);
 void R_SwapTerraPatch(cTerraPatch_t* pPatch);
