@@ -1558,6 +1558,8 @@ void R_Register( void )
 	// OPENMOHAA-specific stuff
 	//
 
+	ri.Cvar_CheckRange(r_subdivisions, 2, 24, qtrue);
+
 	// Draw
 
     r_drawentitypoly = ri.Cvar_Get("r_drawentitypoly", "1", CVAR_CHEAT);
