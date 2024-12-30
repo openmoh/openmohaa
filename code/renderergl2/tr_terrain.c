@@ -1336,7 +1336,8 @@ void R_AddTerrainSurfaces()
 
             if (ter_count->integer && (g_nSplit || g_nMerge)) {
                 if (ter_count->integer == 1 || g_nSplit * 2 != g_nMerge) {
-                    ri.Printf(PRINT_DEVELOPER, 
+                    ri.Printf(
+                        PRINT_DEVELOPER,
                         "%5zu tris / %5zu verts / %4d splits / %4d merges\n",
                         g_nTris - g_tri.nFree,
                         g_nVerts - g_vert.nFree,
@@ -1626,13 +1627,21 @@ void R_InitTerrain()
 {
     int i;
 
-    ter_maxlod         = ri.Cvar_Get("ter_maxlod", "6", CVAR_ARCHIVE | CVAR_TERRAIN_LATCH);
-    ter_cull           = ri.Cvar_Get("ter_cull", "1", 0);
-    ter_lock           = ri.Cvar_Get("ter_lock", "0", 0);
-    ter_error          = ri.Cvar_Get("ter_error", "4", CVAR_ARCHIVE);
+    ter_maxlod = ri.Cvar_Get("ter_maxlod", "6", CVAR_ARCHIVE | CVAR_TERRAIN_LATCH);
+    ri.Cvar_CheckRange(ter_maxlod, 3, 6, qtrue);
+
+    ter_cull = ri.Cvar_Get("ter_cull", "1", 0);
+    ter_lock = ri.Cvar_Get("ter_lock", "0", CVAR_CHEAT);
+
+    ter_error = ri.Cvar_Get("ter_error", "4", CVAR_ARCHIVE);
+    ri.Cvar_CheckRange(ter_error, 0, 16, qtrue);
+
     ter_cautiousframes = ri.Cvar_Get("ter_cautiousframes", "1", CVAR_ARCHIVE);
-    ter_maxtris        = ri.Cvar_Get("ter_maxtris", "24576", CVAR_TERRAIN_LATCH);
-    ter_count          = ri.Cvar_Get("ter_count", "0", 0);
+
+    ter_maxtris = ri.Cvar_Get("ter_maxtris", "24576", CVAR_TERRAIN_LATCH);
+    ri.Cvar_CheckRange(ter_maxtris, 16384, 65536, qtrue);
+
+    ter_count = ri.Cvar_Get("ter_count", "0", 0);
 
     ri.Cmd_AddCommand("ter_restart", R_TerrainRestart_f);
     R_PreTessellateTerrain();
