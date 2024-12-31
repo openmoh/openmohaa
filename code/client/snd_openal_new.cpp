@@ -599,6 +599,7 @@ qboolean S_OPENAL_Init()
             Com_Printf("OpenAL: No reverb support. Reverb is disabled.\n");
         }
     }
+    s_reverb->modified = false;
 
     al_current_volume = Square(s_volume->value);
     qalListenerf(AL_GAIN, al_current_volume);
@@ -2401,7 +2402,10 @@ S_OPENAL_reverb
 */
 static void S_OPENAL_reverb(int iChannel, int iReverbType, float fReverbLevel)
 {
-    // No reverb.
+    // FIXME: Connect source to effect slot
+    //  see https://github.com/kcat/openal-soft/blob/master/examples/alreverb.c
+
+    // No reverb currently.
 }
 
 /*
@@ -2416,6 +2420,10 @@ void S_OPENAL_SetReverb(int iType, float fLevel)
     if (al_use_reverb) {
         s_bReverbChanged = true;
     }
+
+    // FIXME: generate effect and auxiliary effect slot
+    //  or destroy them
+    //  see https://github.com/kcat/openal-soft/blob/master/examples/alreverb.c
 }
 
 /*
@@ -2487,7 +2495,16 @@ void S_OPENAL_Update()
 
     if (s_reverb->modified) {
         s_reverb->modified = false;
-        Com_Printf("FIXME: Allow reverb toggle at runtime in OpenAL code.\n");
+
+        if (s_reverb->integer) {
+            if (al_use_reverb) {
+                S_OPENAL_SetReverb(s_iReverbType, s_fReverbLevel);
+            } else {
+                Com_Printf("OpenAL: No reverb support. Reverb is disabled.\n");
+            }
+        } else if (al_use_reverb) {
+            S_OPENAL_SetReverb(0, 0);
+        }
     }
 
     if (s_show_num_active_sounds->integer == 1) {
