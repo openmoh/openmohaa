@@ -2496,7 +2496,7 @@ void ScriptThread::Getcvar(Event *ev)
     str s       = gi.Cvar_Get(varName.c_str(), "", 0)->string;
 
     if (strstr(s.c_str(), ".")) {
-        for (int i = s.length() - 1; i >= 0; i--) {
+        for (size_t i = s.length() - 1; i >= 0; i--) {
             if (s[i] == '0') {
                 s[i] = 0;
             } else {
@@ -4093,7 +4093,7 @@ void ScriptThread::EventRadiusDamage(Event *ev)
 
 void ScriptThread::EventBspTransition(Event *ev)
 {
-    str map = ev->GetString(1);
+    str  map      = ev->GetString(1);
     bool skipFade = false;
 
     if (ev->NumArgs() >= 2) {
@@ -4203,12 +4203,12 @@ void ScriptThread::EventPointsWithinDist(Event *ev)
 {
     Vector delta;
     Vector v1, v2;
-    float fDistance;
-   
-    v1 = ev->GetVector(1);
-    v2 = ev->GetVector(2);
+    float  fDistance;
+
+    v1        = ev->GetVector(1);
+    v2        = ev->GetVector(2);
     fDistance = ev->GetFloat(3);
-    delta = v1 - v2;
+    delta     = v1 - v2;
 
     // check squared distance
     ev->AddInteger(delta.lengthSquared() < Square(fDistance));
@@ -5361,15 +5361,15 @@ void ScriptThread::FileOpen(Event *ev)
 
     f = fopen(filename, accesstype);
 
-    if (f == NULL) {
-        ev->AddInteger(0);
-        return;
-    } else {
-        ev->AddInteger((int)(size_t)f);
-        Com_sprintf(buf, sizeof(buf), "%i", scriptfiles->integer + 1);
-        gi.cvar_set("sv_scriptfiles", buf);
+    if (!f) {
+        ev->AddNil();
         return;
     }
+
+    ev->AddListener(new OSFile(f));
+
+    Com_sprintf(buf, sizeof(buf), "%i", scriptfiles->integer + 1);
+    gi.cvar_set("sv_scriptfiles", buf);
 }
 
 void ScriptThread::FileWrite(Event *ev) {}
@@ -5378,11 +5378,10 @@ void ScriptThread::FileRead(Event *ev) {}
 
 void ScriptThread::FileClose(Event *ev)
 {
-    int   id      = 0;
-    int   numArgs = 0;
-    int   ret     = 0;
-    FILE *f       = NULL;
-    char  buf[16] = {0};
+    OSFile *osFile  = NULL;
+    int     numArgs = 0;
+    FILE   *f       = NULL;
+    char    buf[16] = {0};
 
     numArgs = ev->NumArgs();
 
@@ -5390,57 +5389,30 @@ void ScriptThread::FileClose(Event *ev)
         throw ScriptException("Wrong arguments count for fclose!\n");
     }
 
-    id = ev->GetInteger(1);
-
-    /*if( (int)scriptFiles[0].f != id && (int)scriptFiles[1].f != id )
-    {
-    gi.Printf("Wrong file handle for fclose!\n");
-    return;
+    osFile = (OSFile *)ev->GetListener(1);
+    if (!osFile || !osFile->isSubclassOf(OSFile)) {
+        throw ScriptException("Not a file!\n");
     }
 
-    if( (int)scriptFiles[0].f == id )
-    {
-    scriptFiles[0].inUse = 0;
-    fclose( scriptFiles[0].f );
-    return;
-    }
-    else if( (int)scriptFiles[1].f == id )
-    {
-    scriptFiles[1].inUse = 0;
-    fclose( scriptFiles[1].f );
-    return;
-    }
-    else
-    {
-    gi.Printf("Unknown error while closing file - fclose!\n");
-    return;
-    }*/
-
-    f = (FILE *)id;
+    f = (FILE *)osFile->getOSFile();
 
     if (f == NULL) {
         throw ScriptException("File handle is NULL for fclose!\n");
     }
 
-    ret = fclose(f);
+    // delete the file object
+    delete osFile;
 
-    if (ret == 0) {
-        ev->AddInteger(0);
-        Com_sprintf(buf, sizeof(buf), "%i", scriptfiles->integer - 1);
-        gi.cvar_set("sv_scriptfiles", buf);
-        return;
-    } else {
-        ev->AddInteger(ret);
-        return;
-    }
+    Com_sprintf(buf, sizeof(buf), "%i", scriptfiles->integer - 1);
+    gi.cvar_set("sv_scriptfiles", buf);
 }
 
 void ScriptThread::FileEof(Event *ev)
 {
-    int   id      = 0;
-    int   numArgs = 0;
-    int   ret     = 0;
-    FILE *f       = NULL;
+    OSFile *osFile  = NULL;
+    int     numArgs = 0;
+    int     ret     = 0;
+    FILE   *f       = NULL;
 
     numArgs = ev->NumArgs();
 
@@ -5448,9 +5420,12 @@ void ScriptThread::FileEof(Event *ev)
         throw ScriptException("Wrong arguments count for feof!\n");
     }
 
-    id = ev->GetInteger(1);
+    osFile = (OSFile *)ev->GetListener(1);
+    if (!osFile || !osFile->isSubclassOf(OSFile)) {
+        throw ScriptException("Not a file!\n");
+    }
 
-    f = (FILE *)id;
+    f = (FILE *)osFile->getOSFile();
 
     ret = feof(f);
 
@@ -5459,7 +5434,7 @@ void ScriptThread::FileEof(Event *ev)
 
 void ScriptThread::FileSeek(Event *ev)
 {
-    int      id      = 0;
+    OSFile  *osFile  = NULL;
     int      numArgs = 0;
     int      pos     = 0;
     long int offset  = 0;
@@ -5472,9 +5447,12 @@ void ScriptThread::FileSeek(Event *ev)
         throw ScriptException("Wrong arguments count for fseek!\n");
     }
 
-    id = ev->GetInteger(1);
+    osFile = (OSFile *)ev->GetListener(1);
+    if (!osFile || !osFile->isSubclassOf(OSFile)) {
+        throw ScriptException("Not a file!\n");
+    }
 
-    f = (FILE *)id;
+    f = (FILE *)osFile->getOSFile();
 
     offset = ev->GetInteger(2);
 
@@ -5495,7 +5473,7 @@ void ScriptThread::FileSeek(Event *ev)
 
 void ScriptThread::FileTell(Event *ev)
 {
-    int      id      = 0;
+    OSFile  *osFile  = NULL;
     int      numArgs = 0;
     long int ret     = 0;
     FILE    *f       = NULL;
@@ -5506,9 +5484,12 @@ void ScriptThread::FileTell(Event *ev)
         throw ScriptException("Wrong arguments count for ftell!\n");
     }
 
-    id = ev->GetInteger(1);
+    osFile = (OSFile *)ev->GetListener(1);
+    if (!osFile || !osFile->isSubclassOf(OSFile)) {
+        throw ScriptException("Not a file!\n");
+    }
 
-    f = (FILE *)id;
+    f = (FILE *)osFile->getOSFile();
 
     ret = ftell(f);
 
@@ -5517,7 +5498,7 @@ void ScriptThread::FileTell(Event *ev)
 
 void ScriptThread::FileRewind(Event *ev)
 {
-    int      id      = 0;
+    OSFile  *osFile  = NULL;
     int      numArgs = 0;
     long int ret     = 0;
     FILE    *f       = NULL;
@@ -5528,20 +5509,23 @@ void ScriptThread::FileRewind(Event *ev)
         throw ScriptException("Wrong arguments count for frewind!\n");
     }
 
-    id = ev->GetInteger(1);
+    osFile = (OSFile *)ev->GetListener(1);
+    if (!osFile || !osFile->isSubclassOf(OSFile)) {
+        throw ScriptException("Not a file!\n");
+    }
 
-    f = (FILE *)id;
+    f = (FILE *)osFile->getOSFile();
 
     rewind(f);
 }
 
 void ScriptThread::FilePutc(Event *ev)
 {
-    int   id      = 0;
-    int   numArgs = 0;
-    int   ret     = 0;
-    FILE *f       = NULL;
-    int   c       = 0;
+    OSFile *osFile  = NULL;
+    int     numArgs = 0;
+    int     ret     = 0;
+    FILE   *f       = NULL;
+    int     c       = 0;
 
     numArgs = ev->NumArgs();
 
@@ -5549,9 +5533,12 @@ void ScriptThread::FilePutc(Event *ev)
         throw ScriptException("Wrong arguments count for fputc!\n");
     }
 
-    id = ev->GetInteger(1);
+    osFile = (OSFile *)ev->GetListener(1);
+    if (!osFile || !osFile->isSubclassOf(OSFile)) {
+        throw ScriptException("Not a file!\n");
+    }
 
-    f = (FILE *)id;
+    f = (FILE *)osFile->getOSFile();
 
     c = ev->GetInteger(2);
 
@@ -5562,11 +5549,11 @@ void ScriptThread::FilePutc(Event *ev)
 
 void ScriptThread::FilePuts(Event *ev)
 {
-    int   id      = 0;
-    int   numArgs = 0;
-    int   ret     = 0;
-    FILE *f       = NULL;
-    str   c;
+    OSFile *osFile  = NULL;
+    int     numArgs = 0;
+    int     ret     = 0;
+    FILE   *f       = NULL;
+    str     c;
 
     numArgs = ev->NumArgs();
 
@@ -5574,9 +5561,12 @@ void ScriptThread::FilePuts(Event *ev)
         throw ScriptException("Wrong arguments count for fputs!\n");
     }
 
-    id = ev->GetInteger(1);
+    osFile = (OSFile *)ev->GetListener(1);
+    if (!osFile || !osFile->isSubclassOf(OSFile)) {
+        throw ScriptException("Not a file!\n");
+    }
 
-    f = (FILE *)id;
+    f = (FILE *)osFile->getOSFile();
 
     c = ev->GetString(2);
     //gi.Printf("Putting line into a file\n");
@@ -5587,10 +5577,10 @@ void ScriptThread::FilePuts(Event *ev)
 
 void ScriptThread::FileGetc(Event *ev)
 {
-    int   id      = 0;
-    int   numArgs = 0;
-    int   ret     = 0;
-    FILE *f       = NULL;
+    OSFile *osFile  = NULL;
+    int     numArgs = 0;
+    int     ret     = 0;
+    FILE   *f       = NULL;
 
     numArgs = ev->NumArgs();
 
@@ -5598,9 +5588,12 @@ void ScriptThread::FileGetc(Event *ev)
         throw ScriptException("Wrong arguments count for fgetc!\n");
     }
 
-    id = ev->GetInteger(1);
+    osFile = (OSFile *)ev->GetListener(1);
+    if (!osFile || !osFile->isSubclassOf(OSFile)) {
+        throw ScriptException("Not a file!\n");
+    }
 
-    f = (FILE *)id;
+    f = (FILE *)osFile->getOSFile();
 
     ret = fgetc(f);
 
@@ -5609,12 +5602,12 @@ void ScriptThread::FileGetc(Event *ev)
 
 void ScriptThread::FileGets(Event *ev)
 {
-    int   id       = 0;
-    int   numArgs  = 0;
-    int   maxCount = 0;
-    FILE *f        = NULL;
-    char *c        = NULL;
-    char *buff     = NULL;
+    OSFile *osFile   = NULL;
+    int     numArgs  = 0;
+    int     maxCount = 0;
+    FILE   *f        = NULL;
+    char   *c        = NULL;
+    char   *buff     = NULL;
 
     numArgs = ev->NumArgs();
 
@@ -5622,9 +5615,12 @@ void ScriptThread::FileGets(Event *ev)
         throw ScriptException("Wrong arguments count for fgets!\n");
     }
 
-    id = ev->GetInteger(1);
+    osFile = (OSFile *)ev->GetListener(1);
+    if (!osFile || !osFile->isSubclassOf(OSFile)) {
+        throw ScriptException("Not a file!\n");
+    }
 
-    f = (FILE *)id;
+    f = (FILE *)osFile->getOSFile();
 
     maxCount = ev->GetInteger(2);
 
@@ -5657,10 +5653,10 @@ void ScriptThread::FileGets(Event *ev)
 
 void ScriptThread::FileError(Event *ev)
 {
-    int   id      = 0;
-    int   numArgs = 0;
-    int   ret     = 0;
-    FILE *f       = NULL;
+    OSFile *osFile  = NULL;
+    int     numArgs = 0;
+    int     ret     = 0;
+    FILE   *f       = NULL;
 
     numArgs = ev->NumArgs();
 
@@ -5668,9 +5664,12 @@ void ScriptThread::FileError(Event *ev)
         throw ScriptException("Wrong arguments count for ferror!\n");
     }
 
-    id = ev->GetInteger(1);
+    osFile = (OSFile *)ev->GetListener(1);
+    if (!osFile || !osFile->isSubclassOf(OSFile)) {
+        throw ScriptException("Not a file!\n");
+    }
 
-    f = (FILE *)id;
+    f = (FILE *)osFile->getOSFile();
 
     ret = ferror(f);
 
@@ -5679,10 +5678,10 @@ void ScriptThread::FileError(Event *ev)
 
 void ScriptThread::FileFlush(Event *ev)
 {
-    int   id      = 0;
-    int   numArgs = 0;
-    int   ret     = 0;
-    FILE *f       = NULL;
+    OSFile *osFile  = NULL;
+    int     numArgs = 0;
+    int     ret     = 0;
+    FILE   *f       = NULL;
 
     numArgs = ev->NumArgs();
 
@@ -5690,9 +5689,12 @@ void ScriptThread::FileFlush(Event *ev)
         throw ScriptException("Wrong arguments count for fflush!\n");
     }
 
-    id = ev->GetInteger(1);
+    osFile = (OSFile *)ev->GetListener(1);
+    if (!osFile || !osFile->isSubclassOf(OSFile)) {
+        throw ScriptException("Not a file!\n");
+    }
 
-    f = (FILE *)id;
+    f = (FILE *)osFile->getOSFile();
 
     ret = fflush(f);
 
@@ -5701,7 +5703,6 @@ void ScriptThread::FileFlush(Event *ev)
 
 void ScriptThread::FileExists(Event *ev)
 {
-    int   id      = 0;
     int   numArgs = 0;
     FILE *f       = 0;
     str   filename;
@@ -5729,13 +5730,13 @@ void ScriptThread::FileExists(Event *ev)
 
 void ScriptThread::FileReadAll(Event *ev)
 {
-    int    id         = 0;
-    int    numArgs    = 0;
-    FILE  *f          = NULL;
-    char  *ret        = NULL;
-    long   currentPos = 0;
-    size_t size       = 0;
-    size_t sizeRead   = 0;
+    OSFile *osFile     = NULL;
+    int     numArgs    = 0;
+    FILE   *f          = NULL;
+    char   *ret        = NULL;
+    long    currentPos = 0;
+    size_t  size       = 0;
+    size_t  sizeRead   = 0;
 
     numArgs = ev->NumArgs();
 
@@ -5743,9 +5744,12 @@ void ScriptThread::FileReadAll(Event *ev)
         throw ScriptException("Wrong arguments count for freadall!\n");
     }
 
-    id = ev->GetInteger(1);
+    osFile = (OSFile *)ev->GetListener(1);
+    if (!osFile || !osFile->isSubclassOf(OSFile)) {
+        throw ScriptException("Not a file!\n");
+    }
 
-    f = (FILE *)id;
+    f = (FILE *)osFile->getOSFile();
 
     currentPos = ftell(f);
     fseek(f, 0, SEEK_END);
@@ -5769,11 +5773,11 @@ void ScriptThread::FileReadAll(Event *ev)
 
 void ScriptThread::FileSaveAll(Event *ev)
 {
-    int    id        = 0;
-    int    numArgs   = 0;
-    FILE  *f         = NULL;
-    size_t sizeWrite = 0;
-    str    text;
+    OSFile *osFile    = NULL;
+    int     numArgs   = 0;
+    FILE   *f         = NULL;
+    size_t  sizeWrite = 0;
+    str     text;
 
     numArgs = ev->NumArgs();
 
@@ -5781,8 +5785,12 @@ void ScriptThread::FileSaveAll(Event *ev)
         throw ScriptException("Wrong arguments count for fsaveall!\n");
     }
 
-    id = ev->GetInteger(1);
-    f  = (FILE *)id;
+    osFile = (OSFile *)ev->GetListener(1);
+    if (!osFile || !osFile->isSubclassOf(OSFile)) {
+        throw ScriptException("Not a file!\n");
+    }
+
+    f = (FILE *)osFile->getOSFile();
 
     text = ev->GetString(2);
 
@@ -5798,7 +5806,6 @@ void ScriptThread::FileSaveAll(Event *ev)
 
 void ScriptThread::FileRemove(Event *ev)
 {
-    int id      = 0;
     int numArgs = 0;
     int ret     = 0;
     str filename;
@@ -5822,7 +5829,6 @@ void ScriptThread::FileRemove(Event *ev)
 
 void ScriptThread::FileRename(Event *ev)
 {
-    int id      = 0;
     int numArgs = 0;
     int ret     = 0;
     str oldfilename, newfilename;
@@ -7049,4 +7055,28 @@ void ScriptThread::TraceDetails(Event *ev)
     array.setArrayAtRef(entityIndex, entityValue);
 
     ev->AddValue(array);
+}
+
+CLASS_DECLARATION(Listener, OSFile, NULL) {
+    {NULL, NULL}
+};
+
+OSFile::OSFile()
+    : file(NULL)
+{}
+
+OSFile::OSFile(void *inFile)
+    : file(inFile)
+{}
+
+OSFile::~OSFile()
+{
+    if (file) {
+        fclose((FILE *)file);
+    }
+}
+
+void *OSFile::getOSFile() const
+{
+    return file;
 }

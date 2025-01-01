@@ -346,3 +346,18 @@ public:
     void VisionGetNaked(Event *ev);
     void VisionSetNaked(Event *ev);
 };
+
+class OSFile : public Listener
+{
+    CLASS_PROTOTYPE(OSFile);
+
+public:
+    OSFile();
+    OSFile(void *inFile);
+    ~OSFile();
+
+    void *getOSFile() const;
+
+private:
+    void *file;
+};
