@@ -646,6 +646,17 @@ qboolean S_OPENAL_Init()
         return false;
     }
 
+    //
+    // Disable sound virtualization on special channels
+    //  (triggered music, ambient sounds...)
+    //
+    for (i = 0; i < MAX_SOUNDSYSTEM_SONGS; i++) {
+        openal.chan_song[i].set_no_virtualization();
+    }
+    openal.chan_mp3.set_no_virtualization();
+    openal.chan_trig_music.set_no_virtualization();
+    openal.chan_movie.set_no_virtualization();
+
     Cmd_AddCommand("playmp3", S_OPENAL_PlayMP3);
     Cmd_AddCommand("stopmp3", S_OPENAL_StopMP3);
     Cmd_AddCommand("loadsoundtrack", S_loadsoundtrack);
@@ -1366,15 +1377,14 @@ static void S_OPENAL_Start2DSound(
         pChannel->iBaseRate = pChannel->sample_playback_rate();
         pChannel->set_no_3d();
         fRealVolume = fRealVolume * s_fVolumeGain;
-        pChannel->set_gain(fRealVolume);
-        pChannel->play();
     } else {
         pChannel->stop();
         pChannel->set_no_3d();
         pChannel->set_sfx(pSfx);
-        pChannel->set_gain(fRealVolume);
-        pChannel->play();
     }
+
+    pChannel->set_gain(fRealVolume);
+    pChannel->play();
 
     if (s_show_sounds->integer > 0) {
         Com_DPrintf(
@@ -2910,6 +2920,35 @@ void openal_channel::play()
 {
     qalSourcePlay(source);
     alDieIfError();
+}
+
+/*
+==============
+openal_channel::set_no_virtualization
+==============
+*/
+void openal_channel::set_no_virtualization()
+{
+#if AL_SOFT_direct_channels_remix
+    qalSourcei(source, AL_DIRECT_CHANNELS_SOFT, AL_REMIX_UNMATCHED_SOFT);
+    alDieIfError();
+#elif AL_SOFT_direct_channels
+    qalSourcei(source, AL_DIRECT_CHANNELS_SOFT, AL_TRUE);
+    alDieIfError();
+#endif
+}
+
+/*
+==============
+openal_channel::set_virtualization
+==============
+*/
+void openal_channel::set_virtualization()
+{
+#if AL_SOFT_direct_channels_remix || AL_SOFT_direct_channels
+    qalSourcei(source, AL_DIRECT_CHANNELS_SOFT, AL_FALSE);
+    alDieIfError();
+#endif
 }
 
 /*

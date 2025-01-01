@@ -95,6 +95,8 @@ public:
 
     void  set_no_3d();
     void  set_3d();
+    void  set_no_virtualization();
+    void  set_virtualization();
 
     void set_gain(float gain);
     void set_velocity(float v0, float v1, float v2);
