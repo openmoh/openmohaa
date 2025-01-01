@@ -1441,6 +1441,15 @@ Event EV_ScriptThread_FileClose
     "i",
     "filehandle",
     "Closes file of given file handle",
+    EV_NORMAL
+);
+Event EV_ScriptThread_FileClose2
+(
+    "fclose",
+    EV_DEFAULT,
+    "i",
+    "filehandle",
+    "Closes file of given file handle",
     EV_RETURN
 );
 Event EV_ScriptThread_FileEof
@@ -2191,6 +2200,7 @@ CLASS_DECLARATION(Listener, ScriptThread, NULL) {
     {&EV_ScriptThread_Earthquake2,             &ScriptThread::Earthquake              },
     {&EV_ScriptThread_FadeSound,               &ScriptThread::FadeSound               },
     {&EV_ScriptThread_FileClose,               &ScriptThread::FileClose               },
+    {&EV_ScriptThread_FileClose2,              &ScriptThread::FileClose               },
     {&EV_ScriptThread_FileCopy,                &ScriptThread::FileCopy                },
     {&EV_ScriptThread_FileEof,                 &ScriptThread::FileEof                 },
     {&EV_ScriptThread_FileError,               &ScriptThread::FileError               },
