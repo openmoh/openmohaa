@@ -485,9 +485,16 @@ static int CG_CalcFov(void)
     int   contents;
     float fov_x, fov_y;
     int   inwater;
+    float fov_ratio;
 
-    fov_x = cg.camera_fov;
-    x     = cg.refdef.width / tan(fov_x / 360 * M_PI);
+    fov_ratio = (float)cg.refdef.width / (float)cg.refdef.height * (3.0 / 4.0);
+    if (fov_ratio == 1) {
+        fov_x = cg.camera_fov;
+    } else {
+        fov_x = RAD2DEG(atan(tan(DEG2RAD(cg.camera_fov / 2.0)) * fov_ratio)) * 2.0;
+    }
+
+    x = cg.refdef.width / tan(fov_x / 360 * M_PI);
     fov_y = atan2(cg.refdef.height, x);
     fov_y = fov_y * 360 / M_PI;
 
