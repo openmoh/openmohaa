@@ -345,18 +345,12 @@ void Player::AdjustAnimBlends(void)
     if (m_fPartBlends[legs] <= 0.0f) {
         if (partOldAnim[legs] != "") {
             StopAnimating(iOldPartSlot);
+        }
 
-            if (partAnim[legs] == "") {
-                SetWeight(iPartSlot, 0.0);
-            } else {
-                SetWeight(iPartSlot, 1.0);
-            }
+        if (partAnim[legs] == "") {
+            SetWeight(iPartSlot, 0.0);
         } else {
-            if (partAnim[legs] == "") {
-                SetWeight(iPartSlot, 0.0);
-            } else {
-                SetWeight(iPartSlot, 1.0);
-            }
+            SetWeight(iPartSlot, 1.0);
         }
     } else {
         m_fPartBlends[legs] -= level.frametime * partBlendMult[legs];
@@ -387,12 +381,14 @@ void Player::AdjustAnimBlends(void)
         if (partOldAnim[torso] != "") {
             StopAnimating(iOldPartSlot);
             partOldAnim[torso] = "";
+        }
 
-            if (partAnim[torso] == "") {
-                SetWeight(iPartSlot, 0.0);
-            } else {
-                SetWeight(iPartSlot, 1.0);
-            }
+        if (partAnim[torso] == "") {
+            SetWeight(iPartSlot, 0.0);
+            edict->s.actionWeight = 0.0;
+        } else {
+            SetWeight(iPartSlot, 1.0);
+            edict->s.actionWeight = 1.0;
         }
     } else {
         m_fPartBlends[torso] = m_fPartBlends[torso] - level.frametime * partBlendMult[torso];
@@ -427,16 +423,16 @@ void Player::AdjustAnimBlends(void)
     if (m_fPainBlend) {
         if (m_sPainAnim == "") {
             StopAnimating(ANIMSLOT_PAIN);
-            edict->s.frameInfo[ANIMSLOT_PAIN].weight = 0;
-            m_fPainBlend                             = 0;
-            animdone_Pain                            = false;
+            SetWeight(ANIMSLOT_PAIN, 0);
+            m_fPainBlend  = 0;
+            animdone_Pain = false;
         } else if (animdone_Pain) {
             m_fPainBlend -= level.frametime * (10.0 / 3.0);
             if (m_fPainBlend < 0.01f) {
                 StopAnimating(ANIMSLOT_PAIN);
-                edict->s.frameInfo[ANIMSLOT_PAIN].weight = 0;
-                m_fPainBlend                             = 0;
-                animdone_Pain                            = false;
+                SetWeight(ANIMSLOT_PAIN, 0);
+                m_fPainBlend  = 0;
+                animdone_Pain = false;
             }
         }
 
@@ -444,12 +440,12 @@ void Player::AdjustAnimBlends(void)
             int   i;
             float w;
 
-            edict->s.frameInfo[ANIMSLOT_PAIN].weight = m_fPainBlend;
-            w                                        = 1.0 - m_fPainBlend * 0.5;
+            SetWeight(ANIMSLOT_PAIN, m_fPainBlend);
+            w = 1.0 - m_fPainBlend * 0.5;
 
             for (i = 0; i < ANIMSLOT_PAIN; i++) {
-                if (edict->s.frameInfo[i].weight) {
-                    edict->s.frameInfo[i].weight *= w;
+                if (GetWeight(i)) {
+                    SetWeight(i, GetWeight(i) * w);
                 }
             }
 
@@ -490,7 +486,7 @@ void Player::PlayerAnimDelta(float *vDelta)
         // get the anim delta
         gi.Anim_DeltaOverTime(edict->tiki, animnum, fBackTime, fTime, vNewDelta);
 
-        VectorMA(vDelta, edict->s.frameInfo[m_iPartSlot[legs]].weight, vNewDelta, vDelta);
+        VectorMA(vDelta, GetWeight(m_iPartSlot[legs]), vNewDelta, vDelta);
     }
 
     animnum = -1;
@@ -509,15 +505,15 @@ void Player::PlayerAnimDelta(float *vDelta)
 
         gi.Anim_DeltaOverTime(edict->tiki, animnum, fBackTime, fTime, vNewDelta);
 
-        VectorMA(vDelta, edict->s.frameInfo[m_iPartSlot[torso]].weight, vNewDelta, vDelta);
+        VectorMA(vDelta, GetWeight(m_iPartSlot[torso]), vNewDelta, vDelta);
     }
 }
 
 void Player::EventTestAnim(Event *ev)
 {
-    str name;
+    str   name;
     float weight;
-    int animNum;
+    int   animNum;
 
     weight = ev->GetFloat(1);
     if (weight <= 0) {
@@ -527,7 +523,7 @@ void Player::EventTestAnim(Event *ev)
     }
 
     if (ev->NumArgs() > 1) {
-        name = ev->GetString(1);
+        name    = ev->GetString(1);
         animNum = gi.Anim_NumForName(edict->tiki, name.c_str());
         if (animNum == -1) {
             gi.Printf("Couldn't find anim '%s'\n", name.c_str());
