@@ -460,6 +460,7 @@ public:
     firemode_t GetFireMode(void);
     qboolean   IsSemiAuto(void);
     void       DoneAnimating(Event *ev);
+    void       EventGetPutaway(Event *ev);
 
     float GetMaxFireMovementMult() const;
     float GetZoomMovement() const;

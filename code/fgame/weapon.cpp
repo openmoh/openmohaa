@@ -901,6 +901,16 @@ Event EV_Weapon_DoneAnimating
     EV_NORMAL
 );
 
+Event EV_Weapon_GetPutaway
+(
+    "putaway",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Returns whether or not the given weapon is being put away",
+    EV_GETTER
+);
+
 CLASS_DECLARATION(Item, Weapon, NULL) {
     {&EV_SetAnim,                       &Weapon::SetWeaponAnimEvent     },
     {&EV_Item_Pickup,                   &Weapon::PickupWeapon           },
@@ -1001,6 +1011,7 @@ CLASS_DECLARATION(Item, Weapon, NULL) {
     // Added in OPM
     //
     {&EV_Weapon_DoneAnimating,          &Weapon::DoneAnimating          },
+    {&EV_Weapon_GetPutaway,             &Weapon::EventGetPutaway        },
     {NULL,                              NULL                            }
 };
 
@@ -4622,10 +4633,22 @@ Listener *Weapon::GetScriptOwner(void)
     return owner;
 }
 
+//======================
+//Weapon::DoneAnimating
+//======================
 void Weapon::DoneAnimating(Event* ev) {
     // Added in OPM
     //  Set to idle when done reloading
     SetWeaponIdleAnim();
+}
+
+//======================
+//Weapon::GetMaxFireMovementMult
+//======================
+void Weapon::EventGetPutaway(Event* ev) {
+    // Added in OPM
+    //  Set to idle when done reloading
+    ev->AddInteger(GetPutaway());
 }
 
 //======================
