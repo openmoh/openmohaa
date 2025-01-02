@@ -1097,6 +1097,9 @@ void Sentient::useWeapon(const char *weaponname, weaponhand_t hand)
 
     // Find the item in the sentient's inventory
     weapon = (Weapon *)FindItem(weaponname);
+    if (!weapon) {
+        weapon = (Weapon *)FindItemByExternalName(weaponname);
+    }
 
     // If it exists, then make the change to the slot number specified
     if (weapon) {
