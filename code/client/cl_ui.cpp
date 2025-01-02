@@ -143,6 +143,9 @@ static unsigned int  totalLoadTime;
 static unsigned int  currentLoadTime;
 unsigned char        UIListCtrlItem[8];
 
+static const float maxWidthRes  = 1920;
+static const float maxHeightRes = 1080;
+
 inventory_t              client_inv;
 bind_t                   client_bind;
 static str               scoreboard_menuname;
@@ -1130,6 +1133,20 @@ static void DMConsoleCommandHandler(const char *txt)
 
 /*
 ====================
+getScreenWidth
+====================
+*/
+static float getScreenWidth()
+{
+    if (uid.bHighResScaling) {
+        return maxWidthRes;
+    } else {
+        return uid.vidWidth;
+    }
+}
+
+/*
+====================
 getNewConsole
 ====================
 */
@@ -1196,7 +1213,7 @@ static UIRect2D getDefaultGMBoxRectangle(void)
         height = y;
     }
 
-    return UIRect2D(20.0f, height, (uid.vidWidth - 20) * uid.scaleRes[0], 128.0f * uid.scaleRes[1]);
+    return UIRect2D(20.0f, height, (getScreenWidth() - 20) * uid.scaleRes[0], 128.0f * uid.scaleRes[1]);
 }
 
 /*
@@ -1206,9 +1223,12 @@ getDefaultDMBoxRectangle
 */
 static UIRect2D getDefaultDMBoxRectangle(void)
 {
-    float width = uid.vidWidth * uid.scaleRes[0] * ui_compass_scale->value * 0.2f;
+    float width;
+    float screenWidth = getScreenWidth();
+   
+    width = screenWidth * uid.scaleRes[0] * ui_compass_scale->value * 0.2f;
 
-    return UIRect2D(width, 0, (uid.vidWidth - (width + 192.0f)) * uid.scaleRes[0], 120.0f * uid.scaleRes[1]);
+    return UIRect2D(width, 0, (screenWidth - (width + 192.0f)) * uid.scaleRes[0], 120.0f * uid.scaleRes[1]);
 }
 
 /*
@@ -3850,8 +3870,6 @@ UI_ResolutionChange
 void UI_ResolutionChange(void)
 {
     UIRect2D frame;
-    const float maxWidthRes = 1920;
-    const float maxHeightRes = 1080;
 
     if (com_target_game->integer >= TG_MOHTA) {
         ui_compass_scale = Cvar_Get("ui_compass_scale", "0.75", CVAR_ARCHIVE | CVAR_LATCH);
