@@ -321,6 +321,7 @@ public:
     Weapon      *GetNewActiveWeapon(void);
     weaponhand_t GetNewActiveWeaponHand(void);
     void         ClearNewActiveWeapon(void);
+    void         SetNewActiveWeapon(Weapon* weapon, weaponhand_t hand);
     void         Holster(qboolean putaway);
     void         SafeHolster(qboolean putaway);
     void         ActivateNewWeapon(void);
@@ -355,7 +356,9 @@ public:
     // Custom openmohaa stuff
     //
     void GetActiveWeap(Event *ev);
+    void GetNewActiveWeaponOld(Event *ev);
     void GetNewActiveWeapon(Event *ev);
+    void GetNewActiveWeaponHand(Event *ev);
     void EventClientLanding(Event *ev);
 
     void FootstepMain(trace_t *trace, int iRunning, int iEquipment);

@@ -578,6 +578,24 @@ Event EV_Sentient_GetNewActiveWeap
     "gets new active weapon",
     EV_RETURN
 );
+Event EV_Sentient_GetNewActiveWeapon
+(
+    "newActiveWeapon",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "gets new active weapon",
+    EV_GETTER
+);
+Event EV_Sentient_GetNewActiveWeaponHand
+(
+    "newActiveWeaponHand",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "gets the hand of the new active weapon",
+    EV_GETTER
+);
 Event EV_Sentient_GetActiveWeap
 (
     "getactiveweap",
@@ -656,10 +674,12 @@ CLASS_DECLARATION(Animate, Sentient, NULL) {
     {&EV_Sentient_ForceDropWeapon2,     &Sentient::EventForceDropWeapon         },
     {&EV_Sentient_GetForceDropWeapon,   &Sentient::EventGetForceDropWeapon      },
 
-    {&EV_Sentient_GetActiveWeap,        &Sentient::GetActiveWeap                },
-    {&EV_Sentient_GetNewActiveWeap,     &Sentient::GetNewActiveWeapon           },
-    {&EV_Sentient_Client_Landing,       &Sentient::EventClientLanding           },
-    {NULL,                              NULL                                    }
+    {&EV_Sentient_GetActiveWeap,            &Sentient::GetActiveWeap                },
+    {&EV_Sentient_GetNewActiveWeap,         &Sentient::GetNewActiveWeaponOld        },
+    {&EV_Sentient_GetNewActiveWeapon,       &Sentient::GetNewActiveWeapon           },
+    {&EV_Sentient_GetNewActiveWeaponHand,   &Sentient::GetNewActiveWeaponHand       },
+    {&EV_Sentient_Client_Landing,           &Sentient::EventClientLanding           },
+    {NULL,                                  NULL                                    }
 };
 
 Container<Sentient *> SentientList;

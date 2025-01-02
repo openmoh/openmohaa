@@ -54,8 +54,13 @@ Weapon *Sentient::GetNewActiveWeapon(void)
 
 void Sentient::ClearNewActiveWeapon(void)
 {
-    newActiveWeapon.weapon.Clear();
-    newActiveWeapon.hand = WEAPON_ERROR;
+    SetNewActiveWeapon(NULL, WEAPON_ERROR);
+}
+
+void Sentient::SetNewActiveWeapon(Weapon* weapon, weaponhand_t hand)
+{
+    newActiveWeapon.weapon = weapon;
+    newActiveWeapon.hand   = hand;
 }
 
 void Sentient::EventGiveAmmo(Event *ev)
@@ -1117,8 +1122,7 @@ void Sentient::useWeapon(Weapon *weapon, weaponhand_t hand)
     }
 
     if (newActiveWeapon.weapon) {
-        newActiveWeapon.weapon = weapon;
-        newActiveWeapon.hand   = hand;
+        SetNewActiveWeapon(weapon, hand);
         return;
     }
 
@@ -1130,14 +1134,15 @@ void Sentient::useWeapon(Weapon *weapon, weaponhand_t hand)
         activeWeaponList[WEAPON_OFFHAND]->PutAway();
     }
 
-    if (activeWeaponList[WEAPON_MAIN] && activeWeaponList[WEAPON_MAIN] != weapon) {
+    if (activeWeaponList[WEAPON_MAIN] == weapon) {
+        return;
+    }
+
+    if (activeWeaponList[WEAPON_MAIN]) {
         activeWeaponList[WEAPON_MAIN]->PutAway();
     }
 
-    newActiveWeapon.weapon = weapon;
-    newActiveWeapon.hand   = hand;
-
-    //ChangeWeapon( weapon, hand );
+    SetNewActiveWeapon(weapon, hand);
 }
 
 void Sentient::EventUseWeaponClass(Event *ev)
@@ -1290,9 +1295,21 @@ Ammo *Sentient::FindAmmoByName(str name)
     return NULL;
 }
 
-void Sentient::GetNewActiveWeapon(Event *ev)
+void Sentient::GetNewActiveWeaponOld(Event *ev)
+{
+    ScriptDeprecatedAltVariable("newActiveWeapon");
+
+    ev->AddEntity(GetNewActiveWeapon());
+}
+
+void Sentient::GetNewActiveWeapon(Event* ev)
 {
     ev->AddEntity(GetNewActiveWeapon());
+}
+
+void Sentient::GetNewActiveWeaponHand(Event* ev)
+{
+    ev->AddInteger(GetNewActiveWeaponHand());
 }
 
 void Sentient::GetActiveWeap(Event *ev)
