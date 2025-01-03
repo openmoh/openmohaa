@@ -166,7 +166,7 @@ void UIPulldownMenuContainer::FrameInitialized
 {
 	AllowActivate(qfalse);
 	m_menu->setBackgroundColor(m_background_color, qtrue);
-	m_menu->setForegroundColor(m_background_color);
+	m_menu->setForegroundColor(m_foreground_color);
 }
 
 void UIPulldownMenuContainer::setBackgroundAlpha
