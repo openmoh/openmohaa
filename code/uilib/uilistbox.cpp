@@ -279,9 +279,13 @@ void UIListBox::Draw(void)
     float       aty;
     int         i;
     const char *str;
-    UColor      selectedBG(0, 1, 1, 1);
-    UColor      selectedColor  = UBlack;
-    UColor      selectedBorder = UWhite;
+    //UColor      selectedBG(0, 1, 1, 1);
+    //UColor      selectedColor  = UBlack;
+    //UColor      selectedBorder = UWhite;
+    // Changed in 2.0
+    UColor      selectedBG(0.2, 0.18, 0.015);
+    UColor      selectedColor(0.9, 0.8, 0.6);
+    UColor      selectedBorder(0.315, 0.27, 0.0225);
 
     aty = 0;
 
