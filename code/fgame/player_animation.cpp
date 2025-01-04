@@ -61,9 +61,13 @@ void Player::SetPartAnim(const char *anim, bodypart_t slot)
 {
     int animnum;
 
-    if (getMoveType() == MOVETYPE_NOCLIP && slot) {
-        StopPartAnimating(torso);
-        return;
+    if (getMoveType() == MOVETYPE_NOCLIP) {
+        if (slot) {
+            StopPartAnimating(torso);
+            return;
+        }
+
+        anim = "idle";
     }
 
     animnum = gi.Anim_NumForName(edict->tiki, anim);
