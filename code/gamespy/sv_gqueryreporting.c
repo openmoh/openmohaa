@@ -192,10 +192,10 @@ static void packet_send(qr_t qrec, struct sockaddr *addr, char *buffer)
         return;
     }
 
+    qrec->packetnumber += 1;
+
     Com_sprintf(keyvalue, sizeof(keyvalue), "\\queryid\\%d.%d", qrec->queryid, qrec->packetnumber);
     strcat(buffer, keyvalue);
-
-    qrec->packetnumber++;
 
     sendto((SOCKET)qrec->querysock, buffer, (int)strlen(buffer), 0, addr, sizeof(*addr));
     *buffer = 0;
