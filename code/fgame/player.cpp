@@ -5542,21 +5542,25 @@ void Player::EvaluateState(State *forceTorso, State *forceLegs)
     }
 
     if (g_showplayeranim->integer) {
-        if (last_leg_anim_name != AnimName(legs)) {
-            gi.DPrintf("Legs change from %s to %s\n", last_leg_anim_name.c_str(), AnimName(legs));
-            last_leg_anim_name = AnimName(legs);
+        str sNewAnim;
+
+        sNewAnim = AnimName(m_iPartSlot[legs]);
+        if (last_leg_anim_name != sNewAnim) {
+            gi.DPrintf("Legs anim change from %s to %s\n", last_leg_anim_name.c_str(), sNewAnim.c_str());
+            last_leg_anim_name = sNewAnim;
         }
 
-        if (last_torso_anim_name != AnimName(torso)) {
-            gi.DPrintf("Torso change from %s to %s\n", last_torso_anim_name.c_str(), AnimName(torso));
-            last_torso_anim_name = AnimName(torso);
+        sNewAnim = AnimName(m_iPartSlot[torso]);
+        if (last_torso_anim_name != sNewAnim) {
+            gi.DPrintf("Torso anim change from %s to %s\n", last_torso_anim_name.c_str(), sNewAnim.c_str());
+            last_torso_anim_name = sNewAnim;
         }
     }
 
     if (g_showplayerstate->integer) {
         if (startstate_Legs != currentState_Legs) {
             gi.DPrintf(
-                "Legs change from %s to %s\n",
+                "Legs state change from %s to %s\n",
                 startstate_Legs ? startstate_Legs->getName() : "NULL",
                 currentState_Legs ? currentState_Legs->getName() : "NULL"
             );
@@ -5564,7 +5568,7 @@ void Player::EvaluateState(State *forceTorso, State *forceLegs)
 
         if (startstate_Torso != currentState_Torso) {
             gi.DPrintf(
-                "Torso change from %s to %s\n",
+                "Torso state change from %s to %s\n",
                 startstate_Torso ? startstate_Torso->getName() : "NULL",
                 currentState_Torso ? currentState_Torso->getName() : "NULL"
             );
