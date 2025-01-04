@@ -339,6 +339,10 @@ void Netchan_TransmitNextFragment( netchan_t *chan, netprofpacketlist_t *packetl
 
 	// send the datagram
 	NET_SendPacket( chan->sock, send.cursize, send.data, chan->remoteAddress );
+	
+	// Store send time and size of this packet for rate control
+	chan->lastSentTime = Sys_Milliseconds();
+	chan->lastSentSize = send.cursize;
 
 	if ( showpackets->integer ) {
 		Com_Printf ("%s send %4zu : s=%i fragment=%zu,%zu\n"
@@ -409,6 +413,10 @@ void Netchan_Transmit( netchan_t *chan, size_t length, const byte *data, netprof
 
 	// send the datagram
 	NET_SendPacket( chan->sock, send.cursize, send.data, chan->remoteAddress );
+
+	// Store send time and size of this packet for rate control
+	chan->lastSentTime = Sys_Milliseconds();
+	chan->lastSentSize = send.cursize;
 
 	if ( showpackets->integer ) {
 		Com_Printf( "%s send %4zu : s=%i ack=%i\n"
