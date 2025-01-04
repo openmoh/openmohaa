@@ -325,7 +325,12 @@ void Netchan_TransmitNextFragment( netchan_t *chan, netprofpacketlist_t *packetl
 	// send the qport if we are a client
 	if ( chan->sock == NS_CLIENT ) {
 		MSG_WriteShort( &send, qport->integer );
-	}
+    }
+
+#ifdef LEGACY_PROTOCOL
+    if (!chan->compat)
+#endif
+        MSG_WriteLong(&send, NETCHAN_GENCHECKSUM(chan->challenge, chan->outgoingSequence));
 
 	// copy the reliable message to the packet first
 	fragmentLength = FRAGMENT_SIZE;
@@ -402,12 +407,17 @@ void Netchan_Transmit( netchan_t *chan, size_t length, const byte *data, netprof
 	MSG_InitOOB (&send, send_buf, chan->remoteAddress.type == NA_LOOPBACK ? MAX_PACKETLEN : MAX_REMOTE_PACKETLEN);
 
 	MSG_WriteLong( &send, chan->outgoingSequence );
-	chan->outgoingSequence++;
 
 	// send the qport if we are a client
-	if ( chan->sock == NS_CLIENT ) {
-		MSG_WriteShort( &send, qport->integer );
-	}
+	if(chan->sock == NS_CLIENT)
+		MSG_WriteShort(&send, qport->integer);
+
+#ifdef LEGACY_PROTOCOL
+	if(!chan->compat)
+#endif
+		MSG_WriteLong(&send, NETCHAN_GENCHECKSUM(chan->challenge, chan->outgoingSequence));
+
+	chan->outgoingSequence++;
 
 	MSG_WriteData( &send, data, length );
 
@@ -467,6 +477,17 @@ qboolean Netchan_Process( netchan_t *chan, msg_t *msg, netprofpacketlist_t *pack
 	// read the qport if we are a server
 	if ( chan->sock == NS_SERVER ) {
 		qport = MSG_ReadShort( msg );
+	}
+
+#ifdef LEGACY_PROTOCOL
+	if(!chan->compat)
+#endif
+	{
+		int checksum = MSG_ReadLong(msg);
+
+		// UDP spoofing protection
+		if(NETCHAN_GENCHECKSUM(chan->challenge, sequence) != checksum)
+			return qfalse;
 	}
 
 	// read the fragment information
