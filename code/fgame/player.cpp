@@ -5555,7 +5555,10 @@ void Player::EvaluateState(State *forceTorso, State *forceLegs)
 
                         oldTime = GetTime(m_iPartSlot[legs]);
                         SetPartAnim(legsAnim, legs);
-                        SetTime(m_iPartSlot[legs], oldTime);
+
+                        if (animtimes[m_iPartSlot[legs]] > 0) {
+                            SetTime(m_iPartSlot[legs], fmod(oldTime, animtimes[m_iPartSlot[legs]]));        
+                        }
                     } else {
                         SetPartAnim(legsAnim, legs);
                     }
