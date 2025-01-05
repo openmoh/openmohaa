@@ -402,8 +402,8 @@ void Player::AdjustAnimBlends(void)
                 fWeightTotal += m_fPartBlends[torso];
             }
             if (partAnim[torso] != "") {
-                SetWeight(iPartSlot, m_fPartBlends[torso]);
-                fWeightTotal += 1.0f - m_fPartBlends[torso];
+                SetWeight(iPartSlot, 1.0 - m_fPartBlends[torso]);
+                fWeightTotal += 1.0 - m_fPartBlends[torso];
             }
 
             edict->s.actionWeight = fWeightTotal;
