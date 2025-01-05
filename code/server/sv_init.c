@@ -166,7 +166,7 @@ int SV_FindIndex( const char *name, int start, int max, qboolean create ) {
 		if( !s || !s[ 0 ] ) {
 			break;
 		}
-		if( !strcmp( s, name ) ) {
+		if( !Q_stricmp( s, name ) ) {
 			return i;
 		}
 	}
