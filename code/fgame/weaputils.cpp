@@ -633,10 +633,11 @@ Projectile::Projectile()
     takedamage           = DAMAGE_NO;
     owner                = ENTITYNUM_NONE;
     edict->r.ownerNum    = ENTITYNUM_NONE;
+
     // Added in 2.0
-    m_bArcToTarget       = false;
+    m_bArcToTarget = false;
     // Added in 2.30
-    m_bDieInWater        = false;
+    m_bDieInWater = false;
 
     // make this shootable but non-solid on the client
     setContents(CONTENTS_SHOOTONLY);
@@ -646,7 +647,7 @@ Projectile::Projectile()
     //
     flags |= FL_TOUCH_TRIGGERS;
 
-    m_iTeam           = 0;
+    m_iTeam = 0;
 
     // Added in OPM
     m_bHadPlayerOwner = false;
@@ -1253,21 +1254,21 @@ void Projectile::Touch(Event *ev)
         other->Damage(
             this, owner, damage, origin, velocity, level.impact_trace.plane.normal, knockback, 0, meansofdeath
         );
-    }
 
-    if (g_gametype->integer == GT_SINGLE_PLAYER && weap) {
-        if (other->IsSubclassOfPlayer() || other->IsSubclassOfVehicle() || other->IsSubclassOfVehicleTank()
-            || other->isSubclassOf(VehicleCollisionEntity)) {
-            weap->m_iNumHits++;
-            weap->m_iNumTorsoShots++;
+        if (g_gametype->integer == GT_SINGLE_PLAYER && weap) {
+            if (other->IsSubclassOfSentient() || other->IsSubclassOfVehicle() || other->IsSubclassOfVehicleTank()
+                || other->isSubclassOf(VehicleCollisionEntity)) {
+                weap->m_iNumHits++;
+                weap->m_iNumTorsoShots++;
 
-            if (weap->IsSubclassOfVehicleTurretGun()) {
-                VehicleTurretGun* t = (VehicleTurretGun*)weap.Pointer();
-                Player* p = (Player*)t->GetRemoteOwner().Pointer();
+                if (weap->IsSubclassOfVehicleTurretGun()) {
+                    VehicleTurretGun *t = (VehicleTurretGun *)weap.Pointer();
+                    Player           *p = (Player *)t->GetRemoteOwner().Pointer();
 
-                if (p && p->IsSubclassOfPlayer()) {
-                    p->m_iNumHits++;
-                    p->m_iNumTorsoShots++;
+                    if (p && p->IsSubclassOfPlayer()) {
+                        p->m_iNumHits++;
+                        p->m_iNumTorsoShots++;
+                    }
                 }
             }
         }
@@ -1291,7 +1292,7 @@ void Projectile::Touch(Event *ev)
     PostEvent(EV_Remove, 0);
 
     // Call the explosion event
-    Event* explEv;
+    Event *explEv;
     explEv = new Event(EV_Projectile_Explode);
     explEv->AddEntity(other);
     ProcessEvent(explEv);
@@ -1301,21 +1302,21 @@ void Projectile::Touch(Event *ev)
     //  Check for projectile vulnerability
     //
 
-    Vehicle* pVehicle = NULL;
+    Vehicle *pVehicle = NULL;
 
     if (other->IsSubclassOfVehicle()) {
-        pVehicle = static_cast<Vehicle*>(other);
+        pVehicle = static_cast<Vehicle *>(other);
     } else if (other->IsSubclassOfVehicleTurretGun()) {
-        VehicleTurretGun* pTurret = static_cast<VehicleTurretGun*>(other);
-        Entity* pEnt = pTurret->GetVehicle();
+        VehicleTurretGun *pTurret = static_cast<VehicleTurretGun *>(other);
+        Entity           *pEnt    = pTurret->GetVehicle();
         if (pEnt && pEnt->IsSubclassOfVehicle()) {
-            pVehicle = static_cast<Vehicle*>(pEnt);
+            pVehicle = static_cast<Vehicle *>(pEnt);
         }
     } else if (other->isSubclassOf(VehicleCollisionEntity)) {
-        VehicleCollisionEntity* pCollision = static_cast<VehicleCollisionEntity*>(other);
+        VehicleCollisionEntity *pCollision = static_cast<VehicleCollisionEntity *>(other);
 
         if (pCollision && pCollision->GetOwner()->IsSubclassOfVehicle()) {
-            pVehicle = static_cast<Vehicle*>(pCollision->GetOwner());
+            pVehicle = static_cast<Vehicle *>(pCollision->GetOwner());
         }
     }
 
@@ -1920,6 +1921,7 @@ Projectile *ProjectileAttack(
     proj->edict->r.ownerNum = owner->entnum;
     proj->angles            = dir.toAngles();
     proj->charge_fraction   = fraction;
+    proj->weap              = weap;
 
     if (!real_speed) {
         if (proj->projFlags & P_CHARGE_SPEED) {
@@ -2270,7 +2272,7 @@ float BulletAttack(
                     if (g_showbullettrace->integer) {
                         gi.Printf("%.2f\n", newdamage);
                     }
-                    
+
                     if (newdamage < 1.f) {
                         vTmpEnd        = vTraceStart + vDir * -4;
                         trace.fraction = 1.f;
@@ -2391,10 +2393,12 @@ float BulletAttack(
                     if (trace.surfaceFlags & (SURF_FOLIAGE | SURF_GLASS | SURF_PUDDLE | SURF_PAPER)
                         || trace.contents & (CONTENTS_CLAYPIDGEON | CONTENTS_WATER)
                         || (g_protocol < protocol_e::PROTOCOL_MOHTA && trace.startsolid)
-                        || (bulletlarge && trace.ent && (g_protocol < protocol_e::PROTOCOL_MOHTA || (trace.ent->r.contents & CONTENTS_BBOX)) && !trace.ent->r.bmodel
-                            && trace.ent->entity->takedamage)
+                        || (bulletlarge && trace.ent
+                            && (g_protocol < protocol_e::PROTOCOL_MOHTA || (trace.ent->r.contents & CONTENTS_BBOX))
+                            && !trace.ent->r.bmodel && trace.ent->entity->takedamage)
                         || ((trace.surfaceFlags & SURF_WOOD) && bulletthroughwood)
-                        || ((trace.surfaceFlags & (SURF_GRILL | SURF_METAL)) && bulletthroughmetal && iContinueCount < 5)) {
+                        || ((trace.surfaceFlags & (SURF_GRILL | SURF_METAL)) && bulletthroughmetal && iContinueCount < 5
+                        )) {
                         if (((trace.surfaceFlags & SURF_WOOD) && bulletthroughwood)
                             || ((trace.surfaceFlags & (SURF_GRILL | SURF_METAL)) && bulletthroughmetal)) {
                             if (trace.contents & CONTENTS_FENCE) {

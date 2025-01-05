@@ -1855,7 +1855,7 @@ void Weapon::Shoot(Event *ev)
 
         switch (firetype[mode]) {
         case FT_PROJECTILE:
-            ProjectileAttack(pos, forward, owner, projectileModel[mode], charge_fraction);
+            ProjectileAttack(pos, forward, owner, projectileModel[mode], charge_fraction, 0, this);
             break;
         case FT_LANDMINE:
             PlaceLandmine(pos, owner, projectileModel[mode], this);
