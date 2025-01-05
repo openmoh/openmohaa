@@ -1903,11 +1903,11 @@ void DM_Manager::BuildTeamInfo_ver15(DM_Team *dmTeam)
         iPing /= iNumPlayers;
     }
 
-    if (g_gametype->integer >= GT_TEAM_ROUNDS) {
-        iKills  = dmTeam->m_wins_in_a_row;
-        iDeaths = dmTeam->m_teamwins;
+    if (g_gametype->integer == GT_TEAM_ROUNDS || g_gametype->integer == GT_OBJECTIVE || g_gametype->integer == GT_TOW) {
+        iKills  = dmTeam->m_teamwins;
+        iDeaths = dmTeam->m_wins_in_a_row;
     } else {
-        iKills  = dmTeam->m_iKills;
+        iKills  = dmTeam->m_teamwins;
         iDeaths = dmTeam->m_iDeaths;
     }
 
