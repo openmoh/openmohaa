@@ -5510,7 +5510,6 @@ void Player::EvaluateState(State *forceTorso, State *forceLegs)
                 laststate_Legs = NULL;
             }
 
-            animdone_Legs = false;
             if (currentState_Legs) {
                 if (laststate_Legs) {
                     // Process exit commands of the last state

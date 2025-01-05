@@ -71,7 +71,7 @@ void Player::SetPartAnim(const char *anim, bodypart_t slot)
     }
 
     animnum = gi.Anim_NumForName(edict->tiki, anim);
-    if (animnum == CurrentAnim() && partAnim[slot] == anim) {
+    if (animnum == CurrentAnim(m_iPartSlot[slot]) && partAnim[slot] == anim) {
         return;
     }
 
@@ -93,21 +93,19 @@ void Player::SetPartAnim(const char *anim, bodypart_t slot)
     if (m_fPartBlends[slot] < 0.5f) {
         SetAnimDoneEvent(NULL, m_iPartSlot[slot]);
 
-        float m_fCrossTime = gi.Anim_CrossTime(edict->tiki, animnum);
-
-        partBlendMult[slot] = m_fCrossTime;
-        if (m_fCrossTime <= 0.0f) {
-            partOldAnim[slot]   = "";
-            m_fPartBlends[slot] = 0.0f;
-        } else {
+        partBlendMult[slot] = gi.Anim_CrossTime(edict->tiki, animnum);
+        if (partBlendMult[slot] > 0.0f) {
             m_iPartSlot[slot] ^= 1;
-            partBlendMult[slot] = 1.0f / m_fCrossTime;
+            partBlendMult[slot] = 1.0f / partBlendMult[slot];
             partOldAnim[slot]   = partAnim[slot];
             m_fPartBlends[slot] = 1.0f;
+        } else {
+            partOldAnim[slot]   = "";
+            m_fPartBlends[slot] = 0.0f;
         }
     }
 
-    if (slot) {
+    if (slot != legs) {
         animdone_Torso = false;
     } else {
         animdone_Legs = false;
@@ -117,7 +115,7 @@ void Player::SetPartAnim(const char *anim, bodypart_t slot)
 
     partAnim[slot] = anim;
 
-    if (slot) {
+    if (slot != legs) {
         NewAnim(animnum, EV_Player_AnimLoop_Torso, m_iPartSlot[slot]);
     } else {
         NewAnim(animnum, EV_Player_AnimLoop_Legs, m_iPartSlot[legs]);
@@ -147,7 +145,7 @@ void Player::StopPartAnimating(bodypart_t part)
 
     StopAnimating(m_iPartSlot[part]);
 
-    if (part) {
+    if (part != legs) {
         animdone_Torso = false;
     } else {
         animdone_Legs = false;
@@ -162,7 +160,7 @@ void Player::PausePartAnim(bodypart_t part)
 
 int Player::CurrentPartAnim(bodypart_t part) const
 {
-    if (!*partAnim[part]) {
+    if (partAnim[part] == "") {
         return -1;
     }
 
