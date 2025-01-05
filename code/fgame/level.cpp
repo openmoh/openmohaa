@@ -1916,6 +1916,8 @@ void Level::CheckVote(void)
                 level.m_voteNo++;
             }
         }
+
+        numVoters++;
     }
 
     level.m_numVoters = numVoters;
