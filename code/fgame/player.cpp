@@ -11565,13 +11565,15 @@ qboolean Player::CheckCanSwitchTeam(teamtype_t team)
             }
 
             if (pNewTeam->m_players.NumObjects() > numTeamPlayers) {
+                const char* message = gi.LV_ConvertString("That team has enough players. Choose the team that has the lowest number of players.");
+
                 gi.SendServerCommand(
                     edict - g_entities,
                     "print \"" HUD_MESSAGE_WHITE "%s\n\"",
-                    gi.LV_ConvertString(
-                        "That team has enough players. Choose the team that has the lowest number of players."
-                    )
+                    gi.LV_ConvertString(message)
                 );
+
+                gi.centerprintf(edict, message);
                 return qfalse;
             }
         }
