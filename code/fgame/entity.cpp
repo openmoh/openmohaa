@@ -3609,106 +3609,104 @@ void Entity::Sound(
         }
 
         if (!name) {
-            name = sound_name.c_str();
+            name = gi.GlobalAlias_FindRandom(sound_name.c_str(), &ret);
         }
 
         // Play the sound
 
-        if (name != NULL) {
-            if (ret) {
-                aliaschannel = ret->channel;
-                aliasvolume = G_Random() * ret->volumeMod + ret->volume;
-                aliaspitch = G_Random() * ret->pitchMod + ret->pitch;
-                aliasmin_dist = ret->dist;
-                aliasmax_dist = ret->maxDist;
+        if (name && ret) {
+            aliaschannel = ret->channel;
+            aliasvolume = G_Random() * ret->volumeMod + ret->volume;
+            aliaspitch = G_Random() * ret->pitchMod + ret->pitch;
+            aliasmin_dist = ret->dist;
+            aliasmax_dist = ret->maxDist;
+
+            if (channel < 0) {
+                channel = ret->channel;
+            }
+
+            num = entnum;
+            if (sound_origin) {
+                VectorCopy(*sound_origin, org);
+                num = ENTITYNUM_NONE;
+            } else {
+                VectorCopy(edict->s.origin, org);
+
+                if (doCallback) {
+                    num |= S_FLAG_DO_CALLBACK;
+                }
+            }
+
+            switch (argstype) {
+            case 0:
+                volume = aliasvolume;
+                pitch = aliaspitch;
+                min_dist = aliasmin_dist;
+                max_dist = aliasmax_dist;
+                channel = aliaschannel;
+                break;
+            case 1:
+                if (volume >= 0.0f) {
+                    volume = volume * aliasvolume;
+                } else {
+                    volume = aliasvolume;
+                }
+
+                if (pitch >= 0.0f) {
+                    pitch = pitch * aliaspitch;
+                } else {
+                    pitch = aliaspitch;
+                }
+
+                if (min_dist < 0.0f) {
+                    min_dist = aliasmin_dist;
+                }
+
+                if (max_dist < 0.0f) {
+                    max_dist = aliasmax_dist;
+                }
 
                 if (channel < 0) {
-                    channel = ret->channel;
-                }
-
-                num = entnum;
-                if (sound_origin) {
-                    VectorCopy(*sound_origin, org);
-                    num = ENTITYNUM_NONE;
-                } else {
-                    VectorCopy(edict->s.origin, org);
-
-                    if (doCallback) {
-                        num |= S_FLAG_DO_CALLBACK;
-                    }
-                }
-
-                switch (argstype) {
-                case 0:
-                    volume = aliasvolume;
-                    pitch = aliaspitch;
-                    min_dist = aliasmin_dist;
-                    max_dist = aliasmax_dist;
                     channel = aliaschannel;
-                    break;
-                case 1:
-                    if (volume >= 0.0f) {
-                        volume = volume * aliasvolume;
-                    } else {
-                        volume = aliasvolume;
-                    }
-
-                    if (pitch >= 0.0f) {
-                        pitch = pitch * aliaspitch;
-                    } else {
-                        pitch = aliaspitch;
-                    }
-
-                    if (min_dist < 0.0f) {
-                        min_dist = aliasmin_dist;
-                    }
-
-                    if (max_dist < 0.0f) {
-                        max_dist = aliasmax_dist;
-                    }
-
-                    if (channel < 0) {
-                        channel = aliaschannel;
-                    }
-                    break;
-                default:
-                    if (volume < 0.0) {
-                        volume = aliasvolume;
-                    }
-                    if (pitch < 0.0) {
-                        pitch = aliaspitch;
-                    }
-                    if (min_dist < 0.0) {
-                        min_dist = aliasmin_dist;
-                    }
-                    if (max_dist < 0.0) {
-                        max_dist = aliasmax_dist;
-                    }
-                    if (channel < 0) {
-                        channel = aliaschannel;
-                    }
-                    break;
                 }
-
-                if (g_gametype->integer == GT_SINGLE_PLAYER && (!checkSubtitle || g_subtitle->integer) && ret->subtitle) {
-                    Entity *p = G_GetEntity(0);
-
-                    if (p && (g_subtitle->integer == 2 || Square(max_dist) > DistanceSquared(org, p->edict->s.origin))) {
-                        cvar_t *curSubtitle = gi.Cvar_Get("curSubtitle", "0", 0);
-                        int curSub;
-
-                        gi.cvar_set(va("subtitle%d", curSubtitle->integer), va("%s", ret->subtitle));
-                        curSub = curSubtitle->integer + 1;
-                        if (curSubtitle->integer + 1 < 0) {
-                            curSub = curSubtitle->integer + MAX_SUBTITLES;
-                        }
-                        
-                        gi.cvar_set("curSubtitle", va("%d", (curSubtitle->integer + 1) - MAX_SUBTITLES * (curSub >> 2)));
-                    }
+                break;
+            default:
+                if (volume < 0.0) {
+                    volume = aliasvolume;
                 }
-
-                gi.Sound(&org, num, channel, name, volume, min_dist, pitch, max_dist, ret->streamed);
+                if (pitch < 0.0) {
+                    pitch = aliaspitch;
+                }
+                if (min_dist < 0.0) {
+                    min_dist = aliasmin_dist;
+                }
+                if (max_dist < 0.0) {
+                    max_dist = aliasmax_dist;
+                }
+                if (channel < 0) {
+                    channel = aliaschannel;
+                }
+                break;
             }
+
+            if (g_gametype->integer == GT_SINGLE_PLAYER && (!checkSubtitle || g_subtitle->integer) && ret->subtitle) {
+                Entity *p = G_GetEntity(0);
+
+                if (p && (g_subtitle->integer == 2 || Square(max_dist) > DistanceSquared(org, p->edict->s.origin))) {
+                    cvar_t *curSubtitle = gi.Cvar_Get("curSubtitle", "0", 0);
+                    int curSub;
+
+                    gi.cvar_set(va("subtitle%d", curSubtitle->integer), va("%s", ret->subtitle));
+                    curSub = curSubtitle->integer + 1;
+                    if (curSubtitle->integer + 1 < 0) {
+                        curSub = curSubtitle->integer + MAX_SUBTITLES;
+                    }
+                    
+                    gi.cvar_set("curSubtitle", va("%d", (curSubtitle->integer + 1) - MAX_SUBTITLES * (curSub >> 2)));
+                }
+            }
+
+            gi.Sound(&org, num, channel, name, volume, min_dist, pitch, max_dist, ret->streamed);
         } else {
             gi.DPrintf(
                 "ERROR: Entity::Sound: %s needs an alias in ubersound.scr or uberdialog.scr - Please fix.\n",
