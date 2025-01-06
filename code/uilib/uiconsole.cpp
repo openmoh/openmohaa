@@ -305,7 +305,7 @@ void UIConsole::setConsoleHandler
 void UIConsole::AddText
 	(
 	const char *text,
-	UColor *pColor
+	const UColor *pColor
 	)
 
 {
@@ -488,7 +488,7 @@ void UIConsole::Draw
 	)
 
 {
-	UColor* pCurrColor;
+	const UColor* pCurrColor;
 
 	m_font->setColor(m_foreground_color);
 	pCurrColor = &m_foreground_color;
@@ -945,7 +945,7 @@ void UIFloatingConsole::OnChildSizeChanged
 void UIFloatingConsole::AddText
 	(
 	const char *text,
-	UColor *pColor
+	const UColor *pColor
 	)
 
 {
@@ -1132,7 +1132,7 @@ void UIDMConsole::KeyEnter
 void UIDMConsole::AddDMMessageText
 	(
 	const char *text,
-	UColor *pColor
+	const UColor *pColor
 	)
 
 {
@@ -1465,7 +1465,7 @@ void UIFloatingDMConsole::OnChildSizeChanged
 void UIFloatingDMConsole::AddText
 	(
 	const char *text,
-	UColor *pColor
+	const UColor *pColor
 	)
 
 {
@@ -1477,7 +1477,7 @@ void UIFloatingDMConsole::AddText
 void UIFloatingDMConsole::AddDMMessageText
 	(
 	const char *text,
-	UColor *pColor
+	const UColor *pColor
 	)
 
 {

@@ -30,7 +30,7 @@ public:
 	int lines;
 	int begins[ 10 ];
 	int breaks[ 10 ];
-	UColor *pColor;
+	const UColor *pColor;
 
 	item();
 };
@@ -85,7 +85,7 @@ public:
 	UIConsole();
 
 	void		setConsoleHandler( consoleHandler_t handler );
-	void		AddText( const char *text, UColor *pColor );
+	void		AddText( const char *text, const UColor *pColor );
 	void		CalcLineBreaks( item& theItem );
 	void		Clear( void );
 	void		FrameInitialized( void ) override;
@@ -112,7 +112,7 @@ public:
 
 	void		FrameInitialized( void ) override;
 	void		OnChildSizeChanged( Event *ev );
-	void		AddText( const char *text, UColor *pColor );
+	void		AddText( const char *text, const UColor *pColor );
 	void		setConsoleHandler( consoleHandler_t handler );
 	void		Clear( void );
 	void		OnClosePressed( Event *ev );
@@ -133,7 +133,7 @@ private:
 public:
 	UIDMConsole();
 
-	void			AddDMMessageText( const char *text, UColor *pColor );
+	void			AddDMMessageText( const char *text, const UColor *pColor );
 	void			Draw( void ) override;
 	qboolean		KeyEvent( int key, unsigned int time ) override;
 	qboolean		GetQuickMessageMode( void );
@@ -159,8 +159,8 @@ public:
 
 	void			FrameInitialized( void ) override;
 	void			OnChildSizeChanged( Event *ev );
-	void			AddText( const char *text, UColor *pColor );
-	void			AddDMMessageText( const char *text, UColor *pColor );
+	void			AddText( const char *text, const UColor *pColor );
+	void			AddDMMessageText( const char *text, const UColor *pColor );
 	void			setConsoleHandler( consoleHandler_t handler );
 	void			Clear( void );
 	void			OnClosePressed( Event *ev );
