@@ -3693,7 +3693,7 @@ void Entity::Sound(
                 if ((!checkSubtitle || g_subtitle->integer) && ret->subtitle) {
                     Entity *p = G_GetEntity(0);
 
-                    if (g_subtitle->integer == 2 || Square(max_dist) > DistanceSquared(org, p->edict->s.origin)) {
+                    if (p && (g_subtitle->integer == 2 || Square(max_dist) > DistanceSquared(org, p->edict->s.origin))) {
                         cvar_t *curSubtitle = gi.Cvar_Get("curSubtitle", "0", 0);
                         int curSub;
 
