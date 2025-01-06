@@ -32,6 +32,7 @@ public:
 	UColor();
 	UColor( float r, float g, float b, float a = 1.0 );
 	UColor( class UColorHSV hsv );
+	UColor( const UColor& color );
 
 	operator float *( );
 	operator float *( ) const;

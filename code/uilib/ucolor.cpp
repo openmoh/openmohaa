@@ -121,6 +121,14 @@ UColor::UColor
 	}
 }
 
+UColor::UColor(const UColor& color)
+	: r(color.r)
+	, g(color.g)
+	, b(color.b)
+	, a(color.a)
+{
+}
+
 UColor::operator float *( )
 {
 	return ( float * )this;
