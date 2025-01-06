@@ -3689,7 +3689,7 @@ void Entity::Sound(
                 break;
             }
 
-            if (g_gametype->integer == GT_SINGLE_PLAYER && (!checkSubtitle || g_subtitle->integer) && ret->subtitle) {
+            if (g_gametype->integer == GT_SINGLE_PLAYER && (ret->forcesubtitle || !checkSubtitle || g_subtitle->integer) && ret->subtitle) {
                 Entity *p = G_GetEntity(0);
 
                 if (p && (g_subtitle->integer == 2 || Square(max_dist) > DistanceSquared(org, p->edict->s.origin))) {
