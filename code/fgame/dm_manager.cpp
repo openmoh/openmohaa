@@ -58,15 +58,12 @@ static qboolean SpotWouldTelefrag(float *origin)
 static int compare_spawnsort(const void *pe1, const void *pe2)
 {
     float fDelta = ((spawnsort_t *)pe1)->fMetric - ((spawnsort_t *)pe2)->fMetric;
-
-    if (fDelta >= -0.001f) {
-        if (fDelta <= 0.001f) {
-            return 0;
-        } else {
-            return -1;
-        }
-    } else {
+    if (fDelta < -0.001) {
         return 1;
+    } else if (fDelta > 0.001) {
+        return -1;
+    } else {
+        return 0;
     }
 }
 
@@ -83,56 +80,56 @@ static PlayerStart *GetRandomSpawnpointFromList(spawnsort_t *pSpots, int nSpots)
 
     qsort(pSpots, nSpots, sizeof(spawnsort_t), compare_spawnsort);
 
-    if (pSpots[0].fMetric > 0.0f) {
-        if (nSpots > 5) {
-            nSpots = 5;
-        }
-
-        fMinPosMetric = pSpots[0].fMetric * nSpots;
-        fTotalMetric  = fMinPosMetric;
-
-        if (nSpots <= 1) {
-            fChosen = fMinPosMetric;
-        } else {
-            i            = 0;
-            fTotalMetric = 0.0f;
-
-            for (i = 0; i < nSpots; i++) {
-                if (pSpots[i].fMetric <= 0.0f) {
-                    break;
-                }
-
-                fChosen = pSpots[i].fMetric * (nSpots - i);
-                fTotalMetric += fChosen;
-
-                i++;
-            }
-
-            if (i < nSpots) {
-                fChosen = fMinPosMetric;
-            }
-
-            fMinPosMetric = fTotalMetric;
-        }
-
-        fTotalMetric = (fMinPosMetric - i * fChosen * 0.90f) * G_Random();
-        for (i = 0; i < nSpots - 1; i++) {
-            fTotalMetric -= (nSpots - i) * pSpots[i].fMetric - (fChosen * 0.90f);
-            if (fTotalMetric <= 0.0f) {
-                break;
-            }
-        }
-
-        return pSpots[i].spawnpoint;
-    } else {
+    if (pSpots[0].fMetric <= 0) {
         // return the spot anyway
         return pSpots[0].spawnpoint;
     }
+
+    if (nSpots > 5) {
+        nSpots = 5;
+    }
+
+    fMinPosMetric = pSpots[0].fMetric * nSpots;
+    fTotalMetric  = fMinPosMetric;
+
+    if (nSpots > 1) {
+        i            = 0;
+        fTotalMetric = 0.0f;
+
+        for (i = 0; i < nSpots; i++) {
+            if (pSpots[i].fMetric <= 0.0f) {
+                break;
+            }
+
+            fChosen = pSpots[i].fMetric * (nSpots - i);
+            fTotalMetric += fChosen;
+
+            i++;
+        }
+
+        if (i < nSpots) {
+            fChosen = fMinPosMetric;
+        }
+        
+        fMinPosMetric = fTotalMetric;
+    } else {
+        fChosen = fMinPosMetric;
+    }
+
+    fTotalMetric = (fMinPosMetric - i * fChosen * 0.9) * G_Random();
+    for (i = 0; i < nSpots - 1; i++) {
+        fTotalMetric -= (nSpots - i) * pSpots[i].fMetric - (fChosen * 0.9);
+        if (fTotalMetric <= 0) {
+            break;
+        }
+    }
+
+    return pSpots[i].spawnpoint;
 }
 
 float SpawnpointMetric_Ffa(const vec3_t origin, DM_Team *dmTeam, const Player *player)
 {
-    float fMinEnemyDistSquared = Square(23170);
+    float fMinEnemyDistSquared = Square(23170.f);
     int   i;
     int   nPlayers = dmManager.PlayerCount();
     float fDist;
@@ -150,12 +147,12 @@ float SpawnpointMetric_Ffa(const vec3_t origin, DM_Team *dmTeam, const Player *p
         }
     }
 
-    return fMinEnemyDistSquared - (G_Random(0.25f) + 1.0f) * Square(1024);
+    return fMinEnemyDistSquared - Square(1024) * (G_Random(0.25) + 1.0);
 }
 
 float SpawnpointMetric_Team(const vec3_t origin, DM_Team *dmTeam, const Player *player)
 {
-    float fMinEnemyDistSquared  = Square(23170);
+    float fMinEnemyDistSquared  = Square(23170.f);
     float fSumFriendDistSquared = 0.0f;
     float fDistSquared;
     float fMetric;
@@ -179,10 +176,10 @@ float SpawnpointMetric_Team(const vec3_t origin, DM_Team *dmTeam, const Player *
         }
     }
 
-    fMetric = fMinEnemyDistSquared - (G_Random(0.25f) + 1.0f) * Square(1024);
+    fMetric = fMinEnemyDistSquared - Square(1024) * (G_Random(0.25) + 1.0);
 
     if (nFriends) {
-        fMetric += 0.25f * ((23170.0f * 23170.0f) - fSumFriendDistSquared / nFriends);
+        fMetric += Square(23170) * 0.25 - fSumFriendDistSquared / nFriends;
     }
 
     return fMetric;
