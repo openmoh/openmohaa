@@ -23,19 +23,19 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ucolor.h"
 #include <cmath>
 
-UColor UClear( 0, 0, 0, 0 );
-UColor UWhite( 1, 1, 1, 1 );
-UColor UBlack( 0, 0, 0, 1 );
-UColor ULightGrey( 0.875, 0.875, 0.875, 1.0 );
-UColor UGrey( 0.75, 0.75, 0.75, 1.0 );
-UColor UDarkGrey( 0.5, 0.5, 0.5, 1.0 );
-UColor ULightRed( 1.0, 0.5, 0.5, 1.0 );
-UColor URed( 1.0, 0.0, 0.0, 1.0 );
-UColor UGreen( 0.0, 1.0, 0.0, 1.0 );
-UColor ULightGreen( 0.5, 1.0, 0.5, 1.0 );
-UColor UBlue( 0.0, 0.0, 1.0, 1.0 );
-UColor UYellow( 1.0, 1.0, 0.0, 1.0 );
-UColor UHudColor( 0.7f, 0.6f, 0.05f, 1.0f );
+const UColor UClear( 0, 0, 0, 0 );
+const UColor UWhite( 1, 1, 1, 1 );
+const UColor UBlack( 0, 0, 0, 1 );
+const UColor ULightGrey( 0.875, 0.875, 0.875, 1.0 );
+const UColor UGrey( 0.75, 0.75, 0.75, 1.0 );
+const UColor UDarkGrey( 0.5, 0.5, 0.5, 1.0 );
+const UColor ULightRed( 1.0, 0.5, 0.5, 1.0 );
+const UColor URed( 1.0, 0.0, 0.0, 1.0 );
+const UColor UGreen( 0.0, 1.0, 0.0, 1.0 );
+const UColor ULightGreen( 0.5, 1.0, 0.5, 1.0 );
+const UColor UBlue( 0.0, 0.0, 1.0, 1.0 );
+const UColor UYellow( 1.0, 1.0, 0.0, 1.0 );
+const UColor UHudColor( 0.7f, 0.6f, 0.05f, 1.0f );
 
 UColor::UColor
 	(
