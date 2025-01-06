@@ -152,6 +152,10 @@ static str               scoreboard_menuname;
 static str               ui_sCurrentLoadingMenu;
 static Container<Menu *> hudList;
 
+const UColor UWhiteChatMessageColor(0.75, 0.75, 0.75);
+const UColor URedChatMessageColor(1.0, 0.25, 0.25);
+const UColor UGreenChatMessageColor(0.0, 1.0, 0.25, 1.0);
+
 void UI_MultiplayerMenuWidgetsUpdate(void);
 void UI_MultiplayerMainMenuWidgetsUpdate(void);
 void UI_MainMenuWidgetsUpdate(void);
@@ -1303,11 +1307,11 @@ UI_PrintConsole
 */
 void UI_PrintConsole(const char *msg)
 {
-    UColor     *pColor = NULL;
-    const char *pszString;
-    char        szString[1024];
-    char        szBlah[1024];
-    qboolean    bPrintedDMBox = qfalse;
+    const UColor *pColor = NULL;
+    const char   *pszString;
+    char          szString[1024];
+    char          szBlah[1024];
+    qboolean      bPrintedDMBox = qfalse;
 
     pszString = msg;
     strncpy(szString, msg, 1024);
@@ -1325,7 +1329,7 @@ void UI_PrintConsole(const char *msg)
             break;
         case MESSAGE_CHAT_WHITE:
             bDMMessage = qtrue;
-            pColor     = &UGrey;
+            pColor     = &UWhiteChatMessageColor;
             break;
         case MESSAGE_WHITE:
             bBold  = qtrue;
@@ -1333,11 +1337,11 @@ void UI_PrintConsole(const char *msg)
             break;
         case MESSAGE_CHAT_RED:
             bDeathMessage = MESSAGE_CHAT_RED;
-            pColor        = &ULightRed;
+            pColor        = &URedChatMessageColor;
             break;
         case MESSAGE_CHAT_GREEN:
             bDeathMessage = MESSAGE_CHAT_GREEN;
-            pColor        = &UGreen;
+            pColor        = &UGreenChatMessageColor;
             break;
         }
 

@@ -299,23 +299,19 @@ void UIDMBox::Print(const char *text)
     m_items[m_numitems].flags = 0;
 
     if (*text == MESSAGE_CHAT_WHITE) {
-        m_items[m_numitems].color = UGrey;
+        m_items[m_numitems].color = UWhiteChatMessageColor;
         m_items[m_numitems].font  = m_fontbold;
         m_items[m_numitems].flags |= DMBOX_ITEM_FLAG_BOLD;
 
         text1 = text + 1;
     } else if (*text == MESSAGE_CHAT_RED) {
-        m_items[m_numitems].color = ULightRed;
+        m_items[m_numitems].color = URedChatMessageColor;
         m_items[m_numitems].font  = m_fontbold;
         m_items[m_numitems].flags |= DMBOX_ITEM_FLAG_DEATH;
 
         text1 = text + 1;
     } else if (*text == MESSAGE_CHAT_GREEN) {
-        if (com_target_game->integer >= TG_MOHTA) {
-            m_items[m_numitems].color = ULightGreen;
-        } else {
-            m_items[m_numitems].color = UGreen;
-        }
+        m_items[m_numitems].color = UGreenChatMessageColor;
         m_items[m_numitems].font = m_fontbold;
         m_items[m_numitems].flags |= DMBOX_ITEM_FLAG_DEATH;
 

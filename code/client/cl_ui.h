@@ -47,10 +47,13 @@ void CL_ShutdownUI(void);
 //
 // general ui stuff
 //
-extern inventory_t client_inv;
-extern bind_t      client_bind;
-extern cvar_t     *cl_greenfps;
-extern qboolean    server_loading;
+extern inventory_t  client_inv;
+extern bind_t       client_bind;
+extern cvar_t      *cl_greenfps;
+extern qboolean     server_loading;
+extern const UColor UWhiteChatMessageColor;
+extern const UColor URedChatMessageColor;
+extern const UColor UGreenChatMessageColor;
 
 const char *CvarGetForUI(const char *name, const char *defval);
 void        UI_ClearState(void);
