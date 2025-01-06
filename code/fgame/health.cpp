@@ -114,7 +114,7 @@ void Health::PickupHealth(Event *ev)
 
     gi.SendServerCommand(
         player->edict - g_entities,
-        "print \"" HUD_MESSAGE_YELLOW "%s \"",
+        "print \"" HUD_MESSAGE_YELLOW "%s\n\"",
         gi.LV_ConvertString(va("Recovered %d Health", amount))
     );
 }
