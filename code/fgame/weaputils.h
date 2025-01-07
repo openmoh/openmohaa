@@ -87,8 +87,12 @@ public:
 	bool m_bDieInWater;
 	// Added in 2.0
 	int m_iTeam;
+
+	//
+    // Added in OPM
+	//
 	bool m_bHadPlayerOwner;
-	SafePtr<Entity> m_pOwnerPtr;
+    SafePtr<Entity> m_pOwnerPtr;
 
 	Projectile();
 	void Archive( Archiver &arc ) override;
@@ -127,6 +131,7 @@ public:
 	void			HeatSeek( Event *ev );
 	void			Drunk( Event *ev );
 	void			SmashThroughGlassThink( Event *ev );
+	void			SmashThroughGlassThink(); // Added in OPM
 	void			AddOwnerVelocity( Event *ev );
 	void			Prethink( Event *ev );
 	float			ResolveMinimumDistance( Entity *potential_target, float currmin );
@@ -146,7 +151,7 @@ public:
 	//
 	// Added in OPM
 	//
-	bool			CheckTeams( void );
+	bool			CheckTeams(void);
 };
 
 inline void Projectile::SetMartyr(int entnum)
