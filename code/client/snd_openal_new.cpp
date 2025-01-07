@@ -2250,12 +2250,14 @@ void S_OPENAL_Respatialize(int iEntNum, const vec3_t vHeadPos, const vec3_t vAxi
     //
     // Orientation
     //
-    alorientation[0][0] = vAxis[0][0];
-    alorientation[0][1] = vAxis[0][1];
-    alorientation[0][2] = vAxis[0][2];
-    alorientation[1][0] = vAxis[2][0];
-    alorientation[1][1] = vAxis[2][1];
-    alorientation[1][2] = vAxis[2][2];
+
+    // +90 degrees forward
+    alorientation[0][0] = -vAxis[2][0];
+    alorientation[0][1] = -vAxis[2][1];
+    alorientation[0][2] = -vAxis[2][2];
+    alorientation[1][0] = vAxis[0][0];
+    alorientation[1][1] = vAxis[0][1];
+    alorientation[1][2] = vAxis[0][2];
     qalListenerfv(AL_ORIENTATION, (const ALfloat *)alorientation);
     alDieIfError();
 
