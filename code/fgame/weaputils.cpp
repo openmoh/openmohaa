@@ -941,6 +941,13 @@ void Projectile::SetSmashThroughGlass(Event *ev)
 
 void Projectile::SmashThroughGlassThink(Event *ev)
 {
+    SmashThroughGlassThink();
+
+    PostEvent(EV_Projectile_SmashThroughGlass, level.frametime);
+}
+
+void Projectile::SmashThroughGlassThink()
+{
     if (velocity.length() > m_iSmashThroughGlass) {
         Vector  vEnd;
         trace_t trace;
@@ -961,8 +968,6 @@ void Projectile::SmashThroughGlassThink(Event *ev)
             }
         }
     }
-
-    PostEvent(EV_Projectile_SmashThroughGlass, level.frametime);
 }
 
 void Projectile::BeamCommand(Event *ev)
@@ -1918,7 +1923,6 @@ Projectile *ProjectileAttack(
     proj->setMoveType(MOVETYPE_BOUNCE);
     proj->ProcessInitCommands();
     proj->SetOwner(owner);
-    proj->edict->r.ownerNum = owner->entnum;
     proj->angles            = dir.toAngles();
     proj->charge_fraction   = fraction;
     proj->weap              = weap;
