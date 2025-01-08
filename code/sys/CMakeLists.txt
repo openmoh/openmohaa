@@ -55,7 +55,7 @@ elseif(UNIX)
 						ERROR_VARIABLE COMPILER_OUTPUT
 						OUTPUT_STRIP_TRAILING_WHITESPACE)
 
-		if(COMPILER_OUTPUT MATCHES "musl")
+		if(COMPILER_OUTPUT MATCHES "musl|freebsd|openbsd|netbsd")
 			target_link_libraries(syslib INTERFACE execinfo m)
 		else()
 			target_link_libraries(syslib INTERFACE m)
