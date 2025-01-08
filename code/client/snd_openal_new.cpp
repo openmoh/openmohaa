@@ -406,7 +406,7 @@ static bool S_OPENAL_InitContext()
     );
     attrlist[4] = 0;
     attrlist[5] = 0;
-#endif7
+#endif
 
 #ifdef ALC_SOFT_output_limiter
     // Disable limiter
