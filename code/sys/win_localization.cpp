@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2025 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -91,10 +91,6 @@ cLocalization::cLocalization()
 		Com_Printf( "--- Localization: reading file %s\n", szFilename );
 		LoadFile( szFilename );
 	}
-
-	memcpy( szFilename + iBasePos, "localization.txt", 17 );
-	Com_Printf( "--- Localization: reading file %s\n", szFilename );
-	LoadFile( szFilename );
 
 	FS_FreeFileList( ppszFiles );
 }
