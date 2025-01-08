@@ -21,6 +21,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "cl_ui.h"
+#include "../qcommon/localization.h"
 
 Event EV_DMBox_Goin
 (
@@ -321,7 +322,7 @@ void UIDMBox::Print(const char *text)
         m_items[m_numitems].font  = m_font;
     }
 
-    m_items[m_numitems].string = CalculateBreaks(m_items[m_numitems].font, text1, s_dmboxWidth);
+    m_items[m_numitems].string = CalculateBreaks(m_items[m_numitems].font, Sys_LV_CL_ConvertString(text1), s_dmboxWidth);
 
     m_numitems++;
     VerifyBoxOut();
