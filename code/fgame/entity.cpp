@@ -1217,6 +1217,8 @@ Event EV_CanSee
     "returns 1 if the entities can see eachother, 0 if not",
     EV_RETURN
 );
+
+// Added in 2.0
 Event EV_CanSeeNoEnts
 (
     "canseenoents",
@@ -1226,6 +1228,7 @@ Event EV_CanSeeNoEnts
     "returns 1 if the entities can see eachother, 0 if not; ignores any entities between them",
     EV_RETURN
 );
+
 Event EV_Entity_InPVS
 (
     "inpvs",
@@ -1628,6 +1631,7 @@ CLASS_DECLARATION(SimpleEntity, Entity, NULL) {
     {&EV_IsTouching,                   &Entity::IsTouching               },
     {&EV_IsInside,                     &Entity::IsInside                 },
     {&EV_CanSee,                       &Entity::CanSee                   },
+    {&EV_CanSeeNoEnts,                 &Entity::CanSeeNoEnts             }, // Added in 2.0
     {&EV_Entity_InPVS,                 &Entity::EventInPVS               },
     {&EV_SetShaderData,                &Entity::SetShaderData            },
     {&EV_GetVelocity,                  &Entity::GetVelocity              },
