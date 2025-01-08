@@ -21,6 +21,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "cl_ui.h"
+#include "../qcommon/localization.h"
 
 Event EV_GMBox_Goin
 (
@@ -295,7 +296,7 @@ void UIGMBox::Print(const char *text)
 
     m_items[m_numitems].flags = 0;
 
-    if (*text == 3) {
+    if (*text == MESSAGE_WHITE) {
         m_items[m_numitems].color = UWhite;
         m_items[m_numitems].font  = m_fontbold;
         m_items[m_numitems].flags |= GMBOX_ITEM_FLAG_BOLD;
@@ -306,7 +307,7 @@ void UIGMBox::Print(const char *text)
         m_items[m_numitems].font  = m_font;
     }
 
-    m_items[m_numitems].string = CalculateBreaks(m_items[m_numitems].font, text1, s_gmboxWidth);
+    m_items[m_numitems].string = CalculateBreaks(m_items[m_numitems].font, Sys_LV_CL_ConvertString(text1), s_gmboxWidth);
 
     m_numitems++;
     VerifyBoxOut();
