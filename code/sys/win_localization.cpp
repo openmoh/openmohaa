@@ -103,6 +103,7 @@ void cLocalization::LoadFile(const char *name)
     const char *p, *p2;
     size_t      rl;
     size_t      ll;
+    size_t      i;
 
     Com_Printf("Loading Localization File %s\n", name);
 
@@ -181,7 +182,15 @@ void cLocalization::LoadFile(const char *name)
                 new_entry.m_l3_rep = -1;
             }
 
-            m_entries.AddObject(new_entry);
+            for (i = 1; i <= m_entries.NumObjects(); i++) {
+                if (new_entry.m_refName == m_entries.ObjectAt(i).m_refName) {
+                    break;
+                }
+            }
+
+            if (i == m_entries.NumObjects() + 1) {
+                m_entries.AddObject(new_entry);
+            }
 
             if (!tiki.TokenAvailable(qtrue)) {
                 break;
@@ -214,33 +223,49 @@ void cLocalization::LoadFile(const char *name)
 
 static int bjb_strnscmp(const char *a, const char *b, size_t n)
 {
-    while (1) {
-        while (isspace((unsigned char)*a)) {
+    int i;
+
+    while (n > 0 && *a && *b) {
+        if (*a == *b) {
             a++;
+            b++;
+            n--;
+            continue;
         }
-        while (isspace((unsigned char)*b)) {
+
+        if (!isspace((unsigned char)*a) || !isspace((unsigned char)*b)) {
+            return *a - *b;
+        }
+
+        while (n > 0 && *a && isspace(*a)) {
+            a++;
+            n--;
+        }
+
+        while (*b && isspace(*b)) {
             b++;
         }
-        while (*a && *a == *b) {
-            a++, b++;
-        }
-        if (isspace((unsigned char)*a)) {
-            if (isalnum((unsigned char)a[-1]) && isalnum((unsigned char)*b)) {
-                break;
-            }
-        } else if (isspace((unsigned char)*b)) {
-            if (isalnum((unsigned char)b[-1]) && isalnum((unsigned char)*a)) {
-                break;
-            }
-        } else {
-            break;
-        }
     }
+
+    while (n > 0 && *a && isspace(*a)) {
+        a++;
+        n--;
+    }
+
+    while (*b && isspace(*b)) {
+        b++;
+    }
+
+    if (n <= 0) {
+        return 0;
+    }
+
     return *a - *b;
 }
 
 static void bjb_rebreak(const char *var, char *buf, size_t max)
 {
+#if 0
     const char *nl;
     char       *rb, *rb1, *rb2;
 
@@ -297,6 +322,7 @@ static void bjb_rebreak(const char *var, char *buf, size_t max)
             return;
         }
     }
+#endif
 }
 
 const char *cLocalization::ConvertString(const char *var)
@@ -314,23 +340,24 @@ const char *cLocalization::ConvertString(const char *var)
     loc_entry_t *entry;
     str          s1, s2;
 
-    l = strlen(var);
+    if (!*var) {
+        return var;
+    }
 
-    for (o = l; o > 0; o--) {
-        if (var[o - 1] >= ' ') {
-            break;
-        }
+    l = strlen(var);
+    o = l;
+
+    while (o && var[o - 1] < ' ') {
+        o--;
     }
 
     pRef = &var[o];
+    pVar = var;
     m    = l - o;
     n    = 0;
 
-    for (pVar = var; o > 0; o--) {
-        if (*pVar >= ' ') {
-            break;
-        }
-
+    while (o && (unsigned char)*pVar < ' ') {
+        o--;
         pVar++;
         n++;
     }
