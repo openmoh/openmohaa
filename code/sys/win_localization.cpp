@@ -67,7 +67,7 @@ int compare_strings( const void *pe1, const void *pe2 )
 {
 	const char *psz1 = ( const char * )pe1;
 	const char *psz2 = ( const char * )pe2;
-	return strcmp( psz1, psz2 );
+	return Q_stricmp( psz1, psz2 );
 }
 
 cLocalization::cLocalization()
