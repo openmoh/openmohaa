@@ -271,7 +271,7 @@ S_OPENAL_InitContext
 static bool S_OPENAL_InitContext()
 {
     const char *dev;
-    int         attrlist[8];
+    int         attrlist[10];
 
     Com_DPrintf("OpenAL: Context initialization\n");
 
@@ -406,10 +406,15 @@ static bool S_OPENAL_InitContext()
     );
     attrlist[4] = 0;
     attrlist[5] = 0;
-#endif
+#endif7
 
-    attrlist[6] = 0;
-    attrlist[7] = 0;
+#ifdef ALC_SOFT_output_limiter
+    // Disable limiter
+    attrlist[6] = ALC_OUTPUT_LIMITER_SOFT;
+    attrlist[7] = ALC_FALSE;
+#endif
+    attrlist[8] = 0;
+    attrlist[9] = 0;
 
     Com_Printf("OpenAL: Creating AL context...\n");
     al_context_id = qalcCreateContext(al_device, attrlist);
