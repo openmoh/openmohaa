@@ -37,6 +37,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #  include <chrono>
 #endif
 
+#include <time.h>
+
 #include "tiki.h"
 
 #ifndef DEDICATED
@@ -302,8 +304,13 @@ void QDECL Com_Printf( const char *fmt, ... ) {
 					char buffer[26];
 
 					t = time(NULL);
+#ifdef WIN32
 					localtime_s(&tms_local, &t);
 					gmtime_s(&tms_gm, &t);
+#else
+                    localtime_r(&tms_local, &t);
+                    gmtime_r(&tms_gm, &t);
+#endif
 					t_gmt = mktime(&tms_gm);
 					tz = difftime(t, t_gmt) / 60.0 / 60.0;
 
