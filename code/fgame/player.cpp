@@ -10360,7 +10360,7 @@ void Player::Stats(Event *ev)
             m_iObjectivesCompleted,
             iNumShotsFired,
             iNumHits,
-            (iNumHits / iNumShotsFired * 100.f),
+            ((float)iNumHits / (float)iNumShotsFired * 100.f),
             szPreferredWeapon.c_str(),
             m_iNumHitsTaken,
             m_iNumObjectsDestroyed,
