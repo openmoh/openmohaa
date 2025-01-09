@@ -265,6 +265,7 @@ void QDECL Com_Printf( const char *fmt, ... ) {
 			if(logfile)
 			{
 				Com_Printf( "logfile opened on %s\n", asctime( newtime ) );
+				Com_Printf( "=> game is version %s\n", com_version->string );
 
 				if ( com_logfile->integer > 1 )
 				{
