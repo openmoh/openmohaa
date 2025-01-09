@@ -36,15 +36,18 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #ifdef USE_LOCAL_HEADERS
 #include "../AL/al.h"
 #include "../AL/alc.h"
+#include "../AL/alext.h"
 #else
 #if defined(_MSC_VER) || defined(__APPLE__)
   // MSVC users must install the OpenAL SDK which doesn't use the AL/*.h scheme.
   // OSX framework also needs this
   #include <al.h>
   #include <alc.h>
+  #include <alext.h>
 #else
   #include <AL/al.h>
   #include <AL/alc.h>
+  #include <AL/alext.h>
 #endif
 #endif
 
@@ -132,6 +135,9 @@ extern LPALGETBUFFERIV qalGetBufferiv;
 extern LPALDOPPLERFACTOR qalDopplerFactor;
 extern LPALSPEEDOFSOUND qalSpeedOfSound;
 extern LPALDISTANCEMODEL qalDistanceModel;
+#ifdef AL_SOFT_source_resampler
+extern LPALGETSTRINGISOFT qalGetStringiSOFT;
+#endif
 
 extern LPALCCREATECONTEXT qalcCreateContext;
 extern LPALCMAKECONTEXTCURRENT qalcMakeContextCurrent;

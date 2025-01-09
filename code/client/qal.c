@@ -88,6 +88,9 @@ LPALGETBUFFERI qalGetBufferi;
 LPALDOPPLERFACTOR qalDopplerFactor;
 LPALSPEEDOFSOUND qalSpeedOfSound;
 LPALDISTANCEMODEL qalDistanceModel;
+#ifdef AL_SOFT_source_resampler
+LPALGETSTRINGISOFT qalGetStringiSOFT;
+#endif
 
 LPALCCREATECONTEXT qalcCreateContext;
 LPALCMAKECONTEXTCURRENT qalcMakeContextCurrent;
@@ -209,6 +212,9 @@ qboolean QAL_Init(const char *libname)
 	qalDopplerFactor = GPA("alDopplerFactor");
 	qalSpeedOfSound = GPA("alSpeedOfSound");
 	qalDistanceModel = GPA("alDistanceModel");
+#ifdef AL_SOFT_source_resampler
+	qalGetStringiSOFT = GPA("alGetStringiSOFT");
+#endif
 
 	qalcCreateContext = GPA("alcCreateContext");
 	qalcMakeContextCurrent = GPA("alcMakeContextCurrent");
