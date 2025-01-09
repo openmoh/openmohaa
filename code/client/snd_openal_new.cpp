@@ -69,15 +69,17 @@ static float reverb_table[] = {
     1.0f,   0.097000003f, 0.208f, 0.65200001f, 1.0f,        0.875f, 0.139f, 0.486f,
 };
 
-static vec3_t       vec_zero                  = {0, 0, 0};
-int                 s_iNumMilesAudioProviders = 0;
-bool                s_bProvidersEmunerated    = false;
-static bool         al_initialized            = false;
-static bool         al_use_reverb             = false;
-static float        al_current_volume         = 0;
-static unsigned int al_frequency              = 22050;
-static ALCcontext  *al_context_id             = NULL;
-static ALCdevice   *al_device                 = NULL;
+static vec3_t       vec_zero                   = {0, 0, 0};
+int                 s_iNumMilesAudioProviders  = 0;
+bool                s_bProvidersEmunerated     = false;
+static bool         al_initialized             = false;
+static bool         al_use_reverb              = false;
+static float        al_current_volume          = 0;
+static unsigned int al_frequency               = 22050;
+static ALCcontext  *al_context_id              = NULL;
+static ALCdevice   *al_device                  = NULL;
+static ALsizei      al_default_resampler_index = 0;
+static ALsizei      al_resampler_index         = 0;
 
 static ALboolean (*_alutLoadMP3_LOKI)(unsigned int buffer, const byte *data, int length);
 static void (*_alReverbScale_LOKI)();
@@ -272,6 +274,8 @@ static bool S_OPENAL_InitContext()
 {
     const char *dev;
     int         attrlist[10];
+    size_t      i;
+    size_t      numResamplers;
 
     Com_DPrintf("OpenAL: Context initialization\n");
 
@@ -429,6 +433,23 @@ static bool S_OPENAL_InitContext()
     qalcMakeContextCurrent(al_context_id);
     alDieIfError();
 
+#ifdef AL_SOFT_source_resampler
+    al_default_resampler_index = qalGetInteger(AL_DEFAULT_RESAMPLER_SOFT);
+    alDieIfError();
+    al_resampler_index = al_default_resampler_index;
+    numResamplers = qalGetInteger(AL_NUM_RESAMPLERS_SOFT);
+    alDieIfError();
+
+    for (i = 0; i < numResamplers; i++) {
+        const ALchar* resamplerName = qalGetStringiSOFT(AL_RESAMPLER_NAME_SOFT, i);
+        if (Q_stristr(resamplerName, "spline")) {
+            Com_Printf("OpenAL: Using %s as the resampler.\n", resamplerName);
+            al_resampler_index = i;
+            break;
+        }
+     }
+#endif
+
     Com_Printf("AL_VENDOR: %s\n", qalGetString(AL_VENDOR));
     alDieIfError();
 
@@ -533,6 +554,11 @@ static bool S_OPENAL_InitChannel(int idx, openal_channel *chan)
     alDieIfError();
     qalSourcei(chan->source, AL_SOURCE_RELATIVE, true);
     alDieIfError();
+
+#ifdef AL_SOFT_source_resampler
+    qalSourcei(chan->source, AL_SOURCE_RESAMPLER_SOFT, al_resampler_index);
+    alDieIfError();
+#endif
 
     return true;
 }
@@ -713,6 +739,8 @@ void S_OPENAL_Shutdown()
 
     s_bProvidersEmunerated = false;
     al_initialized         = false;
+
+    QAL_Shutdown();
 }
 
 /*
