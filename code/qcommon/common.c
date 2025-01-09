@@ -87,6 +87,7 @@ cvar_t	*com_sv_running;
 cvar_t	*com_cl_running;
 cvar_t	*com_viewlog;
 cvar_t	*com_logfile;		// 1 = buffer log, 2 = flush after each print
+cvar_t	*com_logfile_timestamps;
 cvar_t	*com_pipefile;
 cvar_t	*com_showtrace;
 cvar_t	*com_shortversion;
@@ -285,48 +286,49 @@ void QDECL Com_Printf( const char *fmt, ... ) {
         if (logfile && FS_Initialized()) {
             // Added in OPM
             //  Write the time before each message
-			//================
-            size_t msgLen;
-            static qboolean no_newline = qfalse;
+            //================
+			size_t msgLen = strlen(msg);
 
-			if (!no_newline) {
-				time_t t;
-				time_t t_gmt;
-				struct tm tms_local;
-				struct tm tms_gm;
-				double tz;
-				const char* tzStr;
-				char buffer[26];
+			if (com_logfile_timestamps->integer) {
+				static qboolean no_newline = qfalse;
 
-				t = time(NULL);
-				localtime_s(&tms_local, &t);
-				gmtime_s(&tms_gm, &t);
-				t_gmt = mktime(&tms_gm);
-				tz = difftime(t, t_gmt) / 60.0 / 60.0;
+				if (!no_newline) {
+					time_t t;
+					time_t t_gmt;
+					struct tm tms_local;
+					struct tm tms_gm;
+					double tz;
+					const char* tzStr;
+					char buffer[26];
 
-				strftime(buffer, 26, "%Y-%m-%d %H:%M:%S", &tms_local);
-				FS_Write("[", 1, logfile);
-				FS_Write(buffer, strlen(buffer), logfile);
-				FS_Write(" ", 1, logfile);
+					t = time(NULL);
+					localtime_s(&tms_local, &t);
+					gmtime_s(&tms_gm, &t);
+					t_gmt = mktime(&tms_gm);
+					tz = difftime(t, t_gmt) / 60.0 / 60.0;
 
-				if (tz >= 0) {
-					tzStr = va("UTC+%.03f", tz);
-				} else {
-					tzStr = va("UTC%.03f", tz);
+					strftime(buffer, 26, "%Y-%m-%d %H:%M:%S", &tms_local);
+					FS_Write("[", 1, logfile);
+					FS_Write(buffer, strlen(buffer), logfile);
+					FS_Write(" ", 1, logfile);
+
+					if (tz >= 0) {
+						tzStr = va("UTC+%.03f", tz);
+					} else {
+						tzStr = va("UTC%.03f", tz);
+					}
+
+					FS_Write(tzStr, strlen(tzStr), logfile);
+					FS_Write("] ", 2, logfile);
 				}
 
-				FS_Write(tzStr, strlen(tzStr), logfile);
-				FS_Write("] ", 2, logfile);
-            }
-
-            msgLen = strlen(msg);
-            if (msgLen > 1 && msg[msgLen - 1] != '\n') {
-				// Don't write the time if the previous message has no newline
-                no_newline = qtrue;
-            } else {
-                no_newline = qfalse;
-            }
-
+				if (msgLen > 1 && msg[msgLen - 1] != '\n') {
+					// Don't write the time if the previous message has no newline
+					no_newline = qtrue;
+				} else {
+					no_newline = qfalse;
+				}
+			}
             //================
 
 			FS_Write(msg, msgLen, logfile);
@@ -1862,6 +1864,7 @@ void Com_Init( char *commandLine ) {
 	com_dropsim = Cvar_Get( "com_dropsim", "0", CVAR_CHEAT );
 	com_viewlog = Cvar_Get( "viewlog", "0", CVAR_CHEAT );
 	com_logfile = Cvar_Get("logfile", "0", CVAR_TEMP);
+	com_logfile_timestamps = Cvar_Get("logfile_timestamps", "1", CVAR_TEMP);
 	com_speeds = Cvar_Get( "com_speeds", "0", 0 );
 	com_timedemo = Cvar_Get( "timedemo", "0", CVAR_CHEAT );
 	com_dedicated = Cvar_Get( "dedicated", "0", CVAR_LATCH );
