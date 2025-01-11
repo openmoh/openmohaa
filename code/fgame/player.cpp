@@ -10777,7 +10777,7 @@ void Player::EventDMMessage(Event *ev)
         Q_strcat(szPrintString, sizeof(szPrintString), ": ");
         Q_strcat(szPrintString, sizeof(szPrintString), gi.LV_ConvertString(pTmpInstantMsg));
     } else {
-        bool met_comment;
+        bool met_comment = false;
 
         Q_strcat(szPrintString, sizeof(szPrintString), ":");
         iStringLength = strlen(szPrintString);
