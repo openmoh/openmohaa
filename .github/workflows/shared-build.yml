@@ -88,12 +88,13 @@ jobs:
       with:
         repository: 'kcat/openal-soft'
         path: 'thirdparties/soft-oal'
-        ref: '1.24.1'
+        ref: '1.24.2'
 
     - name: Configure and install soft-oal
       working-directory: ${{github.workspace}}/thirdparties/soft-oal
       run: |
         cmake -B ./build \
+        -DALSOFT_UTILS=OFF \
         -DCMAKE_INSTALL_PREFIX='${{github.workspace}}/thirdparties/soft-oal/install'
         cmake --build ./build --config Release --parallel
         cmake --install ./build --config Release
@@ -242,7 +243,7 @@ jobs:
       with:
         repository: 'kcat/openal-soft'
         path: 'thirdparties/soft-oal'
-        ref: '1.24.1'
+        ref: '1.24.2'
 
     # soft-oal build
     # Statically link the CRT runtime into OAL as a workaround to prevent crashes
@@ -337,9 +338,9 @@ jobs:
   ##########################
   #
   # Apple macOS
-  # macOS 14
+  # macOS 15
   #
-  # This version is used as the OS, as older versions are slower.
+  # This version is used as the OS, as it's faster than other versions.
   ##########################
   build-platform-macos:
     strategy:
@@ -401,7 +402,7 @@ jobs:
       with:
         repository: 'kcat/openal-soft'
         path: 'thirdparties/soft-oal'
-        ref: '1.24.1'
+        ref: '1.24.2'
 
     - name: Configure and install soft-oal
       working-directory: ${{github.workspace}}/thirdparties/soft-oal
