@@ -35,6 +35,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Entities.h"
 #include "health.h"
 
+#include "navigation_bsp.h"
+
 #include "scriptmaster.h"
 #include "scriptthread.h"
 #include "scriptvariable.h"
@@ -1128,6 +1130,10 @@ void Level::SpawnEntities(char *entities, int svsTime)
 
     // Set up for a new map
     PathManager.LoadNodes();
+
+    // Added in OPM
+    //  Recast navigation
+    G_Navigation_LoadWorldMap(m_mapfile);
 
     gi.LoadResource("*147a");
 
