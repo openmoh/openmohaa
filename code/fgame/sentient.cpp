@@ -1222,13 +1222,13 @@ Item *Sentient::giveItem(str itemname, int amount)
 
         AddItem(item);
 
-        if (item->isSubclassOf(Weapon)) {
+        if (item->IsSubclassOfWeapon()) {
             // Post an event to give the ammo to the sentient
             Event *ev1;
 
             ev1 = new Event(EV_Weapon_GiveStartingAmmo);
             ev1->AddEntity(this);
-            item->PostEvent(ev1, 0);
+            item->PostEvent(ev1, level.frametime);
         }
 
         return item;
