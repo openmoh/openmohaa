@@ -307,9 +307,12 @@ void QDECL Com_Printf( const char *fmt, ... ) {
 #ifdef WIN32
 					localtime_s(&tms_local, &t);
 					gmtime_s(&tms_gm, &t);
+#elif defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__NetBSD__)
+					localtime_r(&t, &tms_local);
+					gmtime_r(&t, &tms_gm);
 #else
-                    localtime_r(&tms_local, &t);
-                    gmtime_r(&tms_gm, &t);
+					localtime_r(&tms_local, &t);
+					gmtime_r(&tms_gm, &t);
 #endif
 					t_gmt = mktime(&tms_gm);
 					tz = difftime(t, t_gmt) / 60.0 / 60.0;
