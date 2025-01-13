@@ -257,7 +257,7 @@ typedef struct gameImport_s {
     int (*FS_WriteFile)(const char *qpath, const void *buffer, int size);
     fileHandle_t (*FS_FOpenFileWrite)(const char *fileName);
     fileHandle_t (*FS_FOpenFileAppend)(const char *fileName);
-    fileHandle_t (*FS_FOpenFile)(const char* qpath, fileHandle_t *file, qboolean uniqueFILE, qboolean quiet);
+    long (*FS_FOpenFile)(const char* qpath, fileHandle_t *file, qboolean uniqueFILE, qboolean quiet);
     const char *(*FS_PrepFileWrite)(const char *fileName);
     size_t (*FS_Write)(const void *buffer, size_t size, fileHandle_t fileHandle);
     size_t (*FS_Read)(void *buffer, size_t len, fileHandle_t fileHandle);
