@@ -2663,6 +2663,11 @@ void Player::ChooseSpawnPoint(void)
 
 void Player::EndLevel(Event *ev)
 {
+    if (IsDead()) {
+        ScriptError("cannot do player.endlevel if the player is dead");
+        return;
+    }
+
     InitPowerups();
     if (health > max_health) {
         health = max_health;
