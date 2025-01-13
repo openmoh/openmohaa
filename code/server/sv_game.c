@@ -1786,6 +1786,7 @@ void SV_InitGameProgs( void ) {
 	import.FS_WriteFile					= FS_WriteFile;
 	import.FS_FOpenFileWrite			= FS_FOpenFileWrite;
 	import.FS_FOpenFileAppend			= FS_FOpenFileAppend;
+	import.FS_FOpenFile					= FS_FOpenFileRead;
 	import.FS_PrepFileWrite				= FS_PrepFileWrite;
 	import.FS_Write						= FS_Write;
 	import.FS_Read						= FS_Read;
