@@ -1511,9 +1511,9 @@ void Level::ServerSpawned(void)
 
 void Level::SetMap(const char *themapname)
 {
-    char *spawnpos;
-    int   i;
-    str   text;
+    const char *spawnpos;
+    int         i;
+    str         text;
 
     Init();
 
@@ -1522,8 +1522,8 @@ void Level::SetMap(const char *themapname)
     // set a specific spawnpoint if the map was started with a $
     spawnpos = strchr((char *)themapname, '$');
     if (spawnpos) {
-        mapname    = (const char *)(spawnpos - themapname);
-        spawnpoint = mapname;
+        mapname    = str(themapname, 0, spawnpos - themapname);
+        spawnpoint = spawnpos + 1;
     } else {
         mapname    = themapname;
         spawnpoint = "";
