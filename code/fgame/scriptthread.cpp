@@ -1981,6 +1981,15 @@ Event EV_ScriptThread_Md5String
     "generates MD5 hash of given text",
     EV_RETURN
 );
+Event EV_ScriptThread_GetEntity
+(
+    "getentity",
+    EV_CHEAT,
+    "i",
+    "ent_num",
+    "Gets the specified entity",
+    EV_RETURN
+);
 Event EV_ScriptThread_SetTimer
 (
     "settimer",
@@ -2180,6 +2189,7 @@ CLASS_DECLARATION(Listener, ScriptThread, NULL) {
     {&EV_ScriptThread_GetTanH,                 &ScriptThread::EventTanH               },
     {&EV_ScriptThread_strncpy,                 &ScriptThread::StringBytesCopy         },
     {&EV_ScriptThread_Md5String,               &ScriptThread::Md5String               },
+    {&EV_ScriptThread_GetEntity,               &ScriptThread::GetEntByEntnum          },
     {&EV_ScriptThread_TypeOf,                  &ScriptThread::TypeOfVariable          },
     {&EV_ScriptThread_RegisterEv,              &ScriptThread::RegisterEvent           },
     {&EV_ScriptThread_UnregisterEv,            &ScriptThread::UnregisterEvent         },
