@@ -1769,7 +1769,13 @@ void ScriptVM::Execute(ScriptVariable *data, int dataSize, str label)
 
             case OP_UN_TARGETNAME:
                 // retrieve the target name
-                targetList = world->GetExistingTargetList(m_VMStack.GetTop().stringValue());
+                if (world) {
+                    targetList = world->GetExistingTargetList(m_VMStack.GetTop().stringValue());
+                } else {
+                    // Added in OPM
+                    //  don't use the target list if the world is NULL
+                    targetList = NULL;
+                }
 
                 if (!targetList || !targetList->list.NumObjects()) {
                     str targetname = m_VMStack.GetTop().stringValue();
