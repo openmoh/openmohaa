@@ -370,6 +370,11 @@ void VehicleTurretGun::P_UserAim(usercmd_t *ucmd)
         return;
     }
 
+    if (!m_pVehicleOwner) {
+        // Added in OPM
+        return;
+    }
+
     if (!m_pVehicleOwner->IsSubclassOfVehicle()) {
         return;
     }
