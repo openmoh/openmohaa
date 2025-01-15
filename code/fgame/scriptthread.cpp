@@ -5735,7 +5735,7 @@ void ScriptThread::FileExists(Event *ev)
 
     filename = ev->GetString(1);
 
-    if (filename == NULL) {
+    if (!filename.length()) {
         throw ScriptException("Empty file name passed to fexists!\n");
     }
 
@@ -5814,7 +5814,7 @@ void ScriptThread::FileSaveAll(Event *ev)
 
     text = ev->GetString(2);
 
-    if (text == NULL) {
+    if (text.length()) {
         ev->AddInteger(-1);
         throw ScriptException("Text to be written is NULL - fsaveall!\n");
     }
@@ -5838,7 +5838,7 @@ void ScriptThread::FileRemove(Event *ev)
 
     filename = ev->GetString(1);
 
-    if (filename == NULL) {
+    if (!filename.length()) {
         throw ScriptException("Empty file name passed to fremove!\n");
     }
 
@@ -5948,7 +5948,7 @@ void ScriptThread::FileReadPak(Event *ev)
 
     filename = ev->GetString(1);
 
-    if (filename == NULL) {
+    if (!filename.length()) {
         throw ScriptException("Filename is NULL - freadpak!\n");
     }
 
@@ -6023,7 +6023,7 @@ void ScriptThread::FileNewDirectory(Event *ev)
 
     path = ev->GetString(1);
 
-    if (path == NULL) {
+    if (!path.length()) {
         throw ScriptException("Path is NULL - fnewdir!\n");
     }
 
@@ -6051,7 +6051,7 @@ void ScriptThread::FileRemoveDirectory(Event *ev)
 
     path = ev->GetString(1);
 
-    if (path == NULL) {
+    if (!path.length()) {
         throw ScriptException("Path is NULL - fremovedir!\n");
     }
 
