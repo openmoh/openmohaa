@@ -472,8 +472,8 @@ PlayerStart *DM_Team::GetRandomSpawnpointWithMetric(
     spot = GetRandomSpawnpointFromList(points, numSpots);
     for (int i = 0; i < numSpots; i++) {
         // delete all created spawnpoint
-        if (points[numSpots].spawnpoint != spot) {
-            delete points[numSpots].spawnpoint;
+        if (points[i].spawnpoint != spot) {
+            delete points[i].spawnpoint;
         }
     }
 
