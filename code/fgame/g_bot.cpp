@@ -28,7 +28,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 static saved_bot_t *saved_bots        = NULL;
 static unsigned int num_saved_bots    = 0;
-static unsigned int current_bot_count = 0;
 static unsigned int botId             = 0;
 
 Container<str> alliedModelList;
@@ -438,7 +437,6 @@ void G_AddBot(const saved_bot_t *saved)
 
     clientNum = e - g_entities;
 
-    current_bot_count++;
     // increase the unique ID
     botId++;
 
@@ -504,7 +502,6 @@ void G_RemoveBot(gentity_t *ent)
     }
 
     G_ClientDisconnect(ent);
-    current_bot_count--;
 }
 
 /*
@@ -583,17 +580,19 @@ void G_SaveBots()
         saved_bots = NULL;
     }
 
-    if (!current_bot_count) {
+    const BotControllerManager& manager = botManager.getControllerManager();
+    unsigned int numSpawnedBots = manager.getControllers().NumObjects();
+
+    if (!numSpawnedBots) {
         return;
     }
 
-    saved_bots     = new saved_bot_t[current_bot_count];
+    saved_bots     = new saved_bot_t[numSpawnedBots];
     num_saved_bots = 0;
 
-    const BotControllerManager& manager = botManager.getControllerManager();
 
     count = manager.getControllers().NumObjects();
-    assert(count <= current_bot_count);
+    assert(count <= numSpawnedBots);
 
     for (n = 1; n <= count; n++) {
         const BotController *controller = manager.getControllers().ObjectAt(n);
@@ -700,8 +699,7 @@ void G_ResetBots()
 
     botManager.Cleanup();
 
-    current_bot_count = 0;
-    botId             = 0;
+    botId = 0;
 }
 
 /*
@@ -754,6 +752,7 @@ void G_SpawnBots()
 {
     unsigned int numClients;
     unsigned int numBotsToSpawn;
+    unsigned int numSpawnedBots;
 
     //
     // Check the minimum bot count
@@ -776,12 +775,14 @@ void G_SpawnBots()
         numBotsToSpawn = Q_min(numBotsToSpawn, sv_maxbots->integer);
     }
 
+    numSpawnedBots = botManager.getControllerManager().getControllers().NumObjects();
+
     //
     // Spawn bots
     //
-    if (numBotsToSpawn > current_bot_count) {
-        G_AddBots(numBotsToSpawn - current_bot_count);
-    } else if (numBotsToSpawn < current_bot_count) {
-        G_RemoveBots(current_bot_count - numBotsToSpawn);
+    if (numBotsToSpawn > numSpawnedBots) {
+        G_AddBots(numBotsToSpawn - numSpawnedBots);
+    } else if (numBotsToSpawn < numSpawnedBots) {
+        G_RemoveBots(numSpawnedBots - numBotsToSpawn);
     }
 }
