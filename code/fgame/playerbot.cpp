@@ -1198,6 +1198,19 @@ void BotControllerManager::ThinkControllers()
 {
     int i;
 
+    // Delete controllers that don't have associated player entity
+    // This cannot happen unless some mods remove them
+    for (i = controllers.NumObjects(); i > 0; i--) {
+        BotController* controller = controllers.ObjectAt(i);
+        if (!controller->getControlledEntity()) {
+            gi.DPrintf("Bot %d has no associated player entity. This shouldn't happen unless the entity has been removed by a script. The controller will be removed, please fix.\n", i);
+
+            // Remove the controller, it will be recreated later to match `sv_numbots`
+            delete controller;
+            controllers.RemoveObjectAt(i);
+        }
+    }
+
     for (i = 1; i <= controllers.NumObjects(); i++) {
         BotController *controller = controllers.ObjectAt(i);
         controller->Think();
