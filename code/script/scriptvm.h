@@ -177,6 +177,7 @@ private:
     bool executeGetter(Listener *listener, op_evName_t eventName);
     bool executeSetter(Listener *listener, op_evName_t eventName);
     void transferVarsToEvent(Event& ev, ScriptVariable *fromVar, op_parmNum_t count);
+    void checkValidEvent(Event& ev, Listener *listener);
 
     void            loadTopInternal(Listener *listener);
     ScriptVariable *storeTopInternal(Listener *listener);

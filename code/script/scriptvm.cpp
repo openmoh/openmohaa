@@ -541,6 +541,8 @@ void ScriptVM::executeCommandInternal<false>(
 )
 {
     transferVarsToEvent(ev, fromVar, iParamCount);
+    checkValidEvent(ev, listener);
+
     listener->ProcessScriptEvent(ev);
 }
 
@@ -550,6 +552,7 @@ void ScriptVM::executeCommandInternal<true>(
 )
 {
     transferVarsToEvent(ev, fromVar, iParamCount);
+    checkValidEvent(ev, listener);
 
     try {
         listener->ProcessScriptEvent(ev);
@@ -593,6 +596,20 @@ void ScriptVM::executeCommand<true, true>(Listener *listener, op_parmNum_t iPara
 void ScriptVM::transferVarsToEvent(Event& ev, ScriptVariable *fromVar, op_parmNum_t count)
 {
     ev.CopyValues(fromVar, count);
+}
+
+void ScriptVM::checkValidEvent(Event& ev, Listener* listener) {
+    ClassDef *c = listener->classinfo();
+
+    if (!c->GetDef(&ev)) {
+        if (listener == m_Thread) {
+            ScriptError("Failed execution of command '%s'", ev.getName());
+        } else if (listener->isSubclassOf(SimpleEntity)) {
+            ScriptError("Failed execution of command '%s' for class '%s' Targetname '%s'", ev.getName(), c->classname, static_cast<SimpleEntity*>(listener)->targetname.c_str());
+        } else {
+            ScriptError("Failed execution of command '%s' for class '%s'", ev.getName(), c->classname);
+        }
+    }
 }
 
 bool ScriptVM::executeGetter(Listener *listener, op_evName_t eventName)
