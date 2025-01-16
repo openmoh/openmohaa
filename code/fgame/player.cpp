@@ -2209,6 +2209,12 @@ Player::~Player()
     //  when the player is deleted
     RemoveFromVehiclesAndTurrets();
 
+    // Added in OPM
+    //  Remove the player at destructor
+    if (g_gametype->integer != GT_SINGLE_PLAYER && dmManager.PlayerCount()) {
+        dmManager.RemovePlayer(this);
+    }
+
     entflags &= ~ECF_PLAYER;
 }
 
@@ -9704,9 +9710,9 @@ void Player::Disconnect(void)
     ev->AddListener(this);
     scriptedEvents[SE_DISCONNECTED].Trigger(ev);
 
-    if (g_gametype->integer != GT_SINGLE_PLAYER) {
-        dmManager.RemovePlayer(this);
-    }
+//     if (g_gametype->integer != GT_SINGLE_PLAYER) {
+//         dmManager.RemovePlayer(this);
+//     }
 }
 
 void Player::CallVote(Event *ev)
