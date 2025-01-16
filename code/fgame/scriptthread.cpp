@@ -3052,6 +3052,16 @@ Listener *ScriptThread::SpawnInternal(Event *ev)
         throw ScriptException("Usage: spawn entityname [keyname] [value]...");
     }
 
+    // Fixed in OPM
+    //  The original game uses a raw char* pointer to get the classname rather than storing it in an str.
+    //  This causes an issue when the argument is none (NIL), stringValue() will allocate and return a new str() with "NIL".
+    //  As the returned str() is not stored anywhere, it gets destroyed immediately, meaning that the char* pointer gets empty.
+    //  This has the effect of using empty class ID, which is "Explosion" in original game.
+    //
+    //  For example, t2l2 has an incorrect "mg42_spawner_gunner" of class PathNode, but PathNode has no model variable.
+    //  global/spawner.scr::spawner_activate:
+    //  - In OG, it will successfully spawn an instance of "Explosion" due to the NIL argument behavior stated above.
+    //  - In OPM, it will not spawn anything and will cause script errors, it's the expected behavior by design
     classname = ev->GetString(1);
 
     if (getClassForID(classname) || getClass(classname)) {
