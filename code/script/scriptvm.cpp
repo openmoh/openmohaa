@@ -541,8 +541,8 @@ void ScriptVM::executeCommandInternal<false>(
 )
 {
     transferVarsToEvent(ev, fromVar, iParamCount);
-    checkValidEvent(ev, listener);
 
+    checkValidEvent(ev, listener);
     listener->ProcessScriptEvent(ev);
 }
 
@@ -552,9 +552,9 @@ void ScriptVM::executeCommandInternal<true>(
 )
 {
     transferVarsToEvent(ev, fromVar, iParamCount);
-    checkValidEvent(ev, listener);
 
     try {
+        checkValidEvent(ev, listener);
         listener->ProcessScriptEvent(ev);
     } catch (...) {
         m_VMStack.GetTop().Clear();
