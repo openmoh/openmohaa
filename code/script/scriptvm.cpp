@@ -1534,6 +1534,7 @@ void ScriptVM::Execute(ScriptVariable *data, int dataSize, str label)
 
             case OP_LOAD_STORE_SELF_VAR:
                 if (!m_ScriptClass->m_Self) {
+                    m_CodePos += sizeof(unsigned int);
                     ScriptError("self is NULL");
                 }
 
