@@ -440,6 +440,12 @@ void Trigger::TriggerStuff(Event *ev)
         ScriptError("trigger '%s' triggered by self", TargetName().c_str());
     }
 
+    // Fixed in OPM
+    //  Safety check
+    if (other == NULL) {
+        ScriptError("trigger '%s' triggered by NULL entity", TargetName().c_str());
+    }
+
     // Always respond to activate messages from the world since they're probably from
     // the "trigger" command
     if (!respondTo(other) && (other != world || *ev != EV_Activate)
@@ -892,6 +898,12 @@ void TriggerAll::TriggerStuff(Event *ev)
 
     if (other == this) {
         ScriptError("trigger '%s' triggered by self", TargetName().c_str());
+    }
+
+    // Fixed in OPM
+    //  Safety check
+    if (other == NULL) {
+        ScriptError("trigger '%s' triggered by NULL entity", TargetName().c_str());
     }
 
     // Always respond to activate messages from the world since they're probably from
