@@ -1666,13 +1666,13 @@ void ScriptVM::Execute(ScriptVariable *data, int dataSize, str label)
 
             case OP_STORE_OWNER_VAR:
                 if (!m_ScriptClass->m_Self) {
-                    m_VMStack.Push();
+                    m_VMStack.PushAndGet().Clear();
                     m_CodePos += sizeof(unsigned int);
                     ScriptError("self is NULL");
                 }
 
                 if (!m_ScriptClass->m_Self->GetScriptOwner()) {
-                    m_VMStack.Push();
+                    m_VMStack.PushAndGet().Clear();
                     m_CodePos += sizeof(unsigned int);
                     ScriptError("self.owner is NULL");
                 }
@@ -1686,7 +1686,7 @@ void ScriptVM::Execute(ScriptVariable *data, int dataSize, str label)
 
             case OP_STORE_SELF_VAR:
                 if (!m_ScriptClass->m_Self) {
-                    m_VMStack.Push();
+                    m_VMStack.PushAndGet().Clear();
                     m_CodePos += sizeof(unsigned int);
                     ScriptError("self is NULL");
                 }
@@ -1715,10 +1715,10 @@ void ScriptVM::Execute(ScriptVariable *data, int dataSize, str label)
                 break;
 
             case OP_STORE_OWNER:
-                m_VMStack.Push();
-
-                if (!m_ScriptClass->m_Self) {
+                if (m_ScriptClass->m_Self) {
                     m_VMStack.Push();
+                } else {
+                    m_VMStack.PushAndGet().Clear();
                     ScriptError("self is NULL");
                 }
 
