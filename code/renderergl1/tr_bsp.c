@@ -212,9 +212,9 @@ static	void R_LoadLightmaps(gamelump_t* l) {
 
     // create all the lightmaps
     tr.numLightmaps = len / (LIGHTMAP_SIZE * LIGHTMAP_SIZE * 3);
-
-    // if we are in r_vertexLight mode, we don't need the lightmaps at all
-    if ( r_vertexLight->integer ) {
+    
+	// if we are in r_vertexLight mode, we don't need the lightmaps at all
+	if ( r_vertexLight->integer || glConfig.hardwareType == GLHW_PERMEDIA2 ) {
         return;
     }
 
