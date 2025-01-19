@@ -248,6 +248,8 @@ static	void R_LoadLightmaps( lump_t *l, lump_t *surfs ) {
 	float maxIntensity = 0;
 	double sumIntensity = 0;
 
+	tr.numLightmaps = 0;
+
 	len = l->filelen;
 	if ( !len ) {
 		return;
