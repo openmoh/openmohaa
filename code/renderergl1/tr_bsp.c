@@ -199,6 +199,8 @@ static	void R_LoadLightmaps(gamelump_t* l) {
     float maxIntensity = 0;
     double sumIntensity = 0;
 
+    tr.numLightmaps = 0;
+
     len = l->length;
     if (!len) {
         return;
