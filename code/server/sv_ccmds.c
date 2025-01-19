@@ -2317,7 +2317,7 @@ void SV_Loadgame_f(void)
 	Cvar_Get("g_gametype", "0", CVAR_LATCH | CVAR_SERVERINFO);
 	Cvar_Get("sv_maxclients", "0", CVAR_LATCH | CVAR_SERVERINFO);
 
-	if (developer->integer) {
+	if (!developer->integer) {
 		if (svs.iNumClients == 1) {
 			Cvar_Set("cheats", "1");
 		} else {
