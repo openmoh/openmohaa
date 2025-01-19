@@ -1157,6 +1157,14 @@ void VehicleTurretGun::ApplyFireKickback(const Vector& org, float kickback)
         return;
     }
 
+    if (g_target_game <= target_game_e::TG_MOH) {
+        // Don't apply fire kickback in older version
+        // this could cause issues as models weren't made for this feature
+        return;
+    }
+
+    // Added in 2.0
+
     pVehicle = static_cast<Vehicle *>(m_pVehicleOwner.Pointer());
     pVehicle->m_fForwardForce += org.x * kickback;
     pVehicle->m_fLeftForce += org.y * kickback;
