@@ -59,9 +59,14 @@ if (FLEX_FOUND AND BISON_FOUND)
 endif()
 
 # Recast navigation
+set(OLD_VALUE ${BUILD_SHARED_LIBS})
+set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
+
 add_subdirectory(../recastnavigation-1.6.0/Detour fgame_detour)
 add_subdirectory(../recastnavigation-1.6.0/Recast fgame_recast)
 target_link_libraries(fgame PRIVATE RecastNavigation::Detour RecastNavigation::Recast)
+
+set(BUILD_SHARED_LIBS ${OLD_VALUE} CACHE BOOL "" FORCE)
 
 file(MAKE_DIRECTORY "${CMAKE_SOURCE_DIR}/code/parser/generated")
 target_sources(fgame PRIVATE ${BISON_fgame-parser_OUTPUTS} ${FLEX_fgame-lexer_OUTPUTS})
