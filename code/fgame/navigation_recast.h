@@ -25,4 +25,5 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "g_local.h"
 #include "navigation_bsp.h"
 
+void G_Navigation_DebugDraw();
 void G_Navigation_LoadWorldMap(const char* mapname);

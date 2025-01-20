@@ -26,6 +26,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "navigation_recast.h"
 #include "../script/scriptexception.h"
 #include "navigate.h"
+#include "debuglines.h"
 
 #include "Recast.h"
 #include "DetourNavMesh.h"
@@ -33,7 +34,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "DetourNavMeshQuery.h"
 
 static const float recastCellSize = 16.0;
-static const float recastCellHeight = 0.2;
+static const float recastCellHeight = 0.1;
 static const float agentHeight = 0.5;
 static const float agentMaxClimb = 18.0;
 static const float agentRadius = 0.5;
@@ -46,6 +47,8 @@ static const float detailSampleDist = 16;
 static const float detailSampleMaxError = 1.0;
 
 static const float worldScale = 30.5 / 16.0;
+
+rcPolyMesh* navPolyMesh;
 
 /// Recast build context.
 class RecastBuildContext : public rcContext
@@ -210,6 +213,9 @@ void G_Navigation_BuildRecastMesh(navMap_t& navigationMap)
         return;
     }
 
+    navPolyMesh = polyMesh;
+
+    /*
 	for (int i = 0; i < polyMesh->npolys; ++i)
 	{
 		const unsigned short* p = &polyMesh->polys[i* polyMesh->nvp*2];
@@ -250,6 +256,102 @@ void G_Navigation_BuildRecastMesh(navMap_t& navigationMap)
 			}
 		}
 	}
+    */
+}
+
+void G_Navigation_DebugDraw()
+{
+    rcPolyMesh* polyMesh = navPolyMesh;
+    Entity* ent = g_entities[0].entity;
+
+    if (!navPolyMesh) {
+        return;
+    }
+
+    if (!ent) {
+        return;
+    }
+
+    if (ai_showallnode->integer) {
+        for (int i = 0; i < polyMesh->nverts; ++i)
+        {
+            const unsigned short* v = &polyMesh->verts[i * 3];
+            const float x = polyMesh->bmin[0] + v[0] * polyMesh->cs;
+            const float y = polyMesh->bmin[1] + (v[1] + 1) * polyMesh->ch + 0.1f;
+            const float z = polyMesh->bmin[2] + v[2] * polyMesh->cs;
+            const Vector org = Vector(x / worldScale, z / worldScale, y / worldScale + 16);
+            int l;
+
+            if (org.z < ent->origin.z - 94 || org.z > ent->origin.z + 94) {
+                continue;
+            }
+
+            G_DebugBBox(org, Vector(-8, -8, -8), Vector(8, 8, 8), 1.0, 0.0, 0.5, 1.0);
+        }
+
+        for (int i = 0; i < polyMesh->npolys; ++i)
+        {
+            const unsigned short* p = &polyMesh->polys[i * polyMesh->nvp * 2];
+            for (int j = 0; j < polyMesh->nvp; ++j)
+            {
+                if (p[j] == RC_MESH_NULL_IDX) break;
+                if (p[polyMesh->nvp + j] & 0x8000) continue;
+                const int nj = (j + 1 >= polyMesh->nvp || p[j + 1] == RC_MESH_NULL_IDX) ? 0 : j + 1;
+                const int vi[2] = { p[j], p[nj] };
+
+                for (int k = 0; k < 2; ++k)
+                {
+                    const unsigned short* v = &polyMesh->verts[vi[k] * 3];
+                    const float x = polyMesh->bmin[0] + v[0] * polyMesh->cs;
+                    const float y = polyMesh->bmin[1] + (v[1] + 1) * polyMesh->ch + 0.1f;
+                    const float z = polyMesh->bmin[2] + v[2] * polyMesh->cs;
+                    Vector org = Vector(x / worldScale, z / worldScale, y / worldScale + 16);
+
+                    if (org.z < ent->origin.z - 94 || org.z > ent->origin.z + 94) {
+                        continue;
+                    }
+
+                    G_DebugCircle(org, 24.0, 0.0, 1.0, 1.0, 1.0);
+                }
+            }
+        }
+    }
+
+    /*
+	for (int i = 0; i < polyMesh->npolys; ++i)
+	{
+		const unsigned short* p = &polyMesh->polys[i* polyMesh->nvp*2];
+		const unsigned char area = polyMesh->areas[i];
+
+        if (area != RC_WALKABLE_AREA) {
+            continue;
+        }
+
+		unsigned short vi[3];
+		for (int j = 2; j < polyMesh->nvp; ++j)
+		{
+			if (p[j] == RC_MESH_NULL_IDX) break;
+			vi[0] = p[0];
+			vi[1] = p[j-1];
+			vi[2] = p[j];
+			for (int k = 0; k < 3; ++k)
+			{
+				const unsigned short* v = &polyMesh->verts[vi[k]*3];
+				const float x = polyMesh->bmin[0] + v[0]*polyMesh->cs;
+				const float y = polyMesh->bmin[1] + (v[1]+1)*polyMesh->ch;
+				const float z = polyMesh->bmin[2] + v[2]*polyMesh->cs;
+                const Vector org = Vector(x / worldScale, z / worldScale, y / worldScale + 16);
+                int l;
+
+                if (org.z < ent->origin.z - 94 || org.z > ent->origin.z + 94) {
+                    continue;
+                }
+
+                G_DebugBBox(org, Vector(-8, -8, -8), Vector(8, 8, 8), 1.0, 0.0, 0.5, 1.0);
+			}
+		}
+	}
+    */
 }
 
 /*
