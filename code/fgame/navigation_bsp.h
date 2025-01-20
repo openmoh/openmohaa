@@ -24,6 +24,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "g_local.h"
 #include "../qcommon/container.h"
+#include "../qcommon/vector.h"
 
 struct navMap_t {
     const char* mapname;
