@@ -90,6 +90,117 @@ public:
     int   length;
 };
 
+typedef union varnodeUnpacked_u {
+    float fVariance;
+    int   flags;
+    /*
+    struct {
+#if !Q3_BIG_ENDIAN
+		byte flags;
+        unsigned char unused[3];
+#else
+        unsigned char unused[3];
+        byte flags;
+#endif
+    } s;
+	*/
+} varnodeUnpacked_t;
+
+// Use a 32-bit int because there can be more than 65536 tris
+typedef unsigned int terraInt;
+
+typedef struct terrainVert_s {
+    vec3_t       xyz;
+    vec2_t       texCoords[2];
+    float        fVariance;
+    float        fHgtAvg;
+    float        fHgtAdd;
+    unsigned int uiDistRecalc;
+    terraInt     nRef;
+    terraInt     iVertArray;
+    byte        *pHgt;
+    terraInt     iNext;
+    terraInt     iPrev;
+} terrainVert_t;
+
+typedef struct terraTri_s {
+    terraInt                      iPt[3];
+    terraInt                      nSplit;
+    struct cTerraPatchUnpacked_t *patch;
+    varnodeUnpacked_t            *varnode;
+    terraInt                      index;
+    byte                          lod;
+    byte                          byConstChecks;
+    terraInt                      iLeft;
+    terraInt                      iRight;
+    terraInt                      iBase;
+    terraInt                      iLeftChild;
+    terraInt                      iRightChild;
+    terraInt                      iParent;
+    terraInt                      iPrev;
+    terraInt                      iNext;
+} terraTri_t;
+
+struct surfaceTerrain_t {
+    terraInt iVertHead;
+    terraInt iTriHead;
+    terraInt iTriTail;
+    terraInt iMergeHead;
+    int      nVerts;
+    int      nTris;
+};
+
+struct cTerraPatchUnpacked_t {
+    surfaceTerrain_t              drawinfo;
+    float                         x0;
+    float                         y0;
+    float                         z0;
+    float                         zmax;
+    short int                     iNorth;
+    short int                     iEast;
+    short int                     iSouth;
+    short int                     iWest;
+    struct cTerraPatchUnpacked_t *pNextActive;
+    varnodeUnpacked_t             varTree[2][63];
+    unsigned char                 heightmap[81];
+    byte                          flags;
+};
+
+struct cStaticModelUnpacked_t {
+    char     model[128];
+    vec3_t   origin;
+    vec3_t   angles;
+    vec3_t   axis[3];
+    float    scale;
+    dtiki_t *tiki;
+};
+
+static const unsigned int MAX_TERRAIN_LOD = 6;
+
+static size_t g_nTris;
+static size_t g_nVerts;
+static int    g_nMerge;
+static int    g_nSplit;
+
+typedef struct poolInfo_s {
+    terraInt iFreeHead;
+    terraInt iCur;
+    size_t   nFree;
+} poolInfo_t;
+
+static int modeTable[8];
+
+terraTri_t    *g_pTris;
+terrainVert_t *g_pVert;
+
+poolInfo_t g_tri;
+poolInfo_t g_vert;
+
+/*
+============
+gameLump_c::gameLump_c
+============
+*/
 gameLump_c::gameLump_c(gameLump_c&& other) noexcept
 {
     FreeLump();
@@ -99,6 +210,11 @@ gameLump_c::gameLump_c(gameLump_c&& other) noexcept
     other.buffer = NULL;
 }
 
+/*
+============
+gameLump_c::operator=
+============
+*/
 gameLump_c& gameLump_c::operator=(gameLump_c&& other) noexcept
 {
     FreeLump();
@@ -110,11 +226,21 @@ gameLump_c& gameLump_c::operator=(gameLump_c&& other) noexcept
     return *this;
 }
 
+/*
+============
+gameLump_c::~gameLump_c
+============
+*/
 gameLump_c::~gameLump_c()
 {
     FreeLump();
 }
 
+/*
+============
+gameLump_c::LoadLump
+============
+*/
 gameLump_c gameLump_c::LoadLump(fileHandle_t handle, const lump_t& lump)
 {
     if (lump.filelen) {
@@ -132,6 +258,11 @@ gameLump_c gameLump_c::LoadLump(fileHandle_t handle, const lump_t& lump)
     return gameLump_c();
 }
 
+/*
+============
+gameLump_c::FreeLump
+============
+*/
 void gameLump_c::FreeLump()
 {
     if (buffer) {
@@ -500,6 +631,11 @@ G_SubdividePatchToGrid(int width, int height, float subdivide, Vector points[MAX
     return G_CreateSurfaceGridMesh(width, height, ctrl, indexes, numIndexes);
 }
 
+/*
+============
+RenderSurfaceGrid
+============
+*/
 static void RenderSurfaceGrid(navMap_t& navMap, const surfaceGrid_t *grid)
 {
     int           i;
@@ -524,6 +660,11 @@ static void RenderSurfaceGrid(navMap_t& navMap, const surfaceGrid_t *grid)
     }
 }
 
+/*
+============
+ParseMesh
+============
+*/
 static void ParseMesh(navMap_t& navMap, const dsurface_t *ds, const drawVert_t *verts)
 {
     int            i, j;
@@ -551,6 +692,11 @@ static void ParseMesh(navMap_t& navMap, const dsurface_t *ds, const drawVert_t *
     G_FreeSurfaceGridMesh(grid);
 }
 
+/*
+============
+ParseTriSurf
+============
+*/
 static void ParseTriSurf(navMap_t& navMap, const dsurface_t *ds, const drawVert_t *verts, const int *indexes)
 {
     int i, j;
@@ -583,6 +729,11 @@ static void ParseTriSurf(navMap_t& navMap, const dsurface_t *ds, const drawVert_
     }
 }
 
+/*
+============
+ParseFace
+============
+*/
 static void ParseFace(navMap_t& navMap, const dsurface_t *ds, const drawVert_t *verts, const int *indexes)
 {
     int i, j;
@@ -615,11 +766,21 @@ static void ParseFace(navMap_t& navMap, const dsurface_t *ds, const drawVert_t *
     }
 }
 
+/*
+============
+ParseFlare
+============
+*/
 static void ParseFlare(navMap_t& navMap, const dsurface_t *ds, const drawVert_t *verts)
 {
     // Nothing to do
 }
 
+/*
+============
+G_LoadSurfaces
+============
+*/
 static void
 G_LoadSurfaces(navMap_t& navMap, const gameLump_c& surfs, const gameLump_c& verts, const gameLump_c& indexLump)
 {
@@ -667,6 +828,1026 @@ G_LoadSurfaces(navMap_t& navMap, const gameLump_c& surfs, const gameLump_c& vert
     }
 }
 
+/*
+================
+R_UnpackTerraPatch
+================
+*/
+void G_UnpackTerraPatch(const cTerraPatch_t *pPacked, cTerraPatchUnpacked_t *pUnpacked)
+{
+    int i;
+
+    if (pPacked->lmapScale <= 0) {
+        throw ScriptException("invalid map: terrain has lmapScale <= 0");
+    }
+
+    pUnpacked->x0     = ((int)pPacked->x << 6);
+    pUnpacked->y0     = ((int)pPacked->y << 6);
+    pUnpacked->z0     = pPacked->iBaseHeight;
+    pUnpacked->iNorth = pPacked->iNorth;
+    pUnpacked->iEast  = pPacked->iEast;
+    pUnpacked->iSouth = pPacked->iSouth;
+    pUnpacked->iWest  = pPacked->iWest;
+
+    for (i = 0; i < MAX_TERRAIN_VARNODES; i++) {
+        const varnode_t *packedVarTree;
+
+        packedVarTree                      = &pPacked->varTree[0][i];
+        pUnpacked->varTree[0][i].fVariance = packedVarTree->flags & 0x7FF;
+        pUnpacked->varTree[0][i].flags &= ~0xFF;
+        pUnpacked->varTree[0][i].flags |= (packedVarTree->flags >> 12) & 0xFF;
+
+        packedVarTree                      = &pPacked->varTree[1][i];
+        pUnpacked->varTree[1][i].fVariance = packedVarTree->flags & 0x7FF;
+        pUnpacked->varTree[1][i].flags &= ~0xFF;
+        pUnpacked->varTree[1][i].flags |= (packedVarTree->flags >> 12) & 0xFF;
+    }
+
+    for (i = 0; i < ARRAY_LEN(pUnpacked->heightmap); i++) {
+        pUnpacked->heightmap[i] = pPacked->heightmap[i];
+    }
+
+    pUnpacked->zmax  = 0;
+    pUnpacked->flags = pPacked->flags;
+
+    for (i = 0; i < ARRAY_LEN(pUnpacked->heightmap); i++) {
+        if (pUnpacked->zmax < pUnpacked->heightmap[i]) {
+            pUnpacked->zmax = pUnpacked->heightmap[i];
+        }
+    }
+
+    pUnpacked->zmax += pUnpacked->zmax;
+}
+
+/*
+====================
+G_SwapTerraPatch
+
+Swaps the patch on big-endian
+====================
+*/
+void G_SwapTerraPatch(const cTerraPatch_t *pPatch)
+{
+#ifdef Q3_BIG_ENDIAN
+    int i;
+
+    pPatch->iBaseHeight = LittleShort(pPatch->iBaseHeight);
+    pPatch->iNorth      = LittleShort(pPatch->iNorth);
+    pPatch->iEast       = LittleShort(pPatch->iEast);
+    pPatch->iSouth      = LittleShort(pPatch->iSouth);
+    pPatch->iWest       = LittleShort(pPatch->iWest);
+
+    for (i = 0; i < MAX_TERRAIN_VARNODES; i++) {
+        pPatch->varTree[0][i].flags = LittleUnsignedShort(pPatch->varTree[0][i].flags);
+        pPatch->varTree[1][i].flags = LittleUnsignedShort(pPatch->varTree[1][i].flags);
+    }
+#endif
+}
+
+/*
+================
+G_ValidateHeightmapForVertex
+================
+*/
+static void G_ValidateHeightmapForVertex(terraTri_t *pTri)
+{
+    for (terraInt i = 0; i < 3; i++) {
+        terrainVert_t *pVert = &g_pVert[pTri->iPt[i]];
+        if (pVert->pHgt < pTri->patch->heightmap || pVert->pHgt > &pTri->patch->heightmap[80]) {
+            pVert->pHgt = pTri->patch->heightmap;
+        }
+    }
+}
+
+/*
+================
+G_AllocateVert
+================
+*/
+static terraInt G_AllocateVert(cTerraPatchUnpacked_t *patch)
+{
+    terraInt iVert = g_vert.iFreeHead;
+
+    g_vert.iFreeHead                = g_pVert[g_vert.iFreeHead].iNext;
+    g_pVert[g_vert.iFreeHead].iPrev = 0;
+
+    g_pVert[iVert].iPrev                     = 0;
+    g_pVert[iVert].iNext                     = patch->drawinfo.iVertHead;
+    g_pVert[patch->drawinfo.iVertHead].iPrev = iVert;
+
+    patch->drawinfo.iVertHead = iVert;
+    patch->drawinfo.nVerts++;
+
+    assert(g_vert.nFree > 0);
+    g_vert.nFree--;
+
+    g_pVert[iVert].nRef         = 0;
+    g_pVert[iVert].uiDistRecalc = 0;
+
+    return iVert;
+}
+
+/*
+================
+G_InterpolateVert
+================
+*/
+static void G_InterpolateVert(terraTri_t *pTri, terrainVert_t *pVert)
+{
+    const terrainVert_t         *pVert0 = &g_pVert[pTri->iPt[0]];
+    const terrainVert_t         *pVert1 = &g_pVert[pTri->iPt[1]];
+    const cTerraPatchUnpacked_t *pPatch = pTri->patch;
+    const byte                  *pMinHeight, *pMaxHeight;
+
+    // Interpolate texture coordinates
+    pVert->texCoords[0][0] = (pVert0->texCoords[0][0] + pVert1->texCoords[0][0]) * 0.5f;
+    pVert->texCoords[0][1] = (pVert0->texCoords[0][1] + pVert1->texCoords[0][1]) * 0.5f;
+    pVert->texCoords[1][0] = (pVert0->texCoords[1][0] + pVert1->texCoords[1][0]) * 0.5f;
+    pVert->texCoords[1][1] = (pVert0->texCoords[1][1] + pVert1->texCoords[1][1]) * 0.5f;
+
+    // Fixed in OPM
+    //  Use the delta of the two pointers instead of adding them + divide to get the average height,
+    //  otherwise the resulting integer would overflow/warp and cause a segmentation fault.
+    //  Although rare, the overflow issue can occur in the original game
+    pMinHeight  = (byte *)Q_min((uintptr_t)pVert0->pHgt, (uintptr_t)pVert1->pHgt);
+    pMaxHeight  = (byte *)Q_max((uintptr_t)pVert0->pHgt, (uintptr_t)pVert1->pHgt);
+    pVert->pHgt = (byte *)(pMinHeight + ((pMaxHeight - pMinHeight) >> 1));
+    assert(pVert->pHgt >= pMinHeight && pVert->pHgt < pMaxHeight);
+
+    // Calculate the average Z
+    pVert->fHgtAvg = (float)(*pVert0->pHgt + *pVert1->pHgt);
+    pVert->fHgtAdd = (float)(*pVert->pHgt * 2) - pVert->fHgtAvg;
+    pVert->fHgtAvg += pPatch->z0;
+    // Calculate the average position
+    pVert->xyz[0] = (pVert0->xyz[0] + pVert1->xyz[0]) * 0.5f;
+    pVert->xyz[1] = (pVert0->xyz[1] + pVert1->xyz[1]) * 0.5f;
+    pVert->xyz[2] = pVert->fHgtAvg;
+}
+
+/*
+================
+G_ReleaseVert
+================
+*/
+static void G_ReleaseVert(cTerraPatchUnpacked_t *patch, int iVert)
+{
+    terrainVert_t *pVert = &g_pVert[iVert];
+
+    terraInt iPrev       = pVert->iPrev;
+    terraInt iNext       = pVert->iNext;
+    g_pVert[iPrev].iNext = iNext;
+    g_pVert[iNext].iPrev = iPrev;
+
+    assert(patch->drawinfo.nVerts > 0);
+    patch->drawinfo.nVerts--;
+
+    if (patch->drawinfo.iVertHead == iVert) {
+        patch->drawinfo.iVertHead = iNext;
+    }
+
+    pVert->iPrev                    = 0;
+    pVert->iNext                    = g_vert.iFreeHead;
+    g_pVert[g_vert.iFreeHead].iPrev = iVert;
+    g_vert.iFreeHead                = iVert;
+    g_vert.nFree++;
+}
+
+/*
+================
+G_AllocateTri
+================
+*/
+terraInt G_AllocateTri(cTerraPatchUnpacked_t *patch, qboolean check)
+{
+    terraInt iTri = g_tri.iFreeHead;
+
+    g_tri.iFreeHead                = g_pTris[iTri].iNext;
+    g_pTris[g_tri.iFreeHead].iPrev = 0;
+
+    g_pTris[iTri].iPrev                     = patch->drawinfo.iTriTail;
+    g_pTris[iTri].iNext                     = 0;
+    g_pTris[patch->drawinfo.iTriTail].iNext = iTri;
+    patch->drawinfo.iTriTail                = iTri;
+
+    if (!patch->drawinfo.iTriHead) {
+        patch->drawinfo.iTriHead = iTri;
+    }
+
+    patch->drawinfo.nTris++;
+    assert(g_tri.nFree > 0);
+    g_tri.nFree--;
+
+    g_pTris[iTri].byConstChecks = check ? 0 : 4;
+    g_pTris[iTri].iParent       = 0;
+
+    return iTri;
+}
+
+/*
+================
+R_ReleaseTri
+================
+*/
+static void G_ReleaseTri(cTerraPatchUnpacked_t *patch, terraInt iTri)
+{
+    terraTri_t *pTri = &g_pTris[iTri];
+
+    terraInt iPrev       = pTri->iPrev;
+    terraInt iNext       = pTri->iNext;
+    g_pTris[iPrev].iNext = iNext;
+    g_pTris[iNext].iPrev = iPrev;
+
+    if (g_tri.iCur == iTri) {
+        g_tri.iCur = iNext;
+    }
+
+    assert(patch->drawinfo.nTris > 0);
+    patch->drawinfo.nTris--;
+
+    if (patch->drawinfo.iTriHead == iTri) {
+        patch->drawinfo.iTriHead = iNext;
+    }
+
+    if (patch->drawinfo.iTriTail == iTri) {
+        patch->drawinfo.iTriTail = iPrev;
+    }
+
+    pTri->iPrev                    = 0;
+    pTri->iNext                    = g_tri.iFreeHead;
+    g_pTris[g_tri.iFreeHead].iPrev = iTri;
+    g_tri.iFreeHead                = iTri;
+    g_tri.nFree++;
+
+    for (int i = 0; i < 3; i++) {
+        terraInt ptNum = pTri->iPt[i];
+
+        g_pVert[ptNum].nRef--;
+        if (!g_pVert[ptNum].nRef) {
+            G_ReleaseVert(patch, ptNum);
+        }
+    }
+}
+
+/*
+================
+G_ConstChecksForTri
+================
+*/
+static int G_ConstChecksForTri(terraTri_t *pTri)
+{
+    varnodeUnpacked_t vn;
+
+    if (pTri->lod == MAX_TERRAIN_LOD) {
+        return 2;
+    }
+
+    vn = *pTri->varnode;
+    //vn.s.flags &= 0xF0;
+    vn.flags &= 0xFFFFFFF0;
+
+    if (vn.fVariance == 0.0 && !(pTri->varnode->flags & 8)) {
+        return 2;
+    } else if (pTri->varnode->flags & 8) {
+        return 3;
+    } else if ((pTri->byConstChecks & 4) && !(pTri->varnode->flags & 4) && pTri->lod < MAX_TERRAIN_LOD) {
+        return 0;
+    }
+
+    return 2;
+}
+
+/*
+================
+G_DemoteInAncestry
+================
+*/
+static void G_DemoteInAncestry(cTerraPatchUnpacked_t *patch, terraInt iTri)
+{
+    terraInt iPrev = g_pTris[iTri].iPrev;
+    terraInt iNext = g_pTris[iTri].iNext;
+
+    g_pTris[iPrev].iNext = iNext;
+    g_pTris[iNext].iPrev = iPrev;
+
+    if (g_tri.iCur == iTri) {
+        g_tri.iCur = iNext;
+    }
+
+    assert(patch->drawinfo.nTris > 0);
+    patch->drawinfo.nTris--;
+
+    if (patch->drawinfo.iTriHead == iTri) {
+        patch->drawinfo.iTriHead = iNext;
+    }
+
+    if (patch->drawinfo.iTriTail == iTri) {
+        patch->drawinfo.iTriTail = iPrev;
+    }
+
+    g_pTris[iTri].iPrev                       = 0;
+    g_pTris[iTri].iNext                       = patch->drawinfo.iMergeHead;
+    g_pTris[patch->drawinfo.iMergeHead].iPrev = iTri;
+    patch->drawinfo.iMergeHead                = iTri;
+}
+
+/*
+================
+R_TerrainHeapInit
+================
+*/
+static void G_TerrainHeapInit()
+{
+    g_tri.iFreeHead  = 1;
+    g_tri.nFree      = g_nTris - 1;
+    g_vert.iFreeHead = 1;
+    g_vert.nFree     = g_nVerts - 1;
+
+    for (size_t i = 0; i < g_nTris; i++) {
+        g_pTris[i].iPrev = (terraInt)i - 1;
+        g_pTris[i].iNext = (terraInt)i + 1;
+    }
+
+    g_pTris[0].iPrev           = 0;
+    g_pTris[g_nTris - 1].iNext = 0;
+
+    for (size_t i = 0; i < g_nVerts; i++) {
+        g_pVert[i].iPrev = (terraInt)i - 1;
+        g_pVert[i].iNext = (terraInt)i + 1;
+    }
+
+    g_pVert[0].iPrev            = 0;
+    g_pVert[g_nVerts - 1].iNext = 0;
+}
+
+/*
+================
+R_TerrainPatchesInit
+================
+*/
+static void G_TerrainPatchesInit(cTerraPatchUnpacked_t *terraPatches, size_t numTerraPatches)
+{
+    int i;
+
+    for (i = 0; i < numTerraPatches; i++) {
+        cTerraPatchUnpacked_t *patch = &terraPatches[i];
+        patch->drawinfo.iTriHead     = 0;
+        patch->drawinfo.iTriTail     = 0;
+        patch->drawinfo.iMergeHead   = 0;
+        patch->drawinfo.iVertHead    = 0;
+        patch->drawinfo.nTris        = 0;
+        patch->drawinfo.nVerts       = 0;
+    }
+}
+
+/*
+================
+G_SplitTri
+================
+*/
+
+void G_SplitTri(
+    terraInt iSplit, terraInt iNewPt, terraInt iLeft, terraInt iRight, terraInt iRightOfLeft, terraInt iLeftOfRight
+)
+{
+    terraTri_t *pSplit = &g_pTris[iSplit];
+
+    terraTri_t *pLeft;
+    if (iLeft) {
+        pLeft = &g_pTris[iLeft];
+    } else {
+        pLeft = NULL;
+    }
+
+    terraTri_t *pRight;
+    if (iRight) {
+        pRight = &g_pTris[iRight];
+    } else {
+        pRight = NULL;
+    }
+
+    int                iNextLod = pSplit->lod + 1;
+    int                index    = pSplit->index;
+    varnodeUnpacked_t *varnode  = &pSplit->varnode[index];
+
+    if (pLeft) {
+        pLeft->patch   = pSplit->patch;
+        pLeft->index   = index * 2;
+        pLeft->varnode = varnode;
+        pLeft->lod     = iNextLod;
+        pLeft->iLeft   = iRight;
+        pLeft->iRight  = iRightOfLeft;
+        pLeft->iBase   = pSplit->iLeft;
+        pLeft->iPt[0]  = pSplit->iPt[1];
+        pLeft->iPt[1]  = pSplit->iPt[2];
+        pLeft->iPt[2]  = iNewPt;
+
+        G_ValidateHeightmapForVertex(pLeft);
+        pLeft->byConstChecks |= G_ConstChecksForTri(pLeft);
+
+        g_pVert[pLeft->iPt[0]].nRef++;
+        g_pVert[pLeft->iPt[1]].nRef++;
+        g_pVert[pLeft->iPt[2]].nRef++;
+        g_pTris[pSplit->iParent].nSplit++;
+        pLeft->nSplit = 0;
+    }
+
+    if (pSplit->iLeft) {
+        if (g_pTris[pSplit->iLeft].lod == iNextLod) {
+            g_pTris[pSplit->iLeft].iBase = iLeft;
+        } else {
+            g_pTris[pSplit->iLeft].iRight = iLeft;
+        }
+    }
+
+    if (pRight) {
+        pRight->patch   = pSplit->patch;
+        pRight->index   = index * 2 + 1;
+        pRight->varnode = varnode + 1;
+        pRight->lod     = iNextLod;
+        pRight->iLeft   = iLeftOfRight;
+        pRight->iRight  = iLeft;
+        pRight->iBase   = pSplit->iRight;
+        pRight->iPt[0]  = pSplit->iPt[2];
+        pRight->iPt[1]  = pSplit->iPt[0];
+        pRight->iPt[2]  = iNewPt;
+
+        G_ValidateHeightmapForVertex(pRight);
+        pRight->byConstChecks |= G_ConstChecksForTri(pRight);
+
+        g_pVert[pRight->iPt[0]].nRef++;
+        g_pVert[pRight->iPt[1]].nRef++;
+        g_pVert[pRight->iPt[2]].nRef++;
+        g_pTris[pSplit->iParent].nSplit++;
+        pRight->nSplit = 0;
+    }
+
+    if (pSplit->iRight) {
+        if (g_pTris[pSplit->iRight].lod == iNextLod) {
+            g_pTris[pSplit->iRight].iBase = iRight;
+        } else {
+            g_pTris[pSplit->iRight].iLeft = iRight;
+        }
+    }
+}
+
+/*
+================
+G_ForceSplit
+================
+*/
+static void G_ForceSplit(terraInt iTri)
+{
+    terraTri_t    *pTri = &g_pTris[iTri];
+    terraTri_t    *pBase;
+    terrainVert_t *pVert;
+    terraInt       iBase;
+    terraInt       iTriLeft, iTriRight;
+    terraInt       iNewPt;
+    terraInt       iBaseLeft = 0, iBaseRight = 0;
+    terraInt       iNewBasePt;
+    uint32_t       flags, flags2;
+
+    g_nSplit++;
+
+    iBase = pTri->iBase;
+    pBase = &g_pTris[iBase];
+    if (iBase && pBase->lod != pTri->lod) {
+        assert(g_pTris[pTri->iBase].iBase != iTri);
+        assert(g_tri.nFree >= 8);
+
+        G_ForceSplit(iBase);
+
+        assert(g_tri.nFree >= 4);
+
+        iBase = pTri->iBase;
+        pBase = &g_pTris[iBase];
+    }
+
+    flags = pTri->varnode->flags;
+
+    iTriLeft  = G_AllocateTri(pTri->patch, (flags & 2));
+    iTriRight = G_AllocateTri(pTri->patch, (flags & 1));
+
+    iNewPt = G_AllocateVert(pTri->patch);
+    G_InterpolateVert(pTri, &g_pVert[iNewPt]);
+
+    g_pVert[iNewPt].fVariance = pTri->varnode->fVariance;
+
+    iBaseLeft  = 0;
+    iBaseRight = 0;
+
+    if (iBase) {
+        flags2 = pBase->varnode->flags;
+        flags |= flags2;
+
+        iBaseLeft  = G_AllocateTri(pBase->patch, (flags2 & 2));
+        iBaseRight = G_AllocateTri(pBase->patch, (flags2 & 1));
+
+        iNewBasePt = iNewPt;
+        if (pBase->patch != pTri->patch) {
+            iNewBasePt = G_AllocateVert(pBase->patch);
+            pVert      = &g_pVert[iNewBasePt];
+            G_InterpolateVert(pBase, pVert);
+
+            pVert->fVariance = g_pVert[iNewPt].fVariance;
+            if (flags & 8) {
+                pVert->fHgtAvg += pVert->fHgtAdd;
+                pVert->fHgtAdd   = 0.0;
+                pVert->fVariance = 0.0;
+                pVert->xyz[2]    = pVert->fHgtAvg;
+            }
+        }
+
+        G_SplitTri(iBase, iNewBasePt, iBaseLeft, iBaseRight, iTriRight, iTriLeft);
+
+        pBase->iLeftChild           = iBaseLeft;
+        pBase->iRightChild          = iBaseRight;
+        g_pTris[iBaseLeft].iParent  = iBase;
+        g_pTris[iBaseRight].iParent = iBase;
+        G_DemoteInAncestry(pBase->patch, iBase);
+    }
+
+    if (flags & 8) {
+        pVert = &g_pVert[iNewPt];
+        pVert->fHgtAvg += pVert->fHgtAdd;
+        pVert->fHgtAdd   = 0.0;
+        pVert->fVariance = 0.0;
+        pVert->xyz[2]    = pVert->fHgtAvg;
+    }
+
+    G_SplitTri(iTri, iNewPt, iTriLeft, iTriRight, iBaseRight, iBaseLeft);
+
+    pTri->iLeftChild           = iTriLeft;
+    pTri->iRightChild          = iTriRight;
+    g_pTris[iTriLeft].iParent  = iTri;
+    g_pTris[iTriRight].iParent = iTri;
+    G_DemoteInAncestry(pTri->patch, iTri);
+}
+
+/*
+================
+G_ForceMerge
+================
+*/
+static void G_ForceMerge(terraInt iTri)
+{
+    terraTri_t            *pTri  = &g_pTris[iTri];
+    cTerraPatchUnpacked_t *patch = pTri->patch;
+    terraInt               iPrev = pTri->iPrev;
+    terraInt               iNext = pTri->iNext;
+
+    g_nMerge++;
+
+    if (pTri->iLeftChild) {
+        terraInt iLeft = g_pTris[pTri->iLeftChild].iBase;
+
+        pTri->iLeft = iLeft;
+        if (iLeft) {
+            if (g_pTris[iLeft].lod == pTri->lod) {
+                g_pTris[iLeft].iRight = iTri;
+            } else {
+                g_pTris[iLeft].iBase = iTri;
+            }
+        }
+
+        G_ReleaseTri(pTri->patch, pTri->iLeftChild);
+
+        pTri->iLeftChild = 0;
+        g_pTris[pTri->iParent].nSplit--;
+    }
+
+    if (pTri->iRightChild) {
+        terraInt iRight = g_pTris[pTri->iRightChild].iBase;
+
+        pTri->iRight = iRight;
+        if (iRight) {
+            if (g_pTris[iRight].lod == pTri->lod) {
+                g_pTris[iRight].iLeft = iTri;
+            } else {
+                g_pTris[iRight].iBase = iTri;
+            }
+        }
+
+        G_ReleaseTri(pTri->patch, pTri->iRightChild);
+
+        pTri->iLeftChild = 0;
+        g_pTris[pTri->iParent].nSplit--;
+    }
+
+    g_pTris[iPrev].iNext = iNext;
+    g_pTris[iNext].iPrev = iPrev;
+
+    if (g_tri.iCur == iTri) {
+        g_tri.iCur = iNext;
+    }
+
+    patch->drawinfo.nTris++;
+    if (patch->drawinfo.iMergeHead == iTri) {
+        patch->drawinfo.iMergeHead = iNext;
+    }
+
+    g_pTris[iTri].iPrev = patch->drawinfo.iTriTail;
+    g_pTris[iTri].iNext = 0;
+
+    g_pTris[patch->drawinfo.iTriTail].iNext = iTri;
+
+    patch->drawinfo.iTriTail = iTri;
+    if (!patch->drawinfo.iTriHead) {
+        patch->drawinfo.iTriHead = iTri;
+    }
+}
+
+/*
+================
+G_TerraTriNeighbor
+================
+*/
+static int G_TerraTriNeighbor(cTerraPatchUnpacked_t *terraPatches, int iPatch, int dir)
+{
+    int iNeighbor;
+
+    if (iPatch < 0) {
+        return 0;
+    }
+
+    iNeighbor = 2 * iPatch + 1;
+
+    switch (dir) {
+    case 0:
+        return iNeighbor;
+    case 1:
+        if (terraPatches[iPatch].flags & 0x80) {
+            return iNeighbor;
+        } else {
+            return iNeighbor + 1;
+        }
+        break;
+    case 2:
+        return iNeighbor + 1;
+    case 3:
+        if (terraPatches[iPatch].flags & 0x80) {
+            return iNeighbor + 1;
+        } else {
+            return iNeighbor;
+        }
+        break;
+    }
+
+    return 0;
+}
+
+/*
+================
+G_PreTessellateTerrain
+================
+*/
+static void G_PreTessellateTerrain(cTerraPatchUnpacked_t *terraPatches, size_t numTerraPatches)
+{
+    if (!numTerraPatches) {
+        return;
+    }
+
+    g_nTris  = numTerraPatches * 8 * 8 * 6 * MAX_TERRAIN_LOD + 1;
+    g_nVerts = g_nTris;
+    g_pTris  = (terraTri_t *)gi.Malloc(g_nTris * sizeof(terraTri_t));
+    g_pVert  = (terrainVert_t *)gi.Malloc(g_nVerts * sizeof(terrainVert_t));
+
+    // Init triangles & vertices
+    G_TerrainHeapInit();
+    G_TerrainPatchesInit(terraPatches, numTerraPatches);
+
+    for (size_t i = 0; i < numTerraPatches; i++) {
+        cTerraPatchUnpacked_t *patch = &terraPatches[i];
+
+        patch->drawinfo.nTris     = 0;
+        patch->drawinfo.nVerts    = 0;
+        patch->drawinfo.iTriHead  = 0;
+        patch->drawinfo.iTriTail  = 0;
+        patch->drawinfo.iVertHead = 0;
+
+        terraInt iTri0 = G_AllocateTri(patch, qfalse);
+        terraInt iTri1 = G_AllocateTri(patch, qfalse);
+        terraInt i00   = G_AllocateVert(patch);
+        terraInt i01   = G_AllocateVert(patch);
+        terraInt i10   = G_AllocateVert(patch);
+        terraInt i11   = G_AllocateVert(patch);
+
+        terrainVert_t *pVert;
+        pVert            = &g_pVert[i00];
+        pVert->xyz[0]    = patch->x0;
+        pVert->xyz[1]    = patch->y0;
+        pVert->xyz[2]    = (float)(patch->heightmap[0] * 2) + patch->z0;
+        pVert->pHgt      = &patch->heightmap[0];
+        pVert->fHgtAvg   = pVert->xyz[2];
+        pVert->fVariance = 0.0f;
+        pVert->nRef      = 4;
+
+        pVert            = &g_pVert[i01];
+        pVert->xyz[0]    = patch->x0;
+        pVert->xyz[1]    = patch->y0 + 512.0f;
+        pVert->xyz[2]    = (float)(patch->heightmap[72] * 2) + patch->z0;
+        pVert->pHgt      = &patch->heightmap[72];
+        pVert->fHgtAvg   = pVert->xyz[2];
+        pVert->fVariance = 0.0f;
+        pVert->nRef      = 4;
+
+        pVert            = &g_pVert[i10];
+        pVert->xyz[0]    = patch->x0 + 512.0f;
+        pVert->xyz[1]    = patch->y0;
+        pVert->xyz[2]    = (float)(patch->heightmap[8] * 2) + patch->z0;
+        pVert->pHgt      = &patch->heightmap[8];
+        pVert->fHgtAvg   = pVert->xyz[2];
+        pVert->fVariance = 0.0f;
+        pVert->nRef      = 4;
+
+        pVert            = &g_pVert[i11];
+        pVert->xyz[0]    = patch->x0 + 512.0f;
+        pVert->xyz[1]    = patch->y0 + 512.0f;
+        pVert->xyz[2]    = (float)(patch->heightmap[80] * 2) + patch->z0;
+        pVert->pHgt      = &patch->heightmap[80];
+        pVert->fHgtAvg   = pVert->xyz[2];
+        pVert->fVariance = 0.0f;
+        pVert->nRef      = 4;
+
+        terraTri_t *pTri = &g_pTris[iTri0];
+        pTri->patch      = patch;
+        pTri->varnode    = &patch->varTree[0][0];
+        pTri->index      = 1;
+        pTri->lod        = 0;
+        pTri->byConstChecks |= G_ConstChecksForTri(pTri);
+
+        pTri->iBase = iTri1;
+        if ((patch->flags & 0x80u) == 0) {
+            pTri->iLeft  = G_TerraTriNeighbor(terraPatches, patch->iWest, 1);
+            pTri->iRight = G_TerraTriNeighbor(terraPatches, patch->iNorth, 2);
+            if (patch->flags & 0x40) {
+                pTri->iPt[0] = i00;
+                pTri->iPt[1] = i11;
+            } else {
+                pTri->iPt[0] = i11;
+                pTri->iPt[1] = i00;
+            }
+            pTri->iPt[2] = i01;
+        } else {
+            pTri->iLeft  = G_TerraTriNeighbor(terraPatches, patch->iNorth, 2);
+            pTri->iRight = G_TerraTriNeighbor(terraPatches, patch->iEast, 3);
+            if (patch->flags & 0x40) {
+                pTri->iPt[0] = i01;
+                pTri->iPt[1] = i10;
+            } else {
+                pTri->iPt[0] = i10;
+                pTri->iPt[1] = i01;
+            }
+            pTri->iPt[2] = i11;
+        }
+
+        G_ValidateHeightmapForVertex(pTri);
+
+        pTri          = &g_pTris[iTri1];
+        pTri->patch   = patch;
+        pTri->varnode = &patch->varTree[1][0];
+        pTri->index   = 1;
+        pTri->lod     = 0;
+        pTri->byConstChecks |= G_ConstChecksForTri(pTri);
+
+        pTri->iBase = iTri0;
+        if ((patch->flags & 0x80u) == 0) {
+            pTri->iLeft  = G_TerraTriNeighbor(terraPatches, patch->iEast, 3);
+            pTri->iRight = G_TerraTriNeighbor(terraPatches, patch->iSouth, 0);
+            if (patch->flags & 0x40) {
+                pTri->iPt[0] = i11;
+                pTri->iPt[1] = i00;
+            } else {
+                pTri->iPt[0] = i00;
+                pTri->iPt[1] = i11;
+            }
+            pTri->iPt[2] = i10;
+        } else {
+            pTri->iLeft  = G_TerraTriNeighbor(terraPatches, patch->iSouth, 0);
+            pTri->iRight = G_TerraTriNeighbor(terraPatches, patch->iWest, 1);
+            if (patch->flags & 0x40) {
+                pTri->iPt[0] = i10;
+                pTri->iPt[1] = i01;
+            } else {
+                pTri->iPt[0] = i01;
+                pTri->iPt[1] = i10;
+            }
+            pTri->iPt[2] = i00;
+        }
+
+        G_ValidateHeightmapForVertex(pTri);
+    }
+}
+
+/*
+================
+G_NeedSplitTri
+================
+*/
+static qboolean G_NeedSplitTri(terraTri_t *pTri)
+{
+    uint8_t byConstChecks = pTri->byConstChecks;
+    if (byConstChecks & 2) {
+        return byConstChecks & 1;
+    }
+
+    return qtrue;
+}
+
+/*
+================
+G_DoTriSplitting
+================
+*/
+static void G_DoTriSplitting(cTerraPatchUnpacked_t *terraPatches, size_t numTerraPatches)
+{
+    cTerraPatchUnpacked_t *patch;
+    size_t                 i;
+
+    for (i = 0; i < numTerraPatches; i++) {
+        patch = &terraPatches[i];
+
+        g_tri.iCur = patch->drawinfo.iTriHead;
+        while (g_tri.iCur != 0) {
+            terraTri_t *pTri = &g_pTris[g_tri.iCur];
+
+            if (G_NeedSplitTri(pTri)) {
+                if (g_tri.nFree < 14 * 2 || g_vert.nFree < 14) {
+                    // this shouldn't happen
+                    throw("aborting terrain tessellation -- insufficient tris\n");
+                }
+
+                G_ForceSplit(g_tri.iCur);
+
+                if (&g_pTris[g_tri.iCur] == pTri) {
+                    g_tri.iCur = g_pTris[g_tri.iCur].iNext;
+                }
+            } else {
+                g_tri.iCur = g_pTris[g_tri.iCur].iNext;
+            }
+        }
+    }
+}
+
+/*
+================
+G_RenderPatch
+================
+*/
+void G_RenderPatch(navMap_t& navMap, const cTerraPatchUnpacked_t& patch)
+{
+    terraInt vertNum;
+    terraInt triNum;
+
+    for (vertNum = patch.drawinfo.iVertHead; vertNum; vertNum = g_pVert[vertNum].iNext) {
+        const terrainVert_t& vert = g_pVert[vertNum];
+
+        navMap.vertices.AddObject(vert.xyz);
+    }
+
+    for (triNum = patch.drawinfo.iTriHead; triNum; triNum = g_pTris[triNum].iNext) {
+        const terraTri_t& tri = g_pTris[triNum];
+
+        if (tri.byConstChecks & 4) {
+            navMap.indices.AddObject(g_pVert[tri.iPt[0]].iVertArray);
+            navMap.indices.AddObject(g_pVert[tri.iPt[1]].iVertArray);
+            navMap.indices.AddObject(g_pVert[tri.iPt[2]].iVertArray);
+        }
+    }
+}
+
+/*
+================
+G_RenderTerrainTris
+================
+*/
+void G_RenderTerrainTris(navMap_t& navMap, cTerraPatchUnpacked_t *terraPatches, size_t numTerraPatches)
+{
+    size_t   i;
+    size_t   numVertices;
+    size_t   numTris;
+    terraInt triNum;
+
+    G_PreTessellateTerrain(terraPatches, numTerraPatches);
+
+    G_DoTriSplitting(terraPatches, numTerraPatches);
+
+    // Calculate the number of required tris and vertices
+    numVertices = 0;
+    numTris     = 0;
+    for (i = 0; i < numTerraPatches; i++) {
+        const cTerraPatchUnpacked_t& patch = terraPatches[i];
+
+        numVertices += patch.drawinfo.nVerts;
+
+        for (triNum = patch.drawinfo.iTriHead; triNum; triNum = g_pTris[triNum].iNext) {
+            if (g_pTris[triNum].byConstChecks & 4) {
+                numTris += 3;
+            }
+        }
+    }
+
+    navMap.vertices.Resize(navMap.vertices.NumObjects() + numVertices);
+    navMap.indices.Resize(navMap.indices.NumObjects() + numTris);
+
+    for (i = 0; i < numTerraPatches; i++) {
+        const cTerraPatchUnpacked_t& patch = terraPatches[i];
+
+        G_RenderPatch(navMap, patch);
+    }
+}
+
+/*
+================
+G_LoadTerrain
+================
+*/
+void G_LoadTerrain(navMap_t& navMap, const gameLump_c& lump)
+{
+    int                    i;
+    const cTerraPatch_t   *in;
+    cTerraPatchUnpacked_t *out;
+    size_t                 numTerraPatches;
+    cTerraPatchUnpacked_t *terraPatches;
+
+    if (!lump.length) {
+        return;
+    }
+
+    if (lump.length % sizeof(cTerraPatch_t)) {
+        Com_Error(ERR_DROP, "R_LoadTerrain: funny lump size");
+    }
+
+    numTerraPatches = lump.length / sizeof(cTerraPatch_t);
+    terraPatches    = (cTerraPatchUnpacked_t *)gi.Malloc(numTerraPatches * sizeof(cTerraPatchUnpacked_t));
+
+    in  = (const cTerraPatch_t *)lump.buffer;
+    out = terraPatches;
+
+    for (i = 0; i < numTerraPatches; in++, out++, i++) {
+        G_SwapTerraPatch(in);
+        G_UnpackTerraPatch(in, out);
+    }
+
+    G_RenderTerrainTris(navMap, terraPatches, numTerraPatches);
+
+    gi.Free(terraPatches);
+}
+
+/*
+================
+G_CopyStaticModel
+================
+*/
+void G_CopyStaticModel(const cStaticModel_t *pSM, cStaticModelUnpacked_t *pUnpackedSM)
+{
+    pUnpackedSM->angles[0] = LittleFloat(pSM->angles[0]);
+    pUnpackedSM->angles[1] = LittleFloat(pSM->angles[1]);
+    pUnpackedSM->angles[2] = LittleFloat(pSM->angles[2]);
+    pUnpackedSM->origin[0] = LittleFloat(pSM->origin[0]);
+    pUnpackedSM->origin[1] = LittleFloat(pSM->origin[1]);
+    pUnpackedSM->origin[2] = LittleFloat(pSM->origin[2]);
+    pUnpackedSM->scale     = LittleFloat(pSM->scale);
+    memcpy(pUnpackedSM->model, pSM->model, sizeof(pUnpackedSM->model));
+}
+
+/*
+================
+G_LoadStaticModelDefs
+================
+*/
+void G_LoadStaticModelDefs(const gameLump_c& lump)
+{
+    int                     i;
+    const cStaticModel_t   *in;
+    cStaticModelUnpacked_t *out;
+    size_t                  numStaticModels;
+    cStaticModelUnpacked_t *staticModels;
+
+    if (!lump.length) {
+        return;
+    }
+
+    if (lump.length % sizeof(cStaticModel_t)) {
+        throw ScriptException("G_LoadStaticModelDefs: funny lump size");
+    }
+
+    numStaticModels = lump.length / sizeof(cStaticModel_t);
+    staticModels    = (cStaticModelUnpacked_t *)gi.Malloc(numStaticModels * sizeof(cStaticModelUnpacked_t));
+
+    in  = (const cStaticModel_t *)lump.buffer;
+    out = (cStaticModelUnpacked_t *)staticModels;
+
+    for (i = 0; i < numStaticModels; in++, out++, i++) {
+        G_CopyStaticModel(in, out);
+    }
+}
+
+/*
+============
+G_Navigation_LoadWorldMap
+============
+*/
 void G_Navigation_LoadWorldMap(const char *mapname)
 {
     dheader_t    header;
@@ -695,13 +1876,15 @@ void G_Navigation_LoadWorldMap(const char *mapname)
     navMap.mapname = mapname;
 
     try {
+        // Gather vertices from meshes and surfaces
         lumps[0] = gameLump_c::LoadLump(h, *Q_GetLumpByVersion(&header, LUMP_SURFACES));
         lumps[1] = gameLump_c::LoadLump(h, *Q_GetLumpByVersion(&header, LUMP_DRAWVERTS));
         lumps[2] = gameLump_c::LoadLump(h, *Q_GetLumpByVersion(&header, LUMP_DRAWINDEXES));
         G_LoadSurfaces(navMap, lumps[0], lumps[1], lumps[2]);
 
-        // FIXME: half implemented
-        //  1. Load terrains and render them into vertices
+        // Gather vertices from LOD terrain
+        lumps[0] = gameLump_c::LoadLump(h, *Q_GetLumpByVersion(&header, LUMP_TERRAIN));
+        G_LoadTerrain(navMap, lumps[0]);
     } catch (const ScriptException& e) {
         gi.Printf("Failed to load BSP for navigation: %s\n", e.string.c_str());
     }
