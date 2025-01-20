@@ -3362,6 +3362,10 @@ shader_t* R_FindShader(const char* name, int lightmapIndex, qboolean mipRawImage
 	// lightmaps
 	if ( lightmapIndex >= 0 && lightmapIndex >= tr.numLightmaps ) {
 		lightmapIndex = LIGHTMAP_BY_VERTEX;
+	} else if ( lightmapIndex < LIGHTMAP_2D ) {
+		// negative lightmap indexes cause stray pointers (think tr.lightmaps[lightmapIndex])
+		ri.Printf( PRINT_WARNING, "WARNING: shader '%s' has invalid lightmap index of %d\n", name, lightmapIndex  );
+		lightmapIndex = LIGHTMAP_BY_VERTEX;
 	}
 
 	COM_StripExtension( name, strippedName, sizeof(strippedName));

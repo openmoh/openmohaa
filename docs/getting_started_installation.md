@@ -1,5 +1,8 @@
 # Installation
 
+- On Windows there is no installer yet, so you have to follow all the steps below.
+- On Linux, you might want to check if an OpenMoHAA package is available with your package manager.
+
 ## Requirements
 
 - A MOH:AA installation. Common installations include:
@@ -8,99 +11,11 @@
   - From a CD. Make sure to [patch your installed copy](#installing-official-patches)
   - Demo. See [obtaining a demo version](#obtaining-a-demo-version)
 - On Windows, Microsoft Visual C++ 2015/2017/2019/2022 Redistributable from https://learn.microsoft.com/en-US/cpp/windows/latest-supported-vc-redist?view=msvc-170 is required.
-
-## System requirements
-
-This matches the hardware requirements (x86) of the original game.
-
-### Medal of Honor: Allied Assault
-
-1.2 GB of free disk space is required for the full game installation + binaries.
-
-#### x86 (AMD and Intel)
-
-|Hardware       |Minimum                                             |Recommended
-|---------------|----------------------------------------------------|---------------
-|CPU            |450 MHz (Intel Pentium II), or 500 MHz (AMD Athlon) |700 MHz (Intel Pentium III or AMD Athlon)
-|Memory         |128MB                                               |256MB
-|GPU            |16MB                                                |32MB
-
-#### ARM
-
-|Hardware       |Minimum                                             |Recommended
-|---------------|----------------------------------------------------|---------------
-|CPU            |600 MHz ARM Cortex-A8                               |800 MHz ARM Cortex-A9
-|Memory         |128MB                                               |256MB
-|GPU            |16MB                                                |32MB
-
-#### PowerPC
-
-|Hardware       |Minimum                                             |Recommended
-|---------------|----------------------------------------------------|---------------
-|CPU            |G3 450 MHz                                          |G4 1 GHz
-|Memory         |128MB                                               |256MB
-|GPU            |16MB                                                |32MB
-
-### Spearhead expansion
-
-1.0 GB of free disk space is required to install Spearhead on top of the base game.
-
-#### x86 (AMD and Intel)
-
-|Hardware       |Minimum                                             |Recommended
-|---------------|----------------------------------------------------|---------------
-|CPU            |450 MHz (Intel Pentium II), or 500 MHz (AMD Athlon) |700 MHz (Intel Pentium III or AMD Athlon)
-|Memory         |128MB                                               |256MB
-|GPU            |16MB                                                |32MB
-
-#### ARM
-
-|Hardware       |Minimum                                             |Recommended
-|---------------|----------------------------------------------------|---------------
-|CPU            |600 MHz ARM Cortex-A8                               |800 MHz ARM Cortex-A9
-|Memory         |128MB                                               |256MB
-|GPU            |16MB                                                |32MB
-
-#### PowerPC
-
-|Hardware       |Minimum                                             |Recommended
-|---------------|----------------------------------------------------|---------------
-|CPU            |G3 500 MHz                                          |G4 1 GHz
-|Memory         |256MB                                               |256MB
-|GPU            |16MB                                                |32MB
-
-### Breakthrough expansion
-
-800 MB of free disk space is required to install Breakthrough on top of the base game.
-
-#### x86 (AMD and Intel)
-
-|Hardware       |Minimum                                              |Recommended
-|---------------|-----------------------------------------------------|---------------
-|CPU            |733 MHz (Intel Pentium III), or 700 MHz (AMD Athlon) |1 GHz (Intel Pentium III or AMD Athlon)
-|Memory         |128MB                                                |256MB
-|GPU            |16MB                                                 |32MB
-
-#### ARM
-
-|Hardware       |Minimum                                             |Recommended
-|---------------|----------------------------------------------------|---------------
-|CPU            |800 MHz ARM Cortex-A9                               |1 GHz ARM Cortex-A15
-|Memory         |128MB                                               |256MB
-|GPU            |16MB                                                |32MB
-
-
-#### PowerPC
-
-|Hardware       |Minimum                                             |Recommended
-|---------------|----------------------------------------------------|---------------
-|CPU            |G3 800 MHz                                          |G4 1 GHz
-|Memory         |256MB                                               |256MB
-|GPU            |16MB                                                |32MB
+- The game should be able to run on any modern hardware. See [System requirements](./getting_started_requirements.md)
 
 ## Installing official patches
 
-Skip directly to the [OpenMoHAA installation](#downloadinginstalling) section if the **MOH: Warchest** copy is installed.
+If the **MOH: Warchest** copy is installed, skip directly to the [OpenMoHAA installation](#downloadinginstalling) section.
 
 Otherwise, install the following patches:
 
@@ -112,9 +27,9 @@ Otherwise, install the following patches:
 
 These patches are required to connect to multiplayer servers and ensure a smooth, bug-free single-player experience.
 
-## Downloading/installing
+## Downloading/installing OpenMoHAA
 
-Ensure that you download the binaries compatible with your platform in the [releases](https://github.com/openmoh/openmohaa/releases) section.
+Ensure that you download the binaries compatible with your platform in the [releases](https://github.com/openmoh/openmohaa/releases/latest) section.
 
 ### Which release should be downloaded?
 
@@ -145,7 +60,9 @@ Once you're ready, start one of the three launchers based on whether you want to
 
 1. For servers, only the `omohaaded.*` and `game.*` binaries from the archive are required.
 
-## Cleaning up the game installation directory
+## Appendix
+
+### Cleaning up the game installation directory
 
 If you want to clean up the mohaa installation directory by keeping only what is needed for OpenMoHAA, the following files/directories can be kept:
 ```cpp
@@ -165,7 +82,7 @@ If you want to clean up the mohaa installation directory by keeping only what is
 ├── All files from the OpenMoHAA archive
 ```
 
-## Extracting GOG setup file on Linux and macOS
+### Extracting GOG setup file on Linux and macOS
 
 If your MOH:AA copy was acquired from GOG then this section will be relevant.
 
@@ -177,7 +94,7 @@ The MOH:AA Warchest installer files on GOG are Windows binaries. To attain the g
 
 Alternatively, you can use [WINE](https://www.winehq.org/) as well, but this process may take longer if you do not already have WINE installed and configured. 
 
-## Obtaining a demo version
+### Obtaining a demo version
 
 Alternatively, free demo versions are available online. Here are the links to the demos:
 

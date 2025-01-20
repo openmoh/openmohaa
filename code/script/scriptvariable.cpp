@@ -604,17 +604,22 @@ variabletype ScriptVariable::GetType() const
 
 qboolean ScriptVariable::IsEntity(void)
 {
-    if (type == VARIABLE_LISTENER) {
-        if (!m_data.listenerValue->Pointer()
-#if defined(GAME_DLL)
-            || checkInheritance(Entity::classinfostatic(), m_data.listenerValue->Pointer()->classinfo())
-#endif
-        ) {
-            return true;
-        }
+    if (type != VARIABLE_LISTENER) {
+        return false;
     }
 
-    return false;
+    if (!m_data.listenerValue->Pointer()) {
+        // Fixed in OPM
+        //  Not sure why OG returns true
+        return false;
+    }
+#if defined(GAME_DLL)
+    if (!checkInheritance(Entity::classinfostatic(), m_data.listenerValue->Pointer()->classinfo())) {
+        return false;
+    }
+#endif
+
+    return true;
 }
 
 qboolean ScriptVariable::IsListener(void)
@@ -636,14 +641,22 @@ qboolean ScriptVariable::IsConstArray() const
 
 qboolean ScriptVariable::IsSimpleEntity(void)
 {
-    if (type == VARIABLE_LISTENER) {
-        if (!m_data.listenerValue->Pointer()
-            || checkInheritance(&SimpleEntity::ClassInfo, m_data.listenerValue->Pointer()->classinfo())) {
-            return true;
-        }
+    if (type != VARIABLE_LISTENER) {
+        return false;
     }
 
-    return false;
+    if (!m_data.listenerValue->Pointer()) {
+        // Fixed in OPM
+        //  Not sure why OG returns true
+        return false;
+    }
+#if defined(GAME_DLL)
+    if (!checkInheritance(Entity::classinfostatic(), m_data.listenerValue->Pointer()->classinfo())) {
+        return false;
+    }
+#endif
+
+    return true;
 }
 
 #endif

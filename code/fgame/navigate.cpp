@@ -2500,7 +2500,10 @@ PathNode *PathSearch::FindNearestSniperNode(Entity*pEnt, Vector& vPos, Entity *p
 
 PathNode *PathSearch::GetSpawnNode(ClassDef *cls)
 {
-    if (m_bNodesloaded) {
+    if (m_bNodesloaded
+        // Fixed in OPM
+        && m_LoadIndex < nodecount
+        ) {
         return pathnodes[m_LoadIndex++];
     } else {
         // Otherwise create a new node

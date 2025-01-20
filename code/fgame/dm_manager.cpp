@@ -42,8 +42,8 @@ typedef struct spawnsort_s {
 
 static qboolean SpotWouldTelefrag(float *origin)
 {
-    static Vector mins = Vector(-16, -16, 1);
-    static Vector maxs = Vector(16, 16, 97);
+    static Vector mins = Vector(-15, -15, 1);
+    static Vector maxs = Vector(15, 15, 96);
     trace_t       trace;
 
     trace = G_Trace(Vector(origin), mins, maxs, Vector(origin), NULL, MASK_PLAYERSTART, qfalse, "SpotWouldTelefrag");
@@ -472,8 +472,8 @@ PlayerStart *DM_Team::GetRandomSpawnpointWithMetric(
     spot = GetRandomSpawnpointFromList(points, numSpots);
     for (int i = 0; i < numSpots; i++) {
         // delete all created spawnpoint
-        if (points[numSpots].spawnpoint != spot) {
-            delete points[numSpots].spawnpoint;
+        if (points[i].spawnpoint != spot) {
+            delete points[i].spawnpoint;
         }
     }
 

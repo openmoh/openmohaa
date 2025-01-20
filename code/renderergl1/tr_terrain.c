@@ -998,7 +998,9 @@ static void R_DoTriSplitting()
                 //
                 // make sure there are sufficient number of tris
                 //
-                if (g_tri.nFree < 14 || g_vert.nFree < 14) {
+                // Fixed in OPM
+                //  Properly check the number of tris, which is double the number of verts
+                if (g_tri.nFree < 14*2 || g_vert.nFree < 14) {
                     ri.Printf(PRINT_DEVELOPER, "WARNING: aborting terrain tessellation -- insufficient tris\n");
                     return;
                 }

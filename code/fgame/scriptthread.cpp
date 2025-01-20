@@ -1981,6 +1981,15 @@ Event EV_ScriptThread_Md5String
     "generates MD5 hash of given text",
     EV_RETURN
 );
+Event EV_ScriptThread_GetEntity
+(
+    "getentity",
+    EV_CHEAT,
+    "i",
+    "ent_num",
+    "Gets the specified entity",
+    EV_RETURN
+);
 Event EV_ScriptThread_SetTimer
 (
     "settimer",
@@ -2180,6 +2189,7 @@ CLASS_DECLARATION(Listener, ScriptThread, NULL) {
     {&EV_ScriptThread_GetTanH,                 &ScriptThread::EventTanH               },
     {&EV_ScriptThread_strncpy,                 &ScriptThread::StringBytesCopy         },
     {&EV_ScriptThread_Md5String,               &ScriptThread::Md5String               },
+    {&EV_ScriptThread_GetEntity,               &ScriptThread::GetEntByEntnum          },
     {&EV_ScriptThread_TypeOf,                  &ScriptThread::TypeOfVariable          },
     {&EV_ScriptThread_RegisterEv,              &ScriptThread::RegisterEvent           },
     {&EV_ScriptThread_UnregisterEv,            &ScriptThread::UnregisterEvent         },
@@ -3042,6 +3052,16 @@ Listener *ScriptThread::SpawnInternal(Event *ev)
         throw ScriptException("Usage: spawn entityname [keyname] [value]...");
     }
 
+    // Fixed in OPM
+    //  The original game uses a raw char* pointer to get the classname rather than storing it in an str.
+    //  This causes an issue when the argument is none (NIL), stringValue() will allocate and return a new str() with "NIL".
+    //  As the returned str() is not stored anywhere, it gets destroyed immediately, meaning that the char* pointer gets empty.
+    //  This has the effect of using empty class ID, which is "Explosion" in original game.
+    //
+    //  For example, t2l2 has an incorrect "mg42_spawner_gunner" of class PathNode, but PathNode has no model variable.
+    //  global/spawner.scr::spawner_activate:
+    //  - In OG, it will successfully spawn an instance of "Explosion" due to the NIL argument behavior stated above.
+    //  - In OPM, it will not spawn anything and will cause script errors, it's the expected behavior by design
     classname = ev->GetString(1);
 
     if (getClassForID(classname) || getClass(classname)) {
@@ -5725,7 +5745,7 @@ void ScriptThread::FileExists(Event *ev)
 
     filename = ev->GetString(1);
 
-    if (filename == NULL) {
+    if (!filename.length()) {
         throw ScriptException("Empty file name passed to fexists!\n");
     }
 
@@ -5804,7 +5824,7 @@ void ScriptThread::FileSaveAll(Event *ev)
 
     text = ev->GetString(2);
 
-    if (text == NULL) {
+    if (text.length()) {
         ev->AddInteger(-1);
         throw ScriptException("Text to be written is NULL - fsaveall!\n");
     }
@@ -5828,7 +5848,7 @@ void ScriptThread::FileRemove(Event *ev)
 
     filename = ev->GetString(1);
 
-    if (filename == NULL) {
+    if (!filename.length()) {
         throw ScriptException("Empty file name passed to fremove!\n");
     }
 
@@ -5938,7 +5958,7 @@ void ScriptThread::FileReadPak(Event *ev)
 
     filename = ev->GetString(1);
 
-    if (filename == NULL) {
+    if (!filename.length()) {
         throw ScriptException("Filename is NULL - freadpak!\n");
     }
 
@@ -6013,7 +6033,7 @@ void ScriptThread::FileNewDirectory(Event *ev)
 
     path = ev->GetString(1);
 
-    if (path == NULL) {
+    if (!path.length()) {
         throw ScriptException("Path is NULL - fnewdir!\n");
     }
 
@@ -6041,7 +6061,7 @@ void ScriptThread::FileRemoveDirectory(Event *ev)
 
     path = ev->GetString(1);
 
-    if (path == NULL) {
+    if (!path.length()) {
         throw ScriptException("Path is NULL - fremovedir!\n");
     }
 

@@ -541,6 +541,8 @@ void ScriptVM::executeCommandInternal<false>(
 )
 {
     transferVarsToEvent(ev, fromVar, iParamCount);
+
+    checkValidEvent(ev, listener);
     listener->ProcessScriptEvent(ev);
 }
 
@@ -552,6 +554,7 @@ void ScriptVM::executeCommandInternal<true>(
     transferVarsToEvent(ev, fromVar, iParamCount);
 
     try {
+        checkValidEvent(ev, listener);
         listener->ProcessScriptEvent(ev);
     } catch (...) {
         m_VMStack.GetTop().Clear();
@@ -593,6 +596,20 @@ void ScriptVM::executeCommand<true, true>(Listener *listener, op_parmNum_t iPara
 void ScriptVM::transferVarsToEvent(Event& ev, ScriptVariable *fromVar, op_parmNum_t count)
 {
     ev.CopyValues(fromVar, count);
+}
+
+void ScriptVM::checkValidEvent(Event& ev, Listener* listener) {
+    ClassDef *c = listener->classinfo();
+
+    if (!c->GetDef(&ev)) {
+        if (listener == m_Thread) {
+            ScriptError("Failed execution of command '%s'", ev.getName());
+        } else if (listener->isSubclassOf(SimpleEntity)) {
+            ScriptError("Failed execution of command '%s' for class '%s' Targetname '%s'", ev.getName(), c->classname, static_cast<SimpleEntity*>(listener)->targetname.c_str());
+        } else {
+            ScriptError("Failed execution of command '%s' for class '%s'", ev.getName(), c->classname);
+        }
+    }
 }
 
 bool ScriptVM::executeGetter(Listener *listener, op_evName_t eventName)
@@ -1517,6 +1534,7 @@ void ScriptVM::Execute(ScriptVariable *data, int dataSize, str label)
 
             case OP_LOAD_STORE_SELF_VAR:
                 if (!m_ScriptClass->m_Self) {
+                    m_CodePos += sizeof(unsigned int);
                     ScriptError("self is NULL");
                 }
 
@@ -1648,13 +1666,13 @@ void ScriptVM::Execute(ScriptVariable *data, int dataSize, str label)
 
             case OP_STORE_OWNER_VAR:
                 if (!m_ScriptClass->m_Self) {
-                    m_VMStack.Push();
+                    m_VMStack.PushAndGet().Clear();
                     m_CodePos += sizeof(unsigned int);
                     ScriptError("self is NULL");
                 }
 
                 if (!m_ScriptClass->m_Self->GetScriptOwner()) {
-                    m_VMStack.Push();
+                    m_VMStack.PushAndGet().Clear();
                     m_CodePos += sizeof(unsigned int);
                     ScriptError("self.owner is NULL");
                 }
@@ -1668,7 +1686,7 @@ void ScriptVM::Execute(ScriptVariable *data, int dataSize, str label)
 
             case OP_STORE_SELF_VAR:
                 if (!m_ScriptClass->m_Self) {
-                    m_VMStack.Push();
+                    m_VMStack.PushAndGet().Clear();
                     m_CodePos += sizeof(unsigned int);
                     ScriptError("self is NULL");
                 }
@@ -1697,10 +1715,10 @@ void ScriptVM::Execute(ScriptVariable *data, int dataSize, str label)
                 break;
 
             case OP_STORE_OWNER:
-                m_VMStack.Push();
-
-                if (!m_ScriptClass->m_Self) {
+                if (m_ScriptClass->m_Self) {
                     m_VMStack.Push();
+                } else {
+                    m_VMStack.PushAndGet().Clear();
                     ScriptError("self is NULL");
                 }
 
@@ -1769,7 +1787,13 @@ void ScriptVM::Execute(ScriptVariable *data, int dataSize, str label)
 
             case OP_UN_TARGETNAME:
                 // retrieve the target name
-                targetList = world->GetExistingTargetList(m_VMStack.GetTop().stringValue());
+                if (world) {
+                    targetList = world->GetExistingTargetList(m_VMStack.GetTop().stringValue());
+                } else {
+                    // Added in OPM
+                    //  don't use the target list if the world is NULL
+                    targetList = NULL;
+                }
 
                 if (!targetList || !targetList->list.NumObjects()) {
                     str targetname = m_VMStack.GetTop().stringValue();

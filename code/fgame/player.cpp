@@ -2209,6 +2209,12 @@ Player::~Player()
     //  when the player is deleted
     RemoveFromVehiclesAndTurrets();
 
+    // Added in OPM
+    //  Remove the player at destructor
+    if (g_gametype->integer != GT_SINGLE_PLAYER && dmManager.PlayerCount()) {
+        dmManager.RemovePlayer(this);
+    }
+
     entflags &= ~ECF_PLAYER;
 }
 
@@ -8917,7 +8923,11 @@ void Player::EquipWeapons()
             }
             break;
         case NA_GERMAN:
-            if (g_target_game < target_game_e::TG_MOHTA || dmflags->integer & DF_OLD_SNIPER) {
+            if (g_target_game < target_game_e::TG_MOHTA || dmflags->integer & DF_OLD_SNIPER
+                // Added in OPM
+                //  This was also a feature of Daven's fixes
+                //  Use KAR98 for panzer skins
+                || !Q_stricmpn(client->pers.dm_playergermanmodel, "german_panzer", 13)) {
                 // Old snipers are forced older versions of the game
                 giveItem("weapons/kar98sniper.tik");
                 event->AddString("KAR98 - Sniper");
@@ -9704,9 +9714,9 @@ void Player::Disconnect(void)
     ev->AddListener(this);
     scriptedEvents[SE_DISCONNECTED].Trigger(ev);
 
-    if (g_gametype->integer != GT_SINGLE_PLAYER) {
-        dmManager.RemovePlayer(this);
-    }
+//     if (g_gametype->integer != GT_SINGLE_PLAYER) {
+//         dmManager.RemovePlayer(this);
+//     }
 }
 
 void Player::CallVote(Event *ev)
