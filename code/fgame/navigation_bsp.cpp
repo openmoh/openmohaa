@@ -1850,7 +1850,6 @@ void G_Navigation_ProcessBSPForNavigation(const char *mapname, navMap_t& outNavi
     int          length;
     int          i;
     gameLump_c   lumps[3];
-    navMap_t     navMap;
 
     // load it
     length = gi.FS_FOpenFile(mapname, &h, qtrue, qtrue);
@@ -1864,18 +1863,18 @@ void G_Navigation_ProcessBSPForNavigation(const char *mapname, navMap_t& outNavi
         ((int *)&header)[i] = LittleLong(((int *)&header)[i]);
     }
 
-    navMap.mapname = mapname;
+    outNavigationMap.mapname = mapname;
 
     try {
         // Gather vertices from meshes and surfaces
         lumps[0] = gameLump_c::LoadLump(h, *Q_GetLumpByVersion(&header, LUMP_SURFACES));
         lumps[1] = gameLump_c::LoadLump(h, *Q_GetLumpByVersion(&header, LUMP_DRAWVERTS));
         lumps[2] = gameLump_c::LoadLump(h, *Q_GetLumpByVersion(&header, LUMP_DRAWINDEXES));
-        G_LoadSurfaces(navMap, lumps[0], lumps[1], lumps[2]);
+        G_LoadSurfaces(outNavigationMap, lumps[0], lumps[1], lumps[2]);
 
         // Gather vertices from LOD terrain
         lumps[0] = gameLump_c::LoadLump(h, *Q_GetLumpByVersion(&header, LUMP_TERRAIN));
-        G_LoadTerrain(navMap, lumps[0]);
+        G_LoadTerrain(outNavigationMap, lumps[0]);
     } catch (const ScriptException&) {
         gi.FS_FCloseFile(h);
         throw;
