@@ -24,6 +24,17 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "g_local.h"
 #include "navigation_recast.h"
+#include "../script/scriptexception.h"
+
+/*
+============
+G_Navigation_BuildRecastMesh
+============
+*/
+void G_Navigation_BuildRecastMesh(navMap_t& navigationMap)
+{
+
+}
 
 /*
 ============
@@ -33,6 +44,38 @@ G_Navigation_LoadWorldMap
 void G_Navigation_LoadWorldMap(const char *mapname)
 {
     navMap_t navigationMap;
+    int start, end;
 
-    G_Navigation_ProcessBSPForNavigation(mapname, navigationMap);
+    gi.Printf("---- Recast Navigation ----\n");
+
+    if (!sv_maxbots->integer) {
+        gi.Printf("No bots, skipping navigation\n");
+        return;
+    }
+
+    try {
+        start = gi.Milliseconds();
+
+        G_Navigation_ProcessBSPForNavigation(mapname, navigationMap);
+    } catch (const ScriptException& e) {
+        gi.Printf("Failed to load BSP for navigation: %s\n", e.string.c_str());
+        return;
+    }
+
+    end = gi.Milliseconds();
+
+    gi.Printf("BSP file loaded and parsed in %.03f seconds\n", (float)((end - start) / 1000.0));
+
+    try {
+        start = gi.Milliseconds();
+
+        G_Navigation_BuildRecastMesh(navigationMap);
+    } catch (const ScriptException& e) {
+        gi.Printf("Couldn't build recast navigation mesh: %s\n", e.string.c_str());
+        return;
+    }
+
+    end = gi.Milliseconds();
+
+    gi.Printf("Recast navigation mesh generated in %.03f seconds\n", (float)((end - start) / 1000.0));
 }

@@ -1852,10 +1852,6 @@ void G_Navigation_ProcessBSPForNavigation(const char *mapname, navMap_t& outNavi
     gameLump_c   lumps[3];
     navMap_t     navMap;
 
-    if (!sv_maxbots->integer) {
-        return;
-    }
-
     // load it
     length = gi.FS_FOpenFile(mapname, &h, qtrue, qtrue);
     if (length <= 0) {
@@ -1880,8 +1876,9 @@ void G_Navigation_ProcessBSPForNavigation(const char *mapname, navMap_t& outNavi
         // Gather vertices from LOD terrain
         lumps[0] = gameLump_c::LoadLump(h, *Q_GetLumpByVersion(&header, LUMP_TERRAIN));
         G_LoadTerrain(navMap, lumps[0]);
-    } catch (const ScriptException& e) {
-        gi.Printf("Failed to load BSP for navigation: %s\n", e.string.c_str());
+    } catch (const ScriptException&) {
+        gi.FS_FCloseFile(h);
+        throw;
     }
 
     gi.FS_FCloseFile(h);
