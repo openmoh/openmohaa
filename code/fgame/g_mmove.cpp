@@ -365,6 +365,7 @@ void MM_StepSlideMove(void)
     vec3_t   start_hit_origin;
     vec3_t   first_hit_origin;
     trace_t  nostep_groundTrace;
+    qboolean nostep_validGroundTrace;
 
     VectorCopy(mm->origin, start_o);
     VectorCopy(mm->velocity, start_v);
@@ -410,6 +411,9 @@ void MM_StepSlideMove(void)
     VectorCopy(mm->origin, nostep_o);
     VectorCopy(mm->velocity, nostep_v);
     memcpy(&nostep_groundTrace, &mml.groundTrace, sizeof(trace_t));
+    // Fixed in OPM
+    //  Save the valid ground trace
+    nostep_validGroundTrace = mml.validGroundTrace;
 
     VectorCopy(up, mm->origin);
     VectorCopy(start_v, mm->velocity);
@@ -432,6 +436,10 @@ void MM_StepSlideMove(void)
         VectorCopy(nostep_o, mm->origin);
         VectorCopy(nostep_v, mm->velocity);
         memcpy(&mml.groundTrace, &nostep_groundTrace, sizeof(mml.groundTrace));
+        // Fixed in OPM
+        //  Do not use the ground trace as it's invalid and would have an invalid entity number
+        mml.validGroundTrace = nostep_validGroundTrace;
+
         mm->hit_obstacle = first_hit_wall;
         VectorCopy(first_hit_origin, mm->hit_origin);
         VectorCopy(first_wall_normal, mm->obstacle_normal);
