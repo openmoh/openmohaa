@@ -1693,11 +1693,15 @@ void G_RenderPatch(navMap_t& navMap, const cTerraPatchUnpacked_t& patch)
 {
     terraInt vertNum;
     terraInt triNum;
+    terraInt currentVertice = 0;
 
     for (vertNum = patch.drawinfo.iVertHead; vertNum; vertNum = g_pVert[vertNum].iNext) {
-        const terrainVert_t& vert = g_pVert[vertNum];
+        terrainVert_t& vert = g_pVert[vertNum];
 
         navMap.vertices.AddObject(vert.xyz);
+        vert.iVertArray = currentVertice;
+
+        currentVertice++;
     }
 
     for (triNum = patch.drawinfo.iTriHead; triNum; triNum = g_pTris[triNum].iNext) {
