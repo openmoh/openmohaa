@@ -61,9 +61,12 @@ endif()
 # Recast navigation
 set(OLD_VALUE ${BUILD_SHARED_LIBS})
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
-
 add_subdirectory(../recastnavigation-1.6.0/Detour fgame_detour)
 add_subdirectory(../recastnavigation-1.6.0/Recast fgame_recast)
+# Enable position independant code on recast navigation libraries.
+# Otherwise linking will fail relocating some functions on Linux
+set_property(TARGET Detour Recast PROPERTY POSITION_INDEPENDENT_CODE ON)
+
 target_link_libraries(fgame PRIVATE RecastNavigation::Detour RecastNavigation::Recast)
 
 set(BUILD_SHARED_LIBS ${OLD_VALUE} CACHE BOOL "" FORCE)
