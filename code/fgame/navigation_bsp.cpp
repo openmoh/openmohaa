@@ -1694,12 +1694,13 @@ void G_RenderPatch(navMap_t& navMap, const cTerraPatchUnpacked_t& patch)
     terraInt vertNum;
     terraInt triNum;
     terraInt currentVertice = 0;
+    size_t baseVertice = navMap.vertices.NumObjects();
 
     for (vertNum = patch.drawinfo.iVertHead; vertNum; vertNum = g_pVert[vertNum].iNext) {
         terrainVert_t& vert = g_pVert[vertNum];
 
         navMap.vertices.AddObject(vert.xyz);
-        vert.iVertArray = currentVertice;
+        vert.iVertArray = baseVertice + currentVertice;
 
         currentVertice++;
     }
@@ -1724,7 +1725,7 @@ void G_RenderTerrainTris(navMap_t& navMap, cTerraPatchUnpacked_t *terraPatches, 
 {
     size_t   i;
     size_t   numVertices;
-    size_t   numTris;
+    size_t   numIndices;
     terraInt triNum;
 
     G_PreTessellateTerrain(terraPatches, numTerraPatches);
@@ -1733,7 +1734,7 @@ void G_RenderTerrainTris(navMap_t& navMap, cTerraPatchUnpacked_t *terraPatches, 
 
     // Calculate the number of required tris and vertices
     numVertices = 0;
-    numTris     = 0;
+    numIndices  = 0;
     for (i = 0; i < numTerraPatches; i++) {
         const cTerraPatchUnpacked_t& patch = terraPatches[i];
 
@@ -1741,13 +1742,13 @@ void G_RenderTerrainTris(navMap_t& navMap, cTerraPatchUnpacked_t *terraPatches, 
 
         for (triNum = patch.drawinfo.iTriHead; triNum; triNum = g_pTris[triNum].iNext) {
             if (g_pTris[triNum].byConstChecks & 4) {
-                numTris += 3;
+                numIndices += 3;
             }
         }
     }
 
     navMap.vertices.Resize(navMap.vertices.NumObjects() + numVertices);
-    navMap.indices.Resize(navMap.indices.NumObjects() + numTris);
+    navMap.indices.Resize(navMap.indices.NumObjects() + numIndices);
 
     for (i = 0; i < numTerraPatches; i++) {
         const cTerraPatchUnpacked_t& patch = terraPatches[i];
