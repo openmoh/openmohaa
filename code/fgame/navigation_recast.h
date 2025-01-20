@@ -23,12 +23,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // navigation -- Modern navigation system using Recast and Detour
 
 #include "g_local.h"
-#include "../qcommon/container.h"
+#include "navigation_bsp.h"
 
-struct navMap_t {
-    const char* mapname;
-    Container<int>    indices;
-    Container<Vector> vertices;
-};
-
-void G_Navigation_ProcessBSPForNavigation(const char* mapname, navMap_t& outNavigationMap);
+void G_Navigation_LoadWorldMap(const char* mapname);

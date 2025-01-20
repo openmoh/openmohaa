@@ -21,6 +21,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "g_local.h"
+#include "navigation_bsp.h"
 #include "../qcommon/qfiles.h"
 #include "../qcommon/container.h"
 #include "../qcommon/vector.h"
@@ -28,12 +29,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define MAX_GRID_SIZE  129
 #define MAX_PATCH_SIZE 32
-
-struct navMap_t {
-    const char       *mapname;
-    Container<int>    indices;
-    Container<Vector> vertices;
-};
 
 struct surfaceGrid_t {
     // lod information, which may be different
@@ -1845,10 +1840,10 @@ void G_LoadStaticModelDefs(const gameLump_c& lump)
 
 /*
 ============
-G_Navigation_LoadWorldMap
+G_Navigation_ProcessBSPForNavigation
 ============
 */
-void G_Navigation_LoadWorldMap(const char *mapname)
+void G_Navigation_ProcessBSPForNavigation(const char *mapname, navMap_t& outNavigationMap)
 {
     dheader_t    header;
     fileHandle_t h;
