@@ -26,9 +26,24 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../qcommon/container.h"
 #include "../qcommon/vector.h"
 
+struct navIndice_t {
+    int indice;
+
+    navIndice_t() noexcept {}
+    navIndice_t(int value) noexcept
+        : indice(value)
+    {
+        assert(value >= 0);
+    }
+
+    operator int() const noexcept { return indice; };
+    operator int* () noexcept { return &indice; };
+    operator const int*() const noexcept { return &indice; };
+};
+
 struct navMap_t {
     const char* mapname;
-    Container<int>    indices;
+    Container<navIndice_t>    indices;
     Container<Vector> vertices;
 };
 
