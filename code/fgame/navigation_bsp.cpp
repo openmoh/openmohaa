@@ -881,7 +881,7 @@ G_SwapTerraPatch
 Swaps the patch on big-endian
 ====================
 */
-void G_SwapTerraPatch(const cTerraPatch_t *pPatch)
+void G_SwapTerraPatch(cTerraPatch_t *pPatch)
 {
 #ifdef Q3_BIG_ENDIAN
     int i;
@@ -1760,7 +1760,7 @@ G_LoadTerrain
 void G_LoadTerrain(navMap_t& navMap, const gameLump_c& lump)
 {
     int                    i;
-    const cTerraPatch_t   *in;
+    cTerraPatch_t         *in;
     cTerraPatchUnpacked_t *out;
     size_t                 numTerraPatches;
     cTerraPatchUnpacked_t *terraPatches;
@@ -1776,7 +1776,7 @@ void G_LoadTerrain(navMap_t& navMap, const gameLump_c& lump)
     numTerraPatches = lump.length / sizeof(cTerraPatch_t);
     terraPatches    = (cTerraPatchUnpacked_t *)gi.Malloc(numTerraPatches * sizeof(cTerraPatchUnpacked_t));
 
-    in  = (const cTerraPatch_t *)lump.buffer;
+    in  = (cTerraPatch_t *)lump.buffer;
     out = terraPatches;
 
     for (i = 0; i < numTerraPatches; in++, out++, i++) {
