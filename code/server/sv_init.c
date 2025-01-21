@@ -1109,6 +1109,12 @@ void SV_Init (void)
 	
 	// Load saved bans
 	Cbuf_AddText("rehashbans\n");
+
+    if (com_gotOriginalConfig) {
+        // Added in OPM
+        //  Apply config tweaks after loading the original config
+		SV_ApplyOriginalConfigTweaks();
+	}
 }
 
 
@@ -1325,3 +1331,11 @@ void SV_HandleNonPVSSound()
 	SV_CleanupNonPVSSound();
 }
 
+/*
+===============
+SV_ApplyOriginalConfigTweaks
+===============
+*/
+void SV_ApplyOriginalConfigTweaks()
+{
+}

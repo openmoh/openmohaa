@@ -3685,6 +3685,12 @@ void CL_Init( void ) {
 
 	end = Sys_Milliseconds();
 
+	if (com_gotOriginalConfig) {
+		// Added in OPM
+		//  Apply config tweaks after loading the original config
+		CL_ApplyOriginalConfigTweaks();
+	}
+
 	Com_Printf( "----- Client Initialization Complete ----- %i ms\n", start - end );
 }
 
@@ -4860,4 +4866,16 @@ void TIKI_CG_Command_ProcessFile(char* filename, qboolean quiet, dtiki_t* curTik
 	}
 
 	Com_Printf("NO CGE \n");
+}
+
+void CL_ApplyOriginalConfigTweaks()
+{
+	cvar_t* snaps = Cvar_Get("snaps", "", 0);
+
+    // Those variables are not editable via UI so reset them
+	// snaps/maxpackets can also have wrong values due to them being changed
+	// via stufftext
+
+	Cvar_Set("snaps", snaps->resetString);
+	Cvar_Set("cl_maxpackets", cl_maxpackets->resetString);
 }

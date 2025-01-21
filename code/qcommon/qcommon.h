@@ -1074,6 +1074,7 @@ extern	int		com_frameMsec;
 
 extern	qboolean	com_errorEntered;
 extern	qboolean	com_fullyInitialized;
+extern	qboolean	com_gotOriginalConfig;
 
 extern	fileHandle_t	com_journalFile;
 extern	fileHandle_t	com_journalDataFile;

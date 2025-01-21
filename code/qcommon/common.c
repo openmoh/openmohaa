@@ -144,6 +144,7 @@ qboolean	com_errorEntered = qfalse;
 qboolean	com_fullyInitialized = qfalse;
 qboolean	com_gameRestarting = qfalse;
 qboolean	com_gameClientRestarting = qfalse;
+qboolean	com_gotOriginalConfig = qfalse;
 
 char	com_errorMessage[MAXPRINTMSG];
 
@@ -1695,6 +1696,7 @@ void Com_Init( char *commandLine ) {
 	const char	*s;
 	char		configname[ 128 ];
 	int			qport;
+	qboolean	configExists;
 
 	Com_Printf( "--- Common Initialization ---\n" );
 
@@ -1794,9 +1796,12 @@ void Com_Init( char *commandLine ) {
 	Cvar_Set( "config", configname );
 	Com_Printf( "Config: %s\n", configname );
 
-	if ( !Com_ConfigExists( configname )) {
+	configExists = Com_ConfigExists(configname);
+
+	if ( !configExists ) {
 		Com_Printf( "The config file '%s' doesn't exist, using unnamedsoldier.cfg as a template\n", configname );
 		Cbuf_AddText( va( "exec configs/unnamedsoldier.cfg\n", configname ) );
+		com_gotOriginalConfig = qtrue;
 	} else {
 		Cbuf_AddText( va( "exec configs/%s\n", configname ) );
 	}
