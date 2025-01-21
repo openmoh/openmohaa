@@ -3618,7 +3618,7 @@ void CL_Init( void ) {
 	cl_consoleKeys = Cvar_Get( "cl_consoleKeys", "~ ` 0x7e 0x60", CVAR_ARCHIVE );
 
 	// userinfo
-	name = Cvar_Get ("name", "UnnamedSoldier", CVAR_USERINFO | CVAR_ARCHIVE );
+	name = Cvar_Get ("name", va("UnnamedSoldier#%d", rand() % 100000), CVAR_USERINFO | CVAR_ARCHIVE);
 	cl_rate = Cvar_Get ("rate", "25000", CVAR_USERINFO | CVAR_ARCHIVE );
 	Cvar_Get ("snaps", "20", CVAR_USERINFO | CVAR_ARCHIVE );
 	Cvar_Get ("password", "", CVAR_USERINFO);

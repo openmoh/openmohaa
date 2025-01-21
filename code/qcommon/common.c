@@ -2528,7 +2528,8 @@ qboolean Com_SanitizeName( const char *pszOldName, char *pszNewName, size_t buff
 
 	if( !i )
 	{
-		memcpy( pszNewName, "*** Blank Name ***", sizeof( "*** Blank Name ***" ) );
+        const char* pNewNameDynamic = va("*** Blank Name #%04d ***", rand() % 100000);
+		Q_strncpyz(pszNewName, pNewNameDynamic, bufferSize);
 		bBadName = qtrue;
 	}
 
