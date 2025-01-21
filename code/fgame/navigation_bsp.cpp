@@ -25,10 +25,18 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../qcommon/qfiles.h"
 #include "../qcommon/container.h"
 #include "../qcommon/vector.h"
+#include "../qcommon/cm_polylib.h"
 #include "../script/scriptexception.h"
 
 #define MAX_GRID_SIZE  129
 #define MAX_PATCH_SIZE 32
+
+// to allow boxes to be treated as brush models, we allocate
+// some extra indexes along with those needed by the map
+#define BOX_BRUSHES 1
+#define BOX_SIDES   6
+#define BOX_LEAFS   2
+#define BOX_PLANES  12
 
 struct surfaceGrid_t {
     // lod information, which may be different
@@ -84,6 +92,26 @@ public:
     void *buffer;
     int   length;
 };
+
+typedef struct {
+    char shader[64];
+    int  surfaceFlags;
+    int  contentFlags;
+} cshader_t;
+
+typedef struct {
+    cplane_t *plane;
+    int       surfaceFlags;
+
+    dsideequation_t *pEq;
+} cbrushside_t;
+
+typedef struct {
+    int                 contents;
+    vec3_t              bounds[2];
+    int                 numsides;
+    const cbrushside_t *sides;
+} cbrush_t;
 
 typedef union varnodeUnpacked_u {
     float fVariance;
@@ -265,6 +293,206 @@ void gameLump_c::FreeLump()
         buffer = NULL;
         length = 0;
     }
+}
+
+/*
+=================
+G_LoadShaders
+=================
+*/
+void G_LoadShaders(const gameLump_c& lump, Container<cshader_t>& shaders)
+{
+    dshader_t *in;
+    int        i, count;
+
+    in = (dshader_t *)lump.buffer;
+    if (lump.length % sizeof(dshader_t)) {
+        throw ScriptException("Invalid shader lump");
+    }
+    count = lump.length / sizeof(dshader_t);
+
+    if (count < 1) {
+        throw ScriptException("Map with no shaders");
+    }
+
+    shaders.Resize(count);
+
+    for (i = 0; i < count; i++, in++) {
+        cshader_t out;
+
+        Q_strncpyz(out.shader, in->shader, sizeof(out.shader));
+        out.contentFlags = LittleLong(in->contentFlags);
+        out.surfaceFlags = LittleLong(in->surfaceFlags);
+
+        shaders.AddObject(out);
+    }
+}
+
+/*
+=================
+G_LoadPlanes
+=================
+*/
+void G_LoadPlanes(const gameLump_c& lump, Container<cplane_t>& planes)
+{
+    int       i, j;
+    dplane_t *in;
+    int       count;
+    int       bits;
+
+    in = (dplane_t *)lump.buffer;
+    if (lump.length % sizeof(*in)) {
+        throw ScriptException("Invalid plane lump");
+    }
+
+    count = lump.length / sizeof(*in);
+
+    if (count < 1) {
+        throw ScriptException("Map with no planes");
+    }
+
+    planes.Resize(BOX_PLANES + count);
+
+    for (i = 0; i < count; i++, in++) {
+        cplane_t out;
+
+        bits = 0;
+        for (j = 0; j < 3; j++) {
+            out.normal[j] = LittleFloat(in->normal[j]);
+            if (out.normal[j] < 0) {
+                bits |= 1 << j;
+            }
+        }
+
+        out.dist     = LittleFloat(in->dist);
+        out.type     = PlaneTypeForNormal(out.normal);
+        out.signbits = bits;
+
+        planes.AddObject(out);
+    }
+}
+
+/*
+=================
+CMod_LoadBrushSides
+=================
+*/
+void G_LoadBrushSides(
+    const gameLump_c&           lump,
+    const Container<cshader_t>& shaders,
+    const Container<cplane_t>&  planes,
+    Container<cbrushside_t>&    sides
+)
+{
+    int           i;
+    dbrushside_t *in;
+    int           count;
+    int           num;
+    int           shaderNum;
+
+    in = (dbrushside_t *)lump.buffer;
+    if (lump.length % sizeof(*in)) {
+        throw ScriptException("Invalid plane lump");
+    }
+
+    count = lump.length / sizeof(*in);
+
+    sides.Resize(BOX_SIDES + count);
+
+    for (i = 0; i < count; i++, in++) {
+        cbrushside_t out;
+
+        num              = LittleLong(in->planeNum);
+        shaderNum        = LittleLong(in->shaderNum);
+        out.plane        = &planes[num];
+        out.surfaceFlags = shaders.ObjectAt(shaderNum + 1).surfaceFlags;
+
+        sides.AddObject(out);
+    }
+}
+
+/*
+=================
+G_BoundBrush
+
+=================
+*/
+void G_BoundBrush(cbrush_t *b)
+{
+    b->bounds[0][0] = -b->sides[0].plane->dist;
+    b->bounds[1][0] = b->sides[1].plane->dist;
+
+    b->bounds[0][1] = -b->sides[2].plane->dist;
+    b->bounds[1][1] = b->sides[3].plane->dist;
+
+    b->bounds[0][2] = -b->sides[4].plane->dist;
+    b->bounds[1][2] = b->sides[5].plane->dist;
+}
+
+/*
+=================
+G_LoadBrushes
+=================
+*/
+void G_LoadBrushes(
+    const gameLump_c&              lump,
+    const Container<cshader_t>&    shaders,
+    const Container<cbrushside_t>& sides,
+    Container<cbrush_t>&           brushes
+)
+{
+    dbrush_t *in;
+    int       i, count;
+    int       shaderNum;
+
+    in = (dbrush_t *)lump.buffer;
+    if (lump.length % sizeof(*in)) {
+        throw ScriptException("Invalid brush lump");
+    }
+    count = lump.length / sizeof(*in);
+
+    brushes.Resize(BOX_BRUSHES + count);
+
+    for (i = 0; i < count; i++, in++) {
+        cbrush_t out;
+
+        out.sides    = &sides.ObjectAt(LittleLong(in->firstSide) + 1);
+        out.numsides = LittleLong(in->numSides);
+
+        shaderNum = LittleLong(in->shaderNum);
+        if (shaderNum < 0 || shaderNum >= shaders.NumObjects()) {
+            throw ScriptException("bad shaderNum: %i", shaderNum);
+        }
+        out.contents = shaders[shaderNum].contentFlags;
+
+        G_BoundBrush(&out);
+    }
+}
+
+/*
+============
+G_GenerateVerticesFromHull
+============
+*/
+void G_GenerateVerticesFromHull(
+    navMap_t&         navMap,
+    const gameLump_c& shadersLump,
+    const gameLump_c& planesLump,
+    const gameLump_c& brushSidesLump,
+    const gameLump_c& brushesLump
+)
+{
+    Container<cshader_t>    shaders;
+    Container<cplane_t>     planes;
+    Container<cbrushside_t> sides;
+    Container<cbrush_t>     brushes;
+
+    G_LoadShaders(shadersLump, shaders);
+    G_LoadPlanes(planesLump, planes);
+    G_LoadBrushSides(brushSidesLump, shaders, planes, sides);
+    G_LoadBrushes(brushesLump, shaders, sides, brushes);
+
+    // FIXME: generate vertices
 }
 
 /*
@@ -808,7 +1036,7 @@ G_LoadSurfaces(navMap_t& navMap, const gameLump_c& surfs, const gameLump_c& vert
     // Calculate the number of vertices and indexes
     in = (dsurface_t *)surfs.buffer;
 
-    totalNumVerts = 0;
+    totalNumVerts   = 0;
     totalNumIndexes = 0;
 
     for (i = 0; i < count; i++, in++) {
@@ -836,7 +1064,7 @@ G_LoadSurfaces(navMap_t& navMap, const gameLump_c& surfs, const gameLump_c& vert
     navMap.vertices.Resize(navMap.vertices.NumObjects() + totalNumVerts);
     navMap.indices.Resize(navMap.indices.NumObjects() + totalNumIndexes);
 
-    in = (dsurface_t*)surfs.buffer;
+    in = (dsurface_t *)surfs.buffer;
 
     for (i = 0; i < count; i++, in++) {
         switch (LittleLong(in->surfaceType)) {
@@ -1729,13 +1957,13 @@ void G_RenderPatch(navMap_t& navMap, const cTerraPatchUnpacked_t& patch)
     terraInt vertNum;
     terraInt triNum;
     terraInt currentVertice = 0;
-    size_t baseVertice = navMap.vertices.NumObjects();
+    size_t   baseVertice    = navMap.vertices.NumObjects();
 
     for (vertNum = patch.drawinfo.iVertHead; vertNum; vertNum = g_pVert[vertNum].iNext) {
         terrainVert_t& vert = g_pVert[vertNum];
 
         navMap.vertices.AddObject(vert.xyz);
-        vert.iVertArray = baseVertice + currentVertice;
+        vert.iVertArray = currentVertice;
 
         currentVertice++;
     }
@@ -1744,9 +1972,9 @@ void G_RenderPatch(navMap_t& navMap, const cTerraPatchUnpacked_t& patch)
         const terraTri_t& tri = g_pTris[triNum];
 
         if (tri.byConstChecks & 4) {
-            navMap.indices.AddObject(g_pVert[tri.iPt[0]].iVertArray);
-            navMap.indices.AddObject(g_pVert[tri.iPt[1]].iVertArray);
-            navMap.indices.AddObject(g_pVert[tri.iPt[2]].iVertArray);
+            navMap.indices.AddObject(baseVertice + g_pVert[tri.iPt[0]].iVertArray);
+            navMap.indices.AddObject(baseVertice + g_pVert[tri.iPt[1]].iVertArray);
+            navMap.indices.AddObject(baseVertice + g_pVert[tri.iPt[2]].iVertArray);
         }
     }
 }
@@ -1889,7 +2117,7 @@ void G_Navigation_ProcessBSPForNavigation(const char *mapname, navMap_t& outNavi
     fileHandle_t h;
     int          length;
     int          i;
-    gameLump_c   lumps[3];
+    gameLump_c   lumps[4];
 
     // load it
     length = gi.FS_FOpenFile(mapname, &h, qtrue, qtrue);
@@ -1906,6 +2134,12 @@ void G_Navigation_ProcessBSPForNavigation(const char *mapname, navMap_t& outNavi
     outNavigationMap.mapname = mapname;
 
     try {
+        lumps[0] = gameLump_c::LoadLump(h, *Q_GetLumpByVersion(&header, LUMP_SHADERS));
+        lumps[1] = gameLump_c::LoadLump(h, *Q_GetLumpByVersion(&header, LUMP_PLANES));
+        lumps[2] = gameLump_c::LoadLump(h, *Q_GetLumpByVersion(&header, LUMP_BRUSHSIDES));
+        lumps[3] = gameLump_c::LoadLump(h, *Q_GetLumpByVersion(&header, LUMP_BRUSHES));
+        G_GenerateVerticesFromHull(outNavigationMap, lumps[0], lumps[1], lumps[2], lumps[3]);
+
         // Gather vertices from meshes and surfaces
         lumps[0] = gameLump_c::LoadLump(h, *Q_GetLumpByVersion(&header, LUMP_SURFACES));
         lumps[1] = gameLump_c::LoadLump(h, *Q_GetLumpByVersion(&header, LUMP_DRAWVERTS));
