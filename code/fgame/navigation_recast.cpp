@@ -321,6 +321,54 @@ void G_Navigation_DebugDraw()
         }
     }
 
+    if (ai_showroutes->integer) {
+        const float maxDistSquared = Square(ai_showroutes_distance->integer);
+
+        for (int i = 0; i < polyMesh->npolys; ++i)
+        {
+            const unsigned short* p = &polyMesh->polys[i * polyMesh->nvp * 2];
+            const unsigned char area = polyMesh->areas[i];
+
+            if (area != RC_WALKABLE_AREA) {
+                continue;
+            }
+
+            unsigned short vi[3];
+            for (int j = 2; j < polyMesh->nvp; ++j)
+            {
+                if (p[j] == RC_MESH_NULL_IDX) break;
+                vi[0] = p[0];
+                vi[1] = p[j - 1];
+                vi[2] = p[j];
+
+                Vector vertices[3];
+
+                for (int k = 0; k < 3; ++k)
+                {
+                    const unsigned short* v = &polyMesh->verts[vi[k] * 3];
+
+                    vec3_t pos;
+                    pos[0] = polyMesh->bmin[0] + v[0] * polyMesh->cs;
+                    pos[1] = polyMesh->bmin[1] + (v[1] + 1) * polyMesh->ch;
+                    pos[2] = polyMesh->bmin[2] + v[2] * polyMesh->cs;
+
+                    ConvertToGameCoord(pos, vertices[k]);
+                }
+
+                for (int k = 0; k < 3; ++k)
+                {
+                    const Vector delta = vertices[k] - ent->origin;
+
+                    if (delta.lengthSquared() >= maxDistSquared) {
+                        continue;
+                    }
+
+                    G_DebugLine(vertices[k], vertices[(k + 1)%3], 0, 1, 0, 1);
+                }
+            }
+        }
+    }
+
     /*
     for (int i = 0; i < polyMesh->npolys; ++i)
     {
