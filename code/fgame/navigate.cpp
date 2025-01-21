@@ -1001,7 +1001,7 @@ PathNode *PathSearch::FindCornerNodeForWall(
 
 PathNode *PathSearch::FindCornerNodeForExactPath(Entity *pSelf, Sentient *enemy, float fMaxPath)
 {
-    PathNode *pPathNode[4096];
+    PathNode *pPathNode[MAX_PATHNODES];
     PathNode *pParentNode;
     size_t    i, iDepth;
     Vector    vEnd;
@@ -1554,7 +1554,7 @@ void DrawNode(int iNodeCount)
     Vector    aStart;
     Vector    aEnd;
     PathNode *node;
-    PathNode *nodelist[4096];
+    PathNode *nodelist[MAX_PATHNODES];
     Vector    end;
     Vector    start;
     Vector    p;
@@ -1562,8 +1562,8 @@ void DrawNode(int iNodeCount)
 
     playerorigin = g_entities[0].client->ps.origin;
 
-    if (iNodeCount > 4096) {
-        iNodeCount = 4096;
+    if (iNodeCount > MAX_PATHNODES) {
+        iNodeCount = MAX_PATHNODES;
     }
 
     if (ai_showallnode->integer) {
