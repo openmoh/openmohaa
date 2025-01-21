@@ -643,15 +643,15 @@ static void RenderSurfaceGrid(navMap_t& navMap, const surfaceGrid_t *grid)
     baseVertex = navMap.vertices.NumObjects();
     baseIndex  = navMap.indices.NumObjects();
 
-    navMap.vertices.Resize(baseVertex + grid->numVertices);
-    navMap.indices.Resize(baseIndex + grid->numIndexes);
+    //navMap.vertices.Resize(baseVertex + grid->numVertices);
+    //navMap.indices.Resize(baseIndex + grid->numIndexes);
 
     for (i = 0; i < grid->numVertices; i++) {
-        navMap.vertices.AddObjectAt(baseVertex + i + 1, vertices[i]);
+        navMap.vertices.AddObject(vertices[i]);
     }
 
     for (i = 0; i < grid->numIndexes; i++) {
-        navMap.indices.AddObjectAt(baseIndex + i + 1, baseVertex + indexes[i]);
+        navMap.indices.AddObject(baseVertex + indexes[i]);
     }
 }
 
@@ -705,7 +705,7 @@ static void ParseTriSurf(navMap_t& navMap, const dsurface_t *ds, const drawVert_
     baseVertex = navMap.vertices.NumObjects();
     baseIndex  = navMap.indices.NumObjects();
 
-    navMap.vertices.Resize(navMap.vertices.NumObjects() + numPoints);
+    //navMap.vertices.Resize(navMap.vertices.NumObjects() + numPoints);
 
     for (i = 0; i < numPoints; i++) {
         Vector vec;
@@ -717,10 +717,10 @@ static void ParseTriSurf(navMap_t& navMap, const dsurface_t *ds, const drawVert_
         navMap.vertices.AddObject(vec);
     }
 
-    navMap.indices.Resize(navMap.indices.NumObjects() + numIndexes);
+    //navMap.indices.Resize(navMap.indices.NumObjects() + numIndexes);
 
     for (i = 0; i < numIndexes; i++) {
-        navMap.indices.AddObjectAt(baseIndex + i + 1, baseVertex + LittleLong(indexes[i]));
+        navMap.indices.AddObject(baseVertex + LittleLong(indexes[i]));
     }
 }
 
@@ -742,7 +742,7 @@ static void ParseFace(navMap_t& navMap, const dsurface_t *ds, const drawVert_t *
     baseVertex = navMap.vertices.NumObjects();
     baseIndex  = navMap.indices.NumObjects();
 
-    navMap.vertices.Resize(navMap.vertices.NumObjects() + numPoints);
+    //navMap.vertices.Resize(navMap.vertices.NumObjects() + numPoints);
 
     for (i = 0; i < numPoints; i++) {
         Vector vec;
@@ -754,10 +754,10 @@ static void ParseFace(navMap_t& navMap, const dsurface_t *ds, const drawVert_t *
         navMap.vertices.AddObject(vec);
     }
 
-    navMap.indices.Resize(navMap.indices.NumObjects() + numIndexes);
+    //navMap.indices.Resize(navMap.indices.NumObjects() + numIndexes);
 
     for (i = 0; i < numIndexes; i++) {
-        navMap.indices.AddObjectAt(baseIndex + i + 1, baseVertex + LittleLong(indexes[i]));
+        navMap.indices.AddObject(baseVertex + LittleLong(indexes[i]));
     }
 }
 
@@ -784,6 +784,9 @@ G_LoadSurfaces(navMap_t& navMap, const gameLump_c& surfs, const gameLump_c& vert
     const int        *indexes;
     int               count;
     int               i;
+    size_t            totalNumVerts;
+    size_t            totalNumIndexes;
+    size_t            numVerts;
 
     if (surfs.length % sizeof(*in)) {
         throw ScriptException("LoadMap: funny lump size in %s", navMap.mapname);
@@ -801,7 +804,39 @@ G_LoadSurfaces(navMap_t& navMap, const gameLump_c& surfs, const gameLump_c& vert
         throw ScriptException("LoadMap: funny lump size in %s", navMap.mapname);
     }
 
+    //
+    // Calculate the number of vertices and indexes
     in = (dsurface_t *)surfs.buffer;
+
+    totalNumVerts = 0;
+    totalNumIndexes = 0;
+
+    for (i = 0; i < count; i++, in++) {
+        switch (LittleLong(in->surfaceType)) {
+        case MST_PATCH:
+            numVerts = in->patchWidth * in->patchHeight * 9;
+            totalNumVerts += numVerts;
+            totalNumIndexes += numVerts * 4;
+            break;
+        case MST_TRIANGLE_SOUP:
+            totalNumVerts += in->numVerts;
+            totalNumIndexes += in->numIndexes;
+            break;
+        case MST_PLANAR:
+            totalNumVerts += in->numVerts;
+            totalNumIndexes += in->numIndexes;
+            break;
+        case MST_FLARE:
+            break;
+        default:
+            throw ScriptException("Bad surfaceType");
+        }
+    }
+
+    navMap.vertices.Resize(navMap.vertices.NumObjects() + totalNumVerts);
+    navMap.indices.Resize(navMap.indices.NumObjects() + totalNumIndexes);
+
+    in = (dsurface_t*)surfs.buffer;
 
     for (i = 0; i < count; i++, in++) {
         switch (LittleLong(in->surfaceType)) {
