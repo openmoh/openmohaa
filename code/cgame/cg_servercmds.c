@@ -468,7 +468,8 @@ static const char *whiteListedVariables[] = {
     "subtitle0",
     "subtitle1",
     "subtitle2",
-    "subtitle3"
+    "subtitle3",
+    "name"
 };
 
 //
