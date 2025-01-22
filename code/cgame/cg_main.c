@@ -365,6 +365,8 @@ void CG_ProcessConfigString(int num, qboolean modelOnly)
             if (tiki) {
                 CG_ProcessCacheInitCommands(tiki);
             }
+
+            CG_ServerModelLoaded(str, hModel);
         } else {
             // clear out the model
             if (hOldModel && CG_IsHandleUnique(hOldModel)) {
@@ -372,6 +374,10 @@ void CG_ProcessConfigString(int num, qboolean modelOnly)
                 cgi.R_UnregisterServerModel(hOldModel);
             }
             cgs.model_draw[num - CS_MODELS] = 0;
+
+            if (!str || !str[0]) {
+                CG_ServerModelUnloaded(hOldModel);
+            }
         }
     }
 

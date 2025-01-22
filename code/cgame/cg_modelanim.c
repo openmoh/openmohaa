@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2023 the OpenMoHAA team
+Copyright (C) 2025 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -26,6 +26,33 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "cg_local.h"
 #include "tiki.h"
 
+static qboolean cg_forceModelAllowed = qfalse;
+
+/*
+===============
+CG_GetPlayerModelTiki
+===============
+*/
+const char *CG_GetPlayerModelTiki(const char *modelName)
+{
+    return va("models/player/%s.tik", modelName);
+}
+
+/*
+===============
+CG_GetPlayerLocalModelTiki
+===============
+*/
+const char *CG_GetPlayerLocalModelTiki(const char *modelName)
+{
+    return va("models/player/%s.tik", modelName);
+}
+
+/*
+===============
+CG_PlayerTeamIcon
+===============
+*/
 void CG_PlayerTeamIcon(refEntity_t *pModel, entityState_t *pPlayerState)
 {
     qboolean bInArtillery, bInTeam, bSpecialIcon;
@@ -187,13 +214,13 @@ CG_InterpolateAnimParms
 Interpolate between current and next entity
 ===============
 */
-void CG_InterpolateAnimParms(entityState_t* state, entityState_t* sNext, refEntity_t* model)
+void CG_InterpolateAnimParms(entityState_t *state, entityState_t *sNext, refEntity_t *model)
 {
     static cvar_t *vmEntity = NULL;
-    int i;
-    float t;
-    float animLength;
-    float t1, t2;
+    int            i;
+    float          t;
+    float          animLength;
+    float          t1, t2;
 
     if (!vmEntity) {
         vmEntity = cgi.Cvar_Get("viewmodelanim", "1", 0);
@@ -202,7 +229,7 @@ void CG_InterpolateAnimParms(entityState_t* state, entityState_t* sNext, refEnti
     if (sNext && sNext->usageIndex == state->usageIndex) {
         t1 = cg.time - cg.snap->serverTime;
         t2 = cg.nextSnap->serverTime - cg.snap->serverTime;
-        t = t1 / t2;
+        t  = t1 / t2;
 
         model->actionWeight = (sNext->actionWeight - state->actionWeight) * t + state->actionWeight;
 
@@ -214,7 +241,8 @@ void CG_InterpolateAnimParms(entityState_t* state, entityState_t* sNext, refEnti
                         (sNext->frameInfo[i].weight - state->frameInfo[i].weight) * t + state->frameInfo[i].weight;
 
                     if (sNext->frameInfo[i].time >= state->frameInfo[i].time) {
-                        model->frameInfo[i].time = (sNext->frameInfo[i].time - state->frameInfo[i].time) * t + state->frameInfo[i].time;
+                        model->frameInfo[i].time =
+                            (sNext->frameInfo[i].time - state->frameInfo[i].time) * t + state->frameInfo[i].time;
                     } else {
                         animLength = cgi.Anim_Time(model->tiki, sNext->frameInfo[i].index);
                         if (!animLength) {
@@ -298,20 +326,20 @@ CG_CastFootShadow
 Cast complex foot shadow using lights
 ===============
 */
-void CG_CastFootShadow(const vec_t* vLightPos, vec_t* vLightIntensity, int iTag, refEntity_t* model)
+void CG_CastFootShadow(const vec_t *vLightPos, vec_t *vLightIntensity, int iTag, refEntity_t *model)
 {
-    int i;
-    float fAlpha;
-    float fLength;
-    float fWidth;
-    float fAlphaOfs;
-    float fOfs;
-    float fPitchCos;
-    vec3_t vPos;
-    vec3_t vEnd;
-    vec3_t vDelta;
-    vec3_t vLightAngles;
-    trace_t trace;
+    int           i;
+    float         fAlpha;
+    float         fLength;
+    float         fWidth;
+    float         fAlphaOfs;
+    float         fOfs;
+    float         fPitchCos;
+    vec3_t        vPos;
+    vec3_t        vEnd;
+    vec3_t        vDelta;
+    vec3_t        vLightAngles;
+    trace_t       trace;
     orientation_t oFoot;
 
     VectorCopy(model->origin, vPos);
@@ -321,8 +349,7 @@ void CG_CastFootShadow(const vec_t* vLightPos, vec_t* vLightIntensity, int iTag,
         VectorMA(vPos, vEnd[i], model->axis[i], vPos);
     }
 
-    if (cg_shadowdebug->integer)
-    {
+    if (cg_shadowdebug->integer) {
         vec3_t vDir;
 
         //
@@ -373,12 +400,11 @@ void CG_CastFootShadow(const vec_t* vLightPos, vec_t* vLightIntensity, int iTag,
     }
 
     fLength = fPitchCos * fPitchCos * 32.0 + fPitchCos * 8.0 + 10.0;
-    fOfs = 0.5 - (-4.1 / tan(DEG2RAD(vLightAngles[0])) + 4.0 - fLength) / fLength * 0.5;
+    fOfs    = 0.5 - (-4.1 / tan(DEG2RAD(vLightAngles[0])) + 4.0 - fLength) / fLength * 0.5;
     VectorMA(vPos, -96.0, vDelta, vEnd);
     CG_Trace(&trace, vPos, vec3_origin, vec3_origin, vEnd, 0, MASK_FOOTSHADOW, qfalse, qtrue, "CG_CastFootShadow");
-   
-    if (cg_shadowdebug->integer)
-    {
+
+    if (cg_shadowdebug->integer) {
         cgi.R_DebugLine(vPos, vLightPos, 0.75, 0.75, 0.5, 1.0);
         cgi.R_DebugLine(vPos, vEnd, 1.0, 1.0, 1.0, 1.0);
     }
@@ -392,7 +418,7 @@ void CG_CastFootShadow(const vec_t* vLightPos, vec_t* vLightIntensity, int iTag,
         trace.fraction = 0;
     }
 
-    fWidth = 10.f - (1.f - trace.fraction) * 6.f;
+    fWidth    = 10.f - (1.f - trace.fraction) * 6.f;
     fAlphaOfs = (1.f - trace.fraction) * fAlpha;
 
     fAlpha = Q_max(vLightIntensity[0], Q_max(vLightIntensity[1], vLightIntensity[2]));
@@ -445,13 +471,21 @@ CG_CastSimpleFeetShadow
 Cast basic feet shadow
 ===============
 */
-void CG_CastSimpleFeetShadow(const trace_t* pTrace, float fWidth, float fAlpha, int iRightTag, int iLeftTag, const dtiki_t* tiki, refEntity_t* model)
+void CG_CastSimpleFeetShadow(
+    const trace_t *pTrace,
+    float          fWidth,
+    float          fAlpha,
+    int            iRightTag,
+    int            iLeftTag,
+    const dtiki_t *tiki,
+    refEntity_t   *model
+)
 {
-    int i;
-    float fShadowYaw;
-    float fLength;
-    vec3_t vPos, vRightPos, vLeftPos;
-    vec3_t vDelta;
+    int           i;
+    float         fShadowYaw;
+    float         fLength;
+    vec3_t        vPos, vRightPos, vLeftPos;
+    vec3_t        vDelta;
     orientation_t oFoot;
 
     //
@@ -485,7 +519,7 @@ void CG_CastSimpleFeetShadow(const trace_t* pTrace, float fWidth, float fAlpha, 
 
     // get the facing yaw
     fShadowYaw = vectoyaw(vDelta);
-    fLength = VectorNormalize(vDelta) * 0.5 + 12;
+    fLength    = VectorNormalize(vDelta) * 0.5 + 12;
     if (fLength < fWidth * 0.7) {
         fLength = fWidth * 0.7;
     }
@@ -550,15 +584,13 @@ qboolean CG_EntityShadow(centity_t *cent, refEntity_t *model)
         }
 
         if (iTagR != -1) {
-            int iNumLights, iCurrLight;
+            int    iNumLights, iCurrLight;
             vec3_t avLightPos[16], avLightIntensity[16];
 
             iNumLights = Q_clamp(cg_shadowscount->integer, 1, 8);
             iNumLights = cgi.R_GatherLightSources(model->origin, avLightPos, avLightIntensity, iNumLights);
-            if (iNumLights)
-            {
-                for (iCurrLight = 0; iCurrLight < iNumLights; iCurrLight++)
-                {
+            if (iNumLights) {
+                for (iCurrLight = 0; iCurrLight < iNumLights; iCurrLight++) {
                     CG_CastFootShadow(avLightPos[iCurrLight], avLightIntensity[iCurrLight], iTagL, model);
                     CG_CastFootShadow(avLightPos[iCurrLight], avLightIntensity[iCurrLight], iTagR, model);
                 }
@@ -725,6 +757,11 @@ void CG_AttachEntity(
     VectorAdd(entity->origin, vOrigin, entity->lightingOrigin);
 }
 
+/*
+===============
+CG_AttachEyeEntity
+===============
+*/
 void CG_AttachEyeEntity(
     refEntity_t *entity, refEntity_t *parent, dtiki_t *tiki, int tagnum, qboolean use_angles, vec_t *attach_offset
 )
@@ -737,8 +774,7 @@ void CG_AttachEyeEntity(
         AnglesToAxis(cg.refdefViewAngles, entity->axis);
     }
 
-    if (attach_offset[0] || attach_offset[1] || attach_offset[2])
-    {
+    if (attach_offset[0] || attach_offset[1] || attach_offset[2]) {
         for (i = 0; i < 3; i++) {
             VectorMA(entity->origin, attach_offset[i], entity->axis[i], entity->origin);
         }
@@ -750,56 +786,219 @@ void CG_AttachEyeEntity(
     VectorCopy(parent->lightingOrigin, entity->lightingOrigin);
 }
 
+/*
+===============
+CG_IsValidServerModel
+===============
+*/
+qboolean CG_IsValidServerModel(const char *modelpath)
+{
+    const char *str;
+    int         i;
+
+    for (i = 1; i < MAX_MODELS; i++) {
+        str = CG_ConfigString(CS_MODELS + i);
+        if (!Q_stricmp(str, modelpath)) {
+            return qtrue;
+        }
+    }
+
+    return qfalse;
+}
+
+/*
+===============
+CG_CheckValidModels
+
+This verifies the allied player model and the german player model:
+- If they don't exist on the client, reset to the default allied player model
+- If they don't exist on the server, don't allow forceModel so the client explicitly know the skin isn't supported
+===============
+*/
+void CG_CheckValidModels()
+{
+    const char *modelpath;
+    qboolean    isDirty = qfalse;
+
+    if (dm_playermodel->modified) {
+        // Check for allied model
+        modelpath = va("models/player/%s.tik", dm_playermodel->string);
+        if (!cgi.R_RegisterModel(modelpath)) {
+            cgi.Printf(
+                "Allied model '%s' is invalid, resetting to '%s'\n", dm_playermodel->string, dm_playermodel->resetString
+            );
+
+            cgi.Cvar_Set("dm_playermodel", dm_playermodel->resetString);
+            modelpath = va("models/player/%s.tik", dm_playermodel->string);
+        }
+
+        cg.serverAlliedModelValid = CG_IsValidServerModel(modelpath);
+    }
+
+    if (dm_playergermanmodel->modified) {
+        // Check for axis model
+        modelpath = va("models/player/%s.tik", dm_playergermanmodel->string);
+        if (!cgi.R_RegisterModel(modelpath)) {
+            cgi.Printf(
+                "Allied model '%s' is invalid, resetting to '%s'\n",
+                dm_playergermanmodel->string,
+                dm_playergermanmodel->resetString
+            );
+
+            cgi.Cvar_Set("dm_playergermanmodel", dm_playergermanmodel->resetString);
+            modelpath = va("models/player/%s.tik", dm_playergermanmodel->string);
+        }
+
+        cg.serverAxisModelValid = CG_IsValidServerModel(modelpath);
+    }
+
+    if (dm_playermodel->modified || dm_playergermanmodel->modified) {
+        cg_forceModelAllowed = cg.serverAlliedModelValid && cg.serverAxisModelValid;
+    }
+}
+
+/*
+===============
+CG_ServerModelLoaded
+===============
+*/
+void CG_ServerModelLoaded(const char *name, qhandle_t handle)
+{
+    if (!Q_stricmpn(name, "models/player/", 14) && (!cg.serverAlliedModelValid || !cg.serverAxisModelValid)) {
+        char modelName[MAX_QPATH];
+        COM_StripExtension(name + 14, modelName, sizeof(modelName));
+
+        //
+        // The player model has been loaded on the server
+        // so try again parsing
+        //
+        if (!Q_stricmp(modelName, dm_playermodel->string)) {
+            dm_playermodel->modified = qtrue;
+        }
+        if (!Q_stricmp(modelName, dm_playergermanmodel->string)) {
+            dm_playergermanmodel->modified = qtrue;
+        }
+    }
+}
+
+/*
+===============
+CG_ServerModelUnloaded
+===============
+*/
+void CG_ServerModelUnloaded(qhandle_t handle)
+{
+#if 0
+    if (cg.serverAlliedModelValid && handle == cg.hAlliedPlayerModelHandle) {
+        dm_playermodel->modified = qtrue;
+    }
+    if (cg.serverAxisModelValid && handle == cg.hAxisPlayerModelHandle) {
+        dm_playergermanmodel->modified = qtrue;
+    }
+#endif
+}
+
+/*
+===============
+CG_UpdateForceModels
+===============
+*/
 void CG_UpdateForceModels()
 {
     qhandle_t hModel;
-    char* pszAlliesPartial;
-    char* pszAxisPartial;
-    char szAlliesModel[256];
-    char szAxisModel[256];
+    char     *pszAlliesPartial;
+    char     *pszAxisPartial;
+    char      szAlliesModel[256];
+    char      szAxisModel[256];
+    qboolean  isDirty;
 
-    if (cg.pAlliedPlayerModel && cg.pAxisPlayerModel && !dm_playermodel->modified && !dm_playergermanmodel->modified) {
+    isDirty = dm_playermodel->modified || dm_playergermanmodel->modified || cg_forceModel->modified;
+
+    if (!cg_forceModelAllowed) {
+        if (isDirty) {
+            cgi.Printf(
+                "One or more of the selected players model don't exist on the server or are not loaded, using the "
+                "default skin\n"
+            );
+        }
+
+        return;
+    }
+
+    if (cg.pAlliedPlayerModel && cg.pAxisPlayerModel && !isDirty) {
         return;
     }
 
     pszAlliesPartial = dm_playermodel->string;
-    pszAxisPartial = dm_playergermanmodel->string;
+    pszAxisPartial   = dm_playergermanmodel->string;
 
     Com_sprintf(szAlliesModel, sizeof(szAlliesModel), "models/player/%s.tik", pszAlliesPartial);
     Com_sprintf(szAxisModel, sizeof(szAxisModel), "models/player/%s.tik", pszAxisPartial);
-    hModel = cgi.R_RegisterModel(szAlliesModel);
-    if (!hModel) hModel = cgi.R_RegisterModel("models/player/american_army.tik");
+
+    hModel = cg.serverAlliedModelValid ? cgi.R_RegisterModel(szAlliesModel) : 0;
+    if (!hModel) {
+        Com_sprintf(szAlliesModel, sizeof(szAlliesModel), "models/player/%s.tik", dm_playermodel->resetString);
+        hModel = cgi.R_RegisterModel(szAlliesModel);
+    }
 
     if (hModel) {
         cg.hAlliedPlayerModelHandle = hModel;
-        cg.pAlliedPlayerModel = cgi.R_Model_GetHandle(hModel);
+        cg.pAlliedPlayerModel       = cgi.R_Model_GetHandle(hModel);
         if (!cg.pAlliedPlayerModel) {
             cg.hAlliedPlayerModelHandle = 0;
         }
     } else {
         cg.hAlliedPlayerModelHandle = 0;
-        cg.pAlliedPlayerModel = 0;
+        cg.pAlliedPlayerModel       = NULL;
     }
 
-    hModel = cgi.R_RegisterModel(szAxisModel);
-    if (!hModel) hModel = cgi.R_RegisterModel("models/player/german_wehrmacht_soldier.tik");
+    hModel = cg.serverAxisModelValid ? cgi.R_RegisterModel(szAxisModel) : 0;
+    if (!hModel) {
+        Com_sprintf(szAxisModel, sizeof(szAxisModel), "models/player/%s.tik", dm_playergermanmodel->resetString);
+        hModel = cgi.R_RegisterModel(szAxisModel);
+    }
 
     if (hModel) {
         cg.hAxisPlayerModelHandle = hModel;
-        cg.pAxisPlayerModel = cgi.R_Model_GetHandle(hModel);
+        cg.pAxisPlayerModel       = cgi.R_Model_GetHandle(hModel);
         if (!cg.pAxisPlayerModel) {
             cg.hAxisPlayerModelHandle = 0;
         }
     } else {
         cg.hAxisPlayerModelHandle = 0;
-        cg.pAxisPlayerModel = 0;
+        cg.pAxisPlayerModel       = 0;
     }
 
     // Clear modified flag
-    dm_playermodel->modified = qfalse;
-    dm_playergermanmodel->modified = qfalse;
+    //dm_playermodel->modified       = qfalse;
+    //dm_playergermanmodel->modified = qfalse;
 }
 
+/*
+===============
+CG_ProcessPlayerModel
+
+Checks player models, and update force models
+===============
+*/
+void CG_ProcessPlayerModel()
+{
+    CG_CheckValidModels();
+    if (cg_forceModel->integer) {
+        CG_UpdateForceModels();
+    }
+
+    // Clear modified flag
+    dm_playermodel->modified       = qfalse;
+    dm_playergermanmodel->modified = qfalse;
+    cg_forceModel->modified        = qfalse;
+}
+
+/*
+===============
+CG_ModelAnim
+===============
+*/
 void CG_ModelAnim(centity_t *cent, qboolean bDoShaderTime)
 {
     entityState_t *s1;
@@ -940,8 +1139,8 @@ void CG_ModelAnim(centity_t *cent, qboolean bDoShaderTime)
     model.tiki      = cgi.R_Model_GetHandle(cgs.model_draw[s1->modelindex]);
 
     if (s1->number != cg.snap->ps.clientNum && (s1->eType == ET_PLAYER || (s1->eFlags & EF_DEAD))) {
-        if (cg_forceModel->integer) {
-            CG_UpdateForceModels();
+        if (cg_forceModel->integer && cg_forceModelAllowed) {
+            //CG_UpdateForceModels();
 
             if (s1->eFlags & EF_AXIS) {
                 model.hModel = cg.hAxisPlayerModelHandle;
@@ -965,9 +1164,9 @@ void CG_ModelAnim(centity_t *cent, qboolean bDoShaderTime)
         if (!model.hModel || !model.tiki) {
             // Use a model in case it still doesn't exist
             if (s1->eFlags & EF_AXIS) {
-                model.hModel = cgi.R_RegisterModel("models/player/german_wehrmacht_soldier.tik");
+                model.hModel = cgi.R_RegisterModel(CG_GetPlayerModelTiki(dm_playergermanmodel->resetString));
             } else {
-                model.hModel = cgi.R_RegisterModel("models/player/american_army.tik");
+                model.hModel = cgi.R_RegisterModel(CG_GetPlayerModelTiki(dm_playermodel->resetString));
             }
             model.tiki      = cgi.R_Model_GetHandle(model.hModel);
             model.hOldModel = cgs.model_draw[s1->modelindex];
@@ -1213,9 +1412,9 @@ void CG_ModelAnim(centity_t *cent, qboolean bDoShaderTime)
                     }
                 } else {
                     if (cg.snap->ps.stats[STAT_TEAM] == TEAM_AXIS) {
-                        hModel = cgi.R_RegisterModel("models/player/german_wehrmacht_soldier_fps.tik");
+                        hModel = cgi.R_RegisterModel(CG_GetPlayerLocalModelTiki(dm_playergermanmodel->resetString));
                     } else {
-                        hModel = cgi.R_RegisterModel("models/player/american_army_fps.tik");
+                        hModel = cgi.R_RegisterModel(CG_GetPlayerLocalModelTiki(dm_playermodel->resetString));
                     }
 
                     if (hModel) {
@@ -1337,7 +1536,7 @@ void CG_ModelAnim(centity_t *cent, qboolean bDoShaderTime)
             if (!((cent->animLastWeight >> i) & 1) || model.frameInfo[i].index != cent->animLast[i]) {
                 CG_ProcessEntityCommands(TIKI_FRAME_ENTRY, model.frameInfo[i].index, s1->number, &model, cent);
                 if (cent->animLastTimes[i] == -1) {
-                    cent->animLast[i] = model.frameInfo[i].index;
+                    cent->animLast[i]      = model.frameInfo[i].index;
                     cent->animLastTimes[i] = model.frameInfo[i].time;
                 } else {
                     cent->animLastTimes[i] = 0;
