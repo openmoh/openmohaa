@@ -512,6 +512,7 @@ extern "C" {
     // Added in OPM
     //
     extern cvar_t *cg_fov;
+    extern cvar_t *cg_cheats;
 
     //
     // cg_main.c
