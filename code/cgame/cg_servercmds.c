@@ -469,7 +469,8 @@ static const char *whiteListedVariables[] = {
     "subtitle1",
     "subtitle2",
     "subtitle3",
-    "name"
+    "name",
+    "cg_3rd_person" // for 3rd person server
 };
 
 //
