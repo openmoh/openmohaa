@@ -654,8 +654,14 @@ static qboolean CG_IsStatementFiltered(char *cmd)
         }
 
         if (!Q_stricmp(com_token, "set") || !Q_stricmp(com_token, "setu") || !Q_stricmp(com_token, "seta")
-            || !Q_stricmp(com_token, "sets")) {
-            char type = com_token[3];
+            || !Q_stricmp(com_token, "sets") || !Q_stricmp(com_token, "append")) {
+            char type;
+            
+            if (Q_stricmp(com_token, "append")) {
+                type = com_token[3];
+            } else {
+                type = 0;
+            }
 
             //
             // variable
