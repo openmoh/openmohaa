@@ -1588,6 +1588,30 @@ void Level::Precache(void)
 
     LoadAllScripts("global", ".scr");
     InitVoteOptions();
+
+    // Added in OPM
+    //  Cache all player models in multi-player
+    //  This avoids using precache scripts
+    if (g_gametype->integer != GT_SINGLE_PLAYER) {
+        char **fileList;
+        int    numFiles;
+        int    i;
+
+        fileList = gi.FS_ListFiles("models/player", ".tik", qfalse, &numFiles);
+
+        for (i = 0; i < numFiles; i++) {
+            const char *filename = fileList[i];
+            const size_t filelen = strlen(filename);
+
+            if (!Q_stricmpn(filename, "allied_", 7) || !Q_stricmpn(filename, "american_", 9)
+                || !Q_stricmpn(filename, "german_", 7) || !Q_stricmpn(filename, "IT_", 3)
+                || !Q_stricmpn(filename, "SC_", 3)) {
+                CacheResource(va("models/player/%s", filename));
+            }
+        }
+
+        gi.FS_FreeFileList(fileList);
+    }
 }
 
 /*
