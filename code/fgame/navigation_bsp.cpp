@@ -848,6 +848,124 @@ static qboolean IsTriangleDegenerate(const vec3_t *points, int a, int b, int c)
 
 /*
 ============
+G_GenerateSideTriangles
+============
+*/
+void G_GenerateSideTriangles(navMap_t& navMap, cbrushside_t& side)
+{
+    int          i, r, least, rotate, ni;
+    int          numIndexes;
+    int          a, b, c;
+    const vec_t *v1, *v2;
+    int          indexes[MAX_INDEXES];
+    size_t       baseVertex;
+
+    if (!side.winding) {
+        return;
+    }
+
+    baseVertex = navMap.vertices.NumObjects();
+
+    for (i = 0; i < side.winding->numpoints; i++) {
+        navMap.vertices.AddObject(side.winding->p[i]);
+    }
+
+    if (side.winding->numpoints == 3) {
+        navMap.indices.AddObject(baseVertex + 2);
+        navMap.indices.AddObject(baseVertex + 1);
+        navMap.indices.AddObject(baseVertex + 0);
+        return;
+    }
+
+    least = 0;
+    for (i = 0; i < side.winding->numpoints; i++) {
+        /* get points */
+        v1 = side.winding->p[i];
+        v2 = side.winding->p[least];
+
+        /* compare */
+        if (v1[0] < v2[0] || (v1[0] == v2[0] && v1[1] < v2[1]) || (v1[0] == v2[0] && v1[1] == v2[1] && v1[2] < v2[2])) {
+            least = i;
+        }
+    }
+
+    /* determine the triangle strip order */
+    numIndexes = (side.winding->numpoints - 2) * 3;
+
+    ni = 0;
+    /* try all possible orderings of the points looking for a non-degenerate strip order */
+    for (r = 0; r < side.winding->numpoints; r++) {
+        /* set rotation */
+        rotate = (r + least) % side.winding->numpoints;
+
+        /* walk the winding in both directions */
+        for (ni = 0, i = 0; i < side.winding->numpoints - 2 - i; i++) {
+            /* make indexes */
+            a = (side.winding->numpoints - 1 - i + rotate) % side.winding->numpoints;
+            b = (i + rotate) % side.winding->numpoints;
+            c = (side.winding->numpoints - 2 - i + rotate) % side.winding->numpoints;
+
+            /* test this triangle */
+            if (side.winding->numpoints > 4 && IsTriangleDegenerate(side.winding->p, a, b, c)) {
+                break;
+            }
+            indexes[ni++] = a;
+            indexes[ni++] = b;
+            indexes[ni++] = c;
+
+            /* handle end case */
+            if (i + 1 != side.winding->numpoints - 1 - i) {
+                /* make indexes */
+                a = (side.winding->numpoints - 2 - i + rotate) % side.winding->numpoints;
+                b = (i + rotate) % side.winding->numpoints;
+                c = (i + 1 + rotate) % side.winding->numpoints;
+
+                /* test triangle */
+                if (side.winding->numpoints > 4 && IsTriangleDegenerate(side.winding->p, a, b, c)) {
+                    break;
+                }
+                indexes[ni++] = a;
+                indexes[ni++] = b;
+                indexes[ni++] = c;
+            }
+        }
+
+        /* valid strip? */
+        if (ni == numIndexes) {
+            break;
+        }
+    }
+
+    /* if any triangle in the strip is degenerate, render from a centered fan point instead */
+    if (ni < numIndexes) {
+        return;
+    }
+
+    for (i = 0; i < numIndexes; i++) {
+        navMap.indices.AddObject(baseVertex + indexes[i]);
+    }
+}
+
+/*
+============
+G_GenerateBrushTriangles
+============
+*/
+void G_GenerateBrushTriangles(navMap_t& navMap, const Container<cplane_t>& planes, cbrush_t& brush)
+{
+    size_t i;
+
+    CreateBrushWindings(planes, brush);
+
+    for (i = 0; i < brush.numsides; i++) {
+        cbrushside_t& side = brush.sides[i];
+
+        G_GenerateSideTriangles(navMap, side);
+    }
+}
+
+/*
+============
 G_GenerateVerticesFromHull
 ============
 */
@@ -873,98 +991,8 @@ void G_GenerateVerticesFromHull(
 
     for (i = 1; i <= brushes.NumObjects(); i++) {
         cbrush_t& brush = brushes.ObjectAt(i);
-        CreateBrushWindings(planes, brush);
 
-        for (j = 0; j < brush.numsides; j++) {
-            cbrushside_t& side = brush.sides[j];
-            int           indexes[MAX_INDEXES];
-
-            if (!side.winding) {
-                continue;
-            }
-
-            baseVertex = navMap.vertices.NumObjects();
-
-            for (k = 0; k < side.winding->numpoints; k++) {
-                navMap.vertices.AddObject(side.winding->p[k]);
-            }
-
-            if (side.winding->numpoints == 3) {
-                navMap.indices.AddObject(baseVertex + 0);
-                navMap.indices.AddObject(baseVertex + 1);
-                navMap.indices.AddObject(baseVertex + 2);
-                continue;
-            }
-
-            int least = 0;
-            for (k = 0; k < side.winding->numpoints; k++) {
-                /* get points */
-                const vec_t *v1 = side.winding->p[k];
-                const vec_t *v2 = side.winding->p[least];
-
-                /* compare */
-                if (v1[0] < v2[0] || (v1[0] == v2[0] && v1[1] < v2[1])
-                    || (v1[0] == v2[0] && v1[1] == v2[1] && v1[2] < v2[2])) {
-                    least = k;
-                }
-            }
-
-            /* determine the triangle strip order */
-            size_t numIndexes = (side.winding->numpoints - 2) * 3;
-            size_t ni         = 0;
-
-            /* try all possible orderings of the points looking for a non-degenerate strip order */
-            for (int r = 0; r < side.winding->numpoints; r++) {
-                /* set rotation */
-                int rotate = (r + least) % side.winding->numpoints;
-
-                /* walk the winding in both directions */
-                for (ni = 0, k = 0; k < side.winding->numpoints - 2 - k; k++) {
-                    /* make indexes */
-                    int a = (side.winding->numpoints - 1 - k + rotate) % side.winding->numpoints;
-                    int b = (k + rotate) % side.winding->numpoints;
-                    int c = (side.winding->numpoints - 2 - k + rotate) % side.winding->numpoints;
-
-                    /* test this triangle */
-                    if (side.winding->numpoints > 4 && IsTriangleDegenerate(side.winding->p, a, b, c)) {
-                        break;
-                    }
-                    indexes[ni++] = a;
-                    indexes[ni++] = b;
-                    indexes[ni++] = c;
-
-                    /* handle end case */
-                    if (k + 1 != side.winding->numpoints - 1 - k) {
-                        /* make indexes */
-                        a = (side.winding->numpoints - 2 - k + rotate) % side.winding->numpoints;
-                        b = (k + rotate) % side.winding->numpoints;
-                        c = (k + 1 + rotate) % side.winding->numpoints;
-
-                        /* test triangle */
-                        if (side.winding->numpoints > 4 && IsTriangleDegenerate(side.winding->p, a, b, c)) {
-                            break;
-                        }
-                        indexes[ni++] = a;
-                        indexes[ni++] = b;
-                        indexes[ni++] = c;
-                    }
-                }
-
-                /* valid strip? */
-                if (ni == numIndexes) {
-                    break;
-                }
-            }
-
-            /* if any triangle in the strip is degenerate, render from a centered fan point instead */
-            if (ni < numIndexes) {
-                return;
-            }
-
-            for (k = 0; k < numIndexes; k++) {
-                navMap.indices.AddObject(baseVertex + indexes[k]);
-            }
-        }
+        G_GenerateBrushTriangles(navMap, planes, brush);
     }
 }
 
@@ -1545,10 +1573,10 @@ G_LoadSurfaces(navMap_t& navMap, const gameLump_c& surfs, const gameLump_c& vert
             ParseMesh(navMap, in, dv);
             break;
         case MST_TRIANGLE_SOUP:
-            ParseTriSurf(navMap, in, dv, indexes);
+            //ParseTriSurf(navMap, in, dv, indexes);
             break;
         case MST_PLANAR:
-            ParseFace(navMap, in, dv, indexes);
+            //ParseFace(navMap, in, dv, indexes);
             break;
         case MST_FLARE:
             ParseFlare(navMap, in, dv);
@@ -2611,7 +2639,7 @@ void G_Navigation_ProcessBSPForNavigation(const char *mapname, navMap_t& outNavi
         lumps[1] = gameLump_c::LoadLump(h, *Q_GetLumpByVersion(&header, LUMP_PLANES));
         lumps[2] = gameLump_c::LoadLump(h, *Q_GetLumpByVersion(&header, LUMP_BRUSHSIDES));
         lumps[3] = gameLump_c::LoadLump(h, *Q_GetLumpByVersion(&header, LUMP_BRUSHES));
-        //G_GenerateVerticesFromHull(outNavigationMap, lumps[0], lumps[1], lumps[2], lumps[3]);
+        G_GenerateVerticesFromHull(outNavigationMap, lumps[0], lumps[1], lumps[2], lumps[3]);
 
         // Gather vertices from meshes and surfaces
         lumps[0] = gameLump_c::LoadLump(h, *Q_GetLumpByVersion(&header, LUMP_SURFACES));
