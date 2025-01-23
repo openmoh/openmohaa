@@ -2468,75 +2468,65 @@ void Com_Shutdown (void) {
 
 }
 
-qboolean Com_SanitizeName( const char *pszOldName, char *pszNewName, size_t bufferSize )
+qboolean Com_SanitizeName(const char* pszOldName, char* pszNewName, size_t bufferSize)
 {
-	int i;
-	qboolean bBadName = qfalse;
-	const char *p = pszOldName;
-	size_t maxLength;
+    int i;
+    qboolean bBadName = qfalse;
+    const char* p = pszOldName;
+    size_t maxLength;
 
-	maxLength = (bufferSize / sizeof(char)) - 1;
+    maxLength = (bufferSize / sizeof(char)) - 1;
+    bBadName = qfalse;
 
-	if( *pszOldName && *pszOldName <= ' ' )
-	{
-		bBadName = qtrue;
+    for (p = pszOldName; *p && *(unsigned char*)p <= ' '; p++) {
+        bBadName = qtrue;
+    }
 
-		while( *p && *p <= ' ' )
-		{
-			p++;
-		}
-	}
+    for (i = 0; *p && *p >= ' ' && i < maxLength; p++, i++)
+    {
+        if (*p == '~' || *p == '`')
+        {
+            pszNewName[i] = '*';
+            bBadName = qtrue;
+        }
+        else if (*p == '\"')
+        {
+            pszNewName[i] = '\'';
+            bBadName = qtrue;
+        }
+        else if (*p == '\\')
+        {
+            pszNewName[i] = '/';
+            bBadName = qtrue;
+        }
+        else if (*p == ';')
+        {
+            pszNewName[i] = ':';
+            bBadName = qtrue;
+        }
+        else
+        {
+            pszNewName[i] = *p;
+        }
+    }
 
-	i = 0;
-	for( i = 0; *p && *p >= ' ' && i < maxLength; p++, i++ )
-	{
-		if( *p == '~' || *p == '`' )
-		{
-			pszNewName[ i ] = '*';
-			bBadName = qtrue;
-		}
-		else if( *p == '\"' )
-		{
-			pszNewName[ i ] = '\'';
-			bBadName = qtrue;
-		}
-		else if( *p == '\\' )
-		{
-			pszNewName[ i ] = '/';
-			bBadName = qtrue;
-		}
-		else if( *p == ';' )
-		{
-			pszNewName[ i ] = ':';
-			bBadName = qtrue;
-		}
-		else
-		{
-			pszNewName[ i ] = *p;
-		}
-	}
+    for (; i > 0 && (unsigned char)pszNewName[i - 1] <= ' '; i--) {
+        bBadName = qtrue;
+    }
 
-	if( i > 0 && pszNewName[ i - 1 ] <= ' ' )
-	{
-		bBadName = qtrue;
-		do
-		{
-			p++;
-		} while( i > 0 && pszNewName[ i - 1 ] <= ' ' );
-	}
-	pszNewName[ i ] = 0;
+    pszNewName[i] = 0;
 
-	if( !i )
-	{
+    if (!i)
+    {
         const char* pNewNameDynamic = va("*** Blank Name #%04d ***", rand() % 100000);
-		Q_strncpyz(pszNewName, pNewNameDynamic, bufferSize);
-		bBadName = qtrue;
-	}
+        Q_strncpyz(pszNewName, pNewNameDynamic, bufferSize);
+        bBadName = qtrue;
+    }
 
-	if( *p )
-		bBadName = qtrue;
+    if (*p)
+        bBadName = qtrue;
 
-	return bBadName;
+    return bBadName;
 }
 
 const char *Com_GetArchiveFileName( const char *filename, const char *extension )
