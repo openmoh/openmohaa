@@ -824,6 +824,40 @@ qboolean CreateBrushWindings(const Container<cplane_t>& planes, cbrush_t& brush)
     return BoundBrush(brush);
 }
 
+void FanFaceSurface(navMap_t& navMap, const cbrushside_t& side)
+{
+    int     i, j, k, a, b, c;
+    Vector *verts, *centroid, *dv;
+    double  iv;
+    size_t  baseVertex;
+    size_t  numVerts;
+
+    baseVertex = navMap.vertices.NumObjects();
+
+    centroid = &navMap.vertices.ObjectAt(navMap.vertices.AddObject(Vector()));
+
+    for (i = 0; i < side.winding->numpoints; i++) {
+        dv = &navMap.vertices.ObjectAt(navMap.vertices.AddObject(Vector()));
+        *centroid += *dv;
+    }
+
+    iv = 1.0f / side.winding->numpoints;
+    *centroid *= iv;
+
+    numVerts = navMap.vertices.NumObjects() - baseVertex;
+
+    for (i = 1; i < side.winding->numpoints; i++) {
+        a = 0;
+        b = i;
+        c = (i + 1) % numVerts;
+        c = c ? c : 1;
+
+        navMap.indices.AddObject(baseVertex + a);
+        navMap.indices.AddObject(baseVertex + b);
+        navMap.indices.AddObject(baseVertex + c);
+    }
+}
+
 #define COLINEAR_AREA 10
 
 static qboolean IsTriangleDegenerate(const vec3_t *points, int a, int b, int c)
@@ -938,6 +972,7 @@ void G_GenerateSideTriangles(navMap_t& navMap, cbrushside_t& side)
 
     /* if any triangle in the strip is degenerate, render from a centered fan point instead */
     if (ni < numIndexes) {
+        FanFaceSurface(navMap, side);
         return;
     }
 
