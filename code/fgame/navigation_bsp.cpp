@@ -990,6 +990,10 @@ void G_GenerateBrushTriangles(navMap_t& navMap, const Container<cplane_t>& plane
 {
     size_t i;
 
+    if (!(brush.contents & CONTENTS_SOLID) && !(brush.contents & CONTENTS_PLAYERCLIP)) {
+        return;
+    }
+
     CreateBrushWindings(planes, brush);
 
     for (i = 0; i < brush.numsides; i++) {
