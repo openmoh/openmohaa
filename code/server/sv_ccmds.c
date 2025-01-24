@@ -1219,7 +1219,7 @@ static void SV_Status_f(void) {
 		ps = SV_GameClientNum(i);
 		// su44: ps->persistant is not avaible in mohaa
 		//Com_Printf ("%5i ", ps->persistant[PERS_SCORE]);
-		Com_Printf("%*u ", colSize[1], ps->stats[STAT_KILLS]);
+		Com_Printf("%*i ", colSize[1], ps->stats[STAT_KILLS]);
 
 		if (cl->state == CS_CONNECTED)
 			Com_Printf("CNCT ");
