@@ -102,6 +102,7 @@ typedef struct {
 typedef struct {
     cplane_t  *plane;
     int        planenum;
+    int        shaderNum;
     int        surfaceFlags;
     winding_t *winding;
 
@@ -112,6 +113,7 @@ typedef struct {
     int           contents;
     vec3_t        bounds[2];
     int           numsides;
+    int           shaderNum;
     cbrushside_t *sides;
 } cbrush_t;
 
@@ -390,7 +392,6 @@ void G_LoadBrushSides(
     dbrushside_t *in;
     int           count;
     int           num;
-    int           shaderNum;
 
     in = (dbrushside_t *)lump.buffer;
     if (lump.length % sizeof(*in)) {
@@ -405,10 +406,10 @@ void G_LoadBrushSides(
         cbrushside_t out;
 
         num              = LittleLong(in->planeNum);
-        shaderNum        = LittleLong(in->shaderNum);
+        out.shaderNum    = LittleLong(in->shaderNum);
         out.plane        = &planes[num];
         out.planenum     = num;
-        out.surfaceFlags = shaders.ObjectAt(shaderNum + 1).surfaceFlags;
+        out.surfaceFlags = shaders.ObjectAt(out.shaderNum + 1).surfaceFlags;
 
         sides.AddObject(out);
     }
@@ -446,7 +447,6 @@ void G_LoadBrushes(
 {
     dbrush_t *in;
     int       i, count;
-    int       shaderNum;
 
     in = (dbrush_t *)lump.buffer;
     if (lump.length % sizeof(*in)) {
@@ -462,11 +462,11 @@ void G_LoadBrushes(
         out.sides    = &sides.ObjectAt(LittleLong(in->firstSide) + 1);
         out.numsides = LittleLong(in->numSides);
 
-        shaderNum = LittleLong(in->shaderNum);
-        if (shaderNum < 0 || shaderNum >= shaders.NumObjects()) {
-            throw ScriptException("bad shaderNum: %i", shaderNum);
+        out.shaderNum = LittleLong(in->shaderNum);
+        if (out.shaderNum < 0 || out.shaderNum >= shaders.NumObjects()) {
+            throw ScriptException("bad shaderNum: %i", out.shaderNum);
         }
-        out.contents = shaders[shaderNum].contentFlags;
+        out.contents = shaders[out.shaderNum].contentFlags;
 
         G_BoundBrush(&out);
 
@@ -824,20 +824,17 @@ qboolean CreateBrushWindings(const Container<cplane_t>& planes, cbrush_t& brush)
     return BoundBrush(brush);
 }
 
-void FanFaceSurface(navMap_t& navMap, const cbrushside_t& side)
+void FanFaceSurface(navMap_t& navMap, const cbrushside_t& side, size_t baseVertex)
 {
     int     i, j, k, a, b, c;
     Vector *verts, *centroid, *dv;
     double  iv;
-    size_t  baseVertex;
     size_t  numVerts;
-
-    baseVertex = navMap.vertices.NumObjects();
 
     centroid = &navMap.vertices.ObjectAt(navMap.vertices.AddObject(Vector()));
 
     for (i = 0; i < side.winding->numpoints; i++) {
-        dv = &navMap.vertices.ObjectAt(navMap.vertices.AddObject(Vector()));
+        dv = &navMap.vertices.ObjectAt(baseVertex + i + 1);
         *centroid += *dv;
     }
 
@@ -846,11 +843,11 @@ void FanFaceSurface(navMap_t& navMap, const cbrushside_t& side)
 
     numVerts = navMap.vertices.NumObjects() - baseVertex;
 
-    for (i = 1; i < side.winding->numpoints; i++) {
-        a = 0;
+    for (i = 0; i < side.winding->numpoints; i++) {
+        a = numVerts - 1;
         b = i;
-        c = (i + 1) % numVerts;
-        c = c ? c : 1;
+        c = (i + 1) % side.winding->numpoints;
+        c = c ? c : 0;
 
         navMap.indices.AddObject(baseVertex + a);
         navMap.indices.AddObject(baseVertex + b);
@@ -905,9 +902,9 @@ void G_GenerateSideTriangles(navMap_t& navMap, cbrushside_t& side)
     }
 
     if (side.winding->numpoints == 3) {
-        navMap.indices.AddObject(baseVertex + 2);
-        navMap.indices.AddObject(baseVertex + 1);
         navMap.indices.AddObject(baseVertex + 0);
+        navMap.indices.AddObject(baseVertex + 1);
+        navMap.indices.AddObject(baseVertex + 2);
         return;
     }
 
@@ -972,7 +969,7 @@ void G_GenerateSideTriangles(navMap_t& navMap, cbrushside_t& side)
 
     /* if any triangle in the strip is degenerate, render from a centered fan point instead */
     if (ni < numIndexes) {
-        FanFaceSurface(navMap, side);
+        FanFaceSurface(navMap, side, baseVertex);
         return;
     }
 
