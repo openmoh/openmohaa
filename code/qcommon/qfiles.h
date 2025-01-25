@@ -425,6 +425,8 @@ typedef struct fcm_s {
 } fcm_t;
 
 #define MAX_TERRAIN_VARNODES 63
+#define TERPATCH_FLIP		0x40
+#define TERPATCH_NEIGHBOR	0x80
 
 typedef struct varnode_s {
 	unsigned short flags;
