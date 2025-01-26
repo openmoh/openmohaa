@@ -45,6 +45,7 @@ struct navMap_t {
     const char* mapname;
     Container<navIndice_t>    indices;
     Container<Vector> vertices;
+    Vector bounds[2];
 };
 
 void G_Navigation_ProcessBSPForNavigation(const char* mapname, navMap_t& outNavigationMap);

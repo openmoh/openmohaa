@@ -117,6 +117,15 @@ typedef struct {
     cbrushside_t *sides;
 } cbrush_t;
 
+typedef struct {
+    vec3_t mins;
+    vec3_t maxs;
+    int firstSurface;
+    int numSurfaces;
+    int firstBrush;
+    int numBrushes;
+} cmodel_t;
+
 typedef union varnodeUnpacked_u {
     float fVariance;
     int   flags;
@@ -410,6 +419,7 @@ void G_LoadBrushSides(
         out.plane        = &planes[num];
         out.planenum     = num;
         out.surfaceFlags = shaders.ObjectAt(out.shaderNum + 1).surfaceFlags;
+        out.winding = NULL;
 
         sides.AddObject(out);
     }
@@ -471,6 +481,66 @@ void G_LoadBrushes(
         G_BoundBrush(&out);
 
         brushes.AddObject(out);
+    }
+}
+
+void G_LoadLeafBrushes(const gameLump_c& lump, Container<int>& leafbrushes)
+{
+    int*      in;
+    int       i, count;
+
+    in = (int*)lump.buffer;
+    if (lump.length % sizeof(*in)) {
+        throw ScriptException("Invalid leaf brush lump");
+    }
+    count = lump.length / sizeof(*in);
+
+    for (i = 0; i < count; i++, in++) {
+        leafbrushes.AddObject(LittleLong(*in));
+    }
+}
+
+void G_LoadSubmodels(const gameLump_c& lump, Container<cmodel_t>& submodels)
+{
+    dmodel_t* in;
+    int       count;
+    int i, j;
+
+    in = (dmodel_t*)lump.buffer;
+    if (lump.length % sizeof(*in)) {
+        throw ScriptException("Invalid submodels lump");
+    }
+    count = lump.length / sizeof(*in);
+
+    if (count < 1)
+        Com_Error(ERR_DROP, "Map with no models");
+
+    submodels.Resize(count);
+
+    for (i = 0; i < count; i++, in++) {
+        cmodel_t out;
+
+        for (j = 0; j < 3; j++)
+        {	// spread the mins / maxs by a pixel
+            out.mins[j] = LittleFloat(in->mins[j]) - 1;
+            out.maxs[j] = LittleFloat(in->maxs[j]) + 1;
+        }
+
+        out.numBrushes = LittleLong(in->numBrushes);
+        if (out.numBrushes) {
+            out.firstBrush = LittleLong(in->firstBrush);
+        } else {
+            out.firstBrush = -1;
+        }
+
+        out.numSurfaces = LittleLong(in->numSurfaces);
+        if (out.numSurfaces) {
+            out.firstSurface = LittleLong(in->firstSurface);
+        } else {
+            out.firstSurface = -1;
+        }
+
+        submodels.AddObject(out);
     }
 }
 
@@ -816,6 +886,9 @@ qboolean CreateBrushWindings(const Container<cplane_t>& planes, cbrush_t& brush)
             FixWinding(w);
         }
 
+        if (side->winding) {
+            FreeWinding(side->winding);
+        }
         /* set side winding */
         side->winding = w;
     }
@@ -840,6 +913,7 @@ void FanFaceSurface(navMap_t& navMap, const cbrushside_t& side, size_t baseVerte
 
     iv = 1.0f / side.winding->numpoints;
     *centroid *= iv;
+    AddPointToBounds(*centroid, navMap.bounds[0], navMap.bounds[1]);
 
     numVerts = navMap.vertices.NumObjects() - baseVertex;
 
@@ -899,6 +973,7 @@ void G_GenerateSideTriangles(navMap_t& navMap, cbrushside_t& side)
 
     for (i = 0; i < side.winding->numpoints; i++) {
         navMap.vertices.AddObject(side.winding->p[i]);
+        AddPointToBounds(side.winding->p[i], navMap.bounds[0], navMap.bounds[1]);
     }
 
     if (side.winding->numpoints == 3) {
@@ -986,6 +1061,7 @@ G_GenerateBrushTriangles
 void G_GenerateBrushTriangles(navMap_t& navMap, const Container<cplane_t>& planes, cbrush_t& brush)
 {
     size_t i;
+    size_t numSkip = 0;
 
     if (!(brush.contents & CONTENTS_SOLID) && !(brush.contents & CONTENTS_PLAYERCLIP)) {
         return;
@@ -1010,22 +1086,27 @@ void G_GenerateVerticesFromHull(
     const gameLump_c& shadersLump,
     const gameLump_c& planesLump,
     const gameLump_c& brushSidesLump,
-    const gameLump_c& brushesLump
+    const gameLump_c& brushesLump,
+    const gameLump_c& modelsLump
 )
 {
     Container<cshader_t>    shaders;
     Container<cplane_t>     planes;
     Container<cbrushside_t> sides;
     Container<cbrush_t>     brushes;
-    size_t                  i, j, k;
+    Container<cmodel_t>     submodels;
+    size_t                  i, j;
     size_t                  baseVertex;
 
     G_LoadShaders(shadersLump, shaders);
     G_LoadPlanes(planesLump, planes);
     G_LoadBrushSides(brushSidesLump, shaders, planes, sides);
     G_LoadBrushes(brushesLump, shaders, sides, brushes);
+    G_LoadSubmodels(modelsLump, submodels);
 
-    for (i = 1; i <= brushes.NumObjects(); i++) {
+    const cmodel_t& worldModel = submodels.ObjectAt(1);
+
+    for (i = worldModel.firstBrush + 1; i <= worldModel.firstBrush + worldModel.numBrushes; i++) {
         cbrush_t& brush = brushes.ObjectAt(i);
 
         G_GenerateBrushTriangles(navMap, planes, brush);
@@ -1413,6 +1494,7 @@ static void RenderSurfaceGrid(navMap_t& navMap, const surfaceGrid_t *grid)
 
     for (i = 0; i < grid->numVertices; i++) {
         navMap.vertices.AddObject(vertices[i]);
+        AddPointToBounds(vertices[i], navMap.bounds[0], navMap.bounds[1]);
     }
 
     for (i = 0; i < grid->numIndexes; i++) {
@@ -1480,6 +1562,7 @@ static void ParseTriSurf(navMap_t& navMap, const dsurface_t *ds, const drawVert_
         }
 
         navMap.vertices.AddObject(vec);
+        AddPointToBounds(vec, navMap.bounds[0], navMap.bounds[1]);
     }
 
     //navMap.indices.Resize(navMap.indices.NumObjects() + numIndexes);
@@ -1517,6 +1600,7 @@ static void ParseFace(navMap_t& navMap, const dsurface_t *ds, const drawVert_t *
         }
 
         navMap.vertices.AddObject(vec);
+        AddPointToBounds(vec, navMap.bounds[0], navMap.bounds[1]);
     }
 
     //navMap.indices.Resize(navMap.indices.NumObjects() + numIndexes);
@@ -1583,18 +1667,18 @@ G_LoadSurfaces(navMap_t& navMap, const gameLump_c& surfs, const gameLump_c& vert
             totalNumVerts += numVerts;
             totalNumIndexes += numVerts * 4;
             break;
-        case MST_TRIANGLE_SOUP:
-            totalNumVerts += in->numVerts;
-            totalNumIndexes += in->numIndexes;
-            break;
-        case MST_PLANAR:
-            totalNumVerts += in->numVerts;
-            totalNumIndexes += in->numIndexes;
-            break;
+//         case MST_TRIANGLE_SOUP:
+//             totalNumVerts += in->numVerts;
+//             totalNumIndexes += in->numIndexes;
+//             break;
+//         case MST_PLANAR:
+//             totalNumVerts += in->numVerts;
+//             totalNumIndexes += in->numIndexes;
+//             break;
         case MST_FLARE:
             break;
         default:
-            throw ScriptException("Bad surfaceType");
+            break;
         }
     }
 
@@ -2500,6 +2584,7 @@ void G_RenderPatch(navMap_t& navMap, const cTerraPatchUnpacked_t& patch)
         terrainVert_t& vert = g_pVert[vertNum];
 
         navMap.vertices.AddObject(vert.xyz);
+        AddPointToBounds(vert.xyz, navMap.bounds[0], navMap.bounds[1]);
         vert.iVertArray = currentVertice;
 
         currentVertice++;
@@ -2654,7 +2739,7 @@ void G_Navigation_ProcessBSPForNavigation(const char *mapname, navMap_t& outNavi
     fileHandle_t h;
     int          length;
     int          i;
-    gameLump_c   lumps[4];
+    gameLump_c   lumps[7];
 
     // load it
     length = gi.FS_FOpenFile(mapname, &h, qtrue, qtrue);
@@ -2675,7 +2760,8 @@ void G_Navigation_ProcessBSPForNavigation(const char *mapname, navMap_t& outNavi
         lumps[1] = gameLump_c::LoadLump(h, *Q_GetLumpByVersion(&header, LUMP_PLANES));
         lumps[2] = gameLump_c::LoadLump(h, *Q_GetLumpByVersion(&header, LUMP_BRUSHSIDES));
         lumps[3] = gameLump_c::LoadLump(h, *Q_GetLumpByVersion(&header, LUMP_BRUSHES));
-        G_GenerateVerticesFromHull(outNavigationMap, lumps[0], lumps[1], lumps[2], lumps[3]);
+        lumps[5] = gameLump_c::LoadLump(h, *Q_GetLumpByVersion(&header, LUMP_MODELS));
+        G_GenerateVerticesFromHull(outNavigationMap, lumps[0], lumps[1], lumps[2], lumps[3], lumps[4]);
 
         // Gather vertices from meshes and surfaces
         lumps[0] = gameLump_c::LoadLump(h, *Q_GetLumpByVersion(&header, LUMP_SURFACES));
