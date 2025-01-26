@@ -1772,6 +1772,7 @@ void SV_InitGameProgs( void ) {
 	import.cvar_set						= Cvar_Set;
 	import.cvar_set2					= Cvar_Set2;
 	import.NextCvar						= Cvar_Next;
+	import.Cvar_CheckRange				= Cvar_CheckRange;
 
 	import.Argc							= Cmd_Argc;
 	import.Args							= Cmd_Args;

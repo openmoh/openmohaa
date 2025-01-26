@@ -248,6 +248,8 @@ typedef struct gameImport_s {
     void (*cvar_set)(const char *varName, const char *varValue);
     cvar_t *(*cvar_set2)(const char *varName, const char *varValue, qboolean force);
     cvar_t *(*NextCvar)(cvar_t *var);
+    void (*Cvar_CheckRange)(cvar_t* var, float min, float max, qboolean integral);
+
     int (*Argc)();
     char *(*Argv)(int arg);
     char *(*Args)();
