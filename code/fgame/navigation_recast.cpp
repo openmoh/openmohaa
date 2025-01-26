@@ -33,10 +33,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "DetourNavMeshBuilder.h"
 #include "DetourNavMeshQuery.h"
 
-static const float recastCellSize       = 16.0;
-static const float recastCellHeight     = 0.5;
-static const float agentHeight          = 0.5;
-static const float agentMaxClimb        = 36.0;
+static const float recastCellSize       = 13.0;
+static const float recastCellHeight     = 1.0;
+static const float agentHeight          = CROUCH_VIEWHEIGHT;
+static const float agentMaxClimb        = STEPSIZE;
 static const float agentRadius          = 0.5;
 static const int   regionMinSize        = 8;
 static const int   regionMergeSize      = 20;
@@ -71,9 +71,18 @@ ConvertFromGameCoord
 */
 static void ConvertFromGameCoord(const float *in, float *out)
 {
-    out[0] = in[0] * worldScale;
-    out[1] = in[2] * worldScale;
-    out[2] = in[1] * worldScale;
+#if 0
+    vec3_t mat[3];
+    vec3_t angles = { 0, 0, -90 };
+    AnglesToAxis(angles, mat);
+
+    MatrixTransformVector(in, mat, out);
+#endif
+
+    // Same as above
+    out[0] = in[0];
+    out[1] = in[2];
+    out[2] = in[1];
 }
 
 /*
@@ -83,9 +92,9 @@ ConvertToGameCoord
 */
 static void ConvertToGameCoord(const float *in, float *out)
 {
-    out[0] = in[0] / worldScale;
-    out[1] = in[2] / worldScale;
-    out[2] = in[1] / worldScale;
+    out[0] = in[0];
+    out[1] = in[2];
+    out[2] = in[1];
 }
 
 /*
@@ -101,7 +110,6 @@ void G_Navigation_BuildRecastMesh(navMap_t& navigationMap)
     const size_t       numIndexes     = navigationMap.indices.NumObjects();
     const size_t       numTris        = numIndexes / 3;
     const size_t       numVertices    = navigationMap.vertices.NumObjects();
-    const int         *trisBuffer     = (const int *)navigationMap.indices.AddressOfObjectAt(1);
     const unsigned int walkableHeight = (int)ceilf(agentHeight / recastCellHeight);
     const unsigned int walkableClimb  = (int)floorf(agentMaxClimb / recastCellHeight);
     const unsigned int walkableRadius = (int)ceilf(agentRadius / recastCellSize);
@@ -115,6 +123,13 @@ void G_Navigation_BuildRecastMesh(navMap_t& navigationMap)
     for (size_t i = 0; i < numVertices; i++) {
         const Vector& inVertice = navigationMap.vertices.ObjectAt(i + 1);
         ConvertFromGameCoord(inVertice, &vertsBuffer[i * 3]);
+    }
+
+    int *indexesBuffer = new int[numIndexes];
+    for (size_t i = 0; i < numIndexes; i += 3) {
+        indexesBuffer[i + 0] = navigationMap.indices[i + 0];
+        indexesBuffer[i + 1] = navigationMap.indices[i + 1];
+        indexesBuffer[i + 2] = navigationMap.indices[i + 2];
     }
 
     //
@@ -136,17 +151,22 @@ void G_Navigation_BuildRecastMesh(navMap_t& navigationMap)
     unsigned char *triAreas = new unsigned char[numTris];
     memset(triAreas, 0, sizeof(unsigned char) * numTris);
 
-    rcMarkWalkableTriangles(&buildContext, 45, vertsBuffer, numVertices, trisBuffer, numTris, triAreas);
-    rcRasterizeTriangles(&buildContext, vertsBuffer, numVertices, trisBuffer, triAreas, numTris, *heightfield);
+    rcMarkWalkableTriangles(&buildContext, 45, vertsBuffer, numVertices, indexesBuffer, numTris, triAreas);
+    rcRasterizeTriangles(
+        &buildContext, vertsBuffer, numVertices, indexesBuffer, triAreas, numTris, *heightfield, walkableClimb
+    );
 
     delete[] triAreas;
+    delete[] vertsBuffer;
+    delete[] indexesBuffer;
 
     //
     // Filter walkable surfaces
     //
 
     rcFilterLowHangingWalkableObstacles(&buildContext, walkableClimb, *heightfield);
-    rcFilterLedgeSpans(&buildContext, walkableHeight, walkableClimb, *heightfield);
+
+    //rcFilterLedgeSpans(&buildContext, walkableHeight, walkableClimb, *heightfield);
     rcFilterWalkableLowHeightSpans(&buildContext, walkableHeight, *heightfield);
 
     // Partition walkable surfaces
@@ -162,6 +182,8 @@ void G_Navigation_BuildRecastMesh(navMap_t& navigationMap)
 
     rcBuildDistanceField(&buildContext, *compactedHeightfield);
     rcBuildRegions(&buildContext, *compactedHeightfield, 0, Square(regionMinSize), Square(regionMergeSize));
+
+    //rcBuildRegionsMonotone(&buildContext, *compactedHeightfield, 0, Square(regionMinSize), Square(regionMergeSize));
 
     //
     // Simplify region contours
@@ -196,8 +218,6 @@ void G_Navigation_BuildRecastMesh(navMap_t& navigationMap)
 
     rcFreeCompactHeightfield(compactedHeightfield);
     rcFreeContourSet(contourSet);
-
-    delete[] vertsBuffer;
 
     //
     // Create detour data
@@ -325,6 +345,7 @@ void G_Navigation_DebugDraw()
     }
 
     if (ai_showroutes->integer) {
+#if 0
         const float maxDistSquared = Square(ai_showroutes_distance->integer);
 
         for (int i = 0; i < prev_navMap.indices.NumObjects(); i += 3)
@@ -345,31 +366,30 @@ void G_Navigation_DebugDraw()
             }
         }
 
-#if 0
+#else
         const float maxDistSquared = Square(ai_showroutes_distance->integer);
 
-        for (int i = 0; i < polyMesh->npolys; ++i)
-        {
-            const unsigned short* p = &polyMesh->polys[i * polyMesh->nvp * 2];
-            const unsigned char area = polyMesh->areas[i];
+        for (int i = 0; i < polyMesh->npolys; ++i) {
+            const unsigned short *p    = &polyMesh->polys[i * polyMesh->nvp * 2];
+            const unsigned char   area = polyMesh->areas[i];
 
             if (area != RC_WALKABLE_AREA) {
                 continue;
             }
 
             unsigned short vi[3];
-            for (int j = 2; j < polyMesh->nvp; ++j)
-            {
-                if (p[j] == RC_MESH_NULL_IDX) break;
+            for (int j = 2; j < polyMesh->nvp; ++j) {
+                if (p[j] == RC_MESH_NULL_IDX) {
+                    break;
+                }
                 vi[0] = p[0];
                 vi[1] = p[j - 1];
                 vi[2] = p[j];
 
                 Vector vertices[3];
 
-                for (int k = 0; k < 3; ++k)
-                {
-                    const unsigned short* v = &polyMesh->verts[vi[k] * 3];
+                for (int k = 0; k < 3; ++k) {
+                    const unsigned short *v = &polyMesh->verts[vi[k] * 3];
 
                     vec3_t pos;
                     pos[0] = polyMesh->bmin[0] + v[0] * polyMesh->cs;
@@ -379,15 +399,14 @@ void G_Navigation_DebugDraw()
                     ConvertToGameCoord(pos, vertices[k]);
                 }
 
-                for (int k = 0; k < 3; ++k)
-                {
+                for (int k = 0; k < 3; ++k) {
                     const Vector delta = vertices[k] - ent->origin;
 
                     if (delta.lengthSquared() >= maxDistSquared) {
                         continue;
                     }
 
-                    G_DebugLine(vertices[k], vertices[(k + 1)%3], 0, 1, 0, 1);
+                    G_DebugLine(vertices[k], vertices[(k + 1) % 3], 0, 1, 0, 1);
                 }
             }
         }
