@@ -783,9 +783,9 @@ void ChopWindingInPlace(winding_t **inout, vec3_t normal, vec_t dist, vec_t epsi
         dot = DotProduct(in->p[i], normal);
         dot -= dist;
         dists[i] = dot;
-        if ((dot + 0.0005) > epsilon) {
+        if (dot > epsilon) {
             sides[i] = SIDE_FRONT;
-        } else if ((dot - 0.0005) < -epsilon) {
+        } else if (dot < -epsilon) {
             sides[i] = SIDE_BACK;
         } else {
             sides[i] = SIDE_ON;
