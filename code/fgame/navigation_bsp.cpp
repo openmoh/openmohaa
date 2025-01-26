@@ -2760,7 +2760,7 @@ void G_Navigation_ProcessBSPForNavigation(const char *mapname, navMap_t& outNavi
         lumps[1] = gameLump_c::LoadLump(h, *Q_GetLumpByVersion(&header, LUMP_PLANES));
         lumps[2] = gameLump_c::LoadLump(h, *Q_GetLumpByVersion(&header, LUMP_BRUSHSIDES));
         lumps[3] = gameLump_c::LoadLump(h, *Q_GetLumpByVersion(&header, LUMP_BRUSHES));
-        lumps[5] = gameLump_c::LoadLump(h, *Q_GetLumpByVersion(&header, LUMP_MODELS));
+        lumps[4] = gameLump_c::LoadLump(h, *Q_GetLumpByVersion(&header, LUMP_MODELS));
         G_GenerateVerticesFromHull(outNavigationMap, lumps[0], lumps[1], lumps[2], lumps[3], lumps[4]);
 
         // Gather vertices from meshes and surfaces
