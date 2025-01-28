@@ -85,7 +85,12 @@ void CG_MakeBulletHoleSound(const vec3_t i_vPos, const vec3_t i_vNorm, int iLarg
         iSurfType = SURF_PUDDLE;
     }
 
-    if (trace.fraction == 1.0f || trace.startsolid || (trace.surfaceFlags & SURF_SKY)) {
+    if (trace.fraction == 1) {
+        // no reason to make a sound if it nothing was hit
+        return;
+    }
+
+    if ((trace.surfaceFlags & SURF_SKY) || !CG_CheckMakeMarkOnEntity(trace.entityNum)) {
         return;
     }
 
@@ -253,7 +258,12 @@ CG_MakeBulletHole(const vec3_t i_vPos, const vec3_t i_vNorm, int iLarge, trace_t
         iSurfType = SURF_PUDDLE;
     }
 
-    if (trace.fraction == 1.0f || trace.startsolid || (trace.surfaceFlags & SURF_SKY)) {
+    if (trace.fraction == 1.0f || trace.startsolid) {
+        return;
+    }
+
+    if (trace.surfaceFlags & SURF_SKY) {
+        // ignore sky surfaces
         return;
     }
 
@@ -460,35 +470,36 @@ static void CG_MakeBulletTracerInternal(
     float         alpha
 )
 {
-    vec3_t       vPos;
-    int          iBullet;
-    int          iContinueCount;
-    int          iDist;
-    int          iHeadDist;
-    int          iTravelDist;
-    float        fLen, fDist;
-    trace_t      trace;
-    qboolean     bStartInWater, bInWater;
-    qboolean     bBulletDone;
-    qboolean     bMadeTracer;
-    vec3_t       vDir;
-    vec3_t       vTrailStart;
-    vec3_t       vTraceStart;
-    vec3_t       vTraceEnd;
-    vec3_t       vTmp;
-    int          iNumImpacts;
-    trace_t      tImpacts[128];
-    float        fImpSndDistRA;
-    static float fImpSndDistLA;
-    float        fImpSndDistRB;
-    float        fImpSndDistLB;
-    int          iImpSndIndexRA;
-    int          iImpSndIndexRB;
-    int          iImpSndIndexLB;
-    float        fVolume;
-    float        fPitch;
-    float        fZingDistA, fZingDistB, fZingDistC;
-    vec3_t       vZingPosA, vZingPosB, vZingPosC;
+    vec3_t   vPos;
+    int      iBullet;
+    int      iContinueCount;
+    int      iDist;
+    int      iHeadDist;
+    int      iTravelDist;
+    float    fLen, fDist;
+    trace_t  trace;
+    qboolean bStartInWater, bInWater;
+    qboolean bBulletDone;
+    qboolean bMadeTracer;
+    vec3_t   vDir;
+    vec3_t   vTrailStart;
+    vec3_t   vTraceStart;
+    vec3_t   vTraceEnd;
+    vec3_t   vTmp;
+    int      iNumImpacts;
+    trace_t  tImpacts[128];
+    float    fImpSndDistRA;
+    float    fImpSndDistLA;
+    float    fImpSndDistRB;
+    float    fImpSndDistLB;
+    int      iImpSndIndexRA;
+    int      iImpSndIndexLA;
+    int      iImpSndIndexRB;
+    int      iImpSndIndexLB;
+    float    fVolume;
+    float    fPitch;
+    float    fZingDistA, fZingDistB, fZingDistC;
+    vec3_t   vZingPosA, vZingPosB, vZingPosC;
 
     fZingDistB  = 9999.0;
     fZingDistA  = 9999.0;
@@ -659,46 +670,46 @@ static void CG_MakeBulletTracerInternal(
     if (iNumImpacts > 2) {
         fImpSndDistRA  = 9999.0f;
         fImpSndDistRB  = 9999.0f;
-        iImpSndIndexRA = 0;
-        iImpSndIndexRB = 0;
+        fImpSndDistLA  = 9999.0f;
         fImpSndDistLB  = 9999.0f;
+        iImpSndIndexRA = 0;
+        iImpSndIndexLA = 0;
+        iImpSndIndexRB = 0;
         iImpSndIndexLB = 0;
 
         for (iBullet = 0; iBullet < iNumImpacts; iBullet++) {
             CG_MakeBulletHole(
-                tImpacts[iImpSndIndexLB].endpos,
-                tImpacts[iImpSndIndexLB].plane.normal,
-                iLarge,
-                &tImpacts[iImpSndIndexLB],
-                qfalse
+                tImpacts[iBullet].endpos, tImpacts[iBullet].plane.normal, iLarge, &tImpacts[iBullet], qfalse
             );
 
-            VectorSubtract(tImpacts[iImpSndIndexLB].endpos, cg.SoundOrg, vTmp);
+            VectorSubtract(tImpacts[iBullet].endpos, cg.SoundOrg, vTmp);
             iHeadDist = VectorLength(vTmp);
 
             if (DotProduct(vTmp, cg.SoundAxis[1]) <= 0.f) {
-                if (iHeadDist < 9999.0f || iHeadDist < fImpSndDistLB) {
-                    if (iHeadDist < 9999.0f) {
-                        fImpSndDistRA  = iHeadDist;
-                        fImpSndDistLB  = 9999.0;
+                if (iHeadDist < fImpSndDistLA || iHeadDist < fImpSndDistLB) {
+                    if (iHeadDist < fImpSndDistLA) {
+                        iImpSndIndexLB = iImpSndIndexLA;
+                        fImpSndDistLB  = fImpSndDistLA;
                         iImpSndIndexRA = iBullet;
+                        fImpSndDistRA  = iHeadDist;
                     } else if (iHeadDist < fImpSndDistLB) {
-                        fImpSndDistLB = iHeadDist;
+                        iImpSndIndexLB = iBullet;
+                        fImpSndDistLB  = iHeadDist;
                     }
                 }
             } else {
                 if (iHeadDist < fImpSndDistRA || iHeadDist < fImpSndDistRB) {
                     if (iHeadDist < fImpSndDistRA) {
                         iImpSndIndexRB = iImpSndIndexRA;
+                        fImpSndDistRB  = fImpSndDistRA;
                         iImpSndIndexRA = iBullet;
+                        fImpSndDistRA  = iHeadDist;
                     } else if (iHeadDist < fImpSndDistRB) {
-                        fImpSndDistRB  = iHeadDist;
                         iImpSndIndexRB = iBullet;
+                        fImpSndDistRB  = iHeadDist;
                     }
                 }
             }
-
-            iImpSndIndexLB++;
         }
 
         if (fImpSndDistRA < 9999.0f) {
@@ -715,6 +726,24 @@ static void CG_MakeBulletTracerInternal(
                     tImpacts[iImpSndIndexRB].plane.normal,
                     iLarge,
                     &tImpacts[iImpSndIndexRB]
+                );
+            }
+        }
+
+        if (fImpSndDistLA < 9999.0f) {
+            CG_MakeBulletHoleSound(
+                tImpacts[iImpSndIndexLA].endpos,
+                tImpacts[iImpSndIndexLA].plane.normal,
+                iLarge,
+                &tImpacts[iImpSndIndexLA]
+            );
+
+            if (fImpSndDistLB < 9999.0f) {
+                CG_MakeBulletHoleSound(
+                    tImpacts[iImpSndIndexLB].endpos,
+                    tImpacts[iImpSndIndexLB].plane.normal,
+                    iLarge,
+                    &tImpacts[iImpSndIndexLB]
                 );
             }
         }
