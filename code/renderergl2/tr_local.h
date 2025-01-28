@@ -2962,7 +2962,8 @@ void RE_AddLightToScene( const vec3_t org, float intensity, float r, float g, fl
 void RE_AddAdditiveLightToScene( const vec3_t org, float intensity, float r, float g, float b );
 void RE_BeginScene( const refdef_t *fd );
 void RE_RenderScene( const refdef_t *fd );
-void RE_EndScene( void );
+void RE_EndScene(void);
+void RE_AddRefEntityToScene2(const refEntity_t* ent, int parentEntityNumber);
 
 /*
 =============================================================
@@ -3024,6 +3025,7 @@ void AddBox(float x, float y, float w, float h);
 void Set2DWindow(int x, int y, int w, int h, float left, float right, float bottom, float top, float n, float f);
 void RE_Scissor(int x, int y, int width, int height);
 void DrawLineLoop(const vec2_t* points, int count, int stipple_factor, int stipple_mask);
+void RE_StretchRaw2(int x, int y, int w, int h, int cols, int rows, int components, const byte* data);
 
 /*
 =============================================================
@@ -3102,7 +3104,7 @@ void RE_AddRefSpriteToScene(const refEntity_t* ent);
 void RE_AddTerrainMarkToScene(int iTerrainIndex, qhandle_t hShader, int numVerts, const polyVert_t* verts, int renderfx);
 refEntity_t* RE_GetRenderEntity(int entityNumber);
 qboolean RE_AddPolyToScene2(qhandle_t hShader, int numVerts, const polyVert_t* verts, int renderfx);
-
+void RE_AddLightToScene2(const vec3_t org, float intensity, float r, float g, float b, int type);
 
 /*
 ============================================================

@@ -700,6 +700,27 @@ void RE_RenderScene( const refdef_t *fd ) {
 // OPENMOHAA-specific stuff
 //
 
+/*
+=====================
+RE_AddLightToScene2
+
+=====================
+*/
+void RE_AddLightToScene2(const vec3_t org, float intensity, float r, float g, float b, int type) {
+    RE_AddDynamicLightToScene(org, intensity, r, g, b, qfalse);
+}
+
+
+/*
+=====================
+RE_AddRefEntityToScene2
+
+=====================
+*/
+void RE_AddRefEntityToScene2( const refEntity_t *ent, int parentEntityNumber ) {
+	RE_AddRefEntityToScene(ent);
+}
+
 void RE_AddRefSpriteToScene(const refEntity_t* ent) {
 	refSprite_t* spr;
 	int i;
