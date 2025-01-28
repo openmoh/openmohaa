@@ -1904,8 +1904,8 @@ void Com_Init( char *commandLine ) {
 
 	s = va( "%s %s (Medal of Honor: %s %s) %s %s", PRODUCT_NAME, PRODUCT_VERSION_FULL, Cvar_VariableString("com_target_extension"), Cvar_VariableString("com_target_version"), PLATFORM_STRING, PRODUCT_VERSION_DATE);
 	com_version = Cvar_Get( "version", s, CVAR_ROM | CVAR_SERVERINFO );
-	com_gamename = Cvar_Get("com_gamename", "", CVAR_SERVERINFO | CVAR_INIT);
-	com_shortversion = Cvar_Get( "shortversion", PRODUCT_VERSION, CVAR_ROM );
+	com_gamename = Cvar_Get("com_gamename", "", CVAR_SERVERINFO | CVAR_INIT | CVAR_USERINFO | CVAR_SERVERINFO);
+	com_shortversion = Cvar_Get( "shortversion", PRODUCT_VERSION, CVAR_ROM | CVAR_USERINFO | CVAR_SERVERINFO );
 	com_protocol = Cvar_Get("com_protocol", va("%i", PROTOCOL_VERSION), CVAR_INIT);
 #ifdef LEGACY_PROTOCOL
 	com_legacyprotocol = Cvar_Get("com_legacyprotocol", va("%i", PROTOCOL_LEGACY_VERSION), CVAR_INIT);
