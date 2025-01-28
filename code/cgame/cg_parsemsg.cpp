@@ -584,7 +584,8 @@ static void CG_MakeBulletTracerInternal(
                              || (trace.contents & CONTENTS_WATER))
                             && iContinueCount < 5) {
                             if (bInWater) {
-                                VectorSubtract(trace.endpos, vDir, vTmp);
+                                VectorMA(trace.endpos, -1.0, vDir, vTmp);
+
                                 if (!(trace.contents & CONTENTS_FLUID) && !(trace.surfaceFlags & SURF_PUDDLE)
                                     && !(cgi.CM_PointContents(vTmp, 0) & CONTENTS_FLUID)) {
                                     CG_MakeBubbleTrail(vTrailStart, trace.endpos, iLarge, alpha);
@@ -596,8 +597,7 @@ static void CG_MakeBulletTracerInternal(
                                 bInWater = qtrue;
                             }
 
-                            VectorAdd(vDir, vDir, vTraceStart);
-                            VectorAdd(vTraceStart, vTraceStart, trace.endpos);
+                            VectorMA(trace.endpos, 2.0, vDir, vTraceStart);
 
                             iContinueCount++;
                         } else {
