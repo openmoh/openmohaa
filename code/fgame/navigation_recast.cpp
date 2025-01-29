@@ -121,8 +121,8 @@ void G_Navigation_BuildRecastMesh(navMap_t& navigationMap)
     float *vertsBuffer = new float[numVertices * 3];
 
     for (size_t i = 0; i < numVertices; i++) {
-        const Vector& inVertice = navigationMap.vertices.ObjectAt(i + 1);
-        ConvertFromGameCoord(inVertice, &vertsBuffer[i * 3]);
+        const navVertice_t& inVertice = navigationMap.vertices.ObjectAt(i + 1);
+        ConvertFromGameCoord(inVertice.xyz, &vertsBuffer[i * 3]);
     }
 
     int *indexesBuffer = new int[numIndexes];
