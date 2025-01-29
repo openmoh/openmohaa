@@ -33,17 +33,17 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "DetourNavMeshBuilder.h"
 #include "DetourNavMeshQuery.h"
 
-static const float recastCellSize       = 13.0;
+static const float recastCellSize       = 12.1;
 static const float recastCellHeight     = 1.0;
 static const float agentHeight          = CROUCH_VIEWHEIGHT;
 static const float agentMaxClimb        = STEPSIZE;
 static const float agentRadius          = 0.5;
-static const int   regionMinSize        = 8;
+static const int   regionMinSize        = 5;
 static const int   regionMergeSize      = 20;
 static const float edgeMaxLen           = 12.0;
 static const float edgeMaxError         = 1.3;
 static const int   vertsPerPoly         = 6;
-static const float detailSampleDist     = 16;
+static const float detailSampleDist     = 12.0;
 static const float detailSampleMaxError = 1.0;
 
 static const float worldScale = 30.5 / 16.0;
