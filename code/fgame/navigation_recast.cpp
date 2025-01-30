@@ -82,7 +82,7 @@ static void ConvertFromGameCoord(const float *in, float *out)
     // Same as above
     out[0] = in[0];
     out[1] = in[2];
-    out[2] = in[1];
+    out[2] = -in[1];
 }
 
 /*
@@ -93,7 +93,7 @@ ConvertToGameCoord
 static void ConvertToGameCoord(const float *in, float *out)
 {
     out[0] = in[0];
-    out[1] = in[2];
+    out[1] = -in[2];
     out[2] = in[1];
 }
 
@@ -127,9 +127,9 @@ void G_Navigation_BuildRecastMesh(navMap_t& navigationMap)
 
     int *indexesBuffer = new int[numIndexes];
     for (size_t i = 0; i < numIndexes; i += 3) {
-        indexesBuffer[i + 0] = navigationMap.indices[i + 0];
+        indexesBuffer[i + 0] = navigationMap.indices[i + 2];
         indexesBuffer[i + 1] = navigationMap.indices[i + 1];
-        indexesBuffer[i + 2] = navigationMap.indices[i + 2];
+        indexesBuffer[i + 2] = navigationMap.indices[i + 0];
     }
 
     //
