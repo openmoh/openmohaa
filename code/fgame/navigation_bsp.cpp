@@ -352,7 +352,7 @@ void G_GenerateBrushTriangles(navMap_t& navMap, const Container<cplane_t>& plane
     size_t i;
     size_t numSkip = 0;
 
-    if (!(brush.contents & CONTENTS_SOLID) && !(brush.contents & CONTENTS_PLAYERCLIP)) {
+    if (!(brush.contents & CONTENTS_SOLID) && !(brush.contents & CONTENTS_PLAYERCLIP) && !(brush.contents & CONTENTS_FENCE)) {
         return;
     }
 
