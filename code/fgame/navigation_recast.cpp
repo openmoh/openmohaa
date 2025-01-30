@@ -33,14 +33,14 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "DetourNavMeshBuilder.h"
 #include "DetourNavMeshQuery.h"
 
-static const float recastCellSize       = 12.1;
+static const float recastCellSize       = 12.5;
 static const float recastCellHeight     = 1.0;
 static const float agentHeight          = CROUCH_VIEWHEIGHT;
 static const float agentMaxClimb        = STEPSIZE;
 static const float agentRadius          = 0.5;
 static const int   regionMinSize        = 5;
 static const int   regionMergeSize      = 20;
-static const float edgeMaxLen           = 12.0;
+static const float edgeMaxLen           = 100.0;
 static const float edgeMaxError         = 1.3;
 static const int   vertsPerPoly         = 6;
 static const float detailSampleDist     = 12.0;
@@ -92,6 +92,14 @@ ConvertToGameCoord
 */
 static void ConvertToGameCoord(const float *in, float *out)
 {
+#if 0
+    vec3_t mat[3];
+    vec3_t angles = { 0, 0, 90 };
+    AnglesToAxis(angles, mat);
+
+    MatrixTransformVector(in, mat, out);
+#endif
+
     out[0] = in[0];
     out[1] = -in[2];
     out[2] = in[1];
