@@ -334,6 +334,11 @@ void G_GenerateSideTriangles(navMap_t& navMap, cbrushside_t& side)
         return;
     }
 
+    if (side.surfaceFlags & SURF_SKY) {
+        // Ignore sky surfaces
+        return;
+    }
+
     G_StripFaceSurface(navMap, side.winding);
 }
 
