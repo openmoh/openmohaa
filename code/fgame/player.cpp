@@ -10838,12 +10838,16 @@ void Player::EventDMMessage(Event *ev)
     // Print the dm message to console
     sToken = "";
 
-    for (i = 2; i <= ev->NumArgs(); i++) {
-        if (i != 2) {
-            sToken += " ";
-        }
+    if (bInstaMessage) {
+        sToken += pTmpInstantMsg;
+    } else {
+        for (i = 2; i <= ev->NumArgs(); i++) {
+            if (i != 2) {
+                sToken += " ";
+            }
 
-        sToken += ev->GetString(i);
+            sToken += ev->GetString(i);
+        }
     }
     //=============
 
@@ -10853,7 +10857,11 @@ void Player::EventDMMessage(Event *ev)
         //
 
         // Added in OPM
-        gi.Printf("%s (%zu) says to everyone: %s\n", client->pers.netname, edict - g_entities, sToken.c_str());
+        if (bInstaMessage) {
+            gi.Printf("%s (%zu) says (voice) to everyone: %s\n", client->pers.netname, edict - g_entities, sToken.c_str());
+        } else {
+            gi.Printf("%s (%zu) says (text) to everyone: %s\n", client->pers.netname, edict - g_entities, sToken.c_str());
+        }
 
         if (!IsSpectator() || g_spectate_allow_full_chat->integer) {
             for (i = 0; i < game.maxclients; i++) {
@@ -10901,7 +10909,11 @@ void Player::EventDMMessage(Event *ev)
         //
 
         // Added in OPM
-        gi.Printf("%s (%zu) says to team: %s\n", client->pers.netname, edict - g_entities, sToken.c_str());
+        if (bInstaMessage) {
+            gi.Printf("%s (%zu) says (voice) to team: %s\n", client->pers.netname, edict - g_entities, sToken.c_str());
+        } else {
+            gi.Printf("%s (%zu) says (text) to team: %s\n", client->pers.netname, edict - g_entities, sToken.c_str());
+        }
 
         if (IsSpectator()) {
             for (i = 0; i < game.maxclients; i++) {
@@ -10963,7 +10975,11 @@ void Player::EventDMMessage(Event *ev)
         }
 
         // Added in OPM
-        gi.Printf("%s (%zu) says to client #%d: %s\n", client->pers.netname, edict - g_entities, iMode - 1, sToken.c_str());
+        if (bInstaMessage) {
+            gi.Printf("%s (%zu) says (voice) to client #%d: %s\n", client->pers.netname, edict - g_entities, iMode - 1, sToken.c_str());
+        } else {
+            gi.Printf("%s (%zu) says (text) to client #%d: %s\n", client->pers.netname, edict - g_entities, iMode - 1, sToken.c_str());
+        }
 
         gi.SendServerCommand(iMode - 1, "%s", szPrintString);
 
