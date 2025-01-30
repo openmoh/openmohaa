@@ -350,19 +350,19 @@ void G_Navigation_DebugDraw()
 
         for (int i = 0; i < prev_navMap.indices.NumObjects(); i += 3)
         {
-            const Vector v1 = prev_navMap.vertices[prev_navMap.indices[0]];
-            const Vector v2 = prev_navMap.vertices[prev_navMap.indices[1]];
-            const Vector v3 = prev_navMap.vertices[prev_navMap.indices[2]];
+            const navVertice_t& v1 = prev_navMap.vertices[prev_navMap.indices[0]];
+            const navVertice_t& v2 = prev_navMap.vertices[prev_navMap.indices[1]];
+            const navVertice_t& v3 = prev_navMap.vertices[prev_navMap.indices[2]];
 
             for (int k = 0; k < 3; ++k)
             {
-                const Vector delta = prev_navMap.vertices[prev_navMap.indices[i + k]] - ent->origin;
+                const Vector delta = prev_navMap.vertices[prev_navMap.indices[i + k]].xyz - ent->origin;
 
                 if (delta.lengthSquared() >= maxDistSquared) {
                     continue;
                 }
 
-                G_DebugLine(prev_navMap.vertices[prev_navMap.indices[i + k]], prev_navMap.vertices[prev_navMap.indices[i + ((k + 1) % 3)]], 0, 1, 0, 1);
+                G_DebugLine(prev_navMap.vertices[prev_navMap.indices[i + k]].xyz, prev_navMap.vertices[prev_navMap.indices[i + ((k + 1) % 3)]].xyz, 0, 1, 0, 1);
             }
         }
 
