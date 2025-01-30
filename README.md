@@ -18,6 +18,8 @@ The main goal of OpenMoHAA is to ensure the future and continuity of **Medal of 
 - [Running OpenMoHAA and using expansion assets](docs/getting_started_running.md)
 - [Dedicated server configuration](docs/configuration/server.md)
 
+If you encounter any issues, please refer to the [FAQ](docs/faq.md) for possible solutions.
+
 ## Current state
 
 ### Single-player
