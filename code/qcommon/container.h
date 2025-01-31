@@ -33,6 +33,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #    define CONTAINER_Error          gi.Error
 #    define CONTAINER_DPrintf        gi.DPrintf
 #    define CONTAINER_WDPrintf(text) gi.DPrintf(text)
+#    define CONTAINER_Alloc          gi.Malloc
+#    define CONTAINER_Free           gi.Free
 
 #elif defined(CGAME_DLL)
 //
@@ -43,8 +45,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #    define CONTAINER_Error          cgi.Error
 #    define CONTAINER_DPrintf        cgi.DPrintf
 #    define CONTAINER_WDPrintf(text) cgi.DPrintf(text)
+#    define CONTAINER_Alloc          cgi.Malloc
+#    define CONTAINER_Free           cgi.Free
 
-#else
+#elif defined(REF_DLL)
+
+#    include "../renderercommon/tr_common.h"
 
 //
 // client specific defines
@@ -52,7 +58,25 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #    define CONTAINER_Error          Com_Error
 #    define CONTAINER_DPrintf        Com_DPrintf
 #    define CONTAINER_WDPrintf(text) Com_DPrintf(text)
+#    define CONTAINER_Alloc          ri.Malloc
+#    define CONTAINER_Free           ri.Free
+
+#else
+
+#    include "qcommon.h"
+
+//
+// client specific defines
+//
+#    define CONTAINER_Error          Com_Error
+#    define CONTAINER_DPrintf        Com_DPrintf
+#    define CONTAINER_WDPrintf(text) Com_DPrintf(text)
+#    define CONTAINER_Alloc          Z_Malloc
+#    define CONTAINER_Free           Z_Free
 #endif
+
+#include <utility>
+#include <new>
 
 class Archiver;
 
@@ -69,34 +93,37 @@ private:
 
 public:
     Container();
+
     Container(const Container<Type>& container);
+    Container<Type>& operator=(const Container<Type>& container);
+
+    Container(Container<Type>&& container);
+    Container<Type>& operator=(Container<Type>&& container);
+
     ~Container();
 
     void Archive(Archiver& arc);
     void Archive(Archiver& arc, void (*ArchiveFunc)(Archiver& arc, Type *obj));
 
-    int   AddObject(const Type  &obj);
-    int   AddUniqueObject(const Type  &obj);
-    void  AddObjectAt(int index, const Type &obj);
+    int   AddObject(const Type& obj);
+    int   AddUniqueObject(const Type& obj);
+    void  AddObjectAt(int index, const Type& obj);
     Type *AddressOfObjectAt(int index);
-    //	void				Archive( Archiver &arc );
-    void             ClearObjectList(void);
-    void             Fix(void);
-    void             FreeObjectList(void);
-    int              IndexOfObject(const Type             &obj);
-    void             InsertObjectAt(int index, const Type            &obj);
-    int              MaxObjects(void) const;
-    int              NumObjects(void) const;
-    Type           & ObjectAt(const size_t index) const;
-    bool             ObjectInList(const Type            &obj);
-    void             RemoveObjectAt(int index);
-    void             RemoveObject(const Type            &obj);
-    void             Reset(void);
-    void             Resize(int maxelements);
-    void             SetObjectAt(int index, const Type            &obj);
-    void             Sort(int (*compare)(const void *elem1, const void *elem2));
-    Type           & operator[](const int index) const;
-    Container<Type>& operator=(const Container<Type>& container);
+    void  ClearObjectList(void);
+    void  FreeObjectList(void);
+    int   IndexOfObject(const Type& obj);
+    void  InsertObjectAt(int index, const Type& obj);
+    int   MaxObjects(void) const;
+    int   NumObjects(void) const;
+    Type& ObjectAt(const size_t index) const;
+    bool  ObjectInList(const Type& obj);
+    void  RemoveObjectAt(int index);
+    void  RemoveObject(const Type& obj);
+    void  Reset(void);
+    void  Resize(int maxelements);
+    void  SetObjectAt(int index, const Type& obj);
+    void  Sort(int (*compare)(const void *elem1, const void *elem2));
+    Type& operator[](const uintptr_t index) const;
 };
 
 template<class Type>
@@ -116,6 +143,38 @@ Container<Type>::Container(const Container<Type>& container)
 }
 
 template<class Type>
+Container<Type>& Container<Type>::operator=(const Container<Type>& container)
+{
+    Copy(container);
+
+    return *this;
+}
+
+template<class Type>
+Container<Type>::Container(Container<Type>&& container)
+{
+    objlist              = container.objlist;
+    numobjects           = container.numobjects;
+    maxobjects           = container.maxobjects;
+    container.objlist    = NULL;
+    container.numobjects = 0;
+    container.maxobjects = 0;
+}
+
+template<class Type>
+Container<Type>& Container<Type>::operator=(Container<Type>&& container)
+{
+    objlist              = container.objlist;
+    numobjects           = container.numobjects;
+    maxobjects           = container.maxobjects;
+    container.objlist    = NULL;
+    container.numobjects = 0;
+    container.maxobjects = 0;
+
+    return *this;
+}
+
+template<class Type>
 Container<Type>::~Container()
 {
     FreeObjectList();
@@ -132,7 +191,7 @@ int Container<Type>::AddObject(const Type& obj)
         Resize(numobjects * 2);
     }
 
-    objlist[numobjects] = obj;
+    new (objlist + numobjects) Type(obj);
     numobjects++;
 
     return numobjects;
@@ -183,53 +242,29 @@ Type *Container<Type>::AddressOfObjectAt(int index)
 template<class Type>
 void Container<Type>::ClearObjectList(void)
 {
+    size_t i;
+
     if (objlist && numobjects) {
-        delete[] objlist;
-
-        if (maxobjects == 0) {
-            objlist = NULL;
-            return;
+        for (i = 0; i < numobjects; ++i) {
+            objlist[i].~Type();
         }
 
-        objlist    = new Type[maxobjects];
+        // don't free the object list, it can be reused later
         numobjects = 0;
-    }
-}
-
-template<class Type>
-void Container<Type>::Fix(void)
-{
-    if (!objlist || !numobjects) {
-        return;
-    }
-
-    Type *newlist = new Type[numobjects];
-    int   j       = 0;
-
-    for (int i = 0; i < numobjects; i++) {
-        if (objlist[i] == NULL) {
-            continue;
-        }
-
-        newlist[j] = objlist[i];
-        j++;
-    }
-
-    numobjects = j;
-
-    delete[] objlist;
-    objlist = newlist;
-
-    if (!numobjects) {
-        ClearObjectList();
     }
 }
 
 template<class Type>
 void Container<Type>::FreeObjectList(void)
 {
+    size_t i;
+
     if (objlist) {
-        delete[] objlist;
+        for (i = 0; i < numobjects; ++i) {
+            objlist[i].~Type();
+        }
+
+        CONTAINER_Free(objlist);
     }
 
     objlist    = NULL;
@@ -258,43 +293,48 @@ int Container<Type>::IndexOfObject(const Type& obj)
 template<class Type>
 void Container<Type>::InsertObjectAt(int index, const Type& obj)
 {
+    size_t i;
+
     if ((index <= 0) || (index > numobjects + 1)) {
         CONTAINER_Error(ERR_DROP, "Container::InsertObjectAt : index out of range");
         return;
     }
 
     numobjects++;
-    int arrayIndex = index - 1;
+    intptr_t arrayIndex = index - 1;
 
     if (numobjects > maxobjects) {
         maxobjects = numobjects;
         if (!objlist) {
-            objlist             = new Type[maxobjects];
-            objlist[arrayIndex] = obj;
-            return;
+            objlist = (Type *)CONTAINER_Alloc(sizeof(Type) * maxobjects);
+
+            for (i = 0; i < arrayIndex; ++i) {
+                new (objlist + i) Type();
+            }
+
+            new (objlist + arrayIndex) Type(obj);
         } else {
             Type *temp = objlist;
             if (maxobjects < numobjects) {
                 maxobjects = numobjects;
             }
 
-            objlist = new Type[maxobjects];
+            objlist = (Type *)CONTAINER_Alloc(sizeof(Type) * maxobjects);
 
-            int i;
-            for (i = arrayIndex - 1; i >= 0; i--) {
-                objlist[i] = temp[i];
+            for (i = 0; i < arrayIndex; ++i) {
+                new (objlist + i) Type(std::move(temp[i]));
             }
 
-            objlist[arrayIndex] = obj;
-            for (i = numobjects - 1; i > arrayIndex; i--) {
-                objlist[i] = temp[i - 1];
+            new (objlist + arrayIndex) Type(obj);
+            for (i = arrayIndex + 1; i < numobjects; ++i) {
+                new (objlist + i) Type(std::move(temp[i]));
             }
 
-            delete[] temp;
+            CONTAINER_Free(temp);
         }
     } else {
-        for (int i = numobjects - 1; i > arrayIndex; i--) {
-            objlist[i] = objlist[i - 1];
+        for (i = numobjects - 1; i > arrayIndex; i--) {
+            objlist[i] = std::move(objlist[i - 1]);
         }
         objlist[arrayIndex] = obj;
     }
@@ -349,8 +389,11 @@ void Container<Type>::RemoveObjectAt(int index)
     numobjects--;
 
     for (i = index - 1; i < numobjects; i++) {
-        objlist[i] = objlist[i + 1];
+        objlist[i] = std::move(objlist[i + 1]);
     }
+
+    // Destroy the last object as it's now useless
+    objlist[numobjects].~Type();
 }
 
 template<class Type>
@@ -380,8 +423,8 @@ void Container<Type>::Reset()
 template<class Type>
 void Container<Type>::Resize(int maxelements)
 {
-    Type *temp;
-    int   i;
+    Type  *temp;
+    size_t i;
 
     if (maxelements <= 0) {
         FreeObjectList();
@@ -390,7 +433,7 @@ void Container<Type>::Resize(int maxelements)
 
     if (!objlist) {
         maxobjects = maxelements;
-        objlist    = new Type[maxobjects];
+        objlist    = (Type *)CONTAINER_Alloc(sizeof(Type) * maxobjects);
     } else {
         temp = objlist;
 
@@ -400,13 +443,17 @@ void Container<Type>::Resize(int maxelements)
             maxobjects = numobjects;
         }
 
-        objlist = new Type[maxobjects];
+        objlist = (Type *)CONTAINER_Alloc(sizeof(Type) * maxobjects);
 
         for (i = 0; i < numobjects; i++) {
-            objlist[i] = temp[i];
+            // move the older type
+            new (objlist + i) Type(std::move(temp[i]));
+
+            // destruct the older type
+            temp[i].~Type();
         }
 
-        delete[] temp;
+        CONTAINER_Free(temp);
     }
 }
 
@@ -435,7 +482,7 @@ void Container<Type>::Sort(int (*compare)(const void *elem1, const void *elem2))
 }
 
 template<class Type>
-Type& Container<Type>::operator[](const int index) const
+Type& Container<Type>::operator[](const uintptr_t index) const
 {
     return ObjectAt(index + 1);
 }
@@ -470,12 +517,4 @@ void Container<Type>::Copy(const Container<Type>& container)
     }
 
     return;
-}
-
-template<class Type>
-Container<Type>& Container<Type>::operator=(const Container<Type>& container)
-{
-    Copy(container);
-
-    return *this;
 }
