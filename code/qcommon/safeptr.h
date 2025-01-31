@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2008 the OpenMoHAA team
+Copyright (C) 2025 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -30,217 +30,210 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 class SafePtrBase
 {
 private:
-	void	AddReference( Class *ptr );
-	void	RemoveReference( Class *ptr );
+    void AddReference(Class *ptr);
+    void RemoveReference(Class *ptr);
 
 protected:
-	SafePtrBase	*prev;
-	SafePtrBase	*next;
-	Class		*ptr;
+    SafePtrBase *prev;
+    SafePtrBase *next;
+    Class       *ptr;
 
 public:
-	SafePtrBase();
-	virtual		~SafePtrBase();
-	void		InitSafePtr( Class *newptr );
-	Class		*Pointer( void );
-	void		Clear( void );
+    SafePtrBase();
+    virtual ~SafePtrBase();
+    void   InitSafePtr(Class *newptr);
+    Class *Pointer(void);
+    void   Clear(void);
 };
 
-inline void SafePtrBase::AddReference( Class *ptr )
+inline void SafePtrBase::AddReference(Class *ptr)
 {
-	if( !ptr->SafePtrList )
-	{
-		ptr->SafePtrList = this;
-		LL_Reset( this, next, prev );
-	}
-	else
-	{
-		LL_Add( ptr->SafePtrList, this, next, prev );
-	}
+    if (!ptr->SafePtrList) {
+        ptr->SafePtrList = this;
+        LL_Reset(this, next, prev);
+    } else {
+        LL_Add(ptr->SafePtrList, this, next, prev);
+    }
 }
 
-inline void SafePtrBase::RemoveReference( Class *ptr )
+inline void SafePtrBase::RemoveReference(Class *ptr)
 {
-	if( ptr->SafePtrList == this )
-	{
-		if( ptr->SafePtrList->next == this )
-		{
-			ptr->SafePtrList = nullptr;
-		}
-		else
-		{
-			ptr->SafePtrList = next;
-			LL_Remove( this, next, prev );
-		}
-	}
-	else
-	{
-		LL_Remove( this, next, prev );
-	}
+    if (ptr->SafePtrList == this) {
+        if (ptr->SafePtrList->next == this) {
+            ptr->SafePtrList = nullptr;
+        } else {
+            ptr->SafePtrList = next;
+            LL_Remove(this, next, prev);
+        }
+    } else {
+        LL_Remove(this, next, prev);
+    }
 }
 
-inline void SafePtrBase::Clear( void )
+inline void SafePtrBase::Clear(void)
 {
-	if( ptr )
-	{
-		RemoveReference( ptr );
-		ptr = nullptr;
-	}
+    if (ptr) {
+        RemoveReference(ptr);
+        ptr = nullptr;
+    }
 }
 
 inline SafePtrBase::SafePtrBase()
 {
-	prev = nullptr;
-	next = nullptr;
-	ptr = nullptr;
+    prev = nullptr;
+    next = nullptr;
+    ptr  = nullptr;
 }
 
 inline SafePtrBase::~SafePtrBase()
 {
-	Clear();
+    Clear();
 }
 
-inline Class * SafePtrBase::Pointer( void )
+inline Class *SafePtrBase::Pointer(void)
 {
-	return ptr;
+    return ptr;
 }
 
-inline void SafePtrBase::InitSafePtr( Class *newptr )
+inline void SafePtrBase::InitSafePtr(Class *newptr)
 {
-	if( ptr != newptr )
-	{
-		if( ptr )
-		{
-			RemoveReference( ptr );
-		}
+    if (ptr != newptr) {
+        if (ptr) {
+            RemoveReference(ptr);
+        }
 
-		ptr = newptr;
-		if( ptr == nullptr )
-		{
-			return;
-		}
+        ptr = newptr;
+        if (ptr == nullptr) {
+            return;
+        }
 
-		AddReference( ptr );
-	}
+        AddReference(ptr);
+    }
 }
 
 template<class T>
 class SafePtr : public SafePtrBase
 {
 public:
-	SafePtr( T* objptr = 0 );
-	SafePtr( const SafePtr& obj );
+    SafePtr(T *objptr = 0);
+    SafePtr(const SafePtr& obj);
 
-	SafePtr& operator=( const SafePtr& obj );
-	SafePtr& operator=( T * const obj );
+    SafePtr& operator=(const SafePtr& obj);
+    SafePtr& operator=(T *const obj);
 
 #ifdef LINUX
-	friend bool operator==<>( SafePtr<T> a, T *b );
-	friend bool operator!=<>( SafePtr<T> a, T *b );
-	friend bool operator==<>( T *a, SafePtr<T> b );
-	friend bool operator!=<>( T *a, SafePtr<T> b );
-	friend bool operator==<>( SafePtr<T> a, SafePtr<T> b );
-	friend bool operator!=<>( SafePtr<T> a, SafePtr<T> b );
+    friend bool operator== <>(SafePtr<T> a, T *b);
+    friend bool operator!= <>(SafePtr<T> a, T *b);
+    friend bool operator== <>(T *a, SafePtr<T> b);
+    friend bool operator!= <>(T *a, SafePtr<T> b);
+    friend bool operator== <>(SafePtr<T> a, SafePtr<T> b);
+    friend bool operator!= <>(SafePtr<T> a, SafePtr<T> b);
 #else
-	// The compiler/linker gets confused when the friend functions definition are not templated
-	template< class U > friend bool operator==( SafePtr<U> a, U *b );
-	template< class U > friend bool operator!=( SafePtr<U> a, U *b );
-	template< class U > friend bool operator==( U *a, SafePtr<U> b );
-	template< class U > friend bool operator!=( U *a, SafePtr<U> b );
-	template< class U > friend bool operator==( SafePtr<U> a, SafePtr<U> b );
-	template< class U > friend bool operator!=( SafePtr<U> a, SafePtr<U> b );
+    // The compiler/linker gets confused when the friend functions definition are not templated
+    template<class U>
+    friend bool operator==(SafePtr<U> a, U *b);
+    template<class U>
+    friend bool operator!=(SafePtr<U> a, U *b);
+    template<class U>
+    friend bool operator==(U *a, SafePtr<U> b);
+    template<class U>
+    friend bool operator!=(U *a, SafePtr<U> b);
+    template<class U>
+    friend bool operator==(SafePtr<U> a, SafePtr<U> b);
+    template<class U>
+    friend bool operator!=(SafePtr<U> a, SafePtr<U> b);
 #endif
 
-	bool operator !( ) const;
-	operator T*( ) const;
-	T* operator->( ) const;
-	T& operator*( ) const;
+    bool operator!() const;
+    operator T *() const;
+    T *operator->() const;
+    T& operator*() const;
 };
 
 template<class T>
-inline SafePtr<T>::SafePtr( T* objptr )
+inline SafePtr<T>::SafePtr(T *objptr)
 {
-	InitSafePtr( ( Class * )objptr );
+    InitSafePtr((Class *)objptr);
 }
 
 template<class T>
-inline SafePtr<T>::SafePtr( const SafePtr& obj )
+inline SafePtr<T>::SafePtr(const SafePtr& obj)
 {
-	InitSafePtr( obj.ptr );
+    InitSafePtr(obj.ptr);
 }
 
 template<class T>
-inline SafePtr<T>& SafePtr<T>::operator=( const SafePtr& obj )
+inline SafePtr<T>& SafePtr<T>::operator=(const SafePtr& obj)
 {
-	InitSafePtr( obj.ptr );
-	return *this;
+    InitSafePtr(obj.ptr);
+    return *this;
 }
 
 template<class T>
-inline SafePtr<T>& SafePtr<T>::operator=( T * const obj )
+inline SafePtr<T>& SafePtr<T>::operator=(T *const obj)
 {
-	InitSafePtr( obj );
-	return *this;
+    InitSafePtr(obj);
+    return *this;
 }
 
 template<class T>
-inline bool operator==( SafePtr<T> a, T *b )
+inline bool operator==(SafePtr<T> a, T *b)
 {
-	return a.ptr == b;
+    return a.ptr == b;
 }
 
 template<class T>
-inline bool operator!=( SafePtr<T> a, T* b )
+inline bool operator!=(SafePtr<T> a, T *b)
 {
-	return a.ptr != b;
+    return a.ptr != b;
 }
 
 template<class T>
-inline bool operator==( T* a, SafePtr<T> b )
+inline bool operator==(T *a, SafePtr<T> b)
 {
-	return a == b.ptr;
+    return a == b.ptr;
 }
 
 template<class T>
-inline bool operator!=( T* a, SafePtr<T> b )
+inline bool operator!=(T *a, SafePtr<T> b)
 {
-	return a != b.ptr;
+    return a != b.ptr;
 }
 
 template<class T>
-inline bool operator==( SafePtr<T> a, SafePtr<T> b )
+inline bool operator==(SafePtr<T> a, SafePtr<T> b)
 {
-	return a.ptr == b.ptr;
+    return a.ptr == b.ptr;
 }
 
 template<class T>
-inline bool operator!=( SafePtr<T> a, SafePtr<T> b )
+inline bool operator!=(SafePtr<T> a, SafePtr<T> b)
 {
-	return a.ptr != b.ptr;
+    return a.ptr != b.ptr;
 }
 
 template<class T>
-inline bool SafePtr<T>::operator !( ) const
+inline bool SafePtr<T>::operator!() const
 {
-	return ptr == nullptr;
+    return ptr == nullptr;
 }
 
 template<class T>
-inline SafePtr<T>::operator T*( ) const
+inline SafePtr<T>::operator T *() const
 {
-	return ( T * )ptr;
+    return (T *)ptr;
 }
 
 template<class T>
-inline T* SafePtr<T>::operator->( ) const
+inline T *SafePtr<T>::operator->() const
 {
-	return ( T * )ptr;
+    return (T *)ptr;
 }
 
 template<class T>
-inline T& SafePtr<T>::operator*( ) const
+inline T& SafePtr<T>::operator*() const
 {
-	return *( T * )ptr;
+    return *(T *)ptr;
 }
 
 #endif
