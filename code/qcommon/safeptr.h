@@ -22,10 +22,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // safeptr.h: Safe Pointers
 
-#ifndef __SAFEPTR_H__
-#define __SAFEPTR_H__
+#pragma once
 
 #include "Linklist.h"
+
+#include <utility>
 
 class SafePtrBase
 {
@@ -44,6 +45,9 @@ public:
     void   InitSafePtr(Class *newptr);
     Class *Pointer(void);
     void   Clear(void);
+
+protected:
+    void Move(SafePtrBase&& other);
 };
 
 inline void SafePtrBase::AddReference(Class *ptr)
@@ -111,15 +115,57 @@ inline void SafePtrBase::InitSafePtr(Class *newptr)
     }
 }
 
+inline void SafePtrBase::Move(SafePtrBase&& other)
+{
+    prev = other.prev;
+    next = other.next;
+    ptr  = other.ptr;
+
+    if (ptr && ptr->SafePtrList) {
+        if (ptr->SafePtrList == &other) {
+            ptr->SafePtrList = this;
+        } else {
+            if (ptr->SafePtrList->prev == &other) {
+                ptr->SafePtrList->prev = this;
+            }
+            if (ptr->SafePtrList->next == &other) {
+                ptr->SafePtrList->next = this;
+            }
+        }
+    }
+
+    if (prev) {
+        if (prev == &other) {
+            prev = this;
+        } else {
+            assert(prev->next == &other || prev->next == this);
+            prev->next = this;
+        }
+    }
+    if (next) {
+        if (next == &other) {
+            next = this;
+        } else {
+            assert(next->prev == &other || next->prev == this);
+            next->prev = this;
+        }
+    }
+
+    other.next = other.prev = NULL;
+    other.ptr               = NULL;
+}
+
 template<class T>
 class SafePtr : public SafePtrBase
 {
 public:
     SafePtr(T *objptr = 0);
     SafePtr(const SafePtr& obj);
+    SafePtr(SafePtr&& obj);
 
     SafePtr& operator=(const SafePtr& obj);
     SafePtr& operator=(T *const obj);
+    SafePtr& operator=(SafePtr&& obj);
 
 #ifdef LINUX
     friend bool operator== <>(SafePtr<T> a, T *b);
@@ -163,9 +209,24 @@ inline SafePtr<T>::SafePtr(const SafePtr& obj)
 }
 
 template<class T>
+inline SafePtr<T>::SafePtr(SafePtr&& obj)
+{
+    Move(std::move(obj));
+}
+
+template<class T>
 inline SafePtr<T>& SafePtr<T>::operator=(const SafePtr& obj)
 {
     InitSafePtr(obj.ptr);
+    return *this;
+}
+
+template<class T>
+inline SafePtr<T>& SafePtr<T>::operator=(SafePtr&& obj)
+{
+    Clear();
+    Move(std::move(obj));
+
     return *this;
 }
 
@@ -235,5 +296,3 @@ inline T& SafePtr<T>::operator*() const
 {
     return *(T *)ptr;
 }
-
-#endif
