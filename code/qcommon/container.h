@@ -164,6 +164,8 @@ Container<Type>::Container(Container<Type>&& container)
 template<class Type>
 Container<Type>& Container<Type>::operator=(Container<Type>&& container)
 {
+    FreeObjectList();
+
     objlist              = container.objlist;
     numobjects           = container.numobjects;
     maxobjects           = container.maxobjects;
