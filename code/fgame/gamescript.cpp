@@ -911,11 +911,6 @@ void ScriptThreadLabel::Execute(Listener *listener)
 
 void ScriptThreadLabel::Execute(Listener *listener, Event& ev)
 {
-    Execute(listener, &ev);
-}
-
-void ScriptThreadLabel::Execute(Listener *listener, Event *ev)
-{
     if (!m_Script) {
         return;
     }
@@ -925,6 +920,11 @@ void ScriptThreadLabel::Execute(Listener *listener, Event *ev)
     if (thread) {
         thread->Execute(ev);
     }
+}
+
+void ScriptThreadLabel::Execute(Listener *listener, Event *ev)
+{
+    Execute(listener, *ev);
 }
 
 void ScriptThreadLabel::Execute(Listener *pSelf, const SafePtr<Listener>& listener, const SafePtr<Listener>& param)
