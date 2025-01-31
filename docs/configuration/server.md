@@ -102,7 +102,7 @@ This feature is passive: it only checks the team sizes when someone tries to joi
 
 ### Bots
 
-OpenMoHAA introduced multiplayer bots which can be used for entertainment or for testing purposes.
+OpenMoHAA introduced multiplayer bots which can be used for entertainment or for testing purposes. Bots are players controlled by the computer, they appear in the scoreboard with their ping set to **bot**.
 
 First get the [mp-navigation](https://github.com/openmoh/mp-navigation) pk3, it is needed so bots can navigate through MP maps. Then the following variables are used to configure bots:
 
@@ -122,3 +122,4 @@ set sv_maxbots 16 // Reserve 16 client slots for bots
 set sv_numbots 4 // Spawn 4 bots
 ```
 
+*Note: Bots will have their ping set to **bot** so that all players in-game know they are bots. This prevents any confusion and eliminates any doubt about a hacker being in the game.*
