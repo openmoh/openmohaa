@@ -184,7 +184,7 @@ private:
 
 public:
     Expression();
-    Expression(Expression& exp);
+    Expression(const Expression& exp);
     Expression(Script& script, State& state);
 
     void operator=(const Expression& exp);
