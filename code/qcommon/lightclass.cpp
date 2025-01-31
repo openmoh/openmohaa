@@ -99,3 +99,12 @@ void LightClass::operator delete(void *ptr)
 #    endif
 }
 #endif
+
+void* LightClass::operator new(size_t size, void* placement)
+{
+    return placement;
+}
+
+void LightClass::operator delete(void* ptr, void* placement)
+{
+}

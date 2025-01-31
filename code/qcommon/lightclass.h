@@ -31,6 +31,9 @@ public:
 #ifndef _DEBUG_MEM
     void* operator new(size_t);
     void operator delete(void*);
+
+    void* operator new(size_t size, void* placement);
+    void operator delete(void* ptr, void* placement);
 #endif
 };
 
