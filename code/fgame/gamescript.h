@@ -169,11 +169,11 @@ private:
 public:
     ScriptThreadLabel();
 
-    ScriptThread *Create(Listener *listener);
-    void          Execute(Listener *listener = NULL);
-    void          Execute(Listener *listener, Event& ev);
-    void          Execute(Listener *listener, Event *ev);
-    void          Execute(Listener *pSelf, const SafePtr<Listener>& listener, const SafePtr<Listener>& param);
+    ScriptThread *Create(Listener *listener) const;
+    void          Execute(Listener *listener = NULL) const;
+    void          Execute(Listener *listener, Event& ev) const;
+    void          Execute(Listener *listener, Event *ev) const;
+    void          Execute(Listener *pSelf, const SafePtr<Listener>& listener, const SafePtr<Listener>& param) const;
 
     void Clear();
     void Set(const char *label);
@@ -188,10 +188,10 @@ public:
     bool TrySetScript(const_str label);
     bool TrySetScript(const char *label);
 
-    bool IsSet(void);
-    bool IsFile(const_str filename);
+    bool IsSet(void) const;
+    bool IsFile(const_str filename) const;
 
-    void GetScriptValue(ScriptVariable *var);
+    void GetScriptValue(ScriptVariable *var) const;
 
     void Archive(Archiver& arc);
 

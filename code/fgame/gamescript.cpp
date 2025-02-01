@@ -866,7 +866,7 @@ ScriptThreadLabel::ScriptThreadLabel()
     m_Label  = STRING_EMPTY;
 }
 
-ScriptThread *ScriptThreadLabel::Create(Listener *listener)
+ScriptThread *ScriptThreadLabel::Create(Listener *listener) const
 {
     ScriptClass  *scriptClass;
     ScriptThread *thread;
@@ -896,7 +896,7 @@ ScriptThread *ScriptThreadLabel::Create(Listener *listener)
     return thread;
 }
 
-void ScriptThreadLabel::Execute(Listener *listener)
+void ScriptThreadLabel::Execute(Listener *listener) const
 {
     if (!m_Script) {
         return;
@@ -909,7 +909,7 @@ void ScriptThreadLabel::Execute(Listener *listener)
     }
 }
 
-void ScriptThreadLabel::Execute(Listener *listener, Event& ev)
+void ScriptThreadLabel::Execute(Listener *listener, Event& ev) const
 {
     if (!m_Script) {
         return;
@@ -922,12 +922,12 @@ void ScriptThreadLabel::Execute(Listener *listener, Event& ev)
     }
 }
 
-void ScriptThreadLabel::Execute(Listener *listener, Event *ev)
+void ScriptThreadLabel::Execute(Listener *listener, Event *ev) const
 {
     Execute(listener, *ev);
 }
 
-void ScriptThreadLabel::Execute(Listener *pSelf, const SafePtr<Listener>& listener, const SafePtr<Listener>& param)
+void ScriptThreadLabel::Execute(Listener *pSelf, const SafePtr<Listener>& listener, const SafePtr<Listener>& param) const
 {
     if (!m_Script) {
         return;
@@ -1214,7 +1214,7 @@ bool ScriptThreadLabel::TrySetScript(const_str label)
     return true;
 }
 
-void ScriptThreadLabel::GetScriptValue(ScriptVariable *var)
+void ScriptThreadLabel::GetScriptValue(ScriptVariable *var) const
 {
     if (!m_Script) {
         var->Clear();
@@ -1228,12 +1228,12 @@ void ScriptThreadLabel::GetScriptValue(ScriptVariable *var)
     var->setConstArrayValue(var_array, 2);
 }
 
-bool ScriptThreadLabel::IsSet(void)
+bool ScriptThreadLabel::IsSet(void) const
 {
     return m_Script != NULL;
 }
 
-bool ScriptThreadLabel::IsFile(const_str filename)
+bool ScriptThreadLabel::IsFile(const_str filename) const
 {
     return m_Script && m_Script->ConstFilename() == filename && m_Label == STRING_EMPTY;
 }
