@@ -81,7 +81,7 @@ ScriptDelegate::ScriptDelegate(const char *inName, const char *inDescription)
     : name(inName)
     , description(inDescription)
 {
-    LL_SafeAdd(root, this, next, prev);
+    LL_SafeAddFirst(root, this, next, prev);
 }
 
 ScriptDelegate::~ScriptDelegate()
