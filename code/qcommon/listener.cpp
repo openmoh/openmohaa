@@ -1711,7 +1711,7 @@ Event::Event(const Event& ev)
     maxDataSize = ev.maxDataSize;
 
     if (dataSize) {
-        data = new ScriptVariable[dataSize];
+        data = new ScriptVariable[maxDataSize];
 
         for (int i = 0; i < dataSize; i++) {
             data[i] = ev.data[i];
@@ -1733,7 +1733,7 @@ Event::Event(const Event& ev, int numArgs)
     maxDataSize = ev.maxDataSize;
 
     if (dataSize) {
-        data = new ScriptVariable[dataSize];
+        data = new ScriptVariable[maxDataSize];
 
         for (int i = 0; i < dataSize; i++) {
             data[i] = ev.data[i];
