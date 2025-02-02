@@ -766,6 +766,8 @@ void ScriptMaster::Reset(qboolean samemap)
         StringDict.clear();
         InitConstStrings();
     }
+
+    ScriptDelegate::ResetAllDelegates();
 }
 
 void ScriptMaster::ExecuteRunning(void)

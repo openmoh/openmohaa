@@ -169,3 +169,17 @@ ScriptDelegate *ScriptDelegate::GetScriptDelegate(const char *name)
 
     return NULL;
 }
+
+void ScriptDelegate::Reset()
+{
+    list_script.FreeObjectList();
+    list_code.FreeObjectList();
+    list_codeMember.FreeObjectList();
+}
+
+void ScriptDelegate::ResetAllDelegates()
+{
+    for (ScriptDelegate* delegate = root; delegate; delegate = delegate->next) {
+        delegate->Reset();
+    }
+}

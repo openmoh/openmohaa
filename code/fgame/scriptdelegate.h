@@ -157,11 +157,17 @@ public:
     void Trigger(const Event& ev) const;
 
     /**
+     * Reset the delegate, unregister callbacks.
+     */
+    void Reset();
+
+    /**
      * Search and return the specified script delegate by name.
      *
      * @param name The name to search for
      */
     static ScriptDelegate *GetScriptDelegate(const char *name);
+    static void ResetAllDelegates();
 
     // non-movable and non-copyable
     ScriptDelegate(ScriptDelegate&& other)                 = delete;
