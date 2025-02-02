@@ -2117,7 +2117,7 @@ void Event::Clear(void)
 CheckPos
 =======================
 */
-void Event::CheckPos(int pos)
+void Event::CheckPos(int pos) const
 {
     if (pos > NumArgs()) {
         ScriptError("Index %d out of range.", pos);
@@ -2129,7 +2129,7 @@ void Event::CheckPos(int pos)
 GetBoolean
 =======================
 */
-bool Event::GetBoolean(int pos)
+bool Event::GetBoolean(int pos) const
 {
     ScriptVariable& variable = GetValue(pos);
 
@@ -2143,7 +2143,7 @@ bool Event::GetBoolean(int pos)
 GetConstString
 =======================
 */
-const_str Event::GetConstString(int pos)
+const_str Event::GetConstString(int pos) const
 {
     ScriptVariable& variable = GetValue(pos);
 
@@ -2157,7 +2157,7 @@ const_str Event::GetConstString(int pos)
 GetEntity
 =======================
 */
-Entity *Event::GetEntity(int pos)
+Entity *Event::GetEntity(int pos) const
 {
     ScriptVariable& variable = GetValue(pos);
 
@@ -2169,7 +2169,7 @@ Entity *Event::GetEntity(int pos)
 GetFloat
 =======================
 */
-float Event::GetFloat(int pos)
+float Event::GetFloat(int pos) const
 {
     ScriptVariable& variable = GetValue(pos);
 
@@ -2181,7 +2181,7 @@ float Event::GetFloat(int pos)
 GetInteger
 =======================
 */
-int Event::GetInteger(int pos)
+int Event::GetInteger(int pos) const
 {
     ScriptVariable& variable = GetValue(pos);
 
@@ -2193,7 +2193,7 @@ int Event::GetInteger(int pos)
 GetListener
 =======================
 */
-Listener *Event::GetListener(int pos)
+Listener *Event::GetListener(int pos) const
 {
     ScriptVariable& variable = GetValue(pos);
 
@@ -2207,7 +2207,7 @@ Listener *Event::GetListener(int pos)
 GetSimpleEntity
 =======================
 */
-SimpleEntity *Event::GetSimpleEntity(int pos)
+SimpleEntity *Event::GetSimpleEntity(int pos) const
 {
     ScriptVariable& variable = GetValue(pos);
 
@@ -2221,7 +2221,7 @@ SimpleEntity *Event::GetSimpleEntity(int pos)
 GetString
 =======================
 */
-str Event::GetString(int pos)
+str Event::GetString(int pos) const
 {
     ScriptVariable& variable = GetValue(pos);
     return variable.stringValue();
@@ -2232,7 +2232,7 @@ str Event::GetString(int pos)
 GetToken
 =======================
 */
-str Event::GetToken(int pos)
+str Event::GetToken(int pos) const
 {
     ScriptVariable& variable = GetValue(pos);
     return variable.stringValue();
@@ -2243,7 +2243,7 @@ str Event::GetToken(int pos)
 GetValue
 =======================
 */
-ScriptVariable& Event::GetValue(int pos)
+ScriptVariable& Event::GetValue(int pos) const
 {
     if (pos < 0) {
         pos = NumArgs() + pos + 1;
@@ -2303,7 +2303,7 @@ ScriptVariable& Event::GetValue(void)
 GetVector
 =======================
 */
-Vector Event::GetVector(int pos)
+Vector Event::GetVector(int pos) const
 {
     ScriptVariable& variable = GetValue(pos);
 
@@ -2317,7 +2317,7 @@ Vector Event::GetVector(int pos)
 GetPathNode
 =======================
 */
-PathNode *Event::GetPathNode(int pos)
+PathNode *Event::GetPathNode(int pos) const
 {
     ScriptVariable& variable = GetValue(pos);
 
@@ -2329,7 +2329,7 @@ PathNode *Event::GetPathNode(int pos)
 GetWaypoint
 =======================
 */
-Waypoint *Event::GetWaypoint(int pos)
+Waypoint *Event::GetWaypoint(int pos) const
 {
     ScriptVariable& variable = GetValue(pos);
 
@@ -2343,7 +2343,7 @@ Waypoint *Event::GetWaypoint(int pos)
 IsEntityAt
 =======================
 */
-qboolean Event::IsEntityAt(int pos)
+qboolean Event::IsEntityAt(int pos) const
 {
     CheckPos(pos);
 
@@ -2355,7 +2355,7 @@ qboolean Event::IsEntityAt(int pos)
 IsListenerAt
 =======================
 */
-qboolean Event::IsListenerAt(int pos)
+qboolean Event::IsListenerAt(int pos) const
 {
     CheckPos(pos);
 
@@ -2367,7 +2367,7 @@ qboolean Event::IsListenerAt(int pos)
 IsNilAt
 =======================
 */
-qboolean Event::IsNilAt(int pos)
+qboolean Event::IsNilAt(int pos) const
 {
     CheckPos(pos);
 
@@ -2379,7 +2379,7 @@ qboolean Event::IsNilAt(int pos)
 IsNumericAt
 =======================
 */
-qboolean Event::IsNumericAt(int pos)
+qboolean Event::IsNumericAt(int pos) const
 {
     CheckPos(pos);
 
@@ -2393,7 +2393,7 @@ qboolean Event::IsNumericAt(int pos)
 IsSimpleEntityAt
 =======================
 */
-qboolean Event::IsSimpleEntityAt(int pos)
+qboolean Event::IsSimpleEntityAt(int pos) const
 {
     CheckPos(pos);
 
@@ -2407,7 +2407,7 @@ qboolean Event::IsSimpleEntityAt(int pos)
 IsStringAt
 =======================
 */
-qboolean Event::IsStringAt(int pos)
+qboolean Event::IsStringAt(int pos) const
 {
     CheckPos(pos);
 
@@ -2419,7 +2419,7 @@ qboolean Event::IsStringAt(int pos)
 IsVectorAt
 =======================
 */
-qboolean Event::IsVectorAt(int pos)
+qboolean Event::IsVectorAt(int pos) const
 {
     CheckPos(pos);
 
@@ -2431,7 +2431,7 @@ qboolean Event::IsVectorAt(int pos)
 IsFromScript
 =======================
 */
-qboolean Event::IsFromScript()
+qboolean Event::IsFromScript() const
 {
     return fromScript;
 }
@@ -2441,7 +2441,7 @@ qboolean Event::IsFromScript()
 NumArgs
 =======================
 */
-int Event::NumArgs()
+int Event::NumArgs() const
 {
     return dataSize;
 }
