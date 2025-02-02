@@ -353,29 +353,12 @@ void G_Navigation_DebugDraw()
         }
     }
 
-    if (ai_showroutes->integer) {
-#if 0
-        const float maxDistSquared = Square(ai_showroutes_distance->integer);
-
-        for (int i = 0; i < prev_navMap.indices.NumObjects(); i += 3)
-        {
-            const navVertice_t& v1 = prev_navMap.vertices[prev_navMap.indices[0]];
-            const navVertice_t& v2 = prev_navMap.vertices[prev_navMap.indices[1]];
-            const navVertice_t& v3 = prev_navMap.vertices[prev_navMap.indices[2]];
-
-            for (int k = 0; k < 3; ++k)
-            {
-                const Vector delta = prev_navMap.vertices[prev_navMap.indices[i + k]].xyz - ent->origin;
-
-                if (delta.lengthSquared() >= maxDistSquared) {
-                    continue;
-                }
-
-                G_DebugLine(prev_navMap.vertices[prev_navMap.indices[i + k]].xyz, prev_navMap.vertices[prev_navMap.indices[i + ((k + 1) % 3)]].xyz, 0, 1, 0, 1);
-            }
-        }
-
-#else
+    switch (ai_showroutes->integer) {
+    case 0:
+    default:
+        break;
+    case 1:
+    {
         const float maxDistSquared = Square(ai_showroutes_distance->integer);
 
         for (int i = 0; i < polyMesh->npolys; ++i) {
@@ -419,7 +402,31 @@ void G_Navigation_DebugDraw()
                 }
             }
         }
-#endif
+    }
+        break;
+    case 2:
+    {
+        const float maxDistSquared = Square(ai_showroutes_distance->integer);
+
+        for (int i = 0; i < prev_navMap.indices.NumObjects(); i += 3)
+        {
+            const navVertice_t& v1 = prev_navMap.vertices[prev_navMap.indices[0]];
+            const navVertice_t& v2 = prev_navMap.vertices[prev_navMap.indices[1]];
+            const navVertice_t& v3 = prev_navMap.vertices[prev_navMap.indices[2]];
+
+            for (int k = 0; k < 3; ++k)
+            {
+                const Vector delta = prev_navMap.vertices[prev_navMap.indices[i + k]].xyz - ent->origin;
+
+                if (delta.lengthSquared() >= maxDistSquared) {
+                    continue;
+                }
+
+                G_DebugLine(prev_navMap.vertices[prev_navMap.indices[i + k]].xyz, prev_navMap.vertices[prev_navMap.indices[i + ((k + 1) % 3)]].xyz, 0, 1, 0, 1);
+            }
+        }
+    }
+        break;
     }
 
     /*
