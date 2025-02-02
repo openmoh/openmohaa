@@ -10429,9 +10429,12 @@ void Player::EventStuffText(Event *ev)
         Event *event = new Event(EV_Player_StuffText);
         event->AddValue(ev->GetValue(1));
         PostEvent(event, level.frametime, 0);
-    } else {
-        gi.SendServerCommand(edict - g_entities, "stufftext \"%s\"", ev->GetString(1).c_str());
+        return;
     }
+
+    gi.SendServerCommand(edict - g_entities, "stufftext \"%s\"", ev->GetString(1).c_str());
+
+    delegate_stufftext.Execute(ev->GetString(1));
 }
 
 void Player::EventSetVoiceType(Event *ev)

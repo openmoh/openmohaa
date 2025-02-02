@@ -311,6 +311,9 @@ private:
 #endif
 
 public:
+    MulticastDelegate<void (const str& text)> delegate_stufftext;
+
+public:
     int m_iNumObjectives;
     int m_iObjectivesCompleted;
 
