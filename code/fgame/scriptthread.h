@@ -345,6 +345,9 @@ public:
     void UnregisterEvent(Event *ev);
     void VisionGetNaked(Event *ev);
     void VisionSetNaked(Event *ev);
+
+    void SubscribeEvent(Event *ev);
+    void UnsubscribeEvent(Event *ev);
 };
 
 class OSFile : public Listener
