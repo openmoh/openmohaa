@@ -99,7 +99,7 @@ DelegateHandle MulticastDelegate<T>::Add(Delegate<T>&& function)
 template<typename T>
 void MulticastDelegate<T>::Remove(DelegateHandle handle)
 {
-    size_t i;
+    int i;
 
     for (i = delegates.NumObjects(); i > 0; i--) {
         const DelegateMultiElement<T>& elem = delegates.ObjectAt(i);
