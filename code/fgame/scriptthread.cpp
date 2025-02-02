@@ -2054,6 +2054,15 @@ Event EV_ScriptThread_VisionSetNaked
     "empty string, it will be set to the current map's name.",
     EV_NORMAL
 );
+Event EV_ScriptThread_IsBot
+(
+    "isBot",
+    EV_DEFAULT,
+    "e",
+    "entity",
+    "Returns 1 if the client is a bot, 0 otherwise. Will return 0 if the entity is not a client.",
+    EV_RETURN
+);
 
 CLASS_DECLARATION(Listener, ScriptThread, NULL) {
     {&EV_ScriptThread_GetCvar,                 &ScriptThread::Getcvar                 },
@@ -2283,6 +2292,7 @@ CLASS_DECLARATION(Listener, ScriptThread, NULL) {
     {&EV_ScriptThread_TraceDetails,            &ScriptThread::TraceDetails            },
     {&EV_ScriptThread_VisionGetNaked,          &ScriptThread::VisionGetNaked          },
     {&EV_ScriptThread_VisionSetNaked,          &ScriptThread::VisionSetNaked          },
+    {&EV_ScriptThread_IsBot,                   &ScriptThread::IsPlayerBot             },
     {NULL,                                     NULL                                   }
 };
 
@@ -6945,8 +6955,8 @@ void ScriptThread::UnregisterEvent(Event *ev)
 
 void ScriptThread::SubscribeEvent(Event *ev)
 {
-    str eventName;
-    ScriptDelegate *delegate;
+    str               eventName;
+    ScriptDelegate   *delegate;
     ScriptThreadLabel label;
 
     eventName = ev->GetString(1);
@@ -6963,8 +6973,8 @@ void ScriptThread::SubscribeEvent(Event *ev)
 
 void ScriptThread::UnsubscribeEvent(Event *ev)
 {
-    str eventName;
-    ScriptDelegate* delegate;
+    str               eventName;
+    ScriptDelegate   *delegate;
     ScriptThreadLabel label;
 
     eventName = ev->GetString(1);
@@ -7145,6 +7155,25 @@ void ScriptThread::TraceDetails(Event *ev)
     array.setArrayAtRef(entityIndex, entityValue);
 
     ev->AddValue(array);
+}
+
+void ScriptThread::IsPlayerBot(Event *ev)
+{
+    Entity *e = ev->GetEntity(1);
+
+    if (!e || !e->client) {
+        // Invalid entity or not a client
+        ev->AddInteger(0);
+        return;
+    }
+
+    if (!(e->edict->r.svFlags & SVF_BOT)) {
+        ev->AddInteger(0);
+        return;
+    }
+
+    // has SVF_BOT server flag
+    ev->AddInteger(1);
 }
 
 CLASS_DECLARATION(Listener, OSFile, NULL) {
