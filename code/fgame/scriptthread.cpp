@@ -1676,6 +1676,24 @@ Event EV_ScriptThread_UnregisterEv
     "Unregisters script callback handler for specified event",
     EV_RETURN
 );
+Event EV_ScriptThread_Event_Subscribe
+(
+    "event_subscribe",
+    EV_DEFAULT,
+    "ss",
+    "eventname script",
+    "Subscribe to the specified event. The specified script will be executed when the event gets triggered.",
+    EV_NORMAL
+);
+Event EV_ScriptThread_Event_Unsubscribe
+(
+    "event_unsubscribe",
+    EV_DEFAULT,
+    "ss",
+    "eventname script",
+    "Unsubscribe the script from the specified event.",
+    EV_NORMAL
+);
 Event EV_ScriptThread_Conprintf
 (
     "conprintf",
@@ -2193,6 +2211,8 @@ CLASS_DECLARATION(Listener, ScriptThread, NULL) {
     {&EV_ScriptThread_TypeOf,                  &ScriptThread::TypeOfVariable          },
     {&EV_ScriptThread_RegisterEv,              &ScriptThread::RegisterEvent           },
     {&EV_ScriptThread_UnregisterEv,            &ScriptThread::UnregisterEvent         },
+    {&EV_ScriptThread_Event_Subscribe,         &ScriptThread::SubscribeEvent          },
+    {&EV_ScriptThread_Event_Unsubscribe,       &ScriptThread::UnsubscribeEvent        },
     {&EV_ScriptThread_CancelWaiting,           &ScriptThread::CancelWaiting           },
     {&EV_ScriptThread_GetTime,                 &ScriptThread::GetTime                 },
     {&EV_ScriptThread_GetTimeZone,             &ScriptThread::GetTimeZone             },
@@ -6855,6 +6875,8 @@ void ScriptThread::RegisterEvent(Event *ev)
     char             eventname_full[64];
     scriptedEvType_t evType;
 
+    ScriptDeprecatedAltMethod("event_subscribe");
+
     eventname = ev->GetString(1);
 
     evType = EventNameToType(eventname, eventname_full);
@@ -6885,6 +6907,8 @@ void ScriptThread::UnregisterEvent(Event *ev)
     str              eventname;
     int              numArgs = 0;
     scriptedEvType_t evType;
+
+    ScriptDeprecatedAltMethod("event_unsubscribe");
 
     eventname = ev->GetString(1);
 
@@ -6917,6 +6941,42 @@ void ScriptThread::UnregisterEvent(Event *ev)
     }
 
     ev->AddInteger(0);
+}
+
+void ScriptThread::SubscribeEvent(Event *ev)
+{
+    str eventName;
+    ScriptDelegate *delegate;
+    ScriptThreadLabel label;
+
+    eventName = ev->GetString(1);
+
+    delegate = ScriptDelegate::GetScriptDelegate(eventName);
+    if (!delegate) {
+        throw ScriptException("Invalid event '%s'", eventName.c_str());
+    }
+
+    label.SetThread(ev->GetValue(2));
+
+    delegate->Register(label);
+}
+
+void ScriptThread::UnsubscribeEvent(Event *ev)
+{
+    str eventName;
+    ScriptDelegate* delegate;
+    ScriptThreadLabel label;
+
+    eventName = ev->GetString(1);
+
+    delegate = ScriptDelegate::GetScriptDelegate(eventName);
+    if (!delegate) {
+        throw ScriptException("Invalid event '%s'", eventName.c_str());
+    }
+
+    label.SetThread(ev->GetValue(2));
+
+    delegate->Unregister(label);
 }
 
 void ScriptThread::TypeOfVariable(Event *ev)

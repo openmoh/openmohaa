@@ -157,16 +157,16 @@ Begin spawning a new bot entity
 */
 void G_BotBegin(gentity_t *ent)
 {
-    PlayerBot     *player;
+    Player        *player;
     BotController *controller;
 
     level.spawn_entnum = ent->s.number;
-    player             = new PlayerBot;
+    player             = new Player;
 
     G_ClientBegin(ent, NULL);
 
     controller = botManager.getControllerManager().createController(player);
-    player->setController(controller);
+    //player->setController(controller);
 }
 
 /*
@@ -271,7 +271,7 @@ void G_BotShift(int clientNum)
         return;
     }
 
-    if (!ent->entity->IsSubclassOfBot()) {
+    if (!botManager.getControllerManager().findController(ent->entity)) {
         return;
     }
 
@@ -355,7 +355,7 @@ bool G_IsBot(gentity_t *ent)
         return false;
     }
 
-    if (!ent->entity || !ent->entity->IsSubclassOfBot()) {
+    if (!ent->entity || !botManager.getControllerManager().findController(ent->entity)) {
         return false;
     }
 
@@ -375,7 +375,7 @@ bool G_IsPlayer(gentity_t *ent)
         return false;
     }
 
-    if (!ent->entity || ent->entity->IsSubclassOfBot()) {
+    if (!ent->entity || botManager.getControllerManager().findController(ent->entity)) {
         return false;
     }
 

@@ -51,6 +51,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "script.h"
 #include "listener.h"
 #include "simpleentity.h"
+#include "../qcommon/delegate.h"
 
 // modification flags
 #define FLAG_IGNORE 0
@@ -295,6 +296,12 @@ public:
     str      m_HintString;
     //====
 #endif
+
+    MulticastDelegate<void (const Event& ev)> delegate_damage;
+    MulticastDelegate<void (const Event& ev)> delegate_killed;
+    MulticastDelegate<void (const Event& ev)> delegate_gotKill;
+
+public:
 
     Entity();
     virtual ~Entity();

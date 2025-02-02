@@ -1368,7 +1368,7 @@ void Sentient::ArmorDamage(Event *ev)
     Vector   position;
     Vector   normal;
     Vector   direction;
-    Event    *event;
+    Event    event;
     int      dflags;
     int      meansofdeath;
     int      knockback;
@@ -1582,50 +1582,56 @@ void Sentient::ArmorDamage(Event *ev)
         health = 0;
 
         if (attacker) {
-            // Added in OPM
-            event = new Event(EV_GotKill);
-            event->AddEntity(this);
-            event->AddInteger(damage);
-            event->AddEntity(inflictor);
-            event->AddInteger(meansofdeath);
-            event->AddInteger(0);
+            const EntityPtr attackerPtr = attacker;
 
-            attacker->ProcessEvent(event);
+            // Added in OPM
+            event = Event(EV_GotKill);
+            event.AddEntity(this);
+            event.AddInteger(damage);
+            event.AddEntity(inflictor);
+            event.AddInteger(meansofdeath);
+            event.AddInteger(0);
+
+            attackerPtr->ProcessEvent(event);
+            if (attackerPtr) {
+                attackerPtr->delegate_gotKill.Execute(event);
+            }
         }
 
-        event = new Event(EV_Killed, 10);
-        event->AddEntity(attacker);
-        event->AddFloat(damage);
-        event->AddEntity(inflictor);
-        event->AddVector(position);
-        event->AddVector(direction);
-        event->AddVector(normal);
-        event->AddInteger(knockback);
-        event->AddInteger(dflags);
-        event->AddInteger(meansofdeath);
-        event->AddInteger(location);
+        event = Event(EV_Killed, 10);
+        event.AddEntity(attacker);
+        event.AddFloat(damage);
+        event.AddEntity(inflictor);
+        event.AddVector(position);
+        event.AddVector(direction);
+        event.AddVector(normal);
+        event.AddInteger(knockback);
+        event.AddInteger(dflags);
+        event.AddInteger(meansofdeath);
+        event.AddInteger(location);
 
         ProcessEvent(event);
+        delegate_killed.Execute(event);
     }
 
     if (health > 0) {
         // Send pain event
-        event = new Event(EV_Pain, 10);
-        event->AddEntity(attacker);
-        event->AddFloat(damage);
-        event->AddEntity(inflictor);
-        event->AddVector(position);
-        event->AddVector(direction);
-        event->AddVector(normal);
-        event->AddInteger(knockback);
-        event->AddInteger(dflags);
-        event->AddInteger(meansofdeath);
-        event->AddInteger(location);
+        event = Event(EV_Pain, 10);
+        event.AddEntity(attacker);
+        event.AddFloat(damage);
+        event.AddEntity(inflictor);
+        event.AddVector(position);
+        event.AddVector(direction);
+        event.AddVector(normal);
+        event.AddInteger(knockback);
+        event.AddInteger(dflags);
+        event.AddInteger(meansofdeath);
+        event.AddInteger(location);
 
         ProcessEvent(event);
     }
 
-    return;
+    delegate_damage.Execute(*ev);
 }
 
 qboolean Sentient::CanBlock(int meansofdeath, qboolean full_block)

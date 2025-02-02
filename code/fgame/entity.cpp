@@ -2673,7 +2673,7 @@ void Entity::DamageEvent(Event *ev)
     Vector  momentum;
     Vector  position, direction, normal;
     int     knockback, damageflags, meansofdeath, location;
-    Event  *event;
+    Event   event;
     float   m;
     EntityPtr This;
 
@@ -2759,67 +2759,79 @@ void Entity::DamageEvent(Event *ev)
 
     if (health <= 0) {
         if (attacker) {
-            event = new Event(EV_GotKill);
-            event->AddEntity(this);
-            event->AddInteger(damage);
-            event->AddEntity(inflictor);
-            event->AddInteger(meansofdeath);
-            event->AddInteger(0);
+            const EntityPtr attackerPtr = attacker;
 
-            attacker->ProcessEvent(event);
+            event = Event(EV_GotKill, 5);
+            event.AddEntity(this);
+            event.AddInteger(damage);
+            event.AddEntity(inflictor);
+            event.AddInteger(meansofdeath);
+            event.AddInteger(0);
+
+            attackerPtr->ProcessEvent(event);
+            if (attackerPtr) {
+                attackerPtr->delegate_gotKill.Execute(event);
+            }
         }
 
         if (!This) {
             return;
         }
 
-        event = new Event(EV_Killed);
-        event->AddEntity(attacker);
-        event->AddFloat(damage);
-        event->AddEntity(inflictor);
-        event->AddVector(position);
-        event->AddVector(direction);
-        event->AddVector(normal);
-        event->AddInteger(knockback);
-        event->AddInteger(damageflags);
-        event->AddInteger(meansofdeath);
-        event->AddInteger(location);
+        event = Event(EV_Killed, 10);
+        event.AddEntity(attacker);
+        event.AddFloat(damage);
+        event.AddEntity(inflictor);
+        event.AddVector(position);
+        event.AddVector(direction);
+        event.AddVector(normal);
+        event.AddInteger(knockback);
+        event.AddInteger(damageflags);
+        event.AddInteger(meansofdeath);
+        event.AddInteger(location);
 
         ProcessEvent(event);
-
         if (!This) {
             return;
         }
 
         // Notify scripts
         Unregister(STRING_DAMAGE);
+        if (!This) {
+            return;
+        }
+
+        delegate_killed.Execute(event);
         return;
     }
 
-    event = new Event(EV_Pain);
-    event->AddEntity(attacker);
-    event->AddFloat(damage);
-    event->AddEntity(inflictor);
-    event->AddVector(position);
-    event->AddVector(direction);
-    event->AddVector(normal);
-    event->AddInteger(knockback);
-    event->AddInteger(damageflags);
-    event->AddInteger(meansofdeath);
-    event->AddInteger(location);
+    event = Event(EV_Pain, 10);
+    event.AddEntity(attacker);
+    event.AddFloat(damage);
+    event.AddEntity(inflictor);
+    event.AddVector(position);
+    event.AddVector(direction);
+    event.AddVector(normal);
+    event.AddInteger(knockback);
+    event.AddInteger(damageflags);
+    event.AddInteger(meansofdeath);
+    event.AddInteger(location);
 
     ProcessEvent(event);
-
     if (!This) {
         return;
     }
 
     // Notify scripts
     Unregister(STRING_DAMAGE);
+    if (!This) {
+        return;
+    }
+
+    delegate_damage.Execute(event);
 }
 
 qboolean Entity::IsTouching(Entity *e1)
-
 {
     if (e1->absmin.x > absmax.x) {
         return false;

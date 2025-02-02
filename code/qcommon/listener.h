@@ -364,45 +364,45 @@ public:
 
     void Clear(void);
 
-    void CheckPos(int pos);
+    void CheckPos(int pos) const;
 
-    bool GetBoolean(int pos);
+    bool GetBoolean(int pos) const;
 
-    const_str GetConstString(int pos);
+    const_str GetConstString(int pos) const;
 
-    Entity *GetEntity(int pos);
+    Entity *GetEntity(int pos) const;
 
-    float     GetFloat(int pos);
-    int       GetInteger(int pos);
-    Listener *GetListener(int pos);
+    float     GetFloat(int pos) const;
+    int       GetInteger(int pos) const;
+    Listener *GetListener(int pos) const;
 
-    class PathNode *GetPathNode(int pos);
+    class PathNode *GetPathNode(int pos) const;
 
 #ifdef WITH_SCRIPT_ENGINE
-    SimpleEntity *GetSimpleEntity(int pos);
+    SimpleEntity *GetSimpleEntity(int pos) const;
 #endif
 
-    str             GetString(int pos);
-    str             GetToken(int pos);
-    ScriptVariable& GetValue(int pos);
+    str             GetString(int pos) const;
+    str             GetToken(int pos) const;
+    ScriptVariable& GetValue(int pos) const;
     ScriptVariable& GetValue(void);
-    Vector          GetVector(int pos);
+    Vector          GetVector(int pos) const;
 
-    class Waypoint *GetWaypoint(int pos);
+    class Waypoint *GetWaypoint(int pos) const;
 
-    qboolean IsEntityAt(int pos);
-    qboolean IsListenerAt(int pos);
-    qboolean IsNilAt(int pos);
-    qboolean IsNumericAt(int pos);
+    qboolean IsEntityAt(int pos) const;
+    qboolean IsListenerAt(int pos) const;
+    qboolean IsNilAt(int pos) const;
+    qboolean IsNumericAt(int pos) const;
 #ifdef WITH_SCRIPT_ENGINE
-    qboolean IsSimpleEntityAt(int pos);
+    qboolean IsSimpleEntityAt(int pos) const;
 #endif
-    qboolean IsStringAt(int pos);
-    qboolean IsVectorAt(int pos);
+    qboolean IsStringAt(int pos) const;
+    qboolean IsVectorAt(int pos) const;
 
-    qboolean IsFromScript(void);
+    qboolean IsFromScript(void) const;
 
-    int NumArgs();
+    int NumArgs() const;
 };
 
 #define NODE_CANCEL      1

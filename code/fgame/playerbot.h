@@ -161,6 +161,11 @@ private:
     int m_iNextTauntTime;
 
 private:
+    DelegateHandle delegateHandle_gotKill;
+    DelegateHandle delegateHandle_killed;
+    DelegateHandle delegateHandle_stufftext;
+
+private:
     Weapon* FindWeaponWithAmmo(void);
     Weapon* FindMeleeWeapon(void);
     void UseWeaponWithAmmo(void);
@@ -209,6 +214,7 @@ public:
     CLASS_PROTOTYPE(BotController);
 
     BotController();
+    ~BotController();
 
     static void Init(void);
 
@@ -229,9 +235,9 @@ public:
 
     void Spawned(void);
 
-    void Killed(Event *ev);
-    void GotKill(Event *ev);
-    void EventStuffText(Event *ev);
+    void Killed(const Event& ev);
+    void GotKill(const Event& ev);
+    void EventStuffText(const str& text);
 
     BotMovement& GetMovement();
 
@@ -282,22 +288,3 @@ private:
 };
 
 extern BotManager botManager;
-
-class PlayerBot : public Player
-{
-public:
-    CLASS_PROTOTYPE(PlayerBot);
-
-public:
-    PlayerBot();
-
-    void setController(BotController *controlledBy);
-
-    void Spawned(void) override;
-
-    void Killed(Event *ev) override;
-    void GotKill(Event *ev);
-
-private:
-    BotController *controller;
-};
