@@ -137,16 +137,25 @@ void ScriptDelegate::Trigger(const Event& ev) const
 {
     size_t i;
 
-    for (i = 1; i <= list_script.NumObjects(); i++) {
-        list_script.ObjectAt(i).Execute(ev);
+    {
+        const Container<ScriptRegisteredDelegate_Script> tmpList = list_script;
+        for (i = 1; i <= tmpList.NumObjects(); i++) {
+            tmpList.ObjectAt(i).Execute(ev);
+        }
     }
 
-    for (i = 1; i <= list_code.NumObjects(); i++) {
-        list_code.ObjectAt(i).Execute(ev);
+    {
+        const Container<ScriptRegisteredDelegate_Code> tmpList = list_code;
+        for (i = 1; i <= tmpList.NumObjects(); i++) {
+            tmpList.ObjectAt(i).Execute(ev);
+        }
     }
 
-    for (i = 1; i <= list_codeMember.NumObjects(); i++) {
-        list_codeMember.ObjectAt(i).Execute(ev);
+    {
+        const Container<ScriptRegisteredDelegate_CodeMember> tmpList = list_codeMember;
+        for (i = 1; i <= tmpList.NumObjects(); i++) {
+            tmpList.ObjectAt(i).Execute(ev);
+        }
     }
 }
 
