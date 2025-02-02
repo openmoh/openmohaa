@@ -356,11 +356,6 @@ int SimpleEntity::IsSubclassOfCrateObject(void) const
     return (entflags & ECF_CRATEOBJECT);
 }
 
-int SimpleEntity::IsSubclassOfBot(void) const
-{
-    return (entflags & ECF_BOT);
-}
-
 void SimpleEntity::SetTargetName(str targetname)
 {
     if (!world) {

@@ -827,6 +827,7 @@ void G_BotConnect(int clientNum, qboolean firstTime, const char *userinfo)
 
     ent->client   = game.clients + clientNum;
     ent->s.number = clientNum;
+    ent->r.svFlags |= SVF_BOT;
 
     client = ent->client;
 

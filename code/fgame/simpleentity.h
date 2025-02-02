@@ -91,7 +91,6 @@ public:
     int IsSubclassOfVehiclePoint(void) const;
     int IsSubclassOfSplinePath(void) const;
     int IsSubclassOfCrateObject(void) const;
-    int IsSubclassOfBot(void) const;
 
     void GetOrigin(Event *ev);
     void SetOrigin(Event *ev);

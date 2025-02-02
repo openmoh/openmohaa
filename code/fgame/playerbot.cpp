@@ -76,6 +76,15 @@ BotController::BotController()
     m_RunLabel.TrySetScript("global/bot_run.scr");
 }
 
+BotController::~BotController()
+{
+    if (controlledEnt) {
+        controlledEnt->delegate_gotKill.Remove(delegateHandle_gotKill);
+        controlledEnt->delegate_killed.Remove(delegateHandle_killed);
+        controlledEnt->delegate_stufftext.Remove(delegateHandle_stufftext);
+    }
+}
+
 BotMovement& BotController::GetMovement()
 {
     return movement;
@@ -1051,7 +1060,7 @@ void BotController::Think()
     G_ClientThink(controlledEnt->edict, &ucmd, &eyeinfo);
 }
 
-void BotController::Killed(Event *ev)
+void BotController::Killed(const Event& ev)
 {
     Entity *attacker;
 
@@ -1068,7 +1077,7 @@ void BotController::Killed(Event *ev)
     m_botEyes.angles[0] = 0;
     m_botEyes.angles[1] = 0;
 
-    attacker = ev->GetEntity(1);
+    attacker = ev.GetEntity(1);
 
     if (attacker && rand() % 5 == 0) {
         // 1/5 chance to go back to the attacker position
@@ -1093,7 +1102,7 @@ void BotController::Killed(Event *ev)
     G_ClientUserinfoChanged(controlledEnt->edict, controlledEnt->client->pers.userinfo);
 }
 
-void BotController::GotKill(Event *ev)
+void BotController::GotKill(const Event& ev)
 {
     ClearEnemy();
     m_iCuriousTime = 0;
@@ -1118,9 +1127,9 @@ void BotController::GotKill(Event *ev)
     }
 }
 
-void BotController::EventStuffText(Event *ev)
+void BotController::EventStuffText(const str& text)
 {
-    SendCommand(ev->GetString(1));
+    SendCommand(text);
 }
 
 void BotController::setControlledEntity(Player *player)
@@ -1128,6 +1137,10 @@ void BotController::setControlledEntity(Player *player)
     controlledEnt = player;
     movement.SetControlledEntity(player);
     rotation.SetControlledEntity(player);
+
+    delegateHandle_gotKill = player->delegate_gotKill.Add(std::bind(&BotController::GotKill, this, std::placeholders::_1));
+    delegateHandle_killed = player->delegate_killed.Add(std::bind(&BotController::Killed, this, std::placeholders::_1));
+    delegateHandle_stufftext = player->delegate_stufftext.Add(std::bind(&BotController::EventStuffText, this, std::placeholders::_1));
 }
 
 Player *BotController::getControlledEntity() const
@@ -1215,43 +1228,4 @@ void BotControllerManager::ThinkControllers()
         BotController *controller = controllers.ObjectAt(i);
         controller->Think();
     }
-}
-
-CLASS_DECLARATION(Player, PlayerBot, NULL) {
-    {&EV_Killed,           &PlayerBot::Killed        },
-    {&EV_GotKill,          &PlayerBot::GotKill       },
-    {&EV_Player_StuffText, &PlayerBot::EventStuffText},
-    {NULL,                 NULL                      }
-};
-
-PlayerBot::PlayerBot()
-{
-    entflags |= ECF_BOT;
-    controller = NULL;
-}
-
-void PlayerBot::setController(BotController *controlledBy)
-{
-    controller = controlledBy;
-}
-
-void PlayerBot::Spawned(void)
-{
-    controller->Spawned();
-
-    Player::Spawned();
-}
-
-void PlayerBot::Killed(Event *ev)
-{
-    Player::Killed(ev);
-
-    controller->Killed(ev);
-}
-
-void PlayerBot::GotKill(Event *ev)
-{
-    Player::GotKill(ev);
-
-    controller->GotKill(ev);
 }
