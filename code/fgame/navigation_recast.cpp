@@ -33,15 +33,16 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "DetourNavMeshBuilder.h"
 #include "DetourNavMeshQuery.h"
 
-static const float recastCellSize       = 12.5;
+static const float recastCellSize       = 12.5f;
 static const float recastCellHeight     = 1.0;
 static const float agentHeight          = CROUCH_VIEWHEIGHT;
 static const float agentMaxClimb        = STEPSIZE;
+static const float agentMaxSlope        = 45.5729942f; // normal of { 0.714142799, 0, 0.700000048 }, or an angle of -44.4270058
 static const float agentRadius          = 0.5;
 static const int   regionMinSize        = 5;
 static const int   regionMergeSize      = 20;
 static const float edgeMaxLen           = 100.0;
-static const float edgeMaxError         = 1.3;
+static const float edgeMaxError         = 1.3f;
 static const int   vertsPerPoly         = 6;
 static const float detailSampleDist     = 12.0;
 static const float detailSampleMaxError = 1.0;
@@ -159,7 +160,7 @@ void G_Navigation_BuildRecastMesh(navMap_t& navigationMap)
     unsigned char *triAreas = new unsigned char[numTris];
     memset(triAreas, 0, sizeof(unsigned char) * numTris);
 
-    rcMarkWalkableTriangles(&buildContext, 45, vertsBuffer, numVertices, indexesBuffer, numTris, triAreas);
+    rcMarkWalkableTriangles(&buildContext, agentMaxSlope, vertsBuffer, numVertices, indexesBuffer, numTris, triAreas);
     rcRasterizeTriangles(
         &buildContext, vertsBuffer, numVertices, indexesBuffer, triAreas, numTris, *heightfield, walkableClimb
     );
