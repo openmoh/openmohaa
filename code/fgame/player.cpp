@@ -58,6 +58,12 @@ const Vector power_color(0.0, 1.0, 0.0);
 const Vector acolor(1.0, 1.0, 1.0);
 const Vector bcolor(1.0, 0.0, 0.0);
 
+ScriptDelegate Player::scriptDelegate_connected("player_connected", "Sent once when the player connected");
+ScriptDelegate Player::scriptDelegate_disconnecting("player_disconnecting", "The player is disconnecting");
+ScriptDelegate Player::scriptDelegate_spawned("player_spawned", "The player has spawned");
+ScriptDelegate Player::scriptDelegate_damage("player_damage", "The player got hit");
+ScriptDelegate Player::scriptDelegate_kill("player_killed", "The player got killed");
+
 //
 // mohaas 2.0 and above
 //
@@ -2264,6 +2270,8 @@ void Player::Init(void)
 
         Event *ev = new Event;
         ev->AddEntity(this);
+
+        scriptDelegate_connected.Trigger(*ev);
         scriptedEvents[SE_CONNECTED].Trigger(ev);
     }
 
@@ -3217,6 +3225,7 @@ void Player::Killed(Event *ev)
     event->AddInteger(ev->GetInteger(10));
     event->AddEntity(this);
 
+    scriptDelegate_kill.Trigger(*event);
     scriptedEvents[SE_KILL].Trigger(event);
 
     Unregister(STRING_DEATH);
@@ -9704,14 +9713,16 @@ void Player::ArmorDamage(Event *ev)
     event->AddInteger(ev->GetInteger(10));
     event->AddEntity(this);
 
+    scriptDelegate_damage.Trigger(*event);
     scriptedEvents[SE_DAMAGE].Trigger(event);
 }
 
 void Player::Disconnect(void)
 {
     Event *ev = new Event;
-
     ev->AddListener(this);
+
+    scriptDelegate_disconnecting.Trigger(*ev);
     scriptedEvents[SE_DISCONNECTED].Trigger(ev);
 
 //     if (g_gametype->integer != GT_SINGLE_PLAYER) {
@@ -12087,8 +12098,9 @@ bool Player::IsReady(void) const
 void Player::Spawned(void)
 {
     Event *ev = new Event;
-
     ev->AddEntity(this);
+
+    scriptDelegate_spawned.Trigger(*ev);
     scriptedEvents[SE_SPAWN].Trigger(ev);
 }
 

@@ -37,6 +37,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "actor.h"
 #include "vehicle.h"
 #include "dm_manager.h"
+#include "scriptdelegate.h"
 
 extern Event EV_Player_EndLevel;
 extern Event EV_Player_GiveCheat;
@@ -312,6 +313,12 @@ private:
 
 public:
     MulticastDelegate<void (const str& text)> delegate_stufftext;
+
+    static ScriptDelegate scriptDelegate_connected;
+    static ScriptDelegate scriptDelegate_disconnecting;
+    static ScriptDelegate scriptDelegate_spawned;
+    static ScriptDelegate scriptDelegate_damage;
+    static ScriptDelegate scriptDelegate_kill;
 
 public:
     int m_iNumObjectives;
