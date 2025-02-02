@@ -255,4 +255,5 @@ extern poolInfo_t g_vert;
 
 void G_PreTessellateTerrain(cTerraPatchUnpacked_t* terraPatches, size_t numTerraPatches);
 void G_DoTriSplitting(cTerraPatchUnpacked_t* terraPatches, size_t numTerraPatches);
+void G_DoGeomorphs(cTerraPatchUnpacked_t* terraPatches, size_t numTerraPatches);
 void G_TerrainFree();

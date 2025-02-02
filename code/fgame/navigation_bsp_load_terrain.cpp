@@ -787,6 +787,29 @@ static qboolean G_NeedSplitTri(terraTri_t *pTri)
 
 /*
 ================
+G_CalcVertMorphHeight
+================
+*/
+static void G_CalcVertMorphHeight(terrainVert_t *pVert)
+{
+    pVert->xyz[2] = pVert->fHgtAvg;
+    if (pVert->fVariance > 0) {
+        pVert->xyz[2] += pVert->fHgtAdd;
+    }
+}
+
+/*
+================
+G_UpdateVertMorphHeight
+================
+*/
+static void G_UpdateVertMorphHeight(terrainVert_t* pVert)
+{
+    G_CalcVertMorphHeight(pVert);
+}
+
+/*
+================
 G_DoTriSplitting
 ================
 */
@@ -816,6 +839,26 @@ void G_DoTriSplitting(cTerraPatchUnpacked_t *terraPatches, size_t numTerraPatche
             } else {
                 g_tri.iCur = g_pTris[g_tri.iCur].iNext;
             }
+        }
+    }
+}
+
+/*
+================
+G_DoGeomorphs
+================
+*/
+void G_DoGeomorphs(cTerraPatchUnpacked_t* terraPatches, size_t numTerraPatches)
+{
+    for (size_t n = 0; n < numTerraPatches; n++) {
+        cTerraPatchUnpacked_t *patch = &terraPatches[n];
+
+        g_vert.iCur = patch->drawinfo.iVertHead;
+
+        while (g_vert.iCur) {
+            terrainVert_t* pVert = &g_pVert[g_vert.iCur];
+            G_UpdateVertMorphHeight(pVert);
+            g_vert.iCur = pVert->iNext;
         }
     }
 }

@@ -759,6 +759,7 @@ void G_RenderTerrainTris(navMap_t& navMap, cTerraPatchUnpacked_t *terraPatches, 
     G_PreTessellateTerrain(terraPatches, numTerraPatches);
 
     G_DoTriSplitting(terraPatches, numTerraPatches);
+    G_DoGeomorphs(terraPatches, numTerraPatches);
 
     // Calculate the number of required tris and vertices
     numVertices = 0;
