@@ -2271,7 +2271,7 @@ void Player::Init(void)
         Event *ev = new Event;
         ev->AddEntity(this);
 
-        scriptDelegate_connected.Trigger(*ev);
+        scriptDelegate_connected.Trigger(this, *ev);
         scriptedEvents[SE_CONNECTED].Trigger(ev);
     }
 
@@ -3225,7 +3225,7 @@ void Player::Killed(Event *ev)
     event->AddInteger(ev->GetInteger(10));
     event->AddEntity(this);
 
-    scriptDelegate_kill.Trigger(*event);
+    scriptDelegate_kill.Trigger(this, *event);
     scriptedEvents[SE_KILL].Trigger(event);
 
     Unregister(STRING_DEATH);
@@ -9714,7 +9714,7 @@ void Player::ArmorDamage(Event *ev)
     event->AddInteger(ev->GetInteger(10));
     event->AddEntity(this);
 
-    scriptDelegate_damage.Trigger(*event);
+    scriptDelegate_damage.Trigger(this, *event);
     scriptedEvents[SE_DAMAGE].Trigger(event);
 }
 
@@ -9723,7 +9723,7 @@ void Player::Disconnect(void)
     Event *ev = new Event;
     ev->AddListener(this);
 
-    scriptDelegate_disconnecting.Trigger(*ev);
+    scriptDelegate_disconnecting.Trigger(this, *ev);
     scriptedEvents[SE_DISCONNECTED].Trigger(ev);
 
     //     if (g_gametype->integer != GT_SINGLE_PLAYER) {
@@ -12135,7 +12135,7 @@ void Player::Spawned(void)
     Event *ev = new Event;
     ev->AddEntity(this);
 
-    scriptDelegate_spawned.Trigger(*ev);
+    scriptDelegate_spawned.Trigger(this, *ev);
     scriptedEvents[SE_SPAWN].Trigger(ev);
 }
 
