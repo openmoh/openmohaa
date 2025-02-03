@@ -37,7 +37,7 @@ One of the big multiplayer features are bots. They were introduced for testing a
 ## Features
 
 - [List of new features](docs/features.md)
-- [Scripting commands](https://htmlpreview.github.io/?https://github.com/openmoh/openmohaa/blob/main/docs/features_g_allclasses.html)
+- [Scripting](docs/scripting.md)
 
 ## Compiling
 
