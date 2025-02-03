@@ -154,14 +154,14 @@ public:
      *
      * @param ev Parameter list
      */
-    void Trigger(const Event& ev) const;
+    void Trigger(const Event& ev = Event()) const;
 
     /**
      * Executes all registered delegates with the specified event.
      *
      * @param ev Parameter list
      */
-    void Trigger(Listener *object, const Event& ev) const;
+    void Trigger(Listener *object, const Event& ev = Event()) const;
 
     /**
      * Reset the delegate, unregister callbacks.
