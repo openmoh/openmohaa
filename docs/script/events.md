@@ -40,9 +40,9 @@ The `self` object is the player object for all triggered player events.
 The player entered the game.
 
 Called when:
-- On the next round (for all players)
 - When a client spawns for the first time
 - When the map restarts, or when the map changes (for all players)
+- On the next round (for all players)
 
 This is called after the player finished spawning, and before `player_spawned` event.
 
@@ -89,5 +89,5 @@ player_textMessage local.text local.is_team
 ```
 
 Parameters:
-- local.text: The full text message with battle language tokens applied
-- local.is_team: `1` if it's a team message. `0` otherwise.
+- local.text: The raw text message the client sent to the server
+- local.is_team: `1` if it's a team message. `0` otherwise (everyone)
