@@ -63,6 +63,7 @@ ScriptDelegate Player::scriptDelegate_disconnecting("player_disconnecting", "The
 ScriptDelegate Player::scriptDelegate_spawned("player_spawned", "The player has spawned");
 ScriptDelegate Player::scriptDelegate_damage("player_damage", "The player got hit");
 ScriptDelegate Player::scriptDelegate_kill("player_killed", "The player got killed");
+ScriptDelegate Player::scriptDelegate_textMessage("player_textMessage", "The player just sent a text message");
 
 //
 // mohaas 2.0 and above
@@ -1910,7 +1911,6 @@ CLASS_DECLARATION(Sentient, Player, "player") {
     {&EV_Player_AdminRights,              &Player::AdminRights                  },
     {&EV_Player_BindWeap,                 &Player::BindWeap                     },
     {&EV_Player_Dive,                     &Player::Dive                         },
-    {&EV_Player_DMMessage,                &Player::EventDMMessage               },
     {&EV_Player_FreezeControls,           &Player::FreezeControls               },
     {&EV_Player_SetTeam,                  &Player::EventSetTeam                 },
     {&EV_Player_GetConnState,             &Player::GetConnState                 },
@@ -5563,7 +5563,7 @@ void Player::EvaluateState(State *forceTorso, State *forceLegs)
                     animdone_Legs = true;
                 } else if (legsAnim != "") {
                     float oldTime;
-                    
+
                     if (currentState_Legs == laststate_Legs) {
                         //
                         // Added in OPM
@@ -5577,7 +5577,7 @@ void Player::EvaluateState(State *forceTorso, State *forceLegs)
                         SetPartAnim(legsAnim, legs);
 
                         if (animtimes[m_iPartSlot[legs]] > 0) {
-                            SetTime(m_iPartSlot[legs], fmod(oldTime, animtimes[m_iPartSlot[legs]]));        
+                            SetTime(m_iPartSlot[legs], fmod(oldTime, animtimes[m_iPartSlot[legs]]));
                         }
                     } else {
                         SetPartAnim(legsAnim, legs);
@@ -5685,7 +5685,7 @@ void Player::SelectPreviousWeapon(Event *ev)
         // Fixed in OPM
         //  Fixes the bug that cause infinite loop when the last weapon has no ammo
         //  and the only weapon is an inventory item
-        for (weapon = initialWeapon = PreviousWeapon(activeWeapon); weapon && weapon != activeWeapon; ) {
+        for (weapon = initialWeapon = PreviousWeapon(activeWeapon); weapon && weapon != activeWeapon;) {
             if (g_gametype->integer == GT_SINGLE_PLAYER || !weapon->IsSubclassOfInventoryItem()) {
                 break;
             }
@@ -5734,7 +5734,7 @@ void Player::SelectNextWeapon(Event *ev)
         // Fixed in OPM
         //  Fixes the bug that cause infinite loop when the last weapon has no ammo
         //  and the only weapon is an inventory item
-        for (weapon = initialWeapon = NextWeapon(activeWeapon); weapon && weapon != activeWeapon; ) {
+        for (weapon = initialWeapon = NextWeapon(activeWeapon); weapon && weapon != activeWeapon;) {
             if (g_gametype->integer == GT_SINGLE_PLAYER || !weapon->IsSubclassOfInventoryItem()) {
                 break;
             }
@@ -8932,7 +8932,8 @@ void Player::EquipWeapons()
             }
             break;
         case NA_GERMAN:
-            if (g_target_game < target_game_e::TG_MOHTA || dmflags->integer & DF_OLD_SNIPER
+            if (g_target_game < target_game_e::TG_MOHTA
+                || dmflags->integer & DF_OLD_SNIPER
                 // Added in OPM
                 //  This was also a feature of Daven's fixes
                 //  Use KAR98 for panzer skins
@@ -9725,9 +9726,9 @@ void Player::Disconnect(void)
     scriptDelegate_disconnecting.Trigger(*ev);
     scriptedEvents[SE_DISCONNECTED].Trigger(ev);
 
-//     if (g_gametype->integer != GT_SINGLE_PLAYER) {
-//         dmManager.RemovePlayer(this);
-//     }
+    //     if (g_gametype->integer != GT_SINGLE_PLAYER) {
+    //         dmManager.RemovePlayer(this);
+    //     }
 }
 
 void Player::CallVote(Event *ev)
@@ -10852,16 +10853,12 @@ void Player::EventDMMessage(Event *ev)
     // Print the dm message to console
     sToken = "";
 
-    if (bInstaMessage) {
-        sToken += pTmpInstantMsg;
-    } else {
-        for (i = 2; i <= ev->NumArgs(); i++) {
-            if (i != 2) {
-                sToken += " ";
-            }
-
-            sToken += ev->GetString(i);
+    for (i = 2; i <= ev->NumArgs(); i++) {
+        if (i != 2) {
+            sToken += " ";
         }
+
+        sToken += ev->GetString(i);
     }
     //=============
 
@@ -10872,9 +10869,13 @@ void Player::EventDMMessage(Event *ev)
 
         // Added in OPM
         if (bInstaMessage) {
-            gi.Printf("%s (%zu) says (voice) to everyone: %s\n", client->pers.netname, edict - g_entities, sToken.c_str());
+            gi.Printf(
+                "%s (%zu) says (voice) to everyone: %s\n", client->pers.netname, edict - g_entities, pTmpInstantMsg
+            );
         } else {
-            gi.Printf("%s (%zu) says (text) to everyone: %s\n", client->pers.netname, edict - g_entities, sToken.c_str());
+            gi.Printf(
+                "%s (%zu) says (text) to everyone: %s\n", client->pers.netname, edict - g_entities, sToken.c_str()
+            );
         }
 
         if (!IsSpectator() || g_spectate_allow_full_chat->integer) {
@@ -10917,6 +10918,15 @@ void Player::EventDMMessage(Event *ev)
                 gi.SendServerCommand(i, "%s", szPrintString);
             }
         }
+
+        if (!bInstaMessage) {
+            Event event;
+            // sent to everyone (not a team)
+            event.AddString(sToken);
+            event.AddInteger(false);
+
+            scriptDelegate_textMessage.Trigger(this, event);
+        }
     } else if (iMode < 0) {
         //
         // team message
@@ -10924,7 +10934,7 @@ void Player::EventDMMessage(Event *ev)
 
         // Added in OPM
         if (bInstaMessage) {
-            gi.Printf("%s (%zu) says (voice) to team: %s\n", client->pers.netname, edict - g_entities, sToken.c_str());
+            gi.Printf("%s (%zu) says (voice) to team: %s\n", client->pers.netname, edict - g_entities, pTmpInstantMsg);
         } else {
             gi.Printf("%s (%zu) says (text) to team: %s\n", client->pers.netname, edict - g_entities, sToken.c_str());
         }
@@ -10953,7 +10963,7 @@ void Player::EventDMMessage(Event *ev)
                     continue;
                 }
 
-                bSameTeam = static_cast<Player*>(ent->entity)->GetTeam() == GetTeam();
+                bSameTeam = static_cast<Player *>(ent->entity)->GetTeam() == GetTeam();
                 if (bSameTeam) {
                     gi.SendServerCommand(i, "%s", szPrintString);
                 }
@@ -10970,6 +10980,15 @@ void Player::EventDMMessage(Event *ev)
                     gi.MSG_EndCGM();
                 }
             }
+        }
+
+        if (!bInstaMessage) {
+            Event event;
+            // sent to team
+            event.AddString(sToken);
+            event.AddInteger(true);
+
+            scriptDelegate_textMessage.Trigger(this, event);
         }
     } else if (iMode <= game.maxclients) {
         ent = &g_entities[iMode - 1];
@@ -10990,9 +11009,21 @@ void Player::EventDMMessage(Event *ev)
 
         // Added in OPM
         if (bInstaMessage) {
-            gi.Printf("%s (%zu) says (voice) to client #%d: %s\n", client->pers.netname, edict - g_entities, iMode - 1, sToken.c_str());
+            gi.Printf(
+                "%s (%zu) says (voice) to client #%d: %s\n",
+                client->pers.netname,
+                edict - g_entities,
+                iMode - 1,
+                pTmpInstantMsg
+            );
         } else {
-            gi.Printf("%s (%zu) says (text) to client #%d: %s\n", client->pers.netname, edict - g_entities, iMode - 1, sToken.c_str());
+            gi.Printf(
+                "%s (%zu) says (text) to client #%d: %s\n",
+                client->pers.netname,
+                edict - g_entities,
+                iMode - 1,
+                sToken.c_str()
+            );
         }
 
         gi.SendServerCommand(iMode - 1, "%s", szPrintString);
@@ -11306,17 +11337,21 @@ str Player::TranslateBattleLanguageTokens(const char *string)
 
 void Player::EventIPrint(Event *ev)
 {
-    str         sString = ev->GetString(1);
-    qboolean    iBold   = qfalse;
+    str      sString = ev->GetString(1);
+    qboolean iBold   = qfalse;
 
     if (ev->NumArgs() > 1) {
         iBold = ev->GetInteger(2);
     }
 
     if (iBold) {
-        gi.SendServerCommand(edict - g_entities, "print \"" HUD_MESSAGE_WHITE "%s\n\"", gi.LV_ConvertString(sString.c_str()));
+        gi.SendServerCommand(
+            edict - g_entities, "print \"" HUD_MESSAGE_WHITE "%s\n\"", gi.LV_ConvertString(sString.c_str())
+        );
     } else {
-        gi.SendServerCommand(edict - g_entities, "print \"" HUD_MESSAGE_YELLOW "%s\n\"", gi.LV_ConvertString(sString.c_str()));
+        gi.SendServerCommand(
+            edict - g_entities, "print \"" HUD_MESSAGE_YELLOW "%s\n\"", gi.LV_ConvertString(sString.c_str())
+        );
     }
 }
 
@@ -11610,12 +11645,12 @@ qboolean Player::CheckCanSwitchTeam(teamtype_t team)
             }
 
             if (pNewTeam->m_players.NumObjects() > numTeamPlayers) {
-                const char* message = gi.LV_ConvertString("That team has enough players. Choose the team that has the lowest number of players.");
+                const char *message = gi.LV_ConvertString(
+                    "That team has enough players. Choose the team that has the lowest number of players."
+                );
 
                 gi.SendServerCommand(
-                    edict - g_entities,
-                    "print \"" HUD_MESSAGE_WHITE "%s\n\"",
-                    gi.LV_ConvertString(message)
+                    edict - g_entities, "print \"" HUD_MESSAGE_WHITE "%s\n\"", gi.LV_ConvertString(message)
                 );
 
                 gi.centerprintf(edict, message);

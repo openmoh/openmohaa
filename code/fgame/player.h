@@ -312,13 +312,14 @@ private:
 #endif
 
 public:
-    MulticastDelegate<void (const str& text)> delegate_stufftext;
+    MulticastDelegate<void(const str& text)> delegate_stufftext;
 
     static ScriptDelegate scriptDelegate_connected;
     static ScriptDelegate scriptDelegate_disconnecting;
     static ScriptDelegate scriptDelegate_spawned;
     static ScriptDelegate scriptDelegate_damage;
     static ScriptDelegate scriptDelegate_kill;
+    static ScriptDelegate scriptDelegate_textMessage;
 
 public:
     int m_iNumObjectives;
