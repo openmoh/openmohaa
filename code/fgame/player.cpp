@@ -8845,25 +8845,25 @@ void Player::EnsurePlayerHasAllowedWeapons()
 
             Q_strncpyz(client->pers.dm_primary, "smg", sizeof(client->pers.dm_primary));
         } else if (!Q_stricmp(client->pers.dm_primary, "smg")) {
-            if (!(dmflags->integer & DF_WEAPON_NO_RIFLE)) {
+            if (!(dmflags->integer & DF_WEAPON_NO_SMG)) {
                 return;
             }
 
             Q_strncpyz(client->pers.dm_primary, "mg", sizeof(client->pers.dm_primary));
         } else if (!Q_stricmp(client->pers.dm_primary, "mg")) {
-            if (!(dmflags->integer & DF_WEAPON_NO_RIFLE)) {
+            if (!(dmflags->integer & DF_WEAPON_NO_MG)) {
                 return;
             }
 
             Q_strncpyz(client->pers.dm_primary, "shotgun", sizeof(client->pers.dm_primary));
         } else if (!Q_stricmp(client->pers.dm_primary, "shotgun")) {
-            if (!(dmflags->integer & DF_WEAPON_NO_RIFLE)) {
+            if (!(dmflags->integer & DF_WEAPON_NO_SHOTGUN)) {
                 return;
             }
 
             Q_strncpyz(client->pers.dm_primary, "heavy", sizeof(client->pers.dm_primary));
         } else if (!Q_stricmp(client->pers.dm_primary, "heavy")) {
-            if (!(dmflags->integer & DF_WEAPON_NO_RIFLE)) {
+            if (!(dmflags->integer & DF_WEAPON_NO_ROCKET)) {
                 return;
             }
 
