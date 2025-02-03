@@ -878,8 +878,6 @@ const char *G_ClientConnect(int clientNum, qboolean firstTime, qboolean differen
     gentity_t *ent;
     char       userinfo[MAX_INFO_STRING];
 
-    gi.DPrintf("TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT\n");
-
     // Added in OPM
     G_BotShift(clientNum);
 
