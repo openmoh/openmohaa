@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2008 the OpenMoHAA team
+Copyright (C) 2025 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -216,11 +216,17 @@ int Container<Type>::AddUniqueObject(const Type& obj)
 template<class Type>
 void Container<Type>::AddObjectAt(int index, const Type& obj)
 {
+    int i;
+
     if (index > maxobjects) {
         Resize(index);
     }
 
     if (index > numobjects) {
+        for (i = numobjects; i < index; i++) {
+            new (objlist + i) Type();
+        }
+
         numobjects = index;
     }
 
