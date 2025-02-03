@@ -10636,7 +10636,11 @@ void Player::EventDMMessage(Event *ev)
     if (!Q_stricmp(client->pers.netname, "console")) {
         // Added in OPM
         //  Reserved name
-        gi.Printf( "Client %d trying to send a message using a reserved name ('%s')\n", edict - g_entities, client->pers.netname);
+        gi.Printf(
+            "Client %d trying to send a message using a reserved name ('%s')\n",
+            edict - g_entities,
+            client->pers.netname
+        );
         return;
     }
 
@@ -10819,6 +10823,13 @@ void Player::EventDMMessage(Event *ev)
         Q_strcat(szPrintString, sizeof(szPrintString), ":");
         iStringLength = strlen(szPrintString);
 
+        // Added in OPM.
+        //  Checks for comments in string (as COM_Parse will parse them)
+        //  This was fixed in 2.0 but make the fix compatible with older versions
+        if (g_protocol < protocol_e::PROTOCOL_MOHTA_MIN && strstr(client->pers.netname, "/*")) {
+            met_comment = true;
+        }
+
         for (i = 2; i <= ev->NumArgs(); i++) {
             sToken = ev->GetString(i);
             // Added in 2.40
@@ -10830,13 +10841,7 @@ void Player::EventDMMessage(Event *ev)
                 break;
             }
 
-            // Added in OPM.
-            //  Checks for comments in string (as COM_Parse will parse them)
-            if (strstr(sToken, "/*")) {
-                met_comment = true;
-            }
-
-            if (strstr(sToken, "*/") && met_comment) {
+            if (met_comment && strstr(sToken, "*/")) {
                 // ignore messages containing comments
                 return;
             }
@@ -10849,9 +10854,11 @@ void Player::EventDMMessage(Event *ev)
     Q_strcat(szPrintString, sizeof(szPrintString), "\n");
 
     // ignore names containing comments
-    if (strstr(client->pers.netname, "//")
-        || (strstr(client->pers.netname, "/*") && strstr(client->pers.netname, "*/"))) {
-        return;
+    if (g_protocol < protocol_e::PROTOCOL_MOHTA_MIN) {
+        if (strstr(client->pers.netname, "//")
+            || (strstr(client->pers.netname, "/*") && strstr(client->pers.netname, "*/"))) {
+            return;
+        }
     }
 
     //
