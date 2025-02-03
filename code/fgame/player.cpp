@@ -10633,6 +10633,13 @@ void Player::EventDMMessage(Event *ev)
         return;
     }
 
+    if (!Q_stricmp(client->pers.netname, "console")) {
+        // Added in OPM
+        //  Reserved name
+        gi.Printf( "Client %d trying to send a message using a reserved name ('%s')\n", edict - g_entities, client->pers.netname);
+        return;
+    }
+
     sToken = ev->GetString(2);
 
     // Check for taunts
