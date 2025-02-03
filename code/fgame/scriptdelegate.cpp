@@ -29,11 +29,11 @@ ScriptRegisteredDelegate_Script::ScriptRegisteredDelegate_Script(const ScriptThr
     : label(inLabel)
 {}
 
-void ScriptRegisteredDelegate_Script::Execute(const Event& ev)
+void ScriptRegisteredDelegate_Script::Execute(Listener *object, const Event& ev)
 {
     Event newev = ev;
 
-    label.Execute(NULL, newev);
+    label.Execute(object, newev);
 }
 
 bool ScriptRegisteredDelegate_Script::operator==(const ScriptRegisteredDelegate_Script& registeredDelegate) const
@@ -48,13 +48,13 @@ ScriptRegisteredDelegate_CodeMember::ScriptRegisteredDelegate_CodeMember(
     , response(inResponse)
 {}
 
-void ScriptRegisteredDelegate_CodeMember::Execute(const Event& ev)
+void ScriptRegisteredDelegate_CodeMember::Execute(Listener *object, const Event& ev)
 {
     if (!object) {
         return;
     }
 
-    (object->*response)(ev);
+    (object->*response)(object, ev);
 }
 
 bool ScriptRegisteredDelegate_CodeMember::operator==(const ScriptRegisteredDelegate_CodeMember& registeredDelegate
@@ -67,9 +67,9 @@ ScriptRegisteredDelegate_Code::ScriptRegisteredDelegate_Code(DelegateResponse in
     : response(inResponse)
 {}
 
-void ScriptRegisteredDelegate_Code::Execute(const Event& ev)
+void ScriptRegisteredDelegate_Code::Execute(Listener *object, const Event& ev)
 {
-    (*response)(ev);
+    (*response)(object, ev);
 }
 
 bool ScriptRegisteredDelegate_Code::operator==(const ScriptRegisteredDelegate_Code& registeredDelegate) const
@@ -135,26 +135,31 @@ void ScriptDelegate::Unregister(Class *object, ScriptRegisteredDelegate_CodeMemb
 
 void ScriptDelegate::Trigger(const Event& ev) const
 {
+    Trigger(NULL, ev);
+}
+
+void ScriptDelegate::Trigger(Listener *object, const Event& ev) const
+{
     size_t i;
 
     {
         const Container<ScriptRegisteredDelegate_Script> tmpList = list_script;
         for (i = 1; i <= tmpList.NumObjects(); i++) {
-            tmpList.ObjectAt(i).Execute(ev);
+            tmpList.ObjectAt(i).Execute(object, ev);
         }
     }
 
     {
         const Container<ScriptRegisteredDelegate_Code> tmpList = list_code;
         for (i = 1; i <= tmpList.NumObjects(); i++) {
-            tmpList.ObjectAt(i).Execute(ev);
+            tmpList.ObjectAt(i).Execute(object, ev);
         }
     }
 
     {
         const Container<ScriptRegisteredDelegate_CodeMember> tmpList = list_codeMember;
         for (i = 1; i <= tmpList.NumObjects(); i++) {
-            tmpList.ObjectAt(i).Execute(ev);
+            tmpList.ObjectAt(i).Execute(object, ev);
         }
     }
 }
@@ -179,7 +184,7 @@ void ScriptDelegate::Reset()
 
 void ScriptDelegate::ResetAllDelegates()
 {
-    for (ScriptDelegate* delegate = root; delegate; delegate = delegate->next) {
+    for (ScriptDelegate *delegate = root; delegate; delegate = delegate->next) {
         delegate->Reset();
     }
 }
