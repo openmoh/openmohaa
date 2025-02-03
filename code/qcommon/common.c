@@ -223,8 +223,13 @@ A raw string should NEVER be passed as fmt, because of "%f" type crashers.
 void QDECL Com_Printf( const char *fmt, ... ) {
 	va_list		argptr;
 	char		msg[MAXPRINTMSG];
-  static qboolean opening_qconsole = qfalse;
+	static qboolean opening_qconsole = qfalse;
+	static qboolean recursive_count = qfalse;
 
+	if (recursive_count) {
+		return;
+	}
+	recursive_count = qtrue;
 
 	va_start (argptr,fmt);
 	Q_vsnprintf (msg, sizeof(msg), fmt, argptr);
@@ -239,6 +244,7 @@ void QDECL Com_Printf( const char *fmt, ... ) {
     // TTimo nooo .. that would defeat the purpose
 		//rd_flush(rd_buffer);
 		//*rd_buffer = 0;
+		recursive_count--;
 		return;
 	}
 
@@ -341,7 +347,9 @@ void QDECL Com_Printf( const char *fmt, ... ) {
 
 			FS_Write(msg, msgLen, logfile);
 		}
-	}
+    }
+
+    recursive_count--;
 }
 
 
