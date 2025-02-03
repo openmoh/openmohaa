@@ -29,7 +29,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 class ScriptRegisteredDelegate
 {
 public:
-    void Execute(const Event& ev);
+    void Execute(Listener *object, const Event& ev);
 };
 
 /**
@@ -41,7 +41,7 @@ class ScriptRegisteredDelegate_Script : public ScriptRegisteredDelegate
 public:
     ScriptRegisteredDelegate_Script(const ScriptThreadLabel& inLabel);
 
-    void Execute(const Event& ev);
+    void Execute(Listener *object, const Event& ev);
 
     bool operator==(const ScriptRegisteredDelegate_Script& registeredDelegate) const;
 
@@ -56,12 +56,12 @@ private:
 class ScriptRegisteredDelegate_Code : public ScriptRegisteredDelegate
 {
 public:
-    using DelegateResponse = void (*)(const Event& ev);
+    using DelegateResponse = void (*)(Listener *object, const Event& ev);
 
 public:
     ScriptRegisteredDelegate_Code(DelegateResponse inResponse);
 
-    void Execute(const Event& ev);
+    void Execute(Listener *object, const Event& ev);
 
     bool operator==(const ScriptRegisteredDelegate_Code& registeredDelegate) const;
 
@@ -77,12 +77,12 @@ private:
 class ScriptRegisteredDelegate_CodeMember : public ScriptRegisteredDelegate
 {
 public:
-    using DelegateClassResponse = void (Class::*)(const Event& ev);
+    using DelegateClassResponse = void (Class::*)(Listener *object, const Event& ev);
 
 public:
     ScriptRegisteredDelegate_CodeMember(Class *inObject, DelegateClassResponse inResponse);
 
-    void Execute(const Event& ev);
+    void Execute(Listener *object, const Event& ev);
 
     bool operator==(const ScriptRegisteredDelegate_CodeMember& registeredDelegate) const;
 
@@ -154,7 +154,14 @@ public:
      *
      * @param ev Parameter list
      */
-    void Trigger(const Event& ev) const;
+    void Trigger(const Event& ev = Event()) const;
+
+    /**
+     * Executes all registered delegates with the specified event.
+     *
+     * @param ev Parameter list
+     */
+    void Trigger(Listener *object, const Event& ev = Event()) const;
 
     /**
      * Reset the delegate, unregister callbacks.
@@ -167,7 +174,7 @@ public:
      * @param name The name to search for
      */
     static ScriptDelegate *GetScriptDelegate(const char *name);
-    static void ResetAllDelegates();
+    static void            ResetAllDelegates();
 
     // non-movable and non-copyable
     ScriptDelegate(ScriptDelegate&& other)                 = delete;
