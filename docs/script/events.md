@@ -1,10 +1,10 @@
 # Events
 
-OpenMoHAA introduces a new way for scripts to monitor for specific events, like players spawning or getting killed.
+OpenMoHAA introduces a new way for scripts to monitor for specific events, like players spawning or getting killed. Multiple scripts can subscribe to the same events.
 
 ## Subscribing
 
-Script commands related to events:
+Commands related to events:
 ```cpp
 event_subscribe event_name script_label
     Subscribes to an event, script_label will be called when the event is triggered
@@ -13,10 +13,15 @@ event_unsubscribe event_name script_label
     Unsubscribe from an event, script_label will not be called anymore
 ```
 
-Example:
+When an event is not needed anymore, make sure to call `event_unsubscribe` with the same parameters used when subscribing to the event.
+
+### Example
+
 ```cpp
 main:
     event_subscribe "player_spawned" event_player_spawned
+    // Can specify another script:
+    //event_subscribe "player_spawned" global/test_script::event_player_spawned
 end
 
 event_player_spawned:
@@ -24,24 +29,22 @@ event_player_spawned:
 end
 ```
 
-When monitoring is not needed, make sure to call `event_unsubscribe` with the same parameters used when subscribing to events.
-
 ## List of events
 
 ### Player events
 
-The `self` object in scripts for all events will be the player object.
+The `self` object is the player object for all triggered player events.
 
 #### player_connected
 
-The player spawned for the first time.
+The player entered the game.
 
-This event is called:
+Called when:
+- On the next round (for all players)
 - When a client spawns for the first time
-- When the map restarts, or when the map changes (all players)
-- On the next round (all players)
+- When the map restarts, or when the map changes (for all players)
 
-It's called after the player finished spawning with weapons, and before `player_spawned` event.
+This is called after the player finished spawning, and before `player_spawned` event.
 
 #### player_damaged
 
@@ -67,16 +70,17 @@ player_killed local.attacker local.damage local.inflictor local.position local.d
 
 #### player_spawned
 
-The player just spawned. This is called when:
+The player just spawned.
+
+Called when:
 - The player has entered the battle
 - The player respawned or spawned with weapons
 
+This is called after the player finished spawning.
+
 The event can be called even for spectators (when the spectator gets respawned).
 
-It's called after the player finished spawning with weapons.
-
 #### player_textMessage
-
 
 The player sent a text message.
 
