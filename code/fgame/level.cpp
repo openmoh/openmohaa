@@ -1754,6 +1754,10 @@ void Level::FreeEdict(gentity_t *ed)
 {
     gclient_t *client;
 
+    // clear the model so it decreases the user count
+    // and free memory if the model is not used anywhere
+    gi.clearmodel(ed);
+
     // unlink from world
     gi.unlinkentity(ed);
 
