@@ -333,6 +333,7 @@ str FAKKLoadGameItem::getListItemString(int which) const
         {
             int numseconds;
             int numseconds_hours;
+            int seconds;
 
             // hours
             numseconds = atol(strings[1]);
@@ -341,17 +342,18 @@ str FAKKLoadGameItem::getListItemString(int which) const
 
             // minutes
             numseconds_hours = numseconds % 3600;
-            if (numseconds_hours / 60 <= 9) {
+            if (numseconds_hours / 60 < 10) {
                 itemstring += "0";
             }
             itemstring += (numseconds_hours / 60);
             itemstring += ":";
 
             // seconds
-            if (numseconds_hours / 60 <= 9) {
+            seconds = numseconds_hours % 60;
+            if (seconds < 10) {
                 itemstring += "0";
             }
-            itemstring += (numseconds_hours % 60);
+            itemstring += seconds;
         }
         break;
     case 2:
@@ -360,7 +362,7 @@ str FAKKLoadGameItem::getListItemString(int which) const
             char   buffer[2048];
 
             time = atol(strings[2]);
-            strftime(buffer, sizeof(buffer), "%a %b %d %H:%M:%S %Y", localtime(&time));
+            strftime(buffer, sizeof(buffer), "%a %b %d %Y %H:%M:%S", localtime(&time));
             itemstring = buffer;
         }
         break;
