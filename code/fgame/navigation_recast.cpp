@@ -33,13 +33,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "DetourNavMeshBuilder.h"
 #include "DetourNavMeshQuery.h"
 
-static const float recastCellSize       = 12.5f;
-static const float recastCellHeight     = 1.0;
-static const float agentHeight          = CROUCH_VIEWHEIGHT;
-static const float agentMaxClimb        = STEPSIZE;
-static const float agentMaxSlope        = 45.5729942f; // normal of { 0.714142799, 0, 0.700000048 }, or an angle of -44.4270058
-static const float agentRadius          = 0.5;
-static const int   regionMinSize        = 5;
+static const float recastCellSize   = 12.5f;
+static const float recastCellHeight = 1.0;
+static const float agentHeight      = CROUCH_VIEWHEIGHT;
+static const float agentMaxClimb    = STEPSIZE;
+static const float agentMaxSlope = 45.5729942f; // normal of { 0.714142799, 0, 0.700000048 }, or an angle of -44.4270058
+static const float agentRadius   = 0.5;
+static const int   regionMinSize = 5;
 static const int   regionMergeSize      = 20;
 static const float edgeMaxLen           = 100.0;
 static const float edgeMaxError         = 1.3f;
@@ -52,7 +52,7 @@ static const float worldScale = 30.5 / 16.0;
 navMap_t prev_navMap;
 
 rcPolyMesh *navPolyMesh;
-dtNavMesh* navMeshDt;
+dtNavMesh  *navMeshDt;
 
 /// Recast build context.
 class RecastBuildContext : public rcContext
@@ -229,10 +229,8 @@ void G_Navigation_BuildRecastMesh(navMap_t& navigationMap)
     rcFreeCompactHeightfield(compactedHeightfield);
     rcFreeContourSet(contourSet);
 
-
     // Update poly flags from areas.
-    for (int i = 0; i < polyMesh->npolys; ++i)
-    {
+    for (int i = 0; i < polyMesh->npolys; ++i) {
         if (polyMesh->areas[i] == RC_WALKABLE_AREA) {
             polyMesh->flags[i] = 1;
         }
@@ -275,6 +273,7 @@ void G_Navigation_BuildRecastMesh(navMap_t& navigationMap)
     dtStatus status = navMesh->init(navData, navDataSize, DT_TILE_FREE_DATA);
 
     rcFreePolyMeshDetail(polyMeshDetail);
+    rcFreePolyMesh(polyMesh);
 
     dtNavMeshQuery *navQuery = dtAllocNavMeshQuery();
     navQuery->init(navMesh, 2048);
@@ -284,8 +283,21 @@ void G_Navigation_BuildRecastMesh(navMap_t& navigationMap)
         return;
     }
 
+    vec3_t        half = {128, 128, 128};
+    vec3_t        center;
+    Vector        bmax = dtParams.bmax;
+    Vector        bmin = dtParams.bmin;
+    Vector        mapCenter;
+    dtQueryFilter filter;
+    dtPolyRef     nearestRef;
+    vec3_t        nearestPt;
+
+    ConvertToGameCoord((bmax + bmin) * 0.5, mapCenter);
+    ConvertFromGameCoord(Vector(-214.63, -756.12, -39.85), center);
+    navQuery->findNearestPoly(center, half, &filter, &nearestRef, nearestPt);
+
     navPolyMesh = polyMesh;
-    navMeshDt = navMesh;
+    navMeshDt   = navMesh;
     prev_navMap = navigationMap;
 
     /*
@@ -338,7 +350,7 @@ void G_Navigation_DebugDraw()
     rcPolyMesh *polyMesh = navPolyMesh;
     Entity     *ent      = g_entities[0].entity;
 
-    if (!navPolyMesh) {
+    if (!navPolyMesh || !navMeshDt) {
         return;
     }
 
@@ -347,6 +359,26 @@ void G_Navigation_DebugDraw()
     }
 
     if (ai_showallnode->integer) {
+        for (int i = 0; i < navMeshDt->getMaxTiles(); i++) {
+            const dtMeshTile *tile = static_cast<const dtNavMesh *>(navMeshDt)->getTile(i);
+
+            for (int j = 0; j < tile->header->vertCount; j++) {
+                const float *pvert = &tile->verts[j * 3];
+
+                Vector org;
+                ConvertToGameCoord(pvert, org);
+
+                org.z += 16;
+
+                if (org.z < ent->origin.z - 94 || org.z > ent->origin.z + 94) {
+                    continue;
+                }
+
+                G_DebugBBox(org, Vector(-8, -8, -8), Vector(8, 8, 8), 1.0, 0.0, 0.5, 1.0);
+            }
+        }
+
+#if 0
         for (int i = 0; i < polyMesh->nverts; ++i) {
             const unsigned short *v = &polyMesh->verts[i * 3];
             const float           x = polyMesh->bmin[0] + v[0] * polyMesh->cs;
@@ -364,6 +396,7 @@ void G_Navigation_DebugDraw()
 
             G_DebugBBox(org, Vector(-8, -8, -8), Vector(8, 8, 8), 1.0, 0.0, 0.5, 1.0);
         }
+#endif
     }
 
     switch (ai_showroutes->integer) {
@@ -371,9 +404,34 @@ void G_Navigation_DebugDraw()
     default:
         break;
     case 1:
-    {
-        const float maxDistSquared = Square(ai_showroutes_distance->integer);
+        {
+            const float maxDistSquared = Square(ai_showroutes_distance->integer);
 
+            for (int i = 0; i < navMeshDt->getMaxTiles(); i++) {
+                const dtMeshTile *tile = static_cast<const dtNavMesh *>(navMeshDt)->getTile(i);
+
+                for (int j = 0; j < tile->header->polyCount; j++) {
+                    const dtPoly *poly = &tile->polys[j];
+
+                    for (int k = 0; k < poly->vertCount; ++k) {
+                        const float *pv1 = &tile->verts[poly->verts[k] * 3];
+                        const float *pv2 = &tile->verts[poly->verts[(k + 1) % poly->vertCount] * 3];
+
+                        Vector v1, v2;
+                        ConvertToGameCoord(pv1, v1);
+                        ConvertToGameCoord(pv2, v2);
+
+                        const Vector delta = v1 - ent->origin;
+
+                        if (delta.lengthSquared() >= maxDistSquared) {
+                            continue;
+                        }
+
+                        G_DebugLine(v1, v2, 0, 1, 0, 1);
+                    }
+                }
+            }
+#if 0
         for (int i = 0; i < polyMesh->npolys; ++i) {
             const unsigned short *p    = &polyMesh->polys[i * polyMesh->nvp * 2];
             const unsigned char   area = polyMesh->areas[i];
@@ -415,30 +473,36 @@ void G_Navigation_DebugDraw()
                 }
             }
         }
-    }
+#endif
+        }
         break;
     case 2:
-    {
-        const float maxDistSquared = Square(ai_showroutes_distance->integer);
-
-        for (int i = 0; i < prev_navMap.indices.NumObjects(); i += 3)
         {
-            const navVertice_t& v1 = prev_navMap.vertices[prev_navMap.indices[0]];
-            const navVertice_t& v2 = prev_navMap.vertices[prev_navMap.indices[1]];
-            const navVertice_t& v3 = prev_navMap.vertices[prev_navMap.indices[2]];
+            const float maxDistSquared = Square(ai_showroutes_distance->integer);
 
-            for (int k = 0; k < 3; ++k)
-            {
-                const Vector delta = prev_navMap.vertices[prev_navMap.indices[i + k]].xyz - ent->origin;
+            for (int i = 0; i < prev_navMap.indices.NumObjects(); i += 3) {
+                const navVertice_t& v1 = prev_navMap.vertices[prev_navMap.indices[0]];
+                const navVertice_t& v2 = prev_navMap.vertices[prev_navMap.indices[1]];
+                const navVertice_t& v3 = prev_navMap.vertices[prev_navMap.indices[2]];
 
-                if (delta.lengthSquared() >= maxDistSquared) {
-                    continue;
+                for (int k = 0; k < 3; ++k) {
+                    const Vector delta = prev_navMap.vertices[prev_navMap.indices[i + k]].xyz - ent->origin;
+
+                    if (delta.lengthSquared() >= maxDistSquared) {
+                        continue;
+                    }
+
+                    G_DebugLine(
+                        prev_navMap.vertices[prev_navMap.indices[i + k]].xyz,
+                        prev_navMap.vertices[prev_navMap.indices[i + ((k + 1) % 3)]].xyz,
+                        0,
+                        1,
+                        0,
+                        1
+                    );
                 }
-
-                G_DebugLine(prev_navMap.vertices[prev_navMap.indices[i + k]].xyz, prev_navMap.vertices[prev_navMap.indices[i + ((k + 1) % 3)]].xyz, 0, 1, 0, 1);
             }
         }
-    }
         break;
     }
 
