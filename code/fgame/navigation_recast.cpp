@@ -52,6 +52,7 @@ static const float worldScale = 30.5 / 16.0;
 navMap_t prev_navMap;
 
 rcPolyMesh *navPolyMesh;
+dtNavMesh* navMeshDt;
 
 /// Recast build context.
 class RecastBuildContext : public rcContext
@@ -228,6 +229,15 @@ void G_Navigation_BuildRecastMesh(navMap_t& navigationMap)
     rcFreeCompactHeightfield(compactedHeightfield);
     rcFreeContourSet(contourSet);
 
+
+    // Update poly flags from areas.
+    for (int i = 0; i < polyMesh->npolys; ++i)
+    {
+        if (polyMesh->areas[i] == RC_WALKABLE_AREA) {
+            polyMesh->flags[i] = 1;
+        }
+    }
+
     //
     // Create detour data
     //
@@ -252,8 +262,8 @@ void G_Navigation_BuildRecastMesh(navMap_t& navigationMap)
     dtParams.walkableHeight   = agentHeight;
     dtParams.walkableRadius   = agentRadius;
     dtParams.walkableClimb    = agentMaxClimb;
-    rcVcopy(minBounds, polyMesh->bmin);
-    rcVcopy(maxBounds, polyMesh->bmax);
+    rcVcopy(dtParams.bmin, polyMesh->bmin);
+    rcVcopy(dtParams.bmax, polyMesh->bmax);
     dtParams.cs          = recastCellSize;
     dtParams.ch          = recastCellHeight;
     dtParams.buildBvTree = true;
@@ -264,6 +274,8 @@ void G_Navigation_BuildRecastMesh(navMap_t& navigationMap)
 
     dtStatus status = navMesh->init(navData, navDataSize, DT_TILE_FREE_DATA);
 
+    rcFreePolyMeshDetail(polyMeshDetail);
+
     dtNavMeshQuery *navQuery = dtAllocNavMeshQuery();
     navQuery->init(navMesh, 2048);
 
@@ -273,6 +285,7 @@ void G_Navigation_BuildRecastMesh(navMap_t& navigationMap)
     }
 
     navPolyMesh = polyMesh;
+    navMeshDt = navMesh;
     prev_navMap = navigationMap;
 
     /*
