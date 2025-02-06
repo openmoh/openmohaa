@@ -79,8 +79,6 @@ void GameSpyDialog::FrameInitialized(void) {
     overlay->AllowActivate(true);
     
     overlay->Connect(this, W_Button_Pressed, W_Deactivated);
-
-    Connect(this, W_Deactivated, W_Deactivated);
 }
 
 void GameSpyDialog::Create(UIWidget* parent, const UIRect2D& rect, const char* title, const UColor& bgColor, const UColor& fgColor) 
@@ -107,4 +105,8 @@ void UI_LaunchGameSpy_f(void) {
         UColor(0.15f, 0.195f, 0.278f),
         UHudColor
     );
+
+    uWinMan.ActivateControl(dialog);
+
+    dialog->Connect(dialog, W_Deactivated, W_Deactivated);
 }
