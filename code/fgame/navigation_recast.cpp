@@ -27,11 +27,14 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../script/scriptexception.h"
 #include "navigate.h"
 #include "debuglines.h"
+#include "level.h"
 
 #include "Recast.h"
 #include "DetourNavMesh.h"
 #include "DetourNavMeshBuilder.h"
 #include "DetourNavMeshQuery.h"
+#include "DetourCrowd.h"
+#include "DetourNode.h"
 
 static const float recastCellSize   = 12.5f;
 static const float recastCellHeight = 1.0;
@@ -51,8 +54,17 @@ static const float worldScale = 30.5 / 16.0;
 
 navMap_t prev_navMap;
 
-rcPolyMesh *navPolyMesh;
-dtNavMesh  *navMeshDt;
+rcPolyMesh     *navPolyMesh;
+dtNavMesh      *navMeshDt;
+dtNavMeshQuery *navMeshQuery;
+dtCrowd        *navCrowd;
+int             navAgentId = -1;
+
+static Vector ai_startpath;
+static Vector ai_endpath;
+static Vector ai_pathlist[256];
+static int    ai_numPaths = 0;
+static int    ai_lastpath = 0;
 
 /// Recast build context.
 class RecastBuildContext : public rcContext
@@ -105,6 +117,53 @@ static void ConvertToGameCoord(const float *in, float *out)
     out[0] = in[0];
     out[1] = -in[2];
     out[2] = in[1];
+}
+
+void TestAgent(const Vector& start, const Vector& end, Vector *paths, int *numPaths, int maxPaths)
+{
+    vec3_t        half = {64, 64, 64};
+    vec3_t        startNav;
+    vec3_t        endNav;
+    dtQueryFilter filter;
+    dtPolyRef     nearestStartRef, nearestEndRef;
+    vec3_t        nearestStartPt, nearestEndPt;
+
+    ConvertFromGameCoord(start, startNav);
+    ConvertFromGameCoord(end, endNav);
+
+    if (navAgentId != -1) {
+        navCrowd->removeAgent(navAgentId);
+    }
+
+    dtCrowdAgentParams ap {0};
+
+    ap.radius                = agentRadius;
+    ap.height                = agentHeight;
+    ap.maxAcceleration       = 8.0f;
+    ap.maxSpeed              = 3.5f;
+    ap.collisionQueryRange   = ap.radius * 12.0f;
+    ap.pathOptimizationRange = ap.radius * 30.0f;
+    ap.updateFlags           = 0;
+    navAgentId               = navCrowd->addAgent(startNav, &ap);
+
+    navMeshQuery->findNearestPoly(startNav, half, &filter, &nearestStartRef, nearestStartPt);
+    navMeshQuery->findNearestPoly(endNav, half, &filter, &nearestEndRef, nearestEndPt);
+
+    navCrowd->requestMoveTarget(navAgentId, nearestEndRef, nearestEndPt);
+
+    dtPolyRef polys[256];
+    int       nPolys;
+    navMeshQuery->findPath(nearestStartRef, nearestEndRef, nearestStartPt, nearestEndPt, &filter, polys, &nPolys, 256);
+    navMeshQuery->findStraightPath(
+        nearestStartPt, nearestEndPt, polys, nPolys, (float *)paths, NULL, NULL, numPaths, maxPaths
+    );
+
+    for (int i = 0; i < *numPaths; i++) {
+        Vector converted;
+
+        ConvertToGameCoord(paths[i], converted);
+        paths[i] = converted;
+    }
 }
 
 /*
@@ -275,26 +334,16 @@ void G_Navigation_BuildRecastMesh(navMap_t& navigationMap)
     rcFreePolyMeshDetail(polyMeshDetail);
     rcFreePolyMesh(polyMesh);
 
-    dtNavMeshQuery *navQuery = dtAllocNavMeshQuery();
-    navQuery->init(navMesh, 2048);
+    navMeshQuery = dtAllocNavMeshQuery();
+    navMeshQuery->init(navMesh, 2048);
 
     if (dtStatusFailed(status)) {
         buildContext.log(RC_LOG_ERROR, "Could not init Detour navmesh query");
         return;
     }
 
-    vec3_t        half = {128, 128, 128};
-    vec3_t        center;
-    Vector        bmax = dtParams.bmax;
-    Vector        bmin = dtParams.bmin;
-    Vector        mapCenter;
-    dtQueryFilter filter;
-    dtPolyRef     nearestRef;
-    vec3_t        nearestPt;
-
-    ConvertToGameCoord((bmax + bmin) * 0.5, mapCenter);
-    ConvertFromGameCoord(Vector(-214.63, -756.12, -39.85), center);
-    navQuery->findNearestPoly(center, half, &filter, &nearestRef, nearestPt);
+    navCrowd = dtAllocCrowd();
+    navCrowd->init(MAX_CLIENTS, agentRadius, navMesh);
 
     navPolyMesh = polyMesh;
     navMeshDt   = navMesh;
@@ -506,42 +555,98 @@ void G_Navigation_DebugDraw()
         break;
     }
 
-    /*
-    for (int i = 0; i < polyMesh->npolys; ++i)
-    {
-        const unsigned short* p = &polyMesh->polys[i* polyMesh->nvp*2];
-        const unsigned char area = polyMesh->areas[i];
-
-        if (area != RC_WALKABLE_AREA) {
-            continue;
+    if (ai_showpath->integer && navMeshQuery) {
+        switch (ai_showpath->integer) {
+        default:
+        case 0:
+            ai_startpath = ai_endpath = vec_zero;
+            break;
+        case 1:
+            ai_startpath = ent->origin;
+            break;
+        case 2:
+            ai_endpath = ent->origin;
+            break;
+        case 3:
+            if (ai_lastpath != ai_showpath->integer) {
+                TestAgent(ai_startpath, ai_endpath, ai_pathlist, &ai_numPaths, ARRAY_LEN(ai_pathlist));
+            }
+            break;
         }
 
-        unsigned short vi[3];
-        for (int j = 2; j < polyMesh->nvp; ++j)
-        {
-            if (p[j] == RC_MESH_NULL_IDX) break;
-            vi[0] = p[0];
-            vi[1] = p[j-1];
-            vi[2] = p[j];
-            for (int k = 0; k < 3; ++k)
-            {
-                const unsigned short* v = &polyMesh->verts[vi[k]*3];
-                const float x = polyMesh->bmin[0] + v[0]*polyMesh->cs;
-                const float y = polyMesh->bmin[1] + (v[1]+1)*polyMesh->ch;
-                const float z = polyMesh->bmin[2] + v[2]*polyMesh->cs;
+        ai_lastpath = ai_showpath->integer;
 
-                Vector org;
-                ConvertToGameCoord(Vector(x, y, z), org);
+        navCrowd->update(level.frametime, NULL);
 
-                if (org.z < ent->origin.z - 94 || org.z > ent->origin.z + 94) {
-                    continue;
+        for (int i = 0; i < ai_numPaths - 1; i++) {
+            const Vector v1 = ai_pathlist[i] + Vector(0, 0, 64);
+            const Vector v2 = ai_pathlist[i + 1] + Vector(0, 0, 64);
+
+            G_DebugLine(v1, v2, 1.0, 0.0, 1.0, 1.0);
+        }
+
+#if 0
+        if (navAgentId != -1) {
+            const dtCrowdAgent* agent = navCrowd->getAgent(navAgentId);
+
+            const dtPolyRef* path = agent->corridor.getPath();
+            const int npath = agent->corridor.getPathCount();
+            for (int i = 0; i < npath; ++i) {
+                const dtMeshTile* tile;
+                const dtPoly* poly;
+                navMeshDt->getTileAndPolyByRef(path[i], &tile, &poly);
+
+                const unsigned int tileId = (unsigned int)(poly - tile->polys);
+
+                const dtPolyDetail* dm = &tile->detailMeshes[tileId];
+
+                for (int j = 0; j < dm->triCount; ++j)
+                {
+                    const unsigned char* t = &tile->detailTris[(dm->triBase + i) * 4];
+                    for (int k = 0; k < 3; ++k)
+                    {
+                        const float* pv1;
+                        const float* pv2;
+
+                        if (t[k] < poly->vertCount) {
+                            pv1 = &tile->verts[poly->verts[t[k]] * 3];
+                            pv2 = &tile->verts[poly->verts[t[(k + 1) % 3]] * 3];
+                        } else {
+                            pv1 = &tile->detailVerts[(dm->vertBase + t[k] - poly->vertCount) * 3];
+                            pv2 = &tile->detailVerts[(dm->vertBase + t[(k + 1) % 3] - poly->vertCount) * 3];
+                        }
+
+                        Vector v1, v2;
+                        ConvertToGameCoord(pv1, v1);
+                        ConvertToGameCoord(pv2, v2);
+
+                        G_DebugLine(v1, v2, 0.0, 1.0, 0.0, 1.0);
+                    }
                 }
-
-                G_DebugBBox(org, Vector(-8, -8, -8), Vector(8, 8, 8), 1.0, 0.0, 0.5, 1.0);
             }
         }
+#endif
+
+#if 0
+        const dtNodePool* pool = navMeshQuery->getNodePool();
+
+        if (pool) {
+            for (int i = 0; i < pool->getHashSize(); ++i)
+            {
+                for (dtNodeIndex j = pool->getFirst(i); j != DT_NULL_IDX; j = pool->getNext(j))
+                {
+                    const dtNode* node = pool->getNodeAtIdx(j + 1);
+                    if (!node) continue;
+
+                    Vector pos;
+                    ConvertToGameCoord(node->pos, pos);
+
+                    G_DebugBBox(pos, Vector(-8, -8, -8), Vector(8, 8, 8), 0.0, 1.0, 0.0, 1.0);
+                }
+            }
+        }
+#endif
     }
-    */
 }
 
 /*

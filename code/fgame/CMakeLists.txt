@@ -60,12 +60,13 @@ endif()
 
 # Recast navigation
 add_subdirectory(../recastnavigation-1.6.0/Detour fgame_detour)
+add_subdirectory(../recastnavigation-1.6.0/DetourCrowd fgame_detour_crowd)
 add_subdirectory(../recastnavigation-1.6.0/Recast fgame_recast)
 # Enable position independant code on recast navigation libraries.
 # Otherwise linking will fail relocating some functions on Linux
 set_property(TARGET Detour Recast PROPERTY POSITION_INDEPENDENT_CODE ON)
 
-target_link_libraries(fgame PRIVATE RecastNavigation::Detour RecastNavigation::Recast)
+target_link_libraries(fgame PRIVATE RecastNavigation::Detour RecastNavigation::DetourCrowd RecastNavigation::Recast)
 
 file(MAKE_DIRECTORY "${CMAKE_SOURCE_DIR}/code/parser/generated")
 target_sources(fgame PRIVATE ${BISON_fgame-parser_OUTPUTS} ${FLEX_fgame-lexer_OUTPUTS})
