@@ -28,18 +28,8 @@ CLASS_DECLARATION(UIFloatingWindow, GameSpyDialog, NULL) {
     {NULL, NULL}
 };
 
-GameSpyDialog::GameSpyDialog() {    
-    overlay = new UIButton();
-    overlay->InitFrame(NULL, 
-        UIRect2D(0, 0, uid.vidWidth, uid.vidHeight),
-        0);    
-    overlay->setBackgroundColor(UColor(0, 0, 0, 0.5f), true);
-    overlay->AllowActivate(true);
-    
-    overlay->Connect(this, W_Button_Pressed, W_Deactivated);
-
-    Connect(this, W_Deactivated, W_Deactivated);
-
+GameSpyDialog::GameSpyDialog()
+    : overlay(NULL) {
     AddFlag(WF_ALWAYS_TOP);
 }
 
@@ -80,6 +70,17 @@ void GameSpyDialog::FrameInitialized(void) {
     closeButton->setTitle("Close");
     closeButton->AllowActivate(true);
     closeButton->Connect(this, W_Button_Pressed, W_Deactivated);
+
+    overlay = new UIButton();
+    overlay->InitFrame(NULL, 
+        UIRect2D(0, 0, uid.vidWidth, uid.vidHeight),
+        0);    
+    overlay->setBackgroundColor(UColor(0, 0, 0, 0.5f), true);
+    overlay->AllowActivate(true);
+    
+    overlay->Connect(this, W_Button_Pressed, W_Deactivated);
+
+    Connect(this, W_Deactivated, W_Deactivated);
 }
 
 void GameSpyDialog::Create(UIWidget* parent, const UIRect2D& rect, const char* title, const UColor& bgColor, const UColor& fgColor) 
