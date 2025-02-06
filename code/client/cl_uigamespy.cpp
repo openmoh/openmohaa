@@ -29,7 +29,9 @@ CLASS_DECLARATION(UIFloatingWindow, GameSpyDialog, NULL) {
 };
 
 GameSpyDialog::GameSpyDialog()
-    : overlay(NULL) {
+    : overlay(NULL)
+    , label(NULL)
+    , closeButton(NULL) {
     AddFlag(WF_ALWAYS_TOP);
 }
 
