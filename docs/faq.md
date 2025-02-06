@@ -53,7 +53,7 @@ This forces Windows to refresh display settings, which may restore brightness.
 <summary>I am using a custom map/mod, and I experience glitches that do not occur in the original game. What should I do?</summary>
 
 ### 1. Check game file precedences:
-As OpenMoHAA has MultiUser Support (on Windows, user game data is stored in `%APPDATA%\openmohaa`), custom files in this directory ovveride existing files in the game installation folder.
+As OpenMoHAA has MultiUser Support (on Windows, user game data is stored in `%APPDATA%\openmohaa`), custom files in this directory override existing files in the game installation folder.
 
 |Example|
 |-|
@@ -70,13 +70,57 @@ If changing the file precedences has no effect on the glitch you discovered, you
 <details>
 <summary>I cannot set my screen resolution in the Options/Video menu. How can I change it?</summary>
 
-### 1. Edit `omconfig.cfg`
+### Edit `omconfig.cfg`:
 
-If they do not exist, add the following cvars to your OpenMoHAA config file that is located in the user game data folder (on Windows,  `%APPDATA%\openmohaa\main` or `mainta` or `maintt` `\configs\omconfig.cfg`):
+If they do not exist, add the following console variables (cvars) to your `omconfig.cfg`[^1]
 
-> seta r_mode "-1"<br/>
-> seta r_customwidth "1920"<br/>
-> seta r_customheight "1080"
+```
+seta r_mode "-1"
+seta r_customwidth "1920"
+seta r_customheight "1080"
+```
+
+### or (alternatively) run the game with command line parameters:
+
+Launch your OpenMoHAA client with the following:
+
+```
++set r_mode -1 +set r_customwidth 1920 +set r_customheight 1080
+```
 
 Change the width and height accordingly.
+
 </details>
+
+---
+
+<details>
+<summary>Console does not show up in OpenMoHAA. How can I enable it?</summary>
+
+### 1. Check if console is enabled
+
+In the Options -> Advanced menu, make sure that the checkbox is checked (red "X") at the Console.
+Alternatively, check if the value is equal to 1 for the following cvar in `omconfig.cfg`[^1]:
+```
+seta ui_console "1"
+```
+
+### 2. Check Console keys cvar
+
+OpenMoHAA introduces a new cvar that stores the keys to open up console. Edit the following cvar in your `omconfig.cfg`[^1]:
+
+```
+seta cl_consoleKeys "~ ` 0x7e 0x60"
+```
+
+As you see the default variable above, you can add multiple keys (between the quotation marks, divided by spaces) to display/hide the console. 
+
+> bind ` "toggleconsole" is not to be used anymore.
+</details>
+
+
+---
+
+Footnotes:
+
+[^1]: omconfig.cfg is the OpenMoHAA configuration file that is located in the user game data folder (on Windows,  `%APPDATA%\openmohaa\main` or `mainta` or `maintt` `\configs\omconfig.cfg`)
