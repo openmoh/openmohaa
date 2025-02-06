@@ -27,19 +27,21 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "cl_ui.h"
 #include "keycodes.h"
 
-class GameSpyDialog : public UIFloatingWindow {
+class GameSpyDialog : public UIFloatingWindow
+{
 private:
-    UIButton    *overlay;
-    UILabel     *label;
-    UIButton    *closeButton;
+    UIButton *overlay;
+    UILabel  *label;
+    UIButton *closeButton;
 
 protected:
-	void		FrameInitialized( void ) override;
+    void FrameInitialized(void) override;
 
 public:
     GameSpyDialog();
     ~GameSpyDialog();
-    void Create(UIWidget* parent, const UIRect2D& rect, const char* title, const UColor& bgColor, const UColor& fgColor);
+    void
+    Create(UIWidget *parent, const UIRect2D& rect, const char *title, const UColor& bgColor, const UColor& fgColor);
 
     CLASS_PROTOTYPE(GameSpyDialog);
 };

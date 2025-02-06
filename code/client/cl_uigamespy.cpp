@@ -25,17 +25,19 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 CLASS_DECLARATION(UIFloatingWindow, GameSpyDialog, NULL) {
     {&W_Deactivated, &UIFloatingWindow::ClosePressed},
-    {NULL, NULL}
+    {NULL,           NULL                           }
 };
 
 GameSpyDialog::GameSpyDialog()
     : overlay(NULL)
     , label(NULL)
-    , closeButton(NULL) {
+    , closeButton(NULL)
+{
     AddFlag(WF_ALWAYS_TOP);
 }
 
-GameSpyDialog::~GameSpyDialog() {
+GameSpyDialog::~GameSpyDialog()
+{
     if (overlay) {
         delete overlay;
         overlay = NULL;
@@ -52,44 +54,45 @@ GameSpyDialog::~GameSpyDialog() {
     }
 }
 
-void GameSpyDialog::FrameInitialized(void) {
+void GameSpyDialog::FrameInitialized(void)
+{
     UIFloatingWindow::FrameInitialized();
-    
+
     label = new UILabel();
-    
+
     label->InitFrame(getChildSpace(), getChildSpace()->getClientFrame(), 0);
-    label->setTitle("GameSpy's multiplayer matchmaking\n"
+    label->setTitle(
+        "GameSpy's multiplayer matchmaking\n"
         "and server browsing services, which were\n"
         "essential for online gaming in many classic\n"
         "titles including Medal of Honor: Allied Assault,\n"
-        "were permanently shut down in 2014.");
+        "were permanently shut down in 2014."
+    );
     label->setForegroundColor(UHudColor);
 
     closeButton = new UIButton();
-    closeButton->InitFrame(getChildSpace(), 
-        UIRect2D(100, 150, 100, 30),
-        0);
+    closeButton->InitFrame(getChildSpace(), UIRect2D(100, 150, 100, 30), 0);
     closeButton->setTitle("Close");
     closeButton->AllowActivate(true);
     closeButton->Connect(this, W_Button_Pressed, W_Deactivated);
 
     overlay = new UIButton();
-    overlay->InitFrame(NULL, 
-        UIRect2D(0, 0, uid.vidWidth, uid.vidHeight),
-        0);    
+    overlay->InitFrame(NULL, UIRect2D(0, 0, uid.vidWidth, uid.vidHeight), 0);
     overlay->setBackgroundColor(UColor(0, 0, 0, 0.5f), true);
     overlay->AllowActivate(true);
-    
+
     overlay->Connect(this, W_Button_Pressed, W_Deactivated);
 }
 
-void GameSpyDialog::Create(UIWidget* parent, const UIRect2D& rect, const char* title, const UColor& bgColor, const UColor& fgColor) 
+void GameSpyDialog::Create(
+    UIWidget *parent, const UIRect2D& rect, const char *title, const UColor& bgColor, const UColor& fgColor
+)
 {
     // First call parent's Create
     UIFloatingWindow::Create(parent, rect, title, bgColor, fgColor);
-    
+
     // After creation, find minimize button by name and hide it
-    for(UIWidget* child = getFirstChild(); child; child = getNextChild(child)) {
+    for (UIWidget *child = getFirstChild(); child; child = getNextChild(child)) {
         if (strcmp(child->getName(), "minimizebutton") == 0) {
             child->setShow(false);
             break;
@@ -97,7 +100,8 @@ void GameSpyDialog::Create(UIWidget* parent, const UIRect2D& rect, const char* t
     }
 }
 
-void UI_LaunchGameSpy_f(void) {
+void UI_LaunchGameSpy_f(void)
+{
     GameSpyDialog *dialog = new GameSpyDialog();
 
     dialog->Create(
