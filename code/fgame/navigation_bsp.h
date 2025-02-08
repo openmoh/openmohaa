@@ -33,6 +33,7 @@ struct navIndice_t {
     int indice;
 
     navIndice_t() noexcept {}
+
     navIndice_t(int value) noexcept
         : indice(value)
     {
@@ -40,8 +41,10 @@ struct navIndice_t {
     }
 
     operator int() const noexcept { return indice; };
-    operator int* () noexcept { return &indice; };
-    operator const int*() const noexcept { return &indice; };
+
+    operator int *() noexcept { return &indice; };
+
+    operator const int *() const noexcept { return &indice; };
 };
 
 struct navVertice_t {
@@ -53,9 +56,9 @@ struct navVertice_t {
 };
 
 struct navMap_t {
-    Container<navIndice_t>    indices;
-    Container<navVertice_t>   vertices;
-    Vector bounds[2];
+    Container<navIndice_t>  indices;
+    Container<navVertice_t> vertices;
+    Vector                  bounds[2];
 
 public:
     void AddVertice(const navVertice_t& vert);
@@ -93,10 +96,10 @@ struct cbrush_t {
 struct cmodel_t {
     vec3_t mins;
     vec3_t maxs;
-    int firstSurface;
-    int numSurfaces;
-    int firstBrush;
-    int numBrushes;
+    int    firstSurface;
+    int    numSurfaces;
+    int    firstBrush;
+    int    numBrushes;
 };
 
 struct cStaticModelUnpacked_t {
@@ -108,26 +111,26 @@ struct cStaticModelUnpacked_t {
     dtiki_t *tiki;
 };
 
-void G_Navigation_ProcessBSPForNavigation(const char* mapname, navMap_t& outNavigationMap);
+void G_Navigation_ProcessBSPForNavigation(const char *mapname, navMap_t& outNavigationMap);
 
 //
 // Brush loading
 //
-qboolean IsTriangleDegenerate(const vec3_t* points, int a, int b, int c);
-void FanFaceSurface(navMap_t& navMap, const cbrushside_t& side);
+qboolean IsTriangleDegenerate(const vec3_t *points, int a, int b, int c);
+void     FanFaceSurface(navMap_t& navMap, const cbrushside_t& side);
 qboolean CreateBrushWindings(const Container<cplane_t>& planes, cbrush_t& brush);
-void G_StripFaceSurface(navMap_t& navMap, const winding_t* winding);
+void     G_StripFaceSurface(navMap_t& navMap, const winding_t *winding);
 
 //
 // Utilities
 //
-qboolean FixWinding(winding_t* w);
+qboolean FixWinding(winding_t *w);
 
 //
 // Curve loading
 //
 
-static const unsigned int MAX_GRID_SIZE = 129;
+static const unsigned int MAX_GRID_SIZE  = 129;
 static const unsigned int MAX_PATCH_SIZE = 32;
 
 struct surfaceGrid_t {
@@ -158,8 +161,9 @@ struct surfaceGrid_t {
     }
 };
 
-surfaceGrid_t* G_SubdividePatchToGrid(int width, int height, float subdivide, Vector points[MAX_PATCH_SIZE * MAX_PATCH_SIZE]);
-void G_FreeSurfaceGridMesh(surfaceGrid_t* grid);
+surfaceGrid_t      *
+G_SubdividePatchToGrid(int width, int height, float subdivide, Vector points[MAX_PATCH_SIZE * MAX_PATCH_SIZE]);
+void G_FreeSurfaceGridMesh(surfaceGrid_t *grid);
 
 //
 // LOD Terrain loading
@@ -185,17 +189,15 @@ typedef union varnodeUnpacked_u {
 typedef unsigned int terraInt;
 
 struct terrainVert_t {
-    vec3_t       xyz;
-    vec2_t       texCoords[2];
-    float        fVariance;
-    float        fHgtAvg;
-    float        fHgtAdd;
-    unsigned int uiDistRecalc;
-    terraInt     nRef;
-    terraInt     iVertArray;
-    byte        *pHgt;
-    terraInt     iNext;
-    terraInt     iPrev;
+    vec3_t   xyz;
+    float    fVariance;
+    float    fHgtAvg;
+    float    fHgtAdd;
+    terraInt nRef;
+    terraInt iVertArray;
+    byte    *pHgt;
+    terraInt iNext;
+    terraInt iPrev;
 };
 
 struct terraTri_t {
@@ -247,13 +249,13 @@ struct poolInfo_t {
     size_t   nFree;
 };
 
-extern terraTri_t* g_pTris;
-extern terrainVert_t* g_pVert;
+extern terraTri_t    *g_pTris;
+extern terrainVert_t *g_pVert;
 
 extern poolInfo_t g_tri;
 extern poolInfo_t g_vert;
 
-void G_PreTessellateTerrain(cTerraPatchUnpacked_t* terraPatches, size_t numTerraPatches);
-void G_DoTriSplitting(cTerraPatchUnpacked_t* terraPatches, size_t numTerraPatches);
-void G_DoGeomorphs(cTerraPatchUnpacked_t* terraPatches, size_t numTerraPatches);
+void G_PreTessellateTerrain(cTerraPatchUnpacked_t *terraPatches, size_t numTerraPatches);
+void G_DoTriSplitting(cTerraPatchUnpacked_t *terraPatches, size_t numTerraPatches);
+void G_DoGeomorphs(cTerraPatchUnpacked_t *terraPatches, size_t numTerraPatches);
 void G_TerrainFree();

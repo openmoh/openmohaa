@@ -72,8 +72,7 @@ static terraInt G_AllocateVert(cTerraPatchUnpacked_t *patch)
     assert(g_vert.nFree > 0);
     g_vert.nFree--;
 
-    g_pVert[iVert].nRef         = 0;
-    g_pVert[iVert].uiDistRecalc = 0;
+    g_pVert[iVert].nRef = 0;
 
     return iVert;
 }
@@ -89,12 +88,6 @@ static void G_InterpolateVert(terraTri_t *pTri, terrainVert_t *pVert)
     const terrainVert_t         *pVert1 = &g_pVert[pTri->iPt[1]];
     const cTerraPatchUnpacked_t *pPatch = pTri->patch;
     const byte                  *pMinHeight, *pMaxHeight;
-
-    // Interpolate texture coordinates
-    pVert->texCoords[0][0] = (pVert0->texCoords[0][0] + pVert1->texCoords[0][0]) * 0.5f;
-    pVert->texCoords[0][1] = (pVert0->texCoords[0][1] + pVert1->texCoords[0][1]) * 0.5f;
-    pVert->texCoords[1][0] = (pVert0->texCoords[1][0] + pVert1->texCoords[1][0]) * 0.5f;
-    pVert->texCoords[1][1] = (pVert0->texCoords[1][1] + pVert1->texCoords[1][1]) * 0.5f;
 
     // Fixed in OPM
     //  Use the delta of the two pointers instead of adding them + divide to get the average height,
@@ -803,7 +796,7 @@ static void G_CalcVertMorphHeight(terrainVert_t *pVert)
 G_UpdateVertMorphHeight
 ================
 */
-static void G_UpdateVertMorphHeight(terrainVert_t* pVert)
+static void G_UpdateVertMorphHeight(terrainVert_t *pVert)
 {
     G_CalcVertMorphHeight(pVert);
 }
@@ -848,7 +841,7 @@ void G_DoTriSplitting(cTerraPatchUnpacked_t *terraPatches, size_t numTerraPatche
 G_DoGeomorphs
 ================
 */
-void G_DoGeomorphs(cTerraPatchUnpacked_t* terraPatches, size_t numTerraPatches)
+void G_DoGeomorphs(cTerraPatchUnpacked_t *terraPatches, size_t numTerraPatches)
 {
     for (size_t n = 0; n < numTerraPatches; n++) {
         cTerraPatchUnpacked_t *patch = &terraPatches[n];
@@ -856,7 +849,7 @@ void G_DoGeomorphs(cTerraPatchUnpacked_t* terraPatches, size_t numTerraPatches)
         g_vert.iCur = patch->drawinfo.iVertHead;
 
         while (g_vert.iCur) {
-            terrainVert_t* pVert = &g_pVert[g_vert.iCur];
+            terrainVert_t *pVert = &g_pVert[g_vert.iCur];
             G_UpdateVertMorphHeight(pVert);
             g_vert.iCur = pVert->iNext;
         }
