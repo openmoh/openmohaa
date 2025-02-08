@@ -1131,10 +1131,6 @@ void Level::SpawnEntities(char *entities, int svsTime)
     // Set up for a new map
     PathManager.LoadNodes();
 
-    // Added in OPM
-    //  Recast navigation
-    G_Navigation_LoadWorldMap(m_mapfile);
-
     gi.LoadResource("*147a");
 
     Com_Printf("-------------------- Actual Spawning Entities -----------------------\n");
@@ -1195,6 +1191,10 @@ void Level::SpawnEntities(char *entities, int svsTime)
     L_ProcessPendingEvents();
 
     gi.LoadResource("*148");
+
+    // Added in OPM
+    //  Recast navigation
+    G_Navigation_LoadWorldMap(m_mapfile);
 
     if (g_gametype->integer != GT_SINGLE_PLAYER) {
         dmManager.InitGame();
