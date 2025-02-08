@@ -59,14 +59,13 @@ elseif(UNIX)
 			target_link_libraries(syslib INTERFACE execinfo m)
 		else()
 			target_link_libraries(syslib INTERFACE m)
+			if (NOT APPLE)
+				# For when using GLIBC versions older than 2.34
+				target_link_libraries(syslib INTERFACE rt)
+			endif()
 		endif()
 	endif()
 	target_link_libraries(syslib INTERFACE stdc++)
-
-	if (NOT APPLE)
-		# For when using GLIBC versions older than 2.34
-		target_link_libraries(syslib INTERFACE rt)
-	endif()
 endif()
 
 if (APPLE)
