@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2023 the OpenMoHAA team
+Copyright (C) 2025 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -146,8 +146,7 @@ If PROJECTILES is set, the trigger will respond to projectiles (rockets, grenade
 
 Event EV_ExplodingWall_StopRotating
 (
-    "stoprotating",
-    EV_DEFAULT,
+    "stoprotating", EV_DEFAULT,
     NULL,
     NULL,
     "Stop rotating the wall.",
@@ -155,17 +154,16 @@ Event EV_ExplodingWall_StopRotating
 );
 Event EV_ExplodingWall_OnGround
 (
-    "checkonground",
-    EV_DEFAULT,
+    "checkonground", EV_DEFAULT,
     NULL,
     NULL,
     "Check if exploding wall is on ground.",
     EV_NORMAL
+
 );
 Event EV_ExplodingWall_AngleSpeed
 (
-    "anglespeed",
-    EV_DEFAULT,
+    "anglespeed", EV_DEFAULT,
     "f",
     "speed",
     "Set the angle speed.",
@@ -173,8 +171,7 @@ Event EV_ExplodingWall_AngleSpeed
 );
 Event EV_ExplodingWall_LandRadius
 (
-    "land_radius",
-    EV_DEFAULT,
+    "land_radius", EV_DEFAULT,
     "f",
     "radius",
     "Set the land radius.",
@@ -182,8 +179,7 @@ Event EV_ExplodingWall_LandRadius
 );
 Event EV_ExplodingWall_LandAngles
 (
-    "land_angles",
-    EV_DEFAULT,
+    "land_angles", EV_DEFAULT,
     "v",
     "angles",
     "Set the land angles.",
@@ -191,15 +187,13 @@ Event EV_ExplodingWall_LandAngles
 );
 Event EV_ExplodingWall_BaseVelocity
 (
-    "base_velocity",
-    EV_DEFAULT,
+    "base_velocity", EV_DEFAULT,
     "v",
     "velocity",
     "Set the base velocity.",
     EV_NORMAL
 );
-Event EV_ExplodingWall_RandomVelocity
-(
+Event EV_ExplodingWall_RandomVelocity(
     "random_velocity",
     EV_DEFAULT,
     "v",
@@ -209,8 +203,7 @@ Event EV_ExplodingWall_RandomVelocity
 );
 Event EV_ExplodingWall_SetDmg
 (
-    "dmg",
-    EV_DEFAULT,
+    "dmg", EV_DEFAULT,
     "i",
     "dmg",
     "Set the damage from the exploding wall.",
@@ -218,17 +211,16 @@ Event EV_ExplodingWall_SetDmg
 );
 Event EV_ExplodingWall_SetExplosions
 (
-    "explosions",
-    EV_DEFAULT,
+    "explosions", EV_DEFAULT,
     "i",
     "explosions",
     "Set the number of explosions.",
     EV_NORMAL
+
 );
 Event EV_ExplodingWall_Setup
 (
-    "setup",
-    EV_CODEONLY,
+    "setup", EV_CODEONLY,
     NULL,
     NULL,
     "Initializes the exploding wall.",
@@ -253,49 +245,41 @@ CLASS_DECLARATION(Trigger, ExplodingWall, "func_explodingwall") {
 };
 
 void ExplodingWall::AngleSpeed(Event *ev)
-
 {
     angle_speed = ev->GetFloat(1);
 }
 
 void ExplodingWall::LandRadius(Event *ev)
-
 {
     land_radius = ev->GetFloat(1);
 }
 
 void ExplodingWall::LandAngles(Event *ev)
-
 {
     land_angles = ev->GetVector(1);
 }
 
 void ExplodingWall::BaseVelocity(Event *ev)
-
 {
     base_velocity = ev->GetVector(1);
 }
 
 void ExplodingWall::RandomVelocity(Event *ev)
-
 {
     random_velocity = ev->GetVector(1);
 }
 
 void ExplodingWall::SetDmg(Event *ev)
-
 {
     dmg = ev->GetInteger(1);
 }
 
 void ExplodingWall::SetExplosions(Event *ev)
-
 {
     explosions = ev->GetInteger(1);
 }
 
 void ExplodingWall::Explode(Event *ev)
-
 {
     Entity *other;
     Vector  pos;
@@ -390,7 +374,6 @@ void ExplodingWall::Explode(Event *ev)
 }
 
 void ExplodingWall::DamageEvent(Event *ev)
-
 {
     Event  *event;
     Entity *inflictor;
@@ -427,7 +410,6 @@ void ExplodingWall::DamageEvent(Event *ev)
 }
 
 void ExplodingWall::GroundDamage(Event *ev)
-
 {
     Entity *inflictor;
     Entity *attacker;
@@ -467,14 +449,12 @@ void ExplodingWall::GroundDamage(Event *ev)
 }
 
 void ExplodingWall::SetupSecondStage(void)
-
 {
     health     = max_health;
     takedamage = DAMAGE_YES;
 }
 
 void ExplodingWall::StopRotating(Event *ev)
-
 {
     avelocity = vec_zero;
     setAngles(land_angles);
@@ -484,7 +464,6 @@ void ExplodingWall::StopRotating(Event *ev)
 }
 
 void ExplodingWall::CheckOnGround(Event *ev)
-
 {
     if ((velocity == vec_zero) && groundentity) {
         Vector delta;
@@ -532,7 +511,6 @@ void ExplodingWall::CheckOnGround(Event *ev)
 }
 
 void ExplodingWall::TouchFunc(Event *ev)
-
 {
     Entity *other;
 
@@ -568,7 +546,6 @@ void ExplodingWall::TouchFunc(Event *ev)
 }
 
 void ExplodingWall::Setup(Event *ev)
-
 {
     if (spawnflags & INVISIBLE) {
         if (Targeted()) {
@@ -650,6 +627,7 @@ Event EV_Teleporter_StopTeleport
     "entity",
     "Releases the entity at the end of the teleport.",
     EV_NORMAL
+
 );
 Event EV_Teleporter_SetThread
 (
@@ -759,7 +737,6 @@ void Teleporter::StartTeleport(Event *ev)
 }
 
 void Teleporter::Teleport(Event *ev)
-
 {
     Entity  *dest;
     int      i;
@@ -873,7 +850,6 @@ void Teleporter::Teleport(Event *ev)
 }
 
 void Teleporter::StopTeleport(Event *ev)
-
 {
     Entity *other;
 
@@ -974,6 +950,7 @@ Event EV_UseAnim_Reset
     NULL,
     "Reset's the Use Anim after it has no longer been touched.",
     EV_NORMAL
+
 );
 Event EV_UseAnim_Thread
 (
@@ -983,15 +960,16 @@ Event EV_UseAnim_Thread
     "label",
     "Sets which thread to use when this UseAnim is triggered.",
     EV_NORMAL
+
 );
 Event EV_UseAnim_Count
 (
-    "count",
-    EV_DEFAULT,
+    "count", EV_DEFAULT,
     "i",
     "newCount",
     "Sets how many times the UseAnim can be triggered.",
     EV_NORMAL
+
 );
 Event EV_UseAnim_TriggerTarget
 (
@@ -1019,6 +997,7 @@ Event EV_UseAnim_SetKey
     "keyName",
     "set the key needed to make this UseAnim function.",
     EV_NORMAL
+
 );
 Event EV_UseAnim_SetState
 (
@@ -1029,8 +1008,7 @@ Event EV_UseAnim_SetState
     "set the state to use for the player.",
     EV_NORMAL
 );
-Event EV_UseAnim_SetCamera
-(
+Event EV_UseAnim_SetCamera(
     "camera",
     EV_DEFAULT,
     "s",
@@ -1047,9 +1025,9 @@ Event EV_UseAnim_SetNumLoops
     "loopCount",
     "set the number of times to loop an animation per use.",
     EV_NORMAL
+
 );
-Event EV_UseAnim_SetDelay
-(
+Event EV_UseAnim_SetDelay(
     "delay",
     EV_DEFAULT,
     "f",
@@ -1120,7 +1098,6 @@ UseAnim::UseAnim()
 }
 
 void UseAnim::Touched(Event *ev)
-
 {
     Entity *other;
 
@@ -1142,7 +1119,6 @@ void UseAnim::Touched(Event *ev)
 }
 
 bool UseAnim::canBeUsed(Entity *activator)
-
 {
     Entity *dest;
 
@@ -1210,7 +1186,6 @@ bool UseAnim::canBeUsed(Entity *activator)
 bool UseAnim::GetInformation(
     Entity *activator, Vector *org, Vector *angles, str *animation, int *loopcount, str *state, str *camera
 )
-
 {
     Entity             *dest;
     UseAnimDestination *uadest;
@@ -1282,7 +1257,6 @@ bool UseAnim::GetInformation(
 }
 
 void UseAnim::TriggerTargets(Entity *activator)
-
 {
     //
     // fire off our trigger target if appropriate
@@ -1312,7 +1286,6 @@ void UseAnim::TriggerTargets(Entity *activator)
 }
 
 void UseAnim::Reset(Event *ev)
-
 {
     //
     // find out if our triggertarget is of type door and only reset if the door is closed
@@ -1363,25 +1336,21 @@ void UseAnim::Reset(Event *ev)
 }
 
 void UseAnim::SetThread(Event *ev)
-
 {
     thread.SetThread(ev->GetValue(1));
 }
 
 void UseAnim::SetDelay(Event *ev)
-
 {
     delay = ev->GetFloat(1);
 }
 
 void UseAnim::SetTriggerTarget(Event *ev)
-
 {
     triggertarget = ev->GetString(1);
 }
 
 void UseAnim::SetCount(Event *ev)
-
 {
     count = ev->GetInteger(1);
 }
@@ -1518,6 +1487,7 @@ Event EV_UseObject_StopThread
     "label",
     "Sets which stop thread to use when this UseObject is finished.",
     EV_NORMAL
+
 );
 Event EV_UseObject_ResetThread
 (
@@ -1527,6 +1497,7 @@ Event EV_UseObject_ResetThread
     "label",
     "Sets which thread to call when resetting.",
     EV_NORMAL
+
 );
 Event EV_UseObject_Count
 (
@@ -1536,6 +1507,7 @@ Event EV_UseObject_Count
     "newCount",
     "Sets how many times the UseObject can be triggered.",
     EV_NORMAL
+
 );
 Event EV_UseObject_Cone
 (
@@ -1545,6 +1517,7 @@ Event EV_UseObject_Cone
     "newCone",
     "Sets the cone in angles of where the Useobject can be used.",
     EV_NORMAL
+
 );
 Event EV_UseObject_Offset
 (
@@ -1554,6 +1527,7 @@ Event EV_UseObject_Offset
     "newOffset",
     "Sets the offset to use for this UseObject.",
     EV_NORMAL
+
 );
 Event EV_UseObject_YawOffset
 (
@@ -1563,6 +1537,7 @@ Event EV_UseObject_YawOffset
     "newYawOffset",
     "Sets the yaw offset to use for this UseObject.",
     EV_NORMAL
+
 );
 Event EV_UseObject_State
 (
@@ -1581,6 +1556,7 @@ Event EV_UseObject_StateBackwards
     "newState",
     "Sets the backward state to use for this UseObject.",
     EV_NORMAL
+
 );
 Event EV_UseObject_TriggerTarget
 (
@@ -1626,6 +1602,7 @@ Event EV_UseObject_Resetting
     NULL,
     "Intermediate function for useobject reset.",
     EV_NORMAL
+
 );
 Event EV_UseObject_DamageTriggered
 (
@@ -1662,6 +1639,7 @@ Event EV_UseObject_UseMaterial
     "nameOfUseMaterial",
     "the name of the material that glows when active.",
     EV_NORMAL
+
 );
 Event EV_UseObject_SetActiveState
 (
@@ -1671,6 +1649,7 @@ Event EV_UseObject_SetActiveState
     NULL,
     "event that sets up the proper skin for the useobject.",
     EV_NORMAL
+
 );
 
 #define MULTI_STATE (1 << 0)
@@ -1821,87 +1800,73 @@ void UseObject::SetActiveState(Event *ev)
 }
 
 void UseObject::SetMoveThread(Event *ev)
-
 {
     move_thread.SetThread(ev->GetValue(1));
 }
 
 void UseObject::SetStopThread(Event *ev)
-
 {
     stop_thread.SetThread(ev->GetValue(1));
 }
 
 void UseObject::SetResetThread(Event *ev)
-
 {
     reset_thread.SetThread(ev->GetValue(1));
 }
 
 void UseObject::ActivateEvent(Event *ev)
-
 {
     active = qtrue;
     PostEvent(EV_UseObject_SetActiveState, 0);
 }
 
 void UseObject::DeactivateEvent(Event *ev)
-
 {
     active = qfalse;
     PostEvent(EV_UseObject_SetActiveState, 0);
 }
 
 void UseObject::SetTriggerTarget(Event *ev)
-
 {
     triggertarget = ev->GetString(1);
 }
 
 void UseObject::SetOffset(Event *ev)
-
 {
     offset = ev->GetVector(1);
 }
 
 void UseObject::SetYawOffset(Event *ev)
-
 {
     yaw_offset = ev->GetFloat(1);
 }
 
 void UseObject::SetCount(Event *ev)
-
 {
     count = ev->GetInteger(1);
 }
 
 void UseObject::SetCone(Event *ev)
-
 {
     cone = cos(DEG2RAD(ev->GetFloat(1)));
 }
 
 void UseObject::SetState(Event *ev)
-
 {
     state = ev->GetString(1);
 }
 
 void UseObject::SetBackwardsState(Event *ev)
-
 {
     state_backwards = ev->GetString(1);
 }
 
 void UseObject::UseMaterialEvent(Event *ev)
-
 {
     useMaterial = ev->GetString(1);
 }
 
 void UseObject::SetResetTime(Event *ev)
-
 {
     reset_time = ev->GetFloat(1);
 }
@@ -1912,7 +1877,6 @@ void UseObject::Reset(Event *ev)
 }
 
 void UseObject::Resetting(Event *ev)
-
 {
     SetActiveState(NULL);
     NewAnim("start");
@@ -1948,7 +1912,6 @@ void UseObject::Resetting(Event *ev)
 }
 
 bool UseObject::canBeUsed(Vector org, Vector dir)
-
 {
     float  dot;
     Vector forward;
@@ -1992,7 +1955,6 @@ bool UseObject::canBeUsed(Vector org, Vector dir)
 }
 
 void UseObject::DamageFunc(Event *ev)
-
 {
     Event  *e;
     Entity *attacker;
@@ -2029,14 +1991,12 @@ void UseObject::DamageFunc(Event *ev)
 }
 
 void UseObject::DamageTriggered(Event *ev)
-
 {
     // grab the attacker from our event
     Stop(ev->GetEntity(1));
 }
 
 void UseObject::Setup(Entity *activator, Vector *org, Vector *ang, str *newstate)
-
 {
     if ((spawnflags & MULTI_STATE) && objectState) {
         *newstate = state_backwards;
@@ -2060,7 +2020,6 @@ void UseObject::Setup(Entity *activator, Vector *org, Vector *ang, str *newstate
 }
 
 void UseObject::Start(Event *ev)
-
 {
     //
     // fire off the move_thread
@@ -2079,7 +2038,6 @@ void UseObject::Start(Event *ev)
 }
 
 bool UseObject::Loop(void)
-
 {
     if (!count) {
         return qfalse;
@@ -2089,7 +2047,6 @@ bool UseObject::Loop(void)
 }
 
 void UseObject::Stop(Entity *activator)
-
 {
     if ((spawnflags & MULTI_STATE) && objectState) {
         NewAnim("start");
@@ -2222,7 +2179,6 @@ MonkeyBars::MonkeyBars()
 }
 
 void MonkeyBars::SetAngleEvent(Event *ev)
-
 {
     dir = ev->GetFloat(1);
 }
@@ -2252,7 +2208,6 @@ HorizontalPipe::HorizontalPipe()
 }
 
 void HorizontalPipe::SetAngleEvent(Event *ev)
-
 {
     dir = ev->GetFloat(1);
 }
@@ -2263,14 +2218,15 @@ void HorizontalPipe::SetAngleEvent(Event *ev)
 
 Event EV_TossObject_SetBounceSound
 (
-    "bouncesound", EV_DEFAULT,
+    "bouncesound",
+    EV_DEFAULT,
     "s",
     "sound",
     "When bouncing, what sound to play on impact",
     EV_NORMAL
+
 );
-Event EV_TossObject_SetBounceSoundChance
-(
+Event EV_TossObject_SetBounceSoundChance(
     "bouncesoundchance",
     EV_DEFAULT,
     "f[0,1]",
@@ -2309,31 +2265,26 @@ TossObject::TossObject(str model)
 }
 
 void TossObject::SetBounceSound(str bounce)
-
 {
     bouncesound = bounce;
 }
 
 void TossObject::SetBounceSound(Event *ev)
-
 {
     bouncesound = ev->GetString(1);
 }
 
 void TossObject::SetBounceSoundChance(float chance)
-
 {
     bouncesoundchance = chance;
 }
 
 void TossObject::SetBounceSoundChance(Event *ev)
-
 {
     bouncesoundchance = ev->GetFloat(1);
 }
 
 void TossObject::Stop(Event *ev)
-
 {
     setMoveType(MOVETYPE_NONE);
     setSolidType(SOLID_NOT);
@@ -2345,7 +2296,6 @@ void TossObject::Stop(Event *ev)
 }
 
 void TossObject::Touch(Event *ev)
-
 {
     Entity *ent;
 
@@ -2368,7 +2318,6 @@ void TossObject::Touch(Event *ev)
 }
 
 void TossObject::SetVelocity(float severity)
-
 {
     setSolidType(SOLID_BBOX);
     velocity[0] = 100.0 * crandom();
@@ -2413,8 +2362,7 @@ Pushable object
 
 Event EV_PushObject_Start
 (
-    "start",
-    EV_DEFAULT,
+    "start", EV_DEFAULT,
     NULL,
     NULL,
     "Sets up the pushobject.",
@@ -2423,8 +2371,7 @@ Event EV_PushObject_Start
 
 Event EV_PushObject_SetDamage
 (
-    "dmg",
-    EV_DEFAULT,
+    "dmg", EV_DEFAULT,
     "i",
     "damage",
     "Set the damage.",
@@ -2433,8 +2380,7 @@ Event EV_PushObject_SetDamage
 
 Event EV_PushObject_SetPushSound
 (
-    "pushsound",
-    EV_DEFAULT,
+    "pushsound", EV_DEFAULT,
     "s",
     "sound",
     "Set the pushing sound",
@@ -2464,13 +2410,11 @@ PushObject::PushObject()
 }
 
 void PushObject::SetPushSound(Event *ev)
-
 {
     pushsound = ev->GetString(1);
 }
 
 void PushObject::Start(Event *ev)
-
 {
     // make sure that this touches triggers
     flags |= FL_TOUCH_TRIGGERS;
@@ -2483,7 +2427,6 @@ void PushObject::Start(Event *ev)
 }
 
 qboolean PushObject::canPush(Vector dir)
-
 {
     trace_t trace;
 
@@ -2494,7 +2437,6 @@ qboolean PushObject::canPush(Vector dir)
 }
 
 qboolean PushObject::Push(Entity *pusher, Vector move)
-
 {
     trace_t trace;
 
@@ -2524,13 +2466,11 @@ qboolean PushObject::Push(Entity *pusher, Vector move)
 }
 
 Entity *PushObject::getOwner(void)
-
 {
     return (Entity *)owner;
 }
 
 void PushObject::BlockFunc(Event *ev)
-
 {
     Entity *other;
 
@@ -2544,7 +2484,6 @@ void PushObject::BlockFunc(Event *ev)
 }
 
 void PushObject::SetDamage(Event *ev)
-
 {
     dmg = ev->GetInteger(1);
 }
@@ -2632,6 +2571,7 @@ Event EV_FallingRock_SetBounceSound
     "sound",
     "Set the sound to play when the rock bounces",
     EV_NORMAL
+
 );
 
 CLASS_DECLARATION(Entity, FallingRock, "func_fallingrock") {
@@ -2666,7 +2606,6 @@ FallingRock::FallingRock()
 }
 
 Entity *FallingRock::SetNextBounceDir(void)
-
 {
     Entity *ent;
 
@@ -2686,7 +2625,6 @@ Entity *FallingRock::SetNextBounceDir(void)
 }
 
 void FallingRock::NextBounce(void)
-
 {
     float  time;
     float  distance;
@@ -2729,7 +2667,6 @@ void FallingRock::NextBounce(void)
 }
 
 void FallingRock::Rotate(Event *ev)
-
 {
     float mat[3][3];
     float ang;
@@ -2747,19 +2684,16 @@ void FallingRock::Rotate(Event *ev)
 }
 
 void FallingRock::SetWait(Event *ev)
-
 {
     wait = ev->GetFloat(1);
 }
 
 void FallingRock::SetSpeed(Event *ev)
-
 {
     speed = ev->GetFloat(1);
 }
 
 void FallingRock::SetDmg(Event *ev)
-
 {
     dmg = ev->GetInteger(1);
 }
@@ -2772,13 +2706,11 @@ void FallingRock::SetBounceSound(str sound)
 }
 
 void FallingRock::SetBounceSound(Event *ev)
-
 {
     SetBounceSound(ev->GetString(1));
 }
 
 void FallingRock::Activate(Event *ev)
-
 {
     if (active == 1) {
         return;
@@ -2802,7 +2734,6 @@ void FallingRock::Activate(Event *ev)
 }
 
 void FallingRock::StartFalling(Event *ev)
-
 {
     if (current) {
         return;
@@ -2827,7 +2758,6 @@ void FallingRock::StartFalling(Event *ev)
 }
 
 void FallingRock::Touch(Event *ev)
-
 {
     Entity *other;
 
@@ -2858,7 +2788,6 @@ void FallingRock::Touch(Event *ev)
 }
 
 void FallingRock::Bounce(Event *ev)
-
 {
     Vector delta;
 
@@ -3155,10 +3084,19 @@ void FuncLadder::EnsureForwardOffLadder(Entity *pUser)
     pUser->setOrigin(trace.endpos);
 }
 
+const Vector& FuncLadder::getFacingAngles() const
+{
+    return m_vFacingAngles;
+}
+
+const Vector& FuncLadder::getFacingDir() const
+{
+    return m_vFacingDir;
+}
+
 Event EV_InfoLandmark_Name
 (
-    "landmark_name",
-    EV_DEFAULT,
+    "landmark_name", EV_DEFAULT,
     "s",
     "name",
     "Set the name of this landmark",
@@ -3166,8 +3104,7 @@ Event EV_InfoLandmark_Name
 );
 Event EV_InfoLandmark_SetOrigin
 (
-    "origin",
-    EV_DEFAULT,
+    "origin", EV_DEFAULT,
     "v",
     "origin",
     "Set the origin of the landmark.",
