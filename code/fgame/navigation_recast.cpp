@@ -54,7 +54,6 @@ static const float worldScale = 30.5 / 16.0;
 
 navMap_t prev_navMap;
 
-rcPolyMesh     *navPolyMesh;
 dtNavMesh      *navMeshDt;
 dtNavMeshQuery *navMeshQuery;
 dtCrowd        *navCrowd;
@@ -65,6 +64,24 @@ static Vector ai_endpath;
 static Vector ai_pathlist[256];
 static int    ai_numPaths = 0;
 static int    ai_lastpath = 0;
+
+struct offMeshNavigationPoint {
+    Vector         start;
+    Vector         end;
+    float          radius;
+    unsigned short flags;
+    unsigned char  area;
+    bool           bidirectional;
+    int            id;
+
+    offMeshNavigationPoint()
+        : radius(0)
+        , flags(0)
+        , area(0)
+        , bidirectional(true)
+        , id(0)
+    {}
+};
 
 /// Recast build context.
 class RecastBuildContext : public rcContext
@@ -168,38 +185,189 @@ void TestAgent(const Vector& start, const Vector& end, Vector *paths, int *numPa
 
 /*
 ============
-G_Navigation_BuildRecastMesh
+G_Navigation_ConnectLadders
 ============
 */
-void G_Navigation_BuildRecastMesh(navMap_t& navigationMap)
+void G_Navigation_ConnectLadders(Container<offMeshNavigationPoint>& points)
+{
+    gentity_t *edict;
+
+    for (edict = active_edicts.next; edict != &active_edicts; edict = edict->next) {
+        if (!edict->entity) {
+            continue;
+        }
+
+        if (edict->entity->isSubclassOf(FuncLadder)) {
+            const FuncLadder *ladder    = static_cast<FuncLadder *>(edict->entity);
+            const Vector&     facingDir = ladder->getFacingDir();
+
+            offMeshNavigationPoint point;
+
+            point.start         = edict->entity->origin + Vector(0, 0, edict->entity->mins.z) - facingDir * 32;
+            point.end           = edict->entity->origin + Vector(0, 0, edict->entity->maxs.z + 16) + facingDir * 16;
+            point.bidirectional = true;
+            point.radius        = agentRadius;
+            point.area          = 0;
+            point.flags         = 1;
+
+            points.AddObject(point);
+        }
+    }
+}
+
+/*
+============
+G_Navigation_ConnectFallPaths
+============
+*/
+void G_Navigation_ConnectFallPaths(Container<offMeshNavigationPoint>& points, const rcPolyMesh *polyMesh)
+{
+    // FIXME: TODO
+}
+
+/*
+============
+G_Navigation_ConnectJumpPaths
+============
+*/
+void G_Navigation_ConnectJumpPaths(Container<offMeshNavigationPoint>& points, const rcPolyMesh *polyMesh)
+{
+    // FIXME: TODO
+}
+
+/*
+============
+G_Navigation_GatherOffMeshPoints
+============
+*/
+void G_Navigation_GatherOffMeshPoints(Container<offMeshNavigationPoint>& points, const rcPolyMesh *polyMesh)
+{
+    G_Navigation_ConnectLadders(points);
+    G_Navigation_ConnectFallPaths(points, polyMesh);
+    G_Navigation_ConnectJumpPaths(points, polyMesh);
+}
+
+void G_Navigation_BuildDetourData(
+    RecastBuildContext& buildContext, rcPolyMesh *polyMesh, rcPolyMeshDetail *polyMeshDetail
+)
+{
+    unsigned char *navData     = NULL;
+    int            navDataSize = 0;
+
+    dtNavMeshCreateParams dtParams {0};
+
+    dtParams.verts            = polyMesh->verts;
+    dtParams.vertCount        = polyMesh->nverts;
+    dtParams.polys            = polyMesh->polys;
+    dtParams.polyAreas        = polyMesh->areas;
+    dtParams.polyFlags        = polyMesh->flags;
+    dtParams.polyCount        = polyMesh->npolys;
+    dtParams.nvp              = polyMesh->nvp;
+    dtParams.detailMeshes     = polyMeshDetail->meshes;
+    dtParams.detailVerts      = polyMeshDetail->verts;
+    dtParams.detailVertsCount = polyMeshDetail->nverts;
+    dtParams.detailTris       = polyMeshDetail->tris;
+    dtParams.detailTriCount   = polyMeshDetail->ntris;
+    dtParams.walkableHeight   = agentHeight;
+    dtParams.walkableRadius   = agentRadius;
+    dtParams.walkableClimb    = agentMaxClimb;
+    rcVcopy(dtParams.bmin, polyMesh->bmin);
+    rcVcopy(dtParams.bmax, polyMesh->bmax);
+    dtParams.cs          = recastCellSize;
+    dtParams.ch          = recastCellHeight;
+    dtParams.buildBvTree = true;
+
+    Container<offMeshNavigationPoint> points;
+    G_Navigation_GatherOffMeshPoints(points, polyMesh);
+
+    float          *offMeshConVerts;
+    float          *offMeshConRad;
+    unsigned short *offMeshConFlags;
+    unsigned char  *offMeshConAreas;
+    unsigned char  *offMeshConDir;
+    unsigned int   *offMeshConUserID;
+
+    if (points.NumObjects()) {
+        dtParams.offMeshConCount = points.NumObjects();
+
+        offMeshConVerts  = new float[6 * dtParams.offMeshConCount];
+        offMeshConRad    = new float[dtParams.offMeshConCount];
+        offMeshConFlags  = new unsigned short[dtParams.offMeshConCount];
+        offMeshConAreas  = new unsigned char[dtParams.offMeshConCount];
+        offMeshConDir    = new unsigned char[dtParams.offMeshConCount];
+        offMeshConUserID = new unsigned int[dtParams.offMeshConCount];
+
+        for (int i = 0; i < dtParams.offMeshConCount; i++) {
+            const offMeshNavigationPoint& point = points.ObjectAt(i + 1);
+
+            ConvertFromGameCoord(point.start, &offMeshConVerts[i * 6]);
+            ConvertFromGameCoord(point.end, &offMeshConVerts[i * 6 + 3]);
+
+            offMeshConRad[i]    = point.radius;
+            offMeshConFlags[i]  = point.flags;
+            offMeshConDir[i]    = point.bidirectional ? DT_OFFMESH_CON_BIDIR : 0;
+            offMeshConUserID[i] = i;
+        }
+
+        dtParams.offMeshConVerts  = offMeshConVerts;
+        dtParams.offMeshConRad    = offMeshConRad;
+        dtParams.offMeshConFlags  = offMeshConFlags;
+        dtParams.offMeshConAreas  = offMeshConAreas;
+        dtParams.offMeshConDir    = offMeshConDir;
+        dtParams.offMeshConUserID = offMeshConUserID;
+    }
+
+    dtCreateNavMeshData(&dtParams, &navData, &navDataSize);
+
+    if (points.NumObjects()) {
+        delete[] offMeshConVerts;
+        delete[] offMeshConRad;
+        delete[] offMeshConFlags;
+        delete[] offMeshConAreas;
+        delete[] offMeshConDir;
+        delete[] offMeshConUserID;
+    }
+
+    dtNavMesh *navMesh = dtAllocNavMesh();
+
+    dtStatus status = navMesh->init(navData, navDataSize, DT_TILE_FREE_DATA);
+
+    navMeshQuery = dtAllocNavMeshQuery();
+    navMeshQuery->init(navMesh, 2048);
+
+    if (dtStatusFailed(status)) {
+        buildContext.log(RC_LOG_ERROR, "Could not init Detour navmesh query");
+        return;
+    }
+
+    navCrowd = dtAllocCrowd();
+    navCrowd->init(MAX_CLIENTS, agentRadius, navMesh);
+
+    navMeshDt = navMesh;
+}
+
+/*
+============
+G_Navigation_GeneratePolyMesh
+============
+*/
+void G_Navigation_GeneratePolyMesh(
+    RecastBuildContext& buildContext,
+    float              *vertsBuffer,
+    int                 numVertices,
+    int                *indexesBuffer,
+    int                 numIndexes,
+    rcPolyMesh       *&       outPolyMesh,
+    rcPolyMeshDetail *& outPolyMeshDetail
+)
 {
     Vector             minBounds, maxBounds;
     int                gridSizeX, gridSizeZ;
-    RecastBuildContext buildContext;
-    const size_t       numIndexes     = navigationMap.indices.NumObjects();
-    const size_t       numTris        = numIndexes / 3;
-    const size_t       numVertices    = navigationMap.vertices.NumObjects();
     const unsigned int walkableHeight = (int)ceilf(agentHeight / recastCellHeight);
     const unsigned int walkableClimb  = (int)floorf(agentMaxClimb / recastCellHeight);
     const unsigned int walkableRadius = (int)ceilf(agentRadius / recastCellSize);
     const unsigned int maxEdgeLen     = (int)(edgeMaxLen / recastCellSize);
-
-    //
-    // Recreate the vertice buffer so it's compatible
-    // with Recast's right-handed Y-up coordinate system
-    float *vertsBuffer = new float[numVertices * 3];
-
-    for (size_t i = 0; i < numVertices; i++) {
-        const navVertice_t& inVertice = navigationMap.vertices.ObjectAt(i + 1);
-        ConvertFromGameCoord(inVertice.xyz, &vertsBuffer[i * 3]);
-    }
-
-    int *indexesBuffer = new int[numIndexes];
-    for (size_t i = 0; i < numIndexes; i += 3) {
-        indexesBuffer[i + 0] = navigationMap.indices[i + 2];
-        indexesBuffer[i + 1] = navigationMap.indices[i + 1];
-        indexesBuffer[i + 2] = navigationMap.indices[i + 0];
-    }
+    const unsigned int numTris        = numIndexes / 3;
 
     //
     // Calculate the grid size
@@ -226,8 +394,6 @@ void G_Navigation_BuildRecastMesh(navMap_t& navigationMap)
     );
 
     delete[] triAreas;
-    delete[] vertsBuffer;
-    delete[] indexesBuffer;
 
     //
     // Filter walkable surfaces
@@ -295,111 +461,71 @@ void G_Navigation_BuildRecastMesh(navMap_t& navigationMap)
         }
     }
 
+    outPolyMesh       = polyMesh;
+    outPolyMeshDetail = polyMeshDetail;
+}
+
+/*
+============
+G_Navigation_BuildRecastMesh
+============
+*/
+void G_Navigation_BuildRecastMesh(navMap_t& navigationMap)
+{
+    RecastBuildContext buildContext;
+    const int          numIndexes  = navigationMap.indices.NumObjects();
+    const int          numVertices = navigationMap.vertices.NumObjects();
+    const int          numTris     = numIndexes / 3;
+    int                i;
+
+    //
+    // Recreate the vertice buffer so it's compatible
+    // with Recast's right-handed Y-up coordinate system
+    float *vertsBuffer = new float[numVertices * 3];
+
+    for (i = 0; i < numVertices; i++) {
+        const navVertice_t& inVertice = navigationMap.vertices.ObjectAt(i + 1);
+        ConvertFromGameCoord(inVertice.xyz, &vertsBuffer[i * 3]);
+    }
+
+    int *indexesBuffer = new int[numIndexes];
+    for (i = 0; i < numTris; i++) {
+        indexesBuffer[i * 3 + 0] = navigationMap.indices[i * 3 + 2];
+        indexesBuffer[i * 3 + 1] = navigationMap.indices[i * 3 + 1];
+        indexesBuffer[i * 3 + 2] = navigationMap.indices[i * 3 + 0];
+    }
+
+    //
+    // Generate the mesh
+    //
+
+    rcPolyMesh       *polyMesh;
+    rcPolyMeshDetail *polyMeshDetail;
+
+    G_Navigation_GeneratePolyMesh(
+        buildContext, vertsBuffer, numVertices, indexesBuffer, numIndexes, polyMesh, polyMeshDetail
+    );
+
+    delete[] indexesBuffer;
+    delete[] vertsBuffer;
+
     //
     // Create detour data
     //
 
-    unsigned char *navData     = NULL;
-    int            navDataSize = 0;
-
-    dtNavMeshCreateParams dtParams {0};
-
-    dtParams.verts            = polyMesh->verts;
-    dtParams.vertCount        = polyMesh->nverts;
-    dtParams.polys            = polyMesh->polys;
-    dtParams.polyAreas        = polyMesh->areas;
-    dtParams.polyFlags        = polyMesh->flags;
-    dtParams.polyCount        = polyMesh->npolys;
-    dtParams.nvp              = polyMesh->nvp;
-    dtParams.detailMeshes     = polyMeshDetail->meshes;
-    dtParams.detailVerts      = polyMeshDetail->verts;
-    dtParams.detailVertsCount = polyMeshDetail->nverts;
-    dtParams.detailTris       = polyMeshDetail->tris;
-    dtParams.detailTriCount   = polyMeshDetail->ntris;
-    dtParams.walkableHeight   = agentHeight;
-    dtParams.walkableRadius   = agentRadius;
-    dtParams.walkableClimb    = agentMaxClimb;
-    rcVcopy(dtParams.bmin, polyMesh->bmin);
-    rcVcopy(dtParams.bmax, polyMesh->bmax);
-    dtParams.cs          = recastCellSize;
-    dtParams.ch          = recastCellHeight;
-    dtParams.buildBvTree = true;
-
-    dtCreateNavMeshData(&dtParams, &navData, &navDataSize);
-
-    dtNavMesh *navMesh = dtAllocNavMesh();
-
-    dtStatus status = navMesh->init(navData, navDataSize, DT_TILE_FREE_DATA);
+    G_Navigation_BuildDetourData(buildContext, polyMesh, polyMeshDetail);
 
     rcFreePolyMeshDetail(polyMeshDetail);
     rcFreePolyMesh(polyMesh);
 
-    navMeshQuery = dtAllocNavMeshQuery();
-    navMeshQuery->init(navMesh, 2048);
-
-    if (dtStatusFailed(status)) {
-        buildContext.log(RC_LOG_ERROR, "Could not init Detour navmesh query");
-        return;
-    }
-
-    navCrowd = dtAllocCrowd();
-    navCrowd->init(MAX_CLIENTS, agentRadius, navMesh);
-
-    navPolyMesh = polyMesh;
-    navMeshDt   = navMesh;
     prev_navMap = navigationMap;
-
-    /*
-    for (int i = 0; i < polyMesh->npolys; ++i)
-    {
-        const unsigned short* p = &polyMesh->polys[i* polyMesh->nvp*2];
-        const unsigned char area = polyMesh->areas[i];
-
-        if (area != RC_WALKABLE_AREA) {
-            continue;
-        }
-
-        unsigned short vi[3];
-        for (int j = 2; j < polyMesh->nvp; ++j)
-        {
-            if (p[j] == RC_MESH_NULL_IDX) break;
-            vi[0] = p[0];
-            vi[1] = p[j-1];
-            vi[2] = p[j];
-            for (int k = 0; k < 3; ++k)
-            {
-                const unsigned short* v = &polyMesh->verts[vi[k]*3];
-                const float x = polyMesh->bmin[0] + v[0]*polyMesh->cs;
-                const float y = polyMesh->bmin[1] + (v[1]+1)*polyMesh->ch;
-                const float z = polyMesh->bmin[2] + v[2]*polyMesh->cs;
-
-                Vector org;
-                ConvertToGameCoord(Vector(x, y, z), org);
-
-                for (l = 0; l < PathSearch::nodecount; l++) {
-                    if (PathSearch::pathnodes[l] && PathSearch::pathnodes[l]->origin == org) {
-                        break;
-                    }
-                }
-
-                if (l != PathSearch::nodecount) {
-                    continue;
-                }
-
-                PathNode* pathNode = new PathNode;
-                pathNode->origin = org;
-            }
-        }
-    }
-    */
 }
 
 void G_Navigation_DebugDraw()
 {
-    rcPolyMesh *polyMesh = navPolyMesh;
-    Entity     *ent      = g_entities[0].entity;
+    Entity *ent = g_entities[0].entity;
 
-    if (!navPolyMesh || !navMeshDt) {
+    if (!navMeshDt) {
         return;
     }
 
@@ -479,6 +605,26 @@ void G_Navigation_DebugDraw()
                         G_DebugLine(v1, v2, 0, 1, 0, 1);
                     }
                 }
+
+                /*
+                for (int j = 0; j < tile->header->offMeshConCount; j++) {
+                    const dtOffMeshConnection* offMeshCon = &tile->offMeshCons[j];
+                    const float* pv1 = &offMeshCon->pos[0];
+                    const float* pv2 = &offMeshCon->pos[3];
+
+                    Vector v1, v2;
+                    ConvertToGameCoord(pv1, v1);
+                    ConvertToGameCoord(pv2, v2);
+
+                    const Vector delta = v1 - ent->origin;
+
+                    if (delta.lengthSquared() >= maxDistSquared) {
+                        continue;
+                    }
+
+                    G_DebugLine(v1, v2, 0, 1, 1, 1);
+                }
+                */
             }
 #if 0
         for (int i = 0; i < polyMesh->npolys; ++i) {
