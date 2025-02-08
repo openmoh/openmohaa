@@ -113,6 +113,28 @@ void G_LoadShaders(const gameLump_c& lump, Container<cshader_t>& shaders)
 
 /*
 =================
+G_IsValidContentsForPlayer
+=================
+*/
+bool G_IsValidContentsForPlayer(int contents)
+{
+    if (contents & CONTENTS_SOLID) {
+        return true;
+    }
+
+    if (contents & CONTENTS_PLAYERCLIP) {
+        return true;
+    }
+
+    if (contents & CONTENTS_FENCE) {
+        return true;
+    }
+
+    return false;
+}
+
+/*
+=================
 G_LoadPlanes
 =================
 */
@@ -352,7 +374,7 @@ void G_GenerateBrushTriangles(navMap_t& navMap, const Container<cplane_t>& plane
     size_t i;
     size_t numSkip = 0;
 
-    if (!(brush.contents & CONTENTS_SOLID) && !(brush.contents & CONTENTS_PLAYERCLIP) && !(brush.contents & CONTENTS_FENCE)) {
+    if (!G_IsValidContentsForPlayer(brush.contents)) {
         return;
     }
 
@@ -370,9 +392,8 @@ void G_GenerateBrushTriangles(navMap_t& navMap, const Container<cplane_t>& plane
 G_GenerateVerticesFromHull
 ============
 */
-void G_GenerateVerticesFromHull(navMap_t& navMap, bspMap_c& inBspMap)
+void G_GenerateVerticesFromHull(navMap_t& navMap, bspMap_c& inBspMap, const Container<cshader_t>& shaders)
 {
-    Container<cshader_t>    shaders;
     Container<cplane_t>     planes;
     Container<cbrushside_t> sides;
     Container<cbrush_t>     brushes;
@@ -380,7 +401,6 @@ void G_GenerateVerticesFromHull(navMap_t& navMap, bspMap_c& inBspMap)
     size_t                  i, j;
     size_t                  baseVertex;
 
-    G_LoadShaders(inBspMap.LoadLump(LUMP_SHADERS), shaders);
     G_LoadPlanes(inBspMap.LoadLump(LUMP_PLANES), planes);
     G_LoadBrushSides(inBspMap.LoadLump(LUMP_BRUSHSIDES), shaders, planes, sides);
     G_LoadBrushes(inBspMap.LoadLump(LUMP_BRUSHES), shaders, sides, brushes);
@@ -429,12 +449,18 @@ static void RenderSurfaceGrid(navMap_t& navMap, const surfaceGrid_t *grid)
 ParseMesh
 ============
 */
-static void ParseMesh(navMap_t& navMap, const dsurface_t *ds, const drawVert_t *verts)
+static void
+ParseMesh(navMap_t& navMap, const dsurface_t *ds, const drawVert_t *verts, const Container<cshader_t>& shaders)
 {
     int            i, j;
     int            width, height, numPoints;
     Vector         points[MAX_PATCH_SIZE * MAX_PATCH_SIZE];
     surfaceGrid_t *grid;
+
+    const cshader_t& shader = shaders.ObjectAt(LittleLong(ds->shaderNum) + 1);
+    if (!G_IsValidContentsForPlayer(shader.contentFlags)) {
+        return;
+    }
 
     width  = LittleLong(ds->patchWidth);
     height = LittleLong(ds->patchHeight);
@@ -545,7 +571,7 @@ static void ParseFlare(navMap_t& navMap, const dsurface_t *ds, const drawVert_t 
 G_LoadSurfaces
 ============
 */
-static void G_LoadSurfaces(navMap_t& navMap, bspMap_c& inBspMap)
+static void G_LoadSurfaces(navMap_t& navMap, bspMap_c& inBspMap, const Container<cshader_t>& shaders)
 {
     const dsurface_t *in;
     const drawVert_t *dv;
@@ -615,7 +641,7 @@ static void G_LoadSurfaces(navMap_t& navMap, bspMap_c& inBspMap)
     for (i = 0; i < count; i++, in++) {
         switch (LittleLong(in->surfaceType)) {
         case MST_PATCH:
-            ParseMesh(navMap, in, dv);
+            ParseMesh(navMap, in, dv, shaders);
             break;
         case MST_TRIANGLE_SOUP:
             //ParseTriSurf(navMap, in, dv, indexes);
@@ -793,7 +819,7 @@ void G_RenderTerrainTris(navMap_t& navMap, cTerraPatchUnpacked_t *terraPatches, 
 G_LoadAndRenderTerrain
 ================
 */
-void G_LoadAndRenderTerrain(navMap_t& navMap, bspMap_c& inBspMap)
+void G_LoadAndRenderTerrain(navMap_t& navMap, bspMap_c& inBspMap, const Container<cshader_t>& shaders)
 {
     int                    i;
     cTerraPatch_t         *in;
@@ -808,7 +834,7 @@ void G_LoadAndRenderTerrain(navMap_t& navMap, bspMap_c& inBspMap)
     }
 
     if (lump.length % sizeof(cTerraPatch_t)) {
-        Com_Error(ERR_DROP, "R_LoadTerrain: funny lump size");
+        throw ScriptException("LoadTerrain: funny lump size in %s", inBspMap.mapname);
     }
 
     numTerraPatches = lump.length / sizeof(cTerraPatch_t);
@@ -819,6 +845,12 @@ void G_LoadAndRenderTerrain(navMap_t& navMap, bspMap_c& inBspMap)
 
     for (i = 0; i < numTerraPatches; in++, out++, i++) {
         G_SwapTerraPatch(in);
+
+        const cshader_t& shader = shaders.ObjectAt(in->iShader + 1);
+        if (!G_IsValidContentsForPlayer(shader.contentFlags)) {
+            continue;
+        }
+
         G_UnpackTerraPatch(in, out);
     }
 
@@ -883,9 +915,10 @@ G_Navigation_ProcessBSPForNavigation
 */
 void G_Navigation_ProcessBSPForNavigation(const char *mapname, navMap_t& outNavigationMap)
 {
-    int       length;
-    int       i;
-    qhandle_t handle;
+    int                  length;
+    int                  i;
+    qhandle_t            handle;
+    Container<cshader_t> shaders;
 
     // load it
     length = gi.FS_FOpenFile(mapname, &handle, qtrue, qtrue);
@@ -901,21 +934,23 @@ void G_Navigation_ProcessBSPForNavigation(const char *mapname, navMap_t& outNavi
         ((int *)&bspMap.header)[i] = LittleLong(((int *)&bspMap.header)[i]);
     }
 
+    G_LoadShaders(bspMap.LoadLump(LUMP_SHADERS), shaders);
+
     //
     // Create all vertices from brushes
     //
 
-    G_GenerateVerticesFromHull(outNavigationMap, bspMap);
+    G_GenerateVerticesFromHull(outNavigationMap, bspMap, shaders);
 
     //
     // Load patches
     //
 
-    G_LoadSurfaces(outNavigationMap, bspMap);
+    G_LoadSurfaces(outNavigationMap, bspMap, shaders);
 
     //
     // Render the whole map terrain
     //
 
-    G_LoadAndRenderTerrain(outNavigationMap, bspMap);
+    G_LoadAndRenderTerrain(outNavigationMap, bspMap, shaders);
 }
