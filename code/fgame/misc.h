@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2023 the OpenMoHAA team
+Copyright (C) 2025 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -564,6 +564,9 @@ public:
 
     void EnsureOverLadder(Entity *pUser);
     void EnsureForwardOffLadder(Entity *pUser);
+
+    const Vector& getFacingAngles() const;
+    const Vector& getFacingDir() const;
 
     void Archive(Archiver& arc) override;
 };
