@@ -22,6 +22,19 @@ function (create_launcher name type)
         set_target_properties(openmohaa_launcher_${name} PROPERTIES OUTPUT_NAME "launch_openmohaa_${name}${TARGET_BIN_SUFFIX}")
 
         INSTALL(TARGETS openmohaa_launcher_${name} DESTINATION ${CMAKE_INSTALL_BINDIR}/${BIN_INSTALL_SUBDIR})
+
+        # Symlink launchers to $PATH
+        if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+            INSTALL(CODE "execute_process( \
+                COMMAND ${CMAKE_COMMAND} -E create_symlink \
+                ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}/${BIN_INSTALL_SUBDIR}/launch_openmohaa_${name}${TARGET_BIN_SUFFIX} \
+                ${CMAKE_CURRENT_BINARY_DIR}/openmohaa_launcher_${name}.link   \
+            )")
+            install(FILES ${CMAKE_CURRENT_BINARY_DIR}/openmohaa_launcher_${name}.link DESTINATION ${CMAKE_INSTALL_PREFIX}/bin
+                RENAME launch_openmohaa_${name}${TARGET_BIN_SUFFIX})
+            install(CODE "file(REMOVE ${CMAKE_CURRENT_BINARY_DIR}/openmohaa_launcher_${name}.link)")
+        endif()
+
     endif()
 
     #add_executable(omohaaded_launcher_${name} ${LAUNCHER_SOURCES})
