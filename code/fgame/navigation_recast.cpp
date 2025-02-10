@@ -219,35 +219,6 @@ void G_Navigation_ConnectLadders(Container<offMeshNavigationPoint>& points)
     }
 }
 
-static bool AreVertsConnected(const rcPolyMesh *polyMesh, int v1, int v2)
-{
-    int i, j;
-
-    for (i = 0; i < polyMesh->npolys; i++) {
-        const unsigned short *p       = &polyMesh->polys[i * polyMesh->nvp * 2];
-        const unsigned char   area    = polyMesh->areas[i];
-        bool                  foundV1 = false;
-
-        if (area != RC_WALKABLE_AREA) {
-            continue;
-        }
-
-        for (j = 0; j < polyMesh->nvp; ++j) {
-            if (p[j] == RC_MESH_NULL_IDX) {
-                break;
-            }
-
-            if (p[j] == v1) {
-                foundV1 = true;
-            } else if (p[j] == v2 && foundV1) {
-                return true;
-            }
-        }
-    }
-
-    return false;
-}
-
 /*
 ============
 G_Navigation_CanConnectFallPoint
@@ -260,6 +231,7 @@ G_Navigation_CanConnectFallPoint(const rcPolyMesh *polyMesh, const Vector& pos1,
     const Vector           maxs(15, 15, agentHeight);
     Vector                 start, end;
     float                  fallheight;
+    float                  dist;
     Vector                 dir;
     trace_t                trace;
     offMeshNavigationPoint point;
@@ -272,8 +244,20 @@ G_Navigation_CanConnectFallPoint(const rcPolyMesh *polyMesh, const Vector& pos1,
         end   = pos2;
     }
 
+    if (start.z - end.z < STEPSIZE) {
+        // Can step easily
+        return {};
+    }
+
+    if (start.z - end.z > 600) {
+        // This would cause too much damage
+        return {};
+    }
+
     fallheight = start.z - end.z;
-    if ((end - start).lengthXYSquared() > Square(fallheight)) {
+
+    dist = (end - start).lengthXYSquared();
+    if (dist > Square(fallheight)) {
         return {};
     }
 
@@ -281,7 +265,8 @@ G_Navigation_CanConnectFallPoint(const rcPolyMesh *polyMesh, const Vector& pos1,
     dir.z = 0;
     dir.normalize();
 
-    trace = G_Trace(start, mins, maxs, start + dir * 32, NULL, MASK_PLAYERSOLID, qtrue, "CanConnectFallPoint");
+    trace =
+        G_Trace(start, mins, maxs, start + dir * Q_min(dist, 32), NULL, MASK_PLAYERSOLID, qtrue, "CanConnectFallPoint");
     if (trace.allsolid || trace.startsolid) {
         return {};
     }
@@ -292,7 +277,7 @@ G_Navigation_CanConnectFallPoint(const rcPolyMesh *polyMesh, const Vector& pos1,
     }
 
     point.start         = start;
-    point.end           = end;
+    point.end           = trace.endpos;
     point.bidirectional = false;
     point.radius        = agentRadius;
     point.area          = 1;
@@ -440,53 +425,6 @@ void G_Navigation_TryConnectJumpFallPoints(Container<offMeshNavigationPoint>& po
             }
         }
     }
-
-    /*
-    for (i = 0; i < polyMesh->nverts; i++) {
-        const unsigned short* v1 = &polyMesh->verts[i * 3];
-
-        Vector pos1;
-        pos1[0] = polyMesh->bmin[0] + v1[0] * polyMesh->cs;
-        pos1[1] = polyMesh->bmin[1] + (v1[1] + 1) * polyMesh->ch;
-        pos1[2] = polyMesh->bmin[2] + v1[2] * polyMesh->cs;
-
-        for (j = i + 1; j < polyMesh->nverts; j++) {
-            const unsigned short* v2 = &polyMesh->verts[j * 3];
-
-            Vector pos2;
-            pos2[0] = polyMesh->bmin[0] + v2[0] * polyMesh->cs;
-            pos2[1] = polyMesh->bmin[1] + (v2[1] + 1) * polyMesh->ch;
-            pos2[2] = polyMesh->bmin[2] + v2[2] * polyMesh->cs;
-
-            if ((pos2 - pos1).lengthXYSquared() > Square(256)) {
-                continue;
-            }
-
-            if (AreVertsConnected(polyMesh, i, j)) {
-                continue;
-            }
-
-            if (G_Navigation_CanConnectFallPoint(polyMesh, pos1, pos2)) {
-                offMeshNavigationPoint point;
-
-                point.start = pos1;
-                point.end = pos2;
-                point.bidirectional = false;
-                point.radius = agentRadius;
-                point.area = 0;
-                point.flags = 1;
-
-                points.AddObject(point);
-            }
-
-            if (G_Navigation_CanConnectJumpPoint(polyMesh, pos1, pos2)) {
-
-            }
-        }
-    }
-    */
-
-    // FIXME: TODO
 }
 
 /*
