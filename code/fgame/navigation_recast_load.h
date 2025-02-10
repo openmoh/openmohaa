@@ -27,5 +27,68 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "g_local.h"
 #include "navigation_bsp.h"
 
+class dtNavMesh;
+class dtNavMeshQuery;
+class dtCrowd;
+class RecastBuildContext;
+struct rcPolyMesh;
+struct rcPolyMeshDetail;
+
+struct offMeshNavigationPoint {
+    Vector         start;
+    Vector         end;
+    float          radius;
+    unsigned short flags;
+    unsigned char  area;
+    bool           bidirectional;
+    int            id;
+
+    offMeshNavigationPoint()
+        : radius(0)
+        , flags(0)
+        , area(0)
+        , bidirectional(true)
+        , id(0)
+    {}
+
+    bool operator==(const offMeshNavigationPoint& other) const { return start == other.start && end == other.end; }
+
+    bool operator!=(const offMeshNavigationPoint& other) const { return !(*this == other); }
+};
+
+class NavigationMap
+{
+public:
+    void LoadWorldMap(const char *mapname);
+
+    dtNavMesh      *GetNavMesh() const;
+    dtNavMeshQuery *GetNavMeshQuery() const;
+
+private:
+    void                   ConnectLadders(Container<offMeshNavigationPoint>& points);
+    offMeshNavigationPoint CanConnectFallPoint(const rcPolyMesh *polyMesh, const Vector& pos1, const Vector& pos2);
+    offMeshNavigationPoint CanConnectJumpPoint(const rcPolyMesh *polyMesh, const Vector& pos1, const Vector& pos2);
+    void TryConnectJumpFallPoints(Container<offMeshNavigationPoint>& points, const rcPolyMesh *polyMesh);
+    void GatherOffMeshPoints(Container<offMeshNavigationPoint>& points, const rcPolyMesh *polyMesh);
+    void GeneratePolyMesh(
+        RecastBuildContext& buildContext,
+        float              *vertsBuffer,
+        int                 numVertices,
+        int                *indexesBuffer,
+        int                 numIndexes,
+        rcPolyMesh       *&       outPolyMesh,
+        rcPolyMeshDetail *& outPolyMeshDetail
+    );
+    void BuildDetourData(RecastBuildContext& buildContext, rcPolyMesh *polyMesh, rcPolyMeshDetail *polyMeshDetail);
+
+    void BuildRecastMesh(navMap_t& navigationMap);
+    void ProcessBSPForNavigation(const char *mapname, navMap_t& outNavigationMap);
+
+private:
+    dtNavMesh      *navMeshDt;
+    dtNavMeshQuery *navMeshQuery;
+};
+
+extern NavigationMap navigationMap;
+
 void G_Navigation_DebugDraw();
-void G_Navigation_LoadWorldMap(const char *mapname);

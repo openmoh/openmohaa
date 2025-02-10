@@ -36,13 +36,18 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "DetourCrowd.h"
 #include "DetourNode.h"
 
+NavigationMap navigationMap;
+
 static const float recastCellSize   = 12.5f;
 static const float recastCellHeight = 1.0;
 static const float agentHeight      = CROUCH_VIEWHEIGHT;
 static const float agentMaxClimb    = STEPSIZE;
-static const float agentMaxSlope = 45.5729942f; // normal of { 0.714142799, 0, 0.700000048 }, or an angle of -44.4270058
-static const float agentRadius   = 0.5;
-static const int   regionMinSize = 5;
+
+// normal of { 0.714142799, 0, 0.700000048 }, or an angle of -44.4270058
+static const float agentMaxSlope = 45.5729942f;
+
+static const float agentRadius          = 0.5;
+static const int   regionMinSize        = 5;
 static const int   regionMergeSize      = 20;
 static const float edgeMaxLen           = 100.0;
 static const float edgeMaxError         = 1.3f;
@@ -54,38 +59,14 @@ static const float worldScale = 30.5 / 16.0;
 
 navMap_t prev_navMap;
 
-dtNavMesh      *navMeshDt;
-dtNavMeshQuery *navMeshQuery;
-dtCrowd        *navCrowd;
-int             navAgentId = -1;
+dtCrowd *navCrowd;
+int      navAgentId = -1;
 
 static Vector ai_startpath;
 static Vector ai_endpath;
 static Vector ai_pathlist[256];
 static int    ai_numPaths = 0;
 static int    ai_lastpath = 0;
-
-struct offMeshNavigationPoint {
-    Vector         start;
-    Vector         end;
-    float          radius;
-    unsigned short flags;
-    unsigned char  area;
-    bool           bidirectional;
-    int            id;
-
-    offMeshNavigationPoint()
-        : radius(0)
-        , flags(0)
-        , area(0)
-        , bidirectional(true)
-        , id(0)
-    {}
-
-    bool operator==(const offMeshNavigationPoint& other) const { return start == other.start && end == other.end; }
-
-    bool operator!=(const offMeshNavigationPoint& other) const { return !(*this == other); }
-};
 
 /// Recast build context.
 class RecastBuildContext : public rcContext
@@ -167,15 +148,17 @@ void TestAgent(const Vector& start, const Vector& end, Vector *paths, int *numPa
     ap.updateFlags           = 0;
     navAgentId               = navCrowd->addAgent(startNav, &ap);
 
-    navMeshQuery->findNearestPoly(startNav, half, &filter, &nearestStartRef, nearestStartPt);
-    navMeshQuery->findNearestPoly(endNav, half, &filter, &nearestEndRef, nearestEndPt);
+    navigationMap.GetNavMeshQuery()->findNearestPoly(startNav, half, &filter, &nearestStartRef, nearestStartPt);
+    navigationMap.GetNavMeshQuery()->findNearestPoly(endNav, half, &filter, &nearestEndRef, nearestEndPt);
 
     navCrowd->requestMoveTarget(navAgentId, nearestEndRef, nearestEndPt);
 
     dtPolyRef polys[256];
     int       nPolys;
-    navMeshQuery->findPath(nearestStartRef, nearestEndRef, nearestStartPt, nearestEndPt, &filter, polys, &nPolys, 256);
-    navMeshQuery->findStraightPath(
+    navigationMap.GetNavMeshQuery()->findPath(
+        nearestStartRef, nearestEndRef, nearestStartPt, nearestEndPt, &filter, polys, &nPolys, 256
+    );
+    navigationMap.GetNavMeshQuery()->findStraightPath(
         nearestStartPt, nearestEndPt, polys, nPolys, (float *)paths, NULL, NULL, numPaths, maxPaths
     );
 
@@ -189,10 +172,10 @@ void TestAgent(const Vector& start, const Vector& end, Vector *paths, int *numPa
 
 /*
 ============
-G_Navigation_ConnectLadders
+NavigationMap::ConnectLadders
 ============
 */
-void G_Navigation_ConnectLadders(Container<offMeshNavigationPoint>& points)
+void NavigationMap::ConnectLadders(Container<offMeshNavigationPoint>& points)
 {
     gentity_t *edict;
 
@@ -221,11 +204,11 @@ void G_Navigation_ConnectLadders(Container<offMeshNavigationPoint>& points)
 
 /*
 ============
-G_Navigation_CanConnectFallPoint
+NavigationMap::CanConnectFallPoint
 ============
 */
 offMeshNavigationPoint
-G_Navigation_CanConnectFallPoint(const rcPolyMesh *polyMesh, const Vector& pos1, const Vector& pos2)
+NavigationMap::CanConnectFallPoint(const rcPolyMesh *polyMesh, const Vector& pos1, const Vector& pos2)
 {
     const Vector           mins(-15, -15, 0);
     const Vector           maxs(15, 15, agentHeight);
@@ -288,11 +271,11 @@ G_Navigation_CanConnectFallPoint(const rcPolyMesh *polyMesh, const Vector& pos1,
 
 /*
 ============
-G_Navigation_CanConnectJumpPoint
+NavigationMap::CanConnectJumpPoint
 ============
 */
 offMeshNavigationPoint
-G_Navigation_CanConnectJumpPoint(const rcPolyMesh *polyMesh, const Vector& pos1, const Vector& pos2)
+NavigationMap::CanConnectJumpPoint(const rcPolyMesh *polyMesh, const Vector& pos1, const Vector& pos2)
 {
     const Vector           mins(-15, -15, 0);
     const Vector           maxs(15, 15, agentHeight);
@@ -345,10 +328,10 @@ G_Navigation_CanConnectJumpPoint(const rcPolyMesh *polyMesh, const Vector& pos1,
 
 /*
 ============
-G_Navigation_TryConnectJumpFallPoints
+NavigationMap::TryConnectJumpFallPoints
 ============
 */
-void G_Navigation_TryConnectJumpFallPoints(Container<offMeshNavigationPoint>& points, const rcPolyMesh *polyMesh)
+void NavigationMap::TryConnectJumpFallPoints(Container<offMeshNavigationPoint>& points, const rcPolyMesh *polyMesh)
 {
     int    i, j, k, l;
     vec3_t tmp;
@@ -412,12 +395,12 @@ void G_Navigation_TryConnectJumpFallPoints(Container<offMeshNavigationPoint>& po
 
                     offMeshNavigationPoint point;
 
-                    point = G_Navigation_CanConnectFallPoint(polyMesh, pos1, pos2);
+                    point = CanConnectFallPoint(polyMesh, pos1, pos2);
                     if (point.area) {
                         points.AddUniqueObject(point);
                     }
 
-                    point = G_Navigation_CanConnectJumpPoint(polyMesh, pos1, pos2);
+                    point = CanConnectJumpPoint(polyMesh, pos1, pos2);
                     if (point.area) {
                         points.AddUniqueObject(point);
                     }
@@ -429,16 +412,21 @@ void G_Navigation_TryConnectJumpFallPoints(Container<offMeshNavigationPoint>& po
 
 /*
 ============
-G_Navigation_GatherOffMeshPoints
+NavigationMap::GatherOffMeshPoints
 ============
 */
-void G_Navigation_GatherOffMeshPoints(Container<offMeshNavigationPoint>& points, const rcPolyMesh *polyMesh)
+void NavigationMap::GatherOffMeshPoints(Container<offMeshNavigationPoint>& points, const rcPolyMesh *polyMesh)
 {
-    G_Navigation_ConnectLadders(points);
-    G_Navigation_TryConnectJumpFallPoints(points, polyMesh);
+    ConnectLadders(points);
+    TryConnectJumpFallPoints(points, polyMesh);
 }
 
-void G_Navigation_BuildDetourData(
+/*
+============
+NavigationMap::BuildDetourData
+============
+*/
+void NavigationMap::BuildDetourData(
     RecastBuildContext& buildContext, rcPolyMesh *polyMesh, rcPolyMeshDetail *polyMeshDetail
 )
 {
@@ -469,7 +457,7 @@ void G_Navigation_BuildDetourData(
     dtParams.buildBvTree = true;
 
     Container<offMeshNavigationPoint> points;
-    G_Navigation_GatherOffMeshPoints(points, polyMesh);
+    GatherOffMeshPoints(points, polyMesh);
 
     float          *offMeshConVerts;
     float          *offMeshConRad;
@@ -539,10 +527,10 @@ void G_Navigation_BuildDetourData(
 
 /*
 ============
-G_Navigation_GeneratePolyMesh
+NavigationMap::GeneratePolyMesh
 ============
 */
-void G_Navigation_GeneratePolyMesh(
+void NavigationMap::GeneratePolyMesh(
     RecastBuildContext& buildContext,
     float              *vertsBuffer,
     int                 numVertices,
@@ -658,10 +646,10 @@ void G_Navigation_GeneratePolyMesh(
 
 /*
 ============
-G_Navigation_BuildRecastMesh
+NavigationMap::BuildRecastMesh
 ============
 */
-void G_Navigation_BuildRecastMesh(navMap_t& navigationMap)
+void NavigationMap::BuildRecastMesh(navMap_t& navigationMap)
 {
     RecastBuildContext buildContext;
     const int          numIndexes  = navigationMap.indices.NumObjects();
@@ -693,9 +681,7 @@ void G_Navigation_BuildRecastMesh(navMap_t& navigationMap)
     rcPolyMesh       *polyMesh;
     rcPolyMeshDetail *polyMeshDetail;
 
-    G_Navigation_GeneratePolyMesh(
-        buildContext, vertsBuffer, numVertices, indexesBuffer, numIndexes, polyMesh, polyMeshDetail
-    );
+    GeneratePolyMesh(buildContext, vertsBuffer, numVertices, indexesBuffer, numIndexes, polyMesh, polyMeshDetail);
 
     delete[] indexesBuffer;
     delete[] vertsBuffer;
@@ -704,7 +690,7 @@ void G_Navigation_BuildRecastMesh(navMap_t& navigationMap)
     // Create detour data
     //
 
-    G_Navigation_BuildDetourData(buildContext, polyMesh, polyMeshDetail);
+    BuildDetourData(buildContext, polyMesh, polyMeshDetail);
 
     rcFreePolyMeshDetail(polyMeshDetail);
     rcFreePolyMesh(polyMesh);
@@ -714,7 +700,8 @@ void G_Navigation_BuildRecastMesh(navMap_t& navigationMap)
 
 void G_Navigation_DebugDraw()
 {
-    Entity *ent = g_entities[0].entity;
+    Entity    *ent       = g_entities[0].entity;
+    dtNavMesh *navMeshDt = navigationMap.GetNavMesh();
 
     if (!navMeshDt) {
         return;
@@ -892,7 +879,7 @@ void G_Navigation_DebugDraw()
         break;
     }
 
-    if (ai_showpath->integer && navMeshQuery) {
+    if (ai_showpath->integer && navMeshDt) {
         switch (ai_showpath->integer) {
         default:
         case 0:
@@ -986,15 +973,25 @@ void G_Navigation_DebugDraw()
     }
 }
 
+dtNavMesh *NavigationMap::GetNavMesh() const
+{
+    return navMeshDt;
+}
+
+dtNavMeshQuery *NavigationMap::GetNavMeshQuery() const
+{
+    return navMeshQuery;
+}
+
 /*
 ============
-G_Navigation_LoadWorldMap
+NavigationMap::LoadWorldMap
 ============
 */
-void G_Navigation_LoadWorldMap(const char *mapname)
+void NavigationMap::LoadWorldMap(const char *mapname)
 {
-    navMap_t navigationMap;
-    int      start, end;
+    NavigationBSP navigationBsp;
+    int           start, end;
 
     gi.Printf("---- Recast Navigation ----\n");
 
@@ -1006,7 +1003,7 @@ void G_Navigation_LoadWorldMap(const char *mapname)
     try {
         start = gi.Milliseconds();
 
-        G_Navigation_ProcessBSPForNavigation(mapname, navigationMap);
+        navigationBsp.ProcessBSPForNavigation(mapname);
     } catch (const ScriptException& e) {
         gi.Printf("Failed to load BSP for navigation: %s\n", e.string.c_str());
         return;
@@ -1019,7 +1016,7 @@ void G_Navigation_LoadWorldMap(const char *mapname)
     try {
         start = gi.Milliseconds();
 
-        G_Navigation_BuildRecastMesh(navigationMap);
+        BuildRecastMesh(navigationBsp.navMap);
     } catch (const ScriptException& e) {
         gi.Printf("Couldn't build recast navigation mesh: %s\n", e.string.c_str());
         return;

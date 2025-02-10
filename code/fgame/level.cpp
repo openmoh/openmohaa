@@ -1194,7 +1194,7 @@ void Level::SpawnEntities(char *entities, int svsTime)
 
     // Added in OPM
     //  Recast navigation
-    G_Navigation_LoadWorldMap(m_mapfile);
+    navigationMap.LoadWorldMap(m_mapfile);
 
     if (g_gametype->integer != GT_SINGLE_PLAYER) {
         dmManager.InitGame();

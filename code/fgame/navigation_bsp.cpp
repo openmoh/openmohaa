@@ -80,10 +80,10 @@ void navMap_t::AddIndex(navIndice_t index)
 
 /*
 =================
-G_LoadShaders
+NavigationBSP::LoadShaders
 =================
 */
-void G_LoadShaders(const gameLump_c& lump, Container<cshader_t>& shaders)
+void NavigationBSP::LoadShaders(const gameLump_c& lump, Container<cshader_t>& shaders)
 {
     dshader_t *in;
     int        i, count;
@@ -113,10 +113,10 @@ void G_LoadShaders(const gameLump_c& lump, Container<cshader_t>& shaders)
 
 /*
 =================
-G_IsValidContentsForPlayer
+NavigationBSP::IsValidContentsForPlayer
 =================
 */
-bool G_IsValidContentsForPlayer(int contents)
+bool NavigationBSP::IsValidContentsForPlayer(int contents)
 {
     if (contents & CONTENTS_SOLID) {
         return true;
@@ -135,10 +135,10 @@ bool G_IsValidContentsForPlayer(int contents)
 
 /*
 =================
-G_LoadPlanes
+NavigationBSP::LoadPlanes
 =================
 */
-void G_LoadPlanes(const gameLump_c& lump, Container<cplane_t>& planes)
+void NavigationBSP::LoadPlanes(const gameLump_c& lump, Container<cplane_t>& planes)
 {
     int       i, j;
     dplane_t *in;
@@ -179,10 +179,10 @@ void G_LoadPlanes(const gameLump_c& lump, Container<cplane_t>& planes)
 
 /*
 =================
-CMod_LoadBrushSides
+NavigationBSP::LoadBrushSides
 =================
 */
-void G_LoadBrushSides(
+void NavigationBSP::LoadBrushSides(
     const gameLump_c&           lump,
     const Container<cshader_t>& shaders,
     const Container<cplane_t>&  planes,
@@ -219,11 +219,11 @@ void G_LoadBrushSides(
 
 /*
 =================
-G_BoundBrush
+NavigationBSP::BoundBrush
 
 =================
 */
-void G_BoundBrush(cbrush_t *b)
+void NavigationBSP::BoundBrush(cbrush_t *b)
 {
     b->bounds[0][0] = -b->sides[0].plane->dist;
     b->bounds[1][0] = b->sides[1].plane->dist;
@@ -237,10 +237,10 @@ void G_BoundBrush(cbrush_t *b)
 
 /*
 =================
-G_LoadBrushes
+NavigationBSP::LoadBrushes
 =================
 */
-void G_LoadBrushes(
+void NavigationBSP::LoadBrushes(
     const gameLump_c&              lump,
     const Container<cshader_t>&    shaders,
     const Container<cbrushside_t>& sides,
@@ -270,13 +270,18 @@ void G_LoadBrushes(
         }
         out.contents = shaders[out.shaderNum].contentFlags;
 
-        G_BoundBrush(&out);
+        BoundBrush(&out);
 
         brushes.AddObject(out);
     }
 }
 
-void G_LoadLeafBrushes(const gameLump_c& lump, Container<int>& leafbrushes)
+/*
+============
+NavigationBSP::LoadLeafBrushes
+============
+*/
+void NavigationBSP::LoadLeafBrushes(const gameLump_c& lump, Container<int>& leafbrushes)
 {
     int *in;
     int  i, count;
@@ -292,7 +297,12 @@ void G_LoadLeafBrushes(const gameLump_c& lump, Container<int>& leafbrushes)
     }
 }
 
-void G_LoadSubmodels(const gameLump_c& lump, Container<cmodel_t>& submodels)
+/*
+============
+NavigationBSP::LoadSubmodels
+============
+*/
+void NavigationBSP::LoadSubmodels(const gameLump_c& lump, Container<cmodel_t>& submodels)
 {
     dmodel_t *in;
     int       count;
@@ -340,10 +350,10 @@ void G_LoadSubmodels(const gameLump_c& lump, Container<cmodel_t>& submodels)
 
 /*
 ============
-G_GenerateSideTriangles
+NavigationBSP::GenerateSideTriangles
 ============
 */
-void G_GenerateSideTriangles(navMap_t& navMap, cbrushside_t& side)
+void NavigationBSP::GenerateSideTriangles(cbrushside_t& side)
 {
     int          i, r, least, rotate, ni;
     int          numIndexes;
@@ -366,15 +376,15 @@ void G_GenerateSideTriangles(navMap_t& navMap, cbrushside_t& side)
 
 /*
 ============
-G_GenerateBrushTriangles
+NavigationBSP::GenerateBrushTriangles
 ============
 */
-void G_GenerateBrushTriangles(navMap_t& navMap, const Container<cplane_t>& planes, cbrush_t& brush)
+void NavigationBSP::GenerateBrushTriangles(const Container<cplane_t>& planes, cbrush_t& brush)
 {
     size_t i;
     size_t numSkip = 0;
 
-    if (!G_IsValidContentsForPlayer(brush.contents)) {
+    if (!IsValidContentsForPlayer(brush.contents)) {
         return;
     }
 
@@ -383,16 +393,16 @@ void G_GenerateBrushTriangles(navMap_t& navMap, const Container<cplane_t>& plane
     for (i = 0; i < brush.numsides; i++) {
         cbrushside_t& side = brush.sides[i];
 
-        G_GenerateSideTriangles(navMap, side);
+        GenerateSideTriangles(side);
     }
 }
 
 /*
 ============
-G_GenerateVerticesFromHull
+NavigationBSP::GenerateVerticesFromHull
 ============
 */
-void G_GenerateVerticesFromHull(navMap_t& navMap, bspMap_c& inBspMap, const Container<cshader_t>& shaders)
+void NavigationBSP::GenerateVerticesFromHull(bspMap_c& inBspMap, const Container<cshader_t>& shaders)
 {
     Container<cplane_t>     planes;
     Container<cbrushside_t> sides;
@@ -401,26 +411,26 @@ void G_GenerateVerticesFromHull(navMap_t& navMap, bspMap_c& inBspMap, const Cont
     size_t                  i, j;
     size_t                  baseVertex;
 
-    G_LoadPlanes(inBspMap.LoadLump(LUMP_PLANES), planes);
-    G_LoadBrushSides(inBspMap.LoadLump(LUMP_BRUSHSIDES), shaders, planes, sides);
-    G_LoadBrushes(inBspMap.LoadLump(LUMP_BRUSHES), shaders, sides, brushes);
-    G_LoadSubmodels(inBspMap.LoadLump(LUMP_MODELS), submodels);
+    LoadPlanes(inBspMap.LoadLump(LUMP_PLANES), planes);
+    LoadBrushSides(inBspMap.LoadLump(LUMP_BRUSHSIDES), shaders, planes, sides);
+    LoadBrushes(inBspMap.LoadLump(LUMP_BRUSHES), shaders, sides, brushes);
+    LoadSubmodels(inBspMap.LoadLump(LUMP_MODELS), submodels);
 
     const cmodel_t& worldModel = submodels.ObjectAt(1);
 
     for (i = worldModel.firstBrush + 1; i <= worldModel.firstBrush + worldModel.numBrushes; i++) {
         cbrush_t& brush = brushes.ObjectAt(i);
 
-        G_GenerateBrushTriangles(navMap, planes, brush);
+        GenerateBrushTriangles(planes, brush);
     }
 }
 
 /*
 ============
-RenderSurfaceGrid
+NavigationBSP::RenderSurfaceGrid
 ============
 */
-static void RenderSurfaceGrid(navMap_t& navMap, const surfaceGrid_t *grid)
+void NavigationBSP::RenderSurfaceGrid(const surfaceGrid_t *grid)
 {
     int           i;
     int           baseVertex, baseIndex;
@@ -446,11 +456,10 @@ static void RenderSurfaceGrid(navMap_t& navMap, const surfaceGrid_t *grid)
 
 /*
 ============
-ParseMesh
+NavigationBSP::ParseMesh
 ============
 */
-static void
-ParseMesh(navMap_t& navMap, const dsurface_t *ds, const drawVert_t *verts, const Container<cshader_t>& shaders)
+void NavigationBSP::ParseMesh(const dsurface_t *ds, const drawVert_t *verts, const Container<cshader_t>& shaders)
 {
     int            i, j;
     int            width, height, numPoints;
@@ -458,7 +467,7 @@ ParseMesh(navMap_t& navMap, const dsurface_t *ds, const drawVert_t *verts, const
     surfaceGrid_t *grid;
 
     const cshader_t& shader = shaders.ObjectAt(LittleLong(ds->shaderNum) + 1);
-    if (!G_IsValidContentsForPlayer(shader.contentFlags)) {
+    if (!IsValidContentsForPlayer(shader.contentFlags)) {
         return;
     }
 
@@ -476,7 +485,7 @@ ParseMesh(navMap_t& navMap, const dsurface_t *ds, const drawVert_t *verts, const
     grid = G_SubdividePatchToGrid(width, height, 1.0, points);
 
     // render the grid into vertices
-    RenderSurfaceGrid(navMap, grid);
+    RenderSurfaceGrid(grid);
 
     // destroy the grid
     G_FreeSurfaceGridMesh(grid);
@@ -484,10 +493,10 @@ ParseMesh(navMap_t& navMap, const dsurface_t *ds, const drawVert_t *verts, const
 
 /*
 ============
-ParseTriSurf
+NavigationBSP::ParseTriSurf
 ============
 */
-static void ParseTriSurf(navMap_t& navMap, const dsurface_t *ds, const drawVert_t *verts, const int *indexes)
+void NavigationBSP::ParseTriSurf(const dsurface_t *ds, const drawVert_t *verts, const int *indexes)
 {
     int i, j;
     int numPoints, numIndexes;
@@ -521,10 +530,10 @@ static void ParseTriSurf(navMap_t& navMap, const dsurface_t *ds, const drawVert_
 
 /*
 ============
-ParseFace
+NavigationBSP::ParseFace
 ============
 */
-static void ParseFace(navMap_t& navMap, const dsurface_t *ds, const drawVert_t *verts, const int *indexes)
+void NavigationBSP::ParseFace(const dsurface_t *ds, const drawVert_t *verts, const int *indexes)
 {
     int i, j;
     int numPoints, numIndexes;
@@ -558,20 +567,20 @@ static void ParseFace(navMap_t& navMap, const dsurface_t *ds, const drawVert_t *
 
 /*
 ============
-ParseFlare
+NavigationBSP::ParseFlare
 ============
 */
-static void ParseFlare(navMap_t& navMap, const dsurface_t *ds, const drawVert_t *verts)
+void NavigationBSP::ParseFlare(const dsurface_t *ds, const drawVert_t *verts)
 {
     // Nothing to do
 }
 
 /*
 ============
-G_LoadSurfaces
+NavigationBSP::LoadSurfaces
 ============
 */
-static void G_LoadSurfaces(navMap_t& navMap, bspMap_c& inBspMap, const Container<cshader_t>& shaders)
+void NavigationBSP::LoadSurfaces(bspMap_c& inBspMap, const Container<cshader_t>& shaders)
 {
     const dsurface_t *in;
     const drawVert_t *dv;
@@ -641,7 +650,7 @@ static void G_LoadSurfaces(navMap_t& navMap, bspMap_c& inBspMap, const Container
     for (i = 0; i < count; i++, in++) {
         switch (LittleLong(in->surfaceType)) {
         case MST_PATCH:
-            ParseMesh(navMap, in, dv, shaders);
+            ParseMesh(in, dv, shaders);
             break;
         case MST_TRIANGLE_SOUP:
             //ParseTriSurf(navMap, in, dv, indexes);
@@ -650,7 +659,7 @@ static void G_LoadSurfaces(navMap_t& navMap, bspMap_c& inBspMap, const Container
             //ParseFace(navMap, in, dv, indexes);
             break;
         case MST_FLARE:
-            ParseFlare(navMap, in, dv);
+            ParseFlare(in, dv);
             break;
         default:
             throw ScriptException("Bad surfaceType");
@@ -660,10 +669,10 @@ static void G_LoadSurfaces(navMap_t& navMap, bspMap_c& inBspMap, const Container
 
 /*
 ================
-R_UnpackTerraPatch
+NavigationBSP::UnpackTerraPatch
 ================
 */
-void G_UnpackTerraPatch(const cTerraPatch_t *pPacked, cTerraPatchUnpacked_t *pUnpacked)
+void NavigationBSP::UnpackTerraPatch(const cTerraPatch_t *pPacked, cTerraPatchUnpacked_t *pUnpacked)
 {
     int i;
 
@@ -711,12 +720,12 @@ void G_UnpackTerraPatch(const cTerraPatch_t *pPacked, cTerraPatchUnpacked_t *pUn
 
 /*
 ====================
-G_SwapTerraPatch
+NavigationBSP::SwapTerraPatch
 
 Swaps the patch on big-endian
 ====================
 */
-void G_SwapTerraPatch(cTerraPatch_t *pPatch)
+void NavigationBSP::SwapTerraPatch(cTerraPatch_t *pPatch)
 {
 #ifdef Q3_BIG_ENDIAN
     int i;
@@ -736,10 +745,10 @@ void G_SwapTerraPatch(cTerraPatch_t *pPatch)
 
 /*
 ================
-G_RenderPatch
+NavigationBSP::RenderPatch
 ================
 */
-void G_RenderPatch(navMap_t& navMap, const cTerraPatchUnpacked_t& patch)
+void NavigationBSP::RenderPatch(const cTerraPatchUnpacked_t& patch)
 {
     terraInt vertNum;
     terraInt triNum;
@@ -768,10 +777,10 @@ void G_RenderPatch(navMap_t& navMap, const cTerraPatchUnpacked_t& patch)
 
 /*
 ================
-G_RenderTerrainTris
+NavigationBSP::RenderTerrainTris
 ================
 */
-void G_RenderTerrainTris(navMap_t& navMap, cTerraPatchUnpacked_t *terraPatches, size_t numTerraPatches)
+void NavigationBSP::RenderTerrainTris(cTerraPatchUnpacked_t *terraPatches, size_t numTerraPatches)
 {
     size_t   i;
     size_t   numVertices;
@@ -808,7 +817,7 @@ void G_RenderTerrainTris(navMap_t& navMap, cTerraPatchUnpacked_t *terraPatches, 
     for (i = 0; i < numTerraPatches; i++) {
         const cTerraPatchUnpacked_t& patch = terraPatches[i];
 
-        G_RenderPatch(navMap, patch);
+        RenderPatch(patch);
     }
 
     G_TerrainFree();
@@ -816,10 +825,10 @@ void G_RenderTerrainTris(navMap_t& navMap, cTerraPatchUnpacked_t *terraPatches, 
 
 /*
 ================
-G_LoadAndRenderTerrain
+NavigationBSP::LoadAndRenderTerrain
 ================
 */
-void G_LoadAndRenderTerrain(navMap_t& navMap, bspMap_c& inBspMap, const Container<cshader_t>& shaders)
+void NavigationBSP::LoadAndRenderTerrain(bspMap_c& inBspMap, const Container<cshader_t>& shaders)
 {
     int                    i;
     cTerraPatch_t         *in;
@@ -844,27 +853,27 @@ void G_LoadAndRenderTerrain(navMap_t& navMap, bspMap_c& inBspMap, const Containe
     out = terraPatches;
 
     for (i = 0; i < numTerraPatches; in++, out++, i++) {
-        G_SwapTerraPatch(in);
+        SwapTerraPatch(in);
 
         const cshader_t& shader = shaders.ObjectAt(in->iShader + 1);
-        if (!G_IsValidContentsForPlayer(shader.contentFlags)) {
+        if (!IsValidContentsForPlayer(shader.contentFlags)) {
             continue;
         }
 
-        G_UnpackTerraPatch(in, out);
+        UnpackTerraPatch(in, out);
     }
 
-    G_RenderTerrainTris(navMap, terraPatches, numTerraPatches);
+    RenderTerrainTris(terraPatches, numTerraPatches);
 
     gi.Free(terraPatches);
 }
 
 /*
 ================
-G_CopyStaticModel
+NavigationBSP::CopyStaticModel
 ================
 */
-void G_CopyStaticModel(const cStaticModel_t *pSM, cStaticModelUnpacked_t *pUnpackedSM)
+void NavigationBSP::CopyStaticModel(const cStaticModel_t *pSM, cStaticModelUnpacked_t *pUnpackedSM)
 {
     pUnpackedSM->angles[0] = LittleFloat(pSM->angles[0]);
     pUnpackedSM->angles[1] = LittleFloat(pSM->angles[1]);
@@ -878,10 +887,10 @@ void G_CopyStaticModel(const cStaticModel_t *pSM, cStaticModelUnpacked_t *pUnpac
 
 /*
 ================
-G_LoadStaticModelDefs
+NavigationBSP::LoadStaticModelDefs
 ================
 */
-void G_LoadStaticModelDefs(const gameLump_c& lump)
+void NavigationBSP::LoadStaticModelDefs(const gameLump_c& lump)
 {
     int                     i;
     const cStaticModel_t   *in;
@@ -904,16 +913,16 @@ void G_LoadStaticModelDefs(const gameLump_c& lump)
     out = (cStaticModelUnpacked_t *)staticModels;
 
     for (i = 0; i < numStaticModels; in++, out++, i++) {
-        G_CopyStaticModel(in, out);
+        CopyStaticModel(in, out);
     }
 }
 
 /*
 ============
-G_Navigation_ProcessBSPForNavigation
+NavigationBSP::ProcessBSPForNavigation
 ============
 */
-void G_Navigation_ProcessBSPForNavigation(const char *mapname, navMap_t& outNavigationMap)
+void NavigationBSP::ProcessBSPForNavigation(const char *mapname)
 {
     int                  length;
     int                  i;
@@ -934,23 +943,23 @@ void G_Navigation_ProcessBSPForNavigation(const char *mapname, navMap_t& outNavi
         ((int *)&bspMap.header)[i] = LittleLong(((int *)&bspMap.header)[i]);
     }
 
-    G_LoadShaders(bspMap.LoadLump(LUMP_SHADERS), shaders);
+    LoadShaders(bspMap.LoadLump(LUMP_SHADERS), shaders);
 
     //
     // Create all vertices from brushes
     //
 
-    G_GenerateVerticesFromHull(outNavigationMap, bspMap, shaders);
+    GenerateVerticesFromHull(bspMap, shaders);
 
     //
     // Load patches
     //
 
-    G_LoadSurfaces(outNavigationMap, bspMap, shaders);
+    LoadSurfaces(bspMap, shaders);
 
     //
     // Render the whole map terrain
     //
 
-    G_LoadAndRenderTerrain(outNavigationMap, bspMap, shaders);
+    LoadAndRenderTerrain(bspMap, shaders);
 }

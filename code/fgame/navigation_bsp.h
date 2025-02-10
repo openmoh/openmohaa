@@ -111,8 +111,6 @@ struct cStaticModelUnpacked_t {
     dtiki_t *tiki;
 };
 
-void G_Navigation_ProcessBSPForNavigation(const char *mapname, navMap_t& outNavigationMap);
-
 //
 // Brush loading
 //
@@ -259,3 +257,55 @@ void G_PreTessellateTerrain(cTerraPatchUnpacked_t *terraPatches, size_t numTerra
 void G_DoTriSplitting(cTerraPatchUnpacked_t *terraPatches, size_t numTerraPatches);
 void G_DoGeomorphs(cTerraPatchUnpacked_t *terraPatches, size_t numTerraPatches);
 void G_TerrainFree();
+
+//
+// Classes
+//
+
+class gameLump_c;
+class bspMap_c;
+
+class NavigationBSP
+{
+public:
+    void ProcessBSPForNavigation(const char *mapname);
+
+private:
+    void LoadShaders(const gameLump_c& lump, Container<cshader_t>& shaders);
+    bool IsValidContentsForPlayer(int contents);
+    void LoadStaticModelDefs(const gameLump_c& lump);
+    void LoadPlanes(const gameLump_c& lump, Container<cplane_t>& planes);
+    void LoadBrushSides(
+        const gameLump_c&           lump,
+        const Container<cshader_t>& shaders,
+        const Container<cplane_t>&  planes,
+        Container<cbrushside_t>&    sides
+    );
+    void BoundBrush(cbrush_t *b);
+    void LoadBrushes(
+        const gameLump_c&              lump,
+        const Container<cshader_t>&    shaders,
+        const Container<cbrushside_t>& sides,
+        Container<cbrush_t>&           brushes
+    );
+    void LoadLeafBrushes(const gameLump_c& lump, Container<int>& leafbrushes);
+    void LoadSubmodels(const gameLump_c& lump, Container<cmodel_t>& submodels);
+    void GenerateSideTriangles(cbrushside_t& side);
+    void GenerateBrushTriangles(const Container<cplane_t>& planes, cbrush_t& brush);
+    void GenerateVerticesFromHull(bspMap_c& inBspMap, const Container<cshader_t>& shaders);
+    void RenderSurfaceGrid(const surfaceGrid_t *grid);
+    void ParseMesh(const dsurface_t *ds, const drawVert_t *verts, const Container<cshader_t>& shaders);
+    void ParseTriSurf(const dsurface_t *ds, const drawVert_t *verts, const int *indexes);
+    void ParseFace(const dsurface_t *ds, const drawVert_t *verts, const int *indexes);
+    void ParseFlare(const dsurface_t *ds, const drawVert_t *verts);
+    void LoadSurfaces(bspMap_c& inBspMap, const Container<cshader_t>& shaders);
+    void UnpackTerraPatch(const cTerraPatch_t *pPacked, cTerraPatchUnpacked_t *pUnpacked);
+    void SwapTerraPatch(cTerraPatch_t *pPatch);
+    void RenderPatch(const cTerraPatchUnpacked_t& patch);
+    void RenderTerrainTris(cTerraPatchUnpacked_t *terraPatches, size_t numTerraPatches);
+    void LoadAndRenderTerrain(bspMap_c& inBspMap, const Container<cshader_t>& shaders);
+    void CopyStaticModel(const cStaticModel_t *pSM, cStaticModelUnpacked_t *pUnpackedSM);
+
+public:
+    navMap_t navMap;
+};
