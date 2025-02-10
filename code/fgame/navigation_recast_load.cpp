@@ -23,7 +23,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // navigation -- Modern navigation system using Recast and Detour
 
 #include "g_local.h"
-#include "navigation_recast.h"
+#include "navigation_recast_load.h"
 #include "../script/scriptexception.h"
 #include "navigate.h"
 #include "debuglines.h"
