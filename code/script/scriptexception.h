@@ -48,6 +48,6 @@ public:
 void Error(const char *format, ...);
 
 #define ScriptDeprecated(function) throw ScriptException(function ": DEPRECATED. DON'T USE IT ANYMORE")
-#define ScriptDeprecatedAltMethod(alternative_name) gi.DPrintf("WARNING: " XSTRING(__FUNCTION__) ": is deprecated and has been superseded by the " alternative_name " method\n")
-#define ScriptDeprecatedAltVariable(alternative_name) gi.DPrintf("WARNING: " XSTRING(__FUNCTION__) ": is deprecated and has been superseded by the " alternative_name " variable\n")
+#define ScriptDeprecatedAltMethod(alternative_name) gi.DPrintf("WARNING: %s: is deprecated and has been superseded by the " alternative_name " method\n", __FUNCTION__)
+#define ScriptDeprecatedAltVariable(alternative_name) gi.DPrintf("WARNING: %s: is deprecated and has been superseded by the " alternative_name " variable\n", __FUNCTION__)
 #define ScriptError                throw ScriptException
