@@ -29,120 +29,119 @@
 
 #include <stdio.h>
 
-void fprintf2( FILE *f, const char *format, ... )
+void fprintf2(FILE * f, const char *format, ...)
 {
-	va_list va;
-	static char buffer[ 4200 ];
+    va_list     va;
+    static char buffer[4200];
 
-	va_start( va, format );
-	vsprintf( buffer, format, va );
-	va_end( va );
+    va_start(va, format);
+    vsprintf(buffer, format, va);
+    va_end(va);
 
-	gi.Printf( buffer );
+    gi.Printf(buffer);
 }
 
 #define fprintf fprintf2
 
-const char* start_ptr;
-const char* in_ptr;
-extern int prev_yylex;
-extern int out_pos;
-extern int success_pos;
+const char  *start_ptr;
+const char  *in_ptr;
+extern int   prev_yylex;
+extern int   out_pos;
+extern int   success_pos;
 parseStage_e parseStage;
 
 extern yyparsedata parsedata;
 
-void yyllocset(YYLTYPE *loc, uint32_t off)
+void yyllocset(YYLTYPE * loc, uint32_t off)
 {
-	success_pos = out_pos - yyleng + off;
-	loc->sourcePos = success_pos;
-	parsedata.pos = success_pos;
+    success_pos    = out_pos - yyleng + off;
+    loc->sourcePos = success_pos;
+    parsedata.pos  = success_pos;
 }
 
 void yyreducepos(uint32_t off)
 {
-	out_pos -= off;
+    out_pos -= off;
 }
 
-#define YYLEX(n) { yyllocset(&yylloc, 0); prev_yylex = n; return n; }
-#define YYLEXOFF(n, off) { yyllocset(&yylloc, off); prev_yylex = n; return n; }
+#define YYLEX(n)               \
+    {                          \
+        yyllocset(&yylloc, 0); \
+        prev_yylex = n;        \
+        return n;              \
+    }
+#define YYLEXOFF(n, off)         \
+    {                            \
+        yyllocset(&yylloc, off); \
+        prev_yylex = n;          \
+        return n;                \
+    }
 
-#define YY_USER_ACTION \
-{ \
-	out_pos += yyleng - yy_more_len; \
-	yylloc.sourcePos = out_pos; \
-	parsedata.pos = out_pos; \
-}
+#define YY_USER_ACTION                   \
+    {                                    \
+        out_pos += yyleng - yy_more_len; \
+        yylloc.sourcePos = out_pos;      \
+        parsedata.pos    = out_pos;      \
+    }
 
-#define YY_FATAL_ERROR( n ) yylexerror( n )
+#define YY_FATAL_ERROR(n) yylexerror(n)
 
-void yylexerror( const char *msg )
+void yylexerror(const char *msg)
 {
-	gi.DPrintf( "%s\n%s", msg, yytext );
-	assert( 0 );
+    gi.DPrintf("%s\n%s", msg, yytext);
+    assert(0);
 }
 
-static void TextEscapeValue( char *str, size_t len )
+static void TextEscapeValue(char *str, size_t len)
 {
-	char *to = parsetree_malloc( len + 1 );
+    char *to = parsetree_malloc(len + 1);
 
-	yylval.s.val.stringValue = to;
+    yylval.s.val.stringValue = to;
 
-	while( len )
-	{
-		if( *str == '\\' )
-		{
-			if( len == 1 )
-				break;
+    while (len) {
+        if (*str == '\\') {
+            if (len == 1) {
+                break;
+            }
 
-			if( str[1] == 'n' )
-			{
-				*to = '\n';
-				to++;
-			}
-			else if( str[1] == 't' )
-			{
-				*to = '\t';
-				to++;
-			}
-			else if( str[1] == '"' )
-			{
-				*to = '\"';
-				to++;
-			}
-			else
-			{
-				*to = str[1];
-				to++;
-			}
+            if (str[1] == 'n') {
+                *to = '\n';
+                to++;
+            } else if (str[1] == 't') {
+                *to = '\t';
+                to++;
+            } else if (str[1] == '"') {
+                *to = '\"';
+                to++;
+            } else {
+                *to = str[1];
+                to++;
+            }
 
-			len -= 2;
-			str += 2;
-		}
-		else
-		{
-			*to = *str;
-			to++;
-			len--;
-			str++;
-		}
-	}
+            len -= 2;
+            str += 2;
+        } else {
+            *to = *str;
+            to++;
+            len--;
+            str++;
+        }
+    }
 
-	*to = 0;
+    *to = 0;
 }
 
-static void TextValue( char *str, size_t len )
+static void TextValue(char *str, size_t len)
 {
-	char* s = parsetree_malloc(len + 1);
-	strncpy(s, str, len);
-	s[len] = 0;
-	yylval.s.val.stringValue = s;
+    char *s = parsetree_malloc(len + 1);
+    strncpy(s, str, len);
+    s[len]                   = 0;
+    yylval.s.val.stringValue = s;
 }
 
-static bool UseField( void )
+static bool UseField(void)
 {
-	return prev_yylex == TOKEN_PERIOD
-		|| prev_yylex == TOKEN_DOLLAR;
+    return prev_yylex == TOKEN_PERIOD || prev_yylex == TOKEN_DOLLAR;
 }
 
 #define YY_INPUT(buf,result,max_size) \
@@ -193,7 +192,7 @@ identifier	[^\{\}\(\)\[\]\r\n\,:; \t]
 nonexpr		[0-9a-zA-Z_\"'?@#`\.\x80-\xff]
 nonnumeric	[a-zA-Z_\"'?@#`\x80-\xff]
 alphanum	[a-zA-Z0-9_]+
-varname		[a-zA-Z0-9_\"\$]+
+varname		[a-zA-Z0-9_\"$\\]+
 
 %%
 
@@ -210,7 +209,7 @@ varname		[a-zA-Z0-9_\"\$]+
 <VARIABLES>[ \t]*\./([0-9]*[^0-9[:space:]])	{ YYLEX(TOKEN_PERIOD); }
 <VARIABLES>\"{string}\"						{ BEGIN(INITIAL); TextEscapeValue(yytext + 1, strlen( yytext ) - 2 ); YYLEX(TOKEN_STRING); }
 <VARIABLES>{varname}						{
-												TextValue(yytext, strlen(yytext));
+												TextEscapeValue(yytext, strlen(yytext));
 												YYLEX(TOKEN_IDENTIFIER);
 											}
 <VARIABLES>[ \t\r\n]						{
