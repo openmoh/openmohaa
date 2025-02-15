@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2024 the OpenMoHAA team
+Copyright (C) 2025 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -48,6 +48,7 @@ public:
     void MoveDone(Event *ev);
     void MoveTo(Vector tdest, Vector angdest, float tspeed, Event& event);
     void LinearInterpolate(Vector tdest, Vector angdest, float time, Event& event);
+    void Stop();
     void Archive(Archiver& arc) override;
 };
 

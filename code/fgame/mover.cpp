@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2024 the OpenMoHAA team
+Copyright (C) 2025 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -249,4 +249,25 @@ void Mover::LinearInterpolate(Vector tdest, Vector angdest, float time, Event& e
     }
 
     PostEvent(EV_MoveDone, time);
+}
+
+/*
+=============
+Stop
+===============
+*/
+void Mover::Stop()
+{
+    if (endevent) {
+        delete endevent;
+        endevent = NULL;
+    }
+
+    CancelEventsOfType(EV_MoveDone);
+
+    moveflags = 0;
+    avelocity = vec_zero;
+    velocity  = vec_zero;
+    accel     = vec_zero;
+    aaccel    = vec_zero;
 }
