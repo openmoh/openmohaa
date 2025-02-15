@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2023 the OpenMoHAA team
+Copyright (C) 2025 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -68,6 +68,22 @@ Event EV_ScriptSlave_WaitMove
     NULL,
     "Move the script slave and wait until finished.",
     EV_NORMAL
+);
+Event EV_ScriptSlave_Stop
+(
+    "stop",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Stop the script slave."
+);
+Event EV_ScriptSlave_ThreadMove
+(
+    "threadmove",
+    EV_DEFAULT,
+    "s",
+    "label",
+    "Move the script slave and create thread which waits until finished."
 );
 Event EV_ScriptSlave_Angles
 (
@@ -220,6 +236,15 @@ Event EV_ScriptSlave_MoveRight
     "f",
     "dist",
     "Move the position right.",
+    EV_NORMAL
+);
+Event EV_ScriptSlave_MoveOffset
+(
+    "moveOffset",
+    EV_DEFAULT,
+    "v",
+    "dist",
+    "Move the position by the offset vector.",
     EV_NORMAL
 );
 Event EV_ScriptSlave_RotateXDownTo
@@ -609,6 +634,8 @@ CLASS_DECLARATION(Mover, ScriptSlave, "script_object") {
     {&EV_Unbind,                             &ScriptSlave::EventUnbind          },
     {&EV_ScriptSlave_DoMove,                 &ScriptSlave::DoMove               },
     {&EV_ScriptSlave_WaitMove,               &ScriptSlave::WaitMove             },
+    {&EV_ScriptSlave_Stop,                   &ScriptSlave::Stop                 },
+    {&EV_ScriptSlave_ThreadMove,             &ScriptSlave::ThreadMove           },
     {&EV_ScriptSlave_Angles,                 &ScriptSlave::SetAnglesEvent       },
     {&EV_SetAngle,                           &ScriptSlave::SetAngleEvent        },
     {&EV_Model,                              &ScriptSlave::SetModelEvent        },
@@ -628,6 +655,7 @@ CLASS_DECLARATION(Mover, ScriptSlave, "script_object") {
     {&EV_ScriptSlave_MoveBackward,           &ScriptSlave::MoveBackward         },
     {&EV_ScriptSlave_MoveLeft,               &ScriptSlave::MoveLeft             },
     {&EV_ScriptSlave_MoveRight,              &ScriptSlave::MoveRight            },
+    {&EV_ScriptSlave_MoveOffset,             &ScriptSlave::MoveOffset           },
     {&EV_ScriptSlave_RotateXDownTo,          &ScriptSlave::RotateXdownto        },
     {&EV_ScriptSlave_RotateYDownTo,          &ScriptSlave::RotateYdownto        },
     {&EV_ScriptSlave_RotateZDownTo,          &ScriptSlave::RotateZdownto        },
@@ -816,6 +844,24 @@ void ScriptSlave::WaitMove(Event *ev)
 {
     NewMove();
     Register(0, Director.CurrentScriptThread());
+}
+
+void ScriptSlave::Stop(Event *ev)
+{
+    commandswaiting = false;
+    if (RegisterSize(0)) {
+        Event newev(EV_DelayThrow);
+        newev.AddConstString(STRING_FAIL);
+        BroadcastEvent(0, newev);
+    }
+
+    Mover::Stop();
+}
+
+void ScriptSlave::ThreadMove(Event *ev)
+{
+    NewMove();
+    Register(0, CreateThreadInternal(ev->GetValue(1)));
 }
 
 void ScriptSlave::MoveEnd(Event *ev)
@@ -1080,6 +1126,12 @@ void ScriptSlave::MoveRight(Event *ev)
     t.AngleVectorsLeft(NULL, &v, NULL);
 
     NewPos -= v * ev->GetFloat(1);
+}
+
+void ScriptSlave::MoveOffset(Event *ev)
+{
+    CheckNewOrders();
+    NewPos += ev->GetVector(1);
 }
 
 // exact rotate commands
