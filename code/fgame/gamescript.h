@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2024 the OpenMoHAA team
+Copyright (C) 2025 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -118,7 +118,8 @@ class GameScript : public AbstractScript
 {
 protected:
     // try/throw variable
-    Container<CatchBlock *> m_CatchBlocks;
+    Container<CatchBlock *>  m_CatchBlocks;
+    Container<StateScript *> m_StateScripts;
 
 public:
     // program variables

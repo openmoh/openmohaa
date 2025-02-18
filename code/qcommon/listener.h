@@ -408,7 +408,7 @@ public:
 #define NODE_CANCEL      1
 #define NODE_FIXED_EVENT 2
 
-class EventQueueNode
+class EventQueueNode : public LightClass
 {
 public:
     Event            *event;

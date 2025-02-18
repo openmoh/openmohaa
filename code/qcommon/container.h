@@ -526,3 +526,18 @@ void Container<Type>::Copy(const Container<Type>& container)
 
     return;
 }
+
+template<typename T>
+void *operator new(size_t count, Container<T>& container)
+{
+    (void)count;
+
+    assert(count == sizeof(T));
+    return &container.ObjectAt(container.AddObject());
+}
+
+template<typename T>
+void operator delete(void *ptr, Container<T>& container)
+{
+    container.RemoveObject((T *)ptr);
+}

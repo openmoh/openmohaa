@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2023 the OpenMoHAA team
+Copyright (C) 2025 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -87,15 +87,19 @@ class Event;
         }                                                      \
         bool classname::WaitTillAllowed(str s)                 \
         {                                                      \
-            for(ClassDef* c = classinfo(); c; c = c->super) {  \
-                if (c->WaitTillDefined(s)) { return true; }    \
+            for (ClassDef *c = classinfo(); c; c = c->super) { \
+                if (c->WaitTillDefined(s)) {                   \
+                    return true;                               \
+                }                                              \
             }                                                  \
             return false;                                      \
         }                                                      \
         bool classname::WaitTillAllowed(const_str s)           \
         {                                                      \
-            for(ClassDef* c = classinfo(); c; c = c->super) {  \
-                if (c->WaitTillDefined(s)) { return true; }    \
+            for (ClassDef *c = classinfo(); c; c = c->super) { \
+                if (c->WaitTillDefined(s)) {                   \
+                    return true;                               \
+                }                                              \
             }                                                  \
             return false;                                      \
         }                                                      \
@@ -188,6 +192,7 @@ public:
     int numEvents;
 
     static ClassDef *classlist;
+    static ClassDef *classroot;
     static int       numclasses;
 
     static int                   dump_numclasses;
