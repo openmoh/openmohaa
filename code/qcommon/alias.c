@@ -70,6 +70,11 @@ void Alias_ListClear(AliasList_t *list)
     }
 
     for (node = list->data_list; node != NULL; node = next) {
+        if (node->subtitle) {
+            // Added in OPM
+            Z_Free(node->subtitle);
+        }
+
         next = node->next;
         Z_Free(node);
     }
