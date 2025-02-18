@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2024 the OpenMoHAA team
+Copyright (C) 2025 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -686,8 +686,15 @@ void GameScript::ArchiveCodePos(Archiver& arc, unsigned char **codePos)
 
 void GameScript::Close(void)
 {
+    // Free up catch blocks
     for (int i = m_CatchBlocks.NumObjects(); i > 0; i--) {
         delete m_CatchBlocks.ObjectAt(i);
+    }
+
+    // Added in OPM
+    //  Free up allocated state scripts
+    for (int i = m_StateScripts.NumObjects(); i > 0; i--) {
+        delete m_StateScripts.ObjectAt(i);
     }
 
     m_CatchBlocks.FreeObjectList();
@@ -814,7 +821,11 @@ StateScript *GameScript::CreateCatchStateScript(unsigned char *try_begin_code_po
 
 StateScript *GameScript::CreateSwitchStateScript(void)
 {
-    return new StateScript;
+    StateScript *stateScript = new StateScript;
+
+    m_StateScripts.AddObject(stateScript);
+
+    return stateScript;
 }
 
 StateScript *GameScript::GetCatchStateScript(unsigned char *in, unsigned char *& out)
@@ -927,7 +938,8 @@ void ScriptThreadLabel::Execute(Listener *listener, Event *ev) const
     Execute(listener, *ev);
 }
 
-void ScriptThreadLabel::Execute(Listener *pSelf, const SafePtr<Listener>& listener, const SafePtr<Listener>& param) const
+void ScriptThreadLabel::Execute(Listener *pSelf, const SafePtr<Listener>& listener, const SafePtr<Listener>& param)
+    const
 {
     if (!m_Script) {
         return;
