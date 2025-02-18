@@ -409,6 +409,11 @@ ClassDef::~ClassDef()
         delete[] responseLookup;
         responseLookup = NULL;
     }
+#ifdef WITH_SCRIPT_ENGINE
+    if (waitTillSet) {
+        delete waitTillSet;
+    }
+#endif
 }
 
 #ifdef WITH_SCRIPT_ENGINE
