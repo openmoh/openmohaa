@@ -918,6 +918,9 @@ void G_Restart(void)
 
     // Added in 2.0
     G_ResetSmokeSprites();
+
+    // Added in OPM
+    G_RestartBots();
 }
 
 void G_SetFrameNumber(int framenum)
