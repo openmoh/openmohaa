@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2025 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -57,6 +57,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #endif
 
 ClassDef *ClassDef::classlist;
+ClassDef *ClassDef::classroot;
 int       ClassDef::numclasses;
 
 int                   ClassDef::dump_numclasses;
@@ -78,7 +79,7 @@ void ClassDef::SortClassList(Container<ClassDef *> *sortedList)
 
     sortedList->Resize(numclasses);
 
-    for (c = classlist->next; c != classlist; c = c->next) {
+    for (c = classlist; c; c = c->next) {
         sortedList->AddObject(c);
     }
 
@@ -92,7 +93,7 @@ ClassDef *getClassForID(const char *name)
     ClassDef *classlist = ClassDef::classlist;
     ClassDef *c;
 
-    for (c = classlist->next; c != classlist; c = c->next) {
+    for (c = classlist; c; c = c->next) {
         if (c->classID && !Q_stricmp(c->classID, name)) {
             return c;
         }
@@ -110,7 +111,7 @@ ClassDef *getClass(const char *name)
     ClassDef *list = ClassDef::classlist;
     ClassDef *c;
 
-    for (c = list->next; c != list; c = c->next) {
+    for (c = list; c; c = c->next) {
         if (Q_stricmp(c->classname, name) == 0) {
             return c;
         }
@@ -129,7 +130,7 @@ void listAllClasses(void)
     ClassDef *c;
     ClassDef *list = ClassDef::classlist;
 
-    for (c = list->next; c != list; c = c->next) {
+    for (c = list; c; c = c->next) {
         CLASS_DPrintf("%s\n", c->classname);
     }
 }
@@ -353,7 +354,7 @@ ClassDef::ClassDef(
     ClassDef *node;
 
     if (classlist == NULL) {
-        classlist = new ClassDef;
+        classlist = this;
     }
 
     this->classname      = classname;
@@ -374,7 +375,7 @@ ClassDef::ClassDef(
         this->classID = "";
     }
 
-    for (node = classlist->next; node != classlist; node = node->next) {
+    for (node = classlist; node; node = node->next) {
         if ((node->super == NULL) && (!Q_stricmp(node->superclass, this->classname))
             && (Q_stricmp(node->classname, "Class"))) {
             node->super = this;
@@ -382,7 +383,7 @@ ClassDef::ClassDef(
     }
 
     // Add to front of list
-    LL_AddFirst(classlist, this, prev, next);
+    LL_SafeAdd(classroot, this, next, prev);
 
     numclasses++;
 }
@@ -391,18 +392,13 @@ ClassDef::~ClassDef()
 {
     ClassDef *node;
 
-    if (classlist != this) {
-        LL_Remove(this, prev, next);
+    LL_SafeRemoveRoot(classlist, this, next, prev);
 
-        // Check if any subclasses were initialized before their superclass
-        for (node = classlist->next; node != classlist; node = node->next) {
-            if (node->super == this) {
-                node->super = NULL;
-            }
+    // Check if any subclasses were initialized before their superclass
+    for (node = classlist; node; node = node->next) {
+        if (node->super == this) {
+            node->super = NULL;
         }
-    } else {
-        // If the head of the list is deleted before the list is cleared, then we may have problems
-        assert(this->next == this->prev);
     }
 
     if (responseLookup) {
@@ -502,7 +498,7 @@ void ClassDef::BuildResponseList(void)
     }
     //size will be total event count, because it WAS faster to look for an event via eventnum
     //nowadays there's not much overhead in performance, TODO: change size to appropriate.
-    num = Event::NumEventCommands();
+    num            = Event::NumEventCommands();
     responseLookup = (ResponseDef<Class> **)new char[sizeof(ResponseDef<Class> *) * num];
     memset(responseLookup, 0, sizeof(ResponseDef<Class> *) * num);
 
@@ -544,7 +540,7 @@ void ClassDef::BuildEventResponses(void)
     amount     = 0;
     numclasses = 0;
 
-    for (c = classlist->next; c != classlist; c = c->next) {
+    for (c = classlist; c; c = c->next) {
         c->BuildResponseList();
 
         amount += c->numEvents * sizeof(Response *);
@@ -697,7 +693,13 @@ void DumpClass(FILE *class_file, const char *className)
 
     CLASS_Print(class_file, "\n");
     if (classDef->classID[0]) {
-        CLASS_Print(class_file, "<h2> <a name=\"%s\">%s (<i>%s</i>)</a>", classDef->classname, classDef->classname, classDef->classID);
+        CLASS_Print(
+            class_file,
+            "<h2> <a name=\"%s\">%s (<i>%s</i>)</a>",
+            classDef->classname,
+            classDef->classname,
+            classDef->classID
+        );
     } else {
         CLASS_Print(class_file, "<h2> <a name=\"%s\">%s</a>", classDef->classname, classDef->classname);
     }
