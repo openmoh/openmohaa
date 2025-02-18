@@ -26,14 +26,27 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "q_shared.h"
 
-class LightClass {
+class LightClass
+{
 public:
 #ifndef _DEBUG_MEM
-    void* operator new(size_t);
-    void operator delete(void*);
+    void *operator new(size_t);
+    void  operator delete(void *);
 
-    void* operator new(size_t size, void* placement);
-    void operator delete(void* ptr, void* placement);
+    void *operator new(size_t size, void *placement);
+    void  operator delete(void *ptr, void *placement);
+
+    template<typename T>
+    void *operator new(size_t size, T& placement)
+    {
+        return operator new(size, (void *)&placement);
+    }
+
+    template<typename T>
+    void operator delete(void *ptr, T& placement)
+    {
+        return operator delete(ptr, (void *)&placement);
+    }
 #endif
 };
 
