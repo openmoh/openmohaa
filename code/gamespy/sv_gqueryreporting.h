@@ -26,7 +26,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define MAX_KEYVALUES_LENGTH 1400
 
-static const unsigned int MIN_HEARTBEAT_TIME = 30000; // wait at least 30 seconds before new heartbeat can be sent
+static const unsigned int MIN_HEARTBEAT_TIME = 30000;  // wait at least 30 seconds before new heartbeat can be sent
 static const unsigned int MAX_HEARTBEAT_TIME = 300000; // 5 minutes
 
 typedef void (*qr_querycallback_t)(char *outbuf, int maxlen, void *userdata);
@@ -59,9 +59,6 @@ typedef struct qr_implementation_s {
     int                 qport;
     char                no_query;
     struct sockaddr_in  master_saddr;
-    int                 unk2;
-    int                 unk3;
-    int                 unk4;
     qr_custom_handler_t qr_custom_handler;
     void               *udata;
 } qr_implementation_t, *qr_t;
