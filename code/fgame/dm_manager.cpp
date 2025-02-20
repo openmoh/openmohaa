@@ -1415,7 +1415,7 @@ void DM_Manager::EventDoRoundTransition(Event *ev)
         // Play the axis victory sound
         world->Sound("den_victory_v");
 
-        Unregister(STRING_AXISWIN);
+        level.Unregister(STRING_AXISWIN);
     } else if (m_iTeamWin == TEAM_ALLIES) {
         G_CenterPrintToAllClients(va("\n\n\n%s\n", gi.LV_ConvertString("Allies win!")));
         G_PrintToAllClients(va("%s\n", gi.LV_ConvertString("Allies win!")));
@@ -1423,12 +1423,12 @@ void DM_Manager::EventDoRoundTransition(Event *ev)
         // Play the allies victory sound
         world->Sound("dfr_victory_v");
 
-        Unregister(STRING_ALLIESWIN);
+        level.Unregister(STRING_ALLIESWIN);
     } else {
         G_CenterPrintToAllClients(va("\n\n\n%s\n", gi.LV_ConvertString("It's a draw!")));
         G_PrintToAllClients(va("%s\n", gi.LV_ConvertString("It's a draw!")));
 
-        Unregister(STRING_DRAW);
+        level.Unregister(STRING_DRAW);
     }
 
     G_DisplayScoresToAllClients();
