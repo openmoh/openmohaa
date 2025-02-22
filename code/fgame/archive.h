@@ -293,7 +293,7 @@ void con_set<key, value>::Archive(Archiver& arc)
 
     if (arc.Loading()) {
         if (tableLength != 1) {
-            table = new Entry *[tableLength]();
+            table = new (NewTable(tableLength)) Entry *[tableLength]();
             memset(table, 0, tableLength * sizeof(Entry *));
         }
 
