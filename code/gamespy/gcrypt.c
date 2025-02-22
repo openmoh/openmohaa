@@ -51,10 +51,10 @@ static unsigned int crypt_seek(GCryptInfo *info, unsigned int n1, unsigned int n
 
         if (n2 & current) {
             part   = rotl32(~xorKey, 24);
-            xorKey = rotl32(info->key[(unsigned char)part] ^ part, 24);
-            part   = rotl32(info->key[(unsigned char)keyIndex] ^ keyIndex, 8);
-            xorKey ^= info->key[(unsigned char)xorKey];
-            keyIndex = rotl32(info->key[(unsigned char)part] ^ part, 8);
+            xorKey = rotl32(info->key[part & 0xff] ^ part, 24);
+            part   = rotl32(info->key[keyIndex & 0xff] ^ keyIndex, 8);
+            xorKey ^= info->key[xorKey & 0xff];
+            keyIndex = rotl32(info->key[part & 0xff] ^ part, 8);
 
             i += 1 + i;
         } else {
@@ -64,10 +64,10 @@ static unsigned int crypt_seek(GCryptInfo *info, unsigned int n1, unsigned int n
             info->offset++;
 
             part     = rotl32(keyIndex, 24);
-            keyIndex = rotl32(info->key[(unsigned char)part] ^ part, 24);
-            part     = rotl32(info->key[(unsigned char)xorKey] ^ xorKey, 8);
-            keyIndex ^= info->key[(unsigned char)keyIndex];
-            xorKey = rotl32(info->key[(unsigned char)part] ^ part, 8);
+            keyIndex = rotl32(info->key[part & 0xff] ^ part, 24);
+            part     = rotl32(info->key[xorKey & 0xff] ^ xorKey, 8);
+            keyIndex ^= info->key[keyIndex & 0xff];
+            xorKey = rotl32(info->key[part & 0xff] ^ part, 8);
 
             i *= 2;
         }
@@ -109,10 +109,10 @@ static void crypt_encrypt(GCryptInfo *info, unsigned int *words, int len)
             offset++;
 
             part     = rotl32(keyIndex, 24);
-            keyIndex = rotl32(info->key[(unsigned char)part] ^ part, 24);
-            part     = rotl32(info->key[(unsigned char)xorKey] ^ xorKey, 8);
-            keyIndex ^= info->key[(unsigned char)keyIndex];
-            xorKey = rotl32(info->key[(unsigned char)part] ^ part, 8);
+            keyIndex = rotl32(info->key[part & 0xff] ^ part, 24);
+            part     = rotl32(info->key[xorKey & 0xff] ^ xorKey, 8);
+            keyIndex ^= info->key[keyIndex & 0xff];
+            xorKey = rotl32(info->key[part & 0xff] ^ part, 8);
 
             i *= 2;
         }
@@ -124,10 +124,10 @@ static void crypt_encrypt(GCryptInfo *info, unsigned int *words, int len)
         }
 
         part   = rotl32(~info->msg[offset], 24);
-        xorKey = rotl32(info->key[(unsigned char)part] ^ part, 24);
-        part   = rotl32(info->key[(unsigned char)info->msg[offset + 16]] ^ info->msg[offset + 16], 8);
-        xorKey ^= info->key[(unsigned char)xorKey];
-        keyIndex = rotl32(info->key[(unsigned char)part] ^ part, 8);
+        xorKey = rotl32(info->key[part & 0xff] ^ part, 24);
+        part   = rotl32(info->key[info->msg[offset + 16] & 0xff] ^ info->msg[offset + 16], 8);
+        xorKey ^= info->key[xorKey & 0xff];
+        keyIndex = rotl32(info->key[part & 0xff] ^ part, 8);
 
         i = info->msg[offset + 32] + 1 + info->msg[offset + 32];
     }
