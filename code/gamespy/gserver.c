@@ -83,7 +83,7 @@ GServer ServerNewData(char **fieldlist, int fieldcount, char *serverdata, GQuery
         }
 
         if (!strcmp(k, "ip")) {
-            ServerSetAddressFromString((int)server, v);
+            ServerSetAddressFromString(server, v);
         } else if (qtype == qt_grouprooms && !strcmp(k, "other")) {
             for (char *p = v; *p; ++p) {
                 if (*p == 1) {
@@ -92,8 +92,8 @@ GServer ServerNewData(char **fieldlist, int fieldcount, char *serverdata, GQuery
             }
             ServerParseKeyVals(server, v);
         } else {
-            kvpair.key   = (char *)LookupKey((int)server, k);
-            kvpair.value = (char *)LookupKey((int)server, v);
+            kvpair.key   = (char *)LookupKey(server, k);
+            kvpair.value = (char *)LookupKey(server, v);
             TableEnter(server->keyvals, &kvpair);
         }
         if (++curfield < fieldcount) {
