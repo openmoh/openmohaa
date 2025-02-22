@@ -92,8 +92,12 @@ struct GServerListImplementation
 	HashTable keylist;
 
     // Added in 2.0
+    int numservers;
+    // Added in 2.0
     GCryptInfo cryptinfo;
+    // Added in OPM
     int encryptdata;
+
     GParseInfoState pistate;
 };
 
@@ -133,7 +137,11 @@ GServerList	ServerListNew(const char *gamename, const char *enginename, const ch
 	assert(CallBackFn != NULL);
 	list->instance = instance;
 	list->sortkey = "";
+    // Added in 2.0
+    list->numservers = 0;
+    // Added in OPM
     list->encryptdata = 1;
+
 	SocketStartUp();
 	return list;	
 }
@@ -374,6 +382,8 @@ GError ServerListUpdate2(GServerList serverlist, gbool async, char *filter, GQue
 	serverlist->nextupdate = 0;
 	serverlist->abortupdate = 0;
     // Added in 2.0
+    serverlist->numservers = ServerListCount(serverlist);
+    // Added in 2.0
     serverlist->cryptinfo.offset = -1;
 	if (!async)
 		DoSyncLoop(serverlist);
@@ -436,12 +446,12 @@ static void ServerListInsertServer(GServerList serverlist, unsigned long ip, uns
 }
 
 //find the server in the list, returns -1 if it does not exist
-static int ServerListFindServer(GServerList serverlist, unsigned int ip, int port)
+static int ServerListFindServerMax(GServerList serverlist, unsigned int ip, int port, int count)
 {
 	int i;
 	GServer server;
 
-	for (i = 0; i < ArrayLength(serverlist->servers) ; i++)
+	for (i = 0; i < count ; i++)
 	{
 		server = *(GServer *)ArrayNth(serverlist->servers,i);
 		if (port == ServerGetQueryPort(server) && ServerGetInetAddress(server)==ip)
@@ -450,6 +460,12 @@ static int ServerListFindServer(GServerList serverlist, unsigned int ip, int por
 		}
 	}
 	return -1;
+}
+
+//find the server in the list, returns -1 if it does not exist
+static int ServerListFindServer(GServerList serverlist, unsigned int ip, int port)
+{
+    return ServerListFindServerMax(serverlist, ip, port, ArrayLength(serverlist->servers));
 }
 
 //finds the server in the list of servers currently being queried
@@ -766,7 +782,11 @@ static GError ServerListReadList(GServerList serverlist)
                 p += 4;
                 memcpy(&port, p, 2);
                 p += 2;
-                ServerListAddServer(serverlist, ip, ntohs(port), serverlist->querytype);
+                // Added in 2.0
+                //  Skip adding the server if already exists
+                if (ServerListFindServerMax(serverlist, ip, ntohs(port), serverlist->numservers) == -1) {
+                    ServerListAddServer(serverlist, ip, ntohs(port), serverlist->querytype);
+                }
             }
         }
     }
