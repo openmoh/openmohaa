@@ -45,6 +45,9 @@ Fax(714)549-0757
 #include <string.h>
 #include <stdlib.h>
 
+// Added in 2.0
+#include "gcrypt.h"
+
 #define MSHOST MASTER_SERVER_HOST
 #define MSPORT	28900
 #define SERVER_GROWBY 64
@@ -87,6 +90,10 @@ struct GServerListImplementation
 	unsigned long lanstarttime;
 	GQueryType querytype;
 	HashTable keylist;
+
+    // Added in 2.0
+    GCryptInfo cryptinfo;
+    int encryptdata;
 };
 
 GServerList g_sortserverlist; //global serverlist for sorting info!!
@@ -125,6 +132,7 @@ GServerList	ServerListNew(const char *gamename, const char *enginename, const ch
 	assert(CallBackFn != NULL);
 	list->instance = instance;
 	list->sortkey = "";
+    list->encryptdata = 1;
 	SocketStartUp();
 	return list;	
 }
@@ -242,7 +250,7 @@ static GError SendListRequest(GServerList serverlist, char *filter)
 {
 	char data[256], *ptr, result[64];
 	int len;
-
+    int i;
 	
 	len = recv(serverlist->slsocket, data, sizeof(data) - 1, 0);
 	if (gsiSocketIsError(len))
@@ -254,11 +262,25 @@ static GError SendListRequest(GServerList serverlist, char *filter)
 		return GE_DATAERROR;
 	ptr = ptr + strlen(SECURE);
 	gs_encrypt   ( (uchar *) serverlist->seckey, 6, (uchar *)ptr, 6 );
+    if (serverlist->encryptdata) {
+        // Added in 2.0
+        for(i = 0; i < 6; i++) {
+            ptr[i] ^= serverlist->seckey[i];
+        }
+    }
 	gs_encode ( (uchar *)ptr, 6, (uchar *) result );
 
-	//validate to the master
-	sprintf(data, "\\gamename\\%s\\gamever\\%s\\location\\0\\validate\\%s\\final\\\\queryid\\1.1\\",
-			serverlist->enginename, ENGINE_VERSION, result); //validate us		
+    if (serverlist->encryptdata) {
+        // Added in 2.0
+        //  Encrypt data
+        //validate to the master
+        sprintf(data, "\\gamename\\%s\\gamever\\%s\\location\\0\\validate\\%s\\enctype\\2\\final\\\\queryid\\1.1\\",
+                serverlist->enginename, "2", result); //validate us		
+    } else {
+        //validate to the master
+        sprintf(data, "\\gamename\\%s\\gamever\\%s\\location\\0\\validate\\%s\\final\\\\queryid\\1.1\\",
+                serverlist->enginename, ENGINE_VERSION, result); //validate us	
+    }
 	
 	len = send ( serverlist->slsocket, data, strlen(data), 0 );
 	if (gsiSocketIsError(len) || len == 0)
@@ -337,6 +359,8 @@ GError ServerListUpdate2(GServerList serverlist, gbool async, char *filter, GQue
 	if (error) return error;
 	serverlist->nextupdate = 0;
 	serverlist->abortupdate = 0;
+    // Added in 2.0
+    serverlist->cryptinfo.offset = -1;
 	if (!async)
 		DoSyncLoop(serverlist);
 
@@ -577,27 +601,53 @@ static GError ServerListReadList(GServerList serverlist)
 		return GE_NOCONNECT;
 
 	}
-	oldlen += len;
+
+    if (serverlist->encryptdata && serverlist->cryptinfo.offset != -1) {
+        // Added in 2.0
+        crypt_docrypt(&serverlist->cryptinfo, data + oldlen, len);
+    }
+
+    oldlen += len;
 
 	p = data;
-	while (p - data <= oldlen - 6)
-	{
-		if (strncmp(p,"\\final\\",7) == 0 || serverlist->abortupdate)
-		{
-			closesocket(serverlist->slsocket);
-			serverlist->slsocket = INVALID_SOCKET;
-			oldlen = 0; //clear data so it can be used again
-			ServerListModeChange(serverlist, sl_querying);
-			return 0; //get out!!
-		}
-		if (oldlen < 6) //no way it could be a full IP, quit
-			break;
-		memcpy(&ip,p,4);
-		p += 4;
-		memcpy(&port,p,2);
-		p += 2;
-		ServerListAddServer(serverlist,ip,  ntohs(port), serverlist->querytype );
-	}
+
+    if (!serverlist->encryptdata) {
+        serverlist->cryptinfo.offset = 0;
+    } else if (serverlist->cryptinfo.offset == -1) {
+        // Added in 2.0
+        if (oldlen > (*p ^ 0xEC)) {
+            *p ^= 0xEC;
+            len = strlen(serverlist->seckey);
+            for (i = 0; i < len; i++) {
+                p[i + 1] ^= serverlist->seckey[i];
+            }
+            init_crypt_key((unsigned char *)p + 1, *p, &serverlist->cryptinfo);
+            p += *p + 1;
+            crypt_docrypt(&serverlist->cryptinfo, (unsigned char *)p, oldlen - (p - data));
+        }
+    }
+
+    if (serverlist->cryptinfo.offset != -1)
+    {
+        while (p - data <= oldlen - 6)
+        {
+            if (strncmp(p,"\\final\\",7) == 0 || serverlist->abortupdate)
+            {
+                closesocket(serverlist->slsocket);
+                serverlist->slsocket = INVALID_SOCKET;
+                oldlen = 0; //clear data so it can be used again
+                ServerListModeChange(serverlist, sl_querying);
+                return 0; //get out!!
+            }
+            if (oldlen < 6) //no way it could be a full IP, quit
+                break;
+            memcpy(&ip,p,4);
+            p += 4;
+            memcpy(&port,p,2);
+            p += 2;
+            ServerListAddServer(serverlist,ip,  ntohs(port), serverlist->querytype );
+        }
+    }
 	oldlen = oldlen - (p - data);
 	memmove(data,p,oldlen); //shift it over
 	return 0;

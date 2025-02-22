@@ -11,6 +11,7 @@ file(GLOB SRCS_common
 	"./hashtable.c"
 	"./md5c.c"
 	"./gutil.c"
+	"./gcrypt.c"
 )
 
 file(GLOB SRCS_gcdkey
