@@ -62,6 +62,7 @@ typedef struct
 } GEnumData;
 
 void ServerFree(void *elem);
+GServer ServerNewData(char **fieldlist, int fieldcount, char *serverdata, GQueryType qtype, HashTable keylist);
 GServer ServerNew(unsigned long ip, unsigned short port, GQueryType qtype, HashTable keylist);
 void ServerParseKeyVals(GServer server, char *keyvals);
 int GStringHash(const void *elem, int numbuckets);

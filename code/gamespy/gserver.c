@@ -36,6 +36,8 @@ Updated 6-17-99 (DDW)
 
 static int KeyValHashKeyP(const void *elem, int numbuckets);
 static int KeyValCompareKeyP(const void *entry1, const void *entry2);
+static char *mytok(char *instr, char delim);
+static char *LookupKey(GServer server, char *k);
 
 
 
@@ -46,6 +48,60 @@ void ServerFree(void *elem)
 	
 	TableFree(server->keyvals);
 	free(server);
+}
+
+static void ServerSetAddressFromString (GServer server, char *address)
+{
+    char *cpos;
+
+    cpos = strchr(address, ':');
+    if (!cpos) {
+        return;
+    }
+
+    *cpos = 0;
+    server->ip = inet_addr(address);
+    server->port = atoi(cpos + 1);
+}
+
+GServer ServerNewData(char **fieldlist, int fieldcount, char *serverdata, GQueryType qtype, HashTable keylist)
+{
+    GServer       server;
+    char         *k;
+    char         *v;
+    int           curfield;
+    GKeyValuePair kvpair;
+
+    curfield = 0;
+    server   = (GServer)ServerNew(0, 0, qtype, keylist);
+    v        = mytok(serverdata + 1, '\\');
+
+    while (curfield < fieldcount) {
+        k = fieldlist[curfield];
+        if (!v) {
+            v = "";
+        }
+
+        if (!strcmp(k, "ip")) {
+            ServerSetAddressFromString((int)server, v);
+        } else if (qtype == qt_grouprooms && !strcmp(k, "other")) {
+            for (char *p = v; *p; ++p) {
+                if (*p == 1) {
+                    *p = '\\';
+                }
+            }
+            ServerParseKeyVals(server, v);
+        } else {
+            kvpair.key   = (char *)LookupKey((int)server, k);
+            kvpair.value = (char *)LookupKey((int)server, v);
+            TableEnter(server->keyvals, &kvpair);
+        }
+        if (++curfield < fieldcount) {
+            v = mytok(0, '\\');
+        }
+    }
+
+    return server;
 }
 
 GServer ServerNew(unsigned long ip, unsigned short port, GQueryType qtype, HashTable keylist)

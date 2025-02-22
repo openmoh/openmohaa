@@ -69,7 +69,7 @@ typedef struct
 	struct sockaddr_in saddr;
 } UpdateInfo;
 
-
+typedef enum { pi_fieldcount, pi_fields, pi_servers } GParseInfoState;
 
 struct GServerListImplementation
 {
@@ -94,6 +94,7 @@ struct GServerListImplementation
     // Added in 2.0
     GCryptInfo cryptinfo;
     int encryptdata;
+    GParseInfoState pistate;
 };
 
 GServerList g_sortserverlist; //global serverlist for sorting info!!
@@ -251,6 +252,7 @@ static GError SendListRequest(GServerList serverlist, char *filter)
 	char data[256], *ptr, result[64];
 	int len;
     int i;
+    char *modifier;
 	
 	len = recv(serverlist->slsocket, data, sizeof(data) - 1, 0);
 	if (gsiSocketIsError(len))
@@ -286,11 +288,23 @@ static GError SendListRequest(GServerList serverlist, char *filter)
 	if (gsiSocketIsError(len) || len == 0)
 		return GE_NOCONNECT;
 
-	//send the list request
+    if (serverlist->querytype == qt_grouprooms) {
+        modifier = "groups";
+
+        serverlist->pistate = pi_fieldcount;
+    } else if (serverlist->querytype == qt_masterinfo) {
+        modifier = "info2";
+
+        serverlist->pistate = pi_fieldcount;
+    } else {
+        modifier = "cmp";
+    }
+
+    //send the list request
 	if (filter)
-		sprintf(data, "\\list\\cmp\\gamename\\%s\\where\\%s\\final\\", serverlist->gamename, filter);
+		sprintf(data, "\\list\\%s\\gamename\\%s\\where\\%s\\final\\", modifier, serverlist->gamename, filter);
 	else
-		sprintf(data, "\\list\\cmp\\gamename\\%s\\final\\", serverlist->gamename);
+		sprintf(data, "\\list\\%s\\gamename\\%s\\final\\", modifier, serverlist->gamename);
 	len = send ( serverlist->slsocket, data, strlen(data), 0 );
 	if (gsiSocketIsError(len) || len == 0)
 		return GE_NOCONNECT;
@@ -393,6 +407,15 @@ GError ServerListLANUpdate(GServerList serverlist, gbool async, int startsearchp
 	return 0;
 }
 
+//add a new server based on the data
+static GServer ServerListAddServerData(GServerList serverlist, char **fieldlist, int fieldcount, char *serverdata, GQueryType qtype)
+{
+    GServer server;
+
+    server = ServerNewData(fieldlist, fieldcount, serverdata, qtype, serverlist->keylist);
+    ArrayAppend(serverlist->servers, &server);
+    return server;
+}
 
 //add the server to the list with the given ip, port
 static void ServerListAddServer(GServerList serverlist, unsigned long ip, unsigned short port, GQueryType qtype)
@@ -566,9 +589,97 @@ static GError ServerListLANList(GServerList serverlist)
 		ServerListModeChange(serverlist, sl_querying);
 	}
 	return 0;
-
 }
-							 
+
+static int CountSlashOffset(char *data, int len, int slashcount)
+{
+    char *p;
+
+    for (p = data; slashcount && p != data + len; ++p) {
+        if (*p == '\\') {
+            slashcount--;
+        }
+    }
+
+    if (slashcount) {
+        return -1;
+    }
+
+    return p - data;
+}
+
+//parses and retrieve servers based on fields
+static int ServerListParseInfoList(GServerList serverlist, char *data, int len)
+{
+    char      *fieldlist[20];
+    char       tempfield[64];
+    char      *tempptr;
+    static int fieldcount;
+    int        offset;
+    int        i;
+    GServer    server;
+
+    switch (serverlist->pistate) {
+    case pi_fieldcount:
+        offset = CountSlashOffset(data, len, 3);
+        if (offset == -1) {
+            return 0;
+        }
+        if (offset < 12) {
+            return 0;
+        }
+
+        strncpy(tempfield, data + 12, offset - 12);
+        tempfield[offset - 13] = 0;
+
+        fieldcount = atoi(tempfield);
+        if (fieldcount > 20) {
+            return -1;
+        }
+
+        serverlist->pistate = pi_fields;
+
+        for (i = 0; i < fieldcount; ++i) {
+            fieldlist[i] = 0;
+        }
+
+        return offset - 1;
+    case pi_fields:
+        offset = CountSlashOffset(data, len, 2);
+        if (offset == -1) {
+            return 0;
+        }
+
+        strncpy(tempfield, data + 1, offset - 2);
+        tempfield[offset - 2] = 0;
+        tempptr               = goastrdup(tempfield);
+
+        for (i = 0; i < fieldcount; ++i) {
+            if (!fieldlist[i]) {
+                fieldlist[i] = tempptr;
+                if (i == fieldcount - 1) {
+                    serverlist->pistate = pi_servers;
+                }
+                return offset - 1;
+            }
+        }
+
+        return -1;
+    case pi_servers:
+        offset = CountSlashOffset(data, len, fieldcount + 1);
+        if (offset == -1) {
+            return 0;
+        }
+
+        server = ServerListAddServerData(serverlist, (char **)fieldlist, fieldcount, data, serverlist->querytype);
+        data[offset - 1] = '\\';
+        serverlist->CallBackFn(serverlist, 2, serverlist->instance, server, 0);
+        return offset - 1;
+    default:
+        return -1;
+    }
+}
+
 //reads the server list from the socket and parses it
 static GError ServerListReadList(GServerList serverlist)
 {
@@ -641,11 +752,22 @@ static GError ServerListReadList(GServerList serverlist)
             }
             if (oldlen < 6) //no way it could be a full IP, quit
                 break;
-            memcpy(&ip,p,4);
-            p += 4;
-            memcpy(&port,p,2);
-            p += 2;
-            ServerListAddServer(serverlist,ip,  ntohs(port), serverlist->querytype );
+
+            if (serverlist->querytype == qt_grouprooms || serverlist->querytype == qt_masterinfo) {
+                i = ServerListParseInfoList(serverlist, p, oldlen - (p - data));
+                if (i < 0) {
+                    serverlist->abortupdate = 1;
+                } else if (!i) {
+                    // finished
+                    break;
+                }
+            } else {
+                memcpy(&ip, p, 4);
+                p += 4;
+                memcpy(&port, p, 2);
+                p += 2;
+                ServerListAddServer(serverlist, ip, ntohs(port), serverlist->querytype);
+            }
         }
     }
 	oldlen = oldlen - (p - data);
