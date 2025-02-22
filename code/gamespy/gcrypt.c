@@ -168,10 +168,6 @@ void init_crypt_key(unsigned char *src, unsigned int len, GCryptInfo *info)
     }
 
     for (k = 0; k < 256; k++) {
-        info->key[k] = LittleLong(info->key[k]);
-    }
-
-    for (k = 0; k < 256; k++) {
         info->key[k] ^= k;
     }
 
@@ -188,11 +184,7 @@ void crypt_docrypt(GCryptInfo *info, unsigned char *out, int len)
             crypt_encrypt(info, info->words, ARRAY_LEN(info->words));
         }
 
-        char value[4];
-        CopyLittleLong(value, info->wordPtr);
-        memcpy(info->wordPtr, value, sizeof(value));
-
-        out[i] ^= *(unsigned char *)info->wordPtr;
+        out[i] ^= *info->wordPtr;
         info->wordPtr++;
     }
 }
