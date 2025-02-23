@@ -127,6 +127,7 @@ cvar_t	*precache;
 cvar_t	*com_target_game;
 cvar_t	*com_target_version;
 cvar_t	*com_target_demo;
+cvar_t	*com_updateCheckInterval;
 
 int protocol_version_demo;
 int protocol_version_full;
@@ -1918,6 +1919,9 @@ void Com_Init( char *commandLine ) {
 #ifdef LEGACY_PROTOCOL
 	com_legacyprotocol = Cvar_Get("com_legacyprotocol", va("%i", PROTOCOL_LEGACY_VERSION), CVAR_INIT);
 
+	com_updateCheckInterval = Cvar_Get("com_updateCheckInterval", "15", 0);
+    Cvar_CheckRange(com_updateCheckInterval, 5, 240, qtrue);
+
 	// Keep for compatibility with old mods / mods that haven't updated yet.
 	if(com_legacyprotocol->integer > 0)
 		Cvar_Get("protocol", com_legacyprotocol->string, CVAR_SERVERINFO | CVAR_ROM);
@@ -2454,6 +2458,8 @@ void Com_Frame( void ) {
 	}
 
 	Com_ReadFromPipe();
+
+    Sys_ProcessBackgroundTasks();
 
 	com_frameNumber++;
 }
@@ -3103,8 +3109,6 @@ int QDECL Com_strCompare( const void *a, const void *b )
 
 void Com_InitTargetGameWithType(target_game_e target_game, qboolean bIsDemo)
 {
-	const char* protocol;
-
     switch (target_game)
     {
     case TG_MOH:

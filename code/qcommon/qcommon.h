@@ -1060,6 +1060,7 @@ extern  cvar_t* con_autochat;
 extern	cvar_t* com_target_version;
 extern	cvar_t* com_target_game;
 extern	cvar_t* com_target_demo;
+extern	cvar_t* com_updateCheckInterval;
 
 extern	int		protocol_version_demo;
 extern	int		protocol_version_full;
@@ -1462,6 +1463,8 @@ dialogResult_t Sys_Dialog( dialogType_t type, const char *message, const char *t
 
 void Sys_RemovePIDFile( const char *gamedir );
 void Sys_InitPIDFile( const char *gamedir );
+
+void Sys_ProcessBackgroundTasks();
 
 /* This is based on the Adaptive Huffman algorithm described in Sayood's Data
  * Compression book.  The ranks are not actually stored, but implicitly defined

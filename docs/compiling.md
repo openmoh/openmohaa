@@ -6,11 +6,17 @@ The following tools are required for all platforms:
 - CMake >= 3.12
 - Flex (>= 2.6.4) and Bison (>= 3.5.1)
 - A C++11 compiler
-- OpenAL SDK (can be found [here](https://github.com/kcat/openal-soft))
+- [SDL2](https://github.com/libsdl-org/SDL/tree/SDL2)
+- [OpenAL SDK](https://github.com/kcat/openal-soft)
+
+The following tools may be useful:
+- [OpenSSL](https://github.com/openssl/openssl)
 
 The installation directory can be set to the MOHAA directory with `-DCMAKE_INSTALL_PREFIX=/path/to/mohaa`.
 
 Compiling debug binaries will result in a `-dbg` suffix appended to the name of the binaries to avoid mixing debug/release code.
+
+OpenSSL is used to access websites using TLS over HTTP. It is currently used to check for a new release. If OpenSSL is not installed, OpenMoHAA will be unable to check for new updates automatically.
 
 ## Compiling for Linux
 
@@ -18,12 +24,13 @@ These are the tools required on Linux :
 - Clang >= 7.0.1 or GCC >= 9.4.0
 - libsdl2-dev
 - libopenal-dev
+- libssl-dev
 
 **clang-7** and **gcc-9** has been tested to work on Ubuntu 20.04. Although it's best to use the latest versions.
 
 1 line install command with clang:
 ```sh
-sudo apt-get install -y cmake ninja-build clang lld flex bison libsdl2-dev libopenal-dev
+sudo apt-get install -y cmake ninja-build clang lld flex bison libsdl2-dev libopenal-dev libssl-dev
 ```
 
 Example with **CMake** and **ninja-build** installed:
@@ -42,6 +49,8 @@ Flex and Bison can be downloaded from here: https://github.com/lexxmark/winflexb
 OpenAL can be downloaded from here: https://github.com/kcat/openal-soft/releases/latest rename `soft_oal.dll` to `OpenAL64.dll` on 64-bit and `OpenAL32.dll` on 32-bit
 
 Append `-DFLEX_EXECUTABLE=...\win_flex.exe -DBISON_EXECUTABLE=...\win_bison.exe -DOPENAL_INCLUDE_DIR="path/to/oal/include" -DOPENAL_LIBRARY="path/to/oal"` to the CMake command-line to use the package from the link above.
+
+Optionally, you can append `-DOPENSSL_ROOT_DIR=path\to\openssl\install` to specify the path to OpenSSL.
 
 ## Tweaking the build
 

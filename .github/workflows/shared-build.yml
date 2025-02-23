@@ -12,6 +12,11 @@ env:
   BUILD_TYPE: RelWithDebInfo
   RELEASE_STAGE: ${{ vars.RELEASE_STAGE || 'unstable' }}
 
+#
+# NOTE:
+#  OpenSSL can be statically linked by configuring it with "no-shared no-threads" options
+#
+
 jobs:
   ##########################
   #
@@ -24,13 +29,13 @@ jobs:
     strategy:
       matrix:
         architecture: [
-          {name: 'amd64',    triple: 'x86_64-linux-gnu'},
-          {name: 'i686',     triple: 'i686-linux-gnu'},
-          {name: 'arm64',    triple: 'aarch64-linux-gnu'},
-          {name: 'armhf',    triple: 'arm-linux-gnueabihf'},
-          {name: 'powerpc',  triple: 'powerpc-linux-gnu'},
-          {name: 'ppc64',    triple: 'powerpc64-linux-gnu'},
-          {name: 'ppc64el',  triple: 'powerpc64le-linux-gnu'}
+          {name: 'amd64',    triple: 'x86_64-linux-gnu',        arch_option: 'linux-x86_64'},
+          {name: 'i686',     triple: 'i686-linux-gnu',          arch_option: 'linux-x86'},
+          {name: 'arm64',    triple: 'aarch64-linux-gnu',       arch_option: 'linux-aarch64'},
+          {name: 'armhf',    triple: 'arm-linux-gnueabihf',     arch_option: 'linux-armv4'},
+          {name: 'powerpc',  triple: 'powerpc-linux-gnu',       arch_option: 'linux-ppc'},
+          {name: 'ppc64',    triple: 'powerpc64-linux-gnu',     arch_option: 'linux-ppc64'},
+          {name: 'ppc64el',  triple: 'powerpc64le-linux-gnu',   arch_option: 'linux-ppc64le'}
         ]
 
     name: "Building for platform linux-${{matrix.architecture.name}}"
@@ -100,6 +105,26 @@ jobs:
         cmake --install ./build --config Release
 
     ###
+    # OpenSSL
+    ###
+
+    # OpenSSL setup
+    - name: Checkout openssl
+      uses: actions/checkout@v4
+      with:
+        repository: 'openssl/openssl'
+        path: 'thirdparties/openssl'
+        ref: 'openssl-3.4.1'
+
+    # OpenSSL build
+    - name: Configure and install openssl
+      working-directory: ${{github.workspace}}/thirdparties/openssl
+      run: |
+        CC=gcc-12 CFLAGS= ./Configure --prefix=${{github.workspace}}/thirdparties/openssl/install --cross-compile-prefix=${{matrix.architecture.triple}}- ${{matrix.architecture.arch_option}}
+        make -j$(nproc)
+        make install
+
+    ###
     # Project
     ###
 
@@ -113,6 +138,9 @@ jobs:
         -DCMAKE_INSTALL_PREFIX='${{github.workspace}}/install' \
         -DOPENAL_LIBRARY='${{github.workspace}}/thirdparties/soft-oal' \
         -DOPENAL_INCLUDE_DIR='${{github.workspace}}/thirdparties/soft-oal/include' \
+        -DOPENSSL_ROOT_DIR='${{github.workspace}}/thirdparties/openssl/install' \
+        -DHTTPLIB_REQUIRE_OPENSSL=ON \
+        -DHTTPLIB_USE_BROTLI_IF_AVAILABLE=OFF \
         -DGIT_REVISION_BUILD_NUMBER=${{ github.run_number }} \
         -DPRODUCT_VERSION_STAGE='${{ env.RELEASE_STAGE }}'" >> $GITHUB_ENV
 
@@ -143,6 +171,8 @@ jobs:
         mkdir ${{github.workspace}}/package
         cp -l ${{steps.sdl.outputs.prefix}}/lib/libSDL2-2.0.so.0 '${{github.workspace}}/package/'
         cp -l ${{github.workspace}}/thirdparties/soft-oal/install/lib/libopenal.so.1 '${{github.workspace}}/package/'
+        cp -l ${{github.workspace}}/thirdparties/openssl/install/lib*/libcrypto.so.3 '${{github.workspace}}/package/'
+        cp -l ${{github.workspace}}/thirdparties/openssl/install/lib*/libssl.so.3 '${{github.workspace}}/package/'
         if [ -d ${{github.workspace}}/install/bin ]; then cp -r ${{github.workspace}}/install/bin/openmohaa/. '${{github.workspace}}/package'; fi
         if [ -d ${{github.workspace}}/install/lib ]; then cp -r ${{github.workspace}}/install/lib/openmohaa/. '${{github.workspace}}/package'; fi
 
@@ -167,9 +197,9 @@ jobs:
     strategy:
       matrix:
         architecture: [
-          {name: 'x64',   config: 'x64',    toolset: 'x64' },
-          {name: 'x86',   config: 'Win32',  toolset: 'x64_x86' },
-          {name: 'arm64', config: 'ARM64',  toolset: 'x64_arm64' }
+          {name: 'x64',   config: 'x64',    toolset: 'x64',        arch_option: 'VC-WIN64A'},
+          {name: 'x86',   config: 'Win32',  toolset: 'x64_x86',    arch_option: 'VC-WIN32' },
+          {name: 'arm64', config: 'ARM64',  toolset: 'x64_arm64',  arch_option: 'VC-WIN64-ARM' }
         ]
 
     name: "Building for platform windows-${{matrix.architecture.name}}"
@@ -187,13 +217,6 @@ jobs:
     #- name: Install required packages
     #  run: |
     #    choco install -y ninja
-
-    - name: Install required packages
-      run: |
-        $DownloadPath="$($env:USERPROFILE)\Downloads"
-        Invoke-WebRequest "https://github.com/ninja-build/ninja/releases/download/v1.12.1/ninja-win.zip" -OutFile "$DownloadPath\ninja-win.zip"
-        Expand-Archive -Path "$DownloadPath\ninja-win.zip" -DestinationPath "$($env:PROGRAMFILES)\ninja"
-        echo "$($env:PROGRAMFILES)\ninja" >> $GITHUB_PATH
 
     - name: Install Flex/Bison
       working-directory: ${{github.workspace}}
@@ -219,6 +242,16 @@ jobs:
           }
         }
         popd
+
+    - name: Install required packages
+      run: |
+        $DownloadPath="$($env:USERPROFILE)\Downloads"
+        Invoke-WebRequest "https://github.com/ninja-build/ninja/releases/download/v1.12.1/ninja-win.zip" -OutFile "$DownloadPath\ninja-win.zip"
+        Expand-Archive -Path "$DownloadPath\ninja-win.zip" -DestinationPath "$($env:PROGRAMFILES)\ninja"
+        Invoke-WebRequest "http://download.qt.io/official_releases/jom/jom.zip" -OutFile "$DownloadPath\jom.zip"
+        Expand-Archive -Path "$DownloadPath\jom.zip" -DestinationPath "$($env:PROGRAMFILES)\jom"
+        $env:PATH += ";$($env:PROGRAMFILES)\ninja;$($env:PROGRAMFILES)\jom"
+        echo "PATH=$($env:PATH)" >> $env:GITHUB_ENV
 
     ###
     # SDL
@@ -268,6 +301,26 @@ jobs:
         if (("x64", "ARM64") -icontains "${{ matrix.architecture.config }}") { Rename-Item -Path '.\install\bin\OpenAL32.dll' -NewName 'OpenAL64.dll' }
 
     ###
+    # OpenSSL
+    ###
+
+    # OpenSSL setup
+    - name: Checkout openssl
+      uses: actions/checkout@v4
+      with:
+        repository: 'openssl/openssl'
+        path: 'thirdparties/openssl'
+        ref: 'openssl-3.4.1'
+
+    # OpenSSL build
+    - name: Configure and install openssl
+      working-directory: ${{github.workspace}}/thirdparties/openssl
+      run: |
+        perl .\Configure --prefix=${{github.workspace}}/thirdparties/openssl/install no-asm ${{matrix.architecture.arch_option}} /FS
+        jom -j($(Get-CimInstance Win32_ComputerSystem).NumberOfLogicalProcessors)
+        nmake install
+
+    ###
     # Project
     ###
 
@@ -284,6 +337,9 @@ jobs:
         -DBISON_EXECUTABLE='${{github.workspace}}/thirdparties/winflexbison-install/win_bison.exe' `
         -DOPENAL_LIBRARY='${{github.workspace}}/thirdparties/soft-oal' `
         -DOPENAL_INCLUDE_DIR='${{github.workspace}}/thirdparties/soft-oal/include' `
+        -DOPENSSL_ROOT_DIR='${{github.workspace}}/thirdparties/openssl/install' `
+        -DHTTPLIB_REQUIRE_OPENSSL=ON `
+        -DHTTPLIB_USE_BROTLI_IF_AVAILABLE=OFF `
         -DFLEX_EXECUTABLE='${{github.workspace}}/thirdparties/winflexbison-install/win_flex.exe' `
         -DPRODUCT_VERSION_STAGE='${{ env.RELEASE_STAGE }}'".Replace("`r", "").Replace("`n", "") >> $env:GITHUB_ENV
 
@@ -313,6 +369,7 @@ jobs:
         New-Item -ItemType Directory '${{github.workspace}}/package'
         Copy-Item '${{steps.sdl.outputs.prefix}}/bin/*.dll' -Destination '${{github.workspace}}/package'
         Copy-Item '${{github.workspace}}/thirdparties/soft-oal/install/bin/*.dll' -Destination '${{github.workspace}}/package'
+        Copy-Item '${{github.workspace}}/thirdparties/openssl/install/bin/*.dll' -Destination '${{github.workspace}}/package'
         if (Test-Path ${{github.workspace}}/install/bin) { Copy-Item '${{github.workspace}}/install/bin/*' -Include '*.dll','*.exe','*.pdb' -Destination '${{github.workspace}}/package' }
         if (Test-Path ${{github.workspace}}/install/lib) { Copy-Item '${{github.workspace}}/install/lib/*' -Include '*.dll','*.exe','*.pdb' -Destination '${{github.workspace}}/package' }
 
@@ -367,7 +424,7 @@ jobs:
     # Paths on x86_64 and ARM64 are different for homebrew
     - name: Install required packages
       run: |
-        brew update && brew install git flex bison ninja cmake llvm ninja
+        brew update && brew install git flex bison ninja cmake llvm ninja perl
 
     - name: Settings
       working-directory: ${{github.workspace}}
@@ -390,6 +447,7 @@ jobs:
         build-type: Release
         cmake-arguments: "-DCMAKE_OSX_ARCHITECTURES='${{ matrix.architecture.build_name }}'
           -DCMAKE_VERBOSE_MAKEFILE=on"
+
     ###
     # OpenAL
     ###
@@ -404,6 +462,7 @@ jobs:
         path: 'thirdparties/soft-oal'
         ref: '1.24.2'
 
+    # soft-oal build
     - name: Configure and install soft-oal
       working-directory: ${{github.workspace}}/thirdparties/soft-oal
       run: |
@@ -430,6 +489,9 @@ jobs:
         -DCMAKE_OSX_ARCHITECTURES='${{ matrix.architecture.build_name }}' \
         -DOPENAL_LIBRARY='${{github.workspace}}/thirdparties/soft-oal/install' \
         -DOPENAL_INCLUDE_DIR='${{github.workspace}}/thirdparties/soft-oal/install/include/AL' \
+        -DOPENSSL_ROOT_DIR='${{github.workspace}}/thirdparties/openssl/install' \
+        -DHTTPLIB_USE_OPENSSL_IF_AVAILABLE=OFF \
+        -DHTTPLIB_USE_BROTLI_IF_AVAILABLE=OFF \
         -DGIT_REVISION_BUILD_NUMBER=${{ github.run_number }} \
         -DPRODUCT_VERSION_STAGE='${{ env.RELEASE_STAGE }}'" >> $GITHUB_ENV
 

@@ -35,11 +35,24 @@ if (APPLE)
 	set(SOURCES_PLATFORM_SPECIFIC ${SOURCES_PLATFORM_SPECIFIC} "${CMAKE_SOURCE_DIR}/code/sys/sys_osx.m")
 endif()
 
+set(SOURCES_PLATFORM_COMMON
+    "${CMAKE_SOURCE_DIR}/code/sys/sys_update_checker.cpp"
+)
+
 add_library(syslib INTERFACE)
-target_sources(syslib INTERFACE ${SOURCES_PLATFORM_SPECIFIC})
-target_compile_features(syslib INTERFACE cxx_nullptr)
+target_sources(syslib INTERFACE ${SOURCES_PLATFORM_SPECIFIC} ${SOURCES_PLATFORM_COMMON})
+target_compile_features(syslib INTERFACE cxx_nullptr cxx_std_17)
 target_compile_features(syslib INTERFACE c_variadic_macros)
 target_link_libraries(syslib INTERFACE qcommon)
+
+find_package(OpenSSL)
+
+if (NOT ${OPENSSL_FOUND})
+    message(WARNING "OpenSSL is not available, cpp-httplib won't work with SSL/TLS websites")
+endif()
+
+add_subdirectory("../cpp-httplib-0.19.0" "cpp-httplib-0.19.0")
+target_link_libraries(syslib INTERFACE httplib)
 
 if(WIN32)
 	target_link_libraries(syslib INTERFACE wsock32 ws2_32)
