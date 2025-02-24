@@ -29,9 +29,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 class LightClass
 {
 public:
-#ifndef _DEBUG_MEM
-    void *operator new(size_t);
-    void  operator delete(void *);
+    void *operator new(size_t s);
+    void  operator delete(void *ptr);
 
     void *operator new(size_t size, void *placement);
     void  operator delete(void *ptr, void *placement);
@@ -47,7 +46,6 @@ public:
     {
         return operator delete(ptr, (void *)&placement);
     }
-#endif
 };
 
 void DisplayMemoryUsage();
