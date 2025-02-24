@@ -190,7 +190,7 @@ jobs:
   ##########################
   #
   # Microsoft Windows
-  # Windows Server 2022
+  # Windows Server 2025
   #
   ##########################
   build-platform-windows:
@@ -203,7 +203,7 @@ jobs:
         ]
 
     name: "Building for platform windows-${{matrix.architecture.name}}"
-    runs-on: "windows-2022"
+    runs-on: "windows-2025"
     environment: ${{ inputs.environment }}
 
     steps:
