@@ -41,6 +41,9 @@ jobs:
     name: "Building for platform linux-${{matrix.architecture.name}}"
     runs-on: "ubuntu-22.04"
     environment: ${{ inputs.environment }}
+    env:
+        openssl-version: '3.4.1'
+        openal-soft-branch: '1.24.2'
 
     steps:
     ###
@@ -86,16 +89,24 @@ jobs:
     ###
     # OpenAL
     ###
+    - name: Cache OpenAL
+      id: cache-openal-soft
+      uses: actions/cache@v4
+      with:
+        path: 'thirdparties/soft-oal/install'
+        key: ${{ runner.os }}-${{ matrix.architecture.name }}-openal-soft-${{ env.openal-soft-branch }}-v1
 
     # soft-oal setup
     - name: Checkout soft-oal
+      if: steps.cache-openal-soft.outputs.cache-hit != 'true'
       uses: actions/checkout@v4
       with:
         repository: 'kcat/openal-soft'
         path: 'thirdparties/soft-oal'
-        ref: '1.24.2'
+        ref: '${{ env.openal-soft-branch }}'
 
     - name: Configure and install soft-oal
+      if: steps.cache-openal-soft.outputs.cache-hit != 'true'
       working-directory: ${{github.workspace}}/thirdparties/soft-oal
       run: |
         cmake -B ./build \
@@ -107,17 +118,25 @@ jobs:
     ###
     # OpenSSL
     ###
+    - name: Cache OpenSSL
+      id: cache-openssl
+      uses: actions/cache@v4
+      with:
+        path: 'thirdparties/openssl/install'
+        key: ${{ runner.os }}-${{ matrix.architecture.name }}-openssl-${{ env.openssl-version }}-v1
 
     # OpenSSL setup
     - name: Checkout openssl
+      if: steps.cache-openssl.outputs.cache-hit != 'true'
       uses: actions/checkout@v4
       with:
         repository: 'openssl/openssl'
         path: 'thirdparties/openssl'
-        ref: 'openssl-3.4.1'
+        ref: 'openssl-${{ env.openssl-version }}'
 
     # OpenSSL build
     - name: Configure and install openssl
+      if: steps.cache-openssl.outputs.cache-hit != 'true'
       working-directory: ${{github.workspace}}/thirdparties/openssl
       run: |
         CC=gcc-12 CFLAGS= ./Configure --prefix=${{github.workspace}}/thirdparties/openssl/install --cross-compile-prefix=${{matrix.architecture.triple}}- ${{matrix.architecture.arch_option}}
@@ -137,7 +156,7 @@ jobs:
         echo "CMAKE_PARAM=--log-level=VERBOSE \
         -DCMAKE_INSTALL_PREFIX='${{github.workspace}}/install' \
         -DOPENAL_LIBRARY='${{github.workspace}}/thirdparties/soft-oal' \
-        -DOPENAL_INCLUDE_DIR='${{github.workspace}}/thirdparties/soft-oal/include' \
+        -DOPENAL_INCLUDE_DIR='${{github.workspace}}/thirdparties/soft-oal/install/include' \
         -DOPENSSL_ROOT_DIR='${{github.workspace}}/thirdparties/openssl/install' \
         -DHTTPLIB_REQUIRE_OPENSSL=ON \
         -DHTTPLIB_USE_BROTLI_IF_AVAILABLE=OFF \
@@ -205,24 +224,29 @@ jobs:
     name: "Building for platform windows-${{matrix.architecture.name}}"
     runs-on: "windows-2025"
     environment: ${{ inputs.environment }}
+    env:
+        flexbison-branch: 'v2.5.25'
+        openssl-version: '3.4.1'
+        openal-soft-branch: '1.24.2'
 
     steps:
     ###
     # Packages
     ###
 
-    #
-    # Commented out for now, chocolatey servers started complaining about too many requests
-    #
-    #- name: Install required packages
-    #  run: |
-    #    choco install -y ninja
+    - name: Cache Flex/Bison
+      id: cache-flexbison
+      uses: actions/cache@v4
+      with:
+        path: 'thirdparties/winflexbison-install'
+        key: ${{ runner.os }}-${{ matrix.architecture.name }}-flexbison-${{ env.flexbison-branch }}-v1
 
     - name: Install Flex/Bison
+      if: steps.cache-flexbison.outputs.cache-hit != 'true'
       working-directory: ${{github.workspace}}
       run: |
         mkdir thirdparties && cd thirdparties
-        git clone --depth 1 --single-branch --branch v2.5.25 https://github.com/lexxmark/winflexbison.git
+        git clone --depth 1 --single-branch --branch ${{ env.flexbison-branch }} https://github.com/lexxmark/winflexbison.git
         cmake -B winflexbison-build -DCMAKE_INSTALL_PREFIX='${{github.workspace}}/thirdparties/winflexbison-install' ./winflexbison
         cmake --build winflexbison-build --config Release --parallel
         cmake --install winflexbison-build --config Release
@@ -243,14 +267,25 @@ jobs:
         }
         popd
 
+    - name: Cache Required Packages
+      id: cache-required-packages
+      uses: actions/cache@v4
+      with:
+        path: 'C:\Packages'
+        key: ${{ runner.os }}-${{ matrix.architecture.name }}-required-packages-v1
+
     - name: Install required packages
+      if: steps.cache-required-packages.outputs.cache-hit != 'true'
       run: |
         $DownloadPath="$($env:USERPROFILE)\Downloads"
         Invoke-WebRequest "https://github.com/ninja-build/ninja/releases/download/v1.12.1/ninja-win.zip" -OutFile "$DownloadPath\ninja-win.zip"
-        Expand-Archive -Path "$DownloadPath\ninja-win.zip" -DestinationPath "$($env:PROGRAMFILES)\ninja"
-        Invoke-WebRequest "http://download.qt.io/official_releases/jom/jom.zip" -OutFile "$DownloadPath\jom.zip"
-        Expand-Archive -Path "$DownloadPath\jom.zip" -DestinationPath "$($env:PROGRAMFILES)\jom"
-        $env:PATH += ";$($env:PROGRAMFILES)\ninja;$($env:PROGRAMFILES)\jom"
+        Expand-Archive -Path "$DownloadPath\ninja-win.zip" -DestinationPath "C:\Packages\ninja"
+        Invoke-WebRequest "https://download.qt.io/official_releases/jom/jom.zip" -OutFile "$DownloadPath\jom.zip"
+        Expand-Archive -Path "$DownloadPath\jom.zip" -DestinationPath "C:\Packages\jom"
+
+    - name: Setup required packages path
+      run: |
+        $env:PATH += ";C:\Packages\ninja;C:\Packages\jom;"
         echo "PATH=$($env:PATH)" >> $env:GITHUB_ENV
 
     ###
@@ -269,18 +304,26 @@ jobs:
     ###
     # OpenAL
     ###
+    - name: Cache OpenAL
+      id: cache-openal-soft
+      uses: actions/cache@v4
+      with:
+        path: 'thirdparties/soft-oal/install'
+        key: ${{ runner.os }}-${{ matrix.architecture.name }}-openal-soft-${{ env.openal-soft-branch }}-v1
 
     # soft-oal setup
     - name: Checkout soft-oal
+      if: steps.cache-openal-soft.outputs.cache-hit != 'true'
       uses: actions/checkout@v4
       with:
         repository: 'kcat/openal-soft'
         path: 'thirdparties/soft-oal'
-        ref: '1.24.2'
+        ref: '${{ env.openal-soft-branch }}'
 
     # soft-oal build
     # Statically link the CRT runtime into OAL as a workaround to prevent crashes
     - name: Configure and install soft-oal
+      if: steps.cache-openal-soft.outputs.cache-hit != 'true'
       working-directory: ${{github.workspace}}/thirdparties/soft-oal
       run: |
         cmake -B ./build `
@@ -303,17 +346,25 @@ jobs:
     ###
     # OpenSSL
     ###
+    - name: Cache OpenSSL
+      id: cache-openssl
+      uses: actions/cache@v4
+      with:
+        path: 'thirdparties/openssl/install'
+        key: ${{ runner.os }}-${{ matrix.architecture.name }}-openssl-${{ env.openssl-version }}-v1
 
     # OpenSSL setup
     - name: Checkout openssl
+      if: steps.cache-openssl.outputs.cache-hit != 'true'
       uses: actions/checkout@v4
       with:
         repository: 'openssl/openssl'
         path: 'thirdparties/openssl'
-        ref: 'openssl-3.4.1'
+        ref: 'openssl-${{ env.openssl-version }}'
 
     # OpenSSL build
     - name: Configure and install openssl
+      if: steps.cache-openssl.outputs.cache-hit != 'true'
       working-directory: ${{github.workspace}}/thirdparties/openssl
       run: |
         perl .\Configure --prefix=${{github.workspace}}/thirdparties/openssl/install no-asm ${{matrix.architecture.arch_option}} /FS
@@ -336,7 +387,7 @@ jobs:
         -DGIT_REVISION_BUILD_NUMBER=${{ github.run_number }} `
         -DBISON_EXECUTABLE='${{github.workspace}}/thirdparties/winflexbison-install/win_bison.exe' `
         -DOPENAL_LIBRARY='${{github.workspace}}/thirdparties/soft-oal' `
-        -DOPENAL_INCLUDE_DIR='${{github.workspace}}/thirdparties/soft-oal/include' `
+        -DOPENAL_INCLUDE_DIR='${{github.workspace}}/thirdparties/soft-oal/install/include' `
         -DOPENSSL_ROOT_DIR='${{github.workspace}}/thirdparties/openssl/install' `
         -DHTTPLIB_REQUIRE_OPENSSL=ON `
         -DHTTPLIB_USE_BROTLI_IF_AVAILABLE=OFF `
@@ -414,17 +465,17 @@ jobs:
     name: "Building for platform macos-${{matrix.architecture.name}}"
     runs-on: "macos-15"
     environment: ${{inputs.environment}}
+    env:
+        openal-soft-branch: '1.24.2'
 
     steps:
     ###
     # Packages
     ###
-
-    # Install required packages
-    # Paths on x86_64 and ARM64 are different for homebrew
-    - name: Install required packages
-      run: |
-        brew update && brew install git flex bison ninja cmake llvm ninja perl
+    - uses: tecolicom/actions-use-homebrew-tools@b9c066b79607fa3d71e0be05d7003bb75fd9ff34
+      name: Install required packages
+      with:
+        tools: git flex bison ninja cmake llvm perl
 
     - name: Settings
       working-directory: ${{github.workspace}}
@@ -451,19 +502,27 @@ jobs:
     ###
     # OpenAL
     ###
+    - name: Cache OpenAL
+      id: cache-openal-soft
+      uses: actions/cache@v4
+      with:
+        path: 'thirdparties/soft-oal/install'
+        key: ${{ runner.os }}-${{ matrix.architecture.name }}-openal-soft-${{ env.openal-soft-branch }}-v1
 
     # soft-oal setup
     # Use GCC instead of Clang because of missing SSE intrinsics
     # It also doesn't enable altivec support on PowerPC by default
     - name: Checkout soft-oal
+      if: steps.cache-openal-soft.outputs.cache-hit != 'true'
       uses: actions/checkout@v4
       with:
         repository: 'kcat/openal-soft'
         path: 'thirdparties/soft-oal'
-        ref: '1.24.2'
+        ref: '${{ env.openal-soft-branch }}'
 
     # soft-oal build
     - name: Configure and install soft-oal
+      if: steps.cache-openal-soft.outputs.cache-hit != 'true'
       working-directory: ${{github.workspace}}/thirdparties/soft-oal
       run: |
         cmake -B ./build \
