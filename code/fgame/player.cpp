@@ -6516,18 +6516,15 @@ void Player::DamageFeedback(void)
     //
     damage_blood = 0;
 
-    if (g_target_game >= target_game_e::TG_MOHTA) {
-        //
-        // Added in 2.0
-        //  No more damage angles since MOHTA
-        //
-
-        if (IsSubclassOfPlayer()) {
-            damage_count  = 0;
-            damage_blood  = 0;
-            damage_alpha  = 0;
-            damage_angles = vec_zero;
-        }
+    //
+    // Added in 2.0
+    //  Don't show damage when in god mode
+    //
+    if (flags & FL_GODMODE) {
+        damage_count  = 0;
+        damage_blood  = 0;
+        damage_alpha  = 0;
+        damage_angles = vec_zero;
     }
 }
 
