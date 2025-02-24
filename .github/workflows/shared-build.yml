@@ -23,23 +23,24 @@ jobs:
   # Linux
   # Ubuntu 22.04
   #
-  # Using this version instead of 24.04 to use a lower GLIBC version (2.34)
+  # Using this version instead of 24.04 to use a lower GLIBC version (2.34).
+  # ARM is used for more efficiency, and x64 is used for legacy architectures like PowerPC.
   ##########################
   build-platform-linux:
     strategy:
       matrix:
         architecture: [
-          {name: 'amd64',    triple: 'x86_64-linux-gnu',        arch_option: 'linux-x86_64'},
-          {name: 'i686',     triple: 'i686-linux-gnu',          arch_option: 'linux-x86'},
-          {name: 'arm64',    triple: 'aarch64-linux-gnu',       arch_option: 'linux-aarch64'},
-          {name: 'armhf',    triple: 'arm-linux-gnueabihf',     arch_option: 'linux-armv4'},
-          {name: 'powerpc',  triple: 'powerpc-linux-gnu',       arch_option: 'linux-ppc'},
-          {name: 'ppc64',    triple: 'powerpc64-linux-gnu',     arch_option: 'linux-ppc64'},
-          {name: 'ppc64el',  triple: 'powerpc64le-linux-gnu',   arch_option: 'linux-ppc64le'}
+          {name: 'amd64',   os: "ubuntu-22.04-arm", package: 'x86-64-linux-gnu',      triple: 'x86_64-linux-gnu',      arch_option: 'linux-x86_64'},
+          {name: 'i686',    os: "ubuntu-22.04-arm", package: 'i686-linux-gnu',        triple: 'i686-linux-gnu',        arch_option: 'linux-x86'},
+          {name: 'arm64',   os: "ubuntu-22.04-arm", package: 'aarch64-linux-gnu',     triple: 'aarch64-linux-gnu',     arch_option: 'linux-aarch64'},
+          {name: 'armhf',   os: "ubuntu-22.04-arm", package: 'arm-linux-gnueabihf',   triple: 'arm-linux-gnueabihf',   arch_option: 'linux-armv4'},
+          {name: 'powerpc', os: "ubuntu-22.04",     package: 'powerpc-linux-gnu',     triple: 'powerpc-linux-gnu',     arch_option: 'linux-ppc'},
+          {name: 'ppc64',   os: "ubuntu-22.04",     package: 'powerpc64-linux-gnu',   triple: 'powerpc64-linux-gnu',   arch_option: 'linux-ppc64'},
+          {name: 'ppc64el', os: "ubuntu-22.04-arm", package: 'powerpc64le-linux-gnu', triple: 'powerpc64le-linux-gnu', arch_option: 'linux-ppc64le'}
         ]
 
     name: "Building for platform linux-${{matrix.architecture.name}}"
-    runs-on: "ubuntu-22.04"
+    runs-on: ${{ matrix.architecture.os }}
     environment: ${{ inputs.environment }}
     env:
         openssl-version: '3.4.1'
@@ -54,14 +55,19 @@ jobs:
       name: Install required packages
       with:
         packages: flex bison ninja-build cmake clang libpulse-dev portaudio19-dev libasound2-dev libjack-dev libpipewire-0.3-dev qtbase5-dev libdbus-1-dev
-        version: "0.1"
+        version: "${{ runner.os }}-${{ runner.arch }}-v1"
+
+    - name: Settings
+      working-directory: ${{github.workspace}}
+      run: |
+        echo "HOST_TRIPLE=$(gcc -dumpmachine)" >> $GITHUB_ENV
 
     - uses: awalsh128/cache-apt-pkgs-action@latest
-      name: Install required cross-platform packages (${{ matrix.architecture.triple }})
-      if: matrix.architecture.name != 'amd64'
+      name: Install required cross-platform packages (${{ matrix.architecture.package }})
+      if: env.HOST_TRIPLE != matrix.architecture.triple
       with:
-        packages: gcc-12-${{ matrix.architecture.triple }} g++-12-${{ matrix.architecture.triple }}
-        version: "0.1"
+        packages: gcc-12-${{ matrix.architecture.package }} g++-12-${{ matrix.architecture.package }}
+        version: "${{ runner.os }}-${{ runner.arch }}-v1"
 
     - name: Settings
       working-directory: ${{github.workspace}}
