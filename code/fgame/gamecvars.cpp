@@ -298,6 +298,9 @@ cvar_t *g_textmsg_minDelay;
 // Whether or not to prevent teams from being unbalanced
 cvar_t *g_teambalance;
 
+// Whether or not to use Legacy Navigation
+cvar_t *g_navigation_legacy;
+
 void CVAR_Init(void)
 {
     int i;
@@ -675,6 +678,8 @@ void CVAR_Init(void)
     g_textmsg_minDelay = gi.Cvar_Get("g_textmsg_minDelay", "1000", 0);
 
     g_teambalance = gi.Cvar_Get("g_teambalance", "0", 0);
+
+    g_navigation_legacy = gi.Cvar_Get("g_navigation_legacy", "1", CVAR_LATCH);
 
     cl_running = gi.Cvar_Get("cl_running", "", 0);
 }

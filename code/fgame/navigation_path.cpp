@@ -23,9 +23,18 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "g_local.h"
 #include "navigation_path.h"
 #include "navigation_recast_path.h"
+#include "navigation_recast_load.h"
 #include "navigation_legacy_path.h"
 
 IPather *IPather::CreatePather()
 {
-    return new LegacyPather();
+    if (g_navigation_legacy->integer) {
+        return new LegacyPather();
+    }
+
+    if (!navigationMap.IsValid()) {
+        return new LegacyPather();
+    }
+
+    return new RecastPather();
 }

@@ -284,6 +284,8 @@ extern cvar_t *g_textmsg_minDelay;
 
 extern cvar_t *g_teambalance;
 
+extern cvar_t *g_navigation_legacy;
+
 void CVAR_Init(void);
 
 #ifdef __cplusplus
