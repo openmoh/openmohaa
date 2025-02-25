@@ -973,14 +973,62 @@ void G_Navigation_DebugDraw()
     }
 }
 
+/*
+============
+NavigationMap::NavigationMap
+============
+*/
+NavigationMap::NavigationMap()
+    : navMeshDt(NULL)
+    , navMeshQuery(NULL)
+{}
+
+/*
+============
+NavigationMap::~NavigationMap
+============
+*/
+NavigationMap::~NavigationMap()
+{
+    ClearNavigation();
+}
+
+/*
+============
+NavigationMap::GetNavMesh
+============
+*/
 dtNavMesh *NavigationMap::GetNavMesh() const
 {
     return navMeshDt;
 }
 
+/*
+============
+NavigationMap::GetNavMeshQuery
+============
+*/
 dtNavMeshQuery *NavigationMap::GetNavMeshQuery() const
 {
     return navMeshQuery;
+}
+
+/*
+============
+NavigationMap::ClearNavigation
+============
+*/
+void NavigationMap::ClearNavigation()
+{
+    if (navMeshQuery) {
+        dtFreeNavMeshQuery(navMeshQuery);
+        navMeshQuery = NULL;
+    }
+
+    if (navMeshDt) {
+        dtFreeNavMesh(navMeshDt);
+        navMeshDt = NULL;
+    }
 }
 
 /*
@@ -994,6 +1042,8 @@ void NavigationMap::LoadWorldMap(const char *mapname)
     int           start, end;
 
     gi.Printf("---- Recast Navigation ----\n");
+
+    ClearNavigation();
 
     if (!sv_maxbots->integer) {
         gi.Printf("No bots, skipping navigation\n");

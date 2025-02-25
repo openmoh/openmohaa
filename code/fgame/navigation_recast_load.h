@@ -59,7 +59,11 @@ struct offMeshNavigationPoint {
 class NavigationMap
 {
 public:
+    NavigationMap();
+    ~NavigationMap();
+
     void LoadWorldMap(const char *mapname);
+    void ClearNavigation();
 
     dtNavMesh      *GetNavMesh() const;
     dtNavMeshQuery *GetNavMeshQuery() const;
