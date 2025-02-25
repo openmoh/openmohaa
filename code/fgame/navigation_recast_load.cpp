@@ -1031,6 +1031,11 @@ void NavigationMap::ClearNavigation()
     }
 }
 
+bool NavigationMap::IsValid() const
+{
+    return navMeshDt != NULL;
+}
+
 /*
 ============
 NavigationMap::LoadWorldMap

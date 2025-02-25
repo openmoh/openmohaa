@@ -64,6 +64,7 @@ public:
 
     void LoadWorldMap(const char *mapname);
     void ClearNavigation();
+    bool IsValid() const;
 
     dtNavMesh      *GetNavMesh() const;
     dtNavMeshQuery *GetNavMeshQuery() const;
