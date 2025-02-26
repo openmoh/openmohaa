@@ -23,12 +23,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #pragma once
 
 #include "navigation_path.h"
+#include "actorpath.h"
 
 /**
  * @brief Legacy navigation system
  *
  * It uses the legacy navigate algorithm from the old game,
- * which uses manually placed PathNode
+ * which uses manually placed PathNode. It's a wrapper to ActorPath.
  */
 class LegacyPather : public IPather
 {
@@ -43,10 +44,16 @@ public:
         float                      radius,
         const PathSearchParameter& parameters
     ) override;
+    virtual bool TestPath(const Vector& start, const Vector& end, const PathSearchParameter& parameters) override;
 
     virtual void UpdatePos(const Vector& origin) override;
     virtual void Clear() override;
 
-    virtual PathNav GetNode(int index) const override;
+    virtual PathNav GetNode(unsigned int index) const override;
     virtual int     GetNodeCount() const override;
+    virtual Vector  GetCurrentDelta() const override;
+    virtual bool    HasReachedGoal(const Vector& origin) const override;
+
+private:
+    ActorPath path;
 };
