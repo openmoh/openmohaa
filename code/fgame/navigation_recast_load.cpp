@@ -38,22 +38,22 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 NavigationMap navigationMap;
 
-static const float recastCellSize   = 12.5f;
-static const float recastCellHeight = 1.0;
-static const float agentHeight      = CROUCH_VIEWHEIGHT;
-static const float agentMaxClimb    = STEPSIZE;
+const float NavigationMap::recastCellSize   = 12.5f;
+const float NavigationMap::recastCellHeight = 1.0;
+const float NavigationMap::agentHeight      = CROUCH_VIEWHEIGHT;
+const float NavigationMap::agentMaxClimb    = STEPSIZE;
 
 // normal of { 0.714142799, 0, 0.700000048 }, or an angle of -44.4270058
-static const float agentMaxSlope = 45.5729942f;
+const float NavigationMap::agentMaxSlope = 45.5729942f;
 
-static const float agentRadius          = 0.5;
-static const int   regionMinSize        = 5;
-static const int   regionMergeSize      = 20;
-static const float edgeMaxLen           = 100.0;
-static const float edgeMaxError         = 1.3f;
-static const int   vertsPerPoly         = 6;
-static const float detailSampleDist     = 12.0;
-static const float detailSampleMaxError = 1.0;
+const float NavigationMap::agentRadius          = 0.5;
+const int   NavigationMap::regionMinSize        = 5;
+const int   NavigationMap::regionMergeSize      = 20;
+const float NavigationMap::edgeMaxLen           = 100.0;
+const float NavigationMap::edgeMaxError         = 1.3f;
+const int   NavigationMap::vertsPerPoly         = 6;
+const float NavigationMap::detailSampleDist     = 12.0;
+const float NavigationMap::detailSampleMaxError = 1.0;
 
 static const float worldScale = 30.5 / 16.0;
 
@@ -139,8 +139,8 @@ void TestAgent(const Vector& start, const Vector& end, Vector *paths, int *numPa
 
     dtCrowdAgentParams ap {0};
 
-    ap.radius                = agentRadius;
-    ap.height                = agentHeight;
+    ap.radius                = NavigationMap::agentRadius;
+    ap.height                = NavigationMap::agentHeight;
     ap.maxAcceleration       = 8.0f;
     ap.maxSpeed              = 3.5f;
     ap.collisionQueryRange   = ap.radius * 12.0f;

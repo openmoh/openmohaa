@@ -69,6 +69,21 @@ public:
     dtNavMesh      *GetNavMesh() const;
     dtNavMeshQuery *GetNavMeshQuery() const;
 
+public:
+    static const float recastCellSize;
+    static const float recastCellHeight;
+    static const float agentHeight;
+    static const float agentMaxClimb;
+    static const float agentMaxSlope;
+    static const float agentRadius;
+    static const int   regionMinSize;
+    static const int   regionMergeSize;
+    static const float edgeMaxLen;
+    static const float edgeMaxError;
+    static const int   vertsPerPoly;
+    static const float detailSampleDist;
+    static const float detailSampleMaxError;
+
 private:
     void                   ConnectLadders(Container<offMeshNavigationPoint>& points);
     offMeshNavigationPoint CanConnectFallPoint(const rcPolyMesh *polyMesh, const Vector& pos1, const Vector& pos2);
