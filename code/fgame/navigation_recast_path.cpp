@@ -44,11 +44,16 @@ void RecastPather::FindPathAway(
 )
 {}
 
+bool RecastPather::TestPath(const Vector& start, const Vector& end, const PathSearchParameter& parameters)
+{
+    return false;
+}
+
 void RecastPather::UpdatePos(const Vector& origin) {}
 
 void RecastPather::Clear() {}
 
-PathNav RecastPather::GetNode(int index) const
+PathNav RecastPather::GetNode(unsigned int index) const
 {
     return {};
 }
@@ -56,4 +61,14 @@ PathNav RecastPather::GetNode(int index) const
 int RecastPather::GetNodeCount() const
 {
     return 0;
+}
+
+Vector RecastPather::GetCurrentDelta() const
+{
+    return Vector();
+}
+
+bool RecastPather::HasReachedGoal(const Vector& origin) const
+{
+    return false;
 }

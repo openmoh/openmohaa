@@ -44,10 +44,13 @@ public:
         float                      radius,
         const PathSearchParameter& parameters
     ) override;
+    virtual bool TestPath(const Vector& start, const Vector& end, const PathSearchParameter& parameters) override;
 
     virtual void UpdatePos(const Vector& origin) override;
     virtual void Clear() override;
 
-    virtual PathNav GetNode(int index) const override;
+    virtual PathNav GetNode(unsigned int index) const override;
     virtual int     GetNodeCount() const override;
+    virtual Vector  GetCurrentDelta() const override;
+    virtual bool    HasReachedGoal(const Vector& origin) const override;
 };

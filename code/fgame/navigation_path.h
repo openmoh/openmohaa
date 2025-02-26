@@ -33,9 +33,10 @@ struct PathNav {
 };
 
 struct PathSearchParameter {
-    Vector leashHome;
-    float  leashDist;
-    int    fallHeight;
+    Vector  leashHome;
+    float   leashDist;
+    int     fallHeight;
+    Entity *entity;
 };
 
 class IPathSearch
@@ -104,6 +105,16 @@ public:
     ) = 0;
 
     /**
+     * @brief Returns true if the path exists, false otherwise.
+     * 
+     * @param start Start of the path.
+     * @param end End of the path
+     * @param parameters
+     * @return true if the path exists
+     */
+    virtual bool TestPath(const Vector& start, const Vector& end, const PathSearchParameter& parameters) = 0;
+
+    /**
      * @brief Update path movement
      * 
      * @param origin The origin to set
@@ -117,12 +128,12 @@ public:
     virtual void Clear() = 0;
 
     /**
-     * @brief Return the node at the specified index (0 = first node).
+     * @brief Return the node at the specified index (0 = first node, and nodecount - 1 = last node).
      * 
      * @param index
      * @return A copy of the path information. 
      */
-    virtual PathNav GetNode(int index = 0) const = 0;
+    virtual PathNav GetNode(unsigned int index = 0) const = 0;
 
     /**
      * @brief Return the number of nodes.
@@ -130,4 +141,18 @@ public:
      * @return The number of nodes. If 0, then there is no path.
      */
     virtual int GetNodeCount() const = 0;
+
+    /**
+     * @brief Return the current move delta
+     * 
+     * @return Vector with the current move delta
+     */
+    virtual Vector GetCurrentDelta() const = 0;
+
+    /**
+     * @brief Return true if the origin is at the end of the goal
+     * 
+     * @param origin The current origin to test
+     */
+    virtual bool HasReachedGoal(const Vector& origin) const = 0;
 };
