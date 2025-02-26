@@ -25,7 +25,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "player.h"
 #include "navigate.h"
-#include "actorpath.h"
+#include "navigation_path.h"
 
 #define MAX_BOT_FUNCTIONS 5
 
@@ -40,6 +40,7 @@ class BotMovement
 {
 public:
     BotMovement();
+    ~BotMovement();
 
     void SetControlledEntity(Player *newEntity);
 
@@ -73,7 +74,8 @@ private:
     SafePtr<Player>            controlledEntity;
     AttractiveNodePtr          m_pPrimaryAttract;
     Container<nodeAttract_t *> m_attractList;
-    ActorPath                  m_Path;
+    IPather                   *m_pPath;
+    int                        m_iLastMoveTime;
 
     Vector m_vCurrentOrigin;
     Vector m_vTargetPos;

@@ -24,11 +24,15 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "playerbot.h"
 #include "debuglines.h"
 
+static int maxFallHeight = 400;
+
 BotMovement::BotMovement()
 {
     controlledEntity = NULL;
 
-    m_Path.SetFallHeight(400);
+    m_pPath         = IPather::CreatePather();
+    m_iLastMoveTime = 0;
+
     m_bPathing     = false;
     m_bTempAway    = false;
     m_fAttractTime = 0;
@@ -36,6 +40,11 @@ BotMovement::BotMovement()
     m_iCheckPathTime = 0;
     m_iTempAwayTime  = 0;
     m_iNumBlocks     = 0;
+}
+
+BotMovement::~BotMovement()
+{
+    delete m_pPath;
 }
 
 void BotMovement::SetControlledEntity(Player *newEntity)
@@ -58,30 +67,44 @@ void BotMovement::MoveThink(usercmd_t& botcmd)
         return;
     }
 
-    if (level.inttime >= m_Path.Time() + 1000 && m_vCurrentOrigin != controlledEntity->origin) {
+    if (level.inttime >= m_iLastMoveTime + 1000 && m_vCurrentOrigin != controlledEntity->origin) {
         m_vCurrentOrigin = controlledEntity->origin;
 
-        if (m_Path.CurrentNode()) {
+        if (m_pPath->GetNodeCount()) {
             // recalculate paths because of a new origin
-            m_Path.ReFindPath(controlledEntity->origin, controlledEntity);
+
+            PathSearchParameter parameters;
+            parameters.entity     = controlledEntity;
+            parameters.fallHeight = maxFallHeight;
+            m_pPath->FindPath(
+                controlledEntity->origin, m_pPath->GetNode(m_pPath->GetNodeCount() - 1).origin, parameters
+            );
+
+            m_iLastMoveTime = level.inttime;
         }
     }
 
     if (m_bTempAway && level.inttime >= m_iTempAwayTime) {
         m_bTempAway = false;
-        m_Path.FindPath(controlledEntity->origin, m_vTargetPos, controlledEntity, 0, NULL, 0);
+
+        PathSearchParameter parameters;
+        parameters.entity     = controlledEntity;
+        parameters.fallHeight = maxFallHeight;
+        m_pPath->FindPath(controlledEntity->origin, m_vTargetPos, parameters);
+
+        m_iLastMoveTime = level.inttime;
     }
 
     if (!m_bTempAway) {
-        if (m_Path.CurrentNode()) {
-            m_Path.UpdatePos(controlledEntity->origin, 8);
+        if (m_pPath->GetNodeCount()) {
+            m_pPath->UpdatePos(controlledEntity->origin);
 
             m_vCurrentGoal = controlledEntity->origin;
-            VectorAdd2D(m_vCurrentGoal, m_Path.CurrentDelta(), m_vCurrentGoal);
+            VectorAdd2D(m_vCurrentGoal, m_pPath->GetCurrentDelta(), m_vCurrentGoal);
 
             if (MoveDone()) {
                 // Clear the path
-                m_Path.Clear();
+                m_pPath->Clear();
             }
         }
     }
@@ -126,17 +149,16 @@ void BotMovement::MoveThink(usercmd_t& botcmd)
             m_iNumBlocks++;
 
             // Try to backward a little
-            if (m_Path.CurrentNode()) {
-                nextPos = m_Path.CurrentNode()->point;
+            if (m_pPath->GetNodeCount()) {
+                nextPos = m_pPath->GetNode(0).origin;
             } else {
                 nextPos = m_vTargetPos;
             }
 
-            m_Path.Clear();
-            m_Path.ForceShortLookahead();
+            m_pPath->Clear();
 
             if (rand() % 10 != 0) {
-                dir = nextPos - controlledEntity->origin;
+                dir   = nextPos - controlledEntity->origin;
                 dir.z = 0;
                 dir.normalize();
 
@@ -159,7 +181,7 @@ void BotMovement::MoveThink(usercmd_t& botcmd)
         } else {
             m_iNumBlocks = 0;
 
-            if (!m_Path.CurrentNode()) {
+            if (!m_pPath->GetNodeCount()) {
                 m_vTargetPos   = controlledEntity->origin + Vector(G_CRandom(512), G_CRandom(512), G_CRandom(512));
                 m_vCurrentGoal = m_vTargetPos;
             }
@@ -170,22 +192,20 @@ void BotMovement::MoveThink(usercmd_t& botcmd)
     }
 
     if (ai_debugpath->integer) {
-        PathInfo *pos = m_Path.CurrentNode();
+        int i;
+        int nodecount = m_pPath->GetNodeCount();
 
-        if (pos != NULL) {
-            while (pos != m_Path.LastNode()) {
-                Vector vStart = pos->point + Vector(0, 0, 32);
+        for (i = 0; i < nodecount - 1; i++) {
+            PathNav      node1  = m_pPath->GetNode(i);
+            PathNav      node2  = m_pPath->GetNode(i + 1);
+            const Vector vStart = node1.origin + Vector(0, 0, 32);
+            const Vector vEnd   = node2.origin + Vector(0, 0, 32);
 
-                pos--;
-
-                Vector vEnd = pos->point + Vector(0, 0, 32);
-
-                G_DebugLine(vStart, vEnd, 1, 0, 0, 1);
-            }
+            G_DebugLine(vStart, vEnd, 1, 0, 0, 1);
         }
     }
 
-    if (m_Path.CurrentNode()) {
+    if (m_pPath->GetNodeCount()) {
         if ((m_vTargetPos - controlledEntity->origin).lengthSquared() <= Square(16)) {
             ClearMove();
         }
@@ -196,9 +216,8 @@ void BotMovement::MoveThink(usercmd_t& botcmd)
     }
 
     // Rotate the dir
-    if (m_Path.CurrentNode()) {
-        vDir[0] = m_Path.CurrentDelta()[0];
-        vDir[1] = m_Path.CurrentDelta()[1];
+    if (m_pPath->GetNodeCount()) {
+        vDir = m_pPath->GetCurrentDelta();
     } else {
         vDir = m_vCurrentGoal - controlledEntity->origin;
     }
@@ -239,11 +258,11 @@ void BotMovement::CheckEndPos(Entity *entity)
     Vector  end;
     trace_t trace;
 
-    if (!m_Path.LastNode()) {
+    if (!m_pPath->GetNodeCount()) {
         return;
     }
 
-    start = m_Path.LastNode()->point;
+    start = m_pPath->GetNode(m_pPath->GetNodeCount() - 1).origin;
     end   = m_vTargetPos;
 
     trace =
@@ -370,19 +389,26 @@ void BotMovement::AvoidPath(
         vDir = vPreferredDir;
     }
 
-    m_Path.FindPathAway(
-        controlledEntity->origin, vAvoid, vDir, controlledEntity, fAvoidRadius, vLeashHome, fLeashRadius * fLeashRadius
-    );
+    PathSearchParameter parameters;
+    parameters.entity     = controlledEntity;
+    parameters.fallHeight = maxFallHeight;
+    parameters.leashDist  = fLeashRadius;
+    if (vLeashHome) {
+        parameters.leashHome = vLeashHome;
+    }
+    m_pPath->FindPathAway(controlledEntity->origin, vAvoid, vDir, fAvoidRadius, parameters);
+
     NewMove();
 
-    if (!m_Path.CurrentNode()) {
+    if (!m_pPath->GetNodeCount()) {
         // Random movements
         m_vTargetPos = controlledEntity->origin + Vector(G_Random(256) - 128, G_Random(256) - 128, G_Random(256) - 128);
         m_vCurrentGoal = m_vTargetPos;
         return;
     }
 
-    m_vTargetPos = m_Path.LastNode()->point;
+    m_iLastMoveTime = level.inttime;
+    m_vTargetPos    = m_pPath->GetNode(m_pPath->GetNodeCount() - 1).origin;
 }
 
 /*
@@ -394,17 +420,24 @@ Move near the specified position within the radius
 */
 void BotMovement::MoveNear(Vector vNear, float fRadius, float *vLeashHome, float fLeashRadius)
 {
-    m_Path.FindPathNear(
-        controlledEntity->origin, vNear, controlledEntity, 0, fRadius * fRadius, vLeashHome, fLeashRadius * fLeashRadius
-    );
+    PathSearchParameter parameters;
+    parameters.entity     = controlledEntity;
+    parameters.fallHeight = maxFallHeight;
+    parameters.leashDist  = fLeashRadius;
+    if (vLeashHome) {
+        parameters.leashHome = vLeashHome;
+    }
+
+    m_pPath->FindPathNear(controlledEntity->origin, vNear, fRadius, parameters);
     NewMove();
 
-    if (!m_Path.CurrentNode()) {
+    if (!m_pPath->GetNodeCount()) {
         m_bPathing = false;
         return;
     }
 
-    m_vTargetPos = m_Path.LastNode()->point;
+    m_iLastMoveTime = level.inttime;
+    m_vTargetPos    = m_pPath->GetNode(m_pPath->GetNodeCount() - 1).origin;
 }
 
 /*
@@ -417,17 +450,25 @@ Move to the specified position
 void BotMovement::MoveTo(Vector vPos, float *vLeashHome, float fLeashRadius)
 {
     m_vTargetPos = vPos;
-    m_Path.FindPath(
-        controlledEntity->origin, m_vTargetPos, controlledEntity, 0, vLeashHome, fLeashRadius * fLeashRadius
-    );
+
+    PathSearchParameter parameters;
+    parameters.entity     = controlledEntity;
+    parameters.fallHeight = maxFallHeight;
+    parameters.leashDist  = fLeashRadius;
+    if (vLeashHome) {
+        parameters.leashHome = vLeashHome;
+    }
+
+    m_pPath->FindPath(controlledEntity->origin, vPos, parameters);
 
     NewMove();
 
-    if (!m_Path.CurrentNode()) {
+    if (!m_pPath->GetNodeCount()) {
         m_bPathing = false;
         return;
     }
 
+    m_iLastMoveTime = level.inttime;
     CheckEndPos(controlledEntity);
 }
 
@@ -554,7 +595,10 @@ Returns true if the bot has done moving
 */
 bool BotMovement::CanMoveTo(Vector vPos)
 {
-    return m_Path.DoesTheoreticPathExist(controlledEntity->origin, vPos, NULL, 0, NULL, 0);
+    PathSearchParameter parameters;
+    parameters.fallHeight = maxFallHeight;
+    parameters.entity     = controlledEntity;
+    return m_pPath->TestPath(controlledEntity->origin, vPos, parameters);
 }
 
 /*
@@ -576,11 +620,11 @@ bool BotMovement::MoveDone()
         return false;
     }
 
-    if (!m_Path.CurrentNode()) {
+    if (!m_pPath->GetNodeCount()) {
         return true;
     }
 
-    Vector delta = Vector(m_Path.CurrentPathGoal()) - controlledEntity->origin;
+    Vector delta = m_pPath->GetNode(m_pPath->GetNodeCount() - 1).origin - controlledEntity->origin;
     if (delta.lengthXYSquared() < Square(16) && delta.z < controlledEntity->maxs.z) {
         return true;
     }
@@ -609,7 +653,7 @@ Stop the bot from moving
 */
 void BotMovement::ClearMove(void)
 {
-    m_Path.Clear();
+    m_pPath->Clear();
     m_bPathing   = false;
     m_iNumBlocks = 0;
 }
@@ -623,12 +667,13 @@ Return the current goal, usually the nearest node the player should look at
 */
 Vector BotMovement::GetCurrentGoal() const
 {
-    if (!m_Path.CurrentNode()) {
+    if (!m_pPath->GetNodeCount()) {
         return m_vCurrentGoal;
     }
 
-    if (!m_Path.Complete(controlledEntity->origin)) {
-        return controlledEntity->origin + Vector(m_Path.CurrentDelta()[0], m_Path.CurrentDelta()[1], 0);
+    if (!m_pPath->HasReachedGoal(controlledEntity->origin)) {
+        const Vector delta = m_pPath->GetCurrentDelta();
+        return controlledEntity->origin + Vector(delta[0], delta[1], 0);
     }
 
     return controlledEntity->origin;
