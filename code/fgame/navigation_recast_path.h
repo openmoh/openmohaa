@@ -24,6 +24,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "navigation_path.h"
 
+class dtNavMesh;
+class dtCrowd;
+class NavigationMap;
+
 /**
  * @brief Detour (recastnavigation) based navigation system
  * 
@@ -53,4 +57,41 @@ public:
     virtual int     GetNodeCount() const override;
     virtual Vector  GetCurrentDelta() const override;
     virtual bool    HasReachedGoal(const Vector& origin) const override;
+
+private:
+    void ResetAgent(const Vector& origin);
+    void RemoveAgent();
+
+private:
+    Vector lastorg;
+    int navAgentId;
+    bool hasAgent;
 };
+
+class RecastAgentManager
+{
+public:
+    RecastAgentManager();
+    ~RecastAgentManager();
+
+    void CreateCrowd(float agentRadius, dtNavMesh *mesh);
+    void DestroyCrowd();
+    dtCrowd *GetCrowd() const;
+    void Update();
+
+private:
+    dtCrowd *crowd;
+};
+
+class RecastPathMaster
+{
+public:
+    void PostLoadNavigation(const NavigationMap& map);
+    void ClearNavigation();
+    void Update();
+
+public:
+    RecastAgentManager agentManager;
+};
+
+extern RecastPathMaster pathMaster;

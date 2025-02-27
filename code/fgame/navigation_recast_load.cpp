@@ -987,6 +987,7 @@ G_Navigation_Frame
 */
 void G_Navigation_Frame()
 {
+    pathMaster.Update();
     G_Navigation_DebugDraw();
 }
 
@@ -1037,6 +1038,8 @@ NavigationMap::ClearNavigation
 */
 void NavigationMap::ClearNavigation()
 {
+    pathMaster.ClearNavigation();
+
     if (navMeshQuery) {
         dtFreeNavMeshQuery(navMeshQuery);
         navMeshQuery = NULL;
@@ -1093,6 +1096,8 @@ void NavigationMap::LoadWorldMap(const char *mapname)
         gi.Printf("Couldn't build recast navigation mesh: %s\n", e.string.c_str());
         return;
     }
+
+    pathMaster.PostLoadNavigation(*this);
 
     end = gi.Milliseconds();
 

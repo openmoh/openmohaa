@@ -23,17 +23,32 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // navigation -- Modern navigation system using Recast and Detour
 
 #include "navigation_recast_path.h"
+#include "navigation_recast_load.h"
+#include "level.h"
 
-void RecastPather::FindPath(const Vector& start, const Vector& end, const PathSearchParameter& parameters) {}
+#include "DetourCrowd.h"
 
-RecastPather::RecastPather() {}
+RecastPathMaster pathMaster;
+
+RecastPather::RecastPather()
+    : hasAgent(false)
+{}
 
 RecastPather::~RecastPather() {}
+
+void RecastPather::FindPath(const Vector& start, const Vector& end, const PathSearchParameter& parameters)
+{
+    lastorg = start;
+    ResetAgent(start);
+}
 
 void RecastPather::FindPathNear(
     const Vector& start, const Vector& end, float radius, const PathSearchParameter& parameters
 )
-{}
+{
+    lastorg = start;
+    ResetAgent(start);
+}
 
 void RecastPather::FindPathAway(
     const Vector&              start,
@@ -42,16 +57,25 @@ void RecastPather::FindPathAway(
     float                      radius,
     const PathSearchParameter& parameters
 )
-{}
+{
+    lastorg = start;
+    ResetAgent(start);
+}
 
 bool RecastPather::TestPath(const Vector& start, const Vector& end, const PathSearchParameter& parameters)
 {
     return false;
 }
 
-void RecastPather::UpdatePos(const Vector& origin) {}
+void RecastPather::UpdatePos(const Vector& origin)
+{
+    ResetAgent(origin);
+}
 
-void RecastPather::Clear() {}
+void RecastPather::Clear()
+{
+    RemoveAgent();
+}
 
 PathNav RecastPather::GetNode(unsigned int index) const
 {
@@ -71,4 +95,91 @@ Vector RecastPather::GetCurrentDelta() const
 bool RecastPather::HasReachedGoal(const Vector& origin) const
 {
     return false;
+}
+
+void RecastPather::ResetAgent(const Vector& origin)
+{
+    dtCrowd *crowdManager = pathMaster.agentManager.GetCrowd();
+    vec3_t   rcOrigin;
+
+    if (hasAgent) {
+        crowdManager->resetMoveTarget(navAgentId);
+        return;
+    }
+
+    ConvertGameToRecastCoord(origin, rcOrigin);
+
+    dtCrowdAgentParams ap {0};
+    ap.radius                = NavigationMap::agentRadius;
+    ap.height                = NavigationMap::agentHeight;
+    ap.maxAcceleration       = 8.0f;
+    ap.maxSpeed              = 3.5f;
+    ap.collisionQueryRange   = ap.radius * 12.0f;
+    ap.pathOptimizationRange = ap.radius * 30.0f;
+    ap.updateFlags           = 0;
+
+    navAgentId = crowdManager->addAgent(rcOrigin, &ap);
+}
+
+void RecastPather::RemoveAgent()
+{
+    if (!hasAgent) {
+        return;
+    }
+
+    pathMaster.agentManager.GetCrowd()->removeAgent(navAgentId);
+    hasAgent = false;
+}
+
+RecastAgentManager::RecastAgentManager()
+{
+    crowd = NULL;
+}
+
+RecastAgentManager::~RecastAgentManager()
+{
+    DestroyCrowd();
+}
+
+void RecastAgentManager::CreateCrowd(float agentRadius, dtNavMesh *mesh)
+{
+    crowd = dtAllocCrowd();
+    crowd->init(MAX_CLIENTS, agentRadius, mesh);
+}
+
+void RecastAgentManager::DestroyCrowd()
+{
+    if (crowd) {
+        dtFreeCrowd(crowd);
+        crowd = NULL;
+    }
+}
+
+dtCrowd *RecastAgentManager::GetCrowd() const
+{
+    return crowd;
+}
+
+void RecastAgentManager::Update()
+{
+    if (!crowd) {
+        return;
+    }
+
+    crowd->update(level.frametime, NULL);
+}
+
+void RecastPathMaster::PostLoadNavigation(const NavigationMap& map)
+{
+    agentManager.CreateCrowd(map.agentRadius, map.GetNavMesh());
+}
+
+void RecastPathMaster::ClearNavigation()
+{
+    agentManager.DestroyCrowd();
+}
+
+void RecastPathMaster::Update()
+{
+    agentManager.Update();
 }
