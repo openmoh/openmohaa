@@ -539,7 +539,7 @@ void G_RunFrame(int levelTime, int frameTime)
 
         PathManager.ShowNodes();
 
-        G_Navigation_DebugDraw();
+        G_Navigation_Frame();
 
         showentnums = (sv_showentnums->integer && (g_gametype->integer == GT_SINGLE_PLAYER || sv_cheats->integer));
 

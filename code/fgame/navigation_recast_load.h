@@ -111,4 +111,7 @@ private:
 
 extern NavigationMap navigationMap;
 
-void G_Navigation_DebugDraw();
+void G_Navigation_Frame();
+void ConvertRecastToGameCoord(const float *in, float *out);
+void ConvertGameToRecastCoord(const float *in, float *out);
+

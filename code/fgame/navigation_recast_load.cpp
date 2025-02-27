@@ -24,6 +24,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "g_local.h"
 #include "navigation_recast_load.h"
+#include "navigation_recast_path.h"
 #include "../script/scriptexception.h"
 #include "navigate.h"
 #include "debuglines.h"
@@ -82,10 +83,10 @@ protected:
 
 /*
 ============
-ConvertFromGameCoord
+ConvertGameToRecastCoord
 ============
 */
-static void ConvertFromGameCoord(const float *in, float *out)
+void ConvertGameToRecastCoord(const float *in, float *out)
 {
 #if 0
     vec3_t mat[3];
@@ -103,10 +104,10 @@ static void ConvertFromGameCoord(const float *in, float *out)
 
 /*
 ============
-ConvertToGameCoord
+ConvertRecastToGameCoord
 ============
 */
-static void ConvertToGameCoord(const float *in, float *out)
+void ConvertRecastToGameCoord(const float *in, float *out)
 {
 #if 0
     vec3_t mat[3];
@@ -130,8 +131,8 @@ void TestAgent(const Vector& start, const Vector& end, Vector *paths, int *numPa
     dtPolyRef     nearestStartRef, nearestEndRef;
     vec3_t        nearestStartPt, nearestEndPt;
 
-    ConvertFromGameCoord(start, startNav);
-    ConvertFromGameCoord(end, endNav);
+    ConvertGameToRecastCoord(start, startNav);
+    ConvertGameToRecastCoord(end, endNav);
 
     if (navAgentId != -1) {
         navCrowd->removeAgent(navAgentId);
@@ -165,7 +166,7 @@ void TestAgent(const Vector& start, const Vector& end, Vector *paths, int *numPa
     for (int i = 0; i < *numPaths; i++) {
         Vector converted;
 
-        ConvertToGameCoord(paths[i], converted);
+        ConvertRecastToGameCoord(paths[i], converted);
         paths[i] = converted;
     }
 }
@@ -370,7 +371,7 @@ void NavigationMap::TryConnectJumpFallPoints(Container<offMeshNavigationPoint>& 
                 tmp[2]                   = polyMesh->bmin[2] + v1[2] * polyMesh->cs;
 
                 Vector pos1;
-                ConvertToGameCoord(tmp, pos1);
+                ConvertRecastToGameCoord(tmp, pos1);
 
                 for (l = 0; l < polyMesh->nvp; l++) {
                     if (p2[l] == RC_MESH_NULL_IDX) {
@@ -387,7 +388,7 @@ void NavigationMap::TryConnectJumpFallPoints(Container<offMeshNavigationPoint>& 
                     tmp[2]                   = polyMesh->bmin[2] + v2[2] * polyMesh->cs;
 
                     Vector pos2;
-                    ConvertToGameCoord(tmp, pos2);
+                    ConvertRecastToGameCoord(tmp, pos2);
 
                     if ((pos2 - pos1).lengthXYSquared() > Square(256)) {
                         continue;
@@ -479,8 +480,8 @@ void NavigationMap::BuildDetourData(
         for (int i = 0; i < dtParams.offMeshConCount; i++) {
             const offMeshNavigationPoint& point = points.ObjectAt(i + 1);
 
-            ConvertFromGameCoord(point.start, &offMeshConVerts[i * 6]);
-            ConvertFromGameCoord(point.end, &offMeshConVerts[i * 6 + 3]);
+            ConvertGameToRecastCoord(point.start, &offMeshConVerts[i * 6]);
+            ConvertGameToRecastCoord(point.end, &offMeshConVerts[i * 6 + 3]);
 
             offMeshConRad[i]    = point.radius;
             offMeshConFlags[i]  = point.flags;
@@ -664,7 +665,7 @@ void NavigationMap::BuildRecastMesh(navMap_t& navigationMap)
 
     for (i = 0; i < numVertices; i++) {
         const navVertice_t& inVertice = navigationMap.vertices.ObjectAt(i + 1);
-        ConvertFromGameCoord(inVertice.xyz, &vertsBuffer[i * 3]);
+        ConvertGameToRecastCoord(inVertice.xyz, &vertsBuffer[i * 3]);
     }
 
     int *indexesBuffer = new int[numIndexes];
@@ -698,8 +699,14 @@ void NavigationMap::BuildRecastMesh(navMap_t& navigationMap)
     prev_navMap = navigationMap;
 }
 
+/*
+============
+G_Navigation_DebugDraw
+============
+*/
 void G_Navigation_DebugDraw()
 {
+
     Entity    *ent       = g_entities[0].entity;
     dtNavMesh *navMeshDt = navigationMap.GetNavMesh();
 
@@ -719,7 +726,7 @@ void G_Navigation_DebugDraw()
                 const float *pvert = &tile->verts[j * 3];
 
                 Vector org;
-                ConvertToGameCoord(pvert, org);
+                ConvertRecastToGameCoord(pvert, org);
 
                 org.z += 16;
 
@@ -739,7 +746,7 @@ void G_Navigation_DebugDraw()
             const float           z = polyMesh->bmin[2] + v[2] * polyMesh->cs;
 
             Vector org;
-            ConvertToGameCoord(Vector(x, y, z), org);
+            ConvertRecastToGameCoord(Vector(x, y, z), org);
 
             org.z += 16;
 
@@ -771,8 +778,8 @@ void G_Navigation_DebugDraw()
                         const float *pv2 = &tile->verts[poly->verts[(k + 1) % poly->vertCount] * 3];
 
                         Vector v1, v2;
-                        ConvertToGameCoord(pv1, v1);
-                        ConvertToGameCoord(pv2, v2);
+                        ConvertRecastToGameCoord(pv1, v1);
+                        ConvertRecastToGameCoord(pv2, v2);
 
                         const Vector delta = v1 - ent->origin;
 
@@ -791,8 +798,8 @@ void G_Navigation_DebugDraw()
                     const float* pv2 = &offMeshCon->pos[3];
 
                     Vector v1, v2;
-                    ConvertToGameCoord(pv1, v1);
-                    ConvertToGameCoord(pv2, v2);
+                    ConvertRecastToGameCoord(pv1, v1);
+                    ConvertRecastToGameCoord(pv2, v2);
 
                     const Vector delta = v1 - ent->origin;
 
@@ -832,7 +839,7 @@ void G_Navigation_DebugDraw()
                     pos[1] = polyMesh->bmin[1] + (v[1] + 1) * polyMesh->ch;
                     pos[2] = polyMesh->bmin[2] + v[2] * polyMesh->cs;
 
-                    ConvertToGameCoord(pos, vertices[k]);
+                    ConvertRecastToGameCoord(pos, vertices[k]);
                 }
 
                 for (int k = 0; k < 3; ++k) {
@@ -941,8 +948,8 @@ void G_Navigation_DebugDraw()
                         }
 
                         Vector v1, v2;
-                        ConvertToGameCoord(pv1, v1);
-                        ConvertToGameCoord(pv2, v2);
+                        ConvertRecastToGameCoord(pv1, v1);
+                        ConvertRecastToGameCoord(pv2, v2);
 
                         G_DebugLine(v1, v2, 0.0, 1.0, 0.0, 1.0);
                     }
@@ -963,7 +970,7 @@ void G_Navigation_DebugDraw()
                     if (!node) continue;
 
                     Vector pos;
-                    ConvertToGameCoord(node->pos, pos);
+                    ConvertRecastToGameCoord(node->pos, pos);
 
                     G_DebugBBox(pos, Vector(-8, -8, -8), Vector(8, 8, 8), 0.0, 1.0, 0.0, 1.0);
                 }
@@ -971,6 +978,16 @@ void G_Navigation_DebugDraw()
         }
 #endif
     }
+}
+
+/*
+============
+G_Navigation_Frame
+============
+*/
+void G_Navigation_Frame()
+{
+    G_Navigation_DebugDraw();
 }
 
 /*
