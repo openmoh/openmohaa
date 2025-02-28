@@ -188,3 +188,36 @@ void crypt_docrypt(GCryptInfo *info, unsigned char *out, int len)
         info->wordPtr++;
     }
 }
+
+int enctype2_encoder(unsigned char *secKey, unsigned char *data, int size)
+{
+    GCryptInfo info = {0};
+    int        i;
+    int        header_size = 8;
+
+    // move the data and put it after the header
+    for (i = size - 1; i >= 0; i--) {
+        data[1 + header_size + i] = data[i];
+    }
+
+    // initialize the header
+    for (i = 0; i < header_size; i++) {
+        data[i + 1] = 0;
+    }
+
+    // initialize the crypt key
+    init_crypt_key(data + 1, header_size, &info);
+
+    for (i = 0; i < 6; i++) {
+        data[1 + header_size + size + i] = 0;
+    }
+    crypt_docrypt(&info, data + 1 + header_size, size + 6);
+
+    for (i = 0; secKey[i]; i++) {
+        data[i + 1] ^= secKey[i];
+    }
+
+    size += 1 + header_size + 6;
+    *data = header_size ^ 0xec;
+    return size;
+}

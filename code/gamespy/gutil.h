@@ -27,7 +27,7 @@ size: size of the buffer
 OUT
 ---  
 result: pointer to buffer to store result. Size should be (4 * size) / 3 + 1
-	result will be null terminated.
+    result will be null terminated.
 **********/
 void gs_encode(uchar* ins, int size, uchar* result);
 

@@ -27,38 +27,38 @@ extern "C" {
 #endif
 
 #if defined(applec) || defined(THINK_C) || defined(__MWERKS__) && !defined(__KATANA__)
-	#include "::hashtable.h"
+    #include "::hashtable.h"
 #else
-	#include "../hashtable.h"
+    #include "../hashtable.h"
 #endif
 
 struct GServerImplementation
 {
-	unsigned long ip;
-	unsigned short port;
-	short ping;
-	GQueryType querytype;
-	HashTable keyvals;
-	HashTable keylist;
+    unsigned long ip;
+    unsigned short port;
+    short ping;
+    GQueryType querytype;
+    HashTable keyvals;
+    HashTable keylist;
 
 };
 
 typedef struct
 {
-	char *key;
-	char *value;
+    char *key;
+    char *value;
 } GKeyValuePair;
 /*
 typedef struct
 {
-	char *key, *value;
+    char *key, *value;
 } GKeyValuePair;
 */
 typedef struct 
 {
-	KeyEnumFn EnumFn;
-	void *instance;
-	HashTable keylist;
+    KeyEnumFn EnumFn;
+    void *instance;
+    HashTable keylist;
 } GEnumData;
 
 void ServerFree(void *elem);
