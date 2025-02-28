@@ -763,7 +763,11 @@ static GError ServerListReadList(GServerList serverlist)
                 closesocket(serverlist->slsocket);
                 serverlist->slsocket = INVALID_SOCKET;
                 oldlen = 0; //clear data so it can be used again
-                ServerListModeChange(serverlist, sl_querying);
+                if (serverlist->querytype == qt_grouprooms || serverlist->querytype == qt_masterinfo) {
+                    ServerListModeChange(serverlist, sl_idle);
+                } else {
+                    ServerListModeChange(serverlist, sl_querying);
+                }
                 return 0; //get out!!
             }
             if (oldlen < 6) //no way it could be a full IP, quit
