@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2023 the OpenMoHAA team
+Copyright (C) 2025 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -294,10 +294,10 @@ static void send_echo(qr_t qrec, struct sockaddr *sender, char *outbuf, const ch
 
 static void send_final(qr_t qrec, struct sockaddr *sender, char *outbuf, char *validation)
 {
-    char keyvalue[256];
+    char  keyvalue[256];
     uchar encrypted_val[128];
     uchar encoded_val[200];
-    int  keylen;
+    int   keylen;
 
     if (*validation) {
         keylen = (int)strlen(validation);
@@ -306,7 +306,7 @@ static void send_final(qr_t qrec, struct sockaddr *sender, char *outbuf, char *v
             return;
         }
 
-        strcpy((char*)encrypted_val, validation);
+        strcpy((char *)encrypted_val, validation);
 
         gs_encrypt((uchar *)qrec->secret_key, (int)strlen(qrec->secret_key), encrypted_val, keylen);
         gs_encode(encrypted_val, keylen, encoded_val);
@@ -322,7 +322,7 @@ static void send_final(qr_t qrec, struct sockaddr *sender, char *outbuf, char *v
 
 static void parse_query(qr_t qrec, char *query, struct sockaddr *sender)
 {
-    query_t     querytype    = qtunknown;
+    query_t     querytype                    = qtunknown;
     char        buffer[MAX_KEYVALUES_LENGTH] = {0};
     const char *value;
     char        validation[256] = {0};
@@ -402,7 +402,14 @@ static void send_heartbeat(qr_t qrec, int statechanged)
         sprintf(buf + strlen(buf), "\\statechanged\\%d", statechanged);
     }
 
-    sendto((SOCKET)qrec->hbsock, buf, (int)strlen(buf), 0, (const struct sockaddr *)&qrec->master_saddr, sizeof(qrec->master_saddr));
+    sendto(
+        (SOCKET)qrec->hbsock,
+        buf,
+        (int)strlen(buf),
+        0,
+        (const struct sockaddr *)&qrec->master_saddr,
+        sizeof(qrec->master_saddr)
+    );
     qrec->lastheartbeat = current_time();
 }
 
@@ -417,8 +424,8 @@ void init_qrec(
     int                baseport,
     SOCKET             hbsock,
     SOCKET             querysock,
-    const char         *gamename,
-    const char         *secret_key,
+    const char        *gamename,
+    const char        *secret_key,
     qr_querycallback_t qr_basic_callback,
     qr_querycallback_t qr_info_callback,
     qr_querycallback_t qr_rules_callback,
@@ -457,10 +464,10 @@ void init_qrec(
 
 int qr_init(
     qr_t              *qrec,
-    const char         *ip,
+    const char        *ip,
     int                baseport,
-    const char         *gamename,
-    const char         *secret_key,
+    const char        *gamename,
+    const char        *secret_key,
     qr_querycallback_t qr_basic_callback,
     qr_querycallback_t qr_info_callback,
     qr_querycallback_t qr_rules_callback,
