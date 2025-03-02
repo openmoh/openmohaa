@@ -313,7 +313,8 @@ void UIFont::Print(float x, float y, const char *text, size_t maxlen, const floa
     }
 
     uii.Rend_SetColor(color);
-    uii.Rend_DrawString(m_font, text, x, y, maxlen, virtualScreen);
+    // Round to integer to avoid blurry text
+    uii.Rend_DrawString(m_font, text, (int)x, (int)y, maxlen, virtualScreen);
 }
 
 void UIFont::PrintJustified(
