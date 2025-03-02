@@ -549,7 +549,7 @@ void Alias_ListFindRandomRange(
 
     length = strlen(alias);
 
-    if (length > MAX_ALIASLIST_NAME_LENGTH) {
+    if (length + 1 > MAX_ALIASLIST_NAME_LENGTH) {
         return;
     }
 
