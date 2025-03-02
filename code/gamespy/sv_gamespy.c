@@ -242,7 +242,7 @@ static void players_callback(char *outbuf, int maxlen, void *userdata)
 
         ps = SV_GameClientNum(i);
 
-        Com_sprintf(
+        infolen = Com_sprintf(
             infostring,
             sizeof(infostring),
             "\\player_%d\\%s\\frags_%d\\%d\\deaths_%d\\%d\\ping_%d\\%d",
@@ -255,8 +255,7 @@ static void players_callback(char *outbuf, int maxlen, void *userdata)
             index,
             cl->ping
         );
-
-        infolen = strlen(infostring);
+        
         if (currlen + infolen < maxlen) {
             strcat(outbuf, infostring);
             currlen += infolen;
