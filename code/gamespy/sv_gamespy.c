@@ -220,35 +220,40 @@ static void rules_callback(char *outbuf, int maxlen, void *userdata)
 
 static void players_callback(char *outbuf, int maxlen, void *userdata)
 {
-    int    i;
-    char   infostring[128];
-    size_t infolen;
-    size_t currlen = 0;
+    client_t      *cl;
+    playerState_t *ps;
+    size_t         infolen;
+    size_t         currlen = 0;
+    int            i;
+    int            index;
+    char           infostring[128];
 
     if (!svs.clients) {
         return;
     }
 
-    for (i = 0; i < svs.iNumClients; i++) {
-        if (svs.clients[i].state == CS_FREE) {
+    for (i = 0, index = 0; i < svs.iNumClients; i++) {
+        cl = &svs.clients[i];
+
+        if (cl->state == CS_FREE) {
             // ignore inactive clients
             continue;
         }
 
-        playerState_t *ps = SV_GameClientNum(i);
+        ps = SV_GameClientNum(i);
 
         Com_sprintf(
             infostring,
-            128,
+            sizeof(infostring),
             "\\player_%d\\%s\\frags_%d\\%d\\deaths_%d\\%d\\ping_%d\\%d",
-            i,
-            svs.clients[i].name,
-            i,
+            index,
+            cl->name,
+            index,
             ps->stats[STAT_KILLS],
-            i,
+            index,
             ps->stats[STAT_DEATHS],
-            i,
-            svs.clients[i].ping
+            index,
+            cl->ping
         );
 
         infolen = strlen(infostring);
@@ -256,6 +261,12 @@ static void players_callback(char *outbuf, int maxlen, void *userdata)
             strcat(outbuf, infostring);
             currlen += infolen;
         }
+
+        //
+        // Fixed in OPM
+        //  Some programs enumerate by testing indexes, and stop iterating if the index doesn't exist
+        //
+        index++;
     }
 }
 
