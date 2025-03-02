@@ -353,69 +353,38 @@ qboolean Alias_ListAdd(AliasList_t *list, const char *alias, const char *name, c
     return qtrue;
 }
 
+static int Alias_ListCompareNodes(const void *a1, const void *a2)
+{
+    const AliasListNode_t *ptr1 = *(const AliasListNode_t **)a1;
+    const AliasListNode_t *ptr2 = *(const AliasListNode_t **)a2;
+
+    return strcmp(ptr1->alias_name, ptr2->alias_name);
+}
+
 void Alias_ListSort(AliasList_t *list)
 {
-    int              num;
-    int              size;
-    int              i;
-    AliasListNode_t *root;
     AliasListNode_t *ptr;
-    AliasListNode_t *smallest = NULL;
-    AliasListNode_t *prev;
-    AliasListNode_t *smallprev;
-    AliasListNode_t *last = NULL;
+    int              num;
+    int              i;
 
     if (!list->dirty) {
         return;
     }
 
-    num = 0;
-
-    root            = list->data_list;
-    list->data_list = NULL;
     if (list->sorted_list) {
         Z_Free(list->sorted_list);
     }
 
-    size              = list->num_in_list * sizeof(AliasListNode_t *);
-    list->sorted_list = Z_TagMalloc(size, TAG_TIKI);
-    memset(list->sorted_list, 0, size);
+    num = list->num_in_list;
 
-    for (i = 0; i < list->num_in_list; i++) {
-        prev      = root;
-        smallprev = root;
+    list->sorted_list = Z_TagMalloc(num * sizeof(AliasListNode_t *), TAG_TIKI);
 
-        for (ptr = root->next; ptr != NULL; ptr = ptr->next) {
-            if (strcmp(ptr->alias_name, smallprev->alias_name) < 0) {
-                smallest  = prev;
-                smallprev = ptr;
-            }
-
-            prev = ptr;
-        }
-
-        if (smallprev == root) {
-            root = smallprev->next;
-        } else {
-            smallest->next = smallprev->next;
-        }
-
-        if (!last || strcmp(last->alias_name, smallprev->alias_name)) {
-            list->sorted_list[num++] = smallprev;
-            smallprev->next          = list->data_list;
-            list->data_list          = smallprev;
-            last                     = smallprev;
-        } else {
-            if (strcmp(last->real_name, smallprev->real_name)) {
-                Com_DPrintf("Duplicate Aliases for %s in list %s  Last: %p.\n", last->alias_name, list->name, last);
-            }
-
-            Z_Free(smallprev);
-        }
+    for (i = 0, ptr = list->data_list; i < num; i++, ptr = ptr->next) {
+        list->sorted_list[i] = ptr;
     }
 
-    list->dirty       = 0;
-    list->num_in_list = num;
+    qsort(list->sorted_list, num, sizeof(AliasListNode_t *), Alias_ListCompareNodes);
+    list->dirty = 0;
 }
 
 const char *Alias_ListFind(AliasList_t *list, const char *alias)
