@@ -45,14 +45,14 @@ target_compile_features(syslib INTERFACE cxx_nullptr cxx_std_17)
 target_compile_features(syslib INTERFACE c_variadic_macros)
 target_link_libraries(syslib INTERFACE qcommon)
 
-find_package(OpenSSL)
+find_package(CURL)
 
-if (NOT ${OPENSSL_FOUND})
-    message(WARNING "OpenSSL is not available, cpp-httplib won't work with SSL/TLS websites")
+if (CURL_FOUND)
+    target_link_libraries(syslib INTERFACE CURL::libcurl)
+    target_compile_definitions(syslib INTERFACE HAS_LIBCURL=1)
+else()
+    message(WARNING "CURL is not available, update checking will not work")
 endif()
-
-add_subdirectory("../cpp-httplib-0.19.0" "cpp-httplib-0.19.0")
-target_link_libraries(syslib INTERFACE httplib)
 
 if(WIN32)
 	target_link_libraries(syslib INTERFACE wsock32 ws2_32)

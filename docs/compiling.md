@@ -10,13 +10,13 @@ The following tools are required for all platforms:
 - [OpenAL SDK](https://github.com/kcat/openal-soft)
 
 The following tools may be useful:
-- [OpenSSL](https://github.com/openssl/openssl)
+- [cURL](https://github.com/curl/curl)
 
 The installation directory can be set to the MOHAA directory with `-DCMAKE_INSTALL_PREFIX=/path/to/mohaa`.
 
 Compiling debug binaries will result in a `-dbg` suffix appended to the name of the binaries to avoid mixing debug/release code.
 
-OpenSSL is used to access websites using TLS over HTTP. It is currently used to check for a new release. If OpenSSL is not installed, OpenMoHAA will be unable to check for new updates automatically.
+cURL is used to access websites. It is currently used to check for a new release. If the project is compiled without cURL, OpenMoHAA will be unable to check for new updates automatically.
 
 ## Compiling for Linux
 
@@ -25,12 +25,13 @@ These are the tools required on Linux :
 - libsdl2-dev
 - libopenal-dev
 - libssl-dev
+- libcurl4-openssl-dev
 
 **clang-7** and **gcc-9** has been tested to work on Ubuntu 20.04. Although it's best to use the latest versions.
 
 1 line install command with clang:
 ```sh
-sudo apt-get install -y cmake ninja-build clang lld flex bison libsdl2-dev libopenal-dev libssl-dev
+sudo apt-get install -y cmake ninja-build clang lld flex bison libsdl2-dev libopenal-dev libcurl4-openssl-dev
 ```
 
 Example with **CMake** and **ninja-build** installed:
@@ -45,12 +46,20 @@ Other compilers can be specified by appending `-DCMAKE_C_COMPILER=/path/to/compi
 
 Visual Studio (2019 or 2022) is generally preferred.
 
-Flex and Bison can be downloaded from here: https://github.com/lexxmark/winflexbison/releases/latest
-OpenAL can be downloaded from here: https://github.com/kcat/openal-soft/releases/latest rename `soft_oal.dll` to `OpenAL64.dll` on 64-bit and `OpenAL32.dll` on 32-bit
+- Get Flex/Bison: https://github.com/lexxmark/winflexbison/releases/latest
+- Get OpenAL: https://github.com/kcat/openal-soft/releases/latest rename `soft_oal.dll` to `OpenAL64.dll` on 64-bit and `OpenAL32.dll` on 32-bit
+- Get cURL: https://github.com/curl/curl
 
 Append `-DFLEX_EXECUTABLE=...\win_flex.exe -DBISON_EXECUTABLE=...\win_bison.exe -DOPENAL_INCLUDE_DIR="path/to/oal/include" -DOPENAL_LIBRARY="path/to/oal"` to the CMake command-line to use the package from the link above.
 
-Optionally, you can append `-DOPENSSL_ROOT_DIR=path\to\openssl\install` to specify the path to OpenSSL.
+Optionally, The cURL library can be compiled with the following CMake commands:
+```
+cmake -DCMAKE_INSTALL_PREFIX="E:\Src\openmoh\openmohaa\thirdparty\curl\build\install" -DCURL_USE_LIBPSL=OFF -DCURL_USE_SCHANNEL=ON -B build
+cmake --build build --config Release
+cmake --install build --config Release
+```
+
+afterwards you can can append `-DCURL_ROOT=path\to\curl\install` to specify the install path to cURL.
 
 ## Tweaking the build
 

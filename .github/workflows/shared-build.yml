@@ -43,7 +43,8 @@ jobs:
     runs-on: ${{ matrix.architecture.os }}
     environment: ${{ inputs.environment }}
     env:
-        openssl-version: '3.4.1'
+        wolfssl-version: 'v5.7.6-stable'
+        curl-version: '8_12_1'
         openal-soft-branch: '1.24.2'
 
     steps:
@@ -122,32 +123,72 @@ jobs:
         cmake --install ./build --config Release
 
     ###
-    # OpenSSL
+    # WolfSSL
     ###
-    - name: Cache OpenSSL
-      id: cache-openssl
+    - name: Cache WolfSSL
+      id: cache-wolfssl
       uses: actions/cache@v4
       with:
-        path: 'thirdparties/openssl/install'
-        key: ${{ runner.os }}-${{ matrix.architecture.name }}-openssl-${{ env.openssl-version }}-v1
+        path: 'thirdparties/wolfssl/install'
+        key: ${{ runner.os }}-${{ matrix.architecture.name }}-wolfssl-${{ env.wolfssl-version }}-v1
 
-    # OpenSSL setup
-    - name: Checkout openssl
-      if: steps.cache-openssl.outputs.cache-hit != 'true'
+    # WolfSSL setup
+    - name: Checkout WolfSSL
+      if: steps.cache-wolfssl.outputs.cache-hit != 'true'
       uses: actions/checkout@v4
       with:
-        repository: 'openssl/openssl'
-        path: 'thirdparties/openssl'
-        ref: 'openssl-${{ env.openssl-version }}'
+        repository: 'wolfssl/wolfssl'
+        path: 'thirdparties/wolfssl'
+        ref: '${{ env.wolfssl-version }}'
 
-    # OpenSSL build
-    - name: Configure and install openssl
-      if: steps.cache-openssl.outputs.cache-hit != 'true'
-      working-directory: ${{github.workspace}}/thirdparties/openssl
+    # WolfSSL build
+    - name: Configure and install wolfssl
+      if: steps.cache-wolfssl.outputs.cache-hit != 'true'
+      working-directory: ${{github.workspace}}/thirdparties/wolfssl
       run: |
-        CC=gcc-12 CFLAGS= ./Configure --prefix=${{github.workspace}}/thirdparties/openssl/install --cross-compile-prefix=${{matrix.architecture.triple}}- ${{matrix.architecture.arch_option}}
-        make -j$(nproc)
-        make install
+        cmake -B ./build \
+            -DCMAKE_INSTALL_PREFIX='${{github.workspace}}/thirdparties/wolfssl/install' \
+            -DCMAKE_C_FLAGS="$CFLAGS -fPIC" \
+            -DCMAKE_CXX_FLAGS="$CFLAGS -fPIC" \
+            -DBUILD_SHARED_LIBS=OFF -DWOLFSSL_OPENSSLEXTRA=ON -DWOLFSSL_ASM=OFF -DWOLFSSL_EXAMPLES=OFF -DWOLFSSL_CURL=ON
+        cmake --build ./build --config Release --parallel
+        cmake --install ./build --config Release
+
+    ###
+    # cURL
+    ###
+    - name: Cache cURL
+      id: cache-curl
+      uses: actions/cache@v4
+      with:
+        path: 'thirdparties/curl/install'
+        key: ${{ runner.os }}-${{ matrix.architecture.name }}-curl-${{ env.curl-version }}-v1
+
+    # cURL setup
+    - name: Checkout cURL
+      if: steps.cache-curl.outputs.cache-hit != 'true'
+      uses: actions/checkout@v4
+      with:
+        repository: 'curl/curl'
+        path: 'thirdparties/curl'
+        ref: 'curl-${{ env.curl-version }}'
+
+    # cURL build
+    - name: Configure and install curl
+      if: steps.cache-curl.outputs.cache-hit != 'true'
+      working-directory: ${{github.workspace}}/thirdparties/curl
+      run: |
+        cmake -B ./build \
+            -DCMAKE_INSTALL_PREFIX='${{github.workspace}}/thirdparties/curl/install' \
+            -DCURL_USE_LIBPSL=OFF \
+            -DCURL_USE_WOLFSSL=ON \
+            -DCURL_ZLIB="" \
+            -DCURL_BROTLI="" \
+            -DCURL_ZSTD="" \
+            -DCMAKE_SHARED_LINKER_FLAGS="-lm" \
+            -DWolfSSL_ROOT='${{github.workspace}}/thirdparties/wolfssl/install'
+        cmake --build ./build --config Release --parallel
+        cmake --install ./build --config Release
 
     ###
     # Project
@@ -163,9 +204,7 @@ jobs:
         -DCMAKE_INSTALL_PREFIX='${{github.workspace}}/install' \
         -DOPENAL_LIBRARY='${{github.workspace}}/thirdparties/soft-oal' \
         -DOPENAL_INCLUDE_DIR='${{github.workspace}}/thirdparties/soft-oal/install/include' \
-        -DOPENSSL_ROOT_DIR='${{github.workspace}}/thirdparties/openssl/install' \
-        -DHTTPLIB_REQUIRE_OPENSSL=ON \
-        -DHTTPLIB_USE_BROTLI_IF_AVAILABLE=OFF \
+        -DCURL_ROOT='${{github.workspace}}/thirdparties/curl/install' \
         -DGIT_REVISION_BUILD_NUMBER=${{ github.run_number }} \
         -DPRODUCT_VERSION_STAGE='${{ env.RELEASE_STAGE }}'" >> $GITHUB_ENV
 
@@ -196,8 +235,7 @@ jobs:
         mkdir ${{github.workspace}}/package
         cp -l ${{steps.sdl.outputs.prefix}}/lib/libSDL2-2.0.so.0 '${{github.workspace}}/package/'
         cp -l ${{github.workspace}}/thirdparties/soft-oal/install/lib/libopenal.so.1 '${{github.workspace}}/package/'
-        cp -l ${{github.workspace}}/thirdparties/openssl/install/lib*/libcrypto.so.3 '${{github.workspace}}/package/'
-        cp -l ${{github.workspace}}/thirdparties/openssl/install/lib*/libssl.so.3 '${{github.workspace}}/package/'
+        cp -l ${{github.workspace}}/thirdparties/curl/install/lib*/libcurl.so.4 '${{github.workspace}}/package/'
         if [ -d ${{github.workspace}}/install/bin ]; then cp -r ${{github.workspace}}/install/bin/openmohaa/. '${{github.workspace}}/package'; fi
         if [ -d ${{github.workspace}}/install/lib ]; then cp -r ${{github.workspace}}/install/lib/openmohaa/. '${{github.workspace}}/package'; fi
 
@@ -232,7 +270,8 @@ jobs:
     environment: ${{ inputs.environment }}
     env:
         flexbison-branch: 'v2.5.25'
-        openssl-version: '3.4.1'
+        wolfssl-version: 'v5.7.6-stable'
+        curl-version: '8_12_1'
         openal-soft-branch: '1.24.2'
 
     steps:
@@ -350,32 +389,37 @@ jobs:
         if (("x64", "ARM64") -icontains "${{ matrix.architecture.config }}") { Rename-Item -Path '.\install\bin\OpenAL32.dll' -NewName 'OpenAL64.dll' }
 
     ###
-    # OpenSSL
+    # cURL
+    #
+    # Uses Schannel as SSL backend, native CAs are used
     ###
-    - name: Cache OpenSSL
-      id: cache-openssl
+    - name: Cache cURL
+      id: cache-curl
       uses: actions/cache@v4
       with:
-        path: 'thirdparties/openssl/install'
-        key: ${{ runner.os }}-${{ matrix.architecture.name }}-openssl-${{ env.openssl-version }}-v1
+        path: 'thirdparties/curl/install'
+        key: ${{ runner.os }}-${{ matrix.architecture.name }}-curl-${{ env.curl-version }}-v1
 
-    # OpenSSL setup
-    - name: Checkout openssl
-      if: steps.cache-openssl.outputs.cache-hit != 'true'
+    # cURL setup
+    - name: Checkout cURL
+      if: steps.cache-curl.outputs.cache-hit != 'true'
       uses: actions/checkout@v4
       with:
-        repository: 'openssl/openssl'
-        path: 'thirdparties/openssl'
-        ref: 'openssl-${{ env.openssl-version }}'
+        repository: 'curl/curl'
+        path: 'thirdparties/curl'
+        ref: 'curl-${{ env.curl-version }}'
 
-    # OpenSSL build
-    - name: Configure and install openssl
-      if: steps.cache-openssl.outputs.cache-hit != 'true'
-      working-directory: ${{github.workspace}}/thirdparties/openssl
+    # cURL build
+    - name: Configure and install curl
+      if: steps.cache-curl.outputs.cache-hit != 'true'
+      working-directory: ${{github.workspace}}/thirdparties/curl
       run: |
-        perl .\Configure --prefix=${{github.workspace}}/thirdparties/openssl/install no-asm ${{matrix.architecture.arch_option}} /FS
-        jom -j($(Get-CimInstance Win32_ComputerSystem).NumberOfLogicalProcessors)
-        nmake install
+        cmake -B ./build `
+            -DCMAKE_INSTALL_PREFIX='${{github.workspace}}/thirdparties/curl/install' `
+            -DCURL_USE_LIBPSL=OFF `
+            -DCURL_USE_SCHANNEL=ON
+        cmake --build ./build --config Release --parallel
+        cmake --install ./build --config Release
 
     ###
     # Project
@@ -394,9 +438,7 @@ jobs:
         -DBISON_EXECUTABLE='${{github.workspace}}/thirdparties/winflexbison-install/win_bison.exe' `
         -DOPENAL_LIBRARY='${{github.workspace}}/thirdparties/soft-oal' `
         -DOPENAL_INCLUDE_DIR='${{github.workspace}}/thirdparties/soft-oal/install/include' `
-        -DOPENSSL_ROOT_DIR='${{github.workspace}}/thirdparties/openssl/install' `
-        -DHTTPLIB_REQUIRE_OPENSSL=ON `
-        -DHTTPLIB_USE_BROTLI_IF_AVAILABLE=OFF `
+        -DCURL_ROOT='${{github.workspace}}/thirdparties/curl/install' `
         -DFLEX_EXECUTABLE='${{github.workspace}}/thirdparties/winflexbison-install/win_flex.exe' `
         -DPRODUCT_VERSION_STAGE='${{ env.RELEASE_STAGE }}'".Replace("`r", "").Replace("`n", "") >> $env:GITHUB_ENV
 
@@ -426,7 +468,7 @@ jobs:
         New-Item -ItemType Directory '${{github.workspace}}/package'
         Copy-Item '${{steps.sdl.outputs.prefix}}/bin/*.dll' -Destination '${{github.workspace}}/package'
         Copy-Item '${{github.workspace}}/thirdparties/soft-oal/install/bin/*.dll' -Destination '${{github.workspace}}/package'
-        Copy-Item '${{github.workspace}}/thirdparties/openssl/install/bin/*.dll' -Destination '${{github.workspace}}/package'
+        Copy-Item '${{github.workspace}}/thirdparties/curl/install/bin/*.dll' -Destination '${{github.workspace}}/package'
         if (Test-Path ${{github.workspace}}/install/bin) { Copy-Item '${{github.workspace}}/install/bin/*' -Include '*.dll','*.exe','*.pdb' -Destination '${{github.workspace}}/package' }
         if (Test-Path ${{github.workspace}}/install/lib) { Copy-Item '${{github.workspace}}/install/lib/*' -Include '*.dll','*.exe','*.pdb' -Destination '${{github.workspace}}/package' }
 
@@ -473,6 +515,8 @@ jobs:
     environment: ${{inputs.environment}}
     env:
         openal-soft-branch: '1.24.2'
+        wolfssl-version: 'v5.7.6-stable'
+        curl-version: '8_12_1'
 
     steps:
     ###
@@ -539,6 +583,79 @@ jobs:
         cmake --install ./build --config Release
 
     ###
+    # WolfSSL
+    ###
+# FIXME: Figure out how to compile WolfSSL cross-architecture
+#
+#    - name: Cache WolfSSL
+#      id: cache-wolfssl
+#      uses: actions/cache@v4
+#      with:
+#        path: 'thirdparties/wolfssl_install'
+#        key: ${{ runner.os }}-${{ matrix.architecture.name }}-wolfssl-${{ env.wolfssl-version }}-v1
+#
+#    # WolfSSL setup
+#    - name: Checkout WolfSSL
+#      if: steps.cache-wolfssl.outputs.cache-hit != 'true'
+#      uses: actions/checkout@v4
+#      with:
+#        repository: 'wolfssl/wolfssl'
+#        path: 'thirdparties/wolfssl'
+#        ref: '${{ env.wolfssl-version }}'
+#
+#    # WolfSSL build
+#    - name: Configure and install wolfssl
+#      if: steps.cache-wolfssl.outputs.cache-hit != 'true'
+#      working-directory: ${{github.workspace}}/thirdparties/wolfssl
+#      run: |
+#        cmake -B ./build \
+#            -DCMAKE_INSTALL_PREFIX='${{github.workspace}}/thirdparties/wolfssl_install' \
+#            -DCMAKE_OSX_ARCHITECTURES='${{ matrix.architecture.build_name }}' \
+#            -DBUILD_SHARED_LIBS=OFF -DWOLFSSL_OPENSSLEXTRA=ON -DWOLFSSL_ASM=OFF -DWOLFSSL_EXAMPLES=OFF -DWOLFSSL_CURL=ON
+#        cmake --build ./build --config Release --parallel
+#        cmake --install ./build --config Release
+
+    ###
+    # cURL
+    ###
+    - name: Cache cURL
+      id: cache-curl
+      uses: actions/cache@v4
+      with:
+        path: 'thirdparties/curl/install'
+        key: ${{ runner.os }}-${{ matrix.architecture.name }}-curl-${{ env.curl-version }}-v1
+
+    # cURL setup
+    - name: Checkout cURL
+      if: steps.cache-curl.outputs.cache-hit != 'true'
+      uses: actions/checkout@v4
+      with:
+        repository: 'curl/curl'
+        path: 'thirdparties/curl'
+        ref: 'curl-${{ env.curl-version }}'
+
+    # cURL build
+    - name: Configure and install curl
+      if: steps.cache-curl.outputs.cache-hit != 'true'
+      working-directory: ${{github.workspace}}/thirdparties/curl
+      run: |
+        cmake -B ./build \
+            -DCMAKE_INSTALL_PREFIX='${{github.workspace}}/thirdparties/curl/install' \
+            -DCMAKE_OSX_ARCHITECTURES='${{ matrix.architecture.build_name }}' \
+            -DCURL_USE_LIBPSL=OFF \
+            -DCURL_USE_WOLFSSL=OFF \
+            -DCURL_USE_LIBSSH2=OFF \
+            -DUSE_LIBIDN2=OFF \
+            -DUSE_NGHTTP2=OFF \
+            -DCURL_ENABLE_SSL=OFF \
+            -DCURL_ZLIB="" \
+            -DCURL_BROTLI="" \
+            -DCURL_ZSTD="" \
+            -DWolfSSL_ROOT='${{github.workspace}}/thirdparties/wolfssl_install'
+        cmake --build ./build --config Release --parallel
+        cmake --install ./build --config Release
+
+    ###
     # Project
     ###
 
@@ -554,9 +671,7 @@ jobs:
         -DCMAKE_OSX_ARCHITECTURES='${{ matrix.architecture.build_name }}' \
         -DOPENAL_LIBRARY='${{github.workspace}}/thirdparties/soft-oal/install' \
         -DOPENAL_INCLUDE_DIR='${{github.workspace}}/thirdparties/soft-oal/install/include/AL' \
-        -DOPENSSL_ROOT_DIR='${{github.workspace}}/thirdparties/openssl/install' \
-        -DHTTPLIB_USE_OPENSSL_IF_AVAILABLE=OFF \
-        -DHTTPLIB_USE_BROTLI_IF_AVAILABLE=OFF \
+        -DCURL_ROOT='${{github.workspace}}/thirdparties/curl/install' \
         -DGIT_REVISION_BUILD_NUMBER=${{ github.run_number }} \
         -DPRODUCT_VERSION_STAGE='${{ env.RELEASE_STAGE }}'" >> $GITHUB_ENV
 
@@ -587,6 +702,7 @@ jobs:
         mkdir ${{github.workspace}}/package
         cp -l ${{steps.sdl.outputs.prefix}}/lib/libSDL2-2.0.0.dylib '${{github.workspace}}/package/'
         cp -l ${{github.workspace}}/thirdparties/soft-oal/install/lib/libopenal.1.dylib '${{github.workspace}}/package/'
+        cp -l ${{github.workspace}}/thirdparties/curl/install/lib*/libcurl.4.dylib '${{github.workspace}}/package/'
         if [ -d ${{github.workspace}}/install/bin ]; then cp -r ${{github.workspace}}/install/bin/openmohaa/. '${{github.workspace}}/package'; fi
         if [ -d ${{github.workspace}}/install/lib ]; then cp -r ${{github.workspace}}/install/lib/openmohaa/. '${{github.workspace}}/package'; fi
 

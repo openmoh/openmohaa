@@ -75,7 +75,7 @@ private:
     //
     // Thread-related variables
     //
-    void             *client;
+    void             *handle;
     std::shared_mutex clientMutex;
     std::thread      *thread;
 };

@@ -23,7 +23,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "sys_update_checker.h"
 #include "../qcommon/q_version.h"
 
-#include <httplib.h>
+#ifdef HAS_LIBCURL
+
+#include <curl/curl.h>
+
+//#include <httplib.h>
 #include "../qcommon/json.hpp"
 using json = nlohmann::json;
 
@@ -50,38 +54,49 @@ UpdateChecker::UpdateChecker()
 {
     lastMajor = lastMinor = lastPatch = 0;
     versionChecked                    = false;
-    client                            = NULL;
+    handle                            = NULL;
     thread                            = NULL;
 }
 
 UpdateChecker::~UpdateChecker()
 {
-    if (client) {
+    if (handle) {
         Shutdown();
     }
 }
 
 void UpdateChecker::Init()
 {
-    assert(!client);
+    CURLcode result;
+
+    assert(!handle);
     assert(!thread);
 
-    try {
-        httplib::Client *updateCheckerClient = new httplib::Client("https://api.github.com");
-
-        client = updateCheckerClient;
-        thread = new std::thread(&UpdateChecker::RequestThread, this);
-    } catch (const std::exception& e) {
-        client = NULL;
-        thread = NULL;
-        Com_DPrintf("Failed to create update checker: %s\n", e.what());
+    handle = curl_easy_init();
+    if (!handle) {
+        Com_DPrintf("Failed to create curl client\n");
+        return;
     }
+
+    result = curl_easy_setopt(handle, CURLOPT_URL, "https://api.github.com/repos/openmoh/openmohaa/releases/latest");
+
+    if (result != CURLE_OK) {
+        Com_DPrintf("Failed to set curl URL: %s\n", curl_easy_strerror(result));
+        curl_easy_cleanup(handle);
+        handle = NULL;
+        return;
+    }
+
+    curl_easy_setopt(handle, CURLOPT_USERAGENT, "curl");
+
+    thread = new std::thread(&UpdateChecker::RequestThread, this);
 }
 
 void UpdateChecker::Process()
 {
     std::chrono::time_point<std::chrono::steady_clock> currentTime = std::chrono::steady_clock::now();
-    if (currentTime < lastMessageTime + std::chrono::milliseconds(std::max(1, com_updateCheckInterval->integer) * 60 * 1000)) {
+    if (currentTime
+        < lastMessageTime + std::chrono::milliseconds(Q_max(1, com_updateCheckInterval->integer) * 60 * 1000)) {
         return;
     }
 
@@ -109,12 +124,12 @@ void UpdateChecker::ShutdownClient()
 {
     std::lock_guard<std::shared_mutex> l(clientMutex);
 
-    if (!client) {
+    if (!handle) {
         return;
     }
 
-    delete (httplib::Client *)client;
-    client = NULL;
+    curl_easy_cleanup(handle);
+    handle = NULL;
 }
 
 void UpdateChecker::ShutdownThread()
@@ -201,22 +216,35 @@ bool UpdateChecker::ParseVersionNumber(const char *value, int& major, int& minor
     return true;
 }
 
+size_t WriteCallback(char *contents, size_t size, size_t nmemb, void *userp)
+{
+    std::string& responseString = *(std::string *)userp;
+    responseString.append(contents, size * nmemb);
+
+    return size * nmemb;
+}
+
 void UpdateChecker::DoRequest()
 {
     std::lock_guard<std::shared_mutex> l(clientMutex);
+    CURLcode                           result;
+    std::string                        responseString;
 
-    httplib::Client *updateCheckerClient = (httplib::Client *)client;
+    curl_easy_setopt(handle, CURLOPT_WRITEFUNCTION, &WriteCallback);
+    curl_easy_setopt(handle, CURLOPT_WRITEDATA, &responseString);
 
-    if (!updateCheckerClient) {
+    result = curl_easy_perform(handle);
+    if (result != CURLE_OK) {
         return;
     }
 
-    httplib::Result result = updateCheckerClient->Get("/repos/openmoh/openmohaa/releases/latest");
-    if (result.error() != httplib::Error::Success) {
+    nlohmann::json data;
+    
+    try {
+        data = nlohmann::json::parse(responseString);
+    } catch(const std::exception& e) {
         return;
     }
-    httplib::Response response = result.value();
-    nlohmann::json    data     = nlohmann::json::parse(response.body);
 
     try {
         const nlohmann::json::string_t& tagName = data.at("tag_name");
@@ -237,9 +265,10 @@ void UpdateChecker::RequestThread()
     std::chrono::time_point<std::chrono::steady_clock> currentTime = std::chrono::steady_clock::now();
     std::chrono::time_point<std::chrono::steady_clock> lastCheckTime;
 
-    while (client) {
+    while (handle) {
         currentTime = std::chrono::steady_clock::now();
-        if (currentTime >= lastCheckTime + std::chrono::milliseconds(std::max(1, com_updateCheckInterval->integer) * 60 * 1000)) {
+        if (currentTime
+            >= lastCheckTime + std::chrono::milliseconds(Q_max(1, com_updateCheckInterval->integer) * 60 * 1000)) {
             lastCheckTime = currentTime;
 
             DoRequest();
@@ -248,3 +277,19 @@ void UpdateChecker::RequestThread()
         std::this_thread::sleep_for(std::chrono::milliseconds(500));
     }
 }
+
+#else
+
+void Sys_UpdateChecker_Init()
+{
+}
+
+void Sys_UpdateChecker_Process()
+{
+}
+
+void Sys_UpdateChecker_Shutdown()
+{
+}
+
+#endif
