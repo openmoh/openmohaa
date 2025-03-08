@@ -1,0 +1,239 @@
+##########################
+#
+# Apple macOS
+# macOS 15
+#
+# This version is used as the OS, as it's faster than other versions.
+##########################
+name: MacOS build workflow
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        required: true
+        type: string
+        
+env:
+  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
+  BUILD_TYPE: RelWithDebInfo
+  RELEASE_STAGE: ${{ vars.RELEASE_STAGE || 'unstable' }}
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        architecture: [
+          #{name: 'x86_64',   triple: 'x86_64-apple-macos10.8'},
+          #{name: 'arm64',    triple: 'arm64-apple-macos11'}
+          #{name: 'x86_64',    build_name: 'x86_64'},
+          #{name: 'arm64',     build_name: 'arm64'},
+          # Compile into an universal binary
+          {name: 'multiarch(arm64-x86_64)', build_name: 'arm64;x86_64' }
+        ]
+
+    name: "Building for platform macos-${{matrix.architecture.name}}"
+    runs-on: "macos-15"
+    env:
+        openal-soft-branch: '1.24.2'
+        wolfssl-version: 'v5.7.6-stable'
+        curl-version: '8_12_1'
+
+    steps:
+    ###
+    # Packages
+    ###
+    - uses: tecolicom/actions-use-homebrew-tools@b9c066b79607fa3d71e0be05d7003bb75fd9ff34
+      name: Install required packages
+      with:
+        tools: git flex bison ninja cmake llvm perl
+
+    - name: Settings
+      working-directory: ${{github.workspace}}
+      run: |
+        echo "CMAKE_GENERATOR=Ninja Multi-Config" >> $GITHUB_ENV
+        echo "CC=clang" >> $GITHUB_ENV
+        echo "CXX=clang++" >> $GITHUB_ENV
+        echo "MACOSX_DEPLOYMENT_TARGET=10.15" >> $GITHUB_ENV
+
+    ###
+    # SDL
+    ###
+
+    # Setup SDL
+    - name: Set up SDL
+      id: sdl
+      uses: libsdl-org/setup-sdl@main
+      with:
+        version: 2-latest
+        build-type: Release
+        cmake-arguments: "-DCMAKE_OSX_ARCHITECTURES='${{ matrix.architecture.build_name }}'
+          -DCMAKE_VERBOSE_MAKEFILE=on"
+
+    ###
+    # OpenAL
+    ###
+    - name: Cache OpenAL
+      id: cache-openal-soft
+      uses: actions/cache@v4
+      with:
+        path: 'thirdparties/soft-oal/install'
+        key: ${{ runner.os }}-${{ matrix.architecture.name }}-openal-soft-${{ env.openal-soft-branch }}-v1
+
+    # soft-oal setup
+    # Use GCC instead of Clang because of missing SSE intrinsics
+    # It also doesn't enable altivec support on PowerPC by default
+    - name: Checkout soft-oal
+      if: steps.cache-openal-soft.outputs.cache-hit != 'true'
+      uses: actions/checkout@v4
+      with:
+        repository: 'kcat/openal-soft'
+        path: 'thirdparties/soft-oal'
+        ref: '${{ env.openal-soft-branch }}'
+
+    # soft-oal build
+    - name: Configure and install soft-oal
+      if: steps.cache-openal-soft.outputs.cache-hit != 'true'
+      working-directory: ${{github.workspace}}/thirdparties/soft-oal
+      run: |
+        cmake -B ./build \
+        -DCMAKE_INSTALL_PREFIX='${{github.workspace}}/thirdparties/soft-oal/install' \
+        -DCMAKE_OSX_ARCHITECTURES='${{ matrix.architecture.build_name }}' \
+        -DCMAKE_VERBOSE_MAKEFILE=on
+        cmake --build ./build --config Release --parallel
+        cmake --install ./build --config Release
+
+    ###
+    # WolfSSL
+    ###
+# FIXME: Figure out how to compile WolfSSL cross-architecture
+#
+#    - name: Cache WolfSSL
+#      id: cache-wolfssl
+#      uses: actions/cache@v4
+#      with:
+#        path: 'thirdparties/wolfssl_install'
+#        key: ${{ runner.os }}-${{ matrix.architecture.name }}-wolfssl-${{ env.wolfssl-version }}-v1
+#
+#    # WolfSSL setup
+#    - name: Checkout WolfSSL
+#      if: steps.cache-wolfssl.outputs.cache-hit != 'true'
+#      uses: actions/checkout@v4
+#      with:
+#        repository: 'wolfssl/wolfssl'
+#        path: 'thirdparties/wolfssl'
+#        ref: '${{ env.wolfssl-version }}'
+#
+#    # WolfSSL build
+#    - name: Configure and install wolfssl
+#      if: steps.cache-wolfssl.outputs.cache-hit != 'true'
+#      working-directory: ${{github.workspace}}/thirdparties/wolfssl
+#      run: |
+#        cmake -B ./build \
+#            -DCMAKE_INSTALL_PREFIX='${{github.workspace}}/thirdparties/wolfssl_install' \
+#            -DCMAKE_OSX_ARCHITECTURES='${{ matrix.architecture.build_name }}' \
+#            -DBUILD_SHARED_LIBS=OFF -DWOLFSSL_OPENSSLEXTRA=ON -DWOLFSSL_ASM=OFF -DWOLFSSL_EXAMPLES=OFF -DWOLFSSL_CURL=ON
+#        cmake --build ./build --config Release --parallel
+#        cmake --install ./build --config Release
+
+    ###
+    # cURL
+    ###
+    - name: Cache cURL
+      id: cache-curl
+      uses: actions/cache@v4
+      with:
+        path: 'thirdparties/curl/install'
+        key: ${{ runner.os }}-${{ matrix.architecture.name }}-curl-${{ env.curl-version }}-v1
+
+    # cURL setup
+    - name: Checkout cURL
+      if: steps.cache-curl.outputs.cache-hit != 'true'
+      uses: actions/checkout@v4
+      with:
+        repository: 'curl/curl'
+        path: 'thirdparties/curl'
+        ref: 'curl-${{ env.curl-version }}'
+
+    # cURL build
+    - name: Configure and install curl
+      if: steps.cache-curl.outputs.cache-hit != 'true'
+      working-directory: ${{github.workspace}}/thirdparties/curl
+      run: |
+        cmake -B ./build \
+            -DCMAKE_INSTALL_PREFIX='${{github.workspace}}/thirdparties/curl/install' \
+            -DCMAKE_OSX_ARCHITECTURES='${{ matrix.architecture.build_name }}' \
+            -DCURL_USE_LIBPSL=OFF \
+            -DCURL_USE_WOLFSSL=OFF \
+            -DCURL_USE_LIBSSH2=OFF \
+            -DUSE_LIBIDN2=OFF \
+            -DUSE_NGHTTP2=OFF \
+            -DCURL_ENABLE_SSL=OFF \
+            -DCURL_ZLIB="" \
+            -DCURL_BROTLI="" \
+            -DCURL_ZSTD="" \
+            -DWolfSSL_ROOT='${{github.workspace}}/thirdparties/wolfssl_install'
+        cmake --build ./build --config Release --parallel
+        cmake --install ./build --config Release
+
+    ###
+    # Project
+    ###
+
+    - uses: actions/checkout@v4
+      with:
+        path: 'source'
+
+    - name: CMake Settings
+      run: |
+        echo "CMAKE_PARAM=--log-level=VERBOSE \
+        -DCMAKE_INSTALL_PREFIX='${{github.workspace}}/install' \
+        -DCMAKE_VERBOSE_MAKEFILE=on \
+        -DCMAKE_OSX_ARCHITECTURES='${{ matrix.architecture.build_name }}' \
+        -DOPENAL_LIBRARY='${{github.workspace}}/thirdparties/soft-oal/install' \
+        -DOPENAL_INCLUDE_DIR='${{github.workspace}}/thirdparties/soft-oal/install/include/AL' \
+        -DCURL_ROOT='${{github.workspace}}/thirdparties/curl/install' \
+        -DGIT_REVISION_BUILD_NUMBER=${{ github.run_number }} \
+        -DPRODUCT_VERSION_STAGE='${{ env.RELEASE_STAGE }}'" >> $GITHUB_ENV
+
+    - name: Configure CMake
+      working-directory: ${{github.workspace}}
+      run: |
+        cmake -B ./build ${{ env.CMAKE_PARAM }} ./source
+
+    - name: Build
+      working-directory: ${{github.workspace}}
+      run: |
+        cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} --parallel
+
+    - name: Test
+      working-directory: ${{github.workspace}}
+      # Execute tests defined by the CMake configuration.
+      # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
+      run: |
+        cd "${{github.workspace}}/build"
+        ctest -C ${{env.BUILD_TYPE}}
+
+    - name: Install
+      working-directory: ${{github.workspace}}
+      # Install to the directory defined in CMAKE_INSTALL_PREFIX
+      run: |
+        cmake --install ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+        # Create hard-link and copy symbolic links
+        mkdir ${{github.workspace}}/package
+        cp -l ${{steps.sdl.outputs.prefix}}/lib/libSDL2-2.0.0.dylib '${{github.workspace}}/package/'
+        cp -l ${{github.workspace}}/thirdparties/soft-oal/install/lib/libopenal.1.dylib '${{github.workspace}}/package/'
+        cp -l ${{github.workspace}}/thirdparties/curl/install/lib*/libcurl.4.dylib '${{github.workspace}}/package/'
+        if [ -d ${{github.workspace}}/install/bin ]; then cp -r ${{github.workspace}}/install/bin/openmohaa/. '${{github.workspace}}/package'; fi
+        if [ -d ${{github.workspace}}/install/lib ]; then cp -r ${{github.workspace}}/install/lib/openmohaa/. '${{github.workspace}}/package'; fi
+
+    ###
+    # Artifacts
+    ###
+
+    - uses: actions/upload-artifact@v4
+      with:
+        name: out-macos-${{matrix.architecture.name}}
+        if-no-files-found: error
+        path:
+          ${{github.workspace}}/package

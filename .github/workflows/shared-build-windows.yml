@@ -1,0 +1,255 @@
+##########################
+#
+# Microsoft Windows
+# Windows Server 2025
+#
+##########################
+name: Windows build workflow
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        required: true
+        type: string
+        
+env:
+  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
+  BUILD_TYPE: RelWithDebInfo
+  RELEASE_STAGE: ${{ vars.RELEASE_STAGE || 'unstable' }}
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        architecture: [
+          {name: 'x64',   config: 'x64',    toolset: 'x64',        arch_option: 'VC-WIN64A'},
+          {name: 'x86',   config: 'Win32',  toolset: 'x64_x86',    arch_option: 'VC-WIN32' },
+          {name: 'arm64', config: 'ARM64',  toolset: 'x64_arm64',  arch_option: 'VC-WIN64-ARM' }
+        ]
+
+    name: "Building for platform windows-${{matrix.architecture.name}}"
+    runs-on: "windows-2025"
+    environment: ${{ inputs.environment }}
+    env:
+        flexbison-branch: 'v2.5.25'
+        wolfssl-version: 'v5.7.6-stable'
+        curl-version: '8_12_1'
+        openal-soft-branch: '1.24.2'
+
+    steps:
+    ###
+    # Packages
+    ###
+
+    - name: Cache Flex/Bison
+      id: cache-flexbison
+      uses: actions/cache@v4
+      with:
+        path: 'thirdparties/winflexbison-install'
+        key: ${{ runner.os }}-${{ matrix.architecture.name }}-flexbison-${{ env.flexbison-branch }}-v1
+
+    - name: Install Flex/Bison
+      if: steps.cache-flexbison.outputs.cache-hit != 'true'
+      working-directory: ${{github.workspace}}
+      run: |
+        mkdir thirdparties && cd thirdparties
+        git clone --depth 1 --single-branch --branch ${{ env.flexbison-branch }} https://github.com/lexxmark/winflexbison.git
+        cmake -B winflexbison-build -DCMAKE_INSTALL_PREFIX='${{github.workspace}}/thirdparties/winflexbison-install' ./winflexbison
+        cmake --build winflexbison-build --config Release --parallel
+        cmake --install winflexbison-build --config Release
+
+    - name: Settings
+      working-directory: ${{github.workspace}}
+      run: |
+        echo "CMAKE_GENERATOR=Ninja Multi-Config" >> $env:GITHUB_ENV
+        echo "CC=cl.exe" >> $env:GITHUB_ENV
+        echo "CXX=cl.exe" >> $env:GITHUB_ENV
+        pushd "$($env:PROGRAMFILES)\Microsoft Visual Studio\*\*\VC\Auxiliary\Build"
+        cmd /c "vcvarsall.bat ${{ matrix.architecture.toolset }} & set" | ForEach-Object {
+          if ($_ -match "=") {
+            # Split into key=value
+            $var = $_.split("=", 2);
+            echo "$($var[0])=$($var[1])" >> $env:GITHUB_ENV
+          }
+        }
+        popd
+
+    - name: Cache Required Packages
+      id: cache-required-packages
+      uses: actions/cache@v4
+      with:
+        path: 'C:\Packages'
+        key: ${{ runner.os }}-${{ matrix.architecture.name }}-required-packages-v1
+
+    - name: Install required packages
+      if: steps.cache-required-packages.outputs.cache-hit != 'true'
+      run: |
+        $DownloadPath="$($env:USERPROFILE)\Downloads"
+        Invoke-WebRequest "https://github.com/ninja-build/ninja/releases/download/v1.12.1/ninja-win.zip" -OutFile "$DownloadPath\ninja-win.zip"
+        Expand-Archive -Path "$DownloadPath\ninja-win.zip" -DestinationPath "C:\Packages\ninja"
+        Invoke-WebRequest "https://download.qt.io/official_releases/jom/jom.zip" -OutFile "$DownloadPath\jom.zip"
+        Expand-Archive -Path "$DownloadPath\jom.zip" -DestinationPath "C:\Packages\jom"
+
+    - name: Setup required packages path
+      run: |
+        $env:PATH += ";C:\Packages\ninja;C:\Packages\jom;"
+        echo "PATH=$($env:PATH)" >> $env:GITHUB_ENV
+
+    ###
+    # SDL
+    ###
+
+    # Setup SDL
+    - name: Set up SDL
+      id: sdl
+      uses: libsdl-org/setup-sdl@main
+      with:
+        version: 2-latest
+        build-type: Release
+        cmake-arguments: ""
+
+    ###
+    # OpenAL
+    ###
+    - name: Cache OpenAL
+      id: cache-openal-soft
+      uses: actions/cache@v4
+      with:
+        path: 'thirdparties/soft-oal/install'
+        key: ${{ runner.os }}-${{ matrix.architecture.name }}-openal-soft-${{ env.openal-soft-branch }}-v1
+
+    # soft-oal setup
+    - name: Checkout soft-oal
+      if: steps.cache-openal-soft.outputs.cache-hit != 'true'
+      uses: actions/checkout@v4
+      with:
+        repository: 'kcat/openal-soft'
+        path: 'thirdparties/soft-oal'
+        ref: '${{ env.openal-soft-branch }}'
+
+    # soft-oal build
+    # Statically link the CRT runtime into OAL as a workaround to prevent crashes
+    - name: Configure and install soft-oal
+      if: steps.cache-openal-soft.outputs.cache-hit != 'true'
+      working-directory: ${{github.workspace}}/thirdparties/soft-oal
+      run: |
+        cmake -B ./build `
+        -DCMAKE_INSTALL_PREFIX='${{github.workspace}}/thirdparties/soft-oal/install' `
+        -DALSOFT_BUILD_ROUTER=OFF `
+        -DALSOFT_REQUIRE_WINMM=ON `
+        -DALSOFT_REQUIRE_DSOUND=ON `
+        -DALSOFT_REQUIRE_WASAPI=ON `
+        -DCMAKE_C_FLAGS_RELEASE="/MT /O2 /Ob2 /DNDEBUG" `
+        -DCMAKE_CXX_FLAGS_RELEASE="/MT /O2 /Ob2 /DNDEBUG" `
+        -DCMAKE_C_FLAGS_MINSIZEREL="/MT /O2 /Ob2 /DNDEBUG" `
+        -DCMAKE_CXX_FLAGS_MINSIZEREL="/MT /O1 /Ob1 /DNDEBUG" `
+        -DCMAKE_C_FLAGS_RELWITHDEBINFO="/MT /Zi /O2 /Ob1 /DNDEBUG" `
+        -DCMAKE_CXX_FLAGS_RELWITHDEBINFO="/MT /Zi /O2 /Ob1 /DNDEBUG"
+        cmake --build ./build --config Release --parallel
+        cmake --install ./build --config Release
+        # Unfortunately soft-oal produces a binary called OpenAL32 even in 64-bit
+        if (("x64", "ARM64") -icontains "${{ matrix.architecture.config }}") { Rename-Item -Path '.\install\bin\OpenAL32.dll' -NewName 'OpenAL64.dll' }
+
+    ###
+    # cURL
+    #
+    # Uses Schannel as SSL backend, native CAs are used
+    ###
+    - name: Cache cURL
+      id: cache-curl
+      uses: actions/cache@v4
+      with:
+        path: 'thirdparties/curl/install'
+        key: ${{ runner.os }}-${{ matrix.architecture.name }}-curl-${{ env.curl-version }}-v1
+
+    # cURL setup
+    - name: Checkout cURL
+      if: steps.cache-curl.outputs.cache-hit != 'true'
+      uses: actions/checkout@v4
+      with:
+        repository: 'curl/curl'
+        path: 'thirdparties/curl'
+        ref: 'curl-${{ env.curl-version }}'
+
+    # cURL build
+    - name: Configure and install curl
+      if: steps.cache-curl.outputs.cache-hit != 'true'
+      working-directory: ${{github.workspace}}/thirdparties/curl
+      run: |
+        cmake -B ./build `
+            -DCMAKE_INSTALL_PREFIX='${{github.workspace}}/thirdparties/curl/install' `
+            -DCURL_USE_LIBPSL=OFF `
+            -DCURL_USE_SCHANNEL=ON
+        cmake --build ./build --config Release --parallel
+        cmake --install ./build --config Release
+
+    ###
+    # Project
+    ###
+
+    - uses: actions/checkout@v4
+      with:
+        path: 'source'
+
+    - name: CMake Settings
+      run: |
+        echo "CMAKE_PARAM= `
+        --log-level=VERBOSE `
+        -DCMAKE_INSTALL_PREFIX='${{github.workspace}}/install' `
+        -DGIT_REVISION_BUILD_NUMBER=${{ github.run_number }} `
+        -DBISON_EXECUTABLE='${{github.workspace}}/thirdparties/winflexbison-install/win_bison.exe' `
+        -DOPENAL_LIBRARY='${{github.workspace}}/thirdparties/soft-oal' `
+        -DOPENAL_INCLUDE_DIR='${{github.workspace}}/thirdparties/soft-oal/install/include' `
+        -DCURL_ROOT='${{github.workspace}}/thirdparties/curl/install' `
+        -DFLEX_EXECUTABLE='${{github.workspace}}/thirdparties/winflexbison-install/win_flex.exe' `
+        -DPRODUCT_VERSION_STAGE='${{ env.RELEASE_STAGE }}'".Replace("`r", "").Replace("`n", "") >> $env:GITHUB_ENV
+
+    - name: Configure CMake
+      working-directory: ${{github.workspace}}
+      run: |
+        cmake -B ./build ${{ env.CMAKE_PARAM }} ./source
+
+    - name: Build
+      working-directory: ${{github.workspace}}
+      run: |
+        cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} --parallel
+
+    - name: Test
+      working-directory: ${{github.workspace}}
+      # Execute tests defined by the CMake configuration.
+      # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
+      run: |
+        cd "${{github.workspace}}/build"
+        ctest -C ${{env.BUILD_TYPE}}
+
+    - name: Install
+      working-directory: ${{github.workspace}}
+      # Install to the directory defined in CMAKE_INSTALL_PREFIX
+      run: |
+        cmake --install ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+        New-Item -ItemType Directory '${{github.workspace}}/package'
+        Copy-Item '${{steps.sdl.outputs.prefix}}/bin/*.dll' -Destination '${{github.workspace}}/package'
+        Copy-Item '${{github.workspace}}/thirdparties/soft-oal/install/bin/*.dll' -Destination '${{github.workspace}}/package'
+        Copy-Item '${{github.workspace}}/thirdparties/curl/install/bin/*.dll' -Destination '${{github.workspace}}/package'
+        if (Test-Path ${{github.workspace}}/install/bin) { Copy-Item '${{github.workspace}}/install/bin/*' -Include '*.dll','*.exe','*.pdb' -Destination '${{github.workspace}}/package' }
+        if (Test-Path ${{github.workspace}}/install/lib) { Copy-Item '${{github.workspace}}/install/lib/*' -Include '*.dll','*.exe','*.pdb' -Destination '${{github.workspace}}/package' }
+
+    ###
+    # Artifact
+    ###
+
+    - uses: actions/upload-artifact@v4
+      with:
+        name: out-windows-${{matrix.architecture.name}}
+        if-no-files-found: error
+        path: |
+          ${{github.workspace}}/package
+          !${{github.workspace}}/package/**/*.pdb
+
+    - uses: actions/upload-artifact@v4
+      with:
+        name: out-windows-${{matrix.architecture.name}}-pdb
+        if-no-files-found: error
+        path: |
+          ${{github.workspace}}/package
