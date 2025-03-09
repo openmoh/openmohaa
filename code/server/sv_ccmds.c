@@ -342,6 +342,7 @@ Kick a user off of the server  FIXME: move to game
 static void SV_Kick_f( void ) {
 	client_t	*cl;
 	int			i;
+	char        *reason = NULL;
 
 	// make sure server is running
 	if ( !com_sv_running->integer ) {
@@ -349,9 +350,14 @@ static void SV_Kick_f( void ) {
 		return;
 	}
 
-	if ( Cmd_Argc() != 2 ) {
-		Com_Printf ("Usage: kick <player name>\nkick all = kick everyone\nkick allbots = kick all bots\n");
+	if ( Cmd_Argc() < 2 ) {
+		Com_Printf ("Usage: kick <player name> [reason]\nkick all = kick everyone\nkick allbots = kick all bots\n");
 		return;
+	}
+
+	// Check if there's a reason provided
+	if ( Cmd_Argc() >= 3 ) {
+		reason = Cmd_ArgsFrom(2);
 	}
 
 	cl = SV_GetPlayerByHandle();
@@ -387,13 +393,25 @@ static void SV_Kick_f( void ) {
 		return;
 	}
 
-	// Send the kick message to the client
-	NET_OutOfBandPrint( NS_SERVER, cl->netchan.remoteAddress, "droperror\nKicked from server" );
-
-	// Print the kick to all clients
-	SV_SendServerCommand( NULL, "print \"" HUD_MESSAGE_WHITE "%s was kicked\n\"", cl->name );
-
-	SV_DropClient( cl, "was kicked" );
+	// Check if there's a reason provided
+	if ( reason ) {
+		// Send the kick message to the client
+		SV_NET_OutOfBandPrint(&svs.netprofile, cl->netchan.remoteAddress, "droperror\nKicked from server for:\n%s", reason);
+		
+		// Print the kick to all clients
+		SV_SendServerCommand(NULL, "print \"" HUD_MESSAGE_WHITE "%s was kicked for %s\n\"", cl->name, reason);
+		
+		SV_DropClient( cl, va("was kicked for %s", reason) );
+	} else {
+		// Send the kick message to the client
+		SV_NET_OutOfBandPrint(&svs.netprofile, cl->netchan.remoteAddress, "droperror\nKicked from server");
+		
+		// Print the kick to all clients
+		SV_SendServerCommand( NULL, "print \"" HUD_MESSAGE_WHITE "%s was kicked\n\"", cl->name );
+		
+		SV_DropClient( cl, "was kicked" );
+	}
+	
 	cl->lastPacketTime = svs.time;	// in case there is a funny zombie
 }
 /*
@@ -431,11 +449,12 @@ static void SV_KickAll_f( void ) {
 ==================
 SV_KickNum_f
 
-Kick a user off of the server
+Kick a user off of the server, optionally with a reason
 ==================
 */
 static void SV_KickNum_f( void ) {
 	client_t	*cl;
+	char        *reason = NULL;
 
 	// make sure server is running
 	if ( !com_sv_running->integer ) {
@@ -443,8 +462,8 @@ static void SV_KickNum_f( void ) {
 		return;
 	}
 
-	if ( Cmd_Argc() != 2 ) {
-		Com_Printf ("Usage: %s <client number>\n", Cmd_Argv(0));
+	if ( Cmd_Argc() < 2 ) {
+		Com_Printf ("Usage: %s <client number> [reason]\n", Cmd_Argv(0));
 		return;
 	}
 
@@ -457,59 +476,31 @@ static void SV_KickNum_f( void ) {
 		return;
 	}
 
-	// Send the kick message to the client
-	SV_NET_OutOfBandPrint(&svs.netprofile, cl->netchan.remoteAddress, "droperror\nKicked from server");
+	// Check if there's a reason provided
+	if ( Cmd_Argc() >= 3 ) {
+		reason = Cmd_ArgsFrom(2);
+	}
+
+	// Check if there's a reason provided
+	if ( reason ) {
+		// Send the kick message to the client
+		SV_NET_OutOfBandPrint(&svs.netprofile, cl->netchan.remoteAddress, "droperror\nKicked from server for:\n%s", reason);
+		
+		// Print the kick to all clients
+		SV_SendServerCommand(NULL, "print \"" HUD_MESSAGE_WHITE "%s was kicked for %s\n\"", cl->name, reason);
+		
+		SV_DropClient( cl, va("was kicked for %s", reason) );
+	} else {
+		// Send the kick message to the client
+		SV_NET_OutOfBandPrint(&svs.netprofile, cl->netchan.remoteAddress, "droperror\nKicked from server");
+		
+		// Print the kick to all clients
+		SV_SendServerCommand( NULL, "print \"" HUD_MESSAGE_WHITE "%s was kicked\n\"", cl->name );
+		
+		SV_DropClient( cl, "was kicked" );
+	}
 	
-	// Print the kick to all clients	
-	SV_SendServerCommand( NULL, "print \"" HUD_MESSAGE_WHITE "%s was kicked\n\"", cl->name );
-	
-	SV_DropClient( cl, "was kicked" );
 	cl->lastPacketTime = svs.time;	// in case there is a funny zombie
-}
-
-/*
-==================
-SV_KickNumr_f
-
-Kick a user off of the server with a reason
-==================
-*/
-static void SV_KickNumr_f( void ) {
-	client_t	*cl;
-	char        reason[MAX_STRING_CHARS];
-
-	// make sure server is running
-	if ( !com_sv_running->integer ) {
-		Com_Printf( "Server is not running.\n" );
-		return;
-	}
-
-	if ( Cmd_Argc() < 3 ) {
-		Com_Printf ("Usage: %s <client number> <reason>\n", Cmd_Argv(0));
-		return;
-	}
-
-	cl = SV_GetPlayerByNum();
-	if ( !cl ) {
-		return;
-	}
-	if( cl->netchan.remoteAddress.type == NA_LOOPBACK ) {
-		Com_Printf("Cannot kick host player\n");
-		return;
-	}
-
-	// Get the reason from remaining arguments
-	Q_strncpyz(reason, Cmd_ArgsFrom(2), sizeof(reason));
-
-	// Send the kick reason to the client
-	SV_NET_OutOfBandPrint(&svs.netprofile, cl->netchan.remoteAddress, "droperror\nKicked from server for:\n%s", reason);
-
-	// Print the kick to all clients
-	SV_SendServerCommand(NULL, "print \"" HUD_MESSAGE_WHITE "%s was kicked for %s\n\"", cl->name, reason);
-
-	// Actually drop the client
-	SV_DropClient( cl, va("was kicked for %s", reason) );
-	cl->lastPacketTime = svs.time;
 }
 
 #ifndef STANDALONE
@@ -1918,8 +1909,8 @@ void SV_AddOperatorCommands(void) {
 	Cmd_AddCommand("kickall", SV_KickAll_f);
 	Cmd_AddCommand("kicknum", SV_KickNum_f);
 	Cmd_AddCommand("clientkick", SV_KickNum_f); // Legacy command
-	Cmd_AddCommand("clientkickr", SV_KickNumr_f); // Legacy command with reason
-	Cmd_AddCommand("kickr", SV_KickNumr_f); // Legacy command with reason
+	Cmd_AddCommand("clientkickr", SV_KickNum_f); // Legacy command with reason
+	Cmd_AddCommand("kickr", SV_KickNum_f); // Legacy command with reason
 	Cmd_AddCommand("status", SV_Status_f);
 	Cmd_AddCommand("serverinfo", SV_Serverinfo_f);
 	Cmd_AddCommand("systeminfo", SV_Systeminfo_f);
