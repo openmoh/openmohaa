@@ -293,6 +293,16 @@ void UpdateChecker::RequestThread()
 
 #else
 
+bool UpdateChecker::CheckNewVersion() const
+{
+    return false;
+}
+
+bool UpdateChecker::CheckNewVersion(int& major, int& minor, int& patch) const
+{
+    return false;
+}
+
 void Sys_UpdateChecker_Init() {}
 
 void Sys_UpdateChecker_Process() {}
