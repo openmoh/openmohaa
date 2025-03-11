@@ -2619,7 +2619,7 @@ void CL_VerifyUpdate() {
 
         const char *updateText =
             va("A new update is available!\n"
-               "The latest version is v%d.%d.%d (you are running %s).\n"
+               "The latest version is v%d.%d.%d (you are running v%s).\n"
                "Check https://github.com/openmoh/openmohaa for more.",
                lastMajor,
                lastMinor,
