@@ -3135,6 +3135,11 @@ bool UIWidget::PassEventToWidget
 	return false;
 }
 
+UIFont *UIWidget::getFont() const
+{
+    return m_font;
+}
+
 bool UIWidget::isVirtual() const
 {
 	return m_bVirtual;
