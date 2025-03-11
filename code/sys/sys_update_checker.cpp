@@ -25,13 +25,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #ifdef HAS_LIBCURL
 
-#include <curl/curl.h>
+#    include <curl/curl.h>
 
 //#include <httplib.h>
-#include "../qcommon/json.hpp"
+#    include "../qcommon/json.hpp"
 using json = nlohmann::json;
 
-#include <chrono>
+#    include <chrono>
 
 UpdateChecker updateChecker;
 
@@ -168,6 +168,19 @@ bool UpdateChecker::CheckNewVersion() const
     return false;
 }
 
+bool UpdateChecker::CheckNewVersion(int& major, int& minor, int& patch) const
+{
+    if (!CheckNewVersion()) {
+        return false;
+    }
+
+    major = lastMajor;
+    minor = lastMinor;
+    patch = lastPatch;
+
+    return true;
+}
+
 bool UpdateChecker::ParseVersionNumber(const char *value, int& major, int& minor, int& patch) const
 {
     const char *p  = value;
@@ -239,10 +252,10 @@ void UpdateChecker::DoRequest()
     }
 
     nlohmann::json data;
-    
+
     try {
         data = nlohmann::json::parse(responseString);
-    } catch(const std::exception& e) {
+    } catch (const std::exception& e) {
         return;
     }
 
@@ -280,16 +293,10 @@ void UpdateChecker::RequestThread()
 
 #else
 
-void Sys_UpdateChecker_Init()
-{
-}
+void Sys_UpdateChecker_Init() {}
 
-void Sys_UpdateChecker_Process()
-{
-}
+void Sys_UpdateChecker_Process() {}
 
-void Sys_UpdateChecker_Shutdown()
-{
-}
+void Sys_UpdateChecker_Shutdown() {}
 
 #endif
