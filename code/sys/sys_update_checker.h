@@ -53,6 +53,7 @@ public:
     void Shutdown();
 
     bool CheckNewVersion() const;
+    bool CheckNewVersion(int& major, int& minor, int& patch) const;
 
 private:
     void ShutdownClient();

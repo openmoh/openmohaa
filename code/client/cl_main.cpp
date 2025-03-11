@@ -29,6 +29,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../qcommon/localization.h"
 #include "../qcommon/bg_compat.h"
 #include "../sys/sys_local.h"
+#include "../sys/sys_update_checker.h"
+#include "../uilib/uimessage.h"
 
 extern "C" {
 	#include "../sys/sys_loadlib.h"
@@ -171,6 +173,7 @@ void CL_ServerStatus_f(void);
 void CL_ServerStatusResponse( netadr_t from, msg_t *msg );
 
 static qboolean cl_bCLSystemStarted = qfalse;
+static qboolean cl_updateNotified = qfalse;
 
 /*
 ===============
@@ -2599,6 +2602,36 @@ void CL_SetFrameNumber(int frameNumber) {
 
 /*
 ==================
+CL_VerifyUpdate
+
+Check for a new version and display a message box
+when a new version is available
+==================
+*/
+void CL_VerifyUpdate() {
+    if (cl_updateNotified) {
+        return;
+    }
+
+    int lastMajor, lastMinor, lastPatch;
+    if (updateChecker.CheckNewVersion(lastMajor, lastMinor, lastPatch)) {
+        cl_updateNotified = true;
+
+        const char *updateText =
+            va("A new update is available!\n"
+               "The latest version is v%d.%d.%d (you are running %s).\n"
+               "Check https://github.com/openmoh/openmohaa for more.",
+               lastMajor,
+               lastMinor,
+               lastPatch,
+               PRODUCT_VERSION_NUMBER_STRING);
+
+        UIMessageDialog::ShowMessageBox("Update available", updateText);
+    }
+}
+
+/*
+==================
 CL_Frame
 
 ==================
@@ -2635,6 +2668,8 @@ void CL_Frame ( int msec ) {
 				S_TriggeredMusic_PlayIntroMusic();
 				UI_MenuEscape("main");
 			}
+
+            CL_VerifyUpdate();
 		} else if (clc.state == CA_CINEMATIC) {
 			UI_ForceMenuOff(qtrue);
 		}
