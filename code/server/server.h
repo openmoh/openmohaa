@@ -326,14 +326,15 @@ typedef struct {
 } serverStatic_t;
 
 #define SERVER_MAXBANS	1024
+#define MAX_REASON_LENGTH 128
+
 // Structure for managing bans
-typedef struct
-{
+typedef struct serverBan_s {
 	netadr_t ip;
 	// For a CIDR-Notation type suffix
 	int subnet;
-	
 	qboolean isexception;
+	char reason[MAX_REASON_LENGTH];
 } serverBan_t;
 
 //=============================================================================

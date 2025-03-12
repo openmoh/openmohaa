@@ -196,18 +196,23 @@ void SV_AuthorizeIpPacket( netadr_t from ) {
 SV_IsBanned
 
 Check whether a certain address is banned
+Returns the reason string if available
 ==================
 */
 
-static qboolean SV_IsBanned(netadr_t *from, qboolean isexception)
+static qboolean SV_IsBanned(netadr_t *from, qboolean isexception, char *reason, int reason_size)
 {
 	int index;
 	serverBan_t *curban;
 	
+	if(reason && reason_size > 0) {
+		reason[0] = '\0';
+	}
+	
 	if(!isexception)
 	{
 		// If this is a query for a ban, first check whether the client is excepted
-		if(SV_IsBanned(from, qtrue))
+		if(SV_IsBanned(from, qtrue, NULL, 0))
 			return qfalse;
 	}
 	
@@ -217,8 +222,13 @@ static qboolean SV_IsBanned(netadr_t *from, qboolean isexception)
 		
 		if(curban->isexception == isexception)
 		{
-			if(NET_CompareBaseAdrMask(curban->ip, *from, curban->subnet))
+			if(NET_CompareBaseAdrMask(curban->ip, *from, curban->subnet)) {
+				// Copy the ban reason if available and a buffer was provided
+				if(reason && reason_size > 0 && curban->reason[0]) {
+					Q_strncpyz(reason, curban->reason, reason_size);
+				}
 				return qtrue;
+			}
 		}
 	}
 	
@@ -333,13 +343,18 @@ void SV_DirectConnect( netadr_t from ) {
 	qboolean	compat = qfalse;
 #endif
 	challenge_t* ch;
+	char        banReason[MAX_REASON_LENGTH];
 
 	Com_DPrintf ("SVC_DirectConnect ()\n");
 	
 	// Check whether this client is banned.
-	if(SV_IsBanned(&from, qfalse))
+	if(SV_IsBanned(&from, qfalse, banReason, sizeof(banReason)))
 	{
-		SV_NET_OutOfBandPrint( &svs.netprofile, from, "droperror\nYou are banned from this server.\n");
+		if(banReason[0]) {
+			SV_NET_OutOfBandPrint( &svs.netprofile, from, "droperror\nYou are banned from this server.\nReason: %s\n", banReason);
+		} else {
+			SV_NET_OutOfBandPrint( &svs.netprofile, from, "droperror\nYou are banned from this server.\n");
+		}
 		return;
 	}
 
