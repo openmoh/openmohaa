@@ -56,6 +56,7 @@ UpdateChecker::UpdateChecker()
     versionChecked                    = false;
     handle                            = NULL;
     thread                            = NULL;
+    requestThreadIsActive             = qfalse;
 }
 
 UpdateChecker::~UpdateChecker()
@@ -89,13 +90,39 @@ void UpdateChecker::Init()
     }
 
     curl_easy_setopt(handle, CURLOPT_USERAGENT, "curl");
+#endif
 
-    thread = new std::thread(&UpdateChecker::RequestThread, this);
+    CheckInitClientThread();
+}
+
+void UpdateChecker::CheckInitClientThread()
+{
+    if (!requestThreadIsActive && CanHaveRequestThread()) {
+        requestThreadIsActive = qtrue;
+
+        thread = new std::thread(&UpdateChecker::RequestThread, this);
+    }
+}
+
+bool UpdateChecker::CanHaveRequestThread() const
+{
+    if (!Cvar_VariableIntegerValue("net_enabled")) {
+        // Network has been disabled by a cvar
+        return false;
+    }
+
+#ifdef HAS_LIBCURL
+    return true;
+#else
+    return false;
 #endif
 }
 
 void UpdateChecker::Process()
 {
+    // Initialize the client thread when necessary
+    CheckInitClientThread();
+
     std::chrono::time_point<std::chrono::steady_clock> currentTime = std::chrono::steady_clock::now();
     if (currentTime
         < lastMessageTime + std::chrono::milliseconds(Q_max(1, com_updateCheckInterval->integer) * 60 * 1000)) {
@@ -233,7 +260,6 @@ bool UpdateChecker::ParseVersionNumber(const char *value, int& major, int& minor
     return true;
 }
 
-#ifdef HAS_LIBCURL
 size_t WriteCallback(char *contents, size_t size, size_t nmemb, void *userp)
 {
     std::string& responseString = *(std::string *)userp;
@@ -244,6 +270,7 @@ size_t WriteCallback(char *contents, size_t size, size_t nmemb, void *userp)
 
 void UpdateChecker::DoRequest()
 {
+#ifdef HAS_LIBCURL
     std::lock_guard<std::shared_mutex> l(clientMutex);
     CURLcode                           result;
     std::string                        responseString;
@@ -276,6 +303,7 @@ void UpdateChecker::DoRequest()
 
         versionChecked = true;
     } catch (std::out_of_range&) {}
+#endif
 }
 
 void UpdateChecker::RequestThread()
@@ -283,7 +311,7 @@ void UpdateChecker::RequestThread()
     std::chrono::time_point<std::chrono::steady_clock> currentTime = std::chrono::steady_clock::now();
     std::chrono::time_point<std::chrono::steady_clock> lastCheckTime;
 
-    while (handle) {
+    while (handle && CanHaveRequestThread()) {
         currentTime = std::chrono::steady_clock::now();
         if (currentTime
             >= lastCheckTime + std::chrono::milliseconds(Q_max(1, com_updateCheckInterval->integer) * 60 * 1000)) {
@@ -294,5 +322,6 @@ void UpdateChecker::RequestThread()
 
         std::this_thread::sleep_for(std::chrono::seconds(5));
     }
+
+    requestThreadIsActive = qfalse;
 }
-#endif

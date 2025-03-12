@@ -59,6 +59,8 @@ private:
     void ShutdownClient();
     void ShutdownThread();
     void RequestThread();
+    void CheckInitClientThread();
+    bool CanHaveRequestThread() const;
     void DoRequest();
     bool ParseVersionNumber(const char *value, int& major, int& minor, int& patch) const;
 
@@ -79,6 +81,7 @@ private:
     void             *handle;
     std::shared_mutex clientMutex;
     std::thread      *thread;
+    qboolean          requestThreadIsActive;
 };
 
 extern UpdateChecker updateChecker;
