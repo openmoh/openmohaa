@@ -24,14 +24,14 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../qcommon/q_version.h"
 
 #ifdef HAS_LIBCURL
-
 #    include <curl/curl.h>
+#endif
 
 //#include <httplib.h>
-#    include "../qcommon/json.hpp"
+#include "../qcommon/json.hpp"
 using json = nlohmann::json;
 
-#    include <chrono>
+#include <chrono>
 
 UpdateChecker updateChecker;
 
@@ -67,6 +67,7 @@ UpdateChecker::~UpdateChecker()
 
 void UpdateChecker::Init()
 {
+#ifdef HAS_LIBCURL
     CURLcode result;
 
     assert(!handle);
@@ -90,6 +91,7 @@ void UpdateChecker::Init()
     curl_easy_setopt(handle, CURLOPT_USERAGENT, "curl");
 
     thread = new std::thread(&UpdateChecker::RequestThread, this);
+#endif
 }
 
 void UpdateChecker::Process()
@@ -122,6 +124,7 @@ void UpdateChecker::Shutdown()
 
 void UpdateChecker::ShutdownClient()
 {
+#ifdef HAS_LIBCURL
     std::lock_guard<std::shared_mutex> l(clientMutex);
 
     if (!handle) {
@@ -130,6 +133,7 @@ void UpdateChecker::ShutdownClient()
 
     curl_easy_cleanup(handle);
     handle = NULL;
+#endif
 }
 
 void UpdateChecker::ShutdownThread()
@@ -229,6 +233,7 @@ bool UpdateChecker::ParseVersionNumber(const char *value, int& major, int& minor
     return true;
 }
 
+#ifdef HAS_LIBCURL
 size_t WriteCallback(char *contents, size_t size, size_t nmemb, void *userp)
 {
     std::string& responseString = *(std::string *)userp;
@@ -290,23 +295,4 @@ void UpdateChecker::RequestThread()
         std::this_thread::sleep_for(std::chrono::seconds(5));
     }
 }
-
-#else
-
-bool UpdateChecker::CheckNewVersion() const
-{
-    return false;
-}
-
-bool UpdateChecker::CheckNewVersion(int& major, int& minor, int& patch) const
-{
-    return false;
-}
-
-void Sys_UpdateChecker_Init() {}
-
-void Sys_UpdateChecker_Process() {}
-
-void Sys_UpdateChecker_Shutdown() {}
-
 #endif
