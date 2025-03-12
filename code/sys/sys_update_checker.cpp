@@ -24,14 +24,14 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../qcommon/q_version.h"
 
 #ifdef HAS_LIBCURL
-
 #    include <curl/curl.h>
+#endif
 
 //#include <httplib.h>
-#    include "../qcommon/json.hpp"
+#include "../qcommon/json.hpp"
 using json = nlohmann::json;
 
-#    include <chrono>
+#include <chrono>
 
 UpdateChecker updateChecker;
 
@@ -56,6 +56,7 @@ UpdateChecker::UpdateChecker()
     versionChecked                    = false;
     handle                            = NULL;
     thread                            = NULL;
+    requestThreadIsActive             = qfalse;
 }
 
 UpdateChecker::~UpdateChecker()
@@ -67,6 +68,7 @@ UpdateChecker::~UpdateChecker()
 
 void UpdateChecker::Init()
 {
+#ifdef HAS_LIBCURL
     CURLcode result;
 
     assert(!handle);
@@ -88,12 +90,39 @@ void UpdateChecker::Init()
     }
 
     curl_easy_setopt(handle, CURLOPT_USERAGENT, "curl");
+#endif
 
-    thread = new std::thread(&UpdateChecker::RequestThread, this);
+    CheckInitClientThread();
+}
+
+void UpdateChecker::CheckInitClientThread()
+{
+    if (!requestThreadIsActive && CanHaveRequestThread()) {
+        requestThreadIsActive = qtrue;
+
+        thread = new std::thread(&UpdateChecker::RequestThread, this);
+    }
+}
+
+bool UpdateChecker::CanHaveRequestThread() const
+{
+    if (!Cvar_VariableIntegerValue("net_enabled")) {
+        // Network has been disabled by a cvar
+        return false;
+    }
+
+#ifdef HAS_LIBCURL
+    return true;
+#else
+    return false;
+#endif
 }
 
 void UpdateChecker::Process()
 {
+    // Initialize the client thread when necessary
+    CheckInitClientThread();
+
     std::chrono::time_point<std::chrono::steady_clock> currentTime = std::chrono::steady_clock::now();
     if (currentTime
         < lastMessageTime + std::chrono::milliseconds(Q_max(1, com_updateCheckInterval->integer) * 60 * 1000)) {
@@ -122,6 +151,7 @@ void UpdateChecker::Shutdown()
 
 void UpdateChecker::ShutdownClient()
 {
+#ifdef HAS_LIBCURL
     std::lock_guard<std::shared_mutex> l(clientMutex);
 
     if (!handle) {
@@ -130,6 +160,7 @@ void UpdateChecker::ShutdownClient()
 
     curl_easy_cleanup(handle);
     handle = NULL;
+#endif
 }
 
 void UpdateChecker::ShutdownThread()
@@ -239,6 +270,7 @@ size_t WriteCallback(char *contents, size_t size, size_t nmemb, void *userp)
 
 void UpdateChecker::DoRequest()
 {
+#ifdef HAS_LIBCURL
     std::lock_guard<std::shared_mutex> l(clientMutex);
     CURLcode                           result;
     std::string                        responseString;
@@ -271,6 +303,7 @@ void UpdateChecker::DoRequest()
 
         versionChecked = true;
     } catch (std::out_of_range&) {}
+#endif
 }
 
 void UpdateChecker::RequestThread()
@@ -278,7 +311,7 @@ void UpdateChecker::RequestThread()
     std::chrono::time_point<std::chrono::steady_clock> currentTime = std::chrono::steady_clock::now();
     std::chrono::time_point<std::chrono::steady_clock> lastCheckTime;
 
-    while (handle) {
+    while (handle && CanHaveRequestThread()) {
         currentTime = std::chrono::steady_clock::now();
         if (currentTime
             >= lastCheckTime + std::chrono::milliseconds(Q_max(1, com_updateCheckInterval->integer) * 60 * 1000)) {
@@ -289,24 +322,6 @@ void UpdateChecker::RequestThread()
 
         std::this_thread::sleep_for(std::chrono::seconds(5));
     }
+
+    requestThreadIsActive = qfalse;
 }
-
-#else
-
-bool UpdateChecker::CheckNewVersion() const
-{
-    return false;
-}
-
-bool UpdateChecker::CheckNewVersion(int& major, int& minor, int& patch) const
-{
-    return false;
-}
-
-void Sys_UpdateChecker_Init() {}
-
-void Sys_UpdateChecker_Process() {}
-
-void Sys_UpdateChecker_Shutdown() {}
-
-#endif
