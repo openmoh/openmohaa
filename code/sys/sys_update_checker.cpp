@@ -360,7 +360,15 @@ void UpdateCheckerThread::DoRequest()
     curl_easy_setopt(handle, CURLOPT_WRITEDATA, &callbackData);
     curl_easy_setopt(handle, CURLOPT_MAXFILESIZE, MAX_BUFFER_SIZE);
 
+    struct curl_slist *list = NULL;
+
+    list = curl_slist_append(list, "Accept: application/vnd.github+json");
+    list = curl_slist_append(list, "X-GitHub-Api-Version: 2022-11-28");
+    curl_easy_setopt(handle, CURLOPT_HTTPHEADER, list);
+
     result = curl_easy_perform(handle);
+    curl_slist_free_all(list);
+
     if (result != CURLE_OK) {
         return;
     }
