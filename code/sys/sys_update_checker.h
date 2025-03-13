@@ -42,6 +42,36 @@ extern "C" {
 #    include <shared_mutex>
 #    include <chrono>
 
+class UpdateCheckerThread
+{
+public:
+    UpdateCheckerThread();
+    ~UpdateCheckerThread();
+
+    void Init();
+    void Shutdown();
+    bool IsRoutineActive() const;
+
+private:
+    void ShutdownThread();
+
+    void InitClient();
+    void ShutdownClient();
+
+    bool ParseVersionNumber(const char *value, int& major, int& minor, int& patch) const;
+    void RequestThread();
+    void RequestThreadSleep();
+    void DoRequest();
+
+private:
+    void                   *handle;
+    std::mutex              clientWakeMutex;
+    std::condition_variable clientWake;
+    std::thread            *osThread;
+    qboolean                requestThreadIsActive;
+    qboolean                shouldBeActive;
+};
+
 class UpdateChecker
 {
 public:
@@ -54,16 +84,11 @@ public:
 
     bool CheckNewVersion() const;
     bool CheckNewVersion(int& major, int& minor, int& patch) const;
+    void SetLatestVersion(int major, int minor, int patch);
 
 private:
-    void ShutdownClient();
-    void ShutdownThread();
-    void RequestThread();
-    void RequestThreadSleep();
     void CheckInitClientThread();
     bool CanHaveRequestThread() const;
-    void DoRequest();
-    bool ParseVersionNumber(const char *value, int& major, int& minor, int& patch) const;
 
 private:
     //
@@ -74,17 +99,9 @@ private:
     int  lastPatch;
     bool versionChecked;
 
-    std::chrono::time_point<std::chrono::steady_clock> lastMessageTime;
+    std::chrono::time_point<std::chrono::steady_clock> nextMessageTime;
 
-    //
-    // Thread-related variables
-    //
-    void                   *handle;
-    std::shared_mutex       clientMutex;
-    std::mutex              clientWakeMutex;
-    std::condition_variable clientWake;
-    std::thread            *thread;
-    qboolean                requestThreadIsActive;
+    UpdateCheckerThread *thread;
 };
 
 extern UpdateChecker updateChecker;
