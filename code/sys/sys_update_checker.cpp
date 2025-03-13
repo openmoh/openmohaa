@@ -252,6 +252,7 @@ void UpdateCheckerThread::InitClient()
     }
 
     curl_easy_setopt(handle, CURLOPT_USERAGENT, "curl");
+    curl_easy_setopt(handle, CURLOPT_TIMEOUT, 15);
 #else
     Com_DPrintf("Project was compiled without libcurl, will not check for updates\n");
 #endif
@@ -317,23 +318,47 @@ bool UpdateCheckerThread::ParseVersionNumber(const char *value, int& major, int&
     return true;
 }
 
+// It shouldn't be possible to receive responses that high from the API
+// 4MB
+static constexpr unsigned int MAX_BUFFER_SIZE = 4 * 1024 * 1024;
+
+struct WriteCallbackData {
+    WriteCallbackData()
+    {
+        // Reserve a buffer of 64KB
+        buffer.reserve(64 * 1024);
+    }
+
+    const char *GetData() const { return buffer.data(); }
+
+    size_t GetSize() const { return buffer.size(); }
+
+    std::string buffer;
+};
+
 size_t WriteCallback(char *contents, size_t size, size_t nmemb, void *userp)
 {
-    std::string& responseString = *(std::string *)userp;
-    responseString.append(contents, size * nmemb);
+    WriteCallbackData *callbackData = (WriteCallbackData *)userp;
 
-    return size * nmemb;
+    size_t responseSize = size * nmemb;
+    if (callbackData->GetSize() + responseSize + 1 > MAX_BUFFER_SIZE) {
+        return CURL_WRITEFUNC_ERROR;
+    }
+
+    callbackData->buffer.append(contents, responseSize);
+
+    return responseSize;
 }
 
 void UpdateCheckerThread::DoRequest()
 {
 #ifdef HAS_LIBCURL
-    CURLcode    result;
-    std::string responseString;
+    CURLcode          result;
+    WriteCallbackData callbackData;
 
     curl_easy_setopt(handle, CURLOPT_WRITEFUNCTION, &WriteCallback);
-    curl_easy_setopt(handle, CURLOPT_WRITEDATA, &responseString);
-    curl_easy_setopt(handle, CURLOPT_TIMEOUT, 15);
+    curl_easy_setopt(handle, CURLOPT_WRITEDATA, &callbackData);
+    curl_easy_setopt(handle, CURLOPT_MAXFILESIZE, MAX_BUFFER_SIZE);
 
     result = curl_easy_perform(handle);
     if (result != CURLE_OK) {
@@ -343,7 +368,7 @@ void UpdateCheckerThread::DoRequest()
     nlohmann::json data;
 
     try {
-        data = nlohmann::json::parse(responseString);
+        data = nlohmann::json::parse(callbackData.GetData());
     } catch (const std::exception& e) {
         return;
     }
