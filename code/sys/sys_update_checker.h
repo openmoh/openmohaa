@@ -41,6 +41,7 @@ extern "C" {
 #    include <thread>
 #    include <shared_mutex>
 #    include <chrono>
+#    include <condition_variable>
 
 class UpdateCheckerThread
 {
