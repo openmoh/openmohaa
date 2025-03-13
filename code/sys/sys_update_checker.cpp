@@ -333,6 +333,7 @@ void UpdateCheckerThread::DoRequest()
 
     curl_easy_setopt(handle, CURLOPT_WRITEFUNCTION, &WriteCallback);
     curl_easy_setopt(handle, CURLOPT_WRITEDATA, &responseString);
+    curl_easy_setopt(handle, CURLOPT_TIMEOUT, 15);
 
     result = curl_easy_perform(handle);
     if (result != CURLE_OK) {
