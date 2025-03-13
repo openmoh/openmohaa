@@ -59,6 +59,7 @@ private:
     void ShutdownClient();
     void ShutdownThread();
     void RequestThread();
+    void RequestThreadSleep();
     void CheckInitClientThread();
     bool CanHaveRequestThread() const;
     void DoRequest();
@@ -78,10 +79,12 @@ private:
     //
     // Thread-related variables
     //
-    void             *handle;
-    std::shared_mutex clientMutex;
-    std::thread      *thread;
-    qboolean          requestThreadIsActive;
+    void                   *handle;
+    std::shared_mutex       clientMutex;
+    std::mutex              clientWakeMutex;
+    std::condition_variable clientWake;
+    std::thread            *thread;
+    qboolean                requestThreadIsActive;
 };
 
 extern UpdateChecker updateChecker;

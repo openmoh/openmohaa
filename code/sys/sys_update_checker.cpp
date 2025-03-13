@@ -100,19 +100,16 @@ void UpdateChecker::Init()
 void UpdateChecker::CheckInitClientThread()
 {
     if (!requestThreadIsActive) {
-        if (thread) {
-            // Delete the thread object if it was terminated
-            thread->join();
-
-            delete thread;
-            thread = NULL;
-
-            Com_DPrintf("Update checker request thread terminated\n");
-        }
+        // Clean up the dead thread
+        ShutdownThread();
 
         if (CanHaveRequestThread()) {
             requestThreadIsActive = qtrue;
-            thread = new std::thread(&UpdateChecker::RequestThread, this);
+            thread                = new std::thread(&UpdateChecker::RequestThread, this);
+        }
+    } else if (thread) {
+        if (!CanHaveRequestThread()) {
+            ShutdownThread();
         }
     }
 }
@@ -187,7 +184,12 @@ void UpdateChecker::ShutdownThread()
         return;
     }
 
+    Com_DPrintf("Shutting down the update checker thread\n");
+
+    // Notify and shutdown the thread
+    clientWake.notify_all();
     thread->join();
+
     delete thread;
     thread = NULL;
 }
@@ -326,20 +328,16 @@ void UpdateChecker::DoRequest()
 
 void UpdateChecker::RequestThread()
 {
-    std::chrono::time_point<std::chrono::steady_clock> currentTime = std::chrono::steady_clock::now();
-    std::chrono::time_point<std::chrono::steady_clock> lastCheckTime;
-
     while (handle && CanHaveRequestThread()) {
-        currentTime = std::chrono::steady_clock::now();
-        if (currentTime
-            >= lastCheckTime + std::chrono::milliseconds(Q_max(1, com_updatecheck_interval->integer) * 60 * 1000)) {
-            lastCheckTime = currentTime;
-
-            DoRequest();
-        }
-
-        std::this_thread::sleep_for(std::chrono::seconds(5));
+        DoRequest();
+        RequestThreadSleep();
     }
 
     requestThreadIsActive = qfalse;
+}
+
+void UpdateChecker::RequestThreadSleep()
+{
+    std::unique_lock<std::mutex> l(clientWakeMutex);
+    clientWake.wait_for(l, std::chrono::minutes(Q_max(1, com_updatecheck_interval->integer)));
 }
