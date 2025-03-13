@@ -54,53 +54,29 @@ UpdateChecker::UpdateChecker()
 {
     lastMajor = lastMinor = lastPatch = 0;
     versionChecked                    = false;
-    handle                            = NULL;
-    thread                            = NULL;
-    requestThreadIsActive             = qfalse;
 }
 
-UpdateChecker::~UpdateChecker()
-{
-    if (handle) {
-        Shutdown();
-    }
-}
+UpdateChecker::~UpdateChecker() {}
 
 void UpdateChecker::Init()
 {
-#ifdef HAS_LIBCURL
-    CURLcode result;
-
-    assert(!handle);
-    assert(!thread);
-
-    handle = curl_easy_init();
-    if (!handle) {
-        Com_DPrintf("Failed to create curl client\n");
-        return;
-    }
-
-    result = curl_easy_setopt(handle, CURLOPT_URL, "https://api.github.com/repos/openmoh/openmohaa/releases/latest");
-
-    if (result != CURLE_OK) {
-        Com_DPrintf("Failed to set curl URL: %s\n", curl_easy_strerror(result));
-        curl_easy_cleanup(handle);
-        handle = NULL;
-        return;
-    }
-
-    curl_easy_setopt(handle, CURLOPT_USERAGENT, "curl");
-#endif
-
     CheckInitClientThread();
 }
 
 void UpdateChecker::CheckInitClientThread()
 {
-    if (!requestThreadIsActive && CanHaveRequestThread()) {
-        requestThreadIsActive = qtrue;
+    if (!thread) {
+        if (CanHaveRequestThread()) {
+            thread = new UpdateCheckerThread();
+            thread->Init();
+        }
+    } else {
+        if (!CanHaveRequestThread()) {
+            Com_DPrintf("Shutting down the update checker thread\n");
 
-        thread = new std::thread(&UpdateChecker::RequestThread, this);
+            delete thread;
+            thread = NULL;
+        }
     }
 }
 
@@ -111,11 +87,25 @@ bool UpdateChecker::CanHaveRequestThread() const
         return false;
     }
 
+    if (!com_updatecheck_enabled->integer) {
+        // Update checking has been disabled
+        return false;
+    }
+
 #ifdef HAS_LIBCURL
     return true;
 #else
     return false;
 #endif
+}
+
+void UpdateChecker::SetLatestVersion(int major, int minor, int patch)
+{
+    lastMajor = major;
+    lastMinor = minor;
+    lastPatch = patch;
+
+    versionChecked = true;
 }
 
 void UpdateChecker::Process()
@@ -124,15 +114,13 @@ void UpdateChecker::Process()
     CheckInitClientThread();
 
     std::chrono::time_point<std::chrono::steady_clock> currentTime = std::chrono::steady_clock::now();
-    if (currentTime
-        < lastMessageTime + std::chrono::milliseconds(Q_max(1, com_updateCheckInterval->integer) * 60 * 1000)) {
+    if (currentTime < nextMessageTime) {
         return;
     }
 
     if (!CheckNewVersion()) {
         return;
     }
-    lastMessageTime = currentTime;
 
     Com_Printf(
         "New release v%d.%d.%d published *\\(^ o ^)/*. Your current version is v%s. See www.openmohaa.org\n",
@@ -141,37 +129,16 @@ void UpdateChecker::Process()
         lastPatch,
         PRODUCT_VERSION_NUMBER_STRING
     );
+
+    nextMessageTime = currentTime + std::chrono::milliseconds(Q_max(1, com_updatecheck_interval->integer) * 60 * 1000);
 }
 
 void UpdateChecker::Shutdown()
 {
-    ShutdownClient();
-    ShutdownThread();
-}
-
-void UpdateChecker::ShutdownClient()
-{
-#ifdef HAS_LIBCURL
-    std::lock_guard<std::shared_mutex> l(clientMutex);
-
-    if (!handle) {
-        return;
+    if (thread) {
+        delete thread;
+        thread = NULL;
     }
-
-    curl_easy_cleanup(handle);
-    handle = NULL;
-#endif
-}
-
-void UpdateChecker::ShutdownThread()
-{
-    if (!thread) {
-        return;
-    }
-
-    thread->join();
-    delete thread;
-    thread = NULL;
 }
 
 bool UpdateChecker::CheckNewVersion() const
@@ -212,7 +179,91 @@ bool UpdateChecker::CheckNewVersion(int& major, int& minor, int& patch) const
     return true;
 }
 
-bool UpdateChecker::ParseVersionNumber(const char *value, int& major, int& minor, int& patch) const
+UpdateCheckerThread::UpdateCheckerThread()
+{
+    handle                = NULL;
+    osThread              = NULL;
+    requestThreadIsActive = qfalse;
+    shouldBeActive        = qfalse;
+}
+
+UpdateCheckerThread::~UpdateCheckerThread()
+{
+    Shutdown();
+}
+
+void UpdateCheckerThread::Init()
+{
+    shouldBeActive        = qtrue;
+    requestThreadIsActive = qtrue;
+
+    osThread = new std::thread(&UpdateCheckerThread::RequestThread, this);
+}
+
+void UpdateCheckerThread::Shutdown()
+{
+    if (!shouldBeActive) {
+        return;
+    }
+
+    shouldBeActive = qfalse;
+
+    if (osThread) {
+        // Notify and shutdown the thread
+        clientWake.notify_all();
+        osThread->join();
+
+        delete osThread;
+        osThread = NULL;
+    }
+}
+
+bool UpdateCheckerThread::IsRoutineActive() const
+{
+    return requestThreadIsActive;
+}
+
+void UpdateCheckerThread::InitClient()
+{
+#ifdef HAS_LIBCURL
+    CURLcode result;
+
+    assert(!handle);
+
+    handle = curl_easy_init();
+    if (!handle) {
+        Com_DPrintf("Failed to create curl client\n");
+        return;
+    }
+
+    result = curl_easy_setopt(handle, CURLOPT_URL, "https://api.github.com/repos/openmoh/openmohaa/releases/latest");
+
+    if (result != CURLE_OK) {
+        Com_DPrintf("Failed to set curl URL: %s\n", curl_easy_strerror(result));
+        curl_easy_cleanup(handle);
+        handle = NULL;
+        return;
+    }
+
+    curl_easy_setopt(handle, CURLOPT_USERAGENT, "curl");
+#else
+    Com_DPrintf("Project was compiled without libcurl, will not check for updates\n");
+#endif
+}
+
+void UpdateCheckerThread::ShutdownClient()
+{
+#ifdef HAS_LIBCURL
+    if (!handle) {
+        return;
+    }
+
+    curl_easy_cleanup(handle);
+    handle = NULL;
+#endif
+}
+
+bool UpdateCheckerThread::ParseVersionNumber(const char *value, int& major, int& minor, int& patch) const
 {
     const char *p  = value;
     const char *pn = value;
@@ -268,12 +319,11 @@ size_t WriteCallback(char *contents, size_t size, size_t nmemb, void *userp)
     return size * nmemb;
 }
 
-void UpdateChecker::DoRequest()
+void UpdateCheckerThread::DoRequest()
 {
 #ifdef HAS_LIBCURL
-    std::lock_guard<std::shared_mutex> l(clientMutex);
-    CURLcode                           result;
-    std::string                        responseString;
+    CURLcode    result;
+    std::string responseString;
 
     curl_easy_setopt(handle, CURLOPT_WRITEFUNCTION, &WriteCallback);
     curl_easy_setopt(handle, CURLOPT_WRITEDATA, &responseString);
@@ -297,31 +347,30 @@ void UpdateChecker::DoRequest()
         int major, minor, patch;
         ParseVersionNumber(tagName.c_str(), major, minor, patch);
 
-        lastMajor = major;
-        lastMinor = minor;
-        lastPatch = patch;
-
-        versionChecked = true;
+        updateChecker.SetLatestVersion(major, minor, patch);
     } catch (std::out_of_range&) {}
 #endif
 }
 
-void UpdateChecker::RequestThread()
+void UpdateCheckerThread::RequestThread()
 {
-    std::chrono::time_point<std::chrono::steady_clock> currentTime = std::chrono::steady_clock::now();
-    std::chrono::time_point<std::chrono::steady_clock> lastCheckTime;
+    // Initialize the curl client
+    InitClient();
 
-    while (handle && CanHaveRequestThread()) {
-        currentTime = std::chrono::steady_clock::now();
-        if (currentTime
-            >= lastCheckTime + std::chrono::milliseconds(Q_max(1, com_updateCheckInterval->integer) * 60 * 1000)) {
-            lastCheckTime = currentTime;
-
-            DoRequest();
-        }
-
-        std::this_thread::sleep_for(std::chrono::seconds(5));
+    while (handle && shouldBeActive) {
+        DoRequest();
+        RequestThreadSleep();
     }
 
+    ShutdownClient();
+
     requestThreadIsActive = qfalse;
+}
+
+void UpdateCheckerThread::RequestThreadSleep()
+{
+    const std::chrono::seconds interval = std::chrono::seconds(Q_max(1, com_updatecheck_interval->integer) * 60);
+
+    std::unique_lock<std::mutex> l(clientWakeMutex);
+    clientWake.wait_for(l, interval);
 }
