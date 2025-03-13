@@ -90,6 +90,8 @@ void UpdateChecker::Init()
     }
 
     curl_easy_setopt(handle, CURLOPT_USERAGENT, "curl");
+#else
+    Com_DPrintf("Project was compiled without libcurl, will not check for updates\n");
 #endif
 
     CheckInitClientThread();
@@ -97,10 +99,21 @@ void UpdateChecker::Init()
 
 void UpdateChecker::CheckInitClientThread()
 {
-    if (!requestThreadIsActive && CanHaveRequestThread()) {
-        requestThreadIsActive = qtrue;
+    if (!requestThreadIsActive) {
+        if (thread) {
+            // Delete the thread object if it was terminated
+            thread->join();
 
-        thread = new std::thread(&UpdateChecker::RequestThread, this);
+            delete thread;
+            thread = NULL;
+
+            Com_DPrintf("Update checker request thread terminated\n");
+        }
+
+        if (CanHaveRequestThread()) {
+            requestThreadIsActive = qtrue;
+            thread = new std::thread(&UpdateChecker::RequestThread, this);
+        }
     }
 }
 
@@ -108,6 +121,11 @@ bool UpdateChecker::CanHaveRequestThread() const
 {
     if (!Cvar_VariableIntegerValue("net_enabled")) {
         // Network has been disabled by a cvar
+        return false;
+    }
+
+    if (!com_updatecheck_enabled->integer) {
+        // Update checking has been disabled
         return false;
     }
 
@@ -125,7 +143,7 @@ void UpdateChecker::Process()
 
     std::chrono::time_point<std::chrono::steady_clock> currentTime = std::chrono::steady_clock::now();
     if (currentTime
-        < lastMessageTime + std::chrono::milliseconds(Q_max(1, com_updateCheckInterval->integer) * 60 * 1000)) {
+        < lastMessageTime + std::chrono::milliseconds(Q_max(1, com_updatecheck_interval->integer) * 60 * 1000)) {
         return;
     }
 
@@ -314,7 +332,7 @@ void UpdateChecker::RequestThread()
     while (handle && CanHaveRequestThread()) {
         currentTime = std::chrono::steady_clock::now();
         if (currentTime
-            >= lastCheckTime + std::chrono::milliseconds(Q_max(1, com_updateCheckInterval->integer) * 60 * 1000)) {
+            >= lastCheckTime + std::chrono::milliseconds(Q_max(1, com_updatecheck_interval->integer) * 60 * 1000)) {
             lastCheckTime = currentTime;
 
             DoRequest();

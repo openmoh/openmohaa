@@ -1060,7 +1060,8 @@ extern  cvar_t* con_autochat;
 extern	cvar_t* com_target_version;
 extern	cvar_t* com_target_game;
 extern	cvar_t* com_target_demo;
-extern	cvar_t* com_updateCheckInterval;
+extern	cvar_t* com_updatecheck_enabled;
+extern	cvar_t* com_updatecheck_interval;
 
 extern	int		protocol_version_demo;
 extern	int		protocol_version_full;
