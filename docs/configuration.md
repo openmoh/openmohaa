@@ -20,9 +20,7 @@ The variable defaults to the following value depending on the OS:
 - `~/.openmohaa` on Linux
 - `~/Library/Application Support/openmohaa` on macOS
 
-### Networking
-
-#### Configure the network components
+### Configure the network components
 
 The network settings can be adjusted to use either IPv4, IPv6, or both. By default, IPv6 is disabled on dedicated servers. The following commands adjust network settings:
 
@@ -53,11 +51,11 @@ Update checking is enabled by default, but can be disabled under any of the foll
 - `com_updatechecker_enabled` is set to 0
 - The project is compiled without libcurl support
 
+If you disable the update checker, remember to regularly check the project page for new versions. Updates can improve security and provide important fixes against exploits.
+
 ## Server configuration
 
-### Networking
-
-#### Optimization / Antichams
+### Optimization / Antichams
 
 A new variable, `sv_netoptimize`, enables a feature that optimizes network bandwidth by not sending players information about others they can't see. For each client, the server optimizes by only transmitting data about players within their view. Clients will not receive information about players they can't see. This feature also helps protect against cheaters:
 
@@ -67,7 +65,7 @@ A new variable, `sv_netoptimize`, enables a feature that optimizes network bandw
 
 This option exists since **Medal of Honor: Allied Assault Breakthrough** 2.30, however it was improved in OpenMoHAA: sounds like footsteps will be sent so players don't get confused.
 
-#### Managing bans
+### Managing bans
 
 A new feature was introduced to ban IP addresses, thanks to the [ioquake3](https://ioquake3.org/) project. Bans are saved by default in `serverbans.dat` but it can be modified with the `sv_banFile` variable. Here are commands to manage bans:
 
