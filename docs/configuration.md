@@ -69,15 +69,15 @@ This option exists since **Medal of Honor: Allied Assault Breakthrough** 2.30, h
 
 A new feature was introduced to ban IP addresses, thanks to the [ioquake3](https://ioquake3.org/) project. Bans are saved by default in `serverbans.dat` but it can be modified with the `sv_banFile` variable. Here are commands to manage bans:
 
-|Name       |Parameters                             |Description
-|-----------|---------------------------------------|-----------
-|rehashbans |                                       |Loads saved bans from the banlist file
-|listbans   |                                       |Lists all banned IP addresses
-|banaddr    |ip[*/subnet*] \| clientnum [*subnet*]  |Bans an IP through its address or through a client number, a subnet can be specified to ban a network range
-|exceptaddr |ip[*/subnet*] \| clientnum [*subnet*]  |Adds an IP as an exception, for example IP ranges can be banned but one or more exceptions can be added
-|bandel     |ip[*/subnet*] \| num                   |Unbans an IP address or a subnet, the entry number can be specified as an alternative
-|exceptdel  |ip[*/subnet*] \| num                   |Removes a ban exception
-|flushbans  |                                       |Removes all bans
+|Name       |Parameters                                      |Description
+|-----------|------------------------------------------------|-----------
+|rehashbans |                                                |Loads saved bans from the banlist file
+|listbans   |                                                |Lists all banned IP addresses
+|banaddr    |ip[*/subnet*] \| clientnum [*subnet*] [reason]  |Bans an IP through its address or through a client number, a subnet can be specified to ban a network range
+|exceptaddr |ip[*/subnet*] \| clientnum [*subnet*]           |Adds an IP as an exception, for example IP ranges can be banned but one or more exceptions can be added
+|bandel     |ip[*/subnet*] \| num                            |Unbans an IP address or a subnet, the entry number can be specified as an alternative
+|exceptdel  |ip[*/subnet*] \| num                            |Removes a ban exception
+|flushbans  |                                                |Removes all bans
 
 Examples:
 
