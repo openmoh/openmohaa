@@ -210,7 +210,13 @@ void UpdateCheckerThread::Shutdown()
 
     if (osThread) {
         // Notify and shutdown the thread
-        clientWake.notify_all();
+        {
+            // Wait until the request thread is ready
+            std::lock_guard<std::mutex> l(clientWakeMutex);
+            clientWake.notify_all();
+        }
+
+        // Wait for the thread to exit
         osThread->join();
 
         delete osThread;
@@ -358,19 +364,15 @@ void UpdateCheckerThread::RequestThread()
     InitClient();
 
     while (handle && shouldBeActive) {
+        std::unique_lock<std::mutex> l(clientWakeMutex);
         DoRequest();
-        RequestThreadSleep();
+
+        const std::chrono::seconds interval = std::chrono::seconds(Q_max(1, com_updatecheck_interval->integer) * 60);
+
+        clientWake.wait_for(l, interval);
     }
 
     ShutdownClient();
 
     requestThreadIsActive = qfalse;
-}
-
-void UpdateCheckerThread::RequestThreadSleep()
-{
-    const std::chrono::seconds interval = std::chrono::seconds(Q_max(1, com_updatecheck_interval->integer) * 60);
-
-    std::unique_lock<std::mutex> l(clientWakeMutex);
-    clientWake.wait_for(l, interval);
 }

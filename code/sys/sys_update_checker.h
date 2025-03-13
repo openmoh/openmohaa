@@ -61,7 +61,6 @@ private:
 
     bool ParseVersionNumber(const char *value, int& major, int& minor, int& patch) const;
     void RequestThread();
-    void RequestThreadSleep();
     void DoRequest();
 
 private:
