@@ -152,6 +152,15 @@ CLASS_DECLARATION(USignal, PlayerModelPickerClass, NULL) {
 
 PlayerModelPickerClass::PlayerModelPickerClass()
 {
+    overlay = new UIButton();
+    overlay->InitFrame(NULL,
+        UIRect2D(0, 0, uid.vidWidth, uid.vidHeight),
+        0);
+    overlay->setBackgroundColor(UColor(0, 0, 0, 0), true);
+    overlay->AllowActivate(true);
+    overlay->Connect(this, W_Button_Pressed, W_Deactivated);
+    overlay->AddFlag(WF_ALWAYS_BOTTOM);
+
     window = new UIFloatingWindow();
     window->Create(
         NULL,
@@ -185,6 +194,11 @@ PlayerModelPickerClass::PlayerModelPickerClass()
 
 PlayerModelPickerClass::~PlayerModelPickerClass()
 {
+    if (overlay) {
+        delete overlay;
+        overlay = NULL;
+    }
+
     if (listbox) {
         delete listbox;
         listbox = NULL;
