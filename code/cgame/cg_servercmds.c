@@ -470,7 +470,8 @@ static const char *whiteListedVariables[] = {
     "subtitle2",
     "subtitle3",
     "name",
-    "cg_3rd_person" // for 3rd person server
+    "cg_3rd_person", // for 3rd person server
+    "cg_cameraverticaldisplacement" // for 3rd person server
 };
 
 //
