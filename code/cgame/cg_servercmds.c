@@ -493,6 +493,7 @@ static const char *whiteListedCommands[] = {
     "globalwidgetcommand", // used for mods adding custom HUDs
     "ui_addhud",
     "ui_removehud",
+    "echo", // to print stuff client-side
 
     //
     // Sounds
@@ -514,8 +515,8 @@ static const char *whiteListedCommands[] = {
     "-moveup",
     "screenshot",
     "screenshotJPEG",
-    "levelshot"
-    "`stufftext", // Stufftext detection from Reborn, the player gets kicked without it
+    "levelshot",
+    "`stufftext" // Stufftext detection from Reborn, the player gets kicked without it
 };
 
 //
