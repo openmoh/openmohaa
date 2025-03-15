@@ -482,25 +482,39 @@ static const char *whiteListedLocalServerVariables[] = {"ui_hidemouse", "ui_show
 // List of commands allowed to be executed by the server
 //
 static const char *whiteListedCommands[] = {
-    "primarydmweapon",
+    //
+    // HUD
+    //==========
     "pushmenu",
     "pushmenu_teamselect",
     "pushmenu_weaponselect",
     "popmenu",
-    "wait",
     "globalwidgetcommand", // used for mods adding custom HUDs
     "ui_addhud",
     "ui_removehud",
+
+    //
+    // Sounds
+    //==========
     "tmstart",
     "tmstartloop",
     "tmstop",
     "tmvolume",
-    "`stufftext",
+    "play",
+    "playmp3",
+    "stopmp3",
+
+    //
+    // Misc
+    //==========
+    "primarydmweapon",
+    "wait",
     "+moveup", // workaround for mods that want to prevent inactivity when handling the spectate
     "-moveup",
     "screenshot",
     "screenshotJPEG",
     "levelshot"
+    "`stufftext", // Stufftext detection from Reborn, the player gets kicked without it
 };
 
 //
