@@ -1667,8 +1667,8 @@ void CG_ParseCGMessage_ver_15()
             CG_HudDrawFont(iInfo);
             break;
 
-        case CGM_NOTIFY_KILL:
         case CGM_NOTIFY_HIT:
+        case CGM_NOTIFY_KILL:
             if (cg.snap) {
                 const char *soundName;
                 int         iOldEnt;
@@ -1676,12 +1676,11 @@ void CG_ParseCGMessage_ver_15()
                 iOldEnt = current_entity_number;
 
                 current_entity_number = cg.snap->ps.clientNum;
-                if (iType == CGM_NOTIFY_HIT) {
-                    soundName = "dm_kill_notify";
+                if (iType == CGM_NOTIFY_KILL) {
+                    commandManager.PlaySound("dm_kill_notify", NULL, CHAN_LOCAL, 2.0, -1, -1, 1);
                 } else {
-                    soundName = "dm_hit_notify";
+                    commandManager.PlaySound("dm_hit_notify", NULL, CHAN_LOCAL, 2.0, -1, -1, 1);
                 }
-                commandManager.PlaySound(soundName, NULL, CHAN_LOCAL, 2.0, -1, -1, 1);
 
                 current_entity_number = iOldEnt;
             }
@@ -2058,15 +2057,15 @@ void CG_ParseCGMessage_ver_6()
             CG_HudDrawFont(iInfo);
             break;
 
-        case CGM6_NOTIFY_KILL:
         case CGM6_NOTIFY_HIT:
+        case CGM6_NOTIFY_KILL:
             if (cg.snap) {
                 int iOldEnt;
 
                 iOldEnt = current_entity_number;
 
                 current_entity_number = cg.snap->ps.clientNum;
-                if (iType == CGM6_NOTIFY_HIT) {
+                if (iType == CGM6_NOTIFY_KILL) {
                     commandManager.PlaySound("dm_kill_notify", NULL, CHAN_LOCAL, 2.0, -1, -1, 1);
                 } else {
                     commandManager.PlaySound("dm_hit_notify", NULL, CHAN_LOCAL, 2.0, -1, -1, 1);
