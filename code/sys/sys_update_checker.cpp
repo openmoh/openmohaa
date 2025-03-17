@@ -336,6 +336,7 @@ struct WriteCallbackData {
     std::string buffer;
 };
 
+#ifdef HAS_LIBCURL
 size_t WriteCallback(char *contents, size_t size, size_t nmemb, void *userp)
 {
     WriteCallbackData *callbackData = (WriteCallbackData *)userp;
@@ -349,6 +350,7 @@ size_t WriteCallback(char *contents, size_t size, size_t nmemb, void *userp)
 
     return responseSize;
 }
+#endif
 
 void UpdateCheckerThread::DoRequest()
 {
