@@ -77,7 +77,7 @@ Event EV_Trigger_SetCount
     EV_DEFAULT,
     "i",
     "count",
-    "Set the amount of times this trigger can be triggered",
+    "Set the number of times this trigger can be triggered",
     EV_NORMAL
 );
 Event EV_Trigger_SetMessage

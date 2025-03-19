@@ -669,7 +669,7 @@ void EventArgDef::Setup(const char *eventName, const char *argName, const char *
             if (!endptr) {
                 assert(0);
                 EVENT_Printf(
-                    "Argument defintion %s, no matching ']' found for range spec in event %s.\n",
+                    "Argument definition %s, no matching ']' found for range spec in event %s.\n",
                     name.c_str(),
                     eventName
                 );
