@@ -432,7 +432,7 @@ Event EV_Actor_SetAnimFinal
     EV_DEFAULT,
     NULL,
     NULL,
-    "Whether the animation was succesfully finished",
+    "Whether the animation was successfully finished",
     EV_SETTER
 );
 Event EV_Actor_GetWeaponType
