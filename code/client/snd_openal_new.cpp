@@ -26,12 +26,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../server/server.h"
 #include "snd_codec.h"
 
-#if defined(_MSC_VER) || defined(__APPLE__)
-#    include <alext.h>
-#else
-#    include <AL/alext.h>
-#endif
-
 typedef struct {
     const char *funcname;
     void      **funcptr;
@@ -3102,10 +3096,12 @@ bool openal_channel::set_sfx(sfx_t *pSfx)
             qalGenBuffers(1, &pSfx->buffer);
             alDieIfError();
 
+#if AL_SOFT_block_alignment
             if (pSfx->info.dataalign > 1) {
                 qalBufferi(pSfx->buffer, AL_UNPACK_BLOCK_ALIGNMENT_SOFT, pSfx->info.dataalign);
                 alDieIfError();
             }
+#endif
 
             qalBufferData(
                 pSfx->buffer,
@@ -4484,10 +4480,12 @@ bool openal_channel_two_d_stream::set_sfx(sfx_t *pSfx)
         return true;
     }
 
+#if AL_SOFT_block_alignment
     if (stream->info.dataalign > 1 && soft_block_align) {
         qalBufferi(buffers[currentBuf], AL_UNPACK_BLOCK_ALIGNMENT_SOFT, stream->info.dataalign);
         alDieIfError();
     }
+#endif
 
     qalBufferData(buffers[currentBuf], pSfx->info.format, rawData, bytesRead, stream->info.rate);
     alDieIfError();
@@ -4628,10 +4626,12 @@ void openal_channel_two_d_stream::update()
         }
     }
 
+#if AL_SOFT_block_alignment
     if (stream->info.dataalign > 1 && soft_block_align) {
         qalBufferi(buffers[currentBuf], AL_UNPACK_BLOCK_ALIGNMENT_SOFT, stream->info.dataalign);
         alDieIfError();
     }
+#endif
 
     qalBufferData(buffers[currentBuf], format, rawData, bytesRead, stream->info.rate);
     alDieIfError();
