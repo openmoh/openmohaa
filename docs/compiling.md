@@ -1,6 +1,6 @@
 # Compiling
 
-OpenMoHAA supports any architecture, thanks to the CMake build system and cross-platform code/libraries. While the most common little-Endian architectures (arm, aarch64, x86, x86_64) have been tested and confirmed to work, big-Endian architectures should be supported as well; however, they remain untested.
+OpenMoHAA supports any architecture, thanks to the CMake build system and cross-platform code/libraries. While the most common little-Endian architectures (arm, aarch64, x86, x86_64, ppc64le) have been tested and confirmed to work, big-Endian architectures should be supported as well; however, they remain untested.
 
 The following tools are required for all platforms:
 - CMake >= 3.12
