@@ -128,6 +128,13 @@ static ALuint S_OPENAL_Format(float width, int channels);
 #    define ALDRIVER_DEFAULT "libopenal.so.1"
 #endif
 
+//
+// alext
+//
+#ifdef AL_SOFT_source_resampler
+LPALGETSTRINGISOFT qalGetStringiSOFT;
+#endif
+
 /*
 ==============
 __alDieIfError
@@ -268,8 +275,6 @@ static bool S_OPENAL_InitContext()
 {
     const char *dev;
     int         attrlist[10];
-    size_t      i;
-    size_t      numResamplers;
 
     Com_DPrintf("OpenAL: Context initialization\n");
 
@@ -427,23 +432,6 @@ static bool S_OPENAL_InitContext()
     qalcMakeContextCurrent(al_context_id);
     alDieIfError();
 
-#ifdef AL_SOFT_source_resampler
-    al_default_resampler_index = qalGetInteger(AL_DEFAULT_RESAMPLER_SOFT);
-    alDieIfError();
-    al_resampler_index = al_default_resampler_index;
-    numResamplers = qalGetInteger(AL_NUM_RESAMPLERS_SOFT);
-    alDieIfError();
-
-    for (i = 0; i < numResamplers; i++) {
-        const ALchar* resamplerName = qalGetStringiSOFT(AL_RESAMPLER_NAME_SOFT, i);
-        if (Q_stristr(resamplerName, "spline")) {
-            Com_Printf("OpenAL: Using %s as the resampler.\n", resamplerName);
-            al_resampler_index = i;
-            break;
-        }
-     }
-#endif
-
     Com_Printf("AL_VENDOR: %s\n", qalGetString(AL_VENDOR));
     alDieIfError();
 
@@ -472,11 +460,7 @@ S_OPENAL_InitExtensions
 */
 static bool S_OPENAL_InitExtensions()
 {
-    ima4_ext         = qalIsExtensionPresent("AL_EXT_IMA4");
-    soft_block_align = qalIsExtensionPresent("AL_SOFT_block_alignment");
-
-    return true;
-
+    /*
     extensions_table_t extensions_table[4] = {
         "alutLoadMP3_LOKI",
         (void **)&_alutLoadMP3_LOKI,
@@ -488,6 +472,17 @@ static bool S_OPENAL_InitExtensions()
         (void **)&_alReverbDelay_LOKI,
         true
     };
+    */
+
+    extensions_table_t extensions_table[] = {
+#ifdef AL_SOFT_source_resampler
+        extensions_table_t {
+                            "alGetStringiSOFT", (void **)&qalGetStringiSOFT,
+                            false, },
+#endif
+        extensions_table_t {NULL, NULL, NULL}
+    };
+
     extensions_table_t *i;
 
     for (i = extensions_table; i->funcname; ++i) {
@@ -509,6 +504,9 @@ static bool S_OPENAL_InitExtensions()
 
         Com_Printf("...found.\n");
     }
+
+    ima4_ext         = qalIsExtensionPresent("AL_EXT_IMA4");
+    soft_block_align = qalIsExtensionPresent("AL_SOFT_block_alignment");
 
     qalGetError();
     return true;
@@ -629,6 +627,28 @@ qboolean S_OPENAL_Init()
     al_current_volume = Square(s_volume->value);
     qalListenerf(AL_GAIN, al_current_volume);
     alDieIfError();
+
+#ifdef AL_SOFT_source_resampler
+    if (qalGetStringiSOFT) {
+        size_t numResamplers;
+        size_t i;
+
+        al_default_resampler_index = qalGetInteger(AL_DEFAULT_RESAMPLER_SOFT);
+        alDieIfError();
+        al_resampler_index = al_default_resampler_index;
+        numResamplers      = qalGetInteger(AL_NUM_RESAMPLERS_SOFT);
+        alDieIfError();
+
+        for (i = 0; i < numResamplers; i++) {
+            const ALchar *resamplerName = qalGetStringiSOFT(AL_RESAMPLER_NAME_SOFT, i);
+            if (Q_stristr(resamplerName, "spline")) {
+                Com_Printf("OpenAL: Using %s as the resampler.\n", resamplerName);
+                al_resampler_index = i;
+                break;
+            }
+        }
+    }
+#endif
 
     for (i = 0; i < MAX_SOUNDSYSTEM_CHANNELS_3D; i++) {
         if (!S_OPENAL_InitChannel(i, &openal.chan_3D[i])) {

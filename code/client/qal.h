@@ -135,9 +135,6 @@ extern LPALGETBUFFERIV qalGetBufferiv;
 extern LPALDOPPLERFACTOR qalDopplerFactor;
 extern LPALSPEEDOFSOUND qalSpeedOfSound;
 extern LPALDISTANCEMODEL qalDistanceModel;
-#ifdef AL_SOFT_source_resampler
-extern LPALGETSTRINGISOFT qalGetStringiSOFT;
-#endif
 
 extern LPALCCREATECONTEXT qalcCreateContext;
 extern LPALCMAKECONTEXTCURRENT qalcMakeContextCurrent;
