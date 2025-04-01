@@ -274,10 +274,13 @@ void QDECL Com_Printf( const char *fmt, ... ) {
 			
 			logfile = FS_FOpenTextFileWrite( "qconsole.log" );
 
+            // Remove recursive count as it won't be able to print relevant info
+            recursive_count--;
 			if(logfile)
 			{
 				Com_Printf( "logfile opened on %s\n", asctime( newtime ) );
-				Com_Printf( "=> game is version %s\n", com_version->string );
+				Com_Printf( "=> game is version %s\n", PRODUCT_NAME PRODUCT_VERSION_FULL PLATFORM_STRING PRODUCT_VERSION_DATE );
+                Com_Printf( "=> targeting game ID %d\n", Cvar_VariableIntegerValue( "com_target_game" ) );
 
 				if ( com_logfile->integer > 1 )
 				{
@@ -291,6 +294,7 @@ void QDECL Com_Printf( const char *fmt, ... ) {
 				Com_Printf("Opening qconsole.log failed!\n");
 				Cvar_SetValue("logfile", 0);
 			}
+            recursive_count++;
 
       opening_qconsole = qfalse;
 		}
