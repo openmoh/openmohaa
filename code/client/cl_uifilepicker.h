@@ -26,6 +26,7 @@ class UIListCtrl;
 
 class FilePickerClass : public USignal
 {
+    UIButton         *overlay;
     UIFloatingWindow *window;
     UIListCtrl       *listbox;
     str               currentDirectory;
