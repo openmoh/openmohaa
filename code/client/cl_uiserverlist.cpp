@@ -1048,6 +1048,7 @@ void UpdateServerListCallBack(GServerList serverlist, int msg, void* instance, v
         str sPlayers;
         const char* pszGameVer;
         const char* pszGameVerNumber;
+        float fGameVer;
 
         pszHostName = ServerGetStringValue(server, "hostname", "(NONE)");
         bDiffVersion = false;
@@ -1061,24 +1062,26 @@ void UpdateServerListCallBack(GServerList serverlist, int msg, void* instance, v
             bIsDemo = true;
         }
 
+        fGameVer = atof(pszGameVerNumber);
+
         if (com_target_game->integer >= target_game_e::TG_MOHTT) {
             if (iServerType == target_game_e::TG_MOHTT) {
-                //if (fabs(atof(pszGameVerNumber) - com_target_version->value) > 0.1f) {
+                //if (fabs(fGameVer - com_target_version->value) > 0.1f) {
                 //    bDiffVersion = true;
                 //}
-                if (fabs(atof(pszGameVerNumber)) < 2.3f) {
+                if (fabs(fGameVer) < 2.3f) {
                     bDiffVersion = true;
                 }
             } else {
-                //if (fabs(atof(pszGameVerNumber) - com_target_version->value) > 0.3f) {
+                //if (fabs(fGameVer - com_target_version->value) > 0.3f) {
                 //    bDiffVersion = true;
                 //}
-                if (fabs(atof(pszGameVerNumber)) < 2.1f) {
+                if (fabs(fGameVer) < 2.1f) {
                     bDiffVersion = true;
                 }
             }
         } else {
-            if (fabs(atof(pszGameVerNumber) - com_target_version->value) > 0.1f) {
+            if (fabs(fGameVer - com_target_version->value) > 0.1f) {
                 bDiffVersion = true;
             }
         }
