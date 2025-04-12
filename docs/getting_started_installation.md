@@ -1,7 +1,7 @@
 # Installation
 
-- On Windows there is no installer yet, so you have to follow all the steps below.
-- On Linux, you might want to check if an OpenMoHAA package is available with your package manager.
+- Windows users can check this [Quick install guide](getting_started_installation_windows.md).
+- Linux users may want to check if an OpenMoHAA package is available with the distribution's package manager.
 
 ## Requirements
 
