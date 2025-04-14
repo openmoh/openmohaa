@@ -43,10 +43,10 @@ jobs:
     ###
     # Packages
     ###
-    - uses: tecolicom/actions-use-homebrew-tools@b9c066b79607fa3d71e0be05d7003bb75fd9ff34
-      name: Install required packages
-      with:
-        tools: git flex bison ninja cmake llvm perl
+
+    - name: Install required packages
+      run: |
+        brew install git flex bison ninja cmake llvm perl
 
     - name: Settings
       working-directory: ${{github.workspace}}
