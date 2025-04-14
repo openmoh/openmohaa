@@ -213,8 +213,90 @@ void UIInstantAction::Init()
 
 int UIInstantAction::GetServerIndex(int maxPing, int gameType)
 {
-    // FIXME: unimplemented
-    return 0;
+    int bestPing   = 1500;
+    int bestServer = -1;
+    int i;
+
+    for (i = 0; i < numFoundServers; i++) {
+        const IAServer_t& IAServer = servers[i];
+
+        char *gameVer;
+        float fGameVer;
+        int   ping;
+        int   numPlayers;
+
+        if (IAServer.rejected) {
+            continue;
+        }
+
+        // Skip servers that don't match the provided game type
+        if (ServerGetIntValue(IAServer.server, "g_gametype_i", 1) != gameType) {
+            continue;
+        }
+
+        // Skip servers with high ping
+        ping = ServerGetPing(IAServer.server);
+        if (ping > maxPing) {
+            continue;
+        }
+
+        gameVer = ServerGetStringValue(IAServer.server, "gamever", "1.00");
+        if (com_target_demo->integer && *gameVer != 'd') {
+            // Skip retail servers on demo game
+            continue;
+        } else if (!com_target_demo->integer && *gameVer == 'd') {
+            // Skip demo servers on retail game
+            continue;
+        }
+
+        // Skip incompatible servers
+        fGameVer = atof(gameVer);
+        if (com_target_game->integer >= target_game_e::TG_MOHTT) {
+            if (IAServer.serverGame.serverType == target_game_e::TG_MOHTT) {
+                if (fabs(fGameVer) < 2.3f) {
+                    continue;
+                }
+            } else {
+                if (fabs(fGameVer) < 2.1f) {
+                    continue;
+                }
+            }
+        } else {
+            if (fabs(fGameVer - com_target_version->value) > 0.1f) {
+                continue;
+            }
+        }
+
+        // Skip servers with a password
+        if (ServerGetIntValue(IAServer.server, "password", 0)) {
+            continue;
+        }
+
+        // Skip servers that don't match the minimum number of players
+        numPlayers = ServerGetIntValue(IAServer.server, "numplayers", 0);
+        if (numPlayers < minPlayers) {
+            continue;
+        }
+
+        // Skip full servers
+        if (numPlayers == ServerGetIntValue(IAServer.server, "maxplayers", 0)) {
+            continue;
+        }
+
+        // Skip servers with an higher ping than the best one
+        if (ping >= bestPing) {
+            continue;
+        }
+
+        //
+        // Found a potential server
+        //
+
+        bestPing   = ping;
+        bestServer = i;
+    }
+
+    return bestServer;
 }
 
 void UIInstantAction::ReadIniFile()
