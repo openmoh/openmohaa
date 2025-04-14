@@ -347,7 +347,51 @@ void UIInstantAction::ReadIniFile()
 
 void UIInstantAction::FindServer()
 {
-    // FIXME: unimplemented
+    int ping;
+    int i;
+
+    currentServer = -1;
+    state         = IA_NONE;
+
+    for (ping = startingMaxPing; ping < endingMaxPing; ping += 100) {
+        for (i = 1; i < 7; i++) {
+            currentServer = GetServerIndex(ping, i);
+            if (currentServer >= 0) {
+                break;
+            }
+        }
+
+        if (currentServer >= 0) {
+            break;
+        }
+    }
+
+    menuManager.PassEventToWidget("ia_refresh_button", &EV_Widget_Enable);
+    menuManager.PassEventToWidget("ia_cancel_button", &EV_Widget_Disable);
+    menuManager.PassEventToWidget("searchstatus", &EV_Widget_Disable);
+    menuManager.PassEventToWidget("searchstatuslable", &EV_Widget_Disable);
+
+    if (currentServer < 0) {
+        EnableServerInfo(false);
+
+        menuManager.PassEventToWidget("ia_noserverfound", &EV_Widget_Enable);
+        return;
+    }
+
+    const IAServer_t& IAServer   = servers[currentServer];
+    const char       *hostname   = ServerGetStringValue(IAServer.server, "hostname", "(NONE)");
+    const char       *gametype   = ServerGetStringValue(IAServer.server, "gametype", "(NONE)");
+    int               numplayers = ServerGetIntValue(IAServer.server, "numplayers", 0);
+    int               maxplayers = ServerGetIntValue(IAServer.server, "maxplayers", 0);
+    ping                         = ServerGetPing(IAServer.server);
+
+    Cvar_Set("ia_servername", va("  %s", hostname));
+    Cvar_Set("ia_ping", va("%d", ping));
+    Cvar_Set("ia_gametype", va("%s", gametype));
+    Cvar_Set("ia_players", va("%d", numplayers));
+    Cvar_Set("ia_maxplayers", va("%d", maxplayers));
+
+    EnableServerInfo(true);
 }
 
 void UIInstantAction::Connect(Event *ev)
