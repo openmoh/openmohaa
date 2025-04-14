@@ -352,7 +352,64 @@ void UIInstantAction::FindServer()
 
 void UIInstantAction::Connect(Event *ev)
 {
-    // FIXME: unimplemented
+    char *gameVer;
+    float fGameVer;
+    bool  bDiffVersion;
+    char  command[256];
+
+    if (currentServer < 0 || currentServer < numServers) {
+        return;
+    }
+
+    const IAServer_t& IAServer = servers[currentServer];
+
+    gameVer = ServerGetStringValue(IAServer.server, "gamever", "1.00");
+    if (gameVer[0] == 'd') {
+        gameVer++;
+    }
+
+    // Skip incompatible servers
+    fGameVer     = atof(gameVer);
+    bDiffVersion = false;
+    if (com_target_game->integer >= target_game_e::TG_MOHTT) {
+        if (IAServer.serverGame.serverType == target_game_e::TG_MOHTT) {
+            if (fabs(fGameVer) < 2.3f) {
+                bDiffVersion = true;
+            }
+        } else {
+            if (fabs(fGameVer) < 2.1f) {
+                bDiffVersion = true;
+            }
+        }
+    } else {
+        if (fabs(fGameVer - com_target_version->value) > 0.1f) {
+            bDiffVersion = true;
+        }
+    }
+
+    if (bDiffVersion) {
+        if (fGameVer - com_target_version->value > 0) {
+            // Older version
+            UI_SetReturnMenuToCurrent();
+            Cvar_Set("com_errormessage", va("Server is version %s, you are using %s", gameVer, "2.40"));
+            UI_PushMenu("wrongversion");
+        } else {
+            // Server version is newer
+            Cvar_Set("dm_serverstatus", va("Can not connect to v%s server, you are using v%s", gameVer, "2.40"));
+        }
+    }
+
+    UI_SetReturnMenuToCurrent();
+    Cvar_Set("g_servertype", va("%d", servers[currentServer].serverGame.serverType));
+
+    Com_sprintf(
+        command,
+        sizeof(command),
+        "connect %s:%i\n",
+        ServerGetAddress(IAServer.server),
+        ServerGetIntValue(IAServer.server, "hostport", PORT_SERVER)
+    );
+    Cbuf_AddText(command);
 }
 
 void UIInstantAction::Reject(Event *ev)
