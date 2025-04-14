@@ -312,7 +312,7 @@ void UIInstantAction::ReadIniFile()
     }
 
     for (p = buffer; p; p = strstr(pVal, "\n")) {
-        if (!sscanf(p, "%32s", value)) {
+        if (sscanf(p, "%31s", value) != 1) {
             break;
         }
 
@@ -323,7 +323,7 @@ void UIInstantAction::ReadIniFile()
 
         pVal++;
 
-        if (!sscanf(pVal, "%d", &intValue)) {
+        if (sscanf(pVal, "%d", &intValue) != 1) {
             break;
         }
 
