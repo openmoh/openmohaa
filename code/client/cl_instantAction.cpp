@@ -94,8 +94,8 @@ UIInstantAction::UIInstantAction()
     ReadIniFile();
     EnableServerInfo(false);
 
-    menuManager.PassEventToWidget("ia_cancel_button", &EV_Widget_Disable);
-    menuManager.PassEventToWidget("ia_refresh_button", &EV_Widget_Disable);
+    menuManager.PassEventToWidget("ia_cancel_button", new Event(EV_Widget_Disable));
+    menuManager.PassEventToWidget("ia_refresh_button", new Event(EV_Widget_Disable));
 }
 
 UIInstantAction::~UIInstantAction()
@@ -135,9 +135,9 @@ void UIInstantAction::Init()
 
     EnableServerInfo(false);
 
-    menuManager.PassEventToWidget("ia_cancel_button", &EV_Widget_Disable);
-    menuManager.PassEventToWidget("ia_refresh_button", &EV_Widget_Disable);
-    menuManager.PassEventToWidget("ia_noserverfound", &EV_Widget_Disable);
+    menuManager.PassEventToWidget("ia_cancel_button", new Event(EV_Widget_Disable));
+    menuManager.PassEventToWidget("ia_refresh_button", new Event(EV_Widget_Disable));
+    menuManager.PassEventToWidget("ia_noserverfound", new Event(EV_Widget_Disable));
 
     Cvar_Set("ia_search_percentage", va("%d %%", 0));
 
@@ -206,9 +206,9 @@ void UIInstantAction::Init()
         ServerListUpdate(serverList[1], true);
     }
 
-    menuManager.PassEventToWidget("ia_cancel_button", &EV_Widget_Enable);
-    menuManager.PassEventToWidget("searchstatus", &EV_Widget_Enable);
-    menuManager.PassEventToWidget("searchstatuslable", &EV_Widget_Enable);
+    menuManager.PassEventToWidget("ia_cancel_button", new Event(EV_Widget_Enable));
+    menuManager.PassEventToWidget("searchstatus", new Event(EV_Widget_Enable));
+    menuManager.PassEventToWidget("searchstatuslable", new Event(EV_Widget_Enable));
 }
 
 int UIInstantAction::GetServerIndex(int maxPing, int gameType)
@@ -366,15 +366,15 @@ void UIInstantAction::FindServer()
         }
     }
 
-    menuManager.PassEventToWidget("ia_refresh_button", &EV_Widget_Enable);
-    menuManager.PassEventToWidget("ia_cancel_button", &EV_Widget_Disable);
-    menuManager.PassEventToWidget("searchstatus", &EV_Widget_Disable);
-    menuManager.PassEventToWidget("searchstatuslable", &EV_Widget_Disable);
+    menuManager.PassEventToWidget("ia_refresh_button", new Event(EV_Widget_Enable));
+    menuManager.PassEventToWidget("ia_cancel_button", new Event(EV_Widget_Disable));
+    menuManager.PassEventToWidget("searchstatus", new Event(EV_Widget_Disable));
+    menuManager.PassEventToWidget("searchstatuslable", new Event(EV_Widget_Disable));
 
     if (currentServer < 0) {
         EnableServerInfo(false);
 
-        menuManager.PassEventToWidget("ia_noserverfound", &EV_Widget_Enable);
+        menuManager.PassEventToWidget("ia_noserverfound", new Event(EV_Widget_Enable));
         return;
     }
 
@@ -545,31 +545,31 @@ void UIInstantAction::CancelRefresh(Event *ev)
 void UIInstantAction::EnableServerInfo(bool enable)
 {
     if (enable) {
-        menuManager.PassEventToWidget("iaservername_label", &EV_Widget_Enable);
-        menuManager.PassEventToWidget("ia_servername_field", &EV_Widget_Enable);
-        menuManager.PassEventToWidget("ia_ping_label", &EV_Widget_Enable);
-        menuManager.PassEventToWidget("ia_ping_field", &EV_Widget_Enable);
-        menuManager.PassEventToWidget("ia_gametype_label", &EV_Widget_Enable);
-        menuManager.PassEventToWidget("ia_gametype_field", &EV_Widget_Enable);
-        menuManager.PassEventToWidget("ia_players_label", &EV_Widget_Enable);
-        menuManager.PassEventToWidget("ia_players_field", &EV_Widget_Enable);
-        menuManager.PassEventToWidget("ia_maxplayers_label", &EV_Widget_Enable);
-        menuManager.PassEventToWidget("ia_maxplayers_field", &EV_Widget_Enable);
-        menuManager.PassEventToWidget("acceptserver", &EV_Widget_Enable);
-        menuManager.PassEventToWidget("rejectserver", &EV_Widget_Enable);
+        menuManager.PassEventToWidget("iaservername_label", new Event(EV_Widget_Enable));
+        menuManager.PassEventToWidget("ia_servername_field", new Event(EV_Widget_Enable));
+        menuManager.PassEventToWidget("ia_ping_label", new Event(EV_Widget_Enable));
+        menuManager.PassEventToWidget("ia_ping_field", new Event(EV_Widget_Enable));
+        menuManager.PassEventToWidget("ia_gametype_label", new Event(EV_Widget_Enable));
+        menuManager.PassEventToWidget("ia_gametype_field", new Event(EV_Widget_Enable));
+        menuManager.PassEventToWidget("ia_players_label", new Event(EV_Widget_Enable));
+        menuManager.PassEventToWidget("ia_players_field", new Event(EV_Widget_Enable));
+        menuManager.PassEventToWidget("ia_maxplayers_label", new Event(EV_Widget_Enable));
+        menuManager.PassEventToWidget("ia_maxplayers_field", new Event(EV_Widget_Enable));
+        menuManager.PassEventToWidget("acceptserver", new Event(EV_Widget_Enable));
+        menuManager.PassEventToWidget("rejectserver", new Event(EV_Widget_Enable));
     } else {
-        menuManager.PassEventToWidget("iaservername_label", &EV_Widget_Disable);
-        menuManager.PassEventToWidget("ia_servername_field", &EV_Widget_Disable);
-        menuManager.PassEventToWidget("ia_ping_label", &EV_Widget_Disable);
-        menuManager.PassEventToWidget("ia_ping_field", &EV_Widget_Disable);
-        menuManager.PassEventToWidget("ia_gametype_label", &EV_Widget_Disable);
-        menuManager.PassEventToWidget("ia_gametype_field", &EV_Widget_Disable);
-        menuManager.PassEventToWidget("ia_players_label", &EV_Widget_Disable);
-        menuManager.PassEventToWidget("ia_players_field", &EV_Widget_Disable);
-        menuManager.PassEventToWidget("ia_maxplayers_label", &EV_Widget_Disable);
-        menuManager.PassEventToWidget("ia_maxplayers_field", &EV_Widget_Disable);
-        menuManager.PassEventToWidget("acceptserver", &EV_Widget_Disable);
-        menuManager.PassEventToWidget("rejectserver", &EV_Widget_Disable);
+        menuManager.PassEventToWidget("iaservername_label", new Event(EV_Widget_Disable));
+        menuManager.PassEventToWidget("ia_servername_field", new Event(EV_Widget_Disable));
+        menuManager.PassEventToWidget("ia_ping_label", new Event(EV_Widget_Disable));
+        menuManager.PassEventToWidget("ia_ping_field", new Event(EV_Widget_Disable));
+        menuManager.PassEventToWidget("ia_gametype_label", new Event(EV_Widget_Disable));
+        menuManager.PassEventToWidget("ia_gametype_field", new Event(EV_Widget_Disable));
+        menuManager.PassEventToWidget("ia_players_label", new Event(EV_Widget_Disable));
+        menuManager.PassEventToWidget("ia_players_field", new Event(EV_Widget_Disable));
+        menuManager.PassEventToWidget("ia_maxplayers_label", new Event(EV_Widget_Disable));
+        menuManager.PassEventToWidget("ia_maxplayers_field", new Event(EV_Widget_Disable));
+        menuManager.PassEventToWidget("acceptserver", new Event(EV_Widget_Disable));
+        menuManager.PassEventToWidget("rejectserver", new Event(EV_Widget_Disable));
     }
 }
 
