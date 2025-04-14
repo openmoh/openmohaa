@@ -74,16 +74,30 @@ private:
     static void IAServerListCallBack(GServerList serverlist, int msg, void *instance, void *param1, void *param2);
 
 private:
+    //
+    // List
+    //
     bool        doneList[2];
     GServerList serverList[2];
-
     int         maxServers;
-    IAState_e   state;
-    int         numServers;
-    int         numFoundServers;
-    int         minPlayers;
-    int         startingMaxPing;
-    int         endingMaxPing;
+
+    //
+    // Current states
+    //
+    IAState_e state;
+    int       numServers;
+    int       numFoundServers;
+
+    //
+    // Filters
+    //
+    int minPlayers;
+    int startingMaxPing;
+    int endingMaxPing;
+
+    //
+    // Servers
+    //
     IAServer_t *servers;
     int         currentServer;
 };

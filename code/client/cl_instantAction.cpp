@@ -61,7 +61,6 @@ Event EV_UIInstantAction_Refresh
     "Refresh the server list"
 );
 
-
 CLASS_DECLARATION(UIWidget, UIInstantAction, NULL) {
     {&EV_UIInstantAction_AcceptServer, &UIInstantAction::Connect      },
     {&EV_UIInstantAction_RejectServer, &UIInstantAction::Reject       },
@@ -86,9 +85,9 @@ UIInstantAction::UIInstantAction()
     startingMaxPing = 100;
     endingMaxPing   = 1500;
     maxServers      = -1;
+    servers         = NULL;
     doneList[0]     = false;
     doneList[1]     = false;
-    servers         = 0;
     serverList[0]   = NULL;
     serverList[1]   = NULL;
 
