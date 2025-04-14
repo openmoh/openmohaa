@@ -354,6 +354,9 @@ void UIInstantAction::FindServer()
     state         = IA_NONE;
 
     for (ping = startingMaxPing; ping < endingMaxPing; ping += 100) {
+        //
+        // Find the best server starting from FFA gametype first
+        //
         for (i = 1; i < 7; i++) {
             currentServer = GetServerIndex(ping, i);
             if (currentServer >= 0) {
@@ -585,13 +588,15 @@ void UIInstantAction::IAServerListCallBack(GServerList serverlist, int msg, void
 
     if (msg == LIST_PROGRESS) {
         if (pServerList->state == IA_WAITING) {
-            if (pInstance->iServerType == 2) {
-                pServerList->doneList[0] = 1;
+            if (pInstance->iServerType == com_target_game->integer) {
+                pServerList->doneList[0] = true;
             }
-            if (pInstance->iServerType == 1) {
-                pServerList->doneList[1] = 1;
+
+            if (com_target_game->integer >= target_game_e::TG_MOHTT && pInstance->iServerType == target_game_e::TG_MOHTA) {
+                pServerList->doneList[1] = true;
             }
-            if (pServerList->doneList[0] && pServerList->doneList[1]) {
+
+            if (pServerList->doneList[0] && (!pServerList->serverList[1] || pServerList->doneList[1])) {
                 pServerList->state = IA_UPDATE;
             }
         } else if (pServerList->state == IA_SEARCHING) {
@@ -602,6 +607,7 @@ void UIInstantAction::IAServerListCallBack(GServerList serverlist, int msg, void
             Cvar_Set("ia_search_percentage", va("%d %%", 100 * serverIndex / pServerList->numServers));
 
             if (pServerList->maxServers >= 0 && serverIndex >= pServerList->maxServers) {
+                // Reached the maximum number of servers, stop there
                 pServerList->doneList[0] = true;
                 ServerListHalt(pServerList->serverList[0]);
 
