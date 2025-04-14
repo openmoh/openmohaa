@@ -28,11 +28,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../gamespy/goaceng.h"
 
 typedef struct {
-    int     serverType;
+    int serverType;
 } ServerGame_t;
 
 typedef struct {
-    GServer server;
+    GServer      server;
     ServerGame_t serverGame;
     bool         rejected;
 } IAServer_t;
@@ -65,12 +65,13 @@ public:
     void Reject(Event *ev);
     void Draw();
     void Update();
-    int AddServer(GServer server, const ServerGame_t& serverGame);
+    int  AddServer(GServer server, const ServerGame_t& serverGame);
     void CancelRefresh(Event *ev);
+    void Refresh(Event *ev);
     void EnableServerInfo(bool enable);
 
 private:
-    static void IAServerListCallBack(GServerList serverlist, int msg, void* instance, void* param1, void* param2);
+    static void IAServerListCallBack(GServerList serverlist, int msg, void *instance, void *param1, void *param2);
 
 private:
     bool        doneList[2];

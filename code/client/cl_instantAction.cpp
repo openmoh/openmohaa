@@ -61,11 +61,12 @@ Event EV_UIInstantAction_Refresh
     "Refresh the server list"
 );
 
+
 CLASS_DECLARATION(UIWidget, UIInstantAction, NULL) {
     {&EV_UIInstantAction_AcceptServer, &UIInstantAction::Connect      },
     {&EV_UIInstantAction_RejectServer, &UIInstantAction::Reject       },
     {&EV_UIInstantAction_Cancel,       &UIInstantAction::CancelRefresh},
-    {&EV_UIInstantAction_Refresh,      NULL                           },
+    {&EV_UIInstantAction_Refresh,      &UIInstantAction::Refresh      },
     {NULL,                             NULL                           }
 };
 
@@ -540,6 +541,11 @@ void UIInstantAction::CancelRefresh(Event *ev)
     state = IA_FINISHED;
     ServerListHalt(serverList[0]);
     ServerListHalt(serverList[1]);
+}
+
+void UIInstantAction::Refresh(Event *ev)
+{
+    state = IA_INITIALIZE;
 }
 
 void UIInstantAction::EnableServerInfo(bool enable)
