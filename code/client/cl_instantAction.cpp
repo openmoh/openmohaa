@@ -306,7 +306,40 @@ void UIInstantAction::Draw()
 
 void UIInstantAction::Update()
 {
-    // FIXME: unimplemented
+    numFoundServers = 0;
+
+    // count the total number of servers from both server list
+    numServers = ServerListCount(serverList[0]);
+    if (serverList[1]) {
+        numServers += ServerListCount(serverList[1]);
+    }
+
+    state   = IA_FINISHED;
+    servers = new IAServer_t[numServers];
+
+    ServerListHalt(serverList[0]);
+    if (serverList[1]) {
+        ServerListHalt(serverList[1]);
+    }
+
+    ServerListThink(serverList[0]);
+    if (serverList[1]) {
+        ServerListThink(serverList[1]);
+    }
+
+    state = IA_SEARCHING;
+
+    // Start updating the first list
+    doneList[0] = false;
+    ServerListClear(serverList[0]);
+    ServerListUpdate(serverList[0], true);
+
+    // Update the second optional list
+    if (serverList[1]) {
+        doneList[1] = false;
+        ServerListClear(serverList[1]);
+        ServerListUpdate(serverList[1], true);
+    }
 }
 
 int UIInstantAction::AddServer(GServer server, const ServerGame_t& serverGame)
