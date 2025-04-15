@@ -4372,10 +4372,8 @@ UI_ShowScoreboard_f
 void UI_ShowScoreboard_f(const char *pszMenuName)
 {
     if (pszMenuName) {
-        if (scoreboard_menuname.length()) {
-            if (str::icmp(scoreboard_menuname, pszMenuName)) {
-                scoreboard_menu->ForceHide();
-            }
+        if (scoreboard_menuname.length() && str::icmp(scoreboard_menuname, pszMenuName) && scoreboard_menu) {
+            scoreboard_menu->ForceHide();
         }
 
         scoreboard_menuname = pszMenuName;
@@ -4424,7 +4422,10 @@ void UI_HideScoreboard_f(void)
     }
 
     if (scoreboard_menuname.length()) {
-        scoreboard_menu->ForceHide();
+        // Fixed in 2.30 (scoreboard_menu check)
+        if (scoreboard_menu) {
+            scoreboard_menu->ForceHide();
+        }
     }
 }
 
