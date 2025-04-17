@@ -116,3 +116,13 @@ Alternatively, free demo versions are available online. Here are the links to th
 
 1. Can play on MOH:AA 1.00 servers only.
 2. Only compatible with demo servers. These servers can be identified by having the letter `d` at the start of their version number (e.g: `(d2.11)`).
+
+---
+
+## Ports and other systems
+
+OpenMoHAA is officially supported on Windows, Linux and macOS. Below is a list of unofficial open-source ports that required custom modifications to the OpenMoHAA source code to build and run:
+
+- https://github.com/Rinnegatamante/openmohaa
+
+To stay up to date with the latest features and fixes from the official repository, these ports depend on their respective maintainers to synchronize changes with the main OpenMoHAA codebase.
