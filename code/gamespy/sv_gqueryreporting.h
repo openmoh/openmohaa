@@ -63,4 +63,4 @@ typedef struct qr_implementation_s {
     void               *udata;
 } qr_implementation_t, *qr_t;
 
-#define MASTER_SERVER_HOST "master.openmohaa.org"
+#define MASTER_SERVER_HOST "master.333networks.com"
