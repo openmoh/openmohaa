@@ -33,9 +33,7 @@ Overall, better compatibility on modern systems and bugfixes.
 
 Servers can no longer make players run any command. Only a small number of safe commands are now allowed. This change helps prevent abuse, like unbinding player controls, and improves overall security.
 
-To improve safety and the overall experience for everyone, `stufftext` is now limited to trusted, commonly used commands, like those for controlling in-game music.
-
-The full list can be found in [cgame/cg_servercmds_filter.c](../code/cgame/cg_servercmds_filter.c).
+`stufftext` is now limited to trusted, commonly used commands, like those for controlling in-game music. The full list can be found in [cgame/cg_servercmds_filter.c](../code/cgame/cg_servercmds_filter.c).
 
 ### Server-side
 
