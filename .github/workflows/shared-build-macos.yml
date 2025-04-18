@@ -35,7 +35,7 @@ jobs:
     name: "Building for platform macos-${{matrix.architecture.name}}"
     runs-on: "macos-15"
     env:
-        openal-soft-branch: '1.24.2'
+        openal-soft-branch: '1.24.3'
         wolfssl-version: 'v5.7.6-stable'
         curl-version: '8_12_1'
 

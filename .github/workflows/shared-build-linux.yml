@@ -40,7 +40,7 @@ jobs:
     env:
         wolfssl-version: 'v5.7.6-stable'
         curl-version: '8_12_1'
-        openal-soft-branch: '1.24.2'
+        openal-soft-branch: '1.24.3'
 
     steps:
     ###
