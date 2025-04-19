@@ -279,7 +279,7 @@ void QDECL Com_Printf( const char *fmt, ... ) {
 			if(logfile)
 			{
 				Com_Printf( "logfile opened on %s\n", asctime( newtime ) );
-				Com_Printf( "=> game is version %s\n", PRODUCT_NAME PRODUCT_VERSION_FULL PLATFORM_STRING PRODUCT_VERSION_DATE );
+				Com_Printf( "=> game is version %s\n", PRODUCT_NAME " " PRODUCT_VERSION_FULL " " PLATFORM_STRING " " PRODUCT_VERSION_DATE );
                 Com_Printf( "=> targeting game ID %d\n", Cvar_VariableIntegerValue( "com_target_game" ) );
 
 				if ( com_logfile->integer > 1 )
