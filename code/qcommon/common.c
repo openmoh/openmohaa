@@ -304,54 +304,56 @@ void QDECL Com_Printf( const char *fmt, ... ) {
             //================
 			size_t msgLen = strlen(msg);
 
-			if (com_logfile_timestamps->integer) {
-				static qboolean no_newline = qfalse;
+            if (msgLen > 0) {
+                if (com_logfile_timestamps->integer) {
+                    static qboolean no_newline = qfalse;
 
-				if (!no_newline) {
-					time_t t;
-					time_t t_gmt;
-					struct tm tms_local;
-					struct tm tms_gm;
-					double tz;
-					const char* tzStr;
-					char buffer[26];
+                    if (!no_newline) {
+                        time_t t;
+                        time_t t_gmt;
+                        struct tm tms_local;
+                        struct tm tms_gm;
+                        double tz;
+                        const char* tzStr;
+                        char buffer[26];
 
-					t = time(NULL);
-#ifdef WIN32
-					localtime_s(&tms_local, &t);
-					gmtime_s(&tms_gm, &t);
-#else
-                    localtime_r(&t, &tms_local);
-                    gmtime_r(&t, &tms_gm);
-#endif
-					t_gmt = mktime(&tms_gm);
-					tz = difftime(t, t_gmt) / 60.0 / 60.0;
+                        t = time(NULL);
+    #ifdef WIN32
+                        localtime_s(&tms_local, &t);
+                        gmtime_s(&tms_gm, &t);
+    #else
+                        localtime_r(&t, &tms_local);
+                        gmtime_r(&t, &tms_gm);
+    #endif
+                        t_gmt = mktime(&tms_gm);
+                        tz = difftime(t, t_gmt) / 60.0 / 60.0;
 
-					strftime(buffer, 26, "%Y-%m-%d %H:%M:%S", &tms_local);
-					FS_Write("[", 1, logfile);
-					FS_Write(buffer, strlen(buffer), logfile);
-					FS_Write(" ", 1, logfile);
+                        strftime(buffer, 26, "%Y-%m-%d %H:%M:%S", &tms_local);
+                        FS_Write("[", 1, logfile);
+                        FS_Write(buffer, strlen(buffer), logfile);
+                        FS_Write(" ", 1, logfile);
 
-					if (tz >= 0) {
-						tzStr = va("UTC+%.03f", tz);
-					} else {
-						tzStr = va("UTC%.03f", tz);
-					}
+                        if (tz >= 0) {
+                            tzStr = va("UTC+%.03f", tz);
+                        } else {
+                            tzStr = va("UTC%.03f", tz);
+                        }
 
-					FS_Write(tzStr, strlen(tzStr), logfile);
-					FS_Write("] ", 2, logfile);
-				}
+                        FS_Write(tzStr, strlen(tzStr), logfile);
+                        FS_Write("] ", 2, logfile);
+                    }
 
-				if (msgLen > 1 && msg[msgLen - 1] != '\n') {
-					// Don't write the time if the previous message has no newline
-					no_newline = qtrue;
-				} else {
-					no_newline = qfalse;
-				}
-			}
-            //================
+                    if (msg[msgLen - 1] != '\n') {
+                        // Don't write the time if the previous message has no newline
+                        no_newline = qtrue;
+                    } else {
+                        no_newline = qfalse;
+                    }
+                }
+                //================
 
-			FS_Write(msg, msgLen, logfile);
+                FS_Write(msg, msgLen, logfile);
+            }
 		}
     }
 
