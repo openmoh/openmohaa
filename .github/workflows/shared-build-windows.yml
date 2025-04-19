@@ -23,13 +23,13 @@ jobs:
     strategy:
       matrix:
         architecture: [
-          {name: 'x64',   config: 'x64',    toolset: 'x64',        arch_option: 'VC-WIN64A'},
-          {name: 'x86',   config: 'Win32',  toolset: 'x64_x86',    arch_option: 'VC-WIN32' },
-          {name: 'arm64', config: 'ARM64',  toolset: 'x64_arm64',  arch_option: 'VC-WIN64-ARM' }
+          {name: 'x64',   os: 'windows-2025',   config: 'x64',    toolset: 'x64',        arch_option: 'VC-WIN64A'    },
+          {name: 'x86',   os: 'windows-2025',   config: 'Win32',  toolset: 'x64_x86',    arch_option: 'VC-WIN32'     },
+          {name: 'arm64', os: 'windows-11-arm', config: 'ARM64',  toolset: 'x64_arm64',  arch_option: 'VC-WIN64-ARM' }
         ]
 
     name: "Building for platform windows-${{matrix.architecture.name}}"
-    runs-on: "windows-2025"
+    runs-on: ${{ matrix.architecture.os }}
     environment: ${{ inputs.environment }}
     env:
         flexbison-branch: 'v2.5.25'
@@ -86,7 +86,11 @@ jobs:
       if: steps.cache-required-packages.outputs.cache-hit != 'true'
       run: |
         $DownloadPath="$($env:USERPROFILE)\Downloads"
-        Invoke-WebRequest "https://github.com/ninja-build/ninja/releases/download/v1.12.1/ninja-win.zip" -OutFile "$DownloadPath\ninja-win.zip"
+        if ("${{ matrix.architecture.config }}" -ieq "ARM64") {
+          Invoke-WebRequest "https://github.com/ninja-build/ninja/releases/download/v1.12.1/ninja-winarm64.zip" -OutFile "$DownloadPath\ninja-win.zip"
+        } else {
+          Invoke-WebRequest "https://github.com/ninja-build/ninja/releases/download/v1.12.1/ninja-win.zip" -OutFile "$DownloadPath\ninja-win.zip"
+        }
         Expand-Archive -Path "$DownloadPath\ninja-win.zip" -DestinationPath "C:\Packages\ninja"
         Invoke-WebRequest "https://download.qt.io/official_releases/jom/jom.zip" -OutFile "$DownloadPath\jom.zip"
         Expand-Archive -Path "$DownloadPath\jom.zip" -DestinationPath "C:\Packages\jom"
