@@ -292,7 +292,7 @@ void MSG_WriteBits( msg_t *msg, int value, int bits ) {
 		if (bits&7) {
 			int nbits;
 			nbits = bits&7;
-			if ( msg->bit + nbits > msg->maxsize << 3 ) {
+			if ( msg->bit + nbits >= msg->maxsize << 3 ) {
 				msg->overflowed = qtrue;
 				return;
 			}
@@ -307,7 +307,7 @@ void MSG_WriteBits( msg_t *msg, int value, int bits ) {
 				Huff_offsetTransmit( &msgHuff.compressor, (value & 0xff), msg->data, &msg->bit, msg->maxsize << 3 );
 				value = (value>>8);
 
-				if ( msg->bit > msg->maxsize << 3 ) {
+				if ( msg->bit >= msg->maxsize << 3 ) {
 					msg->overflowed = qtrue;
 					return;
 				}

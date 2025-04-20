@@ -22,6 +22,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "../qcommon/q_shared.h"
 #include "../server/server.h"
+#include "../qcommon/q_version.h"
 #include "sv_gqueryreporting.h"
 #include "sv_gamespy.h"
 
@@ -64,16 +65,16 @@ static const char *GS_GAME_NAME_DEMO[] =
 
 static const char *GS_GAME_VERSION[] =
 {
-    TARGET_GAME_VERSION_MOH,
-    TARGET_GAME_VERSION_MOHTA,
-    TARGET_GAME_VERSION_MOHTT,
+    TARGET_GAME_VERSION_MOH "+" PRODUCT_VERSION,
+    TARGET_GAME_VERSION_MOHTA "+" PRODUCT_VERSION,
+    TARGET_GAME_VERSION_MOHTT "+" PRODUCT_VERSION,
 };
 
 static const char* GS_GAME_VERSION_DEMO[] =
 {
-    TARGET_GAME_VERSION_MOH,
-    "d" TARGET_GAME_VERSION_MOHTA,
-    "d" TARGET_GAME_VERSION_MOHTT_DEMO,
+    TARGET_GAME_VERSION_MOH "+" PRODUCT_VERSION,
+    "d" TARGET_GAME_VERSION_MOHTA "+" PRODUCT_VERSION,
+    "d" TARGET_GAME_VERSION_MOHTT_DEMO "+" PRODUCT_VERSION,
 };
 
 static const unsigned int GAMESPY_DEFAULT_PORT = 12300;

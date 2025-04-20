@@ -3128,7 +3128,7 @@ void Com_InitTargetGameWithType(target_game_e target_game, qboolean bIsDemo)
 			Cvar_Set("com_legacyprotocol", va("%i", PROTOCOL_MOH_DEMO));
         }
 		protocol_version_demo = protocol_version_full = PROTOCOL_MOH;
-		Cvar_Set("com_target_version", TARGET_GAME_VERSION_MOH);
+		Cvar_Set("com_target_version", va("%s+%s", TARGET_GAME_VERSION_MOH, PRODUCT_VERSION));
 		Cvar_Set("com_target_extension", PRODUCT_EXTENSION_MOH);
 		Cvar_Set("com_gamename", TARGET_GAME_NAME_MOH);
 		// "main" is already used as first argument of FS_Startup
@@ -3145,7 +3145,7 @@ void Com_InitTargetGameWithType(target_game_e target_game, qboolean bIsDemo)
 		}
 		protocol_version_demo = PROTOCOL_MOHTA_DEMO;
 		protocol_version_full = PROTOCOL_MOHTA;
-		Cvar_Set("com_target_version", TARGET_GAME_VERSION_MOHTA);
+		Cvar_Set("com_target_version", va("%s+%s", TARGET_GAME_VERSION_MOHTA, PRODUCT_VERSION));
 		Cvar_Set("com_target_extension", PRODUCT_EXTENSION_MOHTA);
 		Cvar_Set("com_gamename", TARGET_GAME_NAME_MOHTA);
 		if (!bIsDemo) {
@@ -3162,12 +3162,12 @@ void Com_InitTargetGameWithType(target_game_e target_game, qboolean bIsDemo)
 			Cvar_Set("com_protocol", va("%i", PROTOCOL_MOHTA));
             Cvar_Set("com_legacyprotocol", va("%i", PROTOCOL_MOHTA));
             Cvar_Set("com_protocol_alt", va("%i", PROTOCOL_MOHTA_DEMO));
-            Cvar_Set("com_target_version", TARGET_GAME_VERSION_MOHTT);
+            Cvar_Set("com_target_version", va("%s+%s", TARGET_GAME_VERSION_MOHTT, PRODUCT_VERSION));
 		} else {
 			Cvar_Set("com_protocol", va("%i", PROTOCOL_MOHTA_DEMO));
             Cvar_Set("com_legacyprotocol", va("%i", PROTOCOL_MOHTA_DEMO));
             Cvar_Set("com_protocol_alt", va("%i", PROTOCOL_MOHTA));
-            Cvar_Set("com_target_version", TARGET_GAME_VERSION_MOHTT_DEMO);
+            Cvar_Set("com_target_version", va("%s+%s", TARGET_GAME_VERSION_MOHTT_DEMO, PRODUCT_VERSION));
         }
         protocol_version_demo = PROTOCOL_MOHTA_DEMO;
         protocol_version_full = PROTOCOL_MOHTA;
