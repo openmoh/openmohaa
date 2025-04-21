@@ -79,10 +79,6 @@ static const char* GS_GAME_VERSION_DEMO[] =
 
 static const unsigned int GAMESPY_DEFAULT_PORT = 12300;
 
-void qr_send_statechanged(qr_t qrec);
-void qr_shutdown(qr_t qrec);
-void qr_process_queries(qr_t qrec);
-
 int qr_init(
     qr_t              *qrec,
     const char        *ip,
