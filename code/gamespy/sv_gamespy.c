@@ -225,6 +225,8 @@ static void players_callback(char *outbuf, int maxlen, void *userdata)
     int            index;
     char           infostring[128];
 
+    outbuf[0] = 0;
+
     if (!svs.clients) {
         return;
     }
