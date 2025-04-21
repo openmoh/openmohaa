@@ -274,7 +274,7 @@ S_OPENAL_InitContext
 static bool S_OPENAL_InitContext()
 {
     const char *dev;
-    int         attrlist[10];
+    int         attrlist[12];
 
     Com_DPrintf("OpenAL: Context initialization\n");
 
@@ -381,6 +381,11 @@ static bool S_OPENAL_InitContext()
 
 #ifdef ALC_SOFT_output_mode
     attrlist[4] = ALC_OUTPUT_MODE_SOFT;
+    // Disable HRTF by default
+    // For example, actual speakers that are recognized as headphones by the OS
+    // will not get forced HRTF
+    attrlist[6] = ALC_HRTF_SOFT;
+    attrlist[7] = ALC_FALSE;
 
     switch (s_speaker_type->integer) {
     // Two speakers
@@ -391,6 +396,8 @@ static bool S_OPENAL_InitContext()
     // Headphones
     case 1:
         attrlist[5] = ALC_STEREO_HRTF_SOFT;
+        // Allow HRTF mixing (without forcing in case it's unsupported)
+        attrlist[7] = ALC_DONT_CARE_SOFT;
         break;
     // Surround
     case 2:
@@ -413,11 +420,11 @@ static bool S_OPENAL_InitContext()
 
 #ifdef ALC_SOFT_output_limiter
     // Disable limiter
-    attrlist[6] = ALC_OUTPUT_LIMITER_SOFT;
-    attrlist[7] = ALC_FALSE;
+    attrlist[8] = ALC_OUTPUT_LIMITER_SOFT;
+    attrlist[9] = ALC_FALSE;
 #endif
-    attrlist[8] = 0;
-    attrlist[9] = 0;
+    attrlist[10] = 0;
+    attrlist[11] = 0;
 
     Com_Printf("OpenAL: Creating AL context...\n");
     al_context_id = qalcCreateContext(al_device, attrlist);
