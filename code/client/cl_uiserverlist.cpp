@@ -25,7 +25,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../gamespy/sv_gamespy.h"
 #include "../gamespy/common/gsPlatformSocket.h"
 
-Event EV_FAKKServerList_Connect(
+Event EV_FAKKServerList_Connect
+(
     "connect",
     EV_DEFAULT,
     NULL,
@@ -33,7 +34,8 @@ Event EV_FAKKServerList_Connect(
     "Connect to the specified server"
 );
 
-Event EV_FAKKServerList_RefreshServerList(
+Event EV_FAKKServerList_RefreshServerList
+(
     "refreshserverlist",
     EV_DEFAULT,
     NULL,
@@ -41,7 +43,8 @@ Event EV_FAKKServerList_RefreshServerList(
     "Refresh the serverlist"
 );
 
-Event EV_FAKKServerList_RefreshLANServerList(
+Event EV_FAKKServerList_RefreshLANServerList
+(
     "refreshlanserverlist",
     EV_DEFAULT,
     NULL,
@@ -49,7 +52,8 @@ Event EV_FAKKServerList_RefreshLANServerList(
     "Refresh the LAN serverlist"
 );
 
-Event EV_FAKKServerList_CancelRefresh(
+Event EV_FAKKServerList_CancelRefresh
+(
     "cancelrefresh",
     EV_DEFAULT,
     NULL,
@@ -57,7 +61,8 @@ Event EV_FAKKServerList_CancelRefresh(
     "Cancel serverlist Refresh"
 );
 
-Event EV_FAKKServerList_LANListing(
+Event EV_FAKKServerList_LANListing
+(
     "lanlisting",
     EV_DEFAULT,
     NULL,
@@ -65,7 +70,8 @@ Event EV_FAKKServerList_LANListing(
     "Makes this server list to LAN stuff when there's a choice between Internet & LAN servers"
 );
 
-Event EV_FAKKServerList_UpdateServer(
+Event EV_FAKKServerList_UpdateServer
+(
     "updateserver",
     EV_DEFAULT,
     NULL,
@@ -74,73 +80,78 @@ Event EV_FAKKServerList_UpdateServer(
 );
 
 struct ServerListInstance {
-    int iServerType;
-    UIFAKKServerList* serverList;
+    int               iServerType;
+    UIFAKKServerList *serverList;
 };
 
-class FAKKServerListItem : public UIListCtrlItem {
-    UIFAKKServerList* m_parent; // Added in OPM
-    str m_strings[6];
-    str m_sVersion;
-    bool m_bDifferentVersion;
-    bool m_bFavorite;
-    bool m_bQueryDone;
-    bool m_bQueryFailed;
-    int m_iNumPlayers;
+class FAKKServerListItem : public UIListCtrlItem
+{
+    UIFAKKServerList *m_parent; // Added in OPM
+    str               m_strings[6];
+    str               m_sVersion;
+    bool              m_bDifferentVersion;
+    bool              m_bFavorite;
+    bool              m_bQueryDone;
+    bool              m_bQueryFailed;
+    int               m_iNumPlayers;
 
 public:
-    str m_sIP;
+    str          m_sIP;
     unsigned int m_uiRealIP;
-    int m_iPort;
-    int m_iGameSpyPort;
+    int          m_iPort;
+    int          m_iGameSpyPort;
 
 public:
-    FAKKServerListItem(UIFAKKServerList* parent, str string1, str string2, str string3, str string4, str string5, str string6, str ver);
+    FAKKServerListItem(
+        UIFAKKServerList *parent, str string1, str string2, str string3, str string4, str string5, str string6, str ver
+    );
 
     griditemtype_t getListItemType(int index) const override;
-    int getListItemValue(int i) const override;
-    str getListItemString(int i) const override;
-    void setListItemString(int i, str sNewString);
-    void DrawListItem(int iColumn, const UIRect2D& drawRect, bool bSelected, UIFont* pFont) override;
-    qboolean IsHeaderEntry() const override;
-    bool IsQueried() const;
-    void SetQueried(bool bIsQueried);
-    bool IfQueryFailed() const;
-    void SetQueryFailed(bool bFailed);
-    void SetNumPlayers(int iNum);
-    bool IsFavorite() const;
-    void SetFavorite(bool bIsFavorite);
-    str GetListItemVersion() const;
-    void SetListItemVersion(str sNewVer);
-    void SetDifferentVersion(bool bIsDifferentVersion);
-    bool IsDifferentVersion() const;
+    int            getListItemValue(int i) const override;
+    str            getListItemString(int i) const override;
+    void           setListItemString(int i, str sNewString);
+    void           DrawListItem(int iColumn, const UIRect2D& drawRect, bool bSelected, UIFont *pFont) override;
+    qboolean       IsHeaderEntry() const override;
+    bool           IsQueried() const;
+    void           SetQueried(bool bIsQueried);
+    bool           IfQueryFailed() const;
+    void           SetQueryFailed(bool bFailed);
+    void           SetNumPlayers(int iNum);
+    bool           IsFavorite() const;
+    void           SetFavorite(bool bIsFavorite);
+    str            GetListItemVersion() const;
+    void           SetListItemVersion(str sNewVer);
+    void           SetDifferentVersion(bool bIsDifferentVersion);
+    bool           IsDifferentVersion() const;
 };
 
-static int g_iTotalNumPlayers;
-qboolean g_bNumericSort = qfalse;
-qboolean g_bReverseSort = qfalse;
-qboolean g_NeedAdditionalLANSearch = qfalse;
-qboolean g_bDoneUpdating[2];
+static int         g_iTotalNumPlayers;
+qboolean           g_bNumericSort            = qfalse;
+qboolean           g_bReverseSort            = qfalse;
+qboolean           g_NeedAdditionalLANSearch = qfalse;
+qboolean           g_bDoneUpdating[2];
 ServerListInstance g_ServerListInst[2];
 
-void UpdateServerListCallBack(GServerList serverlist, int msg, void* instance, void* param1, void* param2);
-static void AddFilter(char* filter, const char* value);
+void        UpdateServerListCallBack(GServerList serverlist, int msg, void *instance, void *param1, void *param2);
+static void AddFilter(char *filter, const char *value);
 
-FAKKServerListItem::FAKKServerListItem(UIFAKKServerList* parent, str string1, str string2, str string3, str string4, str string5, str string6, str ver)
+FAKKServerListItem::FAKKServerListItem(
+    UIFAKKServerList *parent, str string1, str string2, str string3, str string4, str string5, str string6, str ver
+)
 {
-    m_parent = parent;
+    m_parent     = parent;
     m_strings[0] = string1;
     m_strings[1] = string2;
     m_strings[2] = string3;
     m_strings[3] = string4;
     m_strings[4] = string5;
     m_strings[5] = string6;
-    m_sVersion = ver;
+    m_sVersion   = ver;
 
-    m_bFavorite = false;
-    m_bQueryDone = false;
+    m_bFavorite    = false;
+    m_bQueryDone   = false;
     m_bQueryFailed = false;
-    m_iNumPlayers = 0;
+    m_iNumPlayers  = 0;
 }
 
 griditemtype_t FAKKServerListItem::getListItemType(int index) const
@@ -163,11 +174,11 @@ void FAKKServerListItem::setListItemString(int i, str sNewString)
     m_strings[i] = sNewString;
 }
 
-void FAKKServerListItem::DrawListItem(int iColumn, const UIRect2D& drawRect, bool bSelected, UIFont* pFont)
+void FAKKServerListItem::DrawListItem(int iColumn, const UIRect2D& drawRect, bool bSelected, UIFont *pFont)
 {
     static cvar_t *pColoringType = Cvar_Get("cl_browserdetailedcolors", "0", CVAR_ARCHIVE);
-    UIRect2D newRect = drawRect;
-    vec2_t virtualScale = { 1.f, 1.f };
+    UIRect2D       newRect       = drawRect;
+    vec2_t         virtualScale  = {1.f, 1.f};
 
     /*
     if (m_parent->isVirtual()) {
@@ -180,7 +191,7 @@ void FAKKServerListItem::DrawListItem(int iColumn, const UIRect2D& drawRect, boo
 
     virtualScale[0] = m_parent->getHighResScale()[0];
     virtualScale[1] = m_parent->getHighResScale()[1];
-    
+
     if (!pColoringType->integer) {
         if (IfQueryFailed() || (IsDifferentVersion() && IsQueried())) {
             if (bSelected) {
@@ -359,66 +370,69 @@ bool FAKKServerListItem::IsDifferentVersion() const
     return m_bDifferentVersion;
 }
 
-CLASS_DECLARATION( UIListCtrl, UIFAKKServerList, NULL )
-{
-    { &EV_UIListBase_ItemSelected,              &UIFAKKServerList::SelectServer },
-    { &EV_UIListBase_ItemDoubleClicked,         &UIFAKKServerList::ConnectServer },
-    { &EV_FAKKServerList_RefreshServerList,     &UIFAKKServerList::RefreshServerList },
-    { &EV_FAKKServerList_RefreshLANServerList,  &UIFAKKServerList::RefreshLANServerList },
-    { &EV_FAKKServerList_CancelRefresh,         &UIFAKKServerList::CancelRefresh },
-    { &EV_FAKKServerList_Connect,               &UIFAKKServerList::ConnectServer },
-    { &EV_FAKKServerList_LANListing,            &UIFAKKServerList::MakeLANListing },
-    { &EV_FAKKServerList_UpdateServer,          &UIFAKKServerList::UpdateServer },
-	{ NULL, NULL }
+CLASS_DECLARATION(UIListCtrl, UIFAKKServerList, NULL) {
+    {&EV_UIListBase_ItemSelected,             &UIFAKKServerList::SelectServer        },
+    {&EV_UIListBase_ItemDoubleClicked,        &UIFAKKServerList::ConnectServer       },
+    {&EV_FAKKServerList_RefreshServerList,    &UIFAKKServerList::RefreshServerList   },
+    {&EV_FAKKServerList_RefreshLANServerList, &UIFAKKServerList::RefreshLANServerList},
+    {&EV_FAKKServerList_CancelRefresh,        &UIFAKKServerList::CancelRefresh       },
+    {&EV_FAKKServerList_Connect,              &UIFAKKServerList::ConnectServer       },
+    {&EV_FAKKServerList_LANListing,           &UIFAKKServerList::MakeLANListing      },
+    {&EV_FAKKServerList_UpdateServer,         &UIFAKKServerList::UpdateServer        },
+    {NULL,                                    NULL                                   }
 };
 
 UIFAKKServerList::UIFAKKServerList()
 {
-	setBackgroundColor(UWhite, true);
+    setBackgroundColor(UWhite, true);
     Connect(this, EV_UIListBase_ItemDoubleClicked, EV_UIListBase_ItemDoubleClicked);
     Connect(this, EV_UIListBase_ItemSelected, EV_UIListBase_ItemSelected);
 
-	AllowActivate(true);
-	setHeaderFont("facfont-20");
-	m_serverList[0] = NULL;
-	m_serverList[1] = NULL;
-	m_bHasList = false;
-	m_bGettingList[0] = false;
-	m_bGettingList[1] = false;
-	m_bUpdatingList = false;
-	m_bLANListing = false;
-	m_iLastSortColumn = 2;
+    AllowActivate(true);
+    setHeaderFont("facfont-20");
+    m_serverList[0]   = NULL;
+    m_serverList[1]   = NULL;
+    m_bHasList        = false;
+    m_bGettingList[0] = false;
+    m_bGettingList[1] = false;
+    m_bUpdatingList   = false;
+    m_bLANListing     = false;
+    m_iLastSortColumn = 2;
 }
 
-void UIFAKKServerList::SelectServer( Event *ev )
-{
-}
+void UIFAKKServerList::SelectServer(Event *ev) {}
 
-void UIFAKKServerList::ConnectServer( Event *ev )
+void UIFAKKServerList::ConnectServer(Event *ev)
 {
-    const FAKKServerListItem* pItem;
+    const FAKKServerListItem *pItem;
 
     if (getCurrentItem() <= 0) {
         return;
     }
 
-    pItem = static_cast<const FAKKServerListItem*>(GetItem(getCurrentItem()));
+    pItem = static_cast<const FAKKServerListItem *>(GetItem(getCurrentItem()));
     if (pItem->IsDifferentVersion()) {
-        const char* message;
-        float neededVersion = com_target_version->value;
-        float serverVersion = atof(pItem->GetListItemVersion().c_str());
+        const char *message;
+        float       neededVersion = com_target_version->value;
+        float       serverVersion = atof(pItem->GetListItemVersion().c_str());
 
         // Tolerate patch version
         if (fabs(neededVersion - serverVersion) >= 0.1) {
             UI_SetReturnMenuToCurrent();
 
-            message = va("Server is version %s, you are targeting %s", pItem->GetListItemVersion().c_str(), com_target_version->string);
+            message =
+                va("Server is version %s, you are targeting %s",
+                   pItem->GetListItemVersion().c_str(),
+                   com_target_version->string);
             Cvar_Set("com_errormessage", message);
 
             UI_PushMenu("wrongversion");
         } else {
-            message = va("Can not connect to v%s server, you are targeting v%s", pItem->GetListItemVersion().c_str(), com_target_version->string);
-        
+            message =
+                va("Can not connect to v%s server, you are targeting v%s",
+                   pItem->GetListItemVersion().c_str(),
+                   com_target_version->string);
+
             Cvar_Set("dm_serverstatus", message);
         }
     } else {
@@ -432,10 +446,9 @@ void UIFAKKServerList::ConnectServer( Event *ev )
     }
 }
 
-qboolean UIFAKKServerList::KeyEvent( int key, unsigned int time )
+qboolean UIFAKKServerList::KeyEvent(int key, unsigned int time)
 {
-    switch (key)
-    {
+    switch (key) {
     case K_ENTER:
     case K_KP_ENTER:
         ConnectServer(NULL);
@@ -456,17 +469,17 @@ qboolean UIFAKKServerList::KeyEvent( int key, unsigned int time )
             SelectServer(NULL);
 
             return qtrue;
-        }
-        else {
+        } else {
             return qfalse;
         }
         break;
     case 'u':
     case 'U':
-        if (getCurrentItem() > 0)
-        {
-            const FAKKServerListItem* pItem = static_cast<const FAKKServerListItem*>(GetItem(getCurrentItem()));
-            ServerListAuxUpdate(m_serverList[0], pItem->m_sIP.c_str(), pItem->m_iGameSpyPort, true, GQueryType::qt_status);
+        if (getCurrentItem() > 0) {
+            const FAKKServerListItem *pItem = static_cast<const FAKKServerListItem *>(GetItem(getCurrentItem()));
+            ServerListAuxUpdate(
+                m_serverList[0], pItem->m_sIP.c_str(), pItem->m_iGameSpyPort, true, GQueryType::qt_status
+            );
         }
         return UIListCtrl::KeyEvent(key, time);
     case 'c':
@@ -476,25 +489,33 @@ qboolean UIFAKKServerList::KeyEvent( int key, unsigned int time )
     case 'i':
     case 'I':
         {
-            int i, j;
-            const FAKKServerListItem* pServerItem1;
-            const FAKKServerListItem* pServerItem2;
-            int iNumErrors = 0;
+            int                       i, j;
+            const FAKKServerListItem *pServerItem1;
+            const FAKKServerListItem *pServerItem2;
+            int                       iNumErrors = 0;
 
             for (i = 1; i <= getNumItems(); i++) {
-                pServerItem1 = static_cast<const FAKKServerListItem*>(GetItem(i));
+                pServerItem1 = static_cast<const FAKKServerListItem *>(GetItem(i));
 
                 for (j = i + 1; j <= getNumItems(); j++) {
-                    pServerItem2 = static_cast<const FAKKServerListItem*>(GetItem(j));
+                    pServerItem2 = static_cast<const FAKKServerListItem *>(GetItem(j));
 
                     if (!str::icmp(pServerItem1->m_sIP.c_str(), pServerItem2->m_sIP.c_str())) {
                         if (pServerItem1->m_iPort == pServerItem2->m_iPort) {
-                            Com_DPrintf("*#*#* Duplicate server address: %s:%i\n", pServerItem1->m_sIP.c_str(), pServerItem1->m_iPort);
+                            Com_DPrintf(
+                                "*#*#* Duplicate server address: %s:%i\n",
+                                pServerItem1->m_sIP.c_str(),
+                                pServerItem1->m_iPort
+                            );
                             iNumErrors++;
                         }
 
                         if (pServerItem1->m_iGameSpyPort == pServerItem2->m_iGameSpyPort) {
-                            Com_DPrintf("*#*#* servers at IP %s sharing GameSpy port %i\n", pServerItem1->m_sIP.c_str(), pServerItem1->m_iGameSpyPort);
+                            Com_DPrintf(
+                                "*#*#* servers at IP %s sharing GameSpy port %i\n",
+                                pServerItem1->m_sIP.c_str(),
+                                pServerItem1->m_iGameSpyPort
+                            );
                             iNumErrors++;
                         }
                     }
@@ -509,7 +530,7 @@ qboolean UIFAKKServerList::KeyEvent( int key, unsigned int time )
     }
 }
 
-void UIFAKKServerList::UpdateUIElement( void )
+void UIFAKKServerList::UpdateUIElement(void)
 {
     float width;
 
@@ -527,13 +548,13 @@ void UIFAKKServerList::UpdateUIElement( void )
     uWinMan.ActivateControl(this);
 }
 
-void UIFAKKServerList::RefreshServerList( Event *ev )
+void UIFAKKServerList::RefreshServerList(Event *ev)
 {
-    int i;
-    FAKKServerListItem* pNewServerItem;
+    int                 i;
+    FAKKServerListItem *pNewServerItem;
 
     for (i = 1; i <= getNumItems(); i++) {
-        pNewServerItem = static_cast<FAKKServerListItem*>(GetItem(i));
+        pNewServerItem = static_cast<FAKKServerListItem *>(GetItem(i));
         pNewServerItem->SetQueried(false);
         pNewServerItem->SetNumPlayers(0);
         pNewServerItem->SetQueryFailed(false);
@@ -550,7 +571,7 @@ void UIFAKKServerList::RefreshServerList( Event *ev )
         ServerListFree(m_serverList[1]);
         m_serverList[1] = NULL;
     }
-    
+
     if (!m_serverList[0]) {
         NewServerList();
     }
@@ -560,14 +581,14 @@ void UIFAKKServerList::RefreshServerList( Event *ev )
 
     Cvar_Set("dm_playercount", "0");
     {
-        char filter[2048] = { 0 };
-        static cvar_t* dm_max_players = Cvar_Get("dm_max_players", "0", CVAR_ARCHIVE);
-        static cvar_t* dm_min_players = Cvar_Get("dm_min_players", "0", CVAR_ARCHIVE);
-        static cvar_t* dm_show_demo_servers = Cvar_Get("dm_show_demo_servers", "1", CVAR_ARCHIVE);
-        static cvar_t* dm_realism_mode = Cvar_Get("dm_realism_mode", "0", CVAR_ARCHIVE);
-        static cvar_t* dm_filter_listen = Cvar_Get("dm_filter_listen", "1", CVAR_ARCHIVE);
-        static cvar_t* dm_filter_empty = Cvar_Get("dm_filter_empty", "0", CVAR_ARCHIVE);
-        static cvar_t* dm_filter_full = Cvar_Get("dm_filter_full", "0", CVAR_ARCHIVE);
+        char           filter[2048]         = {0};
+        static cvar_t *dm_max_players       = Cvar_Get("dm_max_players", "0", CVAR_ARCHIVE);
+        static cvar_t *dm_min_players       = Cvar_Get("dm_min_players", "0", CVAR_ARCHIVE);
+        static cvar_t *dm_show_demo_servers = Cvar_Get("dm_show_demo_servers", "1", CVAR_ARCHIVE);
+        static cvar_t *dm_realism_mode      = Cvar_Get("dm_realism_mode", "0", CVAR_ARCHIVE);
+        static cvar_t *dm_filter_listen     = Cvar_Get("dm_filter_listen", "1", CVAR_ARCHIVE);
+        static cvar_t *dm_filter_empty      = Cvar_Get("dm_filter_empty", "0", CVAR_ARCHIVE);
+        static cvar_t *dm_filter_full       = Cvar_Get("dm_filter_full", "0", CVAR_ARCHIVE);
 
         if (dm_min_players->integer) {
             AddFilter(filter, va("numplayers >= %d", dm_min_players->integer));
@@ -607,13 +628,13 @@ void UIFAKKServerList::RefreshServerList( Event *ev )
     m_bUpdatingList = true;
 }
 
-void UIFAKKServerList::RefreshLANServerList( Event *ev )
+void UIFAKKServerList::RefreshLANServerList(Event *ev)
 {
-    int i;
-    FAKKServerListItem* pNewServerItem;
+    int                 i;
+    FAKKServerListItem *pNewServerItem;
 
     for (i = 1; i <= getNumItems(); i++) {
-        pNewServerItem = static_cast<FAKKServerListItem*>(GetItem(i));
+        pNewServerItem = static_cast<FAKKServerListItem *>(GetItem(i));
         pNewServerItem->SetQueried(false);
         pNewServerItem->SetNumPlayers(0);
         pNewServerItem->SetQueryFailed(false);
@@ -629,21 +650,22 @@ void UIFAKKServerList::RefreshLANServerList( Event *ev )
         NewServerList();
     }
 
-    g_bDoneUpdating[0] = false;
-    g_bDoneUpdating[1] = false;
+    g_bDoneUpdating[0]        = false;
+    g_bDoneUpdating[1]        = false;
     g_NeedAdditionalLANSearch = true;
 
     Cvar_Set("dm_playercount", "0");
     // Search all LAN servers from port 12300 to 12316
     ServerListLANUpdate(m_serverList[0], true, 12300, 12316, 1);
-    
+
     if (m_serverList[1]) {
         // If another game is supported search for it
         ServerListLANUpdate(m_serverList[1], true, 12300, 12316, 1);
     }
 }
 
-static void AddFilter(char* filter, const char* value) {
+static void AddFilter(char *filter, const char *value)
+{
     if (*filter) {
         strcat(filter, va(" and %s", value));
     } else {
@@ -651,20 +673,20 @@ static void AddFilter(char* filter, const char* value) {
     }
 }
 
-void UIFAKKServerList::CancelRefresh( Event *ev )
+void UIFAKKServerList::CancelRefresh(Event *ev)
 {
-	ServerListHalt(m_serverList[0]);
+    ServerListHalt(m_serverList[0]);
     if (m_serverList[1]) {
         ServerListHalt(m_serverList[1]);
     }
 }
 
-void UIFAKKServerList::NewServerList( void )
+void UIFAKKServerList::NewServerList(void)
 {
-    int iNumConcurrent;
-    const char* secret_key;
-    const char* game_name;
-    cvar_t* pRateCvar = Cvar_Get("rate", "5000", CVAR_ARCHIVE | CVAR_USERINFO);
+    int         iNumConcurrent;
+    const char *secret_key;
+    const char *game_name;
+    cvar_t     *pRateCvar = Cvar_Get("rate", "5000", CVAR_ARCHIVE | CVAR_USERINFO);
 
     if (pRateCvar->integer <= 3000) {
         iNumConcurrent = 4;
@@ -677,104 +699,107 @@ void UIFAKKServerList::NewServerList( void )
     }
 
     if (com_target_game->integer < target_game_e::TG_MOHTT) {
-        game_name = GS_GetCurrentGameName();
+        game_name  = GS_GetCurrentGameName();
         secret_key = GS_GetCurrentGameKey();
 
         // standard mohaa server
         g_ServerListInst[0].iServerType = com_target_game->integer;
-        g_ServerListInst[0].serverList = this;
+        g_ServerListInst[0].serverList  = this;
 
         m_serverList[0] = ServerListNew(
             game_name,
             game_name,
             secret_key,
             iNumConcurrent,
-            (void*)&UpdateServerListCallBack,
+            (void *)&UpdateServerListCallBack,
             1,
-            (void*)&g_ServerListInst[0]
+            (void *)&g_ServerListInst[0]
         );
 
         m_serverList[1] = NULL;
     } else {
-        static cvar_t* dm_omit_spearhead = Cvar_Get("dm_omit_spearhead", "0", 1);
+        static cvar_t *dm_omit_spearhead = Cvar_Get("dm_omit_spearhead", "0", 1);
 
-        game_name = GS_GetGameName(target_game_e::TG_MOHTT);
+        game_name  = GS_GetGameName(target_game_e::TG_MOHTT);
         secret_key = GS_GetGameKey(target_game_e::TG_MOHTT);
 
         g_ServerListInst[0].iServerType = target_game_e::TG_MOHTT;
-        g_ServerListInst[0].serverList = this;
+        g_ServerListInst[0].serverList  = this;
 
         m_serverList[0] = ServerListNew(
             game_name,
             game_name,
             secret_key,
             iNumConcurrent,
-            (void*)&UpdateServerListCallBack,
+            (void *)&UpdateServerListCallBack,
             1,
-            (void*)&g_ServerListInst[0]
+            (void *)&g_ServerListInst[0]
         );
-        
+
         if (!dm_omit_spearhead->integer) {
             // Since mohtt is compatible with mohta
             // Search for both type of servers
-            game_name = GS_GetGameName(target_game_e::TG_MOHTA);
+            game_name  = GS_GetGameName(target_game_e::TG_MOHTA);
             secret_key = GS_GetGameKey(target_game_e::TG_MOHTA);
 
             g_ServerListInst[1].iServerType = target_game_e::TG_MOHTA;
-            g_ServerListInst[1].serverList = this;
+            g_ServerListInst[1].serverList  = this;
 
             m_serverList[1] = ServerListNew(
                 game_name,
                 game_name,
                 secret_key,
                 iNumConcurrent,
-                (void*)&UpdateServerListCallBack,
+                (void *)&UpdateServerListCallBack,
                 1,
-                (void*)&g_ServerListInst[1]
+                (void *)&g_ServerListInst[1]
             );
         }
     }
 }
 
-void UIFAKKServerList::MakeLANListing( Event *ev )
+void UIFAKKServerList::MakeLANListing(Event *ev)
 {
-	m_bLANListing = true;
+    m_bLANListing = true;
 }
 
-void UIFAKKServerList::UpdateServer( Event *ev )
+void UIFAKKServerList::UpdateServer(Event *ev)
 {
-	if (m_currentItem <= 0) {
-		return;
-	}
+    if (m_currentItem <= 0) {
+        return;
+    }
 
-    FAKKServerListItem* item = (FAKKServerListItem*)GetItem(getCurrentItem());
+    FAKKServerListItem *item = (FAKKServerListItem *)GetItem(getCurrentItem());
     ServerListAuxUpdate(m_serverList[0], item->m_sIP.c_str(), item->m_iGameSpyPort, true, GQueryType::qt_status);
 
     if (com_target_game->integer >= target_game_e::TG_MOHTT) {
-        const cvar_t* dm_omit_spearhead = Cvar_Get("dm_omit_spearhead", "0", CVAR_ARCHIVE);
+        const cvar_t *dm_omit_spearhead = Cvar_Get("dm_omit_spearhead", "0", CVAR_ARCHIVE);
         // check for Spearhead
         if (!dm_omit_spearhead->integer) {
-            ServerListAuxUpdate(m_serverList[1], item->m_sIP.c_str(), item->m_iGameSpyPort, true, GQueryType::qt_status);
+            ServerListAuxUpdate(
+                m_serverList[1], item->m_sIP.c_str(), item->m_iGameSpyPort, true, GQueryType::qt_status
+            );
         }
     }
 }
 
-int UIFAKKServerList::ServerCompareFunction( const UIListCtrlItem *i1, const UIListCtrlItem *i2, int columnname )
+int UIFAKKServerList::ServerCompareFunction(const UIListCtrlItem *i1, const UIListCtrlItem *i2, int columnname)
 {
-    int iCompResult;
-    int val1, val2;
-    const FAKKServerListItem* fi1 = static_cast<const FAKKServerListItem*>(i1);
-    const FAKKServerListItem* fi2 = static_cast<const FAKKServerListItem*>(i2);
+    int                       iCompResult;
+    int                       val1, val2;
+    const FAKKServerListItem *fi1 = static_cast<const FAKKServerListItem *>(i1);
+    const FAKKServerListItem *fi2 = static_cast<const FAKKServerListItem *>(i2);
 
-    if (fi1->IsFavorite() != fi2->IsFavorite())
-    {
+    if (fi1->IsFavorite() != fi2->IsFavorite()) {
         if (fi1->IsFavorite()) {
             iCompResult = -1;
         } else {
             iCompResult = 1;
         }
 
-        if (g_bReverseSort) iCompResult = -iCompResult;
+        if (g_bReverseSort) {
+            iCompResult = -iCompResult;
+        }
     } else if (fi1->IsQueried() != fi2->IsQueried()) {
         if (fi1->IsQueried()) {
             iCompResult = -1;
@@ -782,16 +807,19 @@ int UIFAKKServerList::ServerCompareFunction( const UIListCtrlItem *i1, const UIL
             iCompResult = 1;
         }
 
-        if (g_bReverseSort) iCompResult = -iCompResult;
+        if (g_bReverseSort) {
+            iCompResult = -iCompResult;
+        }
     } else if (fi1->IsDifferentVersion() != fi2->IsDifferentVersion()) {
-
         if (fi1->IsDifferentVersion()) {
             iCompResult = 1;
         } else {
             iCompResult = -1;
         }
 
-        if (g_bReverseSort) iCompResult = -iCompResult;
+        if (g_bReverseSort) {
+            iCompResult = -iCompResult;
+        }
     } else if (fi1->IfQueryFailed() != fi2->IfQueryFailed()) {
         if (fi1->IfQueryFailed()) {
             iCompResult = 1;
@@ -799,7 +827,9 @@ int UIFAKKServerList::ServerCompareFunction( const UIListCtrlItem *i1, const UIL
             iCompResult = -1;
         }
 
-        if (g_bReverseSort) iCompResult = -iCompResult;
+        if (g_bReverseSort) {
+            iCompResult = -iCompResult;
+        }
     } else if (g_bNumericSort) {
         val1 = fi1->getListItemValue(columnname);
         val2 = fi2->getListItemValue(columnname);
@@ -815,8 +845,7 @@ int UIFAKKServerList::ServerCompareFunction( const UIListCtrlItem *i1, const UIL
         iCompResult = str::icmp(fi1->getListItemString(columnname), fi2->getListItemString(columnname));
     }
 
-    if (!iCompResult)
-    {
+    if (!iCompResult) {
         if (columnname != -2) {
             val1 = fi1->getListItemValue(2);
             val2 = fi2->getListItemValue(2);
@@ -849,11 +878,9 @@ int UIFAKKServerList::ServerCompareFunction( const UIListCtrlItem *i1, const UIL
 
                 if (val1 < val2) {
                     iCompResult = 1;
-                }
-                else if (val1 > val2) {
+                } else if (val1 > val2) {
                     iCompResult = -1;
-                }
-                else {
+                } else {
                     iCompResult = 0;
                 }
             }
@@ -871,16 +898,17 @@ int UIFAKKServerList::ServerCompareFunction( const UIListCtrlItem *i1, const UIL
             }
         }
 
-        if (g_bReverseSort) iCompResult = -iCompResult;
+        if (g_bReverseSort) {
+            iCompResult = -iCompResult;
+        }
     }
 
     return iCompResult;
 }
 
-void UIFAKKServerList::Draw( void )
+void UIFAKKServerList::Draw(void)
 {
-    if (m_serverList[0])
-    {
+    if (m_serverList[0]) {
         GServerListState listState[2];
 
         ServerListThink(m_serverList[0]);
@@ -890,22 +918,17 @@ void UIFAKKServerList::Draw( void )
 
         listState[0] = ServerListState(m_serverList[0]);
         listState[1] = m_serverList[1] ? ServerListState(m_serverList[1]) : GServerListState::sl_idle;
-        if (listState[0] != GServerListState::sl_idle || listState[1] != GServerListState::sl_idle)
-        {
+        if (listState[0] != GServerListState::sl_idle || listState[1] != GServerListState::sl_idle) {
             menuManager.PassEventToWidget("refresh", new Event(EV_Widget_Disable));
             menuManager.PassEventToWidget("cancelrefresh", new Event(EV_Widget_Enable));
-        }
-        else
-        {
+        } else {
             menuManager.PassEventToWidget("refresh", new Event(EV_Widget_Enable));
             menuManager.PassEventToWidget("cancelrefresh", new Event(EV_Widget_Disable));
         }
     } else if (!m_bHasList) {
-
         if (m_bLANListing) {
             RefreshLANServerList(NULL);
-        }
-        else {
+        } else {
             RefreshServerList(NULL);
         }
 
@@ -927,14 +950,14 @@ void UIFAKKServerList::Draw( void )
     UIListCtrl::Draw();
 }
 
-void UIFAKKServerList::SortByColumn( int column )
+void UIFAKKServerList::SortByColumn(int column)
 {
-    int i;
-    bool exists = 0;
-    bool numeric = 0;
-    bool reverse = 0;
-    UIListCtrlItem* selected = NULL;
-    bool selvisible = false;
+    int             i;
+    bool            exists     = 0;
+    bool            numeric    = 0;
+    bool            reverse    = 0;
+    UIListCtrlItem *selected   = NULL;
+    bool            selvisible = false;
 
     for (i = 1; i <= m_columnlist.NumObjects(); i++) {
         const columndef_t& def = m_columnlist.ObjectAt(i);
@@ -942,7 +965,7 @@ void UIFAKKServerList::SortByColumn( int column )
             // found one
             numeric = def.numeric;
             reverse = def.reverse_sort;
-            exists = true;
+            exists  = true;
             break;
         }
     }
@@ -953,11 +976,11 @@ void UIFAKKServerList::SortByColumn( int column )
     }
 
     m_iLastSortColumn = column;
-    s_qsortcolumn = column;
-    s_qsortobject = this;
-    s_qsortreverse = reverse;
-    g_bNumericSort = numeric;
-    g_bReverseSort = reverse;
+    s_qsortcolumn     = column;
+    s_qsortobject     = this;
+    s_qsortreverse    = reverse;
+    g_bNumericSort    = numeric;
+    g_bReverseSort    = reverse;
 
     if (getCurrentItem()) {
         selected = m_itemlist.ObjectAt(getCurrentItem());
@@ -983,47 +1006,46 @@ void UIFAKKServerList::SortByColumn( int column )
     }
 }
 
-void UpdateServerListCallBack(GServerList serverlist, int msg, void* instance, void* param1, void* param2)
+void UpdateServerListCallBack(GServerList serverlist, int msg, void *instance, void *param1, void *param2)
 {
-    int i, j;
-    int iPort, iGameSpyPort;
-    unsigned int iRealIP;
-    str sAddress;
-    GServer server;
-    FAKKServerListItem* pNewServerItem;
-    static int iServerQueryCount = 0;
-    static int iServerTotalCount = 0;
-    UIFAKKServerList* uiServerList;
-    int iServerType;
+    int                 i, j;
+    int                 iPort, iGameSpyPort;
+    unsigned int        iRealIP;
+    str                 sAddress;
+    GServer             server;
+    FAKKServerListItem *pNewServerItem;
+    static int          iServerQueryCount = 0;
+    static int          iServerTotalCount = 0;
+    UIFAKKServerList   *uiServerList;
+    int                 iServerType;
     // filters
-    static cvar_t* dm_filter_empty = Cvar_Get("dm_filter_empty", "0", CVAR_ARCHIVE);
-    static cvar_t* dm_filter_full = Cvar_Get("dm_filter_full", "0", CVAR_ARCHIVE);
-    static cvar_t* dm_filter_pure = Cvar_Get("dm_filter_pure", "0", CVAR_ARCHIVE);
-    static cvar_t* dm_max_ping = Cvar_Get("dm_max_ping", "0", CVAR_ARCHIVE);
-    static cvar_t* dm_free_for_all = Cvar_Get("dm_free_for_all", "1", CVAR_ARCHIVE);
-    static cvar_t* dm_objective_match = Cvar_Get("dm_objective_match", "1", CVAR_ARCHIVE);
-    static cvar_t* dm_round_based_match = Cvar_Get("dm_round_based_match", "1", CVAR_ARCHIVE);
-    static cvar_t* dm_team_match = Cvar_Get("dm_team_match", "1", CVAR_ARCHIVE);
-    static cvar_t* dm_tow_match = Cvar_Get("dm_tow_match", "1", CVAR_ARCHIVE);
-    static cvar_t* dm_liberation_match = Cvar_Get("dm_liberation_match", "1", CVAR_ARCHIVE);
-    static cvar_t* dm_run_fast = Cvar_Get("dm_run_fast", "1", CVAR_ARCHIVE);
-    static cvar_t* dm_run_normal = Cvar_Get("dm_run_normal", "1", CVAR_ARCHIVE);
-    static cvar_t* dm_omit_spearhead = Cvar_Get("dm_omit_spearhead", "0", CVAR_ARCHIVE);
+    static cvar_t *dm_filter_empty      = Cvar_Get("dm_filter_empty", "0", CVAR_ARCHIVE);
+    static cvar_t *dm_filter_full       = Cvar_Get("dm_filter_full", "0", CVAR_ARCHIVE);
+    static cvar_t *dm_filter_pure       = Cvar_Get("dm_filter_pure", "0", CVAR_ARCHIVE);
+    static cvar_t *dm_max_ping          = Cvar_Get("dm_max_ping", "0", CVAR_ARCHIVE);
+    static cvar_t *dm_free_for_all      = Cvar_Get("dm_free_for_all", "1", CVAR_ARCHIVE);
+    static cvar_t *dm_objective_match   = Cvar_Get("dm_objective_match", "1", CVAR_ARCHIVE);
+    static cvar_t *dm_round_based_match = Cvar_Get("dm_round_based_match", "1", CVAR_ARCHIVE);
+    static cvar_t *dm_team_match        = Cvar_Get("dm_team_match", "1", CVAR_ARCHIVE);
+    static cvar_t *dm_tow_match         = Cvar_Get("dm_tow_match", "1", CVAR_ARCHIVE);
+    static cvar_t *dm_liberation_match  = Cvar_Get("dm_liberation_match", "1", CVAR_ARCHIVE);
+    static cvar_t *dm_run_fast          = Cvar_Get("dm_run_fast", "1", CVAR_ARCHIVE);
+    static cvar_t *dm_run_normal        = Cvar_Get("dm_run_normal", "1", CVAR_ARCHIVE);
+    static cvar_t *dm_omit_spearhead    = Cvar_Get("dm_omit_spearhead", "0", CVAR_ARCHIVE);
 
-    iServerType = ((ServerListInstance*)instance)->iServerType;
-    uiServerList = ((ServerListInstance*)instance)->serverList;
+    iServerType    = ((ServerListInstance *)instance)->iServerType;
+    uiServerList   = ((ServerListInstance *)instance)->serverList;
     pNewServerItem = NULL;
-    server = (GServer)param1;
+    server         = (GServer)param1;
 
-    if (param2)
-    {
-        if (msg == LIST_PROGRESS && param2 == (void*)-1) {
+    if (param2) {
+        if (msg == LIST_PROGRESS && param2 == (void *)-1) {
             iRealIP = inet_addr(ServerGetAddress(server));
             ServerGetIntValue(server, "hostport", PORT_SERVER);
             iGameSpyPort = ServerGetQueryPort(server);
 
             for (i = 1; i <= uiServerList->getNumItems(); i++) {
-                pNewServerItem = static_cast<FAKKServerListItem*>(uiServerList->GetItem(i));
+                pNewServerItem = static_cast<FAKKServerListItem *>(uiServerList->GetItem(i));
                 if (pNewServerItem->m_uiRealIP == iRealIP && pNewServerItem->m_iGameSpyPort == iGameSpyPort) {
                     break;
                 }
@@ -1039,21 +1061,20 @@ void UpdateServerListCallBack(GServerList serverlist, int msg, void* instance, v
         Cvar_Set("dm_serverstatusbar", va("%i", (int)(uintptr_t)param2));
     }
 
-    if (msg == LIST_PROGRESS)
-    {
-        const char* pszHostName;
-        bool bDiffVersion;
-        bool bIsDemo;
-        str sServerName;
-        str sPlayers;
-        const char* pszGameVer;
-        const char* pszGameVerNumber;
-        float fGameVer;
+    if (msg == LIST_PROGRESS) {
+        const char *pszHostName;
+        bool        bDiffVersion;
+        bool        bIsDemo;
+        str         sServerName;
+        str         sPlayers;
+        const char *pszGameVer;
+        const char *pszGameVerNumber;
+        float       fGameVer;
 
-        pszHostName = ServerGetStringValue(server, "hostname", "(NONE)");
-        bDiffVersion = false;
-        bIsDemo = false;
-        pszGameVer = ServerGetStringValue(server, "gamever", "1.00");
+        pszHostName      = ServerGetStringValue(server, "hostname", "(NONE)");
+        bDiffVersion     = false;
+        bIsDemo          = false;
+        pszGameVer       = ServerGetStringValue(server, "gamever", "1.00");
         pszGameVerNumber = pszGameVer;
 
         if (pszGameVerNumber[0] == 'd') {
@@ -1092,22 +1113,22 @@ void UpdateServerListCallBack(GServerList serverlist, int msg, void* instance, v
             sServerName = va(" (d%s) %s", pszGameVerNumber, pszHostName);
         }
 
-        iRealIP = inet_addr(ServerGetAddress(server));
-        iPort = ServerGetIntValue(server, "hostport", PORT_SERVER);
+        iRealIP      = inet_addr(ServerGetAddress(server));
+        iPort        = ServerGetIntValue(server, "hostport", PORT_SERVER);
         iGameSpyPort = ServerGetQueryPort(server);
-        sAddress = va("%s:%i", ServerGetAddress(server), iPort);
+        sAddress     = va("%s:%i", ServerGetAddress(server), iPort);
         sPlayers = va("%d/%d", ServerGetIntValue(server, "numplayers", 0), ServerGetIntValue(server, "maxplayers", 0));
-        
+
         for (i = 1; i <= uiServerList->getNumItems(); i++) {
-            pNewServerItem = static_cast<FAKKServerListItem*>(uiServerList->GetItem(i));
+            pNewServerItem = static_cast<FAKKServerListItem *>(uiServerList->GetItem(i));
             if (pNewServerItem->m_uiRealIP == iRealIP && pNewServerItem->m_iGameSpyPort == iGameSpyPort) {
                 break;
             }
         }
 
         if (i > uiServerList->getNumItems() || !pNewServerItem) {
-            pNewServerItem = new FAKKServerListItem(uiServerList, "?", sAddress, "?", "?/?", "?", "?", "?");
-            pNewServerItem->m_sIP = ServerGetAddress(server);
+            pNewServerItem             = new FAKKServerListItem(uiServerList, "?", sAddress, "?", "?/?", "?", "?", "?");
+            pNewServerItem->m_sIP      = ServerGetAddress(server);
             pNewServerItem->m_uiRealIP = iRealIP;
             pNewServerItem->m_iGameSpyPort = iGameSpyPort;
 
@@ -1131,11 +1152,8 @@ void UpdateServerListCallBack(GServerList serverlist, int msg, void* instance, v
         Cvar_Set("dm_servercount", va("%d/%d", iServerQueryCount, iServerTotalCount));
 
         uiServerList->SortByLastSortColumn();
-    }
-    else if (msg == LIST_STATECHANGED)
-    {
-        switch (ServerListState(serverlist))
-        {
+    } else if (msg == LIST_STATECHANGED) {
+        switch (ServerListState(serverlist)) {
         case GServerListState::sl_idle:
             if (com_target_game->integer >= target_game_e::TG_MOHTT) {
                 if (iServerType == target_game_e::TG_MOHTT) {
@@ -1159,14 +1177,18 @@ void UpdateServerListCallBack(GServerList serverlist, int msg, void* instance, v
         case GServerListState::sl_listxfer:
             Cvar_Set("dm_serverstatus", "Getting List.");
             if (com_target_game->integer >= target_game_e::TG_MOHTT) {
-                if (iServerType == target_game_e::TG_MOHTT) uiServerList->m_bGettingList[0] = true;
-                if (iServerType == target_game_e::TG_MOHTA) uiServerList->m_bGettingList[1] = true;
+                if (iServerType == target_game_e::TG_MOHTT) {
+                    uiServerList->m_bGettingList[0] = true;
+                }
+                if (iServerType == target_game_e::TG_MOHTA) {
+                    uiServerList->m_bGettingList[1] = true;
+                }
             } else {
                 uiServerList->m_bGettingList[0] = true;
                 uiServerList->m_bGettingList[1] = false;
             }
             uiServerList->m_bUpdatingList = true;
-            iServerQueryCount = 0;
+            iServerQueryCount             = 0;
             return;
         case GServerListState::sl_lanlist:
             Cvar_Set("dm_serverstatus", "Searching LAN.");
@@ -1175,8 +1197,8 @@ void UpdateServerListCallBack(GServerList serverlist, int msg, void* instance, v
         case GServerListState::sl_querying:
             Cvar_Set("dm_serverstatus", "Querying Servers.");
             uiServerList->m_bUpdatingList = true;
-            iServerQueryCount = 0;
-            iServerTotalCount = 0;
+            iServerQueryCount             = 0;
+            iServerTotalCount             = 0;
             break;
         default:
             break;
