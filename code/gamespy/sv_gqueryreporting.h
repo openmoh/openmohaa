@@ -49,10 +49,10 @@ ERROR CONSTANTS
 These constants are returned from qr_init to signal an error condition
 ***************/
 
-#define E_GOA_WSOCKERROR	1
-#define E_GOA_BINDERROR		2
-#define E_GOA_DNSERROR		3
-#define E_GOA_CONNERROR		4
+#define E_GOA_WSOCKERROR 1
+#define E_GOA_BINDERROR  2
+#define E_GOA_DNSERROR   3
+#define E_GOA_CONNERROR  4
 /*********
 NUM_PORTS_TO_TRY
 ----------------
@@ -61,6 +61,20 @@ find an open query port, starting from the value passed to qr_init
 as the base port. Generally there is no reason to modify this value.
 ***********/
 #define NUM_PORTS_TO_TRY 100
+
+/********
+DEFINES
+********/
+#define MASTER_SERVER_HOST "master.333networks.com"
+#define MASTER_PORT     27900
+//#define MASTER_ADDR     "master." GSI_DOMAIN_NAME
+#define MASTER_ADDR     MASTER_SERVER_HOST
+#define FIRST_HB_TIME   30000  /* 30 sec */
+#define HB_TIME         300000 /* 5 minutes */
+#define MAX_FIRST_COUNT 10     /* 10 tries = 5 minutes */
+#define MAX_DATA_SIZE   1400
+#define INBUF_LEN       256
+#define BUF_SIZE        1400
 
 /* The hostname of the master server.
 If the app resolves the hostname, an
@@ -85,8 +99,9 @@ Simply fill outbuf with the correct data for the query type (consult the sample
 apps and the GameSpy Developer Spec). 
 outbuf should be a NULL terminated ANSI string.
 ********/
-typedef void (*qr_querycallback_t)(char *outbuf, int maxlen, void *userdata);	
-typedef void (*qr_custom_handler_t)(const char *query, struct sockaddr *sender);
+typedef void (*qr_querycallback_t)(char* outbuf, int maxlen, void* userdata);
+
+typedef void (*qr_cdkey_process_t)(char* buf, int len, struct sockaddr* fromaddr);
 
 /***********
 qr_t
@@ -99,8 +114,6 @@ that require it. A single global instance will be used, similar to how the
 original Developer SDK worked
 ************/
 typedef struct qr_implementation_s *qr_t;
-
-
 /************
 QR_INIT
 --------
@@ -125,13 +138,16 @@ This creates/binds the sockets needed for heartbeats and queries/replies.
 Returns
 0 is successful, otherwise one of the E_GOA constants above.
 ************/
-int qr_init(/*[out]*/qr_t *qrec, const char *ip, int baseport, const char *gamename, const char *secret_key,
-			qr_querycallback_t qr_basic_callback,
-			qr_querycallback_t qr_info_callback,
-			qr_querycallback_t qr_rules_callback,
-			qr_querycallback_t qr_players_callback,
-			void *userdata);
-
+int qr_init(/*[out]*/ qr_t* qrec,
+            const char* ip,
+            int baseport,
+            const char* gamename,
+            const char* secret_key,
+            qr_querycallback_t qr_basic_callback,
+            qr_querycallback_t qr_info_callback,
+            qr_querycallback_t qr_rules_callback,
+            qr_querycallback_t qr_players_callback,
+            void* userdata);
 
 /*******************
 QR_PROCESS_QUERIES
@@ -180,20 +196,16 @@ void qr_shutdown(qr_t qrec);
 
 void qr_check_queries(qr_t qrec);
 
-/********
-DEFINES
-********/
-#define MASTER_PORT 27900
-#define MASTER_ADDR MASTER_SERVER_HOST
-#define FIRST_HB_TIME 30000 /* 30 sec */
-#define HB_TIME 300000 /* 5 minutes */
-#define MAX_FIRST_COUNT 10 /* 10 tries = 5 minutes */
-#define MAX_DATA_SIZE 1400
-#define INBUF_LEN 256
-#define BUF_SIZE 1400
-#define MASTER_SERVER_HOST "master.333networks.com"
+void qr_send_exiting(qr_t qrec);
+
+int get_master_count();
+
+void clear_master_list();
+
+int get_sockaddrin(const char *host, int port, struct sockaddr_in *saddr, struct hostent **savehent);
+
+void add_master(struct sockaddr_in *addr);
 
 #ifdef __cplusplus
 }
 #endif
-
