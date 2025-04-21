@@ -23,7 +23,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 // Set the platform define
-#if defined(_LINUX) || defined(_MACOSX) || defined(__APPLE__) || defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__NetBSD__)
+#if defined (__linux__) || defined(_LINUX) || defined(_MACOSX) || defined(__APPLE__) || defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__NetBSD__)
 	#define _UNIX
 #elif __mips64
 	#ifndef _PS2
