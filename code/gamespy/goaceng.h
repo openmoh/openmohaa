@@ -85,7 +85,7 @@ stricase - assume the values are strings and do a case insensitive compare */
 typedef enum {cm_int, cm_float, cm_strcase, cm_stricase} GCompareMode;
 
 
-typedef enum {qt_basic, qt_info, qt_rules, qt_players, qt_info_rules, qt_status} GQueryType;
+typedef enum {qt_basic, qt_info, qt_rules, qt_players, qt_info_rules, qt_status, qt_grouprooms, qt_masterinfo} GQueryType;
 
 /* Messages that are passed to the ListCallBackFn */
 #define	LIST_STATECHANGED		1 // ServerListState changed, no parameters
