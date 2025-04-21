@@ -553,6 +553,17 @@ void UIFAKKServerList::RefreshServerList(Event *ev)
     int                 i;
     FAKKServerListItem *pNewServerItem;
 
+    if (m_serverList[0] && ServerListState(m_serverList[0]) != sl_idle) {
+        // Fixed in OPM
+        //  Only free the server list if it isn't currently being queried.
+        //  The server list must not be queried
+        return;
+    }
+
+    if (m_serverList[1] && ServerListState(m_serverList[1]) != sl_idle) {
+        return;
+    }
+
     for (i = 1; i <= getNumItems(); i++) {
         pNewServerItem = static_cast<FAKKServerListItem *>(GetItem(i));
         pNewServerItem->SetQueried(false);
@@ -562,6 +573,8 @@ void UIFAKKServerList::RefreshServerList(Event *ev)
 
     if (m_serverList[0]) {
         ServerListClear(m_serverList[0]);
+        // Added in 2.0: Free the server list
+        //  Since 2.0, the UI no longer refreshes the server list when clicking "Browse Internet Servers"
         ServerListFree(m_serverList[0]);
         m_serverList[0] = NULL;
     }
@@ -572,7 +585,7 @@ void UIFAKKServerList::RefreshServerList(Event *ev)
         m_serverList[1] = NULL;
     }
 
-    if (!m_serverList[0]) {
+    if (!m_serverList[0] && (com_target_game->integer < target_game_e::TG_MOHTT || !m_serverList[1])) {
         NewServerList();
     }
 
@@ -640,13 +653,15 @@ void UIFAKKServerList::RefreshLANServerList(Event *ev)
         pNewServerItem->SetQueryFailed(false);
     }
 
+    if (m_serverList[0]) {
+        ServerListClear(m_serverList[0]);
+    }
+
     if (m_serverList[1]) {
         ServerListClear(m_serverList[1]);
     }
 
-    if (m_serverList[0]) {
-        ServerListClear(m_serverList[0]);
-    } else {
+    if (!m_serverList[0] && (com_target_game->integer < target_game_e::TG_MOHTT || !m_serverList[1])) {
         NewServerList();
     }
 
