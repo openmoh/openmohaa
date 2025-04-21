@@ -377,8 +377,10 @@ GError ServerListUpdate2(GServerList serverlist, gbool async, char *filter, GQue
     if (error) return error;
     error = SendListRequest(serverlist, filter);
     if (error) return error;
-    error = InitUpdateList(serverlist);
-    if (error) return error;
+    if (querytype != qt_grouprooms && querytype != qt_masterinfo) {
+        error = InitUpdateList(serverlist);
+        if (error) return error;
+    }
     serverlist->nextupdate = 0;
     serverlist->abortupdate = 0;
     // Added in 2.0
