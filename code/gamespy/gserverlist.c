@@ -87,6 +87,7 @@ struct GServerListImplementation
     char gamename[32];
     char seckey[32];
     char enginename[32];
+    char filter[256];
     int maxupdates;
     int nextupdate;
     int abortupdate;
@@ -204,10 +205,11 @@ static GError FreeUpdateList(GServerList serverlist)
 }
 
 //create and connect a server list socket
-static GError CreateServerListSocket(GServerList serverlist)
+static GError CreateServerListSocket(GServerList serverlist, gbool async)
 {
     struct   sockaddr_in saddr;
     struct hostent *hent;
+    int lasterr;
 
     saddr.sin_family = AF_INET;
     saddr.sin_port = htons(MSPORT);
@@ -222,10 +224,16 @@ static GError CreateServerListSocket(GServerList serverlist)
     serverlist->slsocket = socket ( AF_INET, SOCK_STREAM, IPPROTO_TCP );
     if (serverlist->slsocket == INVALID_SOCKET)
         return GE_NOSOCKET;
-    if (connect ( serverlist->slsocket, (struct sockaddr *) &saddr, sizeof saddr ) != 0)
+
+    if (async) {
+        SetSockBlocking(serverlist->slsocket, 0);
+    }
+
+    if (connect ( serverlist->slsocket, (struct sockaddr *) &saddr, sizeof saddr ) != 0
+        && (lasterr = GOAGetLastError(serverlist->slsocket), lasterr != WSAEWOULDBLOCK && lasterr != WSAEINPROGRESS))
     {
         closesocket(serverlist->slsocket);
-        return GE_NOCONNECT; 
+        return GE_NOCONNECT;
     }
 
     //else we are connected
@@ -271,8 +279,9 @@ static GError SendListRequest(GServerList serverlist, char *filter)
     char *modifier;
     
     len = recv(serverlist->slsocket, data, sizeof(data) - 1, 0);
-    if (gsiSocketIsError(len))
+    if (gsiSocketIsError(len)) {
         return GE_NOCONNECT;
+    }
     data[len] = '\0'; //null terminate it
     
     ptr = strstr ( data, SECURE );
@@ -370,6 +379,57 @@ GError ServerListUpdate(GServerList serverlist, gbool async)
     return ServerListUpdate2(serverlist, async, NULL, qt_status);
 }
 
+/* ServerListStartQuery
+-------------------------
+Start querying a GServerList. */
+GError ServerListStartQuery(GServerList serverlist, gbool async)
+{
+    GError error;
+
+    if (serverlist->state != sl_connecting) {
+        return GE_BUSY;
+    }
+
+    if (serverlist->abortupdate) {
+        closesocket(serverlist->slsocket);
+        serverlist->slsocket = INVALID_SOCKET;
+        ServerListModeChange(serverlist, sl_idle);
+        return GE_NOCONNECT;
+    }
+
+    if (async) {
+        // Abort if the socket is in error
+        int so_error;
+        int len = sizeof(so_error);
+        getsockopt(serverlist->slsocket, SOL_SOCKET, SO_ERROR, &so_error, &len);
+
+        if (so_error) {
+            serverlist->state = sl_idle;
+            return GE_NOCONNECT;
+        }
+
+        // Check for pending data
+        char buf;
+        if (recv(serverlist->slsocket, &buf, 1, MSG_PEEK) == -1) {
+            return GE_BUSY;
+        }
+    }
+
+    serverlist->state = sl_idle;
+
+    error = SendListRequest(serverlist, serverlist->filter);
+    if (error) return error;
+    if (serverlist->querytype != qt_grouprooms && serverlist->querytype != qt_masterinfo) {
+        error = InitUpdateList(serverlist);
+        if (error) return error;
+    }
+
+    if (!async)
+        DoSyncLoop(serverlist);
+
+    return 0;
+}
+
 /* ServerListUpdate2
 -------------------------
 Start updating a GServerList. */
@@ -381,22 +441,24 @@ GError ServerListUpdate2(GServerList serverlist, gbool async, char *filter, GQue
         return GE_BUSY;
 
     serverlist->querytype = querytype;
-    error = CreateServerListSocket(serverlist);
+    error = CreateServerListSocket(serverlist, async);
     if (error) return error;
-    error = SendListRequest(serverlist, filter);
-    if (error) return error;
-    if (querytype != qt_grouprooms && querytype != qt_masterinfo) {
-        error = InitUpdateList(serverlist);
-        if (error) return error;
-    }
+
     serverlist->nextupdate = 0;
     serverlist->abortupdate = 0;
     // Added in 2.0
     serverlist->numservers = ServerListCount(serverlist);
     // Added in 2.0
     serverlist->cryptinfo.offset = -1;
-    if (!async)
-        DoSyncLoop(serverlist);
+    strncpy(serverlist->filter, filter, sizeof(serverlist->filter));
+
+    serverlist->state = sl_connecting;
+
+    if (async) {
+        return 0;
+    }
+
+    ServerListStartQuery(serverlist, async);
 
     return 0;
 }
@@ -925,6 +987,9 @@ GError ServerListThink(GServerList serverlist)
         case sl_querying: 
                 //do some queries
                 return ServerListQueryLoop(serverlist);
+                break;
+        case sl_connecting:
+                return ServerListStartQuery(serverlist, 1);
                 break;
     }
 
