@@ -24,6 +24,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "q_gamespy.h"
 
+void Com_InitGameSpy()
+{
+}
+
 const char *Com_GetMasterHost()
 {
     return "master.333networks.com";

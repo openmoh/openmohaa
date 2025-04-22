@@ -45,6 +45,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #  include "../uilib/ui_public.h"
 #endif
 
+#include "../gamespy/q_gamespy.h"
+
 qboolean CL_FinishedIntro(void);
 
 #ifdef __cplusplus
@@ -1993,6 +1995,8 @@ void Com_Init( char *commandLine ) {
 	}
 
 	RecoverLostAutodialData();
+
+    Com_InitGameSpy();
 
 	iEnd = Sys_Milliseconds();
 	Com_Printf( "--- Common Initialization Complete --- %i ms\n", iEnd - iStart );
