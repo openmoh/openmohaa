@@ -25,6 +25,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../qcommon/q_version.h"
 #include "sv_gqueryreporting.h"
 #include "sv_gamespy.h"
+#include "q_gamespy.h"
 
 #include "gcdkey/gcdkeys.h"
 #include "common/gsCommon.h"
@@ -500,4 +501,14 @@ void SV_GamespyAuthorize(netadr_t from, const char *response)
     default:
         break;
     }
+}
+
+const char *qr_get_master_host()
+{
+    return Com_GetMasterHost();
+}
+
+int qr_get_master_port()
+{
+    return Com_GetMasterHeartbeatPort();
 }

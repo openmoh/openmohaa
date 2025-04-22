@@ -20,24 +20,17 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-// sv_gamespy.h -- Game-specific server GameSpy code
-
 #pragma once
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include "cl_gamespy.h"
+#include "q_gamespy.h"
 
-extern const char* GS_GetGameKey(unsigned int index);
-extern unsigned int GS_GetGameID(unsigned int index);
-extern const char* GS_GetGameName(unsigned int index);
-extern const char* GS_GetCurrentGameKey();
-extern unsigned int GS_GetCurrentGameID();
-extern const char* GS_GetCurrentGameName();
-
-void SV_CreateGamespyChallenge(char* challenge);
-void SV_GamespyAuthorize(netadr_t from, const char* response);
-
-#ifdef __cplusplus
+const char *ServerListGetHost()
+{
+    return Com_GetMasterHost();
 }
-#endif
+
+int ServerListGetMsPort()
+{
+    return Com_GetMasterQueryPort();
+}

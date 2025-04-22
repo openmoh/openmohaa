@@ -48,8 +48,16 @@ Fax(714)549-0757
 // Added in 2.0
 #include "gcrypt.h"
 
-#define MSHOST MASTER_SERVER_HOST
-#define MSPORT	28900
+/**
+ * @brief Custom function used to return the master host, based on game settings
+ * 
+ * @return const char* The master host
+ */
+extern const char *ServerListGetHost();
+extern int ServerGetMsPort();
+
+#define MSHOST ServerListGetHost()
+#define MSPORT ServerListGetMsPort()
 #define SERVER_GROWBY 64
 #define LAN_SEARCH_TIME 3000 //3 sec
 #define LIST_NUMKEYBUCKETS 500

@@ -65,10 +65,9 @@ as the base port. Generally there is no reason to modify this value.
 /********
 DEFINES
 ********/
-#define MASTER_SERVER_HOST "master.333networks.com"
-#define MASTER_PORT     27900
+#define MASTER_PORT     qr_get_master_port()
 //#define MASTER_ADDR     "master." GSI_DOMAIN_NAME
-#define MASTER_ADDR     MASTER_SERVER_HOST
+#define MASTER_ADDR     qr_get_master_host()
 #define FIRST_HB_TIME   30000  /* 30 sec */
 #define HB_TIME         300000 /* 5 minutes */
 #define MAX_FIRST_COUNT 10     /* 10 tries = 5 minutes */
@@ -81,6 +80,14 @@ If the app resolves the hostname, an
 IP can be stored here before calling
 qr_init */
 extern char qr_hostname[64];
+
+/**
+ * @brief Custom function used to return the master host, based on game settings
+ * 
+ * @return const char* The full master server address
+ */
+extern const char *qr_get_master_host();
+extern int qr_get_master_port();
 
 /********
 qr_querycallback_t

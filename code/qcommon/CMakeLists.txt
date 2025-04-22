@@ -79,8 +79,7 @@ set(SOURCES_COMMON
 	"${CMAKE_SOURCE_DIR}/code/qcommon/q_shared.c"
 	"${CMAKE_SOURCE_DIR}/code/qcommon/unzip.c"
 	# Gamespy
-	"${CMAKE_SOURCE_DIR}/code/gamespy/sv_gamespy.c"
-	"${CMAKE_SOURCE_DIR}/code/gamespy/sv_gqueryreporting.c"
+	"${CMAKE_SOURCE_DIR}/code/gamespy/q_gamespy.c"
 )
 
 add_subdirectory("../skeletor" "./skeletor")

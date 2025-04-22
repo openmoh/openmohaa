@@ -161,7 +161,7 @@ static const char* queries[] = {"", "basic", "info", "rules", "players", "status
 static struct sockaddr_in hbaddr;
 struct qr_implementation_s static_rec = {INVALID_SOCKET, INVALID_SOCKET};
 static qr_t current_rec = &static_rec;
-char qr_hostname[64] = MASTER_ADDR;
+//char qr_hostname[64] = MASTER_ADDR;
 
 static struct sockaddr_in MasterList[8];
 static char keyvalue[8192];

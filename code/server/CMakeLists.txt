@@ -6,6 +6,12 @@ add_subdirectory("../fgame" "./fgame")
 
 file(GLOB_RECURSE SOURCES_SERVER "./*.c*")
 
+set(SOURCES_SERVER ${SOURCES_SERVER}
+	# Gamespy
+	"${CMAKE_SOURCE_DIR}/code/gamespy/sv_gamespy.c"
+	"${CMAKE_SOURCE_DIR}/code/gamespy/sv_gqueryreporting.c"
+)
+
 add_library(omohserver INTERFACE)
 target_sources(omohserver INTERFACE ${SOURCES_SERVER})
 target_compile_features(omohserver INTERFACE cxx_nullptr)
