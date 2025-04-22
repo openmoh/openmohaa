@@ -54,7 +54,7 @@ Fax(714)549-0757
  * @return const char* The master host
  */
 extern const char *ServerListGetHost();
-extern int ServerGetMsPort();
+extern int ServerListGetMsPort();
 
 #define MSHOST ServerListGetHost()
 #define MSPORT ServerListGetMsPort()
