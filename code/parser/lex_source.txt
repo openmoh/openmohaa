@@ -1,7 +1,7 @@
 %{
 /*
 * ===========================================================================
-* Copyright (C) 2015 the OpenMoHAA team
+* Copyright (C) 2025 the OpenMoHAA team
 * 
 * This file is part of OpenMoHAA source code.
 * 
@@ -144,33 +144,29 @@ static bool UseField(void)
     return prev_yylex == TOKEN_PERIOD || prev_yylex == TOKEN_DOLLAR;
 }
 
-#define YY_INPUT(buf,result,max_size) \
-{										\
-	char c;								\
-	int n;								\
-										\
-	c = '*';							\
-	for(n = 0; n < max_size; n++)		\
-	{									\
-		c = *in_ptr++;					\
-		if (!c || c == '\n') {			\
-			break;						\
-		}								\
-										\
-		buf[n] = c;						\
-	}									\
-										\
-	if (c == '\n')						\
-	{									\
-		buf[n++] = c;					\
-	}									\
-	else if (!c)						\
-	{									\
-		in_ptr--;						\
-	}									\
-										\
-	result = n;							\
-}
+#define YY_INPUT(buf, result, max_size)  \
+    {                                    \
+        char c;                          \
+        int  n;                          \
+                                         \
+        c = '*';                         \
+        for (n = 0; n < max_size; n++) { \
+            c = *in_ptr++;               \
+            if (!c || c == '\n') {       \
+                break;                   \
+            }                            \
+                                         \
+            buf[n] = c;                  \
+        }                                \
+                                         \
+        if (c == '\n') {                 \
+            buf[n++] = c;                \
+        } else if (!c) {                 \
+            in_ptr--;                    \
+        }                                \
+                                         \
+        result = n;                      \
+    }
 
 %}
 
@@ -187,195 +183,193 @@ static bool UseField(void)
 %x VARIABLES
 %x IDENTIFIER
 
-string		([^\\\"\r\n]|\\.)*
-identifier	[^\{\}\(\)\[\]\r\n\,:; \t]
-nonexpr		[0-9a-zA-Z_\"'?@#`\.\x80-\xff]
-nonnumeric	[a-zA-Z_\"'?@#`\x80-\xff]
-alphanum	[a-zA-Z0-9_]+
-varname		[a-zA-Z0-9_\"$\\]+
+string          ([^\\\"\r\n]|\\.)*
+identifier      [^\{\}\(\)\[\]\r\n\,:; \t]
+nonexpr         [0-9a-zA-Z_\"'?@#`\.\x80-\xff]
+nonnumeric      [a-zA-Z_\"'?@#`\x80-\xff]
+alphanum        [a-zA-Z0-9_]+
+varname         [a-zA-Z0-9_\"$\\]+
 
 %%
 
-"/*"							{ BEGIN( C_COMMENT ); }
-<C_COMMENT>"*/"					{ BEGIN( INITIAL ); }
-<C_COMMENT>\n					{ ; }
-<C_COMMENT>.					{ ; }
-"*/"							{ Compiler.CompileError( parsedata.pos - yyleng, "'*/' found outside of comment" ); }
+"/*"                            { BEGIN(C_COMMENT); }
+<C_COMMENT>"*/"                 { BEGIN(INITIAL); }
+<C_COMMENT>\n                   { ; }
+<C_COMMENT>.                    { ; }
+"*/"                            { Compiler.CompileError( parsedata.pos - yyleng, "'*/' found outside of comment" ); }
 
-\\[\r\n]+						{ ; }
-"//"[^\r\n]*					{ if( prev_yylex != TOKEN_EOL ) YYLEX( TOKEN_EOL ); }
+\\[\r\n]+                       { ; }
+"//"[^\r\n]*                    { if(prev_yylex != TOKEN_EOL) YYLEX(TOKEN_EOL); }
 
-<VARIABLES>"size"							{ BEGIN(INITIAL); YYLEX(TOKEN_SIZE); }
-<VARIABLES>[ \t]*\./([0-9]*[^0-9[:space:]])	{ YYLEX(TOKEN_PERIOD); }
-<VARIABLES>\"{string}\"						{ BEGIN(INITIAL); TextEscapeValue(yytext + 1, strlen( yytext ) - 2 ); YYLEX(TOKEN_STRING); }
-<VARIABLES>{varname}						{
-												TextEscapeValue(yytext, strlen(yytext));
-												YYLEX(TOKEN_IDENTIFIER);
-											}
-<VARIABLES>[ \t\r\n]						{
-												BEGIN(INITIAL);
-												unput(yytext[yyleng - 1]);
-												yyreducepos(1);
-											}
-<VARIABLES>.								{
-												BEGIN(INITIAL);
-												unput(yytext[yyleng - 1]);
-												yyreducepos(1);
-											}
+<VARIABLES>"size"                           { BEGIN(INITIAL); YYLEX(TOKEN_SIZE); }
+<VARIABLES>[ \t]*\./([0-9]*[^0-9[:space:]]) { YYLEX(TOKEN_PERIOD); }
+<VARIABLES>\"{string}\"                     { BEGIN(INITIAL); TextEscapeValue(yytext + 1, strlen( yytext ) - 2 ); YYLEX(TOKEN_STRING); }
+<VARIABLES>{varname}                        {
+                                                TextEscapeValue(yytext, strlen(yytext));
+                                                YYLEX(TOKEN_IDENTIFIER);
+                                            }
+<VARIABLES>[ \t\r\n]                        {
+                                                BEGIN(INITIAL);
+                                                unput(yytext[yyleng - 1]);
+                                                yyreducepos(1);
+                                            }
+<VARIABLES>.                                {
+                                                BEGIN(INITIAL);
+                                                unput(yytext[yyleng - 1]);
+                                                yyreducepos(1);
+                                            }
 
-											
+\"{string}\"{nonexpr}           {
+                                    BEGIN(IDENTIFIER);
+                                    yymore();
+                                }
 
-\"{string}\"{nonexpr}			{
-									BEGIN(IDENTIFIER);
-									yymore();
-								}
+\"{string}\"                    { TextEscapeValue(yytext + 1, yyleng - 2); YYLEX(TOKEN_STRING); }
 
-\"{string}\"					{ TextEscapeValue( yytext + 1, yyleng - 2 ); YYLEX( TOKEN_STRING ); }
+"?"                             { YYLEX(TOKEN_TERNARY); }
+"if"                            { YYLEX(TOKEN_IF); }
+"else"                          { YYLEX(TOKEN_ELSE); }
+"while"                         { YYLEX(TOKEN_WHILE); }
+"for"                           { YYLEX(TOKEN_FOR); }
+"do"                            { YYLEX(TOKEN_DO); }
 
-"?"								{ YYLEX( TOKEN_TERNARY ); }
-"if"							{ YYLEX( TOKEN_IF ); }
-"else"							{ YYLEX( TOKEN_ELSE ); }
-"while"							{ YYLEX( TOKEN_WHILE ); }
-"for"							{ YYLEX( TOKEN_FOR ); }
-"do"							{ YYLEX( TOKEN_DO ); }
+"game"                          { BEGIN(VARIABLES); yylval.s.val = node1_(method_game); YYLEX(TOKEN_LISTENER); }
+"group"                         { BEGIN(VARIABLES); yylval.s.val = node1_(method_group); YYLEX(TOKEN_LISTENER); }
+"level"                         { BEGIN(VARIABLES); yylval.s.val = node1_(method_level); YYLEX(TOKEN_LISTENER); }
+"local"                         { BEGIN(VARIABLES); yylval.s.val = node1_(method_local); YYLEX(TOKEN_LISTENER); }
+"parm"                          { BEGIN(VARIABLES); yylval.s.val = node1_(method_parm); YYLEX(TOKEN_LISTENER); }
+"owner"                         { BEGIN(VARIABLES); yylval.s.val = node1_(method_owner); YYLEX(TOKEN_LISTENER); }
+"self"                          { BEGIN(VARIABLES); yylval.s.val = node1_(method_self); YYLEX(TOKEN_LISTENER); }
 
-"game"							{ BEGIN( VARIABLES ); yylval.s.val = node1_( method_game ); YYLEX( TOKEN_LISTENER ); }
-"group"							{ BEGIN( VARIABLES ); yylval.s.val = node1_( method_group ); YYLEX( TOKEN_LISTENER ); }
-"level"							{ BEGIN( VARIABLES ); yylval.s.val = node1_( method_level ); YYLEX( TOKEN_LISTENER ); }
-"local"							{ BEGIN( VARIABLES ); yylval.s.val = node1_( method_local ); YYLEX( TOKEN_LISTENER ); }
-"parm"							{ BEGIN( VARIABLES ); yylval.s.val = node1_( method_parm ); YYLEX( TOKEN_LISTENER ); }
-"owner"							{ BEGIN( VARIABLES ); yylval.s.val = node1_( method_owner ); YYLEX( TOKEN_LISTENER ); }
-"self"							{ BEGIN( VARIABLES ); yylval.s.val = node1_( method_self ); YYLEX( TOKEN_LISTENER ); }
+"{"                             { parsedata.braces_count++; YYLEX(TOKEN_LEFT_BRACES); }
+"}"                             { parsedata.braces_count--; YYLEX(TOKEN_RIGHT_BRACES); }
+"("                             { YYLEX(TOKEN_LEFT_BRACKET); }
+")"                             { BEGIN(VARIABLES); YYLEX(TOKEN_RIGHT_BRACKET); }
+"["                             { YYLEX(TOKEN_LEFT_SQUARE_BRACKET); }
+"]"                             { BEGIN(VARIABLES); YYLEX(TOKEN_RIGHT_SQUARE_BRACKET); }
 
-"{"								{ parsedata.braces_count++; YYLEX( TOKEN_LEFT_BRACES ); }
-"}"								{ parsedata.braces_count--; YYLEX( TOKEN_RIGHT_BRACES ); }
-"("								{ YYLEX(TOKEN_LEFT_BRACKET); }
-")"								{ BEGIN(VARIABLES); YYLEX(TOKEN_RIGHT_BRACKET); }
-"["								{ YYLEX(TOKEN_LEFT_SQUARE_BRACKET); }
-"]"								{ BEGIN(VARIABLES); YYLEX(TOKEN_RIGHT_SQUARE_BRACKET); }
+"="                             { YYLEX(TOKEN_ASSIGNMENT); }
+":"                             { YYLEX(TOKEN_COLON); }
+"::"                            { YYLEX(TOKEN_DOUBLE_COLON); }
+";"                             { YYLEX(TOKEN_SEMICOLON); }
 
-"="								{ YYLEX( TOKEN_ASSIGNMENT ); }
-":"								{ YYLEX( TOKEN_COLON ); }
-"::"							{ YYLEX( TOKEN_DOUBLE_COLON ); }
-";"								{ YYLEX( TOKEN_SEMICOLON ); }
+"=="                            { YYLEX(TOKEN_EQUALITY); }
+"ifequal"                       { YYLEX(TOKEN_EQUALITY); }
+"ifstrequal"                    { YYLEX(TOKEN_EQUALITY); }
+"||"                            { YYLEX(TOKEN_LOGICAL_OR); }
+"&&"                            { YYLEX(TOKEN_LOGICAL_AND); }
 
-"=="							{ YYLEX( TOKEN_EQUALITY ); }
-"ifequal"						{ YYLEX( TOKEN_EQUALITY ); }
-"ifstrequal"					{ YYLEX( TOKEN_EQUALITY ); }
-"||"							{ YYLEX( TOKEN_LOGICAL_OR ); }
-"&&"							{ YYLEX( TOKEN_LOGICAL_AND ); }
+"|"                             { YYLEX(TOKEN_BITWISE_OR); }
+"^"                             { YYLEX(TOKEN_BITWISE_EXCL_OR); }
+"&"                             { YYLEX(TOKEN_BITWISE_AND); }
+"!="                            { YYLEX(TOKEN_INEQUALITY); }
+"ifnotequal"                    { YYLEX(TOKEN_INEQUALITY); }
+"ifstrnotequal"                 { YYLEX(TOKEN_INEQUALITY); }
+"<"                             { YYLEX(TOKEN_LESS_THAN); }
+"ifless"                        { YYLEX(TOKEN_LESS_THAN); }
+">"                             { YYLEX(TOKEN_GREATER_THAN); }
+"ifgreater"                     { YYLEX(TOKEN_GREATER_THAN); }
+"<="                            { YYLEX(TOKEN_LESS_THAN_OR_EQUAL); }
+"iflessequal"                   { YYLEX(TOKEN_LESS_THAN_OR_EQUAL); }
+">="                            { YYLEX(TOKEN_GREATER_THAN_OR_EQUAL); }
+"ifgreaterequal"                { YYLEX(TOKEN_GREATER_THAN_OR_EQUAL); }
+[ \t]"-"                        { YYLEX(TOKEN_NEG); }
 
-"|"								{ YYLEX( TOKEN_BITWISE_OR ); }
-"^"								{ YYLEX( TOKEN_BITWISE_EXCL_OR ); }
-"&"								{ YYLEX( TOKEN_BITWISE_AND ); }
-"!="							{ YYLEX( TOKEN_INEQUALITY ); }
-"ifnotequal"					{ YYLEX( TOKEN_INEQUALITY ); }
-"ifstrnotequal"					{ YYLEX( TOKEN_INEQUALITY ); }
-"<"								{ YYLEX( TOKEN_LESS_THAN ); }
-"ifless"						{ YYLEX( TOKEN_LESS_THAN ); }
-">"								{ YYLEX( TOKEN_GREATER_THAN ); }
-"ifgreater"                     { YYLEX( TOKEN_GREATER_THAN ); }
-"<="							{ YYLEX( TOKEN_LESS_THAN_OR_EQUAL ); }
-"iflessequal"					{ YYLEX( TOKEN_LESS_THAN_OR_EQUAL ); }
-">="							{ YYLEX( TOKEN_GREATER_THAN_OR_EQUAL ); }
-"ifgreaterequal"				{ YYLEX( TOKEN_GREATER_THAN_OR_EQUAL ); }
-[ \t]"-"						{ YYLEX( TOKEN_NEG ); }
+"+"                             { YYLEX(TOKEN_PLUS); }
+"+="                            { YYLEX(TOKEN_PLUS_EQUALS); }
+"++"|[ \t]"++"                  { YYLEX(TOKEN_INCREMENT); }
+"-"|"-"[ \t]|[ \t]"-"[ \t]      { YYLEX(TOKEN_MINUS); }
+"-="                            { YYLEX(TOKEN_MINUS_EQUALS); }
+[ \t]"-="                       { YYLEX(TOKEN_MINUS_EQUALS); }
+"--"|[ \t]"--"                  { YYLEX(TOKEN_DECREMENT); }
+"*"                             { YYLEX(TOKEN_MULTIPLY); }
+"*="                            { YYLEX(TOKEN_MULTIPLY_EQUALS); }
+"/"                             { YYLEX(TOKEN_DIVIDE); }
+"/="                            { YYLEX(TOKEN_DIVIDE_EQUALS); }
+"%"                             { YYLEX(TOKEN_MODULUS); }
+"%="                            { YYLEX(TOKEN_MODULUS_EQUALS); }
+"<<"                            { YYLEX(TOKEN_SHIFT_LEFT); }
+"<<="                           { YYLEX(TOKEN_SHIFT_LEFT_EQUALS); }
+">>"                            { YYLEX(TOKEN_SHIFT_RIGHT); }
+">>="                           { YYLEX(TOKEN_SHIFT_RIGHT_EQUALS); }
+"&="                            { YYLEX(TOKEN_AND_EQUALS); }
+"^="                            { YYLEX(TOKEN_EXCL_OR_EQUALS); }
+"|="                            { YYLEX(TOKEN_OR_EQUALS); }
+[$]+                            { BEGIN( VARIABLES ); YYLEX(TOKEN_DOLLAR); }
+"!"                             { YYLEX(TOKEN_NOT); }
+"~"                             { YYLEX(TOKEN_COMPLEMENT); }
 
-"+"								{ YYLEX( TOKEN_PLUS ); }
-"+="							{ YYLEX( TOKEN_PLUS_EQUALS ); }
-"++"|[ \t]"++"					{ YYLEX( TOKEN_INCREMENT ); }
-"-"|"-"[ \t]|[ \t]"-"[ \t]		{ YYLEX( TOKEN_MINUS ); }
-"-="							{ YYLEX( TOKEN_MINUS_EQUALS ); }
-[ \t]"-="						{ YYLEX( TOKEN_MINUS_EQUALS ); }
-"--"|[ \t]"--"					{ YYLEX( TOKEN_DECREMENT ); }
-"*"								{ YYLEX( TOKEN_MULTIPLY ); }
-"*="							{ YYLEX( TOKEN_MULTIPLY_EQUALS ); }
-"/"								{ YYLEX( TOKEN_DIVIDE ); }
-"/="							{ YYLEX( TOKEN_DIVIDE_EQUALS ); }
-"%"								{ YYLEX( TOKEN_MODULUS ); }
-"%="							{ YYLEX( TOKEN_MODULUS_EQUALS ); }
-"<<"							{ YYLEX( TOKEN_SHIFT_LEFT ); }
-"<<="							{ YYLEX( TOKEN_SHIFT_LEFT_EQUALS ); }
-">>"							{ YYLEX( TOKEN_SHIFT_RIGHT ); }
-">>="							{ YYLEX( TOKEN_SHIFT_RIGHT_EQUALS ); }
-"&="							{ YYLEX( TOKEN_AND_EQUALS ); }
-"^="							{ YYLEX( TOKEN_EXCL_OR_EQUALS ); }
-"|="							{ YYLEX( TOKEN_OR_EQUALS ); }
-[$]+							{ BEGIN( VARIABLES ); YYLEX( TOKEN_DOLLAR ); }
-"!"								{ YYLEX( TOKEN_NOT ); }
-"~"								{ YYLEX( TOKEN_COMPLEMENT ); }
+"."                             { YYLEX(TOKEN_PERIOD); }
 
-"."								{ YYLEX( TOKEN_PERIOD ); }
+","                             { YYLEX(TOKEN_COMMA); }
 
-","								{ YYLEX( TOKEN_COMMA ); }
+"NULL"                          { YYLEX(TOKEN_NULL); }
+"NIL"                           { YYLEX(TOKEN_NIL); }
 
-"NULL"							{ YYLEX( TOKEN_NULL ); }
-"NIL"							{ YYLEX( TOKEN_NIL ); }
+"try"                           { YYLEX(TOKEN_TRY); }
+"catch"                         { YYLEX(TOKEN_CATCH); }
+"switch"                        { YYLEX(TOKEN_SWITCH); }
 
-"try"							{ YYLEX( TOKEN_TRY ); }
-"catch"							{ YYLEX( TOKEN_CATCH ); }
-"switch"						{ YYLEX( TOKEN_SWITCH ); }
+"case"                          { YYLEX(TOKEN_CASE); }
+"break"                         { YYLEX(TOKEN_BREAK); }
+"continue"                      { YYLEX(TOKEN_CONTINUE); }
 
-"case"							{ YYLEX( TOKEN_CASE ); }
-"break"							{ YYLEX( TOKEN_BREAK ); }
-"continue"						{ YYLEX( TOKEN_CONTINUE ); }
+"makearray"|"makeArray"         { YYLEX(TOKEN_MAKEARRAY); }
+"endarray"|"endArray"           { YYLEX(TOKEN_ENDARRAY); }
 
-"makearray"|"makeArray"			{ YYLEX( TOKEN_MAKEARRAY ); }
-"endarray"|"endArray"			{ YYLEX( TOKEN_ENDARRAY ); }
+[\r\n]+                         { if (prev_yylex != TOKEN_EOL) YYLEX(TOKEN_EOL); }
+[ \t]                           { ; }
 
-[\r\n]+							{ if (prev_yylex != TOKEN_EOL) YYLEX(TOKEN_EOL); }
-[ \t]							{ ; }
+[0-9]+                                  {
+                                            char* p = nullptr;
+                                            yylval.s.val.intValue = std::strtol(yytext, &p, 10);
+                                            YYLEX(TOKEN_INTEGER);
+                                        }
 
-[0-9]+									{
-											char* p = nullptr;
-											yylval.s.val.intValue = std::strtol(yytext, &p, 10);
-											YYLEX(TOKEN_INTEGER);
-										}
+[0-9\.]+{nonnumeric}                    {
+                                            BEGIN(IDENTIFIER);
+                                            yymore();
+                                        }
 
-[0-9\.]+{nonnumeric}					{
-											BEGIN(IDENTIFIER);
-											yymore();
-										}
+[0-9\.]+|[0-9\.]+("e+"|"e-")+[0-9\.]    {
+                                            char* p = nullptr;
+                                            yylval.s.val.floatValue = std::strtof(yytext, &p);
+                                            YYLEX(TOKEN_FLOAT);
+                                        }
 
-[0-9\.]+|[0-9\.]+("e+"|"e-")+[0-9\.]	{
-											char* p = nullptr;
-											yylval.s.val.floatValue = std::strtof(yytext, &p);
-											YYLEX(TOKEN_FLOAT);
-										}
+<IDENTIFIER>{identifier}*               {
+                                            BEGIN(INITIAL);
+                                            TextEscapeValue(yytext, yyleng);
+                                            YYLEX(TOKEN_IDENTIFIER);
+                                        }
+<IDENTIFIER>[ \t\r\n]                   {
+                                            BEGIN(INITIAL);
+                                            unput(yytext[yyleng - 1]);
+                                            yyreducepos(1);
+                                            TextEscapeValue(yytext, yyleng - 1);
+                                            YYLEXOFF(TOKEN_IDENTIFIER, 1);
+                                        }
+<IDENTIFIER>.                           {
+                                            BEGIN(INITIAL);
+                                            unput(yytext[yyleng - 1]);
+                                            yyreducepos(1);
+                                            TextEscapeValue(yytext, yyleng - 1);
+                                            YYLEXOFF(TOKEN_IDENTIFIER, 1);
+                                        }
 
-<IDENTIFIER>{identifier}*		{
-									BEGIN(INITIAL);
-									TextEscapeValue(yytext, yyleng);
-									YYLEX(TOKEN_IDENTIFIER);
-								}
-<IDENTIFIER>[ \t\r\n]			{
-									BEGIN(INITIAL);
-									unput(yytext[yyleng - 1]);
-									yyreducepos(1);
-									TextEscapeValue(yytext, yyleng - 1);
-									YYLEXOFF(TOKEN_IDENTIFIER, 1);
-								}
-<IDENTIFIER>.					{
-									BEGIN(INITIAL);
-									unput(yytext[yyleng - 1]);
-									yyreducepos(1);
-									TextEscapeValue(yytext, yyleng - 1);
-									YYLEXOFF(TOKEN_IDENTIFIER, 1);
-								}
+{identifier}                    {
+                                    BEGIN(IDENTIFIER);
+                                    yymore();
+                                }
 
-{identifier}					{
-									BEGIN(IDENTIFIER);
-									yymore();
-								}
+[a-zA-Z0-9_]+                   {
+                                    BEGIN(IDENTIFIER);
+                                    yymore();
+                                }
 
-[a-zA-Z0-9_]+					{
-									BEGIN(IDENTIFIER);
-									yymore();
-								}
+<SCRIPT>[a-zA-Z0-9]+            { BEGIN(INITIAL); }
 
-<SCRIPT>[a-zA-Z0-9]+			{ BEGIN(INITIAL); }
-
-.								{ YY_FATAL_ERROR("bad token:\n"); }
+.                               { YY_FATAL_ERROR("bad token:\n"); }
 
 %{
 
@@ -388,31 +382,31 @@ varname		[a-zA-Z0-9_\"$\\]+
 //
 // Implements yywrap to always append a newline to the source
 //
-int yywrap(void) {
-	if (parseStage == PS_TYPE) {
-		parseStage = PS_BODY;
-		in_ptr = start_ptr;
-		out_pos = 0;
-		success_pos = 0;
-		return 0;
-	}
+int yywrap(void)
+{
+    if (parseStage == PS_TYPE) {
+        parseStage  = PS_BODY;
+        in_ptr      = start_ptr;
+        out_pos     = 0;
+        success_pos = 0;
+        return 0;
+    }
 
-	if (parseStage == PS_BODY)
-	{
-		if (YY_START == C_COMMENT)
-		{
-			Compiler.CompileError(success_pos, "unexpected end of file found in comment");
-			return 1;
-		}
-		
-		parseStage = PS_BODY_END;
-		in_ptr = "\n";
-		return 0;
-	}
+    if (parseStage == PS_BODY) {
+        if (YY_START == C_COMMENT) {
+            Compiler.CompileError(success_pos, "unexpected end of file found in comment");
+            return 1;
+        }
 
-	return 1;
+        parseStage = PS_BODY_END;
+        in_ptr     = "\n";
+        return 0;
+    }
+
+    return 1;
 }
 
-void yy_init_script() {
-	BEGIN(SCRIPT);
+void yy_init_script()
+{
+    BEGIN(SCRIPT);
 }
