@@ -260,6 +260,8 @@ varname		[a-zA-Z0-9_\"$\\]+
 ";"								{ YYLEX( TOKEN_SEMICOLON ); }
 
 "=="							{ YYLEX( TOKEN_EQUALITY ); }
+"ifequal"						{ YYLEX( TOKEN_EQUALITY ); }
+"ifstrequal"					{ YYLEX( TOKEN_EQUALITY ); }
 "||"							{ YYLEX( TOKEN_LOGICAL_OR ); }
 "&&"							{ YYLEX( TOKEN_LOGICAL_AND ); }
 
@@ -267,10 +269,16 @@ varname		[a-zA-Z0-9_\"$\\]+
 "^"								{ YYLEX( TOKEN_BITWISE_EXCL_OR ); }
 "&"								{ YYLEX( TOKEN_BITWISE_AND ); }
 "!="							{ YYLEX( TOKEN_INEQUALITY ); }
+"ifnotequal"					{ YYLEX( TOKEN_INEQUALITY ); }
+"ifstrnotequal"					{ YYLEX( TOKEN_INEQUALITY ); }
 "<"								{ YYLEX( TOKEN_LESS_THAN ); }
+"ifless"						{ YYLEX( TOKEN_LESS_THAN ); }
 ">"								{ YYLEX( TOKEN_GREATER_THAN ); }
+"ifgreater"                     { YYLEX( TOKEN_GREATER_THAN ); }
 "<="							{ YYLEX( TOKEN_LESS_THAN_OR_EQUAL ); }
+"iflessequal"					{ YYLEX( TOKEN_LESS_THAN_OR_EQUAL ); }
 ">="							{ YYLEX( TOKEN_GREATER_THAN_OR_EQUAL ); }
+"ifgreaterequal"				{ YYLEX( TOKEN_GREATER_THAN_OR_EQUAL ); }
 [ \t]"-"						{ YYLEX( TOKEN_NEG ); }
 
 "+"								{ YYLEX( TOKEN_PLUS ); }
