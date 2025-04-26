@@ -503,12 +503,17 @@ void SV_GamespyAuthorize(netadr_t from, const char *response)
     }
 }
 
-const char *qr_get_master_host()
+unsigned int qr_get_num_masters()
 {
-    return Com_GetMasterHost();
+    return Com_GetNumMasterEntries();
 }
 
-int qr_get_master_port()
+const char *qr_get_master_host(int index)
 {
-    return Com_GetMasterHeartbeatPort();
+    return Com_GetMasterEntry(index)->host;
+}
+
+int qr_get_master_port(int index)
+{
+    return Com_GetMasterEntry(index)->hbport;
 }

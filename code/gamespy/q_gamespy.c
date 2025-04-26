@@ -23,22 +23,43 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #pragma once
 
 #include "q_gamespy.h"
+#include "q_shared.h"
+
+master_entry_t entries[16] =
+{
+    { "master.333networks.com", 28900, 27900 },
+    { "master.errorist.eu", 28900, 27900 }
+};
+
+int num_entries = 1;
 
 void Com_InitGameSpy()
 {
 }
 
+unsigned int Com_GetNumMasterEntries() {
+    return num_entries;
+}
+
+const master_entry_t *Com_GetMasterEntry(int index) {
+    if (index >= num_entries) {
+        return NULL;
+    }
+
+    return &entries[index];
+}
+
 const char *Com_GetMasterHost()
 {
-    return "master.333networks.com";
+    return entries[0].host;
 }
 
 int Com_GetMasterQueryPort()
 {
-    return 28900;
+    return entries[0].queryport;
 }
 
 int Com_GetMasterHeartbeatPort()
 {
-    return 27900;
+    return entries[0].hbport;
 }

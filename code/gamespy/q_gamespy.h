@@ -24,8 +24,16 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #pragma once
 
+typedef struct {
+    char host[128];
+    int queryport;
+    int hbport;
+} master_entry_t;
+
 void Com_InitGameSpy();
 
+unsigned int Com_GetNumMasterEntries();
+const master_entry_t *Com_GetMasterEntry(int index);
 const char *Com_GetMasterHost();
 int Com_GetMasterQueryPort();
 int Com_GetMasterHeartbeatPort();
