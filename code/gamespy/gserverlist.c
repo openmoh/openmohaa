@@ -78,6 +78,7 @@ typedef struct
 } UpdateInfo;
 
 typedef enum { pi_fieldcount, pi_fields, pi_servers } GParseInfoState;
+typedef enum { ls_connecting, ls_connected, ls_finished } GListSocketState;
 
 struct GServerListImplementation
 {
@@ -95,7 +96,9 @@ struct GServerListImplementation
     void *instance;
     char *sortkey;
     gbool sortascending;
+    GListSocketState socketstate;
     SOCKET slsocket;
+    //SOCKET slsockets;
     unsigned long lanstarttime;
     GQueryType querytype;
     HashTable keylist;
@@ -386,7 +389,7 @@ GError ServerListStartQuery(GServerList serverlist, gbool async)
 {
     GError error;
 
-    if (serverlist->state != sl_connecting) {
+    if (serverlist->socketstate != ls_connecting) {
         return GE_BUSY;
     }
 
@@ -404,7 +407,7 @@ GError ServerListStartQuery(GServerList serverlist, gbool async)
         getsockopt(serverlist->slsocket, SOL_SOCKET, SO_ERROR, &so_error, &len);
 
         if (so_error) {
-            serverlist->state = sl_idle;
+            serverlist->socketstate = ls_connected;
             return GE_NOCONNECT;
         }
 
@@ -415,7 +418,7 @@ GError ServerListStartQuery(GServerList serverlist, gbool async)
         }
     }
 
-    serverlist->state = sl_idle;
+    serverlist->socketstate = ls_connected;
 
     error = SendListRequest(serverlist, serverlist->filter);
     if (error) return error;
@@ -452,7 +455,7 @@ GError ServerListUpdate2(GServerList serverlist, gbool async, char *filter, GQue
     serverlist->cryptinfo.offset = -1;
     strncpy(serverlist->filter, filter, sizeof(serverlist->filter));
 
-    serverlist->state = sl_connecting;
+    serverlist->socketstate = ls_connecting;
 
     if (async) {
         return 0;
@@ -974,6 +977,14 @@ For use with Async Updates. This needs to be called every ~10ms for list process
 updating to occur during async server list updates */
 GError ServerListThink(GServerList serverlist)
 {
+    switch(serverlist->socketstate)
+    {
+        case ls_connecting:
+                ServerListStartQuery(serverlist, 1);
+                break;
+        default:
+                break;
+    }
 
     switch (serverlist->state)
     {
@@ -987,9 +998,6 @@ GError ServerListThink(GServerList serverlist)
         case sl_querying: 
                 //do some queries
                 return ServerListQueryLoop(serverlist);
-                break;
-        case sl_connecting:
-                return ServerListStartQuery(serverlist, 1);
                 break;
     }
 

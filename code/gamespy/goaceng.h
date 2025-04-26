@@ -77,7 +77,7 @@ lanlist - we are waiting for replies from servers on the LAN
 querying - the servers on the list are being queried
 connecting (added in OPM) - socket is currently connecting to the master server
 */
-typedef enum {sl_idle, sl_listxfer, sl_lanlist, sl_querying, sl_connecting} GServerListState;
+typedef enum {sl_idle, sl_listxfer, sl_lanlist, sl_querying} GServerListState;
 
 /* Comparision types for the ServerListSort function
 int - assume the values are int and do an integer compare
