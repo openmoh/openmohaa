@@ -510,10 +510,16 @@ unsigned int qr_get_num_masters()
 
 const char *qr_get_master_host(int index)
 {
-    return Com_GetMasterEntry(index)->host;
+    master_entry_t entry;
+    Com_GetMasterEntry(index, &entry);
+
+    return entry.host;
 }
 
 int qr_get_master_port(int index)
 {
-    return Com_GetMasterEntry(index)->hbport;
+    master_entry_t entry;
+    Com_GetMasterEntry(index, &entry);
+
+    return entry.hbport;
 }

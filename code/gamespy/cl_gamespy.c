@@ -31,10 +31,16 @@ unsigned int ServerListGetNumMasters() {
 
 const char *ServerListGetHost(int index)
 {
-    return Com_GetMasterEntry(index)->host;
+    master_entry_t entry;
+    Com_GetMasterEntry(index, &entry);
+
+    return entry.host;
 }
 
 int ServerListGetMsPort(int index)
 {
-    return Com_GetMasterEntry(index)->queryport;
+    master_entry_t entry;
+    Com_GetMasterEntry(index, &entry);
+
+    return entry.queryport;
 }
