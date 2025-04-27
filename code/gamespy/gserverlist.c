@@ -530,7 +530,11 @@ GError ServerListUpdate2(GServerList serverlist, gbool async, char *filter, GQue
     serverlist->numservers = ServerListCount(serverlist);
     // Added in 2.0
     //serverlist->cryptinfo.offset = -1;
-    strncpy(serverlist->filter, filter, sizeof(serverlist->filter));
+    if (filter) {
+        strncpy(serverlist->filter, filter, sizeof(serverlist->filter));
+    } else {
+        serverlist->filter[0] = 0;
+    }
 
     serverlist->async = async;
 
