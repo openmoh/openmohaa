@@ -184,7 +184,10 @@ GServerList	ServerListNew(const char *gamename, const char *enginename, const ch
     list->encryptdata = 1;
     list->async = 0;
 
-    list->numslsockets = 2;
+    list->numslsockets = maxconcupdates / 4;
+    if (list->numslsockets < 1) {
+        list->numslsockets = 1;
+    }
     list->slsockets = (GServerListSocket)malloc(sizeof(struct GServerListSocketImplementation) * list->numslsockets);
     memset(list->slsockets, 0, sizeof(struct GServerListSocketImplementation) * list->numslsockets);
     list->startslindex = 0;
