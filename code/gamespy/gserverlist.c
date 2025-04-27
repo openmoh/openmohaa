@@ -31,7 +31,7 @@ Fax(714)549-0757
  *  3.3) The server list sends the list request to connected masters, and receives the data for each.
  *  3.4) When finished fetching 1 master (got `\final`), the server list state transitions to `sl_querying`.
  *  3.5) The server list queries all fetched servers. It can still continue fetching list from currently connected masters
- *       but it will not connect to other masters while servers are being queried.
+ *       but it will not connect to other masters while servers are being queried. It won't be sending more queries if remaining masters replied in under 500 ms.
  *  3.6) When finished querying all fetched servers, the server list restarts from 3.2 and queries next masters.
  *
  * The idea here is to ensure the redundancy of the server list between multiple masters even if the results are combined.
@@ -79,6 +79,7 @@ extern int ServerListGetMsPort(int index);
 //#define MSPORT ServerListGetMsPort(0)
 #define SERVER_GROWBY 64
 #define LAN_SEARCH_TIME 3000 //3 sec
+#define SERVER_QUERY_MAX_PAUSE 500
 #define INTERNET_SEARCH_TIME 10000 //10 sec
 #define LIST_NUMKEYBUCKETS 500
 #define LIST_NUMKEYCHAINS 4
@@ -129,6 +130,7 @@ struct GServerListImplementation
     GServerListSocket slsockets;
     int numslsockets;
     int startslindex;
+    gsi_time lastsltime;
     unsigned long lanstarttime;
     GQueryType querytype;
     HashTable keylist;
@@ -155,7 +157,7 @@ const int querylengths[NUM_QUERYTYPES] = {7,6,7,9,13,8};
 static void KeyValFree(void *elem);
 static int KeyValCompareKeyA(const void *entry1, const void *entry2);
 static int KeyValHashKeyA(const void *elem, int numbuckets);
-
+static gbool ServerListHasFinishedFetchingList(GServerList serverlist);
 
 /* ServerListNew
 ----------------
@@ -189,12 +191,14 @@ GServerList	ServerListNew(const char *gamename, const char *enginename, const ch
     list->numslsockets = maxconcupdates / 4;
     if (list->numslsockets < 1) {
         list->numslsockets = 1;
-    } else if (list->numslsockets > 2) {
-        list->numslsockets = 2;
+    } else if (list->numslsockets > 4) {
+        // Above 4 seems too much
+        list->numslsockets = 4;
     }
     list->slsockets = (GServerListSocket)malloc(sizeof(struct GServerListSocketImplementation) * list->numslsockets);
     memset(list->slsockets, 0, sizeof(struct GServerListSocketImplementation) * list->numslsockets);
     list->startslindex = 0;
+    list->lastsltime = current_time();
 
     SocketStartUp();
     return list;	
@@ -909,6 +913,9 @@ static GError ServerListReadList(GServerList serverlist, GServerListSocket slsoc
 
     }
 
+    slsocket->lastreplytime = current_time();
+    serverlist->lastsltime = slsocket->lastreplytime;
+
     if (serverlist->encryptdata && slsocket->cryptinfo.offset != -1) {
         // Added in 2.0
         crypt_docrypt(&slsocket->cryptinfo, slsocket->data + slsocket->oldlen, len);
@@ -977,7 +984,6 @@ static GError ServerListReadList(GServerList serverlist, GServerListSocket slsoc
     }
     slsocket->oldlen = slsocket->oldlen - (p - slsocket->data);
     memmove(slsocket->data,p,slsocket->oldlen); //shift it over
-    slsocket->lastreplytime = current_time();
     return 0;
 
 }
@@ -1061,7 +1067,7 @@ static GError ServerListQueryLoop(GServerList serverlist)
             return 0;
         }
 
-        if (serverlist->startslindex < ServerListGetNumMasters() || !ServerListFinishedList(serverlist)) {
+        if (serverlist->startslindex < ServerListGetNumMasters() || !ServerListHasFinishedFetchingList(serverlist)) {
             ServerListModeChange(serverlist, sl_listxfer);
         } else {
             // No more masters
@@ -1069,7 +1075,13 @@ static GError ServerListQueryLoop(GServerList serverlist)
         }
         return 0;
     }
-    
+
+    if (!ServerListHasFinishedFetchingList(serverlist) && current_time() < serverlist->lastsltime + SERVER_QUERY_MAX_PAUSE) {
+        // Make sure to not send out other queries if currently fetching from other lists
+        // to avoid overloading the network
+        return GE_BUSY;
+    }
+
 //now, send out queries on available sockets
     for (i = 0 ; i < serverlist->maxupdates && serverlist->nextupdate < ArrayLength(serverlist->servers) ; i++)
         if (serverlist->updatelist[i].currentserver == NULL) //it's availalbe
@@ -1132,10 +1144,10 @@ GError ServerListThinkSocket(GServerList serverlist, GServerListSocket slsocket)
     return 0;
 }
 
-/* ServerListFinishedList
+/* ServerListHasFinishedFetchingList
 ------------------
 Whether or not the list has finished fetching */
-static gbool ServerListFinishedList(GServerList serverlist)
+static gbool ServerListHasFinishedFetchingList(GServerList serverlist)
 {
     int i;
 
@@ -1164,8 +1176,12 @@ GError ServerListThink(GServerList serverlist)
     {
         case sl_idle:
         case sl_listxfer:
-            if (!serverlist->abortupdate && serverlist->startslindex < ServerListGetNumMasters()) {
-                CreateServerListForAvailableSockets(serverlist, serverlist->async);
+            if (!serverlist->abortupdate) {
+                if (serverlist->startslindex < ServerListGetNumMasters()) {
+                    CreateServerListForAvailableSockets(serverlist, serverlist->async);
+                } else if (serverlist->state == sl_listxfer && ServerListHasFinishedFetchingList(serverlist)) {
+                    ServerListModeChange(serverlist, sl_idle);
+                }
             }
             break;
         case sl_querying: 
