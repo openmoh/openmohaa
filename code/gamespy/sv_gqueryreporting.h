@@ -86,8 +86,9 @@ extern char qr_hostname[64];
  * 
  * @return const char* The full master server address
  */
-extern const char *qr_get_master_host();
-extern int qr_get_master_port();
+extern unsigned int qr_get_num_masters();
+extern const char *qr_get_master_host(int index);
+extern int qr_get_master_port(int index);
 
 /********
 qr_querycallback_t
