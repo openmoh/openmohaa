@@ -24,6 +24,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #pragma once
 
+#include "q_gamespy.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -37,6 +39,11 @@ extern const char* GS_GetCurrentGameName();
 
 void SV_CreateGamespyChallenge(char* challenge);
 void SV_GamespyAuthorize(netadr_t from, const char* response);
+void SV_GamespyHeartbeat();
+void SV_ProcessGamespyQueries();
+qboolean SV_InitGamespy();
+void SV_ShutdownGamespy();
+void SV_RestartGamespy();
 
 #ifdef __cplusplus
 }

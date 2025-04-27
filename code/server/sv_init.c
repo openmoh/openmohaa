@@ -24,6 +24,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../client/client.h"
 #include "../qcommon/tiki.h"
 #include "../qcommon/bg_compat.h"
+#include "../gamespy/sv_gamespy.h"
 
 static char last_mapname[ MAX_QPATH ];
 static int g_iSvsTimeFixupCount;
