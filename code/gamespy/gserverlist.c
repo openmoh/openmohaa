@@ -189,6 +189,8 @@ GServerList	ServerListNew(const char *gamename, const char *enginename, const ch
     list->numslsockets = maxconcupdates / 4;
     if (list->numslsockets < 1) {
         list->numslsockets = 1;
+    } else if (list->numslsockets > 2) {
+        list->numslsockets = 2;
     }
     list->slsockets = (GServerListSocket)malloc(sizeof(struct GServerListSocketImplementation) * list->numslsockets);
     memset(list->slsockets, 0, sizeof(struct GServerListSocketImplementation) * list->numslsockets);
