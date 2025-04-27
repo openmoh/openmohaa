@@ -25,7 +25,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "cl_gamespy.h"
 #include "q_gamespy.h"
 
-unsigned int ServerListGetNumMasters() {
+unsigned int ServerListGetNumMasters()
+{
     return Com_GetNumMasterEntries();
 }
 
@@ -44,3 +45,5 @@ int ServerListGetMsPort(int index)
 
     return entry.queryport;
 }
+
+void CL_RestartGamespy_f() {}

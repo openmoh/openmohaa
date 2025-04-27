@@ -23,3 +23,5 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // cl_gamespy.h -- Game-specific client GameSpy code
 
 #pragma once
+
+void CL_RestartGamespy_f();

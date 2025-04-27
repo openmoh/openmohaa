@@ -44,6 +44,8 @@ void SV_ProcessGamespyQueries();
 qboolean SV_InitGamespy();
 void SV_ShutdownGamespy();
 void SV_RestartGamespy();
+void SV_RestartGamespy_f();
+void SV_TryRestartGamespy();
 
 #ifdef __cplusplus
 }
