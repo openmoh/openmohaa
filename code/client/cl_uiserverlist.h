@@ -22,6 +22,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #pragma once
 
+#include "../gamespy/goaceng.h"
+
 class UIFAKKServerList : public UIListCtrl {
 protected:
 	// need a new struct instead of gamespy
@@ -47,6 +49,7 @@ protected:
 	void			MakeLANListing( Event *ev );
 	void			UpdateServer( Event *ev );
 	static int		ServerCompareFunction( const UIListCtrlItem *i1, const UIListCtrlItem *i2, int columnname );
+    static void     UpdateServerListCallBack(GServerList serverlist, int msg, void *instance, void *param1, void *param2);
 public:
 	UIFAKKServerList();
 
