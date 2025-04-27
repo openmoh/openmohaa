@@ -79,6 +79,7 @@ extern int ServerListGetMsPort(int index);
 //#define MSPORT ServerListGetMsPort(0)
 #define SERVER_GROWBY 64
 #define LAN_SEARCH_TIME 3000 //3 sec
+#define INTERNET_SEARCH_TIME 10000 //10 sec
 #define LIST_NUMKEYBUCKETS 500
 #define LIST_NUMKEYCHAINS 4
 
@@ -105,6 +106,7 @@ typedef struct GServerListSocketImplementation
     GListSocketState socketstate;
     char data[2048];
     int oldlen;
+    gsi_time lastreplytime;
     GCryptInfo cryptinfo;
 } *GServerListSocket;
 
@@ -290,12 +292,14 @@ static GError CreateServerListSocket(GServerList serverlist, GServerListSocket s
         && (lasterr = GOAGetLastError(slsocket->slsocket), lasterr != WSAEWOULDBLOCK && lasterr != WSAEINPROGRESS))
     {
         closesocket(slsocket->s);
+        slsocket->s = INVALID_SOCKET;
         return GE_NOCONNECT;
     }
 
     slsocket->socketstate = ls_connecting;
     slsocket->oldlen = 0;
     slsocket->cryptinfo.offset = -1;
+    slsocket->lastreplytime = current_time();
     serverlist->startslindex++;
 
     //else we are connected
@@ -456,6 +460,26 @@ GError ServerListUpdate(GServerList serverlist, gbool async)
     return ServerListUpdate2(serverlist, async, NULL, qt_status);
 }
 
+/* ServerListCheckSocketError
+-------------------------
+Verify if the server list socket has an error or has timed out, and abort. */
+GError ServerListCheckSocketError(GServerList serverlist, GServerListSocket slsocket)
+{
+    int so_error;
+    int len = sizeof(so_error);
+    getsockopt(slsocket->s, SOL_SOCKET, SO_ERROR, &so_error, &len);
+
+    // Abort if the socket has an error or if it connect/recv has timed out
+    if (so_error || current_time() >= slsocket->lastreplytime + INTERNET_SEARCH_TIME) {
+        closesocket(slsocket->s);
+        slsocket->s = INVALID_SOCKET;
+        slsocket->socketstate = ls_none;
+        return GE_NOCONNECT;
+    }
+
+    return 0;
+}
+
 /* ServerListStartQuery
 -------------------------
 Start querying a GServerList. */
@@ -478,18 +502,6 @@ GError ServerListStartQuery(GServerList serverlist, GServerListSocket slsocket, 
     }
 
     if (async) {
-        // Abort if the socket is in error
-        int so_error;
-        int len = sizeof(so_error);
-        getsockopt(slsocket->s, SOL_SOCKET, SO_ERROR, &so_error, &len);
-
-        if (so_error) {
-            closesocket(slsocket->s);
-            slsocket->s = INVALID_SOCKET;
-            slsocket->socketstate = ls_none;
-            return GE_NOCONNECT;
-        }
-
         // Check for pending data
         char buf;
         if (recv(slsocket->s, &buf, 1, MSG_PEEK) == -1) {
@@ -961,6 +973,7 @@ static GError ServerListReadList(GServerList serverlist, GServerListSocket slsoc
     }
     slsocket->oldlen = slsocket->oldlen - (p - slsocket->data);
     memmove(slsocket->data,p,slsocket->oldlen); //shift it over
+    slsocket->lastreplytime = current_time();
     return 0;
 
 }
@@ -1072,6 +1085,17 @@ For use with Async Updates. This needs to be called every ~10ms for list process
 updating to occur during async server list updates */
 GError ServerListThinkSocket(GServerList serverlist, GServerListSocket slsocket)
 {
+    GError socketerror;
+
+    if (slsocket->s == INVALID_SOCKET) {
+        return GE_NOSOCKET;
+    }
+
+    socketerror = ServerListCheckSocketError(serverlist, slsocket);
+    if (socketerror) {
+        return socketerror;
+    }
+
     switch(slsocket->socketstate)
     {
         case ls_connecting:
