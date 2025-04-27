@@ -535,6 +535,8 @@ GError ServerListUpdate2(GServerList serverlist, gbool async, char *filter, GQue
     serverlist->async = async;
 
     if (async) {
+        // As it's asynchronous, set the state to transfering
+        ServerListModeChange(serverlist, sl_listxfer);
         return 0;
     }
 
