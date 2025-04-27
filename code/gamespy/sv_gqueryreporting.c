@@ -448,6 +448,14 @@ void qr_shutdown(qr_t qrec)
     {
         gsifree(qrec);
     }
+    
+    if (MasterList) {
+        gsifree(MasterList);
+        MasterList = NULL;
+    }
+
+    MasterCount = 0;
+
     SocketShutDown();
 }
 
@@ -479,9 +487,11 @@ static int do_connect_multi()
     MasterMaxCount = qr_get_num_masters();
     if (MasterList) {
         gsifree(MasterList);
+        MasterList = NULL;
     }
 
     MasterList = gsimalloc(sizeof(struct sockaddr_in) * MasterMaxCount);
+    MasterCount = 0;
 
     for(i = 0; i < MasterMaxCount; i++) {
         struct sockaddr_in hbaddr;
