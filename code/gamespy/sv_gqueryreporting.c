@@ -495,9 +495,10 @@ static int do_connect_multi()
 
     for(i = 0; i < MasterMaxCount; i++) {
         struct sockaddr_in hbaddr;
-        get_sockaddrin(qr_get_master_host(i), qr_get_master_port(i), &hbaddr, NULL);
-
-        add_master(&hbaddr);
+        if (get_sockaddrin(qr_get_master_host(i), qr_get_master_port(i), &hbaddr, NULL)) {
+            // Valid, add it
+            add_master(&hbaddr);
+        }
     }
 
     return 0;
