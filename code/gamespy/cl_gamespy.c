@@ -25,12 +25,25 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "cl_gamespy.h"
 #include "q_gamespy.h"
 
-const char *ServerListGetHost()
+unsigned int ServerListGetNumMasters()
 {
-    return Com_GetMasterHost();
+    return Com_GetNumMasterEntries();
 }
 
-int ServerListGetMsPort()
+const char *ServerListGetHost(int index)
 {
-    return Com_GetMasterQueryPort();
+    master_entry_t entry;
+    Com_GetMasterEntry(index, &entry);
+
+    return entry.host;
 }
+
+int ServerListGetMsPort(int index)
+{
+    master_entry_t entry;
+    Com_GetMasterEntry(index, &entry);
+
+    return entry.queryport;
+}
+
+void CL_RestartGamespy_f() {}

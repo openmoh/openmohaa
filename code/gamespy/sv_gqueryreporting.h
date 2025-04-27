@@ -65,9 +65,9 @@ as the base port. Generally there is no reason to modify this value.
 /********
 DEFINES
 ********/
-#define MASTER_PORT     qr_get_master_port()
+#define MASTER_PORT     qr_get_master_port(0)
 //#define MASTER_ADDR     "master." GSI_DOMAIN_NAME
-#define MASTER_ADDR     qr_get_master_host()
+#define MASTER_ADDR     qr_get_master_host(0)
 #define FIRST_HB_TIME   30000  /* 30 sec */
 #define HB_TIME         300000 /* 5 minutes */
 #define MAX_FIRST_COUNT 10     /* 10 tries = 5 minutes */
@@ -86,8 +86,9 @@ extern char qr_hostname[64];
  * 
  * @return const char* The full master server address
  */
-extern const char *qr_get_master_host();
-extern int qr_get_master_port();
+extern unsigned int qr_get_num_masters();
+extern const char *qr_get_master_host(int index);
+extern int qr_get_master_port(int index);
 
 /********
 qr_querycallback_t

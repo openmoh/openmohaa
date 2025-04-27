@@ -132,7 +132,12 @@ qboolean           g_NeedAdditionalLANSearch = qfalse;
 qboolean           g_bDoneUpdating[2];
 ServerListInstance g_ServerListInst[2];
 
-void        UpdateServerListCallBack(GServerList serverlist, int msg, void *instance, void *param1, void *param2);
+// Fixed in OPM
+//  It was a static vaariable inside UpdateServerListCallBack
+//  that was set to 0 when the mode changed. This caused some issues
+static int g_iServerQueryCount = 0;
+static int g_iServerTotalCount = 0;
+
 static void AddFilter(char *filter, const char *value);
 
 FAKKServerListItem::FAKKServerListItem(
@@ -713,6 +718,9 @@ void UIFAKKServerList::NewServerList(void)
         iNumConcurrent = 15;
     }
 
+    g_iServerQueryCount = 0;
+    g_iServerTotalCount = 0;
+
     if (com_target_game->integer < target_game_e::TG_MOHTT) {
         game_name  = GS_GetCurrentGameName();
         secret_key = GS_GetCurrentGameKey();
@@ -1021,7 +1029,7 @@ void UIFAKKServerList::SortByColumn(int column)
     }
 }
 
-void UpdateServerListCallBack(GServerList serverlist, int msg, void *instance, void *param1, void *param2)
+void UIFAKKServerList::UpdateServerListCallBack(GServerList serverlist, int msg, void *instance, void *param1, void *param2)
 {
     int                 i, j;
     int                 iPort, iGameSpyPort;
@@ -1029,8 +1037,6 @@ void UpdateServerListCallBack(GServerList serverlist, int msg, void *instance, v
     str                 sAddress;
     GServer             server;
     FAKKServerListItem *pNewServerItem;
-    static int          iServerQueryCount = 0;
-    static int          iServerTotalCount = 0;
     UIFAKKServerList   *uiServerList;
     int                 iServerType;
     // filters
@@ -1073,7 +1079,10 @@ void UpdateServerListCallBack(GServerList serverlist, int msg, void *instance, v
             return;
         }
 
-        Cvar_Set("dm_serverstatusbar", va("%i", (int)(uintptr_t)param2));
+        //Cvar_Set("dm_serverstatusbar", va("%i", (int)(uintptr_t)param2));
+        // Fixed in OPM
+        //  As both lists are combined, show the correct percentage
+        Cvar_Set("dm_serverstatusbar", va("%i", 100 * g_iServerQueryCount / g_iServerTotalCount));
     }
 
     if (msg == LIST_PROGRESS) {
@@ -1163,8 +1172,8 @@ void UpdateServerListCallBack(GServerList serverlist, int msg, void *instance, v
         pNewServerItem->SetQueried(true);
         pNewServerItem->SetNumPlayers(ServerGetIntValue(server, "numplayers", 0));
 
-        iServerQueryCount++;
-        Cvar_Set("dm_servercount", va("%d/%d", iServerQueryCount, iServerTotalCount));
+        g_iServerQueryCount++;
+        Cvar_Set("dm_servercount", va("%d/%d", g_iServerQueryCount, g_iServerTotalCount));
 
         uiServerList->SortByLastSortColumn();
     } else if (msg == LIST_STATECHANGED) {
@@ -1203,7 +1212,6 @@ void UpdateServerListCallBack(GServerList serverlist, int msg, void *instance, v
                 uiServerList->m_bGettingList[1] = false;
             }
             uiServerList->m_bUpdatingList = true;
-            iServerQueryCount             = 0;
             return;
         case GServerListState::sl_lanlist:
             Cvar_Set("dm_serverstatus", "Searching LAN.");
@@ -1212,18 +1220,22 @@ void UpdateServerListCallBack(GServerList serverlist, int msg, void *instance, v
         case GServerListState::sl_querying:
             Cvar_Set("dm_serverstatus", "Querying Servers.");
             uiServerList->m_bUpdatingList = true;
-            iServerQueryCount             = 0;
-            iServerTotalCount             = 0;
             break;
         default:
             break;
         }
 
-        if (!uiServerList->m_bGettingList[0] && !uiServerList->m_bGettingList[1]) {
-            return;
-        }
+        //if (!uiServerList->m_bGettingList[0] && !uiServerList->m_bGettingList[1]) {
+        //    return;
+        //}
 
-        iServerTotalCount += ServerListCount(serverlist);
+        // Rebuild the number of servers
+        g_iServerTotalCount = 0;
+        for(i = 0; i < ARRAY_LEN(uiServerList->m_serverList); i++) {
+            if (uiServerList->m_bGettingList[i] && uiServerList->m_serverList[i]) {
+                g_iServerTotalCount += ServerListCount(uiServerList->m_serverList[i]);
+            }
+        }
 
         // Removed in 2.0
         //  Only add entries for servers that are queried successfully

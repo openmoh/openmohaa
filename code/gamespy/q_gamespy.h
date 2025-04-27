@@ -24,8 +24,19 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #pragma once
 
-void Com_InitGameSpy();
+#include "../qcommon/q_shared.h"
 
+typedef struct {
+    const char *host;
+    int queryport;
+    int hbport;
+} master_entry_t;
+
+void Com_InitGameSpy();
+qboolean Com_RefreshGameSpyMasters();
+
+unsigned int Com_GetNumMasterEntries();
+void Com_GetMasterEntry(int index, master_entry_t* entry);
 const char *Com_GetMasterHost();
 int Com_GetMasterQueryPort();
 int Com_GetMasterHeartbeatPort();

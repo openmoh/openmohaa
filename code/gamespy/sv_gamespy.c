@@ -34,7 +34,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 static char        gamemode[128];
 static qboolean    gcdInitialized = qfalse;
 static qboolean    gcdValid       = qfalse;
+static qboolean    gsRunning      = qfalse;
 extern GSIACResult __GSIACResult;
+
+cvar_t *net_ip           = NULL;
+cvar_t *net_gamespy_port = NULL;
 
 static const char *SECRET_GS_KEYS[] =
 {
@@ -255,7 +259,7 @@ static void players_callback(char *outbuf, int maxlen, void *userdata)
             index,
             cl->ping
         );
-        
+
         if (currlen + infolen < maxlen) {
             strcat(outbuf, infostring);
             currlen += infolen;
@@ -302,6 +306,12 @@ void SV_ShutdownGamespy()
         return;
     }
 
+    if (!gsRunning) {
+        // Added in OPM
+        //  Gamespy is not running
+        return;
+    }
+
     strcpy(gamemode, "exiting");
 
     if (gcdInitialized) {
@@ -311,12 +321,12 @@ void SV_ShutdownGamespy()
 
     qr_send_statechanged(NULL);
     qr_shutdown(NULL);
+
+    gsRunning = qfalse;
 }
 
 qboolean SV_InitGamespy()
 {
-    cvar_t     *net_ip;
-    cvar_t     *net_gamespy_port;
     char        secret_key[9];
     const char *secret_gs_key;
     const char *gs_game_name;
@@ -377,6 +387,8 @@ qboolean SV_InitGamespy()
 
         gcdInitialized = qtrue;
     }
+
+    gsRunning = qtrue;
 
     return qtrue;
 }
@@ -503,12 +515,57 @@ void SV_GamespyAuthorize(netadr_t from, const char *response)
     }
 }
 
-const char *qr_get_master_host()
+void SV_RestartGamespy()
 {
-    return Com_GetMasterHost();
+    if (gsRunning) {
+        //
+        // Reinitialize Gamespy
+        //
+        SV_ShutdownGamespy();
+        SV_InitGamespy();
+    }
 }
 
-int qr_get_master_port()
+void SV_RestartGamespy_f()
 {
-    return Com_GetMasterHeartbeatPort();
+    SV_RestartGamespy();
+}
+
+void SV_TryRestartGamespy()
+{
+    if (Com_RefreshGameSpyMasters()) {
+        SV_RestartGamespy();
+        return;
+    }
+
+    if (net_gamespy_port && net_gamespy_port->latchedString) {
+        SV_RestartGamespy();
+        return;
+    }
+
+    if (sv_gamespy && sv_gamespy->latchedString) {
+        SV_RestartGamespy();
+        return;
+    }
+}
+
+unsigned int qr_get_num_masters()
+{
+    return Com_GetNumMasterEntries();
+}
+
+const char *qr_get_master_host(int index)
+{
+    master_entry_t entry;
+    Com_GetMasterEntry(index, &entry);
+
+    return entry.host;
+}
+
+int qr_get_master_port(int index)
+{
+    master_entry_t entry;
+    Com_GetMasterEntry(index, &entry);
+
+    return entry.hbport;
 }

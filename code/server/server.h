@@ -633,14 +633,6 @@ void SV_NET_UpdateClientNetProfileInfo(netprofclient_t* netprofile, int rate);
 void SV_NET_UpdateAllNetProfileInfo();
 void SV_NET_CalcTotalNetProfile(netprofclient_t* netprofile, qboolean server);
 
-//
-// sv_gamespy.c
-//
-void SV_GamespyHeartbeat();
-void SV_ProcessGamespyQueries();
-qboolean SV_InitGamespy();
-void SV_ShutdownGamespy();
-
 #ifdef __cplusplus
 }
 #endif

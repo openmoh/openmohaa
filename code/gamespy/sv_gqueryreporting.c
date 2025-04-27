@@ -163,9 +163,11 @@ struct qr_implementation_s static_rec = {INVALID_SOCKET, INVALID_SOCKET};
 static qr_t current_rec = &static_rec;
 //char qr_hostname[64] = MASTER_ADDR;
 
-static struct sockaddr_in MasterList[8];
+//static struct sockaddr_in MasterList[8];
+static struct sockaddr_in *MasterList = NULL;
 static char keyvalue[8192];
 static int MasterCount;
+static int MasterMaxCount;
 
 /********
 PROTOTYPES
@@ -173,6 +175,7 @@ PROTOTYPES
 static void send_heartbeat(qr_t qrec, int statechanged);
 static void qr_parse_query(qr_t qrec, char* query, int len, struct sockaddr* sender);
 static int do_connect(SOCKET sock, char* addr, int port, struct sockaddr_in* hbaddr);
+static int do_connect_multi();
 void qr_check_queries(qr_t qrec);
 void qr_check_send_heartbeat(qr_t qrec);
 
@@ -270,7 +273,7 @@ int qr_init(qr_t* qrec,
         qrec = &current_rec;
     }
 
-    return do_connect(hbsock, MASTER_ADDR, MASTER_PORT, &(*qrec)->hbaddr);
+    return do_connect_multi();
 }
 
 void init_qrec(qr_t* qrec,
@@ -339,7 +342,7 @@ int qr_init_socket(qr_t* qrec,
               qr_players_callback,
               userdata);
 
-    return do_connect(s, MASTER_ADDR, MASTER_PORT, &(*qrec)->hbaddr);
+    return do_connect_multi();
 }
 
 /* qr_process_queries: Processes any waiting queries, and sends a
@@ -445,6 +448,14 @@ void qr_shutdown(qr_t qrec)
     {
         gsifree(qrec);
     }
+    
+    if (MasterList) {
+        gsifree(MasterList);
+        MasterList = NULL;
+    }
+
+    MasterCount = 0;
+
     SocketShutDown();
 }
 
@@ -466,6 +477,30 @@ static int do_connect(SOCKET sock, char* addr, int port, struct sockaddr_in* hba
     get_sockaddrin(addr, port, hbaddr, NULL);
     add_master(hbaddr);
 #endif
+    return 0;
+}
+
+static int do_connect_multi()
+{
+    int i;
+
+    MasterMaxCount = qr_get_num_masters();
+    if (MasterList) {
+        gsifree(MasterList);
+        MasterList = NULL;
+    }
+
+    MasterList = gsimalloc(sizeof(struct sockaddr_in) * MasterMaxCount);
+    MasterCount = 0;
+
+    for(i = 0; i < MasterMaxCount; i++) {
+        struct sockaddr_in hbaddr;
+        if (get_sockaddrin(qr_get_master_host(i), qr_get_master_port(i), &hbaddr, NULL)) {
+            // Valid, add it
+            add_master(&hbaddr);
+        }
+    }
+
     return 0;
 }
 
@@ -817,7 +852,7 @@ void add_master(struct sockaddr_in* addr)
             return;
         }
     }
-    if (i == 8) {
+    if (i == MasterMaxCount) {
         return;
     } else {
         MasterList[i] = *addr;
