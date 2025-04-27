@@ -1052,7 +1052,12 @@ static GError ServerListQueryLoop(GServerList serverlist)
     if (serverlist->abortupdate || (serverlist->nextupdate >= ArrayLength(serverlist->servers) && scount == 0)) 
     { //we are done!!
         FreeUpdateList(serverlist);
-        if (!serverlist->abortupdate && serverlist->startslindex < ServerListGetNumMasters()) {
+        if (serverlist->abortupdate) {
+            ServerListModeChange(serverlist, sl_idle);
+            return 0;
+        }
+
+        if (serverlist->startslindex < ServerListGetNumMasters() || !ServerListFinishedList(serverlist)) {
             ServerListModeChange(serverlist, sl_listxfer);
         } else {
             // No more masters
