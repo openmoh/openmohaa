@@ -1996,6 +1996,8 @@ void Com_Init( char *commandLine ) {
 
 	RecoverLostAutodialData();
 
+    // Added in OPM
+    //  Initialize GameSpy related stuff
     Com_InitGameSpy();
 
 	iEnd = Sys_Milliseconds();
