@@ -23,18 +23,18 @@ Fax(714)549-0757
 /**
  * The following modifications were made:
  *
- * 1) Non-blocking server list sockets. List requests are asynchronous and will not block the game. The only blocking request could be due to DNS resolution.
- * 2) Parallel server list requests.
- *  2.1) A pool of sockets is initially created
- *  2.2) The server list, initially in the `sl_idle` state, will connect those sockets to available masters.
- *  2.3) When at least one master replies, the server list sends the request aand transitions to sl_listxfer state.
- *  2.4) The server list receives from multiple masters
- *  2.5) When finished fetching 1 master, the server list transitions to sl_querying
- *  2.6) At this point all received servers get queried. Masters that haven't finished sending the list are still being processed
- *  2.7) When all received servers have been queried, the server list restarts from 2.3 with next masters to query
+ * 1) Non-blocking server list sockets. List requests are asynchronous and won't block the game. The only blocking request could be due to DNS resolution.
+ * 2) Server list sockets will timeout after 10 seconds of no reply.
+ * 3) Parallel server list requests.
+ *  3.1) A pool of sockets is initially created
+ *  3.2) The server list connects idling sockets to available masters, afterwards the server list state is set to `sl_listxfer`.
+ *  3.3) The server list sends the list request to connected masters, and receives the data for each.
+ *  3.4) When finished fetching 1 master (got `\final`), the server list state transitions to `sl_querying`.
+ *  3.5) The server list queries all fetched servers. It can still continue fetching list from currently connected masters
+ *       but it will not connect to other masters while servers are being queried.
+ *  3.6) When finished querying all fetched servers, the server list restarts from 3.2 and queries next masters.
  *
- * The idea here is mostly to ensure the redundancy of the server list between multiple masters
- * even if the results are combined.
+ * The idea here is to ensure the redundancy of the server list between multiple masters even if the results are combined.
  * Optionally for best results, the game should return a list of masters from the same community.
  */
 #include "goaceng.h"
