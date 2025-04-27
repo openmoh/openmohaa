@@ -415,7 +415,9 @@ static GError SendListRequest(GServerList serverlist, GServerListSocket slsocket
     if (gsiSocketIsError(len) || len == 0)
         return GE_NOCONNECT;
 
-    ServerListModeChange(serverlist, sl_listxfer);
+    if (serverlist->state == sl_idle) {
+        ServerListModeChange(serverlist, sl_listxfer);
+    }
     return 0;
 }
 
