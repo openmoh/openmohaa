@@ -27,14 +27,15 @@ Fax(714)549-0757
  * 2) Parallel server list requests.
  *  2.1) A pool of sockets is initially created
  *  2.2) The server list, initially in the `sl_idle` state, will connect those sockets to available masters.
- *  2.3) When at least one master replies, the server list transitions to sl_listxfer state.
+ *  2.3) When at least one master replies, the server list sends the request aand transitions to sl_listxfer state.
  *  2.4) The server list receives from multiple masters
- *  2.5) When finished fetchign from 1 master, the server list transitions to sl_querying
+ *  2.5) When finished fetching 1 master, the server list transitions to sl_querying
  *  2.6) At this point all received servers get queried. Masters that haven't finished sending the list are still being processed
- *  2.7) When all received servers have been queried, the server list restarts from 2.4 with next masters to query
+ *  2.7) When all received servers have been queried, the server list restarts from 2.3 with next masters to query
  *
- *  NOTE: The idea here is mostly to ensure the redundancy of the server list between multiple masters
- *  even if the results are combined.
+ * The idea here is mostly to ensure the redundancy of the server list between multiple masters
+ * even if the results are combined.
+ * Optionally for best results, the game should return a list of masters from the same community.
  */
 #include "goaceng.h"
 #include "gserver.h"
@@ -96,13 +97,15 @@ typedef struct
 } UpdateInfo;
 
 typedef enum { pi_fieldcount, pi_fields, pi_servers } GParseInfoState;
-typedef enum { ls_connecting, ls_connected, ls_finished } GListSocketState;
+typedef enum { ls_none, ls_connecting, ls_connected } GListSocketState;
 
 typedef struct GServerListSocketImplementation
 {
     SOCKET s;
     GListSocketState socketstate;
     char data[2048];
+    int oldlen;
+    GCryptInfo cryptinfo;
 } *GServerListSocket;
 
 struct GServerListImplementation
@@ -131,9 +134,10 @@ struct GServerListImplementation
     // Added in 2.0
     int numservers;
     // Added in 2.0
-    GCryptInfo cryptinfo;
+    //GCryptInfo cryptinfo;
     // Added in OPM
     int encryptdata;
+    gbool async;
 
     GParseInfoState pistate;
 };
@@ -178,9 +182,11 @@ GServerList	ServerListNew(const char *gamename, const char *enginename, const ch
     list->numservers = 0;
     // Added in OPM
     list->encryptdata = 1;
+    list->async = 0;
 
-    list->slsockets = (GServerListSocket)malloc(sizeof(struct GServerListSocketImplementation));
-    list->numslsockets = 1;
+    list->numslsockets = 2;
+    list->slsockets = (GServerListSocket)malloc(sizeof(struct GServerListSocketImplementation) * list->numslsockets);
+    memset(list->slsockets, 0, sizeof(struct GServerListSocketImplementation) * list->numslsockets);
     list->startslindex = 0;
 
     SocketStartUp();
@@ -251,6 +257,11 @@ static GError CreateServerListSocket(GServerList serverlist, GServerListSocket s
         return GE_NODNS;
     }
 
+    if (slsocket->socketstate != ls_none) {
+        closesocket(slsocket->s);
+        slsocket->s = INVALID_SOCKET;
+    }
+
     port = ServerListGetMsPort(serverlist->startslindex);
     host = ServerListGetHost(serverlist->startslindex);
 
@@ -280,6 +291,8 @@ static GError CreateServerListSocket(GServerList serverlist, GServerListSocket s
     }
 
     slsocket->socketstate = ls_connecting;
+    slsocket->oldlen = 0;
+    slsocket->cryptinfo.offset = -1;
     serverlist->startslindex++;
 
     //else we are connected
@@ -289,12 +302,14 @@ static GError CreateServerListSocket(GServerList serverlist, GServerListSocket s
 }
 
 //create and connect a server list sockets
-static GError CreateServerListSockets(GServerList serverlist, gbool async)
+static GError CreateServerListForAvailableSockets(GServerList serverlist, gbool async)
 {
     int i;
 
     for(i = 0; i < serverlist->numslsockets; i++) {
-        CreateServerListSocket(serverlist, &serverlist->slsockets[i], async);
+        if (serverlist->slsockets[i].socketstate == ls_none) {
+            CreateServerListSocket(serverlist, &serverlist->slsockets[i], async);
+        }
     }
 
     return 0;
@@ -444,14 +459,17 @@ Start querying a GServerList. */
 GError ServerListStartQuery(GServerList serverlist, GServerListSocket slsocket, gbool async)
 {
     GError error;
+    int i;
 
     if (slsocket->socketstate != ls_connecting) {
         return GE_BUSY;
     }
 
     if (serverlist->abortupdate) {
-        closesocket(slsocket->s);
-        slsocket->s = INVALID_SOCKET;
+        for(i = 0; i < serverlist->numslsockets; i++) {
+            closesocket(serverlist->slsockets[i].s);
+            serverlist->slsockets[i].s = INVALID_SOCKET;
+        }
         ServerListModeChange(serverlist, sl_idle);
         return GE_NOCONNECT;
     }
@@ -463,7 +481,9 @@ GError ServerListStartQuery(GServerList serverlist, GServerListSocket slsocket, 
         getsockopt(slsocket->s, SOL_SOCKET, SO_ERROR, &so_error, &len);
 
         if (so_error) {
-            slsocket->socketstate = ls_finished;
+            closesocket(slsocket->s);
+            slsocket->s = INVALID_SOCKET;
+            slsocket->socketstate = ls_none;
             return GE_NOCONNECT;
         }
 
@@ -501,7 +521,7 @@ GError ServerListUpdate2(GServerList serverlist, gbool async, char *filter, GQue
         return GE_BUSY;
 
     serverlist->querytype = querytype;
-    error = CreateServerListSockets(serverlist, async);
+    error = CreateServerListForAvailableSockets(serverlist, async);
     //if (error) return error;
 
     serverlist->nextupdate = 0;
@@ -509,8 +529,10 @@ GError ServerListUpdate2(GServerList serverlist, gbool async, char *filter, GQue
     // Added in 2.0
     serverlist->numservers = ServerListCount(serverlist);
     // Added in 2.0
-    serverlist->cryptinfo.offset = -1;
+    //serverlist->cryptinfo.offset = -1;
     strncpy(serverlist->filter, filter, sizeof(serverlist->filter));
+
+    serverlist->async = async;
 
     if (async) {
         return 0;
@@ -831,8 +853,8 @@ static int ServerListParseInfoList(GServerList serverlist, char *data, int len)
 //reads the server list from the socket and parses it
 static GError ServerListReadList(GServerList serverlist, GServerListSocket slsocket)
 {
-    static char data[2048]; //static input buffer
-    static int oldlen = 0;
+    //static char data[2048]; //static input buffer
+    //static int oldlen = 0;
     fd_set set;
     struct timeval timeout = {0,0};
     int len, i;
@@ -849,52 +871,54 @@ static GError ServerListReadList(GServerList serverlist, GServerListSocket slsoc
 #endif
 
 //append to data
-    len = recv(slsocket->s, data + oldlen, sizeof(data) - oldlen - 1, 0);
+    len = recv(slsocket->s, slsocket->data + slsocket->oldlen, sizeof(slsocket->data) - slsocket->oldlen - 1, 0);
     if (gsiSocketIsError(len) || len == 0)
     {
         closesocket(slsocket->s);
         slsocket->s = INVALID_SOCKET;
-        oldlen = 0; //clear data so it can be used again
-        ServerListHalt(serverlist);
+        slsocket->socketstate = ls_none;
+        slsocket->oldlen = 0; //clear data so it can be used again
+        //ServerListHalt(serverlist);
         ServerListModeChange(serverlist, sl_querying);
         return GE_NOCONNECT;
 
     }
 
-    if (serverlist->encryptdata && serverlist->cryptinfo.offset != -1) {
+    if (serverlist->encryptdata && slsocket->cryptinfo.offset != -1) {
         // Added in 2.0
-        crypt_docrypt(&serverlist->cryptinfo, data + oldlen, len);
+        crypt_docrypt(&slsocket->cryptinfo, slsocket->data + slsocket->oldlen, len);
     }
 
-    oldlen += len;
+    slsocket->oldlen += len;
 
-    p = data;
+    p = slsocket->data;
 
     if (!serverlist->encryptdata) {
-        serverlist->cryptinfo.offset = 0;
-    } else if (serverlist->cryptinfo.offset == -1) {
+        slsocket->cryptinfo.offset = 0;
+    } else if (slsocket->cryptinfo.offset == -1) {
         // Added in 2.0
-        if (oldlen > (*p ^ 0xEC)) {
+        if (slsocket->oldlen > (*p ^ 0xEC)) {
             *p ^= 0xEC;
             len = strlen(serverlist->seckey);
             for (i = 0; i < len; i++) {
                 p[i + 1] ^= serverlist->seckey[i];
             }
-            init_crypt_key((unsigned char *)p + 1, *p, &serverlist->cryptinfo);
+            init_crypt_key((unsigned char *)p + 1, *p, &slsocket->cryptinfo);
             p += *p + 1;
-            crypt_docrypt(&serverlist->cryptinfo, (unsigned char *)p, oldlen - (p - data));
+            crypt_docrypt(&slsocket->cryptinfo, (unsigned char *)p, slsocket->oldlen - (p - slsocket->data));
         }
     }
 
-    if (serverlist->cryptinfo.offset != -1)
+    if (slsocket->cryptinfo.offset != -1)
     {
-        while (p - data <= oldlen - 6)
+        while (p - slsocket->data <= slsocket->oldlen - 6)
         {
             if (strncmp(p,"\\final\\",7) == 0 || serverlist->abortupdate)
             {
                 closesocket(slsocket->s);
                 slsocket->s = INVALID_SOCKET;
-                oldlen = 0; //clear data so it can be used again
+                slsocket->socketstate = ls_none;
+                slsocket->oldlen = 0; //clear data so it can be used again
                 if (serverlist->querytype == qt_grouprooms || serverlist->querytype == qt_masterinfo) {
                     ServerListModeChange(serverlist, sl_idle);
                 } else {
@@ -902,11 +926,11 @@ static GError ServerListReadList(GServerList serverlist, GServerListSocket slsoc
                 }
                 return 0; //get out!!
             }
-            if (oldlen < 6) //no way it could be a full IP, quit
+            if (slsocket->oldlen < 6) //no way it could be a full IP, quit
                 break;
 
             if (serverlist->querytype == qt_grouprooms || serverlist->querytype == qt_masterinfo) {
-                i = ServerListParseInfoList(serverlist, p, oldlen - (p - data));
+                i = ServerListParseInfoList(serverlist, p, slsocket->oldlen - (p - slsocket->data));
                 if (i < 0) {
                     serverlist->abortupdate = 1;
                 } else if (!i) {
@@ -920,14 +944,14 @@ static GError ServerListReadList(GServerList serverlist, GServerListSocket slsoc
                 p += 2;
                 // Added in 2.0
                 //  Skip adding the server if already exists
-                if (ServerListFindServerMax(serverlist, ip, ntohs(port), serverlist->numservers) == -1) {
+                if (ServerListFindServer(serverlist, ip, ntohs(port)) == -1) {
                     ServerListAddServer(serverlist, ip, ntohs(port), serverlist->querytype);
                 }
             }
         }
     }
-    oldlen = oldlen - (p - data);
-    memmove(data,p,oldlen); //shift it over
+    slsocket->oldlen = slsocket->oldlen - (p - slsocket->data);
+    memmove(slsocket->data,p,slsocket->oldlen); //shift it over
     return 0;
 
 }
@@ -1002,11 +1026,16 @@ static GError ServerListQueryLoop(GServerList serverlist)
                 */
             serverlist->updatelist[i].currentserver = NULL; //reuse the updatelist
         }
-        
+
     if (serverlist->abortupdate || (serverlist->nextupdate >= ArrayLength(serverlist->servers) && scount == 0)) 
     { //we are done!!
         FreeUpdateList(serverlist);
-        ServerListModeChange(serverlist, sl_idle);
+        if (!serverlist->abortupdate && serverlist->startslindex < ServerListGetNumMasters()) {
+            ServerListModeChange(serverlist, sl_listxfer);
+        } else {
+            // No more masters
+            ServerListModeChange(serverlist, sl_idle);
+        }
         return 0;
     }
     
@@ -1039,6 +1068,10 @@ GError ServerListThinkSocket(GServerList serverlist, GServerListSocket slsocket)
         case ls_connecting:
                 ServerListStartQuery(serverlist, slsocket, 1);
                 break;
+        case ls_connected:
+                //read the data
+                return ServerListReadList(serverlist, slsocket);
+                break;
         default:
                 break;
     }
@@ -1048,17 +1081,29 @@ GError ServerListThinkSocket(GServerList serverlist, GServerListSocket slsocket)
         case sl_idle: return 0;
         case sl_listxfer:
                  //read the data
-                return ServerListReadList(serverlist, slsocket);
+                //return ServerListReadList(serverlist, slsocket);
                 break;
         case sl_lanlist:
                 return ServerListLANList(serverlist, slsocket);
-        case sl_querying: 
-                //do some queries
-                return ServerListQueryLoop(serverlist);
-                break;
     }
 
     return 0;
+}
+
+/* ServerListFinishedList
+------------------
+Whether or not the list has finished fetching */
+static gbool ServerListFinishedList(GServerList serverlist)
+{
+    int i;
+
+    for(i = 0; i < serverlist->numslsockets; i++) {
+        if (serverlist->slsockets[i].s != INVALID_SOCKET) {
+            return 0;
+        }
+    }
+
+    return 1;
 }
 
 /* ServerListThink
@@ -1071,6 +1116,21 @@ GError ServerListThink(GServerList serverlist)
 
     for(i = 0; i < serverlist->numslsockets; i++) {
         ServerListThinkSocket(serverlist, &serverlist->slsockets[i]);
+    }
+
+    switch(serverlist->state)
+    {
+        case sl_idle:
+        case sl_listxfer:
+            if (!serverlist->abortupdate && serverlist->startslindex < ServerListGetNumMasters()) {
+                CreateServerListForAvailableSockets(serverlist, serverlist->async);
+            }
+            break;
+        case sl_querying: 
+            //do some queries
+            return ServerListQueryLoop(serverlist);
+        break;
+        default: break;
     }
 
     return 0;

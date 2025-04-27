@@ -25,23 +25,25 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "q_gamespy.h"
 #include "q_shared.h"
 
-master_entry_t entries[16] =
-{
-    { "master.333networks.com", 28900, 27900 },
-    { "master.errorist.eu", 28900, 27900 }
+master_entry_t entries[16] = {
+    {"master.333networks.com",      28900, 27900},
+    {"master.errorist.eu",          28900, 27900},
+    {"master.noccer.de",            28900, 27900},
+    {"master-au.unrealarchive.org", 28900, 27900},
+    {"master.frag-net.com",         28900, 27900},
 };
 
-int num_entries = 1;
+int num_entries = 5;
 
-void Com_InitGameSpy()
+void Com_InitGameSpy() {}
+
+unsigned int Com_GetNumMasterEntries()
 {
-}
-
-unsigned int Com_GetNumMasterEntries() {
     return num_entries;
 }
 
-const master_entry_t *Com_GetMasterEntry(int index) {
+const master_entry_t *Com_GetMasterEntry(int index)
+{
     if (index >= num_entries) {
         return NULL;
     }
