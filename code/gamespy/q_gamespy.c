@@ -61,6 +61,8 @@ static qboolean ShouldRefreshMasters()
 
 static void CreateMasterVar(int index, const char *host, int msport, int hbport)
 {
+    assert(index < MAX_MASTERS);
+
     //
     // These variables should be modified for testing purposes only.
     // So prevent them to be saved in the configuration file.
@@ -76,6 +78,7 @@ static void CreateMasterVar(int index, const char *host, int msport, int hbport)
 
 qboolean Com_RefreshGameSpyMasters()
 {
+    int      msIndex = 0;
     int      i;
     qboolean shouldRestart;
 
@@ -86,14 +89,14 @@ qboolean Com_RefreshGameSpyMasters()
     // that emulate the GameSpy protocol -- see https://333networks.com/
     // They are managed by different entities, are independent and sync with eachother.
     //
-    CreateMasterVar(0, "master.333networks.com", MASTER_DEFAULT_MSPORT, MASTER_DEFAULT_HBPORT);
-    CreateMasterVar(1, "master.errorist.eu", MASTER_DEFAULT_MSPORT, MASTER_DEFAULT_HBPORT);
-    CreateMasterVar(2, "master.noccer.de", MASTER_DEFAULT_MSPORT, MASTER_DEFAULT_HBPORT);
-    CreateMasterVar(3, "master-au.unrealarchive.org", MASTER_DEFAULT_MSPORT, MASTER_DEFAULT_HBPORT);
-    CreateMasterVar(4, "master.frag-net.com", MASTER_DEFAULT_MSPORT, MASTER_DEFAULT_HBPORT);
+    CreateMasterVar(msIndex++, "master.333networks.com", MASTER_DEFAULT_MSPORT, MASTER_DEFAULT_HBPORT);
+    CreateMasterVar(msIndex++, "master.errorist.eu", MASTER_DEFAULT_MSPORT, MASTER_DEFAULT_HBPORT);
+    CreateMasterVar(msIndex++, "master.noccer.de", MASTER_DEFAULT_MSPORT, MASTER_DEFAULT_HBPORT);
+    CreateMasterVar(msIndex++, "master-au.unrealarchive.org", MASTER_DEFAULT_MSPORT, MASTER_DEFAULT_HBPORT);
+    CreateMasterVar(msIndex++, "master.frag-net.com", MASTER_DEFAULT_MSPORT, MASTER_DEFAULT_HBPORT);
 
-    for (i = 5; i < MAX_MASTERS; i++) {
-        CreateMasterVar(i, "", MASTER_DEFAULT_MSPORT, MASTER_DEFAULT_HBPORT);
+    for (; msIndex < MAX_MASTERS; msIndex++) {
+        CreateMasterVar(msIndex, "", MASTER_DEFAULT_MSPORT, MASTER_DEFAULT_HBPORT);
     }
 
     num_entries = 0;
