@@ -139,6 +139,7 @@ static int g_iServerQueryCount = 0;
 static int g_iServerTotalCount = 0;
 
 static void AddFilter(char *filter, const char *value);
+static void AddFilter(char *filter, const char *value, size_t maxsize);
 
 FAKKServerListItem::FAKKServerListItem(
     UIFAKKServerList *parent, str string1, str string2, str string3, str string4, str string5, str string6, str ver
@@ -599,7 +600,7 @@ void UIFAKKServerList::RefreshServerList(Event *ev)
 
     Cvar_Set("dm_playercount", "0");
     {
-        char           filter[2048]         = {0};
+        char           filter[256]          = {0};
         static cvar_t *dm_max_players       = Cvar_Get("dm_max_players", "0", CVAR_ARCHIVE);
         static cvar_t *dm_min_players       = Cvar_Get("dm_min_players", "0", CVAR_ARCHIVE);
         static cvar_t *dm_show_demo_servers = Cvar_Get("dm_show_demo_servers", "1", CVAR_ARCHIVE);
@@ -609,31 +610,31 @@ void UIFAKKServerList::RefreshServerList(Event *ev)
         static cvar_t *dm_filter_full       = Cvar_Get("dm_filter_full", "0", CVAR_ARCHIVE);
 
         if (dm_min_players->integer) {
-            AddFilter(filter, va("numplayers >= %d", dm_min_players->integer));
+            AddFilter(filter, va("numplayers >= %d", dm_min_players->integer), sizeof(filter));
         }
 
         if (dm_max_players->integer) {
-            AddFilter(filter, va("numplayers <= %d", dm_max_players->integer));
+            AddFilter(filter, va("numplayers <= %d", dm_max_players->integer), sizeof(filter));
         }
 
         if (dm_show_demo_servers && !dm_show_demo_servers->integer) {
-            AddFilter(filter, "gamever not like 'd%'");
+            AddFilter(filter, "gamever not like 'd%'", sizeof(filter));
         }
 
         if (dm_realism_mode && dm_realism_mode->integer == 1) {
-            AddFilter(filter, "realism=1");
+            AddFilter(filter, "realism=1", sizeof(filter));
         }
 
         if (dm_filter_listen->integer == 1) {
-            AddFilter(filter, "dedicated=1");
+            AddFilter(filter, "dedicated=1", sizeof(filter));
         }
 
         if (dm_filter_empty && dm_filter_empty->integer) {
-            AddFilter(filter, "numplayers > 0 ");
+            AddFilter(filter, "numplayers > 0", sizeof(filter));
         }
 
         if (dm_filter_full && dm_filter_full->integer == 1) {
-            AddFilter(filter, "numplayers < maxplayers");
+            AddFilter(filter, "numplayers < maxplayers", sizeof(filter));
         }
 
         ServerListUpdate2(m_serverList[0], true, filter, GQueryType::qt_status);
@@ -691,6 +692,31 @@ static void AddFilter(char *filter, const char *value)
     } else {
         strcpy(filter, value);
     }
+}
+
+//
+// Added in OPM
+//  Filter with safety checks
+//
+static void AddFilter(char *filter, const char *value, size_t maxsize)
+{
+    const char *newval;
+    size_t valuelen;
+    size_t filterlen;
+    
+    if (*filter) {
+        newval = va(" and %s", value);
+    } else {
+        newval = value;
+    }
+
+    valuelen = strlen(newval);
+    filterlen = strlen(filter);
+    if (filterlen + valuelen >= maxsize) {
+        return;
+    }
+
+    strncpy(filter + filterlen, newval, maxsize - filterlen);
 }
 
 void UIFAKKServerList::CancelRefresh(Event *ev)
