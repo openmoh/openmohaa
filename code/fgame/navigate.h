@@ -252,7 +252,7 @@ private:
     static int       m_LoadIndex;
 
 public:
-    static PathNode   *pathnodes[4096];
+    static PathNode   *pathnodes[MAX_PATHNODES];
     static int         nodecount;
     static float       total_dist;
     static const char *last_error;

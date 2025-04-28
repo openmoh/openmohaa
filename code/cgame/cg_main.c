@@ -116,6 +116,7 @@ cvar_t *ui_timemessage;
 // Added in OPM
 //
 cvar_t *cg_fov;
+cvar_t *cg_cheats;
 
 /*
 =================
@@ -214,6 +215,7 @@ void CG_RegisterCvars(void)
     //
 
     cg_fov = cgi.Cvar_Get("cg_fov", "80", CVAR_ARCHIVE);
+    cg_cheats = cgi.Cvar_Get("cheats", "0", CVAR_USERINFO | CVAR_SERVERINFO | CVAR_LATCH);
 }
 /*
 ===============
@@ -365,6 +367,8 @@ void CG_ProcessConfigString(int num, qboolean modelOnly)
             if (tiki) {
                 CG_ProcessCacheInitCommands(tiki);
             }
+
+            CG_ServerModelLoaded(str, hModel);
         } else {
             // clear out the model
             if (hOldModel && CG_IsHandleUnique(hOldModel)) {
@@ -372,6 +376,10 @@ void CG_ProcessConfigString(int num, qboolean modelOnly)
                 cgi.R_UnregisterServerModel(hOldModel);
             }
             cgs.model_draw[num - CS_MODELS] = 0;
+
+            if (!str || !str[0]) {
+                CG_ServerModelUnloaded(hOldModel);
+            }
         }
     }
 

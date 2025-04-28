@@ -1415,7 +1415,7 @@ void DM_Manager::EventDoRoundTransition(Event *ev)
         // Play the axis victory sound
         world->Sound("den_victory_v");
 
-        Unregister(STRING_AXISWIN);
+        level.Unregister(STRING_AXISWIN);
     } else if (m_iTeamWin == TEAM_ALLIES) {
         G_CenterPrintToAllClients(va("\n\n\n%s\n", gi.LV_ConvertString("Allies win!")));
         G_PrintToAllClients(va("%s\n", gi.LV_ConvertString("Allies win!")));
@@ -1423,12 +1423,12 @@ void DM_Manager::EventDoRoundTransition(Event *ev)
         // Play the allies victory sound
         world->Sound("dfr_victory_v");
 
-        Unregister(STRING_ALLIESWIN);
+        level.Unregister(STRING_ALLIESWIN);
     } else {
         G_CenterPrintToAllClients(va("\n\n\n%s\n", gi.LV_ConvertString("It's a draw!")));
         G_PrintToAllClients(va("%s\n", gi.LV_ConvertString("It's a draw!")));
 
-        Unregister(STRING_DRAW);
+        level.Unregister(STRING_DRAW);
     }
 
     G_DisplayScoresToAllClients();
@@ -1843,7 +1843,7 @@ void DM_Manager::BuildTeamInfo_ver6(DM_Team *dmTeam)
     for (int i = iNumPlayers; i > 0; i--) {
         pTeamPlayer = dmTeam->m_players.ObjectAt(i);
 
-        if (pTeamPlayer->IsSubclassOfBot()) {
+        if (pTeamPlayer->edict->r.svFlags & SVF_BOT) {
             continue;
         }
 
@@ -1888,7 +1888,7 @@ void DM_Manager::BuildTeamInfo_ver15(DM_Team *dmTeam)
     for (int i = iNumPlayers; i > 0; i--) {
         pTeamPlayer = dmTeam->m_players.ObjectAt(i);
 
-        if (pTeamPlayer->IsSubclassOfBot()) {
+        if (pTeamPlayer->edict->r.svFlags & SVF_BOT) {
             continue;
         }
 
@@ -1962,7 +1962,7 @@ void DM_Manager::BuildPlayerTeamInfo(DM_Team *dmTeam, int *iPlayerList, DM_Team 
                 pTeamPlayer->GetNumKills(),
                 pTeamPlayer->GetNumDeaths(),
                 G_TimeString(level.svsFloatTime - pTeamPlayer->edict->client->pers.enterTime),
-                pTeamPlayer->IsSubclassOfBot() ? "bot" : va("%d", pTeamPlayer->client->ps.ping)
+                (pTeamPlayer->edict->r.svFlags & SVF_BOT) ? "bot" : va("%d", pTeamPlayer->client->ps.ping)
             );
         } else {
             Com_sprintf(
@@ -1973,7 +1973,7 @@ void DM_Manager::BuildPlayerTeamInfo(DM_Team *dmTeam, int *iPlayerList, DM_Team 
                 pTeamPlayer->GetNumKills(),
                 pTeamPlayer->GetNumDeaths(),
                 G_TimeString(level.svsFloatTime - pTeamPlayer->edict->client->pers.enterTime),
-                pTeamPlayer->IsSubclassOfBot() ? "bot" : va("%d", pTeamPlayer->client->ps.ping)
+                (pTeamPlayer->edict->r.svFlags & SVF_BOT) ? "bot" : va("%d", pTeamPlayer->client->ps.ping)
             );
         }
 

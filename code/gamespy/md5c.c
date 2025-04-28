@@ -305,7 +305,7 @@ static void Decode (UINT4 *output, unsigned char *input, unsigned int len)
  */
 static void MD5_memcpy (POINTER output, POINTER input, unsigned int len)
 {
-	memcpy(output, input, len);
+    memcpy(output, input, len);
 /*  unsigned int i;
   
   for (i = 0; i < len; i++)
@@ -316,7 +316,7 @@ static void MD5_memcpy (POINTER output, POINTER input, unsigned int len)
  */
 static void MD5_memset (POINTER output, int value, unsigned int len)
 {
-	memset(output, value, len);
+    memset(output, value, len);
  /* unsigned int i;
   
   for (i = 0; i < len; i++)
@@ -327,26 +327,26 @@ static void MD5_memset (POINTER output, int value, unsigned int len)
 
 void MD5Print (unsigned char digest[16], char output[33])
 {
-	static const char hex_digits[] = "0123456789abcdef";
-	unsigned int i;
+    static const char hex_digits[] = "0123456789abcdef";
+    unsigned int i;
 
-	for (i = 0; i < 16; i++)
-	{
-		output[i*2  ] = hex_digits[digest[i] / 16];
-		output[i*2+1] = hex_digits[digest[i] % 16];
-	}
-	output[32] = '\0';
+    for (i = 0; i < 16; i++)
+    {
+        output[i*2  ] = hex_digits[digest[i] / 16];
+        output[i*2+1] = hex_digits[digest[i] % 16];
+    }
+    output[32] = '\0';
 }
 
 void MD5Digest (unsigned char *input, unsigned int len, char output[33])
 {
-	MD5_CTX ctx;
-	unsigned char digest[16];
+    MD5_CTX ctx;
+    unsigned char digest[16];
 
-	MD5Init(&ctx);
-	MD5Update(&ctx, input, len);
-	MD5Final(digest, &ctx);
-	MD5Print(digest, output);
+    MD5Init(&ctx);
+    MD5Update(&ctx, input, len);
+    MD5Final(digest, &ctx);
+    MD5Print(digest, output);
 
 }
 #ifdef __cplusplus

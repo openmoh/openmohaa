@@ -4379,7 +4379,7 @@ void FS_FileTime(const char *filename, char *date, char *size)
     // but look through all searchpaths
     //ospath = FS_BuildOSPath(fs_homepath->string, fs_gamedir, filename);
     for (auto search = fs_searchpaths; search; search = search->next) {
-        if (search->dir != NULL && search->dir->path != NULL) {
+        if (search->dir != NULL && search->dir->path[0]) {
             ospath = FS_BuildOSPath(search->dir->path, fs_gamedir, filename);
             result = stat(ospath, &fileStat);
             if (result != -1) {

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.1.0)
+cmake_minimum_required(VERSION 3.5)
 project(mad VERSION 0.16.4)
 
 option(BUILD_SHARED_LIBS "Build dynamic library" ON)

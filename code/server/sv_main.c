@@ -267,7 +267,7 @@ void SV_MasterHeartbeat( void ) {
 
 	if (svs.time >= svs.nextHeartbeatTime)
 	{
-		svs.nextHeartbeatTime = svs.time + MAX_HEARTBEAT_TIME;
+		svs.nextHeartbeatTime = svs.time + HB_TIME;
 		SV_GamespyHeartbeat();
 	}
 }

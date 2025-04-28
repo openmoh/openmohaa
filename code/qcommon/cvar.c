@@ -1019,6 +1019,167 @@ void Cvar_SetS_f( void ) {
 
 /*
 ============
+Cvar_Reset_f
+============
+*/
+void Cvar_Reset_f( void ) {
+	if ( Cmd_Argc() != 2 ) {
+		Com_Printf ("usage: reset <variable>\n");
+		return;
+	}
+	Cvar_Reset( Cmd_Argv( 1 ) );
+}
+
+/*
+============
+Cvar_Add_f
+
+su44: Adds a value to a variable
+============
+*/
+void Cvar_Add_f( void ) {
+	int c;
+	float current;
+	float amount;
+	char val[32];
+
+	if ( Cmd_Argc() < 3 ) {
+		Com_Printf ("usage: add <variable> <amount>\n");
+		return;
+	}
+
+	amount = atof(Cmd_Argv(2));
+	current = Cvar_VariableValue(Cmd_Argv(1)) + amount;
+	c = (int)current;
+	if (current == c) {
+		Com_sprintf(val, 32, "%i", c);
+	} else {
+		Com_sprintf(val, 32, "%f", current);
+	}
+
+	Cvar_Set2(Cmd_Argv(1), val, qfalse);
+}
+
+/*
+============
+Cvar_Subtract_f
+============
+*/
+void Cvar_Subtract_f( void ) {
+	int c;
+	float current;
+	float amount;
+	char val[32];
+
+	if ( Cmd_Argc() < 3 ) {
+		Com_Printf ("usage: subtract <variable> <amount>\n");
+		return;
+	}
+
+	amount = atof(Cmd_Argv(2));
+	current = Cvar_VariableValue(Cmd_Argv(1)) - amount;
+	c = (int)current;
+	if (current == c) {
+		Com_sprintf(val, 32, "%i", c);
+	} else {
+		Com_sprintf(val, 32, "%f", current);
+	}
+
+	Cvar_Set2(Cmd_Argv(1), val, qfalse);
+}
+
+/*
+============
+Cvar_Scale_f
+============
+*/
+void Cvar_Scale_f( void ) {
+	int c;
+	float current;
+	float amount;
+	char val[32];
+
+	if ( Cmd_Argc() < 3 ) {
+		Com_Printf ("usage: scale <variable> <amount>\n");
+		return;
+	}
+
+	amount = atof(Cmd_Argv(2));
+	current = Cvar_VariableValue(Cmd_Argv(1)) * amount;
+	c = (int)current;
+	if (current == c) {
+		Com_sprintf(val, 32, "%i", c);
+	} else {
+		Com_sprintf(val, 32, "%f", current);
+	}
+
+	Cvar_Set2(Cmd_Argv(1), val, qfalse);
+}
+
+/*
+============
+Cvar_Append_f
+============
+*/
+void Cvar_Append_f( void ) {
+	int c;
+	char buffer[1024];
+
+	if ( Cmd_Argc() < 3 ) {
+		Com_Printf ("usage: append <variable> <string>\n");
+		return;
+	}
+
+	Com_sprintf(buffer, sizeof(buffer), "%s %s", Cvar_VariableString(Cmd_Argv(1)), Cmd_Argv(2));
+	Cvar_Set2(Cmd_Argv(1), buffer, qfalse);
+}
+
+/*
+============
+Cvar_Append_f
+============
+*/
+void Cvar_Bitset_f( void ) {
+	cvar_t* var;
+	const char* name;
+	int bit;
+	char val[32];
+
+	// Removed in OPM
+	//  Also let clients use bitset
+	/*
+	if (!com_sv_running->integer) {
+		Com_Printf("Server is not running.\n");
+		return;
+	}
+	*/
+
+	if (Cmd_Argc() < 3 || Cmd_Argc() > 4) {
+		//Com_Printf("Usage: bitset cvar bit [value]\n");
+		Com_Printf("Usage: bitset <variable> <bit> [1=add, 0=remove]\n");
+		return;
+	}
+
+	name = Cmd_Argv(1);
+	bit = atoi(Cmd_Argv(2));
+	var = Cvar_Get(name, "", 0);
+
+	if (!var->integer && var->string[0] != '0') {
+		Com_Printf("Error: cvar %s does not store an integer\n", name);
+		return;
+	}
+
+	if (Cmd_Argc() > 3 && !atoi(Cmd_Argv(3))) {
+		Com_sprintf(val, sizeof(val), "%i", var->integer & ~(1 << bit));
+	} else {
+		Com_sprintf(val, sizeof(val), "%i", var->integer | (1 << bit));
+	}
+
+	Cvar_Set(name, val);
+}
+
+/*
+============
 Cvar_SetA_f
 
 As Cvar_Set, but also flags it as archived
@@ -1037,43 +1198,6 @@ void Cvar_SetA_f( void ) {
 		return;
 	}
 	v->flags |= CVAR_ARCHIVE;
-}
-
-/*
-============
-Cvar_Add_f
-
-su44: Adds a value to a variable
-============
-*/
-void Cvar_Add_f( void ) {
-	cvar_t	*v;
-	float f;
-
-	if ( Cmd_Argc() != 3 ) {
-		Com_Printf ("usage: add <variable> <amount>\n");
-		return;
-	}
-	v = Cvar_FindVar( Cmd_Argv( 1 ) );
-	if ( !v ) {
-		Cvar_Set( Cmd_Argv( 1 ), Cmd_Argv( 2 ) );
-		return;
-	}
-	f = v->value;
-	f += atof(Cmd_Argv(2));
-	Cvar_Set(v->name,va("%f",f));
-}
-/*
-============
-Cvar_Reset_f
-============
-*/
-void Cvar_Reset_f( void ) {
-	if ( Cmd_Argc() != 2 ) {
-		Com_Printf ("usage: reset <variable>\n");
-		return;
-	}
-	Cvar_Reset( Cmd_Argv( 1 ) );
 }
 
 /*
@@ -1648,6 +1772,12 @@ void Cvar_Init (void)
 	Cmd_AddCommand ("cvar_restart", Cvar_Restart_f);
 	// su44: added for MoHAA
 	Cmd_AddCommand ("add", Cvar_Add_f);
+	Cmd_AddCommand ("subtract", Cvar_Subtract_f);
+	Cmd_AddCommand ("scale", Cvar_Scale_f);
+	Cmd_AddCommand ("append", Cvar_Append_f);
+
+	// Added in 2.30
+	Cmd_AddCommand ("bitset", Cvar_Bitset_f);
 }
 
 #ifndef STANDALONE

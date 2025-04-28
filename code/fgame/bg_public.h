@@ -770,8 +770,8 @@ movement on the server game.
         CGM_HUDDRAW_ALPHA,
         CGM_HUDDRAW_STRING,
         CGM_HUDDRAW_FONT,
-        CGM_NOTIFY_KILL,
         CGM_NOTIFY_HIT,
+        CGM_NOTIFY_KILL,
         CGM_VOICE_CHAT,
         CGM_FENCEPOST,
     };
@@ -812,8 +812,8 @@ movement on the server game.
         CGM6_HUDDRAW_ALPHA,
         CGM6_HUDDRAW_STRING,
         CGM6_HUDDRAW_FONT,
-        CGM6_NOTIFY_KILL,
         CGM6_NOTIFY_HIT,
+        CGM6_NOTIFY_KILL,
         CGM6_VOICE_CHAT,
     };
 

@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2024 the OpenMoHAA team
+Copyright (C) 2025 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -153,7 +153,7 @@ public:
 
     void ArchiveRaw(void *data, size_t size);
     void ArchiveObject(Class *obj);
-    void ArchiveObject(SafePtrBase* obj); // Added in OPM
+    void ArchiveObject(SafePtrBase *obj); // Added in OPM
 
     qboolean ObjectPositionExists(void *obj);
 
@@ -167,23 +167,29 @@ public:
 template<class Type>
 inline void Container<Type>::Archive(Archiver& arc, void (*ArchiveFunc)(Archiver& arc, Type *obj))
 {
-    int num;
-    int i;
+    Type *obj;
+    int   num;
+    int   i;
 
     if (arc.Loading()) {
         arc.ArchiveInteger(&num);
         Resize(num);
-    } else {
-        num = numobjects;
-        arc.ArchiveInteger(&num);
-    }
 
-    for (i = 1; i <= num; i++) {
         if (num > numobjects) {
             numobjects = num;
         }
 
-        ArchiveFunc(arc, &objlist[i - 1]);
+        for (i = 0; i < num; i++) {
+            obj = new (objlist + i) Type();
+            ArchiveFunc(arc, obj);
+        }
+    } else {
+        num = numobjects;
+        arc.ArchiveInteger(&num);
+
+        for (i = 0; i < num; i++) {
+            ArchiveFunc(arc, &objlist[i]);
+        }
     }
 }
 
@@ -287,7 +293,7 @@ void con_set<key, value>::Archive(Archiver& arc)
 
     if (arc.Loading()) {
         if (tableLength != 1) {
-            table = new Entry *[tableLength]();
+            table = new (NewTable(tableLength)) Entry *[tableLength]();
             memset(table, 0, tableLength * sizeof(Entry *));
         }
 
@@ -303,7 +309,7 @@ void con_set<key, value>::Archive(Archiver& arc)
 
         defaultEntry = e;
     } else {
-#ifndef NDEBUG
+#    ifndef NDEBUG
         int total;
 
         total = 0;
@@ -316,13 +322,13 @@ void con_set<key, value>::Archive(Archiver& arc)
         }
         // it must match the number of elements
         assert(total == count);
-#else
+#    else
         for (i = 0; i < tableLength; i++) {
             for (e = table[i]; e != NULL; e = e->next) {
                 e->Archive(arc);
             }
         }
-#endif
+#    endif
     }
 }
 

@@ -45,6 +45,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #  include "../uilib/ui_public.h"
 #endif
 
+#include "../gamespy/q_gamespy.h"
+
 qboolean CL_FinishedIntro(void);
 
 #ifdef __cplusplus
@@ -127,6 +129,8 @@ cvar_t	*precache;
 cvar_t	*com_target_game;
 cvar_t	*com_target_version;
 cvar_t	*com_target_demo;
+cvar_t	*com_updatecheck_enabled;
+cvar_t	*com_updatecheck_interval;
 
 int protocol_version_demo;
 int protocol_version_full;
@@ -144,6 +148,7 @@ qboolean	com_errorEntered = qfalse;
 qboolean	com_fullyInitialized = qfalse;
 qboolean	com_gameRestarting = qfalse;
 qboolean	com_gameClientRestarting = qfalse;
+qboolean	com_gotOriginalConfig = qfalse;
 
 char	com_errorMessage[MAXPRINTMSG];
 
@@ -222,8 +227,13 @@ A raw string should NEVER be passed as fmt, because of "%f" type crashers.
 void QDECL Com_Printf( const char *fmt, ... ) {
 	va_list		argptr;
 	char		msg[MAXPRINTMSG];
-  static qboolean opening_qconsole = qfalse;
+	static qboolean opening_qconsole = qfalse;
+	static qboolean recursive_count = qfalse;
 
+	if (recursive_count) {
+		return;
+	}
+	recursive_count = qtrue;
 
 	va_start (argptr,fmt);
 	Q_vsnprintf (msg, sizeof(msg), fmt, argptr);
@@ -238,6 +248,7 @@ void QDECL Com_Printf( const char *fmt, ... ) {
     // TTimo nooo .. that would defeat the purpose
 		//rd_flush(rd_buffer);
 		//*rd_buffer = 0;
+		recursive_count--;
 		return;
 	}
 
@@ -265,10 +276,13 @@ void QDECL Com_Printf( const char *fmt, ... ) {
 			
 			logfile = FS_FOpenTextFileWrite( "qconsole.log" );
 
+            // Remove recursive count as it won't be able to print relevant info
+            recursive_count--;
 			if(logfile)
 			{
 				Com_Printf( "logfile opened on %s\n", asctime( newtime ) );
-				Com_Printf( "=> game is version %s\n", com_version->string );
+				Com_Printf( "=> game is version %s\n", PRODUCT_NAME " " PRODUCT_VERSION_FULL " " PLATFORM_STRING " " PRODUCT_VERSION_DATE );
+                Com_Printf( "=> targeting game ID %d\n", Cvar_VariableIntegerValue( "com_target_game" ) );
 
 				if ( com_logfile->integer > 1 )
 				{
@@ -282,6 +296,7 @@ void QDECL Com_Printf( const char *fmt, ... ) {
 				Com_Printf("Opening qconsole.log failed!\n");
 				Cvar_SetValue("logfile", 0);
 			}
+            recursive_count++;
 
       opening_qconsole = qfalse;
 		}
@@ -291,56 +306,60 @@ void QDECL Com_Printf( const char *fmt, ... ) {
             //================
 			size_t msgLen = strlen(msg);
 
-			if (com_logfile_timestamps->integer) {
-				static qboolean no_newline = qfalse;
+            if (msgLen > 0) {
+                if (com_logfile_timestamps->integer) {
+                    static qboolean no_newline = qfalse;
 
-				if (!no_newline) {
-					time_t t;
-					time_t t_gmt;
-					struct tm tms_local;
-					struct tm tms_gm;
-					double tz;
-					const char* tzStr;
-					char buffer[26];
+                    if (!no_newline) {
+                        time_t t;
+                        time_t t_gmt;
+                        struct tm tms_local;
+                        struct tm tms_gm;
+                        double tz;
+                        const char* tzStr;
+                        char buffer[26];
 
-					t = time(NULL);
-#ifdef WIN32
-					localtime_s(&tms_local, &t);
-					gmtime_s(&tms_gm, &t);
-#else
-                    localtime_r(&t, &tms_local);
-                    gmtime_r(&t, &tms_gm);
-#endif
-					t_gmt = mktime(&tms_gm);
-					tz = difftime(t, t_gmt) / 60.0 / 60.0;
+                        t = time(NULL);
+    #ifdef WIN32
+                        localtime_s(&tms_local, &t);
+                        gmtime_s(&tms_gm, &t);
+    #else
+                        localtime_r(&t, &tms_local);
+                        gmtime_r(&t, &tms_gm);
+    #endif
+                        t_gmt = mktime(&tms_gm);
+                        tz = difftime(t, t_gmt) / 60.0 / 60.0;
 
-					strftime(buffer, 26, "%Y-%m-%d %H:%M:%S", &tms_local);
-					FS_Write("[", 1, logfile);
-					FS_Write(buffer, strlen(buffer), logfile);
-					FS_Write(" ", 1, logfile);
+                        strftime(buffer, 26, "%Y-%m-%d %H:%M:%S", &tms_local);
+                        FS_Write("[", 1, logfile);
+                        FS_Write(buffer, strlen(buffer), logfile);
+                        FS_Write(" ", 1, logfile);
 
-					if (tz >= 0) {
-						tzStr = va("UTC+%.03f", tz);
-					} else {
-						tzStr = va("UTC%.03f", tz);
-					}
+                        if (tz >= 0) {
+                            tzStr = va("UTC+%.03f", tz);
+                        } else {
+                            tzStr = va("UTC%.03f", tz);
+                        }
 
-					FS_Write(tzStr, strlen(tzStr), logfile);
-					FS_Write("] ", 2, logfile);
-				}
+                        FS_Write(tzStr, strlen(tzStr), logfile);
+                        FS_Write("] ", 2, logfile);
+                    }
 
-				if (msgLen > 1 && msg[msgLen - 1] != '\n') {
-					// Don't write the time if the previous message has no newline
-					no_newline = qtrue;
-				} else {
-					no_newline = qfalse;
-				}
-			}
-            //================
+                    if (msg[msgLen - 1] != '\n') {
+                        // Don't write the time if the previous message has no newline
+                        no_newline = qtrue;
+                    } else {
+                        no_newline = qfalse;
+                    }
+                }
+                //================
 
-			FS_Write(msg, msgLen, logfile);
+                FS_Write(msg, msgLen, logfile);
+            }
 		}
-	}
+    }
+
+    recursive_count--;
 }
 
 
@@ -1695,6 +1714,7 @@ void Com_Init( char *commandLine ) {
 	const char	*s;
 	char		configname[ 128 ];
 	int			qport;
+	qboolean	configExists;
 
 	Com_Printf( "--- Common Initialization ---\n" );
 
@@ -1794,9 +1814,12 @@ void Com_Init( char *commandLine ) {
 	Cvar_Set( "config", configname );
 	Com_Printf( "Config: %s\n", configname );
 
-	if ( !Com_ConfigExists( configname )) {
+	configExists = Com_ConfigExists(configname);
+
+	if ( !configExists ) {
 		Com_Printf( "The config file '%s' doesn't exist, using unnamedsoldier.cfg as a template\n", configname );
 		Cbuf_AddText( va( "exec configs/unnamedsoldier.cfg\n", configname ) );
+		com_gotOriginalConfig = qtrue;
 	} else {
 		Cbuf_AddText( va( "exec configs/%s\n", configname ) );
 	}
@@ -1899,11 +1922,15 @@ void Com_Init( char *commandLine ) {
 
 	s = va( "%s %s (Medal of Honor: %s %s) %s %s", PRODUCT_NAME, PRODUCT_VERSION_FULL, Cvar_VariableString("com_target_extension"), Cvar_VariableString("com_target_version"), PLATFORM_STRING, PRODUCT_VERSION_DATE);
 	com_version = Cvar_Get( "version", s, CVAR_ROM | CVAR_SERVERINFO );
-	com_gamename = Cvar_Get("com_gamename", "", CVAR_SERVERINFO | CVAR_INIT);
-	com_shortversion = Cvar_Get( "shortversion", PRODUCT_VERSION, CVAR_ROM );
+	com_gamename = Cvar_Get("com_gamename", "", CVAR_SERVERINFO | CVAR_INIT | CVAR_USERINFO | CVAR_SERVERINFO);
+	com_shortversion = Cvar_Get( "shortversion", PRODUCT_VERSION, CVAR_ROM | CVAR_USERINFO | CVAR_SERVERINFO );
 	com_protocol = Cvar_Get("com_protocol", va("%i", PROTOCOL_VERSION), CVAR_INIT);
 #ifdef LEGACY_PROTOCOL
 	com_legacyprotocol = Cvar_Get("com_legacyprotocol", va("%i", PROTOCOL_LEGACY_VERSION), CVAR_INIT);
+
+	com_updatecheck_enabled = Cvar_Get("com_updatecheck_enabled", "1", CVAR_ARCHIVE);
+	com_updatecheck_interval = Cvar_Get("com_updatecheck_interval", "15", 0);
+    Cvar_CheckRange(com_updatecheck_interval, 5, 240, qtrue);
 
 	// Keep for compatibility with old mods / mods that haven't updated yet.
 	if(com_legacyprotocol->integer > 0)
@@ -1968,6 +1995,10 @@ void Com_Init( char *commandLine ) {
 	}
 
 	RecoverLostAutodialData();
+
+    // Added in OPM
+    //  Initialize GameSpy related stuff
+    Com_InitGameSpy();
 
 	iEnd = Sys_Milliseconds();
 	Com_Printf( "--- Common Initialization Complete --- %i ms\n", iEnd - iStart );
@@ -2442,6 +2473,8 @@ void Com_Frame( void ) {
 
 	Com_ReadFromPipe();
 
+    Sys_ProcessBackgroundTasks();
+
 	com_frameNumber++;
 }
 
@@ -2463,74 +2496,65 @@ void Com_Shutdown (void) {
 
 }
 
-qboolean Com_SanitizeName( const char *pszOldName, char *pszNewName, size_t bufferSize )
+qboolean Com_SanitizeName(const char* pszOldName, char* pszNewName, size_t bufferSize)
 {
-	int i;
-	qboolean bBadName = qfalse;
-	const char *p = pszOldName;
-	size_t maxLength;
+    int i;
+    qboolean bBadName = qfalse;
+    const char* p = pszOldName;
+    size_t maxLength;
 
-	maxLength = (bufferSize / sizeof(char)) - 1;
+    maxLength = (bufferSize / sizeof(char)) - 1;
+    bBadName = qfalse;
 
-	if( *pszOldName && *pszOldName <= ' ' )
-	{
-		bBadName = qtrue;
+    for (p = pszOldName; *p && *(unsigned char*)p <= ' '; p++) {
+        bBadName = qtrue;
+    }
 
-		while( *p && *p <= ' ' )
-		{
-			p++;
-		}
-	}
+    for (i = 0; *p && *p >= ' ' && i < maxLength; p++, i++)
+    {
+        if (*p == '~' || *p == '`')
+        {
+            pszNewName[i] = '*';
+            bBadName = qtrue;
+        }
+        else if (*p == '\"')
+        {
+            pszNewName[i] = '\'';
+            bBadName = qtrue;
+        }
+        else if (*p == '\\')
+        {
+            pszNewName[i] = '/';
+            bBadName = qtrue;
+        }
+        else if (*p == ';')
+        {
+            pszNewName[i] = ':';
+            bBadName = qtrue;
+        }
+        else
+        {
+            pszNewName[i] = *p;
+        }
+    }
 
-	i = 0;
-	for( i = 0; *p && *p >= ' ' && i < maxLength; p++, i++ )
-	{
-		if( *p == '~' || *p == '`' )
-		{
-			pszNewName[ i ] = '*';
-			bBadName = qtrue;
-		}
-		else if( *p == '\"' )
-		{
-			pszNewName[ i ] = '\'';
-			bBadName = qtrue;
-		}
-		else if( *p == '\\' )
-		{
-			pszNewName[ i ] = '/';
-			bBadName = qtrue;
-		}
-		else if( *p == ';' )
-		{
-			pszNewName[ i ] = ':';
-			bBadName = qtrue;
-		}
-		else
-		{
-			pszNewName[ i ] = *p;
-		}
-	}
+    for (; i > 0 && (unsigned char)pszNewName[i - 1] <= ' '; i--) {
+        bBadName = qtrue;
+    }
 
-	if( i > 0 && pszNewName[ i - 1 ] <= ' ' )
-	{
-		bBadName = qtrue;
-		do
-		{
-			p++;
-		} while( i > 0 && pszNewName[ i - 1 ] <= ' ' );
-	}
-	pszNewName[ i ] = 0;
+    pszNewName[i] = 0;
 
-	if( !i )
-	{
-		memcpy( pszNewName, "*** Blank Name ***", sizeof( "*** Blank Name ***" ) );
-		bBadName = qtrue;
-	}
+    if (!i)
+    {
+        const char* pNewNameDynamic = va("*** Blank Name #%04d ***", rand() % 100000);
+        Q_strncpyz(pszNewName, pNewNameDynamic, bufferSize);
+        bBadName = qtrue;
+    }
 
-	if( *p )
-		bBadName = qtrue;
+    if (*p)
+        bBadName = qtrue;
 
-	return bBadName;
+    return bBadName;
 }
 
 const char *Com_GetArchiveFileName( const char *filename, const char *extension )
@@ -3099,8 +3123,6 @@ int QDECL Com_strCompare( const void *a, const void *b )
 
 void Com_InitTargetGameWithType(target_game_e target_game, qboolean bIsDemo)
 {
-	const char* protocol;
-
     switch (target_game)
     {
     case TG_MOH:
@@ -3112,7 +3134,7 @@ void Com_InitTargetGameWithType(target_game_e target_game, qboolean bIsDemo)
 			Cvar_Set("com_legacyprotocol", va("%i", PROTOCOL_MOH_DEMO));
         }
 		protocol_version_demo = protocol_version_full = PROTOCOL_MOH;
-		Cvar_Set("com_target_version", TARGET_GAME_VERSION_MOH);
+		Cvar_Set("com_target_version", va("%s+%s", TARGET_GAME_VERSION_MOH, PRODUCT_VERSION));
 		Cvar_Set("com_target_extension", PRODUCT_EXTENSION_MOH);
 		Cvar_Set("com_gamename", TARGET_GAME_NAME_MOH);
 		// "main" is already used as first argument of FS_Startup
@@ -3129,7 +3151,7 @@ void Com_InitTargetGameWithType(target_game_e target_game, qboolean bIsDemo)
 		}
 		protocol_version_demo = PROTOCOL_MOHTA_DEMO;
 		protocol_version_full = PROTOCOL_MOHTA;
-		Cvar_Set("com_target_version", TARGET_GAME_VERSION_MOHTA);
+		Cvar_Set("com_target_version", va("%s+%s", TARGET_GAME_VERSION_MOHTA, PRODUCT_VERSION));
 		Cvar_Set("com_target_extension", PRODUCT_EXTENSION_MOHTA);
 		Cvar_Set("com_gamename", TARGET_GAME_NAME_MOHTA);
 		if (!bIsDemo) {
@@ -3146,12 +3168,12 @@ void Com_InitTargetGameWithType(target_game_e target_game, qboolean bIsDemo)
 			Cvar_Set("com_protocol", va("%i", PROTOCOL_MOHTA));
             Cvar_Set("com_legacyprotocol", va("%i", PROTOCOL_MOHTA));
             Cvar_Set("com_protocol_alt", va("%i", PROTOCOL_MOHTA_DEMO));
-            Cvar_Set("com_target_version", TARGET_GAME_VERSION_MOHTT);
+            Cvar_Set("com_target_version", va("%s+%s", TARGET_GAME_VERSION_MOHTT, PRODUCT_VERSION));
 		} else {
 			Cvar_Set("com_protocol", va("%i", PROTOCOL_MOHTA_DEMO));
             Cvar_Set("com_legacyprotocol", va("%i", PROTOCOL_MOHTA_DEMO));
             Cvar_Set("com_protocol_alt", va("%i", PROTOCOL_MOHTA));
-            Cvar_Set("com_target_version", TARGET_GAME_VERSION_MOHTT_DEMO);
+            Cvar_Set("com_target_version", va("%s+%s", TARGET_GAME_VERSION_MOHTT_DEMO, PRODUCT_VERSION));
         }
         protocol_version_demo = PROTOCOL_MOHTA_DEMO;
         protocol_version_full = PROTOCOL_MOHTA;

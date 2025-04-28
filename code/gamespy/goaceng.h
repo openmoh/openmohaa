@@ -74,7 +74,9 @@ idle - no processing or querying underway, ready to being updates
 listreq - a server list request has been or is being sent
 listxfer - we are transfering the server list
 lanlist - we are waiting for replies from servers on the LAN
-querying - the servers on the list are being queried */
+querying - the servers on the list are being queried
+connecting (added in OPM) - socket is currently connecting to the master server
+*/
 typedef enum {sl_idle, sl_listxfer, sl_lanlist, sl_querying} GServerListState;
 
 /* Comparision types for the ServerListSort function

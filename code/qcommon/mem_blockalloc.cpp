@@ -50,6 +50,20 @@ void MEM_Free(void *ptr)
     return cgi.Free(ptr);
 }
 
+#elif defined(REF_DLL)
+
+#    include "../renderercommon/tr_common.h"
+
+void *MEM_Alloc(int size)
+{
+    return ri.Malloc(size);
+}
+
+void MEM_Free(void *ptr)
+{
+    return ri.Free(ptr);
+}
+
 #else
 
 #    include "qcommon.h"

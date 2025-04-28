@@ -270,6 +270,8 @@ extern "C" {
         qhandle_t hAlliedPlayerModelHandle;
         dtiki_t  *pAxisPlayerModel;
         qhandle_t hAxisPlayerModelHandle;
+        qboolean  serverAlliedModelValid;
+        qboolean  serverAxisModelValid;
 
         // view eyes
         vec3_t vOffsetViewAngles;
@@ -510,6 +512,7 @@ extern "C" {
     // Added in OPM
     //
     extern cvar_t *cg_fov;
+    extern cvar_t *cg_cheats;
 
     //
     // cg_main.c
@@ -530,6 +533,9 @@ extern "C" {
     //
     // cg_modelanim.cpp
     //
+    void CG_ProcessPlayerModel();
+    void CG_ServerModelLoaded(const char* name, qhandle_t handle);
+    void CG_ServerModelUnloaded(qhandle_t handle);
     void CG_ModelAnim(centity_t *cent, qboolean bDoShaderTime);
     void CG_AttachEntity(
         refEntity_t *entity, refEntity_t *parent, dtiki_t *tiki, int tagnum, qboolean use_angles, vec3_t attach_offset

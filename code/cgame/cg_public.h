@@ -122,6 +122,7 @@ functions exported to the main executable
         cvar_t *(*Cvar_Get)(const char *var_name, const char *value, int flags);
         cvar_t *(*Cvar_Find)(const char *var_name);
         void (*Cvar_Set)(const char *var_name, const char *value);
+        void (*Cvar_CheckRange)(cvar_t* var, float min, float max, qboolean integral);
 
         // ClientCommand and ConsoleCommand parameter access
         int (*Argc)(void);

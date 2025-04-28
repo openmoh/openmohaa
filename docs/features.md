@@ -28,7 +28,12 @@ Overall, better compatibility on modern systems and bugfixes.
 - Customizable FOV
 - OpenAL and SDL are used
 - Smoother animations
-- Stufftext protection: commands that the server want clients to execute are now filtered
+
+#### Stufftext restriction
+
+Servers can no longer make players run any command. Only a small number of safe commands are now allowed. This change helps prevent abuse, like unbinding player controls, and improves overall security.
+
+`stufftext` is now limited to trusted, commonly used commands, like those for controlling in-game music. The full list can be found in [cgame/cg_servercmds_filter.c](../code/cgame/cg_servercmds_filter.c).
 
 ### Server-side
 

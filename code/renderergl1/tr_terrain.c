@@ -59,6 +59,9 @@ vec3_t        g_vTerFwd;
 static const unsigned int MAX_TERRAIN_LOD       = 6;
 static const float        TERRAIN_LIGHTMAP_SIZE = 128.0f;
 
+#define VARNODE_INVISIBLE	4
+#define VARNODE_DELETE		8
+
 typedef struct poolInfo_s {
     terraInt iFreeHead;
     terraInt iCur;
@@ -141,7 +144,7 @@ static void R_InterpolateVert(terraTri_t *pTri, terrainVert_t *pVert)
     pMinHeight  = (byte *)Q_min((uintptr_t)pVert0->pHgt, (uintptr_t)pVert1->pHgt);
     pMaxHeight  = (byte *)Q_max((uintptr_t)pVert0->pHgt, (uintptr_t)pVert1->pHgt);
     pVert->pHgt = (byte *)(pMinHeight + ((pMaxHeight - pMinHeight) >> 1));
-    assert(pVert->pHgt >= pMinHeight && pVert->pHgt < pMaxHeight);
+    assert(pVert->pHgt >= pMinHeight && pVert->pHgt < pMaxHeight || pMinHeight == pMaxHeight);
 
     // Calculate the average Z
     pVert->fHgtAvg = (float)(*pVert0->pHgt + *pVert1->pHgt);
@@ -277,9 +280,9 @@ static int R_ConstChecksForTri(terraTri_t *pTri)
     //vn.s.flags &= 0xF0;
     vn.flags &= 0xFFFFFFF0;
 
-    if (vn.fVariance == 0.0 && !(pTri->varnode->flags & 8)) {
+    if (vn.fVariance == 0.0 && !(pTri->varnode->flags & VARNODE_DELETE)) {
         return 2;
-    } else if (pTri->varnode->flags & 8) {
+    } else if (pTri->varnode->flags & VARNODE_DELETE) {
         return 3;
     } else if ((pTri->byConstChecks & 4) && !(pTri->varnode->flags & 4) && pTri->lod < ter_maxlod->integer) {
         return 0;
@@ -522,7 +525,7 @@ static void R_ForceSplit(terraInt iTri)
             R_InterpolateVert(pBase, pVert);
 
             pVert->fVariance = g_pVert[iNewPt].fVariance;
-            if (flags & 8) {
+            if (flags & VARNODE_DELETE) {
                 pVert->fHgtAvg += pVert->fHgtAdd;
                 pVert->fHgtAdd   = 0.0;
                 pVert->fVariance = 0.0;
@@ -539,7 +542,7 @@ static void R_ForceSplit(terraInt iTri)
         R_DemoteInAncestry(pBase->patch, iBase);
     }
 
-    if (flags & 8) {
+    if (flags & VARNODE_DELETE) {
         pVert = &g_pVert[iNewPt];
         pVert->fHgtAvg += pVert->fHgtAdd;
         pVert->fHgtAdd   = 0.0;
@@ -648,7 +651,7 @@ static int R_TerraTriNeighbor(cTerraPatchUnpacked_t *terraPatches, int iPatch, i
     case 0:
         return iNeighbor;
     case 1:
-        if (terraPatches[iPatch].flags & 0x80) {
+        if (terraPatches[iPatch].flags & TERPATCH_NEIGHBOR) {
             return iNeighbor;
         } else {
             return iNeighbor + 1;
@@ -657,7 +660,7 @@ static int R_TerraTriNeighbor(cTerraPatchUnpacked_t *terraPatches, int iPatch, i
     case 2:
         return iNeighbor + 1;
     case 3:
-        if (terraPatches[iPatch].flags & 0x80) {
+        if (terraPatches[iPatch].flags & TERPATCH_NEIGHBOR) {
             return iNeighbor + 1;
         } else {
             return iNeighbor;
@@ -844,10 +847,10 @@ static void R_PreTessellateTerrain()
         pTri->byConstChecks |= R_ConstChecksForTri(pTri);
 
         pTri->iBase = iTri1;
-        if ((patch->flags & 0x80u) == 0) {
+        if ((patch->flags & TERPATCH_NEIGHBOR) == 0) {
             pTri->iLeft  = R_TerraTriNeighbor(tr.world->terraPatches, patch->iWest, 1);
             pTri->iRight = R_TerraTriNeighbor(tr.world->terraPatches, patch->iNorth, 2);
-            if (patch->flags & 0x40) {
+            if (patch->flags & TERPATCH_FLIP) {
                 pTri->iPt[0] = i00;
                 pTri->iPt[1] = i11;
             } else {
@@ -858,7 +861,7 @@ static void R_PreTessellateTerrain()
         } else {
             pTri->iLeft  = R_TerraTriNeighbor(tr.world->terraPatches, patch->iNorth, 2);
             pTri->iRight = R_TerraTriNeighbor(tr.world->terraPatches, patch->iEast, 3);
-            if (patch->flags & 0x40) {
+            if (patch->flags & TERPATCH_FLIP) {
                 pTri->iPt[0] = i01;
                 pTri->iPt[1] = i10;
             } else {
@@ -878,10 +881,10 @@ static void R_PreTessellateTerrain()
         pTri->byConstChecks |= R_ConstChecksForTri(pTri);
 
         pTri->iBase = iTri0;
-        if ((patch->flags & 0x80u) == 0) {
+        if ((patch->flags & TERPATCH_NEIGHBOR) == 0) {
             pTri->iLeft  = R_TerraTriNeighbor(tr.world->terraPatches, patch->iEast, 3);
             pTri->iRight = R_TerraTriNeighbor(tr.world->terraPatches, patch->iSouth, 0);
-            if (patch->flags & 0x40) {
+            if (patch->flags & TERPATCH_FLIP) {
                 pTri->iPt[0] = i11;
                 pTri->iPt[1] = i00;
             } else {
@@ -892,7 +895,7 @@ static void R_PreTessellateTerrain()
         } else {
             pTri->iLeft  = R_TerraTriNeighbor(tr.world->terraPatches, patch->iSouth, 0);
             pTri->iRight = R_TerraTriNeighbor(tr.world->terraPatches, patch->iWest, 1);
-            if (patch->flags & 0x40) {
+            if (patch->flags & TERPATCH_FLIP) {
                 pTri->iPt[0] = i10;
                 pTri->iPt[1] = i01;
             } else {
@@ -1112,7 +1115,7 @@ static qboolean R_MergeInternalCautious()
         return qfalse;
     }
 
-    if (pTri->varnode->flags & 8) {
+    if (pTri->varnode->flags & VARNODE_DELETE) {
         return qfalse;
     }
 
@@ -1122,7 +1125,7 @@ static qboolean R_MergeInternalCautious()
 
     if (pTri->iBase) {
         pBase = &g_pTris[pTri->iBase];
-        if (pBase->nSplit || (pBase->varnode->flags & 8)) {
+        if (pBase->nSplit || (pBase->varnode->flags & VARNODE_DELETE)) {
             return qfalse;
         }
 
@@ -1553,7 +1556,7 @@ void R_CraterTerrain(const vec3_t pos, const vec3_t dir, float fDepth, float fRa
                     continue;
                 }
 
-                if (pPatch->flags & 0x40) {
+                if (pPatch->flags & TERPATCH_FLIP) {
                     heightmap[index] = vArcCenter[2] + sqrt(dzSquared);
                     if (fMaxHeight < heightmap[index]) {
                         fMaxHeight = heightmap[index];

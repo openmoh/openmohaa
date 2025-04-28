@@ -2,9 +2,11 @@
 
 ## Game selection
 
+**Medal of Honor: Allied Assault** is the default game, but expansions are also supported.
+
 ### From the launchers
 
-For simplicity, base game and expansions can be started from one of the 3 launchers:
+Base game and expansions can be started from one of the 3 launchers:
 
 - `launch_openmohaa_base`, this starts OpenMoHAA in **Medal of Honor: Allied Assault** mode which is the base game
 - `launch_openmohaa_spearhead`, this starts OpenMoHAA in **Medal of Honor: Allied Assault: Spearhead** mode
@@ -12,24 +14,23 @@ For simplicity, base game and expansions can be started from one of the 3 launch
 
 ### From command-line
 
-**Medal of Honor: Allied Assault** is the default game, but expansions are also supported.
+**Spearhead** and **Breakthrough** are supported in OpenMoHAA using the `com_target_game` variable.
 
-**Medal of Honor: Allied Assault Spearhead** and **Medal of Honor: Allied Assault Breakthrough** are supported in OpenMoHAA using the `com_target_game` variable.
+To change the target game, append the following command-line arguments to the `openmohaa` and `omohaaded` executable:
 
-To play an expansion, append the following command-line arguments to the executable:
+- `+set com_target_game 0` for the default base game (mohaa, uses `main` folder)
+- `+set com_target_game 1` for the Spearhead expansion (mohaas, uses `mainta` folder)
+- `+set com_target_game 2` for the Breakthrough expansion (mohaab, uses `maintt` folder)
 
-- `+set com_target_game 1` for the Spearhead expansion (mohaas/mohta, mainta, a.k.a Team Assault)
-- `+set com_target_game 2` for the Breakthrough expansion (mohaab/mohtt, maintt, a.k.a Team Tactics)
-
-With `com_target_game`, OpenMoHAA will support the network protocol accordingly. The default value of `com_target_game` is 0 for the base game (mohaa, main).
+OpenMoHAA will also use the correct network protocol version accordingly. The default value of `com_target_game` is 0.
 
 On Windows, a shortcut can be created to the `openmohaa` executable, with the command-line argument appended from above to play an expansion.
 
 You can now start a local OpenMOHAA server or play on a server.
 
-### Playing with a demo version
+### Using a demo version
 
-The argument `+set com_target_demo 1` must be appended to command-line to play the game or host a server using demo assets. Allied Assault, Spearhead and Breakthrough demos are supported as long as `com_target_game` is set (see above).
+The argument `+set com_target_demo 1` must be appended to command-line to play the game or host a server using demo assets. Allied Assault, Spearhead and Breakthrough demos are supported.
 
 ## User data location
 

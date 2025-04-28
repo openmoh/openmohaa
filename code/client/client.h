@@ -561,6 +561,7 @@ qboolean CL_CheckPaused(void);
 
 int CL_GetRefSequence(void);
 qboolean CL_IsRendererLoaded(void);
+void CL_ApplyOriginalConfigTweaks();
 
 //
 // cl_input

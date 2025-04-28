@@ -89,7 +89,11 @@ extern "C" {
 	} GSICriticalSection;
 	typedef void (*GSThreadFunc)(void *arg);
 
-#elif defined(_UNIX) //_LINUX || _MACOSX
+#elif defined(_UNIX) // Linux, Mac OS X, openbsd, etc.
+	#if defined(__OpenBSD__)
+		#include <pthread.h>
+	#endif
+
 	typedef pthread_mutex_t GSICriticalSection;
 	typedef struct
 	{

@@ -26,12 +26,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../server/server.h"
 #include "snd_codec.h"
 
-#if defined(_MSC_VER) || defined(__APPLE__)
-#    include <alext.h>
-#else
-#    include <AL/alext.h>
-#endif
-
 typedef struct {
     const char *funcname;
     void      **funcptr;
@@ -132,6 +126,13 @@ static ALuint S_OPENAL_Format(float width, int channels);
 #    define ALDRIVER_DEFAULT "libopenal.so"
 #else
 #    define ALDRIVER_DEFAULT "libopenal.so.1"
+#endif
+
+//
+// alext
+//
+#ifdef AL_SOFT_source_resampler
+LPALGETSTRINGISOFT qalGetStringiSOFT;
 #endif
 
 /*
@@ -273,9 +274,7 @@ S_OPENAL_InitContext
 static bool S_OPENAL_InitContext()
 {
     const char *dev;
-    int         attrlist[10];
-    size_t      i;
-    size_t      numResamplers;
+    int         attrlist[12];
 
     Com_DPrintf("OpenAL: Context initialization\n");
 
@@ -382,6 +381,11 @@ static bool S_OPENAL_InitContext()
 
 #ifdef ALC_SOFT_output_mode
     attrlist[4] = ALC_OUTPUT_MODE_SOFT;
+    // Disable HRTF by default
+    // For example, actual speakers that are recognized as headphones by the OS
+    // will not get forced HRTF
+    attrlist[6] = ALC_HRTF_SOFT;
+    attrlist[7] = ALC_FALSE;
 
     switch (s_speaker_type->integer) {
     // Two speakers
@@ -392,6 +396,8 @@ static bool S_OPENAL_InitContext()
     // Headphones
     case 1:
         attrlist[5] = ALC_STEREO_HRTF_SOFT;
+        // Allow HRTF mixing (without forcing in case it's unsupported)
+        attrlist[7] = ALC_DONT_CARE_SOFT;
         break;
     // Surround
     case 2:
@@ -414,11 +420,11 @@ static bool S_OPENAL_InitContext()
 
 #ifdef ALC_SOFT_output_limiter
     // Disable limiter
-    attrlist[6] = ALC_OUTPUT_LIMITER_SOFT;
-    attrlist[7] = ALC_FALSE;
+    attrlist[8] = ALC_OUTPUT_LIMITER_SOFT;
+    attrlist[9] = ALC_FALSE;
 #endif
-    attrlist[8] = 0;
-    attrlist[9] = 0;
+    attrlist[10] = 0;
+    attrlist[11] = 0;
 
     Com_Printf("OpenAL: Creating AL context...\n");
     al_context_id = qalcCreateContext(al_device, attrlist);
@@ -432,23 +438,6 @@ static bool S_OPENAL_InitContext()
 
     qalcMakeContextCurrent(al_context_id);
     alDieIfError();
-
-#ifdef AL_SOFT_source_resampler
-    al_default_resampler_index = qalGetInteger(AL_DEFAULT_RESAMPLER_SOFT);
-    alDieIfError();
-    al_resampler_index = al_default_resampler_index;
-    numResamplers = qalGetInteger(AL_NUM_RESAMPLERS_SOFT);
-    alDieIfError();
-
-    for (i = 0; i < numResamplers; i++) {
-        const ALchar* resamplerName = qalGetStringiSOFT(AL_RESAMPLER_NAME_SOFT, i);
-        if (Q_stristr(resamplerName, "spline")) {
-            Com_Printf("OpenAL: Using %s as the resampler.\n", resamplerName);
-            al_resampler_index = i;
-            break;
-        }
-     }
-#endif
 
     Com_Printf("AL_VENDOR: %s\n", qalGetString(AL_VENDOR));
     alDieIfError();
@@ -478,11 +467,7 @@ S_OPENAL_InitExtensions
 */
 static bool S_OPENAL_InitExtensions()
 {
-    ima4_ext         = qalIsExtensionPresent("AL_EXT_IMA4");
-    soft_block_align = qalIsExtensionPresent("AL_SOFT_block_alignment");
-
-    return true;
-
+    /*
     extensions_table_t extensions_table[4] = {
         "alutLoadMP3_LOKI",
         (void **)&_alutLoadMP3_LOKI,
@@ -494,6 +479,17 @@ static bool S_OPENAL_InitExtensions()
         (void **)&_alReverbDelay_LOKI,
         true
     };
+    */
+
+    extensions_table_t extensions_table[] = {
+#ifdef AL_SOFT_source_resampler
+        extensions_table_t {
+                            "alGetStringiSOFT", (void **)&qalGetStringiSOFT,
+                            false, },
+#endif
+        extensions_table_t {NULL, NULL, NULL}
+    };
+
     extensions_table_t *i;
 
     for (i = extensions_table; i->funcname; ++i) {
@@ -515,6 +511,9 @@ static bool S_OPENAL_InitExtensions()
 
         Com_Printf("...found.\n");
     }
+
+    ima4_ext         = qalIsExtensionPresent("AL_EXT_IMA4");
+    soft_block_align = qalIsExtensionPresent("AL_SOFT_block_alignment");
 
     qalGetError();
     return true;
@@ -635,6 +634,28 @@ qboolean S_OPENAL_Init()
     al_current_volume = Square(s_volume->value);
     qalListenerf(AL_GAIN, al_current_volume);
     alDieIfError();
+
+#ifdef AL_SOFT_source_resampler
+    if (qalGetStringiSOFT) {
+        size_t numResamplers;
+        size_t i;
+
+        al_default_resampler_index = qalGetInteger(AL_DEFAULT_RESAMPLER_SOFT);
+        alDieIfError();
+        al_resampler_index = al_default_resampler_index;
+        numResamplers      = qalGetInteger(AL_NUM_RESAMPLERS_SOFT);
+        alDieIfError();
+
+        for (i = 0; i < numResamplers; i++) {
+            const ALchar *resamplerName = qalGetStringiSOFT(AL_RESAMPLER_NAME_SOFT, i);
+            if (Q_stristr(resamplerName, "spline")) {
+                Com_Printf("OpenAL: Using %s as the resampler.\n", resamplerName);
+                al_resampler_index = i;
+                break;
+            }
+        }
+    }
+#endif
 
     for (i = 0; i < MAX_SOUNDSYSTEM_CHANNELS_3D; i++) {
         if (!S_OPENAL_InitChannel(i, &openal.chan_3D[i])) {
@@ -3102,10 +3123,12 @@ bool openal_channel::set_sfx(sfx_t *pSfx)
             qalGenBuffers(1, &pSfx->buffer);
             alDieIfError();
 
+#if AL_SOFT_block_alignment
             if (pSfx->info.dataalign > 1) {
                 qalBufferi(pSfx->buffer, AL_UNPACK_BLOCK_ALIGNMENT_SOFT, pSfx->info.dataalign);
                 alDieIfError();
             }
+#endif
 
             qalBufferData(
                 pSfx->buffer,
@@ -4484,10 +4507,12 @@ bool openal_channel_two_d_stream::set_sfx(sfx_t *pSfx)
         return true;
     }
 
+#if AL_SOFT_block_alignment
     if (stream->info.dataalign > 1 && soft_block_align) {
         qalBufferi(buffers[currentBuf], AL_UNPACK_BLOCK_ALIGNMENT_SOFT, stream->info.dataalign);
         alDieIfError();
     }
+#endif
 
     qalBufferData(buffers[currentBuf], pSfx->info.format, rawData, bytesRead, stream->info.rate);
     alDieIfError();
@@ -4628,10 +4653,12 @@ void openal_channel_two_d_stream::update()
         }
     }
 
+#if AL_SOFT_block_alignment
     if (stream->info.dataalign > 1 && soft_block_align) {
         qalBufferi(buffers[currentBuf], AL_UNPACK_BLOCK_ALIGNMENT_SOFT, stream->info.dataalign);
         alDieIfError();
     }
+#endif
 
     qalBufferData(buffers[currentBuf], format, rawData, bytesRead, stream->info.rate);
     alDieIfError();

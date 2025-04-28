@@ -11,6 +11,7 @@ file(GLOB SRCS_common
 	"./hashtable.c"
 	"./md5c.c"
 	"./gutil.c"
+	"./gcrypt.c"
 )
 
 file(GLOB SRCS_gcdkey
@@ -101,4 +102,5 @@ foreach(LIB ${DEPENDENT_LIBS})
 	target_link_libraries(${LIB} PUBLIC gcd_common)
 endforeach()
 
+target_link_libraries(gcd_key PRIVATE gcd_qr2)
 target_link_libraries(gcd_qr2 PRIVATE gcd_natneg)

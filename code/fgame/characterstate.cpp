@@ -77,7 +77,7 @@ Conditional::Conditional()
 
 Expression::Expression() {}
 
-Expression::Expression(Expression& exp)
+Expression::Expression(const Expression& exp)
 
 {
     int i;

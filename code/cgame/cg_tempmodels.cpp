@@ -131,10 +131,10 @@ void ClientGameCommandManager::FreeAllTempModels(void)
 //===============
 void ClientGameCommandManager::FreeSomeTempModels(void)
 {
-    ctempmodel_t* model;
-    int count = 0;
-    unsigned int i;
-    unsigned int numToFree;
+    ctempmodel_t *model;
+    int           count = 0;
+    unsigned int  i;
+    unsigned int  numToFree;
 
     if (!m_free_tempmodels) {
         return;
@@ -159,10 +159,10 @@ void ClientGameCommandManager::FreeSomeTempModels(void)
 //===============
 // FreeSpawnthing
 //===============
-void ClientGameCommandManager::FreeSpawnthing(spawnthing_t* sp)
+void ClientGameCommandManager::FreeSpawnthing(spawnthing_t *sp)
 {
-    ctempmodel_t* model;
-    ctempmodel_t* prev;
+    ctempmodel_t *model;
+    ctempmodel_t *prev;
 
     if (sp->numtempmodels) {
         for (model = m_active_tempmodels.prev; model != &m_active_tempmodels; model = prev) {
@@ -199,7 +199,7 @@ void ClientGameCommandManager::ResetTempModels(void)
 }
 
 static int lastTempModelFrameTime = 0;
-int next_tempmodel_warning = 0;
+int        next_tempmodel_warning = 0;
 
 void CG_ResetTempModels(void)
 {
@@ -228,11 +228,16 @@ void ClientGameCommandManager::InitializeTempModels(void)
 
 void ClientGameCommandManager::InitializeTempModelCvars(void)
 {
-    cg_showtempmodels     = cgi.Cvar_Get("cg_showtempmodels", "0", 0);
-    cg_detail             = cgi.Cvar_Get("detail", "1", CVAR_ARCHIVE);
-    cg_effectdetail       = cgi.Cvar_Get("cg_effectdetail", "0.2", CVAR_ARCHIVE);
+    cg_showtempmodels = cgi.Cvar_Get("cg_showtempmodels", "0", 0);
+    cg_detail         = cgi.Cvar_Get("detail", "1", CVAR_ARCHIVE);
+
+    cg_effectdetail = cgi.Cvar_Get("cg_effectdetail", "0.2", CVAR_ARCHIVE);
+    cgi.Cvar_CheckRange(cg_effectdetail, 0.2, 1.0, qfalse);
+
     cg_effect_physicsrate = cgi.Cvar_Get("cg_effect_physicsrate", "10", CVAR_ARCHIVE);
     cg_max_tempmodels     = cgi.Cvar_Get("cg_max_tempmodels", "1100", CVAR_ARCHIVE);
+    cgi.Cvar_CheckRange(cg_max_tempmodels, 200, MAX_TEMPMODELS, qtrue);
+
     cg_reserve_tempmodels = cgi.Cvar_Get("cg_reserve_tempmodels", "200", CVAR_ARCHIVE);
 
     if (cg_max_tempmodels->integer > MAX_TEMPMODELS) {
@@ -253,9 +258,9 @@ void ClientGameCommandManager::InitializeTempModelCvars(void)
 //===============
 void ClientGameCommandManager::AnimateTempModel(ctempmodel_t *p, Vector origin, refEntity_t *newEnt)
 {
-    int numframes;
-    int deltatime;
-    int frametime;
+    int   numframes;
+    int   deltatime;
+    int   frametime;
     float prev;
 
     // This code is for animating tempmodels that are spawned from the client
@@ -491,16 +496,16 @@ void ClientGameCommandManager::OtherTempModelEffects(ctempmodel_t *p, Vector ori
     if (p->number != -1) {
         refEntity_t *old_entity;
         dtiki_t     *old_tiki;
-        int         oldnum;
-        float       oldscale;
+        int          oldnum;
+        float        oldscale;
 
         // Set the axis
         AnglesToAxis(p->cgd.angles, axis);
 
         old_entity = current_entity;
-        old_tiki = current_tiki;
-        oldnum = current_entity_number;
-        oldscale = current_scale;
+        old_tiki   = current_tiki;
+        oldnum     = current_entity_number;
+        oldscale   = current_scale;
 
         current_scale         = newEnt->scale;
         current_entity        = newEnt;
@@ -525,7 +530,7 @@ void ClientGameCommandManager::OtherTempModelEffects(ctempmodel_t *p, Vector ori
 
     if (p->cgd.flags2 & T2_ALIGNSTRETCH) {
         Vector vDelta;
-        float fScale;
+        float  fScale;
 
         vDelta = p->cgd.origin - p->cgd.oldorigin;
         fScale = vDelta.length() * p->cgd.scale2;
@@ -562,8 +567,8 @@ qboolean ClientGameCommandManager::TempModelPhysics(ctempmodel_t *p, float ftime
 
     // If linked to the parent or hardlinked, get the parent's origin
     if ((p->cgd.flags & (T_PARENTLINK | T_HARDLINK)) && (p->cgd.parent != ENTITYNUM_NONE)) {
-        centity_t* pc;
-        refEntity_t* e;
+        centity_t   *pc;
+        refEntity_t *e;
 
         pc = &cg_entities[p->cgd.parent];
         if (!pc->currentValid) {
@@ -577,8 +582,7 @@ qboolean ClientGameCommandManager::TempModelPhysics(ctempmodel_t *p, float ftime
 
         parentOrigin = e->origin;
         vectoangles(e->axis[0], parentAngles);
-    }
-    else if (p->cgd.flags & T_SWARM) {
+    } else if (p->cgd.flags & T_SWARM) {
         p->cgd.parentOrigin = p->cgd.velocity + p->cgd.accel * ftime * scale;
     }
 
@@ -891,10 +895,11 @@ void ClientGameCommandManager::AddTempModels(void)
     refEntity_t  *old_ent;
 
     // To counteract cg.time going backwards
-    if (lastTempModelFrameTime && ((cg.time < lastTempModelFrameTime) || (cg.time - lastTempModelFrameTime > TOO_MUCH_TIME_PASSED))) {
+    if (lastTempModelFrameTime
+        && ((cg.time < lastTempModelFrameTime) || (cg.time - lastTempModelFrameTime > TOO_MUCH_TIME_PASSED))) {
         p = m_active_tempmodels.prev;
         for (; p != &m_active_tempmodels; p = next) {
-            next = p->prev;
+            next               = p->prev;
             p->lastPhysicsTime = cg.time;
         }
         lastTempModelFrameTime = cg.time;
@@ -994,7 +999,7 @@ void ClientGameCommandManager::AddTempModels(void)
         // Run physics if the lastEnt is not valid to get a valid lerp
         if (!p->lastEntValid) {
             float t;
-            t  = physics_rate / 1000.0f;
+            t = physics_rate / 1000.0f;
 
             ret = TempModelPhysics(p, t, scale);
             if (!ret) {
@@ -1180,7 +1185,7 @@ void ClientGameCommandManager::SpawnTempModel(int mcount)
         if (m_spawnthing->cgd.flags & T_WAVE) {
             p->m_spawnthing = m_spawnthing;
             m_spawnthing->numtempmodels++;
-            start           = Vector(0, 0, 0);
+            start = Vector(0, 0, 0);
         } else {
             p->m_spawnthing = NULL;
             start           = m_spawnthing->cgd.origin;
@@ -1205,7 +1210,7 @@ void ClientGameCommandManager::SpawnTempModel(int mcount)
                 Vector dst;
                 // Create a circular shaped burst around the up vector
                 float angle;
-                
+
                 if (mcount == 1) {
                     angle = random() * 360;
                 } else {

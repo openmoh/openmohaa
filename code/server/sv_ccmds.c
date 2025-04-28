@@ -342,6 +342,7 @@ Kick a user off of the server  FIXME: move to game
 static void SV_Kick_f( void ) {
 	client_t	*cl;
 	int			i;
+	char        *reason = NULL;
 
 	// make sure server is running
 	if ( !com_sv_running->integer ) {
@@ -349,9 +350,14 @@ static void SV_Kick_f( void ) {
 		return;
 	}
 
-	if ( Cmd_Argc() != 2 ) {
-		Com_Printf ("Usage: kick <player name>\nkick all = kick everyone\nkick allbots = kick all bots\n");
+	if ( Cmd_Argc() < 2 ) {
+		Com_Printf ("Usage: kick <player name> [reason]\nkick all = kick everyone\nkick allbots = kick all bots\n");
 		return;
+	}
+
+	// Check if there's a reason provided
+	if ( Cmd_Argc() >= 3 ) {
+		reason = Cmd_ArgsFrom(2);
 	}
 
 	cl = SV_GetPlayerByHandle();
@@ -387,7 +393,25 @@ static void SV_Kick_f( void ) {
 		return;
 	}
 
-	SV_DropClient( cl, "was kicked" );
+	// Check if there's a reason provided
+	if ( reason ) {
+		// Send the kick message to the client
+		SV_NET_OutOfBandPrint(&svs.netprofile, cl->netchan.remoteAddress, "droperror\nKicked from server for:\n%s", reason);
+		
+		// Print the kick to all clients
+		SV_SendServerCommand(NULL, "print \"" HUD_MESSAGE_WHITE "%s was kicked for %s\n\"", cl->name, reason);
+		
+		SV_DropClient( cl, va("was kicked for %s", reason) );
+	} else {
+		// Send the kick message to the client
+		SV_NET_OutOfBandPrint(&svs.netprofile, cl->netchan.remoteAddress, "droperror\nKicked from server");
+		
+		// Print the kick to all clients
+		SV_SendServerCommand( NULL, "print \"" HUD_MESSAGE_WHITE "%s was kicked\n\"", cl->name );
+		
+		SV_DropClient( cl, "was kicked" );
+	}
+	
 	cl->lastPacketTime = svs.time;	// in case there is a funny zombie
 }
 /*
@@ -425,11 +449,12 @@ static void SV_KickAll_f( void ) {
 ==================
 SV_KickNum_f
 
-Kick a user off of the server
+Kick a user off of the server, optionally with a reason
 ==================
 */
 static void SV_KickNum_f( void ) {
 	client_t	*cl;
+	char        *reason = NULL;
 
 	// make sure server is running
 	if ( !com_sv_running->integer ) {
@@ -437,8 +462,8 @@ static void SV_KickNum_f( void ) {
 		return;
 	}
 
-	if ( Cmd_Argc() != 2 ) {
-		Com_Printf ("Usage: %s <client number>\n", Cmd_Argv(0));
+	if ( Cmd_Argc() < 2 ) {
+		Com_Printf ("Usage: %s <client number> [reason]\n", Cmd_Argv(0));
 		return;
 	}
 
@@ -451,7 +476,30 @@ static void SV_KickNum_f( void ) {
 		return;
 	}
 
-	SV_DropClient( cl, "was kicked" );
+	// Check if there's a reason provided
+	if ( Cmd_Argc() >= 3 ) {
+		reason = Cmd_ArgsFrom(2);
+	}
+
+	// Check if there's a reason provided
+	if ( reason ) {
+		// Send the kick message to the client
+		SV_NET_OutOfBandPrint(&svs.netprofile, cl->netchan.remoteAddress, "droperror\nKicked from server for:\n%s", reason);
+		
+		// Print the kick to all clients
+		SV_SendServerCommand(NULL, "print \"" HUD_MESSAGE_WHITE "%s was kicked for %s\n\"", cl->name, reason);
+		
+		SV_DropClient( cl, va("was kicked for %s", reason) );
+	} else {
+		// Send the kick message to the client
+		SV_NET_OutOfBandPrint(&svs.netprofile, cl->netchan.remoteAddress, "droperror\nKicked from server");
+		
+		// Print the kick to all clients
+		SV_SendServerCommand( NULL, "print \"" HUD_MESSAGE_WHITE "%s was kicked\n\"", cl->name );
+		
+		SV_DropClient( cl, "was kicked" );
+	}
+	
 	cl->lastPacketTime = svs.time;	// in case there is a funny zombie
 }
 
@@ -580,7 +628,7 @@ static void SV_RehashBans_f(void)
 {
 	int index, filelen;
 	fileHandle_t readfrom;
-	char *textbuf, *curpos, *maskpos, *newlinepos, *endpos;
+	char *textbuf, *curpos, *maskpos, *newlinepos, *endpos, *reasonpos;
 	char filepath[MAX_QPATH];
 	
 	// make sure server is running
@@ -623,12 +671,29 @@ static void SV_RehashBans_f(void)
 			maskpos++;
 			
 			// find the end of the subnet specifier
-			for(newlinepos = maskpos; newlinepos < endpos && *newlinepos != '\n'; newlinepos++);
+			for(newlinepos = maskpos; newlinepos < endpos && *newlinepos != '\n' && *newlinepos != ':'; newlinepos++);
 			
 			if(newlinepos >= endpos)
 				break;
 			
-			*newlinepos = '\0';
+			if(*newlinepos == ':') {
+				// We have a reason
+				*newlinepos = '\0';
+				reasonpos = newlinepos + 1;
+				
+				// Find the end of the reason string
+				for(newlinepos = reasonpos; newlinepos < endpos && *newlinepos != '\n'; newlinepos++);
+				
+				if(newlinepos >= endpos)
+					break;
+				
+				*newlinepos = '\0';
+				Q_strncpyz(serverBans[index].reason, reasonpos, sizeof(serverBans[index].reason));
+			} else {
+				// No reason
+				*newlinepos = '\0';
+				serverBans[index].reason[0] = '\0';
+			}
 			
 			if(NET_StringToAdr(curpos + 2, &serverBans[index].ip, NA_UNSPEC))
 			{
@@ -676,15 +741,21 @@ static void SV_WriteBans(void)
 
 	if((writeto = FS_SV_FOpenFileWrite(filepath)))
 	{
-		char writebuf[128];
+		char writebuf[128 + MAX_REASON_LENGTH];
 		serverBan_t *curban;
 		
 		for(index = 0; index < serverBansCount; index++)
 		{
 			curban = &serverBans[index];
 			
-			Com_sprintf(writebuf, sizeof(writebuf), "%d %s %d\n",
-					curban->isexception, NET_AdrToString(curban->ip), curban->subnet);
+			if(curban->reason[0]) {
+				Com_sprintf(writebuf, sizeof(writebuf), "%d %s %d:%s\n",
+						curban->isexception, NET_AdrToString(curban->ip), curban->subnet, curban->reason);
+			} else {
+				Com_sprintf(writebuf, sizeof(writebuf), "%d %s %d\n",
+						curban->isexception, NET_AdrToString(curban->ip), curban->subnet);
+			}
+			
 			FS_Write(writebuf, strlen(writebuf), writeto);
 		}
 
@@ -771,11 +842,14 @@ Ban a user from being able to play on this server based on his ip address.
 static void SV_AddBanToList(qboolean isexception)
 {
 	char *banstring;
+	char *reason = NULL;
 	char addy2[NET_ADDRSTRMAXLEN];
 	netadr_t ip;
 	int index, argc, mask;
 	serverBan_t *curban;
-
+	client_t *cl = NULL;
+	qboolean isdigit_only;
+	
 	// make sure server is running
 	if ( !com_sv_running->integer ) {
 		Com_Printf( "Server is not running.\n" );
@@ -784,9 +858,9 @@ static void SV_AddBanToList(qboolean isexception)
 
 	argc = Cmd_Argc();
 	
-	if(argc < 2 || argc > 3)
+	if ( argc < 2 )
 	{
-		Com_Printf ("Usage: %s (ip[/subnet] | clientnum [subnet])\n", Cmd_Argv(0));
+		Com_Printf ("Usage: %s (ip[/subnet] | clientnum [subnet] [reason])\n", Cmd_Argv(0));
 		return;
 	}
 
@@ -798,10 +872,14 @@ static void SV_AddBanToList(qboolean isexception)
 
 	banstring = Cmd_Argv(1);
 	
+	// Get optional reason - can be at arg 2 for IP bans or arg 3 for client num bans
 	if(strchr(banstring, '.') || strchr(banstring, ':'))
 	{
-		// This is an ip address, not a client num.
-		
+		// IP address ban 
+		if(argc >= 3) {
+			reason = Cmd_ArgsFrom(2);
+		}
+
 		if(SV_ParseCIDRNotation(&ip, &mask, banstring))
 		{
 			Com_Printf("Error: Invalid address %s\n", banstring);
@@ -810,13 +888,10 @@ static void SV_AddBanToList(qboolean isexception)
 	}
 	else
 	{
-		client_t *cl;
-		
-		// client num.
-		
+		// client num ban
 		cl = SV_GetPlayerByNum();
 
-		if(!cl)
+		if ( !cl )
 		{
 			Com_Printf("Error: Playernum %s does not exist.\n", Cmd_Argv(1));
 			return;
@@ -824,23 +899,45 @@ static void SV_AddBanToList(qboolean isexception)
 		
 		ip = cl->netchan.remoteAddress;
 		
-		if(argc == 3)
+		if(argc >= 3)
 		{
-			mask = atoi(Cmd_Argv(2));
-			
-			if(ip.type == NA_IP)
-			{
-				if(mask < 1 || mask > 32)
-					mask = 32;
+			// Check if second argument is all digits (CIDR notation)
+			isdigit_only = qtrue;
+			for(index = 0; Cmd_Argv(2)[index]; index++) {
+				if(Cmd_Argv(2)[index] < '0' || Cmd_Argv(2)[index] > '9') {
+					isdigit_only = qfalse;
+					break;
+				}
 			}
-			else
-			{
-				if(mask < 1 || mask > 128)
-					mask = 128;
+			
+			if(isdigit_only) {
+				// Second arg is CIDR mask
+				mask = atoi(Cmd_Argv(2));
+			
+				if(ip.type == NA_IP)
+				{
+					if(mask < 1 || mask > 32)
+						mask = 32;
+				}
+				else
+				{
+					if(mask < 1 || mask > 128)
+						mask = 128;
+				}
+
+				// Get optional reason after subnet
+				if(argc >= 4) {
+					reason = Cmd_ArgsFrom(3);
+				}
+			} else {
+				// Second arg is start of reason
+				reason = Cmd_ArgsFrom(2);
+				mask = (ip.type == NA_IP6) ? 128 : 32;
 			}
 		}
-		else
+		else {
 			mask = (ip.type == NA_IP6) ? 128 : 32;
+		}
 	}
 
 	if(ip.type != NA_IP && ip.type != NA_IP6)
@@ -896,12 +993,47 @@ static void SV_AddBanToList(qboolean isexception)
 	serverBans[serverBansCount].subnet = mask;
 	serverBans[serverBansCount].isexception = isexception;
 	
+	if(reason) {
+		Q_strncpyz(serverBans[serverBansCount].reason, reason, sizeof(serverBans[serverBansCount].reason));
+	} else {
+		serverBans[serverBansCount].reason[0] = '\0';
+	}
+	
 	serverBansCount++;
 	
 	SV_WriteBans();
 
-	Com_Printf("Added %s: %s/%d\n", isexception ? "ban exception" : "ban",
-		   NET_AdrToString(ip), mask);
+	// Find and kick any connected clients matching the banned IP
+	for(index = 0; index < sv_maxclients->integer; index++) {
+		client_t *kickcl = &svs.clients[index];
+		
+		if(!kickcl->state)
+			continue;
+
+		if ( NET_CompareBaseAdrMask(kickcl->netchan.remoteAddress, ip, mask) ) {
+			if ( reason ) {
+				SV_NET_OutOfBandPrint(&svs.netprofile, kickcl->netchan.remoteAddress,
+					"droperror\nYou have been banned from this server for:\n%s", reason);
+				
+				SV_SendServerCommand(NULL, "print \"" HUD_MESSAGE_WHITE "%s was banned for %s\n\"", kickcl->name, reason);
+				
+				SV_DropClient(kickcl, va("was banned for %s", reason));
+			} else {
+				SV_NET_OutOfBandPrint(&svs.netprofile, kickcl->netchan.remoteAddress,
+					"droperror\nYou have been banned from this server");
+
+				SV_SendServerCommand(NULL, "print \"" HUD_MESSAGE_WHITE "%s was banned\n\"", kickcl->name);
+				
+				SV_DropClient(kickcl, "was banned");
+			}
+			kickcl->lastPacketTime = svs.time;
+		}
+	}
+
+	Com_Printf("Added %s: %s/%d%s%s\n", isexception ? "ban exception" : "ban",
+			NET_AdrToString(ip), mask,
+			reason ? " with reason: " : "",
+			reason ? reason : "");
 }
 
 /*
@@ -1023,8 +1155,14 @@ static void SV_ListBans_f(void)
 		{
 			count++;
 
-			Com_Printf("Ban #%d: %s/%d\n", count,
+			Com_Printf("Ban #%d: %s/%d", count,
 					NET_AdrToString(ban->ip), ban->subnet);
+					
+			if(ban->reason[0]) {
+				Com_Printf(" - Reason: %s", ban->reason);
+			}
+			
+			Com_Printf("\n");
 		}
 	}
 	// List all exceptions
@@ -1035,8 +1173,14 @@ static void SV_ListBans_f(void)
 		{
 			count++;
 
-			Com_Printf("Except #%d: %s/%d\n", count,
+			Com_Printf("Except #%d: %s/%d", count,
 					NET_AdrToString(ban->ip), ban->subnet);
+					
+			if(ban->reason[0]) {
+				Com_Printf(" - Reason: %s", ban->reason);
+			}
+			
+			Com_Printf("\n");
 		}
 	}
 }
@@ -1219,7 +1363,7 @@ static void SV_Status_f(void) {
 		ps = SV_GameClientNum(i);
 		// su44: ps->persistant is not avaible in mohaa
 		//Com_Printf ("%5i ", ps->persistant[PERS_SCORE]);
-		Com_Printf("%*u ", colSize[1], ps->stats[STAT_KILLS]);
+		Com_Printf("%*i ", colSize[1], ps->stats[STAT_KILLS]);
 
 		if (cl->state == CS_CONNECTED)
 			Com_Printf("CNCT ");
@@ -1816,6 +1960,8 @@ void SV_AddOperatorCommands(void) {
 	Cmd_AddCommand("kickall", SV_KickAll_f);
 	Cmd_AddCommand("kicknum", SV_KickNum_f);
 	Cmd_AddCommand("clientkick", SV_KickNum_f); // Legacy command
+	Cmd_AddCommand("clientkickr", SV_KickNum_f); // Legacy command with reason
+	Cmd_AddCommand("kickr", SV_KickNum_f); // Legacy command with reason
 	Cmd_AddCommand("status", SV_Status_f);
 	Cmd_AddCommand("serverinfo", SV_Serverinfo_f);
 	Cmd_AddCommand("systeminfo", SV_Systeminfo_f);

@@ -13,6 +13,7 @@ set(SOURCES_SHARED_UBER
 	"${CMAKE_SOURCE_DIR}/code/qcommon/class.cpp"
 	"${CMAKE_SOURCE_DIR}/code/qcommon/con_set.cpp"
 	"${CMAKE_SOURCE_DIR}/code/qcommon/con_timer.cpp"
+	"${CMAKE_SOURCE_DIR}/code/qcommon/delegate.cpp"
 	"${CMAKE_SOURCE_DIR}/code/qcommon/lightclass.cpp"
 	"${CMAKE_SOURCE_DIR}/code/qcommon/listener.cpp"
 	"${CMAKE_SOURCE_DIR}/code/qcommon/lz77.cpp"
@@ -78,8 +79,7 @@ set(SOURCES_COMMON
 	"${CMAKE_SOURCE_DIR}/code/qcommon/q_shared.c"
 	"${CMAKE_SOURCE_DIR}/code/qcommon/unzip.c"
 	# Gamespy
-	"${CMAKE_SOURCE_DIR}/code/gamespy/sv_gamespy.c"
-	"${CMAKE_SOURCE_DIR}/code/gamespy/sv_gqueryreporting.c"
+	"${CMAKE_SOURCE_DIR}/code/gamespy/q_gamespy.c"
 )
 
 add_subdirectory("../skeletor" "./skeletor")

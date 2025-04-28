@@ -126,11 +126,11 @@ extern "C" {
 
 HashTable TableNew(int elemSize, int nBuckets, 
                    TableHashFn hashFn, TableCompareFn compFn, 
- 					 TableElementFreeFn freeFn);
+                      TableElementFreeFn freeFn);
 
 HashTable TableNew2(int elemSize, int nBuckets, int nChains,
                    TableHashFn hashFn, TableCompareFn compFn, 
- 					 TableElementFreeFn freeFn);
+                      TableElementFreeFn freeFn);
 
 
  /* TableFree

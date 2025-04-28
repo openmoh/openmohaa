@@ -35,11 +35,24 @@ if (APPLE)
 	set(SOURCES_PLATFORM_SPECIFIC ${SOURCES_PLATFORM_SPECIFIC} "${CMAKE_SOURCE_DIR}/code/sys/sys_osx.m")
 endif()
 
+set(SOURCES_PLATFORM_COMMON
+    "${CMAKE_SOURCE_DIR}/code/sys/sys_update_checker.cpp"
+)
+
 add_library(syslib INTERFACE)
-target_sources(syslib INTERFACE ${SOURCES_PLATFORM_SPECIFIC})
-target_compile_features(syslib INTERFACE cxx_nullptr)
+target_sources(syslib INTERFACE ${SOURCES_PLATFORM_SPECIFIC} ${SOURCES_PLATFORM_COMMON})
+target_compile_features(syslib INTERFACE cxx_nullptr cxx_std_17)
 target_compile_features(syslib INTERFACE c_variadic_macros)
 target_link_libraries(syslib INTERFACE qcommon)
+
+find_package(CURL)
+
+if (CURL_FOUND)
+    target_link_libraries(syslib INTERFACE CURL::libcurl)
+    target_compile_definitions(syslib INTERFACE HAS_LIBCURL=1)
+else()
+    message(WARNING "CURL is not available, update checking will not work")
+endif()
 
 if(WIN32)
 	target_link_libraries(syslib INTERFACE wsock32 ws2_32)
@@ -59,14 +72,13 @@ elseif(UNIX)
 			target_link_libraries(syslib INTERFACE execinfo m)
 		else()
 			target_link_libraries(syslib INTERFACE m)
+			if (NOT APPLE)
+				# For when using GLIBC versions older than 2.34
+				target_link_libraries(syslib INTERFACE rt)
+			endif()
 		endif()
 	endif()
 	target_link_libraries(syslib INTERFACE stdc++)
-
-	if (NOT APPLE)
-		# For when using GLIBC versions older than 2.34
-		target_link_libraries(syslib INTERFACE rt)
-	endif()
 endif()
 
 if (APPLE)

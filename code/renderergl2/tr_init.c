@@ -1937,6 +1937,7 @@ RE_GetGraphicsInfo
 const char* RE_GetGraphicsInfo() {
 	// FIXME: unimplemented (GL2)
 	// Looks like it's unused anyway
+	return "";
 }
 
 //=========================
@@ -1986,16 +1987,16 @@ refexport_t *GetRefAPI ( int apiVersion, refimport_t *rimp ) {
 	re.ModelBounds = R_ModelBounds;
 
 	re.ClearScene = RE_ClearScene;
-	re.AddRefEntityToScene = RE_AddRefEntityToScene;
-	re.AddPolyToScene = RE_AddPolyToScene;
+	re.AddRefEntityToScene = RE_AddRefEntityToScene2;
+	re.AddPolyToScene = RE_AddPolyToScene2;
 	re.LightForPoint = R_LightForPoint;
-	re.AddLightToScene = RE_AddLightToScene;
+	re.AddLightToScene = RE_AddLightToScene2;
 	re.AddAdditiveLightToScene = RE_AddAdditiveLightToScene;
 	re.RenderScene = RE_RenderScene;
 
 	re.SetColor = RE_SetColor;
 	re.DrawStretchPic = RE_StretchPic;
-	re.DrawStretchRaw = RE_StretchRaw;
+	re.DrawStretchRaw = RE_StretchRaw2;
 	re.UploadCinematic = RE_UploadCinematic;
 
 	re.RegisterFont = RE_RegisterFont;
@@ -2037,7 +2038,7 @@ refexport_t *GetRefAPI ( int apiVersion, refimport_t *rimp ) {
 	re.SetColor = Draw_SetColor;
 	re.DrawStretchPic = Draw_StretchPic;
 	re.DrawStretchPic2 = Draw_StretchPic2;
-	re.DrawStretchRaw = RE_StretchRaw;
+	re.DrawStretchRaw = RE_StretchRaw2;
 	re.DebugLine = R_DebugLine;
 	re.DrawTilePic = Draw_TilePic;
 	re.DrawTilePicOffset = Draw_TilePicOffset;

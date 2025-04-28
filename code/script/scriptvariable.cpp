@@ -2001,13 +2001,13 @@ bool ScriptVariable::operator==(const ScriptVariable& value)
         return m_data.intValue == value.m_data.intValue;
 
     case VARIABLE_INTEGER + VARIABLE_FLOAT *VARIABLE_MAX: // ( int ) == ( float )
-        return m_data.intValue == value.m_data.floatValue;
+        return fabs(m_data.intValue - value.m_data.floatValue) < 0.0001f;
 
     case VARIABLE_FLOAT + VARIABLE_FLOAT *VARIABLE_MAX: // ( float ) == ( float )
-        return m_data.floatValue == value.m_data.floatValue;
+        return fabs(m_data.floatValue - value.m_data.floatValue) < 0.0001f;
 
     case VARIABLE_FLOAT + VARIABLE_INTEGER *VARIABLE_MAX: // ( float ) == ( int )
-        return m_data.floatValue == value.m_data.intValue;
+        return fabs(m_data.floatValue - value.m_data.intValue) < 0.0001f;
 
     case VARIABLE_CONSTSTRING
         + VARIABLE_CONSTSTRING *VARIABLE_MAX: // ( const string )		==		( const string )
@@ -2059,7 +2059,7 @@ bool ScriptVariable::operator==(const ScriptVariable& value)
         return m_data.charValue == value.m_data.charValue;
 
     case VARIABLE_VECTOR + VARIABLE_VECTOR *VARIABLE_MAX: // ( vector ) == ( vector )
-        return VectorCompare(m_data.vectorValue, value.m_data.vectorValue) ? true : false;
+        return VectorCompareEpsilon(m_data.vectorValue, value.m_data.vectorValue, 0.0001f) ? true : false;
     }
 }
 

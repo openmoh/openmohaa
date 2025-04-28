@@ -629,6 +629,7 @@ void CL_InitCGameDLL( clientGameImport_t *cgi, clientGameExport_t **cge ) {
 	cgi->Cvar_Get						= Cvar_Get;
 	cgi->Cvar_Find						= Cvar_FindVar;
 	cgi->Cvar_Set						= Cvar_Set;
+	cgi->Cvar_CheckRange				= Cvar_CheckRange;
 
 	cgi->Argc							= Cmd_Argc;
 	cgi->Args							= Cmd_Args;

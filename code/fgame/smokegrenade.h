@@ -48,7 +48,7 @@ public:
 
     void Think() override;
 
-    void Archive(Archiver& arc);
+    void Archive(Archiver& arc) override;
 
     void      setOwner(Sentient *other);
     Sentient *getOwner() const;

@@ -26,6 +26,31 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "mem_blockalloc.h"
 
+#if defined(GAME_DLL)
+#    include "../fgame/g_local.h"
+
+#    define SET_Alloc gi.Malloc
+#    define SET_Free  gi.Free
+
+#elif defined(CGAME_DLL)
+#    include "../cgame/cg_local.h"
+
+#    define SET_Alloc cgi.Malloc
+#    define SET_Free  cgi.Free
+
+#elif defined(REF_DLL)
+#    include "../renderercommon/tr_common.h"
+
+#    define SET_Alloc ri.Malloc
+#    define SET_Free  ri.Free
+
+#else
+#    include "qcommon.h"
+
+#    define SET_Alloc Z_Malloc
+#    define SET_Free  Z_Free
+#endif
+
 class Class;
 class Archiver;
 
@@ -116,6 +141,8 @@ protected:
 public:
     static void *NewEntry(size_t size);
     static void  DeleteEntry(void *entry);
+    static void *NewTable(size_t count);
+    static void  DeleteTable(void *table);
 
 public:
     con_set();
@@ -156,6 +183,18 @@ void con_set<k, v>::DeleteEntry(void *entry)
     Entry_allocator.Free(entry);
 }
 
+template<typename k, typename v>
+void *con_set<k, v>::NewTable(size_t count)
+{
+    return SET_Alloc(sizeof(Entry *) * (int)count);
+}
+
+template<typename k, typename v>
+void con_set<k, v>::DeleteTable(void *table)
+{
+    SET_Free(table);
+}
+
 template<typename k>
 int HashCode(const k& key);
 
@@ -193,7 +232,7 @@ void con_set<key, value>::clear()
     }
 
     if (tableLength > 1) {
-        delete[] table;
+        DeleteTable(table);
     }
 
     tableLength = 1;
@@ -229,8 +268,7 @@ void con_set<key, value>::resize(int count)
     }
 
     // allocate a new table
-    table = new Entry *[tableLength]();
-    memset(table, 0, tableLength * sizeof(Entry *));
+    table = new (NewTable(tableLength)) Entry *[tableLength]();
 
     // rehash the table
     for (i = oldTableLength; i > 0; i--) {
@@ -248,7 +286,7 @@ void con_set<key, value>::resize(int count)
 
     if (oldTableLength > 1) {
         // delete the previous table
-        delete[] oldTable;
+        DeleteTable(oldTable);
     }
 }
 

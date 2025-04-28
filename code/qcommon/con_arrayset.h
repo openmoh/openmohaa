@@ -26,8 +26,68 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "mem_blockalloc.h"
 
-template<typename key, typename value>
+#if defined(GAME_DLL)
+#    include "../fgame/g_local.h"
+
+#    define ARRAYSET_Alloc gi.Malloc
+#    define ARRAYSET_Free  gi.Free
+
+#elif defined(CGAME_DLL)
+#    include "../cgame/cg_local.h"
+
+#    define ARRAYSET_Alloc cgi.Malloc
+#    define ARRAYSET_Free  cgi.Free
+
+#elif defined(REF_DLL)
+#    include "../renderercommon/tr_common.h"
+
+#    define ARRAYSET_Alloc ri.Malloc
+#    define ARRAYSET_Free  ri.Free
+
+#else
+#    include "qcommon.h"
+
+#    define ARRAYSET_Alloc Z_Malloc
+#    define ARRAYSET_Free  Z_Free
+#endif
+
+template<typename k, typename v>
+class con_arrayset;
+
+template<typename k, typename v>
 class con_arrayset_enum;
+
+template<typename k, typename v>
+class con_arrayset_Entry
+{
+    friend con_arrayset<k, v>;
+    friend con_arrayset_enum<k, v>;
+
+public:
+    k            key;
+    v            value;
+    unsigned int index;
+
+    con_arrayset_Entry *next;
+
+public:
+    void *operator new(size_t size) { return con_arrayset<k, v>::NewEntry(size); }
+
+    void operator delete(void *ptr) { con_arrayset<k, v>::DeleteEntry(ptr); }
+
+    con_arrayset_Entry()
+    {
+        this->key   = k();
+        this->value = v();
+
+        index = 0;
+        next  = NULL;
+    }
+
+#ifdef ARCHIVE_SUPPORTED
+    void Archive(Archiver& arc);
+#endif
+};
 
 template<typename k, typename v>
 class con_arrayset
@@ -35,25 +95,7 @@ class con_arrayset
     friend class con_arrayset_enum<k, v>;
 
 public:
-    class Entry
-    {
-    public:
-        k            key;
-        v            value;
-        unsigned int index;
-
-        Entry *next;
-
-    public:
-        void *operator new(size_t size);
-        void  operator delete(void *ptr);
-
-        Entry();
-
-#ifdef ARCHIVE_SUPPORTED
-        void Archive(Archiver& arc);
-#endif
-    };
+    using Entry = con_arrayset_Entry<k, v>;
 
 public:
     static MEM_BlockAlloc<Entry> Entry_allocator;
@@ -73,6 +115,12 @@ protected:
     Entry *addNewKeyEntry(const k& key);
 
 public:
+    static void *NewEntry(size_t size);
+    static void  DeleteEntry(void *entry);
+    static void *NewTable(size_t count);
+    static void  DeleteTable(void *table);
+
+public:
     con_arrayset();
     ~con_arrayset();
 
@@ -87,7 +135,7 @@ public:
     unsigned int findKeyIndex(const k& key);
     unsigned int addKeyIndex(const k& key);
     unsigned int addNewKeyIndex(const k& key);
-    bool         remove(const k        &key);
+    bool         remove(const k& key);
 
     v& operator[](unsigned int index);
 };
@@ -96,25 +144,27 @@ template<typename k, typename v>
 MEM_BlockAlloc<typename con_arrayset<k, v>::Entry> con_arrayset<k, v>::Entry_allocator;
 
 template<typename k, typename v>
-void *con_arrayset<k, v>::Entry::operator new(size_t size)
+void *con_arrayset<k, v>::NewEntry(size_t size)
 {
     return Entry_allocator.Alloc();
 }
 
 template<typename k, typename v>
-void con_arrayset<k, v>::Entry::operator delete(void *ptr)
+void con_arrayset<k, v>::DeleteEntry(void *entry)
 {
-    Entry_allocator.Free(ptr);
+    Entry_allocator.Free(entry);
 }
 
 template<typename k, typename v>
-con_arrayset<k, v>::Entry::Entry()
+void *con_arrayset<k, v>::NewTable(size_t count)
 {
-    this->key   = k();
-    this->value = v();
+    return ARRAYSET_Alloc(sizeof(Entry *) * (int)count);
+}
 
-    index = 0;
-    next  = NULL;
+template<typename k, typename v>
+void con_arrayset<k, v>::DeleteTable(void *table)
+{
+    ARRAYSET_Free(table);
 }
 
 template<typename key, typename value>
@@ -161,8 +211,7 @@ void con_arrayset<key, value>::resize(int count)
     }
 
     // allocate a new table
-    table = new Entry *[tableLength]();
-    memset(table, 0, tableLength * sizeof(Entry *));
+    table = new (NewTable(tableLength)) Entry *[tableLength]();
 
     // rehash the table
     for (i = oldTableLength; i > 0; i--) {
@@ -180,18 +229,18 @@ void con_arrayset<key, value>::resize(int count)
 
     if (oldTableLength > 1) {
         // delete the previous table
-        delete[] oldTable;
+        DeleteTable(oldTable);
     }
 
     // allocate a bigger reverse table
-    reverseTable = new Entry *[this->tableLength]();
+    reverseTable = new (NewTable(tableLength)) Entry *[this->tableLength]();
 
     for (i = 0; i < oldTableLength; i++) {
         reverseTable[i] = oldReverseTable[i];
     }
 
     if (oldTableLength > 1) {
-        delete[] oldReverseTable;
+        DeleteTable(oldReverseTable);
     }
 }
 
@@ -209,7 +258,7 @@ void con_arrayset<key, value>::clear()
     unsigned int i;
 
     if (tableLength > 1) {
-        delete[] reverseTable;
+        DeleteTable(reverseTable);
         reverseTable = &defaultEntry;
     }
 
@@ -221,7 +270,7 @@ void con_arrayset<key, value>::clear()
     }
 
     if (tableLength > 1) {
-        delete[] table;
+        DeleteTable(table);
     }
 
     tableLength = 1;

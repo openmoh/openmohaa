@@ -141,7 +141,7 @@ static void R_InterpolateVert(terraTri_t *pTri, terrainVert_t *pVert)
     pMinHeight  = (byte *)Q_min((uintptr_t)pVert0->pHgt, (uintptr_t)pVert1->pHgt);
     pMaxHeight  = (byte *)Q_max((uintptr_t)pVert0->pHgt, (uintptr_t)pVert1->pHgt);
     pVert->pHgt = (byte *)(pMinHeight + ((pMaxHeight - pMinHeight) >> 1));
-    assert(pVert->pHgt >= pMinHeight && pVert->pHgt < pMaxHeight);
+    assert(pVert->pHgt >= pMinHeight && pVert->pHgt < pMaxHeight || pMinHeight == pMaxHeight);
 
     // Calculate the average Z
     pVert->fHgtAvg = (float)(*pVert0->pHgt + *pVert1->pHgt);

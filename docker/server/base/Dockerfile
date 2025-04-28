@@ -38,6 +38,7 @@ RUN useradd -m openmohaa
 USER openmohaa
 
 ENV GAME_PORT=12203
+ENV GAMESPY_PORT=12300
 
 COPY "entrypoint.sh" "/usr/local/bin/entrypoint.sh"
 WORKDIR "/usr/local/share/mohaa"

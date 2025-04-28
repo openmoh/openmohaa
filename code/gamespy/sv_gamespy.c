@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2023 the OpenMoHAA team
+Copyright (C) 2025 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -22,17 +22,23 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "../qcommon/q_shared.h"
 #include "../server/server.h"
+#include "../qcommon/q_version.h"
 #include "sv_gqueryreporting.h"
 #include "sv_gamespy.h"
+#include "q_gamespy.h"
 
 #include "gcdkey/gcdkeys.h"
 #include "common/gsCommon.h"
 #include "common/gsAvailable.h"
 
-static char     gamemode[128];
-static qboolean gcdInitialized = qfalse;
-static qboolean gcdValid = qfalse;
+static char        gamemode[128];
+static qboolean    gcdInitialized = qfalse;
+static qboolean    gcdValid       = qfalse;
+static qboolean    gsRunning      = qfalse;
 extern GSIACResult __GSIACResult;
+
+cvar_t *net_ip           = NULL;
+cvar_t *net_gamespy_port = NULL;
 
 static const char *SECRET_GS_KEYS[] =
 {
@@ -64,30 +70,26 @@ static const char *GS_GAME_NAME_DEMO[] =
 
 static const char *GS_GAME_VERSION[] =
 {
-    TARGET_GAME_VERSION_MOH,
-    TARGET_GAME_VERSION_MOHTA,
-    TARGET_GAME_VERSION_MOHTT,
+    TARGET_GAME_VERSION_MOH "+" PRODUCT_VERSION,
+    TARGET_GAME_VERSION_MOHTA "+" PRODUCT_VERSION,
+    TARGET_GAME_VERSION_MOHTT "+" PRODUCT_VERSION,
 };
 
 static const char* GS_GAME_VERSION_DEMO[] =
 {
-    TARGET_GAME_VERSION_MOH,
-    "d" TARGET_GAME_VERSION_MOHTA,
-    "d" TARGET_GAME_VERSION_MOHTT_DEMO,
+    TARGET_GAME_VERSION_MOH "+" PRODUCT_VERSION,
+    "d" TARGET_GAME_VERSION_MOHTA "+" PRODUCT_VERSION,
+    "d" TARGET_GAME_VERSION_MOHTT_DEMO "+" PRODUCT_VERSION,
 };
 
 static const unsigned int GAMESPY_DEFAULT_PORT = 12300;
 
-void qr_send_statechanged(qr_t qrec);
-void qr_shutdown(qr_t qrec);
-void qr_process_queries(qr_t qrec);
-
 int qr_init(
     qr_t              *qrec,
-    const char         *ip,
+    const char        *ip,
     int                baseport,
-    const char         *gamename,
-    const char         *secret_key,
+    const char        *gamename,
+    const char        *secret_key,
     qr_querycallback_t qr_basic_callback,
     qr_querycallback_t qr_info_callback,
     qr_querycallback_t qr_rules_callback,
@@ -95,23 +97,28 @@ int qr_init(
     void              *userdata
 );
 
-const char* GS_GetGameKey(unsigned int index) {
+const char *GS_GetGameKey(unsigned int index)
+{
     return SECRET_GS_KEYS[index];
 }
 
-const char* GS_GetCurrentGameKey() {
+const char *GS_GetCurrentGameKey()
+{
     return GS_GetGameKey(com_target_game->integer);
 }
 
-unsigned int GS_GetGameID(unsigned int index) {
+unsigned int GS_GetGameID(unsigned int index)
+{
     return GCD_GAME_IDS[index];
 }
 
-unsigned int GS_GetCurrentGameID() {
+unsigned int GS_GetCurrentGameID()
+{
     return GS_GetGameID(com_target_game->integer);
 }
 
-const char* GS_GetGameName(unsigned int index) {
+const char *GS_GetGameName(unsigned int index)
+{
     if (!com_target_demo->integer) {
         return GS_GAME_NAME[index];
     } else {
@@ -119,11 +126,13 @@ const char* GS_GetGameName(unsigned int index) {
     }
 }
 
-const char* GS_GetCurrentGameName() {
+const char *GS_GetCurrentGameName()
+{
     return GS_GetGameName(com_target_game->integer);
 }
 
-const char* GS_GetGameVersion(unsigned int index) {
+const char *GS_GetGameVersion(unsigned int index)
+{
     if (!com_target_demo->integer) {
         return GS_GAME_VERSION[index];
     } else {
@@ -131,7 +140,8 @@ const char* GS_GetGameVersion(unsigned int index) {
     }
 }
 
-const char* GS_GetCurrentGameVersion() {
+const char *GS_GetCurrentGameVersion()
+{
     return GS_GetGameVersion(com_target_game->integer);
 }
 
@@ -212,42 +222,54 @@ static void rules_callback(char *outbuf, int maxlen, void *userdata)
 
 static void players_callback(char *outbuf, int maxlen, void *userdata)
 {
-    int    i;
-    char   infostring[128];
-    size_t infolen;
-    size_t currlen = 0;
+    client_t      *cl;
+    playerState_t *ps;
+    size_t         infolen;
+    size_t         currlen = 0;
+    int            i;
+    int            index;
+    char           infostring[128];
+
+    outbuf[0] = 0;
 
     if (!svs.clients) {
         return;
     }
 
-    for (i = 0; i < svs.iNumClients; i++) {
-        if (svs.clients[i].state == CS_FREE) {
+    for (i = 0, index = 0; i < svs.iNumClients; i++) {
+        cl = &svs.clients[i];
+
+        if (cl->state == CS_FREE) {
             // ignore inactive clients
             continue;
         }
 
-        playerState_t *ps = SV_GameClientNum(i);
+        ps = SV_GameClientNum(i);
 
-        Com_sprintf(
+        infolen = Com_sprintf(
             infostring,
-            128,
+            sizeof(infostring),
             "\\player_%d\\%s\\frags_%d\\%d\\deaths_%d\\%d\\ping_%d\\%d",
-            i,
-            svs.clients[i].name,
-            i,
+            index,
+            cl->name,
+            index,
             ps->stats[STAT_KILLS],
-            i,
+            index,
             ps->stats[STAT_DEATHS],
-            i,
-            svs.clients[i].ping
+            index,
+            cl->ping
         );
 
-        infolen = strlen(infostring);
         if (currlen + infolen < maxlen) {
             strcat(outbuf, infostring);
             currlen += infolen;
         }
+
+        //
+        // Fixed in OPM
+        //  Some programs enumerate by testing indexes, and stop iterating if the index doesn't exist
+        //
+        index++;
     }
 }
 
@@ -284,6 +306,12 @@ void SV_ShutdownGamespy()
         return;
     }
 
+    if (!gsRunning) {
+        // Added in OPM
+        //  Gamespy is not running
+        return;
+    }
+
     strcpy(gamemode, "exiting");
 
     if (gcdInitialized) {
@@ -293,12 +321,12 @@ void SV_ShutdownGamespy()
 
     qr_send_statechanged(NULL);
     qr_shutdown(NULL);
+
+    gsRunning = qfalse;
 }
 
 qboolean SV_InitGamespy()
 {
-    cvar_t     *net_ip;
-    cvar_t     *net_gamespy_port;
     char        secret_key[9];
     const char *secret_gs_key;
     const char *gs_game_name;
@@ -360,10 +388,12 @@ qboolean SV_InitGamespy()
         gcdInitialized = qtrue;
     }
 
+    gsRunning = qtrue;
+
     return qtrue;
 }
 
-void SV_CreateGamespyChallenge(char* challenge)
+void SV_CreateGamespyChallenge(char *challenge)
 {
     int i;
 
@@ -373,10 +403,10 @@ void SV_CreateGamespyChallenge(char* challenge)
     challenge[i] = 0;
 }
 
-challenge_t* FindChallengeById(int gameid)
+challenge_t *FindChallengeById(int gameid)
 {
-    challenge_t* challenge;
-    int i;
+    challenge_t *challenge;
+    int          i;
 
     for (i = 0; i < MAX_CHALLENGES; i++) {
         challenge = &svs.challenges[i];
@@ -388,32 +418,37 @@ challenge_t* FindChallengeById(int gameid)
     return NULL;
 }
 
-void AuthenticateCallback(int gameid, int localid, int authenticated, char* errmsg, void* instance)
+void AuthenticateCallback(int gameid, int localid, int authenticated, char *errmsg, void *instance)
 {
-    challenge_t* challenge;
-    qboolean valid = qfalse;
+    challenge_t *challenge;
+    qboolean     valid = qfalse;
 
     if (localid || !Q_stricmp(errmsg, "CD Key in use")) {
         valid = qtrue;
     }
 
     challenge = FindChallengeById(gameid);
-    if (valid)
-    {
+    if (valid) {
         challenge->cdkeyState = 2;
-        challenge->pingTime = svs.time;
+        challenge->pingTime   = svs.time;
 
         SV_NET_OutOfBandPrint(&svs.netprofile, challenge->adr, "challengeResponse %i", challenge->challenge);
-    }
-    else
-    {
+    } else {
         char buf[32];
 
         if (!challenge) {
             return;
         }
 
-        Com_sprintf(buf, sizeof(buf), "%d.%d.%d.%d", challenge->adr.ip[0], challenge->adr.ip[1], challenge->adr.ip[2], challenge->adr.ip[3]);
+        Com_sprintf(
+            buf,
+            sizeof(buf),
+            "%d.%d.%d.%d",
+            challenge->adr.ip[0],
+            challenge->adr.ip[1],
+            challenge->adr.ip[2],
+            challenge->adr.ip[3]
+        );
         Com_Printf("%s failed cdkey authorization\n", buf);
         challenge->cdkeyState = 3;
         // tell the client about the reason
@@ -421,28 +456,25 @@ void AuthenticateCallback(int gameid, int localid, int authenticated, char* errm
     }
 }
 
-void RefreshAuthCallback(int gameid, int localid, int hint, char* challenge, void* instance)
-{
-}
+void RefreshAuthCallback(int gameid, int localid, int hint, char *challenge, void *instance) {}
 
-void SV_GamespyAuthorize(netadr_t from, const char* response)
+void SV_GamespyAuthorize(netadr_t from, const char *response)
 {
-    char buf[64];
-    challenge_t* challenge = FindChallenge(from, qtrue);
+    char         buf[64];
+    challenge_t *challenge = FindChallenge(from, qtrue);
     if (!challenge) {
         return;
     }
 
-    switch (challenge->cdkeyState)
-    {
+    switch (challenge->cdkeyState) {
     case CDKS_NONE:
         challenge->cdkeyState = CDKS_AUTHENTICATING;
-        challenge->firstTime = svs.time;
+        challenge->firstTime  = svs.time;
 
         gcd_authenticate_user(
             GS_GetCurrentGameID(),
             challenge->gamespyId,
-            LittleLong(*(unsigned int*)from.ip),
+            LittleLong(*(unsigned int *)from.ip),
             challenge->gsChallenge,
             response,
             AuthenticateCallback,
@@ -453,11 +485,10 @@ void SV_GamespyAuthorize(netadr_t from, const char* response)
     case CDKS_AUTHENTICATING:
         // the server can't reach the authentication server
         // let the client connect
-        if (svs.time - challenge->firstTime > 5000)
-        {
+        if (svs.time - challenge->firstTime > 5000) {
             Com_DPrintf("authorize server timed out\n");
             challenge->cdkeyState = CDKS_AUTHENTICATED;
-            challenge->pingTime = svs.time;
+            challenge->pingTime   = svs.time;
             SV_NET_OutOfBandPrint(&svs.netprofile, from, "challengeResponse %i", challenge->challenge);
         }
         break;
@@ -466,7 +497,15 @@ void SV_GamespyAuthorize(netadr_t from, const char* response)
         break;
     case CDKS_FAILED:
         // authentication server told the cdkey was invalid
-        Com_sprintf(buf, sizeof(buf), "%d.%d.%d.%d", challenge->adr.ip[0], challenge->adr.ip[1], challenge->adr.ip[2], challenge->adr.ip[3]);
+        Com_sprintf(
+            buf,
+            sizeof(buf),
+            "%d.%d.%d.%d",
+            challenge->adr.ip[0],
+            challenge->adr.ip[1],
+            challenge->adr.ip[2],
+            challenge->adr.ip[3]
+        );
         Com_Printf("%s failed cdkey authorization\n", buf);
         // reject the client
         SV_NET_OutOfBandPrint(&svs.netprofile, from, "droperror\nServer rejected connection:\nInvalid CD Key");
@@ -474,4 +513,59 @@ void SV_GamespyAuthorize(netadr_t from, const char* response)
     default:
         break;
     }
+}
+
+void SV_RestartGamespy()
+{
+    if (gsRunning) {
+        //
+        // Reinitialize Gamespy
+        //
+        SV_ShutdownGamespy();
+        SV_InitGamespy();
+    }
+}
+
+void SV_RestartGamespy_f()
+{
+    SV_RestartGamespy();
+}
+
+void SV_TryRestartGamespy()
+{
+    if (Com_RefreshGameSpyMasters()) {
+        SV_RestartGamespy();
+        return;
+    }
+
+    if (net_gamespy_port && net_gamespy_port->latchedString) {
+        SV_RestartGamespy();
+        return;
+    }
+
+    if (sv_gamespy && sv_gamespy->latchedString) {
+        SV_RestartGamespy();
+        return;
+    }
+}
+
+unsigned int qr_get_num_masters()
+{
+    return Com_GetNumMasterEntries();
+}
+
+const char *qr_get_master_host(int index)
+{
+    master_entry_t entry;
+    Com_GetMasterEntry(index, &entry);
+
+    return entry.host;
+}
+
+int qr_get_master_port(int index)
+{
+    master_entry_t entry;
+    Com_GetMasterEntry(index, &entry);
+
+    return entry.hbport;
 }

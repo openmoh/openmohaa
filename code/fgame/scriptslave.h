@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2023 the OpenMoHAA team
+Copyright (C) 2025 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -93,6 +93,8 @@ protected:
     void EventUnbind(Event *ev);
     void DoMove(Event *ev);
     void WaitMove(Event *ev);
+    void Stop(Event *ev);
+    void ThreadMove(Event *ev);
     void MoveEnd(Event *ev);
     void SetAnglesEvent(Event *ev);
     void SetAngleEvent(Event *ev);
@@ -113,6 +115,7 @@ protected:
     void MoveBackward(Event *ev);
     void MoveLeft(Event *ev);
     void MoveRight(Event *ev);
+    void MoveOffset(Event *ev);
     void RotateXdownto(Event *ev);
     void RotateYdownto(Event *ev);
     void RotateZdownto(Event *ev);

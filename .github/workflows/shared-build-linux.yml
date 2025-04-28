@@ -1,0 +1,246 @@
+##########################
+#
+# Linux
+# Ubuntu 22.04
+#
+# Using this version instead of 24.04 to use a lower GLIBC version (2.34).
+# ARM is used for more efficiency, and x64 is used for legacy architectures like PowerPC.
+##########################
+name: Linux build workflow
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        required: true
+        type: string
+        
+env:
+  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
+  BUILD_TYPE: RelWithDebInfo
+  RELEASE_STAGE: ${{ vars.RELEASE_STAGE || 'unstable' }}
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        architecture: [
+          {name: 'amd64',   os: "ubuntu-22.04-arm", package: 'x86-64-linux-gnu',      triple: 'x86_64-linux-gnu',      arch_option: 'linux-x86_64'},
+          {name: 'i686',    os: "ubuntu-22.04-arm", package: 'i686-linux-gnu',        triple: 'i686-linux-gnu',        arch_option: 'linux-x86'},
+          {name: 'arm64',   os: "ubuntu-22.04-arm", package: 'aarch64-linux-gnu',     triple: 'aarch64-linux-gnu',     arch_option: 'linux-aarch64'},
+          {name: 'armhf',   os: "ubuntu-22.04-arm", package: 'arm-linux-gnueabihf',   triple: 'arm-linux-gnueabihf',   arch_option: 'linux-armv4'},
+          {name: 'powerpc', os: "ubuntu-22.04",     package: 'powerpc-linux-gnu',     triple: 'powerpc-linux-gnu',     arch_option: 'linux-ppc'},
+          {name: 'ppc64',   os: "ubuntu-22.04",     package: 'powerpc64-linux-gnu',   triple: 'powerpc64-linux-gnu',   arch_option: 'linux-ppc64'},
+          {name: 'ppc64el', os: "ubuntu-22.04-arm", package: 'powerpc64le-linux-gnu', triple: 'powerpc64le-linux-gnu', arch_option: 'linux-ppc64le'}
+        ]
+
+    name: "Building for platform linux-${{matrix.architecture.name}}"
+    runs-on: ${{ matrix.architecture.os }}
+    environment: ${{ inputs.environment }}
+    env:
+        wolfssl-version: 'v5.7.6-stable'
+        curl-version: '8_12_1'
+        openal-soft-branch: '1.24.3'
+
+    steps:
+    ###
+    # Packages
+    ###
+
+    - uses: awalsh128/cache-apt-pkgs-action@latest
+      name: Install required packages
+      with:
+        packages: flex bison ninja-build cmake clang libpulse-dev portaudio19-dev libasound2-dev libjack-dev libpipewire-0.3-dev qtbase5-dev libdbus-1-dev
+        version: "${{ runner.os }}-${{ runner.arch }}-v1"
+
+    - name: Settings
+      working-directory: ${{github.workspace}}
+      run: |
+        echo "HOST_TRIPLE=$(gcc -dumpmachine)" >> $GITHUB_ENV
+
+    - uses: awalsh128/cache-apt-pkgs-action@latest
+      name: Install required cross-platform packages (${{ matrix.architecture.package }})
+      if: env.HOST_TRIPLE != matrix.architecture.triple
+      with:
+        packages: gcc-12-${{ matrix.architecture.package }} g++-12-${{ matrix.architecture.package }}
+        version: "${{ runner.os }}-${{ runner.arch }}-v1"
+
+    - name: Settings
+      working-directory: ${{github.workspace}}
+      run: |
+        echo "CMAKE_GENERATOR=Ninja Multi-Config" >> $GITHUB_ENV
+        echo "CC=clang" >> $GITHUB_ENV
+        echo "CXX=clang++" >> $GITHUB_ENV
+        echo "CFLAGS='--target=${{ matrix.architecture.triple }}'" >> $GITHUB_ENV
+        echo "CXXFLAGS='--target=${{ matrix.architecture.triple }}'" >> $GITHUB_ENV
+
+    ###
+    # SDL
+    ###
+
+    # Setup SDL
+    - name: Set up SDL
+      id: sdl
+      uses: libsdl-org/setup-sdl@main
+      with:
+        version: 2-latest
+        build-type: Release
+        # Workaround for when changing the runner OS version
+        cmake-arguments: "-DCACHE_OS_VERSION=Ubuntu_22.04"
+
+    ###
+    # OpenAL
+    ###
+    - name: Cache OpenAL
+      id: cache-openal-soft
+      uses: actions/cache@v4
+      with:
+        path: 'thirdparties/soft-oal/install'
+        key: ${{ runner.os }}-${{ matrix.architecture.name }}-openal-soft-${{ env.openal-soft-branch }}-v1
+
+    # soft-oal setup
+    - name: Checkout soft-oal
+      if: steps.cache-openal-soft.outputs.cache-hit != 'true'
+      uses: actions/checkout@v4
+      with:
+        repository: 'kcat/openal-soft'
+        path: 'thirdparties/soft-oal'
+        ref: '${{ env.openal-soft-branch }}'
+
+    - name: Configure and install soft-oal
+      if: steps.cache-openal-soft.outputs.cache-hit != 'true'
+      working-directory: ${{github.workspace}}/thirdparties/soft-oal
+      run: |
+        cmake -B ./build \
+        -DALSOFT_UTILS=OFF \
+        -DCMAKE_INSTALL_PREFIX='${{github.workspace}}/thirdparties/soft-oal/install'
+        cmake --build ./build --config Release --parallel
+        cmake --install ./build --config Release
+
+    ###
+    # WolfSSL
+    ###
+    - name: Cache WolfSSL
+      id: cache-wolfssl
+      uses: actions/cache@v4
+      with:
+        path: 'thirdparties/wolfssl/install'
+        key: ${{ runner.os }}-${{ matrix.architecture.name }}-wolfssl-${{ env.wolfssl-version }}-v1
+
+    # WolfSSL setup
+    - name: Checkout WolfSSL
+      if: steps.cache-wolfssl.outputs.cache-hit != 'true'
+      uses: actions/checkout@v4
+      with:
+        repository: 'wolfssl/wolfssl'
+        path: 'thirdparties/wolfssl'
+        ref: '${{ env.wolfssl-version }}'
+
+    # WolfSSL build
+    - name: Configure and install wolfssl
+      if: steps.cache-wolfssl.outputs.cache-hit != 'true'
+      working-directory: ${{github.workspace}}/thirdparties/wolfssl
+      run: |
+        cmake -B ./build \
+            -DCMAKE_INSTALL_PREFIX='${{github.workspace}}/thirdparties/wolfssl/install' \
+            -DCMAKE_C_FLAGS="$CFLAGS -fPIC" \
+            -DCMAKE_CXX_FLAGS="$CFLAGS -fPIC" \
+            -DBUILD_SHARED_LIBS=OFF -DWOLFSSL_OPENSSLEXTRA=ON -DWOLFSSL_ASM=OFF -DWOLFSSL_EXAMPLES=OFF -DWOLFSSL_CURL=ON
+        cmake --build ./build --config Release --parallel
+        cmake --install ./build --config Release
+
+    ###
+    # cURL
+    ###
+    - name: Cache cURL
+      id: cache-curl
+      uses: actions/cache@v4
+      with:
+        path: 'thirdparties/curl/install'
+        key: ${{ runner.os }}-${{ matrix.architecture.name }}-curl-${{ env.curl-version }}-v1
+
+    # cURL setup
+    - name: Checkout cURL
+      if: steps.cache-curl.outputs.cache-hit != 'true'
+      uses: actions/checkout@v4
+      with:
+        repository: 'curl/curl'
+        path: 'thirdparties/curl'
+        ref: 'curl-${{ env.curl-version }}'
+
+    # cURL build
+    - name: Configure and install curl
+      if: steps.cache-curl.outputs.cache-hit != 'true'
+      working-directory: ${{github.workspace}}/thirdparties/curl
+      run: |
+        cmake -B ./build \
+            -DCMAKE_INSTALL_PREFIX='${{github.workspace}}/thirdparties/curl/install' \
+            -DCURL_USE_LIBPSL=OFF \
+            -DCURL_USE_WOLFSSL=ON \
+            -DCURL_ZLIB="" \
+            -DCURL_BROTLI="" \
+            -DCURL_ZSTD="" \
+            -DCMAKE_SHARED_LINKER_FLAGS="-lm" \
+            -DWolfSSL_ROOT='${{github.workspace}}/thirdparties/wolfssl/install'
+        cmake --build ./build --config Release --parallel
+        cmake --install ./build --config Release
+
+    ###
+    # Project
+    ###
+
+    - uses: actions/checkout@v4
+      with:
+        path: 'source'
+
+    - name: CMake Settings
+      run: |
+        echo "CMAKE_PARAM=--log-level=VERBOSE \
+        -DCMAKE_INSTALL_PREFIX='${{github.workspace}}/install' \
+        -DOPENAL_LIBRARY='${{github.workspace}}/thirdparties/soft-oal' \
+        -DOPENAL_INCLUDE_DIR='${{github.workspace}}/thirdparties/soft-oal/install/include' \
+        -DCURL_ROOT='${{github.workspace}}/thirdparties/curl/install' \
+        -DGIT_REVISION_BUILD_NUMBER=${{ github.run_number }} \
+        -DPRODUCT_VERSION_STAGE='${{ env.RELEASE_STAGE }}'" >> $GITHUB_ENV
+
+    - name: Configure CMake
+      working-directory: ${{github.workspace}}
+      run: |
+        cmake -B ./build ${{ env.CMAKE_PARAM }} ./source
+
+    - name: Build
+      working-directory: ${{github.workspace}}
+      run: |
+        cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} --parallel
+
+    - name: Test
+      working-directory: ${{github.workspace}}
+      # Execute tests defined by the CMake configuration.
+      # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
+      run: |
+        cd "${{github.workspace}}/build"
+        ctest -C ${{env.BUILD_TYPE}}
+
+    - name: Install
+      working-directory: ${{github.workspace}}
+      # Install to the directory defined in CMAKE_INSTALL_PREFIX
+      run: |
+        cmake --install ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+        # Copy libraries
+        mkdir ${{github.workspace}}/package
+        cp -l ${{steps.sdl.outputs.prefix}}/lib/libSDL2-2.0.so.0 '${{github.workspace}}/package/'
+        cp -l ${{github.workspace}}/thirdparties/soft-oal/install/lib/libopenal.so.1 '${{github.workspace}}/package/'
+        cp -l ${{github.workspace}}/thirdparties/curl/install/lib*/libcurl.so.4 '${{github.workspace}}/package/'
+        if [ -d ${{github.workspace}}/install/bin ]; then cp -r ${{github.workspace}}/install/bin/openmohaa/. '${{github.workspace}}/package'; fi
+        if [ -d ${{github.workspace}}/install/lib ]; then cp -r ${{github.workspace}}/install/lib/openmohaa/. '${{github.workspace}}/package'; fi
+
+    ###
+    # Artifacts
+    ###
+
+    - uses: actions/upload-artifact@v4
+      with:
+        name: out-linux-${{matrix.architecture.name}}
+        if-no-files-found: error
+        path:
+          ${{github.workspace}}/package

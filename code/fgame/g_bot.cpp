@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2024 the OpenMoHAA team
+Copyright (C) 2025 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -26,9 +26,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "playerbot.h"
 #include "g_bot.h"
 
-static saved_bot_t *saved_bots        = NULL;
-static unsigned int num_saved_bots    = 0;
-static unsigned int botId             = 0;
+static saved_bot_t *saved_bots     = NULL;
+static unsigned int num_saved_bots = 0;
+static unsigned int botId          = 0;
 
 Container<str> alliedModelList;
 Container<str> germanModelList;
@@ -157,16 +157,16 @@ Begin spawning a new bot entity
 */
 void G_BotBegin(gentity_t *ent)
 {
-    PlayerBot     *player;
+    Player        *player;
     BotController *controller;
 
     level.spawn_entnum = ent->s.number;
-    player             = new PlayerBot;
+    player             = new Player;
 
     G_ClientBegin(ent, NULL);
 
     controller = botManager.getControllerManager().createController(player);
-    player->setController(controller);
+    //player->setController(controller);
 }
 
 /*
@@ -271,7 +271,7 @@ void G_BotShift(int clientNum)
         return;
     }
 
-    if (!ent->entity->IsSubclassOfBot()) {
+    if (!botManager.getControllerManager().findController(ent->entity)) {
         return;
     }
 
@@ -355,7 +355,7 @@ bool G_IsBot(gentity_t *ent)
         return false;
     }
 
-    if (!ent->entity || !ent->entity->IsSubclassOfBot()) {
+    if (!ent->entity || !botManager.getControllerManager().findController(ent->entity)) {
         return false;
     }
 
@@ -375,7 +375,7 @@ bool G_IsPlayer(gentity_t *ent)
         return false;
     }
 
-    if (!ent->entity || ent->entity->IsSubclassOfBot()) {
+    if (!ent->entity || botManager.getControllerManager().findController(ent->entity)) {
         return false;
     }
 
@@ -387,7 +387,7 @@ bool G_IsPlayer(gentity_t *ent)
 G_GetRandomAlliedPlayerModel
 ============
 */
-const char* G_GetRandomAlliedPlayerModel()
+const char *G_GetRandomAlliedPlayerModel()
 {
     if (!alliedModelList.NumObjects()) {
         return "";
@@ -402,7 +402,7 @@ const char* G_GetRandomAlliedPlayerModel()
 G_GetRandomGermanPlayerModel
 ============
 */
-const char* G_GetRandomGermanPlayerModel()
+const char *G_GetRandomGermanPlayerModel()
 {
     if (!germanModelList.NumObjects()) {
         return "";
@@ -580,8 +580,8 @@ void G_SaveBots()
         saved_bots = NULL;
     }
 
-    const BotControllerManager& manager = botManager.getControllerManager();
-    unsigned int numSpawnedBots = manager.getControllers().NumObjects();
+    const BotControllerManager& manager        = botManager.getControllerManager();
+    unsigned int                numSpawnedBots = manager.getControllers().NumObjects();
 
     if (!numSpawnedBots) {
         return;
@@ -589,7 +589,6 @@ void G_SaveBots()
 
     saved_bots     = new saved_bot_t[numSpawnedBots];
     num_saved_bots = 0;
-
 
     count = manager.getControllers().NumObjects();
     assert(count <= numSpawnedBots);
@@ -688,6 +687,18 @@ int G_CountClients()
 
 /*
 ===========
+G_RestartBots
+
+Save bots
+============
+*/
+void G_RestartBots()
+{
+    G_SaveBots();
+}
+
+/*
+===========
 G_ResetBots
 
 Save and reset the bot count
@@ -695,8 +706,6 @@ Save and reset the bot count
 */
 void G_ResetBots()
 {
-    G_SaveBots();
-
     botManager.Cleanup();
 
     botId = 0;

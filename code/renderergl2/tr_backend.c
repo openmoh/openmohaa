@@ -1878,6 +1878,17 @@ void RB_ExecuteRenderCommands( const void *data ) {
 
 
 
+
+/*
+=============
+RE_StretchRaw2
+
+=============
+*/
+void RE_StretchRaw2 (int x, int y, int w, int h, int cols, int rows, int components, const byte* data) {
+	RE_StretchRaw(x, y, w, h, cols, rows, data, 0, qtrue);
+}
+
 /*
 ==================
 RB_RenderSpriteSurfList

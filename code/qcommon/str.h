@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2025 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -95,6 +95,9 @@ public:
     str(const unsigned long num);
     str(const long long num);
     str(const unsigned long long num);
+
+    str(str&& string);
+    str& operator=(str&& string);
 
     size_t      length(void) const;
     const char *c_str(void) const;
@@ -387,6 +390,24 @@ inline const char *str::c_str(void) const
     }
 }
 
+inline str::str(str&& string)
+    : m_data(string.m_data)
+{
+    string.m_data = NULL;
+}
+
+inline str& str::operator=(str&& string)
+{
+    if (m_data) {
+        m_data->DelRef();
+    }
+
+    m_data        = string.m_data;
+    string.m_data = NULL;
+
+    return *this;
+}
+
 inline void str::append(const char *text)
 {
     size_t len;
@@ -626,8 +647,7 @@ inline int str::cmpn(const str& text, size_t n) const
 
 inline void str::tolower(void)
 {
-    if (m_data)
-    {
+    if (m_data) {
         EnsureDataWritable();
 
         str::tolower(m_data->data);
@@ -636,8 +656,7 @@ inline void str::tolower(void)
 
 inline void str::toupper(void)
 {
-    if (m_data)
-    {
+    if (m_data) {
         EnsureDataWritable();
 
         str::toupper(m_data->data);

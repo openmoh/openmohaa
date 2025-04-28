@@ -326,14 +326,15 @@ typedef struct {
 } serverStatic_t;
 
 #define SERVER_MAXBANS	1024
+#define MAX_REASON_LENGTH 128
+
 // Structure for managing bans
-typedef struct
-{
+typedef struct serverBan_s {
 	netadr_t ip;
 	// For a CIDR-Notation type suffix
 	int subnet;
-	
 	qboolean isexception;
+	char reason[MAX_REASON_LENGTH];
 } serverBan_t;
 
 //=============================================================================
@@ -489,6 +490,8 @@ void SV_SpawnServer( const char *server, qboolean loadgame, qboolean restart, qb
 int SV_PVSSoundIndex(const char* name, qboolean streamed);
 void SV_HandleNonPVSSound();
 
+void SV_ApplyOriginalConfigTweaks();
+
 
 //
 // sv_client.c
@@ -629,14 +632,6 @@ void SV_NET_OutOfBandPrint(netprofclient_t* netprof, netadr_t adr, const char* f
 void SV_NET_UpdateClientNetProfileInfo(netprofclient_t* netprofile, int rate);
 void SV_NET_UpdateAllNetProfileInfo();
 void SV_NET_CalcTotalNetProfile(netprofclient_t* netprofile, qboolean server);
-
-//
-// sv_gamespy.c
-//
-void SV_GamespyHeartbeat();
-void SV_ProcessGamespyQueries();
-qboolean SV_InitGamespy();
-void SV_ShutdownGamespy();
 
 #ifdef __cplusplus
 }

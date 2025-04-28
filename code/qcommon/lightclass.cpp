@@ -98,4 +98,25 @@ void LightClass::operator delete(void *ptr)
     Z_Free(p);
 #    endif
 }
+#else
+
+void *LightClass::operator new(size_t s)
+{
+    return ::operator new(s);
+}
+
+void LightClass::operator delete(void *ptr)
+{
+    ::operator delete(ptr);
+}
+
 #endif
+
+void* LightClass::operator new(size_t size, void* placement)
+{
+    return placement;
+}
+
+void LightClass::operator delete(void* ptr, void* placement)
+{
+}

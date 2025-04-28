@@ -29,6 +29,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../qcommon/localization.h"
 #include "../qcommon/bg_compat.h"
 #include "../sys/sys_local.h"
+#include "../sys/sys_update_checker.h"
+#include "../uilib/uimessage.h"
 
 extern "C" {
 	#include "../sys/sys_loadlib.h"
@@ -171,6 +173,7 @@ void CL_ServerStatus_f(void);
 void CL_ServerStatusResponse( netadr_t from, msg_t *msg );
 
 static qboolean cl_bCLSystemStarted = qfalse;
+static qboolean cl_updateNotified = qfalse;
 
 /*
 ===============
@@ -2599,6 +2602,36 @@ void CL_SetFrameNumber(int frameNumber) {
 
 /*
 ==================
+CL_VerifyUpdate
+
+Check for a new version and display a message box
+when a new version is available
+==================
+*/
+void CL_VerifyUpdate() {
+    if (cl_updateNotified) {
+        return;
+    }
+
+    int lastMajor, lastMinor, lastPatch;
+    if (updateChecker.CheckNewVersion(lastMajor, lastMinor, lastPatch)) {
+        cl_updateNotified = true;
+
+        const char *updateText =
+            va("A new update is available!\n"
+               "The latest version is v%d.%d.%d (you are running v%s).\n"
+               "Check https://github.com/openmoh/openmohaa for more.",
+               lastMajor,
+               lastMinor,
+               lastPatch,
+               PRODUCT_VERSION_NUMBER_STRING);
+
+        UIMessageDialog::ShowMessageBox("Update available", updateText);
+    }
+}
+
+/*
+==================
 CL_Frame
 
 ==================
@@ -2635,6 +2668,8 @@ void CL_Frame ( int msec ) {
 				S_TriggeredMusic_PlayIntroMusic();
 				UI_MenuEscape("main");
 			}
+
+            CL_VerifyUpdate();
 		} else if (clc.state == CA_CINEMATIC) {
 			UI_ForceMenuOff(qtrue);
 		}
@@ -3618,8 +3653,8 @@ void CL_Init( void ) {
 	cl_consoleKeys = Cvar_Get( "cl_consoleKeys", "~ ` 0x7e 0x60", CVAR_ARCHIVE );
 
 	// userinfo
-	name = Cvar_Get ("name", "UnnamedSoldier", CVAR_USERINFO | CVAR_ARCHIVE );
-	cl_rate = Cvar_Get ("rate", "5000", CVAR_USERINFO | CVAR_ARCHIVE );
+	name = Cvar_Get ("name", va("UnnamedSoldier#%d", rand() % 100000), CVAR_USERINFO | CVAR_ARCHIVE);
+	cl_rate = Cvar_Get ("rate", "25000", CVAR_USERINFO | CVAR_ARCHIVE );
 	Cvar_Get ("snaps", "20", CVAR_USERINFO | CVAR_ARCHIVE );
 	Cvar_Get ("password", "", CVAR_USERINFO);
 	Cvar_Get ("dm_playermodel", "american_army", CVAR_USERINFO | CVAR_ARCHIVE );
@@ -3684,6 +3719,12 @@ void CL_Init( void ) {
 	CL_StartHunkUsers(qfalse);
 
 	end = Sys_Milliseconds();
+
+	if (com_gotOriginalConfig) {
+		// Added in OPM
+		//  Apply config tweaks after loading the original config
+		CL_ApplyOriginalConfigTweaks();
+	}
 
 	Com_Printf( "----- Client Initialization Complete ----- %i ms\n", start - end );
 }
@@ -4860,4 +4901,16 @@ void TIKI_CG_Command_ProcessFile(char* filename, qboolean quiet, dtiki_t* curTik
 	}
 
 	Com_Printf("NO CGE \n");
+}
+
+void CL_ApplyOriginalConfigTweaks()
+{
+	cvar_t* snaps = Cvar_Get("snaps", "", 0);
+
+    // Those variables are not editable via UI so reset them
+	// snaps/maxpackets can also have wrong values due to them being changed
+	// via stufftext
+
+	Cvar_Set("snaps", snaps->resetString);
+	Cvar_Set("cl_maxpackets", cl_maxpackets->resetString);
 }

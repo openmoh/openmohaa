@@ -22,6 +22,7 @@ get_target_property(target_type omohrenderergl2 TYPE)
 if (target_type STREQUAL "SHARED_LIBRARY")
 	target_sources(omohrenderergl2 PRIVATE "./tr_subs.c")
 	target_compile_definitions(omohrenderergl2 PUBLIC USE_RENDERER_DLOPEN=1)
+	target_compile_definitions(omohrenderergl2 PRIVATE REF_DLL=1)
 endif ()
 
 set_target_properties(omohrenderergl2 PROPERTIES PREFIX "")

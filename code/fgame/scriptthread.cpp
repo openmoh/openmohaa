@@ -1676,6 +1676,24 @@ Event EV_ScriptThread_UnregisterEv
     "Unregisters script callback handler for specified event",
     EV_RETURN
 );
+Event EV_ScriptThread_Event_Subscribe
+(
+    "event_subscribe",
+    EV_DEFAULT,
+    "ss",
+    "eventname script",
+    "Subscribe to the specified event. The specified script will be executed when the event gets triggered.",
+    EV_NORMAL
+);
+Event EV_ScriptThread_Event_Unsubscribe
+(
+    "event_unsubscribe",
+    EV_DEFAULT,
+    "ss",
+    "eventname script",
+    "Unsubscribe the script from the specified event.",
+    EV_NORMAL
+);
 Event EV_ScriptThread_Conprintf
 (
     "conprintf",
@@ -2036,6 +2054,15 @@ Event EV_ScriptThread_VisionSetNaked
     "empty string, it will be set to the current map's name.",
     EV_NORMAL
 );
+Event EV_ScriptThread_IsBot
+(
+    "isBot",
+    EV_DEFAULT,
+    "e",
+    "entity",
+    "Returns 1 if the client is a bot, 0 otherwise. Will return 0 if the entity is not a client.",
+    EV_RETURN
+);
 
 CLASS_DECLARATION(Listener, ScriptThread, NULL) {
     {&EV_ScriptThread_GetCvar,                 &ScriptThread::Getcvar                 },
@@ -2193,6 +2220,8 @@ CLASS_DECLARATION(Listener, ScriptThread, NULL) {
     {&EV_ScriptThread_TypeOf,                  &ScriptThread::TypeOfVariable          },
     {&EV_ScriptThread_RegisterEv,              &ScriptThread::RegisterEvent           },
     {&EV_ScriptThread_UnregisterEv,            &ScriptThread::UnregisterEvent         },
+    {&EV_ScriptThread_Event_Subscribe,         &ScriptThread::SubscribeEvent          },
+    {&EV_ScriptThread_Event_Unsubscribe,       &ScriptThread::UnsubscribeEvent        },
     {&EV_ScriptThread_CancelWaiting,           &ScriptThread::CancelWaiting           },
     {&EV_ScriptThread_GetTime,                 &ScriptThread::GetTime                 },
     {&EV_ScriptThread_GetTimeZone,             &ScriptThread::GetTimeZone             },
@@ -2263,6 +2292,7 @@ CLASS_DECLARATION(Listener, ScriptThread, NULL) {
     {&EV_ScriptThread_TraceDetails,            &ScriptThread::TraceDetails            },
     {&EV_ScriptThread_VisionGetNaked,          &ScriptThread::VisionGetNaked          },
     {&EV_ScriptThread_VisionSetNaked,          &ScriptThread::VisionSetNaked          },
+    {&EV_ScriptThread_IsBot,                   &ScriptThread::IsPlayerBot             },
     {NULL,                                     NULL                                   }
 };
 
@@ -6855,6 +6885,8 @@ void ScriptThread::RegisterEvent(Event *ev)
     char             eventname_full[64];
     scriptedEvType_t evType;
 
+    ScriptDeprecatedAltMethod("event_subscribe");
+
     eventname = ev->GetString(1);
 
     evType = EventNameToType(eventname, eventname_full);
@@ -6885,6 +6917,8 @@ void ScriptThread::UnregisterEvent(Event *ev)
     str              eventname;
     int              numArgs = 0;
     scriptedEvType_t evType;
+
+    ScriptDeprecatedAltMethod("event_unsubscribe");
 
     eventname = ev->GetString(1);
 
@@ -6917,6 +6951,42 @@ void ScriptThread::UnregisterEvent(Event *ev)
     }
 
     ev->AddInteger(0);
+}
+
+void ScriptThread::SubscribeEvent(Event *ev)
+{
+    str               eventName;
+    ScriptDelegate   *delegate;
+    ScriptThreadLabel label;
+
+    eventName = ev->GetString(1);
+
+    delegate = ScriptDelegate::GetScriptDelegate(eventName);
+    if (!delegate) {
+        throw ScriptException("Invalid event '%s'", eventName.c_str());
+    }
+
+    label.SetThread(ev->GetValue(2));
+
+    delegate->Register(label);
+}
+
+void ScriptThread::UnsubscribeEvent(Event *ev)
+{
+    str               eventName;
+    ScriptDelegate   *delegate;
+    ScriptThreadLabel label;
+
+    eventName = ev->GetString(1);
+
+    delegate = ScriptDelegate::GetScriptDelegate(eventName);
+    if (!delegate) {
+        throw ScriptException("Invalid event '%s'", eventName.c_str());
+    }
+
+    label.SetThread(ev->GetValue(2));
+
+    delegate->Unregister(label);
 }
 
 void ScriptThread::TypeOfVariable(Event *ev)
@@ -7085,6 +7155,25 @@ void ScriptThread::TraceDetails(Event *ev)
     array.setArrayAtRef(entityIndex, entityValue);
 
     ev->AddValue(array);
+}
+
+void ScriptThread::IsPlayerBot(Event *ev)
+{
+    Entity *e = ev->GetEntity(1);
+
+    if (!e || !e->client) {
+        // Invalid entity or not a client
+        ev->AddInteger(0);
+        return;
+    }
+
+    if (!(e->edict->r.svFlags & SVF_BOT)) {
+        ev->AddInteger(0);
+        return;
+    }
+
+    // has SVF_BOT server flag
+    ev->AddInteger(1);
 }
 
 CLASS_DECLARATION(Listener, OSFile, NULL) {

@@ -963,6 +963,9 @@ void CG_DrawActiveFrame(int serverTime, int frameTime, stereoFrame_t stereoView,
         cg.bIntermissionDisplay = qfalse;
     }
 
+    // Added in OPM
+    CG_ProcessPlayerModel();
+
     // build the render lists
     if (!cg.hyperspace) {
         CG_AddPacketEntities(); // after calcViewValues, so predicted player state is correct

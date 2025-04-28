@@ -200,7 +200,7 @@ void CM_PickTerrainSquareMode(terrainCollideSquare_t *square, vec3_t vTest, int 
     int             flags0, flags1;
     varnodeIndex_t *vni;
 
-    if (patch->flags & 0x80) {
+    if (patch->flags & TERPATCH_NEIGHBOR) {
         vni = g_vni[1][i][j];
     } else {
         vni = g_vni[0][i][j];
@@ -297,7 +297,7 @@ void CM_GenerateTerrainCollide(cTerraPatch_t *patch, terrainCollide_t *tc)
             square = &tc->squares[i][j];
 
             if ((i + j) & 1) {
-                if (patch->flags & 0x40) {
+                if (patch->flags & TERPATCH_FLIP) {
                     CM_PlaneFromPoints(square->plane[0], v4, v2, v3);
                     CM_PlaneFromPoints(square->plane[1], v2, v4, v1);
                 } else {
@@ -306,7 +306,7 @@ void CM_GenerateTerrainCollide(cTerraPatch_t *patch, terrainCollide_t *tc)
                 }
                 CM_PickTerrainSquareMode(square, v1, i, j, patch);
             } else {
-                if (patch->flags & 0x40) {
+                if (patch->flags & TERPATCH_FLIP) {
                     CM_PlaneFromPoints(square->plane[0], v1, v3, v4);
                     CM_PlaneFromPoints(square->plane[1], v3, v1, v2);
                 } else {

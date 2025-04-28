@@ -757,6 +757,7 @@ void G_ClientUserinfoChanged(gentity_t *ent, const char *u)
     char      *s;
     gclient_t *client;
     int        clientnum;
+    char       oldname[MAX_NAME_LENGTH];
 
     if (!ent) {
         return;
@@ -772,8 +773,17 @@ void G_ClientUserinfoChanged(gentity_t *ent, const char *u)
 
     clientnum = ent - g_entities;
 
+    Q_strncpyz(oldname, client->pers.netname, sizeof(oldname));
     if (gi.SanitizeName(s, client->pers.netname, sizeof(client->pers.netname))) {
         gi.Printf("WARNING: had to sanitize the name for client %i\n", clientnum);
+    }
+
+    if (strcmp(oldname, client->pers.netname)) {
+        //
+        // Added in OPM
+        //  Print name changes
+        //
+        gi.Printf("Client %i changed name from '%s' to '%s'\n", clientnum, oldname, client->pers.netname);
     }
 
     s = Info_ValueForKey(u, "dm_playermodel");
@@ -827,6 +837,7 @@ void G_BotConnect(int clientNum, qboolean firstTime, const char *userinfo)
 
     ent->client   = game.clients + clientNum;
     ent->s.number = clientNum;
+    ent->r.svFlags |= SVF_BOT;
 
     client = ent->client;
 
@@ -876,8 +887,6 @@ const char *G_ClientConnect(int clientNum, qboolean firstTime, qboolean differen
     gclient_t *client;
     gentity_t *ent;
     char       userinfo[MAX_INFO_STRING];
-
-    gi.DPrintf("TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT\n");
 
     // Added in OPM
     G_BotShift(clientNum);

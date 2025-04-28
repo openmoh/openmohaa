@@ -631,7 +631,7 @@ void TestStringClass(void)
     str  b;         // b.len == 0, b.data == "\0"
     str  c("test"); // c.len == 4, c.data == "test\0"
     str  d(c);      // d.len == 4, d.data == "test\0"
-    str e(nullptr);
+    str  e(nullptr);
     // e.len == 0, e.data == "\0"					ASSERT!
     size_t i; // i == ?
 

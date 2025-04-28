@@ -3135,7 +3135,13 @@ static shader_t *FinishShader( void ) {
 	// set appropriate stage information
 	//
 	stage = 0;
-	for (shaderStage_t* pStage = &unfoggedStages[0]; pStage->active; pStage++, stage++) {
+	for ( stage = 0; stage < MAX_SHADER_STAGES; stage++ ) {
+		shaderStage_t *pStage = &unfoggedStages[stage];
+
+		if ( !pStage->active ) {
+			break;
+		}
+
 		// check for a missing texture
 		if ( !pStage->bundle[0].image[0] ) {
 			ri.Printf( PRINT_WARNING, "Shader %s has a stage with no image\n", shader.name );

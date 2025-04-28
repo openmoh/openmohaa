@@ -1,7 +1,7 @@
 # Installation
 
-- On Windows there is no installer yet, so you have to follow all the steps below.
-- On Linux, you might want to check if an OpenMoHAA package is available with your package manager.
+- Windows users can check this [Quick install guide](getting_started_installation_windows.md).
+- Linux users may want to check if an OpenMoHAA package is available with the distribution's package manager.
 
 ## Requirements
 
@@ -116,3 +116,13 @@ Alternatively, free demo versions are available online. Here are the links to th
 
 1. Can play on MOH:AA 1.00 servers only.
 2. Only compatible with demo servers. These servers can be identified by having the letter `d` at the start of their version number (e.g: `(d2.11)`).
+
+---
+
+## Ports and other systems
+
+OpenMoHAA is officially supported on Windows, Linux and macOS. Below is a list of unofficial open-source ports that required custom modifications to the OpenMoHAA source code to build and run:
+
+- https://github.com/Rinnegatamante/openmohaa
+
+To stay up to date with the latest features and fixes from the official repository, these ports depend on their respective maintainers to synchronize changes with the main OpenMoHAA codebase.

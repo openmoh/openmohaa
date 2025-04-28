@@ -7,6 +7,11 @@ add_subdirectory("../cgame" "./cgame")
 file(GLOB SOURCES_CLIENT "./*.c*")
 file(GLOB_RECURSE SOURCES_UILIB "../uilib/*.c*")
 
+set(SOURCES_CLIENT ${SOURCES_CLIENT}
+	# Gamespy
+	"${CMAKE_SOURCE_DIR}/code/gamespy/cl_gamespy.c"
+)
+
 # Made as an interface and not static, as static only links used methods
 add_library(omohclient INTERFACE)
 target_compile_definitions(omohclient INTERFACE APP_MODULE)

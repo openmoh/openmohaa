@@ -229,8 +229,12 @@ void G_AllocGameData(void)
 
 void G_DeAllocGameData(void)
 {
-    // Initialize debug lines
+    // Free up debug lines
     G_DeAllocDebugLines();
+
+    // Added in OPM
+    //  Free up debug strings
+    G_DeAllocDebugStrings();
 
     // free up the entities
     if (g_entities) {
@@ -918,6 +922,9 @@ void G_Restart(void)
 
     // Added in 2.0
     G_ResetSmokeSprites();
+
+    // Added in OPM
+    G_RestartBots();
 }
 
 void G_SetFrameNumber(int framenum)

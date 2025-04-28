@@ -16,7 +16,9 @@ The main goal of OpenMoHAA is to ensure the future and continuity of **Medal of 
 
 - [Downloading and installing OpenMoHAA](docs/getting_started_installation.md)
 - [Running OpenMoHAA and using expansion assets](docs/getting_started_running.md)
-- [Dedicated server configuration](docs/configuration/server.md)
+- [Game configuration](docs/configuration.md)
+
+If you encounter any issues, please refer to the [FAQ](docs/faq.md) for possible solutions.
 
 ## Current state
 
@@ -35,7 +37,13 @@ One of the big multiplayer features are bots. They were introduced for testing a
 ## Features
 
 - [List of new features](docs/features.md)
-- [Scripting commands](https://htmlpreview.github.io/?https://github.com/openmoh/openmohaa/blob/main/docs/features_g_allclasses.html)
+- [Scripting](docs/scripting.md)
+
+## Reporting issues
+
+If you encounter a bug, report it by creating a new [issue](https://github.com/openmoh/openmohaa/issues). Make sure to select the `Bug report` template and fill in the appropriate fields.
+
+If you need help or have a problem, you can head over to the [discussions](https://github.com/openmoh/openmohaa/discussions) or join the OpenMoHAA Discord server (the link is at the bottom of this README).
 
 ## Compiling
 

@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2023 the OpenMoHAA team
+Copyright (C) 2025 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -577,9 +577,9 @@ void CG_RefreshHudDrawElements()
 
 void CG_HudDrawElements()
 {
-    int   i;
-    float fX, fY;
-    float fWidth, fHeight;
+    int    i;
+    float  fX, fY;
+    float  fWidth, fHeight;
     vec2_t virtualScale;
 
     if (!cg_huddraw_force->integer && !cg_hud->integer) {
@@ -638,20 +638,13 @@ void CG_HudDrawElements()
 
         cgi.R_SetColor(cgi.HudDrawElements[i].vColor);
         if (cgi.HudDrawElements[i].string[0]) {
-            fontheader_t* pFont = cgi.HudDrawElements[i].pFont;
+            fontheader_t *pFont = cgi.HudDrawElements[i].pFont;
             if (!pFont) {
                 pFont = cgs.media.hudDrawFont;
             }
 
             if (cgi.HudDrawElements[i].bVirtualScreen) {
-                cgi.R_DrawString(
-                    pFont,
-                    cgi.LV_ConvertString(cgi.HudDrawElements[i].string),
-                    fX,
-                    fY,
-                    -1,
-                    virtualScale
-                );
+                cgi.R_DrawString(pFont, cgi.LV_ConvertString(cgi.HudDrawElements[i].string), fX, fY, -1, virtualScale);
             } else {
                 cgi.R_DrawString(
                     pFont,
@@ -700,8 +693,8 @@ void CG_DrawObjectives()
     int          i;
     int          iCurrentObjective;
     float        fTimeDelta;
-    const char   *pszLocalizedText;
-    const char   *pszLine;
+    const char  *pszLocalizedText;
+    const char  *pszLine;
 
     iTotalNumLines = 0;
     for (i = CS_OBJECTIVES; i < CS_OBJECTIVES + MAX_OBJECTIVES; ++i) {
@@ -732,9 +725,9 @@ void CG_DrawObjectives()
         }
 
         iNumObjectives++;
-        iNumLines[i] = 0;
+        iNumLines[i]     = 0;
         pszLocalizedText = cgi.LV_ConvertString(cg.Objectives[i].text);
-        
+
         for (pszLine = strchr(pszLocalizedText, '\n'); pszLine; pszLine = strchr(pszLine + 1, '\n')) {
             iNumLines[i]++;
         }
@@ -750,7 +743,17 @@ void CG_DrawObjectives()
     vColor[0] = 0.2f;
     vColor[3] = cg.ObjectivesCurrentAlpha * 0.75;
     cgi.R_SetColor(vColor);
-    cgi.R_DrawStretchPic(fX, fY, 450.0 * cgs.uiHiResScale[0], fWidth * cgs.uiHiResScale[1], 0.0, 0.0, 1.0, 1.0, cgs.media.objectivesBackShader);
+    cgi.R_DrawStretchPic(
+        fX,
+        fY,
+        450.0 * cgs.uiHiResScale[0],
+        fWidth * cgs.uiHiResScale[1],
+        0.0,
+        0.0,
+        1.0,
+        1.0,
+        cgs.media.objectivesBackShader
+    );
 
     fX        = 30.0;
     fY        = fObjectivesTop + 10;
@@ -759,15 +762,29 @@ void CG_DrawObjectives()
     vColor[2] = 1.0;
     vColor[3] = cg.ObjectivesCurrentAlpha;
     cgi.R_SetColor(vColor);
-    cgi.R_DrawString(cgs.media.objectiveFont, cgi.LV_ConvertString("Mission Objectives:"), fX, fY / cgs.uiHiResScale[1], -1, cgs.uiHiResScale);
+    cgi.R_DrawString(
+        cgs.media.objectiveFont,
+        cgi.LV_ConvertString("Mission Objectives:"),
+        fX,
+        fY / cgs.uiHiResScale[1],
+        -1,
+        cgs.uiHiResScale
+    );
     fY = fY + 5.0;
 
-    cgi.R_DrawString(cgs.media.objectiveFont, "_______________________________________________________", fX, fY / cgs.uiHiResScale[1], -1, cgs.uiHiResScale);
+    cgi.R_DrawString(
+        cgs.media.objectiveFont,
+        "_______________________________________________________",
+        fX,
+        fY / cgs.uiHiResScale[1],
+        -1,
+        cgs.uiHiResScale
+    );
     fHeight = fObjectivesTop + 35 * cgs.uiHiResScale[1];
 
     for (i = 0; i < MAX_OBJECTIVES; ++i) {
         qhandle_t hBoxShader;
-        
+
         if ((cg.Objectives[i].flags == OBJ_FLAG_NONE) || (cg.Objectives[i].flags & OBJ_FLAG_HIDDEN)) {
             continue;
         }
@@ -905,12 +922,28 @@ void CG_DrawPlayerEntInfo()
 
     if (handle) {
         cgi.R_SetColor(0);
-        cgi.R_DrawStretchPic(fX, fY, 16.0 * cgs.uiHiResScale[0], 16.0 * cgs.uiHiResScale[1], 0.0, 0.0, 1.0, 1.0, handle);
+        cgi.R_DrawStretchPic(
+            fX, fY, 16.0 * cgs.uiHiResScale[0], 16.0 * cgs.uiHiResScale[1], 0.0, 0.0, 1.0, 1.0, handle
+        );
     }
 
     cgi.R_SetColor(color);
-    cgi.R_DrawString(cgs.media.hudDrawFont, (char *)pszName, fX / cgs.uiHiResScale[0] + 24.0, fY / cgs.uiHiResScale[1], -1, cgs.uiHiResScale);
-    cgi.R_DrawString(cgs.media.hudDrawFont, va("%i", cg.snap->ps.stats[STAT_INFOCLIENT_HEALTH]), fX / cgs.uiHiResScale[0] + 24.0, fY / cgs.uiHiResScale[1] + 20.0, -1, cgs.uiHiResScale);
+    cgi.R_DrawString(
+        cgs.media.hudDrawFont,
+        (char *)pszName,
+        fX / cgs.uiHiResScale[0] + 24.0,
+        fY / cgs.uiHiResScale[1],
+        -1,
+        cgs.uiHiResScale
+    );
+    cgi.R_DrawString(
+        cgs.media.hudDrawFont,
+        va("%i", cg.snap->ps.stats[STAT_INFOCLIENT_HEALTH]),
+        fX / cgs.uiHiResScale[0] + 24.0,
+        fY / cgs.uiHiResScale[1] + 20.0,
+        -1,
+        cgs.uiHiResScale
+    );
 }
 
 void CG_UpdateAttackerDisplay()
@@ -981,12 +1014,14 @@ void CG_UpdateAttackerDisplay()
     }
 
     cgi.R_SetColor(color);
-    cgi.R_DrawString(cgs.media.attackerFont, pszName, fX / cgs.uiHiResScale[0] + 32.0, fY / cgs.uiHiResScale[1], -1, cgs.uiHiResScale);
+    cgi.R_DrawString(
+        cgs.media.attackerFont, pszName, fX / cgs.uiHiResScale[0] + 32.0, fY / cgs.uiHiResScale[1], -1, cgs.uiHiResScale
+    );
 }
 
 void CG_UpdateCountdown()
 {
-    const char* message = "";
+    const char *message = "";
 
     if (!cg.snap) {
         return;
@@ -998,7 +1033,7 @@ void CG_UpdateCountdown()
         iSecondsLeft = (cgs.matchEndTime - cg.time) / 1000;
         if (iSecondsLeft >= 0) {
             iMinutesLeft = iSecondsLeft / 60;
-            message = va("%s %2i:%02i", cgi.LV_ConvertString("Time Left:"), iMinutesLeft, iSecondsLeft % 60);
+            message      = va("%s %2i:%02i", cgi.LV_ConvertString("Time Left:"), iMinutesLeft, iSecondsLeft % 60);
         } else if (!cgs.matchEndTime) {
             message = "";
         }
@@ -1012,7 +1047,8 @@ void CG_UpdateCountdown()
     }
 }
 
-static void CG_RemoveStopwatch() {
+static void CG_RemoveStopwatch()
+{
     cgi.Cmd_Execute(EXEC_NOW, "ui_removehud hud_stopwatch\n");
     cgi.Cmd_Execute(EXEC_NOW, "ui_removehud hud_fuse\n");
     cgi.Cmd_Execute(EXEC_NOW, "ui_removehud hud_fuse_wet\n");
@@ -1095,7 +1131,9 @@ void CG_DrawInstantMessageMenu()
     x = 8.0;
     y = ((float)cgs.glconfig.vidHeight - h) * 0.5;
     cgi.R_SetColor(0);
-    cgi.R_DrawStretchPic(x * cgs.uiHiResScale[0], y, w * cgs.uiHiResScale[0], h * cgs.uiHiResScale[1], 0.0, 0.0, 1.0, 1.0, handle);
+    cgi.R_DrawStretchPic(
+        x * cgs.uiHiResScale[0], y, w * cgs.uiHiResScale[0], h * cgs.uiHiResScale[1], 0.0, 0.0, 1.0, 1.0, handle
+    );
 }
 
 void CG_DrawSpectatorView_ver_15()
@@ -1118,10 +1156,14 @@ void CG_DrawSpectatorView_ver_15()
     if (!bOnTeam) {
         cgi.Key_GetKeysForCommand("+attackprimary", &iKey1, &iKey2);
         pszString = cgi.LV_ConvertString(va("Press Fire(%s) to join the battle!", cgi.Key_KeynumToBindString(iKey1)));
-        fX = (float)(cgs.glconfig.vidWidth - cgi.UI_FontStringWidth(cgs.media.attackerFont, pszString, -1)) * 0.5;
-        fY = cgs.glconfig.vidHeight - 64.0;
+        fX        = (float)(cgs.glconfig.vidWidth
+                     - cgi.UI_FontStringWidth(cgs.media.attackerFont, pszString, -1) * cgs.uiHiResScale[0])
+           * 0.5;
+        fY = cgs.glconfig.vidHeight - 64.0 * cgs.uiHiResScale[1];
         cgi.R_SetColor(NULL);
-        cgi.R_DrawString(cgs.media.attackerFont, pszString, fX / cgs.uiHiResScale[0], fY / cgs.uiHiResScale[1], -1, cgs.uiHiResScale);
+        cgi.R_DrawString(
+            cgs.media.attackerFont, pszString, fX / cgs.uiHiResScale[0], fY / cgs.uiHiResScale[1], -1, cgs.uiHiResScale
+        );
     }
 
     if (cg.predicted_player_state.pm_flags & PMF_CAMERA_VIEW) {
@@ -1134,10 +1176,14 @@ void CG_DrawSpectatorView_ver_15()
                cgi.Key_KeynumToBindString(iKey1b))
         );
 
-        fX = (float)(cgs.glconfig.vidWidth - cgi.UI_FontStringWidth(cgs.media.attackerFont, pszString, -1)) * 0.5;
-        fY = (float)cgs.glconfig.vidHeight - 40.0;
+        fX = (float)(cgs.glconfig.vidWidth
+                     - cgi.UI_FontStringWidth(cgs.media.attackerFont, pszString, -1) * cgs.uiHiResScale[0])
+           * 0.5;
+        fY = (float)cgs.glconfig.vidHeight - 40.0 * cgs.uiHiResScale[1];
         cgi.R_SetColor(0);
-        cgi.R_DrawString(cgs.media.attackerFont, pszString, fX / cgs.uiHiResScale[0], fY / cgs.uiHiResScale[1], -1, cgs.uiHiResScale);
+        cgi.R_DrawString(
+            cgs.media.attackerFont, pszString, fX / cgs.uiHiResScale[0], fY / cgs.uiHiResScale[1], -1, cgs.uiHiResScale
+        );
     }
 
     if (!bOnTeam && (cg.predicted_player_state.pm_flags & PMF_CAMERA_VIEW)) {
@@ -1145,10 +1191,14 @@ void CG_DrawSpectatorView_ver_15()
         pszString =
             cgi.LV_ConvertString(va("Press Use(%s) to enter free spectate mode.", cgi.Key_KeynumToBindString(iKey1)));
 
-        fX = (float)(cgs.glconfig.vidWidth - cgi.UI_FontStringWidth(cgs.media.attackerFont, pszString, -1)) * 0.5;
-        fY = (float)cgs.glconfig.vidHeight - 24.0;
+        fX = (float)(cgs.glconfig.vidWidth
+                     - cgi.UI_FontStringWidth(cgs.media.attackerFont, pszString, -1) * cgs.uiHiResScale[0])
+           * 0.5;
+        fY = (float)cgs.glconfig.vidHeight - 24.0 * cgs.uiHiResScale[1];
         cgi.R_SetColor(0);
-        cgi.R_DrawString(cgs.media.attackerFont, pszString, fX / cgs.uiHiResScale[0], fY / cgs.uiHiResScale[1], -1, cgs.uiHiResScale);
+        cgi.R_DrawString(
+            cgs.media.attackerFont, pszString, fX / cgs.uiHiResScale[0], fY / cgs.uiHiResScale[1], -1, cgs.uiHiResScale
+        );
     }
 
     if (!(cg.predicted_player_state.pm_flags & PMF_CAMERA_VIEW)) {
@@ -1158,20 +1208,27 @@ void CG_DrawSpectatorView_ver_15()
             va("Press Use(%s) to enter player following spectate mode.", cgi.Key_KeynumToBindString(iKey1))
         );
 
-        fX = (float)(cgs.glconfig.vidWidth - cgi.UI_FontStringWidth(cgs.media.attackerFont, pszString, -1)) * 0.5;
-        fY = (float)cgs.glconfig.vidHeight - 24.0;
+        fX = (float)(cgs.glconfig.vidWidth
+                     - cgi.UI_FontStringWidth(cgs.media.attackerFont, pszString, -1) * cgs.uiHiResScale[0])
+           * 0.5;
+        fY = (float)cgs.glconfig.vidHeight - 24.0 * cgs.uiHiResScale[1];
         cgi.R_SetColor(0);
-        cgi.R_DrawString(cgs.media.attackerFont, pszString, fX / cgs.uiHiResScale[0], fY / cgs.uiHiResScale[1], -1, cgs.uiHiResScale);
+        cgi.R_DrawString(
+            cgs.media.attackerFont, pszString, fX / cgs.uiHiResScale[0], fY / cgs.uiHiResScale[1], -1, cgs.uiHiResScale
+        );
     }
 
-    if ((cg.predicted_player_state.pm_flags & PMF_CAMERA_VIEW) != 0 && cg.snap && cg.snap->ps.stats[STAT_INFOCLIENT] != -1) {
+    if ((cg.predicted_player_state.pm_flags & PMF_CAMERA_VIEW) != 0 && cg.snap
+        && cg.snap->ps.stats[STAT_INFOCLIENT] != -1) {
         int       iClientNum;
         qhandle_t hShader;
         vec4_t    color;
         char      buf[128];
 
         iClientNum = cg.snap->ps.stats[STAT_INFOCLIENT];
-        Com_sprintf(buf, sizeof(buf), "%s : %i", cg.clientinfo[iClientNum].name, cg.snap->ps.stats[STAT_INFOCLIENT_HEALTH]);
+        Com_sprintf(
+            buf, sizeof(buf), "%s : %i", cg.clientinfo[iClientNum].name, cg.snap->ps.stats[STAT_INFOCLIENT_HEALTH]
+        );
 
         hShader  = 0;
         color[0] = 0.5;
@@ -1179,10 +1236,14 @@ void CG_DrawSpectatorView_ver_15()
         color[2] = 0.5;
         color[3] = 1.0;
 
-        fX = (float)(cgs.glconfig.vidWidth - cgi.UI_FontStringWidth(cgs.media.attackerFont, pszString, -1) - 16) * 0.5;
-        fY = (float)cgs.glconfig.vidHeight - 80.0;
+        fX = (float)(cgs.glconfig.vidWidth
+                     - (cgi.UI_FontStringWidth(cgs.media.attackerFont, pszString, -1) - 16) * cgs.uiHiResScale[0])
+           * 0.5;
+        fY = (float)cgs.glconfig.vidHeight - 80.0 * cgs.uiHiResScale[1];
         cgi.R_SetColor(color);
-        cgi.R_DrawString(cgs.media.attackerFont, buf, fX / cgs.uiHiResScale[0], fY / cgs.uiHiResScale[1], -1, cgs.uiHiResScale);
+        cgi.R_DrawString(
+            cgs.media.attackerFont, buf, fX / cgs.uiHiResScale[0], fY / cgs.uiHiResScale[1], -1, cgs.uiHiResScale
+        );
 
         if (cg.clientinfo[iClientNum].team == TEAM_ALLIES) {
             hShader = cgi.R_RegisterShader("textures/hud/allies");
@@ -1234,10 +1295,14 @@ void CG_DrawSpectatorView_ver_6()
         pszString = cgi.LV_ConvertString(va("Press Use(%s) to follow a player.", cgi.Key_KeynumToBindString(iKey1)));
     }
 
-    fX = (float)(cgs.glconfig.vidWidth - cgi.UI_FontStringWidth(cgs.media.attackerFont, pszString, -1)) * 0.5;
-    fY = (float)cgs.glconfig.vidHeight - 40.0;
+    fX = (float)(cgs.glconfig.vidWidth
+                 - cgi.UI_FontStringWidth(cgs.media.attackerFont, pszString, -1) * cgs.uiHiResScale[0])
+       * 0.5;
+    fY = (float)cgs.glconfig.vidHeight - 40.0 * cgs.uiHiResScale[1];
     cgi.R_SetColor(0);
-    cgi.R_DrawString(cgs.media.attackerFont, pszString, fX / cgs.uiHiResScale[0], fY / cgs.uiHiResScale[1], -1, cgs.uiHiResScale);
+    cgi.R_DrawString(
+        cgs.media.attackerFont, pszString, fX / cgs.uiHiResScale[0], fY / cgs.uiHiResScale[1], -1, cgs.uiHiResScale
+    );
 
     if (!bOnTeam && (cg.predicted_player_state.pm_flags & PMF_CAMERA_VIEW)) {
         cgi.Key_GetKeysForCommand("+moveup", &iKey1, &iKey2);
@@ -1248,10 +1313,14 @@ void CG_DrawSpectatorView_ver_6()
                cgi.Key_KeynumToBindString(iKey1b))
         );
 
-        fX = (float)(cgs.glconfig.vidWidth - cgi.UI_FontStringWidth(cgs.media.attackerFont, pszString, -1)) * 0.5;
-        fY = (float)cgs.glconfig.vidHeight - 24.0;
+        fX = (float)(cgs.glconfig.vidWidth
+                     - cgi.UI_FontStringWidth(cgs.media.attackerFont, pszString, -1) * cgs.uiHiResScale[0])
+           * 0.5;
+        fY = (float)cgs.glconfig.vidHeight - 24.0 * cgs.uiHiResScale[1];
         cgi.R_SetColor(0);
-        cgi.R_DrawString(cgs.media.attackerFont, pszString, fX / cgs.uiHiResScale[0], fY / cgs.uiHiResScale[1], -1, cgs.uiHiResScale);
+        cgi.R_DrawString(
+            cgs.media.attackerFont, pszString, fX / cgs.uiHiResScale[0], fY / cgs.uiHiResScale[1], -1, cgs.uiHiResScale
+        );
     }
 }
 
@@ -1351,17 +1420,7 @@ void CG_DrawCrosshair()
         y      = (cgs.glconfig.vidHeight - height) * 0.5f;
 
         cgi.R_SetColor(NULL);
-        cgi.R_DrawStretchPic(
-            x,
-            y,
-            width * cgs.uiHiResScale[0],
-            height * cgs.uiHiResScale[1],
-            0,
-            0,
-            1,
-            1,
-            shader
-        );
+        cgi.R_DrawStretchPic(x, y, width * cgs.uiHiResScale[0], height * cgs.uiHiResScale[1], 0, 0, 1, 1, shader);
     }
 }
 
@@ -1392,15 +1451,17 @@ void CG_DrawVote()
     percentNo        = cgs.numVotesNo * 100 / (cgs.numUndecidedVotes + cgs.numVotesNo + cgs.numVotesYes);
     percentUndecided = cgs.numUndecidedVotes * 100 / (cgs.numUndecidedVotes + cgs.numVotesNo + cgs.numVotesYes);
 
-    x = 8;
-    y = (cgs.glconfig.vidHeight > 480) ? (cgs.glconfig.vidHeight * 0.725f) : (cgs.glconfig.vidHeight * 0.75f);
+    x = 8 * cgs.uiHiResScale[0];
+    y = ((cgs.glconfig.vidHeight > 480) ? (cgs.glconfig.vidHeight * 0.725f) : (cgs.glconfig.vidHeight * 0.75f));
 
     cgi.R_SetColor(NULL);
 
     text = va("%s: %s", cgi.LV_ConvertString("Vote Running"), cgs.voteString);
-    cgi.R_DrawString(cgs.media.attackerFont, text, x, y, -1, cgs.uiHiResScale);
+    cgi.R_DrawString(
+        cgs.media.attackerFont, text, x / cgs.uiHiResScale[0], y / cgs.uiHiResScale[1], -1, cgs.uiHiResScale
+    );
 
-    y += 12;
+    y += 12 * cgs.uiHiResScale[1];
 
     text =
         va("%s: %isec  %s: %i%%  %s: %i%%  %s: %i%%",
@@ -1412,7 +1473,9 @@ void CG_DrawVote()
            percentNo,
            cgi.LV_ConvertString("Undecided"),
            percentUndecided);
-    cgi.R_DrawString(cgs.media.attackerFont, text, x, y, -1, cgs.uiHiResScale);
+    cgi.R_DrawString(
+        cgs.media.attackerFont, text, x / cgs.uiHiResScale[0], y / cgs.uiHiResScale[1], -1, cgs.uiHiResScale
+    );
 
     if (cg.snap && !cg.snap->ps.voted) {
         col[0] = 0.5;
@@ -1421,15 +1484,19 @@ void CG_DrawVote()
         col[3] = 1.0;
         cgi.R_SetColor(col);
 
-        y += 12;
+        y += 12 * cgs.uiHiResScale[1];
 
         text = cgi.LV_ConvertString("Vote now, it's your patriotic duty!");
-        cgi.R_DrawString(cgs.media.attackerFont, text, x, y, -1, cgs.uiHiResScale);
+        cgi.R_DrawString(
+            cgs.media.attackerFont, text, x / cgs.uiHiResScale[0], y / cgs.uiHiResScale[1], -1, cgs.uiHiResScale
+        );
 
-        y += 12;
+        y += 12 * cgs.uiHiResScale[1];
 
         text = cgi.LV_ConvertString("To vote Yes, press F1. To vote No, press F2.");
-        cgi.R_DrawString(cgs.media.attackerFont, text, x, y, -1, cgs.uiHiResScale);
+        cgi.R_DrawString(
+            cgs.media.attackerFont, text, x / cgs.uiHiResScale[0], y / cgs.uiHiResScale[1], -1, cgs.uiHiResScale
+        );
         cgi.R_SetColor(NULL);
     }
 }
