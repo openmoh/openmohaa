@@ -103,12 +103,76 @@ void RecastPather::Clear()
 
 PathNav RecastPather::GetNode(unsigned int index) const
 {
-    return {};
+    const dtCrowdAgent *agent;
+    PathNav             nav;
+    Vector              target;
+    Vector              delta;
+    const dtPolyRef    *path;
+    int                 npath;
+
+    if (!hasAgent) {
+        return {};
+    }
+
+    agent = pathMaster.agentManager.GetCrowd()->getAgent(navAgentId);
+
+    path  = agent->corridor.getPath();
+    npath = agent->corridor.getPathCount();
+    if (npath <= 0) {
+        return {};
+    }
+
+    const dtMeshTile *tile;
+    const dtPoly     *poly;
+    navigationMap.GetNavMesh()->getTileAndPolyByRef(path[0], &tile, &poly);
+    const unsigned int tileId = (unsigned int)(poly - tile->polys);
+
+    const dtPolyDetail *dm = &tile->detailMeshes[tileId];
+    Vector              middle[1];
+
+    for (int i = 0; i < 1; i++) {
+        for (int j = 0; j < dm->triCount; ++j) {
+            const unsigned char *t = &tile->detailTris[(dm->triBase + i) * 4];
+            for (int k = 0; k < 3; ++k) {
+                if (t[k] < poly->vertCount) {
+                    middle[i] += &tile->verts[poly->verts[t[k]] * 3];
+                } else {
+                    middle[i] += &tile->detailVerts[(dm->vertBase + t[k] - poly->vertCount) * 3];
+                }
+            }
+
+            middle[i] /= 3;
+        }
+
+        middle[i] /= dm->triCount;
+        if (i == 0) {
+            middle[i] += agent->corridor.getPos();
+        }
+    }
+
+    ConvertRecastToGameCoord(middle[0], nav.origin);
+    ConvertRecastToGameCoord(middle[1], target);
+
+    delta      = target - nav.origin;
+    nav.dir[0] = delta[0];
+    nav.dir[1] = delta[1];
+    VectorNormalize2D(nav.dir);
+    nav.dist = delta.length();
+
+    return nav;
 }
 
 int RecastPather::GetNodeCount() const
 {
-    return 0;
+    const dtCrowdAgent *agent;
+
+    if (!hasAgent) {
+        return 0;
+    }
+
+    agent = pathMaster.agentManager.GetCrowd()->getAgent(navAgentId);
+
+    return agent->corridor.getPathCount();
 }
 
 Vector RecastPather::GetCurrentDelta() const
@@ -118,6 +182,23 @@ Vector RecastPather::GetCurrentDelta() const
 
 bool RecastPather::HasReachedGoal(const Vector& origin) const
 {
+    const dtCrowdAgent *agent;
+
+    if (!hasAgent) {
+        return true;
+    }
+
+    agent = pathMaster.agentManager.GetCrowd()->getAgent(navAgentId);
+
+    /*
+    const dtPolyRef lastPoly = agent->corridor.getLastPoly();
+    ConvertRecastToGameCoord(agent->corridor.getTarget(), target);
+    
+    if (fabs(origin[0] - m_path->point[0]) < 16.0f && fabs(origin[1] - m_path->point[1]) < 16.0f) {
+        return true;
+    }
+    */
+
     return false;
 }
 
@@ -127,8 +208,7 @@ void RecastPather::ResetAgent(const Vector& origin)
     vec3_t   rcOrigin;
 
     if (hasAgent) {
-        crowdManager->resetMoveTarget(navAgentId);
-        return;
+        crowdManager->removeAgent(navAgentId);
     }
 
     ConvertGameToRecastCoord(origin, rcOrigin);
