@@ -64,7 +64,31 @@ void RecastPather::FindPathAway(
 
 bool RecastPather::TestPath(const Vector& start, const Vector& end, const PathSearchParameter& parameters)
 {
-    return false;
+    Vector        recastStart, recastEnd;
+    dtQueryFilter filter;
+    vec3_t        half = {64, 64, 64};
+    dtStatus      status;
+
+    ConvertGameToRecastCoord(start, recastStart);
+    ConvertGameToRecastCoord(end, recastEnd);
+
+    dtPolyRef nearestStartRef, nearestEndRef;
+    vec3_t    nearestStartPt, nearestEndPt;
+    navigationMap.GetNavMeshQuery()->findNearestPoly(recastStart, half, &filter, &nearestStartRef, nearestStartPt);
+    navigationMap.GetNavMeshQuery()->findNearestPoly(recastEnd, half, &filter, &nearestEndRef, nearestEndPt);
+
+    dtPolyRef polys[256];
+    int       nPolys;
+    status = navigationMap.GetNavMeshQuery()->findPath(
+        nearestStartRef, nearestEndRef, nearestStartPt, nearestEndPt, &filter, polys, &nPolys, 256
+    );
+
+    if (!(status & DT_SUCCESS)) {
+        // Invalid path
+        return false;
+    }
+
+    return true;
 }
 
 void RecastPather::UpdatePos(const Vector& origin)
