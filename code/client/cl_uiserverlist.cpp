@@ -701,16 +701,16 @@ static void AddFilter(char *filter, const char *value)
 static void AddFilter(char *filter, const char *value, size_t maxsize)
 {
     const char *newval;
-    size_t valuelen;
-    size_t filterlen;
-    
+    size_t      valuelen;
+    size_t      filterlen;
+
     if (*filter) {
         newval = va(" and %s", value);
     } else {
         newval = value;
     }
 
-    valuelen = strlen(newval);
+    valuelen  = strlen(newval);
     filterlen = strlen(filter);
     if (filterlen + valuelen >= maxsize) {
         return;
@@ -1058,7 +1058,9 @@ void UIFAKKServerList::SortByColumn(int column)
     }
 }
 
-void UIFAKKServerList::UpdateServerListCallBack(GServerList serverlist, int msg, void *instance, void *param1, void *param2)
+void UIFAKKServerList::UpdateServerListCallBack(
+    GServerList serverlist, int msg, void *instance, void *param1, void *param2
+)
 {
     int                 i, j;
     int                 iPort, iGameSpyPort;
@@ -1260,7 +1262,7 @@ void UIFAKKServerList::UpdateServerListCallBack(GServerList serverlist, int msg,
 
         // Rebuild the number of servers
         g_iServerTotalCount = 0;
-        for(i = 0; i < ARRAY_LEN(uiServerList->m_serverList); i++) {
+        for (i = 0; i < ARRAY_LEN(uiServerList->m_serverList); i++) {
             if (uiServerList->m_bGettingList[i] && uiServerList->m_serverList[i]) {
                 g_iServerTotalCount += ServerListCount(uiServerList->m_serverList[i]);
             }

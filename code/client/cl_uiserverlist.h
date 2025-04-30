@@ -24,35 +24,38 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "../gamespy/goaceng.h"
 
-class UIFAKKServerList : public UIListCtrl {
+class UIFAKKServerList : public UIListCtrl
+{
 protected:
-	// need a new struct instead of gamespy
-	struct GServerListImplementation *m_serverList[2];
-	bool m_bHasList;
-	bool m_bLANListing;
+    // need a new struct instead of gamespy
+    struct GServerListImplementation *m_serverList[2];
+    bool                              m_bHasList;
+    bool                              m_bLANListing;
 
 public:
-	CLASS_PROTOTYPE( UIFAKKServerList );
+    CLASS_PROTOTYPE(UIFAKKServerList);
 
-	bool m_bGettingList[2];
-	bool m_bUpdatingList;
+    bool m_bGettingList[2];
+    bool m_bUpdatingList;
 
 protected:
-	void			SelectServer( Event *ev );
-	void			ConnectServer( Event *ev );
-	qboolean		KeyEvent( int key, unsigned int time ) override;
-	void			UpdateUIElement( void ) override;
-	void			RefreshServerList( Event *ev );
-	void			RefreshLANServerList( Event *ev );
-	void			CancelRefresh( Event *ev );
-	void			NewServerList( void );
-	void			MakeLANListing( Event *ev );
-	void			UpdateServer( Event *ev );
-	static int		ServerCompareFunction( const UIListCtrlItem *i1, const UIListCtrlItem *i2, int columnname );
-    static void     UpdateServerListCallBack(GServerList serverlist, int msg, void *instance, void *param1, void *param2);
-public:
-	UIFAKKServerList();
+    void     SelectServer(Event *ev);
+    void     ConnectServer(Event *ev);
+    qboolean KeyEvent(int key, unsigned int time) override;
+    void     UpdateUIElement(void) override;
+    void     RefreshServerList(Event *ev);
+    void     RefreshLANServerList(Event *ev);
+    void     CancelRefresh(Event *ev);
+    void     NewServerList(void);
+    void     MakeLANListing(Event *ev);
+    void     UpdateServer(Event *ev);
 
-	void		Draw( void ) override;
-	void		SortByColumn( int column ) override;
+    static int  ServerCompareFunction(const UIListCtrlItem *i1, const UIListCtrlItem *i2, int columnname);
+    static void UpdateServerListCallBack(GServerList serverlist, int msg, void *instance, void *param1, void *param2);
+
+public:
+    UIFAKKServerList();
+
+    void Draw(void) override;
+    void SortByColumn(int column) override;
 };
