@@ -20,49 +20,28 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
+// cl_uiserverlist.cpp -- UI Server list
+// Modifications that were made in OPM:
+//  1) Move most global variables inside UIFAKKServerList
+//  2) Made a global RefreshStatus() function so the status is consistent
+//     when there are multiple server list instances
+
 #include "cl_ui.h"
 #include "../gamespy/goaceng.h"
 #include "../gamespy/sv_gamespy.h"
 #include "../gamespy/common/gsPlatformSocket.h"
 
-Event EV_FAKKServerList_Connect
-(
-    "connect",
-    EV_DEFAULT,
-    NULL,
-    NULL,
-    "Connect to the specified server"
+Event EV_FAKKServerList_Connect("connect", EV_DEFAULT, NULL, NULL, "Connect to the specified server");
+
+Event EV_FAKKServerList_RefreshServerList("refreshserverlist", EV_DEFAULT, NULL, NULL, "Refresh the serverlist");
+
+Event EV_FAKKServerList_RefreshLANServerList(
+    "refreshlanserverlist", EV_DEFAULT, NULL, NULL, "Refresh the LAN serverlist"
 );
 
-Event EV_FAKKServerList_RefreshServerList
-(
-    "refreshserverlist",
-    EV_DEFAULT,
-    NULL,
-    NULL,
-    "Refresh the serverlist"
-);
+Event EV_FAKKServerList_CancelRefresh("cancelrefresh", EV_DEFAULT, NULL, NULL, "Cancel serverlist Refresh");
 
-Event EV_FAKKServerList_RefreshLANServerList
-(
-    "refreshlanserverlist",
-    EV_DEFAULT,
-    NULL,
-    NULL,
-    "Refresh the LAN serverlist"
-);
-
-Event EV_FAKKServerList_CancelRefresh
-(
-    "cancelrefresh",
-    EV_DEFAULT,
-    NULL,
-    NULL,
-    "Cancel serverlist Refresh"
-);
-
-Event EV_FAKKServerList_LANListing
-(
+Event EV_FAKKServerList_LANListing(
     "lanlisting",
     EV_DEFAULT,
     NULL,
@@ -70,19 +49,7 @@ Event EV_FAKKServerList_LANListing
     "Makes this server list to LAN stuff when there's a choice between Internet & LAN servers"
 );
 
-Event EV_FAKKServerList_UpdateServer
-(
-    "updateserver",
-    EV_DEFAULT,
-    NULL,
-    NULL,
-    "Update the selected server"
-);
-
-struct ServerListInstance {
-    int               iServerType;
-    UIFAKKServerList *serverList;
-};
+Event EV_FAKKServerList_UpdateServer("updateserver", EV_DEFAULT, NULL, NULL, "Update the selected server");
 
 class FAKKServerListItem : public UIListCtrlItem
 {
@@ -123,20 +90,19 @@ public:
     void           SetListItemVersion(str sNewVer);
     void           SetDifferentVersion(bool bIsDifferentVersion);
     bool           IsDifferentVersion() const;
+    int            GetNumPlayers() const;
 };
 
-static int         g_iTotalNumPlayers;
-qboolean           g_bNumericSort            = qfalse;
-qboolean           g_bReverseSort            = qfalse;
-qboolean           g_NeedAdditionalLANSearch = qfalse;
-qboolean           g_bDoneUpdating[2];
-ServerListInstance g_ServerListInst[2];
+//static int         g_iTotalNumPlayers;
+qboolean g_bNumericSort = qfalse;
+qboolean g_bReverseSort = qfalse;
+//qboolean           g_NeedAdditionalLANSearch = qfalse;
+//qboolean           g_bDoneUpdating[2];
+//ServerListInstance g_ServerListInst[2];
 
 // Fixed in OPM
 //  It was a static vaariable inside UpdateServerListCallBack
 //  that was set to 0 when the mode changed. This caused some issues
-static int g_iServerQueryCount = 0;
-static int g_iServerTotalCount = 0;
 
 static void AddFilter(char *filter, const char *value);
 static void AddFilter(char *filter, const char *value, size_t maxsize);
@@ -337,13 +303,14 @@ void FAKKServerListItem::SetQueryFailed(bool bFailed)
 
 void FAKKServerListItem::SetNumPlayers(int iNum)
 {
-    if (m_iNumPlayers) {
-        g_iTotalNumPlayers -= m_iNumPlayers;
-    }
+    // Removed in OPM
+    //if (m_iNumPlayers) {
+    //    g_iTotalNumPlayers -= m_iNumPlayers;
+    //}
+    //g_iTotalNumPlayers += iNum;
+    //Cvar_Set("dm_playercount", va("%d", g_iTotalNumPlayers));
 
     m_iNumPlayers = iNum;
-    g_iTotalNumPlayers += iNum;
-    Cvar_Set("dm_playercount", va("%d", g_iTotalNumPlayers));
 }
 
 bool FAKKServerListItem::IsFavorite() const
@@ -374,6 +341,11 @@ void FAKKServerListItem::SetDifferentVersion(bool bIsDifferentVersion)
 bool FAKKServerListItem::IsDifferentVersion() const
 {
     return m_bDifferentVersion;
+}
+
+int FAKKServerListItem::GetNumPlayers() const
+{
+    return m_iNumPlayers;
 }
 
 CLASS_DECLARATION(UIListCtrl, UIFAKKServerList, NULL) {
@@ -551,6 +523,7 @@ void UIFAKKServerList::UpdateUIElement(void)
     AddColumn("Ping", 2, width * 0.05f, true, false);
     AddColumn("IP", 1, width * 0.23f, false, false);
 
+    RefreshStatus();
     uWinMan.ActivateControl(this);
 }
 
@@ -572,6 +545,7 @@ void UIFAKKServerList::RefreshServerList(Event *ev)
 
     for (i = 1; i <= getNumItems(); i++) {
         pNewServerItem = static_cast<FAKKServerListItem *>(GetItem(i));
+        m_iTotalNumPlayers -= pNewServerItem->GetNumPlayers();
         pNewServerItem->SetQueried(false);
         pNewServerItem->SetNumPlayers(0);
         pNewServerItem->SetQueryFailed(false);
@@ -595,8 +569,8 @@ void UIFAKKServerList::RefreshServerList(Event *ev)
         NewServerList();
     }
 
-    g_bDoneUpdating[0] = false;
-    g_bDoneUpdating[1] = false;
+    m_bDoneUpdating[0] = false;
+    m_bDoneUpdating[1] = false;
 
     Cvar_Set("dm_playercount", "0");
     {
@@ -654,6 +628,7 @@ void UIFAKKServerList::RefreshLANServerList(Event *ev)
 
     for (i = 1; i <= getNumItems(); i++) {
         pNewServerItem = static_cast<FAKKServerListItem *>(GetItem(i));
+        m_iTotalNumPlayers -= pNewServerItem->GetNumPlayers();
         pNewServerItem->SetQueried(false);
         pNewServerItem->SetNumPlayers(0);
         pNewServerItem->SetQueryFailed(false);
@@ -671,9 +646,9 @@ void UIFAKKServerList::RefreshLANServerList(Event *ev)
         NewServerList();
     }
 
-    g_bDoneUpdating[0]        = false;
-    g_bDoneUpdating[1]        = false;
-    g_NeedAdditionalLANSearch = true;
+    m_bDoneUpdating[0]        = false;
+    m_bDoneUpdating[1]        = false;
+    m_NeedAdditionalLANSearch = true;
 
     Cvar_Set("dm_playercount", "0");
     // Search all LAN servers from port 12300 to 12316
@@ -744,16 +719,16 @@ void UIFAKKServerList::NewServerList(void)
         iNumConcurrent = 4;
     }
 
-    g_iServerQueryCount = 0;
-    g_iServerTotalCount = 0;
+    m_iServerQueryCount = 0;
+    m_iServerTotalCount = 0;
 
     if (com_target_game->integer < target_game_e::TG_MOHTT) {
         game_name  = GS_GetCurrentGameName();
         secret_key = GS_GetCurrentGameKey();
 
         // standard mohaa server
-        g_ServerListInst[0].iServerType = com_target_game->integer;
-        g_ServerListInst[0].serverList  = this;
+        m_ServerListInst[0].iServerType = com_target_game->integer;
+        m_ServerListInst[0].serverList  = this;
 
         m_serverList[0] = ServerListNew(
             game_name,
@@ -762,7 +737,7 @@ void UIFAKKServerList::NewServerList(void)
             iNumConcurrent,
             (void *)&UpdateServerListCallBack,
             1,
-            (void *)&g_ServerListInst[0]
+            (void *)&m_ServerListInst[0]
         );
 
         m_serverList[1] = NULL;
@@ -772,8 +747,8 @@ void UIFAKKServerList::NewServerList(void)
         game_name  = GS_GetGameName(target_game_e::TG_MOHTT);
         secret_key = GS_GetGameKey(target_game_e::TG_MOHTT);
 
-        g_ServerListInst[0].iServerType = target_game_e::TG_MOHTT;
-        g_ServerListInst[0].serverList  = this;
+        m_ServerListInst[0].iServerType = target_game_e::TG_MOHTT;
+        m_ServerListInst[0].serverList  = this;
 
         // As there are 2 server lists it's better to balance the number of parallel requests
         iNumConcurrent /= 2;
@@ -785,7 +760,7 @@ void UIFAKKServerList::NewServerList(void)
             iNumConcurrent,
             (void *)&UpdateServerListCallBack,
             1,
-            (void *)&g_ServerListInst[0]
+            (void *)&m_ServerListInst[0]
         );
 
         if (!dm_omit_spearhead->integer) {
@@ -794,8 +769,8 @@ void UIFAKKServerList::NewServerList(void)
             game_name  = GS_GetGameName(target_game_e::TG_MOHTA);
             secret_key = GS_GetGameKey(target_game_e::TG_MOHTA);
 
-            g_ServerListInst[1].iServerType = target_game_e::TG_MOHTA;
-            g_ServerListInst[1].serverList  = this;
+            m_ServerListInst[1].iServerType = target_game_e::TG_MOHTA;
+            m_ServerListInst[1].serverList  = this;
 
             m_serverList[1] = ServerListNew(
                 game_name,
@@ -804,7 +779,7 @@ void UIFAKKServerList::NewServerList(void)
                 iNumConcurrent,
                 (void *)&UpdateServerListCallBack,
                 1,
-                (void *)&g_ServerListInst[1]
+                (void *)&m_ServerListInst[1]
             );
         }
     }
@@ -989,8 +964,8 @@ void UIFAKKServerList::Draw(void)
         menuManager.PassEventToWidget("refresh", new Event(EV_Widget_Enable));
         menuManager.PassEventToWidget("cancelrefresh", new Event(EV_Widget_Disable));
 
-        if (g_NeedAdditionalLANSearch) {
-            g_NeedAdditionalLANSearch = false;
+        if (m_NeedAdditionalLANSearch) {
+            m_NeedAdditionalLANSearch = false;
             ServerListLANUpdate(m_serverList[0], true, 12201, 12233, 1);
 
             if (m_serverList[1]) {
@@ -1085,10 +1060,14 @@ void UIFAKKServerList::UpdateServerListCallBack(
     static cvar_t *dm_run_normal        = Cvar_Get("dm_run_normal", "1", CVAR_ARCHIVE);
     static cvar_t *dm_omit_spearhead    = Cvar_Get("dm_omit_spearhead", "0", CVAR_ARCHIVE);
 
-    iServerType    = ((ServerListInstance *)instance)->iServerType;
-    uiServerList   = ((ServerListInstance *)instance)->serverList;
+    iServerType    = ((FAKKServerListInstance *)instance)->iServerType;
+    uiServerList   = ((FAKKServerListInstance *)instance)->serverList;
     pNewServerItem = NULL;
     server         = (GServer)param1;
+
+    // Changed in OPM
+    //  Instead of calling Cvar_Set() for each list
+    //  RefreshStatus() is called to combine results of all lists
 
     if (param2) {
         if (msg == LIST_PROGRESS && param2 == (void *)-1) {
@@ -1110,10 +1089,12 @@ void UIFAKKServerList::UpdateServerListCallBack(
             return;
         }
 
+        // Removed in OPM
         //Cvar_Set("dm_serverstatusbar", va("%i", (int)(uintptr_t)param2));
         // Fixed in OPM
         //  As both lists are combined, show the correct percentage
-        Cvar_Set("dm_serverstatusbar", va("%i", 100 * g_iServerQueryCount / g_iServerTotalCount));
+        // Removed in OPM
+        //Cvar_Set("dm_serverstatusbar", va("%i", 100 * m_iServerQueryCount / m_iServerTotalCount));
     }
 
     if (msg == LIST_PROGRESS) {
@@ -1190,6 +1171,8 @@ void UIFAKKServerList::UpdateServerListCallBack(
             uiServerList->AddItem(pNewServerItem);
         }
 
+        uiServerList->m_iTotalNumPlayers -= pNewServerItem->GetNumPlayers();
+
         pNewServerItem->m_iPort = iPort;
 
         pNewServerItem->setListItemString(0, sServerName);
@@ -1202,9 +1185,11 @@ void UIFAKKServerList::UpdateServerListCallBack(
         pNewServerItem->SetDifferentVersion(bDiffVersion);
         pNewServerItem->SetQueried(true);
         pNewServerItem->SetNumPlayers(ServerGetIntValue(server, "numplayers", 0));
+        uiServerList->m_iTotalNumPlayers += pNewServerItem->GetNumPlayers();
 
-        g_iServerQueryCount++;
-        Cvar_Set("dm_servercount", va("%d/%d", g_iServerQueryCount, g_iServerTotalCount));
+        uiServerList->m_iServerQueryCount++;
+        // Removed in OPM
+        //Cvar_Set("dm_servercount", va("%d/%d", m_iServerQueryCount, m_iServerTotalCount));
 
         uiServerList->SortByLastSortColumn();
     } else if (msg == LIST_STATECHANGED) {
@@ -1212,25 +1197,29 @@ void UIFAKKServerList::UpdateServerListCallBack(
         case GServerListState::sl_idle:
             if (com_target_game->integer >= target_game_e::TG_MOHTT) {
                 if (iServerType == target_game_e::TG_MOHTT) {
-                    g_bDoneUpdating[0] = true;
+                    uiServerList->m_bDoneUpdating[0] = true;
                 } else if (iServerType == target_game_e::TG_MOHTA || dm_omit_spearhead->integer) {
-                    g_bDoneUpdating[1] = true;
+                    uiServerList->m_bDoneUpdating[1] = true;
                 }
             } else {
-                g_bDoneUpdating[0] = true;
-                g_bDoneUpdating[1] = true;
+                uiServerList->m_bDoneUpdating[0] = true;
+                uiServerList->m_bDoneUpdating[1] = true;
             }
 
-            if (g_bDoneUpdating[0] && g_bDoneUpdating[1]) {
-                Cvar_Set("dm_serverstatus", "Done Updating.");
-                Cvar_Set("dm_serverstatusbar", "0");
+            if (uiServerList->m_bDoneUpdating[0] && uiServerList->m_bDoneUpdating[1]) {
+                // Removed in OPM
+                //Cvar_Set("dm_serverstatus", "Done Updating.");
+                //Cvar_Set("dm_serverstatusbar", "0");
+                //Cvar_Set("dm_servercount", va("%d", uiServerList->getNumItems()));
+
                 uiServerList->m_bUpdatingList = false;
-                Cvar_Set("dm_servercount", va("%d", uiServerList->getNumItems()));
                 uiServerList->SortByLastSortColumn();
             }
             break;
         case GServerListState::sl_listxfer:
-            Cvar_Set("dm_serverstatus", "Getting List.");
+            // Removed in OPM
+            //Cvar_Set("dm_serverstatus", "Getting List.");
+
             if (com_target_game->integer >= target_game_e::TG_MOHTT) {
                 if (iServerType == target_game_e::TG_MOHTT) {
                     uiServerList->m_bGettingList[0] = true;
@@ -1245,11 +1234,15 @@ void UIFAKKServerList::UpdateServerListCallBack(
             uiServerList->m_bUpdatingList = true;
             return;
         case GServerListState::sl_lanlist:
-            Cvar_Set("dm_serverstatus", "Searching LAN.");
+            // Removed in OPM
+            //Cvar_Set("dm_serverstatus", "Searching LAN.");
+
             uiServerList->m_bUpdatingList = true;
             break;
         case GServerListState::sl_querying:
-            Cvar_Set("dm_serverstatus", "Querying Servers.");
+            // Removed in OPM
+            //Cvar_Set("dm_serverstatus", "Querying Servers.");
+
             uiServerList->m_bUpdatingList = true;
             break;
         default:
@@ -1261,10 +1254,10 @@ void UIFAKKServerList::UpdateServerListCallBack(
         //}
 
         // Rebuild the number of servers
-        g_iServerTotalCount = 0;
+        uiServerList->m_iServerTotalCount = 0;
         for (i = 0; i < ARRAY_LEN(uiServerList->m_serverList); i++) {
             if (uiServerList->m_bGettingList[i] && uiServerList->m_serverList[i]) {
-                g_iServerTotalCount += ServerListCount(uiServerList->m_serverList[i]);
+                uiServerList->m_iServerTotalCount += ServerListCount(uiServerList->m_serverList[i]);
             }
         }
 
@@ -1326,5 +1319,63 @@ void UIFAKKServerList::UpdateServerListCallBack(
             }
         }
         */
+    }
+
+    // Changed in OPM
+    uiServerList->RefreshStatus();
+}
+
+void UIFAKKServerList::RefreshStatus()
+{
+    bool doneUpdating;
+    int  i;
+
+    Cvar_Set("dm_servercount", va("%d", getNumItems()));
+    Cvar_Set("dm_playercount", va("%d", m_iTotalNumPlayers));
+    if (m_iServerTotalCount) {
+        Cvar_Set("dm_serverstatusbar", va("%i", 100 * m_iServerQueryCount / m_iServerTotalCount));
+    }
+
+    doneUpdating = true;
+
+    for (i = 0; i < NUM_SERVERLISTS; i++) {
+        if (!m_serverList[i]) {
+            continue;
+        }
+
+        if (ServerListState(m_serverList[i]) != GServerListState::sl_idle || !m_bDoneUpdating[i]) {
+            doneUpdating = false;
+            break;
+        }
+    }
+
+    for (i = 0; i < NUM_SERVERLISTS; i++) {
+        if (!m_serverList[i]) {
+            continue;
+        }
+
+        switch (ServerListState(m_serverList[i])) {
+        case GServerListState::sl_idle:
+            if (doneUpdating) {
+                Cvar_Set("dm_serverstatus", "Done Updating.");
+                Cvar_Set("dm_serverstatusbar", "0");
+            } else {
+                Cvar_Set("dm_serverstatus", "Querying Servers.");
+            }
+            break;
+        case GServerListState::sl_listxfer:
+            Cvar_Set("dm_serverstatus", "Getting List.");
+            break;
+        case GServerListState::sl_lanlist:
+            Cvar_Set("dm_serverstatus", "Searching LAN.");
+            Cvar_Set("dm_servercount", va("%d/%d", m_iServerQueryCount, m_iServerTotalCount));
+            return;
+        case GServerListState::sl_querying:
+            Cvar_Set("dm_serverstatus", "Querying Servers.");
+            Cvar_Set("dm_servercount", va("%d/%d", m_iServerQueryCount, m_iServerTotalCount));
+            return;
+        default:
+            break;
+        }
     }
 }
