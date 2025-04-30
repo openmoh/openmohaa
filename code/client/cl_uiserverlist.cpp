@@ -734,14 +734,14 @@ void UIFAKKServerList::NewServerList(void)
     const char *game_name;
     cvar_t     *pRateCvar = Cvar_Get("rate", "5000", CVAR_ARCHIVE | CVAR_USERINFO);
 
-    if (pRateCvar->integer <= 3000) {
-        iNumConcurrent = 4;
-    } else if (pRateCvar->integer <= 5000) {
-        iNumConcurrent = 6;
-    } else if (pRateCvar->integer <= 25000) {
-        iNumConcurrent = 10;
-    } else {
+    if (pRateCvar->integer > 25000) {
         iNumConcurrent = 15;
+    } else if (pRateCvar->integer > 5000) {
+        iNumConcurrent = 10;
+    } else if (pRateCvar->integer > 3000) {
+        iNumConcurrent = 6;
+    } else {
+        iNumConcurrent = 4;
     }
 
     g_iServerQueryCount = 0;
@@ -774,6 +774,9 @@ void UIFAKKServerList::NewServerList(void)
 
         g_ServerListInst[0].iServerType = target_game_e::TG_MOHTT;
         g_ServerListInst[0].serverList  = this;
+
+        // As there are 2 server lists it's better to balance the number of parallel requests
+        iNumConcurrent /= 2;
 
         m_serverList[0] = ServerListNew(
             game_name,
