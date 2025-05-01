@@ -43,7 +43,7 @@ One of the big multiplayer features are bots. They were introduced for testing a
 
 If you encounter a bug, report it by creating a new [issue](https://github.com/openmoh/openmohaa/issues). Make sure to select the `Bug report` template and fill in the appropriate fields.
 
-If you need help or have a problem, you can head over to the [discussions](https://github.com/openmoh/openmohaa/discussions) or join the OpenMoHAA Discord server (the link is at the bottom of this README).
+If you need help or have a problem, you can join the [OpenMoHAA Discord server](https://discord.gg/NYtH58R).
 
 ## Compiling
 
