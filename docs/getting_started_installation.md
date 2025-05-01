@@ -123,6 +123,7 @@ Alternatively, free demo versions are available online. Here are the links to th
 
 OpenMoHAA is officially supported on Windows, Linux and macOS. Below is a list of unofficial open-source ports that required custom modifications to the OpenMoHAA source code to build and run:
 
+- https://github.com/3246251196/openmohaa/tree/AmigaOS4_0_81_1
 - https://github.com/Rinnegatamante/openmohaa
 
 To stay up to date with the latest features and fixes from the official repository, these ports depend on their respective maintainers to synchronize changes with the main OpenMoHAA codebase.
