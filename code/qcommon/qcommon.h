@@ -1280,6 +1280,12 @@ void IN_Init(void *windowData);
 void IN_Frame(void);
 void IN_Shutdown(void);
 void IN_Restart(void);
+void IN_GetMousePosition(int *x, int *y);
+
+typedef void (*pCursorFree)(byte *pic);
+qboolean IN_SetCursorFromImage(const byte *pic, int width, int height, pCursorFree cursorFreeFn);
+void IN_FreeCursor();
+qboolean IN_IsCursorActive();
 
 void Com_Pause();
 void Com_Unpause();

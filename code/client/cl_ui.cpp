@@ -3794,6 +3794,8 @@ void CL_FillUIImports(void)
 
     uii.GetRefSequence = CL_GetRefSequence;
     uii.IsRendererLoaded = CL_IsRendererLoaded;
+    uii.Rend_LoadRawImage = re.LoadRawImage;
+    uii.Rend_FreeRawImage = re.FreeRawImage;
 }
 
 /*

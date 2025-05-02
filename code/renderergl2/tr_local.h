@@ -2666,6 +2666,8 @@ int R_DistanceCullLocalPointAndRadius(float fDist, const vec3_t pt, float radius
 int R_DistanceCullPointAndRadius(float fDist, const vec3_t pt, float radius);
 qboolean R_ImageExists(const char* name);
 int R_CountTextureMemory();
+qboolean R_LoadRawImage(const char *name, byte **pic, int *width, int *height);
+void R_FreeRawImage(byte *pic);
 
 //
 // tr_bsp.c
