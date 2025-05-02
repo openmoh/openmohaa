@@ -12,7 +12,7 @@ set(SOURCES_SDL_GL
 )
 
 if (NO_MODERN_DMA)
-	list(APPEND SOURCES_SDL "./sdl_snd.c")
+	list(APPEND SOURCES_SDL_CLIENT "./sdl_snd.c")
 endif()
 
 add_library(omohsdl_client STATIC ${SOURCES_SDL_CLIENT})
