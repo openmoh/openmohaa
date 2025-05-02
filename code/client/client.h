@@ -582,6 +582,7 @@ extern	qboolean	in_guimouse;
 void IN_ToggleMouse( void );
 void IN_MouseOn( void );
 void IN_MouseOff( void );
+void CL_UpdateMouse();
 
 void CL_InitInput (void);
 void CL_ShutdownInput(void);

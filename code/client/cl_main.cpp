@@ -2792,6 +2792,9 @@ void CL_Frame ( int msec ) {
 
 	L_ProcessPendingEvents();
 
+    // Added in OPM
+    CL_UpdateMouse();
+
 	// update the screen
 	SCR_UpdateScreen();
 

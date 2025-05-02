@@ -473,6 +473,28 @@ void CL_JoystickEvent( int axis, int value, int time ) {
 
 /*
 =================
+CL_UpdateMouse
+
+Added in OPM
+Update mouse position with absolute position (relative to the window)
+when the UI catcher is active.
+=================
+*/
+void CL_UpdateMouse() {
+    if (!(Key_GetCatcher() & KEYCATCH_UI)) {
+        return;
+    }
+
+    if (com_unfocused->integer) {
+        // Ignore updates when unfocused
+        return;
+    }
+
+    IN_GetMousePosition(&cl.mousex, &cl.mousey);
+}
+
+/*
+=================
 CL_JoystickMove
 =================
 */
