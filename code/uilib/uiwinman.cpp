@@ -258,11 +258,16 @@ void UIWindowManager::UpdateViews(void)
     if (m_cursor && m_showcursor && uid.uiHasMouse) {
         vec4_t col;
 
-        VectorSet4(col, 1, 1, 1, 1);
         set2D();
-        uii.Rend_SetColor(col);
 
-        uii.Rend_DrawPicStretched(uid.mouseX, uid.mouseY, 0, 0, 0, 0, 1, 1, m_cursor->GetMaterial());
+        // Added in OPM
+        //  Don't draw the mouse if the OS cursor is enabled
+        if (!(Key_GetCatcher() | KEYCATCH_UI)) {
+            VectorSet4(col, 1, 1, 1, 1);
+            uii.Rend_SetColor(col);
+
+            uii.Rend_DrawPicStretched(uid.mouseX, uid.mouseY, 0, 0, 0, 0, 1, 1, m_cursor->GetMaterial());
+        }
 
         m_font->setColor(UWhite);
 
