@@ -1280,6 +1280,7 @@ void IN_Init(void *windowData);
 void IN_Frame(void);
 void IN_Shutdown(void);
 void IN_Restart(void);
+void IN_GetMousePosition(int *x, int *y);
 
 void Com_Pause();
 void Com_Unpause();
