@@ -1221,7 +1221,7 @@ void IN_Frame( void )
 	// update isFullscreen since it might of changed since the last vid_restart
 	cls.glconfig.isFullscreen = Cvar_VariableIntegerValue( "r_fullscreen" ) != 0;
 
-	if( !cls.glconfig.isFullscreen && ( Key_GetCatcher( ) & KEYCATCH_CONSOLE ) )
+	if( !cls.glconfig.isFullscreen && ( Key_GetCatcher( ) & (KEYCATCH_CONSOLE|KEYCATCH_UI) ) )
 	{
 		// Console is down in windowed mode
 		IN_DeactivateMouse( cls.glconfig.isFullscreen );
