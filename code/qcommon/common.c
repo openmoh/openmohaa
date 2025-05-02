@@ -2473,7 +2473,9 @@ void Com_Frame( void ) {
 
 	Com_ReadFromPipe();
 
+    #if !defined(MORPHOS)
     Sys_ProcessBackgroundTasks();
+    #endif
 
 	com_frameNumber++;
 }

@@ -2608,6 +2608,7 @@ Check for a new version and display a message box
 when a new version is available
 ==================
 */
+#if !defined(MORPHOS)
 void CL_VerifyUpdate() {
     if (cl_updateNotified) {
         return;
@@ -2629,6 +2630,7 @@ void CL_VerifyUpdate() {
         UIMessageDialog::ShowMessageBox("Update available", updateText);
     }
 }
+#endif
 
 /*
 ==================
@@ -2668,8 +2670,10 @@ void CL_Frame ( int msec ) {
 				S_TriggeredMusic_PlayIntroMusic();
 				UI_MenuEscape("main");
 			}
-
+            
+            #if !defined(MORPHOS)
             CL_VerifyUpdate();
+            #endif
 		} else if (clc.state == CA_CINEMATIC) {
 			UI_ForceMenuOff(qtrue);
 		}
