@@ -16,6 +16,19 @@ if(WIN32)
 		"${CMAKE_SOURCE_DIR}/code/sys/win_bounds.cpp"
 		"${CMAKE_SOURCE_DIR}/code/sys/win_localization.cpp"
 	)
+elseif(MORPHOS)
+        set(SOURCES_PLATFORM_SPECIFIC
+		"${CMAKE_SOURCE_DIR}/code/sys/con_log.c"
+		"${CMAKE_SOURCE_DIR}/code/sys/sys_autoupdater.c"
+		"${CMAKE_SOURCE_DIR}/morphos/sys/sys_main_morphos.c"
+		"${CMAKE_SOURCE_DIR}/morphos/sys/new/sys_main_new_morphos.c"
+		"${CMAKE_SOURCE_DIR}/morphos/sys/new/sys_morphos_new.c"
+		"${CMAKE_SOURCE_DIR}/morphos/sys/con_morphos.c"
+		"${CMAKE_SOURCE_DIR}/morphos/sys/sys_morphos.c"
+		# These are still used even they're prefixed 'win'
+		"${CMAKE_SOURCE_DIR}/code/sys/win_bounds.cpp"
+		"${CMAKE_SOURCE_DIR}/code/sys/win_localization.cpp"
+	)
 else()
 	set(SOURCES_PLATFORM_SPECIFIC
 		"${CMAKE_SOURCE_DIR}/code/sys/con_log.c"
@@ -35,9 +48,11 @@ if (APPLE)
 	set(SOURCES_PLATFORM_SPECIFIC ${SOURCES_PLATFORM_SPECIFIC} "${CMAKE_SOURCE_DIR}/code/sys/sys_osx.m")
 endif()
 
+if (NOT MORPHOS)
 set(SOURCES_PLATFORM_COMMON
     "${CMAKE_SOURCE_DIR}/code/sys/sys_update_checker.cpp"
 )
+endif()
 
 add_library(syslib INTERFACE)
 target_sources(syslib INTERFACE ${SOURCES_PLATFORM_SPECIFIC} ${SOURCES_PLATFORM_COMMON})

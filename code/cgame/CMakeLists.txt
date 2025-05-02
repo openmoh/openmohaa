@@ -21,6 +21,12 @@ set(SOURCES_SHARED
 file(GLOB_RECURSE SOURCES_BG "../fgame/bg_misc.cpp" "../fgame/bg_pmove.cpp" "../fgame/bg_slidemove.cpp" "../fgame/bg_voteoptions.cpp")
 file(GLOB_RECURSE SOURCES_CGAME "./*.c" "./*.cpp")
 
+if(MORPHOS)
+set_property(GLOBAL PROPERTY TARGET_SUPPORTS_SHARED_LIBS TRUE)
+set(SOURCES_CGAME ${SOURCES_CGAME} "../../morphos/cgame-dllglue.c")
+set(CMAKE_SHARED_LIBRARY_CREATE_CXX_FLAGS "-L/gg/usr/local/lib -ldll")
+endif()
+
 add_library(cgame SHARED ${SOURCES_CGAME} ${SOURCES_BG})
 target_compile_definitions(cgame PRIVATE CGAME_DLL)
 target_compile_features(cgame PUBLIC cxx_nullptr)

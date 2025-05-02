@@ -25,6 +25,12 @@ file(
 	"../parser/parsetree.cpp"
 )
 
+if(MORPHOS)
+set_property(GLOBAL PROPERTY TARGET_SUPPORTS_SHARED_LIBS TRUE)
+set(SOURCES_GAME ${SOURCES_GAME} "../../morphos/game-dllglue.c")
+set(CMAKE_SHARED_LIBRARY_CREATE_CXX_FLAGS "-L/gg/usr/local/lib -ldll")
+endif()
+
 add_library(fgame SHARED ${SOURCES_GAME})
 
 #

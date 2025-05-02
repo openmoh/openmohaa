@@ -82,6 +82,13 @@ set(SOURCES_COMMON
 	"${CMAKE_SOURCE_DIR}/code/gamespy/q_gamespy.c"
 )
 
+if(MORPHOS)
+file(GLOB SOURCES_COMMON ${SOURCES_COMMON})
+list(FILTER SOURCES_COMMON EXCLUDE REGEX "net_ip.c")
+file(GLOB NETIP "${CMAKE_SOURCE_DIR}/morphos/net_ip-mos.c" )
+list(APPEND SOURCES_COMMON ${NETIP})
+endif()
+
 add_subdirectory("../skeletor" "./skeletor")
 add_subdirectory("../tiki" "./tiki")
 

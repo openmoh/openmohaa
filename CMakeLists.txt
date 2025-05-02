@@ -256,7 +256,9 @@ endif()
 #
 # Launcher
 #
+if (NOT MORPHOS)
 add_subdirectory(code/Launcher)
+endif()
 
 #
 # uninstall target
