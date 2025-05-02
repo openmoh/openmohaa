@@ -753,7 +753,7 @@ void UIFAKKServerList::NewServerList(void)
         m_ServerListInst[0].serverList  = this;
 
         // As there are 2 server lists it's better to balance the number of parallel requests
-        iNumConcurrent /= 2;
+        iNumConcurrent = iNumConcurrent * 4 / 5;
 
         m_serverList[0] = ServerListNew(
             game_name,
