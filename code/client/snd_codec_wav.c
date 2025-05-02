@@ -153,12 +153,14 @@ static qboolean S_ReadRIFFHeader(fileHandle_t file, snd_info_t *info)
 	bytealign = FGetLittleShort(file);
 	bits = FGetLittleShort(file);
 
-	//if( bits < 8 )
-	//{
+    #if defined(__MORPHOS__)
+	if( bits < 8 )
+	{
 	//  Com_Printf( S_COLOR_RED "ERROR: Less than 8 bit sound is not supported\n");
-	//  return qfalse;
-	//}
-
+	    return qfalse;
+	}
+    #endif
+    
 	info->width = bits / 8.0;
 	info->dataofs = 0;
 	if (bits == 16) {
