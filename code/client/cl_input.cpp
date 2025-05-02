@@ -485,6 +485,11 @@ void CL_UpdateMouse() {
         return;
     }
 
+    if (IN_IsCursorActive()) {
+        // If it's grabbed, don't use absolute position
+        return;
+    }
+
     if (com_unfocused->integer) {
         // Ignore updates when unfocused
         return;
