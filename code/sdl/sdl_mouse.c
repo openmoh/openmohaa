@@ -63,3 +63,8 @@ void IN_FreeCursor() {
         cursor_image_data = NULL;
     }
 }
+
+qboolean IN_IsCursorActive()
+{
+    return SDL_GetGrabbedWindow() != NULL;
+}
