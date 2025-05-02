@@ -28,6 +28,38 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "../qcommon/qcommon.h"
 
+static SDL_Cursor *cursor = NULL;
+static SDL_Surface *cursor_surface = NULL;
+static byte *cursor_image_data = NULL;
+static pCursorFree cursor_free = NULL;
+
 void IN_GetMousePosition(int *x, int *y) {
     SDL_GetMouseState(x, y);
+}
+
+qboolean IN_SetCursorFromImage(const byte *pic, int width, int height, pCursorFree cursorFreeFn) {
+    IN_FreeCursor();
+
+    cursor_surface = SDL_CreateRGBSurfaceWithFormatFrom(pic, width, height, 32, 4 * width, SDL_PIXELFORMAT_ABGR8888);
+    if (!cursor_surface) {
+        return qfalse;
+    }
+
+    cursor = SDL_CreateColorCursor(cursor_surface, 0, 0);
+    SDL_SetCursor(cursor);
+
+    return qtrue;
+}
+
+void IN_FreeCursor() {
+    if (cursor) {
+        SDL_FreeCursor(cursor);
+    }
+    if (cursor_surface) {
+        SDL_FreeSurface(cursor_surface);
+    }
+    if (cursor_image_data) {
+        cursor_free(cursor_image_data);
+        cursor_image_data = NULL;
+    }
 }
