@@ -253,7 +253,7 @@ S_StartSound
 void MUSIC_NewSoundtrack(const char* name)
 {
     // FIXME: unimplemented
-    STUB();
+    //STUB();
 }
 
 /*
@@ -275,7 +275,7 @@ MUSIC_UpdateVolume
 void MUSIC_UpdateVolume(float volume, float fade_time)
 {
     // FIXME: unimplemented
-    STUB();
+    //STUB();
 }
 
 /*
@@ -432,7 +432,7 @@ S_SetReverb
 void S_SetReverb(int reverb_type, float reverb_level)
 {
     // FIXME: unimplemented
-    STUB();
+    //STUB();
 }
 
 /*
@@ -598,6 +598,7 @@ S_StopMovieAudio
 ==============
 */
 void S_StopMovieAudio() {
+    S_StopBackgroundTrack(); // Cowcat
 }
 
 /*
@@ -606,7 +607,7 @@ S_CurrentMoviePosition
 ==============
 */
 int S_CurrentMoviePosition() {
-    return 0;
+    return 0; // fix this
 }
 
 /*
@@ -615,6 +616,32 @@ S_SetupMovieAudio
 ==============
 */
 void S_SetupMovieAudio(const char* pszMovieName) {
+
+    #if 1 // Cowcat workaround
+    char filename[MAX_QPATH];
+
+    S_StopMovieAudio();
+
+    COM_StripExtension(pszMovieName, filename, sizeof(filename));
+    Q_strcat(filename, sizeof(filename), ".mp3");
+
+    if (!filename)
+    {
+        COM_StripExtension(pszMovieName, filename, sizeof(filename));
+        Q_strcat(filename, sizeof(filename), ".wav");
+        
+         if (!filename)
+         {
+                Com_DPrintf("Can't find any matching audio file for movie: %s\n", pszMovieName);
+                return;
+         }
+    }
+    
+    S_StartBackgroundTrack( filename, "");
+    
+    Com_DPrintf("Movie Audio setup: %s\n", filename);
+    
+    #endif
 }
 
 #endif

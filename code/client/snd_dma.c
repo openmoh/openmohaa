@@ -276,6 +276,12 @@ static sfx_t *S_FindName( const char *name ) {
 		return NULL;
 	}
 
+    if (strstr(name, "sound/null.wav")) // spam Cowcat
+    {
+        //Com_Printf( S_COLOR_YELLOW "null.wav\n");
+        return NULL;
+    }
+    
 	hash = S_HashSFXName(name);
 
 	sfx = sfxHash[hash];
