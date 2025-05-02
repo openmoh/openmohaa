@@ -132,6 +132,8 @@ typedef struct uiimport_s {
 	//
 	int (*GetRefSequence)(void);
 	qboolean (*IsRendererLoaded)(void);
+    qboolean (*Rend_LoadRawImage)(const char *name, byte **pic, int *width, int *height);
+    void (*Rend_FreeRawImage)(byte *pic);
 } uiimport_t;
 
 #if 1

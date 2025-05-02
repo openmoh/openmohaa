@@ -88,6 +88,10 @@ public:
     void              DeactiveFloatingWindows(void);
     bool              DialogExists(void);
     void              RemoveAllDialogBoxes(void);
+
+private:
+    // Added in OPM
+    void refreshCursor();
 };
 
 extern Event W_MouseExited;

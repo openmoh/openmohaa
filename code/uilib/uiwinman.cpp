@@ -199,8 +199,7 @@ UIWidget *UIWindowManager::getResponder(UIPoint2D& pos)
         //  Ignore the first responder if it's disabled
         //  this prevents the UI system from being blocked
         //  trying to activate the control
-        responder->CanActivate() && responder->isEnabled()
-        ) {
+        responder->CanActivate() && responder->isEnabled()) {
         return responder;
     }
 
@@ -258,11 +257,16 @@ void UIWindowManager::UpdateViews(void)
     if (m_cursor && m_showcursor && uid.uiHasMouse) {
         vec4_t col;
 
-        VectorSet4(col, 1, 1, 1, 1);
         set2D();
-        uii.Rend_SetColor(col);
 
-        uii.Rend_DrawPicStretched(uid.mouseX, uid.mouseY, 0, 0, 0, 0, 1, 1, m_cursor->GetMaterial());
+        // Added in OPM
+        //  Draw the mouse if it has been grabbed
+        if (IN_IsCursorActive()) {
+            VectorSet4(col, 1, 1, 1, 1);
+            uii.Rend_SetColor(col);
+
+            uii.Rend_DrawPicStretched(uid.mouseX, uid.mouseY, 0, 0, 0, 0, 1, 1, m_cursor->GetMaterial());
+        }
 
         m_font->setColor(UWhite);
 
@@ -346,7 +350,7 @@ void UIWindowManager::ServiceEvents(void)
 
     if (!m_cursor) {
         // initialize the cursor
-        setCursor("gfx/2d/mouse_cursor");
+        setCursor("gfx/2d/mouse_cursor.tga");
     }
 }
 
@@ -511,6 +515,9 @@ void UIWindowManager::setCursor(const char *string)
     } else {
         uii.Sys_Printf("Could not register shader '%s'\n", string);
     }
+
+    // Added in OPM
+    refreshCursor();
 }
 
 void UIWindowManager::showCursor(bool show)
@@ -559,7 +566,8 @@ qboolean UIWindowManager::KeyEvent(int key, unsigned int time)
     } else {
         if (m_bindactive) {
             m_bindactive->KeyEvent(key, time);
-        } else if (!(m_activeControl && m_activeControl->KeyEvent(key, time)) && (key == K_DOWNARROW || key == K_UPARROW)) {
+        } else if (!(m_activeControl && m_activeControl->KeyEvent(key, time))
+                   && (key == K_DOWNARROW || key == K_UPARROW)) {
             selwidget = m_activeControl;
             if (selwidget && selwidget != this) {
                 for (selwidget = m_activeControl; selwidget != NULL; selwidget = selwidget->getParent()) {
@@ -673,6 +681,8 @@ void UIWindowManager::RefreshShadersFromList(void)
         UIReggedMaterial *regged = m_materiallist.ObjectAt(i);
         regged->ReregisterMaterial();
     }
+
+    refreshCursor();
 }
 
 void UIWindowManager::DeactivateCurrentSmart(void)
@@ -691,7 +701,7 @@ void UIWindowManager::DeactivateCurrentSmart(void)
         if (!checking->getParent() || (checking->getParent() && checking->getParent()->IsDying())) {
             continue;
         }
-        
+
         for (sibling = checking->getPrevSibling(); sibling && !toset; sibling = sibling->getPrevSibling()) {
             if (sibling->CanActivate()) {
                 toset = sibling;
@@ -911,6 +921,7 @@ void UIWindowManager::Shutdown(void)
     }
 
     m_cursor = NULL;
+    IN_FreeCursor();
 
     UIWidget::Shutdown();
 }
@@ -961,5 +972,21 @@ void UIWindowManager::RemoveAllDialogBoxes(void)
             pDlg->m_cancel->m_command += "\n";
             uii.Cmd_Stuff(pDlg->m_cancel->m_command);
         }
+    }
+}
+
+void UIWindowManager::refreshCursor()
+{
+    byte *pic;
+    int   width, height;
+
+    // Added in OPM
+    //  Load cursor image and use it
+    if (!m_cursorname.length()) {
+        return;
+    }
+
+    if (uii.Rend_LoadRawImage(m_cursorname.c_str(), &pic, &width, &height)) {
+        IN_SetCursorFromImage(pic, width, height, uii.Rend_FreeRawImage);
     }
 }

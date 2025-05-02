@@ -4,6 +4,7 @@ project(omohsdl)
 
 set(SOURCES_SDL_CLIENT
 "./sdl_input.c"
+"./sdl_mouse.c"
 )
 
 set(SOURCES_SDL_GL

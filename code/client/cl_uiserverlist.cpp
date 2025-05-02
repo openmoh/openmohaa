@@ -619,6 +619,8 @@ void UIFAKKServerList::RefreshServerList(Event *ev)
     }
 
     m_bUpdatingList = true;
+
+    RefreshStatus();
 }
 
 void UIFAKKServerList::RefreshLANServerList(Event *ev)
