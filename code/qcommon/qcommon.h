@@ -26,6 +26,20 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "cm_public.h"
 #include "alias.h"
 
+#if defined(__MORPHOS__)
+#undef send
+#undef bind
+#undef Wait
+#undef Allocate
+#undef Enqueue
+#undef Enable
+#undef Disable
+#undef AddHead
+#undef AddTail
+#undef Remove
+#undef FindName
+#endif
+
 //Ignore __attribute__ on non-gcc platforms
 #ifndef __GNUC__
 #ifndef __attribute__

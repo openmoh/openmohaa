@@ -31,6 +31,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include <cstdint>
 #include <cinttypes>
 
+#if defined(__MORPHOS__)
+#undef tolower
+#undef toupper
+#endif
+
 #ifdef _WIN32
 #    pragma warning(disable : 4710) // function 'blah' not inlined
 #endif

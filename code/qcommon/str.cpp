@@ -29,6 +29,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include <stdio.h>
 #include <stdarg.h>
 
+#if defined(__MORPHOS__)
+#undef tolower
+#undef toupper
+#endif
+
 #ifdef _WIN32
 #    pragma warning(disable : 4244) // 'conversion' conversion from 'type1' to 'type2', possible loss of data
 #    pragma warning(disable : 4710) // function 'blah' not inlined

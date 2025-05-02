@@ -24,6 +24,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #pragma once
 
+#if defined(__MORPHOS__)
+#undef FindName
+#endif
+
 #define MAX_SKELETOR_CHANNELS 2560 // Limit was 2048 before 2.30
 #define MAX_CHANNEL_NAME      32
 
