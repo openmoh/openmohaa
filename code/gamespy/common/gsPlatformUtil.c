@@ -24,6 +24,8 @@
 	#include "psp/gsUtilPSP.c"
 #elif defined(_REVOLUTION)
 	#include "revolution/gsUtilRevolution.c"
+#elif defined(__MORPHOS__)
+
 #else
 	#error "Missing or unsupported platform"
 #endif

@@ -431,7 +431,11 @@ int gsiShutdown(SOCKET s, int how);
 #endif
 
 #if !defined(_WIN32)
+    #if defined(__MORPHOS__)
+	#define ioctlsocket IoctlSocket
+	#else
 	#define ioctlsocket ioctl
+	#endif
 #endif
 
 #if defined(_WIN32)

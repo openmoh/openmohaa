@@ -25,6 +25,8 @@
 //  #include "psp/gsThreadPSP.c"
 #elif defined(_REVOLUTION)
 	#include "revolution/gsThreadRevoulution.c"
+#elif defined(__MORPHOS__)
+
 #else
 	#error "Missing or unsupported platform"
 #endif

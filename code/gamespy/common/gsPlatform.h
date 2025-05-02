@@ -23,7 +23,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 // Set the platform define
-#if defined (__linux__) || defined(_LINUX) || defined(_MACOSX) || defined(__APPLE__) || defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__NetBSD__)
+#if defined (__linux__) || defined(_LINUX) || defined(_MACOSX) || defined(__APPLE__) || defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__NetBSD__) || defined(__MORPHOS__)
 	#define _UNIX
 #elif __mips64
 	#ifndef _PS2
@@ -240,7 +240,7 @@
 
 
 //---------- Handle Endianess ----------------------
-#if defined(_PS3) || defined(_REVOLUTION) || defined(_X360) //defined(_MACOSX)
+#if defined(_PS3) || defined(_REVOLUTION) || defined(_X360) || defined(__MORPHOS__) //defined(_MACOSX)
 	#define GSI_BIG_ENDIAN
 #endif
 #ifndef GSI_BIG_ENDIAN

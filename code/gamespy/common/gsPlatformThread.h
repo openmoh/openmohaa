@@ -89,6 +89,20 @@ extern "C" {
 	} GSICriticalSection;
 	typedef void (*GSThreadFunc)(void *arg);
 
+#elif defined(__MORPHOS__)
+    #define GSI_NO_THREADS
+	typedef int GSIThreadID;
+	typedef int GSISemaphoreID;
+	typedef struct 
+	{
+		// A critical section is a re-entrant semaphore
+		GSISemaphoreID mSemaphore;
+		GSIThreadID mOwnerThread;
+		gsi_u32 mEntryCount; // track re-entry
+		gsi_u32 mPad; // make 16bytes
+	} GSICriticalSection;
+	typedef void (*GSThreadFunc)(void *arg);
+
 #elif defined(_UNIX) // Linux, Mac OS X, openbsd, etc.
 	#if defined(__OpenBSD__)
 		#include <pthread.h>
