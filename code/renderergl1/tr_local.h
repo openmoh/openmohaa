@@ -1799,6 +1799,8 @@ image_t* R_CreateImageOld(
 
 qboolean R_ImageExists(const char* name);
 int R_CountTextureMemory();
+qboolean R_LoadRawImage(const char *name, byte **pic, int *width, int *height);
+void R_FreeRawImage(byte *pic);
 
 qboolean	R_GetModeInfo( int *width, int *height, float *windowAspect, int mode );
 

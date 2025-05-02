@@ -3264,3 +3264,32 @@ void	R_SkinList_f( void ) {
 	ri.Printf (PRINT_ALL, "------------------\n");
 }
 
+/*
+===============
+R_LoadRawImage
+===============
+*/
+qboolean R_LoadRawImage(const char *name, byte **pic, int *width, int *height)
+{
+    qboolean hasAlpha;
+    int glCompressMode;
+    int numMipmaps;
+    int piMipmapsAvailable;
+
+    R_LoadImage(name, pic, width, height, &hasAlpha, &glCompressMode, &numMipmaps, &piMipmapsAvailable);
+
+    if (!*pic) {
+        return qfalse;
+    }
+
+    return qtrue;
+}
+
+/*
+===============
+R_FreeRawImage
+===============
+*/
+void R_FreeRawImage(byte *pic) {
+    ri.Free(pic);
+}

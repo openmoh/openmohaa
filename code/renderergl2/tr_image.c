@@ -3525,3 +3525,34 @@ int R_CountTextureMemory() {
 
     return total_bytes;
 }
+
+
+/*
+===============
+R_LoadRawImage
+===============
+*/
+qboolean R_LoadRawImage(const char *name, byte **pic, int *width, int *height)
+{
+    qboolean hasAlpha;
+    int glCompressMode;
+    int numMipmaps;
+    int piMipmapsAvailable;
+
+    R_LoadImage(name, pic, width, height, &glCompressMode, &numMipmaps);
+
+    if (!*pic) {
+        return qfalse;
+    }
+
+    return qtrue;
+}
+
+/*
+===============
+R_FreeRawImage
+===============
+*/
+void R_FreeRawImage(byte *pic) {
+    ri.Free(pic);
+}

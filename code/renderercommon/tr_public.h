@@ -175,6 +175,9 @@ typedef struct {
 
 	qboolean (*ImageExists)(const char* name);
 	int (*CountTextureMemory)();
+
+    qboolean (*LoadRawImage)(const char *name, byte **pic, int *width, int *height);
+    void (*FreeRawImage)(byte *pic);
 } refexport_t;
 
 //

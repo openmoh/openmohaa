@@ -1964,5 +1964,8 @@ refexport_t *GetRefAPI ( int apiVersion, refimport_t *rimp ) {
 	re.ImageExists = R_ImageExists;
 	re.CountTextureMemory = R_CountTextureMemory;
 
+    re.LoadRawImage = R_LoadRawImage;
+    re.FreeRawImage = R_FreeRawImage;
+
 	return &re;
 }
