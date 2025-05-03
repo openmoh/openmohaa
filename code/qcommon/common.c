@@ -126,9 +126,13 @@ cvar_t  *con_autochat;
 #endif
 
 cvar_t	*precache;
+
 cvar_t	*com_target_game;
+cvar_t	*com_target_shortversion;
 cvar_t	*com_target_version;
+cvar_t	*com_target_extension;
 cvar_t	*com_target_demo;
+
 cvar_t	*com_updatecheck_enabled;
 cvar_t	*com_updatecheck_interval;
 
@@ -1759,7 +1763,9 @@ void Com_Init( char *commandLine ) {
 
 	com_target_game = Cvar_Get("com_target_game", "0", CVAR_INIT|CVAR_PROTECTED);
 	com_target_demo = Cvar_Get("com_target_demo", "0", CVAR_INIT|CVAR_PROTECTED);
-	com_target_version = Cvar_Get("com_target_version", "0.00", CVAR_ROM);
+	com_target_shortversion = Cvar_Get("com_target_shortversion", "0.00", CVAR_ROM);
+	com_target_version = Cvar_Get("com_target_version", "", CVAR_ROM);
+	com_target_extension = Cvar_Get("com_target_extension", "", CVAR_ROM);
 	com_standalone = Cvar_Get("com_standalone", "0", CVAR_ROM);
 	com_basegame = Cvar_Get("com_basegame", BASEGAME, CVAR_INIT);
 	com_homepath = Cvar_Get("com_homepath", "", CVAR_INIT|CVAR_PROTECTED);
@@ -1920,8 +1926,11 @@ void Com_Init( char *commandLine ) {
 		}
 	}
 
-	s = va( "%s %s (Medal of Honor: %s %s) %s %s", PRODUCT_NAME, PRODUCT_VERSION_FULL, Cvar_VariableString("com_target_extension"), Cvar_VariableString("com_target_version"), PLATFORM_STRING, PRODUCT_VERSION_DATE);
-	com_version = Cvar_Get( "version", s, CVAR_ROM | CVAR_SERVERINFO );
+    // Make the original game version appear first for backward compatibility.
+    // => Some software rely on the beginning of the string starting with "Medal of Honor [...]".
+    //    There are mods that also check for this.
+	s = va( "%s (%s %s) %s %s", com_target_version->string, PRODUCT_NAME, PRODUCT_VERSION_FULL, PLATFORM_STRING, PRODUCT_VERSION_DATE);
+    com_version = Cvar_Get( "version", s, CVAR_ROM | CVAR_SERVERINFO );
 	com_gamename = Cvar_Get("com_gamename", "", CVAR_SERVERINFO | CVAR_INIT | CVAR_USERINFO | CVAR_SERVERINFO);
 	com_shortversion = Cvar_Get( "shortversion", PRODUCT_VERSION, CVAR_ROM | CVAR_USERINFO | CVAR_SERVERINFO );
 	com_protocol = Cvar_Get("com_protocol", va("%i", PROTOCOL_VERSION), CVAR_INIT);
@@ -3134,8 +3143,9 @@ void Com_InitTargetGameWithType(target_game_e target_game, qboolean bIsDemo)
 			Cvar_Set("com_legacyprotocol", va("%i", PROTOCOL_MOH_DEMO));
         }
 		protocol_version_demo = protocol_version_full = PROTOCOL_MOH;
-		Cvar_Set("com_target_version", va("%s+%s", TARGET_GAME_VERSION_MOH, PRODUCT_VERSION));
+		Cvar_Set("com_target_shortversion", va("%s+%s", TARGET_GAME_VERSION_MOH, PRODUCT_VERSION));
 		Cvar_Set("com_target_extension", PRODUCT_EXTENSION_MOH);
+        Cvar_Set("com_target_version", va("Medal of Honor %s %s", com_target_extension->string, com_target_shortversion->string));
 		Cvar_Set("com_gamename", TARGET_GAME_NAME_MOH);
 		// "main" is already used as first argument of FS_Startup
 		Cvar_Set("fs_basegame", "");
@@ -3151,8 +3161,9 @@ void Com_InitTargetGameWithType(target_game_e target_game, qboolean bIsDemo)
 		}
 		protocol_version_demo = PROTOCOL_MOHTA_DEMO;
 		protocol_version_full = PROTOCOL_MOHTA;
-		Cvar_Set("com_target_version", va("%s+%s", TARGET_GAME_VERSION_MOHTA, PRODUCT_VERSION));
+		Cvar_Set("com_target_shortversion", va("%s+%s", TARGET_GAME_VERSION_MOHTA, PRODUCT_VERSION));
 		Cvar_Set("com_target_extension", PRODUCT_EXTENSION_MOHTA);
+        Cvar_Set("com_target_version", va("Medal of Honor %s %s", com_target_extension->string, com_target_shortversion->string));
 		Cvar_Set("com_gamename", TARGET_GAME_NAME_MOHTA);
 		if (!bIsDemo) {
 			Cvar_Set("fs_basegame", "mainta");
@@ -3168,17 +3179,18 @@ void Com_InitTargetGameWithType(target_game_e target_game, qboolean bIsDemo)
 			Cvar_Set("com_protocol", va("%i", PROTOCOL_MOHTA));
             Cvar_Set("com_legacyprotocol", va("%i", PROTOCOL_MOHTA));
             Cvar_Set("com_protocol_alt", va("%i", PROTOCOL_MOHTA_DEMO));
-            Cvar_Set("com_target_version", va("%s+%s", TARGET_GAME_VERSION_MOHTT, PRODUCT_VERSION));
+            Cvar_Set("com_target_shortversion", va("%s+%s", TARGET_GAME_VERSION_MOHTT, PRODUCT_VERSION));
 		} else {
 			Cvar_Set("com_protocol", va("%i", PROTOCOL_MOHTA_DEMO));
             Cvar_Set("com_legacyprotocol", va("%i", PROTOCOL_MOHTA_DEMO));
             Cvar_Set("com_protocol_alt", va("%i", PROTOCOL_MOHTA));
-            Cvar_Set("com_target_version", va("%s+%s", TARGET_GAME_VERSION_MOHTT_DEMO, PRODUCT_VERSION));
+            Cvar_Set("com_target_shortversion", va("%s+%s", TARGET_GAME_VERSION_MOHTT_DEMO, PRODUCT_VERSION));
         }
         protocol_version_demo = PROTOCOL_MOHTA_DEMO;
         protocol_version_full = PROTOCOL_MOHTA;
         Cvar_Set("com_protocol_alt", va("%i", PROTOCOL_MOHTA));
 		Cvar_Set("com_target_extension", PRODUCT_EXTENSION_MOHTT);
+        Cvar_Set("com_target_version", va("Medal of Honor: %s %s", com_target_extension->string, com_target_shortversion->string));
 		Cvar_Set("com_gamename", TARGET_GAME_NAME_MOHTT);
 		if (!bIsDemo) {
 			Cvar_Set("fs_basegame", "maintt");

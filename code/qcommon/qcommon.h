@@ -1057,9 +1057,12 @@ extern	cvar_t* com_legacyprotocol;
 #ifndef DEDICATED
 extern  cvar_t* con_autochat;
 #endif
-extern	cvar_t* com_target_version;
 extern	cvar_t* com_target_game;
+extern	cvar_t* com_target_shortversion;
+extern	cvar_t* com_target_version;
+extern	cvar_t* com_target_extension;
 extern	cvar_t* com_target_demo;
+
 extern	cvar_t* com_updatecheck_enabled;
 extern	cvar_t* com_updatecheck_interval;
 

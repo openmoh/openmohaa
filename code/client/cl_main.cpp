@@ -2043,7 +2043,7 @@ wombat: sending conect here: an example connect string from MOHAA looks like thi
 			Info_SetValueForKey(info, "protocol", va("%i", com_protocol->integer));
 		Info_SetValueForKey( info, "qport", va("%i", port ) );
 		Info_SetValueForKey(info, "challenge", va("%i", clc.challenge));
-		Info_SetValueForKey(info, "version", com_target_version->string);
+		Info_SetValueForKey(info, "version", com_target_shortversion->string);
 		if (com_target_game->integer == target_game_e::TG_MOHTT) {
 			// only send if maintt is loaded
 			Info_SetValueForKey(info, "clientType", "Breakthrough");
@@ -2415,7 +2415,7 @@ void CL_ConnectionlessPacket( netadr_t from, msg_t *msg ) {
 
     if (!Q_stricmp(c, "wrongver")) {
         reason = MSG_ReadString(msg);
-        Cvar_Set("com_errorMessage", va("Server is version %s, you are using %s, from base '%s'", reason, com_target_version->string, Cvar_VariableString("fs_basegame")));
+        Cvar_Set("com_errorMessage", va("Server is version %s, you are using %s, from base '%s'", reason, com_target_shortversion->string, Cvar_VariableString("fs_basegame")));
         CL_Disconnect_f();
         UI_ForceMenuOff(qtrue);
         UI_PushMenu("errormessage");
@@ -3921,7 +3921,7 @@ void CL_ServerInfoPacket( netadr_t from, msg_t *msg ) {
 				}
 			}
 		} else {
-			if (fabs(atof(pszVersion) - com_target_version->value) > 0.1f) {
+			if (fabs(atof(pszVersion) - com_target_shortversion->value) > 0.1f) {
 				return;
 			}
 		}
