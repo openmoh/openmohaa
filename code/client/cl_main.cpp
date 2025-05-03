@@ -2028,7 +2028,7 @@ wombat: sending conect here: an example connect string from MOHAA looks like thi
 */
 
 		// sending back the challenge
-		port = Cvar_VariableValue ("net_qport");
+		port = Cvar_VariableIntegerValue ("net_qport");
 
 		Q_strncpyz( info, Cvar_InfoString( CVAR_USERINFO ), sizeof( info ) );
 		
@@ -2041,7 +2041,7 @@ wombat: sending conect here: an example connect string from MOHAA looks like thi
 		else
 #endif
 			Info_SetValueForKey(info, "protocol", va("%i", com_protocol->integer));
-		Info_SetValueForKey( info, "qport", va("%i", port ) );
+		Info_SetValueForKey(info, "qport", va("%i", port));
 		Info_SetValueForKey(info, "challenge", va("%i", clc.challenge));
 		Info_SetValueForKey(info, "version", com_target_shortversion->string);
 		if (com_target_game->integer == target_game_e::TG_MOHTT) {
