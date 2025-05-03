@@ -2032,6 +2032,12 @@ wombat: sending conect here: an example connect string from MOHAA looks like thi
 		// sending back the challenge
 		port = Cvar_VariableIntegerValue ("net_qport");
 
+        // sanitize the name before sending it
+	    char szSanitizedName[MAX_NAME_LENGTH];
+		if (Com_SanitizeName(name->string, szSanitizedName, sizeof(szSanitizedName))) {
+			Cvar_Set("name", szSanitizedName);
+		}
+
 		Q_strncpyz( info, Cvar_InfoString( CVAR_USERINFO ), sizeof( info ) );
 		
 #ifdef LEGACY_PROTOCOL
