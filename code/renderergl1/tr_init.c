@@ -1355,7 +1355,7 @@ void R_Register( void )
 	r_maxmode = ri.Cvar_Get("r_maxmode", "6", CVAR_ARCHIVE | CVAR_LATCH);
 	r_vidmode1024 = ri.Cvar_Get("r_vidmode1024", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	r_vidmodemax = ri.Cvar_Get("r_vidmodemax", "1", CVAR_ARCHIVE | CVAR_LATCH);
-	r_mode = ri.Cvar_Get("r_mode", "3", CVAR_ARCHIVE | CVAR_LATCH);
+	r_mode = ri.Cvar_Get("r_mode", "-2", CVAR_ARCHIVE | CVAR_LATCH);
 	
 	// Added in 2.0
 	//  But removed because it's kind of annoying
