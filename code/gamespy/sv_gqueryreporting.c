@@ -152,6 +152,15 @@ typedef struct qr_implementation_s
     struct sockaddr_in hbaddr;
     qr_cdkey_process_t cdkeyprocess;
     void* udata;
+
+    //
+    // Added in OPM
+    //
+    unsigned long next_master_delay;
+    int current_master_id;
+    unsigned long next_master_time;
+    int next_master_pending;
+    int last_statechanged;
 }* qr_t;
 
 /********
@@ -313,6 +322,15 @@ void init_qrec(qr_t* qrec,
     cr->qr_players_callback = qr_players_callback;
     cr->qr_rules_callback = qr_rules_callback;
     cr->cdkeyprocess = NULL;
+
+    //
+    // Added in OPM
+    //
+    cr->next_master_delay = HB_SEND_DELAY;
+    cr->next_master_time = 0;
+    cr->next_master_pending = 0;
+    cr->current_master_id = 0;
+    cr->last_statechanged = -1;
 }
 
 int qr_init_socket(qr_t* qrec,
@@ -401,6 +419,15 @@ void qr_check_send_heartbeat(qr_t qrec)
 
     if (INVALID_SOCKET == qrec->hbsock)
         return; //no sockets to work with!
+
+    if (qrec->next_master_pending) {
+        // Added in OPM
+        if (tc >= qrec->next_master_time) {
+            //  Wait a bit some time before sending UDP backets
+            send_heartbeat(qrec, qrec->last_statechanged);
+        }
+        return;
+    }
 
     //check if we need to send a heartbet
     if (tc - qrec->lastheartbeat > HB_TIME || qrec->lastheartbeat == 0 || tc < qrec->lastheartbeat)
@@ -872,8 +899,36 @@ static void send_heartbeat(qr_t qrec, int statechanged)
     if (statechanged)
         snprintf(&buf[strlen(buf)], sizeof(buf) - strlen(buf), "\\statechanged\\");
 
-    for (i = 0; i < MasterCount; i++) {
+    if (qrec->next_master_delay > 0 && statechanged != 2) {
+        //
+        // Added in OPM
+        //  Delay sends between multiple masters
+        //
+
+        if (qrec->last_statechanged != statechanged) {
+            // different state
+            qrec->current_master_id = 0;
+            qrec->last_statechanged = statechanged;
+        }
+
+        i = qrec->current_master_id;
         ret = sendto(qrec->hbsock, buf, (int)strlen(buf), 0, (struct sockaddr*)&MasterList[i], sizeof(MasterList[i]));
+
+        qrec->current_master_id++;
+        if (qrec->current_master_id < MasterCount) {
+            qrec->next_master_time = current_time() + qrec->next_master_delay;
+            qrec->next_master_pending = 1;
+        } else {
+            qrec->current_master_id = 0;
+            qrec->next_master_time = 0;
+            qrec->next_master_pending = 0;
+            qrec->last_statechanged = -1;
+        }
+    } else {
+        // send everything all at once
+        for (i = 0; i < MasterCount; i++) {
+            ret = sendto(qrec->hbsock, buf, (int)strlen(buf), 0, (struct sockaddr*)&MasterList[i], sizeof(MasterList[i]));
+        }
     }
 
     qrec->lastheartbeat = current_time();
