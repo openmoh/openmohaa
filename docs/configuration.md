@@ -2,7 +2,7 @@
 
 ## General configuration
 
-This documentation currently only lists new changes that were introduced in OpenMoHAA.
+This documentation currently only lists new changes that were introduced in OpenMoHAA. For a list of known settings, [Server configuration](configuration_server.md).
 
 If you want to use containers, see [Building a server container in Docker](../../docker/server/README.md) to build an image for your dedicated server.
 
