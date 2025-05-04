@@ -19,14 +19,14 @@ This guide assume you have already acquired and installed a copy of MOH:AA on yo
 
 ## Starting the server
 
-Run the `omohaaded` executable from your MOHAA directory. Use one of the following commands, depending on the game you want to se:
+Run the `omohaaded` executable from your MOHAA directory. Use one of the following commands, depending on the game you want to use:
 
 - For **Allied Assault**:
   
-  `./omohaaded.x86_64 +set com_target_game_0 +exec server_opm.cfg`
+  `./omohaaded +set com_target_game 0 +exec server_opm.cfg`
 - For **Spearhead**:
 
-  `./omohaaded.x86_64 +set com_target_game_1 +exec server_opm.cfg` 
+  `./omohaaded +set com_target_game 1 +exec server_opm.cfg` 
 - For **Breakthrough**:
 
-  `./omohaaded.x86_64 +set com_target_game_2 +exec server_opm.cfg`
+  `./omohaaded +set com_target_game 2 +exec server_opm.cfg`

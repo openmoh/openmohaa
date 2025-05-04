@@ -14,8 +14,9 @@ OpenMoHAA is an open-source project aimed at preserving and enhancing **Medal of
 
 Powered by [ioquake3](https://github.com/ioquake/ioq3) and the [F.A.K.K SDK](https://code.idtech.space/ritual/fakk2-sdk), OpenMoHAA provides:
 - Full compatibility with the original game: assets, scripts and multiplayer
-- Support for both single-player and multiplayer modes
+- Better support for modern systems
 - Cross-platform support (Linux, Windows, macOS)
+- Support for both single-player and multiplayer modes
 - All fixes and features from the latest version of MOH:AAB (Allied Assault Breakthrough 2.40b)
 
 ## Getting started

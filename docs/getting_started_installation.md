@@ -4,7 +4,9 @@
 
 You will need a copy of MOH:AA, either from [GOG](https://www.gog.com/en/game/medal_of_honor_allied_assault_war_chest), from CD or a [demo version](#obtaining-a-demo-version)
 
-💡 *GOG version is recommended*. If you already have MOH:AA from a CD, make sure to [Install official patches](#installing-official-patches).
+💡 *GOG version is recommended*.
+
+If you already have MOH:AA from a CD, make sure to [Install official patches](#installing-official-patches).
 
 The game should be able to run on any modern hardware. You can verify the [System requirements](./getting_started_requirements.md).
 
@@ -23,7 +25,7 @@ Use the same method as Linux (see [Extracting GOG Installer on Linux and macOS](
 
 ## Installation
 
-### Download OpenMoHAA
+### Downloading OpenMoHAA
 
 1) Go to the [latest release page](https://github.com/openmoh/openmohaa/releases/latest)
 2) Choose the correct version for your platform:
@@ -37,7 +39,7 @@ Use the same method as Linux (see [Extracting GOG Installer on Linux and macOS](
 |Linux    |AMD/Intel                                  |`*-linux-amd64`
 |Linux    |Raspberry Pi 4 or 5                        |`*-linux-arm64`
 
-### Install OpenMoHAA
+### Installing OpenMoHAA
 
 #### Option A
 
@@ -50,7 +52,7 @@ Extract the archive<sup>1</sup> to your MOHAA installation directory.
   - `launch_openmohaa_base` (Base game)
   - `launch_openmohaa_spearhead` (Spearhead)
   - `launch_openmohaa_breakthrough` (Breakthrough)
-- Set the shortcut's 'Start in' directory to your MOHAA installation directory.
+- Set the shortcut's `Start in` directory to your MOHAA installation directory.
 
 🟢 You're now ready to play!
 
