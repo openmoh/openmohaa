@@ -2,13 +2,13 @@
 
 ## Before you start
 
+The game should be able to run on any modern hardware. You can verify the [System requirements](getting_started_requirements.md).
+
 You will need a copy of MOH:AA, either from [GOG](https://www.gog.com/en/game/medal_of_honor_allied_assault_war_chest), from CD or a [demo version](#obtaining-a-demo-version)
 
 💡 *GOG version is recommended*.
 
-If you already have MOH:AA from a CD, make sure to [Install official patches](#installing-official-patches).
-
-The game should be able to run on any modern hardware. You can verify the [System requirements](./getting_started_requirements.md).
+If you already have MOH:AA from a CD, make sure to [Install official patches](#installing-official-patches-cd-only).
 
 ### Windows users
 
@@ -17,11 +17,11 @@ The game should be able to run on any modern hardware. You can verify the [Syste
 
 ### Linux users
 
-Check if your Linux distro already has OpenMoHAA in its software/package manager. If not, follow [Extracting GOG Installer on Linux and macOS](#extracting-gog-setup-file-on-linux-and-macos) below.
+Check if your Linux distro already has OpenMoHAA in its software/package manager. If not, follow [Extracting GOG Installer on Linux and macOS](#linuxmacos-extracting-gog-installer) below.
 
 ### macOS users
 
-Use the same method as Linux (see [Extracting GOG Installer on Linux and macOS](#extracting-gog-setup-file-on-linux-and-macos) below).
+Use the same method as Linux (see [Extracting GOG Installer on Linux and macOS](#linuxmacos-extracting-gog-installer) below).
 
 ## Installation
 
@@ -43,7 +43,11 @@ Use the same method as Linux (see [Extracting GOG Installer on Linux and macOS](
 
 #### Option A
 
-Extract the archive<sup>1</sup> to your MOHAA installation directory.
+- Extract the archive<sup>1</sup> to your MOHAA installation directory.
+- Create a shortcut to each of the **launch_openmohaa_\*** executable:
+  - `launch_openmohaa_base` (Base game)
+  - `launch_openmohaa_spearhead` (Spearhead)
+  - `launch_openmohaa_breakthrough` (Breakthrough)
 
 #### Option B
 
@@ -54,13 +58,15 @@ Extract the archive<sup>1</sup> to your MOHAA installation directory.
   - `launch_openmohaa_breakthrough` (Breakthrough)
 - Set the shortcut's `Start in` directory to your MOHAA installation directory.
 
+###
+
 🟢 You're now ready to play!
 
 ----
 
 **Notes:**
 
-1. For servers, only the `omohaaded.*` and `game.*` binaries from the archive are required.
+1. For servers, only `omohaaded.*`, `game.*`, and `curl` binaries from the archive are required.
 
 ## Appendix
 
@@ -96,7 +102,7 @@ Alternatively, you can also use [WINE](https://www.winehq.org/), but this proces
 
 ## Installing official patches (CD only)
 
-If the **MOH: Warchest** copy is installed, skip directly to the [OpenMoHAA installation](#downloadinginstalling) section.
+If the **MOH: Warchest** copy is installed, skip directly to the [OpenMoHAA installation](#installation) section.
 
 Otherwise, install the following patches:
 
