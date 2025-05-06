@@ -239,6 +239,12 @@ jobs:
         if (Test-Path ${{github.workspace}}/install/bin) { Copy-Item '${{github.workspace}}/install/bin/*' -Include '*.dll','*.exe','*.pdb' -Destination '${{github.workspace}}/package' }
         if (Test-Path ${{github.workspace}}/install/lib) { Copy-Item '${{github.workspace}}/install/lib/*' -Include '*.dll','*.exe','*.pdb' -Destination '${{github.workspace}}/package' }
 
+    - name: Generate setup files
+      working-directory: ${{github.workspace}}
+      run: |
+        Copy-Item -Path '${{github.workspace}}/package' -Destination 'source/misc/setup/windows/app/files' -Recurse
+        dotnet build -p Platform=${{matrix.architecture.config}} -c Release -o out source/misc/setup/windows/app
+
     ###
     # Artifact
     ###
@@ -257,3 +263,11 @@ jobs:
         if-no-files-found: error
         path: |
           ${{github.workspace}}/package
+
+    - uses: actions/upload-artifact@v4
+      with:
+        name: out-windows-${{matrix.architecture.name}}-installer
+        if-no-files-found: error
+        path: |
+          ${{github.workspace}}/out/en-us/Setup.msi
+          ${{github.workspace}}/out/en-us/Setup.wixpdb

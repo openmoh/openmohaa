@@ -66,3 +66,38 @@ jobs:
         name: '${{github.ref_name}}-${{env.RELEASE_STAGE}}'
         prerelease: ${{env.RELEASE_IS_PRERELEASE}}
         files: ${{github.workspace}}/${{ env.RELEASE_NAME }}.zip
+
+  deploy_installer_windows:
+    strategy:
+      max-parallel: 1
+      matrix:
+        target_os: [
+          'windows-x64',
+          'windows-x86',
+          'windows-arm64',
+        ]
+    
+    runs-on: ubuntu-24.04
+    environment: "release"
+    needs: [deploy_all]
+
+    env:
+      RELEASE_NAME: ${{ github.event.repository.name }}-${{github.ref_name}}-${{matrix.target_os}}
+
+    steps:
+    - uses: actions/download-artifact@v4
+      with:
+        name: 'out-${{matrix.target_os}}-installer'
+        path: ${{github.workspace}}/${{matrix.target_os}}
+
+    - name: Setup
+      working-directory: '${{github.workspace}}/${{matrix.target_os}}'
+      run:
+        cp Setup.msi ../${{ env.RELEASE_NAME }}.msi
+
+    - name: Release
+      uses: softprops/action-gh-release@v2
+      with:
+        name: '${{github.ref_name}}-${{env.RELEASE_STAGE}}'
+        prerelease: ${{env.RELEASE_IS_PRERELEASE}}
+        files: ${{github.workspace}}/${{ env.RELEASE_NAME }}.msi

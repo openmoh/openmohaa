@@ -1,0 +1,170 @@
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs" xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui"
+    xmlns:util="http://wixtoolset.org/schemas/v4/wxs/util"
+>
+    <Package Name="OpenMoHAA" Manufacturer="OpenMoHAA"
+        Version="0.0.1" UpgradeCode="66545884-bb0a-4fa3-a1d4-1bc15f02b901" Scope="perMachine">
+        <MajorUpgrade AllowSameVersionUpgrades="yes" IgnoreLanguage="yes"
+            DowngradeErrorMessage="Can't install a lower version" />
+        <MediaTemplate EmbedCab="yes" />
+        <util:QueryNativeMachine />
+        <?if $(sys.BUILDARCH) = "x64"?>
+        <?define PlatformSuffix="x86_64"?>
+        <?define ProgramFilesFolder="ProgramFiles64Folder"?>
+        <?define ImageFileMachine=34404?>
+        <?define Bitness="64"?>
+        <?elseif $(sys.BUILDARCH) = "x86"?>
+        <?define PlatformSuffix="x86"?>
+        <?define ProgramFilesFolder="ProgramFilesFolder"?>
+        <?define ImageFileMachine=332?>
+        <?define Bitness="32"?>
+        <?elseif $(sys.BUILDARCH) = "arm64"?>
+        <?define PlatformSuffix="arm64"?>
+        <?define ProgramFilesFolder="ProgramFiles64Folder"?>
+        <?define ImageFileMachine=43620?>
+        <?define Bitness="64"?>
+        <?else?>
+        <?define PlatformSuffix="$(sys.BUILDARCH)"?>
+        <?define ProgramFilesFolder="ProgramFilesFolder"?>
+        <?define ImageFileMachine=34404?>
+        <?define Bitness="64"?>
+        <?endif?>
+
+        <StandardDirectory Id="$(var.ProgramFilesFolder)">
+            <Directory Id="INSTALLFOLDER" Name="EA Games\MOHAA">
+                <Directory Name="openmohaa">
+                    <!-- Core components -->
+                    <Component Id="openmohaa.$(var.PlatformSuffix).exe">
+                        <File Source="files/openmohaa.$(var.PlatformSuffix).exe" />
+                    </Component>
+                    <Component Id="omohaaded.$(var.PlatformSuffix).exe">
+                        <File Source="files/omohaaded.$(var.PlatformSuffix).exe" />
+                    </Component>
+                    <Component Id="cgame.$(var.PlatformSuffix).dll">
+                        <File Source="files/cgame.$(var.PlatformSuffix).dll" />
+                    </Component>
+                    <Component Id="game.$(var.PlatformSuffix).dll">
+                        <File Source="files/game.$(var.PlatformSuffix).dll" />
+                    </Component>
+
+                    <!-- Third-party -->
+                    <Component Id="SDL2.dll">
+                        <File Source="files/SDL2.dll" />
+                    </Component>
+                    <Component Id="OpenAL$(var.Bitness).dll">
+                        <File Source="files/OpenAL$(var.Bitness).dll" />
+                    </Component>
+                    <Component Id="libcurl.dll">
+                        <File Source="files/libcurl.dll" />
+                    </Component>
+
+                    <!-- Launchers -->
+                    <Component Id="launch_openmohaa_base.$(var.PlatformSuffix).exe">
+                        <File Source="files/launch_openmohaa_base.$(var.PlatformSuffix).exe"
+                            KeyPath="yes">
+                            <Shortcut Advertise="yes" Directory="DesktopFolder"
+                                Name="OpenMoHAA (Allied Assault)" Icon="openmohaa_icon.exe"
+                                WorkingDirectory="INSTALLFOLDER" />
+                            <Shortcut Advertise="yes" Directory="ProgramMenuFolder"
+                                Name="OpenMoHAA (Allied Assault)" Icon="openmohaa_icon.exe"
+                                WorkingDirectory="INSTALLFOLDER" />
+                        </File>
+                    </Component>
+                    <Component Id="launch_openmohaa_spearhead.$(var.PlatformSuffix).exe">
+                        <File Source="files/launch_openmohaa_spearhead.$(var.PlatformSuffix).exe"
+                            KeyPath="yes">
+                            <Shortcut Advertise="yes" Directory="DesktopFolder"
+                                Name="OpenMoHAA (Spearhead)" Icon="openmohaa_icon.exe"
+                                WorkingDirectory="INSTALLFOLDER" />
+                            <Shortcut Advertise="yes" Directory="ProgramMenuFolder"
+                                Name="OpenMoHAA (Spearhead)" Icon="openmohaa_icon.exe"
+                                WorkingDirectory="INSTALLFOLDER" />
+                        </File>
+                    </Component>
+                    <Component Id="launch_openmohaa_breakthrough.$(var.PlatformSuffix).exe">
+                        <File Source="files/launch_openmohaa_breakthrough.$(var.PlatformSuffix).exe"
+                            KeyPath="yes">
+                            <Shortcut Advertise="yes" Directory="DesktopFolder"
+                                Name="OpenMoHAA (Breakthrough)" Icon="openmohaa_icon.exe"
+                                WorkingDirectory="INSTALLFOLDER" />
+                            <Shortcut Advertise="yes" Directory="ProgramMenuFolder"
+                                Name="OpenMoHAA (Breakthrough)" Icon="openmohaa_icon.exe"
+                                WorkingDirectory="INSTALLFOLDER" />
+                        </File>
+                    </Component>
+                </Directory>
+            </Directory>
+        </StandardDirectory>
+
+        <Icon Id="openmohaa_icon.exe" SourceFile="files/openmohaa.$(var.PlatformSuffix).exe" />
+
+        <ComponentGroup Id="Core">
+            <ComponentRef Id="openmohaa.$(var.PlatformSuffix).exe" />
+            <ComponentRef Id="omohaaded.$(var.PlatformSuffix).exe" />
+            <ComponentRef Id="cgame.$(var.PlatformSuffix).dll" />
+            <ComponentRef Id="game.$(var.PlatformSuffix).dll" />
+        </ComponentGroup>
+
+        <ComponentGroup Id="ThirdParty">
+            <ComponentRef Id="SDL2.dll" />
+            <ComponentRef Id="OpenAL$(var.Bitness).dll" />
+            <ComponentRef Id="libcurl.dll" />
+        </ComponentGroup>
+
+        <ComponentGroup Id="Launchers">
+            <ComponentRef Id="launch_openmohaa_base.$(var.PlatformSuffix).exe" />
+            <ComponentRef Id="launch_openmohaa_spearhead.$(var.PlatformSuffix).exe" />
+            <ComponentRef Id="launch_openmohaa_breakthrough.$(var.PlatformSuffix).exe" />
+        </ComponentGroup>
+
+        <Property Id="INSTALLFOLDER">
+            <RegistrySearch Root="HKLM"
+                Key="SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\MOHAA.exe" Name="Path"
+                Type="directory" />
+            <RegistrySearch Root="HKLM"
+                Bitness="always32"
+                Key="SOFTWARE\GOG.com\GOGMEDALOFHONOR" Name="PATH"
+                Type="directory" />
+        </Property>
+
+        <Property Id="CHECKMOHAAEXE" Value="0">
+            <DirectorySearch Id="MOHAAExeSearch" Depth="0"
+                Path="[INSTALLFOLDER]MOHAA.exe">
+            </DirectorySearch>
+        </Property>
+
+        <ui:WixUI
+            Id="WixUI_InstallDir_Custom"
+            InstallDirectory="INSTALLFOLDER"
+        />
+
+        <Launch Condition="WIX_NATIVE_MACHINE=$(var.ImageFileMachine)"
+            Message="The incorrect installer is being used for your platform. Use the installer that matches your platform." />
+        <!-- <Launch Condition="INSTALLFOLDER" Message="Couldn't find existing MOH:AA directory" /> -->
+    </Package>
+
+    <Fragment>
+        <PackageGroup Id="VC_REDIST_X64">
+            <ExePackage
+                Id="VC_REDIST_X64"
+                DisplayName="Microsoft Visual C++ 2015-2022 Redistributable (x64) - 14.40.33810"
+                Cache="remove"
+                PerMachine="yes"
+                Permanent="yes"
+                Protocol="burn"
+                InstallCondition="VersionNT64 AND (ARCH_NAME = &quot;AMD64&quot;)"
+                DetectCondition="(VCRUNTIME_X64_VER &gt;= VCRUNTIME_VER) AND VersionNT64 AND (ARCH_NAME = &quot;AMD64&quot;)"
+                InstallArguments="/install /quiet /norestart"
+                RepairArguments="/repair /quiet /norestart"
+                UninstallArguments="/uninstall /quiet /norestart">
+                <ExePackagePayload
+                    Name="VC_redist.x64.exe"
+                    ProductName="Microsoft Visual C++ 2015-2022 Redistributable (x64) - 14.40.33810"
+                    Description="Microsoft Visual C++ 2015-2022 Redistributable (x64) - 14.40.33810"
+                    Hash="5935B69F5138AC3FBC33813C74DA853269BA079F910936AEFA95E230C6092B92F6225BFFB594E5DD35FF29BF260E4B35F91ADEDE90FDF5F062030D8666FD0104"
+                    Size="25397512"
+                    Version="14.40.33810.0"
+                    DownloadUrl="https://download.visualstudio.microsoft.com/download/pr/1754ea58-11a6-44ab-a262-696e194ce543/3642E3F95D50CC193E4B5A0B0FFBF7FE2C08801517758B4C8AEB7105A091208A/VC_redist.x64.exe" />
+            </ExePackage>
+        </PackageGroup>
+    </Fragment>
+</Wix>

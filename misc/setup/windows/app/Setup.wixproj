@@ -1,0 +1,6 @@
+<Project Sdk="WixToolset.Sdk/6.0.0">
+    <ItemGroup>
+        <PackageReference Include="WixToolset.UI.wixext" Version="6.0.0" />
+        <PackageReference Include="WixToolset.util.wixext" Version="6.0.0" />
+    </ItemGroup>
+</Project>
