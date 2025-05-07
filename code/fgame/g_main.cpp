@@ -1879,11 +1879,11 @@ void G_ExitLevel(void)
     gi.SendConsoleCommand(command);
 
     if (g_gametype->integer != GT_SINGLE_PLAYER) {
-        if (strlen(sv_nextmap->string)) {
+        if (sv_nextmap->string && sv_nextmap->string[0]) {
             // The nextmap cvar was set (possibly by a vote - so go ahead and use it)
             level.nextmap = sv_nextmap->string;
             gi.cvar_set("nextmap", "");
-        } else {
+        } else if (sv_maplist->string && sv_maplist->string[0]) {
             // Use the next map in the maplist
             char    *s, *t;
             qboolean bLevelSet = false;
