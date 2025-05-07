@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2024 the OpenMoHAA team
+Copyright (C) 2025 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -32,11 +32,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include <string>
 #include <iostream>
 
-extern "C" char** environ;
+extern "C" char **environ;
 
 std::filesystem::path GetProgramLocation()
 {
-    char path[FILENAME_MAX];
+    char    path[FILENAME_MAX];
     ssize_t count = readlink("/proc/self/exe", path, FILENAME_MAX);
 
     return std::filesystem::path(std::string(path, (count > 0) ? count : 0)).parent_path();
@@ -44,17 +44,17 @@ std::filesystem::path GetProgramLocation()
 
 void LaunchProgram(const std::filesystem::path& path, const std::vector<std::string>& argumentList)
 {
-    pid_t pid;
+    pid_t       pid;
     std::string pathString = path.string();
-    size_t argCount = argumentList.size();
-    char** argv;
-    int status;
+    size_t      argCount   = argumentList.size();
+    char      **argv;
+    int         status;
 
-    argv = new char*[argCount + 2];
-    argv[0] = (char*)pathString.c_str();
+    argv    = new char *[argCount + 2];
+    argv[0] = (char *)pathString.c_str();
 
     for (size_t i = 0; i < argCount; i++) {
-        argv[i + 1] = (char*)argumentList[i].c_str();
+        argv[i + 1] = (char *)argumentList[i].c_str();
     }
     argv[argCount + 1] = NULL;
 

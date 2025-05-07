@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2024 the OpenMoHAA team
+Copyright (C) 2025 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -29,4 +29,4 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include <vector>
 
 std::filesystem::path GetProgramLocation();
-void LaunchProgram(const std::filesystem::path& path, const std::vector<std::string>& argumentList);
+void                  LaunchProgram(const std::filesystem::path& path, const std::vector<std::string>& argumentList);
