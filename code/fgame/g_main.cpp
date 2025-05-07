@@ -1871,12 +1871,6 @@ void G_ExitLevel(void)
     int                j;
     gentity_t         *ent;
 
-    // Don't allow exit level if the mission was failed
-
-    if (level.mission_failed) {
-        return;
-    }
-
     // Close the player log file if necessary
     ClosePlayerLogFile();
 
