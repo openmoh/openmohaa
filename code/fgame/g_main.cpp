@@ -1930,8 +1930,12 @@ void G_ExitLevel(void)
             // Stay on the same map if it's the same as the current map
             Com_sprintf(command, sizeof(command), "restart\n");
             gi.SendConsoleCommand(command);
-        } else if (!Q_stricmpn(level.nextmap, "vstr", 4)) {
-            // alias on another map
+        // Added in 2.15
+        //  Execute a cvar command with `vstr`
+        //} else if (!Q_stricmpn(level.nextmap, "vstr", 4)) {
+        // Fixed in OPM
+        //  Match the exact vstr command
+        } else if (!Q_stricmpn(level.nextmap, "vstr ", 5)) {
             Q_strncpyz(command, level.nextmap, sizeof(command));
             gi.SendConsoleCommand(command);
         } else {
