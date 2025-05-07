@@ -58,7 +58,7 @@ void LaunchProgram(const std::filesystem::path& path, const std::vector<std::str
         }
     }
 
-    osCommandLine = path.wstring();
+    osCommandLine = L"\"" + path.wstring() + L"\"";
     osCommandLine += L" ";
     osCommandLine += commandLine;
 
