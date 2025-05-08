@@ -9,7 +9,7 @@ This guide assume you have already acquired and installed a copy of MOH:AA on yo
 
 ## Preparing the server settings
 
-1) Download [server_opm.cfg](files/server_opm.cfg) as a template for your server configuration, it contains the most relevant settings, make sure to modify them appropriately.
+1) Download [server_opm.cfg](../assets/configuration/server_opm.cfg) as a template for your server configuration, it contains the most relevant settings, make sure to modify them appropriately.
 2) Place the `server_opm.cfg` file inside the **main** directory of your game folder.
 
 ### Configuring the server

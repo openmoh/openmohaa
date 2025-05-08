@@ -21,11 +21,11 @@ Powered by [ioquake3](https://github.com/ioquake/ioq3) and the [F.A.K.K SDK](htt
 
 ## Getting started
 
-- 📦 [Installation Guide](docs/getting_started_installation.md)
-- ▶️ [Running & Expansions](docs/getting_started_running.md)
-- ⚙️ [Game configuration](docs/configuration.md)
-- 🌐 [Hosting a server](docs/getting_started_running_server.md)
-- ❓ [FAQ & Troubleshooting](docs/faq.md)
+- 📦 [Installation Guide](docs/markdown/getting_started_installation.md)
+- ▶️ [Running & Expansions](docs/markdown/getting_started_running.md)
+- ⚙️ [Game configuration](docs/markdown/configuration.md)
+- 🌐 [Hosting a server](docs/markdown/getting_started_running_server.md)
+- ❓ [FAQ & Troubleshooting](docs/markdown/faq.md)
 
 ## Current features
 
@@ -45,9 +45,9 @@ The entire single-player campaign should work (Allied Assault, Spearhead and Bre
   - Liberation (Breakthrough)
 - Popular mods like **Freeze-Tag** are supported
 - Built-in bots for offline practice and for testing
-  - 🔧 [Setting up bots](docs/getting_started_running.md#Playing-with-bots)
+  - 🔧 [Setting up bots](docs/markdown/getting_started_running.md#Playing-with-bots)
 
-You can host your own [OpenMoHAA server](docs/getting_started_running_server.md) or join others using OpenMoHAA.
+You can host your own [OpenMoHAA server](docs/markdown/getting_started_running_server.md) or join others using OpenMoHAA.
 
 ## Reporting Issues
 
@@ -57,22 +57,22 @@ If you encounter a bug or a problem, you can do one of the following:
 
 ## Features
 
-- 🧰 [Feature list](docs/features.md)
-- 📝 [Code & Script documentation](docs/code/code.md)
+- 🧰 [Feature list](docs/markdown/features.md)
+- 📝 [Code & Script documentation](docs/markdown/code/code.md)
 
 ## Screenshots
 
 |                                                                                   |                                                                            |
 |-----------------------------------------------------------------------------------|----------------------------------------------------------------------------|
-| ![](docs/images/v0.60.0-x86_64/mohdm1_1.png)                                      | ![](docs/images/v0.60.0-x86_64/training_1.png)                               |
-| ![](docs/images/v0.60.0-x86_64/flughafen_1.png)                                   | ![](docs/images/v0.60.0-x86_64/flughafen_2.png)                            |
-| ![](docs/images/v0.60.0-x86_64/mohdm2_1.png "Playing Freeze-Tag mode with bots")  | ![](docs/images/v0.60.0-x86_64/training_3.png "Single-Player training")    |
+| ![](docs/assets/images/v0.60.0-x86_64/mohdm1_1.png)                                      | ![](docs/assets/images/v0.60.0-x86_64/training_1.png)                               |
+| ![](docs/assets/images/v0.60.0-x86_64/flughafen_1.png)                                   | ![](docs/assets/images/v0.60.0-x86_64/flughafen_2.png)                            |
+| ![](docs/assets/images/v0.60.0-x86_64/mohdm2_1.png "Playing Freeze-Tag mode with bots")  | ![](docs/assets/images/v0.60.0-x86_64/training_3.png "Single-Player training")    |
 
-*More screenshots [here](docs/images)*
+*More screenshots [here](docs/assets/images)*
 
 ## Development & Compiling
 
-- 💻 [Compiling instructions](docs/compiling.md)
+- 💻 [Compiling instructions](docs/markdown/compiling.md)
 
 ## Third party librairies
 
