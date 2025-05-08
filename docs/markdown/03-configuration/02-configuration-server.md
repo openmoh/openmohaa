@@ -1,4 +1,4 @@
-# Server configuration
+# Server configuration settings
 
 Below is an explanation of the server settings commonly found in the `server.cfg` file.
 

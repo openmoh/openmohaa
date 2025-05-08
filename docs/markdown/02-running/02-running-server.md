@@ -1,8 +1,8 @@
-# Getting Started
+# Hosting a server
 
 ## Installation
 
-This guide assume you have already acquired and installed a copy of MOH:AA on your server. If not, see [Getting Started](getting_started_installation.md).
+This guide assume you have already acquired and installed a copy of MOH:AA on your server. If not, see [Getting Started](../01-intro/01-installation.md).
 
 1. Download the [latest release](https://github.com/openmoh/openmohaa/releases) that matches your server's platform.
 2. Extract files from the archive into your MOH:AA directory
@@ -169,8 +169,8 @@ map "obj/obj_team1"
 
 ### Configuring the server
 
-- For a list of commonly used settings in the `server.cfg` file, see [Server configuration](configuration_server.md).
-- For examples and new OpenMoHAA features (like setting up bots), see [Game configuration](configuration.md).
+- For a list of commonly used settings in the `server.cfg` file, see [Server configuration](../03-configuration/02-configuration-server.md).
+- For examples and new OpenMoHAA features (like setting up bots), see [Game configuration](../03-configuration/01-configuration.md)
 
 ## Starting the server
 

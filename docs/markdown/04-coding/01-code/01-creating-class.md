@@ -1,4 +1,4 @@
-# Create a new class
+# Creating a new class
 
 This documentation will guide you through creating a new class for scripts, inside the game code.
 

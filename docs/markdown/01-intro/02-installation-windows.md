@@ -1,4 +1,4 @@
-# Quick installation
+# Quick installation on Windows
 
 This guide assumes you installed **Medal of Honor: Allied Assault Warchest** from GOG, but it also works with CD or other versions.
 

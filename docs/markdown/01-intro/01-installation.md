@@ -1,8 +1,8 @@
-# Quick Start Guide
+# Installation guide
 
 ## Before you start
 
-The game should be able to run on any modern hardware. You can verify the [System requirements](getting_started_requirements.md).
+The game should be able to run on any modern hardware. You can verify the [System requirements](03-requirements.md).
 
 You will need a copy of MOH:AA, either from [GOG](https://www.gog.com/en/game/medal_of_honor_allied_assault_war_chest), from CD or a [demo version](#obtaining-a-demo-version)
 
@@ -13,7 +13,7 @@ If you already have MOH:AA from a CD, make sure to [Install official patches](#i
 ### Windows users
 
 - Download and install [Microsoft Visual C++ Redistributable](https://learn.microsoft.com/en-US/cpp/windows/latest-supported-vc-redist?view=msvc-170)
-- You can skip straight to [Windows quick install guide](getting_started_installation_windows.md) for the easiest setup if MOH:AA is already installed.
+- You can skip straight to [Windows quick install guide](02-installation-windows.md) for the easiest setup if MOH:AA is already installed.
 
 ### Linux users
 

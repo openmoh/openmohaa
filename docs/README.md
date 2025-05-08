@@ -1,15 +1,17 @@
-OpenMoHAA {#mainpage}
+OpenMoHAA
 ============
+
+# Documentation
 
 ## Getting Started
 
-- 📦 [Installation Guide](markdown/getting_started_installation.md)
-- ▶️ [Running & Expansions](markdown/getting_started_running.md)
-- ⚙️ [Game configuration](markdown/configuration.md)
-- 🌐 [Hosting a server](markdown/getting_started_running_server.md)
-- ❓ [FAQ & Troubleshooting](markdown/faq.md)
+- 📦 [Installation Guide](markdown/01-intro/01-installation.md)
+- ▶️ [Running & Expansions](markdown/02-running/01-running.md)
+- ⚙️ [Game configuration](markdown/03-configuration/01-configuration.md)
+- 🌐 [Hosting a server](markdown/03-configuration/02-configuration-server.md)
+- ❓ [FAQ & Troubleshooting](markdown/02-running/03-faq.md)
 
 ## Coding & Scripting
 
-- 💻 [Compiling instructions](docs/markdown/compiling.md)
-- 📝 [Code & Script documentation](docs/markdown/code/code.md)
+- 💻 [Compiling instructions](markdown/04-coding/01-compiling.md)
+- 📝 [Code & Script documentation](markdown/04-coding/02-coding.md)

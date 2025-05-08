@@ -21,11 +21,11 @@ Powered by [ioquake3](https://github.com/ioquake/ioq3) and the [F.A.K.K SDK](htt
 
 ## Getting started
 
-- 📦 [Installation Guide](docs/markdown/getting_started_installation.md)
-- ▶️ [Running & Expansions](docs/markdown/getting_started_running.md)
-- ⚙️ [Game configuration](docs/markdown/configuration.md)
-- 🌐 [Hosting a server](docs/markdown/getting_started_running_server.md)
-- ❓ [FAQ & Troubleshooting](docs/markdown/faq.md)
+- 📦 [Installation Guide](docs/markdown/01-intro/01-installation.md)
+- ▶️ [Running & Expansions](docs/markdown/02-running/01-running.md)
+- ⚙️ [Game configuration](docs/markdown/03-configuration/01-configuration.md)
+- 🌐 [Hosting a server](docs/markdown/03-configuration/02-configuration-server.md)
+- ❓ [FAQ & Troubleshooting](docs/markdown/02-running/03-faq.md)
 
 ## Current features
 
@@ -45,9 +45,9 @@ The entire single-player campaign should work (Allied Assault, Spearhead and Bre
   - Liberation (Breakthrough)
 - Popular mods like **Freeze-Tag** are supported
 - Built-in bots for offline practice and for testing
-  - 🔧 [Setting up bots](docs/markdown/getting_started_running.md#Playing-with-bots)
+  - 🔧 [Setting up bots](docs/markdown/02-running/01-running.md#Playing-with-bots)
 
-You can host your own [OpenMoHAA server](docs/markdown/getting_started_running_server.md) or join others using OpenMoHAA.
+You can host your own [OpenMoHAA server](docs/markdown/02-running/02-running-server.md#) or join others using OpenMoHAA.
 
 ## Reporting Issues
 
@@ -57,8 +57,8 @@ If you encounter a bug or a problem, you can do one of the following:
 
 ## Features
 
-- 🧰 [Feature list](docs/markdown/features.md)
-- 📝 [Code & Script documentation](docs/markdown/code/code.md)
+- 🧰 [Feature list](docs/markdown/01-intro/04-features.md)
+- 📝 [Code & Script documentation](docs/markdown/04-coding/02-coding.md)
 
 ## Screenshots
 
@@ -72,7 +72,7 @@ If you encounter a bug or a problem, you can do one of the following:
 
 ## Development & Compiling
 
-- 💻 [Compiling instructions](docs/markdown/compiling.md)
+- 💻 [Compiling instructions](docs/markdown/04-coding/01-compiling.md)
 
 ## Third party librairies
 

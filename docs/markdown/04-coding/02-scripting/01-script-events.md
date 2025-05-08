@@ -1,4 +1,4 @@
-# Events
+# Script events
 
 OpenMoHAA introduces a new way for scripts to monitor for specific events, like players spawning or getting killed. Multiple scripts can subscribe to the same events.
 

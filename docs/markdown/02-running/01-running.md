@@ -1,4 +1,4 @@
-# Running
+# Running the game
 
 ## Game selection
 
