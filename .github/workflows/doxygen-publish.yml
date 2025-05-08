@@ -1,0 +1,51 @@
+name: publish
+on:
+    push:
+      branches:
+        - 'main'
+    pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install required packages
+        run: sudo apt update && sudo apt install -y doxygen
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          path: 'source'
+
+      - name: Generate Documentation (Doxyge)
+        working-directory: ${{github.workspace}}/source
+        run: |
+            doxygen docs/Doxyfile
+
+      - name: Upload static files as artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ${{github.workspace}}/source/docs/doxygen/html
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    runs-on: ubuntu-latest
+    needs: build
+
+    # Permissions for deploying the page
+    permissions:
+      pages: write
+      id-token: write
+
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
