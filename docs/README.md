@@ -1,11 +1,8 @@
-OpenMoHAA
-============
-
-# Documentation
+# Home
 
 Welcome to the [OpenMoHAA](https://www.openmohaa.org/) documentation. Here you'll find resources to help you get started and troubleshoot as needed.
 
-## Getting Started
+## Getting started
 
 - 📦 [Installation Guide](markdown/01-intro/01-installation.md)
 - ▶️ [Running & Expansions](markdown/02-running/01-running.md)
