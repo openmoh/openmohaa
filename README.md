@@ -58,7 +58,7 @@ If you encounter a bug or a problem, you can do one of the following:
 ## Features
 
 - 🧰 [Feature list](docs/features.md)
-- 📝 [Scripting documentation](docs/scripting.md)
+- 📝 [Code & Script documentation](docs/code/code.md)
 
 ## Screenshots
 
