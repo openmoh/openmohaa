@@ -23,11 +23,24 @@ Powered by [ioquake3](https://github.com/ioquake/ioq3) and the [F.A.K.K SDK](htt
 
 - 📦 [Installation Guide](docs/markdown/01-intro/01-installation.md)
 - ▶️ [Running & Expansions](docs/markdown/02-running/01-running.md)
-- ⚙️ [Game configuration](docs/markdown/03-configuration/01-configuration.md)
-- 🌐 [Hosting a server](docs/markdown/03-configuration/02-configuration-server.md)
 - ❓ [FAQ & Troubleshooting](docs/markdown/02-running/03-faq.md)
+- 🌐 [Hosting a server](docs/markdown/02-running/02-running-server.md)
 
-## Current features
+## Reporting Issues
+
+If you encounter a bug or a problem, you can do one of the following:
+- Submit an [issue](https://github.com/openmoh/openmohaa/issues) on GitHub (use the template).
+- Join the [OpenMoHAA Discord](https://discord.gg/NYtH58R) for a quick help.
+
+## Additional documentation
+
+- 📖 [Documentation](https://openmoh.github.io/openmohaa)
+- ⚙️ [Game configuration](docs/markdown/03-configuration/01-configuration.md)
+- 📝 [Code & Script documentation](docs/markdown/04-coding/02-coding.md)
+
+## Current state
+
+- 🧰 [Feature list](docs/markdown/01-intro/04-features.md)
 
 ### Single-player
 
@@ -48,17 +61,6 @@ The entire single-player campaign should work (Allied Assault, Spearhead and Bre
   - 🔧 [Setting up bots](docs/markdown/02-running/01-running.md#Playing-with-bots)
 
 You can host your own [OpenMoHAA server](docs/markdown/02-running/02-running-server.md#) or join others using OpenMoHAA.
-
-## Reporting Issues
-
-If you encounter a bug or a problem, you can do one of the following:
-- Submit an [issue](https://github.com/openmoh/openmohaa/issues) on GitHub (use the template).
-- Join the [OpenMoHAA Discord](https://discord.gg/NYtH58R) for a quick help.
-
-## Features
-
-- 🧰 [Feature list](docs/markdown/01-intro/04-features.md)
-- 📝 [Code & Script documentation](docs/markdown/04-coding/02-coding.md)
 
 ## Screenshots
 
