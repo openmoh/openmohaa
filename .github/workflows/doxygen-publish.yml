@@ -21,7 +21,7 @@ jobs:
         with:
           path: 'source'
 
-      - name: Generate Documentation (Doxyge)
+      - name: Generate Documentation (Doxygen)
         working-directory: ${{github.workspace}}/source
         run: |
             doxygen docs/Doxyfile
