@@ -90,10 +90,11 @@ The following third party tools and libraries are used by the project
 - [Libvorbis](https://xiph.org/vorbis/)
 - [Libopus](https://opus-codec.org/)
 
-## Community & Links
+## Resources
 
 - 🔗 [GitHub Repository](https://github.com/openmoh/openmohaa/)
 - 🌐 [MOHAAAA Amalgamated Allied Assault Alliance](https://mohaaaa.co.uk/AAAAMOHAA/index.php)
 - 🕹️ [333networks](https://333networks.com/)
-- 🛠 [X-NULL](https://x-null.net/)
+- 📂 [ModDB](https://www.moddb.com/games/medal-of-honor-allied-assault)
+- 📂 [GameBanana](https://gamebanana.com/games/720)
 - 💬 [Join us on Discord](https://discord.gg/NYtH58R)
