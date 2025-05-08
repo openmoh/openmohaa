@@ -13,8 +13,12 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Install required packages
-        run: sudo apt update && sudo apt install -y doxygen
+      - name: Get and install Doxygen
+        run: |
+            wget https://github.com/doxygen/doxygen/releases/download/Release_1_13_2/doxygen-1.13.2.linux.bin.tar.gz -O doxygen.tar.gz
+            tar xzf doxygen.tar.gz
+            cd doxygen-*
+            sudo cp bin/doxygen /usr/local/bin/
 
       - name: Checkout repository
         uses: actions/checkout@v4
