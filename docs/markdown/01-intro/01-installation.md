@@ -1,10 +1,12 @@
 # Installation guide
 
+If you are on Windows, you can skip straight to [Windows quick install guide](02-installation-windows.md) for a simpler setup if MOH:AA is already installed.
+
 ## Before you start
 
 The game should be able to run on any modern hardware. You can verify the [System requirements](03-requirements.md).
 
-You will need a copy of MOH:AA, either from [GOG](https://www.gog.com/en/game/medal_of_honor_allied_assault_war_chest), from CD or a [demo version](#obtaining-a-demo-version)
+You will need a copy of MOH:AA, either from [GOG](https://www.gog.com/en/game/medal_of_honor_allied_assault_war_chest), from CD or a from a [demo version](#obtaining-a-demo-version)
 
 💡 *GOG version is recommended*.
 
@@ -12,16 +14,17 @@ If you already have MOH:AA from a CD, make sure to [Install official patches](#i
 
 ### Windows users
 
-- Download and install [Microsoft Visual C++ Redistributable](https://learn.microsoft.com/en-US/cpp/windows/latest-supported-vc-redist?view=msvc-170)
-- You can skip straight to [Windows quick install guide](02-installation-windows.md) for the easiest setup if MOH:AA is already installed.
+Download and install [Microsoft Visual C++ Redistributable x64](https://aka.ms/vs/17/release/vc_redist.x64.exe).
 
-### Linux users
+### Linux and macOS users
 
-Check if your Linux distro already has OpenMoHAA in its software/package manager. If not, follow [Extracting GOG Installer on Linux and macOS](#linuxmacos-extracting-gog-installer) below.
+If you want to install the game from GOG:
 
-### macOS users
+1. Install [Innoextract](https://github.com/dscharrer/innoextract) (macOS users: `brew install innoextract`)
+2. Run: `innoextract setup_medal_of_honor_2.0.0.21.exe`
+3. Files will be extracted to a folder called `app/`
 
-Use the same method as Linux (see [Extracting GOG Installer on Linux and macOS](#linuxmacos-extracting-gog-installer) below).
+Alternatively, you can also use [WINE](https://www.winehq.org/), but this process may be slower/more complex if you do not already have it installed and configured. 
 
 ## Installation
 
@@ -34,8 +37,7 @@ Use the same method as Linux (see [Extracting GOG Installer on Linux and macOS](
 |---------|-------------------------------------------|-----------------------
 |Windows  |AMD/Intel                                  |`*-windows-x64.zip`
 |Windows  |Qualcomm/Snapdragon (ARM-based)            |`*-windows-arm64.zip`
-|macOS    |Apple Silicon (ARM)                        |`*-macos-arm64.zip`
-|macOS    |Intel                                      |`*-macos-x86_64.zip`
+|macOS    |Apple Silicon or Intel                     |`*-macos-multiarch.arm64-x86_64.zip`
 |Linux    |AMD/Intel                                  |`*-linux-amd64`
 |Linux    |Raspberry Pi 4 or 5                        |`*-linux-arm64`
 
@@ -88,16 +90,6 @@ If you want to clean up the mohaa installation directory by keeping only what is
 ├── All files from the OpenMoHAA archive
 ```
 
-### Linux/macOS: Extracting GOG installer
-
-If you got MOHAA from GOG:
-
-1. Install [Innoextract](https://github.com/dscharrer/innoextract) (macOS users: `brew install innoextract`)
-2. Run: `innoextract setup_medal_of_honor_2.0.0.21.exe`
-3. Files will be extracted to a folder called `app/`
-
-Alternatively, you can also use [WINE](https://www.winehq.org/), but this process may be slower/more complex if you do not already have it installed and configured. 
-
 ## Installing official patches (CD only)
 
 If the **MOH: Warchest** copy is installed, skip directly to the [OpenMoHAA installation](#installation) section.
@@ -139,10 +131,10 @@ Alternatively, free demo versions are available online. Here are the links to th
 
 ## Other platforms and ports
 
-OpenMoHAA is officially supported on Windows, Linux and macOS. Below is a list of unofficial open-source ports that required custom modifications to the OpenMoHAA source code to build and run:
+OpenMoHAA is officially supported on *Windows*, *Linux* and *macOS*. Below is a list of unofficial open-source ports that required custom modifications to the OpenMoHAA source code to build and run:
 
-- https://github.com/3246251196/openmohaa/tree/AmigaOS4_0_81_1 (AmigaOS)
-- https://github.com/Cowcat5150/openmohaa (MorphOS)
-- https://github.com/Rinnegatamante/openmohaa (PS Vita)
+- https://github.com/3246251196/openmohaa/tree/AmigaOS4_0_81_1 AmigaOS
+- https://github.com/Cowcat5150/openmohaa MorphOS
+- https://github.com/Rinnegatamante/openmohaa PS Vita
 
 To stay up to date with the latest features and fixes from the official repository, these ports depend on their respective maintainers to synchronize changes with the main OpenMoHAA codebase.

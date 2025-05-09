@@ -4,11 +4,12 @@ This guide assumes you installed **Medal of Honor: Allied Assault Warchest** fro
 
 You can get it from [GOG here](https://www.gog.com/en/game/medal_of_honor_allied_assault_war_chest).
 
-## 1. Download
+## Download
 
-Grab the latest `openmohaa-*-windows-x64.zip` from the [releases page](https://github.com/openmoh/openmohaa/releases).
+1. Download and install [Microsoft Visual C++ Redistributable x64](https://aka.ms/vs/17/release/vc_redist.x64.exe)
+2. Grab the latest `openmohaa-*-windows-x64.zip` from the [releases page](https://github.com/openmoh/openmohaa/releases).
 
-## 2. Find your game folder
+## Find your game folder
 
 1. Right-click your **Medal of Honor - Allied Assault** desktop shortcut → **Properties**
 2. Then check the "**Start in**" field, that's your game folder.
@@ -23,7 +24,7 @@ Alternatively, try one of these common locations:
 
 If not there, you'll need to search where you installed it.
 
-## 3. Install
+## Install
 
 1. **Extract the .zip file** you downloaded into the game folder you found earlier.
 2. **Create desktop shortcuts** for these 3 files:
