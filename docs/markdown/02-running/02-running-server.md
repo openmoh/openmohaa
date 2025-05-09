@@ -2,10 +2,12 @@
 
 ## Installation
 
-This guide assume you have already acquired and installed a copy of MOH:AA on your server. If not, see [Getting Started](../01-intro/01-installation.md).
+This guide assume you have already acquired and installed a copy of MOH:AA on your server. If not, see [Getting started](../01-intro/01-installation.md).
 
 1. Download the [latest release](https://github.com/openmoh/openmohaa/releases) that matches your server's platform.
 2. Extract files from the archive into your MOH:AA directory
+
+You can also use Docker, see [Creating a Docker image](04-docker.md).
 
 ## Preparing the server settings
 

@@ -22,9 +22,9 @@ Powered by [ioquake3](https://github.com/ioquake/ioq3) and the [F.A.K.K SDK](htt
 ## Getting started
 
 - 📦 [Installing OpenMoHAA](docs/markdown/01-intro/01-installation.md)
-- ▶️ [How to play: Launching the game, expansions & file locations](markdown/02-running/01-running.md)
+- ▶️ [How to play: Launching the game, expansions & file locations](docs/markdown/02-running/01-running.md)
 - ❓ [FAQ & Troubleshooting](docs/markdown/02-running/03-faq.md)
-- 🌐 [Setting up a game server](markdown/02-running/02-running-server.md)
+- 🌐 [Setting up a game server](docs/markdown/02-running/02-running-server.md)
 
 ## Reporting Issues
 
@@ -35,8 +35,8 @@ If you encounter a bug or a problem, you can do one of the following:
 ## Additional documentation
 
 - 📖 [Documentation](https://openmoh.github.io/openmohaa)
-- ⚙️ [Game settings & configuration](markdown/03-configuration/01-configuration.md)
-- 📝 [Code & Scripting reference](markdown/04-coding/02-coding.md)
+- ⚙️ [Game settings & configuration](docs/markdown/03-configuration/01-configuration.md)
+- 📝 [Code & Scripting reference](docs/markdown/04-coding/02-coding.md)
 
 ## Current state
 
@@ -74,7 +74,7 @@ You can host your own [OpenMoHAA server](docs/markdown/02-running/02-running-ser
 
 ## Development & Compiling
 
-- 💻 [Building from source](markdown/04-coding/01-compiling.md)
+- 💻 [Building from source](docs/markdown/04-coding/01-compiling.md)
 
 ## Third party librairies
 

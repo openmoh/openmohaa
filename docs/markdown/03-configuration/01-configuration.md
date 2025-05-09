@@ -4,7 +4,7 @@
 
 This documentation currently only lists new changes that were introduced in OpenMoHAA. For a list of known settings, see [Server configuration](02-configuration-server.md).
 
-If you want to use containers, see [Building a server container in Docker](../../../docker/server/README.md) to build an image for your dedicated server.
+If you want to use containers, see [Creating a Docker image](../02-running/04-docker.md).
 
 ### Home directory
 
