@@ -148,8 +148,8 @@ void ExampleObject::TestMethod(Event *ev)
 ### Testing the class
 
 Time to test this class.
-1) Create a folder `tests` inside the `main` folder of the game.
-2) Create a file `test_exampleobject.scr` with the following content:
+1. Create a folder `tests` inside the `main` folder of the game.
+2. Create a file `test_exampleobject.scr` with the following content:
 
 ```cpp
 main:
@@ -167,11 +167,11 @@ main:
 end
 ```
 
-3) Start the game
-4) In the main menu, open the console and type the following commands to enable cheats:
+3. Start the game
+4. In the main menu, open the console and type the following commands to enable cheats:
   - `set cheats 1`
   - `set thereisnomonkey 1`
-5) Start a map: `set g_gametype 1;devmap dm/mohdm6`
-6) In the console, type: `testthread tests/test_exampleobject.scr`
+5. Start a map: `set g_gametype 1;devmap dm/mohdm6`
+6. In the console, type: `testthread tests/test_exampleobject.scr`
 
 You should see some stuff being printed into console.

@@ -27,8 +27,8 @@ Use the same method as Linux (see [Extracting GOG Installer on Linux and macOS](
 
 ### Downloading OpenMoHAA
 
-1) Go to the [latest release page](https://github.com/openmoh/openmohaa/releases/latest)
-2) Choose the correct version for your platform:
+1. Go to the [latest release page](https://github.com/openmoh/openmohaa/releases/latest)
+2. Choose the correct version for your platform:
 
 |OS       |Kind of hardware (CPU, platform...)        |Archive
 |---------|-------------------------------------------|-----------------------
@@ -57,8 +57,6 @@ Use the same method as Linux (see [Extracting GOG Installer on Linux and macOS](
   - `launch_openmohaa_spearhead` (Spearhead)
   - `launch_openmohaa_breakthrough` (Breakthrough)
 - Set the shortcut's `Start in` directory to your MOHAA installation directory.
-
-###
 
 🟢 You're now ready to play!
 
@@ -94,9 +92,9 @@ If you want to clean up the mohaa installation directory by keeping only what is
 
 If you got MOHAA from GOG:
 
-1) Install [Innoextract](https://github.com/dscharrer/innoextract) (macOS users: `brew install innoextract`)
-2) Run: `innoextract setup_medal_of_honor_2.0.0.21.exe`
-3) Files will be extracted to a folder called `app/`
+1. Install [Innoextract](https://github.com/dscharrer/innoextract) (macOS users: `brew install innoextract`)
+2. Run: `innoextract setup_medal_of_honor_2.0.0.21.exe`
+3. Files will be extracted to a folder called `app/`
 
 Alternatively, you can also use [WINE](https://www.winehq.org/), but this process may be slower/more complex if you do not already have it installed and configured. 
 
