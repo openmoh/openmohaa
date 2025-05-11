@@ -41,6 +41,8 @@ Alternatively, you can also use [WINE](https://www.winehq.org/), but this proces
 |Linux    |AMD/Intel                                  |`*-linux-amd64`
 |Linux    |Raspberry Pi 4 or 5                        |`*-linux-arm64`
 
+ℹ️ On Windows, `-pdb` archives are intended for maintainers and contributors, they contain debug information specific to this build and is used for debugging purposes, you don't need them.
+
 ### Installing OpenMoHAA
 
 #### Option A
