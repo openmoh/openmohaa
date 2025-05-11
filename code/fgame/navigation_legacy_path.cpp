@@ -63,7 +63,7 @@ bool LegacyPather::TestPath(const Vector& start, const Vector& end, const PathSe
     return PathSearch::FindPath(start, end, parameters.entity, 0, NULL, 0, parameters.fallHeight) != 0;
 }
 
-void LegacyPather::UpdatePos(const Vector& origin)
+void LegacyPather::UpdatePos(const Vector& origin, float speed)
 {
     path.UpdatePos((float *)(Vector&)origin, 8);
 }
@@ -119,7 +119,27 @@ Vector LegacyPather::GetCurrentDelta() const
     return Vector(delta[0], delta[1], 0);
 }
 
+Vector LegacyPather::GetCurrentDirection() const
+{
+    const float *delta = path.CurrentDelta();
+    return Vector(delta[0], delta[1], 0);
+}
+
+Vector LegacyPather::GetDestination() const
+{
+    if (!path.CurrentNode()) {
+        return {};
+    }
+
+    return path.LastNode()->point;
+}
+
 bool LegacyPather::HasReachedGoal(const Vector& origin) const
 {
     return path.Complete(origin);
+}
+
+bool LegacyPather::IsQuerying() const
+{
+    return false;
 }

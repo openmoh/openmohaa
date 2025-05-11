@@ -41,7 +41,7 @@ NavigationMap navigationMap;
 
 const float NavigationMap::recastCellSize   = 12.5f;
 const float NavigationMap::recastCellHeight = 1.0;
-const float NavigationMap::agentHeight      = CROUCH_VIEWHEIGHT;
+const float NavigationMap::agentHeight      = DEFAULT_VIEWHEIGHT;
 const float NavigationMap::agentMaxClimb    = STEPSIZE;
 
 // normal of { 0.714142799, 0, 0.700000048 }, or an angle of -44.4270058

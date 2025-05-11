@@ -63,6 +63,7 @@ public:
     void ClearMove(void);
 
     Vector GetCurrentGoal() const;
+    Vector GetCurrentPathDirection() const;
 
 private:
     void CheckAttractiveNodes();

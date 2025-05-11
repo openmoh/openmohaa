@@ -50,13 +50,16 @@ public:
     ) override;
     virtual bool TestPath(const Vector& start, const Vector& end, const PathSearchParameter& parameters) override;
 
-    virtual void UpdatePos(const Vector& origin) override;
+    virtual void UpdatePos(const Vector& origin, float speed) override;
     virtual void Clear() override;
 
     virtual PathNav GetNode(unsigned int index) const override;
     virtual int     GetNodeCount() const override;
     virtual Vector  GetCurrentDelta() const override;
+    virtual Vector  GetCurrentDirection() const override;
+    virtual Vector  GetDestination() const override;
     virtual bool    HasReachedGoal(const Vector& origin) const override;
+    virtual bool    IsQuerying() const override;
 
 private:
     void ResetAgent(const Vector& origin);
@@ -64,8 +67,9 @@ private:
 
 private:
     Vector lastorg;
-    int navAgentId;
-    bool hasAgent;
+    int    nextCheckTime;
+    int    navAgentId;
+    bool   hasAgent;
 };
 
 class RecastAgentManager
@@ -74,13 +78,16 @@ public:
     RecastAgentManager();
     ~RecastAgentManager();
 
-    void CreateCrowd(float agentRadius, dtNavMesh *mesh);
-    void DestroyCrowd();
+    void     CreateCrowd(float agentRadius, dtNavMesh *mesh);
+    void     DestroyCrowd();
     dtCrowd *GetCrowd() const;
-    void Update();
+    void     Update();
+
+    float GetAgentRadius() const;
 
 private:
     dtCrowd *crowd;
+    float agentRadius;
 };
 
 class RecastPathMaster

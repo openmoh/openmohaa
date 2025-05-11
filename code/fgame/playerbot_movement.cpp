@@ -57,6 +57,7 @@ void BotMovement::MoveThink(usercmd_t& botcmd)
     Vector vDir;
     Vector vAngles;
     Vector vWishDir;
+    Vector vDelta;
 
     botcmd.forwardmove = 0;
     botcmd.rightmove   = 0;
@@ -67,7 +68,11 @@ void BotMovement::MoveThink(usercmd_t& botcmd)
         return;
     }
 
-    if (level.inttime >= m_iLastMoveTime + 1000 && m_vCurrentOrigin != controlledEntity->origin) {
+    if (m_pPath->GetNodeCount()) {
+        m_vTargetPos = m_pPath->GetDestination();
+    }
+
+    if (level.inttime >= m_iLastMoveTime + 5000 && m_vCurrentOrigin != controlledEntity->origin) {
         m_vCurrentOrigin = controlledEntity->origin;
 
         if (m_pPath->GetNodeCount()) {
@@ -77,7 +82,7 @@ void BotMovement::MoveThink(usercmd_t& botcmd)
             parameters.entity     = controlledEntity;
             parameters.fallHeight = maxFallHeight;
             m_pPath->FindPath(
-                controlledEntity->origin, m_pPath->GetNode(m_pPath->GetNodeCount() - 1).origin, parameters
+                controlledEntity->origin, m_pPath->GetDestination(), parameters
             );
 
             m_iLastMoveTime = level.inttime;
@@ -95,12 +100,14 @@ void BotMovement::MoveThink(usercmd_t& botcmd)
         m_iLastMoveTime = level.inttime;
     }
 
+    vDelta = m_pPath->GetCurrentDelta();
+
     if (!m_bTempAway) {
         if (m_pPath->GetNodeCount()) {
-            m_pPath->UpdatePos(controlledEntity->origin);
+            m_pPath->UpdatePos(controlledEntity->origin, controlledEntity->GetRunSpeed());
 
             m_vCurrentGoal = controlledEntity->origin;
-            VectorAdd2D(m_vCurrentGoal, m_pPath->GetCurrentDelta(), m_vCurrentGoal);
+            VectorAdd2D(m_vCurrentGoal, vDelta, m_vCurrentGoal);
 
             if (MoveDone()) {
                 // Clear the path
@@ -124,19 +131,21 @@ void BotMovement::MoveThink(usercmd_t& botcmd)
 
         m_bTempAway = false;
 
-        if (controlledEntity->groundentity || controlledEntity->client->ps.walking) {
-            if (controlledEntity->GetMoveResult() >= MOVERESULT_BLOCKED
-                || controlledEntity->velocity.lengthSquared() <= Square(8)) {
-                m_bTempAway = true;
-            } else if ((controlledEntity->origin - m_vLastCheckPos[0]).lengthSquared() <= Square(32)
-                       && (controlledEntity->origin - m_vLastCheckPos[1]).lengthSquared() <= Square(32)) {
-                m_bTempAway = true;
-            }
-        } else {
-            // falling
-            if (controlledEntity->GetMoveResult() >= MOVERESULT_BLOCKED) {
-                // stuck while falling
-                m_bTempAway = true;
+        if (!m_pPath->IsQuerying()) {
+            if (controlledEntity->groundentity || controlledEntity->client->ps.walking) {
+                if (controlledEntity->GetMoveResult() >= MOVERESULT_BLOCKED
+                    || controlledEntity->velocity.lengthSquared() <= Square(8)) {
+                    m_bTempAway = true;
+                } else if ((controlledEntity->origin - m_vLastCheckPos[0]).lengthSquared() <= Square(32)
+                        && (controlledEntity->origin - m_vLastCheckPos[1]).lengthSquared() <= Square(32)) {
+                    m_bTempAway = true;
+                }
+            } else {
+                // falling
+                if (controlledEntity->GetMoveResult() >= MOVERESULT_BLOCKED) {
+                    // stuck while falling
+                    m_bTempAway = true;
+                }
             }
         }
 
@@ -205,19 +214,19 @@ void BotMovement::MoveThink(usercmd_t& botcmd)
         }
     }
 
-    if (m_pPath->GetNodeCount()) {
+    if (m_pPath->GetNodeCount() || m_bTempAway) {
         if ((m_vTargetPos - controlledEntity->origin).lengthSquared() <= Square(16)) {
             ClearMove();
         }
     } else {
-        if ((m_vTargetPos - controlledEntity->origin).lengthXYSquared() <= Square(16)) {
+        //if ((m_vTargetPos - controlledEntity->origin).lengthXYSquared() <= Square(16)) {
             ClearMove();
-        }
+        //}
     }
 
     // Rotate the dir
     if (m_pPath->GetNodeCount()) {
-        vDir = m_pPath->GetCurrentDelta();
+        vDir = vDelta;
     } else {
         vDir = m_vCurrentGoal - controlledEntity->origin;
     }
@@ -262,7 +271,7 @@ void BotMovement::CheckEndPos(Entity *entity)
         return;
     }
 
-    start = m_pPath->GetNode(m_pPath->GetNodeCount() - 1).origin;
+    start = m_pPath->GetDestination();
     end   = m_vTargetPos;
 
     trace =
@@ -281,10 +290,11 @@ void BotMovement::CheckJump(usercmd_t& botcmd)
     trace_t trace;
 
     if (controlledEntity->GetLadder()) {
-        if (!botcmd.upmove) {
-            botcmd.upmove = 127;
-        } else {
-            botcmd.upmove = 0;
+        if (g_navigation_legacy->integer) {
+            botcmd.upmove = botcmd.upmove ? 0 : 127;
+        } else if (!m_pPath->GetNodeCount()) {
+            // If the bot is not moving, cancel it
+            botcmd.upmove = botcmd.upmove ? 0 : 127;
         }
         return;
     }
@@ -408,7 +418,7 @@ void BotMovement::AvoidPath(
     }
 
     m_iLastMoveTime = level.inttime;
-    m_vTargetPos    = m_pPath->GetNode(m_pPath->GetNodeCount() - 1).origin;
+    m_vTargetPos    = m_pPath->GetDestination();
 }
 
 /*
@@ -437,7 +447,7 @@ void BotMovement::MoveNear(Vector vNear, float fRadius, float *vLeashHome, float
     }
 
     m_iLastMoveTime = level.inttime;
-    m_vTargetPos    = m_pPath->GetNode(m_pPath->GetNodeCount() - 1).origin;
+    m_vTargetPos    = m_pPath->GetDestination();
 }
 
 /*
@@ -624,7 +634,7 @@ bool BotMovement::MoveDone()
         return true;
     }
 
-    Vector delta = m_pPath->GetNode(m_pPath->GetNodeCount() - 1).origin - controlledEntity->origin;
+    Vector delta = m_pPath->GetDestination() - controlledEntity->origin;
     if (delta.lengthXYSquared() < Square(16) && delta.z < controlledEntity->maxs.z) {
         return true;
     }
@@ -671,10 +681,15 @@ Vector BotMovement::GetCurrentGoal() const
         return m_vCurrentGoal;
     }
 
-    if (!m_pPath->HasReachedGoal(controlledEntity->origin)) {
+    if (!m_pPath->HasReachedGoal(controlledEntity->origin) && m_pPath->GetNodeCount()) {
         const Vector delta = m_pPath->GetCurrentDelta();
         return controlledEntity->origin + Vector(delta[0], delta[1], 0);
     }
 
     return controlledEntity->origin;
+}
+
+Vector BotMovement::GetCurrentPathDirection() const
+{
+    return m_pPath->GetCurrentDirection();
 }

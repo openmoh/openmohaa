@@ -119,7 +119,7 @@ public:
      * 
      * @param origin The origin to set
      */
-    virtual void UpdatePos(const Vector& origin) = 0;
+    virtual void UpdatePos(const Vector& origin, float speed) = 0;
 
     /**
      * @brief Clear the path
@@ -145,9 +145,23 @@ public:
     /**
      * @brief Return the current move delta
      * 
-     * @return Vector with the current move delta
+     * @return Vector with the current move delta.
      */
     virtual Vector GetCurrentDelta() const = 0;
+
+    /**
+     * @brief Return the directional vector towards the path
+     * 
+     * @return Vector with the current directional vector.
+     */
+    virtual Vector GetCurrentDirection() const = 0;
+
+    /**
+     * @brief Return the final destination
+     * 
+     * @return Vector the destination.
+     */
+    virtual Vector GetDestination() const = 0;
 
     /**
      * @brief Return true if the origin is at the end of the goal
@@ -155,4 +169,12 @@ public:
      * @param origin The current origin to test
      */
     virtual bool HasReachedGoal(const Vector& origin) const = 0;
+
+    /**
+     * @brief Return true if the path is currently being calculated.
+     * 
+     * @return true 
+     * @return false 
+     */
+    virtual bool IsQuerying() const = 0;
 };

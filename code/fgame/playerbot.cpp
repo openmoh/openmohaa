@@ -183,12 +183,18 @@ void BotController::CheckUse(void)
     Vector  end;
     trace_t trace;
 
+    if (controlledEnt->GetLadder()) {
+        const Vector vAngles = movement.GetCurrentPathDirection().toAngles();
+        rotation.SetTargetAngles(vAngles);
+        return;
+    }
+
     controlledEnt->angles.AngleVectorsLeft(&dir);
 
     start = controlledEnt->origin + Vector(0, 0, controlledEnt->viewheight);
     end   = controlledEnt->origin + Vector(0, 0, controlledEnt->viewheight) + dir * 32;
 
-    trace = G_Trace(start, vec_zero, vec_zero, end, controlledEnt, MASK_USABLE, false, "BotController::CheckUse");
+    trace = G_Trace(start, vec_zero, vec_zero, end, controlledEnt, MASK_USABLE | MASK_LADDER, false, "BotController::CheckUse");
 
     // It may be a door
     if ((trace.allsolid || trace.startsolid || trace.fraction != 1.0f) && trace.ent) {
@@ -207,6 +213,23 @@ void BotController::CheckUse(void)
     } else {
         m_botCmd.buttons &= ~BUTTON_USE;
     }
+
+#if 0
+    Vector  forward;
+    Vector  start, end;
+
+    AngleVectors(controlledEnt->GetViewAngles(), forward, NULL, NULL);
+
+    start = (controlledEnt->m_vViewPos - forward * 12.0f);
+    end   = (controlledEnt->m_vViewPos + forward * 128.0f);
+
+    trace = G_Trace(start, vec_zero, vec_zero, end, controlledEnt, MASK_LADDER, qfalse, "checkladder");
+    if (trace.ent->entity && trace.ent->entity->isSubclassOf(FuncLadder)) {
+        return;
+    }
+
+    m_botCmd.buttons ^= BUTTON_USE;
+#endif
 }
 
 void BotController::CheckValidWeapon() {
@@ -288,13 +311,14 @@ void BotController::AimAtAimNode(void)
         return;
     }
 
-    goal = movement.GetCurrentGoal();
-    if (goal != controlledEnt->origin) {
-        rotation.AimAt(goal);
-    }
+    //goal = movement.GetCurrentGoal();
+    //if (goal != controlledEnt->origin) {
+    //    rotation.AimAt(goal);
+    //}
 
-    Vector targetAngles = rotation.GetTargetAngles();
-    targetAngles.x      = 0;
+    Vector targetAngles;
+    targetAngles = movement.GetCurrentPathDirection().toAngles();
+    targetAngles.x = 0;
     rotation.SetTargetAngles(targetAngles);
 }
 

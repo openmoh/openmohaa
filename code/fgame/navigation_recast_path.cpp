@@ -27,27 +27,73 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "level.h"
 
 #include "DetourCrowd.h"
+#include "entity.h"
+#include "bg_local.h"
 
 RecastPathMaster pathMaster;
 
 RecastPather::RecastPather()
-    : hasAgent(false)
+    : nextCheckTime(0)
+    , hasAgent(false)
 {}
 
 RecastPather::~RecastPather() {}
 
 void RecastPather::FindPath(const Vector& start, const Vector& end, const PathSearchParameter& parameters)
 {
+    Vector        recastStart, recastEnd;
+    Vector        half(16, 16, 16);
+    dtPolyRef     endRef;
+    vec3_t        endPt;
+    dtQueryFilter filter;
+
     lastorg = start;
     ResetAgent(start);
+
+    ConvertGameToRecastCoord(start, recastStart);
+    ConvertGameToRecastCoord(end, recastEnd);
+
+    if (navigationMap.GetNavMeshQuery()->findNearestPoly(recastEnd, half, &filter, &endRef, endPt) != DT_SUCCESS
+        || !endRef) {
+        pathMaster.agentManager.GetCrowd()->resetMoveTarget(navAgentId);
+        return;
+    }
+
+    pathMaster.agentManager.GetCrowd()->requestMoveTarget(navAgentId, endRef, endPt);
 }
 
 void RecastPather::FindPathNear(
     const Vector& start, const Vector& end, float radius, const PathSearchParameter& parameters
 )
 {
+    Vector        recastStart, recastEnd;
+    Vector        half(16, 16, 16);
+    dtPolyRef     endRef;
+    vec3_t        endPt;
+    dtQueryFilter filter;
+
     lastorg = start;
     ResetAgent(start);
+
+    ConvertGameToRecastCoord(start, recastStart);
+    ConvertGameToRecastCoord(end, recastEnd);
+
+    if (navigationMap.GetNavMeshQuery()->findNearestPoly(recastEnd, half, &filter, &endRef, endPt) != DT_SUCCESS
+        || !endRef) {
+        pathMaster.agentManager.GetCrowd()->resetMoveTarget(navAgentId);
+        return;
+    }
+
+    // Now find a point within this radius
+    if (navigationMap.GetNavMeshQuery()->findRandomPointAroundCircle(
+            endRef, endPt, radius, &filter, &G_Random, &endRef, endPt
+        ) != DT_SUCCESS
+        || !endRef) {
+        pathMaster.agentManager.GetCrowd()->resetMoveTarget(navAgentId);
+        return;
+    }
+
+    pathMaster.agentManager.GetCrowd()->requestMoveTarget(navAgentId, endRef, endPt);
 }
 
 void RecastPather::FindPathAway(
@@ -58,8 +104,43 @@ void RecastPather::FindPathAway(
     const PathSearchParameter& parameters
 )
 {
+    Vector        recastStart, recastAvoid, recastEnd;
+    Vector        dirNormalized;
+    Vector        half(16, 16, 16);
+    dtPolyRef     endRef;
+    vec3_t        endPt;
+    dtQueryFilter filter;
+    float         startAngle;
+    int           i;
+
     lastorg = start;
     ResetAgent(start);
+
+    startAngle = preferredDir.toYaw();
+    startAngle = DEG2RAD(startAngle);
+
+    dirNormalized = preferredDir;
+    dirNormalized.normalize();
+
+    ConvertGameToRecastCoord(start, recastStart);
+    ConvertGameToRecastCoord(avoid, recastAvoid);
+    ConvertGameToRecastCoord(avoid + dirNormalized * radius, recastEnd);
+
+    for (i = 0; i < 36; i++) {
+        float angle = startAngle + ((2 * M_PI) * (float)i / (float)36);
+        float dx    = cos(angle) * radius;
+        float dz    = sin(angle) * radius;
+
+        Vector point(recastAvoid[0] + dx, recastAvoid[1], recastAvoid[2] + dz);
+
+        if (navigationMap.GetNavMeshQuery()->findNearestPoly(point, half, &filter, &endRef, endPt) == DT_SUCCESS
+            && endRef) {
+            pathMaster.agentManager.GetCrowd()->requestMoveTarget(navAgentId, endRef, endPt);
+            return;
+        }
+    }
+
+    pathMaster.agentManager.GetCrowd()->resetMoveTarget(navAgentId);
 }
 
 bool RecastPather::TestPath(const Vector& start, const Vector& end, const PathSearchParameter& parameters)
@@ -91,14 +172,55 @@ bool RecastPather::TestPath(const Vector& start, const Vector& end, const PathSe
     return true;
 }
 
-void RecastPather::UpdatePos(const Vector& origin)
+void RecastPather::UpdatePos(const Vector& origin, float speed)
 {
-    ResetAgent(origin);
+    dtCrowd     *crowdManager = pathMaster.agentManager.GetCrowd();
+    const Vector vel          = (origin - lastorg) * level.frametime;
+
+    lastorg = origin;
+
+    if (hasAgent) {
+        dtCrowdAgent *agent = crowdManager->getEditableAgent(navAgentId);
+
+        agent->params.maxSpeed        = speed;
+        agent->params.maxAcceleration = agent->params.maxSpeed * 3.0;
+
+        if (level.inttime >= nextCheckTime) {
+            ConvertGameToRecastCoord(origin, agent->npos);
+            if (agent->targetState != DT_CROWDAGENT_TARGET_REQUESTING
+                && agent->targetState != DT_CROWDAGENT_TARGET_WAITING_FOR_QUEUE
+                && agent->targetState != DT_CROWDAGENT_TARGET_WAITING_FOR_PATH) {
+                agent->corridor.movePosition(
+                    agent->npos, navigationMap.GetNavMeshQuery(), crowdManager->getFilter(navAgentId)
+                );
+
+                Vector delta = Vector(agent->npos) - Vector(agent->corridor.getPos());
+                if (delta.lengthSquared() > Square(64)) {
+                    agent->targetState = DT_CROWDAGENT_TARGET_REQUESTING;
+                    agent->corridor.reset(0, agent->npos);
+                }
+            }
+
+            nextCheckTime = level.inttime + 2000;
+            return;
+        }
+
+        //Vector agentPos;
+        //ConvertRecastToGameCoord(agent->npos, agentPos);
+        //g_entities[2].entity->setOrigin(agentPos);
+    }
 }
 
 void RecastPather::Clear()
 {
-    RemoveAgent();
+    dtCrowd *crowdManager;
+
+    if (!hasAgent) {
+        return;
+    }
+
+    crowdManager = pathMaster.agentManager.GetCrowd();
+    crowdManager->resetMoveTarget(navAgentId);
 }
 
 PathNav RecastPather::GetNode(unsigned int index) const
@@ -107,6 +229,7 @@ PathNav RecastPather::GetNode(unsigned int index) const
     PathNav             nav;
     Vector              target;
     Vector              delta;
+    Vector              agentPos;
     const dtPolyRef    *path;
     int                 npath;
 
@@ -122,62 +245,240 @@ PathNav RecastPather::GetNode(unsigned int index) const
         return {};
     }
 
+    if (index + 1 == npath) {
+        // Just return the target pos
+        ConvertRecastToGameCoord(agent->corridor.getTarget(), nav.origin);
+        ConvertRecastToGameCoord(agent->npos, agentPos);
+
+        nav.dir[0] = nav.origin[0] - agentPos[0];
+        nav.dir[1] = nav.origin[1] - agentPos[1];
+        nav.dist   = VectorLength2D(nav.dir);
+        VectorNormalize2D(nav.dir);
+
+        return nav;
+    }
+
     const dtMeshTile *tile;
     const dtPoly     *poly;
-    navigationMap.GetNavMesh()->getTileAndPolyByRef(path[0], &tile, &poly);
+    if (navigationMap.GetNavMesh()->getTileAndPolyByRef(path[index], &tile, &poly) != DT_SUCCESS) {
+        return {};
+    }
+
     const unsigned int tileId = (unsigned int)(poly - tile->polys);
 
-    const dtPolyDetail *dm = &tile->detailMeshes[tileId];
-    Vector              middle[1];
+    if (poly->getType() == DT_POLYTYPE_OFFMESH_CONNECTION) {
+        dtOffMeshConnection *con = &tile->offMeshCons[tileId - tile->header->offMeshBase];
+        Vector               start, end;
 
-    for (int i = 0; i < 1; i++) {
-        for (int j = 0; j < dm->triCount; ++j) {
-            const unsigned char *t = &tile->detailTris[(dm->triBase + i) * 4];
-            for (int k = 0; k < 3; ++k) {
-                if (t[k] < poly->vertCount) {
-                    middle[i] += &tile->verts[poly->verts[t[k]] * 3];
-                } else {
-                    middle[i] += &tile->detailVerts[(dm->vertBase + t[k] - poly->vertCount) * 3];
+        ConvertRecastToGameCoord(&con->pos[0], start);
+        ConvertRecastToGameCoord(&con->pos[3], end);
+
+        nav.origin = start;
+        nav.dir[0] = end[0] - start[0];
+        nav.dir[1] = end[1] - start[1];
+        VectorNormalize2D(nav.dir);
+        nav.dist = delta.length();
+    } else {
+        const dtPolyDetail *dm = &tile->detailMeshes[tileId];
+        Vector              middle[1];
+
+        for (int i = 0; i < 1; i++) {
+            for (int j = 0; j < dm->triCount; ++j) {
+                const unsigned char *t = &tile->detailTris[(dm->triBase + j) * 4];
+                for (int k = 0; k < 3; ++k) {
+                    if (t[k] < poly->vertCount) {
+                        middle[i] += &tile->verts[poly->verts[t[k]] * 3];
+                    } else {
+                        middle[i] += &tile->detailVerts[(dm->vertBase + t[k] - poly->vertCount) * 3];
+                    }
                 }
             }
 
-            middle[i] /= 3;
+            middle[i] /= dm->triCount * 3;
         }
 
-        middle[i] /= dm->triCount;
-        if (i == 0) {
-            middle[i] += agent->corridor.getPos();
-        }
+        ConvertRecastToGameCoord(middle[0], nav.origin);
+        ConvertRecastToGameCoord(middle[1], target);
+
+        delta      = target - nav.origin;
+        nav.dir[0] = delta[0];
+        nav.dir[1] = delta[1];
+        VectorNormalize2D(nav.dir);
+        nav.dist = delta.length();
     }
-
-    ConvertRecastToGameCoord(middle[0], nav.origin);
-    ConvertRecastToGameCoord(middle[1], target);
-
-    delta      = target - nav.origin;
-    nav.dir[0] = delta[0];
-    nav.dir[1] = delta[1];
-    VectorNormalize2D(nav.dir);
-    nav.dist = delta.length();
 
     return nav;
 }
 
 int RecastPather::GetNodeCount() const
 {
-    const dtCrowdAgent *agent;
-
     if (!hasAgent) {
         return 0;
     }
 
-    agent = pathMaster.agentManager.GetCrowd()->getAgent(navAgentId);
+    const dtCrowdAgent *agent = pathMaster.agentManager.GetCrowd()->getAgent(navAgentId);
+    if (agent->targetState == DT_CROWDAGENT_TARGET_NONE || agent->targetState == DT_CROWDAGENT_TARGET_VELOCITY) {
+        // Not moving
+        return 0;
+    }
+
+    if (agent->state == DT_CROWDAGENT_STATE_INVALID) {
+        // Invalid path (probably not found)
+        return 0;
+    }
 
     return agent->corridor.getPathCount();
 }
 
 Vector RecastPather::GetCurrentDelta() const
 {
-    return Vector();
+    dtCrowd *crowdManager = pathMaster.agentManager.GetCrowd();
+    Vector   delta;
+
+    if (!hasAgent) {
+        return {};
+    }
+
+    const dtCrowdAgent *agent = pathMaster.agentManager.GetCrowd()->getAgent(navAgentId);
+    if (agent->targetState == DT_CROWDAGENT_TARGET_NONE || agent->targetState == DT_CROWDAGENT_TARGET_VELOCITY) {
+        return {};
+    }
+
+    if (agent->state == DT_CROWDAGENT_STATE_INVALID) {
+        return {};
+    }
+
+    const dtMeshTile *tile[2];
+    const dtPoly     *poly[2];
+    unsigned int      tileId[2];
+
+    if (navigationMap.GetNavMesh()->getTileAndPolyByRef(agent->corridor.getFirstPoly(), &tile[0], &poly[0])
+        != DT_SUCCESS) {
+        return {};
+    }
+
+    tileId[0] = (unsigned int)(poly[0] - tile[0]->polys);
+
+    if (agent->corridor.getPathCount() > 1) {
+        navigationMap.GetNavMesh()->getTileAndPolyByRef(agent->corridor.getPath()[1], &tile[1], &poly[1]);
+        tileId[1] = (unsigned int)(poly[1] - tile[1]->polys);
+    }
+
+    if (poly[0]->getType() == DT_POLYTYPE_OFFMESH_CONNECTION) {
+        dtOffMeshConnection *con = &tile[0]->offMeshCons[tileId[0] - tile[0]->header->offMeshBase];
+
+        Vector end;
+        ConvertRecastToGameCoord(&con->pos[3], end);
+
+        delta = end - lastorg;
+    } else if (agent->corridor.getPathCount() > 1 && poly[1]->getType() == DT_POLYTYPE_OFFMESH_CONNECTION) {
+        dtOffMeshConnection *con = &tile[1]->offMeshCons[tileId[1] - tile[1]->header->offMeshBase];
+
+        Vector start, end;
+        Vector ds, de;
+        ConvertRecastToGameCoord(&con->pos[0], start);
+        ConvertRecastToGameCoord(&con->pos[3], end);
+
+        ds = start - lastorg;
+        de = end - lastorg;
+        if (ds.lengthSquared() > de.lengthSquared()) {
+            delta = ds;
+        } else {
+            delta = de;
+        }
+    } else {
+        Vector agentPos;
+        ConvertRecastToGameCoord(agent->npos, agentPos);
+
+        delta = agentPos - lastorg;
+    }
+
+    return delta;
+}
+
+Vector RecastPather::GetCurrentDirection() const
+{
+    dtCrowd *crowdManager = pathMaster.agentManager.GetCrowd();
+    Vector   delta;
+
+    if (!hasAgent) {
+        return {};
+    }
+
+    const dtCrowdAgent *agent = pathMaster.agentManager.GetCrowd()->getAgent(navAgentId);
+    if (agent->targetState == DT_CROWDAGENT_TARGET_NONE || agent->targetState == DT_CROWDAGENT_TARGET_VELOCITY) {
+        return {};
+    }
+
+    if (agent->state == DT_CROWDAGENT_STATE_INVALID) {
+        return {};
+    }
+
+    const dtMeshTile *tile[2];
+    const dtPoly     *poly[2];
+    unsigned int      tileId[2];
+
+    if (navigationMap.GetNavMesh()->getTileAndPolyByRef(agent->corridor.getFirstPoly(), &tile[0], &poly[0])
+        != DT_SUCCESS) {
+        return {};
+    }
+
+    tileId[0] = (unsigned int)(poly[0] - tile[0]->polys);
+
+    if (agent->corridor.getPathCount() > 1) {
+        navigationMap.GetNavMesh()->getTileAndPolyByRef(agent->corridor.getPath()[1], &tile[1], &poly[1]);
+        tileId[1] = (unsigned int)(poly[1] - tile[1]->polys);
+    }
+
+    if (poly[0]->getType() == DT_POLYTYPE_OFFMESH_CONNECTION) {
+        dtOffMeshConnection *con = &tile[0]->offMeshCons[tileId[0] - tile[0]->header->offMeshBase];
+
+        Vector end;
+        ConvertRecastToGameCoord(&con->pos[3], end);
+
+        delta = end - lastorg;
+        delta.normalize();
+    } else if (agent->corridor.getPathCount() > 1 && poly[1]->getType() == DT_POLYTYPE_OFFMESH_CONNECTION) {
+        dtOffMeshConnection *con = &tile[1]->offMeshCons[tileId[1] - tile[1]->header->offMeshBase];
+
+        Vector end;
+        ConvertRecastToGameCoord(&con->pos[3], end);
+
+        delta = end - lastorg;
+        delta.normalize();
+    } else {
+        ConvertRecastToGameCoord(agent->vel, delta);
+        delta.normalize();
+    }
+
+    return delta;
+}
+
+Vector RecastPather::GetDestination() const
+{
+    Vector dest;
+
+    if (!hasAgent) {
+        return {};
+    }
+
+    const dtCrowdAgent *agent = pathMaster.agentManager.GetCrowd()->getAgent(navAgentId);
+    if (agent->targetState == DT_CROWDAGENT_TARGET_NONE || agent->targetState == DT_CROWDAGENT_TARGET_VELOCITY) {
+        return {};
+    }
+
+    if (agent->state == DT_CROWDAGENT_STATE_INVALID) {
+        return {};
+    }
+
+    if (agent->targetState == DT_CROWDAGENT_TARGET_VALID) {
+        ConvertRecastToGameCoord(agent->corridor.getTarget(), dest);
+        return dest;
+    }
+
+    ConvertRecastToGameCoord(agent->targetPos, dest);
+
+    return dest;
 }
 
 bool RecastPather::HasReachedGoal(const Vector& origin) const
@@ -202,27 +503,66 @@ bool RecastPather::HasReachedGoal(const Vector& origin) const
     return false;
 }
 
+bool RecastPather::IsQuerying() const
+{
+    const dtCrowdAgent *agent = pathMaster.agentManager.GetCrowd()->getAgent(navAgentId);
+
+    if (agent->state == DT_CROWDAGENT_STATE_INVALID) {
+        return false;
+    }
+
+    switch (agent->targetState) {
+    case DT_CROWDAGENT_TARGET_NONE:
+    case DT_CROWDAGENT_TARGET_VALID:
+    case DT_CROWDAGENT_TARGET_VELOCITY:
+        return false;
+    default:
+        return true;
+    }
+}
+
 void RecastPather::ResetAgent(const Vector& origin)
 {
     dtCrowd *crowdManager = pathMaster.agentManager.GetCrowd();
     vec3_t   rcOrigin;
 
     if (hasAgent) {
-        crowdManager->removeAgent(navAgentId);
+        dtCrowdAgent *agent = crowdManager->getEditableAgent(navAgentId);
+
+        // Find nearest position on navmesh and place the agent there.
+        dtPolyRef ref = 0;
+        float     nearest[3];
+        dtStatus  status = navigationMap.GetNavMeshQuery()->findNearestPoly(
+            agent->npos, crowdManager->getQueryHalfExtents(), crowdManager->getFilter(navAgentId), &ref, nearest
+        );
+
+        pathMaster.agentManager.GetCrowd()->resetMoveTarget(navAgentId);
+        ConvertGameToRecastCoord(origin, agent->npos);
+
+        if (agent->state == DT_CROWDAGENT_STATE_INVALID && dtStatusSucceed(status)) {
+            agent->state = DT_CROWDAGENT_STATE_WALKING;
+            agent->corridor.reset(ref, nearest);
+        } else {
+            agent->corridor.reset(0, agent->npos);
+        }
+
+        return;
     }
 
     ConvertGameToRecastCoord(origin, rcOrigin);
 
     dtCrowdAgentParams ap {0};
-    ap.radius                = NavigationMap::agentRadius;
+    ap.radius                = pathMaster.agentManager.GetAgentRadius();
     ap.height                = NavigationMap::agentHeight;
-    ap.maxAcceleration       = 8.0f;
-    ap.maxSpeed              = 3.5f;
+    ap.maxSpeed              = sv_runspeed->integer * sv_dmspeedmult->integer;
+    ap.maxAcceleration       = ap.maxSpeed * 3.0;
     ap.collisionQueryRange   = ap.radius * 12.0f;
-    ap.pathOptimizationRange = ap.radius * 30.0f;
-    ap.updateFlags           = 0;
+    ap.pathOptimizationRange = ap.radius * 64.0f;
+    ap.separationWeight      = 0.0;
+    ap.updateFlags           = DT_CROWD_OPTIMIZE_TOPO;
 
     navAgentId = crowdManager->addAgent(rcOrigin, &ap);
+    hasAgent   = true;
 }
 
 void RecastPather::RemoveAgent()
@@ -247,8 +587,10 @@ RecastAgentManager::~RecastAgentManager()
 
 void RecastAgentManager::CreateCrowd(float agentRadius, dtNavMesh *mesh)
 {
+    this->agentRadius = agentRadius;
+
     crowd = dtAllocCrowd();
-    crowd->init(MAX_CLIENTS, agentRadius, mesh);
+    crowd->init(MAX_CLIENTS, this->agentRadius, mesh);
 }
 
 void RecastAgentManager::DestroyCrowd()
@@ -273,9 +615,13 @@ void RecastAgentManager::Update()
     crowd->update(level.frametime, NULL);
 }
 
+float RecastAgentManager::GetAgentRadius() const {
+    return agentRadius;
+}
+
 void RecastPathMaster::PostLoadNavigation(const NavigationMap& map)
 {
-    agentManager.CreateCrowd(map.agentRadius, map.GetNavMesh());
+    agentManager.CreateCrowd(MAXS_X, map.GetNavMesh());
 }
 
 void RecastPathMaster::ClearNavigation()
