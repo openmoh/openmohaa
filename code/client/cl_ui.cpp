@@ -3794,6 +3794,8 @@ void CL_FillUIImports(void)
 
     uii.GetRefSequence = CL_GetRefSequence;
     uii.IsRendererLoaded = CL_IsRendererLoaded;
+    uii.Rend_LoadRawImage = re.LoadRawImage;
+    uii.Rend_FreeRawImage = re.FreeRawImage;
 }
 
 /*
@@ -5299,7 +5301,7 @@ void CL_InitializeUI(void)
 
     // New since mohta
     // Version number
-    Cvar_Set("game_version", va("v%s", com_target_version->string));
+    Cvar_Set("game_version", va("v%s", com_target_shortversion->string));
 
     // Add all commands
     Cmd_AddCommand("pushmenu", UI_PushMenu_f);

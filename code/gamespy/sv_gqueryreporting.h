@@ -70,6 +70,7 @@ DEFINES
 #define MASTER_ADDR     qr_get_master_host(0)
 #define FIRST_HB_TIME   30000  /* 30 sec */
 #define HB_TIME         300000 /* 5 minutes */
+#define HB_SEND_DELAY   0      /* currently send to all masters at once, unless it causes problem */
 #define MAX_FIRST_COUNT 10     /* 10 tries = 5 minutes */
 #define MAX_DATA_SIZE   1400
 #define INBUF_LEN       256

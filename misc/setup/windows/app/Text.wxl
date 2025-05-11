@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<WixLocalization Culture="en-us" xmlns="http://wixtoolset.org/schemas/v4/wxl">
+    <String Id="InstallDirDlgDescription" Overridable="yes" Value="Specify the path to the MOH:AA directory" />
+</WixLocalization>

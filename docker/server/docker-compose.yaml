@@ -1,0 +1,13 @@
+services:
+    openmohaa-server:
+        restart: unless-stopped
+        image: openmohaa/full
+        environment:
+            - GAME_PORT=12203
+        ports:
+            - "12203:12203/udp" # Game port
+            - "12300:12300/udp" # Gamespy port
+#        volumes:
+#            # Mount the settings folder inside the main folder, it has server.cfg
+#            - ./config/settings:/usr/local/share/mohaa/home/main/settings
+        command: ["+set", "com_target_game", "0", "+exec", "server.cfg"]

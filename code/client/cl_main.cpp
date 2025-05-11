@@ -1126,6 +1126,8 @@ in anyway.
 ===================
 */
 void CL_RequestAuthorization( void ) {
+    // MOHAA doesn't support this
+#if 0
 	char	nums[64];
 	int		i, j;
 	size_t	l;
@@ -1168,6 +1170,7 @@ void CL_RequestAuthorization( void ) {
 	fs = Cvar_Get ("cl_anonymous", "0", CVAR_INIT|CVAR_SYSTEMINFO );
 
 	CL_NET_OutOfBandPrint(cls.authorizeServer, "getKeyAuthorize %i %s", fs->integer, nums );
+#endif
 }
 
 /*
@@ -2009,11 +2012,10 @@ void CL_CheckForResend( void ) {
 
 	switch ( clc.state ) {
 	case CA_CONNECTING:
-		// requesting a challenge
-		//wombat: not authorization in mohaa
-//		if ( !Sys_IsLANAddress( clc.serverAddress ) ) {
-//			CL_RequestAuthorization();
-//		}
+#ifndef STANDALONE
+		if (!com_standalone->integer && clc.serverAddress.type == NA_IP && !Sys_IsLANAddress( clc.serverAddress ) )
+			CL_RequestAuthorization();
+#endif
 		CL_NET_OutOfBandPrint(clc.serverAddress, "getchallenge");
 		break;
 	case CA_AUTHORIZING:
@@ -2028,7 +2030,13 @@ wombat: sending conect here: an example connect string from MOHAA looks like thi
 */
 
 		// sending back the challenge
-		port = Cvar_VariableValue ("net_qport");
+		port = Cvar_VariableIntegerValue ("net_qport");
+
+        // sanitize the name before sending it
+	    char szSanitizedName[MAX_NAME_LENGTH];
+		if (Com_SanitizeName(name->string, szSanitizedName, sizeof(szSanitizedName))) {
+			Cvar_Set("name", szSanitizedName);
+		}
 
 		Q_strncpyz( info, Cvar_InfoString( CVAR_USERINFO ), sizeof( info ) );
 		
@@ -2041,9 +2049,9 @@ wombat: sending conect here: an example connect string from MOHAA looks like thi
 		else
 #endif
 			Info_SetValueForKey(info, "protocol", va("%i", com_protocol->integer));
-		Info_SetValueForKey( info, "qport", va("%i", port ) );
+		Info_SetValueForKey(info, "qport", va("%i", port));
 		Info_SetValueForKey(info, "challenge", va("%i", clc.challenge));
-		Info_SetValueForKey(info, "version", com_target_version->string);
+		Info_SetValueForKey(info, "version", com_target_shortversion->string);
 		if (com_target_game->integer == target_game_e::TG_MOHTT) {
 			// only send if maintt is loaded
 			Info_SetValueForKey(info, "clientType", "Breakthrough");
@@ -2415,7 +2423,7 @@ void CL_ConnectionlessPacket( netadr_t from, msg_t *msg ) {
 
     if (!Q_stricmp(c, "wrongver")) {
         reason = MSG_ReadString(msg);
-        Cvar_Set("com_errorMessage", va("Server is version %s, you are using %s, from base '%s'", reason, com_target_version->string, Cvar_VariableString("fs_basegame")));
+        Cvar_Set("com_errorMessage", va("Server is version %s, you are using %s, from base '%s'", reason, com_target_shortversion->string, Cvar_VariableString("fs_basegame")));
         CL_Disconnect_f();
         UI_ForceMenuOff(qtrue);
         UI_PushMenu("errormessage");
@@ -2791,6 +2799,9 @@ void CL_Frame ( int msec ) {
 	}
 
 	L_ProcessPendingEvents();
+
+    // Added in OPM
+    CL_UpdateMouse();
 
 	// update the screen
 	SCR_UpdateScreen();
@@ -3918,7 +3929,7 @@ void CL_ServerInfoPacket( netadr_t from, msg_t *msg ) {
 				}
 			}
 		} else {
-			if (fabs(atof(pszVersion) - com_target_version->value) > 0.1f) {
+			if (fabs(atof(pszVersion) - com_target_shortversion->value) > 0.1f) {
 				return;
 			}
 		}

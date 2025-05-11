@@ -982,7 +982,8 @@ void G_SoundCallback(int entNum, soundChannel_t channelNumber, const char *name)
     Entity    *entity = ent->entity;
 
     if (!entity) {
-        ScriptError("ERROR:  wait on playsound only works on entities that still exist when the sound is done playing."
+        ScriptError(
+            "ERROR:  wait on playsound only works on entities that still exist when the sound is done playing."
         );
     }
 
@@ -1874,75 +1875,81 @@ void G_ExitLevel(void)
     int                j;
     gentity_t         *ent;
 
-    // Don't allow exit level if the mission was failed
-
-    if (level.mission_failed) {
-        return;
-    }
-
-    // close the player log file if necessary
+    // Close the player log file if necessary
     ClosePlayerLogFile();
 
-    // kill the sounds
+    // Kill the sounds
     Com_sprintf(command, sizeof(command), "stopsound\n");
     gi.SendConsoleCommand(command);
 
     if (g_gametype->integer != GT_SINGLE_PLAYER) {
-        if (strlen(sv_nextmap->string)) {
+        if (sv_nextmap->string && sv_nextmap->string[0]) {
             // The nextmap cvar was set (possibly by a vote - so go ahead and use it)
             level.nextmap = sv_nextmap->string;
             gi.cvar_set("nextmap", "");
-        } else {
+        } else if (sv_maplist->string && sv_maplist->string[0]) {
             // Use the next map in the maplist
-            char *s, *f, *t;
+            char    *s, *t;
+            qboolean bLevelSet = false;
+            str      sFirst;
 
-            f = NULL;
             s = strdup(sv_maplist->string);
-            t = strtok(s, seps);
-            while (t != NULL) {
+            for (t = strtok(s, seps); t; t = strtok(NULL, seps)) {
                 if (!Q_stricmp(t, level.mapname.c_str())) {
-                    // it's in the list, go to the next one
+                    // It's in the list, go to the next one
                     t = strtok(NULL, seps);
                     if (t) {
                         level.nextmap = t;
-                    } else if (f) {
-                        // end of list, go to first one
-                        level.nextmap = f;
                     } else {
-                        // there isn't a first one, same level
-                        level.nextmap = level.mapname;
+                        if (sFirst.length()) {
+                            // End of list, go to first one
+                            level.nextmap = sFirst;
+                        } else {
+                            // There isn't a first one, same level
+                            level.nextmap = level.mapname;
+                        }
                     }
 
+                    bLevelSet = true;
                     break;
                 }
 
-                // set the first map
-                if (!f) {
-                    f = t;
+                if (!sFirst.length()) {
+                    sFirst = t;
                 }
-                t = strtok(NULL, seps);
             }
+
             free(s);
+
+            if (!bLevelSet) {
+                // No level set, use the first map
+                level.nextmap = sFirst;
+                bLevelSet     = true;
+            }
         }
 
         // level.nextmap should be set now, but if it isn't use the same map
-        if (level.nextmap.length() == 0) {
-            // Stay on the same map since no nextmap was set
-            Com_sprintf(command, sizeof(command), "restart\n");
-            gi.SendConsoleCommand(command);
-        } else if (level.nextmap == level.mapname) {
+        if (!level.nextmap.length()) {
+            level.nextmap = level.mapname;
+        }
+
+        if (level.nextmap == level.mapname) {
             // Stay on the same map if it's the same as the current map
             Com_sprintf(command, sizeof(command), "restart\n");
-            gi.SendConsoleCommand(command);
-        } else if (!Q_stricmpn(level.nextmap, "vstr", 4)) {
-            // alias on another map
-            Q_strncpyz(command, level.nextmap, sizeof(command));
-            gi.SendConsoleCommand(command);
-        } else {
-            // use the level.nextmap variable
-            Com_sprintf(command, sizeof(command), "gamemap \"%s\"\n", level.nextmap.c_str());
-            gi.SendConsoleCommand(command);
         }
+        // Added in 2.15
+        //  Execute a cvar command with `vstr`
+        //else if (!Q_stricmpn(level.nextmap, "vstr", 4)) {
+        // Fixed in OPM
+        //  Match the exact vstr command
+        else if (!Q_stricmpn(level.nextmap, "vstr ", 5)) {
+            Q_strncpyz(command, level.nextmap, sizeof(command));
+        } else {
+            // Use the level.nextmap variable
+            Com_sprintf(command, sizeof(command), "gamemap \"%s\"\n", level.nextmap.c_str());
+        }
+
+        gi.SendConsoleCommand(command);
     } else {
         Com_sprintf(command, sizeof(command), "gamemap \"%s\"\n", level.nextmap.c_str());
         gi.SendConsoleCommand(command);

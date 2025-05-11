@@ -1,0 +1,60 @@
+name: publish
+on:
+    push:
+      branches:
+        - 'main'
+    pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get and install Doxygen
+        run: |
+            wget https://github.com/doxygen/doxygen/releases/download/Release_1_13_2/doxygen-1.13.2.linux.bin.tar.gz -O doxygen.tar.gz
+            tar xzf doxygen.tar.gz
+            cd doxygen-*
+            sudo cp bin/doxygen /usr/local/bin/
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          path: 'source'
+
+      - name: Generate Documentation (Doxygen)
+        working-directory: ${{github.workspace}}/source
+        run: |
+            version_file=$(cat code/qcommon/q_version.h)
+            PRODUCT_VERSION_MAJOR=$(echo "$version_file" | grep -E "define[ \t]+PRODUCT_VERSION_MAJOR" | awk -F'[ \t]+' '{print $3""}' | tr -d '\r\n')
+            PRODUCT_VERSION_MINOR=$(echo "$version_file" | grep -E "define[ \t]+PRODUCT_VERSION_MINOR" | awk -F'[ \t]+' '{print $3""}' | tr -d '\r\n')
+            PRODUCT_VERSION_PATCH=$(echo "$version_file" | grep -E "define[ \t]+PRODUCT_VERSION_PATCH" | awk -F'[ \t]+' '{print $3""}' | tr -d '\r\n')
+            export PROJECT_VERSION_NUMBER="$PRODUCT_VERSION_MAJOR.$PRODUCT_VERSION_MINOR.$PRODUCT_VERSION_PATCH"
+            doxygen docs/Doxyfile
+
+      - name: Upload static files as artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ${{github.workspace}}/source/docs/doxygen/html
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    runs-on: ubuntu-latest
+    needs: build
+
+    # Permissions for deploying the page
+    permissions:
+      pages: write
+      id-token: write
+
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+

@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2024 the OpenMoHAA team
+Copyright (C) 2025 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -30,7 +30,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 std::filesystem::path GetProgramLocation()
 {
-    wchar_t path[FILENAME_MAX] = { 0 };
+    wchar_t path[FILENAME_MAX] = {0};
     GetModuleFileNameW(nullptr, path, FILENAME_MAX);
 
     return std::filesystem::path(path).parent_path();
@@ -39,11 +39,11 @@ std::filesystem::path GetProgramLocation()
 void LaunchProgram(const std::filesystem::path& path, const std::vector<std::string>& argumentList)
 {
     PROCESS_INFORMATION processInfo;
-    STARTUPINFOW startupInfo;
-    BOOL returnValue;
-    std::wstring osCommandLine;
-    std::wstring commandLine;
-    size_t argCount = argumentList.size();
+    STARTUPINFOW        startupInfo;
+    BOOL                returnValue;
+    std::wstring        osCommandLine;
+    std::wstring        commandLine;
+    size_t              argCount = argumentList.size();
 
     memset(&processInfo, 0, sizeof(processInfo));
     memset(&startupInfo, 0, sizeof(startupInfo));
@@ -58,7 +58,7 @@ void LaunchProgram(const std::filesystem::path& path, const std::vector<std::str
         }
     }
 
-    osCommandLine = path.wstring();
+    osCommandLine = L"\"" + path.wstring() + L"\"";
     osCommandLine += L" ";
     osCommandLine += commandLine;
 

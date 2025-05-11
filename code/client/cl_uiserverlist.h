@@ -24,35 +24,59 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "../gamespy/goaceng.h"
 
-class UIFAKKServerList : public UIListCtrl {
-protected:
-	// need a new struct instead of gamespy
-	struct GServerListImplementation *m_serverList[2];
-	bool m_bHasList;
-	bool m_bLANListing;
+#define NUM_SERVERLISTS 2
+
+struct FAKKServerListInstance {
+    int                     iServerType;
+    class UIFAKKServerList *serverList;
+};
+
+class UIFAKKServerList : public UIListCtrl
+{
+    friend class FAKKServerListItem;
 
 public:
-	CLASS_PROTOTYPE( UIFAKKServerList );
-
-	bool m_bGettingList[2];
-	bool m_bUpdatingList;
+    CLASS_PROTOTYPE(UIFAKKServerList);
 
 protected:
-	void			SelectServer( Event *ev );
-	void			ConnectServer( Event *ev );
-	qboolean		KeyEvent( int key, unsigned int time ) override;
-	void			UpdateUIElement( void ) override;
-	void			RefreshServerList( Event *ev );
-	void			RefreshLANServerList( Event *ev );
-	void			CancelRefresh( Event *ev );
-	void			NewServerList( void );
-	void			MakeLANListing( Event *ev );
-	void			UpdateServer( Event *ev );
-	static int		ServerCompareFunction( const UIListCtrlItem *i1, const UIListCtrlItem *i2, int columnname );
-    static void     UpdateServerListCallBack(GServerList serverlist, int msg, void *instance, void *param1, void *param2);
-public:
-	UIFAKKServerList();
+    // need a new struct instead of gamespy
+    struct GServerListImplementation *m_serverList[NUM_SERVERLISTS];
+    bool                              m_bHasList;
+    bool                              m_bLANListing;
 
-	void		Draw( void ) override;
-	void		SortByColumn( int column ) override;
+public:
+    bool m_bGettingList[NUM_SERVERLISTS];
+    bool m_bUpdatingList;
+
+private:
+    // Added in OPM
+    //  Servers count
+    FAKKServerListInstance m_ServerListInst[NUM_SERVERLISTS];
+    int                    m_iServerQueryCount;
+    int                    m_iServerTotalCount;
+    int                    m_iTotalNumPlayers;
+    bool                   m_bDoneUpdating[NUM_SERVERLISTS];
+    bool                   m_NeedAdditionalLANSearch;
+
+protected:
+    void     SelectServer(Event *ev);
+    void     ConnectServer(Event *ev);
+    qboolean KeyEvent(int key, unsigned int time) override;
+    void     UpdateUIElement(void) override;
+    void     RefreshServerList(Event *ev);
+    void     RefreshLANServerList(Event *ev);
+    void     CancelRefresh(Event *ev);
+    void     NewServerList(void);
+    void     MakeLANListing(Event *ev);
+    void     UpdateServer(Event *ev);
+    void     RefreshStatus();
+
+    static int  ServerCompareFunction(const UIListCtrlItem *i1, const UIListCtrlItem *i2, int columnname);
+    static void UpdateServerListCallBack(GServerList serverlist, int msg, void *instance, void *param1, void *param2);
+
+public:
+    UIFAKKServerList();
+
+    void Draw(void) override;
+    void SortByColumn(int column) override;
 };

@@ -262,7 +262,7 @@ int UIInstantAction::GetServerIndex(int maxPing, int gameType)
                 }
             }
         } else {
-            if (fabs(fGameVer - com_target_version->value) > 0.1f) {
+            if (fabs(fGameVer - com_target_shortversion->value) > 0.1f) {
                 continue;
             }
         }
@@ -429,13 +429,13 @@ void UIInstantAction::Connect(Event *ev)
             }
         }
     } else {
-        if (fabs(fGameVer - com_target_version->value) > 0.1f) {
+        if (fabs(fGameVer - com_target_shortversion->value) > 0.1f) {
             bDiffVersion = true;
         }
     }
 
     if (bDiffVersion) {
-        if (fGameVer - com_target_version->value > 0) {
+        if (fGameVer - com_target_shortversion->value > 0) {
             // Older version
             UI_SetReturnMenuToCurrent();
             Cvar_Set("com_errormessage", va("Server is version %s, you are using %s", gameVer, "2.40"));
