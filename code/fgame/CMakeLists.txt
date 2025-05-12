@@ -59,9 +59,9 @@ if (FLEX_FOUND AND BISON_FOUND)
 endif()
 
 # Recast navigation
-add_subdirectory(../recastnavigation-1.6.0/Detour fgame_detour)
-add_subdirectory(../recastnavigation-1.6.0/DetourCrowd fgame_detour_crowd)
-add_subdirectory(../recastnavigation-1.6.0/Recast fgame_recast)
+add_subdirectory(../recastnavigation/Detour fgame_detour)
+add_subdirectory(../recastnavigation/DetourCrowd fgame_detour_crowd)
+add_subdirectory(../recastnavigation/Recast fgame_recast)
 # Enable position independant code on recast navigation libraries.
 # Otherwise linking will fail relocating some functions on Linux
 set_property(TARGET Detour Recast PROPERTY POSITION_INDEPENDENT_CODE ON)
