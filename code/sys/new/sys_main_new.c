@@ -237,7 +237,7 @@ Sys_GetGameAPI
 void* Sys_GetGameAPI(void* parms)
 {
     void* (*GetGameAPI) (void*);
-    const char* gamename = "game" ARCH_SUFFIX DLL_SUFFIX DLL_EXT;
+    const char* gamename = "game" DLL_SUFFIX DLL_EXT;
 
     if (game_library)
         Com_Error(ERR_FATAL, "Sys_GetGameAPI without calling Sys_UnloadGame");
@@ -286,7 +286,7 @@ Sys_GetCGameAPI
 void* Sys_GetCGameAPI(void* parms)
 {
     void* (*GetCGameAPI) (void*);
-    const char* gamename = "cgame" ARCH_SUFFIX DLL_SUFFIX DLL_EXT;
+    const char* gamename = "cgame" DLL_SUFFIX DLL_EXT;
 
     if (cgame_library)
         Com_Error(ERR_FATAL, "Sys_GetCGameAPI without calling Sys_UnloadCGame");

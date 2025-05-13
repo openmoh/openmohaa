@@ -30,9 +30,9 @@ If not there, you'll need to search where you installed it.
 
 1. **Extract the .zip file** you downloaded into the game folder you found earlier.
 2. **Create desktop shortcuts** for these 3 files:
-    * `launch_openmohaa_base.x86_64.exe` - *Allied Assault*
-    * `launch_openmohaa_spearhead.x86_64.exe` - *Spearhead*
-    * `launch_openmohaa_breakthrough.x86_64.exe` - *Breakthrough*
+    * `launch_openmohaa_base.exe` - *Allied Assault*
+    * `launch_openmohaa_spearhead.exe` - *Spearhead*
+    * `launch_openmohaa_breakthrough.exe` - *Breakthrough*
 
 To do that, **right-click each file**, then choose **Send to → Desktop (create shortcut)**.
 

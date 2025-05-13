@@ -8,22 +8,18 @@
         <MediaTemplate EmbedCab="yes" />
         <util:QueryNativeMachine />
         <?if $(sys.BUILDARCH) = "x64"?>
-        <?define PlatformSuffix="x86_64"?>
         <?define ProgramFilesFolder="ProgramFiles64Folder"?>
         <?define ImageFileMachine=34404?>
         <?define Bitness="64"?>
         <?elseif $(sys.BUILDARCH) = "x86"?>
-        <?define PlatformSuffix="x86"?>
         <?define ProgramFilesFolder="ProgramFilesFolder"?>
         <?define ImageFileMachine=332?>
         <?define Bitness="32"?>
         <?elseif $(sys.BUILDARCH) = "arm64"?>
-        <?define PlatformSuffix="arm64"?>
         <?define ProgramFilesFolder="ProgramFiles64Folder"?>
         <?define ImageFileMachine=43620?>
         <?define Bitness="64"?>
         <?else?>
-        <?define PlatformSuffix="$(sys.BUILDARCH)"?>
         <?define ProgramFilesFolder="ProgramFilesFolder"?>
         <?define ImageFileMachine=34404?>
         <?define Bitness="64"?>
@@ -33,17 +29,17 @@
             <Directory Id="INSTALLFOLDER" Name="EA Games\MOHAA">
                 <Directory Name="openmohaa">
                     <!-- Core components -->
-                    <Component Id="openmohaa.$(var.PlatformSuffix).exe">
-                        <File Source="files/openmohaa.$(var.PlatformSuffix).exe" />
+                    <Component Id="openmohaa.exe">
+                        <File Source="files/openmohaa.exe" />
                     </Component>
-                    <Component Id="omohaaded.$(var.PlatformSuffix).exe">
-                        <File Source="files/omohaaded.$(var.PlatformSuffix).exe" />
+                    <Component Id="omohaaded.exe">
+                        <File Source="files/omohaaded.exe" />
                     </Component>
-                    <Component Id="cgame.$(var.PlatformSuffix).dll">
-                        <File Source="files/cgame.$(var.PlatformSuffix).dll" />
+                    <Component Id="cgame.dll">
+                        <File Source="files/cgame.dll" />
                     </Component>
-                    <Component Id="game.$(var.PlatformSuffix).dll">
-                        <File Source="files/game.$(var.PlatformSuffix).dll" />
+                    <Component Id="game.dll">
+                        <File Source="files/game.dll" />
                     </Component>
 
                     <!-- Third-party -->
@@ -58,8 +54,8 @@
                     </Component>
 
                     <!-- Launchers -->
-                    <Component Id="launch_openmohaa_base.$(var.PlatformSuffix).exe">
-                        <File Source="files/launch_openmohaa_base.$(var.PlatformSuffix).exe"
+                    <Component Id="launch_openmohaa_base.exe">
+                        <File Source="files/launch_openmohaa_base.exe"
                             KeyPath="yes">
                             <Shortcut Advertise="yes" Directory="DesktopFolder"
                                 Name="OpenMoHAA (Allied Assault)" Icon="openmohaa_icon.exe"
@@ -69,8 +65,8 @@
                                 WorkingDirectory="INSTALLFOLDER" />
                         </File>
                     </Component>
-                    <Component Id="launch_openmohaa_spearhead.$(var.PlatformSuffix).exe">
-                        <File Source="files/launch_openmohaa_spearhead.$(var.PlatformSuffix).exe"
+                    <Component Id="launch_openmohaa_spearhead.exe">
+                        <File Source="files/launch_openmohaa_spearhead.exe"
                             KeyPath="yes">
                             <Shortcut Advertise="yes" Directory="DesktopFolder"
                                 Name="OpenMoHAA (Spearhead)" Icon="openmohaa_icon.exe"
@@ -80,8 +76,8 @@
                                 WorkingDirectory="INSTALLFOLDER" />
                         </File>
                     </Component>
-                    <Component Id="launch_openmohaa_breakthrough.$(var.PlatformSuffix).exe">
-                        <File Source="files/launch_openmohaa_breakthrough.$(var.PlatformSuffix).exe"
+                    <Component Id="launch_openmohaa_breakthrough.exe">
+                        <File Source="files/launch_openmohaa_breakthrough.exe"
                             KeyPath="yes">
                             <Shortcut Advertise="yes" Directory="DesktopFolder"
                                 Name="OpenMoHAA (Breakthrough)" Icon="openmohaa_icon.exe"
@@ -95,13 +91,13 @@
             </Directory>
         </StandardDirectory>
 
-        <Icon Id="openmohaa_icon.exe" SourceFile="files/openmohaa.$(var.PlatformSuffix).exe" />
+        <Icon Id="openmohaa_icon.exe" SourceFile="files/openmohaa.exe" />
 
         <ComponentGroup Id="Core">
-            <ComponentRef Id="openmohaa.$(var.PlatformSuffix).exe" />
-            <ComponentRef Id="omohaaded.$(var.PlatformSuffix).exe" />
-            <ComponentRef Id="cgame.$(var.PlatformSuffix).dll" />
-            <ComponentRef Id="game.$(var.PlatformSuffix).dll" />
+            <ComponentRef Id="openmohaa.exe" />
+            <ComponentRef Id="omohaaded.exe" />
+            <ComponentRef Id="cgame.dll" />
+            <ComponentRef Id="game.dll" />
         </ComponentGroup>
 
         <ComponentGroup Id="ThirdParty">
@@ -111,9 +107,9 @@
         </ComponentGroup>
 
         <ComponentGroup Id="Launchers">
-            <ComponentRef Id="launch_openmohaa_base.$(var.PlatformSuffix).exe" />
-            <ComponentRef Id="launch_openmohaa_spearhead.$(var.PlatformSuffix).exe" />
-            <ComponentRef Id="launch_openmohaa_breakthrough.$(var.PlatformSuffix).exe" />
+            <ComponentRef Id="launch_openmohaa_base.exe" />
+            <ComponentRef Id="launch_openmohaa_spearhead.exe" />
+            <ComponentRef Id="launch_openmohaa_breakthrough.exe" />
         </ComponentGroup>
 
         <Property Id="INSTALLFOLDER">

@@ -15,7 +15,6 @@ option(USE_INTERNAL_JPEG "If set, use bundled libjpeg." ${USE_INTERNAL_LIBS})
 option(USE_INTERNAL_MAD  "If set, use bundled libmad."  ${USE_INTERNAL_LIBS})
 option(USE_INTERNAL_ZLIB "If set, use bundled zlib."    ${USE_INTERNAL_LIBS})
 option(USE_RENDERER_DLOPEN "Whether to compile the renderer as separate pluggable modules" OFF)
-option(TARGET_LOCAL_SYSTEM "Indicate that the project will be compiled and installed for the local system" OFF)
 
 if(TARGET_GAME_TYPE)
 	message(SEND_ERROR "TARGET_GAME_TYPE is now unsupported, it is now done at runtime.")
@@ -64,27 +63,9 @@ if(DEBUG_MEMORY)
 	add_definitions(-D_DEBUG_MEM)
 endif()
 
-if("${TARGET_ARCH}" STREQUAL "i386")
-	set(TARGET_ARCH_SUFFIX "x86")
-else()
-	set(TARGET_ARCH_SUFFIX ${TARGET_ARCH})
-endif()
-
 message(STATUS "Architecture detected: ${TARGET_ARCH}")
 
-if(TARGET_LOCAL_SYSTEM)
-	add_definitions(-DTARGET_LOCAL_SYSTEM)
-	# As it targets the local system, no need to know about the architecture used
-	set(TARGET_BIN_SUFFIX "")
-	message(STATUS "Binary suffix will not be used as the local system is the target")
-elseif(${TARGET_ARCH_COUNT} GREATER 1)
-	add_definitions(-DTARGET_MULTIPLE_ARCHITECTURES)
-	set(TARGET_BIN_SUFFIX ".multiarch")
-	message(STATUS "Multiple architectures were specified, suffix set to 'multiarch'.")
-else()
-	set(TARGET_BIN_SUFFIX ".${TARGET_ARCH}")
-	message(STATUS "Binary suffix set to '${TARGET_ARCH_SUFFIX}'.")
-endif()
+set(TARGET_BIN_SUFFIX "")
 
 if(WIN32)
 	set(TARGET_PLATFORM_PREFIX "")
@@ -220,11 +201,6 @@ if (NOT BUILD_NO_CLIENT)
 	endif()
 
 	if(UNIX AND NOT APPLE)
-		#
-		# Desktop entries installation on Unix
-		#
-		set(TARGET_ARCH ${TARGET_BIN_SUFFIX})
-
 		# Configure the .desktop entries with the arch suffix
 		configure_file(
 			misc/linux/org.openmoh.openmohaa.desktop.in
