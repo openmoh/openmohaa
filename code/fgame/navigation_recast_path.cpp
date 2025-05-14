@@ -174,41 +174,57 @@ bool RecastPather::TestPath(const Vector& start, const Vector& end, const PathSe
 
 void RecastPather::UpdatePos(const Vector& origin, float speed)
 {
-    dtCrowd     *crowdManager = pathMaster.agentManager.GetCrowd();
-    const Vector vel          = (origin - lastorg) * level.frametime;
+    dtCrowd      *crowdManager = pathMaster.agentManager.GetCrowd();
+    dtCrowdAgent *agent;
 
     lastorg = origin;
 
-    if (hasAgent) {
-        dtCrowdAgent *agent = crowdManager->getEditableAgent(navAgentId);
+    if (!hasAgent) {
+        return;
+    }
 
-        agent->params.maxSpeed        = speed;
-        agent->params.maxAcceleration = agent->params.maxSpeed * 3.0;
+    agent = crowdManager->getEditableAgent(navAgentId);
 
-        if (level.inttime >= nextCheckTime) {
-            ConvertGameToRecastCoord(origin, agent->npos);
-            if (agent->targetState != DT_CROWDAGENT_TARGET_REQUESTING
-                && agent->targetState != DT_CROWDAGENT_TARGET_WAITING_FOR_QUEUE
-                && agent->targetState != DT_CROWDAGENT_TARGET_WAITING_FOR_PATH) {
-                agent->corridor.movePosition(
-                    agent->npos, navigationMap.GetNavMeshQuery(), crowdManager->getFilter(navAgentId)
-                );
+    agent->params.maxSpeed        = speed;
+    agent->params.maxAcceleration = agent->params.maxSpeed * 3.0;
 
-                Vector delta = Vector(agent->npos) - Vector(agent->corridor.getPos());
-                if (delta.lengthSquared() > Square(64)) {
-                    agent->targetState = DT_CROWDAGENT_TARGET_REQUESTING;
-                    agent->corridor.reset(0, agent->npos);
-                }
+    if (agent->state == DT_CROWDAGENT_STATE_OFFMESH) {
+        traversingOffMeshLink = true;
+    } else if (traversingOffMeshLink) {
+        Vector agentPos;
+        Vector delta;
+
+        agent->params.maxSpeed = 1;
+
+        ConvertRecastToGameCoord(agent->npos, agentPos);
+        delta = agentPos - lastorg;
+        if (delta.lengthSquared() < Square(16)) {
+            // traversed
+            traversingOffMeshLink = false;
+        }
+    } else if (level.inttime >= nextCheckTime) {
+        ConvertGameToRecastCoord(origin, agent->npos);
+        if (agent->targetState != DT_CROWDAGENT_TARGET_REQUESTING
+            && agent->targetState != DT_CROWDAGENT_TARGET_WAITING_FOR_QUEUE
+            && agent->targetState != DT_CROWDAGENT_TARGET_WAITING_FOR_PATH) {
+            agent->corridor.movePosition(
+                agent->npos, navigationMap.GetNavMeshQuery(), crowdManager->getFilter(navAgentId)
+            );
+
+            Vector delta = Vector(agent->npos) - Vector(agent->corridor.getPos());
+            if (delta.lengthSquared() > Square(64)) {
+                agent->targetState = DT_CROWDAGENT_TARGET_REQUESTING;
+                agent->corridor.reset(0, agent->npos);
             }
-
-            nextCheckTime = level.inttime + 2000;
-            return;
         }
 
-        //Vector agentPos;
-        //ConvertRecastToGameCoord(agent->npos, agentPos);
-        //g_entities[2].entity->setOrigin(agentPos);
+        nextCheckTime = level.inttime + 2000;
+        return;
     }
+
+    //Vector agentPos;
+    //ConvertRecastToGameCoord(agent->npos, agentPos);
+    //g_entities[2].entity->setOrigin(agentPos);
 }
 
 void RecastPather::Clear()
@@ -348,50 +364,8 @@ Vector RecastPather::GetCurrentDelta() const
         return {};
     }
 
-    const dtMeshTile *tile[2];
-    const dtPoly     *poly[2];
-    unsigned int      tileId[2];
-
-    if (navigationMap.GetNavMesh()->getTileAndPolyByRef(agent->corridor.getFirstPoly(), &tile[0], &poly[0])
-        != DT_SUCCESS) {
-        return {};
-    }
-
-    tileId[0] = (unsigned int)(poly[0] - tile[0]->polys);
-
-    if (agent->corridor.getPathCount() > 1) {
-        navigationMap.GetNavMesh()->getTileAndPolyByRef(agent->corridor.getPath()[1], &tile[1], &poly[1]);
-        tileId[1] = (unsigned int)(poly[1] - tile[1]->polys);
-    }
-
-    if (poly[0]->getType() == DT_POLYTYPE_OFFMESH_CONNECTION) {
-        dtOffMeshConnection *con = &tile[0]->offMeshCons[tileId[0] - tile[0]->header->offMeshBase];
-
-        Vector end;
-        ConvertRecastToGameCoord(&con->pos[3], end);
-
-        delta = end - lastorg;
-    } else if (agent->corridor.getPathCount() > 1 && poly[1]->getType() == DT_POLYTYPE_OFFMESH_CONNECTION) {
-        dtOffMeshConnection *con = &tile[1]->offMeshCons[tileId[1] - tile[1]->header->offMeshBase];
-
-        Vector start, end;
-        Vector ds, de;
-        ConvertRecastToGameCoord(&con->pos[0], start);
-        ConvertRecastToGameCoord(&con->pos[3], end);
-
-        ds = start - lastorg;
-        de = end - lastorg;
-        if (ds.lengthSquared() > de.lengthSquared()) {
-            delta = ds;
-        } else {
-            delta = de;
-        }
-    } else {
-        Vector agentPos;
-        ConvertRecastToGameCoord(agent->npos, agentPos);
-
-        delta = agentPos - lastorg;
-    }
+    ConvertRecastToGameCoord(agent->npos, delta);
+    delta = delta - lastorg;
 
     return delta;
 }
@@ -414,42 +388,14 @@ Vector RecastPather::GetCurrentDirection() const
         return {};
     }
 
-    const dtMeshTile *tile[2];
-    const dtPoly     *poly[2];
-    unsigned int      tileId[2];
-
-    if (navigationMap.GetNavMesh()->getTileAndPolyByRef(agent->corridor.getFirstPoly(), &tile[0], &poly[0])
-        != DT_SUCCESS) {
-        return {};
-    }
-
-    tileId[0] = (unsigned int)(poly[0] - tile[0]->polys);
-
-    if (agent->corridor.getPathCount() > 1) {
-        navigationMap.GetNavMesh()->getTileAndPolyByRef(agent->corridor.getPath()[1], &tile[1], &poly[1]);
-        tileId[1] = (unsigned int)(poly[1] - tile[1]->polys);
-    }
-
-    if (poly[0]->getType() == DT_POLYTYPE_OFFMESH_CONNECTION) {
-        dtOffMeshConnection *con = &tile[0]->offMeshCons[tileId[0] - tile[0]->header->offMeshBase];
-
-        Vector end;
-        ConvertRecastToGameCoord(&con->pos[3], end);
-
-        delta = end - lastorg;
-        delta.normalize();
-    } else if (agent->corridor.getPathCount() > 1 && poly[1]->getType() == DT_POLYTYPE_OFFMESH_CONNECTION) {
-        dtOffMeshConnection *con = &tile[1]->offMeshCons[tileId[1] - tile[1]->header->offMeshBase];
-
-        Vector end;
-        ConvertRecastToGameCoord(&con->pos[3], end);
-
-        delta = end - lastorg;
-        delta.normalize();
-    } else {
+    if (!traversingOffMeshLink) {
         ConvertRecastToGameCoord(agent->vel, delta);
-        delta.normalize();
+    } else {
+        ConvertRecastToGameCoord(agent->npos, delta);
+        delta = delta - lastorg;
     }
+
+    delta.normalize();
 
     return delta;
 }
@@ -526,8 +472,13 @@ void RecastPather::ResetAgent(const Vector& origin)
     dtCrowd *crowdManager = pathMaster.agentManager.GetCrowd();
     vec3_t   rcOrigin;
 
+    traversingOffMeshLink = false;
+
     if (hasAgent) {
         dtCrowdAgent *agent = crowdManager->getEditableAgent(navAgentId);
+
+        pathMaster.agentManager.GetCrowd()->resetMoveTarget(navAgentId);
+        ConvertGameToRecastCoord(origin, agent->npos);
 
         // Find nearest position on navmesh and place the agent there.
         dtPolyRef ref = 0;
@@ -536,10 +487,7 @@ void RecastPather::ResetAgent(const Vector& origin)
             agent->npos, crowdManager->getQueryHalfExtents(), crowdManager->getFilter(navAgentId), &ref, nearest
         );
 
-        pathMaster.agentManager.GetCrowd()->resetMoveTarget(navAgentId);
-        ConvertGameToRecastCoord(origin, agent->npos);
-
-        if (agent->state == DT_CROWDAGENT_STATE_INVALID && dtStatusSucceed(status)) {
+        if (dtStatusSucceed(status)) {
             agent->state = DT_CROWDAGENT_STATE_WALKING;
             agent->corridor.reset(ref, nearest);
         } else {
@@ -615,7 +563,8 @@ void RecastAgentManager::Update()
     crowd->update(level.frametime, NULL);
 }
 
-float RecastAgentManager::GetAgentRadius() const {
+float RecastAgentManager::GetAgentRadius() const
+{
     return agentRadius;
 }
 

@@ -70,6 +70,7 @@ private:
     int    nextCheckTime;
     int    navAgentId;
     bool   hasAgent;
+    bool   traversingOffMeshLink;
 };
 
 class RecastAgentManager

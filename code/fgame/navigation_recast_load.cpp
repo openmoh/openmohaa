@@ -265,7 +265,7 @@ NavigationMap::CanConnectFallPoint(const rcPolyMesh *polyMesh, const Vector& pos
     point.bidirectional = false;
     point.radius        = agentRadius;
     point.area          = 1;
-    point.flags         = 1;
+    point.flags         = 2;
 
     return point;
 }
@@ -322,7 +322,7 @@ NavigationMap::CanConnectJumpPoint(const rcPolyMesh *polyMesh, const Vector& pos
     point.bidirectional = true;
     point.radius        = agentRadius;
     point.area          = 1;
-    point.flags         = 1;
+    point.flags         = 3;
 
     return point;
 }
