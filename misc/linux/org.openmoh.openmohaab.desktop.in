@@ -7,5 +7,5 @@ Comment=An open-source game engine compatible with Medal of Honor: Allied Assaul
 Categories=Game;Shooter;
 
 Icon=org.openmoh.openmohaa
-Exec=launch_openmohaa_breakthrough@TARGET_ARCH@
+Exec=launch_openmohaa_breakthrough
 Terminal=false
