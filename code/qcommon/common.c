@@ -2515,11 +2515,11 @@ qboolean Com_SanitizeName(const char* pszOldName, char* pszNewName, size_t buffe
     maxLength = (bufferSize / sizeof(char)) - 1;
     bBadName = qfalse;
 
-    for (p = pszOldName; *p && *(unsigned char*)p <= ' '; p++) {
+    for (p = pszOldName; *p && (unsigned char)*p <= ' '; p++) {
         bBadName = qtrue;
     }
 
-    for (i = 0; *p && *p >= ' ' && i < maxLength; p++, i++)
+    for (i = 0; *p && (unsigned char)*p >= ' ' && i < maxLength; p++, i++)
     {
         if (*p == '~' || *p == '`')
         {
