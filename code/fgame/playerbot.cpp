@@ -560,9 +560,11 @@ void BotController::State_Idle(void)
             }
         } else {
             Vector randomDir(G_CRandom(16), G_CRandom(16), G_CRandom(16));
-            Vector preferredDir = Vector(controlledEnt->orientation[0]) * (rand() % 5 ? 1024 : -1024);
+            Vector preferredDir;
             float  radius       = 512 + G_Random(2048);
 
+            preferredDir += Vector(controlledEnt->orientation[0]) * (rand() % 5 ? 1024 : -1024);
+            preferredDir += Vector(controlledEnt->orientation[2]) * (rand() % 5 ? 1024 : -1024);
             movement.AvoidPath(controlledEnt->origin + randomDir, radius, preferredDir);
         }
     }

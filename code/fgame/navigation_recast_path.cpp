@@ -111,13 +111,14 @@ void RecastPather::FindPathAway(
     vec3_t        endPt;
     dtQueryFilter filter;
     float         startAngle;
-    int           i;
+    float         startPitch;
+    int           i, j;
 
     lastorg = start;
     ResetAgent(start);
 
-    startAngle = preferredDir.toYaw();
-    startAngle = DEG2RAD(startAngle);
+    startAngle = DEG2RAD(preferredDir.toYaw());
+    startPitch = DEG2RAD(preferredDir.toPitch());
 
     dirNormalized = preferredDir;
     dirNormalized.normalize();
@@ -131,12 +132,16 @@ void RecastPather::FindPathAway(
         float dx    = cos(angle) * radius;
         float dz    = sin(angle) * radius;
 
-        Vector point(recastAvoid[0] + dx, recastAvoid[1], recastAvoid[2] + dz);
+        for(j = 0; j < 4; j++) {
+            float pitch = startPitch + (M_PI * (float)j / 4);
+            float dy = sin(pitch) * radius;
+            Vector point(recastAvoid[0] + dx, recastAvoid[1] + dy, recastAvoid[2] + dz);
 
-        if (navigationMap.GetNavMeshQuery()->findNearestPoly(point, half, &filter, &endRef, endPt) == DT_SUCCESS
-            && endRef) {
-            pathMaster.agentManager.GetCrowd()->requestMoveTarget(navAgentId, endRef, endPt);
-            return;
+            if (navigationMap.GetNavMeshQuery()->findNearestPoly(point, half, &filter, &endRef, endPt) == DT_SUCCESS
+                && endRef) {
+                pathMaster.agentManager.GetCrowd()->requestMoveTarget(navAgentId, endRef, endPt);
+                return;
+            }
         }
     }
 
@@ -188,13 +193,27 @@ void RecastPather::UpdatePos(const Vector& origin, float speed)
     agent->params.maxSpeed        = speed;
     agent->params.maxAcceleration = agent->params.maxSpeed * 3.0;
 
-    if (agent->state == DT_CROWDAGENT_STATE_OFFMESH) {
+    switch (agent->state) {
+    case DT_CROWDAGENT_STATE_WALKING:
+        if (!traversingOffMeshLink) {
+            ConvertRecastToGameCoord(agent->npos, lastValidOrg);
+        }
+        break;
+    case DT_CROWDAGENT_STATE_OFFMESH:
         traversingOffMeshLink = true;
-    } else if (traversingOffMeshLink) {
+        // Don't do anything else while it's traversing
+        return;
+    default:
+        break;
+    }
+
+    if (traversingOffMeshLink) {
         Vector agentPos;
         Vector delta;
 
-        agent->params.maxSpeed = 1;
+        // Clear the velocity and acceleration so it doesn't move
+        agent->params.maxAcceleration = 0;
+        agent->vel[0] = agent->vel[1] = agent->vel[2];
 
         ConvertRecastToGameCoord(agent->npos, agentPos);
         delta = agentPos - lastorg;
@@ -208,7 +227,7 @@ void RecastPather::UpdatePos(const Vector& origin, float speed)
             && agent->targetState != DT_CROWDAGENT_TARGET_WAITING_FOR_QUEUE
             && agent->targetState != DT_CROWDAGENT_TARGET_WAITING_FOR_PATH) {
             agent->corridor.movePosition(
-                agent->npos, navigationMap.GetNavMeshQuery(), crowdManager->getFilter(navAgentId)
+                agent->npos, navigationMap.GetNavMeshQuery(), crowdManager->getFilter(0)
             );
 
             Vector delta = Vector(agent->npos) - Vector(agent->corridor.getPos());
@@ -483,13 +502,24 @@ void RecastPather::ResetAgent(const Vector& origin)
         // Find nearest position on navmesh and place the agent there.
         dtPolyRef ref = 0;
         float     nearest[3];
-        dtStatus  status = navigationMap.GetNavMeshQuery()->findNearestPoly(
-            agent->npos, crowdManager->getQueryHalfExtents(), crowdManager->getFilter(navAgentId), &ref, nearest
+        dtStatus  status;
+
+        status = navigationMap.GetNavMeshQuery()->findNearestPoly(
+            agent->npos, crowdManager->getQueryHalfExtents(), crowdManager->getFilter(0), &ref, nearest
         );
 
-        if (dtStatusSucceed(status)) {
+        if (dtStatusFailed(status) || !ref) {
+            // Use the last valid position instead
+            ConvertGameToRecastCoord(lastValidOrg, agent->npos);
+            status = navigationMap.GetNavMeshQuery()->findNearestPoly(
+                agent->npos, crowdManager->getQueryHalfExtents(), crowdManager->getFilter(0), &ref, nearest
+            );
+        }
+
+        if (dtStatusSucceed(status) && ref) {
             agent->state = DT_CROWDAGENT_STATE_WALKING;
             agent->corridor.reset(ref, nearest);
+            ConvertRecastToGameCoord(agent->npos, lastValidOrg);
         } else {
             agent->corridor.reset(0, agent->npos);
         }

@@ -72,6 +72,10 @@ void BotMovement::MoveThink(usercmd_t& botcmd)
         m_vTargetPos = m_pPath->GetDestination();
     }
 
+    if (m_pPath->IsQuerying()) {
+        m_iLastMoveTime = level.inttime;
+    }
+
     if (level.inttime >= m_iLastMoveTime + 5000 && m_vCurrentOrigin != controlledEntity->origin) {
         m_vCurrentOrigin = controlledEntity->origin;
 
@@ -84,9 +88,9 @@ void BotMovement::MoveThink(usercmd_t& botcmd)
             m_pPath->FindPath(
                 controlledEntity->origin, m_pPath->GetDestination(), parameters
             );
-
-            m_iLastMoveTime = level.inttime;
         }
+
+        m_iLastMoveTime = level.inttime;
     }
 
     if (m_bTempAway && level.inttime >= m_iTempAwayTime) {
@@ -148,6 +152,8 @@ void BotMovement::MoveThink(usercmd_t& botcmd)
                 }
             }
         }
+
+        m_bTempAway = false;
 
         if (m_bTempAway) {
             Vector nextPos;

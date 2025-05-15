@@ -67,6 +67,7 @@ private:
 
 private:
     Vector lastorg;
+    Vector lastValidOrg;
     int    nextCheckTime;
     int    navAgentId;
     bool   hasAgent;
