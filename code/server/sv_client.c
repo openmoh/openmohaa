@@ -482,9 +482,6 @@ void SV_DirectConnect( netadr_t from ) {
 		}
 
 		Com_Printf("Client %i connecting with %i challenge ping\n", i, ping);
-        // Added in OPM
-        //  Show the IP address of the client that is connecting
-        Com_Printf("Client %i address: %s\n", i, ip);
 		challengeptr->connected = qtrue;
 	}
 
@@ -603,6 +600,10 @@ gotnewcl:
 		Com_DPrintf ( "Game rejected a connection: %s.\n", denied );
 		return;
 	}
+
+    // Added in OPM
+    //  Show the IP address of the client that is connecting
+    Com_Printf("Client %i (address %s) is connecting\n", i, ip);
 
 	ch = FindChallenge(from, qfalse);
 	if (ch) {
