@@ -431,6 +431,7 @@ void SV_DirectConnect( netadr_t from ) {
 		SV_NET_OutOfBandPrint( &svs.netprofile, from,
 			"droperror\nUserinfo string length exceeded.  "
 			"Try removing setu cvars from your config.\n" );
+        Com_DPrintf("%s:rejected, userinfo string length exceeded\n", ip);
 		return;
 	}
 	Info_SetValueForKey( userinfo, "ip", ip );
