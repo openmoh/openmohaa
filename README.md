@@ -29,6 +29,11 @@ Powered by [ioquake3](https://github.com/ioquake/ioq3) and the [F.A.K.K SDK](htt
 
 ## Reporting Issues
 
+> [!NOTE]
+> OpenMoHAA hasn't hit version 1.0.0 yet. Think of it like a beta build from the golden age of LAN parties. Features are being added, bugs are getting squashed, and more things are being tweaked. Things might change, break, or get even better over time.
+> 
+> If that sounds like your kind of mission, gear up, frag some bots, and help level up OpenMoHAA!
+
 If you encounter a bug or a problem, you can do one of the following:
 - Submit an [issue](https://github.com/openmoh/openmohaa/issues) on GitHub (use the template).
 - Join the [OpenMoHAA Discord](https://discord.gg/NYtH58R) for a quick help.
