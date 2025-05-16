@@ -1480,9 +1480,23 @@ void SV_UserinfoChanged( client_t *cl ) {
 	char	*ip;
 	int		i;
 	int	len;
+	char oldname[MAX_NAME_LENGTH];
+
+    // Added in OPM
+	Q_strncpyz( oldname, cl->name, sizeof(oldname) );
 
 	// name for C code
 	Q_strncpyz( cl->name, Info_ValueForKey (cl->userinfo, "name"), sizeof(cl->name) );
+
+    //
+    // Added in OPM
+    //  Print name changes
+    //
+    if (!oldname[0]) {
+        Com_Printf("Client %i name set to '%s'\n", cl - svs.clients, cl->name);
+    } else if (strcmp(oldname, cl->name)) {
+        Com_Printf("Client %i changed name from '%s' to '%s'\n", cl - svs.clients, oldname, cl->name);
+    }
 
 	// rate command
 
