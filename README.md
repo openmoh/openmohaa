@@ -17,7 +17,8 @@ Powered by [ioquake3](https://github.com/ioquake/ioq3) and the [F.A.K.K SDK](htt
 - Better support for modern systems
 - Cross-platform support (Linux, Windows, macOS)
 - Support for both single-player and multiplayer modes
-- All fixes and features from the latest version of MOH:AAB (Allied Assault Breakthrough 2.40b)
+- Includes all fixes from Spearhead 2.15 and Breakthrough 2.40b
+- More fixes and features, such as bots and a ban system
 
 ## Getting started
 
