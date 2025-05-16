@@ -345,20 +345,21 @@ void SV_DirectConnect( netadr_t from ) {
 	challenge_t* ch;
 	char        banReason[MAX_REASON_LENGTH];
 
-	Com_DPrintf ("SVC_DirectConnect ()\n");
+	Q_strncpyz( userinfo, Cmd_Argv(1), sizeof(userinfo) );
+	Com_DPrintf ("SVC_DirectConnect ()\n>>>%s<<<\n", userinfo);
 	
 	// Check whether this client is banned.
 	if(SV_IsBanned(&from, qfalse, banReason, sizeof(banReason)))
 	{
 		if(banReason[0]) {
 			SV_NET_OutOfBandPrint( &svs.netprofile, from, "droperror\nYou are banned from this server.\nReason: %s\n", banReason);
+            Com_DPrintf("    rejected connect due to banned IP for reason: %s\n", banReason);
 		} else {
 			SV_NET_OutOfBandPrint( &svs.netprofile, from, "droperror\nYou are banned from this server.\n");
+            Com_DPrintf("    rejected connect due to banned IP (reason unspecified)\n");
 		}
 		return;
 	}
-
-	Q_strncpyz( userinfo, Cmd_Argv(1), sizeof(userinfo) );
 
 	if (com_target_game->integer >= TG_MOHTT) {
 		const char* clientType;
