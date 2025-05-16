@@ -482,6 +482,9 @@ void SV_DirectConnect( netadr_t from ) {
 		}
 
 		Com_Printf("Client %i connecting with %i challenge ping\n", i, ping);
+        // Added in OPM
+        //  Show the IP address of the client that is connecting
+        Com_Printf("Client %i address: %s\n", i, ip);
 		challengeptr->connected = qtrue;
 	}
 
