@@ -641,7 +641,7 @@ bool BotMovement::MoveDone()
     }
 
     Vector delta = m_pPath->GetDestination() - controlledEntity->origin;
-    if (delta.lengthXYSquared() < Square(16) && delta.z < controlledEntity->maxs.z) {
+    if (delta.lengthXYSquared() < Square(16) && (m_pPath->GetNodeCount() == 1 || delta.z < controlledEntity->maxs.z)) {
         return true;
     }
 
