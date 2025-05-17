@@ -10813,6 +10813,12 @@ void Player::EventDMMessage(Event *ev)
     } else if (iMode > 0) {
         Q_strcat(szPrintString, sizeof(szPrintString), gi.CL_LV_ConvertString("(private)"));
         Q_strcat(szPrintString, sizeof(szPrintString), " ");
+    } else {
+        // Added in OPM
+        //  Specify that the client is talking to everyone
+        //  This was also a feature of Daven's fixes
+        Q_strcat(szPrintString, sizeof(szPrintString), gi.CL_LV_ConvertString("(all)"));
+        Q_strcat(szPrintString, sizeof(szPrintString), " ");
     }
 
     Q_strcat(szPrintString, sizeof(szPrintString), client->pers.netname);
