@@ -45,7 +45,8 @@ const unsigned char DBCS_Maekin_TraditionalChinese[] = {
     0x0D6, 0x0A1, 0x0E1, 0x0A1, 0x72,  0x0A1, 0x0D9, 0x0A1, 0x0F7, 0x0A1, 0x6E,  0x0A1, 0x70,  0x0A2, 0x7D,  0x0A2,
     0x0A3, 0x0F9, 0x0E5, 0x0F9, 0x0EE, 0x0F9, 0x0F7, 0x0A1, 0x0FB, 0x0A1, 0x0F9, 0x0A1, 0x74,  0x0A1, 0x0E9, 0x0A2,
     0x74,  0x0A2, 0x0A7, 0x0F9, 0x0E2, 0x0F9, 0x0EB, 0x0F9, 0x0F4, 0x0A2, 0x0A8, 0x0A2, 0x0AA, 0x0A1, 0x48,  0x0A1,
-    0x53,  0x0,   0x0};
+    0x53,  0x0,   0x0
+};
 
 const unsigned char DBCS_Maekin_Korean[] = {
     0x0A1, 0x0C6, 0x0A1, 0x0AF, 0x0A1, 0x0B1, 0x0A1, 0x0C7, 0x0A1, 0x0C8, 0x0A1, 0x0C9, 0x0A1,
@@ -105,9 +106,9 @@ bool UIFont::DBCSIsLeadByte(unsigned short uch)
 
 bool UIFont::DBCSIsMaekin(unsigned short uch)
 {
-    const unsigned char   *tokinList;
-    const unsigned char   *p;
-    unsigned char ch;
+    const unsigned char *tokinList;
+    const unsigned char *p;
+    unsigned char        ch;
 
     CheckRefreshFont();
 
@@ -149,9 +150,9 @@ bool UIFont::DBCSIsMaekin(unsigned short uch)
 
 bool UIFont::DBCSIsAtokin(unsigned short uch)
 {
-    const unsigned char   *tokinList;
-    const unsigned char   *p;
-    unsigned char ch;
+    const unsigned char *tokinList;
+    const unsigned char *p;
+    unsigned char        ch;
 
     CheckRefreshFont();
 
@@ -171,7 +172,7 @@ bool UIFont::DBCSIsAtokin(unsigned short uch)
         break;
     case 936:
     case 950:
-        tokinList = (const unsigned char*)"";
+        tokinList = (const unsigned char *)"";
         break;
     case 949:
         tokinList = DBCS_Tokin_Korean;
@@ -192,11 +193,11 @@ bool UIFont::DBCSIsAtokin(unsigned short uch)
 int UIFont::DBCSGetWordBlockCount(const char *text, int maxlen)
 {
     unsigned char *p;
-    unsigned short uch, uch2;
-    unsigned int   DBCSLen;
+    unsigned short uch;
+    unsigned int   len;
     bool           isATokin;
     bool           isControl;
-    bool           hasDBCS;
+    bool           hasDBCS = false;
 
     if (maxlen < 0) {
         maxlen = strlen(text);
@@ -214,54 +215,52 @@ int UIFont::DBCSGetWordBlockCount(const char *text, int maxlen)
     }
 
     if (DBCSIsLeadByte(uch)) {
-        DBCSLen = 2;
-        uch     = *p | (uch << 8);
+        len = 2;
+        uch = *p | (uch << 8);
         p++;
+        hasDBCS = true;
     } else {
-        DBCSLen = 1;
+        len = 1;
     }
 
     DBCSIsMaekin(uch);
     isATokin  = DBCSIsAtokin(uch);
-    hasDBCS   = DBCSLen > 1;
     isControl = uch < ' ';
-    uch2 = (unsigned char)*p;
 
-    for (;;) {
-        unsigned int subDBCSLen;
-        bool         subIsATokin;
+    while (len < maxlen && *p) {
+        unsigned int   clen;
+        unsigned short prev;
 
-        uch = *p++;
-
-        if (!uch || DBCSLen >= maxlen) {
-            break;
-        }
+        prev = uch;
+        uch  = *p++;
 
         if (DBCSIsLeadByte(uch)) {
-            subDBCSLen = 2;
-            uch2       = *p++ | (uch2 << 8);
+            clen = 2;
+            uch  = *p++ | (uch << 8);
+        } else {
+            clen = 1;
         }
 
-        subIsATokin = DBCSIsAtokin(uch);
-
-        if (isControl || uch2 < ' ' || !DBCSIsMaekin(uch)) {
+        if (isControl || uch < ' ') {
             break;
         }
 
-        if (!isATokin && (hasDBCS || subDBCSLen > 1 || (uch == ' ' || uch == '-') && uch2 != ' ' && uch2 != '-')) {
+        if (!DBCSIsMaekin(uch) && !isATokin
+            && (hasDBCS || clen > 1 || (prev == ' ' || prev == '-') && uch != ' ' && uch != '-')) {
             break;
         }
 
-        isATokin  = subIsATokin;
+        isATokin  = DBCSIsAtokin(uch);
         isControl = false;
-        DBCSLen += subDBCSLen;
+        hasDBCS   = clen > 1;
+        len += clen;
     }
 
-    if (DBCSLen > maxlen) {
-        DBCSLen = maxlen;
+    if (len > maxlen) {
+        len = maxlen;
     }
 
-    return DBCSLen;
+    return len;
 }
 
 UIFont::UIFont()
@@ -275,7 +274,7 @@ UIFont::UIFont()
     setColor(color);
 
     refHandle = uii.GetRefSequence();
-    name = "verdana-14";
+    name      = "verdana-14";
 }
 
 UIFont::UIFont(const char *fn)
@@ -301,7 +300,7 @@ void UIFont::setFont(const char *fontname)
     }
 
     refHandle = uii.GetRefSequence();
-    name = fontname;
+    name      = fontname;
 }
 
 void UIFont::Print(float x, float y, const char *text, size_t maxlen, const float *virtualScreen)
@@ -405,11 +404,11 @@ void UIFont::PrintJustified(
 }
 
 void UIFont::PrintOutlinedJustified(
-    const UIRect2D  & rect,
+    const UIRect2D&   rect,
     fonthorzjustify_t horz,
     fontvertjustify_t vert,
     const char       *text,
-    const UColor    & outlineColor,
+    const UColor&     outlineColor,
     const float      *vVirtualScale
 )
 {
@@ -548,8 +547,8 @@ int UIFont::getWidth(const char *text, int maxlen)
 
 int UIFont::getCharWidth(unsigned short ch)
 {
-    int index;
-    int indirected;
+    int   index;
+    int   indirected;
     float widthMul = 1.0f; // Added in OPM for easier readability
 
     CheckRefreshFont();
@@ -559,7 +558,7 @@ int UIFont::getCharWidth(unsigned short ch)
     }
 
     if (ch == '\t') {
-        ch = ' ';
+        ch       = ' ';
         widthMul = 3.0f;
     }
 
@@ -583,7 +582,7 @@ int UIFont::getCharWidth(unsigned short ch)
     return m_font->sgl[index]->locations[indirected].size[0] * 256.0 * widthMul;
 }
 
-int UIFont::getHeight(const char *text, int maxlen, const float* virtualScale)
+int UIFont::getHeight(const char *text, int maxlen, const float *virtualScale)
 {
     float height;
     int   i;
@@ -609,7 +608,7 @@ int UIFont::getHeight(const char *text, int maxlen, const float* virtualScale)
     return height;
 }
 
-int UIFont::getHeight(const float* virtualScale)
+int UIFont::getHeight(const float *virtualScale)
 {
     CheckRefreshFont();
 
@@ -683,8 +682,8 @@ int UI_FontCodeSearch(const fontheader_t *font, unsigned short uch)
 
 float UI_FontgetCharWidthf(fontheader_t *font, unsigned short uch)
 {
-    int index;
-    int indirected;
+    int   index;
+    int   indirected;
     float widthMul = 1.0f; // Added in OPM for easier readability
 
     if (!font) {
@@ -692,7 +691,7 @@ float UI_FontgetCharWidthf(fontheader_t *font, unsigned short uch)
     }
 
     if (uch == '\t') {
-        uch = ' ';
+        uch      = ' ';
         widthMul = 3.0f;
     }
 
@@ -787,7 +786,8 @@ int UI_FontStringWidth(fontheader_t *pFont, const char *pszString, int iMaxLen)
     return maxwidths * 256.0;
 }
 
-void UIFont::CheckRefreshFont() {
+void UIFont::CheckRefreshFont()
+{
     if (refHandle != uii.GetRefSequence()) {
         setFont(name);
     } else if (!uii.IsRendererLoaded()) {
