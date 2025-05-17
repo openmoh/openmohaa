@@ -47,7 +47,7 @@ const float NavigationMap::agentMaxClimb    = STEPSIZE;
 // normal of { 0.714142799, 0, 0.700000048 }, or an angle of -44.4270058
 const float NavigationMap::agentMaxSlope = 45.5729942f;
 
-const float NavigationMap::agentRadius          = 0.5;
+const float NavigationMap::agentRadius          = 0.25;
 const int   NavigationMap::regionMinSize        = 5;
 const int   NavigationMap::regionMergeSize      = 20;
 const float NavigationMap::edgeMaxLen           = 100.0;

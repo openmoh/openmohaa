@@ -33,9 +33,9 @@ BotMovement::BotMovement()
     m_pPath         = IPather::CreatePather();
     m_iLastMoveTime = 0;
 
-    m_bPathing     = false;
-    m_bTempAway    = false;
-    m_fAttractTime = 0;
+    m_bPathing       = false;
+    m_iTempAwayState = 0;
+    m_fAttractTime   = 0;
 
     m_iCheckPathTime = 0;
     m_iTempAwayTime  = 0;
@@ -85,38 +85,35 @@ void BotMovement::MoveThink(usercmd_t& botcmd)
             PathSearchParameter parameters;
             parameters.entity     = controlledEntity;
             parameters.fallHeight = maxFallHeight;
-            m_pPath->FindPath(
-                controlledEntity->origin, m_pPath->GetDestination(), parameters
-            );
+            m_pPath->FindPath(controlledEntity->origin, m_pPath->GetDestination(), parameters);
         }
 
         m_iLastMoveTime = level.inttime;
     }
 
-    if (m_bTempAway && level.inttime >= m_iTempAwayTime) {
-        m_bTempAway = false;
+    if (m_iTempAwayState == 2 && level.inttime >= m_iTempAwayTime + 750) {
+        m_iTempAwayState = 0;
 
         PathSearchParameter parameters;
         parameters.entity     = controlledEntity;
         parameters.fallHeight = maxFallHeight;
         m_pPath->FindPath(controlledEntity->origin, m_vTargetPos, parameters);
 
-        m_iLastMoveTime = level.inttime;
+        m_iLastMoveTime  = level.inttime;
+        m_iCheckPathTime = level.inttime;
     }
 
     vDelta = m_pPath->GetCurrentDelta();
 
-    if (!m_bTempAway) {
-        if (m_pPath->GetNodeCount()) {
-            m_pPath->UpdatePos(controlledEntity->origin, controlledEntity->GetRunSpeed());
+    if (m_pPath->GetNodeCount()) {
+        m_pPath->UpdatePos(controlledEntity->origin, controlledEntity->GetRunSpeed());
 
-            m_vCurrentGoal = controlledEntity->origin;
-            VectorAdd2D(m_vCurrentGoal, vDelta, m_vCurrentGoal);
+        m_vCurrentGoal = controlledEntity->origin;
+        VectorAdd2D(m_vCurrentGoal, vDelta, m_vCurrentGoal);
 
-            if (MoveDone()) {
-                // Clear the path
-                m_pPath->Clear();
-            }
+        if (MoveDone()) {
+            // Clear the path
+            m_pPath->Clear();
         }
     }
 
@@ -125,55 +122,66 @@ void BotMovement::MoveThink(usercmd_t& botcmd)
     }
 
     // Check if we're blocked
-    if (level.inttime >= m_iCheckPathTime) {
-        m_iCheckPathTime = level.inttime + 1000;
+    if (level.inttime >= m_iCheckPathTime + 1000 && m_iTempAwayState != 2) {
+        bool blocked = false;
+
+        m_iCheckPathTime = level.inttime;
 
         if (m_iNumBlocks >= 5) {
             // Give up
             ClearMove();
         }
 
-        m_bTempAway = false;
-
         if (!m_pPath->IsQuerying()) {
             if (controlledEntity->groundentity || controlledEntity->client->ps.walking) {
                 if (controlledEntity->GetMoveResult() >= MOVERESULT_BLOCKED
                     || controlledEntity->velocity.lengthSquared() <= Square(8)) {
-                    m_bTempAway = true;
-                } else if ((controlledEntity->origin - m_vLastCheckPos[0]).lengthSquared() <= Square(32)
-                        && (controlledEntity->origin - m_vLastCheckPos[1]).lengthSquared() <= Square(32)) {
-                    m_bTempAway = true;
+                    blocked = true;
+                } else if ((controlledEntity->origin - m_vLastCheckPos[0]).lengthSquared() <= Square(64)
+                           && (controlledEntity->origin - m_vLastCheckPos[1]).lengthSquared() <= Square(64)) {
+                    blocked = true;
                 }
             } else {
                 // falling
                 if (controlledEntity->GetMoveResult() >= MOVERESULT_BLOCKED) {
                     // stuck while falling
-                    m_bTempAway = true;
+                    blocked = true;
                 }
             }
         }
 
-        m_bTempAway = false;
+        if (!blocked) {
+            m_iTempAwayState = 0;
+            m_iNumBlocks     = 0;
 
-        if (m_bTempAway) {
-            Vector nextPos;
+            if (!m_pPath->GetNodeCount()) {
+                m_vTargetPos   = controlledEntity->origin + Vector(G_CRandom(512), G_CRandom(512), G_CRandom(512));
+                m_vCurrentGoal = m_vTargetPos;
+            }
+        } else if (m_iTempAwayState == 0) {
+            m_iLastBlockTime = level.inttime;
+            m_iTempAwayState = 1;
+        }
+
+        if (m_iTempAwayState && level.inttime >= m_iLastBlockTime + 1000) {
+            Vector delta;
             Vector dir;
 
-            m_bTempAway     = true;
-            m_iTempAwayTime = level.inttime + 750;
+            m_iTempAwayState = 2;
+            m_iTempAwayTime  = level.inttime;
             m_iNumBlocks++;
 
             // Try to backward a little
             if (m_pPath->GetNodeCount()) {
-                nextPos = m_pPath->GetNode(0).origin;
+                delta = m_pPath->GetCurrentDelta();
             } else {
-                nextPos = m_vTargetPos;
+                delta = m_vTargetPos - controlledEntity->origin;
             }
 
             m_pPath->Clear();
 
-            if (rand() % 10 != 0) {
-                dir   = nextPos - controlledEntity->origin;
+            if (m_iNumBlocks < 3) {
+                dir   = -delta;
                 dir.z = 0;
                 dir.normalize();
 
@@ -188,17 +196,9 @@ void BotMovement::MoveThink(usercmd_t& botcmd)
                     dir.y = G_CRandom(2);
                 }
 
-                m_vCurrentGoal = nextPos + dir * 128;
+                m_vCurrentGoal = controlledEntity->origin + delta + dir * 128;
             } else {
                 m_vCurrentGoal = controlledEntity->origin + Vector(G_CRandom(512), G_CRandom(512), G_CRandom(512));
-            }
-
-        } else {
-            m_iNumBlocks = 0;
-
-            if (!m_pPath->GetNodeCount()) {
-                m_vTargetPos   = controlledEntity->origin + Vector(G_CRandom(512), G_CRandom(512), G_CRandom(512));
-                m_vCurrentGoal = m_vTargetPos;
             }
         }
 
@@ -220,13 +220,13 @@ void BotMovement::MoveThink(usercmd_t& botcmd)
         }
     }
 
-    if (m_pPath->GetNodeCount() || m_bTempAway) {
+    if (m_pPath->GetNodeCount() || m_iTempAwayState != 0) {
         if ((m_vTargetPos - controlledEntity->origin).lengthSquared() <= Square(16)) {
             ClearMove();
         }
     } else {
         //if ((m_vTargetPos - controlledEntity->origin).lengthXYSquared() <= Square(16)) {
-            ClearMove();
+        ClearMove();
         //}
     }
 
@@ -632,7 +632,7 @@ bool BotMovement::MoveDone()
         return true;
     }
 
-    if (m_bTempAway) {
+    if (m_iTempAwayState != 0) {
         return false;
     }
 

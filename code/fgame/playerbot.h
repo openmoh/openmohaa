@@ -88,8 +88,9 @@ private:
     int    m_iTempAwayTime;
     int    m_iNumBlocks;
     int    m_iCheckPathTime;
+    int    m_iLastBlockTime;
+    int    m_iTempAwayState;
     bool   m_bPathing;
-    bool   m_bTempAway;
 };
 
 class BotRotation

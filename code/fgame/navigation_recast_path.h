@@ -26,7 +26,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 class dtNavMesh;
 class dtCrowd;
+class dtPathCorridor;
 class NavigationMap;
+struct DetourData;
 
 /**
  * @brief Detour (recastnavigation) based navigation system
@@ -66,12 +68,19 @@ private:
     void RemoveAgent();
 
 private:
+#if USE_DETOUR_AGENT
+    int  navAgentId;
+    bool hasAgent;
+#else
+    DetourData* detourData;
+    bool   moving;
+#endif
+
     Vector lastorg;
     Vector lastValidOrg;
-    int    nextCheckTime;
-    int    navAgentId;
-    bool   hasAgent;
-    bool   traversingOffMeshLink;
+    Vector currentNodePos;
+    int    lastCheckTime;
+    int    traversingOffMeshLink;
 };
 
 class RecastAgentManager
@@ -88,7 +97,9 @@ public:
     float GetAgentRadius() const;
 
 private:
+#if USE_DETOUR_AGENT
     dtCrowd *crowd;
+#endif
     float agentRadius;
 };
 
