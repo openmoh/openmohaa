@@ -10608,7 +10608,7 @@ void Player::PlayInstantMessageSound(const char *name)
 
 void Player::EventDMMessage(Event *ev)
 {
-    static constexpr unsigned int MAX_SAY_TEXT_LENGTH = 200;
+    static constexpr unsigned int MAX_SAY_TEXT_LENGTH = 400;
 
     int i;
     //int              iStringLength;
