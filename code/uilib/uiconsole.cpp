@@ -180,7 +180,7 @@ void UIConsole::DrawBottomLine
 
 	if (m_refreshcompletionbuffer || m_completionbuffer.length() >= m_currentline.length())
 	{
-		static str indicator;
+		static const char *indicator = "...";
 		const char* pString;
 		int indicatorwidth;
 		int iChar;
@@ -193,8 +193,8 @@ void UIConsole::DrawBottomLine
 		}
 		else
 		{
-			indicatorwidth = m_font->getWidth(indicator.c_str(), -1);
-			m_font->Print(iXPos, topScaled, indicator.c_str(), -1, getHighResScale());
+			indicatorwidth = m_font->getWidth(indicator, -1);
+			m_font->Print(iXPos, topScaled, indicator, -1, getHighResScale());
 
 			iXPos += indicatorwidth;
 			iMaxStringWidth -= indicatorwidth;
@@ -206,8 +206,9 @@ void UIConsole::DrawBottomLine
 
                 for (iChar = m_caret; iChar > 1 && iStringLength + iCharLength < iMaxStringWidth; iChar--)
                 {
-                    iCharLength = m_font->getCharWidth(pString[iChar - 1]);
+                    iCharLength = m_font->getCharWidth(*pString);
                     iStringLength += iCharLength;
+                    pString--;
                 }
 
                 m_font->Print(iXPos, topScaled, pString + 1, -1, getHighResScale());
