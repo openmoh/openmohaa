@@ -398,7 +398,7 @@ void UIConsole::CalcLineBreaks
 	{
 		if (remaining[i] == ' ')
 		{
-			sofar += ' ';
+			sofar += checking + ' ';
 			checking = "";
 			lensofar += lenchecking + len_of_space;
 			lenchecking = 0;
@@ -418,6 +418,7 @@ void UIConsole::CalcLineBreaks
 				}
 				else
 				{
+                    lensofar = charlen;
 					theItem.breaks[theItem.lines] = checking.length();
 					sofar = remaining[i];
 					lenchecking = 0;
@@ -426,13 +427,15 @@ void UIConsole::CalcLineBreaks
 
 				theItem.lines++;
 
-				if (theItem.lines == 8) {
+				if (theItem.lines == ARRAY_LEN(theItem.breaks) - 1) {
 					break;
 				}
 			}
-
-			checking += remaining[i];
-			lenchecking += charlen;
+            else
+            {
+                checking += remaining[i];
+			    lenchecking += charlen;
+            }
 		}
 	}
 
