@@ -1315,7 +1315,7 @@ void UI_PrintConsole(const char *msg)
     qboolean      bPrintedDMBox = qfalse;
 
     pszString = msg;
-    strncpy(szString, msg, 1024);
+    Q_strncpyz(szString, msg, sizeof(szString));
 
     if (*pszString < MESSAGE_MAX) {
         qboolean bNormalMessage = qfalse;
