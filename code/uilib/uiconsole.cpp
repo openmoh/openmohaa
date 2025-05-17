@@ -199,18 +199,20 @@ void UIConsole::DrawBottomLine
 			iXPos += indicatorwidth;
 			iMaxStringWidth -= indicatorwidth;
 
-			pString = &m_currentline[m_caret - 1];
-			iStringLength = 0;
-			iCharLength = m_font->getCharWidth(pString[0]);
+            if (m_caret > 0) {
+                pString = &m_currentline[m_caret - 1];
+                iStringLength = 0;
+                iCharLength = m_font->getCharWidth(pString[0]);
 
-			for (iChar = m_caret; iChar > 1; --iChar)
-			{
-				iStringLength += iCharLength;
-				iCharLength = m_font->getCharWidth(pString[iChar - 1]);
-			}
+                for (iChar = m_caret; iChar > 1 && iStringLength + iCharLength < iMaxStringWidth; iChar--)
+                {
+                    iCharLength = m_font->getCharWidth(pString[iChar - 1]);
+                    iStringLength += iCharLength;
+                }
 
-			m_font->Print(iXPos, topScaled, pString + 1, -1, getHighResScale());
-			widthbeforecaret = iXPos + m_font->getWidth(pString + 1, m_caret - iChar);
+                m_font->Print(iXPos, topScaled, pString + 1, -1, getHighResScale());
+                widthbeforecaret = iXPos + m_font->getWidth(pString + 1, m_caret - iChar);
+            }
 		}
 	}
 	else
