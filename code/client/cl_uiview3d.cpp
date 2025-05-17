@@ -262,8 +262,7 @@ void DisplayServerNetProfileInfo(UIFont *font, float y, netprofclient_t *netprof
         y,
         va("%i",
            (unsigned int)((float)(netprofile->outPackets.numFragmented + netprofile->inPackets.numFragmented)
-                          / (float)(netprofile->inPackets.totalProcessed + netprofile->outPackets.totalProcessed)
-           )),
+                          / (float)(netprofile->inPackets.totalProcessed + netprofile->outPackets.totalProcessed))),
         -1
     );
     font->Print(334, y, va("%i", netprofile->inPackets.percentDropped));
@@ -273,8 +272,7 @@ void DisplayServerNetProfileInfo(UIFont *font, float y, netprofclient_t *netprof
         y,
         va("%i",
            (unsigned int)((float)(netprofile->outPackets.numDropped + netprofile->inPackets.numDropped)
-                          / (float)(netprofile->inPackets.totalProcessed + netprofile->outPackets.totalProcessed)
-           )),
+                          / (float)(netprofile->inPackets.totalProcessed + netprofile->outPackets.totalProcessed))),
         -1
     );
     font->Print(434, y, va("%i", netprofile->inPackets.percentDropped));
@@ -347,25 +345,21 @@ void DisplayClientNetProfile(UIFont *font, float x, float y, netprofclient_t *ne
     font->Print(x, columnHeight, "Total Data");
 
     font->Print(
-        columns[0],
-        columnHeight,
-        va("%i", netprofile->inPackets.packetsPerSec + netprofile->outPackets.packetsPerSec)
+        columns[0], columnHeight, va("%i", netprofile->inPackets.packetsPerSec + netprofile->outPackets.packetsPerSec)
     );
     font->Print(
         columns[1],
         columnHeight,
         va("%i%%",
            (unsigned int)((float)(netprofile->outPackets.numFragmented + netprofile->inPackets.numFragmented)
-                          / (float)(netprofile->inPackets.totalProcessed + netprofile->outPackets.totalProcessed)
-           ))
+                          / (float)(netprofile->inPackets.totalProcessed + netprofile->outPackets.totalProcessed)))
     );
     font->Print(
         columns[2],
         columnHeight,
         va("%i%%",
            (unsigned int)((float)(netprofile->outPackets.numDropped + netprofile->inPackets.numDropped)
-                          / (double)(netprofile->inPackets.totalProcessed + netprofile->outPackets.totalProcessed
-                          )))
+                          / (double)(netprofile->inPackets.totalProcessed + netprofile->outPackets.totalProcessed)))
     );
     font->Print(
         columns[3],
@@ -376,9 +370,7 @@ void DisplayClientNetProfile(UIFont *font, float x, float y, netprofclient_t *ne
                           / (float)(netprofile->outPackets.totalSize + netprofile->inPackets.totalSize)))
     );
     font->Print(
-        columns[4],
-        columnHeight,
-        va("%i", netprofile->inPackets.bytesPerSec + netprofile->outPackets.bytesPerSec)
+        columns[4], columnHeight, va("%i", netprofile->inPackets.bytesPerSec + netprofile->outPackets.bytesPerSec)
     );
 }
 
@@ -571,9 +563,7 @@ void View3D::CenterPrint(void)
 
         frame = getClientFrame();
 
-        m_font->PrintJustified(
-            frame, m_iFontAlignmentHorizontal, m_iFontAlignmentVertical, p, getVirtualScale()
-        );
+        m_font->PrintJustified(frame, m_iFontAlignmentHorizontal, m_iFontAlignmentVertical, p, getVirtualScale());
 
         m_font->setColor(UBlack);
     } else if ((mat = m_print_mat->GetMaterial())) {
@@ -798,9 +788,10 @@ void View3D::DrawSubtitleOverlay(void)
 
             c = subs[i]->string;
 
-            total = 0;
-            end   = NULL;
-            start = buf;
+            total  = 0;
+            end    = NULL;
+            start  = buf;
+            buf[0] = 0;
 
             while (*c) {
                 blockcount = m_font->DBCSGetWordBlockCount(c, -1);
@@ -812,10 +803,22 @@ void View3D::DrawSubtitleOverlay(void)
 
                 if (total + width > maxX) {
                     m_font->setColor(UColor(0, 0, 0, alpha[i] * subAlpha->value));
-                    m_font->Print(18, (m_font->getHeight(getHighResScale()) * line + minX + 1.f) / getHighResScale()[1], buf, -1, getHighResScale());
+                    m_font->Print(
+                        18,
+                        (m_font->getHeight(getHighResScale()) * line + minX + 1.f) / getHighResScale()[1],
+                        buf,
+                        -1,
+                        getHighResScale()
+                    );
 
                     m_font->setColor(UColor(1, 1, 1, alpha[i] * subAlpha->value));
-                    m_font->Print(20, (m_font->getHeight(getHighResScale()) * line + minX) / getHighResScale()[1], buf, -1, getHighResScale());
+                    m_font->Print(
+                        20,
+                        (m_font->getHeight(getHighResScale()) * line + minX) / getHighResScale()[1],
+                        buf,
+                        -1,
+                        getHighResScale()
+                    );
 
                     line++;
 
@@ -838,17 +841,41 @@ void View3D::DrawSubtitleOverlay(void)
             }
 
             m_font->setColor(UColor(0, 0, 0, alpha[i] * subAlpha->value));
-            m_font->Print(18, (m_font->getHeight(getHighResScale()) * line + minX + 1.f) / getHighResScale()[1], buf, -1, getHighResScale());
+            m_font->Print(
+                18,
+                (m_font->getHeight(getHighResScale()) * line + minX + 1.f) / getHighResScale()[1],
+                buf,
+                -1,
+                getHighResScale()
+            );
 
             m_font->setColor(UColor(1, 1, 1, alpha[i] * subAlpha->value));
-            m_font->Print(20, (m_font->getHeight(getHighResScale()) * line + minX) / getHighResScale()[1], buf, -1, getHighResScale());
+            m_font->Print(
+                20,
+                (m_font->getHeight(getHighResScale()) * line + minX) / getHighResScale()[1],
+                buf,
+                -1,
+                getHighResScale()
+            );
             line++;
         } else {
             m_font->setColor(UColor(0, 0, 0, alpha[i] * subAlpha->value));
-            m_font->Print(18, (m_font->getHeight(getHighResScale()) * line + minX + 1.f) / getHighResScale()[1], subs[i]->string, -1, getHighResScale());
+            m_font->Print(
+                18,
+                (m_font->getHeight(getHighResScale()) * line + minX + 1.f) / getHighResScale()[1],
+                subs[i]->string,
+                -1,
+                getHighResScale()
+            );
 
             m_font->setColor(UColor(1, 1, 1, alpha[i] * subAlpha->value));
-            m_font->Print(20, (m_font->getHeight(getHighResScale()) * line + minX) / getHighResScale()[1], subs[i]->string, -1, getHighResScale());
+            m_font->Print(
+                20,
+                (m_font->getHeight(getHighResScale()) * line + minX) / getHighResScale()[1],
+                subs[i]->string,
+                -1,
+                getHighResScale()
+            );
 
             line++;
         }
