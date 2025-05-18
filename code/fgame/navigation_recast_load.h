@@ -135,9 +135,22 @@ private:
     );
 
     void InitializeNavMesh(RecastBuildContext& buildContext, const navMap_t& navMap);
-    void BuildDetourData(RecastBuildContext& buildContext, rcPolyMesh *polyMesh, rcPolyMeshDetail *polyMeshDetail);
+    void BuildDetourData(
+        RecastBuildContext&                      buildContext,
+        rcPolyMesh                              *polyMesh,
+        rcPolyMeshDetail                        *polyMeshDetail,
+        int                                      index,
+        const Container<offMeshNavigationPoint>& points
+    );
 
-    void BuildRecastMesh(RecastBuildContext& buildContext, const navModel_t& model);
+    void BuildRecastMesh(
+        RecastBuildContext& buildContext,
+        const navModel_t&   model,
+        const Vector&       origin,
+        const Vector&       angles,
+        rcPolyMesh       *&       outPolyMesh,
+        rcPolyMeshDetail *& outPolyMeshDetail
+    );
     void ProcessBSPForNavigation(const char *mapname, navMap_t& outNavigationMap);
 
 private:
