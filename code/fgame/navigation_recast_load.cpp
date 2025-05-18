@@ -371,9 +371,10 @@ void NavigationMap::TryConnectJumpFallPoints(Container<offMeshNavigationPoint>& 
                 }
 
                 const unsigned short *v1 = &polyMesh->verts[p1[k] * 3];
-                tmp[0]                   = polyMesh->bmin[0] + v1[0] * polyMesh->cs;
-                tmp[1]                   = polyMesh->bmin[1] + (v1[1] + 1) * polyMesh->ch;
-                tmp[2]                   = polyMesh->bmin[2] + v1[2] * polyMesh->cs;
+
+                tmp[0] = polyMesh->bmin[0] + v1[0] * polyMesh->cs;
+                tmp[1] = polyMesh->bmin[1] + (v1[1] + 1) * polyMesh->ch;
+                tmp[2] = polyMesh->bmin[2] + v1[2] * polyMesh->cs;
 
                 Vector pos1;
                 ConvertRecastToGameCoord(tmp, pos1);
@@ -388,9 +389,10 @@ void NavigationMap::TryConnectJumpFallPoints(Container<offMeshNavigationPoint>& 
                     }
 
                     const unsigned short *v2 = &polyMesh->verts[p2[l] * 3];
-                    tmp[0]                   = polyMesh->bmin[0] + v2[0] * polyMesh->cs;
-                    tmp[1]                   = polyMesh->bmin[1] + (v2[1] + 1) * polyMesh->ch;
-                    tmp[2]                   = polyMesh->bmin[2] + v2[2] * polyMesh->cs;
+
+                    tmp[0] = polyMesh->bmin[0] + v2[0] * polyMesh->cs;
+                    tmp[1] = polyMesh->bmin[1] + (v2[1] + 1) * polyMesh->ch;
+                    tmp[2] = polyMesh->bmin[2] + v2[2] * polyMesh->cs;
 
                     Vector pos2;
                     ConvertRecastToGameCoord(tmp, pos2);
@@ -429,6 +431,47 @@ void NavigationMap::GatherOffMeshPoints(Container<offMeshNavigationPoint>& point
 
 /*
 ============
+NavigationMap::InitializeNavMesh
+============
+*/
+void NavigationMap::InitializeNavMesh(RecastBuildContext& buildContext, const navMap_t& navMap)
+{
+    dtNavMeshParams params;
+    dtStatus status;
+
+    params.orig[0]    = MIN_MAP_BOUNDS;
+    params.orig[1]    = MIN_MAP_BOUNDS;
+    params.orig[2]    = MIN_MAP_BOUNDS;
+    params.tileWidth  = MAP_SIZE * recastCellSize;
+    params.tileHeight = MAP_SIZE * recastCellSize;
+    params.maxTiles   = MAX_GENTITIES;
+    params.maxPolys   = 65536;
+
+    navMeshDt = dtAllocNavMesh();
+    status = navMeshDt->init(&params);
+
+    if (dtStatusFailed(status)) {
+        buildContext.log(RC_LOG_ERROR, "Failed to initialize the navigation mesh");
+        return;
+    }
+
+    //
+    // Create the nav mesh query
+    //
+    navMeshQuery = dtAllocNavMeshQuery();
+    status = navMeshQuery->init(navMeshDt, MAX_PATHNODES);
+
+    if (dtStatusFailed(status)) {
+        buildContext.log(RC_LOG_ERROR, "Could not init Detour navmesh query");
+        return;
+    }
+
+    navCrowd = dtAllocCrowd();
+    navCrowd->init(MAX_CLIENTS, agentRadius, navMeshDt);
+}
+
+/*
+============
 NavigationMap::BuildDetourData
 ============
 */
@@ -460,6 +503,9 @@ void NavigationMap::BuildDetourData(
     rcVcopy(dtParams.bmax, polyMesh->bmax);
     dtParams.cs          = recastCellSize;
     dtParams.ch          = recastCellHeight;
+    dtParams.tileX       = 0;
+    dtParams.tileY       = 0;
+    dtParams.tileLayer   = 0;
     dtParams.buildBvTree = true;
 
     Container<offMeshNavigationPoint> points;
@@ -513,22 +559,7 @@ void NavigationMap::BuildDetourData(
         delete[] offMeshConUserID;
     }
 
-    dtNavMesh *navMesh = dtAllocNavMesh();
-
-    dtStatus status = navMesh->init(navData, navDataSize, DT_TILE_FREE_DATA);
-
-    navMeshQuery = dtAllocNavMeshQuery();
-    navMeshQuery->init(navMesh, 2048);
-
-    if (dtStatusFailed(status)) {
-        buildContext.log(RC_LOG_ERROR, "Could not init Detour navmesh query");
-        return;
-    }
-
-    navCrowd = dtAllocCrowd();
-    navCrowd->init(MAX_CLIENTS, agentRadius, navMesh);
-
-    navMeshDt = navMesh;
+    dtStatus status = navMeshDt->addTile(navData, navDataSize, DT_TILE_FREE_DATA, 0, NULL);
 }
 
 /*
@@ -655,12 +686,10 @@ void NavigationMap::GeneratePolyMesh(
 NavigationMap::BuildRecastMesh
 ============
 */
-void NavigationMap::BuildRecastMesh(navMap_t& navigationMap)
+void NavigationMap::BuildRecastMesh(RecastBuildContext& buildContext, const navModel_t& model)
 {
-    RecastBuildContext buildContext;
-    const navModel_t&  navModel = navigationMap.GetWorldMap();
-    const int          numIndexes  = navModel.indices.NumObjects();
-    const int          numVertices = navModel.vertices.NumObjects();
+    const int          numIndexes  = model.indices.NumObjects();
+    const int          numVertices = model.vertices.NumObjects();
     const int          numTris     = numIndexes / 3;
     int                i;
 
@@ -670,15 +699,15 @@ void NavigationMap::BuildRecastMesh(navMap_t& navigationMap)
     float *vertsBuffer = new float[numVertices * 3];
 
     for (i = 0; i < numVertices; i++) {
-        const navVertice_t& inVertice = navModel.vertices.ObjectAt(i + 1);
+        const navVertice_t& inVertice = model.vertices.ObjectAt(i + 1);
         ConvertGameToRecastCoord(inVertice.xyz, &vertsBuffer[i * 3]);
     }
 
     int *indexesBuffer = new int[numIndexes];
     for (i = 0; i < numTris; i++) {
-        indexesBuffer[i * 3 + 0] = navModel.indices[i * 3 + 2];
-        indexesBuffer[i * 3 + 1] = navModel.indices[i * 3 + 1];
-        indexesBuffer[i * 3 + 2] = navModel.indices[i * 3 + 0];
+        indexesBuffer[i * 3 + 0] = model.indices[i * 3 + 2];
+        indexesBuffer[i * 3 + 1] = model.indices[i * 3 + 1];
+        indexesBuffer[i * 3 + 2] = model.indices[i * 3 + 0];
     }
 
     //
@@ -701,8 +730,6 @@ void NavigationMap::BuildRecastMesh(navMap_t& navigationMap)
 
     rcFreePolyMeshDetail(polyMeshDetail);
     rcFreePolyMesh(polyMesh);
-
-    prev_navMap = navigationMap;
 }
 
 /*
@@ -712,10 +739,9 @@ G_Navigation_DebugDraw
 */
 void G_Navigation_DebugDraw()
 {
-
-    Entity    *ent       = g_entities[0].entity;
-    dtNavMesh *navMeshDt = navigationMap.GetNavMesh();
-    const navModel_t& worldMap = prev_navMap.GetWorldMap();
+    Entity           *ent       = g_entities[0].entity;
+    dtNavMesh        *navMeshDt = navigationMap.GetNavMesh();
+    const navModel_t& worldMap  = prev_navMap.GetWorldMap();
 
     if (!navMeshDt) {
         return;
@@ -728,6 +754,9 @@ void G_Navigation_DebugDraw()
     if (ai_showallnode->integer) {
         for (int i = 0; i < navMeshDt->getMaxTiles(); i++) {
             const dtMeshTile *tile = static_cast<const dtNavMesh *>(navMeshDt)->getTile(i);
+            if (!tile || !tile->header) {
+                continue;
+            }
 
             for (int j = 0; j < tile->header->vertCount; j++) {
                 const float *pvert = &tile->verts[j * 3];
@@ -776,6 +805,9 @@ void G_Navigation_DebugDraw()
 
             for (int i = 0; i < navMeshDt->getMaxTiles(); i++) {
                 const dtMeshTile *tile = static_cast<const dtNavMesh *>(navMeshDt)->getTile(i);
+                if (!tile || !tile->header) {
+                    continue;
+                }
 
                 for (int j = 0; j < tile->header->polyCount; j++) {
                     const dtPoly *poly = &tile->polys[j];
@@ -1071,6 +1103,7 @@ NavigationMap::LoadWorldMap
 void NavigationMap::LoadWorldMap(const char *mapname)
 {
     NavigationBSP navigationBsp;
+    RecastBuildContext buildContext;
     int           start, end;
 
     gi.Printf("---- Recast Navigation ----\n");
@@ -1110,7 +1143,10 @@ void NavigationMap::LoadWorldMap(const char *mapname)
     try {
         start = gi.Milliseconds();
 
-        BuildRecastMesh(navigationBsp.navMap);
+        InitializeNavMesh(buildContext, navigationBsp.navMap);
+        BuildRecastMesh(buildContext, navigationBsp.navMap.GetWorldMap());
+
+        prev_navMap = navigationBsp.navMap;
     } catch (const ScriptException& e) {
         gi.Printf("Couldn't build recast navigation mesh: %s\n", e.string.c_str());
         return;

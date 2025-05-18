@@ -133,9 +133,11 @@ private:
         rcPolyMesh       *&       outPolyMesh,
         rcPolyMeshDetail *& outPolyMeshDetail
     );
+
+    void InitializeNavMesh(RecastBuildContext& buildContext, const navMap_t& navMap);
     void BuildDetourData(RecastBuildContext& buildContext, rcPolyMesh *polyMesh, rcPolyMeshDetail *polyMeshDetail);
 
-    void BuildRecastMesh(navMap_t& navigationMap);
+    void BuildRecastMesh(RecastBuildContext& buildContext, const navModel_t& model);
     void ProcessBSPForNavigation(const char *mapname, navMap_t& outNavigationMap);
 
 private:
