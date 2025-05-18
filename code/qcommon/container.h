@@ -521,7 +521,7 @@ void Container<Type>::Copy(const Container<Type>& container)
     }
 
     for (i = 0; i < container.numobjects; i++) {
-        objlist[i] = container.objlist[i];
+        new(objlist + i) Type(container.objlist[i]);
     }
 
     return;
