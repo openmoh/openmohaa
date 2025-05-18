@@ -90,21 +90,56 @@ void navModel_t::AddIndex(navIndice_t index)
     indices.AddObject(index);
 }
 
+/*
+=================
+navModel_t::GetWorldMap
+=================
+*/
 navModel_t& navMap_t::GetWorldMap()
 {
     return worldMap;
 }
 
+/*
+=================
+navModel_t::GetWorldMap
+=================
+*/
 const navModel_t& navMap_t::GetWorldMap() const
 {
     return worldMap;
 }
 
+/*
+=================
+navModel_t::CreateModel
+=================
+*/
 navModel_t& navMap_t::CreateModel()
 {
     int index = subModels.AddObject({});
 
     return subModels.ObjectAt(index);
+}
+
+/*
+=================
+navModel_t::GetNumSubmodels
+=================
+*/
+int navMap_t::GetNumSubmodels() const
+{
+    return subModels.NumObjects();
+}
+
+/*
+=================
+navModel_t::GetSubmodel
+=================
+*/
+const navModel_t& navMap_t::GetSubmodel(int index) const
+{
+    return subModels[index];
 }
 
 /*
@@ -459,10 +494,14 @@ void NavigationBSP::GenerateVerticesFromHull(bspMap_c& inBspMap, const Container
 
     for (i = 2; i <= submodels.NumObjects(); i++) {
         const cmodel_t& submodel = submodels.ObjectAt(i);
+        navModel_t& navModel = navMap.CreateModel();
+
+        if (submodel.firstBrush == -1) {
+            continue;
+        }
 
         for (j = submodel.firstBrush + 1; j <= submodel.firstBrush + submodel.numBrushes; j++) {
             cbrush_t&   brush    = brushes.ObjectAt(j);
-            navModel_t& navModel = navMap.CreateModel();
 
             GenerateBrushTriangles(navModel, planes, brush);
         }

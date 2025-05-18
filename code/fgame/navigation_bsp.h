@@ -92,6 +92,8 @@ public:
     const navModel_t& GetWorldMap() const;
 
     navModel_t& CreateModel();
+    int GetNumSubmodels() const;
+    const navModel_t& GetSubmodel(int index) const;
 };
 
 struct cshader_t {
