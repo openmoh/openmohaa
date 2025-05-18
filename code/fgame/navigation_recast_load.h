@@ -34,6 +34,10 @@ class RecastBuildContext;
 struct rcPolyMesh;
 struct rcPolyMeshDetail;
 
+/**
+ * @brief An offmesh point that the navigation system will use to find path.
+ *
+ */
 struct offMeshNavigationPoint {
     Vector         start;
     Vector         end;
@@ -56,17 +60,47 @@ struct offMeshNavigationPoint {
     bool operator!=(const offMeshNavigationPoint& other) const { return !(*this == other); }
 };
 
+/**
+ * @brief Full navigation map with meshes and tiles.
+ *
+ */
 class NavigationMap
 {
 public:
     NavigationMap();
     ~NavigationMap();
 
+    /**
+     * @brief Generate the navigation system from the specified BSP map file.
+     * 
+     * @param mapname The .bsp map file.
+     */
     void LoadWorldMap(const char *mapname);
+
+    /**
+     * @brief Clear and free memory allocated for the navigation system.
+     */
     void ClearNavigation();
+
+    /**
+     * @brief Whether or not the navigation system is valid.
+     * 
+     * @return true if there is a valid navigation generated.
+     */
     bool IsValid() const;
 
-    dtNavMesh      *GetNavMesh() const;
+    /**
+     * @brief Get the navigation mesh.
+     * 
+     * @return dtNavMesh* The navigation mesh.
+     */
+    dtNavMesh *GetNavMesh() const;
+
+    /**
+     * @brief Get navigation query object.
+     * 
+     * @return dtNavMeshQuery* The navigation query object.
+     */
     dtNavMeshQuery *GetNavMeshQuery() const;
 
 public:
@@ -111,7 +145,20 @@ private:
 
 extern NavigationMap navigationMap;
 
-void G_Navigation_Frame();
+/**
+ * @brief Convert Recast coordinates to game coordinates.
+ * 
+ * @param in XYZ Recast coordinates.
+ * @param out XYZ Game coordinates.
+ */
 void ConvertRecastToGameCoord(const float *in, float *out);
+
+/**
+ * @brief Convert game coordinates to Recast coordinates.
+ * 
+ * @param in XYZ Game coordinates 
+ * @param out XYZ Recast coordinates.
+ */
 void ConvertGameToRecastCoord(const float *in, float *out);
 
+void G_Navigation_Frame();

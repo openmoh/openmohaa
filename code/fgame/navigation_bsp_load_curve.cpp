@@ -20,6 +20,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
+/**
+ * @file navigation_bsp_load_curve.cpp
+ * @brief Render patches from BSP into triangles and vertices.
+ * 
+ */
+
 #include "g_local.h"
 #include "navigation_bsp.h"
 

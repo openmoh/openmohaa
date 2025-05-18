@@ -20,6 +20,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
+/**
+ * @file navigation_bsp_lump.cpp
+ * @brief Provide functions for loading lumps from BSP.
+ * 
+ */
+
 #include "g_local.h"
 #include "navigation_bsp_lump.h"
 #include "../script/scriptexception.h"

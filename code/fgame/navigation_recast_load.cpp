@@ -20,7 +20,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-// navigation -- Modern navigation system using Recast and Detour
+/**
+ * @file navigation_recast_load.cpp
+ * @brief Modern navigation system using Recast and Detour.
+ *
+ * Parse BSP file, get surface triangles and rasterize them to create a navigation mesh.
+ */
 
 #include "g_local.h"
 #include "navigation_recast_load.h"
@@ -1068,12 +1073,20 @@ void NavigationMap::LoadWorldMap(const char *mapname)
 
     gi.Printf("---- Recast Navigation ----\n");
 
+    //
+    // Free up existing navigation if there is one
+    //
+
     ClearNavigation();
 
     if (!sv_maxbots->integer) {
         gi.Printf("No bots, skipping navigation\n");
         return;
     }
+
+    //
+    // Parse the BSP file into triangles
+    //
 
     try {
         start = gi.Milliseconds();
@@ -1087,6 +1100,10 @@ void NavigationMap::LoadWorldMap(const char *mapname)
     end = gi.Milliseconds();
 
     gi.Printf("BSP file loaded and parsed in %.03f seconds\n", (float)((end - start) / 1000.0));
+
+    //
+    // Build and create the navigation mesh
+    //
 
     try {
         start = gi.Milliseconds();

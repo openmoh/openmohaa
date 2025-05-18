@@ -20,6 +20,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
+/**
+ * @file navigation_path.cpp
+ * @brief Interface for using the legacy or recast-based navigation system.
+ * 
+ */
+
 #include "g_local.h"
 #include "navigation_path.h"
 #include "navigation_recast_path.h"

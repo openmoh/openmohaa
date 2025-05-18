@@ -20,7 +20,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-// Legacy path system
+/**
+ * @file navigation_legacy_path.cpp
+ * @brief Legacy navigation system, use an ActorPath.
+ *
+ * This implementation uses the old navigation system that use pathnodes and basic path-finding algorithm.
+ * Nodes have to be placed manually.
+ */
 
 #include "navigation_legacy_path.h"
 

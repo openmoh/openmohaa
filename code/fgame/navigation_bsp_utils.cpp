@@ -20,6 +20,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
+/**
+ * @file navigation_bsp_utils.cpp
+ * @brief Utility functions to create windings from brushes.
+ * 
+ */
+
 #include "g_local.h"
 #include "navigation_bsp.h"
 #include "../qcommon/qfiles.h"

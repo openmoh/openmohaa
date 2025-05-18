@@ -39,22 +39,6 @@ struct PathSearchParameter {
     Entity *entity;
 };
 
-class IPathSearch
-{
-public:
-    virtual Container<PathNav>
-    FindPath(const Vector& start, const Vector& end, const PathSearchParameter& parameters) = 0;
-    virtual Container<PathNav>
-    FindPathNear(const Vector& start, const Vector& end, float radius, const PathSearchParameter& parameters) = 0;
-    virtual Container<PathNav> FindPathAway(
-        const Vector&              start,
-        const Vector&              avoid,
-        const Vector&              preferredDir,
-        float                      radius,
-        const PathSearchParameter& parameters
-    ) = 0;
-};
-
 class IPather : public LightClass
 {
 public:

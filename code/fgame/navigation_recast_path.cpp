@@ -20,7 +20,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-// navigation -- Modern navigation system using Recast and Detour
+/**
+ * @file navigation_recast_path.cpp
+ * @brief Modern navigation system using Recast and Detour
+ *
+ * Detour is used for path-finding using a mesh that was automatically generated when parsing the BSP file.
+ */
 
 #include "navigation_recast_path.h"
 #include "navigation_recast_load.h"

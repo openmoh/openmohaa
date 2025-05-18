@@ -20,6 +20,18 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
+/**
+ * @file navigation_bsp.cpp
+ * @brief Generate vertices and indices from brushes, terrain and patches.
+ *
+ * 1. All shaders are parsed, they are used for solidity check.
+ * 2. Planes, brush sides and brushes are loaded.
+ * 3. Triangles are created by calculating brush windings
+ * 4. Patches are parsed and rendered into triangles
+ * 5. The LOD terrain is fully renderer into triangles
+ * 
+ */
+
 #include "g_local.h"
 #include "navigation_bsp.h"
 #include "navigation_bsp_lump.h"
