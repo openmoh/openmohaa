@@ -1310,14 +1310,12 @@ void UI_PrintConsole(const char *msg)
 {
     const UColor *pColor = NULL;
     const char   *pszString;
-    char          szString[1024];
     char          szBlah[1024];
     qboolean      bPrintedDMBox = qfalse;
 
     pszString = msg;
-    strncpy(szString, msg, 1024);
 
-    if (*pszString < MESSAGE_MAX) {
+    if ((unsigned char)*pszString < MESSAGE_MAX) {
         qboolean bNormalMessage = qfalse;
         qboolean bDMMessage     = qfalse;
         qboolean bBold          = qfalse;
@@ -1346,18 +1344,16 @@ void UI_PrintConsole(const char *msg)
             break;
         }
 
-        if (*pszString != 0) {
-            pszString++;
-        }
+        pszString++;
 
         //
         // print to the deathmatch console
         //
         if (dm_console && !bNormalMessage) {
             if (bDMMessage) {
-                dm_console->AddDMMessageText(szString + 1, pColor);
+                dm_console->AddDMMessageText(pszString, pColor);
             } else {
-                dm_console->AddText(szString + 1, pColor);
+                dm_console->AddText(pszString, pColor);
             }
         }
 
@@ -1365,14 +1361,20 @@ void UI_PrintConsole(const char *msg)
         // print to the deathmatch message box
         //
         if (dmbox) {
+            // Changed in OPM
+            //  Avoid touching/copying buffers
+            /*
             if (bDMMessage) {
                 *szString = MESSAGE_CHAT_WHITE;
                 dmbox->Print(szString);
-                pszString     = msg + 1;
-                bPrintedDMBox = qtrue;
             } else if (bDeathMessage) {
+                *szString = bDeathMessage;
                 dmbox->Print(szString);
-                *szString     = bDeathMessage;
+            }
+            */
+
+            if (bDMMessage || bDeathMessage) {
+                dmbox->Print(msg);
                 bPrintedDMBox = qtrue;
             }
         }
@@ -1382,12 +1384,15 @@ void UI_PrintConsole(const char *msg)
         //
         if (gmbox && !bPrintedDMBox) {
             if (bBold) {
-                *szString = MESSAGE_WHITE;
-                gmbox->Print(szString);
+                // Changed in OPM
+                //  Avoid touching/copying buffers
+                //*szString = MESSAGE_WHITE;
+                //gmbox->Print(szString);
+
+                gmbox->Print(msg);
                 uii.Snd_PlaySound("objective_text");
-                pszString = msg + 1;
             } else {
-                gmbox->Print(szString + 1);
+                gmbox->Print(pszString);
             }
 
             if (!ui_gmboxspam->integer) {
@@ -1395,7 +1400,7 @@ void UI_PrintConsole(const char *msg)
             }
 
             if (!bDMMessage) {
-                memcpy(szBlah, "Game Message: ", 15);
+                Q_strncpyz(szBlah, "Game Message: ", sizeof(szBlah));
                 Q_strcat(szBlah, sizeof(szBlah), pszString);
                 pszString = szBlah;
             }

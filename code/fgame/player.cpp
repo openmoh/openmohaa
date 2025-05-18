@@ -10608,11 +10608,17 @@ void Player::PlayInstantMessageSound(const char *name)
 
 void Player::EventDMMessage(Event *ev)
 {
+    static constexpr unsigned int MAX_SAY_TEXT_LENGTH = 400;
+
     int i;
     //int              iStringLength;
     int              iMode = 0;
     str              sToken;
-    char             szPrintString[MAX_SAY_TEXT]; // it's MAX_STRING_CHARS in mohaa
+    // Changed in OPM
+    //  it's MAX_STRING_CHARS in mohaa
+    // Add 1 character for the newline
+    char             szPrintString[MAX_SAY_TEXT_LENGTH];
+    const char       *pStartMessage = szPrintString;
     size_t           iStringLength;
     const char      *pTmpInstantMsg = "";
     qboolean         bInstaMessage  = qfalse;
@@ -10807,6 +10813,12 @@ void Player::EventDMMessage(Event *ev)
     } else if (iMode > 0) {
         Q_strcat(szPrintString, sizeof(szPrintString), gi.CL_LV_ConvertString("(private)"));
         Q_strcat(szPrintString, sizeof(szPrintString), " ");
+    } else {
+        // Added in OPM
+        //  Specify that the client is talking to everyone
+        //  This was also a feature of Daven's fixes
+        Q_strcat(szPrintString, sizeof(szPrintString), gi.CL_LV_ConvertString("(all)"));
+        Q_strcat(szPrintString, sizeof(szPrintString), " ");
     }
 
     Q_strcat(szPrintString, sizeof(szPrintString), client->pers.netname);
@@ -10814,17 +10826,23 @@ void Player::EventDMMessage(Event *ev)
     if (bInstaMessage) {
         Q_strcat(szPrintString, sizeof(szPrintString), ": ");
         Q_strcat(szPrintString, sizeof(szPrintString), gi.LV_ConvertString(pTmpInstantMsg));
+
+        pStartMessage = pTmpInstantMsg;
     } else {
         bool met_comment = false;
 
         Q_strcat(szPrintString, sizeof(szPrintString), ":");
-        iStringLength = strlen(szPrintString);
 
         // Added in OPM.
         //  Checks for comments in string (as COM_Parse will parse them)
         //  This was fixed in 2.0 but make the fix compatible with older versions
         if (g_protocol < protocol_e::PROTOCOL_MOHTA_MIN && strstr(client->pers.netname, "/*")) {
             met_comment = true;
+        }
+
+        pStartMessage = szPrintString + strlen(szPrintString);
+        if (ev->NumArgs() > 1) {
+            pStartMessage++;
         }
 
         for (i = 2; i <= ev->NumArgs(); i++) {
@@ -10834,10 +10852,6 @@ void Player::EventDMMessage(Event *ev)
             //  So players can easily tell their position, health, etc.
             sToken = TranslateBattleLanguageTokens(sToken);
 
-            if (iStringLength + sToken.length() > (ARRAY_LEN(szPrintString) - 1)) {
-                break;
-            }
-
             if (met_comment && strstr(sToken, "*/")) {
                 // ignore messages containing comments
                 return;
@@ -10845,10 +10859,13 @@ void Player::EventDMMessage(Event *ev)
 
             Q_strcat(szPrintString, sizeof(szPrintString), " ");
             Q_strcat(szPrintString, sizeof(szPrintString), gi.LV_ConvertString(sToken));
+
+            iStringLength = strlen(szPrintString);
+            if (iStringLength + sToken.length() > (ARRAY_LEN(szPrintString) - 1)) {
+                break;
+            }
         }
     }
-
-    Q_strcat(szPrintString, sizeof(szPrintString), "\n");
 
     // ignore names containing comments
     if (g_protocol < protocol_e::PROTOCOL_MOHTA_MIN) {
@@ -10858,21 +10875,6 @@ void Player::EventDMMessage(Event *ev)
         }
     }
 
-    //
-    // Added in OPM
-    //=============
-    // Print the dm message to console
-    sToken = "";
-
-    for (i = 2; i <= ev->NumArgs(); i++) {
-        if (i != 2) {
-            sToken += " ";
-        }
-
-        sToken += ev->GetString(i);
-    }
-    //=============
-
     if (iMode == 0) {
         //
         // everyone
@@ -10881,11 +10883,11 @@ void Player::EventDMMessage(Event *ev)
         // Added in OPM
         if (bInstaMessage) {
             gi.Printf(
-                "%s (%zu) says (voice) to everyone: %s\n", client->pers.netname, edict - g_entities, pTmpInstantMsg
+                "%s (%zu) says (voice) to everyone: %s\n", client->pers.netname, edict - g_entities, pStartMessage
             );
         } else {
             gi.Printf(
-                "%s (%zu) says (text) to everyone: %s\n", client->pers.netname, edict - g_entities, sToken.c_str()
+                "%s (%zu) says (text) to everyone: %s\n", client->pers.netname, edict - g_entities, pStartMessage
             );
         }
 
@@ -10897,7 +10899,7 @@ void Player::EventDMMessage(Event *ev)
                     continue;
                 }
 
-                gi.SendServerCommand(i, "%s", szPrintString);
+                gi.SendServerCommand(i, "%s\n", szPrintString);
 
                 if (bInstaMessage) {
                     gi.MSG_SetClient(i);
@@ -10926,7 +10928,7 @@ void Player::EventDMMessage(Event *ev)
                     continue;
                 }
 
-                gi.SendServerCommand(i, "%s", szPrintString);
+                gi.SendServerCommand(i, "%s\n", szPrintString);
             }
         }
 
@@ -10945,9 +10947,9 @@ void Player::EventDMMessage(Event *ev)
 
         // Added in OPM
         if (bInstaMessage) {
-            gi.Printf("%s (%zu) says (voice) to team: %s\n", client->pers.netname, edict - g_entities, pTmpInstantMsg);
+            gi.Printf("%s (%zu) says (voice) to team: %s\n", client->pers.netname, edict - g_entities, pStartMessage);
         } else {
-            gi.Printf("%s (%zu) says (text) to team: %s\n", client->pers.netname, edict - g_entities, sToken.c_str());
+            gi.Printf("%s (%zu) says (text) to team: %s\n", client->pers.netname, edict - g_entities, pStartMessage);
         }
 
         if (IsSpectator()) {
@@ -10962,7 +10964,7 @@ void Player::EventDMMessage(Event *ev)
                     continue;
                 }
 
-                gi.SendServerCommand(i, "%s", szPrintString);
+                gi.SendServerCommand(i, "%s\n", szPrintString);
             }
         } else {
             for (i = 0; i < game.maxclients; i++) {
@@ -10976,7 +10978,7 @@ void Player::EventDMMessage(Event *ev)
 
                 bSameTeam = static_cast<Player *>(ent->entity)->GetTeam() == GetTeam();
                 if (bSameTeam) {
-                    gi.SendServerCommand(i, "%s", szPrintString);
+                    gi.SendServerCommand(i, "%s\n", szPrintString);
                 }
 
                 if (bInstaMessage) {
@@ -11025,7 +11027,7 @@ void Player::EventDMMessage(Event *ev)
                 client->pers.netname,
                 edict - g_entities,
                 iMode - 1,
-                pTmpInstantMsg
+                pStartMessage
             );
         } else {
             gi.Printf(
@@ -11033,11 +11035,11 @@ void Player::EventDMMessage(Event *ev)
                 client->pers.netname,
                 edict - g_entities,
                 iMode - 1,
-                sToken.c_str()
+                pStartMessage
             );
         }
 
-        gi.SendServerCommand(iMode - 1, "%s", szPrintString);
+        gi.SendServerCommand(iMode - 1, "%s\n", szPrintString);
 
         if (ent->entity != this) {
             gi.SendServerCommand(
@@ -11046,7 +11048,7 @@ void Player::EventDMMessage(Event *ev)
                 gi.LV_ConvertString("Message to player"),
                 iMode
             );
-            gi.SendServerCommand(edict - g_entities, "%s", szPrintString);
+            gi.SendServerCommand(edict - g_entities, "%s\n", szPrintString);
         }
     } else {
         str errorString  = gi.LV_ConvertString("Message Error");

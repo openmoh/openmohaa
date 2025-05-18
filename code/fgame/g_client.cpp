@@ -778,14 +778,6 @@ void G_ClientUserinfoChanged(gentity_t *ent, const char *u)
         gi.Printf("WARNING: had to sanitize the name for client %i\n", clientnum);
     }
 
-    if (strcmp(oldname, client->pers.netname)) {
-        //
-        // Added in OPM
-        //  Print name changes
-        //
-        gi.Printf("Client %i changed name from '%s' to '%s'\n", clientnum, oldname, client->pers.netname);
-    }
-
     s = Info_ValueForKey(u, "dm_playermodel");
 
     if (!s) {

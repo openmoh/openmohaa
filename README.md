@@ -17,7 +17,8 @@ Powered by [ioquake3](https://github.com/ioquake/ioq3) and the [F.A.K.K SDK](htt
 - Better support for modern systems
 - Cross-platform support (Linux, Windows, macOS)
 - Support for both single-player and multiplayer modes
-- All fixes and features from the latest version of MOH:AAB (Allied Assault Breakthrough 2.40b)
+- Includes all fixes from Spearhead 2.15 and Breakthrough 2.40b
+- More fixes and features, such as bots and a ban system
 
 ## Getting started
 
@@ -27,6 +28,11 @@ Powered by [ioquake3](https://github.com/ioquake/ioq3) and the [F.A.K.K SDK](htt
 - 🌐 [Setting up a game server](docs/markdown/02-running/02-running-server.md)
 
 ## Reporting Issues
+
+> [!NOTE]
+> OpenMoHAA hasn't hit version 1.0.0 yet. Think of it like a beta build from the golden age of LAN parties. Features are being added, bugs are getting squashed, and more things are being tweaked. Things might change, break, or get even better over time.
+> 
+> If that sounds like your kind of mission, gear up, frag some bots, and help level up OpenMoHAA!
 
 If you encounter a bug or a problem, you can do one of the following:
 - Submit an [issue](https://github.com/openmoh/openmohaa/issues) on GitHub (use the template).

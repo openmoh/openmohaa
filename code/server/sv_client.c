@@ -345,20 +345,21 @@ void SV_DirectConnect( netadr_t from ) {
 	challenge_t* ch;
 	char        banReason[MAX_REASON_LENGTH];
 
-	Com_DPrintf ("SVC_DirectConnect ()\n");
+	Q_strncpyz( userinfo, Cmd_Argv(1), sizeof(userinfo) );
+	Com_DPrintf ("SVC_DirectConnect ()\n>>>%s<<<\n", userinfo);
 	
 	// Check whether this client is banned.
 	if(SV_IsBanned(&from, qfalse, banReason, sizeof(banReason)))
 	{
 		if(banReason[0]) {
 			SV_NET_OutOfBandPrint( &svs.netprofile, from, "droperror\nYou are banned from this server.\nReason: %s\n", banReason);
+            Com_DPrintf("    rejected connect due to banned IP for reason: %s\n", banReason);
 		} else {
 			SV_NET_OutOfBandPrint( &svs.netprofile, from, "droperror\nYou are banned from this server.\n");
+            Com_DPrintf("    rejected connect due to banned IP (reason unspecified)\n");
 		}
 		return;
 	}
-
-	Q_strncpyz( userinfo, Cmd_Argv(1), sizeof(userinfo) );
 
 	if (com_target_game->integer >= TG_MOHTT) {
 		const char* clientType;
@@ -430,6 +431,7 @@ void SV_DirectConnect( netadr_t from ) {
 		SV_NET_OutOfBandPrint( &svs.netprofile, from,
 			"droperror\nUserinfo string length exceeded.  "
 			"Try removing setu cvars from your config.\n" );
+        Com_DPrintf("%s:rejected, userinfo string length exceeded\n", ip);
 		return;
 	}
 	Info_SetValueForKey( userinfo, "ip", ip );
@@ -600,6 +602,10 @@ gotnewcl:
 		Com_DPrintf ( "Game rejected a connection: %s.\n", denied );
 		return;
 	}
+
+    // Added in OPM
+    //  Show the IP address of the client that is connecting
+    Com_Printf("Client %i (address %s) is connecting\n", i, ip);
 
 	ch = FindChallenge(from, qfalse);
 	if (ch) {
@@ -1476,9 +1482,23 @@ void SV_UserinfoChanged( client_t *cl ) {
 	char	*ip;
 	int		i;
 	int	len;
+	char oldname[MAX_NAME_LENGTH];
+
+    // Added in OPM
+	Q_strncpyz( oldname, cl->name, sizeof(oldname) );
 
 	// name for C code
 	Q_strncpyz( cl->name, Info_ValueForKey (cl->userinfo, "name"), sizeof(cl->name) );
+
+    //
+    // Added in OPM
+    //  Print name changes
+    //
+    if (!oldname[0]) {
+        Com_Printf("Client %i name set to '%s'\n", cl - svs.clients, cl->name);
+    } else if (strcmp(oldname, cl->name)) {
+        Com_Printf("Client %i changed name from '%s' to '%s'\n", cl - svs.clients, oldname, cl->name);
+    }
 
 	// rate command
 

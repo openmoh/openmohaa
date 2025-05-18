@@ -110,7 +110,7 @@ static PlayerStart *GetRandomSpawnpointFromList(spawnsort_t *pSpots, int nSpots)
         if (i < nSpots) {
             fChosen = fMinPosMetric;
         }
-        
+
         fMinPosMetric = fTotalMetric;
     } else {
         fChosen = fMinPosMetric;
@@ -828,25 +828,44 @@ int DM_Manager::compareScores(const void *elem1, const void *elem2)
     Player *p1 = (Player *)G_GetEntity(*(int *)elem1);
     Player *p2 = (Player *)G_GetEntity(*(int *)elem2);
 
-    if (p1->GetNumKills() < p2->GetNumKills()) {
-        return 1;
-    } else if (p1->GetNumKills() == p2->GetNumKills()) {
-        // sort by death if they have the same number of kills
-        if (p1->GetNumDeaths() < p2->GetNumDeaths()) {
-            return 1;
-        } else if (p1->GetNumDeaths() == p2->GetNumDeaths()) {
-            // sort by netname if they have the same number of deaths
-            return Q_stricmp(p1->client->pers.netname, p2->client->pers.netname);
-        } else if (p1->GetNumDeaths() > p2->GetNumDeaths()) {
+    switch (g_gametype->integer) {
+    case GT_TEAM_ROUNDS:
+    case GT_OBJECTIVE:
+    case GT_TOW:
+    case GT_LIBERATION:
+        // Sort using the total kills in round-based matches
+        if (p1->GetNumDeaths() > p2->GetNumDeaths()) {
             return -1;
+        } else if (p1->GetNumDeaths() < p2->GetNumDeaths()) {
+            return 1;
         }
-    } else if (p1->GetNumKills() > p2->GetNumKills()) {
-        return -1;
+
+        // Sort using the number of kills in the current round
+        if (p1->GetNumKills() > p2->GetNumKills()) {
+            return -1;
+        } else if (p1->GetNumKills() < p2->GetNumKills()) {
+            return 1;
+        }
+        break;
+    default:
+        if (p1->GetNumKills() > p2->GetNumKills()) {
+            return -1;
+        } else if (p1->GetNumKills() < p2->GetNumKills()) {
+            return 1;
+        }
+
+        // sort by death if they have the same number of kills
+        if (p1->GetNumDeaths() > p2->GetNumDeaths()) {
+            return -1;
+        } else if (p1->GetNumDeaths() < p2->GetNumDeaths()) {
+            return 1;
+        }
+
+        break;
     }
 
-    // just to avoid the compiler warning
-    // shouldn't go there
-    return 0;
+    // sort by netname if they have the same number of deaths
+    return Q_stricmp(p1->client->pers.netname, p2->client->pers.netname);
 }
 
 void DM_Manager::Score(Player *player)

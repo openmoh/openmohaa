@@ -317,8 +317,6 @@ typedef enum
 
 #define	MAX_NAME_LENGTH		32		// max length of a client name
 
-#define	MAX_SAY_TEXT	150
-
 // paramters for command buffer stuffing
 typedef enum {
 	EXEC_NOW,			// don't return until completed, a VM should NEVER use this,
