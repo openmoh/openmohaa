@@ -67,10 +67,10 @@ navVertice_t::navVertice_t(const Vector& inXyz)
 
 /*
 =================
-navMap_t::AddVertice
+navModel_t::AddVertice
 =================
 */
-void navMap_t::AddVertice(const navVertice_t& vert)
+void navModel_t::AddVertice(const navVertice_t& vert)
 {
     vertices.AddObject(vert);
     AddPointToBounds(vert.xyz, bounds[0], bounds[1]);
@@ -78,16 +78,33 @@ void navMap_t::AddVertice(const navVertice_t& vert)
 
 /*
 =================
-navMap_t::AddIndex
+navModel_t::AddIndex
 =================
 */
-void navMap_t::AddIndex(navIndice_t index)
+void navModel_t::AddIndex(navIndice_t index)
 {
     if (index >= vertices.NumObjects()) {
         throw ScriptException("Attempt to add an index to a non-existent vertice (%d)", (int)index);
     }
 
     indices.AddObject(index);
+}
+
+navModel_t& navMap_t::GetWorldMap()
+{
+    return worldMap;
+}
+
+const navModel_t& navMap_t::GetWorldMap() const
+{
+    return worldMap;
+}
+
+navModel_t& navMap_t::CreateModel()
+{
+    int index = subModels.AddObject({});
+
+    return subModels.ObjectAt(index);
 }
 
 /*
@@ -365,7 +382,7 @@ void NavigationBSP::LoadSubmodels(const gameLump_c& lump, Container<cmodel_t>& s
 NavigationBSP::GenerateSideTriangles
 ============
 */
-void NavigationBSP::GenerateSideTriangles(cbrushside_t& side)
+void NavigationBSP::GenerateSideTriangles(navModel_t& model, cbrushside_t& side)
 {
     int          i, r, least, rotate, ni;
     int          numIndexes;
@@ -383,7 +400,7 @@ void NavigationBSP::GenerateSideTriangles(cbrushside_t& side)
         return;
     }
 
-    G_StripFaceSurface(navMap, side.winding);
+    G_StripFaceSurface(model, side.winding);
 }
 
 /*
@@ -391,7 +408,7 @@ void NavigationBSP::GenerateSideTriangles(cbrushside_t& side)
 NavigationBSP::GenerateBrushTriangles
 ============
 */
-void NavigationBSP::GenerateBrushTriangles(const Container<cplane_t>& planes, cbrush_t& brush)
+void NavigationBSP::GenerateBrushTriangles(navModel_t& model, const Container<cplane_t>& planes, cbrush_t& brush)
 {
     size_t i;
     size_t numSkip = 0;
@@ -405,7 +422,7 @@ void NavigationBSP::GenerateBrushTriangles(const Container<cplane_t>& planes, cb
     for (i = 0; i < brush.numsides; i++) {
         cbrushside_t& side = brush.sides[i];
 
-        GenerateSideTriangles(side);
+        GenerateSideTriangles(model, side);
     }
 }
 
@@ -430,10 +447,25 @@ void NavigationBSP::GenerateVerticesFromHull(bspMap_c& inBspMap, const Container
 
     const cmodel_t& worldModel = submodels.ObjectAt(1);
 
-    for (i = worldModel.firstBrush + 1; i <= worldModel.firstBrush + worldModel.numBrushes; i++) {
-        cbrush_t& brush = brushes.ObjectAt(i);
+    for (j = worldModel.firstBrush + 1; j <= worldModel.firstBrush + worldModel.numBrushes; j++) {
+        cbrush_t& brush = brushes.ObjectAt(j);
 
-        GenerateBrushTriangles(planes, brush);
+        GenerateBrushTriangles(navMap.GetWorldMap(), planes, brush);
+    }
+
+    //
+    // Get submodels
+    //
+
+    for (i = 2; i <= submodels.NumObjects(); i++) {
+        const cmodel_t& submodel = submodels.ObjectAt(i);
+
+        for (j = submodel.firstBrush + 1; j <= submodel.firstBrush + submodel.numBrushes; j++) {
+            cbrush_t&   brush    = brushes.ObjectAt(j);
+            navModel_t& navModel = navMap.CreateModel();
+
+            GenerateBrushTriangles(navModel, planes, brush);
+        }
     }
 }
 
@@ -451,18 +483,18 @@ void NavigationBSP::RenderSurfaceGrid(const surfaceGrid_t *grid)
 
     vertices   = grid->getVertices();
     indexes    = grid->getIndices();
-    baseVertex = navMap.vertices.NumObjects();
-    baseIndex  = navMap.indices.NumObjects();
+    baseVertex = navMap.GetWorldMap().vertices.NumObjects();
+    baseIndex  = navMap.GetWorldMap().indices.NumObjects();
 
-    //navMap.vertices.Resize(baseVertex + grid->numVertices);
-    //navMap.indices.Resize(baseIndex + grid->numIndexes);
+    //navMap.GetWorldMap().vertices.Resize(baseVertex + grid->numVertices);
+    //navMap.GetWorldMap().indices.Resize(baseIndex + grid->numIndexes);
 
     for (i = 0; i < grid->numVertices; i++) {
-        navMap.AddVertice(vertices[i]);
+        navMap.GetWorldMap().AddVertice(vertices[i]);
     }
 
     for (i = 0; i < grid->numIndexes; i++) {
-        navMap.AddIndex(baseVertex + indexes[i]);
+        navMap.GetWorldMap().AddIndex(baseVertex + indexes[i]);
     }
 }
 
@@ -518,10 +550,10 @@ void NavigationBSP::ParseTriSurf(const dsurface_t *ds, const drawVert_t *verts, 
     numIndexes = LittleLong(ds->numIndexes);
     verts += LittleLong(ds->firstVert);
     indexes += LittleLong(ds->firstIndex);
-    baseVertex = navMap.vertices.NumObjects();
-    baseIndex  = navMap.indices.NumObjects();
+    baseVertex = navMap.GetWorldMap().vertices.NumObjects();
+    baseIndex  = navMap.GetWorldMap().indices.NumObjects();
 
-    //navMap.vertices.Resize(navMap.vertices.NumObjects() + numPoints);
+    //navMap.GetWorldMap().vertices.Resize(navMap.GetWorldMap().vertices.NumObjects() + numPoints);
 
     for (i = 0; i < numPoints; i++) {
         Vector vec;
@@ -530,13 +562,13 @@ void NavigationBSP::ParseTriSurf(const dsurface_t *ds, const drawVert_t *verts, 
             vec[j] = LittleFloat(verts[i].xyz[j]);
         }
 
-        navMap.AddVertice(vec);
+        navMap.GetWorldMap().AddVertice(vec);
     }
 
-    //navMap.indices.Resize(navMap.indices.NumObjects() + numIndexes);
+    //navMap.GetWorldMap().indices.Resize(navMap.GetWorldMap().indices.NumObjects() + numIndexes);
 
     for (i = 0; i < numIndexes; i++) {
-        navMap.AddIndex(baseVertex + LittleLong(indexes[i]));
+        navMap.GetWorldMap().AddIndex(baseVertex + LittleLong(indexes[i]));
     }
 }
 
@@ -555,10 +587,10 @@ void NavigationBSP::ParseFace(const dsurface_t *ds, const drawVert_t *verts, con
     numIndexes = LittleLong(ds->numIndexes);
     verts += LittleLong(ds->firstVert);
     indexes += LittleLong(ds->firstIndex);
-    baseVertex = navMap.vertices.NumObjects();
-    baseIndex  = navMap.indices.NumObjects();
+    baseVertex = navMap.GetWorldMap().vertices.NumObjects();
+    baseIndex  = navMap.GetWorldMap().indices.NumObjects();
 
-    //navMap.vertices.Resize(navMap.vertices.NumObjects() + numPoints);
+    //navMap.GetWorldMap().vertices.Resize(navMap.GetWorldMap().vertices.NumObjects() + numPoints);
 
     for (i = 0; i < numPoints; i++) {
         Vector vec;
@@ -567,13 +599,13 @@ void NavigationBSP::ParseFace(const dsurface_t *ds, const drawVert_t *verts, con
             vec[j] = LittleFloat(verts[i].xyz[j]);
         }
 
-        navMap.AddVertice(vec);
+        navMap.GetWorldMap().AddVertice(vec);
     }
 
-    //navMap.indices.Resize(navMap.indices.NumObjects() + numIndexes);
+    //navMap.GetWorldMap().indices.Resize(navMap.GetWorldMap().indices.NumObjects() + numIndexes);
 
     for (i = 0; i < numIndexes; i++) {
-        navMap.AddIndex(baseVertex + LittleLong(indexes[i]));
+        navMap.GetWorldMap().AddIndex(baseVertex + LittleLong(indexes[i]));
     }
 }
 
@@ -654,8 +686,8 @@ void NavigationBSP::LoadSurfaces(bspMap_c& inBspMap, const Container<cshader_t>&
         }
     }
 
-    navMap.vertices.Resize(navMap.vertices.NumObjects() + totalNumVerts);
-    navMap.indices.Resize(navMap.indices.NumObjects() + totalNumIndexes);
+    navMap.GetWorldMap().vertices.Resize(navMap.GetWorldMap().vertices.NumObjects() + totalNumVerts);
+    navMap.GetWorldMap().indices.Resize(navMap.GetWorldMap().indices.NumObjects() + totalNumIndexes);
 
     in = (dsurface_t *)surfs.buffer;
 
@@ -765,12 +797,12 @@ void NavigationBSP::RenderPatch(const cTerraPatchUnpacked_t& patch)
     terraInt vertNum;
     terraInt triNum;
     terraInt currentVertice = 0;
-    size_t   baseVertice    = navMap.vertices.NumObjects();
+    size_t   baseVertice    = navMap.GetWorldMap().vertices.NumObjects();
 
     for (vertNum = patch.drawinfo.iVertHead; vertNum; vertNum = g_pVert[vertNum].iNext) {
         terrainVert_t& vert = g_pVert[vertNum];
 
-        navMap.AddVertice(vert.xyz);
+        navMap.GetWorldMap().AddVertice(vert.xyz);
         vert.iVertArray = currentVertice;
 
         currentVertice++;
@@ -780,9 +812,9 @@ void NavigationBSP::RenderPatch(const cTerraPatchUnpacked_t& patch)
         const terraTri_t& tri = g_pTris[triNum];
 
         if (tri.byConstChecks & 4) {
-            navMap.AddIndex(baseVertice + g_pVert[tri.iPt[0]].iVertArray);
-            navMap.AddIndex(baseVertice + g_pVert[tri.iPt[1]].iVertArray);
-            navMap.AddIndex(baseVertice + g_pVert[tri.iPt[2]].iVertArray);
+            navMap.GetWorldMap().AddIndex(baseVertice + g_pVert[tri.iPt[0]].iVertArray);
+            navMap.GetWorldMap().AddIndex(baseVertice + g_pVert[tri.iPt[1]].iVertArray);
+            navMap.GetWorldMap().AddIndex(baseVertice + g_pVert[tri.iPt[2]].iVertArray);
         }
     }
 }
@@ -823,8 +855,8 @@ void NavigationBSP::RenderTerrainTris(cTerraPatchUnpacked_t *terraPatches, size_
         }
     }
 
-    navMap.vertices.Resize(navMap.vertices.NumObjects() + numVertices);
-    navMap.indices.Resize(navMap.indices.NumObjects() + numIndices);
+    navMap.GetWorldMap().vertices.Resize(navMap.GetWorldMap().vertices.NumObjects() + numVertices);
+    navMap.GetWorldMap().indices.Resize(navMap.GetWorldMap().indices.NumObjects() + numIndices);
 
     for (i = 0; i < numTerraPatches; i++) {
         const cTerraPatchUnpacked_t& patch = terraPatches[i];

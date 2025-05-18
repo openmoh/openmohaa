@@ -133,7 +133,7 @@ qboolean CreateBrushWindings(const Container<cplane_t>& planes, cbrush_t& brush)
 FanFaceSurface
 ============
 */
-void FanFaceSurface(navMap_t& navMap, const winding_t *winding, size_t baseVertex)
+void FanFaceSurface(navModel_t& model, const winding_t *winding, size_t baseVertex)
 {
     int           i, j, k, a, b, c;
     navVertice_t *verts, centroid, *dv;
@@ -141,15 +141,15 @@ void FanFaceSurface(navMap_t& navMap, const winding_t *winding, size_t baseVerte
     size_t        numVerts;
 
     for (i = 0; i < winding->numpoints; i++) {
-        dv = &navMap.vertices.ObjectAt(baseVertex + i + 1);
+        dv = &model.vertices.ObjectAt(baseVertex + i + 1);
         centroid.xyz += dv->xyz;
     }
 
     iv = 1.0f / winding->numpoints;
     centroid.xyz *= iv;
-    navMap.AddVertice(centroid);
+    model.AddVertice(centroid);
 
-    numVerts = navMap.vertices.NumObjects() - baseVertex;
+    numVerts = model.vertices.NumObjects() - baseVertex;
 
     for (i = 0; i < winding->numpoints; i++) {
         a = numVerts - 1;
@@ -157,9 +157,9 @@ void FanFaceSurface(navMap_t& navMap, const winding_t *winding, size_t baseVerte
         c = (i + 1) % winding->numpoints;
         c = c ? c : 0;
 
-        navMap.AddIndex(baseVertex + a);
-        navMap.AddIndex(baseVertex + b);
-        navMap.AddIndex(baseVertex + c);
+        model.AddIndex(baseVertex + a);
+        model.AddIndex(baseVertex + b);
+        model.AddIndex(baseVertex + c);
     }
 }
 
@@ -195,7 +195,7 @@ qboolean IsTriangleDegenerate(const vec3_t *points, int a, int b, int c)
 G_StripFaceSurface
 ============
 */
-void G_StripFaceSurface(navMap_t& navMap, const winding_t *winding)
+void G_StripFaceSurface(navModel_t& model, const winding_t *winding)
 {
     int          i, r, least, rotate, ni;
     int          numIndexes;
@@ -204,16 +204,16 @@ void G_StripFaceSurface(navMap_t& navMap, const winding_t *winding)
     int          indexes[MAX_INDEXES];
     size_t       baseVertex;
 
-    baseVertex = navMap.vertices.NumObjects();
+    baseVertex = model.vertices.NumObjects();
 
     for (i = 0; i < winding->numpoints; i++) {
-        navMap.AddVertice(winding->p[i]);
+        model.AddVertice(winding->p[i]);
     }
 
     if (winding->numpoints == 3) {
-        navMap.AddIndex(baseVertex + 0);
-        navMap.AddIndex(baseVertex + 1);
-        navMap.AddIndex(baseVertex + 2);
+        model.AddIndex(baseVertex + 0);
+        model.AddIndex(baseVertex + 1);
+        model.AddIndex(baseVertex + 2);
         return;
     }
 
@@ -278,11 +278,11 @@ void G_StripFaceSurface(navMap_t& navMap, const winding_t *winding)
 
     /* if any triangle in the strip is degenerate, render from a centered fan point instead */
     if (ni < numIndexes) {
-        FanFaceSurface(navMap, winding, baseVertex);
+        FanFaceSurface(model, winding, baseVertex);
         return;
     }
 
     for (i = 0; i < numIndexes; i++) {
-        navMap.AddIndex(baseVertex + indexes[i]);
+        model.AddIndex(baseVertex + indexes[i]);
     }
 }

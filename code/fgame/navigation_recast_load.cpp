@@ -658,8 +658,9 @@ NavigationMap::BuildRecastMesh
 void NavigationMap::BuildRecastMesh(navMap_t& navigationMap)
 {
     RecastBuildContext buildContext;
-    const int          numIndexes  = navigationMap.indices.NumObjects();
-    const int          numVertices = navigationMap.vertices.NumObjects();
+    const navModel_t&  navModel = navigationMap.GetWorldMap();
+    const int          numIndexes  = navModel.indices.NumObjects();
+    const int          numVertices = navModel.vertices.NumObjects();
     const int          numTris     = numIndexes / 3;
     int                i;
 
@@ -669,15 +670,15 @@ void NavigationMap::BuildRecastMesh(navMap_t& navigationMap)
     float *vertsBuffer = new float[numVertices * 3];
 
     for (i = 0; i < numVertices; i++) {
-        const navVertice_t& inVertice = navigationMap.vertices.ObjectAt(i + 1);
+        const navVertice_t& inVertice = navModel.vertices.ObjectAt(i + 1);
         ConvertGameToRecastCoord(inVertice.xyz, &vertsBuffer[i * 3]);
     }
 
     int *indexesBuffer = new int[numIndexes];
     for (i = 0; i < numTris; i++) {
-        indexesBuffer[i * 3 + 0] = navigationMap.indices[i * 3 + 2];
-        indexesBuffer[i * 3 + 1] = navigationMap.indices[i * 3 + 1];
-        indexesBuffer[i * 3 + 2] = navigationMap.indices[i * 3 + 0];
+        indexesBuffer[i * 3 + 0] = navModel.indices[i * 3 + 2];
+        indexesBuffer[i * 3 + 1] = navModel.indices[i * 3 + 1];
+        indexesBuffer[i * 3 + 2] = navModel.indices[i * 3 + 0];
     }
 
     //
@@ -714,6 +715,7 @@ void G_Navigation_DebugDraw()
 
     Entity    *ent       = g_entities[0].entity;
     dtNavMesh *navMeshDt = navigationMap.GetNavMesh();
+    const navModel_t& worldMap = prev_navMap.GetWorldMap();
 
     if (!navMeshDt) {
         return;
@@ -865,21 +867,21 @@ void G_Navigation_DebugDraw()
         {
             const float maxDistSquared = Square(ai_showroutes_distance->integer);
 
-            for (int i = 0; i < prev_navMap.indices.NumObjects(); i += 3) {
-                const navVertice_t& v1 = prev_navMap.vertices[prev_navMap.indices[0]];
-                const navVertice_t& v2 = prev_navMap.vertices[prev_navMap.indices[1]];
-                const navVertice_t& v3 = prev_navMap.vertices[prev_navMap.indices[2]];
+            for (int i = 0; i < worldMap.indices.NumObjects(); i += 3) {
+                const navVertice_t& v1 = worldMap.vertices[worldMap.indices[0]];
+                const navVertice_t& v2 = worldMap.vertices[worldMap.indices[1]];
+                const navVertice_t& v3 = worldMap.vertices[worldMap.indices[2]];
 
                 for (int k = 0; k < 3; ++k) {
-                    const Vector delta = prev_navMap.vertices[prev_navMap.indices[i + k]].xyz - ent->origin;
+                    const Vector delta = worldMap.vertices[worldMap.indices[i + k]].xyz - ent->origin;
 
                     if (delta.lengthSquared() >= maxDistSquared) {
                         continue;
                     }
 
                     G_DebugLine(
-                        prev_navMap.vertices[prev_navMap.indices[i + k]].xyz,
-                        prev_navMap.vertices[prev_navMap.indices[i + ((k + 1) % 3)]].xyz,
+                        worldMap.vertices[worldMap.indices[i + k]].xyz,
+                        worldMap.vertices[worldMap.indices[i + ((k + 1) % 3)]].xyz,
                         0,
                         1,
                         0,
