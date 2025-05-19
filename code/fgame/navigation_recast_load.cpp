@@ -62,6 +62,7 @@ const float NavigationMap::edgeMaxError         = 1.3f;
 const int   NavigationMap::vertsPerPoly         = 6;
 const float NavigationMap::detailSampleDist     = 12.0;
 const float NavigationMap::detailSampleMaxError = 1.0;
+const float NavigationMap::agentJumpHeight      = 54;
 
 dtCrowd *navCrowd;
 int      navAgentId = -1;
@@ -365,7 +366,7 @@ NavigationMap::CanConnectJumpPoint(const rcPolyMesh *polyMesh, const Vector& pos
     }
 
     jumpheight = end.z - start.z;
-    if (jumpheight > 56) {
+    if (jumpheight > agentJumpHeight) {
         return {};
     }
 
@@ -1224,9 +1225,9 @@ NavigationMap::NavigationMap()
     : navMeshDt(NULL)
     , navMeshQuery(NULL)
 {
-    talloc = new dtTileCacheAlloc();
-    tcomp  = new NoCompressor();
-    tmproc = new MeshProcess();
+    talloc          = new dtTileCacheAlloc();
+    tcomp           = new NoCompressor();
+    tmproc          = new MeshProcess();
     validNavigation = false;
 }
 

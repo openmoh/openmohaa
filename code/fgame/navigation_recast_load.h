@@ -141,6 +141,7 @@ public:
     static const int   vertsPerPoly;
     static const float detailSampleDist;
     static const float detailSampleMaxError;
+    static const float agentJumpHeight;
 
 private:
     void                   ConnectLadders(Container<offMeshNavigationPoint>& points);
