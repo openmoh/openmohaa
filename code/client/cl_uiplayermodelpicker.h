@@ -26,6 +26,7 @@ class UIFloatingWindow;
 
 class PlayerModelPickerClass : public USignal
 {
+    UIButton         *overlay;
     UIFloatingWindow *window;
     UIListCtrl       *listbox;
     str               currentDirectory;
