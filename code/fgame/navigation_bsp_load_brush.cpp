@@ -133,7 +133,7 @@ qboolean CreateBrushWindings(const Container<cplane_t>& planes, cbrush_t& brush)
 FanFaceSurface
 ============
 */
-void FanFaceSurface(navModel_t& model, const winding_t *winding, size_t baseVertex)
+void FanFaceSurface(navSurface_t& surface, const winding_t *winding, size_t baseVertex)
 {
     int           i, j, k, a, b, c;
     navVertice_t *verts, centroid, *dv;
@@ -141,25 +141,35 @@ void FanFaceSurface(navModel_t& model, const winding_t *winding, size_t baseVert
     size_t        numVerts;
 
     for (i = 0; i < winding->numpoints; i++) {
-        dv = &model.vertices.ObjectAt(baseVertex + i + 1);
+        dv = &surface.vertices.ObjectAt(baseVertex + i + 1);
         centroid.xyz += dv->xyz;
     }
 
     iv = 1.0f / winding->numpoints;
     centroid.xyz *= iv;
-    model.AddVertice(centroid);
 
-    numVerts = model.vertices.NumObjects() - baseVertex;
+    surface.vertices.AddObject({});
 
-    for (i = 0; i < winding->numpoints; i++) {
-        a = numVerts - 1;
+    for (i = winding->numpoints - 1; i > 0; i--) {
+        navVertice_t *vert1, *vert2;
+        vert1 = &surface.vertices.ObjectAt(baseVertex + i);
+        vert2 = &surface.vertices.ObjectAt(baseVertex + i + 1);
+        *vert2 = *vert1;
+    }
+
+    surface.vertices[0] = centroid;
+
+    numVerts = surface.vertices.NumObjects() - baseVertex;
+
+    for (i = 1; i < winding->numpoints; i++) {
+        a = 0;
         b = i;
-        c = (i + 1) % winding->numpoints;
-        c = c ? c : 0;
+        c = (i + 1) % numVerts;
+        c = c ? c : 1;
 
-        model.AddIndex(baseVertex + a);
-        model.AddIndex(baseVertex + b);
-        model.AddIndex(baseVertex + c);
+        surface.AddIndex(baseVertex + a);
+        surface.AddIndex(baseVertex + b);
+        surface.AddIndex(baseVertex + c);
     }
 }
 
@@ -195,7 +205,7 @@ qboolean IsTriangleDegenerate(const vec3_t *points, int a, int b, int c)
 G_StripFaceSurface
 ============
 */
-void G_StripFaceSurface(navModel_t& model, const winding_t *winding)
+void G_StripFaceSurface(navSurface_t& surface, const winding_t *winding)
 {
     int          i, r, least, rotate, ni;
     int          numIndexes;
@@ -204,16 +214,16 @@ void G_StripFaceSurface(navModel_t& model, const winding_t *winding)
     int          indexes[MAX_INDEXES];
     size_t       baseVertex;
 
-    baseVertex = model.vertices.NumObjects();
+    baseVertex = surface.vertices.NumObjects();
 
     for (i = 0; i < winding->numpoints; i++) {
-        model.AddVertice(winding->p[i]);
+        surface.AddVertice(winding->p[i]);
     }
 
     if (winding->numpoints == 3) {
-        model.AddIndex(baseVertex + 0);
-        model.AddIndex(baseVertex + 1);
-        model.AddIndex(baseVertex + 2);
+        surface.AddIndex(baseVertex + 0);
+        surface.AddIndex(baseVertex + 1);
+        surface.AddIndex(baseVertex + 2);
         return;
     }
 
@@ -278,11 +288,11 @@ void G_StripFaceSurface(navModel_t& model, const winding_t *winding)
 
     /* if any triangle in the strip is degenerate, render from a centered fan point instead */
     if (ni < numIndexes) {
-        FanFaceSurface(model, winding, baseVertex);
+        FanFaceSurface(surface, winding, baseVertex);
         return;
     }
 
     for (i = 0; i < numIndexes; i++) {
-        model.AddIndex(baseVertex + indexes[i]);
+        surface.AddIndex(baseVertex + indexes[i]);
     }
 }

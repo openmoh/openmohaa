@@ -64,10 +64,10 @@ struct navVertice_t {
 };
 
 /**
- * @brief Navigation model containing indices and vertices.
+ * @brief Navigation surface containing indices and vertices.
  * 
  */
-struct navModel_t {
+struct navSurface_t {
     Container<navIndice_t>  indices;
     Container<navVertice_t> vertices;
     Vector                  bounds[2];
@@ -78,21 +78,33 @@ public:
 };
 
 /**
+ * @brief Navigation model containing faces.
+ * 
+ */
+struct navModel_t {
+    Container<navSurface_t> surfaces;
+    Vector                  bounds[2];
+
+public:
+    void CalculateBounds();
+};
+
+/**
  * @brief Navigation map.
  * Contains indices and vertices renderer from LOD terrain, brushes and patches.
  *
  * Model 0 is the world map.
  */
 struct navMap_t {
-    navModel_t worldMap;
+    navModel_t            worldMap;
     Container<navModel_t> subModels;
 
 public:
-    navModel_t& GetWorldMap();
+    navModel_t&       GetWorldMap();
     const navModel_t& GetWorldMap() const;
 
-    navModel_t& CreateModel();
-    int GetNumSubmodels() const;
+    navModel_t&       CreateModel();
+    int               GetNumSubmodels() const;
     const navModel_t& GetSubmodel(int index) const;
 };
 
@@ -146,9 +158,9 @@ struct cStaticModelUnpacked_t {
 /// Brush loading
 ///
 qboolean IsTriangleDegenerate(const vec3_t *points, int a, int b, int c);
-void     FanFaceSurface(navModel_t& model, const cbrushside_t& side);
+void     FanFaceSurface(navSurface_t& surface, const cbrushside_t& side);
 qboolean CreateBrushWindings(const Container<cplane_t>& planes, cbrush_t& brush);
-void     G_StripFaceSurface(navModel_t& model, const winding_t *winding);
+void     G_StripFaceSurface(navSurface_t& surface, const winding_t *winding);
 
 //
 // Utilities
@@ -333,10 +345,10 @@ private:
     void LoadLeafBrushes(const gameLump_c& lump, Container<int>& leafbrushes);
     void LoadSubmodels(const gameLump_c& lump, Container<cmodel_t>& submodels);
     void GenerateSideTriangles(navModel_t& model, cbrushside_t& side);
-    void GenerateBrushTriangles(navModel_t& model,const Container<cplane_t>& planes, cbrush_t& brush);
+    void GenerateBrushTriangles(navModel_t& model, const Container<cplane_t>& planes, cbrush_t& brush);
     void GenerateVerticesFromHull(bspMap_c& inBspMap, const Container<cshader_t>& shaders);
-    void RenderSurfaceGrid(const surfaceGrid_t *grid);
-    void ParseMesh(const dsurface_t *ds, const drawVert_t *verts, const Container<cshader_t>& shaders);
+    void RenderSurfaceGrid(const surfaceGrid_t *grid, navSurface_t& outSurface);
+    void ParseMesh(const dsurface_t *ds, const drawVert_t *verts, const Container<cshader_t>& shaders, navSurface_t& outSurface);
     void ParseTriSurf(const dsurface_t *ds, const drawVert_t *verts, const int *indexes);
     void ParseFace(const dsurface_t *ds, const drawVert_t *verts, const int *indexes);
     void ParseFlare(const dsurface_t *ds, const drawVert_t *verts);

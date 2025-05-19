@@ -705,43 +705,77 @@ void NavigationMap::BuildRecastMesh(
     rcPolyMeshDetail *& outPolyMeshDetail
 )
 {
-    const int numIndexes  = model.indices.NumObjects();
-    const int numVertices = model.vertices.NumObjects();
-    const int numTris     = numIndexes / 3;
-    int       i;
+    int numIndexes  = 0;
+    int numVertices = 0;
+    int baseVertice, baseIndice;
+    int i, j;
+
+    for (i = 1; i <= model.surfaces.NumObjects(); i++) {
+        const navSurface_t& surface = model.surfaces.ObjectAt(i);
+
+        numIndexes += surface.indices.NumObjects();
+        numVertices += surface.vertices.NumObjects();
+    }
 
     //
     // Recreate the vertice buffer so it's compatible
     // with Recast's right-handed Y-up coordinate system
     float *vertsBuffer = new float[numVertices * 3];
 
+    baseIndice  = 0;
+    baseVertice = 0;
+
     if (angles != vec_zero) {
         float axis[3][3];
 
         AnglesToAxis(angles, axis);
-        for (i = 0; i < numVertices; i++) {
-            const navVertice_t& inVertice = model.vertices.ObjectAt(i + 1);
-            Vector              offset;
+        for (i = 1; i <= model.surfaces.NumObjects(); i++) {
+            const navSurface_t& surface = model.surfaces.ObjectAt(i);
 
-            MatrixTransformVector(inVertice.xyz, axis, offset);
-            offset += origin;
+            for (j = 0; j < surface.vertices.NumObjects(); j++) {
+                const navVertice_t& inVertice = surface.vertices.ObjectAt(j + 1);
+                Vector              offset;
 
-            ConvertGameToRecastCoord(offset, &vertsBuffer[i * 3]);
+                MatrixTransformVector(inVertice.xyz, axis, offset);
+                offset += origin;
+
+                ConvertGameToRecastCoord(offset, &vertsBuffer[baseVertice * 3 + j * 3]);
+            }
+
+            baseVertice += surface.vertices.NumObjects();
         }
     } else {
-        for (i = 0; i < numVertices; i++) {
-            const navVertice_t& inVertice = model.vertices.ObjectAt(i + 1);
-            const Vector        offset    = inVertice.xyz + origin;
+        for (i = 1; i <= model.surfaces.NumObjects(); i++) {
+            const navSurface_t& surface = model.surfaces.ObjectAt(i);
 
-            ConvertGameToRecastCoord(offset, &vertsBuffer[i * 3]);
+            for (j = 0; j < surface.vertices.NumObjects(); j++) {
+                const navVertice_t& inVertice = surface.vertices.ObjectAt(j + 1);
+                const Vector        offset    = inVertice.xyz + origin;
+
+                ConvertGameToRecastCoord(offset, &vertsBuffer[baseVertice * 3 + j * 3]);
+            }
+
+            baseVertice += surface.vertices.NumObjects();
         }
     }
 
+    baseIndice  = 0;
+    baseVertice = 0;
+
     int *indexesBuffer = new int[numIndexes];
-    for (i = 0; i < numTris; i++) {
-        indexesBuffer[i * 3 + 0] = model.indices[i * 3 + 2];
-        indexesBuffer[i * 3 + 1] = model.indices[i * 3 + 1];
-        indexesBuffer[i * 3 + 2] = model.indices[i * 3 + 0];
+    for (i = 1; i <= model.surfaces.NumObjects(); i++) {
+        const navSurface_t& surface = model.surfaces.ObjectAt(i);
+
+        const int numTris = surface.indices.NumObjects() / 3;
+
+        for (j = 0; j < numTris; j++) {
+            indexesBuffer[baseIndice + j * 3 + 0] = baseVertice + surface.indices[j * 3 + 2];
+            indexesBuffer[baseIndice + j * 3 + 1] = baseVertice + surface.indices[j * 3 + 1];
+            indexesBuffer[baseIndice + j * 3 + 2] = baseVertice + surface.indices[j * 3 + 0];
+        }
+
+        baseIndice += surface.indices.NumObjects();
+        baseVertice += surface.vertices.NumObjects();
     }
 
     //
@@ -760,6 +794,38 @@ void NavigationMap::BuildRecastMesh(
     outPolyMeshDetail = polyMeshDetail;
 }
 
+void G_Navigation_DrawModel(const Vector& origin, const navModel_t& model, float maxDistSquared, const Vector& offset = vec_zero)
+{
+    int i, j;
+
+    for (i = 1; i <= model.surfaces.NumObjects(); i++) {
+        const navSurface_t& surface = model.surfaces.ObjectAt(i);
+
+        for (j = 0; j < surface.indices.NumObjects(); j += 3) {
+            const navVertice_t& v1 = surface.vertices[surface.indices[j + 0]];
+            const navVertice_t& v2 = surface.vertices[surface.indices[j + 1]];
+            const navVertice_t& v3 = surface.vertices[surface.indices[j + 2]];
+
+            for (int k = 0; k < 3; ++k) {
+                const Vector delta = (offset + surface.vertices[surface.indices[j + k]].xyz) - origin;
+
+                if (delta.lengthSquared() >= maxDistSquared) {
+                    continue;
+                }
+
+                G_DebugLine(
+                    offset + surface.vertices[surface.indices[j + k]].xyz,
+                    offset + surface.vertices[surface.indices[j + ((k + 1) % 3)]].xyz,
+                    0,
+                    1,
+                    0,
+                    1
+                );
+            }
+        }
+    }
+}
+
 /*
 ============
 G_Navigation_DebugDraw
@@ -770,6 +836,7 @@ void G_Navigation_DebugDraw()
     Entity           *ent       = g_entities[0].entity;
     dtNavMesh        *navMeshDt = navigationMap.GetNavMesh();
     const navModel_t& worldMap  = prev_navMap.GetWorldMap();
+    int               i, j;
 
     if (!navMeshDt) {
         return;
@@ -926,28 +993,26 @@ void G_Navigation_DebugDraw()
     case 2:
         {
             const float maxDistSquared = Square(ai_showroutes_distance->integer);
+            gentity_t  *edict;
 
-            for (int i = 0; i < worldMap.indices.NumObjects(); i += 3) {
-                const navVertice_t& v1 = worldMap.vertices[worldMap.indices[0]];
-                const navVertice_t& v2 = worldMap.vertices[worldMap.indices[1]];
-                const navVertice_t& v3 = worldMap.vertices[worldMap.indices[2]];
+            G_Navigation_DrawModel(ent->origin, worldMap, maxDistSquared);
 
-                for (int k = 0; k < 3; ++k) {
-                    const Vector delta = worldMap.vertices[worldMap.indices[i + k]].xyz - ent->origin;
-
-                    if (delta.lengthSquared() >= maxDistSquared) {
-                        continue;
-                    }
-
-                    G_DebugLine(
-                        worldMap.vertices[worldMap.indices[i + k]].xyz,
-                        worldMap.vertices[worldMap.indices[i + ((k + 1) % 3)]].xyz,
-                        0,
-                        1,
-                        0,
-                        1
-                    );
+            for (edict = active_edicts.next; edict != &active_edicts; edict = edict->next) {
+                if (!edict->entity || edict->entity == world) {
+                    continue;
                 }
+
+                if (edict->s.modelindex < 1 || edict->s.modelindex > prev_navMap.GetNumSubmodels()) {
+                    continue;
+                }
+
+                const navModel_t& submodel = prev_navMap.GetSubmodel(edict->s.modelindex - 1);
+                if (!submodel.surfaces.NumObjects()) {
+                    // Could be a trigger
+                    continue;
+                }
+
+                G_Navigation_DrawModel(ent->origin, submodel, maxDistSquared, edict->entity->origin);
             }
         }
         break;
@@ -1169,12 +1234,16 @@ void NavigationMap::BuildMeshesForEntities(RecastBuildContext& buildContext, con
         //    continue;
         //}
 
+        if (edict->solid == SOLID_TRIGGER) {
+            continue;
+        }
+
         if (edict->s.modelindex < 1 || edict->s.modelindex > navigationMap.GetNumSubmodels()) {
             continue;
         }
 
         const navModel_t& submodel = navigationMap.GetSubmodel(edict->s.modelindex - 1);
-        if (!submodel.vertices.NumObjects()) {
+        if (!submodel.surfaces.NumObjects()) {
             // Could be a trigger
             continue;
         }
@@ -1252,6 +1321,8 @@ void NavigationMap::LoadWorldMap(const char *mapname)
     }
 
     pathMaster.PostLoadNavigation(*this);
+
+    prev_navMap = navigationBsp.navMap;
 
     end = gi.Milliseconds();
 
