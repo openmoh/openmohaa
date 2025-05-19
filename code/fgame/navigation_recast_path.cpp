@@ -464,10 +464,10 @@ void RecastPather::UpdatePos(const Vector& origin, float speed)
             dtPolyRef refs[2];
             vec3_t    startOffPos, endOffPos;
 
-            if (overOffmeshConnection(recastOrigin, cornerFlags, (const vec_t *)corners, 16, ncorners)) {
-                detourData->corridor.moveOverOffmeshConnection(
+            if (overOffmeshConnection(recastOrigin, cornerFlags, (const vec_t *)corners, 16, ncorners)
+                && detourData->corridor.moveOverOffmeshConnection(
                     cornerPolys[ncorners - 1], refs, startOffPos, endOffPos, navigationMap.GetNavMeshQuery()
-                );
+                )) {
                 ConvertRecastToGameCoord(detourData->corridor.getPos(), currentNodePos);
 
                 traversingOffMeshLink = true;
@@ -762,11 +762,11 @@ bool RecastPather::IsQuerying() const
 
 void RecastPather::ResetAgent(const Vector& origin)
 {
+    traversingOffMeshLink = false;
+
 #if USE_DETOUR_AGENT
     dtCrowd *crowdManager = pathMaster.agentManager.GetCrowd();
     vec3_t   rcOrigin;
-
-    traversingOffMeshLink = false;
 
     if (hasAgent) {
         dtCrowdAgent *agent = crowdManager->getEditableAgent(navAgentId);
