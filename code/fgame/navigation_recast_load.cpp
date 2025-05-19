@@ -41,6 +41,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "DetourNavMeshQuery.h"
 #include "DetourCrowd.h"
 #include "DetourNode.h"
+#include "DetourTileCache.h"
+#include "DetourTileCacheBuilder.h"
 
 NavigationMap navigationMap;
 
@@ -63,8 +65,6 @@ const float NavigationMap::detailSampleMaxError = 1.0;
 
 static const float worldScale = 30.5 / 16.0;
 
-navMap_t prev_navMap;
-
 dtCrowd *navCrowd;
 int      navAgentId = -1;
 
@@ -85,6 +85,73 @@ protected:
         gi.DPrintf("Recast (category %d): %s\n", (int)category, msg);
     }
 };
+
+//
+// Just so it stops being an annoyance
+//
+struct NoCompressor : public dtTileCacheCompressor {
+    virtual ~NoCompressor() {}
+
+    virtual int maxCompressedSize(const int bufferSize) { return (int)bufferSize; }
+
+    virtual dtStatus compress(
+        const unsigned char *buffer,
+        const int            bufferSize,
+        unsigned char       *compressed,
+        const int /*maxCompressedSize*/,
+        int *compressedSize
+    )
+    {
+        *compressedSize = bufferSize;
+        memcpy(compressed, buffer, bufferSize);
+        return DT_SUCCESS;
+    }
+
+    virtual dtStatus decompress(
+        const unsigned char *compressed,
+        const int            compressedSize,
+        unsigned char       *buffer,
+        const int            maxBufferSize,
+        int                 *bufferSize
+    )
+    {
+        memcpy(buffer, compressed, compressedSize);
+        *bufferSize = compressedSize;
+        return DT_SUCCESS;
+    }
+};
+
+struct MeshProcess : public dtTileCacheMeshProcess {
+    inline MeshProcess() {}
+
+    virtual ~MeshProcess();
+
+    inline void init() {}
+
+    virtual void process(struct dtNavMeshCreateParams *params, unsigned char *polyAreas, unsigned short *polyFlags)
+    {
+        // Update poly flags from areas.
+        for (int i = 0; i < params->polyCount; ++i) {
+            if (polyAreas[i] == RC_WALKABLE_AREA) {
+                polyFlags[i] = 1;
+            }
+        }
+
+        // Pass in off-mesh connections.
+        params->offMeshConVerts  = navigationMap.offMeshConVerts;
+        params->offMeshConRad    = navigationMap.offMeshConVerts;
+        params->offMeshConDir    = navigationMap.offMeshConDir;
+        params->offMeshConAreas  = navigationMap.offMeshConAreas;
+        params->offMeshConFlags  = navigationMap.offMeshConFlags;
+        params->offMeshConUserID = navigationMap.offMeshConUserID;
+        params->offMeshConCount  = navigationMap.offMeshConCount;
+    }
+};
+
+MeshProcess::~MeshProcess()
+{
+    // Defined out of line to fix the weak v-tables warning
+}
 
 /*
 ============
@@ -466,6 +533,25 @@ void NavigationMap::InitializeNavMesh(RecastBuildContext& buildContext, const na
         return;
     }
 
+    dtTileCacheParams tcparams;
+    memset(&tcparams, 0, sizeof(tcparams));
+    tcparams.orig[0]                = MIN_MAP_BOUNDS;
+    tcparams.orig[1]                = MIN_MAP_BOUNDS;
+    tcparams.orig[2]                = MIN_MAP_BOUNDS;
+    tcparams.cs                     = recastCellSize;
+    tcparams.ch                     = recastCellHeight;
+    tcparams.width                  = MAP_SIZE;
+    tcparams.height                 = MAP_SIZE;
+    tcparams.walkableHeight         = agentHeight;
+    tcparams.walkableRadius         = agentRadius;
+    tcparams.walkableClimb          = agentMaxClimb;
+    tcparams.maxSimplificationError = edgeMaxError;
+    tcparams.maxTiles               = 128;
+    tcparams.maxObstacles           = MAX_GENTITIES;
+
+    tileCache = dtAllocTileCache();
+    tileCache->init(&tcparams, talloc, tcomp, tmproc);
+
     navCrowd = dtAllocCrowd();
     navCrowd->init(MAX_CLIENTS, agentRadius, navMeshDt);
 }
@@ -518,15 +604,8 @@ void NavigationMap::BuildDetourData(
     dtParams.tileLayer   = index;
     dtParams.buildBvTree = true;
 
-    float          *offMeshConVerts;
-    float          *offMeshConRad;
-    unsigned short *offMeshConFlags;
-    unsigned char  *offMeshConAreas;
-    unsigned char  *offMeshConDir;
-    unsigned int   *offMeshConUserID;
-
     if (points.NumObjects()) {
-        dtParams.offMeshConCount = points.NumObjects();
+        dtParams.offMeshConCount = offMeshConCount = points.NumObjects();
 
         offMeshConVerts  = new float[6 * dtParams.offMeshConCount];
         offMeshConRad    = new float[dtParams.offMeshConCount];
@@ -794,7 +873,9 @@ void NavigationMap::BuildRecastMesh(
     outPolyMeshDetail = polyMeshDetail;
 }
 
-void G_Navigation_DrawModel(const Vector& origin, const navModel_t& model, float maxDistSquared, const Vector& offset = vec_zero)
+void G_Navigation_DrawModel(
+    const Vector& origin, const navModel_t& model, float maxDistSquared, const Vector& offset = vec_zero
+)
 {
     int i, j;
 
@@ -833,9 +914,10 @@ G_Navigation_DebugDraw
 */
 void G_Navigation_DebugDraw()
 {
-    Entity           *ent       = g_entities[0].entity;
-    dtNavMesh        *navMeshDt = navigationMap.GetNavMesh();
-    const navModel_t& worldMap  = prev_navMap.GetWorldMap();
+    Entity           *ent            = g_entities[0].entity;
+    dtNavMesh        *navMeshDt      = navigationMap.GetNavMesh();
+    const navMap_t&   navigationData = navigationMap.GetNavigationData();
+    const navModel_t& worldMap       = navigationData.GetWorldMap();
     int               i, j;
 
     if (!navMeshDt) {
@@ -1002,11 +1084,11 @@ void G_Navigation_DebugDraw()
                     continue;
                 }
 
-                if (edict->s.modelindex < 1 || edict->s.modelindex > prev_navMap.GetNumSubmodels()) {
+                if (edict->s.modelindex < 1 || edict->s.modelindex > navigationData.GetNumSubmodels()) {
                     continue;
                 }
 
-                const navModel_t& submodel = prev_navMap.GetSubmodel(edict->s.modelindex - 1);
+                const navModel_t& submodel = navigationData.GetSubmodel(edict->s.modelindex - 1);
                 if (!submodel.surfaces.NumObjects()) {
                     // Could be a trigger
                     continue;
@@ -1120,6 +1202,7 @@ G_Navigation_Frame
 void G_Navigation_Frame()
 {
     pathMaster.Update();
+    navigationMap.Update();
     G_Navigation_DebugDraw();
 }
 
@@ -1131,7 +1214,11 @@ NavigationMap::NavigationMap
 NavigationMap::NavigationMap()
     : navMeshDt(NULL)
     , navMeshQuery(NULL)
-{}
+{
+    talloc = new dtTileCacheAlloc();
+    tcomp  = new NoCompressor();
+    tmproc = new MeshProcess();
+}
 
 /*
 ============
@@ -1141,6 +1228,10 @@ NavigationMap::~NavigationMap
 NavigationMap::~NavigationMap()
 {
     ClearNavigation();
+
+    delete tmproc;
+    delete tcomp;
+    delete talloc;
 }
 
 /*
@@ -1161,6 +1252,26 @@ NavigationMap::GetNavMeshQuery
 dtNavMeshQuery *NavigationMap::GetNavMeshQuery() const
 {
     return navMeshQuery;
+}
+
+/*
+============
+NavigationMap::GetNavigationData
+============
+*/
+const navMap_t& NavigationMap::GetNavigationData() const
+{
+    return navigationData.navMap;
+}
+
+/*
+============
+NavigationMap::Update
+============
+*/
+void NavigationMap::Update()
+{
+    tileCache->update(level.frametime, navMeshDt);
 }
 
 /*
@@ -1313,7 +1424,9 @@ void NavigationMap::LoadWorldMap(const char *mapname)
         BuildWorldMesh(buildContext, navigationBsp.navMap);
 
         gi.Printf("  Building meshes for entities...\n");
-        BuildMeshesForEntities(buildContext, navigationBsp.navMap);
+        // FIXME: TODO
+        //  Split everything into chunks and use a tile-based approach
+        //BuildMeshesForEntities(buildContext, navigationBsp.navMap);
 
     } catch (const ScriptException& e) {
         gi.Printf("Couldn't build recast navigation mesh: %s\n", e.string.c_str());
@@ -1321,8 +1434,6 @@ void NavigationMap::LoadWorldMap(const char *mapname)
     }
 
     pathMaster.PostLoadNavigation(*this);
-
-    prev_navMap = navigationBsp.navMap;
 
     end = gi.Milliseconds();
 

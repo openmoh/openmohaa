@@ -30,6 +30,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 class dtNavMesh;
 class dtNavMeshQuery;
 class dtCrowd;
+class dtTileCache;
+struct dtTileCacheAlloc;
+struct dtTileCacheCompressor;
+struct dtTileCacheMeshProcess;
 class RecastBuildContext;
 struct rcPolyMesh;
 struct rcPolyMeshDetail;
@@ -103,6 +107,19 @@ public:
      */
     dtNavMeshQuery *GetNavMeshQuery() const;
 
+    /**
+     * @brief Return the navigation data loaded from the BSP.
+     * 
+     * @return Const navigation data
+     */
+    const navMap_t& GetNavigationData() const;
+
+    /**
+     * @brief Update the navigation map
+     * 
+     */
+    void Update();
+
 public:
     static const float recastCellSize;
     static const float recastCellHeight;
@@ -157,8 +174,22 @@ private:
     void BuildMeshesForEntities(RecastBuildContext& buildContext, const navMap_t& navigationMap);
 
 private:
-    dtNavMesh      *navMeshDt;
-    dtNavMeshQuery *navMeshQuery;
+    dtNavMesh              *navMeshDt;
+    dtNavMeshQuery         *navMeshQuery;
+    dtTileCache            *tileCache;
+    dtTileCacheAlloc       *talloc;
+    dtTileCacheCompressor  *tcomp;
+    dtTileCacheMeshProcess *tmproc;
+    NavigationBSP           navigationData;
+
+public:
+    float          *offMeshConVerts;
+    float          *offMeshConRad;
+    unsigned short *offMeshConFlags;
+    unsigned char  *offMeshConAreas;
+    unsigned char  *offMeshConDir;
+    unsigned int   *offMeshConUserID;
+    int offMeshConCount;
 };
 
 extern NavigationMap navigationMap;
