@@ -1125,6 +1125,71 @@ bool NavigationMap::IsValid() const
 
 /*
 ============
+NavigationMap::BuildWorldMesh
+============
+*/
+void NavigationMap::BuildWorldMesh(RecastBuildContext& buildContext, const navMap_t& navigationMap)
+{
+    rcPolyMesh       *polyMesh;
+    rcPolyMeshDetail *polyMeshDetail;
+    int               start;
+
+    BuildRecastMesh(buildContext, navigationMap.GetWorldMap(), vec_origin, vec_zero, polyMesh, polyMeshDetail);
+
+    //
+    // Create detour data
+    //
+
+    Container<offMeshNavigationPoint> points;
+    GatherOffMeshPoints(points, polyMesh);
+
+    BuildDetourData(buildContext, polyMesh, polyMeshDetail, 0, points);
+
+    rcFreePolyMeshDetail(polyMeshDetail);
+    rcFreePolyMesh(polyMesh);
+}
+
+/*
+============
+NavigationMap::BuildMeshesForEntities
+============
+*/
+void NavigationMap::BuildMeshesForEntities(RecastBuildContext& buildContext, const navMap_t& navigationMap)
+{
+    gentity_t        *edict;
+    rcPolyMesh       *polyMesh;
+    rcPolyMeshDetail *polyMeshDetail;
+
+    for (edict = active_edicts.next; edict != &active_edicts; edict = edict->next) {
+        if (!edict->entity || edict->entity == world) {
+            continue;
+        }
+
+        //if (edict->solid != SOLID_BSP) {
+        //    continue;
+        //}
+
+        if (edict->s.modelindex < 1 || edict->s.modelindex > navigationMap.GetNumSubmodels()) {
+            continue;
+        }
+
+        const navModel_t& submodel = navigationMap.GetSubmodel(edict->s.modelindex - 1);
+        if (!submodel.vertices.NumObjects()) {
+            // Could be a trigger
+            continue;
+        }
+
+        BuildRecastMesh(buildContext, submodel, edict->entity->origin, edict->entity->angles, polyMesh, polyMeshDetail);
+
+        BuildDetourData(buildContext, polyMesh, polyMeshDetail, edict->s.modelindex, {});
+
+        rcFreePolyMeshDetail(polyMeshDetail);
+        rcFreePolyMesh(polyMesh);
+    }
+}
+
+/*
+============
 NavigationMap::LoadWorldMap
 ============
 */
@@ -1133,7 +1198,6 @@ void NavigationMap::LoadWorldMap(const char *mapname)
     NavigationBSP      navigationBsp;
     RecastBuildContext buildContext;
     int                start, end;
-    gentity_t         *edict;
 
     gi.Printf("---- Recast Navigation ----\n");
 
@@ -1169,58 +1233,18 @@ void NavigationMap::LoadWorldMap(const char *mapname)
     // Build and create the navigation mesh
     //
 
-    try {
-        rcPolyMesh       *polyMesh;
-        rcPolyMeshDetail *polyMeshDetail;
+    InitializeNavMesh(buildContext, navigationBsp.navMap);
 
+    gi.Printf("Building the navigation mesh...\n");
+
+    try {
         start = gi.Milliseconds();
 
-        InitializeNavMesh(buildContext, navigationBsp.navMap);
+        gi.Printf("  Building the world mesh...\n");
+        BuildWorldMesh(buildContext, navigationBsp.navMap);
 
-        BuildRecastMesh(
-            buildContext, navigationBsp.navMap.GetWorldMap(), vec_origin, vec_zero, polyMesh, polyMeshDetail
-        );
-
-        //
-        // Create detour data
-        //
-
-        Container<offMeshNavigationPoint> points;
-        GatherOffMeshPoints(points, polyMesh);
-
-        BuildDetourData(buildContext, polyMesh, polyMeshDetail, 0, points);
-
-        rcFreePolyMeshDetail(polyMeshDetail);
-        rcFreePolyMesh(polyMesh);
-
-        for (edict = active_edicts.next; edict != &active_edicts; edict = edict->next) {
-            if (!edict->entity || edict->entity == world) {
-                continue;
-            }
-
-            //if (edict->solid != SOLID_BSP) {
-            //    continue;
-            //}
-
-            if (edict->s.modelindex < 1 || edict->s.modelindex > navigationBsp.navMap.GetNumSubmodels()) {
-                continue;
-            }
-
-            const navModel_t& submodel = navigationBsp.navMap.GetSubmodel(edict->s.modelindex - 1);
-            if (!submodel.vertices.NumObjects()) {
-                // Could be a trigger
-                continue;
-            }
-
-            BuildRecastMesh(
-                buildContext, submodel, edict->entity->origin, edict->entity->angles, polyMesh, polyMeshDetail
-            );
-
-            BuildDetourData(buildContext, polyMesh, polyMeshDetail, edict->s.modelindex, {});
-
-            rcFreePolyMeshDetail(polyMeshDetail);
-            rcFreePolyMesh(polyMesh);
-        }
+        gi.Printf("  Building meshes for entities...\n");
+        BuildMeshesForEntities(buildContext, navigationBsp.navMap);
 
     } catch (const ScriptException& e) {
         gi.Printf("Couldn't build recast navigation mesh: %s\n", e.string.c_str());
@@ -1231,5 +1255,5 @@ void NavigationMap::LoadWorldMap(const char *mapname)
 
     end = gi.Milliseconds();
 
-    gi.Printf("Recast navigation mesh generated in %.03f seconds\n", (float)((end - start) / 1000.0));
+    gi.Printf("Recast navigation mesh(es) generated in %.03f seconds\n", (float)((end - start) / 1000.0));
 }

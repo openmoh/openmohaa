@@ -153,6 +153,9 @@ private:
     );
     void ProcessBSPForNavigation(const char *mapname, navMap_t& outNavigationMap);
 
+    void BuildWorldMesh(RecastBuildContext& buildContext, const navMap_t& navigationMap);
+    void BuildMeshesForEntities(RecastBuildContext& buildContext, const navMap_t& navigationMap);
+
 private:
     dtNavMesh      *navMeshDt;
     dtNavMeshQuery *navMeshQuery;
