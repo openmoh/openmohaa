@@ -54,7 +54,7 @@ const float NavigationMap::agentMaxClimb    = STEPSIZE;
 // normal of { 0.714142799, 0, 0.700000048 }, or an angle of -44.4270058
 const float NavigationMap::agentMaxSlope = 45.5729942f;
 
-const float NavigationMap::agentRadius          = 0.25;
+const float NavigationMap::agentRadius          = 0.5;
 const int   NavigationMap::regionMinSize        = 5;
 const int   NavigationMap::regionMergeSize      = 20;
 const float NavigationMap::edgeMaxLen           = 100.0;
@@ -358,7 +358,7 @@ NavigationMap::CanConnectJumpPoint(const rcPolyMesh *polyMesh, const Vector& pos
     trace_t                trace;
     offMeshNavigationPoint point;
 
-    if (pos1.z <= pos2.z) {
+    if (pos1.z > pos2.z) {
         start = pos2;
         end   = pos1;
     } else {
@@ -379,12 +379,18 @@ NavigationMap::CanConnectJumpPoint(const rcPolyMesh *polyMesh, const Vector& pos
     dir.z = 0;
     dir.normalize();
 
-    trace = G_Trace(start, mins, maxs, start + Vector(0, 0, 56), NULL, MASK_PLAYERSOLID, qtrue, "CanConnectFallPoint");
+    trace = G_Trace(start, mins, maxs, end, NULL, MASK_PLAYERSOLID, qtrue, "CanConnectJumpPoint");
+    if (trace.fraction >= 0.999) {
+        // Straight path
+        return {};
+    }
+
+    trace = G_Trace(start, mins, maxs, start + Vector(0, 0, 56), NULL, MASK_PLAYERSOLID, qtrue, "CanConnectJumpPoint");
     if (trace.allsolid || trace.startsolid) {
         return {};
     }
 
-    trace = G_Trace(trace.endpos, mins, maxs, end, NULL, MASK_PLAYERSOLID, qtrue, "CanConnectFallPoint");
+    trace = G_Trace(trace.endpos, mins, maxs, end, NULL, MASK_PLAYERSOLID, qtrue, "CanConnectJumpPoint");
     if (trace.fraction < 0.999) {
         return {};
     }
@@ -468,6 +474,11 @@ void NavigationMap::TryConnectJumpFallPoints(Container<offMeshNavigationPoint>& 
                         continue;
                     }
 
+                    if (fabs(pos2.z - pos1.z) < STEPSIZE) {
+                        // ignore steps
+                        continue;
+                    }
+
                     offMeshNavigationPoint point;
 
                     point = CanConnectFallPoint(polyMesh, pos1, pos2);
@@ -511,8 +522,8 @@ void NavigationMap::InitializeNavMesh(RecastBuildContext& buildContext, const na
     params.orig[2]    = MIN_MAP_BOUNDS;
     params.tileWidth  = MAP_SIZE * recastCellSize;
     params.tileHeight = MAP_SIZE * recastCellSize;
-    params.maxTiles   = 128;
-    params.maxPolys   = 32768;
+    params.maxTiles   = 1;
+    params.maxPolys   = 65536;
 
     navMeshDt = dtAllocNavMesh();
     status    = navMeshDt->init(&params);
