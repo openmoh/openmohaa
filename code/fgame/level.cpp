@@ -857,6 +857,8 @@ void Level::CleanUp(qboolean samemap, qboolean resetConfigStrings)
     // clear active current bots
     G_ResetBots();
 
+    navigationMap.CleanUp(samemap);
+
     assert(active_edicts.next);
     assert(active_edicts.next->prev == &active_edicts);
     assert(active_edicts.prev);

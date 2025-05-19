@@ -82,6 +82,13 @@ public:
     void LoadWorldMap(const char *mapname);
 
     /**
+     * @brief Do some cleanups
+     * 
+     * @param samemap Whether or not it's the same map
+     */
+    void CleanUp(qboolean samemap);
+
+    /**
      * @brief Clear and free memory allocated for the navigation system.
      */
     void ClearNavigation();
@@ -189,7 +196,9 @@ public:
     unsigned char  *offMeshConAreas;
     unsigned char  *offMeshConDir;
     unsigned int   *offMeshConUserID;
-    int offMeshConCount;
+    int             offMeshConCount;
+    str             currentMap;
+    bool            validNavigation;
 };
 
 extern NavigationMap navigationMap;

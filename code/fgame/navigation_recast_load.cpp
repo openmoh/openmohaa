@@ -46,7 +46,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 NavigationMap navigationMap;
 
-const float NavigationMap::recastCellSize   = 12.5f;
+const float NavigationMap::recastCellSize   = 12.25;
 const float NavigationMap::recastCellHeight = 1.0;
 const float NavigationMap::agentHeight      = DEFAULT_VIEWHEIGHT;
 const float NavigationMap::agentMaxClimb    = STEPSIZE;
@@ -1229,6 +1229,7 @@ NavigationMap::NavigationMap()
     talloc = new dtTileCacheAlloc();
     tcomp  = new NoCompressor();
     tmproc = new MeshProcess();
+    validNavigation = false;
 }
 
 /*
@@ -1292,6 +1293,8 @@ NavigationMap::ClearNavigation
 */
 void NavigationMap::ClearNavigation()
 {
+    validNavigation = false;
+
     pathMaster.ClearNavigation();
 
     if (navMeshQuery) {
@@ -1396,10 +1399,17 @@ void NavigationMap::LoadWorldMap(const char *mapname)
     // Free up existing navigation if there is one
     //
 
-    ClearNavigation();
+    if (currentMap != mapname) {
+        currentMap = mapname;
+        ClearNavigation();
+    }
 
     if (!sv_maxbots->integer) {
         gi.Printf("No bots, skipping navigation\n");
+        return;
+    }
+
+    if (validNavigation) {
         return;
     }
 
@@ -1449,4 +1459,13 @@ void NavigationMap::LoadWorldMap(const char *mapname)
     end = gi.Milliseconds();
 
     gi.Printf("Recast navigation mesh(es) generated in %.03f seconds\n", (float)((end - start) / 1000.0));
+
+    validNavigation = true;
+}
+
+void NavigationMap::CleanUp(qboolean samemap)
+{
+    if (!samemap) {
+        ClearNavigation();
+    }
 }
