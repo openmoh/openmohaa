@@ -679,7 +679,7 @@ void CVAR_Init(void)
 
     g_teambalance = gi.Cvar_Get("g_teambalance", "0", 0);
 
-    g_navigation_legacy = gi.Cvar_Get("g_navigation_legacy", "1", CVAR_LATCH);
+    g_navigation_legacy = gi.Cvar_Get("g_navigation_legacy", "0", CVAR_LATCH);
 
     cl_running = gi.Cvar_Get("cl_running", "", 0);
 }
