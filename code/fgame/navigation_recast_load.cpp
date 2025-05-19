@@ -63,8 +63,6 @@ const int   NavigationMap::vertsPerPoly         = 6;
 const float NavigationMap::detailSampleDist     = 12.0;
 const float NavigationMap::detailSampleMaxError = 1.0;
 
-static const float worldScale = 30.5 / 16.0;
-
 dtCrowd *navCrowd;
 int      navAgentId = -1;
 
@@ -859,9 +857,9 @@ void NavigationMap::BuildRecastMesh(
         const int numTris = surface.indices.NumObjects() / 3;
 
         for (j = 0; j < numTris; j++) {
-            indexesBuffer[baseIndice + j * 3 + 0] = baseVertice + surface.indices[j * 3 + 2];
-            indexesBuffer[baseIndice + j * 3 + 1] = baseVertice + surface.indices[j * 3 + 1];
-            indexesBuffer[baseIndice + j * 3 + 2] = baseVertice + surface.indices[j * 3 + 0];
+            indexesBuffer[baseIndice + j * 3 + 0] = baseVertice + surface.indices[j * 3 + 2].indice;
+            indexesBuffer[baseIndice + j * 3 + 1] = baseVertice + surface.indices[j * 3 + 1].indice;
+            indexesBuffer[baseIndice + j * 3 + 2] = baseVertice + surface.indices[j * 3 + 0].indice;
         }
 
         baseIndice += surface.indices.NumObjects();
