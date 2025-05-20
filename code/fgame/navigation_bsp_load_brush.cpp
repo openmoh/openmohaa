@@ -148,20 +148,10 @@ void FanFaceSurface(navSurface_t& surface, const winding_t *winding, size_t base
     iv = 1.0f / winding->numpoints;
     centroid.xyz *= iv;
 
-    surface.vertices.AddObject({});
-
-    for (i = winding->numpoints - 1; i > 0; i--) {
-        navVertice_t *vert1, *vert2;
-        vert1 = &surface.vertices.ObjectAt(baseVertex + i);
-        vert2 = &surface.vertices.ObjectAt(baseVertex + i + 1);
-        *vert2 = *vert1;
-    }
-
-    surface.vertices[0] = centroid;
-
+    surface.vertices.InsertObjectAt(1, centroid);
     numVerts = surface.vertices.NumObjects() - baseVertex;
 
-    for (i = 1; i < winding->numpoints; i++) {
+    for (i = 1; i < numVerts; i++) {
         a = 0;
         b = i;
         c = (i + 1) % numVerts;
