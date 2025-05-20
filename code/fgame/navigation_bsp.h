@@ -344,7 +344,7 @@ private:
     );
     void LoadLeafBrushes(const gameLump_c& lump, Container<int>& leafbrushes);
     void LoadSubmodels(const gameLump_c& lump, Container<cmodel_t>& submodels);
-    void GenerateSideTriangles(navModel_t& model, cbrushside_t& side);
+    void GenerateSideTriangles(navModel_t& model, const cbrush_t& brush, cbrushside_t& side);
     void GenerateBrushTriangles(navModel_t& model, const Container<cplane_t>& planes, cbrush_t& brush);
     void GenerateVerticesFromHull(bspMap_c& inBspMap, const Container<cshader_t>& shaders);
     void RenderSurfaceGrid(const surfaceGrid_t *grid, navSurface_t& outSurface);

@@ -435,7 +435,7 @@ void NavigationBSP::LoadSubmodels(const gameLump_c& lump, Container<cmodel_t>& s
 NavigationBSP::GenerateSideTriangles
 ============
 */
-void NavigationBSP::GenerateSideTriangles(navModel_t& model, cbrushside_t& side)
+void NavigationBSP::GenerateSideTriangles(navModel_t& model, const cbrush_t& brush, cbrushside_t& side)
 {
     int           i, r, least, rotate, ni;
     int           numIndexes;
@@ -447,6 +447,19 @@ void NavigationBSP::GenerateSideTriangles(navModel_t& model, cbrushside_t& side)
 
     if (!side.winding) {
         return;
+    }
+
+    if (!(brush.contents & (CONTENTS_PLAYERCLIP | CONTENTS_FENCE))) {
+        // Remove any nodraw surface that are not clips
+        // These may be surfaces hidden where player are not supposed to stand on
+        // like under the map.
+        //
+        // This fixes an issue in mohdm4 where the a path can be created
+        // below the terrain...
+        if (side.surfaceFlags & SURF_NODRAW) {
+            // This is probably a surface a player shouldn't normally stand on
+            return;
+        }
     }
 
     if (side.surfaceFlags & SURF_SKY) {
@@ -478,7 +491,7 @@ void NavigationBSP::GenerateBrushTriangles(navModel_t& model, const Container<cp
     for (i = 0; i < brush.numsides; i++) {
         cbrushside_t& side = brush.sides[i];
 
-        GenerateSideTriangles(model, side);
+        GenerateSideTriangles(model, brush, side);
     }
 }
 
