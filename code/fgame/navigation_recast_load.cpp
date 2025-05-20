@@ -46,7 +46,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 NavigationMap navigationMap;
 
-const float NavigationMap::recastCellSize   = 12.25;
+const float NavigationMap::recastCellSize   = 10.0;
 const float NavigationMap::recastCellHeight = 1.0;
 const float NavigationMap::agentHeight      = DEFAULT_VIEWHEIGHT;
 const float NavigationMap::agentMaxClimb    = STEPSIZE;
@@ -54,7 +54,7 @@ const float NavigationMap::agentMaxClimb    = STEPSIZE;
 // normal of { 0.714142799, 0, 0.700000048 }, or an angle of -44.4270058
 const float NavigationMap::agentMaxSlope = 45.5729942f;
 
-const float NavigationMap::agentRadius          = 0.5;
+const float NavigationMap::agentRadius          = 1.0;
 const int   NavigationMap::regionMinSize        = 5;
 const int   NavigationMap::regionMergeSize      = 20;
 const float NavigationMap::edgeMaxLen           = 100.0;
@@ -250,6 +250,8 @@ NavigationMap::ConnectLadders
 void NavigationMap::ConnectLadders(Container<offMeshNavigationPoint>& points)
 {
     gentity_t *edict;
+    Vector     start, end;
+    trace_t    trace;
 
     for (edict = active_edicts.next; edict != &active_edicts; edict = edict->next) {
         if (!edict->entity) {
@@ -262,8 +264,11 @@ void NavigationMap::ConnectLadders(Container<offMeshNavigationPoint>& points)
 
             offMeshNavigationPoint point;
 
-            point.start         = edict->entity->origin + Vector(0, 0, edict->entity->mins.z) - facingDir * 32;
-            point.end           = edict->entity->origin + Vector(0, 0, edict->entity->maxs.z + 16) + facingDir * 16;
+            start = edict->entity->origin + Vector(0, 0, edict->entity->mins.z) - facingDir * 32;
+            end   = edict->entity->origin + Vector(0, 0, edict->entity->maxs.z + 16) + facingDir * 16;
+
+            point.start         = start;
+            point.end           = end;
             point.bidirectional = true;
             point.radius        = agentRadius;
             point.area          = 0;
@@ -285,6 +290,8 @@ NavigationMap::CanConnectFallPoint(const rcPolyMesh *polyMesh, const Vector& pos
     const Vector           mins(-15, -15, 0);
     const Vector           maxs(15, 15, agentHeight);
     Vector                 start, end;
+    Vector                 tstart, tend;
+    Vector                 delta;
     float                  fallheight;
     float                  dist;
     Vector                 dir;
@@ -299,34 +306,63 @@ NavigationMap::CanConnectFallPoint(const rcPolyMesh *polyMesh, const Vector& pos
         end   = pos2;
     }
 
-    if (start.z - end.z < STEPSIZE) {
-        // Can step easily
-        return {};
-    }
+    delta      = end - start;
+    fallheight = -delta.z;
 
-    if (start.z - end.z > 600) {
+    if (fallheight > 600) {
         // This would cause too much damage
         return {};
     }
 
-    fallheight = start.z - end.z;
-
-    dist = (end - start).lengthXYSquared();
+    dist = delta.lengthXYSquared();
     if (dist > Square(fallheight)) {
         return {};
     }
 
-    dir   = end - start;
+    dir   = delta;
     dir.z = 0;
     dir.normalize();
 
+    /*
     trace =
         G_Trace(start, mins, maxs, start + dir * Q_min(dist, 32), NULL, MASK_PLAYERSOLID, qtrue, "CanConnectFallPoint");
     if (trace.allsolid || trace.startsolid) {
         return {};
     }
+    */
 
-    trace = G_Trace(trace.endpos, mins, maxs, end, NULL, MASK_PLAYERSOLID, qtrue, "CanConnectFallPoint");
+    tstart = start;
+    tend   = tend + dir * Q_min(dist, 16);
+    tend.z = tstart.z;
+
+    trace = G_Trace(tstart, mins, maxs, tend, NULL, MASK_PLAYERSOLID, qtrue, "CanConnectFallPoint");
+    if (trace.allsolid) {
+        return {};
+    } else if (trace.startsolid) {
+        tend = tstart;
+        tstart.z += STEPSIZE;
+
+        trace = G_Trace(tstart, mins, maxs, tend, NULL, MASK_PLAYERSOLID, qtrue, "CanConnectFallPoint");
+        if (trace.allsolid || trace.startsolid) {
+            // Still in a solid
+            return {};
+        }
+
+        // Apply the new position
+        tstart = start = trace.endpos;
+        tend           = tend + dir * Q_min(dist, 16);
+        tend.z         = tstart.z;
+
+        trace = G_Trace(tstart, mins, maxs, tend, NULL, MASK_PLAYERSOLID, qtrue, "CanConnectFallPoint");
+        if (trace.allsolid || trace.startsolid) {
+            return {};
+        }
+    }
+
+    tstart = trace.endpos;
+    tend   = end;
+
+    trace = G_Trace(tstart, mins, maxs, tend, NULL, MASK_PLAYERSOLID, qtrue, "CanConnectFallPoint");
     if (trace.fraction < 0.999) {
         return {};
     }
@@ -352,6 +388,7 @@ NavigationMap::CanConnectJumpPoint(const rcPolyMesh *polyMesh, const Vector& pos
     const Vector           mins(-15, -15, 0);
     const Vector           maxs(15, 15, agentHeight);
     Vector                 start, end;
+    Vector                 delta;
     float                  jumpheight;
     Vector                 dir;
     trace_t                trace;
@@ -365,16 +402,17 @@ NavigationMap::CanConnectJumpPoint(const rcPolyMesh *polyMesh, const Vector& pos
         end   = pos2;
     }
 
-    jumpheight = end.z - start.z;
+    delta      = end - start;
+    jumpheight = delta.z;
     if (jumpheight > agentJumpHeight) {
         return {};
     }
 
-    if ((end - start).lengthSquared() > Square(128)) {
+    if (delta.lengthSquared() > Square(128)) {
         return {};
     }
 
-    dir   = end - start;
+    dir   = delta;
     dir.z = 0;
     dir.normalize();
 
@@ -385,7 +423,7 @@ NavigationMap::CanConnectJumpPoint(const rcPolyMesh *polyMesh, const Vector& pos
     }
 
     trace = G_Trace(start, mins, maxs, start + Vector(0, 0, 56), NULL, MASK_PLAYERSOLID, qtrue, "CanConnectJumpPoint");
-    if (trace.allsolid || trace.startsolid) {
+    if (trace.allsolid) {
         return {};
     }
 
@@ -411,10 +449,90 @@ NavigationMap::TryConnectJumpFallPoints
 */
 void NavigationMap::TryConnectJumpFallPoints(Container<offMeshNavigationPoint>& points, const rcPolyMesh *polyMesh)
 {
-    int    i, j, k, l;
-    vec3_t tmp;
-    Vector pos1, pos2;
+    int                   i, j, k, l;
+    vec3_t                tmp1, tmp2;
+    vec3_t                delta;
+    vec3_t               *vertpos;
+    Vector                pos1, pos2;
+    unsigned short        num1, num2;
+    const unsigned short *v1, *v2;
+    bool                 *walkableVert;
 
+    walkableVert = new bool[polyMesh->nverts];
+    vertpos      = new vec3_t[polyMesh->nverts];
+
+    for (i = 0; i < polyMesh->nverts; i++) {
+        walkableVert[i] = false;
+
+        v1      = &polyMesh->verts[i * 3];
+        tmp1[0] = polyMesh->bmin[0] + v1[0] * polyMesh->cs;
+        tmp1[1] = polyMesh->bmin[1] + (v1[1] + 1) * polyMesh->ch;
+        tmp1[2] = polyMesh->bmin[2] + v1[2] * polyMesh->cs;
+        ConvertRecastToGameCoord(tmp1, vertpos[i]);
+    }
+
+    for (i = 0; i < polyMesh->npolys; i++) {
+        const unsigned short *poly = &polyMesh->polys[i * polyMesh->nvp * 2];
+
+        if (polyMesh->areas[i] != RC_WALKABLE_AREA) {
+            continue;
+        }
+
+        for (j = 0; j < polyMesh->nvp; j++) {
+            if (poly[j] == RC_MESH_NULL_IDX) {
+                break;
+            }
+
+            assert(poly[j] < polyMesh->nverts);
+            walkableVert[poly[j]] = true;
+        }
+    }
+
+    for (i = 0; i < polyMesh->nverts; i++) {
+        if (!walkableVert[i]) {
+            continue;
+        }
+
+        v1   = &polyMesh->verts[i * 3];
+        pos1 = vertpos[i];
+
+        for (j = i + 1; j < polyMesh->nverts; j++) {
+            if (!walkableVert[j]) {
+                continue;
+            }
+
+            v2   = &polyMesh->verts[j * 3];
+            pos2 = vertpos[j];
+
+            VectorSub2D(pos2, pos1, delta);
+            if (VectorLength2DSquared(delta) > Square(256)) {
+                continue;
+            }
+
+            const float deltaHeight = pos2.z - pos1.z;
+            if (deltaHeight >= -STEPSIZE && deltaHeight <= STEPSIZE) {
+                // ignore steps
+                continue;
+            }
+
+            offMeshNavigationPoint point;
+
+            point = CanConnectFallPoint(polyMesh, pos1, pos2);
+            if (point.area) {
+                points.AddObject(point);
+            }
+
+            point = CanConnectJumpPoint(polyMesh, pos1, pos2);
+            if (point.area) {
+                points.AddObject(point);
+            }
+        }
+    }
+
+    delete[] vertpos;
+    delete[] walkableVert;
+
+#if 0
     for (i = 0; i < polyMesh->npolys; i++) {
         const unsigned short *p1 = &polyMesh->polys[i * polyMesh->nvp * 2];
 
@@ -425,10 +543,6 @@ void NavigationMap::TryConnectJumpFallPoints(Container<offMeshNavigationPoint>& 
         for (j = i + 1; j < polyMesh->npolys; j++) {
             const unsigned short *p2 = &polyMesh->polys[j * polyMesh->nvp * 2];
 
-            if (i == j) {
-                continue;
-            }
-
             if (polyMesh->areas[j] != RC_WALKABLE_AREA) {
                 continue;
             }
@@ -438,42 +552,44 @@ void NavigationMap::TryConnectJumpFallPoints(Container<offMeshNavigationPoint>& 
             }
 
             for (k = 0; k < polyMesh->nvp; k++) {
-                if (p1[k] == RC_MESH_NULL_IDX) {
+                num1 = p1[k];
+
+                if (num1 == RC_MESH_NULL_IDX) {
                     break;
                 }
 
-                const unsigned short *v1 = &polyMesh->verts[p1[k] * 3];
+                const unsigned short *v1 = &polyMesh->verts[num1 * 3];
 
-                tmp[0] = polyMesh->bmin[0] + v1[0] * polyMesh->cs;
-                tmp[1] = polyMesh->bmin[1] + (v1[1] + 1) * polyMesh->ch;
-                tmp[2] = polyMesh->bmin[2] + v1[2] * polyMesh->cs;
-
-                Vector pos1;
-                ConvertRecastToGameCoord(tmp, pos1);
+                tmp1[0] = polyMesh->bmin[0] + v1[0] * polyMesh->cs;
+                tmp1[1] = polyMesh->bmin[1] + (v1[1] + 1) * polyMesh->ch;
+                tmp1[2] = polyMesh->bmin[2] + v1[2] * polyMesh->cs;
+                ConvertRecastToGameCoord(tmp1, pos1);
 
                 for (l = 0; l < polyMesh->nvp; l++) {
-                    if (p2[l] == RC_MESH_NULL_IDX) {
+                    num2 = p2[l];
+
+                    if (num2 == RC_MESH_NULL_IDX) {
                         break;
                     }
 
-                    if (p1[k] == p2[l]) {
+                    if (num1 == num2) {
                         continue;
                     }
 
-                    const unsigned short *v2 = &polyMesh->verts[p2[l] * 3];
+                    const unsigned short *v2 = &polyMesh->verts[num2 * 3];
 
-                    tmp[0] = polyMesh->bmin[0] + v2[0] * polyMesh->cs;
-                    tmp[1] = polyMesh->bmin[1] + (v2[1] + 1) * polyMesh->ch;
-                    tmp[2] = polyMesh->bmin[2] + v2[2] * polyMesh->cs;
+                    tmp2[0] = polyMesh->bmin[0] + v2[0] * polyMesh->cs;
+                    tmp2[1] = polyMesh->bmin[1] + (v2[1] + 1) * polyMesh->ch;
+                    tmp2[2] = polyMesh->bmin[2] + v2[2] * polyMesh->cs;
+                    ConvertRecastToGameCoord(tmp2, pos2);
 
-                    Vector pos2;
-                    ConvertRecastToGameCoord(tmp, pos2);
-
-                    if ((pos2 - pos1).lengthXYSquared() > Square(256)) {
+                    VectorSub2D(pos2, pos1, delta);
+                    if (VectorLength2DSquared(delta) > Square(256)) {
                         continue;
                     }
 
-                    if (fabs(pos2.z - pos1.z) < STEPSIZE) {
+                    const float deltaHeight = pos2.z - pos1.z;
+                    if (deltaHeight >= -STEPSIZE && deltaHeight <= STEPSIZE) {
                         // ignore steps
                         continue;
                     }
@@ -493,6 +609,7 @@ void NavigationMap::TryConnectJumpFallPoints(Container<offMeshNavigationPoint>& 
             }
         }
     }
+#endif
 }
 
 /*
@@ -1388,7 +1505,6 @@ NavigationMap::LoadWorldMap
 */
 void NavigationMap::LoadWorldMap(const char *mapname)
 {
-    NavigationBSP      navigationBsp;
     RecastBuildContext buildContext;
     int                start, end;
 
@@ -1419,7 +1535,7 @@ void NavigationMap::LoadWorldMap(const char *mapname)
     try {
         start = gi.Milliseconds();
 
-        navigationBsp.ProcessBSPForNavigation(mapname);
+        navigationData.ProcessBSPForNavigation(mapname);
     } catch (const ScriptException& e) {
         gi.Printf("Failed to load BSP for navigation: %s\n", e.string.c_str());
         return;
@@ -1433,7 +1549,7 @@ void NavigationMap::LoadWorldMap(const char *mapname)
     // Build and create the navigation mesh
     //
 
-    InitializeNavMesh(buildContext, navigationBsp.navMap);
+    InitializeNavMesh(buildContext, navigationData.navMap);
 
     gi.Printf("Building the navigation mesh...\n");
 
@@ -1441,12 +1557,12 @@ void NavigationMap::LoadWorldMap(const char *mapname)
         start = gi.Milliseconds();
 
         gi.Printf("  Building the world mesh...\n");
-        BuildWorldMesh(buildContext, navigationBsp.navMap);
+        BuildWorldMesh(buildContext, navigationData.navMap);
 
         gi.Printf("  Building meshes for entities...\n");
         // FIXME: TODO
         //  Split everything into chunks and use a tile-based approach
-        //BuildMeshesForEntities(buildContext, navigationBsp.navMap);
+        //BuildMeshesForEntities(buildContext, navigationData.navMap);
 
     } catch (const ScriptException& e) {
         gi.Printf("Couldn't build recast navigation mesh: %s\n", e.string.c_str());
