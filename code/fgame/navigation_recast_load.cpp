@@ -58,10 +58,10 @@ const float NavigationMap::agentRadius          = 1.0;
 const int   NavigationMap::regionMinSize        = 6;
 const int   NavigationMap::regionMergeSize      = 20;
 const float NavigationMap::edgeMaxLen           = 100.0;
-const float NavigationMap::edgeMaxError         = 1.4f;
+const float NavigationMap::edgeMaxError         = 1.3f;
 const int   NavigationMap::vertsPerPoly         = 6;
 const float NavigationMap::detailSampleDist     = 12.0;
-const float NavigationMap::detailSampleMaxError = 1.0;
+const float NavigationMap::detailSampleMaxError = 1.3f;
 const float NavigationMap::agentJumpHeight      = 54;
 
 dtCrowd *navCrowd;
@@ -319,9 +319,11 @@ NavigationMap::CanConnectFallPoint(const rcPolyMesh *polyMesh, const Vector& pos
 {
     const Vector           mins(-15, -15, 0);
     const Vector           maxs(15, 15, agentHeight);
+    const float            maxDistEdge = maxs.x * 3;
     Vector                 start, end;
     Vector                 tstart, tend;
     Vector                 delta;
+    Vector                 dir;
     float                  fallheight;
     float                  dist;
     trace_t                trace;
@@ -343,19 +345,27 @@ NavigationMap::CanConnectFallPoint(const rcPolyMesh *polyMesh, const Vector& pos
         return {};
     }
 
-    dist = delta.lengthXYSquared();
-    if (dist > Square(fallheight)) {
+    dist = delta.lengthXY();
+    if (dist > fallheight) {
         return {};
     }
 
+    dir   = delta;
+    dir.z = 0;
+    dir.normalize();
+
+    //
+    // Check if the path is not blocked in the middle
+    //
     tstart = start;
-    tend   = end;
-    tend.z = tstart.z;
+    tend   = tstart + dir * Q_min(dist, maxDistEdge);
 
     trace = G_Trace(tstart, mins, maxs, tend, NULL, MASK_PLAYERSOLID, qtrue, "CanConnectFallPoint");
-    if (trace.allsolid) {
+    if (trace.allsolid || trace.startsolid) {
         return {};
-    } else if (trace.startsolid) {
+    }
+    /*
+    else if (trace.startsolid) {
         tend = tstart;
         tstart.z += STEPSIZE;
 
@@ -367,14 +377,14 @@ NavigationMap::CanConnectFallPoint(const rcPolyMesh *polyMesh, const Vector& pos
 
         // Apply the new position
         tstart = start = trace.endpos;
-        tend           = end;
-        tend.z         = tstart.z;
+        tend           = tstart + dir * Q_min(dist, maxDistEdge);
 
         trace = G_Trace(tstart, mins, maxs, tend, NULL, MASK_PLAYERSOLID, qtrue, "CanConnectFallPoint");
         if (trace.allsolid || trace.startsolid) {
             return {};
         }
     }
+    */
 
     tstart = trace.endpos;
     tend   = end;
@@ -434,12 +444,14 @@ NavigationMap::CanConnectJumpPoint(const rcPolyMesh *polyMesh, const Vector& pos
     dir.normalize();
 
     trace = G_Trace(start, mins, maxs, end, NULL, MASK_PLAYERSOLID, qtrue, "CanConnectJumpPoint");
-    if (trace.fraction >= 0.999) {
-        // Straight path
-        return {};
-    }
+    //if (!trace.allsolid && (trace.fraction >= 0.999 || trace.plane.normal[2] < MIN_WALK_NORMAL)) {
+    //    // Straight path
+    //    return {};
+    //}
 
-    trace = G_Trace(start, mins, maxs, start + Vector(0, 0, 56), NULL, MASK_PLAYERSOLID, qtrue, "CanConnectJumpPoint");
+    trace = G_Trace(
+        start, mins, maxs, start + Vector(0, 0, agentJumpHeight), NULL, MASK_PLAYERSOLID, qtrue, "CanConnectJumpPoint"
+    );
     if (trace.allsolid) {
         return {};
     }
@@ -474,12 +486,15 @@ void NavigationMap::TryConnectJumpFallPoints(Container<offMeshNavigationPoint>& 
     unsigned short        num1, num2;
     const unsigned short *v1, *v2;
     bool                 *walkableVert;
+    unsigned short       *vertreg;
 
     walkableVert = new bool[polyMesh->nverts];
     vertpos      = new vec3_t[polyMesh->nverts];
+    vertreg      = new unsigned short[polyMesh->nverts];
 
     for (i = 0; i < polyMesh->nverts; i++) {
         walkableVert[i] = false;
+        vertreg[i]      = 0;
 
         v1      = &polyMesh->verts[i * 3];
         tmp1[0] = polyMesh->bmin[0] + v1[0] * polyMesh->cs;
@@ -503,6 +518,7 @@ void NavigationMap::TryConnectJumpFallPoints(Container<offMeshNavigationPoint>& 
 
             assert(poly[j] < polyMesh->nverts);
             walkableVert[poly[j]] = true;
+            vertreg[poly[j]]      = polyMesh->regs[i];
         }
     }
 
@@ -519,6 +535,10 @@ void NavigationMap::TryConnectJumpFallPoints(Container<offMeshNavigationPoint>& 
                 continue;
             }
 
+            if (vertreg[j] == vertreg[i]) {
+                continue;
+            }
+
             v2   = &polyMesh->verts[j * 3];
             pos2 = vertpos[j];
 
@@ -528,7 +548,8 @@ void NavigationMap::TryConnectJumpFallPoints(Container<offMeshNavigationPoint>& 
             }
 
             const float deltaHeight = pos2.z - pos1.z;
-            if (deltaHeight >= -STEPSIZE && deltaHeight <= STEPSIZE) {
+            const float minHeight   = STEPSIZE / 2;
+            if (deltaHeight >= -minHeight && deltaHeight <= minHeight) {
                 // ignore steps
                 continue;
             }
@@ -656,8 +677,8 @@ void NavigationMap::InitializeNavMesh(RecastBuildContext& buildContext, const na
     params.orig[2]    = MIN_MAP_BOUNDS;
     params.tileWidth  = MAP_SIZE * recastCellSize;
     params.tileHeight = MAP_SIZE * recastCellSize;
-    params.maxTiles   = 1;
-    params.maxPolys   = 65536;
+    params.maxTiles   = 32;
+    params.maxPolys   = 32768;
 
     navMeshDt = dtAllocNavMesh();
     status    = navMeshDt->init(&params);
@@ -849,7 +870,7 @@ void NavigationMap::GeneratePolyMesh(
     // Filter walkable surfaces
     //
 
-    //rcFilterLowHangingWalkableObstacles(&buildContext, walkableClimb, *heightfield);
+    rcFilterLowHangingWalkableObstacles(&buildContext, walkableClimb, *heightfield);
 
     //rcFilterLedgeSpans(&buildContext, walkableHeight, walkableClimb, *heightfield);
     rcFilterWalkableLowHeightSpans(&buildContext, walkableHeight, *heightfield);
@@ -1359,6 +1380,7 @@ NavigationMap::NavigationMap
 NavigationMap::NavigationMap()
     : navMeshDt(NULL)
     , navMeshQuery(NULL)
+    , tileCache(NULL)
 {
     talloc          = new dtTileCacheAlloc();
     tcomp           = new NoCompressor();
@@ -1417,7 +1439,9 @@ NavigationMap::Update
 */
 void NavigationMap::Update()
 {
-    tileCache->update(level.frametime, navMeshDt);
+    if (tileCache) {
+        tileCache->update(level.frametime, navMeshDt);
+    }
 }
 
 /*
@@ -1439,6 +1463,11 @@ void NavigationMap::ClearNavigation()
     if (navMeshDt) {
         dtFreeNavMesh(navMeshDt);
         navMeshDt = NULL;
+    }
+
+    if (tileCache) {
+        dtFreeTileCache(tileCache);
+        tileCache = NULL;
     }
 }
 
@@ -1489,12 +1518,12 @@ void NavigationMap::BuildMeshesForEntities(RecastBuildContext& buildContext, con
             continue;
         }
 
-        //if (edict->solid != SOLID_BSP) {
-        //    continue;
-        //}
-
-        if (edict->solid == SOLID_TRIGGER) {
+        switch (edict->solid) {
+        case SOLID_TRIGGER:
+        default:
             continue;
+        case SOLID_BSP:
+            break;
         }
 
         if (edict->s.modelindex < 1 || edict->s.modelindex > navigationMap.GetNumSubmodels()) {
@@ -1580,7 +1609,7 @@ void NavigationMap::LoadWorldMap(const char *mapname)
         gi.Printf("  Building meshes for entities...\n");
         // FIXME: TODO
         //  Split everything into chunks and use a tile-based approach
-        //BuildMeshesForEntities(buildContext, navigationData.navMap);
+        BuildMeshesForEntities(buildContext, navigationData.navMap);
 
     } catch (const ScriptException& e) {
         gi.Printf("Couldn't build recast navigation mesh: %s\n", e.string.c_str());
