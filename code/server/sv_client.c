@@ -292,7 +292,6 @@ challenge_t* FindChallenge(netadr_t from, qboolean connecting) {
 		// this is the first time this client has asked for a challenge
 		challenge = &svs.challenges[oldest];
 
-		challenge->challenge = ( (rand() << 16) ^ rand() ) ^ svs.time;
 		challenge->adr = from;
 		challenge->firstTime = svs.time;
 		challenge->time = svs.time;
@@ -303,6 +302,11 @@ challenge_t* FindChallenge(netadr_t from, qboolean connecting) {
 		challenge->gamespyId = g_gamespyId;
 		SV_CreateGamespyChallenge(challenge->gsChallenge);
 	}
+
+	// always generate a new challenge number, so the client cannot circumvent sv_maxping
+	challenge->challenge = ( (rand() << 16) ^ rand() ) ^ svs.time;
+	challenge->wasrefused = qfalse;
+	challenge->time = svs.time;
 
 	return challenge;
 }
