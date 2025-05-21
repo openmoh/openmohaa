@@ -46,7 +46,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 NavigationMap navigationMap;
 
-const float NavigationMap::recastCellSize   = 10.0;
+const float NavigationMap::recastCellSize   = 10.25;
 const float NavigationMap::recastCellHeight = 1.0;
 const float NavigationMap::agentHeight      = DEFAULT_VIEWHEIGHT;
 const float NavigationMap::agentMaxClimb    = STEPSIZE;
@@ -55,10 +55,10 @@ const float NavigationMap::agentMaxClimb    = STEPSIZE;
 const float NavigationMap::agentMaxSlope = 45.5729942f;
 
 const float NavigationMap::agentRadius          = 1.0;
-const int   NavigationMap::regionMinSize        = 5;
+const int   NavigationMap::regionMinSize        = 6;
 const int   NavigationMap::regionMergeSize      = 20;
 const float NavigationMap::edgeMaxLen           = 100.0;
-const float NavigationMap::edgeMaxError         = 1.3f;
+const float NavigationMap::edgeMaxError         = 1.4f;
 const int   NavigationMap::vertsPerPoly         = 6;
 const float NavigationMap::detailSampleDist     = 12.0;
 const float NavigationMap::detailSampleMaxError = 1.0;
@@ -251,6 +251,7 @@ void NavigationMap::ConnectLadders(Container<offMeshNavigationPoint>& points)
 {
     gentity_t *edict;
     Vector     start, end;
+    Vector     tend;
     trace_t    trace;
 
     for (edict = active_edicts.next; edict != &active_edicts; edict = edict->next) {
@@ -267,14 +268,43 @@ void NavigationMap::ConnectLadders(Container<offMeshNavigationPoint>& points)
             start = edict->entity->origin + Vector(0, 0, edict->entity->mins.z) - facingDir * 32;
             end   = edict->entity->origin + Vector(0, 0, edict->entity->maxs.z + 16) + facingDir * 16;
 
+            tend = end;
+            tend.z -= STEPSIZE;
+            trace = G_Trace(end, vec_zero, vec_zero, tend, NULL, MASK_PLAYERSOLID, qfalse, "ConnectLadders");
+
             point.start         = start;
-            point.end           = end;
+            point.end           = trace.endpos;
             point.bidirectional = true;
             point.radius        = agentRadius;
             point.area          = 0;
             point.flags         = 1;
 
             points.AddObject(point);
+        }
+    }
+}
+
+void NavigationMap::FixupPoint(vec3_t pos)
+{
+    const Vector mins(-15, -15, 0);
+    const Vector maxs(15, 15, agentHeight);
+    trace_t      trace;
+
+    trace = G_Trace(pos, mins, maxs, pos, NULL, MASK_PLAYERSOLID, qtrue, "CanConnectFallPoint");
+    if (trace.startsolid) {
+        int i;
+
+        for (i = 0; i < 4; i++) {
+            float  angle = ((2 * M_PI) * (float)i / (float)4);
+            float  dx    = cos(angle) * maxs.x;
+            float  dy    = sin(angle) * maxs.y;
+            Vector point(pos[0] + dx, pos[1] + dy, pos[2] + STEPSIZE);
+
+            trace = G_Trace(point, mins, maxs, pos, NULL, MASK_PLAYERSOLID, qtrue, "CanConnectFallPoint");
+            if (!trace.startsolid) {
+                VectorCopy(trace.endpos, pos);
+                break;
+            }
         }
     }
 }
@@ -294,7 +324,6 @@ NavigationMap::CanConnectFallPoint(const rcPolyMesh *polyMesh, const Vector& pos
     Vector                 delta;
     float                  fallheight;
     float                  dist;
-    Vector                 dir;
     trace_t                trace;
     offMeshNavigationPoint point;
 
@@ -319,20 +348,8 @@ NavigationMap::CanConnectFallPoint(const rcPolyMesh *polyMesh, const Vector& pos
         return {};
     }
 
-    dir   = delta;
-    dir.z = 0;
-    dir.normalize();
-
-    /*
-    trace =
-        G_Trace(start, mins, maxs, start + dir * Q_min(dist, 32), NULL, MASK_PLAYERSOLID, qtrue, "CanConnectFallPoint");
-    if (trace.allsolid || trace.startsolid) {
-        return {};
-    }
-    */
-
     tstart = start;
-    tend   = tend + dir * Q_min(dist, 16);
+    tend   = end;
     tend.z = tstart.z;
 
     trace = G_Trace(tstart, mins, maxs, tend, NULL, MASK_PLAYERSOLID, qtrue, "CanConnectFallPoint");
@@ -350,7 +367,7 @@ NavigationMap::CanConnectFallPoint(const rcPolyMesh *polyMesh, const Vector& pos
 
         // Apply the new position
         tstart = start = trace.endpos;
-        tend           = tend + dir * Q_min(dist, 16);
+        tend           = end;
         tend.z         = tstart.z;
 
         trace = G_Trace(tstart, mins, maxs, tend, NULL, MASK_PLAYERSOLID, qtrue, "CanConnectFallPoint");
@@ -469,6 +486,7 @@ void NavigationMap::TryConnectJumpFallPoints(Container<offMeshNavigationPoint>& 
         tmp1[1] = polyMesh->bmin[1] + (v1[1] + 1) * polyMesh->ch;
         tmp1[2] = polyMesh->bmin[2] + v1[2] * polyMesh->cs;
         ConvertRecastToGameCoord(tmp1, vertpos[i]);
+        FixupPoint(vertpos[i]);
     }
 
     for (i = 0; i < polyMesh->npolys; i++) {

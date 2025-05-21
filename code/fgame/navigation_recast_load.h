@@ -145,6 +145,7 @@ public:
 
 private:
     void                   ConnectLadders(Container<offMeshNavigationPoint>& points);
+    void                   FixupPoint(vec3_t pos);
     offMeshNavigationPoint CanConnectFallPoint(const rcPolyMesh *polyMesh, const Vector& pos1, const Vector& pos2);
     offMeshNavigationPoint CanConnectJumpPoint(const rcPolyMesh *polyMesh, const Vector& pos1, const Vector& pos2);
     void TryConnectJumpFallPoints(Container<offMeshNavigationPoint>& points, const rcPolyMesh *polyMesh);
