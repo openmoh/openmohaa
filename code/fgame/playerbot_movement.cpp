@@ -180,7 +180,7 @@ void BotMovement::MoveThink(usercmd_t& botcmd)
 
             m_pPath->Clear();
 
-            if (m_iNumBlocks < 1) {
+            if (m_iNumBlocks < 2) {
                 dir   = -delta;
                 dir.z = 0;
                 dir.normalize();
