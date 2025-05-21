@@ -32,6 +32,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "level.h"
 
 #include "DetourCrowd.h"
+#include "DetourCommon.h"
 #include "entity.h"
 #include "bg_local.h"
 
@@ -89,8 +90,9 @@ void RecastPather::FindPath(const Vector& start, const Vector& end, const PathSe
     ConvertGameToRecastCoord(start, recastStart);
     ConvertGameToRecastCoord(end, recastEnd);
 
-    startRef = endRef = 0;
-    navigationMap.GetNavMeshQuery()->findNearestPoly(recastStart, half, &filter, &startRef, startPt);
+    endRef = 0;
+    startRef = detourData->corridor.getFirstPoly();
+    dtVcopy(startPt, detourData->corridor.getPos());
     navigationMap.GetNavMeshQuery()->findNearestPoly(recastEnd, half, &filter, &endRef, endPt);
 
     if (!startRef || !endRef) {
@@ -154,8 +156,9 @@ void RecastPather::FindPathNear(
     ConvertGameToRecastCoord(start, recastStart);
     ConvertGameToRecastCoord(end, recastEnd);
 
-    startRef = endRef = 0;
-    navigationMap.GetNavMeshQuery()->findNearestPoly(recastStart, half, &filter, &startRef, startPt);
+    endRef = 0;
+    startRef = detourData->corridor.getFirstPoly();
+    dtVcopy(startPt, detourData->corridor.getPos());
     navigationMap.GetNavMeshQuery()->findNearestPoly(recastEnd, half, &filter, &endRef, endPt);
 
     if (!startRef || !endRef) {
@@ -224,8 +227,8 @@ void RecastPather::FindPathAway(
     ConvertGameToRecastCoord(avoid, recastAvoid);
     ConvertGameToRecastCoord(avoid + dirNormalized * radius, recastEnd);
 
-    startRef = 0;
-    navigationMap.GetNavMeshQuery()->findNearestPoly(recastStart, half, &filter, &startRef, startPt);
+    startRef = detourData->corridor.getFirstPoly();
+    dtVcopy(startPt, detourData->corridor.getPos());
 
     if (!startRef) {
         return;
