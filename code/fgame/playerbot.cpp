@@ -356,6 +356,15 @@ void BotController::NoticeEvent(Vector vPos, int iType, Entity *pEnt, float fDis
 {
     Sentient *pSentOwner;
     float     fRangeFactor;
+    Vector    delta1, delta2;
+
+    if (m_iCuriousTime) {
+        delta1 = vPos - controlledEnt->origin;
+        delta2 = m_vNewCuriousPos - controlledEnt->origin;
+        if (delta1.lengthSquared() < delta2.lengthSquared()) {
+            return;
+        }
+    }
 
     fRangeFactor = 1.0 - (fDistanceSquared / fRadiusSquared);
 
@@ -561,7 +570,7 @@ void BotController::State_Idle(void)
         } else {
             Vector randomDir(G_CRandom(16), G_CRandom(16), G_CRandom(16));
             Vector preferredDir;
-            float  radius       = 512 + G_Random(2048);
+            float  radius = 512 + G_Random(2048);
 
             preferredDir += Vector(controlledEnt->orientation[0]) * (rand() % 5 ? 1024 : -1024);
             preferredDir += Vector(controlledEnt->orientation[2]) * (rand() % 5 ? 1024 : -1024);
