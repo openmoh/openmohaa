@@ -1194,12 +1194,6 @@ void Level::SpawnEntities(char *entities, int svsTime)
 
     gi.LoadResource("*148");
 
-    if (!g_navigation_legacy->integer) {
-        // Added in OPM
-        //  Recast navigation
-        navigationMap.LoadWorldMap(m_mapfile);
-    }
-
     if (g_gametype->integer != GT_SINGLE_PLAYER) {
         dmManager.InitGame();
     }
@@ -1512,6 +1506,12 @@ void Level::ServerSpawned(void)
         Director.Unpause();
 
         Unregister(STRING_SPAWN);
+
+        if (!g_navigation_legacy->integer) {
+            // Added in OPM
+            //  Recast navigation
+            navigationMap.LoadWorldMap(m_mapfile);
+        }
     } else {
         Director.LoadMenus();
     }
