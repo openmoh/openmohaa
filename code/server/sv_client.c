@@ -243,21 +243,34 @@ Find or create challenge, from the specified ip address
 ==================
 */
 challenge_t* FindChallenge(netadr_t from, qboolean connecting) {
-	int		i;
-	int		oldest;
-	int		oldestTime;
-	challenge_t	*challenge;
+	int		    i;
+	int		    oldest;
+	int		    oldestTime;
+	int		    oldestClientTime;
+	qboolean    wasfound = qfalse;
+	challenge_t *challenge;
 
 	oldest = 0;
-	oldestTime = 0x7fffffff;
+	oldestClientTime = oldestTime = 0x7fffffff;
 
 	// see if we already have a challenge for this ip
 	challenge = &svs.challenges[0];
 	if (connecting) {
 		for (i = 0; i < MAX_CHALLENGES; i++, challenge++) {
-			if (!challenge->connected && NET_CompareAdr(from, challenge->adr)) {
-				break;
-			}
+            if(!challenge->connected && NET_CompareAdr(from, challenge->adr))
+            {
+                wasfound = qtrue;
+                
+                if(challenge->time < oldestClientTime)
+                    oldestClientTime = challenge->time;
+            }
+
+            if(wasfound && i >= MAX_CHALLENGES_MULTI)
+            {
+                i = MAX_CHALLENGES;
+                break;
+            }
+
 			if (challenge->time < oldestTime) {
 				oldestTime = challenge->time;
 				oldest = i;
