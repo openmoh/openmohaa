@@ -168,10 +168,10 @@ void NavigationMapExtension_JumpFall::Handle(Container<offMeshNavigationPoint>& 
                 points.AddObject(point);
             }
 
-            //point = CanConnectStraightPoint(polyMesh, pos1, pos2);
-            //if (point.area) {
-            //    points.AddObject(point);
-            //}
+            point = CanConnectStraightPoint(polyMesh, pos1, pos2);
+            if (point.area) {
+                points.AddObject(point);
+            }
         }
     }
 
@@ -455,18 +455,20 @@ NavigationMapExtension_JumpFall::CanConnectJumpPoint(const rcPolyMesh *polyMesh,
 NavigationMap::CanConnectStraightPoint
 ============
 */
-offMeshNavigationPoint
-NavigationMapExtension_JumpFall::CanConnectStraightPoint(const rcPolyMesh *polyMesh, const Vector& pos1, const Vector& pos2)
+offMeshNavigationPoint NavigationMapExtension_JumpFall::CanConnectStraightPoint(
+    const rcPolyMesh *polyMesh, const Vector& pos1, const Vector& pos2
+)
 {
     const Vector           mins(-15, -15, 0);
     const Vector           maxs(15, 15, NavigationMapConfiguration::agentHeight);
     Vector                 start, end;
-    Vector                 tend;
     Vector                 delta;
     Vector                 fwdDir;
     float                  jumpheight;
     Vector                 dir;
     trace_t                trace;
+    int                    i;
+    static const float     offsets[2] = {-16, 16};
     offMeshNavigationPoint point;
 
     if (pos1.z > pos2.z) {
@@ -483,10 +485,29 @@ NavigationMapExtension_JumpFall::CanConnectStraightPoint(const rcPolyMesh *polyM
         return {};
     }
 
-    trace = G_Trace(start, mins, maxs, end, NULL, MASK_PLAYERSOLID, qtrue, "CanConnectJumpPoint");
-    if (trace.allsolid || trace.fraction < 0.999 || trace.plane.normal[2] >= MIN_WALK_NORMAL) {
+    trace = G_Trace(start, mins, maxs, end, NULL, MASK_PLAYERSOLID, qtrue, "CanConnectStraightPoint");
+    if (trace.allsolid || trace.startsolid || trace.fraction < 0.999 || trace.plane.normal[2] >= MIN_WALK_NORMAL) {
         // Straight path
         return {};
+    }
+
+    dir = delta;
+    dir.normalize();
+
+    for (i = 0; i < ARRAY_LEN(offsets); i++) {
+        trace = G_Trace(
+            start + dir * offsets[i], vec_zero, vec_zero, end, NULL, MASK_PLAYERSOLID, qfalse, "CanConnectStraightPoint"
+        );
+        if (trace.fraction < 0.999 || trace.startsolid) {
+            return {};
+        }
+
+        trace = G_Trace(
+            end + dir * offsets[i], vec_zero, vec_zero, start, NULL, MASK_PLAYERSOLID, qfalse, "CanConnectStraightPoint"
+        );
+        if (trace.fraction < 0.999 || trace.startsolid) {
+            return {};
+        }
     }
 
     point.start         = start;
