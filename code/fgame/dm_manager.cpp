@@ -42,7 +42,7 @@ typedef struct spawnsort_s {
 
 static qboolean SpotWouldTelefrag(float *origin)
 {
-    static Vector mins = Vector(-15, -15, 1);
+    static Vector mins = Vector(-15, -15, 1.05);
     static Vector maxs = Vector(15, 15, 96);
     trace_t       trace;
 
@@ -397,7 +397,12 @@ PlayerStart *DM_Team::GetRandomSpawnpointWithMetric(
     Player *player, float (*MetricFunction)(const float *origin, DM_Team *dmTeam, const Player *player)
 )
 {
-    static float offset[4][3];
+    static const vec3_t offset[4] = {
+        {-48.0, -48.0, 32.0},
+        {48.0,  -48.0, 32.0},
+        {-48.0, 48.0,  32.0},
+        {48.0,  48.0,  32.0},
+    };
     spawnsort_t  points[1024];
     PlayerStart *spot     = NULL;
     int          numSpots = 0;
@@ -425,6 +430,11 @@ PlayerStart *DM_Team::GetRandomSpawnpointWithMetric(
         return spot;
     }
 
+    //
+    // No spawnpoints are available.
+    // Search for free locations next to spawnpoints
+    //
+
     numSpots = 0;
 
     for (int i = 1; i <= m_spawnpoints.NumObjects(); i++) {
@@ -433,35 +443,36 @@ PlayerStart *DM_Team::GetRandomSpawnpointWithMetric(
             continue;
         }
 
-        for (int j = 0; j < sizeof(offset) / sizeof(offset[0]); j++) {
-            Vector vNewSpawn = spot->origin + offset[j];
+        for (int j = 0; j < ARRAY_LEN(offset); j++) {
+            const Vector vNewSpawn = spot->origin + offset[j];
 
             if (G_SightTrace(
-                    spot->origin,
+                    spot->origin + Vector(0, 0, 16),
                     player->mins,
                     player->maxs,
                     vNewSpawn,
                     (Entity *)NULL,
                     (Entity *)NULL,
-                    MASK_PLAYERSOLID,
+                    MASK_PLAYERSOLID & ~CONTENTS_BODY,
                     qfalse,
                     "DM_Team::GetRandomSpawnpointWithMetric"
-                )
-                == 1) {
-                Vector vEnd = vNewSpawn - Vector(0, 0, 64);
+                )) {
+                const Vector vEnd = vNewSpawn - Vector(0, 0, 64);
 
-                trace_t trace = G_Trace(
+                const trace_t trace = G_Trace(
                     vNewSpawn, player->mins, player->maxs, vEnd, player, MASK_PLAYERSOLID, qfalse, "TempSpawnPoint"
                 );
 
-                if (!trace.allsolid && !trace.startsolid && trace.fraction != 1.0f && trace.plane.dist >= 0.8f) {
+                if (!trace.allsolid && !trace.startsolid && trace.fraction != 0 && trace.fraction != 1
+                    && trace.plane.normal[2] >= 0.8f) {
                     points[numSpots].spawnpoint = new PlayerStart;
                     points[numSpots].spawnpoint->setOrigin(trace.endpos);
                     points[numSpots].spawnpoint->setAngles(spot->angles);
-                    points[numSpots].fMetric = MetricFunction(vNewSpawn, this, player);
+                    points[numSpots].spawnpoint->m_bDeleteOnSpawn = true;
+                    points[numSpots].fMetric                      = MetricFunction(vNewSpawn, this, player);
                     numSpots++;
 
-                    if (numSpots >= (sizeof(points) / sizeof(points[0]))) {
+                    if (numSpots >= ARRAY_LEN(points)) {
                         break;
                     }
                 }
@@ -485,7 +496,7 @@ PlayerStart *DM_Team::GetRandomSpawnpointWithMetric(
 
     for (int i = 1; i <= m_spawnpoints.NumObjects(); i++) {
         spot = m_spawnpoints.ObjectAt(i);
-        if (!spot->m_bForbidSpawns && player->GetLastSpawnpoint() != spot) {
+        if (!spot->m_bForbidSpawns || player->GetLastSpawnpoint() != spot) {
             continue;
         }
 
