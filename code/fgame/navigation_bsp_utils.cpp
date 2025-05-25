@@ -319,3 +319,18 @@ qboolean FixWinding(winding_t *w)
     }
     return valid;
 }
+
+qboolean G_PlaneFromPoints(vec4_t plane, vec3_t a, vec3_t b, vec3_t c)
+{
+    vec3_t d1, d2;
+
+    VectorSubtract(b, a, d1);
+    VectorSubtract(c, a, d2);
+    CrossProduct(d2, d1, plane);
+    if (VectorNormalize(plane) == 0) {
+        return qfalse;
+    }
+
+    plane[3] = DotProduct(a, plane);
+    return qtrue;
+}

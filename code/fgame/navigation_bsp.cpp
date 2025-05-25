@@ -502,12 +502,12 @@ NavigationBSP::GenerateVerticesFromHull
 */
 void NavigationBSP::GenerateVerticesFromHull(bspMap_c& inBspMap, const Container<cshader_t>& shaders)
 {
-    Container<cplane_t>     planes;
-    Container<cbrushside_t> sides;
-    Container<cbrush_t>     brushes;
-    Container<cmodel_t>     submodels;
+    Container<cplane_t>            planes;
+    Container<cbrushside_t>        sides;
+    Container<cbrush_t>            brushes;
+    Container<cmodel_t>            submodels;
     const Container<navSurface_t>& worldSurfaces = navMap.GetWorldMap().surfaces;
-    size_t                  i, j;
+    size_t                         i, j;
 
     LoadPlanes(inBspMap.LoadLump(LUMP_PLANES), planes);
     LoadBrushSides(inBspMap.LoadLump(LUMP_BRUSHSIDES), shaders, planes, sides);
@@ -934,7 +934,7 @@ NavigationBSP::LoadAndRenderTerrain
 */
 void NavigationBSP::LoadAndRenderTerrain(bspMap_c& inBspMap, const Container<cshader_t>& shaders)
 {
-    int                    i;
+    int                    i, j, k;
     cTerraPatch_t         *in;
     cTerraPatchUnpacked_t *out;
     size_t                 numTerraPatches;
@@ -956,6 +956,32 @@ void NavigationBSP::LoadAndRenderTerrain(bspMap_c& inBspMap, const Container<csh
     in  = (cTerraPatch_t *)lump.buffer;
     out = terraPatches;
 
+#if 0
+    G_PrepareGenerateTerrainCollide();
+
+    for (i = 0; i < numTerraPatches; in++, out++, i++) {
+        terrainCollide_t tc;
+        navSurface_t    *surface;
+
+        SwapTerraPatch(in);
+        G_GenerateTerrainCollide(in, &tc);
+
+        if (!G_CreateTerPatchWindings(tc)) {
+            continue;
+        }
+
+        surface = &navMap.GetWorldMap().surfaces.ObjectAt(navMap.GetWorldMap().surfaces.AddObject({}));
+
+        for (j = 0; j < 8; j++) {
+            for (k = 0; k < 8; k++) {
+                const terrainCollideSquare_t& square = tc.squares[j][k];
+                if (square.w) {
+                    G_StripFaceSurface(*surface, square.w);
+                }
+            }
+        }
+    }
+#else
     for (i = 0; i < numTerraPatches; in++, out++, i++) {
         SwapTerraPatch(in);
 
@@ -970,6 +996,7 @@ void NavigationBSP::LoadAndRenderTerrain(bspMap_c& inBspMap, const Container<csh
     RenderTerrainTris(terraPatches, numTerraPatches);
 
     gi.Free(terraPatches);
+#endif
 }
 
 /*

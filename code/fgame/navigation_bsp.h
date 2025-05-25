@@ -166,6 +166,7 @@ void     G_StripFaceSurface(navSurface_t& surface, const winding_t *winding);
 // Utilities
 //
 qboolean FixWinding(winding_t *w);
+qboolean G_PlaneFromPoints(vec4_t plane, vec3_t a, vec3_t b, vec3_t c);
 
 ///
 /// Curve loading
@@ -226,8 +227,44 @@ typedef union varnodeUnpacked_u {
 	*/
 } varnodeUnpacked_t;
 
+#define TER_QUADS_PER_ROW  8
+#define TER_TRIS_PER_PATCH (TER_QUADS_PER_ROW * TER_QUADS_PER_ROW * 2)
+#define TER_PLANES_PER_TRI 5
+
+struct terTriangle_t {
+    cplane_t planes
+        [TER_PLANES_PER_TRI]; // 0 is the surface plane, 3 border planes follow and a cap to give it some finite volume
+};
+
+struct terPatchCollide_t {
+    vec3_t bounds[2];
+
+    baseshader_t *shader;
+
+    terTriangle_t tris[TER_TRIS_PER_PATCH];
+};
+
+struct terrainCollideSquare_t {
+    vec4_t     plane[2];
+    winding_t *w;
+    int        eMode;
+
+public:
+    terrainCollideSquare_t();
+    ~terrainCollideSquare_t();
+};
+
+struct terrainCollide_t {
+    vec3_t                 vBounds[2];
+    terrainCollideSquare_t squares[8][8];
+};
+
 // Use a 32-bit int because there can be more than 65536 tris
 typedef unsigned int terraInt;
+
+void     G_PrepareGenerateTerrainCollide(void);
+void     G_GenerateTerrainCollide(cTerraPatch_t *patch, terrainCollide_t *tc);
+qboolean G_CreateTerPatchWindings(terrainCollide_t& tc);
 
 struct terrainVert_t {
     vec3_t   xyz;
@@ -348,7 +385,9 @@ private:
     void GenerateBrushTriangles(navModel_t& model, const Container<cplane_t>& planes, cbrush_t& brush);
     void GenerateVerticesFromHull(bspMap_c& inBspMap, const Container<cshader_t>& shaders);
     void RenderSurfaceGrid(const surfaceGrid_t *grid, navSurface_t& outSurface);
-    void ParseMesh(const dsurface_t *ds, const drawVert_t *verts, const Container<cshader_t>& shaders, navSurface_t& outSurface);
+    void ParseMesh(
+        const dsurface_t *ds, const drawVert_t *verts, const Container<cshader_t>& shaders, navSurface_t& outSurface
+    );
     void ParseTriSurf(const dsurface_t *ds, const drawVert_t *verts, const int *indexes);
     void ParseFace(const dsurface_t *ds, const drawVert_t *verts, const int *indexes);
     void ParseFlare(const dsurface_t *ds, const drawVert_t *verts);

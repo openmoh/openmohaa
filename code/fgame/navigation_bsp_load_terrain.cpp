@@ -41,6 +41,24 @@ terrainVert_t *g_pVert = NULL;
 poolInfo_t g_tri;
 poolInfo_t g_vert;
 
+typedef struct varnodeIndex_s {
+    short unsigned int iTreeAndMask;
+    short unsigned int iNode;
+} varnodeIndex_t;
+
+typedef struct worknode_s {
+    int i0;
+    int j0;
+    int i1;
+    int j1;
+    int i2;
+    int j2;
+} worknode_t;
+
+varnodeIndex_t g_vni[2][8][8][2];
+
+static int modeTable[] = {2, 2, 5, 6, 4, 3, 0, 0};
+
 /*
 ================
 G_ValidateHeightmapForVertex
@@ -876,5 +894,373 @@ void G_TerrainFree()
     if (g_pTris) {
         gi.Free(g_pTris);
         g_pTris = NULL;
+    }
+}
+
+/*
+====================
+G_CalculateTerrainIndices
+====================
+*/
+void G_CalculateTerrainIndices(worknode_t *worknode, int iDiagonal, int iTree)
+{
+    int             i;
+    int             i2;
+    int             j2;
+    varnodeIndex_t *vni;
+
+    for (i = 0; i <= 30; i++) {
+        i2                         = worknode[i + 1].i0 + worknode[i + 1].i1;
+        j2                         = worknode[i + 1].j0 + worknode[i + 1].j1;
+        worknode[i * 2 + 2].i0     = worknode[i + 1].i1;
+        worknode[i * 2 + 2].j0     = worknode[i + 1].j1;
+        worknode[i * 2 + 2].i1     = worknode[i + 1].i2;
+        worknode[i * 2 + 2].j1     = worknode[i + 1].j2;
+        worknode[i * 2 + 2].i2     = i2 >> 1;
+        worknode[i * 2 + 2].j2     = j2 >> 1;
+        worknode[i * 2 + 2 + 1].i0 = worknode[i + 1].i2;
+        worknode[i * 2 + 2 + 1].j0 = worknode[i + 1].j2;
+        worknode[i * 2 + 2 + 1].i1 = worknode[i + 1].i0;
+        worknode[i * 2 + 2 + 1].j1 = worknode[i + 1].j0;
+        worknode[i * 2 + 2 + 1].i2 = i2 >> 1;
+        worknode[i * 2 + 2 + 1].j2 = j2 >> 1;
+    }
+
+    for (i = 32; i < 64; i++) {
+        i2 = (worknode[i].i0 + worknode[i].i1) >> 1;
+        j2 = (worknode[i].j0 + worknode[i].j1) >> 1;
+
+        if (worknode[i].i0 == worknode[i].i1) {
+            if (worknode[i].j0 <= worknode[i].j1) {
+                vni               = &g_vni[iDiagonal][i2][j2][1];
+                vni->iNode        = i - 1;
+                vni->iTreeAndMask = iTree | 0x2000;
+
+                vni               = &g_vni[iDiagonal][i2][j2 - 1][0];
+                vni->iNode        = i - 1;
+                vni->iTreeAndMask = iTree | 0x1000;
+            } else {
+                vni               = &g_vni[iDiagonal][i2 - 1][j2][1];
+                vni->iNode        = i - 1;
+                vni->iTreeAndMask = iTree | 0x1000;
+
+                vni               = &g_vni[iDiagonal][i2 - 1][j2 - 1][0];
+                vni->iNode        = i - 1;
+                vni->iTreeAndMask = iTree | 0x2000;
+            }
+        } else {
+            if (worknode[i].i0 <= worknode[i].i1) {
+                vni               = &g_vni[iDiagonal][i2][j2 - 1][0];
+                vni->iNode        = i - 1;
+                vni->iTreeAndMask = iTree | 0x2000;
+
+                vni               = &g_vni[iDiagonal][i2 - 1][j2 - 1][0];
+                vni->iNode        = i - 1;
+                vni->iTreeAndMask = iTree | 0x1000;
+            } else {
+                vni               = &g_vni[iDiagonal][i2][j2][1];
+                vni->iNode        = i - 1;
+                vni->iTreeAndMask = iTree | 0x1000;
+
+                vni               = &g_vni[iDiagonal][i2 - 1][j2][1];
+                vni->iNode        = i - 1;
+                vni->iTreeAndMask = iTree | 0x2000;
+            }
+        }
+    }
+}
+
+/*
+====================
+G_PrepareGenerateTerrainCollide
+====================
+*/
+void G_PrepareGenerateTerrainCollide(void)
+{
+    worknode_t worknode[64];
+
+    memset(&g_vni, 0, sizeof(g_vni));
+
+    worknode[1].i0 = 8;
+    worknode[1].j0 = 8;
+    worknode[1].i1 = 0;
+    worknode[1].j1 = 0;
+    worknode[1].i2 = 0;
+    worknode[1].j2 = 8;
+
+    G_CalculateTerrainIndices(worknode, 0, 0);
+
+    worknode[1].i0 = 0;
+    worknode[1].j0 = 0;
+    worknode[1].i1 = 8;
+    worknode[1].j1 = 8;
+    worknode[1].i2 = 8;
+    worknode[1].j2 = 0;
+
+    G_CalculateTerrainIndices(worknode, 0, 1);
+
+    worknode[1].i0 = 8;
+    worknode[1].j0 = 0;
+    worknode[1].i1 = 0;
+    worknode[1].j1 = 8;
+    worknode[1].i2 = 8;
+    worknode[1].j2 = 8;
+
+    G_CalculateTerrainIndices(worknode, 1, 0);
+
+    worknode[1].i0 = 0;
+    worknode[1].j0 = 8;
+    worknode[1].i1 = 8;
+    worknode[1].j1 = 0;
+    worknode[1].i2 = 0;
+    worknode[1].j2 = 0;
+
+    G_CalculateTerrainIndices(worknode, 1, 1);
+}
+
+void G_PickTerrainSquareMode(terrainCollideSquare_t *square, vec3_t vTest, int i, int j, cTerraPatch_t *patch)
+{
+    int             flags0, flags1;
+    varnodeIndex_t *vni;
+
+    if (patch->flags & TERPATCH_NEIGHBOR) {
+        vni = g_vni[1][i][j];
+    } else {
+        vni = g_vni[0][i][j];
+    }
+
+    if ((vni[0].iTreeAndMask & patch->varTree[vni[0].iTreeAndMask & 1][vni[0].iNode].flags & 0xFFFE) != 0) {
+        flags0 = 2;
+    } else {
+        flags0 = 0;
+    }
+
+    if ((vni[1].iTreeAndMask & patch->varTree[vni[1].iTreeAndMask & 1][vni[1].iNode].flags & 0xFFFFFFFE) != 0) {
+        flags1 = 4;
+    } else {
+        flags1 = 0;
+    }
+
+    square->eMode = modeTable[(j + i) & 1 | flags0 | flags1];
+
+    if (square->eMode == 2) {
+        if (DotProduct(vTest, square->plane[0]) < square->plane[0][3]) {
+            square->eMode = 1;
+        }
+    } else if (square->eMode == 5 || square->eMode == 6) {
+        VectorCopy(square->plane[1], square->plane[0]);
+        square->plane[0][3] = square->plane[1][3];
+    }
+}
+
+/*
+====================
+G_GenerateTerrainCollide
+====================
+*/
+void G_GenerateTerrainCollide(cTerraPatch_t *patch, terrainCollide_t *tc)
+{
+    int                     i;
+    int                     j;
+    int                     x0, y0, z0;
+    float                   fMaxHeight;
+    float                   heightmap[9][9];
+    terrainCollideSquare_t *square;
+    vec3_t                  v1;
+    vec3_t                  v2;
+    vec3_t                  v3;
+    vec3_t                  v4;
+
+    x0 = (patch->x << 6);
+    y0 = (patch->y << 6);
+    z0 = (patch->iBaseHeight);
+
+    fMaxHeight = z0;
+
+    for (j = 0; j < 9; j++) {
+        for (i = 0; i < 9; i++) {
+            heightmap[i][j] = (float)(z0 + 2 * patch->heightmap[j * 9 + i]);
+        }
+    }
+
+    for (j = 0; j < 8; j++) {
+        for (i = 0; i < 8; i++) {
+            v1[0] = ((i << 6) + x0);
+            v1[1] = ((j << 6) + y0);
+            v1[2] = heightmap[i][j];
+
+            v2[0] = ((i << 6) + x0) + 64;
+            v2[1] = ((j << 6) + y0);
+            v2[2] = heightmap[i + 1][j];
+
+            v3[0] = ((i << 6) + x0) + 64;
+            v3[1] = ((j << 6) + y0) + 64;
+            v3[2] = heightmap[i + 1][j + 1];
+
+            v4[0] = ((i << 6) + x0);
+            v4[1] = ((j << 6) + y0) + 64;
+            v4[2] = heightmap[i][j + 1];
+
+            if (fMaxHeight < v1[2]) {
+                fMaxHeight = v1[2];
+            }
+
+            if (fMaxHeight < v2[2]) {
+                fMaxHeight = v2[2];
+            }
+
+            if (fMaxHeight < v3[2]) {
+                fMaxHeight = v3[2];
+            }
+
+            if (fMaxHeight < v4[2]) {
+                fMaxHeight = v4[2];
+            }
+
+            square = &tc->squares[i][j];
+
+            if ((i + j) & 1) {
+                if (patch->flags & TERPATCH_FLIP) {
+                    G_PlaneFromPoints(square->plane[0], v4, v2, v3);
+                    G_PlaneFromPoints(square->plane[1], v2, v4, v1);
+                } else {
+                    G_PlaneFromPoints(square->plane[0], v2, v4, v3);
+                    G_PlaneFromPoints(square->plane[1], v4, v2, v1);
+                }
+                G_PickTerrainSquareMode(square, v1, i, j, patch);
+            } else {
+                if (patch->flags & TERPATCH_FLIP) {
+                    G_PlaneFromPoints(square->plane[0], v1, v3, v4);
+                    G_PlaneFromPoints(square->plane[1], v3, v1, v2);
+                } else {
+                    G_PlaneFromPoints(square->plane[0], v3, v1, v4);
+                    G_PlaneFromPoints(square->plane[1], v1, v3, v2);
+                }
+                G_PickTerrainSquareMode(square, v2, i, j, patch);
+            }
+        }
+    }
+
+    tc->vBounds[0][0] = x0;
+    tc->vBounds[0][1] = y0;
+    tc->vBounds[0][2] = z0;
+    tc->vBounds[1][0] = (x0 + 512);
+    tc->vBounds[1][1] = (y0 + 512);
+    tc->vBounds[1][2] = fMaxHeight;
+}
+
+/*
+============
+BoundTerPatch
+============
+*/
+static qboolean BoundTerPatch(const terrainCollide_t& tc)
+{
+    int        i, j, k;
+    vec3_t     bounds[2];
+    winding_t *w;
+
+    ClearBounds(bounds[0], bounds[1]);
+    for (i = 0; i < ARRAY_LEN(tc.squares); i++) {
+        for (j = 0; j < ARRAY_LEN(tc.squares[i]); j++) {
+            w = tc.squares[i][j].w;
+            if (w == NULL) {
+                continue;
+            }
+            for (k = 0; k < w->numpoints; k++) {
+                AddPointToBounds(w->p[k], bounds[0], bounds[1]);
+            }
+        }
+    }
+
+    for (i = 0; i < 3; i++) {
+        if (bounds[0][i] < MIN_WORLD_COORD || bounds[1][i] > MAX_WORLD_COORD || bounds[0][i] >= bounds[1][i]) {
+            return qfalse;
+        }
+    }
+
+    return qtrue;
+}
+
+/*
+============
+G_CreateTerPatchWindings
+============
+*/
+qboolean G_CreateTerPatchWindings(terrainCollide_t& tc)
+{
+    int                     i, j, k, l;
+    winding_t              *w;
+    terrainCollideSquare_t *side, *side2;
+    cplane_t                plane;
+
+    /* walk the list of brush sides */
+    for (i = 0; i < ARRAY_LEN(tc.squares); i++) {
+        for (j = 0; j < ARRAY_LEN(tc.squares[i]); j++) {
+            /* get side and plane */
+            side = &tc.squares[i][j];
+
+            /* make huge winding */
+            w = BaseWindingForPlane(side->plane[0], side->plane[0][3]);
+            /* walk the list of brush sides */
+            for (k = 0; k < ARRAY_LEN(tc.squares) && w; k++) {
+                for (l = 0; l < ARRAY_LEN(tc.squares[k]) && w; l++) {
+                    if (i == k && j == l) {
+                        continue;
+                    }
+
+                    side2 = &tc.squares[k][l];
+                    ChopWindingInPlace(&w, side2->plane[1], side2->plane[1][3], 0); // CLIP_EPSILON );
+
+                    FixWinding(w);
+                }
+            }
+#if 0
+            /* walk the list of brush sides */
+            for (j = 0; j < brush.numsides && w != NULL; j++) {
+                if (i == j) {
+                    continue;
+                }
+                if (brush.sides[j].planenum == (brush.sides[i].planenum ^ 1)) {
+                    continue; /* back side clipaway */
+                }
+                plane = (cplane_t *)&planes[brush.sides[j].planenum ^ 1];
+                ChopWindingInPlace(&w, plane->normal, plane->dist, 0); // CLIP_EPSILON );
+
+                FixWinding(w);
+            }
+#endif
+
+            if (side->w) {
+                FreeWinding(side->w);
+            }
+            /* set side winding */
+            side->w = w;
+        }
+    }
+
+    /* find brush bounds */
+    return BoundTerPatch(tc);
+}
+
+/*
+============
+terrainCollideSquare_t::terrainCollideSquare_t
+============
+*/
+terrainCollideSquare_t::terrainCollideSquare_t()
+{
+    w = NULL;
+}
+
+/*
+============
+terrainCollideSquare_t::~terrainCollideSquare_t
+============
+*/
+terrainCollideSquare_t::~terrainCollideSquare_t()
+{
+    if (w) {
+        FreeWinding(w);
     }
 }
