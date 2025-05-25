@@ -104,6 +104,7 @@ void BotMovement::MoveThink(usercmd_t& botcmd)
     }
 
     vDelta = m_pPath->GetCurrentDelta();
+    vDelta = FixDeltaFromCollision(vDelta);
 
     if (m_pPath->GetNodeCount()) {
         m_pPath->UpdatePos(controlledEntity->origin);
@@ -592,6 +593,127 @@ void BotMovement::NewMove()
     m_bPathing         = true;
     m_vLastCheckPos[0] = controlledEntity->origin;
     m_vLastCheckPos[1] = controlledEntity->origin;
+}
+
+Vector BotMovement::FixDeltaFromCollision(const Vector& delta)
+{
+    trace_t trace;
+    Vector  mins(MINS_X, MINS_Y, MINS_Z + STEPSIZE);
+    Vector  maxs(MAXS_X, MAXS_Y, MAXS_Z);
+    Vector  newDelta;
+    Vector  angles;
+    Vector  forward, right, up;
+    Vector  target;
+    Vector  front;
+    float   distSqr;
+
+    target = controlledEntity->origin + delta;
+
+    newDelta = delta;
+    distSqr  = VectorNormalize2(newDelta, forward);
+    VectorToAngles(forward, angles);
+    AngleVectors(angles, forward, right, up);
+    target = controlledEntity->origin + forward * Q_min(distSqr, 128);
+
+    trace = G_Trace(
+        controlledEntity->origin, mins, maxs, target, controlledEntity, MASK_PLAYERSOLID, qtrue, "GetCurrentDelta"
+    );
+    if (trace.fraction < 1.0) {
+        trace_t tmpTrace;
+        Vector forwardXY, rightXY, upXY;
+        Vector targetXY;
+
+        angles.x = 0;
+        AngleVectors(angles, forwardXY, rightXY, upXY);
+        targetXY = controlledEntity->origin + forwardXY * Q_min(distSqr, 128);
+
+        tmpTrace = G_Trace(
+            controlledEntity->origin, mins, maxs, target, controlledEntity, MASK_PLAYERSOLID, qtrue, "GetCurrentDelta"
+        );
+
+        if (tmpTrace.fraction > trace.fraction) {
+            trace = tmpTrace;
+            forward = forwardXY;
+            right = rightXY;
+            up = upXY;
+            target = targetXY;
+        }
+    }
+
+    if (trace.fraction < 0.25 && distSqr * Square(trace.fraction) < Square(32)) {
+        Vector  newStartLeft, newStartRight;
+        trace_t leftTrace, rightTrace;
+
+        leftTrace.fraction = rightTrace.fraction = 0;
+
+        newStartRight = controlledEntity->origin - forward + right * 24;
+        //
+        // Trace to the right
+        //
+        rightTrace = G_Trace(
+            controlledEntity->origin,
+            mins,
+            maxs,
+            newStartRight,
+            controlledEntity,
+            MASK_PLAYERSOLID,
+            qtrue,
+            "GetCurrentDelta"
+        );
+
+        if (!rightTrace.startsolid && rightTrace.fraction > 0) {
+            //
+            // Trace from the right to the node
+            //
+            rightTrace = G_Trace(
+                Vector(rightTrace.endpos),
+                mins,
+                maxs,
+                target,
+                controlledEntity,
+                MASK_PLAYERSOLID,
+                qtrue,
+                "GetCurrentDelta"
+            );
+        }
+
+        if (rightTrace.startsolid || rightTrace.fraction < 1) {
+            newStartLeft = controlledEntity->origin - forward - right * 24;
+            leftTrace    = G_Trace(
+                controlledEntity->origin,
+                mins,
+                maxs,
+                newStartLeft,
+                controlledEntity,
+                MASK_PLAYERSOLID,
+                qtrue,
+                "GetCurrentDelta"
+            );
+
+            if (!leftTrace.startsolid && leftTrace.fraction > 0) {
+                leftTrace = G_Trace(
+                    Vector(leftTrace.endpos),
+                    mins,
+                    maxs,
+                    target,
+                    controlledEntity,
+                    MASK_PLAYERSOLID,
+                    qtrue,
+                    "GetCurrentDelta"
+                );
+            }
+        }
+
+        if (leftTrace.fraction != 0 || rightTrace.fraction != 0) {
+            if (leftTrace.fraction > rightTrace.fraction) {
+                return newStartLeft + forward * 16 - controlledEntity->origin;
+            } else {
+                return newStartRight + forward * 16 - controlledEntity->origin;
+            }
+        }
+    }
+
+    return delta;
 }
 
 /*
