@@ -603,7 +603,7 @@ void NavigationBSP::ParseMesh(
         }
     }
 
-    grid = G_SubdividePatchToGrid(width, height, 1.0, points);
+    grid = G_SubdividePatchToGrid(width, height, points);
 
     // render the grid into vertices
     RenderSurfaceGrid(grid, outSurface);

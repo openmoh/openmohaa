@@ -204,7 +204,7 @@ struct surfaceGrid_t {
 };
 
 surfaceGrid_t      *
-G_SubdividePatchToGrid(int width, int height, float subdivide, Vector points[MAX_PATCH_SIZE * MAX_PATCH_SIZE]);
+G_SubdividePatchToGrid(int width, int height, Vector points[MAX_PATCH_SIZE * MAX_PATCH_SIZE]);
 void G_FreeSurfaceGridMesh(surfaceGrid_t *grid);
 
 ///

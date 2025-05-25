@@ -232,7 +232,7 @@ G_SubdividePatchToGrid
 =================
 */
 surfaceGrid_t *
-G_SubdividePatchToGrid(int width, int height, float subdivide, Vector points[MAX_PATCH_SIZE * MAX_PATCH_SIZE])
+G_SubdividePatchToGrid(int width, int height, Vector points[MAX_PATCH_SIZE * MAX_PATCH_SIZE])
 {
     int               i, j, k, l;
     Vector            prev, next, mid;
@@ -300,12 +300,9 @@ G_SubdividePatchToGrid(int width, int height, float subdivide, Vector points[MAX
                 continue;
             }
 
-            // see if we want to insert subdivided columns
-            if (width + 2 > MAX_GRID_SIZE) {
-                errorTable[dir][j + 1] = 1.0f / maxLen;
-                continue; // can't subdivide any more
-            }
+            errorTable[dir][j + 1] = 1.0f / maxLen;
 
+#if 0
             if (maxLen <= subdivide) {
                 errorTable[dir][j + 1] = 1.0f / maxLen;
                 continue; // didn't need subdivision
@@ -330,6 +327,7 @@ G_SubdividePatchToGrid(int width, int height, float subdivide, Vector points[MAX
 
             // back up and recheck this set again, it may need more subdivision
             j -= 2;
+#endif
         }
 
         Transpose(width, height, ctrl);
