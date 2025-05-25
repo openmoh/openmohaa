@@ -44,6 +44,10 @@ static const vec3_t DETOUR_EXTENT = {(MAXS_X - MINS_X) / 2, (MAXS_Z - MINS_Z) / 
 struct DetourData {
 public:
     dtPathCorridor corridor;
+    vec3_t         corners[4];
+    unsigned char  cornerFlags[4];
+    dtPolyRef      cornerPolys[4];
+    int            ncorners;
 };
 
 RecastPather::RecastPather()
@@ -404,11 +408,7 @@ void RecastPather::UpdatePos(const Vector& origin)
     //ConvertRecastToGameCoord(agent->npos, agentPos);
     //g_entities[2].entity->setOrigin(agentPos);
 #else
-    Vector        recastOrigin;
-    vec3_t        corners[4];
-    unsigned char cornerFlags[4];
-    dtPolyRef     cornerPolys[4];
-    int           ncorners;
+    Vector recastOrigin;
 
     ConvertGameToRecastCoord(origin, recastOrigin);
 
@@ -461,22 +461,33 @@ void RecastPather::UpdatePos(const Vector& origin)
         detourData->corridor.movePosition(recastOrigin, navigationMap.GetNavMeshQuery(), &filter);
         ConvertRecastToGameCoord(detourData->corridor.getPos(), lastValidOrg);
 
-        ncorners = detourData->corridor.findCorners(
-            (float *)corners, cornerFlags, cornerPolys, 4, navigationMap.GetNavMeshQuery(), &filter
+        detourData->ncorners = detourData->corridor.findCorners(
+            (float *)detourData->corners,
+            detourData->cornerFlags,
+            detourData->cornerPolys,
+            4,
+            navigationMap.GetNavMeshQuery(),
+            &filter
         );
-        if (ncorners) {
+        if (detourData->ncorners) {
             dtPolyRef refs[2];
             vec3_t    startOffPos, endOffPos;
 
-            if (overOffmeshConnection(recastOrigin, cornerFlags, (const vec_t *)corners, 16, ncorners)
+            if (overOffmeshConnection(
+                    recastOrigin, detourData->cornerFlags, (const vec_t *)detourData->corners, 16, detourData->ncorners
+                )
                 && detourData->corridor.moveOverOffmeshConnection(
-                    cornerPolys[ncorners - 1], refs, startOffPos, endOffPos, navigationMap.GetNavMeshQuery()
+                    detourData->cornerPolys[detourData->ncorners - 1],
+                    refs,
+                    startOffPos,
+                    endOffPos,
+                    navigationMap.GetNavMeshQuery()
                 )) {
                 ConvertRecastToGameCoord(detourData->corridor.getPos(), currentNodePos);
 
                 traversingOffMeshLink = true;
             } else {
-                ConvertRecastToGameCoord(corners[0], currentNodePos);
+                ConvertRecastToGameCoord(detourData->corners[0], currentNodePos);
             }
         } else {
             ConvertRecastToGameCoord(detourData->corridor.getPos(), currentNodePos);
@@ -767,7 +778,7 @@ bool RecastPather::IsQuerying() const
 void RecastPather::ResetAgent(const Vector& origin)
 {
     traversingOffMeshLink = false;
-    lastCheckTime = level.inttime;
+    lastCheckTime         = level.inttime;
 
 #if USE_DETOUR_AGENT
     dtCrowd *crowdManager = pathMaster.agentManager.GetCrowd();
