@@ -196,23 +196,27 @@ void BotController::CheckUse(void)
         start, vec_zero, vec_zero, end, controlledEnt, MASK_USABLE | MASK_LADDER, false, "BotController::CheckUse"
     );
 
-    // It may be a door
-    if ((trace.allsolid || trace.startsolid || trace.fraction != 1.0f) && trace.ent) {
-        if (trace.ent->entity->IsSubclassOfDoor()) {
-            Door *door = static_cast<Door *>(trace.ent->entity);
-            if (door->isOpen()) {
-                m_botCmd.buttons &= ~BUTTON_USE;
-                return;
-            }
-        }
-
-        //
-        // Toggle the use button
-        //
-        m_botCmd.buttons ^= BUTTON_USE;
-    } else {
+    if (!trace.ent || trace.ent->entity == world) {
         m_botCmd.buttons &= ~BUTTON_USE;
+        return;
     }
+
+    if (trace.ent->entity->IsSubclassOfDoor()) {
+        Door *door = static_cast<Door *>(trace.ent->entity);
+        if (door->isOpen()) {
+            // Don't use an open door
+            m_botCmd.buttons &= ~BUTTON_USE;
+            return;
+        }
+    } else if (!trace.ent->entity->isSubclassOf(FuncLadder)) {
+        m_botCmd.buttons &= ~BUTTON_USE;
+        return;
+    }
+
+    //
+    // Toggle the use button
+    //
+    m_botCmd.buttons ^= BUTTON_USE;
 
 #if 0
     Vector  forward;
