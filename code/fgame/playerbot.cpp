@@ -561,6 +561,8 @@ bool BotController::CheckCondition_Idle(void)
 
 void BotController::State_Idle(void)
 {
+    m_botCmd.buttons &= ~(BUTTON_ATTACKLEFT | BUTTON_ATTACKRIGHT);
+
     AimAtAimNode();
     CheckReload();
 
