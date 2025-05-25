@@ -132,7 +132,7 @@ void BotMovement::MoveThink(usercmd_t& botcmd)
             ClearMove();
         }
 
-        if (!m_pPath->IsQuerying()) {
+        if (!m_pPath->IsQuerying() && !controlledEntity->GetLadder()) {
             if (controlledEntity->GetMoveResult() >= MOVERESULT_BLOCKED
                 || controlledEntity->velocity.lengthSquared() <= Square(8)) {
                 blocked = true;
