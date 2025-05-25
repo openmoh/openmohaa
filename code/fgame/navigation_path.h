@@ -103,7 +103,7 @@ public:
      * 
      * @param origin The origin to set
      */
-    virtual void UpdatePos(const Vector& origin, float speed) = 0;
+    virtual void UpdatePos(const Vector& origin) = 0;
 
     /**
      * @brief Clear the path

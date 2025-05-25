@@ -69,7 +69,7 @@ bool LegacyPather::TestPath(const Vector& start, const Vector& end, const PathSe
     return PathSearch::FindPath(start, end, parameters.entity, 0, NULL, 0, parameters.fallHeight) != 0;
 }
 
-void LegacyPather::UpdatePos(const Vector& origin, float speed)
+void LegacyPather::UpdatePos(const Vector& origin)
 {
     path.UpdatePos((float *)(Vector&)origin, 8);
 }

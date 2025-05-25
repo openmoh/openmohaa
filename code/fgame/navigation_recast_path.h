@@ -52,7 +52,7 @@ public:
     ) override;
     virtual bool TestPath(const Vector& start, const Vector& end, const PathSearchParameter& parameters) override;
 
-    virtual void UpdatePos(const Vector& origin, float speed) override;
+    virtual void UpdatePos(const Vector& origin) override;
     virtual void Clear() override;
 
     virtual PathNav GetNode(unsigned int index) const override;
