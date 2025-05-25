@@ -79,7 +79,7 @@ void BotMovement::MoveThink(usercmd_t& botcmd)
     if (level.inttime >= m_iLastMoveTime + 5000 && m_vCurrentOrigin != controlledEntity->origin) {
         m_vCurrentOrigin = controlledEntity->origin;
 
-        if (m_pPath->GetNodeCount()) {
+        if (m_pPath->GetNodeCount() && !controlledEntity->GetLadder()) {
             // recalculate paths because of a new origin
 
             PathSearchParameter parameters;
@@ -106,7 +106,7 @@ void BotMovement::MoveThink(usercmd_t& botcmd)
     vDelta = m_pPath->GetCurrentDelta();
 
     if (m_pPath->GetNodeCount()) {
-        m_pPath->UpdatePos(controlledEntity->origin, controlledEntity->GetRunSpeed());
+        m_pPath->UpdatePos(controlledEntity->origin);
 
         m_vCurrentGoal = controlledEntity->origin;
         VectorAdd2D(m_vCurrentGoal, vDelta, m_vCurrentGoal);
