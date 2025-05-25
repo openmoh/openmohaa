@@ -1315,7 +1315,7 @@ void UI_PrintConsole(const char *msg)
 
     pszString = msg;
 
-    if ((unsigned char)*pszString < MESSAGE_MAX) {
+    if (*pszString > 0 && (unsigned char)*pszString < MESSAGE_MAX) {
         qboolean bNormalMessage = qfalse;
         qboolean bDMMessage     = qfalse;
         qboolean bBold          = qfalse;
