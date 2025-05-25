@@ -29,6 +29,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "navigation_recast_path.h"
 #include "navigation_recast_load.h"
+#include "navigation_recast_helpers.h"
 #include "level.h"
 
 #include "DetourCrowd.h"
@@ -38,7 +39,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 RecastPathMaster pathMaster;
 
-static const vec3_t DETOUR_EXTENT = {MAXS_X - MINS_X, MAXS_Y - MINS_Y, MAXS_Z - MINS_Z};
+static const vec3_t DETOUR_EXTENT = {(MAXS_X - MINS_X) / 2, (MAXS_Z - MINS_Z) / 2, (MAXS_Y - MINS_Y) / 2};
 
 struct DetourData {
 public:
@@ -90,7 +91,7 @@ void RecastPather::FindPath(const Vector& start, const Vector& end, const PathSe
     ConvertGameToRecastCoord(start, recastStart);
     ConvertGameToRecastCoord(end, recastEnd);
 
-    endRef = 0;
+    endRef   = 0;
     startRef = detourData->corridor.getFirstPoly();
     dtVcopy(startPt, detourData->corridor.getPos());
     navigationMap.GetNavMeshQuery()->findNearestPoly(recastEnd, half, &filter, &endRef, endPt);
@@ -156,7 +157,7 @@ void RecastPather::FindPathNear(
     ConvertGameToRecastCoord(start, recastStart);
     ConvertGameToRecastCoord(end, recastEnd);
 
-    endRef = 0;
+    endRef   = 0;
     startRef = detourData->corridor.getFirstPoly();
     dtVcopy(startPt, detourData->corridor.getPos());
     navigationMap.GetNavMeshQuery()->findNearestPoly(recastEnd, half, &filter, &endRef, endPt);
@@ -335,7 +336,7 @@ static bool overOffmeshConnection(
     return false;
 }
 
-void RecastPather::UpdatePos(const Vector& origin, float speed)
+void RecastPather::UpdatePos(const Vector& origin)
 {
     lastorg = origin;
 
@@ -766,6 +767,7 @@ bool RecastPather::IsQuerying() const
 void RecastPather::ResetAgent(const Vector& origin)
 {
     traversingOffMeshLink = false;
+    lastCheckTime = level.inttime;
 
 #if USE_DETOUR_AGENT
     dtCrowd *crowdManager = pathMaster.agentManager.GetCrowd();
