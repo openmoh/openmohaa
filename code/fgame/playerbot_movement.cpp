@@ -133,20 +133,12 @@ void BotMovement::MoveThink(usercmd_t& botcmd)
         }
 
         if (!m_pPath->IsQuerying()) {
-            if (controlledEntity->groundentity || controlledEntity->client->ps.walking) {
-                if (controlledEntity->GetMoveResult() >= MOVERESULT_BLOCKED
-                    || controlledEntity->velocity.lengthSquared() <= Square(8)) {
-                    blocked = true;
-                } else if ((controlledEntity->origin - m_vLastCheckPos[0]).lengthSquared() <= Square(64)
-                           && (controlledEntity->origin - m_vLastCheckPos[1]).lengthSquared() <= Square(64)) {
-                    blocked = true;
-                }
-            } else {
-                // falling
-                if (controlledEntity->GetMoveResult() >= MOVERESULT_BLOCKED) {
-                    // stuck while falling
-                    blocked = true;
-                }
+            if (controlledEntity->GetMoveResult() >= MOVERESULT_BLOCKED
+                || controlledEntity->velocity.lengthSquared() <= Square(8)) {
+                blocked = true;
+            } else if ((controlledEntity->origin - m_vLastCheckPos[0]).lengthSquared() <= Square(64)
+                       && (controlledEntity->origin - m_vLastCheckPos[1]).lengthSquared() <= Square(64)) {
+                blocked = true;
             }
         }
 
