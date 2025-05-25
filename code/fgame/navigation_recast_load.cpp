@@ -29,7 +29,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "g_local.h"
 #include "navigation_recast_load.h"
+#include "navigation_recast_load_ext.h"
 #include "navigation_recast_path.h"
+#include "navigation_recast_config.h"
+#include "navigation_recast_helpers.h"
 #include "../script/scriptexception.h"
 #include "navigate.h"
 #include "debuglines.h"
@@ -45,24 +48,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "DetourTileCacheBuilder.h"
 
 NavigationMap navigationMap;
-
-const float NavigationMap::recastCellSize   = 10.25;
-const float NavigationMap::recastCellHeight = 1.0;
-const float NavigationMap::agentHeight      = DEFAULT_VIEWHEIGHT;
-const float NavigationMap::agentMaxClimb    = STEPSIZE;
-
-// normal of { 0.714142799, 0, 0.700000048 }, or an angle of -44.4270058
-const float NavigationMap::agentMaxSlope = 45.5729942f;
-
-const float NavigationMap::agentRadius          = 1.0;
-const int   NavigationMap::regionMinSize        = 6;
-const int   NavigationMap::regionMergeSize      = 20;
-const float NavigationMap::edgeMaxLen           = 100.0;
-const float NavigationMap::edgeMaxError         = 1.3f;
-const int   NavigationMap::vertsPerPoly         = 6;
-const float NavigationMap::detailSampleDist     = 12.0;
-const float NavigationMap::detailSampleMaxError = 1.3f;
-const float NavigationMap::agentJumpHeight      = 54;
 
 dtCrowd *navCrowd;
 int      navAgentId = -1;
@@ -152,47 +137,6 @@ MeshProcess::~MeshProcess()
     // Defined out of line to fix the weak v-tables warning
 }
 
-/*
-============
-ConvertGameToRecastCoord
-============
-*/
-void ConvertGameToRecastCoord(const float *in, float *out)
-{
-#if 0
-    vec3_t mat[3];
-    vec3_t angles = { 0, 0, -90 };
-    AnglesToAxis(angles, mat);
-
-    MatrixTransformVector(in, mat, out);
-#endif
-
-    // Same as above
-    out[0] = in[0];
-    out[1] = in[2];
-    out[2] = -in[1];
-}
-
-/*
-============
-ConvertRecastToGameCoord
-============
-*/
-void ConvertRecastToGameCoord(const float *in, float *out)
-{
-#if 0
-    vec3_t mat[3];
-    vec3_t angles = { 0, 0, 90 };
-    AnglesToAxis(angles, mat);
-
-    MatrixTransformVector(in, mat, out);
-#endif
-
-    out[0] = in[0];
-    out[1] = -in[2];
-    out[2] = in[1];
-}
-
 void TestAgent(const Vector& start, const Vector& end, Vector *paths, int *numPaths, int maxPaths)
 {
     vec3_t        half = {64, 64, 64};
@@ -211,8 +155,8 @@ void TestAgent(const Vector& start, const Vector& end, Vector *paths, int *numPa
 
     dtCrowdAgentParams ap {0};
 
-    ap.radius                = NavigationMap::agentRadius;
-    ap.height                = NavigationMap::agentHeight;
+    ap.radius                = NavigationMapConfiguration::agentRadius;
+    ap.height                = NavigationMapConfiguration::agentHeight;
     ap.maxAcceleration       = 8.0f;
     ap.maxSpeed              = 3.5f;
     ap.collisionQueryRange   = ap.radius * 12.0f;
@@ -244,422 +188,22 @@ void TestAgent(const Vector& start, const Vector& end, Vector *paths, int *numPa
 
 /*
 ============
-NavigationMap::ConnectLadders
-============
-*/
-void NavigationMap::ConnectLadders(Container<offMeshNavigationPoint>& points)
-{
-    gentity_t *edict;
-    Vector     start, end;
-    Vector     tend;
-    trace_t    trace;
-
-    for (edict = active_edicts.next; edict != &active_edicts; edict = edict->next) {
-        if (!edict->entity) {
-            continue;
-        }
-
-        if (edict->entity->isSubclassOf(FuncLadder)) {
-            const FuncLadder *ladder    = static_cast<FuncLadder *>(edict->entity);
-            const Vector&     facingDir = ladder->getFacingDir();
-
-            offMeshNavigationPoint point;
-
-            start = edict->entity->origin + Vector(0, 0, edict->entity->mins.z) - facingDir * 32;
-            end   = edict->entity->origin + Vector(0, 0, edict->entity->maxs.z + 16) + facingDir * 16;
-
-            tend = end;
-            tend.z -= STEPSIZE;
-            trace = G_Trace(end, vec_zero, vec_zero, tend, NULL, MASK_PLAYERSOLID, qfalse, "ConnectLadders");
-
-            point.start         = start;
-            point.end           = trace.endpos;
-            point.bidirectional = true;
-            point.radius        = agentRadius;
-            point.area          = 0;
-            point.flags         = 1;
-
-            points.AddObject(point);
-        }
-    }
-}
-
-void NavigationMap::FixupPoint(vec3_t pos)
-{
-    const Vector mins(-15, -15, 0);
-    const Vector maxs(15, 15, agentHeight);
-    trace_t      trace;
-
-    trace = G_Trace(pos, mins, maxs, pos, NULL, MASK_PLAYERSOLID, qtrue, "CanConnectFallPoint");
-    if (trace.startsolid) {
-        int i;
-
-        for (i = 0; i < 4; i++) {
-            float  angle = ((2 * M_PI) * (float)i / (float)4);
-            float  dx    = cos(angle) * maxs.x;
-            float  dy    = sin(angle) * maxs.y;
-            Vector point(pos[0] + dx, pos[1] + dy, pos[2] + STEPSIZE);
-
-            trace = G_Trace(point, mins, maxs, pos, NULL, MASK_PLAYERSOLID, qtrue, "CanConnectFallPoint");
-            if (!trace.startsolid) {
-                VectorCopy(trace.endpos, pos);
-                break;
-            }
-        }
-    }
-}
-
-/*
-============
-NavigationMap::CanConnectFallPoint
-============
-*/
-offMeshNavigationPoint
-NavigationMap::CanConnectFallPoint(const rcPolyMesh *polyMesh, const Vector& pos1, const Vector& pos2)
-{
-    const Vector           mins(-15, -15, 0);
-    const Vector           maxs(15, 15, agentHeight);
-    const float            maxDistEdge = maxs.x * 3;
-    Vector                 start, end;
-    Vector                 tstart, tend;
-    Vector                 delta;
-    Vector                 dir;
-    float                  fallheight;
-    float                  dist;
-    trace_t                trace;
-    offMeshNavigationPoint point;
-
-    if (pos1.z <= pos2.z) {
-        start = pos2;
-        end   = pos1;
-    } else {
-        start = pos1;
-        end   = pos2;
-    }
-
-    delta      = end - start;
-    fallheight = -delta.z;
-
-    if (fallheight > 600) {
-        // This would cause too much damage
-        return {};
-    }
-
-    dist = delta.lengthXY();
-    if (dist > fallheight) {
-        return {};
-    }
-
-    dir   = delta;
-    dir.z = 0;
-    dir.normalize();
-
-    //
-    // Check if the path is not blocked in the middle
-    //
-    tstart = start;
-    tend   = tstart + dir * Q_min(dist, maxDistEdge);
-
-    trace = G_Trace(tstart, mins, maxs, tend, NULL, MASK_PLAYERSOLID, qtrue, "CanConnectFallPoint");
-    if (trace.allsolid || trace.startsolid) {
-        return {};
-    }
-    /*
-    else if (trace.startsolid) {
-        tend = tstart;
-        tstart.z += STEPSIZE;
-
-        trace = G_Trace(tstart, mins, maxs, tend, NULL, MASK_PLAYERSOLID, qtrue, "CanConnectFallPoint");
-        if (trace.allsolid || trace.startsolid) {
-            // Still in a solid
-            return {};
-        }
-
-        // Apply the new position
-        tstart = start = trace.endpos;
-        tend           = tstart + dir * Q_min(dist, maxDistEdge);
-
-        trace = G_Trace(tstart, mins, maxs, tend, NULL, MASK_PLAYERSOLID, qtrue, "CanConnectFallPoint");
-        if (trace.allsolid || trace.startsolid) {
-            return {};
-        }
-    }
-    */
-
-    tstart = trace.endpos;
-    tend   = end;
-
-    trace = G_Trace(tstart, mins, maxs, tend, NULL, MASK_PLAYERSOLID, qtrue, "CanConnectFallPoint");
-    if (trace.fraction < 0.999) {
-        return {};
-    }
-
-    point.start         = start;
-    point.end           = trace.endpos;
-    point.bidirectional = false;
-    point.radius        = agentRadius;
-    point.area          = 1;
-    point.flags         = 2;
-
-    return point;
-}
-
-/*
-============
-NavigationMap::CanConnectJumpPoint
-============
-*/
-offMeshNavigationPoint
-NavigationMap::CanConnectJumpPoint(const rcPolyMesh *polyMesh, const Vector& pos1, const Vector& pos2)
-{
-    const Vector           mins(-15, -15, 0);
-    const Vector           maxs(15, 15, agentHeight);
-    Vector                 start, end;
-    Vector                 delta;
-    float                  jumpheight;
-    Vector                 dir;
-    trace_t                trace;
-    offMeshNavigationPoint point;
-
-    if (pos1.z > pos2.z) {
-        start = pos2;
-        end   = pos1;
-    } else {
-        start = pos1;
-        end   = pos2;
-    }
-
-    delta      = end - start;
-    jumpheight = delta.z;
-    if (jumpheight > agentJumpHeight) {
-        return {};
-    }
-
-    if (delta.lengthSquared() > Square(128)) {
-        return {};
-    }
-
-    dir   = delta;
-    dir.z = 0;
-    dir.normalize();
-
-    trace = G_Trace(start, mins, maxs, end, NULL, MASK_PLAYERSOLID, qtrue, "CanConnectJumpPoint");
-    //if (!trace.allsolid && (trace.fraction >= 0.999 || trace.plane.normal[2] < MIN_WALK_NORMAL)) {
-    //    // Straight path
-    //    return {};
-    //}
-
-    trace = G_Trace(
-        start, mins, maxs, start + Vector(0, 0, agentJumpHeight), NULL, MASK_PLAYERSOLID, qtrue, "CanConnectJumpPoint"
-    );
-    if (trace.allsolid) {
-        return {};
-    }
-
-    trace = G_Trace(trace.endpos, mins, maxs, end, NULL, MASK_PLAYERSOLID, qtrue, "CanConnectJumpPoint");
-    if (trace.fraction < 0.999) {
-        return {};
-    }
-
-    point.start         = start;
-    point.end           = end;
-    point.bidirectional = true;
-    point.radius        = agentRadius;
-    point.area          = 1;
-    point.flags         = 3;
-
-    return point;
-}
-
-/*
-============
-NavigationMap::TryConnectJumpFallPoints
-============
-*/
-void NavigationMap::TryConnectJumpFallPoints(Container<offMeshNavigationPoint>& points, const rcPolyMesh *polyMesh)
-{
-    int                   i, j, k, l;
-    vec3_t                tmp1, tmp2;
-    vec3_t                delta;
-    vec3_t               *vertpos;
-    Vector                pos1, pos2;
-    unsigned short        num1, num2;
-    const unsigned short *v1, *v2;
-    bool                 *walkableVert;
-    unsigned short       *vertreg;
-
-    walkableVert = new bool[polyMesh->nverts];
-    vertpos      = new vec3_t[polyMesh->nverts];
-    vertreg      = new unsigned short[polyMesh->nverts];
-
-    for (i = 0; i < polyMesh->nverts; i++) {
-        walkableVert[i] = false;
-        vertreg[i]      = 0;
-
-        v1      = &polyMesh->verts[i * 3];
-        tmp1[0] = polyMesh->bmin[0] + v1[0] * polyMesh->cs;
-        tmp1[1] = polyMesh->bmin[1] + (v1[1] + 1) * polyMesh->ch;
-        tmp1[2] = polyMesh->bmin[2] + v1[2] * polyMesh->cs;
-        ConvertRecastToGameCoord(tmp1, vertpos[i]);
-        FixupPoint(vertpos[i]);
-    }
-
-    for (i = 0; i < polyMesh->npolys; i++) {
-        const unsigned short *poly = &polyMesh->polys[i * polyMesh->nvp * 2];
-
-        if (polyMesh->areas[i] != RC_WALKABLE_AREA) {
-            continue;
-        }
-
-        for (j = 0; j < polyMesh->nvp; j++) {
-            if (poly[j] == RC_MESH_NULL_IDX) {
-                break;
-            }
-
-            assert(poly[j] < polyMesh->nverts);
-            walkableVert[poly[j]] = true;
-            vertreg[poly[j]]      = polyMesh->regs[i];
-        }
-    }
-
-    for (i = 0; i < polyMesh->nverts; i++) {
-        if (!walkableVert[i]) {
-            continue;
-        }
-
-        v1   = &polyMesh->verts[i * 3];
-        pos1 = vertpos[i];
-
-        for (j = i + 1; j < polyMesh->nverts; j++) {
-            if (!walkableVert[j]) {
-                continue;
-            }
-
-            if (vertreg[j] == vertreg[i]) {
-                continue;
-            }
-
-            v2   = &polyMesh->verts[j * 3];
-            pos2 = vertpos[j];
-
-            VectorSub2D(pos2, pos1, delta);
-            if (VectorLength2DSquared(delta) > Square(256)) {
-                continue;
-            }
-
-            const float deltaHeight = pos2.z - pos1.z;
-            const float minHeight   = STEPSIZE / 2;
-            if (deltaHeight >= -minHeight && deltaHeight <= minHeight) {
-                // ignore steps
-                continue;
-            }
-
-            offMeshNavigationPoint point;
-
-            point = CanConnectFallPoint(polyMesh, pos1, pos2);
-            if (point.area) {
-                points.AddObject(point);
-            }
-
-            point = CanConnectJumpPoint(polyMesh, pos1, pos2);
-            if (point.area) {
-                points.AddObject(point);
-            }
-        }
-    }
-
-    delete[] vertpos;
-    delete[] walkableVert;
-
-#if 0
-    for (i = 0; i < polyMesh->npolys; i++) {
-        const unsigned short *p1 = &polyMesh->polys[i * polyMesh->nvp * 2];
-
-        if (polyMesh->areas[i] != RC_WALKABLE_AREA) {
-            continue;
-        }
-
-        for (j = i + 1; j < polyMesh->npolys; j++) {
-            const unsigned short *p2 = &polyMesh->polys[j * polyMesh->nvp * 2];
-
-            if (polyMesh->areas[j] != RC_WALKABLE_AREA) {
-                continue;
-            }
-
-            if (polyMesh->regs[i] == polyMesh->regs[j]) {
-                continue;
-            }
-
-            for (k = 0; k < polyMesh->nvp; k++) {
-                num1 = p1[k];
-
-                if (num1 == RC_MESH_NULL_IDX) {
-                    break;
-                }
-
-                const unsigned short *v1 = &polyMesh->verts[num1 * 3];
-
-                tmp1[0] = polyMesh->bmin[0] + v1[0] * polyMesh->cs;
-                tmp1[1] = polyMesh->bmin[1] + (v1[1] + 1) * polyMesh->ch;
-                tmp1[2] = polyMesh->bmin[2] + v1[2] * polyMesh->cs;
-                ConvertRecastToGameCoord(tmp1, pos1);
-
-                for (l = 0; l < polyMesh->nvp; l++) {
-                    num2 = p2[l];
-
-                    if (num2 == RC_MESH_NULL_IDX) {
-                        break;
-                    }
-
-                    if (num1 == num2) {
-                        continue;
-                    }
-
-                    const unsigned short *v2 = &polyMesh->verts[num2 * 3];
-
-                    tmp2[0] = polyMesh->bmin[0] + v2[0] * polyMesh->cs;
-                    tmp2[1] = polyMesh->bmin[1] + (v2[1] + 1) * polyMesh->ch;
-                    tmp2[2] = polyMesh->bmin[2] + v2[2] * polyMesh->cs;
-                    ConvertRecastToGameCoord(tmp2, pos2);
-
-                    VectorSub2D(pos2, pos1, delta);
-                    if (VectorLength2DSquared(delta) > Square(256)) {
-                        continue;
-                    }
-
-                    const float deltaHeight = pos2.z - pos1.z;
-                    if (deltaHeight >= -STEPSIZE && deltaHeight <= STEPSIZE) {
-                        // ignore steps
-                        continue;
-                    }
-
-                    offMeshNavigationPoint point;
-
-                    point = CanConnectFallPoint(polyMesh, pos1, pos2);
-                    if (point.area) {
-                        points.AddUniqueObject(point);
-                    }
-
-                    point = CanConnectJumpPoint(polyMesh, pos1, pos2);
-                    if (point.area) {
-                        points.AddUniqueObject(point);
-                    }
-                }
-            }
-        }
-    }
-#endif
-}
-
-/*
-============
 NavigationMap::GatherOffMeshPoints
 ============
 */
 void NavigationMap::GatherOffMeshPoints(Container<offMeshNavigationPoint>& points, const rcPolyMesh *polyMesh)
 {
-    ConnectLadders(points);
-    TryConnectJumpFallPoints(points, polyMesh);
+    //
+    // Look for extensions and extend the navigation map
+    //
+
+    for(const ClassDef *c = ClassDef::classlist; c; c = c->next) {
+        if (c != INavigationMapExtension::classinfostatic() && checkInheritance(INavigationMapExtension::classinfostatic(), c)) {
+            INavigationMapExtension* navExtension = static_cast<INavigationMapExtension*>(c->newInstance());
+            navExtension->Handle(points, polyMesh);
+            delete navExtension;
+        }
+    }
 }
 
 /*
@@ -675,8 +219,8 @@ void NavigationMap::InitializeNavMesh(RecastBuildContext& buildContext, const na
     params.orig[0]    = MIN_MAP_BOUNDS;
     params.orig[1]    = MIN_MAP_BOUNDS;
     params.orig[2]    = MIN_MAP_BOUNDS;
-    params.tileWidth  = MAP_SIZE * recastCellSize;
-    params.tileHeight = MAP_SIZE * recastCellSize;
+    params.tileWidth  = MAP_SIZE * NavigationMapConfiguration::recastCellSize;
+    params.tileHeight = MAP_SIZE * NavigationMapConfiguration::recastCellSize;
     params.maxTiles   = 32;
     params.maxPolys   = 32768;
 
@@ -704,14 +248,14 @@ void NavigationMap::InitializeNavMesh(RecastBuildContext& buildContext, const na
     tcparams.orig[0]                = MIN_MAP_BOUNDS;
     tcparams.orig[1]                = MIN_MAP_BOUNDS;
     tcparams.orig[2]                = MIN_MAP_BOUNDS;
-    tcparams.cs                     = recastCellSize;
-    tcparams.ch                     = recastCellHeight;
+    tcparams.cs                     = NavigationMapConfiguration::recastCellSize;
+    tcparams.ch                     = NavigationMapConfiguration::recastCellHeight;
     tcparams.width                  = MAP_SIZE;
     tcparams.height                 = MAP_SIZE;
-    tcparams.walkableHeight         = agentHeight;
-    tcparams.walkableRadius         = agentRadius;
-    tcparams.walkableClimb          = agentMaxClimb;
-    tcparams.maxSimplificationError = edgeMaxError;
+    tcparams.walkableHeight         = NavigationMapConfiguration::agentHeight;
+    tcparams.walkableRadius         = NavigationMapConfiguration::agentRadius;
+    tcparams.walkableClimb          = NavigationMapConfiguration::agentMaxClimb;
+    tcparams.maxSimplificationError = NavigationMapConfiguration::edgeMaxError;
     tcparams.maxTiles               = 128;
     tcparams.maxObstacles           = MAX_GENTITIES;
 
@@ -719,7 +263,7 @@ void NavigationMap::InitializeNavMesh(RecastBuildContext& buildContext, const na
     tileCache->init(&tcparams, talloc, tcomp, tmproc);
 
     navCrowd = dtAllocCrowd();
-    navCrowd->init(MAX_CLIENTS, agentRadius, navMeshDt);
+    navCrowd->init(MAX_CLIENTS, NavigationMapConfiguration::agentRadius, navMeshDt);
 }
 
 /*
@@ -758,13 +302,13 @@ void NavigationMap::BuildDetourData(
     dtParams.detailVertsCount = polyMeshDetail->nverts;
     dtParams.detailTris       = polyMeshDetail->tris;
     dtParams.detailTriCount   = polyMeshDetail->ntris;
-    dtParams.walkableHeight   = agentHeight;
-    dtParams.walkableRadius   = agentRadius;
-    dtParams.walkableClimb    = agentMaxClimb;
+    dtParams.walkableHeight   = NavigationMapConfiguration::agentHeight;
+    dtParams.walkableRadius   = NavigationMapConfiguration::agentRadius;
+    dtParams.walkableClimb    = NavigationMapConfiguration::agentMaxClimb;
     rcVcopy(dtParams.bmin, polyMesh->bmin);
     rcVcopy(dtParams.bmax, polyMesh->bmax);
-    dtParams.cs          = recastCellSize;
-    dtParams.ch          = recastCellHeight;
+    dtParams.cs          = NavigationMapConfiguration::recastCellSize;
+    dtParams.ch          = NavigationMapConfiguration::recastCellHeight;
     dtParams.tileX       = 0;
     dtParams.tileY       = 0;
     dtParams.tileLayer   = index;
@@ -834,17 +378,21 @@ void NavigationMap::GeneratePolyMesh(
 {
     Vector             minBounds, maxBounds;
     int                gridSizeX, gridSizeZ;
-    const unsigned int walkableHeight = (int)ceilf(agentHeight / recastCellHeight);
-    const unsigned int walkableClimb  = (int)floorf(agentMaxClimb / recastCellHeight);
-    const unsigned int walkableRadius = (int)ceilf(agentRadius / recastCellSize);
-    const unsigned int maxEdgeLen     = (int)(edgeMaxLen / recastCellSize);
-    const unsigned int numTris        = numIndexes / 3;
+    const unsigned int walkableHeight =
+        (int)ceilf(NavigationMapConfiguration::agentHeight / NavigationMapConfiguration::recastCellHeight);
+    const unsigned int walkableClimb =
+        (int)floorf(NavigationMapConfiguration::agentMaxClimb / NavigationMapConfiguration::recastCellHeight);
+    const unsigned int walkableRadius =
+        (int)ceilf(NavigationMapConfiguration::agentRadius / NavigationMapConfiguration::recastCellSize);
+    const unsigned int maxEdgeLen =
+        (int)(NavigationMapConfiguration::edgeMaxLen / NavigationMapConfiguration::recastCellSize);
+    const unsigned int numTris = numIndexes / 3;
 
     //
     // Calculate the grid size
     //
     rcCalcBounds(vertsBuffer, numVertices, minBounds, maxBounds);
-    rcCalcGridSize(minBounds, maxBounds, recastCellSize, &gridSizeX, &gridSizeZ);
+    rcCalcGridSize(minBounds, maxBounds, NavigationMapConfiguration::recastCellSize, &gridSizeX, &gridSizeZ);
 
     rcHeightfield *heightfield = rcAllocHeightfield();
 
@@ -853,13 +401,28 @@ void NavigationMap::GeneratePolyMesh(
     //
 
     rcCreateHeightfield(
-        &buildContext, *heightfield, gridSizeX, gridSizeZ, minBounds, maxBounds, recastCellSize, recastCellHeight
+        &buildContext,
+        *heightfield,
+        gridSizeX,
+        gridSizeZ,
+        minBounds,
+        maxBounds,
+        NavigationMapConfiguration::recastCellSize,
+        NavigationMapConfiguration::recastCellHeight
     );
 
     unsigned char *triAreas = new unsigned char[numTris];
     memset(triAreas, 0, sizeof(unsigned char) * numTris);
 
-    rcMarkWalkableTriangles(&buildContext, agentMaxSlope, vertsBuffer, numVertices, indexesBuffer, numTris, triAreas);
+    rcMarkWalkableTriangles(
+        &buildContext,
+        NavigationMapConfiguration::agentMaxSlope,
+        vertsBuffer,
+        numVertices,
+        indexesBuffer,
+        numTris,
+        triAreas
+    );
     rcRasterizeTriangles(
         &buildContext, vertsBuffer, numVertices, indexesBuffer, triAreas, numTris, *heightfield, walkableClimb
     );
@@ -887,9 +450,15 @@ void NavigationMap::GeneratePolyMesh(
     rcErodeWalkableArea(&buildContext, walkableRadius, *compactedHeightfield);
 
     rcBuildDistanceField(&buildContext, *compactedHeightfield);
-    rcBuildRegions(&buildContext, *compactedHeightfield, 0, Square(regionMinSize), Square(regionMergeSize));
+    rcBuildRegions(
+        &buildContext,
+        *compactedHeightfield,
+        0,
+        Square(NavigationMapConfiguration::regionMinSize),
+        Square(NavigationMapConfiguration::regionMergeSize)
+    );
 
-    //rcBuildRegionsMonotone(&buildContext, *compactedHeightfield, 0, Square(regionMinSize), Square(regionMergeSize));
+    //rcBuildRegionsMonotone(&buildContext, *compactedHeightfield, 0, Square(NavigationMapConfiguration::regionMinSize), Square(NavigationMapConfiguration::regionMergeSize));
 
     //
     // Simplify region contours
@@ -897,7 +466,9 @@ void NavigationMap::GeneratePolyMesh(
 
     rcContourSet *contourSet = rcAllocContourSet();
 
-    rcBuildContours(&buildContext, *compactedHeightfield, edgeMaxError, maxEdgeLen, *contourSet);
+    rcBuildContours(
+        &buildContext, *compactedHeightfield, NavigationMapConfiguration::edgeMaxError, maxEdgeLen, *contourSet
+    );
 
     //
     // Build polygon mesh from contours
@@ -905,7 +476,7 @@ void NavigationMap::GeneratePolyMesh(
 
     rcPolyMesh *polyMesh = rcAllocPolyMesh();
 
-    rcBuildPolyMesh(&buildContext, *contourSet, vertsPerPoly, *polyMesh);
+    rcBuildPolyMesh(&buildContext, *contourSet, NavigationMapConfiguration::vertsPerPoly, *polyMesh);
 
     //
     // Create detail mesh to access approximate height for each polygon
@@ -917,8 +488,8 @@ void NavigationMap::GeneratePolyMesh(
         &buildContext,
         *polyMesh,
         *compactedHeightfield,
-        recastCellSize * detailSampleDist,
-        detailSampleMaxError,
+        NavigationMapConfiguration::recastCellSize * NavigationMapConfiguration::detailSampleDist,
+        NavigationMapConfiguration::detailSampleMaxError,
         *polyMeshDetail
     );
 
@@ -1084,7 +655,6 @@ void G_Navigation_DebugDraw()
     dtNavMesh        *navMeshDt      = navigationMap.GetNavMesh();
     const navMap_t&   navigationData = navigationMap.GetNavigationData();
     const navModel_t& worldMap       = navigationData.GetWorldMap();
-    int               i, j;
 
     if (!navMeshDt) {
         return;
@@ -1119,13 +689,7 @@ void G_Navigation_DebugDraw()
 
 #if 0
         for (int i = 0; i < polyMesh->nverts; ++i) {
-            const unsigned short *v = &polyMesh->verts[i * 3];
-            const float           x = polyMesh->bmin[0] + v[0] * polyMesh->cs;
-            const float           y = polyMesh->bmin[1] + (v[1] + 1) * polyMesh->ch + 0.1f;
-            const float           z = polyMesh->bmin[2] + v[2] * polyMesh->cs;
-
-            Vector org;
-            ConvertRecastToGameCoord(Vector(x, y, z), org);
+            GetPolyMeshVertPosition(polyMesh, i, org);
 
             org.z += 16;
 
@@ -1214,14 +778,7 @@ void G_Navigation_DebugDraw()
                 Vector vertices[3];
 
                 for (int k = 0; k < 3; ++k) {
-                    const unsigned short *v = &polyMesh->verts[vi[k] * 3];
-
-                    vec3_t pos;
-                    pos[0] = polyMesh->bmin[0] + v[0] * polyMesh->cs;
-                    pos[1] = polyMesh->bmin[1] + (v[1] + 1) * polyMesh->ch;
-                    pos[2] = polyMesh->bmin[2] + v[2] * polyMesh->cs;
-
-                    ConvertRecastToGameCoord(pos, vertices[k]);
+                    GetPolyMeshVertPosition(polyMesh, vi[k], vertices[k]);
                 }
 
                 for (int k = 0; k < 3; ++k) {
@@ -1485,7 +1042,6 @@ void NavigationMap::BuildWorldMesh(RecastBuildContext& buildContext, const navMa
 {
     rcPolyMesh       *polyMesh;
     rcPolyMeshDetail *polyMeshDetail;
-    int               start;
 
     BuildRecastMesh(buildContext, navigationMap.GetWorldMap(), vec_origin, vec_zero, polyMesh, polyMeshDetail);
 

@@ -37,32 +37,7 @@ struct dtTileCacheMeshProcess;
 class RecastBuildContext;
 struct rcPolyMesh;
 struct rcPolyMeshDetail;
-
-/**
- * @brief An offmesh point that the navigation system will use to find path.
- *
- */
-struct offMeshNavigationPoint {
-    Vector         start;
-    Vector         end;
-    float          radius;
-    unsigned short flags;
-    unsigned char  area;
-    bool           bidirectional;
-    int            id;
-
-    offMeshNavigationPoint()
-        : radius(0)
-        , flags(0)
-        , area(0)
-        , bidirectional(true)
-        , id(0)
-    {}
-
-    bool operator==(const offMeshNavigationPoint& other) const { return start == other.start && end == other.end; }
-
-    bool operator!=(const offMeshNavigationPoint& other) const { return !(*this == other); }
-};
+struct offMeshNavigationPoint;
 
 /**
  * @brief Full navigation map with meshes and tiles.
@@ -127,28 +102,7 @@ public:
      */
     void Update();
 
-public:
-    static const float recastCellSize;
-    static const float recastCellHeight;
-    static const float agentHeight;
-    static const float agentMaxClimb;
-    static const float agentMaxSlope;
-    static const float agentRadius;
-    static const int   regionMinSize;
-    static const int   regionMergeSize;
-    static const float edgeMaxLen;
-    static const float edgeMaxError;
-    static const int   vertsPerPoly;
-    static const float detailSampleDist;
-    static const float detailSampleMaxError;
-    static const float agentJumpHeight;
-
 private:
-    void                   ConnectLadders(Container<offMeshNavigationPoint>& points);
-    void                   FixupPoint(vec3_t pos);
-    offMeshNavigationPoint CanConnectFallPoint(const rcPolyMesh *polyMesh, const Vector& pos1, const Vector& pos2);
-    offMeshNavigationPoint CanConnectJumpPoint(const rcPolyMesh *polyMesh, const Vector& pos1, const Vector& pos2);
-    void TryConnectJumpFallPoints(Container<offMeshNavigationPoint>& points, const rcPolyMesh *polyMesh);
     void GatherOffMeshPoints(Container<offMeshNavigationPoint>& points, const rcPolyMesh *polyMesh);
     void GeneratePolyMesh(
         RecastBuildContext& buildContext,
@@ -204,21 +158,5 @@ public:
 };
 
 extern NavigationMap navigationMap;
-
-/**
- * @brief Convert Recast coordinates to game coordinates.
- * 
- * @param in XYZ Recast coordinates.
- * @param out XYZ Game coordinates.
- */
-void ConvertRecastToGameCoord(const float *in, float *out);
-
-/**
- * @brief Convert game coordinates to Recast coordinates.
- * 
- * @param in XYZ Game coordinates 
- * @param out XYZ Recast coordinates.
- */
-void ConvertGameToRecastCoord(const float *in, float *out);
 
 void G_Navigation_Frame();
