@@ -290,7 +290,13 @@ void CG_OffsetFirstPersonView(refEntity_t *pREnt, qboolean bUseWorldPosition)
                 VectorMA(origin, oHead.origin[i], mat[i], origin);
             }
 
-            cg.refdefViewAngles[2] += cg.predicted_player_state.fLeanAngle * 0.3;
+            if (cg_target_game >= TG_MOHTA) {
+                // Changed in 2.0
+                //  Slight less angle
+                cg.refdefViewAngles[2] += cg.predicted_player_state.fLeanAngle * 0.2;
+            } else {
+                cg.refdefViewAngles[2] += cg.predicted_player_state.fLeanAngle * 0.3;
+            }
         }
     } else {
         cgi.DPrintf("CG_OffsetFirstPersonView warning: Couldn't find 'eyes bone' for player\n");
@@ -581,6 +587,8 @@ static int CG_CalcViewValues(void)
 
     VectorCopy(ps->origin, cg.refdef.vieworg);
     VectorCopy(ps->viewangles, cg.refdefViewAngles);
+
+    cg.refdefViewAngles[2] += ps->fLeanAngle * 0.1;
 
     if (cg.snap->ps.stats[STAT_HEALTH] > 0) {
         VectorSubtract(cg.refdefViewAngles, cg.predicted_player_state.damage_angles, cg.refdefViewAngles);
