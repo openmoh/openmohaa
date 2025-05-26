@@ -419,7 +419,7 @@ void RecastPather::UpdatePos(const Vector& origin)
 
         ConvertRecastToGameCoord(detourData->corridor.getPos(), agentPos);
         delta = agentPos - lastorg;
-        if (delta.lengthSquared() < Square(16)) {
+        if (delta.lengthSquared() < Square(24)) {
             // traversed
             traversingOffMeshLink = false;
         }
