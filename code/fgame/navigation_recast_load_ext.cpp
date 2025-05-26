@@ -415,7 +415,7 @@ NavigationMapExtension_JumpFall::CanConnectJumpPoint(const rcPolyMesh *polyMesh,
     fwdDir = dir * 32;
 
     trace = G_Trace(start, mins, maxs, end, NULL, MASK_PLAYERSOLID, qtrue, "CanConnectJumpPoint");
-    if (!trace.allsolid && (trace.fraction >= 0.999 || trace.plane.normal[2] < MIN_WALK_NORMAL)) {
+    if (!trace.allsolid && trace.fraction >= 0.999) {
         // Straight path
         return {};
     }
