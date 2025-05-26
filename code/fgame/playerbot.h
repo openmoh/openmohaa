@@ -69,6 +69,7 @@ private:
     void   CheckAttractiveNodes();
     void   CheckEndPos(Entity *entity);
     void   CheckJump(usercmd_t& botcmd);
+    void   CheckJumpOverEdge(usercmd_t& botcmd);
     void   NewMove();
     Vector FixDeltaFromCollision(const Vector& delta);
 

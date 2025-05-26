@@ -247,8 +247,13 @@ void BotMovement::MoveThink(usercmd_t& botcmd)
 
     botcmd.forwardmove = (signed char)Q_clamp(x, -127, 127);
     botcmd.rightmove   = (signed char)Q_clamp(y, -127, 127);
+    botcmd.upmove      = 0;
 
     CheckJump(botcmd);
+
+    if (!m_bJump) {
+        CheckJumpOverEdge(botcmd);
+    }
 }
 
 void BotMovement::CheckAttractiveNodes()
@@ -302,7 +307,11 @@ void BotMovement::CheckJump(usercmd_t& botcmd)
         return;
     }
 
-    botcmd.upmove = 0;
+    if (!controlledEntity->groundentity && !controlledEntity->client->ps.walking) {
+        // Falling
+        m_bJump = false;
+        return;
+    }
 
     dir = m_vLastValidDir;
 
@@ -328,6 +337,7 @@ void BotMovement::CheckJump(usercmd_t& botcmd)
 
     // No need to jump
     if (trace.fraction > 0.5f) {
+        m_bJump = false;
         return;
     }
 
@@ -386,6 +396,97 @@ void BotMovement::CheckJump(usercmd_t& botcmd)
         if (delta.lengthSquared() < Square(32)) {
             botcmd.upmove = 127;
         }
+    }
+}
+
+void BotMovement::CheckJumpOverEdge(usercmd_t& botcmd)
+{
+    Vector  start;
+    Vector  end;
+    Vector  dir;
+    trace_t trace;
+
+    if (!controlledEntity->groundentity && !controlledEntity->client->ps.walking) {
+        // Falling
+        return;
+    }
+
+    dir = m_vLastValidDir;
+
+    start = controlledEntity->origin + Vector(0, 0, STEPSIZE);
+    end =
+        controlledEntity->origin + Vector(0, 0, STEPSIZE) + dir * (controlledEntity->maxs.y - controlledEntity->mins.y);
+
+    if (ai_debugpath->integer) {
+        G_DebugLine(start, end, 1, 0, 1, 1);
+    }
+
+    // Check if the bot needs to jump
+    trace = G_Trace(
+        start,
+        controlledEntity->mins,
+        controlledEntity->maxs,
+        end,
+        controlledEntity,
+        MASK_PLAYERSOLID,
+        false,
+        "BotController::CheckJumpOverEdge"
+    );
+
+    if (trace.fraction < 1) {
+        // Blocked
+        return;
+    }
+
+    //
+    // Check if falling
+    //
+
+    start = trace.endpos;
+    end   = start - Vector(0, 0, STEPSIZE * 2);
+
+    trace = G_Trace(
+        start,
+        controlledEntity->mins,
+        controlledEntity->maxs,
+        end,
+        controlledEntity,
+        MASK_PLAYERSOLID,
+        false,
+        "BotController::CheckJumpOverEdge"
+    );
+
+    if (trace.fraction != 1.0) {
+        // Blocked
+        return;
+    }
+
+    //
+    // Check if there is an edge at the end
+    //
+
+    end = start + dir * controlledEntity->GetRunSpeed() / 2.0;
+    end -= Vector(0, 0, STEPSIZE * 2);
+
+    trace = G_Trace(
+        start,
+        controlledEntity->mins,
+        controlledEntity->maxs,
+        end,
+        controlledEntity,
+        MASK_PLAYERSOLID,
+        false,
+        "BotController::CheckJumpOverEdge"
+    );
+
+    if (trace.fraction == 1) {
+        return;
+    }
+
+    if (!botcmd.upmove) {
+        botcmd.upmove = 127;
+    } else {
+        botcmd.upmove = 0;
     }
 }
 
@@ -669,7 +770,7 @@ Vector BotMovement::FixDeltaFromCollision(const Vector& delta)
         }
     }
 
-    if (trace.fraction < 0.25 && distSqr * Square(trace.fraction) < Square(32)) {
+    if (trace.fraction < 0.25 && distSqr * Square(trace.fraction) < Square(64)) {
         Vector  newStartLeft, newStartRight;
         trace_t leftTrace, rightTrace;
 
