@@ -100,6 +100,14 @@ private:
     bool   m_bAvoidCollision;
     int    m_iCollisionCheckTime;
     Vector m_vTempCollisionAvoidance;
+
+    ///
+    /// Jump detection
+    ///
+
+    bool m_bJump;
+    int  m_iJumpCheckTime;
+    Vector m_vJumpLocation;
 };
 
 class BotRotation

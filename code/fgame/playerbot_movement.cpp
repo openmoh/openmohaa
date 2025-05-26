@@ -289,6 +289,7 @@ void BotMovement::CheckJump(usercmd_t& botcmd)
     Vector  start;
     Vector  end;
     Vector  dir;
+    Vector  delta;
     trace_t trace;
 
     if (controlledEntity->GetLadder()) {
@@ -300,6 +301,8 @@ void BotMovement::CheckJump(usercmd_t& botcmd)
         }
         return;
     }
+
+    botcmd.upmove = 0;
 
     dir = m_vLastValidDir;
 
@@ -325,7 +328,6 @@ void BotMovement::CheckJump(usercmd_t& botcmd)
 
     // No need to jump
     if (trace.fraction > 0.5f) {
-        botcmd.upmove = 0;
         return;
     }
 
@@ -369,15 +371,21 @@ void BotMovement::CheckJump(usercmd_t& botcmd)
     );
 
     if (trace.fraction < 1) {
-        botcmd.upmove = 0;
+        m_bJump = false;
         return;
     }
 
-    // Make the bot climb walls
-    if (!botcmd.upmove) {
-        botcmd.upmove = 127;
-    } else {
-        botcmd.upmove = 0;
+    if (!m_bJump) {
+        m_bJump          = true;
+        m_iJumpCheckTime = level.inttime;
+        m_vJumpLocation  = controlledEntity->origin;
+    } else if (level.inttime > m_iJumpCheckTime + 100) {
+        m_bJump = false;
+
+        delta = m_vJumpLocation - controlledEntity->origin;
+        if (delta.lengthSquared() < Square(32)) {
+            botcmd.upmove = 127;
+        }
     }
 }
 
@@ -778,7 +786,8 @@ Vector BotMovement::FixDeltaFromCollision(const Vector& delta)
             //
             // If falling, make sure to use the one that won't fall
             //
-            if (leftFallTrace.fraction != rightFallTrace.fraction && leftFallTrace.fraction != 1 && rightTrace.fraction != 1) {
+            if (leftFallTrace.fraction != rightFallTrace.fraction && leftFallTrace.fraction != 1
+                && rightTrace.fraction != 1) {
                 if (leftFallTrace.fraction == 1) {
                     m_vTempCollisionAvoidance = newStartRight + forward * 16;
                 } else if (rightFallTrace.fraction == 1) {
