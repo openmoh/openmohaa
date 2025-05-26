@@ -66,10 +66,10 @@ public:
     Vector GetCurrentPathDirection() const;
 
 private:
-    void CheckAttractiveNodes();
-    void CheckEndPos(Entity *entity);
-    void CheckJump(usercmd_t& botcmd);
-    void NewMove();
+    void   CheckAttractiveNodes();
+    void   CheckEndPos(Entity *entity);
+    void   CheckJump(usercmd_t& botcmd);
+    void   NewMove();
     Vector FixDeltaFromCollision(const Vector& delta);
 
 private:
@@ -92,6 +92,14 @@ private:
     int    m_iLastBlockTime;
     int    m_iTempAwayState;
     bool   m_bPathing;
+
+    ///
+    /// Collision detection
+    ///
+
+    bool   m_bAvoidCollision;
+    int    m_iCollisionCheckTime;
+    Vector m_vTempCollisionAvoidance;
 };
 
 class BotRotation
@@ -171,9 +179,9 @@ private:
     DelegateHandle delegateHandle_stufftext;
 
 private:
-    Weapon* FindWeaponWithAmmo(void);
-    Weapon* FindMeleeWeapon(void);
-    void UseWeaponWithAmmo(void);
+    Weapon *FindWeaponWithAmmo(void);
+    Weapon *FindMeleeWeapon(void);
+    void    UseWeaponWithAmmo(void);
 
     void CheckUse(void);
     void CheckValidWeapon(void);
