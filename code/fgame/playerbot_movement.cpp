@@ -773,25 +773,41 @@ Vector BotMovement::FixDeltaFromCollision(const Vector& delta)
     if (trace.fraction < 0.25 && distSqr * Square(trace.fraction) < Square(64)) {
         Vector  newStartLeft, newStartRight;
         trace_t leftTrace, rightTrace;
+        int     i;
+        float   bestLeftFrac = 0, bestRightFrac = 0;
+        Vector  bestLeftPos, bestRightPos;
+
+        // If it's near parallel use the trace normal
+        if (DotProduct(trace.plane.normal, forward) < -0.6) {
+            VectorCopy(trace.plane.normal, forward);
+            VectorNegate(forward, forward);
+            VectorToAngles(forward, angles);
+            AngleVectors(angles, forward, right, up);
+        }
 
         leftTrace.fraction = rightTrace.fraction = 0;
 
-        newStartRight = controlledEntity->origin - forward + right * 24;
-        //
-        // Trace to the right
-        //
-        rightTrace = G_Trace(
-            controlledEntity->origin,
-            mins,
-            maxs,
-            newStartRight,
-            controlledEntity,
-            MASK_PLAYERSOLID,
-            qtrue,
-            "GetCurrentDelta"
-        );
+        for (i = 1; i < 5; i++) {
+            newStartRight = controlledEntity->origin - forward + right * (32 * i);
 
-        if (!rightTrace.startsolid && rightTrace.fraction > 0) {
+            //
+            // Trace to the right
+            //
+            rightTrace = G_Trace(
+                controlledEntity->origin,
+                mins,
+                maxs,
+                newStartRight,
+                controlledEntity,
+                MASK_PLAYERSOLID,
+                qtrue,
+                "GetCurrentDelta"
+            );
+
+            if (rightTrace.startsolid || rightTrace.fraction <= 0) {
+                break;
+            }
+
             newStartRight = rightTrace.endpos;
 
             //
@@ -807,26 +823,38 @@ Vector BotMovement::FixDeltaFromCollision(const Vector& delta)
                 qtrue,
                 "GetCurrentDelta"
             );
+
+            if (rightTrace.fraction > bestRightFrac) {
+                bestRightFrac = rightTrace.fraction;
+                bestRightPos  = newStartRight;
+            }
+            if (rightTrace.fraction >= 0.999) {
+                break;
+            }
         }
 
-        if (rightTrace.startsolid || rightTrace.fraction < 1) {
-            newStartLeft = controlledEntity->origin - forward - right * 24;
+        if (bestRightFrac != 1) {
+            for (i = 1; i < 5; i++) {
+                newStartLeft = controlledEntity->origin - forward - right * (32 * i);
 
-            //
-            // Trace to the left
-            //
-            leftTrace = G_Trace(
-                controlledEntity->origin,
-                mins,
-                maxs,
-                newStartLeft,
-                controlledEntity,
-                MASK_PLAYERSOLID,
-                qtrue,
-                "GetCurrentDelta"
-            );
+                //
+                // Trace to the left
+                //
+                leftTrace = G_Trace(
+                    controlledEntity->origin,
+                    mins,
+                    maxs,
+                    newStartLeft,
+                    controlledEntity,
+                    MASK_PLAYERSOLID,
+                    qtrue,
+                    "GetCurrentDelta"
+                );
 
-            if (!leftTrace.startsolid && leftTrace.fraction > 0) {
+                if (leftTrace.startsolid || leftTrace.fraction <= 0) {
+                    break;
+                }
+
                 newStartLeft = leftTrace.endpos;
 
                 //
@@ -842,10 +870,18 @@ Vector BotMovement::FixDeltaFromCollision(const Vector& delta)
                     qtrue,
                     "GetCurrentDelta"
                 );
+
+                if (leftTrace.fraction > bestLeftFrac) {
+                    bestLeftFrac = leftTrace.fraction;
+                    bestLeftPos  = newStartLeft;
+                }
+                if (leftTrace.fraction >= 0.999) {
+                    break;
+                }
             }
         }
 
-        if (leftTrace.fraction != 0 || rightTrace.fraction != 0) {
+        if (bestLeftFrac != 0 || bestRightFrac != 0) {
             trace_t leftFallTrace, rightFallTrace;
 
             //
@@ -853,20 +889,20 @@ Vector BotMovement::FixDeltaFromCollision(const Vector& delta)
             //
 
             leftFallTrace = G_Trace(
-                newStartLeft,
+                bestLeftPos,
                 mins,
                 maxs,
-                newStartLeft - Vector(0, 0, STEPSIZE * 2),
+                bestLeftPos - Vector(0, 0, STEPSIZE * 2),
                 controlledEntity,
                 MASK_PLAYERSOLID,
                 qtrue,
                 "GetCurrentDelta"
             );
             rightFallTrace = G_Trace(
-                newStartRight,
+                bestRightPos,
                 mins,
                 maxs,
-                newStartRight - Vector(0, 0, STEPSIZE * 2),
+                bestRightPos - Vector(0, 0, STEPSIZE * 2),
                 controlledEntity,
                 MASK_PLAYERSOLID,
                 qtrue,
@@ -878,10 +914,10 @@ Vector BotMovement::FixDeltaFromCollision(const Vector& delta)
             //
             // By default use the one with higher fraction
             //
-            if (leftTrace.fraction > rightTrace.fraction) {
-                m_vTempCollisionAvoidance = newStartLeft + forward * 16;
+            if (bestLeftFrac > bestRightFrac) {
+                m_vTempCollisionAvoidance = bestLeftPos + forward * 16;
             } else {
-                m_vTempCollisionAvoidance = newStartRight + forward * 16;
+                m_vTempCollisionAvoidance = bestRightPos + forward * 16;
             }
 
             //
@@ -890,9 +926,9 @@ Vector BotMovement::FixDeltaFromCollision(const Vector& delta)
             if (leftFallTrace.fraction != rightFallTrace.fraction && leftFallTrace.fraction != 1
                 && rightTrace.fraction != 1) {
                 if (leftFallTrace.fraction == 1) {
-                    m_vTempCollisionAvoidance = newStartRight + forward * 16;
+                    m_vTempCollisionAvoidance = bestRightPos + forward * 16;
                 } else if (rightFallTrace.fraction == 1) {
-                    m_vTempCollisionAvoidance = newStartLeft + forward * 16;
+                    m_vTempCollisionAvoidance = bestLeftPos + forward * 16;
                 }
             }
 
