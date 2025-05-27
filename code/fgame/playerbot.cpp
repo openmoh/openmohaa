@@ -873,7 +873,7 @@ void BotController::State_Attack(void)
 
         m_iAttackTime        = level.inttime + 1000;
         m_iAttackStopAimTime = level.inttime + 3000;
-        m_vLastEnemyPos      = m_pEnemy->centroid;
+        m_vLastEnemyPos      = m_pEnemy->origin;
     } else {
         m_botCmd.buttons &= ~(BUTTON_ATTACKLEFT | BUTTON_ATTACKRIGHT);
         fMinDistanceSquared = 0;
