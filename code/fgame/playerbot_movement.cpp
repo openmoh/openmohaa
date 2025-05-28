@@ -719,7 +719,7 @@ Vector BotMovement::FixDeltaFromCollision(const Vector& delta)
     Vector  front;
     float   distSqr;
 
-    if (level.inttime < m_iCollisionCheckTime + 250) {
+    if (level.inttime < m_iCollisionCheckTime + 250 || m_bJump) {
         if (m_bAvoidCollision) {
             newDelta = m_vTempCollisionAvoidance - controlledEntity->origin;
             if (newDelta.lengthSquared() > Square(16)) {
