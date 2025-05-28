@@ -25,7 +25,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "navigation_path.h"
 
 class dtNavMesh;
-class dtCrowd;
 class dtPathCorridor;
 class NavigationMap;
 struct DetourData;
@@ -64,43 +63,16 @@ public:
     virtual bool    IsQuerying() const override;
 
 private:
-    void ResetAgent(const Vector& origin);
-    void RemoveAgent();
+    void ResetPosition(const Vector& origin);
 
 private:
-#if USE_DETOUR_AGENT
-    int  navAgentId;
-    bool hasAgent;
-#else
-    DetourData* detourData;
-    bool   moving;
-#endif
-
-    Vector lastorg;
-    Vector lastValidOrg;
-    Vector currentNodePos;
-    int    lastCheckTime;
-    int    traversingOffMeshLink;
-};
-
-class RecastAgentManager
-{
-public:
-    RecastAgentManager();
-    ~RecastAgentManager();
-
-    void     CreateCrowd(float agentRadius, dtNavMesh *mesh);
-    void     DestroyCrowd();
-    dtCrowd *GetCrowd() const;
-    void     Update();
-
-    float GetAgentRadius() const;
-
-private:
-#if USE_DETOUR_AGENT
-    dtCrowd *crowd;
-#endif
-    float agentRadius;
+    DetourData *detourData;
+    bool        moving;
+    Vector      lastorg;
+    Vector      lastValidOrg;
+    Vector      currentNodePos;
+    int         lastCheckTime;
+    int         traversingOffMeshLink;
 };
 
 class RecastPathMaster
@@ -109,9 +81,6 @@ public:
     void PostLoadNavigation(const NavigationMap& map);
     void ClearNavigation();
     void Update();
-
-public:
-    RecastAgentManager agentManager;
 };
 
 extern RecastPathMaster pathMaster;

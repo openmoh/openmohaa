@@ -32,7 +32,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "navigation_recast_helpers.h"
 #include "level.h"
 
-#include "DetourCrowd.h"
+#include "DetourPathCorridor.h"
 #include "DetourCommon.h"
 #include "entity.h"
 #include "bg_local.h"
@@ -53,9 +53,6 @@ public:
 RecastPather::RecastPather()
     : lastCheckTime(0)
     , moving(false)
-#if USE_DETOUR_AGENT
-    , hasAgent(false)
-#endif
 {
     detourData = new DetourData();
     detourData->corridor.init(256);
@@ -77,19 +74,7 @@ void RecastPather::FindPath(const Vector& start, const Vector& end, const PathSe
     dtQueryFilter filter;
 
     lastorg = start;
-    ResetAgent(start);
-
-#if USE_DETOUR_AGENT
-    ConvertGameToRecastCoord(end, recastEnd);
-
-    if (navigationMap.GetNavMeshQuery()->findNearestPoly(recastEnd, DETOUR_EXTENT, &filter, &endRef, endPt) != DT_SUCCESS
-        || !endRef) {
-        pathMaster.agentManager.GetCrowd()->resetMoveTarget(navAgentId);
-        return;
-    }
-
-    pathMaster.agentManager.GetCrowd()->requestMoveTarget(navAgentId, endRef, endPt);
-#else
+    ResetPosition(start);
 
     ConvertGameToRecastCoord(start, recastStart);
     ConvertGameToRecastCoord(end, recastEnd);
@@ -123,7 +108,6 @@ void RecastPather::FindPath(const Vector& start, const Vector& end, const PathSe
         moving = true;
         detourData->corridor.setCorridor(closestPos, polys, nPolys);
     }
-#endif
 }
 
 void RecastPather::FindPathNear(
@@ -136,26 +120,8 @@ void RecastPather::FindPathNear(
     dtQueryFilter filter;
 
     lastorg = start;
-    ResetAgent(start);
+    ResetPosition(start);
 
-#if USE_DETOUR_AGENT
-    ConvertGameToRecastCoord(end, recastEnd);
-
-    if (navigationMap.GetNavMeshQuery()->findNearestPoly(recastEnd, DETOUR_EXTENT, &filter, &endRef, endPt) != DT_SUCCESS
-        || !endRef) {
-        pathMaster.agentManager.GetCrowd()->resetMoveTarget(navAgentId);
-        return;
-    }
-
-    // Now find a point within this radius
-    if (navigationMap.GetNavMeshQuery()->findRandomPointAroundCircle(
-            endRef, endPt, radius, &filter, &G_Random, &endRef, endPt
-        ) != DT_SUCCESS
-        || !endRef) {
-        pathMaster.agentManager.GetCrowd()->resetMoveTarget(navAgentId);
-        return;
-    }
-#else
     ConvertGameToRecastCoord(start, recastStart);
     ConvertGameToRecastCoord(end, recastEnd);
 
@@ -196,7 +162,6 @@ void RecastPather::FindPathNear(
         moving = true;
         detourData->corridor.setCorridor(closestPos, polys, nPolys);
     }
-#endif
 }
 
 void RecastPather::FindPathAway(
@@ -217,7 +182,7 @@ void RecastPather::FindPathAway(
     int           i, j;
 
     lastorg = start;
-    ResetAgent(start);
+    ResetPosition(start);
 
     startAngle = DEG2RAD(preferredDir.toYaw());
     startPitch = DEG2RAD(preferredDir.toPitch());
@@ -246,12 +211,9 @@ void RecastPather::FindPathAway(
             float  dy    = sin(pitch) * radius;
             Vector point(recastAvoid[0] + dx, recastAvoid[1] + dy, recastAvoid[2] + dz);
 
-            if (navigationMap.GetNavMeshQuery()->findNearestPoly(point, DETOUR_EXTENT, &filter, &endRef, endPt) == DT_SUCCESS
+            if (navigationMap.GetNavMeshQuery()->findNearestPoly(point, DETOUR_EXTENT, &filter, &endRef, endPt)
+                    == DT_SUCCESS
                 && endRef) {
-#if USE_DETOUR_AGENT
-                pathMaster.agentManager.GetCrowd()->requestMoveTarget(navAgentId, endRef, endPt);
-#else
-
                 dtPolyRef polys[256];
                 int       nPolys = 0;
                 navigationMap.GetNavMeshQuery()->findPath(
@@ -276,15 +238,11 @@ void RecastPather::FindPathAway(
                     moving = true;
                     detourData->corridor.setCorridor(closestPos, polys, nPolys);
                 }
-#endif
+
                 return;
             }
         }
     }
-
-#if USE_DETOUR_AGENT
-    pathMaster.agentManager.GetCrowd()->resetMoveTarget(navAgentId);
-#endif
 }
 
 bool RecastPather::TestPath(const Vector& start, const Vector& end, const PathSearchParameter& parameters)
@@ -298,7 +256,9 @@ bool RecastPather::TestPath(const Vector& start, const Vector& end, const PathSe
 
     dtPolyRef nearestStartRef, nearestEndRef;
     vec3_t    nearestStartPt, nearestEndPt;
-    navigationMap.GetNavMeshQuery()->findNearestPoly(recastStart, DETOUR_EXTENT, &filter, &nearestStartRef, nearestStartPt);
+    navigationMap.GetNavMeshQuery()->findNearestPoly(
+        recastStart, DETOUR_EXTENT, &filter, &nearestStartRef, nearestStartPt
+    );
     navigationMap.GetNavMeshQuery()->findNearestPoly(recastEnd, DETOUR_EXTENT, &filter, &nearestEndRef, nearestEndPt);
 
     dtPolyRef polys[256];
@@ -339,71 +299,6 @@ static bool overOffmeshConnection(
 void RecastPather::UpdatePos(const Vector& origin)
 {
     lastorg = origin;
-
-#if USE_DETOUR_AGENT
-    dtCrowd      *crowdManager = pathMaster.agentManager.GetCrowd();
-    dtCrowdAgent *agent;
-
-    if (!hasAgent) {
-        return;
-    }
-
-    agent = crowdManager->getEditableAgent(navAgentId);
-
-    agent->params.maxSpeed        = speed;
-    agent->params.maxAcceleration = agent->params.maxSpeed * 3.0;
-
-    switch (agent->state) {
-    case DT_CROWDAGENT_STATE_WALKING:
-        if (!traversingOffMeshLink) {
-            ConvertRecastToGameCoord(agent->npos, lastValidOrg);
-        }
-        break;
-    case DT_CROWDAGENT_STATE_OFFMESH:
-        traversingOffMeshLink = true;
-        // Don't do anything else while it's traversing
-        return;
-    default:
-        break;
-    }
-
-    if (traversingOffMeshLink) {
-        Vector agentPos;
-        Vector delta;
-
-        // Clear the velocity and acceleration so it doesn't move
-        agent->params.maxAcceleration = 0;
-        agent->vel[0] = agent->vel[1] = agent->vel[2];
-        agent->nvel[0] = agent->nvel[1] = agent->nvel[2];
-
-        ConvertRecastToGameCoord(agent->corridor.getPos(), agentPos);
-        delta = agentPos - lastorg;
-        if (delta.lengthSquared() < Square(16)) {
-            // traversed
-            traversingOffMeshLink = false;
-        }
-    } else if (level.inttime >= lastCheckTime + 2000) {
-        ConvertGameToRecastCoord(origin, agent->npos);
-        if (agent->targetState != DT_CROWDAGENT_TARGET_REQUESTING
-            && agent->targetState != DT_CROWDAGENT_TARGET_WAITING_FOR_QUEUE
-            && agent->targetState != DT_CROWDAGENT_TARGET_WAITING_FOR_PATH) {
-            agent->corridor.movePosition(agent->npos, navigationMap.GetNavMeshQuery(), crowdManager->getFilter(0));
-
-            Vector delta = Vector(agent->npos) - Vector(agent->corridor.getPos());
-            if (delta.lengthSquared() > Square(64)) {
-                agent->targetState = DT_CROWDAGENT_TARGET_REQUESTING;
-                agent->corridor.reset(0, agent->npos);
-            }
-        }
-
-        lastCheckTime = level.inttime;
-        return;
-    }
-
-    //Vector agentPos;
-    //ConvertRecastToGameCoord(agent->npos, agentPos);
-    //g_entities[2].entity->setOrigin(agentPos);
-#else
     Vector recastOrigin;
 
     ConvertGameToRecastCoord(origin, recastOrigin);
@@ -433,7 +328,7 @@ void RecastPather::UpdatePos(const Vector& origin)
             endRef = detourData->corridor.getLastPoly();
             VectorCopy(detourData->corridor.getTarget(), endPt);
 
-            ResetAgent(origin);
+            ResetPosition(origin);
 
             startRef = 0;
             navigationMap.GetNavMeshQuery()->findNearestPoly(recastOrigin, DETOUR_EXTENT, &filter, &startRef, startPt);
@@ -489,23 +384,11 @@ void RecastPather::UpdatePos(const Vector& origin)
             ConvertRecastToGameCoord(detourData->corridor.getPos(), currentNodePos);
         }
     }
-#endif
 }
 
 void RecastPather::Clear()
 {
-    ResetAgent(lastorg);
-
-#if USE_DETOUR_AGENT
-    dtCrowd *crowdManager;
-
-    if (!hasAgent) {
-        return;
-    }
-
-    crowdManager = pathMaster.agentManager.GetCrowd();
-    crowdManager->resetMoveTarget(navAgentId);
-#endif
+    ResetPosition(lastorg);
 }
 
 PathNav RecastPather::GetNode(unsigned int index) const
@@ -518,18 +401,7 @@ PathNav RecastPather::GetNode(unsigned int index) const
     const dtPolyRef      *path;
     int                   npath;
 
-#if USE_DETOUR_AGENT
-    const dtCrowdAgent *agent;
-
-    if (!hasAgent) {
-        return {};
-    }
-
-    agent      = pathMaster.agentManager.GetCrowd()->getAgent(navAgentId);
-    inCorridor = &agent->corridor;
-#else
     inCorridor = &detourData->corridor;
-#endif
 
     path  = inCorridor->getPath();
     npath = inCorridor->getPathCount();
@@ -605,57 +477,18 @@ PathNav RecastPather::GetNode(unsigned int index) const
 
 int RecastPather::GetNodeCount() const
 {
-#if USE_DETOUR_AGENT
-    if (!hasAgent) {
-        return 0;
-    }
-
-    const dtCrowdAgent *agent = pathMaster.agentManager.GetCrowd()->getAgent(navAgentId);
-    if (agent->targetState == DT_CROWDAGENT_TARGET_NONE || agent->targetState == DT_CROWDAGENT_TARGET_VELOCITY) {
-        // Not moving
-        return 0;
-    }
-
-    if (agent->state == DT_CROWDAGENT_STATE_INVALID) {
-        // Invalid path (probably not found)
-        return 0;
-    }
-
-    return agent->corridor.getPathCount();
-#else
     if (!moving) {
         return 0;
     }
 
     return detourData->corridor.getPathCount();
-#endif
 }
 
 Vector RecastPather::GetCurrentDelta() const
 {
     Vector delta;
 
-#if USE_DETOUR_AGENT
-    dtCrowd *crowdManager = pathMaster.agentManager.GetCrowd();
-
-    if (!hasAgent) {
-        return {};
-    }
-
-    const dtCrowdAgent *agent = pathMaster.agentManager.GetCrowd()->getAgent(navAgentId);
-    if (agent->targetState == DT_CROWDAGENT_TARGET_NONE || agent->targetState == DT_CROWDAGENT_TARGET_VELOCITY) {
-        return {};
-    }
-
-    if (agent->state == DT_CROWDAGENT_STATE_INVALID) {
-        return {};
-    }
-
-    ConvertRecastToGameCoord(agent->npos, delta);
-    delta = delta - lastorg;
-#else
     delta = currentNodePos - lastorg;
-#endif
 
     return delta;
 }
@@ -664,31 +497,7 @@ Vector RecastPather::GetCurrentDirection() const
 {
     Vector delta;
 
-#if USE_DETOUR_AGENT
-    dtCrowd *crowdManager = pathMaster.agentManager.GetCrowd();
-
-    if (!hasAgent) {
-        return {};
-    }
-
-    const dtCrowdAgent *agent = pathMaster.agentManager.GetCrowd()->getAgent(navAgentId);
-    if (agent->targetState == DT_CROWDAGENT_TARGET_NONE || agent->targetState == DT_CROWDAGENT_TARGET_VELOCITY) {
-        return {};
-    }
-
-    if (agent->state == DT_CROWDAGENT_STATE_INVALID) {
-        return {};
-    }
-
-    if (!traversingOffMeshLink) {
-        ConvertRecastToGameCoord(agent->vel, delta);
-    } else {
-        ConvertRecastToGameCoord(agent->npos, delta);
-        delta = delta - lastorg;
-    }
-#else
     delta = currentNodePos - lastorg;
-#endif
     delta.normalize();
 
     return delta;
@@ -698,140 +507,36 @@ Vector RecastPather::GetDestination() const
 {
     Vector dest;
 
-#if USE_DETOUR_AGENT
-    if (!hasAgent) {
-        return {};
-    }
-
-    const dtCrowdAgent *agent = pathMaster.agentManager.GetCrowd()->getAgent(navAgentId);
-    if (agent->targetState == DT_CROWDAGENT_TARGET_NONE || agent->targetState == DT_CROWDAGENT_TARGET_VELOCITY) {
-        return {};
-    }
-
-    if (agent->state == DT_CROWDAGENT_STATE_INVALID) {
-        return {};
-    }
-
-    if (agent->targetState == DT_CROWDAGENT_TARGET_VALID) {
-        ConvertRecastToGameCoord(agent->corridor.getTarget(), dest);
-        return dest;
-    }
-
-    ConvertRecastToGameCoord(agent->targetPos, dest);
-#else
     ConvertRecastToGameCoord(detourData->corridor.getTarget(), dest);
-#endif
 
     return dest;
 }
 
 bool RecastPather::HasReachedGoal(const Vector& origin) const
 {
-#if USE_DETOUR_AGENT
-    const dtCrowdAgent *agent;
+    Vector target;
 
-    if (!hasAgent) {
+    const dtPolyRef lastPoly = detourData->corridor.getLastPoly();
+    ConvertRecastToGameCoord(detourData->corridor.getTarget(), target);
+
+    if (fabs(origin[0] - target[0]) < 16.0f && fabs(origin[1] - target[1]) < 16.0f) {
         return true;
     }
-
-    agent = pathMaster.agentManager.GetCrowd()->getAgent(navAgentId);
-
-    /*
-    const dtPolyRef lastPoly = agent->corridor.getLastPoly();
-    ConvertRecastToGameCoord(agent->corridor.getTarget(), target);
-    
-    if (fabs(origin[0] - m_path->point[0]) < 16.0f && fabs(origin[1] - m_path->point[1]) < 16.0f) {
-        return true;
-    }
-    */
-#endif
 
     return false;
 }
 
 bool RecastPather::IsQuerying() const
 {
-#if USE_DETOUR_AGENT
-    const dtCrowdAgent *agent = pathMaster.agentManager.GetCrowd()->getAgent(navAgentId);
-
-    if (agent->state == DT_CROWDAGENT_STATE_INVALID) {
-        return false;
-    }
-
-    switch (agent->targetState) {
-    case DT_CROWDAGENT_TARGET_NONE:
-    case DT_CROWDAGENT_TARGET_VALID:
-    case DT_CROWDAGENT_TARGET_VELOCITY:
-        return false;
-    default:
-        return true;
-    }
-#else
     return false;
-#endif
 }
 
-void RecastPather::ResetAgent(const Vector& origin)
+void RecastPather::ResetPosition(const Vector& origin)
 {
+    vec3_t agentPos;
+
     traversingOffMeshLink = false;
     lastCheckTime         = level.inttime;
-
-#if USE_DETOUR_AGENT
-    dtCrowd *crowdManager = pathMaster.agentManager.GetCrowd();
-    vec3_t   rcOrigin;
-
-    if (hasAgent) {
-        dtCrowdAgent *agent = crowdManager->getEditableAgent(navAgentId);
-
-        pathMaster.agentManager.GetCrowd()->resetMoveTarget(navAgentId);
-        ConvertGameToRecastCoord(origin, agent->npos);
-
-        // Find nearest position on navmesh and place the agent there.
-        dtPolyRef ref = 0;
-        float     nearest[3];
-        dtStatus  status;
-
-        status = navigationMap.GetNavMeshQuery()->findNearestPoly(
-            agent->npos, crowdManager->getQueryHalfExtents(), crowdManager->getFilter(0), &ref, nearest
-        );
-
-        if (dtStatusFailed(status) || !ref) {
-            // Use the last valid position instead
-            ConvertGameToRecastCoord(lastValidOrg, agent->npos);
-            status = navigationMap.GetNavMeshQuery()->findNearestPoly(
-                agent->npos, crowdManager->getQueryHalfExtents(), crowdManager->getFilter(0), &ref, nearest
-            );
-        }
-
-        if (dtStatusSucceed(status) && ref) {
-            agent->state = DT_CROWDAGENT_STATE_WALKING;
-            agent->corridor.reset(ref, nearest);
-            detourData->corridor.reset(ref, nearest);
-            ConvertRecastToGameCoord(agent->npos, lastValidOrg);
-        } else {
-            agent->corridor.reset(0, agent->npos);
-            detourData->corridor.reset(0, agent->npos);
-        }
-
-        return;
-    }
-
-    ConvertGameToRecastCoord(origin, rcOrigin);
-
-    dtCrowdAgentParams ap {0};
-    ap.radius                = pathMaster.agentManager.GetAgentRadius();
-    ap.height                = NavigationMap::agentHeight;
-    ap.maxSpeed              = sv_runspeed->integer * sv_dmspeedmult->integer;
-    ap.maxAcceleration       = ap.maxSpeed * 3.0;
-    ap.collisionQueryRange   = ap.radius * 12.0f;
-    ap.pathOptimizationRange = ap.radius * 64.0f;
-    ap.separationWeight      = 0.0;
-    ap.updateFlags           = DT_CROWD_OPTIMIZE_TOPO;
-
-    navAgentId = crowdManager->addAgent(rcOrigin, &ap);
-    hasAgent   = true;
-#else
-    vec3_t agentPos;
 
     moving = false;
 
@@ -857,91 +562,10 @@ void RecastPather::ResetAgent(const Vector& origin)
     } else {
         detourData->corridor.reset(0, agentPos);
     }
-#endif
 }
 
-void RecastPather::RemoveAgent()
-{
-#if USE_DETOUR_AGENT
-    if (!hasAgent) {
-        return;
-    }
+void RecastPathMaster::PostLoadNavigation(const NavigationMap& map) {}
 
-    pathMaster.agentManager.GetCrowd()->removeAgent(navAgentId);
-    hasAgent = false;
-#endif
-}
+void RecastPathMaster::ClearNavigation() {}
 
-RecastAgentManager::RecastAgentManager()
-{
-#if USE_DETOUR_AGENT
-    crowd = NULL;
-#endif
-}
-
-RecastAgentManager::~RecastAgentManager()
-{
-#if USE_DETOUR_AGENT
-    DestroyCrowd();
-#endif
-}
-
-void RecastAgentManager::CreateCrowd(float agentRadius, dtNavMesh *mesh)
-{
-    this->agentRadius = agentRadius;
-
-#if USE_DETOUR_AGENT
-    crowd = dtAllocCrowd();
-    crowd->init(MAX_CLIENTS, this->agentRadius, mesh);
-#endif
-}
-
-void RecastAgentManager::DestroyCrowd()
-{
-#if USE_DETOUR_AGENT
-    if (crowd) {
-        dtFreeCrowd(crowd);
-        crowd = NULL;
-    }
-#endif
-}
-
-dtCrowd *RecastAgentManager::GetCrowd() const
-{
-#if USE_DETOUR_AGENT
-    return crowd;
-#else
-    return NULL;
-#endif
-}
-
-void RecastAgentManager::Update()
-{
-#if USE_DETOUR_AGENT
-    if (!crowd) {
-        return;
-    }
-
-    crowd->update(level.frametime, NULL);
-#endif
-}
-
-float RecastAgentManager::GetAgentRadius() const
-{
-    return agentRadius;
-}
-
-void RecastPathMaster::PostLoadNavigation(const NavigationMap& map)
-{
-    agentManager.CreateCrowd(MAXS_X, map.GetNavMesh());
-}
-
-void RecastPathMaster::ClearNavigation()
-{
-    agentManager.DestroyCrowd();
-}
-
-void RecastPathMaster::Update()
-{
-    agentManager.Update();
-}
+void RecastPathMaster::Update() {}
