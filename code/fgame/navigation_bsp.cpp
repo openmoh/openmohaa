@@ -703,7 +703,7 @@ void NavigationBSP::LoadSurfaces(bspMap_c& inBspMap, const Container<cshader_t>&
     navSurface_t     *surface;
     int               count;
     int               i;
-    size_t            numVerts;
+    int               numVerts;
     gameLump_c        surfs, verts, indexLump;
 
     // Gather vertices from meshes and surfaces
