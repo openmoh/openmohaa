@@ -449,7 +449,7 @@ void NavigationBSP::GenerateSideTriangles(navModel_t& model, const cbrush_t& bru
         return;
     }
 
-    if (!(brush.contents & (CONTENTS_PLAYERCLIP | CONTENTS_FENCE))) {
+    if (!(brush.contents & (CONTENTS_PLAYERCLIP | CONTENTS_FENCE | CONTENTS_TRANSLUCENT))) {
         // Remove any nodraw surface that are not clips
         // These may be surfaces hidden where player are not supposed to stand on
         // like under the map.
