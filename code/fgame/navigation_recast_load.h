@@ -139,10 +139,6 @@ private:
 private:
     dtNavMesh              *navMeshDt;
     dtNavMeshQuery         *navMeshQuery;
-    dtTileCache            *tileCache;
-    dtTileCacheAlloc       *talloc;
-    dtTileCacheCompressor  *tcomp;
-    dtTileCacheMeshProcess *tmproc;
     NavigationBSP           navigationData;
 
 public:

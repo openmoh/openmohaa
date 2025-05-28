@@ -44,8 +44,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "DetourNavMeshBuilder.h"
 #include "DetourNavMeshQuery.h"
 #include "DetourNode.h"
-#include "DetourTileCache.h"
-#include "DetourTileCacheBuilder.h"
 
 NavigationMap navigationMap;
 
@@ -60,73 +58,6 @@ protected:
         gi.DPrintf("Recast (category %d): %s\n", (int)category, msg);
     }
 };
-
-//
-// Just so it stops being an annoyance
-//
-struct NoCompressor : public dtTileCacheCompressor {
-    virtual ~NoCompressor() {}
-
-    virtual int maxCompressedSize(const int bufferSize) { return (int)bufferSize; }
-
-    virtual dtStatus compress(
-        const unsigned char *buffer,
-        const int            bufferSize,
-        unsigned char       *compressed,
-        const int /*maxCompressedSize*/,
-        int *compressedSize
-    )
-    {
-        *compressedSize = bufferSize;
-        memcpy(compressed, buffer, bufferSize);
-        return DT_SUCCESS;
-    }
-
-    virtual dtStatus decompress(
-        const unsigned char *compressed,
-        const int            compressedSize,
-        unsigned char       *buffer,
-        const int            maxBufferSize,
-        int                 *bufferSize
-    )
-    {
-        memcpy(buffer, compressed, compressedSize);
-        *bufferSize = compressedSize;
-        return DT_SUCCESS;
-    }
-};
-
-struct MeshProcess : public dtTileCacheMeshProcess {
-    inline MeshProcess() {}
-
-    virtual ~MeshProcess();
-
-    inline void init() {}
-
-    virtual void process(struct dtNavMeshCreateParams *params, unsigned char *polyAreas, unsigned short *polyFlags)
-    {
-        // Update poly flags from areas.
-        for (int i = 0; i < params->polyCount; ++i) {
-            if (polyAreas[i] == RC_WALKABLE_AREA) {
-                polyFlags[i] = 1;
-            }
-        }
-
-        // Pass in off-mesh connections.
-        params->offMeshConVerts  = navigationMap.offMeshConVerts;
-        params->offMeshConRad    = navigationMap.offMeshConVerts;
-        params->offMeshConDir    = navigationMap.offMeshConDir;
-        params->offMeshConAreas  = navigationMap.offMeshConAreas;
-        params->offMeshConFlags  = navigationMap.offMeshConFlags;
-        params->offMeshConUserID = navigationMap.offMeshConUserID;
-        params->offMeshConCount  = navigationMap.offMeshConCount;
-    }
-};
-
-MeshProcess::~MeshProcess()
-{
-    // Defined out of line to fix the weak v-tables warning
-}
 
 /*
 ============
@@ -184,25 +115,6 @@ void NavigationMap::InitializeNavMesh(RecastBuildContext& buildContext, const na
         buildContext.log(RC_LOG_ERROR, "Could not init Detour navmesh query");
         return;
     }
-
-    dtTileCacheParams tcparams;
-    memset(&tcparams, 0, sizeof(tcparams));
-    tcparams.orig[0]                = MIN_MAP_BOUNDS;
-    tcparams.orig[1]                = MIN_MAP_BOUNDS;
-    tcparams.orig[2]                = MIN_MAP_BOUNDS;
-    tcparams.cs                     = NavigationMapConfiguration::recastCellSize;
-    tcparams.ch                     = NavigationMapConfiguration::recastCellHeight;
-    tcparams.width                  = MAP_SIZE;
-    tcparams.height                 = MAP_SIZE;
-    tcparams.walkableHeight         = NavigationMapConfiguration::agentHeight;
-    tcparams.walkableRadius         = NavigationMapConfiguration::agentRadius;
-    tcparams.walkableClimb          = NavigationMapConfiguration::agentMaxClimb;
-    tcparams.maxSimplificationError = NavigationMapConfiguration::edgeMaxError;
-    tcparams.maxTiles               = 128;
-    tcparams.maxObstacles           = MAX_GENTITIES;
-
-    tileCache = dtAllocTileCache();
-    tileCache->init(&tcparams, talloc, tcomp, tmproc);
 }
 
 /*
@@ -569,11 +481,7 @@ NavigationMap::NavigationMap
 NavigationMap::NavigationMap()
     : navMeshDt(NULL)
     , navMeshQuery(NULL)
-    , tileCache(NULL)
 {
-    talloc          = new dtTileCacheAlloc();
-    tcomp           = new NoCompressor();
-    tmproc          = new MeshProcess();
     validNavigation = false;
 }
 
@@ -585,10 +493,6 @@ NavigationMap::~NavigationMap
 NavigationMap::~NavigationMap()
 {
     ClearNavigation();
-
-    delete tmproc;
-    delete tcomp;
-    delete talloc;
 }
 
 /*
@@ -628,9 +532,6 @@ NavigationMap::Update
 */
 void NavigationMap::Update()
 {
-    if (tileCache) {
-        tileCache->update(level.frametime, navMeshDt);
-    }
 }
 
 /*
@@ -652,11 +553,6 @@ void NavigationMap::ClearNavigation()
     if (navMeshDt) {
         dtFreeNavMesh(navMeshDt);
         navMeshDt = NULL;
-    }
-
-    if (tileCache) {
-        dtFreeTileCache(tileCache);
-        tileCache = NULL;
     }
 }
 
