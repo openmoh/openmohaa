@@ -2839,54 +2839,78 @@ void ScriptThread::DPrintln(Event *ev)
 
 void ScriptThread::IPrintln(Event *ev)
 {
-    str sString;
-    int num = ev->NumArgs();
-    int i;
+    str        sString;
+    int        num = ev->NumArgs();
+    int        i, j;
+    gentity_t *other;
 
     for (i = 1; i <= ev->NumArgs(); i++) {
         sString += ev->GetString(i);
     }
 
-    gi.SendServerCommand(-1, "print \"" HUD_MESSAGE_YELLOW "%s\n\"", gi.LV_ConvertString(sString.c_str()));
+    for (j = 0; j < game.maxclients; j++) {
+        other = &g_entities[j];
+        if (other->inuse && other->client) {
+            gi.SendServerCommand(j, "print \"" HUD_MESSAGE_YELLOW "%s\n\"", gi.LV_ConvertString(sString.c_str()));
+        }
+    }
 }
 
 void ScriptThread::IPrintlnBold(Event *ev)
 {
-    str sString;
-    int num = ev->NumArgs();
-    int i;
+    str        sString;
+    int        num = ev->NumArgs();
+    int        i, j;
+    gentity_t *other;
 
     for (i = 1; i <= ev->NumArgs(); i++) {
         sString += ev->GetString(i);
     }
 
-    gi.SendServerCommand(-1, "print \"" HUD_MESSAGE_WHITE "%s\n\"", gi.LV_ConvertString(sString.c_str()));
+    for (j = 0; j < game.maxclients; j++) {
+        other = &g_entities[j];
+        if (other->inuse && other->client) {
+            gi.SendServerCommand(j, "print \"" HUD_MESSAGE_WHITE "%s\n\"", gi.LV_ConvertString(sString.c_str()));
+        }
+    }
 }
 
 void ScriptThread::IPrintln_NoLoc(Event *ev)
 {
-    str sString;
-    int num = ev->NumArgs();
-    int i;
+    str        sString;
+    int        num = ev->NumArgs();
+    int        i, j;
+    gentity_t *other;
 
     for (i = 1; i <= ev->NumArgs(); i++) {
         sString += ev->GetString(i);
     }
 
-    gi.SendServerCommand(-1, "print \"" HUD_MESSAGE_YELLOW "%s\n\"", sString.c_str());
+    for (j = 0; j < game.maxclients; j++) {
+        other = &g_entities[j];
+        if (other->inuse && other->client) {
+            gi.SendServerCommand(j, "print \"" HUD_MESSAGE_YELLOW "%s\n\"", sString.c_str());
+        }
+    }
 }
 
 void ScriptThread::IPrintlnBold_NoLoc(Event *ev)
 {
-    str sString;
-    int num = ev->NumArgs();
-    int i;
+    str        sString;
+    int        num = ev->NumArgs();
+    int        i, j;
+    gentity_t *other;
 
     for (i = 1; i <= ev->NumArgs(); i++) {
         sString += ev->GetString(i);
     }
 
-    gi.SendServerCommand(-1, "print \"" HUD_MESSAGE_WHITE "%s\n\"", sString.c_str());
+    for (j = 0; j < game.maxclients; j++) {
+        other = &g_entities[j];
+        if (other->inuse && other->client) {
+            gi.SendServerCommand(j, "print \"" HUD_MESSAGE_WHITE "%s\n\"", sString.c_str());
+        }
+    }
 }
 
 void ScriptThread::MPrint(Event *ev)

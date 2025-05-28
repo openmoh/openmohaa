@@ -296,9 +296,12 @@ qboolean CM_LoadFCM(const char *szName, cfencemask_t **pMask)
 
     FS_Read(&header, sizeof(fcm_t), h);
 
-    iDataSize = LittleLong(header.iWidth) * LittleLong(header.iHeight) + 7;
+    header.iWidth = LittleLong(header.iWidth);
+    header.iHeight = LittleLong(header.iHeight);
+    
+    iDataSize = header.iWidth * header.iHeight + 7;
     if (iDataSize < 0) {
-        iDataSize = LittleLong(header.iWidth) * LittleLong(header.iHeight) + 14;
+        iDataSize = header.iWidth * header.iHeight + 14;
     }
 
     iDataSize >>= 3;
