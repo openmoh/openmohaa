@@ -334,8 +334,8 @@ void Container<Type>::InsertObjectAt(int index, const Type& obj)
             }
 
             new (objlist + arrayIndex) Type(obj);
-            for (i = arrayIndex + 1; i < numobjects; ++i) {
-                new (objlist + i) Type(std::move(temp[i]));
+            for (i = arrayIndex; i < numobjects - 1; ++i) {
+                new (objlist + i + 1) Type(std::move(temp[i]));
             }
 
             CONTAINER_Free(temp);
