@@ -122,9 +122,6 @@ This feature is passive: it only checks the team sizes when someone tries to joi
 
 OpenMoHAA introduced multiplayer bots which can be used for entertainment or for testing purposes. They appear in the scoreboard with their ping set to **bot**.
 
-> [!IMPORTANT]
-> Get the [mp-navigation](https://github.com/openmoh/mp-navigation) pk3, it is needed so bots can navigate through MP maps.
-
 Configure bots with the following variables:
 
 - `set sv_maxbots x`: **Required**, max number of bots allowed. The game can only handle a total of 64 players (clients), it will be limited to 64 minus the number of real players (`sv_maxclients`). For example, if you set `sv_maxclients` to 48, the maximum number of bots (sv_maxbots) can be 16.
@@ -145,3 +142,8 @@ set sv_numbots 4 // Spawn 4 bots
 
 > [!NOTE]
 > Bots have their ping set to **bot** in the scoreboard to avoid confusion with human or cheaters.
+> 
+> The navigation path is generated automatically using [Recast](https://recastnav.com/) for any map, including custom maps.
+> If the Recast-based navigation system is not working correctly:
+> 1. Get the [mp-navigation](https://github.com/openmoh/mp-navigation) pk3 (it only covers stock maps) and place it inside your game's `main` folder.
+> 2. Append `set g_navigation_legacy 1` somewhere, like in your `server.cfg` file.
