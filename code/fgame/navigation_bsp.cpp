@@ -982,7 +982,7 @@ void NavigationBSP::LoadAndRenderTerrain(bspMap_c& inBspMap, const Container<csh
         }
     }
 #else
-    for (i = 0; i < numTerraPatches; in++, out++, i++) {
+    for (i = 0; i < numTerraPatches; in++, i++) {
         SwapTerraPatch(in);
 
         const cshader_t& shader = shaders.ObjectAt(in->iShader + 1);
@@ -991,9 +991,11 @@ void NavigationBSP::LoadAndRenderTerrain(bspMap_c& inBspMap, const Container<csh
         }
 
         UnpackTerraPatch(in, out);
+
+        out++;
     }
 
-    RenderTerrainTris(terraPatches, numTerraPatches);
+    RenderTerrainTris(terraPatches, out - terraPatches);
 
     gi.Free(terraPatches);
 #endif
