@@ -25,7 +25,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "player.h"
 #include "navigate.h"
-#include "actorpath.h"
+#include "navigation_path.h"
 
 #define MAX_BOT_FUNCTIONS 5
 
@@ -40,6 +40,7 @@ class BotMovement
 {
 public:
     BotMovement();
+    ~BotMovement();
 
     void SetControlledEntity(Player *newEntity);
 
@@ -62,18 +63,22 @@ public:
     void ClearMove(void);
 
     Vector GetCurrentGoal() const;
+    Vector GetCurrentPathDirection() const;
 
 private:
-    void CheckAttractiveNodes();
-    void CheckEndPos(Entity *entity);
-    void CheckJump(usercmd_t& botcmd);
-    void NewMove();
+    void   CheckAttractiveNodes();
+    void   CheckEndPos(Entity *entity);
+    void   CheckJump(usercmd_t& botcmd);
+    void   CheckJumpOverEdge(usercmd_t& botcmd);
+    void   NewMove();
+    Vector FixDeltaFromCollision(const Vector& delta);
 
 private:
     SafePtr<Player>            controlledEntity;
     AttractiveNodePtr          m_pPrimaryAttract;
     Container<nodeAttract_t *> m_attractList;
-    ActorPath                  m_Path;
+    IPather                   *m_pPath;
+    int                        m_iLastMoveTime;
 
     Vector m_vCurrentOrigin;
     Vector m_vTargetPos;
@@ -85,8 +90,25 @@ private:
     int    m_iTempAwayTime;
     int    m_iNumBlocks;
     int    m_iCheckPathTime;
+    int    m_iLastBlockTime;
+    int    m_iTempAwayState;
     bool   m_bPathing;
-    bool   m_bTempAway;
+
+    ///
+    /// Collision detection
+    ///
+
+    bool   m_bAvoidCollision;
+    int    m_iCollisionCheckTime;
+    Vector m_vTempCollisionAvoidance;
+
+    ///
+    /// Jump detection
+    ///
+
+    bool m_bJump;
+    int  m_iJumpCheckTime;
+    Vector m_vJumpLocation;
 };
 
 class BotRotation
@@ -166,9 +188,9 @@ private:
     DelegateHandle delegateHandle_stufftext;
 
 private:
-    Weapon* FindWeaponWithAmmo(void);
-    Weapon* FindMeleeWeapon(void);
-    void UseWeaponWithAmmo(void);
+    Weapon *FindWeaponWithAmmo(void);
+    Weapon *FindMeleeWeapon(void);
+    void    UseWeaponWithAmmo(void);
 
     void CheckUse(void);
     void CheckValidWeapon(void);

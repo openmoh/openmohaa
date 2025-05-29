@@ -183,34 +183,62 @@ void BotController::CheckUse(void)
     Vector  end;
     trace_t trace;
 
+    if (controlledEnt->GetLadder()) {
+        return;
+    }
+
     controlledEnt->angles.AngleVectorsLeft(&dir);
 
     start = controlledEnt->origin + Vector(0, 0, controlledEnt->viewheight);
-    end   = controlledEnt->origin + Vector(0, 0, controlledEnt->viewheight) + dir * 32;
+    end   = controlledEnt->origin + Vector(0, 0, controlledEnt->viewheight) + dir * 64;
 
-    trace = G_Trace(start, vec_zero, vec_zero, end, controlledEnt, MASK_USABLE, false, "BotController::CheckUse");
+    trace = G_Trace(
+        start, vec_zero, vec_zero, end, controlledEnt, MASK_USABLE | MASK_LADDER, false, "BotController::CheckUse"
+    );
 
-    // It may be a door
-    if ((trace.allsolid || trace.startsolid || trace.fraction != 1.0f) && trace.ent) {
-        if (trace.ent->entity->IsSubclassOfDoor()) {
-            Door *door = static_cast<Door *>(trace.ent->entity);
-            if (door->isOpen()) {
-                m_botCmd.buttons &= ~BUTTON_USE;
-                return;
-            }
-        }
-
-        //
-        // Toggle the use button
-        //
-        m_botCmd.buttons ^= BUTTON_USE;
-    } else {
+    if (!trace.ent || trace.ent->entity == world) {
         m_botCmd.buttons &= ~BUTTON_USE;
+        return;
     }
+
+    if (trace.ent->entity->IsSubclassOfDoor()) {
+        Door *door = static_cast<Door *>(trace.ent->entity);
+        if (door->isOpen()) {
+            // Don't use an open door
+            m_botCmd.buttons &= ~BUTTON_USE;
+            return;
+        }
+    } else if (!trace.ent->entity->isSubclassOf(FuncLadder)) {
+        m_botCmd.buttons &= ~BUTTON_USE;
+        return;
+    }
+
+    //
+    // Toggle the use button
+    //
+    m_botCmd.buttons ^= BUTTON_USE;
+
+#if 0
+    Vector  forward;
+    Vector  start, end;
+
+    AngleVectors(controlledEnt->GetViewAngles(), forward, NULL, NULL);
+
+    start = (controlledEnt->m_vViewPos - forward * 12.0f);
+    end   = (controlledEnt->m_vViewPos + forward * 128.0f);
+
+    trace = G_Trace(start, vec_zero, vec_zero, end, controlledEnt, MASK_LADDER, qfalse, "checkladder");
+    if (trace.ent->entity && trace.ent->entity->isSubclassOf(FuncLadder)) {
+        return;
+    }
+
+    m_botCmd.buttons ^= BUTTON_USE;
+#endif
 }
 
-void BotController::CheckValidWeapon() {
-    Weapon* weapon = controlledEnt->GetActiveWeapon(WEAPON_MAIN);
+void BotController::CheckValidWeapon()
+{
+    Weapon *weapon = controlledEnt->GetActiveWeapon(WEAPON_MAIN);
     if (!weapon) {
         // If holstered, use the best weapon available
         UseWeaponWithAmmo();
@@ -288,14 +316,21 @@ void BotController::AimAtAimNode(void)
         return;
     }
 
-    goal = movement.GetCurrentGoal();
-    if (goal != controlledEnt->origin) {
-        rotation.AimAt(goal);
-    }
+    //goal = movement.GetCurrentGoal();
+    //if (goal != controlledEnt->origin) {
+    //    rotation.AimAt(goal);
+    //}
 
-    Vector targetAngles = rotation.GetTargetAngles();
-    targetAngles.x      = 0;
-    rotation.SetTargetAngles(targetAngles);
+    if (controlledEnt->GetLadder()) {
+        const Vector vAngles = movement.GetCurrentPathDirection().toAngles();
+        rotation.SetTargetAngles(vAngles);
+        return;
+    } else {
+        Vector targetAngles;
+        targetAngles   = movement.GetCurrentPathDirection().toAngles();
+        targetAngles.x = 0;
+        rotation.SetTargetAngles(targetAngles);
+    }
 }
 
 /*
@@ -325,6 +360,15 @@ void BotController::NoticeEvent(Vector vPos, int iType, Entity *pEnt, float fDis
 {
     Sentient *pSentOwner;
     float     fRangeFactor;
+    Vector    delta1, delta2;
+
+    if (m_iCuriousTime) {
+        delta1 = vPos - controlledEnt->origin;
+        delta2 = m_vNewCuriousPos - controlledEnt->origin;
+        if (delta1.lengthSquared() < delta2.lengthSquared()) {
+            return;
+        }
+    }
 
     fRangeFactor = 1.0 - (fDistanceSquared / fRadiusSquared);
 
@@ -517,6 +561,8 @@ bool BotController::CheckCondition_Idle(void)
 
 void BotController::State_Idle(void)
 {
+    m_botCmd.buttons &= ~(BUTTON_ATTACKLEFT | BUTTON_ATTACKRIGHT);
+
     AimAtAimNode();
     CheckReload();
 
@@ -529,9 +575,11 @@ void BotController::State_Idle(void)
             }
         } else {
             Vector randomDir(G_CRandom(16), G_CRandom(16), G_CRandom(16));
-            Vector preferredDir = Vector(controlledEnt->orientation[0]) * (rand() % 5 ? 1024 : -1024);
-            float  radius       = 512 + G_Random(2048);
+            Vector preferredDir;
+            float  radius = 512 + G_Random(2048);
 
+            preferredDir += Vector(controlledEnt->orientation[0]) * (rand() % 5 ? 1024 : -1024);
+            preferredDir += Vector(controlledEnt->orientation[2]) * (rand() % 5 ? 1024 : -1024);
             movement.AvoidPath(controlledEnt->origin + randomDir, radius, preferredDir);
         }
     }
@@ -682,7 +730,7 @@ bool BotController::CheckCondition_Attack(void)
             if (!m_pEnemy) {
                 // Slight reaction time
                 m_iConfirmTime = level.inttime + (200 + G_Random(200));
-                m_iAttackTime = 0;
+                m_iAttackTime  = 0;
             }
 
             m_pEnemy        = sent;
@@ -805,7 +853,8 @@ void BotController::State_Attack(void)
         }
 
         if (pWeap->GetFireType(FIRE_SECONDARY) == FT_MELEE) {
-            if (controlledEnt->client->ps.stats[STAT_AMMO] <= 0 && controlledEnt->client->ps.stats[STAT_CLIPAMMO] <= 0) {
+            if (controlledEnt->client->ps.stats[STAT_AMMO] <= 0
+                && controlledEnt->client->ps.stats[STAT_CLIPAMMO] <= 0) {
                 bMelee = true;
             } else if (fDistanceSquared <= fSecondaryBulletRangeSquared) {
                 bMelee = true;
@@ -824,7 +873,7 @@ void BotController::State_Attack(void)
 
         m_iAttackTime        = level.inttime + 1000;
         m_iAttackStopAimTime = level.inttime + 3000;
-        m_vLastEnemyPos      = m_pEnemy->centroid;
+        m_vLastEnemyPos      = m_pEnemy->origin;
     } else {
         m_botCmd.buttons &= ~(BUTTON_ATTACKLEFT | BUTTON_ATTACKRIGHT);
         fMinDistanceSquared = 0;
@@ -945,13 +994,13 @@ void BotController::State_BeginWeapon(void)
     SendCommand(va("use \"%s\"", weap->model.c_str()));
 }
 
-Weapon* BotController::FindWeaponWithAmmo() {
-  
-    Weapon *next;
-    int     n;
-    int     j;
-    int     bestrank;
-    Weapon *bestweapon;
+Weapon *BotController::FindWeaponWithAmmo()
+{
+    Weapon               *next;
+    int                   n;
+    int                   j;
+    int                   bestrank;
+    Weapon               *bestweapon;
     const Container<int>& inventory = controlledEnt->getInventory();
 
     n = inventory.NumObjects();
@@ -980,20 +1029,20 @@ Weapon* BotController::FindWeaponWithAmmo() {
             continue;
         }
 
-        bestweapon = (Weapon*)next;
-        bestrank = bestweapon->GetRank();
+        bestweapon = (Weapon *)next;
+        bestrank   = bestweapon->GetRank();
     }
 
     return bestweapon;
 }
 
-Weapon* BotController::FindMeleeWeapon() {
-  
-    Weapon *next;
-    int     n;
-    int     j;
-    int     bestrank;
-    Weapon *bestweapon;
+Weapon *BotController::FindMeleeWeapon()
+{
+    Weapon               *next;
+    int                   n;
+    int                   j;
+    int                   bestrank;
+    Weapon               *bestweapon;
     const Container<int>& inventory = controlledEnt->getInventory();
 
     n = inventory.NumObjects();
@@ -1018,15 +1067,16 @@ Weapon* BotController::FindMeleeWeapon() {
             continue;
         }
 
-        bestweapon = (Weapon*)next;
-        bestrank = bestweapon->GetRank();
+        bestweapon = (Weapon *)next;
+        bestrank   = bestweapon->GetRank();
     }
 
     return bestweapon;
 }
 
-void BotController::UseWeaponWithAmmo() {
-    Weapon* bestWeapon = FindWeaponWithAmmo();
+void BotController::UseWeaponWithAmmo()
+{
+    Weapon *bestWeapon = FindWeaponWithAmmo();
     if (!bestWeapon) {
         //
         // If there is no weapon with ammo, fallback to a weapon that can melee
@@ -1138,9 +1188,11 @@ void BotController::setControlledEntity(Player *player)
     movement.SetControlledEntity(player);
     rotation.SetControlledEntity(player);
 
-    delegateHandle_gotKill = player->delegate_gotKill.Add(std::bind(&BotController::GotKill, this, std::placeholders::_1));
+    delegateHandle_gotKill =
+        player->delegate_gotKill.Add(std::bind(&BotController::GotKill, this, std::placeholders::_1));
     delegateHandle_killed = player->delegate_killed.Add(std::bind(&BotController::Killed, this, std::placeholders::_1));
-    delegateHandle_stufftext = player->delegate_stufftext.Add(std::bind(&BotController::EventStuffText, this, std::placeholders::_1));
+    delegateHandle_stufftext =
+        player->delegate_stufftext.Add(std::bind(&BotController::EventStuffText, this, std::placeholders::_1));
 }
 
 Player *BotController::getControlledEntity() const
@@ -1214,9 +1266,13 @@ void BotControllerManager::ThinkControllers()
     // Delete controllers that don't have associated player entity
     // This cannot happen unless some mods remove them
     for (i = controllers.NumObjects(); i > 0; i--) {
-        BotController* controller = controllers.ObjectAt(i);
+        BotController *controller = controllers.ObjectAt(i);
         if (!controller->getControlledEntity()) {
-            gi.DPrintf("Bot %d has no associated player entity. This shouldn't happen unless the entity has been removed by a script. The controller will be removed, please fix.\n", i);
+            gi.DPrintf(
+                "Bot %d has no associated player entity. This shouldn't happen unless the entity has been removed by a "
+                "script. The controller will be removed, please fix.\n",
+                i
+            );
 
             // Remove the controller, it will be recreated later to match `sv_numbots`
             delete controller;

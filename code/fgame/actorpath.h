@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2015 the OpenMoHarchive team
 
 This file is part of OpenMoHAA source code.
 
@@ -23,6 +23,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // actorpath.h: Actor path
 
 #pragma once
+
+#include "navigate.h"
+#include "archive.h"
 
 #define MIN_FALLHEIGHT 18
 #define MAX_FALLHEIGHT 1024

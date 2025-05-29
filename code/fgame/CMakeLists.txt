@@ -58,6 +58,16 @@ if (FLEX_FOUND AND BISON_FOUND)
 	add_flex_bison_dependency(fgame-lexer fgame-parser)
 endif()
 
+# Recast navigation
+add_subdirectory(../recastnavigation/Detour fgame_detour)
+add_subdirectory(../recastnavigation/DetourCrowd fgame_detour_crowd)
+add_subdirectory(../recastnavigation/Recast fgame_recast)
+# Enable position independant code on recast navigation libraries.
+# Otherwise linking will fail relocating some functions on Linux
+set_property(TARGET Detour Recast PROPERTY POSITION_INDEPENDENT_CODE ON)
+
+target_link_libraries(fgame PRIVATE RecastNavigation::Detour RecastNavigation::DetourCrowd RecastNavigation::Recast)
+
 file(MAKE_DIRECTORY "${CMAKE_SOURCE_DIR}/code/parser/generated")
 target_sources(fgame PRIVATE ${BISON_fgame-parser_OUTPUTS} ${FLEX_fgame-lexer_OUTPUTS})
 

@@ -24,18 +24,30 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "playerbot.h"
 #include "debuglines.h"
 
+static int maxFallHeight = 400;
+
 BotMovement::BotMovement()
 {
     controlledEntity = NULL;
 
-    m_Path.SetFallHeight(400);
-    m_bPathing     = false;
-    m_bTempAway    = false;
-    m_fAttractTime = 0;
+    m_pPath         = IPather::CreatePather();
+    m_iLastMoveTime = 0;
+
+    m_bPathing       = false;
+    m_iTempAwayState = 0;
+    m_fAttractTime   = 0;
 
     m_iCheckPathTime = 0;
     m_iTempAwayTime  = 0;
     m_iNumBlocks     = 0;
+
+    m_bAvoidCollision     = false;
+    m_iCollisionCheckTime = 0;
+}
+
+BotMovement::~BotMovement()
+{
+    delete m_pPath;
 }
 
 void BotMovement::SetControlledEntity(Player *newEntity)
@@ -48,6 +60,7 @@ void BotMovement::MoveThink(usercmd_t& botcmd)
     Vector vDir;
     Vector vAngles;
     Vector vWishDir;
+    Vector vDelta;
 
     botcmd.forwardmove = 0;
     botcmd.rightmove   = 0;
@@ -58,31 +71,53 @@ void BotMovement::MoveThink(usercmd_t& botcmd)
         return;
     }
 
-    if (level.inttime >= m_Path.Time() + 1000 && m_vCurrentOrigin != controlledEntity->origin) {
+    if (m_pPath->GetNodeCount()) {
+        m_vTargetPos = m_pPath->GetDestination();
+    }
+
+    if (m_pPath->IsQuerying()) {
+        m_iLastMoveTime = level.inttime;
+    }
+
+    if (level.inttime >= m_iLastMoveTime + 5000 && m_vCurrentOrigin != controlledEntity->origin) {
         m_vCurrentOrigin = controlledEntity->origin;
 
-        if (m_Path.CurrentNode()) {
+        if (m_pPath->GetNodeCount() && !controlledEntity->GetLadder()) {
             // recalculate paths because of a new origin
-            m_Path.ReFindPath(controlledEntity->origin, controlledEntity);
+
+            PathSearchParameter parameters;
+            parameters.entity     = controlledEntity;
+            parameters.fallHeight = maxFallHeight;
+            m_pPath->FindPath(controlledEntity->origin, m_pPath->GetDestination(), parameters);
         }
+
+        m_iLastMoveTime = level.inttime;
     }
 
-    if (m_bTempAway && level.inttime >= m_iTempAwayTime) {
-        m_bTempAway = false;
-        m_Path.FindPath(controlledEntity->origin, m_vTargetPos, controlledEntity, 0, NULL, 0);
+    if (m_iTempAwayState == 2 && level.inttime >= m_iTempAwayTime + 750) {
+        m_iTempAwayState = 0;
+
+        PathSearchParameter parameters;
+        parameters.entity     = controlledEntity;
+        parameters.fallHeight = maxFallHeight;
+        m_pPath->FindPath(controlledEntity->origin, m_vTargetPos, parameters);
+
+        m_iLastMoveTime  = level.inttime;
+        m_iCheckPathTime = level.inttime;
     }
 
-    if (!m_bTempAway) {
-        if (m_Path.CurrentNode()) {
-            m_Path.UpdatePos(controlledEntity->origin, 8);
+    vDelta = m_pPath->GetCurrentDelta();
+    vDelta = FixDeltaFromCollision(vDelta);
 
-            m_vCurrentGoal = controlledEntity->origin;
-            VectorAdd2D(m_vCurrentGoal, m_Path.CurrentDelta(), m_vCurrentGoal);
+    if (m_pPath->GetNodeCount()) {
+        m_pPath->UpdatePos(controlledEntity->origin);
 
-            if (MoveDone()) {
-                // Clear the path
-                m_Path.Clear();
-            }
+        m_vCurrentGoal = controlledEntity->origin;
+        VectorAdd2D(m_vCurrentGoal, vDelta, m_vCurrentGoal);
+
+        if (MoveDone()) {
+            // Clear the path
+            m_pPath->Clear();
         }
     }
 
@@ -91,52 +126,58 @@ void BotMovement::MoveThink(usercmd_t& botcmd)
     }
 
     // Check if we're blocked
-    if (level.inttime >= m_iCheckPathTime) {
-        m_iCheckPathTime = level.inttime + 1000;
+    if (level.inttime >= m_iCheckPathTime + 1000 && m_iTempAwayState != 2) {
+        bool blocked = false;
+
+        m_iCheckPathTime = level.inttime;
 
         if (m_iNumBlocks >= 5) {
             // Give up
             ClearMove();
         }
 
-        m_bTempAway = false;
-
-        if (controlledEntity->groundentity || controlledEntity->client->ps.walking) {
+        if (!m_pPath->IsQuerying() && !controlledEntity->GetLadder()) {
             if (controlledEntity->GetMoveResult() >= MOVERESULT_BLOCKED
                 || controlledEntity->velocity.lengthSquared() <= Square(8)) {
-                m_bTempAway = true;
-            } else if ((controlledEntity->origin - m_vLastCheckPos[0]).lengthSquared() <= Square(32)
-                       && (controlledEntity->origin - m_vLastCheckPos[1]).lengthSquared() <= Square(32)) {
-                m_bTempAway = true;
-            }
-        } else {
-            // falling
-            if (controlledEntity->GetMoveResult() >= MOVERESULT_BLOCKED) {
-                // stuck while falling
-                m_bTempAway = true;
+                blocked = true;
+            } else if ((controlledEntity->origin - m_vLastCheckPos[0]).lengthSquared() <= Square(64)
+                       && (controlledEntity->origin - m_vLastCheckPos[1]).lengthSquared() <= Square(64)) {
+                blocked = true;
             }
         }
 
-        if (m_bTempAway) {
-            Vector nextPos;
+        if (!blocked) {
+            m_iTempAwayState = 0;
+            m_iNumBlocks     = 0;
+
+            if (!m_pPath->GetNodeCount()) {
+                m_vTargetPos   = controlledEntity->origin + Vector(G_CRandom(512), G_CRandom(512), G_CRandom(512));
+                m_vCurrentGoal = m_vTargetPos;
+            }
+        } else if (m_iTempAwayState == 0) {
+            m_iLastBlockTime = level.inttime;
+            m_iTempAwayState = 1;
+        }
+
+        if (m_iTempAwayState && level.inttime >= m_iLastBlockTime + 1000) {
+            Vector delta;
             Vector dir;
 
-            m_bTempAway     = true;
-            m_iTempAwayTime = level.inttime + 750;
+            m_iTempAwayState = 2;
+            m_iTempAwayTime  = level.inttime;
             m_iNumBlocks++;
 
             // Try to backward a little
-            if (m_Path.CurrentNode()) {
-                nextPos = m_Path.CurrentNode()->point;
+            if (m_pPath->GetNodeCount()) {
+                delta = m_pPath->GetCurrentDelta();
             } else {
-                nextPos = m_vTargetPos;
+                delta = m_vTargetPos - controlledEntity->origin;
             }
 
-            m_Path.Clear();
-            m_Path.ForceShortLookahead();
+            m_pPath->Clear();
 
-            if (rand() % 10 != 0) {
-                dir = nextPos - controlledEntity->origin;
+            if (m_iNumBlocks < 2) {
+                dir   = -delta;
                 dir.z = 0;
                 dir.normalize();
 
@@ -151,17 +192,9 @@ void BotMovement::MoveThink(usercmd_t& botcmd)
                     dir.y = G_CRandom(2);
                 }
 
-                m_vCurrentGoal = nextPos + dir * 128;
+                m_vCurrentGoal = controlledEntity->origin + delta + dir * 128;
             } else {
                 m_vCurrentGoal = controlledEntity->origin + Vector(G_CRandom(512), G_CRandom(512), G_CRandom(512));
-            }
-
-        } else {
-            m_iNumBlocks = 0;
-
-            if (!m_Path.CurrentNode()) {
-                m_vTargetPos   = controlledEntity->origin + Vector(G_CRandom(512), G_CRandom(512), G_CRandom(512));
-                m_vCurrentGoal = m_vTargetPos;
             }
         }
 
@@ -170,35 +203,32 @@ void BotMovement::MoveThink(usercmd_t& botcmd)
     }
 
     if (ai_debugpath->integer) {
-        PathInfo *pos = m_Path.CurrentNode();
+        int i;
+        int nodecount = m_pPath->GetNodeCount();
 
-        if (pos != NULL) {
-            while (pos != m_Path.LastNode()) {
-                Vector vStart = pos->point + Vector(0, 0, 32);
+        for (i = 0; i < nodecount - 1; i++) {
+            PathNav      node1  = m_pPath->GetNode(i);
+            PathNav      node2  = m_pPath->GetNode(i + 1);
+            const Vector vStart = node1.origin + Vector(0, 0, 32);
+            const Vector vEnd   = node2.origin + Vector(0, 0, 32);
 
-                pos--;
-
-                Vector vEnd = pos->point + Vector(0, 0, 32);
-
-                G_DebugLine(vStart, vEnd, 1, 0, 0, 1);
-            }
+            G_DebugLine(vStart, vEnd, 1, 0, 0, 1);
         }
     }
 
-    if (m_Path.CurrentNode()) {
+    if (m_pPath->GetNodeCount() || m_iTempAwayState != 0) {
         if ((m_vTargetPos - controlledEntity->origin).lengthSquared() <= Square(16)) {
             ClearMove();
         }
     } else {
-        if ((m_vTargetPos - controlledEntity->origin).lengthXYSquared() <= Square(16)) {
-            ClearMove();
-        }
+        //if ((m_vTargetPos - controlledEntity->origin).lengthXYSquared() <= Square(16)) {
+        ClearMove();
+        //}
     }
 
     // Rotate the dir
-    if (m_Path.CurrentNode()) {
-        vDir[0] = m_Path.CurrentDelta()[0];
-        vDir[1] = m_Path.CurrentDelta()[1];
+    if (m_pPath->GetNodeCount()) {
+        vDir = vDelta;
     } else {
         vDir = m_vCurrentGoal - controlledEntity->origin;
     }
@@ -217,8 +247,13 @@ void BotMovement::MoveThink(usercmd_t& botcmd)
 
     botcmd.forwardmove = (signed char)Q_clamp(x, -127, 127);
     botcmd.rightmove   = (signed char)Q_clamp(y, -127, 127);
+    botcmd.upmove      = 0;
 
     CheckJump(botcmd);
+
+    if (!m_bJump) {
+        CheckJumpOverEdge(botcmd);
+    }
 }
 
 void BotMovement::CheckAttractiveNodes()
@@ -239,11 +274,11 @@ void BotMovement::CheckEndPos(Entity *entity)
     Vector  end;
     trace_t trace;
 
-    if (!m_Path.LastNode()) {
+    if (!m_pPath->GetNodeCount()) {
         return;
     }
 
-    start = m_Path.LastNode()->point;
+    start = m_pPath->GetDestination();
     end   = m_vTargetPos;
 
     trace =
@@ -259,14 +294,22 @@ void BotMovement::CheckJump(usercmd_t& botcmd)
     Vector  start;
     Vector  end;
     Vector  dir;
+    Vector  delta;
     trace_t trace;
 
     if (controlledEntity->GetLadder()) {
-        if (!botcmd.upmove) {
-            botcmd.upmove = 127;
-        } else {
-            botcmd.upmove = 0;
+        if (g_navigation_legacy->integer) {
+            botcmd.upmove = botcmd.upmove ? 0 : 127;
+        } else if (!m_pPath->GetNodeCount()) {
+            // If the bot is not moving, cancel it
+            botcmd.upmove = botcmd.upmove ? 0 : 127;
         }
+        return;
+    }
+
+    if (!controlledEntity->groundentity && !controlledEntity->client->ps.walking) {
+        // Falling
+        m_bJump = false;
         return;
     }
 
@@ -294,7 +337,7 @@ void BotMovement::CheckJump(usercmd_t& botcmd)
 
     // No need to jump
     if (trace.fraction > 0.5f) {
-        botcmd.upmove = 0;
+        m_bJump = false;
         return;
     }
 
@@ -338,11 +381,108 @@ void BotMovement::CheckJump(usercmd_t& botcmd)
     );
 
     if (trace.fraction < 1) {
-        botcmd.upmove = 0;
+        m_bJump = false;
         return;
     }
 
-    // Make the bot climb walls
+    if (!m_bJump) {
+        m_bJump          = true;
+        m_iJumpCheckTime = level.inttime;
+        m_vJumpLocation  = controlledEntity->origin;
+    } else if (level.inttime > m_iJumpCheckTime + 100) {
+        m_bJump = false;
+
+        delta = m_vJumpLocation - controlledEntity->origin;
+        if (delta.lengthSquared() < Square(32)) {
+            botcmd.upmove = 127;
+        }
+    }
+}
+
+void BotMovement::CheckJumpOverEdge(usercmd_t& botcmd)
+{
+    Vector  start;
+    Vector  end;
+    Vector  dir;
+    trace_t trace;
+
+    if (!controlledEntity->groundentity && !controlledEntity->client->ps.walking) {
+        // Falling
+        return;
+    }
+
+    dir = m_vLastValidDir;
+
+    start = controlledEntity->origin + Vector(0, 0, STEPSIZE);
+    end =
+        controlledEntity->origin + Vector(0, 0, STEPSIZE) + dir * (controlledEntity->maxs.y - controlledEntity->mins.y);
+
+    if (ai_debugpath->integer) {
+        G_DebugLine(start, end, 1, 0, 1, 1);
+    }
+
+    // Check if the bot needs to jump
+    trace = G_Trace(
+        start,
+        controlledEntity->mins,
+        controlledEntity->maxs,
+        end,
+        controlledEntity,
+        MASK_PLAYERSOLID,
+        false,
+        "BotController::CheckJumpOverEdge"
+    );
+
+    if (trace.fraction < 1) {
+        // Blocked
+        return;
+    }
+
+    //
+    // Check if falling
+    //
+
+    start = trace.endpos;
+    end   = start - Vector(0, 0, STEPSIZE * 2);
+
+    trace = G_Trace(
+        start,
+        controlledEntity->mins,
+        controlledEntity->maxs,
+        end,
+        controlledEntity,
+        MASK_PLAYERSOLID,
+        false,
+        "BotController::CheckJumpOverEdge"
+    );
+
+    if (trace.fraction != 1.0) {
+        // Blocked
+        return;
+    }
+
+    //
+    // Check if there is an edge at the end
+    //
+
+    end = start + dir * controlledEntity->GetRunSpeed() / 2.0;
+    end -= Vector(0, 0, STEPSIZE * 2);
+
+    trace = G_Trace(
+        start,
+        controlledEntity->mins,
+        controlledEntity->maxs,
+        end,
+        controlledEntity,
+        MASK_PLAYERSOLID,
+        false,
+        "BotController::CheckJumpOverEdge"
+    );
+
+    if (trace.fraction == 1) {
+        return;
+    }
+
     if (!botcmd.upmove) {
         botcmd.upmove = 127;
     } else {
@@ -370,19 +510,26 @@ void BotMovement::AvoidPath(
         vDir = vPreferredDir;
     }
 
-    m_Path.FindPathAway(
-        controlledEntity->origin, vAvoid, vDir, controlledEntity, fAvoidRadius, vLeashHome, fLeashRadius * fLeashRadius
-    );
+    PathSearchParameter parameters;
+    parameters.entity     = controlledEntity;
+    parameters.fallHeight = maxFallHeight;
+    parameters.leashDist  = fLeashRadius;
+    if (vLeashHome) {
+        parameters.leashHome = vLeashHome;
+    }
+    m_pPath->FindPathAway(controlledEntity->origin, vAvoid, vDir, fAvoidRadius, parameters);
+
     NewMove();
 
-    if (!m_Path.CurrentNode()) {
+    if (!m_pPath->GetNodeCount()) {
         // Random movements
         m_vTargetPos = controlledEntity->origin + Vector(G_Random(256) - 128, G_Random(256) - 128, G_Random(256) - 128);
         m_vCurrentGoal = m_vTargetPos;
         return;
     }
 
-    m_vTargetPos = m_Path.LastNode()->point;
+    m_iLastMoveTime = level.inttime;
+    m_vTargetPos    = m_pPath->GetDestination();
 }
 
 /*
@@ -394,17 +541,24 @@ Move near the specified position within the radius
 */
 void BotMovement::MoveNear(Vector vNear, float fRadius, float *vLeashHome, float fLeashRadius)
 {
-    m_Path.FindPathNear(
-        controlledEntity->origin, vNear, controlledEntity, 0, fRadius * fRadius, vLeashHome, fLeashRadius * fLeashRadius
-    );
+    PathSearchParameter parameters;
+    parameters.entity     = controlledEntity;
+    parameters.fallHeight = maxFallHeight;
+    parameters.leashDist  = fLeashRadius;
+    if (vLeashHome) {
+        parameters.leashHome = vLeashHome;
+    }
+
+    m_pPath->FindPathNear(controlledEntity->origin, vNear, fRadius, parameters);
     NewMove();
 
-    if (!m_Path.CurrentNode()) {
+    if (!m_pPath->GetNodeCount()) {
         m_bPathing = false;
         return;
     }
 
-    m_vTargetPos = m_Path.LastNode()->point;
+    m_iLastMoveTime = level.inttime;
+    m_vTargetPos    = m_pPath->GetDestination();
 }
 
 /*
@@ -417,17 +571,25 @@ Move to the specified position
 void BotMovement::MoveTo(Vector vPos, float *vLeashHome, float fLeashRadius)
 {
     m_vTargetPos = vPos;
-    m_Path.FindPath(
-        controlledEntity->origin, m_vTargetPos, controlledEntity, 0, vLeashHome, fLeashRadius * fLeashRadius
-    );
+
+    PathSearchParameter parameters;
+    parameters.entity     = controlledEntity;
+    parameters.fallHeight = maxFallHeight;
+    parameters.leashDist  = fLeashRadius;
+    if (vLeashHome) {
+        parameters.leashHome = vLeashHome;
+    }
+
+    m_pPath->FindPath(controlledEntity->origin, vPos, parameters);
 
     NewMove();
 
-    if (!m_Path.CurrentNode()) {
+    if (!m_pPath->GetNodeCount()) {
         m_bPathing = false;
         return;
     }
 
+    m_iLastMoveTime = level.inttime;
     CheckEndPos(controlledEntity);
 }
 
@@ -545,6 +707,238 @@ void BotMovement::NewMove()
     m_vLastCheckPos[1] = controlledEntity->origin;
 }
 
+Vector BotMovement::FixDeltaFromCollision(const Vector& delta)
+{
+    trace_t trace;
+    Vector  mins(MINS_X, MINS_Y, MINS_Z + STEPSIZE);
+    Vector  maxs(MAXS_X, MAXS_Y, MAXS_Z);
+    Vector  newDelta;
+    Vector  angles;
+    Vector  forward, right, up;
+    Vector  target;
+    Vector  front;
+    float   distSqr;
+
+    if (level.inttime < m_iCollisionCheckTime + 250 || m_bJump) {
+        if (m_bAvoidCollision) {
+            newDelta = m_vTempCollisionAvoidance - controlledEntity->origin;
+            if (newDelta.lengthSquared() > Square(16)) {
+                // Not reached
+                return newDelta;
+            }
+
+            // Path has been reached so clear the collision
+            m_bAvoidCollision = false;
+        }
+
+        return delta;
+    }
+
+    m_iCollisionCheckTime = level.inttime;
+    m_bAvoidCollision     = false;
+
+    target = controlledEntity->origin + delta;
+
+    newDelta = delta;
+    distSqr  = VectorNormalize2(newDelta, forward);
+    VectorToAngles(forward, angles);
+    AngleVectors(angles, forward, right, up);
+    target = controlledEntity->origin + forward * Q_min(distSqr, 128);
+
+    trace = G_Trace(
+        controlledEntity->origin, mins, maxs, target, controlledEntity, MASK_PLAYERSOLID, qtrue, "GetCurrentDelta"
+    );
+    if (trace.fraction < 1.0) {
+        trace_t tmpTrace;
+        Vector  forwardXY, rightXY, upXY;
+        Vector  targetXY;
+
+        angles.x = 0;
+        AngleVectors(angles, forwardXY, rightXY, upXY);
+        targetXY = controlledEntity->origin + forwardXY * Q_min(distSqr, 128);
+
+        tmpTrace = G_Trace(
+            controlledEntity->origin, mins, maxs, target, controlledEntity, MASK_PLAYERSOLID, qtrue, "GetCurrentDelta"
+        );
+
+        if (tmpTrace.fraction > trace.fraction) {
+            trace   = tmpTrace;
+            forward = forwardXY;
+            right   = rightXY;
+            up      = upXY;
+            target  = targetXY;
+        }
+    }
+
+    if (trace.fraction < 0.25 && distSqr * Square(trace.fraction) < Square(64)) {
+        Vector  newStartLeft, newStartRight;
+        trace_t leftTrace, rightTrace;
+        int     i;
+        float   bestLeftFrac = 0, bestRightFrac = 0;
+        Vector  bestLeftPos, bestRightPos;
+
+        // If it's near parallel use the trace normal
+        if (DotProduct(trace.plane.normal, forward) < -0.6) {
+            VectorCopy(trace.plane.normal, forward);
+            VectorNegate(forward, forward);
+            VectorToAngles(forward, angles);
+            AngleVectors(angles, forward, right, up);
+        }
+
+        leftTrace.fraction = rightTrace.fraction = 0;
+
+        for (i = 1; i < 5; i++) {
+            newStartRight = controlledEntity->origin - forward + right * (32 * i);
+
+            //
+            // Trace to the right
+            //
+            rightTrace = G_Trace(
+                controlledEntity->origin,
+                mins,
+                maxs,
+                newStartRight,
+                controlledEntity,
+                MASK_PLAYERSOLID,
+                qtrue,
+                "GetCurrentDelta"
+            );
+
+            if (rightTrace.startsolid || rightTrace.fraction <= 0) {
+                break;
+            }
+
+            newStartRight = rightTrace.endpos;
+
+            //
+            // Trace from the right to the node
+            //
+            rightTrace = G_Trace(
+                Vector(rightTrace.endpos),
+                mins,
+                maxs,
+                target,
+                controlledEntity,
+                MASK_PLAYERSOLID,
+                qtrue,
+                "GetCurrentDelta"
+            );
+
+            if (rightTrace.fraction > bestRightFrac) {
+                bestRightFrac = rightTrace.fraction;
+                bestRightPos  = newStartRight;
+            }
+            if (rightTrace.fraction >= 0.999) {
+                break;
+            }
+        }
+
+        if (bestRightFrac != 1) {
+            for (i = 1; i < 5; i++) {
+                newStartLeft = controlledEntity->origin - forward - right * (32 * i);
+
+                //
+                // Trace to the left
+                //
+                leftTrace = G_Trace(
+                    controlledEntity->origin,
+                    mins,
+                    maxs,
+                    newStartLeft,
+                    controlledEntity,
+                    MASK_PLAYERSOLID,
+                    qtrue,
+                    "GetCurrentDelta"
+                );
+
+                if (leftTrace.startsolid || leftTrace.fraction <= 0) {
+                    break;
+                }
+
+                newStartLeft = leftTrace.endpos;
+
+                //
+                // Trace from the left to the node
+                //
+                leftTrace = G_Trace(
+                    Vector(leftTrace.endpos),
+                    mins,
+                    maxs,
+                    target,
+                    controlledEntity,
+                    MASK_PLAYERSOLID,
+                    qtrue,
+                    "GetCurrentDelta"
+                );
+
+                if (leftTrace.fraction > bestLeftFrac) {
+                    bestLeftFrac = leftTrace.fraction;
+                    bestLeftPos  = newStartLeft;
+                }
+                if (leftTrace.fraction >= 0.999) {
+                    break;
+                }
+            }
+        }
+
+        if (bestLeftFrac != 0 || bestRightFrac != 0) {
+            trace_t leftFallTrace, rightFallTrace;
+
+            //
+            // Make sure we're not falling
+            //
+
+            leftFallTrace = G_Trace(
+                bestLeftPos,
+                mins,
+                maxs,
+                bestLeftPos - Vector(0, 0, STEPSIZE * 2),
+                controlledEntity,
+                MASK_PLAYERSOLID,
+                qtrue,
+                "GetCurrentDelta"
+            );
+            rightFallTrace = G_Trace(
+                bestRightPos,
+                mins,
+                maxs,
+                bestRightPos - Vector(0, 0, STEPSIZE * 2),
+                controlledEntity,
+                MASK_PLAYERSOLID,
+                qtrue,
+                "GetCurrentDelta"
+            );
+
+            m_bAvoidCollision = true;
+
+            //
+            // By default use the one with higher fraction
+            //
+            if (bestLeftFrac > bestRightFrac) {
+                m_vTempCollisionAvoidance = bestLeftPos + forward * 16;
+            } else {
+                m_vTempCollisionAvoidance = bestRightPos + forward * 16;
+            }
+
+            //
+            // If falling, make sure to use the one that won't fall
+            //
+            if (leftFallTrace.fraction != rightFallTrace.fraction && leftFallTrace.fraction != 1
+                && rightTrace.fraction != 1) {
+                if (leftFallTrace.fraction == 1) {
+                    m_vTempCollisionAvoidance = bestRightPos + forward * 16;
+                } else if (rightFallTrace.fraction == 1) {
+                    m_vTempCollisionAvoidance = bestLeftPos + forward * 16;
+                }
+            }
+
+            return m_vTempCollisionAvoidance - controlledEntity->origin;
+        }
+    }
+
+    return delta;
+}
+
 /*
 ====================
 CanMoveTo
@@ -554,7 +948,10 @@ Returns true if the bot has done moving
 */
 bool BotMovement::CanMoveTo(Vector vPos)
 {
-    return m_Path.DoesTheoreticPathExist(controlledEntity->origin, vPos, NULL, 0, NULL, 0);
+    PathSearchParameter parameters;
+    parameters.fallHeight = maxFallHeight;
+    parameters.entity     = controlledEntity;
+    return m_pPath->TestPath(controlledEntity->origin, vPos, parameters);
 }
 
 /*
@@ -572,16 +969,16 @@ bool BotMovement::MoveDone()
         return true;
     }
 
-    if (m_bTempAway) {
+    if (m_iTempAwayState != 0) {
         return false;
     }
 
-    if (!m_Path.CurrentNode()) {
+    if (!m_pPath->GetNodeCount()) {
         return true;
     }
 
-    Vector delta = Vector(m_Path.CurrentPathGoal()) - controlledEntity->origin;
-    if (delta.lengthXYSquared() < Square(16) && delta.z < controlledEntity->maxs.z) {
+    Vector delta = m_pPath->GetDestination() - controlledEntity->origin;
+    if (delta.lengthXYSquared() < Square(16) && (m_pPath->GetNodeCount() == 1 || delta.z < controlledEntity->maxs.z)) {
         return true;
     }
 
@@ -609,7 +1006,7 @@ Stop the bot from moving
 */
 void BotMovement::ClearMove(void)
 {
-    m_Path.Clear();
+    m_pPath->Clear();
     m_bPathing   = false;
     m_iNumBlocks = 0;
 }
@@ -623,13 +1020,19 @@ Return the current goal, usually the nearest node the player should look at
 */
 Vector BotMovement::GetCurrentGoal() const
 {
-    if (!m_Path.CurrentNode()) {
+    if (!m_pPath->GetNodeCount()) {
         return m_vCurrentGoal;
     }
 
-    if (!m_Path.Complete(controlledEntity->origin)) {
-        return controlledEntity->origin + Vector(m_Path.CurrentDelta()[0], m_Path.CurrentDelta()[1], 0);
+    if (!m_pPath->HasReachedGoal(controlledEntity->origin) && m_pPath->GetNodeCount()) {
+        const Vector delta = m_pPath->GetCurrentDelta();
+        return controlledEntity->origin + Vector(delta[0], delta[1], 0);
     }
 
     return controlledEntity->origin;
+}
+
+Vector BotMovement::GetCurrentPathDirection() const
+{
+    return m_pPath->GetCurrentDirection();
 }

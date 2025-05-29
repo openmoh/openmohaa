@@ -35,6 +35,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Entities.h"
 #include "health.h"
 
+#include "navigation_recast_load.h"
+
 #include "scriptmaster.h"
 #include "scriptthread.h"
 #include "scriptvariable.h"
@@ -855,6 +857,8 @@ void Level::CleanUp(qboolean samemap, qboolean resetConfigStrings)
     // clear active current bots
     G_ResetBots();
 
+    navigationMap.CleanUp(samemap);
+
     assert(active_edicts.next);
     assert(active_edicts.next->prev == &active_edicts);
     assert(active_edicts.prev);
@@ -1502,6 +1506,12 @@ void Level::ServerSpawned(void)
         Director.Unpause();
 
         Unregister(STRING_SPAWN);
+
+        if (!g_navigation_legacy->integer) {
+            // Added in OPM
+            //  Recast navigation
+            navigationMap.LoadWorldMap(m_mapfile);
+        }
     } else {
         Director.LoadMenus();
     }
