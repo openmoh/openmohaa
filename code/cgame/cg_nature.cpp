@@ -102,26 +102,29 @@ void CG_Rain(centity_t *cent)
 
     cgi.R_ModelBounds(cgs.inlineDrawModel[cent->currentState.modelindex], mins, maxs);
 
+    // Fixed in 2.0
+    //  Use cg.refdef.vieworg instead of cg.snap.ps.origin
+
     vOmins[0] = mins[0] + cent->lerpOrigin[0];
-    if (vOmins[0] < cg.snap->ps.origin[0] - cg.rain.min_dist) {
-        vOmins[0] = cg.snap->ps.origin[0] - cg.rain.min_dist;
+    if (vOmins[0] < cg.refdef.vieworg[0] - cg.rain.min_dist) {
+        vOmins[0] = cg.refdef.vieworg[0] - cg.rain.min_dist;
     }
 
     vOmins[1] = mins[1] + cent->lerpOrigin[1];
-    if (vOmins[1] < cg.snap->ps.origin[1] - cg.rain.min_dist) {
-        vOmins[1] = cg.snap->ps.origin[1] - cg.rain.min_dist;
+    if (vOmins[1] < cg.refdef.vieworg[1] - cg.rain.min_dist) {
+        vOmins[1] = cg.refdef.vieworg[1] - cg.rain.min_dist;
     }
 
     vOmins[2] = mins[2] + cent->lerpOrigin[2];
 
     vOmaxs[0] = maxs[0] + cent->lerpOrigin[0];
-    if (vOmaxs[0] > cg.rain.min_dist + cg.snap->ps.origin[0]) {
-        vOmaxs[0] = cg.rain.min_dist + cg.snap->ps.origin[0];
+    if (vOmaxs[0] > cg.refdef.vieworg[0] + cg.rain.min_dist) {
+        vOmaxs[0] = cg.refdef.vieworg[0] + cg.rain.min_dist;
     }
 
     vOmaxs[1] = maxs[1] + cent->lerpOrigin[1];
-    if (vOmaxs[1] > cg.rain.min_dist + cg.snap->ps.origin[1]) {
-        vOmaxs[1] = cg.rain.min_dist + cg.snap->ps.origin[1];
+    if (vOmaxs[1] > cg.refdef.vieworg[1] + cg.rain.min_dist) {
+        vOmaxs[1] = cg.refdef.vieworg[1] + cg.rain.min_dist;
     }
 
     vOmaxs[2] = maxs[2] + cent->lerpOrigin[2];
@@ -168,25 +171,36 @@ void CG_Rain(centity_t *cent)
     }
 
     for (i = 0; i < iNumSpawn; ++i) {
-        iLife     = (int)(vOe[2] / ((float)(iRandom % cg.rain.speed_vary) + cg.rain.speed) * 1000.0);
         vStart[0] = (float)(iRandom % (int)(vOe[0] + 1.0)) + vOmins[0];
         iRandom   = ((214013 * iRandom + 2531011) >> 16) & 0x7FFF;
         vStart[1] = (float)(iRandom % (int)(vOe[1] + 1.0)) + vOmins[1];
-        vStart[2] = vOmaxs[2];
+        iRandom   = ((214013 * iRandom + 2531011) >> 16) & 0x7FFF;
+        // Fixed in 2.0
+        //  Use random height instead of the max height to avoid waiting for it to fall down
+        vStart[2] = (float)(iRandom % (int)(vOe[2] + 1.0)) + vOmins[2];
 
-        if (cg.snap) {
-            vLength[0] = cg.snap->ps.origin[0] - vStart[0];
-            vLength[1] = cg.snap->ps.origin[1] - vStart[1];
-            vLength[2] = 0.0;
-            if (cg.rain.min_dist * cg.rain.min_dist < VectorLengthSquared(vLength)) {
-                continue;
-            }
+        VectorSubtract(cg.refdef.vieworg, vStart, vLength);
+        vLength[2] = 0;
+
+        if (VectorLengthSquared(vLength) > Square(cg.rain.min_dist)) {
+            continue;
         }
+
+        iRandom = ((214013 * iRandom + 2531011) >> 16) & 0x7FFF;
 
         vEnd[0] = (float)(iRandom % cg.rain.slant) + vStart[0] + vss_wind_x->value;
         iRandom = ((214013 * iRandom + 2531011) >> 16) & 0x7FFF;
         vEnd[1] = (float)(iRandom % cg.rain.slant) + vStart[1] + vss_wind_y->value;
         vEnd[2] = vOmins[2];
+
+        // Fixed in 2.0
+        //  Use individual particle's origin to determine the life rather than the bounding box
+        iLife = (int)((vStart[2] - vOmins[2]) / ((float)(iRandom % cg.rain.speed_vary) + cg.rain.speed) * 1000.0);
+        if (iLife > 10000) {
+            // Fixed in 2.0
+            //  Rain particles must not last longer than 10 seconds
+            iLife = 10000;
+        }
 
         CG_CreateBeam(
             vStart,
