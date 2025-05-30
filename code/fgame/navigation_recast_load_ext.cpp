@@ -175,6 +175,7 @@ void NavigationMapExtension_JumpFall::Handle(Container<offMeshNavigationPoint>& 
         }
     }
 
+    delete[] vertreg;
     delete[] vertpos;
     delete[] walkableVert;
 
