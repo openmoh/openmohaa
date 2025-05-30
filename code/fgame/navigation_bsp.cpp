@@ -848,10 +848,10 @@ void NavigationBSP::SwapTerraPatch(cTerraPatch_t *pPatch)
 
 /*
 ================
-NavigationBSP::RenderPatch
+NavigationBSP::GenerateTerrainPatchMesh
 ================
 */
-void NavigationBSP::RenderPatch(const cTerraPatchUnpacked_t& patch)
+void NavigationBSP::GenerateTerrainPatchMesh(const cTerraPatchUnpacked_t& patch)
 {
     terraInt      vertNum;
     terraInt      triNum;
@@ -882,10 +882,10 @@ void NavigationBSP::RenderPatch(const cTerraPatchUnpacked_t& patch)
 
 /*
 ================
-NavigationBSP::RenderTerrainTris
+NavigationBSP::GenerateTerrainMesh
 ================
 */
-void NavigationBSP::RenderTerrainTris(cTerraPatchUnpacked_t *terraPatches, size_t numTerraPatches)
+void NavigationBSP::GenerateTerrainMesh(cTerraPatchUnpacked_t *terraPatches, size_t numTerraPatches)
 {
     size_t   i;
     size_t   numVertices;
@@ -921,7 +921,7 @@ void NavigationBSP::RenderTerrainTris(cTerraPatchUnpacked_t *terraPatches, size_
     for (i = 0; i < numTerraPatches; i++) {
         const cTerraPatchUnpacked_t& patch = terraPatches[i];
 
-        RenderPatch(patch);
+        GenerateTerrainPatchMesh(patch);
     }
 
     G_TerrainFree();
@@ -982,20 +982,13 @@ void NavigationBSP::LoadAndRenderTerrain(bspMap_c& inBspMap, const Container<csh
         }
     }
 #else
-    for (i = 0; i < numTerraPatches; in++, i++) {
+    for (i = 0; i < numTerraPatches; in++, out++, i++) {
         SwapTerraPatch(in);
 
-        const cshader_t& shader = shaders.ObjectAt(in->iShader + 1);
-        if (!IsValidContentsForPlayer(shader.contentFlags)) {
-            continue;
-        }
-
         UnpackTerraPatch(in, out);
-
-        out++;
     }
 
-    RenderTerrainTris(terraPatches, out - terraPatches);
+    GenerateTerrainMesh(terraPatches, out - terraPatches);
 
     gi.Free(terraPatches);
 #endif

@@ -203,9 +203,8 @@ struct surfaceGrid_t {
     }
 };
 
-surfaceGrid_t      *
-G_SubdividePatchToGrid(int width, int height, Vector points[MAX_PATCH_SIZE * MAX_PATCH_SIZE]);
-void G_FreeSurfaceGridMesh(surfaceGrid_t *grid);
+surfaceGrid_t *G_SubdividePatchToGrid(int width, int height, Vector points[MAX_PATCH_SIZE * MAX_PATCH_SIZE]);
+void           G_FreeSurfaceGridMesh(surfaceGrid_t *grid);
 
 ///
 /// LOD Terrain loading
@@ -394,8 +393,8 @@ private:
     void LoadSurfaces(bspMap_c& inBspMap, const Container<cshader_t>& shaders);
     void UnpackTerraPatch(const cTerraPatch_t *pPacked, cTerraPatchUnpacked_t *pUnpacked);
     void SwapTerraPatch(cTerraPatch_t *pPatch);
-    void RenderPatch(const cTerraPatchUnpacked_t& patch);
-    void RenderTerrainTris(cTerraPatchUnpacked_t *terraPatches, size_t numTerraPatches);
+    void GenerateTerrainPatchMesh(const cTerraPatchUnpacked_t& patch);
+    void GenerateTerrainMesh(cTerraPatchUnpacked_t *terraPatches, size_t numTerraPatches);
     void LoadAndRenderTerrain(bspMap_c& inBspMap, const Container<cshader_t>& shaders);
     void CopyStaticModel(const cStaticModel_t *pSM, cStaticModelUnpacked_t *pUnpackedSM);
 
