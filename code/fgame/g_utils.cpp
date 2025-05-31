@@ -2161,19 +2161,36 @@ int G_NumClients(void)
 
 void G_PrintToAllClients(const char *pszString, int iType)
 {
+    gentity_t *ent;
+    int        i;
+
     if (g_protocol >= protocol_e::PROTOCOL_MOHTA_MIN) {
-        if (iType == 0) {
-            gi.SendServerCommand(-1, "print \"" HUD_MESSAGE_YELLOW "%s\"", pszString);
-        } else if (iType == 1) {
-            gi.SendServerCommand(-1, "print \"" HUD_MESSAGE_WHITE "%s\"", pszString);
-        } else if (iType == 2) {
-            gi.SendServerCommand(-1, "print \"" HUD_MESSAGE_CHAT_WHITE "%s\"", pszString);
+        for (i = 0; i < game.maxclients; i++) {
+            ent = &g_entities[i];
+            if (!ent->inuse || !ent->entity) {
+                continue;
+            }
+
+            if (iType == 0) {
+                gi.SendServerCommand(i, "print \"" HUD_MESSAGE_YELLOW "%s\"", pszString);
+            } else if (iType == 1) {
+                gi.SendServerCommand(i, "print \"" HUD_MESSAGE_WHITE "%s\"", pszString);
+            } else if (iType == 2) {
+                gi.SendServerCommand(i, "print \"" HUD_MESSAGE_CHAT_WHITE "%s\"", pszString);
+            }
         }
     } else {
-        if (iType == 0) {
-            gi.SendServerCommand(-1, "print \"" HUD_MESSAGE_YELLOW "%s\"", pszString);
-        } else {
-            gi.SendServerCommand(-1, "print \"" HUD_MESSAGE_WHITE "%s\"", pszString);
+        for (i = 0; i < game.maxclients; i++) {
+            ent = &g_entities[i];
+            if (!ent->inuse || !ent->entity) {
+                continue;
+            }
+
+            if (iType == 0) {
+                gi.SendServerCommand(i, "print \"" HUD_MESSAGE_YELLOW "%s\"", pszString);
+            } else {
+                gi.SendServerCommand(i, "print \"" HUD_MESSAGE_WHITE "%s\"", pszString);
+            }
         }
     }
 }
