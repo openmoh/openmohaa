@@ -950,7 +950,7 @@ void DM_Manager::Score(Player *player)
             continue;
         }
 
-        iPlayerList[j] = currentPlayer->client->ps.clientNum;
+        iPlayerList[j] = currentPlayer->edict - g_entities;
 
         j++;
     }
