@@ -817,6 +817,9 @@ void G_ClientUserinfoChanged(gentity_t *ent, const char *u)
         ent->entity->ProcessEvent(ev);
     }
 
+    Q_strncpyz(client->pers.ip, Info_ValueForKey(u, "ip"), sizeof(client->pers.ip));
+    client->pers.port = atoi(Info_ValueForKey(u, "port"));
+
     Q_strncpyz(client->pers.userinfo, u, sizeof(client->pers.userinfo));
 }
 
@@ -887,6 +890,7 @@ const char *G_ClientConnect(int clientNum, qboolean firstTime, qboolean differen
 
     gi.GetUserinfo(clientNum, userinfo, sizeof(userinfo));
 
+#if 0
     // IP filtering
     // https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=500
     // recommanding PB based IP / GUID banning, the builtin system is pretty limited
@@ -894,15 +898,16 @@ const char *G_ClientConnect(int clientNum, qboolean firstTime, qboolean differen
     ip   = Info_ValueForKey(userinfo, "ip");
     port = Info_ValueForKey(userinfo, "port");
 
-    // FIXME: what is fucking wrong with G_FilterPacket...
     // NOTE: IP banning is directly handled by the server
-    //if ( G_FilterPacket( value ) ) {
-    //	return "Banned IP";
-    //}
+    if ( G_FilterPacket( value ) ) {
+    	return "Banned IP";
+    }
+#endif
 
     // we don't check password for bots and local client
     // NOTE: local client <-> "ip" "localhost"
     //   this means this client is not running in our current process
+    ip = Info_ValueForKey(userinfo, "ip");
     if ((strcmp(ip, "localhost") != 0)) {
         // check for a password
         value = Info_ValueForKey(userinfo, "password");
@@ -935,9 +940,6 @@ const char *G_ClientConnect(int clientNum, qboolean firstTime, qboolean differen
             client->pers.dm_primary[0] = 0;
         }
     }
-
-    Q_strncpyz(client->pers.ip, ip, sizeof(client->pers.ip));
-    client->pers.port = atoi(port);
 
     G_ClientUserinfoChanged(ent, userinfo);
 
