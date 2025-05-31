@@ -927,6 +927,7 @@ public:
     // Added in OPM
     //=============================
 
+    void ResetClient();
     qboolean CheckCanSwitchTeam(teamtype_t team);
 
     qboolean     ViewModelAnim(str anim, qboolean force_restart, qboolean bFullAnim);

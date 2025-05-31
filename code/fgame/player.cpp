@@ -12133,6 +12133,22 @@ void Player::AddDeaths(int num)
 //
 ////////////////////////////
 
+void Player::ResetClient() {
+    client->pers.teamnum = GetTeam();
+    client->pers.dm_primary[0] = 0;
+
+    //
+    // Initialize important information about the client
+    // and put it back into spectator
+    //
+
+    InitClient();
+
+    if (g_gametype->integer != GT_SINGLE_PLAYER) {
+        Spectator();
+    }
+}
+
 qboolean Player::canUse()
 {
     int touch[MAX_GENTITIES];

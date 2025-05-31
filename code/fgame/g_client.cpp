@@ -974,6 +974,8 @@ and on transition between teams, but doesn't happen on respawns
 */
 void G_ClientBegin(gentity_t *ent, usercmd_t *cmd)
 {
+    Player *player = NULL;
+
     try {
         assert(ent->s.number < game.maxclients);
         assert(ent->client != NULL);
@@ -985,11 +987,21 @@ void G_ClientBegin(gentity_t *ent, usercmd_t *cmd)
             // state when the game is saved, so we need to compensate
             // with deltaangles
             ent->entity->SetDeltaAngles();
+
+            if (ent->entity->IsSubclassOfPlayer()) {
+                player = static_cast<Player *>(ent->entity);
+
+                // Added in OPM
+                //  When a client reuses an entity, make the player instance aware about it
+                if (player) {
+                    player->ResetClient();
+                }
+            }
         } else {
             // a spawn point will completely reinitialize the entity
             level.spawn_entnum = ent->s.number;
 
-            Player *player = new Player;
+            player = new Player;
         }
 
         if (level.intermissiontime && ent->entity) {
