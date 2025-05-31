@@ -487,6 +487,11 @@ typedef struct gameImport_s {
     // Added in OPM
     //
 
+    /**
+     * Print a message related to a client
+     */
+    void (*PrintfClient)(int clientNum, const char *fmt, ...);
+
     int (*pvssoundindex)(const char* name, int streamed);
 
     cvar_t *fsDebug;

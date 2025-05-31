@@ -1910,6 +1910,7 @@ void SV_InitGameProgs( void ) {
 	import.fsDebug						= fs_debug;
 
 	// Added in OPM
+    import.PrintfClient                 = SV_PrintfClient;
 	import.pvssoundindex				= SV_PVSSoundIndex;
 
 	ge = Sys_GetGameAPI( &import );

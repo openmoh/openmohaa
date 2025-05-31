@@ -422,6 +422,8 @@ void        G_ClientBegin(gentity_t *ent, usercmd_t *cmd);
 void        G_SetClientConfigString(gentity_t *ent);
 void        G_ClientCommand(gentity_t *ent);
 
+void        G_PrintfClient(gentity_t *ent, const char *fmt, ...);
+
 //
 // g_active.c
 //

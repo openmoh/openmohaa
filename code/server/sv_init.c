@@ -1101,6 +1101,9 @@ void SV_Init (void)
 #endif
 	sv_banFile = Cvar_Get("sv_banFile", "serverbans.dat", CVAR_ARCHIVE);
 
+    // Added in OPM
+    sv_logContext = Cvar_Get("sv_logContext", "1", 0);
+
 	Q_strncpyz( svs.gameName, "current", sizeof(svs.gameName) );
 
 	// dday vars
