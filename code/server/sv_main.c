@@ -80,6 +80,8 @@ cvar_t	*sv_strictAuth;
 #endif
 cvar_t	*sv_banFile;
 
+cvar_t  *sv_logContext;
+
 serverBan_t serverBans[SERVER_MAXBANS];
 int serverBansCount = 0;
 
@@ -1378,4 +1380,48 @@ int SV_SendQueuedPackets()
 	}
 
 	return timeVal;
+}
+
+/*
+=====================
+SV_PrintfClient
+=====================
+*/
+void SV_PrintfClient(int clientNum, const char *fmt, ...) {
+    client_t   *cl;
+    const char *addr, *name;
+    va_list     argptr;
+    char        msg[MAXPRINTMSG];
+
+    if (!com_dedicated->integer) {
+        // Only print client details on dedicated servers
+        return;
+    }
+
+    va_start(argptr, fmt);
+    Q_vsnprintf(msg, sizeof(msg), fmt, argptr);
+    va_end(argptr);
+
+    if (clientNum < 0 || clientNum >= svs.iNumClients) {
+        return;
+    }
+
+    cl = &svs.clients[clientNum];
+    if (cl->netchan.remoteAddress.type == NA_BAD) {
+        return;
+    }
+
+    name = cl->name;
+    if (!name[0]) {
+        name = Info_ValueForKey(cl->userinfo, "name");
+    }
+
+    if (!sv_logContext->integer) {
+        // Contextual print disabled
+        Com_Printf("%s %s", name, msg);
+        return;
+    }
+
+    addr = NET_AdrToStringwPort(cl->netchan.remoteAddress);
+    Com_Printf("{#%d | %s} %s %s", clientNum, addr, name, msg);
 }

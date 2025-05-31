@@ -622,7 +622,7 @@ gotnewcl:
 
     // Added in OPM
     //  Show the IP address of the client that is connecting
-    Com_Printf("Client %i (address %s) is connecting\n", i, ip);
+    Com_Printf("Client %i (IP: %s) is connecting\n", clientNum, ip);
 
 	ch = FindChallenge(from, qfalse);
 	if (ch) {
@@ -1511,10 +1511,12 @@ void SV_UserinfoChanged( client_t *cl ) {
     // Added in OPM
     //  Print name changes
     //
-    if (!oldname[0]) {
-        Com_Printf("Client %i name set to '%s'\n", cl - svs.clients, cl->name);
-    } else if (strcmp(oldname, cl->name)) {
-        Com_Printf("Client %i changed name from '%s' to '%s'\n", cl - svs.clients, oldname, cl->name);
+    if (cl->state != CS_FREE) {
+        if (!oldname[0]) {
+            SV_PrintfClient(cl - svs.clients, "is using this name\n");
+        } else if (strcmp(oldname, cl->name)) {
+            SV_PrintfClient(cl - svs.clients, "has changed name (old name was '%s')\n", oldname);
+        }
     }
 
 	// rate command

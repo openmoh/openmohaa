@@ -2818,15 +2818,11 @@ void Player::Obituary(Entity *attacker, Entity *inflictor, int meansofdeath, int
         if (bDispLocation && g_obituarylocation->integer) {
             str szConv2 = s2 + " in the " + G_LocationNumToDispString(iLocation);
 
-            if (dedicated->integer) {
-                gi.Printf("%s %s\n", client->pers.netname, gi.LV_ConvertString(szConv2.c_str()));
-            }
+            G_PrintfClient(edict, "%s\n", szConv2.c_str());
 
             G_PrintDeathMessage(s1, szConv2.c_str(), "x", client->pers.netname, this, "s");
         } else {
-            if (dedicated->integer) {
-                gi.Printf("%s %s\n", client->pers.netname, gi.LV_ConvertString(s1.c_str()));
-            }
+            G_PrintfClient(edict, "%s\n", s1.c_str());
 
             G_PrintDeathMessage(s1.c_str(), s2.c_str(), "x", client->pers.netname, this, "s");
         }
@@ -2948,16 +2944,10 @@ void Player::Obituary(Entity *attacker, Entity *inflictor, int meansofdeath, int
 
                 szLoc1 = gi.LV_ConvertString(s1.c_str());
                 if (s2 == 'x') {
-                    gi.Printf("%s %s %s\n", client->pers.netname, szLoc1.c_str(), attacker->client->pers.netname);
+                    G_PrintfClient(edict, "%s %s\n", szLoc1.c_str(), attacker->client->pers.netname);
                 } else {
                     szLoc2 = gi.LV_ConvertString(szConv2.c_str());
-                    gi.Printf(
-                        "%s %s %s%s\n",
-                        client->pers.netname,
-                        szLoc1.c_str(),
-                        attacker->client->pers.netname,
-                        szLoc2.c_str()
-                    );
+                    G_PrintfClient(edict, "%s %s%s\n", szLoc1.c_str(), attacker->client->pers.netname, szLoc2.c_str());
                 }
             }
         } else {
@@ -2970,16 +2960,10 @@ void Player::Obituary(Entity *attacker, Entity *inflictor, int meansofdeath, int
 
                 szLoc1 = gi.LV_ConvertString(s1.c_str());
                 if (s2 == 'x') {
-                    gi.Printf("%s %s %s\n", client->pers.netname, szLoc1.c_str(), attacker->client->pers.netname);
+                    G_PrintfClient(edict, "%s %s\n", szLoc1.c_str(), attacker->client->pers.netname);
                 } else {
                     szLoc2 = gi.LV_ConvertString(s2.c_str());
-                    gi.Printf(
-                        "%s %s %s%s\n",
-                        client->pers.netname,
-                        szLoc1.c_str(),
-                        attacker->client->pers.netname,
-                        szLoc2.c_str()
-                    );
+                    G_PrintfClient(edict, "%s %s%s\n", szLoc1.c_str(), attacker->client->pers.netname, szLoc2.c_str());
                 }
             }
         }
@@ -3027,17 +3011,11 @@ void Player::Obituary(Entity *attacker, Entity *inflictor, int meansofdeath, int
             str szConv2 = s2 + " in the " + G_LocationNumToDispString(iLocation);
 
             G_PrintDeathMessage(s1.c_str(), szConv2.c_str(), "x", client->pers.netname, this, "w");
-
-            if (dedicated->integer) {
-                gi.Printf("%s %s\n", client->pers.netname, gi.LV_ConvertString(s1.c_str()));
-            }
         } else {
             G_PrintDeathMessage(s1.c_str(), s2.c_str(), "x", client->pers.netname, this, "w");
-
-            if (dedicated->integer) {
-                gi.Printf("%s %s\n", client->pers.netname, gi.LV_ConvertString(s1.c_str()));
-            }
         }
+
+        G_PrintfClient(edict, "%s\n", gi.LV_ConvertString(s1.c_str()));
     }
 }
 
@@ -9543,14 +9521,16 @@ void Player::Join_DM_Team(Event *ev)
         // a player joined a team
         //
         if (GetTeam() == TEAM_ALLIES) {
-            join_message = "has joined the Allies";
+            join_message = gi.LV_ConvertString("has joined the Allies");
         } else if (GetTeam() == TEAM_AXIS) {
-            join_message = "has joined the Axis";
+            join_message = gi.LV_ConvertString("has joined the Axis");
         } else {
             return;
         }
 
-        G_PrintToAllClients(va("%s %s\n", client->pers.netname, gi.LV_ConvertString(join_message)), 2);
+        G_PrintfClient(edict, "%s\n", join_message);
+
+        G_PrintToAllClients(va("%s %s\n", client->pers.netname, join_message), 2);
     }
 }
 
@@ -9999,6 +9979,7 @@ void Player::CallVote(Event *ev)
         }
     }
 
+    G_PrintfClient(edict, "called a vote (%s %s)\n", arg1.c_str(), arg2.c_str());
     G_PrintToAllClients(va("%s %s.\n", client->pers.netname, gi.LV_ConvertString("called a vote")));
 
     level.m_voteTime = (level.svsFloatTime - level.svsStartFloatTime) * 1000;
@@ -10882,13 +10863,9 @@ void Player::EventDMMessage(Event *ev)
 
         // Added in OPM
         if (bInstaMessage) {
-            gi.Printf(
-                "%s (%zu) says (voice) to everyone: %s\n", client->pers.netname, edict - g_entities, pStartMessage
-            );
+            G_PrintfClient(edict, "shouts @all: %s\n", pStartMessage);
         } else {
-            gi.Printf(
-                "%s (%zu) says (text) to everyone: %s\n", client->pers.netname, edict - g_entities, pStartMessage
-            );
+            G_PrintfClient(edict, "says @all: %s\n", pStartMessage);
         }
 
         if (!IsSpectator() || g_spectate_allow_full_chat->integer) {
@@ -10947,9 +10924,9 @@ void Player::EventDMMessage(Event *ev)
 
         // Added in OPM
         if (bInstaMessage) {
-            gi.Printf("%s (%zu) says (voice) to team: %s\n", client->pers.netname, edict - g_entities, pStartMessage);
+            G_PrintfClient(edict, "shouts @team: %s\n", pStartMessage);
         } else {
-            gi.Printf("%s (%zu) says (text) to team: %s\n", client->pers.netname, edict - g_entities, pStartMessage);
+            G_PrintfClient(edict, "says @team: %s\n", pStartMessage);
         }
 
         if (IsSpectator()) {
@@ -11022,21 +10999,9 @@ void Player::EventDMMessage(Event *ev)
 
         // Added in OPM
         if (bInstaMessage) {
-            gi.Printf(
-                "%s (%zu) says (voice) to client #%d: %s\n",
-                client->pers.netname,
-                edict - g_entities,
-                iMode - 1,
-                pStartMessage
-            );
+            G_PrintfClient(edict, "shouts @#%d: %s\n", iMode - 1, pStartMessage);
         } else {
-            gi.Printf(
-                "%s (%zu) says (text) to client #%d: %s\n",
-                client->pers.netname,
-                edict - g_entities,
-                iMode - 1,
-                pStartMessage
-            );
+            G_PrintfClient(edict, "says @#%d: %s\n", iMode - 1, pStartMessage);
         }
 
         gi.SendServerCommand(iMode - 1, "%s\n", szPrintString);

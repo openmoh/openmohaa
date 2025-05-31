@@ -956,9 +956,7 @@ const char *G_ClientConnect(int clientNum, qboolean firstTime, qboolean differen
 
     // don't do the "xxx connected" messages if they were caried over from previous level
     if (firstTime && g_gametype->integer != GT_SINGLE_PLAYER) {
-        if (dedicated->integer) {
-            gi.Printf("%s is preparing for deployment\n", client->pers.netname);
-        }
+        G_PrintfClient(ent, "is preparing for deployment\n");
 
         G_PrintToAllClients(va("%s is preparing for deployment\n", client->pers.netname), 2);
     }
@@ -1001,9 +999,7 @@ void G_ClientBegin(gentity_t *ent, usercmd_t *cmd)
 
             if (g_gametype->integer != GT_SINGLE_PLAYER) {
                 // send effect if in a multiplayer game
-                if (dedicated->integer) {
-                    gi.Printf("%s has entered the battle\n", ent->client->pers.netname);
-                }
+                G_PrintfClient(ent, "has entered the battle\n");
 
                 G_PrintToAllClients(va("%s has entered the battle\n", ent->client->pers.netname), 2);
             }
@@ -1064,6 +1060,8 @@ void G_ClientDisconnect(gentity_t *ent)
             return;
         }
 
+        G_PrintfClient(ent, "has left the battle\n");
+    
         G_PrintToAllClients(va("%s has left the battle\n", ent->client->pers.netname), 2);
 
         assert(ent->entity->IsSubclassOfPlayer());
@@ -1137,4 +1135,36 @@ void G_ClientDisconnect(gentity_t *ent)
 		BotAIShutdownClient( ent->client->ps.clientNum, qfalse );
 	}
 #endif
+}
+
+/*
+===========
+G_PrintfClient
+
+Logs message with client context.
+For bots it falls back to regular print.
+============
+*/
+void G_PrintfClient(gentity_t *ent, const char *fmt, ...) {
+    va_list     argptr;
+    char        msg[MAXPRINTMSG];
+
+    if (!dedicated->integer) {
+        return;
+    }
+
+    if (!ent->client) {
+        return;
+    }
+
+    va_start(argptr, fmt);
+    Q_vsnprintf(msg, sizeof(msg), fmt, argptr);
+    va_end(argptr);
+
+    if (ent->r.svFlags & SVF_BOT) {
+        gi.Printf("%s %s", ent->client->pers.netname, msg);
+        return;
+    }
+
+    gi.PrintfClient(ent - g_entities, "%s", msg);
 }

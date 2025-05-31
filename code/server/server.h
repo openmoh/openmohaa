@@ -389,6 +389,8 @@ extern	cvar_t	*sv_strictAuth;
 #endif
 extern	cvar_t	*sv_banFile;
 
+extern  cvar_t  *sv_logContext;
+
 extern	serverBan_t serverBans[SERVER_MAXBANS];
 extern	int serverBansCount;
 
@@ -436,6 +438,8 @@ void SV_RemoveOperatorCommands (void);
 void SV_MasterHeartbeat (void);
 void SV_MasterShutdown (void);
 int SV_RateMsec(client_t *client);
+
+void SV_PrintfClient(int clientNum, const char *fmt, ...);
 
 void SV_ArchiveHudDrawElements( qboolean loading );
 void SV_HudDrawShader( int iInfo, const char *name );
