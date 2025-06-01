@@ -1188,12 +1188,12 @@ void UIFAKKServerList::UpdateServerListCallBack(
         pNewServerItem->SetQueried(true);
         pNewServerItem->SetNumPlayers(ServerGetIntValue(server, "numplayers", 0));
         uiServerList->m_iTotalNumPlayers += pNewServerItem->GetNumPlayers();
-
-        uiServerList->m_iServerQueryCount++;
         // Removed in OPM
         //Cvar_Set("dm_servercount", va("%d/%d", m_iServerQueryCount, m_iServerTotalCount));
 
         uiServerList->SortByLastSortColumn();
+
+        uiServerList->m_iServerQueryCount = uiServerList->getNumItems();
     } else if (msg == LIST_STATECHANGED) {
         switch (ServerListState(serverlist)) {
         case GServerListState::sl_idle:
@@ -1255,7 +1255,10 @@ void UIFAKKServerList::UpdateServerListCallBack(
         //    return;
         //}
 
+        //
         // Rebuild the number of servers
+        //
+
         uiServerList->m_iServerTotalCount = 0;
         for (i = 0; i < ARRAY_LEN(uiServerList->m_serverList); i++) {
             if (uiServerList->m_bGettingList[i] && uiServerList->m_serverList[i]) {
