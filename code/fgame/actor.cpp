@@ -9217,13 +9217,13 @@ void Actor::CuriousSound(int iType, vec3_t sound_origin, float fDistSquared, flo
 
     fRangeFactor = 1.0;
     if (fMaxDistSquared) {
-        fRangeFactor = (4.0 / 3.0 - ((4.0 / 3.0 * fDistSquared) / fMaxDistSquared));
+        fRangeFactor = 4.0 / 3.0 - ((4.0 / 3.0 * fDistSquared) / fMaxDistSquared);
         if (fRangeFactor > 1) {
             fRangeFactor = 1;
         }
     }
 
-    if ((fRangeFactor * m_fSoundAwareness) < random()) {
+    if ((fRangeFactor * m_fSoundAwareness) < random() * 100.0) {
         return;
     }
 
