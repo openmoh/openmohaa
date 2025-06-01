@@ -1176,12 +1176,10 @@ GError ServerListThink(GServerList serverlist)
     {
         case sl_idle:
         case sl_listxfer:
-            if (!serverlist->abortupdate) {
-                if (serverlist->startslindex < ServerListGetNumMasters()) {
-                    CreateServerListForAvailableSockets(serverlist, serverlist->async);
-                } else if (serverlist->state == sl_listxfer && ServerListHasFinishedFetchingList(serverlist)) {
-                    ServerListModeChange(serverlist, sl_idle);
-                }
+            if (!serverlist->abortupdate && serverlist->startslindex < ServerListGetNumMasters()) {
+                CreateServerListForAvailableSockets(serverlist, serverlist->async);
+            } else if (serverlist->state == sl_listxfer && ServerListHasFinishedFetchingList(serverlist)) {
+                ServerListModeChange(serverlist, sl_idle);
             }
             break;
         case sl_querying: 
