@@ -8683,6 +8683,11 @@ Should actor transition think state to curious ?
 */
 bool Actor::PassesTransitionConditions_Curious(void)
 {
+    if (!m_bIsCurious) {
+        // Added in 2.30
+        return false;
+    }
+
     UpdateEnemy(200);
 
     if (m_bLockThinkState) {
