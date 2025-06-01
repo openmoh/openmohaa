@@ -4420,7 +4420,7 @@ void Actor::MoveTo(Event *ev)
     }
 
     if (m_patrolCurrentNode) {
-        m_vScriptGoal      = origin;
+        m_vScriptGoal      = m_patrolCurrentNode->origin;
         m_bScriptGoalValid = true;
     }
 
