@@ -4086,16 +4086,84 @@ bool Actor::CanShootEnemy(int iMaxDirtyTime)
 /*
 ===============
 Actor::FriendlyInLineOfFire
+
+Returns true when a squadmate is in line of fire.
+
+The line of fire is the line between the actor and the target.
+It only checks for actors along that line segment,
+which means it won't check for actors located behind the target.
 ===============
 */
 bool Actor::FriendlyInLineOfFire(Entity *other)
 {
-    Vector delta;
-    float  inverseDot;
-
     if (g_target_game <= target_game_e::TG_MOH) {
         return false;
     }
+
+    //
+    // Fixed in OPM
+    //  Correctly check if a squadmate is in line of fire.
+    //  This checks for the following situation:
+    //
+    //         0 <-- AI
+    //        / 
+    //       /
+    //      0    <-- Squadmate
+    //     /
+    //    /
+    //   P       <-- Player
+    //
+
+    Vector dir;
+
+    if (other->IsSubclassOfSentient()) {
+        dir = static_cast<Sentient *>(other)->EyePosition() - GunPosition();
+    } else {
+        dir = other->centroid - GunPosition();
+    }
+
+    const float dist = dir.normalize();
+
+    //
+    // Try to find a squadmate in sight
+    //
+
+    for (Sentient *pSquad = m_pNextSquadMate; pSquad != this; pSquad = pSquad->m_pNextSquadMate) {
+        // Project the squadmate position onto the direction line
+        //  (see @ProjectPointOnLine)
+        const Vector delta = pSquad->origin - origin;
+        const float  dot   = Q_clamp_float(delta * dir, 0, dist);
+        const Vector proj  = dir * dot;
+        if (proj.lengthSquared() < Square(64)) {
+            // Within the safety radius (at least 64 units)
+            return true;
+        }
+
+        // Calculate the closest point on the line
+        const Vector closest = origin + proj;
+        if (closest >= pSquad->absmin && closest <= pSquad->absmax) {
+            // The point is within the bounding box
+            return true;
+        }
+    }
+
+    return false;
+#if 0
+    //
+    // The following code incorrectly returns true at this:
+    //
+    //        AI     Friend AI
+    //        ↓        ↓
+    //        0--------0
+    //       / 
+    //      /
+    //     /
+    //    /
+    //   P       <-- Player
+    //
+
+    Vector delta;
+    float  inverseDot;
 
     delta      = other->origin - origin;
     inverseDot = 1.0 / (delta * delta);
@@ -4117,6 +4185,7 @@ bool Actor::FriendlyInLineOfFire(Entity *other)
     }
 
     return false;
+#endif
 }
 
 /*
