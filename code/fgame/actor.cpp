@@ -7481,8 +7481,15 @@ void Actor::UpdateAnim(void)
         float rate;
 
         rate = time / total_weight;
-        if (m_Team != TEAM_GERMAN) {
-            rate /= 1.45f;
+
+        //
+        // Added in OPM
+        // added SH/BT check as this increase wasn't present in AA
+        //
+        if (g_target_game > target_game_e::TG_MOH) {
+            if (m_Team != TEAM_GERMAN) {
+                rate /= 1.45f;
+            }
         }
 
         SetSyncRate(rate / m_fRunAnimRate);
