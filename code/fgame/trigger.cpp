@@ -1073,6 +1073,7 @@ CLASS_DECLARATION(Trigger, TouchField, NULL) {
 TouchField::TouchField()
 {
     ontouch = NULL;
+    wait = 0;
 }
 
 void TouchField::Setup(Entity *ownerentity, Event& touchevent, Vector min, Vector max, int respondto)
