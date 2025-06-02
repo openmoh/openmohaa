@@ -741,6 +741,7 @@ void World::SetFarPlaneBias(Event *ev)
     }
 
     farplane_bias = ev->GetFloat(1);
+    UpdateFog();
 }
 
 void World::GetFarPlane_Color(Event *ev)
@@ -774,6 +775,7 @@ void World::GetSkyboxFarplane(Event *ev)
 void World::SetSkyboxFarplane(Event *ev)
 {
     skybox_farplane = ev->GetFloat(1);
+    UpdateFog();
 }
 
 void World::SetAnimatedFarplaneColor(Event *ev)
@@ -937,6 +939,7 @@ void World::GetSkyboxSpeed(Event *ev)
 void World::SetSkyboxSpeed(Event *ev)
 {
     skybox_speed = ev->GetFloat(1);
+    UpdateFog();
 }
 
 void World::SetSkyAlpha(Event *ev)
