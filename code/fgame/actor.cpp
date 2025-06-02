@@ -7481,8 +7481,15 @@ void Actor::UpdateAnim(void)
         float rate;
 
         rate = time / total_weight;
-        if (m_Team != TEAM_GERMAN) {
-            rate /= 1.45f;
+
+        if (g_target_game > target_game_e::TG_MOH) {
+            //
+            // Added in 2.0
+            //  Slightly decrease the animation rate for non-german actors
+            //
+            if (m_Team != TEAM_GERMAN) {
+                rate /= 1.45f;
+            }
         }
 
         SetSyncRate(rate / m_fRunAnimRate);
