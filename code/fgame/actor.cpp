@@ -7485,7 +7485,7 @@ void Actor::UpdateAnim(void)
         if (g_target_game > target_game_e::TG_MOH) {
             //
             // Added in 2.0
-            //  Slightly increase the animation rate for non-german actors
+            //  Slightly decrease the animation rate for non-german actors
             //
             if (m_Team != TEAM_GERMAN) {
                 rate /= 1.45f;
