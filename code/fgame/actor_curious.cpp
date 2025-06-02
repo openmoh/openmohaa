@@ -29,6 +29,7 @@ void Actor::InitCurious(GlobalFuncs_t *func)
     func->ThinkState                 = &Actor::Think_Curious;
     func->BeginState                 = &Actor::Begin_Curious;
     func->EndState                   = &Actor::End_Curious;
+    func->RestartState               = NULL;
     func->ResumeState                = &Actor::Resume_Curious;
     func->SuspendState               = &Actor::Suspend_Curious;
     func->FinishedAnimation          = &Actor::FinishedAnimation_Curious;

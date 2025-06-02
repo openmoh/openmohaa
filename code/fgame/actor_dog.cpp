@@ -29,6 +29,7 @@ void Actor::InitDogIdle(GlobalFuncs_t *func)
     func->BeginState                 = &Actor::Begin_Dog;
     func->EndState                   = &Actor::End_Dog;
     func->ThinkState                 = &Actor::Think_Dog_Idle;
+    func->RestartState               = NULL;
     func->PassesTransitionConditions = &Actor::PassesTransitionConditions_Idle;
     func->IsState                    = &Actor::IsDogState;
 }
@@ -38,6 +39,7 @@ void Actor::InitDogAttack(GlobalFuncs_t *func)
     func->BeginState                 = &Actor::Begin_Dog;
     func->EndState                   = &Actor::End_Dog;
     func->ThinkState                 = &Actor::Think_Dog_Attack;
+    func->RestartState               = NULL;
     func->PassesTransitionConditions = &Actor::PassesTransitionConditions_Attack;
     func->IsState                    = &Actor::IsDogState;
 }
@@ -47,6 +49,7 @@ void Actor::InitDogCurious(GlobalFuncs_t *func)
     func->BeginState                 = &Actor::Begin_Dog;
     func->EndState                   = &Actor::End_Dog;
     func->ThinkState                 = &Actor::Think_Dog_Curious;
+    func->RestartState               = NULL;
     func->PassesTransitionConditions = &Actor::PassesTransitionConditions_Curious;
     func->IsState                    = &Actor::IsDogState;
 }

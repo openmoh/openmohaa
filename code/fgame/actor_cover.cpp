@@ -166,8 +166,9 @@ void Actor::InitCover(GlobalFuncs_t *func)
     func->BeginState                 = &Actor::Begin_Cover;
     func->EndState                   = &Actor::End_Cover;
     func->SuspendState               = &Actor::Suspend_Cover;
-    func->FinishedAnimation          = &Actor::FinishedAnimation_Cover;
+    func->RestartState               = NULL;
     func->PassesTransitionConditions = &Actor::PassesTransitionConditions_Attack;
+    func->FinishedAnimation          = &Actor::FinishedAnimation_Cover;
     func->IsState                    = &Actor::IsAttackState;
     func->PathnodeClaimRevoked       = &Actor::PathnodeClaimRevoked_Cover;
 }

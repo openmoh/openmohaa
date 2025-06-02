@@ -28,7 +28,9 @@ void Actor::InitWeaponless(GlobalFuncs_t *func)
 {
     func->ThinkState                 = &Actor::Think_Weaponless;
     func->BeginState                 = &Actor::Begin_Weaponless;
+    func->EndState                   = NULL;
     func->SuspendState               = &Actor::Suspend_Weaponless;
+    func->RestartState               = NULL;
     func->PassesTransitionConditions = &Actor::PassesTransitionConditions_Attack;
     func->FinishedAnimation          = &Actor::FinishedAnimation_Weaponless;
     func->IsState                    = &Actor::IsAttackState;
