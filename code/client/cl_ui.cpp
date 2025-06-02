@@ -3384,7 +3384,8 @@ void UI_ApplyPlayerModel_f(void)
     Cvar_Set("dm_playermodel", pszUIPlayerModel);
 
     pszUIPlayerModel = CvarGetForUI("ui_dm_playergermanmodel_set", "german_wehrmacht_soldier");
-    if (!Q_stricmpn(pszUIPlayerModel, "german_waffen", 14)) {
+    if (!Q_stricmpn(pszUIPlayerModel, "german_waffen_", 14)) {
+        Q_strncpyz(donotshowssindeorfr, "german_waffenss_", sizeof(donotshowssindeorfr));
         Q_strcat(donotshowssindeorfr, sizeof(donotshowssindeorfr), pszUIPlayerModel + 14);
         Cvar_Set("dm_playergermanmodel", donotshowssindeorfr);
     } else {
@@ -3419,7 +3420,7 @@ void UI_GetPlayerModel_f(void)
     Cvar_Set("ui_dm_playergermanmodel", PM_FilenameToDisplayname(pszUIPlayerModel));
     Cvar_Set("ui_dm_playergermanmodel_set", pszUIPlayerModel);
 
-    if (!strncmp(pszUIPlayerModel, "german_waffen_", 14)) {
+    if (!Q_stricmpn(pszUIPlayerModel, "german_waffen_", 14)) {
         Q_strncpyz(donotshowssindeorfr, "german_waffenss_", sizeof(donotshowssindeorfr));
         Q_strcat(donotshowssindeorfr, sizeof(donotshowssindeorfr), pszUIPlayerModel + 14);
         Cvar_Set("ui_disp_playergermanmodel", va("models/player/%s.tik", donotshowssindeorfr));
