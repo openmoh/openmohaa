@@ -143,7 +143,7 @@ set sv_numbots 4 // Spawn 4 bots
 > [!NOTE]
 > Bots have their ping set to **bot** in the scoreboard to avoid confusion with human or cheaters.
 > 
-> The navigation path is generated automatically using [Recast](https://recastnav.com/) for any map, including custom maps.
-> If the Recast-based navigation system is not working correctly:
+> Since OpenMoHAA 0.82.0, the navigation path is generated automatically using [Recast](https://recastnav.com/) for any map, including custom maps.
+> If the Recast-based navigation system is not working correctly or if you are running a version below 0.82.0:
 > 1. Get the [mp-navigation](https://github.com/openmoh/mp-navigation) pk3 (it only covers stock maps) and place it inside your game's `main` folder.
 > 2. Append `set g_navigation_legacy 1` somewhere, like in your `server.cfg` file.
