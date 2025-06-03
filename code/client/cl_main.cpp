@@ -885,6 +885,25 @@ void CL_MapLoading( qboolean flush, const char *pszMapName ) {
 
 /*
 =====================
+CL_CleanupUserInfo
+
+Remove user-created userinfo variables
+=====================
+*/
+void CL_CleanupUserInfo()
+{
+    cvar_t *cv;
+    cvar_t *next;
+
+    for(cv = Cvar_Next(NULL), next = cv->next; cv; cv = next, next = Cvar_Next(cv)) {
+        if ((cv->flags & CVAR_USER_CREATED) && (cv->flags & CVAR_USERINFO)) {
+            Cvar_Unset(cv);
+        }
+    }
+}
+
+/*
+=====================
 CL_ClearState
 
 Called before parsing a gamestate
@@ -901,6 +920,9 @@ void CL_ClearState( void )
 	UI_ClearState();
 
 	Com_Memset( &cl, 0, sizeof( clientActive_t ) );
+
+    // Added in OPM
+    CL_CleanupUserInfo();
 }
 
 /*

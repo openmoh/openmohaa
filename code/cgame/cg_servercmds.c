@@ -374,7 +374,7 @@ static void CG_ServerCommand(qboolean modelOnly)
 
     if (!strcmp(cmd, "stufftext")) {
         char *cmd = cgi.Argv(1);
-        if (CG_IsStatementFiltered(cmd)) {
+        if (!CG_IsStatementAllowed(cmd)) {
             // Added in OPM
             //  Don't execute filtered commands
             return;
