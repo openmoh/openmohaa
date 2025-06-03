@@ -702,6 +702,8 @@ void	Cvar_SaveGameRestart_f( void );
 
 void	Cvar_CompleteCvarName(const char* args, int argNum);
 
+cvar_t  *Cvar_Unset(cvar_t *cv);
+
 extern	int			cvar_modifiedFlags;
 extern	qboolean	cvar_global_force;
 // whenever a cvar is modifed, its flags will be OR'd into this, so
