@@ -951,6 +951,7 @@ public:
     void GetLegsState(Event *ev);
     void GetStateFile(Event *ev);
     void GetTorsoState(Event *ev);
+    void GetUserInfo(Event *ev);
     void Inventory(Event *ev);
     void InventorySet(Event *ev);
     void IsAdmin(Event *ev);
