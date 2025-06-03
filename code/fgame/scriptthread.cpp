@@ -1371,6 +1371,15 @@ Event EV_ScriptThread_iHudDrawVirtualSize
     "Sets if the huddraw element for given player should use virtual screen resolution for positioning and size",
     EV_NORMAL
 );
+Event EV_ScriptThread_Info_ValueForKey
+(
+    "info_valueforkey",
+    EV_DEFAULT,
+    "ss",
+    "info key",
+    "Retrieves the value of the specified key.",
+    EV_RETURN
+);
 Event EV_ScriptThread_IsArray
 (
     "isarray",
@@ -2196,6 +2205,7 @@ CLASS_DECLARATION(Listener, ScriptThread, NULL) {
     {&EV_ScriptThread_DrawHud,                 &ScriptThread::EventDrawHud            },
 
     {&EV_ScriptThread_RegisterCommand,         &ScriptThread::EventRegisterCommand    },
+    {&EV_ScriptThread_Info_ValueForKey,        &ScriptThread::EventInfo_ValueForKey   },
     {&EV_ScriptThread_IsArray,                 &ScriptThread::EventIsArray            },
     {&EV_ScriptThread_IsDefined,               &ScriptThread::EventIsDefined          },
     {&EV_ScriptThread_GetACos,                 &ScriptThread::EventACos               },
@@ -6308,6 +6318,24 @@ void ScriptThread::PregMatch(Event *ev)
     }
 
     ev->AddValue(array);
+}
+
+void ScriptThread::EventInfo_ValueForKey(Event *ev)
+{
+    str info;
+    str key;
+    const char *value;
+
+    info = ev->GetString(1);
+    key = ev->GetString(2);
+    value = Info_ValueForKey(info, key);
+
+    if (!value || !value[0]) {
+        ev->AddNil();
+        return;
+    }
+
+    ev->AddString(value);
 }
 
 void ScriptThread::EventIsArray(Event *ev)

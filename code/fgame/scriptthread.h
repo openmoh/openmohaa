@@ -310,6 +310,7 @@ public:
     void EventIHudDrawString(Event *ev);
     void EventIHudDrawFont(Event *ev);
     void EventIHudDrawTimer(Event *ev);
+    void EventInfo_ValueForKey(Event *ev);
     void EventIsArray(Event *ev);
     void EventIsDefined(Event *ev);
     void EventIsOnGround(Event *ev);
