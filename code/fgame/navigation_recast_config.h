@@ -47,4 +47,8 @@ namespace NavigationMapConfiguration
     static const int   vertsPerPoly         = 6;
     static const float detailSampleDist     = 12.0;
     static const float detailSampleMaxError = 1.3f;
-}
+} // namespace NavigationMapConfiguration
+
+// Polyflags
+static constexpr unsigned int RECAST_POLYFLAG_WALKABLE = (1 << 0);
+static constexpr unsigned int RECAST_POLYFLAG_BUSY     = (1 << 1);

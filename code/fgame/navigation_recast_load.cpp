@@ -30,6 +30,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "g_local.h"
 #include "navigation_recast_load.h"
 #include "navigation_recast_load_ext.h"
+#include "navigation_recast_obstacle.h"
 #include "navigation_recast_path.h"
 #include "navigation_recast_config.h"
 #include "navigation_recast_helpers.h"
@@ -115,6 +116,9 @@ void NavigationMap::InitializeNavMesh(RecastBuildContext& buildContext, const na
         buildContext.log(RC_LOG_ERROR, "Could not init Detour navmesh query");
         return;
     }
+
+    queryFilter = new dtQueryFilter();
+    queryFilter->setExcludeFlags(RECAST_POLYFLAG_BUSY);
 }
 
 /*
@@ -350,7 +354,7 @@ void NavigationMap::GeneratePolyMesh(
     // Update poly flags from areas.
     for (int i = 0; i < polyMesh->npolys; ++i) {
         if (polyMesh->areas[i] == RC_WALKABLE_AREA) {
-            polyMesh->flags[i] = 1;
+            polyMesh->flags[i] = RECAST_POLYFLAG_WALKABLE;
         }
     }
 
@@ -470,6 +474,7 @@ void G_Navigation_Frame()
 {
     pathMaster.Update();
     navigationMap.Update();
+    navigationObstacleMap.Update();
     G_Navigation_DebugDraw();
 }
 
@@ -481,6 +486,7 @@ NavigationMap::NavigationMap
 NavigationMap::NavigationMap()
     : navMeshDt(NULL)
     , navMeshQuery(NULL)
+    , queryFilter(NULL)
 {
     validNavigation = false;
 }
@@ -517,6 +523,15 @@ dtNavMeshQuery *NavigationMap::GetNavMeshQuery() const
 
 /*
 ============
+NavigationMap::GetQueryFilter
+============
+*/
+const dtQueryFilter *NavigationMap::GetQueryFilter() const {
+    return queryFilter;
+}
+
+/*
+============
 NavigationMap::GetNavigationData
 ============
 */
@@ -544,6 +559,7 @@ void NavigationMap::ClearNavigation()
     validNavigation = false;
 
     pathMaster.ClearNavigation();
+    navigationObstacleMap.Clear();
 
     if (navMeshQuery) {
         dtFreeNavMeshQuery(navMeshQuery);
@@ -553,6 +569,11 @@ void NavigationMap::ClearNavigation()
     if (navMeshDt) {
         dtFreeNavMesh(navMeshDt);
         navMeshDt = NULL;
+    }
+
+    if (queryFilter) {
+        delete queryFilter;
+        queryFilter = NULL;
     }
 }
 
@@ -701,6 +722,7 @@ void NavigationMap::LoadWorldMap(const char *mapname)
     }
 
     pathMaster.PostLoadNavigation(*this);
+    navigationObstacleMap.Init();
 
     end = gi.Milliseconds();
 

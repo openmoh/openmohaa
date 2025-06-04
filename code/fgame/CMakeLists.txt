@@ -59,6 +59,16 @@ if (FLEX_FOUND AND BISON_FOUND)
 endif()
 
 # Recast navigation
+if (APPLE)
+    # Linking fails on Apple due to this error:
+    # Undefined symbols for architecture arm64:
+    #  "dtQueryFilter::passFilter(unsigned int, dtMeshTile const*, dtPoly const*) const", referenced from:
+    #      NavigationMapDebug::DebugDraw() in navigation_recast_debug.cpp.o
+    # ld: symbol(s) not found for architecture arm64
+
+    set(RECASTNAVIGATION_DT_VIRTUAL_QUERYFILTER ON)
+endif()
+
 add_subdirectory(../recastnavigation/Detour fgame_detour)
 add_subdirectory(../recastnavigation/DetourCrowd fgame_detour_crowd)
 add_subdirectory(../recastnavigation/Recast fgame_recast)

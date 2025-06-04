@@ -73,7 +73,7 @@ void NavigationMapExtension_Ladders::Handle(Container<offMeshNavigationPoint>& p
             point.bidirectional = true;
             point.radius        = NavigationMapConfiguration::agentRadius;
             point.area          = 0;
-            point.flags         = 1;
+            point.flags         = RECAST_POLYFLAG_WALKABLE;
 
             points.AddObject(point);
         }
@@ -368,7 +368,7 @@ NavigationMapExtension_JumpFall::CanConnectFallPoint(const rcPolyMesh *polyMesh,
     point.bidirectional = false;
     point.radius        = NavigationMapConfiguration::agentRadius;
     point.area          = 1;
-    point.flags         = 2;
+    point.flags         = RECAST_POLYFLAG_WALKABLE;
 
     return point;
 }
@@ -446,7 +446,7 @@ NavigationMapExtension_JumpFall::CanConnectJumpPoint(const rcPolyMesh *polyMesh,
     point.bidirectional = true;
     point.radius        = NavigationMapConfiguration::agentRadius;
     point.area          = 1;
-    point.flags         = 3;
+    point.flags         = RECAST_POLYFLAG_WALKABLE;
 
     return point;
 }
@@ -516,7 +516,7 @@ offMeshNavigationPoint NavigationMapExtension_JumpFall::CanConnectStraightPoint(
     point.bidirectional = true;
     point.radius        = NavigationMapConfiguration::agentRadius;
     point.area          = 1;
-    point.flags         = 3;
+    point.flags         = RECAST_POLYFLAG_WALKABLE;
 
     return point;
 }

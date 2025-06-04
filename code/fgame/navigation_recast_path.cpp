@@ -68,10 +68,10 @@ RecastPather::~RecastPather()
 
 void RecastPather::FindPath(const Vector& start, const Vector& end, const PathSearchParameter& parameters)
 {
-    Vector        recastStart, recastEnd;
-    dtPolyRef     startRef, endRef;
-    vec3_t        startPt, endPt;
-    dtQueryFilter filter;
+    Vector               recastStart, recastEnd;
+    dtPolyRef            startRef, endRef;
+    vec3_t               startPt, endPt;
+    const dtQueryFilter *filter = navigationMap.GetQueryFilter();
 
     lastorg = start;
     ResetPosition(start);
@@ -82,7 +82,7 @@ void RecastPather::FindPath(const Vector& start, const Vector& end, const PathSe
     endRef   = 0;
     startRef = detourData->corridor.getFirstPoly();
     dtVcopy(startPt, detourData->corridor.getPos());
-    navigationMap.GetNavMeshQuery()->findNearestPoly(recastEnd, DETOUR_EXTENT, &filter, &endRef, endPt);
+    navigationMap.GetNavMeshQuery()->findNearestPoly(recastEnd, DETOUR_EXTENT, filter, &endRef, endPt);
 
     if (!startRef || !endRef) {
         return;
@@ -90,7 +90,7 @@ void RecastPather::FindPath(const Vector& start, const Vector& end, const PathSe
 
     dtPolyRef polys[256];
     int       nPolys = 0;
-    navigationMap.GetNavMeshQuery()->findPath(startRef, endRef, startPt, endPt, &filter, polys, &nPolys, 256);
+    navigationMap.GetNavMeshQuery()->findPath(startRef, endRef, startPt, endPt, filter, polys, &nPolys, 256);
 
     if (nPolys) {
         vec3_t   closestPos;
@@ -114,10 +114,10 @@ void RecastPather::FindPathNear(
     const Vector& start, const Vector& end, float radius, const PathSearchParameter& parameters
 )
 {
-    Vector        recastStart, recastEnd;
-    dtPolyRef     startRef, endRef;
-    vec3_t        startPt, endPt;
-    dtQueryFilter filter;
+    Vector               recastStart, recastEnd;
+    dtPolyRef            startRef, endRef;
+    vec3_t               startPt, endPt;
+    const dtQueryFilter *filter = navigationMap.GetQueryFilter();
 
     lastorg = start;
     ResetPosition(start);
@@ -128,7 +128,7 @@ void RecastPather::FindPathNear(
     endRef   = 0;
     startRef = detourData->corridor.getFirstPoly();
     dtVcopy(startPt, detourData->corridor.getPos());
-    navigationMap.GetNavMeshQuery()->findNearestPoly(recastEnd, DETOUR_EXTENT, &filter, &endRef, endPt);
+    navigationMap.GetNavMeshQuery()->findNearestPoly(recastEnd, DETOUR_EXTENT, filter, &endRef, endPt);
 
     if (!startRef || !endRef) {
         return;
@@ -136,7 +136,7 @@ void RecastPather::FindPathNear(
 
     // Now find a point within this radius
     if (navigationMap.GetNavMeshQuery()->findRandomPointAroundCircle(
-            endRef, endPt, radius, &filter, &G_Random, &endRef, endPt
+            endRef, endPt, radius, filter, &G_Random, &endRef, endPt
         ) != DT_SUCCESS
         || !endRef) {
         return;
@@ -144,7 +144,7 @@ void RecastPather::FindPathNear(
 
     dtPolyRef polys[256];
     int       nPolys = 0;
-    navigationMap.GetNavMeshQuery()->findPath(startRef, endRef, startPt, endPt, &filter, polys, &nPolys, 256);
+    navigationMap.GetNavMeshQuery()->findPath(startRef, endRef, startPt, endPt, filter, polys, &nPolys, 256);
 
     if (nPolys) {
         vec3_t   closestPos;
@@ -172,14 +172,14 @@ void RecastPather::FindPathAway(
     const PathSearchParameter& parameters
 )
 {
-    Vector        recastStart, recastAvoid, recastEnd;
-    Vector        dirNormalized;
-    dtPolyRef     startRef, endRef;
-    vec3_t        startPt, endPt;
-    dtQueryFilter filter;
-    float         startAngle;
-    float         startPitch;
-    int           i, j;
+    Vector               recastStart, recastAvoid, recastEnd;
+    Vector               dirNormalized;
+    dtPolyRef            startRef, endRef;
+    vec3_t               startPt, endPt;
+    const dtQueryFilter *filter = navigationMap.GetQueryFilter();
+    float                startAngle;
+    float                startPitch;
+    int                  i, j;
 
     lastorg = start;
     ResetPosition(start);
@@ -211,13 +211,13 @@ void RecastPather::FindPathAway(
             float  dy    = sin(pitch) * radius;
             Vector point(recastAvoid[0] + dx, recastAvoid[1] + dy, recastAvoid[2] + dz);
 
-            if (navigationMap.GetNavMeshQuery()->findNearestPoly(point, DETOUR_EXTENT, &filter, &endRef, endPt)
+            if (navigationMap.GetNavMeshQuery()->findNearestPoly(point, DETOUR_EXTENT, filter, &endRef, endPt)
                     == DT_SUCCESS
                 && endRef) {
                 dtPolyRef polys[256];
                 int       nPolys = 0;
                 navigationMap.GetNavMeshQuery()->findPath(
-                    startRef, endRef, startPt, endPt, &filter, polys, &nPolys, 256
+                    startRef, endRef, startPt, endPt, filter, polys, &nPolys, 256
                 );
 
                 if (nPolys) {
@@ -247,9 +247,9 @@ void RecastPather::FindPathAway(
 
 bool RecastPather::TestPath(const Vector& start, const Vector& end, const PathSearchParameter& parameters)
 {
-    Vector        recastStart, recastEnd;
-    dtQueryFilter filter;
-    dtStatus      status;
+    Vector               recastStart, recastEnd;
+    const dtQueryFilter *filter = navigationMap.GetQueryFilter();
+    dtStatus             status;
 
     ConvertGameToRecastCoord(start, recastStart);
     ConvertGameToRecastCoord(end, recastEnd);
@@ -257,14 +257,14 @@ bool RecastPather::TestPath(const Vector& start, const Vector& end, const PathSe
     dtPolyRef nearestStartRef, nearestEndRef;
     vec3_t    nearestStartPt, nearestEndPt;
     navigationMap.GetNavMeshQuery()->findNearestPoly(
-        recastStart, DETOUR_EXTENT, &filter, &nearestStartRef, nearestStartPt
+        recastStart, DETOUR_EXTENT, filter, &nearestStartRef, nearestStartPt
     );
-    navigationMap.GetNavMeshQuery()->findNearestPoly(recastEnd, DETOUR_EXTENT, &filter, &nearestEndRef, nearestEndPt);
+    navigationMap.GetNavMeshQuery()->findNearestPoly(recastEnd, DETOUR_EXTENT, filter, &nearestEndRef, nearestEndPt);
 
     dtPolyRef polys[256];
     int       nPolys;
     status = navigationMap.GetNavMeshQuery()->findPath(
-        nearestStartRef, nearestEndRef, nearestStartPt, nearestEndPt, &filter, polys, &nPolys, 256
+        nearestStartRef, nearestEndRef, nearestStartPt, nearestEndPt, filter, polys, &nPolys, 256
     );
 
     if (!(status & DT_SUCCESS)) {
@@ -298,12 +298,13 @@ static bool overOffmeshConnection(
 
 void RecastPather::UpdatePos(const Vector& origin)
 {
+    const dtQueryFilter *filter = navigationMap.GetQueryFilter();
+
     lastorg = origin;
     Vector recastOrigin;
 
     ConvertGameToRecastCoord(origin, recastOrigin);
 
-    dtQueryFilter filter;
     if (traversingOffMeshLink) {
         Vector agentPos;
         Vector delta;
@@ -331,13 +332,13 @@ void RecastPather::UpdatePos(const Vector& origin)
             ResetPosition(origin);
 
             startRef = 0;
-            navigationMap.GetNavMeshQuery()->findNearestPoly(recastOrigin, DETOUR_EXTENT, &filter, &startRef, startPt);
+            navigationMap.GetNavMeshQuery()->findNearestPoly(recastOrigin, DETOUR_EXTENT, filter, &startRef, startPt);
 
             if (startRef) {
                 dtPolyRef polys[256];
                 int       nPolys = 0;
                 navigationMap.GetNavMeshQuery()->findPath(
-                    startRef, endRef, startPt, endPt, &filter, polys, &nPolys, 256
+                    startRef, endRef, startPt, endPt, filter, polys, &nPolys, 256
                 );
 
                 if (nPolys) {
@@ -349,7 +350,7 @@ void RecastPather::UpdatePos(const Vector& origin)
 
         lastCheckTime = level.inttime;
     } else {
-        detourData->corridor.movePosition(recastOrigin, navigationMap.GetNavMeshQuery(), &filter);
+        detourData->corridor.movePosition(recastOrigin, navigationMap.GetNavMeshQuery(), filter);
         ConvertRecastToGameCoord(detourData->corridor.getPos(), lastValidOrg);
 
         detourData->ncorners = detourData->corridor.findCorners(
@@ -358,7 +359,7 @@ void RecastPather::UpdatePos(const Vector& origin)
             detourData->cornerPolys,
             4,
             navigationMap.GetNavMeshQuery(),
-            &filter
+            filter
         );
         if (detourData->ncorners) {
             dtPolyRef refs[2];
@@ -533,7 +534,8 @@ bool RecastPather::IsQuerying() const
 
 void RecastPather::ResetPosition(const Vector& origin)
 {
-    vec3_t agentPos;
+    const dtQueryFilter *filter = navigationMap.GetQueryFilter();
+    vec3_t               agentPos;
 
     traversingOffMeshLink = false;
     lastCheckTime         = level.inttime;
@@ -543,17 +545,16 @@ void RecastPather::ResetPosition(const Vector& origin)
     ConvertGameToRecastCoord(origin, agentPos);
 
     // Find nearest position on navmesh and place the agent there.
-    dtPolyRef     ref = 0;
-    float         nearest[3];
-    dtStatus      status;
-    dtQueryFilter filter;
+    dtPolyRef ref = 0;
+    float     nearest[3];
+    dtStatus  status;
 
-    status = navigationMap.GetNavMeshQuery()->findNearestPoly(agentPos, DETOUR_EXTENT, &filter, &ref, nearest);
+    status = navigationMap.GetNavMeshQuery()->findNearestPoly(agentPos, DETOUR_EXTENT, filter, &ref, nearest);
 
     if (dtStatusFailed(status) || !ref) {
         // Use the last valid position instead
         ConvertGameToRecastCoord(lastValidOrg, agentPos);
-        status = navigationMap.GetNavMeshQuery()->findNearestPoly(agentPos, DETOUR_EXTENT, &filter, &ref, nearest);
+        status = navigationMap.GetNavMeshQuery()->findNearestPoly(agentPos, DETOUR_EXTENT, filter, &ref, nearest);
     }
 
     if (dtStatusSucceed(status) && ref) {

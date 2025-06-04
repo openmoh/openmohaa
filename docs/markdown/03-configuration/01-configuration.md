@@ -122,6 +122,9 @@ This feature is passive: it only checks the team sizes when someone tries to joi
 
 OpenMoHAA introduced multiplayer bots which can be used for entertainment or for testing purposes. They appear in the scoreboard with their ping set to **bot**.
 
+> [!NOTE]
+> Bots work best on maps without dynamic objects. Currently, they have difficulty getting around obstacles such as vehicles placed in the middle of maps.
+
 Configure bots with the following variables:
 
 - `set sv_maxbots x`: **Required**, max number of bots allowed. The game can only handle a total of 64 players (clients), it will be limited to 64 minus the number of real players (`sv_maxclients`). For example, if you set `sv_maxclients` to 48, the maximum number of bots (sv_maxbots) can be 16.

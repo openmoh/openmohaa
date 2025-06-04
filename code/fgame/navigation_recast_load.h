@@ -29,6 +29,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 class dtNavMesh;
 class dtNavMeshQuery;
+class dtQueryFilter;
 class dtCrowd;
 class dtTileCache;
 struct dtTileCacheAlloc;
@@ -90,6 +91,13 @@ public:
     dtNavMeshQuery *GetNavMeshQuery() const;
 
     /**
+     * @brief Get the query used when querying the navmesh.
+     *
+     * @return The query filter object.
+     */
+    const dtQueryFilter *GetQueryFilter() const;
+
+    /**
      * @brief Return the navigation data loaded from the BSP.
      * 
      * @return Const navigation data
@@ -139,6 +147,7 @@ private:
 private:
     dtNavMesh              *navMeshDt;
     dtNavMeshQuery         *navMeshQuery;
+    dtQueryFilter           *queryFilter;
     NavigationBSP           navigationData;
 
 public:
