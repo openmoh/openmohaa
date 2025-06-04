@@ -1470,6 +1470,14 @@ Event EV_Player_GetTorsoState
     "Gets the player's current torso state name",
     EV_RETURN
 );
+Event EV_Player_GetUserInfo
+(
+    "userinfo",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Retrieves the player's user info. Use info_valueforkey to retrieve the value for the specified key."
+);
 Event EV_Player_Inventory
 (
     "inventory",
@@ -1921,6 +1929,7 @@ CLASS_DECLARATION(Sentient, Player, "player") {
     {&EV_Player_GetLegsState,             &Player::GetLegsState                 },
     {&EV_Player_GetStateFile,             &Player::GetStateFile                 },
     {&EV_Player_GetTorsoState,            &Player::GetTorsoState                },
+    {&EV_Player_GetUserInfo,              &Player::GetUserInfo                  },
     {&EV_Player_HideEnt,                  &Player::HideEntity                   },
     {&EV_Player_Inventory,                &Player::Inventory                    },
     {&EV_Player_InventorySet,             &Player::InventorySet                 },
@@ -12459,6 +12468,11 @@ void Player::GetTorsoState(Event *ev)
     }
 
     ev->AddString(name);
+}
+
+void Player::GetUserInfo(Event *ev)
+{
+    ev->AddString(client->pers.userinfo);
 }
 
 void Player::HideEntity(Event *ev)

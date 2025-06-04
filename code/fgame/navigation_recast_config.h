@@ -33,7 +33,7 @@ namespace NavigationMapConfiguration
 {
     static const float recastCellSize   = 10.25;
     static const float recastCellHeight = 1.0;
-    static const float agentHeight      = DEFAULT_VIEWHEIGHT;
+    static const float agentHeight      = MAXS_Z;
     static const float agentMaxClimb    = STEPSIZE;
 
     // normal of { 0.714142799, 0, 0.700000048 }, or an angle of -44.4270058
@@ -47,4 +47,8 @@ namespace NavigationMapConfiguration
     static const int   vertsPerPoly         = 6;
     static const float detailSampleDist     = 12.0;
     static const float detailSampleMaxError = 1.3f;
-}
+} // namespace NavigationMapConfiguration
+
+// Polyflags
+static constexpr unsigned int RECAST_POLYFLAG_WALKABLE = (1 << 0);
+static constexpr unsigned int RECAST_POLYFLAG_BUSY     = (1 << 1);

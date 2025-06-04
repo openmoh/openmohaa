@@ -27,4 +27,19 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "cg_local.h"
 
-qboolean CG_IsStatementFiltered(char *cmd);
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/**
+ * Determines whether or not the full statement is allowed.
+ * The statement will be allowed if conditions are met:
+ *  - Contains a whitelisted command
+ *  - Trying to set a whitelisted variable
+ *  - Trying to set variable that doesn't exist (user created variables)
+ */
+qboolean CG_IsStatementAllowed(char *cmd);
+
+#ifdef __cplusplus
+}
+#endif

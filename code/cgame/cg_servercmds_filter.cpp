@@ -105,34 +105,33 @@ static const char *whiteListedLocalServerCommands[] = {
     "hidemenu"
 };
 
-
 /*
 ====================
-CG_IsVariableFiltered
+CG_IsVariableAllowed
 
 Returns whether or not the variable should be filtered
 ====================
 */
-static qboolean CG_IsVariableFiltered(const char *name)
+static qboolean CG_IsVariableAllowed(const char *name)
 {
     size_t i;
 
     for (i = 0; i < ARRAY_LEN(whiteListedVariables); i++) {
         if (!Q_stricmp(name, whiteListedVariables[i])) {
-            return qfalse;
+            return qtrue;
         }
     }
 
     if (cgs.localServer) {
         for (i = 0; i < ARRAY_LEN(whiteListedLocalServerVariables); i++) {
             if (!Q_stricmp(name, whiteListedLocalServerVariables[i])) {
-                return qfalse;
+                return qtrue;
             }
         }
     }
 
     // Filtered
-    return qtrue;
+    return qfalse;
 }
 
 /*
@@ -142,48 +141,48 @@ CG_IsSetVariableFiltered
 Returns whether or not the variable should be filtered
 ====================
 */
-static qboolean CG_IsSetVariableFiltered(const char *name, char type)
+static qboolean CG_IsSetVariableAllowed(const char *name, char type)
 {
     cvar_t *var;
 
-    if (!CG_IsVariableFiltered(name)) {
-        return qfalse;
+    if (CG_IsVariableAllowed(name)) {
+        return qtrue;
     }
 
-    if (type != 'u' && type != 's') {
-        // Don't allow custom info variables to avoid flooding
-        // the client with many serverinfo and userinfo variables
+    if (type != 'a' && type != 's') {
+        // Only allow ephemeral or userinfo variables
 
         var = cgi.Cvar_Find(name);
         if (!var) {
             // Allow as it doesn't exist
-            return qfalse;
+            return qtrue;
         }
 
         if (var->flags & CVAR_USER_CREATED) {
             // Allow, it's user-created, wouldn't cause issues
-            return qfalse;
+            return qtrue;
         }
     }
 
     // Filtered
-    return qtrue;
+    return qfalse;
 }
 
 /*
 ====================
-CG_IsCommandFiltered
+CG_IsCommandAllowed
 
 Returns whether or not the variable should be filtered
 ====================
 */
-static qboolean CG_IsCommandFiltered(const char *name)
+static qboolean CG_IsCommandAllowed(const char *name)
 {
-    size_t i;
+    size_t  i;
+    cvar_t *var;
 
     for (i = 0; i < ARRAY_LEN(whiteListedCommands); i++) {
         if (!Q_stricmp(name, whiteListedCommands[i])) {
-            return qfalse;
+            return qtrue;
         }
     }
 
@@ -192,7 +191,7 @@ static qboolean CG_IsCommandFiltered(const char *name)
         // Mostly used on single-player mode, like when briefings switch to the next map
         for (i = 0; i < ARRAY_LEN(whiteListedLocalServerCommands); i++) {
             if (!Q_stricmp(name, whiteListedLocalServerCommands[i])) {
-                return qfalse;
+                return qtrue;
             }
         }
     }
@@ -200,7 +199,17 @@ static qboolean CG_IsCommandFiltered(const char *name)
     //
     // Test variables
     //
-    return CG_IsVariableFiltered(name);
+    if (CG_IsVariableAllowed(name)) {
+        return qtrue;
+    }
+
+    var = cgi.Cvar_Find(name);
+    if (var && (var->flags & CVAR_USER_CREATED)) {
+        // Allow, it's user-created, wouldn't cause issues
+        return qtrue;
+    }
+
+    return qfalse;
 }
 
 /*
@@ -208,8 +217,9 @@ static qboolean CG_IsCommandFiltered(const char *name)
 RemoveEndToken
 ====================
 */
-static qboolean RemoveEndToken(char* com_token) {
-    char* p;
+static qboolean RemoveEndToken(char *com_token)
+{
+    char *p;
 
     for (p = com_token; p[0]; p++) {
         if (*p == ';') {
@@ -223,20 +233,21 @@ static qboolean RemoveEndToken(char* com_token) {
 
 /*
 ====================
-CG_IsStatementFiltered
+CG_IsStatementAllowed
 
 Returns whether or not the statement is filtered
 ====================
 */
-qboolean CG_IsStatementFiltered(char *cmd)
+qboolean CG_IsStatementAllowed(char *cmd)
 {
-    char* parsed;
-    char com_token[256];
+    char    *parsed;
+    char     com_token[256];
     qboolean bNextStatement = qfalse;
 
     parsed = cmd;
 
-    for (Q_strncpyz(com_token, COM_ParseExt(&parsed, qtrue), sizeof(com_token)); com_token[0]; Q_strncpyz(com_token, COM_ParseExt(&parsed, qtrue), sizeof(com_token))) {
+    for (Q_strncpyz(com_token, COM_ParseExt(&parsed, qtrue), sizeof(com_token)); com_token[0];
+         Q_strncpyz(com_token, COM_ParseExt(&parsed, qtrue), sizeof(com_token))) {
         bNextStatement = RemoveEndToken(com_token);
 
         if (com_token[0] == ';') {
@@ -246,7 +257,7 @@ qboolean CG_IsStatementFiltered(char *cmd)
         if (!Q_stricmp(com_token, "set") || !Q_stricmp(com_token, "setu") || !Q_stricmp(com_token, "seta")
             || !Q_stricmp(com_token, "sets") || !Q_stricmp(com_token, "append")) {
             char type;
-            
+
             if (Q_stricmp(com_token, "append")) {
                 type = com_token[3];
             } else {
@@ -262,15 +273,15 @@ qboolean CG_IsStatementFiltered(char *cmd)
                 continue;
             }
 
-            if (CG_IsSetVariableFiltered(com_token, type)) {
-                return qtrue;
+            if (!CG_IsSetVariableAllowed(com_token, type)) {
+                return qfalse;
             }
         } else {
             //
             // normal command
             //
-            if (CG_IsCommandFiltered(com_token)) {
-                return qtrue;
+            if (!CG_IsCommandAllowed(com_token)) {
+                return qfalse;
             }
         }
 
@@ -287,6 +298,5 @@ qboolean CG_IsStatementFiltered(char *cmd)
         }
     }
 
-    return qfalse;
+    return qtrue;
 }
-

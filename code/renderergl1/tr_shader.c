@@ -950,7 +950,7 @@ static qboolean ParseStage(shaderStage_t* stage, char** text, qboolean picmip)
 				}
 			}
 			else {
-				if (token[8] == 'x')
+				if (token[8] == 'x' && !token[9])
 				{
 					if (!haveClampToEdge) {
 						clampx = GL_CLAMP;
@@ -958,11 +958,11 @@ static qboolean ParseStage(shaderStage_t* stage, char** text, qboolean picmip)
 					else {
 						clampx = GL_CLAMP_TO_EDGE;
 					}
-					clampy = GL_CLAMP;
+					clampy = GL_REPEAT;
 				}
-				else if (token[8] == 'y')
+				else if (token[8] == 'y' && !token[9])
 				{
-					clampx = GL_CLAMP;
+					clampx = GL_REPEAT;
 					if (!haveClampToEdge) {
 						clampy = GL_CLAMP;
 					}

@@ -82,8 +82,8 @@ static const PMPickerModel_t pickerModels[] = {
     {"german_panzer_tankcommander",             "DE - Panzer Tank Commander"     },
     {"german_scientist",                        "DE - German Scientist"          },
  // Those skins were superseded by german_waffenss
-    {"german_waffen_officer",                   "DE - Waffen Officer"            },
-    {"german_waffen_shutze",                    "DE - Waffen Shutze"             },
+//    {"german_waffen_officer",                   "DE - Waffen Officer"            },
+//    {"german_waffen_shutze",                    "DE - Waffen Shutze"             },
  // 1.0 skins
     {"german_waffenss_officer",                 "DE - Waffen Officer"            },
     {"german_waffenss_shutze",                  "DE - Waffen Shutze"             },
