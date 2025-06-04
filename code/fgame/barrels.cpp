@@ -350,7 +350,7 @@ void BarrelObject::BarrelDamaged(Event *ev)
     Vector vHitDirection;
     Vector vHitNormal;
 
-    if (!takedamage) {
+    if (takedamage == DAMAGE_NO) {
         return;
     }
 
@@ -378,23 +378,24 @@ void BarrelObject::BarrelDamaged(Event *ev)
         m_vJitterAngles[2] = -(m_fJitterScale * 1.5f);
     }
 
-    if (!(spawnflags & BARREL_INDESTRUCTABLE)) {
-        if ((iMeansOfDeath == MOD_VEHICLE || iMeansOfDeath == MOD_ROCKET || iMeansOfDeath == MOD_GRENADE
-             || iMeansOfDeath == MOD_EXPLODEWALL || iMeansOfDeath == MOD_EXPLOSION || m_iBarrelType == BARREL_GAS)
-            && iMeansOfDeath != MOD_BASH) {
-            if (iDamage >= health) {
-                PostEvent(EV_Killed, 0.01f);
-                takedamage = DAMAGE_NO;
-                return;
-            }
+    if (!(spawnflags & BARREL_INDESTRUCTABLE)
+        && ((iMeansOfDeath == MOD_GRENADE || iMeansOfDeath == MOD_EXPLOSION || iMeansOfDeath == MOD_EXPLODEWALL
+             || iMeansOfDeath == MOD_ROCKET
+             || iMeansOfDeath == MOD_VEHICLE
+             // Added in 2.30
+             //  Landmine
+             || iMeansOfDeath == MOD_LANDMINE)
+            || (m_iBarrelType == BARREL_GAS && iMeansOfDeath != MOD_BASH))) {
+        if (iDamage > health) {
+            PostEvent(EV_Killed, 0.01f);
+            takedamage = DAMAGE_NO;
+            return;
+        }
 
-            if (m_iBarrelType == BARREL_GAS) {
-                iDamage /= 2;
-
-                health -= iDamage;
-                if (health < 1.0f) {
-                    health = 1.0f;
-                }
+        if (m_iBarrelType == BARREL_GAS) {
+            health -= iDamage / 2;
+            if (health < 1.0f) {
+                health = 1.0f;
             }
         }
     }
@@ -409,7 +410,7 @@ void BarrelObject::BarrelDamaged(Event *ev)
     // Fixed in 2.30
     //  Prevent bashes causing barrel leaks
     //
-    if (m_iBarrelType <= BARREL_WATER && iMeansOfDeath != MOD_BASH) {
+    if ((m_iBarrelType == BARREL_OIL || m_iBarrelType == BARREL_WATER) && iMeansOfDeath != MOD_BASH) {
         int index = PickBarrelLeak();
 
         if (vHitPos[2] <= m_fFluidAmount / m_fHeightFluid + origin[2] + mins[2]) {
