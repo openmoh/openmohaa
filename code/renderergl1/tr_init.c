@@ -1590,6 +1590,7 @@ void R_Register( void )
 
 void R_InitExtensions() {
 	// FIXME: qglTextureEnvCombineExists
+#if 0
 	glState.cntTexEnvExt = 0;
 	glState.cntnvblendmode = 0;
 
@@ -1601,6 +1602,7 @@ void R_InitExtensions() {
 	qglTexEnvf(GL_TEXTURE_ENV, GL_OPERAND1_RGB, 0x44400000);
 	qglTexEnvf(GL_TEXTURE_ENV, GL_SOURCE2_RGB, 0x47057700);
 	qglTexEnvf(GL_TEXTURE_ENV, GL_OPERAND2_RGB, 770.0);
+#endif
 }
 
 /*
