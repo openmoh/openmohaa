@@ -404,7 +404,12 @@ void BarrelObject::BarrelDamaged(Event *ev)
         ProcessEvent(EV_Barrel_Think);
     }
 
-    if (m_iBarrelType <= BARREL_WATER) {
+
+    //
+    // Fixed in OPM
+    // Prevent bashes causing barrel leaks
+    //
+    if (m_iBarrelType <= BARREL_WATER && iMeansOfDeath != MOD_BASH) {
         int index = PickBarrelLeak();
 
         if (vHitPos[2] <= m_fFluidAmount / m_fHeightFluid + origin[2] + mins[2]) {
