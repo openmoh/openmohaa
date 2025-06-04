@@ -42,7 +42,7 @@ typedef struct spawnsort_s {
 
 static qboolean SpotWouldTelefrag(float *origin)
 {
-    static Vector mins = Vector(-15, -15, 1.05);
+    static Vector mins = Vector(-15, -15, 1);
     static Vector maxs = Vector(15, 15, 96);
     trace_t       trace;
 
