@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2024 the OpenMoHAA team
+Copyright (C) 2025 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -404,7 +404,12 @@ void BarrelObject::BarrelDamaged(Event *ev)
         ProcessEvent(EV_Barrel_Think);
     }
 
-    if (m_iBarrelType <= BARREL_WATER) {
+
+    //
+    // Fixed in 2.30
+    //  Prevent bashes causing barrel leaks
+    //
+    if (m_iBarrelType <= BARREL_WATER && iMeansOfDeath != MOD_BASH) {
         int index = PickBarrelLeak();
 
         if (vHitPos[2] <= m_fFluidAmount / m_fHeightFluid + origin[2] + mins[2]) {
