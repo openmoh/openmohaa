@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2024 the OpenMoHAA team
+Copyright (C) 2025 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -406,8 +406,8 @@ void BarrelObject::BarrelDamaged(Event *ev)
 
 
     //
-    // Fixed in OPM
-    // Prevent bashes causing barrel leaks
+    // Fixed in 2.30
+    //  Prevent bashes causing barrel leaks
     //
     if (m_iBarrelType <= BARREL_WATER && iMeansOfDeath != MOD_BASH) {
         int index = PickBarrelLeak();
