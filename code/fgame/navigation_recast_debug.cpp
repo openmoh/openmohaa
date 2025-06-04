@@ -147,11 +147,12 @@ DebugDraw
 */
 void NavigationMapDebug::DebugDraw()
 {
-    Entity              *ent            = g_entities[0].entity;
-    dtNavMesh           *navMeshDt      = navigationMap.GetNavMesh();
-    const dtQueryFilter *filter         = navigationMap.GetQueryFilter();
-    const navMap_t&      navigationData = navigationMap.GetNavigationData();
-    const navModel_t&    worldMap       = navigationData.GetWorldMap();
+    Entity               *ent            = g_entities[0].entity;
+    const dtNavMesh      *navMeshDt      = navigationMap.GetNavMesh();
+    const dtNavMeshQuery *navMeshQuery   = navigationMap.GetNavMeshQuery();
+    const dtQueryFilter  *filter         = navigationMap.GetQueryFilter();
+    const navMap_t&       navigationData = navigationMap.GetNavigationData();
+    const navModel_t&     worldMap       = navigationData.GetWorldMap();
 
     if (!navMeshDt) {
         return;
@@ -215,7 +216,7 @@ void NavigationMapDebug::DebugDraw()
 
                 for (int j = 0; j < tile->header->polyCount; j++) {
                     const dtPoly *poly = &tile->polys[j];
-                    const bool    pass = filter->passFilter(navMeshDt->encodePolyId(tile->salt, i, j), tile, poly);
+                    const bool pass = navMeshQuery->isValidPolyRef(navMeshDt->encodePolyId(tile->salt, i, j), filter);
 
                     for (int k = 0; k < poly->vertCount; ++k) {
                         const float *pv1 = &tile->verts[poly->verts[k] * 3];
