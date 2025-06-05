@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2023 the OpenMoHAA team
+Copyright (C) 2025 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -30,9 +30,9 @@ class SimpleEntity;
 class SimpleArchivedEntity;
 class ScriptThread;
 
-void G_ArchivePlayerState(Archiver& arc, playerState_t* ps);
-void G_ArchiveTrace(Archiver& arc, trace_t* trace);
-void G_ArchiveClient(Archiver& arc, gclient_t* client);
+void G_ArchivePlayerState(Archiver& arc, playerState_t *ps);
+void G_ArchiveTrace(Archiver& arc, trace_t *trace);
+void G_ArchiveClient(Archiver& arc, gclient_t *client);
 void G_ArchiveEdict(Archiver& arc, gentity_t *edict);
 
 void G_AllocDebugLines(void);
@@ -107,10 +107,10 @@ trace_t G_Trace(
     qboolean         tracedeep = qfalse
 );
 void G_TraceEntities(
-    Vector             & start,
-    Vector             & mins,
-    Vector             & maxs,
-    Vector             & end,
+    Vector&              start,
+    Vector&              mins,
+    Vector&              maxs,
+    Vector&              end,
     Container<Entity *> *victimlist,
     int                  contentmask,
     qboolean             bIncludeTriggers = qfalse
@@ -140,7 +140,7 @@ Vector G_PredictPosition(Vector start, Vector target, Vector targetvelocity, flo
 qboolean      G_LoadAndExecScript(const char *filename, const char *label = NULL, qboolean quiet = qfalse);
 ScriptThread *ExecuteThread(str thread_name, qboolean start = true);
 
-int      MOD_string_to_int(const str     &immune_string);
+int      MOD_string_to_int(const str& immune_string);
 qboolean MOD_matches(int incoming_damage, int damage_type);
 
 void G_MissionFailed(void);
@@ -327,4 +327,5 @@ const char  *WeaponHandNumToName(weaponhand_t hand);
 weaponhand_t WeaponHandNameToNum(str side);
 void         G_DebugTargets(Entity *e, str from);
 void         G_DebugDamage(float damage, Entity *victim, Entity *attacker, Entity *inflictor);
+unsigned int G_GetWeaponCommandMask();
 unsigned int G_GetWeaponCommand(unsigned int buttons);
