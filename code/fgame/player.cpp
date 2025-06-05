@@ -4460,9 +4460,16 @@ void Player::ClientThink(void)
     }
 
     last_ucmd = *current_ucmd;
-    server_new_buttons |= current_ucmd->buttons & ~buttons;
+
     new_buttons = current_ucmd->buttons & ~buttons;
-    buttons     = current_ucmd->buttons;
+    if (new_buttons & G_GetWeaponCommandMask()) {
+        // Fixed in OPM
+        //  There can't be multiple weapon commands
+        //  So clear the weapon commands and use the latest one
+        server_new_buttons &= ~G_GetWeaponCommandMask();
+    }
+    server_new_buttons |= current_ucmd->buttons & ~buttons;
+    buttons = current_ucmd->buttons;
 
     if (camera) {
         m_vViewPos = camera->origin;
