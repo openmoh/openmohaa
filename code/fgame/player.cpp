@@ -9491,10 +9491,13 @@ void Player::Join_DM_Team(Event *ev)
     RemoveFromVehiclesAndTurrets();
 
     //
-    // Since 2.0: Remove projectiles the player shot
+    // Since 2.0: Remove projectiles that the player own
     //
     for (ent = G_NextEntity(NULL); ent; ent = G_NextEntity(ent)) {
-        if (ent->IsSubclassOfProjectile() && ent->edict->r.ownerNum == edict->r.ownerNum) {
+        // Fixed in OPM
+        //  2.0 accidentally use the player's ownerNum which is always ENTITYNUM_NONE.
+        //  It causes projectiles with no owner to be deleted.
+        if (ent->IsSubclassOfProjectile() && ent->edict->r.ownerNum == entnum) {
             ent->PostEvent(EV_Remove, 0);
         }
     }
