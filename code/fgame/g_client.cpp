@@ -1004,11 +1004,14 @@ void G_ClientBegin(gentity_t *ent, usercmd_t *cmd)
             player = new Player;
         }
 
+        // Fixed in OPM
+        //  Initialize the enter time even when there is an intermission.
+        //  This is so in the scoreboard it shows up properly
+        ent->client->pers.enterTime = level.svsFloatTime;
+
         if (level.intermissiontime && ent->entity) {
             G_MoveClientToIntermission(ent->entity);
         } else {
-            ent->client->pers.enterTime = level.svsFloatTime;
-
             if (g_gametype->integer != GT_SINGLE_PLAYER) {
                 // send effect if in a multiplayer game
                 G_PrintfClient(ent, "has entered the battle\n");
