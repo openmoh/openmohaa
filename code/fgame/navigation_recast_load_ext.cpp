@@ -388,6 +388,7 @@ NavigationMapExtension_JumpFall::CanConnectJumpPoint(const rcPolyMesh *polyMesh,
     Vector                 delta;
     Vector                 fwdDir;
     float                  jumpheight;
+    float                  length;
     Vector                 dir;
     trace_t                trace;
     offMeshNavigationPoint point;
@@ -400,6 +401,35 @@ NavigationMapExtension_JumpFall::CanConnectJumpPoint(const rcPolyMesh *polyMesh,
         end   = pos2;
     }
 
+    jumpheight = end.z - start.z;
+    if (jumpheight > NavigationMapExtensionConfiguration::agentJumpHeight) {
+        return {};
+    }
+
+    // Drop to floor
+    trace = G_Trace(
+        start + Vector(0, 0, STEPSIZE),
+        mins,
+        maxs,
+        start - Vector(0, 0, STEPSIZE * 2),
+        NULL,
+        MASK_PLAYERSOLID,
+        qtrue,
+        "CanConnectJumpPoint"
+    );
+    start = trace.endpos;
+    trace = G_Trace(
+        end + Vector(0, 0, STEPSIZE),
+        mins,
+        maxs,
+        end - Vector(0, 0, STEPSIZE * 2),
+        NULL,
+        MASK_PLAYERSOLID,
+        qtrue,
+        "CanConnectJumpPoint"
+    );
+    end = trace.endpos;
+
     delta      = end - start;
     jumpheight = delta.z;
     if (jumpheight > NavigationMapExtensionConfiguration::agentJumpHeight) {
@@ -410,15 +440,41 @@ NavigationMapExtension_JumpFall::CanConnectJumpPoint(const rcPolyMesh *polyMesh,
         return {};
     }
 
-    dir   = delta;
-    dir.z = 0;
-    dir.normalize();
+    dir    = delta;
+    dir.z  = 0;
+    length = dir.normalize();
     fwdDir = dir * 32;
 
     trace = G_Trace(start, mins, maxs, end, NULL, MASK_PLAYERSOLID, qtrue, "CanConnectJumpPoint");
     if (!trace.allsolid && trace.fraction >= 0.999) {
         // Straight path
         return {};
+    }
+
+    // Drop to floor
+    trace = G_Trace(start, mins, maxs, start + dir * length, NULL, MASK_PLAYERSOLID, qtrue, "CanConnectJumpPoint");
+
+    trace = G_Trace(
+        trace.endpos,
+        mins,
+        maxs,
+        trace.endpos - Vector(0, 0, STEPSIZE * 2),
+        NULL,
+        MASK_PLAYERSOLID,
+        qtrue,
+        "CanConnectJumpPoint"
+    );
+    if (!trace.startsolid && trace.fraction > 0 && trace.fraction < 1) {
+        start      = trace.endpos;
+        delta      = end - start;
+        jumpheight = delta.z;
+        if (jumpheight > NavigationMapExtensionConfiguration::agentJumpHeight) {
+            return {};
+        }
+
+        if (delta.lengthSquared() > Square(128)) {
+            return {};
+        }
     }
 
     trace = G_Trace(

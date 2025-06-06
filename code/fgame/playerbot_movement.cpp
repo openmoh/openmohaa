@@ -342,7 +342,8 @@ void BotMovement::CheckJump(usercmd_t& botcmd)
     }
 
     start = controlledEntity->origin;
-    end   = controlledEntity->origin + Vector(0, 0, STEPSIZE * 3);
+    end   = controlledEntity->origin;
+    end.z += STEPSIZE * 3;
 
     if (ai_debugpath->integer) {
         G_DebugLine(start, end, 1, 0, 1, 1);
@@ -380,7 +381,7 @@ void BotMovement::CheckJump(usercmd_t& botcmd)
         start, bounds[0], bounds[1], end, controlledEntity, MASK_PLAYERSOLID, false, "BotController::CheckJump"
     );
 
-    if (trace.fraction < 1) {
+    if (trace.plane.normal[2] <= MIN_WALK_NORMAL && trace.fraction < 1) {
         m_bJump = false;
         return;
     }
