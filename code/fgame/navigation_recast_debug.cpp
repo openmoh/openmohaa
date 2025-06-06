@@ -347,11 +347,13 @@ void NavigationMapDebug::DebugDraw()
 
         ai_lastpath = ai_showpath->integer;
 
-        crowd->update(level.frametime, NULL);
+        if (crowd) {
+            crowd->update(level.frametime, NULL);
+        }
 
         for (int i = 0; i < ai_numPaths - 1; i++) {
-            const Vector v1 = ai_pathlist[i] + Vector(0, 0, 64);
-            const Vector v2 = ai_pathlist[i + 1] + Vector(0, 0, 64);
+            const Vector v1 = ai_pathlist[i] + Vector(0, 0, 16);
+            const Vector v2 = ai_pathlist[i + 1] + Vector(0, 0, 16);
 
             G_DebugLine(v1, v2, 1.0, 0.0, 1.0, 1.0);
         }
