@@ -444,7 +444,7 @@ void CVAR_Init(void)
     g_spawnentities = gi.Cvar_Get("g_spawnentities", "1", 0);
     g_spawnai       = gi.Cvar_Get("g_spawnai", "1", 0);
 
-    g_patherror = gi.Cvar_Get("g_patherror", "1", 0);
+    g_patherror = gi.Cvar_Get("g_patherror", "0", 0);
 
     g_droppeditemlife = gi.Cvar_Get("g_droppeditemlife", "30", 0);
     g_dropclips       = gi.Cvar_Get("g_dropclips", "2", 0);
