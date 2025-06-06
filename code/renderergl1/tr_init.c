@@ -1409,7 +1409,7 @@ void R_Register( void )
 	//	Fixed in OPM
 	//	 Make it archivable and 1 by default
 	//
-    r_drawstaticdecals = ri.Cvar_Get("r_drawstaticdecals", "1", CVAR_ARCHIVE);
+	r_drawstaticdecals = ri.Cvar_Get("r_drawstaticdecals", "1", CVAR_ARCHIVE);
 
 	r_primitives = ri.Cvar_Get( "r_primitives", "0", CVAR_ARCHIVE );
 
