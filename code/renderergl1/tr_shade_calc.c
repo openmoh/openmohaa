@@ -440,7 +440,7 @@ void RB_CalcBulgeVertexes( deformStage_t *ds ) {
 		int		off;
 		float scale;
 
-		off = (float)( FUNCTABLE_SIZE / (M_PI*2) ) * ( st[0] * ds->bulgeWidth + now );
+		off = FUNCTABLE_SIZE * ( st[0] * ds->bulgeWidth + now );
 
 		scale = tr.sinTable[ off & FUNCTABLE_MASK ] * ds->bulgeHeight;
 			
