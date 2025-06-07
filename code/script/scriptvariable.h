@@ -323,6 +323,7 @@ public:
     ScriptVariableList();
 
     void ClearList(void);
+    int size() const;
 
     ScriptVariable *GetOrCreateVariable(str name);
     ScriptVariable *GetOrCreateVariable(unsigned int name);
@@ -342,6 +343,7 @@ public:
     ScriptVariable *SetVariable(unsigned int name, ScriptVariable&& value);
 
     void Archive(Archiver& arc) override;
+    void Print (void (*PrintFn) (const char* format, ...));
     void MakePrimitive();
 };
 

@@ -2630,6 +2630,10 @@ ScriptVariable *ScriptVariableList::SetVariable(unsigned int name, ScriptVariabl
     return variable;
 }
 
+int ScriptVariableList::size() const {
+    return list.size();
+}
+
 void ScriptVariableList::Archive(Archiver& arc)
 {
     Class::Archive(arc);
@@ -2643,6 +2647,16 @@ void ScriptVariableList::MakePrimitive()
     for (con_set_enum<short3, ScriptVariable>::Entry *entry = en.NextElement(); entry; entry = en.NextElement()) {
         entry->value.MakePrimitive();
     }
+}
+
+void ScriptVariableList::Print (void (*PrintFn) (const char* format, ...)) {
+    con_set_enum<short3, ScriptVariable> en = list;
+
+    for (con_set_enum<short3, ScriptVariable>::Entry *entry = en.NextElement(); entry; entry = en.NextElement()) {
+        (*PrintFn)("%s = %s\n", entry->value.getName().c_str(), entry->value.stringValue().c_str());
+    }
+
+    gi.Printf("%d variables\n", list.size());
 }
 
 CLASS_DECLARATION(Class, ScriptVariableList, NULL) {
