@@ -36,6 +36,7 @@ if (APPLE)
 endif()
 
 set(SOURCES_PLATFORM_COMMON
+    "${CMAKE_SOURCE_DIR}/code/sys/sys_curl.c"
     "${CMAKE_SOURCE_DIR}/code/sys/sys_update_checker.cpp"
 )
 
@@ -44,15 +45,7 @@ target_sources(syslib INTERFACE ${SOURCES_PLATFORM_SPECIFIC} ${SOURCES_PLATFORM_
 target_compile_features(syslib INTERFACE cxx_nullptr cxx_std_17)
 target_compile_features(syslib INTERFACE c_variadic_macros)
 target_link_libraries(syslib INTERFACE qcommon)
-
-find_package(CURL)
-
-if (CURL_FOUND)
-    target_link_libraries(syslib INTERFACE CURL::libcurl)
-    target_compile_definitions(syslib INTERFACE HAS_LIBCURL=1)
-else()
-    message(WARNING "CURL is not available, update checking will not work")
-endif()
+target_link_libraries(syslib INTERFACE curldefs)
 
 if(WIN32)
 	target_link_libraries(syslib INTERFACE wsock32 ws2_32)

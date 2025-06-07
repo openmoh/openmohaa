@@ -21,11 +21,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "sys_update_checker.h"
+#include "sys_curl.h"
 #include "../qcommon/q_version.h"
-
-#ifdef HAS_LIBCURL
-#    include <curl/curl.h>
-#endif
 
 //#include <httplib.h>
 #include "../qcommon/json.hpp"
@@ -93,7 +90,7 @@ bool UpdateChecker::CanHaveRequestThread() const
     }
 
 #ifdef HAS_LIBCURL
-    return true;
+    return Com_IsCurlImportValid(&curlImport) ? true : false;
 #else
     return false;
 #endif
@@ -234,25 +231,30 @@ void UpdateCheckerThread::InitClient()
 #ifdef HAS_LIBCURL
     CURLcode result;
 
+    if (!Com_IsCurlImportValid(&curlImport)) {
+        Com_DPrintf("Couldn't load cURL.\n");
+        return;
+    }
+
     assert(!handle);
 
-    handle = curl_easy_init();
+    handle = curlImport.qcurl_easy_init();
     if (!handle) {
         Com_DPrintf("Failed to create curl client\n");
         return;
     }
 
-    result = curl_easy_setopt(handle, CURLOPT_URL, "https://api.github.com/repos/openmoh/openmohaa/releases/latest");
+    result = curlImport.qcurl_easy_setopt(handle, CURLOPT_URL, "https://api.github.com/repos/openmoh/openmohaa/releases/latest");
 
     if (result != CURLE_OK) {
-        Com_DPrintf("Failed to set curl URL: %s\n", curl_easy_strerror(result));
-        curl_easy_cleanup(handle);
+        Com_DPrintf("Failed to set curl URL: %s\n", curlImport.qcurl_easy_strerror(result));
+        curlImport.qcurl_easy_cleanup(handle);
         handle = NULL;
         return;
     }
 
-    curl_easy_setopt(handle, CURLOPT_USERAGENT, "curl");
-    curl_easy_setopt(handle, CURLOPT_TIMEOUT, 15);
+    curlImport.qcurl_easy_setopt(handle, CURLOPT_USERAGENT, "curl");
+    curlImport.qcurl_easy_setopt(handle, CURLOPT_TIMEOUT, 15);
 #else
     Com_DPrintf("Project was compiled without libcurl, will not check for updates\n");
 #endif
@@ -265,7 +267,7 @@ void UpdateCheckerThread::ShutdownClient()
         return;
     }
 
-    curl_easy_cleanup(handle);
+    curlImport.qcurl_easy_cleanup(handle);
     handle = NULL;
 #endif
 }
@@ -358,18 +360,18 @@ void UpdateCheckerThread::DoRequest()
     CURLcode          result;
     WriteCallbackData callbackData;
 
-    curl_easy_setopt(handle, CURLOPT_WRITEFUNCTION, &WriteCallback);
-    curl_easy_setopt(handle, CURLOPT_WRITEDATA, &callbackData);
-    curl_easy_setopt(handle, CURLOPT_MAXFILESIZE, MAX_BUFFER_SIZE);
+    curlImport.qcurl_easy_setopt(handle, CURLOPT_WRITEFUNCTION, &WriteCallback);
+    curlImport.qcurl_easy_setopt(handle, CURLOPT_WRITEDATA, &callbackData);
+    curlImport.qcurl_easy_setopt(handle, CURLOPT_MAXFILESIZE, MAX_BUFFER_SIZE);
 
     struct curl_slist *list = NULL;
 
-    list = curl_slist_append(list, "Accept: application/vnd.github+json");
-    list = curl_slist_append(list, "X-GitHub-Api-Version: 2022-11-28");
-    curl_easy_setopt(handle, CURLOPT_HTTPHEADER, list);
+    list = curlImport.qcurl_slist_append(list, "Accept: application/vnd.github+json");
+    list = curlImport.qcurl_slist_append(list, "X-GitHub-Api-Version: 2022-11-28");
+    curlImport.qcurl_easy_setopt(handle, CURLOPT_HTTPHEADER, list);
 
-    result = curl_easy_perform(handle);
-    curl_slist_free_all(list);
+    result = curlImport.qcurl_easy_perform(handle);
+    curlImport.qcurl_slist_free_all(list);
 
     if (result != CURLE_OK) {
         return;

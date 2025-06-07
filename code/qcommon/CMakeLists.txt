@@ -84,6 +84,7 @@ set(SOURCES_COMMON
 
 add_subdirectory("../skeletor" "./skeletor")
 add_subdirectory("../tiki" "./tiki")
+add_subdirectory("../curl" "./curl")
 
 add_library(qcommon_standalone INTERFACE)
 target_sources(qcommon_standalone INTERFACE ${SOURCES_COMMON})
