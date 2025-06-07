@@ -350,6 +350,12 @@ public:
 
     void SubscribeEvent(Event *ev);
     void UnsubscribeEvent(Event *ev);
+
+    void FS_ReadContent(Event *ev);
+    void FS_WriteContent(Event *ev);
+    void FS_OpenRead(Event *ev);
+    void FS_OpenWrite(Event *ev);
+    void FS_OpenAppend(Event *ev);
 };
 
 class OSFile : public Listener
@@ -365,4 +371,28 @@ public:
 
 private:
     void *file;
+};
+
+class FSFile : public Listener
+{
+    CLASS_PROTOTYPE(FSFile);
+
+
+public:
+    FSFile();
+    FSFile(fileHandle_t inFile);
+    ~FSFile();
+
+    fileHandle_t getHandle() const;
+
+private:
+    void CloseEvent(Event *ev);
+    void FlushEvent(Event *ev);
+    void ReadEvent(Event *ev);
+    void WriteEvent(Event *ev);
+    void SeekEvent(Event *ev);
+    void TellEvent(Event *ev);
+
+private:
+    fileHandle_t handle;
 };
