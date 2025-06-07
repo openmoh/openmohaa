@@ -165,7 +165,7 @@ public:
     bool isEmpty();
     bool remove(const k& key);
 
-    unsigned int size();
+    unsigned int size() const;
 };
 
 template<typename k, typename v>
@@ -452,7 +452,7 @@ bool con_set<k, v>::keyExists(const k& key)
 }
 
 template<typename key, typename value>
-unsigned int con_set<key, value>::size()
+unsigned int con_set<key, value>::size() const
 {
     return count;
 }
@@ -563,7 +563,7 @@ public:
     value *find(const key& index);
     bool   remove(const key& index);
 
-    unsigned int size();
+    unsigned int size() const;
 };
 
 template<typename key, typename value>
@@ -597,7 +597,7 @@ bool con_map<key, value>::remove(const key& index)
 }
 
 template<typename key, typename value>
-unsigned int con_map<key, value>::size(void)
+unsigned int con_map<key, value>::size(void) const
 {
     return m_con_set.size();
 }
