@@ -16,7 +16,8 @@ The installation directory can be set to the MOHAA directory with `-DCMAKE_INSTA
 
 Compiling debug binaries will result in a `-dbg` suffix appended to the name of the binaries to avoid mixing debug/release code.
 
-cURL is used to access websites. It is currently used to check for a new release. If the project is compiled without cURL, OpenMoHAA will be unable to check for new updates automatically.
+> [!NOTE]
+> OpenMoHAA is loosely coupled libcurl, meaning the library is not required for the game to work normally. Currently it only checks for update, but in the future some features may be introduced that require it.
 
 ## Compiling for Linux
 
@@ -24,7 +25,6 @@ These are the tools required on Linux :
 - Clang >= 7.0.1 or GCC >= 9.4.0
 - libsdl2-dev
 - libopenal-dev
-- libssl-dev
 - libcurl4-openssl-dev
 
 **clang-7** and **gcc-9** has been tested to work on Ubuntu 20.04. Although it's best to use the latest versions.
