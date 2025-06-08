@@ -26,27 +26,28 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <cstddef>
 
-class cLZ77 {
-	static unsigned int m_pDictionary[];
+class cLZ77
+{
+    static unsigned int m_pDictionary[];
 
-	unsigned char *ip;
-	unsigned char *op;
-	unsigned char *in_end;
-	unsigned char *ip_end;
-	unsigned char *ii;
-	unsigned char *m_pos;
-	unsigned int m_off;
-	unsigned int m_len;
-	unsigned int dindex;
+    unsigned char *ip;
+    unsigned char *op;
+    unsigned char *in_end;
+    unsigned char *ip_end;
+    unsigned char *ii;
+    unsigned char *m_pos;
+    unsigned int   m_off;
+    unsigned int   m_len;
+    unsigned int   dindex;
 
 public:
-	cLZ77();
+    cLZ77();
 
-	int Compress( unsigned char *in, size_t in_len, unsigned char *out, size_t *out_len );
-	int Decompress( unsigned char *in, size_t in_len, unsigned char *out, size_t *out_len );
+    int Compress(unsigned char *in, size_t in_len, unsigned char *out, size_t *out_len);
+    int Decompress(unsigned char *in, size_t in_len, unsigned char *out, size_t *out_len);
 
 private:
-	unsigned int CompressData( unsigned char *in, size_t in_len, unsigned char *out, size_t *out_len );
+    unsigned int CompressData(unsigned char *in, size_t in_len, unsigned char *out, size_t *out_len);
 };
 
 extern cLZ77 g_lz77;
