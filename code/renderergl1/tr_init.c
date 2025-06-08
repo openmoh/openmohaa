@@ -1405,6 +1405,9 @@ void R_Register( void )
 	r_swapInterval = ri.Cvar_Get( "r_swapInterval", "0", CVAR_ARCHIVE );
 	r_gamma = ri.Cvar_Get( "r_gamma", "1", CVAR_ARCHIVE );
 	r_facePlaneCull = ri.Cvar_Get ("r_facePlaneCull", "1", CVAR_ARCHIVE );
+	//	Added in OPM
+	//	 Make archivable
+	r_drawstaticdecals = ri.Cvar_Get("r_drawstaticdecals", "0", CVAR_ARCHIVE );
 
 	r_primitives = ri.Cvar_Get( "r_primitives", "0", CVAR_ARCHIVE );
 
@@ -1470,8 +1473,7 @@ void R_Register( void )
 	r_drawstaticmodels = ri.Cvar_Get("r_drawstaticmodels", "1", CVAR_CHEAT);
 	r_drawstaticmodelpoly = ri.Cvar_Get("r_drawstaticmodelpoly", "1", CVAR_CHEAT);
 	r_drawbrushes = ri.Cvar_Get("r_drawbrushes", "1", CVAR_CHEAT);
-	r_drawbrushmodels = ri.Cvar_Get("r_drawbrushmodels", "1", CVAR_CHEAT);
-	r_drawstaticdecals = ri.Cvar_Get("r_drawstaticdecals", "0", 0);
+	r_drawbrushmodels = ri.Cvar_Get("r_drawbrushmodels", "1", CVAR_CHEAT);	
 	r_drawterrain = ri.Cvar_Get("r_drawterrain", "1", CVAR_CHEAT);
 	r_drawsprites = ri.Cvar_Get("r_drawsprites", "1", CVAR_CHEAT);
 	r_drawspherelights = ri.Cvar_Get("r_drawspherelights", "1", CVAR_CHEAT);
