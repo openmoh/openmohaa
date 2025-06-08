@@ -424,9 +424,14 @@ void CarryableTurret::EventPlaceTurret(Event *ev)
         return;
     }
 
+    //  Added in OPM
+    //   Offset the turret a bit downwards so it doesn't float in the air
+    Vector placementOrigin = placer->origin + forward * 32 + up * 65.43f;
+    placementOrigin[2] -= 16;
+
     ent = static_cast<PortableTurret *>(c->newInstance());
     ent->setModel(turretModel);
-    ent->setOrigin(placer->origin + forward * 32 + up * 65.43f);
+    ent->setOrigin(placementOrigin);
     ent->setAngles(turretAngles);
     ent->ProcessInitCommands();
     ent->SetGroundPitch(turretAngles[0]);
