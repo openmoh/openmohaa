@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project>
+  <ProjectOutputs>
+    <ProjectOutput>
+      <FullPath>C:\Users\dowee\source\repos\openmohaa\.cmake\x64\Release\ZERO_CHECK</FullPath>
+    </ProjectOutput>
+    <ProjectOutput>
+      <FullPath>C:\Users\dowee\source\repos\openmohaa\.cmake\code\client\cgame\Release\cgame.dll</FullPath>
+    </ProjectOutput>
+    <ProjectOutput>
+      <FullPath>C:\Users\dowee\source\repos\openmohaa\.cmake\code\server\fgame\Release\game.dll</FullPath>
+    </ProjectOutput>
+    <ProjectOutput>
+      <FullPath>C:\Users\dowee\source\repos\openmohaa\.cmake\Release\omohaaded.exe</FullPath>
+    </ProjectOutput>
+    <ProjectOutput>
+      <FullPath>C:\Users\dowee\source\repos\openmohaa\.cmake\Release\openmohaa.exe</FullPath>
+    </ProjectOutput>
+    <ProjectOutput>
+      <FullPath>C:\Users\dowee\source\repos\openmohaa\.cmake\code\Launcher\Release\launch_openmohaa_base.exe</FullPath>
+    </ProjectOutput>
+    <ProjectOutput>
+      <FullPath>C:\Users\dowee\source\repos\openmohaa\.cmake\code\Launcher\Release\launch_openmohaa_breakthrough.exe</FullPath>
+    </ProjectOutput>
+    <ProjectOutput>
+      <FullPath>C:\Users\dowee\source\repos\openmohaa\.cmake\code\Launcher\Release\launch_openmohaa_spearhead.exe</FullPath>
+    </ProjectOutput>
+    <ProjectOutput>
+      <FullPath>C:\Users\dowee\source\repos\openmohaa\.cmake\x64\Release\ALL_BUILD</FullPath>
+    </ProjectOutput>
+  </ProjectOutputs>
+  <ContentFiles />
+  <SatelliteDlls />
+  <NonRecipeFileRefs />
+</Project>

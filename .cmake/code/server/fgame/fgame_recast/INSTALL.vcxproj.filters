@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\dowee\source\repos\openmohaa\.cmake\CMakeFiles\6042703bf8fa9e36228dee64cded7258\INSTALL_force.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{C54931DD-CC33-34A4-B066-6E0A946B2E08}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

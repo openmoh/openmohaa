@@ -1,0 +1,10 @@
+^C:\USERS\DOWEE\SOURCE\REPOS\OPENMOHAA\CODE\LAUNCHER\CMAKELISTS.TXT
+setlocal
+"C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -SC:/Users/dowee/source/repos/openmohaa -BC:/Users/dowee/source/repos/openmohaa/.cmake --check-stamp-file C:/Users/dowee/source/repos/openmohaa/.cmake/code/Launcher/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

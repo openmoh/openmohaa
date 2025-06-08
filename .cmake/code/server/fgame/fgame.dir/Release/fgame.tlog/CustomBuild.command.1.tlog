@@ -1,0 +1,38 @@
+^C:\USERS\DOWEE\SOURCE\REPOS\OPENMOHAA\.CMAKE\CMAKEFILES\8DB9950FDC2479C3332C89A34DF0C2DE\YYPARSER.CPP.RULE
+setlocal
+cd C:\Users\dowee\source\repos\openmohaa\code\fgame
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+"C:\OpenMOHAA Stuff\win_flex_bison-2.5.25\win_bison.exe" -d -o C:/Users/dowee/source/repos/openmohaa/code/parser/generated/yyParser.cpp C:/Users/dowee/source/repos/openmohaa/code/parser/bison_source.txt
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+^C:\USERS\DOWEE\SOURCE\REPOS\OPENMOHAA\.CMAKE\CMAKEFILES\8DB9950FDC2479C3332C89A34DF0C2DE\YYLEXER.CPP.RULE
+setlocal
+cd C:\Users\dowee\source\repos\openmohaa\code\fgame
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+"C:\OpenMOHAA Stuff\win_flex_bison-2.5.25\win_flex.exe" -Cem --nounistd --header-file=C:/Users/dowee/source/repos/openmohaa/code/parser/generated/yyLexer.h -oC:/Users/dowee/source/repos/openmohaa/code/parser/generated/yyLexer.cpp C:/Users/dowee/source/repos/openmohaa/code/parser/lex_source.txt
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+^C:\USERS\DOWEE\SOURCE\REPOS\OPENMOHAA\CODE\FGAME\CMAKELISTS.TXT
+setlocal
+"C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -SC:/Users/dowee/source/repos/openmohaa -BC:/Users/dowee/source/repos/openmohaa/.cmake --check-stamp-file C:/Users/dowee/source/repos/openmohaa/.cmake/code/server/fgame/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

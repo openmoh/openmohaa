@@ -1,0 +1,401 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <PreferredToolArchitecture>x64</PreferredToolArchitecture>
+  </PropertyGroup>
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="MinSizeRel|x64">
+      <Configuration>MinSizeRel</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="RelWithDebInfo|x64">
+      <Configuration>RelWithDebInfo</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{393CBA1D-E71B-3C2C-A015-787E8462E60D}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <WindowsTargetPlatformVersion>10.0.26100.0</WindowsTargetPlatformVersion>
+    <Platform>x64</Platform>
+    <ProjectName>cgame</ProjectName>
+    <VCProjectUpgraderObjectName>NoUpgrade</VCProjectUpgraderObjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.20506.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Users\dowee\source\repos\openmohaa\.cmake\code\client\cgame\Debug\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">cgame.dir\Debug\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">cgame-dbg</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.dll</TargetExt>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</LinkIncremental>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</GenerateManifest>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Users\dowee\source\repos\openmohaa\.cmake\code\client\cgame\Release\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">cgame.dir\Release\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">cgame</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.dll</TargetExt>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkIncremental>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</GenerateManifest>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\Users\dowee\source\repos\openmohaa\.cmake\code\client\cgame\MinSizeRel\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">cgame.dir\MinSizeRel\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">cgame</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">.dll</TargetExt>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">false</LinkIncremental>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">true</GenerateManifest>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\Users\dowee\source\repos\openmohaa\.cmake\code\client\cgame\RelWithDebInfo\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">cgame.dir\RelWithDebInfo\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">cgame</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">.dll</TargetExt>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">true</LinkIncremental>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">true</GenerateManifest>
+  </PropertyGroup>
+  <PropertyGroup />
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\Users\dowee\source\repos\openmohaa\code\qcommon\..\qcommon;C:\Users\dowee\source\repos\openmohaa\.cmake\code\qcommon\generated;C:\Users\dowee\source\repos\openmohaa\code\qcommon\..\script;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
+      <MinimalRebuild></MinimalRebuild>
+      <Optimization>Disabled</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <SupportJustMyCode></SupportJustMyCode>
+      <TreatSpecificWarningsAsErrors>4715</TreatSpecificWarningsAsErrors>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;CGAME_DLL;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;NDEBUG;CMAKE_INTDIR="Debug";cgame_EXPORTS</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_DEBUG;_WINDOWS;CGAME_DLL;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;NDEBUG;CMAKE_INTDIR=\"Debug\";cgame_EXPORTS</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Users\dowee\source\repos\openmohaa\code\qcommon\..\qcommon;C:\Users\dowee\source\repos\openmohaa\.cmake\code\qcommon\generated;C:\Users\dowee\source\repos\openmohaa\code\qcommon\..\script;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\Users\dowee\source\repos\openmohaa\code\qcommon\..\qcommon;C:\Users\dowee\source\repos\openmohaa\.cmake\code\qcommon\generated;C:\Users\dowee\source\repos\openmohaa\code\qcommon\..\script;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Link>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImportLibrary>C:/Users/dowee/source/repos/openmohaa/.cmake/code/client/cgame/Debug/cgame-dbg.lib</ImportLibrary>
+      <ProgramDataBaseFile>C:/Users/dowee/source/repos/openmohaa/.cmake/code/client/cgame/Debug/cgame-dbg.pdb</ProgramDataBaseFile>
+      <SubSystem>Console</SubSystem>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\Users\dowee\source\repos\openmohaa\code\qcommon\..\qcommon;C:\Users\dowee\source\repos\openmohaa\.cmake\code\qcommon\generated;C:\Users\dowee\source\repos\openmohaa\code\qcommon\..\script;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <MinimalRebuild></MinimalRebuild>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <SupportJustMyCode></SupportJustMyCode>
+      <TreatSpecificWarningsAsErrors>4715</TreatSpecificWarningsAsErrors>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;CGAME_DLL;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;CMAKE_INTDIR="Release";cgame_EXPORTS</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+      <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;CGAME_DLL;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;CMAKE_INTDIR=\"Release\";cgame_EXPORTS</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Users\dowee\source\repos\openmohaa\code\qcommon\..\qcommon;C:\Users\dowee\source\repos\openmohaa\.cmake\code\qcommon\generated;C:\Users\dowee\source\repos\openmohaa\code\qcommon\..\script;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\Users\dowee\source\repos\openmohaa\code\qcommon\..\qcommon;C:\Users\dowee\source\repos\openmohaa\.cmake\code\qcommon\generated;C:\Users\dowee\source\repos\openmohaa\code\qcommon\..\script;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Link>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImportLibrary>C:/Users/dowee/source/repos/openmohaa/.cmake/code/client/cgame/Release/cgame.lib</ImportLibrary>
+      <ProgramDataBaseFile>C:/Users/dowee/source/repos/openmohaa/.cmake/code/client/cgame/Release/cgame.pdb</ProgramDataBaseFile>
+      <SubSystem>Console</SubSystem>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\Users\dowee\source\repos\openmohaa\code\qcommon\..\qcommon;C:\Users\dowee\source\repos\openmohaa\.cmake\code\qcommon\generated;C:\Users\dowee\source\repos\openmohaa\code\qcommon\..\script;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <MinimalRebuild></MinimalRebuild>
+      <Optimization>MinSpace</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <SupportJustMyCode></SupportJustMyCode>
+      <TreatSpecificWarningsAsErrors>4715</TreatSpecificWarningsAsErrors>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;CGAME_DLL;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;CMAKE_INTDIR="MinSizeRel";cgame_EXPORTS</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+      <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;CGAME_DLL;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;CMAKE_INTDIR=\"MinSizeRel\";cgame_EXPORTS</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Users\dowee\source\repos\openmohaa\code\qcommon\..\qcommon;C:\Users\dowee\source\repos\openmohaa\.cmake\code\qcommon\generated;C:\Users\dowee\source\repos\openmohaa\code\qcommon\..\script;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\Users\dowee\source\repos\openmohaa\code\qcommon\..\qcommon;C:\Users\dowee\source\repos\openmohaa\.cmake\code\qcommon\generated;C:\Users\dowee\source\repos\openmohaa\code\qcommon\..\script;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Link>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImportLibrary>C:/Users/dowee/source/repos/openmohaa/.cmake/code/client/cgame/MinSizeRel/cgame.lib</ImportLibrary>
+      <ProgramDataBaseFile>C:/Users/dowee/source/repos/openmohaa/.cmake/code/client/cgame/MinSizeRel/cgame.pdb</ProgramDataBaseFile>
+      <SubSystem>Console</SubSystem>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\Users\dowee\source\repos\openmohaa\code\qcommon\..\qcommon;C:\Users\dowee\source\repos\openmohaa\.cmake\code\qcommon\generated;C:\Users\dowee\source\repos\openmohaa\code\qcommon\..\script;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <MinimalRebuild></MinimalRebuild>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <SupportJustMyCode></SupportJustMyCode>
+      <TreatSpecificWarningsAsErrors>4715</TreatSpecificWarningsAsErrors>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;CGAME_DLL;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;CMAKE_INTDIR="RelWithDebInfo";cgame_EXPORTS</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;CGAME_DLL;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;CMAKE_INTDIR=\"RelWithDebInfo\";cgame_EXPORTS</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Users\dowee\source\repos\openmohaa\code\qcommon\..\qcommon;C:\Users\dowee\source\repos\openmohaa\.cmake\code\qcommon\generated;C:\Users\dowee\source\repos\openmohaa\code\qcommon\..\script;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\Users\dowee\source\repos\openmohaa\code\qcommon\..\qcommon;C:\Users\dowee\source\repos\openmohaa\.cmake\code\qcommon\generated;C:\Users\dowee\source\repos\openmohaa\code\qcommon\..\script;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Link>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImportLibrary>C:/Users/dowee/source/repos/openmohaa/.cmake/code/client/cgame/RelWithDebInfo/cgame.lib</ImportLibrary>
+      <ProgramDataBaseFile>C:/Users/dowee/source/repos/openmohaa/.cmake/code/client/cgame/RelWithDebInfo/cgame.pdb</ProgramDataBaseFile>
+      <SubSystem>Console</SubSystem>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\dowee\source\repos\openmohaa\code\cgame\CMakeLists.txt">
+      <UseUtf8Encoding>Always</UseUtf8Encoding>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Building Custom Rule C:/Users/dowee/source/repos/openmohaa/code/cgame/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">setlocal
+"C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -SC:/Users/dowee/source/repos/openmohaa -BC:/Users/dowee/source/repos/openmohaa/.cmake --check-stamp-file C:/Users/dowee/source/repos/openmohaa/.cmake/code/client/cgame/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Users\dowee\source\repos\openmohaa\.cmake\code\client\cgame\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Building Custom Rule C:/Users/dowee/source/repos/openmohaa/code/cgame/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">setlocal
+"C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -SC:/Users/dowee/source/repos/openmohaa -BC:/Users/dowee/source/repos/openmohaa/.cmake --check-stamp-file C:/Users/dowee/source/repos/openmohaa/.cmake/code/client/cgame/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Users\dowee\source\repos\openmohaa\.cmake\code\client\cgame\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">Building Custom Rule C:/Users/dowee/source/repos/openmohaa/code/cgame/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">setlocal
+"C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -SC:/Users/dowee/source/repos/openmohaa -BC:/Users/dowee/source/repos/openmohaa/.cmake --check-stamp-file C:/Users/dowee/source/repos/openmohaa/.cmake/code/client/cgame/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\Users\dowee\source\repos\openmohaa\.cmake\code\client\cgame\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">Building Custom Rule C:/Users/dowee/source/repos/openmohaa/code/cgame/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">setlocal
+"C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -SC:/Users/dowee/source/repos/openmohaa -BC:/Users/dowee/source/repos/openmohaa/.cmake --check-stamp-file C:/Users/dowee/source/repos/openmohaa/.cmake/code/client/cgame/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\Users\dowee\source\repos\openmohaa\.cmake\code\client\cgame\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">false</LinkObjects>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\cgame\cg_archive.cpp" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\cgame\cg_beam.cpp" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\cgame\cg_commands.cpp" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\cgame\cg_consolecmds.c" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\cgame\cg_drawtools.cpp" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\cgame\cg_ents.c" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\cgame\cg_event.c" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\cgame\cg_lightstyles.cpp" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\cgame\cg_main.c" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\cgame\cg_marks.c" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\cgame\cg_modelanim.c" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\cgame\cg_nature.cpp" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\cgame\cg_parsemsg.cpp" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\cgame\cg_player.cpp" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\cgame\cg_playerstate.c" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\cgame\cg_predict.c" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\cgame\cg_radar.cpp" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\cgame\cg_scoreboard.cpp" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\cgame\cg_servercmds.c" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\cgame\cg_servercmds_filter.cpp" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\cgame\cg_snapshot.c" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\cgame\cg_sound.cpp" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\cgame\cg_specialfx.cpp" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\cgame\cg_swipe.cpp" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\cgame\cg_tempmodels.cpp" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\cgame\cg_testemitter.cpp" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\cgame\cg_ui.cpp" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\cgame\cg_vehicle.cpp" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\cgame\cg_view.c" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\cgame\cg_viewmodelanim.c" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\cgame\cg_volumetricsmoke.cpp" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\cgame\memarchiver.cpp" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\fgame\bg_misc.cpp" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\fgame\bg_pmove.cpp" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\fgame\bg_slidemove.cpp" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\fgame\bg_voteoptions.cpp" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\qcommon\puff.c" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\qcommon\q_math.c" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\qcommon\q_shared.c" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\qcommon\class.cpp" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\qcommon\con_set.cpp" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\qcommon\con_timer.cpp" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\qcommon\delegate.cpp" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\qcommon\lightclass.cpp" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\qcommon\listener.cpp" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\qcommon\lz77.cpp" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\qcommon\mem_blockalloc.cpp" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\qcommon\mem_tempalloc.cpp" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\qcommon\script.cpp" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\qcommon\str.cpp" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\script\scriptexception.cpp" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\script\scriptvariable.cpp" />
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="C:\Users\dowee\source\repos\openmohaa\.cmake\ZERO_CHECK.vcxproj">
+      <Project>{9F66EFE0-83A8-3DF9-A74E-145016C9B8AE}</Project>
+      <Name>ZERO_CHECK</Name>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

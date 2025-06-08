@@ -1,0 +1,348 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <PreferredToolArchitecture>x64</PreferredToolArchitecture>
+  </PropertyGroup>
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="MinSizeRel|x64">
+      <Configuration>MinSizeRel</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="RelWithDebInfo|x64">
+      <Configuration>RelWithDebInfo</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{D62BE901-2640-3850-9609-1954989D7A1B}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <WindowsTargetPlatformVersion>10.0.26100.0</WindowsTargetPlatformVersion>
+    <Platform>x64</Platform>
+    <ProjectName>omohrenderergl1</ProjectName>
+    <VCProjectUpgraderObjectName>NoUpgrade</VCProjectUpgraderObjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.20506.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Users\dowee\source\repos\openmohaa\.cmake\code\renderercommon\renderergl1\Debug\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">omohrenderergl1.dir\Debug\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">renderer_opengl1-dbg</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.lib</TargetExt>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Users\dowee\source\repos\openmohaa\.cmake\code\renderercommon\renderergl1\Release\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">omohrenderergl1.dir\Release\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">renderer_opengl1</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.lib</TargetExt>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\Users\dowee\source\repos\openmohaa\.cmake\code\renderercommon\renderergl1\MinSizeRel\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">omohrenderergl1.dir\MinSizeRel\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">renderer_opengl1</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">.lib</TargetExt>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\Users\dowee\source\repos\openmohaa\.cmake\code\renderercommon\renderergl1\RelWithDebInfo\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">omohrenderergl1.dir\RelWithDebInfo\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">renderer_opengl1</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">.lib</TargetExt>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\Users\dowee\source\repos\openmohaa\code\renderercommon\..\sdl;C:\Users\dowee\source\repos\openmohaa\code\renderercommon\.;C:\Users\dowee\source\repos\openmohaa\code\renderercommon\..\jpeg-8c;C:\Users\dowee\source\repos\openmohaa\code\qcommon\..\qcommon;C:\Users\dowee\source\repos\openmohaa\.cmake\code\qcommon\generated;C:\Users\dowee\source\repos\openmohaa\code\sdl\..\SDL2\include-2.0.22;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
+      <MinimalRebuild></MinimalRebuild>
+      <Optimization>Disabled</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <SupportJustMyCode></SupportJustMyCode>
+      <TreatSpecificWarningsAsErrors>4715</TreatSpecificWarningsAsErrors>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;NDEBUG;USE_INTERNAL_JPEG;CMAKE_INTDIR="Debug"</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;NDEBUG;USE_INTERNAL_JPEG;CMAKE_INTDIR=\"Debug\"</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Users\dowee\source\repos\openmohaa\code\renderercommon\..\sdl;C:\Users\dowee\source\repos\openmohaa\code\renderercommon\.;C:\Users\dowee\source\repos\openmohaa\code\renderercommon\..\jpeg-8c;C:\Users\dowee\source\repos\openmohaa\code\qcommon\..\qcommon;C:\Users\dowee\source\repos\openmohaa\.cmake\code\qcommon\generated;C:\Users\dowee\source\repos\openmohaa\code\sdl\..\SDL2\include-2.0.22;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\Users\dowee\source\repos\openmohaa\code\renderercommon\..\sdl;C:\Users\dowee\source\repos\openmohaa\code\renderercommon\.;C:\Users\dowee\source\repos\openmohaa\code\renderercommon\..\jpeg-8c;C:\Users\dowee\source\repos\openmohaa\code\qcommon\..\qcommon;C:\Users\dowee\source\repos\openmohaa\.cmake\code\qcommon\generated;C:\Users\dowee\source\repos\openmohaa\code\sdl\..\SDL2\include-2.0.22;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Lib>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\Users\dowee\source\repos\openmohaa\code\renderercommon\..\sdl;C:\Users\dowee\source\repos\openmohaa\code\renderercommon\.;C:\Users\dowee\source\repos\openmohaa\code\renderercommon\..\jpeg-8c;C:\Users\dowee\source\repos\openmohaa\code\qcommon\..\qcommon;C:\Users\dowee\source\repos\openmohaa\.cmake\code\qcommon\generated;C:\Users\dowee\source\repos\openmohaa\code\sdl\..\SDL2\include-2.0.22;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <MinimalRebuild></MinimalRebuild>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <SupportJustMyCode></SupportJustMyCode>
+      <TreatSpecificWarningsAsErrors>4715</TreatSpecificWarningsAsErrors>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;USE_INTERNAL_JPEG;CMAKE_INTDIR="Release"</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+      <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;USE_INTERNAL_JPEG;CMAKE_INTDIR=\"Release\"</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Users\dowee\source\repos\openmohaa\code\renderercommon\..\sdl;C:\Users\dowee\source\repos\openmohaa\code\renderercommon\.;C:\Users\dowee\source\repos\openmohaa\code\renderercommon\..\jpeg-8c;C:\Users\dowee\source\repos\openmohaa\code\qcommon\..\qcommon;C:\Users\dowee\source\repos\openmohaa\.cmake\code\qcommon\generated;C:\Users\dowee\source\repos\openmohaa\code\sdl\..\SDL2\include-2.0.22;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\Users\dowee\source\repos\openmohaa\code\renderercommon\..\sdl;C:\Users\dowee\source\repos\openmohaa\code\renderercommon\.;C:\Users\dowee\source\repos\openmohaa\code\renderercommon\..\jpeg-8c;C:\Users\dowee\source\repos\openmohaa\code\qcommon\..\qcommon;C:\Users\dowee\source\repos\openmohaa\.cmake\code\qcommon\generated;C:\Users\dowee\source\repos\openmohaa\code\sdl\..\SDL2\include-2.0.22;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Lib>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\Users\dowee\source\repos\openmohaa\code\renderercommon\..\sdl;C:\Users\dowee\source\repos\openmohaa\code\renderercommon\.;C:\Users\dowee\source\repos\openmohaa\code\renderercommon\..\jpeg-8c;C:\Users\dowee\source\repos\openmohaa\code\qcommon\..\qcommon;C:\Users\dowee\source\repos\openmohaa\.cmake\code\qcommon\generated;C:\Users\dowee\source\repos\openmohaa\code\sdl\..\SDL2\include-2.0.22;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <MinimalRebuild></MinimalRebuild>
+      <Optimization>MinSpace</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <SupportJustMyCode></SupportJustMyCode>
+      <TreatSpecificWarningsAsErrors>4715</TreatSpecificWarningsAsErrors>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;USE_INTERNAL_JPEG;CMAKE_INTDIR="MinSizeRel"</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+      <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;USE_INTERNAL_JPEG;CMAKE_INTDIR=\"MinSizeRel\"</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Users\dowee\source\repos\openmohaa\code\renderercommon\..\sdl;C:\Users\dowee\source\repos\openmohaa\code\renderercommon\.;C:\Users\dowee\source\repos\openmohaa\code\renderercommon\..\jpeg-8c;C:\Users\dowee\source\repos\openmohaa\code\qcommon\..\qcommon;C:\Users\dowee\source\repos\openmohaa\.cmake\code\qcommon\generated;C:\Users\dowee\source\repos\openmohaa\code\sdl\..\SDL2\include-2.0.22;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\Users\dowee\source\repos\openmohaa\code\renderercommon\..\sdl;C:\Users\dowee\source\repos\openmohaa\code\renderercommon\.;C:\Users\dowee\source\repos\openmohaa\code\renderercommon\..\jpeg-8c;C:\Users\dowee\source\repos\openmohaa\code\qcommon\..\qcommon;C:\Users\dowee\source\repos\openmohaa\.cmake\code\qcommon\generated;C:\Users\dowee\source\repos\openmohaa\code\sdl\..\SDL2\include-2.0.22;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Lib>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\Users\dowee\source\repos\openmohaa\code\renderercommon\..\sdl;C:\Users\dowee\source\repos\openmohaa\code\renderercommon\.;C:\Users\dowee\source\repos\openmohaa\code\renderercommon\..\jpeg-8c;C:\Users\dowee\source\repos\openmohaa\code\qcommon\..\qcommon;C:\Users\dowee\source\repos\openmohaa\.cmake\code\qcommon\generated;C:\Users\dowee\source\repos\openmohaa\code\sdl\..\SDL2\include-2.0.22;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <MinimalRebuild></MinimalRebuild>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <SupportJustMyCode></SupportJustMyCode>
+      <TreatSpecificWarningsAsErrors>4715</TreatSpecificWarningsAsErrors>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;USE_INTERNAL_JPEG;CMAKE_INTDIR="RelWithDebInfo"</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;USE_INTERNAL_JPEG;CMAKE_INTDIR=\"RelWithDebInfo\"</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Users\dowee\source\repos\openmohaa\code\renderercommon\..\sdl;C:\Users\dowee\source\repos\openmohaa\code\renderercommon\.;C:\Users\dowee\source\repos\openmohaa\code\renderercommon\..\jpeg-8c;C:\Users\dowee\source\repos\openmohaa\code\qcommon\..\qcommon;C:\Users\dowee\source\repos\openmohaa\.cmake\code\qcommon\generated;C:\Users\dowee\source\repos\openmohaa\code\sdl\..\SDL2\include-2.0.22;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\Users\dowee\source\repos\openmohaa\code\renderercommon\..\sdl;C:\Users\dowee\source\repos\openmohaa\code\renderercommon\.;C:\Users\dowee\source\repos\openmohaa\code\renderercommon\..\jpeg-8c;C:\Users\dowee\source\repos\openmohaa\code\qcommon\..\qcommon;C:\Users\dowee\source\repos\openmohaa\.cmake\code\qcommon\generated;C:\Users\dowee\source\repos\openmohaa\code\sdl\..\SDL2\include-2.0.22;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Lib>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\dowee\source\repos\openmohaa\code\renderergl1\CMakeLists.txt">
+      <UseUtf8Encoding>Always</UseUtf8Encoding>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Building Custom Rule C:/Users/dowee/source/repos/openmohaa/code/renderergl1/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">setlocal
+"C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -SC:/Users/dowee/source/repos/openmohaa -BC:/Users/dowee/source/repos/openmohaa/.cmake --check-stamp-file C:/Users/dowee/source/repos/openmohaa/.cmake/code/renderercommon/renderergl1/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Users\dowee\source\repos\openmohaa\.cmake\code\renderercommon\renderergl1\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Building Custom Rule C:/Users/dowee/source/repos/openmohaa/code/renderergl1/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">setlocal
+"C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -SC:/Users/dowee/source/repos/openmohaa -BC:/Users/dowee/source/repos/openmohaa/.cmake --check-stamp-file C:/Users/dowee/source/repos/openmohaa/.cmake/code/renderercommon/renderergl1/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Users\dowee\source\repos\openmohaa\.cmake\code\renderercommon\renderergl1\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">Building Custom Rule C:/Users/dowee/source/repos/openmohaa/code/renderergl1/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">setlocal
+"C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -SC:/Users/dowee/source/repos/openmohaa -BC:/Users/dowee/source/repos/openmohaa/.cmake --check-stamp-file C:/Users/dowee/source/repos/openmohaa/.cmake/code/renderercommon/renderergl1/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\Users\dowee\source\repos\openmohaa\.cmake\code\renderercommon\renderergl1\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">Building Custom Rule C:/Users/dowee/source/repos/openmohaa/code/renderergl1/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">setlocal
+"C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -SC:/Users/dowee/source/repos/openmohaa -BC:/Users/dowee/source/repos/openmohaa/.cmake --check-stamp-file C:/Users/dowee/source/repos/openmohaa/.cmake/code/renderercommon/renderergl1/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\Users\dowee\source\repos\openmohaa\.cmake\code\renderercommon\renderergl1\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">false</LinkObjects>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\renderergl1\tr_backend.c" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\renderergl1\tr_bsp.c" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\renderergl1\tr_cmds.c" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\renderergl1\tr_curve.c" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\renderergl1\tr_draw.c" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\renderergl1\tr_flares.c" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\renderergl1\tr_font.cpp" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\renderergl1\tr_ghost.cpp" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\renderergl1\tr_image.c" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\renderergl1\tr_init.c" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\renderergl1\tr_light.c" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\renderergl1\tr_main.c" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\renderergl1\tr_marks.c" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\renderergl1\tr_marks_permanent.c" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\renderergl1\tr_model.cpp" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\renderergl1\tr_scene.c" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\renderergl1\tr_shade.c" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\renderergl1\tr_shade_calc.c" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\renderergl1\tr_shader.c" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\renderergl1\tr_shadows.c" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\renderergl1\tr_sky.c" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\renderergl1\tr_sky_portal.cpp" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\renderergl1\tr_sphere_shade.cpp" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\renderergl1\tr_sprite.c" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\renderergl1\tr_staticmodels.cpp" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\renderergl1\tr_subs.c" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\renderergl1\tr_sun_flare.cpp" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\renderergl1\tr_surface.c" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\renderergl1\tr_swipe.cpp" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\renderergl1\tr_terrain.c" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\renderergl1\tr_util.cpp" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\renderergl1\tr_vis.cpp" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\renderergl1\tr_world.c" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\qcommon\puff.c" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\qcommon\q_math.c" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\qcommon\q_shared.c" />
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="C:\Users\dowee\source\repos\openmohaa\.cmake\ZERO_CHECK.vcxproj">
+      <Project>{9F66EFE0-83A8-3DF9-A74E-145016C9B8AE}</Project>
+      <Name>ZERO_CHECK</Name>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\dowee\source\repos\openmohaa\.cmake\code\renderercommon\jpeg8.vcxproj">
+      <Project>{8A2B28AE-DB55-381A-8996-E0E1DF3B23E9}</Project>
+      <Name>jpeg8</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\dowee\source\repos\openmohaa\.cmake\code\renderercommon\omohrenderer_common.vcxproj">
+      <Project>{529C78D3-11C1-39F9-B6F5-67327D95AA9F}</Project>
+      <Name>omohrenderer_common</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\dowee\source\repos\openmohaa\.cmake\code\sdl\omohsdl_gl.vcxproj">
+      <Project>{9EB2BCDB-F489-3425-9391-9577C334E522}</Project>
+      <Name>omohsdl_gl</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

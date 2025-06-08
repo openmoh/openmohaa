@@ -1,0 +1,11 @@
+C:\Users\dowee\source\repos\openmohaa\code\renderercommon\tr_font.c;C:\Users\dowee\source\repos\openmohaa\.cmake\code\renderercommon\omohrenderer_common.dir\Release\tr_font.obj
+C:\Users\dowee\source\repos\openmohaa\code\renderercommon\tr_image_bmp.c;C:\Users\dowee\source\repos\openmohaa\.cmake\code\renderercommon\omohrenderer_common.dir\Release\tr_image_bmp.obj
+C:\Users\dowee\source\repos\openmohaa\code\renderercommon\tr_image_jpg.c;C:\Users\dowee\source\repos\openmohaa\.cmake\code\renderercommon\omohrenderer_common.dir\Release\tr_image_jpg.obj
+C:\Users\dowee\source\repos\openmohaa\code\renderercommon\tr_image_pcx.c;C:\Users\dowee\source\repos\openmohaa\.cmake\code\renderercommon\omohrenderer_common.dir\Release\tr_image_pcx.obj
+C:\Users\dowee\source\repos\openmohaa\code\renderercommon\tr_image_png.c;C:\Users\dowee\source\repos\openmohaa\.cmake\code\renderercommon\omohrenderer_common.dir\Release\tr_image_png.obj
+C:\Users\dowee\source\repos\openmohaa\code\renderercommon\tr_image_tga.c;C:\Users\dowee\source\repos\openmohaa\.cmake\code\renderercommon\omohrenderer_common.dir\Release\tr_image_tga.obj
+C:\Users\dowee\source\repos\openmohaa\code\renderercommon\tr_noise.c;C:\Users\dowee\source\repos\openmohaa\.cmake\code\renderercommon\omohrenderer_common.dir\Release\tr_noise.obj
+C:\Users\dowee\source\repos\openmohaa\code\tiki\tiki_mesh.cpp;C:\Users\dowee\source\repos\openmohaa\.cmake\code\renderercommon\omohrenderer_common.dir\Release\tiki_mesh.obj
+C:\Users\dowee\source\repos\openmohaa\code\qcommon\puff.c;C:\Users\dowee\source\repos\openmohaa\.cmake\code\renderercommon\omohrenderer_common.dir\Release\puff.obj
+C:\Users\dowee\source\repos\openmohaa\code\qcommon\q_math.c;C:\Users\dowee\source\repos\openmohaa\.cmake\code\renderercommon\omohrenderer_common.dir\Release\q_math.obj
+C:\Users\dowee\source\repos\openmohaa\code\qcommon\q_shared.c;C:\Users\dowee\source\repos\openmohaa\.cmake\code\renderercommon\omohrenderer_common.dir\Release\q_shared.obj

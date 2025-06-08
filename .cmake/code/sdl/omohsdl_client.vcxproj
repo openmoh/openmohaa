@@ -1,0 +1,358 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <PreferredToolArchitecture>x64</PreferredToolArchitecture>
+  </PropertyGroup>
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="MinSizeRel|x64">
+      <Configuration>MinSizeRel</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="RelWithDebInfo|x64">
+      <Configuration>RelWithDebInfo</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{338BAE58-C1CC-3100-9C13-25716E8CE800}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <WindowsTargetPlatformVersion>10.0.26100.0</WindowsTargetPlatformVersion>
+    <Platform>x64</Platform>
+    <ProjectName>omohsdl_client</ProjectName>
+    <VCProjectUpgraderObjectName>NoUpgrade</VCProjectUpgraderObjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.20506.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Users\dowee\source\repos\openmohaa\.cmake\code\sdl\Debug\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">omohsdl_client.dir\Debug\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">omohsdl_client-dbg</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.lib</TargetExt>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Users\dowee\source\repos\openmohaa\.cmake\code\sdl\Release\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">omohsdl_client.dir\Release\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">omohsdl_client</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.lib</TargetExt>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\Users\dowee\source\repos\openmohaa\.cmake\code\sdl\MinSizeRel\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">omohsdl_client.dir\MinSizeRel\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">omohsdl_client</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">.lib</TargetExt>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\Users\dowee\source\repos\openmohaa\.cmake\code\sdl\RelWithDebInfo\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">omohsdl_client.dir\RelWithDebInfo\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">omohsdl_client</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">.lib</TargetExt>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\Users\dowee\source\repos\openmohaa\code\qcommon\..\qcommon;C:\Users\dowee\source\repos\openmohaa\.cmake\code\qcommon\generated;C:\Users\dowee\source\repos\openmohaa\code\qcommon\..\script;C:\Users\dowee\source\repos\openmohaa\code\zlib;C:\Users\dowee\source\repos\openmohaa\code\sdl\..\SDL2\include-2.0.22;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
+      <MinimalRebuild></MinimalRebuild>
+      <Optimization>Disabled</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <SupportJustMyCode></SupportJustMyCode>
+      <TreatSpecificWarningsAsErrors>4715</TreatSpecificWarningsAsErrors>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;NDEBUG;APP_MODULE;CMAKE_INTDIR="Debug"</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;NDEBUG;APP_MODULE;CMAKE_INTDIR=\"Debug\"</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Users\dowee\source\repos\openmohaa\code\qcommon\..\qcommon;C:\Users\dowee\source\repos\openmohaa\.cmake\code\qcommon\generated;C:\Users\dowee\source\repos\openmohaa\code\qcommon\..\script;C:\Users\dowee\source\repos\openmohaa\code\zlib;C:\Users\dowee\source\repos\openmohaa\code\sdl\..\SDL2\include-2.0.22;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\Users\dowee\source\repos\openmohaa\code\qcommon\..\qcommon;C:\Users\dowee\source\repos\openmohaa\.cmake\code\qcommon\generated;C:\Users\dowee\source\repos\openmohaa\code\qcommon\..\script;C:\Users\dowee\source\repos\openmohaa\code\zlib;C:\Users\dowee\source\repos\openmohaa\code\sdl\..\SDL2\include-2.0.22;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Lib>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\Users\dowee\source\repos\openmohaa\code\qcommon\..\qcommon;C:\Users\dowee\source\repos\openmohaa\.cmake\code\qcommon\generated;C:\Users\dowee\source\repos\openmohaa\code\qcommon\..\script;C:\Users\dowee\source\repos\openmohaa\code\zlib;C:\Users\dowee\source\repos\openmohaa\code\sdl\..\SDL2\include-2.0.22;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <MinimalRebuild></MinimalRebuild>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <SupportJustMyCode></SupportJustMyCode>
+      <TreatSpecificWarningsAsErrors>4715</TreatSpecificWarningsAsErrors>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;APP_MODULE;CMAKE_INTDIR="Release"</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+      <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;APP_MODULE;CMAKE_INTDIR=\"Release\"</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Users\dowee\source\repos\openmohaa\code\qcommon\..\qcommon;C:\Users\dowee\source\repos\openmohaa\.cmake\code\qcommon\generated;C:\Users\dowee\source\repos\openmohaa\code\qcommon\..\script;C:\Users\dowee\source\repos\openmohaa\code\zlib;C:\Users\dowee\source\repos\openmohaa\code\sdl\..\SDL2\include-2.0.22;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\Users\dowee\source\repos\openmohaa\code\qcommon\..\qcommon;C:\Users\dowee\source\repos\openmohaa\.cmake\code\qcommon\generated;C:\Users\dowee\source\repos\openmohaa\code\qcommon\..\script;C:\Users\dowee\source\repos\openmohaa\code\zlib;C:\Users\dowee\source\repos\openmohaa\code\sdl\..\SDL2\include-2.0.22;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Lib>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\Users\dowee\source\repos\openmohaa\code\qcommon\..\qcommon;C:\Users\dowee\source\repos\openmohaa\.cmake\code\qcommon\generated;C:\Users\dowee\source\repos\openmohaa\code\qcommon\..\script;C:\Users\dowee\source\repos\openmohaa\code\zlib;C:\Users\dowee\source\repos\openmohaa\code\sdl\..\SDL2\include-2.0.22;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <MinimalRebuild></MinimalRebuild>
+      <Optimization>MinSpace</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <SupportJustMyCode></SupportJustMyCode>
+      <TreatSpecificWarningsAsErrors>4715</TreatSpecificWarningsAsErrors>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;APP_MODULE;CMAKE_INTDIR="MinSizeRel"</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+      <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;APP_MODULE;CMAKE_INTDIR=\"MinSizeRel\"</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Users\dowee\source\repos\openmohaa\code\qcommon\..\qcommon;C:\Users\dowee\source\repos\openmohaa\.cmake\code\qcommon\generated;C:\Users\dowee\source\repos\openmohaa\code\qcommon\..\script;C:\Users\dowee\source\repos\openmohaa\code\zlib;C:\Users\dowee\source\repos\openmohaa\code\sdl\..\SDL2\include-2.0.22;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\Users\dowee\source\repos\openmohaa\code\qcommon\..\qcommon;C:\Users\dowee\source\repos\openmohaa\.cmake\code\qcommon\generated;C:\Users\dowee\source\repos\openmohaa\code\qcommon\..\script;C:\Users\dowee\source\repos\openmohaa\code\zlib;C:\Users\dowee\source\repos\openmohaa\code\sdl\..\SDL2\include-2.0.22;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Lib>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\Users\dowee\source\repos\openmohaa\code\qcommon\..\qcommon;C:\Users\dowee\source\repos\openmohaa\.cmake\code\qcommon\generated;C:\Users\dowee\source\repos\openmohaa\code\qcommon\..\script;C:\Users\dowee\source\repos\openmohaa\code\zlib;C:\Users\dowee\source\repos\openmohaa\code\sdl\..\SDL2\include-2.0.22;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <MinimalRebuild></MinimalRebuild>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <SupportJustMyCode></SupportJustMyCode>
+      <TreatSpecificWarningsAsErrors>4715</TreatSpecificWarningsAsErrors>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;APP_MODULE;CMAKE_INTDIR="RelWithDebInfo"</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;APP_MODULE;CMAKE_INTDIR=\"RelWithDebInfo\"</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Users\dowee\source\repos\openmohaa\code\qcommon\..\qcommon;C:\Users\dowee\source\repos\openmohaa\.cmake\code\qcommon\generated;C:\Users\dowee\source\repos\openmohaa\code\qcommon\..\script;C:\Users\dowee\source\repos\openmohaa\code\zlib;C:\Users\dowee\source\repos\openmohaa\code\sdl\..\SDL2\include-2.0.22;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\Users\dowee\source\repos\openmohaa\code\qcommon\..\qcommon;C:\Users\dowee\source\repos\openmohaa\.cmake\code\qcommon\generated;C:\Users\dowee\source\repos\openmohaa\code\qcommon\..\script;C:\Users\dowee\source\repos\openmohaa\code\zlib;C:\Users\dowee\source\repos\openmohaa\code\sdl\..\SDL2\include-2.0.22;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Lib>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\dowee\source\repos\openmohaa\code\sdl\CMakeLists.txt">
+      <UseUtf8Encoding>Always</UseUtf8Encoding>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Building Custom Rule C:/Users/dowee/source/repos/openmohaa/code/sdl/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">setlocal
+"C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -SC:/Users/dowee/source/repos/openmohaa -BC:/Users/dowee/source/repos/openmohaa/.cmake --check-stamp-file C:/Users/dowee/source/repos/openmohaa/.cmake/code/sdl/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Users\dowee\source\repos\openmohaa\.cmake\code\sdl\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Building Custom Rule C:/Users/dowee/source/repos/openmohaa/code/sdl/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">setlocal
+"C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -SC:/Users/dowee/source/repos/openmohaa -BC:/Users/dowee/source/repos/openmohaa/.cmake --check-stamp-file C:/Users/dowee/source/repos/openmohaa/.cmake/code/sdl/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Users\dowee\source\repos\openmohaa\.cmake\code\sdl\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">Building Custom Rule C:/Users/dowee/source/repos/openmohaa/code/sdl/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">setlocal
+"C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -SC:/Users/dowee/source/repos/openmohaa -BC:/Users/dowee/source/repos/openmohaa/.cmake --check-stamp-file C:/Users/dowee/source/repos/openmohaa/.cmake/code/sdl/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\Users\dowee\source\repos\openmohaa\.cmake\code\sdl\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">Building Custom Rule C:/Users/dowee/source/repos/openmohaa/code/sdl/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">setlocal
+"C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -SC:/Users/dowee/source/repos/openmohaa -BC:/Users/dowee/source/repos/openmohaa/.cmake --check-stamp-file C:/Users/dowee/source/repos/openmohaa/.cmake/code/sdl/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\Users\dowee\source\repos\openmohaa\.cmake\code\sdl\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">false</LinkObjects>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\sdl\sdl_input.c" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\sdl\sdl_mouse.c" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\qcommon\puff.c" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\qcommon\q_math.c" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\qcommon\q_shared.c" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\qcommon\class.cpp" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\qcommon\con_set.cpp" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\qcommon\con_timer.cpp" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\qcommon\delegate.cpp" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\qcommon\lightclass.cpp" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\qcommon\listener.cpp" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\qcommon\lz77.cpp" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\qcommon\mem_blockalloc.cpp" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\qcommon\mem_tempalloc.cpp" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\qcommon\script.cpp" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\qcommon\str.cpp" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\script\scriptexception.cpp" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\script\scriptvariable.cpp" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\qcommon\alias.c" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\qcommon\bg_compat.cpp" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\qcommon\cm_fencemask.c" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\qcommon\cm_load.c" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\qcommon\cm_patch.c" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\qcommon\cm_polylib.c" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\qcommon\cm_terrain.c" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\qcommon\cm_test.c" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\qcommon\cm_trace.c" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\qcommon\cm_trace_lbd.cpp" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\qcommon\cm_trace_obfuscation.cpp" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\qcommon\cmd.c" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\qcommon\common.c" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\qcommon\crc.c" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\qcommon\cvar.c" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\qcommon\files.cpp" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\qcommon\ioapi.c" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\qcommon\huffman.cpp" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\qcommon\md4.c" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\qcommon\md5.c" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\qcommon\memory.c" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\qcommon\msg.cpp" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\qcommon\net_chan.c" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\qcommon\net_ip.c" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\qcommon\unzip.c" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\gamespy\q_gamespy.c" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\zlib\adler32.c" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\zlib\crc32.c" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\zlib\inffast.c" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\zlib\inflate.c" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\zlib\inftrees.c" />
+    <ClCompile Include="C:\Users\dowee\source\repos\openmohaa\code\zlib\zutil.c" />
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="C:\Users\dowee\source\repos\openmohaa\.cmake\ZERO_CHECK.vcxproj">
+      <Project>{9F66EFE0-83A8-3DF9-A74E-145016C9B8AE}</Project>
+      <Name>ZERO_CHECK</Name>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\dowee\source\repos\openmohaa\.cmake\code\qcommon\skeletor\omohskeletor.vcxproj">
+      <Project>{0CE0232F-4E70-3ED2-A40F-0F6793742DFB}</Project>
+      <Name>omohskeletor</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\dowee\source\repos\openmohaa\.cmake\code\qcommon\tiki\omohtiki.vcxproj">
+      <Project>{A75515D4-BF26-35D1-B088-D84B28FF9477}</Project>
+      <Name>omohtiki</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

@@ -208,7 +208,7 @@ void SimpleActor::SetPath(
 
         m_bPathErrorTime = level.inttime;
 
-        Com_Printf(
+        Com_DPrintf(
             "^~^~^ Path not found in '%s' for (entnum %d, radnum %d, targetname '%s') from (%f %f "
             "%f) to (%f %f %f)\n",
             description,
@@ -222,7 +222,7 @@ void SimpleActor::SetPath(
             vDestPos.y,
             vDestPos.z
         );
-        Com_Printf("Reason: %s\n", PathSearch::last_error);
+        Com_DPrintf("Reason: %s\n", PathSearch::last_error);
     }
 }
 

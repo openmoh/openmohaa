@@ -1,0 +1,1049 @@
+
+---
+events:
+  -
+    kind: "message-v1"
+    backtrace:
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CMakeDetermineSystem.cmake:205 (message)"
+      - "CMakeLists.txt:2 (project)"
+    message: |
+      The system is: Windows - 10.0.26100 - AMD64
+  -
+    kind: "message-v1"
+    backtrace:
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CMakeDetermineCompilerId.cmake:17 (message)"
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CMakeDetermineCompilerId.cmake:64 (__determine_compiler_id_test)"
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CMakeDetermineCCompiler.cmake:123 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:2 (project)"
+    message: |
+      Compiling the C compiler identification source file "CMakeCCompilerId.c" succeeded.
+      Compiler:  
+      Build flags: 
+      Id flags:  
+      
+      The output was:
+      0
+      MSBuild version 17.14.10+8b8e13593 for .NET Framework
+      Build started 08/06/2025 10:22:59.
+      
+      Project "C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\3.31.6-msvc6\\CompilerIdC\\CompilerIdC.vcxproj" on node 1 (default targets).
+      PrepareForBuild:
+        Creating directory "Debug\\".
+        Structured output is enabled. The formatting of compiler diagnostics will reflect the error hierarchy. See https://aka.ms/cpp/structured-output for more details.
+        Creating directory "Debug\\CompilerIdC.tlog\\".
+      InitializeBuildStatus:
+        Creating "Debug\\CompilerIdC.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
+        Touching "Debug\\CompilerIdC.tlog\\unsuccessfulbuild".
+      ClCompile:
+        C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x64\\CL.exe /c /nologo /W0 /WX- /diagnostics:column /Od /D _MBCS /Gm- /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"Debug\\\\" /Fd"Debug\\vc143.pdb" /external:W0 /Gd /TC /FC /errorReport:queue CMakeCCompilerId.c
+        CMakeCCompilerId.c
+      Link:
+        C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x64\\link.exe /ERRORREPORT:QUEUE /OUT:".\\CompilerIdC.exe" /INCREMENTAL:NO /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /PDB:".\\CompilerIdC.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:".\\CompilerIdC.lib" /MACHINE:X64 Debug\\CMakeCCompilerId.obj
+        CompilerIdC.vcxproj -> C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\3.31.6-msvc6\\CompilerIdC\\CompilerIdC.exe
+      PostBuildEvent:
+        for %%i in (cl.exe) do @echo CMAKE_C_COMPILER=%%~$PATH:i
+        :VCEnd
+        CMAKE_C_COMPILER=C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x64\\cl.exe
+      FinalizeBuildStatus:
+        Deleting file "Debug\\CompilerIdC.tlog\\unsuccessfulbuild".
+        Touching "Debug\\CompilerIdC.tlog\\CompilerIdC.lastbuildstate".
+      Done Building Project "C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\3.31.6-msvc6\\CompilerIdC\\CompilerIdC.vcxproj" (default targets).
+      
+      Build succeeded.
+          0 Warning(s)
+          0 Error(s)
+      
+      Time Elapsed 00:00:00.32
+      
+      
+      Compilation of the C compiler identification source "CMakeCCompilerId.c" produced "CompilerIdC.exe"
+      
+      Compilation of the C compiler identification source "CMakeCCompilerId.c" produced "CompilerIdC.vcxproj"
+      
+      The C compiler identification is MSVC, found in:
+        C:/Users/dowee/source/repos/openmohaa/.cmake/CMakeFiles/3.31.6-msvc6/CompilerIdC/CompilerIdC.exe
+      
+  -
+    kind: "message-v1"
+    backtrace:
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CMakeDetermineCompilerId.cmake:17 (message)"
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CMakeDetermineCompilerId.cmake:64 (__determine_compiler_id_test)"
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CMakeDetermineCXXCompiler.cmake:126 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:2 (project)"
+    message: |
+      Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" succeeded.
+      Compiler:  
+      Build flags: 
+      Id flags:  
+      
+      The output was:
+      0
+      MSBuild version 17.14.10+8b8e13593 for .NET Framework
+      Build started 08/06/2025 10:22:59.
+      
+      Project "C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\3.31.6-msvc6\\CompilerIdCXX\\CompilerIdCXX.vcxproj" on node 1 (default targets).
+      PrepareForBuild:
+        Creating directory "Debug\\".
+        Structured output is enabled. The formatting of compiler diagnostics will reflect the error hierarchy. See https://aka.ms/cpp/structured-output for more details.
+        Creating directory "Debug\\CompilerIdCXX.tlog\\".
+      InitializeBuildStatus:
+        Creating "Debug\\CompilerIdCXX.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
+        Touching "Debug\\CompilerIdCXX.tlog\\unsuccessfulbuild".
+      ClCompile:
+        C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x64\\CL.exe /c /nologo /W0 /WX- /diagnostics:column /Od /D _MBCS /Gm- /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"Debug\\\\" /Fd"Debug\\vc143.pdb" /external:W0 /Gd /TP /FC /errorReport:queue CMakeCXXCompilerId.cpp
+        CMakeCXXCompilerId.cpp
+      Link:
+        C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x64\\link.exe /ERRORREPORT:QUEUE /OUT:".\\CompilerIdCXX.exe" /INCREMENTAL:NO /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /PDB:".\\CompilerIdCXX.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:".\\CompilerIdCXX.lib" /MACHINE:X64 Debug\\CMakeCXXCompilerId.obj
+        CompilerIdCXX.vcxproj -> C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\3.31.6-msvc6\\CompilerIdCXX\\CompilerIdCXX.exe
+      PostBuildEvent:
+        for %%i in (cl.exe) do @echo CMAKE_CXX_COMPILER=%%~$PATH:i
+        :VCEnd
+        CMAKE_CXX_COMPILER=C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x64\\cl.exe
+      FinalizeBuildStatus:
+        Deleting file "Debug\\CompilerIdCXX.tlog\\unsuccessfulbuild".
+        Touching "Debug\\CompilerIdCXX.tlog\\CompilerIdCXX.lastbuildstate".
+      Done Building Project "C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\3.31.6-msvc6\\CompilerIdCXX\\CompilerIdCXX.vcxproj" (default targets).
+      
+      Build succeeded.
+          0 Warning(s)
+          0 Error(s)
+      
+      Time Elapsed 00:00:00.31
+      
+      
+      Compilation of the CXX compiler identification source "CMakeCXXCompilerId.cpp" produced "CompilerIdCXX.exe"
+      
+      Compilation of the CXX compiler identification source "CMakeCXXCompilerId.cpp" produced "CompilerIdCXX.vcxproj"
+      
+      The CXX compiler identification is MSVC, found in:
+        C:/Users/dowee/source/repos/openmohaa/.cmake/CMakeFiles/3.31.6-msvc6/CompilerIdCXX/CompilerIdCXX.exe
+      
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CMakeDetermineCompilerABI.cmake:74 (try_compile)"
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CMakeTestCCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:2 (project)"
+    checks:
+      - "Detecting C compiler ABI info"
+    directories:
+      source: "C:/Users/dowee/source/repos/openmohaa/.cmake/CMakeFiles/CMakeScratch/TryCompile-wst8oj"
+      binary: "C:/Users/dowee/source/repos/openmohaa/.cmake/CMakeFiles/CMakeScratch/TryCompile-wst8oj"
+    cmakeVariables:
+      CMAKE_C_FLAGS: "/DWIN32 /D_WINDOWS /W3"
+      CMAKE_C_FLAGS_DEBUG: "/MDd /Zi /Ob0 /Od /RTC1"
+      CMAKE_EXE_LINKER_FLAGS: "/machine:x64"
+    buildResult:
+      variable: "CMAKE_C_ABI_COMPILED"
+      cached: true
+      stdout: |
+        Change Dir: 'C:/Users/dowee/source/repos/openmohaa/.cmake/CMakeFiles/CMakeScratch/TryCompile-wst8oj'
+        
+        Run Build Command(s): "C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_af1e3.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
+        MSBuild version 17.14.10+8b8e13593 for .NET Framework
+        Build started 08/06/2025 10:23:00.
+        
+        Project "C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-wst8oj\\cmTC_af1e3.vcxproj" on node 1 (default targets).
+        PrepareForBuild:
+          Creating directory "cmTC_af1e3.dir\\Debug\\".
+          Structured output is enabled. The formatting of compiler diagnostics will reflect the error hierarchy. See https://aka.ms/cpp/structured-output for more details.
+          Creating directory "C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-wst8oj\\Debug\\".
+          Creating directory "cmTC_af1e3.dir\\Debug\\cmTC_af1e3.tlog\\".
+        InitializeBuildStatus:
+          Creating "cmTC_af1e3.dir\\Debug\\cmTC_af1e3.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
+          Touching "cmTC_af1e3.dir\\Debug\\cmTC_af1e3.tlog\\unsuccessfulbuild".
+        ClCompile:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x64\\CL.exe /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_af1e3.dir\\Debug\\\\" /Fd"cmTC_af1e3.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TC /errorReport:queue "C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\Common7\\IDE\\CommonExtensions\\Microsoft\\CMake\\CMake\\share\\cmake-3.31\\Modules\\CMakeCCompilerABI.c"
+          Microsoft (R) C/C++ Optimizing Compiler Version 19.44.35208 for x64
+          Copyright (C) Microsoft Corporation.  All rights reserved.
+          cl /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_af1e3.dir\\Debug\\\\" /Fd"cmTC_af1e3.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TC /errorReport:queue "C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\Common7\\IDE\\CommonExtensions\\Microsoft\\CMake\\CMake\\share\\cmake-3.31\\Modules\\CMakeCCompilerABI.c"
+          CMakeCCompilerABI.c
+        Link:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x64\\link.exe /ERRORREPORT:QUEUE /OUT:"C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-wst8oj\\Debug\\cmTC_af1e3.exe" /INCREMENTAL /ILK:"cmTC_af1e3.dir\\Debug\\cmTC_af1e3.ilk" /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:/Users/dowee/source/repos/openmohaa/.cmake/CMakeFiles/CMakeScratch/TryCompile-wst8oj/Debug/cmTC_af1e3.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:/Users/dowee/source/repos/openmohaa/.cmake/CMakeFiles/CMakeScratch/TryCompile-wst8oj/Debug/cmTC_af1e3.lib" /MACHINE:X64  /machine:x64 cmTC_af1e3.dir\\Debug\\CMakeCCompilerABI.obj
+          cmTC_af1e3.vcxproj -> C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-wst8oj\\Debug\\cmTC_af1e3.exe
+        FinalizeBuildStatus:
+          Deleting file "cmTC_af1e3.dir\\Debug\\cmTC_af1e3.tlog\\unsuccessfulbuild".
+          Touching "cmTC_af1e3.dir\\Debug\\cmTC_af1e3.tlog\\cmTC_af1e3.lastbuildstate".
+        Done Building Project "C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-wst8oj\\cmTC_af1e3.vcxproj" (default targets).
+        
+        Build succeeded.
+            0 Warning(s)
+            0 Error(s)
+        
+        Time Elapsed 00:00:00.30
+        
+      exitCode: 0
+  -
+    kind: "message-v1"
+    backtrace:
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CMakeDetermineCompilerABI.cmake:218 (message)"
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CMakeTestCCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:2 (project)"
+    message: |
+      Parsed C implicit link information:
+        link line regex: [^( *|.*[/\\])(ld[0-9]*(\\.[a-z]+)?|link\\.exe|lld-link(\\.exe)?|CMAKE_LINK_STARTFILE-NOTFOUND|([^/\\]+-)?ld|collect2)[^/\\]*( |$)]
+        linker tool regex: [^[ 	]*(->|")?[ 	]*(([^"]*[/\\])?(ld[0-9]*(\\.[a-z]+)?|link\\.exe|lld-link(\\.exe)?))("|,| |$)]
+        linker tool for 'C': C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.44.35207/bin/HostX64/x64/link.exe
+        implicit libs: []
+        implicit objs: []
+        implicit dirs: []
+        implicit fwks: []
+      
+      
+  -
+    kind: "message-v1"
+    backtrace:
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/Internal/CMakeDetermineLinkerId.cmake:40 (message)"
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CMakeDetermineCompilerABI.cmake:255 (cmake_determine_linker_id)"
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CMakeTestCCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:2 (project)"
+    message: |
+      Running the C compiler's linker: "C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.44.35207/bin/HostX64/x64/link.exe" "-v"
+      Microsoft (R) Incremental Linker Version 14.44.35208.0
+      Copyright (C) Microsoft Corporation.  All rights reserved.
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CMakeDetermineCompilerABI.cmake:74 (try_compile)"
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CMakeTestCXXCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:2 (project)"
+    checks:
+      - "Detecting CXX compiler ABI info"
+    directories:
+      source: "C:/Users/dowee/source/repos/openmohaa/.cmake/CMakeFiles/CMakeScratch/TryCompile-et94gk"
+      binary: "C:/Users/dowee/source/repos/openmohaa/.cmake/CMakeFiles/CMakeScratch/TryCompile-et94gk"
+    cmakeVariables:
+      CMAKE_CXX_FLAGS: "/DWIN32 /D_WINDOWS /W3 /GR /EHsc"
+      CMAKE_CXX_FLAGS_DEBUG: "/MDd /Zi /Ob0 /Od /RTC1"
+      CMAKE_CXX_SCAN_FOR_MODULES: "OFF"
+      CMAKE_EXE_LINKER_FLAGS: "/machine:x64"
+    buildResult:
+      variable: "CMAKE_CXX_ABI_COMPILED"
+      cached: true
+      stdout: |
+        Change Dir: 'C:/Users/dowee/source/repos/openmohaa/.cmake/CMakeFiles/CMakeScratch/TryCompile-et94gk'
+        
+        Run Build Command(s): "C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_7813c.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
+        MSBuild version 17.14.10+8b8e13593 for .NET Framework
+        Build started 08/06/2025 10:23:00.
+        
+        Project "C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-et94gk\\cmTC_7813c.vcxproj" on node 1 (default targets).
+        PrepareForBuild:
+          Creating directory "cmTC_7813c.dir\\Debug\\".
+          Structured output is enabled. The formatting of compiler diagnostics will reflect the error hierarchy. See https://aka.ms/cpp/structured-output for more details.
+          Creating directory "C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-et94gk\\Debug\\".
+          Creating directory "cmTC_7813c.dir\\Debug\\cmTC_7813c.tlog\\".
+        InitializeBuildStatus:
+          Creating "cmTC_7813c.dir\\Debug\\cmTC_7813c.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
+          Touching "cmTC_7813c.dir\\Debug\\cmTC_7813c.tlog\\unsuccessfulbuild".
+        ClCompile:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x64\\CL.exe /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /GR /Fo"cmTC_7813c.dir\\Debug\\\\" /Fd"cmTC_7813c.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TP /errorReport:queue "C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\Common7\\IDE\\CommonExtensions\\Microsoft\\CMake\\CMake\\share\\cmake-3.31\\Modules\\CMakeCXXCompilerABI.cpp"
+          Microsoft (R) C/C++ Optimizing Compiler Version 19.44.35208 for x64
+          Copyright (C) Microsoft Corporation.  All rights reserved.
+          cl /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /GR /Fo"cmTC_7813c.dir\\Debug\\\\" /Fd"cmTC_7813c.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TP /errorReport:queue "C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\Common7\\IDE\\CommonExtensions\\Microsoft\\CMake\\CMake\\share\\cmake-3.31\\Modules\\CMakeCXXCompilerABI.cpp"
+          CMakeCXXCompilerABI.cpp
+        Link:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x64\\link.exe /ERRORREPORT:QUEUE /OUT:"C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-et94gk\\Debug\\cmTC_7813c.exe" /INCREMENTAL /ILK:"cmTC_7813c.dir\\Debug\\cmTC_7813c.ilk" /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:/Users/dowee/source/repos/openmohaa/.cmake/CMakeFiles/CMakeScratch/TryCompile-et94gk/Debug/cmTC_7813c.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:/Users/dowee/source/repos/openmohaa/.cmake/CMakeFiles/CMakeScratch/TryCompile-et94gk/Debug/cmTC_7813c.lib" /MACHINE:X64  /machine:x64 cmTC_7813c.dir\\Debug\\CMakeCXXCompilerABI.obj
+          cmTC_7813c.vcxproj -> C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-et94gk\\Debug\\cmTC_7813c.exe
+        FinalizeBuildStatus:
+          Deleting file "cmTC_7813c.dir\\Debug\\cmTC_7813c.tlog\\unsuccessfulbuild".
+          Touching "cmTC_7813c.dir\\Debug\\cmTC_7813c.tlog\\cmTC_7813c.lastbuildstate".
+        Done Building Project "C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-et94gk\\cmTC_7813c.vcxproj" (default targets).
+        
+        Build succeeded.
+            0 Warning(s)
+            0 Error(s)
+        
+        Time Elapsed 00:00:00.32
+        
+      exitCode: 0
+  -
+    kind: "message-v1"
+    backtrace:
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CMakeDetermineCompilerABI.cmake:218 (message)"
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CMakeTestCXXCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:2 (project)"
+    message: |
+      Parsed CXX implicit link information:
+        link line regex: [^( *|.*[/\\])(ld[0-9]*(\\.[a-z]+)?|link\\.exe|lld-link(\\.exe)?|CMAKE_LINK_STARTFILE-NOTFOUND|([^/\\]+-)?ld|collect2)[^/\\]*( |$)]
+        linker tool regex: [^[ 	]*(->|")?[ 	]*(([^"]*[/\\])?(ld[0-9]*(\\.[a-z]+)?|link\\.exe|lld-link(\\.exe)?))("|,| |$)]
+        linker tool for 'CXX': C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.44.35207/bin/HostX64/x64/link.exe
+        implicit libs: []
+        implicit objs: []
+        implicit dirs: []
+        implicit fwks: []
+      
+      
+  -
+    kind: "message-v1"
+    backtrace:
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/Internal/CMakeDetermineLinkerId.cmake:40 (message)"
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CMakeDetermineCompilerABI.cmake:255 (cmake_determine_linker_id)"
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CMakeTestCXXCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:2 (project)"
+    message: |
+      Running the CXX compiler's linker: "C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.44.35207/bin/HostX64/x64/link.exe" "-v"
+      Microsoft (R) Incremental Linker Version 14.44.35208.0
+      Copyright (C) Microsoft Corporation.  All rights reserved.
+  -
+    kind: "try_run-v1"
+    backtrace:
+      - "misc/cmake/TargetArch.cmake:135 (try_run)"
+      - "CMakeLists.txt:6 (target_architecture)"
+    directories:
+      source: "C:/Users/dowee/source/repos/openmohaa/.cmake/CMakeFiles/CMakeTmp"
+      binary: "C:/Users/dowee/source/repos/openmohaa/.cmake/CMakeFiles/CMakeTmp"
+    cmakeVariables:
+      CMAKE_C_FLAGS: "/DWIN32 /D_WINDOWS /W3"
+      CMAKE_C_FLAGS_DEBUG: "/MDd /Zi /Ob0 /Od /RTC1"
+      CMAKE_EXE_LINKER_FLAGS: "/machine:x64"
+    buildResult:
+      variable: "compile_result_unused"
+      cached: true
+      stdout: |
+        Change Dir: 'C:/Users/dowee/source/repos/openmohaa/.cmake/CMakeFiles/CMakeTmp'
+        
+        Run Build Command(s): "C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_c8ef6.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
+        MSBuild version 17.14.10+8b8e13593 for .NET Framework
+        Build started 08/06/2025 10:23:01.
+        
+        Project "C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeTmp\\cmTC_c8ef6.vcxproj" on node 1 (default targets).
+        PrepareForBuild:
+          Creating directory "cmTC_c8ef6.dir\\Debug\\".
+          Structured output is enabled. The formatting of compiler diagnostics will reflect the error hierarchy. See https://aka.ms/cpp/structured-output for more details.
+          Creating directory "C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeTmp\\Debug\\".
+          Creating directory "cmTC_c8ef6.dir\\Debug\\cmTC_c8ef6.tlog\\".
+        InitializeBuildStatus:
+          Creating "cmTC_c8ef6.dir\\Debug\\cmTC_c8ef6.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
+          Touching "cmTC_c8ef6.dir\\Debug\\cmTC_c8ef6.tlog\\unsuccessfulbuild".
+        ClCompile:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x64\\CL.exe /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_c8ef6.dir\\Debug\\\\" /Fd"cmTC_c8ef6.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TC /errorReport:queue C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\arch.c
+          Microsoft (R) C/C++ Optimizing Compiler Version 19.44.35208 for x64
+          Copyright (C) Microsoft Corporation.  All rights reserved.
+          cl /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_c8ef6.dir\\Debug\\\\" /Fd"cmTC_c8ef6.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TC /errorReport:queue C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\arch.c
+          arch.c
+        C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\arch.c(5,1): error C1189: #error:  cmake_ARCH x86_64 [C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeTmp\\cmTC_c8ef6.vcxproj]
+        Done Building Project "C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeTmp\\cmTC_c8ef6.vcxproj" (default targets) -- FAILED.
+        
+        Build FAILED.
+        
+        "C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeTmp\\cmTC_c8ef6.vcxproj" (default target) (1) ->
+        (ClCompile target) -> 
+          C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\arch.c(5,1): error C1189: #error:  cmake_ARCH x86_64 [C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeTmp\\cmTC_c8ef6.vcxproj]
+        
+            0 Warning(s)
+            1 Error(s)
+        
+        Time Elapsed 00:00:00.18
+        
+      exitCode: 1
+    runResult:
+      variable: "run_result_unused"
+      cached: true
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CheckTypeSize.cmake:156 (try_compile)"
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CheckTypeSize.cmake:283 (__check_type_size_impl)"
+      - "code/libmad/CMakeLists.txt:96 (check_type_size)"
+    checks:
+      - "Check size of int"
+    directories:
+      source: "C:/Users/dowee/source/repos/openmohaa/.cmake/CMakeFiles/CMakeScratch/TryCompile-d2kj1b"
+      binary: "C:/Users/dowee/source/repos/openmohaa/.cmake/CMakeFiles/CMakeScratch/TryCompile-d2kj1b"
+    cmakeVariables:
+      CMAKE_C_FLAGS: "/DWIN32 /D_WINDOWS /W3"
+      CMAKE_EXE_LINKER_FLAGS: "/machine:x64"
+    buildResult:
+      variable: "HAVE_SIZEOF_INT"
+      cached: true
+      stdout: |
+        Change Dir: 'C:/Users/dowee/source/repos/openmohaa/.cmake/CMakeFiles/CMakeScratch/TryCompile-d2kj1b'
+        
+        Run Build Command(s): "C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_f7aa2.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
+        MSBuild version 17.14.10+8b8e13593 for .NET Framework
+        Build started 08/06/2025 10:23:01.
+        
+        Project "C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-d2kj1b\\cmTC_f7aa2.vcxproj" on node 1 (default targets).
+        PrepareForBuild:
+          Creating directory "cmTC_f7aa2.dir\\Debug\\".
+          Structured output is enabled. The formatting of compiler diagnostics will reflect the error hierarchy. See https://aka.ms/cpp/structured-output for more details.
+          Creating directory "C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-d2kj1b\\Debug\\".
+          Creating directory "cmTC_f7aa2.dir\\Debug\\cmTC_f7aa2.tlog\\".
+        InitializeBuildStatus:
+          Creating "cmTC_f7aa2.dir\\Debug\\cmTC_f7aa2.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
+          Touching "cmTC_f7aa2.dir\\Debug\\cmTC_f7aa2.tlog\\unsuccessfulbuild".
+        ClCompile:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x64\\CL.exe /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_f7aa2.dir\\Debug\\\\" /Fd"cmTC_f7aa2.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TC /errorReport:queue "C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-d2kj1b\\SIZEOF_INT.c"
+          Microsoft (R) C/C++ Optimizing Compiler Version 19.44.35208 for x64
+          Copyright (C) Microsoft Corporation.  All rights reserved.
+          cl /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_f7aa2.dir\\Debug\\\\" /Fd"cmTC_f7aa2.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TC /errorReport:queue "C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-d2kj1b\\SIZEOF_INT.c"
+          SIZEOF_INT.c
+        Link:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x64\\link.exe /ERRORREPORT:QUEUE /OUT:"C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-d2kj1b\\Debug\\cmTC_f7aa2.exe" /INCREMENTAL /ILK:"cmTC_f7aa2.dir\\Debug\\cmTC_f7aa2.ilk" /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:/Users/dowee/source/repos/openmohaa/.cmake/CMakeFiles/CMakeScratch/TryCompile-d2kj1b/Debug/cmTC_f7aa2.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:/Users/dowee/source/repos/openmohaa/.cmake/CMakeFiles/CMakeScratch/TryCompile-d2kj1b/Debug/cmTC_f7aa2.lib" /MACHINE:X64  /machine:x64 cmTC_f7aa2.dir\\Debug\\SIZEOF_INT.obj
+          cmTC_f7aa2.vcxproj -> C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-d2kj1b\\Debug\\cmTC_f7aa2.exe
+        FinalizeBuildStatus:
+          Deleting file "cmTC_f7aa2.dir\\Debug\\cmTC_f7aa2.tlog\\unsuccessfulbuild".
+          Touching "cmTC_f7aa2.dir\\Debug\\cmTC_f7aa2.tlog\\cmTC_f7aa2.lastbuildstate".
+        Done Building Project "C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-d2kj1b\\cmTC_f7aa2.vcxproj" (default targets).
+        
+        Build succeeded.
+            0 Warning(s)
+            0 Error(s)
+        
+        Time Elapsed 00:00:00.30
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CheckIncludeFile.cmake:99 (try_compile)"
+      - "code/libmad/CMakeLists.txt:100 (check_include_file)"
+    checks:
+      - "Looking for sys/types.h"
+    directories:
+      source: "C:/Users/dowee/source/repos/openmohaa/.cmake/CMakeFiles/CMakeScratch/TryCompile-wozjdu"
+      binary: "C:/Users/dowee/source/repos/openmohaa/.cmake/CMakeFiles/CMakeScratch/TryCompile-wozjdu"
+    cmakeVariables:
+      CMAKE_C_FLAGS: "/DWIN32 /D_WINDOWS /W3"
+      CMAKE_EXE_LINKER_FLAGS: "/machine:x64"
+    buildResult:
+      variable: "HAVE_SYS_TYPES_H"
+      cached: true
+      stdout: |
+        Change Dir: 'C:/Users/dowee/source/repos/openmohaa/.cmake/CMakeFiles/CMakeScratch/TryCompile-wozjdu'
+        
+        Run Build Command(s): "C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_fdcd1.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
+        MSBuild version 17.14.10+8b8e13593 for .NET Framework
+        Build started 08/06/2025 10:23:02.
+        
+        Project "C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-wozjdu\\cmTC_fdcd1.vcxproj" on node 1 (default targets).
+        PrepareForBuild:
+          Creating directory "cmTC_fdcd1.dir\\Debug\\".
+          Structured output is enabled. The formatting of compiler diagnostics will reflect the error hierarchy. See https://aka.ms/cpp/structured-output for more details.
+          Creating directory "C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-wozjdu\\Debug\\".
+          Creating directory "cmTC_fdcd1.dir\\Debug\\cmTC_fdcd1.tlog\\".
+        InitializeBuildStatus:
+          Creating "cmTC_fdcd1.dir\\Debug\\cmTC_fdcd1.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
+          Touching "cmTC_fdcd1.dir\\Debug\\cmTC_fdcd1.tlog\\unsuccessfulbuild".
+        ClCompile:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x64\\CL.exe /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_fdcd1.dir\\Debug\\\\" /Fd"cmTC_fdcd1.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TC /errorReport:queue "C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-wozjdu\\CheckIncludeFile.c"
+          Microsoft (R) C/C++ Optimizing Compiler Version 19.44.35208 for x64
+          Copyright (C) Microsoft Corporation.  All rights reserved.
+          cl /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_fdcd1.dir\\Debug\\\\" /Fd"cmTC_fdcd1.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TC /errorReport:queue "C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-wozjdu\\CheckIncludeFile.c"
+          CheckIncludeFile.c
+        Link:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x64\\link.exe /ERRORREPORT:QUEUE /OUT:"C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-wozjdu\\Debug\\cmTC_fdcd1.exe" /INCREMENTAL /ILK:"cmTC_fdcd1.dir\\Debug\\cmTC_fdcd1.ilk" /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:/Users/dowee/source/repos/openmohaa/.cmake/CMakeFiles/CMakeScratch/TryCompile-wozjdu/Debug/cmTC_fdcd1.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:/Users/dowee/source/repos/openmohaa/.cmake/CMakeFiles/CMakeScratch/TryCompile-wozjdu/Debug/cmTC_fdcd1.lib" /MACHINE:X64  /machine:x64 cmTC_fdcd1.dir\\Debug\\CheckIncludeFile.obj
+          cmTC_fdcd1.vcxproj -> C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-wozjdu\\Debug\\cmTC_fdcd1.exe
+        FinalizeBuildStatus:
+          Deleting file "cmTC_fdcd1.dir\\Debug\\cmTC_fdcd1.tlog\\unsuccessfulbuild".
+          Touching "cmTC_fdcd1.dir\\Debug\\cmTC_fdcd1.tlog\\cmTC_fdcd1.lastbuildstate".
+        Done Building Project "C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-wozjdu\\cmTC_fdcd1.vcxproj" (default targets).
+        
+        Build succeeded.
+            0 Warning(s)
+            0 Error(s)
+        
+        Time Elapsed 00:00:00.30
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CheckIncludeFile.cmake:99 (try_compile)"
+      - "code/libmad/CMakeLists.txt:105 (check_include_file)"
+    checks:
+      - "Looking for sys/wait.h"
+    directories:
+      source: "C:/Users/dowee/source/repos/openmohaa/.cmake/CMakeFiles/CMakeScratch/TryCompile-mzmdjq"
+      binary: "C:/Users/dowee/source/repos/openmohaa/.cmake/CMakeFiles/CMakeScratch/TryCompile-mzmdjq"
+    cmakeVariables:
+      CMAKE_C_FLAGS: "/DWIN32 /D_WINDOWS /W3"
+      CMAKE_EXE_LINKER_FLAGS: "/machine:x64"
+    buildResult:
+      variable: "HAVE_SYS_WAIT_H"
+      cached: true
+      stdout: |
+        Change Dir: 'C:/Users/dowee/source/repos/openmohaa/.cmake/CMakeFiles/CMakeScratch/TryCompile-mzmdjq'
+        
+        Run Build Command(s): "C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_5a931.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
+        MSBuild version 17.14.10+8b8e13593 for .NET Framework
+        Build started 08/06/2025 10:23:02.
+        
+        Project "C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-mzmdjq\\cmTC_5a931.vcxproj" on node 1 (default targets).
+        PrepareForBuild:
+          Creating directory "cmTC_5a931.dir\\Debug\\".
+          Structured output is enabled. The formatting of compiler diagnostics will reflect the error hierarchy. See https://aka.ms/cpp/structured-output for more details.
+          Creating directory "C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-mzmdjq\\Debug\\".
+          Creating directory "cmTC_5a931.dir\\Debug\\cmTC_5a931.tlog\\".
+        InitializeBuildStatus:
+          Creating "cmTC_5a931.dir\\Debug\\cmTC_5a931.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
+          Touching "cmTC_5a931.dir\\Debug\\cmTC_5a931.tlog\\unsuccessfulbuild".
+        ClCompile:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x64\\CL.exe /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_5a931.dir\\Debug\\\\" /Fd"cmTC_5a931.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TC /errorReport:queue "C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-mzmdjq\\CheckIncludeFile.c"
+          Microsoft (R) C/C++ Optimizing Compiler Version 19.44.35208 for x64
+          Copyright (C) Microsoft Corporation.  All rights reserved.
+          cl /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_5a931.dir\\Debug\\\\" /Fd"cmTC_5a931.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TC /errorReport:queue "C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-mzmdjq\\CheckIncludeFile.c"
+          CheckIncludeFile.c
+        C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-mzmdjq\\CheckIncludeFile.c(1,10): error C1083: Cannot open include file: 'sys/wait.h': No such file or directory [C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-mzmdjq\\cmTC_5a931.vcxproj]
+        Done Building Project "C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-mzmdjq\\cmTC_5a931.vcxproj" (default targets) -- FAILED.
+        
+        Build FAILED.
+        
+        "C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-mzmdjq\\cmTC_5a931.vcxproj" (default target) (1) ->
+        (ClCompile target) -> 
+          C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-mzmdjq\\CheckIncludeFile.c(1,10): error C1083: Cannot open include file: 'sys/wait.h': No such file or directory [C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-mzmdjq\\cmTC_5a931.vcxproj]
+        
+            0 Warning(s)
+            1 Error(s)
+        
+        Time Elapsed 00:00:00.19
+        
+      exitCode: 1
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CheckIncludeFile.cmake:99 (try_compile)"
+      - "code/libmad/CMakeLists.txt:110 (check_include_file)"
+    checks:
+      - "Looking for sys/mman.h"
+    directories:
+      source: "C:/Users/dowee/source/repos/openmohaa/.cmake/CMakeFiles/CMakeScratch/TryCompile-g4wwd1"
+      binary: "C:/Users/dowee/source/repos/openmohaa/.cmake/CMakeFiles/CMakeScratch/TryCompile-g4wwd1"
+    cmakeVariables:
+      CMAKE_C_FLAGS: "/DWIN32 /D_WINDOWS /W3"
+      CMAKE_EXE_LINKER_FLAGS: "/machine:x64"
+    buildResult:
+      variable: "HAVE_SYS_MMAN_H"
+      cached: true
+      stdout: |
+        Change Dir: 'C:/Users/dowee/source/repos/openmohaa/.cmake/CMakeFiles/CMakeScratch/TryCompile-g4wwd1'
+        
+        Run Build Command(s): "C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_957ab.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
+        MSBuild version 17.14.10+8b8e13593 for .NET Framework
+        Build started 08/06/2025 10:23:02.
+        
+        Project "C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-g4wwd1\\cmTC_957ab.vcxproj" on node 1 (default targets).
+        PrepareForBuild:
+          Creating directory "cmTC_957ab.dir\\Debug\\".
+          Structured output is enabled. The formatting of compiler diagnostics will reflect the error hierarchy. See https://aka.ms/cpp/structured-output for more details.
+          Creating directory "C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-g4wwd1\\Debug\\".
+          Creating directory "cmTC_957ab.dir\\Debug\\cmTC_957ab.tlog\\".
+        InitializeBuildStatus:
+          Creating "cmTC_957ab.dir\\Debug\\cmTC_957ab.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
+          Touching "cmTC_957ab.dir\\Debug\\cmTC_957ab.tlog\\unsuccessfulbuild".
+        ClCompile:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x64\\CL.exe /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_957ab.dir\\Debug\\\\" /Fd"cmTC_957ab.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TC /errorReport:queue "C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-g4wwd1\\CheckIncludeFile.c"
+          Microsoft (R) C/C++ Optimizing Compiler Version 19.44.35208 for x64
+          Copyright (C) Microsoft Corporation.  All rights reserved.
+          cl /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_957ab.dir\\Debug\\\\" /Fd"cmTC_957ab.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TC /errorReport:queue "C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-g4wwd1\\CheckIncludeFile.c"
+          CheckIncludeFile.c
+        C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-g4wwd1\\CheckIncludeFile.c(1,10): error C1083: Cannot open include file: 'sys/mman.h': No such file or directory [C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-g4wwd1\\cmTC_957ab.vcxproj]
+        Done Building Project "C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-g4wwd1\\cmTC_957ab.vcxproj" (default targets) -- FAILED.
+        
+        Build FAILED.
+        
+        "C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-g4wwd1\\cmTC_957ab.vcxproj" (default target) (1) ->
+        (ClCompile target) -> 
+          C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-g4wwd1\\CheckIncludeFile.c(1,10): error C1083: Cannot open include file: 'sys/mman.h': No such file or directory [C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-g4wwd1\\cmTC_957ab.vcxproj]
+        
+            0 Warning(s)
+            1 Error(s)
+        
+        Time Elapsed 00:00:00.19
+        
+      exitCode: 1
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CheckIncludeFile.cmake:99 (try_compile)"
+      - "code/libmad/CMakeLists.txt:115 (check_include_file)"
+    checks:
+      - "Looking for sys/stat.h"
+    directories:
+      source: "C:/Users/dowee/source/repos/openmohaa/.cmake/CMakeFiles/CMakeScratch/TryCompile-28i25w"
+      binary: "C:/Users/dowee/source/repos/openmohaa/.cmake/CMakeFiles/CMakeScratch/TryCompile-28i25w"
+    cmakeVariables:
+      CMAKE_C_FLAGS: "/DWIN32 /D_WINDOWS /W3"
+      CMAKE_EXE_LINKER_FLAGS: "/machine:x64"
+    buildResult:
+      variable: "HAVE_SYS_STAT_H"
+      cached: true
+      stdout: |
+        Change Dir: 'C:/Users/dowee/source/repos/openmohaa/.cmake/CMakeFiles/CMakeScratch/TryCompile-28i25w'
+        
+        Run Build Command(s): "C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_49723.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
+        MSBuild version 17.14.10+8b8e13593 for .NET Framework
+        Build started 08/06/2025 10:23:03.
+        
+        Project "C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-28i25w\\cmTC_49723.vcxproj" on node 1 (default targets).
+        PrepareForBuild:
+          Creating directory "cmTC_49723.dir\\Debug\\".
+          Structured output is enabled. The formatting of compiler diagnostics will reflect the error hierarchy. See https://aka.ms/cpp/structured-output for more details.
+          Creating directory "C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-28i25w\\Debug\\".
+          Creating directory "cmTC_49723.dir\\Debug\\cmTC_49723.tlog\\".
+        InitializeBuildStatus:
+          Creating "cmTC_49723.dir\\Debug\\cmTC_49723.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
+          Touching "cmTC_49723.dir\\Debug\\cmTC_49723.tlog\\unsuccessfulbuild".
+        ClCompile:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x64\\CL.exe /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_49723.dir\\Debug\\\\" /Fd"cmTC_49723.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TC /errorReport:queue "C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-28i25w\\CheckIncludeFile.c"
+          Microsoft (R) C/C++ Optimizing Compiler Version 19.44.35208 for x64
+          Copyright (C) Microsoft Corporation.  All rights reserved.
+          cl /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_49723.dir\\Debug\\\\" /Fd"cmTC_49723.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TC /errorReport:queue "C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-28i25w\\CheckIncludeFile.c"
+          CheckIncludeFile.c
+        Link:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x64\\link.exe /ERRORREPORT:QUEUE /OUT:"C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-28i25w\\Debug\\cmTC_49723.exe" /INCREMENTAL /ILK:"cmTC_49723.dir\\Debug\\cmTC_49723.ilk" /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:/Users/dowee/source/repos/openmohaa/.cmake/CMakeFiles/CMakeScratch/TryCompile-28i25w/Debug/cmTC_49723.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:/Users/dowee/source/repos/openmohaa/.cmake/CMakeFiles/CMakeScratch/TryCompile-28i25w/Debug/cmTC_49723.lib" /MACHINE:X64  /machine:x64 cmTC_49723.dir\\Debug\\CheckIncludeFile.obj
+          cmTC_49723.vcxproj -> C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-28i25w\\Debug\\cmTC_49723.exe
+        FinalizeBuildStatus:
+          Deleting file "cmTC_49723.dir\\Debug\\cmTC_49723.tlog\\unsuccessfulbuild".
+          Touching "cmTC_49723.dir\\Debug\\cmTC_49723.tlog\\cmTC_49723.lastbuildstate".
+        Done Building Project "C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-28i25w\\cmTC_49723.vcxproj" (default targets).
+        
+        Build succeeded.
+            0 Warning(s)
+            0 Error(s)
+        
+        Time Elapsed 00:00:00.31
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CheckIncludeFile.cmake:99 (try_compile)"
+      - "code/libmad/CMakeLists.txt:120 (check_include_file)"
+    checks:
+      - "Looking for unistd.h"
+    directories:
+      source: "C:/Users/dowee/source/repos/openmohaa/.cmake/CMakeFiles/CMakeScratch/TryCompile-lbzvdf"
+      binary: "C:/Users/dowee/source/repos/openmohaa/.cmake/CMakeFiles/CMakeScratch/TryCompile-lbzvdf"
+    cmakeVariables:
+      CMAKE_C_FLAGS: "/DWIN32 /D_WINDOWS /W3"
+      CMAKE_EXE_LINKER_FLAGS: "/machine:x64"
+    buildResult:
+      variable: "HAVE_UNISTD_H"
+      cached: true
+      stdout: |
+        Change Dir: 'C:/Users/dowee/source/repos/openmohaa/.cmake/CMakeFiles/CMakeScratch/TryCompile-lbzvdf'
+        
+        Run Build Command(s): "C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_911b8.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
+        MSBuild version 17.14.10+8b8e13593 for .NET Framework
+        Build started 08/06/2025 10:23:03.
+        
+        Project "C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-lbzvdf\\cmTC_911b8.vcxproj" on node 1 (default targets).
+        PrepareForBuild:
+          Creating directory "cmTC_911b8.dir\\Debug\\".
+          Structured output is enabled. The formatting of compiler diagnostics will reflect the error hierarchy. See https://aka.ms/cpp/structured-output for more details.
+          Creating directory "C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-lbzvdf\\Debug\\".
+          Creating directory "cmTC_911b8.dir\\Debug\\cmTC_911b8.tlog\\".
+        InitializeBuildStatus:
+          Creating "cmTC_911b8.dir\\Debug\\cmTC_911b8.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
+          Touching "cmTC_911b8.dir\\Debug\\cmTC_911b8.tlog\\unsuccessfulbuild".
+        ClCompile:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x64\\CL.exe /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_911b8.dir\\Debug\\\\" /Fd"cmTC_911b8.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TC /errorReport:queue "C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-lbzvdf\\CheckIncludeFile.c"
+          Microsoft (R) C/C++ Optimizing Compiler Version 19.44.35208 for x64
+          Copyright (C) Microsoft Corporation.  All rights reserved.
+          cl /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_911b8.dir\\Debug\\\\" /Fd"cmTC_911b8.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TC /errorReport:queue "C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-lbzvdf\\CheckIncludeFile.c"
+          CheckIncludeFile.c
+        C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-lbzvdf\\CheckIncludeFile.c(1,10): error C1083: Cannot open include file: 'unistd.h': No such file or directory [C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-lbzvdf\\cmTC_911b8.vcxproj]
+        Done Building Project "C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-lbzvdf\\cmTC_911b8.vcxproj" (default targets) -- FAILED.
+        
+        Build FAILED.
+        
+        "C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-lbzvdf\\cmTC_911b8.vcxproj" (default target) (1) ->
+        (ClCompile target) -> 
+          C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-lbzvdf\\CheckIncludeFile.c(1,10): error C1083: Cannot open include file: 'unistd.h': No such file or directory [C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-lbzvdf\\cmTC_911b8.vcxproj]
+        
+            0 Warning(s)
+            1 Error(s)
+        
+        Time Elapsed 00:00:00.19
+        
+      exitCode: 1
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CheckIncludeFile.cmake:99 (try_compile)"
+      - "code/libmad/CMakeLists.txt:125 (check_include_file)"
+    checks:
+      - "Looking for assert.h"
+    directories:
+      source: "C:/Users/dowee/source/repos/openmohaa/.cmake/CMakeFiles/CMakeScratch/TryCompile-esjiyt"
+      binary: "C:/Users/dowee/source/repos/openmohaa/.cmake/CMakeFiles/CMakeScratch/TryCompile-esjiyt"
+    cmakeVariables:
+      CMAKE_C_FLAGS: "/DWIN32 /D_WINDOWS /W3"
+      CMAKE_EXE_LINKER_FLAGS: "/machine:x64"
+    buildResult:
+      variable: "HAVE_ASSERT_H"
+      cached: true
+      stdout: |
+        Change Dir: 'C:/Users/dowee/source/repos/openmohaa/.cmake/CMakeFiles/CMakeScratch/TryCompile-esjiyt'
+        
+        Run Build Command(s): "C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_1dd91.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
+        MSBuild version 17.14.10+8b8e13593 for .NET Framework
+        Build started 08/06/2025 10:23:04.
+        
+        Project "C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-esjiyt\\cmTC_1dd91.vcxproj" on node 1 (default targets).
+        PrepareForBuild:
+          Creating directory "cmTC_1dd91.dir\\Debug\\".
+          Structured output is enabled. The formatting of compiler diagnostics will reflect the error hierarchy. See https://aka.ms/cpp/structured-output for more details.
+          Creating directory "C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-esjiyt\\Debug\\".
+          Creating directory "cmTC_1dd91.dir\\Debug\\cmTC_1dd91.tlog\\".
+        InitializeBuildStatus:
+          Creating "cmTC_1dd91.dir\\Debug\\cmTC_1dd91.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
+          Touching "cmTC_1dd91.dir\\Debug\\cmTC_1dd91.tlog\\unsuccessfulbuild".
+        ClCompile:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x64\\CL.exe /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_1dd91.dir\\Debug\\\\" /Fd"cmTC_1dd91.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TC /errorReport:queue "C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-esjiyt\\CheckIncludeFile.c"
+          Microsoft (R) C/C++ Optimizing Compiler Version 19.44.35208 for x64
+          Copyright (C) Microsoft Corporation.  All rights reserved.
+          cl /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_1dd91.dir\\Debug\\\\" /Fd"cmTC_1dd91.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TC /errorReport:queue "C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-esjiyt\\CheckIncludeFile.c"
+          CheckIncludeFile.c
+        Link:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x64\\link.exe /ERRORREPORT:QUEUE /OUT:"C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-esjiyt\\Debug\\cmTC_1dd91.exe" /INCREMENTAL /ILK:"cmTC_1dd91.dir\\Debug\\cmTC_1dd91.ilk" /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:/Users/dowee/source/repos/openmohaa/.cmake/CMakeFiles/CMakeScratch/TryCompile-esjiyt/Debug/cmTC_1dd91.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:/Users/dowee/source/repos/openmohaa/.cmake/CMakeFiles/CMakeScratch/TryCompile-esjiyt/Debug/cmTC_1dd91.lib" /MACHINE:X64  /machine:x64 cmTC_1dd91.dir\\Debug\\CheckIncludeFile.obj
+          cmTC_1dd91.vcxproj -> C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-esjiyt\\Debug\\cmTC_1dd91.exe
+        FinalizeBuildStatus:
+          Deleting file "cmTC_1dd91.dir\\Debug\\cmTC_1dd91.tlog\\unsuccessfulbuild".
+          Touching "cmTC_1dd91.dir\\Debug\\cmTC_1dd91.tlog\\cmTC_1dd91.lastbuildstate".
+        Done Building Project "C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-esjiyt\\cmTC_1dd91.vcxproj" (default targets).
+        
+        Build succeeded.
+            0 Warning(s)
+            0 Error(s)
+        
+        Time Elapsed 00:00:00.30
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CheckIncludeFile.cmake:99 (try_compile)"
+      - "code/libmad/CMakeLists.txt:130 (check_include_file)"
+    checks:
+      - "Looking for fcntl.h"
+    directories:
+      source: "C:/Users/dowee/source/repos/openmohaa/.cmake/CMakeFiles/CMakeScratch/TryCompile-8j7ooy"
+      binary: "C:/Users/dowee/source/repos/openmohaa/.cmake/CMakeFiles/CMakeScratch/TryCompile-8j7ooy"
+    cmakeVariables:
+      CMAKE_C_FLAGS: "/DWIN32 /D_WINDOWS /W3"
+      CMAKE_EXE_LINKER_FLAGS: "/machine:x64"
+    buildResult:
+      variable: "HAVE_FCNTL_H"
+      cached: true
+      stdout: |
+        Change Dir: 'C:/Users/dowee/source/repos/openmohaa/.cmake/CMakeFiles/CMakeScratch/TryCompile-8j7ooy'
+        
+        Run Build Command(s): "C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_d9739.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
+        MSBuild version 17.14.10+8b8e13593 for .NET Framework
+        Build started 08/06/2025 10:23:04.
+        
+        Project "C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-8j7ooy\\cmTC_d9739.vcxproj" on node 1 (default targets).
+        PrepareForBuild:
+          Creating directory "cmTC_d9739.dir\\Debug\\".
+          Structured output is enabled. The formatting of compiler diagnostics will reflect the error hierarchy. See https://aka.ms/cpp/structured-output for more details.
+          Creating directory "C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-8j7ooy\\Debug\\".
+          Creating directory "cmTC_d9739.dir\\Debug\\cmTC_d9739.tlog\\".
+        InitializeBuildStatus:
+          Creating "cmTC_d9739.dir\\Debug\\cmTC_d9739.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
+          Touching "cmTC_d9739.dir\\Debug\\cmTC_d9739.tlog\\unsuccessfulbuild".
+        ClCompile:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x64\\CL.exe /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_d9739.dir\\Debug\\\\" /Fd"cmTC_d9739.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TC /errorReport:queue "C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-8j7ooy\\CheckIncludeFile.c"
+          Microsoft (R) C/C++ Optimizing Compiler Version 19.44.35208 for x64
+          Copyright (C) Microsoft Corporation.  All rights reserved.
+          cl /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_d9739.dir\\Debug\\\\" /Fd"cmTC_d9739.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TC /errorReport:queue "C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-8j7ooy\\CheckIncludeFile.c"
+          CheckIncludeFile.c
+        Link:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x64\\link.exe /ERRORREPORT:QUEUE /OUT:"C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-8j7ooy\\Debug\\cmTC_d9739.exe" /INCREMENTAL /ILK:"cmTC_d9739.dir\\Debug\\cmTC_d9739.ilk" /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:/Users/dowee/source/repos/openmohaa/.cmake/CMakeFiles/CMakeScratch/TryCompile-8j7ooy/Debug/cmTC_d9739.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:/Users/dowee/source/repos/openmohaa/.cmake/CMakeFiles/CMakeScratch/TryCompile-8j7ooy/Debug/cmTC_d9739.lib" /MACHINE:X64  /machine:x64 cmTC_d9739.dir\\Debug\\CheckIncludeFile.obj
+          cmTC_d9739.vcxproj -> C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-8j7ooy\\Debug\\cmTC_d9739.exe
+        FinalizeBuildStatus:
+          Deleting file "cmTC_d9739.dir\\Debug\\cmTC_d9739.tlog\\unsuccessfulbuild".
+          Touching "cmTC_d9739.dir\\Debug\\cmTC_d9739.tlog\\cmTC_d9739.lastbuildstate".
+        Done Building Project "C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-8j7ooy\\cmTC_d9739.vcxproj" (default targets).
+        
+        Build succeeded.
+            0 Warning(s)
+            0 Error(s)
+        
+        Time Elapsed 00:00:00.31
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CheckIncludeFile.cmake:99 (try_compile)"
+      - "code/libmad/CMakeLists.txt:135 (check_include_file)"
+    checks:
+      - "Looking for limits.h"
+    directories:
+      source: "C:/Users/dowee/source/repos/openmohaa/.cmake/CMakeFiles/CMakeScratch/TryCompile-m7u2to"
+      binary: "C:/Users/dowee/source/repos/openmohaa/.cmake/CMakeFiles/CMakeScratch/TryCompile-m7u2to"
+    cmakeVariables:
+      CMAKE_C_FLAGS: "/DWIN32 /D_WINDOWS /W3"
+      CMAKE_EXE_LINKER_FLAGS: "/machine:x64"
+    buildResult:
+      variable: "HAVE_LIMITS_H"
+      cached: true
+      stdout: |
+        Change Dir: 'C:/Users/dowee/source/repos/openmohaa/.cmake/CMakeFiles/CMakeScratch/TryCompile-m7u2to'
+        
+        Run Build Command(s): "C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_8fd69.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
+        MSBuild version 17.14.10+8b8e13593 for .NET Framework
+        Build started 08/06/2025 10:23:04.
+        
+        Project "C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-m7u2to\\cmTC_8fd69.vcxproj" on node 1 (default targets).
+        PrepareForBuild:
+          Creating directory "cmTC_8fd69.dir\\Debug\\".
+          Structured output is enabled. The formatting of compiler diagnostics will reflect the error hierarchy. See https://aka.ms/cpp/structured-output for more details.
+          Creating directory "C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-m7u2to\\Debug\\".
+          Creating directory "cmTC_8fd69.dir\\Debug\\cmTC_8fd69.tlog\\".
+        InitializeBuildStatus:
+          Creating "cmTC_8fd69.dir\\Debug\\cmTC_8fd69.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
+          Touching "cmTC_8fd69.dir\\Debug\\cmTC_8fd69.tlog\\unsuccessfulbuild".
+        ClCompile:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x64\\CL.exe /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_8fd69.dir\\Debug\\\\" /Fd"cmTC_8fd69.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TC /errorReport:queue "C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-m7u2to\\CheckIncludeFile.c"
+          Microsoft (R) C/C++ Optimizing Compiler Version 19.44.35208 for x64
+          Copyright (C) Microsoft Corporation.  All rights reserved.
+          cl /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_8fd69.dir\\Debug\\\\" /Fd"cmTC_8fd69.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TC /errorReport:queue "C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-m7u2to\\CheckIncludeFile.c"
+          CheckIncludeFile.c
+        Link:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x64\\link.exe /ERRORREPORT:QUEUE /OUT:"C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-m7u2to\\Debug\\cmTC_8fd69.exe" /INCREMENTAL /ILK:"cmTC_8fd69.dir\\Debug\\cmTC_8fd69.ilk" /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:/Users/dowee/source/repos/openmohaa/.cmake/CMakeFiles/CMakeScratch/TryCompile-m7u2to/Debug/cmTC_8fd69.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:/Users/dowee/source/repos/openmohaa/.cmake/CMakeFiles/CMakeScratch/TryCompile-m7u2to/Debug/cmTC_8fd69.lib" /MACHINE:X64  /machine:x64 cmTC_8fd69.dir\\Debug\\CheckIncludeFile.obj
+          cmTC_8fd69.vcxproj -> C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-m7u2to\\Debug\\cmTC_8fd69.exe
+        FinalizeBuildStatus:
+          Deleting file "cmTC_8fd69.dir\\Debug\\cmTC_8fd69.tlog\\unsuccessfulbuild".
+          Touching "cmTC_8fd69.dir\\Debug\\cmTC_8fd69.tlog\\cmTC_8fd69.lastbuildstate".
+        Done Building Project "C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-m7u2to\\cmTC_8fd69.vcxproj" (default targets).
+        
+        Build succeeded.
+            0 Warning(s)
+            0 Error(s)
+        
+        Time Elapsed 00:00:00.30
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CheckFunctionExists.cmake:93 (try_compile)"
+      - "code/libmad/CMakeLists.txt:141 (check_function_exists)"
+    checks:
+      - "Looking for ftruncate"
+    directories:
+      source: "C:/Users/dowee/source/repos/openmohaa/.cmake/CMakeFiles/CMakeScratch/TryCompile-bgpayj"
+      binary: "C:/Users/dowee/source/repos/openmohaa/.cmake/CMakeFiles/CMakeScratch/TryCompile-bgpayj"
+    cmakeVariables:
+      CMAKE_C_FLAGS: "/DWIN32 /D_WINDOWS /W3"
+      CMAKE_EXE_LINKER_FLAGS: "/machine:x64"
+    buildResult:
+      variable: "HAVE_FTRUNCATE"
+      cached: true
+      stdout: |
+        Change Dir: 'C:/Users/dowee/source/repos/openmohaa/.cmake/CMakeFiles/CMakeScratch/TryCompile-bgpayj'
+        
+        Run Build Command(s): "C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_3fa9f.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
+        MSBuild version 17.14.10+8b8e13593 for .NET Framework
+        Build started 08/06/2025 10:23:05.
+        
+        Project "C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-bgpayj\\cmTC_3fa9f.vcxproj" on node 1 (default targets).
+        PrepareForBuild:
+          Creating directory "cmTC_3fa9f.dir\\Debug\\".
+          Structured output is enabled. The formatting of compiler diagnostics will reflect the error hierarchy. See https://aka.ms/cpp/structured-output for more details.
+          Creating directory "C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-bgpayj\\Debug\\".
+          Creating directory "cmTC_3fa9f.dir\\Debug\\cmTC_3fa9f.tlog\\".
+        InitializeBuildStatus:
+          Creating "cmTC_3fa9f.dir\\Debug\\cmTC_3fa9f.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
+          Touching "cmTC_3fa9f.dir\\Debug\\cmTC_3fa9f.tlog\\unsuccessfulbuild".
+        ClCompile:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x64\\CL.exe /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D CHECK_FUNCTION_EXISTS=ftruncate /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_3fa9f.dir\\Debug\\\\" /Fd"cmTC_3fa9f.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TC /errorReport:queue "C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-bgpayj\\CheckFunctionExists.c"
+          Microsoft (R) C/C++ Optimizing Compiler Version 19.44.35208 for x64
+          Copyright (C) Microsoft Corporation.  All rights reserved.
+          cl /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D CHECK_FUNCTION_EXISTS=ftruncate /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_3fa9f.dir\\Debug\\\\" /Fd"cmTC_3fa9f.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TC /errorReport:queue "C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-bgpayj\\CheckFunctionExists.c"
+          CheckFunctionExists.c
+        Link:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x64\\link.exe /ERRORREPORT:QUEUE /OUT:"C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-bgpayj\\Debug\\cmTC_3fa9f.exe" /INCREMENTAL /ILK:"cmTC_3fa9f.dir\\Debug\\cmTC_3fa9f.ilk" /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:/Users/dowee/source/repos/openmohaa/.cmake/CMakeFiles/CMakeScratch/TryCompile-bgpayj/Debug/cmTC_3fa9f.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:/Users/dowee/source/repos/openmohaa/.cmake/CMakeFiles/CMakeScratch/TryCompile-bgpayj/Debug/cmTC_3fa9f.lib" /MACHINE:X64  /machine:x64 cmTC_3fa9f.dir\\Debug\\CheckFunctionExists.obj
+        CheckFunctionExists.obj : error LNK2019: unresolved external symbol ftruncate referenced in function main [C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-bgpayj\\cmTC_3fa9f.vcxproj]
+        C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-bgpayj\\Debug\\cmTC_3fa9f.exe : fatal error LNK1120: 1 unresolved externals [C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-bgpayj\\cmTC_3fa9f.vcxproj]
+        Done Building Project "C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-bgpayj\\cmTC_3fa9f.vcxproj" (default targets) -- FAILED.
+        
+        Build FAILED.
+        
+        "C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-bgpayj\\cmTC_3fa9f.vcxproj" (default target) (1) ->
+        (Link target) -> 
+          CheckFunctionExists.obj : error LNK2019: unresolved external symbol ftruncate referenced in function main [C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-bgpayj\\cmTC_3fa9f.vcxproj]
+          C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-bgpayj\\Debug\\cmTC_3fa9f.exe : fatal error LNK1120: 1 unresolved externals [C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-bgpayj\\cmTC_3fa9f.vcxproj]
+        
+            0 Warning(s)
+            2 Error(s)
+        
+        Time Elapsed 00:00:00.27
+        
+      exitCode: 1
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CheckFunctionExists.cmake:93 (try_compile)"
+      - "code/libmad/CMakeLists.txt:146 (check_function_exists)"
+    checks:
+      - "Looking for pipe"
+    directories:
+      source: "C:/Users/dowee/source/repos/openmohaa/.cmake/CMakeFiles/CMakeScratch/TryCompile-fbgapg"
+      binary: "C:/Users/dowee/source/repos/openmohaa/.cmake/CMakeFiles/CMakeScratch/TryCompile-fbgapg"
+    cmakeVariables:
+      CMAKE_C_FLAGS: "/DWIN32 /D_WINDOWS /W3"
+      CMAKE_EXE_LINKER_FLAGS: "/machine:x64"
+    buildResult:
+      variable: "HAVE_PIPE"
+      cached: true
+      stdout: |
+        Change Dir: 'C:/Users/dowee/source/repos/openmohaa/.cmake/CMakeFiles/CMakeScratch/TryCompile-fbgapg'
+        
+        Run Build Command(s): "C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_cdb23.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
+        MSBuild version 17.14.10+8b8e13593 for .NET Framework
+        Build started 08/06/2025 10:23:05.
+        
+        Project "C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-fbgapg\\cmTC_cdb23.vcxproj" on node 1 (default targets).
+        PrepareForBuild:
+          Creating directory "cmTC_cdb23.dir\\Debug\\".
+          Structured output is enabled. The formatting of compiler diagnostics will reflect the error hierarchy. See https://aka.ms/cpp/structured-output for more details.
+          Creating directory "C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-fbgapg\\Debug\\".
+          Creating directory "cmTC_cdb23.dir\\Debug\\cmTC_cdb23.tlog\\".
+        InitializeBuildStatus:
+          Creating "cmTC_cdb23.dir\\Debug\\cmTC_cdb23.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
+          Touching "cmTC_cdb23.dir\\Debug\\cmTC_cdb23.tlog\\unsuccessfulbuild".
+        ClCompile:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x64\\CL.exe /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D CHECK_FUNCTION_EXISTS=pipe /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_cdb23.dir\\Debug\\\\" /Fd"cmTC_cdb23.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TC /errorReport:queue "C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-fbgapg\\CheckFunctionExists.c"
+          Microsoft (R) C/C++ Optimizing Compiler Version 19.44.35208 for x64
+          Copyright (C) Microsoft Corporation.  All rights reserved.
+          cl /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D CHECK_FUNCTION_EXISTS=pipe /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_cdb23.dir\\Debug\\\\" /Fd"cmTC_cdb23.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TC /errorReport:queue "C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-fbgapg\\CheckFunctionExists.c"
+          CheckFunctionExists.c
+        Link:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x64\\link.exe /ERRORREPORT:QUEUE /OUT:"C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-fbgapg\\Debug\\cmTC_cdb23.exe" /INCREMENTAL /ILK:"cmTC_cdb23.dir\\Debug\\cmTC_cdb23.ilk" /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:/Users/dowee/source/repos/openmohaa/.cmake/CMakeFiles/CMakeScratch/TryCompile-fbgapg/Debug/cmTC_cdb23.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:/Users/dowee/source/repos/openmohaa/.cmake/CMakeFiles/CMakeScratch/TryCompile-fbgapg/Debug/cmTC_cdb23.lib" /MACHINE:X64  /machine:x64 cmTC_cdb23.dir\\Debug\\CheckFunctionExists.obj
+        CheckFunctionExists.obj : error LNK2019: unresolved external symbol pipe referenced in function main [C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-fbgapg\\cmTC_cdb23.vcxproj]
+        C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-fbgapg\\Debug\\cmTC_cdb23.exe : fatal error LNK1120: 1 unresolved externals [C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-fbgapg\\cmTC_cdb23.vcxproj]
+        Done Building Project "C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-fbgapg\\cmTC_cdb23.vcxproj" (default targets) -- FAILED.
+        
+        Build FAILED.
+        
+        "C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-fbgapg\\cmTC_cdb23.vcxproj" (default target) (1) ->
+        (Link target) -> 
+          CheckFunctionExists.obj : error LNK2019: unresolved external symbol pipe referenced in function main [C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-fbgapg\\cmTC_cdb23.vcxproj]
+          C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-fbgapg\\Debug\\cmTC_cdb23.exe : fatal error LNK1120: 1 unresolved externals [C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-fbgapg\\cmTC_cdb23.vcxproj]
+        
+            0 Warning(s)
+            2 Error(s)
+        
+        Time Elapsed 00:00:00.26
+        
+      exitCode: 1
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CheckFunctionExists.cmake:93 (try_compile)"
+      - "code/libmad/CMakeLists.txt:151 (check_function_exists)"
+    checks:
+      - "Looking for fork"
+    directories:
+      source: "C:/Users/dowee/source/repos/openmohaa/.cmake/CMakeFiles/CMakeScratch/TryCompile-xex6og"
+      binary: "C:/Users/dowee/source/repos/openmohaa/.cmake/CMakeFiles/CMakeScratch/TryCompile-xex6og"
+    cmakeVariables:
+      CMAKE_C_FLAGS: "/DWIN32 /D_WINDOWS /W3"
+      CMAKE_EXE_LINKER_FLAGS: "/machine:x64"
+    buildResult:
+      variable: "HAVE_FORK"
+      cached: true
+      stdout: |
+        Change Dir: 'C:/Users/dowee/source/repos/openmohaa/.cmake/CMakeFiles/CMakeScratch/TryCompile-xex6og'
+        
+        Run Build Command(s): "C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_1d0d8.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
+        MSBuild version 17.14.10+8b8e13593 for .NET Framework
+        Build started 08/06/2025 10:23:06.
+        
+        Project "C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-xex6og\\cmTC_1d0d8.vcxproj" on node 1 (default targets).
+        PrepareForBuild:
+          Creating directory "cmTC_1d0d8.dir\\Debug\\".
+          Structured output is enabled. The formatting of compiler diagnostics will reflect the error hierarchy. See https://aka.ms/cpp/structured-output for more details.
+          Creating directory "C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-xex6og\\Debug\\".
+          Creating directory "cmTC_1d0d8.dir\\Debug\\cmTC_1d0d8.tlog\\".
+        InitializeBuildStatus:
+          Creating "cmTC_1d0d8.dir\\Debug\\cmTC_1d0d8.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
+          Touching "cmTC_1d0d8.dir\\Debug\\cmTC_1d0d8.tlog\\unsuccessfulbuild".
+        ClCompile:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x64\\CL.exe /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D CHECK_FUNCTION_EXISTS=fork /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_1d0d8.dir\\Debug\\\\" /Fd"cmTC_1d0d8.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TC /errorReport:queue "C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-xex6og\\CheckFunctionExists.c"
+          Microsoft (R) C/C++ Optimizing Compiler Version 19.44.35208 for x64
+          Copyright (C) Microsoft Corporation.  All rights reserved.
+          cl /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D CHECK_FUNCTION_EXISTS=fork /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_1d0d8.dir\\Debug\\\\" /Fd"cmTC_1d0d8.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TC /errorReport:queue "C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-xex6og\\CheckFunctionExists.c"
+          CheckFunctionExists.c
+        Link:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x64\\link.exe /ERRORREPORT:QUEUE /OUT:"C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-xex6og\\Debug\\cmTC_1d0d8.exe" /INCREMENTAL /ILK:"cmTC_1d0d8.dir\\Debug\\cmTC_1d0d8.ilk" /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:/Users/dowee/source/repos/openmohaa/.cmake/CMakeFiles/CMakeScratch/TryCompile-xex6og/Debug/cmTC_1d0d8.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:/Users/dowee/source/repos/openmohaa/.cmake/CMakeFiles/CMakeScratch/TryCompile-xex6og/Debug/cmTC_1d0d8.lib" /MACHINE:X64  /machine:x64 cmTC_1d0d8.dir\\Debug\\CheckFunctionExists.obj
+        CheckFunctionExists.obj : error LNK2019: unresolved external symbol fork referenced in function main [C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-xex6og\\cmTC_1d0d8.vcxproj]
+        C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-xex6og\\Debug\\cmTC_1d0d8.exe : fatal error LNK1120: 1 unresolved externals [C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-xex6og\\cmTC_1d0d8.vcxproj]
+        Done Building Project "C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-xex6og\\cmTC_1d0d8.vcxproj" (default targets) -- FAILED.
+        
+        Build FAILED.
+        
+        "C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-xex6og\\cmTC_1d0d8.vcxproj" (default target) (1) ->
+        (Link target) -> 
+          CheckFunctionExists.obj : error LNK2019: unresolved external symbol fork referenced in function main [C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-xex6og\\cmTC_1d0d8.vcxproj]
+          C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-xex6og\\Debug\\cmTC_1d0d8.exe : fatal error LNK1120: 1 unresolved externals [C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-xex6og\\cmTC_1d0d8.vcxproj]
+        
+            0 Warning(s)
+            2 Error(s)
+        
+        Time Elapsed 00:00:00.27
+        
+      exitCode: 1
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CheckFunctionExists.cmake:93 (try_compile)"
+      - "code/libmad/CMakeLists.txt:156 (check_function_exists)"
+    checks:
+      - "Looking for waitpid"
+    directories:
+      source: "C:/Users/dowee/source/repos/openmohaa/.cmake/CMakeFiles/CMakeScratch/TryCompile-wl68pu"
+      binary: "C:/Users/dowee/source/repos/openmohaa/.cmake/CMakeFiles/CMakeScratch/TryCompile-wl68pu"
+    cmakeVariables:
+      CMAKE_C_FLAGS: "/DWIN32 /D_WINDOWS /W3"
+      CMAKE_EXE_LINKER_FLAGS: "/machine:x64"
+    buildResult:
+      variable: "HAVE_WAITPID"
+      cached: true
+      stdout: |
+        Change Dir: 'C:/Users/dowee/source/repos/openmohaa/.cmake/CMakeFiles/CMakeScratch/TryCompile-wl68pu'
+        
+        Run Build Command(s): "C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_ada02.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
+        MSBuild version 17.14.10+8b8e13593 for .NET Framework
+        Build started 08/06/2025 10:23:06.
+        
+        Project "C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-wl68pu\\cmTC_ada02.vcxproj" on node 1 (default targets).
+        PrepareForBuild:
+          Creating directory "cmTC_ada02.dir\\Debug\\".
+          Structured output is enabled. The formatting of compiler diagnostics will reflect the error hierarchy. See https://aka.ms/cpp/structured-output for more details.
+          Creating directory "C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-wl68pu\\Debug\\".
+          Creating directory "cmTC_ada02.dir\\Debug\\cmTC_ada02.tlog\\".
+        InitializeBuildStatus:
+          Creating "cmTC_ada02.dir\\Debug\\cmTC_ada02.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
+          Touching "cmTC_ada02.dir\\Debug\\cmTC_ada02.tlog\\unsuccessfulbuild".
+        ClCompile:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x64\\CL.exe /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D CHECK_FUNCTION_EXISTS=waitpid /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_ada02.dir\\Debug\\\\" /Fd"cmTC_ada02.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TC /errorReport:queue "C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-wl68pu\\CheckFunctionExists.c"
+          Microsoft (R) C/C++ Optimizing Compiler Version 19.44.35208 for x64
+          Copyright (C) Microsoft Corporation.  All rights reserved.
+          cl /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D CHECK_FUNCTION_EXISTS=waitpid /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_ada02.dir\\Debug\\\\" /Fd"cmTC_ada02.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TC /errorReport:queue "C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-wl68pu\\CheckFunctionExists.c"
+          CheckFunctionExists.c
+        Link:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x64\\link.exe /ERRORREPORT:QUEUE /OUT:"C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-wl68pu\\Debug\\cmTC_ada02.exe" /INCREMENTAL /ILK:"cmTC_ada02.dir\\Debug\\cmTC_ada02.ilk" /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:/Users/dowee/source/repos/openmohaa/.cmake/CMakeFiles/CMakeScratch/TryCompile-wl68pu/Debug/cmTC_ada02.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:/Users/dowee/source/repos/openmohaa/.cmake/CMakeFiles/CMakeScratch/TryCompile-wl68pu/Debug/cmTC_ada02.lib" /MACHINE:X64  /machine:x64 cmTC_ada02.dir\\Debug\\CheckFunctionExists.obj
+        CheckFunctionExists.obj : error LNK2019: unresolved external symbol waitpid referenced in function main [C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-wl68pu\\cmTC_ada02.vcxproj]
+        C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-wl68pu\\Debug\\cmTC_ada02.exe : fatal error LNK1120: 1 unresolved externals [C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-wl68pu\\cmTC_ada02.vcxproj]
+        Done Building Project "C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-wl68pu\\cmTC_ada02.vcxproj" (default targets) -- FAILED.
+        
+        Build FAILED.
+        
+        "C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-wl68pu\\cmTC_ada02.vcxproj" (default target) (1) ->
+        (Link target) -> 
+          CheckFunctionExists.obj : error LNK2019: unresolved external symbol waitpid referenced in function main [C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-wl68pu\\cmTC_ada02.vcxproj]
+          C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-wl68pu\\Debug\\cmTC_ada02.exe : fatal error LNK1120: 1 unresolved externals [C:\\Users\\dowee\\source\\repos\\openmohaa\\.cmake\\CMakeFiles\\CMakeScratch\\TryCompile-wl68pu\\cmTC_ada02.vcxproj]
+        
+            0 Warning(s)
+            2 Error(s)
+        
+        Time Elapsed 00:00:00.27
+        
+      exitCode: 1
+...
