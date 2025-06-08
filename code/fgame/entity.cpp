@@ -5526,74 +5526,76 @@ void Entity::ForceActivate(Event *ev)
 
 void Entity::EventTrace(Event *ev)
 {
-    Vector  start, end, mins, maxs;
-    int     mask = MASK_SOLID;
-    Entity *ent;
+    Vector  start;
+    Vector  mins;
+    Vector  maxs;
+    Vector  end;
+    int     content_mask = MASK_SOLID;
     trace_t trace;
 
+    //
+    // NOTE: mins/maxs are never passed to the trace function in the original game.
+    // Using them now may break some scripts.
+    //
     mins = vec_zero;
     maxs = vec_zero;
-    ent  = NULL;
 
-    start = ev->GetVector(1);
-    end   = ev->GetVector(2);
-
-    if (ev->NumArgs() > 2) {
-        if (ev->GetInteger(3)) {
-            mask = 1;
-        }
-    }
-
-    if (ev->NumArgs() > 3) {
-        mins = ev->GetVector(4);
-    }
-
-    if (ev->NumArgs() > 4) {
+    switch (ev->NumArgs()) {
+    case 5:
         maxs = ev->GetVector(5);
-    }
-
-    if (ev->NumArgs() > 5) {
-        ent = G_GetEntity(ev->GetInteger(6));
+    case 4:
+        mins = ev->GetVector(4);
+    case 3:
+        if (ev->GetInteger(3)) {
+            content_mask &= ~MASK_IGNORE_ENTS;
+        }
+    case 2:
+    case 1:
+        start = ev->GetVector(1);
+        end   = ev->GetVector(2);
+        break;
+    default:
+        throw ScriptException("Wrong number of arguments for trace.");
     }
 
     // call trace
-    trace = G_Trace(start, mins, maxs, end, ent, mask, qfalse, "Entity::EventTrace");
+    trace = G_Trace(start, vec_zero, vec_zero, end, this, content_mask, false, "Entity::EventTrace");
 
     ev->AddVector(trace.endpos);
 }
 
 void Entity::EventSightTrace(Event *ev)
 {
-    Vector   start, end, mins, maxs;
-    int      mask = MASK_SOLID;
-    Entity  *ent  = nullptr;
-    qboolean hit  = qfalse;
+    Vector   start;
+    Vector   mins;
+    Vector   maxs;
+    Vector   end;
+    int      content_mask = MASK_SOLID;
+    qboolean hit          = qfalse;
 
     mins = vec_zero;
     maxs = vec_zero;
 
-    start = ev->GetVector(1);
-    end   = ev->GetVector(2);
-
-    if (ev->NumArgs() > 2) {
-        if (ev->GetInteger(3)) {
-            mask = 1;
-        }
-    }
-
-    if (ev->NumArgs() > 3) {
-        mins = ev->GetVector(4);
-    }
-
-    if (ev->NumArgs() > 4) {
+    switch (ev->NumArgs()) {
+    case 5:
         maxs = ev->GetVector(5);
+    case 4:
+        mins = ev->GetVector(4);
+    case 3:
+        if (ev->GetInteger(3)) {
+            content_mask &= ~MASK_IGNORE_ENTS;
+        }
+    case 2:
+    case 1:
+        start = ev->GetVector(1);
+        end   = ev->GetVector(2);
+        break;
+    default:
+        throw ScriptException("Wrong number of arguments for trace.");
     }
 
-    if (ev->NumArgs() > 5) {
-        ent = G_GetEntity(ev->GetInteger(6));
-    }
-
-    hit = G_SightTrace(start, mins, maxs, end, ent, NULL, mask, qfalse, "Entity::EventSightTrace");
+    // call trace
+    hit = G_SightTrace(start, mins, maxs, end, this, NULL, content_mask, false, "Entity::EventSightTrace");
 
     ev->AddInteger(hit);
 }
