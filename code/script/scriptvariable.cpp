@@ -2263,10 +2263,7 @@ void ScriptVariable::complement(void)
     if (type == VARIABLE_INTEGER) {
         m_data.intValue = ~m_data.intValue;
     } else {
-        float value = floatValue();
-        int   i     = ~*(int *)&value; // ley0k: evil floating point hack
-
-        setFloatValue(*(float *)&i);
+        setIntValue(~intValue());
     }
 }
 
