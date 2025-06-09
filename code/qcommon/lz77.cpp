@@ -518,6 +518,25 @@ LABEL_19:
     return result;
 }
 
+static unsigned int decode_length(unsigned int base, unsigned char *& ip)
+{
+    unsigned int len = base;
+    while (!*ip) {
+        len += 255;
+        ++ip;
+    }
+    return len + *ip++;
+}
+
+static void copy_bytes(unsigned char *dest, unsigned char *from, size_t length)
+{
+    size_t i;
+
+    for (i = 0; i < length; i++) {
+        dest[i] = from[i];
+    }
+}
+
 /*************************************************************************
 * cLZ77::Decompress - Uncompress a block of data using an LZ77 decoder.
 *  in      - Input (compressed) buffer.
@@ -531,172 +550,154 @@ int cLZ77::Decompress(unsigned char *in, size_t in_len, unsigned char *out, size
     unsigned int   t;
     unsigned short s;
 
-    this->ip_end = &in[in_len];
-    *out_len     = 0;
-    this->op     = out;
-    this->ip     = in;
-    if (*this->ip > 17u) {
-        t = *this->ip++ - 17;
+    ip_end   = &in[in_len];
+    ip       = in;
+    op       = out;
+    *out_len = 0;
+
+    if (*ip > 17u) {
+        t = *ip++ - 17;
         if (t <= 3) {
-            goto LABEL_52;
+            copy_bytes(op, ip, t);
+            op += t;
+            ip += t;
+            t = *ip++;
+        } else {
+            copy_bytes(op, ip, t);
+            op += t;
+            ip += t;
+            t = *ip++;
         }
-        do {
-            *this->op++ = *this->ip++;
-            --t;
-        } while (t);
-        goto LABEL_17;
+    } else {
+        t = *ip++;
     }
 
-LABEL_5:
-    t = *this->ip++;
-    if (t <= 15) {
-        if (!t) {
-            while (!*this->ip) {
-                t += 255;
-                ++this->ip;
+    for (;;) {
+        if (t <= 15) {
+            if (t == 0) {
+                t = decode_length(15, ip);
             }
-            t += 15 + *this->ip++;
+
+            memcpy(op, ip, 4);
+            op += 4;
+            ip += 4;
+            t--;
+
+            if (t) {
+                if (t <= 3) {
+                    copy_bytes(op, ip, t);
+                    op += t;
+                    ip += t;
+                } else {
+                    while (t > 3) {
+                        memcpy(op, ip, 4);
+                        op += 4;
+                        ip += 4;
+                        t -= 4;
+                    }
+                    copy_bytes(op, ip, t);
+                    op += t;
+                    ip += t;
+                }
+            }
+
+            t = *ip++;
+            if (t <= 15) {
+                m_pos = op - 2049 - (t >> 2) - 4 * *ip++;
+                *op++ = *m_pos++;
+                *op++ = *m_pos++;
+                *op++ = *m_pos++;
+                continue;
+            }
         }
-        memcpy(this->op, this->ip, sizeof(unsigned int));
-        this->op += 4;
-        this->ip += 4;
-        if (--t) {
-            if (t <= 3) {
-                do {
-                    *this->op++ = *this->ip++;
-                    --t;
-                } while (t);
+
+        while (true) {
+            if (t > 63) {
+                m_pos = op - 1 - ((t >> 2) & 7) - 8 * *ip++;
+                t     = (t >> 5) - 1;
+                *op++ = *m_pos++;
+                *op++ = *m_pos++;
+                copy_bytes(op, m_pos, t);
+                op += t;
+                break;
+            }
+
+            if (t > 31) {
+                t &= 31;
+                if (t == 0) {
+                    t = decode_length(31, ip);
+                }
+
+                m_pos = op - 1;
+                CopyLittleShort(&s, ip);
+                ip += 2;
+                m_pos -= (s >> 2);
+                goto long_match;
+            }
+
+            if (t <= 15) {
+                m_pos = op - 1 - (t >> 2) - 4 * *ip++;
+                *op++ = *m_pos++;
+                *op++ = *m_pos++;
+                break;
+            }
+
+            m_pos = op - 2048 * (t & 8);
+            t &= 7u;
+            if (t == 0) {
+                t = decode_length(7, ip);
+            }
+
+            CopyLittleShort(&s, ip);
+            ip += 2;
+            m_pos -= (s >> 2);
+
+            if (m_pos == op) {
+                *out_len = op - out;
+                return 0;
+            }
+            m_pos -= 0x4000;
+
+        long_match:
+            if (t <= 5 || static_cast<size_t>(op - m_pos) <= 3) {
+                *op++ = *m_pos++;
+                *op++ = *m_pos++;
+                copy_bytes(op, m_pos, t);
+                op += t;
             } else {
-                do {
-                    memcpy(this->op, this->ip, sizeof(unsigned int));
-                    this->op += 4;
-                    this->ip += 4;
+                memcpy(op, m_pos, 4);
+                op += 4;
+                m_pos += 4;
+                t -= 2;
+                while (t > 3) {
+                    memcpy(op, m_pos, 4);
+                    op += 4;
+                    m_pos += 4;
                     t -= 4;
-                } while (t > 3);
-                for (; t; --t) {
-                    *this->op++ = *this->ip++;
                 }
+                copy_bytes(op, m_pos, t);
+                op += t;
             }
-        }
-    LABEL_17:
-        t = *this->ip++;
-        if (t <= 0xF) {
-            this->m_pos = this->op - 2049;
-            this->m_pos -= t >> 2;
-            this->m_pos -= 4 * *this->ip++;
-            *this->op   = *this->m_pos++;
-            *++this->op = *this->m_pos++;
-            *++this->op = *this->m_pos;
-            ++this->op;
-            goto LABEL_51;
-        }
-    }
-    while (1) {
-        if (t > 0x3F) {
-            this->m_pos = this->op - 1;
-            this->m_pos -= (t >> 2) & 7;
-            this->m_pos -= 8 * *this->ip++;
-            t           = (t >> 5) - 1;
-            *this->op   = *this->m_pos++;
-            *++this->op = *this->m_pos++;
-            ++this->op;
-            do {
-                *this->op++ = *this->m_pos++;
-                --t;
-            } while (t);
-            goto LABEL_51;
-        }
-        if (t > 0x1F) {
-            t &= 0x1Fu;
-            if (!t) {
-                while (!*this->ip) {
-                    t += 255;
-                    ++this->ip;
-                }
-                t += 31 + *this->ip++;
-            }
-            this->m_pos = this->op - 1;
-            CopyLittleShort(&s, this->ip);
-            this->m_pos -= s >> 2;
-            this->ip += 2;
-            goto LABEL_42;
-        }
-        if (t <= 0xF) {
-            this->m_pos = this->op - 1;
-            this->m_pos -= t >> 2;
-            this->m_pos -= 4 * *this->ip++;
-            *this->op   = *this->m_pos++;
-            *++this->op = *this->m_pos;
-            ++this->op;
-            goto LABEL_51;
-        }
-        this->m_pos = this->op;
-        this->m_pos -= 2048 * (t & 8);
-        t &= 7u;
-        if (!t) {
-            while (!*this->ip) {
-                t += 255;
-                ++this->ip;
-            }
-            t += 7 + *this->ip++;
-        }
-        CopyLittleShort(&s, this->ip);
-        this->m_pos -= s >> 2;
-        this->ip += 2;
-        if (this->m_pos == this->op) {
             break;
         }
-        this->m_pos -= 0x4000;
-    LABEL_42:
-        if (t <= 5 || this->op - this->m_pos <= 3) {
-            *this->op   = *this->m_pos++;
-            *++this->op = *this->m_pos++;
-            ++this->op;
-            do {
-                *this->op++ = *this->m_pos++;
-                --t;
-            } while (t);
-        } else {
-            memcpy(this->op, this->m_pos, sizeof(unsigned int));
-            this->op += 4;
-            this->m_pos += 4;
-            t -= 2;
-            do {
-                memcpy(this->op, this->m_pos, sizeof(unsigned int));
-                this->op += 4;
-                this->m_pos += 4;
-                t -= 4;
-            } while (t > 3);
-            for (; t; --t) {
-                *this->op++ = *this->m_pos++;
-            }
-        }
-    LABEL_51:
-        t = *(this->ip - 2) & 3;
 
-        if (!t) {
-            goto LABEL_5;
+        t = *(ip - 2) & 3;
+        if (t == 0) {
+            t = *ip++;
+            continue;
         }
 
-    LABEL_52:
-        do {
-            *this->op++ = *this->ip++;
-            --t;
-        } while (t);
-
-        t = *this->ip++;
+        copy_bytes(op, ip, t);
+        op += t;
+        ip += t;
+        t = *ip++;
     }
 
-    *out_len = this->op - out;
-
-    if (this->ip == this->ip_end) {
+    *out_len = op - out;
+    if (ip == ip_end) {
         return 0;
     }
-
-    if (this->ip >= this->ip_end) {
-        return -2;
-    }
-    return -1;
+    return (ip < ip_end) ? -1 : -2;
 }
 
 static unsigned char in[0x40000];
