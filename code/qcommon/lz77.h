@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2025 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -26,27 +26,47 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <cstddef>
 
-class cLZ77 {
-	static unsigned int m_pDictionary[];
+class cLZ77
+{
+    static unsigned int m_pDictionary[];
 
-	unsigned char *ip;
-	unsigned char *op;
-	unsigned char *in_end;
-	unsigned char *ip_end;
-	unsigned char *ii;
-	unsigned char *m_pos;
-	unsigned int m_off;
-	unsigned int m_len;
-	unsigned int dindex;
+    unsigned char *ip;
+    unsigned char *op;
+    unsigned char *in_end;
+    unsigned char *ip_end;
+    unsigned char *ii;
+    unsigned char *m_pos;
+    unsigned int   m_off;
+    unsigned int   m_len;
+    unsigned int   dindex;
 
 public:
-	cLZ77();
+    cLZ77();
 
-	int Compress( unsigned char *in, size_t in_len, unsigned char *out, size_t *out_len );
-	int Decompress( unsigned char *in, size_t in_len, unsigned char *out, size_t *out_len );
+    /**
+     * @brief Compress a block of data using an LZ77 coder.
+     * 
+     * @param in Input (uncompressed) buffer.
+     * @param in_len Number of input bytes.
+     * @param out Output (compressed) buffer. This buffer must be 0.4% larger than the input buffer, plus one byte.
+     * @param out_len Output length.
+     * @return Always return 0.
+     */
+    int Compress(unsigned char *in, size_t in_len, unsigned char *out, size_t *out_len);
+
+    /**
+     * @brief Uncompress a block of data using an LZ77 decoder.
+     * 
+     * @param in Input (compressed) buffer.
+     * @param in_len Number of input bytes.
+     * @param out Output (uncompressed) buffer. This buffer must be large enough to hold the uncompressed data.
+     * @param out_len Output length.
+     * @return 0 on success. -1 if not enough data was read, -2 if too much data was read.
+     */
+    int Decompress(unsigned char *in, size_t in_len, unsigned char *out, size_t *out_len);
 
 private:
-	unsigned int CompressData( unsigned char *in, size_t in_len, unsigned char *out, size_t *out_len );
+    unsigned int CompressData(unsigned char *in, size_t in_len, unsigned char *out, size_t *out_len);
 };
 
 extern cLZ77 g_lz77;
