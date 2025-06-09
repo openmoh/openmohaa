@@ -109,11 +109,6 @@ const char *ArchiveFile::Filename(void)
 
 qboolean ArchiveFile::Compress()
 {
-#ifdef Q3_BIG_ENDIAN
-    // FIXME: Decompressing crashes on big-endian architectures
-    return false;
-#endif
-
     byte  *tempbuf;
     size_t out_len;
     size_t tempbuf_len;
@@ -126,7 +121,9 @@ qboolean ArchiveFile::Compress()
     tempbuf[1]               = 'S';
     tempbuf[2]               = 'V';
     tempbuf[3]               = 'G';
-    *(size_t *)(tempbuf + 4) = length;
+
+    unsigned int temp = length;
+    CopyLittleLong(tempbuf + 4, &temp);
 
     // Compress the data
     if (g_lz77.Compress(buffer, length, tempbuf + 8, &out_len)) {
@@ -1129,7 +1126,7 @@ void Archiver::WriteType(int type)
 
 void Archiver::CheckType(int type)
 {
-    int t;
+    unsigned int t;
 
     assert((type >= 0) && (type < ARC_NUMTYPES));
 
