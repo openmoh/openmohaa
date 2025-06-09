@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2025 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -43,7 +43,26 @@ class cLZ77
 public:
     cLZ77();
 
+    /**
+     * @brief Compress a block of data using an LZ77 coder.
+     * 
+     * @param in Input (uncompressed) buffer.
+     * @param in_len Number of input bytes.
+     * @param out Output (compressed) buffer. This buffer must be 0.4% larger than the input buffer, plus one byte.
+     * @param out_len Output length.
+     * @return Always return 0.
+     */
     int Compress(unsigned char *in, size_t in_len, unsigned char *out, size_t *out_len);
+
+    /**
+     * @brief Uncompress a block of data using an LZ77 decoder.
+     * 
+     * @param in Input (compressed) buffer.
+     * @param in_len Number of input bytes.
+     * @param out Output (uncompressed) buffer. This buffer must be large enough to hold the uncompressed data.
+     * @param out_len Output length.
+     * @return 0 on success. -1 if not enough data was read, -2 if too much data was read.
+     */
     int Decompress(unsigned char *in, size_t in_len, unsigned char *out, size_t *out_len);
 
 private:
