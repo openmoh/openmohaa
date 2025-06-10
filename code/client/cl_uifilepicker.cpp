@@ -90,6 +90,16 @@ void FilePickerClass::Setup(
     Initialize(root_directory, current_directory, ext, ignore_files);
 }
 
+//
+//  Added in OPM
+//
+void FilePickerClass::SetWindowName(str name)
+{
+    if (window) {
+        window->setName(name);
+    }
+}
+
 void FilePickerClass::Initialize(
     const char *root_directory, const char *current_directory, const char *ext, const char *ignore_files
 )

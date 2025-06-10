@@ -37,6 +37,19 @@ void MapRunnerClass::FileChosen(const str& currentDirectory, const str& partialN
     CloseWindow();
 }
 
+//
+//  Added in OPM
+//
+MapRunnerClass::MapRunnerClass()
+{
+    SetWindowName(MAPLIST_WINDOW_NAME);
+}
+
+MapRunnerClass::~MapRunnerClass()
+{
+
+}
+
 CLASS_DECLARATION(FilePickerClass, UIPickFileClass, NULL) {
     {NULL, NULL}
 };

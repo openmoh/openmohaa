@@ -25,6 +25,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../uilib/ui_extern.h"
 #include "../uilib/uiwidget.h"
 
+//
+// Added in OPM
+//
+#define MAPLIST_WINDOW_NAME "MapList"
+
 typedef struct {
     UIReggedMaterial *loading;
 } static_media_t;

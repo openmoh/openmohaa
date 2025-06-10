@@ -944,6 +944,23 @@ void UIWindowManager::DeactiveFloatingWindows(void)
     }
 }
 
+//
+//  Added in OPM
+//
+void UIWindowManager::DeactivateFloatingWindow(str name) {
+    int       i;
+    UIWidget *pWidg;
+
+    for (i = m_children.NumObjects(); i > 0; i--) {
+        pWidg = m_children.ObjectAt(i);
+
+        if (pWidg->getName() == name) {
+            pWidg->SendSignal(W_Deactivated);
+            return;
+        }
+    }
+}
+
 bool UIWindowManager::DialogExists(void)
 {
     int       i;

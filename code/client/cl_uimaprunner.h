@@ -27,6 +27,12 @@ class MapRunnerClass : public FilePickerClass
 public:
     CLASS_PROTOTYPE(MapRunnerClass);
 
+    //
+    //  Added in OPM
+    //
+    MapRunnerClass();
+    ~MapRunnerClass();
+
     void FileChosen(const str& currentDirectory, const str& partialName, const str& fullname) override;
 };
 

@@ -57,4 +57,9 @@ public:
     ~FilePickerClass();
 
     void Setup(const char *root_directory, const char *current_directory, const char *ext, const char* ignore_files = NULL);
+
+    //
+    //  Added in OPM
+    //
+    void SetWindowName(str name);
 };
