@@ -407,7 +407,7 @@ int cLZ77::Decompress(unsigned char *in, size_t in_len, unsigned char *out, size
 static unsigned char in[0x40000];
 static unsigned char out[0x41013];
 
-void test_compression()
+static void test_compression()
 {
     size_t in_len;
     size_t out_len;
