@@ -1147,6 +1147,17 @@ void G_ArchivePersistant(const char *name, qboolean loading)
             arc.Close();
             return;
         }
+
+        if (game.Vars()->size()) {
+            Com_Printf("^~^~^ game variables being cleared:\n");
+            game.Vars()->Print(&Com_Printf);
+
+            if (g_scriptcheck->integer) {
+                Com_Error(ERR_DROP, "game variables being cleared");
+            }
+        }
+
+        game.Vars()->ClearList();
     } else {
         arc.Create(name);
 
@@ -1158,7 +1169,6 @@ void G_ArchivePersistant(const char *name, qboolean loading)
     G_ArchivePersistantData(arc);
 
     arc.Close();
-    return;
 }
 
 qboolean G_ReadPersistant(const char *name)
