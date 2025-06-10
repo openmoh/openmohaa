@@ -2569,9 +2569,9 @@ void UI_PopMenu(qboolean restore_cvars)
 
     //
     //  Added in OPM
-    //   Remove the maplist window if it is active
+    //   Remove the maplist window(s) if active
     //
-    uWinMan.DeactivateFloatingWindow(MAPLIST_WINDOW_NAME);
+    uWinMan.DeactivateFloatingWindows(MAPLIST_WINDOW_NAME);
 
     if (uWinMan.DialogExists()) {
         uWinMan.RemoveAllDialogBoxes();
