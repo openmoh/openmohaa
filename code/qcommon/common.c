@@ -1824,7 +1824,7 @@ void Com_Init( char *commandLine ) {
 
 	if ( !configExists ) {
 		Com_Printf( "The config file '%s' doesn't exist, using unnamedsoldier.cfg as a template\n", configname );
-		Cbuf_AddText( va( "exec configs/unnamedsoldier.cfg\n", configname ) );
+		Cbuf_AddText( "exec configs/unnamedsoldier.cfg\n" );
 		com_gotOriginalConfig = qtrue;
 	} else {
 		Cbuf_AddText( va( "exec configs/%s\n", configname ) );
