@@ -455,6 +455,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #error "DLL_EXT not defined"
 #endif
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 //endianness
 void CopyShortSwap(void* dest, const void* src);
 void CopyLongSwap(void* dest, const void* src);
@@ -470,6 +474,10 @@ int LongNoSwapPtr(const void* l);
 float FloatSwapPtr(const void* l);
 float FloatNoSwapPtr(const void* l);
 void SwapValue(void* dest, size_t size);
+
+#ifdef __cplusplus
+}
+#endif
 
 #if defined( Q3_BIG_ENDIAN ) && defined( Q3_LITTLE_ENDIAN )
 #error "Endianness defined as both big and little"

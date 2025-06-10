@@ -125,6 +125,8 @@ endif()
 set(CMAKE_INSTALL_BINDIR ${CMAKE_DEFAULT_INSTALL_RUNTIME_DIR} CACHE PATH "Binary dir")
 set(CMAKE_INSTALL_LIBDIR ${CMAKE_INSTALL_BINDIR} CACHE PATH "Library dir")
 include(GNUInstallDirs)
+# Enable unit testing
+include(CTest)
 
 #
 # Common stuff
