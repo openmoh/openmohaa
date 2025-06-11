@@ -453,7 +453,7 @@ void	CM_AdjustAreaPortalState( int area1, int area2, qboolean open ) {
 		cm.areaPortals[ area1 * cm.numAreas + area2 ]--;
 		cm.areaPortals[ area2 * cm.numAreas + area1 ]--;
 		if ( cm.areaPortals[ area2 * cm.numAreas + area1 ] < 0 ) {
-			Com_Error (ERR_DROP, "CM_AdjustAreaPortalState: negative reference count");
+			Com_DPrintf("CM_AdjustAreaPortalState: negative reference count\n");
 		}
 	}
 
