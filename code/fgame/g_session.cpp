@@ -108,11 +108,14 @@ void G_InitWorldSession( void ) {
 	int gt;
 
 	cvar_t *v = gi.Cvar_Get( "session", "-1", 0 );
+
+    g_bNewSession = false;
 	
 	// if the gametype changed since the last session, don't use any
 	// client sessions
 	if ( g_gametype->integer != v->integer ) {
 		G_Printf( "Gametype changed, clearing session data.\n" );
+        g_bNewSession = true;
 	}
 }
 
