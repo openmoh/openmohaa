@@ -8813,7 +8813,6 @@ void Player::EnsurePlayerHasAllowedWeapons()
 {
     int i;
 
-    //if (client != (gclient_t*)-2190)
     if (!client) {
         return;
     }
@@ -9434,6 +9433,12 @@ void Player::GetSpectateFollowOrientation(Player *pPlayer, Vector& vPos, Vector&
 
 void Player::Spectator(Event *ev)
 {
+    if (g_gametype->integer == GT_SINGLE_PLAYER) {
+        // Added in OPM
+        //  No team in single player
+        return;
+    };
+
     client->pers.dm_primary[0] = 0;
     SetTeam(TEAM_SPECTATOR);
 }
@@ -9463,6 +9468,12 @@ void Player::Join_DM_Team(Event *ev)
 
     if (ev->isSubclassOf(ConsoleEvent) && disable_team_change) {
         // Added in OPM
+        return;
+    }
+
+    if (g_gametype->integer == GT_SINGLE_PLAYER) {
+        // Added in OPM
+        //  No team in single player
         return;
     }
 
@@ -9555,12 +9566,18 @@ void Player::Join_DM_Team(Event *ev)
 
 void Player::Auto_Join_DM_Team(Event *ev)
 {
-    Event *event = new Event(EV_Player_JoinDMTeam);
+    if (g_gametype->integer == GT_SINGLE_PLAYER) {
+        // Added in OPM
+        //  No team in single player
+        return;
+    };
+
+    Event event(EV_Player_JoinDMTeam, 1);
 
     if (dmManager.GetAutoJoinTeam() == TEAM_AXIS) {
-        event->AddString("axis");
+        event.AddString("axis");
     } else {
-        event->AddString("allies");
+        event.AddString("allies");
     }
 
     ProcessEvent(event);
@@ -10085,6 +10102,12 @@ void Player::EventPrimaryDMWeapon(Event *ev)
     if (!dm_weapon.length()) {
         // Added in OPM.
         //  Prevent the player from cheating by going into spectator
+        return;
+    }
+
+    if (g_gametype->integer == GT_SINGLE_PLAYER) {
+        // Added in OPM
+        //  No primary weapon in single player
         return;
     }
 
