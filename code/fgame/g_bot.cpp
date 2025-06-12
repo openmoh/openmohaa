@@ -621,10 +621,12 @@ void G_RestoreBots()
         return;
     }
 
-    for (n = 0; n < num_saved_bots; n++) {
-        const saved_bot_t& saved = saved_bots[n];
+    if (g_gametype->integer != GT_SINGLE_PLAYER) {
+        for (n = 0; n < num_saved_bots; n++) {
+            const saved_bot_t& saved = saved_bots[n];
 
-        G_AddBot(&saved);
+            G_AddBot(&saved);
+        }
     }
 
     delete[] saved_bots;
@@ -762,6 +764,11 @@ void G_SpawnBots()
     unsigned int numClients;
     unsigned int numBotsToSpawn;
     unsigned int numSpawnedBots;
+
+    if (g_gametype->integer == GT_SINGLE_PLAYER) {
+        // No bot on single-player
+        return;
+    }
 
     //
     // Check the minimum bot count
