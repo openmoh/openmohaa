@@ -2567,6 +2567,12 @@ void UI_PopMenu(qboolean restore_cvars)
 {
     Menu *menu;
 
+    //
+    //  Added in OPM
+    //   Close any active floating windows (e.g. maplist)
+    //
+    UI_DeactiveFloatingWindows();
+
     if (uWinMan.DialogExists()) {
         uWinMan.RemoveAllDialogBoxes();
         return;
