@@ -4,7 +4,7 @@
 # Windows Server 2025
 #
 ##########################
-name: Windows build workflow
+name: "Windows Builds"
 
 on:
   workflow_call:

@@ -1,4 +1,5 @@
-name: publish
+name: "Generate Documentation"
+
 on:
     push:
       branches:

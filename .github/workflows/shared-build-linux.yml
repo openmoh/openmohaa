@@ -6,7 +6,7 @@
 # Using this version instead of 24.04 to use a lower GLIBC version (2.34).
 # ARM is used for more efficiency, and x64 is used for legacy architectures like PowerPC.
 ##########################
-name: Linux build workflow
+name: "Linux Builds"
 
 on:
   workflow_call:
