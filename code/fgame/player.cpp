@@ -12152,6 +12152,8 @@ bool Player::IsReady(void) const
 
 void Player::Spawned(void)
 {
+    delegate_spawned.Execute();
+
     Event *ev = new Event;
     ev->AddEntity(this);
 

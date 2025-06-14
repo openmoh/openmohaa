@@ -313,6 +313,7 @@ private:
 
 public:
     MulticastDelegate<void(const str& text)> delegate_stufftext;
+    MulticastDelegate<void()> delegate_spawned;
 
     static ScriptDelegate scriptDelegate_connected;
     static ScriptDelegate scriptDelegate_disconnecting;
