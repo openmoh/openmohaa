@@ -45,7 +45,7 @@ CG_GetPlayerLocalModelTiki
 */
 const char *CG_GetPlayerLocalModelTiki(const char *modelName)
 {
-    return va("models/player/%s.tik", modelName);
+    return va("models/player/%s_fps.tik", modelName);
 }
 
 /*
