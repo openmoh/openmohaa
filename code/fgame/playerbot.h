@@ -186,6 +186,7 @@ private:
     DelegateHandle delegateHandle_gotKill;
     DelegateHandle delegateHandle_killed;
     DelegateHandle delegateHandle_stufftext;
+    DelegateHandle delegateHandle_spawned;
 
 private:
     Weapon *FindWeaponWithAmmo(void);
