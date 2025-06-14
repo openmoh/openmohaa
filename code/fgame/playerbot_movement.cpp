@@ -57,7 +57,6 @@ void BotMovement::SetControlledEntity(Player *newEntity)
 
 void BotMovement::MoveThink(usercmd_t& botcmd)
 {
-    Vector vDir;
     Vector vAngles;
     Vector vWishDir;
     Vector vDelta;
@@ -228,18 +227,12 @@ void BotMovement::MoveThink(usercmd_t& botcmd)
 
     // Rotate the dir
     if (m_pPath->GetNodeCount()) {
-        vDir = vDelta;
+        m_vCurrentDir = CalculateDir(vDelta);
     } else {
-        vDir = m_vCurrentGoal - controlledEntity->origin;
+        m_vCurrentDir = CalculateDir(m_vCurrentGoal - controlledEntity->origin);
     }
-    vDir[2] = 0;
 
-    VectorNormalize2D(vDir);
-    vAngles = vDir.toAngles() - controlledEntity->angles;
-    vAngles.AngleVectorsLeft(&vWishDir);
-
-    m_vLastValidDir  = vDir;
-    m_vLastValidGoal = m_vCurrentGoal;
+    vWishDir = CalculateRelativeWishDirection(m_vCurrentDir);
 
     // Forward to the specified direction
     float x = vWishDir.x * 127;
@@ -254,6 +247,28 @@ void BotMovement::MoveThink(usercmd_t& botcmd)
     if (!m_bJump) {
         CheckJumpOverEdge(botcmd);
     }
+}
+
+Vector BotMovement::CalculateDir(const Vector& delta) const
+{
+    Vector dir;
+
+    dir    = delta;
+    dir[2] = 0;
+    VectorNormalize2D(dir);
+
+    return dir;
+}
+
+Vector BotMovement::CalculateRelativeWishDirection(const Vector& dir) const
+{
+    Vector angles;
+    Vector wishdir;
+
+    angles = dir.toAngles() - controlledEntity->angles;
+    angles.AngleVectorsLeft(&wishdir);
+
+    return wishdir;
 }
 
 void BotMovement::CheckAttractiveNodes()
@@ -313,7 +328,7 @@ void BotMovement::CheckJump(usercmd_t& botcmd)
         return;
     }
 
-    dir = m_vLastValidDir;
+    dir = m_vCurrentDir;
 
     start = controlledEntity->origin + Vector(0, 0, STEPSIZE);
     end =
@@ -412,7 +427,7 @@ void BotMovement::CheckJumpOverEdge(usercmd_t& botcmd)
         return;
     }
 
-    dir = m_vLastValidDir;
+    dir = m_vCurrentDir;
 
     start = controlledEntity->origin + Vector(0, 0, STEPSIZE);
     end =
@@ -719,6 +734,10 @@ Vector BotMovement::FixDeltaFromCollision(const Vector& delta)
     Vector  target;
     Vector  front;
     float   distSqr;
+
+    if (controlledEntity->GetLadder()) {
+        return delta;
+    }
 
     if (level.inttime < m_iCollisionCheckTime + 250 || m_bJump) {
         if (m_bAvoidCollision) {
