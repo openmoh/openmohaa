@@ -67,16 +67,15 @@ NavigationMap::GatherOffMeshPoints
 */
 void NavigationMap::GatherOffMeshPoints(Container<offMeshNavigationPoint>& points, const rcPolyMesh *polyMesh)
 {
+    size_t i;
+
     //
     // Look for extensions and extend the navigation map
     //
 
-    for(const ClassDef *c = ClassDef::classlist; c; c = c->next) {
-        if (c != INavigationMapExtension::classinfostatic() && checkInheritance(INavigationMapExtension::classinfostatic(), c)) {
-            INavigationMapExtension* navExtension = static_cast<INavigationMapExtension*>(c->newInstance());
-            navExtension->Handle(points, polyMesh);
-            delete navExtension;
-        }
+    for (i = 1; i <= extensions.NumObjects(); i++) {
+        INavigationMapExtension *navExtension = extensions.ObjectAt(i);
+        navExtension->Handle(points, polyMesh);
     }
 }
 
@@ -116,9 +115,61 @@ void NavigationMap::InitializeNavMesh(RecastBuildContext& buildContext, const na
         buildContext.log(RC_LOG_ERROR, "Could not init Detour navmesh query");
         return;
     }
+}
+
+/*
+============
+NavigationMap::InitializeFilter
+============
+*/
+void NavigationMap::InitializeFilter()
+{
+    size_t i, j;
 
     queryFilter = new dtQueryFilter();
     queryFilter->setExcludeFlags(RECAST_POLYFLAG_BUSY);
+
+    for (i = 1; i <= extensions.NumObjects(); i++) {
+        INavigationMapExtension *navExtension = extensions.ObjectAt(i);
+
+        Container<ExtensionArea> areas = navExtension->GetSupportedAreas();
+        for (j = 1; j <= areas.NumObjects(); j++) {
+            const ExtensionArea& area = areas.ObjectAt(j);
+
+            queryFilter->setAreaCost(area.number, area.cost);
+        }
+    }
+}
+
+/*
+============
+NavigationMap::InitializeExtensions
+============
+*/
+void NavigationMap::InitializeExtensions()
+{
+    for (const ClassDef *c = ClassDef::classlist; c; c = c->next) {
+        if (c != INavigationMapExtension::classinfostatic()
+            && checkInheritance(INavigationMapExtension::classinfostatic(), c)) {
+            extensions.AddObject(static_cast<INavigationMapExtension *>(c->newInstance()));
+        }
+    }
+}
+
+/*
+============
+NavigationMap::ClearExtensions
+============
+*/
+void NavigationMap::ClearExtensions()
+{
+    size_t i;
+
+    for (i = 1; i <= extensions.NumObjects(); i++) {
+        delete extensions.ObjectAt(i);
+    }
+
+    extensions.FreeObjectList();
 }
 
 /*
@@ -187,6 +238,7 @@ void NavigationMap::BuildDetourData(
 
             offMeshConRad[i]    = point.radius;
             offMeshConFlags[i]  = point.flags;
+            offMeshConAreas[i]  = point.area;
             offMeshConDir[i]    = point.bidirectional ? DT_OFFMESH_CON_BIDIR : 0;
             offMeshConUserID[i] = i;
         }
@@ -526,7 +578,8 @@ dtNavMeshQuery *NavigationMap::GetNavMeshQuery() const
 NavigationMap::GetQueryFilter
 ============
 */
-const dtQueryFilter *NavigationMap::GetQueryFilter() const {
+const dtQueryFilter *NavigationMap::GetQueryFilter() const
+{
     return queryFilter;
 }
 
@@ -545,9 +598,7 @@ const navMap_t& NavigationMap::GetNavigationData() const
 NavigationMap::Update
 ============
 */
-void NavigationMap::Update()
-{
-}
+void NavigationMap::Update() {}
 
 /*
 ============
@@ -556,6 +607,8 @@ NavigationMap::ClearNavigation
 */
 void NavigationMap::ClearNavigation()
 {
+    size_t i;
+
     validNavigation = false;
 
     pathMaster.ClearNavigation();
@@ -575,6 +628,8 @@ void NavigationMap::ClearNavigation()
         delete queryFilter;
         queryFilter = NULL;
     }
+
+    ClearExtensions();
 }
 
 bool NavigationMap::IsValid() const
@@ -690,6 +745,7 @@ void NavigationMap::LoadWorldMap(const char *mapname)
         navigationData.ProcessBSPForNavigation(mapname);
     } catch (const ScriptException& e) {
         gi.Printf("Failed to load BSP for navigation: %s\n", e.string.c_str());
+        ClearNavigation();
         return;
     }
 
@@ -701,7 +757,10 @@ void NavigationMap::LoadWorldMap(const char *mapname)
     // Build and create the navigation mesh
     //
 
+    InitializeExtensions();
+
     InitializeNavMesh(buildContext, navigationData.navMap);
+    InitializeFilter();
 
     gi.Printf("Building the navigation mesh...\n");
 
@@ -718,11 +777,15 @@ void NavigationMap::LoadWorldMap(const char *mapname)
 
     } catch (const ScriptException& e) {
         gi.Printf("Couldn't build recast navigation mesh: %s\n", e.string.c_str());
+        ClearNavigation();
         return;
     }
 
     pathMaster.PostLoadNavigation(*this);
     navigationObstacleMap.Init();
+
+    // Finished processing the map with extensions
+    ClearExtensions();
 
     end = gi.Milliseconds();
 

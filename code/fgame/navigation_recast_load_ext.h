@@ -59,13 +59,26 @@ struct offMeshNavigationPoint {
     bool operator!=(const offMeshNavigationPoint& other) const { return !(*this == other); }
 };
 
+struct ExtensionArea {
+    float         cost;
+    unsigned char number;
+
+    ExtensionArea(unsigned char number, float cost)
+    {
+        this->number = number;
+        this->cost   = cost;
+    }
+};
+
 class INavigationMapExtension : public Class
 {
 private:
     CLASS_PROTOTYPE(INavigationMapExtension);
 
 public:
-    virtual void Handle(Container<offMeshNavigationPoint>& points, const rcPolyMesh *polyMesh) {};
+    virtual void Handle(Container<offMeshNavigationPoint>& points, const rcPolyMesh *polyMesh) {}
+
+    virtual Container<ExtensionArea> GetSupportedAreas() const { return Container<ExtensionArea>(); }
 };
 
 class NavigationMapExtension_Ladders : public INavigationMapExtension
@@ -74,7 +87,8 @@ private:
     CLASS_PROTOTYPE(NavigationMapExtension_Ladders);
 
 public:
-    void Handle(Container<offMeshNavigationPoint>& points, const rcPolyMesh *polyMesh) override;
+    void                     Handle(Container<offMeshNavigationPoint>& points, const rcPolyMesh *polyMesh) override;
+    Container<ExtensionArea> GetSupportedAreas() const override;
 };
 
 class NavigationMapExtension_JumpFall : public INavigationMapExtension
@@ -83,7 +97,8 @@ private:
     CLASS_PROTOTYPE(NavigationMapExtension_JumpFall);
 
 public:
-    void Handle(Container<offMeshNavigationPoint>& points, const rcPolyMesh *polyMesh) override;
+    void                     Handle(Container<offMeshNavigationPoint>& points, const rcPolyMesh *polyMesh) override;
+    Container<ExtensionArea> GetSupportedAreas() const override;
 
 private:
     void                   FixupPoint(vec3_t pos);

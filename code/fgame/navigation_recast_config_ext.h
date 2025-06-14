@@ -33,3 +33,9 @@ namespace NavigationMapExtensionConfiguration
 {
     static const float agentJumpHeight = 54;
 }
+
+// Areas
+static constexpr unsigned char RECAST_AREA_LADDER = 32;
+static constexpr unsigned char RECAST_AREA_JUMP = 33;
+static constexpr unsigned char RECAST_AREA_FALL = 34;
+static constexpr unsigned char RECAST_AREA_STRAIGHT = 35;

@@ -39,6 +39,7 @@ class RecastBuildContext;
 struct rcPolyMesh;
 struct rcPolyMeshDetail;
 struct offMeshNavigationPoint;
+class INavigationMapExtension;
 
 /**
  * @brief Full navigation map with meshes and tiles.
@@ -122,7 +123,12 @@ private:
         rcPolyMeshDetail *& outPolyMeshDetail
     );
 
+    void InitializeExtensions();
+    void ClearExtensions();
+
     void InitializeNavMesh(RecastBuildContext& buildContext, const navMap_t& navMap);
+    void InitializeFilter();
+
     void BuildDetourData(
         RecastBuildContext&                      buildContext,
         rcPolyMesh                              *polyMesh,
@@ -145,10 +151,10 @@ private:
     void BuildMeshesForEntities(RecastBuildContext& buildContext, const navMap_t& navigationMap);
 
 private:
-    dtNavMesh              *navMeshDt;
-    dtNavMeshQuery         *navMeshQuery;
-    dtQueryFilter           *queryFilter;
-    NavigationBSP           navigationData;
+    dtNavMesh      *navMeshDt;
+    dtNavMeshQuery *navMeshQuery;
+    dtQueryFilter  *queryFilter;
+    NavigationBSP   navigationData;
 
 public:
     float          *offMeshConVerts;
@@ -158,8 +164,11 @@ public:
     unsigned char  *offMeshConDir;
     unsigned int   *offMeshConUserID;
     int             offMeshConCount;
-    str             currentMap;
-    bool            validNavigation;
+
+    Container<INavigationMapExtension *> extensions;
+
+    str  currentMap;
+    bool validNavigation;
 };
 
 extern NavigationMap navigationMap;

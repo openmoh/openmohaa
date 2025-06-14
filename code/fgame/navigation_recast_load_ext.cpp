@@ -72,12 +72,21 @@ void NavigationMapExtension_Ladders::Handle(Container<offMeshNavigationPoint>& p
             point.end           = trace.endpos;
             point.bidirectional = true;
             point.radius        = NavigationMapConfiguration::agentRadius;
-            point.area          = 0;
+            point.area          = RECAST_AREA_LADDER;
             point.flags         = RECAST_POLYFLAG_WALKABLE;
 
             points.AddObject(point);
         }
     }
+}
+
+Container<ExtensionArea> NavigationMapExtension_Ladders::GetSupportedAreas() const
+{
+    Container<ExtensionArea> list;
+
+    list.AddObject(ExtensionArea(RECAST_AREA_LADDER, 5.0));
+
+    return list;
 }
 
 CLASS_DECLARATION(INavigationMapExtension, NavigationMapExtension_JumpFall, NULL) {
@@ -178,79 +187,6 @@ void NavigationMapExtension_JumpFall::Handle(Container<offMeshNavigationPoint>& 
     delete[] vertreg;
     delete[] vertpos;
     delete[] walkableVert;
-
-#if 0
-    int k, l;
-    unsigned short num1, num2;
-    vec3_t tmp1, tmp2;
-
-    for (i = 0; i < polyMesh->npolys; i++) {
-        const unsigned short *p1 = &polyMesh->polys[i * polyMesh->nvp * 2];
-
-        if (polyMesh->areas[i] != RC_WALKABLE_AREA) {
-            continue;
-        }
-
-        for (j = i + 1; j < polyMesh->npolys; j++) {
-            const unsigned short *p2 = &polyMesh->polys[j * polyMesh->nvp * 2];
-
-            if (polyMesh->areas[j] != RC_WALKABLE_AREA) {
-                continue;
-            }
-
-            if (polyMesh->regs[i] == polyMesh->regs[j]) {
-                continue;
-            }
-
-            for (k = 0; k < polyMesh->nvp; k++) {
-                num1 = p1[k];
-
-                if (num1 == RC_MESH_NULL_IDX) {
-                    break;
-                }
-
-                GetPolyMeshVertPosition(polyMesh, num1, pos1);
-
-                for (l = 0; l < polyMesh->nvp; l++) {
-                    num2 = p2[l];
-
-                    if (num2 == RC_MESH_NULL_IDX) {
-                        break;
-                    }
-
-                    if (num1 == num2) {
-                        continue;
-                    }
-
-                    GetPolyMeshVertPosition(polyMesh, num2, pos2);
-
-                    VectorSub2D(pos2, pos1, delta);
-                    if (VectorLength2DSquared(delta) > Square(256)) {
-                        continue;
-                    }
-
-                    const float deltaHeight = pos2.z - pos1.z;
-                    if (deltaHeight >= -STEPSIZE && deltaHeight <= STEPSIZE) {
-                        // ignore steps
-                        continue;
-                    }
-
-                    offMeshNavigationPoint point;
-
-                    point = CanConnectFallPoint(polyMesh, pos1, pos2);
-                    if (point.area) {
-                        points.AddUniqueObject(point);
-                    }
-
-                    point = CanConnectJumpPoint(polyMesh, pos1, pos2);
-                    if (point.area) {
-                        points.AddUniqueObject(point);
-                    }
-                }
-            }
-        }
-    }
-#endif
 }
 
 void NavigationMapExtension_JumpFall::FixupPoint(vec3_t pos)
@@ -367,7 +303,7 @@ NavigationMapExtension_JumpFall::CanConnectFallPoint(const rcPolyMesh *polyMesh,
     point.end           = trace.endpos;
     point.bidirectional = false;
     point.radius        = NavigationMapConfiguration::agentRadius;
-    point.area          = 1;
+    point.area          = RECAST_AREA_FALL;
     point.flags         = RECAST_POLYFLAG_WALKABLE;
 
     return point;
@@ -501,7 +437,7 @@ NavigationMapExtension_JumpFall::CanConnectJumpPoint(const rcPolyMesh *polyMesh,
     point.end           = end;
     point.bidirectional = true;
     point.radius        = NavigationMapConfiguration::agentRadius;
-    point.area          = 1;
+    point.area          = RECAST_AREA_JUMP;
     point.flags         = RECAST_POLYFLAG_WALKABLE;
 
     return point;
@@ -571,8 +507,19 @@ offMeshNavigationPoint NavigationMapExtension_JumpFall::CanConnectStraightPoint(
     point.end           = end;
     point.bidirectional = true;
     point.radius        = NavigationMapConfiguration::agentRadius;
-    point.area          = 1;
+    point.area          = RECAST_AREA_STRAIGHT;
     point.flags         = RECAST_POLYFLAG_WALKABLE;
 
     return point;
+}
+
+Container<ExtensionArea> NavigationMapExtension_JumpFall::GetSupportedAreas() const
+{
+    Container<ExtensionArea> list;
+
+    list.AddObject(ExtensionArea(RECAST_AREA_JUMP, 2.0));
+    list.AddObject(ExtensionArea(RECAST_AREA_FALL, 3.0));
+    list.AddObject(ExtensionArea(RECAST_AREA_STRAIGHT, 100.0));
+
+    return list;
 }
