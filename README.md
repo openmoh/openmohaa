@@ -20,6 +20,8 @@ Powered by [ioquake3](https://github.com/ioquake/ioq3) and the [F.A.K.K SDK](htt
 - Includes all fixes from Spearhead 2.15 and Breakthrough 2.40b
 - More fixes and features, such as bots and a ban system
 
+*OpenMoHAA is an independent project and is not affiliated with or endorsed by Electronic Arts.*
+
 ## Getting started
 
 - 📦 [Installing OpenMoHAA](docs/markdown/01-intro/01-installation.md)
