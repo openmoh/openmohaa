@@ -28,6 +28,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "navigation_recast_config.h"
 #include "navigation_recast_helpers.h"
 #include "entity.h"
+#include "trigger.h"
 
 #include "DetourNavMeshQuery.h"
 
@@ -305,13 +306,15 @@ bool NavigationObstacleMap::IsValidEntity(gentity_t *ent)
         return false;
     }
 
-    if (ent->s.solid == SOLID_NOT || ent->s.solid == SOLID_TRIGGER) {
-        return false;
-    }
+    if (!IsSpecialEntity(ent)) {
+        if (ent->s.solid == SOLID_NOT || ent->s.solid == SOLID_TRIGGER) {
+            return false;
+        }
 
-    // Same contents as player's clipmask
-    if (!(ent->r.contents & MASK_PLAYERSOLID)) {
-        return false;
+        // Same contents as player's clipmask
+        if (!(ent->r.contents & MASK_PLAYERSOLID)) {
+            return false;
+        }
     }
 
     // Ignore other sentients
@@ -321,6 +324,27 @@ bool NavigationObstacleMap::IsValidEntity(gentity_t *ent)
 
     // Ignore doors as they can be interacted
     if (ent->entity->IsSubclassOfDoor()) {
+        return false;
+    }
+
+    return true;
+}
+
+bool NavigationObstacleMap::IsSpecialEntity(gentity_t *ent)
+{
+    const Trigger *trig;
+
+    //
+    // FIXME: Use an alternative solution other than hardcoding
+    //
+
+    if (!ent->entity->isSubclassOf(Trigger)) {
+        return false;
+    }
+
+    trig = static_cast<Trigger*>(ent->entity);
+
+    if (str::icmp(ent->entity->targetname, "minefield")) {
         return false;
     }
 

@@ -84,6 +84,7 @@ public:
 
 private:
     bool IsValidEntity(gentity_t *ent);
+    bool IsSpecialEntity(gentity_t *ent);
 
     void EntityAdded(gentity_t *ent);
     void EntityRemoved(gentity_t *ent);
