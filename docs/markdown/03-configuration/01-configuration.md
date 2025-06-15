@@ -150,3 +150,10 @@ set sv_numbots 4 // Spawn 4 bots
 > If the Recast-based navigation system is not working correctly or if you are running a version below 0.82.0:
 > 1. Get the [mp-navigation](https://github.com/openmoh/mp-navigation) pk3 (it only covers stock maps) and place it inside your game's `main` folder.
 > 2. Append `set g_navigation_legacy 1` somewhere, like in your `server.cfg` file.
+
+#### Known issues with bots
+
+- Bots may not properly detect or avoid minefields.
+- Bots won't complete objectives. They only navigate the map and attack other players.
+- Minefields may fully block bot paths. For example, on Omaha Beach, bots spawning at the West axis spawn may get stuck in the spawn area.
+- Some obstacles might completely block bot paths.
