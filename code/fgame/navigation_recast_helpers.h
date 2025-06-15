@@ -40,12 +40,28 @@ struct rcPolyMesh;
 void ConvertRecastToGameCoord(const float *in, float *out);
 
 /**
+ * @brief Convert Recast coordinates to game coordinates.
+ * 
+ * @param in XYZ Recast coordinates.
+ * @param out XYZ Game coordinates.
+ */
+void ConvertRecastToGameExtents(const float *in, float *out);
+
+/**
  * @brief Convert game coordinates to Recast coordinates.
  * 
  * @param in XYZ Game coordinates 
  * @param out XYZ Recast coordinates.
  */
 void ConvertGameToRecastCoord(const float *in, float *out);
+
+/**
+ * @brief Convert game coordinates to Recast extents.
+ * 
+ * @param in XYZ Game extents 
+ * @param out XYZ Recast extents.
+ */
+void ConvertGameToRecastExtents(const float *in, float *out);
 
 /**
  * @brief Get the game position of a vertice in the poly mesh

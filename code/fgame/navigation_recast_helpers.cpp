@@ -39,6 +39,13 @@ void ConvertGameToRecastCoord(const float *in, float *out)
     out[2] = -in[1];
 }
 
+void ConvertGameToRecastExtents(const float *in, float *out)
+{
+    out[0] = in[0];
+    out[1] = in[2];
+    out[2] = in[1];
+}
+
 void ConvertRecastToGameCoord(const float *in, float *out)
 {
 #if 0
@@ -51,6 +58,13 @@ void ConvertRecastToGameCoord(const float *in, float *out)
 
     out[0] = in[0];
     out[1] = -in[2];
+    out[2] = in[1];
+}
+
+void ConvertRecastToGameExtents(const float *in, float *out)
+{
+    out[0] = in[0];
+    out[1] = in[2];
     out[2] = in[1];
 }
 
