@@ -25,7 +25,14 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 /**
  * @file navigation_recast_debug.h
  * @brief Debugging module for the navigation system
- * 
+ *
+ * ai_showroutes allow to visualize the navigation mesh.
+ * There are different type of colors:
+ * - red: Cannot use this route
+ * - green: Walkable route
+ * - cyan: Jump route
+ * - violet: Fall route
+ * - blue: Ladder route
  */
 
 #include "../qcommon/vector.h"

@@ -23,6 +23,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "navigation_recast_debug.h"
 #include "navigation_recast_helpers.h"
 #include "navigation_recast_config.h"
+#include "navigation_recast_config_ext.h"
 #include "navigation_recast_load.h"
 #include "navigation_bsp.h"
 #include "../qcommon/vector.h"
@@ -34,6 +35,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "DetourCrowd.h"
 #include "DetourNavMesh.h"
 #include "DetourNavMeshQuery.h"
+#include "Recast.h"
 
 NavigationMapDebug navigationMapDebug;
 
@@ -233,7 +235,23 @@ void NavigationMapDebug::DebugDraw()
                         }
 
                         if (pass) {
-                            G_DebugLine(v1, v2, 0, 1, 0, 1);
+                            switch(poly->getArea() & 0x3f) {
+                                case RC_WALKABLE_AREA:
+                                default:
+                                    G_DebugLine(v1, v2, 0, 1, 0, 1);
+                                    break;
+                                case RECAST_AREA_JUMP:
+                                    G_DebugLine(v1, v2, 0, 1, 1, 1);
+                                    break;
+                                case RECAST_AREA_FALL:
+                                case RECAST_AREA_MEDIUM_FALL:
+                                case RECAST_AREA_HIGH_FALL:
+                                    G_DebugLine(v1, v2, 1, 0, 1, 1);
+                                    break;
+                                case RECAST_AREA_LADDER:
+                                    G_DebugLine(v1, v2, 0, 0, 1, 1);
+                                    break;
+                            }
                         } else {
                             G_DebugLine(v1, v2, 1, 0, 0, 1);
                         }
