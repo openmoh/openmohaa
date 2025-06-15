@@ -84,7 +84,8 @@ Container<ExtensionArea> NavigationMapExtension_Ladders::GetSupportedAreas() con
 {
     Container<ExtensionArea> list;
 
-    list.AddObject(ExtensionArea(RECAST_AREA_LADDER, 5.0));
+    // Ladders are good alternative but they shouldn't be used all the time
+    list.AddObject(ExtensionArea(RECAST_AREA_LADDER, 10.0));
 
     return list;
 }
@@ -252,6 +253,7 @@ NavigationMapExtension_JumpFall::CanConnectFallPoint(const rcPolyMesh *polyMesh,
 
     dist = delta.lengthXY();
     if (dist > fallheight) {
+        // Too far from the start
         return {};
     }
 
@@ -259,9 +261,9 @@ NavigationMapExtension_JumpFall::CanConnectFallPoint(const rcPolyMesh *polyMesh,
     dir.z = 0;
     dir.normalize();
 
-    //
-    // Check if the path is not blocked in the middle
-    //
+    // s---x <-- Check if the path from s to x is reachable
+    //     |
+    //     |
     tstart = start;
     tend   = tstart + dir * Q_min(dist, maxDistEdge);
 
@@ -291,6 +293,10 @@ NavigationMapExtension_JumpFall::CanConnectFallPoint(const rcPolyMesh *polyMesh,
     }
     */
 
+    // ----s
+    //     |
+    //     |
+    //     x <-- Check if the path from s to x is reachable
     tstart = trace.endpos;
     tend   = end;
 
@@ -303,8 +309,15 @@ NavigationMapExtension_JumpFall::CanConnectFallPoint(const rcPolyMesh *polyMesh,
     point.end           = trace.endpos;
     point.bidirectional = false;
     point.radius        = NavigationMapConfiguration::agentRadius;
-    point.area          = RECAST_AREA_FALL;
-    point.flags         = RECAST_POLYFLAG_WALKABLE;
+    if (fallheight <= NavigationMapExtensionConfiguration::smallFallHeight) {
+        point.area = RECAST_AREA_FALL;
+    } else if (fallheight <= NavigationMapExtensionConfiguration::mediumFallHeight) {
+        point.area = RECAST_AREA_MEDIUM_FALL;
+    } else {
+        point.area = RECAST_AREA_HIGH_FALL;
+    }
+
+    point.flags = RECAST_POLYFLAG_WALKABLE;
 
     return point;
 }
@@ -517,8 +530,15 @@ Container<ExtensionArea> NavigationMapExtension_JumpFall::GetSupportedAreas() co
 {
     Container<ExtensionArea> list;
 
-    list.AddObject(ExtensionArea(RECAST_AREA_JUMP, 2.0));
-    list.AddObject(ExtensionArea(RECAST_AREA_FALL, 3.0));
+    // Only jump when necessary
+    list.AddObject(ExtensionArea(RECAST_AREA_JUMP, 10.0));
+
+    // Small falls can be used as a shortcut
+    list.AddObject(ExtensionArea(RECAST_AREA_FALL, 5.0));
+    list.AddObject(ExtensionArea(RECAST_AREA_MEDIUM_FALL, 10.0));
+    // Take high fall as a last resort, when no alternative is available
+    list.AddObject(ExtensionArea(RECAST_AREA_HIGH_FALL, 20.0));
+
     list.AddObject(ExtensionArea(RECAST_AREA_STRAIGHT, 100.0));
 
     return list;

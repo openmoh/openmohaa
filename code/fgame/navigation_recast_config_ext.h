@@ -32,10 +32,16 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 namespace NavigationMapExtensionConfiguration
 {
     static const float agentJumpHeight = 54;
+
+    static const float smallFallHeight = 100;
+    static const float mediumFallHeight = 250;
+    static const float maxFallHeight = 600;
 }
 
 // Areas
 static constexpr unsigned char RECAST_AREA_LADDER = 32;
-static constexpr unsigned char RECAST_AREA_JUMP = 33;
-static constexpr unsigned char RECAST_AREA_FALL = 34;
-static constexpr unsigned char RECAST_AREA_STRAIGHT = 35;
+static constexpr unsigned char RECAST_AREA_STRAIGHT = 33;
+static constexpr unsigned char RECAST_AREA_JUMP = 34;
+static constexpr unsigned char RECAST_AREA_FALL = 35;
+static constexpr unsigned char RECAST_AREA_MEDIUM_FALL = 36;
+static constexpr unsigned char RECAST_AREA_HIGH_FALL = 37;
