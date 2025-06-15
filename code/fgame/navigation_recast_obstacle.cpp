@@ -373,20 +373,20 @@ void NavigationObstacleMap::EngagePolysAt(const Vector& min, const Vector& max)
     size        = max - min;
     halfExtents = size * 0.5;
 
-    radiusSqr = size.lengthSquared();
+    radiusSqr = halfExtents.lengthXYSquared();
     // Minimum size of 100 units (sphere)
     // So objects like barrels that the bot can get around are ignored.
     if (radiusSqr < Square(100)) {
         return;
     }
 
-    // Allow the object to cover polygons up to twice itssize
-    query.maxRadiusSqr = radiusSqr * Square(2);
+    // Allow the object to cover polygons up to twice its size
+    query.maxRadiusSqr = radiusSqr * Square(1.5);
 
     float rcCenter[3];
     float rcHalfExtents[3];
     ConvertGameToRecastCoord(center, rcCenter);
-    ConvertGameToRecastCoord(halfExtents, rcHalfExtents);
+    ConvertGameToRecastExtents(halfExtents, rcHalfExtents);
 
     dtQueryFilter filter;
     navMeshQuery->queryPolygons(rcCenter, rcHalfExtents, &filter, &query);
@@ -405,17 +405,17 @@ void NavigationObstacleMap::ReleasePolysAt(const Vector& min, const Vector& max)
     size        = max - min;
     halfExtents = size * 0.5;
 
-    radiusSqr = size.lengthSquared();
+    radiusSqr = halfExtents.lengthXYSquared();
     if (radiusSqr < Square(100)) {
         return;
     }
 
-    query.maxRadiusSqr = radiusSqr * Square(2);
+    query.maxRadiusSqr = radiusSqr * Square(1.5);
 
     float rcCenter[3];
     float rcHalfExtents[3];
     ConvertGameToRecastCoord(center, rcCenter);
-    ConvertGameToRecastCoord(halfExtents, rcHalfExtents);
+    ConvertGameToRecastExtents(halfExtents, rcHalfExtents);
 
     dtQueryFilter filter;
     navMeshQuery->queryPolygons(rcCenter, rcHalfExtents, &filter, &query);
