@@ -201,6 +201,7 @@ jobs:
         echo "CMAKE_PARAM= `
         --log-level=VERBOSE `
         -DCMAKE_INSTALL_PREFIX='${{github.workspace}}/install' `
+        -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=true `
         -DGIT_REVISION_BUILD_NUMBER=${{ github.run_number }} `
         -DBISON_EXECUTABLE='${{github.workspace}}/thirdparties/winflexbison-install/win_bison.exe' `
         -DOPENAL_LIBRARY='${{github.workspace}}/thirdparties/soft-oal' `
