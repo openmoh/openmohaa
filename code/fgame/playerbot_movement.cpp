@@ -359,6 +359,7 @@ void BotMovement::CheckJump(usercmd_t& botcmd)
     start = controlledEntity->origin;
     end   = controlledEntity->origin;
     end.z += STEPSIZE * 3;
+    end.z += 2;
 
     if (ai_debugpath->integer) {
         G_DebugLine(start, end, 1, 0, 1, 1);
