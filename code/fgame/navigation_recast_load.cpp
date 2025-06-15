@@ -403,13 +403,6 @@ void NavigationMap::GeneratePolyMesh(
     rcFreeCompactHeightfield(compactedHeightfield);
     rcFreeContourSet(contourSet);
 
-    // Update poly flags from areas.
-    for (int i = 0; i < polyMesh->npolys; ++i) {
-        if (polyMesh->areas[i] == RC_WALKABLE_AREA) {
-            polyMesh->flags[i] = RECAST_POLYFLAG_WALKABLE;
-        }
-    }
-
     outPolyMesh       = polyMesh;
     outPolyMeshDetail = polyMeshDetail;
 }
@@ -509,6 +502,13 @@ void NavigationMap::BuildRecastMesh(
     rcPolyMeshDetail *polyMeshDetail;
 
     GeneratePolyMesh(buildContext, vertsBuffer, numVertices, indexesBuffer, numIndexes, polyMesh, polyMeshDetail);
+
+    // Update poly flags from areas.
+    for (int i = 0; i < polyMesh->npolys; ++i) {
+        if (polyMesh->areas[i] == RC_WALKABLE_AREA) {
+            polyMesh->flags[i] = RECAST_POLYFLAG_WALKABLE;
+        }
+    }
 
     delete[] indexesBuffer;
     delete[] vertsBuffer;
