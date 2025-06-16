@@ -116,7 +116,7 @@ static PlayerStart *GetRandomSpawnpointFromList(spawnsort_t *pSpots, int nSpots)
         fChosen = fMinPosMetric;
     }
 
-    fTotalMetric = (fMinPosMetric - i * fChosen * 0.9) * G_Random();
+    fTotalMetric = (fMinPosMetric - i * fChosen * 0.9) * random();
     for (i = 0; i < nSpots - 1; i++) {
         fTotalMetric -= (nSpots - i) * pSpots[i].fMetric - (fChosen * 0.9);
         if (fTotalMetric <= 0) {
@@ -147,7 +147,7 @@ float SpawnpointMetric_Ffa(const vec3_t origin, DM_Team *dmTeam, const Player *p
         }
     }
 
-    return fMinEnemyDistSquared - Square(1024) * (G_Random(0.25) + 1.0);
+    return fMinEnemyDistSquared - (random() * 0.25 + 1.0) * Square(1024);
 }
 
 float SpawnpointMetric_Team(const vec3_t origin, DM_Team *dmTeam, const Player *player)
@@ -176,7 +176,7 @@ float SpawnpointMetric_Team(const vec3_t origin, DM_Team *dmTeam, const Player *
         }
     }
 
-    fMetric = fMinEnemyDistSquared - Square(1024) * (G_Random(0.25) + 1.0);
+    fMetric = fMinEnemyDistSquared - (random() * 0.25 + 1.0) * Square(1024);
 
     if (nFriends) {
         fMetric += Square(23170) * 0.25 - fSumFriendDistSquared / nFriends;
@@ -366,9 +366,9 @@ PlayerStart *DM_Team::FarthestSpawnPoint(void)
         }
     }
 
-    if (pSpot3 && G_Random() < 0.2f) {
+    if (pSpot3 && random() < 0.2f) {
         return pSpot3;
-    } else if (pSpot2 && G_Random() < 0.3f) {
+    } else if (pSpot2 && random() < 0.3f) {
         return pSpot2;
     } else {
         return pBestSpot;
@@ -1519,7 +1519,7 @@ teamtype_t DM_Manager::GetAutoJoinTeam(void)
     if (allies < axis) {
         return TEAM_ALLIES;
     } else if (allies == axis) {
-        return (G_Random() >= 0.5f) ? TEAM_ALLIES : TEAM_AXIS;
+        return (random() >= 0.5f) ? TEAM_ALLIES : TEAM_AXIS;
     } else {
         return TEAM_AXIS;
     }
