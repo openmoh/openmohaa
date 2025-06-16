@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2025 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -251,7 +251,7 @@ VehicleTurretGun::VehicleTurretGun()
 
     AxisClear(m_mBaseOrientation);
     m_fFireToggleTime = 0;
-    m_iFiring         = 0;
+    m_iFiring         = TURRETFIRESTATE_NONE;
     m_bBOIsSet        = false;
 
     m_pBaseEntity     = NULL;
@@ -365,7 +365,7 @@ void VehicleTurretGun::P_UserAim(usercmd_t *ucmd)
         return;
     }
 
-    if (m_iFiring) {
+    if (m_iFiring != TURRETFIRESTATE_NONE) {
         m_bLockedAim = false;
         return;
     }
@@ -484,7 +484,7 @@ void VehicleTurretGun::TurretEndUsed(void)
     edict->r.ownerNum = ENTITYNUM_NONE;
     m_fIdlePitchSpeed = 0;
     m_iIdleHitCount   = 0;
-    m_iFiring         = 0;
+    m_iFiring         = TURRETFIRESTATE_NONE;
     m_vTargetAngles   = m_vLocalAngles;
 }
 
@@ -584,11 +584,11 @@ void VehicleTurretGun::RemoteControl(usercmd_t *ucmd, Sentient *owner)
     }
 
     if (ucmd->buttons & (BUTTON_ATTACKLEFT | BUTTON_ATTACKRIGHT)) {
-        if (!m_iFiring) {
-            m_iFiring = 1;
+        if (m_iFiring == TURRETFIRESTATE_NONE) {
+            m_iFiring = TURRETFIRESTATE_BEGIN_FIRE;
         }
     } else {
-        m_iFiring           = 0;
+        m_iFiring           = TURRETFIRESTATE_NONE;
         m_fTargetReloadTime = 0;
         flags |= FL_THINK;
     }
@@ -1443,30 +1443,41 @@ void VehicleTurretGun::IdleToRestPosition()
 
 void VehicleTurretGun::UpdateFireControl()
 {
-    if (!m_iFiring) {
+    switch (m_iFiring) {
+    case TURRETFIRESTATE_NONE:
+        //
+        // Nothing to do
+        //
         return;
-    }
-
-    if (m_iFiring == 1) {
+    case TURRETFIRESTATE_BEGIN_FIRE:
         if (m_fFireWarmupDelay > 0) {
+            //
+            // Don't fire until it warms up
+            //
+
             Sound(m_sSoundSet + "snd_fire_warmup");
             m_fTargetReloadTime = level.time + m_fFireWarmupDelay;
-            m_iFiring           = 2;
-        } else {
-            m_iFiring = 3;
-        }
-    } else if (m_iFiring == 2) {
-        if (level.time >= m_fTargetReloadTime) {
-            m_iFiring = 3;
-        }
-    }
 
-    if (m_iFiring <= 2) {
-        return;
+            m_iFiring = TURRETFIRESTATE_WARMING;
+            return;
+        }
+
+        m_iFiring = TURRETFIRESTATE_READY;
+        break;
+    case TURRETFIRESTATE_WARMING:
+        if (level.time < m_fTargetReloadTime) {
+            // Still warming up
+            return;
+        }
+
+        m_iFiring = TURRETFIRESTATE_READY;
+        break;
+    default:
+        break;
     }
 
     if (!m_fMaxBurstDelay) {
-        m_iFiring = 4;
+        m_iFiring = TURRETFIRESTATE_FIRING;
 
         if (ReadyToFire(FIRE_PRIMARY, false)) {
             Fire(FIRE_PRIMARY);
@@ -1480,7 +1491,7 @@ void VehicleTurretGun::UpdateFireControl()
                 tank->KickSuspension(Vector(orientation[1]) * -1, 6);
             }
         }
-    } else if (m_iFiring == 4) {
+    } else if (m_iFiring == TURRETFIRESTATE_FIRING) {
         if (ReadyToFire(FIRE_PRIMARY, false)) {
             Fire(FIRE_PRIMARY);
             assert(!m_pVehicleOwner || (m_pVehicleOwner && m_pVehicleOwner->IsSubclassOfVehicle()));
@@ -1494,12 +1505,12 @@ void VehicleTurretGun::UpdateFireControl()
             }
 
             if (level.time > m_fFireToggleTime) {
-                m_iFiring         = 1;
+                m_iFiring         = TURRETFIRESTATE_BEGIN_FIRE;
                 m_fFireToggleTime = level.time + m_fMinBurstDelay + (m_fMaxBurstDelay - m_fMinBurstDelay) * random();
             }
         }
     } else if (level.time > m_fFireToggleTime) {
-        m_iFiring         = 4;
+        m_iFiring         = TURRETFIRESTATE_FIRING;
         m_fFireToggleTime = level.time + m_fMinBurstDelay + (m_fMaxBurstDelay - m_fMinBurstDelay) * random();
     }
 }
@@ -1691,7 +1702,7 @@ void VehicleTurretGun::EndRemoteControl()
     m_pRemoteOwner      = NULL;
     m_fIdlePitchSpeed   = 0;
     m_iIdleHitCount     = 0;
-    m_iFiring           = 0;
+    m_iFiring           = TURRETFIRESTATE_NONE;
     m_vTargetAngles     = m_vLocalAngles;
 
     // Added in OPM
@@ -2110,14 +2121,14 @@ void VehicleTurretGunTandem::RemoteControlSecondary(usercmd_t *ucmd, Sentient *o
 void VehicleTurretGunTandem::RemoteControlFire(usercmd_t *ucmd, Sentient *owner)
 {
     if (ucmd->buttons & BUTTON_ATTACKLEFT) {
-        if (!m_iFiring) {
-            m_iFiring = 1;
+        if (m_iFiring == TURRETFIRESTATE_NONE) {
+            m_iFiring = TURRETFIRESTATE_BEGIN_FIRE;
         }
     } else {
         if (ucmd->buttons & BUTTON_ATTACKRIGHT) {
             SwitchToLinkedTurret();
         }
-        m_iFiring = 0;
+        m_iFiring = TURRETFIRESTATE_NONE;
     }
 
     flags |= FL_THINK;

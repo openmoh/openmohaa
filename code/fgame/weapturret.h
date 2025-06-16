@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2023 the OpenMoHAA team
+Copyright (C) 2025 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -39,6 +39,14 @@ typedef enum {
     TURRETAISTATE_SUPPRESS,
     TURRETAISTATE_SUPPRESS_WAIT
 } turretaistate_e;
+
+typedef enum {
+    TURRETFIRESTATE_NONE,
+    TURRETFIRESTATE_BEGIN_FIRE,
+    TURRETFIRESTATE_WARMING,
+    TURRETFIRESTATE_READY,
+    TURRETFIRESTATE_FIRING
+} turretfiringstate_e;
 
 #define FAKEBULLETS 1
 

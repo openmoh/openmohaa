@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2023 the OpenMoHAA team
+Copyright (C) 2025 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -448,7 +448,7 @@ TurretGun::TurretGun()
     m_fMaxBurstDelay = 0;
 
     m_fFireToggleTime = level.time;
-    m_iFiring         = 0;
+    m_iFiring         = TURRETFIRESTATE_NONE;
     m_iTargetType     = 0;
 
     // set the camera
@@ -461,7 +461,7 @@ TurretGun::TurretGun()
     m_bHadOwner  = false;
     m_pViewModel = NULL;
 
-    m_iAIState        = 0;
+    m_iAIState        = TURRETAISTATE_DEFAULT;
     m_fAIConvergeTime = g_turret_convergetime->value;
     if (m_fAIConvergeTime < 0) {
         m_fAIConvergeTime = 0;
@@ -828,8 +828,8 @@ void TurretGun::P_ThinkActive(void)
     P_SetTargetAngles(vTargAngles);
 
     // Handle firing
-    if (m_iFiring) {
-        m_iFiring = 4;
+    if (m_iFiring != TURRETFIRESTATE_NONE) {
+        m_iFiring = TURRETFIRESTATE_FIRING;
 
         if (ReadyToFire(FIRE_PRIMARY)) {
             Fire(FIRE_PRIMARY);
@@ -927,7 +927,7 @@ void TurretGun::AI_MoveToDefaultPosition()
 
 void TurretGun::AI_DoTargetAutoDefault()
 {
-    m_iFiring = 0;
+    m_iFiring = TURRETFIRESTATE_NONE;
     if (owner->m_Enemy) {
         Actor *actor = static_cast<Actor *>(owner.Pointer());
         if (actor->CanSeeEnemy(200)) {
@@ -940,14 +940,14 @@ void TurretGun::AI_DoTargetAutoDefault()
 
 void TurretGun::AI_StartDefault()
 {
-    m_iFiring  = 0;
-    m_iAIState = 0;
+    m_iFiring  = TURRETFIRESTATE_NONE;
+    m_iAIState = TURRETAISTATE_DEFAULT;
 }
 
 void TurretGun::AI_StartSuppress()
 {
     m_iAIStartSuppressTime = level.inttime;
-    m_iAIState             = 2;
+    m_iAIState             = TURRETAISTATE_SUPPRESS;
     VectorCopy(m_vAIDesiredTargetPosition, m_vAITargetPosition);
     VectorClear(m_vAICurrentTargetPosition);
     VectorClear(m_vAITargetSpeed);
@@ -957,15 +957,15 @@ void TurretGun::AI_StartSuppress()
 void TurretGun::AI_StartSuppressWait()
 {
     m_iAIStartSuppressTime = level.inttime;
-    m_iAIState             = 3;
+    m_iAIState             = TURRETAISTATE_SUPPRESS_WAIT;
 }
 
 void TurretGun::AI_StartTrack()
 {
-    if (m_iAIState == 0) {
+    if (m_iAIState == TURRETAISTATE_DEFAULT) {
         m_iAILastTrackTime = level.inttime;
     }
-    m_iAIState = 1;
+    m_iAIState = TURRETAISTATE_TRACK;
 }
 
 void TurretGun::AI_DoTargetAutoTrack()
@@ -994,8 +994,8 @@ void TurretGun::AI_DoTargetAutoTrack()
         return;
     }
 
-    if (m_iFiring == 0) {
-        m_iFiring = 1;
+    if (m_iFiring == TURRETFIRESTATE_NONE) {
+        m_iFiring = TURRETFIRESTATE_BEGIN_FIRE;
     }
 
     end = owner->m_Enemy->centroid;
@@ -1127,15 +1127,15 @@ void TurretGun::AI_DoTargetAutoSuppress()
         return;
     }
 
-    if (m_iFiring == 0) {
-        m_iFiring = 1;
+    if (m_iFiring == TURRETFIRESTATE_NONE) {
+        m_iFiring = TURRETFIRESTATE_BEGIN_FIRE;
     }
     AI_DoSuppressionAiming();
 }
 
 void TurretGun::AI_DoTargetAutoSuppressWait()
 {
-    m_iFiring = 0;
+    m_iFiring = TURRETFIRESTATE_NONE;
     Actor *actor;
 
     if (!owner->m_Enemy) {
@@ -1209,8 +1209,8 @@ void TurretGun::AI_DoFiring()
         // Removed in 2.0
         //  The fire delay is always constant on 1.11 and below
         //
-        if (m_iFiring == 1) {
-            m_iFiring = 4;
+        if (m_iFiring == TURRETFIRESTATE_BEGIN_FIRE) {
+            m_iFiring = TURRETFIRESTATE_FIRING;
         }
 
         if (IsFiring() && ReadyToFire(FIRE_PRIMARY)) {
@@ -1232,24 +1232,29 @@ void TurretGun::AI_DoFiring()
         maxBurstDelay = minBurstDelay = fire_delay[FIRE_PRIMARY] / 10.f;
     }
 
-    if (m_iFiring == 1) {
+    switch (m_iFiring) {
+    case TURRETFIRESTATE_BEGIN_FIRE:
         if (m_fMaxBurstTime > 0) {
             if (m_fFireToggleTime < level.time) {
-                m_iFiring         = 4;
+                m_iFiring         = TURRETFIRESTATE_FIRING;
                 m_fFireToggleTime = level.time + m_fMinBurstTime + (m_fMaxBurstTime - m_fMinBurstTime) * random();
             }
         } else {
-            m_iFiring = 4;
+            m_iFiring = TURRETFIRESTATE_FIRING;
         }
-    } else if (m_iFiring == 4) {
+        break;
+    case TURRETFIRESTATE_FIRING:
         Fire(FIRE_PRIMARY);
 
         if (m_fMaxBurstTime > 0) {
             if (m_fFireToggleTime < level.time) {
-                m_iFiring         = 1;
+                m_iFiring         = TURRETFIRESTATE_BEGIN_FIRE;
                 m_fFireToggleTime = level.time + m_fMinBurstDelay + (m_fMaxBurstDelay - m_fMinBurstDelay) * random();
             }
         }
+        break;
+    default:
+        break;
     }
 }
 
@@ -1289,11 +1294,11 @@ void TurretGun::P_UserAim(usercmd_t *ucmd)
     m_vUserLastCmdAng = vNewCmdAng;
 
     if (ucmd->buttons & BUTTON_ATTACKLEFT) {
-        if (m_iFiring == 0) {
-            m_iFiring = 1;
+        if (m_iFiring == TURRETFIRESTATE_NONE) {
+            m_iFiring = TURRETFIRESTATE_BEGIN_FIRE;
         }
     } else {
-        m_iFiring = 0;
+        m_iFiring = TURRETFIRESTATE_NONE;
     }
 
     flags |= FL_THINK;
@@ -1385,7 +1390,7 @@ void TurretGun::AI_TurretEndUsed()
 
     m_fIdlePitchSpeed = 0;
     m_iIdleHitCount   = 0;
-    m_iFiring         = 0;
+    m_iFiring         = TURRETFIRESTATE_NONE;
 }
 
 void TurretGun::RemoveUserCamera()
@@ -1425,7 +1430,7 @@ void TurretGun::P_TurretEndUsed()
 
     m_fIdlePitchSpeed = 0;
     m_iIdleHitCount   = 0;
-    m_iFiring         = 0;
+    m_iFiring         = TURRETFIRESTATE_NONE;
 
     yawCap = AngleSubtract(angles[1], m_fStartYaw);
     if (yawCap > m_fMaxIdleYaw) {
@@ -1454,7 +1459,7 @@ void TurretGun::P_TurretUsed(Player *player)
     if (owner) {
         if (owner == player) {
             P_TurretEndUsed();
-            m_iFiring = 0;
+            m_iFiring = TURRETFIRESTATE_NONE;
         }
     } else {
         m_vUserViewAng = player->GetViewAngles();
@@ -1467,7 +1472,7 @@ void TurretGun::P_TurretUsed(Player *player)
             P_TurretBeginUsed(player);
 
             flags &= ~FL_THINK;
-            m_iFiring = 0;
+            m_iFiring = TURRETFIRESTATE_NONE;
             m_UseThread.Execute(this);
         }
     }
@@ -1554,14 +1559,14 @@ void TurretGun::AI_EventClearAimTarget(Event *ev)
 
 void TurretGun::AI_EventStartFiring(Event *ev)
 {
-    if (m_iFiring == 0) {
-        m_iFiring = 1;
+    if (m_iFiring == TURRETFIRESTATE_NONE) {
+        m_iFiring = TURRETFIRESTATE_BEGIN_FIRE;
     }
 }
 
 void TurretGun::AI_EventStopFiring(Event *ev)
 {
-    m_iFiring = 0;
+    m_iFiring = TURRETFIRESTATE_NONE;
 }
 
 void TurretGun::AI_EventTurnSpeed(Event *ev)
@@ -1620,7 +1625,7 @@ void TurretGun::AI_EventBurstFireSettings(Event *ev)
 
 bool TurretGun::IsFiring(void)
 {
-    return m_iFiring == 4;
+    return m_iFiring == TURRETFIRESTATE_FIRING;
 }
 
 void TurretGun::P_ApplyFiringViewJitter(Vector& vAng)
@@ -1985,7 +1990,7 @@ void TurretGun::AI_EventSetTargetType(Event *ev)
     }
 
     if (targettype != m_iTargetType) {
-        m_iFiring     = 0;
+        m_iFiring     = TURRETFIRESTATE_NONE;
         m_iTargetType = targettype;
     }
 }

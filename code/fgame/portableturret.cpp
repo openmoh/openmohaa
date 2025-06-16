@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2023 the OpenMoHAA team
+Copyright (C) 2025 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -562,7 +562,7 @@ void PortableTurret::PortablePlaceTurret(Event *ev)
 
         m_fIdlePitchSpeed = 0;
         m_iIdleHitCount   = 0;
-        m_iFiring         = 0;
+        m_iFiring         = TURRETFIRESTATE_NONE;
 
         StopWeaponAnim();
         StopWeaponAnim();
@@ -635,7 +635,7 @@ void PortableTurret::AbortTurretSetup()
     packingUp      = false;
     P_TurretEndUsed();
 
-    m_iFiring = 0;
+    m_iFiring = TURRETFIRESTATE_NONE;
 
     if (isPackingUp) {
         StopWeaponAnim();
@@ -696,7 +696,7 @@ void PortableTurret::P_UserAim(usercmd_t *cmd)
         setAngles(angles);
 
         TurretGun::P_UserAim(cmd);
-        m_iFiring = 0;
+        m_iFiring = TURRETFIRESTATE_NONE;
         flags |= FL_THINK;
     } else if (doDetach) {
         nextUsableTime = level.time + 2;
@@ -811,7 +811,7 @@ void PortableTurret::P_ThinkActive()
             ownerP->SetHolsteredByCode(false);
             P_TurretEndUsed();
 
-            m_iFiring = 0;
+            m_iFiring = TURRETFIRESTATE_NONE;
 
             spawnArgs.setArg("model", "weapons/mg42carryable.tik");
             c = spawnArgs.getClassDef();
@@ -873,7 +873,7 @@ void PortableTurret::P_ThinkActive()
         float  yawCap;
         Vector jittering;
 
-        m_iFiring = 0;
+        m_iFiring = TURRETFIRESTATE_NONE;
         if (endReloadTime < level.time) {
             ammo_in_clip[FIRE_PRIMARY] = ammo_clip_size[FIRE_PRIMARY];
             endReloadTime              = 0;
@@ -925,8 +925,8 @@ void PortableTurret::P_ThinkActive()
             delta        = owner->GunTarget() - origin;
             targetAngles = delta.toAngles();
             P_SetTargetAngles(targetAngles);
-            if (m_iFiring) {
-                m_iFiring = 4;
+            if (m_iFiring != TURRETFIRESTATE_NONE) {
+                m_iFiring = TURRETFIRESTATE_FIRING;
 
                 if (ReadyToFire(FIRE_PRIMARY)) {
                     Fire(FIRE_PRIMARY);
@@ -946,7 +946,7 @@ void PortableTurret::P_ThinkActive()
             m_pUserCamera->SetPositionOffset(m_vViewOffset);
             ownerP->client->ps.camera_flags |= CF_CAMERA_ANGLES_TURRETMODE;
         } else {
-            m_iFiring     = 0;
+            m_iFiring     = TURRETFIRESTATE_NONE;
             endReloadTime = level.time + 1.5;
 
             angles[0] = GetGroundPitch();
