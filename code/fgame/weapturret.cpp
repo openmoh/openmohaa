@@ -787,147 +787,107 @@ bool TurretGun::AI_CanTarget(const vec3_t pos)
 
 void TurretGun::P_ThinkActive(void)
 {
-    Vector vTarg;
-    Vector vTargAngles;
-    Vector vDelta;
-    Vector vAngles;
+    Player *player;
+    float   fDiff;
+    Vector  vTarg;
+    Vector  vTargAngles;
+    Vector  vAngles;
+    Vector  vPos;
+    Vector  vEnd;
+    Vector  vForward;
+    Vector  vMins;
+    Vector  vMaxs;
+    trace_t trace;
 
-    if ((owner) && owner->IsSubclassOfPlayer()) {
-        if (m_vUserViewAng[0] < m_fPitchUpCap) {
-            m_vUserViewAng[0] = m_fPitchUpCap;
-        } else if (m_vUserViewAng[0] > m_fPitchDownCap) {
-            m_vUserViewAng[0] = m_fPitchDownCap;
-        }
-
-        float fDiff = AngleSubtract(m_vUserViewAng[1], m_fStartYaw);
-
-        if (fDiff <= m_fMaxYawOffset) {
-            m_vUserViewAng[1] = fDiff + m_fStartYaw;
-
-            if (-(m_fMaxYawOffset) > fDiff) {
-                m_vUserViewAng[1] = m_fStartYaw - m_fMaxYawOffset;
-            }
-        } else {
-            m_vUserViewAng[1] = m_fMaxYawOffset + m_fStartYaw;
-        }
-
-        owner->SetViewAngles(m_vUserViewAng);
-        vTarg       = owner->GunTarget(false) - origin;
-        vTargAngles = vTarg.toAngles();
-
-        P_SetTargetAngles(vTargAngles);
-    } else if (aim_target) {
-        Vector vNewOfs;
-
-        vDelta  = aim_target->centroid - origin;
-        vNewOfs = vDelta + m_Aim_offset;
-
-        vectoangles(vDelta, vTargAngles);
-        P_SetTargetAngles(vTargAngles);
-
-        if (owner) {
-            Vector forward;
-
-            AngleVectorsLeft(angles, forward, NULL, NULL);
-
-            origin = forward * vNewOfs.length();
-        }
+    // Limit the pitch
+    if (m_vUserViewAng[0] < m_fPitchUpCap) {
+        m_vUserViewAng[0] = m_fPitchUpCap;
+    } else if (m_vUserViewAng[0] > m_fPitchDownCap) {
+        m_vUserViewAng[0] = m_fPitchDownCap;
     }
 
+    //
+    // Limit the yaw
+    //
+
+    fDiff = AngleSubtract(m_vUserViewAng[1], m_fStartYaw), -m_fMaxYawOffset, m_fMaxYawOffset;
+    fDiff = Q_clamp_float(fDiff, -m_fMaxYawOffset, m_fMaxYawOffset);
+
+    m_vUserViewAng[1] = m_fStartYaw + fDiff;
+
+    // Set the user's view angles
+    owner->SetViewAngles(m_vUserViewAng);
+
+    //
+    // Set the weapon angles to make it point straight
+    // to the user's target
+    //
+
+    vTarg       = owner->GunTarget(false) - origin;
+    vTargAngles = vTarg.toAngles();
+    P_SetTargetAngles(vTargAngles);
+
+    // Handle firing
     if (m_iFiring) {
-        if (m_fMaxBurstTime == 0 || (owner != NULL && owner->client)) {
-            m_iFiring = 2;
-            if (ReadyToFire(FIRE_PRIMARY)) {
-                Fire(FIRE_PRIMARY);
+        m_iFiring = 4;
 
-                if (owner->IsSubclassOfPlayer()) {
-                    m_fCurrViewJitter = m_fViewJitter;
-                }
-            }
-        } else if (m_iFiring != 2) {
-            if (level.time > m_fFireToggleTime) {
-                m_iFiring         = 2;
-                m_fFireToggleTime = G_Random(m_fMaxBurstTime - m_fMinBurstTime) + (level.time + m_fMinBurstTime);
-            }
-        } else if (ReadyToFire(FIRE_PRIMARY)) {
+        if (ReadyToFire(FIRE_PRIMARY)) {
             Fire(FIRE_PRIMARY);
-
-            if (owner->IsSubclassOfPlayer()) {
-                m_fCurrViewJitter = m_fViewJitter;
-            }
-        } else if (level.time > m_fFireToggleTime) {
-            m_iFiring         = 1;
-            m_fFireToggleTime = G_Random(m_fMaxBurstDelay - m_fMaxBurstDelay) + (level.time + m_fMinBurstDelay);
+            m_fCurrViewJitter = m_fViewJitter;
         }
     }
 
-    if (owner && owner->IsSubclassOfPlayer()) {
-        vAngles = m_vUserViewAng;
+    //
+    // Setup the camera
+    //
 
-        if (!m_pUserCamera) {
-            m_pUserCamera = new Camera;
-        }
+    player  = static_cast<Player *>(owner.Pointer());
+    vAngles = m_vUserViewAng;
 
-        if (m_fCurrViewJitter > 0.0f) {
-            float x = (float)(rand() & 0x7FFF);
-            float y = (float)(rand() & 0x7FFF);
-            float z = (float)(rand() & 0x7FFF);
-
-            vAngles[0] += (x * 0.00003f + x * 0.00003f - 1.0f) * m_fCurrViewJitter;
-            vAngles[1] += (y * 0.00003f + y * 0.00003f - 1.0f) * m_fCurrViewJitter;
-            vAngles[2] += (z * 0.00003f + z * 0.00003f - 1.0f) * m_fCurrViewJitter;
-
-            m_fCurrViewJitter -= level.frametime * 6.0f;
-
-            if (m_fCurrViewJitter < 0.0f) {
-                m_fCurrViewJitter = 0.0f;
-            }
-        }
-
-        m_pUserCamera->setOrigin(origin);
-        m_pUserCamera->setAngles(vAngles);
-        m_pUserCamera->SetPositionOffset(m_vViewOffset);
-
-        owner->client->ps.camera_flags |= CF_CAMERA_ANGLES_TURRETMODE;
-
-        Player *player = (Player *)owner.Pointer();
-
-        if (!player->IsZoomed()) {
-            player->ToggleZoom(80);
-        }
+    if (!m_pUserCamera) {
+        m_pUserCamera = new Camera;
     }
 
-    if (owner && owner->client) {
-        Vector  vPos;
-        Vector  vEnd;
-        Vector  vAng;
-        Vector  vForward;
-        Vector  vMins;
-        Vector  vMaxs;
-        trace_t trace;
+    P_ApplyFiringViewJitter(vAngles);
 
-        Vector(0, angles[1], 0).AngleVectorsLeft(&vForward);
+    m_pUserCamera->setOrigin(origin);
+    m_pUserCamera->setAngles(vAngles);
+    m_pUserCamera->SetPositionOffset(m_vViewOffset);
 
-        vPos = origin - vForward * m_fUserDistance;
-        vPos[2] -= 16.0f;
+    owner->client->ps.camera_flags |= CF_CAMERA_ANGLES_TURRETMODE;
 
-        vEnd = vPos;
-        vEnd[2] -= 64.0f;
+    if (!player->IsZoomed()) {
+        player->ToggleZoom(80);
+    }
 
-        vMins    = owner->mins;
-        vMaxs    = owner->maxs;
-        vMaxs[2] = owner->mins[2] + 4.0f;
+    //
+    // Position the player appropriately
+    // so it looks like they're holding the turret 
+    //
 
-        trace = G_Trace(vPos, vMins, vMaxs, vEnd, owner, MASK_PLAYERSOLID, qtrue, "TurretGun::ThinkActive 1");
+    Vector(0, angles[1], 0).AngleVectorsLeft(&vForward);
 
-        vPos = trace.endpos;
+    vPos = origin - vForward * m_fUserDistance;
+    vPos[2] -= 16.0f;
 
-        trace =
-            G_Trace(vPos, owner->mins, owner->maxs, vPos, owner, MASK_PLAYERSOLID, qtrue, "TurretGun::ThinkActive 2");
+    vEnd = vPos;
+    vEnd[2] -= 64.0f;
 
-        if (!trace.allsolid && !trace.startsolid) {
-            owner->setOrigin(vPos);
-        }
+    vMins    = owner->mins;
+    vMaxs    = owner->maxs;
+    vMaxs[2] = owner->mins[2] + 4.0f;
+
+    trace = G_Trace(vPos, vMins, vMaxs, vEnd, owner, MASK_PLAYERSOLID, qtrue, "TurretGun::P_ThinkActive 1");
+
+    vPos = trace.endpos;
+
+    //
+    // Test position, to avoid positioning the player inside a solid object
+    //
+    trace = G_Trace(vPos, owner->mins, owner->maxs, vPos, owner, MASK_PLAYERSOLID, qtrue, "TurretGun::P_ThinkActive 2");
+
+    if (!trace.allsolid && !trace.startsolid) {
+        owner->setOrigin(vPos);
     }
 }
 
