@@ -179,7 +179,7 @@ float SpawnpointMetric_Team(const vec3_t origin, DM_Team *dmTeam, const Player *
     fMetric = fMinEnemyDistSquared - (random() * 0.25 + 1.0) * Square(1024);
 
     if (nFriends) {
-        fMetric += Square(23170) * 0.25 - fSumFriendDistSquared / nFriends;
+        fMetric += (Square(23170) - fSumFriendDistSquared / nFriends) * 0.25;
     }
 
     return fMetric;
