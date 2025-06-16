@@ -2261,13 +2261,13 @@ qboolean Weapon::ReadyToFire(firemode_t mode, qboolean playsound)
 
             if (playsound && (level.time > next_maxmovement_time)) {
                 Sound(m_sMaxMovementSound);
-                next_maxmovement_time = level.time + level.frametime + G_Random(0.1f) + 0.95f;
+                next_maxmovement_time = level.time + level.frametime + 0.5;
             }
         }
 
         if (playsound && (level.time > next_noammo_time)) {
             Sound(m_NoAmmoSound);
-            next_noammo_time = level.time + level.frametime + G_Random(0.1f) + 0.95f;
+            next_noammo_time = level.time + level.frametime + FireDelay(mode);
         }
     }
     return qfalse;
