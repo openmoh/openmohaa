@@ -244,7 +244,9 @@ void UpdateCheckerThread::InitClient()
         return;
     }
 
-    result = curlImport.qcurl_easy_setopt(handle, CURLOPT_URL, "https://api.github.com/repos/openmoh/openmohaa/releases/latest");
+    result = curlImport.qcurl_easy_setopt(
+        handle, CURLOPT_URL, "https://api.github.com/repos/openmoh/openmohaa/releases/latest"
+    );
 
     if (result != CURLE_OK) {
         Com_DPrintf("Failed to set curl URL: %s\n", curlImport.qcurl_easy_strerror(result));
@@ -392,7 +394,7 @@ void UpdateCheckerThread::DoRequest()
         ParseVersionNumber(tagName.c_str(), major, minor, patch);
 
         updateChecker.SetLatestVersion(major, minor, patch);
-    } catch (std::out_of_range&) {}
+    } catch (const std::exception& e) {}
 #endif
 }
 
