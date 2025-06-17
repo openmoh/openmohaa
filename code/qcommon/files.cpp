@@ -1566,12 +1566,12 @@ long FS_FOpenFileRead(const char *filename, fileHandle_t *file, qboolean uniqueF
 			if(len > 0)
 				return len;
 		}
-		else
+		else if (*file)
 		{
-			if(len >= 0 && *file)
+			if(len >= 0)
 				return len;
+			FS_FCloseFile(*file);
 		}
-
 	}
 	
 #ifdef FS_MISSING
