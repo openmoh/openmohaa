@@ -1,6 +1,5 @@
 cmake_minimum_required(VERSION 3.12)
 project(fgame)
-set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 # Shared source files for modules
 set(SOURCES_SHARED
@@ -65,7 +64,7 @@ add_subdirectory(../recastnavigation/DetourCrowd fgame_detour_crowd)
 add_subdirectory(../recastnavigation/Recast fgame_recast)
 # Enable position independant code on recast navigation libraries.
 # Otherwise linking will fail relocating some functions on Linux
-set_property(TARGET Detour Recast PROPERTY POSITION_INDEPENDENT_CODE ON)
+set_property(TARGET Detour DetourCrowd Recast PROPERTY POSITION_INDEPENDENT_CODE ON)
 
 target_link_libraries(fgame PRIVATE RecastNavigation::Detour RecastNavigation::DetourCrowd RecastNavigation::Recast)
 
