@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.12)
 project(fgame)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 # Shared source files for modules
 set(SOURCES_SHARED
