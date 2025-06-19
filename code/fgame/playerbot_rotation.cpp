@@ -25,10 +25,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 BotRotation::BotRotation()
 {
-    m_vAngSpeed     = vec_zero;
-    m_vTargetAng    = vec_zero;
-    m_vCurrentAng   = vec_zero;
-    m_fYawSpeedMult = 1.0f;
+    m_vAngDelta   = vec_zero;
+    m_vAngSpeed   = vec_zero;
+    m_vTargetAng  = vec_zero;
+    m_vCurrentAng = vec_zero;
 }
 
 void BotRotation::SetControlledEntity(Player *newEntity)
@@ -55,37 +55,48 @@ float AngleDifference(float ang1, float ang2)
 
 void BotRotation::TurnThink(usercmd_t& botcmd, usereyes_t& eyeinfo)
 {
-    float diff, factor, maxchange, anglespeed, desired_speed;
+    float diff;
+    float deltaDiff;
+    float factor;
+    float maxChange;
+    float maxChangeDelta;
+    float minChange;
+    float changeSpeed;
+    float speed;
     int   i;
+
+    factor      = 1.0;
+    maxChange   = 360;
+    minChange   = 20;
+    changeSpeed = 15.0;
 
     if (m_vTargetAng[PITCH] > 180) {
         m_vTargetAng[PITCH] -= 360;
     }
 
-    factor    = 0.5f;
-    maxchange = 360;
-
-    if (maxchange < 240) {
-        maxchange = 240;
-    }
-
-    maxchange *= level.frametime;
-
     for (i = 0; i < 2; i++) {
-        //over reaction view model
         m_vCurrentAng[i] = AngleMod(m_vCurrentAng[i]);
         m_vTargetAng[i]  = AngleMod(m_vTargetAng[i]);
-        diff             = AngleDifference(m_vCurrentAng[i], m_vTargetAng[i]);
-        desired_speed    = diff * factor;
 
-        m_vAngSpeed[i] = Q_clamp_float(m_vAngSpeed[i] + (m_vAngSpeed[i] - desired_speed), -180, 180);
-        anglespeed     = Q_clamp_float(m_vAngSpeed[i], -maxchange, maxchange);
+        diff      = AngleDifference(m_vCurrentAng[i], m_vTargetAng[i]);
+        deltaDiff = fabs(diff);
 
-        m_vCurrentAng[i] += anglespeed;
-        m_vCurrentAng[i] = AngleMod(m_vCurrentAng[i]);
+        maxChangeDelta = maxChange * level.frametime;
+        if (maxChangeDelta > deltaDiff) {
+            maxChangeDelta = deltaDiff;
+        }
 
-        //damping
-        m_vAngSpeed[i] *= 0.2 * (1 - factor);
+        if (deltaDiff >= minChange) {
+            m_vAngSpeed[i] = Q_min(1.0, m_vAngSpeed[i] + changeSpeed * level.frametime);
+            maxChangeDelta *= m_vAngSpeed[i];
+        } else {
+            m_vAngSpeed[i] = Q_max(0.0, m_vAngSpeed[i] - changeSpeed * level.frametime);
+        }
+
+        speed = diff * level.frametime * 10 * factor;
+
+        m_vAngDelta[i]   = Q_clamp_float(speed, -maxChangeDelta, maxChangeDelta);
+        m_vCurrentAng[i] = AngleMod(m_vCurrentAng[i] - m_vAngDelta[i]);
     }
 
     if (m_vCurrentAng[PITCH] > 180) {
@@ -133,7 +144,10 @@ Make the bot face to the specified direction
 void BotRotation::AimAt(Vector vPos)
 {
     Vector vDelta = vPos - controlledEntity->EyePosition();
+    Vector vTarget;
 
     VectorNormalize(vDelta);
-    vectoangles(vDelta, m_vTargetAng);
+    vectoangles(vDelta, vTarget);
+
+    SetTargetAngles(vTarget);
 }

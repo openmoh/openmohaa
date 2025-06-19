@@ -129,8 +129,8 @@ private:
 
     Vector m_vTargetAng;
     Vector m_vCurrentAng;
+    Vector m_vAngDelta;
     Vector m_vAngSpeed;
-    float  m_fYawSpeedMult;
 };
 
 class BotState
