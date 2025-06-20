@@ -12247,10 +12247,9 @@ int Player::getUseableEntities(int *touch, int maxcount, bool requiresLookAt)
         return 0;
     }
 
-    AngleVectors(client->ps.viewangles, offset, NULL, NULL);
+    AngleVectors(m_vViewAng, offset, NULL, NULL);
 
-    start = origin;
-    start.z += client->ps.viewheight;
+    start = m_vViewPos;
 
     if (requiresLookAt) {
         min = Vector(-4.f, -4.f, -4.f);
@@ -12259,10 +12258,10 @@ int Player::getUseableEntities(int *touch, int maxcount, bool requiresLookAt)
         end[0] = start[0] + (offset[0] * 64.f);
         end[1] = start[1] + (offset[1] * 64.f);
 
-        if (v_angle[0] <= 0.0f) {
-            end[2] = start[2] + (offset[2] * 40.f);
-        } else {
+        if (m_vViewAng[0] > 0) {
             end[2] = start[2] + (offset[2] * 88.f);
+        } else {
+            end[2] = start[2] + (offset[2] * 40.f);
         }
 
         trace = G_Trace(start, min, max, end, this, MASK_USE, false, "Player::getUseableEntity");
