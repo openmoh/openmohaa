@@ -1,51 +1,53 @@
 /******
-
-GameSpy / GameMaster Utility Code
+gutil.h
+GameSpy C Engine SDK
   
-Copyright 1998 Critical Mass Communications, LLC.
+Copyright 1999-2001 GameSpy Industries, Inc
 
-Suite E-204
-2900 Bristol Street
-Costa Mesa, CA 92626
-(714)549-7689
-Fax(714)549-0757
+18002 Skypark Circle
+Irvine, California 92614
+949.798.4200 (Tel)
+949.798.4299 (Fax)
+devsupport@gamespy.com
 
+******
+
+ Please see the GameSpy C Engine SDK documentation for more 
+ information
 
 ******/
 
 typedef unsigned char uchar;
 
-/**********
-gs_encode: This function converts a binary buffer to printable text.
-It uses the base64 algorithm, which expands 3 byte pairs to 4 bytes.
 
-IN
---
-ins: a pointer to the buffer of data you want to encode
-size: size of the buffer
-
-OUT
----  
-result: pointer to buffer to store result. Size should be (4 * size) / 3 + 1
-    result will be null terminated.
-**********/
-void gs_encode(uchar* ins, int size, uchar* result);
-
-/**********
-gs_encrypt: This functions encypts a buffer (in place) with a given
-key. The key is assumed to be a null terminated string.
-NOTE: Encypting the buffer a second time with the same key will
-decrypt it.
+void cengine_gs_encode ( uchar *ins, int size, uchar *result );
+void cengine_gs_encrypt ( uchar *key, int key_len, uchar *buffer_ptr, int buffer_len );
 
 
-IN
---
-buffer_ptr: buffer to be encrypted
-buffer_len: size of the buffer
-key: null terminated string containing the key to encode with.
+		  
+#define CRYPT_HEIGHT 16   
+#define CRYPT_TABLE_SIZE       256 
+#define NUM_KEYSETUP_PASSES 2 
+#define NWORDS 16
 
-OUT
----  
-buffer_ptr: buffer, encrypted in place
-**********/
-void gs_encrypt(uchar* key, int key_len, uchar* buffer_ptr, int buffer_len);
+typedef struct {
+  goa_uint32 F[256];          
+  goa_uint32 x_stack[CRYPT_HEIGHT];
+  goa_uint32 y_stack[CRYPT_HEIGHT];
+  goa_uint32 z_stack[CRYPT_HEIGHT];
+  int index;      
+  goa_uint32 x, y, z;
+  goa_uint32 tree_num;
+  goa_uint32 keydata[NWORDS];
+ unsigned char *keyptr;
+
+} crypt_key;
+
+void
+init_crypt_key(const unsigned char *key,
+		   unsigned int bytes_in_key,
+		   crypt_key *L);
+
+void
+crypt_encrypt(crypt_key *L, goa_uint32 *dest, int nodes);
+void crypt_docrypt(crypt_key *L, unsigned char *data, int datalen);

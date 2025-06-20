@@ -63,9 +63,6 @@ Fax(714)549-0757
 #include <string.h>
 #include <stdlib.h>
 
-// Added in 2.0
-#include "gcrypt.h"
-
 /**
  * @brief Custom function used to return the master host, based on game settings
  * 
@@ -108,7 +105,7 @@ typedef struct GServerListSocketImplementation
     char data[2048];
     int oldlen;
     gsi_time lastreplytime;
-    GCryptInfo cryptinfo;
+    crypt_key cryptkey;
 } *GServerListSocket;
 
 struct GServerListImplementation
@@ -136,9 +133,9 @@ struct GServerListImplementation
     HashTable keylist;
 
     // Added in 2.0
-    int numservers;
+    int auxinsertcount;
     // Added in 2.0
-    //GCryptInfo cryptinfo;
+    //Gcryptkey cryptkey;
     // Added in OPM
     int encryptdata;
     gbool async;
@@ -183,7 +180,7 @@ GServerList	ServerListNew(const char *gamename, const char *enginename, const ch
     list->instance = instance;
     list->sortkey = "";
     // Added in 2.0
-    list->numservers = 0;
+    list->auxinsertcount = 0;
     // Added in OPM
     list->encryptdata = 1;
     list->async = 0;
@@ -304,7 +301,7 @@ static GError CreateServerListSocket(GServerList serverlist, GServerListSocket s
 
     slsocket->socketstate = ls_connecting;
     slsocket->oldlen = 0;
-    slsocket->cryptinfo.offset = -1;
+    slsocket->cryptkey.index = -1; //mark as uninitialized
     slsocket->lastreplytime = current_time();
     serverlist->startslindex++;
 
@@ -375,14 +372,14 @@ static GError SendListRequest(GServerList serverlist, GServerListSocket slsocket
     if (!ptr)
         return GE_DATAERROR;
     ptr = ptr + strlen(SECURE);
-    gs_encrypt   ( (uchar *) serverlist->seckey, 6, (uchar *)ptr, 6 );
+    cengine_gs_encrypt   ( (uchar *) serverlist->seckey, 6, (uchar *)ptr, 6 );
     if (serverlist->encryptdata) {
         // Added in 2.0
         for(i = 0; i < 6; i++) {
             ptr[i] ^= serverlist->seckey[i];
         }
     }
-    gs_encode ( (uchar *)ptr, 6, (uchar *) result );
+    cengine_gs_encode ( (uchar *)ptr, 6, (uchar *) result );
 
     if (serverlist->encryptdata) {
         // Added in 2.0
@@ -550,9 +547,9 @@ GError ServerListUpdate2(GServerList serverlist, gbool async, char *filter, GQue
     serverlist->nextupdate = 0;
     serverlist->abortupdate = 0;
     // Added in 2.0
-    serverlist->numservers = ServerListCount(serverlist);
+    serverlist->auxinsertcount = ServerListCount(serverlist);
     // Added in 2.0
-    //serverlist->cryptinfo.offset = -1;
+    //serverlist->cryptkey.index = -1;
     if (filter) {
         strncpy(serverlist->filter, filter, sizeof(serverlist->filter));
     } else {
@@ -916,9 +913,10 @@ static GError ServerListReadList(GServerList serverlist, GServerListSocket slsoc
     slsocket->lastreplytime = current_time();
     serverlist->lastsltime = slsocket->lastreplytime;
 
-    if (serverlist->encryptdata && slsocket->cryptinfo.offset != -1) {
+    if (serverlist->encryptdata && slsocket->cryptkey.index != -1)
+    {
         // Added in 2.0
-        crypt_docrypt(&slsocket->cryptinfo, slsocket->data + slsocket->oldlen, len);
+        crypt_docrypt(&slsocket->cryptkey, slsocket->data + slsocket->oldlen, len);
     }
 
     slsocket->oldlen += len;
@@ -926,22 +924,27 @@ static GError ServerListReadList(GServerList serverlist, GServerListSocket slsoc
     p = slsocket->data;
 
     if (!serverlist->encryptdata) {
-        slsocket->cryptinfo.offset = 0;
-    } else if (slsocket->cryptinfo.offset == -1) {
+        slsocket->cryptkey.index = 0;
+    } else if (slsocket->cryptkey.index == -1) {
         // Added in 2.0
-        if (slsocket->oldlen > (*p ^ 0xEC)) {
-            *p ^= 0xEC;
+        if (slsocket->oldlen > (p[0] ^ 0xEC)) //the key length
+        {
+            //xor our key into the buffer
+            p[0] ^= 0xEC;
             len = strlen(serverlist->seckey);
-            for (i = 0; i < len; i++) {
-                p[i + 1] ^= serverlist->seckey[i];
+            for (i = 0 ; i < len ; i++)
+            {
+                p[1 + i] ^= serverlist->seckey[i];
             }
-            init_crypt_key((unsigned char *)p + 1, *p, &slsocket->cryptinfo);
-            p += *p + 1;
-            crypt_docrypt(&slsocket->cryptinfo, (unsigned char *)p, slsocket->oldlen - (p - slsocket->data));
+            //init the key
+            init_crypt_key((unsigned char *)(p + 1), p[0], &slsocket->cryptkey);
+            p += (p[0] + 1); //advance the data pointer
+            //decrypt any remaining data
+            crypt_docrypt(&slsocket->cryptkey, p, slsocket->oldlen - (p - slsocket->data));
         }
     }
 
-    if (slsocket->cryptinfo.offset != -1)
+    if (slsocket->cryptkey.index != -1) //try to read some data
     {
         while (p - slsocket->data <= slsocket->oldlen - 6)
         {
@@ -970,15 +973,16 @@ static GError ServerListReadList(GServerList serverlist, GServerListSocket slsoc
                     break;
                 }
             } else {
+				int currentindex;
                 memcpy(&ip, p, 4);
                 p += 4;
                 memcpy(&port, p, 2);
                 p += 2;
                 // Added in 2.0
                 //  Skip adding the server if already exists
-                if (ServerListFindServer(serverlist, ip, ntohs(port)) == -1) {
-                    ServerListAddServer(serverlist, ip, ntohs(port), serverlist->querytype);
-                }
+				currentindex = ServerListFindServer(serverlist,ip,ntohs(port));
+				if (currentindex == -1)
+					ServerListAddServer(serverlist,ip,  ntohs(port), serverlist->querytype );	
             }
         }
     }
