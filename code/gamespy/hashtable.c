@@ -10,6 +10,11 @@
  * array for the buckets, and a DArray for each individual bucket
  */
 
+#if !defined(UNDER_CE) && !defined(__KATANA__)
+#include <assert.h>
+#else
+#define assert(a)
+#endif
 #include <stdlib.h>
 #include <string.h>
 #include "darray.h"
@@ -25,9 +30,8 @@
     #define gsimalloc malloc
     #define gsifree free
     #define gsirealloc realloc
-    #include <assert.h>
 #else
-    #include "nonport.h" //for gsimalloc/realloc/free/assert
+    #include "nonport.h" //for gsimalloc/realloc/free
 #endif
 
 
@@ -79,9 +83,6 @@ void TableFree(HashTable table)
     int i;
     
     assert(table);
-
-    if (NULL == table )
-        return;
     
     for (i = 0 ; i < table->nbuckets ; i++)
         ArrayFree(table->buckets[i]);
@@ -94,11 +95,6 @@ int TableCount(HashTable table)
 {
     int i, count = 0;
     
-    assert(table);
-
-    if (NULL == table )
-        return count;
-
     for (i = 0 ; i < table->nbuckets ; i++)
         count += ArrayLength(table->buckets[i]);
     
@@ -110,11 +106,6 @@ void TableEnter(HashTable table, const void *newElem)
 {
     int hash, itempos;
     
-    assert(table);
-
-    if (NULL == table )
-        return;
-
     hash = table->hashfn(newElem, table->nbuckets);
     itempos = ArraySearch(table->buckets[hash], newElem, table->compfn, 0,0);
     if (itempos == NOT_FOUND)
@@ -127,11 +118,6 @@ int TableRemove(HashTable table, const void *delElem)
 {
     int hash, itempos;
     
-    assert(table);
-
-    if (NULL == table )
-        return 0;
-
     hash = table->hashfn(delElem, table->nbuckets);
     itempos = ArraySearch(table->buckets[hash], delElem, table->compfn, 0,0);
     if (itempos == NOT_FOUND)
@@ -145,11 +131,6 @@ void *TableLookup(HashTable table, const void *elemKey)
 {
     int hash, itempos;
     
-    assert(table);
-
-    if (NULL == table )
-        return NULL;
-
     hash = table->hashfn(elemKey, table->nbuckets);
     itempos = ArraySearch(table->buckets[hash], elemKey, table->compfn, 0,
                           0);
@@ -164,11 +145,7 @@ void TableMap(HashTable table, TableMapFn fn, void *clientData)
 {
     int i;
     
-    assert(table);
     assert(fn);
-
-    if (NULL == table || NULL == fn)
-        return;
     
     for (i = 0 ; i < table->nbuckets ; i++)
         ArrayMap(table->buckets[i], fn, clientData);

@@ -613,7 +613,7 @@ static uchar encode_ct(uchar c)
     return 0;
 }
 
-void gs_encode(uchar* ins, int size, uchar* result)
+static void gs_encode(uchar* ins, int size, uchar* result)
 {
     int i, pos;
     uchar trip[3];
@@ -636,7 +636,7 @@ void gs_encode(uchar* ins, int size, uchar* result)
     *result = '\0';
 }
 
-void gs_encrypt(uchar* key, int key_len, uchar* buffer_ptr, int buffer_len)
+static void gs_encrypt(uchar* key, int key_len, uchar* buffer_ptr, int buffer_len)
 {
     short counter;
     uchar x, y, xorIndex;

@@ -6,13 +6,14 @@ GameSpy Open Architecture
 goaceng.h
 GameSpy C Engine SDK
   
-Copyright 1999 GameSpy Industries, Inc
+Copyright 1999-2000 GameSpy Industries, Inc
 
-Suite E-204
-2900 Bristol Street
-Costa Mesa, CA 92626
-(714)549-7689
-Fax(714)549-0757
+18002 Skypark Circle
+Irvine, CA 92614-6429
+(949)798-4200
+Fax(949)798-4299
+
+http://developer.gamespy.com
 
 ******
 
@@ -42,10 +43,30 @@ Fax(714)549-0757
 	-Hashtable and DArray allocations optimized
 	-You can now specify the query type using ServerListUpdate2 and ServerListAuxUpdate
 	-ServerListAuxUpdate is now the official way to do multi-pass updates and manual updates
- Updated 6/13/99 - DDW
+ Updated 6/13/00 - DDW
   More memory optimizations (keys/values share same list)
   Fixed alignment compiler problem for MWERKS on Dreamcast
   Remove server list select on ACCESS stack (doesn't seem to work)
+
+ Updated 7/10/00 - DDW
+  Added support for group room queries (qt_grooprooms) -- this will mainly be used by the Peer SDK,
+  but dedicated server games can use it if they want to segment their servers into "groups" as well.
+  Added support for master info queries (qt_masterinfo), where basic server info is pulled directly
+  from the master server. You can then query individual servers (or all of the servers) using
+  ServerListAuxUpdate after the list is idle again.
+  Fixed a bug that occured on systems that implement tolower() as a macro (e.g. SHC compiler)
+
+ Updated 9/29/00 - DDW
+  Fixed a problem where updating a server using AuxUpdate during listxfer could cause it
+  to be added to the list twice.
+  Also, you can now call ServerListUpdate multiple times on the
+  same list without calling clear, and servers will not be duplicated on the list.
+  Previously calling ServerListUpdate without clearing the list first would add all the
+  servers to the list a second time.
+
+ Updated 11/9/00 - JED
+  Added ServerGetBoolValue() to get generic boolean values.  Most game servers return 1or0
+  for boolean values, but some (unreal engine) games return booleans as "True" or "False".
 ******/
 //todo: max results and ordering
 
@@ -74,9 +95,7 @@ idle - no processing or querying underway, ready to being updates
 listreq - a server list request has been or is being sent
 listxfer - we are transfering the server list
 lanlist - we are waiting for replies from servers on the LAN
-querying - the servers on the list are being queried
-connecting (added in OPM) - socket is currently connecting to the master server
-*/
+querying - the servers on the list are being queried */
 typedef enum {sl_idle, sl_listxfer, sl_lanlist, sl_querying} GServerListState;
 
 /* Comparision types for the ServerListSort function
@@ -110,6 +129,12 @@ typedef void (*KeyEnumFn)(char *key, char *value, void *instance);
 #define GE_BUSY			4
 #define GE_DATAERROR	5
 
+/* The hostname of the master server.
+If the app resolved the hostname, an
+IP can be stored here before calling
+ServerListNew */
+extern char ServerListHostname[64];
+
 /*********
 Server List Functions
 **********/
@@ -124,7 +149,7 @@ maxconcupdates - max number of concurent updates (10-15 for modem users, 20-30 f
 CallBackFn - The function or handle used for progress updates
 CallBackFnType - The type of the CallBackFn parameter (from the #define list above)
 instance - user-defined instance data (e.g. structure or object pointer) */
-GServerList	ServerListNew(const char *gamename, const char *enginename, const char *seckey, int maxconcupdates, void *CallBackFn, int CallBackFnType, void *instance);
+GServerList	ServerListNew( const char *gamename, const char *enginename, const char *seckey, int maxconcupdates, void *CallBackFn, int CallBackFnType, void *instance);
 
 /* ServerListFree
 -----------------
@@ -164,7 +189,8 @@ mapname
 gametype
 gamemode
 numplayers
-maxplayers*/ 
+maxplayers
+groupid */ 
 GError ServerListUpdate2(GServerList serverlist, gbool async, char *filter, GQueryType querytype);
 
 
@@ -284,6 +310,7 @@ given server, the default value is returned */
 char *ServerGetStringValue(GServer server, char *key, char *sdefault);
 int ServerGetIntValue(GServer server, char *key, int idefault);
 double ServerGetFloatValue(GServer server, char *key, double fdefault);
+gbool ServerGetBoolValue(GServer server, char *key, gbool bdefault);
 
 
 /* ServerGetPlayer[]Value

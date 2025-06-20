@@ -56,13 +56,7 @@ typedef int (*TableHashFn)(const void *elem, int numBuckets);
  * If elem1 is "greater than" elem2, return a positive number.
  * If the two elements are "equal", return 0.
  */
-#if defined(WIN32)
-// explicitly set __cdecl so that Win devs can change default calling convention
-typedef int (__cdecl *TableCompareFn)(const void *elem1, const void *elem2);
-#else
 typedef int (*TableCompareFn)(const void *elem1, const void *elem2);
-#endif
-
  /* TableMapFn
  * ----------
  * TableMapFn defines the space of functions that can be used to map over

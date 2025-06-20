@@ -2,13 +2,13 @@
 gserver.h
 GameSpy C Engine SDK
   
-Copyright 1999 GameSpy Industries, Inc
+Copyright 1999-2001 GameSpy Industries, Inc
 
-Suite E-204
-2900 Bristol Street
-Costa Mesa, CA 92626
-(714)549-7689
-Fax(714)549-0757
+18002 Skypark Circle
+Irvine, California 92614
+949.798.4200 (Tel)
+949.798.4299 (Fax)
+devsupport@gamespy.com
 
 ******
 
@@ -26,15 +26,17 @@ Fax(714)549-0757
 extern "C" {
 #endif
 
-#if defined(applec) || defined(THINK_C) || defined(__MWERKS__) && !defined(__KATANA__)
+#if defined(applec) || defined(THINK_C) || defined(__MWERKS__) && !defined(__KATANA__) && !defined(__mips64)
     #include "::hashtable.h"
+    #include "::nonport.h"
 #else
     #include "../hashtable.h"
+    #include "../nonport.h"
 #endif
 
 struct GServerImplementation
 {
-    unsigned long ip;
+    goa_uint32 ip;
     unsigned short port;
     short ping;
     GQueryType querytype;
@@ -62,8 +64,8 @@ typedef struct
 } GEnumData;
 
 void ServerFree(void *elem);
+GServer ServerNew(goa_uint32 ip, unsigned short port, GQueryType qtype, HashTable keylist);
 GServer ServerNewData(char **fieldlist, int fieldcount, char *serverdata, GQueryType qtype, HashTable keylist);
-GServer ServerNew(unsigned long ip, unsigned short port, GQueryType qtype, HashTable keylist);
 void ServerParseKeyVals(GServer server, char *keyvals);
 int GStringHash(const void *elem, int numbuckets);
 int GCaseInsensitiveCompare(const void *entry1, const void *entry2);

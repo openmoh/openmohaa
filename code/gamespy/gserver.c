@@ -2,13 +2,14 @@
 gserver.c
 GameSpy C Engine SDK
   
-Copyright 1999 GameSpy Industries, Inc
+Copyright 1999-2000 GameSpy Industries, Inc
 
-Suite E-204
-2900 Bristol Street
-Costa Mesa, CA 92626
-(714)549-7689
-Fax(714)549-0757
+18002 Skypark Circle
+Irvine, CA 92614-6429
+(949)798-4200
+Fax(949)798-4299
+
+http://developer.gamespy.com
 
 ******
 
@@ -17,10 +18,11 @@ Updated 10-15-99 (BGW)
     values for keys (i.e. "\delete\\" adds key="delete" and value="")
 Updated 6-17-99 (DDW)
     Added new tokenize function to handle empty values for keys
-  
+Updated 11-9-00 (JED)
+    Added ServerGetBoolValue() to get generic boolean values
     
 *******/
-#if defined(applec) || defined(THINK_C) || defined(__MWERKS__) && !defined(__KATANA__)
+#if defined(applec) || defined(THINK_C) || defined(__MWERKS__) && !defined(__KATANA__) && !defined(__mips64)
     #include "::nonport.h"
 #else
     #include "../nonport.h"
@@ -36,80 +38,104 @@ Updated 6-17-99 (DDW)
 
 static int KeyValHashKeyP(const void *elem, int numbuckets);
 static int KeyValCompareKeyP(const void *entry1, const void *entry2);
-static char *mytok(char *instr, char delim);
-static char *LookupKey(GServer server, char *k);
+
+static char *mytok(char *instr, char delim)
+{
+    char *result;
+    static char *thestr;
+
+    if (instr)
+        thestr = instr;
+    result=thestr;
+    while (*thestr && *thestr != delim)
+    {
+        thestr++;
+    }
+    if (thestr == result)
+        result = NULL;
+    if (*thestr) //not the null term
+        *thestr++ = '\0';
+    return result;
+}
 
 
+static char *LookupKey(GServer server, char *k)
+{
+    char **keyindex;
+
+    keyindex = (char **)TableLookup(server->keylist,&k);
+    if (keyindex != NULL)
+        return *keyindex;
+    k = strdup(k);
+    TableEnter(server->keylist,&k);
+    return k;
+}
 
 void ServerFree(void *elem)
 {
-    //free a server!
+    //gsifree a server!
     GServer server = *(GServer *)elem;
     
     TableFree(server->keyvals);
-    free(server);
+    gsifree(server);
 }
 
-static void ServerSetAddressFromString (GServer server, char *address)
+static void ServerSetAddressFromString(GServer server, char *address)
 {
     char *cpos;
-
-    cpos = strchr(address, ':');
-    if (!cpos) {
-        return;
-    }
-
+    cpos = strchr(address,':');
+    if (cpos == NULL)
+        return; //no : character
     *cpos = 0;
     server->ip = inet_addr(address);
-    server->port = atoi(cpos + 1);
+    server->port = atoi(cpos+1);
 }
 
 GServer ServerNewData(char **fieldlist, int fieldcount, char *serverdata, GQueryType qtype, HashTable keylist)
 {
-    GServer       server;
-    char         *k;
-    char         *v;
-    int           curfield;
+    GServer server;
+    char *k, *v;
+    int curfield = 0;
     GKeyValuePair kvpair;
-
-    curfield = 0;
-    server   = (GServer)ServerNew(0, 0, qtype, keylist);
-    v        = mytok(serverdata + 1, '\\');
-
-    while (curfield < fieldcount) {
+    //first, create a server with an empty ip/port (we'll fill in later if we get those fields!)
+    server = ServerNew(0, 0, qtype, keylist);
+    //now fill in the data
+    v = mytok(++serverdata,'\\'); //skip over starting backslash
+    while (curfield < fieldcount)
+    {
         k = fieldlist[curfield];
-        if (!v) {
+        if (v == NULL)
             v = "";
-        }
-
-        if (!strcmp(k, "ip")) {
+        if (strcmp(k, "ip")==0) //it's the ip:port string, parse it out
+        {
             ServerSetAddressFromString(server, v);
-        } else if (qtype == qt_grouprooms && !strcmp(k, "other")) {
-            for (char *p = v; *p; ++p) {
-                if (*p == 1) {
-                    *p = '\\';
-                }
-            }
+        } else if (qtype == qt_grouprooms && strcmp(k,"other")==0) //other info
+        {
+            //replace the char 1 characters with \\ chars..
+            char *temp;
+            for (temp = v; *temp ; temp++)
+                if (*temp == '\x1')
+                    *temp = '\\';
             ServerParseKeyVals(server, v);
-        } else {
-            kvpair.key   = (char *)LookupKey(server, k);
-            kvpair.value = (char *)LookupKey(server, v);
+        } else
+        {
+            kvpair.key = LookupKey(server, k);
+            kvpair.value = LookupKey(server, v);
             TableEnter(server->keyvals, &kvpair);
         }
-        if (++curfield < fieldcount) {
-            v = mytok(0, '\\');
-        }
+        curfield++;
+        if (curfield < fieldcount)
+            v = mytok(NULL,'\\');
     }
-
     return server;
 }
 
-GServer ServerNew(unsigned long ip, unsigned short port, GQueryType qtype, HashTable keylist)
+GServer ServerNew(goa_uint32 ip, unsigned short port, GQueryType qtype, HashTable keylist)
 {
     GServer server;
     int nBuckets, nChains;
 
-    server = malloc(sizeof(struct GServerImplementation));
+    server = gsimalloc(sizeof(struct GServerImplementation));
     server->ip = ip;
     server->port = port;
     server->ping = 9999;
@@ -143,25 +169,6 @@ GServer ServerNew(unsigned long ip, unsigned short port, GQueryType qtype, HashT
 }
 
 
-static char *mytok(char *instr, char delim)
-{
-    char *result;
-    static char *thestr;
-
-    if (instr)
-        thestr = instr;
-    result=thestr;
-    while (*thestr && *thestr != delim)
-    {
-        thestr++;
-    }
-    if (thestr == result)
-        result = NULL;
-    if (*thestr) //not the null term
-        *thestr++ = '\0';
-    return result;
-}
-
 static int CheckValidKey(char *key)
 {
     const char *InvalidKeys[]={"queryid","final"};
@@ -172,19 +179,6 @@ static int CheckValidKey(char *key)
             return 0;
     }
     return 1;
-}
-
-
-static char *LookupKey(GServer server, char *k)
-{
-    char **keyindex;
-
-    keyindex = (char **)TableLookup(server->keylist,&k);
-    if (keyindex != NULL)
-        return *keyindex;
-    k = strdup(k);
-    TableEnter(server->keylist,&k);
-    return k;
 }
 
 void ServerParseKeyVals(GServer server, char *keyvals)
@@ -292,6 +286,22 @@ double ServerGetFloatValue(GServer server, char *key, double fdefault)
     return atof(kv->value);
 }
 
+gbool ServerGetBoolValue(GServer server, char *key, gbool bdefault)
+{
+    GKeyValuePair *kv;
+
+    kv = ServerRuleLookup(server,key);
+    if (!kv)
+        return bdefault;
+
+    // check the first char for known "false" values
+    if( '0' == *kv->value || 'F' == *kv->value || 'f' == *kv->value || 'N' == *kv->value || 'n' == *kv->value )
+        return 0;
+
+    // presume that all other non-zero values are "true"
+    return 1;
+}
+
 char *ServerGetPlayerStringValue(GServer server, int playernum, char *key, char *sdefault)
 {
     char newkey[32];
@@ -349,9 +359,12 @@ void ServerEnumKeys(GServer server, KeyEnumFn KeyFn, void *instance)
 #define MULTIPLIER -1664117991
 static int StringHash(char *s, int numbuckets)
 {
-    unsigned long hashcode = 0;
+    goa_uint32 hashcode = 0;
     while (*s != 0)
-        hashcode = hashcode * MULTIPLIER + tolower(*s++);
+    {
+        hashcode = hashcode * MULTIPLIER + tolower(*s);
+        s++;
+    }
     return (hashcode % numbuckets);
 
 }
@@ -389,7 +402,7 @@ static int KeyValCompareKeyP(const void *entry1, const void *entry2)
 
 void GStringFree(void *elem)
 {
-    free(*(char **)elem);
+    gsifree(*(char **)elem);
 }
 
 /* keyval
