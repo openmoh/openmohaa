@@ -91,3 +91,7 @@ player_textMessage local.text local.is_team
 Parameters:
 - local.text: The raw text message the client sent to the server
 - local.is_team: `1` if it's a team message. `0` otherwise (everyone)
+
+The script can optionally return the following value:
+- `0`: the message won't be sent.
+- Any string value: the message won't be sent and a reply will be sent to the player.

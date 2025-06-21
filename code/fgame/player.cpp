@@ -10903,6 +10903,30 @@ void Player::EventDMMessage(Event *ev)
         // everyone
         //
 
+        if (!bInstaMessage) {
+            Event          event;
+            ScriptVariable result;
+            // sent to everyone (not a team)
+            event.AddString(sToken);
+            event.AddInteger(false);
+
+            result = scriptDelegate_textMessage.Trigger(this, event);
+            if (result.HasValue()) {
+                // Filtered out by a script
+                G_PrintfClient(edict, "says @all (filtered out): %s\n", pStartMessage);
+
+                if (result.IsString()) {
+                    const str value = result.stringValue();
+                    gi.SendServerCommand(
+                        edict - g_entities, "print \"" HUD_MESSAGE_CHAT_WHITE "Script reply: %s\n\"", value.c_str()
+                    );
+                    return;
+                } else if (!result.booleanValue()) {
+                    return;
+                }
+            }
+        }
+
         // Added in OPM
         if (bInstaMessage) {
             G_PrintfClient(edict, "shouts @all: %s\n", pStartMessage);
@@ -10950,19 +10974,34 @@ void Player::EventDMMessage(Event *ev)
                 gi.SendServerCommand(i, "%s\n", szPrintString);
             }
         }
-
-        if (!bInstaMessage) {
-            Event event;
-            // sent to everyone (not a team)
-            event.AddString(sToken);
-            event.AddInteger(false);
-
-            scriptDelegate_textMessage.Trigger(this, event);
-        }
     } else if (iMode < 0) {
         //
         // team message
         //
+
+        if (!bInstaMessage) {
+            Event          event;
+            ScriptVariable result;
+            // sent to team
+            event.AddString(sToken);
+            event.AddInteger(true);
+
+            result = scriptDelegate_textMessage.Trigger(this, event);
+            if (result.HasValue()) {
+                // Filtered out by a script
+                G_PrintfClient(edict, "says @team (filtered out): %s\n", pStartMessage);
+
+                if (result.IsString()) {
+                    const str value = result.stringValue();
+                    gi.SendServerCommand(
+                        edict - g_entities, "print \"" HUD_MESSAGE_CHAT_WHITE "Script reply: %s\n\"", value.c_str()
+                    );
+                    return;
+                } else if (!result.booleanValue()) {
+                    return;
+                }
+            }
+        }
 
         // Added in OPM
         if (bInstaMessage) {
@@ -11012,15 +11051,6 @@ void Player::EventDMMessage(Event *ev)
                     gi.MSG_EndCGM();
                 }
             }
-        }
-
-        if (!bInstaMessage) {
-            Event event;
-            // sent to team
-            event.AddString(sToken);
-            event.AddInteger(true);
-
-            scriptDelegate_textMessage.Trigger(this, event);
         }
     } else if (iMode <= game.maxclients) {
         ent = &g_entities[iMode - 1];
