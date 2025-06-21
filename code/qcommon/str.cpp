@@ -731,6 +731,20 @@ void TestStringClass(void)
     a[1] = '1'; // a.data = "t1st", b.data = "test"
 }
 
+str GetCapitalized(const str& value)
+{
+    str newValue;
+    size_t i;
+
+    if (!value.length()) {
+        return "";
+    }
+
+    newValue += (char)toupper(value[0]);
+    newValue += value.c_str() + 1;
+    return newValue;
+}
+
 #ifdef _WIN32
 #    pragma warning(default : 4189) // local variable is initialized but not referenced
 #    pragma warning(disable : 4514) // unreferenced inline function has been removed

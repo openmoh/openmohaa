@@ -673,3 +673,5 @@ inline str::operator const char *(void) const
 {
     return c_str();
 }
+
+str GetCapitalized(const str& value);
