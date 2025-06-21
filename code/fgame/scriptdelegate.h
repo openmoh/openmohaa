@@ -41,7 +41,7 @@ class ScriptRegisteredDelegate_Script : public ScriptRegisteredDelegate
 public:
     ScriptRegisteredDelegate_Script(const ScriptThreadLabel& inLabel);
 
-    void Execute(Listener *object, const Event& ev);
+    ScriptVariable Execute(Listener *object, const Event& ev);
 
     bool operator==(const ScriptRegisteredDelegate_Script& registeredDelegate) const;
 
@@ -154,14 +154,14 @@ public:
      *
      * @param ev Parameter list
      */
-    void Trigger(const Event& ev = Event()) const;
+    ScriptVariable Trigger(const Event& ev = Event()) const;
 
     /**
      * Executes all registered delegates with the specified event.
      *
      * @param ev Parameter list
      */
-    void Trigger(Listener *object, const Event& ev = Event()) const;
+    ScriptVariable Trigger(Listener *object, const Event& ev = Event()) const;
 
     /**
      * Reset the delegate, unregister callbacks.

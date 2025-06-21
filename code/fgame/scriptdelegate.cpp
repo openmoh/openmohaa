@@ -22,6 +22,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "scriptdelegate.h"
 #include "../script/scriptexception.h"
+#include "../script/scriptvariable.h"
 
 ScriptDelegate *ScriptDelegate::root = NULL;
 
@@ -29,11 +30,20 @@ ScriptRegisteredDelegate_Script::ScriptRegisteredDelegate_Script(const ScriptThr
     : label(inLabel)
 {}
 
-void ScriptRegisteredDelegate_Script::Execute(Listener *object, const Event& ev)
+ScriptVariable ScriptRegisteredDelegate_Script::Execute(Listener *object, const Event& ev)
 {
     Event newev = ev;
 
     label.Execute(object, newev);
+
+    if (newev.NumArgs() > ev.NumArgs()) {
+        ScriptVariable& value = newev.GetValue(newev.NumArgs());
+        if (value.GetType() != VARIABLE_NONE) {
+            return value;
+        }
+    }
+
+    return ScriptVariable();
 }
 
 bool ScriptRegisteredDelegate_Script::operator==(const ScriptRegisteredDelegate_Script& registeredDelegate) const
@@ -133,19 +143,20 @@ void ScriptDelegate::Unregister(Class *object, ScriptRegisteredDelegate_CodeMemb
     list_codeMember.RemoveObject(ScriptRegisteredDelegate_CodeMember(object, response));
 }
 
-void ScriptDelegate::Trigger(const Event& ev) const
+ScriptVariable ScriptDelegate::Trigger(const Event& ev) const
 {
-    Trigger(NULL, ev);
+    return Trigger(NULL, ev);
 }
 
-void ScriptDelegate::Trigger(Listener *object, const Event& ev) const
+ScriptVariable ScriptDelegate::Trigger(Listener *object, const Event& ev) const
 {
     size_t i;
+    ScriptVariable lastResult;
 
     {
         const Container<ScriptRegisteredDelegate_Script> tmpList = list_script;
         for (i = 1; i <= tmpList.NumObjects(); i++) {
-            tmpList.ObjectAt(i).Execute(object, ev);
+            lastResult = tmpList.ObjectAt(i).Execute(object, ev);
         }
     }
 
@@ -162,6 +173,8 @@ void ScriptDelegate::Trigger(Listener *object, const Event& ev) const
             tmpList.ObjectAt(i).Execute(object, ev);
         }
     }
+
+    return lastResult;
 }
 
 ScriptDelegate *ScriptDelegate::GetScriptDelegate(const char *name)
