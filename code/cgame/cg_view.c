@@ -969,6 +969,14 @@ void CG_DrawActiveFrame(int serverTime, int frameTime, stereoFrame_t stereoView,
         }
 
         cg.bIntermissionDisplay = qfalse;
+    } else {
+        // Added in OPM
+        //  In vanilla, scores are updated because when pressing a key,
+        //  it is sent every frame.
+        //  In OPM, an event for a key is sent only once, even when it's being held.
+        if (cgs.gametype != GT_SINGLE_PLAYER && cg.showScores) {
+            CG_ScoresDown_f();
+        }
     }
 
     // Added in OPM
