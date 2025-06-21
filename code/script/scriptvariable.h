@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2023 the OpenMoHAA team
+Copyright (C) 2025 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -124,15 +124,17 @@ public:
     const char  *GetTypeName(void) const;
     variabletype GetType(void) const;
 
-    qboolean IsEntity(void);
-    qboolean IsListener(void);
-    qboolean IsNumeric(void);
-    qboolean IsConstArray() const;
+    bool IsNone() const;
+    bool HasValue() const;
+    bool IsEntity() const;
+    bool IsListener() const;
+    bool IsNumeric() const;
+    bool IsConstArray() const;
 #ifdef WITH_SCRIPT_ENGINE
-    qboolean IsSimpleEntity(void);
+    bool IsSimpleEntity() const;
 #endif
-    qboolean IsString(void);
-    qboolean IsVector(void);
+    bool IsString() const;
+    bool IsVector() const;
 
     void PrintValue(void);
 

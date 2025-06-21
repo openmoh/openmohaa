@@ -602,7 +602,17 @@ variabletype ScriptVariable::GetType() const
     return (variabletype)type;
 }
 
-qboolean ScriptVariable::IsEntity(void)
+bool ScriptVariable::IsNone() const
+{
+    return type == VARIABLE_NONE;
+}
+
+bool ScriptVariable::HasValue() const
+{
+    return type != VARIABLE_NONE;
+}
+
+bool ScriptVariable::IsEntity(void) const
 {
     if (type != VARIABLE_LISTENER) {
         return false;
@@ -622,24 +632,24 @@ qboolean ScriptVariable::IsEntity(void)
     return true;
 }
 
-qboolean ScriptVariable::IsListener(void)
+bool ScriptVariable::IsListener(void) const
 {
     return type == VARIABLE_LISTENER;
 }
 
-qboolean ScriptVariable::IsNumeric(void)
+bool ScriptVariable::IsNumeric(void) const
 {
     return type == VARIABLE_INTEGER || type == VARIABLE_FLOAT;
 }
 
-qboolean ScriptVariable::IsConstArray() const
+bool ScriptVariable::IsConstArray() const
 {
     return type == VARIABLE_CONSTARRAY || type == VARIABLE_CONTAINER || type == VARIABLE_SAFECONTAINER;
 }
 
 #ifdef WITH_SCRIPT_ENGINE
 
-qboolean ScriptVariable::IsSimpleEntity(void)
+bool ScriptVariable::IsSimpleEntity(void) const
 {
     if (type != VARIABLE_LISTENER) {
         return false;
@@ -661,12 +671,12 @@ qboolean ScriptVariable::IsSimpleEntity(void)
 
 #endif
 
-qboolean ScriptVariable::IsString(void)
+bool ScriptVariable::IsString(void) const
 {
     return (type == VARIABLE_STRING || type == VARIABLE_CONSTSTRING);
 }
 
-qboolean ScriptVariable::IsVector(void)
+bool ScriptVariable::IsVector(void) const
 {
     return type == VARIABLE_VECTOR;
 }
