@@ -100,7 +100,7 @@ Item *AmmoEntity::ItemPickup(Entity *other, qboolean add_to_inventory)
     gi.SendServerCommand(
         other->edict - g_entities,
         "print \"" HUD_MESSAGE_YELLOW "%s\"",
-        gi.LV_ConvertString(va("Got %d %s Rounds", amount, item_name.c_str()))
+        gi.LV_ConvertString(va("Got %d %s Rounds", amount, GetCapitalized(item_name).c_str()))
     );
 
     // Give the ammo to the player

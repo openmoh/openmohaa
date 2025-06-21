@@ -3036,7 +3036,7 @@ void Weapon::PickupWeapon(Event *ev)
         const str& sAmmoType = ammo_type[FIRE_PRIMARY];
 
         sen->GiveAmmo(sAmmoType, iGiveAmmo);
-
+        
         if (!sAmmoType.icmp("grenade") || !sAmmoType.icmp("agrenade")) {
             if (iGiveAmmo == 1) {
                 sMessage = gi.LV_ConvertString("Got 1 Grenade");
@@ -3044,7 +3044,7 @@ void Weapon::PickupWeapon(Event *ev)
                 sMessage = gi.LV_ConvertString(va("Got %i Grenades", iGiveAmmo));
             }
         } else {
-            sMessage = gi.LV_ConvertString(va("Got %i %s Rounds", iGiveAmmo, sAmmoType.c_str()));
+            sMessage = gi.LV_ConvertString(va("Got %i %s Rounds", iGiveAmmo, GetCapitalized(sAmmoType).c_str()));
         }
 
         gi.SendServerCommand(other->edict - g_entities, "print \"" HUD_MESSAGE_YELLOW "%s\n\"", sMessage.c_str());
@@ -3072,7 +3072,7 @@ void Weapon::PickupWeapon(Event *ev)
                     sMessage = gi.LV_ConvertString(va("Got %i Rifle Grenades", iGiveAmmo));
                 }
             } else {
-                sMessage = gi.LV_ConvertString(va("Got %i %s Rounds", startammo[FIRE_PRIMARY], sAmmoType.c_str()));
+                sMessage = gi.LV_ConvertString(va("Got %i %s Rounds", startammo[FIRE_PRIMARY], GetCapitalized(sAmmoType).c_str()));
             }
 
             gi.SendServerCommand(other->edict - g_entities, "print \"" HUD_MESSAGE_YELLOW "%s\n\"", sMessage.c_str());
