@@ -59,6 +59,9 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 	add_compile_options(-fno-gnu-unique)
 endif()
 
+# Always generate compile_commands.json for clangd
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 if(DEBUG_MEMORY)
 	add_definitions(-D_DEBUG_MEM)
 endif()
