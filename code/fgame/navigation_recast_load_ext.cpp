@@ -45,10 +45,13 @@ CLASS_DECLARATION(INavigationMapExtension, NavigationMapExtension_Ladders, NULL)
 
 void NavigationMapExtension_Ladders::Handle(Container<offMeshNavigationPoint>& points, const rcPolyMesh *polyMesh)
 {
-    gentity_t *edict;
-    Vector     start, end;
-    Vector     tend;
-    trace_t    trace;
+    const Vector mins(-15, -15, 0);
+    const Vector maxs(15, 15, NavigationMapConfiguration::agentHeight);
+    gentity_t   *edict;
+    Vector       start, end;
+    Vector       tstart, tend;
+    Vector      top;
+    trace_t      trace;
 
     for (edict = active_edicts.next; edict != &active_edicts; edict = edict->next) {
         if (!edict->entity) {
@@ -62,11 +65,23 @@ void NavigationMapExtension_Ladders::Handle(Container<offMeshNavigationPoint>& p
             offMeshNavigationPoint point;
 
             start = edict->entity->origin + Vector(0, 0, edict->entity->mins.z) - facingDir * 32;
-            end   = edict->entity->origin + Vector(0, 0, edict->entity->maxs.z + 16) + facingDir * 16;
+            end   = edict->entity->origin + Vector(0, 0, edict->entity->maxs.z);
 
-            tend = end;
-            tend.z -= STEPSIZE;
-            trace = G_Trace(end, vec_zero, vec_zero, tend, NULL, MASK_PLAYERSOLID, qfalse, "ConnectLadders");
+            tstart = end - facingDir * 32 - Vector(0, 0, STEPSIZE);
+            tend = end + facingDir * 64 - Vector(0, 0, STEPSIZE);
+            trace = G_Trace(tstart, mins, maxs, tend, NULL, MASK_PLAYERSOLID, qfalse, "ConnectLadders");
+
+            // Connect to the end position
+            top = trace.endpos;
+            tstart = top + facingDir * 64 + Vector(0, 0, STEPSIZE * 2);
+            tend = top + facingDir * 64 - Vector(0, 0, STEPSIZE * 2);
+            trace = G_Trace(tstart, mins, maxs, tend, NULL, MASK_PLAYERSOLID, qfalse, "ConnectLadders");
+
+            // Tighten the path
+            tstart = trace.endpos;
+            tend = top + facingDir * 32;
+            tend.z = tstart.z;
+            trace = G_Trace(tstart, mins, maxs, tend, NULL, MASK_PLAYERSOLID, qfalse, "ConnectLadders");
 
             point.start         = start;
             point.end           = trace.endpos;
@@ -94,23 +109,55 @@ CLASS_DECLARATION(INavigationMapExtension, NavigationMapExtension_JumpFall, NULL
     {NULL, NULL}
 };
 
+bool NavigationMapExtension_JumpFall::AddPoint(
+    Container<offMeshNavigationPoint>& points, const offMeshNavigationPoint& point
+)
+{
+    if (!point.area) {
+        return false;
+    }
+
+    points.AddObject(point);
+    return true;
+}
+
+bool NavigationMapExtension_JumpFall::AreVertsValid(const vec3_t pos1, const vec3_t pos2) const
+{
+    vec3_t delta;
+
+    VectorSub2D(pos2, pos1, delta);
+    if (VectorLength2DSquared(delta) > Square(256)) {
+        return false;
+    }
+
+    const float deltaHeight = pos2[2] - pos1[2];
+    const float minHeight   = STEPSIZE / 2;
+    if (deltaHeight >= -minHeight && deltaHeight <= minHeight) {
+        // ignore steps
+        return false;
+    }
+
+    return true;
+}
+
 void NavigationMapExtension_JumpFall::Handle(Container<offMeshNavigationPoint>& points, const rcPolyMesh *polyMesh)
 {
     int                   i, j;
-    vec3_t                delta;
     vec3_t               *vertpos;
     Vector                pos1, pos2;
-    const unsigned short *v1, *v2;
     bool                 *walkableVert;
     unsigned short       *vertreg;
+    unsigned char        *verttype;
 
     walkableVert = new bool[polyMesh->nverts];
     vertpos      = new vec3_t[polyMesh->nverts];
     vertreg      = new unsigned short[polyMesh->nverts];
+    verttype     = new unsigned char[polyMesh->nverts];
 
     for (i = 0; i < polyMesh->nverts; i++) {
         walkableVert[i] = false;
         vertreg[i]      = 0;
+        verttype[i]     = 0;
 
         GetPolyMeshVertPosition(polyMesh, i, vertpos[i]);
         FixupPoint(vertpos[i]);
@@ -139,8 +186,48 @@ void NavigationMapExtension_JumpFall::Handle(Container<offMeshNavigationPoint>& 
             continue;
         }
 
-        v1   = &polyMesh->verts[i * 3];
-        pos1 = vertpos[i];
+        for (j = i + 1; j < polyMesh->nverts; j++) {
+            if (!walkableVert[j]) {
+                continue;
+            }
+
+            if (vertreg[j] == vertreg[i]) {
+                continue;
+            }
+
+            if (!AreVertsValid(vertpos[i], vertpos[j])) {
+                continue;
+            }
+            pos1 = vertpos[i];
+            pos2 = vertpos[j];
+
+            offMeshNavigationPoint point;
+
+            if (AddPoint(points, CanConnectStraightPoint(polyMesh, pos1, pos2))) {
+                verttype[i] = verttype[j] = 1;
+                continue;
+            }
+            if (AddPoint(points, CanConnectJumpPoint(polyMesh, pos1, pos2))) {
+                verttype[i] = verttype[j] = 2;
+                continue;
+            }
+            if (AddPoint(points, CanConnectFallPoint(polyMesh, pos1, pos2))) {
+                verttype[i] = verttype[j] = 3;
+                continue;
+            }
+        }
+    }
+
+    //
+    // Add "jumping over obstacles" points.
+    //  Those points are created if there are no jump points nor fall points
+    //  that would allow the bot to get around the obstacle or exit an area
+    //
+
+    for (i = 0; i < polyMesh->nverts; i++) {
+        if (!walkableVert[i]) {
+            continue;
+        }
 
         for (j = i + 1; j < polyMesh->nverts; j++) {
             if (!walkableVert[j]) {
@@ -151,40 +238,26 @@ void NavigationMapExtension_JumpFall::Handle(Container<offMeshNavigationPoint>& 
                 continue;
             }
 
-            v2   = &polyMesh->verts[j * 3];
+            if (verttype[i] && verttype[j]) {
+                continue;
+            }
+
+            if (!AreVertsValid(vertpos[i], vertpos[j])) {
+                continue;
+            }
+            pos1 = vertpos[i];
             pos2 = vertpos[j];
-
-            VectorSub2D(pos2, pos1, delta);
-            if (VectorLength2DSquared(delta) > Square(256)) {
-                continue;
-            }
-
-            const float deltaHeight = pos2.z - pos1.z;
-            const float minHeight   = STEPSIZE / 2;
-            if (deltaHeight >= -minHeight && deltaHeight <= minHeight) {
-                // ignore steps
-                continue;
-            }
 
             offMeshNavigationPoint point;
 
-            point = CanConnectFallPoint(polyMesh, pos1, pos2);
-            if (point.area) {
-                points.AddObject(point);
-            }
-
-            point = CanConnectJumpPoint(polyMesh, pos1, pos2);
-            if (point.area) {
-                points.AddObject(point);
-            }
-
-            point = CanConnectStraightPoint(polyMesh, pos1, pos2);
-            if (point.area) {
-                points.AddObject(point);
+            if (AddPoint(points, CanConnectJumpOverLedgePoint(polyMesh, pos1, pos2))) {
+                verttype[i] = verttype[j] = 4;
+                continue;
             }
         }
     }
 
+    delete[] verttype;
     delete[] vertreg;
     delete[] vertpos;
     delete[] walkableVert;
@@ -212,6 +285,22 @@ void NavigationMapExtension_JumpFall::FixupPoint(vec3_t pos)
                 break;
             }
         }
+    } else {
+        // Drop to floor
+        Vector start = pos;
+
+        trace = G_Trace(
+            start + Vector(0, 0, STEPSIZE),
+            mins,
+            maxs,
+            start - Vector(0, 0, STEPSIZE * 2),
+            NULL,
+            MASK_PLAYERSOLID,
+            qfalse,
+            "CanConnectJumpPoint"
+        );
+
+        VectorCopy(trace.endpos, pos);
     }
 }
 
@@ -235,12 +324,12 @@ NavigationMapExtension_JumpFall::CanConnectFallPoint(const rcPolyMesh *polyMesh,
     trace_t                trace;
     offMeshNavigationPoint point;
 
-    if (pos1.z <= pos2.z) {
-        start = pos2;
-        end   = pos1;
-    } else {
+    if (pos1.z > pos2.z) {
         start = pos1;
         end   = pos2;
+    } else {
+        start = pos2;
+        end   = pos1;
     }
 
     delta      = end - start;
@@ -300,13 +389,14 @@ NavigationMapExtension_JumpFall::CanConnectFallPoint(const rcPolyMesh *polyMesh,
     tstart = trace.endpos;
     tend   = end;
 
-    trace = G_Trace(tstart, mins, maxs, tend, NULL, MASK_PLAYERSOLID, qfalse, "CanConnectFallPoint");
-    if (trace.fraction < 0.999) {
+    if (!G_SightTrace(
+            tstart, mins, maxs, tend, (Entity *)NULL, NULL, MASK_PLAYERSOLID, qfalse, "CanConnectFallPoint"
+        )) {
         return {};
     }
 
     point.start         = start;
-    point.end           = trace.endpos;
+    point.end           = tend;
     point.bidirectional = false;
     point.radius        = NavigationMapConfiguration::agentRadius;
     if (fallheight <= NavigationMapExtensionConfiguration::smallFallHeight) {
@@ -338,8 +428,11 @@ NavigationMapExtension_JumpFall::CanConnectJumpPoint(const rcPolyMesh *polyMesh,
     Vector                 fwdDir;
     float                  jumpheight;
     float                  length;
-    Vector                 dir;
+    Vector                 dir, right;
+    Vector                 destGroundDir, destGroundUp;
+    Vector                 planeNormal, wallForward;
     trace_t                trace;
+    int                    i;
     offMeshNavigationPoint point;
 
     if (pos1.z > pos2.z) {
@@ -355,29 +448,8 @@ NavigationMapExtension_JumpFall::CanConnectJumpPoint(const rcPolyMesh *polyMesh,
         return {};
     }
 
-    // Drop to floor
-    trace = G_Trace(
-        start + Vector(0, 0, STEPSIZE),
-        mins,
-        maxs,
-        start - Vector(0, 0, STEPSIZE * 2),
-        NULL,
-        MASK_PLAYERSOLID,
-        qtrue,
-        "CanConnectJumpPoint"
-    );
-    start = trace.endpos;
-    trace = G_Trace(
-        end + Vector(0, 0, STEPSIZE),
-        mins,
-        maxs,
-        end - Vector(0, 0, STEPSIZE * 2),
-        NULL,
-        MASK_PLAYERSOLID,
-        qtrue,
-        "CanConnectJumpPoint"
-    );
-    end = trace.endpos;
+    //planeNormal = trace.plane.normal;
+    //planeNormal.toAngles().AngleVectors(&destGroundUp, NULL, &destGroundDir);
 
     delta      = end - start;
     jumpheight = delta.z;
@@ -392,28 +464,52 @@ NavigationMapExtension_JumpFall::CanConnectJumpPoint(const rcPolyMesh *polyMesh,
     dir    = delta;
     dir.z  = 0;
     length = dir.normalize();
+
     fwdDir = dir * 32;
 
+    // Check for this situation:
+    //
+    // straight path
+    //       |
+    //       ↓
+    // x───────────e
     trace = G_Trace(start, mins, maxs, end, NULL, MASK_PLAYERSOLID, qfalse, "CanConnectJumpPoint");
     if (!trace.allsolid && trace.fraction >= 0.999) {
         // Straight path
         return {};
     }
 
+    // Calculate the right so multiple tries can be done
+    planeNormal = trace.plane.normal;
+    planeNormal.toAngles().AngleVectors(&wallForward, &right);
+    right   = -right;
+    right.z = 0;
+
     // Drop to floor
+    //
+    //        ┌ Go to e and drop to d
+    //        ↓
+    // s─────┐e┌─x
+    //       └d┘
     trace = G_Trace(start, mins, maxs, start + dir * length, NULL, MASK_PLAYERSOLID, qfalse, "CanConnectJumpPoint");
 
+    //
+    //        ┌ Drop here
+    //        ↓
+    // ──────┐s┌─x
+    //       └e┘
     trace = G_Trace(
         trace.endpos,
         mins,
         maxs,
-        trace.endpos - Vector(0, 0, STEPSIZE * 2),
+        trace.endpos - Vector(0, 0, NavigationMapExtensionConfiguration::agentJumpHeight),
         NULL,
         MASK_PLAYERSOLID,
-        qtrue,
+        qfalse,
         "CanConnectJumpPoint"
     );
-    if (!trace.startsolid && trace.fraction > 0 && trace.fraction < 1) {
+
+    if (!trace.allsolid && trace.fraction > 0 && trace.fraction < 1) {
         start      = trace.endpos;
         delta      = end - start;
         jumpheight = delta.z;
@@ -426,6 +522,149 @@ NavigationMapExtension_JumpFall::CanConnectJumpPoint(const rcPolyMesh *polyMesh,
         }
     }
 
+    for (i = 0; i < 4; i++) {
+        Vector target;
+        Vector highestPoint;
+
+        //          ┌ get the highest point
+        //          ↓
+        //          h
+        //          │
+        // ──────┐ ┌x
+        //       └─┘
+        //
+        highestPoint   = end;
+        highestPoint.z = start.z + NavigationMapExtensionConfiguration::agentJumpHeight;
+
+        trace = G_Trace(end, mins, maxs, highestPoint, NULL, MASK_PLAYERSOLID, qfalse, "CanConnectJumpPoint");
+
+        target = start;
+        target += wallForward * (i * 4);
+        target += right * (i * 4);
+        target.z = trace.endpos[2];
+
+        //  Make sure the player can jump at this point
+        //
+        //        ┌ must be able to jump
+        //        ↓
+        //        e
+        // ──────┐│┌x
+        //       └s┘
+        //
+        trace = G_Trace(start, mins, maxs, target, NULL, MASK_PLAYERSOLID, qfalse, "CanConnectJumpPoint");
+
+        if (trace.allsolid) {
+            continue;
+        }
+
+        tend = trace.endpos;
+
+        //   Check if the point is reachable while jumping
+        //
+        //           ┌ must be able to reach this point
+        //        s  ↓
+        // ──────┐│┌─x
+        //       └┴┘
+        //
+
+        if (G_SightTrace(
+                tend, mins, maxs, end, (Entity *)NULL, NULL, MASK_PLAYERSOLID, qfalse, "CanConnectJumpPoint"
+            )) {
+            delta      = end - start;
+            jumpheight = delta.z;
+            if (jumpheight > NavigationMapExtensionConfiguration::agentJumpHeight) {
+                return {};
+            }
+
+            if (delta.lengthSquared() > Square(128)) {
+                return {};
+            }
+            break;
+        }
+    }
+
+    if (i >= 4) {
+        return {};
+    }
+
+    point.start         = start;
+    point.end           = end;
+    point.bidirectional = true;
+    point.radius        = NavigationMapConfiguration::agentRadius;
+    point.area          = RECAST_AREA_JUMP;
+    point.flags         = RECAST_POLYFLAG_WALKABLE;
+
+    return point;
+}
+
+/*
+============
+NavigationMap::CanConnectStraightPoint
+
+The following action can be performed:
+
+    Jump over that ledge
+    ↓
+   ┌─┐
+ s─┘ └─e
+============
+*/
+offMeshNavigationPoint NavigationMapExtension_JumpFall::CanConnectJumpOverLedgePoint(
+    const rcPolyMesh *polyMesh, const Vector& pos1, const Vector& pos2
+)
+{
+    const Vector           mins(-15, -15, 0);
+    const Vector           maxs(15, 15, NavigationMapConfiguration::agentHeight);
+    Vector                 start, end;
+    Vector                 startStep;
+    Vector                 startInAir;
+    Vector                 startToEnd;
+    Vector                 delta;
+    Vector                 dir;
+    float                  length, dist;
+    float                  fallheight;
+    float                  heightDiff;
+    int                    i;
+    trace_t                trace;
+    offMeshNavigationPoint point;
+
+    if (pos1.z > pos2.z) {
+        start = pos1;
+        end   = pos2;
+    } else {
+        start = pos2;
+        end   = pos1;
+    }
+
+    heightDiff = fabs(start.z - end.z);
+    if (heightDiff > 600) {
+        return {};
+    }
+
+    delta = end - start;
+
+    dir    = delta;
+    dir.z  = 0;
+    length = dir.normalize();
+
+    // Check for this situation:
+    //
+    // straight path
+    //       |
+    //       ↓
+    // x───────────e
+    if (G_SightTrace(
+            start, mins, maxs, end, (Entity *)NULL, NULL, MASK_PLAYERSOLID, qfalse, "CanConnectJumpOverLedgePoint"
+        )) {
+        // Straight path
+        return {};
+    }
+
+    // Go here
+    // ↓
+    // e
+    // │  ┌─┐
+    // s──┘ └─t
     trace = G_Trace(
         start,
         mins,
@@ -433,25 +672,113 @@ NavigationMapExtension_JumpFall::CanConnectJumpPoint(const rcPolyMesh *polyMesh,
         start + Vector(0, 0, NavigationMapExtensionConfiguration::agentJumpHeight),
         NULL,
         MASK_PLAYERSOLID,
-        qtrue,
-        "CanConnectJumpPoint"
+        qfalse,
+        "CanConnectJumpOverLedgePoint"
     );
+
     if (trace.allsolid) {
         return {};
     }
 
-    tend = trace.endpos;
+    startInAir = trace.endpos;
+    for (i = 0; i < STEPSIZE; i += STEPSIZE / 2.0) {
+        startStep = start + Vector(0, 0, i);
 
-    trace = G_Trace(tend, mins, maxs, end, NULL, MASK_PLAYERSOLID, qfalse, "CanConnectJumpPoint");
-    if (trace.fraction < 0.999) {
+        //
+        //   Go here
+        //   ↓
+        //    ┌─┐
+        // s─e┘ └─t
+        trace = G_Trace(
+            startStep,
+            mins,
+            maxs,
+            startStep + dir * length,
+            NULL,
+            MASK_PLAYERSOLID,
+            qfalse,
+            "CanConnectJumpOverLedgePoint"
+        );
+        if (trace.fraction >= 0.999) {
+            return {};
+        }
+    }
+
+    delta = trace.endpos - startStep;
+    if (delta.lengthXYSquared() > Square(32)) {
+        // Too much distance
         return {};
     }
-    point.start         = start;
-    point.end           = end;
-    point.bidirectional = true;
-    point.radius        = NavigationMapConfiguration::agentRadius;
-    point.area          = RECAST_AREA_JUMP;
-    point.flags         = RECAST_POLYFLAG_WALKABLE;
+
+    for (i = 0; i < NavigationMapExtensionConfiguration::agentJumpHeight; i += 10) {
+        //        Go here
+        //        ↓
+        // s──────e
+        //    ┌─┐
+        // ───┘ └─t
+        trace = G_Trace(
+            startInAir - Vector(0, 0, i),
+            mins,
+            maxs,
+            startInAir + dir * length - Vector(0, 0, i),
+            NULL,
+            MASK_PLAYERSOLID,
+            qfalse,
+            "CanConnectJumpOverLedgePoint"
+        );
+
+        if (trace.fraction >= 0.999) {
+            break;
+        }
+    }
+
+    if (i >= NavigationMapExtensionConfiguration::agentJumpHeight) {
+        return {};
+    }
+
+    startToEnd = trace.endpos;
+    fallheight = startInAir.z - end.z;
+
+    if (fallheight > 600) {
+        // This would cause too much damage
+        return {};
+    }
+
+    delta = startInAir - end;
+    dist  = delta.lengthXY();
+    if (dist > fallheight) {
+        // Too far from the start
+        return {};
+    }
+
+    //        Go here
+    //        ↓
+    //        s
+    //    ┌─┐ │
+    // ───┘ └─e
+    if (!G_SightTrace(
+            startToEnd, mins, maxs, end, (Entity *)NULL, NULL, MASK_PLAYERSOLID, qfalse, "CanConnectJumpOverLedgePoint"
+        )) {
+        return {};
+    }
+
+    point.start = start;
+    point.end   = end;
+    if (fallheight > NavigationMapExtensionConfiguration::agentJumpHeight) {
+        point.bidirectional = false;
+    } else {
+        point.bidirectional = true;
+    }
+
+    point.radius = NavigationMapConfiguration::agentRadius;
+    if (fallheight <= NavigationMapExtensionConfiguration::smallFallHeight) {
+        point.area = RECAST_AREA_FALL;
+    } else if (fallheight <= NavigationMapExtensionConfiguration::mediumFallHeight) {
+        point.area = RECAST_AREA_MEDIUM_FALL;
+    } else {
+        point.area = RECAST_AREA_HIGH_FALL;
+    }
+    point.flags = RECAST_POLYFLAG_WALKABLE;
 
     return point;
 }
@@ -493,7 +820,7 @@ offMeshNavigationPoint NavigationMapExtension_JumpFall::CanConnectStraightPoint(
 
     trace = G_Trace(start, mins, maxs, end, NULL, MASK_PLAYERSOLID, qfalse, "CanConnectStraightPoint");
     if (trace.allsolid || trace.startsolid || trace.fraction < 0.999 || trace.plane.normal[2] >= MIN_WALK_NORMAL) {
-        // Straight path
+        // Not straight path
         return {};
     }
 

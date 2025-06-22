@@ -29,6 +29,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "scriptexception.h"
 #include "vehicleturret.h"
 #include "weaputils.h"
+#include "windows.h"
 #include "g_bot.h"
 
 // We assume that we have limited access to the server-side
@@ -237,6 +238,27 @@ void BotController::CheckUse(void)
 #endif
 }
 
+bool BotController::CheckWindows(void)
+{
+    trace_t trace;
+    Vector  start, end;
+    Vector  dir;
+
+    controlledEnt->angles.AngleVectorsLeft(&dir);
+    start = controlledEnt->origin + Vector(0, 0, controlledEnt->viewheight);
+    end   = controlledEnt->origin + Vector(0, 0, controlledEnt->viewheight) + dir * 64;
+
+    trace = G_Trace(start, vec_zero, vec_zero, end, controlledEnt, MASK_PLAYERSOLID, false, "BotController::CheckUse");
+
+    if (trace.fraction != 1 && trace.ent) {
+        if (trace.ent->entity->isSubclassOf(WindowObject)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 void BotController::CheckValidWeapon()
 {
     Weapon *weapon = controlledEnt->GetActiveWeapon(WEAPON_MAIN);
@@ -324,7 +346,7 @@ void BotController::AimAtAimNode(void)
 
     if (controlledEnt->GetLadder()) {
         Vector vAngles = movement.GetCurrentPathDirection().toAngles();
-        vAngles.x = Q_clamp_float(vAngles.x, -80, 80);
+        vAngles.x      = Q_clamp_float(vAngles.x, -80, 80);
 
         rotation.SetTargetAngles(vAngles);
         return;
@@ -345,7 +367,14 @@ Make the bot reload if necessary
 */
 void BotController::CheckReload(void)
 {
-    Weapon *weap = controlledEnt->GetActiveWeapon(WEAPON_MAIN);
+    Weapon *weap;
+
+    if (level.inttime < m_iLastFireTime + 2000) {
+        // Don't reload while attacking
+        return;
+    }
+
+    weap = controlledEnt->GetActiveWeapon(WEAPON_MAIN);
 
     if (weap && weap->CheckReload(FIRE_PRIMARY)) {
         SendCommand("reload");
@@ -564,10 +593,15 @@ bool BotController::CheckCondition_Idle(void)
 
 void BotController::State_Idle(void)
 {
-    m_botCmd.buttons &= ~(BUTTON_ATTACKLEFT | BUTTON_ATTACKRIGHT);
+    if (CheckWindows()) {
+        m_botCmd.buttons ^= BUTTON_ATTACKLEFT;
+        m_iLastFireTime = level.inttime;
+    } else {
+        m_botCmd.buttons &= ~(BUTTON_ATTACKLEFT | BUTTON_ATTACKRIGHT);
+        CheckReload();
+    }
 
     AimAtAimNode();
-    CheckReload();
 
     if (!movement.MoveToBestAttractivePoint() && !movement.IsMoving()) {
         if (m_vLastDeathPos != vec_zero) {
@@ -622,6 +656,13 @@ bool BotController::CheckCondition_Curious(void)
 
 void BotController::State_Curious(void)
 {
+    if (CheckWindows()) {
+        m_botCmd.buttons ^= BUTTON_ATTACKLEFT;
+        m_iLastFireTime = level.inttime;
+    } else {
+        m_botCmd.buttons &= ~(BUTTON_ATTACKLEFT | BUTTON_ATTACKRIGHT);
+    }
+
     AimAtAimNode();
 
     if (!movement.MoveToBestAttractivePoint(3) && (!movement.IsMoving() || m_vLastCuriousPos != m_vNewCuriousPos)) {
@@ -854,6 +895,8 @@ void BotController::State_Attack(void)
             m_botCmd.buttons &= ~(BUTTON_ATTACKLEFT | BUTTON_ATTACKRIGHT);
             controlledEnt->ZoomOff();
         }
+
+        m_iLastFireTime = level.inttime;
 
         if (pWeap->GetFireType(FIRE_SECONDARY) == FT_MELEE) {
             if (controlledEnt->client->ps.stats[STAT_AMMO] <= 0

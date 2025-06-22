@@ -31,7 +31,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 namespace NavigationMapExtensionConfiguration
 {
-    static const float agentJumpHeight = 54;
+    static const float agentJumpHeight = 56;
 
     static const float smallFallHeight = 100;
     static const float mediumFallHeight = 250;

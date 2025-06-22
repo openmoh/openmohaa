@@ -182,6 +182,7 @@ private:
 
     // Taunts
     int m_iNextTauntTime;
+    int m_iLastFireTime;
 
 private:
     DelegateHandle delegateHandle_gotKill;
@@ -195,6 +196,7 @@ private:
     void    UseWeaponWithAmmo(void);
 
     void CheckUse(void);
+    bool CheckWindows(void);
     void CheckValidWeapon(void);
 
     void State_DefaultBegin(void);

@@ -285,9 +285,7 @@ static bool overOffmeshConnection(
 
     const bool offMeshConnection = (cornerFlags[ncorners - 1] & DT_STRAIGHTPATH_OFFMESH_CONNECTION) ? true : false;
     if (offMeshConnection) {
-        vec2_t delta;
-        VectorSub2D(&cornerVerts[(ncorners - 1) * 3], pos, delta);
-        const float distSq = VectorLength2DSquared(delta);
+        const float distSq = dtVdist2DSqr(&cornerVerts[(ncorners - 1) * 3], pos);
         if (distSq < radius * radius) {
             return true;
         }
@@ -299,6 +297,8 @@ static bool overOffmeshConnection(
 void RecastPather::UpdatePos(const Vector& origin)
 {
     const dtQueryFilter *filter = navigationMap.GetQueryFilter();
+    const Vector velocity = (origin - lastorg) * (1.0 / level.frametime);
+    const float distSqr = Q_min(Square(64), velocity.lengthSquared());
 
     lastorg = origin;
     Vector recastOrigin;
@@ -310,8 +310,8 @@ void RecastPather::UpdatePos(const Vector& origin)
         Vector delta;
 
         ConvertRecastToGameCoord(detourData->corridor.getPos(), agentPos);
-        delta = agentPos - lastorg;
-        if (delta.lengthSquared() < Square(24)) {
+        delta = agentPos - origin;
+        if (delta.lengthSquared() < Square(24) + distSqr) {
             // traversed
             traversingOffMeshLink = false;
         }

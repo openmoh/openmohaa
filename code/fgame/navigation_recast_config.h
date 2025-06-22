@@ -40,7 +40,7 @@ namespace NavigationMapConfiguration
     static const float agentMaxSlope = 45.5729942f;
 
     static const float agentRadius          = 1.0;
-    static const int   regionMinSize        = 6;
+    static const int   regionMinSize        = 8;
     static const int   regionMergeSize      = 20;
     static const float edgeMaxLen           = 100.0;
     static const float edgeMaxError         = 1.3f;

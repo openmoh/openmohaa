@@ -102,7 +102,10 @@ public:
 
 private:
     void                   FixupPoint(vec3_t pos);
+    bool                   AddPoint(Container<offMeshNavigationPoint>& points, const offMeshNavigationPoint& point);
+    bool                   AreVertsValid(const vec3_t pos1, const vec3_t pos2) const;
     offMeshNavigationPoint CanConnectFallPoint(const rcPolyMesh *polyMesh, const Vector& pos1, const Vector& pos2);
     offMeshNavigationPoint CanConnectJumpPoint(const rcPolyMesh *polyMesh, const Vector& pos1, const Vector& pos2);
+    offMeshNavigationPoint CanConnectJumpOverLedgePoint(const rcPolyMesh *polyMesh, const Vector& pos1, const Vector& pos2);
     offMeshNavigationPoint CanConnectStraightPoint(const rcPolyMesh *polyMesh, const Vector& pos1, const Vector& pos2);
 };
