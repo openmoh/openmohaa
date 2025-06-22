@@ -45,6 +45,7 @@ profile
 *.opensdf
 *.suo
 
+.cache/
 .vs
 code_unfinished/*
 thirdparties/
