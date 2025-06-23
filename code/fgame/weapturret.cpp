@@ -810,7 +810,7 @@ void TurretGun::P_ThinkActive(void)
     // Limit the yaw
     //
 
-    fDiff = AngleSubtract(m_vUserViewAng[1], m_fStartYaw), -m_fMaxYawOffset, m_fMaxYawOffset;
+    fDiff = AngleSubtract(m_vUserViewAng[1], m_fStartYaw);
     fDiff = Q_clamp_float(fDiff, -m_fMaxYawOffset, m_fMaxYawOffset);
 
     m_vUserViewAng[1] = m_fStartYaw + fDiff;
