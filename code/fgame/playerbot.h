@@ -74,6 +74,15 @@ private:
     void   CheckJumpOverEdge(usercmd_t& botcmd);
     void   NewMove();
     Vector FixDeltaFromCollision(const Vector& delta);
+    void   CalculateBestFrontAvoidance(
+          const Vector& entityOrg,
+          const Vector& targetOrg,
+          float         maxDist,
+          const Vector& forward,
+          const Vector& right,
+          float&        bestFrac,
+          Vector&       bestPos
+      );
 
 private:
     SafePtr<Player>            controlledEntity;

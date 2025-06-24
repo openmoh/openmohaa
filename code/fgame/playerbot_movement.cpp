@@ -724,17 +724,111 @@ void BotMovement::NewMove()
     m_vLastCheckPos[1] = controlledEntity->origin;
 }
 
+void BotMovement::CalculateBestFrontAvoidance(
+    const Vector& entityOrg,
+    const Vector& targetOrg,
+    float         maxDist,
+    const Vector& forward,
+    const Vector& right,
+    float&        bestFrac,
+    Vector&       bestPos
+)
+{
+    const Vector mins        = controlledEntity->mins;
+    const Vector maxs        = controlledEntity->maxs;
+    bool         wasOnGround = true;
+    Vector       start, step;
+    trace_t      trace;
+    int          i;
+
+    bestFrac = 0;
+    bestPos  = vec_zero;
+
+    for (i = 1; i < 5; i++) {
+        start = entityOrg - forward + right * (32 * i);
+        if (i == 1) {
+            step = start;
+        }
+
+        //
+        // Trace to the right
+        //
+        trace = G_Trace(entityOrg, mins, maxs, start, controlledEntity, MASK_PLAYERSOLID, qtrue, "GetCurrentDelta");
+
+        if (trace.startsolid || trace.fraction <= 0) {
+            break;
+        }
+
+        start   = trace.endpos;
+        start.z = step.z;
+
+        // Make sure it doesn't fall
+        trace = G_Trace(
+            start,
+            mins,
+            maxs,
+            start - Vector(0, 0, STEPSIZE * 2),
+            controlledEntity,
+            MASK_PLAYERSOLID,
+            qtrue,
+            "GetCurrentDelta"
+        );
+        if (trace.fraction == 1) {
+            if (!wasOnGround) {
+                break;
+            }
+
+            wasOnGround = false;
+            continue;
+        }
+
+        wasOnGround = true;
+        step        = trace.endpos;
+
+        //
+        // Trace from the right to the node
+        //
+        trace = G_Trace(start, mins, maxs, targetOrg, controlledEntity, MASK_PLAYERSOLID, qtrue, "GetCurrentDelta");
+        if (trace.fraction == 0) {
+            trace = G_Trace(
+                start,
+                mins,
+                maxs,
+                start + forward * Q_min(maxDist, 64),
+                controlledEntity,
+                MASK_PLAYERSOLID,
+                qtrue,
+                "GetCurrentDelta"
+            );
+            trace = G_Trace(
+                trace.endpos, mins, maxs, targetOrg, controlledEntity, MASK_PLAYERSOLID, qtrue, "GetCurrentDelta"
+            );
+        }
+
+        if (trace.fraction > bestFrac) {
+            bestFrac = trace.fraction;
+            bestPos  = start;
+        }
+        if (trace.fraction >= 0.999) {
+            break;
+        }
+    }
+}
+
 Vector BotMovement::FixDeltaFromCollision(const Vector& delta)
 {
-    trace_t trace;
-    Vector  mins(MINS_X, MINS_Y, MINS_Z + STEPSIZE);
-    Vector  maxs(MAXS_X, MAXS_Y, MAXS_Z);
-    Vector  newDelta;
-    Vector  angles;
-    Vector  forward, right, up;
-    Vector  target;
-    Vector  front;
-    float   distSqr;
+    trace_t      trace;
+    Vector       entityOrg;
+    const Vector mins = controlledEntity->mins;
+    const Vector maxs = controlledEntity->maxs;
+    Vector       newDelta;
+    Vector       angles;
+    Vector       forward, right, up;
+    Vector       target;
+    Vector       dest;
+    Vector       front;
+    float        dist;
+    float        maxDist;
 
     if (controlledEntity->GetLadder()) {
         return delta;
@@ -758,33 +852,32 @@ Vector BotMovement::FixDeltaFromCollision(const Vector& delta)
     m_iCollisionCheckTime = level.inttime;
     m_bAvoidCollision     = false;
 
-    target = controlledEntity->origin + delta;
-
+    dest     = controlledEntity->origin + delta;
     newDelta = delta;
-    distSqr  = VectorNormalize2(newDelta, forward);
+    dist     = VectorNormalize2(newDelta, forward);
     VectorToAngles(forward, angles);
     AngleVectors(angles, forward, right, up);
-    target = controlledEntity->origin + forward * Q_min(distSqr, 128);
 
-    trace = G_Trace(
-        controlledEntity->origin, mins, maxs, target, controlledEntity, MASK_PLAYERSOLID, qtrue, "GetCurrentDelta"
-    );
+    maxDist = Q_min(dist, 32);
+    target  = controlledEntity->origin + forward * maxDist + Vector(0, 0, STEPSIZE);
+
+    entityOrg = controlledEntity->origin + Vector(0, 0, STEPSIZE);
+    trace     = G_Trace(entityOrg, mins, maxs, target, controlledEntity, MASK_PLAYERSOLID, qtrue, "GetCurrentDelta");
     if (trace.fraction < 1.0) {
         //
         // Try to use a flat plane instead
         //
-    
+
         trace_t tmpTrace;
         Vector  forwardXY, rightXY, upXY;
         Vector  targetXY;
 
         angles.x = 0;
         AngleVectors(angles, forwardXY, rightXY, upXY);
-        targetXY = controlledEntity->origin + forwardXY * Q_min(distSqr, 128);
+        targetXY = controlledEntity->origin + forwardXY * maxDist + Vector(0, 0, STEPSIZE);
 
-        tmpTrace = G_Trace(
-            controlledEntity->origin, mins, maxs, targetXY, controlledEntity, MASK_PLAYERSOLID, qtrue, "GetCurrentDelta"
-        );
+        tmpTrace =
+            G_Trace(entityOrg, mins, maxs, targetXY, controlledEntity, MASK_PLAYERSOLID, qtrue, "GetCurrentDelta");
 
         if (tmpTrace.fraction > trace.fraction) {
             trace   = tmpTrace;
@@ -795,175 +888,37 @@ Vector BotMovement::FixDeltaFromCollision(const Vector& delta)
         }
     }
 
-    if (trace.fraction < 0.3 && distSqr * Square(trace.fraction) < Square(64)) {
-        Vector  newStartLeft, newStartRight;
-        trace_t leftTrace, rightTrace;
-        int     i;
-        float   bestLeftFrac = 0, bestRightFrac = 0;
-        Vector  bestLeftPos, bestRightPos;
+    if (trace.fraction < 1.0) {
+        Vector start, step;
+        float  bestLeftFrac = 0, bestRightFrac = 0;
+        Vector bestLeftPos, bestRightPos;
 
+        // 0 = parallel
+        // -1 = perpendicular
         // If it's near parallel use the trace normal
-        if (DotProduct(trace.plane.normal, forward) < -0.6) {
+        if (DotProduct(trace.plane.normal, forward) < -0.75) {
             VectorCopy(trace.plane.normal, forward);
             VectorNegate(forward, forward);
             VectorToAngles(forward, angles);
             AngleVectors(angles, forward, right, up);
         }
 
-        leftTrace.fraction = rightTrace.fraction = 0;
-
-        for (i = 1; i < 5; i++) {
-            newStartRight = controlledEntity->origin - forward + right * (32 * i);
-
-            //
-            // Trace to the right
-            //
-            rightTrace = G_Trace(
-                controlledEntity->origin,
-                mins,
-                maxs,
-                newStartRight,
-                controlledEntity,
-                MASK_PLAYERSOLID,
-                qtrue,
-                "GetCurrentDelta"
-            );
-
-            if (rightTrace.startsolid || rightTrace.fraction <= 0) {
-                break;
-            }
-
-            newStartRight = rightTrace.endpos;
-
-            // Make sure it doesn't fall
-            rightTrace = G_Trace(
-                newStartRight,
-                mins,
-                maxs,
-                newStartRight - Vector(0, 0, STEPSIZE * 2),
-                controlledEntity,
-                MASK_PLAYERSOLID,
-                qtrue,
-                "GetCurrentDelta"
-            );
-            if (rightTrace.fraction == 1) {
-                break;
-            }
-
-            //
-            // Trace from the right to the node
-            //
-            rightTrace = G_Trace(
-                newStartRight,
-                mins,
-                maxs,
-                target,
-                controlledEntity,
-                MASK_PLAYERSOLID,
-                qtrue,
-                "GetCurrentDelta"
-            );
-
-            if (rightTrace.fraction > bestRightFrac) {
-                bestRightFrac = rightTrace.fraction;
-                bestRightPos  = newStartRight;
-            }
-            if (rightTrace.fraction >= 0.999) {
-                break;
-            }
-        }
+        //
+        // Try to resolve following situation (schema from top):
+        //
+        // ┌───┐
+        // ↑   │
+        // p▌  t   ← Must be able to avoid the obstacle in front and move left or right, to target
+        // ↓   ↑
+        // └─→─┘
+        //
+        CalculateBestFrontAvoidance(entityOrg, target, 64, forward, right, bestRightFrac, bestRightPos);
 
         if (bestRightFrac != 1) {
-            for (i = 1; i < 5; i++) {
-                newStartLeft = controlledEntity->origin - forward - right * (32 * i);
-
-                //
-                // Trace to the left
-                //
-                leftTrace = G_Trace(
-                    controlledEntity->origin,
-                    mins,
-                    maxs,
-                    newStartLeft,
-                    controlledEntity,
-                    MASK_PLAYERSOLID,
-                    qtrue,
-                    "GetCurrentDelta"
-                );
-
-                if (leftTrace.startsolid || leftTrace.fraction <= 0) {
-                    break;
-                }
-
-                newStartLeft = leftTrace.endpos;
-
-                // Make sure it doesn't fall
-                leftTrace = G_Trace(
-                    newStartLeft,
-                    mins,
-                    maxs,
-                    newStartLeft - Vector(0, 0, STEPSIZE * 2),
-                    controlledEntity,
-                    MASK_PLAYERSOLID,
-                    qtrue,
-                    "GetCurrentDelta"
-                );
-                if (leftTrace.fraction == 1) {
-                    break;
-                }
-
-                //
-                // Trace from the left to the node
-                //
-                leftTrace = G_Trace(
-                    newStartLeft,
-                    mins,
-                    maxs,
-                    target,
-                    controlledEntity,
-                    MASK_PLAYERSOLID,
-                    qtrue,
-                    "GetCurrentDelta"
-                );
-
-                if (leftTrace.fraction > bestLeftFrac) {
-                    bestLeftFrac = leftTrace.fraction;
-                    bestLeftPos  = newStartLeft;
-                }
-                if (leftTrace.fraction >= 0.999) {
-                    break;
-                }
-            }
+            CalculateBestFrontAvoidance(entityOrg, target, 64, forward, -right, bestLeftFrac, bestLeftPos);
         }
 
         if (bestLeftFrac != 0 || bestRightFrac != 0) {
-            trace_t leftFallTrace, rightFallTrace;
-
-            //
-            // Make sure we're not falling
-            //
-
-            leftFallTrace = G_Trace(
-                bestLeftPos,
-                mins,
-                maxs,
-                bestLeftPos - Vector(0, 0, STEPSIZE * 2),
-                controlledEntity,
-                MASK_PLAYERSOLID,
-                qtrue,
-                "GetCurrentDelta"
-            );
-            rightFallTrace = G_Trace(
-                bestRightPos,
-                mins,
-                maxs,
-                bestRightPos - Vector(0, 0, STEPSIZE * 2),
-                controlledEntity,
-                MASK_PLAYERSOLID,
-                qtrue,
-                "GetCurrentDelta"
-            );
-
             m_bAvoidCollision = true;
 
             //
@@ -971,13 +926,21 @@ Vector BotMovement::FixDeltaFromCollision(const Vector& delta)
             //
             if (bestLeftFrac > bestRightFrac) {
                 m_vTempCollisionAvoidance = bestLeftPos + forward * 64;
-            } else {
+            } else if (bestLeftFrac < bestRightFrac) {
                 m_vTempCollisionAvoidance = bestRightPos + forward * 64;
+            } else {
+                // Randomly choose direction if both are the same
+                if (Vector::DistanceSquared(bestLeftPos, dest) > Vector::DistanceSquared(bestRightPos, dest)) {
+                    m_vTempCollisionAvoidance = bestRightPos + forward * 64;
+                } else {
+                    m_vTempCollisionAvoidance = bestLeftPos + forward * 64;
+                }
             }
 
             //
             // If falling, make sure to use the one that won't fall
             //
+#if 0
             if (leftFallTrace.fraction != rightFallTrace.fraction
                 && (leftFallTrace.fraction != 1 || rightFallTrace.fraction != 1)) {
                 if (leftFallTrace.fraction == 1 && bestRightFrac) {
@@ -986,6 +949,7 @@ Vector BotMovement::FixDeltaFromCollision(const Vector& delta)
                     m_vTempCollisionAvoidance = bestLeftPos + forward * 64;
                 }
             }
+#endif
 
             return m_vTempCollisionAvoidance - controlledEntity->origin;
         }
@@ -1018,8 +982,6 @@ Returns true if the bot has done moving
 */
 bool BotMovement::MoveDone()
 {
-    PathInfo *next;
-
     if (!m_bPathing) {
         return true;
     }
