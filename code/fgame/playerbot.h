@@ -168,10 +168,16 @@ private:
     BotRotation rotation;
 
     // States
-    int               m_iCuriousTime;
-    int               m_iAttackTime;
-    int               m_iConfirmTime;
-    int               m_iAttackStopAimTime;
+    int    m_iCuriousTime;
+    int    m_iAttackTime;
+    int    m_iAttackStopAimTime;
+    int    m_iLastBurstTime;
+    int    m_iLastSeenTime;
+    int    m_iLastUnseenTime;
+    int    m_iContinuousFireTime;
+    Vector m_vAimOffset;
+    int    m_iLastAimTime;
+
     Vector            m_vLastCuriousPos;
     Vector            m_vNewCuriousPos;
     Vector            m_vOldEnemyPos;

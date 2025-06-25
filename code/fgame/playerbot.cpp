@@ -20,6 +20,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 // playerbot.cpp: Multiplayer bot system.
+//
+// FIXME: Refactor code and use OOP-based state system
 
 #include "g_local.h"
 #include "actor.h"
@@ -66,10 +68,13 @@ BotController::BotController()
     m_botEyes.ofs[1]    = 0;
     m_botEyes.ofs[2]    = DEFAULT_VIEWHEIGHT;
 
-    m_iCuriousTime  = 0;
-    m_iAttackTime   = 0;
-    m_iConfirmTime  = 0;
-    m_iEnemyEyesTag = -1;
+    m_iCuriousTime        = 0;
+    m_iAttackTime         = 0;
+    m_iEnemyEyesTag       = -1;
+    m_iContinuousFireTime = 0;
+    m_iLastSeenTime       = 0;
+    m_iLastUnseenTime     = 0;
+    m_iLastBurstTime      = 0;
 
     m_iNextTauntTime = 0;
 
@@ -473,7 +478,6 @@ Clear the bot's enemy
 void BotController::ClearEnemy(void)
 {
     m_iAttackTime   = 0;
-    m_iConfirmTime  = 0;
     m_pEnemy        = NULL;
     m_iEnemyEyesTag = -1;
     m_vOldEnemyPos  = vec_zero;
@@ -772,19 +776,14 @@ bool BotController::CheckCondition_Attack(void)
             }
 
             if (!m_pEnemy) {
-                // Slight reaction time
-                m_iConfirmTime = level.inttime + (200 + G_Random(200));
-                m_iAttackTime  = 0;
+                m_iLastUnseenTime = level.inttime;
             }
 
             m_pEnemy        = sent;
             m_vLastEnemyPos = m_pEnemy->origin;
-            if (level.inttime < m_iConfirmTime) {
-                return false;
-            }
         }
 
-        if (m_pEnemy && level.inttime >= m_iConfirmTime) {
+        if (m_pEnemy) {
             m_iAttackTime = level.inttime + 1000;
             return true;
         }
@@ -812,11 +811,13 @@ void BotController::State_Attack(void)
 {
     bool    bMelee              = false;
     bool    bCanSee             = false;
+    bool    bCanAttack          = false;
     float   fMinDistance        = 128;
     float   fMinDistanceSquared = fMinDistance * fMinDistance;
     float   fEnemyDistanceSquared;
     Weapon *pWeap   = controlledEnt->GetActiveWeapon(WEAPON_MAIN);
     bool    bNoMove = false;
+    bool    bFiring = false;
 
     if (!m_pEnemy || !IsValidEnemy(m_pEnemy)) {
         // Ignore dead enemies
@@ -829,100 +830,149 @@ void BotController::State_Attack(void)
 
     bCanSee =
         controlledEnt->CanSee(m_pEnemy, 20, Q_min(world->m_fAIVisionDistance, world->farplane_distance * 0.828), false);
+
     if (bCanSee) {
         if (!pWeap) {
             return;
         }
 
-        float fPrimaryBulletRange          = pWeap->GetBulletRange(FIRE_PRIMARY) / 1.25f;
-        float fPrimaryBulletRangeSquared   = fPrimaryBulletRange * fPrimaryBulletRange;
-        float fSecondaryBulletRange        = pWeap->GetBulletRange(FIRE_SECONDARY);
-        float fSecondaryBulletRangeSquared = fSecondaryBulletRange * fSecondaryBulletRange;
-        float fSpreadFactor                = pWeap->GetSpreadFactor(FIRE_PRIMARY);
-
-        //
-        // check the fire movement speed if the weapon has a max fire movement
-        //
-        if (pWeap->GetMaxFireMovement() < 1 && pWeap->HasAmmoInClip(FIRE_PRIMARY)) {
-            float length;
-
-            length = controlledEnt->velocity.length();
-            if ((length / sv_runspeed->value) > (pWeap->GetMaxFireMovementMult())) {
-                bNoMove = true;
-                movement.ClearMove();
-            }
-        }
-
-        fMinDistance = fPrimaryBulletRange;
-
-        if (fMinDistance > 256) {
-            fMinDistance = 256;
-        }
-
-        fMinDistanceSquared = fMinDistance * fMinDistance;
-
-        if (controlledEnt->client->ps.stats[STAT_AMMO] > 0 || controlledEnt->client->ps.stats[STAT_CLIPAMMO] > 0) {
-            if (fDistanceSquared <= fPrimaryBulletRangeSquared) {
-                if (pWeap->IsSemiAuto()) {
-                    if (controlledEnt->client->ps.iViewModelAnim == VM_ANIM_IDLE
-                        || controlledEnt->client->ps.iViewModelAnim >= VM_ANIM_IDLE_0
-                               && controlledEnt->client->ps.iViewModelAnim <= VM_ANIM_IDLE_2) {
-                        if (fSpreadFactor < 0.25) {
-                            m_botCmd.buttons ^= BUTTON_ATTACKLEFT;
-                            if (pWeap->GetZoom()) {
-                                if (!controlledEnt->IsZoomed()) {
-                                    m_botCmd.buttons |= BUTTON_ATTACKRIGHT;
-                                } else {
-                                    m_botCmd.buttons &= ~BUTTON_ATTACKRIGHT;
-                                }
-                            }
-                        } else {
-                            bNoMove = true;
-                            movement.ClearMove();
-                        }
-                    } else {
-                        m_botCmd.buttons &= ~(BUTTON_ATTACKLEFT | BUTTON_ATTACKRIGHT);
-                        controlledEnt->ZoomOff();
-                    }
-                } else {
-                    m_botCmd.buttons |= BUTTON_ATTACKLEFT;
-                }
+        bCanAttack = true;
+        if (m_iLastUnseenTime) {
+            const float reactionTime = Q_min(1000 * Q_min(1, fDistanceSquared / Square(2048)), 1000);
+            if (level.inttime <= m_iLastUnseenTime + 200 + G_Random(reactionTime)) {
+                bCanAttack = false;
             } else {
-                m_botCmd.buttons &= ~(BUTTON_ATTACKLEFT | BUTTON_ATTACKRIGHT);
-                controlledEnt->ZoomOff();
+                m_iLastUnseenTime = 0;
             }
-        } else {
-            m_botCmd.buttons &= ~(BUTTON_ATTACKLEFT | BUTTON_ATTACKRIGHT);
-            controlledEnt->ZoomOff();
         }
 
-        m_iLastFireTime = level.inttime;
+        if (bCanAttack) {
+            const int fireDelay                    = pWeap->FireDelay(FIRE_PRIMARY) * 1000;
+            float     fPrimaryBulletRange          = pWeap->GetBulletRange(FIRE_PRIMARY) / 1.25f;
+            float     fPrimaryBulletRangeSquared   = fPrimaryBulletRange * fPrimaryBulletRange;
+            float     fSecondaryBulletRange        = pWeap->GetBulletRange(FIRE_SECONDARY);
+            float     fSecondaryBulletRangeSquared = fSecondaryBulletRange * fSecondaryBulletRange;
+            float     fSpreadFactor                = pWeap->GetSpreadFactor(FIRE_PRIMARY);
 
-        if (pWeap->GetFireType(FIRE_SECONDARY) == FT_MELEE) {
+            const int maxContinousFireTime = fireDelay + 500 + G_Random(1500);
+            const int maxBurstTime         = fireDelay + 100 + G_Random(500);
+
+            //
+            // check the fire movement speed if the weapon has a max fire movement
+            //
+            if (pWeap->GetMaxFireMovement() < 1 && pWeap->HasAmmoInClip(FIRE_PRIMARY)) {
+                float length;
+
+                length = controlledEnt->velocity.length();
+                if ((length / sv_runspeed->value) > (pWeap->GetMaxFireMovementMult())) {
+                    bNoMove = true;
+                    movement.ClearMove();
+                }
+            }
+
+            fMinDistance = fPrimaryBulletRange;
+
+            if (fMinDistance > 256) {
+                fMinDistance = 256;
+            }
+
+            fMinDistanceSquared = fMinDistance * fMinDistance;
+
             if (controlledEnt->client->ps.stats[STAT_AMMO] <= 0
                 && controlledEnt->client->ps.stats[STAT_CLIPAMMO] <= 0) {
-                bMelee = true;
-            } else if (fDistanceSquared <= fSecondaryBulletRangeSquared) {
-                bMelee = true;
-            }
-        }
-
-        if (bMelee) {
-            m_botCmd.buttons &= ~BUTTON_ATTACKLEFT;
-
-            if (fDistanceSquared <= fSecondaryBulletRangeSquared) {
-                m_botCmd.buttons ^= BUTTON_ATTACKRIGHT;
+                m_botCmd.buttons &= ~(BUTTON_ATTACKLEFT | BUTTON_ATTACKRIGHT);
+                controlledEnt->ZoomOff();
+            } else if (fDistanceSquared > fPrimaryBulletRangeSquared) {
+                m_botCmd.buttons &= ~(BUTTON_ATTACKLEFT | BUTTON_ATTACKRIGHT);
+                controlledEnt->ZoomOff();
             } else {
-                m_botCmd.buttons &= ~BUTTON_ATTACKRIGHT;
-            }
-        }
+                //
+                // Attacking
+                //
 
-        m_iAttackTime        = level.inttime + 1000;
-        m_iAttackStopAimTime = level.inttime + 3000;
-        m_vLastEnemyPos      = m_pEnemy->origin;
+                if (pWeap->IsSemiAuto()) {
+                    if (controlledEnt->client->ps.iViewModelAnim != VM_ANIM_IDLE
+                        && (controlledEnt->client->ps.iViewModelAnim < VM_ANIM_IDLE_0
+                            || controlledEnt->client->ps.iViewModelAnim > VM_ANIM_IDLE_2)) {
+                        m_botCmd.buttons &= ~(BUTTON_ATTACKLEFT | BUTTON_ATTACKRIGHT);
+                        controlledEnt->ZoomOff();
+                    } else if (fSpreadFactor < 0.25) {
+                        bFiring = true;
+                        m_botCmd.buttons ^= BUTTON_ATTACKLEFT;
+                        if (pWeap->GetZoom()) {
+                            if (!controlledEnt->IsZoomed()) {
+                                m_botCmd.buttons |= BUTTON_ATTACKRIGHT;
+                            } else {
+                                m_botCmd.buttons &= ~BUTTON_ATTACKRIGHT;
+                            }
+                        }
+                    } else {
+                        bNoMove = true;
+                        movement.ClearMove();
+                    }
+                } else {
+                    bFiring = true;
+                    m_botCmd.buttons |= BUTTON_ATTACKLEFT;
+                }
+            }
+
+            //
+            // Burst
+            //
+
+            if (m_iLastBurstTime) {
+                if (level.inttime > m_iLastBurstTime + maxBurstTime) {
+                    m_iLastBurstTime      = 0;
+                    m_iContinuousFireTime = 0;
+                } else {
+                    m_botCmd.buttons &= ~BUTTON_ATTACKLEFT;
+                }
+            } else {
+                if (bFiring) {
+                    m_iContinuousFireTime += level.intframetime;
+                } else {
+                    m_iContinuousFireTime = 0;
+                }
+
+                if (!m_iLastBurstTime && m_iContinuousFireTime > maxContinousFireTime) {
+                    m_iLastBurstTime      = level.inttime;
+                    m_iContinuousFireTime = 0;
+                }
+            }
+
+            m_iLastFireTime = level.inttime;
+
+            if (pWeap->GetFireType(FIRE_SECONDARY) == FT_MELEE) {
+                if (controlledEnt->client->ps.stats[STAT_AMMO] <= 0
+                    && controlledEnt->client->ps.stats[STAT_CLIPAMMO] <= 0) {
+                    bMelee = true;
+                } else if (fDistanceSquared <= fSecondaryBulletRangeSquared) {
+                    bMelee = true;
+                }
+            }
+
+            if (bMelee) {
+                m_botCmd.buttons &= ~BUTTON_ATTACKLEFT;
+
+                if (fDistanceSquared <= fSecondaryBulletRangeSquared) {
+                    m_botCmd.buttons ^= BUTTON_ATTACKRIGHT;
+                } else {
+                    m_botCmd.buttons &= ~BUTTON_ATTACKRIGHT;
+                }
+            }
+
+            m_iAttackTime        = level.inttime + 1000;
+            m_iAttackStopAimTime = level.inttime + 3000;
+            m_iLastSeenTime      = level.inttime;
+            m_vLastEnemyPos      = m_pEnemy->origin;
+        }
     } else {
         m_botCmd.buttons &= ~(BUTTON_ATTACKLEFT | BUTTON_ATTACKRIGHT);
         fMinDistanceSquared = 0;
+
+        if (level.inttime > m_iLastSeenTime + 2000) {
+            m_iLastUnseenTime = level.inttime;
+        }
     }
 
     if (bCanSee || level.inttime < m_iAttackStopAimTime) {
@@ -939,15 +989,27 @@ void BotController::State_Attack(void)
             // Use the enemy's eyes bone
             m_pEnemy->GetTag(m_iEnemyEyesTag, &eyes_or);
 
-            vRandomOffset = Vector(G_CRandom(8), G_CRandom(8), -G_Random(32));
-            vTarget       = eyes_or.origin + vRandomOffset;
-            rotation.AimAt(eyes_or.origin + vRandomOffset);
+            //vRandomOffset = Vector(G_CRandom(8), G_CRandom(8), -G_Random(32));
+            vTarget = eyes_or.origin;
         } else {
-            vRandomOffset = Vector(G_CRandom(8), G_CRandom(8), 16 + G_Random(m_pEnemy->viewheight - 16));
-            vTarget       = m_pEnemy->origin + vRandomOffset;
+            //vRandomOffset = Vector(G_CRandom(8), G_CRandom(8), 16 + G_Random(m_pEnemy->viewheight - 16));
+            vTarget = m_pEnemy->origin;
         }
 
-        rotation.AimAt(vTarget);
+        if (level.inttime >= m_iLastAimTime + 100) {
+            if (m_iEnemyEyesTag != -1) {
+                m_vAimOffset[0] = G_CRandom((m_pEnemy->maxs.x - m_pEnemy->mins.x) * 0.5);
+                m_vAimOffset[1] = G_CRandom((m_pEnemy->maxs.y - m_pEnemy->mins.y) * 0.5);
+                m_vAimOffset[2] = -G_Random(m_pEnemy->maxs.z * 0.5);
+            } else {
+                m_vAimOffset[0] = G_CRandom((m_pEnemy->maxs.x - m_pEnemy->mins.x) * 0.5);
+                m_vAimOffset[1] = G_CRandom((m_pEnemy->maxs.y - m_pEnemy->mins.y) * 0.5);
+                m_vAimOffset[2] = 16 + G_Random(m_pEnemy->viewheight - 16);
+            }
+            m_iLastAimTime = level.inttime;
+        }
+
+        rotation.AimAt(vTarget + m_vAimOffset);
     } else {
         AimAtAimNode();
     }
