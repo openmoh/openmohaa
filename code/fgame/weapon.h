@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2024 the OpenMoHAA team
+Copyright (C) 2025 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -341,7 +341,7 @@ public:
     void             SetMinRange(float val);
     void             ForceIdle(void);
     virtual qboolean SetWeaponAnim(const char *anim, Event *ev = NULL);
-    qboolean         SetWeaponAnim(const char *anim, Event        &ev);
+    qboolean         SetWeaponAnim(const char *anim, Event& ev);
     void             SetWeaponAnimEvent(Event *ev);
     void             SetWeaponIdleAnim(void);
     void             SetWeaponIdleAnimEvent(Event *ev);
@@ -400,12 +400,12 @@ public:
     virtual void GetMuzzlePosition(
         vec3_t position, vec3_t vBarrelPos = NULL, vec3_t forward = NULL, vec3_t right = NULL, vec3_t up = NULL
     );
-    qboolean         AutoChange(void);
-    int              ClipAmmo(firemode_t mode);
-    qboolean         IsDroppable(void);
-    virtual float    FireDelay(firemode_t mode);
-    virtual void     SetFireDelay(Event *ev);
-    void             SetDMFireDelay(Event *ev);
+    qboolean      AutoChange(void);
+    int           ClipAmmo(firemode_t mode);
+    qboolean      IsDroppable(void);
+    virtual float FireDelay(firemode_t mode);
+    virtual void  SetFireDelay(Event *ev);
+    void          SetDMFireDelay(Event *ev);
 
     weaponstate_t GetState(void);
     void          ForceState(weaponstate_t state);
@@ -454,9 +454,15 @@ public:
     // Added in OPM
     //
     Listener  *GetScriptOwner(void) override;
-    float      GetBulletRange(firemode_t firemode);
-    float      GetSpreadFactor(firemode_t firemode);
+    float      GetBulletRange(firemode_t mode);
+    float      GetSpreadFactor(firemode_t mode);
     float      GetChargeFraction(void) const;
+    float      GetCurrentFireSpreadMult(firemode_t mode) const;
+    float      GetCurrentFireSpreadMultTime(firemode_t mode) const;
+    float      GetFireSpreadMultAmount(firemode_t mode) const;
+    float      GetFireSpreadMultFalloff(firemode_t mode) const;
+    float      GetFireSpreadMultCap(firemode_t mode) const;
+    float      GetFireSpreadMultTimeCap(firemode_t mode) const;
     firemode_t GetFireMode(void);
     qboolean   IsSemiAuto(void);
     void       DoneAnimating(Event *ev);

@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2025 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -1036,9 +1036,11 @@ Weapon::Weapon()
     // Owner of the weapon
     owner = NULL;
 
+    // Fixed in 2.0
+    //  Clear fire spread multiplier values
     // Maximum spread multiplier while firing
-    m_fFireSpreadMultCap[0] = 0;
-    m_fFireSpreadMultCap[1] = 0;
+    m_fFireSpreadMultTimeCap[0] = 0;
+    m_fFireSpreadMultTimeCap[1] = 0;
 
     // Starting rank of the weapon
     rank = 0;
@@ -2071,14 +2073,18 @@ void Weapon::Shoot(Event *ev)
         if (m_fFireSpreadMultAmount[mode]) {
             m_fFireSpreadMult[mode] += m_fFireSpreadMultAmount[mode];
 
-            if (m_fFireSpreadMultCap[mode] < 0.0f) {
-                if (m_fFireSpreadMultCap[mode] > m_fFireSpreadMult[mode]) {
+            if (m_fFireSpreadMultCap[mode] > 0) {
+                if (m_fFireSpreadMult[mode] > m_fFireSpreadMultCap[mode]) {
                     m_fFireSpreadMult[mode] = m_fFireSpreadMultCap[mode];
-                } else if (m_fFireSpreadMult[mode] > 0.0f) {
-                    m_fFireSpreadMult[mode] = 0.0f;
+                } else if (m_fFireSpreadMult[mode] < 0) {
+                    m_fFireSpreadMult[mode] = 0;
                 }
-            } else if (m_fFireSpreadMult[mode] <= m_fFireSpreadMultCap[mode] && m_fFireSpreadMult[mode] < 0.0f) {
-                m_fFireSpreadMult[mode] = 0.0f;
+            } else if (m_fFireSpreadMultCap[mode] < 0) {
+                if (m_fFireSpreadMult[mode] < m_fFireSpreadMultCap[mode]) {
+                    m_fFireSpreadMult[mode] = m_fFireSpreadMultCap[mode];
+                } else if (m_fFireSpreadMult[mode] > 0) {
+                    m_fFireSpreadMult[mode] = 0;
+                }
             }
         }
 
@@ -4623,6 +4629,81 @@ float Weapon::GetSpreadFactor(firemode_t mode)
 float Weapon::GetChargeFraction(void) const
 {
     return charge_fraction;
+}
+
+//======================
+//Weapon::GetCurrentFireSpreadMult
+//======================
+float Weapon::GetCurrentFireSpreadMult(firemode_t mode) const
+{
+    const float fTime = level.time - m_fFireSpreadMultTime[mode];
+
+    if (m_fFireSpreadMultAmount[mode] != 0.0f) {
+        if (fTime > m_fFireSpreadMultTimeCap[mode]) {
+            return 0;
+        }
+
+        const float fDecay = fTime * m_fFireSpreadMultFalloff[mode];
+        if (m_fFireSpreadMult[mode] <= 0.0f) {
+            if (m_fFireSpreadMult[mode] > 0) {
+                return 0;
+            }
+
+            return m_fFireSpreadMult[mode] - fDecay;
+        } else {
+            if (m_fFireSpreadMult[mode] < 0.0f) {
+                return 0;
+            }
+
+            return m_fFireSpreadMult[mode] - fDecay;
+        }
+    }
+
+    if (fTime >= m_fFireSpreadMultTimeCap[mode]) {
+        return 0;
+    }
+
+    return m_fFireSpreadMult[mode];
+}
+
+//======================
+//Weapon::GetCurrentFireSpreadMultTime
+//======================
+float Weapon::GetCurrentFireSpreadMultTime(firemode_t mode) const
+{
+    return m_fFireSpreadMultTime[mode];
+}
+
+//======================
+//Weapon::GetFireSpreadMultAmount
+//======================
+float Weapon::GetFireSpreadMultAmount(firemode_t mode) const
+{
+    return m_fFireSpreadMultAmount[mode];
+}
+
+//======================
+//Weapon::GetFireSpreadMultFalloff
+//======================
+float Weapon::GetFireSpreadMultFalloff(firemode_t mode) const
+{
+    return m_fFireSpreadMultFalloff[mode];
+}
+
+//======================
+//Weapon::GetFireSpreadMultCap
+//======================
+float Weapon::GetFireSpreadMultCap(firemode_t mode) const
+{
+    return m_fFireSpreadMultCap[mode];
+}
+
+//======================
+//Weapon::GetFireSpreadMultTimecap
+//======================
+float Weapon::GetFireSpreadMultTimeCap(firemode_t mode) const
+{
+    return m_fFireSpreadMultTimeCap[mode];
 }
 
 //======================
