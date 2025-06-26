@@ -1008,11 +1008,17 @@ void CG_ModelAnim(centity_t *cent, qboolean bDoShaderTime)
     vec3_t         vMins, vMaxs, vTmp;
     const char    *szTagName;
     int            iAnimFlags;
+    qboolean       bThirdPerson = qfalse;
 
     s1 = &cent->currentState;
 
-    if ((cg.snap->ps.pm_flags & PMF_INTERMISSION) && s1->number == cg.snap->ps.clientNum && !cg_3rd_person->integer) {
-        // don't render if in intermission and the client is self without 3rd person
+    bThirdPerson |= cg_3rd_person->integer;
+    // Fixed in OPM
+    //  Draw world model body when in camera
+    bThirdPerson |= cg.snap->ps.pm_flags & PMF_CAMERA_VIEW;
+
+    if ((cg.snap->ps.pm_flags & PMF_INTERMISSION) && s1->number == cg.snap->ps.clientNum && !bThirdPerson) {
+        // Don't render the first-person model during intermission
         return;
     }
 
@@ -1075,7 +1081,7 @@ void CG_ModelAnim(centity_t *cent, qboolean bDoShaderTime)
     model.radius = VectorLength(vTmp) * 0.5;
 
     if (s1->number == cg.snap->ps.clientNum) {
-        if (!cg_3rd_person->integer) {
+        if (!bThirdPerson) {
             PmoveAdjustAngleSettings_Client(
                 cg.refdefViewAngles, cent->lerpAngles, &cg.predicted_player_state, &cent->currentState
             );
@@ -1201,7 +1207,7 @@ void CG_ModelAnim(centity_t *cent, qboolean bDoShaderTime)
             return;
         }
 
-        if (s1->parent != cg.snap->ps.clientNum || cg_3rd_person->integer) {
+        if (s1->parent != cg.snap->ps.clientNum || bThirdPerson) {
             // attach the model to the world model
             if (parent->hOldModel) {
                 tiki      = cgi.R_Model_GetHandle(parent->hOldModel);
@@ -1276,7 +1282,7 @@ void CG_ModelAnim(centity_t *cent, qboolean bDoShaderTime)
     memcpy(model.surfaces, s1->surfaces, MAX_MODEL_SURFACES);
 
     if (!(s1->renderfx & RF_VIEWMODEL) && s1->parent != ENTITYNUM_NONE && s1->parent == cg.snap->ps.clientNum
-        && ((!cg_drawviewmodel->integer && !cg_3rd_person->integer) || cg.snap->ps.stats[STAT_INZOOM])) {
+        && ((!cg_drawviewmodel->integer && !bThirdPerson) || cg.snap->ps.stats[STAT_INZOOM])) {
         // hide all surfaces while zooming or if the viewmodel shouldn't be shown
         for (i = 0; i < MAX_MODEL_SURFACES; i++) {
             model.surfaces[i] |= MDL_SURFACE_NODRAW;
@@ -1361,7 +1367,7 @@ void CG_ModelAnim(centity_t *cent, qboolean bDoShaderTime)
     }
 
     if (s1->number == cg.snap->ps.clientNum) {
-        if ((!cg.bFPSModelLastFrame && !cg_3rd_person->integer) || (cg.bFPSModelLastFrame && cg_3rd_person->integer)) {
+        if ((!cg.bFPSModelLastFrame && !bThirdPerson) || (cg.bFPSModelLastFrame && bThirdPerson)) {
             // reset the animations when toggling 3rd person
             for (i = 0; i < MAX_FRAMEINFOS; i++) {
                 cent->animLast[i] = -1;
@@ -1370,7 +1376,7 @@ void CG_ModelAnim(centity_t *cent, qboolean bDoShaderTime)
             cent->animLastWeight = 0;
             cent->usageIndexLast = 0;
 
-            cg.bFPSModelLastFrame = !cg_3rd_person->integer;
+            cg.bFPSModelLastFrame = !bThirdPerson;
         }
 
         // player footsteps, walking/falling
@@ -1387,7 +1393,7 @@ void CG_ModelAnim(centity_t *cent, qboolean bDoShaderTime)
             }
         }
 
-        if (!cg_3rd_person->integer) {
+        if (!bThirdPerson) {
             // first person view
 
             if (!(cg.predicted_player_state.pm_flags & PMF_CAMERA_VIEW)
