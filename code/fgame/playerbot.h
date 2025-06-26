@@ -75,7 +75,6 @@ private:
     void   NewMove();
     Vector FixDeltaFromCollision(const Vector& delta);
     void   CalculateBestFrontAvoidance(
-          const Vector& entityOrg,
           const Vector& targetOrg,
           float         maxDist,
           const Vector& forward,
