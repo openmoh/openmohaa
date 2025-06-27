@@ -2446,6 +2446,9 @@ void Player::InitHealth(void)
 
 void Player::InitModel(void)
 {
+    static const char *defaultAxisModel   = "models/player/german_wehrmacht_soldier.tik";
+    static const char *defaultAlliedModel = "models/player/american_army.tik";
+
     // 2.0:
     //  Make sure to detach from any object before initializing
     //  To prevent any glitches
@@ -2457,21 +2460,33 @@ void Player::InitModel(void)
     if (g_gametype->integer == GT_SINGLE_PLAYER) {
         setModel("models/player/" + str(g_playermodel->string) + ".tik");
     } else if (dm_team == TEAM_AXIS) {
-        if (Q_stricmpn(client->pers.dm_playergermanmodel, "german", 6)
-            && Q_stricmpn(client->pers.dm_playergermanmodel, "axis", 4)
-            //
-            // 2.30 models
-            //
-            && Q_stricmpn(client->pers.dm_playergermanmodel, "it", 2)
-            && Q_stricmpn(client->pers.dm_playergermanmodel, "sc", 2)) {
-            setModel("models/player/german_wehrmacht_soldier.tik");
+        size_t len = strlen(client->pers.dm_playergermanmodel);
+
+        if (len >= 4 && !Q_stricmp(client->pers.dm_playergermanmodel + len - 4, "_fps")) {
+            // Fixed in OPM
+            //  Prevent the player from using the first-person model
+            setModel(defaultAxisModel);
+        } else if (Q_stricmpn(client->pers.dm_playergermanmodel, "german", 6)
+                   && Q_stricmpn(client->pers.dm_playergermanmodel, "axis", 4)
+                   //
+                   // 2.30 models
+                   //
+                   && Q_stricmpn(client->pers.dm_playergermanmodel, "it", 2)
+                   && Q_stricmpn(client->pers.dm_playergermanmodel, "sc", 2)) {
+            setModel(defaultAxisModel);
         } else {
             setModel("models/player/" + str(client->pers.dm_playergermanmodel) + ".tik");
         }
     } else {
-        if (Q_stricmpn(client->pers.dm_playermodel, "american", 8)
-            && Q_stricmpn(client->pers.dm_playermodel, "allied", 6)) {
-            setModel("models/player/american_army.tik");
+        size_t len = strlen(client->pers.dm_playermodel);
+
+        if (len >= 4 && !Q_stricmp(client->pers.dm_playermodel + len - 4, "_fps")) {
+            // Fixed in OPM
+            //  Prevent the player from using the first-person model
+            setModel(defaultAlliedModel);
+        } else if (Q_stricmpn(client->pers.dm_playermodel, "american", 8)
+                   && Q_stricmpn(client->pers.dm_playermodel, "allied", 6)) {
+            setModel(defaultAlliedModel);
         } else {
             setModel("models/player/" + str(client->pers.dm_playermodel) + ".tik");
         }
