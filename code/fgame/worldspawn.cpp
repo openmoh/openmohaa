@@ -559,7 +559,7 @@ World::World()
 
     // world model is always index 1
     edict->s.modelindex = 1;
-    model               = "*1";
+    model               = "*0";
 
     UpdateConfigStrings();
 
@@ -625,6 +625,9 @@ World::World()
     SetTargetName("world");
 
     m_fNorth = 0;
+
+    gi.ModelBoundsFromName(model.c_str(), bounds[0], bounds[1]);
+    radius = (bounds[1] - bounds[0]).length() * 0.5;
 }
 
 World::~World()
@@ -1300,4 +1303,19 @@ SimpleEntity *TargetList::GetNextEntity(SimpleEntity *ent)
     }
 
     return NULL;
+}
+
+const Vector& World::GetMinBounds() const
+{
+    return bounds[0];
+}
+
+const Vector& World::GetMaxBounds() const
+{
+    return bounds[1];
+}
+
+float World::GetRadius() const
+{
+    return radius;
 }

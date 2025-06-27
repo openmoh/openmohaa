@@ -2049,9 +2049,9 @@ void Weapon::Shoot(Event *ev)
             } else {
                 //
                 // Added in OPM
-                //  Weapon firing sounds can be heard 8000 units away
+                //  Weapon firing sounds can be heard up to 8000 units away
                 //  (from ubersound.scr)
-                BroadcastAIEvent(AI_EVENT_WEAPON_FIRE, 8000);
+                BroadcastAIEvent(AI_EVENT_WEAPON_FIRE, Q_clamp_float(world->GetRadius() * 0.5, 1500, 8000));
             }
             next_noise_time = level.time + 1;
         }

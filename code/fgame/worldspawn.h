@@ -99,6 +99,7 @@ class World : public Entity
 {
     Container<TargetList*> m_targetListContainer;
     qboolean world_dying;
+    Vector bounds[2];
 
 public:
     // farplane variables
@@ -131,6 +132,8 @@ public:
     // orientation variables
     float m_fAIVisionDistance;
     float m_fNorth;
+
+    float radius;
 
 public:
     CLASS_PROTOTYPE(World);
@@ -189,6 +192,11 @@ public:
     void UpdateSky(void);
 
     void Archive(Archiver& arc) override;
+
+public:
+    const Vector& GetMinBounds() const;
+    const Vector& GetMaxBounds() const;
+    float GetRadius() const;
 };
 
 typedef SafePtr<World> WorldPtr;
