@@ -1209,11 +1209,19 @@ void CG_ModelAnim(centity_t *cent, qboolean bDoShaderTime)
 
         if (s1->parent != cg.snap->ps.clientNum || bThirdPerson) {
             // attach the model to the world model
-            if (parent->hOldModel) {
-                tiki      = cgi.R_Model_GetHandle(parent->hOldModel);
+
+            // Fixed in OPM
+            //  Added checks to make sure the old model's tiki is valid
+            if (parent->hOldModel && (tiki = cgi.R_Model_GetHandle(parent->hOldModel))) {
                 szTagName = cgi.Tag_NameForNum(tiki, s1->tag_num & TAG_MASK);
-                tiki      = cgi.R_Model_GetHandle(parent->hModel);
-                iTagNum   = cgi.Tag_NumForName(tiki, szTagName);
+                // Fixed in OPM
+                //  Added checks to make sure the tag name is valid
+                if (szTagName) {
+                    tiki    = cgi.R_Model_GetHandle(parent->hModel);
+                    iTagNum = cgi.Tag_NumForName(tiki, szTagName);
+                } else {
+                    iTagNum = 0;
+                }
             } else {
                 tiki    = cgi.R_Model_GetHandle(parent->hModel);
                 iTagNum = s1->tag_num;
