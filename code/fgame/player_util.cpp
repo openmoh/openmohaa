@@ -211,7 +211,14 @@ void Player::RemoveEnt(Event *ev)
     }
 
     ent = G_GetEntity(num);
-    ent->PostEvent(Event(EV_Remove), 0);
+    if (!ent) {
+        // Fixed in OPM
+        //  Check if the entity is valid...
+        gi.SendServerCommand(edict - g_entities, "print \"Entity %d doesn't exist.\n\"", num);
+        return;
+    }
+
+    ent->PostEvent(EV_Remove, 0);
 }
 
 //====================

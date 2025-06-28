@@ -3512,7 +3512,13 @@ void ScriptThread::RemoveEnt(Event *ev)
     }
 
     ent = G_GetEntity(num);
-    ent->PostEvent(Event(EV_Remove), 0);
+    if (!ent) {
+        // Fixed in OPM
+        //  Check if the entity is valid...
+        return;
+    }
+
+    ent->PostEvent(EV_Remove, 0);
 }
 
 void ScriptThread::KillClass(Event *ev)
