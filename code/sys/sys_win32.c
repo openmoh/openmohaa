@@ -44,6 +44,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include <psapi.h>
 #include <float.h>
 
+typedef (STDAPICALLTYPE *PFNSHGETFOLDERPATHA)(HWND hwnd, int csidl, HANDLE hToken, DWORD dwFlags, LPSTR pszPath);
+
 #ifndef KEY_WOW64_32KEY
 #define KEY_WOW64_32KEY 0x0200
 #endif
@@ -105,7 +107,7 @@ Sys_DefaultHomePath
 char *Sys_DefaultHomePath( void )
 {
 	TCHAR szPath[MAX_PATH];
-	FARPROC qSHGetFolderPath;
+	PFNSHGETFOLDERPATHA qSHGetFolderPath;
 	HMODULE shfolder = LoadLibrary("shfolder.dll");
 
 	if(shfolder == NULL)
@@ -116,7 +118,7 @@ char *Sys_DefaultHomePath( void )
 
 	if(!*homePath && com_homepath)
 	{
-		qSHGetFolderPath = GetProcAddress(shfolder, "SHGetFolderPathA");
+		qSHGetFolderPath = (PFNSHGETFOLDERPATHA)GetProcAddress(shfolder, "SHGetFolderPathA");
 		if(qSHGetFolderPath == NULL)
 		{
 			Com_Printf("Unable to find SHGetFolderPath in SHFolder.dll\n");
@@ -241,7 +243,7 @@ char* Sys_MicrosoftStorePath(void)
 	if (!microsoftStorePath[0]) 
 	{
 		TCHAR szPath[MAX_PATH];
-		FARPROC qSHGetFolderPath;
+		PFNSHGETFOLDERPATHA qSHGetFolderPath;
 		HMODULE shfolder = LoadLibrary("shfolder.dll");
 
 		if(shfolder == NULL)
@@ -250,7 +252,7 @@ char* Sys_MicrosoftStorePath(void)
 			return microsoftStorePath;
 		}
 
-		qSHGetFolderPath = GetProcAddress(shfolder, "SHGetFolderPathA");
+		qSHGetFolderPath = (PFNSHGETFOLDERPATHA)GetProcAddress(shfolder, "SHGetFolderPathA");
 		if(qSHGetFolderPath == NULL)
 		{
 			Com_Printf("Unable to find SHGetFolderPath in SHFolder.dll\n");
