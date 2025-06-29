@@ -761,12 +761,12 @@ void BotMovement::CalculateBestFrontAvoidance(
         start   = trace.endpos;
         start.z = step.z;
 
-        // Make sure it doesn't fall
+        // Make sure the bot can jump after falling
         trace = G_Trace(
             start,
             mins,
             maxs,
-            start - Vector(0, 0, STEPSIZE * 2),
+            start - Vector(0, 0, STEPSIZE + STEPSIZE * 3),
             controlledEntity,
             MASK_PLAYERSOLID,
             qtrue,
