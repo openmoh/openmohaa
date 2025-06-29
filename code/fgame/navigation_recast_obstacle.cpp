@@ -38,26 +38,25 @@ NavigationObstacleMap navigationObstacleMap;
  * @brief Iterate through polys and set flags
  * 
  */
-class NavigationObstacleQuery : public dtPolyQuery
+class NavigationObstacleQueryBase : public dtPolyQuery
 {
-private:
+protected:
     const dtNavMesh         *navMesh;
     NavigationObstacleTiles& tiles;
-    bool                     isOccupied;
 
 public:
     float maxRadiusSqr;
 
 public:
-    NavigationObstacleQuery(const dtNavMesh *inNavMesh, NavigationObstacleTiles& inTiles, bool inIsOccupied)
+    NavigationObstacleQueryBase(const dtNavMesh *inNavMesh, NavigationObstacleTiles& inTiles)
         : navMesh(inNavMesh)
         , tiles(inTiles)
-        , isOccupied(inIsOccupied)
     {}
 
-    float getPolySize(const dtMeshTile *tile, const dtPoly *poly) const
+    float getPolySizeSqr(const dtMeshTile *tile, const dtPoly *poly, Vector& centroid) const
     {
         Vector rcBounds[2];
+        Vector rcCentroid;
         Vector size;
         int    i;
 
@@ -73,56 +72,103 @@ public:
             AddPointToBounds(pv, rcBounds[0], rcBounds[1]);
         }
 
-        size = rcBounds[1] - rcBounds[0];
+        size       = rcBounds[1] - rcBounds[0];
+        rcCentroid = (rcBounds[1] + rcBounds[0]) * 0.5;
+        ConvertRecastToGameCoord(rcCentroid, centroid);
 
         return size.lengthSquared();
     }
+};
+
+class NavigationObstacleQueryOccupied : public NavigationObstacleQueryBase
+{
+private:
+    int complexEntityNum;
+
+public:
+    NavigationObstacleQueryOccupied(
+        const dtNavMesh *inNavMesh, NavigationObstacleTiles& inTiles, int inComplexEntityNum
+    )
+        : NavigationObstacleQueryBase(inNavMesh, inTiles)
+        , complexEntityNum(inComplexEntityNum)
+    {}
 
     void process(const dtMeshTile *tile, dtPoly **polys, dtPolyRef *refs, int count) override
     {
         const int tileNum = tile - navMesh->getTile(0);
-        int       i, j;
+        int       i;
 
-        if (isOccupied) {
-            for (i = 0; i < count; i++) {
-                const int   polyNum = polys[i] - tile->polys;
-                const float radius  = getPolySize(tile, polys[i]);
+        for (i = 0; i < count; i++) {
+            const int   polyNum = polys[i] - tile->polys;
+            Vector      centroid;
+            const float radiusSqr = getPolySizeSqr(tile, polys[i], centroid);
 
-                if (radius > maxRadiusSqr) {
+            if (radiusSqr > maxRadiusSqr) {
+                continue;
+            }
+
+            // Still count the poly even if it collides with an object
+            // This is because we don't keep history of collision when releasing
+            tiles.polysRef[tileNum][polyNum]++;
+
+            if (complexEntityNum != -1) {
+                trace_t trace;
+                Vector  mins(MINS_X * 0.75, MINS_Y * 0.75, MINS_Z);
+                Vector  maxs(MAXS_X * 0.75, MAXS_Y * 0.75, MAXS_Z);
+
+                trace = G_Trace(
+                    centroid, mins, maxs, centroid, NULL, CONTENTS_SOLID, qfalse, "NavigationObstacleQueryOccupied"
+                );
+
+                if (trace.entityNum != complexEntityNum && trace.entityNum != ENTITYNUM_WORLD) {
+                    // No valid collision
                     continue;
                 }
-
-                // Mark as busy as long as the poly size is below the allowed radius
-                polys[i]->flags |= RECAST_POLYFLAG_BUSY;
-
-                tiles.polysRef[tileNum][polyNum]++;
             }
 
-            tiles.tilesRef[tileNum]++;
-        } else {
-            for (i = 0; i < count; i++) {
-                const int   polyNum = polys[i] - tile->polys;
-                const float radius  = getPolySize(tile, polys[i]);
+            // Mark as busy as long as the poly size is below the allowed radius
+            polys[i]->flags |= RECAST_POLYFLAG_BUSY;
+        }
 
-                if (radius > maxRadiusSqr) {
-                    continue;
-                }
+        tiles.tilesRef[tileNum]++;
+    }
+};
 
-                // Last poly, release it
-                if (tiles.polysRef[tileNum][polyNum] == 1) {
-                    polys[i]->flags &= ~RECAST_POLYFLAG_BUSY;
-                }
+class NavigationObstacleQueryReleased : public NavigationObstacleQueryBase
+{
+public:
+    NavigationObstacleQueryReleased(const dtNavMesh *inNavMesh, NavigationObstacleTiles& inTiles)
+        : NavigationObstacleQueryBase(inNavMesh, inTiles)
+    {}
 
-                assert(tiles.polysRef[tileNum][polyNum] > 0);
-                if (tiles.polysRef[tileNum][polyNum] > 0) {
-                    tiles.polysRef[tileNum][polyNum]--;
-                }
+    void process(const dtMeshTile *tile, dtPoly **polys, dtPolyRef *refs, int count) override
+    {
+        const int tileNum = tile - navMesh->getTile(0);
+        int       i;
+
+        for (i = 0; i < count; i++) {
+            const int   polyNum = polys[i] - tile->polys;
+            Vector      centroid;
+            const float radiusSqr = getPolySizeSqr(tile, polys[i], centroid);
+
+            if (radiusSqr > maxRadiusSqr) {
+                continue;
             }
 
-            assert(tiles.tilesRef[tileNum] > 0);
-            if (tiles.tilesRef[tileNum] > 0) {
-                tiles.tilesRef[tileNum]--;
+            // Last poly, release it
+            if (tiles.polysRef[tileNum][polyNum] == 1) {
+                polys[i]->flags &= ~RECAST_POLYFLAG_BUSY;
             }
+
+            assert(tiles.polysRef[tileNum][polyNum] > 0);
+            if (tiles.polysRef[tileNum][polyNum] > 0) {
+                tiles.polysRef[tileNum][polyNum]--;
+            }
+        }
+
+        assert(tiles.tilesRef[tileNum] > 0);
+        if (tiles.tilesRef[tileNum] > 0) {
+            tiles.tilesRef[tileNum]--;
         }
     }
 };
@@ -135,6 +181,26 @@ const Vector& NavigationObstacleEntities::GetMin(unsigned int entnum) const
 const Vector& NavigationObstacleEntities::GetMax(unsigned int entnum) const
 {
     return bounds[1][entnum];
+}
+
+int NavigationObstacleEntities::GetContents(unsigned int entnum) const
+{
+    return contents[entnum];
+}
+
+void NavigationObstacleEntities::SetContents(unsigned int entnum, int c)
+{
+    contents[entnum] = c;
+}
+
+solid_t NavigationObstacleEntities::GetSolidType(unsigned int entnum) const
+{
+    return solid[entnum];
+}
+
+void NavigationObstacleEntities::SetSolidType(unsigned int entnum, solid_t type)
+{
+    solid[entnum] = type;
 }
 
 void NavigationObstacleEntities::SetBounds(unsigned int entnum, const Vector& min, const Vector& max)
@@ -163,6 +229,8 @@ void NavigationObstacleEntities::Remove(unsigned int entnum)
     bounds[0][entnum] = vec_zero;
     bounds[1][entnum] = vec_zero;
     flag[entnum]      = 0;
+    contents[entnum]  = 0;
+    solid[entnum]     = SOLID_NOT;
 }
 
 NavigationObstacleTiles::NavigationObstacleTiles()
@@ -291,7 +359,7 @@ void NavigationObstacleMap::Update()
         if (IsValidEntity(ent)) {
             if (!ents->IsActive(i)) {
                 EntityAdded(ent);
-            } else if (ents->GetMin(i) != ent->r.absmin || ents->GetMax(i) != ent->r.absmax) {
+            } else if (HasChanged(ent)) {
                 EntityChanged(ent);
             }
         } else if (ents->IsActive(i)) {
@@ -300,7 +368,7 @@ void NavigationObstacleMap::Update()
     }
 }
 
-bool NavigationObstacleMap::IsValidEntity(gentity_t *ent)
+bool NavigationObstacleMap::IsValidEntity(gentity_t *ent) const
 {
     if (!ent->inuse || !ent->entity) {
         return false;
@@ -330,7 +398,26 @@ bool NavigationObstacleMap::IsValidEntity(gentity_t *ent)
     return true;
 }
 
-bool NavigationObstacleMap::IsSpecialEntity(gentity_t *ent)
+bool NavigationObstacleMap::HasChanged(gentity_t *ent) const
+{
+    const int entnum = ent - g_entities;
+
+    if (ents->GetMin(entnum) != ent->r.absmin || ents->GetMax(entnum) != ent->r.absmax) {
+        return true;
+    }
+
+    if (ents->GetSolidType(entnum) != ent->solid) {
+        return true;
+    }
+
+    if (ents->GetContents(entnum) != ent->r.contents) {
+        return true;
+    }
+
+    return false;
+}
+
+bool NavigationObstacleMap::IsSpecialEntity(gentity_t *ent) const
 {
     const Trigger *trig;
 
@@ -342,7 +429,7 @@ bool NavigationObstacleMap::IsSpecialEntity(gentity_t *ent)
         return false;
     }
 
-    trig = static_cast<Trigger*>(ent->entity);
+    trig = static_cast<Trigger *>(ent->entity);
 
     if (str::icmp(ent->entity->targetname, "minefield")) {
         return false;
@@ -357,9 +444,11 @@ void NavigationObstacleMap::EntityAdded(gentity_t *ent)
 
     ents->Add(entnum);
     ents->SetBounds(entnum, ent->r.absmin, ent->r.absmax);
+    ents->SetSolidType(entnum, ent->solid);
+    ents->SetContents(entnum, ent->r.contents);
 
     // Mark the poly as occupied
-    EngagePolysAt(ent->r.absmin, ent->r.absmax);
+    EngagePolysAt(ent, ent->r.absmin, ent->r.absmax);
 }
 
 void NavigationObstacleMap::EntityRemoved(gentity_t *ent)
@@ -367,7 +456,7 @@ void NavigationObstacleMap::EntityRemoved(gentity_t *ent)
     int entnum = ent - g_entities;
 
     // Release the poly
-    ReleasePolysAt(ents->GetMin(entnum), ents->GetMax(entnum));
+    ReleasePolysAt(ent, ents->GetMin(entnum), ents->GetMax(entnum));
 
     ents->Remove(entnum);
 }
@@ -377,17 +466,22 @@ void NavigationObstacleMap::EntityChanged(gentity_t *ent)
     int entnum = ent - g_entities;
 
     // Release polys at the old location
-    ReleasePolysAt(ents->GetMin(entnum), ents->GetMax(entnum));
+    ReleasePolysAt(ent, ents->GetMin(entnum), ents->GetMax(entnum));
 
     // Mark polys as occupied at the new location
-    EngagePolysAt(ent->r.absmin, ent->r.absmax);
+    EngagePolysAt(ent, ent->r.absmin, ent->r.absmax);
     ents->SetBounds(entnum, ent->r.absmin, ent->r.absmax);
+    ents->SetSolidType(entnum, ent->solid);
+    ents->SetContents(entnum, ent->r.contents);
 }
 
-void NavigationObstacleMap::EngagePolysAt(const Vector& min, const Vector& max)
+void NavigationObstacleMap::EngagePolysAt(gentity_t *ent, const Vector& min, const Vector& max)
 {
-    dtNavMeshQuery         *navMeshQuery = navigationMap.GetNavMeshQuery();
-    NavigationObstacleQuery query(navigationMap.GetNavMesh(), tiles, true);
+    dtNavMeshQuery *navMeshQuery = navigationMap.GetNavMeshQuery();
+    // Use complex collision for BSP brushes
+    NavigationObstacleQueryOccupied query(
+        navigationMap.GetNavMesh(), tiles, ent->solid == SOLID_BSP ? ent - g_entities : -1
+    );
 
     Vector center;
     Vector halfExtents;
@@ -416,10 +510,10 @@ void NavigationObstacleMap::EngagePolysAt(const Vector& min, const Vector& max)
     navMeshQuery->queryPolygons(rcCenter, rcHalfExtents, &filter, &query);
 }
 
-void NavigationObstacleMap::ReleasePolysAt(const Vector& min, const Vector& max)
+void NavigationObstacleMap::ReleasePolysAt(gentity_t *ent, const Vector& min, const Vector& max)
 {
-    dtNavMeshQuery         *navMeshQuery = navigationMap.GetNavMeshQuery();
-    NavigationObstacleQuery query(navigationMap.GetNavMesh(), tiles, false);
+    dtNavMeshQuery                 *navMeshQuery = navigationMap.GetNavMeshQuery();
+    NavigationObstacleQueryReleased query(navigationMap.GetNavMesh(), tiles);
 
     Vector center;
     Vector halfExtents;

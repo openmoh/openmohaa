@@ -38,6 +38,10 @@ public:
 
     const Vector& GetMin(unsigned int entnum) const;
     const Vector& GetMax(unsigned int entnum) const;
+    int           GetContents(unsigned int entnum) const;
+    void          SetContents(unsigned int entnum, int contents);
+    solid_t       GetSolidType(unsigned int entnum) const;
+    void          SetSolidType(unsigned int entnum, solid_t type);
     void          SetBounds(unsigned int entnum, const Vector& min, const Vector& max);
     bool          IsActive(unsigned int entnum) const;
     void          Add(unsigned int entnum);
@@ -45,8 +49,10 @@ public:
     void          Remove(unsigned int entnum);
 
 public:
-    Vector bounds[2][MAX_GENTITIES];
-    byte   flag[MAX_GENTITIES];
+    int     contents[MAX_GENTITIES];
+    Vector  bounds[2][MAX_GENTITIES];
+    byte    flag[MAX_GENTITIES];
+    solid_t solid[MAX_GENTITIES];
 };
 
 /**
@@ -83,15 +89,16 @@ public:
     void Update();
 
 private:
-    bool IsValidEntity(gentity_t *ent);
-    bool IsSpecialEntity(gentity_t *ent);
+    bool IsValidEntity(gentity_t *ent) const;
+    bool IsSpecialEntity(gentity_t *ent) const;
+    bool HasChanged(gentity_t *ent) const;
 
     void EntityAdded(gentity_t *ent);
     void EntityRemoved(gentity_t *ent);
     void EntityChanged(gentity_t *ent);
 
-    void EngagePolysAt(const Vector& min, const Vector& max);
-    void ReleasePolysAt(const Vector& min, const Vector& max);
+    void EngagePolysAt(gentity_t *ent, const Vector& min, const Vector& max);
+    void ReleasePolysAt(gentity_t *ent, const Vector& min, const Vector& max);
 
 private:
     // This instance is quite big so only allocate it when used

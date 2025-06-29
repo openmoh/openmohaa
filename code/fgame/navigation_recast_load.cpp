@@ -773,7 +773,7 @@ void NavigationMap::LoadWorldMap(const char *mapname)
         gi.Printf("  Building meshes for entities...\n");
         // FIXME: TODO
         //  Split everything into chunks and use a tile-based approach
-        BuildMeshesForEntities(buildContext, navigationData.navMap);
+        //BuildMeshesForEntities(buildContext, navigationData.navMap);
 
     } catch (const ScriptException& e) {
         gi.Printf("Couldn't build recast navigation mesh: %s\n", e.string.c_str());
