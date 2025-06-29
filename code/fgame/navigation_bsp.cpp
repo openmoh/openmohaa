@@ -188,6 +188,7 @@ void NavigationBSP::LoadShaders(const gameLump_c& lump, Container<cshader_t>& sh
         Q_strncpyz(out.shader, in->shader, sizeof(out.shader));
         out.contentFlags = LittleLong(in->contentFlags);
         out.surfaceFlags = LittleLong(in->surfaceFlags);
+        out.subdivisions = LittleLong(in->subdivisions);
 
         shaders.AddObject(out);
     }
@@ -573,6 +574,7 @@ void NavigationBSP::ParseMesh(
     int            width, height, numPoints;
     Vector         points[MAX_PATCH_SIZE * MAX_PATCH_SIZE];
     surfaceGrid_t *grid;
+    float subdivisions;
 
     const cshader_t& shader = shaders.ObjectAt(LittleLong(ds->shaderNum) + 1);
     if (!IsValidContentsForPlayer(shader.contentFlags)) {
@@ -590,7 +592,9 @@ void NavigationBSP::ParseMesh(
         }
     }
 
-    grid = G_SubdividePatchToGrid(width, height, points);
+    subdivisions = Q_max(MIN_MAP_SUBDIVISIONS, shader.subdivisions);
+
+    grid = G_SubdividePatchToGrid(width, height, points, subdivisions);
 
     // render the grid into vertices
     RenderSurfaceGrid(grid, outSurface);

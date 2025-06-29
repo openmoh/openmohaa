@@ -112,6 +112,7 @@ struct cshader_t {
     char shader[64];
     int  surfaceFlags;
     int  contentFlags;
+    int  subdivisions;
 };
 
 struct cbrushside_t {
@@ -203,7 +204,7 @@ struct surfaceGrid_t {
     }
 };
 
-surfaceGrid_t *G_SubdividePatchToGrid(int width, int height, Vector points[MAX_PATCH_SIZE * MAX_PATCH_SIZE]);
+surfaceGrid_t *G_SubdividePatchToGrid(int width, int height, Vector points[MAX_PATCH_SIZE * MAX_PATCH_SIZE], float subdivisions);
 void           G_FreeSurfaceGridMesh(surfaceGrid_t *grid);
 
 ///
