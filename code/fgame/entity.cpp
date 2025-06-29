@@ -2192,9 +2192,7 @@ void Entity::setSolidType(solid_t type)
             setContentsSolid();
         }
     } else if (edict->solid == SOLID_NOT) {
-        if (getContents()
-            & (CONTENTS_CORPSE | CONTENTS_BODY | CONTENTS_UNKNOWN3 | CONTENTS_UNKNOWN2 | CONTENTS_NOBOTCLIP
-               | CONTENTS_BBOX | CONTENTS_NOTTEAM2 | CONTENTS_NOTTEAM1 | CONTENTS_LADDER)) {
+        if (getContents() & MASK_SCRIPT_SLAVE) {
             setContents(0);
         }
     } else if (edict->solid == SOLID_BSP) {
