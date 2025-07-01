@@ -1398,7 +1398,7 @@ void PmoveSingle(pmove_t *pmove)
         }
     }
 
-    if (pm->ps->pm_flags & PMF_NO_LEAN) {
+    if (pm->ps->pm_flags & PMF_NO_HUD) {
         pm->ps->fLeanAngle = 0;
     }
 

@@ -271,7 +271,7 @@ void CarryableTurret::EventPlaceTurret(Event *ev)
 
         if (placer->IsSubclassOfPlayer()) {
             ownerP = static_cast<Player *>(placer);
-            if (ownerP->client->ps.pm_flags & (PMF_NO_GRAVITY | PMF_VIEW_JUMP_START | PMF_VIEW_DUCK_RUN)) {
+            if (ownerP->client->ps.pm_flags & (PMF_TURRET | PMF_VIEW_JUMP_START | PMF_VIEW_DUCK_RUN)) {
                 if (level.time > next_noammo_time) {
                     Sound(m_NoAmmoSound);
                 }

@@ -256,10 +256,8 @@ movement on the server game.
 #define PMF_VIEW_DUCK_RUN   (1 << 9)
 #define PMF_VIEW_JUMP_START (1 << 10)
 #define PMF_LEVELEXIT       (1 << 11)
-#define PMF_NO_GRAVITY      (1 << 12)
-#define PMF_NO_HUD          (1 << 13)
-#define PMF_TURRET          (1 << 14)
-#define PMF_NO_LEAN         (1 << 15)
+#define PMF_TURRET          (1 << 12)
+#define PMF_NO_HUD          (1 << 15)
 
     // moveposflags
     enum moveposflags_e {
