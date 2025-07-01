@@ -1012,10 +1012,10 @@ void CG_ModelAnim(centity_t *cent, qboolean bDoShaderTime)
 
     s1 = &cent->currentState;
 
-    bThirdPerson |= cg_3rd_person->integer;
+    bThirdPerson |= cg_3rd_person->integer ? qtrue : qfalse;
     // Fixed in OPM
     //  Draw world model body when in camera
-    bThirdPerson |= cg.snap->ps.pm_flags & PMF_CAMERA_VIEW;
+    bThirdPerson |= (cg.snap->ps.pm_flags & PMF_CAMERA_VIEW && !(cg.snap->ps.pm_flags & PMF_TURRET));
 
     if ((cg.snap->ps.pm_flags & PMF_INTERMISSION) && s1->number == cg.snap->ps.clientNum && !bThirdPerson) {
         // Don't render the first-person model during intermission
