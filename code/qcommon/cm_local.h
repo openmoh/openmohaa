@@ -266,7 +266,6 @@ void CM_ClearLevelPatches( void );
 struct terPatchCollide_s *CM_GenerateTerPatchCollide(vec3_t origin, byte heightmap[9][9], baseshader_t *shader);
 void CM_TraceThroughTerrainCollide(traceWork_t *tw, terrainCollide_t *tc);
 qboolean CM_PositionTestInTerrainCollide( traceWork_t *tw, terrainCollide_t *tc );
-qboolean CM_SightTracePointThroughTerrainCollide( void );
 qboolean CM_SightTraceThroughTerrainCollide( traceWork_t *tw, terrainCollide_t *tc );
 
 // cm_fencemask.c

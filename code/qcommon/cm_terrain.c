@@ -50,8 +50,10 @@ typedef struct pointtrace_s {
     float             fSurfaceClipEpsilon;
 } pointtrace_t;
 
-varnodeIndex_t      g_vni[2][8][8][2];
-static pointtrace_t g_trace;
+varnodeIndex_t g_vni[2][8][8][2];
+// Changed in OPM
+//  Use stack instead of storing it globally
+//static pointtrace_t g_trace;
 
 static int modeTable[] = {2, 2, 5, 6, 4, 3, 0, 0};
 
@@ -331,13 +333,13 @@ void CM_GenerateTerrainCollide(cTerraPatch_t *patch, terrainCollide_t *tc)
 CM_CheckTerrainPlane
 ====================
 */
-float CM_CheckTerrainPlane(vec4_t plane)
+float CM_CheckTerrainPlane(const pointtrace_t *pt, vec4_t plane)
 {
     float d1, d2;
     float f;
 
-    d1 = DotProduct(g_trace.vStart, plane) - plane[3];
-    d2 = DotProduct(g_trace.vEnd, plane) - plane[3];
+    d1 = DotProduct(pt->vStart, plane) - plane[3];
+    d2 = DotProduct(pt->vEnd, plane) - plane[3];
 
     // if completely in front of face, no intersection with the entire brush
     if (d1 > 0 && (d2 >= SURFACE_CLIP_EPSILON || d2 >= d1)) {
@@ -371,7 +373,7 @@ float CM_CheckTerrainPlane(vec4_t plane)
 CM_CheckTerrainTriSpherePoint
 ====================
 */
-float CM_CheckTerrainTriSpherePoint(vec3_t v)
+float CM_CheckTerrainTriSpherePoint(const pointtrace_t *pt, vec3_t v)
 {
     vec3_t vDelta, vDir;
     float  fLenSq;
@@ -382,50 +384,50 @@ float CM_CheckTerrainTriSpherePoint(vec3_t v)
     float  fSq;
     float  f;
 
-    VectorSubtract(g_trace.vStart, v, vDir);
+    VectorSubtract(pt->vStart, v, vDir);
 
     fRadSq = sphere.radius * sphere.radius;
     fLenSq = VectorLengthSquared(vDir);
 
     if (fLenSq <= fRadSq) {
-        g_trace.tw->trace.startsolid = qtrue;
-        g_trace.tw->trace.allsolid   = qtrue;
+        pt->tw->trace.startsolid = qtrue;
+        pt->tw->trace.allsolid   = qtrue;
         return 0;
     }
 
-    VectorSubtract(g_trace.vEnd, g_trace.vStart, vDelta);
+    VectorSubtract(pt->vEnd, pt->vStart, vDelta);
 
     fA     = VectorLengthSquared(vDelta);
     fB     = DotProduct(vDelta, vDir);
     fDiscr = fB * fB - (fLenSq - fRadSq) * fA;
 
     if (fDiscr <= 0.0f) {
-        return g_trace.tw->trace.fraction;
+        return pt->tw->trace.fraction;
     }
 
     fSq = sqrt(fDiscr);
 
     if (fA > 0) {
-        fFrac = (-fB - fSq) / fA - g_trace.fSurfaceClipEpsilon;
+        fFrac = (-fB - fSq) / fA - pt->fSurfaceClipEpsilon;
 
-        if (fFrac >= 0.0f && fFrac <= g_trace.tw->trace.fraction) {
+        if (fFrac >= 0.0f && fFrac <= pt->tw->trace.fraction) {
             return fFrac;
         }
 
         fFrac = -fB + fSq;
     } else {
-        fFrac = (-fB + fSq) / fA - g_trace.fSurfaceClipEpsilon;
+        fFrac = (-fB + fSq) / fA - pt->fSurfaceClipEpsilon;
 
-        if (fFrac >= 0.0f && fFrac <= g_trace.tw->trace.fraction) {
+        if (fFrac >= 0.0f && fFrac <= pt->tw->trace.fraction) {
             return fFrac;
         }
 
         fFrac = -fB - fSq;
     }
 
-    f = fFrac / fA - g_trace.fSurfaceClipEpsilon;
-    if (f < 0 || f > g_trace.tw->trace.fraction) {
-        f = g_trace.tw->trace.fraction;
+    f = fFrac / fA - pt->fSurfaceClipEpsilon;
+    if (f < 0 || f > pt->tw->trace.fraction) {
+        f = pt->tw->trace.fraction;
     }
 
     return f;
@@ -436,7 +438,7 @@ float CM_CheckTerrainTriSpherePoint(vec3_t v)
 CM_CheckTerrainTriSphereCorner
 ====================
 */
-float CM_CheckTerrainTriSphereCorner(vec4_t plane, float x0, float y0, int i, int j)
+float CM_CheckTerrainTriSphereCorner(const pointtrace_t *pt, vec4_t plane, float x0, float y0, int i, int j)
 {
     vec3_t v;
 
@@ -444,7 +446,7 @@ float CM_CheckTerrainTriSphereCorner(vec4_t plane, float x0, float y0, int i, in
     v[1] = ((j << 6) + y0);
     v[2] = (plane[3] - (v[1] * plane[1] + v[0] * plane[0])) / plane[2];
 
-    return CM_CheckTerrainTriSpherePoint(v);
+    return CM_CheckTerrainTriSpherePoint(pt, v);
 }
 
 /*
@@ -452,7 +454,9 @@ float CM_CheckTerrainTriSphereCorner(vec4_t plane, float x0, float y0, int i, in
 CM_CheckTerrainTriSphereEdge
 ====================
 */
-float CM_CheckTerrainTriSphereEdge(float *plane, float x0, float y0, int i0, int j0, int i1, int j1)
+float CM_CheckTerrainTriSphereEdge(
+    const pointtrace_t *pt, float *plane, float x0, float y0, int i0, int j0, int i1, int j1
+)
 {
     vec3_t v0, v1;
     float  fScale;
@@ -480,9 +484,9 @@ float CM_CheckTerrainTriSphereEdge(float *plane, float x0, float y0, int i0, int
     v1[1] = (j1 << 6) + y0;
     v1[2] = (plane[3] - (v1[0] * plane[0] + v1[1] * plane[1])) * fScale;
 
-    VectorSubtract(g_trace.vStart, v0, vDirTrace);
+    VectorSubtract(pt->vStart, v0, vDirTrace);
     VectorSubtract(v1, v0, vDirEdge);
-    VectorSubtract(g_trace.vEnd, g_trace.vStart, vDeltaStart);
+    VectorSubtract(pt->vEnd, pt->vStart, vDeltaStart);
 
     fScale = 1.0 / VectorLengthSquared(vDirEdge);
     S      = DotProduct(vDirTrace, vDirEdge) * fScale;
@@ -496,11 +500,11 @@ float CM_CheckTerrainTriSphereEdge(float *plane, float x0, float y0, int i0, int
 
     if (fLengthSq <= fRadSq) {
         if (S < 0 || S > 1) {
-            return CM_CheckTerrainTriSpherePoint(v0);
+            return CM_CheckTerrainTriSpherePoint(pt, v0);
         }
 
-        g_trace.tw->trace.startsolid = qtrue;
-        g_trace.tw->trace.allsolid   = qtrue;
+        pt->tw->trace.startsolid = qtrue;
+        pt->tw->trace.allsolid   = qtrue;
         return 1;
     }
 
@@ -509,7 +513,7 @@ float CM_CheckTerrainTriSphereEdge(float *plane, float x0, float y0, int i0, int
     fSFromT_Const = fDot * fDot - (fLengthSq - fRadSq) * fSFromT_Scale;
 
     if (fSFromT_Const <= 0) {
-        return g_trace.tw->trace.fraction;
+        return pt->tw->trace.fraction;
     }
 
     if (fSFromT_Scale > 0) {
@@ -518,19 +522,19 @@ float CM_CheckTerrainTriSphereEdge(float *plane, float x0, float y0, int i0, int
         fFrac = (-fDot + sqrt(fSFromT_Const)) / fSFromT_Scale;
     }
 
-    fFracClip = fFrac - g_trace.fSurfaceClipEpsilon;
-    if (fFrac <= 0 || fFracClip >= g_trace.tw->trace.fraction) {
-        return g_trace.tw->trace.fraction;
+    fFracClip = fFrac - pt->fSurfaceClipEpsilon;
+    if (fFrac <= 0 || fFracClip >= pt->tw->trace.fraction) {
+        return pt->tw->trace.fraction;
     }
 
     fFrac = fFrac * T + S;
 
     if (fFrac < 0) {
-        return CM_CheckTerrainTriSpherePoint(v0);
+        return CM_CheckTerrainTriSpherePoint(pt, v0);
     }
 
     if (fFrac > 1) {
-        return CM_CheckTerrainTriSpherePoint(v1);
+        return CM_CheckTerrainTriSpherePoint(pt, v1);
     }
 
     if (fFracClip < 0) {
@@ -544,7 +548,7 @@ float CM_CheckTerrainTriSphereEdge(float *plane, float x0, float y0, int i0, int
 CM_CheckTerrainTriSphere
 ====================
 */
-float CM_CheckTerrainTriSphere(float x0, float y0, int iPlane)
+float CM_CheckTerrainTriSphere(pointtrace_t *pt, float x0, float y0, int iPlane)
 {
     float   *plane;
     float    fMaxFraction;
@@ -556,47 +560,47 @@ float CM_CheckTerrainTriSphere(float x0, float y0, int iPlane)
     int      iX[3];
     int      iY[3];
 
-    plane = g_trace.tc->squares[g_trace.i][g_trace.j].plane[iPlane];
-    d1    = DotProduct(g_trace.vStart, plane) - plane[3];
-    d2    = DotProduct(g_trace.vEnd, plane) - plane[3];
+    plane = pt->tc->squares[pt->i][pt->j].plane[iPlane];
+    d1    = DotProduct(pt->vStart, plane) - plane[3];
+    d2    = DotProduct(pt->vEnd, plane) - plane[3];
 
     if (d1 > sphere.radius) {
         if (d2 >= sphere.radius + SURFACE_CLIP_EPSILON) {
-            return g_trace.tw->trace.fraction;
+            return pt->tw->trace.fraction;
         }
 
         if (d2 >= d1) {
-            return g_trace.tw->trace.fraction;
+            return pt->tw->trace.fraction;
         }
     }
 
     if (d1 <= -sphere.radius && d2 <= -sphere.radius) {
-        return g_trace.tw->trace.fraction;
+        return pt->tw->trace.fraction;
     }
 
     if (d1 <= d2) {
-        return g_trace.tw->trace.fraction;
+        return pt->tw->trace.fraction;
     }
 
-    fMaxFraction                = SURFACE_CLIP_EPSILON / (d1 - d2);
-    g_trace.fSurfaceClipEpsilon = fMaxFraction;
-    fSpherePlane                = (d1 - sphere.radius) / (d1 - d2) - fMaxFraction;
+    fMaxFraction            = SURFACE_CLIP_EPSILON / (d1 - d2);
+    pt->fSurfaceClipEpsilon = fMaxFraction;
+    fSpherePlane            = (d1 - sphere.radius) / (d1 - d2) - fMaxFraction;
 
     if (fSpherePlane < 0) {
         fSpherePlane = 0;
     }
 
-    if (fSpherePlane >= g_trace.tw->trace.fraction) {
-        return g_trace.tw->trace.fraction;
+    if (fSpherePlane >= pt->tw->trace.fraction) {
+        return pt->tw->trace.fraction;
     }
 
-    d1 = (g_trace.vEnd[0] - g_trace.vStart[0]) * fSpherePlane + g_trace.vEnd[0] - sphere.radius * plane[0] - x0;
-    d2 = (g_trace.vEnd[1] - g_trace.vStart[1]) * fSpherePlane + g_trace.vEnd[1] - sphere.radius * plane[1] - y0;
+    d1 = (pt->vEnd[0] - pt->vStart[0]) * fSpherePlane + pt->vEnd[0] - sphere.radius * plane[0] - x0;
+    d2 = (pt->vEnd[1] - pt->vStart[1]) * fSpherePlane + pt->vEnd[1] - sphere.radius * plane[1] - y0;
 
-    eMode = g_trace.tc->squares[g_trace.i][g_trace.j].eMode;
+    eMode = pt->tc->squares[pt->i][pt->j].eMode;
 
     if (eMode == 1 || eMode == 2) {
-        if ((g_trace.i + g_trace.j) & 1) {
+        if ((pt->i + pt->j) & 1) {
             eMode = iPlane ? 6 : 3;
         } else {
             eMode = iPlane ? 5 : 4;
@@ -605,8 +609,8 @@ float CM_CheckTerrainTriSphere(float x0, float y0, int iPlane)
 
     switch (eMode) {
     case 3:
-        bFitsX = d1 <= 64;
-        bFitsY = d2 <= 64;
+        bFitsX    = d1 <= 64;
+        bFitsY    = d2 <= 64;
         bFitsDiag = d1 >= 64 - d2;
 
         iX[0] = 1;
@@ -617,8 +621,8 @@ float CM_CheckTerrainTriSphere(float x0, float y0, int iPlane)
         iY[2] = 0;
         break;
     case 4:
-        bFitsX = d1 >= 0;
-        bFitsY = d2 <= 64;
+        bFitsX    = d1 >= 0;
+        bFitsY    = d2 <= 64;
         bFitsDiag = d1 <= d2;
 
         iX[0] = 0;
@@ -629,8 +633,8 @@ float CM_CheckTerrainTriSphere(float x0, float y0, int iPlane)
         iY[2] = 0;
         break;
     case 5:
-        bFitsX = d1 <= 64;
-        bFitsY = d2 >= 0;
+        bFitsX    = d1 <= 64;
+        bFitsY    = d2 >= 0;
         bFitsDiag = d1 >= d2;
 
         iX[0] = 1;
@@ -641,8 +645,8 @@ float CM_CheckTerrainTriSphere(float x0, float y0, int iPlane)
         iY[2] = 1;
         break;
     case 6:
-        bFitsX = d1 >= 0;
-        bFitsY = d2 >= 0;
+        bFitsX    = d1 >= 0;
+        bFitsY    = d2 >= 0;
         bFitsDiag = d1 <= 64 - d2;
 
         iX[0] = 0;
@@ -661,32 +665,32 @@ float CM_CheckTerrainTriSphere(float x0, float y0, int iPlane)
             return fSpherePlane;
         }
 
-        return CM_CheckTerrainTriSphereEdge(plane, x0, y0, iX[1], iY[1], iX[2], iY[2]);
+        return CM_CheckTerrainTriSphereEdge(pt, plane, x0, y0, iX[1], iY[1], iX[2], iY[2]);
     }
-    
+
     if (bFitsX && !bFitsY) {
         if (bFitsDiag) {
-            return CM_CheckTerrainTriSphereEdge(plane, x0, y0, iX[0], iY[0], iX[1], iY[1]);
+            return CM_CheckTerrainTriSphereEdge(pt, plane, x0, y0, iX[0], iY[0], iX[1], iY[1]);
         }
 
-        return CM_CheckTerrainTriSphereCorner(plane, x0, y0, iX[1], iY[1]);
+        return CM_CheckTerrainTriSphereCorner(pt, plane, x0, y0, iX[1], iY[1]);
     }
 
     if (!bFitsX && bFitsY) {
         if (bFitsDiag) {
-            return CM_CheckTerrainTriSphereEdge(plane, x0, y0, iX[0], iY[0], iX[2], iY[2]);
+            return CM_CheckTerrainTriSphereEdge(pt, plane, x0, y0, iX[0], iY[0], iX[2], iY[2]);
         }
 
-        return CM_CheckTerrainTriSphereCorner(plane, x0, y0, iX[2], iY[2]);
+        return CM_CheckTerrainTriSphereCorner(pt, plane, x0, y0, iX[2], iY[2]);
     }
 
     if (!bFitsX && !bFitsY) {
         if (bFitsDiag) {
-            return CM_CheckTerrainTriSphereCorner(plane, x0, y0, iX[0], iY[0]);
+            return CM_CheckTerrainTriSphereCorner(pt, plane, x0, y0, iX[0], iY[0]);
         }
     }
 
-    return g_trace.tw->trace.fraction;
+    return pt->tw->trace.fraction;
 }
 
 /*
@@ -694,16 +698,14 @@ float CM_CheckTerrainTriSphere(float x0, float y0, int iPlane)
 CM_ValidateTerrainCollidePointSquare
 ====================
 */
-qboolean CM_ValidateTerrainCollidePointSquare(float frac)
+qboolean CM_ValidateTerrainCollidePointSquare(const pointtrace_t *pt, float frac)
 {
     float f;
 
-    f = g_trace.vStart[0] + frac * (g_trace.vEnd[0] - g_trace.vStart[0])
-      - ((g_trace.i << 6) + g_trace.tc->vBounds[0][0]);
+    f = pt->vStart[0] + frac * (pt->vEnd[0] - pt->vStart[0]) - ((pt->i << 6) + pt->tc->vBounds[0][0]);
 
     if (f >= 0 && f <= 64) {
-        f = g_trace.vStart[1] + frac * (g_trace.vEnd[1] - g_trace.vStart[1])
-          - ((g_trace.j << 6) + g_trace.tc->vBounds[0][1]);
+        f = pt->vStart[1] + frac * (pt->vEnd[1] - pt->vStart[1]) - ((pt->j << 6) + pt->tc->vBounds[0][1]);
 
         if (f >= 0 && f <= 64) {
             return qtrue;
@@ -718,14 +720,14 @@ qboolean CM_ValidateTerrainCollidePointSquare(float frac)
 CM_ValidateTerrainCollidePointTri
 ====================
 */
-qboolean CM_ValidateTerrainCollidePointTri(int eMode, float frac)
+qboolean CM_ValidateTerrainCollidePointTri(const pointtrace_t *pt, int eMode, float frac)
 {
     float x0, y0;
     float x, y;
     float dx, dy;
 
-    x0 = (g_trace.i << 6) + g_trace.tc->vBounds[0][0];
-    dx = g_trace.vStart[0] + (g_trace.vEnd[0] - g_trace.vStart[0]) * frac;
+    x0 = (pt->i << 6) + pt->tc->vBounds[0][0];
+    dx = pt->vStart[0] + (pt->vEnd[0] - pt->vStart[0]) * frac;
     x  = x0 + 64;
 
     if (x0 > dx) {
@@ -736,8 +738,8 @@ qboolean CM_ValidateTerrainCollidePointTri(int eMode, float frac)
         return qfalse;
     }
 
-    y0 = (g_trace.j << 6) + g_trace.tc->vBounds[0][1];
-    dy = g_trace.vStart[1] + (g_trace.vEnd[1] - g_trace.vStart[1]) * frac;
+    y0 = (pt->j << 6) + pt->tc->vBounds[0][1];
+    dy = pt->vStart[1] + (pt->vEnd[1] - pt->vStart[1]) * frac;
     y  = y0 + 64;
 
     if (y0 > dy) {
@@ -767,24 +769,24 @@ qboolean CM_ValidateTerrainCollidePointTri(int eMode, float frac)
 CM_TestTerrainCollideSquare
 ====================
 */
-qboolean CM_TestTerrainCollideSquare(void)
+qboolean CM_TestTerrainCollideSquare(const pointtrace_t *pt)
 {
     float *plane;
     float  frac0;
     float  enterFrac;
     int    eMode;
 
-    eMode = g_trace.tc->squares[g_trace.i][g_trace.j].eMode;
+    eMode = pt->tc->squares[pt->i][pt->j].eMode;
 
     if (!eMode) {
         return qfalse;
     }
 
     if (eMode >= 0 && eMode <= 2) {
-        enterFrac = CM_CheckTerrainPlane(g_trace.tc->squares[g_trace.i][g_trace.j].plane[0]);
+        enterFrac = CM_CheckTerrainPlane(pt, pt->tc->squares[pt->i][pt->j].plane[0]);
 
-        plane = g_trace.tc->squares[g_trace.i][g_trace.j].plane[1];
-        frac0 = CM_CheckTerrainPlane(plane);
+        plane = pt->tc->squares[pt->i][pt->j].plane[1];
+        frac0 = CM_CheckTerrainPlane(pt, plane);
 
         if (eMode == 2) {
             if (enterFrac > frac0) {
@@ -796,21 +798,21 @@ qboolean CM_TestTerrainCollideSquare(void)
             }
         }
 
-        if (enterFrac < g_trace.tw->trace.fraction && CM_ValidateTerrainCollidePointSquare(enterFrac)) {
-            g_trace.tw->trace.fraction = enterFrac;
-            VectorCopy(plane, g_trace.tw->trace.plane.normal);
-            g_trace.tw->trace.plane.dist = plane[3];
+        if (enterFrac < pt->tw->trace.fraction && CM_ValidateTerrainCollidePointSquare(pt, enterFrac)) {
+            pt->tw->trace.fraction = enterFrac;
+            VectorCopy(plane, pt->tw->trace.plane.normal);
+            pt->tw->trace.plane.dist = plane[3];
             return qtrue;
         }
     } else {
-        plane     = g_trace.tc->squares[g_trace.i][g_trace.j].plane[0];
-        enterFrac = CM_CheckTerrainPlane(plane);
+        plane     = pt->tc->squares[pt->i][pt->j].plane[0];
+        enterFrac = CM_CheckTerrainPlane(pt, plane);
 
-        if (enterFrac < g_trace.tw->trace.fraction
-            && CM_ValidateTerrainCollidePointTri(g_trace.tc->squares[g_trace.i][g_trace.j].eMode, enterFrac)) {
-            g_trace.tw->trace.fraction = enterFrac;
-            VectorCopy(plane, g_trace.tw->trace.plane.normal);
-            g_trace.tw->trace.plane.dist = plane[3];
+        if (enterFrac < pt->tw->trace.fraction
+            && CM_ValidateTerrainCollidePointTri(pt, pt->tc->squares[pt->i][pt->j].eMode, enterFrac)) {
+            pt->tw->trace.fraction = enterFrac;
+            VectorCopy(plane, pt->tw->trace.plane.normal);
+            pt->tw->trace.plane.dist = plane[3];
             return qtrue;
         }
     }
@@ -823,7 +825,7 @@ qboolean CM_TestTerrainCollideSquare(void)
 CM_CheckStartInsideTerrain
 ====================
 */
-static qboolean CM_CheckStartInsideTerrain(int i, int j, float fx, float fy)
+static qboolean CM_CheckStartInsideTerrain(const pointtrace_t *pt, int i, int j, float fx, float fy)
 {
     float *plane;
     float  fDot;
@@ -835,37 +837,37 @@ static qboolean CM_CheckStartInsideTerrain(int i, int j, float fx, float fy)
         return qfalse;
     }
 
-    if (!g_trace.tc->squares[i][j].eMode) {
+    if (!pt->tc->squares[i][j].eMode) {
         return qfalse;
     }
 
     if ((i + j) & 1) {
         if (fx + fy >= 1) {
-            if (g_trace.tc->squares[i][j].eMode == 6) {
+            if (pt->tc->squares[i][j].eMode == 6) {
                 return qfalse;
             }
-            plane = g_trace.tc->squares[i][j].plane[0];
+            plane = pt->tc->squares[i][j].plane[0];
         } else {
-            if (g_trace.tc->squares[i][j].eMode == 3) {
+            if (pt->tc->squares[i][j].eMode == 3) {
                 return qfalse;
             }
-            plane = g_trace.tc->squares[i][j].plane[1];
+            plane = pt->tc->squares[i][j].plane[1];
         }
     } else {
         if (fy >= fx) {
-            if (g_trace.tc->squares[i][j].eMode == 5) {
+            if (pt->tc->squares[i][j].eMode == 5) {
                 return qfalse;
             }
-            plane = g_trace.tc->squares[i][j].plane[0];
+            plane = pt->tc->squares[i][j].plane[0];
         } else {
-            if (g_trace.tc->squares[i][j].eMode == 4) {
+            if (pt->tc->squares[i][j].eMode == 4) {
                 return qfalse;
             }
-            plane = g_trace.tc->squares[i][j].plane[1];
+            plane = pt->tc->squares[i][j].plane[1];
         }
     }
 
-    fDot = DotProduct(g_trace.vStart, plane);
+    fDot = DotProduct(pt->vStart, plane);
     if (fDot <= plane[3] && fDot + 32.0f >= plane[3]) {
         return qtrue;
     }
@@ -878,18 +880,18 @@ static qboolean CM_CheckStartInsideTerrain(int i, int j, float fx, float fy)
 CM_PositionTestPointInTerrainCollide
 ====================
 */
-qboolean CM_PositionTestPointInTerrainCollide(void)
+qboolean CM_PositionTestPointInTerrainCollide(const pointtrace_t *pt)
 {
     int   i0, j0;
     float fx, fy;
 
-    fx = (g_trace.vStart[0] - g_trace.tc->vBounds[0][0]) * (SURFACE_CLIP_EPSILON / 8);
-    fy = (g_trace.vStart[1] - g_trace.tc->vBounds[0][1]) * (SURFACE_CLIP_EPSILON / 8);
+    fx = (pt->vStart[0] - pt->tc->vBounds[0][0]) * (SURFACE_CLIP_EPSILON / 8);
+    fy = (pt->vStart[1] - pt->tc->vBounds[0][1]) * (SURFACE_CLIP_EPSILON / 8);
 
     i0 = (int)floor(fx);
     j0 = (int)floor(fy);
 
-    return CM_CheckStartInsideTerrain(i0, j0, fx - i0, fy - j0);
+    return CM_CheckStartInsideTerrain(pt, i0, j0, fx - i0, fy - j0);
 }
 
 /*
@@ -897,7 +899,7 @@ qboolean CM_PositionTestPointInTerrainCollide(void)
 CM_TracePointThroughTerrainCollide
 ====================
 */
-void CM_TracePointThroughTerrainCollide(void)
+void CM_TracePointThroughTerrainCollide(pointtrace_t *pt)
 {
     int i0, j0, i1, j1;
     int di, dj;
@@ -906,20 +908,20 @@ void CM_TracePointThroughTerrainCollide(void)
     float fx, fy;
     float dx, dy, dx2, dy2;
 
-    fx = (g_trace.vStart[0] - g_trace.tc->vBounds[0][0]) * (SURFACE_CLIP_EPSILON / 8);
-    fy = (g_trace.vStart[1] - g_trace.tc->vBounds[0][1]) * (SURFACE_CLIP_EPSILON / 8);
+    fx = (pt->vStart[0] - pt->tc->vBounds[0][0]) * (SURFACE_CLIP_EPSILON / 8);
+    fy = (pt->vStart[1] - pt->tc->vBounds[0][1]) * (SURFACE_CLIP_EPSILON / 8);
     i0 = (int64_t)floor(fx);
     j0 = (int64_t)floor(fy);
-    i1 = (int64_t)floor((g_trace.vEnd[0] - g_trace.tc->vBounds[0][0]) * (SURFACE_CLIP_EPSILON / 8));
-    j1 = (int64_t)floor((g_trace.vEnd[1] - g_trace.tc->vBounds[0][1]) * (SURFACE_CLIP_EPSILON / 8));
+    i1 = (int64_t)floor((pt->vEnd[0] - pt->tc->vBounds[0][0]) * (SURFACE_CLIP_EPSILON / 8));
+    j1 = (int64_t)floor((pt->vEnd[1] - pt->tc->vBounds[0][1]) * (SURFACE_CLIP_EPSILON / 8));
 
     const float dfx = fx - i0;
     const float dfy = fy - j0;
 
-    if (CM_CheckStartInsideTerrain(i0, j0, dfx, dfy)) {
-        g_trace.tw->trace.startsolid = qtrue;
-        g_trace.tw->trace.allsolid   = qtrue;
-        g_trace.tw->trace.fraction   = 0;
+    if (CM_CheckStartInsideTerrain(pt, i0, j0, dfx, dfy)) {
+        pt->tw->trace.startsolid = qtrue;
+        pt->tw->trace.allsolid   = qtrue;
+        pt->tw->trace.fraction   = 0;
         return;
     }
 
@@ -933,9 +935,9 @@ void CM_TracePointThroughTerrainCollide(void)
                 return;
             }
 
-            g_trace.i = i0;
-            g_trace.j = j0;
-            CM_TestTerrainCollideSquare();
+            pt->i = i0;
+            pt->j = j0;
+            CM_TestTerrainCollideSquare(pt);
         } else if (j0 >= j1) {
             if (j0 > 7) {
                 j0 = 7;
@@ -944,9 +946,9 @@ void CM_TracePointThroughTerrainCollide(void)
                 j1 = 0;
             }
 
-            g_trace.i = i0;
-            for (g_trace.j = j0; g_trace.j >= j1; g_trace.j--) {
-                if (CM_TestTerrainCollideSquare()) {
+            pt->i = i0;
+            for (pt->j = j0; pt->j >= j1; pt->j--) {
+                if (CM_TestTerrainCollideSquare(pt)) {
                     return;
                 }
             }
@@ -958,9 +960,9 @@ void CM_TracePointThroughTerrainCollide(void)
                 j1 = 7;
             }
 
-            g_trace.i = i0;
-            for (g_trace.j = j0; g_trace.j <= j1; g_trace.j++) {
-                if (CM_TestTerrainCollideSquare()) {
+            pt->i = i0;
+            for (pt->j = j0; pt->j <= j1; pt->j++) {
+                if (CM_TestTerrainCollideSquare(pt)) {
                     return;
                 }
             }
@@ -978,9 +980,9 @@ void CM_TracePointThroughTerrainCollide(void)
                 i1 = 0;
             }
 
-            g_trace.j = j0;
-            for (g_trace.i = i0; g_trace.i >= i1; g_trace.i--) {
-                if (CM_TestTerrainCollideSquare()) {
+            pt->j = j0;
+            for (pt->i = i0; pt->i >= i1; pt->i--) {
+                if (CM_TestTerrainCollideSquare(pt)) {
                     break;
                 }
             }
@@ -992,16 +994,16 @@ void CM_TracePointThroughTerrainCollide(void)
                 i1 = 7;
             }
 
-            g_trace.j = j0;
-            for (g_trace.i = i0; g_trace.i <= i1; g_trace.i++) {
-                if (CM_TestTerrainCollideSquare()) {
+            pt->j = j0;
+            for (pt->i = i0; pt->i <= i1; pt->i++) {
+                if (CM_TestTerrainCollideSquare(pt)) {
                     break;
                 }
             }
         }
     } else {
-        dx = g_trace.vEnd[0] - g_trace.vStart[0];
-        dy = g_trace.vEnd[1] - g_trace.vStart[1];
+        dx = pt->vEnd[0] - pt->vStart[0];
+        dy = pt->vEnd[1] - pt->vStart[1];
 
         // Fix
         //==
@@ -1033,12 +1035,12 @@ void CM_TracePointThroughTerrainCollide(void)
             dx2 = -dx2;
         }
 
-        g_trace.i = i0;
-        g_trace.j = j0;
+        pt->i = i0;
+        pt->j = j0;
 
         while (1) {
-            if (g_trace.i >= 0 && g_trace.i <= 7 && g_trace.j >= 0 && g_trace.j <= 7) {
-                if (CM_TestTerrainCollideSquare()) {
+            if (pt->i >= 0 && pt->i <= 7 && pt->j >= 0 && pt->j <= 7) {
+                if (CM_TestTerrainCollideSquare(pt)) {
                     return;
                 }
             }
@@ -1051,11 +1053,11 @@ void CM_TracePointThroughTerrainCollide(void)
             if (dx2 < dy2) {
                 dy2 -= dx2;
                 dx2 = dy;
-                g_trace.i += d1;
+                pt->i += d1;
             } else {
                 dx2 -= dy2;
                 dy2 = dx;
-                g_trace.j += d2;
+                pt->j += d2;
             }
         }
     }
@@ -1066,7 +1068,7 @@ void CM_TracePointThroughTerrainCollide(void)
 CM_TraceCylinderThroughTerrainCollide
 ====================
 */
-void CM_TraceCylinderThroughTerrainCollide(traceWork_t *tw, const terrainCollide_t *tc)
+void CM_TraceCylinderThroughTerrainCollide(pointtrace_t *pt, traceWork_t *tw, const terrainCollide_t *tc)
 {
     int   i0, j0, i1, j1;
     float x0, y0;
@@ -1091,53 +1093,53 @@ void CM_TraceCylinderThroughTerrainCollide(traceWork_t *tw, const terrainCollide
     }
 
     y0 = (j0 << 6) + tc->vBounds[0][1];
-    for (g_trace.j = j0; g_trace.j <= j1; g_trace.j++) {
+    for (pt->j = j0; pt->j <= j1; pt->j++) {
         x0 = (i0 << 6) + tc->vBounds[0][0];
-        for (g_trace.i = i0; g_trace.i <= i1; g_trace.i++) {
-            switch (tc->squares[g_trace.i][g_trace.j].eMode) {
+        for (pt->i = i0; pt->i <= i1; pt->i++) {
+            switch (tc->squares[pt->i][pt->j].eMode) {
             case 1:
             case 2:
-                enterFrac = CM_CheckTerrainTriSphere(x0, y0, 0);
+                enterFrac = CM_CheckTerrainTriSphere(pt, x0, y0, 0);
                 if (enterFrac < 0) {
                     enterFrac = 0;
                 }
-                if (enterFrac < g_trace.tw->trace.fraction) {
-                    g_trace.tw->trace.fraction = enterFrac;
-                    VectorCopy(g_trace.tc->squares[g_trace.i][g_trace.j].plane[0], g_trace.tw->trace.plane.normal);
-                    g_trace.tw->trace.plane.dist = g_trace.tc->squares[g_trace.i][g_trace.j].plane[0][3];
+                if (enterFrac < pt->tw->trace.fraction) {
+                    pt->tw->trace.fraction = enterFrac;
+                    VectorCopy(pt->tc->squares[pt->i][pt->j].plane[0], pt->tw->trace.plane.normal);
+                    pt->tw->trace.plane.dist = pt->tc->squares[pt->i][pt->j].plane[0][3];
                 }
-                enterFrac = CM_CheckTerrainTriSphere(x0, y0, 1);
+                enterFrac = CM_CheckTerrainTriSphere(pt, x0, y0, 1);
                 if (enterFrac < 0) {
                     enterFrac = 0;
                 }
-                if (enterFrac < g_trace.tw->trace.fraction) {
-                    g_trace.tw->trace.fraction = enterFrac;
-                    VectorCopy(g_trace.tc->squares[g_trace.i][g_trace.j].plane[1], g_trace.tw->trace.plane.normal);
-                    g_trace.tw->trace.plane.dist = g_trace.tc->squares[g_trace.i][g_trace.j].plane[1][3];
+                if (enterFrac < pt->tw->trace.fraction) {
+                    pt->tw->trace.fraction = enterFrac;
+                    VectorCopy(pt->tc->squares[pt->i][pt->j].plane[1], pt->tw->trace.plane.normal);
+                    pt->tw->trace.plane.dist = pt->tc->squares[pt->i][pt->j].plane[1][3];
                 }
                 break;
             case 3:
             case 4:
-                enterFrac = CM_CheckTerrainTriSphere(x0, y0, 0);
+                enterFrac = CM_CheckTerrainTriSphere(pt, x0, y0, 0);
                 if (enterFrac < 0) {
                     enterFrac = 0;
                 }
-                if (enterFrac < g_trace.tw->trace.fraction) {
-                    g_trace.tw->trace.fraction = enterFrac;
-                    VectorCopy(g_trace.tc->squares[g_trace.i][g_trace.j].plane[0], g_trace.tw->trace.plane.normal);
-                    g_trace.tw->trace.plane.dist = g_trace.tc->squares[g_trace.i][g_trace.j].plane[0][3];
+                if (enterFrac < pt->tw->trace.fraction) {
+                    pt->tw->trace.fraction = enterFrac;
+                    VectorCopy(pt->tc->squares[pt->i][pt->j].plane[0], pt->tw->trace.plane.normal);
+                    pt->tw->trace.plane.dist = pt->tc->squares[pt->i][pt->j].plane[0][3];
                 }
                 break;
             case 5:
             case 6:
-                enterFrac = CM_CheckTerrainTriSphere(x0, y0, 1);
+                enterFrac = CM_CheckTerrainTriSphere(pt, x0, y0, 1);
                 if (enterFrac < 0) {
                     enterFrac = 0;
                 }
-                if (enterFrac < g_trace.tw->trace.fraction) {
-                    g_trace.tw->trace.fraction = enterFrac;
-                    VectorCopy(g_trace.tc->squares[g_trace.i][g_trace.j].plane[1], g_trace.tw->trace.plane.normal);
-                    g_trace.tw->trace.plane.dist = g_trace.tc->squares[g_trace.i][g_trace.j].plane[1][3];
+                if (enterFrac < pt->tw->trace.fraction) {
+                    pt->tw->trace.fraction = enterFrac;
+                    VectorCopy(pt->tc->squares[pt->i][pt->j].plane[1], pt->tw->trace.plane.normal);
+                    pt->tw->trace.plane.dist = pt->tc->squares[pt->i][pt->j].plane[1][3];
                 }
                 break;
             default:
@@ -1157,7 +1159,8 @@ CM_TraceThroughTerrainCollide
 */
 void CM_TraceThroughTerrainCollide(traceWork_t *tw, terrainCollide_t *tc)
 {
-    int i;
+    int          i;
+    pointtrace_t pt;
 
     if (tw->bounds[0][0] >= tc->vBounds[1][0] || tw->bounds[1][0] <= tc->vBounds[0][0]) {
         return;
@@ -1171,36 +1174,36 @@ void CM_TraceThroughTerrainCollide(traceWork_t *tw, terrainCollide_t *tc)
         return;
     }
 
-    g_trace.tw = tw;
-    g_trace.tc = tc;
-    VectorCopy(tw->start, g_trace.vStart);
-    VectorCopy(tw->end, g_trace.vEnd);
+    pt.tw = tw;
+    pt.tc = tc;
+    VectorCopy(tw->start, pt.vStart);
+    VectorCopy(tw->end, pt.vEnd);
 
     if (sphere.use && cm_ter_usesphere->integer) {
-        VectorSubtract(tw->start, sphere.offset, g_trace.vStart);
-        VectorSubtract(tw->end, sphere.offset, g_trace.vEnd);
-        CM_TraceCylinderThroughTerrainCollide(tw, tc);
+        VectorSubtract(tw->start, sphere.offset, pt.vStart);
+        VectorSubtract(tw->end, sphere.offset, pt.vEnd);
+        CM_TraceCylinderThroughTerrainCollide(&pt, tw, tc);
     } else if (tw->isPoint) {
-        VectorCopy(tw->start, g_trace.vStart);
-        VectorCopy(tw->end, g_trace.vEnd);
-        CM_TracePointThroughTerrainCollide();
+        VectorCopy(tw->start, pt.vStart);
+        VectorCopy(tw->end, pt.vEnd);
+        CM_TracePointThroughTerrainCollide(&pt);
     } else {
         if (tc->squares[0][0].plane[0][2] >= 0) {
             for (i = 0; i < 4; i++) {
-                VectorAdd(tw->start, tw->offsets[i], g_trace.vStart);
-                VectorAdd(tw->end, tw->offsets[i], g_trace.vEnd);
+                VectorAdd(tw->start, tw->offsets[i], pt.vStart);
+                VectorAdd(tw->end, tw->offsets[i], pt.vEnd);
 
-                CM_TracePointThroughTerrainCollide();
+                CM_TracePointThroughTerrainCollide(&pt);
                 if (tw->trace.allsolid) {
                     return;
                 }
             }
         } else {
             for (i = 4; i < 8; i++) {
-                VectorAdd(tw->start, tw->offsets[i], g_trace.vStart);
-                VectorAdd(tw->end, tw->offsets[i], g_trace.vEnd);
+                VectorAdd(tw->start, tw->offsets[i], pt.vStart);
+                VectorAdd(tw->end, tw->offsets[i], pt.vEnd);
 
-                CM_TracePointThroughTerrainCollide();
+                CM_TracePointThroughTerrainCollide(&pt);
                 if (tw->trace.allsolid) {
                     return;
                 }
@@ -1216,7 +1219,8 @@ CM_PositionTestInTerrainCollide
 */
 qboolean CM_PositionTestInTerrainCollide(traceWork_t *tw, terrainCollide_t *tc)
 {
-    int i;
+    int          i;
+    pointtrace_t pt;
 
     if (tw->bounds[0][0] >= tc->vBounds[1][0] || tw->bounds[1][0] <= tc->vBounds[0][0]) {
         return qfalse;
@@ -1230,36 +1234,36 @@ qboolean CM_PositionTestInTerrainCollide(traceWork_t *tw, terrainCollide_t *tc)
         return qfalse;
     }
 
-    g_trace.tw = tw;
-    g_trace.tc = tc;
-    VectorCopy(tw->start, g_trace.vStart);
-    VectorCopy(tw->end, g_trace.vEnd);
+    pt.tw = tw;
+    pt.tc = tc;
+    VectorCopy(tw->start, pt.vStart);
+    VectorCopy(tw->end, pt.vEnd);
 
     if (sphere.use && cm_ter_usesphere->integer) {
-        VectorSubtract(tw->start, sphere.offset, g_trace.vStart);
-        VectorSubtract(tw->end, sphere.offset, g_trace.vEnd);
-        CM_TraceCylinderThroughTerrainCollide(tw, tc);
+        VectorSubtract(tw->start, sphere.offset, pt.vStart);
+        VectorSubtract(tw->end, sphere.offset, pt.vEnd);
+        CM_TraceCylinderThroughTerrainCollide(&pt, tw, tc);
         return tw->trace.startsolid;
     } else if (tw->isPoint) {
-        VectorCopy(tw->start, g_trace.vStart);
-        VectorCopy(tw->end, g_trace.vEnd);
-        return CM_PositionTestPointInTerrainCollide();
+        VectorCopy(tw->start, pt.vStart);
+        VectorCopy(tw->end, pt.vEnd);
+        return CM_PositionTestPointInTerrainCollide(&pt);
     } else {
         if (tc->squares[0][0].plane[0][2] >= 0) {
             for (i = 0; i < 4; i++) {
-                VectorAdd(tw->start, tw->offsets[i], g_trace.vStart);
-                VectorAdd(tw->end, tw->offsets[i], g_trace.vEnd);
+                VectorAdd(tw->start, tw->offsets[i], pt.vStart);
+                VectorAdd(tw->end, tw->offsets[i], pt.vEnd);
 
-                if (CM_PositionTestPointInTerrainCollide()) {
+                if (CM_PositionTestPointInTerrainCollide(&pt)) {
                     return qtrue;
                 }
             }
         } else {
             for (i = 4; i < 8; i++) {
-                VectorAdd(tw->start, tw->offsets[i], g_trace.vStart);
-                VectorAdd(tw->end, tw->offsets[i], g_trace.vEnd);
+                VectorAdd(tw->start, tw->offsets[i], pt.vStart);
+                VectorAdd(tw->end, tw->offsets[i], pt.vEnd);
 
-                if (CM_PositionTestPointInTerrainCollide()) {
+                if (CM_PositionTestPointInTerrainCollide(&pt)) {
                     return qtrue;
                 }
             }
@@ -1274,7 +1278,7 @@ qboolean CM_PositionTestInTerrainCollide(traceWork_t *tw, terrainCollide_t *tc)
 CM_SightTracePointThroughTerrainCollide
 ====================
 */
-qboolean CM_SightTracePointThroughTerrainCollide(void)
+qboolean CM_SightTracePointThroughTerrainCollide(pointtrace_t *pt)
 {
     int   i0, j0;
     int   i1, j1;
@@ -1283,14 +1287,14 @@ qboolean CM_SightTracePointThroughTerrainCollide(void)
     float dx, dy, dx2, dy2;
     float d1, d2;
 
-    fx = (g_trace.vStart[0] - g_trace.tc->vBounds[0][0]) * (SURFACE_CLIP_EPSILON / 8);
-    fy = (g_trace.vStart[1] - g_trace.tc->vBounds[0][1]) * (SURFACE_CLIP_EPSILON / 8);
+    fx = (pt->vStart[0] - pt->tc->vBounds[0][0]) * (SURFACE_CLIP_EPSILON / 8);
+    fy = (pt->vStart[1] - pt->tc->vBounds[0][1]) * (SURFACE_CLIP_EPSILON / 8);
     i0 = (int)floor(fx);
     j0 = (int)floor(fy);
-    i1 = (int)floor((g_trace.vEnd[0] - g_trace.tc->vBounds[0][0]) * (SURFACE_CLIP_EPSILON / 8));
-    j1 = (int)floor((g_trace.vEnd[1] - g_trace.tc->vBounds[0][1]) * (SURFACE_CLIP_EPSILON / 8));
+    i1 = (int)floor((pt->vEnd[0] - pt->tc->vBounds[0][0]) * (SURFACE_CLIP_EPSILON / 8));
+    j1 = (int)floor((pt->vEnd[1] - pt->tc->vBounds[0][1]) * (SURFACE_CLIP_EPSILON / 8));
 
-    if (CM_CheckStartInsideTerrain(i0, j0, fx - i0, fy - j0)) {
+    if (CM_CheckStartInsideTerrain(pt, i0, j0, fx - i0, fy - j0)) {
         return qfalse;
     }
 
@@ -1304,9 +1308,9 @@ qboolean CM_SightTracePointThroughTerrainCollide(void)
                 return qtrue;
             }
 
-            g_trace.i = i0;
-            g_trace.j = j0;
-            return !CM_TestTerrainCollideSquare();
+            pt->i = i0;
+            pt->j = j0;
+            return !CM_TestTerrainCollideSquare(pt);
         } else if (j0 >= j1) {
             if (j0 > 7) {
                 j0 = 7;
@@ -1315,9 +1319,9 @@ qboolean CM_SightTracePointThroughTerrainCollide(void)
                 j1 = 0;
             }
 
-            g_trace.i = i0;
-            for (g_trace.j = j0; g_trace.j >= j1; g_trace.j--) {
-                if (CM_TestTerrainCollideSquare()) {
+            pt->i = i0;
+            for (pt->j = j0; pt->j >= j1; pt->j--) {
+                if (CM_TestTerrainCollideSquare(pt)) {
                     return qfalse;
                 }
             }
@@ -1329,9 +1333,9 @@ qboolean CM_SightTracePointThroughTerrainCollide(void)
                 j1 = 7;
             }
 
-            g_trace.i = i0;
-            for (g_trace.j = j0; g_trace.j <= j1; g_trace.j++) {
-                if (CM_TestTerrainCollideSquare()) {
+            pt->i = i0;
+            for (pt->j = j0; pt->j <= j1; pt->j++) {
+                if (CM_TestTerrainCollideSquare(pt)) {
                     return qfalse;
                 }
             }
@@ -1349,9 +1353,9 @@ qboolean CM_SightTracePointThroughTerrainCollide(void)
                 i1 = 0;
             }
 
-            g_trace.j = j0;
-            for (g_trace.i = i0; g_trace.i >= i1; g_trace.i--) {
-                if (CM_TestTerrainCollideSquare()) {
+            pt->j = j0;
+            for (pt->i = i0; pt->i >= i1; pt->i--) {
+                if (CM_TestTerrainCollideSquare(pt)) {
                     return qfalse;
                 }
             }
@@ -1363,16 +1367,16 @@ qboolean CM_SightTracePointThroughTerrainCollide(void)
                 i1 = 7;
             }
 
-            g_trace.j = j0;
-            for (g_trace.i = i0; g_trace.i <= i1; g_trace.i++) {
-                if (CM_TestTerrainCollideSquare()) {
+            pt->j = j0;
+            for (pt->i = i0; pt->i <= i1; pt->i++) {
+                if (CM_TestTerrainCollideSquare(pt)) {
                     return qfalse;
                 }
             }
         }
     } else {
-        dx = g_trace.vEnd[0] - g_trace.vStart[0];
-        dy = g_trace.vEnd[1] - g_trace.vStart[1];
+        dx = pt->vEnd[0] - pt->vStart[0];
+        dy = pt->vEnd[1] - pt->vStart[1];
 
         if (dx > 0) {
             d1  = 1;
@@ -1397,12 +1401,12 @@ qboolean CM_SightTracePointThroughTerrainCollide(void)
             dx2 = -dx2;
         }
 
-        g_trace.i = i0;
-        g_trace.j = j0;
+        pt->i = i0;
+        pt->j = j0;
 
         while (1) {
-            if (g_trace.i >= 0 && g_trace.i <= 7 && g_trace.j >= 0 && g_trace.j <= 7) {
-                if (CM_TestTerrainCollideSquare()) {
+            if (pt->i >= 0 && pt->i <= 7 && pt->j >= 0 && pt->j <= 7) {
+                if (CM_TestTerrainCollideSquare(pt)) {
                     return qfalse;
                 }
             }
@@ -1415,11 +1419,11 @@ qboolean CM_SightTracePointThroughTerrainCollide(void)
             if (dx2 < dy2) {
                 dy2 -= dx2;
                 dx2 = dy;
-                g_trace.i += d1;
+                pt->i += d1;
             } else {
                 dx2 -= dy2;
                 dy2 = dx;
-                g_trace.j += d2;
+                pt->j += d2;
             }
         }
     }
@@ -1434,7 +1438,8 @@ CM_SightTraceThroughTerrainCollide
 */
 qboolean CM_SightTraceThroughTerrainCollide(traceWork_t *tw, terrainCollide_t *tc)
 {
-    int i;
+    int          i;
+    pointtrace_t pt;
 
     if (tw->bounds[0][0] >= tc->vBounds[1][0] || tw->bounds[1][0] <= tc->vBounds[0][0]) {
         return qfalse;
@@ -1448,31 +1453,31 @@ qboolean CM_SightTraceThroughTerrainCollide(traceWork_t *tw, terrainCollide_t *t
         return qfalse;
     }
 
-    g_trace.tw = tw;
-    g_trace.tc = tc;
-    VectorCopy(tw->start, g_trace.vStart);
-    VectorCopy(tw->end, g_trace.vEnd);
+    pt.tw = tw;
+    pt.tc = tc;
+    VectorCopy(tw->start, pt.vStart);
+    VectorCopy(tw->end, pt.vEnd);
 
     if (tw->isPoint) {
-        VectorCopy(tw->start, g_trace.vStart);
-        VectorCopy(tw->end, g_trace.vEnd);
-        return CM_SightTracePointThroughTerrainCollide();
+        VectorCopy(tw->start, pt.vStart);
+        VectorCopy(tw->end, pt.vEnd);
+        return CM_SightTracePointThroughTerrainCollide(&pt);
     } else {
         if (tc->squares[0][0].plane[0][2] >= 0) {
             for (i = 0; i < 4; i++) {
-                VectorAdd(tw->start, tw->offsets[i], g_trace.vStart);
-                VectorAdd(tw->end, tw->offsets[i], g_trace.vEnd);
+                VectorAdd(tw->start, tw->offsets[i], pt.vStart);
+                VectorAdd(tw->end, tw->offsets[i], pt.vEnd);
 
-                if (!CM_SightTracePointThroughTerrainCollide()) {
+                if (!CM_SightTracePointThroughTerrainCollide(&pt)) {
                     return qfalse;
                 }
             }
         } else {
             for (i = 4; i < 8; i++) {
-                VectorAdd(tw->start, tw->offsets[i], g_trace.vStart);
-                VectorAdd(tw->end, tw->offsets[i], g_trace.vEnd);
+                VectorAdd(tw->start, tw->offsets[i], pt.vStart);
+                VectorAdd(tw->end, tw->offsets[i], pt.vEnd);
 
-                if (!CM_SightTracePointThroughTerrainCollide()) {
+                if (!CM_SightTracePointThroughTerrainCollide(&pt)) {
                     return qfalse;
                 }
             }
@@ -1499,7 +1504,8 @@ CM_SwapTerraPatch
 Swaps the patch on big-endian
 ====================
 */
-void CM_SwapTerraPatch(cTerraPatch_t* pPatch) {
+void CM_SwapTerraPatch(cTerraPatch_t *pPatch)
+{
 #ifdef Q3_BIG_ENDIAN
     int i;
 
@@ -1511,13 +1517,13 @@ void CM_SwapTerraPatch(cTerraPatch_t* pPatch) {
     pPatch->texCoord[1][0][1] = LittleFloat(pPatch->texCoord[1][0][1]);
     pPatch->texCoord[1][1][0] = LittleFloat(pPatch->texCoord[1][1][0]);
     pPatch->texCoord[1][1][1] = LittleFloat(pPatch->texCoord[1][1][1]);
-    pPatch->iBaseHeight = LittleShort(pPatch->iBaseHeight);
-    pPatch->iShader = LittleUnsignedShort(pPatch->iShader);
-    pPatch->iLightMap = LittleUnsignedShort(pPatch->iLightMap);
-    pPatch->iNorth = LittleShort(pPatch->iNorth);
-    pPatch->iEast = LittleShort(pPatch->iEast);
-    pPatch->iSouth = LittleShort(pPatch->iSouth);
-    pPatch->iWest = LittleShort(pPatch->iWest);
+    pPatch->iBaseHeight       = LittleShort(pPatch->iBaseHeight);
+    pPatch->iShader           = LittleUnsignedShort(pPatch->iShader);
+    pPatch->iLightMap         = LittleUnsignedShort(pPatch->iLightMap);
+    pPatch->iNorth            = LittleShort(pPatch->iNorth);
+    pPatch->iEast             = LittleShort(pPatch->iEast);
+    pPatch->iSouth            = LittleShort(pPatch->iSouth);
+    pPatch->iWest             = LittleShort(pPatch->iWest);
 
     for (i = 0; i < MAX_TERRAIN_VARNODES; i++) {
         pPatch->varTree[0][i].flags = LittleUnsignedShort(pPatch->varTree[0][i].flags);
