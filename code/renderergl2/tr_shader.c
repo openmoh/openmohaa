@@ -735,10 +735,22 @@ static qboolean ParseStage( shaderStage_t *stage, char **text )
 		//
 		// clampmap <name>
 		//
-		else if ( !Q_stricmp( token, "clampmap" ) )
+		//else if ( !Q_stricmp( token, "clampmap" ) )
+        //
+        // OPENMOHAA-specific stuff
+        //=========================
+		else if ( !Q_stricmpn( token, "clampmap", 8 ) )
+        //=========================
 		{
 			imgType_t type = IMGTYPE_COLORALPHA;
 			imgFlags_t flags = IMGFLAG_CLAMPTOEDGE;
+
+            // OPENMOHAA-specific stuff
+            //=========================
+            // FIXME:
+            //  Support clampmapx and clampmapy
+            //  Also add IMGFLAG_CLAMP along IMGFLAG_CLAMPTOEDGE
+            //=========================
 
 			token = COM_ParseExt( text, qfalse );
 			if ( !token[0] )
