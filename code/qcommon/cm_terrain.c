@@ -357,6 +357,7 @@ float CM_CheckTerrainPlane(const pointtrace_t *pt, vec4_t plane)
         return 1;
     }
 
+#if 0
     if (d1 <= d2) {
         return 1;
     }
@@ -365,6 +366,25 @@ float CM_CheckTerrainPlane(const pointtrace_t *pt, vec4_t plane)
     if (f < 0) {
         f = 0;
     }
+
+    return f;
+#endif
+
+    // Fixed in OPM
+    //  Also check when leaving the terrain (usually from below).
+    // crosses face
+    if (d1 > d2) { // enter
+        f = (d1 - SURFACE_CLIP_EPSILON) / (d1 - d2);
+        if (f < 0) {
+            f = 0;
+        }
+    } else { // leave
+        f = (d1 + SURFACE_CLIP_EPSILON) / (d1 - d2);
+        if (f > 1) {
+            f = 1;
+        }
+    }
+
     return f;
 }
 
@@ -386,7 +406,7 @@ float CM_CheckTerrainTriSpherePoint(const pointtrace_t *pt, vec3_t v)
 
     VectorSubtract(pt->vStart, v, vDir);
 
-    fRadSq = sphere.radius * sphere.radius;
+    fRadSq = Square(sphere.radius);
     fLenSq = VectorLengthSquared(vDir);
 
     if (fLenSq <= fRadSq) {
@@ -478,11 +498,11 @@ float CM_CheckTerrainTriSphereEdge(
 
     v0[0] = (i0 << 6) + x0;
     v0[1] = (j0 << 6) + y0;
-    v0[2] = (plane[3] - (v0[0] * plane[0] + v0[1] * plane[1])) * fScale;
+    v0[2] = (plane[3] - DotProduct2D(v0, plane)) * fScale;
 
     v1[0] = (i1 << 6) + x0;
     v1[1] = (j1 << 6) + y0;
-    v1[2] = (plane[3] - (v1[0] * plane[0] + v1[1] * plane[1])) * fScale;
+    v1[2] = (plane[3] - DotProduct2D(v1, plane)) * fScale;
 
     VectorSubtract(pt->vStart, v0, vDirTrace);
     VectorSubtract(v1, v0, vDirEdge);
@@ -495,7 +515,7 @@ float CM_CheckTerrainTriSphereEdge(
     VectorMA(vDirTrace, -S, vDirEdge, vRFromT_Const);
     VectorMA(vDeltaStart, -T, vDirEdge, vRFromT_Scale);
 
-    fRadSq    = sphere.radius * sphere.radius;
+    fRadSq    = Square(sphere.radius);
     fLengthSq = VectorLengthSquared(vRFromT_Const);
 
     if (fLengthSq <= fRadSq) {
@@ -510,7 +530,7 @@ float CM_CheckTerrainTriSphereEdge(
 
     fDot          = DotProduct(vRFromT_Scale, vRFromT_Const);
     fSFromT_Scale = VectorLengthSquared(vRFromT_Scale);
-    fSFromT_Const = fDot * fDot - (fLengthSq - fRadSq) * fSFromT_Scale;
+    fSFromT_Const = Square(fDot) - (fLengthSq - fRadSq) * fSFromT_Scale;
 
     if (fSFromT_Const <= 0) {
         return pt->tw->trace.fraction;
@@ -522,8 +542,12 @@ float CM_CheckTerrainTriSphereEdge(
         fFrac = (-fDot + sqrt(fSFromT_Const)) / fSFromT_Scale;
     }
 
+    if (fFrac <= 0) {
+        return pt->tw->trace.fraction;
+    }
+
     fFracClip = fFrac - pt->fSurfaceClipEpsilon;
-    if (fFrac <= 0 || fFracClip >= pt->tw->trace.fraction) {
+    if (fFracClip >= pt->tw->trace.fraction) {
         return pt->tw->trace.fraction;
     }
 
@@ -564,20 +588,17 @@ float CM_CheckTerrainTriSphere(pointtrace_t *pt, float x0, float y0, int iPlane)
     d1    = DotProduct(pt->vStart, plane) - plane[3];
     d2    = DotProduct(pt->vEnd, plane) - plane[3];
 
-    if (d1 > sphere.radius) {
-        if (d2 >= sphere.radius + SURFACE_CLIP_EPSILON) {
-            return pt->tw->trace.fraction;
-        }
-
-        if (d2 >= d1) {
-            return pt->tw->trace.fraction;
-        }
+    // if completely in front of face, no intersection with the entire brush
+    if (d1 > sphere.radius && (d2 >= sphere.radius + SURFACE_CLIP_EPSILON || d2 >= d1)) {
+        return pt->tw->trace.fraction;
     }
 
+    // if it doesn't cross the plane, the plane isn't relevent
     if (d1 <= -sphere.radius && d2 <= -sphere.radius) {
         return pt->tw->trace.fraction;
     }
 
+#if 0
     if (d1 <= d2) {
         return pt->tw->trace.fraction;
     }
@@ -588,6 +609,27 @@ float CM_CheckTerrainTriSphere(pointtrace_t *pt, float x0, float y0, int iPlane)
 
     if (fSpherePlane < 0) {
         fSpherePlane = 0;
+    }
+#endif
+
+    fMaxFraction            = SURFACE_CLIP_EPSILON / (d1 - d2);
+    pt->fSurfaceClipEpsilon = fMaxFraction;
+
+    // Fixed in OPM
+    //  Also check when leaving the terrain (usually from below).
+    // crosses face
+    if (d1 > d2) { // enter
+        fSpherePlane = (d1 - sphere.radius) / (d1 - d2) - fMaxFraction;
+
+        if (fSpherePlane < 0) {
+            fSpherePlane = 0;
+        }
+    } else {
+        fSpherePlane = (d1 + sphere.radius) / (d1 - d2) - fMaxFraction;
+
+        if (fSpherePlane > 1) {
+            fSpherePlane = 1;
+        }
     }
 
     if (fSpherePlane >= pt->tw->trace.fraction) {
@@ -868,7 +910,7 @@ static qboolean CM_CheckStartInsideTerrain(const pointtrace_t *pt, int i, int j,
     }
 
     fDot = DotProduct(pt->vStart, plane);
-    if (fDot <= plane[3] && fDot + 32.0f >= plane[3]) {
+    if (fDot <= plane[3] && fDot + 32 >= plane[3]) {
         return qtrue;
     }
 
