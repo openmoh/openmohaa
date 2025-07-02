@@ -37,6 +37,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "entity.h"
 #include "bg_local.h"
 
+#define MAX_NPOLYS 256
+
 RecastPathMaster pathMaster;
 
 static const vec3_t DETOUR_EXTENT = {(MAXS_X - MINS_X) / 2, (MAXS_Z - MINS_Z) / 2, (MAXS_Y - MINS_Y) / 2};
@@ -88,9 +90,9 @@ void RecastPather::FindPath(const Vector& start, const Vector& end, const PathSe
         return;
     }
 
-    dtPolyRef polys[256];
+    dtPolyRef polys[MAX_NPOLYS];
     int       nPolys = 0;
-    navigationMap.GetNavMeshQuery()->findPath(startRef, endRef, startPt, endPt, filter, polys, &nPolys, 256);
+    navigationMap.GetNavMeshQuery()->findPath(startRef, endRef, startPt, endPt, filter, polys, &nPolys, ARRAY_LEN(polys) - 1);
 
     if (nPolys) {
         vec3_t   closestPos;
@@ -142,9 +144,9 @@ void RecastPather::FindPathNear(
         return;
     }
 
-    dtPolyRef polys[256];
+    dtPolyRef polys[MAX_NPOLYS];
     int       nPolys = 0;
-    navigationMap.GetNavMeshQuery()->findPath(startRef, endRef, startPt, endPt, filter, polys, &nPolys, 256);
+    navigationMap.GetNavMeshQuery()->findPath(startRef, endRef, startPt, endPt, filter, polys, &nPolys, ARRAY_LEN(polys) - 1);
 
     if (nPolys) {
         vec3_t   closestPos;
@@ -214,10 +216,10 @@ void RecastPather::FindPathAway(
             if (navigationMap.GetNavMeshQuery()->findNearestPoly(point, DETOUR_EXTENT, filter, &endRef, endPt)
                     == DT_SUCCESS
                 && endRef) {
-                dtPolyRef polys[256];
+                dtPolyRef polys[MAX_NPOLYS];
                 int       nPolys = 0;
                 navigationMap.GetNavMeshQuery()->findPath(
-                    startRef, endRef, startPt, endPt, filter, polys, &nPolys, 256
+                    startRef, endRef, startPt, endPt, filter, polys, &nPolys, ARRAY_LEN(polys) - 1
                 );
 
                 if (nPolys) {
@@ -261,7 +263,7 @@ bool RecastPather::TestPath(const Vector& start, const Vector& end, const PathSe
     );
     navigationMap.GetNavMeshQuery()->findNearestPoly(recastEnd, DETOUR_EXTENT, filter, &nearestEndRef, nearestEndPt);
 
-    dtPolyRef polys[256];
+    dtPolyRef polys[MAX_NPOLYS];
     int       nPolys;
     status = navigationMap.GetNavMeshQuery()->findPath(
         nearestStartRef, nearestEndRef, nearestStartPt, nearestEndPt, filter, polys, &nPolys, 256
@@ -335,10 +337,10 @@ void RecastPather::UpdatePos(const Vector& origin)
             navigationMap.GetNavMeshQuery()->findNearestPoly(recastOrigin, DETOUR_EXTENT, filter, &startRef, startPt);
 
             if (startRef) {
-                dtPolyRef polys[256];
+                dtPolyRef polys[MAX_NPOLYS];
                 int       nPolys = 0;
                 navigationMap.GetNavMeshQuery()->findPath(
-                    startRef, endRef, startPt, endPt, filter, polys, &nPolys, 256
+                    startRef, endRef, startPt, endPt, filter, polys, &nPolys, ARRAY_LEN(polys) - 1
                 );
 
                 if (nPolys) {
