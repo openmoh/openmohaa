@@ -87,24 +87,37 @@ void NavigationMapExtension_Ladders::Handle(Container<offMeshNavigationPoint>& p
             // start → ● │
             //           │
             //           │
-            top    = trace.endpos;
-            tstart = top;
-            tend   = top + Vector(0, 0, STEPSIZE * 3);
+            tstart = trace.endpos;
+            tend   = trace.endpos + Vector(0, 0, STEPSIZE * 4);
             trace  = G_Trace(tstart, mins, maxs, tend, NULL, MASK_PLAYERSOLID, qfalse, "ConnectLadders");
 
             // Trace to this:
             //
             //  start
             //  ↓
-            //  ●───┐
-            //   ┌┐ ● ← end
+            //  ●───● ← end
+            //   ┌┐ 
             //   │
             //   │
             //   │
             // Connect to the end position
             top    = trace.endpos;
             tstart = top;
-            tend   = top + facingDir * 64 - Vector(0, 0, STEPSIZE * 4);
+            tend   = top + facingDir * 48;
+            trace  = G_Trace(tstart, mins, maxs, tend, NULL, MASK_PLAYERSOLID, qfalse, "ConnectLadders");
+
+            // Trace to this:
+            //
+            //      start
+            //      ↓
+            //      ●
+            //   ┌┐ │
+            //   │  ● ← end
+            //   │
+            //   │
+            // Connect to the end position
+            tstart = trace.endpos;
+            tend   = trace.endpos - Vector(0, 0, STEPSIZE * 6);
             trace  = G_Trace(tstart, mins, maxs, tend, NULL, MASK_PLAYERSOLID, qfalse, "ConnectLadders");
 
             // Trace to this:
