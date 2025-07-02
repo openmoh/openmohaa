@@ -257,6 +257,7 @@ movement on the server game.
 #define PMF_VIEW_JUMP_START (1 << 10)
 #define PMF_LEVELEXIT       (1 << 11)
 #define PMF_TURRET          (1 << 12)
+#define PMF_NO_WEAPONBAR    (1 << 14)
 #define PMF_NO_HUD          (1 << 15)
 
     // moveposflags

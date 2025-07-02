@@ -1163,7 +1163,7 @@ Event EV_ScriptThread_DrawHud
     EV_DEFAULT,
     "i",
     "value",
-    "Specify if hud is to be drawn"
+    "Specfiy if hud is to be drawn: 0 draws nothing, 1 draws all and 2 draws all minus the weapons bar."
 );
 Event EV_ScriptThread_RegisterCommand
 (
@@ -4599,19 +4599,33 @@ void ScriptThread::ClearObjectiveLocation(Event *ev)
 
 void ScriptThread::EventDrawHud(Event *ev)
 {
-    int        i;
-    gentity_t *ent;
+    const gentity_t *ent;
+    const qboolean   state = ev->GetBoolean(1);
 
-    // TRIVIA: in mohaa, drawhud worked only for the first player
-    for (i = 0, ent = g_entities; i < game.maxclients; i++, ent++) {
+    // Fixed in 2.0
+    //  Allow drawhud to work on all clients
+    for (int i = 0; i < game.maxclients; i++) {
+        ent = &g_entities[i];
+
         if (!ent->inuse || !ent->entity || !ent->client) {
             continue;
         }
 
-        if (ev->GetBoolean(1)) {
+        switch (state) {
+        case 2:
+            // Added in 2.0
+            //  Hide the weapon bar
+            ent->client->ps.pm_flags |= PMF_NO_WEAPONBAR;
             ent->client->ps.pm_flags &= ~PMF_NO_HUD;
-        } else {
+            break;
+        case 1:
+        default:
+            ent->client->ps.pm_flags &= ~PMF_NO_WEAPONBAR;
+            ent->client->ps.pm_flags &= ~PMF_NO_HUD;
+            break;
+        case 0:
             ent->client->ps.pm_flags |= PMF_NO_HUD;
+            break;
         }
     }
 }

@@ -2024,7 +2024,7 @@ void UI_Update(void)
         // try to show the weapons bar
         //
         if (hud_weapons) {
-            if (ui_weaponsbar->integer) {
+            if (ui_weaponsbar->integer && !(cl.snap.ps.pm_flags & PMF_NO_WEAPONBAR)) {
                 int iEquippedDiff = 0;
                 int iOwnedDiff    = 0;
 
