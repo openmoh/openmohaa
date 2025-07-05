@@ -5072,6 +5072,10 @@ void ClientGameCommandManager::RemoveClientEntity(int number, dtiki_t *tiki, cen
     if (p && p->cgd.flags & T_ASSIGNED_NUMBER) {
         m_command_time_manager.RemoveEntity(number);
     }
+
+    // Fixed in OPM
+    //  Also make sure to remove all pending events for that entity
+    RemovePendingEventsForEntity(number);
 }
 
 bool ClientGameCommandManager::GetTagPositionAndOrientation(int tagnum, orientation_t *new_or)
@@ -5135,6 +5139,10 @@ void ClientGameCommandManager::RestartAllEmitters(void)
 void CG_RestartCommandManager()
 {
     commandManager.FreeAllTempModels();
+
+    // Added in OPM
+    //  Clean up all effect events when the server restarts
+    commandManager.ResetPendingEvents();
 }
 
 //=================
@@ -6385,4 +6393,42 @@ void commandtime_t::ArchiveToMemory(MemArchiver& archiver)
     archiver.ArchiveInteger(&entity_number);
     archiver.ArchiveInteger(&command_number);
     archiver.ArchiveTime(&last_command_time);
+}
+
+void ClientGameCommandManager::ResetPendingEvents()
+{
+    EffectsEventQueueNode *event, *tmp;
+
+    event = EffectsEventQueue.next;
+    while (event != &EffectsEventQueue) {
+        tmp = event->next;
+
+        delete event->event;
+        delete event;
+
+        event = tmp;
+    }
+
+    LL_Reset(&EffectsEventQueue, next, prev);
+}
+
+void ClientGameCommandManager::RemovePendingEventsForEntity(int number)
+{
+    EffectsEventQueueNode *event, *tmp;
+
+    event = EffectsEventQueue.next;
+    while (event != &EffectsEventQueue) {
+        if (event->entity_num != number) {
+            event = event->next;
+            continue;
+        }
+
+        tmp = event->next;
+        LL_Remove(event, next, prev);
+
+        delete event->event;
+        delete event;
+
+        event = tmp;
+    }
 }

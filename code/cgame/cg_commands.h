@@ -895,8 +895,8 @@ private:
     void          FreeTempModel(ctempmodel_t *le);
     void          AnimateTempModel(ctempmodel_t *ent, Vector origin, refEntity_t *newEnt);
     void          OtherTempModelEffects(ctempmodel_t *p, Vector origin, refEntity_t *newEnt);
-    qboolean      IsBlockCommand(const str     &name);
-    void          SetBaseAndAmplitude(Event *ev, Vector         &base, Vector         &amplitude);
+    qboolean      IsBlockCommand(const str& name);
+    void          SetBaseAndAmplitude(Event *ev, Vector& base, Vector& amplitude);
 
     // Beam stuff
     void SetSubdivisions(Event *ev);
@@ -969,6 +969,9 @@ public:
     void     ProcessPendingEventsForEntity();
     qboolean PostEventForEntity(Event *ev, float fWait);
     qboolean SelectProcessEvent(Event *ev);
+    // Added in OPM
+    void ResetPendingEvents();
+    void RemovePendingEventsForEntity(int number);
 
     void TestEffectEndFunc();
     void AddVSSSources();
