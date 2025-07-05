@@ -1264,12 +1264,14 @@ qboolean PF_setmodel( gentity_t *ent, const char *name )
 
 		// don't reference the model again
 		if( ent->s.modelindex == newModelIndex ) {
+            assert(modelUserCount[ ent->s.modelindex ] > 0);
 			return qtrue;
 		}
 	}
 
 	if( ent->tiki && ent->s.modelindex )
 	{
+        assert(modelUserCount[ ent->s.modelindex ] > 0);
 		modelUserCount[ ent->s.modelindex ]--;
 		if( !modelUserCount[ ent->s.modelindex ] )
 			SV_ClearModel( ent->s.modelindex );
