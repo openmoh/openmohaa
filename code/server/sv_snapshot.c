@@ -725,7 +725,7 @@ static void SV_AddEntitiesVisibleFromPoint(const vec3_t origin, clientSnapshot_t
 			continue;
 		}
 
-		if ((ent->s.loopSound && ent->s.loopSoundMinDist == LEVEL_WIDE_MIN_DIST) || ent->s.renderfx & RF_VIEWMODEL) {
+		if ((ent->s.loopSound && ent->s.loopSoundMinDist == LEVEL_WIDE_MIN_DIST) || ent->s.renderfx & RF_ALWAYSDRAW) {
             // loopsound entities should be sent regardless
 			SV_AddEntToSnapshot(svEnt, ent, eNums, portalEnt, portalsky);
             continue;

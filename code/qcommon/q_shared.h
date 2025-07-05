@@ -1931,9 +1931,8 @@ typedef struct usercmd_s {
 #define RF_LIGHTSTYLE_DLIGHT	(1<<23)		// this entity has a dynamic light that uses a light style
 #define RF_SHADOW_PRECISE		(1<<24)		// this entity can have a precise shadow applied to it
 #define RF_INVISIBLE			(1<<25)		// This entity is invisible, and only negative lights will light it up
-#define RF_VIEWMODEL			(1<<26)		// This entity is invisible, and only negative lights will light it up
+#define RF_ALWAYSDRAW			(1<<26)		// This entity is invisible, and only negative lights will light it up
 #define RF_PRECISESHADOW		(1<<28)		// This entity is invisible, and only negative lights will light it up
-#define RF_ALWAYSDRAW			(1<<30)
 //
 // use this mask when propagating renderfx from one entity to another
 //

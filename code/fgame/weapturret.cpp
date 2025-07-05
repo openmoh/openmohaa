@@ -1735,7 +1735,7 @@ void TurretGun::P_CreateViewModel(void)
     m_pViewModel->setScale(edict->s.scale);
     m_pViewModel->detach_at_death = qtrue;
     m_pViewModel->setModel(newmodel);
-    m_pViewModel->edict->s.renderfx |= RF_VIEWMODEL;
+    m_pViewModel->edict->s.renderfx |= RF_ALWAYSDRAW;
 
     if (!m_pViewModel->edict->tiki) {
         m_pViewModel->Delete();
