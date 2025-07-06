@@ -313,7 +313,7 @@ private:
 
 public:
     MulticastDelegate<void(const str& text)> delegate_stufftext;
-    MulticastDelegate<void()> delegate_spawned;
+    MulticastDelegate<void()>                delegate_spawned;
 
     static ScriptDelegate scriptDelegate_connected;
     static ScriptDelegate scriptDelegate_disconnecting;
@@ -360,19 +360,23 @@ public:
     //
     // Added in OPM
     //
-    str                 m_sVision;    // current vision
-    str                 m_sStateFile; // custom statefile
-    bool                m_bFrozen;    // if player is frozen
+    str               m_sVision;    // current vision
+    str               m_sStateFile; // custom statefile
+    bool              m_bFrozen;    // if player is frozen
+    float             speed_multiplier[MAX_SPEED_MULTIPLIERS];
+    ScriptThreadLabel m_killedLabel;
+    bool              m_bConnected;
+    str               m_lastcommand;
+
+    //
+    // View model animation
+    //
     bool                animDoneVM;
-    float               speed_multiplier[MAX_SPEED_MULTIPLIERS];
-    ScriptThreadLabel   m_killedLabel;
     con_map<str, vma_t> vmalist;
     str                 m_sVMAcurrent;
     str                 m_sVMcurrent;
     float               m_fVMAtime;
     dtiki_t            *m_fpsTiki;
-    bool                m_bConnected;
-    str                 m_lastcommand;
 
 private:
     int m_iInstantMessageTime;
@@ -496,12 +500,13 @@ public:
     qboolean CondAttackButtonSecondary(Conditional& condition);
 
     //
-    // Custom openmohaa functions
-    //
-    qboolean CondAnimDoneVM(Conditional& condition);
+    // Added in OPM
+    //====
     qboolean CondClientCommand(Conditional& condition);
-    qboolean CondVMAnim(Conditional& condition);
     qboolean CondVariable(Conditional& condition);
+    qboolean CondAnimDoneVM(Conditional& condition);
+    qboolean CondVMAnim(Conditional& condition);
+    //====
 
     // movecontrol functions
     void StartPush(void);
@@ -533,7 +538,6 @@ public:
     void InitWeapons(void);
     void InitView(void);
     void InitModel(void);
-    void InitModelFps(void); // Added in openmohaa
     void InitState(void);
     void InitHealth(void);
     void InitInventory(void);
@@ -928,7 +932,7 @@ public:
     // Added in OPM
     //=============================
 
-    void ResetClient();
+    void     ResetClient();
     qboolean CheckCanSwitchTeam(teamtype_t team);
 
     qboolean     ViewModelAnim(str anim, qboolean force_restart, qboolean bFullAnim);
@@ -939,9 +943,6 @@ public:
     void BindWeap(Event *ev);
     void Dive(Event *ev);
     void EventSetTeam(Event *ev);
-    void EventGetViewModelAnim(Event *ev);
-    void EventGetViewModelAnimFinished(Event *ev);
-    void EventGetViewModelAnimValid(Event *ev);
     void FreezeControls(Event *ev);
     void GetConnState(Event *ev);
     void GetDamageMultiplier(Event *ev);
@@ -971,6 +972,13 @@ public:
     void ShowEntity(Event *ev);
     void StopLocalSound(Event *ev);
     void Userinfo(Event *ev);
+
+    void InitModelFps();
+    void ThinkFPS();
+    void EventGetViewModelAnim(Event *ev);
+    void EventGetViewModelAnimFinished(Event *ev);
+    void EventGetViewModelAnimValid(Event *ev);
+
 #ifdef OPM_FEATURES
     void EventEarthquake(Event *ev);
     void SetClientFlag(Event *ev);
@@ -1218,21 +1226,23 @@ inline void Player::Archive(Archiver& arc)
     if (arc.Loading()) {
         UpdateWeapons();
         SetViewAngles(v_angle);
-
-        // Added in OPM
-        InitModelFps();
     }
 
     //
     // Added in OPM
     //
     arc.ArchiveBool(&m_bFrozen);
-    arc.ArchiveBool(&animDoneVM);
-    arc.ArchiveFloat(&m_fVMAtime);
 
     for (int i = 0; i < MAX_SPEED_MULTIPLIERS; i++) {
         arc.ArchiveFloat(&speed_multiplier[i]);
     }
+
+    if (arc.Loading()) {
+        InitModelFps();
+    }
+
+    arc.ArchiveBool(&animDoneVM);
+    arc.ArchiveFloat(&m_fVMAtime);
 }
 
 inline Camera *Player::CurrentCamera(void)

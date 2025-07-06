@@ -1653,6 +1653,7 @@ Event EV_Player_Userinfo
     "returns userinfo string",
     EV_GETTER
 );
+
 Event EV_Player_ViewModelGetAnim
 (
     "viewmodelgetanim",
@@ -2036,10 +2037,6 @@ Player::Player()
     //
     // Added in OPM
     //====
-#ifdef OPM_FEATURES
-    m_bShowingHint = false;
-#endif
-    m_fpsTiki    = NULL;
     m_bConnected = false;
 
     m_iInstantMessageTime = 0;
@@ -2188,15 +2185,21 @@ Player::Player()
 
     //
     // Added in OPM
-    //====
+    //
+
     m_bFrozen  = false;
-    animDoneVM = true;
-    m_fVMAtime = 0;
-    //====
 
     for (int i = 0; i < MAX_SPEED_MULTIPLIERS; i++) {
         speed_multiplier[i] = 1.0f;
     }
+
+    m_fpsTiki    = NULL;
+    animDoneVM = true;
+    m_fVMAtime = 0;
+
+#ifdef OPM_FEATURES
+    m_bShowingHint = false;
+#endif
 }
 
 Player::~Player()
@@ -2557,21 +2560,6 @@ void Player::InitModel(void)
     }
 
     InitModelFps();
-}
-
-void Player::InitModelFps(void)
-{
-    char  model_name[MAX_STRING_TOKENS];
-    char *model_replace;
-
-    Q_strncpyz(model_name, model.c_str(), sizeof(model_name));
-    size_t len = strlen(model_name);
-
-    model_replace = model_name + len - 4;
-
-    Q_strncpyz(model_replace, "_fps.tik", sizeof(model_name) - (model_replace - model_name));
-
-    m_fpsTiki = gi.modeltiki(model_name);
 }
 
 void Player::InitPhysics(void)
@@ -4966,35 +4954,7 @@ void Player::Think(void)
     //
     // Added in OPM
     //
-    if (!animDoneVM) {
-        int    index;
-        float  anim_time;
-        vma_t *vma = vmalist.find(m_sVMcurrent);
-
-        index = m_fpsTiki == NULL ? -1 : gi.Anim_NumForName(m_fpsTiki, m_sVMAcurrent);
-
-        if (index >= 0) {
-            anim_time = gi.Anim_Time(m_fpsTiki, index);
-
-            if (m_fVMAtime < anim_time) {
-                if (vma) {
-                    m_fVMAtime += level.frametime * vma->speed;
-                } else {
-                    m_fVMAtime += level.frametime;
-                }
-            } else {
-                animDoneVM = true;
-                m_fVMAtime = 0;
-
-                Notify("viewmodelanim_done");
-            }
-        } else {
-            animDoneVM = true;
-            m_fVMAtime = 0;
-
-            Notify("viewmodelanim_done");
-        }
-    }
+    ThinkFPS();
 
     server_new_buttons = 0;
 
@@ -11794,6 +11754,12 @@ qboolean Player::ViewModelAnim(str anim, qboolean force_restart, qboolean bFullA
         }
     }
 
+    if (viewModelAnim != playerState->iViewModelAnim || force_restart) {
+        playerState->iViewModelAnimChanged = (playerState->iViewModelAnimChanged + 1) & 3;
+    }
+
+    playerState->iViewModelAnim = viewModelAnim;
+
     if (!weapon) {
         weapon = newActiveWeapon.weapon;
     }
@@ -11805,12 +11771,6 @@ qboolean Player::ViewModelAnim(str anim, qboolean force_restart, qboolean bFullA
     }
 
     m_sVMcurrent = anim;
-
-    if (viewModelAnim != playerState->iViewModelAnim || force_restart) {
-        playerState->iViewModelAnimChanged = (playerState->iViewModelAnimChanged + 1) & 3;
-    }
-
-    playerState->iViewModelAnim = viewModelAnim;
 
     if (m_fpsTiki && gi.Anim_NumForName(m_fpsTiki, m_sVMAcurrent) < 0) {
         //gi.DPrintf("WARNING: Invalid view model anim \"%s\"\n", m_sVMAcurrent.c_str());
@@ -12423,50 +12383,6 @@ void Player::EventSetTeam(Event *ev)
     gi.DPrintf("Player::SetTeam : Player is now on team \"%s\"\n", team_name.c_str());
 }
 
-void Player::EventGetViewModelAnim(Event *ev)
-{
-    ev->AddString(m_sVMcurrent);
-}
-
-void Player::EventGetViewModelAnimFinished(Event *ev)
-{
-    ev->AddInteger(animDoneVM);
-}
-
-void Player::EventGetViewModelAnimValid(Event *ev)
-{
-    str  anim_name = ev->GetString(1);
-    str  fullanim;
-    bool bFullAnim = false;
-
-    if (ev->NumArgs() > 1) {
-        bFullAnim = ev->GetBoolean(2);
-    }
-
-    if (!bFullAnim) {
-        // Copy the item prefix and the anim name
-        Item *item = GetActiveWeapon(WEAPON_MAIN);
-
-        if (!item) {
-            item = (Item *)newActiveWeapon.weapon.Pointer();
-        }
-
-        if (item) {
-            fullanim = GetItemPrefix(item->getName()) + str("_") + anim_name;
-        } else {
-            fullanim = "unarmed_" + anim_name;
-        }
-    } else {
-        fullanim = anim_name;
-    }
-
-    if (!m_fpsTiki || gi.Anim_NumForName(m_fpsTiki, fullanim.c_str()) < 0) {
-        ev->AddInteger(0);
-    } else {
-        ev->AddInteger(1);
-    }
-}
-
 void Player::FreezeControls(Event *ev)
 {
     m_bFrozen = ev->GetBoolean(1);
@@ -12854,6 +12770,98 @@ int Player::GetNumKills(void) const
 int Player::GetNumDeaths(void) const
 {
     return num_deaths;
+}
+
+void Player::InitModelFps(void)
+{
+    char  model_name[MAX_STRING_TOKENS];
+    char *model_replace;
+
+    Q_strncpyz(model_name, model.c_str(), sizeof(model_name));
+    size_t len = strlen(model_name);
+
+    model_replace = model_name + len - 4;
+
+    Q_strncpyz(model_replace, "_fps.tik", sizeof(model_name) - (model_replace - model_name));
+
+    m_fpsTiki = gi.modeltiki(model_name);
+}
+
+void Player::ThinkFPS(void)
+{
+    if (!animDoneVM) {
+        int    index;
+        float  anim_time;
+        vma_t *vma = vmalist.find(m_sVMcurrent);
+
+        index = m_fpsTiki == NULL ? -1 : gi.Anim_NumForName(m_fpsTiki, m_sVMAcurrent);
+
+        if (index >= 0) {
+            anim_time = gi.Anim_Time(m_fpsTiki, index);
+
+            if (m_fVMAtime < anim_time) {
+                if (vma) {
+                    m_fVMAtime += level.frametime * vma->speed;
+                } else {
+                    m_fVMAtime += level.frametime;
+                }
+            } else {
+                animDoneVM = true;
+                m_fVMAtime = 0;
+
+                Unregister(STRING_VIEWMODELANIM_DONE);
+            }
+        } else {
+            animDoneVM = true;
+            m_fVMAtime = 0;
+
+            Unregister(STRING_VIEWMODELANIM_DONE);
+        }
+    }
+}
+
+void Player::EventGetViewModelAnim(Event *ev)
+{
+    ev->AddString(m_sVMcurrent);
+}
+
+void Player::EventGetViewModelAnimFinished(Event *ev)
+{
+    ev->AddInteger(animDoneVM);
+}
+
+void Player::EventGetViewModelAnimValid(Event *ev)
+{
+    str  anim_name = ev->GetString(1);
+    str  fullanim;
+    bool bFullAnim = false;
+
+    if (ev->NumArgs() > 1) {
+        bFullAnim = ev->GetBoolean(2);
+    }
+
+    if (!bFullAnim) {
+        // Copy the item prefix and the anim name
+        Item *item = GetActiveWeapon(WEAPON_MAIN);
+
+        if (!item) {
+            item = (Item *)newActiveWeapon.weapon.Pointer();
+        }
+
+        if (item) {
+            fullanim = GetItemPrefix(item->getName()) + str("_") + anim_name;
+        } else {
+            fullanim = "unarmed_" + anim_name;
+        }
+    } else {
+        fullanim = anim_name;
+    }
+
+    if (!m_fpsTiki || gi.Anim_NumForName(m_fpsTiki, fullanim.c_str()) < 0) {
+        ev->AddInteger(0);
+    } else {
+        ev->AddInteger(1);
+    }
 }
 
 #ifdef OPM_FEATURES

@@ -1677,11 +1677,6 @@ qboolean Player::CondActionAnimDone(Conditional& condition)
     return false;
 }
 
-qboolean Player::CondAnimDoneVM(Conditional& condition)
-{
-    return animDoneVM;
-}
-
 qboolean Player::CondClientCommand(Conditional& condition)
 {
     str command = condition.getParm(1);
@@ -1691,11 +1686,6 @@ qboolean Player::CondClientCommand(Conditional& condition)
     } else {
         return qfalse;
     }
-}
-
-qboolean Player::CondVMAnim(Conditional& condition)
-{
-    return condition.getParm(1) == m_sVMcurrent;
 }
 
 qboolean Player::CondVariable(Conditional& condition)
@@ -1909,6 +1899,16 @@ qboolean Player::CondVariable(Conditional& condition)
     return qtrue;
 }
 
+qboolean Player::CondAnimDoneVM(Conditional& condition)
+{
+    return animDoneVM;
+}
+
+qboolean Player::CondVMAnim(Conditional& condition)
+{
+    return condition.getParm(1) == m_sVMcurrent;
+}
+
 CLASS_DECLARATION(Class, Conditional, NULL) {
     {NULL, NULL}
 };
@@ -2031,10 +2031,14 @@ Condition<Player> Player::m_conditions[] = {
     {"ATTACK_SECONDARY_BUTTON",         &Player::CondAttackButtonSecondary   },
     {"CHECK_MOVEMENT_SPEED",            &Player::CondCheckMovementSpeed      },
 
-    // Weapon conditions
-    {"ANIMDONE_VM",                     &Player::CondAnimDoneVM              },
+    //
+    // Added in OPM
+    //
     {"CLIENT_COMMAND",                  &Player::CondClientCommand           },
-    {"IS_VM_ANIM",                      &Player::CondVMAnim                  },
     {"VAR_OPERATOR",                    &Player::CondVariable                },
+
+    // View model animation
+    {"ANIMDONE_VM",                     &Player::CondAnimDoneVM              },
+    {"IS_VM_ANIM",                      &Player::CondVMAnim                  },
     {NULL,                              NULL                                 },
 };
