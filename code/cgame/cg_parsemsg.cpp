@@ -1588,7 +1588,7 @@ void CG_ParseCGMessage_ver_15()
             vEndArray[0][0] = cgi.MSG_ReadCoord();
             vEndArray[0][1] = cgi.MSG_ReadCoord();
             vEndArray[0][2] = cgi.MSG_ReadCoord();
-            iLarge          = cgi.MSG_ReadBits(1);
+            iLarge          = cgi.MSG_ReadBits(2);
 
             if (cgi.MSG_ReadBits(1)) {
                 int iAlpha = cgi.MSG_ReadBits(10);
@@ -1688,18 +1688,19 @@ void CG_ParseCGMessage_ver_15()
 
         case CGM_VOICE_CHAT:
             {
+                qboolean bLocal;
                 int iOldEnt;
 
                 vStart[0] = cgi.MSG_ReadCoord();
                 vStart[1] = cgi.MSG_ReadCoord();
                 vStart[2] = cgi.MSG_ReadCoord();
-                iLarge    = cgi.MSG_ReadBits(1);
+                bLocal    = cgi.MSG_ReadBits(1);
                 iInfo     = cgi.MSG_ReadBits(6);
                 szTmp     = cgi.MSG_ReadString();
 
                 iOldEnt = current_entity_number;
 
-                if (iLarge) {
+                if (bLocal) {
                     current_entity_number = iInfo;
 
                     commandManager.PlaySound(szTmp, vStart, CHAN_AUTO, -1, -1, -1, 0);
