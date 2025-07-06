@@ -371,10 +371,11 @@ void CG_ProcessConfigString(int num, qboolean modelOnly)
             CG_ServerModelLoaded(str, hModel);
         } else {
             // clear out the model
-            if (hOldModel && CG_IsHandleUnique(hOldModel)) {
-                // Handle uniqueness added in OPM
+            if (hOldModel) {
+                assert(CG_IsHandleUnique(hOldModel));
                 cgi.R_UnregisterServerModel(hOldModel);
             }
+
             cgs.model_draw[num - CS_MODELS] = 0;
 
             if (!str || !str[0]) {

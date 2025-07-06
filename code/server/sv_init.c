@@ -147,6 +147,7 @@ SV_FindIndex
 */
 int SV_FindIndex( const char *name, int start, int max, qboolean create ) {
 	int		i;
+	int		result;
 	char	*s;
 
 	if( !name || !name[ 0 ] ) {
@@ -164,9 +165,20 @@ int SV_FindIndex( const char *name, int start, int max, qboolean create ) {
 	for( i = 1; i<max; i++ ) {
 		s = sv.configstrings[ start + i ];
 
-		if( !s || !s[ 0 ] ) {
+		if( !s[0] ) {
 			break;
 		}
+
+		if( !Q_stricmp( s, name ) ) {
+			return i;
+		}
+	}
+
+    result = i;
+
+	for( i = result; i<max; i++ ) {
+		s = sv.configstrings[ start + i ];
+
 		if( !Q_stricmp( s, name ) ) {
 			return i;
 		}
@@ -176,12 +188,12 @@ int SV_FindIndex( const char *name, int start, int max, qboolean create ) {
 		return 0;
 	}
 
-	if( i == max ) {
+	if( result == max ) {
 		Com_Error( 1, "SV_FindIndex: overflow  max%d create%d  name %s", max, create, name );
 	}
 
-	SV_SetConfigstring( start + i, name );
-	return i;
+	SV_SetConfigstring( start + result, name );
+	return result;
 }
 
 /*
