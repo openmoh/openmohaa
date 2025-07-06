@@ -39,7 +39,7 @@ static void *context;
 static int AnimCompareFunc(const void *a, const void *b)
 {
     dloaddef_t *ld = (dloaddef_t *)context;
-    return stricmp(ld->loadanims[*(int *)a]->alias, ld->loadanims[*(int *)b]->alias);
+    return Q_stricmp(ld->loadanims[*(int *)a]->alias, ld->loadanims[*(int *)b]->alias);
 }
 
 /*
@@ -95,7 +95,7 @@ int TIKI_Anim_NumForName(dtiki_t *pmdl, const char *name)
     float           fWeight;
     float           fTotalWeight;
     int             iAnimCount;
-    int             i, k;
+    int             i;
 
     if (!pmdl) {
         return -1;
@@ -108,23 +108,23 @@ int TIKI_Anim_NumForName(dtiki_t *pmdl, const char *name)
         iMiddle = (iBottom + iTop) / 2;
 
         panimdef = pmdl->a->animdefs[iMiddle];
-        iComp = stricmp(panimdef->alias, name);
+        iComp    = Q_stricmp(panimdef->alias, name);
 
         if (!iComp) {
             if (!(panimdef->flags & TAF_RANDOM)) {
                 return iMiddle;
             }
 
-            for (i = iMiddle; i > 0; i--) {
-                if (!pmdl->a->animdefs[i - 1] || stricmp(panimdef->alias, pmdl->a->animdefs[i - 1]->alias)) {
+            for (iTop = iMiddle; iTop > 0; iTop--) {
+                assert(pmdl->a->animdefs[iTop - 1]);
+                if (Q_stricmp(panimdef->alias, pmdl->a->animdefs[iTop - 1]->alias)) {
                     break;
                 }
             }
 
-            k = i;
-
-            for (iMiddle++; iMiddle < pmdl->a->num_anims; iMiddle++) {
-                if (!pmdl->a->animdefs[iMiddle] || stricmp(panimdef->alias, pmdl->a->animdefs[iMiddle]->alias)) {
+            for (iBottom = iMiddle; iBottom < pmdl->a->num_anims - 1; iBottom++) {
+                assert(pmdl->a->animdefs[iBottom + 1]);
+                if (Q_stricmp(panimdef->alias, pmdl->a->animdefs[iBottom + 1]->alias)) {
                     break;
                 }
             }
@@ -132,7 +132,7 @@ int TIKI_Anim_NumForName(dtiki_t *pmdl, const char *name)
             fTotalWeight = 0.0f;
             iAnimCount   = 0;
 
-            for (; i < iMiddle; i++) {
+            for (i = iTop; i <= iBottom; i++) {
                 panimdef = pmdl->a->animdefs[i];
                 if (!panimdef) {
                     continue;
@@ -151,20 +151,18 @@ int TIKI_Anim_NumForName(dtiki_t *pmdl, const char *name)
 
             fWeight = randweight() * fTotalWeight;
             for (i = 0; i < iAnimCount; i++) {
-                if (fWeight < fAnimWeights[i]) {
+                fWeight -= fAnimWeights[i];
+                if (fWeight <= 0) {
                     break;
                 }
-
-                fWeight -= fAnimWeights[i];
             }
 
-            iMiddle  = i + k;
-            panimdef = pmdl->a->animdefs[iMiddle];
+            panimdef = pmdl->a->animdefs[iTop + i];
             if (panimdef && panimdef->flags & TAF_NOREPEAT) {
                 panimdef->flags |= TAF_AUTOSTEPS;
             }
 
-            return iMiddle;
+            return iTop + i;
         }
 
         if (iComp > 0) {
@@ -339,7 +337,7 @@ void TIKI_Anim_AngularDelta(dtiki_t *pmdl, int animnum, float *delta)
     }
 
     skelAnimDataGameHeader_t *animData = SkeletorCacheGetData(pmdl->a->m_aliases[animnum]);
-    *delta = animData->totalAngleDelta;
+    *delta                             = animData->totalAngleDelta;
 }
 
 /*
