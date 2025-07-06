@@ -566,13 +566,11 @@ void ScriptMaster::RegisterAlias(Event *ev)
 
 void ScriptMaster::Cache(Event *ev)
 {
-#ifdef GAME_DLL
     if (!precache->integer) {
         return;
     }
 
     CacheResource(ev->GetString(1));
-#endif
 }
 
 void ScriptMaster::InitConstStrings(void)

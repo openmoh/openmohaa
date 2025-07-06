@@ -3055,6 +3055,10 @@ void ScriptThread::RegisterAliasAndCache(Event *ev)
 
 void ScriptThread::CacheResourceEvent(Event *ev)
 {
+    if (!precache->integer) {
+        return;
+    }
+
     CacheResource(ev->GetString(1));
 }
 
