@@ -4190,6 +4190,9 @@ void UI_ClearState(void)
     if (dmbox) {
         dmbox->Clear();
     }
+
+    // Added in OPM
+	SCR_StopCinematic ();
 }
 
 /*
