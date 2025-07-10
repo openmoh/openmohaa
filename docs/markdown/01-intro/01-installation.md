@@ -18,13 +18,13 @@ Download and install [Microsoft Visual C++ Redistributable x64](https://aka.ms/v
 
 ### Linux and macOS users
 
-If you want to install the game from GOG:
+On Linux, you can download and install a copy from GOG:
 
-1. Install [Innoextract](https://github.com/dscharrer/innoextract) (macOS users: `brew install innoextract`)
-2. Run: `innoextract setup_medal_of_honor_2.0.0.21.exe`
-3. Files will be extracted to a folder called `app/`
+1. Install [Innoextract](https://github.com/dscharrer/innoextract) (macOS users: `brew install innoextract`).
+2. Run the command: `innoextract setup_medal_of_honor_2.0.0.21.exe`.
+3. Files from the setup will be extracted to a folder called `app/`.
 
-Alternatively, you can also use [WINE](https://www.winehq.org/), but this process may be slower/more complex if you do not already have it installed and configured. 
+Alternatively, you can also use [WINE](https://www.winehq.org/) to install the game from the setup file, but this process may be slower/more complex if you do not already have it installed and configured. 
 
 ## Installation
 
@@ -45,7 +45,7 @@ Alternatively, you can also use [WINE](https://www.winehq.org/), but this proces
 
 ### Installing OpenMoHAA
 
-#### Option A
+#### Option A (Recommended)
 
 - Extract the archive<sup>1</sup> to your MOHAA installation directory.
 - Create a shortcut to each of the **launch_openmohaa_\*** executable:
@@ -62,7 +62,7 @@ Alternatively, you can also use [WINE](https://www.winehq.org/), but this proces
   - `launch_openmohaa_breakthrough` (Breakthrough)
 - Set the shortcut's `Start in` directory to your MOHAA installation directory.
 
-🟢 You're now ready to play!
+🟢 You're now ready to play! To start the game, execute one of the `launch_openmohaa_x` binaries.
 
 ----
 
