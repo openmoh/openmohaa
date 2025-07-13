@@ -32,7 +32,7 @@ jobs:
       with:
         prerelease: true
         name: '${{github.ref_name}}-${{github.sha}}'
-        tag_name: 'latest'
+        tag_name: 'dev'
 
   deploy-release:
     if: github.event_name != 'pull_request' && github.ref_name == 'main'
@@ -57,7 +57,7 @@ jobs:
     needs: [create-release]
 
     env:
-      RELEASE_NAME: ${{github.event.repository.name}}-latest-${{matrix.target_os}}
+      RELEASE_NAME: ${{github.event.repository.name}}-dev-${{matrix.target_os}}
 
     steps:
     - uses: actions/download-artifact@v4
@@ -72,5 +72,5 @@ jobs:
     - name: Release
       uses: softprops/action-gh-release@v2.3.2
       with:
-        tag_name: 'latest'
+        tag_name: 'dev'
         files: ${{github.workspace}}/${{env.RELEASE_NAME}}.zip
