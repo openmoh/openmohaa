@@ -18,11 +18,22 @@ jobs:
    with:
       environment: "release"
 
-  deploy_all:
+  # Initially create a release with 1 job
+  # so multiple files can be uploaded at the same time afterwards
+  create-release:
+    runs-on: ubuntu-24.04
+    environment: 'release'
+    needs: [build-all]
+
+    steps:
+    - name: Release
+      uses: softprops/action-gh-release@v2.3.2
+      with:
+        name: '${{github.ref_name}}-${{env.RELEASE_STAGE}}'
+        prerelease: ${{env.RELEASE_IS_PRERELEASE}}
+
+  deploy-all:
     strategy:
-      # Set the maximum number of parallel jobs to 1, to avoid a race-condition
-      # while creating a new release
-      max-parallel: 1
       matrix:
         target_os: [
           'linux-amd64',
@@ -40,12 +51,12 @@ jobs:
           'windows-arm64-pdb',
           #'macos-x86_64',
           #'macos-arm64',
-          'macos-multiarch(arm64-x86_64)',
+          'macos-multiarch-arm64-x86_64',
         ]
 
     runs-on: ubuntu-24.04
-    environment: "release"
-    needs: [build-all]
+    environment: 'release'
+    needs: [create-release]
 
     env:
       RELEASE_NAME: ${{ github.event.repository.name }}-${{github.ref_name}}-${{matrix.target_os}}
@@ -63,13 +74,10 @@ jobs:
     - name: Release
       uses: softprops/action-gh-release@v2.3.2
       with:
-        name: '${{github.ref_name}}-${{env.RELEASE_STAGE}}'
-        prerelease: ${{env.RELEASE_IS_PRERELEASE}}
         files: ${{github.workspace}}/${{ env.RELEASE_NAME }}.zip
 
   deploy_installer_windows:
     strategy:
-      max-parallel: 1
       matrix:
         target_os: [
           'windows-x64',
@@ -79,7 +87,7 @@ jobs:
     
     runs-on: ubuntu-24.04
     environment: "release"
-    needs: [deploy_all]
+    needs: [create-release]
 
     env:
       RELEASE_NAME: ${{ github.event.repository.name }}-${{github.ref_name}}-${{matrix.target_os}}
@@ -98,6 +106,4 @@ jobs:
     - name: Release
       uses: softprops/action-gh-release@v2.3.2
       with:
-        name: '${{github.ref_name}}-${{env.RELEASE_STAGE}}'
-        prerelease: ${{env.RELEASE_IS_PRERELEASE}}
         files: ${{github.workspace}}/${{ env.RELEASE_NAME }}.msi

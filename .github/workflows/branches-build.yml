@@ -10,8 +10,67 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: write
+
 jobs:
   build-all:
    uses: ./.github/workflows/shared-build.yml
    with:
-      environment: "testing"
+      environment: 'testing'
+
+  # Initially create a release with 1 job
+  # so multiple files can be uploaded at the same time afterwards
+  create-release:
+    runs-on: ubuntu-24.04
+    environment: 'testing'
+    needs: [build-all]
+
+    steps:
+    - name: Release
+      uses: softprops/action-gh-release@v2.3.2
+      with:
+        prerelease: true
+        name: '${{github.ref_name}}-${{github.sha}}'
+        tag_name: 'latest'
+
+  deploy-release:
+    if: github.event_name != 'pull_request' && github.ref_name == 'main'
+    strategy:
+      matrix:
+        target_os: [
+          'linux-amd64',
+          'linux-i686',
+          'linux-arm64',
+          'linux-armhf',
+          'linux-powerpc',
+          'linux-ppc64',
+          'linux-ppc64el',
+          'windows-x64-pdb',
+          'windows-x86-pdb',
+          'windows-arm64-pdb',
+          'macos-multiarch-arm64-x86_64',
+        ]
+
+    runs-on: ubuntu-24.04
+    environment: 'testing'
+    needs: [create-release]
+
+    env:
+      RELEASE_NAME: ${{github.event.repository.name}}-latest-${{matrix.target_os}}
+
+    steps:
+    - uses: actions/download-artifact@v4
+      with:
+        name: 'out-${{matrix.target_os}}'
+        path: ${{github.workspace}}/${{matrix.target_os}}
+
+    - name: Zip
+      working-directory: '${{github.workspace}}/${{matrix.target_os}}'
+      run: zip -r "../${{env.RELEASE_NAME}}.zip" ./
+
+    - name: Release
+      uses: softprops/action-gh-release@v2.3.2
+      with:
+        tag_name: 'latest'
+        files: ${{github.workspace}}/${{env.RELEASE_NAME}}.zip
