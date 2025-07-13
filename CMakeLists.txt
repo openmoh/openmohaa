@@ -186,15 +186,6 @@ if (NOT BUILD_NO_CLIENT)
 	set_target_properties(openmohaa PROPERTIES OUTPUT_NAME "openmohaa${TARGET_BIN_SUFFIX}")
 	set_target_properties(openmohaa PROPERTIES DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX})
 
-	if(USE_INTERNAL_JPEG)
-		target_include_directories(openmohaa PUBLIC "code/jpeg-8c")
-		target_link_libraries(openmohaa PRIVATE jpeg8)
-	else()
-		find_package(JPEG REQUIRED)
-		target_include_directories(openmohaa PUBLIC ${JPEG_INCLUDE_DIRS})
-		target_link_libraries(openmohaa PRIVATE ${JPEG_LIBRARIES})
-	endif()
-
 	INSTALL(TARGETS openmohaa DESTINATION ${CMAKE_INSTALL_BINDIR}/${BIN_INSTALL_SUBDIR})
 
 	if (MSVC)
