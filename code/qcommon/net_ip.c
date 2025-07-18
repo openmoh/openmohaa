@@ -46,18 +46,17 @@ typedef int socklen_t;
 typedef unsigned short sa_family_t;
 #	endif
 
-#   undef EAGAIN
-#   define EAGAIN           WSAEWOULDBLOCK
+// Undefine existing real error codes and replace
+// with our pretend compatibility layer ones
+#	undef EAGAIN
+#	undef EADDRNOTAVAIL
+#	undef EAFNOSUPPORT
+#	undef ECONNRESET
 
-#   undef EADDRNOTAVAIL
-#   define EADDRNOTAVAIL    WSAEADDRNOTAVAIL
-
-#   undef EAFNOSUPPORT
-#   define EAFNOSUPPORT		WSAEAFNOSUPPORT
-
-#   undef ECONNRESET
-#   define ECONNRESET       WSAECONNRESET
-
+#	define EAGAIN					WSAEWOULDBLOCK
+#	define EADDRNOTAVAIL	WSAEADDRNOTAVAIL
+#	define EAFNOSUPPORT		WSAEAFNOSUPPORT
+#	define ECONNRESET			WSAECONNRESET
 typedef u_long	ioctlarg_t;
 #	define socketError		WSAGetLastError( )
 
