@@ -25,7 +25,7 @@ Any changes must be retro-compatible. OpenMoHAA must be compatible as best as po
 
 ### Naming & Formatting
 
-- Use **camelCase** notation for all variables and functions, even if some existing code doesn't.
+- Use **camelCase** notation for all variables, and **PascalCase** notation for functions. Even if some existing code doesn't.
 - Use `clang-format` to format your code. For example, in VSCode from the command palette: **Format document**
 
 ### Event declaration
