@@ -14,6 +14,7 @@ Welcome to the [OpenMoHAA](https://www.openmohaa.org/) documentation. Here you'l
 
 - 💻 [Building from source](markdown/04-coding/01-compiling.md)
 - 📝 [Code & Scripting reference](markdown/04-coding/02-coding.md)
+- 📜 [Contributing guidelines](markdown/05-contributing/01-guidelines.md)
 
 ## 📚 Resources
 
