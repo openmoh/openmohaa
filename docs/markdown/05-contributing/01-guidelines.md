@@ -25,7 +25,7 @@ Any changes must be retro-compatible. OpenMoHAA must be compatible as best as po
 
 ### Naming & Formatting
 
-- Use **camelCase** notation all variables and functions, even if some existing code doesn't.
+- Use **camelCase** notation for all variables and functions, even if some existing code doesn't.
 - Use `clang-format` to format your code. For example, in VSCode from the command palette: **Format document**
 
 ### Event declaration
@@ -44,7 +44,7 @@ Event EV_YourEventName  // Pascal Case naming convention
 
 ### Code annotations
 
-When adding a new class, or when making changes to existing class/code compared that differ from the original game, use one of the following comment to annotate your changes:
+When adding a new class, or when making changes to existing classes/code that differ from the original game, use one of the following comment to annotate your changes:
 
 #### Additions
 
