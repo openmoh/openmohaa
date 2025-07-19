@@ -28,55 +28,55 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "listener.h"
 
 typedef enum timertype_s {
-	TIMER_NORMAL,
-	TIMER_GLIDE
+    TIMER_NORMAL,
+    TIMER_GLIDE
 } timertype_e;
 
 class ScriptTimer : public Listener
 {
 private:
-	float			targetTime;
-	float			currentTime;
-	float			realTime;
+    float targetTime;
+    float currentTime;
+    float realTime;
 
-	float			glideRatio;
+    float glideRatio;
 
-	timertype_e		timerType;
+    timertype_e timerType;
 
-	bool			bEnabled;
+    bool bEnabled;
 
 private:
-	void		GlideRefresh();
+    void GlideRefresh();
 
 public:
-	CLASS_PROTOTYPE( ScriptTimer );
+    CLASS_PROTOTYPE(ScriptTimer);
 
-	ScriptTimer( timertype_e type = TIMER_NORMAL );
-	~ScriptTimer();
+    ScriptTimer(timertype_e type = TIMER_NORMAL);
+    ~ScriptTimer();
 
 #if defined(ARCHIVE_SUPPORTED)
-	void	Archive( Archiver &arc ) override;
+    void Archive(Archiver& arc) override;
 #endif
 
-	void		Think( Event *ev );
+    void Think(Event *ev);
 
-	void		Disable();
-	void		Enable();
+    void Disable();
+    void Enable();
 
-	qboolean	Done();
+    qboolean Done();
 
-	float		GetCurrentTime();
-	float		GetRatio();
-	float		GetTime();
+    float GetCurrentTime();
+    float GetRatio();
+    float GetTime();
 
-	float		LerpValue( float start, float end );
-	Vector		LerpValue( Vector start, Vector end );
+    float  LerpValue(float start, float end);
+    Vector LerpValue(Vector start, Vector end);
 
-	void		Reset();
-	void		SetCurrentTime( float time );
-	void		SetPhase( float phase );
-	void		SetTime( float time );
+    void Reset();
+    void SetCurrentTime(float time);
+    void SetPhase(float phase);
+    void SetTime(float time);
 
-	bool		isEnabled();
-	void		setType( timertype_e type );
+    bool isEnabled();
+    void setType(timertype_e type);
 };

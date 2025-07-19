@@ -24,15 +24,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "effectentity.h"
 
-CLASS_DECLARATION( Animate, EffectEntity, "effectentity" )
-{
-	{ NULL, NULL }
+CLASS_DECLARATION(Animate, EffectEntity, "effectentity") {
+    {NULL, NULL}
 };
 
-EffectEntity::EffectEntity
-	(
-	void
-	)
+EffectEntity::EffectEntity(void)
 {
-	edict->s.eType = ET_MODELANIM;
+    edict->s.eType = ET_MODELANIM;
 }

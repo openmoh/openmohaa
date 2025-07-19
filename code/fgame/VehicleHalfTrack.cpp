@@ -30,9 +30,7 @@ CLASS_DECLARATION(DrivableVehicle, VehicleHalfTrack, "VehicleHalfTrack") {
     {NULL,       NULL                          }
 };
 
-VehicleHalfTrack::VehicleHalfTrack()
-{
-}
+VehicleHalfTrack::VehicleHalfTrack() {}
 
 void VehicleHalfTrack::Think()
 {

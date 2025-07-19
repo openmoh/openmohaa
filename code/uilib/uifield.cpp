@@ -77,8 +77,8 @@ void UIField::Draw(void)
         if (m_edit.m_cursor >= m_iPreStep) {
             // Fixed in OPM
             // m_iPreStep < iLastChar check added to avoid passing negative size to Q_strncpyz and crashing the game
-            while (iLastChar <= m_edit.m_cursor && m_iPreStep < iMaxPreStep && m_iPreStep < iLastChar
-            ) { // is text too long to fit?
+            while (iLastChar <= m_edit.m_cursor && m_iPreStep < iMaxPreStep
+                   && m_iPreStep < iLastChar) { // is text too long to fit?
                 fEndLen -= m_font->getCharWidth(m_edit.m_buffer[m_iPreStep]);
                 m_iPreStep++;
 

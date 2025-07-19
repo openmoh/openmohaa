@@ -242,7 +242,7 @@ skeletor_c::ConvertSkelFileToGame(skelAnimDataFileHeader_t *pHeader, int iBuffLe
     newFrame   = pGameFrame;
 
     for (i = 0; i < pHeader->numFrames; i++) {
-        vec4_t* pChannels;
+        vec4_t *pChannels;
 
         newFrame->bounds[0][0] = LittleFloat(pFileFrame->bounds[0][0]);
         newFrame->bounds[0][1] = LittleFloat(pFileFrame->bounds[0][1]);
@@ -250,16 +250,19 @@ skeletor_c::ConvertSkelFileToGame(skelAnimDataFileHeader_t *pHeader, int iBuffLe
         newFrame->bounds[1][0] = LittleFloat(pFileFrame->bounds[1][0]);
         newFrame->bounds[1][1] = LittleFloat(pFileFrame->bounds[1][1]);
         newFrame->bounds[1][2] = LittleFloat(pFileFrame->bounds[1][2]);
-        newFrame->radius = LittleFloat(pFileFrame->radius);
-        newFrame->delta[0] = LittleFloat(pFileFrame->delta[0]);
-        newFrame->delta[1] = LittleFloat(pFileFrame->delta[1]);
-        newFrame->delta[2] = LittleFloat(pFileFrame->delta[2]);
-        newFrame->angleDelta = LittleFloat(pFileFrame->angleDelta);
+        newFrame->radius       = LittleFloat(pFileFrame->radius);
+        newFrame->delta[0]     = LittleFloat(pFileFrame->delta[0]);
+        newFrame->delta[1]     = LittleFloat(pFileFrame->delta[1]);
+        newFrame->delta[2]     = LittleFloat(pFileFrame->delta[2]);
+        newFrame->angleDelta   = LittleFloat(pFileFrame->angleDelta);
         //
         // Load channels
         //
-        newFrame->pChannels  = new vec4_t[pHeader->numChannels];
-        pChannels = (vec4_t*)((byte*)pHeader + (sizeof(skelAnimDataFileHeader_t) + sizeof(skelAnimFileFrame_t) * (pHeader->numFrames - 1) + sizeof(vec4_t) * pHeader->numChannels * i));
+        newFrame->pChannels = new vec4_t[pHeader->numChannels];
+        pChannels =
+            (vec4_t *)((byte *)pHeader
+                       + (sizeof(skelAnimDataFileHeader_t) + sizeof(skelAnimFileFrame_t) * (pHeader->numFrames - 1)
+                          + sizeof(vec4_t) * pHeader->numChannels * i));
         for (j = 0; j < pHeader->numChannels; j++) {
             newFrame->pChannels[j][0] = LittleFloat(pChannels[j][0]);
             newFrame->pChannels[j][1] = LittleFloat(pChannels[j][1]);

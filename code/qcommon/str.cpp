@@ -693,14 +693,14 @@ void TestStringClass(void)
     i = (a == "blow"); // i == 0
     i = (a == "test"); // i == 1
     i =
-        (a == NULL
-        ); // i == 0											ASSERT!
+        (a
+         == NULL); // i == 0											ASSERT!
 
     i = ("test" == b); // i == 0
     i = ("test" == a); // i == 1
     i =
-        (NULL == a
-        ); // i == 0											ASSERT!
+        (NULL
+         == a); // i == 0											ASSERT!
 
     i = (a != b); // i == 1
     i = (a != c); // i == 0
@@ -708,14 +708,14 @@ void TestStringClass(void)
     i = (a != "blow"); // i == 1
     i = (a != "test"); // i == 0
     i =
-        (a != NULL
-        ); // i == 1											ASSERT!
+        (a
+         != NULL); // i == 1											ASSERT!
 
     i = ("test" != b); // i == 1
     i = ("test" != a); // i == 0
     i =
-        (NULL != a
-        ); // i == 1											ASSERT!
+        (NULL
+         != a); // i == 1											ASSERT!
 
     a = "test"; // a.data == "test"
     b = a;      // b.data == "test"
@@ -733,7 +733,7 @@ void TestStringClass(void)
 
 str GetCapitalized(const str& value)
 {
-    str newValue;
+    str    newValue;
     size_t i;
 
     if (!value.length()) {

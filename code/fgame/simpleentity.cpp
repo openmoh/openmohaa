@@ -371,12 +371,11 @@ void SimpleEntity::SetTargetName(str targetname)
 
 void SimpleEntity::SetTargetname(Event *ev)
 {
-	if (this == world)
-	{
-		// not sure why this code is not directly handled by World
+    if (this == world) {
+        // not sure why this code is not directly handled by World
         // as SetTargetName can be overridden
-		ScriptError("world was re-targeted with targetname '%s'", targetname.c_str());
-	}
+        ScriptError("world was re-targeted with targetname '%s'", targetname.c_str());
+    }
 
     SetTargetName(ev->GetString(1));
 }
@@ -412,7 +411,6 @@ const str& SimpleEntity::Target()
 }
 
 qboolean SimpleEntity::Targeted(void)
-
 {
     if (!targetname.length()) {
         return false;
@@ -531,8 +529,8 @@ void SimpleEntity::GetUpVector(Event *ev)
 
 SimpleEntity *SimpleEntity::Next(void)
 {
-    Listener* ent;
-    
+    Listener *ent;
+
     if (!target.length()) {
         return NULL;
     }
@@ -542,7 +540,7 @@ SimpleEntity *SimpleEntity::Next(void)
     if (!ent || !ent->isSubclassOf(SimpleEntity)) {
         return NULL;
     } else {
-        return static_cast<SimpleEntity*>(ent);
+        return static_cast<SimpleEntity *>(ent);
     }
 }
 

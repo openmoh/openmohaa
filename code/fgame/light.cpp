@@ -21,7 +21,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 // light.cpp: Classes for creating and controlling lights.
-// 
+//
 
 #include "g_local.h"
 #include "entity.h"
@@ -39,7 +39,7 @@ if "ENTITY_TRACE" is set, a trace is done betwee the light and the entity.\
 The light is only added if the trace is clear
 
 "no_entity_light" - this light will not effect entities, just the world
-"light" - the intensity of the light, default 300       
+"light" - the intensity of the light, default 300         
 "color" - the color of the light
 "falloff" - if linear, specify the linear falloff (defaults to 1)
 "radius" - make this a spot light of the given radius
@@ -50,103 +50,101 @@ The light is only added if the trace is clear
 ******************************************************************************/
 
 Event EV_Light_SetLight
-	( 
-	"light",
-	EV_DEFAULT,
-   NULL,
-   NULL,
-   "Set the intensity of the light",
-   EV_NORMAL
-	);
+( 
+    "light",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Set the intensity of the light",
+    EV_NORMAL
+);
 
 Event EV_Light_SetColor
-	( 
-	"color",
-	EV_DEFAULT,
-   NULL,
-   NULL,
-   "",
-   EV_NORMAL
-	);
+( 
+    "color",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "",
+    EV_NORMAL
+);
 
 Event EV_Light_SetFalloff
-	( 
-	"falloff",
-	EV_CODEONLY,
-   NULL,
-   NULL,
-   "",
-   EV_NORMAL
-	);
+( 
+    "falloff",
+    EV_CODEONLY,
+    NULL,
+    NULL,
+    "",
+    EV_NORMAL
+);
 
 Event EV_Light_SetRadius
-	( 
-	"falloff",
-	EV_CODEONLY,
-   NULL,
-   NULL,
-   "",
-   EV_NORMAL
-	);
+( 
+    "falloff",
+    EV_CODEONLY,
+    NULL,
+    NULL,
+    "",
+    EV_NORMAL
+);
 
 Event EV_Light_SpotDir
-	( 
-	"spot_dir",
-	EV_CODEONLY,
-   NULL,
-   NULL,
-   "",
-   EV_NORMAL
-	);
+( 
+    "spot_dir",
+    EV_CODEONLY,
+    NULL,
+    NULL,
+    "",
+    EV_NORMAL
+);
 
 Event EV_Light_SpotRadiusByDistance
-	( 
-	"spot_radiusbydistance",
-	EV_CODEONLY,
-   NULL,
-   NULL,
-   "",
-   EV_NORMAL
-	);
+( 
+    "spot_radiusbydistance",
+    EV_CODEONLY,
+    NULL,
+    NULL,
+    "",
+    EV_NORMAL
+);
 
 Event EV_Light_NoEntityLight
-	( 
-	"no_entity_light",
-	EV_CODEONLY,
-   NULL,
-   NULL,
-   "",
-   EV_NORMAL
-	);
+( 
+    "no_entity_light",
+    EV_CODEONLY,
+    NULL,
+    NULL,
+    "",
+    EV_NORMAL
+);
 
 Event EV_Light_EntityTrace
-	( 
-	"entity_trace",
-	EV_CODEONLY,
-   NULL,
-   NULL,
-   "",
-   EV_NORMAL
-	);
+( 
+    "entity_trace",
+    EV_CODEONLY,
+    NULL,
+    NULL,
+    "",
+    EV_NORMAL
+);
 
 Event EV_Light_SpotAngle
-	( 
-	"spot_angle",
-	EV_CODEONLY,
-   NULL,
-   NULL,
-   "",
-   EV_NORMAL
-	);
+( 
+    "spot_angle",
+    EV_CODEONLY,
+    NULL,
+    NULL,
+    "",
+    EV_NORMAL
+);
 
-CLASS_DECLARATION( Entity, Light, "light" )
-	{
-      { &EV_Light_SetLight, NULL },
-		{ NULL, NULL }
-	};
+CLASS_DECLARATION(Entity, Light, "light") {
+     {&EV_Light_SetLight, NULL},
+     {NULL,                    NULL}
+};
 
 Light::Light()
-	{
-   PostEvent( EV_Remove, 0 );
-	}
-
+{
+     PostEvent(EV_Remove, 0);
+}

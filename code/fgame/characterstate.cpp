@@ -46,7 +46,8 @@ static const char *MoveControl_Names[] = {
     "loopuseanim",   // MOVECONTROL_LOOPUSEANIM
     "useobject",     // MOVECONTROL_USEOBJECT
     "coolobject",    // MOVECONTROL_COOLOBJECT
-    NULL};
+    NULL
+};
 
 static const char *Camera_Names[] = {
     "topdown",        // CAMERA_TOPDOWN
@@ -57,11 +58,11 @@ static const char *Camera_Names[] = {
     "side_left",      // CAMERA_SIDE_LEFT
     "side_right",     // CAMERA_SIDE_RIGHT
     "behind_nopitch", // CAMERA_BEHIND_NOPITCH
-    NULL};
+    NULL
+};
 
 Conditional::Conditional(Condition<Class>& cond)
     : condition(cond)
-
 {
     result          = false;
     previous_result = false;
@@ -78,7 +79,6 @@ Conditional::Conditional()
 Expression::Expression() {}
 
 Expression::Expression(const Expression& exp)
-
 {
     int i;
 
@@ -90,7 +90,6 @@ Expression::Expression(const Expression& exp)
 }
 
 Expression::Expression(Script& script, State& state)
-
 {
     str         token;
     condition_t condition;
@@ -150,7 +149,6 @@ Expression::Expression(Script& script, State& state)
 }
 
 bool Expression::getResult(State& state, Entity& ent, Container<Conditional *> *sent_conditionals)
-
 {
     int          i;
     condition_t *cond;
@@ -169,13 +167,11 @@ bool Expression::getResult(State& state, Entity& ent, Container<Conditional *> *
 }
 
 void State::readNextState(Script& script)
-
 {
     nextState = script.GetToken(false);
 }
 
 void State::readMoveType(Script& script)
-
 {
     str          token;
     const char **name;
@@ -203,7 +199,6 @@ void State::readMoveType(Script& script)
 }
 
 qboolean State::setCameraType(str ctype)
-
 {
     const char **name;
     int          i;
@@ -218,7 +213,6 @@ qboolean State::setCameraType(str ctype)
 }
 
 void State::readCamera(Script& script)
-
 {
     str token;
 
@@ -236,7 +230,6 @@ void State::readCamera(Script& script)
 }
 
 void State::readLegs(Script& script)
-
 {
     str token;
 
@@ -290,7 +283,6 @@ void State::readAction(Script& script)
 }
 
 void State::readBehavior(Script& script)
-
 {
     str token;
 
@@ -318,7 +310,6 @@ void State::readBehavior(Script& script)
 }
 
 void State::readTime(Script& script)
-
 {
     str token;
 
@@ -336,7 +327,6 @@ void State::readTime(Script& script)
 }
 
 void State::readStates(Script& script)
-
 {
     str token;
 
@@ -356,7 +346,6 @@ void State::readStates(Script& script)
 }
 
 void State::ParseAndProcessCommand(str command, Entity *target)
-
 {
     int         argc;
     const char *argv[MAX_COMMANDS];
@@ -390,7 +379,6 @@ void State::ParseAndProcessCommand(str command, Entity *target)
 }
 
 void State::ProcessEntryCommands(Entity *target)
-
 {
     int i, count;
     str command;
@@ -407,7 +395,6 @@ void State::ProcessEntryCommands(Entity *target)
 }
 
 void State::ProcessExitCommands(Entity *target)
-
 {
     int i, count;
     str command;
@@ -424,7 +411,6 @@ void State::ProcessExitCommands(Entity *target)
 }
 
 void State::readCommands(Script& script, Container<str>& container)
-
 {
     str token;
     str command;
@@ -461,7 +447,6 @@ out:
 }
 
 State *State::Evaluate(Entity& ent, Container<Conditional *> *sent_conditionals)
-
 {
     int         i;
     Expression *exp;
@@ -537,25 +522,21 @@ const char *State::getActionAnim(Entity& ent, Container<Conditional *> *sent_con
 }
 
 const char *State::getBehaviorName(void)
-
 {
     return behaviorName.c_str();
 }
 
 float State::getMinTime(void)
-
 {
     return minTime;
 }
 
 float State::getMaxTime(void)
-
 {
     return maxTime;
 }
 
 int State::addCondition(const char *name, Script& script)
-
 {
     Conditional      *condition;
     Condition<Class> *cond;
@@ -593,7 +574,6 @@ int State::addCondition(const char *name, Script& script)
 }
 
 void State::CheckStates(void)
-
 {
     const char *value;
     int         i;
@@ -611,7 +591,6 @@ void State::CheckStates(void)
 }
 
 void State::GetLegAnims(Container<const char *> *c)
-
 {
     int      i, j;
     qboolean addobj = true;
@@ -634,7 +613,6 @@ void State::GetLegAnims(Container<const char *> *c)
 }
 
 void State::GetActionAnims(Container<const char *> *c)
-
 {
     int      i, j;
     qboolean addobj = true;
@@ -711,7 +689,6 @@ State::State(const char *statename, Script& script, StateMap& map)
 }
 
 StateMap::StateMap(const char *file_name, Condition<Class> *conditions, Container<Conditional *> *conditionals)
-
 {
     str    cmd;
     str    statename;
@@ -777,7 +754,6 @@ StateMap::~StateMap()
 }
 
 Condition<Class> *StateMap::getCondition(const char *name)
-
 {
     Condition<Class> *c;
 
@@ -793,7 +769,6 @@ Condition<Class> *StateMap::getCondition(const char *name)
 }
 
 int StateMap::findConditional(Conditional *condition)
-
 {
     int          i;
     int          j;
@@ -827,7 +802,6 @@ int StateMap::findConditional(Conditional *condition)
 }
 
 int StateMap::addConditional(Conditional *condition)
-
 {
     int index;
     index = current_conditionals->AddObject(condition);
@@ -836,7 +810,6 @@ int StateMap::addConditional(Conditional *condition)
 }
 
 Conditional *StateMap::getConditional(const char *name)
-
 {
     int               i;
     Conditional      *c;
@@ -858,7 +831,6 @@ Conditional *StateMap::getConditional(const char *name)
 }
 
 State *StateMap::FindState(const char *name)
-
 {
     int i;
 
@@ -887,7 +859,6 @@ StateMap *GetStatemap(
     qboolean                  reload,
     qboolean                  cache_only
 )
-
 {
     int                i;
     int                j;
@@ -946,13 +917,11 @@ StateMap *GetStatemap(
 }
 
 void CacheStatemap(str filename, Condition<Class> *conditions)
-
 {
     GetStatemap(filename, conditions, NULL, false, true);
 }
 
 void StateMap::GetAllAnims(Container<const char *> *c)
-
 {
     int i;
 
@@ -963,7 +932,6 @@ void StateMap::GetAllAnims(Container<const char *> *c)
 }
 
 void ClearCachedStatemaps(void)
-
 {
     int                i, j, num2;
     cached_statemap_t *cache;

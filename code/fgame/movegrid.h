@@ -89,5 +89,5 @@ public:
     void         Move(void);
     qboolean     CheckStuck(void);
     void         GetMoveInfo(vmove_t *vm);
-    void         Archive(Archiver        &arc);
+    void         Archive(Archiver& arc);
 };

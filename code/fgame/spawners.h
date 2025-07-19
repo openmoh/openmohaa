@@ -30,103 +30,98 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 class SpawnArgs;
 
 class Spawn : public ScriptSlave
-	{
-   private:
-  		str      modelname;
-      str      spawntargetname;
-      str      spawntarget;
-      str      pickup_thread;
-      str      spawnitem;
-      float    spawnchance;
-      int      attackmode;
-   
-		void           SetAngleEvent( Event *ev );
-      void           SetPickupThread( Event *ev );
-      void           ModelName( Event *ev );
-      void           SpawnTargetName( Event *ev );
-      void           SpawnTarget( Event *ev );
-      void           AttackMode( Event *ev );
-      void           SetSpawnItem( Event *ev );
-      void           SetSpawnChance( Event *ev );
+{
+private:
+    str   modelname;
+    str   spawntargetname;
+    str   spawntarget;
+    str   pickup_thread;
+    str   spawnitem;
+    float spawnchance;
+    int   attackmode;
 
-   protected:
-      void           SetArgs( SpawnArgs &args );
-      virtual void DoSpawn( Event *ev );
+    void SetAngleEvent(Event *ev);
+    void SetPickupThread(Event *ev);
+    void ModelName(Event *ev);
+    void SpawnTargetName(Event *ev);
+    void SpawnTarget(Event *ev);
+    void AttackMode(Event *ev);
+    void SetSpawnItem(Event *ev);
+    void SetSpawnChance(Event *ev);
 
-	public:
-      CLASS_PROTOTYPE( Spawn );
+protected:
+    void         SetArgs(SpawnArgs& args);
+    virtual void DoSpawn(Event *ev);
 
+public:
+    CLASS_PROTOTYPE(Spawn);
 
-							Spawn();
-	   void Archive( Archiver &arc ) override;
-	};
+    Spawn();
+    void Archive(Archiver& arc) override;
+};
 
-inline void Spawn::Archive
-	(
-	Archiver &arc
-	)
-   {
-   ScriptSlave::Archive( arc );
+inline void Spawn::Archive(Archiver& arc)
+{
+    ScriptSlave::Archive(arc);
 
-   arc.ArchiveString( &modelname );
-   arc.ArchiveString( &spawntargetname );
-   arc.ArchiveString( &spawntarget );
-   arc.ArchiveString( &pickup_thread );
-   arc.ArchiveString( &spawnitem );
-   arc.ArchiveFloat( &spawnchance );
-   arc.ArchiveInteger( &attackmode );
-   }
+    arc.ArchiveString(&modelname);
+    arc.ArchiveString(&spawntargetname);
+    arc.ArchiveString(&spawntarget);
+    arc.ArchiveString(&pickup_thread);
+    arc.ArchiveString(&spawnitem);
+    arc.ArchiveFloat(&spawnchance);
+    arc.ArchiveInteger(&attackmode);
+}
 
 class RandomSpawn : public Spawn
-	{
-   private:
-      float    min_time;
-      float    max_time;
+{
+private:
+    float min_time;
+    float max_time;
 
-      void           MinTime( Event *ev );
-      void           MaxTime( Event *ev );
-      void           ToggleSpawn( Event *ev );
-      void           Think( Event *ev );
+    void MinTime(Event *ev);
+    void MaxTime(Event *ev);
+    void ToggleSpawn(Event *ev);
+    void Think(Event *ev);
 
-	public:
-      CLASS_PROTOTYPE( RandomSpawn );
+public:
+    CLASS_PROTOTYPE(RandomSpawn);
 
+    RandomSpawn();
+    void Archive(Archiver& arc) override;
+};
 
-							RandomSpawn();
-	   void Archive( Archiver &arc ) override;
-	};
+inline void RandomSpawn::Archive(Archiver& arc)
+{
+    Spawn::Archive(arc);
 
-inline void RandomSpawn::Archive
-	(
-	Archiver &arc
-	)
-   {
-   Spawn::Archive( arc );
-
-   arc.ArchiveFloat( &min_time );
-   arc.ArchiveFloat( &max_time );
-   }
+    arc.ArchiveFloat(&min_time);
+    arc.ArchiveFloat(&max_time);
+}
 
 class ReSpawn : public Spawn
-	{
-   protected:
-		void DoSpawn( Event *ev ) override;
- 	public:
-      CLASS_PROTOTYPE( ReSpawn );
-	};
+{
+protected:
+    void DoSpawn(Event *ev) override;
+
+public:
+    CLASS_PROTOTYPE(ReSpawn);
+};
 
 class SpawnOutOfSight : public Spawn
-	{
-   protected:
-		void DoSpawn( Event *ev ) override;
- 	public:
-      CLASS_PROTOTYPE( SpawnOutOfSight );
-	};
+{
+protected:
+    void DoSpawn(Event *ev) override;
+
+public:
+    CLASS_PROTOTYPE(SpawnOutOfSight);
+};
 
 class SpawnChain : public Spawn
-	{
-   protected:
-		void DoSpawn( Event *ev ) override;
- 	public:
-      CLASS_PROTOTYPE( SpawnChain );
-	};
+{
+protected:
+    void DoSpawn(Event *ev) override;
+
+public:
+    CLASS_PROTOTYPE(SpawnChain);
+};

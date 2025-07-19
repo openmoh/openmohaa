@@ -43,12 +43,12 @@ typedef struct {
 } consolecmd_t;
 
 typedef struct {
-    const char* prefix;
+    const char       *prefix;
     SafePtr<Listener> master;
 } commandmaster_t;
 
 consolecmd_t G_ConsoleCmds[] = {
-  //   command name       function             available in multiplayer?
+    //   command name       function             available in multiplayer?
     {"say",             G_SayCmd,             qtrue },
     {"eventlist",       G_EventListCmd,       qfalse},
     {"pendingevents",   G_PendingEventsCmd,   qfalse},
@@ -222,7 +222,7 @@ qboolean G_ProcessClientCommand(gentity_t *ent)
             //
             // Added in OPM
             //
-            Listener* master = G_FindMaster(cmd);
+            Listener *master = G_FindMaster(cmd);
             if (master) {
                 return master->ProcessEvent(ev);
             }
@@ -241,7 +241,7 @@ qboolean G_ProcessClientCommand(gentity_t *ent)
 G_CreateMaster
 ==================
 */
-void G_CreateMaster(const char* prefix, Listener* master)
+void G_CreateMaster(const char *prefix, Listener *master)
 {
     commandmaster_t commandMaster;
 
@@ -264,8 +264,9 @@ void G_CreateMaster(const char* prefix, Listener* master)
 G_MasterMatches
 ==================
 */
-bool G_MasterMatches(const commandmaster_t& commandMaster, const char* command) {
-    const char* s1, *s2;
+bool G_MasterMatches(const commandmaster_t& commandMaster, const char *command)
+{
+    const char *s1, *s2;
 
     s2 = commandMaster.prefix;
     for (s1 = command; *s1 && *s2; s1++, s2++) {
@@ -282,7 +283,7 @@ bool G_MasterMatches(const commandmaster_t& commandMaster, const char* command) 
 G_FindMaster
 ==================
 */
-Listener* G_FindMaster(const char* command)
+Listener *G_FindMaster(const char *command)
 {
     int i;
 
@@ -438,7 +439,7 @@ qboolean G_EventListCmd(gentity_t *ent)
         mask = gi.Argv(1);
     }
 
-    Event::ListCommands( mask );
+    Event::ListCommands(mask);
 
     return qtrue;
 }
@@ -452,7 +453,7 @@ qboolean G_PendingEventsCmd(gentity_t *ent)
         mask = gi.Argv(1);
     }
 
-    Event::PendingEvents( mask );
+    Event::PendingEvents(mask);
 
     return qtrue;
 }
@@ -466,7 +467,7 @@ qboolean G_EventHelpCmd(gentity_t *ent)
         mask = gi.Argv(1);
     }
 
-    Event::ListDocumentation( mask, false );
+    Event::ListDocumentation(mask, false);
 
     return qtrue;
 }
@@ -480,7 +481,7 @@ qboolean G_DumpEventsCmd(gentity_t *ent)
         mask = gi.Argv(1);
     }
 
-    Event::ListDocumentation( mask, true );
+    Event::ListDocumentation(mask, true);
 
     return qtrue;
 }
@@ -495,7 +496,7 @@ qboolean G_ClassEventsCmd(gentity_t *ent)
         className = gi.Argv(1);
     } else {
         className = gi.Argv(1);
-        ClassEvents( className, qfalse );
+        ClassEvents(className, qfalse);
     }
     return qtrue;
 }
@@ -510,7 +511,7 @@ qboolean G_DumpClassEventsCmd(gentity_t *ent)
         className = gi.Argv(1);
     } else {
         className = gi.Argv(1);
-        ClassEvents( className, qtrue );
+        ClassEvents(className, qtrue);
     }
     return qtrue;
 }
@@ -531,7 +532,7 @@ qboolean G_ClassListCmd(gentity_t *ent)
 qboolean G_ClassTreeCmd(gentity_t *ent)
 {
     if (gi.Argc() > 1) {
-        listInheritanceOrder( gi.Argv( 1 ) );
+        listInheritanceOrder(gi.Argv(1));
     } else {
         gi.SendServerCommand(ent - g_entities, "print \"Syntax: classtree [classname].\n\"");
     }
@@ -611,7 +612,7 @@ qboolean G_ScriptCmd(gentity_t *ent)
     return scriptEnt->ProcessEvent(event);
 }
 
-qboolean G_ReloadMap(gentity_t* ent)
+qboolean G_ReloadMap(gentity_t *ent)
 {
     char name[256];
 
@@ -677,7 +678,7 @@ qboolean G_RemoveBotCommand(gentity_t *ent)
 
 qboolean G_BotCommand(gentity_t *ent)
 {
-    const char *command;
+    const char    *command;
     BotController *bot;
 
     if (botManager.getControllerManager().getControllers().NumObjects() < 1) {

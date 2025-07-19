@@ -938,8 +938,9 @@ void ScriptThreadLabel::Execute(Listener *listener, Event *ev) const
     Execute(listener, *ev);
 }
 
-void ScriptThreadLabel::Execute(Listener *pSelf, const SafePtr<Listener>& listener, const SafePtr<Listener>& param)
-    const
+void ScriptThreadLabel::Execute(
+    Listener *pSelf, const SafePtr<Listener>& listener, const SafePtr<Listener>& param
+) const
 {
     if (!m_Script) {
         return;

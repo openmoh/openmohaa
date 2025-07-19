@@ -22,50 +22,53 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #pragma once
 
-typedef enum { UIP_NONE, UIP_EVENT, UIP_EVENT_STRING, UIP_SUBMENU, UIP_CMD, UIP_CVAR, UIP_SEPARATOR } uipopup_type;
-typedef enum { UIP_WHERE_RIGHT, UIP_WHERE_DOWN } uipopup_where;
+typedef enum {
+    UIP_NONE,
+    UIP_EVENT,
+    UIP_EVENT_STRING,
+    UIP_SUBMENU,
+    UIP_CMD,
+    UIP_CVAR,
+    UIP_SEPARATOR
+} uipopup_type;
 
-class uipopup_describe {
+typedef enum {
+    UIP_WHERE_RIGHT,
+    UIP_WHERE_DOWN
+} uipopup_where;
+
+class uipopup_describe
+{
 public:
-	str title;
-	UIReggedMaterial *material;
-	uipopup_type type;
-	void *data;
+    str               title;
+    UIReggedMaterial *material;
+    uipopup_type      type;
+    void             *data;
 
-	uipopup_describe();
-	uipopup_describe( str title, uipopup_type type, void *data, UIReggedMaterial *material );
-	~uipopup_describe();
+    uipopup_describe();
+    uipopup_describe(str title, uipopup_type type, void *data, UIReggedMaterial *material);
+    ~uipopup_describe();
 };
 
-inline
-uipopup_describe::uipopup_describe()
+inline uipopup_describe::uipopup_describe()
 {
-	title = "";
-	material = NULL;
-	type = UIP_NONE;
-	data = NULL;
+    title    = "";
+    material = NULL;
+    type     = UIP_NONE;
+    data     = NULL;
 }
 
-inline
-uipopup_describe::uipopup_describe
-	(
-	str title,
-	uipopup_type type,
-	void *data,
-	UIReggedMaterial *material
-	)
-
+inline uipopup_describe::uipopup_describe(str title, uipopup_type type, void *data, UIReggedMaterial *material)
 {
-	this->title = title;
-	this->type = type;
-	this->data = data;
-	this->material = material;
+    this->title    = title;
+    this->type     = type;
+    this->data     = data;
+    this->material = material;
 }
 
 // NOTE: this is not part of the original game!
 // Added in OPM to properly clean up memory.
-inline
-uipopup_describe::~uipopup_describe()
+inline uipopup_describe::~uipopup_describe()
 {
     if (this->data == NULL) {
         // nothing to clean up
@@ -82,53 +85,62 @@ uipopup_describe::~uipopup_describe()
     }
 }
 
-class UIPopupMenu : public UIWidget {
-	friend class UIPulldownMenu; // so that m_submenuptr, m_submenu and m_parentMenu can be accessed
-protected:
-	Container<uipopup_describe *> *m_describe;
-	int m_selected;
-	Listener *m_listener;
-	class UIPopupMenu *m_parentMenu;
-	class UIPopupMenu *m_submenuptr;
-	int m_submenu;
-	UIFont m_marlett;
-	bool m_autodismiss;
-	UColor m_highlightFGColor;
-	UColor m_highlightBGColor;
-
-public:
-	CLASS_PROTOTYPE( UIPopupMenu );
+class UIPopupMenu : public UIWidget
+{
+    friend class UIPulldownMenu; // so that m_submenuptr, m_submenu and m_parentMenu can be accessed
 
 protected:
-	uipopup_describe	*getDescribeFromPoint( const UIPoint2D& p );
-	void				MakeSubMenu( void );
-	virtual float		getDescribeHeight( uipopup_describe *d );
-	virtual float		getDescribeWidth( uipopup_describe *d );
-	bool				MouseInSubmenus( void );
+    Container<uipopup_describe *> *m_describe;
+    int                            m_selected;
+    Listener                      *m_listener;
+    class UIPopupMenu             *m_parentMenu;
+    class UIPopupMenu             *m_submenuptr;
+    int                            m_submenu;
+    UIFont                         m_marlett;
+    bool                           m_autodismiss;
+    UColor                         m_highlightFGColor;
+    UColor                         m_highlightBGColor;
 
 public:
-	UIPopupMenu();
-	~UIPopupMenu();
+    CLASS_PROTOTYPE(UIPopupMenu);
 
-	void				Create( Container<uipopup_describe*> *describe, Listener *listener, const UIPoint2D& where );
-	void				Create( Container<uipopup_describe*> *describe, Listener *listener, const UIRect2D& createRect, uipopup_where where, qboolean bVirtualSize, float width );
-	void				YouAreASubmenu( UIPopupMenu *me );
-	void				Draw( void ) override;
-	void				MouseReleased( Event *ev );
-	void				MouseMoved( Event *ev );
-	void				MouseExited( Event *ev );
-	void				Dismiss( void );
-	void				DismissEvent( Event *ev );
-	void				setAutoDismiss( bool b );
-	void				setNextSelection( void );
-	void				setPrevSelection( void );
-	uipopup_describe	*getSelectedDescribe( void );
-	void				setSelection( int sel );
-	void				setHighlightFGColor( UColor c );
-	void				setHighlightBGColor( UColor c );
-	void				setPopupHighlightBGColor( str menu, UColor c );
-	void				setPopupHighlightFGColor( str menu, UColor c );
-	void				getPulldown( str title );
+protected:
+    uipopup_describe *getDescribeFromPoint(const UIPoint2D& p);
+    void              MakeSubMenu(void);
+    virtual float     getDescribeHeight(uipopup_describe *d);
+    virtual float     getDescribeWidth(uipopup_describe *d);
+    bool              MouseInSubmenus(void);
+
+public:
+    UIPopupMenu();
+    ~UIPopupMenu();
+
+    void Create(Container<uipopup_describe *> *describe, Listener *listener, const UIPoint2D& where);
+    void Create(
+        Container<uipopup_describe *> *describe,
+        Listener                      *listener,
+        const UIRect2D&                createRect,
+        uipopup_where                  where,
+        qboolean                       bVirtualSize,
+        float                          width
+    );
+    void              YouAreASubmenu(UIPopupMenu *me);
+    void              Draw(void) override;
+    void              MouseReleased(Event *ev);
+    void              MouseMoved(Event *ev);
+    void              MouseExited(Event *ev);
+    void              Dismiss(void);
+    void              DismissEvent(Event *ev);
+    void              setAutoDismiss(bool b);
+    void              setNextSelection(void);
+    void              setPrevSelection(void);
+    uipopup_describe *getSelectedDescribe(void);
+    void              setSelection(int sel);
+    void              setHighlightFGColor(UColor c);
+    void              setHighlightBGColor(UColor c);
+    void              setPopupHighlightBGColor(str menu, UColor c);
+    void              setPopupHighlightFGColor(str menu, UColor c);
+    void              getPulldown(str title);
 };
 
 uipopup_type UI_PopupTypeStringToInt(str type);

@@ -22,7 +22,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // earthquake.cpp: Earthquake trigger causes a localized earthquake when triggered.
 // The earthquake effect is visible to the user as the shaking of his screen.
-// 
+//
 #include "earthquake.h"
 #include "weapon.h"
 #include "sentient.h"
@@ -40,264 +40,236 @@ Causes a radius view jitter
 ******************************************************************************/
 
 Event EV_ViewJitter_Think
-	(
-	"_viewjitter_think",
-	EV_DEFAULT,
-	0,
-	0,
-	"think function for the viewjitter."
-	);
+(
+    "_viewjitter_think",
+    EV_DEFAULT,
+    0,
+    0,
+    "think function for the viewjitter."
+);
 
 Event EV_ViewJitter_Radius
-	(
-	"radius",
-	EV_DEFAULT,
-	"f",
-	"radius",
-	"Sets the max radius of the view jitter. 0 affects all"
-	);
+(
+    "radius",
+    EV_DEFAULT,
+    "f",
+    "radius",
+    "Sets the max radius of the view jitter. 0 affects all"
+);
 
 Event EV_ViewJitter_EdgeEffect
-	(
-	"edgeeffect",
-	EV_DEFAULT,
-	"f",
-	"fraction",
-	"Sets the fraction of the jitter to apply at the max radius"
-	);
+(
+    "edgeeffect",
+    EV_DEFAULT,
+    "f",
+    "fraction",
+    "Sets the fraction of the jitter to apply at the max radius"
+);
 
 Event EV_ViewJitter_Amount
-	(
-	"jitteramount",
-	EV_DEFAULT,
-	"v",
-	"jitterangles",
-	"Sets the jitter angles to apply to the player"
-	);
+(
+    "jitteramount",
+    EV_DEFAULT,
+    "v",
+    "jitterangles",
+    "Sets the jitter angles to apply to the player"
+);
 
 Event EV_ViewJitter_Duration
-	(
-	"duration",
-	EV_DEFAULT,
-	"f",
-	"time",
-	"Sets the length of time it should last. 0 will be instantanious"
-	);
+(
+    "duration",
+    EV_DEFAULT,
+    "f",
+    "time",
+    "Sets the length of time it should last. 0 will be instantanious"
+);
 
 Event EV_ViewJitter_TimeDecay
-	(
-	"timedecay",
-	-1,
-	"v",
-	"decayrate",
-	"Sets jitter decay per second"
-	);
+(
+    "timedecay",
+    -1,
+    "v",
+    "decayrate",
+    "Sets jitter decay per second"
+);
 
 Event EV_ViewJitter_DoneDeath
-	(
-	"donedeath",
-	EV_DEFAULT,
-	0,
-	0,
-	"Makes the view jitter only happen once"
-	);
+(
+    "donedeath",
+    EV_DEFAULT,
+    0,
+    0,
+    "Makes the view jitter only happen once"
+);
 
-CLASS_DECLARATION( Trigger, ViewJitter, "func_viewjitter" )
-{
-	{ &EV_Touch,						NULL },
-	{ &EV_Trigger_Effect, 				&ViewJitter::EventActivateJitter },
-	{ &EV_ViewJitter_Radius, 			&ViewJitter::EventSetRadius },
-	{ &EV_ViewJitter_EdgeEffect, 		&ViewJitter::EventSetEdgeEffect },
-	{ &EV_ViewJitter_Amount, 			&ViewJitter::EventSetAmount },
-	{ &EV_ViewJitter_Duration, 			&ViewJitter::EventSetDuration },
-	{ &EV_ViewJitter_TimeDecay, 		&ViewJitter::EventSetTimeDecay },
-	{ &EV_ViewJitter_DoneDeath, 		&ViewJitter::EventSetDoneDeath },
-	{ &EV_ViewJitter_Think, 			&ViewJitter::EventJitterThink },
-	{ NULL, NULL }
+CLASS_DECLARATION(Trigger, ViewJitter, "func_viewjitter") {
+    {&EV_Touch,                 NULL                            },
+    {&EV_Trigger_Effect,        &ViewJitter::EventActivateJitter},
+    {&EV_ViewJitter_Radius,     &ViewJitter::EventSetRadius     },
+    {&EV_ViewJitter_EdgeEffect, &ViewJitter::EventSetEdgeEffect },
+    {&EV_ViewJitter_Amount,     &ViewJitter::EventSetAmount     },
+    {&EV_ViewJitter_Duration,   &ViewJitter::EventSetDuration   },
+    {&EV_ViewJitter_TimeDecay,  &ViewJitter::EventSetTimeDecay  },
+    {&EV_ViewJitter_DoneDeath,  &ViewJitter::EventSetDoneDeath  },
+    {&EV_ViewJitter_Think,      &ViewJitter::EventJitterThink   },
+    {NULL,                      NULL                            }
 };
 
 ViewJitter::ViewJitter()
 {
-	if( LoadingSavegame )
-	{
-		return;
-	}
+    if (LoadingSavegame) {
+        return;
+    }
 
-	edict->r.svFlags |= SVF_NOCLIENT;
+    edict->r.svFlags |= SVF_NOCLIENT;
 
-	m_fRadius = 16384.0f;
-	m_fEdgeEffect = 0.2f;
+    m_fRadius     = 16384.0f;
+    m_fEdgeEffect = 0.2f;
 
-	m_vJitterStrength = Vector( 2, 2, 3 );
-	m_vTimeDecay = Vector( 2, 2, 3 );
+    m_vJitterStrength = Vector(2, 2, 3);
+    m_vTimeDecay      = Vector(2, 2, 3);
 
-	m_fDuration = 0;
+    m_fDuration = 0;
 
-	m_bDoneDeath = false;
+    m_bDoneDeath = false;
 }
 
-ViewJitter::ViewJitter( Vector vOrigin, float fRadius, float fEdgeEffect, Vector vStrength, float fDuration, Vector vTimeDecay, float fStartDecay )
+ViewJitter::ViewJitter(
+    Vector vOrigin,
+    float  fRadius,
+    float  fEdgeEffect,
+    Vector vStrength,
+    float  fDuration,
+    Vector vTimeDecay,
+    float  fStartDecay
+)
 {
-	if( LoadingSavegame )
-	{
-		return;
-	}
+    if (LoadingSavegame) {
+        return;
+    }
 
-	setOrigin( vOrigin );
-	m_fEdgeEffect = fEdgeEffect;
+    setOrigin(vOrigin);
+    m_fEdgeEffect = fEdgeEffect;
 
-	// square the raidus
-	m_fRadius = fRadius * fRadius;
+    // square the raidus
+    m_fRadius = fRadius * fRadius;
 
-	m_vJitterStrength = vStrength;
-	m_vTimeDecay = vTimeDecay;
+    m_vJitterStrength = vStrength;
+    m_vTimeDecay      = vTimeDecay;
 
-	m_fDuration = fDuration;
+    m_fDuration = fDuration;
 
-	m_bDoneDeath = true;
-	m_fTimeRunning = 0;
+    m_bDoneDeath   = true;
+    m_fTimeRunning = 0;
 
-	PostEvent( EV_ViewJitter_Think, fStartDecay );
+    PostEvent(EV_ViewJitter_Think, fStartDecay);
 }
 
-void ViewJitter::EventActivateJitter
-	(
-	Event *ev
-	)
+void ViewJitter::EventActivateJitter(Event *ev)
 {
-	m_fTimeRunning = 0;
-	PostEvent( EV_ViewJitter_Think, 0 );
+    m_fTimeRunning = 0;
+    PostEvent(EV_ViewJitter_Think, 0);
 }
 
-void ViewJitter::EventJitterThink
-	(
-	Event *ev
-	)
+void ViewJitter::EventJitterThink(Event *ev)
 {
-	int i;
-	int iNumSents;
-	float fDist;
-	float fRadiusDecay;
-	Vector vCurrJitter;
-	Vector vApplyJitter;
-	Vector vDelta;
-	Sentient *pSent;
+    int       i;
+    int       iNumSents;
+    float     fDist;
+    float     fRadiusDecay;
+    Vector    vCurrJitter;
+    Vector    vApplyJitter;
+    Vector    vDelta;
+    Sentient *pSent;
 
-	m_fTimeRunning += level.frametime;
+    m_fTimeRunning += level.frametime;
 
-	vDelta = m_vJitterStrength - m_vTimeDecay * m_fTimeRunning;
+    vDelta = m_vJitterStrength - m_vTimeDecay * m_fTimeRunning;
 
-	iNumSents = SentientList.NumObjects();
+    iNumSents = SentientList.NumObjects();
 
-	for( i = 1; i <= iNumSents; i++ )
-	{
-		pSent = SentientList.ObjectAt( i );
+    for (i = 1; i <= iNumSents; i++) {
+        pSent = SentientList.ObjectAt(i);
 
-		if( pSent->deadflag ) {
-			continue;
-		}
+        if (pSent->deadflag) {
+            continue;
+        }
 
-		fRadiusDecay = ( pSent->origin - origin ).lengthSquared();
-		if( fRadiusDecay <= m_fRadius )
-		{
-			Vector vVariation;
+        fRadiusDecay = (pSent->origin - origin).lengthSquared();
+        if (fRadiusDecay <= m_fRadius) {
+            Vector vVariation;
 
-			if( m_fEdgeEffect == 1.0f )
-			{
-				vApplyJitter = vDelta;
-			}
-			else
-			{
-				fDist = sqrt( fRadiusDecay );
-				vApplyJitter = Vector( ( 1.0f - fDist * ( m_fEdgeEffect / m_fRadius ) ) * vDelta[ 0 ], 0, 0 );
-			}
+            if (m_fEdgeEffect == 1.0f) {
+                vApplyJitter = vDelta;
+            } else {
+                fDist        = sqrt(fRadiusDecay);
+                vApplyJitter = Vector((1.0f - fDist * (m_fEdgeEffect / m_fRadius)) * vDelta[0], 0, 0);
+            }
 
-			if( pSent->m_vViewVariation[ 0 ] <= vApplyJitter[ 0 ] )
-				vVariation[ 0 ] = vApplyJitter[ 0 ];
-			else
-				vVariation[ 0 ] = pSent->m_vViewVariation[ 0 ];
+            if (pSent->m_vViewVariation[0] <= vApplyJitter[0]) {
+                vVariation[0] = vApplyJitter[0];
+            } else {
+                vVariation[0] = pSent->m_vViewVariation[0];
+            }
 
-			if( pSent->m_vViewVariation[ 1 ] <= vApplyJitter[ 1 ] )
-				vVariation[ 1 ] = vApplyJitter[ 1 ];
-			else
-				vVariation[ 1 ] = pSent->m_vViewVariation[ 1 ];
+            if (pSent->m_vViewVariation[1] <= vApplyJitter[1]) {
+                vVariation[1] = vApplyJitter[1];
+            } else {
+                vVariation[1] = pSent->m_vViewVariation[1];
+            }
 
-			if( pSent->m_vViewVariation[ 2 ] <= vApplyJitter[ 2 ] )
-				vVariation[ 2 ] = vApplyJitter[ 2 ];
-			else
-				vVariation[ 2 ] = pSent->m_vViewVariation[ 2 ];
+            if (pSent->m_vViewVariation[2] <= vApplyJitter[2]) {
+                vVariation[2] = vApplyJitter[2];
+            } else {
+                vVariation[2] = pSent->m_vViewVariation[2];
+            }
 
-			pSent->m_vViewVariation = vVariation;
-		}
-	}
+            pSent->m_vViewVariation = vVariation;
+        }
+    }
 
-	if( m_fDuration > 0.0f )
-	{
-		if( m_fTimeRunning <= m_fDuration || !m_bDoneDeath )
-		{
-			PostEvent( EV_ViewJitter_Think, level.frametime );
-		}
-		else
-		{
-			ProcessEvent( EV_Remove );
-		}
-	}
-	else if( m_bDoneDeath )
-	{
-		ProcessEvent( EV_Remove );
-	}
+    if (m_fDuration > 0.0f) {
+        if (m_fTimeRunning <= m_fDuration || !m_bDoneDeath) {
+            PostEvent(EV_ViewJitter_Think, level.frametime);
+        } else {
+            ProcessEvent(EV_Remove);
+        }
+    } else if (m_bDoneDeath) {
+        ProcessEvent(EV_Remove);
+    }
 }
 
-void ViewJitter::EventSetRadius
-	(
-	Event *ev
-	)
+void ViewJitter::EventSetRadius(Event *ev)
 {
-	float rad = ev->GetFloat( 1 );
+    float rad = ev->GetFloat(1);
 
-	m_fRadius = rad * rad;
-	if( m_fRadius < 1.0f )
-	{
-		m_fRadius = 16384.0f;
-	}
+    m_fRadius = rad * rad;
+    if (m_fRadius < 1.0f) {
+        m_fRadius = 16384.0f;
+    }
 }
 
-void ViewJitter::EventSetEdgeEffect
-	(
-	Event *ev
-	)
+void ViewJitter::EventSetEdgeEffect(Event *ev)
 {
-	m_fEdgeEffect = ev->GetFloat( 1 );
+    m_fEdgeEffect = ev->GetFloat(1);
 }
 
-void ViewJitter::EventSetAmount
-	(
-	Event *ev
-	)
+void ViewJitter::EventSetAmount(Event *ev)
 {
-	m_vJitterStrength = ev->GetVector( 1 );
+    m_vJitterStrength = ev->GetVector(1);
 }
 
-void ViewJitter::EventSetDuration
-	(
-	Event *ev
-	)
+void ViewJitter::EventSetDuration(Event *ev)
 {
-	m_fDuration = ev->GetFloat( 1 );
+    m_fDuration = ev->GetFloat(1);
 }
 
-void ViewJitter::EventSetTimeDecay
-	(
-	Event *ev
-	)
+void ViewJitter::EventSetTimeDecay(Event *ev)
 {
-	m_vTimeDecay = ev->GetVector( 1 );
+    m_vTimeDecay = ev->GetVector(1);
 }
 
-void ViewJitter::EventSetDoneDeath
-	(
-	Event *ev
-	)
+void ViewJitter::EventSetDoneDeath(Event *ev)
 {
-	m_bDoneDeath = qtrue;
+    m_bDoneDeath = qtrue;
 }

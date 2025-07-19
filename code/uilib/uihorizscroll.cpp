@@ -24,20 +24,20 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 Event W_HScrollbar_Positioned
 (
-	"hscrollbar_positioned",
-	EV_DEFAULT,
-	"i",
-	"new_position",
-	"Signaled when the user scrolls the view"
+    "hscrollbar_positioned",
+    EV_DEFAULT,
+    "i",
+    "new_position",
+    "Signaled when the user scrolls the view"
 );
 Event EV_HScrollbar_Scroll
 (
-	"_hscrollbar_scroll",
-	EV_DEFAULT,
-	"ii",
-	"scrollrate autorepeat",
-	"scroll the scrollbar, at the specified rate.\n"
-	"The autorepeat is used for autoscrolling with the mouse button held down"
+    "_hscrollbar_scroll",
+    EV_DEFAULT,
+    "ii",
+    "scrollrate autorepeat",
+    "scroll the scrollbar, at the specified rate.\n"
+    "The autorepeat is used for autoscrolling with the mouse button held down"
 );
 
 CLASS_DECLARATION(UIWidget, UIHorizScroll, NULL) {

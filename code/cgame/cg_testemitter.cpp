@@ -1239,9 +1239,9 @@ void CG_DumpEmitter_f(void)
 
         if (pCurrSpawnthing->sphereRadius) {
             if (cg_te_cone_height->value) {
-                buff +=
-                    va("%s\tcone %g %g\n", sTabbing.c_str(), pCurrSpawnthing->coneHeight, pCurrSpawnthing->sphereRadius
-                    );
+                buff += va(
+                    "%s\tcone %g %g\n", sTabbing.c_str(), pCurrSpawnthing->coneHeight, pCurrSpawnthing->sphereRadius
+                );
             } else {
                 buff += va("%s\tradius %g\n", sTabbing.c_str(), pCurrSpawnthing->sphereRadius);
             }

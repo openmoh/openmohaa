@@ -21,7 +21,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 // PlayerStart.h: Player start location entity declarations
-// 
+//
 
 #pragma once
 
@@ -33,58 +33,58 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 class PlayerStart : public SimpleArchivedEntity
 {
 public:
-	bool		m_bForbidSpawns;
-	bool		m_bDeleteOnSpawn;
+    bool m_bForbidSpawns;
+    bool m_bDeleteOnSpawn;
 
 public:
-	CLASS_PROTOTYPE( PlayerStart );
+    CLASS_PROTOTYPE(PlayerStart);
 
-	PlayerStart();
+    PlayerStart();
 
-	void Archive( Archiver &arc ) override;
+    void Archive(Archiver& arc) override;
 
-	void			SetAngle( Event *ev );
-	void			EventEnableSpawn( Event *ev );
-	void			EventDisableSpawn( Event *ev );
-	void			EventDeleteOnSpawn( Event *ev );
-	void			EventKeepOnSpawn( Event *ev );
+    void SetAngle(Event *ev);
+    void EventEnableSpawn(Event *ev);
+    void EventDisableSpawn(Event *ev);
+    void EventDeleteOnSpawn(Event *ev);
+    void EventKeepOnSpawn(Event *ev);
 };
 
-inline void PlayerStart::Archive( Archiver &arc )
+inline void PlayerStart::Archive(Archiver& arc)
 {
-	SimpleArchivedEntity::Archive( arc );
+    SimpleArchivedEntity::Archive(arc);
 
-	arc.ArchiveBool( &m_bForbidSpawns );
-	arc.ArchiveBool( &m_bDeleteOnSpawn );
+    arc.ArchiveBool(&m_bForbidSpawns);
+    arc.ArchiveBool(&m_bDeleteOnSpawn);
 }
 
 class TestPlayerStart : public PlayerStart
-	{
-	public:
-		CLASS_PROTOTYPE( TestPlayerStart );
-	};
+{
+public:
+    CLASS_PROTOTYPE(TestPlayerStart);
+};
 
 class PlayerDeathmatchStart : public PlayerStart
-	{
-	public:
-		CLASS_PROTOTYPE( PlayerDeathmatchStart );
-	};
+{
+public:
+    CLASS_PROTOTYPE(PlayerDeathmatchStart);
+};
 
 class PlayerAlliedDeathmatchStart : public PlayerDeathmatchStart
 {
 public:
-	CLASS_PROTOTYPE( PlayerAlliedDeathmatchStart );
+    CLASS_PROTOTYPE(PlayerAlliedDeathmatchStart);
 };
 
 class PlayerAxisDeathmatchStart : public PlayerDeathmatchStart
 {
 public:
-	CLASS_PROTOTYPE( PlayerAxisDeathmatchStart );
+    CLASS_PROTOTYPE(PlayerAxisDeathmatchStart);
 };
 
 class PlayerIntermission : public Camera
-	{
-	public:
-		CLASS_PROTOTYPE( PlayerIntermission );
-      PlayerIntermission();
-	};
+{
+public:
+    CLASS_PROTOTYPE(PlayerIntermission);
+    PlayerIntermission();
+};

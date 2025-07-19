@@ -23,117 +23,117 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ui_local.h"
 
 Event W_MouseExited
-	(
-	"mouse_exited",
-	EV_DEFAULT,
-	"ffi",
-	"xpos ypos buttons",
-	"Mouse exiting a widget event"
-	);
+(
+    "mouse_exited",
+    EV_DEFAULT,
+    "ffi",
+    "xpos ypos buttons",
+    "Mouse exiting a widget event"
+);
 Event W_MouseEntered
-	(
-	"mouse_entered",
-	EV_DEFAULT,
-	"ffi",
-	"xpos ypos buttons",
-	"Mouse Entered a widget event"
-	);
+(
+    "mouse_entered",
+    EV_DEFAULT,
+    "ffi",
+    "xpos ypos buttons",
+    "Mouse Entered a widget event"
+);
 Event W_LeftMouseDragged
-	(
-	"left_mousedragged",
-	EV_DEFAULT,
-	"ffi",
-	"xpos ypos buttons",
-	"Mouse was moved in a widget with the left button down"
-	);
+(
+    "left_mousedragged",
+    EV_DEFAULT,
+    "ffi",
+    "xpos ypos buttons",
+    "Mouse was moved in a widget with the left button down"
+);
 Event W_RightMouseDragged
-	(
-	"right_mousedragged",
-	EV_DEFAULT,
-	"ffi",
-	"xpos ypos buttons",
-	"Mouse was moved in a widget with the right button down"
-	);
+(
+    "right_mousedragged",
+    EV_DEFAULT,
+    "ffi",
+    "xpos ypos buttons",
+    "Mouse was moved in a widget with the right button down"
+);
 Event W_CenterMouseDragged
-	(
-	"center_mousedragged",
-	EV_DEFAULT,
-	"ffi",
-	"xpos ypos buttons",
-	"Mouse was moved in a widget with the center button down"
-	);
+(
+    "center_mousedragged",
+    EV_DEFAULT,
+    "ffi",
+    "xpos ypos buttons",
+    "Mouse was moved in a widget with the center button down"
+);
 Event W_MouseMoved
-	(
-	"mouse_moved",
-	EV_DEFAULT,
-	"ffi",
-	"xpos ypos buttons",
-	"Mouse was moved in a widget with no buttons down"
-	);
+(
+    "mouse_moved",
+    EV_DEFAULT,
+    "ffi",
+    "xpos ypos buttons",
+    "Mouse was moved in a widget with no buttons down"
+);
 Event W_LeftMouseDown
-	(
-	"left_mouse_down",
-	EV_DEFAULT,
-	"ffi",
-	"xpos ypos buttons",
-	"Left mouse button has been pressed down"
-	);
+(
+    "left_mouse_down",
+    EV_DEFAULT,
+    "ffi",
+    "xpos ypos buttons",
+    "Left mouse button has been pressed down"
+);
 Event W_LeftMouseUp
-	(
-	"left_mouse_up",
-	EV_DEFAULT,
-	"ffi",
-	"xpos ypos buttons",
-	"Left mouse button has been released"
-	);
+(
+    "left_mouse_up",
+    EV_DEFAULT,
+    "ffi",
+    "xpos ypos buttons",
+    "Left mouse button has been released"
+);
 Event W_RightMouseDown
-	(
-	"right_mouse_down",
-	EV_DEFAULT,
-	"ffi",
-	"xpos ypos buttons",
-	"Right mouse button has been pressed down"
-	);
+(
+    "right_mouse_down",
+    EV_DEFAULT,
+    "ffi",
+    "xpos ypos buttons",
+    "Right mouse button has been pressed down"
+);
 Event W_RightMouseUp
-	(
-	"right_mouse_up",
-	EV_DEFAULT,
-	"ffi",
-	"xpos ypos buttons",
-	"Right mouse button has been released"
-	);
+(
+    "right_mouse_up",
+    EV_DEFAULT,
+    "ffi",
+    "xpos ypos buttons",
+    "Right mouse button has been released"
+);
 Event W_CenterMouseDown
-	(
-	"center_mouse_down",
-	EV_DEFAULT,
-	"ffi",
-	"xpos ypos buttons",
-	"Center mouse button has been pressed down"
-	);
+(
+    "center_mouse_down",
+    EV_DEFAULT,
+    "ffi",
+    "xpos ypos buttons",
+    "Center mouse button has been pressed down"
+);
 Event W_CenterMouseUp
-	(
-	"center_mouse_up",
-	EV_DEFAULT,
-	"ffi",
-	"xpos ypos buttons",
-	"Center mouse button has been released"
-	);
+(
+    "center_mouse_up",
+    EV_DEFAULT,
+    "ffi",
+    "xpos ypos buttons",
+    "Center mouse button has been released"
+);
 Event W_AnyMouseDown
-	(
-	"any_mouse_down",
-	EV_DEFAULT,
-	"ffi",
-	"xpos ypos buttons",
-	"Any mouse button has been pressed"
-	);
+(
+    "any_mouse_down",
+    EV_DEFAULT,
+    "ffi",
+    "xpos ypos buttons",
+    "Any mouse button has been pressed"
+);
 Event W_AnyMouseUp
-	(
-	"any_mouse_up",
-	EV_DEFAULT,
-	"ffi",
-	"xpos ypos buttons",
-	"Any mouse button has been released"
-	);
+(
+    "any_mouse_up",
+    EV_DEFAULT,
+    "ffi",
+    "xpos ypos buttons",
+    "Any mouse button has been released"
+);
 
 UIWindowManager uWinMan;
 

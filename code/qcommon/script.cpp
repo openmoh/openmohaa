@@ -502,7 +502,7 @@ qboolean Script::AtAssignment(qboolean crossline)
 
 const char *Script::GetToken(qboolean crossline)
 {
-    const char* token_p  = token;
+    const char *token_p  = token;
     qboolean    is_Macro = false;
 
     // is a token already waiting?

@@ -32,7 +32,6 @@ public:
 };
 
 inline linkstring::linkstring(str value, str string)
-
 {
     this->value  = value;
     this->string = string;
@@ -59,7 +58,7 @@ class UILabel : public UIWidget
     int                     m_iLastDrawTime;
 
 protected:
-    qboolean                m_bOutlinedText;
+    qboolean m_bOutlinedText;
 
 public:
     CLASS_PROTOTYPE(UILabel);

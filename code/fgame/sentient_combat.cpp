@@ -57,7 +57,7 @@ void Sentient::ClearNewActiveWeapon(void)
     SetNewActiveWeapon(NULL, WEAPON_ERROR);
 }
 
-void Sentient::SetNewActiveWeapon(Weapon* weapon, weaponhand_t hand)
+void Sentient::SetNewActiveWeapon(Weapon *weapon, weaponhand_t hand)
 {
     newActiveWeapon.weapon = weapon;
     newActiveWeapon.hand   = hand;
@@ -892,8 +892,8 @@ Weapon *Sentient::BestWeapon(Weapon *ignore, qboolean bGetItem, int iIgnoreClass
             continue;
         }
 
-        bestweapon = (Weapon*)next;
-        bestrank = bestweapon->GetRank();
+        bestweapon = (Weapon *)next;
+        bestrank   = bestweapon->GetRank();
     }
 
     return bestweapon;
@@ -941,8 +941,8 @@ Weapon *Sentient::WorstWeapon(Weapon *ignore, qboolean bGetItem, int iIgnoreClas
             continue;
         }
 
-        worstweapon = (Weapon*)next;
-        iWorstRank = worstweapon->GetRank();
+        worstweapon = (Weapon *)next;
+        iWorstRank  = worstweapon->GetRank();
     }
 
     return worstweapon;
@@ -1059,7 +1059,6 @@ Weapon *Sentient::PreviousWeapon(Weapon *weapon)
 }
 
 Weapon *Sentient::GetActiveWeapon(weaponhand_t hand) const
-
 {
     if ((hand >= MAX_ACTIVE_WEAPONS) || (hand < 0)) {
         warning(
@@ -1302,12 +1301,12 @@ void Sentient::GetNewActiveWeaponOld(Event *ev)
     ev->AddEntity(GetNewActiveWeapon());
 }
 
-void Sentient::GetNewActiveWeapon(Event* ev)
+void Sentient::GetNewActiveWeapon(Event *ev)
 {
     ev->AddEntity(GetNewActiveWeapon());
 }
 
-void Sentient::GetNewActiveWeaponHand(Event* ev)
+void Sentient::GetNewActiveWeaponHand(Event *ev)
 {
     ev->AddInteger(GetNewActiveWeaponHand());
 }
@@ -1329,10 +1328,12 @@ void Sentient::GetActiveWeap(Event *ev)
     ev->AddEntity(weapon);
 }
 
-const Container<int>& Sentient::getInventory() const {
+const Container<int>& Sentient::getInventory() const
+{
     return inventory;
 }
 
-const Container<Ammo*>& Sentient::getAmmoInventory() const {
+const Container<Ammo *>& Sentient::getAmmoInventory() const
+{
     return ammo_inventory;
 }

@@ -28,70 +28,57 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 Event EV_InventoryItem_Shoot
 (
-	"activateitem",
-	EV_DEFAULT,
-	"S",
-	"mode",
-	"Activates the item"
+    "activateitem",
+    EV_DEFAULT,
+    "S",
+    "mode",
+    "Activates the item"
 );
 
 Event EV_InventoryItem_Activate_Papers
 (
-	"activatepapers",
-	EV_DEFAULT,
-	NULL,
-	NULL,
-	"The activation of the papers item"
+    "activatepapers",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "The activation of the papers item"
 );
 
-CLASS_DECLARATION( Weapon, InventoryItem, NULL )
-{
-	{ &EV_InventoryItem_Shoot,					&InventoryItem::ActivateItem },
-	{ &EV_InventoryItem_Activate_Papers,		&InventoryItem::ActivatePapers },
-	{ NULL, NULL }
+CLASS_DECLARATION(Weapon, InventoryItem, NULL) {
+    {&EV_InventoryItem_Shoot,           &InventoryItem::ActivateItem  },
+    {&EV_InventoryItem_Activate_Papers, &InventoryItem::ActivatePapers},
+    {NULL,                              NULL                          }
 };
 
 InventoryItem::InventoryItem()
 {
-	entflags |= ECF_INVENTORYITEM;
+    entflags |= ECF_INVENTORYITEM;
 
-	if ( LoadingSavegame )
-	{
-		return;
-	}
+    if (LoadingSavegame) {
+        return;
+    }
 
-	weapon_class = WEAPON_CLASS_ITEM;
+    weapon_class = WEAPON_CLASS_ITEM;
 }
 
 InventoryItem::~InventoryItem()
 {
-	entflags &= ~ECF_INVENTORYITEM;
+    entflags &= ~ECF_INVENTORYITEM;
 }
 
-void InventoryItem::ActivateItem
-	(
-	Event *ev
-	)
+void InventoryItem::ActivateItem(Event *ev)
 {
-	if( firetype[ FIRE_PRIMARY ] == FT_CLICKITEM )
-	{
-		Vector pos, forward, right, up, vBarrel;
+    if (firetype[FIRE_PRIMARY] == FT_CLICKITEM) {
+        Vector pos, forward, right, up, vBarrel;
 
-		GetMuzzlePosition( pos, vBarrel, forward, right, up );
-		ClickItemAttack(
-			pos,
-			forward,
-			bulletrange[ FIRE_PRIMARY ],
-			owner );
-	}
+        GetMuzzlePosition(pos, vBarrel, forward, right, up);
+        ClickItemAttack(pos, forward, bulletrange[FIRE_PRIMARY], owner);
+    }
 
-	m_fLastFireTime = level.time;
+    m_fLastFireTime = level.time;
 }
 
-void InventoryItem::ActivatePapers
-	(
-	Event *ev
-	)
+void InventoryItem::ActivatePapers(Event *ev)
 {
-	GetOwner()->m_ShowPapersTime = level.inttime;
+    GetOwner()->m_ShowPapersTime = level.inttime;
 }

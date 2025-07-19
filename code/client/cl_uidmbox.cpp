@@ -313,7 +313,7 @@ void UIDMBox::Print(const char *text)
         text1 = text + 1;
     } else if (*text == MESSAGE_CHAT_GREEN) {
         m_items[m_numitems].color = UGreenChatMessageColor;
-        m_items[m_numitems].font = m_fontbold;
+        m_items[m_numitems].font  = m_fontbold;
         m_items[m_numitems].flags |= DMBOX_ITEM_FLAG_DEATH;
 
         text1 = text + 1;
@@ -322,7 +322,8 @@ void UIDMBox::Print(const char *text)
         m_items[m_numitems].font  = m_font;
     }
 
-    m_items[m_numitems].string = CalculateBreaks(m_items[m_numitems].font, Sys_LV_CL_ConvertString(text1), s_dmboxWidth);
+    m_items[m_numitems].string =
+        CalculateBreaks(m_items[m_numitems].font, Sys_LV_CL_ConvertString(text1), s_dmboxWidth);
 
     m_numitems++;
     VerifyBoxOut();

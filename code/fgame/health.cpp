@@ -32,7 +32,14 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "player.h"
 #include "g_phys.h"
 
-Event EV_Health_PostSpawn("health_postspawn", EV_DEFAULT, NULL, NULL, "Health Post Spawn");
+Event EV_Health_PostSpawn
+(
+    "health_postspawn",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Health Post Spawn"
+);
 
 CLASS_DECLARATION(Item, Health, "health_020") {
     {&EV_Item_Pickup,      &Health::PickupHealth  },

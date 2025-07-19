@@ -215,48 +215,18 @@ ListItem::ListItem(str string, int index, str command)
     this->command = command;
 }
 
-Event EV_UIListBase_ItemSelected
-(
-    "listbase_item_selected",
-    EV_DEFAULT,
-    "i",
-    "index",
-    "Signaled when an item is selected"
-);
-Event EV_UIListBase_ItemDoubleClicked
-(
-    "listbase_item_doubleclicked",
-    EV_DEFAULT,
-    "i",
-    "index",
-    "Signaled when an item is double clicked"
+Event
+    EV_UIListBase_ItemSelected("listbase_item_selected", EV_DEFAULT, "i", "index", "Signaled when an item is selected");
+Event EV_UIListBase_ItemDoubleClicked(
+    "listbase_item_doubleclicked", EV_DEFAULT, "i", "index", "Signaled when an item is double clicked"
 
 );
-Event EV_Layout_AddListItem
-(
-    "additem",
-    EV_DEFAULT,
-    "sS",
-    "itemname command",
-    "Add an item to the list"
-);
-Event EV_Layout_AddConfigstringListItem
-(
-    "addconfigstringitem",
-    EV_DEFAULT,
-    "iS",
-    "index command",
-    "Add an item to the list that uses a configstring"
+Event EV_Layout_AddListItem("additem", EV_DEFAULT, "sS", "itemname command", "Add an item to the list");
+Event EV_Layout_AddConfigstringListItem(
+    "addconfigstringitem", EV_DEFAULT, "iS", "index command", "Add an item to the list that uses a configstring"
 
 );
-Event EV_UIListBox_DeleteAllItems
-(
-    "deleteallitems",
-    EV_DEFAULT,
-    NULL,
-    NULL,
-    "Delete all the items from the widget"
-);
+Event EV_UIListBox_DeleteAllItems("deleteallitems", EV_DEFAULT, NULL, NULL, "Delete all the items from the widget");
 
 CLASS_DECLARATION(UIListBase, UIListBox, NULL) {
     {&W_LeftMouseDown,                   &UIListBox::MousePressed                 },
@@ -283,9 +253,9 @@ void UIListBox::Draw(void)
     //UColor      selectedColor  = UBlack;
     //UColor      selectedBorder = UWhite;
     // Changed in 2.0
-    UColor      selectedBG(0.2, 0.18, 0.015);
-    UColor      selectedColor(0.9, 0.8, 0.6);
-    UColor      selectedBorder(0.315, 0.27, 0.0225);
+    UColor selectedBG(0.2, 0.18, 0.015);
+    UColor selectedColor(0.9, 0.8, 0.6);
+    UColor selectedBorder(0.315, 0.27, 0.0225);
 
     aty = 0;
 

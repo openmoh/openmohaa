@@ -24,26 +24,27 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 class Script;
 
-class UILayout : public Listener {
-	str m_filename;
-	Script *m_script;
-	Stack<Script *> m_scriptstack;
-	UIWidgetContainer *m_currentcontainer;
-	UIWidget *m_currentwidget;
-	bool m_bLoaded;
+class UILayout : public Listener
+{
+    str                m_filename;
+    Script            *m_script;
+    Stack<Script *>    m_scriptstack;
+    UIWidgetContainer *m_currentcontainer;
+    UIWidget          *m_currentwidget;
+    bool               m_bLoaded;
 
 public:
-	CLASS_PROTOTYPE( UILayout );
+    CLASS_PROTOTYPE(UILayout);
 
 private:
-	void	BogusFunction( void );
-	void	CreateWidgetContainer( Event *ev );
-	void	ProcessCommands( bool bFullLoad );
+    void BogusFunction(void);
+    void CreateWidgetContainer(Event *ev);
+    void ProcessCommands(bool bFullLoad);
 
 public:
-	UILayout();
-	UILayout( const char *filename );
+    UILayout();
+    UILayout(const char *filename);
 
-	void	Load( const char *filename, bool bFullLoad );
-	int		ForceLoad( void );
+    void Load(const char *filename, bool bFullLoad);
+    int  ForceLoad(void);
 };

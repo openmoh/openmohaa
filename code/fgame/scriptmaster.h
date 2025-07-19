@@ -96,8 +96,8 @@ public:
     ScriptThread *CreateThread(str filename, str label, Listener *self = NULL);
     void          ExecuteThread(GameScript *scr, str label = "");
     void          ExecuteThread(str filename, str label = "");
-    void          ExecuteThread(GameScript *scr, str label, Event         &parms);
-    void          ExecuteThread(str filename, str label, Event         &parms);
+    void          ExecuteThread(GameScript *scr, str label, Event& parms);
+    void          ExecuteThread(str filename, str label, Event& parms);
     ScriptThread *CreateScriptThread(ScriptClass *scriptClass, unsigned char *m_pCodePos);
     ScriptThread *CreateScriptThread(GameScript *scr, Listener *self, const_str label);
     ScriptThread *CreateScriptThread(GameScript *scr, Listener *self, str label);
@@ -122,7 +122,7 @@ public:
     const_str AddString(str& s);
     const_str GetString(const char *s);
     const_str GetString(str s);
-    str     & GetString(const_str s);
+    str&      GetString(const_str s);
 
     void ArchiveString(Archiver& arc, const_str& s);
 

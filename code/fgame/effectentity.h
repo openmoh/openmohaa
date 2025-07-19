@@ -29,7 +29,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 class EffectEntity : public Animate
 {
 public:
-	CLASS_PROTOTYPE( EffectEntity );
+    CLASS_PROTOTYPE(EffectEntity);
 
-	EffectEntity();
+    EffectEntity();
 };

@@ -26,9 +26,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "body.h"
 #include "g_phys.h"
 
-CLASS_DECLARATION( Animate, Body, NULL )
-{
-	{ NULL, NULL }
+CLASS_DECLARATION(Animate, Body, NULL) {
+    {NULL, NULL}
 };
 
 //=============================================================
@@ -36,46 +35,47 @@ CLASS_DECLARATION( Animate, Body, NULL )
 //=============================================================
 Body::Body()
 {
-	edict->s.eType		= ET_MODELANIM;
-	edict->clipmask		= MASK_DEADSOLID;
-	edict->s.eFlags		|= EF_DEAD;
-	
-	setSolidType( SOLID_NOT );
-	setContents( CONTENTS_CORPSE );
-	setMoveType( MOVETYPE_NONE );
+    edict->s.eType  = ET_MODELANIM;
+    edict->clipmask = MASK_DEADSOLID;
+    edict->s.eFlags |= EF_DEAD;
 
-	PostEvent( EV_DeathSinkStart, 5.0f );
+    setSolidType(SOLID_NOT);
+    setContents(CONTENTS_CORPSE);
+    setMoveType(MOVETYPE_NONE);
+
+    PostEvent(EV_DeathSinkStart, 5.0f);
 }
 
-void Body::Damage( Event *ev )
+void Body::Damage(Event *ev)
 {
-	str gib_name;
-	int number_of_gibs;
-	float scale;
-	Animate *ent;
-	str real_gib_name;
+    str      gib_name;
+    int      number_of_gibs;
+    float    scale;
+    Animate *ent;
+    str      real_gib_name;
 
-	if ( !com_blood->integer )
-		return;
+    if (!com_blood->integer) {
+        return;
+    }
 
-	gib_name       = "fx_rgib";
-	number_of_gibs = 5;
-	scale          = 1.2f;
+    gib_name       = "fx_rgib";
+    number_of_gibs = 5;
+    scale          = 1.2f;
 
-	// Spawn the gibs
-	real_gib_name = gib_name;
-	real_gib_name += number_of_gibs;
-	real_gib_name += ".tik";
+    // Spawn the gibs
+    real_gib_name = gib_name;
+    real_gib_name += number_of_gibs;
+    real_gib_name += ".tik";
 
-	ent = new Animate;
-	ent->setModel( real_gib_name.c_str() );
-	ent->setScale( scale );
-	ent->setOrigin( centroid );
-	ent->NewAnim( "idle" );
-	ent->PostEvent( EV_Remove, 1.0f );
+    ent = new Animate;
+    ent->setModel(real_gib_name.c_str());
+    ent->setScale(scale);
+    ent->setOrigin(centroid);
+    ent->NewAnim("idle");
+    ent->PostEvent(EV_Remove, 1.0f);
 
-	Sound( "snd_decap", CHAN_BODY, 1.0f, 300.0f );
+    Sound("snd_decap", CHAN_BODY, 1.0f, 300.0f);
 
-	this->hideModel();
-	this->takedamage = DAMAGE_NO;
+    this->hideModel();
+    this->takedamage = DAMAGE_NO;
 }

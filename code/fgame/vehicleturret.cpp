@@ -1260,7 +1260,8 @@ void VehicleTurretGun::SetTargetEntity(Entity *ent)
     }
 
     m_vLocalAngles[0] = Q_clamp_float(m_vLocalAngles[0], m_fPitchUpCap, m_fPitchDownCap);
-    m_vLocalAngles[1] = Q_clamp_float(m_vLocalAngles[1], -(m_fStartYaw + m_fMaxYawOffset), m_fStartYaw + m_fMaxYawOffset);
+    m_vLocalAngles[1] =
+        Q_clamp_float(m_vLocalAngles[1], -(m_fStartYaw + m_fMaxYawOffset), m_fStartYaw + m_fMaxYawOffset);
 
     UpdateOrientation(false);
 }
@@ -1275,7 +1276,9 @@ void VehicleTurretGun::UpdateAndMoveOwner()
 
     parentEnt = GetParent();
 
-    m_vUserViewAng[0] = Q_clamp_float(m_vUserViewAng[0], m_fPitchUpCap - MAX_VT_PITCHCAP_OFFSET, m_fPitchDownCap + MAX_VT_PITCHCAP_OFFSET);
+    m_vUserViewAng[0] = Q_clamp_float(
+        m_vUserViewAng[0], m_fPitchUpCap - MAX_VT_PITCHCAP_OFFSET, m_fPitchDownCap + MAX_VT_PITCHCAP_OFFSET
+    );
 
     fDiff = AngleSubtract(m_vUserViewAng[1], m_fStartYaw);
     fDiff = Q_clamp_float(fDiff, -(m_fMaxYawOffset + MAX_VT_YAW_OFFSET), m_fMaxYawOffset + MAX_VT_YAW_OFFSET);
@@ -1566,7 +1569,9 @@ void VehicleTurretGun::UpdateCollisionEntity()
 
 void VehicleTurretGun::RestrictPitch()
 {
-    m_vUserViewAng[0] = Q_clamp_float(m_vUserViewAng[0], m_fPitchUpCap - MAX_VT_PITCHCAP_OFFSET, m_fPitchDownCap + MAX_VT_PITCHCAP_OFFSET);
+    m_vUserViewAng[0] = Q_clamp_float(
+        m_vUserViewAng[0], m_fPitchUpCap - MAX_VT_PITCHCAP_OFFSET, m_fPitchDownCap + MAX_VT_PITCHCAP_OFFSET
+    );
 }
 
 void VehicleTurretGun::RestrictYaw()
@@ -1799,25 +1804,11 @@ SentientPtr VehicleTurretGun::GetRawRemoteOwner() const
     return m_pRemoteOwner;
 }
 
-Event EV_VTGP_LinkTurret
-(
-    "linkturret",
-    EV_DEFAULT,
-    "s",
-    "name",
-    "Sets the next turret in the link.",
-    EV_NORMAL
-);
+Event EV_VTGP_LinkTurret("linkturret", EV_DEFAULT, "s", "name", "Sets the next turret in the link.", EV_NORMAL);
 
 // Added in 2.30
-Event EV_VTGP_SetSwitchThread
-(
-    "setswitchthread",
-    EV_DEFAULT,
-    "s",
-    "thread",
-    "Set the thread to execute when turret is switched",
-    EV_NORMAL
+Event EV_VTGP_SetSwitchThread(
+    "setswitchthread", EV_DEFAULT, "s", "thread", "Set the thread to execute when turret is switched", EV_NORMAL
 );
 
 CLASS_DECLARATION(VehicleTurretGun, VehicleTurretGunTandem, "VehicleTurretGunTandem") {
@@ -2152,7 +2143,7 @@ void VehicleTurretGunTandem::SwitchToLinkedTurret()
     }
 
     if (m_Slot.ent) {
-        pTurret = static_cast<VehicleTurretGunTandem*>(m_Slot.ent.Pointer());
+        pTurret = static_cast<VehicleTurretGunTandem *>(m_Slot.ent.Pointer());
         // Added in 2.30
         m_SwitchLabel.Execute(this, pTurret, NULL);
     } else {

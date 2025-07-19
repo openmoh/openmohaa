@@ -50,75 +50,91 @@ extern Event EV_FuncBeam_EndAlpha;
 class FuncBeam : public ScriptSlave
 {
 protected:
-	SimpleEntityPtr		end, origin_target;
-	float				damage;
-	float				life;
-	Vector				end_point;
-	qboolean  			use_angles;
-	float				shootradius;
-	str					shader;
+    SimpleEntityPtr end, origin_target;
+    float           damage;
+    float           life;
+    Vector          end_point;
+    qboolean        use_angles;
+    float           shootradius;
+    str             shader;
 
-	bool				m_bIgnoreWalls;
+    bool m_bIgnoreWalls;
 
 public:
-	CLASS_PROTOTYPE( FuncBeam );
+    CLASS_PROTOTYPE(FuncBeam);
 
-	FuncBeam();
+    FuncBeam();
 
-	void		SetAngle( Event *ev );
-	void		SetAngles( Event *ev );
-	void		SetEndPoint( Event *ev );
-	void		SetModel( Event *ev );
-	void		SetDamage( Event *ev );
-	void		SetOverlap( Event *ev );
-	void		SetBeamStyle( Event *ev );
-	void		SetLife( Event *ev );
-	void		Activate( Event *ev );
-	void		Deactivate( Event *ev );
-	void		SetDiameter( Event *ev );
-	void		SetMaxoffset( Event *ev );
-	void		SetMinoffset( Event *ev );
-	void		SetColor( Event *ev );
-	void		SetSegments( Event *ev );
-	void		SetBeamShader( str shader );
-	void		SetBeamShader( Event *ev );
-	void		SetBeamTileShader( Event *ev );
-	void		SetDelay( Event *ev );
-	void		SetToggleDelay( Event *ev );
-	void		SetSphereRadius( Event *ev );
-	void		SetNumSphereBeams( Event *ev );
-	void		SetEndAlpha( Event *ev );
-	void		SetShootRadius( Event *ev );
-	void		SetPersist( Event *ev );
-	void		FindEndpoint( Event *ev );
-	void		UpdateEndpoint( Event *ev );
-	void		UpdateOrigin( Event *ev );
-	void		Shoot( Event *ev );
-	void		SetIgnoreWalls( Event *ev );
+    void SetAngle(Event *ev);
+    void SetAngles(Event *ev);
+    void SetEndPoint(Event *ev);
+    void SetModel(Event *ev);
+    void SetDamage(Event *ev);
+    void SetOverlap(Event *ev);
+    void SetBeamStyle(Event *ev);
+    void SetLife(Event *ev);
+    void Activate(Event *ev);
+    void Deactivate(Event *ev);
+    void SetDiameter(Event *ev);
+    void SetMaxoffset(Event *ev);
+    void SetMinoffset(Event *ev);
+    void SetColor(Event *ev);
+    void SetSegments(Event *ev);
+    void SetBeamShader(str shader);
+    void SetBeamShader(Event *ev);
+    void SetBeamTileShader(Event *ev);
+    void SetDelay(Event *ev);
+    void SetToggleDelay(Event *ev);
+    void SetSphereRadius(Event *ev);
+    void SetNumSphereBeams(Event *ev);
+    void SetEndAlpha(Event *ev);
+    void SetShootRadius(Event *ev);
+    void SetPersist(Event *ev);
+    void FindEndpoint(Event *ev);
+    void UpdateEndpoint(Event *ev);
+    void UpdateOrigin(Event *ev);
+    void Shoot(Event *ev);
+    void SetIgnoreWalls(Event *ev);
 
-	void setAngles( Vector ang ) override;
-	void Archive( Archiver &arc ) override;
+    void setAngles(Vector ang) override;
+    void Archive(Archiver& arc) override;
 
-	FuncBeam* CreateBeam(const char* model, const char* shader, Vector start, Vector end, int numsegments = 4, float scale = 1.0f, float life = 1.0f, float damage = 0.0f, Entity* origin_target = NULL);
-	friend FuncBeam* CreateBeam(const char* model, const char* shader, Vector start, Vector end, int numsegments, float scale, float life, float damage, Entity* origin_target);
+    FuncBeam *CreateBeam(
+        const char *model,
+        const char *shader,
+        Vector      start,
+        Vector      end,
+        int         numsegments   = 4,
+        float       scale         = 1.0f,
+        float       life          = 1.0f,
+        float       damage        = 0.0f,
+        Entity     *origin_target = NULL
+    );
+    friend FuncBeam *CreateBeam(
+        const char *model,
+        const char *shader,
+        Vector      start,
+        Vector      end,
+        int         numsegments,
+        float       scale,
+        float       life,
+        float       damage,
+        Entity     *origin_target
+    );
 };
 
-inline void FuncBeam::Archive
-	(
-	Archiver &arc
-	)
-   {
-   ScriptSlave::Archive( arc );
-   arc.ArchiveSafePointer( &end );
-   arc.ArchiveSafePointer( &origin_target );
-   arc.ArchiveFloat( &damage );
-   arc.ArchiveFloat( &life );
-   arc.ArchiveVector( &end_point );
-   arc.ArchiveBoolean( &use_angles );
-   arc.ArchiveFloat( &shootradius );
-   arc.ArchiveString( &shader );
-   if ( arc.Loading() )
-      {
-      SetBeamShader( shader );
-      }
-   }
+inline void FuncBeam::Archive(Archiver& arc)
+{
+    ScriptSlave::Archive(arc);
+    arc.ArchiveSafePointer(&end);
+    arc.ArchiveSafePointer(&origin_target);
+    arc.ArchiveFloat(&damage);
+    arc.ArchiveFloat(&life);
+    arc.ArchiveVector(&end_point);
+    arc.ArchiveBoolean(&use_angles);
+    arc.ArchiveFloat(&shootradius);
+    arc.ArchiveString(&shader);
+    if (arc.Loading()) {
+        SetBeamShader(shader);
+    }
+}

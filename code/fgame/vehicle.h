@@ -520,9 +520,9 @@ public:
     //====
     void EventSetMaxUseAngle(Event *ev);
     void EventCanUse(Event *ev);
-    int GetProjectileHitsRemaining() const;
-    void SetProjectileVulnerable(Event* ev);
-    void DoProjectileVulnerability(Entity* pProjectile, Entity* pOwner, meansOfDeath_t meansOfDeath);
+    int  GetProjectileHitsRemaining() const;
+    void SetProjectileVulnerable(Event *ev);
+    void DoProjectileVulnerability(Entity *pProjectile, Entity *pOwner, meansOfDeath_t meansOfDeath);
     //====
 };
 

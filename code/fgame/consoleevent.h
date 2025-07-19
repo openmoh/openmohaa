@@ -7,21 +7,26 @@
 class ConsoleEvent : public Event
 {
 private:
-	gentity_t* m_consoleedict;
+    gentity_t *m_consoleedict;
 
 public:
-	CLASS_PROTOTYPE(ConsoleEvent);
+    CLASS_PROTOTYPE(ConsoleEvent);
 
-	void* operator new(size_t size);
-	void	operator delete(void* ptr);
+    void *operator new(size_t size);
+    void  operator delete(void *ptr);
 
-	ConsoleEvent();
-	ConsoleEvent(str name) : Event(name) { m_consoleedict = NULL; }
+    ConsoleEvent();
 
-	void			SetConsoleEdict(gentity_t* edict);
-	gentity_t* GetConsoleEdict(void) const;
+    ConsoleEvent(str name)
+        : Event(name)
+    {
+        m_consoleedict = NULL;
+    }
 
-	void ErrorInternal(Listener* l, str text) const override;
+    void       SetConsoleEdict(gentity_t *edict);
+    gentity_t *GetConsoleEdict(void) const;
+
+    void ErrorInternal(Listener *l, str text) const override;
 };
 
 extern MEM_BlockAlloc<ConsoleEvent> ConsoleEvent_allocator;

@@ -129,7 +129,7 @@ public:
     ~inventory_t();
     inventory_t(const inventory_t& other);
     inventory_t& operator=(const inventory_t& other);
-    void Clear();
+    void         Clear();
 };
 
 class invlistener : public Listener

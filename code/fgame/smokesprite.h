@@ -26,25 +26,26 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../qcommon/vector.h"
 #include "../qcommon/class.h"
 
-class SmokeSprite {
+class SmokeSprite
+{
 public:
-    Vector origin;
-    Vector velocity;
-    float scale;
-    float spawnTime;
-    float spawnLife;
-    float bounceFactor;
-    float scaleStart;
-    float scaleRate;
-    float fadeIn;
-    float fadeDelay;
-    float maxAlpha;
+    Vector                  origin;
+    Vector                  velocity;
+    float                   scale;
+    float                   spawnTime;
+    float                   spawnLife;
+    float                   bounceFactor;
+    float                   scaleStart;
+    float                   scaleRate;
+    float                   fadeIn;
+    float                   fadeDelay;
+    float                   maxAlpha;
     SafePtr<class Sentient> owner;
 };
 
-void G_ResetSmokeSprites();
-void G_ArchiveSmokeSprites(Archiver& arc);
-void G_UpdateSmokeSprites();
-float G_ObfuscationForSmokeSprites(float visibilityAlpha, const Vector& start, const Vector& end);
-SmokeSprite* G_GetRandomSmokeSprite();
-void G_AddSmokeSprite(const SmokeSprite* sprite);
+void         G_ResetSmokeSprites();
+void         G_ArchiveSmokeSprites(Archiver& arc);
+void         G_UpdateSmokeSprites();
+float        G_ObfuscationForSmokeSprites(float visibilityAlpha, const Vector& start, const Vector& end);
+SmokeSprite *G_GetRandomSmokeSprite();
+void         G_AddSmokeSprite(const SmokeSprite *sprite);

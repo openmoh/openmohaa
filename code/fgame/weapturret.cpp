@@ -29,8 +29,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110EV_DEFAULT301  U
 #include "player.h"
 #include "../script/scriptexception.h"
 
-static cvar_t *pTurretCameras = NULL;
-
 Event EV_Turret_IdleCheckOffset
 (
     "idleCheckOffset",
@@ -349,6 +347,8 @@ Event EV_Turret_P_SetViewAngles
     EV_NORMAL
 );
 
+static cvar_t *pTurretCameras = NULL;
+
 CLASS_DECLARATION(Weapon, TurretGun, NULL) {
     {&EV_Trigger_Effect,              NULL                                   },
     {&EV_Item_DropToFloor,            &TurretGun::PlaceTurret                },
@@ -573,11 +573,7 @@ void TurretGun::ThinkIdle(void)
 
     m_fIdlePitchSpeed -= level.frametime * 300.0f;
 
-    vNewAngles = Vector(
-        Q_max(angles[0] + level.frametime * m_fIdlePitchSpeed, m_fMaxIdlePitch),
-        angles[1],
-        angles[2]
-    );
+    vNewAngles = Vector(Q_max(angles[0] + level.frametime * m_fIdlePitchSpeed, m_fMaxIdlePitch), angles[1], angles[2]);
 
     vNewAngles.AngleVectorsLeft(&vDir);
     vEnd = origin + vDir * m_vIdleCheckOffset[0];
@@ -862,7 +858,7 @@ void TurretGun::P_ThinkActive(void)
 
     //
     // Position the player appropriately
-    // so it looks like they're holding the turret 
+    // so it looks like they're holding the turret
     //
 
     Vector(0, angles[1], 0).AngleVectorsLeft(&vForward);
@@ -1220,8 +1216,8 @@ void TurretGun::AI_DoFiring()
         return;
     }
 
-    minBurstTime = m_fMinBurstTime;
-    maxBurstTime = m_fMaxBurstTime;
+    minBurstTime  = m_fMinBurstTime;
+    maxBurstTime  = m_fMaxBurstTime;
     minBurstDelay = m_fMinBurstDelay;
     maxBurstDelay = m_fMaxBurstDelay;
 

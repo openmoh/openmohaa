@@ -35,7 +35,6 @@ Event EV_Window_Setup
     NULL,
     "Does the post spawn setup of the Window"
 );
-
 Event EV_Window_SetDebris
 (
     "debristype",

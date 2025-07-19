@@ -592,7 +592,8 @@ void UIInstantAction::IAServerListCallBack(GServerList serverlist, int msg, void
                 pServerList->doneList[0] = true;
             }
 
-            if (com_target_game->integer >= target_game_e::TG_MOHTT && pInstance->iServerType == target_game_e::TG_MOHTA) {
+            if (com_target_game->integer >= target_game_e::TG_MOHTT
+                && pInstance->iServerType == target_game_e::TG_MOHTA) {
                 pServerList->doneList[1] = true;
             }
 

@@ -463,71 +463,19 @@ int BSpline::PickControlPoint(const Vector& window_point, float pick_size)
     }
 }
 
-Event EV_SplinePath_Create
-(
-    "SplinePath_create",
-    EV_DEFAULT,
-    NULL,
-    NULL,
-    "Creates the spline path from the target list.",
-    EV_NORMAL
+Event EV_SplinePath_Create(
+    "SplinePath_create", EV_DEFAULT, NULL, NULL, "Creates the spline path from the target list.", EV_NORMAL
 );
-Event EV_SplinePath_Loop
-(
-    "loop",
-    EV_CONSOLE,
-    "s",
-    "loop_name",
-    "Sets the loop name.",
-    EV_NORMAL
-);
-Event EV_SplinePath_Speed
-(
-    "speed",
-    EV_DEFAULT,
-    "f",
-    "speed",
-    "Sets the path speed.",
-    EV_NORMAL
-);
-Event EV_SplinePath_SetTriggerTarget
-(
-    "triggertarget",
-    EV_DEFAULT,
-    "s",
-    "target",
-    "Sets the trigger target.",
-    EV_NORMAL
-);
-Event EV_SplinePath_SetWatch
-(
-    "watch",
-    EV_CONSOLE,
-    "s",
-    "watchEntity",
-    "Sets the entity to watch at this node.",
-    EV_NORMAL
+Event EV_SplinePath_Loop("loop", EV_CONSOLE, "s", "loop_name", "Sets the loop name.", EV_NORMAL);
+Event EV_SplinePath_Speed("speed", EV_DEFAULT, "f", "speed", "Sets the path speed.", EV_NORMAL);
+Event EV_SplinePath_SetTriggerTarget("triggertarget", EV_DEFAULT, "s", "target", "Sets the trigger target.", EV_NORMAL);
+Event EV_SplinePath_SetWatch(
+    "watch", EV_CONSOLE, "s", "watchEntity", "Sets the entity to watch at this node.", EV_NORMAL
 );
 
-Event EV_SplinePath_SetFov
-(
-    "fov",
-    EV_CONSOLE,
-    "f",
-    "cameraFOV",
-    "Sets the fov at this node.",
-    EV_NORMAL
-);
+Event EV_SplinePath_SetFov("fov", EV_CONSOLE, "f", "cameraFOV", "Sets the fov at this node.", EV_NORMAL);
 
-Event EV_SplinePath_SetFadeTime
-(
-    "fadetime",
-    EV_DEFAULT,
-    "f",
-    "fadeTime",
-    "Sets the fadetime at this node.",
-    EV_NORMAL
-);
+Event EV_SplinePath_SetFadeTime("fadetime", EV_DEFAULT, "f", "fadeTime", "Sets the fadetime at this node.", EV_NORMAL);
 
 CLASS_DECLARATION(Entity, SplinePath, "info_splinepath") {
     {&EV_SplinePath_Create,           &SplinePath::CreatePath      },
@@ -615,7 +563,12 @@ void SplinePath::CreatePath(Event *ev)
 
             next->owner = this;
         } else if (ent) {
-            ScriptError("SplinePath::CreatePath: target '%s' for '%s' not found (cannot connect to class '%s')\n", target, targetname.c_str(), ent->getClassname());
+            ScriptError(
+                "SplinePath::CreatePath: target '%s' for '%s' not found (cannot connect to class '%s')\n",
+                target,
+                targetname.c_str(),
+                ent->getClassname()
+            );
         } else {
             ScriptError("SplinePath::CreatePath: target %s not found\n", target);
         }

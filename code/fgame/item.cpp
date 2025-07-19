@@ -519,7 +519,6 @@ qboolean Item::Drop(void)
 }
 
 void Item::ItemTouch(Event *ev)
-
 {
     Entity *other;
     Event  *e;
@@ -648,7 +647,6 @@ void Item::Respawn(Event *ev)
 }
 
 void Item::setRespawn(Event *ev)
-
 {
     if (ev->NumArgs() < 1) {
         return;
@@ -658,7 +656,6 @@ void Item::setRespawn(Event *ev)
 }
 
 void Item::setRespawnTime(Event *ev)
-
 {
     if (ev->NumArgs() < 1) {
         return;
@@ -695,7 +692,6 @@ void Item::setRespawn(qboolean flag)
 }
 
 qboolean Item::Respawnable(void)
-
 {
     return respawnable;
 }
@@ -706,19 +702,16 @@ void Item::setRespawnTime(float time)
 }
 
 float Item::RespawnTime(void)
-
 {
     return respawntime;
 }
 
 int Item::getAmount(void)
-
 {
     return amount;
 }
 
 int Item::MaxAmount(void)
-
 {
     return maximum_amount;
 }
@@ -763,19 +756,16 @@ void Item::setName(const char *i)
 }
 
 str Item::getName(void)
-
 {
     return (item_name);
 }
 
 int Item::getIndex(void)
-
 {
     return item_index;
 }
 
 void Item::setAmount(int startamount)
-
 {
     amount = startamount;
     if (amount >= MaxAmount()) {
@@ -784,7 +774,6 @@ void Item::setAmount(int startamount)
 }
 
 void Item::SetMax(int maxamount)
-
 {
     maximum_amount = maxamount;
 }
@@ -798,7 +787,6 @@ void Item::SetAmountEvent(Event *ev)
 }
 
 void Item::SetMaxAmount(Event *ev)
-
 {
     if (g_protocol <= protocol_e::PROTOCOL_MOH && g_gametype->integer != GT_SINGLE_PLAYER) {
         return;
@@ -828,13 +816,11 @@ void Item::SetPickupSound(Event *ev)
 }
 
 void Item::SetItemName(Event *ev)
-
 {
     setName(ev->GetString(1));
 }
 
 void Item::Add(int num)
-
 {
     amount += num;
     if (amount >= MaxAmount()) {
@@ -851,7 +837,6 @@ void Item::Remove(int num)
 }
 
 qboolean Item::Use(int num)
-
 {
     if (num > amount) {
         return false;
@@ -862,19 +847,16 @@ qboolean Item::Use(int num)
 }
 
 qboolean Item::Removable(void)
-
 {
     return true;
 }
 
 void Item::RespawnSound(Event *ev)
-
 {
     playrespawn = true;
 }
 
 void Item::DialogNeeded(Event *ev)
-
 {
     //
     // if this item is needed for a trigger, play this dialog
@@ -883,7 +865,6 @@ void Item::DialogNeeded(Event *ev)
 }
 
 str Item::GetDialogNeeded(void)
-
 {
     return dialog_needed;
 }

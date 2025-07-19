@@ -27,11 +27,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 Container<SmokeSprite> g_Sprites;
 
-void G_ResetSmokeSprites() {
+void G_ResetSmokeSprites()
+{
     g_Sprites.ClearObjectList();
 }
 
-void G_ArchiveSmokeSpritesFunction(Archiver& arc, SmokeSprite* sp) {
+void G_ArchiveSmokeSpritesFunction(Archiver& arc, SmokeSprite *sp)
+{
     arc.ArchiveVector(&sp->origin);
     arc.ArchiveVector(&sp->velocity);
     arc.ArchiveFloat(&sp->scale);
@@ -46,11 +48,13 @@ void G_ArchiveSmokeSpritesFunction(Archiver& arc, SmokeSprite* sp) {
     arc.ArchiveSafePointer(&sp->owner);
 }
 
-void G_ArchiveSmokeSprites(Archiver& arc) {
+void G_ArchiveSmokeSprites(Archiver& arc)
+{
     g_Sprites.Archive(arc, &G_ArchiveSmokeSpritesFunction);
 }
 
-qboolean UpdateSprite(SmokeSprite& sp) {
+qboolean UpdateSprite(SmokeSprite& sp)
+{
     trace_t trace;
 
     if (sp.spawnTime + sp.spawnLife < level.time) {
@@ -71,7 +75,7 @@ qboolean UpdateSprite(SmokeSprite& sp) {
     sp.origin = trace.endpos;
 
     if (trace.fraction != 1.0) {
-        float fDot;
+        float  fDot;
         vec3_t vCross;
 
         fDot = DotProduct(trace.plane.normal, sp.velocity) * 2.0;
@@ -84,20 +88,14 @@ qboolean UpdateSprite(SmokeSprite& sp) {
     sp.scale += sp.scaleStart * sp.scaleRate * level.frametime;
 
     if (g_debugsmoke->integer) {
-        G_DebugCircle(
-            sp.origin,
-            sp.scale,
-            1.0,
-            0.75,
-            0.75,
-            1.0
-        );
+        G_DebugCircle(sp.origin, sp.scale, 1.0, 0.75, 0.75, 1.0);
     }
 
     return qtrue;
 }
 
-void G_UpdateSmokeSprites() {
+void G_UpdateSmokeSprites()
+{
     for (int count = 1; count <= g_Sprites.NumObjects();) {
         if (UpdateSprite(g_Sprites.ObjectAt(count))) {
             count++;
@@ -107,23 +105,24 @@ void G_UpdateSmokeSprites() {
     }
 }
 
-void G_AddSmokeSprite(const SmokeSprite* sprite)
+void G_AddSmokeSprite(const SmokeSprite *sprite)
 {
     g_Sprites.AddObject(*sprite);
 }
 
-float G_ObfuscationForSmokeSprites(float visibilityAlpha, const Vector& start, const Vector& end) {
-    Vector vDelta = end - start;
-    float fLength = vDelta.length();
-    Vector vDir = vDelta * (1.0 / fLength);
-    float fObfuscation = visibilityAlpha;
-    int i;
+float G_ObfuscationForSmokeSprites(float visibilityAlpha, const Vector& start, const Vector& end)
+{
+    Vector vDelta       = end - start;
+    float  fLength      = vDelta.length();
+    Vector vDir         = vDelta * (1.0 / fLength);
+    float  fObfuscation = visibilityAlpha;
+    int    i;
 
     for (i = 1; i <= g_Sprites.NumObjects(); i++) {
-        const SmokeSprite& sprite = g_Sprites.ObjectAt(i);
-        Vector vSpriteDelta = sprite.origin - start;
-        float fDot = vSpriteDelta * vDir;
-        float fTimeAlive;
+        const SmokeSprite& sprite       = g_Sprites.ObjectAt(i);
+        Vector             vSpriteDelta = sprite.origin - start;
+        float              fDot         = vSpriteDelta * vDir;
+        float              fTimeAlive;
 
         if (fDot < -sprite.scale || fDot > fLength + sprite.scale) {
             continue;
@@ -156,17 +155,17 @@ float G_ObfuscationForSmokeSprites(float visibilityAlpha, const Vector& start, c
             fObfuscation = (sprite.spawnLife - fTimeAlive) * sprite.maxAlpha / (sprite.spawnLife - sprite.fadeDelay);
         }
 
-        if(fObfuscation >= 1.0) {
+        if (fObfuscation >= 1.0) {
             // Completely obfuscated
             return 1.0;
         }
     }
-   
+
     return fObfuscation;
 }
 
-SmokeSprite* G_GetRandomSmokeSprite() {
-
+SmokeSprite *G_GetRandomSmokeSprite()
+{
     if (!g_Sprites.NumObjects()) {
         return NULL;
     }

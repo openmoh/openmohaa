@@ -22,57 +22,63 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #pragma once
 
-static constexpr unsigned int DMBOX_ITEM_FLAG_BOLD = 2u;
+static constexpr unsigned int DMBOX_ITEM_FLAG_BOLD  = 2u;
 static constexpr unsigned int DMBOX_ITEM_FLAG_DEATH = 4u;
 
-typedef enum { box_moving_out, box_moving_in, box_out, box_in } boxstate_t;
+typedef enum {
+    box_moving_out,
+    box_moving_in,
+    box_out,
+    box_in
+} boxstate_t;
 
-class UIDMBox : public UIWidget {
-	struct item_t {
-		str string;
-		UColor color;
-		UIFont* font;
-		int flags;
-	};
-
-protected:
-	item_t m_items[ 10 ];
-	int m_numitems;
-	bool m_reallyshown;
-	UIFont *m_fontbold;
-	bool m_boxmovingout;
-	boxstate_t m_boxstate;
-	int m_boxtime;
-	int m_movespeed;
-	int m_iBeginDecay;
-	int m_iEndDecay;
-	// Added in OPM
-	bool m_drawoutline;
-
-public:
-	CLASS_PROTOTYPE( UIDMBox );
+class UIDMBox : public UIWidget
+{
+    struct item_t {
+        str     string;
+        UColor  color;
+        UIFont *font;
+        int     flags;
+    };
 
 protected:
-	void		VerifyBoxOut( void );
-	void		ChangeBoxState( boxstate_t state );
-	void		HandleBoxMoving( void );
-	void		PostMoveinEvent( void );
-	void		PostDecayEvent( void );
-	void		setShowState( void );
-	void		RemoveTopItem( void );
-	str			CalculateBreaks( UIFont *font, str text, float max_width );
-	float		PrintWrap( UIFont *font, float x, float y , str text );
-	float		DrawItem( item_t *in, float x, float y, float alpha );
+    item_t     m_items[10];
+    int        m_numitems;
+    bool       m_reallyshown;
+    UIFont    *m_fontbold;
+    bool       m_boxmovingout;
+    boxstate_t m_boxstate;
+    int        m_boxtime;
+    int        m_movespeed;
+    int        m_iBeginDecay;
+    int        m_iEndDecay;
+    // Added in OPM
+    bool m_drawoutline;
 
 public:
-	UIDMBox();
+    CLASS_PROTOTYPE(UIDMBox);
 
-	void		Print( const char *text );
-	void		OnSizeChanged( Event *ev );
-	void		Create( const UIRect2D& rect, const UColor& fore, const UColor& back, float alpha );
-	void		MoveInEvent( Event *ev );
-	void		DecayEvent( Event *ev );
-	void		Draw( void ) override;
-	void		setRealShow( bool b );
-	void		Clear( void );
+protected:
+    void  VerifyBoxOut(void);
+    void  ChangeBoxState(boxstate_t state);
+    void  HandleBoxMoving(void);
+    void  PostMoveinEvent(void);
+    void  PostDecayEvent(void);
+    void  setShowState(void);
+    void  RemoveTopItem(void);
+    str   CalculateBreaks(UIFont *font, str text, float max_width);
+    float PrintWrap(UIFont *font, float x, float y, str text);
+    float DrawItem(item_t *in, float x, float y, float alpha);
+
+public:
+    UIDMBox();
+
+    void Print(const char *text);
+    void OnSizeChanged(Event *ev);
+    void Create(const UIRect2D& rect, const UColor& fore, const UColor& back, float alpha);
+    void MoveInEvent(Event *ev);
+    void DecayEvent(Event *ev);
+    void Draw(void) override;
+    void setRealShow(bool b);
+    void Clear(void);
 };

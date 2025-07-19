@@ -21,7 +21,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 // portal.h:
-// 
+//
 
 #pragma once
 
@@ -29,18 +29,18 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "entity.h"
 
 class PortalSurface : public Entity
-   {
-   public:
-      CLASS_PROTOTYPE( PortalSurface );
-      PortalSurface();
+{
+public:
+    CLASS_PROTOTYPE(PortalSurface);
+    PortalSurface();
 
-      void LocateCamera( Event *ev );
-   };
+    void LocateCamera(Event *ev);
+};
 
 class PortalCamera : public Entity
-   {
-   public:
-      CLASS_PROTOTYPE( PortalCamera );
-      PortalCamera();
-      void Roll( Event *ev );
-   };
+{
+public:
+    CLASS_PROTOTYPE(PortalCamera);
+    PortalCamera();
+    void Roll(Event *ev);
+};

@@ -3478,7 +3478,7 @@ void Vehicle::SetupPath(cVehicleSpline *pPath, SimpleEntity *se)
             VectorCopy(ent->origin, vTmp + 1);
 
             if (ent->IsSubclassOfVehiclePoint()) {
-                pPath->Add(vTmp, static_cast<VehiclePoint*>(ent)->spawnflags);
+                pPath->Add(vTmp, static_cast<VehiclePoint *>(ent)->spawnflags);
             } else {
                 pPath->Add(vTmp, 0);
             }
@@ -4126,12 +4126,13 @@ void Vehicle::SlidePush(Vector vPush)
             if (j == i && other->entity) {
                 other->entity->CheckGround();
 
-                if (other->entity->groundentity && (other->entity->groundentity == edict
-                    || m_pCollisionEntity && other->entity->groundentity->entity == m_pCollisionEntity)) {
+                if (other->entity->groundentity
+                    && (other->entity->groundentity == edict
+                        || m_pCollisionEntity && other->entity->groundentity->entity == m_pCollisionEntity)) {
                     // save the entity
-                    pSkippedEntities[iNumSkipped] = other->entity;
+                    pSkippedEntities[iNumSkipped]  = other->entity;
                     iContentsEntities[iNumSkipped] = other->r.contents;
-                    solidEntities[iNumSkipped] = other->solid;
+                    solidEntities[iNumSkipped]     = other->solid;
                     iNumSkipped++;
 
                     if (iNumSkipped >= MAX_SKIPPED_ENTITIES) {
@@ -4232,9 +4233,9 @@ void Vehicle::MoveVehicle(void)
     int          iNumSkippedEntities = 0;
     Event       *event               = nullptr;
     Entity      *chain;
-    Entity      *driverEnt = NULL;
-    solid_t     solidDriver = SOLID_NOT;
-    int         contentsDriver = 0;
+    Entity      *driverEnt      = NULL;
+    solid_t      solidDriver    = SOLID_NOT;
+    int          contentsDriver = 0;
 
     if (m_bMovementLocked) {
         return;
@@ -4261,7 +4262,7 @@ void Vehicle::MoveVehicle(void)
             //  Scripts usually set the player to nonsolid.
             //  However some scripts still rely on the old 1.11 behavior
             //  where the player is set to nonsolid when driving some type of vehicles
-            solidDriver = driver.ent->edict->solid;
+            solidDriver    = driver.ent->edict->solid;
             contentsDriver = driver.ent->getContents();
 
             driver.ent->setSolidType(SOLID_NOT);
@@ -6514,7 +6515,8 @@ void Vehicle::EventCanUse(Event *ev)
     }
 }
 
-int Vehicle::GetProjectileHitsRemaining() const {
+int Vehicle::GetProjectileHitsRemaining() const
+{
     return m_iProjectileHitsRemaining;
 }
 

@@ -24,80 +24,84 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 extern Event W_Button_Pressed;
 
-class UIButtonBase : public UIWidget {
+class UIButtonBase : public UIWidget
+{
 protected:
-	mouseState_t m_mouseState;
-	str m_hoverSound;
-	str m_hoverCommand;
-	str m_mouseExitedCommand;
+    mouseState_t m_mouseState;
+    str          m_hoverSound;
+    str          m_hoverCommand;
+    str          m_mouseExitedCommand;
 
 public:
-	CLASS_PROTOTYPE( UIButtonBase );
+    CLASS_PROTOTYPE(UIButtonBase);
 
 protected:
-	void		Pressed( Event *ev );
-	void		Released( Event *ev );
-	void		MouseEntered( Event *ev );
-	void		MouseExited( Event *ev );
-	void		Dragged( Event *ev );
-	void		SetHoverSound( Event *ev );
-	void		SetHoverCommand( Event *ev );
-	void		SetMouseExitedCommand( Event *ev );
+    void Pressed(Event *ev);
+    void Released(Event *ev);
+    void MouseEntered(Event *ev);
+    void MouseExited(Event *ev);
+    void Dragged(Event *ev);
+    void SetHoverSound(Event *ev);
+    void SetHoverCommand(Event *ev);
+    void SetMouseExitedCommand(Event *ev);
 
 public:
-	UIButtonBase();
+    UIButtonBase();
 
-	void		Action( void );
+    void Action(void);
 };
 
-class UIButton : public UIButtonBase {
+class UIButton : public UIButtonBase
+{
 public:
-	CLASS_PROTOTYPE( UIButton );
+    CLASS_PROTOTYPE(UIButton);
 
 private:
-	void				Draw( void ) override;
-	virtual void		DrawPressed( void );
-	virtual void		DrawUnpressed( void );
+    void         Draw(void) override;
+    virtual void DrawPressed(void);
+    virtual void DrawUnpressed(void);
 
 public:
-	UIButton();
+    UIButton();
 
-	qboolean KeyEvent( int key, unsigned int time ) override;
+    qboolean KeyEvent(int key, unsigned int time) override;
 };
 
-class ToggleCVar : public USignal {
+class ToggleCVar : public USignal
+{
 protected:
-	str m_cvarname;
-	UIButton *m_button;
+    str       m_cvarname;
+    UIButton *m_button;
 
 protected:
-	CLASS_PROTOTYPE( ToggleCVar );
+    CLASS_PROTOTYPE(ToggleCVar);
 
-	void		Press( Event *ev );
+    void Press(Event *ev);
 
 public:
-	ToggleCVar();
-	ToggleCVar( UIButton *button, const char *cvar );
+    ToggleCVar();
+    ToggleCVar(UIButton *button, const char *cvar);
 
-	void		setCVar( const char *cvar );
-	void		setButton( UIButton *button );
+    void setCVar(const char *cvar);
+    void setButton(UIButton *button);
 };
 
-class ExecCmd : public USignal {
+class ExecCmd : public USignal
+{
 protected:
-	UIButton *m_button;
-	str m_cmd;
+    UIButton *m_button;
+    str       m_cmd;
 
 public:
-	CLASS_PROTOTYPE( ExecCmd );
+    CLASS_PROTOTYPE(ExecCmd);
 
 protected:
-	void	Press( Event *ev );
+    void Press(Event *ev);
 
 public:
-	ExecCmd();
-	ExecCmd( UIButton *button, const char *cmd );
+    ExecCmd();
+    ExecCmd(UIButton *button, const char *cmd);
 
-	void	setCommand( const char *cmd );
-	void	setButton( UIButton *button );
+    void setCommand(const char *cmd);
+    void setButton(UIButton *button);
 };

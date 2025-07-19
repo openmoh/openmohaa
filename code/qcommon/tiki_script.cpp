@@ -30,24 +30,24 @@ TikiScript *TikiScript::currentScript;
 
 TikiScript::~TikiScript()
 {
-	Close();
+    Close();
 }
 
 TikiScript::TikiScript()
 {
-	error			= false;
-	buffer			= NULL;
-	script_p		= NULL;
-	end_p			= NULL;
-	line			= 0;
-	releaseBuffer	= false;
-	tokenready		= false;
-	memset( token, 0, sizeof( token ) );
-	include			= NULL;
-	parent			= NULL;
-	nummacros		= 0;
-	mark_pos		= 0;
-	path[ 0 ]		= 0;
+    error         = false;
+    buffer        = NULL;
+    script_p      = NULL;
+    end_p         = NULL;
+    line          = 0;
+    releaseBuffer = false;
+    tokenready    = false;
+    memset(token, 0, sizeof(token));
+    include   = NULL;
+    parent    = NULL;
+    nummacros = 0;
+    mark_pos  = 0;
+    path[0]   = 0;
 }
 
 /*
@@ -57,25 +57,25 @@ TikiScript::TikiScript()
 =
 ==============
 */
-void TikiScript::Close( void )
+void TikiScript::Close(void)
 {
-	Uninclude();
-	if( this->releaseBuffer )
-	{
-		if( this->buffer )
-			TIKI_Free( this->buffer );
-	}
+    Uninclude();
+    if (this->releaseBuffer) {
+        if (this->buffer) {
+            TIKI_Free(this->buffer);
+        }
+    }
 
-	buffer			= NULL;
-	script_p		= NULL;
-	end_p			= NULL;
-	line			= 0;
-	error			= false;
-	releaseBuffer	= false;
-	tokenready		= false;
-	nummacros		= 0;
-	memset( token, 0, sizeof( token ) );
-	mark_pos		= 0;
+    buffer        = NULL;
+    script_p      = NULL;
+    end_p         = NULL;
+    line          = 0;
+    error         = false;
+    releaseBuffer = false;
+    tokenready    = false;
+    nummacros     = 0;
+    memset(token, 0, sizeof(token));
+    mark_pos = 0;
 }
 
 /*
@@ -87,7 +87,7 @@ void TikiScript::Close( void )
 */
 const char *TikiScript::Filename()
 {
-	return filename;
+    return filename;
 }
 
 /*
@@ -99,7 +99,7 @@ const char *TikiScript::Filename()
 */
 int TikiScript::GetLineNumber()
 {
-	return line;
+    return line;
 }
 
 /*
@@ -109,16 +109,16 @@ int TikiScript::GetLineNumber()
 =
 ==============
 */
-void TikiScript::Reset( void )
+void TikiScript::Reset(void)
 {
-	Uninclude();
+    Uninclude();
 
-	nummacros		= 0;
-	error			= 0;
-	line			= 1;
-	tokenready		= 0;
-	mark_pos		= 0;
-	script_p		= buffer;
+    nummacros  = 0;
+    error      = 0;
+    line       = 1;
+    tokenready = 0;
+    mark_pos   = 0;
+    script_p   = buffer;
 }
 
 /*
@@ -128,22 +128,19 @@ void TikiScript::Reset( void )
 =
 ==============
 */
-qboolean TikiScript::SkipToEOL( void )
+qboolean TikiScript::SkipToEOL(void)
 {
-	if( script_p >= end_p )
-	{
-		return true;
-	}
+    if (script_p >= end_p) {
+        return true;
+    }
 
-	while( *script_p != TOKENEOL )
-	{
-		if( script_p >= end_p )
-		{
-			return true;
-		}
-		script_p++;
-	}
-	return false;
+    while (*script_p != TOKENEOL) {
+        if (script_p >= end_p) {
+            return true;
+        }
+        script_p++;
+    }
+    return false;
 }
 
 /*
@@ -153,9 +150,9 @@ qboolean TikiScript::SkipToEOL( void )
 =
 ==============
 */
-qboolean TikiScript::SafeCheckOverflow( void )
+qboolean TikiScript::SafeCheckOverflow(void)
 {
-	return script_p >= end_p;
+    return script_p >= end_p;
 }
 
 /*
@@ -165,15 +162,14 @@ qboolean TikiScript::SafeCheckOverflow( void )
 =
 ==============
 */
-void TikiScript::CheckOverflow( void )
+void TikiScript::CheckOverflow(void)
 {
-	if( script_p >= end_p )
-	{
-		this->error = 1;
-		TIKI_DPrintf( "End of tiki file reached prematurely reading %s\n", Filename() );
-		TIKI_DPrintf( "   This may be caused by having a tiki file command at the end of the file\n" );
-		TIKI_DPrintf( "   without an 'end' at the end of the tiki file.\n" );
-	}
+    if (script_p >= end_p) {
+        this->error = 1;
+        TIKI_DPrintf("End of tiki file reached prematurely reading %s\n", Filename());
+        TIKI_DPrintf("   This may be caused by having a tiki file command at the end of the file\n");
+        TIKI_DPrintf("   without an 'end' at the end of the tiki file.\n");
+    }
 }
 
 /*
@@ -183,49 +179,38 @@ void TikiScript::CheckOverflow( void )
 =
 ==============
 */
-void TikiScript::SkipWhiteSpace( qboolean crossline )
+void TikiScript::SkipWhiteSpace(qboolean crossline)
 {
-	//
-	// skip space
-	//
-	while( !SafeCheckOverflow() )
-	{
-		if( *script_p <= TOKENSPACE )
-		{
-			if( *script_p == TOKENEOL )
-			{
-				if( !crossline )
-				{
-					TIKI_DPrintf( "Line %i is incomplete in file %s\n", line, Filename() );
-					return;
-				}
+    //
+    // skip space
+    //
+    while (!SafeCheckOverflow()) {
+        if (*script_p <= TOKENSPACE) {
+            if (*script_p == TOKENEOL) {
+                if (!crossline) {
+                    TIKI_DPrintf("Line %i is incomplete in file %s\n", line, Filename());
+                    return;
+                }
 
-				line++;
-			}
-			script_p++;
-		}
-		else
-		{
-			if( !AtComment() )
-			{
-				return;
-			}
+                line++;
+            }
+            script_p++;
+        } else {
+            if (!AtComment()) {
+                return;
+            }
 
-			if( AtExtendedComment() )
-			{
-				SkipExtendedComment();
-			}
-			else
-			{
-				if( !crossline )
-				{
-					TIKI_DPrintf( "Line %i is incomplete in file %s\n", line, Filename() );
-					return;
-				}
-				SkipToEOL();
-			}
-		}
-	}
+            if (AtExtendedComment()) {
+                SkipExtendedComment();
+            } else {
+                if (!crossline) {
+                    TIKI_DPrintf("Line %i is incomplete in file %s\n", line, Filename());
+                    return;
+                }
+                SkipToEOL();
+            }
+        }
+    }
 }
 
 /*
@@ -235,35 +220,30 @@ void TikiScript::SkipWhiteSpace( qboolean crossline )
 =
 ==============
 */
-qboolean TikiScript::AtComment( void )
+qboolean TikiScript::AtComment(void)
 {
-	if( script_p >= end_p )
-	{
-		return false;
-	}
+    if (script_p >= end_p) {
+        return false;
+    }
 
-	if( *script_p == TOKENCOMMENT )
-	{
-		return true;
-	}
+    if (*script_p == TOKENCOMMENT) {
+        return true;
+    }
 
-	if( *script_p == TOKENCOMMENT2 )
-	{
-		return true;
-	}
+    if (*script_p == TOKENCOMMENT2) {
+        return true;
+    }
 
-	// Two or more character comment specifiers
-	if( ( script_p + 1 ) >= end_p )
-	{
-		return false;
-	}
+    // Two or more character comment specifiers
+    if ((script_p + 1) >= end_p) {
+        return false;
+    }
 
-	if( ( *script_p == '/' ) && ( ( *( script_p + 1 ) == '/' ) || ( *( script_p + 1 ) == '*' ) ) )
-	{
-		return true;
-	}
+    if ((*script_p == '/') && ((*(script_p + 1) == '/') || (*(script_p + 1) == '*'))) {
+        return true;
+    }
 
-	return false;
+    return false;
 }
 
 /*
@@ -273,25 +253,22 @@ qboolean TikiScript::AtComment( void )
 =
 ==============
 */
-qboolean TikiScript::AtExtendedComment( void )
+qboolean TikiScript::AtExtendedComment(void)
 {
-	if( script_p >= end_p )
-	{
-		return false;
-	}
+    if (script_p >= end_p) {
+        return false;
+    }
 
-	// Two or more character comment specifiers
-	if( ( script_p + 1 ) >= end_p )
-	{
-		return false;
-	}
+    // Two or more character comment specifiers
+    if ((script_p + 1) >= end_p) {
+        return false;
+    }
 
-	if( ( *( script_p ) == '/' ) && ( *( script_p + 1 ) == '*' ) )
-	{
-		return true;
-	}
+    if ((*(script_p) == '/') && (*(script_p + 1) == '*')) {
+        return true;
+    }
 
-	return false;
+    return false;
 }
 
 /*
@@ -301,28 +278,26 @@ qboolean TikiScript::AtExtendedComment( void )
 =
 ==============
 */
-void TikiScript::SkipExtendedComment( void )
+void TikiScript::SkipExtendedComment(void)
 {
-	CheckOverflow();
+    CheckOverflow();
 
-	if( error )
-	{
-		return;
-	}
+    if (error) {
+        return;
+    }
 
-	while( ( script_p + 1 ) < end_p )
-	{
-		if( ( *( script_p ) == '*' ) && ( *( script_p + 1 ) == '/' ) )
-		{
-			script_p = script_p + 2;
-			return;
-		}
+    while ((script_p + 1) < end_p) {
+        if ((*(script_p) == '*') && (*(script_p + 1) == '/')) {
+            script_p = script_p + 2;
+            return;
+        }
 
-		if( *script_p == '\n' )
-			line++;
+        if (*script_p == '\n') {
+            line++;
+        }
 
-		script_p++;
-	}
+        script_p++;
+    }
 }
 
 /*
@@ -332,25 +307,22 @@ void TikiScript::SkipExtendedComment( void )
 =
 ==============
 */
-qboolean TikiScript::AtCommand( void )
+qboolean TikiScript::AtCommand(void)
 {
-	if( script_p >= end_p )
-	{
-		return false;
-	}
+    if (script_p >= end_p) {
+        return false;
+    }
 
-	// Two or more character comment specifiers
-	if( ( script_p + 1 ) >= end_p )
-	{
-		return false;
-	}
+    // Two or more character comment specifiers
+    if ((script_p + 1) >= end_p) {
+        return false;
+    }
 
-	if( ( *script_p == '$' ) && ( *( script_p + 1 ) != '$' ) )
-	{
-		return true;
-	}
+    if ((*script_p == '$') && (*(script_p + 1) != '$')) {
+        return true;
+    }
 
-	return false;
+    return false;
 }
 
 /*
@@ -360,15 +332,14 @@ qboolean TikiScript::AtCommand( void )
 =
 ==============
 */
-void TikiScript::Uninclude( void )
+void TikiScript::Uninclude(void)
 {
-	if( include )
-	{
-		currentScript = this;
-		include->Close();
-		delete include;
-		include = NULL;
-	}
+    if (include) {
+        currentScript = this;
+        include->Close();
+        delete include;
+        include = NULL;
+    }
 }
 
 /*
@@ -378,30 +349,28 @@ void TikiScript::Uninclude( void )
 =
 ==============
 */
-void TikiScript::AddMacro( const char *name, const char *expansion )
+void TikiScript::AddMacro(const char *name, const char *expansion)
 {
-	int i;
+    int i;
 
-	for( i = 0; i < nummacros; i++ )
-	{
-		if( !stricmp( name, macros[ i ].name ) )
-			return;
-	}
+    for (i = 0; i < nummacros; i++) {
+        if (!stricmp(name, macros[i].name)) {
+            return;
+        }
+    }
 
-	if( nummacros >= TIKI_MAXMACROS )
-	{
-		TIKI_DPrintf( "Too many %cdefine in file %s\n", TOKENSPECIAL, Filename() );
-	}
-	else
-	{
-		Q_strncpyz( macros[ nummacros ].name, name, sizeof( macros[ nummacros ].name ) );
-		Q_strncpyz( macros[ nummacros ].macro, expansion, sizeof( macros[ nummacros ].macro ) );
-		nummacros++;
-	}
+    if (nummacros >= TIKI_MAXMACROS) {
+        TIKI_DPrintf("Too many %cdefine in file %s\n", TOKENSPECIAL, Filename());
+    } else {
+        Q_strncpyz(macros[nummacros].name, name, sizeof(macros[nummacros].name));
+        Q_strncpyz(macros[nummacros].macro, expansion, sizeof(macros[nummacros].macro));
+        nummacros++;
+    }
 
-	// Add the macro to parent
-	if( parent )
-		parent->AddMacro( name, expansion );
+    // Add the macro to parent
+    if (parent) {
+        parent->AddMacro(name, expansion);
+    }
 }
 
 /*
@@ -411,63 +380,52 @@ void TikiScript::AddMacro( const char *name, const char *expansion )
 =
 ==============
 */
-qboolean TikiScript::ProcessCommand( qboolean crossline )
+qboolean TikiScript::ProcessCommand(qboolean crossline)
 {
-	char dummy;
-	int i;
-	size_t len;
-	char command[ 256 ];
-	char argument1[ 256 ];
-	char argument2[ 256 ];
+    char   dummy;
+    int    i;
+    size_t len;
+    char   command[256];
+    char   argument1[256];
+    char   argument2[256];
 
-	sscanf( script_p, "%c%s %s %s\n", &dummy, command, argument1, argument2 );
+    sscanf(script_p, "%c%s %s %s\n", &dummy, command, argument1, argument2);
 
-	if( !stricmp( command, "define" ) )
-	{
-		AddMacro( argument1, argument2 );
-		SkipToEOL();
-		SkipWhiteSpace( crossline );
-	}
-	else if( !stricmp( command, "include" ) )
-	{
-		SkipToEOL();
-		SkipWhiteSpace( crossline );
-		include = new TikiScript;
-		if( include->LoadFile( argument1, qfalse ) )
-		{
-			include->SkipNonToken( crossline );
-			for( i = 0; i < nummacros; i++ )
-			{
-				include->AddMacro( macros[ i ].name, macros[ i ].macro );
-			}
-			include->parent = this;
-		}
-		else
-		{
-			TIKI_Error( "^~^~^ Cannot find include file '%s' in %s on line %d\n", argument1, Filename(), GetLineNumber() );
-			Uninclude();
-		}
-	}
-	else if( !stricmp( command, "path" ) )
-	{
-		Q_strncpyz( path, argument1, sizeof( path ) );
-		len = strlen( path );
+    if (!stricmp(command, "define")) {
+        AddMacro(argument1, argument2);
+        SkipToEOL();
+        SkipWhiteSpace(crossline);
+    } else if (!stricmp(command, "include")) {
+        SkipToEOL();
+        SkipWhiteSpace(crossline);
+        include = new TikiScript;
+        if (include->LoadFile(argument1, qfalse)) {
+            include->SkipNonToken(crossline);
+            for (i = 0; i < nummacros; i++) {
+                include->AddMacro(macros[i].name, macros[i].macro);
+            }
+            include->parent = this;
+        } else {
+            TIKI_Error(
+                "^~^~^ Cannot find include file '%s' in %s on line %d\n", argument1, Filename(), GetLineNumber()
+            );
+            Uninclude();
+        }
+    } else if (!stricmp(command, "path")) {
+        Q_strncpyz(path, argument1, sizeof(path));
+        len = strlen(path);
 
-		if( path[ len - 1 ] != '/' &&
-			path[ len - 1 ] != '\\' )
-		{
-			Q_strcat( path, sizeof( path ), "/" );
-		}
+        if (path[len - 1] != '/' && path[len - 1] != '\\') {
+            Q_strcat(path, sizeof(path), "/");
+        }
 
-		SkipToEOL();
-		SkipWhiteSpace( crossline );
-	}
-	else
-	{
-		return false;
-	}
+        SkipToEOL();
+        SkipWhiteSpace(crossline);
+    } else {
+        return false;
+    }
 
-	return true;
+    return true;
 }
 
 /*
@@ -477,9 +435,9 @@ qboolean TikiScript::ProcessCommand( qboolean crossline )
 =
 ==============
 */
-qboolean TikiScript::Completed( void )
+qboolean TikiScript::Completed(void)
 {
-	return script_p >= end_p;
+    return script_p >= end_p;
 }
 
 /*
@@ -489,17 +447,17 @@ qboolean TikiScript::Completed( void )
 =
 ==============
 */
-const char *TikiScript::FindMacro( const char *macro )
+const char *TikiScript::FindMacro(const char *macro)
 {
-	int i;
+    int i;
 
-	for( i = 0; i < nummacros; i++ )
-	{
-		if( !stricmp( macro, macros[ i ].name ) )
-			return macros[ i ].macro;
-	}
+    for (i = 0; i < nummacros; i++) {
+        if (!stricmp(macro, macros[i].name)) {
+            return macros[i].macro;
+        }
+    }
 
-	return NULL;
+    return NULL;
 }
 
 /*
@@ -509,21 +467,23 @@ const char *TikiScript::FindMacro( const char *macro )
 =
 ==============
 */
-void TikiScript::SkipNonToken( qboolean crossline )
+void TikiScript::SkipNonToken(qboolean crossline)
 {
-	//
-	// skip space and comments
-	//
-	SkipWhiteSpace( crossline );
-	while( !error )
-	{
-		if( !AtCommand() )
-			break;
-		if( !ProcessCommand( crossline ) )
-			break;
-		if( include )
-			break;
-	}
+    //
+    // skip space and comments
+    //
+    SkipWhiteSpace(crossline);
+    while (!error) {
+        if (!AtCommand()) {
+            break;
+        }
+        if (!ProcessCommand(crossline)) {
+            break;
+        }
+        if (include) {
+            break;
+        }
+    }
 }
 
 /*
@@ -533,55 +493,47 @@ void TikiScript::SkipNonToken( qboolean crossline )
 =
 ==============
 */
-qboolean TikiScript::TokenAvailable( qboolean crossline )
+qboolean TikiScript::TokenAvailable(qboolean crossline)
 {
-	if( include )
-	{
-		qboolean ret = include->TokenAvailable( crossline );
+    if (include) {
+        qboolean ret = include->TokenAvailable(crossline);
 
-		if( ret || !crossline || !include->Completed() )
-			return ret;
+        if (ret || !crossline || !include->Completed()) {
+            return ret;
+        }
 
-		Uninclude();
-	}
-	if( tokenready )
-	{
-		return true;
-	}
+        Uninclude();
+    }
+    if (tokenready) {
+        return true;
+    }
 
-	while( !SafeCheckOverflow() )
-	{
-		if( *script_p <= TOKENSPACE )
-		{
-			if( *script_p == TOKENEOL )
-			{
-				if( !crossline )
-				{
-					return false;
-				}
-				line++;
-			}
-			script_p++;
-		}
-		else
-		{
-			if( !AtComment() )
-				return true;
+    while (!SafeCheckOverflow()) {
+        if (*script_p <= TOKENSPACE) {
+            if (*script_p == TOKENEOL) {
+                if (!crossline) {
+                    return false;
+                }
+                line++;
+            }
+            script_p++;
+        } else {
+            if (!AtComment()) {
+                return true;
+            }
 
-			if( AtExtendedComment() )
-			{
-				SkipExtendedComment();
-			}
-			else
-			{
-				if( !crossline )
-					return false;
-				SkipToEOL();
-			}
-		}
-	}
+            if (AtExtendedComment()) {
+                SkipExtendedComment();
+            } else {
+                if (!crossline) {
+                    return false;
+                }
+                SkipToEOL();
+            }
+        }
+    }
 
-	return false;
+    return false;
 }
 
 /*
@@ -591,31 +543,27 @@ qboolean TikiScript::TokenAvailable( qboolean crossline )
 =
 ==============
 */
-qboolean TikiScript::CommentAvailable( qboolean crossline )
+qboolean TikiScript::CommentAvailable(qboolean crossline)
 {
-	const char *searchptr;
+    const char *searchptr;
 
-	searchptr = script_p;
+    searchptr = script_p;
 
-	if( searchptr >= end_p )
-	{
-		return false;
-	}
+    if (searchptr >= end_p) {
+        return false;
+    }
 
-	while( *searchptr <= TOKENSPACE )
-	{
-		if( ( *searchptr == TOKENEOL ) && ( !crossline ) )
-		{
-			return false;
-		}
-		searchptr++;
-		if( searchptr >= end_p )
-		{
-			return false;
-		}
-	}
+    while (*searchptr <= TOKENSPACE) {
+        if ((*searchptr == TOKENEOL) && (!crossline)) {
+            return false;
+        }
+        searchptr++;
+        if (searchptr >= end_p) {
+            return false;
+        }
+    }
 
-	return true;
+    return true;
 }
 
 /*
@@ -625,16 +573,13 @@ qboolean TikiScript::CommentAvailable( qboolean crossline )
 =
 ==============
 */
-void TikiScript::UnGetToken( void )
+void TikiScript::UnGetToken(void)
 {
-	if( include )
-	{
-		include->UnGetToken();
-	}
-	else
-	{
-		tokenready = true;
-	}
+    if (include) {
+        include->UnGetToken();
+    } else {
+        tokenready = true;
+    }
 }
 
 /*
@@ -644,25 +589,25 @@ void TikiScript::UnGetToken( void )
 =
 ==============
 */
-qboolean TikiScript::AtString( qboolean crossline )
+qboolean TikiScript::AtString(qboolean crossline)
 {
-	TikiScript *i;
-	//
-	// skip space
-	//
+    TikiScript *i;
+    //
+    // skip space
+    //
 
-	i = this;
-	while( 1 )
-	{
-		i->SkipNonToken( crossline );
+    i = this;
+    while (1) {
+        i->SkipNonToken(crossline);
 
-		if( !i->include )
-			break;
+        if (!i->include) {
+            break;
+        }
 
-		i = i->include;
-	}
+        i = i->include;
+    }
 
-	return ( !i->error ) && ( *i->script_p == '"' );
+    return (!i->error) && (*i->script_p == '"');
 }
 
 /*
@@ -672,149 +617,144 @@ qboolean TikiScript::AtString( qboolean crossline )
 =
 ==============
 */
-const char *TikiScript::GetToken( qboolean crossline )
+const char *TikiScript::GetToken(qboolean crossline)
 {
-	TikiScript *i;
-	const char *macro_start;
-	const char *macro_end;
-	char *token_p;
-	int len;
-	const char *subst;
-	char macro[ 256 ];
-	char temptoken[ 256 ];
+    TikiScript *i;
+    const char *macro_start;
+    const char *macro_end;
+    char       *token_p;
+    int         len;
+    const char *subst;
+    char        macro[256];
+    char        temptoken[256];
 
-	i = this;
-	while( 1 )
-	{
-		if( i->include )
-		{
-			const char *ret;
+    i = this;
+    while (1) {
+        if (i->include) {
+            const char *ret;
 
-			ret = i->include->GetToken( crossline );
+            ret = i->include->GetToken(crossline);
 
-			if( *ret || !crossline || !i->include->Completed() )
-			{
-				return ret;
-			}
-			i->Uninclude();
-		}
+            if (*ret || !crossline || !i->include->Completed()) {
+                return ret;
+            }
+            i->Uninclude();
+        }
 
-		if( i->tokenready )
-		{
-			i->tokenready = false;
-			currentScript = i;
-			return i->token;
-		}
+        if (i->tokenready) {
+            i->tokenready = false;
+            currentScript = i;
+            return i->token;
+        }
 
-		i->SkipNonToken( crossline );
+        i->SkipNonToken(crossline);
 
-		if( i->error )
-		{
-			return "";
-		}
+        if (i->error) {
+            return "";
+        }
 
-		if( !i->include )
-		{
-			break;
-		}
+        if (!i->include) {
+            break;
+        }
 
-		i = i->include;
-	}
+        i = i->include;
+    }
 
-	token_p = ( char * )i->script_p;
+    token_p = (char *)i->script_p;
 
-	if( *token_p == '"' )
-	{
-		currentScript = i;
-		return i->GetString( crossline );
-	}
+    if (*token_p == '"') {
+        currentScript = i;
+        return i->GetString(crossline);
+    }
 
-	macro_start = NULL;
-	macro_end = NULL;
-	token_p = i->token;
-	while( ( *i->script_p > TOKENSPACE ) && !i->AtComment() )
-	{
-		if( ( *i->script_p == '\\' ) && ( i->script_p < ( end_p - 1 ) ) )
-		{
-			i->script_p++;
-			switch( *i->script_p )
-			{
-			case 'n':	*token_p++ = '\n';			break;
-			case 'r':	*token_p++ = '\n';			break;
-			case '\'':	*token_p++ = '\'';			break;
-			case '\"':	*token_p++ = '\"';			break;
-			case '\\':	*token_p++ = '\\';			break;
-			default:	*token_p++ = *i->script_p;	break;
-			}
-			i->script_p++;
-		}
-		else
-		{
-			if( *i->script_p == '$' )
-			{
-				if( macro_start )
-					macro_end = token_p;
-				else
-					macro_start = token_p;
-			}
-			*token_p++ = *i->script_p++;
-		}
+    macro_start = NULL;
+    macro_end   = NULL;
+    token_p     = i->token;
+    while ((*i->script_p > TOKENSPACE) && !i->AtComment()) {
+        if ((*i->script_p == '\\') && (i->script_p < (end_p - 1))) {
+            i->script_p++;
+            switch (*i->script_p) {
+            case 'n':
+                *token_p++ = '\n';
+                break;
+            case 'r':
+                *token_p++ = '\n';
+                break;
+            case '\'':
+                *token_p++ = '\'';
+                break;
+            case '\"':
+                *token_p++ = '\"';
+                break;
+            case '\\':
+                *token_p++ = '\\';
+                break;
+            default:
+                *token_p++ = *i->script_p;
+                break;
+            }
+            i->script_p++;
+        } else {
+            if (*i->script_p == '$') {
+                if (macro_start) {
+                    macro_end = token_p;
+                } else {
+                    macro_start = token_p;
+                }
+            }
+            *token_p++ = *i->script_p++;
+        }
 
-		if( token_p == &i->token[ TIKI_MAXTOKEN ] )
-		{
-			TIKI_DPrintf( "Token too large on line %i in file %s\n", i->line, i->Filename() );
-			break;
-		}
+        if (token_p == &i->token[TIKI_MAXTOKEN]) {
+            TIKI_DPrintf("Token too large on line %i in file %s\n", i->line, i->Filename());
+            break;
+        }
 
-		if( i->script_p == i->end_p )
-		{
-			break;
-		}
-	}
+        if (i->script_p == i->end_p) {
+            break;
+        }
+    }
 
-	*token_p = 0;
+    *token_p = 0;
 
-	if( macro_start )
-	{
-		if( !macro_end ) macro_end = token_p;
+    if (macro_start) {
+        if (!macro_end) {
+            macro_end = token_p;
+        }
 
-		len = ( macro_end - 1 ) - ( macro_start + 1 );
-		if( len == -1 )
-		{
-			if( macro_start - i->token != 0 )
-				memcpy( temptoken, i->token, macro_start - i->token );
+        len = (macro_end - 1) - (macro_start + 1);
+        if (len == -1) {
+            if (macro_start - i->token != 0) {
+                memcpy(temptoken, i->token, macro_start - i->token);
+            }
 
-			temptoken[ macro_start - i->token ] = '$';
-			temptoken[ macro_start - i->token + 1 ] = 0;
-			if( *( macro_end + 1 ) )
-			{
-				strcat( temptoken, macro_end + 1 );
-			}
-			Q_strncpyz( i->token, temptoken, sizeof( i->token ) );
-		}
-		else
-		{
-			memcpy( macro, ( macro_start + 1 ), len + 1 );
-			macro[ len + 1 ] = 0;
-			subst = i->FindMacro( macro );
-			if( subst )
-			{
-				if( macro_start - i->token != 0 )
-					memcpy( temptoken, i->token, macro_start - i->token );
+            temptoken[macro_start - i->token]     = '$';
+            temptoken[macro_start - i->token + 1] = 0;
+            if (*(macro_end + 1)) {
+                strcat(temptoken, macro_end + 1);
+            }
+            Q_strncpyz(i->token, temptoken, sizeof(i->token));
+        } else {
+            memcpy(macro, (macro_start + 1), len + 1);
+            macro[len + 1] = 0;
+            subst          = i->FindMacro(macro);
+            if (subst) {
+                if (macro_start - i->token != 0) {
+                    memcpy(temptoken, i->token, macro_start - i->token);
+                }
 
-				temptoken[ macro_start - i->token ] = 0;
-				strcat( temptoken, subst );
-				if( *( macro_end + 1 ) )
-				{
-					strcat( temptoken, macro_end + 1 );
-				}
-				Q_strncpyz( i->token, temptoken, sizeof( i->token ) );
-			}
-		}
-	}
+                temptoken[macro_start - i->token] = 0;
+                strcat(temptoken, subst);
+                if (*(macro_end + 1)) {
+                    strcat(temptoken, macro_end + 1);
+                }
+                Q_strncpyz(i->token, temptoken, sizeof(i->token));
+            }
+        }
+    }
 
-	i->currentScript = i;
-	return i->token;
+    i->currentScript = i;
+    return i->token;
 }
 
 /*
@@ -824,62 +764,55 @@ const char *TikiScript::GetToken( qboolean crossline )
 =
 ==============
 */
-const char *TikiScript::GetLine( qboolean crossline )
+const char *TikiScript::GetLine(qboolean crossline)
 {
-	TikiScript *i;
-	const char *start;
-	int size;
+    TikiScript *i;
+    const char *start;
+    int         size;
 
-	i = this;
-	while( 1 )
-	{
-		if( i->include )
-		{
-			const char *ret;
+    i = this;
+    while (1) {
+        if (i->include) {
+            const char *ret;
 
-			ret = i->include->GetToken( crossline );
+            ret = i->include->GetToken(crossline);
 
-			if( *ret || !crossline || !i->include->Completed() )
-			{
-				return ret;
-			}
-			i->Uninclude();
-		}
+            if (*ret || !crossline || !i->include->Completed()) {
+                return ret;
+            }
+            i->Uninclude();
+        }
 
-		if( i->tokenready )
-		{
-			i->tokenready = false;
-			return i->token;
-		}
+        if (i->tokenready) {
+            i->tokenready = false;
+            return i->token;
+        }
 
-		if( !i->include )
-			break;
+        if (!i->include) {
+            break;
+        }
 
-		i = i->include;
-	}
+        i = i->include;
+    }
 
-	if( i->error )
-	{
-		return "";
-	}
+    if (i->error) {
+        return "";
+    }
 
-	//
-	// copy token
-	//
-	start = i->script_p;
-	SkipToEOL();
-	size = i->script_p - start;
-	if( size < ( TIKI_MAXTOKEN - 1 ) )
-	{
-		memcpy( i->token, start, size );
-		i->token[ size ] = '\0';
-	}
-	else
-	{
-		TIKI_DPrintf( "Token too large on line %i in file %s\n", i->line, i->filename );
-	}
+    //
+    // copy token
+    //
+    start = i->script_p;
+    SkipToEOL();
+    size = i->script_p - start;
+    if (size < (TIKI_MAXTOKEN - 1)) {
+        memcpy(i->token, start, size);
+        i->token[size] = '\0';
+    } else {
+        TIKI_DPrintf("Token too large on line %i in file %s\n", i->line, i->filename);
+    }
 
-	return i->token;
+    return i->token;
 }
 
 /*
@@ -889,56 +822,51 @@ const char *TikiScript::GetLine( qboolean crossline )
 =
 ==============
 */
-const char *TikiScript::GetAndIgnoreLine( qboolean crossline )
+const char *TikiScript::GetAndIgnoreLine(qboolean crossline)
 {
-	const char *start;
-	int size;
+    const char *start;
+    int         size;
 
-	if( include )
-	{
-		const char *ret;
+    if (include) {
+        const char *ret;
 
-		ret = include->GetAndIgnoreLine( crossline );
+        ret = include->GetAndIgnoreLine(crossline);
 
-		if( *ret || !crossline || !include->Completed() )
-			return ret;
+        if (*ret || !crossline || !include->Completed()) {
+            return ret;
+        }
 
-		Uninclude();
-	}
+        Uninclude();
+    }
 
-	if( tokenready )
-	{
-		tokenready = false;
-		return token;
-	}
+    if (tokenready) {
+        tokenready = false;
+        return token;
+    }
 
-	//
-	// skip space
-	//
-	SkipWhiteSpace( crossline );
+    //
+    // skip space
+    //
+    SkipWhiteSpace(crossline);
 
-	if( error )
-	{
-		return "";
-	}
+    if (error) {
+        return "";
+    }
 
-	//
-	// copy token
-	//
-	start = script_p;
-	SkipToEOL();
-	size = script_p - start;
-	if( size < ( TIKI_MAXTOKEN - 1 ) )
-	{
-		memcpy( token, start, size );
-		token[ size ] = '\0';
-	}
-	else
-	{
-		TIKI_DPrintf( "Token too large on line %i in file %s\n", line, filename );
-	}
+    //
+    // copy token
+    //
+    start = script_p;
+    SkipToEOL();
+    size = script_p - start;
+    if (size < (TIKI_MAXTOKEN - 1)) {
+        memcpy(token, start, size);
+        token[size] = '\0';
+    } else {
+        TIKI_DPrintf("Token too large on line %i in file %s\n", line, filename);
+    }
 
-	return token;
+    return token;
 }
 
 /*
@@ -948,50 +876,46 @@ const char *TikiScript::GetAndIgnoreLine( qboolean crossline )
 =
 ==============
 */
-const char *TikiScript::GetRaw( void )
+const char *TikiScript::GetRaw(void)
 {
-	const char *start;
-	int size;
+    const char *start;
+    int         size;
 
-	if( include )
-	{
-		const char *ret;
+    if (include) {
+        const char *ret;
 
-		ret = include->GetRaw();
+        ret = include->GetRaw();
 
-		if( *ret || !include->Completed() )
-			return ret;
+        if (*ret || !include->Completed()) {
+            return ret;
+        }
 
-		Uninclude();
-	}
+        Uninclude();
+    }
 
-	//
-	// skip white space
-	//
-	SkipWhiteSpace( true );
+    //
+    // skip white space
+    //
+    SkipWhiteSpace(true);
 
-	if( error )
-	{
-		return "";
-	}
+    if (error) {
+        return "";
+    }
 
-	//
-	// copy token
-	//
-	start = script_p;
-	SkipToEOL();
-	size = script_p - start;
-	if( size < ( TIKI_MAXTOKEN - 1 ) )
-	{
-		memset( token, 0, sizeof( token ) );
-		memcpy( token, start, size );
-	}
-	else
-	{
-		TIKI_DPrintf( "Token too large on line %i in file %s\n", line, filename );
-	}
+    //
+    // copy token
+    //
+    start = script_p;
+    SkipToEOL();
+    size = script_p - start;
+    if (size < (TIKI_MAXTOKEN - 1)) {
+        memset(token, 0, sizeof(token));
+        memcpy(token, start, size);
+    } else {
+        TIKI_DPrintf("Token too large on line %i in file %s\n", line, filename);
+    }
 
-	return token;
+    return token;
 }
 
 /*
@@ -1001,103 +925,106 @@ const char *TikiScript::GetRaw( void )
 =
 ==============
 */
-const char *TikiScript::GetString( qboolean crossline )
+const char *TikiScript::GetString(qboolean crossline)
 {
-	TikiScript *i;
-	int startline;
-	char *token_p;
+    TikiScript *i;
+    int         startline;
+    char       *token_p;
 
-	i = this;
-	while( 1 )
-	{
-		if( i->include )
-		{
-			const char *ret;
+    i = this;
+    while (1) {
+        if (i->include) {
+            const char *ret;
 
-			ret = i->include->GetString( crossline );
+            ret = i->include->GetString(crossline);
 
-			if( *ret || !crossline || !i->include->Completed() )
-			{
-				return ret;
-			}
-			i->Uninclude();
-		}
+            if (*ret || !crossline || !i->include->Completed()) {
+                return ret;
+            }
+            i->Uninclude();
+        }
 
-		// is a token already waiting?
-		if( i->tokenready )
-		{
-			i->tokenready = false;
-			return i->token;
-		}
+        // is a token already waiting?
+        if (i->tokenready) {
+            i->tokenready = false;
+            return i->token;
+        }
 
-		i->SkipNonToken( crossline );
+        i->SkipNonToken(crossline);
 
-		if( !i->include )
-			break;
+        if (!i->include) {
+            break;
+        }
 
-		i = i->include;
-	}
+        i = i->include;
+    }
 
-	if( i->error )
-	{
-		return "";
-	}
+    if (i->error) {
+        return "";
+    }
 
-	if( *i->script_p != '"' )
-	{
-		TIKI_DPrintf( "Expecting string on line %i in file %s\n", i->line, i->filename );
-		return i->token;
-	}
+    if (*i->script_p != '"') {
+        TIKI_DPrintf("Expecting string on line %i in file %s\n", i->line, i->filename);
+        return i->token;
+    }
 
-	i->script_p++;
+    i->script_p++;
 
-	startline = i->line;
-	token_p = i->token;
-	while( *i->script_p != '"' )
-	{
-		if( *i->script_p == TOKENEOL )
-		{
-			TIKI_DPrintf( "Line %i is incomplete while reading string in file %s\n", i->line, i->filename );
-			return i->token;
-		}
+    startline = i->line;
+    token_p   = i->token;
+    while (*i->script_p != '"') {
+        if (*i->script_p == TOKENEOL) {
+            TIKI_DPrintf("Line %i is incomplete while reading string in file %s\n", i->line, i->filename);
+            return i->token;
+        }
 
-		if( ( *i->script_p == '\\' ) && ( i->script_p < ( end_p - 1 ) ) )
-		{
-			i->script_p++;
-			switch( *i->script_p )
-			{
-			case 'n':	*token_p++ = '\n';			break;
-			case 'r':	*token_p++ = '\n';			break;
-			case '\'':	*token_p++ = '\'';			break;
-			case '\"':	*token_p++ = '\"';			break;
-			case '\\':	*token_p++ = '\\';			break;
-			default:	*token_p++ = *i->script_p;	break;
-			}
-			i->script_p++;
-		}
-		else
-		{
-			*token_p++ = *i->script_p++;
-		}
+        if ((*i->script_p == '\\') && (i->script_p < (end_p - 1))) {
+            i->script_p++;
+            switch (*i->script_p) {
+            case 'n':
+                *token_p++ = '\n';
+                break;
+            case 'r':
+                *token_p++ = '\n';
+                break;
+            case '\'':
+                *token_p++ = '\'';
+                break;
+            case '\"':
+                *token_p++ = '\"';
+                break;
+            case '\\':
+                *token_p++ = '\\';
+                break;
+            default:
+                *token_p++ = *i->script_p;
+                break;
+            }
+            i->script_p++;
+        } else {
+            *token_p++ = *i->script_p++;
+        }
 
-		if( i->script_p >= i->end_p )
-		{
-			TIKI_DPrintf( "End of token file reached prematurely while reading string on\n"
-				"line %d in file %s\n", startline, i->filename );
-		}
+        if (i->script_p >= i->end_p) {
+            TIKI_DPrintf(
+                "End of token file reached prematurely while reading string on\n"
+                "line %d in file %s\n",
+                startline,
+                i->filename
+            );
+        }
 
-		if( token_p == &i->token[ TIKI_MAXTOKEN ] )
-		{
-			TIKI_DPrintf( "String too large on line %i in file %s\n", i->line, i->filename );
-		}
-	}
+        if (token_p == &i->token[TIKI_MAXTOKEN]) {
+            TIKI_DPrintf("String too large on line %i in file %s\n", i->line, i->filename);
+        }
+    }
 
-	*token_p = 0;
+    *token_p = 0;
 
-	// skip last quote
-	i->script_p++;
+    // skip last quote
+    i->script_p++;
 
-	return i->token;
+    return i->token;
 }
 
 /*
@@ -1107,27 +1034,23 @@ const char *TikiScript::GetString( qboolean crossline )
 =
 ==============
 */
-qboolean TikiScript::GetSpecific( const char *string )
+qboolean TikiScript::GetSpecific(const char *string)
 {
-	if( include )
-	{
-		qboolean ret = include->GetSpecific( string );
-		if( ret || !include->Completed() )
-		{
-			return ret;
-		}
-	}
+    if (include) {
+        qboolean ret = include->GetSpecific(string);
+        if (ret || !include->Completed()) {
+            return ret;
+        }
+    }
 
-	do
-	{
-		if( !TokenAvailable( true ) )
-		{
-			return false;
-		}
-		GetToken( true );
-	} while( strcmp( token, string ) );
+    do {
+        if (!TokenAvailable(true)) {
+            return false;
+        }
+        GetToken(true);
+    } while (strcmp(token, string));
 
-	return true;
+    return true;
 }
 
 /*
@@ -1137,9 +1060,9 @@ qboolean TikiScript::GetSpecific( const char *string )
 =
 ==============
 */
-int TikiScript::GetInteger( qboolean crossline )
+int TikiScript::GetInteger(qboolean crossline)
 {
-	return atoi( GetToken( crossline ) );
+    return atoi(GetToken(crossline));
 }
 
 /*
@@ -1149,9 +1072,9 @@ int TikiScript::GetInteger( qboolean crossline )
 =
 ==============
 */
-double TikiScript::GetDouble( qboolean crossline )
+double TikiScript::GetDouble(qboolean crossline)
 {
-	return atof( GetToken( crossline ) );
+    return atof(GetToken(crossline));
 }
 
 /*
@@ -1161,9 +1084,9 @@ double TikiScript::GetDouble( qboolean crossline )
 =
 ==============
 */
-float TikiScript::GetFloat( qboolean crossline )
+float TikiScript::GetFloat(qboolean crossline)
 {
-	return ( float )GetDouble( crossline );
+    return (float)GetDouble(crossline);
 }
 
 /*
@@ -1173,11 +1096,11 @@ float TikiScript::GetFloat( qboolean crossline )
 =
 ==============
 */
-void TikiScript::GetVector( qboolean crossline, float *vec )
+void TikiScript::GetVector(qboolean crossline, float *vec)
 {
-	vec[ 0 ] = GetFloat( crossline );
-	vec[ 1 ] = GetFloat( crossline );
-	vec[ 2 ] = GetFloat( crossline );
+    vec[0] = GetFloat(crossline);
+    vec[1] = GetFloat(crossline);
+    vec[2] = GetFloat(crossline);
 }
 
 /*
@@ -1187,34 +1110,33 @@ void TikiScript::GetVector( qboolean crossline, float *vec )
 =
 ==============
 */
-int TikiScript::LinesInFile( void )
+int TikiScript::LinesInFile(void)
 {
-	qboolean		temp_tokenready;
-	const char		*temp_script_p;
-	int				temp_line;
-	char			temp_token[ TIKI_MAXTOKEN ];
-	int				numentries;
+    qboolean    temp_tokenready;
+    const char *temp_script_p;
+    int         temp_line;
+    char        temp_token[TIKI_MAXTOKEN];
+    int         numentries;
 
-	temp_tokenready		= tokenready;
-	temp_script_p		= script_p;
-	temp_line			= line;
-	Q_strncpyz( temp_token, token, sizeof( temp_token ) );
+    temp_tokenready = tokenready;
+    temp_script_p   = script_p;
+    temp_line       = line;
+    Q_strncpyz(temp_token, token, sizeof(temp_token));
 
-	numentries = 0;
+    numentries = 0;
 
-	Reset();
-	while( TokenAvailable( true ) )
-	{
-		GetLine( true );
-		numentries++;
-	}
+    Reset();
+    while (TokenAvailable(true)) {
+        GetLine(true);
+        numentries++;
+    }
 
-	tokenready	= temp_tokenready;
-	script_p	= temp_script_p;
-	line		= temp_line;
-	Q_strncpyz( token, temp_token, sizeof( token ) );
+    tokenready = temp_tokenready;
+    script_p   = temp_script_p;
+    line       = temp_line;
+    Q_strncpyz(token, temp_token, sizeof(token));
 
-	return numentries;
+    return numentries;
 }
 
 /*
@@ -1224,15 +1146,15 @@ int TikiScript::LinesInFile( void )
 =
 ==============
 */
-void TikiScript::Parse( char *data, int length, const char *name )
+void TikiScript::Parse(char *data, int length, const char *name)
 {
-	Close();
+    Close();
 
-	buffer = data;
-	Reset();
-	this->length = length;
-	end_p = script_p + length;
-	strncpy( filename, name, TIKI_MAXTOKEN );
+    buffer = data;
+    Reset();
+    this->length = length;
+    end_p        = script_p + length;
+    strncpy(filename, name, TIKI_MAXTOKEN);
 }
 
 /*
@@ -1242,39 +1164,38 @@ void TikiScript::Parse( char *data, int length, const char *name )
 =
 ==============
 */
-qboolean TikiScript::LoadFile( const char *name, qboolean quiet )
+qboolean TikiScript::LoadFile(const char *name, qboolean quiet)
 {
-	int			length;
-	char		*buf;
+    int   length;
+    char *buf;
 
-	Close();
+    Close();
 
-	length = TIKI_ReadFileEx( name, ( void ** )&buf, quiet );
+    length = TIKI_ReadFileEx(name, (void **)&buf, quiet);
 
-	if( length < 0 )
-	{
-		if( !quiet )
-			TIKI_DPrintf( "Tiki:LoadFile Couldn't load %s\n", name );
-		return false;
-	}
+    if (length < 0) {
+        if (!quiet) {
+            TIKI_DPrintf("Tiki:LoadFile Couldn't load %s\n", name);
+        }
+        return false;
+    }
 
-	// create our own space
-	buffer = ( char * )TIKI_Alloc( length + 1 );
-	// copy the file over to our space
-	memcpy( buffer, buf, length );
-	buffer[ length ] = 0;
-	// free the file
-	TIKI_FreeFile( buf );
+    // create our own space
+    buffer = (char *)TIKI_Alloc(length + 1);
+    // copy the file over to our space
+    memcpy(buffer, buf, length);
+    buffer[length] = 0;
+    // free the file
+    TIKI_FreeFile(buf);
 
-	Parse( buffer, length, name );
-	releaseBuffer = true;
+    Parse(buffer, length, name);
+    releaseBuffer = true;
 
-	if( error )
-	{
-		return false;
-	}
+    if (error) {
+        return false;
+    }
 
-	return true;
+    return true;
 }
 
 /*
@@ -1284,16 +1205,13 @@ qboolean TikiScript::LoadFile( const char *name, qboolean quiet )
 =
 ==============
 */
-const char *TikiScript::Token( void )
+const char *TikiScript::Token(void)
 {
-	if( include )
-	{
-		return include->token;
-	}
-	else
-	{
-		return token;
-	}
+    if (include) {
+        return include->token;
+    } else {
+        return token;
+    }
 }
 
 /*
@@ -1303,12 +1221,12 @@ const char *TikiScript::Token( void )
 =
 ==============
 */
-void TikiScript::MarkPos( void )
+void TikiScript::MarkPos(void)
 {
-	mark[ mark_pos ].mark_script_p = script_p;
-	mark[ mark_pos ].mark_tokenready = tokenready;
-	Q_strncpyz( mark[ mark_pos ].mark_token, token, sizeof(mark[ mark_pos ].mark_token));
-	mark_pos++;
+    mark[mark_pos].mark_script_p   = script_p;
+    mark[mark_pos].mark_tokenready = tokenready;
+    Q_strncpyz(mark[mark_pos].mark_token, token, sizeof(mark[mark_pos].mark_token));
+    mark_pos++;
 }
 
 /*
@@ -1318,17 +1236,16 @@ void TikiScript::MarkPos( void )
 =
 ==============
 */
-void TikiScript::ReturnToMark( void )
+void TikiScript::ReturnToMark(void)
 {
-	if( mark_pos <= 0 )
-	{
-		return;
-	}
+    if (mark_pos <= 0) {
+        return;
+    }
 
-	mark_pos--;
-	script_p	= mark[ mark_pos ].mark_script_p;
-	tokenready	= mark[ mark_pos ].mark_tokenready;
-	memcpy( token, mark[ mark_pos ].mark_token, sizeof( token ) );
+    mark_pos--;
+    script_p   = mark[mark_pos].mark_script_p;
+    tokenready = mark[mark_pos].mark_tokenready;
+    memcpy(token, mark[mark_pos].mark_token, sizeof(token));
 }
 
 /*
@@ -1338,41 +1255,33 @@ void TikiScript::ReturnToMark( void )
 =
 ==============
 */
-void TikiScript::ReplaceLineWithWhitespace( bool deleteFromStartOfLine )
+void TikiScript::ReplaceLineWithWhitespace(bool deleteFromStartOfLine)
 {
-	char *change_p = ( char * )script_p;
+    char *change_p = (char *)script_p;
 
-	if( deleteFromStartOfLine && *( change_p - 1 ) != '\n' )
-	{
-		while( *( change_p - 1 ) != TOKENEOL && change_p > buffer )
-		{
-			change_p--;
-		}
-	}
+    if (deleteFromStartOfLine && *(change_p - 1) != '\n') {
+        while (*(change_p - 1) != TOKENEOL && change_p > buffer) {
+            change_p--;
+        }
+    }
 
-	if( *change_p != TOKENEOL )
-	{
-		if( change_p >= end_p )
-		{
-			script_p = change_p;
-			return;
-		}
+    if (*change_p != TOKENEOL) {
+        if (change_p >= end_p) {
+            script_p = change_p;
+            return;
+        }
 
-		do
-		{
-			*change_p++ = TOKENSPACE;
-		} while( *change_p != TOKENEOL && change_p < end_p );
-	}
+        do {
+            *change_p++ = TOKENSPACE;
+        } while (*change_p != TOKENEOL && change_p < end_p);
+    }
 
-	if( change_p < end_p )
-	{
-		script_p = change_p + 1;
-		line++;
-	}
-	else
-	{
-		script_p = change_p;
-	}
+    if (change_p < end_p) {
+        script_p = change_p + 1;
+        line++;
+    } else {
+        script_p = change_p;
+    }
 }
 
 /*
@@ -1382,10 +1291,11 @@ void TikiScript::ReplaceLineWithWhitespace( bool deleteFromStartOfLine )
 =
 ==============
 */
-const char *TikiScript::GetParentToken( void )
+const char *TikiScript::GetParentToken(void)
 {
-	if( parent )
-		return parent->token;
-	else
-		return "";
+    if (parent) {
+        return parent->token;
+    } else {
+        return "";
+    }
 }

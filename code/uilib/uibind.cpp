@@ -24,7 +24,14 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "uibindlist.h"
 #include "../qcommon/localization.h"
 
-Event EV_UIBindButton_Command("bindcommand", EV_DEFAULT, "s", "cmd", "Command to bind");
+Event EV_UIBindButton_Command
+(
+    "bindcommand",
+    EV_DEFAULT,
+    "s",
+    "cmd",
+    "Command to bind"
+);
 
 CLASS_DECLARATION(UIButton, UIBindButton, NULL) {
     {&W_AnyMouseDown,          &UIBindButton::Pressed   },

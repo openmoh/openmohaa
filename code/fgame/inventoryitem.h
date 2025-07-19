@@ -22,7 +22,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // inventoryitem.h: Items that are visible in the player's inventory
 
-
 #pragma once
 
 #include "weapon.h"
@@ -30,24 +29,22 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 class InventoryItem : public Weapon
 {
 public:
-	CLASS_PROTOTYPE( InventoryItem );
+    CLASS_PROTOTYPE(InventoryItem);
 
-	InventoryItem();
-	~InventoryItem();
+    InventoryItem();
+    ~InventoryItem();
 
-	void				ActivateItem( Event *ev );
-	void				ActivatePapers( Event *ev ) ;
-
+    void ActivateItem(Event *ev);
+    void ActivatePapers(Event *ev);
 };
 
 extern Event EV_InventoryItem_Use;
 
 class AntiSBJuice : public InventoryItem
-	{
-	public:
-      CLASS_PROTOTYPE( AntiSBJuice );
-						AntiSBJuice();
-		void			Wearoff( Event *ev );
-		void			UseEvent( Event *ev );
-   };
-
+{
+public:
+    CLASS_PROTOTYPE(AntiSBJuice);
+    AntiSBJuice();
+    void Wearoff(Event *ev);
+    void UseEvent(Event *ev);
+};

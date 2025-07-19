@@ -66,7 +66,7 @@ qboolean VehicleTank::Drive(usercmd_t *ucmd)
         //
         // ignore client's control if the vehicle is in auto-pilot mode
         //
-        moveimpulse = ucmd->forwardmove * (vTmp.length() + 1.0);
+        moveimpulse  = ucmd->forwardmove * (vTmp.length() + 1.0);
         m_bIsBraking = ucmd->forwardmove < 0;
         m_fAccelerator += ucmd->forwardmove * 0.005;
         // acceleration must be an alpha value between [0, 1]
@@ -250,13 +250,25 @@ void VehicleTank::Postthink()
     last_origin = origin;
     anglediff   = (angles - primal_angles) * level.frametime;
 
-    if (anglediff.x > 180 || anglediff.x < -180) anglediff.x = 0;
-    if (anglediff.y > 180 || anglediff.y < -180) anglediff.y = 0;
-    if (anglediff.z > 180 || anglediff.z < -180) anglediff.z = 0;
+    if (anglediff.x > 180 || anglediff.x < -180) {
+        anglediff.x = 0;
+    }
+    if (anglediff.y > 180 || anglediff.y < -180) {
+        anglediff.y = 0;
+    }
+    if (anglediff.z > 180 || anglediff.z < -180) {
+        anglediff.z = 0;
+    }
 
-    if (anglediff.x > -1 || anglediff.x < 1) anglediff.x = 0;
-    if (anglediff.y > -1 || anglediff.y < 1) anglediff.y = 0;
-    if (anglediff.z > -1 || anglediff.z < 1) anglediff.z = 0;
+    if (anglediff.x > -1 || anglediff.x < 1) {
+        anglediff.x = 0;
+    }
+    if (anglediff.y > -1 || anglediff.y < 1) {
+        anglediff.y = 0;
+    }
+    if (anglediff.z > -1 || anglediff.z < 1) {
+        anglediff.z = 0;
+    }
 
     avelocity = anglediff;
 
@@ -490,7 +502,7 @@ void VehicleTank::UpdateSound()
         break;
     case ST_TURN_TRANS_IDLE:
         m_fNextSoundState = level.time;
-        m_eSoundState = ST_IDLE;
+        m_eSoundState     = ST_IDLE;
         Sound(m_sSoundSet + "snd_revdown", CHAN_AUTO);
         LoopSound(m_sSoundSet + "snd_idle");
         break;
@@ -534,7 +546,7 @@ void VehicleTank::AttachDriverSlot(Event *ev)
 }
 */
 
-void VehicleTank::AttachDriverSlot(int slot, Entity* ent, Vector vExitPosition)
+void VehicleTank::AttachDriverSlot(int slot, Entity *ent, Vector vExitPosition)
 {
     Vehicle::AttachDriverSlot(slot, ent, vExitPosition);
 
@@ -549,10 +561,10 @@ void VehicleTank::AttachDriverSlot(int slot, Entity* ent, Vector vExitPosition)
         return;
     }
 
-    VehicleTurretGun* vtg = static_cast<VehicleTurretGun*>(Turrets[0].ent.Pointer());
+    VehicleTurretGun *vtg = static_cast<VehicleTurretGun *>(Turrets[0].ent.Pointer());
 
     if (vtg && vtg->IsSubclassOfVehicleTurretGun() && driver.ent->IsSubclassOfSentient()) {
-        vtg->SetRemoteOwner(static_cast<Sentient*>(driver.ent.Pointer()));
+        vtg->SetRemoteOwner(static_cast<Sentient *>(driver.ent.Pointer()));
         Think();
         Postthink();
         vtg->Think();

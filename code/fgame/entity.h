@@ -292,17 +292,16 @@ public:
     // Added in OPM
     //====
     // miscellaneous
-    bool     m_bHintRequiresLookAt;
-    str      m_HintString;
+    bool m_bHintRequiresLookAt;
+    str  m_HintString;
     //====
 #endif
 
-    MulticastDelegate<void (const Event& ev)> delegate_damage;
-    MulticastDelegate<void (const Event& ev)> delegate_killed;
-    MulticastDelegate<void (const Event& ev)> delegate_gotKill;
+    MulticastDelegate<void(const Event& ev)> delegate_damage;
+    MulticastDelegate<void(const Event& ev)> delegate_killed;
+    MulticastDelegate<void(const Event& ev)> delegate_gotKill;
 
 public:
-
     Entity();
     virtual ~Entity();
 
@@ -351,7 +350,7 @@ public:
     void             GetBrushModelEvent(Event *ev);
     virtual qboolean setModel(void);
     void             SetSize(void);
-    void             setModel(const str            &mdl);
+    void             setModel(const str& mdl);
     void             SetModelEvent(Event *ev);
 
     void         SetTeamEvent(Event *ev);
@@ -609,7 +608,7 @@ public:
 
     virtual void     EndFrame(void);
     virtual void     CalcBlend(void);
-    void             Archive(Archiver            &arc) override;
+    void             Archive(Archiver& arc) override;
     virtual bool     AutoArchiveModel(void);
     virtual void     PathnodeClaimRevoked(class PathNode *node);
     virtual qboolean BlocksAIMovement() const;
@@ -653,7 +652,7 @@ public:
 #ifdef OPM_FEATURES
     void SetHintRequireLookAt(Event *ev);
     void SetHintString(Event *ev);
-    void SetShader(Event* ev);
+    void SetShader(Event *ev);
 #endif
     void PlayNonPvsSound(const str& soundName, float volume = 1);
 };
@@ -668,13 +667,11 @@ inline bool Entity::HasVehicle(void) const
 }
 
 inline int Entity::getSolidType(void)
-
 {
     return edict->solid;
 }
 
 inline qboolean Entity::DistanceTo(Vector pos) const
-
 {
     Vector delta;
 
@@ -708,7 +705,6 @@ inline qboolean Entity::WithinDistance(Vector pos, float dist) const
 }
 
 inline qboolean Entity::WithinDistance(Entity *ent, float dist) const
-
 {
     Vector delta;
 
@@ -725,7 +721,6 @@ inline qboolean Entity::WithinDistance(Entity *ent, float dist) const
 }
 
 inline const char *Entity::KillTarget(void)
-
 {
     return killtarget.c_str();
 }
@@ -779,31 +774,26 @@ inline void Entity::showModel(void)
 }
 
 inline float Entity::alpha(void)
-
 {
     return edict->s.alpha;
 }
 
 inline void Entity::setMoveType(int type)
-
 {
     movetype = type;
 }
 
 inline int Entity::getMoveType(void)
-
 {
     return movetype;
 }
 
 inline void Entity::unlink(void)
-
 {
     gi.unlinkentity(edict);
 }
 
 inline void Entity::setContents(int type)
-
 {
     edict->r.contents = type;
 }
@@ -822,7 +812,6 @@ inline qboolean Entity::isClient(void)
 }
 
 inline void Entity::SetDeltaAngles(void)
-
 {
     int i;
 

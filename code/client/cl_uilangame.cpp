@@ -30,7 +30,12 @@ class LANGameItem : public UIListCtrlItem
 public:
     LANGameItem();
     LANGameItem(
-        const str& hostName, const str& mapName, const str& players, const str& gameTypeString, const str& ping, const str& ipAddress
+        const str& hostName,
+        const str& mapName,
+        const str& players,
+        const str& gameTypeString,
+        const str& ping,
+        const str& ipAddress
     );
 
     int            getListItemValue(int which) const override;
@@ -108,11 +113,11 @@ void UILANGameClass::UpdateUIElement(void)
     width = getClientFrame().size.width - 16.f;
 
     AddColumn(Sys_LV_CL_ConvertString("Server Name"), 0, width * 0.27f, false, false); // was 0.4
-    AddColumn(Sys_LV_CL_ConvertString("Map"), 1, width * 0.12f, false, false); // was 0.15
-    AddColumn(Sys_LV_CL_ConvertString("Players"), 2, width * 0.08f, true, true); // was 0.165
-    AddColumn(Sys_LV_CL_ConvertString("GameType"), 3, width * 0.118f, false, false); // was 0.22
-    AddColumn(Sys_LV_CL_ConvertString("Ping"), 4, width * 0.052f, true, false); // was 0.065
-    AddColumn(Sys_LV_CL_ConvertString("IP"), 5, width * 0.36f, false, false); // Added in OPM
+    AddColumn(Sys_LV_CL_ConvertString("Map"), 1, width * 0.12f, false, false);         // was 0.15
+    AddColumn(Sys_LV_CL_ConvertString("Players"), 2, width * 0.08f, true, true);       // was 0.165
+    AddColumn(Sys_LV_CL_ConvertString("GameType"), 3, width * 0.118f, false, false);   // was 0.22
+    AddColumn(Sys_LV_CL_ConvertString("Ping"), 4, width * 0.052f, true, false);        // was 0.065
+    AddColumn(Sys_LV_CL_ConvertString("IP"), 5, width * 0.36f, false, false);          // Added in OPM
 
     uWinMan.ActivateControl(this);
 
@@ -205,7 +210,12 @@ qboolean UILANGameClass::KeyEvent(int key, unsigned int time)
 LANGameItem::LANGameItem() {}
 
 LANGameItem::LANGameItem(
-    const str& hostName, const str& mapName, const str& players, const str& gameTypeString, const str& ping, const str& ipAddress
+    const str& hostName,
+    const str& mapName,
+    const str& players,
+    const str& gameTypeString,
+    const str& ping,
+    const str& ipAddress
 )
 {
     strings[0] = hostName;

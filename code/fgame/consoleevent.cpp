@@ -7,9 +7,8 @@
 
 MEM_BlockAlloc<ConsoleEvent> ConsoleEvent_allocator;
 
-CLASS_DECLARATION(Event, ConsoleEvent, NULL)
-{
-	{ NULL, NULL }
+CLASS_DECLARATION(Event, ConsoleEvent, NULL) {
+    {NULL, NULL}
 };
 
 /*
@@ -17,9 +16,9 @@ CLASS_DECLARATION(Event, ConsoleEvent, NULL)
 new ConsoleEvent
 =======================
 */
-void* ConsoleEvent::operator new(size_t size)
+void *ConsoleEvent::operator new(size_t size)
 {
-	return ConsoleEvent_allocator.Alloc();
+    return ConsoleEvent_allocator.Alloc();
 }
 
 /*
@@ -27,9 +26,9 @@ void* ConsoleEvent::operator new(size_t size)
 delete ptr
 =======================
 */
-void ConsoleEvent::operator delete(void* ptr)
+void ConsoleEvent::operator delete(void *ptr)
 {
-	ConsoleEvent_allocator.Free(ptr);
+    ConsoleEvent_allocator.Free(ptr);
 }
 
 /*
@@ -39,7 +38,7 @@ ConsoleEvent
 */
 ConsoleEvent::ConsoleEvent(void)
 {
-	m_consoleedict = NULL;
+    m_consoleedict = NULL;
 }
 
 /*
@@ -47,9 +46,9 @@ ConsoleEvent::ConsoleEvent(void)
 SetConsoleEdict
 =======================
 */
-void ConsoleEvent::SetConsoleEdict(gentity_t* edict)
+void ConsoleEvent::SetConsoleEdict(gentity_t *edict)
 {
-	m_consoleedict = edict;
+    m_consoleedict = edict;
 }
 
 /*
@@ -57,12 +56,13 @@ void ConsoleEvent::SetConsoleEdict(gentity_t* edict)
 GetConsoleEdict
 =======================
 */
-gentity_t* ConsoleEvent::GetConsoleEdict(void) const
+gentity_t *ConsoleEvent::GetConsoleEdict(void) const
 {
-	if (m_consoleedict)
-		return m_consoleedict;
+    if (m_consoleedict) {
+        return m_consoleedict;
+    }
 
-	return g_entities;
+    return g_entities;
 }
 
 /*
@@ -70,18 +70,19 @@ gentity_t* ConsoleEvent::GetConsoleEdict(void) const
 ErrorInternal
 =======================
 */
-void ConsoleEvent::ErrorInternal(Listener* l, str text) const
+void ConsoleEvent::ErrorInternal(Listener *l, str text) const
 {
-	gentity_t* edict = GetConsoleEdict();
-	str eventname = getName();
+    gentity_t *edict     = GetConsoleEdict();
+    str        eventname = getName();
 
-	gi.DPrintf("^~^~^ Game ( Event '%s', Client '%s' ) : %s\n",
-		eventname.c_str(),
-		edict->client ? edict->client->pers.netname : "",
-		text.c_str());
+    gi.DPrintf(
+        "^~^~^ Game ( Event '%s', Client '%s' ) : %s\n",
+        eventname.c_str(),
+        edict->client ? edict->client->pers.netname : "",
+        text.c_str()
+    );
 
-	gi.SendServerCommand(GetConsoleEdict() - g_entities,
-		"print \"Console: '%s' : %s\n\"",
-		eventname.c_str(),
-		text.c_str());
+    gi.SendServerCommand(
+        GetConsoleEdict() - g_entities, "print \"Console: '%s' : %s\n\"", eventname.c_str(), text.c_str()
+    );
 }

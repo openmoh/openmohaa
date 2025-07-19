@@ -26,7 +26,14 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 static inventory_t            s_processed_inv;
 static SafePtr<FakkInventory> s_main_inv;
 
-Event FakkInventory_Timeout("_timeout", EV_DEFAULT, NULL, NULL, "Timeout of the menu from inactivity");
+Event FakkInventory_Timeout
+(
+    "_timeout",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Timeout of the menu from inactivity"
+);
 
 CLASS_DECLARATION(UIWidget, FakkInventory, NULL) {
     {&W_MouseMoved,          &FakkInventory::OnMouseMove },

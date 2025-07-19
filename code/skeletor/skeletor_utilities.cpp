@@ -71,7 +71,6 @@ int FileLength(FILE *pFile)
     return iEnd;
 }
 
-
 int skelChannelList_s::GlobalChannel(int localchannel) const
 {
     assert(localchannel < MAX_GLOBAL_FROM_LOCAL);
@@ -95,7 +94,6 @@ int skelChannelList_s::GetLocalFromGlobal(int globalChannel) const
 
     return m_chanLocalFromGlobal[globalChannel];
 }
-
 
 void skelChannelList_s::SetLocalFromGlobal(int channel, int localchannel)
 {
@@ -134,7 +132,7 @@ void skelChannelList_s::PackChannels()
     }
 
     if (m_numLocalFromGlobal > 0) {
-        short *old_array      = m_chanLocalFromGlobal;
+        short *old_array = m_chanLocalFromGlobal;
         int    i;
 
         m_chanLocalFromGlobal = (short *)Skel_Alloc(m_numLocalFromGlobal * sizeof(m_chanLocalFromGlobal[0]));

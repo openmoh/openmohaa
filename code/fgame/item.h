@@ -127,7 +127,7 @@ public:
     //
 
     Listener *GetScriptOwner() override;
-    void SetScriptOwner(Listener *newOwner) override;
+    void      SetScriptOwner(Listener *newOwner) override;
 
 #ifdef OPM_FEATURES
     //

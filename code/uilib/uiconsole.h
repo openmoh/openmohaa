@@ -22,152 +22,155 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #pragma once
 
-typedef void ( *consoleHandler_t )( const char *text );
+typedef void (*consoleHandler_t)(const char *text);
 
-class item {
+class item
+{
 public:
-	str string;
-	int lines;
-	int begins[ 10 ];
-	int breaks[ 10 ];
-	const UColor *pColor;
+    str           string;
+    int           lines;
+    int           begins[10];
+    int           breaks[10];
+    const UColor *pColor;
 
-	item();
+    item();
 };
 
-inline
-item::item()
+inline item::item()
 {
-	lines = 0;
+    lines = 0;
 
-	for( int i = 0; i < 10; i++ )
-	{
-		begins[ i ] = 0;
-		breaks[ i ] = 0;
-	}
+    for (int i = 0; i < 10; i++) {
+        begins[i] = 0;
+        breaks[i] = 0;
+    }
 
-	pColor = NULL;
+    pColor = NULL;
 }
 
 #define MAX_CONSOLE_ITEMS 300
 
-class UIConsole : public UIWidget {
+class UIConsole : public UIWidget
+{
 protected:
-	UList<str> m_history;
-	void *m_historyposition;
-	item m_items[MAX_CONSOLE_ITEMS];
-	str m_currentline;
-	UIVertScroll *m_scroll;
-	int m_firstitem;
-	int m_numitems;
-	size_t m_caret;
-	str m_completionbuffer;
-	bool m_refreshcompletionbuffer;
-	int m_cntcmdnumber;
-	int m_cntcvarnumber;
-	consoleHandler_t m_consolehandler;
+    UList<str>       m_history;
+    void            *m_historyposition;
+    item             m_items[MAX_CONSOLE_ITEMS];
+    str              m_currentline;
+    UIVertScroll    *m_scroll;
+    int              m_firstitem;
+    int              m_numitems;
+    size_t           m_caret;
+    str              m_completionbuffer;
+    bool             m_refreshcompletionbuffer;
+    int              m_cntcmdnumber;
+    int              m_cntcvarnumber;
+    consoleHandler_t m_consolehandler;
 
 public:
-	CLASS_PROTOTYPE( UIConsole );
+    CLASS_PROTOTYPE(UIConsole);
 
 protected:
-	int					getFirstItem( void );
-	int					getNextItem( int prev );
-	int					getLastItem( void );
-	int					AddLine( void );
-	void				DrawBottomLine( void );
-	void				AddHistory( void );
+    int  getFirstItem(void);
+    int  getNextItem(int prev);
+    int  getLastItem(void);
+    int  AddLine(void);
+    void DrawBottomLine(void);
+    void AddHistory(void);
 
-	virtual void		Print( Event *ev );
-	virtual void		KeyEnter( void );
+    virtual void Print(Event *ev);
+    virtual void KeyEnter(void);
 
 public:
-	UIConsole();
+    UIConsole();
 
-	void		setConsoleHandler( consoleHandler_t handler );
-	void		AddText( const char *text, const UColor *pColor );
-	void		CalcLineBreaks( item& theItem );
-	void		Clear( void );
-	void		FrameInitialized( void ) override;
-	void		Draw( void ) override;
-	void		CharEvent( int ch ) override;
-	qboolean	KeyEvent( int key, unsigned int time ) override;
-	void		OnSizeChanged( Event *ev );
+    void     setConsoleHandler(consoleHandler_t handler);
+    void     AddText(const char *text, const UColor *pColor);
+    void     CalcLineBreaks(item& theItem);
+    void     Clear(void);
+    void     FrameInitialized(void) override;
+    void     Draw(void) override;
+    void     CharEvent(int ch) override;
+    qboolean KeyEvent(int key, unsigned int time) override;
+    void     OnSizeChanged(Event *ev);
 };
 
-class UIFloatingConsole : public UIFloatingWindow {
+class UIFloatingConsole : public UIFloatingWindow
+{
 protected:
-	UIStatusBar *m_status;
-	SafePtr<UIConsole> m_console;
-	consoleHandler_t m_handler;
-	UColor m_consoleColor;
-	UColor m_consoleBackground;
-	float m_consoleAlpha;
+    UIStatusBar       *m_status;
+    SafePtr<UIConsole> m_console;
+    consoleHandler_t   m_handler;
+    UColor             m_consoleColor;
+    UColor             m_consoleBackground;
+    float              m_consoleAlpha;
 
 public:
-	CLASS_PROTOTYPE( UIFloatingConsole );
+    CLASS_PROTOTYPE(UIFloatingConsole);
 
-	UIFloatingConsole();
-	~UIFloatingConsole();
+    UIFloatingConsole();
+    ~UIFloatingConsole();
 
-	void		FrameInitialized( void ) override;
-	void		OnChildSizeChanged( Event *ev );
-	void		AddText( const char *text, const UColor *pColor );
-	void		setConsoleHandler( consoleHandler_t handler );
-	void		Clear( void );
-	void		OnClosePressed( Event *ev );
-	void		setConsoleBackground( const UColor& color, float alpha );
-	void		setConsoleColor( const UColor& color );
+    void FrameInitialized(void) override;
+    void OnChildSizeChanged(Event *ev);
+    void AddText(const char *text, const UColor *pColor);
+    void setConsoleHandler(consoleHandler_t handler);
+    void Clear(void);
+    void OnClosePressed(Event *ev);
+    void setConsoleBackground(const UColor& color, float alpha);
+    void setConsoleColor(const UColor& color);
 };
 
-class UIDMConsole : public UIConsole {
-	qboolean m_bQuickMessageMode;
-	int m_iMessageMode;
+class UIDMConsole : public UIConsole
+{
+    qboolean m_bQuickMessageMode;
+    int      m_iMessageMode;
 
 public:
-	CLASS_PROTOTYPE( UIDMConsole );
+    CLASS_PROTOTYPE(UIDMConsole);
 
 private:
-	void	KeyEnter( void ) override;
+    void KeyEnter(void) override;
 
 public:
-	UIDMConsole();
+    UIDMConsole();
 
-	void			AddDMMessageText( const char *text, const UColor *pColor );
-	void			Draw( void ) override;
-	qboolean		KeyEvent( int key, unsigned int time ) override;
-	qboolean		GetQuickMessageMode( void );
-	void			SetQuickMessageMode( qboolean bQuickMessage );
-	int				GetMessageMode( void );
-	void			SetMessageMode( int iMode );
+    void     AddDMMessageText(const char *text, const UColor *pColor);
+    void     Draw(void) override;
+    qboolean KeyEvent(int key, unsigned int time) override;
+    qboolean GetQuickMessageMode(void);
+    void     SetQuickMessageMode(qboolean bQuickMessage);
+    int      GetMessageMode(void);
+    void     SetMessageMode(int iMode);
 };
 
-class UIFloatingDMConsole : public UIFloatingWindow {
+class UIFloatingDMConsole : public UIFloatingWindow
+{
 protected:
-	UIStatusBar *m_status;
-	SafePtr<UIDMConsole> m_console;
-	consoleHandler_t m_handler;
-	UColor m_consoleColor;
-	UColor m_consoleBackground;
-	float m_consoleAlpha;
+    UIStatusBar         *m_status;
+    SafePtr<UIDMConsole> m_console;
+    consoleHandler_t     m_handler;
+    UColor               m_consoleColor;
+    UColor               m_consoleBackground;
+    float                m_consoleAlpha;
 
 public:
-	CLASS_PROTOTYPE( UIFloatingDMConsole );
+    CLASS_PROTOTYPE(UIFloatingDMConsole);
 
-	UIFloatingDMConsole();
-	~UIFloatingDMConsole();
+    UIFloatingDMConsole();
+    ~UIFloatingDMConsole();
 
-	void			FrameInitialized( void ) override;
-	void			OnChildSizeChanged( Event *ev );
-	void			AddText( const char *text, const UColor *pColor );
-	void			AddDMMessageText( const char *text, const UColor *pColor );
-	void			setConsoleHandler( consoleHandler_t handler );
-	void			Clear( void );
-	void			OnClosePressed( Event *ev );
-	void			setConsoleBackground( const UColor& color, float alpha );
-	void			setConsoleColor( const UColor& color );
-	qboolean		GetQuickMessageMode( void );
-	void			SetQuickMessageMode( qboolean bQuickMessage );
-	int				GetMessageMode( void );
-	void			SetMessageMode( int iMode );
+    void     FrameInitialized(void) override;
+    void     OnChildSizeChanged(Event *ev);
+    void     AddText(const char *text, const UColor *pColor);
+    void     AddDMMessageText(const char *text, const UColor *pColor);
+    void     setConsoleHandler(consoleHandler_t handler);
+    void     Clear(void);
+    void     OnClosePressed(Event *ev);
+    void     setConsoleBackground(const UColor& color, float alpha);
+    void     setConsoleColor(const UColor& color);
+    qboolean GetQuickMessageMode(void);
+    void     SetQuickMessageMode(qboolean bQuickMessage);
+    int      GetMessageMode(void);
+    void     SetMessageMode(int iMode);
 };

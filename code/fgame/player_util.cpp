@@ -35,7 +35,6 @@ extern Event EV_Entity_Start;
 //Player::ActorInfo
 //====================
 void Player::ActorInfo(Event *ev)
-
 {
     int     num;
     Entity *ent;
@@ -67,7 +66,6 @@ void Player::ActorInfo(Event *ev)
 //Player::WhatIs
 //====================
 void Player::WhatIs(Event *ev)
-
 {
     int     num;
     Entity *ent;
@@ -162,7 +160,6 @@ void Player::WhatIs(Event *ev)
 //Player::KillEnt
 //====================
 void Player::KillEnt(Event *ev)
-
 {
     int     num;
     Entity *ent;
@@ -190,7 +187,6 @@ void Player::KillEnt(Event *ev)
 //Player::RemoveEnt
 //====================
 void Player::RemoveEnt(Event *ev)
-
 {
     int     num;
     Entity *ent;
@@ -225,7 +221,6 @@ void Player::RemoveEnt(Event *ev)
 //Player::KillClass
 //====================
 void Player::KillClass(Event *ev)
-
 {
     int        except;
     str        classname;
@@ -267,7 +262,6 @@ void Player::KillClass(Event *ev)
 //Player::RemoveClass
 //====================
 void Player::RemoveClass(Event *ev)
-
 {
     int        except;
     str        classname;
@@ -309,7 +303,6 @@ void Player::RemoveClass(Event *ev)
 //Player::TestThread
 //====================
 void Player::TestThread(Event *ev)
-
 {
     const char *scriptfile;
     str         label;
@@ -331,7 +324,6 @@ void Player::TestThread(Event *ev)
 //Player::SpawnEntity
 //====================
 void Player::SpawnEntity(Event *ev)
-
 {
     SimpleEntity *ent;
     str           name;
@@ -427,7 +419,6 @@ void Player::SpawnEntity(Event *ev)
 //Player::SpawnActor
 //====================
 void Player::SpawnActor(Event *ev)
-
 {
     Entity   *ent;
     str       name;
@@ -502,13 +493,11 @@ void Player::SpawnActor(Event *ev)
 }
 
 void Player::ListInventoryEvent(Event *ev)
-
 {
     ListInventory();
 }
 
 void Player::GetStateAnims(Container<const char *> *c)
-
 {
     statemap_Legs->GetAllAnims(c);
     statemap_Torso->GetAllAnims(c);
@@ -517,7 +506,6 @@ void Player::GetStateAnims(Container<const char *> *c)
 static fileHandle_t logfile = 0;
 
 static void OpenPlayerLogFile(void)
-
 {
     str s, filename;
 
@@ -529,7 +517,6 @@ static void OpenPlayerLogFile(void)
 }
 
 void Player::LogStats(Event *ev)
-
 {
     str s;
 

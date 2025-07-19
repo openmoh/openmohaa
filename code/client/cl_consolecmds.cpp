@@ -30,15 +30,15 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 CL_EventList_f
 ===============
 */
-void CL_EventList_f( void )
-{ 
-	const char *mask = NULL;
+void CL_EventList_f(void)
+{
+    const char *mask = NULL;
 
-	if( Cmd_Argc() > 1 ) {
-		mask = Cmd_Argv( 1 );
-	}
+    if (Cmd_Argc() > 1) {
+        mask = Cmd_Argv(1);
+    }
 
-	Event::ListCommands( mask );
+    Event::ListCommands(mask);
 }
 
 /*
@@ -46,15 +46,15 @@ void CL_EventList_f( void )
 CL_EventHelp_f
 ===============
 */
-void CL_EventHelp_f( void )
+void CL_EventHelp_f(void)
 {
-	const char *mask = NULL;
+    const char *mask = NULL;
 
-	if( Cmd_Argc() > 1 ) {
-		mask = Cmd_Argv( 1 );
-	}
+    if (Cmd_Argc() > 1) {
+        mask = Cmd_Argv(1);
+    }
 
-	Event::ListDocumentation( mask, qfalse );
+    Event::ListDocumentation(mask, qfalse);
 }
 
 /*
@@ -62,15 +62,15 @@ void CL_EventHelp_f( void )
 CL_DumpEventHelp_f
 ===============
 */
-void CL_DumpEventHelp_f( void )
+void CL_DumpEventHelp_f(void)
 {
-	const char *mask = NULL;
+    const char *mask = NULL;
 
-	if( Cmd_Argc() > 1 ) {
-		mask = Cmd_Argv( 1 );
-	}
+    if (Cmd_Argc() > 1) {
+        mask = Cmd_Argv(1);
+    }
 
-	Event::ListDocumentation( mask, qtrue );
+    Event::ListDocumentation(mask, qtrue);
 }
 
 /*
@@ -78,15 +78,15 @@ void CL_DumpEventHelp_f( void )
 CL_PendingEvents_f
 ===============
 */
-void CL_PendingEvents_f( void )
+void CL_PendingEvents_f(void)
 {
-	const char *mask = NULL;
+    const char *mask = NULL;
 
-	if( Cmd_Argc() > 1 ) {
-		mask = Cmd_Argv( 1 );
-	}
+    if (Cmd_Argc() > 1) {
+        mask = Cmd_Argv(1);
+    }
 
-	Event::PendingEvents( mask );
+    Event::PendingEvents(mask);
 }
 
 /*
@@ -94,9 +94,9 @@ void CL_PendingEvents_f( void )
 CL_ClassList_f
 ===============
 */
-void CL_ClassList_f( void )
+void CL_ClassList_f(void)
 {
-	listAllClasses();
+    listAllClasses();
 }
 
 /*
@@ -104,14 +104,14 @@ void CL_ClassList_f( void )
 CL_ClassTree_f
 ===============
 */
-void CL_ClassTree_f( void )
+void CL_ClassTree_f(void)
 {
-	if( Cmd_Argc() < 2 ) {
-		Com_Printf( "Syntax: cl_classtree [classname].\n" );
-		return;
-	}
+    if (Cmd_Argc() < 2) {
+        Com_Printf("Syntax: cl_classtree [classname].\n");
+        return;
+    }
 
-	listInheritanceOrder( Cmd_Argv( 1 ) );
+    listInheritanceOrder(Cmd_Argv(1));
 }
 
 /*
@@ -119,14 +119,14 @@ void CL_ClassTree_f( void )
 CL_ClassEvents_f
 ===============
 */
-void CL_ClassEvents_f( void )
+void CL_ClassEvents_f(void)
 {
-	if( Cmd_Argc() < 2 ) {
-		Com_Printf( "Syntax: cl_classevents [classname].\n" );
-		return;
-	}
+    if (Cmd_Argc() < 2) {
+        Com_Printf("Syntax: cl_classevents [classname].\n");
+        return;
+    }
 
-	ClassEvents( Cmd_Argv( 1 ), qfalse );
+    ClassEvents(Cmd_Argv(1), qfalse);
 }
 
 /*
@@ -134,14 +134,14 @@ void CL_ClassEvents_f( void )
 CL_DumpClassEvents_f
 ===============
 */
-void CL_DumpClassEvents_f( void )
+void CL_DumpClassEvents_f(void)
 {
-	if( Cmd_Argc() < 2 ) {
-		Com_Printf( "Syntax: cl_dumpclassevents [classname].\n" );
-		return;
-	}
+    if (Cmd_Argc() < 2) {
+        Com_Printf("Syntax: cl_dumpclassevents [classname].\n");
+        return;
+    }
 
-	ClassEvents( Cmd_Argv( 1 ), qtrue );
+    ClassEvents(Cmd_Argv(1), qtrue);
 }
 
 /*
@@ -149,9 +149,9 @@ void CL_DumpClassEvents_f( void )
 CL_DumpAllClasses_f
 ===============
 */
-void CL_DumpAllClasses_f( void )
+void CL_DumpAllClasses_f(void)
 {
-	DumpAllClasses();
+    DumpAllClasses();
 }
 
 /*
@@ -159,15 +159,15 @@ void CL_DumpAllClasses_f( void )
 CL_InitConsoleCommands
 ===============
 */
-void CL_InitConsoleCommands( void )
+void CL_InitConsoleCommands(void)
 {
-	Cmd_AddCommand( "cl_eventlist", CL_EventList_f );
-	Cmd_AddCommand( "cl_eventhelp", CL_EventHelp_f );
-	Cmd_AddCommand( "cl_dumpevents", CL_DumpEventHelp_f );
-	Cmd_AddCommand( "cl_pendingevents", CL_PendingEvents_f );
-	Cmd_AddCommand( "cl_classlist", CL_ClassList_f );
-	Cmd_AddCommand( "cl_classtree", CL_ClassTree_f );
-	Cmd_AddCommand( "cl_classevents", CL_ClassEvents_f );
-	Cmd_AddCommand( "cl_dumpclassevents", CL_DumpClassEvents_f );
-	Cmd_AddCommand( "cl_dumpallclasses", CL_DumpAllClasses_f );
+    Cmd_AddCommand("cl_eventlist", CL_EventList_f);
+    Cmd_AddCommand("cl_eventhelp", CL_EventHelp_f);
+    Cmd_AddCommand("cl_dumpevents", CL_DumpEventHelp_f);
+    Cmd_AddCommand("cl_pendingevents", CL_PendingEvents_f);
+    Cmd_AddCommand("cl_classlist", CL_ClassList_f);
+    Cmd_AddCommand("cl_classtree", CL_ClassTree_f);
+    Cmd_AddCommand("cl_classevents", CL_ClassEvents_f);
+    Cmd_AddCommand("cl_dumpclassevents", CL_DumpClassEvents_f);
+    Cmd_AddCommand("cl_dumpallclasses", CL_DumpAllClasses_f);
 }

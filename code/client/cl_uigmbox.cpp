@@ -307,7 +307,8 @@ void UIGMBox::Print(const char *text)
         m_items[m_numitems].font  = m_font;
     }
 
-    m_items[m_numitems].string = CalculateBreaks(m_items[m_numitems].font, Sys_LV_CL_ConvertString(text1), s_gmboxWidth);
+    m_items[m_numitems].string =
+        CalculateBreaks(m_items[m_numitems].font, Sys_LV_CL_ConvertString(text1), s_gmboxWidth);
 
     m_numitems++;
     VerifyBoxOut();

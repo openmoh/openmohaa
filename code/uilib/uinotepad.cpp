@@ -134,22 +134,22 @@ CLASS_DECLARATION(UIFloatingWindow, UINotepad, NULL) {
 
 #define CTRL_EVENT_COUNT 10
 static ctrlevent_s controlEvents[CTRL_EVENT_COUNT] = {
-    {'o',  &EV_Notepad_Open                 },
-    {'s',  &EV_Notepad_Save                 },
-    {'a',  &EV_Notepad_SaveAs               },
-    {'w',  &UIFloatingWindow::W_ClosePressed},
-    {'f',  &EV_Notepad_Find                 },
-    {'g',  &EV_Notepad_Goto                 },
-    {'c',  &EV_Notepad_Copy                 },
-    {'x',  &EV_Notepad_Cut                  },
-    {'v',  &EV_Notepad_Paste                },
-    {0,    NULL                             },
+    {'o', &EV_Notepad_Open                 },
+    {'s', &EV_Notepad_Save                 },
+    {'a', &EV_Notepad_SaveAs               },
+    {'w', &UIFloatingWindow::W_ClosePressed},
+    {'f', &EV_Notepad_Find                 },
+    {'g', &EV_Notepad_Goto                 },
+    {'c', &EV_Notepad_Copy                 },
+    {'x', &EV_Notepad_Cut                  },
+    {'v', &EV_Notepad_Paste                },
+    {0,   NULL                             },
 };
 
 bool UI_LoadNotepadFile(const char *filename)
 {
     UINotepad *uinp = new UINotepad();
-    UIRect2D  rect  = UIRect2D(100.0f, 100.0f, 450.0f, 300.0f);
+    UIRect2D   rect = UIRect2D(100.0f, 100.0f, 450.0f, 300.0f);
     if (uinp->Create(NULL, rect, filename)) {
         uWinMan.ActivateControl(uinp);
         return true;

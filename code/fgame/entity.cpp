@@ -1981,7 +1981,6 @@ void Entity::GetYaw(Event *ev)
 }
 
 void Entity::SetKillTarget(const char *text)
-
 {
     if (text) {
         killtarget = text;
@@ -2116,19 +2115,16 @@ void Entity::ProcessInitCommands(void)
 }
 
 void Entity::EventHideModel(Event *ev)
-
 {
     hideModel();
 }
 
 void Entity::EventShowModel(Event *ev)
-
 {
     showModel();
 }
 
 void Entity::SetTeamEvent(Event *ev)
-
 {
     moveteam = ev->GetString(1);
 }
@@ -2154,7 +2150,6 @@ void Entity::TriggerEvent(Event *ev)
 }
 
 void Entity::setAlpha(float alpha)
-
 {
     if (alpha > 1.0f) {
         alpha = 1.0f;
@@ -2252,7 +2247,6 @@ void Entity::setSize(Vector min, Vector max)
 }
 
 Vector Entity::getLocalVector(Vector vec)
-
 {
     Vector pos;
 
@@ -2589,7 +2583,6 @@ void Entity::setAngles(Vector ang)
 }
 
 qboolean Entity::droptofloor(float maxfall)
-
 {
     trace_t trace;
     Vector  end;
@@ -2610,7 +2603,6 @@ qboolean Entity::droptofloor(float maxfall)
 }
 
 void Entity::DamageType(Event *ev)
-
 {
     str damage;
     damage = ev->GetString(1);
@@ -2930,7 +2922,6 @@ bool Entity::CanSee(const Vector& org, float fov, float vision_distance, bool bN
 }
 
 void Entity::FadeNoRemove(Event *ev)
-
 {
     float rate;
     float target;
@@ -2969,7 +2960,6 @@ void Entity::FadeNoRemove(Event *ev)
 }
 
 void Entity::FadeOut(Event *ev)
-
 {
     float myscale;
     float myalpha;
@@ -2996,7 +2986,6 @@ void Entity::FadeOut(Event *ev)
 }
 
 void Entity::FadeIn(Event *ev)
-
 {
     float rate;
     float target;
@@ -3031,7 +3020,6 @@ void Entity::FadeIn(Event *ev)
 }
 
 void Entity::Fade(Event *ev)
-
 {
     float rate;
     float target;
@@ -3120,7 +3108,6 @@ void Entity::Sink(Event *ev)
 }
 
 void Entity::SetMassEvent(Event *ev)
-
 {
     mass = ev->GetFloat(1);
 }
@@ -3191,7 +3178,6 @@ void Entity::BecomeNonSolid(Event *ev)
 }
 
 void Entity::Ghost(Event *ev)
-
 {
     // Make not solid, but send still send over whether it is hidden or not
     setSolidType(SOLID_NOT);
@@ -3355,7 +3341,6 @@ void Entity::Sound(Event *ev)
 }
 
 void Entity::StopSound(Event *ev)
-
 {
     if (ev->NumArgs() < 1) {
         StopSound(CHAN_BODY);
@@ -3365,13 +3350,11 @@ void Entity::StopSound(Event *ev)
 }
 
 void Entity::StopSound(int channel)
-
 {
     gi.StopSound(entnum, channel);
 }
 
 void Entity::SetLight(Event *ev)
-
 {
     float r, g, b;
 
@@ -3393,13 +3376,11 @@ void Entity::SetLight(Event *ev)
 }
 
 void Entity::LightOn(Event *ev)
-
 {
     G_SetConstantLight(&edict->s.constantLight, NULL, NULL, NULL, &lightRadius);
 }
 
 void Entity::LightOff(Event *ev)
-
 {
     float radius = 0;
 
@@ -3407,7 +3388,6 @@ void Entity::LightOff(Event *ev)
 }
 
 void Entity::LightRed(Event *ev)
-
 {
     float r;
 
@@ -3416,7 +3396,6 @@ void Entity::LightRed(Event *ev)
 }
 
 void Entity::LightGreen(Event *ev)
-
 {
     float g;
 
@@ -3425,7 +3404,6 @@ void Entity::LightGreen(Event *ev)
 }
 
 void Entity::LightBlue(Event *ev)
-
 {
     float b;
 
@@ -3434,14 +3412,12 @@ void Entity::LightBlue(Event *ev)
 }
 
 void Entity::LightRadius(Event *ev)
-
 {
     lightRadius = ev->GetFloat(1);
     G_SetConstantLight(&edict->s.constantLight, NULL, NULL, NULL, &lightRadius);
 }
 
 void Entity::LightStyle(Event *ev)
-
 {
     int style;
 
@@ -3495,13 +3471,11 @@ void Entity::GetScale(Event *ev)
 }
 
 void Entity::SetAlpha(Event *ev)
-
 {
     setAlpha(ev->GetFloat(1));
 }
 
 void Entity::SetKillTarget(Event *ev)
-
 {
     SetKillTarget(ev->GetString(1));
 }
@@ -3783,7 +3757,6 @@ qboolean Entity::attach(int parent_entity_num, int tag_num, qboolean use_angles,
 }
 
 void Entity::KillAttach(Event *ev)
-
 {
     int     i;
     Entity *child = NULL;
@@ -4161,7 +4134,6 @@ void Entity::SetWaterType(void)
 }
 
 void Entity::DamageSkin(trace_t *trace, float damage)
-
 {
     /* FIXME : Do we need damage skins?
 	int surface;
@@ -4517,7 +4489,6 @@ void Entity::AttachedModelAnimEvent(Event *ev)
 }
 
 void Entity::DetachEvent(Event *ev)
-
 {
     if (edict->s.parent == ENTITYNUM_NONE) {
         return;
@@ -4536,7 +4507,6 @@ void Entity::NoDamageEvent(Event *ev)
 }
 
 void Entity::Gravity(Event *ev)
-
 {
     gravity = ev->GetFloat(1);
 }
@@ -4589,7 +4559,6 @@ void Entity::HealEvent(Event *ev)
 }
 
 void Entity::Censor(Event *ev)
-
 {
     Vector delta;
     float  oldsize;
@@ -4609,7 +4578,6 @@ void Entity::Censor(Event *ev)
 }
 
 void Entity::StationaryEvent(Event *ev)
-
 {
     setMoveType(MOVETYPE_STATIONARY);
 }
@@ -4620,7 +4588,6 @@ void Entity::TossEvent(Event *ev)
 }
 
 void Entity::Explosion(Event *ev)
-
 {
     str expmodel;
     str tag_name;
@@ -4643,7 +4610,6 @@ void Entity::Explosion(Event *ev)
 }
 
 void Entity::Shader(Event *ev)
-
 {
     str token;
 
@@ -4703,7 +4669,6 @@ void Entity::Shader(Event *ev)
 }
 
 void Entity::DropToFloorEvent(Event *ev)
-
 {
     float range;
 
@@ -4716,7 +4681,6 @@ void Entity::DropToFloorEvent(Event *ev)
 }
 
 qboolean Entity::isBoundTo(Entity *master)
-
 {
     Entity *ent;
 
@@ -4900,7 +4864,6 @@ void Entity::MakeClayPidgeon(Event *ev)
 }
 
 void Entity::EventUnbind(Event *ev)
-
 {
     unbind();
 }
@@ -5038,13 +5001,11 @@ void Entity::quitTeam(void)
 }
 
 void Entity::EventQuitTeam(Event *ev)
-
 {
     quitTeam();
 }
 
 void Entity::JoinTeam(Event *ev)
-
 {
     Entity *ent;
 
@@ -5055,7 +5016,6 @@ void Entity::JoinTeam(Event *ev)
 }
 
 void Entity::AddToSoundManager(Event *ev)
-
 {
     SoundMan.AddEntity(this);
 }

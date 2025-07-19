@@ -32,7 +32,6 @@ extern dtiki_t     *current_tiki;
 extern centity_t   *current_centity;
 
 void ClientGameCommandManager::SwipeOn(Event *ev)
-
 {
     // Make a swipe for this if available
     int       i;
@@ -82,7 +81,6 @@ void ClientGameCommandManager::SwipeOn(Event *ev)
 }
 
 void ClientGameCommandManager::SwipeOff(Event *ev)
-
 {
     qboolean was_enabled;
     int      i;
@@ -108,7 +106,6 @@ void ClientGameCommandManager::SwipeOff(Event *ev)
 }
 
 void ClientGameCommandManager::Swipe(Event *ev)
-
 {
     // This does a swipe effect on the entity
     int           i, swipenum;
@@ -234,7 +231,6 @@ void ClientGameCommandManager::Swipe(Event *ev)
 }
 
 void ClientGameCommandManager::ClearSwipes(void)
-
 {
     int i;
 

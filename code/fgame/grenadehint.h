@@ -28,27 +28,25 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "archive.h"
 #include "simpleentity.h"
 
-class GrenadeHint : public SimpleArchivedEntity {
+class GrenadeHint : public SimpleArchivedEntity
+{
 public:
-	GrenadeHint *m_pNext;
-	static GrenadeHint *gm_pFirst;
+    GrenadeHint        *m_pNext;
+    static GrenadeHint *gm_pFirst;
 
-	CLASS_PROTOTYPE( GrenadeHint );
+    CLASS_PROTOTYPE(GrenadeHint);
 
-	GrenadeHint();
+    GrenadeHint();
 
-	static void ResetHints( void );
-	static int GetClosestSet( GrenadeHint **ppHints, int nHints, Vector& vOrg, float fMaxRangeSquared );
+    static void ResetHints(void);
+    static int  GetClosestSet(GrenadeHint **ppHints, int nHints, Vector& vOrg, float fMaxRangeSquared);
 
-	void Archive( Archiver& arc ) override;
+    void Archive(Archiver& arc) override;
 };
 
-inline void GrenadeHint::Archive
-	(
-	Archiver& arc
-	)
+inline void GrenadeHint::Archive(Archiver& arc)
 {
-	SimpleEntity::Archive( arc );
+    SimpleEntity::Archive(arc);
 
-	arc.ArchiveObjectPointer( ( Class ** )&m_pNext );
+    arc.ArchiveObjectPointer((Class **)&m_pNext);
 }

@@ -64,7 +64,7 @@ protected:
     str                       m_anim;
     UIReggedMaterial         *m_statbar_material;
     UIReggedMaterial         *m_statbar_material_flash;
-	UIReggedMaterial         *m_statbar_material_marker;
+    UIReggedMaterial         *m_statbar_material_marker;
 
 public:
     CLASS_PROTOTYPE(UIFakkLabel);

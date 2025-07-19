@@ -452,10 +452,10 @@ trace_t G_Trace(
 }
 
 void G_TraceEntities(
-    Vector             & start,
-    Vector             & mins,
-    Vector             & maxs,
-    Vector             & end,
+    Vector&              start,
+    Vector&              mins,
+    Vector&              maxs,
+    Vector&              end,
     Container<Entity *> *victimlist,
     int                  contentmask,
     qboolean             bIncludeTriggers
@@ -1321,9 +1321,9 @@ void G_ArchiveEdict(Archiver& arc, gentity_t *edict)
         arc.ArchiveString(&tempStr);
 
         if (tempStr.length()) {
-            qboolean streamed = tempStr[tempStr.length() - 1] != '0';
+            qboolean streamed             = tempStr[tempStr.length() - 1] != '0';
             tempStr[tempStr.length() - 1] = 0;
-            edict->s.loopSound = gi.soundindex(tempStr.c_str(), streamed);
+            edict->s.loopSound            = gi.soundindex(tempStr.c_str(), streamed);
         } else {
             edict->s.loopSound = 0;
         }
@@ -1768,24 +1768,7 @@ int G_AIEventTypeFromString(const char *pszType)
 
 float G_AIEventRadius(int iType)
 {
-    static float fRadius[] = {
-        0,
-        2048,
-        384,
-        4096,
-        1024,
-        1024,
-        1536,
-        1536,
-        1500,
-        2250,
-        512,
-        384,
-        32768,
-        0,
-        0,
-        0
-    };
+    static float fRadius[] = {0, 2048, 384, 4096, 1024, 1024, 1536, 1536, 1500, 2250, 512, 384, 32768, 0, 0, 0};
 
     if (iType >= AI_EVENT_MAX) {
         Com_Printf("G_AIEventRadius: invalid event type\n");
@@ -1838,7 +1821,7 @@ void G_BroadcastAIEvent(Entity *originator, Vector origin, int iType, float radi
             continue;
         }
 
-        act = static_cast<Actor*>(ent);
+        act = static_cast<Actor *>(ent);
         if (act->IgnoreSound(iType)) {
             continue;
         }
@@ -2470,10 +2453,14 @@ gentity_t *G_GetGEntity(int ent_num)
     return ent;
 }
 
-unsigned int G_GetWeaponCommandMask() {
+unsigned int G_GetWeaponCommandMask()
+{
     return GetWeaponCommandMask(g_protocol >= PROTOCOL_MOHTA_MIN ? WEAPON_COMMAND_MAX_VER17 : WEAPON_COMMAND_MAX_VER6);
 }
 
-unsigned int G_GetWeaponCommand(unsigned int buttons) {
-    return GetWeaponCommand(buttons, g_protocol >= PROTOCOL_MOHTA_MIN ? WEAPON_COMMAND_MAX_VER17 : WEAPON_COMMAND_MAX_VER6);
+unsigned int G_GetWeaponCommand(unsigned int buttons)
+{
+    return GetWeaponCommand(
+        buttons, g_protocol >= PROTOCOL_MOHTA_MIN ? WEAPON_COMMAND_MAX_VER17 : WEAPON_COMMAND_MAX_VER6
+    );
 }

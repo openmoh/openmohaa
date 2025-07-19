@@ -305,7 +305,7 @@ void CVAR_Init(void)
 {
     int i;
 
-    developer      = gi.Cvar_Get("developer", "0", 0);
+    developer = gi.Cvar_Get("developer", "0", 0);
 
     precache = gi.Cvar_Get("sv_precache", "1", 0);
 
@@ -465,8 +465,8 @@ void CVAR_Init(void)
         gi.cvar_set("g_realismmode", "0");
     }
 
-    g_teamdamage         = gi.Cvar_Get("g_teamdamage", "0", 0);
-    g_healthdrop         = gi.Cvar_Get("g_healthdrop", "1", 0);
+    g_teamdamage = gi.Cvar_Get("g_teamdamage", "0", 0);
+    g_healthdrop = gi.Cvar_Get("g_healthdrop", "1", 0);
     if (g_protocol >= protocol_e::PROTOCOL_MOHTA_MIN) {
         g_healrate = gi.Cvar_Get("g_healrate", "10", 0);
     } else {
@@ -672,10 +672,10 @@ void CVAR_Init(void)
         gi.Printf("sv_maxbots reached max clients, lowering the value to %u\n", lowered);
     }
 
-    g_instamsg_allowed = gi.Cvar_Get("g_instamsg_allowed", "1", 0);
+    g_instamsg_allowed  = gi.Cvar_Get("g_instamsg_allowed", "1", 0);
     g_instamsg_minDelay = gi.Cvar_Get("g_instamsg_minDelay", "1000", 0);
-    g_textmsg_allowed = gi.Cvar_Get("g_textmsg_allowed", "1", 0);
-    g_textmsg_minDelay = gi.Cvar_Get("g_textmsg_minDelay", "1000", 0);
+    g_textmsg_allowed   = gi.Cvar_Get("g_textmsg_allowed", "1", 0);
+    g_textmsg_minDelay  = gi.Cvar_Get("g_textmsg_minDelay", "1000", 0);
 
     g_teambalance = gi.Cvar_Get("g_teambalance", "0", 0);
 

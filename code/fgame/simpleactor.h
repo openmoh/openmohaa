@@ -161,7 +161,7 @@ public:
     SimpleActor();
     ~SimpleActor();
 
-    void         Archive(Archiver        &arc) override;
+    void         Archive(Archiver& arc) override;
     virtual void SetMoveInfo(mmove_t *mm);
     virtual void GetMoveInfo(mmove_t *mm);
     bool         CanSeeFrom(vec3_t pos, Entity *ent);

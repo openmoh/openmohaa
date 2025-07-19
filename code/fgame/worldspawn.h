@@ -39,23 +39,24 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 typedef Container<SafePtr<SimpleEntity>> ConSimple;
 
-class TargetList : public Class {
+class TargetList : public Class
+{
 public:
     CLASS_PROTOTYPE(TargetList);
 
 public:
     ConSimple list;
-    str targetname;
+    str       targetname;
 
 public:
     TargetList();
     TargetList(const str& tname);
 
-    void AddEntity(Listener* ent);
-    void AddEntityAt(Listener* ent, int i);
-    int GetEntityIndex(Listener* ent);
-    void RemoveEntity(Listener* ent);
-    SimpleEntity* GetNextEntity(SimpleEntity* ent);
+    void          AddEntity(Listener *ent);
+    void          AddEntityAt(Listener *ent, int i);
+    int           GetEntityIndex(Listener *ent);
+    void          RemoveEntity(Listener *ent);
+    SimpleEntity *GetNextEntity(SimpleEntity *ent);
 };
 
 template<>
@@ -76,11 +77,12 @@ public:
 
     void operator delete(void *ptr) { con_set<const_str, ConSimple>::DeleteEntry(ptr); }
 
-    void Archive(Archiver& arc) {
+    void Archive(Archiver& arc)
+    {
         int num;
 
         arc.ArchiveUnsigned(&key);
-        arc.ArchiveObjectPosition((LightClass*)&value);
+        arc.ArchiveObjectPosition((LightClass *)&value);
 
         if (arc.Loading()) {
             arc.ArchiveInteger(&num);
@@ -90,6 +92,7 @@ public:
             arc.ArchiveInteger(&num);
         }
     }
+
     const_str& GetKey() { return key; }
 
     void SetKey(const const_str& newKey) { key = newKey; }
@@ -97,9 +100,9 @@ public:
 
 class World : public Entity
 {
-    Container<TargetList*> m_targetListContainer;
-    qboolean world_dying;
-    Vector bounds[2];
+    Container<TargetList *> m_targetListContainer;
+    qboolean                world_dying;
+    Vector                  bounds[2];
 
 public:
     // farplane variables
@@ -196,7 +199,7 @@ public:
 public:
     const Vector& GetMinBounds() const;
     const Vector& GetMaxBounds() const;
-    float GetRadius() const;
+    float         GetRadius() const;
 };
 
 typedef SafePtr<World> WorldPtr;

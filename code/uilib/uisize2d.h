@@ -22,45 +22,37 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #pragma once
 
-class UISize2D {
+class UISize2D
+{
 public:
-	float width;
-	float height;
+    float width;
+    float height;
 
 public:
-	UISize2D();
-	UISize2D( float width, float height );
+    UISize2D();
+    UISize2D(float width, float height);
 
-	bool operator==( const UISize2D& pos ) const;
-	bool operator!=( const UISize2D& pos ) const;
+    bool operator==(const UISize2D& pos) const;
+    bool operator!=(const UISize2D& pos) const;
 };
 
-inline
-UISize2D::UISize2D()
+inline UISize2D::UISize2D()
 {
-	width = height = 0.0f;
+    width = height = 0.0f;
 }
 
-inline
-UISize2D::UISize2D
-	(
-	float width,
-	float height
-	)
-
+inline UISize2D::UISize2D(float width, float height)
 {
-	this->width = width;
-	this->height = height;
+    this->width  = width;
+    this->height = height;
 }
 
-inline
-bool UISize2D::operator==( const UISize2D& pos ) const
+inline bool UISize2D::operator==(const UISize2D& pos) const
 {
-	return ( width == pos.width && height == pos.height );
+    return (width == pos.width && height == pos.height);
 }
 
-inline
-bool UISize2D::operator!=( const UISize2D& pos ) const
+inline bool UISize2D::operator!=(const UISize2D& pos) const
 {
-	return ( width != pos.width || height != pos.height );
+    return (width != pos.width || height != pos.height);
 }

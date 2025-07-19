@@ -33,40 +33,41 @@ typedef enum {
     MEMARC_READING
 } archiverState_e;
 
-class MemArchiver {
+class MemArchiver
+{
 public:
     MemArchiver();
     ~MemArchiver();
 
-    void SetupForWriting(size_t initialSize);
-    void SetupForReading(byte* buffer, size_t size);
-    void SetBaseTime(unsigned int time);
+    void   SetupForWriting(size_t initialSize);
+    void   SetupForReading(byte *buffer, size_t size);
+    void   SetBaseTime(unsigned int time);
     size_t BufferSize() const;
-    byte* ConfiscateBuffer();
-    bool IsReading() const;
-    bool IsWriting() const;
-    bool FinishedReading() const;
+    byte  *ConfiscateBuffer();
+    bool   IsReading() const;
+    bool   IsWriting() const;
+    bool   FinishedReading() const;
 
-    void ArchiveByte(byte* value);
-    void ArchiveBoolean(qboolean* value);
-    void ArchiveChar(char* value);
-    void ArchiveUChar(unsigned char* value);
-    void ArchiveShort(short* value);
-    void ArchiveInteger(int* value);
-    void ArchiveSize(size_t* value);
-    void ArchiveFloat(float* value);
+    void ArchiveByte(byte *value);
+    void ArchiveBoolean(qboolean *value);
+    void ArchiveChar(char *value);
+    void ArchiveUChar(unsigned char *value);
+    void ArchiveShort(short *value);
+    void ArchiveInteger(int *value);
+    void ArchiveSize(size_t *value);
+    void ArchiveFloat(float *value);
     void ArchiveVec3(vec3_t value);
-    void ArchiveVector(Vector* value);
-    void ArchiveString(str* value);
-    void ArchiveTime(int* value);
-    void ArchiveRaw(void* buffer, size_t size);
-    void ArchiveReadRaw(void* buffer, size_t size);
-    void ArchiveWriteRaw(const void* buffer, size_t size);
+    void ArchiveVector(Vector *value);
+    void ArchiveString(str *value);
+    void ArchiveTime(int *value);
+    void ArchiveRaw(void *buffer, size_t size);
+    void ArchiveReadRaw(void *buffer, size_t size);
+    void ArchiveWriteRaw(const void *buffer, size_t size);
 
 private:
     archiverState_e state;
-    byte* buffer;
-    size_t bufferSize;
-    size_t allocatedSize;
-    int svsTime;
+    byte           *buffer;
+    size_t          bufferSize;
+    size_t          allocatedSize;
+    int             svsTime;
 };

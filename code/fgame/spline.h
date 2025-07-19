@@ -249,7 +249,7 @@ int cSpline<cGrids, cPoints>::Append(cSpline<cGrids, cPoints> *pNew)
     if (m_iPoints) {
         int points;
 
-        points = m_iPoints;
+        points    = m_iPoints;
         fIndexAdd = *GetByNode(m_iPoints, NULL);
 
         for (i = 0; i < pNew->m_iPoints; i++) {

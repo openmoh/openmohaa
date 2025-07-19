@@ -46,8 +46,8 @@ protected:
     //
     // Added in OPM
     //
-    str           name;
-    int           refHandle;
+    str name;
+    int refHandle;
 
 public:
     UIFont();
@@ -55,24 +55,33 @@ public:
 
     void Print(float x, float y, const char *text, size_t maxlen = -1, const float *virtualScreen = NULL);
     void PrintJustified(
-        const UIRect2D& rect, fonthorzjustify_t horz, fontvertjustify_t vert, const char *text, const float *vVirtualScale
+        const UIRect2D&   rect,
+        fonthorzjustify_t horz,
+        fontvertjustify_t vert,
+        const char       *text,
+        const float      *vVirtualScale
     );
     void PrintOutlinedJustified(
-        const UIRect2D& rect, fonthorzjustify_t horz, fontvertjustify_t vert, const char* text, const UColor& outlineColor, const float* vVirtualScale
+        const UIRect2D&   rect,
+        fonthorzjustify_t horz,
+        fontvertjustify_t vert,
+        const char       *text,
+        const UColor&     outlineColor,
+        const float      *vVirtualScale
     );
     void setColor(UColor col);
     void setAlpha(float alpha);
     void setFont(const char *fontname);
-    int  getMaxWidthIndex(const char* text, int maxlen);
+    int  getMaxWidthIndex(const char *text, int maxlen);
     int  getWidth(const char *text, int maxlen);
     int  getCharWidth(unsigned short ch);
-    int  getHeight(const char *text, int maxlen, const float* virtualScale = NULL);
-    int  getHeight(const float* virtualScale = NULL);
+    int  getHeight(const char *text, int maxlen, const float *virtualScale = NULL);
+    int  getHeight(const float *virtualScale = NULL);
     int  CodeSearch(unsigned short uch);
     bool DBCSIsLeadByte(unsigned short uch);
     bool DBCSIsMaekin(unsigned short uch);
     bool DBCSIsAtokin(unsigned short uch);
-    int DBCSGetWordBlockCount(const char* text, int maxlen);
+    int  DBCSGetWordBlockCount(const char *text, int maxlen);
 
 private:
     void CheckRefreshFont();

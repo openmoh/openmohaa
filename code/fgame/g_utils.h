@@ -204,7 +204,6 @@ Takes an index to an entity and returns pointer to it.
 */
 
 inline Entity *G_GetEntity(int entnum)
-
 {
     if ((entnum < 0) || (entnum >= globals.max_entities)) {
         gi.Error(ERR_DROP, "G_GetEntity: %d out of valid range.", entnum);
@@ -224,7 +223,6 @@ random()
 */
 
 inline float G_Random(void)
-
 {
     return ((float)(rand() & 0x7fff)) / ((float)0x8000);
 }
@@ -240,7 +238,6 @@ random()
 */
 
 inline float G_Random(float n)
-
 {
     return G_Random() * n;
 }
@@ -256,7 +253,6 @@ crandom()
 */
 
 inline float G_CRandom(void)
-
 {
     return G_Random(2) - 1;
 }
@@ -272,7 +268,6 @@ crandom()
 */
 
 inline float G_CRandom(float n)
-
 {
     return G_CRandom() * n;
 }
@@ -287,7 +282,6 @@ Used to make filenames consistant.
 */
 
 inline str G_FixSlashes(const char *filename)
-
 {
     int    i;
     size_t len;

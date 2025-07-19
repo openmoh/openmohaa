@@ -229,7 +229,7 @@ qboolean MM_SlideMove(qboolean gravity)
                         continue;
                     }
 
-                    if (DotProduct(clipVelocity, planes[j]) >= 0.1) { 
+                    if (DotProduct(clipVelocity, planes[j]) >= 0.1) {
                         continue; // move doesn't interact with the plane
                     }
 

@@ -149,10 +149,10 @@ public:
 
     scriptmacro_t *GetMacro(char *sourceLine);
 
-    char  *Preprocess(char *sourceBuffer);
-    void   Preclean(char *processedBuffer);
-    bool Parse(GameScript *m_GameScript, char *sourceBuffer, const char *type, size_t& outLength);
-    bool Compile(GameScript *m_GameScript, unsigned char *progBuffer, size_t& outLength);
+    char *Preprocess(char *sourceBuffer);
+    void  Preclean(char *processedBuffer);
+    bool  Parse(GameScript *m_GameScript, char *sourceBuffer, const char *type, size_t& outLength);
+    bool  Compile(GameScript *m_GameScript, unsigned char *progBuffer, size_t& outLength);
 
     static str GetLine(str content, int line);
 

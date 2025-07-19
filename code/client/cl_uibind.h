@@ -125,4 +125,4 @@ public:
     void EnterSound(Event *ev);
 };
 
-bool CL_LoadBind(const char* filename, bind_t* bind);
+bool CL_LoadBind(const char *filename, bind_t *bind);

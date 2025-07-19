@@ -86,7 +86,8 @@ static const char *localizableVars[] = {
     "g_gametypestring",
     "dm_serverstatus",
     "com_errormessage",
-    NULL};
+    NULL
+};
 
 CLASS_DECLARATION(UIWidget, UILabel, NULL) {
     {&W_MouseEntered,              &UILabel::MouseEntered         },
@@ -323,11 +324,7 @@ void UILabel::Draw(void)
         } else {
             // print the text
             m_font->PrintJustified(
-                getClientFrame(),
-                m_iFontAlignmentHorizontal,
-                m_iFontAlignmentVertical,
-                string,
-                getVirtualScale()
+                getClientFrame(), m_iFontAlignmentHorizontal, m_iFontAlignmentVertical, string, getVirtualScale()
             );
         }
     }

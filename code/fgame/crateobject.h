@@ -67,4 +67,3 @@ inline void CrateObject::Archive(Archiver& arc)
     arc.ArchiveVector(&m_vStartAngles);
     arc.ArchiveFloat(&m_fJitterScale);
 }
-

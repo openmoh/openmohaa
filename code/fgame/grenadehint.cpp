@@ -24,76 +24,64 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "grenadehint.h"
 
-CLASS_DECLARATION( SimpleEntity, GrenadeHint, "info_grenadehint" )
-{
-	{ NULL, NULL }
+CLASS_DECLARATION(SimpleEntity, GrenadeHint, "info_grenadehint") {
+    {NULL, NULL}
 };
 
 GrenadeHint *GrenadeHint::gm_pFirst;
 
 GrenadeHint::GrenadeHint()
 {
-	m_pNext = gm_pFirst;
-	gm_pFirst = this;
+    m_pNext   = gm_pFirst;
+    gm_pFirst = this;
 }
 
-void GrenadeHint::ResetHints
-	(
-	void
-	)
+void GrenadeHint::ResetHints(void)
 {
-	gm_pFirst = NULL;
+    gm_pFirst = NULL;
 }
 
-int GrenadeHint::GetClosestSet
-	(
-	GrenadeHint **ppHints,
-	int nHints,
-	Vector& vOrg,
-	float fMaxRangeSquared
-	)
+int GrenadeHint::GetClosestSet(GrenadeHint **ppHints, int nHints, Vector& vOrg, float fMaxRangeSquared)
 {
-	int i;
-	int nFound = 0;
-	GrenadeHint *pHint;
-	Vector vDelta;
-	float afRangeSquared[ 256 ];
-	float fRangeSquared;
+    int          i;
+    int          nFound = 0;
+    GrenadeHint *pHint;
+    Vector       vDelta;
+    float        afRangeSquared[256];
+    float        fRangeSquared;
 
-	if( nHints > 256 )
-		nHints = 256;
+    if (nHints > 256) {
+        nHints = 256;
+    }
 
-	// iterate through all grenade hints and get the closest
-	for( pHint = gm_pFirst; pHint != NULL; pHint = pHint->m_pNext )
-	{
-		vDelta = pHint->origin - vOrg;
+    // iterate through all grenade hints and get the closest
+    for (pHint = gm_pFirst; pHint != NULL; pHint = pHint->m_pNext) {
+        vDelta = pHint->origin - vOrg;
 
-		fRangeSquared = VectorLengthSquared( vDelta );
+        fRangeSquared = VectorLengthSquared(vDelta);
 
-		if( fRangeSquared > fMaxRangeSquared )
-		{
-			for( i = nFound; i > 0; i-- )
-			{
-				if( fRangeSquared > afRangeSquared[ i - 1 ]  )
-					break;
+        if (fRangeSquared > fMaxRangeSquared) {
+            for (i = nFound; i > 0; i--) {
+                if (fRangeSquared > afRangeSquared[i - 1]) {
+                    break;
+                }
 
-				if( i < nFound || nFound < nHints )
-				{
-					afRangeSquared[ i ] = afRangeSquared[ i - 1 ];
-					ppHints[ i ] = ppHints[ i - 1 ];
-				}
-			}
+                if (i < nFound || nFound < nHints) {
+                    afRangeSquared[i] = afRangeSquared[i - 1];
+                    ppHints[i]        = ppHints[i - 1];
+                }
+            }
 
-			if( i < nHints )
-			{
-				afRangeSquared[ i ] = fRangeSquared;
-				ppHints[ i ] = pHint;
+            if (i < nHints) {
+                afRangeSquared[i] = fRangeSquared;
+                ppHints[i]        = pHint;
 
-				if( nFound < nHints )
-					nFound++;
-			}
-		}
-	}
+                if (nFound < nHints) {
+                    nFound++;
+                }
+            }
+        }
+    }
 
-	return nFound;
+    return nFound;
 }

@@ -196,7 +196,7 @@ void SimpleActor::SetPath(
         }
 
         if (g_patherror->integer == 2) {
-            int thinkState = static_cast<Actor*>(this)->m_ThinkState;
+            int thinkState = static_cast<Actor *>(this)->m_ThinkState;
             if (thinkState != THINKSTATE_IDLE && thinkState != THINKSTATE_CURIOUS) {
                 return;
             }
@@ -1077,7 +1077,11 @@ int SimpleActor::GetEmotionAnim(void)
         default:
 
             char assertStr[16317] = {0};
-            Q_strncpyz(assertStr, "\"Unknown value for m_EmotionMode in SimpleActor::GetEmotionAnim\"\n\tMessage: ", sizeof(assertStr));
+            Q_strncpyz(
+                assertStr,
+                "\"Unknown value for m_EmotionMode in SimpleActor::GetEmotionAnim\"\n\tMessage: ",
+                sizeof(assertStr)
+            );
             Q_strcat(assertStr, sizeof(assertStr), DumpCallTrace(""));
             assert(!assertStr);
             return -1;
@@ -1100,7 +1104,11 @@ int SimpleActor::GetEmotionAnim(void)
         default:
 
             char assertStr[16317] = {0};
-            Q_strncpyz(assertStr, "\"Unknown value for m_csMood in SimpleActor::GetEmotionAnim\"\n\tMessage: ", sizeof(assertStr));
+            Q_strncpyz(
+                assertStr,
+                "\"Unknown value for m_csMood in SimpleActor::GetEmotionAnim\"\n\tMessage: ",
+                sizeof(assertStr)
+            );
             Q_strcat(assertStr, sizeof(assertStr), DumpCallTrace(""));
             assert(!assertStr);
             return -1;

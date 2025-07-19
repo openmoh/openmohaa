@@ -25,196 +25,111 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "uipoint2d.h"
 #include "uisize2d.h"
 
-class UIRect2D {
+class UIRect2D
+{
 public:
-	UIPoint2D pos;
-	UISize2D size;
+    UIPoint2D pos;
+    UISize2D  size;
 
 public:
-	UIRect2D();
-	UIRect2D( float x, float y, float width, float height );
-	UIRect2D( const UIPoint2D& pos, const UISize2D& size );
+    UIRect2D();
+    UIRect2D(float x, float y, float width, float height);
+    UIRect2D(const UIPoint2D& pos, const UISize2D& size);
 
-	float		getMinX() const;
-	float		getMinY() const;
-	float		getMaxX() const;
-	float		getMaxY() const;
-	UIPoint2D	getUpperLeft() const;
-	UIPoint2D	getUpperRight() const;
-	UIPoint2D	getLowerLeft() const;
-	UIPoint2D	getLowerRight() const;
+    float     getMinX() const;
+    float     getMinY() const;
+    float     getMaxX() const;
+    float     getMaxY() const;
+    UIPoint2D getUpperLeft() const;
+    UIPoint2D getUpperRight() const;
+    UIPoint2D getLowerLeft() const;
+    UIPoint2D getLowerRight() const;
 
-	bool	contains( const UIPoint2D& pos  ) const;
-	bool	contains( float x, float y ) const;
-	bool	contains( int x, int y ) const;
-	bool	contains( const UIRect2D& pos  ) const;
-	bool	intersects( const UIRect2D& pos ) const;
+    bool contains(const UIPoint2D& pos) const;
+    bool contains(float x, float y) const;
+    bool contains(int x, int y) const;
+    bool contains(const UIRect2D& pos) const;
+    bool intersects(const UIRect2D& pos) const;
 };
 
-inline
-UIRect2D::UIRect2D()
+inline UIRect2D::UIRect2D() {}
+
+inline UIRect2D::UIRect2D(float x, float y, float width, float height)
 {
+    pos  = UIPoint2D(x, y);
+    size = UISize2D(width, height);
 }
 
-inline
-UIRect2D::UIRect2D
-	(
-	float x,
-	float y,
-	float width,
-	float height
-	)
-
+inline UIRect2D::UIRect2D(const UIPoint2D& pos, const UISize2D& size)
 {
-	pos = UIPoint2D( x, y );
-	size = UISize2D( width, height );
+    this->pos  = pos;
+    this->size = size;
 }
 
-inline
-UIRect2D::UIRect2D
-	(
-	const UIPoint2D& pos,
-	const UISize2D& size
-	)
-
+inline float UIRect2D::getMinX(void) const
 {
-	this->pos = pos;
-	this->size = size;
+    return pos.x;
 }
 
-inline
-float UIRect2D::getMinX
-	(
-	void
-	) const
-
+inline float UIRect2D::getMinY(void) const
 {
-	return pos.x;
+    return pos.y;
 }
 
-inline
-float UIRect2D::getMinY
-	(
-	void
-	) const
-
+inline float UIRect2D::getMaxX(void) const
 {
-	return pos.y;
+    return pos.x + size.width;
 }
 
-inline
-float UIRect2D::getMaxX
-	(
-	void
-	) const
-
+inline float UIRect2D::getMaxY(void) const
 {
-	return pos.x + size.width;
+    return pos.y + size.height;
 }
 
-inline
-float UIRect2D::getMaxY
-	(
-	void
-	) const
-
+inline UIPoint2D UIRect2D::getUpperLeft(void) const
 {
-	return pos.y + size.height;
+    return UIPoint2D(getMinX(), getMinY());
 }
 
-inline
-UIPoint2D UIRect2D::getUpperLeft
-	(
-	void
-	) const
-
+inline UIPoint2D UIRect2D::getUpperRight(void) const
 {
-	return UIPoint2D( getMinX(), getMinY() );
+    return UIPoint2D(getMaxX(), getMinY());
 }
 
-inline
-UIPoint2D UIRect2D::getUpperRight
-	(
-	void
-	) const
-
+inline UIPoint2D UIRect2D::getLowerLeft(void) const
 {
-	return UIPoint2D( getMaxX(), getMinY() );
+    return UIPoint2D(getMinX(), getMaxY());
 }
 
-inline
-UIPoint2D UIRect2D::getLowerLeft
-	(
-	void
-	) const
-
+inline UIPoint2D UIRect2D::getLowerRight(void) const
 {
-	return UIPoint2D( getMinX(), getMaxY() );
+    return UIPoint2D(getMaxX(), getMaxY());
 }
 
-inline
-UIPoint2D UIRect2D::getLowerRight
-	(
-	void
-	) const
-
+inline bool UIRect2D::contains(const UIPoint2D& pos) const
 {
-	return UIPoint2D( getMaxX(), getMaxY() );
+    return pos.x >= this->pos.x && pos.x <= this->pos.x + size.width && pos.y >= this->pos.y
+        && pos.y <= this->pos.y + size.height;
 }
 
-inline
-bool UIRect2D::contains
-	(
-	const UIPoint2D& pos
-	) const
-
+inline bool UIRect2D::contains(float x, float y) const
 {
-	return pos.x >= this->pos.x && pos.x <= this->pos.x + size.width
-		&& pos.y >= this->pos.y && pos.y <= this->pos.y + size.height;
+    return x >= this->pos.x && x <= this->pos.x + size.width && y >= this->pos.y && y <= this->pos.y + size.height;
 }
 
-inline
-bool UIRect2D::contains
-	(
-	float x,
-	float y
-	) const
-
+inline bool UIRect2D::contains(int x, int y) const
 {
-	return x >= this->pos.x && x <= this->pos.x + size.width
-		&& y >= this->pos.y && y <= this->pos.y + size.height;
+    return x >= this->pos.x && x <= this->pos.x + size.width && y >= this->pos.y && y <= this->pos.y + size.height;
 }
 
-inline
-bool UIRect2D::contains
-	(
-	int x,
-	int y
-	) const
-
+inline bool UIRect2D::contains(const UIRect2D& pos) const
 {
-	return x >= this->pos.x && x <= this->pos.x + size.width
-		&& y >= this->pos.y && y <= this->pos.y + size.height;
+    return pos.pos.x >= this->pos.x && pos.pos.x <= this->pos.x + size.width && pos.pos.y >= this->pos.y
+        && pos.pos.y <= this->pos.y + size.height;
 }
 
-inline
-bool UIRect2D::contains
-	(
-	const UIRect2D& pos
-	) const
-
+inline bool UIRect2D::intersects(const UIRect2D& pos) const
 {
-	return pos.pos.x >= this->pos.x && pos.pos.x <= this->pos.x + size.width
-		&& pos.pos.y >= this->pos.y && pos.pos.y <= this->pos.y + size.height;
-}
-
-inline
-bool UIRect2D::intersects
-	(
-	const UIRect2D& pos
-	) const
-
-{
-	// FIXME: stub
-	return false;
+    // FIXME: stub
+    return false;
 }

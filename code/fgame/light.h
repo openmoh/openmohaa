@@ -21,7 +21,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 // light.h: Classes for creating and controlling lights.
-// 
+//
 
 #pragma once
 
@@ -29,9 +29,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "entity.h"
 
 class Light : public Entity
-	{
-	public:
-      CLASS_PROTOTYPE( Light );
-		
-								Light();
-	};
+{
+public:
+    CLASS_PROTOTYPE(Light);
+
+    Light();
+};

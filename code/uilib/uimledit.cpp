@@ -25,27 +25,27 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 Event EV_Time_Dragged
 (
-	"_umledit_drag_timer",
-	EV_DEFAULT,
-	NULL,
-	NULL,
-	"Used to time mouse drag events"
+    "_umledit_drag_timer",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Used to time mouse drag events"
 );
 Event EV_UIMultiLineEdit_UpdateCvarEvent
 (
-	"updatecvar",
-	EV_DEFAULT,
-	NULL,
-	NULL,
-	"Causes text box to update itself using the assigned cvar"
+    "updatecvar",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Causes text box to update itself using the assigned cvar"
 );
 Event EV_UIMultiLineEdit_SetEdit
 (
-	"edit",
-	EV_DEFAULT,
-	"b",
-	"bool",
-	"Set whether or not the text is editable"
+    "edit",
+    EV_DEFAULT,
+    "b",
+    "bool",
+    "Set whether or not the text is editable"
 );
 
 CLASS_DECLARATION(UIWidget, UIMultiLineEdit, NULL) {
@@ -217,7 +217,9 @@ void UIMultiLineEdit::Draw(void)
             if (i > topsel->line && i < botsel->line) {
                 // all text in current line is selected, it's part of a larger selection,
                 // print entire line with the selection highlight box around it
-                DrawBox(0.0f, aty, linewidth * getVirtualScale()[0], m_font->getHeight(getVirtualScale()), selectionBG, 1.f);
+                DrawBox(
+                    0.0f, aty, linewidth * getVirtualScale()[0], m_font->getHeight(getVirtualScale()), selectionBG, 1.f
+                );
                 m_font->setColor(selectionColor);
                 // Fixed in OPM:
                 // don't spam LOCALIZATION ERROR messages to console
@@ -226,13 +228,20 @@ void UIMultiLineEdit::Draw(void)
                 m_font->Print(0, aty / getVirtualScale()[1], cur, -1, getVirtualScale());
             } else if (i != topsel->line) {
                 // part of this line is selected, and selection continues/began above
-                if (i == botsel->line) { // sanity check, should always be true
+                if (i == botsel->line) {                                // sanity check, should always be true
                     int toplen = m_font->getWidth(cur, botsel->column); // X coord of highlighting end
                     if (toplen) {
                         // selection contains text from the beginning of the line,
                         // print it with the selection highlight box around it
                         m_font->setColor(selectionColor);
-                        DrawBox(0, aty, toplen * getVirtualScale()[0], m_font->getHeight(getVirtualScale()), selectionBG, 1.f);
+                        DrawBox(
+                            0,
+                            aty,
+                            toplen * getVirtualScale()[0],
+                            m_font->getHeight(getVirtualScale()),
+                            selectionBG,
+                            1.f
+                        );
                         m_font->Print(0, aty / getVirtualScale()[1], cur, botsel->column, getVirtualScale());
                     }
 
@@ -257,7 +266,14 @@ void UIMultiLineEdit::Draw(void)
                 if (toplen < linewidth) { // is there any selected text before the end of the line?
                     // print the selected text with the selection highlight box around it
                     m_font->setColor(selectionColor);
-                    DrawBox(toplen * getVirtualScale()[0], aty, (linewidth - toplen) * getVirtualScale()[0], m_font->getHeight(getVirtualScale()), selectionBG, 1.f);
+                    DrawBox(
+                        toplen * getVirtualScale()[0],
+                        aty,
+                        (linewidth - toplen) * getVirtualScale()[0],
+                        m_font->getHeight(getVirtualScale()),
+                        selectionBG,
+                        1.f
+                    );
                     m_font->Print(toplen, aty / getVirtualScale()[1], &cur[topsel->column], -1, getVirtualScale());
                 }
 
@@ -279,7 +295,10 @@ void UIMultiLineEdit::Draw(void)
                 } else {
                     // selection starts and ends on this line
                     int toplen = m_font->getWidth(cur, topsel->column); // X coord of highlighting start
-                    int botlen = toplen + m_font->getWidth(&cur[topsel->column], botsel->column - topsel->column); // X coord of selection end
+                    int botlen = toplen
+                               + m_font->getWidth(
+                                   &cur[topsel->column], botsel->column - topsel->column
+                               ); // X coord of selection end
 
                     if (toplen) { // is there any text on this line before the selection?
                         m_font->setColor(m_foreground_color);
@@ -288,9 +307,22 @@ void UIMultiLineEdit::Draw(void)
 
                     if (botlen != toplen) { // is the selection wider than 0 pixels? (sanity check, always true)
                         // print the selected text with the selection highlight box around it
-                        DrawBox(toplen * getVirtualScale()[0], aty, (botlen - toplen) * getVirtualScale()[0], m_font->getHeight(getVirtualScale()), selectionBG, 1.f);
+                        DrawBox(
+                            toplen * getVirtualScale()[0],
+                            aty,
+                            (botlen - toplen) * getVirtualScale()[0],
+                            m_font->getHeight(getVirtualScale()),
+                            selectionBG,
+                            1.f
+                        );
                         m_font->setColor(selectionColor);
-                        m_font->Print(toplen, aty / getVirtualScale()[1], &cur[topsel->column], botsel->column - topsel->column, getVirtualScale());
+                        m_font->Print(
+                            toplen,
+                            aty / getVirtualScale()[1],
+                            &cur[topsel->column],
+                            botsel->column - topsel->column,
+                            getVirtualScale()
+                        );
                     }
 
                     if (cur.length() != botsel->column) { // is there still text on this line after the selection?
@@ -698,7 +730,7 @@ void UIMultiLineEdit::CharEvent(int ch)
         m_changed = true;
 
         str& line      = LineFromLineNumber(m_selection.begin.line, false);
-        str otherline = "";
+        str  otherline = "";
         if (line.length() > m_selection.begin.column) {
             otherline = &line[m_selection.begin.column];
             line.CapLength(m_selection.begin.column);
@@ -769,8 +801,7 @@ void UIMultiLineEdit::PasteSelection(void)
     // variable added in OPM as str cannot handle NULL assignment
     // we can get NULL here if clipboard is empty/couldn't be retrieved
     const char *clipboardData = uii.Sys_GetClipboard();
-    if (clipboardData == NULL)
-    {
+    if (clipboardData == NULL) {
         return;
     }
 

@@ -1230,7 +1230,7 @@ static UIRect2D getDefaultDMBoxRectangle(void)
 {
     float width;
     float screenWidth = getScreenWidth();
-   
+
     width = screenWidth * uid.scaleRes[0] * ui_compass_scale->value * 0.2f;
 
     return UIRect2D(width, 0, (screenWidth - (width + 192.0f)) * uid.scaleRes[0], 120.0f * uid.scaleRes[1]);
@@ -1725,9 +1725,7 @@ UI_ClearBackground
 */
 void UI_ClearBackground(void)
 {
-    re.Set2DWindow(
-        0, 0, uid.vidWidth, uid.vidHeight, 0, uid.vidWidth, uid.vidHeight, 0, -1, 1
-    );
+    re.Set2DWindow(0, 0, uid.vidWidth, uid.vidHeight, 0, uid.vidWidth, uid.vidHeight, 0, -1, 1);
     re.Scissor(0, 0, uid.vidWidth, uid.vidHeight);
     re.SetColor(g_color_table[0]);
     re.DrawBox(0, 0, uid.vidWidth, uid.vidHeight);
@@ -3804,8 +3802,8 @@ void CL_FillUIImports(void)
     uii.GetConfigstring   = CL_ConfigString;
     uii.UI_CloseDMConsole = UI_CloseDMConsole;
 
-    uii.GetRefSequence = CL_GetRefSequence;
-    uii.IsRendererLoaded = CL_IsRendererLoaded;
+    uii.GetRefSequence    = CL_GetRefSequence;
+    uii.IsRendererLoaded  = CL_IsRendererLoaded;
     uii.Rend_LoadRawImage = re.LoadRawImage;
     uii.Rend_FreeRawImage = re.FreeRawImage;
 }
@@ -3862,10 +3860,9 @@ void UI_CreateDialog(
     const char *cancelshader
 )
 {
-    UIDialog *dlg = new UIDialog;
-    UIRect2D  rect =
-        UIRect2D((uid.vidWidth - width) / 2, (uid.vidHeight - height) / 2, width, height);
-    UColor bgColor = UWindowColor;
+    UIDialog *dlg     = new UIDialog;
+    UIRect2D  rect    = UIRect2D((uid.vidWidth - width) / 2, (uid.vidHeight - height) / 2, width, height);
+    UColor    bgColor = UWindowColor;
 
     dlg->Create(NULL, rect, title, bgColor, UHudColor);
     dlg->LinkCvar(cvarname);
@@ -3911,8 +3908,8 @@ void UI_ResolutionChange(void)
         //uid.scaleRes[1] = (float)uid.vidHeight / maxHeightRes;
         uid.bHighResScaling = qtrue;
     } else {
-        uid.scaleRes[0] = 1;
-        uid.scaleRes[1] = 1;
+        uid.scaleRes[0]     = 1;
+        uid.scaleRes[1]     = 1;
         uid.bHighResScaling = qfalse;
     }
 
@@ -4192,7 +4189,7 @@ void UI_ClearState(void)
     }
 
     // Added in OPM
-	SCR_StopCinematic ();
+    SCR_StopCinematic();
 }
 
 /*
@@ -4487,7 +4484,13 @@ void ScoreboardListItem::DrawListItem(int iColumn, const UIRect2D& drawRect, boo
 {
     DrawBox(drawRect, backColor, 1.0);
     pFont->setColor(textColor);
-    pFont->Print((drawRect.pos.x + 1) / uid.scaleRes[0], drawRect.pos.y / uid.scaleRes[1], Sys_LV_CL_ConvertString(getListItemString(iColumn)), -1, uid.scaleRes);
+    pFont->Print(
+        (drawRect.pos.x + 1) / uid.scaleRes[0],
+        drawRect.pos.y / uid.scaleRes[1],
+        Sys_LV_CL_ConvertString(getListItemString(iColumn)),
+        -1,
+        uid.scaleRes
+    );
 
     if (bTitleItem) {
         UIRect2D lineRect;
@@ -5532,7 +5535,8 @@ void UI_EndLoadResource(void)
 {
     clock_t time;
 
-    time = clock() - (((clock_t)startCountHigh << 32) | startCountLow) + (((clock_t)loadCountHigh << 32) | loadCountLow);
+    time =
+        clock() - (((clock_t)startCountHigh << 32) | startCountLow) + (((clock_t)loadCountHigh << 32) | loadCountLow);
 
     loadCountHigh = time >> 32;
     loadCountLow  = time;

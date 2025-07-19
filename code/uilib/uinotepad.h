@@ -24,81 +24,91 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 class UINotepad;
 
-class UINotepadEdit : public UIMultiLineEdit {
+class UINotepadEdit : public UIMultiLineEdit
+{
 protected:
-	UINotepad *m_notepad;
+    UINotepad *m_notepad;
 
 public:
-	CLASS_PROTOTYPE( UINotepadEdit );
+    CLASS_PROTOTYPE(UINotepadEdit);
 
 public:
-	UINotepadEdit();
+    UINotepadEdit();
 
-	void		CharEvent( int ch ) override;
-	void		setNotepad( UINotepad *notepad );
-	bool		GotoLine( int line );
-	bool		FindText( const char *text, int offsetFromSel );
-	void		MousePressed( Event *ev );
+    void CharEvent(int ch) override;
+    void setNotepad(UINotepad *notepad);
+    bool GotoLine(int line);
+    bool FindText(const char *text, int offsetFromSel);
+    void MousePressed(Event *ev);
 };
 
-typedef enum { STATE_NONE, STATE_GOTO_LINE, STATE_FIND_TEXT, STATE_SAVE_AS, STATE_TIMED_MESSAGE, STATE_CONFIRMCLOSE } state_t;
+typedef enum {
+    STATE_NONE,
+    STATE_GOTO_LINE,
+    STATE_FIND_TEXT,
+    STATE_SAVE_AS,
+    STATE_TIMED_MESSAGE,
+    STATE_CONFIRMCLOSE
+} state_t;
 
 typedef struct textinput_s {
-	str text;
+    str text;
 } textinput_t;
 
 typedef struct timedmessage_s {
-	int die;
-	str text;
+    int die;
+    str text;
 } timedmessage_t;
 
 typedef struct ctrlevent_s {
-	char ch;
-	Event *ev;
+    char   ch;
+    Event *ev;
 } ctrlevent_t;
 
-class UINotepad : public UIFloatingWindow {
-	friend class UINotepadEdit; // UINotepadEdit needs m_state
+class UINotepad : public UIFloatingWindow
+{
+    friend class UINotepadEdit; // UINotepadEdit needs m_state
+
 private:
-	Container<Container<uipopup_describe *> *> m_popups;
+    Container<Container<uipopup_describe *> *> m_popups;
 
 protected:
-	state_t m_state;
-	textinput_s m_textinput;
-	timedmessage_s m_timedmessage;
-	str m_lastfind;
-	str m_filename;
-	UINotepadEdit *m_edit;
-	UIStatusBar *m_status;
-	class UIPulldownMenu *m_menu;
+    state_t               m_state;
+    textinput_s           m_textinput;
+    timedmessage_s        m_timedmessage;
+    str                   m_lastfind;
+    str                   m_filename;
+    UINotepadEdit        *m_edit;
+    UIStatusBar          *m_status;
+    class UIPulldownMenu *m_menu;
 
 public:
-	CLASS_PROTOTYPE( UINotepad );
+    CLASS_PROTOTYPE(UINotepad);
 
 protected:
-	void	TimeMessage( const char *message, int howlong );
+    void TimeMessage(const char *message, int howlong);
 
 public:
-	UINotepad();
-	~UINotepad();
+    UINotepad();
+    ~UINotepad();
 
-	bool	OpenFile( const char *filename );
-	bool	Create( UIWidget *parent, UIRect2D& rect, const char *filename );
-	void	ChildSizeChanged( Event *ev );
-	void	SaveAs( Event *ev );
-	void	Save( Event *ev );
-	void	Open( Event *ev );
-	void	OpenFile( Event *ev );
-	void	ClosePressed( Event *ev );
-	void	OnFind( Event *ev );
-	void	OnGoto( Event *ev );
-	void	OnCopy( Event *ev );
-	void	OnPaste( Event *ev );
-	void	OnCut( Event *ev );
-	bool	ProcessControlEvents( int ch );
-	bool	ProcessCharEvent( int ch );
-	void	Draw( void ) override;
-	void	setFileName( const char *filename );
+    bool OpenFile(const char *filename);
+    bool Create(UIWidget *parent, UIRect2D& rect, const char *filename);
+    void ChildSizeChanged(Event *ev);
+    void SaveAs(Event *ev);
+    void Save(Event *ev);
+    void Open(Event *ev);
+    void OpenFile(Event *ev);
+    void ClosePressed(Event *ev);
+    void OnFind(Event *ev);
+    void OnGoto(Event *ev);
+    void OnCopy(Event *ev);
+    void OnPaste(Event *ev);
+    void OnCut(Event *ev);
+    bool ProcessControlEvents(int ch);
+    bool ProcessCharEvent(int ch);
+    void Draw(void) override;
+    void setFileName(const char *filename);
 };
 
-bool UI_LoadNotepadFile( const char *filename );
+bool UI_LoadNotepadFile(const char *filename);

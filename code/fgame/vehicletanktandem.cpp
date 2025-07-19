@@ -27,18 +27,14 @@ CLASS_DECLARATION(VehicleTank, VehicleTankTandem, "VehicleTankTandem") {
     {NULL, NULL}
 };
 
-VehicleTankTandem::VehicleTankTandem()
-{
-}
+VehicleTankTandem::VehicleTankTandem() {}
 
-VehicleTankTandem::~VehicleTankTandem()
-{
-}
+VehicleTankTandem::~VehicleTankTandem() {}
 
 void VehicleTankTandem::SpawnTurret(Event *ev)
 {
-    VehicleTurretGunTandem* pTurret = new VehicleTurretGunTandem();
-    int slot;
+    VehicleTurretGunTandem *pTurret = new VehicleTurretGunTandem();
+    int                     slot;
 
     pTurret->SetBaseOrientation(orientation, NULL);
     pTurret->setModel(ev->GetString(2));
@@ -59,7 +55,7 @@ void VehicleTankTandem::UpdateTurretSlot(int iSlot)
     VehicleTank::UpdateTurretSlot(iSlot);
 
     if (Turrets[iSlot].ent && Turrets[iSlot].ent->isSubclassOf(VehicleTurretGunTandem)) {
-        VehicleTurretGunTandem* pTurret = static_cast<VehicleTurretGunTandem*>(Turrets[iSlot].ent.Pointer());
+        VehicleTurretGunTandem *pTurret = static_cast<VehicleTurretGunTandem *>(Turrets[iSlot].ent.Pointer());
         pTurret->UpdateLinkedTurret();
     }
 }

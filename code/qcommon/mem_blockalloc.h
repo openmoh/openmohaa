@@ -35,7 +35,7 @@ void *MEM_Alloc(int size);
 void  MEM_Free(void *ptr);
 
 #ifdef _DEBUG_MEM
-#  define _DEBUG_MEMBLOCK 1
+#    define _DEBUG_MEMBLOCK 1
 #endif
 
 static constexpr size_t DefaultBlock = 256;
@@ -342,7 +342,7 @@ template<typename a, size_t b>
 void MEM_BlockAlloc<a, b>::Free(void *ptr) noexcept
 {
 #if _DEBUG_MEMBLOCK
-    block_t *block = (block_t*)ptr - offsetof(block_t, data);
+    block_t *block = (block_t *)ptr - offsetof(block_t, data);
 
     LL_SafeRemoveRoot(m_Block, block, next_block, prev_block);
 

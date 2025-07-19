@@ -497,8 +497,7 @@ Event EV_Projectile_NoTouchDamage
     "Makes the projectile not blow up or deal damage when it touches a damagable object",
     EV_NORMAL
 );
-Event EV_Projectile_SetSmashThroughGlass
-(
+Event EV_Projectile_SetSmashThroughGlass(
     "smashthroughglass",
     EV_DEFAULT,
     "i",
@@ -1062,7 +1061,6 @@ void Projectile::SetDMLife(Event *ev)
 }
 
 void Projectile::SetSpeed(Event *ev)
-
 {
     speed = ev->GetFloat(1);
 }
@@ -1923,9 +1921,9 @@ Projectile *ProjectileAttack(
     proj->setMoveType(MOVETYPE_BOUNCE);
     proj->ProcessInitCommands();
     proj->SetOwner(owner);
-    proj->angles            = dir.toAngles();
-    proj->charge_fraction   = fraction;
-    proj->weap              = weap;
+    proj->angles          = dir.toAngles();
+    proj->charge_fraction = fraction;
+    proj->weap            = weap;
 
     if (!real_speed) {
         if (proj->projFlags & P_CHARGE_SPEED) {
@@ -2401,8 +2399,8 @@ float BulletAttack(
                             && (g_protocol < protocol_e::PROTOCOL_MOHTA || (trace.ent->r.contents & CONTENTS_BBOX))
                             && !trace.ent->r.bmodel && trace.ent->entity->takedamage)
                         || ((trace.surfaceFlags & SURF_WOOD) && bulletthroughwood)
-                        || ((trace.surfaceFlags & (SURF_GRILL | SURF_METAL)) && bulletthroughmetal && iContinueCount < 5
-                        )) {
+                        || ((trace.surfaceFlags & (SURF_GRILL | SURF_METAL)) && bulletthroughmetal
+                            && iContinueCount < 5)) {
                         if (((trace.surfaceFlags & SURF_WOOD) && bulletthroughwood)
                             || ((trace.surfaceFlags & (SURF_GRILL | SURF_METAL)) && bulletthroughmetal)) {
                             if (trace.contents & CONTENTS_FENCE) {

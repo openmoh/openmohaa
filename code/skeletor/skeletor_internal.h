@@ -44,8 +44,8 @@ public:
     skelBone_Base();
     virtual ~skelBone_Base();
 
-    SkelMat4             & GetTransform(const skelAnimStoreFrameList_c *frames);
-    virtual SkelMat4     & GetDirtyTransform(const skelAnimStoreFrameList_c *frames) = 0;
+    SkelMat4&              GetTransform(const skelAnimStoreFrameList_c *frames);
+    virtual SkelMat4&      GetDirtyTransform(const skelAnimStoreFrameList_c *frames) = 0;
     void                   SetParent(skelBone_Base *parent);
     virtual void           SetBaseValue(boneData_t *boneData);
     virtual int            GetChannelIndex(int num);
@@ -62,7 +62,7 @@ public:
     skelBone_World();
 
 private:
-    SkelMat4     & GetDirtyTransform(const skelAnimStoreFrameList_c *frames) override;
+    SkelMat4&      GetDirtyTransform(const skelAnimStoreFrameList_c *frames) override;
     void           SetBaseValue(boneData_t *boneData) override;
     int            GetChannelIndex(int num) override;
     skelBone_Base *GetBoneRef(int num) override;
@@ -71,7 +71,7 @@ private:
 class skelBone_Zero : public skelBone_Base
 {
 private:
-    SkelMat4     & GetDirtyTransform(const skelAnimStoreFrameList_c *frames) override;
+    SkelMat4&      GetDirtyTransform(const skelAnimStoreFrameList_c *frames) override;
     void           SetBaseValue(boneData_t *boneData) override;
     int            GetChannelIndex(int num) override;
     skelBone_Base *GetBoneRef(int num) override;
@@ -130,7 +130,7 @@ public:
 
     skelBone_IKshoulder();
 
-    SkelMat4     & GetDirtyTransform(const skelAnimStoreFrameList_c *frames) override;
+    SkelMat4&      GetDirtyTransform(const skelAnimStoreFrameList_c *frames) override;
     void           SetBaseValue(boneData_t *boneData) override;
     int            GetChannelIndex(int num) override;
     skelBone_Base *GetBoneRef(int num) override;
@@ -147,7 +147,7 @@ public:
     skelBone_IKshoulder *m_shoulder;
 
 public:
-    SkelMat4     & GetDirtyTransform(const skelAnimStoreFrameList_c *frames) override;
+    SkelMat4&      GetDirtyTransform(const skelAnimStoreFrameList_c *frames) override;
     void           SetBoneRefs(skelBone_IKshoulder *shoulder);
     void           SetBaseValue(boneData_t *boneData) override;
     int            GetChannelIndex(int num) override;
@@ -162,7 +162,7 @@ public:
     int                  m_offsetChannel;
 
 public:
-    SkelMat4     & GetDirtyTransform(const skelAnimStoreFrameList_c *frame) override;
+    SkelMat4&      GetDirtyTransform(const skelAnimStoreFrameList_c *frame) override;
     void           SetChannels(int quatChannel, int offsetChannel);
     void           SetBoneRefs(skelBone_IKshoulder *shoulder);
     void           SetBaseValue(boneData_t *boneData) override;
@@ -182,7 +182,7 @@ public:
 public:
     skelBone_AvRot();
 
-    SkelMat4     & GetDirtyTransform(const skelAnimStoreFrameList_c *frames) override;
+    SkelMat4&      GetDirtyTransform(const skelAnimStoreFrameList_c *frames) override;
     void           SetBoneRefs(skelBone_Base *ref1, skelBone_Base *ref2);
     void           SetBaseValue(boneData_t *boneData) override;
     int            GetChannelIndex(int num) override;
@@ -200,8 +200,8 @@ public:
     float          m_spinRatio;
 
 public:
-    SkelMat4     & GetDirtyTransform(const skelAnimStoreFrameList_c *frames) override;
-    SkelMat4     & GetDirtyTransform(SkelMat4     &myParentTM, SkelMat4     &targetTM);
+    SkelMat4&      GetDirtyTransform(const skelAnimStoreFrameList_c *frames) override;
+    SkelMat4&      GetDirtyTransform(SkelMat4& myParentTM, SkelMat4& targetTM);
     void           SetBoneRefs(skelBone_Base *ref);
     void           SetBaseValue(boneData_t *boneData) override;
     int            GetChannelIndex(int num) override;

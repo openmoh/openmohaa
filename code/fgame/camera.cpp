@@ -1864,259 +1864,60 @@ void Camera::unbind(void)
 
 ******************************************************************************/
 
-Event EV_CameraManager_NewPath
-(
-    "new",
-    EV_CONSOLE,
-    NULL,
-    NULL,
-    "Starts a new path.",
-    EV_NORMAL
+Event EV_CameraManager_NewPath("new", EV_CONSOLE, NULL, NULL, "Starts a new path.", EV_NORMAL);
+Event EV_CameraManager_SetPath("setpath", EV_CONSOLE, "e", "path", "Sets the new path.", EV_NORMAL);
+Event EV_CameraManager_SetTargetName("settargetname", EV_CONSOLE, "s", "targetname", "Set the targetname.", EV_NORMAL);
+Event EV_CameraManager_SetTarget("settarget", EV_CONSOLE, "s", "target", "Set the trigger target.", EV_NORMAL);
+Event EV_CameraManager_AddPoint(
+    "add", EV_CONSOLE, NULL, NULL, "Add a new point to the camera path where the player is standing.", EV_NORMAL
 );
-Event EV_CameraManager_SetPath
-(
-    "setpath",
-    EV_CONSOLE,
-    "e",
-    "path",
-    "Sets the new path.",
-    EV_NORMAL
+Event EV_CameraManager_DeletePoint("delete", EV_CONSOLE, NULL, NULL, "Delete the current path node.", EV_NORMAL);
+Event EV_CameraManager_MovePlayer(
+    "moveplayer", EV_CONSOLE, NULL, NULL, "Move the player to the current path node position.", EV_NORMAL
 );
-Event EV_CameraManager_SetTargetName
-(
-    "settargetname",
-    EV_CONSOLE,
-    "s",
-    "targetname",
-    "Set the targetname.",
-    EV_NORMAL
+Event EV_CameraManager_ReplacePoint(
+    "replace", EV_CONSOLE, NULL, NULL, "Replace the current path node position/angle with the player's.", EV_NORMAL
 );
-Event EV_CameraManager_SetTarget
-(
-    "settarget",
-    EV_CONSOLE,
-    "s",
-    "target",
-    "Set the trigger target.",
-    EV_NORMAL
+Event EV_CameraManager_NextPoint("next", EV_CONSOLE, NULL, NULL, "Go to the next path node.", EV_NORMAL);
+Event EV_CameraManager_PreviousPoint("prev", EV_CONSOLE, NULL, NULL, "Go to the previous path node.", EV_NORMAL);
+Event EV_CameraManager_ShowPath("show", EV_CONSOLE, "E", "path", "Shows the specified path.", EV_NORMAL);
+Event EV_CameraManager_ShowingPath(
+    "_showing_path", EV_CONSOLE, NULL, NULL, "Internal event for showing the path.", EV_NORMAL
 );
-Event EV_CameraManager_AddPoint
-(
-    "add",
-    EV_CONSOLE,
-    NULL,
-    NULL,
-    "Add a new point to the camera path where the player is standing.",
-    EV_NORMAL
+Event EV_CameraManager_HidePath("hide", EV_CONSOLE, NULL, NULL, "Hides the paths.", EV_NORMAL);
+Event EV_CameraManager_PlayPath(
+    "play", EV_CONSOLE, "E", "path", "Play the current path or the specified one once.", EV_NORMAL
 );
-Event EV_CameraManager_DeletePoint
-(
-    "delete",
-    EV_CONSOLE,
-    NULL,
-    NULL,
-    "Delete the current path node.",
-    EV_NORMAL
+Event EV_CameraManager_LoopPath(
+    "loop", EV_CONSOLE, "E", "path", "Loop the current path or the specified one.", EV_NORMAL
 );
-Event EV_CameraManager_MovePlayer
-(
-    "moveplayer",
-    EV_CONSOLE,
-    NULL,
-    NULL,
-    "Move the player to the current path node position.",
-    EV_NORMAL
+Event EV_CameraManager_StopPlayback("stop", EV_CONSOLE, NULL, NULL, "Stop the camera playing path.", EV_NORMAL);
+Event EV_CameraManager_Watch(
+    "watch", EV_CONSOLE, "s", "watch", "Set the current path node to watch something.", EV_NORMAL
 );
-Event EV_CameraManager_ReplacePoint
-(
-    "replace",
-    EV_CONSOLE,
-    NULL,
-    NULL,
-    "Replace the current path node position/angle with the player's.",
-    EV_NORMAL
+Event EV_CameraManager_NoWatch(
+    "nowatch", EV_CONSOLE, NULL, NULL, "Set the current path node to watch nothing.", EV_NORMAL
 );
-Event EV_CameraManager_NextPoint
-(
-    "next",
-    EV_CONSOLE,
-    NULL,
-    NULL,
-    "Go to the next path node.",
-    EV_NORMAL
+Event EV_CameraManager_Fov("setfov", EV_CONSOLE, "s", "newFOV", "Set the fov at the current path node.", EV_NORMAL);
+Event EV_CameraManager_FadeTime(
+    "setfadetime", EV_CONSOLE, "f", "newFadeTime", "Set the fadetime of the current path node.", EV_NORMAL
 );
-Event EV_CameraManager_PreviousPoint
-(
-    "prev",
-    EV_CONSOLE,
-    NULL,
-    NULL,
-    "Go to the previous path node.",
-    EV_NORMAL
+Event EV_CameraManager_Speed(
+    "setspeed", EV_CONSOLE, "f", "speed", "Set the speed of the camera at the current path node.", EV_NORMAL
 );
-Event EV_CameraManager_ShowPath
-(
-    "show",
-    EV_CONSOLE,
-    "E",
-    "path",
-    "Shows the specified path.",
-    EV_NORMAL
-);
-Event EV_CameraManager_ShowingPath
-(
-    "_showing_path",
-    EV_CONSOLE,
-    NULL,
-    NULL,
-    "Internal event for showing the path.",
-    EV_NORMAL
-);
-Event EV_CameraManager_HidePath
-(
-    "hide",
-    EV_CONSOLE,
-    NULL,
-    NULL,
-    "Hides the paths.",
-    EV_NORMAL
-);
-Event EV_CameraManager_PlayPath
-(
-    "play",
-    EV_CONSOLE,
-    "E",
-    "path",
-    "Play the current path or the specified one once.",
-    EV_NORMAL
-);
-Event EV_CameraManager_LoopPath
-(
-    "loop",
-    EV_CONSOLE,
-    "E",
-    "path",
-    "Loop the current path or the specified one.",
-    EV_NORMAL
-);
-Event EV_CameraManager_StopPlayback
-(
-    "stop",
-    EV_CONSOLE,
-    NULL,
-    NULL,
-    "Stop the camera playing path.",
-    EV_NORMAL
-);
-Event EV_CameraManager_Watch
-(
-    "watch",
-    EV_CONSOLE,
-    "s",
-    "watch",
-    "Set the current path node to watch something.",
-    EV_NORMAL
-);
-Event EV_CameraManager_NoWatch
-(
-    "nowatch",
-    EV_CONSOLE,
-    NULL,
-    NULL,
-    "Set the current path node to watch nothing.",
-    EV_NORMAL
-);
-Event EV_CameraManager_Fov
-(
-    "setfov",
-    EV_CONSOLE,
-    "s",
-    "newFOV",
-    "Set the fov at the current path node.",
-    EV_NORMAL
-);
-Event EV_CameraManager_FadeTime
-(
-    "setfadetime",
-    EV_CONSOLE,
-    "f",
-    "newFadeTime",
-    "Set the fadetime of the current path node.",
-    EV_NORMAL
-);
-Event EV_CameraManager_Speed
-(
-    "setspeed",
-    EV_CONSOLE,
-    "f",
-    "speed",
-    "Set the speed of the camera at the current path node.",
-    EV_NORMAL
-);
-Event EV_CameraManager_Save
-(
-    "save",
-    EV_CONSOLE,
-    "s",
-    "filename",
-    "Saves the camera path.",
-    EV_NORMAL
-);
-Event EV_CameraManager_Load
-(
-    "load",
-    EV_CONSOLE,
-    "s",
-    "filename",
-    "Loads a camera path.",
-    EV_NORMAL
-);
-Event EV_CameraManager_SaveMap
-(
-    "savemap",
-    EV_CONSOLE,
-    "s",
-    "filename",
-    "Saves the camera path to a map file.",
-    EV_NORMAL
-);
-Event EV_CameraManager_UpdateInput
-(
-    "updateinput",
-    EV_CONSOLE,
-    NULL,
-    NULL,
-    "Updates the current node with user interface values.",
-    EV_NORMAL
+Event EV_CameraManager_Save("save", EV_CONSOLE, "s", "filename", "Saves the camera path.", EV_NORMAL);
+Event EV_CameraManager_Load("load", EV_CONSOLE, "s", "filename", "Loads a camera path.", EV_NORMAL);
+Event
+    EV_CameraManager_SaveMap("savemap", EV_CONSOLE, "s", "filename", "Saves the camera path to a map file.", EV_NORMAL);
+Event EV_CameraManager_UpdateInput(
+    "updateinput", EV_CONSOLE, NULL, NULL, "Updates the current node with user interface values.", EV_NORMAL
 );
 
-Event EV_CameraManager_NextPath
-(
-    "nextpath",
-    EV_CONSOLE,
-    NULL,
-    NULL,
-    "Go to the next path.",
-    EV_NORMAL
-);
-Event EV_CameraManager_PreviousPath
-(
-    "prevpath",
-    EV_CONSOLE,
-    NULL,
-    NULL,
-    "Go to the previous path.",
-    EV_NORMAL
-);
+Event EV_CameraManager_NextPath("nextpath", EV_CONSOLE, NULL, NULL, "Go to the next path.", EV_NORMAL);
+Event EV_CameraManager_PreviousPath("prevpath", EV_CONSOLE, NULL, NULL, "Go to the previous path.", EV_NORMAL);
 
-Event EV_CameraManager_RenamePath
-(
-    "renamepath",
-    EV_CONSOLE,
-    "s",
-    "newName",
-    "Rename the path to the new name.",
-    EV_NORMAL
+Event EV_CameraManager_RenamePath(
+    "renamepath", EV_CONSOLE, "s", "newName", "Rename the path to the new name.", EV_NORMAL
 );
 
 CLASS_DECLARATION(Listener, CameraManager, NULL) {

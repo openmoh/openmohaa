@@ -477,7 +477,7 @@ void ScriptCompiler::EmitField(sval_t listener_val, sval_t field_val, unsigned i
     unsigned int eventnum = 0;
     unsigned int index    = -1;
     unsigned int prev_index;
-    const  char* name;
+    const char  *name;
     //str name_lowered;
 
     /*
@@ -958,7 +958,7 @@ int ScriptCompiler::EmitParameterList(sval_t event_parameter_list)
 void ScriptCompiler::EmitRef(sval_t val, unsigned int sourcePos)
 {
     unsigned int index;
-    const char* name;
+    const char  *name;
     //str name_lowered;
 
     if (val.node[0].type != ENUM_field) {
@@ -1578,7 +1578,7 @@ bool ScriptCompiler::Compile(GameScript *gameScript, unsigned char *progBuffer, 
             stateScript->AddLabel("", code_ptr);
 
             outLength = code_pos - code_ptr;
-            success = true;
+            success   = true;
         } else {
             outLength = 0;
         }
@@ -1586,7 +1586,7 @@ bool ScriptCompiler::Compile(GameScript *gameScript, unsigned char *progBuffer, 
         prog_end_ptr = code_pos;
     } catch (ScriptException& exc) {
         exc;
-        outLength = 0;
+        outLength    = 0;
         prog_end_ptr = code_pos;
     }
 

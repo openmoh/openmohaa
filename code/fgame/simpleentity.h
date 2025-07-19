@@ -64,11 +64,11 @@ public:
     virtual void setOrigin(Vector origin);
     virtual void setOriginEvent(Vector origin);
     virtual void setAngles(Vector angles);
-    const str  & Target();
+    const str&   Target();
     qboolean     Targeted(void);
-    str        & TargetName();
+    str&         TargetName();
     virtual void SetTargetName(str targetname);
-    void         Archive(Archiver        &arc) override;
+    void         Archive(Archiver& arc) override;
 
     int IsSubclassOfEntity(void) const;
     int IsSubclassOfAnimate(void) const;

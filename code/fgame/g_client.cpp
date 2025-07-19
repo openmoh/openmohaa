@@ -1076,7 +1076,7 @@ void G_ClientDisconnect(gentity_t *ent)
         }
 
         G_PrintfClient(ent, "has left the battle\n");
-    
+
         G_PrintToAllClients(va("%s has left the battle\n", ent->client->pers.netname), 2);
 
         assert(ent->entity->IsSubclassOfPlayer());
@@ -1160,9 +1160,10 @@ Logs message with client context.
 For bots it falls back to regular print.
 ============
 */
-void G_PrintfClient(gentity_t *ent, const char *fmt, ...) {
-    va_list     argptr;
-    char        msg[MAXPRINTMSG];
+void G_PrintfClient(gentity_t *ent, const char *fmt, ...)
+{
+    va_list argptr;
+    char    msg[MAXPRINTMSG];
 
     if (!dedicated->integer) {
         return;

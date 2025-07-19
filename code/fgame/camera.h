@@ -94,7 +94,6 @@ public:
 };
 
 inline void CameraMoveState::operator=(CameraMoveState& newstate)
-
 {
     movedir = newstate.movedir;
     pos     = newstate.pos;
@@ -235,7 +234,7 @@ protected:
 
     void         SetupCamera(Event *ev);
     void         CameraThink(Event *ev);
-    void         CreateOrbit(Vector pos, float radius, Vector        &forward, Vector        &left);
+    void         CreateOrbit(Vector pos, float radius, Vector& forward, Vector& left);
     void         CreatePath(SplinePath *path, splinetype_t type);
     void         UpdateStates(void);
     Vector       CalculatePosition(void);
@@ -296,12 +295,12 @@ public:
     void     SetMaximumAutoFOVEvent(Event *ev);
     void     SetAutoActiveEvent(Event *ev);
 
-    str & NextCamera(void);
+    str&  NextCamera(void);
     float Fov(void);
 
     void Reset(Vector org, Vector ang);
 
-    bool ShowQuakes(void) const;
+    bool   ShowQuakes(void) const;
     Vector GetPositionOffset(void);
     void   SetPositionOffset(Vector vNewOfs);
 
@@ -431,7 +430,6 @@ public:
 };
 
 inline void CameraManager::Archive(Archiver& arc)
-
 {
     Listener::Archive(arc);
 

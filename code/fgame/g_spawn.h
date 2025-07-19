@@ -61,7 +61,7 @@ public:
     int         NumArgs(void);
     const char *getKey(int index);
     const char *getValue(int index);
-    void        operator=(SpawnArgs       &a);
+    void        operator=(SpawnArgs& a);
 
     ClassDef *getClassDef(qboolean *tikiWasStatic = NULL);
     Listener *Spawn(void);

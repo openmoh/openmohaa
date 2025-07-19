@@ -660,11 +660,11 @@ bool ScriptVariable::IsSimpleEntity(void) const
         //  Not sure why OG returns true
         return false;
     }
-#if defined(GAME_DLL)
+#    if defined(GAME_DLL)
     if (!checkInheritance(Entity::classinfostatic(), m_data.listenerValue->Pointer()->classinfo())) {
         return false;
     }
-#endif
+#    endif
 
     return true;
 }
@@ -1556,10 +1556,9 @@ void ScriptVariable::operator+=(const ScriptVariable& value)
     case VARIABLE_STRING
         + VARIABLE_LISTENER *VARIABLE_MAX: // ( string )			+		( listener )
     case VARIABLE_CONSTSTRING
-        + VARIABLE_LISTENER                *VARIABLE_MAX: // ( const string )		+		( listener )
-    case VARIABLE_STRING + VARIABLE_VECTOR *VARIABLE_MAX: // ( string )			+		( vector )
-    case VARIABLE_CONSTSTRING
-        + VARIABLE_VECTOR *VARIABLE_MAX: // ( const string )		+		( vector )
+        + VARIABLE_LISTENER                     *VARIABLE_MAX: // ( const string )		+		( listener )
+    case VARIABLE_STRING + VARIABLE_VECTOR      *VARIABLE_MAX: // ( string )			+		( vector )
+    case VARIABLE_CONSTSTRING + VARIABLE_VECTOR *VARIABLE_MAX: // ( const string )		+		( vector )
         setStringValue(stringValue() + value.stringValue());
         break;
 
@@ -1765,7 +1764,9 @@ void ScriptVariable::operator%=(const ScriptVariable& value)
         Clear();
 
         throw ScriptException(
-            "binary '%%' applied to incompatible types '%s' and '%s'", typenames[currentType], typenames[value.GetType()]
+            "binary '%%' applied to incompatible types '%s' and '%s'",
+            typenames[currentType],
+            typenames[value.GetType()]
         );
 
         break;
@@ -2028,9 +2029,8 @@ bool ScriptVariable::operator==(const ScriptVariable& value)
         + VARIABLE_STRING                 *VARIABLE_MAX: // ( int )				==		( string )
     case VARIABLE_FLOAT + VARIABLE_STRING *VARIABLE_MAX: // ( float )			==		( string )
     case VARIABLE_CHAR
-        + VARIABLE_STRING *VARIABLE_MAX: // ( char )				==		( string )
-    case VARIABLE_CONSTSTRING
-        + VARIABLE_STRING *VARIABLE_MAX: // ( const string )		==		( string )
+        + VARIABLE_STRING                       *VARIABLE_MAX: // ( char )				==		( string )
+    case VARIABLE_CONSTSTRING + VARIABLE_STRING *VARIABLE_MAX: // ( const string )		==		( string )
     case VARIABLE_LISTENER
         + VARIABLE_STRING                  *VARIABLE_MAX: // ( listener )			==		( string )
     case VARIABLE_VECTOR + VARIABLE_STRING *VARIABLE_MAX: // ( vector )			==		( string )
@@ -2054,10 +2054,9 @@ bool ScriptVariable::operator==(const ScriptVariable& value)
     case VARIABLE_CONSTSTRING + VARIABLE_CHAR    *VARIABLE_MAX: // ( const string )		==		( char )
     case VARIABLE_STRING + VARIABLE_LISTENER     *VARIABLE_MAX: // ( string )			==		( listener )
     case VARIABLE_CONSTSTRING
-        + VARIABLE_LISTENER                *VARIABLE_MAX: // ( const string )		==		( listener )
-    case VARIABLE_STRING + VARIABLE_VECTOR *VARIABLE_MAX: // ( string )			==		( vector )
-    case VARIABLE_CONSTSTRING
-        + VARIABLE_VECTOR *VARIABLE_MAX: // ( const string )		==		( vector )
+        + VARIABLE_LISTENER                     *VARIABLE_MAX: // ( const string )		==		( listener )
+    case VARIABLE_STRING + VARIABLE_VECTOR      *VARIABLE_MAX: // ( string )			==		( vector )
+    case VARIABLE_CONSTSTRING + VARIABLE_VECTOR *VARIABLE_MAX: // ( const string )		==		( vector )
         {
             str lval = stringValue();
             str rval = value.stringValue();
@@ -2637,7 +2636,8 @@ ScriptVariable *ScriptVariableList::SetVariable(unsigned int name, ScriptVariabl
     return variable;
 }
 
-int ScriptVariableList::size() const {
+int ScriptVariableList::size() const
+{
     return list.size();
 }
 
@@ -2656,7 +2656,8 @@ void ScriptVariableList::MakePrimitive()
     }
 }
 
-void ScriptVariableList::Print (void (*PrintFn) (const char* format, ...)) {
+void ScriptVariableList::Print(void (*PrintFn)(const char *format, ...))
+{
     con_set_enum<short3, ScriptVariable> en = list;
 
     for (con_set_enum<short3, ScriptVariable>::Entry *entry = en.NextElement(); entry; entry = en.NextElement()) {

@@ -91,7 +91,7 @@ public:
     Condition<Class> condition;
     Container<str>   parmList;
 
-    bool        getResult(testcondition_t test, Entity       &ent);
+    bool        getResult(testcondition_t test, Entity& ent);
     const char *getName(void);
 
     Conditional(Condition<Class>& condition);
@@ -105,13 +105,11 @@ public:
 };
 
 inline void Conditional::addParm(str parm)
-
 {
     parmList.AddObject(parm);
 }
 
 inline const char *Conditional::getParm(int number)
-
 {
     if ((number < 1) || (number > parmList.NumObjects())) {
         gi.Error(ERR_DROP, "Parm #%d out of range on %s condition\n", number, condition.name);
@@ -120,25 +118,21 @@ inline const char *Conditional::getParm(int number)
 }
 
 inline int Conditional::numParms(void)
-
 {
     return parmList.NumObjects();
 }
 
 inline void Conditional::clearCheck(void)
-
 {
     checked = false;
 }
 
 inline void Conditional::clearPrevious(void)
-
 {
     previous_result = 0;
 }
 
 inline const char *Conditional::getName(void)
-
 {
     return condition.name;
 }
@@ -189,12 +183,11 @@ public:
 
     void operator=(const Expression& exp);
 
-    bool        getResult(State       &state, Entity       &ent, Container<Conditional *> *sent_conditionals);
+    bool        getResult(State& state, Entity& ent, Container<Conditional *> *sent_conditionals);
     const char *getValue(void);
 };
 
 inline void Expression::operator=(const Expression& exp)
-
 {
     int i;
 
@@ -207,7 +200,6 @@ inline void Expression::operator=(const Expression& exp)
 }
 
 inline const char *Expression::getValue(void)
-
 {
     return value.c_str();
 }
@@ -255,13 +247,13 @@ public:
     State(const char *name, Script& script, StateMap& map);
 
     State *Evaluate(Entity& ent, Container<Conditional *> *ent_conditionals);
-    int    addCondition(const char *name, Script   &script);
+    int    addCondition(const char *name, Script& script);
     void   CheckStates(void);
 
     const char *getName(void);
 
-    const char   *getLegAnim(Entity  &ent, Container<Conditional *> *sent_conditionals);
-    const char   *getActionAnim(Entity  &ent, Container<Conditional *> *sent_conditionals, int *piAnimType = NULL);
+    const char   *getLegAnim(Entity& ent, Container<Conditional *> *sent_conditionals);
+    const char   *getActionAnim(Entity& ent, Container<Conditional *> *sent_conditionals, int *piAnimType = NULL);
     const char   *getBehaviorName(void);
     State        *getNextState(void);
     movecontrol_t getMoveType(void);
@@ -281,19 +273,16 @@ public:
 };
 
 inline void State::addBehaviorParm(str parm)
-
 {
     behaviorParmList.AddObject(parm);
 }
 
 inline const char *State::getBehaviorParm(int number)
-
 {
     return behaviorParmList.ObjectAt(number).c_str();
 }
 
 inline int State::numBehaviorParms(void)
-
 {
     return behaviorParmList.NumObjects();
 }
@@ -320,31 +309,26 @@ public:
 };
 
 inline const char *StateMap::Filename(void)
-
 {
     return filename.c_str();
 }
 
 inline const char *State::getName(void)
-
 {
     return name.c_str();
 }
 
 inline State *State::getNextState(void)
-
 {
     return statemap.FindState(nextState.c_str());
 }
 
 inline movecontrol_t State::getMoveType(void)
-
 {
     return movetype;
 }
 
 inline cameratype_t State::getCameraType(void)
-
 {
     return cameratype;
 }

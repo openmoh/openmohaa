@@ -1895,7 +1895,8 @@ void Weapon::Shoot(Event *ev)
 
                 // Don't display tracers if the owner is a player for non-turret weapons
                 // It would have some artifacts for the first person model, as the tracer is created from the world model
-                if ((g_target_game == TG_MOH || g_gametype->integer == GT_SINGLE_PLAYER) && owner && owner->IsSubclassOfPlayer()) {
+                if ((g_target_game == TG_MOH || g_gametype->integer == GT_SINGLE_PLAYER) && owner
+                    && owner->IsSubclassOfPlayer()) {
                     if (IsSubclassOfTurretGun()) {
                         tracerFrequency = 3;
                     } else {
@@ -2960,16 +2961,16 @@ void Weapon::PickupWeapon(Event *ev)
 
         hideModel();
 
-        velocity = vec_zero;
+        velocity  = vec_zero;
         avelocity = vec_zero;
 
         CancelEventsOfType(EV_Remove);
         CancelEventsOfType(EV_Weapon_FallingAngleAdjust);
 
         DetachFromOwner();
-        current_attachToTag = "";
-        lastValid = qfalse;
-        edict->s.tag_num = -1;
+        current_attachToTag        = "";
+        lastValid                  = qfalse;
+        edict->s.tag_num           = -1;
         edict->s.attach_use_angles = qfalse;
         VectorClear(edict->s.attach_offset);
 
@@ -2984,7 +2985,7 @@ void Weapon::PickupWeapon(Event *ev)
 
         Sound(sPickupSound);
     } else {
-        bool bSameAmmo[MAX_FIREMODES] = { false };
+        bool bSameAmmo[MAX_FIREMODES] = {false};
 
         if (sen->AmmoCount(ammo_type[FIRE_PRIMARY]) == sen->MaxAmmoCount(ammo_type[FIRE_PRIMARY])) {
             bSameAmmo[FIRE_PRIMARY] = true;
@@ -3044,7 +3045,7 @@ void Weapon::PickupWeapon(Event *ev)
         const str& sAmmoType = ammo_type[FIRE_PRIMARY];
 
         sen->GiveAmmo(sAmmoType, iGiveAmmo);
-        
+
         if (!sAmmoType.icmp("grenade") || !sAmmoType.icmp("agrenade")) {
             if (iGiveAmmo == 1) {
                 sMessage = gi.LV_ConvertString("Got 1 Grenade");
@@ -3080,7 +3081,9 @@ void Weapon::PickupWeapon(Event *ev)
                     sMessage = gi.LV_ConvertString(va("Got %i Rifle Grenades", iGiveAmmo));
                 }
             } else {
-                sMessage = gi.LV_ConvertString(va("Got %i %s Rounds", startammo[FIRE_PRIMARY], GetCapitalized(sAmmoType).c_str()));
+                sMessage = gi.LV_ConvertString(
+                    va("Got %i %s Rounds", startammo[FIRE_PRIMARY], GetCapitalized(sAmmoType).c_str())
+                );
             }
 
             gi.SendServerCommand(other->edict - g_entities, "print \"" HUD_MESSAGE_YELLOW "%s\n\"", sMessage.c_str());
@@ -4611,7 +4614,7 @@ float Weapon::GetSpreadFactor(firemode_t mode)
     float fSpreadFactor;
 
     if (owner && owner->client) {
-        Player* player = (Player*)owner.Pointer();
+        Player *player = (Player *)owner.Pointer();
 
         fSpreadFactor = player->velocity.length() / sv_runspeed->integer;
 
@@ -4719,7 +4722,8 @@ Listener *Weapon::GetScriptOwner(void)
 //======================
 //Weapon::DoneAnimating
 //======================
-void Weapon::DoneAnimating(Event* ev) {
+void Weapon::DoneAnimating(Event *ev)
+{
     // Added in OPM
     //  Set to idle when done reloading
     SetWeaponIdleAnim();
@@ -4728,7 +4732,8 @@ void Weapon::DoneAnimating(Event* ev) {
 //======================
 //Weapon::GetMaxFireMovementMult
 //======================
-void Weapon::EventGetPutaway(Event* ev) {
+void Weapon::EventGetPutaway(Event *ev)
+{
     // Added in OPM
     //  Set to idle when done reloading
     ev->AddInteger(GetPutaway());
@@ -4737,20 +4742,23 @@ void Weapon::EventGetPutaway(Event* ev) {
 //======================
 //Weapon::GetMaxFireMovementMult
 //======================
-float Weapon::GetMaxFireMovementMult() const {
+float Weapon::GetMaxFireMovementMult() const
+{
     return m_fMaxFireMovement * m_fMovementSpeed;
 }
 
 //======================
 //Weapon::GetMaxFireMovementMult
 //======================
-float Weapon::GetZoomMovement() const {
+float Weapon::GetZoomMovement() const
+{
     return m_fZoomMovement * m_fMovementSpeed;
 }
 
 //======================
 //Weapon::GetMaxFireMovement
 //======================
-float Weapon::GetMaxFireMovement() const {
+float Weapon::GetMaxFireMovement() const
+{
     return m_fMaxFireMovement;
 }

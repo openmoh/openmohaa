@@ -222,7 +222,8 @@ static const char *bogusNameTable[] = {
     "right foot placeholder pos"
     "right foot placeholder rot"
     "left foot placeholder pos"
-    "left foot placeholder rot"};
+    "left foot placeholder rot"
+};
 
 bool IsBogusChannelName(const char *name)
 {
@@ -241,7 +242,7 @@ bool IsBogusChannelName(const char *name)
     return false;
 }
 
-channelType_t GetBoneChannelType(const char* name)
+channelType_t GetBoneChannelType(const char *name)
 {
     size_t len;
 

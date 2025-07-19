@@ -317,19 +317,19 @@ Returns pointer to Entity
 Listener *SpawnArgs::Spawn(void)
 {
     SafePtr<Listener> ent = (Listener *)SpawnInternal();
-	if (!ent) {
-		return NULL;
-	}
+    if (!ent) {
+        return NULL;
+    }
 
-	ent->ProcessPendingEvents();
-	if (!ent) {
-		// Fixed in OPM
-		//  Make sure to check the entity after processing events,
-		//  the ent could be deleted due to a posted remove event
-		return NULL;
-	}
+    ent->ProcessPendingEvents();
+    if (!ent) {
+        // Fixed in OPM
+        //  Make sure to check the entity after processing events,
+        //  the ent could be deleted due to a posted remove event
+        return NULL;
+    }
 
-	ent->ProcessEvent(EV_Entity_Start);
+    ent->ProcessEvent(EV_Entity_Start);
 
     return ent;
 }

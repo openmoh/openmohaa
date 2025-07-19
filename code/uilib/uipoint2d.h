@@ -22,44 +22,36 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #pragma once
 
-class UIPoint2D {
+class UIPoint2D
+{
 public:
-	float x;
-	float y;
+    float x;
+    float y;
 
-	UIPoint2D();
-	UIPoint2D( float x, float y );
+    UIPoint2D();
+    UIPoint2D(float x, float y);
 
-	bool operator==( const UIPoint2D& pos ) const;
-	bool operator!=( const UIPoint2D& pos ) const;
+    bool operator==(const UIPoint2D& pos) const;
+    bool operator!=(const UIPoint2D& pos) const;
 };
 
-inline
-UIPoint2D::UIPoint2D()
+inline UIPoint2D::UIPoint2D()
 {
-	x = y = 0;
+    x = y = 0;
 }
 
-inline
-UIPoint2D::UIPoint2D
-	(
-	float x,
-	float y
-	)
-
+inline UIPoint2D::UIPoint2D(float x, float y)
 {
-	this->x = x;
-	this->y = y;
+    this->x = x;
+    this->y = y;
 }
 
-inline
-bool UIPoint2D::operator==( const UIPoint2D& pos ) const
+inline bool UIPoint2D::operator==(const UIPoint2D& pos) const
 {
-	return ( x == pos.x && y == pos.y );
+    return (x == pos.x && y == pos.y);
 }
 
-inline
-bool UIPoint2D::operator!=( const UIPoint2D& pos ) const
+inline bool UIPoint2D::operator!=(const UIPoint2D& pos) const
 {
-	return ( x != pos.x || y != pos.y );
+    return (x != pos.x || y != pos.y);
 }

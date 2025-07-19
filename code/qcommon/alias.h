@@ -30,56 +30,54 @@ extern "C" {
 // public implementation
 //
 
-enum
-{
-	MAX_ALIAS_NAME_LENGTH = 40,
-	MAX_REAL_NAME_LENGTH = 128,
-	MAX_ALIASLIST_NAME_LENGTH = 40
+enum {
+    MAX_ALIAS_NAME_LENGTH     = 40,
+    MAX_REAL_NAME_LENGTH      = 128,
+    MAX_ALIASLIST_NAME_LENGTH = 40
 };
 
 typedef struct AliasListNode_s {
-	char alias_name[MAX_ALIAS_NAME_LENGTH];
-	char real_name[MAX_REAL_NAME_LENGTH];
-	float weight;
+    char  alias_name[MAX_ALIAS_NAME_LENGTH];
+    char  real_name[MAX_REAL_NAME_LENGTH];
+    float weight;
 
-	// Static alias info
-	byte stop_flag;
-	struct AliasListNode_s* next;
+    // Static alias info
+    byte                    stop_flag;
+    struct AliasListNode_s *next;
 
-	// Global alias info
-	float pitch;
-	float volume;
-	float pitchMod;
-	float volumeMod;
-	float dist;
-	float maxDist;
-	int channel;
-	int streamed;
-	qboolean forcesubtitle;
-	char* subtitle;
+    // Global alias info
+    float    pitch;
+    float    volume;
+    float    pitchMod;
+    float    volumeMod;
+    float    dist;
+    float    maxDist;
+    int      channel;
+    int      streamed;
+    qboolean forcesubtitle;
+    char    *subtitle;
 } AliasListNode_t;
 
-typedef struct AliasList_s
-{
-	char name[MAX_ALIASLIST_NAME_LENGTH];
-	qboolean    dirty;
-	int         num_in_list;
-	AliasListNode_t** sorted_list;
-	AliasListNode_t* data_list;
+typedef struct AliasList_s {
+    char              name[MAX_ALIASLIST_NAME_LENGTH];
+    qboolean          dirty;
+    int               num_in_list;
+    AliasListNode_t **sorted_list;
+    AliasListNode_t  *data_list;
 } AliasList_t;
 
 #if defined(APP_MODULE)
 
-const char* Alias_Find(const char* alias);
-qboolean Alias_Add(const char* alias, const char* name, const char* parameters);
-qboolean Alias_Delete(const char* alias);
-const char* Alias_FindRandom(const char* alias, AliasListNode_t** ret);
-void Alias_Dump(void);
-void Alias_Clear(void);
-AliasList_t* Alias_GetGlobalList();
+const char  *Alias_Find(const char *alias);
+qboolean     Alias_Add(const char *alias, const char *name, const char *parameters);
+qboolean     Alias_Delete(const char *alias);
+const char  *Alias_FindRandom(const char *alias, AliasListNode_t **ret);
+void         Alias_Dump(void);
+void         Alias_Clear(void);
+AliasList_t *Alias_GetGlobalList();
 
-int S_ChannelNameToNum( const char *pszName );
-const char *S_ChannelNumToName( int iChannel );
+int         S_ChannelNameToNum(const char *pszName);
+const char *S_ChannelNumToName(int iChannel);
 
 #endif
 
@@ -87,34 +85,35 @@ const char *S_ChannelNumToName( int iChannel );
 // private implementation
 //
 
-typedef struct AliasActorNode_s
-{
-	int actor_number;
+typedef struct AliasActorNode_s {
+    int actor_number;
 
-	int  number_of_times_played;
-	byte been_played_this_loop;
-	int  last_time_played;
+    int  number_of_times_played;
+    byte been_played_this_loop;
+    int  last_time_played;
 
-	struct AliasActorNode_s* next;
+    struct AliasActorNode_s *next;
 } AliasActorNode_t;
 
-void Alias_ListClearActors(AliasList_t* list);
-AliasList_t* AliasList_New(const char* name);
-const char* Alias_ListFind(AliasList_t* list, const char* alias);
-AliasListNode_t* Alias_ListFindNode(AliasList_t* list, const char* alias);
-qboolean Alias_ListAdd(AliasList_t* list, const char* alias, const char* name, const char* parameters);
-const char* Alias_ListFindRandom(AliasList_t* list, const char* alias, AliasListNode_t** ret);
-void Alias_ListDump(AliasList_t* list);
-void Alias_ListClear(AliasList_t* list);
-void Alias_ListDelete(AliasList_t* list);
-void Alias_ListSort(AliasList_t* list);
-int Alias_IsGlobal(AliasListNode_t* node, int actor_number);
-AliasActorNode_t* Alias_FindActor(AliasListNode_t* node, int actor_number);
-void Alias_ListFindRandomRange(AliasList_t* list, const char* alias, int* min_index, int* max_index, float* total_weight);
-const char* Alias_ListFindDialog(AliasList_t* list, const char* alias);
-void Alias_ListUpdateDialog(AliasList_t* list, const char* alias);
-void Alias_ListAddActorDialog(AliasList_t* list, const char* alias);
-float randweight(void);
+void              Alias_ListClearActors(AliasList_t *list);
+AliasList_t      *AliasList_New(const char *name);
+const char       *Alias_ListFind(AliasList_t *list, const char *alias);
+AliasListNode_t  *Alias_ListFindNode(AliasList_t *list, const char *alias);
+qboolean          Alias_ListAdd(AliasList_t *list, const char *alias, const char *name, const char *parameters);
+const char       *Alias_ListFindRandom(AliasList_t *list, const char *alias, AliasListNode_t **ret);
+void              Alias_ListDump(AliasList_t *list);
+void              Alias_ListClear(AliasList_t *list);
+void              Alias_ListDelete(AliasList_t *list);
+void              Alias_ListSort(AliasList_t *list);
+int               Alias_IsGlobal(AliasListNode_t *node, int actor_number);
+AliasActorNode_t *Alias_FindActor(AliasListNode_t *node, int actor_number);
+void              Alias_ListFindRandomRange(
+                 AliasList_t *list, const char *alias, int *min_index, int *max_index, float *total_weight
+             );
+const char *Alias_ListFindDialog(AliasList_t *list, const char *alias);
+void        Alias_ListUpdateDialog(AliasList_t *list, const char *alias);
+void        Alias_ListAddActorDialog(AliasList_t *list, const char *alias);
+float       randweight(void);
 
 #ifdef __cplusplus
 }

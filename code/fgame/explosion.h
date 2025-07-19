@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // Explosion is used by many of the weapons for the blast effect, but is also used
 // by the Exploder and MultiExploder triggers.  These triggers create one or more
 // explosions each time they are activated.
-// 
+//
 
 #pragma once
 
@@ -33,105 +33,94 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "trigger.h"
 
 class Exploder : public Trigger
-	{
-	private:
-		int	            damage;
+{
+private:
+    int damage;
 
-		void              MakeExplosion( Event *ev );
-      void              SetDmg( Event *ev );
+    void MakeExplosion(Event *ev);
+    void SetDmg(Event *ev);
 
-	public:
-      CLASS_PROTOTYPE( Exploder );
-		
-		                  Exploder();
-	   void Archive( Archiver &arc ) override;
-	};
+public:
+    CLASS_PROTOTYPE(Exploder);
 
-inline void Exploder::Archive
-	(
-	Archiver &arc
-	)
+    Exploder();
+    void Archive(Archiver& arc) override;
+};
 
-   {
-   Trigger::Archive( arc );
+inline void Exploder::Archive(Archiver& arc)
+{
+    Trigger::Archive(arc);
 
-   arc.ArchiveInteger( &damage );
-   }
+    arc.ArchiveInteger(&damage);
+}
 
 class MultiExploder : public Trigger
-	{
-	protected:
-		float	         explodewait;
-		float	         explode_time;
-		float          duration;
-		int	         damage;
-		float          randomness;
+{
+protected:
+    float explodewait;
+    float explode_time;
+    float duration;
+    int   damage;
+    float randomness;
 
-		void           MakeExplosion( Event *ev );
-      void           SetDmg( Event *ev );
-      void           SetDuration( Event *ev );
-      void           SetWait( Event *ev );
-      void           SetRandom( Event *ev );
+    void MakeExplosion(Event *ev);
+    void SetDmg(Event *ev);
+    void SetDuration(Event *ev);
+    void SetWait(Event *ev);
+    void SetRandom(Event *ev);
 
-	public:
-      CLASS_PROTOTYPE( MultiExploder );
+public:
+    CLASS_PROTOTYPE(MultiExploder);
 
-		               MultiExploder();
-	   void Archive( Archiver &arc ) override;
-	};
+    MultiExploder();
+    void Archive(Archiver& arc) override;
+};
 
-inline void MultiExploder::Archive
-	(
-	Archiver &arc
-	)
-   {
-   Trigger::Archive( arc );
+inline void MultiExploder::Archive(Archiver& arc)
+{
+    Trigger::Archive(arc);
 
-   arc.ArchiveFloat( &explodewait );
-   arc.ArchiveFloat( &explode_time );
-   arc.ArchiveFloat( &duration );
-   arc.ArchiveInteger( &damage );
-   arc.ArchiveFloat( &randomness );
-   }
+    arc.ArchiveFloat(&explodewait);
+    arc.ArchiveFloat(&explode_time);
+    arc.ArchiveFloat(&duration);
+    arc.ArchiveInteger(&damage);
+    arc.ArchiveFloat(&randomness);
+}
 
-void CreateExplosion 
-   (
-   Vector pos, 
-   float  damage = 120,
-   Entity *inflictor = NULL,
-   Entity *attacker = NULL,
-   Entity *ignore = NULL,
-   const char *explosionModel = NULL,
-   float  scale = 1.0f
-   );
+void CreateExplosion(
+    Vector      pos,
+    float       damage         = 120,
+    Entity     *inflictor      = NULL,
+    Entity     *attacker       = NULL,
+    Entity     *ignore         = NULL,
+    const char *explosionModel = NULL,
+    float       scale          = 1.0f
+);
 
 class ExplodeObject : public MultiExploder
-	{
-	private:
-      Container<str> debrismodels;
-      int            debrisamount;
-      float          severity;
+{
+private:
+    Container<str> debrismodels;
+    int            debrisamount;
+    float          severity;
 
-      void           SetDebrisModel( Event *ev );
-      void           SetSeverity( Event *ev );
-      void           SetDebrisAmount( Event *ev );
-      void           MakeExplosion( Event *ev );
+    void SetDebrisModel(Event *ev);
+    void SetSeverity(Event *ev);
+    void SetDebrisAmount(Event *ev);
+    void MakeExplosion(Event *ev);
 
-	public:
-      CLASS_PROTOTYPE( ExplodeObject );
+public:
+    CLASS_PROTOTYPE(ExplodeObject);
 
-		               ExplodeObject();
-	   void Archive( Archiver &arc ) override;
-	};
+    ExplodeObject();
+    void Archive(Archiver& arc) override;
+};
 
-inline void ExplodeObject::Archive
-	(
-	Archiver &arc
-	)
-   {
-   MultiExploder::Archive( arc );
+inline void ExplodeObject::Archive(Archiver& arc)
+{
+    MultiExploder::Archive(arc);
 
-   arc.ArchiveFloat( &severity );
-   arc.ArchiveInteger( &debrisamount );
-   debrismodels.Archive( arc );
-   }
+    arc.ArchiveFloat(&severity);
+    arc.ArchiveInteger(&debrisamount);
+    debrismodels.Archive(arc);
+}

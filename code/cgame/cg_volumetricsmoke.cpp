@@ -932,12 +932,12 @@ void VSS_CalcRepulsionForces(cvssource_t *pActiveSources)
             pComp    = vss_sorttable[pCurrent->stindex];
         }
 
-        for(; pComp; pComp = pComp->stnext) {
+        for (; pComp; pComp = pComp->stnext) {
             VSS_AddRepulsion(pCurrent, pComp);
             if (!pSTLatch && pComp->stnext == pCurrent) {
                 pSTLatch = pComp;
                 // skip current
-                pComp    = pComp->stnext;
+                pComp = pComp->stnext;
             }
         }
 

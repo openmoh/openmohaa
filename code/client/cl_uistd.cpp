@@ -489,19 +489,35 @@ void UIFakkLabel::DrawStatbar(float frac)
                 {
                     float width = frac * m_frame.size.width;
 
-                    fvWidth = m_frame.size.width / m_vVirtualScale[0] / uii.Rend_GetShaderWidth(m_statbar_material->GetMaterial());
-                    fvHeight = m_frame.size.height / m_vVirtualScale[1] / uii.Rend_GetShaderHeight(m_statbar_material->GetMaterial());
+                    fvWidth = m_frame.size.width / m_vVirtualScale[0]
+                            / uii.Rend_GetShaderWidth(m_statbar_material->GetMaterial());
+                    fvHeight = m_frame.size.height / m_vVirtualScale[1]
+                             / uii.Rend_GetShaderHeight(m_statbar_material->GetMaterial());
 
-                    re.DrawStretchPic(0.0, 0.0, width, m_frame.size.height, 0, 0, fvWidth, fvHeight, m_statbar_material->GetMaterial());
+                    re.DrawStretchPic(
+                        0.0, 0.0, width, m_frame.size.height, 0, 0, fvWidth, fvHeight, m_statbar_material->GetMaterial()
+                    );
                     //re.DrawTilePic(0.0, 0.0, width, m_frame.size.height, m_statbar_material->GetMaterial());
 
                     if (alpha != 0.0 && m_statbar_material_flash) {
                         re.SetColor(col);
 
-                        fvWidth = m_frame.size.width / m_vVirtualScale[0] / uii.Rend_GetShaderWidth(m_statbar_material_flash->GetMaterial());
-                        fvHeight = m_frame.size.height / m_vVirtualScale[1] / uii.Rend_GetShaderHeight(m_statbar_material_flash->GetMaterial());
+                        fvWidth = m_frame.size.width / m_vVirtualScale[0]
+                                / uii.Rend_GetShaderWidth(m_statbar_material_flash->GetMaterial());
+                        fvHeight = m_frame.size.height / m_vVirtualScale[1]
+                                 / uii.Rend_GetShaderHeight(m_statbar_material_flash->GetMaterial());
 
-                        re.DrawStretchPic(0.0, 0.0, width, m_frame.size.height, 0, 0, fvWidth, fvHeight, m_statbar_material_flash->GetMaterial());
+                        re.DrawStretchPic(
+                            0.0,
+                            0.0,
+                            width,
+                            m_frame.size.height,
+                            0,
+                            0,
+                            fvWidth,
+                            fvHeight,
+                            m_statbar_material_flash->GetMaterial()
+                        );
                         //re.DrawTilePic(0.0, 0.0, width, m_frame.size.height, m_statbar_material_flash->GetMaterial());
                     }
 
@@ -531,19 +547,43 @@ void UIFakkLabel::DrawStatbar(float frac)
                 {
                     float y = m_frame.size.height * (1.0 - frac);
 
-                    fvWidth = m_frame.size.width / m_vVirtualScale[0] / uii.Rend_GetShaderWidth(m_statbar_material->GetMaterial());
-                    fvHeight = m_frame.size.height / m_vVirtualScale[1] / uii.Rend_GetShaderHeight(m_statbar_material->GetMaterial());
+                    fvWidth = m_frame.size.width / m_vVirtualScale[0]
+                            / uii.Rend_GetShaderWidth(m_statbar_material->GetMaterial());
+                    fvHeight = m_frame.size.height / m_vVirtualScale[1]
+                             / uii.Rend_GetShaderHeight(m_statbar_material->GetMaterial());
 
-                    re.DrawStretchPic(0.0, y, m_frame.size.width, m_frame.size.height, 0, 0, fvWidth, fvHeight, m_statbar_material->GetMaterial());
+                    re.DrawStretchPic(
+                        0.0,
+                        y,
+                        m_frame.size.width,
+                        m_frame.size.height,
+                        0,
+                        0,
+                        fvWidth,
+                        fvHeight,
+                        m_statbar_material->GetMaterial()
+                    );
                     //re.DrawTilePic(0.0, y, m_frame.size.width, m_frame.size.height, m_statbar_material->GetMaterial());
 
                     if (alpha != 0.0 && m_statbar_material_flash) {
                         re.SetColor(col);
 
-                        fvWidth = m_frame.size.width / m_vVirtualScale[0] / uii.Rend_GetShaderWidth(m_statbar_material_flash->GetMaterial());
-                        fvHeight = m_frame.size.height / m_vVirtualScale[1] / uii.Rend_GetShaderHeight(m_statbar_material_flash->GetMaterial());
+                        fvWidth = m_frame.size.width / m_vVirtualScale[0]
+                                / uii.Rend_GetShaderWidth(m_statbar_material_flash->GetMaterial());
+                        fvHeight = m_frame.size.height / m_vVirtualScale[1]
+                                 / uii.Rend_GetShaderHeight(m_statbar_material_flash->GetMaterial());
 
-                        re.DrawStretchPic(0.0, y, m_frame.size.width, m_frame.size.height, 0, 0, fvWidth, fvHeight, m_statbar_material_flash->GetMaterial());
+                        re.DrawStretchPic(
+                            0.0,
+                            y,
+                            m_frame.size.width,
+                            m_frame.size.height,
+                            0,
+                            0,
+                            fvWidth,
+                            fvHeight,
+                            m_statbar_material_flash->GetMaterial()
+                        );
                         //re.DrawTilePic(
                         //    0.0, y, m_frame.size.width, m_frame.size.height, m_statbar_material_flash->GetMaterial()
                         //);

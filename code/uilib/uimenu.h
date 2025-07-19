@@ -25,79 +25,81 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../qcommon/listener.h"
 #include "../qcommon/stack.h"
 
-class Menu : public Listener {
-	qboolean m_fullscreen;
-	int m_vidmode;
+class Menu : public Listener
+{
+    qboolean m_fullscreen;
+    int      m_vidmode;
 
 public:
-	CLASS_PROTOTYPE( Menu );
+    CLASS_PROTOTYPE(Menu);
 
 public:
-	Container<UIWidget *> m_itemlist;
-	str m_name;
+    Container<UIWidget *> m_itemlist;
+    str                   m_name;
 
 public:
-	Menu();
-	Menu( str name );
+    Menu();
+    Menu(str name);
 
-	void			AddMenuItem( UIWidget *item );
-	void			DeleteMenuItem( UIWidget *item );
-	void			setName( str name );
-	void			ShowMenu( Event *ev );
-	void			HideMenu( Event *ev );
-	void			ForceShow( void );
-	void			ForceHide( void );
-	UIWidget		*GetContainerWidget( void );
-	UIWidget		*GetNamedWidget( const char *pszName );
-	void			Update( void );
-	void			RealignWidgets( void );
-	float			GetMaxMotionTime( void );
-	void			ActivateMenu( void );
-	qboolean		isFullscreen( void );
-	void			setFullscreen( qboolean bFullScreen );
-	int				getVidMode( void );
-	void			setVidMode( int iMode );
-	qboolean		isVisible( void );
-	void			SaveCVars( void );
-	void			RestoreCVars( void );
-	void			ResetCVars( void );
-	void			PassEventToWidget( str name, Event *ev );
-	void			PassEventToAllWidgets( Event& ev );
-	void			CheckRestart( void );
+    void      AddMenuItem(UIWidget *item);
+    void      DeleteMenuItem(UIWidget *item);
+    void      setName(str name);
+    void      ShowMenu(Event *ev);
+    void      HideMenu(Event *ev);
+    void      ForceShow(void);
+    void      ForceHide(void);
+    UIWidget *GetContainerWidget(void);
+    UIWidget *GetNamedWidget(const char *pszName);
+    void      Update(void);
+    void      RealignWidgets(void);
+    float     GetMaxMotionTime(void);
+    void      ActivateMenu(void);
+    qboolean  isFullscreen(void);
+    void      setFullscreen(qboolean bFullScreen);
+    int       getVidMode(void);
+    void      setVidMode(int iMode);
+    qboolean  isVisible(void);
+    void      SaveCVars(void);
+    void      RestoreCVars(void);
+    void      ResetCVars(void);
+    void      PassEventToWidget(str name, Event *ev);
+    void      PassEventToAllWidgets(Event& ev);
+    void      CheckRestart(void);
 };
 
-class MenuManager : public Listener {
-	Container<Menu *> m_menulist;
-	Stack<Menu *> m_showmenustack;
-	Stack<Menu *> m_menustack;
-	bool m_lock;
+class MenuManager : public Listener
+{
+    Container<Menu *> m_menulist;
+    Stack<Menu *>     m_showmenustack;
+    Stack<Menu *>     m_menustack;
+    bool              m_lock;
 
 public:
-	CLASS_PROTOTYPE( MenuManager );
+    CLASS_PROTOTYPE(MenuManager);
 
 public:
-	MenuManager();
+    MenuManager();
 
-	void		RealignMenus( void );
-	void		AddMenu( Menu *m );
-	void		DeleteMenu( Menu *m );
-	void		DeleteAllMenus( void );
-	Menu		*FindMenu( str name );
-	bool		PushMenu( str name );
-	bool		ShowMenu( str name );
-	void		PushMenu( Event *ev );
-	void		PopMenu( qboolean restore_cvars );
-	Menu		*CurrentMenu( void );
-	bool		ClearMenus( bool force );
-	void		ListMenus( void );
-	void		UpdateAllMenus( void );
-	void		Lock( Event *ev );
-	void		Unlock( Event *ev );
-	void		PassEventToWidget( str name, Event *ev );
-	void		PassEventToAllWidgets( Event& ev );
-	void		ResetCVars( void );
-	void		CheckRestart( void );
-	bool		ForceMenu( str name );
+    void  RealignMenus(void);
+    void  AddMenu(Menu *m);
+    void  DeleteMenu(Menu *m);
+    void  DeleteAllMenus(void);
+    Menu *FindMenu(str name);
+    bool  PushMenu(str name);
+    bool  ShowMenu(str name);
+    void  PushMenu(Event *ev);
+    void  PopMenu(qboolean restore_cvars);
+    Menu *CurrentMenu(void);
+    bool  ClearMenus(bool force);
+    void  ListMenus(void);
+    void  UpdateAllMenus(void);
+    void  Lock(Event *ev);
+    void  Unlock(Event *ev);
+    void  PassEventToWidget(str name, Event *ev);
+    void  PassEventToAllWidgets(Event& ev);
+    void  ResetCVars(void);
+    void  CheckRestart(void);
+    bool  ForceMenu(str name);
 };
 
 extern MenuManager menuManager;

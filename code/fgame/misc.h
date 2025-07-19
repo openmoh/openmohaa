@@ -368,7 +368,6 @@ public:
 };
 
 inline void MonkeyBars::Archive(Archiver& arc)
-
 {
     Entity::Archive(arc);
 
@@ -389,7 +388,6 @@ public:
 };
 
 inline void HorizontalPipe::Archive(Archiver& arc)
-
 {
     Entity::Archive(arc);
 
@@ -418,7 +416,6 @@ public:
 };
 
 inline void TossObject::Archive(Archiver& arc)
-
 {
     Animate::Archive(arc);
 
@@ -497,7 +494,6 @@ public:
 };
 
 inline void FallingRock::Archive(Archiver& arc)
-
 {
     Entity::Archive(arc);
 
@@ -535,7 +531,6 @@ public:
 };
 
 inline void SupplyWater::Archive(Archiver& arc)
-
 {
     Trigger::Archive(arc);
 

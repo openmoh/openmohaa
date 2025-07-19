@@ -40,11 +40,12 @@ private:
     void Initialize(const char *root_directory, const char *current_directory, qboolean bGermanModels);
 
 protected:
-    void         CloseWindow(void);
-    void         FileSelected(Event *ev);
+    void CloseWindow(void);
+    void FileSelected(Event *ev);
     // The name parameter was added in 2.0.
-    virtual void FileSelected(const str& name, const str& currentDirectory, const str& partialName, const str& fullname);
-    void         FileChosen(Event *ev);
+    virtual void
+         FileSelected(const str& name, const str& currentDirectory, const str& partialName, const str& fullname);
+    void FileChosen(Event *ev);
     // The name parameter was added in 2.0.
     virtual void FileChosen(const str& name, const str& currentDirectory, const str& partialName, const str& fullname);
     void         OnDeactivated(Event *ev);
@@ -56,5 +57,5 @@ public:
     void Setup(const char *root_directory, const char *current_directory, qboolean bGermanModels);
 };
 
-const char* PM_FilenameToDisplayname(const char* fileName);
-const char* PM_DisplaynameToFilename(const char* displayName);
+const char *PM_FilenameToDisplayname(const char *fileName);
+const char *PM_DisplaynameToFilename(const char *displayName);

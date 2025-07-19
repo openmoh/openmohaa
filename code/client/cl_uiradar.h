@@ -23,7 +23,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../uilib/uiwidget.h"
 #include "../cgame/cg_public.h"
 
-class UIRadar : public UIWidget {
+class UIRadar : public UIWidget
+{
 public:
     CLASS_PROTOTYPE(UIRadar);
 
@@ -37,4 +38,4 @@ private:
     float m_fRadius;
 };
 
-void CL_InitRadar(radarClient_t* radars, qhandle_t* shaders, int clientNum);
+void CL_InitRadar(radarClient_t *radars, qhandle_t *shaders, int clientNum);

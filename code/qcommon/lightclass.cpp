@@ -48,10 +48,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #endif
 
-size_t       totalmemallocated = 0;
+size_t       totalmemallocated   = 0;
 unsigned int numclassesallocated = 0;
 
-void DisplayMemoryUsage() {
+void DisplayMemoryUsage()
+{
     LIGHTCLASS_Printf("Classes %-5d Class memory used: %zu\n", numclassesallocated, totalmemallocated);
 }
 
@@ -112,11 +113,9 @@ void LightClass::operator delete(void *ptr)
 
 #endif
 
-void* LightClass::operator new(size_t size, void* placement)
+void *LightClass::operator new(size_t size, void *placement)
 {
     return placement;
 }
 
-void LightClass::operator delete(void* ptr, void* placement)
-{
-}
+void LightClass::operator delete(void *ptr, void *placement) {}

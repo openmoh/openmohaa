@@ -25,9 +25,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../client/cl_ui.h"
 
 typedef struct uiGlobals_s {
-	UList<str> fileList;
-	UIFont *globalFont;
-	str clientData;
+    UList<str> fileList;
+    UIFont    *globalFont;
+    str        clientData;
 } uiGlobals_t;
 
 extern uiGlobals_t ui;

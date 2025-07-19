@@ -57,10 +57,10 @@ public:
     ~ScriptClass();
 
     void        StoppedNotify() override;
-    void        Archive(Archiver       &arc) override;
-    void        ArchiveInternal(Archiver       &arc);
+    void        Archive(Archiver& arc) override;
+    void        ArchiveInternal(Archiver& arc);
     static void ArchiveScript(Archiver& arc, ScriptClass **obj);
-    void        ArchiveCodePos(Archiver       &arc, unsigned char **codePos);
+    void        ArchiveCodePos(Archiver& arc, unsigned char **codePos);
 
     ScriptThread *CreateThreadInternal(const ScriptVariable& label) override;
     ScriptThread *CreateScriptInternal(const ScriptVariable& label) override;

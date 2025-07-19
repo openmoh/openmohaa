@@ -27,10 +27,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 MemArchiver::MemArchiver()
 {
-    state = MEMARC_WRITING;
-    buffer = 0;
+    state         = MEMARC_WRITING;
+    buffer        = 0;
     allocatedSize = 0;
-    bufferSize = 0;
+    bufferSize    = 0;
 }
 
 MemArchiver::~MemArchiver()
@@ -42,18 +42,18 @@ MemArchiver::~MemArchiver()
 
 void MemArchiver::SetupForWriting(size_t initialSize)
 {
-    this->state = MEMARC_WRITING;
-    this->buffer = (byte*)cgi.Malloc(initialSize);
+    this->state         = MEMARC_WRITING;
+    this->buffer        = (byte *)cgi.Malloc(initialSize);
     this->allocatedSize = initialSize;
-    this->bufferSize = 0;
+    this->bufferSize    = 0;
 }
 
-void MemArchiver::SetupForReading(byte* buffer, size_t size)
+void MemArchiver::SetupForReading(byte *buffer, size_t size)
 {
-    this->state = MEMARC_READING;
-    this->buffer = buffer;
+    this->state         = MEMARC_READING;
+    this->buffer        = buffer;
     this->allocatedSize = size;
-    this->bufferSize = 0;
+    this->bufferSize    = 0;
 }
 
 void MemArchiver::SetBaseTime(unsigned int time)
@@ -66,13 +66,13 @@ size_t MemArchiver::BufferSize() const
     return bufferSize;
 }
 
-byte* MemArchiver::ConfiscateBuffer()
+byte *MemArchiver::ConfiscateBuffer()
 {
-    byte* confiscatedBuffer = buffer;
+    byte *confiscatedBuffer = buffer;
 
-    buffer = NULL;
+    buffer        = NULL;
     allocatedSize = 0;
-    bufferSize = 0;
+    bufferSize    = 0;
 
     return confiscatedBuffer;
 }
@@ -92,42 +92,42 @@ bool MemArchiver::FinishedReading() const
     return bufferSize == allocatedSize;
 }
 
-void MemArchiver::ArchiveByte(byte* value)
+void MemArchiver::ArchiveByte(byte *value)
 {
     ArchiveRaw(value, sizeof(byte));
 }
 
-void MemArchiver::ArchiveBoolean(qboolean* value)
+void MemArchiver::ArchiveBoolean(qboolean *value)
 {
     ArchiveRaw(value, sizeof(qboolean));
 }
 
-void MemArchiver::ArchiveChar(char* value)
+void MemArchiver::ArchiveChar(char *value)
 {
     ArchiveRaw(value, sizeof(char));
 }
 
-void MemArchiver::ArchiveUChar(unsigned char* value)
+void MemArchiver::ArchiveUChar(unsigned char *value)
 {
     ArchiveRaw(value, sizeof(unsigned char));
 }
 
-void MemArchiver::ArchiveShort(short* value)
+void MemArchiver::ArchiveShort(short *value)
 {
     ArchiveRaw(value, sizeof(short));
 }
 
-void MemArchiver::ArchiveInteger(int* value)
+void MemArchiver::ArchiveInteger(int *value)
 {
     ArchiveRaw(value, sizeof(int));
 }
 
-void MemArchiver::ArchiveSize(size_t* value)
+void MemArchiver::ArchiveSize(size_t *value)
 {
     ArchiveRaw(value, sizeof(size_t));
 }
 
-void MemArchiver::ArchiveFloat(float* value)
+void MemArchiver::ArchiveFloat(float *value)
 {
     ArchiveRaw(value, sizeof(float));
 }
@@ -137,17 +137,17 @@ void MemArchiver::ArchiveVec3(vec3_t value)
     ArchiveRaw(value, sizeof(vec3_t));
 }
 
-void MemArchiver::ArchiveVector(Vector* value)
+void MemArchiver::ArchiveVector(Vector *value)
 {
     ArchiveFloat(&value->x);
     ArchiveFloat(&value->y);
     ArchiveFloat(&value->z);
 }
 
-void MemArchiver::ArchiveString(str* value)
+void MemArchiver::ArchiveString(str *value)
 {
     char tmp[4096];
-    int current = 0;
+    int  current = 0;
 
     if (IsReading()) {
         for (current = 0; current < 4096; current++) {
@@ -167,7 +167,7 @@ void MemArchiver::ArchiveString(str* value)
     }
 }
 
-void MemArchiver::ArchiveTime(int* value)
+void MemArchiver::ArchiveTime(int *value)
 {
     int time;
 
@@ -189,7 +189,7 @@ void MemArchiver::ArchiveTime(int* value)
     }
 }
 
-void MemArchiver::ArchiveRaw(void* buffer, size_t size)
+void MemArchiver::ArchiveRaw(void *buffer, size_t size)
 {
     if (IsReading()) {
         ArchiveReadRaw(buffer, size);
@@ -198,7 +198,7 @@ void MemArchiver::ArchiveRaw(void* buffer, size_t size)
     }
 }
 
-void MemArchiver::ArchiveReadRaw(void* buffer, size_t size)
+void MemArchiver::ArchiveReadRaw(void *buffer, size_t size)
 {
     if (!size) {
         return;
@@ -212,7 +212,7 @@ void MemArchiver::ArchiveReadRaw(void* buffer, size_t size)
     this->bufferSize += size;
 }
 
-void MemArchiver::ArchiveWriteRaw(const void* buffer, size_t size)
+void MemArchiver::ArchiveWriteRaw(const void *buffer, size_t size)
 {
     if (!size) {
         return;
@@ -221,15 +221,15 @@ void MemArchiver::ArchiveWriteRaw(const void* buffer, size_t size)
     if (size + this->bufferSize > this->allocatedSize) {
         if (!this->allocatedSize) {
             this->allocatedSize = 1024;
-            this->buffer = (byte*)cgi.Malloc(this->allocatedSize);
+            this->buffer        = (byte *)cgi.Malloc(this->allocatedSize);
         } else {
-            byte* newBuffer;
+            byte *newBuffer;
 
             do {
                 this->allocatedSize *= 2;
             } while (size + this->bufferSize > this->allocatedSize);
 
-            newBuffer = (byte*)cgi.Malloc(this->allocatedSize);
+            newBuffer = (byte *)cgi.Malloc(this->allocatedSize);
             memcpy(newBuffer, this->buffer, this->bufferSize);
             cgi.Free(this->buffer);
             this->buffer = newBuffer;

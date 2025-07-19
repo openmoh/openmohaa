@@ -277,9 +277,9 @@ void UIAddToRotationButton::Released(Event *ev)
 
     if (mapList && rotationList) {
         size_t mapLength = 0;
-        int item = mapList->getCurrentItem();
-        str currentItemText;
-        
+        int    item      = mapList->getCurrentItem();
+        str    currentItemText;
+
         if (item) {
             currentItemText = mapList->getItemText(item);
         }

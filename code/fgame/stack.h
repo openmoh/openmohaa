@@ -21,123 +21,104 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 // stack.h: Generic Stack object.
-// 
+//
 
 #pragma once
 
 #include "g_local.h"
 #include "class.h"
 
-template <class Type>
+template<class Type>
 class StackNode : public Class
-	{
-	public:
-		Type		 data;
-		StackNode *next;
+{
+public:
+    Type       data;
+    StackNode *next;
 
-		StackNode( Type d );
-	};
+    StackNode(Type d);
+};
 
-template <class Type>
-inline StackNode<Type>::StackNode( Type d ) : data( d )
-	{
-	next = NULL; 
-	}
+template<class Type>
+inline StackNode<Type>::StackNode(Type d)
+    : data(d)
+{
+    next = NULL;
+}
 
-template <class Type>
+template<class Type>
 class Stack : public Class
-	{
-	private:
-		StackNode<Type> *head;
+{
+private:
+    StackNode<Type> *head;
 
-	public:
-					Stack();
-					~Stack<Type>();
-		void		Clear( void	);
-		qboolean Empty( void );
-		void		Push( Type data );
-		Type		Pop( void );
-	};
+public:
+    Stack();
+    ~Stack<Type>();
+    void     Clear(void);
+    qboolean Empty(void);
+    void     Push(Type data);
+    Type     Pop(void);
+};
 
-template <class Type>
+template<class Type>
 inline Stack<Type>::Stack()
-	{
-	head = NULL;
-	}
+{
+    head = NULL;
+}
 
-template <class Type>
+template<class Type>
 inline Stack<Type>::~Stack()
-	{
-	Clear();
-	}
+{
+    Clear();
+}
 
-template <class Type>
-inline void Stack<Type>::Clear
-	(
-	void
-	)
+template<class Type>
+inline void Stack<Type>::Clear(void)
+{
+    while (!Empty()) {
+        Pop();
+    }
+}
 
-	{
-	while( !Empty() )
-		{
-		Pop();
-		}
-	}
+template<class Type>
+inline qboolean Stack<Type>::Empty(void)
+{
+    if (head == NULL) {
+        return true;
+    }
+    return false;
+}
 
-template <class Type>
-inline qboolean Stack<Type>::Empty
-	(
-	void
-	)
+template<class Type>
+inline void Stack<Type>::Push(Type data)
+{
+    StackNode<Type> *tmp;
 
-	{
-	if ( head == NULL )
-		{
-		return true;
-		}
-	return false;
-	}
+    tmp = new StackNode<Type>(data);
+    if (!tmp) {
+        assert(NULL);
+        gi.Error(ERR_DROP, "Stack::Push : Out of memory");
+    }
 
-template <class Type>
-inline void Stack<Type>::Push
-	(
-	Type data
-	)
+    tmp->next = head;
+    head      = tmp;
+}
 
-	{
-	StackNode<Type> *tmp;
+template<class Type>
+inline Type Stack<Type>::Pop(void)
+{
+    Type             ret;
+    StackNode<Type> *node;
 
-	tmp = new StackNode<Type>( data );
-	if ( !tmp )
-		{
-		assert( NULL );
-		gi.Error( ERR_DROP, "Stack::Push : Out of memory" );
-		}
+    if (!head) {
+        return NULL;
+    }
 
-	tmp->next = head;
-	head = tmp;
-	}
+    node = head;
+    ret  = node->data;
+    head = node->next;
 
-template <class Type>
-inline Type Stack<Type>::Pop
-	(
-	void
-	)
+    delete node;
 
-	{
-	Type ret;
-	StackNode<Type> *node;
-
-	if ( !head )
-		{
-		return NULL;
-		}
-
-	node	= head;
-	ret	= node->data;
-	head	= node->next;
-
-	delete node;
-
-	return ret;
-	}
+    return ret;
+}

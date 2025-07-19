@@ -133,28 +133,28 @@ public:
     qboolean ReadyToFire(firemode_t mode, qboolean playsound) override;
     void     AdjustReloadStatus();
     void     GetMuzzlePosition(vec3_t position, vec3_t vBarrelPos, vec3_t forward, vec3_t right, vec3_t up) override;
-    void     ApplyFireKickback(const Vector    &org, float kickback) override;
+    void     ApplyFireKickback(const Vector& org, float kickback) override;
     float    FireDelay(firemode_t mode) override;
 
     // Added in 2.0
     //====
-    void      SetWarmupDelay(Event *ev);
-    void      SetFireWarmupDelay(Event *ev);
-    void      SetReloadDelay(Event *ev);
-    void      SetReloadShots(Event *ev);
-    void      SetAimOffset(Event *ev);
-    void      SetAimTolerance(Event *ev);
-    void      SetTargetEntity(Event *ev);
+    void SetWarmupDelay(Event *ev);
+    void SetFireWarmupDelay(Event *ev);
+    void SetReloadDelay(Event *ev);
+    void SetReloadShots(Event *ev);
+    void SetAimOffset(Event *ev);
+    void SetAimTolerance(Event *ev);
+    void SetTargetEntity(Event *ev);
     //====
-    void      PlayReloadSound(Event *ev); // Added in 2.30
-    void      SetTargetEntity(Entity *ent);
-    void      UpdateAndMoveOwner();
-    void      UpdateTimers(float     &yawTimer, float     &pitchTimer);
-    void      UpdateCaps(float maxYawOffset, float maxPitchOffset);
-    void      IdleToRestPosition();
-    void      UpdateFireControl();
-    void      UpdateCollisionEntity();
-    EntityPtr GetVehicle() const;
+    void        PlayReloadSound(Event *ev); // Added in 2.30
+    void        SetTargetEntity(Entity *ent);
+    void        UpdateAndMoveOwner();
+    void        UpdateTimers(float& yawTimer, float& pitchTimer);
+    void        UpdateCaps(float maxYawOffset, float maxPitchOffset);
+    void        IdleToRestPosition();
+    void        UpdateFireControl();
+    void        UpdateCollisionEntity();
+    EntityPtr   GetVehicle() const;
     SentientPtr GetRawRemoteOwner() const;
 
     void Archive(Archiver& arc) override;

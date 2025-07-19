@@ -94,30 +94,30 @@ public:
 class Sentient : public Animate
 {
 protected:
-    Container<int>         inventory;
-    Container<Ammo *>      ammo_inventory;
-    float                  LMRF;
-    WeaponPtr              newWeapon;
-    int                    poweruptype;
-    int                    poweruptimer;
-    Vector                 offset_color;
-    Vector                 offset_delta;
-    float                  charge_start_time;
-    str                    blood_model;
-    SafePtr<Weapon>        activeWeaponList[MAX_ACTIVE_WEAPONS];
-    ActiveWeapon           newActiveWeapon;
-    WeaponPtr              holsteredWeapon;
-    bool                   weapons_holstered_by_code;
-    ActiveWeapon           lastActiveWeapon;
-    float                  m_fDamageMultipliers[MAX_DAMAGE_MULTIPLIERS];
-    SafePtr<Vehicle>       m_pVehicle;
-    SafePtr<TurretGun>     m_pTurret;
-    SafePtr<Entity>        m_pLadder;
-    str                    m_sHelmetSurface1;
-    str                    m_sHelmetSurface2;
-    str                    m_sHelmetTiki;
-    float                  m_fHelmetSpeed;
-    bool                   m_bDontDropWeapons;
+    Container<int>     inventory;
+    Container<Ammo *>  ammo_inventory;
+    float              LMRF;
+    WeaponPtr          newWeapon;
+    int                poweruptype;
+    int                poweruptimer;
+    Vector             offset_color;
+    Vector             offset_delta;
+    float              charge_start_time;
+    str                blood_model;
+    SafePtr<Weapon>    activeWeaponList[MAX_ACTIVE_WEAPONS];
+    ActiveWeapon       newActiveWeapon;
+    WeaponPtr          holsteredWeapon;
+    bool               weapons_holstered_by_code;
+    ActiveWeapon       lastActiveWeapon;
+    float              m_fDamageMultipliers[MAX_DAMAGE_MULTIPLIERS];
+    SafePtr<Vehicle>   m_pVehicle;
+    SafePtr<TurretGun> m_pTurret;
+    SafePtr<Entity>    m_pLadder;
+    str                m_sHelmetSurface1;
+    str                m_sHelmetSurface2;
+    str                m_sHelmetTiki;
+    float              m_fHelmetSpeed;
+    bool               m_bDontDropWeapons;
 
     virtual void EventTake(Event *ev);
     virtual void EventGiveAmmo(Event *ev);
@@ -222,7 +222,7 @@ public:
     //
     // Added in OPM
     //
-    int  iNextLandTime;
+    int iNextLandTime;
 
     CLASS_PROTOTYPE(Sentient);
 
@@ -233,8 +233,8 @@ public:
     virtual void   SetViewAngles(Vector angles);
     virtual void   SetTargetViewAngles(Vector angles);
     virtual Vector GetViewAngles(void);
-    void           AddViewVariation(const Vector          &vVariation);
-    void           SetMinViewVariation(const Vector          &vVariation);
+    void           AddViewVariation(const Vector& vVariation);
+    void           SetMinViewVariation(const Vector& vVariation);
     void           SetHolsteredByCode(bool holstered);
     bool           CanSee(Entity *ent, float fov, float vision_distance, bool bNoEnts) override;
     bool           CanSee(const Vector& org, float fov, float vision_distance, bool bNoEnts) override;
@@ -291,8 +291,8 @@ public:
     qboolean PowerupActive(void);
 
     void             setModel(const char *mdl);
-    void             Archive(Archiver            &arc) override;
-    void             ArchivePersistantData(Archiver            &arc);
+    void             Archive(Archiver& arc) override;
+    void             ArchivePersistantData(Archiver& arc);
     void             DoubleArmor(void);
     virtual qboolean DoGib(int meansofdeath, Entity *inflictor);
     void             JumpXY(Event *ev);
@@ -321,7 +321,7 @@ public:
     Weapon      *GetNewActiveWeapon(void);
     weaponhand_t GetNewActiveWeaponHand(void);
     void         ClearNewActiveWeapon(void);
-    void         SetNewActiveWeapon(Weapon* weapon, weaponhand_t hand);
+    void         SetNewActiveWeapon(Weapon *weapon, weaponhand_t hand);
     void         Holster(qboolean putaway);
     void         SafeHolster(qboolean putaway);
     void         ActivateNewWeapon(void);
@@ -344,13 +344,13 @@ public:
 
     virtual bool IsDisabled() const; // Added in 2.30
 
-    Vehicle* GetVehicle() const;
-    void SetVehicle(Vehicle* pVehicle);
+    Vehicle *GetVehicle() const;
+    void     SetVehicle(Vehicle *pVehicle);
 
-    TurretGun* GetTurret() const;
-    void SetTurret(TurretGun* pTurret);
+    TurretGun *GetTurret() const;
+    void       SetTurret(TurretGun *pTurret);
 
-    Entity* GetLadder() const; // Added in OPM
+    Entity *GetLadder() const; // Added in OPM
 
     //
     // Custom openmohaa stuff
@@ -365,8 +365,8 @@ public:
     void Footstep(const char *szTagName, int iRunning, int iEquipment);
     void LandingSound(float volume, int iEquipment);
 
-    const Container<int>& getInventory() const;
-    const Container<Ammo*>& getAmmoInventory() const;
+    const Container<int>&    getInventory() const;
+    const Container<Ammo *>& getAmmoInventory() const;
 };
 
 typedef SafePtr<Sentient> SentientPtr;

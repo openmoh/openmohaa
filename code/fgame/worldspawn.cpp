@@ -33,8 +33,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #    include "../fgame/soundman.h"
 #endif
 
-WorldPtr world;
-
 Event EV_World_MapTime
 (
     "map_time",
@@ -487,6 +485,8 @@ Event EV_World_VisDerived
     "whether or not the vis compiler derives additional vis info from the manual vis",
     EV_NORMAL
 );
+
+WorldPtr world;
 
 CLASS_DECLARATION(Entity, World, "worldspawn") {
     {&EV_World_SetSoundtrack,            &World::SetSoundtrack           },

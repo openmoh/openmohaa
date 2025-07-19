@@ -457,7 +457,6 @@ void Door::SetCloseEndSound(str sound)
 }
 
 void Door::SetMessageSound(str sound)
-
 {
     sound_message = sound;
     if (sound_message.length() > 1) {
@@ -730,7 +729,6 @@ void Door::Open(Event *ev)
 }
 
 void Door::DoorUse(Event *ev)
-
 {
     Entity  *other;
     qboolean respond;
@@ -1455,7 +1453,6 @@ CLASS_DECLARATION(Door, SlidingDoor, "func_door") {
 };
 
 void SlidingDoor::SetMoveDir(Event *ev)
-
 {
     float t;
     float angle;
@@ -1474,13 +1471,11 @@ void SlidingDoor::DoOpen(Event *ev)
 }
 
 void SlidingDoor::DoClose(Event *ev)
-
 {
     MoveTo(pos1, angles, speed * totalmove, EV_Door_CloseEnd);
 }
 
 void SlidingDoor::SetLip(Event *ev)
-
 {
     lip = ev->GetFloat(1);
     CancelEventsOfType(EV_SlidingDoor_Setup);
@@ -1488,7 +1483,6 @@ void SlidingDoor::SetLip(Event *ev)
 }
 
 void SlidingDoor::SetSpeed(Event *ev)
-
 {
     basespeed = ev->GetFloat(1);
     CancelEventsOfType(EV_SlidingDoor_Setup);
@@ -1496,7 +1490,6 @@ void SlidingDoor::SetSpeed(Event *ev)
 }
 
 void SlidingDoor::Setup(Event *ev)
-
 {
     totalmove = fabs(movedir * size) - lip;
     pos1      = origin;
@@ -1602,7 +1595,6 @@ CLASS_DECLARATION(Door, ScriptDoor, "script_door") {
 };
 
 void ScriptDoor::SetMoveDir(Event *ev)
-
 {
     float t;
     float angle;
@@ -1663,7 +1655,6 @@ void ScriptDoor::DoClose(Event *ev)
 }
 
 void ScriptDoor::SetInitThread(Event *ev)
-
 {
     initlabel.SetThread(ev->GetValue(1));
 }

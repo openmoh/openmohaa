@@ -246,8 +246,8 @@ void ScriptVMStack::Archive(Archiver& arc)
     unsigned int i;
 
     if (arc.Saving()) {
-        size   = stackBottom - localStack;
-        offset = pTop - localStack;
+        size    = stackBottom - localStack;
+        offset  = pTop - localStack;
         numVars = offset + 1;
 
         arc.ArchiveUnsigned(&size);
@@ -312,7 +312,7 @@ ScriptVM::ScriptVM()
     m_pOldData    = NULL;
     m_OldDataSize = 0;
 
-    m_StackPos   = NULL;
+    m_StackPos = NULL;
 }
 
 /*
@@ -339,7 +339,7 @@ ScriptVM::ScriptVM(ScriptClass *scriptClass, unsigned char *pCodePos, ScriptThre
     m_pOldData    = NULL;
     m_OldDataSize = 0;
 
-    m_StackPos   = NULL;
+    m_StackPos = NULL;
 
     m_ScriptClass->AddThread(this);
 
@@ -598,14 +598,20 @@ void ScriptVM::transferVarsToEvent(Event& ev, ScriptVariable *fromVar, op_parmNu
     ev.CopyValues(fromVar, count);
 }
 
-void ScriptVM::checkValidEvent(Event& ev, Listener* listener) {
+void ScriptVM::checkValidEvent(Event& ev, Listener *listener)
+{
     ClassDef *c = listener->classinfo();
 
     if (!c->GetDef(&ev)) {
         if (listener == m_Thread) {
             ScriptError("Failed execution of command '%s'", ev.getName());
         } else if (listener->isSubclassOf(SimpleEntity)) {
-            ScriptError("Failed execution of command '%s' for class '%s' Targetname '%s'", ev.getName(), c->classname, static_cast<SimpleEntity*>(listener)->targetname.c_str());
+            ScriptError(
+                "Failed execution of command '%s' for class '%s' Targetname '%s'",
+                ev.getName(),
+                c->classname,
+                static_cast<SimpleEntity *>(listener)->targetname.c_str()
+            );
         } else {
             ScriptError("Failed execution of command '%s' for class '%s'", ev.getName(), c->classname);
         }
@@ -1542,7 +1548,7 @@ void ScriptVM::Execute(ScriptVariable *data, int dataSize, str label)
                 break;
 
             case OP_MARK_STACK_POS:
-                m_StackPos   = &m_VMStack.GetTop();
+                m_StackPos             = &m_VMStack.GetTop();
                 m_VMStack.m_bMarkStack = true;
                 break;
 
@@ -1838,7 +1844,7 @@ void ScriptVM::Execute(ScriptVariable *data, int dataSize, str label)
 
             if (Director.cmdCount >= 15000) {
                 if (!Director.cmdTime) {
-                    Director.cmdTime = gi.Milliseconds();
+                    Director.cmdTime  = gi.Milliseconds();
                     Director.cmdCount = 0;
                     continue;
                 }

@@ -24,55 +24,51 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "animate.h"
 
-class LODMaster : public Listener {
+class LODMaster : public Listener
+{
 public:
-	CLASS_PROTOTYPE( LODMaster );
+    CLASS_PROTOTYPE(LODMaster);
 
-	SafePtr< Entity > m_current;
+    SafePtr<Entity> m_current;
 
-	void			Init( void );
-	void			Spawn( Event *ev );
-	void			PassEvent( Event *ev );
+    void Init(void);
+    void Spawn(Event *ev);
+    void PassEvent(Event *ev);
 
-	void Archive( Archiver& arc ) override;
+    void Archive(Archiver& arc) override;
 };
 
-inline void LODMaster::Archive
-	(
-	Archiver& arc
-	)
+inline void LODMaster::Archive(Archiver& arc)
 {
-	Listener::Archive( arc );
+    Listener::Archive(arc);
 
-	arc.ArchiveSafePointer( &m_current );
+    arc.ArchiveSafePointer(&m_current);
 }
 
-class LODSlave : public Animate {
+class LODSlave : public Animate
+{
 public:
-	CLASS_PROTOTYPE( LODSlave );
+    CLASS_PROTOTYPE(LODSlave);
 
-	Vector	m_baseorigin;
-	float	m_scale;
+    Vector m_baseorigin;
+    float  m_scale;
 
-	LODSlave();
+    LODSlave();
 
-	void			UpdateCvars( qboolean quiet, qboolean updateFrame );
-	void			ThinkEvent( Event *ev );
-	void			SetModelEvent( Event *ev );
-	void			Delete( Event *ev );
+    void UpdateCvars(qboolean quiet, qboolean updateFrame);
+    void ThinkEvent(Event *ev);
+    void SetModelEvent(Event *ev);
+    void Delete(Event *ev);
 
-	void Archive( Archiver& arc ) override;
+    void Archive(Archiver& arc) override;
 };
 
-inline void LODSlave::Archive
-	(
-	Archiver& arc
-	)
+inline void LODSlave::Archive(Archiver& arc)
 {
-	Animate::Archive( arc );
+    Animate::Archive(arc);
 
-	arc.ArchiveVector( &m_baseorigin );
-	arc.ArchiveFloat( &m_scale );
+    arc.ArchiveVector(&m_baseorigin);
+    arc.ArchiveFloat(&m_scale);
 }
 
 extern LODMaster LODModel;

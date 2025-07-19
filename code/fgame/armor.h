@@ -20,22 +20,22 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-// armor.h: Standard armor that prevents a percentage of damage per hit. 
+// armor.h: Standard armor that prevents a percentage of damage per hit.
 
 #pragma once
 
-#include "weapon.h" 
+#include "weapon.h"
 
 class Armor : public Item
-	{
-	protected:
-		virtual void Setup( const char *model, int amount );
-      void Add( int amount ) override;
+{
+protected:
+    virtual void Setup(const char *model, int amount);
+    void         Add(int amount) override;
 
-	public:
-      CLASS_PROTOTYPE( Armor );
+public:
+    CLASS_PROTOTYPE(Armor);
 
-                        Armor();
+    Armor();
 
-      qboolean Pickupable( Entity *other ) override;
-   };
+    qboolean Pickupable(Entity *other) override;
+};

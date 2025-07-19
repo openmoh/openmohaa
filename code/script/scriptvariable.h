@@ -235,7 +235,7 @@ public:
     ScriptVariable operator--(int);
 
     void        Archive(Archiver& arc);
-    static void Archive(Archiver& arc, ScriptVariable** obj);
+    static void Archive(Archiver& arc, ScriptVariable **obj);
     void        ArchiveInternal(Archiver& arc);
 
     void MakePrimitive();
@@ -325,7 +325,7 @@ public:
     ScriptVariableList();
 
     void ClearList(void);
-    int size() const;
+    int  size() const;
 
     ScriptVariable *GetOrCreateVariable(str name);
     ScriptVariable *GetOrCreateVariable(unsigned int name);
@@ -345,7 +345,7 @@ public:
     ScriptVariable *SetVariable(unsigned int name, ScriptVariable&& value);
 
     void Archive(Archiver& arc) override;
-    void Print (void (*PrintFn) (const char* format, ...));
+    void Print(void (*PrintFn)(const char *format, ...));
     void MakePrimitive();
 };
 

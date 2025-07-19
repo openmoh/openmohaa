@@ -459,7 +459,6 @@ public:
 };
 
 inline void TriggerDamageTargets::Archive(Archiver& arc)
-
 {
     Trigger::Archive(arc);
 
@@ -544,7 +543,6 @@ public:
 };
 
 inline void TriggerReverb::Archive(Archiver& arc)
-
 {
     Trigger::Archive(arc);
 

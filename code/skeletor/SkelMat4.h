@@ -64,12 +64,12 @@ public:
 
     int CompareExact(const SkelMat4& skel) const;
 
-    void  Sum(const SkelMat4 &m1, const SkelMat4 &m2);
-    void  Difference(const SkelMat4 &m1, const SkelMat4 &m2);
-    void  Multiply(const SkelMat4 &m1, const SkelMat4 &m2);
+    void  Sum(const SkelMat4& m1, const SkelMat4& m2);
+    void  Difference(const SkelMat4& m1, const SkelMat4& m2);
+    void  Multiply(const SkelMat4& m1, const SkelMat4& m2);
     void  InvertAxis(int);
-    void  RotateBy(const SkelMat3 &m);
-    void  RotateByInverse(const SkelMat3 &m);
+    void  RotateBy(const SkelMat3& m);
+    void  RotateByInverse(const SkelMat3& m);
     void  RotateXAxis(float x);
     void  RotateYAxis(float y);
     void  RotateZAxis(float z);
@@ -81,19 +81,19 @@ public:
     void  MoveOnZAxis(float z);
     void  TransformVector(float *) const;
     void  TransposeRot();
-    void  TransposeOf(const SkelMat4 &m);
-    void  TransposeRotOf(const SkelMat4 &m);
-    void  InverseRotOf(const SkelMat4 &m);
+    void  TransposeOf(const SkelMat4& m);
+    void  TransposeRotOf(const SkelMat4& m);
+    void  InverseRotOf(const SkelMat4& m);
     float Determinant(void);
     void  Inverse(void);
     void  GetRotationMatrix(float (*)[3]) const;
     void  GetRotationMatrix(float (*)[4]) const;
     void  ReplacePos(const float *);
-    void  ReplaceRot(const SkelMat3 &m);
-    void  ReplaceRot(const SkelMat4 &m);
+    void  ReplaceRot(const SkelMat3& m);
+    void  ReplaceRot(const SkelMat4& m);
     void  GetPos(float *pos) const;
     void  GetScale(float *scale) const;
-    void  DeltaPos(const SkelMat4 &m, float *delta) const;
+    void  DeltaPos(const SkelMat4& m, float *delta) const;
     void  RotateYaw(float, float);
 
     void GetQuat(SkelQuat& quat);

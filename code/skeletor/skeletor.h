@@ -36,8 +36,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "skeletor_internal.h"
 
 #define MAX_SKEL_BLEND_MOVEMENT_FRAMES 32
-#define MAX_SKEL_BLEND_ACTION_FRAMES 32
-#define MAX_SKEL_BLEND_FRAMES (MAX_SKEL_BLEND_MOVEMENT_FRAMES + MAX_SKEL_BLEND_ACTION_FRAMES)
+#define MAX_SKEL_BLEND_ACTION_FRAMES   32
+#define MAX_SKEL_BLEND_FRAMES          (MAX_SKEL_BLEND_MOVEMENT_FRAMES + MAX_SKEL_BLEND_ACTION_FRAMES)
 
 typedef struct skelAnimFrame_s {
     float    radius;
@@ -123,7 +123,7 @@ public:
     void                             LoadMorphTargetNames(skelHeaderGame_t *modelHeader);
     void                             GetFrame(skelAnimFrame_t *newFrame);
     int                              GetMorphWeightFrame(int *data);
-    SkelMat4                       & GetBoneFrame(int boneIndex) const;
+    SkelMat4&                        GetBoneFrame(int boneIndex) const;
     void                             GetFrameBounds(SkelVec3 *, SkelVec3 *);
     float                            GetModelLODRadius();
     bool                             IsBoneOnGround(int boneIndex, float threshold);
@@ -134,11 +134,11 @@ public:
     void SetPose(const frameInfo_t *frameInfo, const int *contIndices, const vec4_t *contValues, float actionWeight);
     void SetEyeTargetPos(const float *pEyeTargetPos);
     int  GetBoneParent(int boneIndex);
-    static class ChannelNameTable* ChannelNames();
+    static class ChannelNameTable *ChannelNames();
 
 private:
-    void                           Init();
-    SkelMat4                      *BoneTransformation(int, int *, float (*)[4]);
+    void      Init();
+    SkelMat4 *BoneTransformation(int, int *, float (*)[4]);
 };
 
 #endif

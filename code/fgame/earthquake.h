@@ -22,7 +22,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // earthquake.h: Earthquake trigger causes a localized earthquake when triggered.
 // The earthquake effect is visible to the user as the shaking of his screen.
-// 
+//
 
 #pragma once
 
@@ -31,46 +31,52 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define EARTHQUAKE_STRENGTH 50
 
-class ViewJitter : public Trigger {
+class ViewJitter : public Trigger
+{
 protected:
-	float		m_fRadius;
-	float		m_fEdgeEffect;
-	Vector		m_vJitterStrength;
-	float		m_fDuration;
-	Vector		m_vTimeDecay;
-	qboolean	m_bDoneDeath;
-	float		m_fTimeRunning;
+    float    m_fRadius;
+    float    m_fEdgeEffect;
+    Vector   m_vJitterStrength;
+    float    m_fDuration;
+    Vector   m_vTimeDecay;
+    qboolean m_bDoneDeath;
+    float    m_fTimeRunning;
 
 public:
-	CLASS_PROTOTYPE( ViewJitter );
+    CLASS_PROTOTYPE(ViewJitter);
 
-	ViewJitter();
-	ViewJitter( Vector vOrigin, float fRadius, float fEdgeEffect, Vector vStrength, float fDuration, Vector vTimeDecay, float fStartDecay );
+    ViewJitter();
+    ViewJitter(
+        Vector vOrigin,
+        float  fRadius,
+        float  fEdgeEffect,
+        Vector vStrength,
+        float  fDuration,
+        Vector vTimeDecay,
+        float  fStartDecay
+    );
 
-	void				EventActivateJitter( Event *ev );
-	void				EventJitterThink( Event *ev );
-	void				EventSetRadius( Event *ev );
-	void				EventSetEdgeEffect( Event *ev );
-	void				EventSetAmount( Event *ev );
-	void				EventSetDuration( Event *ev );
-	void				EventSetTimeDecay( Event *ev );
-	void				EventSetDoneDeath( Event *ev );
+    void EventActivateJitter(Event *ev);
+    void EventJitterThink(Event *ev);
+    void EventSetRadius(Event *ev);
+    void EventSetEdgeEffect(Event *ev);
+    void EventSetAmount(Event *ev);
+    void EventSetDuration(Event *ev);
+    void EventSetTimeDecay(Event *ev);
+    void EventSetDoneDeath(Event *ev);
 
-	void Archive( Archiver& arc ) override;
+    void Archive(Archiver& arc) override;
 };
 
-inline void ViewJitter::Archive
-	(
-	Archiver &arc
-	)
+inline void ViewJitter::Archive(Archiver& arc)
 {
-	Trigger::Archive( arc );
+    Trigger::Archive(arc);
 
-	arc.ArchiveFloat( &m_fRadius );
-	arc.ArchiveFloat( &m_fEdgeEffect );
-	arc.ArchiveVector( &m_vJitterStrength );
-	arc.ArchiveFloat( &m_fDuration );
-	arc.ArchiveVector( &m_vTimeDecay );
-	arc.ArchiveBoolean( &m_bDoneDeath );
-	arc.ArchiveFloat( &m_fTimeRunning );
+    arc.ArchiveFloat(&m_fRadius);
+    arc.ArchiveFloat(&m_fEdgeEffect);
+    arc.ArchiveVector(&m_vJitterStrength);
+    arc.ArchiveFloat(&m_fDuration);
+    arc.ArchiveVector(&m_vTimeDecay);
+    arc.ArchiveBoolean(&m_bDoneDeath);
+    arc.ArchiveFloat(&m_fTimeRunning);
 }

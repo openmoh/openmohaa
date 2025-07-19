@@ -29,7 +29,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define EPSILON 0.000000000001f
 
-ChannelNameTable* skeletor_c::ChannelNames()
+ChannelNameTable *skeletor_c::ChannelNames()
 {
     return &m_channelNames;
 }
@@ -120,7 +120,7 @@ SkelVec3 skelAnimDataGameHeader_s::GetDeltaOverTime(float time1, float time2)
         delta.y += m_frame[frameNum2 % numFrames].delta.y * s;
         delta.z += m_frame[frameNum2 % numFrames].delta.z * s;
     } else {
-        s = s - (1.0 - d);
+        s       = s - (1.0 - d);
         delta.x = m_frame[frameNum2 % numFrames].delta.x * s;
         delta.y = m_frame[frameNum2 % numFrames].delta.y * s;
         delta.z = m_frame[frameNum2 % numFrames].delta.z * s;
@@ -167,7 +167,7 @@ float skelAnimDataGameHeader_s::GetAngularDeltaOverTime(float time1, float time2
 
         delta += m_frame[frameNum2 % numFrames].angleDelta * s;
     } else {
-        s = s - (1.0 - d);
+        s     = s - (1.0 - d);
         delta = m_frame[frameNum2 % numFrames].angleDelta;
     }
 
@@ -272,7 +272,7 @@ void skelAnimDataGameHeader_s::DeallocAnimData(skelAnimDataGameHeader_t *data)
     }
 
     for (i = 0; i < data->nTotalChannels; i++) {
-        pChannel = &data->ary_channels[i];
+        pChannel    = &data->ary_channels[i];
         channelType = GetBoneChannelType(data->channelList.ChannelName(skeletor_c::ChannelNames(), i));
 
         if (channelType != 2) {
@@ -693,8 +693,8 @@ void SkeletorGetAnimFrame(
 
     if (animData) {
         if (!animData->bHasDelta) {
-            frameList.numMovementFrames              = 0;
-            frameList.numActionFrames                = 1;
+            frameList.numMovementFrames = 0;
+            frameList.numActionFrames   = 1;
 
             frameList.m_blendInfo[MAX_SKEL_BLEND_MOVEMENT_FRAMES].weight         = 1.0;
             frameList.m_blendInfo[MAX_SKEL_BLEND_MOVEMENT_FRAMES].pAnimationData = animData;
@@ -909,8 +909,8 @@ void TIKI_GetSkelAnimFrameInternal(
 
     frameList.actionWeight = animData ? 1.0 : 0;
     if (!animData || !animData->bHasDelta) {
-        frameList.numMovementFrames              = 0;
-        frameList.numActionFrames                = 1;
+        frameList.numMovementFrames = 0;
+        frameList.numActionFrames   = 1;
 
         frameList.m_blendInfo[MAX_SKEL_BLEND_MOVEMENT_FRAMES].weight         = 1.0;
         frameList.m_blendInfo[MAX_SKEL_BLEND_MOVEMENT_FRAMES].pAnimationData = animData;
@@ -1090,12 +1090,12 @@ float DecodeFrameValue(skanChannelHdr *channelFrames, int desiredFrameNum)
 
 int skeletor_c::GetMorphWeightFrame(int *data)
 {
-    int    numTargets;
-    int    animChannelNum;
-    int    blendNum;
-    float  weight;
-    int    modelChannelNum;
-    float  channelData;
+    int   numTargets;
+    int   animChannelNum;
+    int   blendNum;
+    float weight;
+    int   modelChannelNum;
+    float channelData;
 
     numTargets = m_morphTargetList.NumChannels();
 
@@ -1115,7 +1115,8 @@ int skeletor_c::GetMorphWeightFrame(int *data)
                 animChannelNum = blendInfo.pAnimationData->channelList.LocalChannel(animChannelNum);
 
                 if (animChannelNum >= 0) {
-                    channelData = DecodeFrameValue(&blendInfo.pAnimationData->ary_channels[animChannelNum], blendInfo.frame);
+                    channelData =
+                        DecodeFrameValue(&blendInfo.pAnimationData->ary_channels[animChannelNum], blendInfo.frame);
                     data[modelChannelNum] += (int)(channelData * weight);
                 }
             }
@@ -1132,7 +1133,8 @@ int skeletor_c::GetMorphWeightFrame(int *data)
                 animChannelNum = blendInfo.pAnimationData->channelList.LocalChannel(animChannelNum);
 
                 if (animChannelNum >= 0) {
-                    channelData = DecodeFrameValue(&blendInfo.pAnimationData->ary_channels[animChannelNum], blendInfo.frame);
+                    channelData =
+                        DecodeFrameValue(&blendInfo.pAnimationData->ary_channels[animChannelNum], blendInfo.frame);
                     data[modelChannelNum] += (int)(channelData * weight);
                 }
             }

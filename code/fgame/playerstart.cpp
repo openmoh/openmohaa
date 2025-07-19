@@ -40,94 +40,78 @@ The normal starting point for a level.
 
 Event EV_PlayerStart_EnableSpawn
 (
-	"enablespawn",
-	EV_DEFAULT,
-	NULL,
-	NULL,
-	"allows spawning from this spawnpoint"
+    "enablespawn",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "allows spawning from this spawnpoint"
 );
 
 Event EV_PlayerStart_DisableSpawn
 (
-	"disablespawn",
-	EV_DEFAULT,
-	NULL,
-	NULL,
-	"forbids spawning from this spawnpoint"
+    "disablespawn",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "forbids spawning from this spawnpoint"
 );
 
 Event EV_PlayerStart_DeleteOnSpawn
 (
-	"deletespawn",
-	EV_DEFAULT,
-	NULL,
-	NULL,
-	"delete this spawnpoint when spawning from this spawnpoint"
+    "deletespawn",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "delete this spawnpoint when spawning from this spawnpoint"
 );
 
 Event EV_PlayerStart_KeepOnSpawn
 (
-	"keepspawn",
-	EV_DEFAULT,
-	NULL,
-	NULL,
-	"keep this spawnpoint when spawning from this spawnpoint"
+    "keepspawn",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "keep this spawnpoint when spawning from this spawnpoint"
 );
 
-CLASS_DECLARATION( SimpleArchivedEntity, PlayerStart, "info_player_start" )
-{
-	{ &EV_SetAngle,							&PlayerStart::SetAngle },
-	{ &EV_PlayerStart_EnableSpawn,			&PlayerStart::EventEnableSpawn },
-	{ &EV_PlayerStart_DisableSpawn,			&PlayerStart::EventDisableSpawn },
-	{ &EV_PlayerStart_DeleteOnSpawn,		&PlayerStart::EventDeleteOnSpawn },
-	{ &EV_PlayerStart_KeepOnSpawn,			&PlayerStart::EventKeepOnSpawn },
-	{ NULL, NULL }
+CLASS_DECLARATION(SimpleArchivedEntity, PlayerStart, "info_player_start") {
+    {&EV_SetAngle,                  &PlayerStart::SetAngle          },
+    {&EV_PlayerStart_EnableSpawn,   &PlayerStart::EventEnableSpawn  },
+    {&EV_PlayerStart_DisableSpawn,  &PlayerStart::EventDisableSpawn },
+    {&EV_PlayerStart_DeleteOnSpawn, &PlayerStart::EventDeleteOnSpawn},
+    {&EV_PlayerStart_KeepOnSpawn,   &PlayerStart::EventKeepOnSpawn  },
+    {NULL,                          NULL                            }
 };
 
 PlayerStart::PlayerStart()
 {
-	m_bForbidSpawns = false;
-	m_bDeleteOnSpawn = false;
+    m_bForbidSpawns  = false;
+    m_bDeleteOnSpawn = false;
 }
 
-void PlayerStart::SetAngle
-   (
-   Event *ev
-   )
+void PlayerStart::SetAngle(Event *ev)
 {
-	angles = Vector( 0, ev->GetFloat( 1 ), 0 );
+    angles = Vector(0, ev->GetFloat(1), 0);
 }
 
-void PlayerStart::EventEnableSpawn
-	(
-	Event *ev
-	)
+void PlayerStart::EventEnableSpawn(Event *ev)
 {
-	m_bForbidSpawns = false;
+    m_bForbidSpawns = false;
 }
 
-void PlayerStart::EventDisableSpawn
-	(
-	Event *ev
-	)
+void PlayerStart::EventDisableSpawn(Event *ev)
 {
-	m_bForbidSpawns = true;
+    m_bForbidSpawns = true;
 }
 
-void PlayerStart::EventDeleteOnSpawn
-	(
-	Event *ev
-	)
+void PlayerStart::EventDeleteOnSpawn(Event *ev)
 {
-	m_bDeleteOnSpawn = true;
+    m_bDeleteOnSpawn = true;
 }
 
-void PlayerStart::EventKeepOnSpawn
-	(
-	Event *ev
-	)
+void PlayerStart::EventKeepOnSpawn(Event *ev)
 {
-	m_bDeleteOnSpawn = false;
+    m_bDeleteOnSpawn = false;
 }
 
 /*****************************************************************************/
@@ -135,10 +119,9 @@ void PlayerStart::EventKeepOnSpawn
 
 ******************************************************************************/
 
-CLASS_DECLARATION( PlayerStart, TestPlayerStart, "testplayerstart" )
-	{
-		{ NULL, NULL }
-	};
+CLASS_DECLARATION(PlayerStart, TestPlayerStart, "testplayerstart") {
+    {NULL, NULL}
+};
 
 /*****************************************************************************/
 /*QUAKED info_player_deathmatch (0.75 0.75 1) (-16 -16 0) (16 16 96)
@@ -151,10 +134,9 @@ potential spawning position for deathmatch games
 
 ******************************************************************************/
 
-CLASS_DECLARATION( PlayerStart, PlayerDeathmatchStart, "info_player_deathmatch" )
-	{
-		{ NULL, NULL }
-	};
+CLASS_DECLARATION(PlayerStart, PlayerDeathmatchStart, "info_player_deathmatch") {
+    {NULL, NULL}
+};
 
 /*****************************************************************************/
 /*QUAKED info_player_allied (0.75 0.75 1) (-16 -16 0) (16 16 96)
@@ -167,9 +149,8 @@ potential spawning position for an allied player in a team games... ignored for 
 
 ******************************************************************************/
 
-CLASS_DECLARATION( PlayerDeathmatchStart, PlayerAlliedDeathmatchStart, "info_player_allied" )
-{
-	{ NULL, NULL }
+CLASS_DECLARATION(PlayerDeathmatchStart, PlayerAlliedDeathmatchStart, "info_player_allied") {
+    {NULL, NULL}
 };
 
 /*****************************************************************************/
@@ -183,9 +164,8 @@ potential spawning position for an axis player in a team games... ignored for FF
 
 ******************************************************************************/
 
-CLASS_DECLARATION( PlayerDeathmatchStart, PlayerAxisDeathmatchStart, "info_player_axis" )
-{
-	{ NULL, NULL }
+CLASS_DECLARATION(PlayerDeathmatchStart, PlayerAxisDeathmatchStart, "info_player_axis") {
+    {NULL, NULL}
 };
 
 /*****************************************************************************/
@@ -195,16 +175,12 @@ viewing point in between deathmatch levels
 
 ******************************************************************************/
 
-CLASS_DECLARATION( Camera, PlayerIntermission, "info_player_intermission" )
-	{
-		{ NULL, NULL }
-	};
+CLASS_DECLARATION(Camera, PlayerIntermission, "info_player_intermission") {
+    {NULL, NULL}
+};
 
-PlayerIntermission::PlayerIntermission
-   (
-   )
+PlayerIntermission::PlayerIntermission()
 
-   {
-   currentstate.watch.watchPath = false;
-   }
-
+{
+    currentstate.watch.watchPath = false;
+}
