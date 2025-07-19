@@ -22,6 +22,7 @@ jobs:
   # Initially create a release with 1 job
   # so multiple files can be uploaded at the same time afterwards
   create-release:
+    if: github.event_name != 'pull_request' && github.ref_name == 'main'
     runs-on: ubuntu-24.04
     environment: 'testing'
     needs: [build-all]
