@@ -499,6 +499,7 @@ void Menu::PassEventToWidget
 		if( wid->getName() == name && wid->ValidEvent( ev->getName() ) )
 		{
 			wid->ProcessEvent( ev );
+            return;
 		}
 	}
 }
