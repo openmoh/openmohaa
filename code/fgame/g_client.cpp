@@ -988,7 +988,7 @@ void G_ClientBegin(gentity_t *ent, usercmd_t *cmd)
             // with deltaangles
             ent->entity->SetDeltaAngles();
 
-            if (ent->entity->IsSubclassOfPlayer()) {
+            if (ent->entity->IsSubclassOfPlayer() && g_gametype->integer != GT_SINGLE_PLAYER) {
                 player = static_cast<Player *>(ent->entity);
 
                 // Added in OPM
