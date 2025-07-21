@@ -1119,9 +1119,13 @@ void SV_Init (void)
 	Q_strncpyz( svs.gameName, "current", sizeof(svs.gameName) );
 
 	// dday vars
-	Cvar_Get( "g_ddayfodderguys", "0", CVAR_ARCHIVE );
-	Cvar_Get( "g_ddayfog", "2", CVAR_ARCHIVE );
-	Cvar_Get( "g_ddayshingleguys", "0", CVAR_ARCHIVE );
+
+	// Changed in OPM
+	//  Use a more distant fog by default on dday.
+	//  A thicker fog causes the sky to disappear at some location.
+	Cvar_Get( "g_ddayfodderguys", "2", CVAR_ARCHIVE );
+	Cvar_Get( "g_ddayfog", "0", CVAR_ARCHIVE );
+	Cvar_Get( "g_ddayshingleguys", "2", CVAR_ARCHIVE );
 	
 	// Load saved bans
 	Cbuf_AddText("rehashbans\n");
