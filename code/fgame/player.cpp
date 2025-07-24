@@ -10197,9 +10197,9 @@ void Player::DeadBody(Event *ev)
     body->edict->s.eFlags &= ~(EF_AXIS | EF_ALLIES);
 
     if (GetTeam() == TEAM_ALLIES) {
-        edict->s.eFlags |= EF_ALLIES;
+        body->edict->s.eFlags |= EF_ALLIES;
     } else if (GetTeam() == TEAM_AXIS) {
-        edict->s.eFlags |= EF_AXIS;
+        body->edict->s.eFlags |= EF_AXIS;
     }
 }
 
