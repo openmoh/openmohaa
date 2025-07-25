@@ -1891,8 +1891,13 @@ long FS_ReadFileEx( const char *qpath, void **buffer, qboolean quiet ) {
 	}
 
 	if ( !qpath || !qpath[0] ) {
-		assert(0);
-		Com_Error( ERR_FATAL, "FS_ReadFile with empty name\n" );
+		//assert(0);
+		//Com_Error( ERR_FATAL, "FS_ReadFile with empty name\n" );
+
+        // Changed in 2.0
+        //  The game no longer throws a fatal error for an empty name.
+        Com_DPrintf("FS_ReadFile with empty name\n");
+        return -1;
 	}
 
 	buf = NULL;	// quiet compiler warning
