@@ -66,5 +66,5 @@ void IN_FreeCursor() {
 
 qboolean IN_IsCursorActive()
 {
-    return SDL_GetGrabbedWindow() != NULL;
+    return SDL_GetRelativeMouseMode() == SDL_TRUE;
 }
