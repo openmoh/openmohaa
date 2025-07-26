@@ -150,16 +150,7 @@ void FAKKServerListItem::DrawListItem(int iColumn, const UIRect2D& drawRect, boo
 {
     static cvar_t *pColoringType = Cvar_Get("cl_browserdetailedcolors", "0", CVAR_ARCHIVE);
     UIRect2D       newRect       = drawRect;
-    vec2_t         virtualScale  = {1.f, 1.f};
-
-    /*
-    if (m_parent->isVirtual()) {
-        virtualScale[0] = uid.vidWidth / 640.f;
-        virtualScale[1] = uid.vidHeight / 480.f;
-        newRect.size.width *= uid.vidWidth / 1024;
-        newRect.size.height *= uid.vidHeight / 768;
-    }
-    */
+    vec2_t         virtualScale;
 
     virtualScale[0] = m_parent->getHighResScale()[0];
     virtualScale[1] = m_parent->getHighResScale()[1];
@@ -199,23 +190,13 @@ void FAKKServerListItem::DrawListItem(int iColumn, const UIRect2D& drawRect, boo
             virtualScale
         );
     } else {
-        if (IsDifferentVersion()) {
-            if (IsQueried()) {
-                if (bSelected) {
-                    DrawBox(newRect, UColor(0.25f, 0.0f, 0.0f), 1.0);
-                    pFont->setColor(UColor(0.0f, 0.5f, 0.0f));
-                } else {
-                    DrawBox(newRect, UColor(0.005f, 0.07f, 0.02f), 1.0);
-                    pFont->setColor(UColor(0.0f, 0.35f, 0.0f));
-                }
+        if (IfQueryFailed() || (IsDifferentVersion() && IsQueried())) {
+            if (bSelected) {
+                DrawBox(newRect, UColor(0.2f, 0.0f, 0.0f), 1.0);
+                pFont->setColor(UColor(0.9f, 0.0f, 0.0f));
             } else {
-                if (bSelected) {
-                    DrawBox(newRect, UColor(0.25f, 0.0f, 0.0f), 1.0);
-                    pFont->setColor(UColor(0.5f, 0.6f, 0.7f));
-                } else {
-                    DrawBox(newRect, UColor(0.15f, 0.0f, 0.0f), 1.0);
-                    pFont->setColor(UColor(0.05f, 0.4f, 0.5f));
-                }
+                DrawBox(newRect, UColor(0.1f, 0.0f, 0.0f), 1.0);
+                pFont->setColor(UColor(0.55f, 0.0f, 0.0f));
             }
         } else if (IsQueried()) {
             if (bSelected) {
@@ -233,41 +214,15 @@ void FAKKServerListItem::DrawListItem(int iColumn, const UIRect2D& drawRect, boo
                 DrawBox(newRect, UColor(0.005f, 0.07f, 0.02f), 1.0);
                 pFont->setColor(UColor(0.05f, 0.5f, 0.6f));
             }
-
-            if (IfQueryFailed()) {
-                DrawBox(
-                    UIRect2D(
-                        newRect.pos.x,
-                        newRect.pos.y + newRect.size.height * 0.5 - 1.0 + newRect.pos.y,
-                        newRect.size.width,
-                        newRect.size.height * 0.5 - 1.0 + newRect.pos.y
-                    ),
-                    URed,
-                    0.3f
-                );
-            }
-
-            pFont->Print(
-                newRect.pos.x / virtualScale[0] + 1.0,
-                newRect.pos.y / virtualScale[1],
-                getListItemString(iColumn).c_str(),
-                -1,
-                virtualScale
-            );
-
-            if (IsDifferentVersion()) {
-                DrawBox(
-                    UIRect2D(
-                        newRect.pos.x,
-                        newRect.pos.y + newRect.size.height * 0.5 - 1.0 + newRect.pos.y,
-                        newRect.size.width,
-                        1.0
-                    ),
-                    URed,
-                    0.3f
-                );
-            }
         }
+
+        pFont->Print(
+            newRect.pos.x / virtualScale[0] + 1.0,
+            newRect.pos.y / virtualScale[1],
+            getListItemString(iColumn).c_str(),
+            -1,
+            virtualScale
+        );
     }
 }
 
