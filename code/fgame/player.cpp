@@ -10651,6 +10651,7 @@ void Player::EventDMMessage(Event *ev)
     if (sToken.length() == 3 && *sToken == '*' && sToken[1] > '0' && sToken[1] <= '9' && sToken[2] > '0'
         && sToken[2] <= '9') {
         unsigned int n1, n2;
+        unsigned int globalTauntIndex;
 
         if (IsSpectator() || IsDead()) {
             // spectators or death players can't talk
@@ -10705,27 +10706,30 @@ void Player::EventDMMessage(Event *ev)
                 return;
             }
 
-            pTmpInstantMsg = pInstantMsgEng[n1][n2];
+            pTmpInstantMsg   = pInstantMsgEng[n1][n2];
+            globalTauntIndex = 4;
         } else {
             if (n1 >= ARRAY_LEN(pInstantMsgEng_ver6) || n2 >= ARRAY_LEN(pInstantMsgEng_ver6[0])) {
                 return;
             }
 
             // fallback to old version
-            pTmpInstantMsg = pInstantMsgEng_ver6[n1][n2];
+            pTmpInstantMsg   = pInstantMsgEng_ver6[n1][n2];
+            globalTauntIndex = 3;
         }
 
-        bInstaMessage = qtrue;
-
-        if (g_gametype->integer == GT_FFA) {
-            iMode = 0;
-        } else {
-            if (n1 == 4) {
+        if (g_gametype->integer != GT_FFA) {
+            if (n1 == globalTauntIndex) {
+                // Taunts
                 iMode = 0;
             } else {
                 iMode = -1;
             }
+        } else {
+            iMode = 0;
         }
+
+        bInstaMessage = qtrue;
     } else {
         if (!g_textmsg_allowed->integer) {
             // Added in OPM
