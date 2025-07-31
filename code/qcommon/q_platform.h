@@ -537,6 +537,12 @@ void SwapValue(void* dest, size_t size);
 #define PLATFORM_STRING OS_STRING "-" ARCH_STRING "-debug"
 #endif
 
+#ifdef USE_ARCHLESS_FILENAMES
+#define ARCH_DLL_EXT DLL_EXT
+#else
+#define ARCH_DLL_EXT ARCH_STRING DLL_EXT
+#endif
+
 #endif
 
 #endif

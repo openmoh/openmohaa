@@ -3182,6 +3182,12 @@ void CL_InitRef( void ) {
 #ifdef USE_RENDERER_DLOPEN
 	GetRefAPI_t		GetRefAPI;
 	char			dllName[MAX_OSPATH];
+
+#ifdef USE_ARCHLESS_FILENAMES
+#define RENDERER_ARCH_DLL_EXT ARCH_DLL_EXT
+#else
+#define RENDERER_ARCH_DLL_EXT "_" ARCH_DLL_EXT
+#endif
 #endif
 
 	Com_Printf( "----- Initializing Renderer ----\n" );
