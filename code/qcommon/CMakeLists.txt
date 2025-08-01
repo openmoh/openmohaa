@@ -35,7 +35,6 @@ if(DEBUG_MEM_BLOCK)
 endif()
 
 set(SOURCES_SHARED
-	"${CMAKE_SOURCE_DIR}/code/qcommon/puff.c"
 	"${CMAKE_SOURCE_DIR}/code/qcommon/q_math.c"
 	"${CMAKE_SOURCE_DIR}/code/qcommon/q_shared.c"
 )

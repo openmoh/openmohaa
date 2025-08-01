@@ -21,7 +21,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "tr_common.h"
 
-#include "../qcommon/puff.h"
+#include "puff.h"
 
 // we could limit the png size to a lower value here
 #ifndef INT_MAX
