@@ -36,6 +36,7 @@ jobs:
         wolfssl-version: 'v5.7.6-stable'
         curl-version: '8_12_1'
         openal-soft-branch: '1.24.3'
+        sdl2-branch: 'release-2.32.8'
 
     steps:
     ###
@@ -99,19 +100,40 @@ jobs:
       run: |
         $env:PATH += ";C:\Packages\ninja;C:\Packages\jom;"
         echo "PATH=$($env:PATH)" >> $env:GITHUB_ENV
+        if ("${{ matrix.architecture.config }}" -ieq "ARM64") {
+            # Workaround against linking errors related to interlocked functions
+            echo "CFLAGS=/forceInterlockedFunctions-" >> $env:GITHUB_ENV
+        }
 
     ###
     # SDL
     ###
 
-    # Setup SDL
-    - name: Set up SDL
-      id: sdl
-      uses: libsdl-org/setup-sdl@main
+    # Cache SDL
+    - name: Cache SDL2
+      id: cache-sdl2
+      uses: actions/cache@v4
       with:
-        version: 2-latest
-        build-type: Release
-        cmake-arguments: ""
+        path: 'thirdparties/SDL2/install'
+        key: ${{ runner.os }}-${{ matrix.architecture.name }}-sdl2-${{ env.sdl2-branch }}-v1
+
+    # SDL2 setup
+    - name: Checkout SDL2
+      if: steps.cache-sdl2.outputs.cache-hit != 'true'
+      uses: actions/checkout@v4
+      with:
+        repository: 'libsdl-org/SDL'
+        path: 'thirdparties/SDL2'
+        ref: '${{ env.sdl2-branch }}'
+
+    - name: Configure and install SDL2
+      if: steps.cache-sdl2.outputs.cache-hit != 'true'
+      working-directory: ${{github.workspace}}/thirdparties/SDL2
+      run: |
+        cmake -B ./build `
+        -DCMAKE_INSTALL_PREFIX='${{github.workspace}}/thirdparties/SDL2/install'
+        cmake --build ./build --config Release --parallel
+        cmake --install ./build --config Release
 
     ###
     # OpenAL
@@ -204,6 +226,7 @@ jobs:
         -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=true `
         -DGIT_REVISION_BUILD_NUMBER=${{ github.run_number }} `
         -DBISON_EXECUTABLE='${{github.workspace}}/thirdparties/winflexbison-install/win_bison.exe' `
+        -DSDL2_DIR='${{github.workspace}}/thirdparties/SDL2/install/cmake' `
         -DOPENAL_LIBRARY='${{github.workspace}}/thirdparties/soft-oal' `
         -DOPENAL_INCLUDE_DIR='${{github.workspace}}/thirdparties/soft-oal/install/include' `
         -DCURL_ROOT='${{github.workspace}}/thirdparties/curl/install' `
@@ -226,7 +249,7 @@ jobs:
       run: |
         cmake --install ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
         New-Item -ItemType Directory '${{github.workspace}}/package'
-        Copy-Item '${{steps.sdl.outputs.prefix}}/bin/*.dll' -Destination '${{github.workspace}}/package'
+        Copy-Item '${{github.workspace}}/thirdparties/SDL2/install/bin/*.dll' -Destination '${{github.workspace}}/package'
         Copy-Item '${{github.workspace}}/thirdparties/soft-oal/install/bin/*.dll' -Destination '${{github.workspace}}/package'
         Copy-Item '${{github.workspace}}/thirdparties/curl/install/bin/*.dll' -Destination '${{github.workspace}}/package'
         if (Test-Path ${{github.workspace}}/install/bin) { Copy-Item '${{github.workspace}}/install/bin/*' -Include '*.dll','*.exe','*.pdb' -Destination '${{github.workspace}}/package' }

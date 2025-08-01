@@ -41,6 +41,7 @@ jobs:
         wolfssl-version: 'v5.7.6-stable'
         curl-version: '8_12_1'
         openal-soft-branch: '1.24.3'
+        sdl2-branch: 'release-2.32.8'
 
     steps:
     ###
@@ -78,15 +79,31 @@ jobs:
     # SDL
     ###
 
-    # Setup SDL
-    - name: Set up SDL
-      id: sdl
-      uses: libsdl-org/setup-sdl@main
+    # Cache SDL
+    - name: Cache SDL2
+      id: cache-sdl2
+      uses: actions/cache@v4
       with:
-        version: 2-latest
-        build-type: Release
-        # Workaround for when changing the runner OS version
-        cmake-arguments: "-DCACHE_OS_VERSION=Ubuntu_22.04"
+        path: 'thirdparties/SDL2/install'
+        key: ${{ runner.os }}-${{ matrix.architecture.name }}-sdl2-${{ env.sdl2-branch }}-v1
+
+    # SDL2 setup
+    - name: Checkout SDL2
+      if: steps.cache-sdl2.outputs.cache-hit != 'true'
+      uses: actions/checkout@v4
+      with:
+        repository: 'libsdl-org/SDL'
+        path: 'thirdparties/SDL2'
+        ref: '${{ env.sdl2-branch }}'
+
+    - name: Configure and install SDL2
+      if: steps.cache-sdl2.outputs.cache-hit != 'true'
+      working-directory: ${{github.workspace}}/thirdparties/SDL2
+      run: |
+        cmake -B ./build \
+        -DCMAKE_INSTALL_PREFIX='${{github.workspace}}/thirdparties/SDL2/install'
+        cmake --build ./build --config Release --parallel
+        cmake --install ./build --config Release
 
     ###
     # OpenAL
@@ -197,6 +214,7 @@ jobs:
       run: |
         echo "CMAKE_PARAM=--log-level=VERBOSE \
         -DCMAKE_INSTALL_PREFIX='${{github.workspace}}/install' \
+        -DSDL2_DIR='${{github.workspace}}/thirdparties/SDL2/install/lib/cmake/SDL2' \
         -DOPENAL_LIBRARY='${{github.workspace}}/thirdparties/soft-oal' \
         -DOPENAL_INCLUDE_DIR='${{github.workspace}}/thirdparties/soft-oal/install/include' \
         -DCURL_ROOT='${{github.workspace}}/thirdparties/curl/install' \
@@ -220,7 +238,7 @@ jobs:
         cmake --install ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
         # Copy libraries
         mkdir ${{github.workspace}}/package
-        cp -l ${{steps.sdl.outputs.prefix}}/lib/libSDL2-2.0.so.0 '${{github.workspace}}/package/'
+        cp -l ${{github.workspace}}/thirdparties/SDL2/install/lib/libSDL2-2.0.so.0 '${{github.workspace}}/package/'
         cp -l ${{github.workspace}}/thirdparties/soft-oal/install/lib/libopenal.so.1 '${{github.workspace}}/package/'
         cp -l ${{github.workspace}}/thirdparties/curl/install/lib*/libcurl.so.4 '${{github.workspace}}/package/'
         if [ -d ${{github.workspace}}/install/bin ]; then cp -r ${{github.workspace}}/install/bin/openmohaa/. '${{github.workspace}}/package'; fi

@@ -38,6 +38,7 @@ jobs:
         openal-soft-branch: '1.24.3'
         wolfssl-version: 'v5.7.6-stable'
         curl-version: '8_12_1'
+        sdl2-branch: 'release-2.32.8'
 
     steps:
     ###
@@ -60,15 +61,32 @@ jobs:
     # SDL
     ###
 
-    # Setup SDL
-    - name: Set up SDL
-      id: sdl
-      uses: libsdl-org/setup-sdl@main
+    # Cache SDL
+    - name: Cache SDL2
+      id: cache-sdl2
+      uses: actions/cache@v4
       with:
-        version: 2-latest
-        build-type: Release
-        cmake-arguments: "-DCMAKE_OSX_ARCHITECTURES='${{ matrix.architecture.build_name }}'
-          -DCMAKE_VERBOSE_MAKEFILE=on"
+        path: 'thirdparties/SDL2/install'
+        key: ${{ runner.os }}-${{ matrix.architecture.name }}-sdl2-${{ env.sdl2-branch }}-v1
+
+    # SDL2 setup
+    - name: Checkout SDL2
+      if: steps.cache-sdl2.outputs.cache-hit != 'true'
+      uses: actions/checkout@v4
+      with:
+        repository: 'libsdl-org/SDL'
+        path: 'thirdparties/SDL2'
+        ref: '${{ env.sdl2-branch }}'
+
+    - name: Configure and install SDL2
+      if: steps.cache-sdl2.outputs.cache-hit != 'true'
+      working-directory: ${{github.workspace}}/thirdparties/SDL2
+      run: |
+        cmake -B ./build \
+        -DCMAKE_INSTALL_PREFIX='${{github.workspace}}/thirdparties/SDL2/install' \
+        -DCMAKE_OSX_ARCHITECTURES='${{ matrix.architecture.build_name }}'
+        cmake --build ./build --config Release --parallel
+        cmake --install ./build --config Release
 
     ###
     # OpenAL
@@ -190,6 +208,7 @@ jobs:
         -DCMAKE_INSTALL_PREFIX='${{github.workspace}}/install' \
         -DCMAKE_VERBOSE_MAKEFILE=on \
         -DCMAKE_OSX_ARCHITECTURES='${{ matrix.architecture.build_name }}' \
+        -DSDL2_DIR='${{github.workspace}}/thirdparties/SDL2/install/lib/cmake/SDL2' \
         -DOPENAL_LIBRARY='${{github.workspace}}/thirdparties/soft-oal/install' \
         -DOPENAL_INCLUDE_DIR='${{github.workspace}}/thirdparties/soft-oal/install/include/AL' \
         -DCURL_ROOT='${{github.workspace}}/thirdparties/curl/install' \
@@ -213,7 +232,7 @@ jobs:
         cmake --install ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
         # Create hard-link and copy symbolic links
         mkdir ${{github.workspace}}/package
-        cp -l ${{steps.sdl.outputs.prefix}}/lib/libSDL2-2.0.0.dylib '${{github.workspace}}/package/'
+        cp -l ${{github.workspace}}/thirdparties/SDL2/install/lib/libSDL2-2.0.0.dylib '${{github.workspace}}/package/'
         cp -l ${{github.workspace}}/thirdparties/soft-oal/install/lib/libopenal.1.dylib '${{github.workspace}}/package/'
         cp -l ${{github.workspace}}/thirdparties/curl/install/lib*/libcurl.4.dylib '${{github.workspace}}/package/'
         if [ -d ${{github.workspace}}/install/bin ]; then cp -r ${{github.workspace}}/install/bin/openmohaa/. '${{github.workspace}}/package'; fi
