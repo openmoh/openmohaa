@@ -98,7 +98,7 @@ target_compile_features(qcommon_standalone INTERFACE c_variadic_macros)
 target_link_libraries(qcommon_standalone INTERFACE omohtiki omohskeletor)
 
 if(USE_INTERNAL_ZLIB)
-    set(SOURCES_ZLIB_DIR "../zlib-1.3.1")
+    set(SOURCES_ZLIB_DIR "../thirdparty/zlib-1.3.1")
 	add_library(zlib INTERFACE)
 
 	target_sources(zlib INTERFACE

@@ -7,7 +7,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 . ${SCRIPT_DIR}/lib-versions.sh
 
 ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
-CODE="${ROOT}/code"
+CODE="${ROOT}/code/thirdparty"
 
 prepare()
 {

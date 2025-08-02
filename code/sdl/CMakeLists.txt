@@ -43,28 +43,28 @@ if(WIN32)
 	else()
 		message(WARNING "SDL2 not found, falling back to using SDL2 from the source tree")
 
-		target_include_directories(sdllib INTERFACE "../SDL2-2.32.8/include")
+		target_include_directories(sdllib INTERFACE "../thirdparty/SDL2-2.32.8/include")
 
 		if (MSVC)
 			if(CMAKE_SIZEOF_VOID_P EQUAL 8)
 				add_library(sdl2 SHARED IMPORTED)
 				set_target_properties(sdl2 PROPERTIES
-				  IMPORTED_IMPLIB "${CMAKE_SOURCE_DIR}/code/libs/win64/SDL2.lib"
+				  IMPORTED_IMPLIB "${CMAKE_SOURCE_DIR}/code/thirdparty/libs/win64/SDL2.lib"
 				)
 
 				add_library(sdl2main SHARED IMPORTED)
 				set_target_properties(sdl2main PROPERTIES
-				  IMPORTED_IMPLIB "${CMAKE_SOURCE_DIR}/code/libs/win64/SDL2main.lib"
+				  IMPORTED_IMPLIB "${CMAKE_SOURCE_DIR}/code/thirdparty/libs/win64/SDL2main.lib"
 				)
 			else()
 				add_library(sdl2 SHARED IMPORTED)
 				set_target_properties(sdl2 PROPERTIES
-				  IMPORTED_IMPLIB "${CMAKE_SOURCE_DIR}/code/libs/win32/SDL2.lib"
+				  IMPORTED_IMPLIB "${CMAKE_SOURCE_DIR}/code/thirdparty/libs/win32/SDL2.lib"
 				)
 
 				add_library(sdl2main SHARED IMPORTED)
 				set_target_properties(sdl2main PROPERTIES
-				  IMPORTED_IMPLIB "${CMAKE_SOURCE_DIR}/code/libs/win32/SDL2main.lib"
+				  IMPORTED_IMPLIB "${CMAKE_SOURCE_DIR}/code/thirdparty/libs/win32/SDL2main.lib"
 				)
 			endif()
 

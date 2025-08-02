@@ -63,7 +63,7 @@ set(OLD_VALUE ${BUILD_SHARED_LIBS})
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
 
 if(USE_INTERNAL_MAD)
-	add_subdirectory("../libmad" "./libmad" EXCLUDE_FROM_ALL)
+	add_subdirectory("../thirdparty/libmad" "./libmad" EXCLUDE_FROM_ALL)
 	target_link_libraries(omohclient INTERFACE mad)
 else()
 	include(FindPackageHandleStandardArgs)

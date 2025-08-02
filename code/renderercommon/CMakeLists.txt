@@ -18,7 +18,7 @@ target_compile_definitions(omohrenderer_common PRIVATE USE_INTERNAL_JPEG=1)
 
 # Add JPEG
 if(USE_INTERNAL_JPEG)
-    set(SOURCES_JPEG_DIR "../jpeg-9f")
+    set(SOURCES_JPEG_DIR "../thirdparty/jpeg-9f")
 
     set(SOURCES_JPEG "${SOURCES_JPEG_DIR}/jaricom.c"
     "${SOURCES_JPEG_DIR}/jcapimin.c"
