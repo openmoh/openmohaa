@@ -160,10 +160,25 @@ not have future snapshot_t executed before it is executed
 void SV_AddServerCommand( client_t *client, const char *cmd ) {
 	int		index, i;
 
-	// this is very ugly but it's also a waste to for instance send multiple config string updates
-	// for the same config string index in one snapshot
-	if ( !strncmp(cmd, "cs ", 3) && SV_ReplacePendingServerCommands(client, cmd) ) {
-		return;
+	if ( com_protocol->integer >= PROTOCOL_MOHTA_MIN ) {
+		// Added in 2.0
+		//  Requires spearhead clients.
+		//  Unfortunately in MOHAA 1.11, replacing cs can cause clients to crash
+		//  when an existing model is moved into a lower configstring.
+		//  For example:
+		//   cs 138 models/weapons/mp40.tik
+		//   cs 117 models/weapons/m1_garand.tik
+		//   1) models/weapons/mp40.tik is already referenced by cs 117, it will cause the model handle to be referenced twice.
+		//   2) when the client executes "cs 117", it will free up the mp40.tik model, leaving a dangling handle for cs 138.
+
+		// FIXME: To make it work on MOHAA clients, reorder configstrings that are sent to clients.
+		// For example, always put "cs 117" before "cs 138".
+
+		// this is very ugly but it's also a waste to for instance send multiple config string updates
+		// for the same config string index in one snapshot
+		if ( !strncmp( cmd, "cs ", 3 ) && SV_ReplacePendingServerCommands( client, cmd ) ) {
+			return;
+		}
 	}
 
 	// do not send commands until the gamestate has been sent

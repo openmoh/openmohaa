@@ -358,10 +358,12 @@ void CG_ProcessConfigString(int num, qboolean modelOnly)
 
             if (hModel != hOldModel) {
                 if (hOldModel) {
+                    assert(CG_IsHandleUnique(hOldModel));
                     cgi.R_UnregisterServerModel(hOldModel);
                 }
 
                 cgs.model_draw[num - CS_MODELS] = hModel;
+                assert(CG_IsHandleUnique(hModel));
             }
             tiki = cgi.R_Model_GetHandle(hModel);
             if (tiki) {
