@@ -7,28 +7,37 @@ include(utils/set_output_dirs)
 include(renderer_common)
 
 set(RENDERER_GL1_SOURCES
-    ${SOURCE_DIR}/renderergl1/tr_altivec.c
-    ${SOURCE_DIR}/renderergl1/tr_animation.c
     ${SOURCE_DIR}/renderergl1/tr_backend.c
     ${SOURCE_DIR}/renderergl1/tr_bsp.c
     ${SOURCE_DIR}/renderergl1/tr_cmds.c
     ${SOURCE_DIR}/renderergl1/tr_curve.c
+    ${SOURCE_DIR}/renderergl1/tr_draw.c
     ${SOURCE_DIR}/renderergl1/tr_flares.c
+    ${SOURCE_DIR}/renderergl1/tr_font.cpp
+    ${SOURCE_DIR}/renderergl1/tr_ghost.cpp
     ${SOURCE_DIR}/renderergl1/tr_image.c
     ${SOURCE_DIR}/renderergl1/tr_init.c
     ${SOURCE_DIR}/renderergl1/tr_light.c
     ${SOURCE_DIR}/renderergl1/tr_main.c
+    ${SOURCE_DIR}/renderergl1/tr_marks_permanent.c
     ${SOURCE_DIR}/renderergl1/tr_marks.c
-    ${SOURCE_DIR}/renderergl1/tr_mesh.c
-    ${SOURCE_DIR}/renderergl1/tr_model.c
-    ${SOURCE_DIR}/renderergl1/tr_model_iqm.c
+    ${SOURCE_DIR}/renderergl1/tr_model.cpp
     ${SOURCE_DIR}/renderergl1/tr_scene.c
-    ${SOURCE_DIR}/renderergl1/tr_shade.c
     ${SOURCE_DIR}/renderergl1/tr_shade_calc.c
+    ${SOURCE_DIR}/renderergl1/tr_shade.c
     ${SOURCE_DIR}/renderergl1/tr_shader.c
     ${SOURCE_DIR}/renderergl1/tr_shadows.c
+    ${SOURCE_DIR}/renderergl1/tr_sky_portal.cpp
     ${SOURCE_DIR}/renderergl1/tr_sky.c
+    ${SOURCE_DIR}/renderergl1/tr_sphere_shade.cpp
+    ${SOURCE_DIR}/renderergl1/tr_sprite.c
+    ${SOURCE_DIR}/renderergl1/tr_staticmodels.cpp
+    ${SOURCE_DIR}/renderergl1/tr_sun_flare.cpp
     ${SOURCE_DIR}/renderergl1/tr_surface.c
+    ${SOURCE_DIR}/renderergl1/tr_swipe.cpp
+    ${SOURCE_DIR}/renderergl1/tr_terrain.c
+    ${SOURCE_DIR}/renderergl1/tr_util.cpp
+    ${SOURCE_DIR}/renderergl1/tr_vis.cpp
     ${SOURCE_DIR}/renderergl1/tr_world.c
 )
 
@@ -59,4 +68,10 @@ if(USE_RENDERER_DLOPEN)
     target_link_options(        ${RENDERER_GL1_BINARY} PRIVATE ${RENDERER_LINK_OPTIONS})
 
     set_output_dirs(${RENDERER_GL1_BINARY})
+
+	INSTALL(TARGETS ${RENDERER_GL1_BINARY} DESTINATION ${INSTALL_LIBDIR_FULL})
+
+	if(MSVC)
+		INSTALL(FILES $<TARGET_PDB_FILE:${RENDERER_GL1_BINARY}> DESTINATION ${INSTALL_LIBDIR_FULL} OPTIONAL)
+	endif()
 endif()

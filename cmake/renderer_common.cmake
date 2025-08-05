@@ -9,6 +9,7 @@ set(RENDERER_COMMON_SOURCES
     ${SOURCE_DIR}/renderercommon/tr_image_tga.c
     ${SOURCE_DIR}/renderercommon/tr_noise.c
     ${SOURCE_DIR}/renderercommon/puff.c
+	${SOURCE_DIR}/tiki/tiki_mesh.cpp
 )
 
 set(SDL_RENDERER_SOURCES
@@ -20,6 +21,7 @@ set(DYNAMIC_RENDERER_SOURCES
     ${SOURCE_DIR}/renderercommon/tr_subs.c
     ${SOURCE_DIR}/qcommon/q_shared.c
     ${SOURCE_DIR}/qcommon/q_math.c
+    ${SOURCE_DIR}/qcommon/str.cpp
 )
 
 if(USE_FREETYPE)
@@ -28,6 +30,7 @@ endif()
 
 if(USE_RENDERER_DLOPEN)
     list(APPEND RENDERER_DEFINITIONS USE_RENDERER_DLOPEN)
+    list(APPEND RENDERER_DEFINITIONS REF_DLL=1)
 elseif(BUILD_RENDERER_GL1 AND BUILD_RENDERER_GL2)
     message(FATAL_ERROR "Multiple static renderers enabled; choose one")
 elseif(NOT BUILD_RENDERER_GL1 AND NOT BUILD_RENDERER_GL2)
@@ -35,3 +38,4 @@ elseif(NOT BUILD_RENDERER_GL1 AND NOT BUILD_RENDERER_GL2)
 endif()
 
 list(APPEND RENDERER_LIBRARIES ${COMMON_LIBRARIES})
+

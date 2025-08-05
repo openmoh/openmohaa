@@ -2663,7 +2663,7 @@ void    R_RemapShader(const char *oldShader, const char *newShader, const char *
 
 void R_RotateForStaticModel(cStaticModelUnpacked_t* SM, const viewParms_t* viewParms, orientationr_t* ori);
 void R_RotateForViewer(void);
-void R_SetupFrustum(void);
+void R_SetupFrustum (viewParms_t *dest, float xmin, float xmax, float ymax, float zProj, float zFar, float stereoSep);
 int R_DistanceCullLocalPointAndRadius(float fDist, const vec3_t pt, float radius);
 int R_DistanceCullPointAndRadius(float fDist, const vec3_t pt, float radius);
 qboolean R_ImageExists(const char* name);

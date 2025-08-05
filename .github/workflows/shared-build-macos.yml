@@ -212,6 +212,8 @@ jobs:
         -DOPENAL_LIBRARY='${{github.workspace}}/thirdparties/soft-oal/install' \
         -DOPENAL_INCLUDE_DIR='${{github.workspace}}/thirdparties/soft-oal/install/include/AL' \
         -DCURL_ROOT='${{github.workspace}}/thirdparties/curl/install' \
+        -DUSE_RENDERER_DLOPEN=OFF \
+        -DBUILD_RENDERER_GL2=OFF \
         -DGIT_REVISION_BUILD_NUMBER=${{ github.run_number }} \
         -DPRODUCT_VERSION_STAGE='${{ env.RELEASE_STAGE }}'" >> $GITHUB_ENV
 

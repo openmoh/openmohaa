@@ -6,7 +6,7 @@ endif()
 
 include(utils/arch)
 
-enable_language(ASM_MASM)
+#enable_language(ASM_MASM)
 
 set(ASM_SOURCES
     ${SOURCE_DIR}/asm/snapvector.asm
@@ -35,3 +35,12 @@ add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
 
 # The sockets platform abstraction layer necessarily uses deprecated APIs
 add_compile_definitions(_WINSOCK_DEPRECATED_NO_WARNINGS)
+
+#
+# Microsoft compiler specific parameters
+#
+add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
+add_compile_definitions(_CRT_NONSTDC_NO_DEPRECATE)
+
+# Treat no return type as error
+add_compile_options(/we4715)

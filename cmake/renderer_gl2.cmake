@@ -12,30 +12,43 @@ set(RENDERER_GL2_SOURCES
     ${SOURCE_DIR}/renderergl2/tr_bsp.c
     ${SOURCE_DIR}/renderergl2/tr_cmds.c
     ${SOURCE_DIR}/renderergl2/tr_curve.c
+    ${SOURCE_DIR}/renderergl2/tr_draw.c
     ${SOURCE_DIR}/renderergl2/tr_dsa.c
     ${SOURCE_DIR}/renderergl2/tr_extramath.c
     ${SOURCE_DIR}/renderergl2/tr_extensions.c
     ${SOURCE_DIR}/renderergl2/tr_fbo.c
     ${SOURCE_DIR}/renderergl2/tr_flares.c
+    ${SOURCE_DIR}/renderergl2/tr_font.cpp
+    ${SOURCE_DIR}/renderergl2/tr_ghost.cpp
     ${SOURCE_DIR}/renderergl2/tr_glsl.c
     ${SOURCE_DIR}/renderergl2/tr_image.c
     ${SOURCE_DIR}/renderergl2/tr_image_dds.c
     ${SOURCE_DIR}/renderergl2/tr_init.c
     ${SOURCE_DIR}/renderergl2/tr_light.c
     ${SOURCE_DIR}/renderergl2/tr_main.c
+    ${SOURCE_DIR}/renderergl2/tr_marks_permanent.c
     ${SOURCE_DIR}/renderergl2/tr_marks.c
     ${SOURCE_DIR}/renderergl2/tr_mesh.c
-    ${SOURCE_DIR}/renderergl2/tr_model.c
     ${SOURCE_DIR}/renderergl2/tr_model_iqm.c
+    ${SOURCE_DIR}/renderergl2/tr_model.cpp
     ${SOURCE_DIR}/renderergl2/tr_postprocess.c
     ${SOURCE_DIR}/renderergl2/tr_scene.c
-    ${SOURCE_DIR}/renderergl2/tr_shade.c
     ${SOURCE_DIR}/renderergl2/tr_shade_calc.c
+    ${SOURCE_DIR}/renderergl2/tr_shade.c
     ${SOURCE_DIR}/renderergl2/tr_shader.c
     ${SOURCE_DIR}/renderergl2/tr_shadows.c
+    ${SOURCE_DIR}/renderergl2/tr_sky_portal.cpp
     ${SOURCE_DIR}/renderergl2/tr_sky.c
+    ${SOURCE_DIR}/renderergl2/tr_sphere_shade.cpp
+    ${SOURCE_DIR}/renderergl2/tr_sprite.c
+    ${SOURCE_DIR}/renderergl2/tr_staticmodels.cpp
+    ${SOURCE_DIR}/renderergl2/tr_sun_flare.cpp
     ${SOURCE_DIR}/renderergl2/tr_surface.c
+    ${SOURCE_DIR}/renderergl2/tr_swipe.cpp
+    ${SOURCE_DIR}/renderergl2/tr_terrain.c
+    ${SOURCE_DIR}/renderergl2/tr_util.cpp
     ${SOURCE_DIR}/renderergl2/tr_vbo.c
+    ${SOURCE_DIR}/renderergl2/tr_vis.cpp
     ${SOURCE_DIR}/renderergl2/tr_world.c
 )
 
@@ -91,4 +104,10 @@ if(USE_RENDERER_DLOPEN)
     target_link_options(        ${RENDERER_GL2_BINARY} PRIVATE ${RENDERER_LINK_OPTIONS})
 
     set_output_dirs(${RENDERER_GL2_BINARY})
+
+	INSTALL(TARGETS ${RENDERER_GL2_BINARY} DESTINATION ${INSTALL_LIBDIR_FULL})
+
+	if(MSVC)
+		INSTALL(FILES $<TARGET_PDB_FILE:${RENDERER_GL2_BINARY}> DESTINATION ${INSTALL_LIBDIR_FULL} OPTIONAL)
+	endif()
 endif()

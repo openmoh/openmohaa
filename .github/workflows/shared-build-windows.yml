@@ -228,9 +228,11 @@ jobs:
         -DBISON_EXECUTABLE='${{github.workspace}}/thirdparties/winflexbison-install/win_bison.exe' `
         -DSDL2_DIR='${{github.workspace}}/thirdparties/SDL2/install/cmake' `
         -DOPENAL_LIBRARY='${{github.workspace}}/thirdparties/soft-oal' `
-        -DOPENAL_INCLUDE_DIR='${{github.workspace}}/thirdparties/soft-oal/install/include' `
+        -DOPENAL_INCLUDE_DIR='${{github.workspace}}/thirdparties/soft-oal/install/include/AL' `
         -DCURL_ROOT='${{github.workspace}}/thirdparties/curl/install' `
         -DFLEX_EXECUTABLE='${{github.workspace}}/thirdparties/winflexbison-install/win_flex.exe' `
+        -DUSE_RENDERER_DLOPEN=OFF `
+        -DBUILD_RENDERER_GL2=OFF `
         -DPRODUCT_VERSION_STAGE='${{ env.RELEASE_STAGE }}'".Replace("`r", "").Replace("`n", "") >> $env:GITHUB_ENV
 
     - name: Configure CMake

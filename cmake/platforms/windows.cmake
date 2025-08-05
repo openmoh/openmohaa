@@ -10,10 +10,10 @@ list(APPEND SYSTEM_PLATFORM_SOURCES
     ${SOURCE_DIR}/sys/win_resource.rc
 )
 
-if(USE_HTTP)
-    list(APPEND CLIENT_PLATFORM_SOURCES ${SOURCE_DIR}/client/cl_http_windows.c)
-    list(APPEND CLIENT_LIBRARIES wininet)
-endif()
+#if(USE_HTTP)
+#    list(APPEND CLIENT_PLATFORM_SOURCES ${SOURCE_DIR}/client/cl_http_windows.c)
+#    list(APPEND CLIENT_LIBRARIES wininet)
+#endif()
 
 list(APPEND COMMON_LIBRARIES ws2_32 winmm psapi)
 
@@ -33,3 +33,14 @@ if(MSVC)
 endif()
 
 set(CLIENT_EXECUTABLE_OPTIONS WIN32)
+
+list(APPEND SYSTEM_PLATFORM_SOURCES ${SOURCE_DIR}/sys/new/sys_win32_new.c)
+list(APPEND COMMON_LIBRARIES dbghelp)
+
+#
+# Setup the installation directory
+#
+# By default, both DLLs and EXEs are in the same directory
+set(CMAKE_DEFAULT_INSTALL_RUNTIME_DIR bin)
+set(BIN_INSTALL_SUBDIR ".")
+set(LIB_INSTALL_SUBDIR ".")

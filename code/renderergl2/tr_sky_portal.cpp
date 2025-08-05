@@ -181,7 +181,12 @@ void R_Sky_Render()
     tr.skyRendered        = qtrue;
 
     R_RotateForViewer();
-    R_SetupFrustum();
+
+    viewParms_t temp = backEnd.viewParms;
+
+    R_SetupProjection(&temp, r_znear->value, 0, qfalse);
+
+    GL_SetProjectionMatrix( temp.projectionMatrix );
 }
 
 /*
