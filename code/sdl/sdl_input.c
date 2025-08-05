@@ -649,6 +649,47 @@ static qboolean KeyToAxisAndSign(int keynum, int *outAxis, int *outSign)
 
 /*
 ===============
+IN_KeyFor
+===============
+*/
+static keyNum_t IN_KeyFor( SDL_GameControllerButton sdlButton )
+{
+	switch(sdlButton)
+	{
+		case SDL_CONTROLLER_BUTTON_A:               return K_PAD0_A;
+		case SDL_CONTROLLER_BUTTON_B:               return K_PAD0_B;
+		case SDL_CONTROLLER_BUTTON_X:               return K_PAD0_X;
+		case SDL_CONTROLLER_BUTTON_Y:               return K_PAD0_Y;
+		case SDL_CONTROLLER_BUTTON_BACK:            return K_PAD0_BACK;
+		case SDL_CONTROLLER_BUTTON_GUIDE:           return K_PAD0_GUIDE;
+		case SDL_CONTROLLER_BUTTON_START:           return K_PAD0_START;
+		case SDL_CONTROLLER_BUTTON_LEFTSTICK:       return K_PAD0_LEFTSTICK_CLICK;
+		case SDL_CONTROLLER_BUTTON_RIGHTSTICK:      return K_PAD0_RIGHTSTICK_CLICK;
+		case SDL_CONTROLLER_BUTTON_LEFTSHOULDER:    return K_PAD0_LEFTSHOULDER;
+		case SDL_CONTROLLER_BUTTON_RIGHTSHOULDER:   return K_PAD0_RIGHTSHOULDER;
+		case SDL_CONTROLLER_BUTTON_DPAD_UP:         return K_PAD0_DPAD_UP;
+		case SDL_CONTROLLER_BUTTON_DPAD_DOWN:       return K_PAD0_DPAD_DOWN;
+		case SDL_CONTROLLER_BUTTON_DPAD_LEFT:       return K_PAD0_DPAD_LEFT;
+		case SDL_CONTROLLER_BUTTON_DPAD_RIGHT:      return K_PAD0_DPAD_RIGHT;
+#if SDL_VERSION_ATLEAST( 2, 0, 14 )
+		case SDL_CONTROLLER_BUTTON_MISC1:           return K_PAD0_MISC1;
+		case SDL_CONTROLLER_BUTTON_PADDLE1:         return K_PAD0_PADDLE1;
+		case SDL_CONTROLLER_BUTTON_PADDLE2:         return K_PAD0_PADDLE2;
+		case SDL_CONTROLLER_BUTTON_PADDLE3:         return K_PAD0_PADDLE3;
+		case SDL_CONTROLLER_BUTTON_PADDLE4:         return K_PAD0_PADDLE4;
+		case SDL_CONTROLLER_BUTTON_TOUCHPAD:        return K_PAD0_TOUCHPAD;
+#endif
+
+		default:
+			Com_Error(ERR_DROP, "IN_KeyFor: unhandled SDL button: %d", sdlButton);
+			break;
+	}
+
+	return 0;
+}
+
+/*
+===============
 IN_GamepadMove
 ===============
 */
@@ -663,17 +704,11 @@ static void IN_GamepadMove( void )
 	// check buttons
 	for (i = 0; i < SDL_CONTROLLER_BUTTON_MAX; i++)
 	{
-		qboolean pressed = SDL_GameControllerGetButton(gamepad, SDL_CONTROLLER_BUTTON_A + i);
+		SDL_GameControllerButton sdlButton = SDL_CONTROLLER_BUTTON_A + i;
+		qboolean pressed = SDL_GameControllerGetButton(gamepad, sdlButton);
 		if (pressed != stick_state.buttons[i])
 		{
-#if SDL_VERSION_ATLEAST( 2, 0, 14 )
-			if ( i >= SDL_CONTROLLER_BUTTON_MISC1 ) {
-				Com_QueueEvent(in_eventTime, SE_KEY, K_PAD0_MISC1 + i - SDL_CONTROLLER_BUTTON_MISC1, pressed, 0, NULL);
-			} else
-#endif
-			{
-				Com_QueueEvent(in_eventTime, SE_KEY, K_PAD0_A + i, pressed, 0, NULL);
-			}
+			Com_QueueEvent(in_eventTime, SE_KEY, IN_KeyFor(sdlButton), pressed, 0, NULL);
 			stick_state.buttons[i] = pressed;
 		}
 	}
