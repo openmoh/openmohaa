@@ -214,6 +214,7 @@ jobs:
         -DCURL_ROOT='${{github.workspace}}/thirdparties/curl/install' \
         -DUSE_RENDERER_DLOPEN=OFF \
         -DBUILD_RENDERER_GL2=OFF \
+        -DBUILD_MACOS_APP=OFF \
         -DGIT_REVISION_BUILD_NUMBER=${{ github.run_number }} \
         -DPRODUCT_VERSION_STAGE='${{ env.RELEASE_STAGE }}'" >> $GITHUB_ENV
 
