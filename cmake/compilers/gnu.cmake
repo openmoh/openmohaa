@@ -32,7 +32,7 @@ if(COMPILER_OUTPUT MATCHES "musl|freebsd|openbsd|netbsd")
     list(APPEND COMMON_LIBRARIES execinfo m)
 else()
     list(APPEND COMMON_LIBRARIES m)
-   if (NOT APPLE)
+    if (NOT APPLE)
         # For when using GLIBC versions older than 2.34
         list(APPEND COMMON_LIBRARIES rt)
     endif()
