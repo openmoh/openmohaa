@@ -6,7 +6,7 @@ endif()
 
 list(APPEND SYSTEM_PLATFORM_SOURCES
     ${SOURCE_DIR}/sys/sys_win32.c
-    ${SOURCE_DIR}/sys/con_passive.c
+    ${SOURCE_DIR}/sys/con_win32.c
     ${SOURCE_DIR}/sys/win_resource.rc
 )
 
@@ -33,6 +33,12 @@ if(MSVC)
 endif()
 
 set(CLIENT_EXECUTABLE_OPTIONS WIN32)
+
+#
+# non-ioq3
+#
+
+set(CLIENT_EXECUTABLE_OPTIONS)
 
 list(APPEND SYSTEM_PLATFORM_SOURCES ${SOURCE_DIR}/sys/new/sys_win32_new.c)
 list(APPEND COMMON_LIBRARIES dbghelp)
