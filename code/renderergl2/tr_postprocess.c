@@ -307,7 +307,7 @@ void RB_SunRays(FBO_t *srcFbo, ivec4_t srcBox, FBO_t *dstFbo, ivec4_t dstBox)
 	mat4_t mvp;
 	vec4_t pos, hpos;
 
-	dot = DotProduct(tr.sunDirection, backEnd.viewParms.or.axis[0]);
+	dot = DotProduct(tr.sunDirection, backEnd.viewParms.ori.axis[0]);
 	if (dot < cutoff)
 		return;
 
@@ -319,7 +319,7 @@ void RB_SunRays(FBO_t *srcFbo, ivec4_t srcBox, FBO_t *dstFbo, ivec4_t dstBox)
 		float dist;
 		mat4_t trans, model;
 
-		Mat4Translation( backEnd.viewParms.or.origin, trans );
+		Mat4Translation( backEnd.viewParms.ori.origin, trans );
 		Mat4Multiply( backEnd.viewParms.world.modelMatrix, trans, model );
 		Mat4Multiply(backEnd.viewParms.projectionMatrix, model, mvp);
 

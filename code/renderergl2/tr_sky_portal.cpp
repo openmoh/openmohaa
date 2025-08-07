@@ -146,20 +146,20 @@ void R_Sky_Render()
         if (sscanf(
                 r_skyportal_origin->string,
                 "%f %f %f",
-                &newParms.or.origin[0],
-                &newParms.or.origin[1],
-                &newParms.or.origin[2]
+                &newParms.ori.origin[0],
+                &newParms.ori.origin[1],
+                &newParms.ori.origin[2]
             )
             != 3) {
             ri.Printf(PRINT_WARNING, "WARNING: Invalid sky portal origin: %s\n", r_skyportal_origin->string);
             return;
         }
     } else {
-        VectorCopy(tr.refdef.sky_origin, newParms.or.origin);
-        MatrixMultiply(newParms.or.axis, tr.refdef.sky_axis, newParms.or.axis);
+        VectorCopy(tr.refdef.sky_origin, newParms.ori.origin);
+        MatrixMultiply(newParms.ori.axis, tr.refdef.sky_axis, newParms.ori.axis);
     }
 
-    VectorCopy(newParms.or.origin, newParms.pvsOrigin);
+    VectorCopy(newParms.ori.origin, newParms.pvsOrigin);
     newParms.isPortalSky       = qtrue;
     newParms.farplane_distance = tr.refdef.skybox_farplane;
     newParms.renderTerrain     = tr.refdef.render_terrain;
@@ -181,7 +181,12 @@ void R_Sky_Render()
     tr.skyRendered        = qtrue;
 
     R_RotateForViewer();
-    R_SetupFrustum();
+
+    viewParms_t temp = backEnd.viewParms;
+
+    R_SetupProjection(&temp, r_znear->value, 0, qfalse);
+
+    GL_SetProjectionMatrix( temp.projectionMatrix );
 }
 
 /*
@@ -200,12 +205,12 @@ void R_Sky_ChangeFrustum()
 
     VectorCopy(tr.portalsky.mins, bounds[0]);
     VectorCopy(tr.portalsky.maxs, bounds[1]);
-    VectorCopy(tr.viewParms.or.origin, origin);
+    VectorCopy(tr.viewParms.ori.origin, origin);
 
-    VectorCopy(tr.viewParms.or.axis[2], abouts[0].normal);
-    VectorNegate(tr.viewParms.or.axis[2], abouts[1].normal);
-    VectorCopy(tr.viewParms.or.axis[1], abouts[2].normal);
-    VectorNegate(tr.viewParms.or.axis[1], abouts[3].normal);
+    VectorCopy(tr.viewParms.ori.axis[2], abouts[0].normal);
+    VectorNegate(tr.viewParms.ori.axis[2], abouts[1].normal);
+    VectorCopy(tr.viewParms.ori.axis[1], abouts[2].normal);
+    VectorNegate(tr.viewParms.ori.axis[1], abouts[3].normal);
 
     for (i = 0; i < 4; i++) {
         cplane_t out;
@@ -214,7 +219,7 @@ void R_Sky_ChangeFrustum()
 
         frust = &tr.viewParms.frustum[i];
 
-        abouts[i].dist = DotProduct(tr.viewParms.or.origin, abouts[i].normal);
+        abouts[i].dist = DotProduct(tr.viewParms.ori.origin, abouts[i].normal);
         CrossProduct(frust->normal, abouts[i].normal, out.normal);
 
         for (i1 = 0; i1 < 8; i1++) {

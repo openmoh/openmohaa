@@ -22,6 +22,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // tr_map.c
 
 #include "tr_local.h"
+#include "tr_vis.h"
 
 #define JSON_IMPLEMENTATION
 #include "../qcommon/json.h"
@@ -2941,8 +2942,7 @@ static	void R_LoadNodesAndLeafsOld(lump_t* nodeLump, lump_t* leafLump) {
             s_worldData.numClusters = out->cluster + 1;
         }
 
-        out->firstmarksurface = s_worldData.marksurfaces +
-            LittleLong(inLeaf->firstLeafSurface);
+        out->firstmarksurface = (int)(s_worldData.marksurfaces + LittleLong(inLeaf->firstLeafSurface));
         out->nummarksurfaces = LittleLong(inLeaf->numLeafSurfaces);
 
         out->firstTerraPatch = LittleLong(inLeaf->firstTerraPatch);

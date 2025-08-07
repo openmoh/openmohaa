@@ -104,41 +104,6 @@ static void Matrix34Invert( const float *inMat, float *outMat ) {
 	outMat[ 7] = -DotProduct(outMat + 4, trans);
 	outMat[11] = -DotProduct(outMat + 8, trans);
 }
-static void QuatSlerp(const quat_t from, const quat_t _to, float fraction, quat_t out) {
-	float angle, cosAngle, sinAngle, backlerp, lerp;
-	quat_t to;
-
-	// cos() of angle
-	cosAngle = from[0] * _to[0] + from[1] * _to[1] + from[2] * _to[2] + from[3] * _to[3];
-
-	// negative handling is needed for taking shortest path (required for model joints)
-	if ( cosAngle < 0.0f ) {
-		cosAngle = -cosAngle;
-		to[0] = - _to[0];
-		to[1] = - _to[1];
-		to[2] = - _to[2];
-		to[3] = - _to[3];
-	} else {
-		QuatCopy( _to, to );
-	}
-
-	if ( cosAngle < 0.999999f ) {
-		// spherical lerp (slerp)
-		angle = acosf( cosAngle );
-		sinAngle = sinf( angle );
-		backlerp = sinf( ( 1.0f - fraction ) * angle ) / sinAngle;
-		lerp = sinf( fraction * angle ) / sinAngle;
-	} else {
-		// linear lerp
-		backlerp = 1.0f - fraction;
-		lerp = fraction;
-	}
-
-	out[0] = from[0] * backlerp + to[0] * lerp;
-	out[1] = from[1] * backlerp + to[1] * lerp;
-	out[2] = from[2] * backlerp + to[2] * lerp;
-	out[3] = from[3] * backlerp + to[3] * lerp;
-}
 static vec_t QuatNormalize2( const quat_t v, quat_t out) {
 	float	length, ilength;
 

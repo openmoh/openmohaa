@@ -1,5 +1,3 @@
-add_library(qcommon_version INTERFACE)
-
 execute_process(
 	COMMAND git rev-parse --is-inside-work-tree
 	WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
@@ -64,5 +62,8 @@ message(VERBOSE "Git revision date: ${GIT_REVISION_DATE}")
 message(VERBOSE "Git revision build: ${GIT_REVISION_BUILD_NUMBER}")
 message(VERBOSE "Stage: ${PRODUCT_VERSION_STAGE}")
 
-configure_file("q_version.generated.h.in" "generated/q_version.generated.h")
-target_include_directories(qcommon_version INTERFACE "${CMAKE_CURRENT_BINARY_DIR}/generated")
+configure_file("cmake/q_version.generated.h.in" "${CMAKE_CURRENT_BINARY_DIR}/generated/q_version.generated.h")
+
+list(APPEND CLIENT_INCLUDE_DIRS "${CMAKE_CURRENT_BINARY_DIR}/generated")
+list(APPEND SERVER_INCLUDE_DIRS "${CMAKE_CURRENT_BINARY_DIR}/generated")
+list(APPEND RENDERER_INCLUDE_DIRS "${CMAKE_CURRENT_BINARY_DIR}/generated")

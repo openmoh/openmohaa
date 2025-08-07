@@ -65,7 +65,7 @@ void R_DlightBmodel( bmodel_t *bmodel ) {
 	msurface_t	*surf;
 
 	// transform all the lights
-	R_TransformDlights( tr.refdef.num_dlights, tr.refdef.dlights, &tr.or );
+	R_TransformDlights( tr.refdef.num_dlights, tr.refdef.dlights, &tr.ori );
 
 	mask = 0;
 	for ( i=0 ; i<tr.refdef.num_dlights ; i++ ) {

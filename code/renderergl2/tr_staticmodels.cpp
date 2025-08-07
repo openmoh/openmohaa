@@ -266,8 +266,8 @@ static int R_CullStaticModel(dtiki_t *tiki, float fScale, const vec3_t vLocalOrg
             break;
         }
 
-        MatrixToEulerAngles(tr.or.axis, vAngles);
-        R_DebugRotatedBBox(tr.or.origin, vAngles, bounds[0], bounds[1], fR, fG, fB, 0.5);
+        MatrixToEulerAngles(tr.ori.axis, vAngles);
+        R_DebugRotatedBBox(tr.ori.origin, vAngles, bounds[0], bounds[1], fR, fG, fB, 0.5);
     }
 
     switch (cull) {
@@ -323,7 +323,7 @@ void R_AddStaticModelSurfaces(void)
         tr.currentEntityNum = i;
         tr.shiftedEntityNum = i << QSORT_REFENTITYNUM_SHIFT;
 
-        R_RotateForStaticModel(SM, &tr.viewParms, &tr.or);
+        R_RotateForStaticModel(SM, &tr.viewParms, &tr.ori);
 
         ofsStaticData = 0;
 
@@ -412,14 +412,14 @@ void R_AddStaticModelSurfaces(void)
                             break;
                         case AGEN_TIKI_DIST_FADE:
                             fDist = (shader->fDistNear + shader->fDistRange);
-                            VectorSubtract(tiki_worldorigin, tr.viewParms.or.origin, vDelta);
+                            VectorSubtract(tiki_worldorigin, tr.viewParms.ori.origin, vDelta);
                             if (VectorLengthSquared(vDelta) >= Square(fDist)) {
                                 continue;
                             }
                             break;
                         case AGEN_ONE_MINUS_TIKI_DIST_FADE:
                             fDist = (shader->fDistNear + shader->fDistRange);
-                            VectorSubtract(tiki_worldorigin, tr.viewParms.or.origin, vDelta);
+                            VectorSubtract(tiki_worldorigin, tr.viewParms.ori.origin, vDelta);
                             if (VectorLengthSquared(vDelta) <= Square(shader->fDistNear)) {
                                 continue;
                             }

@@ -116,17 +116,17 @@ void RB_DrawSprite( const refSprite_t *spr ) {
 
 			for (i = 0; i < 3; i++)
 			{
-				up[i] = backEnd.viewParms.or.axis[2][i] * cr - backEnd.viewParms.or.axis[1][i] * sr;
-				right[i] = backEnd.viewParms.or.axis[1][i] * cr + backEnd.viewParms.or.axis[2][i] * sr;
+				up[i] = backEnd.viewParms.ori.axis[2][i] * cr - backEnd.viewParms.ori.axis[1][i] * sr;
+				right[i] = backEnd.viewParms.ori.axis[1][i] * cr + backEnd.viewParms.ori.axis[2][i] * sr;
 			}
 		}
         break;
     case SPRITE_PARALLEL:
-		VectorCopy(backEnd.viewParms.or.axis[2], up);
+		VectorCopy(backEnd.viewParms.ori.axis[2], up);
 		if (!backEnd.viewParms.isMirror) {
-			VectorNegate(backEnd.viewParms.or.axis[1], right);
+			VectorNegate(backEnd.viewParms.ori.axis[1], right);
 		} else {
-			VectorCopy(backEnd.viewParms.or.axis[1], right);
+			VectorCopy(backEnd.viewParms.ori.axis[1], right);
 		}
         break;
     case SPRITE_ORIENTED:
@@ -134,17 +134,17 @@ void RB_DrawSprite( const refSprite_t *spr ) {
 		VectorCopy(spr->axis[2], up);
         break;
     case SPRITE_PARALLEL_UPRIGHT:
-		VectorCopy(backEnd.viewParms.or.axis[0], norm);
-		VectorCopy(backEnd.viewParms.or.axis[1], right);
-		VectorCopy(backEnd.viewParms.or.axis[2], up);
-		if (backEnd.viewParms.or.axis[0][2] > 0.999) {
+		VectorCopy(backEnd.viewParms.ori.axis[0], norm);
+		VectorCopy(backEnd.viewParms.ori.axis[1], right);
+		VectorCopy(backEnd.viewParms.ori.axis[2], up);
+		if (backEnd.viewParms.ori.axis[0][2] > 0.999) {
 			return;
-		} else if (backEnd.viewParms.or.axis[0][2] < -0.999) {
+		} else if (backEnd.viewParms.ori.axis[0][2] < -0.999) {
 			return;
 		}
 
 		VectorSet(up, 0.0f, 0.0f, 1.0f);
-		VectorSet(right, backEnd.viewParms.or.axis[0][1], -backEnd.viewParms.or.axis[0][0], 0.0f);
+		VectorSet(right, backEnd.viewParms.ori.axis[0][1], -backEnd.viewParms.ori.axis[0][0], 0.0f);
 		VectorNormalize(right);
 		VectorSet(norm, -right[1], right[0], 0.0f);
 		break;

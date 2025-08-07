@@ -34,7 +34,9 @@ jobs:
         echo "CC=clang" >> $GITHUB_ENV
         echo "CXX=clang++" >> $GITHUB_ENV
         echo "CMAKE_PARAM=--log-level=VERBOSE \
-        -DCMAKE_INSTALL_PREFIX='${{github.workspace}}/install'" >> $GITHUB_ENV
+        -DCMAKE_INSTALL_PREFIX='${{github.workspace}}/install'" \
+        -DUSE_RENDERER_DLOPEN=OFF \
+        -DBUILD_RENDERER_GL2=OFF >> $GITHUB_ENV
 
     - name: Configure CMake
       working-directory: ${{github.workspace}}

@@ -89,7 +89,7 @@ bool UpdateChecker::CanHaveRequestThread() const
         return false;
     }
 
-#ifdef HAS_LIBCURL
+#ifdef USE_HTTP
     return Com_IsCurlImportValid(&curlImport) ? true : false;
 #else
     return false;
@@ -228,7 +228,7 @@ bool UpdateCheckerThread::IsRoutineActive() const
 
 void UpdateCheckerThread::InitClient()
 {
-#ifdef HAS_LIBCURL
+#ifdef USE_HTTP
     CURLcode result;
 
     if (!Com_IsCurlImportValid(&curlImport)) {
@@ -264,7 +264,7 @@ void UpdateCheckerThread::InitClient()
 
 void UpdateCheckerThread::ShutdownClient()
 {
-#ifdef HAS_LIBCURL
+#ifdef USE_HTTP
     if (!handle) {
         return;
     }
@@ -340,7 +340,7 @@ struct WriteCallbackData {
     std::string buffer;
 };
 
-#ifdef HAS_LIBCURL
+#ifdef USE_HTTP
 size_t WriteCallback(char *contents, size_t size, size_t nmemb, void *userp)
 {
     WriteCallbackData *callbackData = (WriteCallbackData *)userp;
@@ -358,7 +358,7 @@ size_t WriteCallback(char *contents, size_t size, size_t nmemb, void *userp)
 
 void UpdateCheckerThread::DoRequest()
 {
-#ifdef HAS_LIBCURL
+#ifdef USE_HTTP
     CURLcode          result;
     WriteCallbackData callbackData;
 

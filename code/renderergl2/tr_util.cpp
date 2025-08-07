@@ -265,8 +265,8 @@ void R_DrawDebugNumber(const vec3_t org, float number, float scale, float r, flo
     int    l;
     int    num;
 
-    VectorCopy(tr.viewParms.or.axis[2], up);
-    VectorCopy(tr.viewParms.or.axis[1], right);
+    VectorCopy(tr.viewParms.ori.axis[2], up);
+    VectorCopy(tr.viewParms.ori.axis[1], right);
     VectorNegate(right, right);
 
     VectorNormalize(up);

@@ -22,7 +22,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // launch.h: Base interface for starting programs
 
-#include "q_platform.h"
+#include "../qcommon/q_platform.h"
 
 #include <filesystem>
 #include <string>

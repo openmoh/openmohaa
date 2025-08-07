@@ -1,0 +1,18 @@
+include(utils/disable_warnings)
+include(utils/find_include_dirs)
+
+set(INTERNAL_JPEG_DIR ${SOURCE_DIR}/thirdparty/jpeg-9f)
+
+if(USE_INTERNAL_JPEG)
+    file(GLOB_RECURSE JPEG_SOURCES ${INTERNAL_JPEG_DIR}/j*.c)
+    disable_warnings(${JPEG_SOURCES})
+    find_include_dirs(JPEG_INCLUDE_DIRS ${JPEG_SOURCES})
+    set(JPEG_DEFINITIONS USE_INTERNAL_JPEG)
+    list(APPEND RENDERER_LIBRARY_SOURCES ${JPEG_SOURCES})
+else()
+    find_package(JPEG REQUIRED)
+endif()
+
+list(APPEND RENDERER_LIBRARIES ${JPEG_LIBRARIES})
+list(APPEND RENDERER_INCLUDE_DIRS ${JPEG_INCLUDE_DIRS})
+list(APPEND RENDERER_DEFINITIONS ${JPEG_DEFINTIONS})
