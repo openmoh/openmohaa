@@ -28,11 +28,14 @@ execute_process(COMMAND ${CMAKE_C_COMPILER} -v
                 ERROR_VARIABLE COMPILER_OUTPUT
                 OUTPUT_STRIP_TRAILING_WHITESPACE)
 
-list(APPEND COMMON_LIBRARIES m)
+list(APPEND CLIENT_LIBRARIES m)
+list(APPEND SERVER_LIBRARIES m)
 
 if(COMPILER_OUTPUT MATCHES "musl|freebsd|openbsd|netbsd")
-    list(APPEND COMMON_LIBRARIES execinfo)
+    list(APPEND CLIENT_LIBRARIES execinfo)
+    list(APPEND SERVER_LIBRARIES execinfo)
 elseif (NOT APPLE)
     # For when using GLIBC versions older than 2.34
-    list(APPEND COMMON_LIBRARIES rt)
+    list(APPEND CLIENT_LIBRARIES rt)
+    list(APPEND SERVER_LIBRARIES rt)
 endif()

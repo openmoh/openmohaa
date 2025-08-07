@@ -1,7 +1,6 @@
 include_guard(GLOBAL)
 
 include(utils/add_git_dependency)
-include(utils/arch)
 include(utils/disable_warnings)
 include(gamespy)
 
@@ -42,28 +41,6 @@ disable_warnings(
 )
 
 add_git_dependency(${SOURCE_DIR}/qcommon/common.c)
-
-#if(ARCH MATCHES "x86" OR ARCH MATCHES "x86_64")
-#    list(APPEND COMMON_SOURCES
-#        ${SOURCE_DIR}/qcommon/vm_x86.c
-#    )
-#elseif(ARCH MATCHES "ppc" OR ARCH MATCHES "ppc64")
-#    list(APPEND COMMON_SOURCES
-#        ${SOURCE_DIR}/qcommon/vm_powerpc.c
-#        ${SOURCE_DIR}/qcommon/vm_powerpc_asm.c
-#    )
-#elseif(ARCH MATCHES "arm")
-#    list(APPEND COMMON_SOURCES
-#        ${SOURCE_DIR}/qcommon/vm_armv71.c
-#    )
-#elseif(ARCH MATCHES "sparc")
-#    list(APPEND COMMON_SOURCES
-#        ${SOURCE_DIR}/qcommon/vm_sparc.c
-#    )
-#else()
-#    list(APPEND SERVER_DEFINITIONS NO_VM_COMPILED)
-#    list(APPEND CLIENT_DEFINITIONS NO_VM_COMPILED)
-#endif()
 
 set(SYSTEM_SOURCES
     ${SOURCE_DIR}/sys/con_log.c
