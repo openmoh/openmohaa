@@ -1698,7 +1698,7 @@ static float ProjectRadius(float r, const vec3_t location)
     Vector separation;
     float  projectedRadius;
 
-    separation      = Vector(tr.viewParms.or.origin) - Vector(location);
+    separation      = Vector(tr.viewParms.ori.origin) - Vector(location);
     projectedRadius = separation.length();
 
     return fabs(r) * (100.0 / tr.viewParms.fovX) / projectedRadius;
@@ -1775,8 +1775,8 @@ static int R_CullSkelModel(dtiki_t *tiki, refEntity_t *e, skelAnimFrame_t *newFr
             break;
         }
 
-        MatrixToEulerAngles(tr.or.axis, vAngles);
-        R_DebugRotatedBBox(tr.or.origin, vAngles, bounds[0], bounds[1], fR, fG, fB, 0.5);
+        MatrixToEulerAngles(tr.ori.axis, vAngles);
+        R_DebugRotatedBBox(tr.ori.origin, vAngles, bounds[0], bounds[1], fR, fG, fB, 0.5);
     }
 
     switch (cull) {

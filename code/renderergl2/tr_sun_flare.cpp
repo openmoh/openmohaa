@@ -158,9 +158,9 @@ bool lens_flare::CheckRange()
 {
     vec3_t diff;
 
-    VectorSubtract(v, backEnd.viewParms.or.origin, diff);
+    VectorSubtract(v, backEnd.viewParms.ori.origin, diff);
     VectorNormalizeFast(diff);
-    dot = DotProduct(backEnd.viewParms.or.axis[0], diff);
+    dot = DotProduct(backEnd.viewParms.ori.axis[0], diff);
 
     return dot > dot_min;
 }
@@ -169,7 +169,7 @@ bool lens_flare::CheckRay()
 {
     trace_t trace;
 
-    ri.CM_BoxTrace(&trace, backEnd.viewParms.or.origin, trace_v, vec3_origin, vec3_origin, 0, CONTENTS_SOLID, qfalse);
+    ri.CM_BoxTrace(&trace, backEnd.viewParms.ori.origin, trace_v, vec3_origin, vec3_origin, 0, CONTENTS_SOLID, qfalse);
     if (inportalsky) {
         return (trace.surfaceFlags & 4) != 0;
     }
@@ -193,7 +193,7 @@ bool lens_flare::ScreenCalc()
     VectorClear4(eye);
     for (i = 0; i < 4; i++) {
         for (j = 0; j < 4; j++) {
-            eye[i] += point[j] * tr.or.modelMatrix[i + j * 4];
+            eye[i] += point[j] * tr.ori.modelMatrix[i + j * 4];
         }
     }
 
@@ -503,8 +503,8 @@ static void R_DrawSunFlare()
         return;
     }
 
-    VectorMA(backEnd.viewParms.or.origin, 16384, s_sun.flaredirection, sunFlare.trace_v);
-    VectorMA(backEnd.viewParms.or.origin, 128, s_sun.flaredirection, sunFlare.v);
+    VectorMA(backEnd.viewParms.ori.origin, 16384, s_sun.flaredirection, sunFlare.trace_v);
+    VectorMA(backEnd.viewParms.ori.origin, 128, s_sun.flaredirection, sunFlare.v);
 
     sunFlare.SunTry();
 }
@@ -625,7 +625,7 @@ bool sun_flare_class::SunCheckRay()
     if (pViewLeaf->area == -1 || !tr.world->vis || tr.sSunLight.leaf != (mnode_s *)-1
         || pViewLeaf->numlights && pViewLeaf->lights[0] == &tr.sSunLight) {
         ri.CM_BoxTrace(
-            &trace, backEnd.viewParms.or.origin, trace_v, vec3_origin, vec3_origin, 0, CONTENTS_SOLID, qfalse
+            &trace, backEnd.viewParms.ori.origin, trace_v, vec3_origin, vec3_origin, 0, CONTENTS_SOLID, qfalse
         );
 
         if (trace.surfaceFlags & SURF_SKY) {
@@ -649,7 +649,7 @@ void sun_flare_class::SunScreenCalc()
     VectorClear4(eye);
     for (i = 0; i < 4; i++) {
         for (j = 0; j < 4; j++) {
-            eye[i] += point[j] * tr.or.modelMatrix[i + j * 4];
+            eye[i] += point[j] * tr.ori.modelMatrix[i + j * 4];
         }
     }
 
