@@ -63,7 +63,7 @@ public:
     void FindServer();
     void Connect(Event *ev);
     void Reject(Event *ev);
-    void Draw();
+    void Draw() override;
     void Update();
     int  AddServer(GServer server, const ServerGame_t& serverGame);
     void CancelRefresh(Event *ev);
