@@ -25,6 +25,7 @@ option(USE_MUMBLE "Mumble support" OFF)
 option(USE_FREETYPE "Freetype font rendering" OFF)
 
 option(USE_INTERNAL_LIBS "Use internally packaged libraries" ON)
+option(USE_INTERNAL_SDL "Use internal SDL binary (if available)" ${USE_INTERNAL_LIBS})
 option(USE_INTERNAL_ZLIB "Use internal copy of zlib" ${USE_INTERNAL_LIBS})
 option(USE_INTERNAL_JPEG "Use internal copy of libjpeg" ${USE_INTERNAL_LIBS})
 option(USE_INTERNAL_OGG "Use internal copy of ogg" ${USE_INTERNAL_LIBS})

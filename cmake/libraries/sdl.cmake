@@ -2,16 +2,16 @@ set(INTERNAL_SDL_DIR ${SOURCE_DIR}/thirdparty/SDL2-2.32.8)
 
 include(utils/arch)
 
-if(NOT WIN32 AND NOT APPLE)
-    set(SYSTEM_SDL_REQUIRED REQUIRED)
+if(WIN32 OR APPLE)
+    # On Windows and macOS we have internal SDL binaries we can use
+    set(HAVE_INTERNAL_SDL true)
 endif()
 
-find_package(SDL2 QUIET ${SYSTEM_SDL_REQUIRED})
-
-if(NOT SDL2_FOUND)
+if(USE_INTERNAL_SDL AND HAVE_INTERNAL_SDL)
     set(SDL2_INCLUDE_DIRS ${INTERNAL_SDL_DIR}/include)
+    list(APPEND CLIENT_DEFINITIONS USE_INTERNAL_SDL_HEADERS)
+    list(APPEND RENDERER_DEFINITIONS USE_INTERNAL_SDL_HEADERS)
 
-    # On Windows and macOS we have internal SDL binaries we can use
     if(WIN32)
         if(ARCH STREQUAL "x86_64")
             set(LIB_DIR ${SOURCE_DIR}/thirdparty/libs/win64)
@@ -39,8 +39,10 @@ if(NOT SDL2_FOUND)
         list(APPEND CLIENT_DEPLOY_LIBRARIES
             ${SOURCE_DIR}/thirdparty/libs/macos/libSDL2-2.0.0.dylib)
     else()
-        message(FATAL_ERROR "SDL2 not found and no internal binaries available")
+        message(FATAL_ERROR "HAVE_INTERNAL_SDL set incorrectly; file a bug")
     endif()
+else()
+    find_package(SDL2 REQUIRED)
 endif()
 
 list(APPEND CLIENT_LIBRARIES ${SDL2_LIBRARIES})
