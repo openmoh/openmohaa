@@ -33,7 +33,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 static char        gamemode[128];
 static qboolean    gcdInitialized = qfalse;
-static qboolean    gcdValid       = qfalse;
 static qboolean    gsRunning      = qfalse;
 extern GSIACResult __GSIACResult;
 
@@ -294,7 +293,7 @@ void SV_ProcessGamespyQueries()
 
     qr_process_queries(NULL);
 
-    if (gcdValid) {
+    if (gcdInitialized) {
         // in case the game supports gcd
         gcd_think();
     }
@@ -379,12 +378,8 @@ qboolean SV_InitGamespy()
     // this will set the GSI as available for cdkey authorization
     __GSIACResult = GSIACAvailable;
 
-    if (!gcdInitialized) {
-        if (gcd_game_id) {
-            gcd_init(gcd_game_id);
-            gcdValid = qtrue;
-        }
-
+    if (!gcdInitialized && gcd_game_id) {
+        gcd_init(gcd_game_id);
         gcdInitialized = qtrue;
     }
 
