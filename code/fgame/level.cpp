@@ -1507,7 +1507,7 @@ void Level::ServerSpawned(void)
 
         Unregister(STRING_SPAWN);
 
-        if (!g_navigation_legacy->integer) {
+        if (!g_navigation_legacy->integer && g_gametype->integer != GT_SINGLE_PLAYER) {
             // Added in OPM
             //  Recast navigation
             navigationMap.LoadWorldMap(m_mapfile);
