@@ -208,6 +208,7 @@ jobs:
         -DCMAKE_INSTALL_PREFIX='${{github.workspace}}/install' \
         -DCMAKE_VERBOSE_MAKEFILE=on \
         -DCMAKE_OSX_ARCHITECTURES='${{ matrix.architecture.build_name }}' \
+        -DUSE_INTERNAL_SDL=OFF \
         -DSDL2_DIR='${{github.workspace}}/thirdparties/SDL2/install/lib/cmake/SDL2' \
         -DOPENAL_LIBRARY='${{github.workspace}}/thirdparties/soft-oal/install' \
         -DOPENAL_INCLUDE_DIR='${{github.workspace}}/thirdparties/soft-oal/install/include/AL' \

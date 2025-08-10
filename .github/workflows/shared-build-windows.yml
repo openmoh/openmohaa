@@ -226,6 +226,7 @@ jobs:
         -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=true `
         -DGIT_REVISION_BUILD_NUMBER=${{ github.run_number }} `
         -DBISON_EXECUTABLE='${{github.workspace}}/thirdparties/winflexbison-install/win_bison.exe' `
+        -DUSE_INTERNAL_SDL=OFF `
         -DSDL2_DIR='${{github.workspace}}/thirdparties/SDL2/install/cmake' `
         -DOPENAL_LIBRARY='${{github.workspace}}/thirdparties/soft-oal' `
         -DOPENAL_INCLUDE_DIR='${{github.workspace}}/thirdparties/soft-oal/install/include/AL' `
