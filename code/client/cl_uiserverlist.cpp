@@ -830,16 +830,49 @@ int UIFAKKServerList::ServerCompareFunction(const UIListCtrlItem *i1, const UILi
     }
 
     if (!iCompResult) {
-        if (columnname != -2) {
-            val1 = fi1->getListItemValue(2);
-            val2 = fi2->getListItemValue(2);
+        if (columnname == 3) {
+            //
+            // Added in OPM
+            //
+            //  Sort by bot count
+            const str   s1 = fi1->getListItemString(columnname);
+            const str   s2 = fi2->getListItemString(columnname);
+            const char *c1 = strchr(s1, '(');
+            const char *c2 = strchr(s2, '(');
 
-            if (val1 < val2) {
-                iCompResult = -1;
-            } else if (val1 > val2) {
-                iCompResult = 1;
-            } else {
-                iCompResult = 0;
+            if (c1 || c2) {
+                if (c1 && !c2) {
+                    iCompResult = -1;
+                } else if (!c1 && c2) {
+                    iCompResult = 1;
+                } else {
+                    // Both have bots
+                    val1 = atoi(c1 + 1);
+                    val2 = atoi(c2 + 1);
+
+                    if (val1 > val2) {
+                        iCompResult = -1;
+                    } else if (val1 < val2) {
+                        iCompResult = 1;
+                    } else {
+                        iCompResult = 0;
+                    }
+                }
+            }
+        }
+
+        if (!iCompResult) {
+            if (columnname != 2) {
+                val1 = fi1->getListItemValue(2);
+                val2 = fi2->getListItemValue(2);
+
+                if (val1 < val2) {
+                    iCompResult = -1;
+                } else if (val1 > val2) {
+                    iCompResult = 1;
+                } else {
+                    iCompResult = 0;
+                }
             }
         }
 
@@ -1063,6 +1096,8 @@ void UIFAKKServerList::UpdateServerListCallBack(
         const char *pszGameVer;
         const char *pszGameVerNumber;
         float       fGameVer;
+        int         iNumPlayers, iMaxPlayers;
+        int         iMinPlayers;
 
         pszHostName      = ServerGetStringValue(server, "hostname", "(NONE)");
         bDiffVersion     = false;
@@ -1110,7 +1145,18 @@ void UIFAKKServerList::UpdateServerListCallBack(
         iPort        = ServerGetIntValue(server, "hostport", PORT_SERVER);
         iGameSpyPort = ServerGetQueryPort(server);
         sAddress     = va("%s:%i", ServerGetAddress(server), iPort);
-        sPlayers = va("%d/%d", ServerGetIntValue(server, "numplayers", 0), ServerGetIntValue(server, "maxplayers", 0));
+
+        iNumPlayers = ServerGetIntValue(server, "numplayers", 0);
+        iMaxPlayers = ServerGetIntValue(server, "maxplayers", 0);
+
+        // Added in OPM
+        //  Try to get and display the number of bots
+        iMinPlayers = ServerGetIntValue(server, "minplayers", 0);
+        if (iMinPlayers > iNumPlayers) {
+            sPlayers = va("%d(%d)/%d", iNumPlayers, iMinPlayers - iNumPlayers, iMaxPlayers);
+        } else {
+            sPlayers = va("%d/%d", iNumPlayers, iMaxPlayers);
+        }
 
         for (i = 1; i <= uiServerList->getNumItems(); i++) {
             pNewServerItem = static_cast<FAKKServerListItem *>(uiServerList->GetItem(i));

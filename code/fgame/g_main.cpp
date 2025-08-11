@@ -1679,6 +1679,9 @@ extern "C" game_export_t *GetGameAPI(game_import_t *import)
     globals.SpawnEntities    = G_SpawnEntities;
     globals.TIKI_Orientation = G_TIKI_Orientation;
 
+    globals.GetNumSimulatedPlayers   = G_GetNumBots;
+    globals.GetSimulatedPlayersSkill = G_GetBotSkill;
+
     return &globals;
 }
 

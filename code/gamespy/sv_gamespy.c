@@ -170,8 +170,9 @@ static void basic_callback(char *outbuf, int maxlen, void *userdata)
 
 static void info_callback(char *outbuf, int maxlen, void *userdata)
 {
-    char     infostring[1024];
-    qboolean allowlean = qfalse;
+    char         infostring[1024];
+    qboolean     allowlean = qfalse;
+    unsigned int numBots;
 
     infostring[0] = 0;
     Info_SetValueForKey(infostring, "hostname", sv_hostname->string);
@@ -191,6 +192,20 @@ static void info_callback(char *outbuf, int maxlen, void *userdata)
     }
 
     Info_SetValueForKey(infostring, "allowlean", va("%i", allowlean));
+
+    // Added in OPM
+    //  Bot-specific information
+    //  `minPlayers` means if the number of real clients is below `minPlayers`,
+    //  then bots are spawned to fill the gap.
+    //  For the caller, the number of bots is calculated using: minPlayers - numPlayers. If numPlayers is above minPlayers then there are 0 bots.
+    numBots = ge->GetNumSimulatedPlayers();
+    if (numBots > 0) {
+        Info_SetValueForKey(infostring, "minplayers", va("%i", numBots + SV_NumClients()));
+    } else {
+        Info_SetValueForKey(infostring, "minplayers", "0");
+    }
+    Info_SetValueForKey(infostring, "botskill", ge->GetSimulatedPlayersSkill());
+
     if (strlen(infostring) < maxlen) {
         strcpy(outbuf, infostring);
     }

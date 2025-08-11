@@ -565,6 +565,26 @@ void G_RemoveBots(unsigned int num)
 
 /*
 ===========
+G_GetNumBots
+============
+*/
+unsigned int G_GetNumBots()
+{
+    return botManager.getControllerManager().getControllers().NumObjects();
+}
+
+/*
+===========
+G_GetBotSkill
+============
+*/
+const char *G_GetBotSkill()
+{
+    return "Average";
+}
+
+/*
+===========
 G_SaveBots
 
 Save bot persistent data

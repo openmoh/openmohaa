@@ -566,6 +566,14 @@ typedef struct gameExport_s {
     void (*SoundCallback)(int entNum, soundChannel_t channelNumber, const char *name);
 
     //
+    // Added in OPM
+    //
+
+    /** Add more information related to game */
+    unsigned int (*GetNumSimulatedPlayers)();
+    const char * (*GetSimulatedPlayersSkill)();
+
+    //
     // global variables shared between game and server
     //
 
