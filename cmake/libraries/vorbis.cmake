@@ -2,6 +2,10 @@ if(NOT USE_CODEC_VORBIS)
     return()
 endif()
 
+if(NOT BUILD_CLIENT)
+    return()
+endif()
+
 include(utils/disable_warnings)
 
 set(INTERNAL_VORBIS_DIR ${SOURCE_DIR}/thirdparty/libvorbis-1.3.7)

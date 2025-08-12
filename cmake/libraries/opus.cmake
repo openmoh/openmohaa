@@ -2,6 +2,10 @@ if(NOT USE_CODEC_OPUS)
     return()
 endif()
 
+if(NOT BUILD_CLIENT)
+    return()
+endif()
+
 include(utils/disable_warnings)
 include(utils/find_include_dirs)
 

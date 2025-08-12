@@ -2,6 +2,10 @@ if(NOT USE_OPENAL)
     return()
 endif()
 
+if(NOT BUILD_CLIENT)
+    return()
+endif()
+
 set(INTERNAL_OPENAL_DIR ${SOURCE_DIR}/thirdparty/openal-soft-1.24.3)
 
 find_package(OpenAL QUIET)

@@ -1,3 +1,7 @@
+if(NOT BUILD_CLIENT)
+    return()
+endif()
+
 set(OLD_VALUE ${BUILD_SHARED_LIBS})
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
 

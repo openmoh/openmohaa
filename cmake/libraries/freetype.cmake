@@ -2,6 +2,10 @@ if(NOT USE_FREETYPE)
     return()
 endif()
 
+if(NOT BUILD_CLIENT)
+    return()
+endif()
+
 find_package(Freetype REQUIRED)
 
 list(APPEND RENDERER_INCLUDE_DIRS ${FREETYPE_INCLUDE_DIRS})
