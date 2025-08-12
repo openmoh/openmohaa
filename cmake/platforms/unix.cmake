@@ -16,7 +16,10 @@ endif()
 #    list(APPEND CLIENT_PLATFORM_SOURCES ${SOURCE_DIR}/client/cl_http_curl.c)
 #endif()
 
-list(APPEND COMMON_LIBRARIES dl m)
+list(APPEND COMMON_LIBRARIES
+    dl  # Dynamic loader
+    m   # Math library
+)
 
 list(APPEND CLIENT_DEFINITIONS USE_ICON)
 list(APPEND RENDERER_DEFINITIONS USE_ICON)
