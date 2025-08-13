@@ -1,4 +1,4 @@
-if(NOT BUILD_RENDERER_GL2)
+if(NOT BUILD_CLIENT OR NOT BUILD_RENDERER_GL2)
     return()
 endif()
 
