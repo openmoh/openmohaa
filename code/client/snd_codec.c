@@ -132,7 +132,7 @@ void S_CodecInit()
 	S_CodecRegister(&ogg_codec);
 #endif
 
-#if USE_CODEC_MP3
+#ifdef USE_CODEC_MAD
 	S_CodecRegister(&mp3_codec);
 #endif
 

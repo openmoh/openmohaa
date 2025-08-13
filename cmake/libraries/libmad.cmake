@@ -1,3 +1,7 @@
+if(NOT USE_CODEC_MAD)
+    return()
+endif()
+
 if(NOT BUILD_CLIENT)
     return()
 endif()
@@ -26,4 +30,4 @@ endif()
 
 set(BUILD_SHARED_LIBS ${OLD_VALUE} CACHE BOOL "" FORCE)
 
-list(APPEND CLIENT_DEFINITIONS USE_CODEC_MP3=1)
+list(APPEND CLIENT_DEFINITIONS USE_CODEC_MAD=1)
