@@ -304,7 +304,7 @@ int Com_HashKey(char *string, int maxlen) {
 
 	hash = 0;
 	for (i = 0; i < maxlen && string[i] != '\0'; i++) {
-		hash += string[i] * (119 + i);
+		hash += (signed char)string[i] * (119 + i);
 	}
 	hash = (hash ^ (hash >> 10) ^ (hash >> 20));
 	return hash;

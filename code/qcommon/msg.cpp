@@ -476,7 +476,7 @@ void MSG_WriteString( msg_t *sb, const char *s ) {
 		Q_strncpyz( string, s, sizeof( string ) );
 
 		for ( i = 0 ; i <= l ; i++ ) {
-			MSG_WriteByte(sb, string[i]);
+			MSG_WriteByte(sb, (signed char)string[i]);
 		}
 	}
 }
@@ -498,7 +498,7 @@ void MSG_WriteBigString( msg_t *sb, const char *s ) {
 		Q_strncpyz( string, s, sizeof( string ) );
 
 		for ( i = 0 ; i <= l ; i++ ) {
-			MSG_WriteByte(sb, string[i]);
+			MSG_WriteByte(sb, (signed char)string[i]);
 		}
 	}
 }
@@ -882,7 +882,7 @@ int MSG_HashKey(const char *string, int maxlen) {
 
 	hash = 0;
 	for (i = 0; i < maxlen && string[i] != '\0'; i++) {
-		hash += string[i] * (119 + i);
+		hash += (signed char)string[i] * (119 + i);
 	}
 	hash = (hash ^ (hash >> 10) ^ (hash >> 20));
 	return hash;
