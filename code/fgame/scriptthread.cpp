@@ -3744,7 +3744,20 @@ void ScriptThread::Angles_PointAt(Event *ev)
 
     pParent = ev->GetEntity(1);
     pEnt    = ev->GetEntity(2);
+    // Fixed in OPM
+    //  Check if the entity is valid
+    if (!pEnt) {
+        ScriptError("entity is NULL");
+        return;
+    }
+
     pTarget = ev->GetEntity(3);
+    // Fixed in OPM
+    //  Check if the entity is valid
+    if (!pTarget) {
+        ScriptError("target_entity is NULL");
+        return;
+    }
 
     if (pParent) {
         vDelta  = pEnt->centroid - pTarget->centroid;
