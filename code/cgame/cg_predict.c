@@ -336,7 +336,7 @@ static void CG_InterpolatePlayerStateCamera(void)
     //  Use the specified fov specified by the server
     //  when zooming
     //
-    if (cg.predicted_player_state.stats[STAT_INZOOM]) {
+    if (cg.predicted_player_state.stats[STAT_INZOOM] || (cg.snap->ps.pm_flags & PMF_CAMERA_VIEW)) {
         cg.camera_fov = cg.predicted_player_state.fov;
     } else {
         cg.camera_fov = cg_fov->value;
@@ -353,7 +353,7 @@ static void CG_InterpolatePlayerStateCamera(void)
 
     f = (float)(cg.time - prev->serverTime) / (next->serverTime - prev->serverTime);
 
-    if (cg.predicted_player_state.stats[STAT_INZOOM]) {
+    if (cg.predicted_player_state.stats[STAT_INZOOM] || (cg.snap->ps.pm_flags & PMF_CAMERA_VIEW)) {
         // interpolate fov
         cg.camera_fov = prev->ps.fov + f * (next->ps.fov - prev->ps.fov);
     } else {
