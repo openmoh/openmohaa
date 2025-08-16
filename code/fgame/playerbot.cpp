@@ -130,6 +130,8 @@ void BotController::UpdateBotStates(void)
         return;
     }
 
+    m_botCmd.serverTime = level.svsTime;
+
     if (!controlledEnt->client->pers.dm_primary[0]) {
         Event *event;
 
@@ -166,7 +168,6 @@ void BotController::UpdateBotStates(void)
     }
 
     m_botCmd.buttons |= BUTTON_RUN;
-    m_botCmd.serverTime = level.svsTime;
 
     m_botEyes.ofs[0]    = 0;
     m_botEyes.ofs[1]    = 0;
