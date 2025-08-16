@@ -11653,7 +11653,7 @@ qboolean Player::CheckCanSwitchTeam(teamtype_t team)
         gi.SendServerCommand(
             edict - g_entities,
             "print \"" HUD_MESSAGE_WHITE "%s %i %s\n\"",
-            gi.LV_ConvertString("Can not change teams again for another"),
+            gi.LV_ConvertString("Cannot change teams again for another"),
             seconds + 1,
             gi.LV_ConvertString("seconds")
         );
@@ -11677,14 +11677,13 @@ qboolean Player::CheckCanSwitchTeam(teamtype_t team)
 
             if (pNewTeam->m_players.NumObjects() > numTeamPlayers) {
                 const char *message = gi.LV_ConvertString(
-                    "That team has enough players. Choose the team that has the lowest number of players."
+                    "This team is full. Choose the team that has the lowest number of players."
                 );
 
-                gi.SendServerCommand(
-                    edict - g_entities, "print \"" HUD_MESSAGE_WHITE "%s\n\"", gi.LV_ConvertString(message)
-                );
-
+                gi.SendServerCommand(edict - g_entities, "print \"" HUD_MESSAGE_WHITE "%s\n\"", message);
                 gi.centerprintf(edict, message);
+
+                gi.PrintfClient(edict - g_entities, "cannot join a full team (%s)\n", pTeam->m_teamname.c_str());
                 return qfalse;
             }
         }
