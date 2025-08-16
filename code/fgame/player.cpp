@@ -4261,18 +4261,20 @@ void Player::ClientInactivityTimer(void)
     }
 
     if (num_team_kills >= g_teamkillkick->integer) {
-        const str message = gi.LV_ConvertString("was removed from the server for killing too many teammates.");
+        //const str message = gi.LV_ConvertString("was removed from the server for killing too many teammates.");
 
         //
         // The player reached maximum team kills
         //
-        G_PrintToAllClients(va("%s %s\n", client->pers.netname, message.c_str()), 2);
+        //G_PrintToAllClients(va("%s %s\n", client->pers.netname, message.c_str()), 2);
+        
+        const str message = gi.LV_ConvertString("killing too many teammates.");
 
         if (Q_stricmp(Info_ValueForKey(client->pers.userinfo, "ip"), "localhost")) {
             //
             // Make sure to not kick the local host
             //
-            gi.DropClient(client->ps.clientNum, message.c_str());
+            gi.KickClientForReason(client->ps.clientNum, message.c_str());
         } else if (!m_bSpectator) {
             // if it's the host, put it back in spectator mode
             num_team_kills      = 0;
@@ -4307,7 +4309,7 @@ void Player::ClientInactivityTimer(void)
         const char *s = Info_ValueForKey(client->pers.userinfo, "ip");
 
         if (Q_stricmp(s, "localhost")) {
-            gi.DropClient(client->ps.clientNum, "was dropped for inactivity");
+            gi.KickClientForReason(client->ps.clientNum, "inactivity");
             return;
         }
 

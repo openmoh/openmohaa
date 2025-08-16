@@ -1704,6 +1704,20 @@ void PF_Key_GetKeysForCommand( const char *command, int *key1, int *key2 )
 
 /*
 ===============
+SV_GameKickForReason
+
+Kicks the client with a message and reason
+===============
+*/
+void SV_GameKickClientForReason( int clientNum, const char *reason ) {
+	if ( clientNum < 0 || clientNum >= sv_maxclients->integer ) {
+		return;
+	}
+	SV_KickClientForReason( svs.clients + clientNum, reason );	
+}
+
+/*
+===============
 SV_InitGameProgs
 
 Called on a normal map change, not on a map_restart
@@ -1914,6 +1928,7 @@ void SV_InitGameProgs( void ) {
 	// Added in OPM
     import.PrintfClient                 = SV_PrintfClient;
 	import.pvssoundindex				= SV_PVSSoundIndex;
+	import.KickClientForReason			= SV_GameKickClientForReason;
 
 	ge = Sys_GetGameAPI( &import );
 

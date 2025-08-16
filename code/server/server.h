@@ -521,6 +521,8 @@ int SV_WriteDownloadToClient(client_t *cl , msg_t *msg);
 int SV_SendDownloadMessages(void);
 int SV_SendQueuedMessages(void);
 
+void SV_KickClientForReason(client_t *cl, const char *reason);
+
 
 //
 // sv_ccmds.c

@@ -494,6 +494,8 @@ typedef struct gameImport_s {
 
     int (*pvssoundindex)(const char* name, int streamed);
 
+    void (*KickClientForReason)(int clientNum, const char *reason);
+
     cvar_t *fsDebug;
 
     //

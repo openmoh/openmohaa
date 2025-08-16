@@ -2169,3 +2169,26 @@ void SV_ExecuteClientMessage( client_t *cl, msg_t *msg ) {
 //		Com_Printf( "WARNING: Junk at end of packet for client %i\n", cl - svs.clients );
 //	}
 }
+
+void SV_KickClientForReason(client_t *cl, const char *reason)
+{
+    if (reason) {
+        // Send the kick message to the client
+        SV_NET_OutOfBandPrint(
+            &svs.netprofile, cl->netchan.remoteAddress, "droperror\nKicked from server for:\n%s", reason
+        );
+
+        // Print the kick to all clients
+        SV_SendServerCommand(NULL, "print \"" HUD_MESSAGE_CHAT_WHITE "%s was kicked for %s\n\"", cl->name, reason);
+
+        SV_DropClient(cl, va("was kicked for %s", reason));
+    } else {
+        // Send the kick message to the client
+        SV_NET_OutOfBandPrint(&svs.netprofile, cl->netchan.remoteAddress, "droperror\nKicked from server");
+
+        // Print the kick to all clients
+        SV_SendServerCommand(NULL, "print \"" HUD_MESSAGE_CHAT_WHITE "%s was kicked\n\"", cl->name);
+
+        SV_DropClient(cl, "was kicked");
+    }
+}
