@@ -71,6 +71,7 @@ consolecmd_t G_ConsoleCmds[] = {
     //====
     {"compilescript",   G_CompileScript,      qfalse},
     {"addbot",          G_AddBotCommand,      qfalse},
+    {"addbotnamed",     G_AddBotNamedCommand, qfalse},
     {"removebot",       G_RemoveBotCommand,   qfalse},
 #ifdef _DEBUG
     {"bot",             G_BotCommand,         qfalse},
@@ -637,10 +638,9 @@ qboolean G_AddBotCommand(gentity_t *ent)
 {
     unsigned int numbots;
     unsigned int totalnumbots;
-    int          clientNum = -1;
 
     if (gi.Argc() <= 1) {
-        gi.Printf("Usage: addbot [numbots] [optional botname]\n");
+        gi.Printf("Usage: addbot [numbots]\n");
         return qfalse;
     }
 
@@ -651,9 +651,34 @@ qboolean G_AddBotCommand(gentity_t *ent)
         return qfalse;
     }
 
-    totalnumbots = Q_min(numbots + sv_numbots->integer, game.maxclients);
+    totalnumbots = Q_min(numbots + sv_numbots->integer, sv_maxbots->integer);
 
     gi.cvar_set("sv_numbots", va("%d", totalnumbots));
+    return qtrue;
+}
+
+qboolean G_AddBotNamedCommand(gentity_t *ent)
+{
+    unsigned int numbots;
+    unsigned int totalnumbots;
+    const char* name;
+
+    if (gi.Argc() <= 1) {
+        gi.Printf("Usage: addbotnamed [botname]\n");
+        return qfalse;
+    }
+
+    name = gi.Argv(1);
+
+    totalnumbots = Q_min(sv_numbots->integer + 1, sv_maxbots->integer);
+
+    gi.cvar_set("sv_numbots", va("%d", totalnumbots));
+
+    bot_info_t botInfo;
+    botInfo.name = name;
+
+    G_AddBot(&botInfo);
+
     return qtrue;
 }
 

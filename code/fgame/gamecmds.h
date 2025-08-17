@@ -57,6 +57,7 @@ qboolean G_ScriptCmd(gentity_t* ent);
 qboolean G_ReloadMap(gentity_t* ent);
 qboolean G_CompileScript(gentity_t *ent);
 qboolean G_AddBotCommand(gentity_t *ent);
+qboolean G_AddBotNamedCommand(gentity_t *ent);
 qboolean G_RemoveBotCommand(gentity_t *ent);
 #ifdef _DEBUG
 qboolean G_BotCommand(gentity_t *ent);

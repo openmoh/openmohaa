@@ -131,6 +131,15 @@ Configure bots with the following variables:
 - `set sv_numbots x`: Number of bots to spawn (capped at `sv_maxbots`).
 - `set sv_minPlayers x`: Configure the minimum number of players required. If the number of real players in a team is below the specified value, the game will automatically add bots to fill the gap. For example, if `sv_minPlayers` is set to 8 and only 5 real players are active, the game will spawn 3 bots to make sure there are always 8 players in the game.
 
+Bots can be spawned with a name, using the `addbotnamed` command:
+
+```cpp
+addbotnamed customname // Will spawn a bot named customname
+addbotnamed "Fast beat" // Will spawn a bot named Fast beat
+```
+
+Bots will keep their name between restarts and new maps.
+
 Example with the requirement of 6 players:
 ```cpp
 set sv_maxbots 16 // Reserve 16 slots for bots

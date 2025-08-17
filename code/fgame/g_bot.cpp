@@ -33,6 +33,12 @@ static unsigned int botId          = 0;
 Container<str> alliedModelList;
 Container<str> germanModelList;
 
+saved_bot_t::saved_bot_t()
+    : userinfo {0}
+{}
+
+static void G_ReadBotSessionData();
+
 /*
 ===========
 IsAlliedPlayerModel
@@ -419,20 +425,17 @@ G_AddBot
 Add the specified bot, optionally its saved state
 ============
 */
-void G_AddBot(const saved_bot_t *saved)
+gentity_t *G_AddBot(const bot_info_t *info)
 {
-    int        i;
     int        clientNum;
     gentity_t *e;
     char       botName[MAX_NETNAME];
-    char       challenge[MAX_STRING_TOKENS];
-    Event     *teamEv;
     char       userinfo[MAX_INFO_STRING] {0};
 
     e = G_FindFreeEntityForBot();
     if (!e) {
         gi.Printf("No free slot for a bot\n");
-        return;
+        return NULL;
     }
 
     clientNum = e - g_entities;
@@ -440,14 +443,8 @@ void G_AddBot(const saved_bot_t *saved)
     // increase the unique ID
     botId++;
 
-    if (saved) {
-        G_BotConnect(clientNum, qfalse, saved->userinfo);
-        G_BotBegin(e);
-        return;
-    }
-
-    if (gi.Argc() > 2) {
-        Q_strncpyz(botName, gi.Argv(2), sizeof(botName));
+    if (info && info->name) {
+        Q_strncpyz(botName, info->name, sizeof(botName));
     } else {
         Com_sprintf(botName, sizeof(botName), "bot%d", botId);
     }
@@ -466,8 +463,33 @@ void G_AddBot(const saved_bot_t *saved)
     // Connect the bot for the first time
     // setup user info and stuff
     G_BotConnect(clientNum, qtrue, userinfo);
-
     G_BotBegin(e);
+
+    return e;
+}
+
+/*
+===========
+G_RestoreBot
+
+Restore the specified bot
+============
+*/
+gentity_t *G_RestoreBot(const saved_bot_t& saved)
+{
+    gentity_t *e;
+    char       userinfo[MAX_INFO_STRING] {0};
+
+    e = G_FindFreeEntityForBot();
+    if (!e) {
+        gi.Printf("No free slot for a bot\n");
+        return NULL;
+    }
+
+    G_BotConnect(e - g_entities, qfalse, saved.userinfo);
+    G_BotBegin(e);
+
+    return e;
 }
 
 /*
@@ -482,7 +504,7 @@ void G_AddBots(unsigned int num)
     int n;
 
     for (n = 0; n < num; n++) {
-        G_AddBot(NULL);
+        G_AddBot();
     }
 }
 
@@ -637,20 +659,18 @@ void G_RestoreBots()
 {
     unsigned int n;
 
-    if (!saved_bots) {
-        return;
-    }
+    if (saved_bots) {
+        if (g_gametype->integer != GT_SINGLE_PLAYER) {
+            for (n = 0; n < num_saved_bots; n++) {
+                const saved_bot_t& saved = saved_bots[n];
 
-    if (g_gametype->integer != GT_SINGLE_PLAYER) {
-        for (n = 0; n < num_saved_bots; n++) {
-            const saved_bot_t& saved = saved_bots[n];
-
-            G_AddBot(&saved);
+                G_RestoreBot(saved);
+            }
         }
-    }
 
-    delete[] saved_bots;
-    saved_bots = NULL;
+        delete[] saved_bots;
+        saved_bots = NULL;
+    }
 }
 
 /*
@@ -719,6 +739,94 @@ void G_RestartBots()
     G_SaveBots();
 }
 
+static void G_InitBotSessionData()
+{
+    unsigned int n;
+
+    gi.Cvar_Get("botsession", "", CVAR_ROM);
+
+    for (n = 0; n < sv_maxbots->integer; n++) {
+        gi.Cvar_Get(va("botsession%i", n), "", CVAR_ROM);
+    }
+}
+
+/*
+===========
+G_ReadBotSessionData
+============
+*/
+static void G_ReadBotSessionData()
+{
+    unsigned int n;
+    unsigned int numSessions;
+
+    if (saved_bots) {
+        return;
+    }
+
+    cvar_t *v = gi.Cvar_Find("botsession");
+    if (!v || !v->integer) {
+        return;
+    }
+
+    numSessions = Q_min(v->integer, sv_maxbots->integer);
+
+    // Spawn bots if there are any prepared
+    for (n = 0; n < numSessions; n++) {
+        v = gi.Cvar_Find(va("botsession%i", n));
+        if (v) {
+            bot_info_t info;
+            info.name = v->string;
+
+            G_AddBot(&info);
+
+            gi.cvar_set(va("botsession%i", n), "");
+        }
+    }
+
+    gi.cvar_set("botsession", "");
+}
+
+/*
+===========
+G_WriteBotSessionData
+============
+*/
+void G_WriteBotSessionData()
+{
+    const BotControllerManager& manager        = botManager.getControllerManager();
+    unsigned int                numSpawnedBots = manager.getControllers().NumObjects();
+    unsigned int                count;
+    unsigned int                n;
+    unsigned int                current;
+
+    if (!numSpawnedBots) {
+        return;
+    }
+
+    if (saved_bots) {
+        return;
+    }
+
+    count = manager.getControllers().NumObjects();
+    assert(count <= numSpawnedBots);
+    current = 0;
+
+    for (n = 0; n < count; n++) {
+        const BotController *controller = manager.getControllers().ObjectAt(n + 1);
+        Player              *player     = controller->getControlledEntity();
+        if (!player) {
+            // this shouldn't happen
+            continue;
+        }
+
+        gi.cvar_set(va("botsession%i", current), va("%s", player->client->pers.netname));
+        current++;
+    }
+
+    gi.cvar_set("botsession", va("%d", current));
+}
+
 /*
 ===========
 G_ResetBots
@@ -728,6 +836,8 @@ Save and reset the bot count
 */
 void G_ResetBots()
 {
+    G_WriteBotSessionData();
+
     botManager.Cleanup();
 
     botId = 0;
@@ -744,6 +854,8 @@ void G_BotInit()
 {
     InitModelList();
     botManager.Init();
+
+    G_InitBotSessionData();
 }
 
 /*
@@ -767,6 +879,8 @@ Called after the server has spawned
 */
 void G_BotPostInit()
 {
+    G_ReadBotSessionData();
+
     G_RestoreBots();
 
     G_SpawnBots();

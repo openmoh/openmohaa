@@ -24,13 +24,20 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 struct saved_bot_t {
     char userinfo[MAX_INFO_STRING];
+
+    saved_bot_t();
+};
+
+struct bot_info_t {
+    str name;
 };
 
 void         G_BotBegin(gentity_t *ent);
 void         G_BotThink(gentity_t *ent, int msec);
 void         G_BotShift(int clientNum);
 gentity_t   *G_GetFirstBot();
-void         G_AddBot(const saved_bot_t *saved = NULL);
+gentity_t   *G_AddBot(const bot_info_t *info = NULL);
+gentity_t   *G_RestoreBot(const saved_bot_t& saved);
 void         G_AddBots(unsigned int num);
 void         G_RemoveBot(gentity_t *ent);
 void         G_RemoveBots(unsigned int num);
