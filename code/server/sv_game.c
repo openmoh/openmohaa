@@ -1930,6 +1930,8 @@ void SV_InitGameProgs( void ) {
 	import.pvssoundindex				= SV_PVSSoundIndex;
 	import.KickClientForReason			= SV_GameKickClientForReason;
 
+    import.Cvar_Find                    = Cvar_FindVar;
+
 	ge = Sys_GetGameAPI( &import );
 
 	if( !ge ) {
