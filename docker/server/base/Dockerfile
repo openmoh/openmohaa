@@ -13,7 +13,7 @@ RUN mkdir -p /tmp/openmohaa/build \
 
 # Build the project
 RUN cd /tmp/openmohaa/build \
-    && cmake -G "Ninja" -DBUILD_NO_CLIENT=1 -DCMAKE_BUILD_TYPE="RelWithDebInfo" -DTARGET_LOCAL_SYSTEM=1 -DCMAKE_INSTALL_PREFIX="/usr/local/games/openmohaa" /tmp/openmohaa/openmohaa \
+    && cmake -G "Ninja" -DBUILD_CLIENT=0 -DCMAKE_BUILD_TYPE="RelWithDebInfo" -DCMAKE_INSTALL_PREFIX="/usr/local/games/openmohaa" /tmp/openmohaa/openmohaa \
     && cmake --build . \
     && cmake --install .
 
