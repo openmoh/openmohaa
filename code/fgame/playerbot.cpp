@@ -79,7 +79,6 @@ BotController::BotController()
     m_iNextTauntTime = 0;
 
     m_StateFlags = 0;
-    m_RunLabel.TrySetScript("global/bot_run.scr");
 }
 
 BotController::~BotController()
