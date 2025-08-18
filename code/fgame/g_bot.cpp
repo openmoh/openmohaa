@@ -420,6 +420,17 @@ const char *G_GetRandomGermanPlayerModel()
 
 /*
 ===========
+G_GetBotId
+============
+*/
+unsigned int G_GetBotId(gentity_t *e) {
+    const unsigned int clientNum = e - g_entities;
+
+    return sv_sharedbots->integer ? clientNum : clientNum - maxclients->integer;
+}
+
+/*
+===========
 G_AddBot
 
 Add the specified bot, optionally its saved state
@@ -446,7 +457,14 @@ gentity_t *G_AddBot(const bot_info_t *info)
     if (info && info->name) {
         Q_strncpyz(botName, info->name, sizeof(botName));
     } else {
-        Com_sprintf(botName, sizeof(botName), "bot%d", botId);
+        const unsigned int num = sv_sharedbots->integer ? clientNum : clientNum - maxclients->integer;
+
+        cvar_t *v = gi.Cvar_Find(va("sv_bot%dname", num));
+        if (v && *v->string) {
+            Q_strncpyz(botName, v->string, sizeof(botName));
+        } else {
+            Com_sprintf(botName, sizeof(botName), "bot%d", botId);
+        }
     }
 
     Info_SetValueForKey(userinfo, "name", botName);
@@ -727,6 +745,35 @@ int G_CountClients()
     return count;
 }
 
+static unsigned int G_GetNumBotsToSpawn()
+{
+    unsigned int numClients;
+    unsigned int numBotsToSpawn;
+
+    //
+    // Check the minimum bot count
+    //
+    numClients = G_CountPlayingClients();
+    if (numClients < sv_minPlayers->integer) {
+        numBotsToSpawn = sv_minPlayers->integer - numClients + sv_numbots->integer;
+    } else {
+        numBotsToSpawn = sv_numbots->integer;
+    }
+
+    if (sv_sharedbots->integer) {
+        numClients = G_CountClients();
+
+        //
+        // Cap to the maximum number of possible clients
+        //
+        numBotsToSpawn = Q_min(numBotsToSpawn, maxclients->integer - numClients + sv_maxbots->integer);
+    } else {
+        numBotsToSpawn = Q_min(numBotsToSpawn, sv_maxbots->integer);
+    }
+
+    return numBotsToSpawn;
+}
+
 /*
 ===========
 G_RestartBots
@@ -769,20 +816,18 @@ static void G_ReadBotSessionData()
         return;
     }
 
-    numSessions = Q_min(v->integer, sv_maxbots->integer);
+    // Unused for now, may be reserved for future use
+#if 0
+    numSessions = Q_min(v->integer, G_GetNumBotsToSpawn());
 
     // Spawn bots if there are any prepared
     for (n = 0; n < numSessions; n++) {
         v = gi.Cvar_Find(va("botsession%i", n));
         if (v) {
-            bot_info_t info;
-            info.name = v->string;
-
-            G_AddBot(&info);
-
             gi.cvar_set(va("botsession%i", n), "");
         }
     }
+#endif
 
     gi.cvar_set("botsession", "");
 }
@@ -808,6 +853,8 @@ void G_WriteBotSessionData()
         return;
     }
 
+    // Unused for now, may be reserved for future use
+#if 0
     count = manager.getControllers().NumObjects();
     assert(count <= numSpawnedBots);
     current = 0;
@@ -820,9 +867,10 @@ void G_WriteBotSessionData()
             continue;
         }
 
-        gi.cvar_set(va("botsession%i", current), va("%s", player->client->pers.netname));
+        gi.cvar_set(va("botsession%i", current), "");
         current++;
     }
+#endif
 
     gi.cvar_set("botsession", va("%d", current));
 }
@@ -904,27 +952,7 @@ void G_SpawnBots()
         return;
     }
 
-    //
-    // Check the minimum bot count
-    //
-    numClients = G_CountPlayingClients();
-    if (numClients < sv_minPlayers->integer) {
-        numBotsToSpawn = sv_minPlayers->integer - numClients + sv_numbots->integer;
-    } else {
-        numBotsToSpawn = sv_numbots->integer;
-    }
-
-    if (sv_sharedbots->integer) {
-        unsigned int numClients = G_CountClients();
-
-        //
-        // Cap to the maximum number of possible clients
-        //
-        numBotsToSpawn = Q_min(numBotsToSpawn, maxclients->integer - numClients + sv_maxbots->integer);
-    } else {
-        numBotsToSpawn = Q_min(numBotsToSpawn, sv_maxbots->integer);
-    }
-
+    numBotsToSpawn = G_GetNumBotsToSpawn();
     numSpawnedBots = botManager.getControllerManager().getControllers().NumObjects();
 
     //

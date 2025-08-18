@@ -662,6 +662,7 @@ qboolean G_AddBotNamedCommand(gentity_t *ent)
     unsigned int numbots;
     unsigned int totalnumbots;
     const char* name;
+    gentity_t *e;
 
     if (gi.Argc() <= 1) {
         gi.Printf("Usage: addbotnamed [botname]\n");
@@ -677,7 +678,11 @@ qboolean G_AddBotNamedCommand(gentity_t *ent)
     bot_info_t botInfo;
     botInfo.name = name;
 
-    G_AddBot(&botInfo);
+    e = G_AddBot(&botInfo);
+    if (e) {
+        const unsigned int id = G_GetBotId(e);
+        gi.cvar_set(va("sv_bot%dname", id), e->client->pers.netname);
+    }
 
     return qtrue;
 }
