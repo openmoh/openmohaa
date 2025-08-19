@@ -65,8 +65,10 @@ set(LBURG_SOURCES
 )
 
 add_executable(q3asm ${Q3ASM_SOURCES})
+target_compile_options(q3asm PRIVATE -fno-strict-aliasing)
 set_output_dirs(q3asm)
 add_executable(q3lcc ${Q3LCC_SOURCES})
+target_compile_options(q3asm PRIVATE -fno-strict-aliasing)
 set_output_dirs(q3lcc)
 add_dependencies(q3lcc q3rcc q3cpp)
 
