@@ -196,7 +196,7 @@ Event EV_Trigger_GetActivator
     EV_DEFAULT,
     NULL,
     NULL,
-    "Get's entity who last activated this trigger.",
+    "Gets entity who last activated this trigger.",
     EV_GETTER
 );
 
