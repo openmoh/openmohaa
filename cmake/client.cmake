@@ -3,7 +3,6 @@ if(NOT BUILD_CLIENT)
 endif()
 
 include(utils/add_git_dependency)
-include(utils/arch)
 include(utils/set_output_dirs)
 include(shared_sources)
 include(shared_script)
@@ -70,12 +69,7 @@ file(GLOB_RECURSE UI_SOURCES "${SOURCE_DIR}/uilib/*.c" "${SOURCE_DIR}/uilib/*.cp
 
 add_git_dependency(${SOURCE_DIR}/client/cl_console.c)
 
-if(USE_ARCHLESS_FILENAMES)
-    set(CLIENT_BINARY ${CLIENT_NAME})
-    list(APPEND CLIENT_DEFINITIONS USE_ARCHLESS_FILENAMES)
-else()
-    set(CLIENT_BINARY ${CLIENT_NAME}.${ARCH})
-endif()
+set(CLIENT_BINARY ${CLIENT_NAME})
 
 list(APPEND CLIENT_DEFINITIONS BOTLIB)
 list(APPEND CLIENT_DEFINITIONS APP_MODULE)
