@@ -70,8 +70,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #endif
 
-#ifndef __ASM_I386__ // don't include the C bits if included from qasm.h
-
 // for windows fastcall option
 #define QDECL
 #define QCALL
@@ -541,8 +539,6 @@ void SwapValue(void* dest, size_t size);
 #define ARCH_DLL_EXT DLL_EXT
 #else
 #define ARCH_DLL_EXT ARCH_STRING DLL_EXT
-#endif
-
 #endif
 
 #endif
