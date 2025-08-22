@@ -67,7 +67,8 @@ void ScriptRegisteredDelegate_CodeMember::Execute(Listener *object, const Event&
     (object->*response)(object, ev);
 }
 
-bool ScriptRegisteredDelegate_CodeMember::operator==(const ScriptRegisteredDelegate_CodeMember& registeredDelegate
+bool ScriptRegisteredDelegate_CodeMember::operator==(
+    const ScriptRegisteredDelegate_CodeMember& registeredDelegate
 ) const
 {
     return object == registeredDelegate.object && response == registeredDelegate.response;
@@ -120,7 +121,12 @@ void ScriptDelegate::Register(const ScriptThreadLabel& label)
 
 void ScriptDelegate::Unregister(const ScriptThreadLabel& label)
 {
-    list_script.RemoveObject(label);
+    const int index = list_script.IndexOfObject(label);
+    if (!index) {
+        ScriptError("The delegate was not registered to the specified label");
+    }
+
+    list_script.RemoveObjectAt(index);
 }
 
 void ScriptDelegate::Register(ScriptRegisteredDelegate_Code::DelegateResponse response)
@@ -150,7 +156,7 @@ ScriptVariable ScriptDelegate::Trigger(const Event& ev) const
 
 ScriptVariable ScriptDelegate::Trigger(Listener *object, const Event& ev) const
 {
-    size_t i;
+    size_t         i;
     ScriptVariable lastResult;
 
     {
