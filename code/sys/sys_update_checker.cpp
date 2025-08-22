@@ -32,6 +32,9 @@ using json = nlohmann::json;
 
 UpdateChecker updateChecker;
 
+cvar_t	*com_updatecheck_enabled;
+cvar_t	*com_updatecheck_interval;
+
 void Sys_UpdateChecker_Init()
 {
     updateChecker.Init();
@@ -57,6 +60,10 @@ UpdateChecker::~UpdateChecker() {}
 
 void UpdateChecker::Init()
 {
+	com_updatecheck_enabled = Cvar_Get("com_updatecheck_enabled", "1", CVAR_ARCHIVE);
+	com_updatecheck_interval = Cvar_Get("com_updatecheck_interval", "15", 0);
+    Cvar_CheckRange(com_updatecheck_interval, 5, 240, qtrue);
+
     CheckInitClientThread();
 }
 

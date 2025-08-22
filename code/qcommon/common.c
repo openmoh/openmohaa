@@ -133,9 +133,6 @@ cvar_t	*com_target_version;
 cvar_t	*com_target_extension;
 cvar_t	*com_target_demo;
 
-cvar_t	*com_updatecheck_enabled;
-cvar_t	*com_updatecheck_interval;
-
 int protocol_version_demo;
 int protocol_version_full;
 
@@ -1936,10 +1933,6 @@ void Com_Init( char *commandLine ) {
 	com_protocol = Cvar_Get("com_protocol", va("%i", PROTOCOL_VERSION), CVAR_INIT);
 #ifdef LEGACY_PROTOCOL
 	com_legacyprotocol = Cvar_Get("com_legacyprotocol", va("%i", PROTOCOL_LEGACY_VERSION), CVAR_INIT);
-
-	com_updatecheck_enabled = Cvar_Get("com_updatecheck_enabled", "1", CVAR_ARCHIVE);
-	com_updatecheck_interval = Cvar_Get("com_updatecheck_interval", "15", 0);
-    Cvar_CheckRange(com_updatecheck_interval, 5, 240, qtrue);
 
 	// Keep for compatibility with old mods / mods that haven't updated yet.
 	if(com_legacyprotocol->integer > 0)
