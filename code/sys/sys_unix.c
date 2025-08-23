@@ -31,6 +31,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include <sys/stat.h>
 #include <errno.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <dirent.h>
 #include <unistd.h>
 #include <sys/mman.h>
@@ -352,6 +353,24 @@ char *Sys_Cwd( void )
 	cwd[MAX_OSPATH-1] = 0;
 
 	return cwd;
+}
+
+/*
+==================
+Sys_BinaryPathRelative
+==================
+*/
+char *Sys_BinaryPathRelative(const char *relative)
+{
+	static char resolved[MAX_OSPATH];
+	char combined[MAX_OSPATH];
+
+	snprintf(combined, sizeof(combined), "%s/%s", Sys_BinaryPath(), relative);
+
+	if (!realpath(combined, resolved))
+		return NULL;
+
+	return resolved;
 }
 
 /*
