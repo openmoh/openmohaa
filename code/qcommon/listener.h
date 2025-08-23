@@ -108,7 +108,39 @@ class EventQueueNode;
 #define EVENT_TORSO_ANIM  (1 << 1) // this event is associated with an animation for the torso
 #define EVENT_DIALOG_ANIM (1 << 2) // this event is associated with an animation for dialog lip syncing
 
-typedef enum {
+class EventArgDef;
+class EventDef;
+class AbstractFormater;
+
+class ClassEventPrinter
+{
+public:
+    void DumpAllClasses(fileHandle_t class_file, AbstractFormater& formater, const char *title);
+
+    void               DumpClass(
+                      ClassDef                         *classDef,
+                      fileHandle_t                     class_stream,
+                      AbstractFormater&                 formater,
+                      const Container<EventDef *>& sortedEvents
+                  );
+    void ClassEvents(
+        const ClassDef                   *classDef,
+        fileHandle_t                     class_stream,
+        AbstractFormater&                 formater,
+        const Container<EventDef *>& sortedEvents
+    );
+    void PrintDocumentation(const EventDef& def, fileHandle_t event_file, AbstractFormater& formater);
+    void PrintEventDocumentation(const EventDef& def, fileHandle_t event_file, AbstractFormater& formater);
+    void PrintEventArgumentRange(fileHandle_t event_file, const EventArgDef& argDef, AbstractFormater& formater);
+
+    Container<EventArgDef> SetupDocumentation(const EventDef& def);
+
+private:
+    void SortEventList(Container<EventDef *>& eventList);
+    void SortClassList(Container<ClassDef *>& classList);
+};
+
+enum vartype {
     IS_STRING,
     IS_VECTOR,
     IS_BOOLEAN,
@@ -116,81 +148,105 @@ typedef enum {
     IS_FLOAT,
     IS_ENTITY,
     IS_LISTENER
-} vartype;
-
-class EventArgDef : public Class
-{
-private:
-    int      type;
-    str      name;
-    float    minRange[3];
-    qboolean minRangeDefault[3];
-    float    maxRange[3];
-    qboolean maxRangeDefault[3];
-    qboolean optional;
-
-public:
-    EventArgDef()
-    {
-        type = IS_INTEGER;
-        //name        = "undefined";
-        optional = qfalse;
-    };
-
-    void        Setup(const char *eventName, const char *argName, const char *argType, const char *argRange);
-    void        PrintArgument(FILE *event_file = NULL);
-    void        PrintRange(FILE *event_file = NULL);
-    int         getType(void);
-    const char *getName(void);
-    qboolean    isOptional(void);
-
-    float GetMinRange(int index)
-    {
-        if (index < 3) {
-            return minRange[index];
-        }
-        return 0.0;
-    }
-
-    qboolean GetMinRangeDefault(int index)
-    {
-        if (index < 3) {
-            return minRangeDefault[index];
-        }
-        return qfalse;
-    }
-
-    float GetMaxRange(int index)
-    {
-        if (index < 3) {
-            return maxRange[index];
-        }
-        return 0.0;
-    }
-
-    qboolean GetMaxRangeDefault(int index)
-    {
-        if (index < 3) {
-            return maxRangeDefault[index];
-        }
-        return qfalse;
-    }
 };
 
-inline int EventArgDef::getType(void)
+class EventArgDef
 {
-    return type;
-}
+private:
+    vartype type;
+    str     name;
+    float   minRange[3];
+    bool    minRangeDefault[3];
+    float   maxRange[3];
+    bool    maxRangeDefault[3];
+    bool    optional;
 
-inline const char *EventArgDef::getName(void)
-{
-    return name.c_str();
-}
+public:
+    EventArgDef();
 
-inline qboolean EventArgDef::isOptional(void)
+    void
+    Setup(const char *eventName, const char *argName, const char *argType, const char *argRange);
+    int              getType() const;
+    const char *GetTypeName() const;
+    const char *getName() const;
+    bool             isOptional() const;
+    void             GetRange(size_t& numRanges, bool& isInteger, bool& isSingle) const;
+    float            GetMinRange(uintptr_t index) const;
+    bool             GetMinRangeDefault(uintptr_t index) const;
+    float            GetMaxRange(uintptr_t index) const;
+    bool             GetMaxRangeDefault(uintptr_t index) const;
+};
+
+class AbstractFormater
 {
-    return optional;
-}
+public:
+    virtual ~AbstractFormater();
+
+    virtual void PrintDocumentHeader(fileHandle_t f, const char *title)                             = 0;
+    virtual void BeginClassHeader(fileHandle_t f, const char *className, const char *classID)  = 0;
+    virtual void EndClassHeader(fileHandle_t f)                                                          = 0;
+    virtual void PrintClassLineage(fileHandle_t f, const char *className)                           = 0;
+    virtual void BeginClassBody(fileHandle_t f)                                                          = 0;
+    virtual void EndClassBody(fileHandle_t f)                                                            = 0;
+    virtual void BeginEventDoc(fileHandle_t f, const char *eventName)                               = 0;
+    virtual void EndEventDoc(fileHandle_t f)                                                             = 0;
+    virtual void BeginEventDefinition(fileHandle_t f)                                                    = 0;
+    virtual void EndEventDefinition(fileHandle_t f)                                                      = 0;
+    virtual void BeginEventArgument(fileHandle_t f, bool isOptional)                                     = 0;
+    virtual void EndEventArgument(fileHandle_t f, bool isOptional, bool isLast)                          = 0;
+    virtual void PrintEventArgumentType(fileHandle_t f, const char *argumentType)                   = 0;
+    virtual void PrintEventArgumentName(fileHandle_t f, const char *argumentName)                   = 0;
+    virtual void PrintEventArgumentRangeSingle(fileHandle_t f, float minRange, bool isInteger)           = 0;
+    virtual void PrintEventArgumentRange(fileHandle_t f, float minRange, float maxRange, bool isInteger) = 0;
+    virtual void PrintEventDocumentation(fileHandle_t f, const char *documentation)                 = 0;
+    virtual void PrintDocumentFooter(fileHandle_t f)                                                     = 0;
+};
+
+class HTMLFormater : public AbstractFormater
+{
+public:
+    void PrintDocumentHeader(fileHandle_t f, const char *title) override;
+    void BeginClassHeader(fileHandle_t f, const char *className, const char *classID) override;
+    void EndClassHeader(fileHandle_t f) override;
+    void BeginClassBody(fileHandle_t f) override;
+    void EndClassBody(fileHandle_t f) override;
+    void BeginEventDoc(fileHandle_t f, const char *eventName) override;
+    void EndEventDoc(fileHandle_t f) override;
+    void BeginEventDefinition(fileHandle_t f) override;
+    void EndEventDefinition(fileHandle_t f) override;
+    void BeginEventArgument(fileHandle_t f, bool isOptional) override;
+    void EndEventArgument(fileHandle_t f, bool isOptional, bool isLast) override;
+    void PrintEventArgumentType(fileHandle_t f, const char *argumentType) override;
+    void PrintEventArgumentName(fileHandle_t f, const char *argumentName) override;
+    void PrintEventArgumentRangeSingle(fileHandle_t f, float minRange, bool isInteger) override;
+    void PrintEventArgumentRange(fileHandle_t f, float minRange, float maxRange, bool isInteger) override;
+    void PrintEventDocumentation(fileHandle_t f, const char *documentation) override;
+    void PrintClassLineage(fileHandle_t f, const char *className) override;
+    void PrintDocumentFooter(fileHandle_t f) override;
+};
+
+class BasicFormatter : public AbstractFormater
+{
+public:
+    void PrintDocumentHeader(fileHandle_t f, const char *title) override;
+    void BeginClassHeader(fileHandle_t f, const char *className, const char *classID) override;
+    void EndClassHeader(fileHandle_t f) override;
+    void BeginClassBody(fileHandle_t f) override;
+    void EndClassBody(fileHandle_t f) override;
+    void BeginEventDoc(fileHandle_t f, const char *eventName) override;
+    void EndEventDoc(fileHandle_t f) override;
+    void BeginEventDefinition(fileHandle_t f) override;
+    void EndEventDefinition(fileHandle_t f) override;
+    void BeginEventArgument(fileHandle_t f, bool isOptional) override;
+    void EndEventArgument(fileHandle_t f, bool isOptional, bool isLast) override;
+    void PrintEventArgumentType(fileHandle_t f, const char *argumentType) override;
+    void PrintEventArgumentName(fileHandle_t f, const char *argumentName) override;
+    void PrintEventArgumentRangeSingle(fileHandle_t f, float minRange, bool isInteger) override;
+    void PrintEventArgumentRange(fileHandle_t f, float minRange, float maxRange, bool isInteger) override;
+    void PrintEventDocumentation(fileHandle_t f, const char *documentation) override;
+    void PrintClassLineage(fileHandle_t f, const char *className) override;
+    void PrintDocumentFooter(fileHandle_t f) override;
+};
 
 class EventDef
 {
@@ -482,7 +538,7 @@ public:
 #endif
 
     virtual Listener *GetScriptOwner(void);
-    virtual void SetScriptOwner(Listener *newOwner);
+    virtual void      SetScriptOwner(Listener *newOwner);
 
     Listener();
     virtual ~Listener();

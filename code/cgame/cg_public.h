@@ -141,6 +141,9 @@ functions exported to the main executable
         void (*FS_WriteTextFile)(const char *qpath, const void *buffer, int size);
         char** (*FS_ListFilteredFiles)(const char* path, const char* extension, const char* filter, qboolean wantSubs, int* numfiles, qboolean allowNonPureFilesOnDisk);
         void (*FS_FreeFileList)(char **list);
+        fileHandle_t (*FS_FOpenFileWrite)(const char *fileName);
+        size_t (*FS_Write)(const void *buffer, size_t size, fileHandle_t fileHandle);
+        void (*FS_FCloseFile)(fileHandle_t fileHandle);
         // add commands to the local console as if they were typed in
         // for map changing, etc.  The command is not executed immediately,
         // but will be executed in order the next time console commands

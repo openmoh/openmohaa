@@ -213,6 +213,29 @@ void CLASS_Print(FILE *class_file, const char *fmt, ...)
     }
 }
 
+void CLASS_Print(fileHandle_t class_file, const char *fmt, ...)
+{
+    va_list argptr;
+    char    text[1024];
+    int     len;
+
+    va_start(argptr, fmt);
+    len = Q_vsnprintf(text, sizeof(text), fmt, argptr);
+    va_end(argptr);
+
+    if (class_file) {
+#if defined(CGAME_DLL)
+        cgi.FS_Write(text, len, class_file);
+#elif defined(GAME_DLL)
+        gi.FS_Write(text, len, class_file);
+#else
+        FS_Write(text, len, class_file);
+#endif
+    } else {
+        CLASS_DPrintf("%s", text);
+    }
+}
+
 Class::Class()
 {
     SafePtrList = NULL;
@@ -560,6 +583,9 @@ void ClassDef::BuildEventResponses(void)
 
 void ClassEvents(const char *classname, qboolean print_to_disk)
 {
+    str                 class_filename;
+    str                 class_title;
+    fileHandle_t        class_file;
     ClassDef           *c;
     ResponseDef<Class> *r;
     int                 ev;
@@ -568,23 +594,22 @@ void ClassEvents(const char *classname, qboolean print_to_disk)
     int                 num, orderNum;
     Event             **events;
     byte               *order;
-    FILE               *class_file;
     ClassDef           *classes[MAX_INHERITANCE];
-    str                 class_filename;
-    EventDef           *def;
+    ClassEventPrinter   printer;
 
-    c = getClass(classname);
-    if (!c) {
-        CLASS_DPrintf("Unknown class: %s\n", classname);
-        return;
-    }
-
+    c          = getClass(classname);
     class_file = NULL;
 
     if (print_to_disk) {
-        class_filename = str(classname) + ".txt";
-        class_file     = fopen(class_filename.c_str(), "w");
-        if (class_file == NULL) {
+#if defined(GAME_DLL)
+        class_file = gi.FS_FOpenFileWrite(class_filename);
+#elif defined(CGAME_DLL)
+        class_file = cgi.FS_FOpenFileWrite(class_filename);
+#else
+        class_file = FS_FOpenFileWrite(class_filename);
+#endif
+
+        if (!class_file) {
             return;
         }
     }
@@ -623,195 +648,70 @@ void ClassEvents(const char *classname, qboolean print_to_disk)
         orderNum++;
     }
 
-    CLASS_Print(class_file, "********************************************************\n");
-    CLASS_Print(class_file, "********************************************************\n");
-    CLASS_Print(class_file, "* All Events For Class: %s\n", classname);
-    CLASS_Print(class_file, "********************************************************\n");
-    CLASS_Print(class_file, "********************************************************\n\n");
-
     Event::SortEventList(&ClassDef::sortedList);
+    Container<EventDef *> sortedDefs;
 
-    for (j = orderNum - 1; j >= 0; j--) {
-        CLASS_Print(class_file, "\n********************************************************\n");
-        CLASS_Print(class_file, "* Class: %s\n", classes[j]->classname);
-        CLASS_Print(class_file, "********************************************************\n\n");
-        for (i = 1; i < num; i++) {
-            int index;
+    sortedDefs.Resize(ClassDef::sortedList.NumObjects());
 
-            index = ClassDef::sortedList.ObjectAt(i);
-            if (events[index] && (order[index] == j)) {
-                def = classes[j]->GetDef(events[index]);
-                def->PrintEventDocumentation(class_file, qfalse);
-            }
-        }
+    c = getClass(classname);
+    for (int i = 1; i <= ClassDef::sortedList.NumObjects(); i++) {
+        EventDef *def = c->GetDef(ClassDef::sortedList.ObjectAt(i));
+        sortedDefs.AddObject(def);
     }
 
     ClassDef::sortedList.FreeObjectList();
 
-    if (class_file != NULL) {
-        CLASS_DPrintf("Printed class info to file %s\n", class_filename.c_str());
-        fclose(class_file);
-    }
+    BasicFormatter formatter;
+    printer.DumpClass(c, class_file, formatter, sortedDefs);
 
     delete[] events;
     delete[] order;
     delete[] set;
-}
 
-void DumpClass(FILE *class_file, const char *className)
-{
-    ClassDef           *classDef;
-    ClassDef           *c;
-    ResponseDef<Class> *r;
-    int                 ev;
-    int                 i;
-    int                 num;
-    Event             **events;
-    EventDef           *def;
-
-    classDef = getClass(className);
-    if (!classDef) {
-        return;
+    if (class_file != NULL) {
+#if defined(GAME_DLL)
+        gi.FS_FCloseFile(class_file);
+#elif defined(CGAME_DLL)
+        cgi.FS_FCloseFile(class_file);
+#else
+        FS_FCloseFile(class_file);
+#endif
     }
-
-    num = Event::NumEventCommands();
-
-    events = new Event *[num];
-    memset(events, 0, sizeof(Event *) * num);
-
-    // gather event responses for this class
-    r = classDef->responses;
-    if (r) {
-        for (i = 0; r[i].event != NULL; i++) {
-            ev = (int)r[i].event->eventnum;
-            if (r[i].response) {
-                assert(ev < num);
-                events[ev] = r[i].event;
-            }
-        }
-    }
-
-    CLASS_Print(class_file, "\n");
-    if (classDef->classID[0]) {
-        CLASS_Print(
-            class_file,
-            "<h2> <a name=\"%s\">%s (<i>%s</i>)</a>",
-            classDef->classname,
-            classDef->classname,
-            classDef->classID
-        );
-    } else {
-        CLASS_Print(class_file, "<h2> <a name=\"%s\">%s</a>", classDef->classname, classDef->classname);
-    }
-
-    // print out lineage
-    for (c = classDef->super; c != NULL; c = c->super) {
-        CLASS_Print(class_file, " -> <a href=\"#%s\">%s</a>", c->classname, c->classname);
-    }
-    CLASS_Print(class_file, "</h2>\n");
-
-    ClassDef::dump_numclasses++;
-
-    CLASS_Print(class_file, "<BLOCKQUOTE>\n");
-    for (i = 1; i < num; i++) {
-        int index;
-
-        index = ClassDef::sortedList.ObjectAt(i);
-        if (events[index]) {
-            def = classDef->GetDef(events[index]);
-            def->PrintEventDocumentation(class_file, qtrue);
-            ClassDef::dump_numevents++;
-        }
-    }
-    CLASS_Print(class_file, "</BLOCKQUOTE>\n");
-    delete[] events;
 }
 
 #define MAX_CLASSES 1024
 
 void DumpAllClasses(void)
 {
-    int       i, num;
-    ClassDef *c;
-    FILE     *class_file;
-    str       class_filename;
-    str       class_title;
-    str       classes[MAX_CLASSES];
+    str               class_filename;
+    str               class_title;
+    fileHandle_t      class_file;
+    ClassEventPrinter printer;
 
 #if defined(GAME_DLL)
     class_filename = "g_allclasses.html";
     class_title    = "Game Module";
+    class_file     = gi.FS_FOpenFileWrite(class_filename);
 #elif defined(CGAME_DLL)
     class_filename = "cg_allclasses.html";
     class_title    = "Client Game Module";
+    class_file     = cgi.FS_FOpenFileWrite(class_filename);
 #else
     class_filename = "cl_allclasses.html";
     class_title    = "Client Module";
+    class_file     = FS_FOpenFileWrite(class_filename);
 #endif
 
-    class_file = fopen(class_filename.c_str(), "w");
-    if (class_file == NULL) {
-        return;
-    }
+    HTMLFormater htmlFormater;
+    printer.DumpAllClasses(class_file, htmlFormater, class_title);
 
-    // construct the HTML header for the document
-    CLASS_Print(class_file, "<HTML>\n");
-    CLASS_Print(class_file, "<HEAD>\n");
-    CLASS_Print(class_file, "<Title>%s Classes</Title>\n", class_title.c_str());
-    CLASS_Print(class_file, "</HEAD>\n");
-    CLASS_Print(class_file, "<BODY>\n");
-    CLASS_Print(class_file, "<H1>\n");
-    CLASS_Print(class_file, "<center>%s Classes</center>\n", class_title.c_str());
-    CLASS_Print(class_file, "</H1>\n");
 #if defined(GAME_DLL)
-    //
-    // print out some commonly used classnames
-    //
-    CLASS_Print(class_file, "<h2>");
-    CLASS_Print(class_file, "<a href=\"#Actor\">Actor</a>, ");
-    CLASS_Print(class_file, "<a href=\"#Animate\">Animate</a>, ");
-    CLASS_Print(class_file, "<a href=\"#Entity\">Entity</a>, ");
-    CLASS_Print(class_file, "<a href=\"#ScriptSlave\">ScriptSlave</a>, ");
-    CLASS_Print(class_file, "<a href=\"#ScriptThread\">ScriptThread</a>, ");
-    CLASS_Print(class_file, "<a href=\"#Sentient\">Sentient</a>, ");
-    CLASS_Print(class_file, "<a href=\"#StateMap\">StateMap</a>, ");
-    CLASS_Print(class_file, "<a href=\"#Trigger\">Trigger</a>, ");
-    CLASS_Print(class_file, "<a href=\"#World\">World</a>");
-    CLASS_Print(class_file, "</h2>");
+    gi.FS_FCloseFile(class_file);
+#elif defined(CGAME_DLL)
+    cgi.FS_FCloseFile(class_file);
+#else
+    FS_FCloseFile(class_file);
 #endif
-
-    ClassDef::dump_numclasses = 0;
-    ClassDef::dump_numevents  = 0;
-
-    Event::SortEventList(&ClassDef::sortedList);
-    ClassDef::SortClassList(&ClassDef::sortedClassList);
-
-    num = ClassDef::sortedClassList.NumObjects();
-
-    // go through and process each class from smallest to greatest
-    for (i = 1; i <= num; i++) {
-        c = ClassDef::sortedClassList.ObjectAt(i);
-        DumpClass(class_file, c->classname);
-    }
-
-    ClassDef::sortedList.FreeObjectList();
-
-    if (class_file != NULL) {
-        CLASS_Print(class_file, "<H2>\n");
-        CLASS_Print(
-            class_file,
-            "%d %s Classes.<BR>%d %s Events.\n",
-            ClassDef::dump_numclasses,
-            class_title.c_str(),
-            ClassDef::dump_numevents,
-            class_title.c_str()
-        );
-        CLASS_Print(class_file, "</H2>\n");
-        CLASS_Print(class_file, "</BODY>\n");
-        CLASS_Print(class_file, "</HTML>\n");
-        CLASS_DPrintf("Dumped all classes to file %s\n", class_filename.c_str());
-        fclose(class_file);
-    }
 }
 
 ClassDefHook::ClassDefHook()

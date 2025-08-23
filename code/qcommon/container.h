@@ -106,6 +106,7 @@ public:
     void Archive(Archiver& arc, void (*ArchiveFunc)(Archiver& arc, Type *obj));
 
     int   AddObject(const Type& obj);
+    int   AddObject();
     int   AddUniqueObject(const Type& obj);
     void  AddObjectAt(int index, const Type& obj);
     Type *AddressOfObjectAt(int index);
@@ -119,6 +120,7 @@ public:
     bool  ObjectInList(const Type& obj);
     void  RemoveObjectAt(int index);
     void  RemoveObject(const Type& obj);
+    void  RemoveObject(const Type* obj);
     void  Reset(void);
     void  Resize(int maxelements);
     void  SetObjectAt(int index, const Type& obj);
@@ -194,6 +196,23 @@ int Container<Type>::AddObject(const Type& obj)
     }
 
     new (objlist + numobjects) Type(obj);
+    numobjects++;
+
+    return numobjects;
+}
+
+template<class Type>
+int Container<Type>::AddObject()
+{
+    if (!objlist) {
+        Resize(10);
+    }
+
+    if (numobjects >= maxobjects) {
+        Resize(numobjects * 2);
+    }
+
+    new (objlist + numobjects) Type();
     numobjects++;
 
     return numobjects;
@@ -418,6 +437,19 @@ void Container<Type>::RemoveObject(const Type& obj)
     }
 
     RemoveObjectAt(index);
+}
+
+template<class Type>
+void Container<Type>::RemoveObject(const Type* obj)
+{
+    unsigned int index;
+
+    index = obj - objlist;
+    if (index >= numobjects) {
+        return;
+    }
+
+    RemoveObjectAt(index + 1);
 }
 
 template<class Type>

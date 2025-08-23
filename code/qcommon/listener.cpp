@@ -55,6 +55,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // std::move
 #include <utility>
+#include <algorithm>
 
 DataNode                          *Event::DataNodeList = NULL;
 con_map<Event *, EventDef>         Event::eventDefList;
@@ -631,125 +632,334 @@ void L_ShutdownEvents(void)
 // EventArgDef
 //===========================================================================
 
-void EventArgDef::Setup(const char *eventName, const char *argName, const char *argType, const char *argRange)
+struct EventCompare
 {
-    char        scratch[256];
-    const char *ptr;
-    char       *tokptr;
-    const char *endptr;
-    int         index;
+	bool operator()(const EventDef* d1, const EventDef* d2)
+	{
+		return str::icmp(d1->command, d2->command) < 0;
+	}
+};
 
-    // set name
-    name = argName;
+struct ClassCompare
+{
+	bool operator()(const ClassDef* c1, const ClassDef* c2)
+	{
+		return str::icmp(c1->classname, c2->classname) < 0;
+	}
+};
 
-    // set optionality
-    if (isupper(argType[0])) {
-        optional = true;
-    } else {
-        optional = false;
-    }
+void ClassEventPrinter::DumpAllClasses(fileHandle_t class_file, AbstractFormater& formater, const char* title)
+{
+	// construct the HTML header for the document
+	formater.PrintDocumentHeader(class_file, title);
 
-    // grab the ranges
-    index = 0;
-    memset(minRangeDefault, true, sizeof(minRangeDefault));
-    memset(minRange, 0, sizeof(minRange));
-    memset(maxRangeDefault, true, sizeof(maxRangeDefault));
-    memset(maxRange, 0, sizeof(maxRange));
+	/*
+	CLASS_Print(class_file, "<HTML>\n");
+	CLASS_Print(class_file, "<HEAD>\n");
+	CLASS_Print(class_file, "<Title>%s Classes</Title>\n", class_title.c_str());
+	CLASS_Print(class_file, "</HEAD>\n");
+	CLASS_Print(class_file, "<BODY>\n");
+	CLASS_Print(class_file, "<H1>\n");
+	CLASS_Print(class_file, "<center>%s Classes</center>\n", class_title.c_str());
+	CLASS_Print(class_file, "</H1>\n");
+	*/
 
-    if (argRange && argRange[0]) {
-        ptr = argRange;
-        while (1) {
-            // find opening '['
-            tokptr = (char *)strchr(ptr, '[');
-            if (!tokptr) {
-                break;
-            }
-            // find closing ']'
-            endptr = strchr(tokptr, ']');
-            if (!endptr) {
-                assert(0);
-                EVENT_Printf(
-                    "Argument definition %s, no matching ']' found for range spec in event %s.\n",
-                    name.c_str(),
-                    eventName
-                );
-                break;
-            }
-            // point to the next range
-            ptr = endptr;
-            // skip the '['
-            tokptr++;
-            // copy off the range spec
-            // skip the ']'
-            strncpy(scratch, tokptr, endptr - tokptr);
-            // terminate the range
-            scratch[endptr - tokptr] = 0;
-            // see if there is one or two parameters here
-            tokptr = strchr(scratch, ',');
-            if (!tokptr) {
-                // just one parameter
-                minRange[index >> 1]        = (float)atof(scratch);
-                minRangeDefault[index >> 1] = false;
-                index++;
-                // skip the second parameter
-                index++;
-            } else if (tokptr == scratch) {
-                // just second parameter
-                // skip the first paremeter
-                index++;
-                tokptr++;
-                maxRange[index >> 1]        = (float)atof(scratch);
-                maxRangeDefault[index >> 1] = false;
-                index++;
-            } else {
-                qboolean second;
-                // one or two parameters
-                // see if there is anything behind the ','
-                if (strlen(scratch) > (tokptr - scratch + 1)) {
-                    second = true;
-                } else {
-                    second = false;
-                }
-                // zero out the ','
-                *tokptr                     = 0;
-                minRange[index >> 1]        = (float)atof(scratch);
-                minRangeDefault[index >> 1] = false;
-                index++;
-                // skip over the nul character
-                tokptr++;
-                if (second) {
-                    maxRange[index >> 1]        = (float)atof(tokptr);
-                    maxRangeDefault[index >> 1] = false;
-                }
-                index++;
-            }
-        }
-    }
+	// FIXME: Print commonly used classnames
+	/*
+	//
+	// print out some commonly used classnames
+	//
+	CLASS_Print(class_file, "<h2>");
+	CLASS_Print(class_file, "<a href=\"#Actor\">Actor</a>, ");
+	CLASS_Print(class_file, "<a href=\"#Animate\">Animate</a>, ");
+	CLASS_Print(class_file, "<a href=\"#Entity\">Entity</a>, ");
+	CLASS_Print(class_file, "<a href=\"#ScriptSlave\">ScriptSlave</a>, ");
+	CLASS_Print(class_file, "<a href=\"#ScriptThread\">ScriptThread</a>, ");
+	CLASS_Print(class_file, "<a href=\"#Sentient\">Sentient</a>, ");
+	CLASS_Print(class_file, "<a href=\"#StateMap\">StateMap</a>, ");
+	CLASS_Print(class_file, "<a href=\"#Trigger\">Trigger</a>, ");
+	CLASS_Print(class_file, "<a href=\"#World\">World</a>");
+	CLASS_Print(class_file, "</h2>");
+	*/
 
-    // figure out the type of variable it is
-    switch (tolower(argType[0])) {
-    case 'e':
-        type = IS_ENTITY;
-        break;
-    case 'v':
-        type = IS_VECTOR;
-        break;
-    case 'i':
-        type = IS_INTEGER;
-        break;
-    case 'f':
-        type = IS_FLOAT;
-        break;
-    case 's':
-        type = IS_STRING;
-        break;
-    case 'b':
-        type = IS_BOOLEAN;
-        break;
-    case 'l':
-        type = IS_LISTENER;
-        break;
-    }
+	Container<EventDef*> sortedEvents;
+	Container<ClassDef*> sortedClasses;
+
+	SortEventList(sortedEvents);
+	SortClassList(sortedClasses);
+
+	const size_t num = sortedClasses.NumObjects();
+
+	// go through and process each class from smallest to greatest
+	for (uintptr_t i = 1; i <= num; i++)
+	{
+		ClassDef* c = sortedClasses.ObjectAt(i);
+		DumpClass(c, class_file, formater, sortedEvents);
+	}
+
+	formater.PrintDocumentFooter(class_file);
+}
+
+void ClassEventPrinter::SortClassList(Container<ClassDef*>& sortedList)
+{
+	const size_t num = ClassDef::numclasses;
+	sortedList.Resize(num);
+
+	for (ClassDef* c = ClassDef::classlist; c; c = c->next)
+	{
+		sortedList.AddObject(c);
+	}
+
+	std::sort(sortedList.AddressOfObjectAt(1), sortedList.AddressOfObjectAt(num) + 1, ClassCompare());
+}
+
+void ClassEventPrinter::SortEventList(Container<EventDef*>& sortedList)
+{
+    con_map_enum<Event *, EventDef> en = Event::eventDefList;
+	const size_t num = Event::NumEventCommands();
+	sortedList.Resize(num);
+
+	for (EventDef* def = en.NextValue(); en.CurrentValue(); def = en.NextValue())
+	{
+		sortedList.AddObject(def);
+	}
+
+	std::sort(sortedList.AddressOfObjectAt(1), sortedList.AddressOfObjectAt(num) + 1, EventCompare());
+}
+
+void ClassEventPrinter::ClassEvents(const ClassDef* classDef, fileHandle_t class_file, AbstractFormater& formater, const Container<EventDef*>& sortedEvents)
+{
+	const ResponseDef<Class>* response = classDef->responses;
+	if (response && response->event)
+	{
+		const size_t sortedNum = sortedEvents.NumObjects();
+		for (uintptr_t i = 1; i <= sortedNum; ++i)
+		{
+			const EventDef* const sortedDef = sortedEvents.ObjectAt(i);
+
+			for (const ResponseDef<Class>* r = classDef->responses; r->event; ++r)
+			{
+                const EventDef& def = Event::eventDefList[r->event];
+
+				if (r->response && &def == sortedDef)
+				{
+					PrintEventDocumentation(def, class_file, formater);
+					break;
+				}
+			}
+		}
+	}
+}
+
+void ClassEventPrinter::DumpClass(ClassDef* classDef, fileHandle_t class_file, AbstractFormater& formater, const Container<EventDef*>& sortedEvents)
+{
+	formater.BeginClassHeader(class_file, classDef->classname, classDef->classID);
+
+	// print parent
+	for (const ClassDef* c = classDef->super; c; c = c->super)
+	{
+		formater.PrintClassLineage(class_file, c->classname);
+	}
+
+	formater.EndClassHeader(class_file);
+
+	formater.BeginClassBody(class_file);
+
+	ClassEvents(classDef, class_file, formater, sortedEvents);
+
+	formater.EndClassBody(class_file);
+}
+
+void ClassEventPrinter::PrintDocumentation(const EventDef& def, fileHandle_t event_file, AbstractFormater& formater)
+{
+	const char* name = def.command;
+
+	formater.BeginEventDoc(event_file, name);
+
+	const Container<EventArgDef> definition = SetupDocumentation(def);
+
+	if (definition.NumObjects())
+	{
+		formater.BeginEventDefinition(event_file);
+
+		for (size_t i = 1; i <= definition.NumObjects(); i++)
+		{
+			const EventArgDef& argDef = definition.ObjectAt(i);
+			const bool isOptional = argDef.isOptional();
+
+			formater.BeginEventArgument(event_file, isOptional);
+
+			formater.PrintEventArgumentType(event_file, argDef.GetTypeName());
+			formater.PrintEventArgumentName(event_file, argDef.getName());
+
+			PrintEventArgumentRange(event_file, argDef, formater);
+
+			formater.EndEventArgument(event_file, isOptional, i >= definition.NumObjects());
+		}
+
+		formater.EndEventDefinition(event_file);
+	}
+
+	formater.EndEventDoc(event_file);
+
+	const char* documentation = def.documentation;
+	if (documentation)
+	{
+		formater.PrintEventDocumentation(event_file, documentation);
+	}
+}
+
+void ClassEventPrinter::PrintEventArgumentRange(fileHandle_t event_file, const EventArgDef& argDef, AbstractFormater& formater)
+{
+	size_t numRanges;
+	bool integer, single;
+	argDef.GetRange(numRanges, integer, single);
+
+	for (uintptr_t i = 0; i < numRanges; i++)
+	{
+		if (single)
+		{
+			if (!argDef.GetMinRangeDefault(i))
+			{
+				formater.PrintEventArgumentRangeSingle(event_file, argDef.GetMinRange(i), integer);
+			}
+		}
+		else
+		{
+			// both non-default
+			if (!argDef.GetMinRangeDefault(i) && !argDef.GetMaxRangeDefault(i))
+			{
+				formater.PrintEventArgumentRange(event_file, argDef.GetMinRange(i), argDef.GetMaxRange(i), integer);
+			}
+			// max default
+			else if (!argDef.GetMinRangeDefault(i) && argDef.GetMaxRangeDefault(i))
+			{
+				formater.PrintEventArgumentRange(event_file, argDef.GetMinRange(i), -1, integer);
+			}
+			// min default
+			else if (argDef.GetMinRangeDefault(i) && !argDef.GetMaxRangeDefault(i))
+			{
+				formater.PrintEventArgumentRange(event_file, -1, argDef.GetMaxRange(i), integer);
+			}
+		}
+	}
+}
+
+void ClassEventPrinter::PrintEventDocumentation(const EventDef& def, fileHandle_t event_file, AbstractFormater& formater)
+{
+	if (def.flags & EV_CODEONLY)
+	{
+		// don't parse non-script events
+		return;
+	}
+
+	// purposely suppressed
+	if (def.command[0] == '_')
+	{
+		return;
+	}
+
+	PrintDocumentation(def, event_file, formater);
+}
+
+Container<EventArgDef> ClassEventPrinter::SetupDocumentation(const EventDef& def)
+{
+	const char* name = def.command;
+	const char* formatspec = def.formatspec;
+	const char* argument_names = def.argument_names;
+
+	Container<EventArgDef> definition;
+
+	// setup documentation
+	if (formatspec)
+	{
+		if (argument_names)
+		{
+			Container<str> argNames;
+
+			const char* specPtr = formatspec;
+			//
+			// store off all the names
+			//
+			if (argument_names && argument_names[0])
+			{
+				// get the number of args
+				const char* argStart = argument_names;
+				const char* p = argStart;
+				while (*p)
+				{
+					if (*p == ' ')
+					{
+						argNames.AddObject(str(argStart, p - argStart));
+						while (*p == ' ') ++p;
+						argStart = p;
+					}
+					else {
+						p++;
+					}
+				}
+
+				// add the last argument
+				argNames.AddObject(str(argStart, p - argStart));
+			}
+
+			size_t index = 0;
+			size_t specLength = strlen(formatspec);
+
+			//
+			// create the definition container
+			//
+			definition.Resize(argNames.NumObjects());
+
+			// go throught he formatspec
+			while (specLength)
+			{
+				// clear the rangeSpec
+				str rangeSpec = "";
+				// get the argSpec
+				str argSpec = "";
+				argSpec += *specPtr;
+				specPtr++;
+				specLength--;
+				// see if there is a range specified
+				while (*specPtr == '[')
+				{
+					// add in all the characters until NULL or ']'
+					while (specLength && (*specPtr != ']'))
+					{
+						rangeSpec += *specPtr;
+						specPtr++;
+						specLength--;
+					}
+					if (specLength && (*specPtr == ']'))
+					{
+						rangeSpec += *specPtr;
+						specPtr++;
+						specLength--;
+					}
+				}
+				if (index < argNames.NumObjects())
+				{
+					str argName = argNames.ObjectAt(index + 1);
+					EventArgDef* argDef = new (definition) EventArgDef;
+					argDef->Setup(name, argName.c_str(), argSpec.c_str(), rangeSpec.c_str());
+				}
+				else
+				{
+					assert(0);
+					//Error("More format specifiers than argument names for event %s\n", name);
+				}
+				index++;
+			}
+			if (index < argNames.NumObjects())
+			{
+				assert(0);
+				//Error("More argument names than format specifiers for event %s\n", name);
+			}
+		}
+	}
+
+	return definition;
 }
 
 void EV_Print(FILE *stream, const char *format, ...)
@@ -770,319 +980,621 @@ void EV_Print(FILE *stream, const char *format, ...)
     va_end(va);
 }
 
-void EventArgDef::PrintRange(FILE *event_file)
-{
-    qboolean integer;
-    qboolean single;
-    int      numRanges;
-    int      i;
-
-    single    = false;
-    integer   = true;
-    numRanges = 1;
-    switch (type) {
-    case IS_VECTOR:
-        integer   = false;
-        numRanges = 3;
-        break;
-    case IS_FLOAT:
-        integer = false;
-        break;
-    case IS_STRING:
-        single = true;
-        break;
-    }
-    for (i = 0; i < numRanges; i++) {
-        if (single) {
-            if (!minRangeDefault[i]) {
-                if (integer) {
-                    EV_Print(event_file, "<%d>", (int)minRange[i]);
-                } else {
-                    EV_Print(event_file, "<%.2f>", minRange[i]);
-                }
-            }
-        } else {
-            // both non-default
-            if (!minRangeDefault[i] && !maxRangeDefault[i]) {
-                if (integer) {
-                    EV_Print(event_file, "<%d...%d>", (int)minRange[i], (int)maxRange[i]);
-                } else {
-                    EV_Print(event_file, "<%.2f...%.2f>", minRange[i], maxRange[i]);
-                }
-            }
-            // max default
-            else if (!minRangeDefault[i] && maxRangeDefault[i]) {
-                if (integer) {
-                    EV_Print(event_file, "<%d...max_integer>", (int)minRange[i]);
-                } else {
-                    EV_Print(event_file, "<%.2f...max_float>", minRange[i]);
-                }
-            }
-            // min default
-            else if (minRangeDefault[i] && !maxRangeDefault[i]) {
-                if (integer) {
-                    EV_Print(event_file, "<min_integer...%d>", (int)maxRange[i]);
-                } else {
-                    EV_Print(event_file, "<min_float...%.2f>", maxRange[i]);
-                }
-            }
-        }
-    }
-}
-
-void EventArgDef::PrintArgument(FILE *event_file)
-{
-    if (optional) {
-        EV_Print(event_file, "[ ");
-    }
-
-    switch (type) {
-    case IS_ENTITY:
-        EV_Print(event_file, "Entity ");
-        break;
-    case IS_VECTOR:
-        EV_Print(event_file, "Vector ");
-        break;
-    case IS_INTEGER:
-        EV_Print(event_file, "Integer ");
-        break;
-    case IS_FLOAT:
-        EV_Print(event_file, "Float ");
-        break;
-    case IS_STRING:
-        EV_Print(event_file, "String ");
-        break;
-    case IS_BOOLEAN:
-        EV_Print(event_file, "Boolean ");
-        break;
-    case IS_LISTENER:
-        EV_Print(event_file, "Listener ");
-        break;
-    }
-    EV_Print(event_file, "%s", name.c_str());
-
-    PrintRange(event_file);
-
-    if (optional) {
-        EV_Print(event_file, " ]");
-    }
-}
-
-void EventDef::Error(const char *format, ...)
+void EV_Print(fileHandle_t stream, const char *format, ...)
 {
     char    buffer[1000];
+    int     len;
     va_list va;
 
     va_start(va, format);
-    Q_vsnprintf(buffer, sizeof(buffer), format, va);
+
+    len = Q_vsnprintf(buffer, sizeof(buffer), format, va);
+
+    if (stream) {
+#if defined(CGAME_DLL)
+        cgi.FS_Write(buffer, len, stream);
+#elif defined(GAME_DLL)
+        gi.FS_Write(buffer, len, stream);
+#else
+        FS_Write(buffer, len, stream);
+#endif
+    } else {
+        EVENT_DPrintf("%s", buffer);
+    }
+
     va_end(va);
-
-    EVENT_Printf("^~^~^ Game: '%s' : %s\n", command.c_str(), buffer);
 }
 
-void EventDef::PrintDocumentation(FILE *event_file, bool html)
+void EV_WriteToFile(fileHandle_t f, const char *data, size_t len)
 {
-    int         i;
-    int         p;
-    str         text;
-    const char *name = command.c_str();
-
-    if (!html) {
-        text = "   ";
-        p    = 0;
-
-        if (flags & EV_CONSOLE) {
-            text[p++] = '*';
-        }
-        if (flags & EV_CHEAT) {
-            text[p++] = 'C';
-        }
-        if (flags & EV_CACHE) {
-            text[p++] = '%';
-        }
-    }
-
-    if (html) {
-        EV_Print(event_file, "\n<P><tt><B>%s</B>", name);
+    if (f) {
+#if defined(GAME_DLL)
+    gi.FS_Write(data, len, f);
+#elif defined (CGAME_DLL)
+    cgi.FS_Write(data, len, f);
+#else
+    FS_Write(data, len, f);
+#endif
     } else {
-        if (text[0] != ' ') {
-            EV_Print(event_file, "%s %s", text.c_str(), name);
-        } else {
-            EV_Print(event_file, "%s %s", text.c_str(), name);
-        }
-    }
-
-    SetupDocumentation();
-
-    if (definition) {
-        if (html) {
-            EV_Print(event_file, "( <i>");
-        } else {
-            EV_Print(event_file, "( ");
-        }
-
-        for (i = 1; i <= definition->NumObjects(); i++) {
-            definition->ObjectAt(i).PrintArgument(event_file);
-
-            if (i < definition->NumObjects()) {
-                EV_Print(event_file, ", ");
-            }
-        }
-
-        if (html) {
-            EV_Print(event_file, " </i>)</tt><BR>\n");
-        } else {
-            EV_Print(event_file, " )\n");
-        }
-
-        DeleteDocumentation();
-    } else {
-        if (html) {
-            EV_Print(event_file, "</tt><BR>\n");
-        } else {
-            EV_Print(event_file, "\n");
-        }
-    }
-
-    if (documentation) {
-        char new_doc[1024];
-        int  old_index;
-        int  new_index = 0;
-
-        for (old_index = 0; old_index < strlen(documentation); old_index++) {
-            if (documentation[old_index] == '\n') {
-                if (html) {
-                    new_doc[new_index]     = '<';
-                    new_doc[new_index + 1] = 'B';
-                    new_doc[new_index + 2] = 'R';
-                    new_doc[new_index + 3] = '>';
-                    new_doc[new_index + 4] = '\n';
-                    new_index += 5;
-                } else {
-                    new_doc[new_index]     = '\n';
-                    new_doc[new_index + 1] = '\t';
-                    new_doc[new_index + 2] = '\t';
-                    new_index += 3;
-                }
-            } else {
-                new_doc[new_index] = documentation[old_index];
-                new_index++;
-            }
-        }
-
-        new_doc[new_index] = 0;
-
-        if (html) {
-            EV_Print(event_file, "<ul>%s</ul>\n", new_doc);
-        } else {
-            EV_Print(event_file, "\t\t- %s\n", new_doc);
-        }
+        EVENT_DPrintf("%.*s", len, data);
     }
 }
 
-void EventDef::PrintEventDocumentation(FILE *event_file, bool html)
+void EV_WriteToFile(fileHandle_t f, const char *data)
 {
-    if (flags & EV_CODEONLY) {
-        return;
-    }
-
-    // purposely suppressed
-    if (command[0] == '_') {
-        return;
-    }
-
-    PrintDocumentation(event_file, html);
+    EV_WriteToFile(f, data, strlen(data));
 }
 
-void EventDef::DeleteDocumentation(void)
+EventArgDef::EventArgDef()
 {
-    if (formatspec) {
-        if (argument_names) {
-            definition->FreeObjectList();
+	type = vartype::IS_INTEGER;
+	//name        = "undefined";
+	optional = false;
+};
 
-            delete definition;
-            definition = NULL;
-        }
-    }
+void EventArgDef::Setup(const char* eventName, const char* argName, const char* argType, const char* argRange)
+{
+	char        scratch[256];
+	const char* ptr;
+	char* tokptr;
+	const char* endptr;
+	int         index;
+
+	// set name
+	name = argName;
+
+	// set optionality
+	if (isupper(argType[0]))
+	{
+		optional = true;
+	}
+	else
+	{
+		optional = false;
+	}
+
+	// grab the ranges
+	index = 0;
+	memset(minRangeDefault, true, sizeof(minRangeDefault));
+	memset(minRange, 0, sizeof(minRange));
+	memset(maxRangeDefault, true, sizeof(maxRangeDefault));
+	memset(maxRange, 0, sizeof(maxRange));
+
+	if (argRange && argRange[0])
+	{
+		ptr = argRange;
+		while (1)
+		{
+			// find opening '['
+			tokptr = (char*)strchr(ptr, '[');
+			if (!tokptr)
+			{
+				break;
+			}
+			// find closing ']'
+			endptr = strchr(tokptr, ']');
+			if (!endptr)
+			{
+				assert(0);
+				printf("Argument defintion %s, no matching ']' found for range spec in event %s.\n", name.c_str(), eventName);
+				break;
+			}
+			// point to the next range
+			ptr = endptr;
+			// skip the '['
+			tokptr++;
+			// copy off the range spec
+			// skip the ']'
+			strncpy(scratch, tokptr, endptr - tokptr);
+			// terminate the range
+			scratch[endptr - tokptr] = 0;
+			// see if there is one or two parameters here
+			tokptr = strchr(scratch, ',');
+			if (!tokptr)
+			{
+				// just one parameter
+				minRange[index >> 1] = (float)atof(scratch);
+				minRangeDefault[index >> 1] = false;
+				index++;
+				// skip the second parameter
+				index++;
+			}
+			else if (tokptr == scratch)
+			{
+				// just second parameter
+				// skip the first paremeter
+				index++;
+				tokptr++;
+				maxRange[index >> 1] = (float)atof(scratch);
+				maxRangeDefault[index >> 1] = false;
+				index++;
+			}
+			else
+			{
+				bool second;
+				// one or two parameters
+				// see if there is anything behind the ','
+				if (strlen(scratch) > size_t(tokptr - scratch + 1))
+					second = true;
+				else
+					second = false;
+				// zero out the ','
+				*tokptr = 0;
+				minRange[index >> 1] = (float)atof(scratch);
+				minRangeDefault[index >> 1] = false;
+				index++;
+				// skip over the nul character
+				tokptr++;
+				if (second)
+				{
+					maxRange[index >> 1] = (float)atof(tokptr);
+					maxRangeDefault[index >> 1] = false;
+				}
+				index++;
+			}
+		}
+	}
+
+	// figure out the type of variable it is
+	switch (tolower(argType[0]))
+	{
+	case 'e':
+		type = IS_ENTITY;
+		break;
+	case 'v':
+		type = IS_VECTOR;
+		break;
+	case 'i':
+		type = IS_INTEGER;
+		break;
+	case 'f':
+		type = IS_FLOAT;
+		break;
+	case 's':
+		type = IS_STRING;
+		break;
+	case 'b':
+		type = IS_BOOLEAN;
+		break;
+	case 'l':
+		type = IS_LISTENER;
+		break;
+	}
 }
 
-void EventDef::SetupDocumentation(void)
+void EventArgDef::GetRange(size_t& numRanges, bool& isInteger, bool& isSingle) const
 {
-    const char *name = command.c_str();
+	switch (type)
+	{
+	case IS_VECTOR:
+		isInteger = false;
+		isSingle = false;
+		numRanges = 3;
+		break;
+	case IS_FLOAT:
+		isInteger = false;
+		isSingle = false;
+		numRanges = 1;
+		break;
+	case IS_STRING:
+		isInteger = true;
+		isSingle = true;
+		numRanges = 1;
+		break;
+	default:
+		isSingle = false;
+		isInteger = true;
+		numRanges = 1;
+		break;
+	}
+}
 
-    // setup documentation
-    if (formatspec) {
-        if (argument_names) {
-            char           argumentNames[256];
-            str            argSpec;
-            str            rangeSpec;
-            str            argName;
-            EventArgDef    argDef;
-            const char    *namePtr;
-            const char    *specPtr;
-            size_t         specLength;
-            int            index;
-            Container<str> argNames;
+float EventArgDef::GetMinRange(uintptr_t index) const
+{
+	if (index < 3)
+		return minRange[index];
+	return 0.0;
+}
 
-            specLength = strlen(formatspec);
-            specPtr    = formatspec;
-            //
-            // store off all the names
-            //
-            Q_strncpyz(argumentNames, argument_names, sizeof(argumentNames));
-            namePtr = strtok(argumentNames, " ");
-            while (namePtr != NULL) {
-                argNames.AddObject(str(namePtr));
-                namePtr = strtok(NULL, " ");
-            }
+bool EventArgDef::GetMinRangeDefault(uintptr_t index) const
+{
+	if (index < 3)
+		return minRangeDefault[index];
+	return false;
+}
 
-            index = 0;
+float EventArgDef::GetMaxRange(uintptr_t index) const
+{
+	if (index < 3)
+		return maxRange[index];
+	return 0.0;
+}
 
-            //
-            // create the definition container
-            //
-            definition = new Container<EventArgDef>;
-            definition->Resize(argNames.NumObjects());
+bool EventArgDef::GetMaxRangeDefault(uintptr_t index) const
+{
+	if (index < 3)
+		return maxRangeDefault[index];
+	return false;
+}
 
-            // go throught he formatspec
-            while (specLength) {
-                // clear the rangeSpec
-                rangeSpec = "";
-                // get the argSpec
-                argSpec = "";
-                argSpec += *specPtr;
-                specPtr++;
-                specLength--;
-                // see if there is a range specified
-                while (*specPtr == '[') {
-                    // add in all the characters until NULL or ']'
-                    while (specLength && (*specPtr != ']')) {
-                        rangeSpec += *specPtr;
-                        specPtr++;
-                        specLength--;
-                    }
-                    if (specLength && (*specPtr == ']')) {
-                        rangeSpec += *specPtr;
-                        specPtr++;
-                        specLength--;
-                    }
-                }
-                if (index < argNames.NumObjects()) {
-                    argName = argNames.ObjectAt(index + 1);
-                    argDef.Setup(name, argName, argSpec, rangeSpec);
-                    definition->AddObject(argDef);
-                } else {
-                    assert(0);
-                    Error("More format specifiers than argument names for event %s\n", name);
-                }
-                index++;
-            }
-            if (index < argNames.NumObjects()) {
-                assert(0);
-                Error("More argument names than format specifiers for event %s\n", name);
-            }
-        }
-    }
+int EventArgDef::getType() const
+{
+	return type;
+}
+
+const char* EventArgDef::GetTypeName() const
+{
+	switch (type)
+	{
+	case IS_ENTITY:
+		return "Entity";
+	case IS_VECTOR:
+		return "Vector";
+	case IS_INTEGER:
+		return "Integer";
+	case IS_FLOAT:
+		return "Float";
+	case IS_STRING:
+		return "String";
+	case IS_BOOLEAN:
+		return "Boolean";
+	case IS_LISTENER:
+		return "Listener";
+	default:
+		return "???";
+	}
+}
+
+const char* EventArgDef::getName() const
+{
+	return name.c_str();
+}
+
+bool EventArgDef::isOptional() const
+{
+	return optional;
+}
+
+AbstractFormater::~AbstractFormater()
+{
+
+}
+
+void HTMLFormater::PrintDocumentHeader(fileHandle_t f, const char* title)
+{
+    EV_WriteToFile(f, "<html><head><title>");
+    EV_WriteToFile(f, title);
+    EV_WriteToFile(f, "</title></head><body><h1><center>");
+    EV_WriteToFile(f, title);
+    EV_WriteToFile(f, "</center></h1>");    
+}
+
+void HTMLFormater::PrintDocumentFooter(fileHandle_t f)
+{
+    EV_WriteToFile(f, "</body></html>");
+}
+
+void HTMLFormater::BeginClassHeader(fileHandle_t f, const char* className, const char* classID)
+{
+	if(classID) {
+        EV_WriteToFile(f, "<h2> <a name=\"");
+        EV_WriteToFile(f, className);
+        EV_WriteToFile(f, "\">");
+        EV_WriteToFile(f, className);
+        EV_WriteToFile(f, " (<i>");
+        EV_WriteToFile(f, classID);
+        EV_WriteToFile(f, "</i>)</a>");
+	}
+	else {
+        EV_WriteToFile(f, "<h2> <a name=\"");
+        EV_WriteToFile(f, className);
+        EV_WriteToFile(f, "\">");
+        EV_WriteToFile(f, className);
+        EV_WriteToFile(f, "</a>");
+	}
+}
+
+void HTMLFormater::EndClassHeader(fileHandle_t f)
+{
+    EV_WriteToFile(f, "</h2>");
+}
+
+void HTMLFormater::BeginClassBody(fileHandle_t f)
+{
+    EV_WriteToFile(f, "<BLOCKQUOTE>");
+}
+
+void HTMLFormater::EndClassBody(fileHandle_t f)
+{
+    EV_WriteToFile(f, "</BLOCKQUOTE>");
+}
+
+
+void HTMLFormater::BeginEventDoc(fileHandle_t f, const char* eventName)
+{
+    EV_WriteToFile(f, "<p><tt><b>");
+    EV_WriteToFile(f, eventName);
+    EV_WriteToFile(f, "</b>");
+}
+
+void HTMLFormater::EndEventDoc(fileHandle_t f)
+{
+    EV_WriteToFile(f, "</tt><br>");
+}
+
+void HTMLFormater::BeginEventDefinition(fileHandle_t f)
+{
+    EV_WriteToFile(f, "( <i>");
+}
+
+void HTMLFormater::EndEventDefinition(fileHandle_t f)
+{
+    EV_WriteToFile(f, "</i> )");
+}
+
+void HTMLFormater::BeginEventArgument(fileHandle_t f, bool isOptional)
+{
+	if (isOptional) EV_WriteToFile(f, "[ ");
+}
+
+void HTMLFormater::EndEventArgument(fileHandle_t f, bool isOptional, bool isLast)
+{
+	if (isOptional) EV_WriteToFile(f, "] ");
+	if (!isLast) EV_WriteToFile(f, ", ");
+}
+
+void HTMLFormater::PrintEventArgumentType(fileHandle_t f, const char* argumentType)
+{
+    EV_WriteToFile(f, argumentType);
+    EV_WriteToFile(f, " " );
+}
+
+void HTMLFormater::PrintEventArgumentName(fileHandle_t f, const char* argumentName)
+{
+    EV_WriteToFile(f, argumentName);
+}
+
+void HTMLFormater::PrintEventArgumentRangeSingle(fileHandle_t f, float minRange, bool isInteger)
+{
+	if (isInteger) {
+        EV_WriteToFile(f, "<");
+        EV_WriteToFile(f, str((int)minRange));
+        EV_WriteToFile(f, ">");
+	}
+	else {
+        EV_WriteToFile(f, "<");
+        EV_WriteToFile(f, str(minRange));
+        EV_WriteToFile(f, ">");
+	}
+}
+
+void HTMLFormater::PrintEventArgumentRange(fileHandle_t f, float minRange, float maxRange, bool isInteger)
+{
+	if (isInteger)
+	{
+		if (minRange != -1 && maxRange != -1) {
+            EV_WriteToFile(f, "<");
+            EV_WriteToFile(f, str((int)minRange));
+            EV_WriteToFile(f, "...");
+            EV_WriteToFile(f, str((int)maxRange));
+            EV_WriteToFile(f, ">");
+		}
+		else if (minRange != -1 && maxRange == -1) {
+            EV_WriteToFile(f, "<");
+            EV_WriteToFile(f, str((int)minRange));
+            EV_WriteToFile(f, "...max_integer>");
+		}
+		else if (minRange == -1 && maxRange != -1) {
+            EV_WriteToFile(f, "<min_integer...");
+            EV_WriteToFile(f, str((int)maxRange));
+            EV_WriteToFile(f, ">");
+		}
+	}
+	else
+	{
+		if (minRange != -1 && maxRange != -1) {
+            EV_WriteToFile(f, "<");
+            EV_WriteToFile(f, str(minRange));
+            EV_WriteToFile(f, "...");
+            EV_WriteToFile(f, str(maxRange));
+            EV_WriteToFile(f, ">");
+		}
+		else if (minRange != -1 && maxRange == -1) {
+            EV_WriteToFile(f, "<");
+            EV_WriteToFile(f, str(minRange));
+            EV_WriteToFile(f, "...max_integer>");
+		}
+		else if (minRange == -1 && maxRange != -1) {
+            EV_WriteToFile(f, "<min_integer...");
+            EV_WriteToFile(f, str(maxRange));
+            EV_WriteToFile(f, ">");
+		}
+	}
+}
+
+void HTMLFormater::PrintEventDocumentation(fileHandle_t f, const char* documentation)
+{
+    EV_WriteToFile(f, "<ul>");
+
+	const char* docStart = documentation;
+
+	for(const char* p = docStart; *p; ++p)
+	{
+		if (*p != '\n') {
+            EV_WriteToFile(f, p, 1);
+		} else {
+            EV_WriteToFile(f, "<br>");
+		}
+	}
+
+    EV_WriteToFile(f, "</ul>");
+}
+
+void HTMLFormater::PrintClassLineage(fileHandle_t f, const char* className)
+{
+    EV_WriteToFile(f, " -> <a href=\"#");
+    EV_WriteToFile(f, className);
+    EV_WriteToFile(f, "\">");
+    EV_WriteToFile(f, className);
+    EV_WriteToFile(f, "</a>");
+}
+
+void BasicFormatter::PrintDocumentHeader(fileHandle_t f, const char* title)
+{
+}
+
+void BasicFormatter::PrintDocumentFooter(fileHandle_t f)
+{
+}
+
+void BasicFormatter::BeginClassHeader(fileHandle_t f, const char* className, const char* classID)
+{
+    EV_WriteToFile(f, "********************************************************\n");
+    EV_WriteToFile(f, "* All Events For Class: ");
+    EV_WriteToFile(f, className);
+    EV_WriteToFile(f, "\n");
+    EV_WriteToFile(f, "********************************************************\n");
+    EV_WriteToFile(f, "********************************************************\n\n");
+}
+
+void BasicFormatter::EndClassHeader(fileHandle_t f)
+{
+}
+
+void BasicFormatter::BeginClassBody(fileHandle_t f)
+{
+}
+
+void BasicFormatter::EndClassBody(fileHandle_t f)
+{
+}
+
+void BasicFormatter::BeginEventDoc(fileHandle_t f, const char* eventName)
+{
+    EV_WriteToFile(f, " -> ");
+    EV_WriteToFile(f, eventName);
+}
+
+void BasicFormatter::EndEventDoc(fileHandle_t f)
+{
+    EV_WriteToFile(f, "\n");
+}
+
+void BasicFormatter::BeginEventDefinition(fileHandle_t f)
+{
+    EV_WriteToFile(f, "( ");
+}
+
+void BasicFormatter::EndEventDefinition(fileHandle_t f)
+{
+    EV_WriteToFile(f, ")");
+}
+
+void BasicFormatter::BeginEventArgument(fileHandle_t f, bool isOptional)
+{
+	if (isOptional) EV_WriteToFile(f, "[ ");
+}
+
+void BasicFormatter::EndEventArgument(fileHandle_t f, bool isOptional, bool isLast)
+{
+	if (isOptional) EV_WriteToFile(f, "] ");
+	if (!isLast) EV_WriteToFile(f, ", ");
+}
+
+void BasicFormatter::PrintEventArgumentType(fileHandle_t f, const char* argumentType)
+{
+    EV_WriteToFile(f, argumentType);
+    EV_WriteToFile(f, " " );
+}
+
+void BasicFormatter::PrintEventArgumentName(fileHandle_t f, const char* argumentName)
+{
+    EV_WriteToFile(f, argumentName);
+}
+
+void BasicFormatter::PrintEventArgumentRangeSingle(fileHandle_t f, float minRange, bool isInteger)
+{
+	if (isInteger) {
+        EV_WriteToFile(f, "<");
+        EV_WriteToFile(f, str((int)minRange));
+        EV_WriteToFile(f, ">");
+	}
+	else {
+        EV_WriteToFile(f, "<");
+        EV_WriteToFile(f, str(minRange));
+        EV_WriteToFile(f, ">");
+	}
+}
+
+void BasicFormatter::PrintEventArgumentRange(fileHandle_t f, float minRange, float maxRange, bool isInteger)
+{
+	if (isInteger)
+	{
+		if (minRange != -1 && maxRange != -1) {
+            EV_WriteToFile(f, "<");
+            EV_WriteToFile(f, str((int)minRange));
+            EV_WriteToFile(f, "...");
+            EV_WriteToFile(f, str((int)maxRange));
+            EV_WriteToFile(f, ">");
+		}
+		else if (minRange != -1 && maxRange == -1) {
+            EV_WriteToFile(f, "<");
+            EV_WriteToFile(f, str((int)minRange));
+            EV_WriteToFile(f, "...max_integer>");
+		}
+		else if (minRange == -1 && maxRange != -1) {
+            EV_WriteToFile(f, "<min_integer...");
+            EV_WriteToFile(f, str((int)maxRange));
+            EV_WriteToFile(f, ">");
+		}
+	}
+	else
+	{
+		if (minRange != -1 && maxRange != -1) {
+            EV_WriteToFile(f, "<");
+            EV_WriteToFile(f, str(minRange));
+            EV_WriteToFile(f, "...");
+            EV_WriteToFile(f, str(maxRange));
+            EV_WriteToFile(f, ">");
+		}
+		else if (minRange != -1 && maxRange == -1) {
+            EV_WriteToFile(f, "<");
+            EV_WriteToFile(f, str(minRange));
+            EV_WriteToFile(f, "...max_integer>");
+		}
+		else if (minRange == -1 && maxRange != -1) {
+            EV_WriteToFile(f, "<min_integer...");
+            EV_WriteToFile(f, str(maxRange));
+            EV_WriteToFile(f, ">");
+		}
+	}
+}
+
+void BasicFormatter::PrintEventDocumentation(fileHandle_t f, const char* documentation)
+{
+	const char* docStart = documentation;
+
+    EV_WriteToFile(f, "    ");
+
+	for(const char* p = docStart; *p; ++p)
+	{
+		if (*p != '\n') {
+            EV_WriteToFile(f, p, 1);
+		} else {
+            EV_WriteToFile(f, "\n    ");
+		}
+	}
+
+    EV_WriteToFile(f, "\n");
+}
+
+void BasicFormatter::PrintClassLineage(fileHandle_t f, const char* className)
+{
+    EV_WriteToFile(f, "\n********************************************************\n");
+    EV_WriteToFile(f, "* Class: ");
+    EV_WriteToFile(f, className);
+    EV_WriteToFile(f, "\n");
+    EV_WriteToFile(f, "********************************************************\n\n");
 }
 
 //====================================
@@ -1236,7 +1748,7 @@ void Event::ListDocumentation(const char *mask, qboolean print_to_disk)
     int                             hidden;
     str                             name;
     str                             text;
-    FILE                           *event_file = NULL;
+    fileHandle_t                    event_file = NULL;
     str                             event_filename;
     con_map_enum<Event *, EventDef> en = eventDefList;
     EventDef                       *def;
@@ -1248,7 +1760,13 @@ void Event::ListDocumentation(const char *mask, qboolean print_to_disk)
             event_filename = str(mask) + ".txt";
         }
 
-        event_file = fopen(event_filename.c_str(), "w");
+#if defined(GAME_DLL)
+        event_file = gi.FS_FOpenFileWrite(event_filename);
+#elif defined(CGAME_DLL)
+        event_file = cgi.FS_FOpenFileWrite(event_filename);
+#else
+        event_file = FS_FOpenFileWrite(event_filename);
+#endif
 
         if (event_file == NULL) {
             return;
@@ -1262,6 +1780,9 @@ void Event::ListDocumentation(const char *mask, qboolean print_to_disk)
 
     EV_Print(event_file, "\nCommand Documentation\n");
     EV_Print(event_file, "=====================\n");
+
+    ClassEventPrinter printer;
+    BasicFormatter formatter;
 
     hidden = 0;
     num    = 0;
@@ -1282,7 +1803,7 @@ void Event::ListDocumentation(const char *mask, qboolean print_to_disk)
 
         num++;
 
-        def->PrintDocumentation(event_file, qfalse);
+        printer.PrintDocumentation(*def, event_file, formatter);
     }
 
     EV_Print(
@@ -1299,7 +1820,13 @@ void Event::ListDocumentation(const char *mask, qboolean print_to_disk)
 
     if (event_file != NULL) {
         EVENT_Printf("Printed event info to file %s\n", event_filename.c_str());
-        fclose(event_file);
+#if defined(GAME_DLL)
+    gi.FS_FCloseFile(event_file);
+#elif defined(CGAME_DLL)
+    cgi.FS_FCloseFile(event_file);
+#else
+    FS_FCloseFile(event_file);
+#endif
     }
 }
 
