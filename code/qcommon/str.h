@@ -85,6 +85,7 @@ public:
     ~str();
     str();
     str(const char *text);
+    str(const char *text, size_t len);
     str(const str& string);
     str(const str& string, size_t start, size_t end);
     str(const char ch);
@@ -231,6 +232,18 @@ inline str::str(const char *text)
             strcpy(m_data->data, text);
             m_data->len = len;
         }
+    }
+}
+
+inline str::str(const char *text, size_t len)
+    : m_data(NULL)
+{
+    assert(text);
+    if (*text && len) {
+        EnsureAlloced(len + 1);
+        strncpy(m_data->data, text, len + 1);
+        m_data->data[len]= 0;
+        m_data->len = len;
     }
 }
 
