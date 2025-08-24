@@ -854,10 +854,10 @@ void G_WriteBotSessionData()
     }
 
     // Unused for now, may be reserved for future use
+    current = 0;
 #if 0
     count = manager.getControllers().NumObjects();
     assert(count <= numSpawnedBots);
-    current = 0;
 
     for (n = 0; n < count; n++) {
         const BotController *controller = manager.getControllers().ObjectAt(n + 1);
