@@ -25,7 +25,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "cg_local.h"
 #include "cg_commands.h"
-#include "tiki.h"
+#include "../corepp/tiki.h"
 
 cvar_t *cg_showtempmodels;
 cvar_t *cg_max_tempmodels;

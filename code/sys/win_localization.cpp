@@ -23,7 +23,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // localization.cpp : Localization for different languages
 
 #include "win_localization.h"
-#include <tiki.h>
+#include "../corepp/tiki.h"
 
 #define MAX_BUFFERS             6
 #define MAX_LOCALIZATION_LENGTH 1024

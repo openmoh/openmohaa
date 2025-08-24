@@ -31,7 +31,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "g_local.h"
 #include "g_phys.h"
-#include "class.h"
+#include "../corepp/class.h"
 #include "mover.h"
 #include "scriptmaster.h"
 #include "scriptthread.h"

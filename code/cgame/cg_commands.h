@@ -48,9 +48,9 @@ TIKI file, similar to ScriptMaster in the server game dll.
 #pragma once
 
 #include "cg_local.h"
-#include "listener.h"
-#include "script.h"
-#include "vector.h"
+#include "../corepp/listener.h"
+#include "../corepp/script.h"
+#include "../corepp/vector.h"
 #include "../qcommon/qcommon.h"
 
 #define EMITTER_DEFAULT_LIFE  1000

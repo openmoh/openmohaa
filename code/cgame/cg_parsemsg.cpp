@@ -28,7 +28,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "cg_specialfx.h"
 #include "cg_radar.h"
 
-#include "str.h"
+#include "../corepp/str.h"
 
 extern int current_entity_number;
 

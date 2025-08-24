@@ -23,7 +23,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // tr_util.c -- renderer utility
 
 #include "tr_local.h"
-#include "../qcommon/str.h"
+#include "../corepp/str.h"
 
 static byte  cntColor[4];
 static float cntSt[2];

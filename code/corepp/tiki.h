@@ -28,9 +28,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #ifdef __cplusplus
 class Archiver;
-#    include "../qcommon/mem_blockalloc.h"
-#    include "../qcommon/con_set.h"
-#    include "../qcommon/str.h"
+#    include "../corepp/mem_blockalloc.h"
+#    include "../corepp/con_set.h"
+#    include "../corepp/str.h"
 #endif
 
 #define MAX_TIKI_LOAD_ANIMS                 4095
@@ -163,7 +163,7 @@ typedef struct dloaddef_s {
 
 #include "../skeletor/skeletor.h"
 
-#include "../qcommon/tiki_main.h"
+#include "../corepp/tiki_main.h"
 #include "../tiki/tiki_anim.h"
 #include "../tiki/tiki_cache.h"
 #include "../tiki/tiki_commands.h"

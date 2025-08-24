@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #pragma once
 
-#include "str.h"
+#include "../corepp/str.h"
 
 #if defined(GAME_DLL)
 #    define showopcodes g_showopcodes

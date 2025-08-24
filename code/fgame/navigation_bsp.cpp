@@ -36,8 +36,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "navigation_bsp.h"
 #include "navigation_bsp_lump.h"
 #include "../qcommon/qfiles.h"
-#include "../qcommon/container.h"
-#include "../qcommon/vector.h"
+#include "../corepp/container.h"
+#include "../corepp/vector.h"
 #include "../script/scriptexception.h"
 
 /*

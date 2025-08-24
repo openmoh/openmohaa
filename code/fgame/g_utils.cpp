@@ -31,7 +31,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "playerstart.h"
 #include "debuglines.h"
 #include "smokesprite.h"
-#include "../qcommon/tiki.h"
+#include "../corepp/tiki.h"
 
 const char *means_of_death_strings[MOD_TOTAL_NUMBER] = {
     "none",

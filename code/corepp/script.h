@@ -25,9 +25,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef __SCRIPT_H__
 #define __SCRIPT_H__
 
-#include "class.h"
-#include "vector.h"
-#include "str.h"
+#include "../corepp/class.h"
+#include "../corepp/vector.h"
+#include "../corepp/str.h"
 
 #if defined(ARCHIVE_SUPPORTED)
 #    include "../fgame/archive.h"

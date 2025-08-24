@@ -1,7 +1,7 @@
 #pragma once
 
-#include <listener.h>
-#include <mem_blockalloc.h>
+#include "../corepp/listener.h"
+#include "../corepp/mem_blockalloc.h"
 #include "g_public.h"
 
 class ConsoleEvent : public Event

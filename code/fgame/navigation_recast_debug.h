@@ -35,7 +35,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  * - blue: Ladder route
  */
 
-#include "../qcommon/vector.h"
+#include "../corepp/vector.h"
 
 void G_Navigation_DebugDraw();
 

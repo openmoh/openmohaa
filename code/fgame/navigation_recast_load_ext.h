@@ -27,9 +27,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #pragma once
 
-#include "../qcommon/class.h"
-#include "../qcommon/vector.h"
-#include "../qcommon/container.h"
+#include "../corepp/class.h"
+#include "../corepp/vector.h"
+#include "../corepp/container.h"
 
 struct rcPolyMesh;
 

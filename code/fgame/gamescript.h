@@ -24,8 +24,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #pragma once
 
-#include "class.h"
-#include "script.h"
+#include "../corepp/class.h"
+#include "../corepp/script.h"
 #include "archive.h"
 
 class Listener;

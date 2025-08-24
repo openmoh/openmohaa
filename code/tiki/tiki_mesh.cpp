@@ -22,7 +22,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // tiki_mesh.cpp : Mesh handling
 
-#include "tiki.h"
+#include "../corepp/tiki.h"
 
 int             TIKI_Skel_Bones_Index;
 int             skeletorMorphCacheIndex;

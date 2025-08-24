@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // FPS view model animation
 
 #include "cg_local.h"
-#include "tiki.h"
+#include "../corepp/tiki.h"
 
 static const char *AnimPrefixList[] = {
     "",

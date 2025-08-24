@@ -1,4 +1,4 @@
-#include "class.h"
+#include "../corepp/class.h"
 
 class con_timer : public Class
 {

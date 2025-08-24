@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "usignal.h"
 #include "../qcommon/q_shared.h"
-#include "../qcommon/str.h"
+#include "../corepp/str.h"
 #include "ui_public.h"
 #include "uirect2d.h"
 #include "ucolor.h"

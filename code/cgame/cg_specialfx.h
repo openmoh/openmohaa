@@ -27,7 +27,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "cg_local.h"
 #include "cg_commands.h"
-#include "class.h"
+#include "../corepp/class.h"
 
 #define MAX_SPECIAL_EFFECT_COMMANDS 32
 

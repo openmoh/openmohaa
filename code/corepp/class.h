@@ -25,9 +25,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #pragma once
 
 #include "con_set.h"
-#include "container.h"
+#include "../corepp/container.h"
 #include "q_shared.h"
-#include "str.h"
+#include "../corepp/str.h"
 #include "lightclass.h"
 
 #include "const_str.h"

@@ -21,7 +21,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "bg_voteoptions.h"
-#include "../qcommon/script.h"
+#include "../corepp/script.h"
 
 #if defined(GAME_DLL)
 #    define VO_FS_FreeFile                  gi.FS_FreeFile

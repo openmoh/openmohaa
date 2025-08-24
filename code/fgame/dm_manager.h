@@ -23,7 +23,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #pragma once
 
-#include "listener.h"
+#include "../corepp/listener.h"
 #include "Tow_Entities.h"
 
 extern cvar_t *g_tempaxisscore;

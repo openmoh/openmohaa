@@ -24,8 +24,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // Beam effects
 
 #include "cg_local.h"
-#include "vector.h"
-#include "container.h"
+#include "../corepp/vector.h"
+#include "../corepp/container.h"
 #include "cg_commands.h"
 
 class beam_t : public Class

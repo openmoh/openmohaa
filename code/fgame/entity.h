@@ -46,12 +46,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #pragma once
 
 #include "g_local.h"
-#include "class.h"
-#include "vector.h"
-#include "script.h"
-#include "listener.h"
+#include "../corepp/class.h"
+#include "../corepp/vector.h"
+#include "../corepp/script.h"
+#include "../corepp/listener.h"
 #include "simpleentity.h"
-#include "../qcommon/delegate.h"
+#include "../corepp/delegate.h"
 
 // modification flags
 #define FLAG_IGNORE 0

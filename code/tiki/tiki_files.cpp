@@ -27,8 +27,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../skeletor/skeletor.h"
 #include "../skeletor/tokenizer.h"
 #include "../client/client.h"
-#include <tiki.h>
-#include <mem_tempalloc.h>
+#include "../corepp/tiki.h"
+#include "../corepp/mem_tempalloc.h"
 
 qboolean tiki_loading;
 cvar_t  *dumploadedanims;

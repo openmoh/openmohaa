@@ -26,7 +26,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "navigation_recast_config_ext.h"
 #include "navigation_recast_load.h"
 #include "navigation_bsp.h"
-#include "../qcommon/vector.h"
+#include "../corepp/vector.h"
 #include "navigate.h"
 #include "debuglines.h"
 #include "entity.h"

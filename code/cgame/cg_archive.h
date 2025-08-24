@@ -27,8 +27,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #ifdef __cplusplus
 
-#include "../qcommon/container.h"
-#include "../qcommon/str.h"
+#include "../corepp/container.h"
+#include "../corepp/str.h"
 
 class MemArchiver;
 

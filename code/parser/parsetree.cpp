@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "parsetree.h"
 #include "../fgame/gamecvars.h"
-#include "../qcommon/mem_tempalloc.h"
+#include "../corepp/mem_tempalloc.h"
 
 MEM_TempAlloc parsetree_allocator;
 yyparsedata   parsedata;

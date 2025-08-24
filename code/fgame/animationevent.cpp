@@ -21,7 +21,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "animationevent.h"
-#include "../qcommon/mem_blockalloc.h"
+#include "../corepp/mem_blockalloc.h"
 
 MEM_BlockAlloc<AnimationEvent> AnimationEvent_allocator;
 

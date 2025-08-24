@@ -23,7 +23,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // tr_staticmodels.cpp -- static model rendering
 
 #include "tr_local.h"
-#include "tiki.h"
+#include "../corepp/tiki.h"
 
 #define MAX_STATIC_MODELS_SURFS    8192
 #define MAX_DISTINCT_STATIC_MODELS 1000

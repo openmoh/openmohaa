@@ -21,7 +21,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "cl_ui.h"
-#include "../qcommon/tiki.h"
+#include "../corepp/tiki.h"
 
 static inventory_t            s_processed_inv;
 static SafePtr<FakkInventory> s_main_inv;

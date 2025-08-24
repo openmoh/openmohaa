@@ -22,8 +22,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // class.cpp: General class.
 
-#include "class.h"
-#include "listener.h"
+#include "../corepp/class.h"
+#include "../corepp/listener.h"
 #include "q_shared.h"
 
 #if defined(GAME_DLL)

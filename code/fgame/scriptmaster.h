@@ -24,10 +24,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #pragma once
 
-#include "class.h"
-#include "listener.h"
+#include "../corepp/class.h"
+#include "../corepp/listener.h"
 #include "scriptvm.h"
-#include <con_timer.h>
+#include "../corepp/con_timer.h"
 
 #define MAX_COMMANDS       20
 #define MAX_EXECUTION_TIME 3000

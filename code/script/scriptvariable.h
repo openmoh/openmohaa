@@ -24,8 +24,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #pragma once
 
-#include "../qcommon/listener.h"
-#include "../qcommon/short3.h"
+#include "../corepp/listener.h"
+#include "../corepp/short3.h"
 
 #ifdef GAME_DLL
 #    include "../fgame/misc.h"

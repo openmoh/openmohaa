@@ -91,8 +91,8 @@ list(APPEND COMMON_SOURCES
 	${SOURCE_DIR}/tiki/tiki_surface.cpp
 	${SOURCE_DIR}/tiki/tiki_tag.cpp
 	${SOURCE_DIR}/tiki/tiki_utility.cpp
-	${SOURCE_DIR}/qcommon/tiki_main.cpp
-	${SOURCE_DIR}/qcommon/tiki_script.cpp
+	${SOURCE_DIR}/corepp/tiki_main.cpp
+	${SOURCE_DIR}/corepp/tiki_script.cpp
 )
 
 # Gamespy

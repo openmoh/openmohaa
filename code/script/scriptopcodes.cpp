@@ -23,8 +23,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // scriptopcodes.cpp
 
 #include "scriptopcodes.h"
-#include "short3.h"
-#include "vector.h"
+#include "../corepp/short3.h"
+#include "../corepp/vector.h"
 
 static opcode_t OpcodeInfo[] = {
     {"OPCODE_EOF",                       0,                        0,    0},

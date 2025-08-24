@@ -25,9 +25,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #pragma once
 
 #include "g_local.h"
-#include "class.h"
-#include "str.h"
-#include "vector.h"
+#include "../corepp/class.h"
+#include "../corepp/str.h"
+#include "../corepp/vector.h"
 
 #define ARCHIVE_NULL_POINTER             (-654321)
 #define ARCHIVE_POINTER_VALID            (0)

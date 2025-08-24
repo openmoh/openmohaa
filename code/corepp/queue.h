@@ -25,7 +25,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #pragma once
 
-#include "class.h"
+#include "../corepp/class.h"
 
 template<class T>
 class QueueNode : public Class

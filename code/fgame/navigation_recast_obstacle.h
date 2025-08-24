@@ -23,7 +23,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #pragma once
 
 #include "../qcommon/q_shared.h"
-#include "../qcommon/vector.h"
+#include "../corepp/vector.h"
 #include "g_public.h"
 
 static constexpr unsigned int NAVOBS_FLAG_ACTIVE = (1 << 0);

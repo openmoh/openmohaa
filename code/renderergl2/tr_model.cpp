@@ -23,8 +23,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // tr_models.cpp -- model loading and caching
 
 #include "tr_local.h"
-#include "tiki.h"
-#include <vector.h>
+#include "../corepp/tiki.h"
+#include "../corepp/vector.h"
 
 #define LL(x) x = LittleLong(x)
 

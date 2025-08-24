@@ -27,7 +27,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "scriptexception.h"
 #include "g_spawn.h"
 #include "animationevent.h"
-#include <tiki.h>
+#include "../corepp/tiki.h"
 
 extern Event EV_Entity_Start;
 

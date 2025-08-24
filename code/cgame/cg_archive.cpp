@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "cg_archive.h"
 #include "cg_commands.h"
 #include "memarchiver.h"
-#include "../qcommon/tiki.h"
+#include "../corepp/tiki.h"
 
 void CG_ArchiveStuff(MemArchiver& archiver, int svsTime)
 {

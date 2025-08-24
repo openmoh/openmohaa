@@ -66,7 +66,7 @@ typedef struct {
 template<typename T>
 class Container;
 
-#    include "container.h"
+#    include "../corepp/container.h"
 
 class skelAnimStoreFrameList_c
 {

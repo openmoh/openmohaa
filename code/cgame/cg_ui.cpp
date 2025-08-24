@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // UI features
 
 #include "cg_local.h"
-#include "str.h"
+#include "../corepp/str.h"
 #include "../client/keycodes.h"
 
 void CG_MessageMode_f(void)

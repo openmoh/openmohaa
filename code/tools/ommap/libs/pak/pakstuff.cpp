@@ -29,7 +29,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "pakstuff.h"
 #include "unzip.h"
 //#include "cmdlib.h"
-#include "str.h"
+#include "../corepp/str.h"
 
 int m_nPAKIndex;
 FILE* pakfile[16];

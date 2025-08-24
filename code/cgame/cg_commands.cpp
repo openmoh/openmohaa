@@ -27,7 +27,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "cg_commands.h"
 #include "cg_specialfx.h"
 #include "scriptexception.h"
-#include "tiki.h"
+#include "../corepp/tiki.h"
 #include "cg_archive.h"
 #include "memarchiver.h"
 

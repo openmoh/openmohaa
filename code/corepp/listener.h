@@ -24,11 +24,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #pragma once
 
-#include "class.h"
+#include "../corepp/class.h"
 #include "containerclass.h"
 #include "con_arrayset.h"
-#include "str.h"
-#include "vector.h"
+#include "../corepp/str.h"
+#include "../corepp/vector.h"
 
 class Entity;
 class Listener;

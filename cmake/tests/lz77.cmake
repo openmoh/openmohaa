@@ -3,8 +3,8 @@
 #
 
 add_executable(test_lz77
-    ${SOURCE_DIR}/qcommon/tests/test_lz77.cpp
-    ${SOURCE_DIR}/qcommon/lz77.cpp
+    ${SOURCE_DIR}/corepp/tests/test_lz77.cpp
+    ${SOURCE_DIR}/corepp/lz77.cpp
     ${SOURCE_DIR}/qcommon/q_shared.c
     ${SOURCE_DIR}/qcommon/common_light.c
 )

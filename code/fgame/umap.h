@@ -26,7 +26,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #pragma once
 
-#include "str.h"
+#include "../corepp/str.h"
 #include <stdlib.h>
 
 template<class Type>

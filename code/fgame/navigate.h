@@ -28,10 +28,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #pragma once
 
 #include "g_local.h"
-#include "class.h"
+#include "../corepp/class.h"
 #include "entity.h"
 #include "stack.h"
-#include "container.h"
+#include "../corepp/container.h"
 #include "doors.h"
 #include "sentient.h"
 #include "../qcommon/qfiles.h"

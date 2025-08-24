@@ -26,7 +26,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #pragma once
 
 #include "g_local.h"
-#include "../qcommon/class.h"
+#include "../corepp/class.h"
 #include "../fgame/archive.h"
 
 typedef struct vehicleState_s {

@@ -25,7 +25,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef __CONFIGURATOR_H__
 #define __CONFIGURATOR_H__
 
-#include <listener.h>
+#include "../corepp/listener.h"
 
 #define MAX_CONFIGURATOR_ARRAY_SIZE 2048
 

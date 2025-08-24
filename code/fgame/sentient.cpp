@@ -40,7 +40,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "decals.h"
 #include "g_spawn.h"
 #include "object.h"
-#include "../qcommon/tiki.h"
+#include "../corepp/tiki.h"
 #include "weapturret.h"
 
 Event EV_Sentient_ReloadWeapon

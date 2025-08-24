@@ -30,7 +30,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // make this behaviour toggleable.
 //
 
-#include "script.h"
+#include "../corepp/script.h"
 
 #if defined(GAME_DLL)
 

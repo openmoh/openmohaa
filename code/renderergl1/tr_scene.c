@@ -22,7 +22,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "tr_local.h"
 #include "tr_vis.h"
-#include "tiki.h"
+#include "../corepp/tiki.h"
 
 int			r_firstSceneDrawSurf;
 int			r_firstSceneSpriteSurf;

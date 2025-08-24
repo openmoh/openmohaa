@@ -24,8 +24,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "scriptvariable.h"
 #include "scriptexception.h"
-#include "../qcommon/str.h"
-#include "../qcommon/con_set.h"
+#include "../corepp/str.h"
+#include "../corepp/con_set.h"
 
 #ifdef GAME_DLL
 #    include "../fgame/archive.h"

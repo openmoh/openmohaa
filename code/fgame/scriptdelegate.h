@@ -22,8 +22,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // scriptdelegate -- manages function delegate
 
-#include "../qcommon/listener.h"
-#include "../qcommon/delegate.h"
+#include "../corepp/listener.h"
+#include "../corepp/delegate.h"
 #include "gamescript.h"
 
 class ScriptRegisteredDelegate

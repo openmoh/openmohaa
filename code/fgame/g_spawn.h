@@ -24,8 +24,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #pragma once
 
-#include "class.h"
-#include "container.h"
+#include "../corepp/class.h"
+#include "../corepp/container.h"
 
 // spawnflags
 // these are set with checkboxes on each entity in the map editor

@@ -22,9 +22,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #pragma once
 
-#include "../qcommon/vector.h"
-#include "../qcommon/container.h"
-#include "../qcommon/lightclass.h"
+#include "../corepp/vector.h"
+#include "../corepp/container.h"
+#include "../corepp/lightclass.h"
 
 struct PathNav {
     Vector origin;

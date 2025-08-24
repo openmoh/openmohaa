@@ -27,7 +27,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "g_local.h"
 #include "entity.h"
-#include "vector.h"
+#include "../corepp/vector.h"
 
 typedef enum {
     SPLINE_NORMAL,

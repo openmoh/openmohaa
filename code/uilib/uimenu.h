@@ -22,8 +22,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #pragma once
 
-#include "../qcommon/listener.h"
-#include "../qcommon/stack.h"
+#include "../corepp/listener.h"
+#include "../corepp/stack.h"
 
 class Menu : public Listener
 {

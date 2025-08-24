@@ -24,8 +24,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "con_set.h"
 #include "short3.h"
-#include "str.h"
-#include "vector.h"
+#include "../corepp/str.h"
+#include "../corepp/vector.h"
 
 // Basic Hash functions
 

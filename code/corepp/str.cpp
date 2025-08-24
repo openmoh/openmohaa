@@ -23,7 +23,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // str.cpp: Simple, DLL portable string class
 //
 
-#include "str.h"
+#include "../corepp/str.h"
 #include <stdlib.h>
 #include <ctype.h>
 #include <stdio.h>

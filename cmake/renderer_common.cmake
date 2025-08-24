@@ -21,7 +21,7 @@ set(DYNAMIC_RENDERER_SOURCES
     ${SOURCE_DIR}/renderercommon/tr_subs.c
     ${SOURCE_DIR}/qcommon/q_shared.c
     ${SOURCE_DIR}/qcommon/q_math.c
-    ${SOURCE_DIR}/qcommon/str.cpp
+    ${SOURCE_DIR}/corepp/str.cpp
 )
 
 if(USE_FREETYPE)
