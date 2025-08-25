@@ -1,5 +1,4 @@
 build
-mohaa-re
 out
 Makefile.local
 *.swp
@@ -44,8 +43,8 @@ profile
 *.sdf
 *.opensdf
 *.suo
+/.vs
 
-.vs
-code_unfinished/*
-thirdparties/
-code/parser/generated/*
+# Flex and Bison
+####################
+/code/parser/generated
