@@ -1748,7 +1748,7 @@ void Event::ListDocumentation(const char *mask, qboolean print_to_disk)
     int                             hidden;
     str                             name;
     str                             text;
-    fileHandle_t                    event_file = NULL;
+    fileHandle_t                    event_file = 0;
     str                             event_filename;
     con_map_enum<Event *, EventDef> en = eventDefList;
     EventDef                       *def;
@@ -1768,7 +1768,7 @@ void Event::ListDocumentation(const char *mask, qboolean print_to_disk)
         event_file = FS_FOpenFileWrite(event_filename);
 #endif
 
-        if (event_file == NULL) {
+        if (event_file == 0) {
             return;
         }
     }
@@ -1818,7 +1818,7 @@ void Event::ListDocumentation(const char *mask, qboolean print_to_disk)
         EV_Print(event_file, "Suppressed %d commands.\n", hidden);
     }
 
-    if (event_file != NULL) {
+    if (event_file != 0) {
         EVENT_Printf("Printed event info to file %s\n", event_filename.c_str());
 #if defined(GAME_DLL)
     gi.FS_FCloseFile(event_file);

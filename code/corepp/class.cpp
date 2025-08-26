@@ -598,7 +598,7 @@ void ClassEvents(const char *classname, qboolean print_to_disk)
     ClassEventPrinter   printer;
 
     c          = getClass(classname);
-    class_file = NULL;
+    class_file = 0;
 
     if (print_to_disk) {
 #if defined(GAME_DLL)
@@ -668,7 +668,7 @@ void ClassEvents(const char *classname, qboolean print_to_disk)
     delete[] order;
     delete[] set;
 
-    if (class_file != NULL) {
+    if (class_file != 0) {
 #if defined(GAME_DLL)
         gi.FS_FCloseFile(class_file);
 #elif defined(CGAME_DLL)
