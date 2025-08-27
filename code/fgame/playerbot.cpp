@@ -839,7 +839,9 @@ void BotController::State_Attack(void)
         bCanAttack = true;
         if (m_iLastUnseenTime) {
             const float reactionTime = Q_min(1000 * Q_min(1, fDistanceSquared / Square(2048)), 1000);
-            if (level.inttime <= m_iLastUnseenTime + 200 + G_Random(reactionTime)) {
+            const unsigned int minDelay = g_bot_attack_react_min_delay->value * 1000;
+            const unsigned int randomDelay = g_bot_attack_react_random_delay->value * 1000;
+            if (level.inttime <= m_iLastUnseenTime + minDelay + G_Random(randomDelay)) {
                 bCanAttack = false;
             } else {
                 m_iLastUnseenTime = 0;
@@ -854,8 +856,10 @@ void BotController::State_Attack(void)
             float     fSecondaryBulletRangeSquared = fSecondaryBulletRange * fSecondaryBulletRange;
             float     fSpreadFactor                = pWeap->GetSpreadFactor(FIRE_PRIMARY);
 
-            const int maxContinousFireTime = fireDelay + 500 + G_Random(1500);
-            const int maxBurstTime         = fireDelay + 100 + G_Random(500);
+            const int maxcontinuousFireTime = fireDelay + g_bot_attack_continuousfire_min_firetime->value * 1000
+                                           + G_Random(g_bot_attack_continuousfire_random_firetime->value * 1000);
+            const int maxBurstTime = fireDelay + g_bot_attack_burst_min_time->value * 1000
+                                   + G_Random(g_bot_attack_burst_random_delay->value * 1000);
 
             //
             // check the fire movement speed if the weapon has a max fire movement
@@ -934,7 +938,7 @@ void BotController::State_Attack(void)
                     m_iContinuousFireTime = 0;
                 }
 
-                if (!m_iLastBurstTime && m_iContinuousFireTime > maxContinousFireTime) {
+                if (!m_iLastBurstTime && m_iContinuousFireTime > maxcontinuousFireTime) {
                     m_iLastBurstTime      = level.inttime;
                     m_iContinuousFireTime = 0;
                 }
@@ -1009,7 +1013,7 @@ void BotController::State_Attack(void)
             m_iLastAimTime = level.inttime;
         }
 
-        rotation.AimAt(vTarget + m_vAimOffset);
+        rotation.AimAt(vTarget + m_vAimOffset * g_bot_attack_spreadmult->value);
     } else {
         AimAtAimNode();
     }
@@ -1265,7 +1269,7 @@ void BotController::GotKill(const Event& ev)
     ClearEnemy();
     m_iCuriousTime = 0;
 
-    if (level.inttime >= m_iNextTauntTime && (rand() % 5) == 0) {
+    if (g_bot_instamsg_chance->integer && level.inttime >= m_iNextTauntTime && (rand() % g_bot_instamsg_chance->integer) == 0) {
         //
         // Randomly play a taunt
         //
@@ -1281,7 +1285,7 @@ void BotController::GotKill(const Event& ev)
 
         controlledEnt->ProcessEvent(event);
 
-        m_iNextTauntTime = level.inttime + 5000;
+        m_iNextTauntTime = level.inttime + g_bot_instamsg_delay->integer;
     }
 }
 
