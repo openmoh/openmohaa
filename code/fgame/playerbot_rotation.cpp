@@ -66,9 +66,9 @@ void BotRotation::TurnThink(usercmd_t& botcmd, usereyes_t& eyeinfo)
     int   i;
 
     factor      = 1.0;
-    maxChange   = 360;
+    maxChange   = Q_max(360, g_bot_turn_speed->integer);
     minChange   = 20;
-    changeSpeed = 15.0;
+    changeSpeed = g_bot_turn_speed->integer;
 
     if (m_vTargetAng[PITCH] > 180) {
         m_vTargetAng[PITCH] -= 360;

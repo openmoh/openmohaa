@@ -160,6 +160,23 @@ set sv_numbots 4 // Spawn 4 bots
 > 1. Get the [mp-navigation](https://github.com/openmoh/mp-navigation) pk3 (it only covers stock maps) and place it inside your game's `main` folder.
 > 2. Append `set g_navigation_legacy 1` somewhere, like in your `server.cfg` file.
 
+#### Modifying bots
+
+There is no skill system yet, however some settings can be modified:
+
+|Name                                        | Description                                                                                               |
+|--------------------------------------------|-----------------------------------------------------------------------------------------------------------|
+|g_bot_attack_burst_min_time                 | Minimum time to pause firing (burst). |
+|g_bot_attack_burst_random_delay             | Random time added to pause firing (burst). |
+|g_bot_attack_continuousfire_min_firetime    | Minimum duration of continuous firing. |
+|g_bot_attack_continuousfire_random_firetime | Random time added to the continuous firing duration. |
+|g_bot_attack_react_min_delay                | The minimum delay before shooting the enemy. |
+|g_bot_attack_react_random_delay             | Random delay added before shooting the enemy. |
+|g_bot_attack_spreadmult                     | The accuracy multiplier in sort. Default to 1.0, lower value = better accuracy |
+|g_bot_turn_speed                            | The rate of degrees per second when turning. |
+|g_bot_instamsg_chance                       | The chance at which the bot sends an instant message when shooting. 0 = disable, higher values = less frequent messages |
+|g_bot_instamsg_delay                        | The minimum delay between instant messages. |
+
 #### Known issues with bots
 
 - Bots may not properly detect or avoid minefields.
