@@ -487,7 +487,7 @@ static bool S_OPENAL_InitExtensions()
                             "alGetStringiSOFT", (void **)&qalGetStringiSOFT,
                             false, },
 #endif
-        extensions_table_t {NULL, NULL, NULL}
+        extensions_table_t {NULL, NULL, false}
     };
 
     extensions_table_t *i;
