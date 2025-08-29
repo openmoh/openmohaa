@@ -90,8 +90,14 @@ Make the server joinable only with a password. By default, no password is set.
 
 ### `g_teamdamage`
 
-- `0` (the default): No friendly-fire
-- `1`: Friendly-fire enabled
+- `0` (the default): Friendly fire disabled.
+- `1`: Friendly fire enabled.
+- `2`: Reflective friendly fire (damage is applied only to the attacker, not teammates).
+- `3`: Friendly fire with reflection (damage is applied to both the attacker and the teammate).
+
+This variable is **bit-based**, so you can also combine values using `bitset`:
+- `bitset g_teamdamage 0`: Enables friendly fire
+- `bitset g_teamdamage 1`: Enables reflective friendly fire
 
 ### `g_teamkillkick`
 

@@ -9680,18 +9680,22 @@ void Player::ArmorDamage(Event *ev)
 
         Player *attacker = (Player *)ev->GetEntity(1);
 
-        if (attacker && attacker->IsSubclassOfPlayer()) {
-            if (attacker != this) {
-                if (g_gametype->integer >= GT_TEAM && !g_teamdamage->integer) {
-                    // check for team damage
-                    if (attacker->GetDM_Team() == GetDM_Team() && mod != MOD_TELEFRAG) {
-                        return;
-                    }
+        if (attacker && attacker->IsSubclassOfPlayer() && attacker != this) {
+            if (g_gametype->integer >= GT_TEAM && attacker->GetDM_Team() == GetDM_Team() && mod != MOD_TELEFRAG) {
+                // check for team damage
+                if (g_teamdamage->integer & 2) {
+                    // Reflective team-damage
+                    attacker->ProcessEvent(*ev);
                 }
 
-                pAttackerDistPointer = attacker;
-                fAttackerDispTime    = g_drawattackertime->value + level.time;
+                if (!(g_teamdamage->integer & 1)) {
+                    // No effect on team mates
+                    return;
+                }
             }
+
+            pAttackerDistPointer = attacker;
+            fAttackerDispTime    = g_drawattackertime->value + level.time;
         }
     }
 
@@ -9699,7 +9703,7 @@ void Player::ArmorDamage(Event *ev)
 
     Sentient::ArmorDamage(ev);
 
-    Event *event = new Event;
+    Event *event = new Event(0, 11);
 
     event->AddEntity(ev->GetEntity(1));
     event->AddFloat(ev->GetFloat(2));
