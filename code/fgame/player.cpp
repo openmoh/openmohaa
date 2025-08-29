@@ -4260,14 +4260,21 @@ void Player::ClientInactivityTimer(void)
         gi.cvar_set("g_inactiveSpectate", "20");
     }
 
-    if (num_team_kills >= g_teamkillkick->integer) {
+    // Fixed in OPM
+    //  Make it possible to set g_teamkillkick to 0
+    if (!g_teamkillkick->integer) {
+        if (num_team_kills) {
+            num_team_kills      = 0;
+            m_iLastNumTeamKills = 0;
+        }
+    } else if (num_team_kills >= g_teamkillkick->integer) {
         //const str message = gi.LV_ConvertString("was removed from the server for killing too many teammates.");
 
         //
         // The player reached maximum team kills
         //
         //G_PrintToAllClients(va("%s %s\n", client->pers.netname, message.c_str()), 2);
-        
+
         const str message = gi.LV_ConvertString("killing too many teammates.");
 
         if (Q_stricmp(Info_ValueForKey(client->pers.userinfo, "ip"), "localhost")) {
@@ -4286,7 +4293,9 @@ void Player::ClientInactivityTimer(void)
         return;
     }
 
-    if (num_team_kills >= g_teamkillwarn->integer && num_team_kills > m_iLastNumTeamKills) {
+    // Fixed in OPM
+    //  Make it possible to set g_teamkillwarn to 0
+    if (g_teamkillwarn->integer && num_team_kills >= g_teamkillwarn->integer && num_team_kills > m_iLastNumTeamKills) {
         const str sWarning   = gi.LV_ConvertString("Warning:");
         const str sTeamKills = gi.LV_ConvertString("more team kill(s) and you will be removed from the server.");
 
