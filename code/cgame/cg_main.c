@@ -344,13 +344,17 @@ CG_ProcessConfigString
 */
 void CG_ProcessConfigString(int num, qboolean modelOnly)
 {
-    const char* str;
-    int i;
+    const char *str;
+    size_t      index;
+    int         i;
 
     str = CG_ConfigString(num);
 
     if (num >= CS_MODELS && num < CS_MODELS + MAX_MODELS) {
-        qhandle_t hOldModel = cgs.model_draw[num - CS_MODELS];
+        qhandle_t hOldModel;
+
+        index     = num - CS_MODELS;
+        hOldModel = cgs.model_draw[index];
 
         if (str && str[0] && !modelOnly) {
             qhandle_t hModel = cgi.R_RegisterServerModel(str);
@@ -362,7 +366,7 @@ void CG_ProcessConfigString(int num, qboolean modelOnly)
                     cgi.R_UnregisterServerModel(hOldModel);
                 }
 
-                cgs.model_draw[num - CS_MODELS] = hModel;
+                cgs.model_draw[index] = hModel;
                 assert(CG_IsHandleUnique(hModel));
             }
             tiki = cgi.R_Model_GetHandle(hModel);
@@ -378,7 +382,7 @@ void CG_ProcessConfigString(int num, qboolean modelOnly)
                 cgi.R_UnregisterServerModel(hOldModel);
             }
 
-            cgs.model_draw[num - CS_MODELS] = 0;
+            cgs.model_draw[index] = 0;
 
             if (!str || !str[0]) {
                 CG_ServerModelUnloaded(hOldModel);
@@ -441,7 +445,8 @@ void CG_ProcessConfigString(int num, qboolean modelOnly)
 
         if (num >= CS_OBJECTIVES && num < CS_OBJECTIVES + MAX_OBJECTIVES) {
             cobjective_t *objective = &cg.Objectives[num - CS_OBJECTIVES];
-            objective->flags        = atoi(Info_ValueForKey(str, "flags"));
+
+            objective->flags = atoi(Info_ValueForKey(str, "flags"));
             Q_strncpyz(objective->text, Info_ValueForKey(str, "text"), sizeof(objective->text));
         }
 
@@ -453,7 +458,7 @@ void CG_ProcessConfigString(int num, qboolean modelOnly)
             cg.matchStartTime = atoi(str);
             return;
         case CS_FOGINFO:
-            cg.farclipOverride = 0;
+            cg.farclipOverride          = 0;
             cg.farplaneColorOverride[0] = -1;
             cg.farplaneColorOverride[1] = -1;
             cg.farplaneColorOverride[2] = -1;
@@ -469,23 +474,23 @@ void CG_ProcessConfigString(int num, qboolean modelOnly)
             cgs.levelStartTime = atoi(str);
             return;
         case CS_VOTE_TIME:
-            cgs.voteTime = atoi(str);
+            cgs.voteTime      = atoi(str);
             cgs.voteRefreshed = qtrue;
             break;
         case CS_VOTE_STRING:
             Q_strncpyz(cgs.voteString, str, sizeof(cgs.voteString));
             break;
         case CS_VOTE_YES:
-            cgs.numVotesYes = atoi(str);
+            cgs.numVotesYes   = atoi(str);
             cgs.voteRefreshed = qtrue;
             break;
         case CS_VOTE_NO:
-            cgs.numVotesNo = atoi(str);
+            cgs.numVotesNo    = atoi(str);
             cgs.voteRefreshed = qtrue;
             break;
         case CS_VOTE_UNDECIDED:
             cgs.numUndecidedVotes = atoi(str);
-            cgs.voteRefreshed = qtrue;
+            cgs.voteRefreshed     = qtrue;
             break;
         case CS_MATCHEND:
             cgs.matchEndTime = atoi(str);
@@ -498,7 +503,7 @@ void CG_ProcessConfigString(int num, qboolean modelOnly)
                 qboolean streamed;
                 char     buf[1024];
                 Q_strncpyz(buf, str, sizeof(buf));
-        
+
                 streamed     = buf[len - 1] != '0';
                 buf[len - 1] = 0;
                 if (buf[0] != '*') {
@@ -509,21 +514,21 @@ void CG_ProcessConfigString(int num, qboolean modelOnly)
             CG_SetLightStyle(num - CS_LIGHTSTYLES, str);
         } else if (num >= CS_PLAYERS && num < CS_PLAYERS + MAX_CLIENTS) {
             const char *value;
-        
+
+            index = num - CS_PLAYERS;
+
+            // Get the name
             value = Info_ValueForKey(str, "name");
-            if (value) {
-                strncpy(cg.clientinfo[num - CS_PLAYERS].name, value, sizeof(cg.clientinfo[num - CS_PLAYERS].name));
-            } else {
-                strncpy(
-                    cg.clientinfo[num - CS_PLAYERS].name, "UnnamedSoldier", sizeof(cg.clientinfo[num - CS_PLAYERS].name)
-                );
+            if (!value) {
+                value = "UnnamedSoldier";
             }
-        
+            Q_strncpyz(cg.clientinfo[index].name, value, sizeof(cg.clientinfo[index].name));
+
             value = Info_ValueForKey(str, "team");
             if (value) {
-                cg.clientinfo[num - CS_PLAYERS].team = atoi(value);
+                cg.clientinfo[index].team = atoi(value);
             } else {
-                cg.clientinfo[num - CS_PLAYERS].team = TEAM_NONE;
+                cg.clientinfo[index].team = TEAM_NONE;
             }
         }
     }
