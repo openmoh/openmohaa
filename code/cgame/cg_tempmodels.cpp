@@ -231,7 +231,7 @@ void ClientGameCommandManager::InitializeTempModelCvars(void)
     cg_showtempmodels = cgi.Cvar_Get("cg_showtempmodels", "0", 0);
     cg_detail         = cgi.Cvar_Get("detail", "1", CVAR_ARCHIVE);
 
-    cg_effectdetail = cgi.Cvar_Get("cg_effectdetail", "0.2", CVAR_ARCHIVE);
+    cg_effectdetail = cgi.Cvar_Get("cg_effectdetail", "1.0", CVAR_ARCHIVE);
     cgi.Cvar_CheckRange(cg_effectdetail, 0.2, 1.0, qfalse);
 
     cg_effect_physicsrate = cgi.Cvar_Get("cg_effect_physicsrate", "10", CVAR_ARCHIVE);

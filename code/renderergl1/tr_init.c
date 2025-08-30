@@ -1325,7 +1325,7 @@ void R_Register( void )
 	r_geForce3WorkAround = ri.Cvar_Get("r_geForce3WorkAround", "1", CVAR_ARCHIVE);
 	r_reset_tc_array = ri.Cvar_Get("r_reset_tc_array", "1", CVAR_ARCHIVE);
 
-	r_picmip = ri.Cvar_Get ("r_picmip", "1", CVAR_ARCHIVE | CVAR_LATCH );
+	r_picmip = ri.Cvar_Get ("r_picmip", "0", CVAR_ARCHIVE | CVAR_LATCH );
 	r_picmip_cap = ri.Cvar_Get ("r_picmip_cap", "0", CVAR_ARCHIVE | CVAR_LATCH );
     if (r_picmip->integer < r_picmip_cap->integer) {
         ri.Cvar_Set("r_picmip", r_picmip_cap->string);
@@ -1373,7 +1373,7 @@ void R_Register( void )
 	r_customaspect = ri.Cvar_Get( "r_customaspect", "1", CVAR_ARCHIVE | CVAR_LATCH );
 	r_vertexLight = ri.Cvar_Get("r_vertexLight", "0", CVAR_ARCHIVE | CVAR_LATCH);
 	r_ignoreFastPath = ri.Cvar_Get("r_ignoreFastPath", "0", CVAR_ARCHIVE | CVAR_LATCH);
-	r_subdivisions = ri.Cvar_Get("r_subdivisions", "4", CVAR_ARCHIVE | CVAR_LATCH);
+	r_subdivisions = ri.Cvar_Get("r_subdivisions", "3", CVAR_ARCHIVE | CVAR_LATCH);
 	ri.Cvar_CheckRange(r_subdivisions, 2, 24, qtrue);
 
 	//
@@ -1397,17 +1397,17 @@ void R_Register( void )
 	ri.Cvar_CheckRange( r_znear, 0.001f, 200, qtrue );
 	r_ignoreGLErrors = ri.Cvar_Get( "r_ignoreGLErrors", "1", CVAR_ARCHIVE );
 	r_fastsky = ri.Cvar_Get( "r_fastsky", "0", 0 );
-	r_fastdlights = ri.Cvar_Get("r_fastdlights", "1", CVAR_ARCHIVE | CVAR_LATCH);
+	r_fastdlights = ri.Cvar_Get("r_fastdlights", "0", CVAR_ARCHIVE | CVAR_LATCH);
 	r_drawSun = ri.Cvar_Get( "r_drawSun", "0", CVAR_ARCHIVE );
 	r_dlightBacks = ri.Cvar_Get( "r_dlightBacks", "1", CVAR_ARCHIVE );
 	r_finish = ri.Cvar_Get ("r_finish", "0", CVAR_ARCHIVE);
-	r_textureMode = ri.Cvar_Get( "r_textureMode", "GL_LINEAR_MIPMAP_NEAREST", CVAR_ARCHIVE );
+	r_textureMode = ri.Cvar_Get( "r_textureMode", "gl_linear_mipmap_linear", CVAR_ARCHIVE );
 	r_swapInterval = ri.Cvar_Get( "r_swapInterval", "0", CVAR_ARCHIVE | CVAR_LATCH );
 	r_gamma = ri.Cvar_Get( "r_gamma", "1", CVAR_ARCHIVE );
 	r_facePlaneCull = ri.Cvar_Get ("r_facePlaneCull", "1", CVAR_ARCHIVE );
 	//	Added in OPM
 	//	 Make archivable
-	r_drawstaticdecals = ri.Cvar_Get("r_drawstaticdecals", "0", CVAR_ARCHIVE );
+	r_drawstaticdecals = ri.Cvar_Get("r_drawstaticdecals", "1", CVAR_ARCHIVE );
 
 	r_primitives = ri.Cvar_Get( "r_primitives", "0", CVAR_ARCHIVE );
 
@@ -1478,8 +1478,8 @@ void R_Register( void )
 	r_drawsprites = ri.Cvar_Get("r_drawsprites", "1", CVAR_CHEAT);
 	r_drawspherelights = ri.Cvar_Get("r_drawspherelights", "1", CVAR_CHEAT);
 	r_staticlod = ri.Cvar_Get("r_staticlod", "1", CVAR_CHEAT);
-	r_lodscale = ri.Cvar_Get("r_lodscale", "5", CVAR_ARCHIVE);
-	r_lodcap = ri.Cvar_Get("r_lodcap", "0.35", CVAR_ARCHIVE);
+	r_lodscale = ri.Cvar_Get("r_lodscale", "1.1", CVAR_ARCHIVE);
+	r_lodcap = ri.Cvar_Get("r_lodcap", "1.0", CVAR_ARCHIVE);
 	r_lodviewmodelcap = ri.Cvar_Get("r_lodviewmodelcap", "0.25", CVAR_ARCHIVE);
 	r_ignore = ri.Cvar_Get( "r_ignore", "1", CVAR_CHEAT );
 	r_nocull = ri.Cvar_Get ("r_nocull", "0", CVAR_CHEAT);
@@ -1503,7 +1503,7 @@ void R_Register( void )
 	r_lockpvs = ri.Cvar_Get ("r_lockpvs", "0", CVAR_CHEAT);
 	r_noportals = ri.Cvar_Get ("r_noportals", "0", CVAR_CHEAT);
 	r_entlightmap = ri.Cvar_Get("r_entlightmap", "0", CVAR_CHEAT);
-	r_fastentlight = ri.Cvar_Get("r_fastentlight", "1", CVAR_ARCHIVE);
+	r_fastentlight = ri.Cvar_Get("r_fastentlight", "0", CVAR_ARCHIVE);
 	r_entlight_scale = ri.Cvar_Get("r_entlight_scale", "1.3", CVAR_CHEAT);
 	r_entlight_errbound = ri.Cvar_Get("r_entlight_errbound", "6", CVAR_ARCHIVE);
 	r_entlight_cubelevel = ri.Cvar_Get("r_entlight_cubelevel", "0", CVAR_ARCHIVE);

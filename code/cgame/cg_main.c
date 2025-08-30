@@ -129,7 +129,7 @@ void CG_RegisterCvars(void)
 
     cgi.Cvar_Get("g_subtitle", "0", CVAR_ARCHIVE);
     cg_viewsize                   = cgi.Cvar_Get("viewsize", "100", CVAR_ARCHIVE);
-    cg_addMarks                   = cgi.Cvar_Get("cg_marks_add", "0", CVAR_ARCHIVE);
+    cg_addMarks                   = cgi.Cvar_Get("cg_marks_add", "1", CVAR_ARCHIVE);
     cg_maxMarks                   = cgi.Cvar_Get("cg_marks_max", "256", CVAR_ARCHIVE | CVAR_LATCH);
     cg_animSpeed                  = cgi.Cvar_Get("cg_animspeed", "1", CVAR_CHEAT);
     cg_debugAnim                  = cgi.Cvar_Get("cg_debuganim", "0", CVAR_CHEAT);

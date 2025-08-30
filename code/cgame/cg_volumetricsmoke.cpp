@@ -259,10 +259,10 @@ void ClientGameCommandManager::InitializeVSSSources()
 
 void ClientGameCommandManager::InitializeVSSCvars()
 {
-    vss_draw            = cgi.Cvar_Get("vss_draw", "0", CVAR_ARCHIVE);
+    vss_draw            = cgi.Cvar_Get("vss_draw", "1", CVAR_ARCHIVE);
     vss_physics_fps     = cgi.Cvar_Get("vss_physics_fps", "8", 0);
     vss_repulsion_fps   = cgi.Cvar_Get("vss_repulsion_fps", "4", 0);
-    vss_maxcount        = cgi.Cvar_Get("vss_maxcount", "22", CVAR_ARCHIVE);
+    vss_maxcount        = cgi.Cvar_Get("vss_maxcount", "10", CVAR_ARCHIVE);
     vss_color           = cgi.Cvar_Get("vss_color", "1", 0);
     vss_showsources     = cgi.Cvar_Get("vss_showsources", "1", 0);
     vss_wind_x          = cgi.Cvar_Get("vss_wind_x", "8", 0);
