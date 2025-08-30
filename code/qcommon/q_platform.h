@@ -428,13 +428,16 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 //===========================================================================
 
-//catch missing defines in above blocks
-#if !defined( OS_STRING )
+// Catch missing defines in above blocks
+
+#ifndef OS_STRING
 #error "Operating system not supported"
 #endif
 
-#if !defined( ARCH_STRING )
-#error "Architecture not supported"
+#ifndef ARCH_STRING
+// ARCH_STRING is (mostly) only used for informational purposes, so we allow
+// it to be undefined so that more diverse architectures may be compiled
+#define ARCH_STRING "unknown"
 #endif
 
 #ifndef ID_INLINE
