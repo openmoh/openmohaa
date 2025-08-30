@@ -47,7 +47,9 @@ jobs:
 
     - name: Install required packages
       run: |
-        brew install git flex bison ninja cmake llvm perl
+        brew install flex bison llvm
+    # Those packages are already installed  
+    #brew install git ninja cmake perl
 
     - name: Settings
       working-directory: ${{github.workspace}}
