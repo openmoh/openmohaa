@@ -38,6 +38,11 @@ endif()
 
 set(CLIENT_EXECUTABLE_OPTIONS WIN32)
 
+# It's only necessary to set this on Windows; elsewhere
+# CMAKE_EXECUTABLE_SUFFIX will be empty anyway, or we want
+# HOST_EXECUTABLE_SUFFIX to be empty for other reasons
+set(HOST_EXECUTABLE_SUFFIX ${CMAKE_EXECUTABLE_SUFFIX})
+
 #
 # non-ioq3
 #
