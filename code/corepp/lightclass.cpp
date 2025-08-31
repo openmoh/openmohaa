@@ -40,7 +40,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #else
 
-#    include "qcommon.h"
+#    include "../qcommon/qcommon.h"
 
 #    define LIGHTCLASS_Printf  Com_Printf
 #    define LIGHTCLASS_DPrintf Com_DPrintf

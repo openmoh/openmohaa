@@ -23,7 +23,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // lz77.cpp: LZ77 Compression Algorithm
 
 #include "lz77.h"
-#include "q_shared.h"
+#include "../qcommon/q_shared.h"
 
 #include <cstdio>
 #include <cstring>

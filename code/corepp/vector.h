@@ -26,7 +26,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <cmath>
 #include <cstdio>
-#include "qcommon.h"
+#include "../qcommon/qcommon.h"
 
 //#define X 0
 //#define Y 1

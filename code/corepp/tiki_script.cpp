@@ -22,8 +22,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // tiki_parse.cpp : TIKI Script
 
-#include "q_shared.h"
-#include "qcommon.h"
+#include "../qcommon/q_shared.h"
+#include "../qcommon/qcommon.h"
 #include "../corepp/tiki.h"
 
 TikiScript *TikiScript::currentScript;

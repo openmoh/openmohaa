@@ -45,7 +45,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #    define ARRAYSET_Free  ri.Free
 
 #else
-#    include "qcommon.h"
+#    include "../qcommon/qcommon.h"
 
 #    define ARRAYSET_Alloc Z_Malloc
 #    define ARRAYSET_Free  Z_Free

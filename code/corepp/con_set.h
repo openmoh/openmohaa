@@ -45,7 +45,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #    define SET_Free  ri.Free
 
 #else
-#    include "qcommon.h"
+#    include "../qcommon/qcommon.h"
 
 #    define SET_Alloc Z_Malloc
 #    define SET_Free  Z_Free

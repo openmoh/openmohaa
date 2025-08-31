@@ -66,7 +66,7 @@ void MEM_Free(void *ptr)
 
 #else
 
-#    include "qcommon.h"
+#    include "../qcommon/qcommon.h"
 
 void *MEM_Alloc(int size)
 {

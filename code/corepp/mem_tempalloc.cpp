@@ -38,7 +38,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #    define MEM_TempFree(x)     cgi.Free(x)
 
 #else
-#    include "qcommon.h"
+#    include "../qcommon/qcommon.h"
 
 #    define MEM_TempAllocate(x) Z_Malloc(x)
 #    define MEM_TempFree(x)     Z_Free(x)

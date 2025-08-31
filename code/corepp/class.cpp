@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "../corepp/class.h"
 #include "../corepp/listener.h"
-#include "q_shared.h"
+#include "../qcommon/q_shared.h"
 
 #if defined(GAME_DLL)
 

@@ -27,7 +27,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define glbs gi
 
 #include "g_local.h"
-#include "qcommon.h"
+#include "../qcommon/qcommon.h"
 
 #else
 
