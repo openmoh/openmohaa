@@ -400,7 +400,7 @@ void CL_Record_f( void ) {
 			CL_DemoFilename( number, demoName );
 			Com_sprintf (name, sizeof(name), "demos/%s.dm_%d", demoName, com_protocol->integer );
 
-			if (!FS_FileExists(name))
+			if (!FS_FileExists_HomeData(name))
 				break;	// file doesn't exist
 		}
 	}
@@ -408,7 +408,7 @@ void CL_Record_f( void ) {
 	// open the demo file
 
 	Com_Printf ("recording to %s.\n", name);
-	clc.demofile = FS_FOpenFileWrite( name );
+	clc.demofile = FS_FOpenFileWrite_HomeData( name );
 	if ( !clc.demofile ) {
 		Com_Printf ("ERROR: couldn't open.\n");
 		return;
@@ -565,7 +565,7 @@ void CL_DemoCompleted( void )
 				else
 					numFrames = clc.timeDemoFrames - 1;
 
-				f = FS_FOpenFileWrite( cl_timedemoLog->string );
+				f = FS_FOpenFileWrite_HomeData( cl_timedemoLog->string );
 				if( f )
 				{
 					FS_Printf( f, "# %s", buffer );
@@ -3238,7 +3238,7 @@ void CL_InitRef( void ) {
 	ri.CM_DrawDebugSurface = CM_DrawDebugSurface;
 
 	ri.FS_OpenFile = FS_FOpenFileRead;
-	ri.FS_OpenFileWrite = FS_FOpenFileWrite;
+	ri.FS_OpenFileWrite = FS_FOpenFileWrite_HomeData;
 	ri.FS_CloseFile = FS_FCloseFile;
 	ri.FS_Read = FS_Read;
 	ri.FS_Write = FS_Write;
@@ -3250,7 +3250,7 @@ void CL_InitRef( void ) {
 	ri.FS_FreeFileList = FS_FreeFileList;
 	ri.FS_ListFiles = CL_RefFS_ListFiles;
 	ri.FS_FileIsInPAK = FS_FileIsInPAK;
-	ri.FS_FileExists = FS_FileExists;
+	ri.FS_FileExists = FS_FileExists_HomeData;
 	ri.FS_CanonicalFilename = FS_CanonicalFilename;
 	ri.Cvar_Get = Cvar_Get;
 	ri.Cvar_Set = Cvar_Set;
@@ -3462,7 +3462,7 @@ void CL_Video_f( void )
       Com_sprintf( filename, MAX_OSPATH, "videos/video%d%d%d%d.avi",
           a, b, c, d );
 
-      if( !FS_FileExists( filename ) )
+      if( !FS_FileExists_HomeData( filename ) )
         break; // file doesn't exist
     }
 
@@ -3515,7 +3515,7 @@ static void CL_GenerateQKey(void)
 		Com_Printf( "QKEY building random string\n" );
 		Com_RandomBytes( buff, sizeof(buff) );
 
-		f = FS_BaseDir_FOpenFileWrite( QKEY_FILE );
+		f = FS_BaseDir_FOpenFileWrite_HomeState( QKEY_FILE );
 		if( !f ) {
 			Com_Printf( "QKEY could not open %s for write\n",
 				QKEY_FILE );

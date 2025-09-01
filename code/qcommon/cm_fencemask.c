@@ -344,7 +344,7 @@ void CM_SaveFCM(const char *szName, cfencemask_t **pMask)
 
     COM_StripExtension(szName, tempName, sizeof(tempName));
     strcat(tempName, ".fcm");
-    h = FS_FOpenFileWrite(tempName);
+    h = FS_FOpenFileWrite_HomeData(tempName);
 
     if (!h) {
         return;
@@ -370,7 +370,7 @@ void CM_SaveFCM(const char *szName, cfencemask_t **pMask)
 
         COM_StripExtension(szName, tempName, sizeof(tempName));
         strcat(tempName, ".fcm");
-        h = FS_FOpenFileWrite(tempName);
+        h = FS_FOpenFileWrite_HomeData(tempName);
         if (!h) {
             return;
         }

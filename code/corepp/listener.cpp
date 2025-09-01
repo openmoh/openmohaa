@@ -1765,7 +1765,7 @@ void Event::ListDocumentation(const char *mask, qboolean print_to_disk)
 #elif defined(CGAME_DLL)
         event_file = cgi.FS_FOpenFileWrite(event_filename);
 #else
-        event_file = FS_FOpenFileWrite(event_filename);
+        event_file = FS_FOpenFileWrite_HomeData(event_filename);
 #endif
 
         if (event_file == 0) {

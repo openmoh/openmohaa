@@ -316,7 +316,7 @@ LAN_SaveServersToCache
 void LAN_SaveServersToCache(void)
 {
     int          size;
-    fileHandle_t fileOut = FS_BaseDir_FOpenFileWrite("servercache.dat");
+    fileHandle_t fileOut = FS_BaseDir_FOpenFileWrite_HomeData("servercache.dat");
     FS_Write(&cls.numglobalservers, sizeof(int), fileOut);
     FS_Write(&cls.nummplayerservers, sizeof(int), fileOut);
     FS_Write(&cls.numfavoriteservers, sizeof(int), fileOut);
@@ -5962,7 +5962,7 @@ void UI_EndLoad(void)
             size += strlen(ptr->name) + 1;
         }
 
-        file = FS_FOpenFileWrite(loadName);
+        file = FS_FOpenFileWrite_HomeData(loadName);
         Com_sprintf(buf, sizeof(buf), "%d\n%d %d\n", 3, loadNumber, size);
 
         FS_Write(buf, strlen(buf), file);

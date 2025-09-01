@@ -274,9 +274,9 @@ void QDECL Com_Printf( const char *fmt, ... ) {
 
 			time( &aclock );
 			newtime = localtime( &aclock );
-			
-			logfile = FS_FOpenTextFileWrite( "qconsole.log" );
 
+			logfile = FS_FOpenFileWrite_HomeData( "qconsole.log" );
+			
             // Remove recursive count as it won't be able to print relevant info
             recursive_count--;
 			if(logfile)
@@ -1005,8 +1005,8 @@ void Com_InitJournaling( void ) {
 
 	if ( com_journal->integer == 1 ) {
 		Com_Printf( "Journaling events\n");
-		com_journalFile = FS_FOpenFileWrite( "journal.dat" );
-		com_journalDataFile = FS_FOpenFileWrite( "journaldata.dat" );
+		com_journalFile = FS_FOpenFileWrite_HomeState( "journal.dat" );
+		com_journalDataFile = FS_FOpenFileWrite_HomeState( "journaldata.dat" );
 	} else if ( com_journal->integer == 2 ) {
 		Com_Printf( "Replaying journaled events\n");
 		FS_FOpenFileRead( "journal.dat", &com_journalFile, qtrue, qtrue );
@@ -1631,7 +1631,7 @@ static void Com_WriteCDKey( const char *filename, const char *ikey ) {
 #ifndef _WIN32
 	savedumask = umask(0077);
 #endif
-	f = FS_BaseDir_FOpenFileWrite( fbuffer );
+	f = FS_BaseDir_FOpenFileWrite_HomeState( fbuffer );
 	if ( !f ) {
 		Com_Printf ("Couldn't write CD key to %s.\n", fbuffer );
 		goto out;
@@ -1758,16 +1758,17 @@ void Com_Init( char *commandLine ) {
 	// done early so bind command exists
 	CL_InitKeyCommands();
 
-	com_target_game = Cvar_Get("com_target_game", "0", CVAR_INIT|CVAR_PROTECTED);
-	com_target_demo = Cvar_Get("com_target_demo", "0", CVAR_INIT|CVAR_PROTECTED);
-	com_target_shortversion = Cvar_Get("com_target_shortversion", "0.00", CVAR_ROM);
-	com_target_version = Cvar_Get("com_target_version", "", CVAR_ROM);
-	com_target_extension = Cvar_Get("com_target_extension", "", CVAR_ROM);
+	Com_InitTargetGame();
+
 	com_standalone = Cvar_Get("com_standalone", "0", CVAR_ROM);
 	com_basegame = Cvar_Get("com_basegame", BASEGAME, CVAR_INIT);
-	com_homepath = Cvar_Get("com_homepath", "", CVAR_INIT|CVAR_PROTECTED);
-
-	Com_InitTargetGame();
+    if (com_target_demo->integer) {
+		// As full and demo are different products,
+		// it's better for them to have separate location for configs and saves
+	    com_homepath = Cvar_Get("com_homepath", va("%s-demo", HOMEPATH_NAME), CVAR_INIT|CVAR_PROTECTED);
+    } else {
+	    com_homepath = Cvar_Get("com_homepath", "", CVAR_INIT|CVAR_PROTECTED);
+    }
 
 	FS_InitFilesystem ();
 
@@ -2068,7 +2069,7 @@ void Com_WriteConfigToFile( const char *filename ) {
 	COM_StripExtension( szFullName, szFullName, sizeof( szFullName ) );
 	strcat( szFullName, ".cfg" );
 
-	f = FS_FOpenFileWrite( szFullName );
+	f = FS_FOpenFileWrite_HomeConfig( szFullName );
 	if ( !f ) {
 		Com_Printf ("Couldn't write %s.\n", filename );
 		return;
@@ -2496,6 +2497,10 @@ void Com_Shutdown (void) {
 		com_journalFile = 0;
 	}
 
+	if( pipefile ) {
+		FS_FCloseFile( pipefile );
+		FS_Remove_HomeData( com_pipefile->string );
+    }
 }
 
 qboolean Com_SanitizeName(const char* pszOldName, char* pszNewName, size_t bufferSize)
@@ -2579,9 +2584,9 @@ const char *Com_GetArchiveFolder()
 void Com_WipeSavegame( const char *savename )
 {
 	Com_DPrintf( "Com_WipeSaveGame(%s)\n", savename );
-	FS_DeleteFile( Com_GetArchiveFileName( savename, "sav" ) );
-	FS_DeleteFile( Com_GetArchiveFileName( savename, "ssv" ) );
-	FS_DeleteFile( Com_GetArchiveFileName( savename, "tga" ) );
+	FS_Remove_HomeData( Com_GetArchiveFileName( savename, "sav" ) );
+	FS_Remove_HomeData( Com_GetArchiveFileName( savename, "ssv" ) );
+	FS_Remove_HomeData( Com_GetArchiveFileName( savename, "tga" ) );
 }
 
 qboolean Com_ShiftedStrStr(const char* shifted, const char* name, int offset) {
@@ -3207,6 +3212,12 @@ Com_InitTargetGame
 ===============
 */
 void Com_InitTargetGame() {
+	com_target_game = Cvar_Get("com_target_game", "0", CVAR_INIT|CVAR_PROTECTED);
+	com_target_demo = Cvar_Get("com_target_demo", "0", CVAR_INIT|CVAR_PROTECTED);
+	com_target_shortversion = Cvar_Get("com_target_shortversion", "0.00", CVAR_ROM);
+	com_target_version = Cvar_Get("com_target_version", "", CVAR_ROM);
+	com_target_extension = Cvar_Get("com_target_extension", "", CVAR_ROM);
+
 	Com_InitTargetGameWithType((target_game_e)com_target_game->integer, com_target_demo->integer);
 }
 

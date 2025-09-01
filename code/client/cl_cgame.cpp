@@ -644,7 +644,7 @@ void CL_InitCGameDLL( clientGameImport_t *cgi, clientGameExport_t **cge ) {
 	cgi->FS_FreeFile					= FS_FreeFile;
 	cgi->FS_WriteFile					= FS_WriteFile;
 	cgi->FS_WriteTextFile				= FS_WriteTextFile;
-    cgi->FS_FOpenFileWrite              = FS_FOpenFileWrite;
+    cgi->FS_FOpenFileWrite              = FS_FOpenFileWrite_HomeData;
     cgi->FS_Write                       = FS_Write;
     cgi->FS_FCloseFile                  = FS_FCloseFile;
     cgi->FS_ListFilteredFiles			= FS_ListFilteredFiles;

@@ -734,7 +734,7 @@ SaveLODFile
 */
 void SaveLODFile(const char *path, lodControl_t *LOD)
 {
-    fileHandle_t file = FS_FOpenFileWrite(path);
+    fileHandle_t file = FS_FOpenFileWrite_HomeData(path);
     if (!file) {
         TIKI_Warning("SaveLODFile: Failed to open file %s\n", path);
         return;

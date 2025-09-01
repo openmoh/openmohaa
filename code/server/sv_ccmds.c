@@ -700,7 +700,7 @@ static void SV_WriteBans(void)
 	
 	Com_sprintf(filepath, sizeof(filepath), "%s/%s", FS_GetCurrentGameDir(), sv_banFile->string);
 
-	if((writeto = FS_BaseDir_FOpenFileWrite(filepath)))
+	if((writeto = FS_BaseDir_FOpenFileWrite_HomeState(filepath)))
 	{
 		char writebuf[128 + MAX_REASON_LENGTH];
 		serverBan_t *curban;
@@ -1733,7 +1733,7 @@ void SV_NetProfileDump_f(void)
 	netprofclient_t netproftotal;
 
 	if (!hFile) {
-		hFile = FS_FOpenTextFileWrite("netprofile.log");
+		hFile = FS_FOpenTextFileWrite_HomeData("netprofile.log");
         FS_ForceFlush(hFile);
         
 		Com_sprintf(buffer, sizeof(buffer), "NetProfile.log\n\n");
@@ -2310,7 +2310,7 @@ qboolean SV_ArchiveServerFile(qboolean loading, qboolean autosave)
 	name = Com_GetArchiveFileName(svs.gameName, "ssv");
 
 	if (!loading) {
-		f = FS_FOpenFileWrite(name);
+		f = FS_FOpenFileWrite_HomeData(name);
 		if (!f) {
 			Com_Printf("Couldn't write %s\n", name);
 			return qfalse;

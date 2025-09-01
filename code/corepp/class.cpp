@@ -606,7 +606,7 @@ void ClassEvents(const char *classname, qboolean print_to_disk)
 #elif defined(CGAME_DLL)
         class_file = cgi.FS_FOpenFileWrite(class_filename);
 #else
-        class_file = FS_FOpenFileWrite(class_filename);
+        class_file = FS_FOpenFileWrite_HomeData(class_filename);
 #endif
 
         if (!class_file) {
@@ -699,7 +699,7 @@ void DumpAllClasses(void)
 #else
     class_filename = "cl_allclasses.html";
     class_title    = "Client Module";
-    class_file     = FS_FOpenFileWrite(class_filename);
+    class_file     = FS_FOpenFileWrite_HomeData(class_filename);
 #endif
 
     HTMLFormater htmlFormater;
