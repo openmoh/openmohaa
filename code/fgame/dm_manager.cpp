@@ -1197,7 +1197,7 @@ bool DM_Manager::CheckEndMatch()
             if (!g_TOW_winstate || !g_TOW_winstate->integer) {
                 int roundLimit = GetRoundLimit();
 
-                if (!level.m_bIgnoreClock && roundLimit > 0 && level.time >= m_iDefaultRoundLimit * 60 + m_fRoundTime) {
+                if (!level.m_bIgnoreClock && roundLimit > 0 && level.time >= roundLimit * 60 + m_fRoundTime) {
                     switch (m_csTeamClockSide) {
                     case STRING_AXIS:
                         gi.cvar_set("g_TOW_winstate", "1");
@@ -1322,6 +1322,10 @@ bool DM_Manager::CheckEndMatch()
         DM_Team *pBombTeam;
         DM_Team *pNonBombTeam;
 
+        //
+        // Respawns not allowed, at this point a team is fully dead
+        //
+
         if (g_gametype->integer != GT_OBJECTIVE) {
             EndRound();
             return true;
@@ -1331,6 +1335,10 @@ bool DM_Manager::CheckEndMatch()
             EndRound();
             return true;
         }
+
+        //
+        // Check to end the round if no bomb is planted
+        //
 
         if (m_csTeamBombPlantSide == STRING_AXIS) {
             pBombTeam    = &m_team_axis;
