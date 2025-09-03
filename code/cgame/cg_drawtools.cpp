@@ -1028,13 +1028,18 @@ void CG_UpdateCountdown()
     }
 
     if (cg.matchStartTime != -1) {
-        int iSecondsLeft, iMinutesLeft;
+        if (cgs.gametype != GT_LIBERATION) {
+            int iSecondsLeft, iMinutesLeft;
 
-        iSecondsLeft = (cgs.matchEndTime - cg.time) / 1000;
-        if (iSecondsLeft >= 0) {
-            iMinutesLeft = iSecondsLeft / 60;
-            message      = va("%s %2i:%02i", cgi.LV_ConvertString("Time Left:"), iMinutesLeft, iSecondsLeft % 60);
-        } else if (!cgs.matchEndTime) {
+            iSecondsLeft = (cgs.matchEndTime - cg.time) / 1000;
+            if (iSecondsLeft >= 0) {
+                iMinutesLeft = iSecondsLeft / 60;
+                message      = va("%s %2i:%02i", cgi.LV_ConvertString("Time Left:"), iMinutesLeft, iSecondsLeft % 60);
+            } else if (!cgs.matchEndTime) {
+                message = "";
+            }
+        } else {
+            // No clock on liberation game mode
             message = "";
         }
     } else {
