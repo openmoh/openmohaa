@@ -120,6 +120,7 @@ Event EV_Level_SetNoDropHealth
     EV_SETTER
 );
 
+// Added in 2.30
 Event EV_Level_SetNoDropWeapons
 (
     "nodropweapons",
@@ -200,7 +201,8 @@ Event EV_Level_SetDMRespawning
     EV_SETTER
 );
 
-Event EV_Level_SetDMRespawning2(
+Event EV_Level_SetDMRespawning2
+(
     "dmrespawning",
     EV_DEFAULT,
     "i",
@@ -209,7 +211,8 @@ Event EV_Level_SetDMRespawning2(
     "to 0 to disable respawns within a round"
 );
 
-Event EV_Level_GetDMRoundLimit(
+Event EV_Level_GetDMRoundLimit
+(
     "dmroundlimit",
     EV_DEFAULT,
     NULL,
@@ -218,7 +221,8 @@ Event EV_Level_GetDMRoundLimit(
     EV_GETTER
 );
 
-Event EV_Level_SetDMRoundLimit(
+Event EV_Level_SetDMRoundLimit
+(
     "dmroundlimit",
     EV_DEFAULT,
     "i",
@@ -227,7 +231,8 @@ Event EV_Level_SetDMRoundLimit(
     EV_SETTER
 );
 
-Event EV_Level_SetDMRoundLimit2(
+Event EV_Level_SetDMRoundLimit2
+(
     "dmroundlimit",
     EV_DEFAULT,
     "i",
@@ -256,7 +261,8 @@ Event EV_Level_SetClockSide
     EV_SETTER
 );
 
-Event EV_Level_SetClockSide2(
+Event EV_Level_SetClockSide2
+(
     "clockside",
     EV_DEFAULT,
     "s",
@@ -288,7 +294,8 @@ Event EV_Level_SetBombPlantTeam
     EV_SETTER
 );
 
-Event EV_Level_SetBombPlantTeam2(
+Event EV_Level_SetBombPlantTeam2
+(
     "planting_team",
     EV_DEFAULT,
     "s",
@@ -587,6 +594,7 @@ Event EV_Level_Rain_NumShaders_Get
     EV_GETTER
 );
 
+// Added in 2.0
 Event EV_Level_AddBadPlace
 (
     "badplace",
@@ -598,6 +606,7 @@ Event EV_Level_AddBadPlace
     EV_NORMAL
 );
 
+// Added in 2.0
 Event EV_Level_RemoveBadPlace
 (
     "removebadplace",
@@ -608,6 +617,7 @@ Event EV_Level_RemoveBadPlace
     EV_NORMAL
 );
 
+// Added in 2.0
 Event EV_Level_IgnoreClock
 (
     "ignoreclock",
@@ -652,6 +662,7 @@ CLASS_DECLARATION(Listener, Level, NULL) {
     {&EV_Level_GetAlarm,                      &Level::GetAlarm                     },
     {&EV_Level_SetAlarm,                      &Level::SetAlarm                     },
     {&EV_Level_SetNoDropHealth,               &Level::SetNoDropHealth              },
+    // Added in 2.30
     {&EV_Level_SetNoDropWeapons,              &Level::SetNoDropWeapons             },
     {&EV_Level_GetRoundStarted,               &Level::EventGetRoundStarted         },
     {&EV_Level_GetLoopProtection,             &Level::GetLoopProtection            },
@@ -699,11 +710,17 @@ CLASS_DECLARATION(Listener, Level, NULL) {
     {&EV_Level_Rain_Shader_Get,               &Level::EventRainShaderGet           },
     {&EV_Level_Rain_NumShaders_Set,           &Level::EventRainNumShadersSet       },
     {&EV_Level_Rain_NumShaders_Get,           &Level::EventRainNumShadersGet       },
+    // Added in 2.0
+    //====
     {&EV_Level_AddBadPlace,                   &Level::EventAddBadPlace             },
     {&EV_Level_RemoveBadPlace,                &Level::EventRemoveBadPlace          },
     {&EV_Level_IgnoreClock,                   &Level::EventIgnoreClock             },
+    //====
+    // Added in OPM
+    //====
     {&EV_Level_SetForceTeamObjectiveLocation, &Level::SetForceTeamObjectiveLocation},
     {&EV_Level_GetForceTeamObjectiveLocation, &Level::GetForceTeamObjectiveLocation},
+    //====
     {NULL,                                    NULL                                 }
 };
 

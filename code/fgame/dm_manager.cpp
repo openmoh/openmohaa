@@ -709,6 +709,8 @@ void DM_Manager::Reset(void)
 
     // Reset the team spawn clock
     g_teamSpawnClock.Reset();
+
+    // Added in 2.0
     level.m_bIgnoreClock = false;
 
     if (g_gametype->integer == GT_TOW) {
@@ -1184,7 +1186,12 @@ bool DM_Manager::CheckEndMatch()
         timelimit = gi.Cvar_Get("timelimit", "0", 0);
     }
 
-    if (!m_bRoundBasedGame || g_gametype->integer == GT_TOW || g_gametype->integer == GT_LIBERATION) {
+    if (!m_bRoundBasedGame
+        // Added in 2.0
+        || g_gametype->integer == GT_TOW
+        // Added in 2.30
+        || g_gametype->integer == GT_LIBERATION) {
+        // Added in 2.0
         if (g_gametype->integer == GT_TOW) {
             cvar_t *g_TOW_winstate = gi.Cvar_Get("g_TOW_winstate", "", 0);
             if (!g_TOW_winstate || !g_TOW_winstate->integer) {
@@ -1227,32 +1234,35 @@ bool DM_Manager::CheckEndMatch()
             } else {
                 return false;
             }
-        } else if (g_gametype->integer == GT_LIBERATION) {
+        }
+        // Added in 2.30
+        else if (g_gametype->integer == GT_LIBERATION) {
+            // No clock on liberation game mode
             if (fraglimit->integer && TeamHitScoreLimit()) {
                 G_BeginIntermission2();
                 return true;
             } else {
                 return false;
             }
-        }
-
-        if (fraglimit->integer) {
-            if (g_gametype->integer >= GT_TEAM) {
-                if (TeamHitScoreLimit()) {
+        } else {
+            if (fraglimit->integer) {
+                if (g_gametype->integer >= GT_TEAM) {
+                    if (TeamHitScoreLimit()) {
+                        G_BeginIntermission2();
+                        return true;
+                    }
+                } else if (PlayerHitScoreLimit()) {
                     G_BeginIntermission2();
                     return true;
                 }
-            } else if (PlayerHitScoreLimit()) {
+            }
+
+            if (timelimit->integer && level.inttime >= timelimit->integer * 60000) {
                 G_BeginIntermission2();
                 return true;
+            } else {
+                return false;
             }
-        }
-
-        if (timelimit->integer && level.inttime >= timelimit->integer * 60000) {
-            G_BeginIntermission2();
-            return true;
-        } else {
-            return false;
         }
     }
 

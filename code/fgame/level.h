@@ -235,6 +235,8 @@ public:
 
     // Current level state
     bool spawning;
+
+    // Added in 2.0
     bool m_bIgnoreClock;
     //====
     // Added in 2.30
@@ -311,7 +313,7 @@ public:
     void GetAlarm(Event *ev);
     void SetAlarm(Event *ev);
     void SetNoDropHealth(Event *ev);
-    void SetNoDropWeapons(Event *ev); // Added in 2.0
+    void SetNoDropWeapons(Event *ev); // Added in 2.30
     void GetLoopProtection(Event *ev);
     void SetLoopProtection(Event *ev);
     void GetPapersLevel(Event *ev);
