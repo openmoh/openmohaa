@@ -748,9 +748,6 @@ qboolean	FS_ConditionalRestart( int checksumFeed, qboolean disconnect );
 void	FS_Restart( int checksumFeed );
 // shutdown and restart the filesystem so changes to fs_gamedir can take effect
 
-void FS_AddGameDirectory(const char *path, const char *dir);
-void FS_AddGameDirectory2(const char *path, const char *dir, qboolean original_paks_priority);
-
 char	**FS_ListFilteredFiles( const char *path, const char *extension, const char *filter, qboolean wantSubs, int *numfiles, qboolean allowNonPureFilesOnDisk );
 char	**FS_ListFiles( const char *directory, const char *extension, qboolean wantSubs, int *numfiles );
 // directory should not have either a leading or trailing /
@@ -762,10 +759,10 @@ void	FS_FreeFileList( char **list );
 qboolean FS_FileExists( const char *file );
 
 void FS_CorrectCase(char* path);
+qboolean FS_CreatePath (const char *OSPath);
 
-char   *FS_BuildOSPath( const char *base, const char *game, const char *qpath );
-
-qboolean FS_CreatePath(char *OSPath);
+char	*FS_BaseDir_BuildOSPath( const char *base, const char *qpath );
+char	*FS_BuildOSPath( const char *base, const char *game, const char *qpath );
 
 int		FS_LoadStack( void );
 
@@ -780,11 +777,12 @@ fileHandle_t	FS_FCreateOpenPipeFile( const char *filename );
 fileHandle_t	FS_FOpenTextFileWrite(const char* qpath);
 // will properly create any needed paths and deal with seperater character issues
 
+fileHandle_t FS_BaseDir_FOpenFileWrite( const char *filename );
+long		FS_BaseDir_FOpenFileRead( const char *filename, fileHandle_t *fp );
+void	FS_BaseDir_Rename( const char *from, const char *to, qboolean safe );
 void	FS_DeleteFile( const char *filename );
 void	FS_CanonicalFilename( char *filename );
-fileHandle_t FS_SV_FOpenFileWrite( const char *filename );
-long	FS_SV_FOpenFileRead( const char *filename, fileHandle_t *fp );
-void	FS_SV_Rename( const char *from, const char *to, qboolean safe );
+
 long	FS_FOpenFileRead(const char* filename, fileHandle_t* file, qboolean uniqueFILE, qboolean quiet);
 // if uniqueFILE is true, then a new FILE will be fopened even if the file
 // is found in an already open pak file.  If uniqueFILE is false, you must call
@@ -879,8 +877,6 @@ qboolean FS_CheckDirTraversal(const char *checkdir);
 qboolean FS_idPak(const char *pak, const char *base);
 qboolean FS_ComparePaks( char *neededpaks, int len, qboolean dlstring );
 
-void FS_Rename( const char *from, const char *to );
-
 void FS_Remove( const char *osPath );
 
 void	FS_FilenameCompletion( const char *dir, const char *ext,
@@ -890,6 +886,8 @@ const char* FS_GetCurrentGameDir();
 void	FS_GetRelativeFilename( const char *currentDirectory, const char *absoluteFilename, char *out, size_t destlen );
 
 void FS_FileTime(const char* filename, char* date, char* size);
+
+void FS_CorrectCase(char* path);
 
 extern cvar_t* fs_debug;
 extern cvar_t* fs_mapdir;
@@ -1408,7 +1406,6 @@ char	*Sys_MicrosoftStorePath(void);
 char    *Sys_DefaultAppPath(void);
 #endif
 
-void  Sys_SetDefaultHomePath(const char *path);
 char	*Sys_DefaultHomePath(void);
 const char *Sys_Dirname( char *path );
 const char *Sys_Basename( char *path );

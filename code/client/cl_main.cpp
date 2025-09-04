@@ -937,7 +937,7 @@ static void CL_UpdateGUID( const char *prefix, int prefix_len )
 	fileHandle_t f;
 	int len;
 
-	len = FS_SV_FOpenFileRead( QKEY_FILE, &f );
+	len = FS_BaseDir_FOpenFileRead( QKEY_FILE, &f );
 	FS_FCloseFile( f );
 
 	if( len != QKEY_SIZE )
@@ -3500,7 +3500,7 @@ static void CL_GenerateQKey(void)
 	unsigned char buff[ QKEY_SIZE ];
 	fileHandle_t f;
 
-	len = FS_SV_FOpenFileRead( QKEY_FILE, &f );
+	len = FS_BaseDir_FOpenFileRead( QKEY_FILE, &f );
 	FS_FCloseFile( f );
 	if( len == QKEY_SIZE ) {
 		Com_Printf( "QKEY found.\n" );
@@ -3515,7 +3515,7 @@ static void CL_GenerateQKey(void)
 		Com_Printf( "QKEY building random string\n" );
 		Com_RandomBytes( buff, sizeof(buff) );
 
-		f = FS_SV_FOpenFileWrite( QKEY_FILE );
+		f = FS_BaseDir_FOpenFileWrite( QKEY_FILE );
 		if( !f ) {
 			Com_Printf( "QKEY could not open %s for write\n",
 				QKEY_FILE );
