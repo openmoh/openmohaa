@@ -389,9 +389,9 @@ Called when server finished initializating
 void G_ServerSpawned(void)
 {
     try {
-        level.ServerSpawned();
-
         G_BotPostInit();
+
+        level.ServerSpawned();
     } catch (const ScriptException& e) {
         G_ExitWithError(e.string.c_str());
     }
