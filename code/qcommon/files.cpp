@@ -260,14 +260,7 @@ static	int			fs_loadCount;			// total files read
 static	int			fs_loadStack;			// total files in memory
 static	int			fs_packFiles = 0;		// total number of files in packs
 
-static cvar_t** const fs_pathVars[] = {
-	&fs_homepath,
-	&fs_basepath,
-	&fs_apppath,
-	&fs_steampath,
-	&fs_gogpath,
-	&fs_microsoftstorepath
-};
+static const cvar_t *fs_pathVars[16];
 
 static int fs_checksumFeed;
 
@@ -863,7 +856,6 @@ long FS_BaseDir_FOpenFileRead(const char *filename, fileHandle_t *fp)
 {
 	char *ospath;
 	fileHandle_t f = 0;
-	qboolean skipHome = !Q_stricmp(fs_homepath->string, fs_basepath->string);
 
 	if ( !fs_searchpaths ) {
 		Com_Error( ERR_FATAL, "Filesystem call made without initialization" );
@@ -878,14 +870,9 @@ long FS_BaseDir_FOpenFileRead(const char *filename, fileHandle_t *fp)
 	S_ClearSoundBuffer();
 
 	for(int i = 0; i < ARRAY_LEN( fs_pathVars ) && !fsh[f].handleFiles.file.o; i++) {
-		const cvar_t *pathVar = *fs_pathVars[i];
+		const cvar_t *pathVar = fs_pathVars[i];
 
 		if (!pathVar || !pathVar->string[0]) {
-			continue;
-		}
-
-		if (skipHome && pathVar == fs_homepath) {
-			// home == base, skip
 			continue;
 		}
 
@@ -2618,7 +2605,7 @@ int	FS_GetModList( char *listbuf, int bufsize ) {
 
 	// iterate through paths and get list of potential mods
 	for (i = 0; i < ARRAY_LEN(fs_pathVars); i++) {
-		const cvar_t *pathVar = *fs_pathVars[i];
+		const cvar_t *pathVar = fs_pathVars[i];
 
 		if (!pathVar || !pathVar->string[0]) {
 			continue;
@@ -2654,7 +2641,7 @@ int	FS_GetModList( char *listbuf, int bufsize ) {
 		// we didn't keep the information when we merged the directory names, as to what OS Path it was found under
 		// so we will try each of them here
 		for (j = 0; j < ARRAY_LEN(fs_pathVars); j++) {
-			const cvar_t *pathVar = *fs_pathVars[j];
+			const cvar_t *pathVar = fs_pathVars[j];
 
 			if (!pathVar || !pathVar->string[0]) {
 				continue;
@@ -3156,7 +3143,7 @@ static void FS_AddGameDirectories(const char *dir)
 {
 	// add search path elements in reverse priority order
 	for(int i = ARRAY_LEN(fs_pathVars) - 1; i >= 0; i--) {
-		const cvar_t *pathVar = *fs_pathVars[i];
+		const cvar_t *pathVar = fs_pathVars[i];
 
 		if (!pathVar || !pathVar->string[0]) {
 			continue;
@@ -3437,6 +3424,50 @@ static void FS_ReorderPurePaks( void )
 
 /*
 ================
+FS_AddPathVar
+================
+*/
+static void FS_AddPathVar( cvar_t *pathVar ) {
+	if( !pathVar || !*pathVar->string ) {
+		return;
+	}
+
+	// Check for duplicates
+	for( int i = 0; i < ARRAY_LEN( fs_pathVars ); i++ ) {
+		if ( fs_pathVars[i] && !Q_stricmp( fs_pathVars[i]->string, pathVar->string ) ) {
+			return;
+		}
+	}
+
+	// Add to first empty slot
+	for( int i = 0; i < ARRAY_LEN( fs_pathVars ); i++ ) {
+		if ( !fs_pathVars[i] ) {
+			fs_pathVars[i] = pathVar;
+			return;
+		}
+	}
+
+	Com_Error( ERR_FATAL, "FS_AddPathVar: exhausted fs_pathVars array" );
+}
+
+/*
+================
+FS_InitPathVars
+================
+*/
+static void FS_InitPathVars( void ) {
+	memset( fs_pathVars, 0, sizeof( fs_pathVars ) );
+
+	FS_AddPathVar( fs_homepath );
+	FS_AddPathVar( fs_basepath );
+	FS_AddPathVar( fs_apppath );
+	FS_AddPathVar( fs_steampath );
+	FS_AddPathVar( fs_gogpath );
+	FS_AddPathVar( fs_microsoftstorepath );
+}
+
+/*
+================
 FS_Startup
 ================
 */
@@ -3467,6 +3498,8 @@ static void FS_Startup(const char* gameName)
 #ifdef __APPLE__
 	fs_apppath = Cvar_Get ("fs_apppath", Sys_DefaultAppPath(), CVAR_INIT|CVAR_PROTECTED );
 #endif
+
+	FS_InitPathVars( );
 
 	if (!gameName[0]) {
 		Cvar_ForceReset( "com_basegame" );
