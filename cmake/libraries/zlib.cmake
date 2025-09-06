@@ -5,7 +5,7 @@ set(INTERNAL_ZLIB_DIR ${SOURCE_DIR}/thirdparty/zlib-1.3.1)
 
 if(USE_INTERNAL_ZLIB)
     file(GLOB_RECURSE ZLIB_SOURCES ${INTERNAL_ZLIB_DIR}/*.c)
-    disable_warnings(ZLIB_SOURCES)
+    disable_warnings(${ZLIB_SOURCES})
     find_include_dirs(ZLIB_INCLUDE_DIRS ${INTERNAL_ZLIB_DIR})
     set(ZLIB_DEFINITIONS NO_GZIP)
     list(APPEND SERVER_LIBRARY_SOURCES ${ZLIB_SOURCES})
