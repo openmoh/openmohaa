@@ -933,7 +933,7 @@ qboolean Sys_PIDIsRunning( int pid )
 	// Search for the pid
 	for( i = 0; i < numProcesses; i++ )
 	{
-		if( processes[ i ] == pid )
+		if( (int)processes[ i ] == pid )
 			return qtrue;
 	}
 

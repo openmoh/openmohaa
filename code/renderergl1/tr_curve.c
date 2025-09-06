@@ -113,7 +113,7 @@ static void MakeMeshNormals( int width, int height, drawVert_t ctrl[MAX_GRID_SIZ
 	int		i, j, k, dist;
 	vec3_t	normal;
 	vec3_t	sum;
-	int		count;
+	int		count = 0;
 	vec3_t	base;
 	vec3_t	delta;
 	int		x, y;
@@ -390,7 +390,7 @@ srfGridMesh_t *R_SubdividePatchToGrid( int width, int height, float subdivide,
 			for ( i = 0 ; i < height ; i++ ) {
 				vec3_t		midxyz;
 				vec3_t		midxyz2;
-				vec3_t		dir;
+				vec3_t		dirVector;
 				vec3_t		projected;
 				float		d;
 
@@ -405,11 +405,11 @@ srfGridMesh_t *R_SubdividePatchToGrid( int width, int height, float subdivide,
 				// texture warping, but it gives a lot less polygons than
 				// dist-from-midpoint
 				VectorSubtract( midxyz, ctrl[i][j].xyz, midxyz );
-				VectorSubtract( ctrl[i][j+2].xyz, ctrl[i][j].xyz, dir );
-				VectorNormalize( dir );
+				VectorSubtract( ctrl[i][j+2].xyz, ctrl[i][j].xyz, dirVector );
+				VectorNormalize( dirVector );
 
-				d = DotProduct( midxyz, dir );
-				VectorScale( dir, d, projected );
+				d = DotProduct( midxyz, dirVector );
+				VectorScale( dirVector, d, projected );
 				VectorSubtract( midxyz, projected, midxyz2);
 				len = VectorLengthSquared( midxyz2 );			// we will do the sqrt later
 				if ( len > maxLen ) {

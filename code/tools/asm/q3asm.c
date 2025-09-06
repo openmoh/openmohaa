@@ -592,7 +592,7 @@ Symbols can only be evaluated on pass 1
 */
 static int LookupSymbol( char *sym ) {
 	symbol_t	*s;
-	char		expanded[MAX_LINE_LENGTH];
+	char		expanded[MAX_LINE_LENGTH * 2];
 	int			hash;
 	hashchain_t *hc;
 

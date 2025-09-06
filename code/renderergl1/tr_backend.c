@@ -722,12 +722,12 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 	backEnd.numSpheresUsed = 0;
 
 	for (i = 0, drawSurf = drawSurfs ; i < numDrawSurfs ; i++, drawSurf++) {
-		if ( drawSurf->sort == oldSort && *drawSurf->surface != SF_SPRITE ) {
+		if ( drawSurf->sort == (unsigned)oldSort && *drawSurf->surface != SF_SPRITE ) {
 			// fast path, same as previous sort
 			rb_surfaceTable[ *drawSurf->surface ]( drawSurf->surface );
 			continue;
 		}
-		oldSort = drawSurf->sort;
+		oldSort = (int)drawSurf->sort;
 		if (*drawSurf->surface != SF_SPRITE) {
 			R_DecomposeSort(drawSurf->sort, &entityNum, &shader, &dlightMap, &bStaticModel);
 		} else {

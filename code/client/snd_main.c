@@ -41,35 +41,35 @@ static soundInterface_t si;
 S_ValidateInterface
 =================
 */
-static qboolean S_ValidSoundInterface( soundInterface_t *si )
+static qboolean S_ValidSoundInterface( soundInterface_t *pSi )
 {
-	if( !si->Shutdown ) return qfalse;
-	if( !si->StartSound ) return qfalse;
-	if( !si->StartLocalSound ) return qfalse;
-	if( !si->StartBackgroundTrack ) return qfalse;
-	if( !si->StopBackgroundTrack ) return qfalse;
-	if( !si->RawSamples ) return qfalse;
-	if( !si->StopAllSounds ) return qfalse;
-	if( !si->ClearLoopingSounds ) return qfalse;
-	if( !si->AddLoopingSound ) return qfalse;
-	if( !si->AddRealLoopingSound ) return qfalse;
-	if( !si->StopLoopingSound ) return qfalse;
-	if( !si->Respatialize ) return qfalse;
-	if( !si->UpdateEntityPosition ) return qfalse;
-	if( !si->Update ) return qfalse;
-	if( !si->DisableSounds ) return qfalse;
-	if( !si->BeginRegistration ) return qfalse;
-	if( !si->RegisterSound ) return qfalse;
-	if( !si->ClearSoundBuffer ) return qfalse;
-	if( !si->SoundInfo ) return qfalse;
-	if( !si->SoundList ) return qfalse;
+	if( !pSi->Shutdown ) return qfalse;
+	if( !pSi->StartSound ) return qfalse;
+	if( !pSi->StartLocalSound ) return qfalse;
+	if( !pSi->StartBackgroundTrack ) return qfalse;
+	if( !pSi->StopBackgroundTrack ) return qfalse;
+	if( !pSi->RawSamples ) return qfalse;
+	if( !pSi->StopAllSounds ) return qfalse;
+	if( !pSi->ClearLoopingSounds ) return qfalse;
+	if( !pSi->AddLoopingSound ) return qfalse;
+	if( !pSi->AddRealLoopingSound ) return qfalse;
+	if( !pSi->StopLoopingSound ) return qfalse;
+	if( !pSi->Respatialize ) return qfalse;
+	if( !pSi->UpdateEntityPosition ) return qfalse;
+	if( !pSi->Update ) return qfalse;
+	if( !pSi->DisableSounds ) return qfalse;
+	if( !pSi->BeginRegistration ) return qfalse;
+	if( !pSi->RegisterSound ) return qfalse;
+	if( !pSi->ClearSoundBuffer ) return qfalse;
+	if( !pSi->SoundInfo ) return qfalse;
+	if( !pSi->SoundList ) return qfalse;
 
 #ifdef USE_VOIP
-	if( !si->StartCapture ) return qfalse;
-	if( !si->AvailableCaptureSamples ) return qfalse;
-	if( !si->Capture ) return qfalse;
-	if( !si->StopCapture ) return qfalse;
-	if( !si->MasterGain ) return qfalse;
+	if( !pSi->StartCapture ) return qfalse;
+	if( !pSi->AvailableCaptureSamples ) return qfalse;
+	if( !pSi->Capture ) return qfalse;
+	if( !pSi->StopCapture ) return qfalse;
+	if( !pSi->MasterGain ) return qfalse;
 #endif
 
 	return qtrue;

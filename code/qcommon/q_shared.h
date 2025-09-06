@@ -172,15 +172,7 @@ extern "C" {
 #include <time.h>
 #include <ctype.h>
 #include <limits.h>
-
-#ifdef _MSC_VER
-#include <io.h>
 #include <stdint.h>
-
-#else
-#include <unistd.h>
-#include <stdint.h>
-#endif
 
 #ifdef _WIN32
  // vsnprintf is ISO/IEC 9899:1999

@@ -40,6 +40,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #   include <dirent.h>
 #endif
 
+#ifdef _MSC_VER
+#   include <io.h>
+#else
+#   include <unistd.h>
+#endif
+
 /*
 =============================================================================
 
@@ -216,12 +222,12 @@ typedef struct fileInPack_s {
 } fileInPack_t;
 
 typedef struct {
-    char			pakPathname[MAX_OSPATH];	// c:\quake3\baseq3
-    char			pakFilename[MAX_OSPATH];	// c:\quake3\baseq3\pak0.pk3
+	char			pakPathname[MAX_OSPATH];	// c:\quake3\baseq3
+	char			pakFilename[MAX_OSPATH];	// c:\quake3\baseq3\pak0.pk3
 	char			pakBasename[MAX_OSPATH];	// pak0
 	char			pakGamename[MAX_OSPATH];	// baseq3
 	unzFile			handle;						// handle to zip file
-	int				checksum;					// regular checksum
+	unsigned int	checksum;					// regular checksum
 	int				pure_checksum;				// checksum for pure
 	int				numfiles;					// number of files in pk3
 	int				referenced;					// referenced file flags
@@ -260,7 +266,7 @@ static	int			fs_loadCount;			// total files read
 static	int			fs_loadStack;			// total files in memory
 static	int			fs_packFiles = 0;		// total number of files in packs
 
-static const cvar_t *fs_pathVars[16];
+static cvar_t *fs_pathVars[16];
 
 static int fs_checksumFeed;
 
@@ -297,15 +303,15 @@ static fileHandleData_t	fsh[MAX_FILE_HANDLES];
 static qboolean fs_reordered;
 
 // never load anything from pk3 files that are not present at the server when pure
-static int		fs_numServerPaks = 0;
-static int		fs_serverPaks[MAX_SEARCH_PATHS];				// checksums
-static char		*fs_serverPakNames[MAX_SEARCH_PATHS];			// pk3 names
+static int			fs_numServerPaks = 0;
+static unsigned int	fs_serverPaks[MAX_SEARCH_PATHS];				// checksums
+static char			*fs_serverPakNames[MAX_SEARCH_PATHS];			// pk3 names
 
 // only used for autodownload, to make sure the client has at least
 // all the pk3 files that are referenced at the server side
-static int		fs_numServerReferencedPaks;
-static int		fs_serverReferencedPaks[MAX_SEARCH_PATHS];			// checksums
-static char		*fs_serverReferencedPakNames[MAX_SEARCH_PATHS];		// pk3 names
+static int			fs_numServerReferencedPaks;
+static unsigned int	fs_serverReferencedPaks[MAX_SEARCH_PATHS];			// checksums
+static char			*fs_serverReferencedPakNames[MAX_SEARCH_PATHS];		// pk3 names
 
 // last valid game folder used
 char lastValidBase[MAX_OSPATH];
@@ -1625,8 +1631,6 @@ FS_Seek
 =================
 */
 int FS_Seek( fileHandle_t f, long offset, int origin ) {
-	int		_origin;
-
 	if ( !fs_searchpaths ) {
 		Com_Error( ERR_FATAL, "Filesystem call made without initialization" );
 		return -1;
@@ -1694,6 +1698,7 @@ int FS_Seek( fileHandle_t f, long offset, int origin ) {
 	} else {
 		FILE *file;
 		file = FS_FileForHandle(f);
+		int _origin = SEEK_SET;
 		switch( origin ) {
 		case FS_SEEK_CUR:
 			_origin = SEEK_CUR;
@@ -2167,7 +2172,8 @@ Compares whether the given pak file matches a referenced checksum
 qboolean FS_CompareZipChecksum(const char *zipfile)
 {
 	pack_t *thepak;
-	int index, checksum;
+	int index;
+	unsigned int checksum;
 
 	thepak = FS_LoadZipFile(zipfile, "");
 

@@ -938,7 +938,9 @@ static void setupQuad( long xOff, long yOff )
 	long numQuadCels, i,x,y;
 	byte *temp;
 
-	if (xOff == cin.oldXOff && yOff == cin.oldYOff && cinTable[currentHandle].ysize == cin.oldysize && cinTable[currentHandle].xsize == cin.oldxsize) {
+	if (xOff == cin.oldXOff && yOff == cin.oldYOff &&
+		(long)cinTable[currentHandle].ysize == cin.oldysize &&
+		(long)cinTable[currentHandle].xsize == cin.oldxsize) {
 		return;
 	}
 

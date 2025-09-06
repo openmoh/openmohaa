@@ -65,12 +65,17 @@ set(LBURG_SOURCES
 )
 
 add_executable(q3asm ${Q3ASM_SOURCES})
-target_compile_options(q3asm PRIVATE -fno-strict-aliasing)
 set_output_dirs(q3asm)
 add_executable(q3lcc ${Q3LCC_SOURCES})
-target_compile_options(q3asm PRIVATE -fno-strict-aliasing)
 set_output_dirs(q3lcc)
 add_dependencies(q3lcc q3rcc q3cpp)
+
+if(CMAKE_C_COMPILER_ID STREQUAL "GNU" OR CMAKE_C_COMPILER_ID MATCHES "^(Apple)?Clang$")
+    add_compile_options(-fno-strict-aliasing -Wno-unused-result
+        -Wno-pointer-to-int-cast -Wno-int-to-pointer-cast)
+elseif(CMAKE_C_COMPILER_ID STREQUAL "MSVC")
+    add_compile_options(/wd4311 /wd4312)
+endif()
 
 add_executable(lburg ${LBURG_SOURCES})
 set_output_dirs(lburg)

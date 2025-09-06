@@ -1662,7 +1662,7 @@ static void Com_DetectAltivec(void)
 		static qboolean altivec = qfalse;
 		static qboolean detected = qfalse;
 		if (!detected) {
-			altivec = ( Sys_GetProcessorFeatures( ) & CF_ALTIVEC );
+			altivec = !!( Sys_GetProcessorFeatures( ) & CF_ALTIVEC );
 			detected = qtrue;
 		}
 

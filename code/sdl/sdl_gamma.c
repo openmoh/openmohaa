@@ -52,29 +52,18 @@ void GLimp_SetGamma( unsigned char red[256], unsigned char green[256], unsigned 
 	}
 
 #ifdef _WIN32
-#include <windows.h>
-
-	// Win2K and newer put this odd restriction on gamma ramps...
+	// Windows puts this odd restriction on gamma ramps...
+	ri.Printf( PRINT_DEVELOPER, "performing gamma clamp.\n" );
+	for( j = 0 ; j < 3 ; j++ )
 	{
-		OSVERSIONINFO	vinfo;
-
-		vinfo.dwOSVersionInfoSize = sizeof( vinfo );
-		GetVersionEx( &vinfo );
-		if( vinfo.dwMajorVersion >= 5 && vinfo.dwPlatformId == VER_PLATFORM_WIN32_NT )
+		for( i = 0 ; i < 128 ; i++ )
 		{
-			ri.Printf( PRINT_DEVELOPER, "performing gamma clamp.\n" );
-			for( j = 0 ; j < 3 ; j++ )
-			{
-				for( i = 0 ; i < 128 ; i++ )
-				{
-					if( table[ j ] [ i] > ( ( 128 + i ) << 8 ) )
-						table[ j ][ i ] = ( 128 + i ) << 8;
-				}
-
-				if( table[ j ] [127 ] > 254 << 8 )
-					table[ j ][ 127 ] = 254 << 8;
-			}
+			if( table[ j ][ i ] > ( ( 128 + i ) << 8 ) )
+				table[ j ][ i ] = ( 128 + i ) << 8;
 		}
+
+		if( table[ j ][ 127 ] > 254 << 8 )
+			table[ j ][ 127 ] = 254 << 8;
 	}
 #endif
 

@@ -56,7 +56,7 @@ to the new value before sending out any replies.
 
 cvar_t		*showpackets;
 cvar_t		*showdrop;
-cvar_t		*qport;
+cvar_t		*net_qport;
 
 static char *netsrcString[2] = {
 	"client",
@@ -73,7 +73,7 @@ void Netchan_Init( int port ) {
 	port &= 0xffff;
 	showpackets = Cvar_Get ("showpackets", "0", CVAR_TEMP );
 	showdrop = Cvar_Get ("showdrop", "0", CVAR_TEMP );
-	qport = Cvar_Get ("net_qport", va("%i", port), CVAR_INIT );
+	net_qport = Cvar_Get ("net_qport", va("%i", port), CVAR_INIT );
 }
 
 /*
@@ -324,7 +324,7 @@ void Netchan_TransmitNextFragment( netchan_t *chan, netprofpacketlist_t *packetl
 
 	// send the qport if we are a client
 	if ( chan->sock == NS_CLIENT ) {
-		MSG_WriteShort( &send, qport->integer );
+		MSG_WriteShort( &send, net_qport->integer );
     }
 
 #ifdef LEGACY_PROTOCOL
@@ -410,7 +410,7 @@ void Netchan_Transmit( netchan_t *chan, size_t length, const byte *data, netprof
 
 	// send the qport if we are a client
 	if(chan->sock == NS_CLIENT)
-		MSG_WriteShort(&send, qport->integer);
+		MSG_WriteShort(&send, net_qport->integer);
 
 #ifdef LEGACY_PROTOCOL
 	if(!chan->compat)

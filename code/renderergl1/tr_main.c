@@ -974,7 +974,6 @@ qboolean SurfIsOffscreen(const srfSurfaceFace_t* surface, shader_t* shader, int 
 	unsigned int* indices;
 	vec4_t clip, eye;
 	int i;
-	unsigned int pointOr = 0;
 	unsigned int pointAnd = (unsigned int)~0;
 
 	if (surface->surfaceType != SF_FACE) {
@@ -1011,7 +1010,6 @@ qboolean SurfIsOffscreen(const srfSurfaceFace_t* surface, shader_t* shader, int 
 			}
 		}
 		pointAnd &= pointFlags;
-		pointOr |= pointFlags;
 	}
 
 	// trivially reject

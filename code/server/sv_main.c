@@ -1012,7 +1012,7 @@ SV_FrameMsec
 Return time in millseconds until processing of the next server frame.
 ==================
 */
-int SV_FrameMsec()
+int SV_FrameMsec(void)
 {
 	if(sv_fps)
 	{
@@ -1327,7 +1327,7 @@ Return the time in msec until we expect to be called next
 ====================
 */
 
-int SV_SendQueuedPackets()
+int SV_SendQueuedPackets(void)
 {
 	int numBlocks;
 	int dlStart, deltaT, delayT;

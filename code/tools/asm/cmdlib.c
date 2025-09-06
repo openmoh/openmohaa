@@ -559,7 +559,7 @@ int Q_stricmp (const char *s1, const char *s2)
 }
 
 
-char *strupr (char *start)
+char *Q_strupr (char *start)
 {
 	char	*in;
 	in = start;
@@ -571,7 +571,7 @@ char *strupr (char *start)
 	return start;
 }
 
-char *strlower (char *start)
+char *Q_strlower (char *start)
 {
 	char	*in;
 	in = start;
