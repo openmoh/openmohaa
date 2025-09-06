@@ -2589,7 +2589,7 @@ A mod directory is a peer to baseq3 with a pk3 or pk3dir in it
 ================
 */
 int	FS_GetModList( char *listbuf, int bufsize ) {
-	int nMods, i, j, k, nTotal, nLen, nPaks, nDirs, nPakDirs, nPotential, nDescLen;
+	int nMods, i, j, k, nTotal, nLen, nPaks = 0, nDirs = 0, nPakDirs = 0, nPotential, nDescLen;
 	char **pFiles = NULL;
 	char **pPaks = NULL;
 	char **pDirs = NULL;
