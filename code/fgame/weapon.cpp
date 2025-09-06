@@ -4197,30 +4197,65 @@ void Weapon::FallingAngleAdjust(Event *ev)
     }
 
     angles[0] = anglemod(angles[0]);
-    //if( angles[ 0 ] > 180.0f )
-    //	angles[ 0 ] -= 180.0f;
+    if (angles[0] > 180) {
+        angles[0] -= 180;
+    }
 
-    if (angles[0] >= -90.0f && angles[0] <= 0.0f) {
-        angles[0] -= level.frametime * 160.0f;
-        if (angles[0] < -180.0f) {
-            angles[0] = -180.0f;
+    if (fabs(angles[0]) >= 90) {
+        if (angles[0] > 0) {
+            angles[0] += level.frametime * 160;
+            if (angles[0] > 180) {
+                angles[0] = 180;
+            }
+        } else {
+            angles[0] -= level.frametime * 160;
+            if (angles[0] < -180) {
+                angles[0] = 180;
+            }
         }
-    } else if (angles[0] > 0.0f) {
-        angles[0] -= level.frametime * 160.0f;
     } else {
-        angles[0] += level.frametime * 160.0f;
+        if (angles[0] > 0.0f) {
+            angles[0] -= level.frametime * 160;
+            if (angles[0] < 0) {
+                angles[0] = 0;
+            }
+        } else {
+            angles[0] += level.frametime * 160;
+            if (angles[0] > 0) {
+                angles[0] = 0;
+            }
+        }
     }
 
     angles[2] = anglemod(angles[2]);
-    //if( angles[ 2 ] > 180.0f )
-    //	angles[ 2 ] -= 180.0f;
+    if (angles[2] > 180) {
+        angles[2] -= 180;
+    }
 
-    if (angles[2] > -90.0f && angles[2] < 0.0f) {
-        angles[2] -= level.frametime * 160.0f;
-    } else if (angles[2] > 90.0f) {
-        angles[2] -= level.frametime * 160.0f;
+    if (angles[2] < 0) {
+        if (angles[2] > -90) {
+            angles[2] -= level.frametime * 160;
+            if (angles[2] < -90) {
+                angles[2] = -90;
+            }
+        } else {
+            angles[2] += level.frametime * 160;
+            if (angles[2] > -90) {
+                angles[2] = -90;
+            }
+        }
     } else {
-        angles[2] += level.frametime * 160.0f;
+        if (angles[2] > 90.0f) {
+            angles[2] -= level.frametime * 160;
+            if (angles[2] < 90) {
+                angles[2] = 90;
+            }
+        } else {
+            angles[2] += level.frametime * 160;
+            if (angles[2] > 90) {
+                angles[2] = 90;
+            }
+        }
     }
 
     angles[0] = anglemod(angles[0]);
