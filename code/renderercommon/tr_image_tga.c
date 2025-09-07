@@ -42,7 +42,7 @@ void R_LoadTGA ( const char *name, byte **pic, int *width, int *height)
 {
 	unsigned	columns, rows, numPixels;
 	byte	*pixbuf;
-	unsigned	row, column;
+	int	row, column;
 	byte	*buf_p;
 	byte	*end;
 	union {
@@ -227,7 +227,7 @@ void R_LoadTGA ( const char *name, byte **pic, int *width, int *height)
 						*pixbuf++=blue;
 						*pixbuf++=alphabyte;
 						column++;
-						if (column==columns) { // run spans across rows
+						if (column==(int)columns) { // run spans across rows
 							column=0;
 							if (row>0)
 								row--;
@@ -267,7 +267,7 @@ void R_LoadTGA ( const char *name, byte **pic, int *width, int *height)
 								break;
 						}
 						column++;
-						if (column==columns) { // pixel packet run spans across rows
+						if (column==(int)columns) { // pixel packet run spans across rows
 							column=0;
 							if (row>0)
 								row--;
