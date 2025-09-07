@@ -196,7 +196,7 @@ RB_AddDlightFlares
 */
 void RB_AddDlightFlares( void ) {
 	dlight_t		*l;
-	int				i, j, k;
+	int				i;
 
 	if ( !r_flares->integer ) {
 		return;
@@ -204,7 +204,7 @@ void RB_AddDlightFlares( void ) {
 
 	l = backEnd.refdef.dlights;
 	for (i=0 ; i<backEnd.refdef.num_dlights ; i++, l++) {
-		RB_AddFlare( (void *)l, j, l->origin, l->color, NULL );
+		RB_AddFlare( (void *)l, 0, l->origin, l->color, NULL );
 	}
 }
 
