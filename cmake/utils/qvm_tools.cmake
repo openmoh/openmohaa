@@ -12,6 +12,8 @@ if(CMAKE_BUILD_TYPE)
     set(BUILD_TYPE_ARG -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE})
 endif()
 
+set(Q3RCC ${TOOLS_DIR}/$<CONFIG>/q3rcc${HOST_EXECUTABLE_SUFFIX})
+set(Q3CPP ${TOOLS_DIR}/$<CONFIG>/q3cpp${HOST_EXECUTABLE_SUFFIX})
 set(Q3LCC ${TOOLS_DIR}/$<CONFIG>/q3lcc${HOST_EXECUTABLE_SUFFIX})
 set(Q3ASM ${TOOLS_DIR}/$<CONFIG>/q3asm${HOST_EXECUTABLE_SUFFIX})
 
@@ -24,7 +26,7 @@ ExternalProject_Add(qvm_tools
         -DCMAKE_MINIMUM_REQUIRED_VERSION=${CMAKE_MINIMUM_REQUIRED_VERSION}
         ${BUILD_TYPE_ARG}
     BUILD_ALWAYS TRUE
-    BUILD_BYPRODUCTS ${Q3LCC} ${Q3ASM}
+    BUILD_BYPRODUCTS ${Q3RCC} ${Q3CPP} ${Q3LCC} ${Q3ASM}
     INSTALL_COMMAND "")
 
 function(add_qvm MODULE_NAME)
@@ -67,7 +69,7 @@ function(add_qvm MODULE_NAME)
         add_custom_command(
             OUTPUT ${ASM_FILE}
             COMMAND ${Q3LCC} ${LCC_FLAGS} -o ${ASM_FILE} ${SOURCE}
-            DEPENDS ${SOURCE} qvm_tools ${Q3LCC}
+            DEPENDS ${SOURCE} qvm_tools ${Q3RCC} ${Q3CPP} ${Q3LCC}
             COMMENT "Building C object ${ASM_FILE_COMMENT}")
 
         list(APPEND ASM_FILES ${ASM_FILE})
