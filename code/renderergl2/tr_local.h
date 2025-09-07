@@ -2722,24 +2722,24 @@ typedef struct stageVars
 
 typedef struct shaderCommands_s 
 {
-	glIndex_t	indexes[SHADER_MAX_INDEXES] QALIGN(16);
-	vec4_t		xyz[SHADER_MAX_VERTEXES] QALIGN(16);
-	int16_t		normal[SHADER_MAX_VERTEXES][4] QALIGN(16);
-	int16_t		tangent[SHADER_MAX_VERTEXES][4] QALIGN(16);
-	vec2_t		texCoords[SHADER_MAX_VERTEXES] QALIGN(16);
-	vec2_t		lightCoords[SHADER_MAX_VERTEXES] QALIGN(16);
-	uint16_t	color[SHADER_MAX_VERTEXES][4] QALIGN(16);
-	int16_t		lightdir[SHADER_MAX_VERTEXES][4] QALIGN(16);
-	//int			vertexDlightBits[SHADER_MAX_VERTEXES] QALIGN(16);
+	glIndex_t	indexes[SHADER_MAX_INDEXES] Q_ALIGN(16);
+	vec4_t		xyz[SHADER_MAX_VERTEXES] Q_ALIGN(16);
+	int16_t		normal[SHADER_MAX_VERTEXES][4] Q_ALIGN(16);
+	int16_t		tangent[SHADER_MAX_VERTEXES][4] Q_ALIGN(16);
+	vec2_t		texCoords[SHADER_MAX_VERTEXES] Q_ALIGN(16);
+	vec2_t		lightCoords[SHADER_MAX_VERTEXES] Q_ALIGN(16);
+	uint16_t	color[SHADER_MAX_VERTEXES][4] Q_ALIGN(16);
+	int16_t		lightdir[SHADER_MAX_VERTEXES][4] Q_ALIGN(16);
+	//int			vertexDlightBits[SHADER_MAX_VERTEXES] Q_ALIGN(16);
 
 	void *attribPointers[ATTR_INDEX_COUNT];
 	vao_t       *vao;
 	qboolean    useInternalVao;
 	qboolean    useCacheVao;
 
-	stageVars_t	svars QALIGN(16);
+	stageVars_t	svars Q_ALIGN(16);
 
-	//color4ub_t	constantColor255[SHADER_MAX_VERTEXES] QALIGN(16);
+	//color4ub_t	constantColor255[SHADER_MAX_VERTEXES] Q_ALIGN(16);
 
 	shader_t	*shader;
 	double		shaderTime;

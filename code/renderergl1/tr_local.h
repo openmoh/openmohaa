@@ -1883,16 +1883,16 @@ typedef struct stageVars
 
 typedef struct shaderCommands_s 
 {
-	glIndex_t	indexes[SHADER_MAX_INDEXES] QALIGN(16);
-	vec4_t		xyz[SHADER_MAX_VERTEXES] QALIGN(16);
-	vec4_t		normal[SHADER_MAX_VERTEXES] QALIGN(16);
-	vec2_t		texCoords[SHADER_MAX_VERTEXES][2] QALIGN(16);
-	color4ub_t	vertexColors[SHADER_MAX_VERTEXES] QALIGN(16);
-	int			vertexDlightBits[SHADER_MAX_VERTEXES] QALIGN(16);
+	glIndex_t	indexes[SHADER_MAX_INDEXES] Q_ALIGN(16);
+	vec4_t		xyz[SHADER_MAX_VERTEXES] Q_ALIGN(16);
+	vec4_t		normal[SHADER_MAX_VERTEXES] Q_ALIGN(16);
+	vec2_t		texCoords[SHADER_MAX_VERTEXES][2] Q_ALIGN(16);
+	color4ub_t	vertexColors[SHADER_MAX_VERTEXES] Q_ALIGN(16);
+	int			vertexDlightBits[SHADER_MAX_VERTEXES] Q_ALIGN(16);
 
-	stageVars_t	svars QALIGN(16);
+	stageVars_t	svars Q_ALIGN(16);
 
-	color4ub_t	constantColor255[SHADER_MAX_VERTEXES] QALIGN(16);
+	color4ub_t	constantColor255[SHADER_MAX_VERTEXES] Q_ALIGN(16);
 
 	shader_t	*shader;
 	float		shaderTime;

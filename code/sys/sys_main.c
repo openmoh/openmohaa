@@ -266,7 +266,7 @@ Sys_Exit
 Single exit point (regular exit or in case of error)
 =================
 */
-static __attribute__ ((noreturn)) void Sys_Exit( int exitCode )
+static Q_NO_RETURN void Sys_Exit( int exitCode )
 {
     Sys_ShutdownEx();
 
@@ -437,7 +437,7 @@ void Sys_Error( const char *error, ... )
 Sys_Warn
 =================
 */
-static __attribute__ ((format (printf, 1, 2))) void Sys_Warn( char *warning, ... )
+static Q_PRINTF_FUNC(1, 2) void Sys_Warn( char *warning, ... )
 {
 	va_list argptr;
 	char    string[1024];

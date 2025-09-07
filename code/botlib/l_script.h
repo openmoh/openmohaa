@@ -240,8 +240,8 @@ void FreeScript(script_t *script);
 //set the base folder to load files from
 void PS_SetBaseFolder(char *path);
 //print a script error with filename and line number
-void QDECL ScriptError(script_t *script, char *str, ...) __attribute__ ((format (printf, 2, 3)));
+void QDECL ScriptError(script_t *script, char *str, ...) Q_PRINTF_FUNC(2, 3);
 //print a script warning with filename and line number
-void QDECL ScriptWarning(script_t *script, char *str, ...) __attribute__ ((format (printf, 2, 3)));
+void QDECL ScriptWarning(script_t *script, char *str, ...) Q_PRINTF_FUNC(2, 3);
 
 

@@ -114,17 +114,18 @@ extern "C" {
 //#pragma intrinsic( memset, memcpy )
 #endif
 
-//Ignore __attribute__ on non-gcc platforms
-#ifndef __GNUC__
-#ifndef __attribute__
-#define __attribute__(x)
-#endif
-#endif
-
 #ifdef __GNUC__
-#define UNUSED_VAR __attribute__((unused))
+#define Q_UNUSED_VAR __attribute__((unused))
+#define Q_NO_RETURN __attribute__((noreturn))
+#define Q_PRINTF_FUNC(fmt, va) __attribute__((format(printf, fmt, va)))
+#define Q_SCANF_FUNC(fmt, va) __attribute__((format(scanf, fmt, va)))
+#define Q_ALIGN(x) __attribute__((aligned(x)))
 #else
-#define UNUSED_VAR
+#define Q_UNUSED_VAR
+#define Q_NO_RETURN
+#define Q_PRINTF_FUNC(fmt, va)
+#define Q_SCANF_FUNC(fmt, va)
+#define Q_ALIGN(x)
 #endif
 
 #if (defined _MSC_VER)
@@ -216,12 +217,6 @@ typedef int		clipHandle_t;
 #define PADLEN(base, alignment)	(PAD((base), (alignment)) - (base))
 
 #define PADP(base, alignment)	((void *) PAD((intptr_t) (base), (alignment)))
-
-#ifdef __GNUC__
-#define QALIGN(x) __attribute__((aligned(x)))
-#else
-#define QALIGN(x)
-#endif
 
 #ifndef NULL
 #define NULL ((void *)0)
@@ -1129,8 +1124,8 @@ void	Com_SkipRestOfLine(char **data);
 void	Com_SkipBracedSection(char **program);
 void	Com_Parse1DMatrix(char **buf_p, int x, float *m, qboolean checkBrackets);
 int		COM_Compress( char *data_p );
-void	COM_ParseError( char *format, ... ) __attribute__ ((format (printf, 1, 2)));
-void	COM_ParseWarning( char *format, ... ) __attribute__ ((format (printf, 1, 2)));
+void	COM_ParseError( char *format, ... ) Q_PRINTF_FUNC(1, 2);
+void	COM_ParseWarning( char *format, ... ) Q_PRINTF_FUNC(1, 2);
 //int		COM_ParseInfos( char *buf, int max, char infos[][MAX_INFO_STRING] );
 
 #define MAX_TOKENLENGTH		1024
@@ -1166,7 +1161,7 @@ void Parse3DMatrix (char **buf_p, int z, int y, int x, float *m);
 
 int Com_HexStrToInt( const char *str );
 
-size_t	QDECL Com_sprintf (char *dest, size_t size, const char *fmt, ...) __attribute__ ((format (printf, 3, 4)));
+size_t QDECL Com_sprintf (char *dest, size_t size, const char *fmt, ...) Q_PRINTF_FUNC(3, 4);
 
 char *Com_SkipTokens( char *s, int numTokens, const char *sep );
 char *Com_SkipCharset( char *s, const char *sep );
@@ -1239,7 +1234,9 @@ typedef struct
 	byte	b7;
 } qint64;
 
-const char *va( const char *format, ... ) __attribute__ ((format (printf, 1, 2)));
+void	Swap_Init (void);
+
+const char	* QDECL va(const char *format, ...) Q_PRINTF_FUNC(1, 2);
 
 #define TRUNCATE_LENGTH	64
 void Com_TruncateLongString( char *buffer, const char *s );
@@ -1264,11 +1261,11 @@ qboolean Info_Validate( const char *s );
 void Info_NextPair( const char **s, char *key, char *value );
 
 // this is only here so the functions in q_shared.c and bg_*.c can link
-void	QDECL Com_Error( int level, const char *error, ... ) __attribute__ ((format (printf, 2, 3)));
-void	QDECL Com_Printf( const char *msg, ... ) __attribute__ ((format (printf, 1, 2)));
-void	QDECL Com_DPrintf( const char *msg, ... ) __attribute__ ((format (printf, 1, 2)));
-void	QDECL Com_DPrintf2( const char *msg, ... ) __attribute__ ((format (printf, 1, 2)));
-void	QDECL Com_DebugPrintf( const char *msg, ... ) __attribute__ ((format (printf, 1, 2)));
+void	QDECL Com_Error( int level, const char *error, ... ) Q_NO_RETURN Q_PRINTF_FUNC(2, 3);
+void	QDECL Com_Printf( const char *msg, ... ) Q_PRINTF_FUNC(1, 2);
+void	QDECL Com_DPrintf( const char *msg, ... ) Q_PRINTF_FUNC(1, 2);
+void	QDECL Com_DPrintf2( const char *msg, ... ) Q_PRINTF_FUNC(1, 2);
+void	QDECL Com_DebugPrintf( const char *msg, ... ) Q_PRINTF_FUNC(1, 2);
 
 
 /*
