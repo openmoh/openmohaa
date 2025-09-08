@@ -11,7 +11,7 @@ set(ASM_SOURCES
     ${SOURCE_DIR}/asm/snapvector.c
 )
 
-add_compile_options(-Wall -Wimplicit
+add_compile_options(-Wall -Wimplicit -Wshadow
     -Wstrict-prototypes -Wformat=2  -Wformat-security
     -Wstrict-aliasing=2 -Wmissing-format-attribute
     -Wdisabled-optimization -Werror-implicit-function-declaration)
