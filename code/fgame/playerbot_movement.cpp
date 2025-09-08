@@ -30,7 +30,7 @@ BotMovement::BotMovement()
 {
     controlledEntity = NULL;
 
-    m_pPath         = IPather::CreatePather();
+    m_pPath         = NULL;
     m_iLastMoveTime = 0;
 
     m_bPathing       = false;
@@ -66,7 +66,7 @@ void BotMovement::MoveThink(usercmd_t& botcmd)
 
     CheckAttractiveNodes();
 
-    if (!IsMoving()) {
+    if (!IsMoving() || !m_pPath) {
         return;
     }
 
@@ -534,6 +534,11 @@ void BotMovement::AvoidPath(
     if (vLeashHome) {
         parameters.leashHome = vLeashHome;
     }
+
+    if (!m_pPath) {
+        m_pPath = IPather::CreatePather();
+    }
+
     m_pPath->FindPathAway(controlledEntity->origin, vAvoid, vDir, fAvoidRadius, parameters);
 
     NewMove();
@@ -566,6 +571,10 @@ void BotMovement::MoveNear(Vector vNear, float fRadius, float *vLeashHome, float
         parameters.leashHome = vLeashHome;
     }
 
+    if (!m_pPath) {
+        m_pPath = IPather::CreatePather();
+    }
+
     m_pPath->FindPathNear(controlledEntity->origin, vNear, fRadius, parameters);
     NewMove();
 
@@ -595,6 +604,10 @@ void BotMovement::MoveTo(Vector vPos, float *vLeashHome, float fLeashRadius)
     parameters.leashDist  = fLeashRadius;
     if (vLeashHome) {
         parameters.leashHome = vLeashHome;
+    }
+
+    if (!m_pPath) {
+        m_pPath = IPather::CreatePather();
     }
 
     m_pPath->FindPath(controlledEntity->origin, vPos, parameters);
@@ -1030,9 +1043,12 @@ Stop the bot from moving
 */
 void BotMovement::ClearMove(void)
 {
-    m_pPath->Clear();
     m_bPathing   = false;
     m_iNumBlocks = 0;
+
+    if (m_pPath) {
+        m_pPath->Clear();
+    }
 }
 
 /*
