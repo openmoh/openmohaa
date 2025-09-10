@@ -74,3 +74,5 @@ function(finish_macos_app)
         endif()
     endif()
 endfunction()
+
+set(CPACK_GENERATOR "DragNDrop")
