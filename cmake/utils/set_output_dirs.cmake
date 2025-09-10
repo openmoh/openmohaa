@@ -24,4 +24,7 @@ function(set_output_dirs TARGET)
             RUNTIME_OUTPUT_DIRECTORY_${CONFIG_UPPER} ${OUT_DIR}
             ARCHIVE_OUTPUT_DIRECTORY_${CONFIG_UPPER} ${OUT_DIR})
     endforeach()
+
+    set_target_properties(${TARGET} PROPERTIES
+        INSTALL_DESTINATION ./${ARG_SUBDIRECTORY})
 endfunction()

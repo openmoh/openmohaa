@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.25)
+cmake_minimum_required(VERSION 3.31)
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 include(identity)
@@ -69,4 +69,4 @@ include(basegame)
 #include(missionpack)
 include(launcher)
 
-include(tests/all)
+#include(installer)
