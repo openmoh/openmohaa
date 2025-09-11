@@ -38,6 +38,7 @@ saved_bot_t::saved_bot_t()
 {}
 
 static void G_ReadBotSessionData();
+static unsigned int G_GetNumBotsToSpawn();
 
 /*
 ===========
@@ -679,6 +680,12 @@ void G_RestoreBots()
 
     if (saved_bots) {
         if (g_gametype->integer != GT_SINGLE_PLAYER) {
+            const unsigned int numToSpawn = G_GetNumBotsToSpawn();
+
+            if (num_saved_bots > numToSpawn) {
+                num_saved_bots = numToSpawn;
+            }
+
             for (n = 0; n < num_saved_bots; n++) {
                 const saved_bot_t& saved = saved_bots[n];
 
