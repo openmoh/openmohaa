@@ -29,6 +29,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 static saved_bot_t *saved_bots     = NULL;
 static unsigned int num_saved_bots = 0;
 static unsigned int botId          = 0;
+static float  botInitTime          = 0;
 
 Container<str> alliedModelList;
 Container<str> germanModelList;
@@ -938,7 +939,11 @@ void G_BotPostInit()
 
     G_RestoreBots();
 
-    G_SpawnBots();
+    if (g_bot_initial_spawn_delay->value <= 0) {
+        G_SpawnBots();
+    }
+
+    botInitTime = level.time;
 }
 
 /*
@@ -959,6 +964,11 @@ void G_SpawnBots()
         return;
     }
 
+    if (level.time - botInitTime < g_bot_initial_spawn_delay->value && !sv_numbots->modified) {
+        // Wait before spawning all bots
+        return;
+    }
+
     numBotsToSpawn = G_GetNumBotsToSpawn();
     numSpawnedBots = botManager.getControllerManager().getControllers().NumObjects();
 
@@ -969,5 +979,7 @@ void G_SpawnBots()
         G_AddBots(numBotsToSpawn - numSpawnedBots);
     } else if (numBotsToSpawn < numSpawnedBots) {
         G_RemoveBots(numSpawnedBots - numBotsToSpawn);
+    } else {
+        sv_numbots->modified = false;
     }
 }

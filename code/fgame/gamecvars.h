@@ -316,6 +316,11 @@ extern cvar_t *g_bot_instamsg_chance;
  */
 extern cvar_t *g_bot_instamsg_delay;
 
+/**
+ * @brief The delay before spawning bots at the beginning of the map.
+ */
+extern cvar_t *g_bot_initial_spawn_delay;
+
 extern cvar_t *g_rankedserver;
 extern cvar_t *g_spectatefollow_firstperson;
 

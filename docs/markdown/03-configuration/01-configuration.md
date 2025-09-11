@@ -131,6 +131,8 @@ Configure bots with the following variables:
 - `set sv_numbots x`: Number of bots to spawn (capped at `sv_maxbots`).
 - `set sv_minPlayers x`: Configure the minimum number of players required. If the number of real players in a team is below the specified value, the game will automatically add bots to fill the gap. For example, if `sv_minPlayers` is set to 8 and only 5 real players are active, the game will spawn 3 bots to make sure there are always 8 players in the game.
 
+For more settings, see this [documentation](./03-configuration-bots.md).
+
 Bots can be spawned with a name, by setting `sv_botxname` variables where `x` is the bot number:
 
 ```cpp
@@ -159,23 +161,6 @@ set sv_numbots 4 // Spawn 4 bots
 > If the Recast-based navigation system is not working correctly or if you are running a version below 0.82.0:
 > 1. Get the [mp-navigation](https://github.com/openmoh/mp-navigation) pk3 (it only covers stock maps) and place it inside your game's `main` folder.
 > 2. Append `set g_navigation_legacy 1` somewhere, like in your `server.cfg` file.
-
-#### Modifying bots
-
-There is no skill system yet, however some settings can be modified:
-
-|Name                                        | Description                                                                                               |
-|--------------------------------------------|-----------------------------------------------------------------------------------------------------------|
-|g_bot_attack_burst_min_time                 | Minimum time to pause firing (burst). |
-|g_bot_attack_burst_random_delay             | Random time added to pause firing (burst). |
-|g_bot_attack_continuousfire_min_firetime    | Minimum duration of continuous firing. |
-|g_bot_attack_continuousfire_random_firetime | Random time added to the continuous firing duration. |
-|g_bot_attack_react_min_delay                | The minimum delay before shooting the enemy. |
-|g_bot_attack_react_random_delay             | Random delay added before shooting the enemy. |
-|g_bot_attack_spreadmult                     | The accuracy multiplier in sort. Default to 1.0, lower value = better accuracy |
-|g_bot_turn_speed                            | The rate of degrees per second when turning. |
-|g_bot_instamsg_chance                       | The chance at which the bot sends an instant message when shooting. 0 = disable, higher values = less frequent messages |
-|g_bot_instamsg_delay                        | The minimum delay between instant messages. |
 
 #### Known issues with bots
 

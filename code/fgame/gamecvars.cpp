@@ -291,6 +291,7 @@ cvar_t *g_bot_attack_spreadmult;
 cvar_t *g_bot_turn_speed;
 cvar_t *g_bot_instamsg_chance;
 cvar_t *g_bot_instamsg_delay;
+cvar_t *g_bot_initial_spawn_delay;
 
 cvar_t *g_rankedserver;
 cvar_t *g_spectatefollow_firstperson;
@@ -699,6 +700,8 @@ void CVAR_Init(void)
     g_instamsg_minDelay = gi.Cvar_Get("g_instamsg_minDelay", "1000", 0);
     g_textmsg_allowed   = gi.Cvar_Get("g_textmsg_allowed", "1", 0);
     g_textmsg_minDelay  = gi.Cvar_Get("g_textmsg_minDelay", "1000", 0);
+
+    g_bot_initial_spawn_delay = gi.Cvar_Get("g_bot_initial_spawn_delay", "", 0);
 
     g_teambalance = gi.Cvar_Get("g_teambalance", "0", 0);
 
