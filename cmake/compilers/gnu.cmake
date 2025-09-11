@@ -26,10 +26,6 @@ add_compile_options(-fno-strict-aliasing)
 # via the Q_EXPORT macro
 #add_compile_options(-fvisibility=hidden)
 
-if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
-    set(CMAKE_INSTALL_PREFIX /opt/mohaa)
-endif()
-
 add_compile_options(-Wno-comment)
 # Treat no return type as error
 add_compile_options(-Werror=return-type)
