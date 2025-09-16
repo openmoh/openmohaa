@@ -1422,7 +1422,7 @@ void CM_TraceThroughPatchCollide( traceWork_t *tw, const struct patchCollide_s *
 		pcPlanes = &pc->planes[ facet->surfacePlane ];
 		VectorCopy(pcPlanes->plane, plane);
 		plane[3] = pcPlanes->plane[3];
-		plane[3] -= DotProduct( tw->offsets[ planes->signbits ], plane);
+		plane[3] -= DotProduct( tw->offsets[ pcPlanes->signbits ], plane);
 
 		if (!CM_CheckFacetPlane(plane, tw->start, tw->end, &enterFrac, &leaveFrac, &hit)) {
 			continue;
@@ -1510,8 +1510,8 @@ qboolean CM_PositionTestInPatchCollide( traceWork_t *tw, const struct patchColli
 	for (i = 0; i < pc->numPlanes; i++) {
 		pcPlanes = &pc->planes[i];
 
-		offset = fabs(DotProduct(tw->offsets[planes->signbits], planes->plane));
-		d = DotProduct(tw->start, pcPlanes->plane) - planes->plane[3];
+		offset = fabs(DotProduct(tw->offsets[pcPlanes->signbits], pcPlanes->plane));
+		d = DotProduct(tw->start, pcPlanes->plane) - pcPlanes->plane[3];
 
 		if (-offset > d) {
 			cross[i] = 0;
