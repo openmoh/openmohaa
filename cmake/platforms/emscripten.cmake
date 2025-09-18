@@ -35,7 +35,7 @@ if(EMSCRIPTEN_PRELOAD_FILE)
     list(APPEND CLIENT_LINK_OPTIONS --preload-file "${BASEGAME}")
 endif()
 
-set(POST_CLIENT_CONFIGURE_FUNCTION deploy_shell_files)
+list(APPEND POST_CONFIGURE_FUNCTIONS deploy_shell_files)
 
 function(deploy_shell_files)
     configure_file(${SOURCE_DIR}/web/client.html.in

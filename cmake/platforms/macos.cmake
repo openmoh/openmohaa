@@ -19,7 +19,7 @@ set(CMAKE_OSX_ARCHITECTURES arm64;x86_64)
 
 if(BUILD_MACOS_APP)
     set(CLIENT_EXECUTABLE_OPTIONS MACOSX_BUNDLE)
-    set(POST_CLIENT_CONFIGURE_FUNCTION finish_macos_app)
+    list(APPEND POST_CONFIGURE_FUNCTIONS finish_macos_app)
 endif()
 
 function(finish_macos_app)
