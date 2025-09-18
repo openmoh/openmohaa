@@ -6595,6 +6595,8 @@ Do I need to think ?
 */
 bool Actor::RequireThink(void)
 {
+    // Fixed in OPM
+    //  Always allow thinking in multiplayer
     if (g_gametype->integer != GT_SINGLE_PLAYER || G_GetEntity(0)) {
         return (level.inttime < edict->r.lastNetTime + 60000);
     } else {

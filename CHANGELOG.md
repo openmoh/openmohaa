@@ -26,6 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Allow `g_teamkillkick` to be set to 0. Players would get kicked when this variable was set to 0 (also occurs in the original game).
 - Fix a possible crash caused by scripts using `angles_pointat` (also occurs in the original game).
+- Fix Actors not doing anything without client #0 (also occurs in the original game).
 - Fix death animation movement for bots.
 - Fix improper weapon falling rotation.
 - Fix players temporarily losing user input control on ARM-based OpenMoHAA servers when a message contained a special ASCII character.
