@@ -67,12 +67,39 @@ function(finish_macos_app)
 
         if(BUILD_RENDERER_GL1)
             set_output_dirs(${RENDERER_GL1_BINARY} SUBDIRECTORY ${MACOS_APP_BINARY_DIR})
+            add_dependencies(${CLIENT_BINARY} ${RENDERER_GL1_BINARY})
         endif()
 
         if(BUILD_RENDERER_GL2)
             set_output_dirs(${RENDERER_GL2_BINARY} SUBDIRECTORY ${MACOS_APP_BINARY_DIR})
+            add_dependencies(${CLIENT_BINARY} ${RENDERER_GL2_BINARY})
         endif()
     endif()
 endfunction()
+
+if(NOT "$ENV{APPLE_CERTIFICATE_ID}" STREQUAL "")
+    list(APPEND POST_CONFIGURE_FUNCTIONS codesign)
+
+    function(codesign)
+        set(DEV_ID "Developer ID Application")
+
+        get_directory_property(INSTALL_TARGETS DIRECTORY
+            ${CMAKE_SOURCE_DIR} BUILDSYSTEM_TARGETS)
+
+        # Code sign everything that will be installed
+        foreach(TARGET IN LISTS INSTALL_TARGETS)
+            get_target_property(DESTINATION ${TARGET} INSTALL_DESTINATION)
+            if(NOT DESTINATION)
+                continue()
+            endif()
+
+            add_custom_command(TARGET ${TARGET} POST_BUILD
+                COMMAND codesign --force --deep --options runtime
+                    --sign "$ENV{APPLE_CERTIFICATE_ID}"
+                    "$<TARGET_FILE:${TARGET}>"
+                COMMENT "Code Signing for macOS: $<TARGET_FILE_BASE_NAME:${TARGET}>")
+        endforeach()
+    endfunction()
+endif()
 
 set(CPACK_GENERATOR "DragNDrop")
