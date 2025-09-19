@@ -2452,9 +2452,9 @@ void Player::InitModel(void)
     static const char *defaultAxisModel   = "models/player/german_wehrmacht_soldier.tik";
     static const char *defaultAlliedModel = "models/player/american_army.tik";
 
-    // 2.0:
-    //  Make sure to detach from any object before initializing
-    //  To prevent any glitches
+    // Fixed in 2.0:
+    //  Make sure to detach from any object before initializing.
+    //  To prevent client from respawning at the location of these objects.
     RemoveFromVehiclesAndTurrets();
     UnattachFromLadder(NULL);
 
@@ -2715,10 +2715,6 @@ void Player::Respawn(Event *ev)
         }
 
         respawn_time = level.time;
-
-        // This is not present in MOHAA
-        ProcessEvent(EV_Player_UnattachFromLadder);
-        RemoveFromVehiclesAndTurrets();
 
         FreeInventory();
 
