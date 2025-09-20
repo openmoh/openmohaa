@@ -1,4 +1,4 @@
-FROM debian:bookworm
+FROM debian:trixie
 
 RUN apt update && apt install -y git cmake ninja-build clang flex bison zlib1g-dev libcurl4-openssl-dev
 
@@ -18,7 +18,7 @@ RUN cd /tmp/openmohaa/build \
     && cmake --install .
 
 # Reset to the base debian image, will gain space
-FROM debian:bookworm
+FROM debian:trixie
 
 # Copy the installed directory
 COPY --from=0 /usr/local/games/openmohaa /usr/local/games/openmohaa
