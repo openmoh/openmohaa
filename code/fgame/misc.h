@@ -591,4 +591,10 @@ public:
     InfoLandmark();
     void SetLandmarkName(Event *ev);
     void SetOrigin(Event *ev);
+
+    //
+    // Added in OPM
+    //
+    void GetLandmarkName(Event *ev);
+    void GetOrigin(Event *ev);
 };

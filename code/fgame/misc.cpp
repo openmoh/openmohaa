@@ -3118,6 +3118,47 @@ Event EV_InfoLandmark_SetOrigin
     EV_NORMAL
 );
 
+//
+// Added in OPM
+//
+
+Event EV_InfoLandmark_Name2
+(
+    "landmark_name",
+    EV_DEFAULT,
+    "s",
+    "name",
+    "Set the name of this landmark",
+    EV_SETTER
+);
+Event EV_InfoLandmark_GetName
+(
+    "landmark_name",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Get the name of this landmark",
+    EV_GETTER
+);
+Event EV_InfoLandmark_SetOrigin2
+(
+    "origin",
+    EV_DEFAULT,
+    "v",
+    "origin",
+    "Set the origin of the landmark.",
+    EV_SETTER
+);
+Event EV_InfoLandmark_GetOrigin
+(
+    "origin",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Get the origin of the landmark.",
+    EV_GETTER
+);
+
 /*****************************************************************************/
 /*QUAKED info_landmark (0 0 1) (-16 -16 -16) (16 16 16)
 
@@ -3129,9 +3170,17 @@ A landmark represents a named location. A landmark is determined based on the ne
 ******************************************************************************/
 
 CLASS_DECLARATION(Listener, InfoLandmark, "info_landmark") {
-    {&EV_InfoLandmark_Name,      &InfoLandmark::SetLandmarkName},
-    {&EV_InfoLandmark_SetOrigin, &InfoLandmark::SetOrigin      },
-    {NULL,                       NULL                          }
+    {&EV_InfoLandmark_Name,       &InfoLandmark::SetLandmarkName},
+    {&EV_InfoLandmark_SetOrigin,  &InfoLandmark::SetOrigin      },
+
+    //
+    // Added in OPM
+    //
+    {&EV_InfoLandmark_Name2,      &InfoLandmark::SetLandmarkName},
+    {&EV_InfoLandmark_GetName,    &InfoLandmark::GetLandmarkName},
+    {&EV_InfoLandmark_SetOrigin2, &InfoLandmark::SetOrigin      },
+    {&EV_InfoLandmark_GetOrigin,  &InfoLandmark::GetOrigin      },
+    {NULL,                        NULL                          }
 };
 
 InfoLandmark::InfoLandmark()
@@ -3171,4 +3220,13 @@ void InfoLandmark::SetOrigin(Event *ev)
         level.AddLandmarkName(m_sName, m_vOrigin);
         PostEvent(EV_Remove, EV_REMOVE);
     }
+}
+void InfoLandmark::GetLandmarkName(Event *ev)
+{
+    ev->AddString(m_sName);
+}
+
+void InfoLandmark::GetOrigin(Event *ev)
+{
+    ev->AddVector(m_vOrigin);
 }
