@@ -574,6 +574,9 @@ inline void FuncLadder::Archive(Archiver& arc)
     arc.ArchiveVector(&m_vFacingDir);
 }
 
+//
+// Added in 2.30
+//
 class InfoLandmark : public Listener
 {
 private:

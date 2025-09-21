@@ -3094,9 +3094,15 @@ const Vector& FuncLadder::getFacingDir() const
     return m_vFacingDir;
 }
 
+
+//
+// Added in 2.30
+//  Landmark
+
 Event EV_InfoLandmark_Name
 (
-    "landmark_name", EV_DEFAULT,
+    "landmark_name",
+    EV_DEFAULT,
     "s",
     "name",
     "Set the name of this landmark",
@@ -3104,12 +3110,23 @@ Event EV_InfoLandmark_Name
 );
 Event EV_InfoLandmark_SetOrigin
 (
-    "origin", EV_DEFAULT,
+    "origin",
+    EV_DEFAULT,
     "v",
     "origin",
     "Set the origin of the landmark.",
     EV_NORMAL
 );
+
+/*****************************************************************************/
+/*QUAKED info_landmark (0 0 1) (-16 -16 -16) (16 16 16)
+
+A landmark represents a named location. A landmark is determined based on the nearest origin to the specified location.
+
+"landmark_name" - Name assigned to the location.
+"origin" - Reference point assigned to the location.
+
+******************************************************************************/
 
 CLASS_DECLARATION(Listener, InfoLandmark, "info_landmark") {
     {&EV_InfoLandmark_Name,      &InfoLandmark::SetLandmarkName},
