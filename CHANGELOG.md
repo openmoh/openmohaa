@@ -29,6 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix Actors not doing anything without client #0 (also occurs in the original game).
 - Fix death animation movement for bots.
 - Fix improper weapon falling rotation.
+- Fix players not having binoculars on Allied Assault.
 - Fix players temporarily losing user input control on ARM-based OpenMoHAA servers when a message contained a special ASCII character.
 - Fix some RCON programs not working with `dumpuser`.
 - Fix the round limit being always `15` on Tug-of-War.

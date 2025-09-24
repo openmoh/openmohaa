@@ -9108,6 +9108,13 @@ void Player::EquipWeapons()
         }
     }
 
+    if (g_target_game < target_game_e::TG_MOHTA) {
+        // Removed in 2.0
+        //  Before 2.0, the player always get binoculars regardless of the weapon.
+        //  Since 2.0, players get binoculars from the primary weapon's startitem.
+        giveItem("models/items/binoculars.tik");
+    }
+
     // Make the player switch to the weapon some time after spawning
     PostEvent(event, 0.3f);
 
