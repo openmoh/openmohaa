@@ -104,7 +104,7 @@ qboolean Com_RefreshGameSpyMasters()
     //
     // Find and insert valid entries
     //
-    for (i = 0; i < MAX_MASTER_SERVERS; i++) {
+    for (i = 0; i < MAX_MASTERS; i++) {
         master_entry_t *entry = &entries[num_entries];
 
         if (com_master_host[i]->string && com_master_host[i]->string[0]) {
