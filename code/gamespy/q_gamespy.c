@@ -89,11 +89,12 @@ qboolean Com_RefreshGameSpyMasters()
     // that emulate the GameSpy protocol -- see https://333networks.com/
     // They are managed by different entities, are independent and sync with eachother.
     //
+    // Covers multiple continents
     CreateMasterVar(msIndex++, "master.333networks.com", MASTER_DEFAULT_MSPORT, MASTER_DEFAULT_HBPORT);
-    CreateMasterVar(msIndex++, "master.errorist.eu", MASTER_DEFAULT_MSPORT, MASTER_DEFAULT_HBPORT);
-    CreateMasterVar(msIndex++, "master.noccer.de", MASTER_DEFAULT_MSPORT, MASTER_DEFAULT_HBPORT);
-    CreateMasterVar(msIndex++, "master-au.unrealarchive.org", MASTER_DEFAULT_MSPORT, MASTER_DEFAULT_HBPORT);
     CreateMasterVar(msIndex++, "master.frag-net.com", MASTER_DEFAULT_MSPORT, MASTER_DEFAULT_HBPORT);
+    CreateMasterVar(msIndex++, "master.errorist.eu", MASTER_DEFAULT_MSPORT, MASTER_DEFAULT_HBPORT);
+    CreateMasterVar(msIndex++, "master-au.unrealarchive.org", MASTER_DEFAULT_MSPORT, MASTER_DEFAULT_HBPORT);
+    CreateMasterVar(msIndex++, "master.noccer.de", MASTER_DEFAULT_MSPORT, MASTER_DEFAULT_HBPORT);
 
     for (; msIndex < MAX_MASTERS; msIndex++) {
         CreateMasterVar(msIndex, "", MASTER_DEFAULT_MSPORT, MASTER_DEFAULT_HBPORT);
