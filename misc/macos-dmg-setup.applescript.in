@@ -1,0 +1,32 @@
+tell application "Finder"
+    tell disk "@CPACK_DMG_VOLUME_NAME@"
+        open
+        set current view of container window to icon view
+        set toolbar visible of container window to false
+        set statusbar visible of container window to false
+        set bounds of container window to {100, 100, 600, 500}
+
+        set viewOptions to the icon view options of container window
+        set arrangement of viewOptions to not arranged
+        set icon size of viewOptions to 96
+
+        try
+            set background picture of viewOptions to file ".background:background.png"
+        end try
+
+        set position of item "@CLIENT_NAME@.app" to {100, 80}
+        set position of item "Applications" to {400, 80}
+
+        set position of item "@SERVER_NAME@" to {100, 260}
+        set position of item "@BASEGAME@" to {250, 260}
+
+        if exists item "missionpack" then
+            set position of item "missionpack" to {400, 260}
+        end if
+
+        close
+        open
+        update without registering applications
+        delay 1
+    end tell
+end tell

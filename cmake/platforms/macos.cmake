@@ -103,3 +103,14 @@ if(NOT "$ENV{APPLE_CERTIFICATE_ID}" STREQUAL "")
 endif()
 
 set(CPACK_GENERATOR "DragNDrop")
+
+set(CPACK_DMG_VOLUME_NAME "${PROJECT_NAME} Installer")
+set(CPACK_DMG_BACKGROUND_IMAGE "${CMAKE_SOURCE_DIR}/misc/macos-dmg-background.png")
+
+configure_file(
+  "${CMAKE_SOURCE_DIR}/misc/macos-dmg-setup.applescript.in"
+  "${CMAKE_BINARY_DIR}/macos-dmg-setup.applescript"
+  @ONLY
+)
+
+set(CPACK_DMG_DS_STORE_SETUP_SCRIPT "${CMAKE_BINARY_DIR}/macos-dmg-setup.applescript")
