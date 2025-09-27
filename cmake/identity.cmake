@@ -17,5 +17,5 @@ set(MACOS_BUNDLE_ID org.openmohaa.${CLIENT_NAME})
 
 set(COPYRIGHT "OpenMoHAA Copyright © 2025 OpenMoHAA Team, Inc. All rights reserved.")
 
-set(CONTACT_EMAIL "email@ioquake3.org")
+set(CONTACT_EMAIL "")
 set(PROTOCOL_HANDLER_SCHEME openmohaa)
