@@ -1,5 +1,10 @@
 cmake_minimum_required(VERSION 3.25)
-cmake_policy(VERSION 3.31)
+
+if(POLICY CMP0177)
+    # Policy CMP0177: install() DESTINATION paths are normalized
+    # Introduced in CMake 3.31
+    cmake_policy(SET CMP0177 NEW)
+endif()
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 include(identity)
