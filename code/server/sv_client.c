@@ -576,7 +576,7 @@ void SV_DirectConnect( netadr_t from ) {
 			}
 		}
 		else {
-			SV_NET_OutOfBandPrint( &svs.netprofile, from, "droperror\nServer is full.\n" );
+			SV_NET_OutOfBandPrint( &svs.netprofile, from, "droperror\nServer is full\n" );
 			Com_DPrintf ("Rejected a connection.\n");
 			return;
 		}
