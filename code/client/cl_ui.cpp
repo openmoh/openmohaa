@@ -154,8 +154,8 @@ static str               ui_sCurrentLoadingMenu;
 static Container<Menu *> hudList;
 
 const UColor UWhiteChatMessageColor(0.75, 0.75, 0.75);
-const UColor URedChatMessageColor(1.0, 0.25, 0.25);
-const UColor UGreenChatMessageColor(0.0, 1.0, 0.25, 1.0);
+const UColor URedChatMessageColor(1.0, 0.333, 0.333);
+const UColor UGreenChatMessageColor(0.0, 1.0, 0.333, 1.0);
 
 void UI_MultiplayerMenuWidgetsUpdate(void);
 void UI_MultiplayerMainMenuWidgetsUpdate(void);
