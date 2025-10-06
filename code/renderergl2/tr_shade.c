@@ -144,7 +144,7 @@ static void DrawNormals (shaderCommands_t *input) {
 	if (!input) return;
 
 	const int vertexCount = input->numVertexes;
-	if (vertexCount <= 0 || !input->xyz || !input->normal) return;
+	if (vertexCount <= 0) return;
 	if (!input->shader || input->shader->isSky) return;   // do not draw over sky/clouds
 	if (input->shader->numDeforms > 0) return;  // skip vertex-deformed surfaces
 
