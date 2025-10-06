@@ -1588,7 +1588,7 @@ void R_Register( void )
 	r_farplane_nocull = ri.Cvar_Get("r_farplane_nocull", "0", CVAR_CHEAT);
 	r_farplane_nofog = ri.Cvar_Get("r_farplane_nofog", "0", CVAR_CHEAT);
 	r_skybox_farplane = ri.Cvar_Get("r_skybox_farplane", "0", CVAR_CHEAT);
-	r_farclip = ri.Cvar_Get("r_farclip", "0", CVAR_CHEAT);
+	r_farclip = ri.Cvar_Get("r_farclip", "0", CVAR_ARCHIVE);
 
 	// Lighting
 
