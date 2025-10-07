@@ -294,7 +294,7 @@ private:
     ///
     bool  voted;
     int   votecount;
-    float m_fLastVoteTime;
+    float m_fAllowVoteTime;
     float m_fNextVoteOptionTime;
 
     float           m_fWeapSelectTime;

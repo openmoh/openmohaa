@@ -2032,7 +2032,7 @@ Player::Player()
     last_camera_type             = -1;
     m_fLastInvulnerableTime      = 0;
     m_iInvulnerableTimeRemaining = 0;
-    m_fLastVoteTime              = 0;
+    m_fAllowVoteTime             = 0;
 
     //
     // Added in OPM
@@ -2136,7 +2136,7 @@ Player::Player()
     num_lost_matches      = 0;
     client->ps.voted      = false;
     votecount             = 0;
-    m_fLastVoteTime       = 0;
+    m_fAllowVoteTime      = 0;
     m_fNextVoteOptionTime = 0;
     m_fWeapSelectTime     = 0;
     m_jailstate           = JAILSTATE_NONE;
@@ -9758,9 +9758,9 @@ void Player::CallVote(Event *ev)
     }
 
     if (votecount >= MAX_VOTE_COUNT) {
-        if (m_fLastVoteTime) {
-            while (m_fLastVoteTime < level.time && votecount > 0) {
-                m_fLastVoteTime += 60;
+        if (m_fAllowVoteTime) {
+            while (m_fAllowVoteTime < level.time && votecount > 0) {
+                m_fAllowVoteTime += 60;
                 votecount--;
             }
         }
@@ -9769,7 +9769,7 @@ void Player::CallVote(Event *ev)
             HUDPrint(
                 va("%s %d %s.\n",
                    gi.LV_ConvertString("You cannot call another vote for"),
-                   (unsigned int)(m_fLastVoteTime - level.time + 1),
+                   (unsigned int)(m_fAllowVoteTime - level.time + 1),
                    gi.LV_ConvertString("seconds"))
             );
             return;
@@ -10008,7 +10008,7 @@ void Player::CallVote(Event *ev)
         }
     }
 
-    G_PrintfClient(edict, "called a vote (%s %s)\n", arg1.c_str(), arg2.c_str());
+    G_PrintfClient(edict, "called a vote (%s)\n", level.m_voteName.c_str());
     G_PrintToAllClients(va("%s %s.\n", client->pers.netname, gi.LV_ConvertString("called a vote")));
 
     level.m_voteTime = (level.svsFloatTime - level.svsStartFloatTime) * 1000;
@@ -10034,7 +10034,7 @@ void Player::CallVote(Event *ev)
     voted             = true;
     votecount++;
 
-    m_fLastVoteTime = level.time + 60;
+    m_fAllowVoteTime = level.time + 60;
 
     if (g_protocol >= protocol_e::PROTOCOL_MOHTA_MIN) {
         //
