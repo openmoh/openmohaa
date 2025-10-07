@@ -21,9 +21,6 @@ list(APPEND COMMON_LIBRARIES
     m   # Math library
 )
 
-list(APPEND CLIENT_DEFINITIONS USE_ICON)
-list(APPEND RENDERER_DEFINITIONS USE_ICON)
-
 list(APPEND SYSTEM_PLATFORM_SOURCES ${SOURCE_DIR}/sys/new/sys_unix_new.c)
 
 find_package(Threads)
