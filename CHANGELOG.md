@@ -27,12 +27,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Allow `g_teamkillkick` to be set to 0. Players would get kicked when this variable was set to 0 (also occurs in the original game).
 - Fix a possible crash caused by scripts using `angles_pointat` (also occurs in the original game).
 - Fix Actors not doing anything without client #0 (also occurs in the original game).
+- Fix bots being counted for voting.
 - Fix death animation movement for bots.
 - Fix improper weapon falling rotation.
 - Fix players not having binoculars on Allied Assault.
 - Fix players temporarily losing user input control on ARM-based OpenMoHAA servers when a message contained a special ASCII character.
 - Fix some RCON programs not working with `dumpuser`.
 - Fix the round limit being always `15` on Tug-of-War.
+- Fix votes being messed up after calling a vote the second time during the match.
 - The player would spawn with no weapons on single-player when `sv_maxbots` was set (#783).
 
 #### Clients
@@ -41,6 +43,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix the issue where the network would no longer work after hosting a multiplayer game on Allied Assault using the client.
 
 ### Changed
+
+#### Server
+
+- Freezeplayer now freezes player animation/state, because frozen players would still emit footsteps sound when frozen.
+
+#### Clients
+
+- Slightly increase the brightness of red/green chat messages
+
+#### Misc
 
 - Completely refactor CMake build system (from [ioquake3's](<https://github.com/ioquake/ioq3>) new CMake build system).
 
