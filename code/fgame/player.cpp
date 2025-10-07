@@ -10025,9 +10025,7 @@ void Player::CallVote(Event *ev)
             continue;
         }
 
-        Player *p = (Player *)ent->entity;
-        p->voted  = false;
-
+        ent->client->ps.voted = false;
         numVoters++;
     }
 
