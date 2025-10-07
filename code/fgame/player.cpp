@@ -2027,8 +2027,8 @@ Player::Player()
 
     m_bDeathSpectator            = false;
     m_fSpawnTimeLeft             = 0;
-    m_bWaitingForRespawn         = 0;
-    m_bShouldRespawn             = false;
+    m_bRespawnWhenReady          = false;
+    m_bReadyToRespawn            = false;
     last_camera_type             = -1;
     m_fLastInvulnerableTime      = 0;
     m_iInvulnerableTimeRemaining = 0;
@@ -2177,8 +2177,8 @@ Player::Player()
     m_fLastInvulnerableTime      = 0;
     m_iInvulnerableTimeRemaining = -1;
     m_fSpawnTimeLeft             = 0;
-    m_bWaitingForRespawn         = false;
-    m_bShouldRespawn             = false;
+    m_bRespawnWhenReady          = false;
+    m_bReadyToRespawn            = false;
     m_bDeathSpectator            = false;
 
     m_vViewPos = vec_zero;
@@ -2187,13 +2187,13 @@ Player::Player()
     // Added in OPM
     //
 
-    m_bFrozen  = false;
+    m_bFrozen = false;
 
     for (int i = 0; i < MAX_SPEED_MULTIPLIERS; i++) {
         speed_multiplier[i] = 1.0f;
     }
 
-    m_fpsTiki    = NULL;
+    m_fpsTiki  = NULL;
     animDoneVM = true;
     m_fVMAtime = 0;
 
@@ -2728,7 +2728,7 @@ void Player::Respawn(Event *ev)
 
         // Clear the center message
         gi.centerprintf(edict, " ");
-        m_bShouldRespawn = false;
+        m_bReadyToRespawn = false;
     } else {
         if (g_lastsave->string && *g_lastsave->string) {
             gi.SendConsoleCommand("loadlastgame\n");
@@ -4701,7 +4701,7 @@ void Player::Think(void)
                             PostEvent(EV_Player_Respawn, 0);
                         }
                     } else {
-                        m_bWaitingForRespawn = true;
+                        m_bRespawnWhenReady = true;
                     }
                 }
             } else if (!IsSpectator()) {
@@ -4725,7 +4725,7 @@ void Player::Think(void)
                                     PostEvent(EV_Player_Respawn, 0);
                                 }
                             } else {
-                                m_bWaitingForRespawn = true;
+                                m_bRespawnWhenReady = true;
                             }
                         }
                     } else if (m_fWeapSelectTime < level.time) {
@@ -4742,7 +4742,7 @@ void Player::Think(void)
             //    m_fWeapSelectTime = level.time;
             //    gi.centerprintf(edict, "\n\n\n%s", gi.LV_ConvertString("Press fire to join the battle!"));
             //}
-        } else if (!client->pers.dm_primary[0]) {
+        } else if (!IsPrimaryWeaponValid()) {
             Spectator();
             if (m_fWeapSelectTime < level.time) {
                 m_fWeapSelectTime = level.time + 1.0;
@@ -8378,7 +8378,8 @@ void Player::SetMovePosFlags(Event *ev)
     if (ev->NumArgs() > 1) {
         sParm = ev->GetString(2);
 
-        if (!sParm.icmp("walking") || !sParm.icmp("walking\"") // there is a mistake in WALK_FORWARD
+        if (
+            !sParm.icmp("walking") || !sParm.icmp("walking\"") // there is a mistake in WALK_FORWARD
         ) {
             m_iMovePosFlags |= MPF_MOVEMENT_WALKING;
         } else if (!sParm.icmp("running")) {
@@ -8799,7 +8800,7 @@ void Player::EnsurePlayerHasAllowedWeapons()
         return;
     }
 
-    if (!client->pers.dm_primary[0]) {
+    if (!IsPrimaryWeaponValid()) {
         return;
     }
 
@@ -9509,10 +9510,10 @@ void Player::Join_DM_Team(Event *ev)
         }
     }
 
-    if (client->pers.dm_primary[0]) {
+    if (IsPrimaryWeaponValid()) {
         if (IsSpectator()) {
             if (m_fSpawnTimeLeft) {
-                m_bWaitingForRespawn = true;
+                m_bRespawnWhenReady = true;
             } else if (AllowTeamRespawn()) {
                 EndSpectator();
 
@@ -9941,9 +9942,9 @@ void Player::CallVote(Event *ev)
             level.m_voteString = va("%s %s", voteOptionCommand.c_str(), voteOptionSubCommand.c_str());
             // get the sub-option name
             level.GetVoteOptionSubName(voteIndex, subListIndex, &voteOptionSubName);
-            level.m_voteName =
-                va("%s %s", gi.LV_ConvertString(voteOptionName.c_str()), gi.LV_ConvertString(voteOptionSubName.c_str())
-                );
+            level.m_voteName = va(
+                "%s %s", gi.LV_ConvertString(voteOptionName.c_str()), gi.LV_ConvertString(voteOptionSubName.c_str())
+            );
             break;
         case VOTE_OPTION_TEXT:
             if (strchr(arg2.c_str(), ';')) {
@@ -9993,9 +9994,9 @@ void Player::CallVote(Event *ev)
             }
 
             level.m_voteString = va("%s %i", voteOptionCommand.c_str(), optionClientNum);
-            level.m_voteName =
-                va("%s #%i: %s", gi.LV_ConvertString(voteOptionName.c_str()), optionClientNum, ent->client->pers.netname
-                );
+            level.m_voteName   = va(
+                "%s #%i: %s", gi.LV_ConvertString(voteOptionName.c_str()), optionClientNum, ent->client->pers.netname
+            );
             break;
         default:
             level.GetVoteOptionMainName(voteIndex, &voteOptionName);
@@ -10165,7 +10166,7 @@ void Player::EventPrimaryDMWeapon(Event *ev)
     if (m_bSpectator) {
         if (current_team && (current_team->m_teamnumber == TEAM_AXIS || current_team->m_teamnumber == TEAM_ALLIES)) {
             if (m_fSpawnTimeLeft) {
-                m_bWaitingForRespawn = true;
+                m_bRespawnWhenReady = true;
             } else if (AllowTeamRespawn()) {
                 EndSpectator();
 
@@ -10626,13 +10627,13 @@ void Player::EventDMMessage(Event *ev)
 
     int i;
     //int              iStringLength;
-    int              iMode = 0;
-    str              sToken;
+    int iMode = 0;
+    str sToken;
     // Changed in OPM
     //  it's MAX_STRING_CHARS in mohaa
     // Add 1 character for the newline
     char             szPrintString[MAX_SAY_TEXT_LENGTH];
-    const char       *pStartMessage = szPrintString;
+    const char      *pStartMessage = szPrintString;
     size_t           iStringLength;
     const char      *pTmpInstantMsg = "";
     qboolean         bInstaMessage  = qfalse;
@@ -11690,9 +11691,8 @@ qboolean Player::CheckCanSwitchTeam(teamtype_t team)
             }
 
             if (pNewTeam->m_players.NumObjects() > numTeamPlayers) {
-                const char *message = gi.LV_ConvertString(
-                    "This team is full. Choose the team that has the lowest number of players."
-                );
+                const char *message =
+                    gi.LV_ConvertString("This team is full. Choose the team that has the lowest number of players.");
 
                 gi.SendServerCommand(edict - g_entities, "print \"" HUD_MESSAGE_WHITE "%s\n\"", message);
                 gi.centerprintf(edict, message);
@@ -11827,24 +11827,16 @@ bool Player::HasVotedNo() const
 
 void Player::TickSprint()
 {
-    float timeHeld;
-
     if (last_ucmd.buttons & BUTTON_RUN && last_ucmd.forwardmove) {
-        timeHeld = 0;
-
         if (!m_fLastSprintTime) {
             m_fLastSprintTime = level.time;
         }
     } else {
-        timeHeld          = 0;
         m_fLastSprintTime = 0;
     }
 
-    if (last_ucmd.rightmove) {
-        m_fLastSprintTime = timeHeld;
-    }
-    if (last_ucmd.upmove) {
-        m_fLastSprintTime = timeHeld;
+    if (last_ucmd.rightmove || last_ucmd.upmove) {
+        m_fLastSprintTime = 0;
     }
 }
 
@@ -11927,7 +11919,7 @@ void Player::TickInvulnerable()
 {
     if (m_iInvulnerableTimeRemaining >= 0 && level.time >= m_fInvulnerableTimeElapsed) {
         if (m_iInvulnerableTimeRemaining) {
-            m_fInvulnerableTimeElapsed = m_fInvulnerableTimeElapsed + 1.f;
+            m_fInvulnerableTimeElapsed++;
         } else {
             SetVulnerable();
             m_fInvulnerableTimeElapsed = 0;
@@ -11969,24 +11961,41 @@ void Player::TickTeamSpawn()
 {
     int timeLeft;
 
-    if (!IsSpectator() && !IsDead() || (GetTeam() == TEAM_SPECTATOR || !client->pers.dm_primary[0])) {
+    if (!IsSpectator() && !IsDead()) {
+        // Player is alive
+        return;
+    }
+
+    if (GetTeam() == TEAM_SPECTATOR) {
+        // Didn't join a team
+        return;
+    }
+
+    //
+    // Fixed in 2.30
+    //  Players can spawn only with a valid primary weapon
+    //
+    if (!IsPrimaryWeaponValid()) {
         return;
     }
 
     timeLeft = dmManager.GetTeamSpawnTimeLeft();
     if (timeLeft == -1) {
-        // Can spawn
+        // No spawn interval
         m_fSpawnTimeLeft = 0;
         return;
     }
 
     if (timeLeft == m_fSpawnTimeLeft) {
-        // Still waiting
         return;
     }
 
-    if (m_bShouldRespawn) {
-        // The player can spawn
+    //
+    // A new second was elapsed
+    //
+
+    if (m_bReadyToRespawn) {
+        // The player can now spawn at any time
         m_fSpawnTimeLeft = 0;
         return;
     }
@@ -12004,14 +12013,14 @@ void Player::TickTeamSpawn()
 
             gi.centerprintf(edict, string);
         }
-    } else if (m_bWaitingForRespawn && AllowTeamRespawn()) {
-        m_bWaitingForRespawn = false;
-        m_bDeathSpectator    = false;
+    } else if (m_bRespawnWhenReady && AllowTeamRespawn()) {
+        m_bRespawnWhenReady = false;
+        m_bDeathSpectator   = false;
         EndSpectator();
 
         PostEvent(EV_Player_Respawn, 0);
     } else {
-        m_bShouldRespawn = true;
+        m_bReadyToRespawn = true;
     }
 }
 
@@ -12100,6 +12109,8 @@ void Player::PickWeaponEvent(Event *ev)
 
 bool Player::AllowTeamRespawn() const
 {
+    // If team respawn is disabled, only dead teammates may respawn.
+    // New players joining the team will stay as spectators.
     if (m_bSpectator && !m_bDeathSpectator
         && (!dmManager.AllowTeamRespawn(TEAM_ALLIES) || !dmManager.AllowTeamRespawn(TEAM_AXIS))) {
         return false;
@@ -12201,8 +12212,9 @@ void Player::AddDeaths(int num)
 //
 ////////////////////////////
 
-void Player::ResetClient() {
-    client->pers.teamnum = GetTeam();
+void Player::ResetClient()
+{
+    client->pers.teamnum       = GetTeam();
     client->pers.dm_primary[0] = 0;
 
     //
@@ -12300,6 +12312,11 @@ int Player::getUseableEntities(int *touch, int maxcount, bool requiresLookAt)
     }
 
     return gi.AreaEntities(min, max, touch, maxcount);
+}
+
+bool Player::IsPrimaryWeaponValid() const
+{
+    return client->pers.dm_primary[0] != 0;
 }
 
 void Player::Postthink(void)

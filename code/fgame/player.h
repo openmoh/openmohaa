@@ -354,8 +354,8 @@ public:
     int   m_iInvulnerableTimeRemaining;
     float m_fInvulnerableTimeElapsed;
     float m_fSpawnTimeLeft;
-    bool  m_bWaitingForRespawn;
-    bool  m_bShouldRespawn;
+    bool  m_bRespawnWhenReady;
+    bool  m_bReadyToRespawn;
 
     //
     // Added in OPM
@@ -989,6 +989,8 @@ public:
     void VisionSetBlur(Event *ev);
     void VisionSetNaked(Event *ev);
 #endif
+
+    bool IsPrimaryWeaponValid() const;
 
     void     Postthink() override;
     void     GibEvent(Event *ev);
