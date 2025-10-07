@@ -1963,6 +1963,14 @@ void Level::CheckVote(void)
             continue;
         }
 
+        //
+        // Added in OPM
+        //  Make sure bots are excluded from votes
+        //
+        if (ent->r.svFlags & SVF_BOT) {
+            continue;
+        }
+
         p = static_cast<Player *>(ent->entity);
         if (p->client->ps.voted) {
             if (p->HasVotedYes()) {
