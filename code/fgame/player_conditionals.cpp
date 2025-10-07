@@ -273,7 +273,7 @@ qboolean Player::CondWeaponReadyToFire(Conditional& condition)
     weaponhand_t hand;
     qboolean     ready;
 
-    if (level.playerfrozen || m_bFrozen || (flags & FL_IMMOBILE)) {
+    if ((client->ps.pm_flags & PMF_FROZEN) || (flags & FL_IMMOBILE)) {
         return false;
     }
 
@@ -315,7 +315,7 @@ qboolean Player::CondWeaponClassReadyToFire(Conditional& condition)
     qboolean     ready;
     Weapon      *weapon;
 
-    if (level.playerfrozen || m_bFrozen || (flags & FL_IMMOBILE)) {
+    if ((client->ps.pm_flags & PMF_FROZEN) || (flags & FL_IMMOBILE)) {
         return false;
     }
 
@@ -542,7 +542,7 @@ qboolean Player::CondWeaponReadyToFireNoSound(Conditional& condition)
     weaponhand_t hand;
     qboolean     ready;
 
-    if (level.playerfrozen || m_bFrozen || (flags & FL_IMMOBILE)) {
+    if ((client->ps.pm_flags & PMF_FROZEN) || (flags & FL_IMMOBILE)) {
         return false;
     }
 
@@ -898,7 +898,7 @@ qboolean Player::CondAttackPrimary(Conditional& condition)
 {
     Weapon *weapon;
 
-    if (level.playerfrozen || m_bFrozen || (flags & FL_IMMOBILE)) {
+    if ((client->ps.pm_flags & PMF_FROZEN) || (flags & FL_IMMOBILE)) {
         return false;
     }
 
@@ -923,7 +923,7 @@ qboolean Player::CondAttackPrimary(Conditional& condition)
 
 qboolean Player::CondAttackButtonPrimary(Conditional& condition)
 {
-    if (level.playerfrozen || m_bFrozen || (flags & FL_IMMOBILE)) {
+    if ((client->ps.pm_flags & PMF_FROZEN) || (flags & FL_IMMOBILE)) {
         return false;
     }
 
@@ -938,7 +938,7 @@ qboolean Player::CondAttackSecondary(Conditional& condition)
 {
     Weapon *weapon;
 
-    if (level.playerfrozen || m_bFrozen || (flags & FL_IMMOBILE)) {
+    if ((client->ps.pm_flags & PMF_FROZEN) || (flags & FL_IMMOBILE)) {
         return false;
     }
 
@@ -963,7 +963,7 @@ qboolean Player::CondAttackSecondary(Conditional& condition)
 
 qboolean Player::CondAttackButtonSecondary(Conditional& condition)
 {
-    if (level.playerfrozen || m_bFrozen || (flags & FL_IMMOBILE)) {
+    if ((client->ps.pm_flags & PMF_FROZEN) || (flags & FL_IMMOBILE)) {
         return false;
     }
 

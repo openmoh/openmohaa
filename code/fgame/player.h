@@ -992,6 +992,7 @@ public:
 
     bool IsPrimaryWeaponValid() const;
 
+    void     PostAnimate() override;
     void     Postthink() override;
     void     GibEvent(Event *ev);
     qboolean canUse();

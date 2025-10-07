@@ -4669,7 +4669,9 @@ void Player::Think(void)
         groundentity       = 0;
     } else {
         CheckMoveFlags();
-        EvaluateState();
+        if (!(client->ps.pm_flags & PMF_FROZEN)) {
+            EvaluateState();
+        }
     }
 
     oldvelocity = velocity;
@@ -12125,7 +12127,7 @@ bool Player::AllowTeamRespawn() const
 
 void Player::EventUseWeaponClass(Event *ev)
 {
-    if (m_pTurret || level.playerfrozen) {
+    if (m_pTurret || (client->ps.pm_flags & PMF_FROZEN)) {
         return;
     }
 
@@ -12317,6 +12319,15 @@ int Player::getUseableEntities(int *touch, int maxcount, bool requiresLookAt)
 bool Player::IsPrimaryWeaponValid() const
 {
     return client->pers.dm_primary[0] != 0;
+}
+
+void Player::PostAnimate(void)
+{
+    if (client->ps.pm_flags & PMF_FROZEN) {
+        return;
+    }
+
+    Sentient::PostAnimate();
 }
 
 void Player::Postthink(void)
