@@ -217,64 +217,91 @@ char *basename(char *name) {
 }
 
 #ifdef WIN32
-#include <process.h>
+#include <windows.h>
 
-static char *escapeDoubleQuotes(const char *string) {
-	int stringLength = strlen(string);
-	int bufferSize = stringLength + 1;
-	int i, j;
-	char *newString;
-
-	if (string == NULL)
-		return NULL;
-
-	for (i = 0; i < stringLength; i++) {
-		if (string[i] == '"')
-			bufferSize++;
+static int argumentNeedsQuoted(const char *arg) {
+	if (arg && *arg == '"' && arg[strlen(arg) - 1] == '"') {
+		// Assume that if it's already fully quoted, it doesn't
+		// need any further quoting or escaping
+		return 0;
 	}
 
-	newString = (char*)malloc(bufferSize);
+	return !*arg || strpbrk(arg, " \t\"");
+}
 
-	if (newString == NULL)
-		return NULL;
+static char *quoteArgument(const char *arg) {
+	// Quote if it has spaces, tabs, or is empty
+	if(argumentNeedsQuoted(arg)) {
+		size_t length = strlen(arg);
+		size_t bufferSize = length * 2 + 3; // maximum escapes + quotes + terminator
+		char *buffer = (char *)malloc(bufferSize);
+		char *p = buffer;
 
-	for (i = 0, j = 0; i < stringLength; i++) {
-		if (string[i] == '"')
-			newString[j++] = '\\';
+		*p++ = '"'; // Open quote
 
-		newString[j++] = string[i];
+		for(size_t i = 0; i < length; i++) {
+			if(arg[i] == '"') {
+				// Escape quotes
+				*p++ = '\\';
+				*p++ = '"';
+			} else {
+				// Everything else
+				*p++ = arg[i];
+			}
+		}
+
+		*p++ = '"'; // Close quote
+		*p = '\0';
+
+		return buffer;
 	}
 
-	newString[j] = '\0';
-
-	return newString;
+	// Duping to make memory management easier
+	return _strdup(arg);
 }
 
 static int spawn(const char *cmdname, char **argv) {
-	int argc = 0;
-	char **newArgv = argv;
-	int i;
-	intptr_t exitStatus;
+	size_t totalLength = 0;
+	for(int i = 0; argv[i] != NULL; i++) {
+		char *quotedArg = quoteArgument(argv[i]);
+		totalLength += strlen(quotedArg) + 1;
+		free(quotedArg);
+	}
 
-	// _spawnvp removes double quotes from arguments, so we
-	// have to escape them manually
-	while (*newArgv++ != NULL)
-		argc++;
+	char *cmdline = (char *)malloc(totalLength + 1);
+	cmdline[0] = '\0';
 
-	newArgv = (char **)malloc(sizeof(char*) * (argc + 1));
+	for(int i = 0; argv[i] != NULL; i++) {
+		char *quotedArg = quoteArgument(argv[i]);
+		strcat(cmdline, quotedArg);
+		if(argv[i+1]) strcat(cmdline, " ");
+		free(quotedArg);
+	}
 
-	for (i = 0; i < argc; i++)
-		newArgv[i] = escapeDoubleQuotes(argv[i]);
+	STARTUPINFOA si = { sizeof(si) };
+	PROCESS_INFORMATION pi;
+	BOOL result = CreateProcessA(
+		cmdname, cmdline,
+		NULL, NULL, FALSE,
+		0, NULL, NULL,
+		&si, &pi);
 
-	newArgv[argc] = NULL;
+	if(!result) {
+		fprintf(stderr, "CreateProcess failed (%lu)\n", GetLastError());
+		free(cmdline);
+		return -1;
+	}
 
-	exitStatus = _spawnvp(_P_WAIT, cmdname, (const char *const *)newArgv);
+	WaitForSingleObject(pi.hProcess, INFINITE);
 
-	for (i = 0; i < argc; i++)
-		free(newArgv[i]);
+	DWORD exit_code;
+	GetExitCodeProcess(pi.hProcess, &exit_code);
 
-	free(newArgv);
-	return exitStatus;
+	CloseHandle(pi.hProcess);
+	CloseHandle(pi.hThread);
+	free(cmdline);
+
+	return (int)exit_code;
 }
 
 #else
