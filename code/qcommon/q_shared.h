@@ -81,6 +81,8 @@ extern "C" {
 #define HOMEPATH_NAME_WIN		"openmohaa"
 #define HOMEPATH_NAME_MACOSX	HOMEPATH_NAME_WIN
 
+#define CONFIG_PREFIX			"opmconfig"
+
 #define CLIENT_WINDOW_TITLE		PRODUCT_NAME
 #define CLIENT_WINDOW_MIN_TITLE PRODUCT_NAME
     

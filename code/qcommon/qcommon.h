@@ -727,9 +727,9 @@ issues.
 #define	MAX_FILE_HANDLES	64
 
 #ifdef DEDICATED
-#	define Q3CONFIG_CFG "q3config_server.cfg"
+#	define Q3CONFIG_CFG CONFIG_PREFIX "_server.cfg"
 #else
-#	define Q3CONFIG_CFG "q3config.cfg"
+#	define Q3CONFIG_CFG CONFIG_PREFIX ".cfg"
 #endif
 
 qboolean FS_Initialized( void );
