@@ -183,7 +183,11 @@ static void info_callback(char *outbuf, int maxlen, void *userdata)
     Info_SetValueForKey(infostring, "maxplayers", va("%i", svs.iNumClients - sv_privateClients->integer));
     Info_SetValueForKey(infostring, "gamemode", gamemode);
     Info_SetValueForKey(infostring, "gametype_i", va("%i", g_gametype->integer));
+#ifdef DEDICATED
+    Info_SetValueForKey(infostring, "dedicated", "1");
+#else
     Info_SetValueForKey(infostring, "dedicated", Cvar_Get("ui_dedicated", "0", 0)->string);
+#endif
     Info_SetValueForKey(infostring, "sprinton", Cvar_Get("sv_sprinton", "1", 0)->string);
     Info_SetValueForKey(infostring, "realism", Cvar_Get("g_realismmode", "0", 0)->string);
     Info_SetValueForKey(infostring, "pure", va("%i", sv_pure->integer));
