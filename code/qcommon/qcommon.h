@@ -1462,6 +1462,7 @@ typedef enum
 } dialogType_t;
 
 dialogResult_t Sys_Dialog( dialogType_t type, const char *message, const char *title );
+qboolean Sys_OpenFolderInFileManager( const char *path, qboolean create );
 
 void Sys_RemovePIDFile( const char *gamedir );
 void Sys_InitPIDFile( const char *gamedir );

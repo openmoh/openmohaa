@@ -72,6 +72,8 @@ void Sys_AnsiColorPrint( const char *msg );
 int Sys_PID( void );
 qboolean Sys_PIDIsRunning( int pid );
 
+qboolean Sys_OpenFolderInPlatformFileManager( const char *path );
+
 #ifdef PROTOCOL_HANDLER
 char *Sys_ParseProtocolUri( const char *uri );
 #endif

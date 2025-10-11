@@ -1035,3 +1035,23 @@ qboolean Sys_DllExtension( const char *name ) {
 
 	return qfalse;
 }
+
+/*
+==============
+Sys_OpenFolderInPlatformFileManager
+==============
+*/
+qboolean Sys_OpenFolderInPlatformFileManager( const char *path )
+{
+	Sys_ClearExecBuffer( );
+
+#ifdef __APPLE__
+	Sys_AppendToExecBuffer( "open" );
+#else
+	Sys_AppendToExecBuffer( "xdg-open" );
+#endif
+
+	Sys_AppendToExecBuffer( path );
+
+	return Sys_Exec( ) == 0;
+}

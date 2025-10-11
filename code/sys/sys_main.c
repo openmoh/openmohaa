@@ -261,6 +261,22 @@ void Sys_InitPIDFile( const char *gamedir ) {
 
 /*
 =================
+Sys_OpenFolderInFileManager
+=================
+*/
+qboolean Sys_OpenFolderInFileManager( const char *path, qboolean create )
+{
+	if( create )
+	{
+		if( FS_CreatePath( path ) )
+			return qfalse;
+	}
+
+	return Sys_OpenFolderInPlatformFileManager( path );
+}
+
+/*
+=================
 Sys_Exit
 
 Single exit point (regular exit or in case of error)
@@ -878,4 +894,3 @@ int main( int argc, char **argv )
 
 	return 0;
 }
-

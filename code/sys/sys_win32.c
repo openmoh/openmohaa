@@ -950,3 +950,13 @@ Check if filename should be allowed to be loaded as a DLL.
 qboolean Sys_DllExtension( const char *name ) {
 	return COM_CompareExtension( name, DLL_EXT );
 }
+
+/*
+==============
+Sys_OpenFolderInPlatformFileManager
+==============
+*/
+qboolean Sys_OpenFolderInPlatformFileManager( const char *path )
+{
+	return ShellExecute( NULL, "explore", path, NULL, NULL, SW_SHOWDEFAULT ) > (HINSTANCE)32;
+}
