@@ -45,6 +45,75 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 qboolean stdinIsATTY;
 
+static char execBuffer[ 1024 ];
+static char *execBufferPointer;
+static char *execArgv[ 16 ];
+static int execArgc;
+
+/*
+==============
+Sys_ClearExecBuffer
+==============
+*/
+static void Sys_ClearExecBuffer( void )
+{
+	execBufferPointer = execBuffer;
+	Com_Memset( execArgv, 0, sizeof( execArgv ) );
+	execArgc = 0;
+}
+
+/*
+==============
+Sys_AppendToExecBuffer
+==============
+*/
+static void Sys_AppendToExecBuffer( const char *text )
+{
+	size_t size = sizeof( execBuffer ) - ( execBufferPointer - execBuffer );
+	int length = strlen( text ) + 1;
+
+	if( length > size || execArgc >= ARRAY_LEN( execArgv ) )
+		return;
+
+	Q_strncpyz( execBufferPointer, text, size );
+	execArgv[ execArgc++ ] = execBufferPointer;
+
+	execBufferPointer += length;
+}
+
+/*
+==============
+Sys_Exec
+==============
+*/
+static int Sys_Exec( void )
+{
+	pid_t pid = fork( );
+
+	if( pid < 0 )
+		return -1;
+
+	if( pid )
+	{
+		// Parent
+		int exitCode;
+
+		wait( &exitCode );
+
+		return WEXITSTATUS( exitCode );
+	}
+	else
+	{
+		// Child
+		execvp( execArgv[ 0 ], execArgv );
+
+		// Failed to execute
+		exit( -1 );
+
+		return -1;
+	}
+}
+
 /*
 ==================
 Sys_DefaultHomePath
@@ -666,75 +735,6 @@ void Sys_ErrorDialog( const char *error )
 }
 
 #ifndef __APPLE__
-static char execBuffer[ 1024 ];
-static char *execBufferPointer;
-static char *execArgv[ 16 ];
-static int execArgc;
-
-/*
-==============
-Sys_ClearExecBuffer
-==============
-*/
-static void Sys_ClearExecBuffer( void )
-{
-	execBufferPointer = execBuffer;
-	Com_Memset( execArgv, 0, sizeof( execArgv ) );
-	execArgc = 0;
-}
-
-/*
-==============
-Sys_AppendToExecBuffer
-==============
-*/
-static void Sys_AppendToExecBuffer( const char *text )
-{
-	size_t size = sizeof( execBuffer ) - ( execBufferPointer - execBuffer );
-	int length = strlen( text ) + 1;
-
-	if( length > size || execArgc >= ARRAY_LEN( execArgv ) )
-		return;
-
-	Q_strncpyz( execBufferPointer, text, size );
-	execArgv[ execArgc++ ] = execBufferPointer;
-
-	execBufferPointer += length;
-}
-
-/*
-==============
-Sys_Exec
-==============
-*/
-static int Sys_Exec( void )
-{
-	pid_t pid = fork( );
-
-	if( pid < 0 )
-		return -1;
-
-	if( pid )
-	{
-		// Parent
-		int exitCode;
-
-		wait( &exitCode );
-
-		return WEXITSTATUS( exitCode );
-	}
-	else
-	{
-		// Child
-		execvp( execArgv[ 0 ], execArgv );
-
-		// Failed to execute
-		exit( -1 );
-
-		return -1;
-	}
-}
-
 /*
 ==============
 Sys_ZenityCommand
