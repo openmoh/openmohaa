@@ -15,6 +15,6 @@ try_compile(COMPILE_SUCCESS
 string(REGEX MATCH "^[^\@]+@([a-zA-Z0-9_]+)@.*$" HAVE_MATCH ${COMPILE_OUTPUT})
 set(ARCH ${CMAKE_MATCH_1})
 
-if(NOT COMPILE_SUCCESS OR RUN_EXITCODE OR NOT HAVE_MATCH OR NOT ARCH)
-    message(FATAL_ERROR "Architecture detection failed")
+if(NOT COMPILE_SUCCESS OR NOT HAVE_MATCH OR NOT ARCH)
+    message(FATAL_ERROR "Architecture detection failed: ${COMPILE_OUTPUT}")
 endif()
