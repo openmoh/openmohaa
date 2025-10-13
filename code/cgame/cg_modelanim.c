@@ -1297,7 +1297,9 @@ void CG_ModelAnim(centity_t *cent, qboolean bDoShaderTime)
         }
     }
 
-    if (!(s1->renderfx & RF_DONTDRAW) && (model.renderfx & RF_SHADOW)) {
+    if (!(s1->renderfx & RF_DONTDRAW) && (model.renderfx & RF_SHADOW) && cg_shadows->integer
+        && !CG_SimpleDistanceCull(model.origin, Square(1400))
+        && !CG_FrustumCullSphere(model.origin, model.radius + 64)) {
         // add the shadow
         CG_EntityShadow(cent, &model);
     }

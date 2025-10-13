@@ -606,6 +606,7 @@ extern "C" {
     float CG_SensitivityScale();
     void  CG_AddLightShow();
     qboolean CG_FrustumCullSphere(const vec3_t vPos, float fRadius);
+    qboolean CG_SimpleDistanceCull(const vec3_t origin, float maxDist);
     void  CG_OffsetFirstPersonView(refEntity_t *pREnt, qboolean bUseWorldPosition);
     void  CG_DrawActiveFrame(int serverTime, int frameTime, stereoFrame_t stereoView, qboolean demoPlayback);
 

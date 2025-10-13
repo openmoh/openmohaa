@@ -806,6 +806,14 @@ qboolean CG_FrustumCullSphere(const vec3_t vPos, float fRadius) {
     return qfalse;
 }
 
+qboolean CG_SimpleDistanceCull(const vec3_t origin, float maxDist) {
+    vec3_t delta;
+
+    VectorSubtract(origin, cg.refdef.vieworg, delta);
+
+    return VectorLengthSquared(delta) > maxDist;
+}
+
 //=========================================================================
 
 /*
