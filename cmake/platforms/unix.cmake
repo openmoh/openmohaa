@@ -17,8 +17,8 @@ endif()
 #endif()
 
 list(APPEND COMMON_LIBRARIES
-    dl  # Dynamic loader
-    m   # Math library
+    ${CMAKE_DL_LIBS}    # Dynamic loader
+    m                   # Math library
 )
 
 list(APPEND SYSTEM_PLATFORM_SOURCES ${SOURCE_DIR}/sys/new/sys_unix_new.c)
