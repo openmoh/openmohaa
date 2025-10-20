@@ -3799,5 +3799,69 @@ freed world data
 =================
 */
 void R_ClearWorld(void) {
-    tr.world = NULL;
+    if (tr.world) {
+        if (tr.world->shaders) {
+            ri.Hunk_FreeTempMemory(tr.world->shaders);
+        }
+        if (tr.world->bmodels) {
+            ri.Hunk_FreeTempMemory(tr.world->bmodels);
+        }
+        if (tr.world->planes) {
+            ri.Hunk_FreeTempMemory(tr.world->planes);
+        }
+        if (tr.world->nodes) {
+            ri.Hunk_FreeTempMemory(tr.world->nodes);
+        }
+        if (tr.world->surfaces) {
+            ri.Hunk_FreeTempMemory(tr.world->surfaces);
+        }
+        if (tr.world->surfacesViewCount) {
+            ri.Hunk_FreeTempMemory(tr.world->surfacesViewCount);
+        }
+        if (tr.world->surfacesDlightBits) {
+            ri.Hunk_FreeTempMemory(tr.world->surfacesDlightBits);
+        }
+        if (tr.world->surfacesPshadowBits) {
+            ri.Hunk_FreeTempMemory(tr.world->surfacesPshadowBits);
+        }
+        if (tr.world->marksurfaces) {
+            ri.Hunk_FreeTempMemory(tr.world->marksurfaces);
+        }
+        if (tr.world->fogs) {
+            ri.Hunk_FreeTempMemory(tr.world->fogs);
+        }
+        if (tr.world->lightGridData) {
+            ri.Hunk_FreeTempMemory(tr.world->lightGridData);
+        }
+        if (tr.world->lightGrid16) {
+            ri.Hunk_FreeTempMemory(tr.world->lightGrid16);
+        }
+        if (tr.world->vis) {
+            ri.Hunk_FreeTempMemory(tr.world->vis);
+        }
+        if (tr.world->entityString) {
+            ri.Hunk_FreeTempMemory(tr.world->entityString);
+        }
+        if (tr.world->lightGridOffsets) {
+            ri.Hunk_FreeTempMemory(tr.world->lightGridOffsets);
+        }
+        if (tr.world->terraPatches) {
+            ri.Hunk_FreeTempMemory(tr.world->terraPatches);
+        }
+        if (tr.world->visTerraPatches) {
+            ri.Hunk_FreeTempMemory(tr.world->visTerraPatches);
+        }
+        if (tr.world->staticModelData) {
+            ri.Hunk_FreeTempMemory(tr.world->staticModelData);
+        }
+        if (tr.world->staticModels) {
+            ri.Hunk_FreeTempMemory(tr.world->staticModels);
+        }
+        if (tr.world->visStaticModels) {
+            ri.Hunk_FreeTempMemory(tr.world->visStaticModels);
+        }
+    }
+
+    tr.world          = NULL;
+    tr.worldMapLoaded = qfalse;
 }

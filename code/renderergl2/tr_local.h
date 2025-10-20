@@ -2676,6 +2676,7 @@ void R_FreeRawImage(byte *pic);
 //
 void		RE_PrintBSPFileSizes(void);
 int			RE_MapVersion(void);
+void        R_ClearWorld(void);
 
 //
 // tr_cmds.c

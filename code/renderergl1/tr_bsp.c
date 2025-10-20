@@ -2504,4 +2504,5 @@ freed world data
 */
 void R_ClearWorld(void) {
     tr.world = NULL;
+    tr.worldMapLoaded = qfalse;
 }

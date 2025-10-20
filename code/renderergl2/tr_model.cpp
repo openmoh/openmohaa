@@ -100,12 +100,13 @@ model_t *R_AllocModel(void)
         }
 
         mod = (model_t*)ri.Hunk_Alloc(sizeof(*tr.models[tr.numModels]), h_low);
-        mod->index = tr.numModels;
         tr.models[tr.numModels] = mod;
         tr.numModels++;
     } else {
         mod = tr.models[i];
     }
+
+    mod->index = i;
 
     return mod;
 }

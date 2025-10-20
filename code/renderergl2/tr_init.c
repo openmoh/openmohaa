@@ -1874,6 +1874,8 @@ void RE_BeginRegistration(glconfig_t* glconfigOut) {
     R_LevelMarksFree();
     R_TerrainFree();
 
+	R_ClearWorld();
+
     R_InitLensFlare();
     R_LevelMarksInit();
 
