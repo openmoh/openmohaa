@@ -1365,18 +1365,33 @@ void RB_DrawTerrainTris(srfTerrain_t* p) {
 		for (i = p->iVertHead; i; i = g_pVert[i].iNext) {
 			assert(tess.numVertexes < SHADER_MAX_VERTEXES);
 
-			VectorCopy(g_pVert[i].xyz, tess.xyz[tess.numVertexes]);
-            tess.texCoords[tess.numVertexes][0] = g_pVert[i].texCoords[0][0];
-            tess.texCoords[tess.numVertexes][1] = g_pVert[i].texCoords[0][1];
-            tess.lightCoords[tess.numVertexes][0] = g_pVert[i].xyz[0] * lmScale + p->lmapX;
-            tess.lightCoords[tess.numVertexes][1] = g_pVert[i].xyz[1] * lmScale + p->lmapY;
-			tess.normal[tess.numVertexes][0] = 0;
-			tess.normal[tess.numVertexes][1] = 0;
-			tess.normal[tess.numVertexes][2] = 1.0;
-			tess.color[tess.numVertexes][0] = 0xffff;
-			tess.color[tess.numVertexes][1] = 0xffff;
-			tess.color[tess.numVertexes][2] = 0xffff;
-			tess.color[tess.numVertexes][3] = 0xffff;
+            if (tess.shader->vertexAttribs & ATTR_POSITION)
+            {
+			    VectorCopy(g_pVert[i].xyz, tess.xyz[tess.numVertexes]);
+            }
+            if (tess.shader->vertexAttribs & ATTR_TEXCOORD)
+            {
+                tess.texCoords[tess.numVertexes][0] = g_pVert[i].texCoords[0][0];
+                tess.texCoords[tess.numVertexes][1] = g_pVert[i].texCoords[0][1];
+            }
+            if (tess.shader->vertexAttribs & ATTR_LIGHTCOORD)
+            {
+                tess.lightCoords[tess.numVertexes][0] = g_pVert[i].xyz[0] * lmScale + p->lmapX;
+                tess.lightCoords[tess.numVertexes][1] = g_pVert[i].xyz[1] * lmScale + p->lmapY;
+            }
+            if (tess.shader->vertexAttribs & ATTR_NORMAL)
+            {
+                tess.normal[tess.numVertexes][0] = 0;
+                tess.normal[tess.numVertexes][1] = 0;
+                tess.normal[tess.numVertexes][2] = 32767;
+            }
+            if (tess.shader->vertexAttribs & ATTR_COLOR)
+            {
+                tess.color[tess.numVertexes][0] = 0xffff;
+                tess.color[tess.numVertexes][1] = 0xffff;
+                tess.color[tess.numVertexes][2] = 0xffff;
+                tess.color[tess.numVertexes][3] = 0xffff;
+            }
 
 			g_pVert[i].iVertArray = tess.numVertexes;
 			tess.numVertexes++;
@@ -1387,19 +1402,34 @@ void RB_DrawTerrainTris(srfTerrain_t* p) {
 		for (i = p->iVertHead; i; i = g_pVert[i].iNext) {
 			assert(tess.numVertexes < SHADER_MAX_VERTEXES);
 
-			VectorCopy(g_pVert[i].xyz, tess.xyz[tess.numVertexes]);
-            tess.texCoords[tess.numVertexes][0] = g_pVert[i].texCoords[0][0];
-            tess.texCoords[tess.numVertexes][1] = g_pVert[i].texCoords[0][1];
-            tess.lightCoords[tess.numVertexes][0] = g_pVert[i].texCoords[1][0];
-            tess.lightCoords[tess.numVertexes][1] = g_pVert[i].texCoords[1][1];
+            if (tess.shader->vertexAttribs & ATTR_POSITION)
+            {
+			    VectorCopy(g_pVert[i].xyz, tess.xyz[tess.numVertexes]);
+            }
+            if (tess.shader->vertexAttribs & ATTR_TEXCOORD)
+            {
+                tess.texCoords[tess.numVertexes][0] = g_pVert[i].texCoords[0][0];
+                tess.texCoords[tess.numVertexes][1] = g_pVert[i].texCoords[0][1];
+            }
+            if (tess.shader->vertexAttribs & ATTR_LIGHTCOORD)
+            {
+                tess.lightCoords[tess.numVertexes][0] = g_pVert[i].texCoords[1][0];
+                tess.lightCoords[tess.numVertexes][1] = g_pVert[i].texCoords[1][1];
+            }
 			//tess.vertexDlightBits[tess.numVertexes] = dlightBits;
-			tess.normal[tess.numVertexes][0] = 0;
-			tess.normal[tess.numVertexes][1] = 0;
-			tess.normal[tess.numVertexes][2] = 1.0;
-            tess.color[tess.numVertexes][0] = 0xffff;
-            tess.color[tess.numVertexes][1] = 0xffff;
-            tess.color[tess.numVertexes][2] = 0xffff;
-            tess.color[tess.numVertexes][3] = 0xffff;
+            if (tess.shader->vertexAttribs & ATTR_NORMAL)
+            {
+                tess.normal[tess.numVertexes][0] = 0;
+                tess.normal[tess.numVertexes][1] = 0;
+                tess.normal[tess.numVertexes][2] = 32767;
+            }
+            if (tess.shader->vertexAttribs & ATTR_COLOR)
+            {
+                tess.color[tess.numVertexes][0] = 0xffff;
+                tess.color[tess.numVertexes][1] = 0xffff;
+                tess.color[tess.numVertexes][2] = 0xffff;
+                tess.color[tess.numVertexes][3] = 0xffff;
+            }
 
 			g_pVert[i].iVertArray = tess.numVertexes;
 			tess.numVertexes++;
