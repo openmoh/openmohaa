@@ -1858,7 +1858,7 @@ void RE_Shutdown( qboolean destroyWindow ) {
 */
 void RE_BeginRegistration(glconfig_t* glconfigOut) {
 
-    R_Init();
+    //R_Init();
 
     *glconfigOut = glConfig;
 
@@ -1969,6 +1969,8 @@ refexport_t *GetRefAPI ( int apiVersion, refimport_t *rimp ) {
 			REF_API_VERSION, apiVersion );
 		return NULL;
 	}
+
+    R_Init();
 
 	// the RE_ functions are Renderer Entry points
 
