@@ -5736,7 +5736,15 @@ void Player::DropCurrentWeapon(Event *ev)
     Weapon *weapon;
     Vector  forward;
 
-    if (g_gametype->integer == GT_SINGLE_PLAYER) {
+    if (deadflag != DEAD_NO) {
+        return;
+    }
+
+    if (g_gametype->integer == GT_SINGLE_PLAYER
+        // Added in 2.0
+        //  Prevent dropping the weapon if realism mode is disabled
+        //  on single-player
+        && !g_realismmode->integer) {
         return;
     }
 
@@ -5746,22 +5754,32 @@ void Player::DropCurrentWeapon(Event *ev)
         return;
     }
 
+    // Added in OPM
+    //  Don't drop the weapon if it isn't droppable
+    if (!weapon->IsDroppable()) {
+        return;
+    }
+
     // Don't drop the weapon if we're charging
     if (charge_start_time) {
         return;
     }
 
-    if ((weapon->GetWeaponClass() & WEAPON_CLASS_ITEM)) {
+    if ((weapon->GetWeaponClass() & WEAPON_CLASS_ITEM)
+        // Added in 2.0
+        //  Allow dropping carryable turrets even though they are item
+        && !weapon->isSubclassOf(CarryableTurret)) {
+        if (weapon->getName() == "Binoculars") {
+            // Added in 2.11
+            //  Prevent dropping the binoculars
+            return;
+        }
+
         SelectNextWeapon(NULL);
         takeItem(weapon->model);
     } else {
         if (weapon->GetCurrentAttachToTag() != "tag_weapon_right") {
             EventCorrectWeaponAttachments(NULL);
-        }
-
-        // This check isn't in MOHAA
-        if (!weapon->IsDroppable()) {
-            return;
         }
 
         weapon->Drop();
