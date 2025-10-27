@@ -24,6 +24,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Allow separation of config, data, and state directories within the home path (XDG directory support). (#588)
 
+### Changed
+
+#### Server
+
+- Prevent dropping the binoculars (this change was introduced in Spearhead v2.11).
+
 ### Fixed
 
 #### Server
@@ -37,6 +43,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix players not having binoculars on Allied Assault.
 - Fix players temporarily losing user input control on ARM-based OpenMoHAA servers when a message contained a special ASCII character.
 - Fix some RCON programs not working with `dumpuser`.
+- Fix the carryable turret disappearing when being dropped (#812).
 - Fix the round limit being always `15` on Tug-of-War.
 - Fix votes being messed up after calling a vote the second time during the match.
 - The player would spawn with no weapons on single-player when `sv_maxbots` was set (#783).
