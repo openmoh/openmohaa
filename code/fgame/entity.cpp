@@ -6456,6 +6456,11 @@ void Entity::PlayNonPvsSound(const str& soundName, float volume)
         return;
     }
 
+    if (edict->r.svFlags & SVF_BOT) {
+        // bots are not real clients
+        return;
+    }
+
     if (edict->r.num_nonpvs_sounds >= MAX_NONPVS_SOUNDS) {
         return;
     }
