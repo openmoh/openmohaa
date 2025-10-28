@@ -4337,6 +4337,9 @@ FloatRoundedBitError
 
 On x86 with FP87, some float operations may have results that are off by 1 bit.
 This returns whether or not the operation lost 1 bit.
+
+SSE2 and above --> `3640.00269` (int `1164148747`).
+SSE and below  --> `3640.00293` (int `1164148748`).
 =================
 */
 qboolean FloatRoundedBitError() {
