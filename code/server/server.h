@@ -495,6 +495,7 @@ int SV_PVSSoundIndex(const char* name, qboolean streamed);
 void SV_HandleNonPVSSound();
 
 void SV_ApplyOriginalConfigTweaks();
+void SV_ApplyFirstConfigTweaks();
 
 
 //
