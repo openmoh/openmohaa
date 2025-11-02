@@ -762,11 +762,11 @@ void R_SetupFrustum (viewParms_t *dest, float xmin, float xmax, float ymax, floa
 			);
 
 			if (r_farplane_nocull->integer > 0) {
-				dest->farplane_cull = 0;
+				dest->farplane_cull = FARPLANE_CULL_NONE;
 			} else if (r_farplane_nocull->integer == 0) {
-				dest->farplane_cull = 1;
+				dest->farplane_cull = FARPLANE_CULL_STANDARD;
             } else {
-                dest->farplane_cull = 2;
+                dest->farplane_cull = FARPLANE_CULL_PORTALSKY;
             }
 		}
 	}
@@ -783,11 +783,11 @@ void R_SetupFrustum (viewParms_t *dest, float xmin, float xmax, float ymax, floa
 			&dest->farplane_color[2]);
 
 			if (r_farplane_nocull->integer > 0) {
-				dest->farplane_cull = 0;
+				dest->farplane_cull = FARPLANE_CULL_NONE;
 			} else if (r_farplane_nocull->integer == 0) {
-				dest->farplane_cull = 1;
+				dest->farplane_cull = FARPLANE_CULL_STANDARD;
             } else {
-                dest->farplane_cull = 2;
+                dest->farplane_cull = FARPLANE_CULL_PORTALSKY;
             }
 	}
 
@@ -808,7 +808,7 @@ void R_SetupFrustum (viewParms_t *dest, float xmin, float xmax, float ymax, floa
 		SetPlaneSignbits(&dest->frustum[4]);
 
 		dest->fog.enabled = r_farplane_nofog->integer == 0;
-		if (dest->farplane_cull) {
+		if (dest->farplane_cull != FARPLANE_CULL_NONE) {
             // extra fustum for culling
             dest->flags |= VPF_FARPLANEFRUSTUM;
 			dest->fog.extrafrustums = 1;

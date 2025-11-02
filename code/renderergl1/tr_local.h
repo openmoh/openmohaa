@@ -724,6 +724,13 @@ typedef struct depthfog_s {
 	int extrafrustums;
 } depthfog_t;
 
+// Doesn't cull anything
+#define FARPLANE_CULL_NONE			0
+// Cull outside the maximum distance
+#define FARPLANE_CULL_STANDARD		1
+// Cull outside the maximum distance ONLY if the view is a portal sky
+#define FARPLANE_CULL_PORTALSKY		2
+
 typedef struct {
 	orientationr_t	ori;
 	orientationr_t	world;
@@ -744,7 +751,7 @@ typedef struct {
     float		farplane_distance;
     float		farplane_bias; // added in 2.0
 	float		farplane_color[3];
-    qboolean	farplane_cull;
+    int			farplane_cull;
     qboolean	renderTerrain; // added in 2.0
 } viewParms_t;
 

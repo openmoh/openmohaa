@@ -457,7 +457,9 @@ static void R_RecursiveWorldNode( mnode_t *node, uint32_t planeBits, uint32_t dl
 				}
 			}
 
-			if ( planeBits & 16 ) {
+			// Changed in 2.0
+			//  Allow culling only if the view is a portal sky
+			if ( ( planeBits & 16 ) && ( tr.viewParms.farplane_cull < FARPLANE_CULL_PORTALSKY || tr.viewParms.isPortalSky ) ) {
 				r = BoxOnPlaneSide(node->mins, node->maxs, &tr.viewParms.frustum[4]);
 				if (r == 2) {
 					return;						// culled
