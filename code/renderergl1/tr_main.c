@@ -652,11 +652,11 @@ void R_SetupFrustum (void) {
 			);
 
 			if (r_farplane_nocull->integer > 0) {
-				tr.viewParms.farplane_cull = 0;
+				tr.viewParms.farplane_cull = FARPLANE_CULL_NONE;
 			} else if (r_farplane_nocull->integer == 0) {
-				tr.viewParms.farplane_cull = 1;
+				tr.viewParms.farplane_cull = FARPLANE_CULL_STANDARD;
             } else {
-                tr.viewParms.farplane_cull = 2;
+                tr.viewParms.farplane_cull = FARPLANE_CULL_PORTALSKY;
             }
 		}
 	}
@@ -673,11 +673,11 @@ void R_SetupFrustum (void) {
 			&tr.viewParms.farplane_color[2]);
 
 			if (r_farplane_nocull->integer > 0) {
-				tr.viewParms.farplane_cull = 0;
+				tr.viewParms.farplane_cull = FARPLANE_CULL_NONE;
 			} else if (r_farplane_nocull->integer == 0) {
-				tr.viewParms.farplane_cull = 1;
+				tr.viewParms.farplane_cull = FARPLANE_CULL_STANDARD;
             } else {
-                tr.viewParms.farplane_cull = 2;
+                tr.viewParms.farplane_cull = FARPLANE_CULL_PORTALSKY;
             }
 	}
 
@@ -698,7 +698,7 @@ void R_SetupFrustum (void) {
 		SetPlaneSignbits(&tr.viewParms.frustum[4]);
 
 		tr.viewParms.fog.enabled = r_farplane_nofog->integer == 0;
-		if (tr.viewParms.farplane_cull) {
+		if (tr.viewParms.farplane_cull != FARPLANE_CULL_NONE) {
 			// extra fustum for culling
 			tr.viewParms.fog.extrafrustums = 1;
 		} else {

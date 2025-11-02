@@ -766,7 +766,11 @@ void World::SetFarPlane_Color(Event *ev)
 
 void World::SetFarPlane_Cull(Event *ev)
 {
-    farplane_cull = ev->GetBoolean(1);
+    //farplane_cull = ev->GetBoolean(1);
+    // Changed in 2.0
+    //  Allow farplane_cull to cull if the sky is not a portal sky.
+    //  See FARPLANE_CULL_ in rendererglx/tr_local.h for values.
+    farplane_cull = ev->GetInteger(1);
     UpdateFog();
 }
 
