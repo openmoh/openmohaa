@@ -1135,6 +1135,10 @@ void SV_Init (void)
         //  Apply config tweaks after loading the original config
 		SV_ApplyOriginalConfigTweaks();
 	}
+
+    if (com_firstConfig) {
+        SV_ApplyFirstConfigTweaks();
+    }
 }
 
 
@@ -1358,4 +1362,37 @@ SV_ApplyOriginalConfigTweaks
 */
 void SV_ApplyOriginalConfigTweaks()
 {
+}
+
+/*
+===============
+SV_ApplyFirstConfigTweaks
+===============
+*/
+void SV_ApplyFirstConfigTweaks()
+{
+    cvar_t *var;
+    cvar_t *next;
+    size_t len;
+
+    for (var = Cvar_Next(NULL); var; var = next) {
+        next = Cvar_Next(var);
+
+        if (!Q_stricmpn(var->name, "g_", 2)) {
+            if (Q_stristr(var->name, "medal")) {
+                Cvar_Unset(var);
+                continue;
+            }
+
+            len = strlen(var->name);
+            if (len < 5) {
+                continue;
+            }
+
+            if ((var->name[2] == 't' || var->name[2] == 'm') && isdigit(var->name[3]) && var->name[4] == 'l'
+                && isdigit(var->name[5])) {
+                Cvar_Unset(var);
+            }
+        }
+    }
 }

@@ -749,7 +749,9 @@ char	**FS_ListFiles( const char *directory, const char *extension, qboolean want
 
 void	FS_FreeFileList( char **list );
 
+qboolean FS_FileExists_HomeConfig( const char *file );
 qboolean FS_FileExists_HomeData( const char *file );
+qboolean FS_FileExists_HomeState( const char *file );
 
 void FS_CorrectCase(char* path);
 qboolean FS_CreatePath (const char *OSPath);
@@ -1079,6 +1081,7 @@ extern	int		com_frameMsec;
 extern	qboolean	com_errorEntered;
 extern	qboolean	com_fullyInitialized;
 extern	qboolean	com_gotOriginalConfig;
+extern	qboolean	com_firstConfig;
 
 extern	fileHandle_t	com_journalFile;
 extern	fileHandle_t	com_journalDataFile;

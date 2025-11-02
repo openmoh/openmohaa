@@ -780,6 +780,16 @@ qboolean FS_FileInPathExists(const char *testpath)
 
 /*
 ================
+FS_FileExists_HomeConfig
+================
+*/
+qboolean FS_FileExists_HomeConfig(const char *file)
+{
+	return FS_FileInPathExists(FS_BuildOSPath(fs_homeconfigpath->string, fs_gamedir, file));
+}
+
+/*
+================
 FS_FileExists_HomeData
 
 Tests if the file exists in the current gamedir, this DOES NOT
@@ -791,6 +801,16 @@ NOTE TTimo: this goes with FS_FOpenFileWrite for opening the file afterwards
 qboolean FS_FileExists_HomeData(const char *file)
 {
 	return FS_FileInPathExists(FS_BuildOSPath(fs_homedatapath->string, fs_gamedir, file));
+}
+
+/*
+================
+FS_FileExists_HomeState
+================
+*/
+qboolean FS_FileExists_HomeState(const char *file)
+{
+	return FS_FileInPathExists(FS_BuildOSPath(fs_homestatepath->string, fs_gamedir, file));
 }
 
 /*
