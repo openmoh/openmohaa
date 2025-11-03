@@ -2334,11 +2334,18 @@ void Com_Frame( void ) {
 
     msec = com_frameTime - lastTime;
 
+#ifndef DEDICATED
 	if (com_dedicated->integer || CL_FinishedIntro())
 	{
 		Cbuf_Execute(0);
 		SV_CheckSaveGame();
 	}
+#else
+	// Fixed in OPM
+	//   On dedicated servers, the client part that runs buffered commands is never run.
+	//   Therefore, the delta time has to be specified here for wait commands to work
+	Cbuf_Execute(msec);
+#endif
 
     if (com_altivec->modified)
     {
