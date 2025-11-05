@@ -319,7 +319,7 @@ public:
     qboolean WithinDistance(Entity *ent, float dist) const;
 
     Vector   GetControllerAngles(int num);
-    void     SetControllerAngles(int num, vec3_t angles);
+    void     SetControllerAngles(int num, const vec3_t angles);
     void     SetControllerAngles(Event *ev);
     void     GetControllerAngles(Event *ev);
     void     SetControllerTag(int num, int tag_num);

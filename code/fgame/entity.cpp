@@ -3486,23 +3486,14 @@ Vector Entity::GetControllerAngles(int num)
 
     assert((num >= 0) && (num < NUM_BONE_CONTROLLERS));
 
-    if ((num < 0) || (num >= NUM_BONE_CONTROLLERS)) {
-        gi.Printf("GetControllerAngles", "Bone controller index out of range (%d)\n", num);
-        return vec_zero;
-    }
-
     controller_angles = edict->s.bone_angles[num];
 
     return controller_angles;
 }
 
-void Entity::SetControllerAngles(int num, vec3_t angles)
+void Entity::SetControllerAngles(int num, const vec3_t angles)
 {
     assert((num >= 0) && (num < NUM_BONE_CONTROLLERS));
-    if ((num < 0) || (num >= NUM_BONE_CONTROLLERS)) {
-        gi.Printf("SetControllerAngles", "Bone controller index out of range (%d)\n", num);
-        return;
-    }
 
     VectorCopy(angles, edict->s.bone_angles[num]);
     EulerToQuat(edict->s.bone_angles[num], edict->s.bone_quat[num]);
@@ -3513,40 +3504,43 @@ void Entity::SetControllerAngles(Event *ev)
     int    num;
     Vector angles;
 
+    if (ev->NumArgs() < 2) {
+        return;
+    }
+
     num    = ev->GetInteger(1);
     angles = ev->GetVector(2);
 
-    // this check is missing in mohaa
+    // Fixed in OPM
+    //  The original game doesn't check if the number is within the array bound.
+    //  Which means this function could be exploited to overwrite other values
     if ((num < 0) || (num >= NUM_BONE_CONTROLLERS)) {
-        ScriptError("Bone controller index out of range. Index must be between 0-" STRING(NUM_BONE_CONTROLLERS - 1) "."
+        ScriptError(
+            "Bone controller index out of range. Index must be between 0-" STRING(NUM_BONE_CONTROLLERS - 1) "."
         );
     }
 
-    VectorCopy(angles, edict->s.bone_angles[num]);
-    EulerToQuat(edict->s.bone_angles[num], edict->s.bone_quat[num]);
+    SetControllerAngles(num, angles);
 }
 
 void Entity::GetControllerAngles(Event *ev)
 {
     int num = ev->GetInteger(1);
 
-    // this check is missing in mohaa
+    // Fixed in OPM
+    //  See comment above
     if ((num < 0) || (num >= NUM_BONE_CONTROLLERS)) {
-        ScriptError("Bone controller index out of range. Index must be between 0-" STRING(NUM_BONE_CONTROLLERS - 1) "."
+        ScriptError(
+            "Bone controller index out of range. Index must be between 0-" STRING(NUM_BONE_CONTROLLERS - 1) "."
         );
     }
 
-    ev->AddVector(edict->s.bone_angles[num]);
+    ev->AddVector(GetControllerAngles(num));
 }
 
 void Entity::SetControllerTag(int num, int tag_num)
 {
     assert((num >= 0) && (num < NUM_BONE_CONTROLLERS));
-
-    if ((num < 0) || (num >= NUM_BONE_CONTROLLERS)) {
-        gi.Printf("SetControllerTag", "Bone controller index out of range (%d)\n", num);
-        return;
-    }
 
     edict->s.bone_tag[num] = tag_num;
 }
