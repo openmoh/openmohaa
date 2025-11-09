@@ -122,7 +122,15 @@ void CG_EntityEffects(centity_t *cent)
             if (cent->currentState.renderfx & RF_ADDITIVE_DLIGHT) {
                 flags |= additive;
             }
-            cgi.R_AddLightToScene(cent->lerpOrigin, i, r, g, b, flags);
+            // Fixed in 2.0
+            //  Use the parent entity's tag for the effect
+            if (cent->currentState.parent == ENTITYNUM_NONE) {
+                cgi.R_AddLightToScene(cent->lerpOrigin, i, r, g, b, flags);
+            } else {
+                vec3_t origin;
+                CG_GetOrigin(cent, origin);
+                cgi.R_AddLightToScene(origin, i, r, g, b, flags);
+            }
         }
         if (r < cent->color[0]) {
             cent->color[0] = r;
@@ -241,9 +249,9 @@ void CG_General(centity_t *cent)
     ent.shader_data[1] = s1->skinNum;
     ent.renderfx |= s1->renderfx;
 
-    ent.tiki            = cgi.R_Model_GetHandle(cgs.model_draw[s1->modelindex]);
-    ent.frameInfo[0]    = s1->frameInfo[0];
-    ent.actionWeight    = 1.0;
+    ent.tiki         = cgi.R_Model_GetHandle(cgs.model_draw[s1->modelindex]);
+    ent.frameInfo[0] = s1->frameInfo[0];
+    ent.actionWeight = 1.0;
 
     // add to refresh list
     cgi.R_AddRefEntityToScene(&ent, ENTITYNUM_NONE);
@@ -552,8 +560,8 @@ void CG_AddCEntity(centity_t *cent)
         break;
     case ET_PLAYER:
         CG_Player(cent);
-		CG_Splash(cent);
-		CG_ModelAnim(cent, qfalse);
+        CG_Splash(cent);
+        CG_ModelAnim(cent, qfalse);
         CG_UpdateRadarClient(cent);
         break;
     case ET_ITEM:
