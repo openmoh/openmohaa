@@ -45,7 +45,7 @@ If you encounter a bug or a problem, you can do one of the following:
 - 📖 [Documentation](https://openmoh.github.io/openmohaa)
 - ⚙️ [Game settings & configuration](docs/markdown/03-configuration/01-configuration.md)
 - 📝 [Code & Scripting reference](docs/markdown/04-coding/02-coding.md)
-- 📜 [Contributing guidelines](docs/markdown/05-contributing/01-guidelines.md)
+- 📜 [Contributing guidelines](CONTRIBUTING.md)
 
 ## Current state
 
