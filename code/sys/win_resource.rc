@@ -54,9 +54,9 @@ END
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
 #ifndef __MINGW32__
-IDI_ICON1               ICON    DISCARDABLE     "../../misc/openmohaa.ico"
+IDI_ICON1               ICON    DISCARDABLE     "../../misc/windows/openmohaa.ico"
 #else
-IDI_ICON1               ICON    DISCARDABLE     "misc/openmohaa.ico"
+IDI_ICON1               ICON    DISCARDABLE     "misc/windows/openmohaa.ico"
 #endif
 
 
