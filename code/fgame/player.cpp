@@ -1654,6 +1654,7 @@ Event EV_Player_Userinfo
     EV_GETTER
 );
 
+#ifdef OPM_FEATURES
 Event EV_Player_ViewModelGetAnim
 (
     "viewmodelgetanim",
@@ -1682,7 +1683,6 @@ Event EV_Player_ViewModelAnimValid
     EV_RETURN
 );
 
-#ifdef OPM_FEATURES
 Event EV_Player_Earthquake
 (
     "earthquake2",
@@ -1951,10 +1951,10 @@ CLASS_DECLARATION(Sentient, Player, "player") {
     {&EV_Player_Spectator,                &Player::Spectator                    },
     {&EV_Player_StopLocalSound,           &Player::StopLocalSound               },
     {&EV_Player_Userinfo,                 &Player::Userinfo                     },
+#ifdef OPM_FEATURES
     {&EV_Player_ViewModelAnimFinished,    &Player::EventGetViewModelAnimFinished},
     {&EV_Player_ViewModelGetAnim,         &Player::EventGetViewModelAnim        },
     {&EV_Player_ViewModelAnimValid,       &Player::EventGetViewModelAnimValid   },
-#ifdef OPM_FEATURES
     {&EV_Player_Earthquake,               &Player::EventEarthquake              },
     {&EV_Player_SetClientFlag,            &Player::SetClientFlag                },
     {&EV_Player_SetEntityShader,          &Player::SetEntityShader              },
@@ -2193,11 +2193,11 @@ Player::Player()
         speed_multiplier[i] = 1.0f;
     }
 
+#ifdef OPM_FEATURES
     m_fpsTiki  = NULL;
     animDoneVM = true;
     m_fVMAtime = 0;
 
-#ifdef OPM_FEATURES
     m_bShowingHint = false;
 #endif
 }
@@ -2559,7 +2559,9 @@ void Player::InitModel(void)
         }
     }
 
+#ifdef OPM_FEATURES
     InitModelFps();
+#endif
 }
 
 void Player::InitPhysics(void)
@@ -4960,10 +4962,12 @@ void Player::Think(void)
         edict->s.eFlags &= ~EF_PLAYER_TALKING;
     }
 
+#ifdef OPM_FEATURES
     //
     // Added in OPM
     //
     ThinkFPS();
+#endif
 
     server_new_buttons = 0;
 
@@ -11803,6 +11807,7 @@ qboolean Player::ViewModelAnim(str anim, qboolean force_restart, qboolean bFullA
         weapon = newActiveWeapon.weapon;
     }
 
+#ifdef OPM_FEATURES
     if (weapon) {
         m_sVMAcurrent = GetItemPrefix(weapon->getName()) + str("_") + anim;
     } else {
@@ -11818,6 +11823,7 @@ qboolean Player::ViewModelAnim(str anim, qboolean force_restart, qboolean bFullA
     animDoneVM = false;
 
     m_fVMAtime = 0;
+#endif
 
     return true;
 }
@@ -12837,6 +12843,8 @@ int Player::GetNumDeaths(void) const
     return num_deaths;
 }
 
+#ifdef OPM_FEATURES
+
 void Player::InitModelFps(void)
 {
     char  model_name[MAX_STRING_TOKENS];
@@ -12928,8 +12936,6 @@ void Player::EventGetViewModelAnimValid(Event *ev)
         ev->AddInteger(1);
     }
 }
-
-#ifdef OPM_FEATURES
 
 void Player::EventEarthquake(Event *ev)
 {

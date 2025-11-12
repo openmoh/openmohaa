@@ -1899,6 +1899,8 @@ qboolean Player::CondVariable(Conditional& condition)
     return qtrue;
 }
 
+#ifdef OPM_FEATURES
+
 qboolean Player::CondAnimDoneVM(Conditional& condition)
 {
     return animDoneVM;
@@ -1908,6 +1910,8 @@ qboolean Player::CondVMAnim(Conditional& condition)
 {
     return condition.getParm(1) == m_sVMcurrent;
 }
+
+#endif
 
 CLASS_DECLARATION(Class, Conditional, NULL) {
     {NULL, NULL}
@@ -2037,8 +2041,10 @@ Condition<Player> Player::m_conditions[] = {
     {"CLIENT_COMMAND",                  &Player::CondClientCommand           },
     {"VAR_OPERATOR",                    &Player::CondVariable                },
 
+#ifdef OPM_FEATURES
     // View model animation
     {"ANIMDONE_VM",                     &Player::CondAnimDoneVM              },
     {"IS_VM_ANIM",                      &Player::CondVMAnim                  },
+#endif
     {NULL,                              NULL                                 },
 };

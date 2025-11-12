@@ -1633,6 +1633,12 @@ void Level::Precache(void)
             if (!Q_stricmpn(filename, "allied_", 7) || !Q_stricmpn(filename, "american_", 9)
                 || !Q_stricmpn(filename, "german_", 7) || !Q_stricmpn(filename, "IT_", 3)
                 || !Q_stricmpn(filename, "SC_", 3)) {
+                
+                if (filelen >= 8 && !Q_stricmp(filename + filelen - 8, "_fps.tik")) {
+                    // Ignore FPS models
+                    continue;
+                }
+
                 CacheResource(va("models/player/%s", filename));
             }
         }
