@@ -1300,6 +1300,12 @@ void ClientGameCommandManager::SpawnTempModel(int mcount)
 
         if (p->modelname.length()) {
             ent.hModel = cgi.R_RegisterModel(p->modelname.c_str());
+            // Fixed in OPM
+            //  Don't use invalid models
+            if (!ent.hModel) {
+                FreeTempModel(p);
+                continue;
+            }
         }
 
         // Initialize the refEntity
