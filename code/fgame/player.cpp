@@ -6302,7 +6302,9 @@ void Player::DamageFeedback(void)
     int    animnum;
 
     // if we are dead, don't setup any feedback
-    if (IsDead()) {
+    // Fixed in OPM
+    //  Also clear for spectators
+    if (IsDead() || IsSpectator()) {
         damage_count = 0;
         damage_blood = 0;
         damage_alpha = 0;
@@ -9262,6 +9264,11 @@ void Player::Spectator(void)
 
     RemoveFromVehiclesAndTurrets();
 
+    // Added in OPM
+    //  Prevent spectators from dying or dropping items
+    CancelEventsOfType(EV_Player_DMDeathDrop);
+    CancelEventsOfType(EV_Player_Dead);
+
     m_bSpectator        = !m_bTempSpectator;
     m_iPlayerSpectating = 0;
     takedamage          = DAMAGE_NO;
@@ -9271,8 +9278,16 @@ void Player::Spectator(void)
     client->ps.feetfalling = 0;
     movecontrol            = MOVECONTROL_USER;
     client->ps.pm_flags |= PMF_SPECTATING;
+    // Added in OPM
+    //  Remove the dead flag from the entity
+    edict->s.eFlags &= ~EF_DEAD;
 
-    EvaluateState(statemap_Torso->FindState("STAND"), statemap_Legs->FindState("STAND"));
+    // Fixed in OPM
+    //  Rebuild the state table instead of switching to STAND.
+    //  Switching to a new state involves processing exit commands such as "dead",
+    //  which would cause the spectator to die.
+    LoadStateTable();
+    //EvaluateState(statemap_Torso->FindState("STAND"), statemap_Legs->FindState("STAND"));
 
     setSolidType(SOLID_NOT);
     setMoveType(MOVETYPE_NOCLIP);
