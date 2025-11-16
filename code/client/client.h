@@ -321,13 +321,24 @@ typedef struct {
 	unsigned short	port;
 } serverAddress_t;
 
+typedef enum loadProgress_e {
+	/** Not loading. */
+	LOAD_PROGRESS_FALSE,
+	/** Loading without a progress menu. */
+	LOAD_PROGRESS_DEFAULT,
+	/** Loading the map with predictable resources (.min file). */
+	LOAD_PROGRESS_LOAD,
+	/** Loading the map and saving a .min file for the first time. */
+	LOAD_PROGRESS_SAVE
+} loadProgress_t;
+
 typedef struct {
-	int			startStage;
-	int			loading;
-	int			keyCatchers;
-	qboolean	vid_restart;
-	qboolean	cddialog;			// bring up the cd needed dialog next frame
-	qboolean	no_menus;
+	int				startStage;
+	loadProgress_t	loading;
+	int				keyCatchers;
+	qboolean		vid_restart;
+	qboolean		cddialog;			// bring up the cd needed dialog next frame
+	qboolean		no_menus;
 
 	// when the server clears the hunk, all of these must be restarted
 	qboolean	rendererRegistered;
