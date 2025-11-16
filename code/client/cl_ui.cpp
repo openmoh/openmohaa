@@ -31,7 +31,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "cl_ui.h"
 #include "cl_uigamespy.h"
 
-#include <ctime>
+#include <chrono>
 
 typedef struct {
     float             fadetime;
@@ -132,16 +132,7 @@ static float         scoreboard_h;
 static qboolean      scoreboard_header;
 cvar_t              *cl_playintro;
 cvar_t              *cl_movieaudio;
-static unsigned int  startCountLow;
-static unsigned int  startCountHigh;
-static unsigned int  loadCountLow;
-static unsigned int  loadCountHigh;
-static unsigned int  loadCount;
-static unsigned int  lastTime   = 0;
-static unsigned int  updateTime = 0;
-static unsigned int  loadNumber;
-static unsigned int  totalLoadTime;
-static unsigned int  currentLoadTime;
+
 unsigned char        UIListCtrlItem[8];
 
 static const float maxWidthRes  = 1920;
@@ -5496,6 +5487,27 @@ void CL_InitializeUI(void)
     }
 }
 
+//
+// Map info load information
+//
+
+static constexpr unsigned int MAP_INFO_VERSION = 3;
+
+#if 0
+static unsigned int  startCountLow;
+static unsigned int  startCountHigh;
+static unsigned int  loadCountLow;
+static unsigned int  loadCountHigh;
+#endif
+std::chrono::time_point<std::chrono::steady_clock> startCount;
+
+static unsigned int  loadCount;
+static unsigned int  lastTime   = 0;
+static unsigned int  updateTime = 0;
+static unsigned int  loadNumber;
+static unsigned int  totalLoadTime;
+static unsigned int  currentLoadTime;
+
 static char        **loadStrings;
 static unsigned int *loadTimes;
 static char         *loadStringsBuffer;
@@ -5520,10 +5532,16 @@ UI_BeginLoadResource
 */
 void UI_BeginLoadResource(void)
 {
+#if 0
     clock_t time = clock();
 
     startCountHigh = time >> 32;
     startCountLow  = time;
+#endif
+
+    // Fixed in OPM
+    //  Use reliable cross-platform CPU clock
+    startCount = std::chrono::steady_clock::now();
 }
 
 /*
@@ -5533,6 +5551,7 @@ UI_EndLoadResource
 */
 void UI_EndLoadResource(void)
 {
+#if 0
     clock_t time;
 
     time =
@@ -5541,6 +5560,16 @@ void UI_EndLoadResource(void)
     loadCountHigh = time >> 32;
     loadCountLow  = time;
     loadCount     = time >> 25;
+#endif
+
+    // Fixed in OPM
+    //  Correctly calculate the load time for a resource
+    std::chrono::nanoseconds deltaTime;
+
+    deltaTime = std::chrono::steady_clock::now() - startCount;
+
+    // This will take into account resources that take at least 1 millisecond
+    loadCount = std::chrono::duration_cast<std::chrono::milliseconds>(deltaTime).count();
 }
 
 /*
@@ -5563,8 +5592,11 @@ void UI_EndLoadResource(const char *name)
     loadHead = newLoadHead;
 
     loadNumber++;
+
+#if 0
     loadCountLow  = 0;
     loadCountHigh = 0;
+#endif
 }
 
 /*
@@ -5652,7 +5684,7 @@ UI_ClearResource
 */
 void UI_ClearResource(void)
 {
-    if (cls.loading == SS_DEAD || cls.loading != SS_GAME) {
+    if (cls.loading == LOAD_PROGRESS_FALSE || cls.loading != LOAD_PROGRESS_SAVE) {
         return;
     }
 
@@ -5667,15 +5699,15 @@ UI_LoadResource
 */
 void UI_LoadResource(const char *name)
 {
-    if (cls.loading == SS_DEAD) {
+    if (cls.loading == LOAD_PROGRESS_FALSE) {
         return;
     }
 
-    if (cls.loading == SS_GAME) {
+    if (cls.loading == LOAD_PROGRESS_SAVE) {
         UI_EndLoadResource();
         UI_EndLoadResource(name);
         UI_BeginLoadResource();
-    } else if (cls.loading == SS_LOADING2) {
+    } else if (cls.loading == LOAD_PROGRESS_LOAD) {
         UI_RegisterLoadResource(name);
         Cvar_SetValue("loadingbar", (float)currentLoadTime / (float)totalLoadTime);
     }
@@ -5793,10 +5825,10 @@ bool UI_ArchiveLoadMapinfo(const char *mapname)
     version = scr.GetInteger(false);
     scr.SkipWhiteSpace(true);
 
-    if (version == 3) {
+    if (version == MAP_INFO_VERSION) {
         success = UI_ParseLoadMapinfo(&scr);
     } else {
-        Com_Printf("Expecting version %d map info file.  Map info is version %d.\n", 3, version);
+        Com_Printf("Expecting version %d map info file.  Map info is version %d.\n", MAP_INFO_VERSION, version);
         success = false;
     }
 
@@ -5813,13 +5845,13 @@ void UI_BeginLoad(const char *pszMapName)
 {
     str mapfile;
 
-    if (cls.loading) {
-        if (cls.loading == SS_GAME) {
+    if (cls.loading != LOAD_PROGRESS_FALSE) {
+        if (cls.loading == LOAD_PROGRESS_SAVE) {
             UI_DeleteLoadInfo();
         }
 
         UI_FreeLoadStrings();
-        cls.loading = SS_DEAD;
+        cls.loading = LOAD_PROGRESS_FALSE;
     }
 
     server_loading         = qtrue;
@@ -5859,56 +5891,47 @@ void UI_BeginLoad(const char *pszMapName)
         }
 
         if (UI_ArchiveLoadMapinfo(mapfile)) {
-            cls.loading = SS_LOADING2;
+            cls.loading = LOAD_PROGRESS_LOAD;
         } else {
-            cls.loading = SS_GAME;
+            cls.loading = LOAD_PROGRESS_SAVE;
         }
 
-        if (cls.loading == SS_LOADING2) {
+        if (cls.loading == LOAD_PROGRESS_LOAD) {
             ui_pLoadingMenu->PassEventToWidget("loadingflasher", new Event(EV_Widget_Disable));
             ui_pLoadingMenu->PassEventToWidget("loadingbar", new Event(EV_Widget_Enable));
             ui_pLoadingMenu->PassEventToWidget("loadingbar_border", new Event(EV_Widget_Enable));
 
             currentLoadTime = 0;
-            Cvar_SetValue("loadingbar", 0);
-
-            L_ProcessPendingEvents();
-
-            lastTime = Sys_Milliseconds();
-            if (com_sv_running->integer) {
-                SCR_UpdateScreen();
-            }
         } else {
             ui_pLoadingMenu->PassEventToWidget("loadingflasher", new Event(EV_Widget_Enable));
             ui_pLoadingMenu->PassEventToWidget("loadingbar", new Event(EV_Widget_Disable));
             ui_pLoadingMenu->PassEventToWidget("loadingbar_border", new Event(EV_Widget_Disable));
 
             UI_BeginLoadResource();
+#if 0
             loadCountLow  = 0;
             loadCountHigh = 0;
-            loadHead      = NULL;
-            loadNumber    = 0;
-
-            cls.loading = SS_LOADING;
-
-            L_ProcessPendingEvents();
-            lastTime = Sys_Milliseconds();
-
-            if (com_sv_running->integer) {
-                SCR_UpdateScreen();
-            }
+#endif
+            loadHead   = NULL;
+            loadNumber = 0;
         }
+
+        Cvar_SetValue("loadingbar", 0);
+
+        L_ProcessPendingEvents();
+
+        lastTime = Sys_Milliseconds();
     } else {
-        cls.loading = SS_LOADING;
+        cls.loading = LOAD_PROGRESS_DEFAULT;
 
         // process all events
         L_ProcessPendingEvents();
 
         lastTime = Sys_Milliseconds();
+    }
 
-        if (com_sv_running->integer) {
-            SCR_UpdateScreen();
-        }
+    if (com_sv_running->integer) {
+        SCR_UpdateScreen();
     }
 }
 
@@ -5939,43 +5962,60 @@ void UI_EndLoad(void)
     int                size;
     char               buf[1024];
 
-    if (!cls.loading) {
+    if (cls.loading == LOAD_PROGRESS_FALSE) {
         return;
     }
 
     UI_LoadResource("*end");
 
-    if (cls.loading == SS_GAME) {
-        base = (LoadResourceInfo **)Z_Malloc(loadNumber * sizeof(LoadResourceInfo *));
+    switch(cls.loading)
+    {
+    case LOAD_PROGRESS_SAVE:
+        // Fixed in OPM
+        //  Don't save progress if there are no resources.
+        //  NOTE:
+        //   The original game can crash when there is no load number, because it attempts to free a NULL pointer.
+        //   If all resources load very fast (less than 1 millisecond), no load number is generated.
+        //   This can occur on high-end systems with very fast NVMe SSDs.
+        //   This means custom maps without a .min file can crash the original game.
+        if (loadNumber) {
+            base = (LoadResourceInfo **)Z_Malloc(loadNumber * sizeof(LoadResourceInfo *));
 
-        i = 0;
-        for (ptr = loadHead; ptr != NULL; ptr = ptr->next) {
-            base[i] = ptr;
-            i++;
-        }
+            i = 0;
+            for (ptr = loadHead; ptr != NULL; ptr = ptr->next) {
+                base[i] = ptr;
+                i++;
+            }
 
-        qsort(base, loadNumber, sizeof(LoadResourceInfo *), UI_CompareLoadResources);
+            qsort(base, loadNumber, sizeof(LoadResourceInfo *), UI_CompareLoadResources);
 
-        size = 0;
-        for (i = 0; i < loadNumber; i++) {
-            ptr = base[i];
-            size += strlen(ptr->name) + 1;
-        }
+            //
+            // Save the total length of all names
+            //
+            size = 0;
+            for (i = 0; i < loadNumber; i++) {
+                ptr = base[i];
+                size += strlen(ptr->name) + 1;
+            }
 
-        file = FS_FOpenFileWrite_HomeData(loadName);
-        Com_sprintf(buf, sizeof(buf), "%d\n%d %d\n", 3, loadNumber, size);
-
-        FS_Write(buf, strlen(buf), file);
-
-        for (i = 0; i < loadNumber; i++) {
-            Com_sprintf(buf, sizeof(buf), "%s\n%d\n", base[i]->name, base[i]->loadCount);
+            file = FS_FOpenFileWrite_HomeData(loadName);
+            Com_sprintf(buf, sizeof(buf), "%d\n%d %d\n", MAP_INFO_VERSION, loadNumber, size);
             FS_Write(buf, strlen(buf), file);
-        }
 
-        FS_FCloseFile(file);
-        Z_Free(base);
+            //
+            // Save individual resources (name and time)
+            //
+            for (i = 0; i < loadNumber; i++) {
+                Com_sprintf(buf, sizeof(buf), "%s\n%d\n", base[i]->name, base[i]->loadCount);
+                FS_Write(buf, strlen(buf), file);
+            }
+
+            FS_FCloseFile(file);
+            Z_Free(base);
+        }
         UI_DeleteLoadInfo();
-    } else if (cls.loading == SS_LOADING2) {
+        break;
+    case LOAD_PROGRESS_LOAD:
         if (ui_debugload->integer) {
             Com_Printf("Following resources not accounted for on load:\n");
         }
@@ -5991,11 +6031,12 @@ void UI_EndLoad(void)
         }
 
         currentLoadTime = totalLoadTime;
+        break;
     }
 
     UI_FreeLoadStrings();
 
-    cls.loading = SS_DEAD;
+    cls.loading = LOAD_PROGRESS_FALSE;
 }
 
 /*
@@ -6005,11 +6046,11 @@ UI_AbortLoad
 */
 void UI_AbortLoad(void)
 {
-    if (cls.loading) {
-        if (cls.loading == SS_GAME) {
+    if (cls.loading != LOAD_PROGRESS_FALSE) {
+        if (cls.loading == LOAD_PROGRESS_SAVE) {
             UI_DeleteLoadInfo();
         }
-        cls.loading = SS_DEAD;
+        cls.loading = LOAD_PROGRESS_FALSE;
     }
 }
 
