@@ -1582,6 +1582,10 @@ void Level::SetMap(const char *themapname)
     } else {
         m_mapfile += "_sml.bsp";
     }
+
+    // Added in 2.30
+    //  Store the map filename in a variable
+    gi.cvar_set("mapfilename", m_mapfile.c_str());
 }
 
 void Level::LoadAllScripts(const char *name, const char *extension)
