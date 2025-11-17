@@ -91,8 +91,7 @@ public:
 	//
     // Added in OPM
 	//
-	bool m_bHadPlayerOwner;
-    SafePtr<Entity> m_pOwnerPtr;
+	bool m_bRemoveWhenOwnerNull;
 
 	Projectile();
 	void Archive( Archiver &arc ) override;
@@ -152,6 +151,7 @@ public:
 	// Added in OPM
 	//
 	bool			CheckTeams(void);
+    Listener        *GetScriptOwner() override;
 };
 
 inline void Projectile::SetMartyr(int entnum)

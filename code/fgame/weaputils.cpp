@@ -649,7 +649,7 @@ Projectile::Projectile()
     m_iTeam = 0;
 
     // Added in OPM
-    m_bHadPlayerOwner = false;
+    m_bRemoveWhenOwnerNull = false;
 }
 
 float Projectile::ResolveMinimumDistance(Entity *potential_target, float currmin)
@@ -867,6 +867,8 @@ void Projectile::Explode(Event *ev)
     Entity *owner;
     Entity *ignoreEnt = NULL;
 
+    // Added in 2.0
+    //  Remove immediately if the owner's team doesn't match
     if (!CheckTeams()) {
         PostEvent(EV_Remove, EV_REMOVE);
         return;
@@ -1159,6 +1161,8 @@ void Projectile::Touch(Event *ev)
         return;
     }
 
+    // Added in OPM
+    //  Remove immediately if the owner's team doesn't match
     if (!CheckTeams()) {
         PostEvent(EV_Remove, EV_REMOVE);
         return;
@@ -1371,10 +1375,8 @@ void Projectile::SetOwner(Entity *owner)
             // Added in OPM
             //  this was added to prevent glitches, like when the player
             //  disconnects or when the player spectates
-            m_bHadPlayerOwner = true;
+            m_bRemoveWhenOwnerNull = true;
         }
-
-        m_pOwnerPtr = owner;
     }
 }
 
@@ -1442,35 +1444,46 @@ void Projectile::Think()
 
 bool Projectile::CheckTeams(void)
 {
-    Player *pOwner;
+    const Entity *pOwner;
 
     if (g_gametype->integer == GT_SINGLE_PLAYER) {
-        // Ignore in single-player mode
+        // Ignore when in single-player mode
         return true;
     }
 
-    pOwner = (Player *)m_pOwnerPtr.Pointer();
+    pOwner = G_GetEntity(owner);
 
     if (!pOwner) {
-        // Owner disconnected
-        if (m_bHadPlayerOwner) {
+        //
+        // The owner is non-existent and the projectile must be removed,
+        // must be a player
+        //
+        if (m_bRemoveWhenOwnerNull) {
             return false;
-        } else {
-            return true;
         }
+        return true;
     }
 
     if (pOwner->IsSubclassOfPlayer()) {
-        if (m_iTeam != TEAM_NONE && m_iTeam != pOwner->GetTeam()) {
+        const Player *pPlayerOwner = static_cast<const Player *>(pOwner);
+
+        if (m_iTeam != TEAM_NONE && m_iTeam != pPlayerOwner->GetTeam()) {
             return false;
         }
     } else if (pOwner->IsSubclassOfSentient()) {
-        if (m_iTeam != pOwner->m_Team) {
+        const Sentient *pSentOwner = static_cast<const Sentient *>(pOwner);
+
+        if (m_iTeam != pSentOwner->m_Team) {
             return false;
         }
     }
 
     return true;
+}
+
+Listener *Projectile::GetScriptOwner()
+{
+    return G_GetEntity(owner);
 }
 
 Event EV_Explosion_Radius
@@ -1617,6 +1630,8 @@ void Explosion::DamageAgain(Event *ev)
     float   dmg;
     float   rad;
 
+    // Added in OPM
+    //  Remove immediately if the owner's team doesn't match
     if (!CheckTeams()) {
         PostEvent(EV_Remove, EV_REMOVE);
         return;
