@@ -942,6 +942,8 @@ public:
     qboolean     ViewModelAnim(str anim, qboolean force_restart, qboolean bFullAnim);
     virtual void Spawned(void);
 
+    void RemoveOwnedProjectiles();
+
     void AddDeaths(Event *ev);
     void AdminRights(Event *ev);
     void BindWeap(Event *ev);

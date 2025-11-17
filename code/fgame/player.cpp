@@ -4796,7 +4796,8 @@ void Player::Think(void)
                 }
             } else {
                 if (g_protocol >= protocol_e::PROTOCOL_MOHTA_MIN) {
-                    // Since 2.0, use = clear spectator
+                    // Changed in 2.0
+                    //  Use = clear spectator
                     if (m_iPlayerSpectating && (server_new_buttons & BUTTON_USE)) {
                         m_iPlayerSpectating = 0;
                     }
@@ -6123,7 +6124,8 @@ void Player::ProcessPmoveEvents(int event)
         }
 
         if (g_protocol >= protocol_e::PROTOCOL_MOHTA_MIN) {
-            // since 2.0, remove a percentage of the health
+            // Changed in 2.0
+            //  Remove a percentage of the health
             damage = damage * (max_health / 100.0);
         }
         if (g_gametype->integer == GT_SINGLE_PLAYER || !DM_FLAG(DF_NO_FALLING)) {
@@ -6374,7 +6376,8 @@ void Player::DamageFeedback(void)
 
     if (g_target_game >= target_game_e::TG_MOHTA) {
         //
-        // Since 2.0: Try to find and play pain animation
+        // Added in 2.0
+        //  try to find and play pain animation
         //
         if (getMoveType() == MOVETYPE_PORTABLE_TURRET) {
             // use mg42 pain animation
@@ -9538,16 +9541,10 @@ void Player::Join_DM_Team(Event *ev)
     RemoveFromVehiclesAndTurrets();
 
     //
-    // Since 2.0: Remove projectiles that the player own
+    // Added in 2.0
+    //  Remove projectiles that the player own
     //
-    for (ent = G_NextEntity(NULL); ent; ent = G_NextEntity(ent)) {
-        // Fixed in OPM
-        //  2.0 accidentally use the player's ownerNum which is always ENTITYNUM_NONE.
-        //  It causes projectiles with no owner to be deleted.
-        if (ent->IsSubclassOfProjectile() && ent->edict->r.ownerNum == entnum) {
-            ent->PostEvent(EV_Remove, 0);
-        }
-    }
+    RemoveOwnedProjectiles();
 
     if (IsPrimaryWeaponValid()) {
         if (IsSpectator()) {
@@ -12235,6 +12232,20 @@ void Player::Spawned(void)
 
     scriptDelegate_spawned.Trigger(this, *ev);
     scriptedEvents[SE_SPAWN].Trigger(ev);
+}
+
+void Player::RemoveOwnedProjectiles()
+{
+    Entity *ent;
+
+    for (ent = G_NextEntity(NULL); ent; ent = G_NextEntity(ent)) {
+        // Fixed in OPM
+        //  2.0 accidentally use the player's ownerNum which is always ENTITYNUM_NONE.
+        //  It causes projectiles with no owner to be deleted.
+        if (ent->IsSubclassOfProjectile() && ent->edict->r.ownerNum == entnum) {
+            ent->PostEvent(EV_Remove, 0);
+        }
+    }
 }
 
 void Player::AddKills(int num)
