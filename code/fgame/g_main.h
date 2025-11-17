@@ -54,3 +54,6 @@ void G_AllocGameData(void);
 void G_DeAllocGameData(void);
 void G_ClientDrawBoundingBoxes(void);
 void G_ClientDrawTags(void);
+
+// Added in 2.0
+qboolean G_UseLargeLightmap(const char* mapName);

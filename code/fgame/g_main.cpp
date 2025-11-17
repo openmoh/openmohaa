@@ -321,6 +321,25 @@ void G_SpawnEntities(char *entities, int svsTime)
 }
 
 /*
+===============
+G_UseLargeLightmap
+
+Added in 2.0
+===============
+*/
+qboolean G_UseLargeLightmap(const char* mapName) {
+	char buffer[MAX_QPATH];
+
+	Com_sprintf(buffer, sizeof(buffer), "maps/%s_sml.bsp", mapName);
+
+	if (gi.FS_ReadFile(buffer, NULL, qtrue) == -1) {
+		return qtrue;
+	}
+
+	return gi.Cvar_Get("r_largemap", "0", 0)->integer;
+}
+
+/*
 =================
 G_ShutdownGame
 =================
