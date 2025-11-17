@@ -15,6 +15,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - More settings for bots. See the [documentation](https://github.com/openmoh/openmohaa/blob/main/docs/markdown/03-configuration/03-configuration-bots.md) for settings.
 - Reason will be sent to clients getting kicked automatically by the game for teamkill or inactivity.
 - Reflective team damage feature. See the [documentation](https://github.com/openmoh/openmohaa/blob/main/docs/markdown/03-configuration/02-configuration-server.md#g_teamdamage) for settings and explanations.
+- Store the map file name in the `mapfilename` variable.
+
+##### Scripting
+
+- The owner of a projectile is now accessible from scripts.
 
 #### General
 
@@ -22,9 +27,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 #### Platform
 
-- Allow separation of config, data, and state directories within the home path (XDG directory support). (#588)
+- Allow separation of config, data, and state directories within the home path (XDG directory support) (#588).
 
 ### Changed
+
+- Older saves are incompatible due to changes from commit 5df5735965298b26b9bd4b90034843c743ff7158.
 
 #### Server
 
@@ -32,11 +39,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+#### General
+
+- Fix Spearhead getting medals from Allied Assault when the config file doesn't exist (also occurs in the original game) (#818).
+
 #### Server
 
 - Allow `g_teamkillkick` to be set to 0. Players would get kicked when this variable was set to 0 (also occurs in the original game).
+- Fix a bug where players who switched to spectator mode immediately after dying would have 0 health and drop DM items (also occurs in the original game).
 - Fix a possible crash caused by scripts using `angles_pointat` (also occurs in the original game).
 - Fix Actors not doing anything without client #0 (also occurs in the original game).
+- Fix an issue where clients could crash because of too many models being loaded from the server.
 - Fix bots being counted for voting.
 - Fix death animation movement for bots.
 - Fix improper weapon falling rotation.
@@ -46,11 +59,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix the carryable turret disappearing when being dropped (#812).
 - Fix the round limit being always `15` on Tug-of-War.
 - Fix votes being messed up after calling a vote the second time during the match.
+- Fix `wait` command not working on dedicated server binaries. Further commands would not be able to be executed (also occurs in the original game).
 - The player would spawn with no weapons on single-player when `sv_maxbots` was set (#783).
 
 #### Clients
 
+- Fix entities not being able to emit a light when attached to another entity (also occurs on the original Allied Assault but was fixed since Spearhead 2.0) (#824).
+- Fix mapinfo (.min) files never being saved, resulting in the loading bar never showing on some maps (#832).
 - Fix not being able to view sniper zoom when spectating.
+- Fix sky being partially culled out on some single-player maps (#817).
 - Fix the issue where the network would no longer work after hosting a multiplayer game on Allied Assault using the client.
 
 ### Changed
@@ -61,7 +78,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 #### Clients
 
-- Slightly increase the brightness of red/green chat messages
+- Slightly increase the brightness of red/green chat messages.
 
 #### Misc
 
