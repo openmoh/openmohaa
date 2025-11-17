@@ -384,7 +384,9 @@ void CVAR_Init(void)
     sv_maplist = gi.Cvar_Get("sv_maplist", "", CVAR_ARCHIVE | CVAR_SERVERINFO);
     sv_nextmap = gi.Cvar_Get("nextmap", "", 0);
 
-    sv_runspeed        = gi.Cvar_Get("sv_runspeed", "287", 0); // 250 in mohaa
+    // Changed in 2.0
+    //  Runspeed is 250 in 1.11 and below
+    sv_runspeed        = gi.Cvar_Get("sv_runspeed", "287", 0);
     sv_walkspeedmult   = gi.Cvar_Get("sv_walkspeedmult", "0.6", 0);
     sv_dmspeedmult     = gi.Cvar_Get("sv_dmspeedmult", "1.1", 0);
     sv_crouchspeedmult = gi.Cvar_Get("sv_crouchspeedmult", "0.6", 0);
@@ -397,10 +399,12 @@ void CVAR_Init(void)
     if (g_target_game >= target_game_e::TG_MOHTA) {
         sv_sprinton = gi.Cvar_Get("sv_sprinton", "1", 0);
     } else {
-        // mohaa doesn't have sprint support
+        // MOHAA doesn't have sprint support by default
         sv_sprinton = gi.Cvar_Get("sv_sprinton", "0", 0);
     }
 
+    // Added in 2.11-final
+    //  When sprint is disabled, revert back to default MOHAA runspeed
     if (!sv_sprinton->integer && sv_runspeed->integer == 287) {
         gi.cvar_set("sv_runspeed", "250");
     }

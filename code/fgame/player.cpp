@@ -5774,7 +5774,7 @@ void Player::DropCurrentWeapon(Event *ev)
         //  Allow dropping carryable turrets even though they are item
         && !weapon->isSubclassOf(CarryableTurret)) {
         if (weapon->getName() == "Binoculars") {
-            // Added in 2.11
+            // Added in 2.11-final
             //  Prevent dropping the binoculars
             return;
         }
