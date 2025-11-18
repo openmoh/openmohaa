@@ -79,7 +79,7 @@ float ActorPath::PathLookAhead(float total_area, Vector& end, float *origin)
 
         fallheight = current_path->point[2] - origin[2];
 
-        if (fallheight > 94.0f || fallheight < -94.0f) {
+        if (fallheight > MAXS_Z || fallheight < -MAXS_Z) {
             end                    = current_path->point;
             m_HasCompleteLookahead = false;
             return area;

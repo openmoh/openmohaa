@@ -84,8 +84,8 @@ Vector testpos[200];
 Vector ai_startpath;
 Vector ai_endpath;
 
-float NODE_MINS[3]                   = {-15, -15, 0};
-float NODE_MAXS[3]                   = {15, 15, 94};
+float NODE_MINS[3]                   = {MINS_X, MINS_Y, MINS_Z};
+float NODE_MAXS[3]                   = {MAXS_X, MAXS_Y, MAXS_Z};
 float COLOR_PATHNODE_ERROR[3]        = {0, 0, 0};
 float COLOR_PATHNODE_COVER[3]        = {0, 1, 0};
 float COLOR_PATHNODE_CORNER_LEFT[3]  = {1, 1, 0};
@@ -1400,7 +1400,7 @@ void PathNode::DisconnectChild(int i)
 qboolean PathNode::IsTouching(Entity *e1)
 {
     return e1->absmin[0] <= origin[0] + 15.5f && e1->absmin[1] <= origin[1] + 15.5f
-        && e1->absmin[0] <= origin[2] + 94.0f && origin[0] - 15.5f <= e1->absmax[0]
+        && e1->absmin[0] <= origin[2] + MAXS_Z && origin[0] - 15.5f <= e1->absmax[0]
         && origin[1] - 15.5f <= e1->absmax[1] && origin[2] + 0.0f <= e1->absmax[2];
 }
 
@@ -1959,11 +1959,11 @@ int PathSearch::DebugNearestNodeList2(const vec3_t pos, PathNode **nodelist, int
             continue;
         }
 
-        if (pos[2] > node->origin[2] + 94.0f) {
+        if (pos[2] > node->origin[2] + MAXS_Z) {
             continue;
         }
 
-        if (node->origin[2] > pos[2] + 94.0f) {
+        if (node->origin[2] > pos[2] + MAXS_Z) {
             continue;
         }
 
@@ -3281,11 +3281,11 @@ int PathSearch::NearestNodeSetup(const vec3_t pos, MapCell *cell, int *nodes, ve
             continue;
         }
 
-        if (pos[2] > node->origin[2] + 94.0f) {
+        if (pos[2] > node->origin[2] + MAXS_Z) {
             continue;
         }
 
-        if (pos[2] + 94.0f < node->origin[2]) {
+        if (pos[2] + MAXS_Z < node->origin[2]) {
             continue;
         }
 

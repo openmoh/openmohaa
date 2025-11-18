@@ -186,7 +186,7 @@ void Actor::ThinkHoldGun_TurretGun(void)
 
     end[0] = newOrigin[0];
     end[1] = newOrigin[1];
-    end[2] = origin[2] - 94.0;
+    end[2] = origin[2] - MAXS_Z;
     trace  = G_Trace(newOrigin, MINS, MAXS, end, this, MASK_PATHSOLID, qfalse, "Actor::ThinkHoldGun_TurretGun");
 
     if (trace.fraction != 1.0 && !trace.startsolid && !trace.allsolid && trace.ent) {

@@ -49,8 +49,8 @@ float pm_backspeed        = 0.80f;
 float pm_flightfriction   = 3.0f;
 float PM_NOCLIPfriction   = 5.0f;
 
-const vec3_t MINS = {-15, -15, 0};
-const vec3_t MAXS = {15, 15, 94};
+const vec3_t MINS = {MINS_X, MINS_Y, MINS_Z};
+const vec3_t MAXS = {MAXS_X, MAXS_Y, MAXS_Z};
 
 int c_pmove = 0;
 
@@ -1008,11 +1008,11 @@ Sets mins, maxs, and pm->ps->viewheight
 */
 static void PM_CheckDuck(void)
 {
-    pm->mins[0] = -15.0f;
-    pm->mins[1] = -15.0f;
+    pm->mins[0] = MINS_X;
+    pm->mins[1] = MINS_Y;
 
-    pm->maxs[0] = 15.0f;
-    pm->maxs[1] = 15.0f;
+    pm->maxs[0] = MAXS_X;
+    pm->maxs[1] = MAXS_Y;
 
     pm->mins[2] = MINS_Z;
 
@@ -1023,38 +1023,40 @@ static void PM_CheckDuck(void)
     }
 
     if (pm->protocol >= protocol_e::PROTOCOL_MOHTA_MIN) {
-        //
-        // Prone was removed in 2.0
-        //
         if (pm->ps->pm_flags & PMF_DUCKED) {
-            pm->maxs[2]        = 54.f;
+            pm->maxs[2]        = CROUCH_MAXS_Z;
             pm->ps->viewheight = CROUCH_VIEWHEIGHT;
         } else if (pm->ps->pm_flags & PMF_VIEW_JUMP_START) {
-            pm->maxs[2]        = 94.0f;
+            pm->maxs[2]        = MAXS_Z;
             pm->ps->viewheight = JUMP_START_VIEWHEIGHT;
         } else {
-            pm->maxs[2]        = 94.0f;
+            pm->maxs[2]        = MAXS_Z;
             pm->ps->viewheight = DEFAULT_VIEWHEIGHT;
         }
+
+        //
+        // Removed in 2.0
+        //  Prone is not possible in Spearhead
+        //
     } else {
         if ((pm->ps->pm_flags & (PMF_DUCKED | PMF_VIEW_PRONE)) == (PMF_DUCKED | PMF_VIEW_PRONE)) {
-            pm->maxs[2]        = 54.0f;
+            pm->maxs[2]        = CROUCH_MAXS_Z;
             pm->ps->viewheight = CROUCH_VIEWHEIGHT;
         } else if (pm->ps->pm_flags & PMF_DUCKED) {
-            pm->maxs[2]        = 60.0f;
+            pm->maxs[2]        = CROUCH_RUN_MAXS_Z;
             pm->ps->viewheight = CROUCH_VIEWHEIGHT;
         } else if (pm->ps->pm_flags & PMF_VIEW_PRONE) {
-            pm->maxs[2]        = 20.0f;
+            pm->maxs[2]        = PRONE_MAXS_Z;
             pm->ps->viewheight = PRONE_VIEWHEIGHT;
         } else if (pm->ps->pm_flags & PMF_VIEW_DUCK_RUN) {
-            pm->maxs[2]        = 94.0f;
-            pm->mins[2]        = 54.0f;
+            pm->maxs[2]        = MAXS_Z;
+            pm->mins[2]        = CROUCH_MAXS_Z;
             pm->ps->viewheight = DEFAULT_VIEWHEIGHT;
         } else if (pm->ps->pm_flags & PMF_VIEW_JUMP_START) {
-            pm->maxs[2]        = 94.0f;
+            pm->maxs[2]        = MAXS_Z;
             pm->ps->viewheight = JUMP_START_VIEWHEIGHT;
         } else {
-            pm->maxs[2]        = 94.0f;
+            pm->maxs[2]        = MAXS_Z;
             pm->ps->viewheight = DEFAULT_VIEWHEIGHT;
         }
     }

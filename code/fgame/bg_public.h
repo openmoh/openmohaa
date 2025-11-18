@@ -30,14 +30,18 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define GAME_VERSION "mohaa-base-1"
 
-static const int MINS_X        = -15;
-static const int MINS_Y        = -15;
-static const int MINS_Z        = 0; // IneQuation: bounding box and viewheights to match MoHAA
-static const int MAXS_X        = 15;
-static const int MAXS_Y        = 15;
-static const int MAXS_Z        = 94;
-static const int DEAD_MINS_Z   = 32;
-static const int CROUCH_MAXS_Z = 49;
+static const int MINS_X = -15;
+static const int MINS_Y = -15;
+static const int MAXS_X = 15;
+static const int MAXS_Y = 15;
+
+static const int MINS_Z = 0; // IneQuation: bounding box and viewheights to match MoHAA
+static const int MAXS_Z = 94;
+
+static const int DEAD_MINS_Z       = 32;
+static const int PRONE_MAXS_Z      = 20;
+static const int CROUCH_MAXS_Z     = 54;
+static const int CROUCH_RUN_MAXS_Z = 60;
 
 static const unsigned int DEFAULT_VIEWHEIGHT    = 82;
 static const unsigned int CROUCH_RUN_VIEWHEIGHT = 64;

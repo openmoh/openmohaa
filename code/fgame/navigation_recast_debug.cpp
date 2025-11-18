@@ -179,7 +179,7 @@ void NavigationMapDebug::DebugDraw()
 
                 org.z += 16;
 
-                if (org.z < ent->origin.z - 94 || org.z > ent->origin.z + 94) {
+                if (org.z < ent->origin.z - MAXS_Z || org.z > ent->origin.z + MAXS_Z) {
                     continue;
                 }
 
@@ -193,7 +193,7 @@ void NavigationMapDebug::DebugDraw()
 
             org.z += 16;
 
-            if (org.z < ent->origin.z - 94 || org.z > ent->origin.z + 94) {
+            if (org.z < ent->origin.z - MAXS_Z || org.z > ent->origin.z + MAXS_Z) {
                 continue;
             }
 

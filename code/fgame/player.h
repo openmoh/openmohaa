@@ -785,8 +785,11 @@ public:
     void PlayerShowModel(Event *ev);
     void showModel(void) override;
     void ResetHaveItem(Event *ev);
+
     void ModifyHeight(Event *ev);
-    void ModifyHeightFloat(Event *ev); // Added in mohaab 2.40
+     // Added in 2.40
+    void ModifyHeightFloat(Event *ev);
+
     void SetMovePosFlags(Event *ev);
     void GetPositionForScript(Event *ev);
     void GetMovementForScript(Event *ev);

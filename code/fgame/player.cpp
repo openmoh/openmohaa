@@ -704,7 +704,8 @@ Event EV_Player_ModifyHeight
     "change the maximum height of the player\ncan specify 'stand', 'duck' or 'prone'.",
     EV_NORMAL
 );
-Event EV_Player_ModifyHeightFloat // Added in 2.40
+ // Added in 2.40
+Event EV_Player_ModifyHeightFloat
 (
     "modheightfloat",
      EV_DEFAULT,
@@ -1849,7 +1850,10 @@ CLASS_DECLARATION(Sentient, Player, "player") {
     {&EV_Player_ResetHaveItem,            &Player::ResetHaveItem                },
     {&EV_Show,                            &Player::PlayerShowModel              },
     {&EV_Player_ModifyHeight,             &Player::ModifyHeight                 },
+
+    // Added in 2.40
     {&EV_Player_ModifyHeightFloat,        &Player::ModifyHeightFloat            },
+
     {&EV_Player_SetMovePosFlags,          &Player::SetMovePosFlags              },
     {&EV_Player_GetPosition,              &Player::GetPositionForScript         },
     {&EV_Player_GetMovement,              &Player::GetMovementForScript         },
@@ -4011,19 +4015,21 @@ void Player::ClientMove(usercmd_t *ucmd)
     }
 
     if (g_protocol >= protocol_e::PROTOCOL_MOHTA_MIN) {
-        if (maxs.z == 54.0f || maxs.z == 60.0f) {
+        // Changed in 2.30
+        //  Only crouch or jump start is possible
+        if (maxs.z == CROUCH_MAXS_Z) {
             client->ps.pm_flags |= PMF_DUCKED;
         } else if (viewheight == JUMP_START_VIEWHEIGHT) {
             client->ps.pm_flags |= PMF_VIEW_JUMP_START;
         }
     } else {
-        if (maxs.z == 60.0f) {
+        if (maxs.z == CROUCH_RUN_MAXS_Z) {
             client->ps.pm_flags |= PMF_DUCKED;
-        } else if (maxs.z == 54.0f) {
+        } else if (maxs.z == CROUCH_MAXS_Z) {
             client->ps.pm_flags |= PMF_DUCKED | PMF_VIEW_PRONE;
-        } else if (maxs.z == 20.0f) {
+        } else if (maxs.z == PRONE_MAXS_Z) {
             client->ps.pm_flags |= PMF_VIEW_PRONE;
-        } else if (maxs.z == 53.0f) {
+        } else if (maxs.z == (CROUCH_MAXS_Z-1)) {
             client->ps.pm_flags |= PMF_VIEW_DUCK_RUN;
         } else if (viewheight == JUMP_START_VIEWHEIGHT) {
             client->ps.pm_flags |= PMF_VIEW_JUMP_START;
@@ -8320,29 +8326,29 @@ void Player::ModifyHeight(Event *ev)
 
     if (!height.icmp("stand")) {
         viewheight   = DEFAULT_VIEWHEIGHT;
-        maxs.z       = 94.0f;
+        maxs.z       = MAXS_Z;
         m_bHasJumped = false;
     } else if (!height.icmp("jumpstart")) {
         if (g_protocol < protocol_e::PROTOCOL_MOHTA_MIN) {
             viewheight = JUMP_START_VIEWHEIGHT;
         }
-        maxs.z = 94.0f;
+        maxs.z = MAXS_Z;
     } else if (!height.icmp("duck")) {
         viewheight = CROUCH_VIEWHEIGHT;
-        maxs.z     = 54.0f;
+        maxs.z     = CROUCH_MAXS_Z;
     } else if (!height.icmp("duckrun")) {
         viewheight = CROUCH_RUN_VIEWHEIGHT;
-        maxs.z     = 60.0f;
+        maxs.z     = CROUCH_RUN_MAXS_Z;
     } else if (!height.icmp("prone")) {
         //
         // Added in OPM
         //  (prone)
         viewheight = PRONE_VIEWHEIGHT;
-        maxs.z     = 20.0f;
+        maxs.z     = PRONE_MAXS_Z;
     } else {
         gi.Printf("Unknown modheight '%s' defaulting to stand\n", height.c_str());
         viewheight = DEFAULT_VIEWHEIGHT;
-        maxs.z     = 94.0f;
+        maxs.z     = MAXS_Z;
     }
 }
 
@@ -8358,14 +8364,14 @@ void Player::ModifyHeightFloat(Event *ev)
 
     viewheight = height;
 
-    if (max_z >= 94.0) {
-        max_z = 94.0;
-    } else if (max_z >= 74.0 && max_z < 94.0) {
-        max_z = 54.0;
-    } else if (max_z >= 30.0 && max_z < 54.0) {
-        max_z = 20.0;
-    } else if (max_z <= 20.0) {
-        max_z = 20.0;
+    if (max_z >= MAXS_Z) {
+        max_z = MAXS_Z;
+    } else if (max_z >= 74.0 && max_z < MAXS_Z) {
+        max_z = CROUCH_MAXS_Z;
+    } else if (max_z >= 30.0 && max_z < CROUCH_MAXS_Z) {
+        max_z = PRONE_MAXS_Z;
+    } else if (max_z <= PRONE_MAXS_Z) {
+        max_z = PRONE_MAXS_Z;
     }
 
     maxs.z = max_z;

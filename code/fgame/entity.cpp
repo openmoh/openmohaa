@@ -5640,8 +5640,8 @@ void Entity::DisconnectPaths(void)
         collision_ent = edict;
     }
 
-    VectorSet(mins, -15.0f, -15.0f, 0);
-    VectorSet(maxs, 15.0f, 15.0f, 94.0f);
+    VectorSet(mins, MINS_X, MINS_Y, MINS_Z);
+    VectorSet(maxs, MAXS_X, MAXS_Y, MAXS_Z);
 
     for (i = 0; i < PathManager.nodecount; i++) {
         node = PathManager.pathnodes[i];

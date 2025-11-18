@@ -3167,7 +3167,7 @@ void Actor::SetMoveInfo(mmove_t *mm)
 
     VectorCopy(MINS, mm->mins);
     VectorCopy(MAXS, mm->maxs);
-    mm->maxs[2] = 94;
+    mm->maxs[2] = MAXS_Z;
 }
 
 /*

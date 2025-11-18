@@ -389,11 +389,11 @@ bool SimpleActor::PathAvoidsSquadMates(void) const
 
     vMins[0] -= 30;
     vMins[1] -= 30;
-    vMins[2] -= 94;
+    vMins[2] -= MAXS_Z;
 
     vMaxs[0] += 30;
     vMaxs[1] += 30;
-    vMaxs[2] += 94;
+    vMaxs[2] += MAXS_Z;
 
     iNumBuddies = 0;
     for (pOther = m_pNextSquadMate; pOther != this && iNumBuddies < ARRAY_LEN(pBuddy);
@@ -474,7 +474,7 @@ retry:
 
         vDelta = vGoal - vBuddyPos;
 
-        if (vDelta.x >= -15 && vDelta.x <= 15 && vDelta.y >= -15 && vDelta.y <= 15 && vDelta.z >= 0 && vDelta.z <= 94) {
+        if (vDelta.x >= MINS_X && vDelta.x <= MAXS_X && vDelta.y >= MINS_Y && vDelta.y <= MAXS_Y && vDelta.z >= MINS_Z && vDelta.z <= MAXS_Z) {
             m_Path.Shorten(45.0);
 
             if (!PathExists()) {
