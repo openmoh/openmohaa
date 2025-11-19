@@ -28,8 +28,12 @@ qboolean msgInit = qfalse;
 
 int oldsize = 0;
 
+// Changed in 2.0
+//  Network message profiling has been enabled starting Spearhead 2.0
+#define NET_MESSAGE_PROFILING 1
+
 //===================
-// TA stuff
+// Constants for protocol version 15
 //===================
 
 static constexpr int MAX_PACKED_COORD = 65536;
@@ -37,9 +41,10 @@ static constexpr int MAX_PACKED_COORD_HALF = MAX_PACKED_COORD / 2;
 static constexpr int MAX_PACKED_COORD_EXTRA = 262144;
 static constexpr int MAX_PACKED_COORD_EXTRA_HALF = MAX_PACKED_COORD_EXTRA / 2;
 
-//===
+#if NET_MESSAGE_PROFILING
+//===================
 // Statistics for changes reporting
-//===
+//===================
 int strstats[256];
 int huffstats[256];
 int weightstats[256];
@@ -50,6 +55,8 @@ int timestats[32768];
 int coordstats[MAX_PACKED_COORD];
 int iEntityFieldChanges[256];
 int alphastats[257];
+extern int msg_hData[];
+#endif
 
 // Scrambled string conversion (write)
 const uint8_t StrCharToNetByte[256] =
@@ -304,6 +311,9 @@ void MSG_WriteBits( msg_t *msg, int value, int bits ) {
 		}
 		if (bits) {
 			for(i=0;i<bits;i+=8) {
+#if NET_MESSAGE_PROFILING
+				huffstats[value % ARRAY_LEN(huffstats)]++;
+#endif
 				Huff_offsetTransmit( &msgHuff.compressor, (value & 0xff), msg->data, &msg->bit, msg->maxsize << 3 );
 				value = (value>>8);
 
@@ -505,7 +515,9 @@ void MSG_WriteBigString( msg_t *sb, const char *s ) {
 
 void MSG_WriteScrambledString_ver_15(msg_t* sb, const char* s) {
 	if (!s) {
+#if NET_MESSAGE_PROFILING
 		strstats[0]++;
+#endif
 		MSG_WriteByte(sb, StrCharToNetByte[0]);
 	}
 	else {
@@ -515,7 +527,9 @@ void MSG_WriteScrambledString_ver_15(msg_t* sb, const char* s) {
 
 		l = strlen(s);
 		if (l >= MAX_STRING_CHARS) {
+#if NET_MESSAGE_PROFILING
 			strstats[0]++;
+#endif
 			Com_Printf("MSG_WriteString: MAX_STRING_CHARS");
 			MSG_WriteByte(sb, StrCharToNetByte[0]);
 			return;
@@ -524,7 +538,9 @@ void MSG_WriteScrambledString_ver_15(msg_t* sb, const char* s) {
 
 		for (i = 0; i <= l; i++) {
 			unsigned char c = string[i];
+#if NET_MESSAGE_PROFILING
 			strstats[c]++;
+#endif
 			MSG_WriteByte(sb, StrCharToNetByte[c]);
 		}
 	}
@@ -532,7 +548,9 @@ void MSG_WriteScrambledString_ver_15(msg_t* sb, const char* s) {
 
 void MSG_WriteScrambledBigString_ver_15(msg_t* sb, const char* s) {
 	if (!s) {
+#if NET_MESSAGE_PROFILING
 		strstats[0]++;
+#endif
 		MSG_WriteByte(sb, StrCharToNetByte[0]);
 	}
 	else {
@@ -542,7 +560,9 @@ void MSG_WriteScrambledBigString_ver_15(msg_t* sb, const char* s) {
 
 		l = strlen(s);
 		if (l >= BIG_INFO_STRING) {
+#if NET_MESSAGE_PROFILING
 			strstats[0]++;
+#endif
 			Com_Printf("MSG_WriteString: BIG_INFO_STRING");
 			MSG_WriteByte(sb, StrCharToNetByte[0]);
 			return;
@@ -551,7 +571,9 @@ void MSG_WriteScrambledBigString_ver_15(msg_t* sb, const char* s) {
 
 		for (i = 0; i <= l; i++) {
 			unsigned char c = string[i];
+#if NET_MESSAGE_PROFILING
 			strstats[c]++;
+#endif
 			MSG_WriteByte(sb, StrCharToNetByte[c]);
 		}
 	}
@@ -1161,15 +1183,17 @@ void MSG_ReadDeltaEyeInfo(msg_t* msg, usereyes_t* from, usereyes_t* to) {
 
 }
 
-int compare_huffstats(const int* e1, const int* e2)
+#if NET_MESSAGE_PROFILING
+int compare_huffstats(const void* e1, const void* e2)
 {
-	return huffstats[*e2] - huffstats[*e1];
+	return huffstats[*(const int*)e2] - huffstats[*(const int*)e1];
 }
 
-int compare_strstats(const int* e1, const int* e2)
+int compare_strstats(const void* e1, const void* e2)
 {
-	return strstats[*e2] - strstats[*e1];
+	return strstats[*(const int*)e2] - strstats[*(const int*)e1];
 }
+#endif
 
 void MSG_WriteDeltaCoord(msg_t* msg, int from, int to)
 {
@@ -1277,12 +1301,150 @@ Prints out a table from the current statistics for copying to code
 =================
 */
 void MSG_ReportChangeVectors_f( void ) {
-	int i;
-	for(i=0;i<256;i++) {
+#if NET_MESSAGE_PROFILING
+	int i, j;
+	int numbits, numhuffoff;
+	int huffstatscompare[256];
+	int strstatscompare[256];
+
+	//
+	// Entity state fields
+	//
+
+	Com_Printf("\n---------------------------------\n");
+	Com_Printf("\nEntity State Field Change Profile\n\n");
+
+	for (i = 0; i < 256; i++) {
 		if (iEntityFieldChanges[i]) {
 			Com_Printf("%d used %d\n", i, iEntityFieldChanges[i]);
 		}
 	}
+
+	//
+	// Player state fields
+	//
+
+	Com_Printf("\n---------------------------------\n");
+	Com_Printf("\nPlayer State Field Change Profile\n\n");
+
+	for (i = 0; i < 256; ++i) {
+		if (iPlayerFieldChanges[i]) {
+			Com_Printf("%d used %d\n", i, iPlayerFieldChanges[i]);
+		}
+	}
+
+	//
+	// String char statistics
+	//
+
+	Com_Printf("\n---------------------------------\n");
+	Com_Printf("\nstring char stats\n\n");
+
+    if (com_protocol->integer >= protocol_e::PROTOCOL_MOHTA_MIN) {
+		//
+		// Added in 2.0 (protocol version 15)
+		//  String scrambling
+		//
+
+		int totalstrlen;
+
+		totalstrlen = 0;
+
+		for (i = 0; i < 256; i++) {
+			totalstrlen += strstats[i];
+		}
+
+		for (i = 0; i < 256; i++) {
+			Com_Printf("\t%6i,\t\t\t// %3i (%5.1f%%)\n", strstats[i], i, strstats[i] * 100.0 / (float)totalstrlen);
+		}
+
+		for (i = 0; i < 256; i++) {
+			int byte, c;
+
+			byte				= huffstats[i];
+			c					= NetByteToStrChar[i];
+			huffstatscompare[i] = i;
+			strstatscompare[i]  = i;
+			huffstats[i]		= byte - strstats[c];
+		}
+
+		qsort(huffstatscompare, ARRAY_LEN(huffstats), sizeof(huffstats[0]), compare_huffstats);
+		qsort(strstatscompare, ARRAY_LEN(strstats), sizeof(strstats[0]), compare_strstats);
+
+		//
+		// String char (char -> byte mapping)
+		//
+
+		Com_Printf("\n---------------------------------\n");
+		Com_Printf("\nstring char to transmitted byte mapping\n\n");
+
+		for (i = 0; i < 256; i++) {
+			for (j = 0; j < 256; j++) {
+				if (strstatscompare[j] == i) {
+					Com_Printf("\t%3i,\t\t\t// %3i\n", huffstatscompare[j], strstatscompare[j]);
+				}
+			}
+		}
+
+		//
+		// String char (byte -> char mapping)
+		//
+
+		Com_Printf("\n---------------------------------\n");
+		Com_Printf("\ntransmitted byte to string char mapping\n\n");
+
+		for (i = 0; i < 256; i++) {
+			for (j = 0; j < 256; j++) {
+				if (huffstatscompare[j] == i) {
+					huffstats[huffstatscompare[j]] += strstats[strstatscompare[j]];
+					Com_Printf("\t%3i,\t\t\t// %3i\n", strstats[strstatscompare[j]], huffstats[huffstatscompare[j]]);
+				}
+			}
+		}
+	} else {
+		Com_Printf("Protocol %d doesn't support scrambled strings\n", com_protocol->integer);
+	}
+
+	//
+	// Huffman statistics
+	//
+
+	Com_Printf("\n---------------------------------\n");
+	Com_Printf("\nhuffman stats\n\n");
+
+	numbits	= 0;
+	numhuffoff = 0;
+
+	for (i = 0; i < 256; i++) {
+		numbits += huffstats[i];
+		numhuffoff += msg_hData[i];
+	}
+
+	for (i = 0; i < 256; i++) {
+		Com_Printf(
+			"\t%6i,\t\t\t// %3i (%5.1f%% from %5.1f%%, approx %.1f bits)\n",
+			huffstats[i],
+			i,
+			(float)huffstats[i] / numbits * 100,
+			(float)msg_hData[i] / numhuffoff * 100,
+			-log2((float)huffstats[i] / numbits)
+		);
+	}
+
+    if (com_protocol->integer >= protocol_e::PROTOCOL_MOHTA_MIN) {
+		for (i = 0; i < 256; i++) {
+			huffstats[i] += strstats[NetByteToStrChar[i]];
+
+			for (j = 0; j < 256; j++) {
+				if (huffstatscompare[j] == i) {
+					huffstats[huffstatscompare[j]] -= strstats[strstatscompare[j]];
+				}
+			}
+		}
+	}
+#else
+	Com_Printf("Net message system profiling is not enabled\n");
+#endif
 }
 
 typedef enum netFieldType_e {
@@ -2187,6 +2349,9 @@ void MSG_WriteDeltaEntity( msg_t *msg, struct entityState_s *from, struct entity
 		toF = (int *)( (byte *)to + field->offset );
 		deltasNeeded[i] = MSG_DeltaNeeded(fromF, toF, field->type, field->bits, field->size);
 		if (deltasNeeded[i]) {
+#if NET_MESSAGE_PROFILING
+			iEntityFieldChanges[i % ARRAY_LEN(iEntityFieldChanges)]++;
+#endif
 			lc = i+1;
 		}
 	}
@@ -2314,9 +2479,9 @@ int MSG_PackAnimTime(float time, int bits)
 	{
 		packed = 0;
 	}
-
-	timestats[packed]++;
-
+#if NET_MESSAGE_PROFILING
+	timestats[packed % ARRAY_LEN(timestats)]++;
+#endif
 	return packed;
 }
 
@@ -2337,9 +2502,9 @@ int MSG_PackAnimWeight(float weight, int bits)
 	{
 		packed = 0;
 	}
-
-	weightstats[packed]++;
-
+#if NET_MESSAGE_PROFILING
+	weightstats[packed % ARRAY_LEN(weightstats)]++;
+#endif
 	return packed;
 }
 
@@ -2360,9 +2525,9 @@ int MSG_PackScale(float scale, int bits)
 	{
 		packed = 0;
 	}
-
-	scalestats[packed]++;
-
+#if NET_MESSAGE_PROFILING
+	scalestats[packed % ARRAY_LEN(scalestats)]++;
+#endif
 	return packed;
 }
 
@@ -2383,9 +2548,9 @@ int MSG_PackAlpha(float alpha, int bits)
 	{
 		packed = 0;
 	}
-
-	alphastats[packed]++;
-
+#if NET_MESSAGE_PROFILING
+	alphastats[packed % ARRAY_LEN(alphastats)]++;
+#endif
 	return packed;
 }
 
@@ -2394,13 +2559,12 @@ int MSG_PackCoord(float coord)
 	unsigned int packed;
 
 	packed = (unsigned int)round(coord * 4.0 + MAX_PACKED_COORD_HALF);
-
-	if (packed < MAX_PACKED_COORD) {
-		coordstats[packed]++;
-	}
-// 	else {
-// 		Com_DPrintf("Illegal XYZ coordinates for an entity, small information lost in transmission\n");
-// 	}
+#if NET_MESSAGE_PROFILING
+	coordstats[packed % ARRAY_LEN(coordstats)]++;
+#endif
+//	if (packed >= MAX_PACKED_COORD) {
+//		Com_DPrintf("Illegal XYZ coordinates for an entity, small information lost in transmission\n");
+//	}
 
 	return packed;
 }
@@ -2414,10 +2578,11 @@ int MSG_PackCoordExtra(float coord)
 	// Fixed in OPM
 	//  This check wasn't added in >= 2.0
 	//  which means a player could crash a server when out of bounds
-	if (packed < MAX_PACKED_COORD_EXTRA) {
-		++coordextrastats[packed];
-	}
-//	else {
+#if NET_MESSAGE_PROFILING
+	coordextrastats[packed % ARRAY_LEN(coordextrastats)]++;
+#endif
+// Added in 2.30
+//	if (packed >= MAX_PACKED_COORD_EXTRA) {
 //		Com_DPrintf("Illegal XYZ coordinates for an entity, information lost in transmission\n");
 //	}
 
@@ -3076,8 +3241,6 @@ void MSG_ReadDeltaEntity( msg_t *msg, entityState_t *from, entityState_t *to,
 					Com_Error( ERR_DROP, "MSG_ReadDeltaEntity: unrecognized entity field type %i for field\n", i );
 					break;
 			}
-
-			iEntityFieldChanges[i]++;
 		}
 	}
 	for ( i = lc, field = &entityStateFields[lc] ; i < numFields ; i++, field++ ) {
@@ -3502,6 +3665,9 @@ void MSG_WriteDeltaPlayerstate(msg_t *msg, struct playerState_s *from, struct pl
 		toF = (int *)( (byte *)to + field->offset );
 		deltasNeeded[i] = MSG_DeltaNeeded(fromF, toF, field->type, field->bits, field->size);
 		if (deltasNeeded[i]) {
+#if NET_MESSAGE_PROFILING
+			iPlayerFieldChanges[i % ARRAY_LEN(iPlayerFieldChanges)]++;
+#endif
 			lc = i+1;
 		}
 	}
@@ -3521,7 +3687,6 @@ void MSG_WriteDeltaPlayerstate(msg_t *msg, struct playerState_s *from, struct pl
 		}
 
 		MSG_WriteBits( msg, 1, 1 );	// changed
-		iPlayerFieldChanges[i]++;
 
 		switch ( field->type ) {
 			case netFieldType_e::regular:
