@@ -3485,6 +3485,7 @@ void MSG_WriteDeltaPlayerstate(msg_t *msg, struct playerState_s *from, struct pl
 	netField_t		*field;
 	int				*fromF, *toF;
 	int				lc;
+	qboolean		deltasNeeded[numBiggestPlayerStateFields];
 
 	if (!from) {
 		from = &dummy;
@@ -3499,7 +3500,8 @@ void MSG_WriteDeltaPlayerstate(msg_t *msg, struct playerState_s *from, struct pl
 	for ( i = 0, field = playerStateFields ; i < numFields ; i++, field++ ) {
 		fromF = (int *)( (byte *)from + field->offset );
 		toF = (int *)( (byte *)to + field->offset );
-		if ( *fromF != *toF ) {
+		deltasNeeded[i] = MSG_DeltaNeeded(fromF, toF, field->type, field->bits, field->size);
+		if (deltasNeeded[i]) {
 			lc = i+1;
 		}
 	}
@@ -3512,8 +3514,9 @@ void MSG_WriteDeltaPlayerstate(msg_t *msg, struct playerState_s *from, struct pl
 		fromF = (int *)( (byte *)from + field->offset );
 		toF = (int *)( (byte *)to + field->offset );
 
-		if ( *fromF == *toF ) {
-			MSG_WriteBits( msg, 0, 1 );	// no change
+		if (!deltasNeeded[i]) {
+			// no change
+			MSG_WriteBits( msg, 0, 1 );
 			continue;
 		}
 
