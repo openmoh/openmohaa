@@ -2715,7 +2715,7 @@ void ScriptThread::EventSqrt(Event *ev)
     float value;
 
     arg   = ev->GetFloat(1);
-    value = sqrtf(DEG2RAD(arg));
+    value = sqrtf(arg);
     if (isnan(value)) {
         ScriptError("sqrt(%f) = NaN", arg);
     }
