@@ -2,6 +2,8 @@
 
 Whether you're reporting issues or coding, follow the guidelines below to help keep the project consistent and maintainable.
 
+All contributions, including **issues**, **discussions**, **code comments**, **commit messages**, and **documentation**, must be written in *English*. This ensures clarity and consistency for all contributors.
+
 There are many ways to contribute, like:
 - Reporting an [issue](#issues).
 - Submitting [pull request](#pull-requests).
