@@ -1518,7 +1518,7 @@ void RB_StageIteratorGeneric( void )
 	input = &tess;
 
 	input->shaderTime = backEnd.refdef.floatTime;
-	if ((input->shader->flags & 1) != 0) {
+	if ((input->shader->flags & BUNDLE_ANIMATE_ONCE) != 0) {
 		input->shaderTime = backEnd.refdef.floatTime - backEnd.shaderStartTime;
 	}
 

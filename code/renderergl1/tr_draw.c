@@ -461,6 +461,7 @@ void Set2DWindow(int x, int y, int w, int h, float left, float right, float bott
 		backEnd.refdef.time = ri.Milliseconds();
 		backEnd.in2D = qtrue;
 		backEnd.refdef.floatTime = backEnd.refdef.time / 1000.0;
+        backEnd.shaderStartTime = 0; 
 	}
 }
 
@@ -472,4 +473,17 @@ RE_Scissor
 void RE_Scissor(int x, int y, int width, int height) {
 	qglEnable(GL_SCISSOR_TEST);
 	qglScissor(x, y, width, height);
+}
+
+/*
+================
+Set2DInitialShaderTime
+================
+*/
+void Set2DInitialShaderTime(float startTime)
+{
+	if (backEnd.in2D)
+	{
+		backEnd.shaderStartTime = startTime;
+	}
 }

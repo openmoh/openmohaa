@@ -3797,6 +3797,8 @@ void CL_FillUIImports(void)
     uii.IsRendererLoaded  = CL_IsRendererLoaded;
     uii.Rend_LoadRawImage = re.LoadRawImage;
     uii.Rend_FreeRawImage = re.FreeRawImage;
+
+    uii.Rend_Set2DStartTime = re.Set2DInitialShaderTime;
 }
 
 /*

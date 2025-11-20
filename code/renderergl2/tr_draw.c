@@ -533,3 +533,16 @@ void RE_Scissor(int x, int y, int width, int height) {
     qglEnable(GL_SCISSOR_TEST);
     qglScissor(x, y, width, height);
 }
+
+/*
+================
+Set2DInitialShaderTime
+================
+*/
+void Set2DInitialShaderTime(float startTime)
+{
+	if (backEnd.projection2D)
+	{
+		backEnd.shaderStartTime = startTime;
+	}
+}

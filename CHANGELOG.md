@@ -25,6 +25,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add the bot count (if there are any) in the server browser. This will only work for servers running at least the version **0.83.0** of OpenMoHAA. The bot count will also show on the [333networks](https://master.333networks.com/) master server website.
 
+#### Client
+
+- Add support for one-shot animated shaders in the UI (#838) (not supported in the original game).
+
 #### Platform
 
 - Allow separation of config, data, and state directories within the home path (XDG directory support) (#588).

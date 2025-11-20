@@ -705,6 +705,8 @@ UIWidget::UIWidget()
 
     UIRect2D frame(6.0f, 6.0f, 100.0f, 13.0f);
     setFrame(frame);
+
+    lastShowTime = -1;
 }
 
 UIWidget::~UIWidget()
@@ -857,6 +859,16 @@ void UIWidget::set2D(void)
         m_clippedframe.size.width,
         m_clippedframe.size.height
     );
+
+    //
+    // Added in OPM
+    //
+
+    if (lastShowTime == -1) {
+        lastShowTime = uii.Sys_Milliseconds() / 1000.0;
+    }
+
+    uii.Rend_Set2DStartTime(lastShowTime);
 }
 
 void UIWidget::Draw(void) {}
@@ -1612,6 +1624,9 @@ void UIWidget::Disable(void)
     for (i = 1; i <= n; i++) {
         m_children.ObjectAt(i)->Disable();
     }
+
+    // Added in OPM
+    lastShowTime = -1;
 }
 
 bool UIWidget::isEnabled(void)
@@ -1689,6 +1704,9 @@ void UIWidget::setShow(bool visible)
         if (IsThisOrChildActive()) {
             uWinMan.DeactivateCurrentSmart();
         }
+
+        // Added in OPM
+        lastShowTime = -1;
     }
 }
 
@@ -1900,6 +1918,7 @@ void UIWidget::Display(const UIRect2D& drawframe, float parent_alpha)
     vec4_t col = {1, 1, 1, 1};
 
     if (!isEnabled()) {
+        lastShowTime = -1;
         return;
     }
 

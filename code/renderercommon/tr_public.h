@@ -178,6 +178,8 @@ typedef struct {
 
     qboolean (*LoadRawImage)(const char *name, byte **pic, int *width, int *height);
     void (*FreeRawImage)(byte *pic);
+
+    void (*Set2DInitialShaderTime)(float startTime);
 } refexport_t;
 
 //

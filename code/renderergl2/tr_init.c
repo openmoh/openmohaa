@@ -2082,6 +2082,8 @@ refexport_t *GetRefAPI ( int apiVersion, refimport_t *rimp ) {
 
     re.LoadRawImage = R_LoadRawImage;
     re.FreeRawImage = R_FreeRawImage;
+    
+	re.Set2DInitialShaderTime = Set2DInitialShaderTime;
 
 	return &re;
 }
