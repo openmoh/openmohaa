@@ -165,9 +165,14 @@ protected:
     qboolean              m_bVirtual;
     str                   m_enabledCvar;
     //
-    // New since 2.0
+    // Added in 2.0
     //
     cvar_t *m_scaleCvar;
+
+    //
+    // Added in OPM
+    //
+    float lastShowTime;
 
 public:
     CLASS_PROTOTYPE(UIWidget);

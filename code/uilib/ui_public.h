@@ -152,6 +152,8 @@ typedef struct glconfig_t;*/
         qboolean (*IsRendererLoaded)(void);
         qboolean (*Rend_LoadRawImage)(const char *name, byte **pic, int *width, int *height);
         void (*Rend_FreeRawImage)(byte *pic);
+
+        void (*Rend_Set2DStartTime)(float startTime);
     } uiimport_t;
 
 #if 1
