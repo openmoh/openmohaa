@@ -272,6 +272,7 @@ jobs:
       with:
         name: out-windows-${{matrix.architecture.name}}
         if-no-files-found: error
+        compression-level: 9
         path: |
           ${{github.workspace}}/package
           !${{github.workspace}}/package/**/*.pdb
@@ -280,6 +281,7 @@ jobs:
       with:
         name: out-windows-${{matrix.architecture.name}}-pdb
         if-no-files-found: error
+        compression-level: 9
         path: |
           ${{github.workspace}}/package
 
