@@ -4491,7 +4491,9 @@ void Player::ClientThink(void)
     buttons = current_ucmd->buttons;
 
     if (camera) {
-        m_vViewPos = camera->origin;
+        // Fixed in OPM
+        //  Use the camera's offset for the view position
+        m_vViewPos = camera->GetOriginWithOffset();
         m_vViewAng = camera->angles;
     } else {
         m_vViewPos[0] = (float)current_eyeinfo->ofs[0] + origin[0];

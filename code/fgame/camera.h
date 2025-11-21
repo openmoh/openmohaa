@@ -303,6 +303,7 @@ public:
     bool   ShowQuakes(void) const;
     Vector GetPositionOffset(void);
     void   SetPositionOffset(Vector vNewOfs);
+    Vector GetOriginWithOffset(void);
 
     void Archive(Archiver& arc) override;
 };
@@ -320,6 +321,18 @@ inline Vector Camera::GetPositionOffset(void)
 inline void Camera::SetPositionOffset(Vector vNewOfs)
 {
     m_vPosOffset = vNewOfs;
+}
+
+inline Vector Camera::GetOriginWithOffset(void)
+{
+    if (!m_vPosOffset[0] && !m_vPosOffset[1] && !m_vPosOffset[2]) {
+        return origin;
+    }
+
+    vec3_t axis[3], offset;
+    AnglesToAxis(angles, axis);
+    MatrixTransformVector(m_vPosOffset, axis, offset);
+    return origin + offset;
 }
 
 inline void Camera::Archive(Archiver& arc)
