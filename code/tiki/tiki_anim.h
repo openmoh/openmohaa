@@ -29,22 +29,28 @@ extern "C" {
 #endif
 
     void        TIKI_GetAnimOrder(dloaddef_t *ld, int *order);
+
     const char *TIKI_Anim_NameForNum(dtiki_t *pmdl, int animnum);
     int         TIKI_Anim_NumForName(dtiki_t *pmdl, const char *name);
     int         TIKI_Anim_Random(dtiki_t *pmdl, const char *name);
     int         TIKI_Anim_NumFrames(dtiki_t *pmdl, int animnum);
     float       TIKI_Anim_Time(dtiki_t *pmdl, int animnum);
     float       TIKI_Anim_Frametime(dtiki_t *pmdl, int animnum);
+
     void        TIKI_Anim_Delta(dtiki_t *pmdl, int animnum, float *delta);
     void        TIKI_Anim_AngularDelta(dtiki_t *pmdl, int animnum, float *delta);
     qboolean    TIKI_Anim_HasDelta(dtiki_t *pmdl, int animnum);
     void        TIKI_Anim_DeltaOverTime(dtiki_t *pTiki, int iAnimnum, float fTime1, float fTime2, vec3_t vDelta);
     void        TIKI_Anim_AngularDeltaOverTime(dtiki_t *pTiki, int iAnimnum, float fTime1, float fTime2, float *fDelta);
+
     int         TIKI_Anim_Flags(dtiki_t *pmdl, int animnum);
     int         TIKI_Anim_FlagsSkel(dtiki_t *pmdl, int animnum);
+
     qboolean    TIKI_Anim_HasServerCommands(dtiki_t *pmdl, int animnum);
     qboolean    TIKI_Anim_HasClientCommands(dtiki_t *pmdl, int animnum);
     float       TIKI_Anim_CrossblendTime(dtiki_t *pmdl, int animnum);
+
+    int         TIKI_Anim_Compare(const char *s1, const char *s2);
 
 #ifdef __cplusplus
 }

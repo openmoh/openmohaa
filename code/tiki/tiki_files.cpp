@@ -103,7 +103,7 @@ qboolean TIKI_AliasExists(dloaddef_t *ld, const char *name)
     int i;
 
     for (i = 0; i < ld->numanims; i++) {
-        if (!Q_stricmp(ld->loadanims[i]->alias, name)) {
+        if (!TIKI_Anim_Compare(ld->loadanims[i]->alias, name)) {
             return true;
         }
     }
@@ -1002,7 +1002,7 @@ dtikianim_t *TIKI_InitTiki(dloaddef_t *ld, size_t defsize)
         panimdef->weight = anim->weight;
         panimdef->flags  = anim->flags;
 
-        if (!Q_stricmp(panimdef->alias, "idle")) {
+        if (!TIKI_Anim_Compare(panimdef->alias, "idle")) {
             data = SkeletorCacheGetData(alias_index);
             if (data) {
                 VectorCopy(data->bounds[0].val, panim->mins);
