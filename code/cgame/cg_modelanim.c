@@ -612,7 +612,8 @@ qboolean CG_EntityShadow(centity_t *cent, refEntity_t *model)
         return qfalse;
     }
 
-    // since 2.0: no shadow if solid
+    // Fixed in 2.0: 
+    //  No shadow if solid
     if (trace.startsolid || trace.allsolid) {
         return qfalse;
     }

@@ -5727,7 +5727,7 @@ void Actor::EventDamagePuff(Event *ev)
     int    bulletbits;
 
     // Fixed in OPM
-    //  Large bullet flag normally take 2 bits since 2.0.
+    //  Large bullet flag normally take 2 bits since this version.
     //  However, in OG Spearhead and Breakthrough, EventDamagePuff
     //  mistakenly uses 1 bit which causes a parse message error
     bulletbits = (g_protocol >= protocol_e::PROTOCOL_MOHTA_MIN) ? 2 : 1;

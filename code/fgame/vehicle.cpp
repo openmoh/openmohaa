@@ -1359,7 +1359,8 @@ void Vehicle::VehicleStart(Event *ev)
     max_health = health;
 
     //
-    // since 2.0: set targetname for all busy turrets
+    // Added in 2.0
+    //  Set targetname for all busy turrets
     //
     for (int i = 0; i < numTurrets; i++) {
         if (Turrets[i].flags & SLOT_BUSY) {

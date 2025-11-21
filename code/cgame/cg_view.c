@@ -693,7 +693,8 @@ static int CG_CalcViewValues(void)
         // copy view values
         VectorCopy(cg.refdef.vieworg, cg.currentViewPos);
         VectorCopy(cg.refdefViewAngles, cg.currentViewAngles);
-        // since 2.0: also copy location data for sound
+        // Added in 2.0
+        //  Also copy location data for sound
         VectorCopy(cg.refdef.vieworg, cg.SoundOrg);
         AnglesToAxis(cg.refdefViewAngles, cg.SoundAxis);
     }

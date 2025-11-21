@@ -402,7 +402,9 @@ static void DrawMultitextured( shaderCommands_t *input, int stage ) {
 	R_BindAnimatedImage( &pStage->bundle[0] );
 
 /*
-	// was removed since 2.0
+    //
+	// Removed in 2.0
+    //
 	if (pStage->stateBits & GLS_MULTITEXTURE_ENV)
 	{
 		glState.cntnvblendmode = pStage->multitextureEnv;
@@ -445,7 +447,9 @@ static void DrawMultitextured( shaderCommands_t *input, int stage ) {
 	if ( r_lightmap->integer && pStage->bundle[1].isLightmap ) {
 		GL_TexEnv( GL_REPLACE );
 /*
-	// was removed since 2.0
+    //
+	// Removed in 2.0
+    //
 	} else if (pStage->stateBits & GLS_MULTITEXTURE_ENV) {
 		glState.cntTexEnvExt = GLS_MULTITEXTURE_ENV;
 

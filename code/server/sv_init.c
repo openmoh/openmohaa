@@ -1059,8 +1059,11 @@ void SV_Init (void)
 	sv_maxPing = Cvar_Get( "sv_maxPing", "0", CVAR_ARCHIVE | CVAR_SERVERINFO );
 	// Flood protect causes some annoyance like when trying to reload the weapon while checking scores
 	// so it's disabled by default.
-	// Since 2.0, flood protect only protect against "dmmessage" flood.
+
+	// Changed in 2.0
+    //  flood protect only protect against "dmmessage" flood.
 	sv_floodProtect = Cvar_Get( "sv_floodProtect", "0", CVAR_ARCHIVE | CVAR_SERVERINFO );
+
 	sv_maplist = Cvar_Get( "sv_maplist", "", CVAR_ARCHIVE | CVAR_SERVERINFO );
 
 	// systeminfo

@@ -509,7 +509,8 @@ void UIFAKKServerList::RefreshServerList(Event *ev)
     if (m_serverList[0]) {
         ServerListClear(m_serverList[0]);
         // Added in 2.0: Free the server list
-        //  Since 2.0, the UI no longer refreshes the server list when clicking "Browse Internet Servers"
+        //  Since this version, the UI no longer refreshes the server list
+        //  when clicking "Browse Internet Servers"
         ServerListFree(m_serverList[0]);
         m_serverList[0] = NULL;
     }

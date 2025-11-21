@@ -430,7 +430,8 @@ public:
     qboolean IsTouching(Entity *e1);
     qboolean IsInside(Entity *e1);
     qboolean FovCheck(float *delta, float fovdot);
-    // bNoEnts since 2.0
+    // Added in 2.0:
+    //  bNoEnts parameter
     virtual bool CanSee(Entity *ent, float fov, float vision_distance, bool bNoEnts = false);
     virtual bool CanSee(const Vector& org, float fov, float vision_distance, bool bNoEnts = false); // added in 2.0
     bool         AreasConnected(const Entity *other);
