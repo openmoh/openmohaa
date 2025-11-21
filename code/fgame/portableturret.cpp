@@ -72,6 +72,10 @@ CLASS_DECLARATION(InventoryItem, CarryableTurret, NULL) {
     {NULL,                             NULL                               }
 };
 
+// Added in OPM
+//  Offset the turret a bit downwards so it doesn't float in the air
+static const Vector placementOffset = Vector(0, 0, -16);
+
 CarryableTurret::CarryableTurret()
 {
     if (LoadingSavegame) {
@@ -424,18 +428,15 @@ void CarryableTurret::EventPlaceTurret(Event *ev)
         return;
     }
 
-    //  Added in OPM
-    //   Offset the turret a bit downwards so it doesn't float in the air
-    Vector placementOrigin = placer->origin + forward * 32 + up * 65.43f;
-    placementOrigin[2] -= 16;
+    const Vector placementOrigin = placer->origin + forward * 32 + up * 65.43f;
 
     ent = static_cast<PortableTurret *>(c->newInstance());
     ent->setModel(turretModel);
-    ent->setOrigin(placementOrigin);
+    ent->setOrigin(placementOrigin + placementOffset);
     ent->setAngles(turretAngles);
     ent->ProcessInitCommands();
     ent->SetGroundPitch(turretAngles[0]);
-    ent->SetOwnerPosition(placer->origin);
+    ent->SetOwnerPosition(placer->origin + placementOffset);
     ent->CancelEventsOfType(EV_Item_DropToFloor);
 
     if (autoPlace) {
@@ -550,7 +551,7 @@ void PortableTurret::PortablePlaceTurret(Event *ev)
         packingUp      = false;
         mustDetach     = false;
 
-        m_pUserCamera->setOrigin(origin);
+        m_pUserCamera->setOrigin(origin - placementOffset);
         m_pUserCamera->setAngles(angles);
 
         m_pUserCamera->SetPositionOffset(m_vViewOffset);
@@ -941,7 +942,7 @@ void PortableTurret::P_ThinkActive()
             // apply some jitter
             jittering = m_vUserViewAng;
             P_ApplyFiringViewJitter(jittering);
-            m_pUserCamera->setOrigin(origin);
+            m_pUserCamera->setOrigin(origin - placementOffset);
             m_pUserCamera->setAngles(jittering);
             m_pUserCamera->SetPositionOffset(m_vViewOffset);
             ownerP->client->ps.camera_flags |= CF_CAMERA_ANGLES_TURRETMODE;
