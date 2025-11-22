@@ -39,7 +39,7 @@ static void *context;
 static int AnimCompareFunc(const void *a, const void *b)
 {
     dloaddef_t *ld = (dloaddef_t *)context;
-    return Q_stricmp(ld->loadanims[*(int *)a]->alias, ld->loadanims[*(int *)b]->alias);
+    return TIKI_Anim_Compare(ld->loadanims[*(int *)a]->alias, ld->loadanims[*(int *)b]->alias);
 }
 
 /*
@@ -108,7 +108,7 @@ int TIKI_Anim_NumForName(dtiki_t *pmdl, const char *name)
         iMiddle = (iBottom + iTop) / 2;
 
         panimdef = pmdl->a->animdefs[iMiddle];
-        iComp    = Q_stricmp(panimdef->alias, name);
+        iComp    = TIKI_Anim_Compare(panimdef->alias, name);
 
         if (!iComp) {
             if (!(panimdef->flags & TAF_RANDOM)) {
@@ -117,14 +117,14 @@ int TIKI_Anim_NumForName(dtiki_t *pmdl, const char *name)
 
             for (iTop = iMiddle; iTop > 0; iTop--) {
                 assert(pmdl->a->animdefs[iTop - 1]);
-                if (Q_stricmp(panimdef->alias, pmdl->a->animdefs[iTop - 1]->alias)) {
+                if (TIKI_Anim_Compare(panimdef->alias, pmdl->a->animdefs[iTop - 1]->alias)) {
                     break;
                 }
             }
 
             for (iBottom = iMiddle; iBottom < pmdl->a->num_anims - 1; iBottom++) {
                 assert(pmdl->a->animdefs[iBottom + 1]);
-                if (Q_stricmp(panimdef->alias, pmdl->a->animdefs[iBottom + 1]->alias)) {
+                if (TIKI_Anim_Compare(panimdef->alias, pmdl->a->animdefs[iBottom + 1]->alias)) {
                     break;
                 }
             }
@@ -537,4 +537,28 @@ float TIKI_Anim_CrossblendTime(dtiki_t *pmdl, int animnum)
 
     dtikianimdef_t *panimdef = pmdl->a->animdefs[animnum];
     return panimdef->blendtime;
+}
+
+/*
+===============
+TIKI_Anim_Compare
+===============
+*/
+int TIKI_Anim_Compare(const char *s1, const char *s2)
+{
+    int c1, c2;
+
+    do {
+        c1 = *s1++;
+        c2 = *s2++;
+
+        if (c1 >= 'A' && c1 <= 'Z') {
+            c1 += ('a' - 'A');
+        }
+        if (c2 >= 'A' && c2 <= 'Z') {
+            c2 += ('a' - 'A');
+        }
+    } while (c1 && c2 && c1 == c2);
+
+    return c1 - c2;
 }
