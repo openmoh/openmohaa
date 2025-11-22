@@ -4491,7 +4491,8 @@ void ScriptThread::SetCurrentObjective(int iObjective, int iTeam)
         sscanf(loc, "%f %f %f", &v[0], &v[1], &v[2]);
 
         //
-        // Since 2.0, allow objective location per team
+        // Added in 2.0
+        //  Introduce objective location per team
         //
         switch (iTeam) {
         case TEAM_NONE:

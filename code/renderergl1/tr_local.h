@@ -737,7 +737,7 @@ typedef struct {
 	vec3_t		pvsOrigin;			// may be different than or.origin for portals
 	qboolean	isPortal;			// true if this view is through a portal
 	qboolean	isMirror;			// the portal is a mirror, invert the face culling
-    qboolean	isPortalSky;		// since 2.0 whether or not this view is a portal sky
+    qboolean	isPortalSky;		// added in 2.0 - whether or not this view is a portal sky
 	int			frameSceneNum;		// copied from tr.frameSceneNum
 	int			frameCount;			// copied from tr.frameCount
 	cplane_t	portalPlane;		// clip anything behind this if mirroring

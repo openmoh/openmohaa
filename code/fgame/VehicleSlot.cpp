@@ -73,7 +73,7 @@ void cVehicleSlot::NotSolid(void)
 
     // Added in 2.0
     // Commented in OPM
-    //  Not sure why since 2.0, players aren't made non-solid in slots
+    //  Not sure why since this version, players aren't made non-solid in slots
     //if (!ent->IsSubclassOfPlayer()) {
     //    ent->setSolidType(SOLID_NOT);
     //}

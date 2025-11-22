@@ -315,7 +315,7 @@ void Player::AdjustAnimBlends(void)
             NewAnim(animNum, 2, weight);
         }
 
-        anim    = "mg42tripod_aim" + horzTorsoStr + vertTorsoStr;
+        anim    = "mg42tripod_aim" + horzTorsoStr + vertLegsStr;
         weight  = (1.0 - pitchAlpha) * yawAlpha;
         animNum = gi.Anim_NumForName(edict->tiki, anim.c_str());
         if (animNum == -1) {
@@ -329,6 +329,8 @@ void Player::AdjustAnimBlends(void)
         } else {
             NewAnim(animNum, 3, weight);
         }
+
+        return;
     }
 
     if (deadflag == DEAD_DEAD) {

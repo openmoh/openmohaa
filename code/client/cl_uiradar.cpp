@@ -21,7 +21,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 // cl_uiradar.cpp: draw teammates
-// since 2.0
+// Added in 2.0
 
 #include "cl_uiradar.h"
 #include "client.h"

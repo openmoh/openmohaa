@@ -1595,7 +1595,8 @@ void UIFakkLabel::Draw(void)
         // Added in 2.11
         //  Tunak easter egg
         if (Cvar_Get("tunak", "0", 0)->integer) {
-            // Since 2.15, those animations start has 'zz' prefix
+            // Added in 2.15
+            //  These animations start with 'zz' prefix
             if (strstr(m_anim, "american")) {
                 sAnimName = "zzamericanspecialidle";
             } else {

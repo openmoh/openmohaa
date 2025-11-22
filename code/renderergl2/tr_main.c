@@ -749,7 +749,8 @@ void R_SetupFrustum (viewParms_t *dest, float xmin, float xmax, float ymax, floa
 	//=========================
 	
 	if (dest->isPortalSky) {
-		// since 2.0: skybox farplane
+		// Added in 2.0
+        //  skybox farplane
 		if (r_skybox_farplane->integer) {
 			dest->farplane_distance = r_skybox_farplane->value;
 

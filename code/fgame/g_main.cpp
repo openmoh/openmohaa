@@ -931,7 +931,7 @@ void G_RegisterSounds(void)
 
     for (i = 0; i < numFiles; i++) {
         // Added in 2.0
-        //  Since 2.0, all files in the ubersound folder
+        //  Since this version, all files in the ubersound folder
         //  are parsed
         G_RegisterSoundsForFile(va("ubersound/%s", fileList[i]));
     }

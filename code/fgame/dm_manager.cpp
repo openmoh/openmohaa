@@ -891,8 +891,11 @@ void DM_Manager::Score(Player *player)
     DM_Team *pDMTeam;
 
     //
-    // Since 2.0, added the player count for individual team, and added new indices for GT_TOW
-    // Since 2.30, added booleans for liberation scoreboard toggle
+    // Added in 2.0:
+    //  - the player count for individual team
+    //  - new indices for GT_TOW
+    // Added in 2.30:
+    //  - booleans for liberation scoreboard toggle
     //
 
     assert(player);

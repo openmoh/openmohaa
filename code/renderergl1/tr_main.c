@@ -639,7 +639,8 @@ void R_SetupFrustum (void) {
 	}
 
 	if (tr.viewParms.isPortalSky) {
-		// since 2.0: skybox farplane
+		// Added in 2.0
+        //  skybox farplane
 		if (r_skybox_farplane->integer) {
 			tr.viewParms.farplane_distance = r_skybox_farplane->value;
 

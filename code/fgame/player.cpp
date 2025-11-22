@@ -3419,7 +3419,8 @@ void Player::Pain(Event *ev)
     if (g_voiceChat->integer) {
         if (m_voiceType == PVT_ALLIED_MANON) {
             //
-            // Should have been removed since 2.0
+            // Removed in 2.0
+            //  manon voice was removed in 2.0 but it's still allowed in OPM
             //
             Sound("manon_pain", CHAN_DIALOG, -1, 160, NULL, -1, 1, 0, 1, 1200);
         } else {
@@ -3478,8 +3479,8 @@ void Player::DoUse(Event *ev)
 
     if (g_protocol >= protocol_e::PROTOCOL_MOHTA_MIN) {
         // Fixed in 2.0
-        //  Since 2.0, the loop stops when the player
-        //  uses a turret, this prevents the turret from being deleted
+        //  The loop stops when the player uses a turret
+        //  this prevents the turret from being deleted
         //  after being attached to the player
         //
         for (i = 0; i < num; i++) {
@@ -4490,7 +4491,9 @@ void Player::ClientThink(void)
     buttons = current_ucmd->buttons;
 
     if (camera) {
-        m_vViewPos = camera->origin;
+        // Fixed in OPM
+        //  Use the camera's offset for the view position
+        m_vViewPos = camera->GetOriginWithOffset();
         m_vViewAng = camera->angles;
     } else {
         m_vViewPos[0] = (float)current_eyeinfo->ofs[0] + origin[0];
@@ -9146,8 +9149,8 @@ void Player::EquipWeapons()
 
     if (g_target_game < target_game_e::TG_MOHTA) {
         // Removed in 2.0
-        //  Before 2.0, the player always get binoculars regardless of the weapon.
-        //  Since 2.0, players get binoculars from the primary weapon's startitem.
+        //  Before this version, the player always get binoculars regardless of the weapon.
+        //  Since this version, players get binoculars from the primary weapon's startitem.
         giveItem("models/items/binoculars.tik");
     }
 

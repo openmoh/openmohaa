@@ -2097,12 +2097,16 @@ void TurretGun::GetMuzzlePosition(vec3_t position, vec3_t vBarrelPos, vec3_t for
     } else if (viewer->IsSubclassOfPlayer()) {
         VectorCopy(origin, position);
 
+        // Changed in OPM
+        //  Fallback to camera's origin when there is no barrel
         if (GetRawTag(GetTagBarrel(), &barrel_or)) {
             AnglesToAxis(angles, weap_axis);
 
             for (i = 0; i < 3; i++) {
                 VectorMA(position, barrel_or.origin[i], weap_axis[i], position);
             }
+        } else if (m_pUserCamera) {
+            VectorCopy(m_pUserCamera->origin, position);
         }
 
         if (vBarrelPos) {

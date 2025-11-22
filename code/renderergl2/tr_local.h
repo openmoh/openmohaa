@@ -1031,7 +1031,7 @@ typedef struct {
 	// OPENMOHAA-specific stuff
 	//
 
-    qboolean	isPortalSky;		// since 2.0 whether or not this view is a portal sky
+    qboolean	isPortalSky;		// added in 2.0 - whether or not this view is a portal sky
     depthfog_t	fog;
     float		farplane_distance;
     float		farplane_bias; // added in 2.0

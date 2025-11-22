@@ -35,7 +35,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "parm.h"
 
 //
-// Export these events for AISpawnPoint (since 2.30)
+// Added in 2.30
+//  Export these events for AISpawnPoint
 //
 extern Event EV_Actor_SetGun;
 extern Event EV_Actor_SetGun2;
