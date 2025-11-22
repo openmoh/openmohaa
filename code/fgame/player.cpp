@@ -9822,10 +9822,28 @@ void Player::CallVote(Event *ev)
         }
     }
 
+    // Added in 2.0
+    //  Spectators can no longer vote.
+    //  if (m_bSpectator) {
+    //      HUDPrint(va("%s\n", gi.LV_ConvertString("You are not allowed to call a vote as a spectator.")));
+    //      return;
+    //  }
+
+    //
+    // Changed in 2.15
+    //  Spectators, team spectators and dead players can no longer vote.
+    //  The Linux port from Icculus still has the old 2.0 check from the comment above.
+    //  (certainly due to a partial source code merge).
+    //
+    // Removed in OPM
+    //  Remove these restrictions
+    //
+#if 0
     if (IsSpectator() || IsDead()) {
         HUDPrint(va("%s\n", gi.LV_ConvertString("You are not allowed to call a vote as a spectator.")));
         return;
     }
+#endif
 
     arg1 = ev->GetString(1);
     if (ev->NumArgs() > 1) {
