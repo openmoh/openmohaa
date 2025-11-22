@@ -122,28 +122,23 @@ void G_InitConsoleCommands(void)
 
 qboolean G_ConsoleCommand(void)
 {
-    gentity_t    *ent;
     qboolean      result;
     consolecmd_t *cmds;
     const char   *cmd;
 
     result = qfalse;
     try {
-        ent = &g_entities[0];
-
         cmd = gi.Argv(0);
 
         for (cmds = G_ConsoleCmds; cmds->command != NULL; cmds++) {
             if (!Q_stricmp(cmd, cmds->command)) {
-                return cmds->func(ent);
+                return cmds->func(NULL);
             }
         }
 
-        if (cl_running->integer) {
-            // Don't execute the command in multiplayer
-            // otherwise, the command will be executed "by" the first client
-            result = G_ProcessClientCommand(ent);
-        }
+        // Fixed in OPM
+        //  Client commands are already executed in G_ClientCommand()
+        //result = G_ProcessClientCommand(ent);
     } catch (const char *error) {
         G_ExitWithError(error);
     }
