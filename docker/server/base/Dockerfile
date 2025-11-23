@@ -34,6 +34,7 @@ HEALTHCHECK --interval=15s --timeout=20s --start-period=10s --retries=3 CMD [ "b
 
 # Create an user for starting the server
 # This improves the overall security of the server instance
+RUN chmod a+x "/usr/local/bin/health_check.sh"
 RUN useradd -m openmohaa
 USER openmohaa
 
