@@ -24,6 +24,8 @@ do
     then
         break
     fi
+
+    sleep 1
 done
 
 if [ "$data" != "$header" ]
