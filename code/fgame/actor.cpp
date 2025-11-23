@@ -2226,6 +2226,8 @@ Event EV_Actor_SetDefaultVisibilityThreshold
     "updates the default value for 'nonvislevel'",
     EV_NORMAL
 );
+// Added in 2.0
+//====
 Event EV_Actor_SetSuppressChance
 (
     "suppresschance",
@@ -2334,6 +2336,7 @@ Event EV_Actor_GetRunAnimRate
     "Get the rate at which the run animation plays back",
     EV_GETTER
 );
+//====
 //====
 //
 // Added in 2.30

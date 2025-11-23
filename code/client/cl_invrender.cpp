@@ -164,7 +164,7 @@ void CL_Draw3DModel(
                 iUpdateTime[iCurrNum] = cls.realtime;
 
                 if (TIKI_Anim_Time(ent.tiki, iIndex[iCurrNum]) < fAnimTime[iCurrNum]) {
-                    // Added in 2.0
+                    // Added in 2.11
                     //  Clear tunak easter egg
                     Cvar_Set("tunak", "0");
                     iIndex[iCurrNum] = -1;

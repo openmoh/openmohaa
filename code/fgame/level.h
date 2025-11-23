@@ -153,7 +153,7 @@ public:
     qboolean ai_on;
     qboolean m_bAlarm;
     qboolean mbNoDropHealth;
-    qboolean mbNoDropWeapons; // Added in 2.0
+    qboolean mbNoDropWeapons; // Added in 2.30
     int      m_iPapersLevel;
 
     // Mission state

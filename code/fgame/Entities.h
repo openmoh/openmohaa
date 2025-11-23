@@ -362,6 +362,9 @@ public:
     void Killed(Event* ev) override;
 };
 
+//
+// Added in 2.30
+//
 class AISpawnPoint : public SimpleArchivedEntity
 {
 private:

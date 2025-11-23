@@ -3726,7 +3726,8 @@ void Vehicle::DriverUse(Event *ev)
         DetachDriverSlot(slot, vec_zero, NULL);
 
         if (IsSubclassOfVehicleTank()) {
-            // Added check to see if the turret is valid in OPM
+            // Added in OPM
+            //  Check to see if the turret is valid in OPM
             if (Turrets[0].ent && Turrets[0].ent->IsSubclassOfVehicleTurretGun()) {
                 DetachRemoteOwner();
             }
@@ -4674,7 +4675,9 @@ void Vehicle::Postthink(void)
     }
 
     SetSlotsNonSolid();
-    if (m_bAnimMove) { // 2.0: use vehicle's animation to move
+    // Added in 2.0
+    //  use vehicle's animation to move
+    if (m_bAnimMove) {
         AnimMoveVehicle();
     } else {
         if (!m_bMovementLocked) {

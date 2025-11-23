@@ -491,6 +491,7 @@ Event EV_ScriptSlave_FollowPath
     "ignorevelocity, normalangles, loop, and a number specifying the start time.",
     EV_NORMAL
 );
+// Added in 2.0
 Event EV_ScriptSlave_FollowPath_RelativeYaw
 (
     "path_relativeyaw",
@@ -618,7 +619,7 @@ Event EV_ScriptSlave_ModifyFlyPath
     "position",
     EV_NORMAL
 );
-
+// Added in 2.0
 Event EV_ScriptSlave_NormalAngles
 (
     "normalangles",
