@@ -49,7 +49,7 @@ If you encounter a bug or a problem, you can do one of the following:
 
 ## Current state
 
-- 🧰 [Feature list](docs/markdown/01-intro/04-features.md)
+- 🧰 [List of differences](docs/markdown/01-intro/04-differences.md)
 
 ### Single-player
 
