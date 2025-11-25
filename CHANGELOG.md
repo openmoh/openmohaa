@@ -50,13 +50,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 #### Server
 
 - Allow `g_teamkillkick` to be set to 0. Players would get kicked when this variable was set to 0 (also occurs in the original game).
+- Allow spectators and dead players to vote (#843).
 - Fix a bug where players who switched to spectator mode immediately after dying would have 0 health and drop DM items (also occurs in the original game).
 - Fix a possible crash caused by scripts using `angles_pointat` (also occurs in the original game).
 - Fix Actors not doing anything without client #0 (also occurs in the original game).
 - Fix an issue where clients could crash because of too many models being loaded from the server.
+- Fix bad animation blending with portable turret.
 - Fix bots being counted for voting.
 - Fix death animation movement for bots.
 - Fix improper weapon falling rotation.
+- Fix mismatched animation issues between the original clients and the server (#842).
 - Fix players not having binoculars on Allied Assault.
 - Fix players temporarily losing user input control on ARM-based OpenMoHAA servers when a message contained a special ASCII character.
 - Fix some RCON programs not working with `dumpuser`.
@@ -64,6 +67,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix the round limit being always `15` on Tug-of-War.
 - Fix votes being messed up after calling a vote the second time during the match.
 - Fix `wait` command not working on dedicated server binaries. Further commands would not be able to be executed (also occurs in the original game).
+- Fix wrong portable turret placement.
 - The player would spawn with no weapons on single-player when `sv_maxbots` was set (#783).
 
 #### Clients
