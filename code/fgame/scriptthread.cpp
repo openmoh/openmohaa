@@ -3917,7 +3917,8 @@ void ScriptThread::EventHideMouse(Event *ev)
 
 void ScriptThread::EventCreateListener(Event *ev)
 {
-    ev->AddListener(new Listener);
+    // Use a SimpleArchivedEntity so the object is automatically removed upon restart or map change
+    ev->AddListener(new SimpleArchivedEntity);
 }
 
 void ScriptThread::EventTrace(Event *ev)
