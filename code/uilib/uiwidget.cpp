@@ -2179,7 +2179,7 @@ void UIWidget::Realign(void)
     }
 
     if (m_align & WA_CENTERY) {
-        m_frame.pos.y = uid.vidHeight - m_frame.size.height;
+        m_frame.pos.y = uid.vidHeight * 0.5 - m_frame.size.height * 0.5;
     }
 
     if (m_align & WA_BOTTOM) {
