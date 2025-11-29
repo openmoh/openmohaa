@@ -41,89 +41,28 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "debuglines.h"
 #include "g_spawn.h"
 
-Event EV_Weapon_Shoot
-(
-    "shoot",
-    EV_DEFAULT,
-    "S",
-    "mode",
-    "Shoot the weapon",
-    EV_NORMAL
+Event EV_Weapon_Shoot("shoot", EV_DEFAULT, "S", "mode", "Shoot the weapon", EV_NORMAL);
+Event EV_Weapon_DoneRaising(
+    "ready", EV_DEFAULT, NULL, NULL, "Signals the end of the ready animation so the weapon can be used", EV_NORMAL
 );
-Event EV_Weapon_DoneRaising
-(
-    "ready",
-    EV_DEFAULT,
-    NULL,
-    NULL,
-    "Signals the end of the ready animation so the weapon can be used",
-    EV_NORMAL
+Event EV_Weapon_DoneFiring("donefiring", EV_DEFAULT, NULL, NULL, "Signals the end of the fire animation", EV_NORMAL);
+Event EV_Weapon_Idle("idle", EV_DEFAULT, NULL, NULL, "Puts the weapon into an idle state", EV_NORMAL);
+Event EV_Weapon_IdleInit(
+    "idleinit", EV_DEFAULT, NULL, NULL, "Puts the weapon into an idle state and clears all the anim slots", EV_NORMAL
 );
-Event EV_Weapon_DoneFiring
-(
-    "donefiring",
-    EV_DEFAULT,
-    NULL,
-    NULL,
-    "Signals the end of the fire animation",
-    EV_NORMAL
+Event EV_Weapon_SecondaryUse(
+    "secondaryuse", EV_DEFAULT, NULL, NULL, "Puts the weapon into its secondary mode of operation", EV_NORMAL
 );
-Event EV_Weapon_Idle
-(
-    "idle",
-    EV_DEFAULT,
-    NULL,
-    NULL,
-    "Puts the weapon into an idle state",
-    EV_NORMAL
+Event EV_Weapon_DoneReloading(
+    "donereloading", EV_DEFAULT, NULL, NULL, "Signals the end of the reload animation", EV_NORMAL
 );
-Event EV_Weapon_IdleInit
-(
-    "idleinit",
-    EV_DEFAULT,
-    NULL,
-    NULL,
-    "Puts the weapon into an idle state and clears all the anim slots",
-    EV_NORMAL
+Event EV_Weapon_SetAmmoClipSize(
+    "clipsize", EV_DEFAULT, "i", "ammoClipSize", "Set the amount of rounds a clip of the weapon holds", EV_NORMAL
 );
-Event EV_Weapon_SecondaryUse
-(
-    "secondaryuse",
-    EV_DEFAULT,
-    NULL,
-    NULL,
-    "Puts the weapon into its secondary mode of operation",
-    EV_NORMAL
+Event EV_Weapon_SetAmmoInClip(
+    "ammo_in_clip", EV_DEFAULT, "i", "ammoInClip", "Set the amount of ammo in the clip", EV_NORMAL
 );
-Event EV_Weapon_DoneReloading
-(
-    "donereloading",
-    EV_DEFAULT,
-    NULL,
-    NULL,
-    "Signals the end of the reload animation",
-    EV_NORMAL
-);
-Event EV_Weapon_SetAmmoClipSize
-(
-    "clipsize",
-    EV_DEFAULT,
-    "i",
-    "ammoClipSize",
-    "Set the amount of rounds a clip of the weapon holds",
-    EV_NORMAL
-);
-Event EV_Weapon_SetAmmoInClip
-(
-    "ammo_in_clip",
-    EV_DEFAULT,
-    "i",
-    "ammoInClip",
-    "Set the amount of ammo in the clip",
-    EV_NORMAL
-);
-Event EV_Weapon_SetShareClip
-(
+Event EV_Weapon_SetShareClip(
     "shareclip",
     EV_DEFAULT,
     "i",
@@ -131,17 +70,10 @@ Event EV_Weapon_SetShareClip
     "Sets the weapon to share the same clip between all fire modes",
     EV_NORMAL
 );
-Event EV_Weapon_FillClip
-(
-    "clip_fill",
-    EV_DEFAULT,
-    NULL,
-    NULL,
-    "Fills the weapons ammo clip with ammo from its owner",
-    EV_NORMAL
+Event EV_Weapon_FillClip(
+    "clip_fill", EV_DEFAULT, NULL, NULL, "Fills the weapons ammo clip with ammo from its owner", EV_NORMAL
 );
-Event EV_Weapon_EmptyClip
-(
+Event EV_Weapon_EmptyClip(
     "clip_empty",
     EV_DEFAULT,
     NULL,
@@ -150,17 +82,10 @@ Event EV_Weapon_EmptyClip
     "returning it to the owner",
     EV_NORMAL
 );
-Event EV_Weapon_AddToClip
-(
-    "clip_add",
-    EV_DEFAULT,
-    "i",
-    "ammoAmount",
-    "Add to the weapons ammo clip with ammo from its owner",
-    EV_NORMAL
+Event EV_Weapon_AddToClip(
+    "clip_add", EV_DEFAULT, "i", "ammoAmount", "Add to the weapons ammo clip with ammo from its owner", EV_NORMAL
 );
-Event EV_Weapon_SetMaxRange
-(
+Event EV_Weapon_SetMaxRange(
     "maxrange",
     EV_DEFAULT,
     "f",
@@ -168,8 +93,7 @@ Event EV_Weapon_SetMaxRange
     "Set the maximum range of a weapon so the AI knows how to use it",
     EV_NORMAL
 );
-Event EV_Weapon_SetMinRange
-(
+Event EV_Weapon_SetMinRange(
     "minrange",
     EV_DEFAULT,
     "f",
@@ -177,34 +101,14 @@ Event EV_Weapon_SetMinRange
     "Set the minimum range of a weapon so the AI knows how to use it",
     EV_NORMAL
 );
-Event EV_Weapon_FireDelay
-(
-    "firedelay",
-    EV_DEFAULT,
-    "f",
-    "fFireDelay",
-    "Set the minimum time between shots from the weapon",
-    EV_NORMAL
+Event EV_Weapon_FireDelay(
+    "firedelay", EV_DEFAULT, "f", "fFireDelay", "Set the minimum time between shots from the weapon", EV_NORMAL
 );
-Event EV_Weapon_DMSetFireDelay
-(
-    "dmfiredelay",
-    EV_DEFAULT,
-    "f",
-    "fFireDelay",
-    "Set the minimum time between shots from the weapon",
-    EV_NORMAL
+Event EV_Weapon_DMSetFireDelay(
+    "dmfiredelay", EV_DEFAULT, "f", "fFireDelay", "Set the minimum time between shots from the weapon", EV_NORMAL
 );
-Event EV_Weapon_NotDroppable
-(
-    "notdroppable",
-    EV_DEFAULT,
-    NULL,
-    NULL,
-    "Makes a weapon not droppable"
-);
-Event EV_Weapon_SetAimAnim
-(
+Event EV_Weapon_NotDroppable("notdroppable", EV_DEFAULT, NULL, NULL, "Makes a weapon not droppable");
+Event EV_Weapon_SetAimAnim(
     "setaimanim",
     EV_DEFAULT,
     "si",
@@ -212,25 +116,12 @@ Event EV_Weapon_SetAimAnim
     "Set the aim animation and frame for when a weapon fires",
     EV_NORMAL
 );
-Event EV_Weapon_SetRank
-(
-    "rank",
-    EV_DEFAULT,
-    "ii",
-    "iOrder iRank",
-    "Set the order value and power ranking for the weapon"
+Event
+    EV_Weapon_SetRank("rank", EV_DEFAULT, "ii", "iOrder iRank", "Set the order value and power ranking for the weapon");
+Event EV_Weapon_SetFireType(
+    "firetype", EV_DEFAULT, "s", "firingType", "Set the firing type of the weapon (projectile or bullet)", EV_NORMAL
 );
-Event EV_Weapon_SetFireType
-(
-    "firetype",
-    EV_DEFAULT,
-    "s",
-    "firingType",
-    "Set the firing type of the weapon (projectile or bullet)",
-    EV_NORMAL
-);
-Event EV_Weapon_SetAIRange
-(
+Event EV_Weapon_SetAIRange(
     "airange",
     EV_DEFAULT,
     "s",
@@ -238,8 +129,7 @@ Event EV_Weapon_SetAIRange
     "Set the range of this gun for the ai: short, medium, long, sniper",
     EV_NORMAL
 );
-Event EV_Weapon_SetProjectile
-(
+Event EV_Weapon_SetProjectile(
     "projectile",
     EV_DEFAULT,
     "s",
@@ -247,8 +137,7 @@ Event EV_Weapon_SetProjectile
     "Set the model of the projectile that this weapon fires",
     EV_NORMAL
 );
-Event EV_Weapon_SetDMProjectile
-(
+Event EV_Weapon_SetDMProjectile(
     "dmprojectile",
     EV_DEFAULT,
     "s",
@@ -256,26 +145,13 @@ Event EV_Weapon_SetDMProjectile
     "Set the model of the projectile that this weapon fires",
     EV_NORMAL
 );
-Event EV_Weapon_SetBulletDamage
-(
-    "bulletdamage",
-    EV_DEFAULT,
-    "f",
-    "bulletDamage",
-    "Set the damage that the bullet causes",
-    EV_NORMAL
+Event EV_Weapon_SetBulletDamage(
+    "bulletdamage", EV_DEFAULT, "f", "bulletDamage", "Set the damage that the bullet causes", EV_NORMAL
 );
-Event EV_Weapon_SetDMBulletDamage
-(
-    "dmbulletdamage",
-    EV_DEFAULT,
-    "f",
-    "bulletDamage",
-    "Set the damage that the bullet causes",
-    EV_NORMAL
+Event EV_Weapon_SetDMBulletDamage(
+    "dmbulletdamage", EV_DEFAULT, "f", "bulletDamage", "Set the damage that the bullet causes", EV_NORMAL
 );
-Event EV_Weapon_SetBulletLarge
-(
+Event EV_Weapon_SetBulletLarge(
     "bulletlarge",
     EV_DEFAULT,
     "i",
@@ -283,8 +159,7 @@ Event EV_Weapon_SetBulletLarge
     "Set if the bullets fired are rifle bullets(1), artillery(2) or larger tracers(3)",
     EV_NORMAL
 );
-Event EV_Weapon_SetTracerSpeed
-(
+Event EV_Weapon_SetTracerSpeed(
     "tracerspeed",
     EV_DEFAULT,
     "f",
@@ -292,53 +167,22 @@ Event EV_Weapon_SetTracerSpeed
     "Scale factor of how fast a tracer should travel (valid ranges 0-2)",
     EV_NORMAL
 );
-Event EV_Weapon_SetBulletKnockback
-(
-    "bulletknockback",
-    EV_DEFAULT,
-    "f",
-    "bulletKnockback",
-    "Set the knockback that the bullet causes",
-    EV_NORMAL
+Event EV_Weapon_SetBulletKnockback(
+    "bulletknockback", EV_DEFAULT, "f", "bulletKnockback", "Set the knockback that the bullet causes", EV_NORMAL
 );
-Event EV_Weapon_SetDMBulletKnockback
-(
-    "dmbulletknockback",
-    EV_DEFAULT,
-    "f",
-    "bulletKnockback",
-    "Set the knockback that the bullet causes",
-    EV_NORMAL
+Event EV_Weapon_SetDMBulletKnockback(
+    "dmbulletknockback", EV_DEFAULT, "f", "bulletKnockback", "Set the knockback that the bullet causes", EV_NORMAL
 );
-Event EV_Weapon_SetBulletThroughWood
-(
-    "throughwood",
-    EV_DEFAULT,
-    "f",
-    "dist",
-    "Sets how far the bullets can go through wood",
-    EV_NORMAL
+Event EV_Weapon_SetBulletThroughWood(
+    "throughwood", EV_DEFAULT, "f", "dist", "Sets how far the bullets can go through wood", EV_NORMAL
 );
-Event EV_Weapon_SetBulletThroughMetal
-(
-    "throughmetal",
-    EV_DEFAULT,
-    "f",
-    "dist",
-    "Sets how far the bullets can go through metal",
-    EV_NORMAL
+Event EV_Weapon_SetBulletThroughMetal(
+    "throughmetal", EV_DEFAULT, "f", "dist", "Sets how far the bullets can go through metal", EV_NORMAL
 );
-Event EV_Weapon_SetBulletCount
-(
-    "bulletcount",
-    EV_DEFAULT,
-    "f",
-    "bulletCount",
-    "Set the number of bullets this weapon shoots when fired",
-    EV_NORMAL
+Event EV_Weapon_SetBulletCount(
+    "bulletcount", EV_DEFAULT, "f", "bulletCount", "Set the number of bullets this weapon shoots when fired", EV_NORMAL
 );
-Event EV_Weapon_SetDMBulletCount
-(
+Event EV_Weapon_SetDMBulletCount(
     "dmbulletcount",
     EV_DEFAULT,
     "f",
@@ -346,26 +190,12 @@ Event EV_Weapon_SetDMBulletCount
     "Set the number of bullets this weapon shoots when fired",
     EV_NORMAL
 );
-Event EV_Weapon_SetBulletRange
-(
-    "bulletrange",
-    EV_DEFAULT,
-    "f",
-    "bulletRange",
-    "Set the range of the bullets",
-    EV_NORMAL
+Event
+    EV_Weapon_SetBulletRange("bulletrange", EV_DEFAULT, "f", "bulletRange", "Set the range of the bullets", EV_NORMAL);
+Event EV_Weapon_SetDMBulletRange(
+    "dmbulletrange", EV_DEFAULT, "f", "bulletRange", "Set the range of the bullets", EV_NORMAL
 );
-Event EV_Weapon_SetDMBulletRange
-(
-    "dmbulletrange",
-    EV_DEFAULT,
-    "f",
-    "bulletRange",
-    "Set the range of the bullets",
-    EV_NORMAL
-);
-Event EV_Weapon_SetBulletSpread
-(
+Event EV_Weapon_SetBulletSpread(
     "bulletspread",
     EV_DEFAULT,
     "ffFF",
@@ -373,8 +203,7 @@ Event EV_Weapon_SetBulletSpread
     "Set the min & optional max spread of the bullet in the x and y axis",
     EV_NORMAL
 );
-Event EV_Weapon_SetDMBulletSpread
-(
+Event EV_Weapon_SetDMBulletSpread(
     "dmbulletspread",
     EV_DEFAULT,
     "ffFF",
@@ -382,8 +211,7 @@ Event EV_Weapon_SetDMBulletSpread
     "Set the min & optional max spread of the bullet in the x and y axis",
     EV_NORMAL
 );
-Event EV_Weapon_SetZoomSpreadMult
-(
+Event EV_Weapon_SetZoomSpreadMult(
     "zoomspreadmult",
     EV_DEFAULT,
     "f",
@@ -391,8 +219,7 @@ Event EV_Weapon_SetZoomSpreadMult
     "Sets the spread multiplier for when using the zoom on a zooming weapon",
     EV_NORMAL
 );
-Event EV_Weapon_SetDMZoomSpreadMult
-(
+Event EV_Weapon_SetDMZoomSpreadMult(
     "dmzoomspreadmult",
     EV_DEFAULT,
     "f",
@@ -400,8 +227,7 @@ Event EV_Weapon_SetDMZoomSpreadMult
     "Sets the spread multiplier for when using the zoom on a zooming weapon",
     EV_NORMAL
 );
-Event EV_Weapon_SetFireSpreadMult
-(
+Event EV_Weapon_SetFireSpreadMult(
     "firespreadmult",
     EV_DEFAULT,
     "ffff",
@@ -409,8 +235,7 @@ Event EV_Weapon_SetFireSpreadMult
     "Sets a time decayed multiplyer to spread when the weapon is fired",
     EV_NORMAL
 );
-Event EV_Weapon_SetDMFireSpreadMult
-(
+Event EV_Weapon_SetDMFireSpreadMult(
     "dmfirespreadmult",
     EV_DEFAULT,
     "ffff",
@@ -418,26 +243,11 @@ Event EV_Weapon_SetDMFireSpreadMult
     "Sets a time decayed multiplyer to spread when the weapon is fired",
     EV_NORMAL
 );
-Event EV_Weapon_SetTracerFrequency
-(
-    "tracerfrequency",
-    EV_DEFAULT,
-    "f",
-    "frequenct",
-    "Set the frequency of making tracers",
-    EV_NORMAL
+Event EV_Weapon_SetTracerFrequency(
+    "tracerfrequency", EV_DEFAULT, "f", "frequenct", "Set the frequency of making tracers", EV_NORMAL
 );
-Event EV_Weapon_SetRange
-(
-    "range",
-    EV_DEFAULT,
-    "f",
-    "range",
-    "Set the range of the weapon",
-    EV_NORMAL
-);
-Event EV_Weapon_Secondary
-(
+Event EV_Weapon_SetRange("range", EV_DEFAULT, "f", "range", "Set the range of the weapon", EV_NORMAL);
+Event EV_Weapon_Secondary(
     "secondary",
     EV_DEFAULT,
     "SSSSSSSS",
@@ -445,71 +255,23 @@ Event EV_Weapon_Secondary
     "Set the secondary mode of the weapon, by passing commands through",
     EV_NORMAL
 );
-Event EV_Weapon_AmmoType
-(
-    "ammotype",
-    EV_DEFAULT,
-    "s",
-    "name",
-    "Set the type of ammo this weapon uses",
-    EV_NORMAL
+Event EV_Weapon_AmmoType("ammotype", EV_DEFAULT, "s", "name", "Set the type of ammo this weapon uses", EV_NORMAL);
+Event EV_Weapon_StartAmmo("startammo", EV_DEFAULT, "i", "amount", "Set the starting ammo of this weapon", EV_NORMAL);
+Event
+    EV_Weapon_DMStartAmmo("dmstartammo", EV_DEFAULT, "i", "amount", "Set the starting ammo of this weapon", EV_NORMAL);
+Event EV_Weapon_AmmoRequired(
+    "ammorequired", EV_DEFAULT, "i", "amount", "Set the amount of ammo this weapon requires to fire", EV_NORMAL
 );
-Event EV_Weapon_StartAmmo
-(
-    "startammo",
-    EV_DEFAULT,
-    "i",
-    "amount",
-    "Set the starting ammo of this weapon",
-    EV_NORMAL
+Event EV_Weapon_DMAmmoRequired(
+    "dmammorequired", EV_DEFAULT, "i", "amount", "Set the amount of ammo this weapon requires to fire", EV_NORMAL
 );
-Event EV_Weapon_DMStartAmmo
-(
-    "dmstartammo",
-    EV_DEFAULT,
-    "i",
-    "amount",
-    "Set the starting ammo of this weapon",
-    EV_NORMAL
+Event EV_Weapon_MaxChargeTime(
+    "maxchargetime", EV_DEFAULT, "i", "time", "Set the maximum time the weapon may be charged up", EV_NORMAL
 );
-Event EV_Weapon_AmmoRequired
-(
-    "ammorequired",
-    EV_DEFAULT,
-    "i",
-    "amount",
-    "Set the amount of ammo this weapon requires to fire",
-    EV_NORMAL
+Event EV_Weapon_MinChargeTime(
+    "minchargetime", EV_DEFAULT, "i", "time", "Set the minimum time the weapon must be charged up", EV_NORMAL
 );
-Event EV_Weapon_DMAmmoRequired
-(
-    "dmammorequired",
-    EV_DEFAULT,
-    "i",
-    "amount",
-    "Set the amount of ammo this weapon requires to fire",
-    EV_NORMAL
-);
-Event EV_Weapon_MaxChargeTime
-(
-    "maxchargetime",
-    EV_DEFAULT,
-    "i",
-    "time",
-    "Set the maximum time the weapon may be charged up",
-    EV_NORMAL
-);
-Event EV_Weapon_MinChargeTime
-(
-    "minchargetime",
-    EV_DEFAULT,
-    "i",
-    "time",
-    "Set the minimum time the weapon must be charged up",
-    EV_NORMAL
-);
-Event EV_Weapon_AddAdditionalStartAmmo
-(
+Event EV_Weapon_AddAdditionalStartAmmo(
     "additionalstartammo",
     EV_DEFAULT,
     "si",
@@ -517,17 +279,10 @@ Event EV_Weapon_AddAdditionalStartAmmo
     "Gives some additional start ammo of the specified type",
     EV_NORMAL
 );
-Event EV_Weapon_AddStartItem
-(
-    "startitem",
-    EV_DEFAULT,
-    "s",
-    "itemname",
-    "Adds an item to the starting loadout of the weapon",
-    EV_NORMAL
+Event EV_Weapon_AddStartItem(
+    "startitem", EV_DEFAULT, "s", "itemname", "Adds an item to the starting loadout of the weapon", EV_NORMAL
 );
-Event EV_Weapon_GiveStartingAmmo
-(
+Event EV_Weapon_GiveStartingAmmo(
     "startingammotoowner",
     EV_DEFAULT,
     NULL,
@@ -535,62 +290,19 @@ Event EV_Weapon_GiveStartingAmmo
     "Internal event used to give ammo to the owner of the weapon",
     EV_NORMAL
 );
-Event EV_Weapon_AutoAim
-(
-    "autoaim",
-    EV_DEFAULT,
-    NULL,
-    NULL,
-    "Turn on auto aiming for the weapon",
-    EV_NORMAL
+Event EV_Weapon_AutoAim("autoaim", EV_DEFAULT, NULL, NULL, "Turn on auto aiming for the weapon", EV_NORMAL);
+Event EV_Weapon_Crosshair("crosshair", EV_DEFAULT, "b", "bool", "Turn on/off the crosshair for this weapon", EV_NORMAL);
+Event EV_Weapon_DMCrosshair(
+    "dmcrosshair", EV_DEFAULT, "b", "bool", "Turn on/off the crosshair for this weapon", EV_NORMAL
 );
-Event EV_Weapon_Crosshair
-(
-    "crosshair",
-    EV_DEFAULT,
-    "b",
-    "bool",
-    "Turn on/off the crosshair for this weapon",
-    EV_NORMAL
+Event EV_Weapon_SetQuiet("quiet", EV_DEFAULT, NULL, NULL, "Makes the weapon make no noise.", EV_NORMAL);
+Event EV_Weapon_SetSecondaryAmmoInHud(
+    "secondaryammoinhud", EV_DEFAULT, NULL, NULL, "Makes the weapon show its secondary ammo to the hud.", EV_NORMAL
 );
-Event EV_Weapon_DMCrosshair
-(
-    "dmcrosshair",
-    EV_DEFAULT,
-    "b",
-    "bool",
-    "Turn on/off the crosshair for this weapon",
-    EV_NORMAL
+Event EV_Weapon_SetLoopFire(
+    "loopfire", EV_DEFAULT, NULL, NULL, "Makes the weapon fire by looping the fire animation.", EV_NORMAL
 );
-Event EV_Weapon_SetQuiet
-(
-    "quiet",
-    EV_DEFAULT,
-    NULL,
-    NULL,
-    "Makes the weapon make no noise.",
-    EV_NORMAL
-);
-Event EV_Weapon_SetSecondaryAmmoInHud
-(
-    "secondaryammoinhud",
-    EV_DEFAULT,
-    NULL,
-    NULL,
-    "Makes the weapon show its secondary ammo to the hud.",
-    EV_NORMAL
-);
-Event EV_Weapon_SetLoopFire
-(
-    "loopfire",
-    EV_DEFAULT,
-    NULL,
-    NULL,
-    "Makes the weapon fire by looping the fire animation.",
-    EV_NORMAL
-);
-Event EV_Weapon_OffHandAttachToTag
-(
+Event EV_Weapon_OffHandAttachToTag(
     "offhandattachtotag",
     EV_DEFAULT,
     "s",
@@ -598,8 +310,7 @@ Event EV_Weapon_OffHandAttachToTag
     "Set the name of the tag to attach this to it's owner's off hand.",
     EV_NORMAL
 );
-Event EV_Weapon_MainAttachToTag
-(
+Event EV_Weapon_MainAttachToTag(
     "mainattachtotag",
     EV_DEFAULT,
     "s",
@@ -607,8 +318,7 @@ Event EV_Weapon_MainAttachToTag
     "Set the name of the tag to attach this to it's owner when being used.",
     EV_NORMAL
 );
-Event EV_Weapon_HolsterTag
-(
+Event EV_Weapon_HolsterTag(
     "holstertag",
     EV_DEFAULT,
     "s",
@@ -616,62 +326,25 @@ Event EV_Weapon_HolsterTag
     "Set the name of the tag to attach this to when the weapon is holstered.",
     EV_NORMAL
 );
-Event EV_Weapon_HolsterOffset
-(
-    "holsteroffset",
-    EV_DEFAULT,
-    "v",
-    "offset",
-    "Set the positional offset when it is holstered",
-    EV_NORMAL
+Event EV_Weapon_HolsterOffset(
+    "holsteroffset", EV_DEFAULT, "v", "offset", "Set the positional offset when it is holstered", EV_NORMAL
 );
-Event EV_Weapon_HolsterAngles
-(
-    "holsterangles",
-    EV_DEFAULT,
-    "v",
-    "angles",
-    "Set the angles of this weapon when it is holstered",
-    EV_NORMAL
+Event EV_Weapon_HolsterAngles(
+    "holsterangles", EV_DEFAULT, "v", "angles", "Set the angles of this weapon when it is holstered", EV_NORMAL
 );
-Event EV_Weapon_HolsterScale
-(
-    "holsterscale",
-    EV_DEFAULT,
-    "f",
-    "scale",
-    "Set the scale of this weapon when it is holstered",
-    EV_NORMAL
+Event EV_Weapon_HolsterScale(
+    "holsterscale", EV_DEFAULT, "f", "scale", "Set the scale of this weapon when it is holstered", EV_NORMAL
 );
-Event EV_Weapon_AutoPutaway
-(
-    "autoputaway",
-    EV_DEFAULT,
-    "b",
-    "bool",
-    "Set the weapon to be automatically put away when out of ammo",
-    EV_NORMAL
+Event EV_Weapon_AutoPutaway(
+    "autoputaway", EV_DEFAULT, "b", "bool", "Set the weapon to be automatically put away when out of ammo", EV_NORMAL
 );
-Event EV_Weapon_UseNoAmmo
-(
-    "usenoammo",
-    EV_DEFAULT,
-    "b",
-    "bool",
-    "Set the weapon to be able to be used when it's out of ammo",
-    EV_NORMAL
+Event EV_Weapon_UseNoAmmo(
+    "usenoammo", EV_DEFAULT, "b", "bool", "Set the weapon to be able to be used when it's out of ammo", EV_NORMAL
 );
-Event EV_Weapon_SetMeansOfDeath
-(
-    "meansofdeath",
-    EV_DEFAULT,
-    "s",
-    "meansOfDeath",
-    "Set the meansOfDeath of the weapon.",
-    EV_NORMAL
+Event EV_Weapon_SetMeansOfDeath(
+    "meansofdeath", EV_DEFAULT, "s", "meansOfDeath", "Set the meansOfDeath of the weapon.", EV_NORMAL
 );
-Event EV_Weapon_SetWorldHitSpawn
-(
+Event EV_Weapon_SetWorldHitSpawn(
     "worldhitspawn",
     EV_DEFAULT,
     "s",
@@ -679,26 +352,11 @@ Event EV_Weapon_SetWorldHitSpawn
     "Set a model to be spawned when the weapon strikes the world->",
     EV_NORMAL
 );
-Event EV_Weapon_MakeNoise
-(
-    "makenoise",
-    EV_DEFAULT,
-    "FB",
-    "noise_radius force",
-    "Makes the weapon make noise that actors can hear.",
-    EV_NORMAL
+Event EV_Weapon_MakeNoise(
+    "makenoise", EV_DEFAULT, "FB", "noise_radius force", "Makes the weapon make noise that actors can hear.", EV_NORMAL
 );
-Event EV_Weapon_SetType
-(
-    "weapontype",
-    EV_DEFAULT,
-    "s",
-    "weapon_type",
-    "Sets the weapon type",
-    EV_NORMAL
-);
-Event EV_Weapon_SetGroup
-(
+Event EV_Weapon_SetType("weapontype", EV_DEFAULT, "s", "weapon_type", "Sets the weapon type", EV_NORMAL);
+Event EV_Weapon_SetGroup(
     "weapongroup",
     EV_DEFAULT,
     "s",
@@ -706,35 +364,14 @@ Event EV_Weapon_SetGroup
     "Sets the weapon group, a set of animations for actor animations scripts to use",
     EV_NORMAL
 );
-Event EV_Weapon_SetZoom
-(
-    "zoom",
-    EV_DEFAULT,
-    "iI",
-    "zoomfov autozoom",
-    "Sets fov to zoom to on a secondary fire",
-    EV_NORMAL
+Event EV_Weapon_SetZoom(
+    "zoom", EV_DEFAULT, "iI", "zoomfov autozoom", "Sets fov to zoom to on a secondary fire", EV_NORMAL
 );
-Event EV_Weapon_SetSemiAuto
-(
-    "semiauto",
-    EV_DEFAULT,
-    NULL,
-    NULL,
-    "Sets the weapon to fire semi-auto",
-    EV_NORMAL
+Event EV_Weapon_SetSemiAuto("semiauto", EV_DEFAULT, NULL, NULL, "Sets the weapon to fire semi-auto", EV_NORMAL);
+Event EV_Weapon_AttachToHand(
+    "attachtohand", EV_DEFAULT, "s", "weapon_hand", "Attaches an active weapon to the specified hand", EV_NORMAL
 );
-Event EV_Weapon_AttachToHand
-(
-    "attachtohand",
-    EV_DEFAULT,
-    "s",
-    "weapon_hand",
-    "Attaches an active weapon to the specified hand",
-    EV_NORMAL
-);
-Event EV_Weapon_CantPartialReload
-(
+Event EV_Weapon_CantPartialReload(
     "cantpartialreload",
     EV_DEFAULT,
     NULL,
@@ -742,8 +379,7 @@ Event EV_Weapon_CantPartialReload
     "Prevents the weapon from being reloaded part way through a clip",
     EV_NORMAL
 );
-Event EV_Weapon_DMCantPartialReload
-(
+Event EV_Weapon_DMCantPartialReload(
     "dmcantpartialreload",
     EV_DEFAULT,
     NULL,
@@ -751,17 +387,10 @@ Event EV_Weapon_DMCantPartialReload
     "Prevents the weapon from being reloaded part way through a clip for DM",
     EV_NORMAL
 );
-Event EV_Weapon_FallingAngleAdjust
-(
-    "fallingangleadjust",
-    EV_DEFAULT,
-    0,
-    0,
-    "Adjusts the weapons angles as it falls to the ground",
-    EV_NORMAL
+Event EV_Weapon_FallingAngleAdjust(
+    "fallingangleadjust", EV_DEFAULT, 0, 0, "Adjusts the weapons angles as it falls to the ground", EV_NORMAL
 );
-Event EV_Weapon_SetViewKick
-(
+Event EV_Weapon_SetViewKick(
     "viewkick",
     EV_DEFAULT,
     "ffFF",
@@ -769,8 +398,7 @@ Event EV_Weapon_SetViewKick
     "Adds kick to the view of the owner when fired.",
     EV_NORMAL
 );
-Event EV_Weapon_MovementSpeed
-(
+Event EV_Weapon_MovementSpeed(
     "movementspeed",
     EV_DEFAULT,
     "f",
@@ -778,8 +406,7 @@ Event EV_Weapon_MovementSpeed
     "Alters the movement speed of the player when he has the weapon out",
     EV_NORMAL
 );
-Event EV_Weapon_DMMovementSpeed
-(
+Event EV_Weapon_DMMovementSpeed(
     "dmmovementspeed",
     EV_DEFAULT,
     "f",
@@ -787,8 +414,7 @@ Event EV_Weapon_DMMovementSpeed
     "Alters the movement speed of the player when he has the weapon out",
     EV_NORMAL
 );
-Event EV_Weapon_MaxFireMovement
-(
+Event EV_Weapon_MaxFireMovement(
     "maxfiremovement",
     EV_DEFAULT,
     "f",
@@ -796,8 +422,7 @@ Event EV_Weapon_MaxFireMovement
     "Sets the max speed the player can be moving to fire the weapon (fraction of weapon's running speed)",
     EV_NORMAL
 );
-Event EV_Weapon_ZoomMovement
-(
+Event EV_Weapon_ZoomMovement(
     "zoommovement",
     EV_DEFAULT,
     "f",
@@ -805,80 +430,28 @@ Event EV_Weapon_ZoomMovement
     "Sets the max speed the player can move while zoomed (fraction of weapon's running speed)",
     EV_NORMAL
 );
-Event EV_Weapon_AmmoPickupSound
-(
-    "ammopickupsound",
-    EV_DEFAULT,
-    "s",
-    "name",
-    "sets the weapon's ammo pickup sound alias",
-    EV_NORMAL
+Event EV_Weapon_AmmoPickupSound(
+    "ammopickupsound", EV_DEFAULT, "s", "name", "sets the weapon's ammo pickup sound alias", EV_NORMAL
 );
-Event EV_Weapon_NoAmmoSound
-(
-    "noammosound",
-    EV_DEFAULT,
-    "s",
-    "name",
-    "sets the weapon's dry fire sound alias",
-    EV_NORMAL
+Event
+    EV_Weapon_NoAmmoSound("noammosound", EV_DEFAULT, "s", "name", "sets the weapon's dry fire sound alias", EV_NORMAL);
+Event EV_Weapon_MaxMovementSound(
+    "maxmovementsound", EV_DEFAULT, "s", "name", "sets the weapon's movement fire prevention sound alias", EV_NORMAL
 );
-Event EV_Weapon_MaxMovementSound
-(
-    "maxmovementsound",
-    EV_DEFAULT,
-    "s",
-    "name",
-    "sets the weapon's movement fire prevention sound alias",
-    EV_NORMAL
+Event EV_Weapon_NumFireAnims(
+    "numfireanims", EV_DEFAULT, "i", "value", "Sets the number of fire animations this weapon uses.", EV_NORMAL
 );
-Event EV_Weapon_NumFireAnims
-(
-    "numfireanims",
-    EV_DEFAULT,
-    "i",
-    "value",
-    "Sets the number of fire animations this weapon uses.",
-    EV_NORMAL
+Event EV_Weapon_SetCurrentFireAnim(
+    "setcurrentfireanim", EV_DEFAULT, "i", "value", "Sets the current firing animation.", EV_NORMAL
 );
-Event EV_Weapon_SetCurrentFireAnim
-(
-    "setcurrentfireanim",
-    EV_DEFAULT,
-    "i",
-    "value",
-    "Sets the current firing animation.",
-    EV_NORMAL
+Event EV_Weapon_SubType(
+    "weaponsubtype", EV_DEFAULT, "i", "subtype", "sets the weapon's sub-type. Used by smoke grenades.", EV_NORMAL
 );
-Event EV_Weapon_SubType
-(
-    "weaponsubtype",
-    EV_DEFAULT,
-    "i",
-    "subtype",
-    "sets the weapon's sub-type. Used by smoke grenades.",
-    EV_NORMAL
+Event EV_SetCookTime("cooktime", EV_DEFAULT, "f", "cooktime", "sets weapons cook time.", EV_NORMAL);
+Event EV_OverCooked(
+    "overcooked", EV_DEFAULT, NULL, NULL, "used when the cookable weapon has been over cooked.", EV_NORMAL
 );
-Event EV_SetCookTime
-(
-    "cooktime",
-    EV_DEFAULT,
-    "f",
-    "cooktime",
-    "sets weapons cook time.",
-    EV_NORMAL
-);
-Event EV_OverCooked
-(
-    "overcooked",
-    EV_DEFAULT,
-    NULL,
-    NULL,
-    "used when the cookable weapon has been over cooked.",
-    EV_NORMAL
-);
-Event EV_OverCooked_Warning
-(
+Event EV_OverCooked_Warning(
     "overcooked_warning",
     EV_DEFAULT,
     NULL,
@@ -891,24 +464,10 @@ Event EV_OverCooked_Warning
 // Added in OPM
 //
 
-Event EV_Weapon_DoneAnimating
-(
-    "doneanimating",
-    EV_DEFAULT,
-    NULL,
-    NULL,
-    "Signals the end of animation",
-    EV_NORMAL
-);
+Event EV_Weapon_DoneAnimating("doneanimating", EV_DEFAULT, NULL, NULL, "Signals the end of animation", EV_NORMAL);
 
-Event EV_Weapon_GetPutaway
-(
-    "putaway",
-    EV_DEFAULT,
-    NULL,
-    NULL,
-    "Returns whether or not the given weapon is being put away",
-    EV_GETTER
+Event EV_Weapon_GetPutaway(
+    "putaway", EV_DEFAULT, NULL, NULL, "Returns whether or not the given weapon is being put away", EV_GETTER
 );
 
 CLASS_DECLARATION(Item, Weapon, NULL) {
@@ -2668,7 +2227,8 @@ void Weapon::DetachGun(void)
 //======================
 void Weapon::AttachGun(weaponhand_t hand, qboolean holstering)
 {
-    int tag_num;
+    int    tag_num;
+    Vector vOffset;
 
     if (!owner) {
         current_attachToTag = "";
@@ -2685,35 +2245,33 @@ void Weapon::AttachGun(weaponhand_t hand, qboolean holstering)
         lastAngles = this->angles;
         lastScale  = this->edict->s.scale;
         lastValid  = qtrue;
-    } else if (lastValid) {
-        // Restore the last
-        setScale(lastScale);
-        setAngles(lastAngles);
-        lastValid = qfalse;
-    }
 
-    switch (hand) {
-    case WEAPON_MAIN:
-        if (holstering) {
-            current_attachToTag = holster_attachToTag;
-            setAngles(holsterAngles);
-            setScale(holsterScale);
-        } else {
+        current_attachToTag = holster_attachToTag;
+
+        vOffset = holsterOffset;
+        setAngles(holsterAngles);
+        setScale(holsterScale);
+    } else {
+        if (lastValid) {
+            // Restore the last
+            setScale(lastScale);
+            setAngles(lastAngles);
+            lastValid = qfalse;
+        }
+
+        vOffset.setXYZ(0, 0, 0);
+
+        switch (hand) {
+        case WEAPON_MAIN:
             current_attachToTag = attachToTag_main;
-        }
-        break;
-    case WEAPON_OFFHAND:
-        if (holstering) {
-            current_attachToTag = holster_attachToTag;
-            setAngles(holsterAngles);
-            setScale(holsterScale);
-        } else {
+            break;
+        case WEAPON_OFFHAND:
             current_attachToTag = attachToTag_offhand;
+            break;
+        default:
+            warning("Weapon::AttachGun", "Invalid hand for attachment of weapon specified");
+            break;
         }
-        break;
-    default:
-        warning("Weapon::AttachGun", "Invalid hand for attachment of weapon specified");
-        break;
     }
 
     if (!current_attachToTag.length()) {
@@ -2726,7 +2284,7 @@ void Weapon::AttachGun(weaponhand_t hand, qboolean holstering)
         NoLerpThisFrame();
         if (tag_num >= 0) {
             attached = true;
-            attach(owner->entnum, tag_num);
+            attach(owner->entnum, tag_num, qtrue, vOffset);
             showModel();
             setOrigin();
         } else {
