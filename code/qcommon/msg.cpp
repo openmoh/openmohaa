@@ -2448,16 +2448,16 @@ int MSG_PackAngle(float angle, int bits)
 	switch (bits)
 	{
 	case 8:
-		calc = angle * 256.f / 360.f;
+		calc = angle * 256.0 / 360.0;
 		return bit | ((int)calc & 0xFF);
 	case 12:
-		calc = angle * 4096.f / 360.f;
+		calc = angle * 4096.0 / 360.0;
 		return bit | ((int)calc & 0xFFF);
 	case 16:
-		calc = angle * 65536.f / 360.f;
+		calc = angle * 65536.0 / 360.0;
 		return bit | ((int)calc & 0xFFFF);
 	default:
-		calc = (1 << bits) * angle / 360.f;
+		calc = (1 << bits) * angle / 360.0;
 		return bit | ((int)calc & ((1 << bits) - 1));
 	}
 }
@@ -2468,17 +2468,8 @@ int MSG_PackAnimTime(float time, int bits)
 	int packed;
 
 	maxValue = (1 << bits) - 1;
-	packed = time * 100.f;
-	if (packed >= 0)
-	{
-		if (packed > maxValue) {
-			packed = maxValue;
-		}
-	}
-	else
-	{
-		packed = 0;
-	}
+	packed = Q_clamp_int(round(time * 100.0), 0, maxValue);
+
 #if NET_MESSAGE_PROFILING
 	timestats[packed % ARRAY_LEN(timestats)]++;
 #endif
@@ -2491,17 +2482,8 @@ int MSG_PackAnimWeight(float weight, int bits)
 	int packed;
 
 	maxValue = (1 << bits) - 1;
-	packed = maxValue * weight;
-	if (packed >= 0)
-	{
-		if (packed > maxValue) {
-			packed = maxValue;
-		}
-	}
-	else
-	{
-		packed = 0;
-	}
+	packed = Q_clamp_int(round(weight * maxValue), 0, maxValue);
+
 #if NET_MESSAGE_PROFILING
 	weightstats[packed % ARRAY_LEN(weightstats)]++;
 #endif
@@ -2514,17 +2496,8 @@ int MSG_PackScale(float scale, int bits)
 	int packed;
 
 	maxValue = (1 << bits) - 1;
-	packed = scale * 100.f;
-	if (packed >= 0)
-	{
-		if (packed > maxValue) {
-			packed = maxValue;
-		}
-	}
-	else
-	{
-		packed = 0;
-	}
+	packed = Q_clamp_int(round(scale * 100.0), 0, maxValue);
+
 #if NET_MESSAGE_PROFILING
 	scalestats[packed % ARRAY_LEN(scalestats)]++;
 #endif
@@ -2537,17 +2510,8 @@ int MSG_PackAlpha(float alpha, int bits)
 	int packed;
 
 	maxValue = (1 << bits) - 1;
-	packed = maxValue * alpha;
-	if (packed >= 0)
-	{
-		if (packed > maxValue) {
-			packed = maxValue;
-		}
-	}
-	else
-	{
-		packed = 0;
-	}
+	packed = Q_clamp_int(round(alpha * maxValue), 0, maxValue);
+
 #if NET_MESSAGE_PROFILING
 	alphastats[packed % ARRAY_LEN(alphastats)]++;
 #endif
@@ -3293,14 +3257,14 @@ float MSG_UnpackAngle(int value, int bits)
 	switch (bits)
 	{
 	case 8:
-		return neg * 360.f / 256.f;
+		return neg * 360.0 / 256.0;
 	case 12:
-		return neg * value * 360.f / 4096.f;
+		return neg * value * 360.0 / 4096.0;
 	case 16:
-		calc = value * 360.f / 65536.f;
+		calc = value * 360.0 / 65536.0;
 		break;
 	default:
-		calc = 360.f / (1 << bits) * value;
+		calc = 360.0 / (1 << bits) * value;
 		break;
 	}
 	return neg * calc;
@@ -3308,7 +3272,7 @@ float MSG_UnpackAngle(int value, int bits)
 
 float MSG_UnpackAnimTime(int packed)
 {
-	return packed / 100.f;
+	return packed / 100.0;
 }
 
 float MSG_UnpackAnimWeight(int result, int bits)
@@ -3316,14 +3280,14 @@ float MSG_UnpackAnimWeight(int result, int bits)
 	const int32_t max = (1 << bits) - 1;
 	const float tmp = (float)result / (float)max;
 
-	if (tmp < 0.0f) return 0.f;
-	else if (tmp > 1.0f) return 1.f;
+	if (tmp < 0.0) return 0.0;
+	else if (tmp > 1.0) return 1.0;
 	else return tmp;
 }
 
 float MSG_UnpackScale(int packed)
 {
-	return packed / 100.f;
+	return packed / 100.0;
 }
 
 float MSG_UnpackAlpha(int packed, int bits)
@@ -3333,12 +3297,12 @@ float MSG_UnpackAlpha(int packed, int bits)
 
 float MSG_UnpackCoord(int packed, int bits)
 {
-	return (float)(packed - MAX_PACKED_COORD_HALF) / 4.f;
+	return (float)(packed - MAX_PACKED_COORD_HALF) / 4.0;
 }
 
 float MSG_UnpackCoordExtra(int packed, int bits)
 {
-	return (float)(packed - MAX_PACKED_COORD_EXTRA_HALF) / 16.f;
+	return (float)(packed - MAX_PACKED_COORD_EXTRA_HALF) / 16.0;
 }
 
 /*
