@@ -340,6 +340,14 @@ void Player::AdjustAnimBlends(void)
             m_fPainBlend  = 0;
             animdone_Pain = false;
         }
+
+        // Changed in OPM
+        //  Allow changing the animation in death state (for example, noclip mode)
+        if (partAnim[legs] != "" && partAnim[torso] == "") {
+            iPartSlot = m_iPartSlot[torso];
+            StopAnimating(iPartSlot);
+        }
+
         return;
     }
 
