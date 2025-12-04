@@ -40,6 +40,10 @@ static constexpr int MAX_PACKED_COORD = 65536;
 static constexpr int MAX_PACKED_COORD_HALF = MAX_PACKED_COORD / 2;
 static constexpr int MAX_PACKED_COORD_EXTRA = 262144;
 static constexpr int MAX_PACKED_COORD_EXTRA_HALF = MAX_PACKED_COORD_EXTRA / 2;
+// Fixed in OPM
+//  Use an extremely low value to compare the animation time delta with the expected frame step
+//  (before was 0.001f)
+static constexpr float ANIMTIME_DELTA_SUPPRESSION_EPSILON = 1.0e-8;
 
 #if NET_MESSAGE_PROFILING
 //===================
@@ -2563,7 +2567,7 @@ float MSG_ReadPackedAnimTime_ver_15(msg_t* msg, int bits, float fromValue, float
 {
 	int packed;
 	if (!MSG_ReadBits(msg, 1)) {
-		return ceil((fromValue + frameTime) * 10000) / 10000;
+		return fromValue + frameTime;
 	}
 
 	packed = MSG_ReadBits(msg, bits);
@@ -2612,8 +2616,10 @@ void MSG_WritePackedAnimTime_ver_15(msg_t* msg, float fromValue, float toValue, 
 {
 	int packed;
 
-	if (fabs(toValue - fromValue - frameTime) < 0.001f) {
-		// below the frame time, don't send
+	// Fixed in OPM
+	//  See the comment above the ANIMTIME_DELTA_SUPPRESSION_EPSILON variable
+	if (fabs(toValue - fromValue - frameTime) < ANIMTIME_DELTA_SUPPRESSION_EPSILON) {
+		// Suppress the delta as the next frame is predictable
 		MSG_WriteBits(msg, 0, 1);
 		return;
 	}
