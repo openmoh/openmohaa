@@ -1254,7 +1254,10 @@ void PM_UpdateViewAngles(playerState_t *ps, const usercmd_t *cmd)
         return;
     }
 
-    if (ps->stats[STAT_HEALTH] <= 0) {
+    if (ps->stats[STAT_HEALTH] <= 0
+    // Changed in OPM
+    //  Allow the player to rotate in noclip mode
+    && ps->pm_type != PM_NOCLIP) {
         // no view changes at all
         return;
     }

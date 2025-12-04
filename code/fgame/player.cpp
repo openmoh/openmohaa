@@ -3583,7 +3583,9 @@ void Player::GetMoveInfo(pmove_t *pm)
 {
     moveresult = pm->moveresult;
 
-    if (!deadflag || (g_gametype->integer != GT_SINGLE_PLAYER && IsSpectator())) {
+    // Changed in OPM
+    //  When dead, allow the player to rotate in noclip mode
+    if ((deadflag == DEAD_NO || getMoveType() == MOVETYPE_NOCLIP) || (g_gametype->integer != GT_SINGLE_PLAYER && IsSpectator())) {
         v_angle[0] = pm->ps->viewangles[0];
         v_angle[1] = pm->ps->viewangles[1];
         v_angle[2] = pm->ps->viewangles[2];
