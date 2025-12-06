@@ -1,6 +1,4 @@
-build
-out
-Makefile.local
+build*
 *.swp
 *tags
 *~
@@ -16,7 +14,6 @@ Makefile.local
 .DS_Store
 .LSOverride
 Icon?
-make-macosx-values.local
 
 # Xcode
 ####################
@@ -44,6 +41,8 @@ profile
 *.opensdf
 *.suo
 /.vs
+
+out
 
 # Flex and Bison
 ####################
