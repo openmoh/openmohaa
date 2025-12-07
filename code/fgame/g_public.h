@@ -498,6 +498,9 @@ typedef struct gameImport_s {
     void (*KickClientForReason)(int clientNum, const char *reason);
     cvar_t *(*Cvar_Find)(const char *varName);
 
+    unsigned int (*Client_NumPendingCommands)(int clientNum);
+    unsigned int (*Client_MaxPendingCommands)(int clientNum);
+
     cvar_t *fsDebug;
 
 } game_import_t;

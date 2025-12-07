@@ -524,6 +524,9 @@ int SV_SendQueuedMessages(void);
 
 void SV_KickClientForReason(client_t *cl, const char *reason);
 
+unsigned int SV_Client_GetNumPendingCommands(client_t *cl);
+unsigned int SV_Client_GetMaxPendingCommands(client_t *cl);
+
 
 //
 // sv_ccmds.c

@@ -2195,3 +2195,13 @@ void SV_KickClientForReason(client_t *cl, const char *reason)
         SV_DropClient(cl, "was kicked");
     }
 }
+
+unsigned int SV_Client_GetNumPendingCommands(client_t *cl)
+{
+	return cl->reliableSequence - cl->reliableAcknowledge;
+}
+
+unsigned int SV_Client_GetMaxPendingCommands(client_t *cl)
+{
+	return MAX_RELIABLE_COMMANDS;
+}

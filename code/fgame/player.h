@@ -123,6 +123,8 @@ typedef struct vma_s {
 #define MAX_ANIM_SLOT         16
 #define MAX_TRAILS            2
 
+class VoteUpload;
+
 class Player : public Sentient
 {
     friend class Camera;
@@ -360,7 +362,6 @@ public:
     //
     // Added in OPM
     //
-    str               m_sVision;    // current vision
     str               m_sStateFile; // custom statefile
     bool              m_bFrozen;    // if player is frozen
     float             speed_multiplier[MAX_SPEED_MULTIPLIERS];
@@ -368,7 +369,10 @@ public:
     bool              m_bConnected;
     str               m_lastcommand;
 
+    VoteUpload *voteUpload;
+
 #ifdef OPM_FEATURES
+    str m_sVision; // current vision
     //
     // View model animation
     //
@@ -787,7 +791,7 @@ public:
     void ResetHaveItem(Event *ev);
 
     void ModifyHeight(Event *ev);
-     // Added in 2.40
+    // Added in 2.40
     void ModifyHeightFloat(Event *ev);
 
     void SetMovePosFlags(Event *ev);

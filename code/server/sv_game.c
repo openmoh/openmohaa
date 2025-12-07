@@ -1716,6 +1716,24 @@ void SV_GameKickClientForReason( int clientNum, const char *reason ) {
 	SV_KickClientForReason( svs.clients + clientNum, reason );	
 }
 
+unsigned int PF_SV_Client_NumPendingCommands(int clientNum)
+{
+	if ( clientNum < 0 || clientNum >= sv_maxclients->integer ) {
+		return 0;
+	}
+
+	return SV_Client_GetNumPendingCommands(svs.clients + clientNum);
+}
+
+unsigned int PF_SV_Client_MaxPendingCommands(int clientNum)
+{
+	if ( clientNum < 0 || clientNum >= sv_maxclients->integer ) {
+		return 0;
+	}
+
+	return SV_Client_GetMaxPendingCommands(svs.clients + clientNum);
+}
+
 /*
 ===============
 SV_InitGameProgs
@@ -1931,6 +1949,9 @@ void SV_InitGameProgs( void ) {
 	import.KickClientForReason			= SV_GameKickClientForReason;
 
     import.Cvar_Find                    = Cvar_FindVar;
+    
+    import.Client_NumPendingCommands	= PF_SV_Client_NumPendingCommands;
+    import.Client_MaxPendingCommands	= PF_SV_Client_MaxPendingCommands;
 
 	ge = Sys_GetGameAPI( &import );
 
