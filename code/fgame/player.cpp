@@ -53,6 +53,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "vehicleturret.h"
 #include "portableturret.h"
 #include "fixedturret.h"
+#include "clientvote.h"
 
 const Vector power_color(0.0, 1.0, 0.0);
 const Vector acolor(1.0, 1.0, 1.0);
@@ -2197,6 +2198,8 @@ Player::Player()
         speed_multiplier[i] = 1.0f;
     }
 
+    voteUpload = NULL;
+
 #ifdef OPM_FEATURES
     m_fpsTiki  = NULL;
     animDoneVM = true;
@@ -2235,6 +2238,10 @@ Player::~Player()
     //  Remove the player at destructor
     if (g_gametype->integer != GT_SINGLE_PLAYER && dmManager.PlayerCount()) {
         dmManager.RemovePlayer(this);
+    }
+
+    if (voteUpload) {
+        delete voteUpload;
     }
 
     entflags &= ~ECF_PLAYER;
@@ -4625,6 +4632,17 @@ void Player::ClientThink(void)
         client->cmd_angles[1]  = SHORT2ANGLE(current_ucmd->angles[1]);
         client->cmd_angles[2]  = SHORT2ANGLE(current_ucmd->angles[2]);
         client->ps.commandTime = current_ucmd->serverTime;
+    }
+
+    if (voteUpload) {
+        //
+        // Process pending vote upload
+        //
+        if (voteUpload->ClientThink()) {
+            // Finished sending
+            delete voteUpload;
+            voteUpload = NULL;
+        }
     }
 }
 
@@ -10147,7 +10165,12 @@ void Player::RetrieveVoteOptions(Event *ev)
         gi.SendServerCommand(edict - g_entities, "vo2 \"\"\n");
     } else {
         m_fNextVoteOptionTime = level.time + 2.0;
-        level.SendVoteOptionsFile(edict);
+        //level.SendVoteOptionsFile(edict);
+        // Changed in OPM
+        //  Use an improved way of sending vote options for unlimited length
+
+        voteUpload = new VoteUpload(edict - g_entities);
+        voteUpload->StartSending(level.GetVoteOptions());
     }
 }
 

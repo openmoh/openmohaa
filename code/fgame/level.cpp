@@ -2817,6 +2817,11 @@ void Level::GetForceTeamObjectiveLocation(Event *ev)
     ev->AddInteger(g_gametype->integer >= GT_TOW || m_bForceTeamObjectiveLocation);
 }
 
+const VoteOptions& Level::GetVoteOptions() const
+{
+    return m_voteOptions;
+}
+
 badplace_t::badplace_t()
     : m_fLifespan(FLT_MAX)
     , m_iTeamSide(TEAM_ALLIES)

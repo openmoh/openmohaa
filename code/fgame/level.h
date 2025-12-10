@@ -378,6 +378,7 @@ public:
     // Added in OPM
     void SetForceTeamObjectiveLocation(Event *ev);
     void GetForceTeamObjectiveLocation(Event *ev);
+    const VoteOptions& GetVoteOptions() const;
     //====
 
     void Archive(Archiver& arc) override;

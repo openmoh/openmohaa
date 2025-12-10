@@ -30,8 +30,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #ifdef __cplusplus
 
-static const unsigned long MAX_VOTEOPTIONS_UPLOAD_BUFFER_LENGTH = 2024;
 static const unsigned long MAX_VOTEOPTIONS_BUFFER_LENGTH        = 0x100000;
+static const unsigned long MAX_VOTEOPTIONS_UPLOAD_BUFFER_LENGTH = 2024;
+static const unsigned long MAX_VOTEOPTIONS_UPLOAD_BURST         = 5;
 
 typedef enum voteoptiontype_e {
     /** No input. */
