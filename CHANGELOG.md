@@ -58,16 +58,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix bad animation blending with portable turret.
 - Fix bots being counted for voting.
 - Fix death animation movement for bots.
+- Fix holstered weapon attachment position (#847).
 - Fix improper weapon falling rotation.
 - Fix mismatched animation issues between the original clients and the server (#842).
 - Fix players not having binoculars on Allied Assault.
 - Fix players temporarily losing user input control on ARM-based OpenMoHAA servers when a message contained a special ASCII character.
+- Fix some death animations flickering for original clients playing on an OpenMoHAA servers (#857).
 - Fix some RCON programs not working with `dumpuser`.
 - Fix the carryable turret disappearing when being dropped (#812).
 - Fix the round limit being always `15` on Tug-of-War.
 - Fix votes being messed up after calling a vote the second time during the match.
 - Fix `wait` command not working on dedicated server binaries. Further commands would not be able to be executed (also occurs in the original game).
+- Fix weapon select mod not working (#849).
 - Fix wrong portable turret placement.
+- Large vote configurations will no longer cause clients to disconnect (also occurs in the original game) (#858).
 - The player would spawn with no weapons on single-player when `sv_maxbots` was set (#783).
 
 #### Clients
@@ -77,12 +81,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix not being able to view sniper zoom when spectating.
 - Fix sky being partially culled out on some single-player maps (#817).
 - Fix the issue where the network would no longer work after hosting a multiplayer game on Allied Assault using the client.
+- Fix wrong alignment for UI elements using `centery` (#848).
 
 ### Changed
 
 #### Server
 
 - Freezeplayer now freezes player animation/state, because frozen players would still emit footsteps sound when frozen.
+- Nocliping when dead no longer makes the player animation sketchy.
 
 #### Clients
 
