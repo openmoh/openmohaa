@@ -24,16 +24,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #pragma once
 
-#include <q_version.generated.h>
-
 //
 // Version
 // 
-// These values are the only one that must be set for the version
-#define PRODUCT_VERSION_MAJOR			0
-#define PRODUCT_VERSION_MINOR			83
-#define PRODUCT_VERSION_PATCH			0
-#define PRODUCT_VERSION_SUFFIX			PRODUCT_VERSION_STAGE
+// The version is defined in cmake/identity.cmake
+
+#include <q_version.generated.h>
 
 //
 // Generated version info
@@ -72,8 +68,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define PRODUCT_VERSION                 PRODUCT_VERSION_NUMBER_STRING
 
-#ifdef PRODUCT_VERSION_SUFFIX
-#   define PRODUCT_VERSION_1        PRODUCT_VERSION "-" PRODUCT_VERSION_SUFFIX
+#ifdef PRODUCT_VERSION_STAGE
+#   define PRODUCT_VERSION_1        PRODUCT_VERSION "-" PRODUCT_VERSION_STAGE
 #else
 #   define PRODUCT_VERSION_1        PRODUCT_VERSION
 #endif
