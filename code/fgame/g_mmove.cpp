@@ -44,7 +44,11 @@ void MM_ClipVelocity(float *in, float *normal, float *out, float overbounce)
     float normal2[3];
 
     if (normal[2] >= MIN_WALK_NORMAL) {
-        if (in[0] == 0.0f && in[1] == 0.0f) {
+        // Fixed in OPM
+        //  VectorNormalize has a minimum length,
+        //  so avoid returning a NaN velocity
+        //if (in[0] == 0.0f && in[1] == 0.0f) {
+        if (VectorLength2DSquared(in) < 0.005) {
             VectorClear(out);
             return;
         }
@@ -56,6 +60,7 @@ void MM_ClipVelocity(float *in, float *normal, float *out, float overbounce)
         VectorNormalize(normal2);
 
         dir_z = -normal2[2];
+        assert(dir_z < fEpsilon() || dir_z > fEpsilon());
 
         out[0] = in[0];
         out[1] = in[1];

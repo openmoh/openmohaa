@@ -119,8 +119,12 @@ void PM_ClipVelocity(vec3_t in, vec3_t normal, vec3_t out, float overbounce)
     float dir_z;
     float normal2[3];
 
-    if (normal[2] >= pm_wadeScale) {
-        if (in[0] == 0.0f && in[1] == 0.0f) {
+    if (normal[2] >= MIN_WALK_NORMAL) {
+        // Fixed in OPM
+        //  VectorNormalize has a minimum length,
+        //  so avoid returning a NaN velocity
+        //if (in[0] == 0.0f && in[1] == 0.0f) {
+        if (VectorLength2DSquared(in) < 0.005) {
             VectorClear(out);
             return;
         }
@@ -132,6 +136,7 @@ void PM_ClipVelocity(vec3_t in, vec3_t normal, vec3_t out, float overbounce)
         VectorNormalize(normal2);
 
         dir_z = -normal2[2];
+        assert(dir_z < fEpsilon() || dir_z > fEpsilon());
 
         out[0] = in[0];
         out[1] = in[1];
@@ -1255,9 +1260,9 @@ void PM_UpdateViewAngles(playerState_t *ps, const usercmd_t *cmd)
     }
 
     if (ps->stats[STAT_HEALTH] <= 0
-    // Changed in OPM
-    //  Allow the player to rotate in noclip mode
-    && ps->pm_type != PM_NOCLIP) {
+        // Changed in OPM
+        //  Allow the player to rotate in noclip mode
+        && ps->pm_type != PM_NOCLIP) {
         // no view changes at all
         return;
     }
