@@ -2046,6 +2046,8 @@ Player::Player()
 
     m_iInstantMessageTime = 0;
     m_iTextChatTime       = 0;
+
+    voteUpload = NULL;
     //====
 
     if (LoadingSavegame) {
@@ -2197,8 +2199,6 @@ Player::Player()
     for (int i = 0; i < MAX_SPEED_MULTIPLIERS; i++) {
         speed_multiplier[i] = 1.0f;
     }
-
-    voteUpload = NULL;
 
 #ifdef OPM_FEATURES
     m_fpsTiki  = NULL;
