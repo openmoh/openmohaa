@@ -224,36 +224,68 @@ void Player::KillClass(Event *ev)
 {
     int        except;
     str        classname;
+    bool       include_subclasses;
     gentity_t *from;
     Entity    *ent;
+    ClassDef  *c;
 
     if (ev->NumArgs() < 1) {
-        gi.SendServerCommand(edict - g_entities, "print \"Usage: killclass <classname> [except entity number]\n\"");
-        return;
+        gi.SendServerCommand(edict - g_entities, "print \"Usage: killclass <classname> [except entity number] [include subclasses]\n\"");
     }
 
     classname = ev->GetString(1);
 
     except = 0;
-    if (ev->NumArgs() == 2) {
-        except = ev->GetInteger(1);
+    if (ev->NumArgs() >= 2 && !ev->IsNilAt(2)) {
+        // Fixed in OPM
+        //  It was accidentally fetching the first parameter...
+        except = ev->GetInteger(2);
     }
 
-    for (from = this->edict + 1; from < &g_entities[globals.num_entities]; from++) {
-        if (!from->inuse) {
-            continue;
+    // Added in OPM
+    //  Check for exact class
+    include_subclasses = false;
+    if (ev->NumArgs() >= 3) {
+        include_subclasses = ev->GetBoolean(3);
+    }
+
+    c = getClass(classname);
+
+    if (include_subclasses) {
+        for (from = &g_entities[game.maxclients]; from < &g_entities[globals.num_entities]; from++) {
+            if (!from->inuse) {
+                continue;
+            }
+
+            assert(from->entity);
+
+            ent = from->entity;
+
+            if (ent->entnum == except) {
+                continue;
+            }
+
+            if (ent->inheritsFrom(c)) {
+                ent->Damage(world, world, ent->max_health + 25, vec_zero, vec_zero, vec_zero, 0, 0, 0);
+            }
         }
+    } else {
+        for (from = &g_entities[game.maxclients]; from < &g_entities[globals.num_entities]; from++) {
+            if (!from->inuse) {
+                continue;
+            }
 
-        assert(from->entity);
+            assert(from->entity);
 
-        ent = from->entity;
+            ent = from->entity;
 
-        if (ent->entnum == except) {
-            continue;
-        }
+            if (ent->entnum == except) {
+                continue;
+            }
 
-        if (ent->inheritsFrom(classname.c_str())) {
-            ent->Damage(world, world, ent->max_health + 25, origin, vec_zero, vec_zero, 0, 0, 0);
+            if (ent->classinfo() == c) {
+                ent->Damage(world, world, ent->max_health + 25, vec_zero, vec_zero, vec_zero, 0, 0, 0);
+            }
         }
     }
 }
@@ -265,36 +297,69 @@ void Player::RemoveClass(Event *ev)
 {
     int        except;
     str        classname;
+    bool       include_subclasses;
     gentity_t *from;
     Entity    *ent;
+    ClassDef  *c;
 
     if (ev->NumArgs() < 1) {
-        gi.SendServerCommand(edict - g_entities, "print \"Usage: removeclass <classname> [except entity number]\n\"");
+        gi.SendServerCommand(edict - g_entities, "print \"Usage: removeclass <classname> [except entity number] [include subclasses]\n\"");
         return;
     }
 
     classname = ev->GetString(1);
 
     except = 0;
-    if (ev->NumArgs() == 2) {
-        except = ev->GetInteger(1);
+    if (ev->NumArgs() >= 2 && !ev->IsNilAt(2)) {
+        // Fixed in OPM
+        //  It was accidentally fetching the first parameter...
+        except = ev->GetInteger(2);
     }
 
-    for (from = this->edict + 1; from < &g_entities[globals.num_entities]; from++) {
-        if (!from->inuse) {
-            continue;
+    // Added in OPM
+    //  Check for exact class
+    include_subclasses = true;
+    if (ev->NumArgs() >= 3) {
+        include_subclasses = ev->GetBoolean(3);
+    }
+
+    c = getClass(classname);
+
+    if (include_subclasses) {
+        for (from = &g_entities[game.maxclients]; from < &g_entities[globals.num_entities]; from++) {
+            if (!from->inuse) {
+                continue;
+            }
+
+            assert(from->entity);
+
+            ent = from->entity;
+
+            if (ent->entnum == except) {
+                continue;
+            }
+
+            if (ent->inheritsFrom(c)) {
+                ent->PostEvent(EV_Remove, 0);
+            }
         }
+    } else {
+        for (from = &g_entities[game.maxclients]; from < &g_entities[globals.num_entities]; from++) {
+            if (!from->inuse) {
+                continue;
+            }
 
-        assert(from->entity);
+            assert(from->entity);
 
-        ent = from->entity;
+            ent = from->entity;
 
-        if (ent->entnum == except) {
-            continue;
-        }
+            if (ent->entnum == except) {
+                continue;
+            }
 
-        if (ent->inheritsFrom(classname.c_str())) {
-            ent->PostEvent(Event(EV_Remove), 0);
+            if (ent->classinfo() == c) {
+                ent->PostEvent(EV_Remove, 0);
+            }
         }
     }
 }

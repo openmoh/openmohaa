@@ -424,13 +424,15 @@ Event EV_Player_KillEnt
     "Kills the specified entity.",
     EV_NORMAL
 );
+// Changed in OPM
+//  Allow including/excluding sub-classes
 Event EV_Player_KillClass
 (
     "killclass",
     EV_CHEAT,
-    "sI",
-    "classname except_entity_number",
-    "Kills all of the entities in the specified class.",
+    "sIB",
+    "classname except_entity_number include_subclasses",
+    "Kills all of the entities in the specified class. Kills subclasses by default.",
     EV_NORMAL
 );
 Event EV_Player_RemoveEnt
@@ -442,13 +444,15 @@ Event EV_Player_RemoveEnt
     "Removes the specified entity.",
     EV_NORMAL
 );
+// Changed in OPM
+//  Allow including/excluding sub-classes
 Event EV_Player_RemoveClass
 (
     "removeclass",
     EV_CHEAT,
-    "sI",
-    "classname except_entity_number",
-    "Removes all of the entities in the specified class.",
+    "sIB",
+    "classname except_entity_number include_subclasses",
+    "Removes all of the entities in the specified class. Removes sub-classes by default.",
     EV_NORMAL
 );
 Event EV_Player_Jump
