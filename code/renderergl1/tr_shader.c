@@ -2798,7 +2798,7 @@ static void CollapseMultitexture(int *stagecounter) {
 				continue;
 			}
 		}
-		if (stage->alphaGen == CGEN_WAVEFORM)
+		if (stage->alphaGen == AGEN_WAVEFORM)
 		{
 			if (memcmp(&stage->alphaWave,
 				&unfoggedStages[stagenum + 1].alphaWave,
