@@ -140,12 +140,12 @@ void NetProfileCalcStats(netprofpacketlist_t* list, int time)
     list->lastCalcTime = list->updateTime;
     list->lowestUpdateTime = list->updateTime;
     list->highestUpdateTime = 0;
-    list->totalProcessed = 0;
+    list->totalPackets = 0;
     list->totalSize = 0;
     list->numFragmented = 0;
     list->numDropped = 0;
     list->numConnectionLess = 0;
-    list->totalLengthConnectionLess = 0;
+    list->totalBytesConnectionLess = 0;
 
 	for (i = 0; i < ARRAY_LEN(list->packets); i++) {
 		packet = &list->packets[i];
@@ -165,7 +165,7 @@ void NetProfileCalcStats(netprofpacketlist_t* list, int time)
 			list->highestUpdateTime = packet->updateTime;
 		}
 
-		list->totalProcessed++;
+		list->totalPackets++;
 		list->totalSize += packet->size;
 
 		if (packet->flags & NETPROF_PACKET_FRAGMENTED) {
@@ -176,11 +176,11 @@ void NetProfileCalcStats(netprofpacketlist_t* list, int time)
 		}
 		if (packet->flags & NETPROF_PACKET_MESSAGE) {
 			list->numConnectionLess++;
-			list->totalLengthConnectionLess += packet->size;
+			list->totalBytesConnectionLess += packet->size;
 		}
 	}
 
-    if (!list->totalProcessed) {
+    if (!list->totalPackets) {
         list->packetsPerSec = 0;
         list->highestUpdateTime = list->lowestUpdateTime;
         list->bytesPerSec = 0;
@@ -199,23 +199,23 @@ void NetProfileCalcStats(netprofpacketlist_t* list, int time)
 		frequency = 1.0 / list->latency;
 	}
 
-	list->packetsPerSec = list->totalProcessed * frequency;
+	list->packetsPerSec = list->totalPackets * frequency;
 	list->bytesPerSec = list->totalSize * frequency;
 
 	if (list->numFragmented) {
-		list->percentFragmented = (float)list->numFragmented / list->totalProcessed * 100.0;
+		list->percentFragmented = (float)list->numFragmented / list->totalPackets * 100.0;
 	} else {
 		list->percentFragmented = 0;
 	}
 
 	if (list->numDropped) {
-		list->percentDropped = (float)list->numDropped / list->totalProcessed * 100.0;
+		list->percentDropped = (float)list->numDropped / list->totalPackets * 100.0;
 	} else {
 		list->percentDropped = 0;
 	}
 
-	if (list->totalLengthConnectionLess) {
-		list->percentConnectionLess = (float)list->totalLengthConnectionLess / list->totalSize * 100.0;
+	if (list->totalBytesConnectionLess) {
+		list->percentConnectionLess = (float)list->totalBytesConnectionLess / list->totalSize * 100.0;
 	} else {
         list->percentConnectionLess = 0;
     }

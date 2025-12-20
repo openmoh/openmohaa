@@ -753,7 +753,7 @@ void SV_ConnectionlessPacket( netadr_t from, msg_t *msg ) {
 	char	*c;
 
 	if (sv_netprofile->integer) {
-		NetProfileAddPacket(&svs.netprofile.inPackets, msg->cursize, NETPROF_PACKET_MESSAGE);
+		NetProfileAddPacket(&svs.netprofile.upstream, msg->cursize, NETPROF_PACKET_MESSAGE);
 	}
 
 	MSG_BeginReadingOOB( msg );

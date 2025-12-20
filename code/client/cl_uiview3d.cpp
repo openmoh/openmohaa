@@ -252,43 +252,43 @@ void View3D::DrawSoundOverlay(void)
 
 void DisplayServerNetProfileInfo(UIFont *font, float y, netprofclient_t *netprofile)
 {
-    font->Print(104, y, va("%i", netprofile->inPackets.packetsPerSec));
-    font->Print(144, y, va("%i", netprofile->outPackets.packetsPerSec));
-    font->Print(184, y, va("%i", netprofile->inPackets.packetsPerSec + netprofile->outPackets.packetsPerSec));
-    font->Print(234, y, va("%i", netprofile->inPackets.percentFragmented));
-    font->Print(264, y, va("%i", netprofile->outPackets.percentFragmented));
+    font->Print(104, y, va("%i", netprofile->upstream.packetsPerSec));
+    font->Print(144, y, va("%i", netprofile->downstream.packetsPerSec));
+    font->Print(184, y, va("%i", netprofile->upstream.packetsPerSec + netprofile->downstream.packetsPerSec));
+    font->Print(234, y, va("%i", netprofile->upstream.percentFragmented));
+    font->Print(264, y, va("%i", netprofile->downstream.percentFragmented));
     font->Print(
         294,
         y,
         va("%i",
-           (unsigned int)((float)(netprofile->outPackets.numFragmented + netprofile->inPackets.numFragmented)
-                          / (float)(netprofile->inPackets.totalProcessed + netprofile->outPackets.totalProcessed))),
+           (unsigned int)((float)(netprofile->downstream.numFragmented + netprofile->upstream.numFragmented)
+                          / (float)(netprofile->upstream.totalPackets + netprofile->downstream.totalPackets))),
         -1
     );
-    font->Print(334, y, va("%i", netprofile->inPackets.percentDropped));
-    font->Print(364, y, va("%i", netprofile->outPackets.percentDropped));
+    font->Print(334, y, va("%i", netprofile->upstream.percentDropped));
+    font->Print(364, y, va("%i", netprofile->downstream.percentDropped));
     font->Print(
         394,
         y,
         va("%i",
-           (unsigned int)((float)(netprofile->outPackets.numDropped + netprofile->inPackets.numDropped)
-                          / (float)(netprofile->inPackets.totalProcessed + netprofile->outPackets.totalProcessed))),
+           (unsigned int)((float)(netprofile->downstream.numDropped + netprofile->upstream.numDropped)
+                          / (float)(netprofile->upstream.totalPackets + netprofile->downstream.totalPackets))),
         -1
     );
-    font->Print(434, y, va("%i", netprofile->inPackets.percentDropped));
-    font->Print(464, y, va("%i", netprofile->outPackets.percentDropped));
+    font->Print(434, y, va("%i", netprofile->upstream.percentDropped));
+    font->Print(464, y, va("%i", netprofile->downstream.percentDropped));
     font->Print(
         494,
         y,
         va("%i",
-           (unsigned int)((float)(netprofile->outPackets.totalLengthConnectionLess
-                                  + netprofile->inPackets.totalLengthConnectionLess)
-                          / (float)(netprofile->outPackets.totalSize + netprofile->inPackets.totalSize))),
+           (unsigned int)((float)(netprofile->downstream.totalBytesConnectionLess
+                                  + netprofile->upstream.totalBytesConnectionLess)
+                          / (float)(netprofile->downstream.totalSize + netprofile->upstream.totalSize))),
         -1
     );
-    font->Print(534, y, va("%i", netprofile->inPackets.bytesPerSec));
-    font->Print(594, y, va("%i", netprofile->outPackets.bytesPerSec));
-    font->Print(654, y, va("%i", netprofile->outPackets.bytesPerSec + netprofile->inPackets.bytesPerSec));
+    font->Print(534, y, va("%i", netprofile->upstream.bytesPerSec));
+    font->Print(594, y, va("%i", netprofile->downstream.bytesPerSec));
+    font->Print(654, y, va("%i", netprofile->downstream.bytesPerSec + netprofile->upstream.bytesPerSec));
     font->Print(714, y, va("%i", netprofile->rate));
 }
 
@@ -326,51 +326,51 @@ void DisplayClientNetProfile(UIFont *font, float x, float y, netprofclient_t *ne
 
     columnHeight += fontHeight;
     font->Print(x, columnHeight, "Data In");
-    font->Print(columns[0], columnHeight, va("%i", netprofile->outPackets.packetsPerSec));
-    font->Print(columns[1], columnHeight, va("%i%%", netprofile->outPackets.percentFragmented));
-    font->Print(columns[2], columnHeight, va("%i%%", netprofile->outPackets.percentDropped));
-    font->Print(columns[3], columnHeight, va("%i%%", netprofile->outPackets.percentConnectionLess));
-    font->Print(columns[4], columnHeight, va("%i", netprofile->outPackets.bytesPerSec));
+    font->Print(columns[0], columnHeight, va("%i", netprofile->downstream.packetsPerSec));
+    font->Print(columns[1], columnHeight, va("%i%%", netprofile->downstream.percentFragmented));
+    font->Print(columns[2], columnHeight, va("%i%%", netprofile->downstream.percentDropped));
+    font->Print(columns[3], columnHeight, va("%i%%", netprofile->downstream.percentConnectionLess));
+    font->Print(columns[4], columnHeight, va("%i", netprofile->downstream.bytesPerSec));
 
     columnHeight += fontHeight;
     font->Print(x, columnHeight, "Data Out");
-    font->Print(columns[0], columnHeight, va("%i", netprofile->inPackets.packetsPerSec));
-    font->Print(columns[1], columnHeight, va("%i%%", netprofile->inPackets.percentFragmented));
-    font->Print(columns[2], columnHeight, va("%i%%", netprofile->inPackets.percentDropped));
-    font->Print(columns[3], columnHeight, va("%i%%", netprofile->inPackets.percentConnectionLess));
-    font->Print(columns[4], columnHeight, va("%i", netprofile->inPackets.bytesPerSec));
+    font->Print(columns[0], columnHeight, va("%i", netprofile->upstream.packetsPerSec));
+    font->Print(columns[1], columnHeight, va("%i%%", netprofile->upstream.percentFragmented));
+    font->Print(columns[2], columnHeight, va("%i%%", netprofile->upstream.percentDropped));
+    font->Print(columns[3], columnHeight, va("%i%%", netprofile->upstream.percentConnectionLess));
+    font->Print(columns[4], columnHeight, va("%i", netprofile->upstream.bytesPerSec));
 
     columnHeight += fontHeight;
 
     font->Print(x, columnHeight, "Total Data");
 
     font->Print(
-        columns[0], columnHeight, va("%i", netprofile->inPackets.packetsPerSec + netprofile->outPackets.packetsPerSec)
+        columns[0], columnHeight, va("%i", netprofile->upstream.packetsPerSec + netprofile->downstream.packetsPerSec)
     );
     font->Print(
         columns[1],
         columnHeight,
         va("%i%%",
-           (unsigned int)((float)(netprofile->outPackets.numFragmented + netprofile->inPackets.numFragmented)
-                          / (float)(netprofile->inPackets.totalProcessed + netprofile->outPackets.totalProcessed)))
+           (unsigned int)((float)(netprofile->downstream.numFragmented + netprofile->upstream.numFragmented)
+                          / (float)(netprofile->upstream.totalPackets + netprofile->downstream.totalPackets)))
     );
     font->Print(
         columns[2],
         columnHeight,
         va("%i%%",
-           (unsigned int)((float)(netprofile->outPackets.numDropped + netprofile->inPackets.numDropped)
-                          / (double)(netprofile->inPackets.totalProcessed + netprofile->outPackets.totalProcessed)))
+           (unsigned int)((float)(netprofile->downstream.numDropped + netprofile->upstream.numDropped)
+                          / (double)(netprofile->upstream.totalPackets + netprofile->downstream.totalPackets)))
     );
     font->Print(
         columns[3],
         columnHeight,
         va("%i%%",
-           (unsigned int)((float)(netprofile->outPackets.totalLengthConnectionLess
-                                  + netprofile->inPackets.totalLengthConnectionLess)
-                          / (float)(netprofile->outPackets.totalSize + netprofile->inPackets.totalSize)))
+           (unsigned int)((float)(netprofile->downstream.totalBytesConnectionLess
+                                  + netprofile->upstream.totalBytesConnectionLess)
+                          / (float)(netprofile->downstream.totalSize + netprofile->upstream.totalSize)))
     );
     font->Print(
-        columns[4], columnHeight, va("%i", netprofile->inPackets.bytesPerSec + netprofile->outPackets.bytesPerSec)
+        columns[4], columnHeight, va("%i", netprofile->upstream.bytesPerSec + netprofile->downstream.bytesPerSec)
     );
 }
 
@@ -481,8 +481,8 @@ void View3D::DrawNetProfile(void)
 
         m_font->Print(16, yOffset, "Client Net Profile", -1);
 
-        NetProfileCalcStats(&cls.netprofile.outPackets, 500);
-        NetProfileCalcStats(&cls.netprofile.inPackets, 500);
+        NetProfileCalcStats(&cls.netprofile.downstream, 500);
+        NetProfileCalcStats(&cls.netprofile.upstream, 500);
 
         DisplayClientNetProfile(m_font, 16, yOffset + fontHeight * 2, &cls.netprofile);
     }

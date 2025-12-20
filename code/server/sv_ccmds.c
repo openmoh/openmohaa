@@ -1690,30 +1690,30 @@ SV_NetProfileDump_PrintProf
 */
 void SV_NetProfileDump_PrintProf(fileHandle_t file, netprofclient_t* netprofile)
 {
-    size_t totalProcessed;
+    size_t totalPackets;
     char buffer[2048];
 
-	totalProcessed = netprofile->outPackets.totalProcessed + netprofile->inPackets.totalProcessed;
+	totalPackets = netprofile->downstream.totalPackets + netprofile->upstream.totalPackets;
 
     Com_sprintf(
         buffer,
         sizeof(buffer),
         "%4i %4i %4i | %3i %3i %3i | %3i %3i %3i | %3i %3i %3i | %7i %7i %7i\n",
-        netprofile->inPackets.packetsPerSec,
-        netprofile->outPackets.packetsPerSec,
-        netprofile->outPackets.packetsPerSec + netprofile->inPackets.packetsPerSec,
-        netprofile->inPackets.percentFragmented,
-        netprofile->outPackets.percentFragmented,
-        (unsigned int)((float)(netprofile->outPackets.numFragmented + netprofile->inPackets.numFragmented) / totalProcessed),
-        netprofile->inPackets.percentDropped,
-        netprofile->outPackets.percentDropped,
-        (unsigned int)((float)(netprofile->outPackets.numDropped + netprofile->inPackets.numDropped) / totalProcessed),
-        netprofile->inPackets.percentDropped,
-        netprofile->outPackets.percentDropped,
-        (unsigned int)((float)(netprofile->outPackets.totalLengthConnectionLess + netprofile->inPackets.totalLengthConnectionLess) / (float)(netprofile->outPackets.totalSize + netprofile->inPackets.totalSize)),
-        netprofile->inPackets.bytesPerSec,
-        netprofile->outPackets.bytesPerSec,
-        netprofile->outPackets.bytesPerSec + netprofile->inPackets.bytesPerSec
+        netprofile->upstream.packetsPerSec,
+        netprofile->downstream.packetsPerSec,
+        netprofile->downstream.packetsPerSec + netprofile->upstream.packetsPerSec,
+        netprofile->upstream.percentFragmented,
+        netprofile->downstream.percentFragmented,
+        (unsigned int)((float)(netprofile->downstream.numFragmented + netprofile->upstream.numFragmented) / totalPackets),
+        netprofile->upstream.percentDropped,
+        netprofile->downstream.percentDropped,
+        (unsigned int)((float)(netprofile->downstream.numDropped + netprofile->upstream.numDropped) / totalPackets),
+        netprofile->upstream.percentDropped,
+        netprofile->downstream.percentDropped,
+        (unsigned int)((float)(netprofile->downstream.totalBytesConnectionLess + netprofile->upstream.totalBytesConnectionLess) / (float)(netprofile->downstream.totalSize + netprofile->upstream.totalSize)),
+        netprofile->upstream.bytesPerSec,
+        netprofile->downstream.bytesPerSec,
+        netprofile->downstream.bytesPerSec + netprofile->upstream.bytesPerSec
 	);
 
     FS_Write(buffer, strlen(buffer), file);

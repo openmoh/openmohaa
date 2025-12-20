@@ -1531,7 +1531,7 @@ void CL_Rcon_f( void ) {
 	NET_SendPacket (NS_CLIENT, strlen(message) + 1, message, to);
 
 	if (cl_netprofile->integer) {
-		NetProfileAddPacket(&cls.netprofile.inPackets, strlen(message) + 1, NETPROF_PACKET_MESSAGE);
+		NetProfileAddPacket(&cls.netprofile.upstream, strlen(message) + 1, NETPROF_PACKET_MESSAGE);
 	}
 }
 
@@ -2314,7 +2314,7 @@ void CL_ConnectionlessPacket( netadr_t from, msg_t *msg ) {
 	const char	*reason;
 	
 	if (cl_netprofile->integer) {
-		NetProfileAddPacket(&cls.netprofile.outPackets, msg->cursize, NETPROF_PACKET_MESSAGE);
+		NetProfileAddPacket(&cls.netprofile.downstream, msg->cursize, NETPROF_PACKET_MESSAGE);
 	}
 
 	MSG_BeginReadingOOB( msg );
@@ -2790,8 +2790,8 @@ void CL_Frame ( int msec ) {
 			}
 		}
 
-		cls.netprofile.outPackets.updateTime = Com_Milliseconds();
-		cls.netprofile.inPackets.updateTime = cls.netprofile.outPackets.updateTime;
+		cls.netprofile.downstream.updateTime = Com_Milliseconds();
+		cls.netprofile.upstream.updateTime = cls.netprofile.downstream.updateTime;
 	} else {
 		cls.netprofile.initialized = qfalse;
 	}
@@ -4255,7 +4255,7 @@ void CL_LocalServers_f( void ) {
 			NET_SendPacket( NS_CLIENT, strlen( message ), message, to );
 
 			if (cl_netprofile->integer) {
-				NetProfileAddPacket(&cls.netprofile.inPackets, strlen( message ), NETPROF_PACKET_MESSAGE);
+				NetProfileAddPacket(&cls.netprofile.upstream, strlen( message ), NETPROF_PACKET_MESSAGE);
 			}
 			
 			// Added in OPM (from ioquake3)
@@ -4263,7 +4263,7 @@ void CL_LocalServers_f( void ) {
 			NET_SendPacket( NS_CLIENT, strlen( message ), message, to );
 
 			if (cl_netprofile->integer) {
-				NetProfileAddPacket(&cls.netprofile.inPackets, strlen(message), NETPROF_PACKET_MESSAGE);
+				NetProfileAddPacket(&cls.netprofile.upstream, strlen(message), NETPROF_PACKET_MESSAGE);
 			}
 		}
 	}

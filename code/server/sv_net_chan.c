@@ -169,7 +169,7 @@ void SV_Netchan_TransmitNextInQueue(client_t *client)
 		SV_Netchan_Encode(client, &netbuf->msg, netbuf->clientCommandString);
 #endif
 
-    Netchan_Transmit(&client->netchan, netbuf->msg.cursize, netbuf->msg.data, sv_netprofile->integer ? &client->netprofile.outPackets : NULL);
+    Netchan_Transmit(&client->netchan, netbuf->msg.cursize, netbuf->msg.data, sv_netprofile->integer ? &client->netprofile.downstream : NULL);
 
 	// pop from queue
 	client->netchan_start_queue = netbuf->next;
@@ -197,7 +197,7 @@ int SV_Netchan_TransmitNextFragment(client_t *client)
 {
 	if(client->netchan.unsentFragments)
 	{
-		Netchan_TransmitNextFragment(&client->netchan, sv_netprofile->integer ? &client->netprofile.outPackets : NULL);
+		Netchan_TransmitNextFragment(&client->netchan, sv_netprofile->integer ? &client->netprofile.downstream : NULL);
 		return SV_RateMsec(client);
 	}
 	else if(client->netchan_start_queue)
@@ -250,7 +250,7 @@ void SV_Netchan_Transmit( client_t *client, msg_t *msg)
 		if(client->compat)
 			SV_Netchan_Encode(client, msg, client->lastClientCommandString);
 #endif
-        Netchan_Transmit(&client->netchan, msg->cursize, msg->data, sv_netprofile->integer ? &client->netprofile.outPackets : NULL);
+        Netchan_Transmit(&client->netchan, msg->cursize, msg->data, sv_netprofile->integer ? &client->netprofile.downstream : NULL);
 	}
 }
 
@@ -261,7 +261,7 @@ Netchan_SV_Process
 */
 qboolean SV_Netchan_Process( client_t *client, msg_t *msg ) {
 	int ret;
-	ret = Netchan_Process( &client->netchan, msg, sv_netprofile->integer ? &client->netprofile.inPackets : NULL );
+	ret = Netchan_Process( &client->netchan, msg, sv_netprofile->integer ? &client->netprofile.upstream : NULL );
 	if (!ret)
 		return qfalse;
 
@@ -289,7 +289,7 @@ void SV_NET_OutOfBandPrint(netprofclient_t* netprof, netadr_t adr, const char* f
 	NET_OutOfBandPrint(NS_SERVER, adr, "%s", string);
 
 	if (sv_netprofile->integer && netprof) {
-		NetProfileAddPacket(&netprof->outPackets, strlen(string), NETPROF_PACKET_MESSAGE);
+		NetProfileAddPacket(&netprof->downstream, strlen(string), NETPROF_PACKET_MESSAGE);
 	}
 }
 
@@ -313,8 +313,8 @@ void SV_NET_UpdateClientNetProfileInfo(netprofclient_t* netprofile, int rate) {
 	// set the update time
     time = Com_Milliseconds();
 
-    netprofile->outPackets.updateTime = time;
-    netprofile->inPackets.updateTime = time;
+    netprofile->downstream.updateTime = time;
+    netprofile->upstream.updateTime = time;
 }
 
 /*
@@ -367,11 +367,11 @@ void SV_NET_CalcTotalNetProfile(netprofclient_t* netprofile, qboolean server) {
 	memset(netprofile, 0, sizeof(*netprofile));
 
     if (server) {
-        NetProfileCalcStats(&svs.netprofile.outPackets, 0);
-        NetProfileCalcStats(&svs.netprofile.inPackets, 0);
+        NetProfileCalcStats(&svs.netprofile.downstream, 0);
+        NetProfileCalcStats(&svs.netprofile.upstream, 0);
     } else {
-        NetProfileCalcStats(&svs.netprofile.outPackets, 500);
-        NetProfileCalcStats(&svs.netprofile.inPackets, 500);
+        NetProfileCalcStats(&svs.netprofile.downstream, 500);
+        NetProfileCalcStats(&svs.netprofile.upstream, 500);
     }
 
 	for (i = 0; i < svs.iNumClients; i++) {
@@ -382,61 +382,61 @@ void SV_NET_CalcTotalNetProfile(netprofclient_t* netprofile, qboolean server) {
 		}
 
 		if (server) {
-			NetProfileCalcStats(&client->netprofile.outPackets, 0);
-			NetProfileCalcStats(&client->netprofile.inPackets, 0);
+			NetProfileCalcStats(&client->netprofile.downstream, 0);
+			NetProfileCalcStats(&client->netprofile.upstream, 0);
 		} else {
-			NetProfileCalcStats(&client->netprofile.outPackets, 500);
-			NetProfileCalcStats(&client->netprofile.inPackets, 500);
+			NetProfileCalcStats(&client->netprofile.downstream, 500);
+			NetProfileCalcStats(&client->netprofile.upstream, 500);
 		}
 
 		numValidClients++;
 
 		netprofile->rate += client->netprofile.rate;
-		netprofile->outPackets.totalSize += client->netprofile.outPackets.totalSize;
-		netprofile->outPackets.bytesPerSec += client->netprofile.outPackets.bytesPerSec;
-		netprofile->outPackets.numDropped += client->netprofile.outPackets.numDropped;
-		netprofile->outPackets.percentDropped += client->netprofile.outPackets.percentDropped;
-		netprofile->outPackets.percentFragmented += client->netprofile.outPackets.percentFragmented;
-		netprofile->outPackets.numFragmented += client->netprofile.outPackets.numFragmented;
-		netprofile->outPackets.totalLengthConnectionLess += client->netprofile.outPackets.totalLengthConnectionLess;
-		netprofile->outPackets.percentConnectionLess += client->netprofile.outPackets.percentConnectionLess;
-		netprofile->outPackets.totalProcessed += client->netprofile.outPackets.totalProcessed;
-		netprofile->outPackets.packetsPerSec += client->netprofile.outPackets.packetsPerSec;
-		netprofile->inPackets.totalSize += client->netprofile.inPackets.totalSize;
-		netprofile->inPackets.bytesPerSec += client->netprofile.inPackets.bytesPerSec;
-		netprofile->inPackets.numDropped += client->netprofile.inPackets.numDropped;
-		netprofile->inPackets.percentDropped += client->netprofile.inPackets.percentDropped;
-		netprofile->inPackets.percentFragmented += client->netprofile.inPackets.percentFragmented;
-		netprofile->inPackets.numFragmented += client->netprofile.inPackets.numFragmented;
-		netprofile->inPackets.totalLengthConnectionLess += client->netprofile.inPackets.totalLengthConnectionLess;
-		netprofile->inPackets.percentConnectionLess += client->netprofile.inPackets.percentConnectionLess;
-		netprofile->inPackets.totalProcessed += client->netprofile.inPackets.totalProcessed;
-		netprofile->inPackets.packetsPerSec += client->netprofile.inPackets.packetsPerSec;
+		netprofile->downstream.totalSize += client->netprofile.downstream.totalSize;
+		netprofile->downstream.bytesPerSec += client->netprofile.downstream.bytesPerSec;
+		netprofile->downstream.numDropped += client->netprofile.downstream.numDropped;
+		netprofile->downstream.percentDropped += client->netprofile.downstream.percentDropped;
+		netprofile->downstream.percentFragmented += client->netprofile.downstream.percentFragmented;
+		netprofile->downstream.numFragmented += client->netprofile.downstream.numFragmented;
+		netprofile->downstream.totalBytesConnectionLess += client->netprofile.downstream.totalBytesConnectionLess;
+		netprofile->downstream.percentConnectionLess += client->netprofile.downstream.percentConnectionLess;
+		netprofile->downstream.totalPackets += client->netprofile.downstream.totalPackets;
+		netprofile->downstream.packetsPerSec += client->netprofile.downstream.packetsPerSec;
+		netprofile->upstream.totalSize += client->netprofile.upstream.totalSize;
+		netprofile->upstream.bytesPerSec += client->netprofile.upstream.bytesPerSec;
+		netprofile->upstream.numDropped += client->netprofile.upstream.numDropped;
+		netprofile->upstream.percentDropped += client->netprofile.upstream.percentDropped;
+		netprofile->upstream.percentFragmented += client->netprofile.upstream.percentFragmented;
+		netprofile->upstream.numFragmented += client->netprofile.upstream.numFragmented;
+		netprofile->upstream.totalBytesConnectionLess += client->netprofile.upstream.totalBytesConnectionLess;
+		netprofile->upstream.percentConnectionLess += client->netprofile.upstream.percentConnectionLess;
+		netprofile->upstream.totalPackets += client->netprofile.upstream.totalPackets;
+		netprofile->upstream.packetsPerSec += client->netprofile.upstream.packetsPerSec;
 	}
 
 	if (numValidClients && netprofile->rate) {
 		netprofile->rate /= numValidClients;
 	}
 
-    netprofile->outPackets.totalSize += svs.netprofile.outPackets.totalSize;
-    netprofile->outPackets.bytesPerSec += svs.netprofile.outPackets.bytesPerSec;
-    netprofile->outPackets.numDropped += svs.netprofile.outPackets.numDropped;
-    netprofile->outPackets.percentDropped += svs.netprofile.outPackets.percentDropped;
-    netprofile->outPackets.percentFragmented += svs.netprofile.outPackets.percentFragmented;
-    netprofile->outPackets.numFragmented += svs.netprofile.outPackets.numFragmented;
-    netprofile->outPackets.totalLengthConnectionLess += svs.netprofile.outPackets.totalLengthConnectionLess;
-    netprofile->outPackets.percentConnectionLess += svs.netprofile.outPackets.percentConnectionLess;
-    netprofile->outPackets.totalProcessed += svs.netprofile.outPackets.totalProcessed;
-    netprofile->outPackets.packetsPerSec += svs.netprofile.outPackets.packetsPerSec;
-    netprofile->inPackets.totalSize += svs.netprofile.inPackets.totalSize;
-    netprofile->inPackets.bytesPerSec += svs.netprofile.inPackets.bytesPerSec;
-    netprofile->inPackets.numDropped += svs.netprofile.inPackets.numDropped;
-    netprofile->inPackets.percentDropped += svs.netprofile.inPackets.percentDropped;
-    netprofile->inPackets.percentFragmented += svs.netprofile.inPackets.percentFragmented;
-    netprofile->inPackets.numFragmented += svs.netprofile.inPackets.numFragmented;
-    netprofile->inPackets.totalLengthConnectionLess += svs.netprofile.inPackets.totalLengthConnectionLess;
-    netprofile->inPackets.percentConnectionLess += svs.netprofile.inPackets.percentConnectionLess;
-    netprofile->inPackets.totalProcessed += svs.netprofile.inPackets.totalProcessed;
-    netprofile->inPackets.packetsPerSec += svs.netprofile.inPackets.packetsPerSec;
+    netprofile->downstream.totalSize += svs.netprofile.downstream.totalSize;
+    netprofile->downstream.bytesPerSec += svs.netprofile.downstream.bytesPerSec;
+    netprofile->downstream.numDropped += svs.netprofile.downstream.numDropped;
+    netprofile->downstream.percentDropped += svs.netprofile.downstream.percentDropped;
+    netprofile->downstream.percentFragmented += svs.netprofile.downstream.percentFragmented;
+    netprofile->downstream.numFragmented += svs.netprofile.downstream.numFragmented;
+    netprofile->downstream.totalBytesConnectionLess += svs.netprofile.downstream.totalBytesConnectionLess;
+    netprofile->downstream.percentConnectionLess += svs.netprofile.downstream.percentConnectionLess;
+    netprofile->downstream.totalPackets += svs.netprofile.downstream.totalPackets;
+    netprofile->downstream.packetsPerSec += svs.netprofile.downstream.packetsPerSec;
+    netprofile->upstream.totalSize += svs.netprofile.upstream.totalSize;
+    netprofile->upstream.bytesPerSec += svs.netprofile.upstream.bytesPerSec;
+    netprofile->upstream.numDropped += svs.netprofile.upstream.numDropped;
+    netprofile->upstream.percentDropped += svs.netprofile.upstream.percentDropped;
+    netprofile->upstream.percentFragmented += svs.netprofile.upstream.percentFragmented;
+    netprofile->upstream.numFragmented += svs.netprofile.upstream.numFragmented;
+    netprofile->upstream.totalBytesConnectionLess += svs.netprofile.upstream.totalBytesConnectionLess;
+    netprofile->upstream.percentConnectionLess += svs.netprofile.upstream.percentConnectionLess;
+    netprofile->upstream.totalPackets += svs.netprofile.upstream.totalPackets;
+    netprofile->upstream.packetsPerSec += svs.netprofile.upstream.packetsPerSec;
 }
 

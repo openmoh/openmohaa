@@ -315,28 +315,37 @@ typedef struct {
 	int updateTime;
 	int index;
 	netprofpacket_t packets[NETPROX_MAX_PACKETS];
+
+	// Timing
 	int lastCalcTime;
 	int lowestUpdateTime;
 	int highestUpdateTime;
-	int totalProcessed;
+
+	// Accumulators
+	int totalPackets;
 	int totalSize;
 	int numFragmented;
 	int numDropped;
 	int numConnectionLess;
-	int totalLengthConnectionLess;
+	int totalBytesConnectionLess;
+
+	// Rates
 	int packetsPerSec;
 	int bytesPerSec;
+
+	// Percentages
 	int percentFragmented;
 	int percentDropped;
 	int percentConnectionLess;
+
 	float latency;
 } netprofpacketlist_t;
 
 typedef struct {
 	qboolean initialized;
 	int rate;
-	netprofpacketlist_t outPackets;
-	netprofpacketlist_t inPackets;
+	netprofpacketlist_t downstream;
+	netprofpacketlist_t upstream;
 } netprofclient_t;
 
 void Netchan_Init( int qport );
