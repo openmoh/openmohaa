@@ -2314,7 +2314,7 @@ void CL_ConnectionlessPacket( netadr_t from, msg_t *msg ) {
 	const char	*reason;
 	
 	if (cl_netprofile->integer) {
-		NetProfileAddPacket(&cls.netprofile.inPackets, msg->cursize, NETPROF_PACKET_MESSAGE);
+		NetProfileAddPacket(&cls.netprofile.outPackets, msg->cursize, NETPROF_PACKET_MESSAGE);
 	}
 
 	MSG_BeginReadingOOB( msg );
