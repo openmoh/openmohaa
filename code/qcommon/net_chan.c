@@ -216,7 +216,9 @@ void NetProfileCalcStats(netprofpacketlist_t* list, int time)
 
 	if (list->totalLengthConnectionLess) {
 		list->percentConnectionLess = (float)list->totalLengthConnectionLess / list->totalSize * 100.0;
-	}
+	} else {
+        list->percentConnectionLess = 0;
+    }
 }
 
 // TTimo: unused, commenting out to make gcc happy
