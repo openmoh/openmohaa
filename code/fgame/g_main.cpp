@@ -46,6 +46,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #    include <intrin.h>
 #endif
 
+#include <tracy/Tracy.hpp>
+
 #define SAVEGAME_VERSION   80
 #define PERSISTANT_VERSION 2
 
@@ -481,6 +483,8 @@ void G_RunFrame(int levelTime, int frameTime)
     unsigned long long end;
     static int         processed[MAX_GENTITIES] = {0};
     static int         processedFrameID         = 0;
+
+    ZoneScoped;
 
     try {
         g_iInThinks = 0;

@@ -2247,8 +2247,6 @@ void Com_Frame( void ) {
 		return;			// an ERR_DROP was thrown
 	}
 
-	TracyCFrameMark
-
 	SV_SetFrameNumber(com_frameNumber);
 
 #ifndef DEDICATED
@@ -2499,6 +2497,8 @@ void Com_Frame( void ) {
     Sys_ProcessBackgroundTasks();
 
 	com_frameNumber++;
+
+	TracyCFrameMark;
 }
 
 /*
