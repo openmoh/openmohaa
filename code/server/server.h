@@ -501,7 +501,8 @@ void SV_ApplyFirstConfigTweaks();
 //
 // sv_client.c
 //
-challenge_t* FindChallenge(netadr_t from, qboolean connecting); 
+challenge_t* FindChallenge(netadr_t from, qboolean connecting);
+challenge_t* FindExistingChallenge(netadr_t from);
 void SV_GetChallenge(netadr_t from);
 
 void SV_DirectConnect( netadr_t from );

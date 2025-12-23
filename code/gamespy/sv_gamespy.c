@@ -39,43 +39,25 @@ extern GSIACResult __GSIACResult;
 cvar_t *net_ip           = NULL;
 cvar_t *net_gamespy_port = NULL;
 
-static const char *SECRET_GS_KEYS[] =
-{
-    "M5Fdwc",
-    "h2P1c9",
-    "y32FDc"
-};
+static const char *SECRET_GS_KEYS[] = {"M5Fdwc", "h2P1c9", "y32FDc"};
 
-static const unsigned int GCD_GAME_IDS[] =
-{
+static const unsigned int GCD_GAME_IDS[] = {
     0,
     641,
     802,
 };
 
-static const char *GS_GAME_NAME[] =
-{
-    "mohaa",
-    "mohaas",
-    "mohaab"
-};
+static const char *GS_GAME_NAME[] = {"mohaa", "mohaas", "mohaab"};
 
-static const char *GS_GAME_NAME_DEMO[] =
-{
-    "mohaa",
-    "mohaas",
-    "mohaabd"
-};
+static const char *GS_GAME_NAME_DEMO[] = {"mohaa", "mohaas", "mohaabd"};
 
-static const char *GS_GAME_VERSION[] =
-{
+static const char *GS_GAME_VERSION[] = {
     TARGET_GAME_VERSION_MOH "+" PRODUCT_VERSION,
     TARGET_GAME_VERSION_MOHTA "+" PRODUCT_VERSION,
     TARGET_GAME_VERSION_MOHTT "+" PRODUCT_VERSION,
 };
 
-static const char* GS_GAME_VERSION_DEMO[] =
-{
+static const char *GS_GAME_VERSION_DEMO[] = {
     TARGET_GAME_VERSION_MOH "+" PRODUCT_VERSION,
     "d" TARGET_GAME_VERSION_MOHTA "+" PRODUCT_VERSION,
     "d" TARGET_GAME_VERSION_MOHTT_DEMO "+" PRODUCT_VERSION,
@@ -424,7 +406,7 @@ challenge_t *FindChallengeById(int gameid)
 
     for (i = 0; i < MAX_CHALLENGES; i++) {
         challenge = &svs.challenges[i];
-        if (challenge->connected == gameid) {
+        if (challenge->gamespyId == gameid) {
             return challenge;
         }
     }
@@ -437,13 +419,13 @@ void AuthenticateCallback(int gameid, int localid, int authenticated, char *errm
     challenge_t *challenge;
     qboolean     valid = qfalse;
 
-    if (localid || !Q_stricmp(errmsg, "CD Key in use")) {
+    if (instance || !Q_stricmp(errmsg, "CD Key in use") || !Q_stricmp(errmsg, "Validation Timeout")) {
         valid = qtrue;
     }
 
-    challenge = FindChallengeById(gameid);
+    challenge = FindChallengeById(localid);
     if (valid) {
-        challenge->cdkeyState = 2;
+        challenge->cdkeyState = CDKS_AUTHENTICATED;
         challenge->pingTime   = svs.time;
 
         SV_NET_OutOfBandPrint(&svs.netprofile, challenge->adr, "challengeResponse %i", challenge->challenge);
@@ -464,7 +446,7 @@ void AuthenticateCallback(int gameid, int localid, int authenticated, char *errm
             challenge->adr.ip[3]
         );
         Com_Printf("%s failed cdkey authorization\n", buf);
-        challenge->cdkeyState = 3;
+        challenge->cdkeyState = CDKS_FAILED;
         // tell the client about the reason
         SV_NET_OutOfBandPrint(&svs.netprofile, challenge->adr, "droperror\nServer rejected connection:\n%s", errmsg);
     }
@@ -475,7 +457,7 @@ void RefreshAuthCallback(int gameid, int localid, int hint, char *challenge, voi
 void SV_GamespyAuthorize(netadr_t from, const char *response)
 {
     char         buf[64];
-    challenge_t *challenge = FindChallenge(from, qtrue);
+    challenge_t *challenge = FindExistingChallenge(from);
     if (!challenge) {
         return;
     }
@@ -560,6 +542,13 @@ void SV_TryRestartGamespy()
     if (sv_gamespy && sv_gamespy->latchedString) {
         SV_RestartGamespy();
         return;
+    }
+}
+
+void SV_GamespyClientDisconnect(int gamespyId)
+{
+    if (gcdInitialized) {
+        gcd_disconnect_user(GS_GetCurrentGameID(), gamespyId);
     }
 }
 

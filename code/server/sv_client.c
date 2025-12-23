@@ -81,9 +81,9 @@ void SV_GetChallenge(netadr_t from)
 		return;
 	}
 
-    challenge = FindChallenge(from, qtrue);
+	challenge = FindChallenge(from, qtrue);
 
-    // if they are on a lan address, send the challengeResponse immediately
+	// if they are on a lan address, send the challengeResponse immediately
 
 	// we send the challengeResponse immediately as there is no AUTH server for us
 	// it's also way more cool this way :)
@@ -95,19 +95,19 @@ void SV_GetChallenge(netadr_t from)
 
 	if (com_protocol->integer < PROTOCOL_MOHTA_MIN) {
 		// mohaa below 2.0 doesn't handle gamespy key
-        // so send the challenge response directly
-        challenge->pingTime = svs.time;
-        SV_NET_OutOfBandPrint( &svs.netprofile, from, "challengeResponse %i", challenge->challenge);
-        return;
+		// so send the challenge response directly
+		challenge->pingTime = svs.time;
+		SV_NET_OutOfBandPrint( &svs.netprofile, from, "challengeResponse %i", challenge->challenge);
+		return;
 	}
 
-    if (qtrue) {
+	if (qtrue) {
 		// cdkey authorization is currently useless because gamespy as shut down
 		// however, it could be an useful feature for a far future
 		// where players could be authenticated
-        challenge->pingTime = svs.time;
-        SV_NET_OutOfBandPrint( &svs.netprofile, from, "challengeResponse %i", challenge->challenge);
-        return;
+		challenge->pingTime = svs.time;
+		SV_NET_OutOfBandPrint( &svs.netprofile, from, "challengeResponse %i", challenge->challenge);
+		return;
 	}
 
 	// check client's cd key
@@ -309,6 +309,27 @@ challenge_t* FindChallenge(netadr_t from, qboolean connecting) {
 	challenge->time = svs.time;
 
 	return challenge;
+}
+
+/*
+==================
+FindChallenge
+
+Find or create challenge, from the specified ip address
+==================
+*/
+challenge_t* FindExistingChallenge(netadr_t from) {
+	int i;
+
+	for (i=0; i<MAX_CHALLENGES; i++)
+	{
+		if (NET_CompareAdr(from, svs.challenges[i].adr))
+		{
+			return &svs.challenges[i];
+		}
+	}
+
+	return NULL;
 }
 
 /*
@@ -624,7 +645,16 @@ gotnewcl:
     //  Show the IP address of the client that is connecting
     Com_Printf("Client %i (IP: %s) is connecting\n", clientNum, ip);
 
-	ch = FindChallenge(from, qfalse);
+	for (i=0; i<MAX_CHALLENGES; i++)
+	{
+		if (NET_CompareAdr(from, svs.challenges[i].adr))
+		{
+			if(challenge == svs.challenges[i].challenge)
+				break;
+		}
+	}
+
+	ch = &svs.challenges[i];
 	if (ch) {
 		newcl->gamespyId = ch->gamespyId;
 	}
@@ -775,6 +805,9 @@ void SV_DropClient( client_t *drop, const char *reason ) {
 	if ( i == sv_maxclients->integer ) {
 		SV_Heartbeat_f();
 	}
+
+	// Added in 2.0
+	SV_GamespyClientDisconnect(drop->gamespyId);
 }
 
 /*
