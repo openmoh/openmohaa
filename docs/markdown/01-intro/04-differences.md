@@ -372,6 +372,7 @@ Enable this feature with `set sv_netoptimize 2`.
 - Fixed crash when increasing `sv_maxclients` and restarting
 - Fixed a crash related to invalid turret for vehicles
 - Fixed a crash related to invalid entity being attached to vehicles
+- Fixed a rare glitch causing the player to be teleported to (0,0,0) and be stuck
 - Fixed crashes related to scripts passing an invalid entity
 - Fixed grenade crash bug
 - Fixed grenade spectator charge bug

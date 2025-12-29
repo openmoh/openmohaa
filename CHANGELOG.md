@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ##### Scripting
 
+- Add a third optional parameter for `removeclass` to specify if it should include subclasses (defaults to true).
 - The owner of a projectile is now accessible from scripts.
 
 #### General
@@ -45,6 +46,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 #### General
 
+- Fix network profiling connectionless packet improperly counted.
 - Fix Spearhead getting medals from Allied Assault when the config file doesn't exist (also occurs in the original game) (#818).
 
 #### Server
@@ -52,7 +54,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Allow `g_teamkillkick` to be set to 0. Players would get kicked when this variable was set to 0 (also occurs in the original game).
 - Allow spectators and dead players to vote (#843).
 - Fix a bug where players who switched to spectator mode immediately after dying would have 0 health and drop DM items (also occurs in the original game).
+- Fix a crash that occurs when the server receives a gamespy cdkey authorize request.
 - Fix a possible crash caused by scripts using `angles_pointat` (also occurs in the original game).
+- Fix a rare glitch causing the player to be teleported to (0,0,0) and stuck (also occurs in the original game).
 - Fix Actors not doing anything without client #0 (also occurs in the original game).
 - Fix an issue where clients could crash because of too many models being loaded from the server.
 - Fix bad animation blending with portable turret.
