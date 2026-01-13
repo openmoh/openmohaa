@@ -21,7 +21,7 @@ OpenMoHAA is not a standalone game - it needs the original MOHAA game files to r
 ### 4. Try running as Administrator (Windows only)
 Right-click on `launch_openmohaa_base.exe` and select "Run as administrator".
 
-If none of these steps help, please [create a new issue](https://github.com/openmoh/openmohaa/issues/new/choose) or ask for help on the [OpenMoHAA Discord](https://discord.gg/NYtH58R).
+If none of these steps help, please [create a new issue](https://github.com/openmoh/openmohaa/issues/new/choose) or ask for help on the [OpenMoHAA Discord](https://discord.gg/DaYC4UxV).
 </details>
 
 ---
