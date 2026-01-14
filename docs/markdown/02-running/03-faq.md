@@ -18,10 +18,10 @@ If you accidentally extracted into a subfolder (e.g., `MOHAA/openmohaa-0.80.0/`)
 ### 3. Check that you have the original game files
 OpenMoHAA is not a standalone game - it needs the original MOHAA game files to run. Make sure you have Medal of Honor: Allied Assault installed.
 
-### 4. Try running as Administrator (Windows only)
-Right-click on `launch_openmohaa_base.exe` and select "Run as administrator".
+### 4. Check for error messages
+Error messages displayed in the terminal are often helpful for diagnosing issues. You can also check the log file located in your user data folder (`%APPDATA%\openmohaa\main` on Windows, `~/.openmohaa/main` on Linux).
 
-If none of these steps help, please [create a new issue](https://github.com/openmoh/openmohaa/issues/new/choose) or ask for help on the [OpenMoHAA Discord](https://discord.gg/DaYC4UxV).
+If none of these steps help, ask for help on the [OpenMoHAA Discord](https://discord.gg/DaYC4UxV).
 </details>
 
 ---
