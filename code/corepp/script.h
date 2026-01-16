@@ -39,6 +39,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // #define TOKENNULL			('\0')
 #define TOKENSPACE      (' ')
 #define TOKENSPECIAL    ('$')
+#define TOKENCOMMA      (',')
 
 #define SCRIPT_MAXTOKEN 512
 
