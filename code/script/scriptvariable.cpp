@@ -957,6 +957,7 @@ void ScriptVariable::evalArrayAt(ScriptVariable& var)
     unsigned int    index;
     str             string;
     ScriptVariable *array;
+    const char     *typeName;
 
     switch (GetType()) {
     case VARIABLE_VECTOR:
@@ -1036,8 +1037,10 @@ void ScriptVariable::evalArrayAt(ScriptVariable& var)
         break;
 
     default:
+        typeName = GetTypeName();
+
         Clear();
-        throw ScriptException("[] applied to invalid type '%s'", GetTypeName());
+        throw ScriptException("[] applied to invalid type '%s'", typeName);
         break;
     }
 }
