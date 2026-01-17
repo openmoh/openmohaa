@@ -594,7 +594,7 @@ void ScriptVariable::ClearPointerInternal() const
 
 const char *ScriptVariable::GetTypeName() const
 {
-    return typenames[GetType()];
+    return typenames[type];
 }
 
 variabletype ScriptVariable::GetType() const
@@ -939,7 +939,7 @@ Entity *ScriptVariable::entityValue(void)
         ent = static_cast<Entity *>(m_data.listenerValue->Pointer());
         break;
     default:
-        throw ScriptException("Cannot cast '%s' to entity", typenames[GetType()]);
+        throw ScriptException("Cannot cast '%s' to entity", GetTypeName());
     }
 
     if (ent && !ent->isSubclassOf(Entity)) {
@@ -1037,7 +1037,7 @@ void ScriptVariable::evalArrayAt(ScriptVariable& var)
 
     default:
         Clear();
-        throw ScriptException("[] applied to invalid type '%s'", typenames[GetType()]);
+        throw ScriptException("[] applied to invalid type '%s'", GetTypeName());
         break;
     }
 }
@@ -1063,7 +1063,7 @@ float ScriptVariable::floatValue(void) const
         return val;
 
     default:
-        throw ScriptException("Cannot cast '%s' to float", typenames[GetType()]);
+        throw ScriptException("Cannot cast '%s' to float", GetTypeName());
     }
 }
 
@@ -1087,7 +1087,7 @@ int ScriptVariable::intValue(void) const
         return val;
 
     default:
-        throw ScriptException("Cannot cast '%s' to int", typenames[GetType()]);
+        throw ScriptException("Cannot cast '%s' to int", GetTypeName());
     }
 }
 
@@ -1106,7 +1106,7 @@ Listener *ScriptVariable::listenerValue(void) const
         return (Listener *)m_data.listenerValue->Pointer();
 
     default:
-        throw ScriptException("Cannot cast '%s' to listener", typenames[GetType()]);
+        throw ScriptException("Cannot cast '%s' to listener", GetTypeName());
     }
 
     return NULL;
@@ -1126,7 +1126,7 @@ Listener *ScriptVariable::listenerAt(uintptr_t index) const
         return (*m_data.safeContainerValue)->ObjectAt(index);
 
     default:
-        throw ScriptException("Cannot cast '%s' to listener", typenames[GetType()]);
+        throw ScriptException("Cannot cast '%s' to listener", GetTypeName());
     }
 }
 
@@ -1195,7 +1195,7 @@ str ScriptVariable::stringValue() const
              + str(m_data.vectorValue[2]) + str(" )");
 
     default:
-        throw ScriptException("Cannot cast '%s' to string", typenames[GetType()]);
+        throw ScriptException("Cannot cast '%s' to string", GetTypeName());
         break;
     }
 
@@ -1366,7 +1366,7 @@ void ScriptVariable::setArrayAtRef(ScriptVariable& index, ScriptVariable& value)
         break;
 
     default:
-        throw ScriptException("[] applied to invalid type '%s'\n", typenames[GetType()]);
+        throw ScriptException("[] applied to invalid type '%s'\n", GetTypeName());
         break;
     }
 }
@@ -1495,16 +1495,14 @@ void ScriptVariable::setVectorValue(const Vector& newvector)
 
 void ScriptVariable::operator+=(const ScriptVariable& value)
 {
-    int currentType = GetType();
+    const char *typeName;
 
-    switch (currentType + value.GetType() * VARIABLE_MAX) {
+    switch (GetType() + value.GetType() * VARIABLE_MAX) {
     default:
+        typeName = GetTypeName();
+
         Clear();
-
-        throw ScriptException(
-            "binary '+' applied to incompatible types '%s' and '%s'", typenames[currentType], typenames[value.GetType()]
-        );
-
+        throw ScriptException("binary '+' applied to incompatible types '%s' and '%s'", typeName, value.GetTypeName());
         break;
 
     case VARIABLE_INTEGER + VARIABLE_INTEGER *VARIABLE_MAX: // ( int ) + ( int )
@@ -1556,9 +1554,10 @@ void ScriptVariable::operator+=(const ScriptVariable& value)
     case VARIABLE_STRING
         + VARIABLE_LISTENER *VARIABLE_MAX: // ( string )			+		( listener )
     case VARIABLE_CONSTSTRING
-        + VARIABLE_LISTENER                     *VARIABLE_MAX: // ( const string )		+		( listener )
-    case VARIABLE_STRING + VARIABLE_VECTOR      *VARIABLE_MAX: // ( string )			+		( vector )
-    case VARIABLE_CONSTSTRING + VARIABLE_VECTOR *VARIABLE_MAX: // ( const string )		+		( vector )
+        + VARIABLE_LISTENER                *VARIABLE_MAX: // ( const string )		+		( listener )
+    case VARIABLE_STRING + VARIABLE_VECTOR *VARIABLE_MAX: // ( string )			+		( vector )
+    case VARIABLE_CONSTSTRING
+        + VARIABLE_VECTOR *VARIABLE_MAX: // ( const string )		+		( vector )
         setStringValue(stringValue() + value.stringValue());
         break;
 
@@ -1570,16 +1569,14 @@ void ScriptVariable::operator+=(const ScriptVariable& value)
 
 void ScriptVariable::operator-=(const ScriptVariable& value)
 {
-    int currentType = GetType();
+    const char *typeName;
 
-    switch (currentType + value.GetType() * VARIABLE_MAX) {
+    switch (GetType() + value.GetType() * VARIABLE_MAX) {
     default:
+        typeName = GetTypeName();
+
         Clear();
-
-        throw ScriptException(
-            "binary '-' applied to incompatible types '%s' and '%s'", typenames[currentType], typenames[value.GetType()]
-        );
-
+        throw ScriptException("binary '-' applied to incompatible types '%s' and '%s'", typeName, value.GetTypeName());
         break;
 
     case VARIABLE_INTEGER + VARIABLE_INTEGER *VARIABLE_MAX: // ( int ) - ( int )
@@ -1606,16 +1603,14 @@ void ScriptVariable::operator-=(const ScriptVariable& value)
 
 void ScriptVariable::operator*=(const ScriptVariable& value)
 {
-    int currentType = GetType();
+    const char *typeName;
 
-    switch (currentType + value.GetType() * VARIABLE_MAX) {
+    switch (GetType() + value.GetType() * VARIABLE_MAX) {
     default:
+        typeName = GetTypeName();
+
         Clear();
-
-        throw ScriptException(
-            "binary '*' applied to incompatible types '%s' and '%s'", typenames[currentType], typenames[value.GetType()]
-        );
-
+        throw ScriptException("binary '*' applied to incompatible types '%s' and '%s'", typeName, value.GetTypeName());
         break;
 
     case VARIABLE_INTEGER + VARIABLE_INTEGER *VARIABLE_MAX: // ( int ) * ( int )
@@ -1658,16 +1653,14 @@ void ScriptVariable::operator*=(const ScriptVariable& value)
 
 void ScriptVariable::operator/=(const ScriptVariable& value)
 {
-    int currentType = GetType();
+    const char *typeName;
 
-    switch (currentType + value.GetType() * VARIABLE_MAX) {
+    switch (GetType() + value.GetType() * VARIABLE_MAX) {
     default:
+        typeName = GetTypeName();
+
         Clear();
-
-        throw ScriptException(
-            "binary '/' applied to incompatible types '%s' and '%s'", typenames[currentType], typenames[value.GetType()]
-        );
-
+        throw ScriptException("binary '/' applied to incompatible types '%s' and '%s'", typeName, value.GetTypeName());
         break;
 
     case VARIABLE_INTEGER + VARIABLE_INTEGER *VARIABLE_MAX: // ( int ) / ( int )
@@ -1756,19 +1749,15 @@ void ScriptVariable::operator/=(const ScriptVariable& value)
 
 void ScriptVariable::operator%=(const ScriptVariable& value)
 {
-    float mult        = 0.0f;
-    int   currentType = GetType();
+    const char *typeName;
+    float       mult = 0.0f;
 
-    switch (currentType + value.GetType() * VARIABLE_MAX) {
+    switch (GetType() + value.GetType() * VARIABLE_MAX) {
     default:
+        typeName = GetTypeName();
+
         Clear();
-
-        throw ScriptException(
-            "binary '%%' applied to incompatible types '%s' and '%s'",
-            typenames[currentType],
-            typenames[value.GetType()]
-        );
-
+        throw ScriptException("binary '%%' applied to incompatible types '%s' and '%s'", typeName, value.GetTypeName());
         break;
 
     case VARIABLE_INTEGER + VARIABLE_INTEGER *VARIABLE_MAX: // ( int ) % ( int )
@@ -1872,16 +1861,14 @@ void ScriptVariable::operator%=(const ScriptVariable& value)
 
 void ScriptVariable::operator&=(const ScriptVariable& value)
 {
-    int currentType = GetType();
+    const char *typeName;
 
-    switch (currentType + value.GetType() * VARIABLE_MAX) {
+    switch (GetType() + value.GetType() * VARIABLE_MAX) {
     default:
+        typeName = GetTypeName();
+
         Clear();
-
-        throw ScriptException(
-            "binary '&' applied to incompatible types '%s' and '%s'", typenames[currentType], typenames[value.GetType()]
-        );
-
+        throw ScriptException("binary '&' applied to incompatible types '%s' and '%s'", typeName, value.GetTypeName());
         break;
 
     case VARIABLE_INTEGER + VARIABLE_INTEGER *VARIABLE_MAX: // ( int ) &= ( int )
@@ -1892,16 +1879,14 @@ void ScriptVariable::operator&=(const ScriptVariable& value)
 
 void ScriptVariable::operator^=(const ScriptVariable& value)
 {
-    int currentType = GetType();
+    const char *typeName;
 
-    switch (currentType + value.GetType() * VARIABLE_MAX) {
+    switch (GetType() + value.GetType() * VARIABLE_MAX) {
     default:
+        typeName = GetTypeName();
+
         Clear();
-
-        throw ScriptException(
-            "binary '^' applied to incompatible types '%s' and '%s'", typenames[currentType], typenames[value.GetType()]
-        );
-
+        throw ScriptException("binary '^' applied to incompatible types '%s' and '%s'", typeName, value.GetTypeName());
         break;
 
     case VARIABLE_INTEGER + VARIABLE_INTEGER *VARIABLE_MAX: // ( int ) ^= ( int )
@@ -1912,16 +1897,14 @@ void ScriptVariable::operator^=(const ScriptVariable& value)
 
 void ScriptVariable::operator|=(const ScriptVariable& value)
 {
-    int currentType = GetType();
+    const char *typeName;
 
-    switch (currentType + value.GetType() * VARIABLE_MAX) {
+    switch (GetType() + value.GetType() * VARIABLE_MAX) {
     default:
+        typeName = GetTypeName();
+
         Clear();
-
-        throw ScriptException(
-            "binary '|' applied to incompatible types '%s' and '%s'", typenames[currentType], typenames[value.GetType()]
-        );
-
+        throw ScriptException("binary '|' applied to incompatible types '%s' and '%s'", typeName, value.GetTypeName());
         break;
 
     case VARIABLE_INTEGER + VARIABLE_INTEGER *VARIABLE_MAX: // ( int ) |= ( int )
@@ -1932,18 +1915,14 @@ void ScriptVariable::operator|=(const ScriptVariable& value)
 
 void ScriptVariable::operator<<=(const ScriptVariable& value)
 {
-    int currentType = GetType();
+    const char *typeName;
 
-    switch (currentType + value.GetType() * VARIABLE_MAX) {
+    switch (GetType() + value.GetType() * VARIABLE_MAX) {
     default:
+        typeName = GetTypeName();
+
         Clear();
-
-        throw ScriptException(
-            "binary '<<' applied to incompatible types '%s' and '%s'",
-            typenames[currentType],
-            typenames[value.GetType()]
-        );
-
+        throw ScriptException("binary '<<' applied to incompatible types '%s' and '%s'", typeName, value.GetTypeName());
         break;
 
     case VARIABLE_INTEGER + VARIABLE_INTEGER *VARIABLE_MAX: // ( int ) <<= ( int )
@@ -1954,18 +1933,14 @@ void ScriptVariable::operator<<=(const ScriptVariable& value)
 
 void ScriptVariable::operator>>=(const ScriptVariable& value)
 {
-    int currentType = GetType();
+    const char *typeName;
 
-    switch (currentType + value.GetType() * VARIABLE_MAX) {
+    switch (GetType() + value.GetType() * VARIABLE_MAX) {
     default:
+        typeName = GetTypeName();
+
         Clear();
-
-        throw ScriptException(
-            "binary '>>' applied to incompatible types '%s' and '%s'",
-            typenames[currentType],
-            typenames[value.GetType()]
-        );
-
+        throw ScriptException("binary '>>' applied to incompatible types '%s' and '%s'", typeName, value.GetTypeName());
         break;
 
     case VARIABLE_INTEGER + VARIABLE_INTEGER *VARIABLE_MAX: // ( int ) >>= ( int )
@@ -1981,9 +1956,7 @@ bool ScriptVariable::operator!=(const ScriptVariable& value)
 
 bool ScriptVariable::operator==(const ScriptVariable& value)
 {
-    int currentType = GetType();
-
-    switch (currentType + value.GetType() * VARIABLE_MAX) {
+    switch (GetType() + value.GetType() * VARIABLE_MAX) {
     default: // ( lval )	==	( nil )
              // ( nil )	==	( rval )
         Clear();
@@ -2029,8 +2002,9 @@ bool ScriptVariable::operator==(const ScriptVariable& value)
         + VARIABLE_STRING                 *VARIABLE_MAX: // ( int )				==		( string )
     case VARIABLE_FLOAT + VARIABLE_STRING *VARIABLE_MAX: // ( float )			==		( string )
     case VARIABLE_CHAR
-        + VARIABLE_STRING                       *VARIABLE_MAX: // ( char )				==		( string )
-    case VARIABLE_CONSTSTRING + VARIABLE_STRING *VARIABLE_MAX: // ( const string )		==		( string )
+        + VARIABLE_STRING *VARIABLE_MAX: // ( char )				==		( string )
+    case VARIABLE_CONSTSTRING
+        + VARIABLE_STRING *VARIABLE_MAX: // ( const string )		==		( string )
     case VARIABLE_LISTENER
         + VARIABLE_STRING                  *VARIABLE_MAX: // ( listener )			==		( string )
     case VARIABLE_VECTOR + VARIABLE_STRING *VARIABLE_MAX: // ( vector )			==		( string )
@@ -2054,9 +2028,10 @@ bool ScriptVariable::operator==(const ScriptVariable& value)
     case VARIABLE_CONSTSTRING + VARIABLE_CHAR    *VARIABLE_MAX: // ( const string )		==		( char )
     case VARIABLE_STRING + VARIABLE_LISTENER     *VARIABLE_MAX: // ( string )			==		( listener )
     case VARIABLE_CONSTSTRING
-        + VARIABLE_LISTENER                     *VARIABLE_MAX: // ( const string )		==		( listener )
-    case VARIABLE_STRING + VARIABLE_VECTOR      *VARIABLE_MAX: // ( string )			==		( vector )
-    case VARIABLE_CONSTSTRING + VARIABLE_VECTOR *VARIABLE_MAX: // ( const string )		==		( vector )
+        + VARIABLE_LISTENER                *VARIABLE_MAX: // ( const string )		==		( listener )
+    case VARIABLE_STRING + VARIABLE_VECTOR *VARIABLE_MAX: // ( string )			==		( vector )
+    case VARIABLE_CONSTSTRING
+        + VARIABLE_VECTOR *VARIABLE_MAX: // ( const string )		==		( vector )
         {
             str lval = stringValue();
             str rval = value.stringValue();
@@ -2253,7 +2228,7 @@ ScriptVariable& ScriptVariable::operator[](ScriptVariable& index)
         return m_data.constArrayValue->constArrayValue[i - 1];
 
     default:
-        throw ScriptException("[] applied to invalid type '%s'", typenames[GetType()]);
+        throw ScriptException("[] applied to invalid type '%s'", GetTypeName());
     }
 }
 
@@ -2278,18 +2253,16 @@ void ScriptVariable::complement(void)
 
 void ScriptVariable::greaterthan(ScriptVariable& variable)
 {
-    int currentType = GetType();
+    const char *typeName;
 
-    switch (currentType + variable.GetType() * VARIABLE_MAX) {
+    switch (GetType() + variable.GetType() * VARIABLE_MAX) {
     default:
+        typeName = GetTypeName();
+
         Clear();
-
         throw ScriptException(
-            "binary '>' applied to incompatible types '%s' and '%s'",
-            typenames[currentType],
-            typenames[variable.GetType()]
+            "binary '>' applied to incompatible types '%s' and '%s'", typeName, variable.GetTypeName()
         );
-
         break;
 
     case VARIABLE_INTEGER + VARIABLE_INTEGER *VARIABLE_MAX: // ( int ) > ( int )
@@ -2319,18 +2292,16 @@ void ScriptVariable::greaterthan(ScriptVariable& variable)
 
 void ScriptVariable::greaterthanorequal(ScriptVariable& variable)
 {
-    int currentType = GetType();
+    const char *typeName;
 
-    switch (currentType + variable.GetType() * VARIABLE_MAX) {
+    switch (GetType() + variable.GetType() * VARIABLE_MAX) {
     default:
+        typeName = GetTypeName();
+
         Clear();
-
         throw ScriptException(
-            "binary '>=' applied to incompatible types '%s' and '%s'",
-            typenames[currentType],
-            typenames[variable.GetType()]
+            "binary '>=' applied to incompatible types '%s' and '%s'", typeName, variable.GetTypeName()
         );
-
         break;
 
     case VARIABLE_INTEGER + VARIABLE_INTEGER *VARIABLE_MAX: // ( int ) >= ( int )
@@ -2360,18 +2331,16 @@ void ScriptVariable::greaterthanorequal(ScriptVariable& variable)
 
 void ScriptVariable::lessthan(ScriptVariable& variable)
 {
-    int currentType = GetType();
+    const char *typeName;
 
-    switch (currentType + variable.GetType() * VARIABLE_MAX) {
+    switch (GetType() + variable.GetType() * VARIABLE_MAX) {
     default:
+        typeName = GetTypeName();
+
         Clear();
-
         throw ScriptException(
-            "binary '<' applied to incompatible types '%s' and '%s'",
-            typenames[currentType],
-            typenames[variable.GetType()]
+            "binary '<' applied to incompatible types '%s' and '%s'", typeName, variable.GetTypeName()
         );
-
         break;
 
     case VARIABLE_INTEGER + VARIABLE_INTEGER *VARIABLE_MAX: // ( int ) < ( int )
@@ -2401,18 +2370,16 @@ void ScriptVariable::lessthan(ScriptVariable& variable)
 
 void ScriptVariable::lessthanorequal(ScriptVariable& variable)
 {
-    int currentType = GetType();
+    const char *typeName;
 
-    switch (currentType + variable.GetType() * VARIABLE_MAX) {
+    switch (GetType() + variable.GetType() * VARIABLE_MAX) {
     default:
+        typeName = GetTypeName();
+
         Clear();
-
         throw ScriptException(
-            "binary '<=' applied to incompatible types '%s' and '%s'",
-            typenames[currentType],
-            typenames[variable.GetType()]
+            "binary '<=' applied to incompatible types '%s' and '%s'", typeName, variable.GetTypeName()
         );
-
         break;
 
     case VARIABLE_INTEGER + VARIABLE_INTEGER *VARIABLE_MAX: // ( int ) <= ( int )
