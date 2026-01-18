@@ -232,8 +232,9 @@ static void CG_MakeBulletHoleType(
     sfxManager.MakeEffect_Normal(iEffectNum, i_vPos, i_vNorm);
 }
 
-static void
-CG_MakeBulletHole(const vec3_t i_vPos, const vec3_t i_vNorm, int iLarge, trace_t *pPreTrace, qboolean bMakeSound)
+static void CG_MakeBulletHole(
+    const vec3_t i_vPos, const vec3_t i_vNorm, int iLarge, trace_t *pPreTrace, qboolean bMakeSound, int iPreEffect
+)
 {
     int     iSurfType;
     int     iEffect;
@@ -242,6 +243,11 @@ CG_MakeBulletHole(const vec3_t i_vPos, const vec3_t i_vNorm, int iLarge, trace_t
     str     sBulletHole;
     vec3_t  vFrom, vDest;
     trace_t trace;
+
+    if (iPreEffect >= 0) {
+        CG_MakeBulletHoleType(i_vPos, i_vNorm, iLarge, iPreEffect, 2.0, bMakeSound);
+        return;
+    }
 
     if (pPreTrace) {
         trace = *pPreTrace;
@@ -668,10 +674,10 @@ static void CG_MakeBulletTracerInternal(
     }
 
     if (iNumImpacts > 2) {
-        fImpSndDistRA  = 9999.0f;
-        fImpSndDistRB  = 9999.0f;
-        fImpSndDistLA  = 9999.0f;
-        fImpSndDistLB  = 9999.0f;
+        fImpSndDistRA  = 9999;
+        fImpSndDistLA  = 9999;
+        fImpSndDistRB  = 9999;
+        fImpSndDistLB  = 9999;
         iImpSndIndexRA = 0;
         iImpSndIndexLA = 0;
         iImpSndIndexRB = 0;
@@ -679,25 +685,13 @@ static void CG_MakeBulletTracerInternal(
 
         for (iBullet = 0; iBullet < iNumImpacts; iBullet++) {
             CG_MakeBulletHole(
-                tImpacts[iBullet].endpos, tImpacts[iBullet].plane.normal, iLarge, &tImpacts[iBullet], qfalse
+                tImpacts[iBullet].endpos, tImpacts[iBullet].plane.normal, iLarge, &tImpacts[iBullet], qfalse, -1
             );
 
             VectorSubtract(tImpacts[iBullet].endpos, cg.SoundOrg, vTmp);
             iHeadDist = VectorLength(vTmp);
 
-            if (DotProduct(vTmp, cg.SoundAxis[1]) <= 0.f) {
-                if (iHeadDist < fImpSndDistLA || iHeadDist < fImpSndDistLB) {
-                    if (iHeadDist < fImpSndDistLA) {
-                        iImpSndIndexLB = iImpSndIndexLA;
-                        fImpSndDistLB  = fImpSndDistLA;
-                        iImpSndIndexRA = iBullet;
-                        fImpSndDistRA  = iHeadDist;
-                    } else if (iHeadDist < fImpSndDistLB) {
-                        iImpSndIndexLB = iBullet;
-                        fImpSndDistLB  = iHeadDist;
-                    }
-                }
-            } else {
+            if (DotProduct(vTmp, cg.SoundAxis[1]) > 0.f) {
                 if (iHeadDist < fImpSndDistRA || iHeadDist < fImpSndDistRB) {
                     if (iHeadDist < fImpSndDistRA) {
                         iImpSndIndexRB = iImpSndIndexRA;
@@ -709,10 +703,22 @@ static void CG_MakeBulletTracerInternal(
                         fImpSndDistRB  = iHeadDist;
                     }
                 }
+            } else {
+                if (iHeadDist < fImpSndDistLA || iHeadDist < fImpSndDistLB) {
+                    if (iHeadDist < fImpSndDistLA) {
+                        iImpSndIndexLB = iImpSndIndexLA;
+                        fImpSndDistLB  = fImpSndDistLA;
+                        iImpSndIndexRA = iBullet;
+                        fImpSndDistRA  = iHeadDist;
+                    } else if (iHeadDist < fImpSndDistLB) {
+                        iImpSndIndexLB = iBullet;
+                        fImpSndDistLB  = iHeadDist;
+                    }
+                }
             }
         }
 
-        if (fImpSndDistRA < 9999.0f) {
+        if (fImpSndDistRA < 9999) {
             CG_MakeBulletHoleSound(
                 tImpacts[iImpSndIndexRA].endpos,
                 tImpacts[iImpSndIndexRA].plane.normal,
@@ -720,7 +726,7 @@ static void CG_MakeBulletTracerInternal(
                 &tImpacts[iImpSndIndexRA]
             );
 
-            if (fImpSndDistRB < 9999.0f) {
+            if (fImpSndDistRB < 9999) {
                 CG_MakeBulletHoleSound(
                     tImpacts[iImpSndIndexRB].endpos,
                     tImpacts[iImpSndIndexRB].plane.normal,
@@ -730,7 +736,7 @@ static void CG_MakeBulletTracerInternal(
             }
         }
 
-        if (fImpSndDistLA < 9999.0f) {
+        if (fImpSndDistLA < 9999) {
             CG_MakeBulletHoleSound(
                 tImpacts[iImpSndIndexLA].endpos,
                 tImpacts[iImpSndIndexLA].plane.normal,
@@ -738,7 +744,7 @@ static void CG_MakeBulletTracerInternal(
                 &tImpacts[iImpSndIndexLA]
             );
 
-            if (fImpSndDistLB < 9999.0f) {
+            if (fImpSndDistLB < 9999) {
                 CG_MakeBulletHoleSound(
                     tImpacts[iImpSndIndexLB].endpos,
                     tImpacts[iImpSndIndexLB].plane.normal,
@@ -750,7 +756,7 @@ static void CG_MakeBulletTracerInternal(
     } else {
         for (iBullet = 0; iBullet < iNumImpacts; iBullet++) {
             CG_MakeBulletHole(
-                tImpacts[iBullet].endpos, tImpacts[iBullet].plane.normal, iNumImpacts, &tImpacts[iBullet], qtrue
+                tImpacts[iBullet].endpos, tImpacts[iBullet].plane.normal, iNumImpacts, &tImpacts[iBullet], qtrue, -1
             );
         }
     }
@@ -841,25 +847,28 @@ void CG_AddBulletTracers()
 
 void CG_AddBulletImpacts()
 {
-    int          i;
-    int          iHeadDist;
-    float        fVolume;
-    float        fImpSndDistRA;
-    static float fImpSndDistLA = 9999.f;
-    float        fImpSndDistRB;
-    float        fImpSndDistLB;
-    int          iImpSndIndexRA;
-    int          iImpSndIndexRB;
-    int          iImpSndIndexLB;
-    vec3_t       vTmp;
-    str          sSoundName;
+    int    i;
+    int    iHeadDist;
+    float  fVolume;
+    float  fImpSndDistRA;
+    float  fImpSndDistLA;
+    float  fImpSndDistRB;
+    float  fImpSndDistLB;
+    int    iImpSndIndexRA;
+    int    iImpSndIndexRB;
+    int    iImpSndIndexLA;
+    int    iImpSndIndexLB;
+    vec3_t vTmp;
+    str    sSoundName;
 
     if (wall_impact_count) {
         if (wall_impact_count > 4) {
-            fImpSndDistRA  = fImpSndDistLA;
-            fImpSndDistRB  = fImpSndDistLA;
-            fImpSndDistLB  = fImpSndDistLA;
+            fImpSndDistRA  = 9999;
+            fImpSndDistLA  = 9999;
+            fImpSndDistRB  = 9999;
+            fImpSndDistLB  = 9999;
             iImpSndIndexRA = 0;
+            iImpSndIndexLA = 0;
             iImpSndIndexRB = 0;
             iImpSndIndexLB = 0;
 
@@ -870,178 +879,103 @@ void CG_AddBulletImpacts()
                 if (DotProduct(vTmp, cg.SoundAxis[1]) > 0.f) {
                     if (iHeadDist < fImpSndDistRA || iHeadDist < fImpSndDistRB) {
                         if (iHeadDist < fImpSndDistRA) {
-                            fImpSndDistRB  = fImpSndDistRA;
-                            fImpSndDistRA  = iHeadDist;
                             iImpSndIndexRB = iImpSndIndexRA;
+                            fImpSndDistRB  = fImpSndDistRA;
                             iImpSndIndexRA = i;
+                            fImpSndDistRA  = iHeadDist;
                         } else if (iHeadDist < fImpSndDistRB) {
-                            fImpSndDistRB  = iHeadDist;
                             iImpSndIndexRB = i;
+                            fImpSndDistRB  = iHeadDist;
                         }
                     }
                 } else {
                     if (iHeadDist < fImpSndDistLA || iHeadDist < fImpSndDistLB) {
                         if (iHeadDist < fImpSndDistLA) {
-                            fImpSndDistRA  = iHeadDist;
+                            iImpSndIndexLB = iImpSndIndexLA;
                             fImpSndDistLB  = fImpSndDistLA;
-                            iImpSndIndexLB = 0;
                             iImpSndIndexRA = i;
+                            fImpSndDistRA  = iHeadDist;
                         } else if (iHeadDist < fImpSndDistLB) {
-                            fImpSndDistLB  = iHeadDist;
                             iImpSndIndexLB = i;
+                            fImpSndDistLB  = iHeadDist;
                         }
                     }
                 }
             }
 
-            if (fImpSndDistRA < fImpSndDistLA) {
-                if (wall_impact_type[iImpSndIndexRA] != SFX_BHIT_PAPER_LITE) {
-                    if (wall_impact_large[iImpSndIndexRA]) {
-                        fVolume = 1.f;
-                    } else {
-                        fVolume = 0.75f;
-                    }
+            if (fImpSndDistRA < 9999) {
+                CG_MakeBulletHole(
+                    wall_impact_pos[iImpSndIndexRA],
+                    wall_impact_norm[iImpSndIndexRA],
+                    wall_impact_large[iImpSndIndexRA],
+                    NULL,
+                    qtrue,
+                    wall_impact_type[iImpSndIndexRA]
+                );
 
-                    if (wall_impact_type[iImpSndIndexRA] == SFX_BHIT_WOOD_LITE
-                        || wall_impact_type[iImpSndIndexRA] == SFX_BHIT_WOOD_HARD) {
-                        sSoundName = "snd_bh_metal";
-                    } else {
-                        sSoundName = "snd_bh_wood";
-                    }
-
-                    commandManager.PlaySound(sSoundName, wall_impact_pos[iImpSndIndexRA], -1, fVolume, -1, -1, 1);
-
-                    sfxManager.MakeEffect_Normal(
-                        wall_impact_type[iImpSndIndexRA],
-                        wall_impact_pos[iImpSndIndexRA],
-                        wall_impact_norm[iImpSndIndexRA]
-                    );
-                } else {
+                if (fImpSndDistRB < 9999) {
                     CG_MakeBulletHole(
-                        wall_impact_pos[iImpSndIndexRA],
-                        wall_impact_norm[iImpSndIndexRA],
-                        wall_impact_large[iImpSndIndexRA],
+                        wall_impact_pos[iImpSndIndexRB],
+                        wall_impact_norm[iImpSndIndexRB],
+                        wall_impact_large[iImpSndIndexRB],
                         NULL,
-                        qtrue
+                        qtrue,
+                        wall_impact_type[iImpSndIndexRB]
                     );
-                }
-
-                if (fImpSndDistRB < fImpSndDistLA) {
-                    if (wall_impact_type[iImpSndIndexRB]) {
-                        if (wall_impact_large[iImpSndIndexRB]) {
-                            fVolume = 1.f;
-                        } else {
-                            fVolume = 0.75f;
-                        }
-
-                        if (wall_impact_type[iImpSndIndexRB] == SFX_BHIT_WOOD_LITE
-                            || wall_impact_type[iImpSndIndexRB] == SFX_BHIT_WOOD_HARD) {
-                            sSoundName = "snd_bh_metal";
-                        } else {
-                            sSoundName = "snd_bh_wood";
-                        }
-
-                        commandManager.PlaySound(sSoundName, wall_impact_pos[iImpSndIndexRB], -1, fVolume, -1, -1, 1);
-
-                        sfxManager.MakeEffect_Normal(
-                            wall_impact_type[iImpSndIndexRB],
-                            wall_impact_pos[iImpSndIndexRB],
-                            wall_impact_norm[iImpSndIndexRB]
-                        );
-                    } else {
-                        CG_MakeBulletHole(
-                            wall_impact_pos[iImpSndIndexRB],
-                            wall_impact_norm[iImpSndIndexRB],
-                            wall_impact_large[iImpSndIndexRB],
-                            NULL,
-                            qtrue
-                        );
-                    }
                 }
             }
 
-            if (fImpSndDistLA > 9999.0f) {
-                if (wall_impact_type[0] != SFX_BHIT_PAPER_LITE) {
-                    if (wall_impact_large[0]) {
-                        fVolume = 1.f;
-                    } else {
-                        fVolume = 0.75f;
-                    }
+            if (fImpSndDistLA < 9999) {
+                CG_MakeBulletHole(
+                    wall_impact_pos[iImpSndIndexLA],
+                    wall_impact_norm[iImpSndIndexLA],
+                    wall_impact_large[iImpSndIndexLA],
+                    NULL,
+                    qtrue,
+                    wall_impact_type[iImpSndIndexLA]
+                );
 
-                    if (wall_impact_type[0] == SFX_BHIT_WOOD_LITE || wall_impact_type[0] == SFX_BHIT_WOOD_HARD) {
-                        sSoundName = "snd_bh_metal";
-                    } else {
-                        sSoundName = "snd_bh_wood";
-                    }
-
-                    commandManager.PlaySound(sSoundName, wall_impact_pos[0], -1, fVolume, -1, -1, 1);
-
-                    sfxManager.MakeEffect_Normal(wall_impact_type[0], wall_impact_pos[0], wall_impact_norm[0]);
-                } else {
-                    CG_MakeBulletHole(wall_impact_pos[0], wall_impact_norm[0], wall_impact_large[0], NULL, qtrue);
-                }
-            }
-
-            if (fImpSndDistLB < fImpSndDistLA) {
-                if (wall_impact_type[iImpSndIndexLB] != SFX_BHIT_PAPER_LITE) {
-                    if (wall_impact_large[iImpSndIndexLB]) {
-                        fVolume = 1.f;
-                    } else {
-                        fVolume = 0.75f;
-                    }
-
-                    if (wall_impact_type[iImpSndIndexLB] == SFX_BHIT_WOOD_LITE
-                        || wall_impact_type[iImpSndIndexLB] == SFX_BHIT_WOOD_HARD) {
-                        sSoundName = "snd_bh_metal";
-                    } else {
-                        sSoundName = "snd_bh_wood";
-                    }
-
-                    commandManager.PlaySound(sSoundName, wall_impact_pos[iImpSndIndexLB], -1, fVolume, -1, -1, 1);
-
-                    sfxManager.MakeEffect_Normal(
-                        wall_impact_type[iImpSndIndexLB],
-                        wall_impact_pos[iImpSndIndexLB],
-                        wall_impact_norm[iImpSndIndexLB]
-                    );
-                } else {
+                if (fImpSndDistLB < 9999) {
                     CG_MakeBulletHole(
                         wall_impact_pos[iImpSndIndexLB],
                         wall_impact_norm[iImpSndIndexLB],
                         wall_impact_large[iImpSndIndexLB],
                         NULL,
-                        qtrue
+                        qtrue,
+                        wall_impact_type[iImpSndIndexLB]
                     );
                 }
             }
         } else {
             for (i = 0; i < wall_impact_count; i++) {
-                CG_MakeBulletHole(wall_impact_pos[i], wall_impact_norm[i], wall_impact_large[i], NULL, qtrue);
+                CG_MakeBulletHole(
+                    wall_impact_pos[i], wall_impact_norm[i], wall_impact_large[i], NULL, qtrue, wall_impact_type[i]
+                );
             }
         }
-
-        wall_impact_count = 0;
     }
+
+    wall_impact_count = 0;
 
     if (flesh_impact_count) {
         if (flesh_impact_count > 1) {
             fImpSndDistRA  = 9999.0;
-            fImpSndDistRB  = 9999.0;
+            fImpSndDistLA  = 9999.0;
             iImpSndIndexRA = 0;
-            iImpSndIndexRB = 0;
+            iImpSndIndexLA = 0;
 
             for (i = 0; i < flesh_impact_count; i++) {
                 VectorSubtract(flesh_impact_pos[i], cg.SoundOrg, vTmp);
                 iHeadDist = VectorLength(vTmp);
 
                 if (DotProduct(vTmp, cg.SoundAxis[1]) > 0.f) {
-                    if (iHeadDist < fImpSndDistRB) {
-                        fImpSndDistRA  = iHeadDist;
+                    if (iHeadDist < fImpSndDistRA) {
                         iImpSndIndexRA = i;
+                        fImpSndDistRA  = iHeadDist;
                     }
                 } else if (iHeadDist < fImpSndDistLA) {
-                    fImpSndDistRA  = iHeadDist;
                     iImpSndIndexRA = i;
+                    fImpSndDistRA  = iHeadDist;
                 }
             }
 
@@ -1053,11 +987,11 @@ void CG_AddBulletImpacts()
                 );
             }
 
-            if (fImpSndDistRB < 9999) {
+            if (fImpSndDistLA < 9999) {
                 sfxManager.MakeEffect_Normal(
-                    flesh_impact_large[iImpSndIndexRB] ? SFX_BHIT_HUMAN_UNIFORM_HARD : SFX_BHIT_HUMAN_UNIFORM_LITE,
-                    flesh_impact_pos[iImpSndIndexRB],
-                    flesh_impact_norm[iImpSndIndexRB]
+                    flesh_impact_large[iImpSndIndexLA] ? SFX_BHIT_HUMAN_UNIFORM_HARD : SFX_BHIT_HUMAN_UNIFORM_LITE,
+                    flesh_impact_pos[iImpSndIndexLA],
+                    flesh_impact_norm[iImpSndIndexLA]
                 );
             }
         } else {
@@ -1689,7 +1623,7 @@ void CG_ParseCGMessage_ver_15()
         case CGM_VOICE_CHAT:
             {
                 qboolean bLocal;
-                int iOldEnt;
+                int      iOldEnt;
 
                 vStart[0] = cgi.MSG_ReadCoord();
                 vStart[1] = cgi.MSG_ReadCoord();
@@ -1856,7 +1790,7 @@ void CG_ParseCGMessage_ver_6()
                     VectorCopy(vStart, wall_impact_pos[wall_impact_count]);
                     VectorCopy(vEnd, wall_impact_norm[wall_impact_count]);
                     wall_impact_large[wall_impact_count] = iLarge;
-                    wall_impact_type[wall_impact_count]  = SFX_BHIT_PAPER_LITE;
+                    wall_impact_type[wall_impact_count]  = -1;
                     wall_impact_count++;
                 }
                 break;
