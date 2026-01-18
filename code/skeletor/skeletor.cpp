@@ -42,6 +42,11 @@ int skelAnimDataGameHeader_s::GetFrameNums(
     int frameNum2;
 
     frameNum1 = (int)(timeSeconds / frameTime);
+    if (frameNum1 < 0) {
+        // Fixed in OPM
+        //  Prevent negative frame numbers
+        frameNum1 = 0;
+    }
     frameNum2 = frameNum1 + 1;
 
     *afterWeight = (timeSeconds / frameTime) - (float)frameNum1;
