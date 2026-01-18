@@ -250,9 +250,9 @@ void CG_InterpolateAnimParms(entityState_t *state, entityState_t *sNext, refEnti
                         } else {
                             t1 = (animLength + sNext->frameInfo[i].time - state->frameInfo[i].time) * t
                                + state->frameInfo[i].time;
-                        }
 
-                        model->frameInfo[i].time = fmod(t1, animLength);
+                            model->frameInfo[i].time = fmod(t1, animLength);
+                        }
                     }
                 } else {
                     animLength = cgi.Anim_Time(model->tiki, sNext->frameInfo[i].index);
