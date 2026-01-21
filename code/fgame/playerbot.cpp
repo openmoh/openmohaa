@@ -37,8 +37,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // We assume that we have limited access to the server-side
 // and that most logic come from the playerstate_s structure
 
-cvar_t *bot_manualmove;
-
 CLASS_DECLARATION(Listener, BotController, NULL) {
     {NULL, NULL}
 };
@@ -98,8 +96,6 @@ BotMovement& BotController::GetMovement()
 
 void BotController::Init(void)
 {
-    bot_manualmove = gi.Cvar_Get("bot_manualmove", "0", 0);
-
     for (int i = 0; i < MAX_BOT_FUNCTIONS; i++) {
         botfuncs[i].BeginState = &BotController::State_DefaultBegin;
         botfuncs[i].EndState   = &BotController::State_DefaultEnd;
@@ -124,12 +120,13 @@ void BotController::GetEyeInfo(usereyes_t *eyeinfo)
 
 void BotController::UpdateBotStates(void)
 {
-    if (bot_manualmove->integer) {
-        memset(&m_botCmd, 0, sizeof(usercmd_t));
+    m_botCmd.serverTime = level.svsTime;
+
+    if (g_bot_manualmove->integer) {
+        m_botCmd.buttons = 0;
+        m_botCmd.forwardmove = m_botCmd.rightmove = m_botCmd.upmove = 0;
         return;
     }
-
-    m_botCmd.serverTime = level.svsTime;
 
     if (!controlledEnt->client->pers.dm_primary[0]) {
         Event *event;
