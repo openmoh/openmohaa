@@ -1399,6 +1399,11 @@ void CG_DrawCrosshair()
                 // friend
                 if (cg.snap->ps.stats[STAT_CROSSHAIR]) {
                     shader = cgi.R_RegisterShaderNoMip(cg_crosshair_friend->string);
+                    if (!shader) {
+                        // Fixed in OPM
+                        //  Fallback to normal crosshair texture if it doesn't exist
+                        shader = cgi.R_RegisterShaderNoMip(cg_crosshair->string);
+                    }
                 }
             } else {
                 // enemy
