@@ -1,6 +1,30 @@
 # Frequently Asked Questions
 
 <details>
+<summary>The game won't start or crashes immediately. What should I check?</summary>
+
+## Try the following steps in order:
+
+### 1. Install Microsoft Visual C++ Redistributable (Windows only)
+OpenMoHAA requires the Visual C++ Redistributable to run. Download and install it from [here](https://aka.ms/vs/17/release/vc_redist.x64.exe). If you already installed it, try reinstalling it.
+
+### 2. Verify that the game files are in the right place
+Make sure you extracted the OpenMoHAA files directly into your MOHAA game folder. You should see:
+- The `launch_openmohaa_` executables in the same folder as the `main` subfolder
+- The `main` subfolder should contain files like `Pak0.pk3`, `Pak1.pk3`, etc.
+
+If you accidentally extracted into a subfolder (e.g., `MOHAA/openmohaa-0.80.0/`), move the files up one level.
+
+### 3. Check that you have the original game files
+OpenMoHAA is not a standalone game - it needs the original MOHAA game files to run. Make sure you have Medal of Honor: Allied Assault installed.
+
+### 4. Check for error messages
+Error messages displayed in the terminal are often helpful for diagnosing issues. You can also check the log file located in your user data folder (`%APPDATA%\openmohaa\main` on Windows, `~/.openmohaa/main` on Linux).
+</details>
+
+---
+
+<details>
 <summary>My OpenMoHAA client has crashed, leaving the desktop brightened up. How can I fix this without restarting the computer?</summary>
 
 ## Try one of the following options:
