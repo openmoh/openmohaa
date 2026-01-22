@@ -10,7 +10,7 @@ OpenMoHAA requires the Visual C++ Redistributable to run. Download and install i
 
 ### 2. Verify that the game files are in the right place
 Make sure you extracted the OpenMoHAA files directly into your MOHAA game folder. You should see:
-- The `launch_openmohaa_base` executable in the same folder as the `main` subfolder
+- The `launch_openmohaa_` executables in the same folder as the `main` subfolder
 - The `main` subfolder should contain files like `Pak0.pk3`, `Pak1.pk3`, etc.
 
 If you accidentally extracted into a subfolder (e.g., `MOHAA/openmohaa-0.80.0/`), move the files up one level.
