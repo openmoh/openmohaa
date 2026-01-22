@@ -461,7 +461,7 @@ gentity_t *G_AddBot(const bot_info_t *info)
     } else {
         const unsigned int num = sv_sharedbots->integer ? clientNum : clientNum - maxclients->integer;
 
-        cvar_t *v = gi.Cvar_Find(va("sv_bot%dname", num));
+        cvar_t *v = gi.Cvar_Find(va("g_bot%d_name", num));
         if (v && *v->string) {
             Q_strncpyz(botName, v->string, sizeof(botName));
         } else {

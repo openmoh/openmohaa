@@ -133,11 +133,11 @@ Configure bots with the following variables:
 
 For more settings, see this [documentation](./03-configuration-bots.md).
 
-Bots can be spawned with a name, by setting `sv_botxname` variables where `x` is the bot number:
+Bots can be spawned with a name, by setting `g_botx_name` variables where `x` is the bot number:
 
 ```cpp
-set sv_bot0name customname // The first bot spawned will be named customname
-set sv_bot1name "Fast beat" // The second bot spawned will be named Fast beat
+set g_bot0_name customname // The first bot spawned will be named customname
+set g_bot1_name "Fast beat" // The second bot spawned will be named Fast beat
 ```
 
 Bots will keep their name between restarts and new maps.
