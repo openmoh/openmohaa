@@ -20,8 +20,6 @@ OpenMoHAA is not a standalone game - it needs the original MOHAA game files to r
 
 ### 4. Check for error messages
 Error messages displayed in the terminal are often helpful for diagnosing issues. You can also check the log file located in your user data folder (`%APPDATA%\openmohaa\main` on Windows, `~/.openmohaa/main` on Linux).
-
-If none of these steps help, ask for help on the [OpenMoHAA Discord](https://discord.gg/DaYC4UxV).
 </details>
 
 ---
