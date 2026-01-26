@@ -2819,11 +2819,11 @@ void Sentient::JoinNearbySquads(float fJoinRadius)
     float fJoinRadiusSquared = Square(fJoinRadius);
 
     for (Sentient *pFriendly = level.m_HeadSentient[m_Team]; pFriendly != NULL; pFriendly = pFriendly->m_NextSentient) {
-        if (pFriendly->IsDead() || IsSquadMate(pFriendly) || pFriendly->m_Team != m_Team) {
+        if (pFriendly->IsDead() || IsSquadMate(pFriendly) || !IsTeamMate(pFriendly)) {
             continue;
         }
 
-        if (fJoinRadius >= Vector::DistanceSquared(pFriendly->origin, origin)) {
+        if (fJoinRadiusSquared >= Vector::DistanceSquared(pFriendly->origin, origin) && !IsDead()) {
             MergeWithSquad(pFriendly);
         }
     }
