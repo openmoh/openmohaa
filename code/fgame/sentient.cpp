@@ -2816,14 +2816,15 @@ bool Sentient::IsTeamMate(Sentient *pOther)
 
 void Sentient::JoinNearbySquads(float fJoinRadius)
 {
-    float fJoinRadiusSquared = Square(fJoinRadius);
+    const float fJoinRadiusSquared = Square(fJoinRadius);
 
     for (Sentient *pFriendly = level.m_HeadSentient[m_Team]; pFriendly != NULL; pFriendly = pFriendly->m_NextSentient) {
         if (pFriendly->IsDead() || IsSquadMate(pFriendly) || !IsTeamMate(pFriendly)) {
             continue;
         }
 
-        if (fJoinRadiusSquared >= Vector::DistanceSquared(pFriendly->origin, origin) && !IsDead()) {
+        const float fFriendlyRadiusSquared = Vector::DistanceSquared(pFriendly->origin, origin);
+        if (fJoinRadiusSquared >= fFriendlyRadiusSquared && !IsDead()) {
             MergeWithSquad(pFriendly);
         }
     }
@@ -2834,7 +2835,16 @@ void Sentient::MergeWithSquad(Sentient *pFriendly)
     Sentient *pFriendNext;
     Sentient *pSelfPrev;
 
-    if (!pFriendly || IsDead() || pFriendly->IsDead()) {
+    AssertValidSquad();
+    pFriendly->AssertValidSquad();
+
+    if (IsDead()) {
+        // Don't merge if we're dead
+        return;
+    }
+
+    if (!pFriendly || pFriendly->IsDead()) {
+        // Don't merge with a dead friend
         return;
     }
 
@@ -2846,6 +2856,8 @@ void Sentient::MergeWithSquad(Sentient *pFriendly)
 
     pFriendNext->m_pPrevSquadMate = pSelfPrev;
     pSelfPrev->m_pNextSquadMate   = pFriendNext;
+
+    AssertValidSquad();
 }
 
 void Sentient::DisbandSquadMate(Sentient *pExFriendly)
@@ -2870,18 +2882,13 @@ void Sentient::DisbandSquadMate(Sentient *pExFriendly)
 
 bool Sentient::IsSquadMate(Sentient *pFriendly)
 {
-    Sentient *pSquadMate = this;
-
-    while (1) {
+    for (Sentient *pSquadMate = this; pSquadMate != this; pSquadMate = pSquadMate->m_pNextSquadMate) {
         if (pSquadMate == pFriendly) {
             return true;
         }
-
-        pSquadMate = pSquadMate->m_pNextSquadMate;
-        if (pSquadMate == this) {
-            return false;
-        }
     }
+
+    return false;
 }
 
 bool Sentient::IsDisabled() const
