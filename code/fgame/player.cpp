@@ -4592,12 +4592,14 @@ void Player::ClientThink(void)
             VectorClear(client->ps.velocity);
 
             if (level.time - level.intermissiontime > 4.0f) {
-                if (level.intermissiontype) {
-                    if (level.intermissiontype == TRANS_MISSION_FAILED) {
-                        if ((new_buttons & BUTTON_ATTACKLEFT) || (new_buttons & BUTTON_ATTACKRIGHT)) {
-                            G_MissionFailed();
-                        }
-                    } else if ((new_buttons & BUTTON_ATTACKLEFT) || (new_buttons & BUTTON_ATTACKRIGHT)) {
+                switch (level.intermissiontype) {
+                case TRANS_BSP:
+                    level.exitintermission = true;
+                    break;
+                case TRANS_MISSION:
+                case TRANS_LEVEL:
+                default:
+                    if ((new_buttons & BUTTON_ATTACKLEFT) || (new_buttons & BUTTON_ATTACKRIGHT)) {
                         g_medal0->modificationCount    = 1;
                         g_medal1->modificationCount    = 1;
                         g_medal2->modificationCount    = 1;
@@ -4625,8 +4627,12 @@ void Player::ClientThink(void)
 
                         level.exitintermission = true;
                     }
-                } else {
-                    level.exitintermission = true;
+                    break;
+                case TRANS_MISSION_FAILED:
+                    if ((new_buttons & BUTTON_ATTACKLEFT) || (new_buttons & BUTTON_ATTACKRIGHT)) {
+                        G_MissionFailed();
+                    }
+                    break;
                 }
             }
         }
@@ -11689,18 +11695,19 @@ void Player::EventEnterIntermission(Event *ev)
         return;
     }
 
-    if (level.intermissiontype) {
-        G_DisplayScores(this);
-
-        if (level.intermissiontype == TRANS_MISSION_FAILED || IsDead()) {
-            gi.cvar_set("g_success", "0");
-            gi.cvar_set("g_failed", "1");
-        } else {
-            gi.cvar_set("g_success", "1");
-            gi.cvar_set("g_failed", "0");
-        }
-    } else {
+    if (level.intermissiontype == TRANS_BSP) {
         G_HideScores(this);
+        return;
+    }
+
+    G_DisplayScores(this);
+
+    if (level.intermissiontype == TRANS_MISSION_FAILED || IsDead()) {
+        gi.cvar_set("g_success", "0");
+        gi.cvar_set("g_failed", "1");
+    } else {
+        gi.cvar_set("g_success", "1");
+        gi.cvar_set("g_failed", "0");
     }
 }
 

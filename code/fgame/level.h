@@ -32,9 +32,26 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define MAX_EARTHQUAKES    10
 
 enum INTTYPE_e {
+    /**
+     * Transition to the next map.
+     */
     TRANS_BSP,
+
+    /**
+     * Switch to intermission.
+     * User interaction is required (fire or altfire) to transition to the next map.
+     */
     TRANS_LEVEL,
+
+    /**
+     * Same as TRANS_LEVEL.
+     */
     TRANS_MISSION,
+
+    /**
+     * Switch to failed intermission.
+     * User interaction is required (fire or altfire) to transition to the next map.
+     */
     TRANS_MISSION_FAILED
 };
 
