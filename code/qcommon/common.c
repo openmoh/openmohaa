@@ -1791,7 +1791,7 @@ void Com_Init( char *commandLine ) {
 	Cbuf_Execute( 0 );
 	cvar_global_force = qfalse;
 
-	strncpy( configname, "omconfig.cfg", sizeof( configname ) );
+	strncpy( configname, Q3CONFIG_CFG, sizeof( configname ) );
 
 	// override anything from the config files with command line args
 	Com_StartupVariable( "config" );
@@ -2265,10 +2265,8 @@ void Com_Frame( void ) {
 	timeBeforeClient = 0;
 	timeAfter = 0;
 
-#ifndef DEDICATED
 	// write config file if anything changed
 	Com_WriteConfiguration();
-#endif
 
 	//
 	// main event loop
