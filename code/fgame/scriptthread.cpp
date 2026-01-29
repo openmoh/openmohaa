@@ -1056,7 +1056,7 @@ Event EV_ScriptThread_LevelTransition
     "leveltransition",
     EV_DEFAULT,
     "s",
-    "next_map",
+    "next_map skipFade", // Added in 2.30: skipFade
     "Transitions to the next Level. Statistics to Map Loading,"
     "does not keep player data or game data."
 );
@@ -1065,7 +1065,7 @@ Event EV_ScriptThread_MissionTransition
     "missiontransition",
     EV_DEFAULT,
     "s",
-    "next_map",
+    "next_map skipFade", // Added in 2.30: skipFade
     "Transitions to the next Mission. Statistics to Main Menu,"
     "Next Level should be unlocked."
 );
@@ -4337,8 +4337,8 @@ void ScriptThread::EventBspTransition(Event *ev)
     str  map      = ev->GetString(1);
     bool skipFade = false;
 
+    // Added in 2.30
     if (ev->NumArgs() >= 2) {
-        // Added in 2.30
         skipFade = ev->GetBoolean(2);
     }
 
@@ -4349,19 +4349,31 @@ void ScriptThread::EventBspTransition(Event *ev)
 
 void ScriptThread::EventLevelTransition(Event *ev)
 {
-    str map = ev->GetString(1);
+    str  map      = ev->GetString(1);
+    bool skipFade = false;
+
+    // Added in 2.30
+    if (ev->NumArgs() >= 2) {
+        skipFade = ev->GetBoolean(2);
+    }
 
     if (level.intermissiontime == 0.0f) {
-        G_BeginIntermission(map, TRANS_LEVEL);
+        G_BeginIntermission(map, TRANS_LEVEL, skipFade);
     }
 }
 
 void ScriptThread::EventMissionTransition(Event *ev)
 {
-    str map = ev->GetString(1);
+    str  map      = ev->GetString(1);
+    bool skipFade = false;
+
+    // Added in 2.30
+    if (ev->NumArgs() >= 2) {
+        skipFade = ev->GetBoolean(2);
+    }
 
     if (level.intermissiontime == 0.0f) {
-        G_BeginIntermission(map, TRANS_MISSION);
+        G_BeginIntermission(map, TRANS_MISSION, skipFade);
     }
 }
 
