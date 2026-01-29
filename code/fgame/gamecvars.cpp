@@ -478,7 +478,7 @@ void CVAR_Init(void)
     g_gametype       = gi.Cvar_Get("g_gametype", "0", CVAR_USERINFO | CVAR_SERVERINFO | CVAR_LATCH);
     g_gametypestring = gi.Cvar_Get("g_gametypestring", "Free-For-All", CVAR_SERVERINFO);
     g_realismmode    = gi.Cvar_Get("g_realismmode", "0", CVAR_USERINFO | CVAR_SERVERINFO | CVAR_LATCH);
-    if (!g_gametype->integer) {
+    if (g_gametype->integer == GT_SINGLE_PLAYER) {
         gi.cvar_set("g_realismmode", "0");
     }
 

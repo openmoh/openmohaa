@@ -2414,7 +2414,7 @@ void SV_Loadgame_f(void)
 	qboolean    bStartedGame;
 
 	if (com_cl_running && com_cl_running->integer && clc.state != CA_DISCONNECTED && cg_gametype->integer
-		|| com_sv_running && com_sv_running->integer && g_gametype->integer) {
+		|| com_sv_running && com_sv_running->integer && g_gametype->integer != GT_SINGLE_PLAYER) {
 		Com_Printf("Can't loadgame in a multiplayer game\n");
 		return;
 	}
@@ -2525,7 +2525,7 @@ qboolean SV_AllowSaveGame(void)
 	} else if (clc.state != CA_DISCONNECTED && cg_gametype->integer) {
 		Com_DPrintf("Can't savegame in a multiplayer game\n");
 		return qfalse;
-	} else if (g_gametype->integer) {
+	} else if (g_gametype->integer != GT_SINGLE_PLAYER) {
 		Com_DPrintf("Can't savegame in a multiplayer game\n");
 		return qfalse;
 	} else if (!svs.clients || svs.clients->gentity == NULL || svs.clients->gentity->client == NULL
