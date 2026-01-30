@@ -24,6 +24,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../gamespy/sv_gamespy.h"
 #include "../gamespy/sv_gqueryreporting.h"
 
+#include <tracy/TracyC.h>
+
 #ifdef USE_VOIP
 cvar_t *sv_voip;
 cvar_t *sv_voipProtocol;
@@ -1059,10 +1061,13 @@ void SV_Frame( int msec ) {
 		return;
 	}
 
+	TracyCZone(ctx, 1);
+
 	SV_NET_UpdateAllNetProfileInfo();
 
 	// allow pause if only the local client is connected
 	if ( SV_CheckPaused() ) {
+		TracyCZoneEnd(ctx);
 		return;
 	}
 
@@ -1088,12 +1093,14 @@ void SV_Frame( int msec ) {
 	if ( svs.time > 0x70000000 ) {
 		SV_Shutdown( "Restarting server due to time wrapping" );
 		Cbuf_AddText( va( "map %s\n", Cvar_VariableString( "mapname" ) ) );
+		TracyCZoneEnd(ctx);
 		return;
 	}
 	// this can happen considerably earlier when lots of clients play and the map doesn't change
 	if ( svs.nextSnapshotEntities >= 0x7FFFFFFE - svs.numSnapshotEntities ) {
 		SV_Shutdown( "Restarting server due to numSnapshotEntities wrapping" );
 		Cbuf_AddText( va( "map %s\n", Cvar_VariableString( "mapname" ) ) );
+		TracyCZoneEnd(ctx);
 		return;
 	}
 
@@ -1164,6 +1171,8 @@ void SV_Frame( int msec ) {
 	SV_HandleNonPVSSound();
 
 	svs.lastTime = svs.time;
+
+	TracyCZoneEnd(ctx);
 }
 
 /*
