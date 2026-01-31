@@ -331,6 +331,8 @@ qboolean SV_InitGamespy()
     const char *secret_gs_key;
     const char *gs_game_name;
     int         gcd_game_id;
+    int         qport;
+    qr_t        qr;
 
     if (com_target_game->integer > ARRAY_LEN(SECRET_GS_KEYS)) {
         Com_Error(ERR_DROP, "Invalid target game %d for GameSpy", com_target_game->integer);
@@ -356,7 +358,7 @@ qboolean SV_InitGamespy()
     net_gamespy_port = Cvar_Get("net_gamespy_port", va("%i", GAMESPY_DEFAULT_PORT), CVAR_LATCH);
 
     if (qr_init(
-            NULL,
+            &qr,
             net_ip->string,
             net_gamespy_port->integer,
             gs_game_name,
@@ -369,6 +371,13 @@ qboolean SV_InitGamespy()
         )) {
         Com_DPrintf("Error starting query sockets in SV_GamespyInit\n");
         return qfalse;
+    }
+
+    // Added in OPM
+    //  Update the gamespy variable if the port is different
+    qport = qr_get_port(qr);
+    if (net_gamespy_port->integer != qport) {
+        Cvar_Set("net_gamespy_port", va("%i", qport));
     }
 
     if (!sv_gamespy->integer) {

@@ -215,6 +215,8 @@ int get_sockaddrin(const char *host, int port, struct sockaddr_in *saddr, struct
 
 void add_master(struct sockaddr_in *addr);
 
+unsigned int qr_get_port(qr_t qrec);
+
 #ifdef __cplusplus
 }
 #endif

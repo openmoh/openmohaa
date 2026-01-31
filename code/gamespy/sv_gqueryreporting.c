@@ -934,6 +934,10 @@ static void send_heartbeat(qr_t qrec, int statechanged)
     qrec->lastheartbeat = current_time();
 }
 
+unsigned int qr_get_port(qr_t qrec) {
+    return qrec->qport;
+}
+
 #ifdef __cplusplus
 }
 #endif
