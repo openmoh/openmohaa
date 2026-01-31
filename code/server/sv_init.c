@@ -1043,7 +1043,15 @@ void SV_Init (void)
 	Cvar_Get ("dmflags", "0", CVAR_SERVERINFO);
 	Cvar_Get ("fraglimit", "20", CVAR_SERVERINFO);
 	Cvar_Get ("timelimit", "0", CVAR_SERVERINFO);
-	g_gametype = Cvar_Get ("g_gametype", "0", CVAR_SERVERINFO | CVAR_LATCH );
+	Cvar_Get ("sv_keywords", "", CVAR_SERVERINFO);
+	// Changed in OPM
+	//  Dedicated servers are playable only in multiplayer mode,
+	//  so make Free-For-All the default value.
+	if (com_dedicated->integer) {
+		g_gametype = Cvar_Get ( "g_gametype", "1", CVAR_SERVERINFO | CVAR_LATCH );
+	} else {
+		g_gametype = Cvar_Get ( "g_gametype", "0", CVAR_SERVERINFO | CVAR_LATCH );
+	}
 	g_gametypestring = Cvar_Get( "g_gametypestring", "0", CVAR_SERVERINFO | CVAR_LATCH );
 	Cvar_Get( "sv_keywords", "", CVAR_SERVERINFO );
 	Cvar_Get( "protocol", va( "%i", PROTOCOL_VERSION ), CVAR_SERVERINFO | CVAR_ROM );
