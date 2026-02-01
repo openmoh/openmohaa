@@ -676,7 +676,7 @@ qboolean G_AddBotNamedCommand(gentity_t *ent)
     e = G_AddBot(&botInfo);
     if (e) {
         const unsigned int id = G_GetBotId(e);
-        gi.cvar_set(va("sv_bot%dname", id), e->client->pers.netname);
+        gi.cvar_set(va("g_bot%d_name", id), e->client->pers.netname);
     }
 
     return qtrue;
