@@ -358,7 +358,7 @@ qboolean SV_InitGamespy()
     net_gamespy_port = Cvar_Get("net_gamespy_port", va("%i", GAMESPY_DEFAULT_PORT), CVAR_LATCH);
 
     if (qr_init(
-            &qr,
+            NULL,
             net_ip->string,
             net_gamespy_port->integer,
             gs_game_name,
@@ -375,7 +375,7 @@ qboolean SV_InitGamespy()
 
     // Added in OPM
     //  Update the gamespy variable if the port is different
-    qport = qr_get_port(qr);
+    qport = qr_get_port(NULL);
     if (net_gamespy_port->integer != qport) {
         Cvar_Set("net_gamespy_port", va("%i", qport));
     }
