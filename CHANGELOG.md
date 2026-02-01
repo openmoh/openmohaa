@@ -41,6 +41,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 #### Server
 
 - Prevent dropping the binoculars (this change was introduced in Spearhead v2.11).
+- Servers now read and write into a configuration file `omconfig_server.cfg`, separate from the client configuration for convenience.
 
 ### Fixed
 
@@ -55,9 +56,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Allow spectators and dead players to vote (#843).
 - Fix a bug where players who switched to spectator mode immediately after dying would have 0 health and drop DM items (also occurs in the original game).
 - Fix a crash that occurs when the server receives a gamespy cdkey authorize request.
+- Fix a crash that could occur when starting a `jvbot` game.
 - Fix a possible crash caused by scripts using `angles_pointat` (also occurs in the original game).
 - Fix a rare glitch causing the player to be teleported to (0,0,0) and stuck (also occurs in the original game).
 - Fix Actors not doing anything without client #0 (also occurs in the original game).
+- Fix Actors squad formation.
 - Fix an issue where clients could crash because of too many models being loaded from the server.
 - Fix bad animation blending with portable turret.
 - Fix bots being counted for voting.
@@ -76,6 +79,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix weapon select mod not working (#849).
 - Fix wrong portable turret placement.
 - Large vote configurations will no longer cause clients to disconnect (also occurs in the original game) (#858).
+- The gamespy port `net_gamespy_port` now reflects the real port being used by the server (the issue also occurs in the original game).
 - The player would spawn with no weapons on single-player when `sv_maxbots` was set (#783).
 
 #### Clients
@@ -92,6 +96,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 #### Server
 
+- Free-For-All is now the default gametype on dedicated servers (`g_gametype 1`) when unspecified, rather than single-player (the issue also occurs in the original game).
 - Freezeplayer now freezes player animation/state, because frozen players would still emit footsteps sound when frozen.
 - Nocliping when dead no longer makes the player animation sketchy.
 
