@@ -1198,8 +1198,7 @@ str ScriptVariable::stringValue() const
              + str(m_data.vectorValue[2]) + str(" )");
 
     default:
-        throw ScriptException("Cannot cast '%s' to string", GetTypeName());
-        break;
+        return "Type: '" + str(GetTypeName()) + "'";
     }
 
     return "";
