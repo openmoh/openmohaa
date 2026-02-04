@@ -168,6 +168,8 @@ static bool UseField(void)
         result = n;                      \
     }
 
+void rollbackToken();
+
 %}
 
 /*%option debug*/
@@ -210,13 +212,11 @@ varname         [a-zA-Z0-9_\"$\\]+
                                             }
 <VARIABLES>[ \t\r\n]                        {
                                                 BEGIN(INITIAL);
-                                                unput(yytext[yyleng - 1]);
-                                                yyreducepos(1);
+                                                rollbackToken();
                                             }
 <VARIABLES>.                                {
                                                 BEGIN(INITIAL);
-                                                unput(yytext[yyleng - 1]);
-                                                yyreducepos(1);
+                                                rollbackToken();
                                             }
 
 \"{string}\"{nonexpr}           {
@@ -344,15 +344,13 @@ varname         [a-zA-Z0-9_\"$\\]+
                                         }
 <IDENTIFIER>[ \t\r\n]                   {
                                             BEGIN(INITIAL);
-                                            unput(yytext[yyleng - 1]);
-                                            yyreducepos(1);
+                                            rollbackToken();
                                             TextEscapeValue(yytext, yyleng - 1);
                                             YYLEXOFF(TOKEN_IDENTIFIER, 1);
                                         }
 <IDENTIFIER>.                           {
                                             BEGIN(INITIAL);
-                                            unput(yytext[yyleng - 1]);
-                                            yyreducepos(1);
+                                            rollbackToken();
                                             TextEscapeValue(yytext, yyleng - 1);
                                             YYLEXOFF(TOKEN_IDENTIFIER, 1);
                                         }
@@ -404,6 +402,12 @@ int yywrap(void)
     }
 
     return 1;
+}
+
+void rollbackToken()
+{
+    unput(yytext[yyleng - 1]);
+    yyreducepos(1);
 }
 
 void yy_init_script()
