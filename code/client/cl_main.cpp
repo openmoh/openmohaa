@@ -1267,6 +1267,11 @@ void CL_Disconnect_f( void ) {
 		return;
 	}
 
+        // clear our persistent serverAddress when disconnecting from localhost
+        if ( NET_IsLocalAddress( clc.serverAddress ) || !strcmp( clc.servername, "localhost" ) ) {
+            Cvar_Set( "cl_currentServerAddress", "localhost" );
+        }
+
 	bConsoleState = UI_ConsoleIsOpen();
 
 	Com_Printf("\nDisconnected from server\n");
@@ -1298,12 +1303,18 @@ CL_Reconnect_f
 ================
 */
 void CL_Reconnect_f( void ) {
-	if ( !strlen( clc.servername ) || !strcmp( clc.servername, "localhost" ) ) {
+        const char *lastServerAddr = Cvar_VariableString("cl_currentServerAddress");
+
+        if (!strlen(lastServerAddr)) {
+            lastServerAddr = clc.servername;
+        }
+
+	if ( !strlen(lastServerAddr) || !strcmp(lastServerAddr, "localhost" ) ) {
 		Com_Printf( "Can't reconnect to localhost.\n" );
 		return;
 	}
 	Cvar_Set("ui_singlePlayerActive", "0");
-	Cbuf_AddText( va("connect %s\n", clc.servername ) );
+	Cbuf_AddText( va("connect %s\n", lastServerAddr));
 }
 
 /*
@@ -1351,6 +1362,9 @@ void CL_Connect( const char *server, netadrtype_t family ) {
 		clc.serverAddress.port = BigShort( PORT_SERVER );
 	}
 	serverString = NET_AdrToStringwPort(clc.serverAddress);
+
+        // reconnect fix: use instead of clc.servername for persistent value after disconnect
+        Cvar_Set( "cl_currentServerAddress", serverString );
 
 	Com_Printf( "%s resolved to %s\n", clc.servername, serverString );
 
