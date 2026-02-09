@@ -1389,9 +1389,6 @@ void CL_Connect( const char *server, netadrtype_t family ) {
 	clc.connectTime = -99999;	// CL_CheckForResend() will fire immediately
 	clc.connectPacketCount = 0;
 	clc.connectStartTime = cls.realtime;
-
-	// server connection string
-	Cvar_Set( "cl_currentServerAddress", server );
 }
 
 /*
