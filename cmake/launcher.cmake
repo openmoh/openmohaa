@@ -12,7 +12,7 @@ else()
 endif()
 
 function (create_launcher name type)
-    if (NOT BUILD_NO_CLIENT)
+    if (BUILD_CLIENT)
         add_executable(openmohaa_launcher_${name} ${LAUNCHER_SOURCES})
         target_compile_definitions(openmohaa_launcher_${name} PRIVATE NO_RC_MANIFEST=1 TARGET_GAME=${type})
         target_compile_features(openmohaa_launcher_${name} PRIVATE cxx_std_17)
