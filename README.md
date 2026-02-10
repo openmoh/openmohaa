@@ -102,7 +102,7 @@ The following third party tools and libraries are used by the project
 ## Resources
 
 - 🔗 [GitHub Repository](https://github.com/openmoh/openmohaa/)
-- 🌐 [MOHAAAA Amalgamated Allied Assault Alliance](https://mohaaaa.co.uk/AAAAMOHAA/index.php)
+- 🌐 [MOH-DB](https://www.moh-db.com/)
 - 🕹️ [333networks](https://333networks.com/)
 - 📂 [ModDB](https://www.moddb.com/games/medal-of-honor-allied-assault)
 - 📂 [GameBanana](https://gamebanana.com/games/720)
