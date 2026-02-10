@@ -3,7 +3,7 @@
 OpenMoHAA supports any architecture, thanks to the CMake build system and cross-platform code/libraries. While the most common little-Endian architectures (arm, aarch64, x86, x86_64, ppc64le) have been tested and confirmed to work, big-Endian architectures should be supported as well; however, they remain untested.
 
 The following tools are required for all platforms:
-- CMake >= 3.12
+- CMake >= 3.25
 - Flex (>= 2.6.4) and Bison (>= 3.5.1)
 - A C++11 compiler
 - [SDL2](https://github.com/libsdl-org/SDL/tree/SDL2)
@@ -17,7 +17,7 @@ The installation directory can be set to the MOHAA directory with `-DCMAKE_INSTA
 Compiling debug binaries will result in a `-dbg` suffix appended to the name of the binaries to avoid mixing debug/release code.
 
 > [!NOTE]
-> OpenMoHAA is loosely coupled libcurl, meaning the library is not required for the game to work normally. Currently it only checks for update, but in the future some features may be introduced that require it.
+> OpenMoHAA is loosely coupled to libcurl, meaning the library is not required for the game to work normally. Currently it only checks for update, it can be used for more features.
 
 ## Compiling for Linux
 
@@ -27,7 +27,7 @@ These are the tools required on Linux :
 - libopenal-dev
 - libcurl4-openssl-dev
 
-**clang-7** and **gcc-9** has been tested to work on Ubuntu 20.04. Although it's best to use the latest versions.
+**clang-7** and **gcc-9** are the minimum required versions. These are EOLs, the project is built using currently maintained compiler versions, which are recommended.
 
 1 line install command with clang:
 ```sh
@@ -48,7 +48,7 @@ Other compilers can be specified by appending `-DCMAKE_C_COMPILER=/path/to/compi
 
 ## Compiling for Windows
 
-Visual Studio (2019 or 2022) is generally preferred.
+Visual Studio (2019-2026) is generally preferred.
 
 - Get Flex/Bison: https://github.com/lexxmark/winflexbison/releases/latest
 - Get OpenAL: https://github.com/kcat/openal-soft/releases/latest rename `soft_oal.dll` to `OpenAL64.dll` on 64-bit and `OpenAL32.dll` on 32-bit
@@ -56,7 +56,7 @@ Visual Studio (2019 or 2022) is generally preferred.
 
 Optionally, The cURL library can be compiled with the following CMake commands:
 ```
-cmake -DCMAKE_INSTALL_PREFIX="E:\Src\openmoh\openmohaa\thirdparty\curl\build\install" -DCURL_USE_LIBPSL=OFF -DCURL_USE_SCHANNEL=ON -B build
+cmake -DCMAKE_INSTALL_PREFIX="C:\source\openmohaa\thirdparty\curl\build\install" -DCURL_USE_LIBPSL=OFF -DCURL_USE_SCHANNEL=ON -B build
 cmake --build build --config Release
 cmake --install build --config Release
 ```
@@ -77,8 +77,7 @@ afterwards you can can append `-DCURL_ROOT=path\to\curl\install` to specify the 
 
 ## Tweaking the build
 
-- `-DBUILD_NO_CLIENT=1` Don't build client binaries. This will only build the dedicated server binaries.
-- `-DCMAKE_LIB_SUFFIX=suffix` Default suffix to use for the default `lib` directory. For example `-DCMAKE_LIB_SUFFIX=64`
-- `-DNO_MODERN_DMA=1` Use the basic DMA sound system from quake3. This lacks many features such as soundtracks and movie audio from the modern OpenAL-based DMA sound system. This option is not recommended, unless openal is not available.
-- `-DTARGET_LOCAL_SYSTEM=1` for compiling and installing on the local system. This will remove the architecture suffix at the end of each binary. This option can be useful for packaging builds.
-- `-DUSE_SYSTEM_LIBS=1` for third-party libraries, this will make use of system libraries instead of libraries that are embedded within the project.
+- `-DBUILD_CLIENT=0` Build without the client program. This will only build the dedicated server binaries alongside the game & cgame modules.
+- `-DCMAKE_LIB_SUFFIX=suffix` Default suffix to use for the default `lib` directory. For example `-DCMAKE_LIB_SUFFIX=64`.
+
+For other options, check `CMakeLists.txt` file at the root of the project.
