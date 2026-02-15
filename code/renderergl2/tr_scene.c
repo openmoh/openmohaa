@@ -38,6 +38,7 @@ int			r_numpolyverts;
 //
 // OPENMOHAA-specific stuff
 //=========================
+#include "../corepp/tiki.h"
 
 int			r_firstSceneSpriteSurf;
 

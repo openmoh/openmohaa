@@ -3326,6 +3326,7 @@ qboolean SurfIsOffscreen2(const srfBspSurface_t* surface, shader_t* shader, int 
 
 static qboolean DrawSurfIsOffscreen(drawSurf_t* drawSurf) {
 	// FIXME: unimplemented (GL2)
+	return qfalse;
 #if 0
 	int entityNum;
 	shader_t* shader;
