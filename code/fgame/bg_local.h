@@ -22,6 +22,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //
 // bg_local.h -- local definitions for the bg (both games) files
 
+#pragma once
+
 #define MIN_WALK_NORMAL 0.7f // can't walk on very steep slopes
 
 #define JUMP_VELOCITY   270

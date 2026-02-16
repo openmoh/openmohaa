@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2025 the OpenMoHAA team
+Copyright (C) 2026 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -21,6 +21,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 // scriptdelegate -- manages function delegate
+
+#pragma once
 
 #include "../corepp/listener.h"
 #include "../corepp/delegate.h"
