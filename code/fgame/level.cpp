@@ -48,6 +48,9 @@ Level level;
 
 gclient_t *spawn_client = NULL;
 
+ScriptDelegate Level::scriptDelegate_intermission("level_intermission", "Level intermission");
+ScriptDelegate Level::scriptDelegate_exit("level_exit", "Exiting world");
+
 Event EV_Level_GetTime
 (
     "time",
@@ -862,6 +865,16 @@ void Level::CleanUp(qboolean samemap, qboolean resetConfigStrings)
     int i;
 
     DisableListenerNotify++;
+
+    // Added in OPM
+    //  When resetConfigStrings is 0, the game is shutting down
+    if (!resetConfigStrings) {
+        Event *event = new Event;
+        // Different map = true (1)
+        event->AddInteger(1);
+        scriptDelegate_exit.Trigger(*event);
+        scriptedEvents[SE_INTERMISSION].Trigger(event);
+    }
 
     if (g_gametype->integer != GT_SINGLE_PLAYER) {
         dmManager.Reset();
@@ -2820,6 +2833,33 @@ void Level::GetForceTeamObjectiveLocation(Event *ev)
 const VoteOptions& Level::GetVoteOptions() const
 {
     return m_voteOptions;
+}
+
+void Level::EnterIntermission()
+{
+    scriptDelegate_intermission.Trigger();
+
+    Event *event = new Event;
+    // Intermission screen
+    event->AddInteger(0);
+    scriptedEvents[SE_INTERMISSION].Trigger(event);
+}
+
+void Level::Restart()
+{
+    {
+        Event event;
+        // Different map = false (0)
+        event.AddInteger(0);
+        scriptDelegate_exit.Trigger(event);
+    }
+
+    {
+        Event *event = new Event;
+        // Map restart
+        event->AddInteger(2);
+        scriptedEvents[SE_INTERMISSION].Trigger(event);
+    }
 }
 
 badplace_t::badplace_t()

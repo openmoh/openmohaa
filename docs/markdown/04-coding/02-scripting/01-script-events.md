@@ -31,6 +31,33 @@ end
 
 ## List of events
 
+### Level events
+
+#### level_exit
+
+The level is exiting.
+
+Called when:
+- The server disconnects
+- The map restarts or changes
+
+This event is triggered at the start of the level exit process. At this stage, scripts cannot wait, and delayed commands will not be executed.
+
+```
+level_exit local.different_map
+```
+
+Parameters:
+- local.different_map: `1` when switching to a different map or when fully reloading the map. `0` when restarting the level (for example, restarting for the next round).
+
+#### level_intermission
+
+The intermission has begun.
+
+Called when the final intermission screen is shown to players.
+
+This event is triggered at the start of the intermission screen.
+
 ### Player events
 
 The `self` object is the player object for all triggered player events.

@@ -27,6 +27,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../corepp/listener.h"
 #include "g_public.h"
 #include "bg_voteoptions.h"
+#include "scriptdelegate.h"
 
 #define MAX_HEAD_SENTIENTS 2
 #define MAX_EARTHQUAKES    10
@@ -275,6 +276,10 @@ public:
     bool m_bRejectSpawn;
 
 public:
+    static ScriptDelegate scriptDelegate_intermission;
+    static ScriptDelegate scriptDelegate_exit;
+
+public:
     CLASS_PROTOTYPE(Level);
 
     Level();
@@ -396,6 +401,8 @@ public:
     void SetForceTeamObjectiveLocation(Event *ev);
     void GetForceTeamObjectiveLocation(Event *ev);
     const VoteOptions& GetVoteOptions() const;
+    void EnterIntermission();
+    void Restart();
     //====
 
     void Archive(Archiver& arc) override;

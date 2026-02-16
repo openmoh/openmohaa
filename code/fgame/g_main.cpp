@@ -946,8 +946,13 @@ void G_Restart(void)
     // Added in 2.0
     G_ResetSmokeSprites();
 
+    //
     // Added in OPM
+    //
+
     G_RestartBots();
+
+    level.Restart();
 }
 
 void G_SetFrameNumber(int framenum)
@@ -1845,6 +1850,9 @@ void G_BeginIntermission2(void)
 
         G_MoveClientToIntermission(client->entity);
     }
+
+    // Added in OPM
+    level.EnterIntermission();
 }
 
 /*
@@ -1897,6 +1905,9 @@ void G_BeginIntermission(const char *map_name, INTTYPE_e transtype, bool no_fade
         client->entity->flags |= FL_IMMOBILE;
         client->entity->PostEvent(EV_Player_EnterIntermission, 3.0f);
     }
+
+    // Added in OPM
+    level.EnterIntermission();
 }
 
 /*
