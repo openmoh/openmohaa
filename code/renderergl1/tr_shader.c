@@ -1347,6 +1347,10 @@ static qboolean ParseStage(shaderStage_t* stage, char** text, qboolean picmip)
 				ParseWaveForm( text, &stage->alphaWave );
 				stage->alphaGen = AGEN_WAVEFORM;
 			}
+			else if (!Q_stricmp(token, "identity"))
+			{
+				stage->alphaGen = AGEN_IDENTITY;
+			}
 			else if (!Q_stricmp(token, "global"))
 			{
 				stage->alphaGen = AGEN_GLOBAL_ALPHA;
@@ -2310,18 +2314,26 @@ static qboolean ParseShader( char **text, qboolean picmip )
 		}
 		else if ( !Q_stricmp( token, "clampTime" ) ) {
 			token = COM_ParseExt( text, qfalse );
-      if (token[0]) {
-        shader.clampTime = atof(token);
-      }
-    }
+			if (token[0]) {
+				shader.clampTime = atof(token);
+			}
+		}
 		// skip stuff that only the q3map needs
 		else if ( !Q_stricmpn( token, "q3map", 5 ) ) {
 			SkipRestOfLine( text );
 			continue;
 		}
 		// skip stuff that only q3map or the server needs
-		else if ( !Q_stricmp( token, "surfaceParm" ) ) {
-			ParseSurfaceParm( text );
+		else if (  !Q_stricmp( token, "surfaceParm" )
+				|| !Q_stricmp( token, "surfaceLight" )
+				|| !Q_stricmp( token, "surfaceColor" )
+				|| !Q_stricmp( token, "surfaceAngle" )
+				|| !Q_stricmp( token, "surfaceDensity" ) ) {
+			if ( !Q_stricmp( token, "surfaceParm" )) {
+				ParseSurfaceParm( text );
+				continue;
+			}
+			SkipRestOfLine(text);
 			continue;
 		}
 		// no mip maps
