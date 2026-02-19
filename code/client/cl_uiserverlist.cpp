@@ -408,16 +408,11 @@ qboolean UIFAKKServerList::KeyEvent(int key, unsigned int time)
         break;
     case 'u':
     case 'U':
-        if (getCurrentItem() > 0) {
-            const FAKKServerListItem *pItem = static_cast<const FAKKServerListItem *>(GetItem(getCurrentItem()));
-            ServerListAuxUpdate(
-                m_serverList[0], pItem->m_sIP.c_str(), pItem->m_iGameSpyPort, true, GQueryType::qt_status
-            );
-        }
+        UpdateServer(NULL);
         return UIListCtrl::KeyEvent(key, time);
     case 'c':
     case 'C':
-        ServerListHalt(m_serverList[0]);
+        CancelRefresh(NULL);
         return qtrue;
     case 'i':
     case 'I':
@@ -750,7 +745,7 @@ void UIFAKKServerList::MakeLANListing(Event *ev)
 
 void UIFAKKServerList::UpdateServer(Event *ev)
 {
-    if (m_currentItem <= 0) {
+    if (getCurrentItem() <= 0) {
         return;
     }
 
