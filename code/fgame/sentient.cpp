@@ -562,7 +562,8 @@ Event EV_Sentient_GetForceDropWeapon
     EV_DEFAULT,
     NULL,
     NULL,
-    "Get if the sentient is forced to drop health no matter what level.nodrophealth is.",
+    // Fixed in OPM
+    "Get if the sentient is forced to drop weapons no matter what level.nodropweapon is.",
     EV_GETTER
 );
 
