@@ -59,4 +59,4 @@ OpenMoHAA has a basic bot system that emulates real players. The maximum number 
 
 This feature is a great way to test the gameplay and mods.
 
-To configure bots, see [Bots configuration](../03-configuration/01-configuration.md#bots).
+To configure bots, see \ref bots "Bots configuration".
