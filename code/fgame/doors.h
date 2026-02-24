@@ -221,9 +221,6 @@ inline void SlidingDoor::Archive(Archiver& arc)
 class ScriptDoor : public Door
 {
 protected:
-    ScriptThreadLabel initlabel;
-    ScriptThreadLabel openlabel;
-    ScriptThreadLabel closelabel;
     float             doorsize;
     Vector            startangle;
     Vector            startorigin;
@@ -236,9 +233,11 @@ public:
     void DoInit(Event *ev);
     void DoOpen(Event *ev);
     void DoClose(Event *ev);
-    void SetOpenThread(Event *ev);
-    void SetCloseThread(Event *ev);
-    void SetInitThread(Event *ev);
+    void GetStartorigin(Event *ev);
+    void GetStartangles(Event *ev);
+    void GetMovedir(Event *ev);
+    void GetDoorsize(Event *ev);
+    void GetOpendot(Event *ev);
     void Archive(Archiver& arc) override;
     ScriptDoor();
 };
