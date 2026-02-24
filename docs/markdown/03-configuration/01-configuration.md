@@ -118,7 +118,7 @@ This feature is passive: it only checks the team sizes when someone tries to joi
 > [!NOTE]
 > This check doesn't apply in server scripts; it only works when clients join teams directly.
 
-### Bots {#bots}
+### Bots
 
 OpenMoHAA introduced multiplayer bots which can be used for entertainment or for testing purposes. They appear in the scoreboard with their ping set to **bot**.
 
