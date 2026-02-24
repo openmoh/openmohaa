@@ -16,7 +16,8 @@ You can get it from [GOG here](https://www.gog.com/en/game/medal_of_honor_allied
 1. Right-click your **Medal of Honor - Allied Assault** desktop shortcut → **Properties**
 2. Then check the "**Start in**" field, that's your game folder.
 
-![Shortcut](screenshots/install_guide/windows_installation_shortcut.png)
+![](../../assets/screenshots/install_guide/windows_installation_shortcut.png)
+![](screenshots/install_guide/windows_installation_shortcut.png)
 
 Alternatively, try one of these common locations:
 - C:\GOG Games\Medal of Honor - Allied Assault War Chest
@@ -36,6 +37,7 @@ If not there, you'll need to search where you installed it.
 
 To do that, **right-click each file**, then choose **Send to → Desktop (create shortcut)**.
 
-![Send To](screenshots/install_guide/windows_installation_sendto.png)
+![](screenshots/install_guide/windows_installation_sendto.png)
+![](../../assets/screenshots/install_guide/windows_installation_sendto.png)
 
 Now you can launch any version of the game directly from your desktop using OpenMoHAA.
