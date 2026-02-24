@@ -53,10 +53,6 @@ The game directory is intended to be read-only, which is the reason why the home
 
 Note that the configuration file isn't created nor written automatically on a dedicated server (**omohaaded**).
 
-## Playing with bots
+## Configuration
 
-OpenMoHAA has a basic bot system that emulates real players. The maximum number of bots is defined by the `sv_maxbots` variable, and the number of initial bots is defined by the `sv_numbots` variable. Bots can also be added or removed using the `addbot` and `removebot` commands.
-
-This feature is a great way to test the gameplay and mods.
-
-To configure bots, see [Bots configuration](../03-configuration/01-configuration.md#bots).
+For more settings such as configuring bots, see [Configuration and commands](../03-configuration/01-configuration.md).
