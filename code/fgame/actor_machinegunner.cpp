@@ -202,8 +202,6 @@ void Actor::Think_MachineGunner_TurretGun(void)
 {
     Entity *player;
 
-    if (!m_pTurret) { return; }
-
     if (!m_bEnableEnemy) {
         ThinkHoldGun_TurretGun();
         return;
@@ -223,7 +221,9 @@ void Actor::Think_MachineGunner_TurretGun(void)
     }
 
     player = G_GetEntity(0);
-    if (!player) { return; }
+    if (!player) {
+         return; 
+    }
 
     if (m_pTurret->AI_CanTarget(player->centroid)) {
         ThinkHoldGun_TurretGun();
