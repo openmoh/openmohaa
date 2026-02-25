@@ -220,7 +220,10 @@ void Actor::Think_MachineGunner_TurretGun(void)
         return;
     }
 
+    // FIXME: Add support for multiple players
+
     player = G_GetEntity(0);
+    // Fixed in OPM
     if (!player) {
          return; 
     }
