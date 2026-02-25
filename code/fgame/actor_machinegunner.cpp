@@ -200,6 +200,10 @@ void Actor::ThinkHoldGun_TurretGun(void)
 
 void Actor::Think_MachineGunner_TurretGun(void)
 {
+    Entity *player;
+
+    if (!m_pTurret) { return; }
+
     if (!m_bEnableEnemy) {
         ThinkHoldGun_TurretGun();
         return;
@@ -218,7 +222,10 @@ void Actor::Think_MachineGunner_TurretGun(void)
         return;
     }
 
-    if (m_pTurret->AI_CanTarget(G_GetEntity(0)->centroid)) {
+    player = G_GetEntity(0);
+    if (!player) { return; }
+
+    if (m_pTurret->AI_CanTarget(player->centroid)) {
         ThinkHoldGun_TurretGun();
         return;
     }
@@ -232,9 +239,9 @@ void Actor::Think_MachineGunner_TurretGun(void)
             EyePosition(),
             vec_zero,
             vec_zero,
-            static_cast<Sentient *>(G_GetEntity(0))->EyePosition(),
+            static_cast<Sentient *>(player)->EyePosition(),
             this,
-            G_GetEntity(0),
+            player,
             MASK_CANSEE,
             qfalse,
             "Actor::Think_MachineGunner"
