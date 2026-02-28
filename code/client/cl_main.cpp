@@ -40,6 +40,8 @@ extern "C" {
 
 #include <climits>
 
+#include <tracy/Tracy.hpp>
+
 #ifdef USE_RENDERER_DLOPEN
 cvar_t* cl_renderer;
 #endif
@@ -851,6 +853,8 @@ void CL_MapLoading( qboolean flush, const char *pszMapName ) {
 
 	UI_ClearState();
 	UI_ForceMenuOff(false);
+
+	TracyMessageS(va("CL_MapLoading: %s", pszMapName), 15 + strlen(pszMapName), 16);
 
 	if (!flush) {
 		// Don't do anything if it's not flushingb
@@ -2682,6 +2686,8 @@ void CL_Frame ( int msec ) {
 	if ( !com_cl_running->integer ) {
 		return;
 	}
+
+	ZoneScoped;
 
 #ifdef USE_CURL
 	if(clc.downloadCURLM) {

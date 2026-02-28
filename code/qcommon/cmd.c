@@ -24,6 +24,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "q_shared.h"
 #include "qcommon.h"
 
+#include <tracy/TracyC.h>
+
 #define	MAX_CMD_BUFFER  128*1024
 #define	MAX_CMD_LINE	8192 // was increased for testing purposes
 #define MAX_ALIAS_NAME	32
@@ -988,6 +990,8 @@ A complete command line has been parsed, so try to execute it
 void	Cmd_ExecuteString( const char *text ) {	
 	cmd_function_t	*cmd, **prev;
 	cmdalias_t		*a;
+
+	TracyCMessageS(va("Cmd_ExecuteString: %s", text), strlen(text) + 19, 0);
 
 	// execute the command line
 	Cmd_TokenizeString( text );		
