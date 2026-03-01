@@ -308,6 +308,13 @@ void R_LevelMarksLoad(const char *szBSPName)
     }
 
     COM_StripExtension(szBSPName, lm.szDCLFilename, sizeof(lm.szDCLFilename));
+    iLength = strlen(lm.szDCLFilename);
+    if (iLength > 4 && !Q_stricmpn(lm.szDCLFilename + iLength - 4, "_sml", 4)) {
+        // Added in 2.0
+        //  Load the same DCL file as the large lightmap BSP file
+        lm.szDCLFilename[iLength - 4] = 0;
+    }
+
     Q_strcat(lm.szDCLFilename, sizeof(lm.szDCLFilename), ".dcl");
 
     if (ri.FS_OpenFile(lm.szDCLFilename, &hFile, qtrue, qtrue) <= 0) {
