@@ -27,7 +27,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 Event EV_VehicleSoundEntity_PostSpawn
 (
-    "vehiclesoundentity_post",
+    "vehiclesoundentity_postspawn",
     EV_DEFAULT,
     NULL,
     NULL,
