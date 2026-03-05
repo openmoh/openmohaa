@@ -1802,13 +1802,14 @@ void ScriptVM::Execute(ScriptVariable *data, int dataSize, str label)
                 }
 
                 if (!targetList || !targetList->list.NumObjects()) {
-                    str targetname = m_VMStack.GetTop().stringValue();
                     // the target name was not found
-                    m_VMStack.GetTop().setListenerValue(NULL);
 
-                    if ((*m_PrevCodePos >= OP_BIN_EQUALITY && *m_PrevCodePos <= OP_BIN_GREATER_THAN_OR_EQUAL)
-                        || (*m_PrevCodePos >= OP_BOOL_UN_NOT && *m_PrevCodePos <= OP_UN_CAST_BOOLEAN)) {
+                    if (g_scriptdebug->integer) {
+                        const str targetname = m_VMStack.GetTop().stringValue();
+                        m_VMStack.GetTop().setListenerValue(NULL);
                         ScriptError("Targetname '%s' does not exist.", targetname.c_str());
+                    } else {
+                        m_VMStack.GetTop().setListenerValue(NULL);
                     }
                 } else if (targetList->list.NumObjects() == 1) {
                     // single listener
