@@ -1224,10 +1224,10 @@ Event EV_Actor_GetDisguisePeriod
 Event EV_Actor_AttackPlayer
 (
     "attackplayer",
-    EV_DEFAULT,
-    NULL,
-    NULL,
-    "Force Actor to attack the player",
+    EV_DEFAULT, 
+    "e", 
+    "player",
+    "Force Actor to attack the specified player, if none are supplied then attack the first player",
     EV_NORMAL
 );
 Event EV_Actor_SetSoundAwareness
@@ -8978,7 +8978,17 @@ Actor::ForceAttackPlayer
 */
 void Actor::ForceAttackPlayer(void)
 {
-    m_PotentialEnemies.ConfirmEnemy(this, static_cast<Sentient *>(G_GetEntity(0)));
+    ForceAttackPlayer(0);
+}
+
+/*
+===============
+Actor::ForceAttackPlayer
+===============
+*/
+void Actor::ForceAttackPlayer(int entnum)
+{
+    m_PotentialEnemies.ConfirmEnemy(this, static_cast<Sentient *>(G_GetEntity(entnum)));
     m_bForceAttackPlayer = true;
 }
 
@@ -8989,11 +8999,32 @@ Actor::EventAttackPlayer
 */
 void Actor::EventAttackPlayer(Event *ev)
 {
-    if (!G_GetEntity(0)) {
-        ScriptError("player doesn't exist");
+    // Changed in OPM
+    //  If player is specified, attack that player. Otherwise, attack the first player found.
+
+    Entity *playerEnt = NULL;
+
+    if (ev->NumArgs() > 0) {
+        playerEnt = ev->GetEntity(1);
+    } else {
+        for (int i = 0; i < game.maxclients; i++) {
+            gentity_t *other = &g_entities[i];
+            if (other->inuse && other->client) {
+                playerEnt = other->entity;
+                break;
+            }
+        }
     }
 
-    ForceAttackPlayer();
+    if (!playerEnt) {
+        ScriptError("player doesn't exist");
+    }
+    
+    if (!playerEnt->IsSubclassOfPlayer()) {
+        ScriptError("supplied entity is not of type Player");
+    }
+
+    ForceAttackPlayer(playerEnt->entnum);
 }
 
 /*
