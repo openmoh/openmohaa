@@ -3572,7 +3572,7 @@ void RE_LoadWorldMap( const char *name ) {
 			{
 				int l;
 
-				sprintf(fileName, "primarylg%d.tga", l);
+				sprintf(fileName, "primarylg%d.tga", k);
 
 				out = buf + 18;
 				for (l = 0; l < w->lightGridBounds[0] * w->lightGridBounds[1]; l++)
