@@ -48,7 +48,7 @@ jobs:
       uses: actions/cache@v4
       with:
         path: 'thirdparties/winflexbison-install'
-        key: ${{ runner.os }}-${{ matrix.architecture.name }}-flexbison-${{ env.flexbison-branch }}-v1
+        key: ${{ runner.os }}-${{ matrix.architecture.name }}-flexbison-${{ env.flexbison-branch }}-v2
 
     - name: Install Flex/Bison
       if: steps.cache-flexbison.outputs.cache-hit != 'true'
@@ -56,7 +56,7 @@ jobs:
       run: |
         mkdir thirdparties && cd thirdparties
         git clone --depth 1 --single-branch --branch ${{ env.flexbison-branch }} https://github.com/lexxmark/winflexbison.git
-        cmake -B winflexbison-build -DCMAKE_INSTALL_PREFIX='${{github.workspace}}/thirdparties/winflexbison-install' ./winflexbison
+        cmake -B winflexbison-build -DCMAKE_INSTALL_PREFIX='${{github.workspace}}/thirdparties/winflexbison-install' -DCMAKE_POLICY_VERSION_MINIMUM="3.5" ./winflexbison
         cmake --build winflexbison-build --config Release --parallel
         cmake --install winflexbison-build --config Release
 
