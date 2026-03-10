@@ -4529,7 +4529,7 @@ void ScriptThread::AddObjective(int index, int status, str text, Vector location
         sTmp = Info_ValueForKey(sTmp, "flags");
         if (!(atoi(sTmp) & OBJ_FLAG_CURRENT)) {
             if (last_time != level.inttime) {
-                gi.Printf("An objective has been added!\n");
+                gi.SendServerCommand(-1, "print \"" HUD_MESSAGE_WHITE "An objective has been added!\n\"");
                 last_time = level.inttime;
             }
         }
@@ -4537,7 +4537,7 @@ void ScriptThread::AddObjective(int index, int status, str text, Vector location
         break;
     case OBJ_STATUS_COMPLETED:
         if (last_time != level.inttime) {
-            gi.Printf("An objective has been completed!\n");
+            gi.SendServerCommand(-1, "print \"" HUD_MESSAGE_WHITE "An objective has been completed!\n\"");
             last_time = level.inttime;
         }
         if (g_gametype->integer == GT_SINGLE_PLAYER) {
