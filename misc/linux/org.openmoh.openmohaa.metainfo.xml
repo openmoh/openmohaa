@@ -17,15 +17,15 @@
   <launchable type="desktop-id">org.openmoh.openmohaa.desktop</launchable>
   <screenshots>
     <screenshot type="default">
-      <image>https://github.com/openmoh/openmohaa/blob/main/docs/images/v0.60.0-x86_64/mohdm1_1.png?raw=true</image>
+      <image>https://github.com/openmoh/openmohaa/blob/main/docs/assets/images/v0.60.0-x86_64/mohdm1_1.png?raw=true</image>
       <caption>Shows a smoke being deployed during multiplayer gameplay</caption>
     </screenshot>
     <screenshot>
-      <image>https://github.com/openmoh/openmohaa/blob/main/docs/images/v0.60.0-x86_64/flughafen_1.png?raw=true</image>
+      <image>https://github.com/openmoh/openmohaa/blob/main/docs/assets/images/v0.60.0-x86_64/flughafen_1.png?raw=true</image>
       <caption>Shows a turret firing during multiplayer gameplay</caption>
     </screenshot>
     <screenshot>
-      <image>https://github.com/openmoh/openmohaa/blob/main/docs/images/v0.60.0-x86_64/flughafen_3.png?raw=true</image>
+      <image>https://github.com/openmoh/openmohaa/blob/main/docs/assets/images/v0.60.0-x86_64/flughafen_3.png?raw=true</image>
       <caption>Shows a mortar firing during multiplayer gameplay</caption>
     </screenshot>
   </screenshots>
