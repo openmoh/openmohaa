@@ -996,25 +996,36 @@ void ScriptVariable::evalArrayAt(ScriptVariable& var)
         break;
 
     case VARIABLE_ARRAY:
+    {
+        ScriptVariable result;
+
         array = m_data.arrayValue->arrayValue.find(var);
 
         if (array) {
-            *this = *array;
+            result = *array;
+            *this = result;
         } else {
             Clear();
         }
 
         break;
+    }
 
     case VARIABLE_CONSTARRAY:
+    {
+        ScriptVariable result;
+
         index = var.intValue();
 
         if (index == 0 || index > m_data.constArrayValue->size) {
             throw ScriptException("array index %d out of range", index);
         }
 
-        *this = m_data.constArrayValue->constArrayValue[index - 1];
+        result = m_data.constArrayValue->constArrayValue[index - 1];
+        *this = result;
+
         break;
+    }
 
     case VARIABLE_CONTAINER:
         index = var.intValue();
