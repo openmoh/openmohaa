@@ -489,7 +489,7 @@ void UIFakkLabel::DrawStatbar(float frac)
                 {
                     float width = frac * m_frame.size.width;
 
-                    fvWidth = m_frame.size.width / m_vVirtualScale[0]
+                    fvWidth = width / m_vVirtualScale[0]
                             / uii.Rend_GetShaderWidth(m_statbar_material->GetMaterial());
                     fvHeight = m_frame.size.height / m_vVirtualScale[1]
                              / uii.Rend_GetShaderHeight(m_statbar_material->GetMaterial());
@@ -502,7 +502,7 @@ void UIFakkLabel::DrawStatbar(float frac)
                     if (alpha != 0.0 && m_statbar_material_flash) {
                         re.SetColor(col);
 
-                        fvWidth = m_frame.size.width / m_vVirtualScale[0]
+                        fvWidth = width / m_vVirtualScale[0]
                                 / uii.Rend_GetShaderWidth(m_statbar_material_flash->GetMaterial());
                         fvHeight = m_frame.size.height / m_vVirtualScale[1]
                                  / uii.Rend_GetShaderHeight(m_statbar_material_flash->GetMaterial());
