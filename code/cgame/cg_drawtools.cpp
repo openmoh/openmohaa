@@ -1424,13 +1424,13 @@ void CG_DrawCrosshair()
     }
 
     if (shader) {
-        width  = cgi.R_GetShaderWidth(shader);
-        height = cgi.R_GetShaderHeight(shader);
+        width  = cgi.R_GetShaderWidth(shader) * cgs.uiHiResScale[0];
+        height = cgi.R_GetShaderHeight(shader) * cgs.uiHiResScale[1];
         x      = (cgs.glconfig.vidWidth - width) * 0.5f;
         y      = (cgs.glconfig.vidHeight - height) * 0.5f;
 
         cgi.R_SetColor(NULL);
-        cgi.R_DrawStretchPic(x, y, width * cgs.uiHiResScale[0], height * cgs.uiHiResScale[1], 0, 0, 1, 1, shader);
+        cgi.R_DrawStretchPic(x, y, width, height, 0, 0, 1, 1, shader);
     }
 }
 
