@@ -20,8 +20,8 @@ jobs:
     - uses: awalsh128/cache-apt-pkgs-action@latest
       name: Install required packages
       with:
-        packages: flex bison ninja-build cmake clang libsdl2-dev libopenal-dev
-        version: "${{ runner.os }}-${{ runner.arch }}-unittest-v1"
+        packages: flex bison ninja-build cmake clang libsdl2-dev libopenal-dev libsodium-dev pkg-config
+        version: "${{ runner.os }}-${{ runner.arch }}-unittest-v2"
 
     - uses: actions/checkout@v4
       with:
