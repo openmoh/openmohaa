@@ -26,6 +26,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../qcommon/bg_compat.h"
 #include "../gamespy/sv_gamespy.h"
 
+#include <tracy/TracyC.h>
+
 static char last_mapname[ MAX_QPATH ];
 static int g_iSvsTimeFixupCount;
 static int *g_piSvsTimeFixups[ 2048 ];
@@ -587,6 +589,8 @@ void SV_SpawnServer( const char *server, qboolean loadgame, qboolean restart, qb
 	qboolean	keep_scripts;
 	const char	*p;
 
+	TracyCZone(ctx, 1);
+
 	keep_scripts = restart;
 
 	Com_Printf ("------ Server Initialization ------\n");
@@ -975,6 +979,8 @@ void SV_SpawnServer( const char *server, qboolean loadgame, qboolean restart, qb
 	if( g_gametype->integer != GT_SINGLE_PLAYER ) {
 		SV_ServerLoaded();
 	}
+
+	TracyCZoneEnd(ctx);
 }
 
 /*
