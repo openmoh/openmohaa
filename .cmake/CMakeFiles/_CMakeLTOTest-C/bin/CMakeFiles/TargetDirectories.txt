@@ -1,0 +1,4 @@
+/run/media/elgan/bdb8dbed-86d7-41d2-90f3-09a45ed5ad9c/dev/openmohaa-central/.cmake/CMakeFiles/_CMakeLTOTest-C/bin/CMakeFiles/foo.dir
+/run/media/elgan/bdb8dbed-86d7-41d2-90f3-09a45ed5ad9c/dev/openmohaa-central/.cmake/CMakeFiles/_CMakeLTOTest-C/bin/CMakeFiles/boo.dir
+/run/media/elgan/bdb8dbed-86d7-41d2-90f3-09a45ed5ad9c/dev/openmohaa-central/.cmake/CMakeFiles/_CMakeLTOTest-C/bin/CMakeFiles/edit_cache.dir
+/run/media/elgan/bdb8dbed-86d7-41d2-90f3-09a45ed5ad9c/dev/openmohaa-central/.cmake/CMakeFiles/_CMakeLTOTest-C/bin/CMakeFiles/rebuild_cache.dir

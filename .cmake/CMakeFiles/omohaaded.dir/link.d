@@ -1,0 +1,406 @@
+Release/omohaaded: \
+  /usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/Scrt1.o \
+  /usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/crti.o \
+  /usr/lib/gcc/x86_64-linux-gnu/15/crtbeginS.o \
+  CMakeFiles/omohaaded.dir/code/server/sv_client.c.o \
+  CMakeFiles/omohaaded.dir/code/server/sv_ccmds.c.o \
+  CMakeFiles/omohaaded.dir/code/server/sv_game.c.o \
+  CMakeFiles/omohaaded.dir/code/server/sv_init.c.o \
+  CMakeFiles/omohaaded.dir/code/server/sv_main.c.o \
+  CMakeFiles/omohaaded.dir/code/server/sv_net_chan.c.o \
+  CMakeFiles/omohaaded.dir/code/server/sv_snapshot.c.o \
+  CMakeFiles/omohaaded.dir/code/server/sv_snd.c.o \
+  CMakeFiles/omohaaded.dir/code/server/sv_world.c.o \
+  CMakeFiles/omohaaded.dir/code/gamespy/sv_gamespy.c.o \
+  CMakeFiles/omohaaded.dir/code/gamespy/sv_gqueryreporting.c.o \
+  CMakeFiles/omohaaded.dir/code/null/null_client.c.o \
+  CMakeFiles/omohaaded.dir/code/null/null_input.c.o \
+  CMakeFiles/omohaaded.dir/code/null/null_snddma.c.o \
+  CMakeFiles/omohaaded.dir/code/qcommon/alias.c.o \
+  CMakeFiles/omohaaded.dir/code/qcommon/bg_compat.cpp.o \
+  CMakeFiles/omohaaded.dir/code/qcommon/cm_fencemask.c.o \
+  CMakeFiles/omohaaded.dir/code/qcommon/cm_load.c.o \
+  CMakeFiles/omohaaded.dir/code/qcommon/cm_patch.c.o \
+  CMakeFiles/omohaaded.dir/code/qcommon/cm_polylib.c.o \
+  CMakeFiles/omohaaded.dir/code/qcommon/cm_terrain.c.o \
+  CMakeFiles/omohaaded.dir/code/qcommon/cm_test.c.o \
+  CMakeFiles/omohaaded.dir/code/qcommon/cm_trace.c.o \
+  CMakeFiles/omohaaded.dir/code/qcommon/cm_trace_lbd.cpp.o \
+  CMakeFiles/omohaaded.dir/code/qcommon/cm_trace_obfuscation.cpp.o \
+  CMakeFiles/omohaaded.dir/code/qcommon/cmd.c.o \
+  CMakeFiles/omohaaded.dir/code/qcommon/common.c.o \
+  CMakeFiles/omohaaded.dir/code/qcommon/crc.c.o \
+  CMakeFiles/omohaaded.dir/code/qcommon/cvar.c.o \
+  CMakeFiles/omohaaded.dir/code/qcommon/files.cpp.o \
+  CMakeFiles/omohaaded.dir/code/qcommon/ioapi.c.o \
+  CMakeFiles/omohaaded.dir/code/qcommon/huffman.cpp.o \
+  CMakeFiles/omohaaded.dir/code/qcommon/md4.c.o \
+  CMakeFiles/omohaaded.dir/code/qcommon/md5.c.o \
+  CMakeFiles/omohaaded.dir/code/qcommon/memory.c.o \
+  CMakeFiles/omohaaded.dir/code/qcommon/msg.cpp.o \
+  CMakeFiles/omohaaded.dir/code/qcommon/net_chan.c.o \
+  CMakeFiles/omohaaded.dir/code/qcommon/net_ip.c.o \
+  CMakeFiles/omohaaded.dir/code/qcommon/q_math.c.o \
+  CMakeFiles/omohaaded.dir/code/qcommon/q_shared.c.o \
+  CMakeFiles/omohaaded.dir/code/qcommon/unzip.c.o \
+  CMakeFiles/omohaaded.dir/code/gamespy/q_gamespy.c.o \
+  CMakeFiles/omohaaded.dir/code/skeletor/bonetable.cpp.o \
+  CMakeFiles/omohaaded.dir/code/skeletor/skeletor_imports.cpp.o \
+  CMakeFiles/omohaaded.dir/code/skeletor/skeletor_loadanimation.cpp.o \
+  CMakeFiles/omohaaded.dir/code/skeletor/skeletor_model_files.cpp.o \
+  CMakeFiles/omohaaded.dir/code/skeletor/skeletor_utilities.cpp.o \
+  CMakeFiles/omohaaded.dir/code/skeletor/skeletor.cpp.o \
+  CMakeFiles/omohaaded.dir/code/skeletor/skeletorbones.cpp.o \
+  CMakeFiles/omohaaded.dir/code/skeletor/tokenizer.cpp.o \
+  CMakeFiles/omohaaded.dir/code/tiki/tiki_anim.cpp.o \
+  CMakeFiles/omohaaded.dir/code/tiki/tiki_cache.cpp.o \
+  CMakeFiles/omohaaded.dir/code/tiki/tiki_commands.cpp.o \
+  CMakeFiles/omohaaded.dir/code/tiki/tiki_files.cpp.o \
+  CMakeFiles/omohaaded.dir/code/tiki/tiki_frame.cpp.o \
+  CMakeFiles/omohaaded.dir/code/tiki/tiki_imports.cpp.o \
+  CMakeFiles/omohaaded.dir/code/tiki/tiki_parse.cpp.o \
+  CMakeFiles/omohaaded.dir/code/tiki/tiki_skel.cpp.o \
+  CMakeFiles/omohaaded.dir/code/tiki/tiki_surface.cpp.o \
+  CMakeFiles/omohaaded.dir/code/tiki/tiki_tag.cpp.o \
+  CMakeFiles/omohaaded.dir/code/tiki/tiki_utility.cpp.o \
+  CMakeFiles/omohaaded.dir/code/corepp/tiki_main.cpp.o \
+  CMakeFiles/omohaaded.dir/code/corepp/tiki_script.cpp.o \
+  CMakeFiles/omohaaded.dir/code/corepp/class.cpp.o \
+  CMakeFiles/omohaaded.dir/code/corepp/con_set.cpp.o \
+  CMakeFiles/omohaaded.dir/code/corepp/con_timer.cpp.o \
+  CMakeFiles/omohaaded.dir/code/corepp/delegate.cpp.o \
+  CMakeFiles/omohaaded.dir/code/corepp/lightclass.cpp.o \
+  CMakeFiles/omohaaded.dir/code/corepp/listener.cpp.o \
+  CMakeFiles/omohaaded.dir/code/corepp/lz77.cpp.o \
+  CMakeFiles/omohaaded.dir/code/corepp/mem_blockalloc.cpp.o \
+  CMakeFiles/omohaaded.dir/code/corepp/mem_tempalloc.cpp.o \
+  CMakeFiles/omohaaded.dir/code/corepp/script.cpp.o \
+  CMakeFiles/omohaaded.dir/code/corepp/str.cpp.o \
+  CMakeFiles/omohaaded.dir/code/script/scriptexception.cpp.o \
+  CMakeFiles/omohaaded.dir/code/script/scriptvariable.cpp.o \
+  CMakeFiles/omohaaded.dir/code/sys/con_log.c.o \
+  CMakeFiles/omohaaded.dir/code/sys/sys_autoupdater.c.o \
+  CMakeFiles/omohaaded.dir/code/sys/sys_main.c.o \
+  CMakeFiles/omohaaded.dir/code/sys/sys_unix.c.o \
+  CMakeFiles/omohaaded.dir/code/sys/con_tty.c.o \
+  CMakeFiles/omohaaded.dir/code/sys/new/sys_unix_new.c.o \
+  CMakeFiles/omohaaded.dir/code/sys/new/sys_main_new.c.o \
+  CMakeFiles/omohaaded.dir/code/sys/win_bounds.cpp.o \
+  CMakeFiles/omohaaded.dir/code/sys/win_localization.cpp.o \
+  CMakeFiles/omohaaded.dir/code/sys/sys_curl.c.o \
+  CMakeFiles/omohaaded.dir/code/sys/sys_update_checker.cpp.o \
+  CMakeFiles/omohaaded.dir/code/thirdparty/zlib-1.3.1/adler32.c.o \
+  CMakeFiles/omohaaded.dir/code/thirdparty/zlib-1.3.1/crc32.c.o \
+  CMakeFiles/omohaaded.dir/code/thirdparty/zlib-1.3.1/inffast.c.o \
+  CMakeFiles/omohaaded.dir/code/thirdparty/zlib-1.3.1/inflate.c.o \
+  CMakeFiles/omohaaded.dir/code/thirdparty/zlib-1.3.1/inftrees.c.o \
+  CMakeFiles/omohaaded.dir/code/thirdparty/zlib-1.3.1/zutil.c.o \
+  /usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/libdl.a \
+  /usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/libdl.a \
+  /usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/libm.so \
+  /usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/libm.so \
+  /usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/libm.so \
+  /lib/x86_64-linux-gnu/libm.so.6 \
+  /lib/x86_64-linux-gnu/libmvec.so.1 \
+  /usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/librt.a \
+  libgcd_key.a \
+  libgcd_qr2.a \
+  libgcd_natneg.a \
+  libgcd_common.a \
+  /usr/lib/gcc/x86_64-linux-gnu/15/libstdc++.so \
+  /usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/libm.so \
+  /usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/libm.so \
+  /usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/libm.so \
+  /lib/x86_64-linux-gnu/libm.so.6 \
+  /lib/x86_64-linux-gnu/libmvec.so.1 \
+  /usr/lib/gcc/x86_64-linux-gnu/15/libgcc_s.so \
+  /usr/lib/gcc/x86_64-linux-gnu/15/libgcc_s.so \
+  /usr/lib/gcc/x86_64-linux-gnu/15/libgcc_s.so \
+  /usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/libgcc_s.so.1 \
+  /usr/lib/gcc/x86_64-linux-gnu/15/libgcc.a \
+  /usr/lib/gcc/x86_64-linux-gnu/15/libgcc.a \
+  /usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/libc.so \
+  /usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/libc.so \
+  /usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/libc.so \
+  /lib/x86_64-linux-gnu/libc.so.6 \
+  /usr/lib/x86_64-linux-gnu/libc_nonshared.a \
+  /lib64/ld-linux-x86-64.so.2 \
+  /usr/lib/gcc/x86_64-linux-gnu/15/libgcc_s.so \
+  /usr/lib/gcc/x86_64-linux-gnu/15/libgcc_s.so \
+  /usr/lib/gcc/x86_64-linux-gnu/15/libgcc_s.so \
+  /usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/libgcc_s.so.1 \
+  /usr/lib/gcc/x86_64-linux-gnu/15/libgcc.a \
+  /usr/lib/gcc/x86_64-linux-gnu/15/libgcc.a \
+  /usr/lib/gcc/x86_64-linux-gnu/15/crtendS.o \
+  /usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/crtn.o \
+  /lib64/ld-linux-x86-64.so.2
+
+/usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/Scrt1.o:
+
+/usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/crti.o:
+
+/usr/lib/gcc/x86_64-linux-gnu/15/crtbeginS.o:
+
+CMakeFiles/omohaaded.dir/code/server/sv_client.c.o:
+
+CMakeFiles/omohaaded.dir/code/server/sv_ccmds.c.o:
+
+CMakeFiles/omohaaded.dir/code/server/sv_game.c.o:
+
+CMakeFiles/omohaaded.dir/code/server/sv_init.c.o:
+
+CMakeFiles/omohaaded.dir/code/server/sv_main.c.o:
+
+CMakeFiles/omohaaded.dir/code/server/sv_net_chan.c.o:
+
+CMakeFiles/omohaaded.dir/code/server/sv_snapshot.c.o:
+
+CMakeFiles/omohaaded.dir/code/server/sv_snd.c.o:
+
+CMakeFiles/omohaaded.dir/code/server/sv_world.c.o:
+
+CMakeFiles/omohaaded.dir/code/gamespy/sv_gamespy.c.o:
+
+CMakeFiles/omohaaded.dir/code/gamespy/sv_gqueryreporting.c.o:
+
+CMakeFiles/omohaaded.dir/code/null/null_client.c.o:
+
+CMakeFiles/omohaaded.dir/code/null/null_input.c.o:
+
+CMakeFiles/omohaaded.dir/code/null/null_snddma.c.o:
+
+CMakeFiles/omohaaded.dir/code/qcommon/alias.c.o:
+
+CMakeFiles/omohaaded.dir/code/qcommon/bg_compat.cpp.o:
+
+CMakeFiles/omohaaded.dir/code/qcommon/cm_fencemask.c.o:
+
+CMakeFiles/omohaaded.dir/code/qcommon/cm_load.c.o:
+
+CMakeFiles/omohaaded.dir/code/qcommon/cm_patch.c.o:
+
+CMakeFiles/omohaaded.dir/code/qcommon/cm_polylib.c.o:
+
+CMakeFiles/omohaaded.dir/code/qcommon/cm_terrain.c.o:
+
+CMakeFiles/omohaaded.dir/code/qcommon/cm_test.c.o:
+
+CMakeFiles/omohaaded.dir/code/qcommon/cm_trace.c.o:
+
+CMakeFiles/omohaaded.dir/code/qcommon/cm_trace_lbd.cpp.o:
+
+CMakeFiles/omohaaded.dir/code/qcommon/cm_trace_obfuscation.cpp.o:
+
+CMakeFiles/omohaaded.dir/code/qcommon/cmd.c.o:
+
+CMakeFiles/omohaaded.dir/code/qcommon/common.c.o:
+
+CMakeFiles/omohaaded.dir/code/qcommon/crc.c.o:
+
+CMakeFiles/omohaaded.dir/code/qcommon/cvar.c.o:
+
+CMakeFiles/omohaaded.dir/code/qcommon/files.cpp.o:
+
+CMakeFiles/omohaaded.dir/code/qcommon/ioapi.c.o:
+
+CMakeFiles/omohaaded.dir/code/qcommon/huffman.cpp.o:
+
+CMakeFiles/omohaaded.dir/code/qcommon/md4.c.o:
+
+CMakeFiles/omohaaded.dir/code/qcommon/md5.c.o:
+
+CMakeFiles/omohaaded.dir/code/qcommon/memory.c.o:
+
+CMakeFiles/omohaaded.dir/code/qcommon/msg.cpp.o:
+
+CMakeFiles/omohaaded.dir/code/qcommon/net_chan.c.o:
+
+CMakeFiles/omohaaded.dir/code/qcommon/net_ip.c.o:
+
+CMakeFiles/omohaaded.dir/code/qcommon/q_math.c.o:
+
+CMakeFiles/omohaaded.dir/code/qcommon/q_shared.c.o:
+
+CMakeFiles/omohaaded.dir/code/qcommon/unzip.c.o:
+
+CMakeFiles/omohaaded.dir/code/gamespy/q_gamespy.c.o:
+
+CMakeFiles/omohaaded.dir/code/skeletor/bonetable.cpp.o:
+
+CMakeFiles/omohaaded.dir/code/skeletor/skeletor_imports.cpp.o:
+
+CMakeFiles/omohaaded.dir/code/skeletor/skeletor_loadanimation.cpp.o:
+
+CMakeFiles/omohaaded.dir/code/skeletor/skeletor_model_files.cpp.o:
+
+CMakeFiles/omohaaded.dir/code/skeletor/skeletor_utilities.cpp.o:
+
+CMakeFiles/omohaaded.dir/code/skeletor/skeletor.cpp.o:
+
+CMakeFiles/omohaaded.dir/code/skeletor/skeletorbones.cpp.o:
+
+CMakeFiles/omohaaded.dir/code/skeletor/tokenizer.cpp.o:
+
+CMakeFiles/omohaaded.dir/code/tiki/tiki_anim.cpp.o:
+
+CMakeFiles/omohaaded.dir/code/tiki/tiki_cache.cpp.o:
+
+CMakeFiles/omohaaded.dir/code/tiki/tiki_commands.cpp.o:
+
+CMakeFiles/omohaaded.dir/code/tiki/tiki_files.cpp.o:
+
+CMakeFiles/omohaaded.dir/code/tiki/tiki_frame.cpp.o:
+
+CMakeFiles/omohaaded.dir/code/tiki/tiki_imports.cpp.o:
+
+CMakeFiles/omohaaded.dir/code/tiki/tiki_parse.cpp.o:
+
+CMakeFiles/omohaaded.dir/code/tiki/tiki_skel.cpp.o:
+
+CMakeFiles/omohaaded.dir/code/tiki/tiki_surface.cpp.o:
+
+CMakeFiles/omohaaded.dir/code/tiki/tiki_tag.cpp.o:
+
+CMakeFiles/omohaaded.dir/code/tiki/tiki_utility.cpp.o:
+
+CMakeFiles/omohaaded.dir/code/corepp/tiki_main.cpp.o:
+
+CMakeFiles/omohaaded.dir/code/corepp/tiki_script.cpp.o:
+
+CMakeFiles/omohaaded.dir/code/corepp/class.cpp.o:
+
+CMakeFiles/omohaaded.dir/code/corepp/con_set.cpp.o:
+
+CMakeFiles/omohaaded.dir/code/corepp/con_timer.cpp.o:
+
+CMakeFiles/omohaaded.dir/code/corepp/delegate.cpp.o:
+
+CMakeFiles/omohaaded.dir/code/corepp/lightclass.cpp.o:
+
+CMakeFiles/omohaaded.dir/code/corepp/listener.cpp.o:
+
+CMakeFiles/omohaaded.dir/code/corepp/lz77.cpp.o:
+
+CMakeFiles/omohaaded.dir/code/corepp/mem_blockalloc.cpp.o:
+
+CMakeFiles/omohaaded.dir/code/corepp/mem_tempalloc.cpp.o:
+
+CMakeFiles/omohaaded.dir/code/corepp/script.cpp.o:
+
+CMakeFiles/omohaaded.dir/code/corepp/str.cpp.o:
+
+CMakeFiles/omohaaded.dir/code/script/scriptexception.cpp.o:
+
+CMakeFiles/omohaaded.dir/code/script/scriptvariable.cpp.o:
+
+CMakeFiles/omohaaded.dir/code/sys/con_log.c.o:
+
+CMakeFiles/omohaaded.dir/code/sys/sys_autoupdater.c.o:
+
+CMakeFiles/omohaaded.dir/code/sys/sys_main.c.o:
+
+CMakeFiles/omohaaded.dir/code/sys/sys_unix.c.o:
+
+CMakeFiles/omohaaded.dir/code/sys/con_tty.c.o:
+
+CMakeFiles/omohaaded.dir/code/sys/new/sys_unix_new.c.o:
+
+CMakeFiles/omohaaded.dir/code/sys/new/sys_main_new.c.o:
+
+CMakeFiles/omohaaded.dir/code/sys/win_bounds.cpp.o:
+
+CMakeFiles/omohaaded.dir/code/sys/win_localization.cpp.o:
+
+CMakeFiles/omohaaded.dir/code/sys/sys_curl.c.o:
+
+CMakeFiles/omohaaded.dir/code/sys/sys_update_checker.cpp.o:
+
+CMakeFiles/omohaaded.dir/code/thirdparty/zlib-1.3.1/adler32.c.o:
+
+CMakeFiles/omohaaded.dir/code/thirdparty/zlib-1.3.1/crc32.c.o:
+
+CMakeFiles/omohaaded.dir/code/thirdparty/zlib-1.3.1/inffast.c.o:
+
+CMakeFiles/omohaaded.dir/code/thirdparty/zlib-1.3.1/inflate.c.o:
+
+CMakeFiles/omohaaded.dir/code/thirdparty/zlib-1.3.1/inftrees.c.o:
+
+CMakeFiles/omohaaded.dir/code/thirdparty/zlib-1.3.1/zutil.c.o:
+
+/usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/libdl.a:
+
+/usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/libdl.a:
+
+/usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/libm.so:
+
+/usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/libm.so:
+
+/usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/libm.so:
+
+/lib/x86_64-linux-gnu/libm.so.6:
+
+/lib/x86_64-linux-gnu/libmvec.so.1:
+
+/usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/librt.a:
+
+libgcd_key.a:
+
+libgcd_qr2.a:
+
+libgcd_natneg.a:
+
+libgcd_common.a:
+
+/usr/lib/gcc/x86_64-linux-gnu/15/libstdc++.so:
+
+/usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/libm.so:
+
+/usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/libm.so:
+
+/usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/libm.so:
+
+/lib/x86_64-linux-gnu/libm.so.6:
+
+/lib/x86_64-linux-gnu/libmvec.so.1:
+
+/usr/lib/gcc/x86_64-linux-gnu/15/libgcc_s.so:
+
+/usr/lib/gcc/x86_64-linux-gnu/15/libgcc_s.so:
+
+/usr/lib/gcc/x86_64-linux-gnu/15/libgcc_s.so:
+
+/usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/libgcc_s.so.1:
+
+/usr/lib/gcc/x86_64-linux-gnu/15/libgcc.a:
+
+/usr/lib/gcc/x86_64-linux-gnu/15/libgcc.a:
+
+/usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/libc.so:
+
+/usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/libc.so:
+
+/usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/libc.so:
+
+/lib/x86_64-linux-gnu/libc.so.6:
+
+/usr/lib/x86_64-linux-gnu/libc_nonshared.a:
+
+/lib64/ld-linux-x86-64.so.2:
+
+/usr/lib/gcc/x86_64-linux-gnu/15/libgcc_s.so:
+
+/usr/lib/gcc/x86_64-linux-gnu/15/libgcc_s.so:
+
+/usr/lib/gcc/x86_64-linux-gnu/15/libgcc_s.so:
+
+/usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/libgcc_s.so.1:
+
+/usr/lib/gcc/x86_64-linux-gnu/15/libgcc.a:
+
+/usr/lib/gcc/x86_64-linux-gnu/15/libgcc.a:
+
+/usr/lib/gcc/x86_64-linux-gnu/15/crtendS.o:
+
+/usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/crtn.o:
+
+/lib64/ld-linux-x86-64.so.2:

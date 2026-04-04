@@ -1,0 +1,1 @@
+/usr/bin/c++ -O3 -DNDEBUG -flto=auto -fno-fat-lto-objects -Wl,--dependency-file=CMakeFiles/openmohaa_launcher_spearhead.dir/link.d CMakeFiles/openmohaa_launcher_spearhead.dir/code/Launcher/launch_main.cpp.o CMakeFiles/openmohaa_launcher_spearhead.dir/code/Launcher/launch_linux.cpp.o -o launch_openmohaa_spearhead

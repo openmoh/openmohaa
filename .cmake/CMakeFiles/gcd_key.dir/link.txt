@@ -1,0 +1,2 @@
+"/usr/bin/gcc-ar-15" qc libgcd_key.a CMakeFiles/gcd_key.dir/code/gamespy/gcdkey/gcdkeyc.c.o CMakeFiles/gcd_key.dir/code/gamespy/gcdkey/gcdkeys.c.o
+"/usr/bin/gcc-ranlib-15" libgcd_key.a

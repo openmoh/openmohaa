@@ -1,0 +1,565 @@
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/usr/lib/x86_64-linux-gnu/libthread_db.so.1".
+tty]    --- Common Initialization ---
+tty]    OpenMoHAA 0.83.0-unstable+0.d6a19e9e linux-x86_64-debug Feb 23 2026 UTC
+tty]    ----- FS_Startup -----
+tty]    Current search path:
+tty]    /home/elgan/.config/openmohaa/maintt
+tty]    /home/elgan/.local/share/openmohaa/maintt
+tty]    /home/elgan/.local/share/openmohaa/maintt/zzzzzz_co-op_hzm_mod_mohaa.pk3 (691 files)
+tty]    /home/elgan/.local/share/openmohaa/maintt/pak4.pk3 (11 files)
+tty]    /home/elgan/.local/share/openmohaa/maintt/pak3.pk3 (142 files)
+tty]    /home/elgan/.local/share/openmohaa/maintt/pak2.pk3 (1228 files)
+tty]    /home/elgan/.local/share/openmohaa/maintt/pak1.pk3 (7888 files)
+tty]    /home/elgan/.local/state/openmohaa/maintt
+tty]    /run/media/elgan/bdb8dbed-86d7-41d2-90f3-09a45ed5ad9c1/dev/openmohaa-central/maintt
+tty]    /home/elgan/.config/openmohaa/main
+tty]    /home/elgan/.local/share/openmohaa/main
+tty]    /home/elgan/.local/share/openmohaa/main/pak7.pk3 (89 files)
+tty]    /home/elgan/.local/share/openmohaa/main/Pak6EnUk.pk3 (395 files)
+tty]    /home/elgan/.local/share/openmohaa/main/Pak6.pk3 (395 files)
+tty]    /home/elgan/.local/share/openmohaa/main/pak6.pk3 (104 files)
+tty]    /home/elgan/.local/share/openmohaa/main/Pak5.pk3 (259 files)
+tty]    /home/elgan/.local/share/openmohaa/main/Pak4.pk3 (593 files)
+tty]    /home/elgan/.local/share/openmohaa/main/Pak3.pk3 (669 files)
+tty]    /home/elgan/.local/share/openmohaa/main/Pak2.pk3 (4722 files)
+tty]    /home/elgan/.local/share/openmohaa/main/Pak1.pk3 (396 files)
+tty]    /home/elgan/.local/share/openmohaa/main/Pak0.pk3 (11174 files)
+tty]    /home/elgan/.local/state/openmohaa/main
+tty]    /run/media/elgan/bdb8dbed-86d7-41d2-90f3-09a45ed5ad9c1/dev/openmohaa-central/main
+tty]    
+tty]    ----------------------
+tty]    57512 files in pk3 files
+tty]    execing default.cfg
+tty]    execing menu.cfg
+tty]    Config: omconfig.cfg
+tty]    execing configs/omconfig.cfg
+tty]    cheats will be changed upon restarting.
+tty]    couldn't exec localized.cfg
+tty]    execing autoexec.cfg
+tty]    Unknown command "fov"
+tty]    couldn't exec custom.cfg
+tty]    You are now setup for medium mode.
+tty]    logfile opened on Mon Feb 23 19:15:30 2026
+
+tty]    => game is version OpenMoHAA 0.83.0-unstable+0.d6a19e9e linux-x86_64-debug Feb 23 2026 UTC
+tty]    => targeting game ID 2
+tty]    ----- Client Initialization -----
+tty]    ------ Unloading ClientGame ------
+tty]    
+------------------
+Event system initialized: 82 classes 277 events 181712 total memory in response list
+
+tty]    ----- Initializing Renderer ----
+tty]    Trying to load "renderer_opengl1-dbg.so" from "/run/media/elgan/bdb8dbed-86d7-41d2-90f3-09a45ed5ad9c1/dev/openmohaa-central/build/Debug"...
+tty]    ----- R_Init -----
+tty]    Glimp_Init( )
+tty]    SDL using driver "x11"
+tty]    Initializing OpenGL display
+tty]    Display aspect: 2.370
+tty]    ...setting mode 6: 1024 768
+tty][New Thread 0x7fffe9c9c6c0 (LWP 3568992)]
+[New Thread 0x7fffe935a6c0 (LWP 3568993)]
+[New Thread 0x7fffe8b596c0 (LWP 3568994)]
+[New Thread 0x7fffe83586c0 (LWP 3568995)]
+[New Thread 0x7fffe77576c0 (LWP 3568996)]
+[New Thread 0x7fffe6f566c0 (LWP 3568997)]
+[New Thread 0x7fffe67556c0 (LWP 3568998)]
+[New Thread 0x7fffe5f546c0 (LWP 3568999)]
+[New Thread 0x7fffe57536c0 (LWP 3569000)]
+[New Thread 0x7fffe4e836c0 (LWP 3569001)]
+[Thread 0x7fffe4e836c0 (LWP 3569001) exited]
+[Thread 0x7fffe57536c0 (LWP 3569000) exited]
+[Thread 0x7fffe5f546c0 (LWP 3568999) exited]
+[New Thread 0x7fffe5f546c0 (LWP 3569002)]
+[New Thread 0x7fffe57536c0 (LWP 3569003)]
+[New Thread 0x7fffe4e836c0 (LWP 3569004)]
+    Using 24 color bits, 24 depth, 0 stencil display.
+tty]    Available modes: '2560x1080 640x350 720x400 1368x768 864x486 1024x576 1280x720 1600x900 1920x1080 320x200 640x400 768x480 800x500 928x580 960x600 1152x720 1280x800 1440x900 1680x1050 720x480 320x240 640x480 800x600 1024x768 1152x864 1280x960 1400x1050 1440x1080 1280x1024'
+tty]    GL_RENDERER: AMD Radeon RX 7900 XTX (radeonsi, navi31, LLVM 21.1.8, DRM 3.64, 6.19.0-6-generic)
+tty]    Initializing OpenGL extensions
+tty]    ...using GL_EXT_texture_compression_s3tc
+tty]    ...ignoring GL_EXT_texture_env_add
+tty]    ...using GL_ARB_multitexture
+tty]    ...using GL_EXT_compiled_vertex_array
+tty]    ...ignoring GL_EXT_texture_filter_anisotropic
+tty]    ...using GL_SGIS_texture_edge_clamp
+tty]    
+------- Input Initialization -------
+tty]    Calling SDL_Init(SDL_INIT_JOYSTICK)...
+tty]    SDL_Init(SDL_INIT_JOYSTICK) passed.
+tty]    Calling SDL_Init(SDL_INIT_GAMECONTROLLER)...
+tty]    SDL_Init(SDL_INIT_GAMECONTROLLER) passed.
+tty]    0 possible joysticks
+tty]    Joystick is not active.
+tty]    ------------------------------------
+tty]    
+GL_VENDOR: AMD
+tty]    GL_RENDERER: AMD Radeon RX 7900 XTX (radeonsi, navi31, LLVM 21.1.8, DRM 3.64, 6.19.0-6-generic)
+tty]    GL_VERSION: 4.6 (Compatibility Profile) Mesa 25.3.3-1ubuntu1
+tty]    GL_EXTENSIONS: GL_AMD_conservative_depth GL_AMD_depth_clamp_separate GL_AMD_draw_buffers_blend GL_AMD_multi_draw_indirect GL_AMD_pinned_memory GL_AMD_query_buffer_object GL_AMD_seamless_cubemap_per_texture GL_AMD_shader_stencil_export GL_AMD_shader_trinary_minmax GL_AMD_texture_texture4 GL_AMD_vertex_shader_layer GL_AMD_vertex_shader_viewport_index GL_ANGLE_texture_compression_dxt3 GL_ANGLE_texture_compression_dxt5 GL_APPLE_packed_pixels GL_ARB_ES2_compatibility GL_ARB_ES3_1_compatibility GL_ARB_ES3_2_compatibility GL_ARB_ES3_compatibility GL_ARB_arrays_of_arrays GL_ARB_base_instance GL_ARB_bindless_texture GL_ARB_blend_func_extended GL_ARB_buffer_storage GL_ARB_clear_buffer_object GL_ARB_clear_texture GL_ARB_clip_control GL_ARB_color_buffer_float GL_ARB_compatibility GL_ARB_compressed_texture_pixel_storage GL_ARB_compute_shader GL_ARB_compute_variable_group_size GL_ARB_conditional_render_inverted GL_ARB_conservative_depth GL_ARB_copy_buffer GL_ARB_copy_image GL_ARB_cull_distance GL_ARB_debug_output GL_ARB_depth_buffer_float GL_ARB_depth_clamp GL_ARB_depth_texture GL_ARB_derivative_control GL_ARB_direct_state_access GL_ARB_draw_buffers GL_ARB_draw_buffers_blend GL_ARB_draw_elements_base_vertex GL_ARB_draw_indirect GL_ARB_draw_instanced GL_ARB_enhanced_layouts GL_ARB_explicit_attrib_location GL_ARB_explicit_uniform_location GL_ARB_fragment_coord_conventions GL_ARB_fragment_layer_viewport GL_ARB_fragment_program GL_ARB_fragment_program_shadow GL_ARB_fragment_shader GL_ARB_framebuffer_no_attachments GL_ARB_framebuffer_object GL_ARB_framebuffer_sRGB GL_ARB_get_program_binary GL_ARB_get_texture_sub_image GL_ARB_gl_spirv GL_ARB_gpu_shader5 GL_ARB_gpu_shader_fp64 GL_ARB_gpu_shader_int64 GL_ARB_half_float_pixel GL_ARB_half_float_vertex GL_ARB_indirect_parameters GL_ARB_instanced_arrays GL_ARB_internalformat_query GL_ARB_internalformat_query2 GL_ARB_invalidate_subdata GL_ARB_map_buffer_alignment GL_ARB_map_buffer_range GL_ARB_multi_bind GL_ARB_multi_draw_indirect GL_ARB_multisample GL_ARB_multitexture GL_ARB_occlusion_query GL_ARB_occlusion_query2 GL_ARB_parallel_shader_compile GL_ARB_pipeline_statistics_query GL_ARB_pixel_buffer_object GL_ARB_point_parameters GL_ARB_point_sprite GL_ARB_polygon_offset_clamp GL_ARB_post_depth_coverage GL_ARB_program_interface_query GL_ARB_provoking_vertex GL_ARB_query_buffer_object GL_ARB_robust_buffer_access_behavior GL_ARB_robustness GL_ARB_sample_shading GL_ARB_sampler_objects GL_ARB_seamless_cube_map GL_ARB_seamless_cubemap_per_texture GL_ARB_separate_shader_objects GL_ARB_shader_atomic_counter_ops GL_ARB_shader_atomic_counters GL_ARB_shader_ballot GL_ARB_shader_bit_encoding GL_ARB_shader_clock GL_ARB_shader_draw_parameters GL_ARB_shader_group_vote GL_ARB_shader_image_load_store GL_ARB_shader_image_size GL_ARB_shader_objects GL_ARB_shader_precision GL_ARB_shader_stencil_export GL_ARB_shader_storage_buffer_object GL_ARB_shader_subroutine GL_ARB_shader_texture_image_samples GL_ARB_shader_texture_lod GL_ARB_shader_viewport_layer_array GL_ARB_shading_language_100 GL_ARB_shading_language_420pack GL_ARB_shading_language_include GL_ARB_shading_language_packing GL_ARB_shadow GL_ARB_sparse_buffer GL_ARB_sparse_texture GL_ARB_sparse_texture2 GL_ARB_sparse_texture_clamp GL_ARB_spirv_extensions GL_ARB_stencil_texturing GL_ARB_sync GL_ARB_tessellation_shader GL_ARB_texture_barrier GL_ARB_texture_border_clamp GL_ARB_texture_buffer_object GL_ARB_texture_buffer_object_rgb32 GL_ARB_texture_buffer_range GL_ARB_texture_compression GL_ARB_texture_compression_bptc GL_ARB_texture_compression_rgtc GL_ARB_texture_cube_map GL_ARB_texture_cube_map_array GL_ARB_texture_env_add GL_ARB_texture_env_combine GL_ARB_texture_env_crossbar GL_ARB_texture_env_dot3 GL_ARB_texture_filter_anisotropic GL_ARB_texture_filter_minmax GL_ARB_texture_float GL_ARB_texture_gather GL_ARB_texture_mirror_clamp_to_edge GL_ARB_texture_mirrored_repeat GL_ARB_texture_multisample GL_ARB_texture_non_power_of_two GL_ARB_texture_query_levels GL_ARB_texture_query_lod GL_ARB_texture_rectangle GL_ARB_texture_rg GL_ARB_texture_rgb10_a2ui GL_ARB_texture_stencil8 GL_ARB_texture_storage GL_ARB_texture_storage_multisample GL_ARB_texture_swizzle GL_ARB_texture_view GL_ARB_timer_query GL_ARB_transform_feedback2 GL_ARB_transform_feedback3 GL_ARB_transform_feedback_instanced GL_ARB_transform_feedback_overflow_query GL_ARB_transpose_matrix GL_ARB_uniform_buffer_object GL_ARB_vertex_array_bgra GL_ARB_vertex_array_object GL_ARB_vertex_attrib_64bit GL_ARB_vertex_attrib_binding GL_ARB_vertex_buffer_object GL_ARB_vertex_program GL_ARB_vertex_shader GL_ARB_vertex_type_10f_11f_11f_rev GL_ARB_vertex_type_2_10_10_10_rev GL_ARB_viewport_array GL_ARB_window_pos GL_ATI_blend_equation_separate GL_ATI_draw_buffers GL_ATI_fragment_shader GL_ATI_meminfo GL_ATI_separate_stencil GL_ATI_texture_compression_3dc GL_ATI_texture_env_combine3 GL_ATI_texture_float GL_ATI_texture_mirror_once GL_EXT_EGL_image_storage GL_EXT_EGL_image_storage_compression GL_EXT_EGL_sync GL_EXT_abgr GL_EXT_bgra GL_EXT_blend_color GL_EXT_blend_equation_separate GL_EXT_blend_func_separate GL_EXT_blend_minmax GL_EXT_blend_subtract GL_EXT_compiled_vertex_array GL_EXT_copy_texture GL_EXT_debug_label GL_EXT_demote_to_helper_invocation GL_EXT_depth_bounds_test GL_EXT_direct_state_access GL_EXT_draw_buffers2 GL_EXT_draw_instanced GL_EXT_draw_range_elements GL_EXT_fog_coord GL_EXT_framebuffer_blit GL_EXT_framebuffer_multisample GL_EXT_framebuffer_multisample_blit_scaled GL_EXT_framebuffer_object GL_EXT_framebuffer_sRGB GL_EXT_gpu_program_parameters GL_EXT_gpu_shader4 GL_EXT_memory_object GL_EXT_memory_object_fd GL_EXT_multi_draw_arrays GL_EXT_packed_depth_stencil GL_EXT_packed_float GL_EXT_packed_pixels GL_EXT_pixel_buffer_object GL_EXT_point_parameters GL_EXT_polygon_offset_clamp GL_EXT_provoking_vertex GL_EXT_rescale_normal GL_EXT_secondary_color GL_EXT_semaphore GL_EXT_semaphore_fd GL_EXT_separate_specular_color GL_EXT_shader_clock GL_EXT_shader_image_load_formatted GL_EXT_shader_image_load_store GL_EXT_shader_integer_mix GL_EXT_shadow_funcs GL_EXT_stencil_two_side GL_EXT_stencil_wrap GL_EXT_subtexture GL_EXT_texture GL_EXT_texture3D GL_EXT_texture_array GL_EXT_texture_buffer_object GL_EXT_texture_compression_dxt1 GL_EXT_texture_compression_latc GL_EXT_texture_compression_rgtc GL_EXT_texture_compression_s3tc GL_EXT_texture_cube_map GL_EXT_texture_edge_clamp GL_EXT_texture_env_add GL_EXT_texture_env_combine GL_EXT_texture_env_dot3 GL_EXT_texture_filter_anisotropic GL_EXT_texture_filter_minmax GL_EXT_texture_integer GL_EXT_texture_lod_bias GL_EXT_texture_mirror_clamp GL_EXT_texture_object GL_EXT_texture_rectangle GL_EXT_texture_sRGB GL_EXT_texture_sRGB_R8 GL_EXT_texture_sRGB_RG8 GL_EXT_texture_sRGB_decode GL_EXT_texture_shadow_lod GL_EXT_texture_shared_exponent GL_EXT_texture_snorm GL_EXT_texture_storage GL_EXT_texture_swizzle GL_EXT_timer_query GL_EXT_transform_feedback GL_EXT_vertex_array GL_EXT_vertex_array_bgra GL_EXT_vertex_attrib_64bit GL_EXT_window_rectangles GL_IBM_multimode_draw_arrays GL_IBM_rasterpos_clip GL_IBM_texture_mirrored_repeat GL_INGR_blend_func_separate GL_INTEL_blackhole_render GL_KHR_blend_equation_advanced GL_KHR_context_flush_control GL_KHR_debug GL_KHR_no_error GL_KHR_parallel_shader_compile GL_KHR_robust_buffer_access_behavior GL_KHR_robustness GL_KHR_shader_subgroup GL_KHR_texture_compression_astc_ldr GL_KHR_texture_compression_astc_sliced_3d GL_MESA_framebuffer_flip_y GL_MESA_pack_invert GL_MESA_shader_integer_functions GL_MESA_texture_const_bandwidth GL_MESA_texture_signed_rgba GL_MESA_window_pos GL_NVX_gpu_memory_info GL_NV_ES1_1_compatibility GL_NV_alpha_to_coverage_dither_control GL_NV_blend_square GL_NV_compute_shader_derivatives GL_NV_conditional_render GL_NV_copy_depth_to_color GL_NV_copy_image GL_NV_depth_clamp GL_NV_fog_distance GL_NV_half_float GL_NV_light_max_exponent GL_NV_packed_depth_stencil GL_NV_primitive_restart GL_NV_shader_atomic_int64 GL_NV_texgen_reflection GL_NV_texture_barrier GL_NV_texture_env_combine4 GL_NV_texture_rectangle GL_OES_EGL_image GL_OES_read_format GL_S3_s3tc GL_SGIS_generate_mipmap GL_SGIS_texture_border_clamp GL_SGIS_texture_edge_clamp GL_SGIS_texture_lod GL_SUN_multi_draw_arrays 
+tty]    GL_MAX_TEXTURE_SIZE: 16384
+tty]    GL_MAX_TEXTURE_UNITS_ARB: 8
+tty]    
+PIXELFORMAT: color(24-bits) Z(24-bit) stencil(0-bits)
+tty]    MODE: 6, 1024 x 768 windowed hz:N/A
+tty]    GAMMA: hardware w/ 0 overbright bits
+tty]    CPU: 
+tty]    rendering primitives: single glDrawElements
+tty]    texturemode: gl_linear_mipmap_linear
+tty]    picmip: 0
+tty]    texture bits: 32
+tty]    multitexture: enabled
+tty]    compiled vertex arrays: enabled
+tty]    texenv add: disabled
+tty]    compressed textures: enabled
+tty]    Initializing Shaders
+tty]    ...loading 'scripts/beams.shader'
+tty]    ...loading 'scripts/mohta_Characters.shader'
+tty]    ...loading 'scripts/Uk_W_Vickers.shader'
+tty]    ...loading 'scripts/static_haystack_dry01.shader'
+tty]    ...loading 'scripts/common.shader'
+tty]    ...loading 'scripts/static_sandbags.shader'
+tty]    ...loading 'scripts/central_europe.shader'
+tty]    ...loading 'scripts/mohmenu.shader'
+tty]    ...loading 'scripts/water.shader'
+tty]    ...loading 'scripts/sky.shader'
+tty]    ...loading 'scripts/weapons_russian.shader'
+tty]    ...loading 'scripts/shermantank.shader'
+tty]    ...loading 'scripts/weapons_stationary.shader'
+tty]    ...loading 'scripts/static_obstacles.shader'
+tty]    ...loading 'scripts/It_W_Moschetto.shader'
+tty]    ...loading 'scripts/blasted.shader'
+tty]    ...loading 'scripts/static_items.shader'
+tty]    ...loading 'scripts/it_terrain.shader'
+tty]    ...loading 'scripts/Sc_Props.shader'
+tty]    ...loading 'scripts/tent.shader'
+tty]    ...loading 'scripts/mohcommon.shader'
+tty]    ...loading 'scripts/ddaydark.shader'
+tty]    ...loading 'scripts/static_crane_grey.shader'
+tty]    ...loading 'scripts/anzio.shader'
+tty]    ...loading 'scripts/vehicles_stuka_explo2.shader'
+tty]    ...loading 'scripts/faces.shader'
+tty]    ...loading 'scripts/ep2sky.shader'
+tty]    ...loading 'scripts/weapons_english.shader'
+tty]    ...loading 'scripts/T1L1_zied.shader'
+tty]    ...loading 'scripts/NewMulti.shader'
+tty]    ...loading 'scripts/TAnatural.shader'
+tty]    ...loading 'scripts/norway.shader'
+tty]    ...loading 'scripts/maltamodels.shader'
+tty]    ...loading 'scripts/mp_loadingnewlevels.shader'
+tty]    ...loading 'scripts/C_34.shader'
+tty]    ...loading 'scripts/Sc_V_CG4Aglider_des.shader'
+tty]    ...loading 'scripts/af_extwall.shader'
+tty]    ...loading 'scripts/Uk_W_L42A1.shader'
+tty]    ...loading 'scripts/Gr_W_MineDetector.shader'
+tty]    ...loading 'scripts/opel.shader'
+tty]    ...loading 'scripts/shell_anims.shader'
+tty]    ...loading 'scripts/brest.shader'
+tty]    ...loading 'scripts/Tanks.shader'
+tty]    ...loading 'scripts/stuka.shader'
+tty]    ...loading 'scripts/hud_anims.shader'
+tty]    ...loading 'scripts/static_rock1.shader'
+tty]    ...loading 'scripts/central_europe_winter.shader'
+tty]    ...loading 'scripts/crazy_boris.shader'
+tty]    ...loading 'scripts/It_V_Boxcar.shader'
+tty]    ...loading 'scripts/it_road.shader'
+tty]    ...loading 'scripts/helmets.shader'
+tty]    ...loading 'scripts/It_W_Beretta.shader'
+tty]    ...loading 'scripts/heldProps.shader'
+tty]    ...loading 'scripts/TAT3L3.shader'
+tty]    ...loading 'scripts/mp_malta.shader'
+tty]    ...loading 'scripts/mp_loading.shader'
+tty]    ...loading 'scripts/Uk_W_Piat.shader'
+tty]    ...loading 'scripts/e1l4_ship.shader'
+tty]    ...loading 'scripts/weapons_germans.shader'
+tty]    ...loading 'scripts/cagelight_shadow.shader'
+tty]    ...loading 'scripts/trees.shader'
+tty]    ...loading 'scripts/e3l4Gag.shader'
+tty]    ...loading 'scripts/ta_sunflare.shader'
+tty]    ...loading 'scripts/tallen_nodraw.shader'
+tty]    ...loading 'scripts/static_supplyDroCrate.shader'
+tty]    ...loading 'scripts/it_extwall.shader'
+tty]    ...loading 'scripts/mohaas_fonts.shader'
+tty]    ...loading 'scripts/tasprites.shader'
+tty]    ...loading 'scripts/obstacles.shader'
+tty]    ...loading 'scripts/Sc_P_RadioTower.shader'
+tty]    ...loading 'scripts/wallsconce-frosted_off.shader'
+tty]    ...loading 'scripts/vehicles_c47_damage_tail.shader'
+tty]    ...loading 'scripts/Maintt_US_Character.shader'
+tty]    ...loading 'scripts/Af_Props.shader'
+tty]    ...loading 'scripts/interior.shader'
+tty]    ...loading 'scripts/pulsating_detonator.shader'
+tty]    ...loading 'scripts/ta_berlin.shader'
+tty]    ...loading 'scripts/general_industrial.shader'
+tty]    ...loading 'scripts/algiers.shader'
+tty]    ...loading 'scripts/Sc_V_CG4Aglider.shader'
+tty]    ...loading 'scripts/AF_Phanger.shader'
+tty]    ...loading 'scripts/animals.shader'
+tty]    ...loading 'scripts/Tow_Props.shader'
+tty]    ...loading 'scripts/light.shader'
+tty]    ...loading 'scripts/mohta_download_Characters.shader'
+tty]    ...loading 'scripts/ta_sky.shader'
+tty]    ...loading 'scripts/choppywater.shader'
+tty]    ...loading 'scripts/it_3-2cassino.shader'
+tty]    ...loading 'scripts/animated_props.shader'
+tty]    ...loading 'scripts/af_extwall2.shader'
+tty]    ...loading 'scripts/german_worker.shader'
+tty]    ...loading 'scripts/us_soldier_snow.shader'
+tty]    ...loading 'scripts/It_W_K5bullet.shader'
+tty]    ...loading 'scripts/It_V_AB41des.shader'
+tty]    ...loading 'scripts/It_W_Howitzer.shader'
+tty]    ...loading 'scripts/sandstorm.shader'
+tty]    ...loading 'scripts/static_logs0.shader'
+tty]    ...loading 'scripts/subpen.shader'
+tty]    ...loading 'scripts/decals.shader'
+tty]    ...loading 'scripts/human_us_parachute_pack.shader'
+tty]    ...loading 'scripts/static_SnowTree3.shader'
+tty]    ...loading 'scripts/general_structure.shader'
+tty]    ...loading 'scripts/vehicles_c47_damage_all.shader'
+tty]    ...loading 'scripts/furniture.shader'
+tty]    ...loading 'scripts/static_SnowBush0.shader'
+tty]    ...loading 'scripts/vehicles_PanzerIV_destroyed.shader'
+tty]    ...loading 'scripts/vehicles_allied.shader'
+tty]    ...loading 'scripts/TArubble.shader'
+tty]    ...loading 'scripts/it_rock.shader'
+tty]    ...loading 'scripts/TANormandy.shader'
+tty]    ...loading 'scripts/items_various.shader'
+tty]    ...loading 'scripts/mp_stuckguter_lib.shader'
+tty]    ...loading 'scripts/static_props.shader'
+tty]    ...loading 'scripts/interior_northafrica.shader'
+tty]    ...loading 'scripts/jeep.shader'
+tty]    ...loading 'scripts/natesnow.shader'
+tty]    ...loading 'scripts/vehicles_italian.shader'
+tty]    ...loading 'scripts/tigertank.shader'
+tty]    ...loading 'scripts/Sc_P_Map.shader'
+tty]    ...loading 'scripts/TAHolland.shader'
+tty]    ...loading 'scripts/it_intwall.shader'
+tty]    ...loading 'scripts/items.shader'
+tty]    ...loading 'scripts/human_brit-beret.shader'
+tty]    ...loading 'scripts/effects_02.shader'
+tty]    ...loading 'scripts/Unterseite.shader'
+tty]    ...loading 'scripts/It_Props.shader'
+tty]    ...loading 'scripts/wilderness.shader'
+tty]    ...loading 'scripts/detail.shader'
+tty]    ...loading 'scripts/Maintt_Brit_Character.shader'
+tty]    ...loading 'scripts/mohtamenu.shader'
+tty]    ...loading 'scripts/sprites.shader'
+tty]    ...loading 'scripts/static_jeep.shader'
+tty]    ...loading 'scripts/it_barricade.shader'
+tty]    ...loading 'scripts/effects.shader'
+tty]    ...loading 'scripts/schnaps.shader'
+tty]    ...loading 'scripts/It_Weapons.shader'
+tty]    ...loading 'scripts/static_logStack0.shader'
+tty]    ...loading 'scripts/mp_bahnhof_dm.shader'
+tty]    ...loading 'scripts/sherman.shader'
+tty]    ...loading 'scripts/afka_terrain.shader'
+tty]    ...loading 'scripts/obfuscation.shader'
+tty]    ...loading 'scripts/mohtest.shader'
+tty]    ...loading 'scripts/It_W_K5shell.shader'
+tty]    ...loading 'scripts/tahud.shader'
+tty]    ...loading 'scripts/barrel.shader'
+tty]    ...loading 'scripts/heads_hands.shader'
+tty]    ...loading 'scripts/It_W_Bomba.shader'
+tty]    ...loading 'scripts/sprites_willys.shader'
+tty]    ...loading 'scripts/Maintt_Ital_Character.shader'
+tty]    ...loading 'scripts/hud.shader'
+tty]    ...loading 'scripts/newtrees.shader'
+tty]    ...loading 'scripts/THUNDERv1.shader'
+tty]    ...loading 'scripts/It_W_K5.shader'
+tty]    ...loading 'scripts/weapons_german.shader'
+tty]    ...loading 'scripts/static_MonteCassino_GroundPortal.shader'
+tty]    ...loading 'scripts/It_W_K5des.shader'
+tty]    ...loading 'scripts/US_W_MineDetector.shader'
+tty]    ...loading 'scripts/playerviewmodel.shader'
+tty]    ...loading 'scripts/It_V_SdKfz.shader'
+tty]    ...loading 'scripts/TAardennes.shader'
+tty]    ...loading 'scripts/tehao_Water_Wave.shader'
+tty]    ...loading 'scripts/static_ho-ix.shader'
+tty]    ...loading 'scripts/misc_outside.shader'
+tty]    ...loading 'scripts/TA_obstacles.shader'
+tty]    ...loading 'scripts/coop_general_industrial.shader'
+tty]    ...loading 'scripts/gfx.shader'
+tty]    ...loading 'scripts/ktigertank.shader'
+tty]    ...loading 'scripts/panzer_iv.shader'
+tty]    ...loading 'scripts/15cannon.shader'
+tty]    ...loading 'scripts/20mmflak.shader'
+tty]    ...loading 'scripts/3dk.shader'
+tty]    ...loading 'scripts/allied_insignia.shader'
+tty]    ...loading 'scripts/allied_pilot.shader'
+tty]    ...loading 'scripts/barracks.shader'
+tty]    ...loading 'scripts/bmwbike.shader'
+tty]    ...loading 'scripts/bottles.shader'
+tty]    ...loading 'scripts/bunker.shader'
+tty]    ...loading 'scripts/c47.shader'
+tty]    ...loading 'scripts/car.shader'
+tty]    ...loading 'scripts/clock.shader'
+tty]    ...loading 'scripts/cockroach.shader'
+tty]    ...loading 'scripts/crates.shader'
+tty]    ...loading 'scripts/das_boot.shader'
+tty]    ...loading 'scripts/dday_shaders_v1.shader'
+tty]    ...loading 'scripts/dtruck.shader'
+tty]    ...loading 'scripts/environmentalfx.shader'
+tty]    ...loading 'scripts/flags.shader'
+tty]    ...loading 'scripts/flak88.shader'
+tty]    ...loading 'scripts/fockwulf.shader'
+tty]    ...loading 'scripts/french.shader'
+tty]    ...loading 'scripts/french_resistance.shader'
+tty]    ...loading 'scripts/frogman.shader'
+tty]    ...loading 'scripts/german.shader'
+tty]    ...loading 'scripts/german_dak.shader'
+tty]    ...loading 'scripts/german_gear.shader'
+tty]    ...loading 'scripts/german_kreigsmarine.shader'
+tty]    ...loading 'scripts/german_motorpool.shader'
+tty]    ...loading 'scripts/german_obershutze.shader'
+tty]    ...loading 'scripts/german_officer.shader'
+tty]    ...loading 'scripts/german_officer2.shader'
+tty]    ...loading 'scripts/german_scientist.shader'
+tty]    ...loading 'scripts/german_sentry.shader'
+tty]    ...loading 'scripts/german_shepherd.shader'
+tty]    ...loading 'scripts/german_ssnco.shader'
+tty]    ...loading 'scripts/german_ssshutze.shader'
+tty]    ...loading 'scripts/german_wehrmact.shader'
+tty]    ...loading 'scripts/german_winter.shader'
+tty]    ...loading 'scripts/gestapo.shader'
+tty]    ...loading 'scripts/gmctruck.shader'
+tty]    ...loading 'scripts/higgins.shader'
+tty]    ...loading 'scripts/howitzer.shader'
+tty]    ...loading 'scripts/hundpatrol.shader'
+tty]    ...loading 'scripts/indycrate.shader'
+tty]    ...loading 'scripts/interiorfx.shader'
+tty]    ...loading 'scripts/ktigertank_d.shader'
+tty]    ...loading 'scripts/loadingscreens.shader'
+tty]    ...loading 'scripts/m1l1anate.shader'
+tty]    ...loading 'scripts/m3.shader'
+tty]    ...loading 'scripts/m5l2anate.shader'
+tty]    ...loading 'scripts/manon.shader'
+tty]    ...loading 'scripts/mercedes.shader'
+tty]    ...loading 'scripts/mohdetails.shader'
+tty]    ...loading 'scripts/nazi_crate.shader'
+tty]    ...loading 'scripts/nebelwerfer.shader'
+tty]    ...loading 'scripts/nebelwerfer_d.shader'
+tty]    ...loading 'scripts/normandy.shader'
+tty]    ...loading 'scripts/ocean.shader'
+tty]    ...loading 'scripts/p47.shader'
+tty]    ...loading 'scripts/panzershutze.shader'
+tty]    ...loading 'scripts/panzer_g.shader'
+tty]    ...loading 'scripts/panzer_grenadier.shader'
+tty]    ...loading 'scripts/paulscrate.shader'
+tty]    ...loading 'scripts/protoamerican.shader'
+tty]    ...loading 'scripts/protogerman.shader'
+tty]    ...loading 'scripts/protosprites.shader'
+tty]    ...loading 'scripts/sandbags.shader'
+tty]    ...loading 'scripts/sdkfz.shader'
+tty]    ...loading 'scripts/sdkfz_desert_d.shader'
+tty]    ...loading 'scripts/shells.shader'
+tty]    ...loading 'scripts/sky_old.shader'
+tty]    ...loading 'scripts/static_basket.shader'
+tty]    ...loading 'scripts/static_piperplane.shader'
+tty]    ...loading 'scripts/static_wirerailholder.shader'
+tty]    ...loading 'scripts/submodels.shader'
+tty]    ...loading 'scripts/sunflare.shader'
+tty]    ...loading 'scripts/tank_commander.shader'
+tty]    ...loading 'scripts/targets.shader'
+tty]    ...loading 'scripts/tempfakk.shader'
+tty]    ...loading 'scripts/tempsign.shader'
+tty]    ...loading 'scripts/test.shader'
+tty]    ...loading 'scripts/tigertank_d.shader'
+tty]    ...loading 'scripts/train.shader'
+tty]    ...loading 'scripts/treeshadows.shader'
+tty]    ...loading 'scripts/us_gear.shader'
+tty]    ...loading 'scripts/us_soldier.shader'
+tty]    ...loading 'scripts/wake.shader'
+tty]    ...loading 'scripts/weapons_allied.shader'
+tty]    ...loading 'scripts/windowdecals.shader'
+tty]    ...loading 'scripts/windowold.shader'
+tty]    ...loading 'scripts/windowtst.shader'
+tty]    ...loading 'scripts/wirecutters.shader'
+tty]    Setting up Shaders
+tty]    ----- finished R_Init -----
+tty]    -------------------------------
+tty]    ------- Sound Initialization (full) -------
+tty]    Trying to load "libopenal.so.1"...
+tty]     Loaded symbol alEnable (0x7fffdda7bc00)
+tty]     Loaded symbol alDisable (0x7fffdda7bca0)
+tty]     Loaded symbol alIsEnabled (0x7fffdda7bd40)
+tty]     Loaded symbol alGetString (0x7fffdda7c7b0)
+tty]     Loaded symbol alGetBooleanv (0x7fffdda7be70)
+tty]     Loaded symbol alGetIntegerv (0x7fffdda7c250)
+tty]     Loaded symbol alGetFloatv (0x7fffdda7c110)
+tty]     Loaded symbol alGetDoublev (0x7fffdda7bfc0)
+tty]     Loaded symbol alGetBoolean (0x7fffdda7bdd0)
+tty]     Loaded symbol alGetInteger (0x7fffdda7c1b0)
+tty]     Loaded symbol alGetFloat (0x7fffdda7c060)
+tty]     Loaded symbol alGetDouble (0x7fffdda7bf10)
+tty]     Loaded symbol alGetError (0x7fffdda66180)
+tty]     Loaded symbol alIsExtensionPresent (0x7fffdda66750)
+tty]     Loaded symbol alGetProcAddress (0x7fffdda606a0)
+tty]     Loaded symbol alGetEnumValue (0x7fffdda606e0)
+tty]     Loaded symbol alListenerf (0x7fffdda66f70)
+tty]     Loaded symbol alListener3f (0x7fffdda67010)
+tty]     Loaded symbol alListenerfv (0x7fffdda670d0)
+tty]     Loaded symbol alListeneri (0x7fffdda67170)
+tty]     Loaded symbol alGetListenerf (0x7fffdda67370)
+tty]     Loaded symbol alGetListener3f (0x7fffdda67410)
+tty]     Loaded symbol alGetListenerfv (0x7fffdda674d0)
+tty]     Loaded symbol alGetListeneri (0x7fffdda67570)
+tty]     Loaded symbol alGenSources (0x7fffdda726a0)
+tty]     Loaded symbol alDeleteSources (0x7fffdda72740)
+tty]     Loaded symbol alIsSource (0x7fffdda727e0)
+tty]     Loaded symbol alSourcef (0x7fffdda728a0)
+tty]     Loaded symbol alSource3f (0x7fffdda72950)
+tty]     Loaded symbol alSourcefv (0x7fffdda72a10)
+tty]     Loaded symbol alSourcei (0x7fffdda72ce0)
+tty]     Loaded symbol alGetSourcef (0x7fffdda73120)
+tty]     Loaded symbol alGetSource3f (0x7fffdda731d0)
+tty]     Loaded symbol alGetSourcefv (0x7fffdda73290)
+tty]     Loaded symbol alGetSourcei (0x7fffdda73560)
+tty]     Loaded symbol alGetSourceiv (0x7fffdda736d0)
+tty]     Loaded symbol alSourcePlayv (0x7fffdda73ae0)
+tty]     Loaded symbol alSourceStopv (0x7fffdda73e10)
+tty]     Loaded symbol alSourceRewindv (0x7fffdda73f50)
+tty]     Loaded symbol alSourcePausev (0x7fffdda73cd0)
+tty]     Loaded symbol alSourcePlay (0x7fffdda739a0)
+tty]     Loaded symbol alSourceStop (0x7fffdda73d70)
+tty]     Loaded symbol alSourceRewind (0x7fffdda73eb0)
+tty]     Loaded symbol alSourcePause (0x7fffdda73c30)
+tty]     Loaded symbol alSourceQueueBuffers (0x7fffdda73ff0)
+tty]     Loaded symbol alSourceUnqueueBuffers (0x7fffdda740a0)
+tty]     Loaded symbol alGenBuffers (0x7fffdda53700)
+tty]     Loaded symbol alDeleteBuffers (0x7fffdda537a0)
+tty]     Loaded symbol alIsBuffer (0x7fffdda53840)
+tty]     Loaded symbol alBufferData (0x7fffdda53920)
+tty]     Loaded symbol alBufferi (0x7fffdda540f0)
+tty]     Loaded symbol alGetBufferf (0x7fffdda542f0)
+tty]     Loaded symbol alGetBufferfv (0x7fffdda54460)
+tty]     Loaded symbol alGetBufferi (0x7fffdda54510)
+tty]     Loaded symbol alDopplerFactor (0x7fffdda7c840)
+tty]     Loaded symbol alSpeedOfSound (0x7fffdda7c980)
+tty]     Loaded symbol alDistanceModel (0x7fffdda7cac0)
+tty]     Loaded symbol alcCreateContext (0x7fffdda8f0b0)
+tty]     Loaded symbol alcMakeContextCurrent (0x7fffdda90a00)
+tty]     Loaded symbol alcProcessContext (0x7fffdda88370)
+tty]     Loaded symbol alcSuspendContext (0x7fffdda881e0)
+tty]     Loaded symbol alcDestroyContext (0x7fffdda90730)
+tty]     Loaded symbol alcGetCurrentContext (0x7fffdda88940)
+tty]     Loaded symbol alcGetContextsDevice (0x7fffdda90cb0)
+tty]     Loaded symbol alcOpenDevice (0x7fffdda8bb80)
+tty]     Loaded symbol alcCloseDevice (0x7fffdda90d40)
+tty]     Loaded symbol alcGetError (0x7fffdda87050)
+tty]     Loaded symbol alcIsExtensionPresent (0x7fffdda8b750)
+tty]     Loaded symbol alcGetProcAddress (0x7fffdda8b8d0)
+tty]     Loaded symbol alcGetEnumValue (0x7fffdda8ba30)
+tty]     Loaded symbol alcGetString (0x7fffdda87100)
+tty]     Loaded symbol alcGetIntegerv (0x7fffdda877d0)
+tty]     Loaded symbol alcCaptureOpenDevice (0x7fffdda8c7b0)
+tty]     Loaded symbol alcCaptureCloseDevice (0x7fffdda8cfb0)
+tty]     Loaded symbol alcCaptureStart (0x7fffdda8d120)
+tty]     Loaded symbol alcCaptureStop (0x7fffdda8d240)
+tty]     Loaded symbol alcCaptureSamples (0x7fffdda8d330)
+tty]    OpenAL: Context initialization
+tty][New Thread 0x7fffdd9ff6c0 (LWP 3569014)]
+[New Thread 0x7fffdd1276c0 (LWP 3569015)]
+    OpenAL: List of available devices:
+WH-1000XM5
+Navi 31 HDMI/DP Audio Digital Stereo (HDMI)
+
+tty]    OpenAL: Opening device "{default}"...
+tty][New Thread 0x7fffdc9266c0 (LWP 3569016)]
+[New Thread 0x7fffd3fff6c0 (LWP 3569017)]
+    OpenAL: Device opened successfully.
+tty]    OpenAL: Creating AL context...
+tty][New Thread 0x7fffd37fe6c0 (LWP 3569018)]
+    OpenAL: Context created successfully.
+tty]    AL_VENDOR: OpenAL Community
+tty]    AL_VERSION: 1.1 ALSOFT 
+tty]    AL_RENDERER: OpenAL Soft
+tty]    AL_EXTENSIONS: AL_EXT_ALAW AL_EXT_BFORMAT AL_EXT_debug AL_EXT_direct_context AL_EXT_DOUBLE AL_EXT_EXPONENT_DISTANCE AL_EXT_FLOAT32 AL_EXT_IMA4 AL_EXT_LINEAR_DISTANCE AL_EXT_MCFORMATS AL_EXT_MULAW AL_EXT_MULAW_BFORMAT AL_EXT_MULAW_MCFORMATS AL_EXT_OFFSET AL_EXT_source_distance_model AL_EXT_SOURCE_RADIUS AL_EXT_STATIC_BUFFER AL_EXT_STEREO_ANGLES AL_LOKI_quadriphonic AL_SOFT_bformat_ex AL_SOFT_bformat_hoa AL_SOFT_block_alignment AL_SOFT_buffer_length_query AL_SOFT_callback_buffer AL_SOFTX_convolution_effect AL_SOFT_deferred_updates AL_SOFT_direct_channels AL_SOFT_direct_channels_remix AL_SOFT_effect_target AL_SOFT_events AL_SOFT_gain_clamp_ex AL_SOFTX_hold_on_disconnect AL_SOFT_loop_points AL_SOFTX_map_buffer AL_SOFT_MSADPCM AL_SOFT_source_latency AL_SOFT_source_length AL_SOFTX_source_panning AL_SOFT_source_resampler AL_SOFT_source_spatialize AL_SOFT_source_start_delay AL_SOFT_UHJ AL_SOFT_UHJ_ex
+tty]    AL extension: Looking up symbol "alGetStringiSOFT"......found.
+tty]    OpenAL: Using Cubic Spline as the resampler.
+tty]    Loading global/sound0.txt
+tty]    ------- S_StopAllSounds (stop music) -------
+tty]    MUSIC: changing from [  |  ] to [ none | none ]
+tty]    ------- S_StopAllSounds Complete-------
+tty]    ----- Sound Info -----
+tty]    device - {default}
+tty]    reverb - OFF
+tty]    samplebits - 16
+tty]    speed - 44100
+tty]    ----------------------
+tty]    ------- Sound Initialization Complete ------- 23 ms
+tty]    QKEY found.
+tty]    Setting up Shaders
+tty]    Loading inventory...
+tty]    ----- Client Initialization Complete ----- -415 ms
+tty]    --- Common Initialization Complete --- 524 ms
+tty]    -- Localization: I see 1 localization files
+tty]    --- Localization: reading file global/localization.txt
+tty]    Loading Localization File global/localization.txt
+tty]    Loaded 2355 localization entries
+tty]    IP: 127.0.0.1
+tty]    IP: 192.168.1.171
+tty]    IP: 172.17.0.1
+tty]    IP: 172.22.0.1
+tty]    IP: 172.18.0.1
+tty]    IP: 172.19.0.1
+tty]    IP: 172.20.0.1
+tty]    IP: 172.21.0.1
+tty]    IP6: ::1
+tty]    IP6: fd49:c467:9573::ebe
+tty]    IP6: 2a02:390:6696::ebe
+tty]    IP6: 2a02:390:6696:0:91:aa8e:98c7:a306
+tty]    IP6: 2a02:390:6696:0:26:d55e:22f4:dde8
+tty]    IP6: fd49:c467:9573:0:34c3:ac61:ea99:b254
+tty]    IP6: fd49:c467:9573:0:f9f2:197a:ec01:7718
+tty]    IP6: fe80::b59:a2e:c4d8:69a1%wlp11s0
+tty]    IP6: fe80::fcab:fdff:fe85:6e21%docker0
+tty]    IP6: fe80::3ccc:b8ff:feb1:3891%br-b36bc84a42c8
+tty]    IP6: fe80::bcd1:3ff:fe80:4658%br-4e3b58a05237
+tty]    IP6: fe80::3ccb:c1ff:feb9:d187%br-045526c9de8f
+tty]    IP6: fe80::205c:a8ff:fe4d:2c46%br-7c00978793cf
+tty]    IP6: fe80::a808:93ff:fe7b:ddd9%br-972bc4ff26b4
+tty]    Opening IP6 socket: [::]:12203
+tty]    Opening IP socket: 0.0.0.0:12203
+tty]    ------- S_StopAllSounds (stop music) -------
+tty]    ------- S_StopAllSounds Complete-------
+tty]    LOCALIZATION ERROR: 'OpenMoHAA console version 0.83.0' does not have a localization entry
+tty][New Thread 0x7fffd24fc6c0 (LWP 3569021)]
+[New Thread 0x7fffd1cfb6c0 (LWP 3569022)]
+[New Thread 0x7fffd14fa6c0 (LWP 3569023)]
+    Couldn't find image for shader 0
+tty]    Unknown command "ppath"
+tty]    ----- Client Shutdown (Client quit) -----
+tty]    ------ Unloading ClientGame ------
+tty]    ------- S_StopAllSounds (stop music) -------
+tty]    ------- S_StopAllSounds Complete-------
+tty]    ------- Sound Shutdown (full) -------
+tty]    OpenAL: Destroying channels...
+tty]    OpenAL: Channels destroyed successfully.
+tty]    OpenAL: Destroying context...
+tty][Thread 0x7fffd37fe6c0 (LWP 3569018) exited]
+    OpenAL: Context destroyed successfully.
+tty]    OpenAL: Closing device...
+tty][Thread 0x7fffdc9266c0 (LWP 3569016) exited]
+    OpenAL: Device closed successfully.
+tty][Thread 0x7fffd3fff6c0 (LWP 3569017) exited]
+[Thread 0x7fffdd1276c0 (LWP 3569015) exited]
+[Thread 0x7fffdd9ff6c0 (LWP 3569014) exited]
+    ------- Sound Shutdown Complete -------
+tty]    RE_Shutdown( 1 )
+tty][Thread 0x7fffd14fa6c0 (LWP 3569023) exited]
+[Thread 0x7fffd1cfb6c0 (LWP 3569022) exited]
+[Thread 0x7fffd24fc6c0 (LWP 3569021) exited]
+[Thread 0x7fffe77576c0 (LWP 3568996) exited]
+[Thread 0x7fffe6f566c0 (LWP 3568997) exited]
+[Thread 0x7fffe67556c0 (LWP 3568998) exited]
+[Thread 0x7fffe8b596c0 (LWP 3568994) exited]
+[Thread 0x7fffe83586c0 (LWP 3568995) exited]
+[Thread 0x7fffe935a6c0 (LWP 3568993) exited]
+[Thread 0x7fffe9c9c6c0 (LWP 3568992) exited]
+    -----------------------
+tty]    [Thread 0x7fffe4e836c0 (LWP 3569004) exited]
+[Thread 0x7fffe57536c0 (LWP 3569003) exited]
+[Thread 0x7fffe5f546c0 (LWP 3569002) exited]
+[Inferior 1 (process 3568989) exited normally]
+No stack.

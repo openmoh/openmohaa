@@ -1,0 +1,22 @@
+tty console mode disabled
+--- Common Initialization ---
+OpenMoHAA 0.83.0-unstable+0.d6a19e9e linux-x86_64-debug Feb 23 2026 UTC
+----- FS_Startup -----
+----
+Backtrace:
+=> ./build/Debug(+0x1c7717) [0x5e03f5a71717]
+=> ./build/Debug(+0x1c3f04) [0x5e03f5a6df04]
+=> /usr/lib/x86_64-linux-gnu/libc.so.6(+0x45f30) [0x7be557e45f30]
+=> /usr/lib/x86_64-linux-gnu/libc.so.6(tolower+0x27) [0x7be557e3c327]
+=> ./build/Debug(+0x173e8a) [0x5e03f5a1de8a]
+=> ./build/Debug(+0x148597) [0x5e03f59f2597]
+=> ./build/Debug(+0x14a973) [0x5e03f59f4973]
+=> ./build/Debug(+0x14adb3) [0x5e03f59f4db3]
+=> ./build/Debug(+0x14bbdc) [0x5e03f59f5bdc]
+=> ./build/Debug(+0x14c832) [0x5e03f59f6832]
+=> ./build/Debug(+0x13dfa8) [0x5e03f59e7fa8]
+=> ./build/Debug(main+0x26a) [0x5e03f5a6e224]
+=> /usr/lib/x86_64-linux-gnu/libc.so.6(+0x2a575) [0x7be557e2a575]
+=> /usr/lib/x86_64-linux-gnu/libc.so.6(__libc_start_main+0x88) [0x7be557e2a628]
+=> ./build/Debug(+0x28775) [0x5e03f58d2775]
+----

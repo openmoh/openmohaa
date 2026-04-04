@@ -1,0 +1,22 @@
+tty console mode disabled
+--- Common Initialization ---
+OpenMoHAA 0.83.0-unstable+0.d6a19e9e linux-x86_64-debug Feb 23 2026 UTC
+openmohaa-dbg: /run/media/elgan/bdb8dbed-86d7-41d2-90f3-09a45ed5ad9c1/dev/openmohaa-central/code/qcommon/common.c:465: Com_Error: Assertion `code != ERR_FATAL' failed.
+----
+Backtrace:
+=> ./build/Debug(+0x1c7717) [0x5f149b700717]
+=> ./build/Debug(+0x1c3f04) [0x5f149b6fcf04]
+=> /usr/lib/x86_64-linux-gnu/libc.so.6(+0x45f30) [0x7a28b5645f30]
+=> /usr/lib/x86_64-linux-gnu/libc.so.6(pthread_kill+0x11d) [0x7a28b56a5fad]
+=> /usr/lib/x86_64-linux-gnu/libc.so.6(gsignal+0x1e) [0x7a28b5645dfe]
+=> /usr/lib/x86_64-linux-gnu/libc.so.6(abort+0x27) [0x7a28b5628888]
+=> /usr/lib/x86_64-linux-gnu/libc.so.6(__assert_perror_fail+0) [0x7a28b56287f0]
+=> ./build/Debug(+0x13b694) [0x5f149b674694]
+=> ./build/Debug(+0x141213) [0x5f149b67a213]
+=> ./build/Debug(+0x141318) [0x5f149b67a318]
+=> ./build/Debug(+0x13dee5) [0x5f149b676ee5]
+=> ./build/Debug(main+0x26a) [0x5f149b6fd224]
+=> /usr/lib/x86_64-linux-gnu/libc.so.6(+0x2a575) [0x7a28b562a575]
+=> /usr/lib/x86_64-linux-gnu/libc.so.6(__libc_start_main+0x88) [0x7a28b562a628]
+=> ./build/Debug(+0x28775) [0x5f149b561775]
+----

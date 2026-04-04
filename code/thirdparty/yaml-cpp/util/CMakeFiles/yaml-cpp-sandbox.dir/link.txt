@@ -1,0 +1,1 @@
+/usr/bin/c++ -g -Wl,--dependency-file=CMakeFiles/yaml-cpp-sandbox.dir/link.d "CMakeFiles/yaml-cpp-sandbox.dir/sandbox.cpp.o" -o sandbox  ../libyaml-cpp-dbg.a

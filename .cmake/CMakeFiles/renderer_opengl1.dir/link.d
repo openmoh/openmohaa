@@ -1,0 +1,385 @@
+Release/renderer_opengl1.so: \
+  /usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/crti.o \
+  /usr/lib/gcc/x86_64-linux-gnu/15/crtbeginS.o \
+  CMakeFiles/renderer_opengl1.dir/code/renderercommon/tr_font.c.o \
+  CMakeFiles/renderer_opengl1.dir/code/renderercommon/tr_image_bmp.c.o \
+  CMakeFiles/renderer_opengl1.dir/code/renderercommon/tr_image_jpg.c.o \
+  CMakeFiles/renderer_opengl1.dir/code/renderercommon/tr_image_pcx.c.o \
+  CMakeFiles/renderer_opengl1.dir/code/renderercommon/tr_image_png.c.o \
+  CMakeFiles/renderer_opengl1.dir/code/renderercommon/tr_image_pvr.c.o \
+  CMakeFiles/renderer_opengl1.dir/code/renderercommon/tr_image_tga.c.o \
+  CMakeFiles/renderer_opengl1.dir/code/renderercommon/tr_noise.c.o \
+  CMakeFiles/renderer_opengl1.dir/code/renderercommon/puff.c.o \
+  CMakeFiles/renderer_opengl1.dir/code/tiki/tiki_mesh.cpp.o \
+  CMakeFiles/renderer_opengl1.dir/code/renderergl1/tr_backend.c.o \
+  CMakeFiles/renderer_opengl1.dir/code/renderergl1/tr_bsp.c.o \
+  CMakeFiles/renderer_opengl1.dir/code/renderergl1/tr_cmds.c.o \
+  CMakeFiles/renderer_opengl1.dir/code/renderergl1/tr_curve.c.o \
+  CMakeFiles/renderer_opengl1.dir/code/renderergl1/tr_draw.c.o \
+  CMakeFiles/renderer_opengl1.dir/code/renderergl1/tr_flares.c.o \
+  CMakeFiles/renderer_opengl1.dir/code/renderergl1/tr_font.cpp.o \
+  CMakeFiles/renderer_opengl1.dir/code/renderergl1/tr_ghost.cpp.o \
+  CMakeFiles/renderer_opengl1.dir/code/renderergl1/tr_image.c.o \
+  CMakeFiles/renderer_opengl1.dir/code/renderergl1/tr_init.c.o \
+  CMakeFiles/renderer_opengl1.dir/code/renderergl1/tr_light.c.o \
+  CMakeFiles/renderer_opengl1.dir/code/renderergl1/tr_main.c.o \
+  CMakeFiles/renderer_opengl1.dir/code/renderergl1/tr_marks_permanent.c.o \
+  CMakeFiles/renderer_opengl1.dir/code/renderergl1/tr_marks.c.o \
+  CMakeFiles/renderer_opengl1.dir/code/renderergl1/tr_model.cpp.o \
+  CMakeFiles/renderer_opengl1.dir/code/renderergl1/tr_scene.c.o \
+  CMakeFiles/renderer_opengl1.dir/code/renderergl1/tr_shade_calc.c.o \
+  CMakeFiles/renderer_opengl1.dir/code/renderergl1/tr_shade.c.o \
+  CMakeFiles/renderer_opengl1.dir/code/renderergl1/tr_shader.c.o \
+  CMakeFiles/renderer_opengl1.dir/code/renderergl1/tr_shadows.c.o \
+  CMakeFiles/renderer_opengl1.dir/code/renderergl1/tr_sky_portal.cpp.o \
+  CMakeFiles/renderer_opengl1.dir/code/renderergl1/tr_sky.c.o \
+  CMakeFiles/renderer_opengl1.dir/code/renderergl1/tr_sphere_shade.cpp.o \
+  CMakeFiles/renderer_opengl1.dir/code/renderergl1/tr_sprite.c.o \
+  CMakeFiles/renderer_opengl1.dir/code/renderergl1/tr_staticmodels.cpp.o \
+  CMakeFiles/renderer_opengl1.dir/code/renderergl1/tr_sun_flare.cpp.o \
+  CMakeFiles/renderer_opengl1.dir/code/renderergl1/tr_surface.c.o \
+  CMakeFiles/renderer_opengl1.dir/code/renderergl1/tr_swipe.cpp.o \
+  CMakeFiles/renderer_opengl1.dir/code/renderergl1/tr_terrain.c.o \
+  CMakeFiles/renderer_opengl1.dir/code/renderergl1/tr_util.cpp.o \
+  CMakeFiles/renderer_opengl1.dir/code/renderergl1/tr_vis.cpp.o \
+  CMakeFiles/renderer_opengl1.dir/code/renderergl1/tr_world.c.o \
+  CMakeFiles/renderer_opengl1.dir/code/sdl/sdl_gamma.c.o \
+  CMakeFiles/renderer_opengl1.dir/code/sdl/sdl_glimp.c.o \
+  CMakeFiles/renderer_opengl1.dir/code/thirdparty/jpeg-9f/jaricom.c.o \
+  CMakeFiles/renderer_opengl1.dir/code/thirdparty/jpeg-9f/jcapimin.c.o \
+  CMakeFiles/renderer_opengl1.dir/code/thirdparty/jpeg-9f/jcapistd.c.o \
+  CMakeFiles/renderer_opengl1.dir/code/thirdparty/jpeg-9f/jcarith.c.o \
+  CMakeFiles/renderer_opengl1.dir/code/thirdparty/jpeg-9f/jccoefct.c.o \
+  CMakeFiles/renderer_opengl1.dir/code/thirdparty/jpeg-9f/jccolor.c.o \
+  CMakeFiles/renderer_opengl1.dir/code/thirdparty/jpeg-9f/jcdctmgr.c.o \
+  CMakeFiles/renderer_opengl1.dir/code/thirdparty/jpeg-9f/jchuff.c.o \
+  CMakeFiles/renderer_opengl1.dir/code/thirdparty/jpeg-9f/jcinit.c.o \
+  CMakeFiles/renderer_opengl1.dir/code/thirdparty/jpeg-9f/jcmainct.c.o \
+  CMakeFiles/renderer_opengl1.dir/code/thirdparty/jpeg-9f/jcmarker.c.o \
+  CMakeFiles/renderer_opengl1.dir/code/thirdparty/jpeg-9f/jcmaster.c.o \
+  CMakeFiles/renderer_opengl1.dir/code/thirdparty/jpeg-9f/jcomapi.c.o \
+  CMakeFiles/renderer_opengl1.dir/code/thirdparty/jpeg-9f/jcparam.c.o \
+  CMakeFiles/renderer_opengl1.dir/code/thirdparty/jpeg-9f/jcprepct.c.o \
+  CMakeFiles/renderer_opengl1.dir/code/thirdparty/jpeg-9f/jcsample.c.o \
+  CMakeFiles/renderer_opengl1.dir/code/thirdparty/jpeg-9f/jctrans.c.o \
+  CMakeFiles/renderer_opengl1.dir/code/thirdparty/jpeg-9f/jdapimin.c.o \
+  CMakeFiles/renderer_opengl1.dir/code/thirdparty/jpeg-9f/jdapistd.c.o \
+  CMakeFiles/renderer_opengl1.dir/code/thirdparty/jpeg-9f/jdarith.c.o \
+  CMakeFiles/renderer_opengl1.dir/code/thirdparty/jpeg-9f/jdatadst.c.o \
+  CMakeFiles/renderer_opengl1.dir/code/thirdparty/jpeg-9f/jdatasrc.c.o \
+  CMakeFiles/renderer_opengl1.dir/code/thirdparty/jpeg-9f/jdcoefct.c.o \
+  CMakeFiles/renderer_opengl1.dir/code/thirdparty/jpeg-9f/jdcolor.c.o \
+  CMakeFiles/renderer_opengl1.dir/code/thirdparty/jpeg-9f/jddctmgr.c.o \
+  CMakeFiles/renderer_opengl1.dir/code/thirdparty/jpeg-9f/jdhuff.c.o \
+  CMakeFiles/renderer_opengl1.dir/code/thirdparty/jpeg-9f/jdinput.c.o \
+  CMakeFiles/renderer_opengl1.dir/code/thirdparty/jpeg-9f/jdmainct.c.o \
+  CMakeFiles/renderer_opengl1.dir/code/thirdparty/jpeg-9f/jdmarker.c.o \
+  CMakeFiles/renderer_opengl1.dir/code/thirdparty/jpeg-9f/jdmaster.c.o \
+  CMakeFiles/renderer_opengl1.dir/code/thirdparty/jpeg-9f/jdmerge.c.o \
+  CMakeFiles/renderer_opengl1.dir/code/thirdparty/jpeg-9f/jdpostct.c.o \
+  CMakeFiles/renderer_opengl1.dir/code/thirdparty/jpeg-9f/jdsample.c.o \
+  CMakeFiles/renderer_opengl1.dir/code/thirdparty/jpeg-9f/jdtrans.c.o \
+  CMakeFiles/renderer_opengl1.dir/code/thirdparty/jpeg-9f/jerror.c.o \
+  CMakeFiles/renderer_opengl1.dir/code/thirdparty/jpeg-9f/jfdctflt.c.o \
+  CMakeFiles/renderer_opengl1.dir/code/thirdparty/jpeg-9f/jfdctfst.c.o \
+  CMakeFiles/renderer_opengl1.dir/code/thirdparty/jpeg-9f/jfdctint.c.o \
+  CMakeFiles/renderer_opengl1.dir/code/thirdparty/jpeg-9f/jidctflt.c.o \
+  CMakeFiles/renderer_opengl1.dir/code/thirdparty/jpeg-9f/jidctfst.c.o \
+  CMakeFiles/renderer_opengl1.dir/code/thirdparty/jpeg-9f/jidctint.c.o \
+  CMakeFiles/renderer_opengl1.dir/code/thirdparty/jpeg-9f/jmemmgr.c.o \
+  CMakeFiles/renderer_opengl1.dir/code/thirdparty/jpeg-9f/jmemnobs.c.o \
+  CMakeFiles/renderer_opengl1.dir/code/thirdparty/jpeg-9f/jquant1.c.o \
+  CMakeFiles/renderer_opengl1.dir/code/thirdparty/jpeg-9f/jquant2.c.o \
+  CMakeFiles/renderer_opengl1.dir/code/thirdparty/jpeg-9f/jutils.c.o \
+  CMakeFiles/renderer_opengl1.dir/code/renderercommon/tr_subs.c.o \
+  CMakeFiles/renderer_opengl1.dir/code/qcommon/q_shared.c.o \
+  CMakeFiles/renderer_opengl1.dir/code/qcommon/q_math.c.o \
+  CMakeFiles/renderer_opengl1.dir/code/corepp/str.cpp.o \
+  /usr/lib/x86_64-linux-gnu/libSDL2.so \
+  /usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/libdl.a \
+  /usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/libdl.a \
+  /usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/libm.so \
+  /usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/libm.so \
+  /usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/libm.so \
+  /lib/x86_64-linux-gnu/libm.so.6 \
+  /lib/x86_64-linux-gnu/libmvec.so.1 \
+  /usr/lib/gcc/x86_64-linux-gnu/15/libstdc++.so \
+  /usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/libm.so \
+  /usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/libm.so \
+  /usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/libm.so \
+  /lib/x86_64-linux-gnu/libm.so.6 \
+  /lib/x86_64-linux-gnu/libmvec.so.1 \
+  /usr/lib/gcc/x86_64-linux-gnu/15/libgcc_s.so \
+  /usr/lib/gcc/x86_64-linux-gnu/15/libgcc_s.so \
+  /usr/lib/gcc/x86_64-linux-gnu/15/libgcc_s.so \
+  /usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/libgcc_s.so.1 \
+  /usr/lib/gcc/x86_64-linux-gnu/15/libgcc.a \
+  /usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/libc.so \
+  /usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/libc.so \
+  /usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/libc.so \
+  /lib/x86_64-linux-gnu/libc.so.6 \
+  /usr/lib/x86_64-linux-gnu/libc_nonshared.a \
+  /lib64/ld-linux-x86-64.so.2 \
+  /usr/lib/gcc/x86_64-linux-gnu/15/libgcc_s.so \
+  /usr/lib/gcc/x86_64-linux-gnu/15/libgcc_s.so \
+  /usr/lib/gcc/x86_64-linux-gnu/15/libgcc_s.so \
+  /usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/libgcc_s.so.1 \
+  /usr/lib/gcc/x86_64-linux-gnu/15/libgcc.a \
+  /usr/lib/gcc/x86_64-linux-gnu/15/crtendS.o \
+  /usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/crtn.o
+
+/usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/crti.o:
+
+/usr/lib/gcc/x86_64-linux-gnu/15/crtbeginS.o:
+
+CMakeFiles/renderer_opengl1.dir/code/renderercommon/tr_font.c.o:
+
+CMakeFiles/renderer_opengl1.dir/code/renderercommon/tr_image_bmp.c.o:
+
+CMakeFiles/renderer_opengl1.dir/code/renderercommon/tr_image_jpg.c.o:
+
+CMakeFiles/renderer_opengl1.dir/code/renderercommon/tr_image_pcx.c.o:
+
+CMakeFiles/renderer_opengl1.dir/code/renderercommon/tr_image_png.c.o:
+
+CMakeFiles/renderer_opengl1.dir/code/renderercommon/tr_image_pvr.c.o:
+
+CMakeFiles/renderer_opengl1.dir/code/renderercommon/tr_image_tga.c.o:
+
+CMakeFiles/renderer_opengl1.dir/code/renderercommon/tr_noise.c.o:
+
+CMakeFiles/renderer_opengl1.dir/code/renderercommon/puff.c.o:
+
+CMakeFiles/renderer_opengl1.dir/code/tiki/tiki_mesh.cpp.o:
+
+CMakeFiles/renderer_opengl1.dir/code/renderergl1/tr_backend.c.o:
+
+CMakeFiles/renderer_opengl1.dir/code/renderergl1/tr_bsp.c.o:
+
+CMakeFiles/renderer_opengl1.dir/code/renderergl1/tr_cmds.c.o:
+
+CMakeFiles/renderer_opengl1.dir/code/renderergl1/tr_curve.c.o:
+
+CMakeFiles/renderer_opengl1.dir/code/renderergl1/tr_draw.c.o:
+
+CMakeFiles/renderer_opengl1.dir/code/renderergl1/tr_flares.c.o:
+
+CMakeFiles/renderer_opengl1.dir/code/renderergl1/tr_font.cpp.o:
+
+CMakeFiles/renderer_opengl1.dir/code/renderergl1/tr_ghost.cpp.o:
+
+CMakeFiles/renderer_opengl1.dir/code/renderergl1/tr_image.c.o:
+
+CMakeFiles/renderer_opengl1.dir/code/renderergl1/tr_init.c.o:
+
+CMakeFiles/renderer_opengl1.dir/code/renderergl1/tr_light.c.o:
+
+CMakeFiles/renderer_opengl1.dir/code/renderergl1/tr_main.c.o:
+
+CMakeFiles/renderer_opengl1.dir/code/renderergl1/tr_marks_permanent.c.o:
+
+CMakeFiles/renderer_opengl1.dir/code/renderergl1/tr_marks.c.o:
+
+CMakeFiles/renderer_opengl1.dir/code/renderergl1/tr_model.cpp.o:
+
+CMakeFiles/renderer_opengl1.dir/code/renderergl1/tr_scene.c.o:
+
+CMakeFiles/renderer_opengl1.dir/code/renderergl1/tr_shade_calc.c.o:
+
+CMakeFiles/renderer_opengl1.dir/code/renderergl1/tr_shade.c.o:
+
+CMakeFiles/renderer_opengl1.dir/code/renderergl1/tr_shader.c.o:
+
+CMakeFiles/renderer_opengl1.dir/code/renderergl1/tr_shadows.c.o:
+
+CMakeFiles/renderer_opengl1.dir/code/renderergl1/tr_sky_portal.cpp.o:
+
+CMakeFiles/renderer_opengl1.dir/code/renderergl1/tr_sky.c.o:
+
+CMakeFiles/renderer_opengl1.dir/code/renderergl1/tr_sphere_shade.cpp.o:
+
+CMakeFiles/renderer_opengl1.dir/code/renderergl1/tr_sprite.c.o:
+
+CMakeFiles/renderer_opengl1.dir/code/renderergl1/tr_staticmodels.cpp.o:
+
+CMakeFiles/renderer_opengl1.dir/code/renderergl1/tr_sun_flare.cpp.o:
+
+CMakeFiles/renderer_opengl1.dir/code/renderergl1/tr_surface.c.o:
+
+CMakeFiles/renderer_opengl1.dir/code/renderergl1/tr_swipe.cpp.o:
+
+CMakeFiles/renderer_opengl1.dir/code/renderergl1/tr_terrain.c.o:
+
+CMakeFiles/renderer_opengl1.dir/code/renderergl1/tr_util.cpp.o:
+
+CMakeFiles/renderer_opengl1.dir/code/renderergl1/tr_vis.cpp.o:
+
+CMakeFiles/renderer_opengl1.dir/code/renderergl1/tr_world.c.o:
+
+CMakeFiles/renderer_opengl1.dir/code/sdl/sdl_gamma.c.o:
+
+CMakeFiles/renderer_opengl1.dir/code/sdl/sdl_glimp.c.o:
+
+CMakeFiles/renderer_opengl1.dir/code/thirdparty/jpeg-9f/jaricom.c.o:
+
+CMakeFiles/renderer_opengl1.dir/code/thirdparty/jpeg-9f/jcapimin.c.o:
+
+CMakeFiles/renderer_opengl1.dir/code/thirdparty/jpeg-9f/jcapistd.c.o:
+
+CMakeFiles/renderer_opengl1.dir/code/thirdparty/jpeg-9f/jcarith.c.o:
+
+CMakeFiles/renderer_opengl1.dir/code/thirdparty/jpeg-9f/jccoefct.c.o:
+
+CMakeFiles/renderer_opengl1.dir/code/thirdparty/jpeg-9f/jccolor.c.o:
+
+CMakeFiles/renderer_opengl1.dir/code/thirdparty/jpeg-9f/jcdctmgr.c.o:
+
+CMakeFiles/renderer_opengl1.dir/code/thirdparty/jpeg-9f/jchuff.c.o:
+
+CMakeFiles/renderer_opengl1.dir/code/thirdparty/jpeg-9f/jcinit.c.o:
+
+CMakeFiles/renderer_opengl1.dir/code/thirdparty/jpeg-9f/jcmainct.c.o:
+
+CMakeFiles/renderer_opengl1.dir/code/thirdparty/jpeg-9f/jcmarker.c.o:
+
+CMakeFiles/renderer_opengl1.dir/code/thirdparty/jpeg-9f/jcmaster.c.o:
+
+CMakeFiles/renderer_opengl1.dir/code/thirdparty/jpeg-9f/jcomapi.c.o:
+
+CMakeFiles/renderer_opengl1.dir/code/thirdparty/jpeg-9f/jcparam.c.o:
+
+CMakeFiles/renderer_opengl1.dir/code/thirdparty/jpeg-9f/jcprepct.c.o:
+
+CMakeFiles/renderer_opengl1.dir/code/thirdparty/jpeg-9f/jcsample.c.o:
+
+CMakeFiles/renderer_opengl1.dir/code/thirdparty/jpeg-9f/jctrans.c.o:
+
+CMakeFiles/renderer_opengl1.dir/code/thirdparty/jpeg-9f/jdapimin.c.o:
+
+CMakeFiles/renderer_opengl1.dir/code/thirdparty/jpeg-9f/jdapistd.c.o:
+
+CMakeFiles/renderer_opengl1.dir/code/thirdparty/jpeg-9f/jdarith.c.o:
+
+CMakeFiles/renderer_opengl1.dir/code/thirdparty/jpeg-9f/jdatadst.c.o:
+
+CMakeFiles/renderer_opengl1.dir/code/thirdparty/jpeg-9f/jdatasrc.c.o:
+
+CMakeFiles/renderer_opengl1.dir/code/thirdparty/jpeg-9f/jdcoefct.c.o:
+
+CMakeFiles/renderer_opengl1.dir/code/thirdparty/jpeg-9f/jdcolor.c.o:
+
+CMakeFiles/renderer_opengl1.dir/code/thirdparty/jpeg-9f/jddctmgr.c.o:
+
+CMakeFiles/renderer_opengl1.dir/code/thirdparty/jpeg-9f/jdhuff.c.o:
+
+CMakeFiles/renderer_opengl1.dir/code/thirdparty/jpeg-9f/jdinput.c.o:
+
+CMakeFiles/renderer_opengl1.dir/code/thirdparty/jpeg-9f/jdmainct.c.o:
+
+CMakeFiles/renderer_opengl1.dir/code/thirdparty/jpeg-9f/jdmarker.c.o:
+
+CMakeFiles/renderer_opengl1.dir/code/thirdparty/jpeg-9f/jdmaster.c.o:
+
+CMakeFiles/renderer_opengl1.dir/code/thirdparty/jpeg-9f/jdmerge.c.o:
+
+CMakeFiles/renderer_opengl1.dir/code/thirdparty/jpeg-9f/jdpostct.c.o:
+
+CMakeFiles/renderer_opengl1.dir/code/thirdparty/jpeg-9f/jdsample.c.o:
+
+CMakeFiles/renderer_opengl1.dir/code/thirdparty/jpeg-9f/jdtrans.c.o:
+
+CMakeFiles/renderer_opengl1.dir/code/thirdparty/jpeg-9f/jerror.c.o:
+
+CMakeFiles/renderer_opengl1.dir/code/thirdparty/jpeg-9f/jfdctflt.c.o:
+
+CMakeFiles/renderer_opengl1.dir/code/thirdparty/jpeg-9f/jfdctfst.c.o:
+
+CMakeFiles/renderer_opengl1.dir/code/thirdparty/jpeg-9f/jfdctint.c.o:
+
+CMakeFiles/renderer_opengl1.dir/code/thirdparty/jpeg-9f/jidctflt.c.o:
+
+CMakeFiles/renderer_opengl1.dir/code/thirdparty/jpeg-9f/jidctfst.c.o:
+
+CMakeFiles/renderer_opengl1.dir/code/thirdparty/jpeg-9f/jidctint.c.o:
+
+CMakeFiles/renderer_opengl1.dir/code/thirdparty/jpeg-9f/jmemmgr.c.o:
+
+CMakeFiles/renderer_opengl1.dir/code/thirdparty/jpeg-9f/jmemnobs.c.o:
+
+CMakeFiles/renderer_opengl1.dir/code/thirdparty/jpeg-9f/jquant1.c.o:
+
+CMakeFiles/renderer_opengl1.dir/code/thirdparty/jpeg-9f/jquant2.c.o:
+
+CMakeFiles/renderer_opengl1.dir/code/thirdparty/jpeg-9f/jutils.c.o:
+
+CMakeFiles/renderer_opengl1.dir/code/renderercommon/tr_subs.c.o:
+
+CMakeFiles/renderer_opengl1.dir/code/qcommon/q_shared.c.o:
+
+CMakeFiles/renderer_opengl1.dir/code/qcommon/q_math.c.o:
+
+CMakeFiles/renderer_opengl1.dir/code/corepp/str.cpp.o:
+
+/usr/lib/x86_64-linux-gnu/libSDL2.so:
+
+/usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/libdl.a:
+
+/usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/libdl.a:
+
+/usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/libm.so:
+
+/usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/libm.so:
+
+/usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/libm.so:
+
+/lib/x86_64-linux-gnu/libm.so.6:
+
+/lib/x86_64-linux-gnu/libmvec.so.1:
+
+/usr/lib/gcc/x86_64-linux-gnu/15/libstdc++.so:
+
+/usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/libm.so:
+
+/usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/libm.so:
+
+/usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/libm.so:
+
+/lib/x86_64-linux-gnu/libm.so.6:
+
+/lib/x86_64-linux-gnu/libmvec.so.1:
+
+/usr/lib/gcc/x86_64-linux-gnu/15/libgcc_s.so:
+
+/usr/lib/gcc/x86_64-linux-gnu/15/libgcc_s.so:
+
+/usr/lib/gcc/x86_64-linux-gnu/15/libgcc_s.so:
+
+/usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/libgcc_s.so.1:
+
+/usr/lib/gcc/x86_64-linux-gnu/15/libgcc.a:
+
+/usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/libc.so:
+
+/usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/libc.so:
+
+/usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/libc.so:
+
+/lib/x86_64-linux-gnu/libc.so.6:
+
+/usr/lib/x86_64-linux-gnu/libc_nonshared.a:
+
+/lib64/ld-linux-x86-64.so.2:
+
+/usr/lib/gcc/x86_64-linux-gnu/15/libgcc_s.so:
+
+/usr/lib/gcc/x86_64-linux-gnu/15/libgcc_s.so:
+
+/usr/lib/gcc/x86_64-linux-gnu/15/libgcc_s.so:
+
+/usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/libgcc_s.so.1:
+
+/usr/lib/gcc/x86_64-linux-gnu/15/libgcc.a:
+
+/usr/lib/gcc/x86_64-linux-gnu/15/crtendS.o:
+
+/usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/crtn.o:

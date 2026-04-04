@@ -1,0 +1,2 @@
+"/usr/bin/gcc-ar-15" qc libgcd_natneg.a CMakeFiles/gcd_natneg.dir/code/gamespy/natneg/NATify.c.o CMakeFiles/gcd_natneg.dir/code/gamespy/natneg/natneg.c.o
+"/usr/bin/gcc-ranlib-15" libgcd_natneg.a

@@ -1,0 +1,1 @@
+/usr/bin/c++ -O3 -DNDEBUG -flto=auto -fno-fat-lto-objects -Wl,--dependency-file=CMakeFiles/yaml-cpp-read.dir/link.d "CMakeFiles/yaml-cpp-read.dir/read.cpp.o" -o read  ../libyaml-cpp.a

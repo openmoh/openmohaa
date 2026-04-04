@@ -1,0 +1,2 @@
+"/usr/bin/gcc-ar-15" qc libgcd_qr2.a CMakeFiles/gcd_qr2.dir/code/gamespy/qr2/qr2.c.o CMakeFiles/gcd_qr2.dir/code/gamespy/qr2/qr2regkeys.c.o
+"/usr/bin/gcc-ranlib-15" libgcd_qr2.a

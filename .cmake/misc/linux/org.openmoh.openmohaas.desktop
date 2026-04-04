@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+
+Name=OpenMoHAA Spearhead
+Comment=An open-source game engine compatible with Medal of Honor: Allied Assault Spearhead
+Categories=Game;Shooter;
+
+Icon=org.openmoh.openmohaa
+Exec=launch_openmohaa_spearhead
+Terminal=false

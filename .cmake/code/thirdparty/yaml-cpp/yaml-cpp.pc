@@ -1,0 +1,11 @@
+prefix=/opt/mohaa
+exec_prefix=${prefix}
+includedir=/opt/mohaa/include
+libdir=/opt/mohaa/lib
+
+Name: Yaml-cpp
+Description: A YAML parser and emitter for C++
+Version: 0.8.0
+Requires:
+Libs: -L${libdir} -lyaml-cpp
+Cflags: -I${includedir}

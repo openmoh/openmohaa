@@ -1,0 +1,10 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/run/media/elgan/bdb8dbed-86d7-41d2-90f3-09a45ed5ad9c/dev/openmohaa-central/.cmake/CMakeFiles/_CMakeLTOTest-CXX/src/foo.cpp
+

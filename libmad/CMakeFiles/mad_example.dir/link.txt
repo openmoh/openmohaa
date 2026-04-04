@@ -1,0 +1,1 @@
+/usr/bin/cc -g -Wl,--dependency-file=CMakeFiles/mad_example.dir/link.d CMakeFiles/mad_example.dir/minimad.c.o -o mad_example  libmad-dbg.a
