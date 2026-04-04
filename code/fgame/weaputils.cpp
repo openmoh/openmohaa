@@ -545,6 +545,17 @@ Event EV_Projectile_DieInWater
     EV_NORMAL
 );
 
+// Added in OPM
+Event EV_Projectile_GetOwner
+(
+    "owner",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Returns the owner of the projectile",
+    EV_GETTER
+);
+
 CLASS_DECLARATION(Animate, Projectile, NULL) {
     {&EV_Touch,                            &Projectile::Touch                   },
     {&EV_Projectile_Speed,                 &Projectile::SetSpeed                },
@@ -589,6 +600,7 @@ CLASS_DECLARATION(Animate, Projectile, NULL) {
     {&EV_Stop,                             &Projectile::Stopped                 },
     {&EV_Projectile_ArcToTarget,           &Projectile::ArcToTarget             },
     {&EV_Projectile_DieInWater,            &Projectile::DieInWater              },
+    {&EV_Projectile_GetOwner,              &Projectile::EventGetOwner            },
     {NULL,                                 NULL                                 }
 };
 
@@ -1484,6 +1496,16 @@ bool Projectile::CheckTeams(void)
 Listener *Projectile::GetScriptOwner()
 {
     return G_GetEntity(owner);
+}
+
+void Projectile::EventGetOwner(Event *ev)
+{
+    Sentient *pOwner = GetOwner();
+    if (pOwner) {
+        ev->AddEntity(pOwner);
+    } else {
+        ev->AddNil();
+    }
 }
 
 Event EV_Explosion_Radius

@@ -1502,6 +1502,15 @@ Event EV_Player_InventorySet
     "Set up the player's inventory",
     EV_SETTER
 );
+Event EV_Player_GetOwnedProjectiles
+(
+    "ownedprojectiles",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Returns an array of projectiles owned by this player",
+    EV_GETTER
+);
 Event EV_Player_LeanLeftHeld
 (
     "leanleftheld",
@@ -1943,6 +1952,7 @@ CLASS_DECLARATION(Sentient, Player, "player") {
     {&EV_Player_HideEnt,                  &Player::HideEntity                   },
     {&EV_Player_Inventory,                &Player::Inventory                    },
     {&EV_Player_InventorySet,             &Player::InventorySet                 },
+    {&EV_Player_GetOwnedProjectiles,      &Player::GetOwnedProjectiles          },
     {&EV_Player_IsSpectator,              &Player::GetIsSpectator               },
     {&EV_Player_IsAdmin,                  &Player::IsAdmin                      },
     {&EV_Player_LeanLeftHeld,             &Player::LeanLeftHeld                 },
@@ -12716,6 +12726,29 @@ void Player::InventorySet(Event *ev)
 
     // Clear the variable
     array.Clear();
+}
+
+void Player::GetOwnedProjectiles(Event *ev)
+{
+    Entity         *ent;
+    ScriptVariable *ref = new ScriptVariable, *array = new ScriptVariable;
+    int             i = 0;
+
+    ref->setRefValue(array);
+
+    for (ent = G_NextEntity(NULL); ent; ent = G_NextEntity(ent)) {
+        if (ent->IsSubclassOfProjectile() && ent->edict->r.ownerNum == entnum) {
+            i++;
+            ScriptVariable *index = new ScriptVariable, *value = new ScriptVariable;
+
+            index->setIntValue(i);
+            value->setListenerValue((Listener *)ent);
+
+            ref->setArrayAt(*index, *value);
+        }
+    }
+
+    ev->AddValue(*array);
 }
 
 void Player::LeanLeftHeld(Event *ev)

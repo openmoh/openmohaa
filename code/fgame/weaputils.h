@@ -152,6 +152,7 @@ public:
 	//
 	bool			CheckTeams(void);
     Listener        *GetScriptOwner() override;
+    void            EventGetOwner(Event *ev);
 };
 
 inline void Projectile::SetMartyr(int entnum)

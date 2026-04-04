@@ -969,6 +969,7 @@ public:
     void GetUserInfo(Event *ev);
     void Inventory(Event *ev);
     void InventorySet(Event *ev);
+    void GetOwnedProjectiles(Event *ev);
     void IsAdmin(Event *ev);
     void JoinDMTeamReal(Event *ev);
     void JoinDMTeam(Event *ev);
