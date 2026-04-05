@@ -846,19 +846,23 @@ void Door::DoorBlocked(Event *ev)
         if (state == STATE_OPENING || state == STATE_OPEN) {
             spawnflags &= ~DOOR_START_OPEN;
 
-            const bool bWasOpening = (previous_state == STATE_CLOSING);
-            const bool bIsMoving = EventPending(EV_MoveDone);
-            ProcessEvent(EV_Door_Close);
-
-            if (bIsMoving && !bWasOpening) {
+            if (g_door_reopen_blocked->integer) {
                 // Added in OPM
                 //  Reopen to the other side so sentients can still pass.
                 //  This avoid entities like players trying to prevent the door
                 //  from opening in multiplayer
-                diropened = -diropened;
-                e = new Event(EV_Door_Open);
-                e->AddEntity(other);
-                ProcessEvent(e);
+                const bool bWasOpening = (previous_state == STATE_CLOSING);
+                const bool bIsMoving = EventPending(EV_MoveDone);
+                ProcessEvent(EV_Door_Close);
+
+                if (bIsMoving && !bWasOpening) {
+                    diropened = -diropened;
+                    e = new Event(EV_Door_Open);
+                    e->AddEntity(other);
+                    ProcessEvent(e);
+                }
+            } else {
+                ProcessEvent(EV_Door_Close);
             }
         } else {
             e = new Event(EV_Door_Open);

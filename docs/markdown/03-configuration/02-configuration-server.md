@@ -54,6 +54,10 @@ This sets the elapsed time at which the game ends, the winner being the player w
 
 In round and objective matches, this is the maximum time at which a player can join a team without being put in spectator. Defaults to `30`.
 
+### `g_door_reopen_blocked`
+
+Automatically reopens the door from the opposite side when blocked. Defaults to `1`.
+
 ### `g_forceteamspectate`
 
 Forces players to only be able to spectate behind their own team. Defaults to `1`.

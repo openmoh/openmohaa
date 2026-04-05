@@ -341,6 +341,8 @@ extern cvar_t *g_teambalance;
 
 extern cvar_t *g_navigation_legacy;
 
+extern cvar_t *g_door_reopen_blocked;
+
 void CVAR_Init(void);
 
 #ifdef __cplusplus
