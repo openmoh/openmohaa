@@ -2268,6 +2268,16 @@ void Com_Frame( void ) {
 	// write config file if anything changed
 	Com_WriteConfiguration();
 
+#ifndef DEDICATED
+    if (com_viewlog->modified) {
+        if (!com_dedicated || !com_dedicated->integer) {
+            Sys_ShowConsole(com_viewlog->integer, qfalse);
+        }
+
+        com_viewlog->modified = qfalse;
+    }
+#endif
+
 	//
 	// main event loop
 	//
