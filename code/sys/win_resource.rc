@@ -54,9 +54,29 @@ END
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
 #ifndef __MINGW32__
-IDI_ICON1               ICON    DISCARDABLE     "../../misc/windows/openmohaa.ico"
+#  ifdef TARGET_GAME
+#    if TARGET_GAME == 1
+       IDI_ICON1               ICON    DISCARDABLE     "../../misc/windows/openmohaas.ico"
+#    elif TARGET_GAME == 2
+       IDI_ICON1               ICON    DISCARDABLE     "../../misc/windows/openmohaab.ico"
+#    else
+       IDI_ICON1               ICON    DISCARDABLE     "../../misc/windows/openmohaa.ico"
+#    endif
+#  else
+       IDI_ICON1               ICON    DISCARDABLE     "../../misc/windows/openmohaa.ico"
+#  endif
 #else
-IDI_ICON1               ICON    DISCARDABLE     "misc/windows/openmohaa.ico"
+#  ifdef TARGET_GAME
+#    if TARGET_GAME == 1
+       IDI_ICON1               ICON    DISCARDABLE     "misc/windows/openmohaas.ico"
+#    elif TARGET_GAME == 2
+       IDI_ICON1               ICON    DISCARDABLE     "misc/windows/openmohaab.ico"
+#    else
+       IDI_ICON1               ICON    DISCARDABLE     "misc/windows/openmohaa.ico"
+#    endif
+#  else
+       IDI_ICON1               ICON    DISCARDABLE     "misc/windows/openmohaa.ico"
+#  endif
 #endif
 
 
