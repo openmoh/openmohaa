@@ -5586,7 +5586,7 @@ void Player::EvaluateState(State *forceTorso, State *forceLegs)
                 } else if (legsAnim != "") {
                     float oldTime;
 
-                    if (currentState_Legs == laststate_Legs) {
+                    if (g_playeranim_legs_continous->integer && currentState_Legs == laststate_Legs) {
                         //
                         // Added in OPM
                         //  This allows different animations in the same state

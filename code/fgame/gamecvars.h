@@ -330,6 +330,12 @@ extern cvar_t *g_bot_manualmove;
 extern cvar_t *g_rankedserver;
 extern cvar_t *g_spectatefollow_firstperson;
 
+/**
+ * @brief When enabled, the legs animation continues from its current time between animations instead of restarting.
+ * 
+ */
+extern cvar_t *g_playeranim_legs_continous;
+
 extern cvar_t *cl_running;
 
 extern cvar_t *g_instamsg_allowed;

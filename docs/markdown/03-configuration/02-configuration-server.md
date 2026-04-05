@@ -92,6 +92,12 @@ The time in second after which an inactive player gets moved into spectator. Def
 
 Make the server joinable only with a password. By default, no password is set.
 
+### `g_playeranim_legs_continous`
+
+If enabled, the legs animation continues from its current time between animations instead of restarting. Defaults to `1`.
+
+This prevents some tricks such as `ghost walking` where a player rapidly switch weapons to avoid emitting footsteps sounds.
+
 ### `g_teamdamage`
 
 - `0` (the default): Friendly fire disabled.
