@@ -9,7 +9,7 @@ list(APPEND SYSTEM_PLATFORM_SOURCES
     ${SOURCE_DIR}/sys/win_resource.rc
 )
 
-list(APPEND CLIENT_PLATFORM_SOURCES ${SOURCE_DIR}/sys/con_win32.c)
+list(APPEND CLIENT_PLATFORM_SOURCES ${SOURCE_DIR}/sys/con_passive.c)
 list(APPEND SERVER_PLATFORM_SOURCES ${SOURCE_DIR}/sys/con_win32.c)
 
 
@@ -54,7 +54,12 @@ set(CPACK_NSIS_EXECUTABLES_DIRECTORY .)
 # non-ioq3
 #
 
-set(CLIENT_EXECUTABLE_OPTIONS)
+if(CMAKE_BUILD_TYPE MATCHES Debug|RelWithDebInfo)
+    # Enable the console in debug builds
+    list(REMOVE_ITEM CLIENT_PLATFORM_SOURCES ${SOURCE_DIR}/sys/con_passive.c)
+    list(APPEND CLIENT_PLATFORM_SOURCES ${SOURCE_DIR}/sys/con_win32.c)
+    set(CLIENT_EXECUTABLE_OPTIONS)
+endif()
 
 list(APPEND SYSTEM_PLATFORM_SOURCES ${SOURCE_DIR}/sys/new/sys_win32_new.c)
 list(APPEND COMMON_LIBRARIES dbghelp)
