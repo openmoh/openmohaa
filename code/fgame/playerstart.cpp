@@ -87,6 +87,8 @@ PlayerStart::PlayerStart()
 {
     m_bForbidSpawns  = false;
     m_bDeleteOnSpawn = false;
+
+    SetTargetName("playerstart");
 }
 
 void PlayerStart::SetAngle(Event *ev)
