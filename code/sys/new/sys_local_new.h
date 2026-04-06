@@ -28,8 +28,9 @@ extern "C" {
 
 // Setting DEFAULT_BASEDIR to an empty string will make
 // Sys_DefaultInstallPath() return the current directory instead
-// This was the usual behavior in Quake III Arena.
-#define DEFAULT_BASEDIR ""
+// This was the previous behavior in Quake III Arena.
+// The current behavior (ioquake3) is to always use the binary's location by default.
+//#define DEFAULT_BASEDIR ""
 
 void Sys_InitEx();
 void Sys_ShutdownEx();
