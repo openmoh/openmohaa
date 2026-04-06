@@ -148,13 +148,40 @@ void View3D::DrawFPS(void)
         m_font->setColor(URed);
     }
 
-    m_font->Print(
-        m_font->getHeight(getHighResScale()) * 10.0 / getHighResScale()[0],
-        (m_frame.pos.y + m_frame.size.height - m_font->getHeight(getHighResScale()) * 3.0) / getHighResScale()[1],
-        string,
-        -1,
-        getHighResScale()
-    );
+    // Added in OPM (fps_location)
+    //  0 = default (bottom left)
+    //  1 = bottom right
+    //  2 = top right under the time limit
+    switch(fps_location->integer) {
+    case 0:
+    default:
+        m_font->Print(
+            m_font->getHeight(getHighResScale()) * 10.0 / getHighResScale()[0],
+            (m_frame.pos.y + m_frame.size.height - m_font->getHeight(getHighResScale()) * 3.0) / getHighResScale()[1],
+            string,
+            -1,
+            getHighResScale()
+        );
+        break;
+    case 1:
+        m_font->Print(
+            (m_frame.pos.x + m_frame.size.width - m_font->getWidth(string, -1) * getHighResScale()[0] - m_font->getHeight(getHighResScale())) / getHighResScale()[0],
+            (m_frame.pos.y + m_frame.size.height - m_font->getHeight(getHighResScale()) * 3.0) / getHighResScale()[1],
+            string,
+            -1,
+            getHighResScale()
+        );
+        break;
+    case 2:
+        m_font->Print(
+            (m_frame.pos.x + m_frame.size.width - m_font->getWidth(string, -1) * getHighResScale()[0] - m_font->getHeight(getHighResScale())) / getHighResScale()[0],
+            (m_frame.pos.y + 40.0 * getHighResScale()[0]) / getHighResScale()[1],
+            string,
+            -1,
+            getHighResScale()
+        );
+        break;
+    }
 
     // Draw elements count
     if (cl_greenfps->integer) {
@@ -166,13 +193,37 @@ void View3D::DrawFPS(void)
     if (fps->integer >= 2) {
         Com_sprintf(string, sizeof(string), "wt%5d wv%5d cl%d", cls.world_tris, cls.world_verts, cls.character_lights);
 
-        m_font->Print(
-            (m_font->getHeight(getHighResScale()) * 10.0) / getHighResScale()[0],
-            (m_frame.pos.y + m_frame.size.height - m_font->getHeight(getHighResScale()) * 2.0) / getHighResScale()[1],
-            string,
-            -1,
-            getHighResScale()
-        );
+        // Added in OPM (fps_location)
+        switch(fps_location->integer) {
+        case 0:
+        default:
+            m_font->Print(
+                (m_font->getHeight(getHighResScale()) * 10.0) / getHighResScale()[0],
+                (m_frame.pos.y + m_frame.size.height - m_font->getHeight(getHighResScale()) * 2.0) / getHighResScale()[1],
+                string,
+                -1,
+                getHighResScale()
+            );
+            break;
+        case 1:
+            m_font->Print(
+                (m_frame.pos.x + m_frame.size.width - m_font->getWidth(string, -1) * getHighResScale()[0] - m_font->getHeight(getHighResScale())) / getHighResScale()[0],
+                (m_frame.pos.y + m_frame.size.height - m_font->getHeight(getHighResScale()) * 2.0) / getHighResScale()[1],
+                string,
+                -1,
+                getHighResScale()
+            );
+            break;
+        case 2:
+            m_font->Print(
+                (m_frame.pos.x + m_frame.size.width - m_font->getWidth(string, -1) * getHighResScale()[0] - m_font->getHeight(getHighResScale())) / getHighResScale()[0],
+                (m_frame.pos.y + 40 * getHighResScale()[0] + m_font->getHeight(getHighResScale())) / getHighResScale()[1],
+                string,
+                -1,
+                getHighResScale()
+            );
+            break;
+        }
 
         Com_sprintf(
             string,
@@ -183,13 +234,37 @@ void View3D::DrawFPS(void)
             (float)cls.total_texels * 0.00000095367432
         );
 
-        m_font->Print(
-            (m_font->getHeight(getHighResScale()) * 10.0) / getHighResScale()[0],
-            (m_frame.pos.y + m_frame.size.height - m_font->getHeight(getHighResScale())) / getHighResScale()[1],
-            string,
-            -1,
-            getHighResScale()
-        );
+        // Added in OPM (fps_location)
+        switch(fps_location->integer) {
+        case 0:
+        default:
+            m_font->Print(
+                (m_font->getHeight(getHighResScale()) * 10.0) / getHighResScale()[0],
+                (m_frame.pos.y + m_frame.size.height - m_font->getHeight(getHighResScale())) / getHighResScale()[1],
+                string,
+                -1,
+                getHighResScale()
+            );
+            break;
+        case 1:
+            m_font->Print(
+                (m_frame.pos.x + m_frame.size.width - m_font->getWidth(string, -1) * getHighResScale()[0] - m_font->getHeight(getHighResScale())) / getHighResScale()[0],
+                (m_frame.pos.y + m_frame.size.height - m_font->getHeight(getHighResScale())) / getHighResScale()[1],
+                string,
+                -1,
+                getHighResScale()
+            );
+            break;
+        case 2:
+            m_font->Print(
+                (m_frame.pos.x + m_frame.size.width - m_font->getWidth(string, -1) * getHighResScale()[0] - m_font->getHeight(getHighResScale())) / getHighResScale()[0],
+                (m_frame.pos.y + 40.0 * getHighResScale()[0] + m_font->getHeight(getHighResScale()) * 2.0) / getHighResScale()[1],
+                string,
+                -1,
+                getHighResScale()
+            );
+            break;
+        }
     }
 
     m_font->setColor(UBlack);

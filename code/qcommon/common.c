@@ -77,6 +77,7 @@ fileHandle_t	com_journalDataFile;		// config files are written here
 cvar_t	*paused;
 cvar_t	*config;
 cvar_t	*fps;
+cvar_t	*fps_location;
 cvar_t	*com_speeds;
 cvar_t	*developer;
 cvar_t	*com_dedicated;
@@ -1826,6 +1827,13 @@ void Com_Init( char *commandLine ) {
 		// Look if the config specific to the game exists
 		com_firstConfig = !FS_FileExists_HomeConfig(va("configs/%s", configname));
 
+		if ( com_firstConfig ) {
+			//
+			// Create an empty file to prevent expansions from inheriting the base file
+			// and inheriting from variables such as cg_crosshair_friend
+			//FS_WriteFile(va("configs/%s", configname), "", 0);
+		}
+
 		Cbuf_AddText( va( "exec configs/%s\n", configname ) );
 	} else if ( Com_ConfigExists( "unnamedsoldier.cfg" ) ) {
 		Com_Printf( "The config file '%s' doesn't exist, using unnamedsoldier.cfg as a template\n", configname );
@@ -1901,6 +1909,7 @@ void Com_Init( char *commandLine ) {
 	paused = Cvar_Get( "paused", "0", 64 );
 	autopaused = Cvar_Get( "autopaused", "1", CVAR_ARCHIVE );
 	fps = Cvar_Get( "fps", "0", CVAR_ARCHIVE );
+	fps_location = Cvar_Get( "fps_location", "0", CVAR_ARCHIVE );
 	com_timescale = Cvar_Get( "timescale", "1", CVAR_CHEAT | CVAR_SYSTEMINFO );
 	com_fixedtime = Cvar_Get( "fixedtime", "0", CVAR_CHEAT );
 	com_showtrace = Cvar_Get( "com_showtrace", "0", CVAR_CHEAT );
