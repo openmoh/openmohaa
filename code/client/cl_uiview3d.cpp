@@ -120,7 +120,11 @@ void View3D::DrawFPS(void)
     char string[128];
 
     setFont("verdana-14");
-    if (fps->integer == 2) {
+    // Changed in OPM
+    //  1 just shows simple FPS
+    //  2 displays the number of tris
+    //  3 displays a black box at the bottom to correctly see the FPS counter
+    if (fps->integer == 3) {
         re.SetColor(UBlack);
         re.DrawBox(
             0.0,
@@ -159,32 +163,34 @@ void View3D::DrawFPS(void)
         m_font->setColor(UWhite);
     }
 
-    Com_sprintf(string, sizeof(string), "wt%5d wv%5d cl%d", cls.world_tris, cls.world_verts, cls.character_lights);
+    if (fps->integer >= 2) {
+        Com_sprintf(string, sizeof(string), "wt%5d wv%5d cl%d", cls.world_tris, cls.world_verts, cls.character_lights);
 
-    m_font->Print(
-        (m_font->getHeight(getHighResScale()) * 10.0) / getHighResScale()[0],
-        (m_frame.pos.y + m_frame.size.height - m_font->getHeight(getHighResScale()) * 2.0) / getHighResScale()[1],
-        string,
-        -1,
-        getHighResScale()
-    );
+        m_font->Print(
+            (m_font->getHeight(getHighResScale()) * 10.0) / getHighResScale()[0],
+            (m_frame.pos.y + m_frame.size.height - m_font->getHeight(getHighResScale()) * 2.0) / getHighResScale()[1],
+            string,
+            -1,
+            getHighResScale()
+        );
 
-    Com_sprintf(
-        string,
-        sizeof(string),
-        "t%5d v%5d Mtex%5.2f",
-        cls.total_tris,
-        cls.total_verts,
-        (float)cls.total_texels * 0.00000095367432
-    );
+        Com_sprintf(
+            string,
+            sizeof(string),
+            "t%5d v%5d Mtex%5.2f",
+            cls.total_tris,
+            cls.total_verts,
+            (float)cls.total_texels * 0.00000095367432
+        );
 
-    m_font->Print(
-        (m_font->getHeight(getHighResScale()) * 10.0) / getHighResScale()[0],
-        (m_frame.pos.y + m_frame.size.height - m_font->getHeight(getHighResScale())) / getHighResScale()[1],
-        string,
-        -1,
-        getHighResScale()
-    );
+        m_font->Print(
+            (m_font->getHeight(getHighResScale()) * 10.0) / getHighResScale()[0],
+            (m_frame.pos.y + m_frame.size.height - m_font->getHeight(getHighResScale())) / getHighResScale()[1],
+            string,
+            -1,
+            getHighResScale()
+        );
+    }
 
     m_font->setColor(UBlack);
 }
