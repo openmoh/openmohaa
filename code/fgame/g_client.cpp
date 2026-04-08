@@ -582,6 +582,7 @@ PlayerStart *SelectSpawnPoint(Player *player)
     PlayerStart *spot = NULL;
     PlayerStart *spawnpoint;
     const char  *classID;
+    const char  *specifiedSpawn;
     int          i;
     int          nFound;
 
@@ -608,13 +609,20 @@ PlayerStart *SelectSpawnPoint(Player *player)
 
     // find a single player start spot
     if (!spot) {
+        if (level.spawnpoint.length()) {
+            specifiedSpawn = level.spawnpoint.c_str();
+        } else {
+            // Added in OPM
+            specifiedSpawn = PlayerStart::GetDefaultTargetName();
+        }
+
         for (i = 1; i <= level.m_SimpleArchivedEntities.NumObjects(); i++) {
             SimpleArchivedEntity *arc = level.m_SimpleArchivedEntities.ObjectAt(i);
 
             classID = arc->classinfo()->classID;
             if (!Q_stricmp(classID, "info_player_start")) {
                 spawnpoint = static_cast<PlayerStart *>(arc);
-                if (!str::icmp(level.spawnpoint, spawnpoint->TargetName())) {
+                if (!str::icmp(specifiedSpawn, spawnpoint->TargetName())) {
                     spot = spawnpoint;
                     break;
                 }

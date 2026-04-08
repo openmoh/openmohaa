@@ -88,7 +88,9 @@ PlayerStart::PlayerStart()
     m_bForbidSpawns  = false;
     m_bDeleteOnSpawn = false;
 
-    SetTargetName("playerstart");
+    // Added in OPM
+    //  Playerstarts have a targetname so they can be modified by scripts
+    SetTargetName(GetDefaultTargetName());
 }
 
 void PlayerStart::SetAngle(Event *ev)
@@ -114,6 +116,11 @@ void PlayerStart::EventDeleteOnSpawn(Event *ev)
 void PlayerStart::EventKeepOnSpawn(Event *ev)
 {
     m_bDeleteOnSpawn = false;
+}
+
+const char *PlayerStart::GetDefaultTargetName()
+{
+    return "playerstart";
 }
 
 /*****************************************************************************/

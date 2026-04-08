@@ -48,6 +48,9 @@ public:
     void EventDisableSpawn(Event *ev);
     void EventDeleteOnSpawn(Event *ev);
     void EventKeepOnSpawn(Event *ev);
+
+    // Added in OPM
+    static const char *GetDefaultTargetName();
 };
 
 inline void PlayerStart::Archive(Archiver& arc)
