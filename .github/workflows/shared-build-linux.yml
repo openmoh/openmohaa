@@ -42,6 +42,7 @@ jobs:
         curl-version: '8_12_1'
         openal-soft-branch: '1.24.3'
         sdl2-branch: 'release-2.32.8'
+        libsodium-version: '1.0.21-RELEASE'
 
     steps:
     ###
@@ -51,8 +52,8 @@ jobs:
     - uses: awalsh128/cache-apt-pkgs-action@latest
       name: Install required packages
       with:
-        packages: flex bison ninja-build cmake clang libpulse-dev portaudio19-dev libasound2-dev libjack-dev libpipewire-0.3-dev qtbase5-dev libdbus-1-dev
-        version: "${{ runner.os }}-${{ runner.arch }}-v1"
+        packages: flex bison ninja-build cmake clang libpulse-dev portaudio19-dev libasound2-dev libjack-dev libpipewire-0.3-dev qtbase5-dev libdbus-1-dev autoconf automake libtool pkg-config
+        version: "${{ runner.os }}-${{ runner.arch }}-v2"
 
     - name: Settings
       working-directory: ${{github.workspace}}
@@ -203,6 +204,42 @@ jobs:
         cmake --install ./build --config Release
 
     ###
+    # libsodium
+    ###
+    - name: Cache libsodium
+      id: cache-libsodium
+      uses: actions/cache@v4
+      with:
+        path: 'thirdparties/libsodium/install'
+        key: ${{ runner.os }}-${{ matrix.architecture.name }}-libsodium-${{ env.libsodium-version }}-v1
+
+    - name: Checkout libsodium
+      if: steps.cache-libsodium.outputs.cache-hit != 'true'
+      uses: actions/checkout@v4
+      with:
+        repository: 'jedisct1/libsodium'
+        path: 'thirdparties/libsodium'
+        ref: '${{ env.libsodium-version }}'
+
+    - name: Configure and install libsodium
+      if: steps.cache-libsodium.outputs.cache-hit != 'true'
+      working-directory: ${{github.workspace}}/thirdparties/libsodium
+      run: |
+        ./autogen.sh
+        ./configure \
+          --host=${{ matrix.architecture.triple }} \
+          --prefix='${{github.workspace}}/thirdparties/libsodium/install' \
+          --disable-shared \
+          --enable-static \
+          --with-pic \
+          CC="clang" \
+          CFLAGS="--target=${{ matrix.architecture.triple }}" \
+          CXX="clang++" \
+          CXXFLAGS="--target=${{ matrix.architecture.triple }}"
+        make -j$(nproc)
+        make install
+
+    ###
     # Project
     ###
 
@@ -212,6 +249,7 @@ jobs:
 
     - name: CMake Settings
       run: |
+        echo "PKG_CONFIG_PATH=${{github.workspace}}/thirdparties/libsodium/install/lib/pkgconfig${PKG_CONFIG_PATH:+:$PKG_CONFIG_PATH}" >> $GITHUB_ENV
         echo "CMAKE_PARAM=--log-level=VERBOSE \
         -DCMAKE_INSTALL_PREFIX='${{github.workspace}}/install' \
         -DUSE_INTERNAL_SDL=OFF \
