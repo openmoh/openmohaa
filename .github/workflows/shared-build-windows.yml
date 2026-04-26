@@ -37,6 +37,7 @@ jobs:
         curl-version: '8_12_1'
         openal-soft-branch: '1.24.3'
         sdl2-branch: 'release-2.32.8'
+        libsodium-version: '1.0.21-RELEASE'
 
     steps:
     ###
@@ -211,6 +212,59 @@ jobs:
         cmake --install ./build --config Release
 
     ###
+    # libsodium
+    ###
+    - name: Cache libsodium
+      id: cache-libsodium
+      uses: actions/cache@v4
+      with:
+        path: 'thirdparties/libsodium/install'
+        key: ${{ runner.os }}-${{ matrix.architecture.name }}-libsodium-${{ env.libsodium-version }}-v1
+
+    - name: Checkout libsodium
+      if: steps.cache-libsodium.outputs.cache-hit != 'true'
+      uses: actions/checkout@v4
+      with:
+        repository: 'jedisct1/libsodium'
+        path: 'thirdparties/libsodium'
+        ref: '${{ env.libsodium-version }}'
+
+    - name: Build and install libsodium
+      if: steps.cache-libsodium.outputs.cache-hit != 'true'
+      working-directory: ${{github.workspace}}/thirdparties/libsodium
+      run: |
+        msbuild builds\msvc\vs2022\libsodium.sln `
+          /p:Configuration=StaticRelease `
+          /p:Platform=${{ matrix.architecture.config }} `
+          /m
+        # Create install layout
+        $installDir = '${{github.workspace}}/thirdparties/libsodium/install'
+        New-Item -ItemType Directory -Force "$installDir/include"
+        New-Item -ItemType Directory -Force "$installDir/lib"
+        Copy-Item -Recurse 'src/libsodium/include/*' "$installDir/include/"
+        if (-not (Test-Path "$installDir/include/sodium/version.h")) {
+            Copy-Item 'builds/msvc/version.h' "$installDir/include/sodium/version.h"
+        }
+        $libFile = Get-ChildItem -Recurse -Filter 'libsodium.lib' | Select-Object -First 1
+        Copy-Item $libFile.FullName "$installDir/lib/"
+        # Write CMake config for find_package(unofficial-sodium CONFIG)
+        $cmakeDir = "$installDir/lib/cmake/unofficial-sodium"
+        New-Item -ItemType Directory -Force $cmakeDir
+        @'
+        if(TARGET unofficial-sodium::sodium)
+            return()
+        endif()
+        get_filename_component(_SODIUM_ROOT "${CMAKE_CURRENT_LIST_DIR}/../../.." ABSOLUTE)
+        add_library(unofficial-sodium::sodium STATIC IMPORTED)
+        set_target_properties(unofficial-sodium::sodium PROPERTIES
+            IMPORTED_LOCATION "${_SODIUM_ROOT}/lib/libsodium.lib"
+            INTERFACE_INCLUDE_DIRECTORIES "${_SODIUM_ROOT}/include"
+            INTERFACE_COMPILE_DEFINITIONS "SODIUM_STATIC"
+            INTERFACE_LINK_LIBRARIES "advapi32"
+        )
+        '@ | Out-File -FilePath "$cmakeDir/unofficial-sodiumConfig.cmake" -Encoding utf8NoBOM
+
+    ###
     # Project
     ###
 
@@ -231,6 +285,7 @@ jobs:
         -DOPENAL_LIBRARY='${{github.workspace}}/thirdparties/soft-oal' `
         -DOPENAL_INCLUDE_DIR='${{github.workspace}}/thirdparties/soft-oal/install/include/AL' `
         -DCURL_ROOT='${{github.workspace}}/thirdparties/curl/install' `
+        -DCMAKE_PREFIX_PATH='${{github.workspace}}/thirdparties/libsodium/install' `
         -DFLEX_EXECUTABLE='${{github.workspace}}/thirdparties/winflexbison-install/win_flex.exe' `
         -DUSE_RENDERER_DLOPEN=OFF `
         -DBUILD_RENDERER_GL2=OFF `

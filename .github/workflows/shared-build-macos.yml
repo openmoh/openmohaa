@@ -39,6 +39,7 @@ jobs:
         wolfssl-version: 'v5.7.6-stable'
         curl-version: '8_12_1'
         sdl2-branch: 'release-2.32.8'
+        libsodium-version: '1.0.21-RELEASE'
 
     steps:
     ###
@@ -47,7 +48,7 @@ jobs:
 
     - name: Install required packages
       run: |
-        brew install flex bison llvm
+        brew install flex bison llvm autoconf automake libtool pkg-config
     # Those packages are already installed  
     #brew install git ninja cmake perl
 
@@ -197,6 +198,53 @@ jobs:
         cmake --install ./build --config Release
 
     ###
+    # libsodium
+    ###
+    - name: Cache libsodium
+      id: cache-libsodium
+      uses: actions/cache@v4
+      with:
+        path: 'thirdparties/libsodium/install'
+        key: ${{ runner.os }}-${{ matrix.architecture.name }}-libsodium-${{ env.libsodium-version }}-v1
+
+    - name: Checkout libsodium
+      if: steps.cache-libsodium.outputs.cache-hit != 'true'
+      uses: actions/checkout@v4
+      with:
+        repository: 'jedisct1/libsodium'
+        path: 'thirdparties/libsodium'
+        ref: '${{ env.libsodium-version }}'
+
+    - name: Configure and install libsodium
+      if: steps.cache-libsodium.outputs.cache-hit != 'true'
+      working-directory: ${{github.workspace}}/thirdparties/libsodium
+      run: |
+        INSTALL_PREFIX='${{github.workspace}}/thirdparties/libsodium/install'
+        ./autogen.sh
+        # Build arm64
+        ./configure --host=aarch64-apple-darwin \
+          --prefix="$INSTALL_PREFIX" \
+          --disable-shared --enable-static \
+          CC="clang" CFLAGS="-arch arm64 -mmacosx-version-min=$MACOSX_DEPLOYMENT_TARGET"
+        make -j$(sysctl -n hw.ncpu)
+        cp src/libsodium/.libs/libsodium.a /tmp/libsodium_arm64.a
+        make install
+        make clean
+        # Build x86_64
+        ./configure --host=x86_64-apple-darwin \
+          --prefix="$INSTALL_PREFIX" \
+          --disable-shared --enable-static \
+          CC="clang" CFLAGS="-arch x86_64 -mmacosx-version-min=$MACOSX_DEPLOYMENT_TARGET"
+        make -j$(sysctl -n hw.ncpu)
+        cp src/libsodium/.libs/libsodium.a /tmp/libsodium_x86_64.a
+        make clean
+        # Create universal binary
+        lipo -create /tmp/libsodium_arm64.a /tmp/libsodium_x86_64.a \
+          -output "$INSTALL_PREFIX/lib/libsodium.a"
+        rm -f /tmp/libsodium_arm64.a /tmp/libsodium_x86_64.a
+        rm -f "$INSTALL_PREFIX/lib/libsodium.la"
+
+    ###
     # Project
     ###
 
@@ -206,6 +254,7 @@ jobs:
 
     - name: CMake Settings
       run: |
+        echo "PKG_CONFIG_PATH=${{github.workspace}}/thirdparties/libsodium/install/lib/pkgconfig${PKG_CONFIG_PATH:+:$PKG_CONFIG_PATH}" >> $GITHUB_ENV
         echo "CMAKE_PARAM=--log-level=VERBOSE \
         -DCMAKE_INSTALL_PREFIX='${{github.workspace}}/install' \
         -DCMAKE_VERBOSE_MAKEFILE=on \
