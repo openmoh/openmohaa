@@ -23,6 +23,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "cg_local.h"
 #include "cg_parsemsg.h"
 
+#include <tracy/TracyC.h>
+
 //============================================================================
 
 /*
@@ -826,6 +828,8 @@ Generates and draws a game scene and status information at the given time.
 */
 void CG_DrawActiveFrame(int serverTime, int frameTime, stereoFrame_t stereoView, qboolean demoPlayback)
 {
+    TracyCZone(ctx, 1);
+
     cg.time         = serverTime;
     cg.frametime    = frameTime;
     cg.demoPlayback = demoPlayback;
@@ -843,6 +847,7 @@ void CG_DrawActiveFrame(int serverTime, int frameTime, stereoFrame_t stereoView,
     // if we haven't received any snapshots yet, all
     // we can draw is the information screen
     if (!cg.snap || (cg.snap->snapFlags & SNAPFLAG_NOT_ACTIVE)) {
+        TracyCZoneEnd(ctx);
         return;
     }
 
@@ -1037,4 +1042,6 @@ void CG_DrawActiveFrame(int serverTime, int frameTime, stereoFrame_t stereoView,
     if (cg_stats->integer) {
         cgi.Printf("cg.clientFrame:%i\n", cg.clientFrame);
     }
+
+    TracyCZoneEnd(ctx);
 }

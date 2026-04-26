@@ -24,6 +24,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "cm_local.h"
 #include "../client/client.h"
 
+#include <tracy/TracyC.h>
+
 #ifdef BSPC
 
 #include "../bspc/l_qfiles.h"
@@ -837,6 +839,8 @@ void CM_LoadMap( const char *name, qboolean clientload, int *checksum ) {
 	if ( !name || !name[0] ) {
 		Com_Error( ERR_DROP, "CM_LoadMap: NULL name" );
 	}
+
+	TracyCMessageS(va("CM_LoadMap: %s", name), 12 + strlen(name), 16);
 
 #ifndef BSPC
 	cm_noAreas = Cvar_Get( "cm_noAreas", "0", CVAR_CHEAT );

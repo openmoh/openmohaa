@@ -51,6 +51,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../qcommon/q_shared.h"
 #include "../qcommon/qcommon.h"
 
+#include <tracy/TracyC.h>
+#if TRACY_ENABLE
+extern TRACY_API void Sys_TracyShutdown();
+#endif
+
 static char binaryPath[ MAX_OSPATH ] = { 0 };
 static char installPath[ MAX_OSPATH ] = { 0 };
 
@@ -301,6 +306,10 @@ static Q_NO_RETURN void Sys_Exit( int exitCode )
 	NET_Shutdown( );
 
 	Sys_PlatformExit( );
+
+#ifdef TRACY_ENABLE
+	Sys_TracyShutdown();
+#endif
 
 	exit( exitCode );
 }

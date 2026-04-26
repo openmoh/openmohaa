@@ -33,6 +33,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../client/client.h"
 #include "../sys/sys_local.h"
 
+#include <tracy/TracyC.h>
+
 #if !SDL_VERSION_ATLEAST(2, 0, 17)
 #define KMOD_SCROLL KMOD_RESERVED
 #endif
@@ -1248,6 +1250,8 @@ void IN_Frame( void )
 {
 	qboolean loading;
 
+	TracyCZone(ctx, 1);
+
 	IN_JoyMove( );
 
 	// If not DISCONNECTED (main menu) or ACTIVE (in game), we're loading
@@ -1285,6 +1289,8 @@ void IN_Frame( void )
 		vidRestartTime = 0;
 		Cbuf_AddText( "vid_restart\n" );
 	}
+
+	TracyCZoneEnd(ctx);
 }
 
 /*
