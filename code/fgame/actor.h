@@ -1457,6 +1457,7 @@ public:
     void           EventGetDisguiseAcceptThread(Event *ev);
     void           EventAttackPlayer(Event *ev);
     void           ForceAttackPlayer(void);
+    void           ForceAttackPlayer(int entnum);
     void           EventSetAlarmNode(Event *ev);
     void           EventGetAlarmNode(Event *ev);
     void           EventSetPreAlarmThread(Event *ev); // Added in 2.30
