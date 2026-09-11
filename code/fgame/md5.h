@@ -50,6 +50,7 @@
 #pragma once
 
 #include <cstddef>
+#include <cstdint>
 
 /*
  * This package supports both compile-time and run-time determination of CPU
@@ -62,7 +63,7 @@
  */
 
 typedef unsigned char md5_byte_t; /* 8-bit byte */
-typedef size_t md5_word_t; /* 32-bit word */
+typedef uint32_t md5_word_t; /* 32-bit word */
 
 /* Define the state of the MD5 Algorithm. */
 typedef struct md5_state_s {
