@@ -704,6 +704,13 @@ void CG_DrawObjectives()
     const char  *pszLocalizedText;
     const char  *pszLine;
 
+    fontheader_t *font = cgs.media.objectiveFont;
+    if (!font || !font->sgl[0]) {
+        return;
+    }
+    
+    const float objectiveLineHeight = font->sgl[0]->height;
+
     iTotalNumLines = 0;
     for (i = CS_OBJECTIVES; i < CS_OBJECTIVES + MAX_OBJECTIVES; ++i) {
         CG_ProcessConfigString(i, qfalse);
@@ -745,7 +752,7 @@ void CG_DrawObjectives()
 
     fX        = 25.0;
     fY        = fObjectivesTop + 5;
-    fWidth    = (float)(iTotalNumLines * 12 + fObjectivesTop + iNumObjectives * 25 + 32) - fY;
+    fWidth = iTotalNumLines * objectiveLineHeight + fObjectivesTop + iNumObjectives * 25.0f + 32.0f - fY;
     vColor[2] = 0.2f;
     vColor[1] = 0.2f;
     vColor[0] = 0.2f;
@@ -854,7 +861,7 @@ void CG_DrawObjectives()
             hBoxShader
         );
 
-        fHeight += iNumLines[i] * 12 + 25 * cgs.uiHiResScale[1];
+        fHeight += (iNumLines[i] * objectiveLineHeight + 25.0f) * cgs.uiHiResScale[1];
     }
 }
 
