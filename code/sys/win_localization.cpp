@@ -264,7 +264,7 @@ static int bjb_strnscmp(const char *a, const char *b, size_t n)
     return *a - *b;
 }
 
-static void bjb_rebreak(const char *var, char *buf, size_t max)
+/*static void bjb_rebreak(const char *var, char *buf, size_t max)
 {
 #if 0
     const char *nl;
@@ -324,6 +324,107 @@ static void bjb_rebreak(const char *var, char *buf, size_t max)
         }
     }
 #endif
+}*/
+
+static void bjb_rebreak(const char *source, char *localized, size_t max)
+{
+    if (!source || !localized || !max) {
+        return;
+    }
+
+    size_t length = 0;
+    while (length < MAX_LOCALIZATION_LENGTH && localized[length]) {
+        ++length;
+    }
+    if (length == MAX_LOCALIZATION_LENGTH) {
+        localized[MAX_LOCALIZATION_LENGTH - 1] = '\0';
+        --length;
+    }
+
+    const size_t sourceLength = strlen(source);
+    size_t sourceEnd = sourceLength;
+
+    // ConvertString copies control characters around the localized text.
+    // We should leave those characters alone when adding breaks.
+    while (sourceEnd && source[sourceEnd - 1] < ' ') {
+        --sourceEnd;
+    }
+
+    size_t sourceBegin = 0;
+    while (sourceBegin < sourceEnd
+           && (unsigned char)source[sourceBegin] < ' ') {
+        ++sourceBegin;
+    }
+
+    const size_t copiedSuffix = sourceLength - sourceEnd;
+    if (copiedSuffix > length) {
+        return;
+    }
+
+    size_t bodyEnd = length - copiedSuffix;
+
+    // max can stop before the end of the whole output.
+    if (max < length && sourceBegin + max < bodyEnd) {
+        bodyEnd = sourceBegin + max;
+    }
+
+    if (sourceBegin >= bodyEnd) {
+        return;
+    }
+
+    size_t next = sourceBegin;
+
+    for (const char *newline = strchr(source + sourceBegin, '\n');
+         newline && (size_t)(newline - source) < sourceEnd;
+         newline = strchr(newline + 1, '\n')) {
+        if (next >= bodyEnd) {
+            break;
+        }
+
+        // If the localized text already has a newline, use that one.
+        size_t existing = next;
+        while (existing < bodyEnd && localized[existing] != '\n') {
+            ++existing;
+        }
+
+        if (existing < bodyEnd) {
+            next = existing + 1;
+            continue;
+        }
+
+        size_t target = (size_t)(newline - source);
+
+        // The localized text might be shorter than the source text.
+        if (target >= bodyEnd) {
+            target = bodyEnd - 1;
+        }
+
+        if (target < next) {
+            target = next;
+        }
+
+        size_t best = bodyEnd;
+        size_t bestDistance = bodyEnd;
+
+        // Find a nearby space or tab, but not one that makes an empty line.
+        for (size_t i = next + 1; i + 1 < bodyEnd; ++i) {
+            if (localized[i] != ' ' && localized[i] != '\t') {
+                continue;
+            }
+
+            const size_t distance =
+                i > target ? i - target : target - i;
+            if (distance < bestDistance) {
+                best = i;
+                bestDistance = distance;
+            }
+        }
+
+        if (best < bodyEnd) {
+            localized[best] = '\n';
+            next = best + 1;
+        }
+    }
 }
 
 const char *cLocalization::ConvertString(const char *var)
