@@ -704,7 +704,12 @@ void CG_DrawObjectives()
     const char  *pszLocalizedText;
     const char  *pszLine;
 
-    const float objectiveLineHeight = cg_target_game >= TG_MOHTA ? 14.0f : 16.9375f;
+    fontheader_t *font = cgs.media.objectiveFont;
+    if (!font || !font->sgl[0]) {
+        return;
+    }
+    
+    const float objectiveLineHeight = font->sgl[0]->height;
 
     iTotalNumLines = 0;
     for (i = CS_OBJECTIVES; i < CS_OBJECTIVES + MAX_OBJECTIVES; ++i) {
@@ -857,8 +862,6 @@ void CG_DrawObjectives()
         );
 
         fHeight += (iNumLines[i] * objectiveLineHeight + 25.0f) * cgs.uiHiResScale[1];
-
-        Com_Printf("OBJ %d: y=%f extraLines=%d\n", i, fHeight, iNumLines[i]);
     }
 }
 
